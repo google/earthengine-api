@@ -170,6 +170,10 @@ class Image(object):
     Returns:
       An image with the selected bands.
     """
+    call = {
+      'algorithm': 'Image.select',
+      'input': self
+    }
     if (isinstance(selectors, basestring) or
         isinstance(selectors, numbers.Number)):
       # Varargs inputs.
@@ -178,7 +182,10 @@ class Image(object):
         selectors.append(opt_names)
         opt_names = None
       selectors.extend(args)
-    return self._select(selectors, opt_names)
+    call['bandSelectors'] = selectors
+    if opt_names:
+      call['newNames'] = opt_names
+    return Image(call)
 
   ###################################################
   # Static methods.
@@ -217,8 +224,20 @@ class Image(object):
     Returns:
       The combined image.
     """
-    return Image({
-        'algorithm': 'CombineBands',
-        'images': [Image(x) for x in images],
-        'names': names or []
-    })
+    if len(images) == 0:
+      raise ee_exception.EEException('Can\'t combine 0 images.')
+
+    # Append all the bands.
+    result = Image(images[0])
+    for image in images[1:]:
+      result = Image({
+        'algorithm': 'Image.addBands',
+        'dstImg': result,
+        'srcImg': Image(image)
+      })
+
+    # Optionally, rename the bands of the result.
+    if names:
+      result = result.select(['.*'], names)
+
+    return result

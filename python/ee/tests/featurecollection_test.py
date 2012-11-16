@@ -22,10 +22,22 @@ class FeatureCollectionTestCase(unittest.TestCase):
         {'type': 'FeatureCollection', 'id': 'abcd'},
         json.loads(col1.serialize()))
 
+    # Collection by ID (string), with column.
+    col1 = ee.FeatureCollection('abcd', 'xyz')
+    self.assertEquals(
+        {'type': 'FeatureCollection', 'id': 'abcd', 'geo_column': 'xyz'},
+        json.loads(col1.serialize()))
+
     # Fusion Table ID (number).
     col2 = ee.FeatureCollection(123456)
     self.assertEquals(
         {'type': 'FeatureCollection', 'table_id': 123456},
+        json.loads(col2.serialize()))
+
+    # Fusion Table ID (number) with column.
+    col2 = ee.FeatureCollection(123456, 'xyz')
+    self.assertEquals(
+        {'type': 'FeatureCollection', 'table_id': 123456, 'geo_column': 'xyz'},
         json.loads(col2.serialize()))
 
     # Manually created collection from features.

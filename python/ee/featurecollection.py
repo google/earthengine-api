@@ -20,7 +20,7 @@ import serializer
 
 class FeatureCollection(collection.Collection):
 
-  def __init__(self, args):               # pylint: disable-msg=W0231
+  def __init__(self, args, opt_column=None):       # pylint: disable-msg=W0231
     """A representation of a FeatureCollection.
 
     Args:
@@ -30,6 +30,8 @@ class FeatureCollection(collection.Collection):
           A feature.
           An array of features.
           A dict - a collections's JSON description.
+      opt_column: The name of the column containing the geometry.  This is
+          only useful when args is a string or a number.
 
     Raises:
       EEException: if passed something other than the above.
@@ -39,8 +41,12 @@ class FeatureCollection(collection.Collection):
 
     if isinstance(args, basestring):
       args = {'type': 'FeatureCollection', 'id': args}
+      if opt_column:
+        args['geo_column'] = opt_column
     elif isinstance(args, numbers.Number):
       args = {'type': 'FeatureCollection', 'table_id': args}
+      if opt_column:
+        args['geo_column'] = opt_column
     elif isinstance(args, FeatureCollection):
       args = dict(args._description)            # pylint: disable-msg=W0212
     elif isinstance(args, dict):

@@ -66,13 +66,10 @@ class ImageTestCase(unittest.TestCase):
     image3 = ee.Image([1, 2])
     self.assertEqual(
         {
-            'algorithm': 'CombineBands',
-            'images': [
-                {'algorithm': 'Constant', 'value': 1},
-                {'algorithm': 'Constant', 'value': 2}
-                ],
-            'names': []
-            },
+            'algorithm': 'Image.addBands',
+            'dstImg': {'algorithm': 'Constant', 'value': 1},
+            'srcImg': {'algorithm': 'Constant', 'value': 2}
+        },
         json.loads(image3.serialize()))
 
     image4 = ee.Image(image1)
@@ -97,27 +94,23 @@ class ImageTestCase(unittest.TestCase):
 
     self.assertEqual(
         {
-            'algorithm': 'CombineBands',
-            'images': [
-                {
-                    'algorithm': 'CombineBands',
-                    'images': [
-                        {'algorithm': 'Constant', 'value': 1},
-                        {'algorithm': 'Constant', 'value': 2}
-                        ],
-                    'names': []
-                    },
-                {
-                    'algorithm': 'CombineBands',
-                    'images': [
-                        {'algorithm': 'Constant', 'value': 3},
-                        {'algorithm': 'Constant', 'value': 4}
-                        ],
-                    'names': []
-                    }
-                ],
-            'names': ['a', 'b', 'c', 'd']
+            'algorithm': 'Image.select',
+            'input': {
+                'algorithm': 'Image.addBands',
+                'dstImg': {
+                    'algorithm': 'Image.addBands',
+                    'dstImg': {'algorithm': 'Constant', 'value': 1},
+                    'srcImg': {'algorithm': 'Constant', 'value': 2}
+                },
+                'srcImg': {
+                    'algorithm': 'Image.addBands',
+                    'dstImg': {'algorithm': 'Constant', 'value': 3},
+                    'srcImg': {'algorithm': 'Constant', 'value': 4}
+                },
             },
+            'bandSelectors': ['.*'],
+            'newNames': ['a', 'b', 'c', 'd']
+        },
         json.loads(image3.serialize()))
 
   def testDownload(self):
@@ -132,33 +125,25 @@ class ImageTestCase(unittest.TestCase):
     ee.data.send_ = MockSend
 
     url = ee.Image(1).getDownloadUrl()
-    self.assertEqual({'image': '{"value": 1, "algorithm": "Constant"}'},
-                     send_val['params'])
+    self.assertEqual({'value': 1, 'algorithm': 'Constant'},
+                     json.loads(send_val['params']['image']))
     self.assertEqual('/api/download?docid=1&token=2', url)
 
   def testSelect(self):
-    args = {}
-
-    def MockSelect(unused_self, selectors, names):
-      args['selectors'] = selectors
-      args['names'] = names
-
-    ee.Image._select = MockSelect
-
     image = ee.Image([1, 2, 3, 4])
 
     # Just checking what gets passed to MockSelect; don't need the return value.
-    image.select([0, 1])
-    self.assertEquals(args['selectors'], [0, 1])
-    self.assertEquals(args['names'], None)
+    result = json.loads(image.select([0, 1]).serialize())
+    self.assertEquals(result['bandSelectors'], [0, 1])
+    self.assertFalse('newNames' in result)
 
-    image.select(0, 1, 2)
-    self.assertEquals(args['selectors'], [0, 1, 2])
-    self.assertEquals(args['names'], None)
+    result = json.loads(image.select([0, 1, 2]).serialize())
+    self.assertEquals(result['bandSelectors'], [0, 1, 2])
+    self.assertFalse('newNames' in result)
 
-    image.select([0, 1, 2], ['a', 'b', 'c'])
-    self.assertEquals(args['selectors'], [0, 1, 2])
-    self.assertEquals(args['names'], ['a', 'b', 'c'])
+    result = json.loads(image.select([0, 1, 2], ['a', 'b', 'c']).serialize())
+    self.assertEquals(result['bandSelectors'], [0, 1, 2])
+    self.assertEquals(result['newNames'], ['a', 'b', 'c'])
 
   def testAnd(self):
     # Check that the Image.and and Image.or functions get renamed.

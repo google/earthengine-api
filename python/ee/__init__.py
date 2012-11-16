@@ -52,6 +52,7 @@ def Initialize(credentials=None, opt_url=None):
   algorithms._addFunctions(Feature, 'Feature')
   algorithms._addFunctions(FeatureCollection, 'FeatureCollection')
   algorithms._addFunctions(Image, 'Window', 'focal_')
+  algorithms._addFunctions(ImageCollection, 'ImageCollection')
   algorithms._addFunctions(ImageCollection, 'reduce')
   algorithms._addFunctions(Collection, 'Collection')
   algorithms._addFunctions(Collection,
