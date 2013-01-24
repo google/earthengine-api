@@ -100,6 +100,40 @@ class CollectionTestCase(unittest.TestCase):
     c2 = c2.filterMetadata('foo', 'equals', 1)
     self.assertEqual(c1.serialize(), c2.serialize())
 
+  def testMapping(self):
+    col = ee.ImageCollection('foo')
+    mapped = col.map(lambda img: ee.Image({'algorithm': 'bar', 'input': img}),
+                     None,
+                     {'baz': 42},
+                     'quux')
+    result = json.loads(mapped.serialize())
+
+    self.assertTrue(isinstance(mapped, ee.ImageCollection))
+    self.assertEqual(
+        {
+            'algorithm': 'Collection.map',
+            'collection': {
+                'type': 'ImageCollection',
+                'id': 'foo',
+            },
+            'baseAlgorithm': {
+                'type': 'Algorithm',
+                'args': ['_MAPPING_VAR_0'],
+                'body': {
+                    'algorithm': 'bar',
+                    'input': {'type': 'Variable', 'name': '_MAPPING_VAR_0'}
+                }
+            },
+            'dynamicArgs': {
+                '_MAPPING_VAR_0': '.all'
+            },
+            'constantArgs': {
+                'baz': 42
+            },
+            'destination': 'quux'
+        },
+        result)
+
 
 if __name__ == '__main__':
   unittest.main()

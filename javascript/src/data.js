@@ -81,7 +81,7 @@ ee.data.mapid;
  * @return {ee.data.mapid} The mapId call results.
  */
 ee.data.getMapId = function(params, opt_callback) {
-  return (/** @type {ee.data.mapid} */
+  return /** @type {ee.data.mapid} */ (
           ee.data.send_('/mapid',
                         ee.data.makeRequest_(params),
                         opt_callback));

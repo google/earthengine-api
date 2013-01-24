@@ -81,6 +81,15 @@ class FeatureCollection(collection.Collection):
     })
     return painted.getMapId({})
 
+  def map(self,
+          algorithm,
+          opt_dynamicArgs=None,
+          opt_constantArgs=None,
+          opt_destination=None):
+    """Maps an algorithm over a collection. See ee.Collection.mapInternal()."""
+    return self.mapInternal(feature.Feature, algorithm,
+                            opt_dynamicArgs, opt_constantArgs, opt_destination)
+
   def __str__(self):
     """Writes out the collection in a human-readable form."""
     return 'FeatureCollection(%s)' % serializer.toJSON(self._description)

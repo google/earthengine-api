@@ -257,8 +257,8 @@ ee.Algorithms.makeMapFunction = function(signature, opt_boundArgs) {
   var func = function() {
     var argsIn = Array.prototype.slice.call(arguments, 0);
     // Make a copy of the signature that we can munge up.
-    var copy = (
-        /** @type {ee.Algorithms.signature} */ goog.object.clone(signature));
+    var copy =
+        /** @type {ee.Algorithms.signature} */ (goog.object.clone(signature));
     copy['returns'] = null;
 
     // Pop off the first argument; it's the mapping argument and wont be used.

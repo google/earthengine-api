@@ -11,12 +11,13 @@ import urllib2
 
 import oauth2client.client
 
-#pylint: disable-msg=C6203
+# pylint: disable-msg=C6203
 import data
 import algorithms
 
 # We're explictly importing the objects so they become available in this.
-#pylint: disable-msg=C6202
+# pylint: disable-msg=C6202,g-multiple-import
+from algorithms import variable, lambda_
 from collection import Collection
 from featurecollection import FeatureCollection
 from feature import Feature
@@ -47,7 +48,7 @@ def Initialize(credentials=None, opt_url=None):
     data.BASE_URL = opt_url + '/api'
     data.TILE_URL = opt_url
 
-  #pylint: disable-msg=W0212
+  # pylint: disable-msg=W0212
   algorithms._addFunctions(Image, 'Image')
   algorithms._addFunctions(Feature, 'Feature')
   algorithms._addFunctions(FeatureCollection, 'FeatureCollection')
@@ -114,7 +115,7 @@ def call(algorithm, *args, **kwargs):           # pylint: disable-msg=C6409
   """Invoke the given algorithm with the specified args.
 
   Args:
-    algorithm: The name of the algorithm to invoke.
+    algorithm: The name of the algorithm or a lambda.
     *args: The positional arguments to pass to the specified algorithm.
     **kwargs: The named arguments to pass to the specified algorithm.
 
@@ -123,17 +124,23 @@ def call(algorithm, *args, **kwargs):           # pylint: disable-msg=C6409
     recognized.  Otherwise, a dictionary representing the algorithm
     invocation JSON is returned.
   """
-  signature = algorithms.getSignature(algorithm)
-
-  # pylint: disable-msg=W0212
-  return algorithms._applySignature(signature, *args, **kwargs)
+  if isinstance(algorithm, basestring):
+    signature = algorithms.getSignature(algorithm)
+    # pylint: disable-msg=W0212
+    return algorithms._applySignature(signature, *args, **kwargs)
+  else:
+    # Merge positional args into the keyword ones.
+    applied = {'algorithm': algorithm}
+    applied.update(dict(zip(algorithm['args'], args)))
+    applied.update(kwargs)
+    return applied
 
 
 def apply(algorithm, namedArgs):               # pylint: disable-msg=C6409,W0622
   """Invoke the given algorithm with a dictionary of args.
 
   Args:
-    algorithm: The name of an algorithm to invoke.
+    algorithm: The name of an algorithm or a lambda.
     namedArgs: A dictionary of named arguments to pass to the given algorithm.
 
   Returns:
@@ -141,7 +148,11 @@ def apply(algorithm, namedArgs):               # pylint: disable-msg=C6409,W0622
     recognized.  Otherwise, a dictionary representing the algorithm
     invocation JSON is returned.
   """
-  signature = algorithms.getSignature(algorithm)
-
-  # pylint: disable-msg=W0212
-  return algorithms._applySignature(signature, **namedArgs)
+  if isinstance(algorithm, basestring):
+    signature = algorithms.getSignature(algorithm)
+    # pylint: disable-msg=W0212
+    return algorithms._applySignature(signature, **namedArgs)
+  else:
+    applied = namedArgs.copy()
+    applied['algorithm'] = algorithm
+    return applied

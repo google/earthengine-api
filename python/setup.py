@@ -53,7 +53,8 @@ setup(
         'pyOpenSSL>=0.11',
     ],
     classifiers=[
-        #Get strings from http://pypi.python.org/pypi?%3Aaction=list_classifiers
+        # Get strings from
+        # http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Programming Language :: Python',
         'Operating System :: OS Independent',
         'Development Status :: 2 - Pre-Alpha',
@@ -75,3 +76,4 @@ This package allows developers to interact with Google Earth Engine using the
 Python programming language.
 """,
 )
+

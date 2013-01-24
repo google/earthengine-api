@@ -111,48 +111,14 @@ ee.ImageCollection.prototype.toString = function() {
 };
 
 /**
- * Maps an algorithm over a collection.
- *
- * @param {string|function(ee.Image):ee.Image} algorithm The operation to map
- *     over the images of the collection. Either an algorithm name as a string,
- *     or a JavaScript function that receives an image and returns an image. In
- *     the latter case, the function is called only once and the result is
- *     captured as a description, so it cannot perform imperative operations
- *     or rely on external state.
- * @param {Object.<string,*>?=} opt_dynamicArgs A map specifying which
- *     properties of the input objects to pass to each argument of the
- *     algorithm. This maps from argument names to selector strings. Selector
- *     strings are property names, optionally concatenated into chains separated
- *     by a period to access properties-of-properties. To pass the whole object,
- *     use the special selector string '.all', and to pass the geometry, use
- *     '.geo'. If this argument is not specified, the names of the arguments
- *     will be matched exactly to the properties of the input object. If
- *     algorithm is a JavaScript function, this must be null or undefined as
- *     the image will always be the only dynamic argument.
- * @param {Object.<string,*>?=} opt_constantArgs A map from argument names to
- *     constant values to be passed to the algorithm on every invocation.
- * @param {string=} opt_destination The property where the result of the
- *     algorithm will be put. If this is null or undefined, the result of the
- *     algorithm will replace the input, as is the usual behavior of a mapping
- *     opeartion.
+ * Maps an algorithm over a collection. @see ee.Collection.mapInternal().
  * @return {ee.ImageCollection} The mapped collection.
  */
 ee.ImageCollection.prototype.map = function(
     algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
-  var args;
-  if (goog.isFunction(algorithm)) {
-    if (opt_dynamicArgs) {
-      throw Error('Can\'t use dynamicArgs with a mapped JS function.');
-    }
-    var mapper = ee.lambda(
-        ['IC_GEN_VAR'], algorithm(
-            /** @type {ee.Image} */ (ee.variable(ee.Image, 'FC_GEN_VAR'))));
-    args = [mapper, {'IC_GEN_VAR': '.all'}, opt_constantArgs, opt_destination];
-  } else {
-    args = arguments;
-  }
-  return new ee.ImageCollection(
-      ee.Collection.prototype['map'].apply(this, args).description_);
+  return /** @type {ee.ImageCollection} */(this.mapInternal(
+      ee.Image, algorithm,
+      opt_dynamicArgs, opt_constantArgs, opt_destination));
 };
 
 // Explicit exports
@@ -179,5 +145,7 @@ goog.exportProperty(ee.ImageCollection.prototype, 'serialize',
                     ee.ImageCollection.prototype.serialize);
 goog.exportProperty(ee.ImageCollection.prototype, 'sort',
                     ee.ImageCollection.prototype.sort);
+goog.exportProperty(ee.ImageCollection.prototype, 'map',
+                    ee.ImageCollection.prototype.map);
 goog.exportProperty(ee.ImageCollection.prototype, 'toString',
                     ee.ImageCollection.prototype.toString);

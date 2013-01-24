@@ -67,6 +67,21 @@ class EETestCase(unittest.TestCase):
     # Test apply() with promotion.
     out = ee.apply('Image.fakeFunction', {'image1': 1, 'image2': 2})
     self.assertEquals(expected, json.loads(out.serialize()))
+    
+    # Test call and apply() with a lambda.
+    func = ee.lambda_(['foo'], {'bar': 'quux'})
+    expected_lambda_call = {
+                          'foo': 'a',
+                          'algorithm': {
+                              'type': 'Algorithm',
+                              'args': ['foo'],
+                              'body': {'bar': 'quux'}
+                          }
+                      }
+    self.assertEquals(expected_lambda_call, ee.call(func, 'a'))
+    self.assertEquals(expected_lambda_call, ee.call(func, foo='a'))
+    self.assertEquals(expected_lambda_call, ee.apply(func, {'foo': 'a'}))
+        
 
 
 if __name__ == '__main__':

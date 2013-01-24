@@ -325,3 +325,42 @@ def _promote(klass, arg):
     }
   else:
     return arg
+
+
+def variable(cls, name):                       # pylint: disable-msg=C6409,W0622
+  """Returns a variable with a given name that implements a given EE type.
+
+  Args:
+    cls: A type (class) to mimic.
+    name: The name of the variable as it will appear in the arguments of the
+        lambdas that use this variable.
+
+  Returns:
+    A placeholder with the specified name implementing the specified type.
+  """
+
+  class Variable(cls):
+    def __init__(self, name):
+      self._description = {
+          'type': 'Variable',
+          'name': name
+      }
+
+  return Variable(name)
+
+
+def lambda_(args, body):                       # pylint: disable-msg=C6409,W0622
+  """Creates an EE lambda function.
+
+  Args:
+    args: The names of the arguments to the lambda.
+    body: The expression to evaluate.
+
+  Returns:
+    An EE lambda object that can be used in place of algorithms.
+  """
+  return {
+      'type': 'Algorithm',
+      'args': args,
+      'body': body
+  }

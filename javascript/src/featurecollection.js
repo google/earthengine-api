@@ -104,49 +104,15 @@ ee.FeatureCollection.prototype.toString = function() {
   return 'ee.FeatureCollection(' + json + ')';
 };
 
-
 /**
- * Maps an algorithm over a collection.
- *
- * @param {string|function(ee.Feature):ee.Feature} algorithm The operation to
- *     map over the features of the collection. Either an algorithm name as a
- *     string, or a JavaScript function that receives a feature and returns a
- *     feature. In the latter case, the function is called only once and the
- *     result is captured as a description, so it cannot perform imperative
- *     operations or rely on external state.
- * @param {Object.<string,*>?=} opt_dynamicArgs A map specifying which
- *     properties of the input objects to pass to each argument of the
- *     algorithm. This maps from argument names to selector strings. Selector
- *     strings are property names, optionally concatenated into chains separated
- *     by a period to access properties-of-properties. To pass the whole object,
- *     use the special selector string '.all', and to pass the geometry, use
- *     '.geo'. If this argument is not specified, the names of the arguments
- *     will be matched exactly to the properties of the input object. If
- *     algorithm is a JavaScript function, this must be null or undefined as
- *     the feature will always be the only dynamic argument.
- * @param {Object.<string,*>?=} opt_constantArgs A map from argument names to
- *     constant values to be passed to the algorithm on every invocation.
- * @param {string=} opt_destination The property where the result of the
- *     algorithm will be put. If this is null or undefined, the result of the
- *     algorithm will replace the input, as is the usual behavior of a mapping
- *     opeartion.
+ * Maps an algorithm over a collection. @see ee.Collection.mapInternal().
  * @return {ee.FeatureCollection} The mapped collection.
  */
 ee.FeatureCollection.prototype.map = function(
     algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
-  var args;
-  if (goog.isFunction(algorithm)) {
-    if (opt_dynamicArgs) {
-      throw Error('Can\'t use dynamicArgs with a mapped JS function.');
-    }
-    var mapper = ee.lambda(
-        ['FC_GEN_VAR'], algorithm(
-            /** @type {ee.Feature} */ (ee.variable(ee.Feature, 'FC_GEN_VAR'))));
-    args = [mapper, {'FC_GEN_VAR': '.all'}, opt_constantArgs, opt_destination];
-  } else {
-    args = arguments;
-  }
-  return ee.Collection.prototype['map'].apply(this, args);
+  return /** @type {ee.FeatureCollection} */(this.mapInternal(
+      ee.Feature, algorithm,
+      opt_dynamicArgs, opt_constantArgs, opt_destination));
 };
 
 // Explicit exports.  It's sad that we have to know what Collection contains.
@@ -167,6 +133,8 @@ goog.exportProperty(ee.FeatureCollection.prototype, 'serialize',
                     ee.FeatureCollection.prototype.serialize);
 goog.exportProperty(ee.FeatureCollection.prototype, 'sort',
                     ee.FeatureCollection.prototype.sort);
+goog.exportProperty(ee.FeatureCollection.prototype, 'map',
+                    ee.FeatureCollection.prototype.map);
 goog.exportProperty(ee.FeatureCollection.prototype, 'geometry',
                     ee.FeatureCollection.prototype.geometry);
 goog.exportProperty(ee.FeatureCollection.prototype, 'getMap',

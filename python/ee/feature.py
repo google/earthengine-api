@@ -19,11 +19,11 @@ import serializer
 class Feature(object):
   """An object representing EE Features."""
 
-  def __init__(self, arg, opt_properties=None):
+  def __init__(self, geometry, opt_properties=None):
     """Create a feature from either a GeoJSON geometry or another feature.
 
     Args:
-      arg: The geometry to use, or a pre-constructed Feature, or a JSON
+      geometry: The geometry to use, or a pre-constructed Feature, or a JSON
           description of a call that returns a feature.
       opt_properties: A dictionary of metadata properties.  If a Feature
           is passed (instead of a geometry) this is unused.
@@ -32,24 +32,33 @@ class Feature(object):
       EEException: if the given geometry isn't valid.
 
     """
-    if isinstance(arg, Feature):
+    if isinstance(geometry, Feature):
       if opt_properties is not None:
         raise ee_exception.EEException(
             'Can\'t create Feature out of a Feature and properties.')
-      self._description = dict(arg._description)    # pylint: disable-msg=W0212
+      # pylint: disable-msg=protected-access
+      self._description = dict(geometry._description)
+      # pylint: enable-msg=protected-access
       return
 
-    if Feature.isValidGeometry(arg):
-      self._description = {
-          'type': 'Feature',
-          'geometry': arg,
-          'properties': opt_properties
-      }
-    elif 'algorithm' in arg and not opt_properties:
-      self._description = arg
+    if 'algorithm' in geometry or geometry.get('type') == 'Variable':
+      if opt_properties:
+        self._description = {
+            'algorithm': 'Feature',
+            'geometry': geometry,
+            'metadata': opt_properties
+        }
+      else:
+        self._description = geometry
     else:
-      raise ee_exception.EEException(
-          'Not a geometry, feature or JSON description.')
+      if Feature.isValidGeometry(geometry):
+        self._description = {
+            'algorithm': 'Feature',
+            'geometry': geometry,
+            'metadata': opt_properties or {}
+        }
+      else:
+        raise ee_exception.EEException('Invalid geometry.')
 
   def __eq__(self, other):
     return self._description == other._description   # pylint: disable-msg=W0212

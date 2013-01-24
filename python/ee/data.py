@@ -117,9 +117,30 @@ def getThumbnail(params):
       format - (string) Either 'png' (default) or 'jpg'.
 
   Returns:
-    An image.
+    A thumbnail image as raw PNG data.
   """
-  request = params.update()
+  return send_('/thumb', params, opt_method='GET', opt_raw=True)
+
+
+def getThumbId(params):
+  """Get a Thumbnail ID for a given asset.
+
+  Args:
+    params: Parameters identical to those for the vizOptions for getMapId
+        with the following additions:
+      width - (number) Width of the thumbnail to render, in pixels.
+      height - (number) Height of the thumbnail to render, in pixels.
+      region - (E,S,W,N or GeoJSON) Geospatial region of the image
+          to render (or all).
+      pixel_bb - (X,Y,WIDTH,HEIGHT) Exact pixel region of the image
+          to render (or all).
+      format - (string) Either 'png' (default) or 'jpg'.
+
+  Returns:
+    A thumbnail ID.
+  """
+  request = params.copy()
+  request['getid'] = '1'
   return send_('/thumb', request)
 
 
@@ -190,13 +211,15 @@ def getAlgorithms():
   return send_('/algorithms', {}, 'GET')
 
 
-def send_(path, params, opt_method='POST'):
+def send_(path, params, opt_method='POST', opt_raw=False):
   """Send an API call.
 
   Args:
     path: The API endpoint to call.
     params: The call parameters.
     opt_method: The HTTPRequest method (GET or POST).
+    opt_raw: Whether the data should be returned raw, without attempting
+        to decode it as JSON.
 
   Returns:
     The data object returned by the API call.
@@ -230,11 +253,15 @@ def send_(path, params, opt_method='POST'):
         'Unexpected HTTP error: %s' % e.message)
 
   if response.status != 200:
-    raise ee_exception.EEException('Server error: %d' % e.code)
+    raise ee_exception.EEException('Server returned HTTP code: %d' %
+                                   response.status)
 
-  content = json.loads(content)
-  if 'error' in content:
-    raise ee_exception.EEException(content['error'])
-  if not 'data' in content:
-    raise ee_exception.EEException('Missing data in response: ' + content)
-  return content['data']
+  if opt_raw:
+    return content
+  else:
+    content = json.loads(content)
+    if 'error' in content:
+      raise ee_exception.EEException(content['error'])
+    if not 'data' in content:
+      raise ee_exception.EEException('Missing data in response: ' + content)
+    return content['data']

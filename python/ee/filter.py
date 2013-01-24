@@ -171,15 +171,18 @@ class Filter(object):
     """Filter images by date.
 
     Args:
-      start: The start date as a UTC datetime.
-      opt_end: The end date as a UTC datetime.
+      start: The start date as a UTC datetime or ms since Unix epoch.
+      opt_end: The end date as a UTC datetime or ms since Unix epoch.
 
     Returns:
       The modified filter.
     """
 
     def toMsec(utc_dt):
-      return time.mktime(utc_dt.timetuple()) * 1000
+      if isinstance(utc_dt, (int, long, float)):
+        return long(utc_dt)
+      else:
+        return time.mktime(utc_dt.timetuple()) * 1000
 
     new_filter = {
         'property': 'system:time_start',

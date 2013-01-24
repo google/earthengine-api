@@ -174,36 +174,6 @@ class ImageTestCase(unittest.TestCase):
             'dynamicArgs': {'image1': '.all'}
         }, json.loads(c2.serialize()))
 
-  def testClip(self):
-    # Verify that the static version of clip handles featurecollections
-    # and properl calls the real Image.clip function.
-    ee.algorithms._addFunctions(ee.Image, 'Image')
-    image = ee.Image(0)
-    image = image.clip(
-        ee.FeatureCollection([
-            ee.Feature(ee.Feature.LinearRing([[1, 2], [3, 4], [5, 6], [1, 2]]))
-        ]))
-
-    self.assertEquals(
-        {
-            'geometry': {
-                'collection': {
-                    'type': 'FeatureCollection',
-                    'features': [{
-                        'geometry': {
-                            'type': 'LinearRing',
-                            'coordinates': [[1, 2], [3, 4], [5, 6], [1, 2]]
-                            },
-                        'type': 'Feature',
-                        'properties': None
-                        }]
-                    },
-                'algorithm': 'ExtractGeometry'
-                },
-            'input': {'value': 0, 'algorithm': 'Constant'},
-            'algorithm': 'Image.clip'
-        }, json.loads(image.serialize()))
-
 
 if __name__ == '__main__':
   unittest.main()

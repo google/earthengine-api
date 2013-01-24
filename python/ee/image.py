@@ -14,7 +14,6 @@ import numbers
 
 import data
 import ee_exception
-import featurecollection
 import serializer
 
 
@@ -136,24 +135,6 @@ class Image(object):
     """
     return serializer.toJSON(self._description, opt_pretty)
 
-  def clip(self, target):
-    """Clip an image to a polygon or the geometry in a feature collection.
-
-    Args:
-      target: The boundary to clip to.
-
-    Returns:
-      The clipped image.
-    """
-    # Wrap FeatureCollections in ExtractGeometry.
-    if isinstance(target, featurecollection.FeatureCollection):
-      target = {
-          'algorithm': 'ExtractGeometry',
-          'collection': target
-          }
-
-    return self._clip(target)
-
   def select(self, selectors, opt_names=None, *args):
     """Select bands from an image.
 
@@ -171,8 +152,8 @@ class Image(object):
       An image with the selected bands.
     """
     call = {
-      'algorithm': 'Image.select',
-      'input': self
+        'algorithm': 'Image.select',
+        'input': self
     }
     if (isinstance(selectors, basestring) or
         isinstance(selectors, numbers.Number)):
@@ -224,16 +205,16 @@ class Image(object):
     Returns:
       The combined image.
     """
-    if len(images) == 0:
+    if not images:
       raise ee_exception.EEException('Can\'t combine 0 images.')
 
     # Append all the bands.
     result = Image(images[0])
     for image in images[1:]:
       result = Image({
-        'algorithm': 'Image.addBands',
-        'dstImg': result,
-        'srcImg': Image(image)
+          'algorithm': 'Image.addBands',
+          'dstImg': result,
+          'srcImg': Image(image)
       })
 
     # Optionally, rename the bands of the result.

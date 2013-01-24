@@ -48,15 +48,15 @@ class FeatureCollectionTestCase(unittest.TestCase):
             'type': 'FeatureCollection',
             'features': [
                 {
-                    'type': 'Feature',
+                    'algorithm': 'Feature',
                     'geometry': {'type': 'Polygon', 'coordinates': [[
                         [1, 2], [3, 4], [5, 6]]]},
-                    'properties': None
+                    'metadata': {}
                 }, {
-                    'type': 'Feature',
+                    'algorithm': 'Feature',
                     'geometry': {'type': 'Polygon', 'coordinates': [[
                         [2, 3], [4, 5], [6, 7]]]},
-                    'properties': None
+                    'metadata': {}
                     }
                 ]
             },
@@ -78,15 +78,15 @@ class FeatureCollectionTestCase(unittest.TestCase):
     col7 = ee.FeatureCollection({
         'type': 'FeatureCollection',
         'features': [{
-            'type': 'Feature',
+            'algorithm': 'Feature',
             'geometry': {'type': 'Polygon', 'coordinates': [[
                 [1, 2], [3, 4], [5, 6]]]},
-            'properties': None
+            'metadata': {}
         }, {
-            'type': 'Feature',
+            'algorithm': 'Feature',
             'geometry': {'type': 'Polygon', 'coordinates': [[
                 [2, 3], [4, 5], [6, 7]]]},
-            'properties': None
+            'metadata': {}
         }]
     })
     self.assertEquals(json.loads(col3.serialize()),

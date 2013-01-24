@@ -127,6 +127,14 @@ class FilterTestCase(unittest.TestCase):
             ],
         json.loads(f2.serialize(False)))
 
+    f3 = ee.Filter().date(123, 456)
+    self.assertEquals(
+        [
+            {'property': 'system:time_start', 'not_less_than': 123},
+            {'property': 'system:time_start', 'not_greater_than': 456}
+            ],
+        json.loads(f3.serialize(False)))
+
   def testBoundsFilter(self):
     ring1 = ee.Feature.Polygon(1, 2, 3, 4, 5, 6)
     f1 = ee.Filter().geometry(ring1)
@@ -140,8 +148,8 @@ class FilterTestCase(unittest.TestCase):
             'collection': {
                 'type': 'FeatureCollection',
                 'features': [{
-                    'type': 'Feature',
-                    'properties': None,
+                    'algorithm': 'Feature',
+                    'metadata': {},
                     'geometry': ring1
                     }]
                 }

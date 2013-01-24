@@ -32,18 +32,27 @@ ee.Feature = function(geometry, opt_properties) {
     }
     return geometry;
   }
-  if (geometry['coordinates'] &&
-      ee.Feature.validGeometry(/** @type {ee.Geometry} */ (geometry))) {
-    this.description_ = {
-      'type': 'Feature',
-      'geometry': geometry,
-      'properties': opt_properties
-    };
-  } else if (geometry['type'] == 'Feature' ||
-             ('algorithm' in geometry && opt_properties === undefined)) {
-    this.description_ = geometry;
+
+  if ('algorithm' in geometry) {
+    if (opt_properties) {
+      this.description_ = {
+        'algorithm': 'Feature',
+        'geometry': geometry,
+        'metadata': opt_properties
+      };
+    } else {
+      this.description_ = geometry;
+    }
   } else {
-    throw new Error('Not a geometry, feature or JSON description.');
+    if (ee.Feature.validGeometry(/** @type {ee.Geometry} */ (geometry))) {
+      this.description_ = {
+        'algorithm': 'Feature',
+        'geometry': geometry,
+        'metadata': opt_properties || {}
+      };
+    } else {
+      throw new Error('Not a geometry, feature or JSON description.');
+    }
   }
 };
 

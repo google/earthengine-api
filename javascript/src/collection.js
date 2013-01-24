@@ -10,6 +10,7 @@ goog.provide('ee.Collection');
 goog.require('ee.Filter');
 goog.require('ee.Serializer');
 goog.require('ee.data');
+goog.require('goog.object');
 
 /**
  * @param {Object} args - A representation of the collection.
@@ -214,6 +215,65 @@ ee.Collection.prototype.geometry = function() {
     'collection': this
   };
 };
+
+/**
+ * Maps an algorithm over a collection.
+ *
+ * @param {function(new:Object, ?): Object} type The collection elements' type.
+ * @param {string|Object|function(*):Object} algorithm The operation to map over
+ *     the images or features of the collection. Either an algorithm name as a
+ *     string, or a JavaScript function that receives an image or features and
+ *     returns one. If a function is passed, it is called only once and the
+ *     result is captured as a description, so it cannot perform imperative
+ *     operations or rely on external state.
+ * @param {Object.<string,*>?=} opt_dynamicArgs A map specifying which
+ *     properties of the input objects to pass to each argument of the
+ *     algorithm. This maps from argument names to selector strings. Selector
+ *     strings are property names, optionally concatenated into chains separated
+ *     by a period to access properties-of-properties. To pass the whole object,
+ *     use the special selector string '.all', and to pass the geometry, use
+ *     '.geo'. If this argument is not specified, the names of the arguments
+ *     will be matched exactly to the properties of the input object. If
+ *     algorithm is a JavaScript function, this must be null or undefined as
+ *     the image will always be the only dynamic argument.
+ * @param {Object.<string,*>?=} opt_constantArgs A map from argument names to
+ *     constant values to be passed to the algorithm on every invocation.
+ * @param {string=} opt_destination The property where the result of the
+ *     algorithm will be put. If this is null or undefined, the result of the
+ *     algorithm will replace the input, as is the usual behavior of a mapping
+ *     opeartion.
+ * @return {ee.Collection} The mapped collection.
+ * @protected
+ */
+ee.Collection.prototype.mapInternal = function(
+    type, algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
+  var args;
+  if (goog.isFunction(algorithm)) {
+    if (opt_dynamicArgs) {
+      throw Error('Can\'t use dynamicArgs with a mapped JS function.');
+    }
+    var varName = '_MAPPING_VAR_' + ee.Collection.serialMappingId_++;
+    algorithm = ee.lambda([varName], algorithm(ee.variable(type, varName)));
+    opt_dynamicArgs = goog.object.create(varName, '.all');
+  }
+  var description = {
+    'algorithm': 'Collection.map',
+    'collection': this,
+    'baseAlgorithm': algorithm
+  };
+  if (opt_dynamicArgs) { description['dynamicArgs'] = opt_dynamicArgs; }
+  if (opt_constantArgs) { description['constantArgs'] = opt_constantArgs; }
+  if (opt_destination) { description['destination'] = opt_destination; }
+  return new this.constructor(description);
+};
+
+
+/**
+ * The serial number of the next mapping variable.
+ * @type {number}
+ * @private
+ */
+ee.Collection.serialMappingId_ = 0;
 
 goog.exportSymbol('ee.Collection', ee.Collection);
 goog.exportProperty(ee.Collection.prototype, 'filter',

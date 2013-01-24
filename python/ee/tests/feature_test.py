@@ -96,11 +96,20 @@ class FeatureTestCase(unittest.TestCase):
     self.assertEquals(point, feature._description['geometry'])
     self.assertEquals(point, ee.Feature(feature)._description['geometry'])
 
-    description = {
+    geom = {
         'algorithm': 'foo',
         'bar': 42
     }
-    self.assertEquals(description, ee.Feature(description)._description)
+    props = {
+        'algorithm': 'bar',
+        'bar': 13
+    }
+    description = {
+        'algorithm': 'Feature',
+        'geometry': geom,
+        'metadata': props
+    }
+    self.assertEquals(description, ee.Feature(geom, props)._description)
 
   def testGetMap(self):
     point = ee.Feature.Point(1, 2)
