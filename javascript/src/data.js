@@ -187,7 +187,6 @@ ee.data.makeDownloadUrl = function(id) {
 };
 
 /**
- *
  * Get the list of algorithms.
  *
  * @param {function(Object, string=)=} opt_callback An optional callback.
@@ -199,6 +198,25 @@ ee.data.getAlgorithms = function(opt_callback) {
                        ee.data.makeRequest_({}),
                        opt_callback,
                        'GET');
+};
+
+/**
+ * Save an asset.
+ *
+ * @param {string} value The JSON-serialized value of the asset.
+ * @param {string=} opt_path An optional desired ID, including full path.
+ * @param {function(Object, string=)=} opt_callback An optional callback.
+ *     If not supplied, the call is made synchronously.
+ * @return {Object}  A description of the saved asset, including a generated ID.
+ */
+ee.data.createAsset = function(value, opt_path, opt_callback) {
+  var args = {'value': value};
+  if (opt_path !== undefined) {
+    args['id'] = opt_path;
+  }
+  return ee.data.send_('/create',
+                       ee.data.makeRequest_(args),
+                       opt_callback);
 };
 
 /**
@@ -315,10 +333,10 @@ ee.data.setupMockSend = function(opt_calls) {
       } else {
         return '{"error": {}}';
       }
-    }
+    };
     // Call the callback in a timeout to simulate asynchronous behavior.
     setTimeout(goog.bind(/** @type {function()} */ (callback), e, e), 0);
-  }
+  };
 
   // Mock goog.net.XmlHttp for sync calls.
   /** @constructor */
@@ -346,7 +364,7 @@ ee.data.setupMockSend = function(opt_calls) {
         }
       });
     }
-  }
+  };
   goog.net.XmlHttp = function() {
     return /** @type {?} */ (new fakeXmlHttp());
   };

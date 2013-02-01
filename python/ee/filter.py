@@ -8,6 +8,7 @@
 # javascript version's naming.
 # pylint: disable-msg=C6003,C6409
 
+import functools
 import time
 
 import featurecollection
@@ -32,8 +33,26 @@ class Operators(object):
   AND = 'and'
 
 
+class _FilterAutoCreator(object):
+  """A decorator to make Filter methods both static and instance.
+
+  If the decorated method is called as a static method, a new empty Filter
+  instance is created automatically.
+  """
+
+  def __init__(self, func):
+    self.func = func
+
+  def __get__(self, filter_instance, cls=None):
+    if filter_instance is None:
+      filter_instance = Filter()
+    return functools.partial(self.func, filter_instance)
+
+
 class Filter(object):
   """An object to help construct collection filters."""
+
+  Operators = Operators
 
   def __init__(self, new_filter=None):
     """Construct a filter.
@@ -95,6 +114,7 @@ class Filter(object):
         prev.append(new_filter)
     return Filter(prev)
 
+  @_FilterAutoCreator
   def metadata_(self, name, operator, value):
     """Filter on metadata.
 
@@ -111,62 +131,77 @@ class Filter(object):
     new_filter[operator] = value
     return self._append(new_filter)
 
+  @_FilterAutoCreator
   def eq(self, name, value):
     """Filter to metadata equal to the given value."""
     return self.metadata_(name, Operators.EQUALS, value)
 
+  @_FilterAutoCreator
   def neq(self, name, value):
     """Filter to metadata not equal to the given value."""
     return self.metadata_(name, Operators.NOT_EQUALS, value)
 
+  @_FilterAutoCreator
   def lt(self, name, value):
     """Filter to metadata less than the given value."""
     return self.metadata_(name, Operators.LESS_THAN, value)
 
+  @_FilterAutoCreator
   def gte(self, name, value):
     """Filter on metadata greater than or equal to the given value."""
     return self.metadata_(name, Operators.GREATER_THAN_OR_EQUAL, value)
 
+  @_FilterAutoCreator
   def gt(self, name, value):
     """Filter on metadata greater than the given value."""
     return self.metadata_(name, Operators.GREATER_THAN, value)
 
+  @_FilterAutoCreator
   def lte(self, name, value):
     """Filter on metadata less than or equal to the given value."""
     return self.metadata_(name, Operators.LESS_THAN_OR_EQUAL, value)
 
+  @_FilterAutoCreator
   def contains(self, name, value):
     """Filter on metadata containing the given string."""
     return self.metadata_(name, Operators.CONTAINS, value)
 
+  @_FilterAutoCreator
   def not_contains(self, name, value):
     """Filter on metadata not containing the given string."""
     return self.metadata_(name, Operators.NOT_CONTAINS, value)
 
+  @_FilterAutoCreator
   def starts_with(self, name, value):
     """Filter on metadata begining with the given string."""
     return self.metadata_(name, Operators.STARTS_WITH, value)
 
+  @_FilterAutoCreator
   def not_starts_with(self, name, value):
     """Filter on metadata not begining with the given string."""
     return self.metadata_(name, Operators.NOT_STARTS_WITH, value)
 
+  @_FilterAutoCreator
   def ends_with(self, name, value):
     """Filter on metadata ending with the given string."""
     return self.metadata_(name, Operators.ENDS_WITH, value)
 
+  @_FilterAutoCreator
   def not_ends_with(self, name, value):
     """Filter on metadata not ending with the given string."""
     return self.metadata_(name, Operators.NOT_ENDS_WITH, value)
 
+  @_FilterAutoCreator
   def And(self, *args):
     """Combine two or more filters using boolean AND."""
     return self._append({'and': list(args)})
 
+  @_FilterAutoCreator
   def Or(self, *args):
     """Combine two or more filters using boolean OR."""
     return self._append({'or': list(args)})
 
+  @_FilterAutoCreator
   def date(self, start, opt_end=None):
     """Filter images by date.
 
@@ -197,6 +232,7 @@ class Filter(object):
 
     return self._append(new_filter)
 
+  @_FilterAutoCreator
   def geometry(self, geometry):
     """Filter on bounds.
 

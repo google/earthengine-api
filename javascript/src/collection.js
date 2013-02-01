@@ -152,7 +152,7 @@ ee.Collection.prototype.serialize = function() {
   // filter in progress.
   var item = this;
   while (ee.Collection.isFilterFeatureCollection_(item) &&
-         item.description_['filters'].length() == 0) {
+         item.description_['filters'].length == 0) {
     item = item.description_['collection'];
   }
   return ee.Serializer.toJSON(item.description_);

@@ -157,6 +157,37 @@ class FilterTestCase(unittest.TestCase):
          }],
         json.loads(f2.serialize(False)))
 
+  def testStaticVersions(self):
+    self.assertEquals(ee.Filter().eq('foo', 1), ee.Filter.eq('foo', 1))
+    self.assertEquals(ee.Filter().neq('foo', 1), ee.Filter.neq('foo', 1))
+    self.assertEquals(ee.Filter().lt('foo', 1), ee.Filter.lt('foo', 1))
+    self.assertEquals(ee.Filter().gt('foo', 1), ee.Filter.gt('foo', 1))
+    self.assertEquals(ee.Filter().lte('foo', 1), ee.Filter.lte('foo', 1))
+    self.assertEquals(ee.Filter().gte('foo', 1), ee.Filter.gte('foo', 1))
+
+    self.assertEquals(ee.Filter().contains('foo', 1),
+                      ee.Filter.contains('foo', 1))
+    self.assertEquals(ee.Filter().not_contains('foo', 1),
+                      ee.Filter.not_contains('foo', 1))
+    self.assertEquals(ee.Filter().starts_with('foo', 1),
+                      ee.Filter.starts_with('foo', 1))
+    self.assertEquals(ee.Filter().not_starts_with('foo', 1),
+                      ee.Filter.not_starts_with('foo', 1))
+    self.assertEquals(ee.Filter().ends_with('foo', 1),
+                      ee.Filter.ends_with('foo', 1))
+    self.assertEquals(ee.Filter().not_ends_with('foo', 1),
+                      ee.Filter.not_ends_with('foo', 1))
+
+    f1 = ee.Filter().And(ee.Filter().eq('foo', 1), ee.Filter().eq('foo', 2))
+    f2 = ee.Filter.And(ee.Filter.eq('foo', 1), ee.Filter().eq('foo', 2))
+    self.assertEquals(f1, f2)
+
+    d1 = datetime.datetime(2000, 1, 1)
+    d2 = datetime.datetime(2001, 1, 1)
+    f1 = ee.Filter().date(d1, d2)
+    f2 = ee.Filter.date(d1, d2)
+    self.assertEquals(f1, f2)
+
 
 if __name__ == '__main__':
   unittest.main()

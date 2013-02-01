@@ -8,10 +8,12 @@
 # javascript version's naming.
 # pylint: disable-msg=C6003,C6409
 
+import json
 import keyword
 import numbers
 import textwrap
 
+import computedobject
 import data
 import ee_exception
 import feature
@@ -116,7 +118,7 @@ def _applySignature(signature, *args, **kwargs):
   return _promote(signature['returns'], parameters)
 
 
-def _makeFunction(name, signature, opt_bound_args=None):
+def _makeFunction(name, signature, is_instance, opt_bound_args=None):
   """Create a function for the given signature.
 
   Creates a function for the given signature, with an optional set of
@@ -125,6 +127,8 @@ def _makeFunction(name, signature, opt_bound_args=None):
   Args:
      name: The name of the function as it appears on the class.
      signature: The signature of the function.
+     is_instance: Whether this creates an instance method by passing the
+         object on which the function is being called as the first argument.
      opt_bound_args: A dictionary from arg names to values to pre-bind to
          this call.
 
@@ -133,19 +137,22 @@ def _makeFunction(name, signature, opt_bound_args=None):
   """
   opt_bound_args = opt_bound_args or {}
 
-  def BoundFunction(self, *argsIn, **namedArgsIn):
+  def BoundFunction(*argsIn, **namedArgsIn):
     """A generated function for the given signature."""
     argsIn = list(argsIn)
-    argsIn.insert(0, self._description)       # pylint: disable-msg=W0212
+    if is_instance:
+      argsIn[0] = argsIn[0]._description  # pylint: disable-msg=protected-access
     named = dict(opt_bound_args)
     named.update(namedArgsIn)
     return _applySignature(signature, *argsIn, **named)
   BoundFunction.__name__ = name.encode('utf8')
   BoundFunction.__doc__ = _makeDoc(signature)
+  if not is_instance:
+    BoundFunction = staticmethod(BoundFunction)
   return BoundFunction
 
 
-def _makeAggregateFunction(name, signature, opt_bound_args=None):
+def _makeAggregateFunction(name, signature, is_instance, opt_bound_args=None):
   """Create an aggregation function for the given signature.
 
   The aggregation function not only constructs the JSON for an algorithm call
@@ -155,6 +162,8 @@ def _makeAggregateFunction(name, signature, opt_bound_args=None):
   Args:
      name: The name of the function as it appears on the class.
      signature: The signature of the function.
+     is_instance: Whether this creates an instance method by passing the
+         object on which the function is being called as the first argument.
      opt_bound_args: A dictionary from arg names to values to pre-bind to
          this call.
 
@@ -162,19 +171,21 @@ def _makeAggregateFunction(name, signature, opt_bound_args=None):
      The bound function.
   """
   opt_bound_args = opt_bound_args or {}
-  func = _makeFunction(name, signature, opt_bound_args)
+  func = _makeFunction(name, signature, is_instance, opt_bound_args)
 
-  def BoundFunction(self, *argsIn, **namedArgsIn):
+  def BoundFunction(*argsIn, **namedArgsIn):
     """A generated aggregation function for the given signature."""
-    description = func(self, *argsIn, **namedArgsIn)
+    description = func(*argsIn, **namedArgsIn)
     return data.getValue({'json': serializer.toJSON(description, False)})
 
   BoundFunction.__name__ = func.__name__
   BoundFunction.__doc__ = func.__doc__
+  if not is_instance:
+    BoundFunction = staticmethod(BoundFunction)
   return BoundFunction
 
 
-def _makeMapFunction(name, signature, opt_bound_args=None):
+def _makeMapFunction(name, signature, is_instance, opt_bound_args=None):
   """Create a mapping function.
 
   Creates a mapping function for the given signature, with an optional
@@ -183,12 +194,17 @@ def _makeMapFunction(name, signature, opt_bound_args=None):
   Args:
      name: The name of the function as it appears on the class.
      signature: The signature of the function.
+     is_instance: If false, returns None. Kept to follow the same
+         API as the rest of the make*Function functions.
      opt_bound_args: A dictionary from arg names to values to pre-bind to
          this call.
 
   Returns:
      The bound function.
   """
+  if not is_instance:
+    return None
+
   opt_bound_args = opt_bound_args or {}
 
   def BoundFunction(target, *argsIn, **namedArgsIn):
@@ -200,6 +216,8 @@ def _makeMapFunction(name, signature, opt_bound_args=None):
     named = dict(opt_bound_args)
     named.update(namedArgsIn)
     parameters = _applySignature(s, *argsIn, **named)
+    # We convert to JSON and back so we can pop off the top-level algorithm.
+    parameters = json.loads(parameters.serialize())
     if 'algorithm' in parameters:
       parameters.pop('algorithm')
 
@@ -230,12 +248,16 @@ def _makeMapFunction(name, signature, opt_bound_args=None):
   return BoundFunction
 
 
-def _addFunctions(target, prefix, name_prefix='', wrapper=_makeFunction):
+def _addFunctions(target, prefix, type_name,
+                  name_prefix='', wrapper=_makeFunction):
   """Add all the functions that begin with "prefix" to the target class.
 
   Args:
      target: The class to add to.
      prefix: The prefix to search for.
+     type_name: The name of the object's type. Algorithms whose first argument
+         matches this type as bound as instance methods, and those whose first
+         argument doesn't match are bound as static methods.
      name_prefix: An optional string to prepend to the names
          of the added functions.
      wrapper: The function to use for converting a signature into a function.
@@ -245,18 +267,24 @@ def _addFunctions(target, prefix, name_prefix='', wrapper=_makeFunction):
     parts = name.split('.')
     if len(parts) == 2 and parts[0] == prefix:
       fname = name_prefix + parts[1]
+      signature = _signatures[name]
+      signature['name'] = name
 
       # Specifically handle the function names that are illegal in python.
       if keyword.iskeyword(fname):
         fname = fname.title()
 
+      # Decide whether this is a static or an instance function.
+      is_instance = (signature['args'] and
+                     _isSubtype(signature['args'][0]['type'], type_name))
+
       # Don't overwrite existing versions of this function.
       if hasattr(target, fname):
         fname = '_' + fname
 
-      signature = _signatures[name]
-      signature['name'] = name
-      setattr(target, fname, wrapper(fname, signature))
+      method = wrapper(fname, signature, is_instance)
+      if method:
+        setattr(target, fname, method)
 
 
 def _makeDoc(signature, opt_bound_args=None):
@@ -285,6 +313,29 @@ def _makeDoc(signature, opt_bound_args=None):
                               subsequent_indent=' ' * 6)
       parts.append(arg_doc)
   return u'\n'.join(parts).encode('utf8')
+
+
+def _isSubtype(firstType, secondType):
+  """Checks whether a type is a subtype of another.
+
+  Args:
+      firstType: The first type name.
+      secondType: The second type name.
+
+  Returns:
+      Whether secondType is a subtype of firstType.
+  """
+  if firstType == secondType:
+    return True
+  elif firstType == 'EEObject':
+    return secondType in ('Image', 'Feature', 'Collection',
+                          'ImageCollection', 'FeatureCollection')
+  elif firstType in ('FeatureCollection', 'EECollection', 'Collection'):
+    return secondType in ('Collection', 'ImageCollection', 'FeatureCollection')
+  elif firstType == 'Object':
+    return True
+  else:
+    return False
 
 
 def _promote(klass, arg):
@@ -324,7 +375,7 @@ def _promote(klass, arg):
         'value': arg
     }
   else:
-    return arg
+    return computedobject.ComputedObject(arg)
 
 
 def variable(cls, name):                       # pylint: disable-msg=C6409,W0622

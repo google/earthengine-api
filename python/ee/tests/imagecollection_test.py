@@ -43,23 +43,6 @@ class ImageCollectionTestCase(unittest.TestCase):
     self.assertEquals(json.loads(col5.serialize()),
                       json.loads(col6.serialize()))
 
-  def testMosaic(self):
-    col = ee.ImageCollection([ee.Image(1), ee.Image(2)])
-    mosaic = col.mosaic()
-    self.assertTrue(isinstance(mosaic, ee.Image))
-    self.assertEquals(
-        {
-            'creator': 'SimpleMosaic',
-            'args': [{
-                'type': 'ImageCollection',
-                'images': [
-                    {'algorithm': 'Constant', 'value': 1},
-                    {'algorithm': 'Constant', 'value': 2}
-                    ]
-                }]
-            },
-        json.loads(mosaic.serialize()))
-
 
 if __name__ == '__main__':
   unittest.main()

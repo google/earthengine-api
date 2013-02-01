@@ -11,13 +11,14 @@ This manages the data and API communication.
 # javascript version's naming.
 # pylint: disable-msg=C6003,C6409
 
+
 import json
 import urllib
-import urllib2
 
 import httplib2
 
 import ee_exception
+
 
 # The base URL for all data calls.  This is set by ee.initialize().
 BASE_URL = 'https://earthengine.googleapis.com/api'
@@ -145,6 +146,7 @@ def getThumbId(params):
 
 
 def getDownloadId(params):
+  # pylint: disable-msg=g-doc-args
   """Get a Download Id.
 
   Args:
@@ -209,6 +211,22 @@ def getAlgorithms():
                 is not specified.
   """
   return send_('/algorithms', {}, 'GET')
+
+
+def createAsset(value, opt_path=None):
+  """Save an asset.
+
+  Args:
+    value: The JSON-serialized value of the asset.
+    opt_path: An optional desired ID, including full path.
+
+  Returns:
+    A description of the saved asset, including a generated ID.
+  """
+  args = {'value': value}
+  if opt_path is not None:
+    args['id'] = opt_path
+  return send_('/create', args)
 
 
 def send_(path, params, opt_method='POST', opt_raw=False):

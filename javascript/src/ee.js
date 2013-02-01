@@ -33,22 +33,32 @@ ee.initialize = function(opt_baseurl, opt_tileurl, opt_callback) {
 
   // Initialize the dynamically loaded functions on the objects that want them.
   var finish = function() {
-    ee.Algorithms.addFunctions(ee.Image, 'Image');
-    ee.Algorithms.addFunctions(ee.Feature, 'Feature');
-    ee.Algorithms.addFunctions(ee.FeatureCollection, 'FeatureCollection');
-    ee.Algorithms.addFunctions(ee.Image, 'Window', 'focal_');
-    ee.Algorithms.addFunctions(ee.ImageCollection, 'ImageCollection');
-    ee.Algorithms.addFunctions(ee.ImageCollection, 'reduce');
-    ee.Algorithms.addFunctions(ee.Collection, 'Collection');
+    ee.Algorithms.addFunctions(
+        ee.Image, 'Image', 'Image');
+    ee.Algorithms.addFunctions(
+        ee.Feature, 'Feature', 'Feature');
+    ee.Algorithms.addFunctions(
+        ee.FeatureCollection, 'FeatureCollection', 'FeatureCollection');
+    ee.Algorithms.addFunctions(
+        ee.Image, 'Window', 'Image', 'focal_');
+    ee.Algorithms.addFunctions(
+        ee.ImageCollection, 'ImageCollection', 'ImageCollection');
+    ee.Algorithms.addFunctions(
+        ee.ImageCollection, 'reduce', 'ImageCollection');
+    ee.Algorithms.addFunctions(
+        ee.Collection, 'Collection', 'Collection');
     ee.Algorithms.addFunctions(ee.Collection,
                                'AggregateFeatureCollection',
+                               'Collection',
                                'aggregate_',
                                ee.Algorithms.makeAggregateFunction);
     ee.Algorithms.addFunctions(ee.ImageCollection,
                                'Image',
+                               'Image',
                                'map_',
                                ee.Algorithms.makeMapFunction);
     ee.Algorithms.addFunctions(ee.FeatureCollection,
+                               'Feature',
                                'Feature',
                                'map_',
                                ee.Algorithms.makeMapFunction);

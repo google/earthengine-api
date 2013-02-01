@@ -4,10 +4,8 @@
 
 
 
-# pylint doesn't understand dynamically added functions.
-# pylint: disable-msg=E1101
-
 import json
+import types
 
 import unittest
 
@@ -16,12 +14,26 @@ import ee
 
 TEST_SIGNATURES = {
     'Image.fakeFunction': {
-        'name': 'Image.fakeFunction',
         'description': 'Method description.',
         'returns': 'Image',
         'args': [
             {'type': 'Image', 'name': 'image1', 'description': 'Arg A doc.'},
             {'type': 'Image', 'name': 'image2', 'description': 'Arg B doc.'}
+        ]
+    },
+    'fooBar': {
+        'description': '',
+        'returns': 'Image',
+        'args': [
+            {'type': 'Image', 'name': 'image1', 'description': ''},
+            {'type': 'Image', 'name': 'image2', 'description': ''}
+        ]
+    },
+    'Image.aStaticMethod': {
+        'description': '',
+        'returns': 'Image',
+        'args': [
+            {'type': 'String', 'name': 'str', 'description': ''}
         ]
     }
 }
@@ -40,36 +52,66 @@ class AlgorithmTestCase(unittest.TestCase):
 
     def MockSend(*unused_):
       return TEST_SIGNATURES
-
     ee.data.send_ = MockSend
+    ee.Initialize()
 
-  def testSignatures(self):
-    # Verify init.
-    ee.algorithms.init()
-    self.assertTrue(ee.algorithms.getSignature(
-        'Image.fakeFunction') is not None)
+  def testGetWithRealName(self):
+    # Test that get() is also ensuring the 'name' value is set.
+    # This algorithm will already have had a name added to it by init().
+    algorithm = ee.algorithms.getSignature('Image.fakeFunction')
+    self.assertTrue(algorithm is not None)
+    self.assertEquals(algorithm['name'], 'Image.fakeFunction')
 
-    # Verify addFunctions.
+  def testGetWithFakeName(self):
+    # Test that get() is also ensuring the 'name' value is set.
+    # This algorithm will already have had a name added to it by init().
+    algorithm = ee.algorithms.getSignature('fooBar')
+    self.assertTrue(algorithm is not None)
+    self.assertEquals(algorithm['name'], 'fooBar')
+
+  def testAddFunctions(self):
+    # Check instance vs static functions, and trampling of existing functions.
+
+    class TestClass(object):
+      def Test(self):
+        pass
+
+    self.assertFalse(hasattr(TestClass, 'fakeFunction'))
+    self.assertTrue(hasattr(TestClass, 'Test'))
+
+    ee.algorithms._addFunctions(TestClass, 'Image', 'Image')
+    self.assertTrue(hasattr(TestClass, 'fakeFunction'))
+    self.assertTrue(hasattr(TestClass, 'Test'))
+    self.assertTrue(hasattr(TestClass, 'aStaticMethod'))
+    self.assertTrue(isinstance(TestClass.fakeFunction, types.MethodType))
+    self.assertTrue(isinstance(TestClass.Test, types.MethodType))
+    self.assertFalse(isinstance(TestClass.aStaticMethod, types.MethodType))
+
+  def testFunctionCall(self):
     class TestClass(object):
       _description = {}
-
-    ee.algorithms._addFunctions(TestClass, 'Image')
-    self.assertTrue(getattr(TestClass, 'fakeFunction') is not None)
+    ee.algorithms._addFunctions(TestClass, 'Image', 'Image')
 
     # Verify docs.
     self.assertEquals('fakeFunction', TestClass.fakeFunction.__name__)
     self.assertEquals(EXPECTED_DOC, TestClass.fakeFunction.__doc__)
 
     # Verify the return type wrapper and type promotion.
-    f = TestClass().fakeFunction(1)             # pylint: disable-msg=E1101
-    self.assertTrue(isinstance(f, ee.Image))
+    result = TestClass().fakeFunction(1)
+    self.assertTrue(isinstance(result, ee.Image))
     self.assertEquals(
         {
             'algorithm': 'Image.fakeFunction',
             'image1': {},
-            'image2': {'algorithm': 'Constant', 'value': 1},
+            'image2': {'algorithm': 'Constant', 'value': 1}
         },
-        json.loads(f.serialize(False)))
+        json.loads(result.serialize(False)))
+    self.assertEquals(
+        {
+            'algorithm': 'Image.aStaticMethod',
+            'str': 'test'
+        },
+        json.loads(TestClass.aStaticMethod('test').serialize(False)))
 
     # Test using a named arg
     f = TestClass().fakeFunction(image2=1)

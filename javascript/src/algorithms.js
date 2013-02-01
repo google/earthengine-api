@@ -20,6 +20,7 @@
 goog.provide('ee.Algorithms');
 
 goog.require('ee.Collection');
+goog.require('ee.ComputedObject');
 goog.require('ee.Feature');
 goog.require('ee.FeatureCollection');
 goog.require('ee.Image');
@@ -180,15 +181,17 @@ ee.Algorithms.applySignature_ = function(
 
 
 /**
- * Create a function that applies the given algorithm, with an optional set of
- * values to pre-bind to some of the algorithm parameters.
+ * Create a function that applies the given algorithm, with an optional set
+ * of values to pre-bind to some of the algorithm parameters.
  *
  * @param {ee.Algorithms.signature} signature The signature of the algorithm.
+ * @param {boolean} instance Whether this creates an instance method by passing
+ *     the object on which the function is being called as the first argument.
  * @param {Object=} opt_boundArgs Optional arguments to pre-bind to this call.
  *
  * @return {Function} The bound function.
  */
-ee.Algorithms.makeFunction = function(signature, opt_boundArgs) {
+ee.Algorithms.makeFunction = function(signature, instance, opt_boundArgs) {
   /**
    * @this {Object}
    * @return {?} The result of the signature application.
@@ -196,7 +199,9 @@ ee.Algorithms.makeFunction = function(signature, opt_boundArgs) {
   var func = function() {
     // Add the parent object as the first arg.
     var argsIn = Array.prototype.slice.call(arguments, 0);
-    argsIn.unshift(this);
+    if (instance) {
+      argsIn.unshift(this);
+    }
     return ee.Algorithms.applySignature_(signature, argsIn, opt_boundArgs);
   };
   ee.Algorithms.document_(func, signature);
@@ -210,12 +215,15 @@ ee.Algorithms.makeFunction = function(signature, opt_boundArgs) {
  * an optional callback as its last argument.
  *
  * @param {ee.Algorithms.signature} signature The signature of the algorithm.
+ * @param {boolean} instance Whether this creates an instance method by passing
+ *     the object on which the function is being called as the first argument.
  * @param {Object=} opt_boundArgs Optional arguments to pre-bind to this call.
  *
  * @return {Function} The bound function.
  */
-ee.Algorithms.makeAggregateFunction = function(signature, opt_boundArgs) {
-  var func = ee.Algorithms.makeFunction(signature, opt_boundArgs);
+ee.Algorithms.makeAggregateFunction = function(
+    signature, instance, opt_boundArgs) {
+  var func = ee.Algorithms.makeFunction(signature, instance, opt_boundArgs);
   /**
    * @this {Object}
    * @return {?} The result of the signature application.
@@ -245,11 +253,17 @@ ee.Algorithms.makeAggregateFunction = function(signature, opt_boundArgs) {
  * values to pre-bind to some of the function arguments.
  *
  * @param {ee.Algorithms.signature} signature The signature of the function.
+ * @param {boolean} instance If false, returns null. Kept to follow the same
+ *     API as the rest of the make*Function functions.
  * @param {Object=} opt_boundArgs Optional arguments to pre-bind to this call.
  *
  * @return {Function} The bound function.
  */
-ee.Algorithms.makeMapFunction = function(signature, opt_boundArgs) {
+ee.Algorithms.makeMapFunction = function(signature, instance, opt_boundArgs) {
+  if (!instance) {
+    return null;
+  }
+
   /**
    * @this {Object}
    * @return {?} The result of the signature application.
@@ -265,6 +279,10 @@ ee.Algorithms.makeMapFunction = function(signature, opt_boundArgs) {
     copy['args'] = signature['args'].slice(1);
     var parameters = /** @type {Object} */
         (ee.Algorithms.applySignature_(copy, argsIn, opt_boundArgs));
+
+    // We serialize and parse the parameters to get everything to JSON, so
+    // we can dig around in it to find and remove the top level algorithm call.
+    parameters = ee.data.parse(parameters.serialize());
     goog.object.remove(/** @type {Object} */ (parameters), 'algorithm');
 
     var dynamicArgs = {};
@@ -318,22 +336,24 @@ ee.Algorithms.document_ = function(func, signature, opt_name) {
     }).join(', '));
     buffer.push(')\n\n');
     buffer.push(signature['description']);
-    buffer.push('\n\nArgs:\n');
-    for (var i = 0; i < signature['args'].length; i++) {
-      if (i == 0) {
-        buffer.push('  this:');
-      } else {
-        buffer.push('\n  ');
+    if (signature['args'].length) {
+      buffer.push('\n\nArgs:\n');
+      for (var i = 0; i < signature['args'].length; i++) {
+        if (i == 0) {
+          buffer.push('  this:');
+        } else {
+          buffer.push('\n  ');
+        }
+        var arg = signature['args'][i];
+        buffer.push(arg['name']);
+        buffer.push(' (');
+        buffer.push(arg['type']);
+        if (arg['optional']) {
+          buffer.push(', optional');
+        }
+        buffer.push('): ');
+        buffer.push(arg['description']);
       }
-      var arg = signature['args'][i];
-      buffer.push(arg['name']);
-      buffer.push(' (');
-      buffer.push(arg['type']);
-      if (arg['optional']) {
-        buffer.push(', optional');
-      }
-      buffer.push('): ');
-      buffer.push(arg['description']);
     }
     return buffer.join('');
   };
@@ -343,15 +363,20 @@ ee.Algorithms.document_ = function(func, signature, opt_name) {
 /**
  * Add all the functions that begin with "prefix" to the given target class.
  *
- * @param {*} target The class to add to.
+ * @param {Function} target The class to add to.
  * @param {string} prefix The prefix to search for in the signatures.
+ * @param {string} typeName The name of the object's type. Algorithms whose
+ *     first argument matches this type as bound as instance methods, and those
+ *     whose first argument doesn't match are bound as static methods.
  * @param {string=} opt_prepend An optional string to prepend to the names
  *     of the added functions.
- * @param {function(ee.Algorithms.signature): Function=} opt_wrapper
- *     The function to use for converting a signature into a function.
+ * @param {function(ee.Algorithms.signature, boolean): Function=} opt_wrapper
+ *     The function to use for converting a signature into a function. If
+ *     not specified, heuristically chooses between makeFunction and
+ *     makeStaticFunction.
  */
 ee.Algorithms.addFunctions = function(
-    target, prefix, opt_prepend, opt_wrapper) {
+    target, prefix, typeName, opt_prepend, opt_wrapper) {
   ee.Algorithms.init();
   var prepend = opt_prepend || '';
   var wrapper = opt_wrapper || ee.Algorithms.makeFunction;
@@ -361,13 +386,57 @@ ee.Algorithms.addFunctions = function(
     if (parts.length == 2 && parts[0] == prefix) {
       var fname = prepend + parts[1];
       var signature = ee.Algorithms.signatures[name];
-      signature.name = name;
-      if (fname in target.prototype) {
+      signature['name'] = name;
+
+      // Decide whether this is a static or an instance function.
+      var isInstance = signature['args'].length &&
+          ee.Algorithms.isSubtype_(signature['args'][0]['type'], typeName);
+      var destination = isInstance ? target.prototype : target;
+
+      // Add the actual function
+      if (fname in destination) {
         // Don't overwrite existing functions; suffix them with '_'.
         fname = fname + '_';
       }
-      target.prototype[fname] = wrapper(signature);
+      var method = wrapper(signature, isInstance);
+      if (method != null) {
+        destination[fname] = method;
+      }
     }
+  }
+};
+
+
+/**
+ * Checks whether a type is a subtype of another.
+ *
+ * @param {string} firstType The first type name.
+ * @param {string} secondType The second type name.
+ * @return {boolean} Whether secondType is a subtype of firstType.
+ * @private
+ */
+ee.Algorithms.isSubtype_ = function(firstType, secondType) {
+  if (secondType == firstType) {
+    return true;
+  }
+
+  switch (firstType) {
+    case 'EEObject':
+      return secondType == 'Image' ||
+             secondType == 'Feature' ||
+             secondType == 'Collection' ||
+             secondType == 'ImageCollection' ||
+             secondType == 'FeatureCollection';
+    case 'FeatureCollection':
+    case 'EECollection':
+    case 'Collection':
+      return secondType == 'Collection' ||
+             secondType == 'ImageCollection' ||
+             secondType == 'FeatureCollection';
+    case 'Object':
+      return true;
+    default:
+      return false;
   }
 };
 
@@ -414,7 +483,7 @@ ee.Algorithms.promote_ = function(type, arg) {
         return /** @type {Object} */ (arg);
       }
     default:
-      return /** @type {Object} */ (arg);
+      return /** @type {Object} */ new ee.ComputedObject((arg));
   }
 };
 

@@ -69,21 +69,13 @@ goog.inherits(ee.ImageCollection, ee.Collection);
  * @return {ee.data.mapid} A mapid and token.
  */
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var mosaic = this.mosaic();
+  var mosaic = this['mosaic']();
 
   if (opt_callback) {
     mosaic.getMap(opt_visParams, opt_callback);
   } else {
     return mosaic.getMap(opt_visParams);
   }
-};
-
-/**
- * Wrap this collection in a SimpleMosaic function.
- * @return {ee.Image} The mosaiced image.
- */
-ee.ImageCollection.prototype.mosaic = function() {
-  return new ee.Image({'creator': 'SimpleMosaic', 'args': [this]});
 };
 
 /**
@@ -125,8 +117,6 @@ ee.ImageCollection.prototype.map = function(
 goog.exportSymbol('ee.ImageCollection', ee.ImageCollection);
 goog.exportProperty(ee.ImageCollection.prototype, 'getMap',
                     ee.ImageCollection.prototype.getMap);
-goog.exportProperty(ee.ImageCollection.prototype, 'mosaic',
-                    ee.ImageCollection.prototype.mosaic);
 goog.exportProperty(ee.ImageCollection.prototype, 'combine',
                     ee.ImageCollection.prototype.combine);
 goog.exportProperty(ee.ImageCollection.prototype, 'filter',

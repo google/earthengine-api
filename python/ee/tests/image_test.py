@@ -79,12 +79,11 @@ class ImageTestCase(unittest.TestCase):
   def testImageSignatures(self):
     # Manually invoke Signatures.addFunctions because send doesn't
     # get overriden until after the library is loaded.
-    ee.algorithms._addFunctions(ee.Image, 'Image')
+    ee.algorithms._addFunctions(ee.Image, 'Image', 'Image')
 
     # Verify that we picked up a prototype def from signatures.
     image = ee.Image(1)
 
-    #pylint: disable-msg=E1101
     self.assertTrue(image.fakeFunction is not None)
 
   def testCombine(self):
@@ -147,8 +146,9 @@ class ImageTestCase(unittest.TestCase):
 
   def testAnd(self):
     # Check that the Image.and and Image.or functions get renamed.
-    ee.algorithms._addFunctions(ee.Image, 'Image')
+    ee.algorithms._addFunctions(ee.Image, 'Image', 'Image')
     ee.algorithms._addFunctions(ee.ImageCollection,
+                                'Image',
                                 'Image',
                                 'map_',
                                 ee.algorithms._makeMapFunction)
