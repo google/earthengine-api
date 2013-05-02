@@ -47,7 +47,7 @@ class FeatureCollection(collection.Collection):
       args = {'type': 'FeatureCollection', 'table_id': args}
       if opt_column:
         args['geo_column'] = opt_column
-    elif isinstance(args, FeatureCollection):
+    elif isinstance(args, collection.Collection):
       args = dict(args._description)            # pylint: disable-msg=W0212
     elif isinstance(args, dict):
       # This is the default, but we need to check it before we get to iterable.

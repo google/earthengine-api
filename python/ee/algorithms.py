@@ -11,6 +11,7 @@
 import json
 import keyword
 import numbers
+import re
 import textwrap
 
 import computedobject
@@ -352,6 +353,9 @@ def _promote(klass, arg):
       The argument promoted if the class is recognized, otherwise the
       original argument.
   """
+  if klass:
+    klass = re.sub('<.*', '', klass)
+
   if klass == 'Image':
     return image.Image(arg)
   elif klass == 'ImageCollection':

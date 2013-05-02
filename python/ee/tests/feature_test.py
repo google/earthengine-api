@@ -91,6 +91,15 @@ class FeatureTestCase(unittest.TestCase):
          ((5, 6), (7, 8)))))
 
   def testConstructorLaxity(self):
+    null_geometry_feature = ee.Feature(None, {'x': 2})
+
+    description = {
+        'algorithm': 'Feature',
+        'geometry': None,
+        'metadata': {'x': 2}
+    }
+    self.assertEquals(description, null_geometry_feature._description)
+
     point = ee.Feature.Point(1, 2)
     feature = ee.Feature(point)
     self.assertEquals(point, feature._description['geometry'])

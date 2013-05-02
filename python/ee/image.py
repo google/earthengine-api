@@ -168,6 +168,33 @@ class Image(object):
       call['newNames'] = opt_names
     return Image(call)
 
+  def expression(self, expression, opt_map=None):
+    """Evaluates an expression on an image.
+
+    This is an override to the normal Image.select function to allow
+    varargs specification of selectors.
+
+    Args:
+      expression: The expression to evaluate.
+      opt_map: An optional map of input images available by name.
+
+    Returns:
+      The image created by the provided expression.
+    """
+    func = {
+        'algorithm': 'Image.parseExpression',
+        'expression': expression,
+        'argName': 'DEFAULT_EXPRESSION_IMAGE'
+    }
+    call = {
+        'algorithm': func,
+        'DEFAULT_EXPRESSION_IMAGE': self
+    }
+    if opt_map:
+      for name, image in opt_map.iteritems():
+        call[name] = Image(image)
+    return Image(call)
+
   ###################################################
   # Static methods.
   ###################################################

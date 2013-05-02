@@ -41,7 +41,8 @@ class Feature(object):
       # pylint: enable-msg=protected-access
       return
 
-    if 'algorithm' in geometry or geometry.get('type') == 'Variable':
+    if (geometry is not None and
+        ('algorithm' in geometry or geometry.get('type') == 'Variable')):
       if opt_properties:
         self._description = {
             'algorithm': 'Feature',
@@ -51,7 +52,7 @@ class Feature(object):
       else:
         self._description = geometry
     else:
-      if Feature.isValidGeometry(geometry):
+      if geometry is None or Feature.isValidGeometry(geometry):
         self._description = {
             'algorithm': 'Feature',
             'geometry': geometry,

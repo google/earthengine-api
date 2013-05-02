@@ -35,6 +35,13 @@ TEST_SIGNATURES = {
         'args': [
             {'type': 'String', 'name': 'str', 'description': ''}
         ]
+    },
+    'Image.HillShadow': {
+        'description': '',
+        'returns': 'Image<[shadow]>',
+        'args': [
+            {'type': 'Image', 'description': '', 'name': 'image'}
+        ]
     }
 }
 
@@ -184,6 +191,13 @@ class AlgorithmTestCase(unittest.TestCase):
     # Try again with a named arg.
     c3 = c1.map_fakeFunction(image2=image2)
     self.assertEquals(expected, json.loads(c3.serialize()))
+
+  def testPromote(self):
+    # Vertify that the extra type args are getting stripped during promotion.
+    ee.Initialize()
+    image1 = ee.Image(0)
+    image2 = image1.HillShadow()
+    self.assertTrue(isinstance(image2, ee.Image))
 
 
 if __name__ == '__main__':

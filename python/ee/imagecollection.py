@@ -45,7 +45,7 @@ class ImageCollection(collection.Collection):
       # A manually created collection.
       args = {'type': 'ImageCollection',
               'images': [image.Image(x) for x in args]}
-    elif isinstance(args, ImageCollection):
+    elif isinstance(args, collection.Collection):
       args = copy.deepcopy(args._description)        # pylint: disable-msg=W0212
     else:
       raise ee_exception.EEException('Unrecognized constructor argument.')
@@ -65,24 +65,6 @@ class ImageCollection(collection.Collection):
        A mapid and token.
     """
     return self.mosaic().getMapId(vis_params)
-
-  def combine(self, other):
-    """Combine two ImageCollections by ID, merging bands.
-
-    The collection contains one image for each image in this collection
-    merged with the bands from any matching images in the other collection.
-
-    Args:
-       other: The second collection.
-
-    Returns:
-       The combined collection.
-    """
-    return ImageCollection({
-        'algorithm': 'CombineCollectionBands',
-        'primary': self,
-        'secondary': other
-        })
 
   def map(self,
           algorithm,
