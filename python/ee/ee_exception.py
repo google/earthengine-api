@@ -1,5 +1,3 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
-
 """A simple exception for the EE library."""
 
 

@@ -1,33 +1,32 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
-
 """The EE Javascript library."""
 
 
 
-import logging
-import re
-import urllib
-import urllib2
+# Using lowercase function naming to match the JavaScript names.
+# pylint: disable-msg=g-bad-name
+
+import datetime
+import numbers
 
 import oauth2client.client
 
-# pylint: disable-msg=C6203
-import data
-import algorithms
-
-# We're explictly importing the objects so they become available in this.
-# pylint: disable-msg=C6202,g-multiple-import
-from algorithms import variable, lambda_
+from apifunction import ApiFunction
 from collection import Collection
 from computedobject import ComputedObject
-from featurecollection import FeatureCollection
+from customfunction import CustomFunction
+import data
+from ee_exception import EEException
+import ee_types as types
+from encodable import Encodable
 from feature import Feature
+from featurecollection import FeatureCollection
 from filter import Filter
-from imagecollection import ImageCollection
+from function import Function
+from geometry import Geometry
 from image import Image
+from imagecollection import ImageCollection
+from serializer import Serializer
 
-
-CLIENT_LOGIN_URL = 'https://www.google.com/accounts/ClientLogin'
 
 OAUTH2_SCOPE = 'https://www.googleapis.com/auth/earthengine.readonly'
 
@@ -35,50 +34,36 @@ OAUTH2_SCOPE = 'https://www.googleapis.com/auth/earthengine.readonly'
 def Initialize(credentials=None, opt_url=None):
   """Initialize the EE library.
 
+  If this hasn't been called by the time any object constructor is used,
+  it will be called then.  If this is called a second time with a different
+  URL, this doesn't do an un-initialization of e.g.: the previously loaded
+  Algorithms, but will overwrite them and let point at alternate servers.
+
   Args:
-    credentials: OAuth2 or ClientLogin credentials.
+    credentials: OAuth2 credentials.
     opt_url: The base url for the EarthEngine REST API to connect to.
   """
-  if isinstance(credentials, basestring):
-    # TODO(user): Remove this deprecated option altogether.  Google
-    # officially deprecated ClientLogin in April, 2012.
-    data.CLIENT_LOGIN_TOKEN = credentials
-  else:
-    data.CREDENTIALS = credentials
-  if opt_url is not None:
-    data.BASE_URL = opt_url + '/api'
-    data.TILE_URL = opt_url
+  data.initialize(credentials, (opt_url + '/api' if opt_url else None), opt_url)
+  # Initialize the dynamically loaded functions on the objects that want them.
+  ApiFunction.initialize()
+  Image.initialize()
+  Feature.initialize()
+  Collection.initialize()
+  ImageCollection.initialize()
+  FeatureCollection.initialize()
+  Filter.initialize()
 
-  # pylint: disable-msg=W0212
-  algorithms._addFunctions(
-      Image, 'Image', 'Image')
-  algorithms._addFunctions(
-      Feature, 'Feature', 'Feature')
-  algorithms._addFunctions(
-      FeatureCollection, 'FeatureCollection', 'FeatureCollection')
-  algorithms._addFunctions(
-      Image, 'Window', 'Image', 'focal_')
-  algorithms._addFunctions(
-      ImageCollection, 'ImageCollection', 'ImageCollection')
-  algorithms._addFunctions(
-      ImageCollection, 'reduce', 'ImageCollection')
-  algorithms._addFunctions(
-      Collection, 'Collection', 'Collection')
-  algorithms._addFunctions(Collection,
-                           'AggregateFeatureCollection',
-                           'Collection',
-                           'aggregate_',
-                           algorithms._makeAggregateFunction)
-  algorithms._addFunctions(ImageCollection,
-                           'Image',
-                           'Image',
-                           'map_',
-                           algorithms._makeMapFunction)
-  algorithms._addFunctions(FeatureCollection,
-                           'Feature',
-                           'Feature',
-                           'map_',
-                           algorithms._makeMapFunction)
+
+def Reset():
+  """Reset the library. Useful for re-initializing to a different server."""
+  data.reset()
+  ApiFunction.reset()
+  Image.reset()
+  Feature.reset()
+  Collection.reset()
+  ImageCollection.reset()
+  FeatureCollection.reset()
+  Filter.reset()
 
 
 def ServiceAccountCredentials(email, key_file):
@@ -97,73 +82,106 @@ def ServiceAccountCredentials(email, key_file):
       email, private_key, OAUTH2_SCOPE)
 
 
-def ClientLogin(email, password):
-  """Get an authorization token for the given Google account via ClientLogin."""
-  payload = urllib.urlencode({
-      'Email': email,
-      'Passwd': password,
-      'service': 'gestalt'
-      })
-
-  req = urllib2.Request(url=CLIENT_LOGIN_URL, data=payload)
-  try:
-    response = urllib2.urlopen(req).read()
-  except urllib2.HTTPError, e:
-    logging.error('Server Error: %d', e.code)
-    raise e
-  except urllib2.URLError, e:
-    logging.error('Unexpected HTTP response: %s', e.reason)
-    raise e
-
-  auth = [x for x in response.splitlines() if x.startswith('Auth=')]
-  if auth:
-    return auth[0][5:]
-  else:
-    raise Exception('Client login failed.')
-
-
-def call(algorithm, *args, **kwargs):           # pylint: disable-msg=C6409
+def call(func, *args, **kwargs):
   """Invoke the given algorithm with the specified args.
 
   Args:
-    algorithm: The name of the algorithm or a lambda.
-    *args: The positional arguments to pass to the specified algorithm.
-    **kwargs: The named arguments to pass to the specified algorithm.
+    func: The function to call. Either an ee.Function object or the name of
+        an API function.
+    *args: The positional arguments to pass to the function.
+    **kwargs: The named arguments to pass to the function.
 
   Returns:
-    The algorithm result.  This is cast to the appropriate type if it's
-    recognized.  Otherwise, a dictionary representing the algorithm
-    invocation JSON is returned.
+    A ComputedObject representing the called function. If the signature
+    specifies a recognized return type, the returned value will be cast
+    to that type.
   """
-  if isinstance(algorithm, basestring):
-    signature = algorithms.getSignature(algorithm)
-    # pylint: disable-msg=W0212
-    return algorithms._applySignature(signature, *args, **kwargs)
-  else:
-    # Merge positional args into the keyword ones.
-    applied = {'algorithm': algorithm}
-    applied.update(dict(zip(algorithm['args'], args)))
-    applied.update(kwargs)
-    return applied
+  if isinstance(func, basestring):
+    func = ApiFunction.lookup(func)
+  return func.call(*args, **kwargs)
 
 
-def apply(algorithm, namedArgs):               # pylint: disable-msg=C6409,W0622
-  """Invoke the given algorithm with a dictionary of args.
+def apply(func, named_args):  # pylint: disable-msg=redefined-builtin
+  """Call a function with a dictionary of named arguments.
 
   Args:
-    algorithm: The name of an algorithm or a lambda.
-    namedArgs: A dictionary of named arguments to pass to the given algorithm.
+    func: The function to call. Either an ee.Function object or the name of
+        an API function.
+    named_args: A dictionary of arguments to the function.
 
   Returns:
-    The algorithm result.  This is cast to the appropriate type if it's
-    recognized.  Otherwise, a dictionary representing the algorithm
-    invocation JSON is returned.
+    A ComputedObject representing the called function. If the signature
+    specifies a recognized return type, the returned value will be cast
+    to that type.
   """
-  if isinstance(algorithm, basestring):
-    signature = algorithms.getSignature(algorithm)
-    # pylint: disable-msg=W0212
-    return algorithms._applySignature(signature, **namedArgs)
+  if isinstance(func, basestring):
+    func = ApiFunction.lookup(func)
+  return func.apply(named_args)
+
+
+def _Promote(arg, klass):
+  """Wrap an argument in an object of the specified class.
+
+  This is used to e.g.: promote numbers or strings to Images and arrays
+  to Collections.
+
+  Args:
+    arg: The object to promote.
+    klass: The expected type.
+
+  Returns:
+    The argument promoted if the class is recognized, otherwise the
+    original argument.
+  """
+  if arg is None:
+    return arg
+
+  if klass == 'Image':
+    return Image(arg)
+  elif klass == 'ImageCollection':
+    return ImageCollection(arg)
+  elif klass in ('Feature', 'EEObject'):
+    if isinstance(arg, Collection):
+      # TODO(user): Decide whether we want to leave this in. It can be
+      #              quite dangerous on large collections.
+      return ApiFunction.call_(
+          'Feature', ApiFunction.call_('ExtractGeometry', arg))
+    else:
+      return Feature(arg)
+  elif klass in ('ProjGeometry', 'Geometry'):
+    if isinstance(arg, Collection):
+      return ApiFunction.call_('ExtractGeometry', arg)
+    if isinstance(arg, ComputedObject):
+      return arg
+    else:
+      return Geometry(arg)
+  elif klass in ('FeatureCollection', 'EECollection', 'Collection'):
+    if isinstance(arg, Collection):
+      return arg
+    else:
+      return FeatureCollection(arg)
+  elif klass == 'Filter':
+    return Filter(arg)
+  elif klass == 'ErrorMargin' and isinstance(arg, numbers.Number):
+    return ApiFunction.call_('ErrorMargin', arg, 'meters')
+  elif klass == 'Algorithm' and isinstance(arg, basestring):
+    return ApiFunction.lookup(arg)
+  elif klass == 'Date':
+    if isinstance(arg, basestring):
+      try:
+        import dateutil.parser    # pylint: disable-msg=g-import-not-at-top
+      except ImportError:
+        raise EEException(
+            'Conversion of strings to dates requires the dateutil library.')
+      else:
+        return dateutil.parser.parse(arg)
+    elif isinstance(arg, numbers.Number):
+      return datetime.datetime.fromtimestamp(arg / 1000)
+    else:
+      return arg
   else:
-    applied = namedArgs.copy()
-    applied['algorithm'] = algorithm
-    return applied
+    return arg
+
+
+# Set up type promotion rules as soon the package is loaded.
+Function._registerPromoter(_Promote)   # pylint: disable-msg=protected-access

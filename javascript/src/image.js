@@ -1,17 +1,18 @@
-// Copyright 2012 Google Inc. All Rights Reserved.
-
 /**
  * @fileoverview A representation of an earth engine image.
- *
  * See: https://sites.google.com/site/earthengineapidocs for more details.
  */
+
 goog.provide('ee.Image');
 
-goog.require('ee');
-goog.require('ee.Collection');
-goog.require('ee.Serializer');
+goog.require('ee.ApiFunction');
+goog.require('ee.ComputedObject');
+goog.require('ee.CustomFunction');
+goog.require('ee.Geometry');
+goog.require('ee.Types');
 goog.require('ee.data');
-goog.require('goog.Uri.QueryData');
+goog.require('goog.array');
+goog.require('goog.object');
 
 
 
@@ -23,29 +24,28 @@ goog.require('goog.Uri.QueryData');
  *   3) An array - creates an image out of each element of the array and
  *      combines them into a single image,
  *   4) An ee.Image - returns the argument,
- *   5) A structure - Assumed to be an image's JSON description.
+ *   5) Nothing - results in an empty transparent image.
  *
- * @constructor
  * @param {number|string|Array.<*>|ee.Image|Object} args Constructor argument.
+ * @constructor
+ * @extends {ee.ComputedObject}
  */
 ee.Image = function(args) {
   // Constructor safety.
   if (!(this instanceof ee.Image)) {
     return new ee.Image(args);
+  } else if (args instanceof ee.Image) {
+    return args;
   }
-  ee.initialize();
 
-  if (goog.isNumber(args)) {
-    // Make a constant image.
-    args = {
-      'algorithm': 'Constant',
-      'value': args
-    };
-  } else if (goog.isString(args)) {
-    args = {
-      'type': 'Image',
-      'id': args
-    };
+  ee.Image.initialize();
+
+  if (ee.Types.isNumber(args)) {
+    // A constant image.
+    goog.base(this, new ee.ApiFunction('Image.constant'), {'value': args});
+  } else if (ee.Types.isString(args)) {
+    // An ID.
+    goog.base(this, new ee.ApiFunction('Image.load'), {'id': args});
   } else if (goog.isArray(args)) {
     // Make an image out of each element.
     return ee.Image.combine_(goog.array.map(
@@ -53,18 +53,43 @@ ee.Image = function(args) {
         function(elem) {
           return new ee.Image(/** @type {?} */ (elem));
         }));
-  } else if (args instanceof ee.Image) {
-    // The arguments are already an image. Just return it.
-    return args;
+  } else if (args instanceof ee.ComputedObject) {
+    // A custom object to reinterpret as an Image.
+    goog.base(this, args.func, args.args);
+  } else if (arguments.length == 0) {
+    goog.base(this, new ee.ApiFunction('Image.mask'), {
+      'image': ee.Image(0),
+      'mask': ee.Image(0)
+    });
+  } else {
+    throw Error('Unrecognized argument type to convert to an Image: ' + args);
   }
+};
+goog.inherits(ee.Image, ee.ComputedObject);
 
-  /**
-   * The internal representation of this image.
-   *
-   * @type {Object}
-   * @private
-   */
-  this.description_ = /** @type {Object} */ (args);
+
+/**
+ * Whether the class has been initialized with API functions.
+ * @type {boolean}
+ * @private
+ */
+ee.Image.initialized_ = false;
+
+
+/** Imports API functions to this class. */
+ee.Image.initialize = function() {
+  if (!ee.Image.initialized_) {
+    ee.ApiFunction.importApi(ee.Image, 'Image', 'Image');
+    ee.ApiFunction.importApi(ee.Image, 'Window', 'Image', 'focal_');
+    ee.Image.initialized_ = true;
+  }
+};
+
+
+/** Removes imported API functions from this class. */
+ee.Image.reset = function() {
+  ee.ApiFunction.clearApi(ee.Image);
+  ee.Image.initialized_ = false;
 };
 
 
@@ -72,14 +97,15 @@ ee.Image = function(args) {
  * An imperative function that returns information about this image via a
  * synchronous AJAX call.
  *
- * @return {Object} The return contents vary but will include at least:
+ * @param {function(Object)=} opt_callback An optional callback.  If not
+ *     supplied, the call is made synchronously.
+ * @return {Object|undefined} The return contents vary but include at least:
  *   bands - an array containing metadata about the bands in the collection,
  *   properties - a dictionary containing the image's metadata properties.
  */
-ee.Image.prototype.getInfo = function() {
-  return ee.data.getValue({
-    'json': this.serialize()
-  });
+ee.Image.prototype.getInfo = function(opt_callback) {
+  return /** @type {Object|undefined} */(
+      goog.base(this, 'getInfo', opt_callback));
 };
 
 
@@ -152,12 +178,21 @@ ee.Image.prototype.getDownloadURL = function(params) {
 
 
 /**
- * JSON serializer.
- *
- * @return {string} The serialized representation of this object.
+ * Get a thumbnail URL for this image.
+ * @param {Object} params Parameters identical to getMapId, plus:
+ *     size (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
+ *         dimensions of the thumbnail to render, in pixels. If only one
+ *         number is passed, it is used as the maximum, and the other
+ *         dimension is computed by proportional scaling.
+ *     region (E,S,W,N or GeoJSON) Geospatial region of the image
+ *         to render. By default, the whole image.
+ *     format (string) Either 'png' (default) or 'jpg'.
+ * @return {string} A thumbnail URL.
  */
-ee.Image.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this.description_);
+ee.Image.prototype.getThumbURL = function(params) {
+  var request = params || {};
+  request['image'] = this.serialize();
+  return ee.data.makeThumbUrl(ee.data.getThumbId(request));
 };
 
 // ///////////////////////////////////////////////////////////////
@@ -208,11 +243,7 @@ ee.Image.combine_ = function(images, opt_names) {
   // Append all the bands.
   var result = new ee.Image(images[0]);
   for (var i = 1; i < images.length; i++) {
-    result = new ee.Image({
-      'algorithm': 'Image.addBands',
-      'dstImg': result,
-      'srcImg': new ee.Image(images[i])
-    });
+    result = ee.ApiFunction._call('Image.addBands', result, images[i]);
   }
 
   // Optionally, rename the bands of the result.
@@ -237,8 +268,7 @@ ee.Image.combine_ = function(images, opt_names) {
 ee.Image.prototype.select = function(selectors, opt_names) {
   // If the user didn't pass an array as the first argument, assume
   // that everything in the arguments array is actually a selector.
-  var call = {
-    'algorithm': 'Image.select',
+  var args = {
     'input': this,
     'bandSelectors': selectors
   };
@@ -250,31 +280,102 @@ ee.Image.prototype.select = function(selectors, opt_names) {
         throw Error('Illegal argument to select(): ' + selectors[i]);
       }
     }
-    call['bandSelectors'] = selectors;
+    args['bandSelectors'] = selectors;
   } else if (opt_names) {
-    call['newNames'] = opt_names;
+    args['newNames'] = opt_names;
   }
-  return new ee.Image(call);
+  return /** @type {ee.Image} */(ee.ApiFunction._apply('Image.select', args));
 };
 
 
 /**
- * @return {string} The image as a human-readable string.
+ * Evaluates an expression on an image.
+ *
+ * @param {string} expression The expression to evaluate.
+ * @param {Object.<ee.Image>=} opt_map A map of input images available by name.
+ * @return {ee.Image} The image created by the provided expression.
  */
-ee.Image.prototype.toString = function() {
-  return 'ee.Image(' + ee.Serializer.toReadableJSON(this.description_) + ')';
+ee.Image.prototype.expression = function(expression, opt_map) {
+  var argName = 'DEFAULT_EXPRESSION_IMAGE';
+  var body = ee.ApiFunction._call('Image.parseExpression', expression, argName);
+  var argNames = [argName];
+  var args = goog.object.create(argName, this);
+
+  // Add custom arguments, promoting them to Images manually.
+  if (opt_map) {
+    for (var name in opt_map) {
+      argNames.push(name);
+      args[name] = new ee.Image(opt_map[name]);
+    }
+  }
+
+  // Reinterpret the body call as an ee.Function by hand-generating the
+  // signature so the computed function knows its input and output types.
+  var func = new ee.Function();
+  func.encode = function(encoder) {
+    return body.encode(encoder);
+  };
+  func.getSignature = function(encoder) {
+    return {
+      'name': '',
+      'args': goog.array.map(argNames, function(name) {
+        return {
+          'name': name,
+          'type': 'Image',
+          'optional': false
+        };
+      }, this),
+      'returns': 'Image'
+    };
+  };
+
+  // Perform the call.
+  return /** @type {ee.Image} */(func.apply(args));
 };
+
+
+/**
+ * Clips an image by a Geometry, Feature or FeatureCollection.
+ *
+ * @param {ee.Geometry|ee.Feature|ee.FeatureCollection|Object} geometry
+ *     The Geometry, Feature or FeatureCollection to clip to.
+ * @return {ee.Image} The clipped image.
+ */
+ee.Image.prototype.clip = function(geometry) {
+  try {
+    // Need to manually promote GeoJSON, because the signature does not
+    // specify the type so auto promotion won't work.
+    geometry = new ee.Geometry(geometry);
+  } catch (e) {
+    // Not an ee.Geometry or GeoJSON. Just pass it along.
+  }
+  return /** @type {ee.Image} */(
+      ee.ApiFunction._call('Image.clip', this, geometry));
+};
+
+
+/** @override */
+ee.Image.prototype.name = function() {
+  return 'Image';
+};
+
 
 // Explicit exports.
 goog.exportSymbol('ee.Image', ee.Image);
-goog.exportProperty(ee.Image.prototype, 'getInfo', ee.Image.prototype.getInfo);
+goog.exportProperty(ee.Image.prototype, 'getInfo',
+                    ee.Image.prototype.getInfo);
 goog.exportProperty(ee.Image.prototype, 'getDownloadURL',
                     ee.Image.prototype.getDownloadURL);
-goog.exportProperty(ee.Image.prototype, 'getMap', ee.Image.prototype.getMap);
-goog.exportProperty(ee.Image.prototype, 'select', ee.Image.prototype.select);
-goog.exportProperty(ee.Image.prototype, 'serialize',
-                    ee.Image.prototype.serialize);
+goog.exportProperty(ee.Image.prototype, 'getThumbURL',
+                    ee.Image.prototype.getThumbURL);
+goog.exportProperty(ee.Image.prototype, 'getMap',
+                    ee.Image.prototype.getMap);
+goog.exportProperty(ee.Image.prototype, 'select',
+                    ee.Image.prototype.select);
+goog.exportProperty(ee.Image.prototype, 'expression',
+                    ee.Image.prototype.expression);
+goog.exportProperty(ee.Image.prototype, 'clip',
+                    ee.Image.prototype.clip);
 goog.exportProperty(ee.Image, 'cat', ee.Image.cat);
-goog.exportProperty(ee.Image, 'combine_', ee.Image.combine_);
 goog.exportProperty(ee.Image, 'rgb', ee.Image.rgb);
 goog.exportProperty(ee.Image, 'toString', ee.Image.toString);

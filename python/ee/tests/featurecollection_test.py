@@ -1,118 +1,63 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
-
 """Test for the ee.featurecollection module."""
 
 
 
-import json
-
 import unittest
 
 import ee
+import apitestcase
 
 
-class FeatureCollectionTestCase(unittest.TestCase):
-  def setUp(self):
-    ee.algorithms._signatures = {}
+class FeatureCollectionTestCase(apitestcase.ApiTestCase):
 
   def testConstructors(self):
-    # Collection by ID (string).
-    col1 = ee.FeatureCollection('abcd')
-    self.assertEquals(
-        {'type': 'FeatureCollection', 'id': 'abcd'},
-        json.loads(col1.serialize()))
+    """Verifies that constructors understand valid parameters."""
+    from_id = ee.FeatureCollection('abcd')
+    self.assertEquals(ee.ApiFunction.lookup('Collection.loadTable'),
+                      from_id.func)
+    self.assertEquals({'tableId': 'abcd'}, from_id.args)
 
-    # Collection by ID (string), with column.
-    col1 = ee.FeatureCollection('abcd', 'xyz')
-    self.assertEquals(
-        {'type': 'FeatureCollection', 'id': 'abcd', 'geo_column': 'xyz'},
-        json.loads(col1.serialize()))
+    from_id_and_geom_column = ee.FeatureCollection('abcd', 'xyz')
+    self.assertEquals(ee.ApiFunction.lookup('Collection.loadTable'),
+                      from_id_and_geom_column.func)
+    self.assertEquals({'tableId': 'abcd', 'geometryColumn': 'xyz'},
+                      from_id_and_geom_column.args)
 
-    # Fusion Table ID (number).
-    col2 = ee.FeatureCollection(123456)
-    self.assertEquals(
-        {'type': 'FeatureCollection', 'table_id': 123456},
-        json.loads(col2.serialize()))
+    from_numeric_id = ee.FeatureCollection(123456)
+    self.assertEquals(ee.ApiFunction.lookup('Collection.loadTable'),
+                      from_numeric_id.func)
+    self.assertEquals({'tableId': 123456}, from_numeric_id.args)
 
-    # Fusion Table ID (number) with column.
-    col2 = ee.FeatureCollection(123456, 'xyz')
-    self.assertEquals(
-        {'type': 'FeatureCollection', 'table_id': 123456, 'geo_column': 'xyz'},
-        json.loads(col2.serialize()))
+    from_numeric_id_and_geom_column = ee.FeatureCollection(123456, 'xyz')
+    self.assertEquals(ee.ApiFunction('Collection.loadTable'),
+                      from_numeric_id_and_geom_column.func)
+    self.assertEquals({'tableId': 123456, 'geometryColumn': 'xyz'},
+                      from_numeric_id_and_geom_column.args)
 
-    # Manually created collection from features.
-    col3 = ee.FeatureCollection([ee.Feature.Polygon(1, 2, 3, 4, 5, 6),
-                                 ee.Feature.Polygon(2, 3, 4, 5, 6, 7)])
-    self.assertEquals(
-        {
-            'type': 'FeatureCollection',
-            'features': [
-                {
-                    'algorithm': 'Feature',
-                    'geometry': {'type': 'Polygon', 'coordinates': [[
-                        [1, 2], [3, 4], [5, 6]]]},
-                    'metadata': {}
-                }, {
-                    'algorithm': 'Feature',
-                    'geometry': {'type': 'Polygon', 'coordinates': [[
-                        [2, 3], [4, 5], [6, 7]]]},
-                    'metadata': {}
-                    }
-                ]
-            },
-        json.loads(col3.serialize()))
+    geometry = ee.Geometry.Point(1, 2)
+    feature = ee.Feature(geometry)
+    from_geometries = ee.FeatureCollection([geometry])
+    from_single_geometry = ee.FeatureCollection(geometry)
+    from_features = ee.FeatureCollection([feature])
+    from_single_feature = ee.FeatureCollection(feature)
+    self.assertEquals(from_geometries, from_single_geometry)
+    self.assertEquals(from_geometries, from_features)
+    self.assertEquals(from_geometries, from_single_feature)
+    self.assertEquals(ee.ApiFunction.lookup('Collection'), from_geometries.func)
+    self.assertEquals({'features': [feature]}, from_geometries.args)
 
-    # From another FeatureCollection
-    col4 = ee.FeatureCollection(col1)
-    self.assertEquals(json.loads(col1.serialize()),
-                      json.loads(col4.serialize()))
-
-    # Single feature.
-    f = ee.Feature(ee.Feature.Polygon(1, 2))
-    col5 = ee.FeatureCollection(f)
-    col6 = ee.FeatureCollection([f])
-    self.assertEquals(json.loads(col5.serialize()),
-                      json.loads(col6.serialize()))
-
-    # From JSON
-    col7 = ee.FeatureCollection({
-        'type': 'FeatureCollection',
-        'features': [{
-            'algorithm': 'Feature',
-            'geometry': {'type': 'Polygon', 'coordinates': [[
-                [1, 2], [3, 4], [5, 6]]]},
-            'metadata': {}
-        }, {
-            'algorithm': 'Feature',
-            'geometry': {'type': 'Polygon', 'coordinates': [[
-                [2, 3], [4, 5], [6, 7]]]},
-            'metadata': {}
-        }]
-    })
-    self.assertEquals(json.loads(col3.serialize()),
-                      json.loads(col7.serialize()))
+    from_computed_object = ee.FeatureCollection(
+        ee.ComputedObject(None, {'x': 'y'}))
+    self.assertEquals({'x': 'y'}, from_computed_object.args)
 
   def testGetMapId(self):
-    ee.Initialize(None, '')
-    # Mock out send so we can hang on to the parameters.
-    send_val = {}
+    """Verifies that getMap() uses DrawVector to draw FeatureCollections."""
+    collection = ee.FeatureCollection(5)
+    mapid = collection.getMapId({'color': 'ABCDEF'})
+    manual = ee.ApiFunction.call_('DrawVector', collection, 'ABCDEF')
 
-    def MockSend(path, params, unused_method='POST'):
-      send_val['path'] = path
-      send_val['params'] = params
-      return {'mapid': '1', 'token': '2'}
-    ee.data.send_ = MockSend
-
-    mapid = ee.FeatureCollection(5).getMapId({'color': 'ABCDEF'})
-    self.assertEqual({
-        'color': 'ABCDEF',
-        'algorithm': 'DrawVector',
-        'collection': {
-            'type': 'FeatureCollection',
-            'table_id': 5
-        }
-    }, json.loads(send_val['params']['image']))
-    self.assertEqual({'mapid': '1', 'token': '2'}, mapid)
+    self.assertEquals('fakeMapId', mapid['mapid'])
+    self.assertEquals(manual, mapid['image'])
 
 
 if __name__ == '__main__':

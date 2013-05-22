@@ -1,5 +1,3 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
-
 """A slippy map GUI.
 
 Implements a tiled slippy map using Tk canvas. Displays map tiles using
@@ -40,8 +38,8 @@ import urllib2
 # check if the Python imaging libraries used by the mapclient module are
 # installed
 try:
-  import ImageTk                                         # pylint: disable=C6204
-  import Image                                           # pylint: disable=C6204
+  import ImageTk             # pylint: disable=g-import-not-at-top
+  import Image               # pylint: disable=g-import-not-at-top
 except ImportError:
   print """
     ERROR: A Python library (PIL) used by the Earth Engine API mapclient module
@@ -51,7 +49,7 @@ except ImportError:
   raise
 
 try:
-  import Tkinter                                         # pylint: disable=C6204
+  import Tkinter             # pylint: disable=g-import-not-at-top
 except ImportError:
   print """
     ERROR: A Python library (Tkinter) used by the Earth Engine API mapclient
@@ -141,7 +139,7 @@ class MapClient(threading.Thread):
     self.parent.after_idle(SetReady)
     self.parent.mainloop()
 
-  def addOverlay(self, overlay):             # pylint: disable-msg=C6409
+  def addOverlay(self, overlay):             # pylint: disable-msg=g-bad-name
     """Add an overlay to the map."""
     self.overlays.append(overlay)
     self.LoadTiles()
@@ -331,7 +329,7 @@ class MapOverlay(object):
     self.fetchers = [MapOverlay.TileFetcher(self) for unused_x in range(10)]
     self.constant = None
 
-  def getTile(self, key, callback):    # pylint: disable-msg=C6409
+  def getTile(self, key, callback):    # pylint: disable-msg=g-bad-name
     """Get the requested tile.
 
     If the requested tile is already cached, it's returned (sent to the
@@ -461,7 +459,7 @@ def MakeOverlay(mapid, baseurl=BASE_URL):
 map_instance = None
 
 
-# pylint: disable-msg=C6409
+# pylint: disable-msg=g-bad-name
 def addToMap(eeobject, vis_params=None, *unused_args):
   """Adds a layer to the default map instance.
 
@@ -469,6 +467,7 @@ def addToMap(eeobject, vis_params=None, *unused_args):
       eeobject: the object to add to the map.
       vis_params: a dictionary of visualization parameters.  See
           ee.data.getMapId().
+      *unused_args: unused arguments, left for compatibility with the JS API.
 
   This call exists to be an equivalent to the playground addToMap() call.
   It uses a global MapInstance to hang on to "the map".  If the MapInstance
@@ -485,15 +484,15 @@ def addToMap(eeobject, vis_params=None, *unused_args):
 
   overlay = MakeOverlay(eeobject.getMapId(vis_params))
 
-  global map_instance           # pylint: disable-msg=W0603
+  global map_instance
   if not map_instance:
     map_instance = MapClient()
   map_instance.addOverlay(overlay)
 
 
-def centerMap(lng, lat, zoom):  # pylint: disable-msg=C6409
+def centerMap(lng, lat, zoom):  # pylint: disable-msg=g-bad-name
   """Center the default map instance at the given lat, lon and zoom values."""
-  global map_instance           # pylint: disable-msg=W0603
+  global map_instance
   if not map_instance:
     map_instance = MapClient()
 

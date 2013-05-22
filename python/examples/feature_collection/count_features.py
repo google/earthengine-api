@@ -17,4 +17,4 @@ ee.mapclient.addToMap(photos_near_sf, {'color': '0040b0'})
 ee.mapclient.addToMap(bridge_photos, {'color': 'e02070'})
 
 print ('There are %d bridge photos around SF.' %
-    bridge_photos.aggregate_count('.all'))
+       bridge_photos.aggregate_count('.all').getInfo())

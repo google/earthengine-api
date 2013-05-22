@@ -1,35 +1,78 @@
-//Copyright 2012 Google Inc. All Rights Reserved.
-
 /**
  * @fileoverview Base class for ImageCollection and FeatureCollection.
  * This class is never intended to be instantiated by the user.
  *
  */
+
 goog.provide('ee.Collection');
 
+goog.require('ee.ApiFunction');
+goog.require('ee.ComputedObject');
+goog.require('ee.CustomFunction');
 goog.require('ee.Filter');
-goog.require('ee.Serializer');
-goog.require('ee.data');
+goog.require('ee.Function');
+goog.require('ee.Types');
 goog.require('goog.object');
 
+
+
 /**
- * @param {Object} args - A representation of the collection.
+ * Constructs a base collection by passing the representaion up to
+ * ComputedObject.
+ * @param {ee.Function} func The same argument as in ee.ComputedObject().
+ * @param {Object} args The same argument as in ee.ComputedObject().
  * @constructor
- *
- * TODO(user): Add some runtime type checking.
+ * @extends {ee.ComputedObject}
  */
-ee.Collection = function(args) {
-  /**
-   * The internal representation of this collection.
-   * @type {Object}
-   * @private
-   */
-  this.description_ = args;
+ee.Collection = function(func, args) {
+  goog.base(this, func, args);
+  ee.Collection.initialize();
+};
+goog.inherits(ee.Collection, ee.ComputedObject);
+
+
+/**
+ * The serial number of the next mapping variable.
+ * @type {number}
+ * @private
+ */
+ee.Collection.serialMappingId_ = 0;
+
+
+/**
+ * Whether the class has been initialized with API functions.
+ * @type {boolean}
+ * @private
+ */
+ee.Collection.initialized_ = false;
+
+
+/** Imports API functions to this class. */
+ee.Collection.initialize = function() {
+  if (!ee.Collection.initialized_) {
+    ee.ApiFunction.importApi(ee.Collection, 'Collection', 'Collection');
+    ee.ApiFunction.importApi(ee.Collection,
+                             'AggregateFeatureCollection',
+                             'Collection',
+                             'aggregate_');
+    ee.Collection.initialized_ = true;
+  }
 };
 
 
 /**
- * Add a new filter to this collection.
+ * Removes imported API functions from this class and resets the serial ID
+ * used for mapping JS functions to 0.
+ */
+ee.Collection.reset = function() {
+  ee.ApiFunction.clearApi(ee.Collection);
+  ee.Collection.initialized_ = false;
+  ee.Collection.serialMappingId_ = 0;
+};
+
+
+/**
+ * Apply a filter to this collection.
  *
  * Collection filtering is done by wrapping a collection in a filter
  * algorithm.  As additional filters are applied to a collection, we
@@ -44,76 +87,52 @@ ee.Collection.prototype.filter = function(newFilter) {
   if (!newFilter) {
     throw new Error('Empty filters.');
   }
-
-  var description;
-  // Check if this collection already has a filter.
-  if (ee.Collection.isFilterFeatureCollection_(this)) {
-    description = this.description_['collection'];
-    newFilter = this.description_['filters'].append_(newFilter);
-  } else {
-    description = this.description_;
-  }
-
-  // This assumes all collection subclasses can be constructed from JSON.
-  return new this.constructor({
-    'algorithm': 'FilterFeatureCollection',
-    'collection': description,
-    'filters': newFilter
-  });
+  return this.cast_(ee.ApiFunction._call('Collection.filter', this, newFilter));
 };
 
-/**
- * Returns true iff the collection is wrapped with a filter.
- *
- * @param {ee.Collection} collection - The collection to check.
- * @return {boolean} True if the collection is wrapped with a filter.
- * @private
- */
-ee.Collection.isFilterFeatureCollection_ = function(collection) {
-  return (collection.description_['algorithm'] == 'FilterFeatureCollection');
-};
 
 /**
  * Shortcuts to filter a collection by metadata.  This is equivalent
- * to this.filter(new ee.Filter().metadata(...)).
+ * to this.filter(ee.Filter.metadata(...)).
  *
- * @param {string} name - name of a property to filter.
- * @param {string} operator - Name of a comparison operator as defined
- *     by FilterCollection.  Possible values are: "equals", "less_than",
- *     "greater_than", "not_equals", "not_less_than", "not_greater_than",
- *     "starts_with", "ends_with", "not_starts_with", "not_ends_with",
- *     "contains", "not_contains".
- *
+ * @param {string} name The name of a property to filter.
+ * @param {string} operator The name of a comparison operator.
+ *     Possible values are: "equals", "less_than", "greater_than",
+ *     "not_equals", "not_less_than", "not_greater_than", "starts_with",
+ *     "ends_with", "not_starts_with", "not_ends_with", "contains",
+ *     "not_contains".
  * @param {*} value - The value to compare against.
  * @return {ee.Collection} The filtered collection.
  */
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
-  return this.filter(ee.Filter.metadata_(name, operator, value));
+  return this.filter(ee.Filter.metadata(name, operator, value));
 };
+
 
 /**
  * Shortcut to filter a collection by geometry.  Items in the
  * collection with a footprint that fails to intersect the bounds
  * will be excluded when the collection is evaluated.
  *
- * This is equivalent to this.filter(new ee.Filter().bounds(...)).
- * @param {ee.Feature|ee.Geometry} geometry - The geometry to filter to.
+ * This is equivalent to this.filter(ee.Filter.bounds(...)).
+ * @param {ee.Feature|ee.Geometry} geometry The geometry to filter to.
  * @return {ee.Collection} The filtered collection.
  */
 ee.Collection.prototype.filterBounds = function(geometry) {
   return this.filter(ee.Filter.bounds(geometry));
 };
 
+
 /**
  * Shortcut to filter a collection by a date range.  Items in the
  * collection with a time_start property that doesn't fall between the
  * start and end dates will be excluded.
  *
- * This is equivalent to this.filter(new ee.Filter().date(...)).
+ * This is equivalent to this.filter(ee.Filter.date(...)).
  *
- * @param {Date|string|number} start - The start date as a Date object,
+ * @param {Date|string|number} start The start date as a Date object,
  *     a string representation of a date, or milliseconds since epoch.
- * @param {Date|string|number} end - The end date as a Date object,
+ * @param {Date|string|number} end The end date as a Date object,
  *     a string representation of a date, or milliseconds since epoch.
  * @return {ee.Collection} The filtered collection.
  */
@@ -121,42 +140,24 @@ ee.Collection.prototype.filterDate = function(start, end) {
   return this.filter(ee.Filter.date(start, end));
 };
 
+
 /**
  * An imperative function that returns all the known information about this
  * collection via a synchronous AJAX call.
  *
  * @param {function(Object)=} opt_callback An optional callback.  If not
  *     supplied, the call is made synchronously.
- *
- * @return {Object} The return contents vary but will include at least:
+ * @return {Object|undefined} The return contents vary but include at least:
  *     features - an array containing metadata about the items in the
  *                collection that passed all filters.
  *     properties - a dictionary containing the collection's metadata
  *                  properties.
  */
 ee.Collection.prototype.getInfo = function(opt_callback) {
-  return ee.data.getValue(
-      {'json': this.serialize()},
-      opt_callback);
+  return /** @type {Object|undefined} */(
+      goog.base(this, 'getInfo', opt_callback));
 };
 
-/**
- * JSON serializer.
- *
- * @return {string} The serialized representation of this object.
- */
-ee.Collection.prototype.serialize = function() {
-  // Pop off any unused filter wrappers that might have been added by filter.
-  //
-  // We copy the object here, otherwise we might accidentally knock off a
-  // filter in progress.
-  var item = this;
-  while (ee.Collection.isFilterFeatureCollection_(item) &&
-         item.description_['filters'].length == 0) {
-    item = item.description_['collection'];
-  }
-  return ee.Serializer.toJSON(item.description_);
-};
 
 /**
  * Limit a collection to the specified number of elements, optionally
@@ -169,19 +170,10 @@ ee.Collection.prototype.serialize = function() {
  * @return {ee.Collection} The limited collection.
  */
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  var args = {
-    'algorithm': 'LimitFeatureCollection',
-    'collection': this,
-    'limit': max
-  };
-  if (opt_property) {
-    args['key'] = opt_property;
-    if (opt_ascending) {
-      args['ascending'] = opt_ascending;
-    }
-  }
-  return new this.constructor(args);
+  return this.cast_(ee.ApiFunction._call(
+      'Collection.limit', this, max, opt_property, opt_ascending));
 };
+
 
 /**
  * Sort a collection by the specified property.
@@ -192,29 +184,44 @@ ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
  * @return {ee.Collection} The sorted collection.
  */
 ee.Collection.prototype.sort = function(property, opt_ascending) {
-  var args = {
-    'algorithm': 'LimitFeatureCollection',
-    'collection': this,
-    'key': property
-  };
-  if (opt_ascending) {
-    args['ascending'] = opt_ascending;
-  }
-  return new this.constructor(args);
+  return this.cast_(ee.ApiFunction._call(
+      'Collection.limit', this, undefined, property, opt_ascending));
 };
+
 
 /**
  * Run an algorithm to extract the geometry from this collection.
  *
- * @return {Object} A JSON object representing the algorithm call.
+ * @return {ee.ComputedObject} An object representing the algorithm call.
  * TODO(user): Maybe this becomes a Feature?
  */
 ee.Collection.prototype.geometry = function() {
-  return {
-    'algorithm': 'ExtractGeometry',
-    'collection': this
-  };
+  return ee.ApiFunction._call('ExtractGeometry', this);
 };
+
+
+/**
+ * Cast a ComputedObject to a new instance of the same class as this.
+ * @param {ee.ComputedObject} obj The object to cast.
+ * @return {ee.Collection} The cast instance.
+ * @private
+ */
+ee.Collection.prototype.cast_ = function(obj) {
+  if (obj instanceof this.constructor) {
+    return obj;
+  } else {
+    // Assumes all subclass constructors can be called with a
+    // ComputedObject as their first parameter.
+    return new this.constructor(obj);
+  }
+};
+
+
+/** @inheritDoc */
+ee.Collection.prototype.name = function() {
+  return 'Collection';
+};
+
 
 /**
  * Maps an algorithm over a collection.
@@ -247,33 +254,64 @@ ee.Collection.prototype.geometry = function() {
  */
 ee.Collection.prototype.mapInternal = function(
     type, algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
-  var args;
   if (goog.isFunction(algorithm)) {
     if (opt_dynamicArgs) {
+      // TODO(user): Remove this once we have a getProperty() algorithm.
       throw Error('Can\'t use dynamicArgs with a mapped JS function.');
     }
     var varName = '_MAPPING_VAR_' + ee.Collection.serialMappingId_++;
-    algorithm = ee.lambda([varName], algorithm(ee.variable(type, varName)));
-    opt_dynamicArgs = goog.object.create(varName, '.all');
+    algorithm = new ee.CustomFunction(
+        goog.object.create(varName, type), type, algorithm);
+  } else if (goog.isString(algorithm)) {
+    algorithm = new ee.ApiFunction(algorithm);
+  } else if (!(algorithm instanceof ee.Function)) {
+    throw Error('Can\'t map non-callable object: ' + algorithm);
   }
-  var description = {
-    'algorithm': 'Collection.map',
+  var args = {
     'collection': this,
     'baseAlgorithm': algorithm
   };
-  if (opt_dynamicArgs) { description['dynamicArgs'] = opt_dynamicArgs; }
-  if (opt_constantArgs) { description['constantArgs'] = opt_constantArgs; }
-  if (opt_destination) { description['destination'] = opt_destination; }
-  return new this.constructor(description);
+  if (opt_dynamicArgs) {
+    args['dynamicArgs'] = opt_dynamicArgs;
+  } else {
+    // Use the function's first argument.
+    var varName = algorithm.getSignature()['args'][0]['name'];
+    args['dynamicArgs'] = goog.object.create(varName, '.all');
+  }
+  if (opt_constantArgs) { args['constantArgs'] = opt_constantArgs; }
+  if (opt_destination) { args['destination'] = opt_destination; }
+  return this.cast_(ee.ApiFunction._apply('Collection.map', args));
 };
 
 
 /**
- * The serial number of the next mapping variable.
- * @type {number}
- * @private
+ * Creates a map_* method on collectionClass for each generated instance
+ * method on elementClass that maps that method over the collection.
+ *
+ * @param {function(new:ee.Collection, ?): ee.Collection} collectionClass
+ *     The collection type.
+ * @param {function(new:Object, ?): Object} elementClass
+ *     The collection elements' type.
+ * @protected
+ * TODO(user): Deprecate these.
  */
-ee.Collection.serialMappingId_ = 0;
+ee.Collection.createAutoMapFunctions = function(collectionClass, elementClass) {
+  goog.object.forEach(elementClass.prototype, function(method, name) {
+    if (goog.isFunction(method) && method['signature']) {
+      collectionClass.prototype['map_' + name] = function() {
+        var destination = null;
+        if (!ee.Types.isSubtype('EEObject', method['signature']['returns'])) {
+          destination = name;
+        }
+        var constArgs = Array.prototype.slice.call(arguments, 0);
+        return this.mapInternal(elementClass, function(elem) {
+          return method.apply(elem, constArgs);
+        }, null, null, destination);
+      };
+    }
+  });
+};
+
 
 goog.exportSymbol('ee.Collection', ee.Collection);
 goog.exportProperty(ee.Collection.prototype, 'filter',
@@ -284,15 +322,9 @@ goog.exportProperty(ee.Collection.prototype, 'filterBounds',
                     ee.Collection.prototype.filterBounds);
 goog.exportProperty(ee.Collection.prototype, 'filterDate',
                     ee.Collection.prototype.filterDate);
-goog.exportProperty(ee.Collection.prototype, 'getInfo',
-                    ee.Collection.prototype.getInfo);
-goog.exportProperty(ee.Collection.prototype, 'serialize',
-                    ee.Collection.prototype.serialize);
 goog.exportProperty(ee.Collection.prototype, 'limit',
                     ee.Collection.prototype.limit);
 goog.exportProperty(ee.Collection.prototype, 'sort',
                     ee.Collection.prototype.sort);
-
-// Exported for testing.
-goog.exportProperty(ee.Collection, 'isFilterFeatureCollection_',
-                    ee.Collection.isFilterFeatureCollection_);
+goog.exportProperty(ee.Collection.prototype, 'geometry',
+                    ee.Collection.prototype.geometry);

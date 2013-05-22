@@ -1,59 +1,93 @@
-// Copyright 2012 Google Inc. All Rights Reserved.
-
 /**
  * @fileoverview An object representing EE Features.
  */
-goog.provide('ee.Feature');
-goog.provide('ee.Geometry');
 
-goog.require('ee');
-goog.require('ee.Image');
-goog.require('ee.Serializer');
+goog.provide('ee.Feature');
+
+goog.require('ee.ApiFunction');
+goog.require('ee.ComputedObject');
+goog.require('ee.Geometry');
 
 
 
 /**
- * Create a feature out of a geometry, with the specified metadata properties.
- * @param {ee.Geometry|ee.Feature|Object} geometry The geometry to use, or a
- *     pre-constructed Feature, or a JSON description of a call that returns
- *     a feature.
- * @param {Object=} opt_properties A dictionary of metadata properties.  If a
-       Feature is passed (instead of a geometry) this is unused.
+ * Features can be constructed from one of the following arguments plus an
+ * optional dictionary of properties:
+ *   1) An ee.Geometry.
+ *   2) A GeoJSON Geometry .
+ *   3) A computed object - reinterpreted as a geometry if properties
+ *      are specified, and as a feature if they aren't.
+ *
+ * @param {ee.Geometry|ee.Feature|ee.ComputedObject|Object} geometry
+ *     A geometry or feature.
+ * @param {Object=} opt_properties A dictionary of metadata properties. If the
+       first parameter is a Feature (instead of a geometry), this is unused.
  * @constructor
+ * @extends {ee.ComputedObject}
  */
 ee.Feature = function(geometry, opt_properties) {
   if (!(this instanceof ee.Feature)) {
     return new ee.Feature(geometry, opt_properties);
-  }
-  ee.initialize();
-  if (geometry instanceof ee.Feature) {
+  } else if (geometry instanceof ee.Feature) {
+    // A pre-constructed Feature. Return as is.
     if (opt_properties) {
       throw new Error('Can\'t create Feature out of a Feature and properties.');
     }
     return geometry;
   }
 
-  if ('algorithm' in geometry) {
+  ee.Feature.initialize();
+
+  if (geometry instanceof ee.ComputedObject) {
     if (opt_properties) {
-      this.description_ = {
-        'algorithm': 'Feature',
+      // A computed geometry.
+      goog.base(this, new ee.ApiFunction('Feature'), {
         'geometry': geometry,
-        'metadata': opt_properties
-      };
+        'metadata': opt_properties || null
+      });
     } else {
-      this.description_ = geometry;
+      // A custom object to reinterpret as a Feature.
+      goog.base(this, geometry.func, geometry.args);
     }
+  } else if (geometry instanceof ee.Geometry || geometry === null) {
+    // A Geometry object.
+    goog.base(this, new ee.ApiFunction('Feature'), {
+      'geometry': geometry,
+      'metadata': opt_properties || null
+    });
   } else {
-    if (ee.Feature.validGeometry(/** @type {ee.Geometry} */ (geometry))) {
-      this.description_ = {
-        'algorithm': 'Feature',
-        'geometry': geometry,
-        'metadata': opt_properties || {}
-      };
-    } else {
-      throw new Error('Not a geometry, feature or JSON description.');
-    }
+    // Try to convert the geometry arg to a Geometry, in the hopes of it
+    // turning out to be GeoJSON.
+    goog.base(this, new ee.ApiFunction('Feature'), {
+      'geometry': new ee.Geometry(geometry),
+      'metadata': opt_properties || null
+    });
   }
+};
+goog.inherits(ee.Feature, ee.ComputedObject);
+
+
+/**
+ * Whether the class has been initialized with API functions.
+ * @type {boolean}
+ * @private
+ */
+ee.Feature.initialized_ = false;
+
+
+/** Imports API functions to this class. */
+ee.Feature.initialize = function() {
+  if (!ee.Feature.initialized_) {
+    ee.ApiFunction.importApi(ee.Feature, 'Feature', 'Feature');
+    ee.Feature.initialized_ = true;
+  }
+};
+
+
+/** Removes imported API functions from this class. */
+ee.Feature.reset = function() {
+  ee.ApiFunction.clearApi(ee.Feature);
+  ee.Feature.initialized_ = false;
 };
 
 
@@ -70,166 +104,22 @@ ee.Feature = function(geometry, opt_properties) {
  *    this feature.
  */
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
-  var painted = new ee.Image({
-    'algorithm': 'DrawVector',
-    'collection': {
-      'type': 'FeatureCollection',
-      'features': [this]
-    },
-    'color': (opt_visParams || {})['color'] || '000000'
-  });
-
-  if (opt_callback) {
-    painted.getMap(null, opt_callback);
-  } else {
-    return painted.getMap();
-  }
+  var collection = ee.ApiFunction._call('Collection', [this]);
+  return /** @type {ee.FeatureCollection} */(collection)
+      .getMap(opt_visParams, opt_callback);
 };
-
-
-/**
- * Check if a geometry looks valid.
- * @param {ee.Geometry} geometry The geometry to validate.
- * @return {boolean} True if the geometry looks valid.
- */
-ee.Feature.validGeometry = function(geometry) {
-  var type = geometry['type'];
-  var coords = geometry['coordinates'];
-  var nesting = ee.Feature.validCoordinates(coords);
-  return (type == 'Point' && nesting == 1) ||
-      (type == 'MultiPoint' && nesting == 2) ||
-      (type == 'LineString' && nesting == 2) ||
-      (type == 'LinearRing' && nesting == 2) ||
-      (type == 'MultiLine' && nesting == 3) ||
-      (type == 'Polygon' && nesting == 3) ||
-      (type == 'MultiPolygon' && nesting == 4);
-};
-
-
-/**
- * Validate the coordinates of a geometry.
- * @param {number|!Array.<*>} shape The coordinates to validate.
- *
- * @return {number} The number of nested arrays or -1 on error.
- */
-ee.Feature.validCoordinates = function(shape) {
-  if (!goog.isArray(shape)) {
-    return -1;
-  }
-  if (goog.isArray(shape[0])) {
-    var count = ee.Feature.validCoordinates(shape[0]);
-    // If more than 1 ring or polygon, they should have the same nesting.
-    for (var i = 1; i < shape.length; i++) {
-      if (ee.Feature.validCoordinates(shape[i]) != count) {
-        return -1;
-      }
-    }
-    return count + 1;
-  } else {
-    // Make sure the coordinates are all numbers.
-    for (var i = 0; i < shape.length; i++) {
-      if (!goog.isNumber(shape[i])) {
-        return -1;
-      }
-    }
-    // Test that we have an even number of coordinates.
-    return (shape.length % 2 == 0) ? 1 : -1;
-  }
-};
-
-
-/**
- * Create a line from a list of points.
- * @param {!Array.<number>} coordinates The points to convert.  Must be a
- *     multiple of 2.
- * @return {!Array.<!Array.<number>>} An array of pairs of points.
- */
-ee.Feature.coordinatesToLine = function(coordinates) {
-  if (typeof(coordinates[0]) == 'number') {
-    if (coordinates.length % 2 != 0) {
-      throw Error('Invalid number of coordinates: ' + coordinates.length);
-    }
-    var line = [];
-    for (var i = 0; i < coordinates.length; i += 2) {
-      var pt = [coordinates[i], coordinates[i + 1]];
-      line.push(pt);
-    }
-    coordinates = line;
-  }
-  return coordinates;
-};
-
-
-/**
- * Check that the given geometry has the specified level of nesting.
- * If the user passed a list of points to one of the Geometry functions,
- * then geometry will not be used and the coordinates in opt_coordinates will
- * be processed instead.  This is to allow calls such as:
- * Polygon(1,2,3,4,5,6) and Polygon([[[1,2],[3,4],[5,6]]])
- *
- * @param {number|!Array.<*>} geometry The geometry to check.
- * @param {number} nesting The expected level of array nesting.
- * @param {Array.<number>=} opt_coordinates A list of coordinates to decode
- *     from the calling function's arguments parameter.
- * @return {!Array.<*>} The processed geometry.
- * @private
- */
-ee.Feature.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
-  if (nesting < 2 || nesting > 4) {
-    throw new Error('Unexpected nesting level.');
-  }
-
-  // Handle a list of points.
-  if (!goog.isArray(geometry) && opt_coordinates) {
-    geometry = ee.Feature.coordinatesToLine(
-        Array.prototype.slice.call(
-            /** @type {goog.array.ArrayLike} */ (opt_coordinates)));
-  }
-
-  // Make sure the number of nesting levels is correct.
-  var item = geometry;
-  var count = 0;
-  while (goog.isArray(item)) {
-    item = item[0];
-    count++;
-  }
-  while (count < nesting) {
-    geometry = [geometry];
-    count++;
-  }
-
-  if (ee.Feature.validCoordinates(geometry) != nesting) {
-    throw Error('Invalid geometry');
-  }
-
-  return (/** @type {!Array.<*>} */ geometry);
-};
-
-
-/**
- * @typedef {{
- *     type: string,
- *     coordinates: !Array.<*>
- * }}
- * TODO(user): consider promoting this up to its own class, and
- * moving all the shape creators below.  The downside is, it's another
- * entire class for users to deal with.
- */
-ee.Geometry;
 
 
 /**
  * Construct a GeoJSON point.
  *
- * @param {number} lon The longitude of the point.
+ * @param {number|Array.<number>} lon The longitude of the point, or
+ *     a tuple of the longitude and latitude, in which case lat is ignored.
  * @param {number} lat The latitude of the point.
- * @return {Object} A GeoJSON Point.
+ * @return {ee.Geometry} A GeoJSON Point.
  */
 ee.Feature.Point = function(lon, lat) {
-  return {
-    'type': 'Point',
-    'coordinates': [lon, lat]
-  };
+  return ee.Geometry.Point.apply(null, arguments);
 };
 
 
@@ -242,11 +132,7 @@ ee.Feature.Point = function(lon, lat) {
  * @return {Object} A GeoJSON MultiPoint object.
  */
 ee.Feature.MultiPoint = function(coordinates) {
-  return {
-    'type': 'MultiPoint',
-    'coordinates': ee.Feature.makeGeometry_(
-        coordinates, 2, /** @type {!Array.<number>} */ (arguments))
-  };
+  return ee.Geometry.MultiPoint.apply(null, arguments);
 };
 
 
@@ -260,17 +146,7 @@ ee.Feature.MultiPoint = function(coordinates) {
  * @return {Object} A GeoJSON Polygon.
  */
 ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
-  if (goog.isArray(lon1)) {
-    var args = lon1;
-    lon1 = args[0];
-    lat1 = args[1];
-    lon2 = args[2];
-    lat2 = args[3];
-  }
-  return {
-    'type': 'Polygon',
-    'coordinates': [[[lon1, lat2], [lon1, lat1], [lon2, lat1], [lon2, lat2]]]
-  };
+  return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2);
 };
 
 
@@ -284,11 +160,7 @@ ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
  * @return {ee.Geometry} A GeoJSON LineString.
  */
 ee.Feature.LineString = function(coordinates) {
-  return {
-    'type': 'LineString',
-    'coordinates': ee.Feature.makeGeometry_(
-        coordinates, 2, /** @type {!Array.<number>} */ (arguments))
-  };
+  return ee.Geometry.LineString.apply(null, arguments);
 };
 
 
@@ -302,11 +174,7 @@ ee.Feature.LineString = function(coordinates) {
  * @return {ee.Geometry} A GeoJSON LinearRing.
  */
 ee.Feature.LinearRing = function(coordinates) {
-  return {
-    'type': 'LinearRing',
-    'coordinates': ee.Feature.makeGeometry_(
-        coordinates, 2, /** @type {!Array.<number>} */ (arguments))
-  };
+  return ee.Geometry.LinearRing.apply(null, arguments);
 };
 
 
@@ -324,11 +192,7 @@ ee.Feature.LinearRing = function(coordinates) {
  * ee.Feature.LineStrings, but it should.
  */
 ee.Feature.MultiLine = function(coordinates) {
-  return {
-    'type': 'MultiLine',
-    'coordinates': ee.Feature.makeGeometry_(
-        coordinates, 3, /** @type {!Array.<number>} */ (arguments))
-  };
+  return ee.Geometry.MultiLineString.apply(null, arguments);
 };
 
 
@@ -347,11 +211,7 @@ ee.Feature.MultiLine = function(coordinates) {
  * ee.Feature.LinearRings, but it should.
  */
 ee.Feature.Polygon = function(coordinates) {
-  return {
-    'type': 'Polygon',
-    'coordinates': ee.Feature.makeGeometry_(
-        coordinates, 3, /** @type {!Array.<number>} */ (arguments))
-  };
+  return ee.Geometry.Polygon.apply(null, arguments);
 };
 
 
@@ -368,33 +228,17 @@ ee.Feature.Polygon = function(coordinates) {
  * ee.Feature.Polygon, but it should.
  */
 ee.Feature.MultiPolygon = function(coordinates) {
-  return {
-    'type': 'MultiPolygon',
-    'coordinates': ee.Feature.makeGeometry_(
-        coordinates, 4, /** @type {!Array.<number>} */ (arguments))
-  };
-};
-
-
-/**
- * JSON serializer.
- * @return {string} The serialized representation of this object.
- */
-ee.Feature.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this.description_);
+  return ee.Geometry.MultiPolygon.apply(null, arguments);
 };
 
 
 /** @override */
-ee.Feature.prototype.toString = function() {
-  return 'ee.Feature(' + ee.Serializer.toReadableJSON(this.description_) + ')';
+ee.Feature.prototype.name = function() {
+  return 'Feature';
 };
 
+
 goog.exportSymbol('ee.Feature', ee.Feature);
-goog.exportProperty(ee.Feature, 'validGeometry',
-                    ee.Feature.validGeometry);
-goog.exportProperty(ee.Feature, 'validCoordinates',
-                    ee.Feature.validCoordinates);
 goog.exportProperty(ee.Feature, 'Point', ee.Feature.Point);
 goog.exportProperty(ee.Feature, 'MultiPoint', ee.Feature.MultiPoint);
 goog.exportProperty(ee.Feature, 'Rectangle', ee.Feature.Rectangle);
@@ -404,7 +248,3 @@ goog.exportProperty(ee.Feature, 'MultiLine', ee.Feature.MultiLine);
 goog.exportProperty(ee.Feature, 'Polygon', ee.Feature.Polygon);
 goog.exportProperty(ee.Feature, 'MultiPolygon', ee.Feature.MultiPolygon);
 goog.exportProperty(ee.Feature, 'getMap', ee.Feature.prototype.getMap);
-goog.exportProperty(ee.Feature.prototype, 'serialize',
-                    ee.Feature.prototype.serialize);
-goog.exportProperty(ee.Feature.prototype, 'toString',
-                    ee.Feature.prototype.toString);

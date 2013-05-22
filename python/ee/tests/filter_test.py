@@ -1,163 +1,126 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
-
 """Test for the ee.filter module."""
 
 
 
 import datetime
-import json
-import time
 
 import unittest
 
 import ee
+import apitestcase
 
 
-class FilterTestCase(unittest.TestCase):
-  def setUp(self):
-    ee.algorithms._signatures = {}
+class FilterTest(apitestcase.ApiTestCase):
 
-  def testConstructor(self):
-    f = ee.Filter()
-    self.assertEquals(0, f.predicateCount())
+  def testConstructors(self):
+    """Verifies that constructors understand valid parameters."""
+    empty = ee.Filter()
+    self.assertEquals(0, empty.predicateCount())
 
-    f1 = ee.Filter().gt('foo', 1)
-    self.assertEquals(1, f1.predicateCount())
+    from_static_method = ee.Filter.gt('foo', 1)
+    self.assertEquals(1, from_static_method.predicateCount())
 
-    f2 = ee.Filter({'property': 'foo', 'greater_than': 1})
-    self.assertEquals(1, f2.predicateCount())
-    self.assertEquals(f1, f2)
+    from_computed_object = ee.Filter(
+        ee.ApiFunction.call_('Filter.greaterThan', 'foo', 1))
+    self.assertEquals(1, from_computed_object.predicateCount())
+    self.assertEquals(from_static_method, from_computed_object)
 
-    f3 = ee.Filter(f2)
-    self.assertEquals(f2, f3)
+    copy = ee.Filter(from_static_method)
+    self.assertEquals(from_static_method, copy)
 
   def testAppend(self):
-    f1 = ee.Filter().eq('foo', 1).eq('bar', 2).eq('baz', 3)
-    self.assertEquals(3, f1.predicateCount())
+    """Verifies that appending filters with instance methods works."""
+    multi_filter = ee.Filter().eq('foo', 1).eq('bar', 2).eq('baz', 3)
+    self.assertEquals(3, multi_filter.predicateCount())
 
-    f2 = ee.Filter().eq('foo_', 1).eq('bar_', 2).eq('baz_', 3)
-    self.assertEquals(3, f2.predicateCount())
-
-    f3 = f2._append(f1)
-    self.assertEquals(3, f2.predicateCount())
-    self.assertEquals(6, f3.predicateCount())
-
-  def testMetadataFilters(self):
+  def testMetadata(self):
+    """Verifies that the metadata_() method works."""
     self.assertEquals(
-        ee.Filter().eq('x', 1),
-        ee.Filter().metadata_('x', 'equals', 1))
+        ee.ApiFunction.call_('Filter.equals', 'x', 1),
+        ee.Filter.metadata_('x', 'equals', 1))
     self.assertEquals(
-        ee.Filter().neq('x', 1),
-        ee.Filter().metadata_('x', 'not_equals', 1))
+        ee.Filter.metadata_('x', 'equals', 1),
+        ee.Filter().eq('x', 1))
     self.assertEquals(
-        ee.Filter().lt('x', 1),
-        ee.Filter().metadata_('x', 'less_than', 1))
+        ee.Filter.metadata_('x', 'not_equals', 1),
+        ee.Filter().neq('x', 1))
     self.assertEquals(
-        ee.Filter().lte('x', 1),
-        ee.Filter().metadata_('x', 'not_greater_than', 1))
+        ee.Filter.metadata_('x', 'less_than', 1),
+        ee.Filter().lt('x', 1))
     self.assertEquals(
-        ee.Filter().gt('x', 1),
-        ee.Filter().metadata_('x', 'greater_than', 1))
+        ee.Filter.metadata_('x', 'not_greater_than', 1),
+        ee.Filter().lte('x', 1))
     self.assertEquals(
-        ee.Filter().gte('x', 1),
-        ee.Filter().metadata_('x', 'not_less_than', 1))
+        ee.Filter.metadata_('x', 'greater_than', 1),
+        ee.Filter().gt('x', 1))
+    self.assertEquals(
+        ee.Filter.metadata_('x', 'not_less_than', 1),
+        ee.Filter().gte('x', 1))
 
   def testLogicalCombinations(self):
-    or_filter = ee.Filter().Or(
-        ee.Filter().eq('x', 1),
-        ee.Filter().eq('x', 2))
+    """Verifies that the and() and or() methods work."""
+    f1 = ee.Filter.eq('x', 1)
+    f2 = ee.Filter.eq('x', 2)
+
+    or_filter = ee.Filter.Or(f1, f2)
+    self.assertEquals(ee.ApiFunction.call_('Filter.or', (f1, f2)), or_filter)
+
+    and_filter = ee.Filter.And(f1, f2)
+    self.assertEquals(ee.ApiFunction.call_('Filter.and', (f1, f2)), and_filter)
 
     self.assertEquals(
-        [
-            {'or': [
-                [{'property': 'x', 'equals': 1}],
-                [{'property': 'x', 'equals': 2}]
-                ]
-            }
-            ],
-        json.loads(or_filter.serialize(False)))
+        ee.ApiFunction.call_('Filter.or', (or_filter, and_filter)),
+        ee.Filter.Or(or_filter, and_filter))
 
-    and_filter = ee.Filter().And(
-        ee.Filter().eq('x', 1),
-        ee.Filter().eq('x', 2))
+  def testDate(self):
+    """Verifies that date filters work."""
+    d1 = datetime.datetime.strptime('1/1/2000', '%m/%d/%Y')
+    d2 = datetime.datetime.strptime('1/1/2001', '%m/%d/%Y')
+    open_range = ee.ApiFunction.call_(
+        'DateRange', d1, datetime.datetime(9999, 1, 1))
+    closed_range = ee.ApiFunction.call_('DateRange', d1, d2)
+
+    open_filter = ee.Filter.date(d1)
+    self.assertEquals(ee.ApiFunction.lookup('Filter.dateRangeContains'),
+                      open_filter.func)
+    self.assertEquals({'leftValue': open_range,
+                       'rightField': 'system:time_start'},
+                      open_filter.args)
+
+    closed_filter = ee.Filter.date(d1, d2)
+    self.assertEquals(ee.ApiFunction.lookup('Filter.dateRangeContains'),
+                      closed_filter.func)
+    self.assertEquals({'leftValue': closed_range,
+                       'rightField': 'system:time_start'},
+                      closed_filter.args)
+
+  def testBounds(self):
+    """Verifies that geometry intersection filters work."""
+    polygon = ee.Geometry.Polygon(1, 2, 3, 4, 5, 6)
     self.assertEquals(
-        [{'and': [
-            [{'property': 'x', 'equals': 1}],
-            [{'property': 'x', 'equals': 2}]
-            ]
-         }],
-        json.loads(and_filter.serialize(False)))
+        ee.ApiFunction.call_(
+            'Filter.intersects', '.all',
+            ee.ApiFunction.call_('Feature', polygon)),
+        ee.Filter.geometry(polygon))
 
-    combined = ee.Filter().Or(or_filter, and_filter)
+    # Collection-to-geometry promotion.
+    collection = ee.FeatureCollection('foo')
     self.assertEquals(
-        [{'or': [
-            [{'or': [
-                [{'property': 'x', 'equals': 1}],
-                [{'property': 'x', 'equals': 2}]
-                ]
-             }],
-            [{'and': [
-                [{'property': 'x', 'equals': 1}],
-                [{'property': 'x', 'equals': 2}]
-                ]
-             }]
-            ]
-         }],
-        json.loads(combined.serialize(False)))
+        ee.ApiFunction.call_('Filter.intersects', '.all', ee.ApiFunction.call_(
+            'Feature', ee.ApiFunction.call_('ExtractGeometry', collection))),
+        ee.Filter.geometry(collection))
 
-  def testDateFilter(self):
-    def GetTime(utc):
-      return time.mktime(utc.timetuple()) * 1000
-
-    d1 = datetime.datetime(2000, 1, 1)
-    d2 = datetime.datetime(2000, 1, 1)
-
-    f1 = ee.Filter().date(d1)
+  def testInList(self):
+    """Verifies that list membership filters work."""
     self.assertEquals(
-        [{'property': 'system:time_start',
-          'not_less_than': GetTime(d1)
-         }],
-        json.loads(f1.serialize(False)))
-
-    f2 = ee.Filter().date(d1, d2)
+        ee.Filter.listContains(None, None, 'foo', [1, 2]),
+        ee.Filter.inList('foo', [1, 2]))
     self.assertEquals(
-        [
-            {'property': 'system:time_start', 'not_less_than': GetTime(d1)},
-            {'property': 'system:time_start', 'not_greater_than': GetTime(d2)}
-            ],
-        json.loads(f2.serialize(False)))
-
-    f3 = ee.Filter().date(123, 456)
-    self.assertEquals(
-        [
-            {'property': 'system:time_start', 'not_less_than': 123},
-            {'property': 'system:time_start', 'not_greater_than': 456}
-            ],
-        json.loads(f3.serialize(False)))
-
-  def testBoundsFilter(self):
-    ring1 = ee.Feature.Polygon(1, 2, 3, 4, 5, 6)
-    f1 = ee.Filter().geometry(ring1)
-    self.assertEquals([{'geometry': ring1}], json.loads(f1.serialize(False)))
-
-    collection = ee.FeatureCollection([ring1])
-    f2 = ee.Filter().geometry(collection)
-    self.assertEquals(
-        [{'geometry': {
-            'algorithm': 'ExtractGeometry',
-            'collection': {
-                'type': 'FeatureCollection',
-                'features': [{
-                    'algorithm': 'Feature',
-                    'metadata': {},
-                    'geometry': ring1
-                    }]
-                }
-            }
-         }],
-        json.loads(f2.serialize(False)))
+        ee.Filter.inList('foo', [1, 2]),
+        ee.Filter().inList('foo', [1, 2]))
 
   def testStaticVersions(self):
+    """Verifies that static filter methods are equivalent to instance ones."""
     self.assertEquals(ee.Filter().eq('foo', 1), ee.Filter.eq('foo', 1))
     self.assertEquals(ee.Filter().neq('foo', 1), ee.Filter.neq('foo', 1))
     self.assertEquals(ee.Filter().lt('foo', 1), ee.Filter.lt('foo', 1))
@@ -182,8 +145,13 @@ class FilterTestCase(unittest.TestCase):
     f2 = ee.Filter.And(ee.Filter.eq('foo', 1), ee.Filter().eq('foo', 2))
     self.assertEquals(f1, f2)
 
-    d1 = datetime.datetime(2000, 1, 1)
-    d2 = datetime.datetime(2001, 1, 1)
+    ring1 = ee.Geometry.Polygon(1, 2, 3, 4, 5, 6)
+    f1 = ee.Filter().geometry(ring1)
+    f2 = ee.Filter.geometry(ring1)
+    self.assertEquals(f1, f2)
+
+    d1 = datetime.datetime.strptime('1/1/2000', '%m/%d/%Y')
+    d2 = datetime.datetime.strptime('1/1/2001', '%m/%d/%Y')
     f1 = ee.Filter().date(d1, d2)
     f2 = ee.Filter.date(d1, d2)
     self.assertEquals(f1, f2)

@@ -1,178 +1,94 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
-
 """Test for the ee.image module."""
 
 
 
-import json
-
 import unittest
 
 import ee
+import apitestcase
 
 
-class ImageTestCase(unittest.TestCase):
-  def setUp(self):
-    ee.algorithms._signatures = {
-        'Image.fakeFunction': {
-            'returns': 'Image',
-            'description': 'Fake doc.',
-            'args': [
-                {'type': 'Image', 'name': 'image1', 'description': ''},
-                {'type': 'Image', 'name': 'image2', 'description': ''}
-                ]
-        },
-        'Image.and': {
-            'returns': 'Image',
-            'description': 'fake doc 2.',
-            'args': [
-                {'type': 'Image', 'name': 'image1', 'description': ''},
-                {'type': 'Image', 'name': 'image2', 'description': ''}
-            ],
-        },
-        'Image.clip': {
-            'returns': 'Image',
-            'description': 'fake doc 3',
-            'args': [
-                {
-                    'name': 'input',
-                    'type': 'Image',
-                    'description': 'The image to clip.'
-                },
-                {
-                    'name': 'geometry',
-                    'type': 'Geometry',
-                    'optional': True,
-                    'description': 'The region to clip to.'
-                }
-            ]
-        }
-    }
+class ImageTestCase(apitestcase.ApiTestCase):
 
-  def testImageConstructors(self):
-    # We want to check that the serialized version is as expected,
-    # but we don't want to deal with whitespace and order differences,
-    # so the serialize() output is reparsed and we compare against that.
-    image1 = ee.Image(1)
-    self.assertEqual(
-        {'algorithm': 'Constant', 'value': 1},
-        json.loads(image1.serialize()))
+  def testConstructors(self):
+    """Verifies that constructors understand valid parameters."""
+    from_constant = ee.Image(1)
+    self.assertEquals(ee.ApiFunction.lookup('Image.constant'),
+                      from_constant.func)
+    self.assertEquals({'value': 1}, from_constant.args)
 
-    image2 = ee.Image('abcd')
-    self.assertEqual(
-        {'type': 'Image', 'id': 'abcd'},
-        json.loads(image2.serialize()))
+    from_id = ee.Image('abcd')
+    self.assertEquals(ee.ApiFunction.lookup('Image.load'), from_id.func)
+    self.assertEquals({'id': 'abcd'}, from_id.args)
 
-    image3 = ee.Image([1, 2])
-    self.assertEqual(
-        {
-            'algorithm': 'Image.addBands',
-            'dstImg': {'algorithm': 'Constant', 'value': 1},
-            'srcImg': {'algorithm': 'Constant', 'value': 2}
-        },
-        json.loads(image3.serialize()))
+    from_array = ee.Image([1, 2])
+    self.assertEquals(ee.ApiFunction.lookup('Image.addBands'), from_array.func)
+    self.assertEquals({'dstImg': ee.Image(1), 'srcImg': ee.Image(2)},
+                      from_array.args)
 
-    image4 = ee.Image(image1)
-    self.assertEqual(json.loads(image4.serialize()),
-                     json.loads(image1.serialize()))
+    from_computed_object = ee.Image(ee.ComputedObject(None, {'x': 'y'}))
+    self.assertEquals({'x': 'y'}, from_computed_object.args)
+
+    original = ee.Image(1)
+    from_other_image = ee.Image(original)
+    self.assertEquals(from_other_image, original)
+
+    from_nothing = ee.Image()
+    self.assertEquals(ee.ApiFunction.lookup('Image.mask'), from_nothing.func)
+    self.assertEquals({'image': ee.Image(0), 'mask': ee.Image(0)},
+                      from_nothing.args)
 
   def testImageSignatures(self):
-    # Manually invoke Signatures.addFunctions because send doesn't
-    # get overriden until after the library is loaded.
-    ee.algorithms._addFunctions(ee.Image, 'Image', 'Image')
+    """Verifies that the API functions are added to ee.Image."""
+    self.assertTrue(hasattr(ee.Image(1), 'addBands'))
 
-    # Verify that we picked up a prototype def from signatures.
+  def testImperativeFunctions(self):
+    """Verifies that imperative functions return ready values."""
     image = ee.Image(1)
-
-    self.assertTrue(image.fakeFunction is not None)
+    self.assertEquals({'value': 'fakeValue'}, image.getInfo())
+    self.assertEquals({'mapid': 'fakeMapId', 'image': image}, image.getMapId())
 
   def testCombine(self):
+    """Verifies the behavior of ee.Image.combine_()."""
     image1 = ee.Image([1, 2])
     image2 = ee.Image([3, 4])
-    image3 = ee.Image.combine_([image1, image2], ['a', 'b', 'c', 'd'])
+    combined = ee.Image.combine_([image1, image2], ['a', 'b', 'c', 'd'])
 
-    self.assertEqual(
-        {
-            'algorithm': 'Image.select',
-            'input': {
-                'algorithm': 'Image.addBands',
-                'dstImg': {
-                    'algorithm': 'Image.addBands',
-                    'dstImg': {'algorithm': 'Constant', 'value': 1},
-                    'srcImg': {'algorithm': 'Constant', 'value': 2}
-                },
-                'srcImg': {
-                    'algorithm': 'Image.addBands',
-                    'dstImg': {'algorithm': 'Constant', 'value': 3},
-                    'srcImg': {'algorithm': 'Constant', 'value': 4}
-                },
-            },
-            'bandSelectors': ['.*'],
-            'newNames': ['a', 'b', 'c', 'd']
-        },
-        json.loads(image3.serialize()))
+    self.assertEquals(ee.ApiFunction.lookup('Image.select'), combined.func)
+    self.assertEquals(['.*'], combined.args['bandSelectors'])
+    self.assertEquals(['a', 'b', 'c', 'd'], combined.args['newNames'])
+    self.assertEquals(ee.ApiFunction.lookup('Image.addBands'),
+                      combined.args['input'].func)
+    self.assertEquals({'dstImg': image1, 'srcImg': image2},
+                      combined.args['input'].args)
 
   def testDownload(self):
-    ee.Initialize(None, '')
-    # Mock out send so we can hang on to the parameters.
-    send_val = {}
-
-    def MockSend(path, params, unused_method='POST'):
-      send_val['path'] = path
-      send_val['params'] = params
-      return {'docid': '1', 'token': '2'}
-    ee.data.send_ = MockSend
-
+    """Verifies Download ID and URL generation."""
     url = ee.Image(1).getDownloadUrl()
-    self.assertEqual({'value': 1, 'algorithm': 'Constant'},
-                     json.loads(send_val['params']['image']))
-    self.assertEqual('/api/download?docid=1&token=2', url)
 
-  def testSelect(self):
-    image = ee.Image([1, 2, 3, 4])
-
-    # Just checking what gets passed to MockSelect; don't need the return value.
-    result = json.loads(image.select([0, 1]).serialize())
-    self.assertEquals(result['bandSelectors'], [0, 1])
-    self.assertFalse('newNames' in result)
-
-    result = json.loads(image.select([0, 1, 2]).serialize())
-    self.assertEquals(result['bandSelectors'], [0, 1, 2])
-    self.assertFalse('newNames' in result)
-
-    result = json.loads(image.select([0, 1, 2], ['a', 'b', 'c']).serialize())
-    self.assertEquals(result['bandSelectors'], [0, 1, 2])
-    self.assertEquals(result['newNames'], ['a', 'b', 'c'])
-
-  def testAnd(self):
-    # Check that the Image.and and Image.or functions get renamed.
-    ee.algorithms._addFunctions(ee.Image, 'Image', 'Image')
-    ee.algorithms._addFunctions(ee.ImageCollection,
-                                'Image',
-                                'Image',
-                                'map_',
-                                ee.algorithms._makeMapFunction)
-
-    image = ee.Image(0).And(1)
-    self.assertEqual(
-        {'algorithm': 'Image.and',
-         'image1': {'algorithm': 'Constant', 'value': 0},
-         'image2': {'algorithm': 'Constant', 'value': 1}
-        },
-        json.loads(image.serialize()))
-
-    c = ee.ImageCollection([ee.Image(0), ee.Image(1)])
-    c2 = c.map_and(2)
+    self.assertEquals('/download', self.last_download_call['url'])
     self.assertEquals(
         {
-            'algorithm': 'MapAlgorithm',
-            'baseAlgorithm': 'Image.and',
-            'collection': {'images': [{'algorithm': 'Constant', 'value': 0},
-                                      {'algorithm': 'Constant', 'value': 1}],
-                           'type': 'ImageCollection'},
-            'constantArgs': {'image2': {'algorithm': 'Constant', 'value': 2}},
-            'dynamicArgs': {'image1': '.all'}
-        }, json.loads(c2.serialize()))
+            'image': ee.Image(1).serialize(),
+            'json_format': 'v2'
+        },
+        self.last_download_call['data'])
+    self.assertEquals('/api/download?docid=1&token=2', url)
+
+  def testThumb(self):
+    """Verifies Thumbnail ID and URL generation."""
+    url = ee.Image(1).getThumbUrl({'size': [13, 42]})
+
+    self.assertEquals('/thumb', self.last_thumb_call['url'])
+    self.assertEquals(
+        {
+            'image': ee.Image(1).serialize(),
+            'json_format': 'v2',
+            'size': '13x42',
+            'getid': '1'
+        },
+        self.last_thumb_call['data'])
+    self.assertEquals('/api/thumb?thumbid=3&token=4', url)
 
 
 if __name__ == '__main__':

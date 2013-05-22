@@ -1,67 +1,81 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
+"""A representation of an Earth Engine image.
 
-"""A representation of an Earth Engine image."""
+See: https://sites.google.com/site/earthengineapidocs for more details.
+"""
 
 
 
-# Using old-style python function naming on purpose to match the
-# javascript version's naming.
-# pylint: disable-msg=C6003,C6409
+# Using lowercase function naming to match the JavaScript names.
+# pylint: disable-msg=g-bad-name
 
-import collections
-import copy
-import numbers
-
+import apifunction
+import computedobject
 import data
 import ee_exception
-import serializer
+import ee_types
+import function
+import geometry
 
 
-class Image(object):
+class Image(computedobject.ComputedObject):
   """An object to represent an Earth Engine image."""
 
-  def __init__(self, args):
-    """An object to represent an Earth Engine image.
+  _initialized = False
+
+  def __init__(self, args=None):
+    """Constructs an Earth Engine image.
 
     Args:
       args: This constructor accepts a variety of arguments:
-          A string - an EarthEngine asset id,
-          A number - creates a constant image,
-          An iterable - creates an image out of each element of the array
-              and combines them into a single, multiband image,
-          An ee.Image - makes a copy of the specified image.
-          A dict - Assumed to be an image's JSON description.
+          1) A string - an EarthEngine asset id,
+          2) A number - creates a constant image,
+          3) An array - creates an image out of each element of the array and
+             combines them into a single image,
+          4) An ee.Image - returns the argument,
+          5) Nothing - results in an empty transparent image.
 
     Raises:
       EEException: if passed something other than the above.
     """
-    if isinstance(args, numbers.Number):
-      # Make a constant image.
-      args = {'algorithm': 'Constant', 'value': args}
-    elif isinstance(args, basestring):
-      # Get an asset by AssetID
-      args = {'type': 'Image', 'id': args}
-    elif isinstance(args, dict):           # must check for dict before iterable
-      args = copy.deepcopy(args)
-    elif isinstance(args, collections.Iterable):
-      # Make an image for each
-      c = Image.combine_([Image(x) for x in args])
-      args = c._description                          # pylint: disable-msg=W0212
-    elif isinstance(args, Image):
-      # Another image
-      args = copy.deepcopy(args._description)        # pylint: disable-msg=W0212
+
+    self.initialize()
+
+    if ee_types.isNumber(args):
+      # A constant image.
+      super(Image, self).__init__(
+          apifunction.ApiFunction.lookup('Image.constant'), {'value': args})
+    elif ee_types.isString(args):
+      # An ID.
+      super(Image, self).__init__(
+          apifunction.ApiFunction.lookup('Image.load'), {'id': args})
+    elif isinstance(args, (list, tuple)):
+      # Make an image out of each element.
+      image = Image.combine_([Image(i) for i in args])
+      super(Image, self).__init__(image.func, image.args)
+    elif isinstance(args, computedobject.ComputedObject):
+      # A custom object to reinterpret as an Image.
+      super(Image, self).__init__(args.func, args.args)
+    elif args is None:
+      super(Image, self).__init__(
+          apifunction.ApiFunction.lookup('Image.mask'),
+          {'image': Image(0), 'mask': Image(0)})
     else:
-      raise ee_exception.EEException('Unrecognized constructor argument.')
+      raise ee_exception.EEException(
+          'Unrecognized argument type to convert to an Image: %s' % args)
 
-    self._description = args
+  @classmethod
+  def initialize(cls):
+    """Imports API functions to this class."""
+    if not cls._initialized:
+      apifunction.ApiFunction.importApi(cls, 'Image', 'Image')
+      apifunction.ApiFunction.importApi(cls, 'Window', 'Image', 'focal_')
+      cls._initialized = True
 
-  def __str__(self):
-    """Writes out the image in a human-readable form."""
-    return 'Image(%s)' % serializer.toJSON(self._description)
-
-  def __repr__(self):
-    """Writes out the image in an eval-able form."""
-    return 'ee.Image(%s)' % self._description
+  @classmethod
+  def reset(cls):
+    """Removes imported API functions from this class."""
+    apifunction.ApiFunction.clearApi(cls)
+    cls._initialized = False
 
   def getInfo(self):
     """Fetch and return information about this image.
@@ -71,9 +85,7 @@ class Image(object):
           bands - Array containing metadata about the bands in the image,
           properties - Dictionary containing the image's metadata properties.
     """
-    return data.getValue({
-        'json': self.serialize(False)
-        })
+    return super(Image, self).getInfo()
 
   def getMapId(self, vis_params=None):
     """Fetch and return a map id and token, suitable for use in a Map overlay.
@@ -85,8 +97,10 @@ class Image(object):
       An object containing a mapid and access token, or an error message.
     """
     request = vis_params or {}
-    request['image'] = self.serialize(False)
-    return data.getMapId(request)
+    request['image'] = self.serialize()
+    response = data.getMapId(request)
+    response['image'] = self
+    return response
 
   def getDownloadUrl(self, params=None):
     """Get a download URL for this image.
@@ -121,79 +135,28 @@ class Image(object):
       A URL to download the specified image.
     """
     request = params or {}
-    request['image'] = self.serialize(False)
+    request['image'] = self.serialize()
     return data.makeDownloadUrl(data.getDownloadId(request))
 
-  def serialize(self, opt_pretty=True):
-    """Serialize this object into a JSON string.
+  def getThumbUrl(self, params=None):
+    """Get a thumbnail URL for this image.
 
     Args:
-      opt_pretty: A flag indicating whether to pretty-print the JSON.
+      params: Parameters identical to getMapId, plus:
+          size - (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
+            dimensions of the thumbnail to render, in pixels. If only one number
+            is passed, it is used as the maximum, and the other dimension is
+            computed by proportional scaling.
+          region - (E,S,W,N or GeoJSON) Geospatial region of the image
+            to render. By default, the whole image.
+          format - (string) Either 'png' (default) or 'jpg'.
 
     Returns:
-      A JSON represenation of this image.
+      A URL to download a thumbnail the specified image.
     """
-    return serializer.toJSON(self._description, opt_pretty)
-
-  def select(self, selectors, opt_names=None, *args):
-    """Select bands from an image.
-
-    This is an override to the normal Image.select function to allow
-    varargs specification of selectors.
-
-    Args:
-      selectors: An array of names, regexes or numeric indices specifying
-          the bands to select.
-      opt_names: An array of strings specifying the new names for the
-          selected bands.  If supplied, the length must match the number
-          of bands selected.
-
-    Returns:
-      An image with the selected bands.
-    """
-    call = {
-        'algorithm': 'Image.select',
-        'input': self
-    }
-    if (isinstance(selectors, basestring) or
-        isinstance(selectors, numbers.Number)):
-      # Varargs inputs.
-      selectors = [selectors]
-      if opt_names is not None:
-        selectors.append(opt_names)
-        opt_names = None
-      selectors.extend(args)
-    call['bandSelectors'] = selectors
-    if opt_names:
-      call['newNames'] = opt_names
-    return Image(call)
-
-  def expression(self, expression, opt_map=None):
-    """Evaluates an expression on an image.
-
-    This is an override to the normal Image.select function to allow
-    varargs specification of selectors.
-
-    Args:
-      expression: The expression to evaluate.
-      opt_map: An optional map of input images available by name.
-
-    Returns:
-      The image created by the provided expression.
-    """
-    func = {
-        'algorithm': 'Image.parseExpression',
-        'expression': expression,
-        'argName': 'DEFAULT_EXPRESSION_IMAGE'
-    }
-    call = {
-        'algorithm': func,
-        'DEFAULT_EXPRESSION_IMAGE': self
-    }
-    if opt_map:
-      for name, image in opt_map.iteritems():
-        call[name] = Image(image)
-    return Image(call)
+    request = params or {}
+    request['image'] = self.serialize()
+    return data.makeThumbUrl(data.getThumbId(request))
 
   ###################################################
   # Static methods.
@@ -219,7 +182,7 @@ class Image(object):
   @staticmethod
   def cat(*args):
     """Concatenate the given images together into a single image."""
-    return Image.combine_(args, [])
+    return Image.combine_(args)
 
   @staticmethod
   def combine_(images, names=None):
@@ -238,14 +201,109 @@ class Image(object):
     # Append all the bands.
     result = Image(images[0])
     for image in images[1:]:
-      result = Image({
-          'algorithm': 'Image.addBands',
-          'dstImg': result,
-          'srcImg': Image(image)
-      })
+      result = apifunction.ApiFunction.call_('Image.addBands', result, image)
 
     # Optionally, rename the bands of the result.
     if names:
       result = result.select(['.*'], names)
 
     return result
+
+  def select(self, selectors, opt_names=None, *args):
+    """Select bands from an image.
+
+    This is an override to the normal Image.select function to allow
+    varargs specification of selectors.
+
+    Args:
+      selectors: An array of names, regexes or numeric indices specifying
+          the bands to select.
+      opt_names: An array of strings specifying the new names for the
+          selected bands.  If supplied, the length must match the number
+          of bands selected.
+      *args: Selector elements as varargs.
+
+    Returns:
+      An image with the selected bands.
+    """
+    arguments = {
+        'input': self,
+        'bandSelectors': selectors,
+    }
+    if isinstance(selectors, (basestring, int, long)):
+      # Varargs inputs.
+      selectors = [selectors]
+      if opt_names is not None:
+        selectors.append(opt_names)
+        opt_names = None
+      selectors.extend(args)
+    arguments['bandSelectors'] = selectors
+    if opt_names:
+      arguments['newNames'] = opt_names
+    return apifunction.ApiFunction.apply_('Image.select', arguments)
+
+  def expression(self, expression, opt_map=None):
+    """Evaluates an expression on an image.
+
+    This is an override to the normal Image.select function to allow
+    varargs specification of selectors.
+
+    Args:
+      expression: The expression to evaluate.
+      opt_map: An optional map of input images available by name.
+
+    Returns:
+      The image created by the provided expression.
+    """
+    arg_name = 'DEFAULT_EXPRESSION_IMAGE'
+    body = apifunction.ApiFunction.call_(
+        'Image.parseExpression', expression, arg_name)
+    arg_names = [arg_name]
+    args = {arg_name: self}
+
+    # Add custom arguments, promoting them to Images manually.
+    if opt_map:
+      for name, value in opt_map.iteritems():
+        arg_names.append(name)
+        args[name] = Image(value)
+
+    # Reinterpret the body call as an ee.Function by hand-generating the
+    # signature so the computed function knows its input and output types.
+    class ReinterpretedFunction(function.Function):
+      def encode(self, encoder):
+        return body.encode(encoder)
+
+      def getSignature(self):
+        return {
+            'name': '',
+            'args': [{'name': name, 'type': 'Image', 'optional': False}
+                     for name in arg_names],
+            'returns': 'Image'
+        }
+
+    # Perform the call.
+    return ReinterpretedFunction().apply(args)
+
+  def clip(self, clip_geometry):
+    """Clips an image by a Geometry, Feature or FeatureCollection.
+
+    This is an override to the normal Image.select function to allow
+    varargs specification of selectors.
+
+    Args:
+      clip_geometry: The Geometry, Feature or FeatureCollection to clip to.
+
+    Returns:
+      The clipped image.
+    """
+    try:
+      # Need to manually promote GeoJSON, because the signature does not
+      # specify the type so auto promotion won't work.
+      clip_geometry = geometry.Geometry(clip_geometry)
+    except ee_exception.EEException:
+      pass  # Not an ee.Geometry or GeoJSON. Just pass it along.
+    return apifunction.ApiFunction.call_('Image.clip', self, clip_geometry)
+
+  @staticmethod
+  def name():
+    return 'Image'

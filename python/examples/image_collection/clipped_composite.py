@@ -20,7 +20,7 @@ image1 = collection.median()
 # Clip to the output image to the California state boundary.
 fc = (ee.FeatureCollection('ft:1fRY18cjsHzDgGiJiS2nnpUU3v9JPDc2HNaR7Xk8')
       .filter(ee.Filter().eq('Name', 'California')))
-image2 = image1.clip(fc.geometry())
+image2 = image1.clip(fc)
 
 # Select the red, green and blue bands.
 image = image2.select('30', '20', '10')

@@ -1,24 +1,90 @@
-// Copyright 2012 Google Inc. All Rights Reserved.
-
 /**
  * @fileoverview Singleton for all of the library's communcation
- *  with the Earth Engine API.
+ * with the Earth Engine API.
  */
 
 goog.provide('ee.data');
-goog.require('ee');
 
 goog.require('goog.Uri');
 goog.require('goog.json');
 goog.require('goog.net.XhrIo');
 goog.require('goog.net.XmlHttp');
 
+
+/** Required for exportSymbol() to work without lint warnings. */
+ee.data = {};
+
+
 /**
- * Manages the data and API communication.
- * @constructor
+ * @type {string?} The base URL for all API calls.
+ * @private
  */
-ee.data = function() {
+ee.data.apiBaseUrl_ = null;
+
+
+/**
+ * @type {string?} The base URL for map tiles.
+ * @private
+ */
+ee.data.tileBaseUrl_ = null;
+
+
+/**
+ * @type {boolean} Whether the library has been initialized.
+ * @private
+ */
+ee.data.initialized_ = false;
+
+
+/**
+ * @type {string} The default base URL for API calls.
+ * @private
+ * @const
+ */
+ee.data.DEFAULT_API_BASE_URL_ = '/api';
+
+
+/**
+ * @type {string} The default base URL for media/tile calls.
+ * @private
+ * @const
+ */
+ee.data.DEFAULT_TILE_BASE_URL_ = 'https://earthengine.googleapis.com';
+
+
+/**
+ * Initializes the data module, setting base URLs.
+ *
+ * @param {string=} opt_apiBaseUrl The (proxied) EarthEngine REST API endpoint.
+ * @param {string=} opt_tileBaseUrl The (unproxied) EarthEngine REST tile
+ *     endpoint.
+ */
+ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl) {
+  // If already initialized, only replace the explicitly specified parts.
+
+  if (goog.isDefAndNotNull(opt_apiBaseUrl)) {
+    ee.data.apiBaseUrl_ = opt_apiBaseUrl;
+  } else if (!ee.data.initialized_) {
+    ee.data.apiBaseUrl_ = ee.data.DEFAULT_API_BASE_URL_;
+  }
+  if (goog.isDefAndNotNull(opt_tileBaseUrl)) {
+    ee.data.tileBaseUrl_ = opt_tileBaseUrl;
+  } else if (!ee.data.initialized_) {
+    ee.data.tileBaseUrl_ = ee.data.DEFAULT_TILE_BASE_URL_;
+  }
+  ee.data.initialized_ = true;
 };
+
+
+/**
+ * Resets the data module, clearing custom base URLs.
+ */
+ee.data.reset = function() {
+  ee.data.apiBaseUrl_ = null;
+  ee.data.tileBaseUrl_ = null;
+  ee.data.initialized_ = false;
+};
+
 
 /**
  * Load info for an asset, given an asset id.
@@ -34,6 +100,7 @@ ee.data.getInfo = function(id, opt_callback) {
                        opt_callback);
 };
 
+
 /**
  * Get a list of contents for a collection asset.
  * @param {string} id The collection to be examined.
@@ -47,6 +114,7 @@ ee.data.getList = function(id, opt_callback) {
                        opt_callback);
 };
 
+
 /**
  * @typedef {{
  *     mapid: string,
@@ -56,10 +124,12 @@ ee.data.getList = function(id, opt_callback) {
  */
 ee.data.mapid;
 
+
 /**
- * Get a Map Id for a given asset
+ * Get a Map ID for a given asset
  * @param {Object} params An object containing visualization
  *     options with the following possible values:
+ *         image (JSON string) The image to render.
  *         version (number) Version number of image (or latest).
  *         bands (comma-seprated strings) Comma-delimited list of
  *             band names to be mapped to RGB.
@@ -81,19 +151,19 @@ ee.data.mapid;
  * @return {ee.data.mapid} The mapId call results.
  */
 ee.data.getMapId = function(params, opt_callback) {
+  params['json_format'] = 'v2';
   return /** @type {ee.data.mapid} */ (
-          ee.data.send_('/mapid',
-                        ee.data.makeRequest_(params),
-                        opt_callback));
+      ee.data.send_('/mapid', ee.data.makeRequest_(params), opt_callback));
 };
 
+
 /**
- * Generate a URL for map tiles from a mapid.
+ * Generate a URL for map tiles from a Map ID and coordinates.
  * @param {ee.data.mapid} mapid The mapid to generate tiles for.
  * @param {number} x The tile x coordinate.
  * @param {number} y The tile y coordinate.
  * @param {number} z The tile zoom level.
- * @return {string} The tile url.
+ * @return {string} The tile URL.
  */
 ee.data.getTileUrl = function(mapid, x, y, z) {
   var width = Math.pow(2, z);
@@ -101,9 +171,10 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
   if (x < 0) {
     x += width;
   }
-  return [ee.tile_base_, 'map', mapid['mapid'], z, x, y].join('/') +
+  return [ee.data.tileBaseUrl_, 'map', mapid['mapid'], z, x, y].join('/') +
       '?token=' + mapid['token'];
 };
+
 
 /**
  * Retrieve a processed value from the front end.
@@ -115,31 +186,49 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
  * @return {Object} The value call results.
  */
 ee.data.getValue = function(params, opt_callback) {
+  params['json_format'] = 'v2';
   return ee.data.send_('/value', ee.data.makeRequest_(params), opt_callback);
 };
 
+
 /**
- * Get a Thumbnail Id for a given asset
+ * Get a Thumbnail Id for a given asset.
  * @param {Object} params Parameters identical to those for the vizOptions for
  *     getMapId with the following additions:
- *         width (number) Width of the thumbnail to render, in pixels.
- *         height (number) Height of the thumbnail to render, in pixels.
+ *         size (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
+ *             dimensions of the thumbnail to render, in pixels. If only one
+ *             number is passed, it is used as the maximum, and the other
+ *             dimension is computed by proportional scaling.
  *         region (E,S,W,N or GeoJSON) Geospatial region of the image
- *             to render (or all).
- *         pixel_bb (X,Y,WIDTH,HEIGHT) Exact pixel region of the image
- *             to render (or all).
+ *             to render. By default, the whole image.
  *         format (string) Either 'png' (default) or 'jpg'.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {Object} The thumb call results, usually an image.
  */
 ee.data.getThumbId = function(params, opt_callback) {
+  params['json_format'] = 'v2';
+  if (goog.isArray(params['size'])) {
+    params['size'] = params['size'].join('x');
+  }
   var request = ee.data.makeRequest_(params).add('getid', '1');
   return ee.data.send_('/thumb', request, opt_callback);
 };
 
+
 /**
- * Get a Download Id.
+ * Create a thumbnail URL from a thumbid and token.
+ * @param {{thumbid: string, token: string}} id A thumbnail ID and token.
+ * @return {string} The thumbnail URL.
+ */
+ee.data.makeThumbUrl = function(id) {
+  return ee.data.tileBaseUrl_ + '/api/thumb?thumbid=' + id['thumbid'] +
+      '&token=' + id['token'];
+};
+
+
+/**
+ * Get a Download ID.
  * @param {Object} params An object containing download options with the
  *     following possible values:
  *     id: The ID of the image to download.
@@ -170,11 +259,13 @@ ee.data.getThumbId = function(params, opt_callback) {
  * @return {{docid: string, token: string}} A download ID and token.
  */
 ee.data.getDownloadId = function(params, opt_callback) {
+  params['json_format'] = 'v2';
   return /** @type {{docid: string, token: string}} */ (ee.data.send_(
       '/download',
       ee.data.makeRequest_(params),
       opt_callback));
 };
+
 
 /**
  * Create a download URL from a docid and token.
@@ -182,9 +273,10 @@ ee.data.getDownloadId = function(params, opt_callback) {
  * @return {string} The download URL.
  */
 ee.data.makeDownloadUrl = function(id) {
-  return ee.url_base_ + '/download?docid=' + id['docid'] +
+  return ee.data.tileBaseUrl_ + '/api/download?docid=' + id['docid'] +
       '&token=' + id['token'];
 };
+
 
 /**
  * Get the list of algorithms.
@@ -200,6 +292,7 @@ ee.data.getAlgorithms = function(opt_callback) {
                        'GET');
 };
 
+
 /**
  * Save an asset.
  *
@@ -210,7 +303,7 @@ ee.data.getAlgorithms = function(opt_callback) {
  * @return {Object}  A description of the saved asset, including a generated ID.
  */
 ee.data.createAsset = function(value, opt_path, opt_callback) {
-  var args = {'value': value};
+  var args = {'value': value, 'json_format': 'v2'};
   if (opt_path !== undefined) {
     args['id'] = opt_path;
   }
@@ -218,6 +311,7 @@ ee.data.createAsset = function(value, opt_path, opt_callback) {
                        ee.data.makeRequest_(args),
                        opt_callback);
 };
+
 
 /**
  * Send an API call.
@@ -234,8 +328,11 @@ ee.data.createAsset = function(value, opt_path, opt_callback) {
  * @private
  */
 ee.data.send_ = function(path, params, opt_callback, opt_method) {
+  // Make sure we never perform API calls before initialization.
+  ee.data.initialize();
+
   opt_method = opt_method || 'POST';
-  var url = ee.url_base_ + path;
+  var url = ee.data.apiBaseUrl_ + path;
   var requestData = params ? params.toString() : '';
 
   // Handle processing and dispatching a callback response.
@@ -244,7 +341,6 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     try {
       var response = goog.json.parse(responseText);
       var data = response['data'];
-      var error = response['error'];
     } catch (e) {
       jsonIsInvalid = true;
     }
@@ -253,12 +349,12 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
 
     // Totally malformed, with either invalid JSON or JSON with
     // neither a data nor an error property.
-    if (jsonIsInvalid || (!data && !error)) {
+    if (jsonIsInvalid || !('data' in response || 'error' in response)) {
       errorMessage = 'Malformed request: ' + responseText;
-    }
-    else if (error) {
+    } else if ('error' in response) {
       errorMessage = response['error']['message'];
     }
+
     if (opt_callback) {
       opt_callback(data, errorMessage);
     } else {
@@ -269,6 +365,9 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     }
   };
 
+  // WARNING: The content-type header in the section below must use this exact
+  // capitalization to remain compatible with the Node.JS environment. See:
+  // https://github.com/driverdan/node-XMLHttpRequest/issues/20
   if (opt_callback) {
     goog.net.XhrIo.send(
         url,
@@ -276,7 +375,8 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
           return handleResponse(e.target.getResponseText(), opt_callback);
         },
         opt_method,
-        requestData);
+        requestData,
+        {'Content-Type': 'application/x-www-form-urlencoded'});
   } else {
     // Construct a synchronous request.
     var xmlhttp = goog.net.XmlHttp();
@@ -284,11 +384,12 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     // Send request.
     xmlhttp.open(opt_method, url, false);
     xmlhttp.setRequestHeader(
-        'Content-type', 'application/x-www-form-urlencoded');
+        'Content-Type', 'application/x-www-form-urlencoded');
     xmlhttp.send(requestData);
     return handleResponse(xmlhttp.responseText, null);
   }
 };
+
 
 /**
  * Convert an object into a goog.Uri.QueryData.
@@ -304,6 +405,7 @@ ee.data.makeRequest_ = function(params) {
   }
   return request;
 };
+
 
 /**
  * Mock the networking calls used in send_.
@@ -370,26 +472,13 @@ ee.data.setupMockSend = function(opt_calls) {
   };
 };
 
-/**
- * A wrapper for json.parse that we can explictly make available for testing.
- * @param {string} str The string to be parsed.
- * @return {Object} The object resulting from the parse.
- */
-ee.data.parse = function(str) {
-  return goog.json.parse(str);
-};
-
-// Explicit exports
+// Explicit exports.
 goog.exportSymbol('ee.data', ee.data);
-goog.exportSymbol('ee.data.getInfo', ee.data.getInfo);
-goog.exportSymbol('ee.data.getList', ee.data.getList);
-goog.exportSymbol('ee.data.getMapId', ee.data.getMapId);
-goog.exportSymbol('ee.data.getValue', ee.data.getValue);
-goog.exportSymbol('ee.data.getThumbId', ee.data.getThumbId);
-goog.exportSymbol('ee.data.getDownloadId',
-                  ee.data.getDownloadId);
-goog.exportSymbol('ee.data.makeDownloadUrl',
-                  ee.data.makeDownloadUrl);
-goog.exportSymbol('ee.data.send_', ee.data.send_);
-goog.exportSymbol('ee.data.setupMockSend', ee.data.setupMockSend);
-goog.exportSymbol('ee.data.parse', ee.data.parse);
+goog.exportProperty(ee.data, 'getInfo', ee.data.getInfo);
+goog.exportProperty(ee.data, 'getList', ee.data.getList);
+goog.exportProperty(ee.data, 'getMapId', ee.data.getMapId);
+goog.exportProperty(ee.data, 'getValue', ee.data.getValue);
+goog.exportProperty(ee.data, 'getThumbId', ee.data.getThumbId);
+goog.exportProperty(ee.data, 'makeThumbUrl', ee.data.makeThumbUrl);
+goog.exportProperty(ee.data, 'getDownloadId', ee.data.getDownloadId);
+goog.exportProperty(ee.data, 'makeDownloadUrl', ee.data.makeDownloadUrl);

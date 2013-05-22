@@ -1,67 +1,86 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
-
 """Representation of an Earth Engine FeatureCollection."""
 
 
 
-# Using old-style python function naming on purpose to match the
-# javascript version's naming.
-# pylint: disable-msg=C6003,C6409
+# Using lowercase function naming to match the JavaScript names.
+# pylint: disable-msg=g-bad-name
 
-import collections
-import numbers
-
+import apifunction
 import collection
+import computedobject
 import ee_exception
+import ee_types
 import feature
-import image
-import serializer
+import geometry
 
 
 class FeatureCollection(collection.Collection):
+  """A representation of a FeatureCollection."""
 
-  def __init__(self, args, opt_column=None):       # pylint: disable-msg=W0231
-    """A representation of a FeatureCollection.
+  _initialized = False
+
+  def __init__(self, args, opt_column=None):
+    """Constructs a collection features.
 
     Args:
       args: constructor argument.  One of:
-          A string - The name of a collection.
-          A number - The ID of a Fusion Table.
-          A feature.
-          An array of features.
-          A dict - a collections's JSON description.
-      opt_column: The name of the column containing the geometry.  This is
-          only useful when args is a string or a number.
+          1) A string - assumed to be the name of a collection.
+          2) A number - assumed to be the ID of a Fusion Table.
+          3) A geometry.
+          4) A feature.
+          5) An array of features.
+          6) A computed object - reinterpreted as a collection.
+      opt_column: The name of the geometry column to use. Only useful with
+          constructor types 1 and 2.
 
     Raises:
       EEException: if passed something other than the above.
     """
+    self.initialize()
+
+    # Wrap geometries with features.
+    if isinstance(args, geometry.Geometry):
+      args = feature.Feature(args)
+
+    # Wrap single features in an array.
     if isinstance(args, feature.Feature):
       args = [args]
 
-    if isinstance(args, basestring):
-      args = {'type': 'FeatureCollection', 'id': args}
+    if ee_types.isNumber(args) or ee_types.isString(args):
+      # An ID.
+      actual_args = {'tableId': args}
       if opt_column:
-        args['geo_column'] = opt_column
-    elif isinstance(args, numbers.Number):
-      args = {'type': 'FeatureCollection', 'table_id': args}
-      if opt_column:
-        args['geo_column'] = opt_column
-    elif isinstance(args, collection.Collection):
-      args = dict(args._description)            # pylint: disable-msg=W0212
-    elif isinstance(args, dict):
-      # This is the default, but we need to check it before we get to iterable.
-      pass
-    elif isinstance(args, collections.Iterable):
-      new_args = {
-          'type': 'FeatureCollection',
-          'features': [feature.Feature(x) for x in args]
-          }
-      args = new_args
+        actual_args['geometryColumn'] = opt_column
+      super(FeatureCollection, self).__init__(
+          apifunction.ApiFunction.lookup('Collection.loadTable'), actual_args)
+    elif isinstance(args, (list, tuple)):
+      # A list of features.
+      super(FeatureCollection, self).__init__(
+          apifunction.ApiFunction.lookup('Collection'), {
+              'features': [feature.Feature(i) for i in args]
+          })
+    elif isinstance(args, computedobject.ComputedObject):
+      # A custom object to reinterpret as a FeatureCollection.
+      super(FeatureCollection, self).__init__(args.func, args.args)
     else:
-      raise ee_exception.EEException('Unrecognized constructor argument.')
+      raise ee_exception.EEException(
+          'Unrecognized argument type to convert to a FeatureCollection: %s' %
+          args)
 
-    self._description = args
+  @classmethod
+  def initialize(cls):
+    """Imports API functions to this class."""
+    if not cls._initialized:
+      apifunction.ApiFunction.importApi(
+          cls, 'FeatureCollection', 'FeatureCollection')
+      collection.Collection.createAutoMapFunctions(feature.Feature)
+      cls._initialized = True
+
+  @classmethod
+  def reset(cls):
+    """Removes imported API functions from this class."""
+    apifunction.ApiFunction.clearApi(cls)
+    cls._initialized = False
 
   def getMapId(self, vis_params=None):
     """Fetch and return a map id and token, suitable for use in a Map overlay.
@@ -74,8 +93,7 @@ class FeatureCollection(collection.Collection):
       An object containing a mapid string, an access token, plus a DrawVector
       image wrapping this collection.
     """
-    painted = image.Image({
-        'algorithm': 'DrawVector',
+    painted = apifunction.ApiFunction.apply_('DrawVector', {
         'collection': self,
         'color': (vis_params or {}).get('color', '000000')
     })
@@ -90,10 +108,6 @@ class FeatureCollection(collection.Collection):
     return self.mapInternal(feature.Feature, algorithm,
                             opt_dynamicArgs, opt_constantArgs, opt_destination)
 
-  def __str__(self):
-    """Writes out the collection in a human-readable form."""
-    return 'FeatureCollection(%s)' % serializer.toJSON(self._description)
-
-  def __repr__(self):
-    """Writes out the collection in an eval-able form."""
-    return 'ee.FeatureCollection(%s)' % self._description
+  @staticmethod
+  def name():
+    return 'FeatureCollection'

@@ -1,5 +1,3 @@
-// Copyright 2012 Google Inc. All Rights Reserved.
-
 /**
  * @fileoverview Collection filters.
  *
@@ -11,86 +9,131 @@
 
 goog.provide('ee.Filter');
 
-goog.require('ee');
-goog.require('ee.Serializer');
+goog.require('ee.ApiFunction');
+goog.require('ee.ComputedObject');
 goog.require('goog.array');
-goog.require('goog.object');
+goog.require('goog.string');
+
+
 
 /**
- * Construct a new filter.  This constuctor accepts the following args:
+ * Constructs a new filter. This constuctor accepts the following args:
  *    1) Another filter.
- *    2) An array of filters (which are implicitly ANDed together)
- *    3) A JSON representation of a filter.   Users shouldn't be making these,
+ *    2) An array of filters (which are implicitly ANDed together).
+ *    3) A ComputedObject returning a filter. Users shouldn't be making these;
  *       they're produced by the generator functions below.
  *
- * @param {ee.Filter|Array.<*>|Object=} newFilter Optional filter to add.
+ * @param {ee.Filter|Array.<*>|Object=} opt_filter Optional filter to add.
  * @constructor
+ * @extends {ee.ComputedObject}
  */
-ee.Filter = function(newFilter) {
+ee.Filter = function(opt_filter) {
   // Constructor safety.
   if (!(this instanceof ee.Filter)) {
-    return new ee.Filter(newFilter);
+    return new ee.Filter(opt_filter);
+  } else if (opt_filter instanceof ee.Filter) {
+    // If we've been passed another filter, just return it.
+    return opt_filter;
   }
-  ee.initialize();
 
-  // If we've been passed another filter, just return it.
-  if (newFilter instanceof ee.Filter) {
-    return newFilter;
-  }
+  ee.Filter.initialize();
 
   /**
    * The internal rerpresentation of this filter.  This is
    * an array of filter objects which are implicitly ANDed together.
    *
    * @type {Array.<*>}
-   * @private;
+   * @private
    */
   this.filter_;
 
-  if (newFilter instanceof Array) {
-    this.filter_ = newFilter;
+  if (goog.isArray(opt_filter)) {
+    if (opt_filter.length == 0) {
+      throw Error('Empty list specified for ee.Filter().');
+    } else if (opt_filter.length == 1) {
+      return new ee.Filter(opt_filter[0]);
+    } else {
+      // AND filters together.
+      goog.base(this, new ee.ApiFunction('Filter.and'), {
+        'filters': opt_filter
+      });
+      this.filter_ = opt_filter;
+    }
+  } else if (opt_filter instanceof ee.ComputedObject) {
+    // Actual filter object.
+    goog.base(this, opt_filter.func, opt_filter.args);
+    this.filter_ = [opt_filter];
+  } else if (!goog.isDef(opt_filter)) {
+    // A silly call with no arguments left for backward-compatibility.
+    // Encoding such a filter is expected to fail, but it can be composed
+    // by calling the various methods that end up in append_().
+    goog.base(this, null, null);
+    this.filter_ = [];
   } else {
-    this.filter_ = newFilter ? [newFilter] : [];
+    throw Error('Invalid argument specified for ee.Filter(): ' + opt_filter);
+  }
+};
+goog.inherits(ee.Filter, ee.ComputedObject);
+
+
+/**
+ * Whether the class has been initialized with API functions.
+ * @type {boolean}
+ * @private
+ */
+ee.Filter.initialized_ = false;
+
+
+/** Imports API functions to this class. */
+ee.Filter.initialize = function() {
+  if (!ee.Filter.initialized_) {
+    ee.ApiFunction.importApi(ee.Filter, 'Filter', 'Filter');
+    ee.Filter.initialized_ = true;
   }
 };
 
 
-/**
- * Filter operators.
- * @enum {string}
- */
-ee.Filter.Operators = {
-  EQUALS: 'equals',
-  NOT_EQUALS: 'not_equals',
-  LESS_THAN: 'less_than',
-  LESS_THAN_OR_EQUAL: 'not_greater_than',
-  GREATER_THAN: 'greater_than',
-  GREATER_THAN_OR_EQUAL: 'not_less_than',
-  CONTAINS: 'contains',
-  NOT_CONTAINS: 'not_contains',
-  STARTS_WITH: 'starts_with',
-  NOT_STARTS_WITH: 'not_starts_with',
-  ENDS_WITH: 'ends_with',
-  NOT_ENDS_WITH: 'not_ends_with',
-  OR: 'or',
-  AND: 'and'
+/** Removes imported API functions from this class. */
+ee.Filter.reset = function() {
+  ee.ApiFunction.clearApi(ee.Filter);
+  ee.Filter.initialized_ = false;
 };
+
+
+/**
+ * A map from the deprecated old-style comparison operator names to API
+ * function names, implicitly prefixed with "Filter.". Negative operators
+ * (those starting with "not_") are not included.
+ * @type {Object.<string>}
+ * @const
+ * @private
+ */
+ee.Filter.functionNames_ = {
+  'equals': 'equals',
+  'less_than': 'lessThan',
+  'greater_than': 'greaterThan',
+  'contains': 'stringContains',
+  'starts_with': 'stringStartsWith',
+  'ends_with': 'stringEndsWith'
+};
+
 
 /**
  * @return {number} The number of predicates that have been added to this
- * filter.  This does not count nested predicates.
+ * filter. This does not count nested predicates.
  */
 ee.Filter.prototype.length = function() {
   return this.filter_.length;
 };
 
+
 /**
  * Append a predicate to a filter.  These are implicitly ANDed.
  *
- * @param {ee.Filter|Array.<ee.Filter|Object>|Object=} newFilter The filter
+ * @param {ee.Filter|Array.<ee.Filter|Object>|Object} newFilter The filter
  *     to append.  Possible types are:
  *     1) another fully constructed ee.Filter,
- *     2) a JSON representation of a filter,
+ *     2) a ComputedObject producing a filter,
  *     3) an array of 1 or 2.
  * @return {ee.Filter} A new filter that is the combination of both.
  * @private
@@ -108,228 +151,296 @@ ee.Filter.prototype.append_ = function(newFilter) {
   return new ee.Filter(prev);
 };
 
+
 /**
- * Filter on metadata.
+ * Returns the opposite of this filter, i.e. a filter that will match iff
+ * this filter doesn't.
+ * @return {ee.Filter} The negated filter.
+ */
+ee.Filter.prototype.not = function() {
+  return /** @type {ee.Filter} */(ee.ApiFunction._call('Filter.not', this));
+};
+
+
+/**
+ * Filter on metadata. This is deprecated.
  *
  * @param {string} name The property name to filter on.
  * @param {string} operator The type of comparison.  One of:
  *    "equals", "less_than", "greater_than", "contains", "begins_with",
  *    "ends_with", or any of these prefixed with "not_".
  * @param {*} value The value to compare against.
- * @return {ee.Filter} The modified filter.
- * @private
+ * @return {ee.Filter} The constructed filter.
  */
-ee.Filter.metadata_ = function(name, operator, value) {
-  return new ee.Filter(goog.object.create('property', name, operator, value));
+ee.Filter.metadata = function(name, operator, value) {
+  // Check for negated filters.
+  var negated = false;
+  if (goog.string.startsWith(operator, 'not_')) {
+    negated = true;
+    operator = operator.substring(4);
+  }
+
+  // Convert the operator to a function.
+  if (!(operator in ee.Filter.functionNames_)) {
+    throw Error('Unknown filtering operator: ' + operator);
+  }
+  var funcName = 'Filter.' + ee.Filter.functionNames_[operator];
+  var filter = /** @type {ee.Filter} */(
+      ee.ApiFunction._call(funcName, name, value));
+
+  return negated ? filter.not() : filter;
 };
+
 
 /**
  * Filter to metadata equal to the given value.
  *
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.eq = function(name, value) {
-  return ee.Filter.metadata_(name, ee.Filter.Operators.EQUALS, value);
+  return /** @type {ee.Filter} */(
+      ee.ApiFunction._call('Filter.equals', name, value));
 };
+
 
 /**
  * Filter to metadata not equal to the given value.
  *
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.neq = function(name, value) {
-  return ee.Filter.metadata_(name, ee.Filter.Operators.NOT_EQUALS, value);
+  return ee.Filter.eq(name, value).not();
 };
+
 
 /**
  * Filter to metadata less than the given value.
  *
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.lt = function(name, value) {
-  return ee.Filter.metadata_(name, ee.Filter.Operators.LESS_THAN, value);
+  return /** @type {ee.Filter} */(
+      ee.ApiFunction._call('Filter.lessThan', name, value));
 };
+
 
 /**
  * Filter on metadata greater than or equal to the given value.
  *
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.gte = function(name, value) {
-  return ee.Filter.metadata_(
-      name, ee.Filter.Operators.GREATER_THAN_OR_EQUAL, value);
+  return ee.Filter.lt(name, value).not();
 };
+
 
 /**
  * Filter on metadata greater than the given value.
  *
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.gt = function(name, value) {
-  return ee.Filter.metadata_(
-      name, ee.Filter.Operators.GREATER_THAN, value);
+  return /** @type {ee.Filter} */(
+      ee.ApiFunction._call('Filter.greaterThan', name, value));
 };
+
 
 /**
  * Filter on metadata less than or equal to the given value.
  *
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.lte = function(name, value) {
-  return ee.Filter.metadata_(
-      name, ee.Filter.Operators.LESS_THAN_OR_EQUAL, value);
+  return ee.Filter.gt(name, value).not();
 };
+
 
 /**
  * Filter on metadata containing the given string.
  *
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.contains = function(name, value) {
-  return ee.Filter.metadata_(name, ee.Filter.Operators.CONTAINS, value);
+  return /** @type {ee.Filter} */(
+      ee.ApiFunction._call('Filter.stringContains', name, value));
 };
+
 
 /**
  * Filter on metadata not containing the given string.
  *
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.not_contains = function(name, value) {
-  return ee.Filter.metadata_(
-      name, ee.Filter.Operators.NOT_CONTAINS, value);
+  return ee.Filter.contains(name, value).not();
 };
+
 
 /**
  * Filter on metadata begining with the given string.
  *
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.starts_with = function(name, value) {
-  return ee.Filter.metadata_(
-      name, ee.Filter.Operators.STARTS_WITH, value);
+  return /** @type {ee.Filter} */(
+      ee.ApiFunction._call('Filter.stringStartsWith', name, value));
 };
+
 
 /**
  * Filter on metadata not begining with the given string.
  *
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.not_starts_with = function(name, value) {
-  return ee.Filter.metadata_(
-      name, ee.Filter.Operators.NOT_STARTS_WITH, value);
+  return ee.Filter.starts_with(name, value).not();
 };
+
 
 /**
  * Filter on metadata ending with the given string.
  *
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.ends_with = function(name, value) {
-  return ee.Filter.metadata_(name, ee.Filter.Operators.ENDS_WITH, value);
+  return /** @type {ee.Filter} */(
+      ee.ApiFunction._call('Filter.stringEndsWith', name, value));
 };
+
 
 /**
  * Filter on metadata not ending with the given string.
  *
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.not_ends_with = function(name, value) {
-  return ee.Filter.metadata_(
-      name, ee.Filter.Operators.NOT_ENDS_WITH, value);
+  return ee.Filter.ends_with(name, value).not();
 };
+
 
 /**
  * Combine two or more filters using boolean AND.
  *
  * @param {...ee.Filter} var_args The filters to combine.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.and = function(var_args) {
   var args = Array.prototype.slice.call(arguments);
-  return new ee.Filter({'and': args});
+  return /** @type {ee.Filter} */(ee.ApiFunction._call('Filter.and', args));
 };
+
 
 /**
  * Combine two or more filters using boolean OR.
  *
  * @param {...ee.Filter} var_args The filters to combine.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.or = function(var_args) {
   var args = Array.prototype.slice.call(arguments);
-  return new ee.Filter({'or': args});
+  return /** @type {ee.Filter} */(ee.ApiFunction._call('Filter.or', args));
 };
+
 
 /**
  * Filter images by date.
  *
  * @param {Date|string|number} start The start date.
  * @param {Date|string|number=} opt_end The end date.
- * @return {ee.Filter} The modified filter.
+ * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.date = function(start, opt_end) {
-  var normalizeDate = function(d) {
-    return (d instanceof Date ? d.getTime() :
-            (typeof(d) == 'string' ? new Date(d).getTime() : d));
-  };
-
-  var newFilter = {
-    'property': 'system:time_start',
-    'not_less_than': normalizeDate(start)
-  };
-
-  if (opt_end) {
-    newFilter = [newFilter, {
-      'property': 'system:time_start',
-      'not_greater_than': normalizeDate(opt_end)
-      }];
+  if (!goog.isDef(opt_end)) {
+    // Can't create half-open DateRanges. Hack around it.
+    opt_end = 0x0000FFFFFFFFFFFF;   // 8000+ years gotta be enough.
   }
-  return new ee.Filter(newFilter);
+  var range = ee.ApiFunction._call('DateRange', start, opt_end);
+  var filter = ee.ApiFunction._apply('Filter.dateRangeContains', {
+    'leftValue': range,
+    'rightField': 'system:time_start'
+  });
+  return /** @type {ee.Filter} */(filter);
 };
+
+
+/**
+ * Filter on metadata contained in a list.
+ *
+ * @param {string=} opt_leftField A selector for the left operand.
+ *     Should not be specified if leftValue is specified.
+ * @param {Array|Object=} opt_rightValue The value of the right operand.
+ *     Should not be specified if rightField is specified.
+ * @param {string=} opt_rightField A selector for the right operand.
+ *     Should not be specified if rightValue is specified.
+ * @param {Array|Object=} opt_leftValue The value of the left operand.
+ *     Should not be specified if leftField is specified.
+ * @return {ee.Filter} The constructed filter.
+ */
+ee.Filter.inList = function(
+    opt_leftField, opt_rightValue, opt_rightField, opt_leftValue) {
+  // Implement this in terms of listContains, with the arguments switched.
+  // In listContains the list is on the left side, while in inList it's on
+  // the right.
+  var filter = ee.ApiFunction._apply('Filter.listContains', {
+    'leftField': opt_rightField,
+    'rightValue': opt_leftValue,
+    'rightField': opt_leftField,
+    'leftValue': opt_rightValue
+  });
+  return /** @type {ee.Filter} */(filter);
+};
+
 
 /**
  * Filter on bounds.
  *
- * @param {Object|ee.FeatureCollection} geometry The geometry to filter to.
+ * @param {ee.Geometry|ee.ComputedObject|ee.FeatureCollection} geometry
+ *     The geometry, feature or collection to filter to.
+ * @param {number|ee.ComputedObject=} opt_errorMargin An optional error margin.
+ *     If a number, interpreted as sphere surface meters.
  * @return {ee.Filter} The modified filter.
  */
-ee.Filter.bounds = function(geometry) {
-  if (geometry instanceof ee.FeatureCollection) {
-    geometry = {
-      'algorithm': 'ExtractGeometry',
-      'collection': geometry
-    };
-  }
-  return new ee.Filter({'geometry': geometry});
+ee.Filter.bounds = function(geometry, opt_errorMargin) {
+  // Invoke geometry promotion then manually promote to a Feature.
+  // TODO(user): Discuss whether filters should go back to working
+  //              directly on geometries.
+  return /** @type {ee.Filter} */(
+      ee.ApiFunction._apply('Filter.intersects', {
+        'leftField': '.all',
+        'rightValue': ee.ApiFunction._call('Feature', geometry),
+        'maxError': opt_errorMargin
+      }));
 };
+
 
 /**
  * Prototyped versions of all filter operators.
  */
+
 
 /**
  * @see ee.Filter.eq
@@ -339,6 +450,7 @@ ee.Filter.prototype.eq = function() {
   return this.append_(ee.Filter.eq.apply(null, [].slice.call(arguments)));
 };
 
+
 /**
  * @see ee.Filter.neq
  * @return {ee.Filter} The modified filter.
@@ -346,6 +458,7 @@ ee.Filter.prototype.eq = function() {
 ee.Filter.prototype.neq = function() {
   return this.append_(ee.Filter.neq.apply(null, [].slice.call(arguments)));
 };
+
 
 /**
  * @see ee.Filter.lt
@@ -355,6 +468,7 @@ ee.Filter.prototype.lt = function() {
   return this.append_(ee.Filter.lt.apply(null, [].slice.call(arguments)));
 };
 
+
 /**
  * @see ee.Filter.gte
  * @return {ee.Filter} The modified filter.
@@ -362,6 +476,7 @@ ee.Filter.prototype.lt = function() {
 ee.Filter.prototype.gte = function() {
   return this.append_(ee.Filter.gte.apply(null, [].slice.call(arguments)));
 };
+
 
 /**
  * @see ee.Filter.gt
@@ -371,6 +486,7 @@ ee.Filter.prototype.gt = function() {
   return this.append_(ee.Filter.gt.apply(null, [].slice.call(arguments)));
 };
 
+
 /**
  * @see ee.Filter.lte
  * @return {ee.Filter} The modified filter.
@@ -379,6 +495,7 @@ ee.Filter.prototype.lte = function() {
   return this.append_(ee.Filter.lte.apply(null, [].slice.call(arguments)));
 };
 
+
 /**
  * @see ee.Filter.contains
  * @return {ee.Filter} The modified filter.
@@ -386,6 +503,7 @@ ee.Filter.prototype.lte = function() {
 ee.Filter.prototype.contains = function() {
   return this.append_(ee.Filter.contains.apply(null, [].slice.call(arguments)));
 };
+
 
 /**
  * @see ee.Filter.not_contains
@@ -396,6 +514,7 @@ ee.Filter.prototype.not_contains = function() {
       ee.Filter.not_contains.apply(null, [].slice.call(arguments)));
 };
 
+
 /**
  * @see ee.Filter.starts_with
  * @return {ee.Filter} The modified filter.
@@ -404,6 +523,7 @@ ee.Filter.prototype.starts_with = function() {
   return this.append_(
       ee.Filter.starts_with.apply(null, [].slice.call(arguments)));
 };
+
 
 /**
  * @see ee.Filter.not_starts_with
@@ -414,6 +534,7 @@ ee.Filter.prototype.not_starts_with = function() {
       ee.Filter.not_starts_with.apply(null, [].slice.call(arguments)));
 };
 
+
 /**
  * @see ee.Filter.ends_with
  * @return {ee.Filter} The modified filter.
@@ -422,6 +543,7 @@ ee.Filter.prototype.ends_with = function() {
   return this.append_(
       ee.Filter.ends_with.apply(null, [].slice.call(arguments)));
 };
+
 
 /**
  * @see ee.Filter.not_ends_with
@@ -432,6 +554,7 @@ ee.Filter.prototype.not_ends_with = function() {
       ee.Filter.not_ends_with.apply(null, [].slice.call(arguments)));
 };
 
+
 /**
  * @see ee.Filter.and
  * @return {ee.Filter} The modified filter.
@@ -440,12 +563,14 @@ ee.Filter.prototype.and = function() {
   return this.append_(ee.Filter.and.apply(null, [].slice.call(arguments)));
 };
 
+
 /**
  * There is no prototype version of 'or', to avoid the abiguous syntax.
  * Example:  a.or(b), doesn't do what it looks like it would; it appends
  * "or(b)" to the list of filters that includes a, which is equal
  * to "and(a, b)", not "or(a,b)".
  */
+
 
 /**
  * @see ee.Filter.date
@@ -455,6 +580,16 @@ ee.Filter.prototype.date = function() {
   return this.append_(ee.Filter.date.apply(null, [].slice.call(arguments)));
 };
 
+
+/**
+ * @see ee.Filter.inList
+ * @return {ee.Filter} The modified filter.
+ */
+ee.Filter.prototype.inList = function() {
+  return this.append_(ee.Filter.inList.apply(null, [].slice.call(arguments)));
+};
+
+
 /**
  * @see ee.Filter.bounds
  * @return {ee.Filter} The modified filter.
@@ -463,20 +598,15 @@ ee.Filter.prototype.bounds = function() {
   return this.append_(ee.Filter.bounds.apply(null, [].slice.call(arguments)));
 };
 
-/**
- * JSON serializer.
- * @return {string} The serialized representation of this object.
- */
-ee.Filter.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this.filter_);
-};
 
 /**
- * @return {string} The filter as a human-readable string.
+ * @return {string} The name of the object, used in toString().
+ * @protected
  */
-ee.Filter.prototype.toString = function() {
-  return 'ee.Filter(' + ee.Serializer.toReadableJSON(this.filter_) + ')';
+ee.Filter.prototype.name = function() {
+  return 'Filter';
 };
+
 
 // Exported symbols
 goog.exportSymbol('ee.Filter', ee.Filter);
@@ -502,6 +632,8 @@ goog.exportProperty(ee.Filter.prototype, 'not_ends_with',
                     ee.Filter.prototype.not_ends_with);
 goog.exportProperty(ee.Filter.prototype, 'bounds',
                     ee.Filter.prototype.bounds);
+goog.exportProperty(ee.Filter.prototype, 'inList',
+                    ee.Filter.prototype.inList);
 goog.exportProperty(ee.Filter.prototype, 'date',
                     ee.Filter.prototype.date);
 goog.exportProperty(ee.Filter.prototype, 'serialize',
@@ -525,4 +657,5 @@ goog.exportProperty(ee.Filter, 'not_starts_with', ee.Filter.not_starts_with);
 goog.exportProperty(ee.Filter, 'ends_with', ee.Filter.ends_with);
 goog.exportProperty(ee.Filter, 'not_ends_with', ee.Filter.not_ends_with);
 goog.exportProperty(ee.Filter, 'bounds', ee.Filter.bounds);
+goog.exportProperty(ee.Filter, 'inList', ee.Filter.inList);
 goog.exportProperty(ee.Filter, 'date', ee.Filter.date);

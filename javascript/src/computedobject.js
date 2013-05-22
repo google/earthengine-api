@@ -2,61 +2,91 @@
  * @fileoverview A representation of a computed earthengine object.
  *
  */
+
 goog.provide('ee.ComputedObject');
 
-goog.require('ee');
+goog.require('ee.Encodable');
 goog.require('ee.Serializer');
 goog.require('ee.data');
 
 
 
 /**
- * An object to represent a computed Earth Engine object.
+ * An object to represent a computed Earth Engine object, a base for most
+ * API objects.
  *
  * This exists to wrap the return values of algorithms that produce
  * unrecognized types with the minimal functionality necessary to
  * interact well with the rest of the API.
  *
+ * @param {ee.Function} func The function called to compute this
+ *     object, either as an Algorithm name or an ee.Function object.
+ * @param {Object} args A dictionary of arguments to pass to the specified
+ *     function. Note that the caller is responsible for promoting the
+ *     arguments to the correct types.
  * @constructor
- * @param {*} args A block of JSON typically produced by another EE object.
- *     In most cases, this will be the result of a call to an EE algorithm
- *     that returns a type other than those recognized by algorithms.promote.
+ * @extends {ee.Encodable}
  */
-ee.ComputedObject = function(args) {
+ee.ComputedObject = function(func, args) {
   // Constructor safety.
   if (!(this instanceof ee.ComputedObject)) {
-    return new ee.ComputedObject(args);
+    return new ee.ComputedObject(func, args);
   }
-  ee.initialize();
 
-  if (args instanceof ee.ComputedObject) {
-    // The arguments are already an object. Just return it.
-    return args;
-  }
-  this.description_ = /** @type {Object} */ (args);
+  /**
+   * The Function called to compute this object.
+   * @type {ee.Function}
+   * @protected
+   */
+  this.func = func;
+
+  /**
+   * The arguments passed to the function.
+   * @type {Object}
+   * @protected
+   */
+  this.args = args;
 };
+goog.inherits(ee.ComputedObject, ee.Encodable);
 
 
 /**
  * An imperative function that returns information about this object
  * (usually the value) via a synchronous AJAX call.
- *
+ * @param {function(Object)=} opt_callback An optional callback.  If not
+ *     supplied, the call is made synchronously.
  * @return {*} The object can evaluate to anything.
  */
-ee.ComputedObject.prototype.getInfo = function() {
+ee.ComputedObject.prototype.getInfo = function(opt_callback) {
   return ee.data.getValue({
     'json': this.serialize()
-  });
+  }, opt_callback);
+};
+
+
+/** @inheritDoc */
+ee.ComputedObject.prototype.encode = function(encoder) {
+  var encodedArgs = {};
+  for (var name in this.args) {
+    if (goog.isDef(this.args[name])) {
+      encodedArgs[name] = encoder(this.args[name]);
+    }
+  }
+  var result = {
+    'type': 'Invocation',
+    'arguments': encodedArgs
+  };
+  var func = encoder(this.func);
+  result[goog.isString(func) ? 'functionName' : 'function'] = func;
+  return result;
 };
 
 
 /**
- * JSON serializer.
- *
  * @return {string} The serialized representation of this object.
  */
 ee.ComputedObject.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this.description_);
+  return ee.Serializer.toJSON(this);
 };
 
 
@@ -64,15 +94,23 @@ ee.ComputedObject.prototype.serialize = function() {
  * @return {string} The object's JSON as a human-readable string.
  */
 ee.ComputedObject.prototype.toString = function() {
-  var json = ee.Serializer.toReadableJSON(this.description_);
-  return 'ee.ComputedObject(' + json + ')';
+  return 'ee.' + this.name() + '(' + ee.Serializer.toReadableJSON(this) + ')';
 };
 
-// Explicit exports.
+
+/**
+ * @return {string} The name of the object, used in toString().
+ * @protected
+ */
+ee.ComputedObject.prototype.name = function() {
+  return 'ComputedObject';
+};
+
+
 goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
-goog.exportProperty(ee.ComputedObject.prototype,
-                    'getInfo', ee.ComputedObject.prototype.getInfo);
-goog.exportProperty(ee.ComputedObject.prototype,
-                    'serialize', ee.ComputedObject.prototype.serialize);
-goog.exportProperty(ee.ComputedObject,
-                    'toString', ee.ComputedObject.toString);
+goog.exportProperty(ee.ComputedObject.prototype, 'getInfo',
+                    ee.ComputedObject.prototype.getInfo);
+goog.exportProperty(ee.ComputedObject.prototype, 'serialize',
+                    ee.ComputedObject.prototype.serialize);
+goog.exportProperty(ee.ComputedObject.prototype, 'toString',
+                    ee.ComputedObject.prototype.toString);

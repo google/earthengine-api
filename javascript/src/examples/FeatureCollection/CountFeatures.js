@@ -14,5 +14,5 @@ addToMap(brigdePhotos, {color: 'e02070'});
 centerMap(-122.39, 37.7857, 12);
 
 alert('There are ' +
-      brigdePhotos.aggregate_count('.all') +
+      brigdePhotos.aggregate_count('.all').getInfo() +
       ' bridge photos around SF.');

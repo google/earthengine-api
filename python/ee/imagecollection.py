@@ -1,58 +1,79 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
-
 """Representation for an Earth Engine ImageCollection."""
 
 
 
-# Dont bug me about the invalid names; it's on purpose.
-#pylint: disable-msg=C6409
+# Using lowercase function naming to match the JavaScript names.
+# pylint: disable-msg=g-bad-name
 
-import collections
-import copy
-
+import apifunction
 import collection
+import computedobject
 import ee_exception
+import ee_types
 import image
-import serializer
 
 
 class ImageCollection(collection.Collection):
   """Representation for an Earth Engine ImageCollection."""
 
-  def __init__(self, args):                     # pylint: disable-msg=W0231
+  _initialized = False
+
+  def __init__(self, args):
     """ImageCollection constructor.
 
     Args:
        args: ImageCollections can be constructed from the following arguments:
-           A string: the asset ID of an image collection,
-           An iterable of images, or anything that can be used to construct
-               an image (ids, constants, etc).
-           A single image.
-           A dictionary: a collections's JSON description.
+           1) A string: assumed to be the name of a collection,
+           2) An array of images, or anything that can be used to construct an
+              image.
+           3) A single image.
+           5) A computed object - reinterpreted as a collection.
 
     Raises:
       EEException: if passed something other than the above.
     """
+    self.initialize()
+
+    # Wrap single images in an array.
     if isinstance(args, image.Image):
       args = [args]
 
-    if isinstance(args, basestring):
-      # Get an asset by AssetID
-      args = {'type': 'ImageCollection', 'id': args}
-    elif isinstance(args, dict):        # Must check for dict before iterable.
-      args = copy.deepcopy(args)
-    elif isinstance(args, collections.Iterable):
-      # A manually created collection.
-      args = {'type': 'ImageCollection',
-              'images': [image.Image(x) for x in args]}
-    elif isinstance(args, collection.Collection):
-      args = copy.deepcopy(args._description)        # pylint: disable-msg=W0212
+    if ee_types.isString(args):
+      # An ID.
+      super(ImageCollection, self).__init__(
+          apifunction.ApiFunction.lookup('ImageCollection.load'), {'id': args})
+    elif isinstance(args, (list, tuple)):
+      # A list of images.
+      super(ImageCollection, self).__init__(
+          apifunction.ApiFunction.lookup('ImageCollection.fromImages'), {
+              'images': [image.Image(i) for i in args]
+          })
+    elif isinstance(args, computedobject.ComputedObject):
+      # A custom object to reinterpret as a ImageCollection.
+      super(ImageCollection, self).__init__(args.func, args.args)
     else:
-      raise ee_exception.EEException('Unrecognized constructor argument.')
+      raise ee_exception.EEException(
+          'Unrecognized argument type to convert to a ImageCollection: %s' %
+          args)
 
-    self._description = args
+  @classmethod
+  def initialize(cls):
+    """Imports API functions to this class."""
+    if not cls._initialized:
+      apifunction.ApiFunction.importApi(
+          cls, 'ImageCollection', 'ImageCollection')
+      apifunction.ApiFunction.importApi(
+          cls, 'reduce', 'ImageCollection')
+      collection.Collection.createAutoMapFunctions(image.Image)
+      cls._initialized = True
 
-  def getMapId(self, vis_params):
+  @classmethod
+  def reset(cls):
+    """Removes imported API functions from this class."""
+    apifunction.ApiFunction.clearApi(cls)
+    cls._initialized = False
+
+  def getMapId(self, vis_params=None):
     """Fetch and return a MapID.
 
     This mosaics the collection to a single image and return a mapid suitable
@@ -64,7 +85,8 @@ class ImageCollection(collection.Collection):
     Returns:
        A mapid and token.
     """
-    return self.mosaic().getMapId(vis_params)
+    mosaic = apifunction.ApiFunction.call_('ImageCollection.mosaic', self)
+    return mosaic.getMapId(vis_params)
 
   def map(self,
           algorithm,
@@ -75,10 +97,6 @@ class ImageCollection(collection.Collection):
     return self.mapInternal(image.Image, algorithm,
                             opt_dynamicArgs, opt_constantArgs, opt_destination)
 
-  def __str__(self):
-    """Writes out the collection in a human-readable form."""
-    return 'ImageCollection(%s)' % serializer.toJSON(self._description)
-
-  def __repr__(self):
-    """Writes out the collection in an eval-able form."""
-    return 'ee.ImageCollection(%s)' % self._description
+  @staticmethod
+  def name():
+    return 'ImageCollection'

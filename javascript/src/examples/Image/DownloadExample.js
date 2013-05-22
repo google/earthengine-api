@@ -9,4 +9,4 @@ var path = image1.getDownloadURL({
   'crs': 'EPSG:4326',
   'region': '[[-120, 35], [-119, 35], [-119, 34], [-120, 34]]'
 });
-alert('https://earthengine.googleapis.com' + path);
+alert(path);

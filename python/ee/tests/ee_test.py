@@ -1,87 +1,102 @@
-# Copyright 2012 Google Inc. All Rights Reserved.
-
 """Test for the ee.__init__ file."""
 
 
 
-import json
-
 import unittest
 
 import ee
-from ee import ee_exception
+import apitestcase
 
 
 class EETestCase(unittest.TestCase):
+
   def setUp(self):
-    ee.algorithms._signatures = {
-        'Image.fakeFunction': {
-            'returns': 'Image',
-            'args': [
-                {'type': 'Image', 'name': 'image1'},
-                {'type': 'Image', 'name': 'image2'}
-                ]
-            }
-        }
+    ee.Reset()
+
+  def testInitialization(self):
+    """Verifies library initialization."""
+
+    def MockSend(path, params, unused_method=None, unused_raw=None):
+      if path == '/algorithms':
+        return {}
+      else:
+        raise Exception('Unexpected API call to %s with %s' % (path, params))
+    ee.data.send_ = MockSend
+
+    # Verify that the base state is uninitialized.
+    self.assertFalse(ee.data._initialized)
+    self.assertEquals(ee.data._api_base_url, None)
+    self.assertEquals(ee.ApiFunction._api, None)
+    self.assertFalse(ee.Image._initialized)
+
+    # Verify that ee.Initialize() sets the URL and initializes classes.
+    ee.Initialize(None, 'foo')
+    self.assertTrue(ee.data._initialized)
+    self.assertEquals(ee.data._api_base_url, 'foo/api')
+    self.assertEquals(ee.ApiFunction._api, {})
+    self.assertTrue(ee.Image._initialized)
+
+    # Verify that parameterless ee.Initialize() does not override custom URLs.
+    ee.Initialize()
+    self.assertTrue(ee.data._initialized)
+    self.assertEquals(ee.data._api_base_url, 'foo/api')
+
+    # Verify that ee.Reset() reverts everything to the base state.
+    ee.Reset()
+    self.assertFalse(ee.data._initialized)
+    self.assertEquals(ee.data._api_base_url, None)
+    self.assertEquals(ee.ApiFunction._api, None)
+    self.assertFalse(ee.Image._initialized)
 
   def testCallAndApply(self):
-    ee.algorithms.init()
+    """Verifies library initialization."""
+
+    # Use a custom set of known functions.
+    def MockSend(path, params, unused_method=None, unused_raw=None):
+      if path == '/algorithms':
+        return {
+            'fakeFunction': {
+                'type': 'Algorithm',
+                'args': [
+                    {'name': 'image1', 'type': 'Image'},
+                    {'name': 'image2', 'type': 'Image'}
+                ],
+                'returns': 'Image'
+            },
+            'Image.constant': apitestcase.BUILTIN_FUNCTIONS['Image.constant']
+        }
+      else:
+        raise Exception('Unexpected API call to %s with %s' % (path, params))
+    ee.data.send_ = MockSend
 
     image1 = ee.Image(1)
     image2 = ee.Image(2)
+    expected = ee.Image(ee.ComputedObject(
+        ee.ApiFunction.lookup('fakeFunction'),
+        {'image1': image1, 'image2': image2}))
 
-    expected = {
-        'algorithm': 'Image.fakeFunction',
-        'image1': {'algorithm': 'Constant', 'value': 1},
-        'image2': {'algorithm': 'Constant', 'value': 2},
-        }
+    applied_with_images = ee.apply(
+        'fakeFunction', {'image1': image1, 'image2': image2})
+    self.assertEquals(expected, applied_with_images)
 
-    # Test positional args.
-    out = ee.call('Image.fakeFunction', image1, image2)
-    self.assertEquals(expected, json.loads(out.serialize()))
+    applied_with_numbers = ee.apply('fakeFunction', {'image1': 1, 'image2': 2})
+    self.assertEquals(expected, applied_with_numbers)
 
-    # Test positional args with promotion
-    out = ee.call('Image.fakeFunction', 1, 2)
-    self.assertEquals(expected, json.loads(out.serialize()))
+    called_with_numbers = ee.call('fakeFunction', 1, 2)
+    self.assertEquals(expected, called_with_numbers)
 
-    # Test kwargs.
-    out = ee.call('Image.fakeFunction', image1=image1, image2=image2)
-    self.assertEquals(expected, json.loads(out.serialize()))
+    # Test call and apply() with a custom function.
+    func = ee.CustomFunction({'foo': ee.Image}, ee.Image,
+                             lambda foo: ee.call('fakeFunction', 42, foo))
+    expected_custom_function_call = ee.Image(
+        ee.ComputedObject(func, {'foo': ee.Image(13)}))
+    self.assertEquals(expected_custom_function_call, ee.call(func, 13))
+    self.assertEquals(expected_custom_function_call,
+                      ee.apply(func, {'foo': 13}))
 
-    # Test kwargs with promotion.
-    out = ee.call('Image.fakeFunction', image1=1, image2=2)
-    self.assertEquals(expected, json.loads(out.serialize()))
-
-    # Test kwargs with promotion.
-    try:
-      out = ee.call('Image.fakeFunction', image1=1, image2=2, image3=3)
-    except ee_exception.EEException as e:
-      self.assertTrue(e.args[0].startswith('Unknown arguments'))
-    else:
-      self.fail('Expected unknown args exception.')
-
-    # Test apply().
-    out = ee.apply('Image.fakeFunction', {'image1': image1, 'image2': image2})
-    self.assertEquals(expected, json.loads(out.serialize()))
-
-    # Test apply() with promotion.
-    out = ee.apply('Image.fakeFunction', {'image1': 1, 'image2': 2})
-    self.assertEquals(expected, json.loads(out.serialize()))
-    
-    # Test call and apply() with a lambda.
-    func = ee.lambda_(['foo'], {'bar': 'quux'})
-    expected_lambda_call = {
-                          'foo': 'a',
-                          'algorithm': {
-                              'type': 'Algorithm',
-                              'args': ['foo'],
-                              'body': {'bar': 'quux'}
-                          }
-                      }
-    self.assertEquals(expected_lambda_call, ee.call(func, 'a'))
-    self.assertEquals(expected_lambda_call, ee.call(func, foo='a'))
-    self.assertEquals(expected_lambda_call, ee.apply(func, {'foo': 'a'}))
-        
+    # Test None promotion.
+    called_with_null = ee.call('fakeFunction', None, 1)
+    self.assertEquals(None, called_with_null.args['image1'])
 
 
 if __name__ == '__main__':

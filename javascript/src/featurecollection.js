@@ -1,74 +1,106 @@
-// Copyright 2012 Google Inc. All Rights Reserved.
-
 /**
  * @fileoverview Representation of an Earth Engine FeatureCollection.
  */
 
 goog.provide('ee.FeatureCollection');
 
-goog.require('ee');
+goog.require('ee.ApiFunction');
 goog.require('ee.Collection');
+goog.require('ee.ComputedObject');
 goog.require('ee.Feature');
-goog.require('ee.Image');
-goog.require('ee.Serializer');
+goog.require('ee.Geometry');
+goog.require('ee.Types');
 goog.require('goog.array');
+
+
 
 /**
  * FeatureCollections can be constructed from the following arguments:
  *   1) A string - assumed to be the name of a collection.
- *   2) A number - assumed to be the id of a Fusion Table.
- *   3) A feature.
- *   4) An array of features.
- *   5) An object - Assumed to be a collections's JSON description.
+ *   2) A number - assumed to be the ID of a Fusion Table.
+ *   3) A geometry.
+ *   4) A feature.
+ *   5) An array of features.
+ *   6) A computed object - reinterpreted as a collection.
  *
- * @constructor
- * @extends {ee.Collection}
- * @param {string|number|Array.<*>|Object|ee.Feature|ee.FeatureCollection} args
+ * @param {string|number|Array.<*>|ee.ComputedObject|
+ *         ee.Geometry|ee.Feature|ee.FeatureCollection} args
  *     The constructor arguments.
  * @param {string=} opt_column The name of the geometry column to use.  Only
  *     useful with constructor types 1 and 2.
+ * @constructor
+ * @extends {ee.Collection}
  */
 ee.FeatureCollection = function(args, opt_column) {
   // Constructor safety.
   if (!(this instanceof ee.FeatureCollection)) {
     return new ee.FeatureCollection(args, opt_column);
-  }
-  ee.initialize();
-
-  if (args instanceof ee.Feature) {
-    args = [args];
-  }
-
-  if (goog.isString(args)) {
-    args = {'type': 'FeatureCollection', 'id': args};
-    if (opt_column) {
-      args['geo_column'] = opt_column;
-    }
-  } else if (goog.isNumber(args)) {
-    args = {'type': 'FeatureCollection', 'table_id': args};
-    if (opt_column) {
-      args['geo_column'] = opt_column;
-    }
-  } else if (goog.isArray(args)) {
-    var newArgs = {
-      'type': 'FeatureCollection',
-      'features': goog.array.map(args, function(elem) {
-        return new ee.Feature(elem);
-      })
-    };
-    args = newArgs;
   } else if (args instanceof ee.FeatureCollection) {
     return args;
   }
 
-  /**
-   * The internal representation of this collection.
-   * @type {*}
-   * @private
-   */
-  this.description_ = args;
+  ee.FeatureCollection.initialize();
+
+  // Wrap geometries with features.
+  if (args instanceof ee.Geometry) {
+    args = new ee.Feature(args);
+  }
+
+  // Wrap single features in an array.
+  if (args instanceof ee.Feature) {
+    args = [args];
+  }
+
+  if (ee.Types.isNumber(args) || ee.Types.isString(args)) {
+    // An ID.
+    var actualArgs = {'tableId': args};
+    if (opt_column) {
+      actualArgs['geometryColumn'] = opt_column;
+    }
+    goog.base(this, new ee.ApiFunction('Collection.loadTable'), actualArgs);
+  } else if (goog.isArray(args)) {
+    // A list of features.
+    goog.base(this, new ee.ApiFunction('Collection'), {
+      'features': goog.array.map(args, function(elem) {
+        return new ee.Feature(elem);
+      })
+    });
+  } else if (args instanceof ee.ComputedObject) {
+    // A custom object to reinterpret as a FeatureCollection.
+    goog.base(this, args.func, args.args);
+  } else {
+    throw Error('Unrecognized argument type to convert to a ' +
+                'FeatureCollection: ' + args);
+  }
 };
 goog.inherits(ee.FeatureCollection, ee.Collection);
+
+
+/**
+ * Whether the class has been initialized with API functions.
+ * @type {boolean}
+ * @private
+ */
+ee.FeatureCollection.initialized_ = false;
+
+
+/** Imports API functions to this class. */
+ee.FeatureCollection.initialize = function() {
+  if (!ee.FeatureCollection.initialized_) {
+    ee.ApiFunction.importApi(
+        ee.FeatureCollection, 'FeatureCollection', 'FeatureCollection');
+    ee.Collection.createAutoMapFunctions(ee.FeatureCollection, ee.Feature);
+    ee.FeatureCollection.initialized_ = true;
+  }
+};
+
+
+/** Removes imported API functions from this class. */
+ee.FeatureCollection.reset = function() {
+  ee.ApiFunction.clearApi(ee.FeatureCollection);
+  ee.FeatureCollection.initialized_ = false;
+};
+
 
 /**
  * An imperative function that returns a map id and token, suitable for
@@ -78,13 +110,11 @@ goog.inherits(ee.FeatureCollection, ee.Collection);
  *     one parameter, 'color', containing an RGB color string is allowed.  If
  *     vis_params isn't specified, then the color #000000 is used.
  * @param {function(Object, string=)=} opt_callback An async callback.
- *
  * @return {ee.data.mapid} An object containing a mapid string, an access
  *     token, plus a DrawVector image wrapping this collection.
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var painted = new ee.Image({
-    'algorithm': 'DrawVector',
+  var painted = ee.ApiFunction._apply('DrawVector', {
     'collection': this,
     'color': (opt_visParams || {})['color'] || '000000'
   });
@@ -96,13 +126,6 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   }
 };
 
-/**
- * @return {string} The collection as a human-readable string.
- */
-ee.FeatureCollection.prototype.toString = function() {
-  var json = ee.Serializer.toReadableJSON(this.description_);
-  return 'ee.FeatureCollection(' + json + ')';
-};
 
 /**
  * Maps an algorithm over a collection. @see ee.Collection.mapInternal().
@@ -115,29 +138,15 @@ ee.FeatureCollection.prototype.map = function(
       opt_dynamicArgs, opt_constantArgs, opt_destination));
 };
 
-// Explicit exports.  It's sad that we have to know what Collection contains.
+
+/** @override */
+ee.FeatureCollection.prototype.name = function() {
+  return 'FeatureCollection';
+};
+
+
 goog.exportSymbol('ee.FeatureCollection', ee.FeatureCollection);
-goog.exportProperty(ee.FeatureCollection.prototype, 'filter',
-                    ee.FeatureCollection.prototype.filter);
-goog.exportProperty(ee.FeatureCollection.prototype, 'filterDate',
-                    ee.FeatureCollection.prototype.filterDate);
-goog.exportProperty(ee.FeatureCollection.prototype, 'filterMetadata',
-                    ee.FeatureCollection.prototype.filterMetadata);
-goog.exportProperty(ee.FeatureCollection.prototype, 'filterBounds',
-                    ee.FeatureCollection.prototype.filterBounds);
-goog.exportProperty(ee.FeatureCollection.prototype, 'getInfo',
-                    ee.FeatureCollection.prototype.getInfo);
-goog.exportProperty(ee.FeatureCollection.prototype, 'limit',
-                    ee.FeatureCollection.prototype.limit);
-goog.exportProperty(ee.FeatureCollection.prototype, 'serialize',
-                    ee.FeatureCollection.prototype.serialize);
-goog.exportProperty(ee.FeatureCollection.prototype, 'sort',
-                    ee.FeatureCollection.prototype.sort);
 goog.exportProperty(ee.FeatureCollection.prototype, 'map',
                     ee.FeatureCollection.prototype.map);
-goog.exportProperty(ee.FeatureCollection.prototype, 'geometry',
-                    ee.FeatureCollection.prototype.geometry);
 goog.exportProperty(ee.FeatureCollection.prototype, 'getMap',
                     ee.FeatureCollection.prototype.getMap);
-goog.exportProperty(ee.FeatureCollection.prototype, 'toString',
-                    ee.FeatureCollection.prototype.toString);

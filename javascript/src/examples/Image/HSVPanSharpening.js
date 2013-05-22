@@ -15,7 +15,7 @@ upres = ee.Image.cat(huesat, gray).hsvtorgb();
 
 // Display before and after layers using the same vis parameters.
 visparams = {min: [.15, .15, .25], max: [1, .9, .9], gamma: 1.6};
-addToMap(rgb, visparams, 'Orignal');
+addToMap(rgb, visparams, 'Original');
 addToMap(upres, visparams, 'Pansharpened');
 
 // There are many fine places to look; here is one.  Comment
