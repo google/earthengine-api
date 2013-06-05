@@ -25,8 +25,9 @@ _tile_base_url = None
 # Whether the module has been initialized.
 _initialized = False
 
-# The default deadline.
-DEFAULT_DEADLINE = 30
+# Sets the number of milliseconds to wait for a request before considering
+# it timed out. 0 means no limit.
+_deadline_ms = 0
 
 # The default base URL for API calls.
 DEFAULT_API_BASE_URL = 'https://earthengine.googleapis.com/api'
@@ -75,6 +76,17 @@ def reset():
   _initialized = False
 
 
+def setDeadline(milliseconds):
+  """Sets the timeout length for API requests.
+
+  Args:
+    milliseconds: The number of milliseconds to wait for a request
+        before considering it timed out. 0 means no limit.
+  """
+  global _deadline_ms
+  _deadline_ms = milliseconds
+
+
 def getInfo(asset_id):
   """Load info for an asset, given an asset id.
 
@@ -87,16 +99,21 @@ def getInfo(asset_id):
   return send_('/info', {'id': asset_id})
 
 
-def getList(asset_id):
+def getList(params):
   """Get a list of contents for a collection asset.
 
   Args:
-    asset_id: The collection to be examined.
+    params: An object containing request parameters with the
+        following possible values:
+            id (string) The asset id of the collection to list.
+            starttime (number) Start time, in msec since the epoch.
+            endtime (number) End time, in msec since the epoch.
+            fields (comma-separated strings) Field names to return.
 
   Returns:
     The list call results.
   """
-  return send_('/list', {'asset_id': asset_id})
+  return send_('/list', params)
 
 
 def getMapId(params):
@@ -326,9 +343,8 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   initialize()
 
   url = _api_base_url + path
-  deadline = float(params.pop('deadline', DEFAULT_DEADLINE))
   payload = urllib.urlencode(params)
-  http = httplib2.Http(timeout=deadline)
+  http = httplib2.Http(timeout=int(_deadline_ms / 1000) or None)
 
   headers = {}
   if _credentials:

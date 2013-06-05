@@ -10,6 +10,14 @@ import ee
 class ApiTestCase(unittest.TestCase):
 
   def setUp(self):
+    self.InitializeApi()
+
+  def InitializeApi(self):
+    """Initializes the library with standard API methods.
+
+    This is normally invoked during setUp(), but subclasses may invoke
+    it manually instead if they prefer.
+    """
     self.last_download_call = None
     self.last_thumb_call = None
 
@@ -821,5 +829,77 @@ BUILTIN_FUNCTIONS = {
         ],
         'description': '',
         'returns': 'Image'
+    },
+    # These two functions (Dictionary.get and Image.reduceRegion) are here
+    # to force the creation of the Dictionary class.
+    'Dictionary.get': {
+        'returns': 'Object',
+        'args': [
+            {
+                'type': 'Dictionary<Object>',
+                'description': '',
+                'name': 'map'
+                },
+            {
+                'type': 'String',
+                'description': '',
+                'name': 'property'
+                }
+            ],
+        'type': 'Algorithm',
+        'description': '',
+    },
+    'Image.reduceRegion': {
+        'returns': 'Dictionary<Object>',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'Image',
+                'description': '',
+                'name': 'image'
+            },
+            {
+                'type': 'ReducerOld',
+                'description': '',
+                'name': 'reducer'
+            },
+            {
+                'default': None,
+                'type': 'ProjGeometry',
+                'optional': True,
+                'description': '',
+                'name': 'geometry'
+            },
+            {
+                'default': None,
+                'type': 'Double',
+                'optional': True,
+                'description': '',
+                'name': 'scale'
+            },
+            {
+                'default': 'EPSG:4326',
+                'type': 'String',
+                'optional': True,
+                'description': '',
+                'name': 'crs'
+            },
+            {
+                'default': None,
+                'type': 'double[]',
+                'optional': True,
+                'description': '',
+                'name': 'crsTransform'
+            },
+            {
+                'default': False,
+                'type': 'boolean',
+                'optional': True,
+                'description': '',
+                'name': 'bestEffort'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
     },
 }

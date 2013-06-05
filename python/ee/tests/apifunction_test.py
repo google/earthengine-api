@@ -8,7 +8,7 @@ import unittest
 
 import ee
 
-import apitestcase
+from ee import apitestcase
 
 
 class ApiFunctionTest(apitestcase.ApiTestCase):

@@ -49,7 +49,7 @@ ee.Image = function(args) {
   } else if (goog.isArray(args)) {
     // Make an image out of each element.
     return ee.Image.combine_(goog.array.map(
-        (/** @type {Array.<*>} */ args),
+        /** @type {Array.<*>} */ (args),
         function(elem) {
           return new ee.Image(/** @type {?} */ (elem));
         }));

@@ -487,7 +487,7 @@ ee.Geometry.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
     throw Error('Invalid geometry');
   }
 
-  return (/** @type {!Array.<*>} */ geometry);
+  return /** @type {!Array.<*>} */ (geometry);
 };
 
 

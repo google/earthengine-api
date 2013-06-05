@@ -23,7 +23,8 @@ class Feature(computedobject.ComputedObject):
     optional dictionary of properties:
       1) An ee.Geometry.
       2) A GeoJSON Geometry.
-      3) A computed object - reinterpreted as a geometry if properties
+      3) A GeoJSON Feature.
+      4) A computed object - reinterpreted as a geometry if properties
          are specified, and as a feature if they aren't.
 
     Args:
@@ -60,6 +61,12 @@ class Feature(computedobject.ComputedObject):
       super(Feature, self).__init__(feature_constructor, {
           'geometry': geom,
           'metadata': opt_properties or None
+      })
+    elif isinstance(geom, dict) and geom.get('type') == 'Feature':
+      # Try to convert a GeoJSON Feature.
+      super(Feature, self).__init__(feature_constructor, {
+          'geometry': geometry.Geometry(geom.get('geometry', None)),
+          'metadata': geom.get('properties', None)
       })
     else:
       # Try to convert the geometry arg to a Geometry, in the hopes of it

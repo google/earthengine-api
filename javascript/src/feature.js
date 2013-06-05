@@ -14,8 +14,9 @@ goog.require('ee.Geometry');
  * Features can be constructed from one of the following arguments plus an
  * optional dictionary of properties:
  *   1) An ee.Geometry.
- *   2) A GeoJSON Geometry .
- *   3) A computed object - reinterpreted as a geometry if properties
+ *   2) A GeoJSON Geometry.
+ *   3) A GeoJSON Feature.
+ *   4) A computed object - reinterpreted as a geometry if properties
  *      are specified, and as a feature if they aren't.
  *
  * @param {ee.Geometry|ee.Feature|ee.ComputedObject|Object} geometry
@@ -54,6 +55,12 @@ ee.Feature = function(geometry, opt_properties) {
     goog.base(this, new ee.ApiFunction('Feature'), {
       'geometry': geometry,
       'metadata': opt_properties || null
+    });
+  } else if (geometry['type'] == 'Feature') {
+    // Try to convert a GeoJSON Feature.
+    goog.base(this, new ee.ApiFunction('Feature'), {
+      'geometry': new ee.Geometry(geometry['geometry']),
+      'metadata': geometry['properties'] || null
     });
   } else {
     // Try to convert the geometry arg to a Geometry, in the hopes of it

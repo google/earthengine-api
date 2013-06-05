@@ -50,6 +50,7 @@ ee.initialize = function(opt_baseurl, opt_tileurl, opt_callback) {
     ee.ImageCollection.initialize();
     ee.FeatureCollection.initialize();
     ee.Filter.initialize();
+    ee.initializeGeneratedClasses_();
 
     ee.ready_ = ee.InitState.READY;
     if (opt_callback) {
@@ -84,6 +85,7 @@ ee.reset = function() {
   ee.ImageCollection.reset();
   ee.FeatureCollection.reset();
   ee.Filter.reset();
+  ee.resetGeneratedClasses_();
 };
 
 
@@ -113,6 +115,13 @@ ee.ready_ = ee.InitState.NOT_READY;
  * @const
  */
 ee.TILE_SIZE = 256;
+
+/**
+ * The list of auto-generated class names.
+ * @type {Array.<string>}
+ * @private
+ */
+ee.generatedClasses_ = [];
 
 
 /**
@@ -191,6 +200,9 @@ ee.promote_ = function(arg, klass) {
         //              quite dangerous on large collections.
         return ee.ApiFunction._call(
             'Feature', ee.ApiFunction._call('ExtractGeometry', arg));
+      } else if ((klass == 'EEObject') && (arg instanceof ee.Image)) {
+        // An Image is already an EEObject.
+        return arg;
       } else {
         return new ee.Feature(/** @type {Object} */ (arg));
       }
@@ -233,9 +245,133 @@ ee.promote_ = function(arg, klass) {
       } else {
         return arg;
       }
+    case 'Dictionary':
+      if (arg instanceof ee[klass]) {
+        return arg;
+      } else if (arg instanceof ee.ComputedObject) {
+        new ee[klass](arg);
+      } else {
+        // Can't promote non-ComputedObjects up to Dictionary; no constructor.
+        return arg;
+      }
     default:
-      return arg;
+      // Handle dynamically generated classes.
+      if (klass in ee && arg) {
+        if (arg instanceof ee[klass]) {
+          // Don't need to re-promote.
+          return arg;
+        } else if (goog.isString(arg)) {
+          if (!(arg in ee[klass])) {
+            throw new Error('Unknown algorithm: ' + klass + '.' + arg);
+          }
+          // Special case promoting a string to Klass.Name().
+          // The function must be callable with no arguments.
+          return ee[klass][arg].call();
+        } else {
+          return new ee[klass](arg);
+        }
+      } else {
+        // Don't know.
+        return arg;
+      }
   }
+};
+
+/**
+ * Autogenerate any classes that meet the following criteria:
+ *   a) There's 1 or more functions named TYPE.*
+ *   b) There's 1 or more functions that return that type.
+ *   c) The class doesn't already exist as an ee.TYPE.
+ *
+ * @private
+ */
+ee.initializeGeneratedClasses_ = function() {
+  var signatures = ee.ApiFunction.allSignatures();
+
+  // Collect all the type names from functions that have a '.' in them,
+  // and all the return types.
+  var names = {};
+  var returnTypes = {};
+  for (var sig in signatures) {
+    if (sig.indexOf('.') != -1) {
+      var type = sig.slice(0, sig.indexOf('.'));
+      names[type] = true;
+    }
+    // Strip off extra type info.  e.g.: Dictionary<Object>
+    var rtype = signatures[sig]['returns'].replace(/<.*>/, '');
+    returnTypes[rtype] = true;
+  }
+
+  // Create classes with names in both, excluding any types that already exist.
+  for (var name in names) {
+    if (name in returnTypes && !(name in ee)) {
+      ee[name] = ee.makeClass_(name);
+      ee.generatedClasses_.push(name);
+    }
+  }
+};
+
+
+/**
+ * Remove the classes added by initializeGeneratedClasses.
+ * @private
+ */
+ee.resetGeneratedClasses_ = function() {
+  for (var i = 0; i < ee.generatedClasses_.length; i++) {
+    var name = ee.generatedClasses_[i];
+    ee.ApiFunction.clearApi(ee[name]);
+    delete ee[name];
+  }
+  ee.generatedClasses_ = [];
+};
+
+
+/**
+ * Dynamically make an ee helper class.
+ *
+ * @param {string} name The name of the class to create.
+ * @return {Function} The generated class.
+ * @private
+ */
+ee.makeClass_ = function(name) {
+  /**
+   * Construct a new instance of the given class.
+   *
+   * @param {*} var_args The constructor args.  Can be one of:
+   *   1) A computed value to be promoted to this type.
+   *   2) Arguments to be passed to the algorithm with the same name as
+   *      this class.
+   *
+   * @return {*} The newly created class.
+   *
+   * @constructor
+   * @extends {ee.ComputedObject}
+   * @suppress {accessControls}
+   */
+  var target = function(var_args) {
+    // TODO(user): Generate docs for these classes.
+    var args = Array.prototype.slice.apply(arguments);
+
+    var result;
+    if (args[0] instanceof ee.ComputedObject && args.length == 1) {
+      result = args[0];
+    } else {
+      // A constructor with the class' name.
+      args.unshift(name);
+      result = ee.ApiFunction._call.apply(null, args);
+    }
+
+    // Can't apply the traditional constructor safety trick; do it manually.
+    if (this instanceof ee[name]) {
+      ee.ComputedObject.call(this, result.func, result.args);
+    } else {
+      // Send the result back through this constructor with a "new".
+      return new ee[name](result);
+    }
+  };
+  goog.inherits(target, ee.ComputedObject);
+  ee.ApiFunction.importApi(target, name, name);
+  return target;
 };
 
 // Set up type promotion rules as soon the library is loaded.

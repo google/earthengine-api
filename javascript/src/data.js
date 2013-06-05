@@ -37,6 +37,15 @@ ee.data.initialized_ = false;
 
 
 /**
+ * @type {number} The number of milliseconds to wait for each request before
+ *     considering it timed out. 0 means no limit. Note that this is not
+ *     supported by browsers for synchronous requests.
+ * @private
+ */
+ee.data.deadlineMs_ = 0;
+
+
+/**
  * @type {string} The default base URL for API calls.
  * @private
  * @const
@@ -87,6 +96,17 @@ ee.data.reset = function() {
 
 
 /**
+ * Sets the timeout length for asynchronous API requests.
+ *
+ * @param {number} milliseconds The number of milliseconds to wait for a
+ *     request before considering it timed out. 0 means no limit.
+ */
+ee.data.setDeadline = function(milliseconds) {
+  ee.data.deadlineMs_ = milliseconds;
+};
+
+
+/**
  * Load info for an asset, given an asset id.
  *
  * @param {string} id The asset to be retrieved.
@@ -103,15 +123,19 @@ ee.data.getInfo = function(id, opt_callback) {
 
 /**
  * Get a list of contents for a collection asset.
- * @param {string} id The collection to be examined.
+ * @param {Object} params An object containing request parameters with
+ *     the following possible values:
+ *         id (string) The asset id of the collection to list.
+ *         starttime (number) Start time, in msec since the epoch.
+ *         endtime (number) End time, in msec since the epoch.
+ *         fields (comma-separated strings) Field names to return.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {Object} The list call results.
  */
-ee.data.getList = function(id, opt_callback) {
-  return ee.data.send_('/list',
-                       new goog.Uri.QueryData().add('id', id),
-                       opt_callback);
+ee.data.getList = function(params, opt_callback) {
+  var request = ee.data.makeRequest_(params);
+  return ee.data.send_('/list', request, opt_callback);
 };
 
 
@@ -376,7 +400,8 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
         },
         opt_method,
         requestData,
-        {'Content-Type': 'application/x-www-form-urlencoded'});
+        {'Content-Type': 'application/x-www-form-urlencoded'},
+        ee.data.deadlineMs_);
   } else {
     // Construct a synchronous request.
     var xmlhttp = goog.net.XmlHttp();

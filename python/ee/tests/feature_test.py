@@ -5,7 +5,7 @@
 import unittest
 
 import ee
-import apitestcase
+from ee import apitestcase
 
 
 class FeatureTest(apitestcase.ApiTestCase):
@@ -32,6 +32,15 @@ class FeatureTest(apitestcase.ApiTestCase):
     self.assertEquals({'geometry': computed_geometry,
                        'metadata': computed_properties},
                       from_computed_both.args)
+
+    from_geo_json_feature = ee.Feature({
+        'type': 'Feature',
+        'geometry': point.toGeoJSON(),
+        'properties': {'foo': 42}
+    })
+    self.assertEquals(ee.ApiFunction('Feature'), from_geo_json_feature.func)
+    self.assertEquals(point, from_geo_json_feature.args['geometry'])
+    self.assertEquals({'foo': 42}, from_geo_json_feature.args['metadata'])
 
   def testGetMap(self):
     """Verifies that getMap() uses DrawVector to rasterize Features."""
