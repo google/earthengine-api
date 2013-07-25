@@ -19,15 +19,16 @@ goog.require('goog.array');
  * @param {Function?} returnType The expected return type of the
  *     function as a class constructor, if known.
  * @param {Function|*} body The expression to evaluate. Can be either:
- *     1. A JavaScript function, in which case the args argument must describe
- *        the types of this function's arguments.
- *     2. An expression made out of primitives (boolean, number, string, Date),
- *        data structures (array, object), ComputedObjects or variables
- *        (created by CustomFunction.variable()). Variables refer to the
- *        elements of args by names. Structures and ComputedObjects can
- *        recursively contain any of the above.
+ *     - A JavaScript function, in which case the args argument must describe
+ *       the types of this function's arguments.
+ *     - An expression made out of primitives (boolean, number, string, Date),
+ *       data structures (array, object), ComputedObjects or variables
+ *       (created by CustomFunction.variable()). Variables refer to the
+ *       elements of args by names. Structures and ComputedObjects can
+ *       recursively contain any of the above.
  * @constructor
  * @extends {ee.Function}
+ * @hidden
  */
 ee.CustomFunction = function(args, returnType, body) {
   if (!(this instanceof ee.CustomFunction)) {

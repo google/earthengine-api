@@ -19,12 +19,13 @@ goog.require('goog.object');
 /**
  * An object to represent an Earth Engine image. This constructor accepts a
  * variety of arguments:
- *   1) A string - an EarthEngine asset id,
- *   2) A number - creates a constant image,
- *   3) An array - creates an image out of each element of the array and
- *      combines them into a single image,
- *   4) An ee.Image - returns the argument,
- *   5) Nothing - results in an empty transparent image.
+ *   - A string: an EarthEngine asset id,
+ *   - A string and a number - an EarthEngine asset id and version,
+ *   - A number: creates a constant image,
+ *   - An array: creates an image out of each element of the array and
+ *     combines them into a single image,
+ *   - An ee.Image: returns the argument,
+ *   - Nothing: results in an empty transparent image.
  *
  * @param {number|string|Array.<*>|ee.Image|Object} args Constructor argument.
  * @constructor
@@ -40,29 +41,48 @@ ee.Image = function(args) {
 
   ee.Image.initialize();
 
-  if (ee.Types.isNumber(args)) {
-    // A constant image.
-    goog.base(this, new ee.ApiFunction('Image.constant'), {'value': args});
-  } else if (ee.Types.isString(args)) {
-    // An ID.
-    goog.base(this, new ee.ApiFunction('Image.load'), {'id': args});
-  } else if (goog.isArray(args)) {
-    // Make an image out of each element.
-    return ee.Image.combine_(goog.array.map(
-        /** @type {Array.<*>} */ (args),
-        function(elem) {
-          return new ee.Image(/** @type {?} */ (elem));
-        }));
-  } else if (args instanceof ee.ComputedObject) {
-    // A custom object to reinterpret as an Image.
-    goog.base(this, args.func, args.args);
-  } else if (arguments.length == 0) {
+  var argCount = arguments.length;
+  if (argCount == 0) {
     goog.base(this, new ee.ApiFunction('Image.mask'), {
       'image': ee.Image(0),
       'mask': ee.Image(0)
     });
+  } else if (argCount == 1) {
+    if (ee.Types.isNumber(args)) {
+      // A constant image.
+      goog.base(this, new ee.ApiFunction('Image.constant'), {'value': args});
+    } else if (ee.Types.isString(args)) {
+      // An ID.
+      goog.base(this, new ee.ApiFunction('Image.load'), {'id': args});
+    } else if (goog.isArray(args)) {
+      // Make an image out of each element.
+      return ee.Image.combine_(goog.array.map(
+          /** @type {Array.<*>} */ (args),
+          function(elem) {
+            return new ee.Image(/** @type {?} */ (elem));
+          }));
+    } else if (args instanceof ee.ComputedObject) {
+      // A custom object to reinterpret as an Image.
+      goog.base(this, args.func, args.args);
+    } else {
+      throw Error('Unrecognized argument type to convert to an Image: ' + args);
+    }
+  } else if (argCount == 2) {
+    // An ID and version.
+    var id = arguments[0];
+    var version = arguments[1];
+    if (ee.Types.isString(id) && ee.Types.isNumber(version)) {
+      goog.base(this, new ee.ApiFunction('Image.load'), {
+        'id': id,
+        'version': version
+      });
+    } else {
+      throw Error('Unrecognized argument types to convert to an Image: ' +
+                  arguments);
+    }
   } else {
-    throw Error('Unrecognized argument type to convert to an Image: ' + args);
+    throw Error('The Image constructor takes at most 2 arguments (' +
+                argCount + ' given)');
   }
 };
 goog.inherits(ee.Image, ee.ComputedObject);
@@ -76,7 +96,10 @@ goog.inherits(ee.Image, ee.ComputedObject);
 ee.Image.initialized_ = false;
 
 
-/** Imports API functions to this class. */
+/**
+ * Imports API functions to this class.
+ * @hidden
+ */
 ee.Image.initialize = function() {
   if (!ee.Image.initialized_) {
     ee.ApiFunction.importApi(ee.Image, 'Image', 'Image');
@@ -86,7 +109,10 @@ ee.Image.initialize = function() {
 };
 
 
-/** Removes imported API functions from this class. */
+/**
+ * Removes imported API functions from this class.
+ * @hidden
+ */
 ee.Image.reset = function() {
   ee.ApiFunction.clearApi(ee.Image);
   ee.Image.initialized_ = false;
@@ -99,9 +125,9 @@ ee.Image.reset = function() {
  *
  * @param {function(Object)=} opt_callback An optional callback.  If not
  *     supplied, the call is made synchronously.
- * @return {Object|undefined} The return contents vary but include at least:
- *   bands - an array containing metadata about the bands in the collection,
- *   properties - a dictionary containing the image's metadata properties.
+ * @return {Object|undefined} An object whose attributes vary but include:
+ *     - bands - an array containing metadata about the bands in the collection.
+ *     - properties - a dictionary containing the image's metadata properties.
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
   return /** @type {Object|undefined} */(
@@ -144,28 +170,28 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 /**
  * Get a Download URL
  * @param {Object} params An object containing download options with the
- *   following possible values:
- *     name: a base name to use when constructing filenames.
- *     bands: a description of the bands to download. Must be an array of
+ *     following possible values:
+ *   - name: a base name to use when constructing filenames.
+ *   - bands: a description of the bands to download. Must be an array of
  *         dictionaries, each with the following keys:
- *       id: the name of the band, a string, required.
- *       crs: an optional CRS string defining the band projection.
- *       crs_transform: an optional array of 6 numbers specifying an affine
+ *     + id: the name of the band, a string, required.
+ *     + crs: an optional CRS string defining the band projection.
+ *     + crs_transform: an optional array of 6 numbers specifying an affine
  *           transform from the specified CRS, in the order: xScale, yShearing,
  *           xShearing, yScale, xTranslation and yTranslation.
- *       dimensions: an optional array of two integers defining the width and
+ *     + dimensions: an optional array of two integers defining the width and
  *           height to which the band is cropped.
- *       scale: an optional number, specifying the scale in meters of the band;
+ *     + scale: an optional number, specifying the scale in meters of the band;
  *              ignored if crs and crs_transform is specified.
- *     crs: a default CRS string to use for any bands that do not explicitly
+ *   - crs: a default CRS string to use for any bands that do not explicitly
  *         specify one.
- *     crs_transform: a default affine transform to use for any bands that do
+ *   - crs_transform: a default affine transform to use for any bands that do
  *         not specify one, of the same format as the crs_transform of bands.
- *     dimensions: default image cropping dimensions to use for any bands that
+ *   - dimensions: default image cropping dimensions to use for any bands that
  *         do not specify them.
- *     scale: a default scale to use for any bands that do not specify one;
+ *   - scale: a default scale to use for any bands that do not specify one;
  *         ignored if crs and crs_transform is specified.
- *     region: a polygon specifying a region to download; ignored if crs
+ *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
  * @return {string} A download URL.
  */
@@ -180,13 +206,13 @@ ee.Image.prototype.getDownloadURL = function(params) {
 /**
  * Get a thumbnail URL for this image.
  * @param {Object} params Parameters identical to getMapId, plus:
- *     size (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
+ *   - size (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
  *         dimensions of the thumbnail to render, in pixels. If only one
  *         number is passed, it is used as the maximum, and the other
  *         dimension is computed by proportional scaling.
- *     region (E,S,W,N or GeoJSON) Geospatial region of the image
+ *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
  *         to render. By default, the whole image.
- *     format (string) Either 'png' (default) or 'jpg'.
+ *   - format (string) Either 'png' (default) or 'jpg'.
  * @return {string} A thumbnail URL.
  */
 ee.Image.prototype.getThumbURL = function(params) {
@@ -291,6 +317,7 @@ ee.Image.prototype.select = function(selectors, opt_names) {
 /**
  * Evaluates an expression on an image.
  *
+ * @see ee.Image.parseExpression()
  * @param {string} expression The expression to evaluate.
  * @param {Object.<ee.Image>=} opt_map A map of input images available by name.
  * @return {ee.Image} The image created by the provided expression.
@@ -354,7 +381,7 @@ ee.Image.prototype.clip = function(geometry) {
 };
 
 
-/** @override */
+/** @inheritDoc */
 ee.Image.prototype.name = function() {
   return 'Image';
 };

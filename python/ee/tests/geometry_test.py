@@ -136,6 +136,21 @@ class GeometryTest(unittest.TestCase):
          [[[1, 2], [3, 4], [5, 6]]]])
     self.assertEquals(2, get_coordinates_count(mpolygon))
 
+  def testGeodesicFlag(self):
+    """Verifies that JSON parsing and generation preserves the geodesic flag."""
+    geodesic = ee.Geometry({
+        'type': 'LineString',
+        'coordinates': [[1, 2], [3, 4]],
+        'geodesic': True
+    })
+    projected = ee.Geometry({
+        'type': 'LineString',
+        'coordinates': [[1, 2], [3, 4]],
+        'geodesic': False
+    })
+    self.assertTrue(geodesic.toGeoJSON()['geodesic'])
+    self.assertFalse(projected.toGeoJSON()['geodesic'])
+
   def assertValid(self, nesting, ctor, *coords):
     """Checks that geometry is valid and has the expected nesting level.
 

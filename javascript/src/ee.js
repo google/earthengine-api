@@ -3,6 +3,7 @@
  */
 
 goog.provide('ee');
+goog.provide('ee.Algorithms');
 goog.provide('ee.InitState');
 
 goog.require('ee.ApiFunction');
@@ -51,6 +52,7 @@ ee.initialize = function(opt_baseurl, opt_tileurl, opt_callback) {
     ee.FeatureCollection.initialize();
     ee.Filter.initialize();
     ee.initializeGeneratedClasses_();
+    ee.initializeUnboundMethods_();
 
     ee.ready_ = ee.InitState.READY;
     if (opt_callback) {
@@ -86,6 +88,7 @@ ee.reset = function() {
   ee.FeatureCollection.reset();
   ee.Filter.reset();
   ee.resetGeneratedClasses_();
+  ee.Algorithms = {};
 };
 
 
@@ -123,9 +126,16 @@ ee.TILE_SIZE = 256;
  */
 ee.generatedClasses_ = [];
 
+/**
+ * A dictionary of algorithms that are not bound to a specific class.
+ * @type {Object.<Function>}
+ */
+ee.Algorithms = {};
+
 
 /**
  * @return {ee.InitState} The initialization status.
+ * @hidden
  */
 ee.ready = function() {
   return ee.ready_;
@@ -246,10 +256,13 @@ ee.promote_ = function(arg, klass) {
         return arg;
       }
     case 'Dictionary':
-      if (arg instanceof ee[klass]) {
+      if (!(klass in ee)) {
+        // No dictionary class defined.
+        return arg;
+      } else if (arg instanceof ee[klass]) {
         return arg;
       } else if (arg instanceof ee.ComputedObject) {
-        new ee[klass](arg);
+        return new ee[klass](arg);
       } else {
         // Can't promote non-ComputedObjects up to Dictionary; no constructor.
         return arg;
@@ -277,11 +290,45 @@ ee.promote_ = function(arg, klass) {
   }
 };
 
+
+/**
+ * Puts any unbound API methods on ee.Algorithms.
+ *
+ * @private
+ */
+ee.initializeUnboundMethods_ = function() {
+  goog.object.forEach(ee.ApiFunction.unboundFunctions(), function(func, name) {
+    var signature = func.getSignature();
+    if (signature['hidden']) {
+      return;
+    }
+
+    // Create nested objects as needed.
+    var nameParts = name.split('.');
+    var target = ee.Algorithms;
+    while (nameParts.length > 1) {
+      var first = nameParts[0];
+      if (!(first in target)) {
+        target[first] = {};
+      }
+      target = target[first];
+      nameParts = goog.array.slice(nameParts, 1);
+    }
+
+    // Attach the function.
+    var bound = goog.bind(func.call, func);
+    bound['signature'] = signature;
+    bound.toString = goog.bind(func.toString, func);
+    target[nameParts[0]] = bound;
+  });
+};
+
+
 /**
  * Autogenerate any classes that meet the following criteria:
- *   a) There's 1 or more functions named TYPE.*
- *   b) There's 1 or more functions that return that type.
- *   c) The class doesn't already exist as an ee.TYPE.
+ *   - There's 1 or more functions named TYPE.*
+ *   - There's 1 or more functions that return that type.
+ *   - The class doesn't already exist as an ee.TYPE.
  *
  * @private
  */

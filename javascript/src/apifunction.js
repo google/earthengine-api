@@ -28,6 +28,7 @@ goog.require('goog.object');
  *     The signature of the function. If unspecified, looked up dynamically.
  * @constructor
  * @extends {ee.Function}
+ * @hidden
  */
 ee.ApiFunction = function(name, opt_signature) {
   if (!goog.isDef(opt_signature)) {
@@ -99,13 +100,37 @@ ee.ApiFunction.api_ = null;
 
 
 /**
- * @return {Object.<ee.ApiFunction>} A map from the name to signature for
- *     all API functions.
+ * A set of algorithm names containing all algorithms that have been bound to
+ * a function so far using importApi().
+ *
+ * @type {Object.<string>}
+ * @private
+ * @hidden
+ */
+ee.ApiFunction.boundSignatures_ = {};
+
+
+/**
+ * @return {Object.<ee.Function.Signature>} A map from the name to signature
+ *     for all API functions.
  */
 ee.ApiFunction.allSignatures = function() {
   ee.ApiFunction.initialize();
   return goog.object.map(ee.ApiFunction.api_, function(func) {
     return func.getSignature();
+  });
+};
+
+
+/**
+ * Returns the functions that have not been bound using importApi() yet.
+ *
+ * @return {Object.<ee.ApiFunction>} A map from name to function.
+ */
+ee.ApiFunction.unboundFunctions = function() {
+  ee.ApiFunction.initialize();
+  return goog.object.filter(ee.ApiFunction.api_, function(func, name) {
+    return !ee.ApiFunction.boundSignatures_[name];
   });
 };
 
@@ -131,6 +156,7 @@ ee.ApiFunction.lookup = function(name) {
  *
  * @param {function()=} opt_callback An optional callback.  If not
  *     supplied, the call is made synchronously.
+ * @hidden
  */
 ee.ApiFunction.initialize = function(opt_callback) {
   if (!ee.ApiFunction.api_) {
@@ -154,9 +180,13 @@ ee.ApiFunction.initialize = function(opt_callback) {
 };
 
 
-/** Clears the API functions list so it will be reloaded from the server. */
+/**
+ * Clears the API functions list so it will be reloaded from the server.
+ * @hidden
+ */
 ee.ApiFunction.reset = function() {
   ee.ApiFunction.api_ = null;
+  ee.ApiFunction.boundSignatures_ = {};
 };
 
 
@@ -170,6 +200,7 @@ ee.ApiFunction.reset = function() {
  *     those whose first argument doesn't match are bound as static methods.
  * @param {string=} opt_prepend An optional string to prepend to the names
  *     of the added functions.
+ * @hidden
  */
 ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
   ee.ApiFunction.initialize();
@@ -180,9 +211,16 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       var fname = prepend + parts[1];
       var signature = apiFunc.getSignature();
 
+      // Mark signatures as used.
+      ee.ApiFunction.boundSignatures_[name] = true;
+
       // Decide whether this is a static or an instance function.
-      var isInstance = signature['args'].length &&
-          ee.Types.isSubtype(signature['args'][0]['type'], typeName);
+      var isInstance = false;
+      if (signature['args'].length) {
+        var firstArgType = signature['args'][0]['type'];
+        isInstance = firstArgType != 'Object' &&
+                     ee.Types.isSubtype(firstArgType, typeName);
+      }
       var destination = isInstance ? target.prototype : target;
 
       if (fname in destination) {
@@ -212,6 +250,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
 /**
  * Removes all methods added by importApi() from a target class.
  * @param {Function} target The class to remove from.
+ * @hidden
  */
 ee.ApiFunction.clearApi = function(target) {
   var clear = function(target) {

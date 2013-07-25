@@ -6,14 +6,14 @@ This class is never intended to be instantiated by the user.
 
 
 # Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
+# pylint: disable=g-bad-name
 
 import apifunction
 import computedobject
 import customfunction
 import ee_exception
 import ee_types
-import filter   # pylint: disable-msg=redefined-builtin
+import filter   # pylint: disable=redefined-builtin
 import function
 
 

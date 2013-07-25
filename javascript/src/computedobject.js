@@ -26,6 +26,7 @@ goog.require('ee.data');
  *     arguments to the correct types.
  * @constructor
  * @extends {ee.Encodable}
+ * @hidden
  */
 ee.ComputedObject = function(func, args) {
   // Constructor safety.
@@ -51,11 +52,11 @@ goog.inherits(ee.ComputedObject, ee.Encodable);
 
 
 /**
- * An imperative function that returns information about this object
- * (usually the value) via a synchronous AJAX call.
+ * An imperative function that returns information about this object (usually
+ * the value) via a synchronous AJAX call.
  * @param {function(Object)=} opt_callback An optional callback.  If not
  *     supplied, the call is made synchronously.
- * @return {*} The object can evaluate to anything.
+ * @return {*} The computed value of this object.
  */
 ee.ComputedObject.prototype.getInfo = function(opt_callback) {
   return ee.data.getValue({
@@ -91,7 +92,7 @@ ee.ComputedObject.prototype.serialize = function() {
 
 
 /**
- * @return {string} The object's JSON as a human-readable string.
+ * @return {string} A human-readable representation of the object.
  */
 ee.ComputedObject.prototype.toString = function() {
   return 'ee.' + this.name() + '(' + ee.Serializer.toReadableJSON(this) + ')';

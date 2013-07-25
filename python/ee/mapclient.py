@@ -139,7 +139,7 @@ class MapClient(threading.Thread):
     self.parent.after_idle(SetReady)
     self.parent.mainloop()
 
-  def addOverlay(self, overlay):             # pylint: disable-msg=g-bad-name
+  def addOverlay(self, overlay):             # pylint: disable=g-bad-name
     """Add an overlay to the map."""
     self.overlays.append(overlay)
     self.LoadTiles()
@@ -329,7 +329,7 @@ class MapOverlay(object):
     self.fetchers = [MapOverlay.TileFetcher(self) for unused_x in range(10)]
     self.constant = None
 
-  def getTile(self, key, callback):    # pylint: disable-msg=g-bad-name
+  def getTile(self, key, callback):    # pylint: disable=g-bad-name
     """Get the requested tile.
 
     If the requested tile is already cached, it's returned (sent to the
@@ -459,7 +459,7 @@ def MakeOverlay(mapid, baseurl=BASE_URL):
 map_instance = None
 
 
-# pylint: disable-msg=g-bad-name
+# pylint: disable=g-bad-name
 def addToMap(eeobject, vis_params=None, *unused_args):
   """Adds a layer to the default map instance.
 
@@ -490,7 +490,7 @@ def addToMap(eeobject, vis_params=None, *unused_args):
   map_instance.addOverlay(overlay)
 
 
-def centerMap(lng, lat, zoom):  # pylint: disable-msg=g-bad-name
+def centerMap(lng, lat, zoom):  # pylint: disable=g-bad-name
   """Center the default map instance at the given lat, lon and zoom values."""
   global map_instance
   if not map_instance:

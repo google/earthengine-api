@@ -18,6 +18,7 @@ goog.require('goog.object');
  * @param {boolean=} opt_isCompound Whether the encoding should factor out
  *     shared subtrees. Defaults to true.
  * @constructor
+ * @hidden
  */
 ee.Serializer = function(opt_isCompound) {
   /**

@@ -16,12 +16,12 @@ goog.require('goog.array');
 
 /**
  * FeatureCollections can be constructed from the following arguments:
- *   1) A string - assumed to be the name of a collection.
- *   2) A number - assumed to be the ID of a Fusion Table.
- *   3) A geometry.
- *   4) A feature.
- *   5) An array of features.
- *   6) A computed object - reinterpreted as a collection.
+ *   - A string: assumed to be the name of a collection.
+ *   - A number: assumed to be the ID of a Fusion Table.
+ *   - A single geometry.
+ *   - A single feature.
+ *   - An array of features.
+ *   - A computed object: reinterpreted as a collection.
  *
  * @param {string|number|Array.<*>|ee.ComputedObject|
  *         ee.Geometry|ee.Feature|ee.FeatureCollection} args
@@ -37,6 +37,12 @@ ee.FeatureCollection = function(args, opt_column) {
     return new ee.FeatureCollection(args, opt_column);
   } else if (args instanceof ee.FeatureCollection) {
     return args;
+  }
+
+  if (arguments.length > 2) {
+    throw Error(
+      'The FeatureCollection constructor takes at most 2 arguments (' +
+      arguments.length + ' given)');
   }
 
   ee.FeatureCollection.initialize();
@@ -84,7 +90,10 @@ goog.inherits(ee.FeatureCollection, ee.Collection);
 ee.FeatureCollection.initialized_ = false;
 
 
-/** Imports API functions to this class. */
+/**
+ * Imports API functions to this class.
+ * @hidden
+ */
 ee.FeatureCollection.initialize = function() {
   if (!ee.FeatureCollection.initialized_) {
     ee.ApiFunction.importApi(
@@ -95,7 +104,10 @@ ee.FeatureCollection.initialize = function() {
 };
 
 
-/** Removes imported API functions from this class. */
+/**
+ * Removes imported API functions from this class.
+ * @hidden
+ */
 ee.FeatureCollection.reset = function() {
   ee.ApiFunction.clearApi(ee.FeatureCollection);
   ee.FeatureCollection.initialized_ = false;
@@ -127,10 +139,7 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 
 
-/**
- * Maps an algorithm over a collection. @see ee.Collection.mapInternal().
- * @return {ee.FeatureCollection} The mapped collection.
- */
+/** @inheritDoc */
 ee.FeatureCollection.prototype.map = function(
     algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
   return /** @type {ee.FeatureCollection} */(this.mapInternal(
@@ -139,7 +148,7 @@ ee.FeatureCollection.prototype.map = function(
 };
 
 
-/** @override */
+/** @inheritDoc */
 ee.FeatureCollection.prototype.name = function() {
   return 'FeatureCollection';
 };

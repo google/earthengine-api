@@ -42,6 +42,9 @@ class FilterTest(apitestcase.ApiTestCase):
         ee.Filter.metadata_('x', 'equals', 1),
         ee.Filter().eq('x', 1))
     self.assertEquals(
+        ee.Filter.metadata_('x', 'EQUALS', 1),
+        ee.Filter().eq('x', 1))
+    self.assertEquals(
         ee.Filter.metadata_('x', 'not_equals', 1),
         ee.Filter().neq('x', 1))
     self.assertEquals(

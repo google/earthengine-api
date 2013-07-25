@@ -13,10 +13,10 @@ goog.require('ee.Geometry');
 /**
  * Features can be constructed from one of the following arguments plus an
  * optional dictionary of properties:
- *   1) An ee.Geometry.
- *   2) A GeoJSON Geometry.
- *   3) A GeoJSON Feature.
- *   4) A computed object - reinterpreted as a geometry if properties
+ *   - An ee.Geometry.
+ *   - A GeoJSON Geometry.
+ *   - A GeoJSON Feature.
+ *   - A computed object: reinterpreted as a geometry if properties
  *      are specified, and as a feature if they aren't.
  *
  * @param {ee.Geometry|ee.Feature|ee.ComputedObject|Object} geometry
@@ -35,6 +35,11 @@ ee.Feature = function(geometry, opt_properties) {
       throw new Error('Can\'t create Feature out of a Feature and properties.');
     }
     return geometry;
+  }
+
+  if (arguments.length > 2) {
+    throw Error('The Feature constructor takes at most 2 arguments (' +
+                arguments.length + ' given)');
   }
 
   ee.Feature.initialize();
@@ -82,7 +87,10 @@ goog.inherits(ee.Feature, ee.ComputedObject);
 ee.Feature.initialized_ = false;
 
 
-/** Imports API functions to this class. */
+/**
+ * Imports API functions to this class.
+ * @hidden
+ */
 ee.Feature.initialize = function() {
   if (!ee.Feature.initialized_) {
     ee.ApiFunction.importApi(ee.Feature, 'Feature', 'Feature');
@@ -91,7 +99,10 @@ ee.Feature.initialize = function() {
 };
 
 
-/** Removes imported API functions from this class. */
+/**
+ * Removes imported API functions from this class.
+ * @hidden
+ */
 ee.Feature.reset = function() {
   ee.ApiFunction.clearApi(ee.Feature);
   ee.Feature.initialized_ = false;
@@ -186,9 +197,8 @@ ee.Feature.LinearRing = function(coordinates) {
 
 
 /**
- * Construct a MultiLine from the given coordinates.
- * Create a new GeoJSON MultiLine from either a list of points, or an
- * array of linestrings.
+ * Construct a MultiLine from the given coordinates, either a list of points,
+ * or an array of linestrings.
  *
  * @param {number|!Array.<!Array.<!Array.<number>>>} coordinates The MultiLine
  *     coordinates as either a var_args list of numbers, or an array of
@@ -204,9 +214,8 @@ ee.Feature.MultiLine = function(coordinates) {
 
 
 /**
- * Construct a Polygon from the given coordinates.
- * Create a new GeoJSON Polygon from either a list of points, or an
- * array of linear rings.  If created from points, only an outer ring
+ * Construct a Polygon from the given coordinates, either a list of points,
+ * or an array of linear rings. If created from points, only an outer ring
  * can be specified.
  *
  * @param {number|!Array.<!Array.<!Array.<number>>>} coordinates The polygon
@@ -239,7 +248,7 @@ ee.Feature.MultiPolygon = function(coordinates) {
 };
 
 
-/** @override */
+/** @inheritDoc */
 ee.Feature.prototype.name = function() {
   return 'Feature';
 };

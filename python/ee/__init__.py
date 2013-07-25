@@ -3,7 +3,7 @@
 
 
 # Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
+# pylint: disable=g-bad-name
 
 import datetime
 import numbers
@@ -35,6 +35,21 @@ OAUTH2_SCOPE = 'https://www.googleapis.com/auth/earthengine.readonly'
 _generatedClasses = []
 
 
+# A lightweight class that is used as a dictionary with dot notation.
+class _AlgorithmsContainer(dict):
+  def __getattr__(self, name):
+    return self[name]
+
+  def __setattr__(self, name, value):
+    self[name] = value
+
+  def __delattr__(self, name):
+    del self[name]
+
+# A dictionary of algorithms that are not bound to a specific class.
+Algorithms = _AlgorithmsContainer()
+
+
 def Initialize(credentials=None, opt_url=None):
   """Initialize the EE library.
 
@@ -57,6 +72,7 @@ def Initialize(credentials=None, opt_url=None):
   FeatureCollection.initialize()
   Filter.initialize()
   _InitializeGeneratedClasses()
+  _InitializeUnboundMethods()
 
 
 def Reset():
@@ -70,6 +86,8 @@ def Reset():
   FeatureCollection.reset()
   Filter.reset()
   _ResetGeneratedClasses()
+  global Algorithms
+  Algorithms = _AlgorithmsContainer()
 
 
 def _ResetGeneratedClasses():
@@ -82,20 +100,22 @@ def _ResetGeneratedClasses():
   _generatedClasses = []
 
 
-def ServiceAccountCredentials(email, key_file):
+def ServiceAccountCredentials(email, key_file=None, key_data=None):
   """Configure OAuth2 credentials for a Google Service Account.
 
   Args:
     email: The email address of the account for which to configure credentials.
     key_file: The path to a file containing the private key associated with
         the service account.
+    key_data: Raw key data to use, if key_file is not specified.
 
   Returns:
     An OAuth2 credentials object.
   """
-  private_key = open(key_file, 'rb').read()
+  if key_file:
+    key_data = open(key_file, 'rb').read()
   return oauth2client.client.SignedJwtAssertionCredentials(
-      email, private_key, OAUTH2_SCOPE)
+      email, key_data, OAUTH2_SCOPE)
 
 
 def call(func, *args, **kwargs):
@@ -117,7 +137,7 @@ def call(func, *args, **kwargs):
   return func.call(*args, **kwargs)
 
 
-def apply(func, named_args):  # pylint: disable-msg=redefined-builtin
+def apply(func, named_args):  # pylint: disable=redefined-builtin
   """Call a function with a dictionary of named arguments.
 
   Args:
@@ -188,7 +208,7 @@ def _Promote(arg, klass):
   elif klass == 'Date':
     if isinstance(arg, basestring):
       try:
-        import dateutil.parser    # pylint: disable-msg=g-import-not-at-top
+        import dateutil.parser    # pylint: disable=g-import-not-at-top
       except ImportError:
         raise EEException(
             'Conversion of strings to dates requires the dateutil library.')
@@ -199,6 +219,9 @@ def _Promote(arg, klass):
     else:
       return arg
   elif klass == 'Dictionary':
+    if klass not in globals():
+      # No dictionary class defined.
+      return arg
     cls = globals()[klass]
     if isinstance(arg, cls):
       return arg
@@ -220,6 +243,32 @@ def _Promote(arg, klass):
       return cls(arg)
   else:
     return arg
+
+
+def _InitializeUnboundMethods():
+  for name, func in ApiFunction.unboundFunctions().iteritems():
+    signature = func.getSignature()
+    if signature.get('hidden', False):
+      continue
+
+    # Create nested objects as needed.
+    name_parts = name.split('.')
+    target = Algorithms
+    while len(name_parts) > 1:
+      first = name_parts[0]
+      if first not in target:
+        target[first] = _AlgorithmsContainer()
+      target = target[first]
+      name_parts = name_parts[1:]
+
+    # Attach the function.
+    # We need a copy of the function to attach properties.
+    # pylint: disable=unnecessary-lambda
+    bound = lambda *args, **kwargs: func.call(*args, **kwargs)
+    # pylint: enable=unnecessary-lambda
+    bound.signature = signature
+    bound.__doc___ = str(func)
+    setattr(target, name_parts[0], bound)
 
 
 def _InitializeGeneratedClasses():
@@ -264,4 +313,4 @@ def _MakeClass(name):
 
 
 # Set up type promotion rules as soon the package is loaded.
-Function._registerPromoter(_Promote)   # pylint: disable-msg=protected-access
+Function._registerPromoter(_Promote)   # pylint: disable=protected-access

@@ -209,6 +209,7 @@ class EETestCase(apitestcase.ApiTestCase):
       self.assertTrue('Unknown algorithm: Reducer.moo' in str(e))
 
   def testPromotion(self):
+    """Verifies object promotion rules."""
     self.InitializeApi()
 
     # Features and Images are both already EEObjects.
@@ -221,6 +222,41 @@ class EETestCase(apitestcase.ApiTestCase):
     untyped = ee.ComputedObject('foo', {})
     self.assertTrue(isinstance(ee._Promote(untyped, 'EEObject'), ee.Feature))
 
+  def testUnboundMethods(self):
+    """Verifies unbound method attachment to ee.Algorithms."""
+
+    # Use a custom set of known functions.
+    def MockSend(path, unused_params, unused_method=None, unused_raw=None):
+      if path == '/algorithms':
+        return {
+            'Foo': {
+                'type': 'Algorithm',
+                'args': [],
+                'description': '',
+                'returns': 'Object'
+            },
+            'Foo.bar': {
+                'type': 'Algorithm',
+                'args': [],
+                'description': '',
+                'returns': 'Object'
+            },
+            'Quux.baz': {
+                'type': 'Algorithm',
+                'args': [],
+                'description': '',
+                'returns': 'Object'
+            }
+        }
+    ee.data.send_ = MockSend
+
+    ee.ApiFunction.importApi(lambda: None, 'Quux', 'Quux')
+    ee._InitializeUnboundMethods()
+
+    self.assertTrue(callable(ee.Algorithms.Foo))
+    self.assertTrue(callable(ee.Algorithms.Foo.bar))
+    self.assertTrue('Quux' not in ee.Algorithms)
+    self.assertEquals(ee.call('Foo.bar'), ee.Algorithms.Foo.bar())
 
 if __name__ == '__main__':
   unittest.main()

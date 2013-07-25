@@ -67,6 +67,7 @@ ee.data.DEFAULT_TILE_BASE_URL_ = 'https://earthengine.googleapis.com';
  * @param {string=} opt_apiBaseUrl The (proxied) EarthEngine REST API endpoint.
  * @param {string=} opt_tileBaseUrl The (unproxied) EarthEngine REST tile
  *     endpoint.
+ * @hidden
  */
 ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl) {
   // If already initialized, only replace the explicitly specified parts.
@@ -87,6 +88,7 @@ ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl) {
 
 /**
  * Resets the data module, clearing custom base URLs.
+ * @hidden
  */
 ee.data.reset = function() {
   ee.data.apiBaseUrl_ = null;
@@ -100,6 +102,7 @@ ee.data.reset = function() {
  *
  * @param {number} milliseconds The number of milliseconds to wait for a
  *     request before considering it timed out. 0 means no limit.
+ * @hidden
  */
 ee.data.setDeadline = function(milliseconds) {
   ee.data.deadlineMs_ = milliseconds;
@@ -125,10 +128,10 @@ ee.data.getInfo = function(id, opt_callback) {
  * Get a list of contents for a collection asset.
  * @param {Object} params An object containing request parameters with
  *     the following possible values:
- *         id (string) The asset id of the collection to list.
- *         starttime (number) Start time, in msec since the epoch.
- *         endtime (number) End time, in msec since the epoch.
- *         fields (comma-separated strings) Field names to return.
+ *       - id (string) The asset id of the collection to list.
+ *       - starttime (number) Start time, in msec since the epoch.
+ *       - endtime (number) End time, in msec since the epoch.
+ *       - fields (comma-separated strings) Field names to return.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {Object} The list call results.
@@ -153,23 +156,23 @@ ee.data.mapid;
  * Get a Map ID for a given asset
  * @param {Object} params An object containing visualization
  *     options with the following possible values:
- *         image (JSON string) The image to render.
- *         version (number) Version number of image (or latest).
- *         bands (comma-seprated strings) Comma-delimited list of
+ *       - image (JSON string) The image to render.
+ *       - version (number) Version number of image (or latest).
+ *       - bands (comma-seprated strings) Comma-delimited list of
  *             band names to be mapped to RGB.
- *         min (comma-separated numbers) Value (or one per band)
+ *       - min (comma-separated numbers) Value (or one per band)
  *             to map onto 00.
- *         max (comma-separated numbers) Value (or one per band)
+ *       - max (comma-separated numbers) Value (or one per band)
  *             to map onto FF.
- *         gain (comma-separated numbers) Gain (or one per band)
+ *       - gain (comma-separated numbers) Gain (or one per band)
  *             to map onto 00-FF.
- *         bias (comma-separated numbers) Offset (or one per band)
+ *       - bias (comma-separated numbers) Offset (or one per band)
  *             to map onto 00-FF.
- *         gamma (comma-separated numbers) Gamma correction
+ *       - gamma (comma-separated numbers) Gamma correction
  *             factor (or one per band)
- *         palette (comma-separated strings) List of CSS-style color
+ *       - palette (comma-separated strings) List of CSS-style color
  *             strings (single-band previews only).
- *         format (string) Either "jpg" or "png".
+ *       - format (string) Either "jpg" or "png".
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {ee.data.mapid} The mapId call results.
@@ -204,7 +207,7 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
  * Retrieve a processed value from the front end.
  * @param {Object} params The value to be evaluated, with the following
  *     possible values:
- *        json (String) A JSON object to be evaluated.
+ *      - json (String) A JSON object to be evaluated.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {Object} The value call results.
@@ -219,13 +222,13 @@ ee.data.getValue = function(params, opt_callback) {
  * Get a Thumbnail Id for a given asset.
  * @param {Object} params Parameters identical to those for the vizOptions for
  *     getMapId with the following additions:
- *         size (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
+ *       - size (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
  *             dimensions of the thumbnail to render, in pixels. If only one
  *             number is passed, it is used as the maximum, and the other
  *             dimension is computed by proportional scaling.
- *         region (E,S,W,N or GeoJSON) Geospatial region of the image
+ *       - region (E,S,W,N or GeoJSON) Geospatial region of the image
  *             to render. By default, the whole image.
- *         format (string) Either 'png' (default) or 'jpg'.
+ *       - format (string) Either 'png' (default) or 'jpg'.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {Object} The thumb call results, usually an image.
@@ -255,28 +258,28 @@ ee.data.makeThumbUrl = function(id) {
  * Get a Download ID.
  * @param {Object} params An object containing download options with the
  *     following possible values:
- *     id: The ID of the image to download.
- *     name: a base name to use when constructing filenames.
- *     bands: a description of the bands to download. Must be an array of
+ *   - id: The ID of the image to download.
+ *   - name: a base name to use when constructing filenames.
+ *   - bands: a description of the bands to download. Must be an array of
  *         dictionaries, each with the following keys:
- *       id: the name of the band, a string, required.
- *       crs: an optional CRS string defining the band projection.
- *       crs_transform: an optional array of 6 numbers specifying an affine
+ *     + id: the name of the band, a string, required.
+ *     + crs: an optional CRS string defining the band projection.
+ *     + crs_transform: an optional array of 6 numbers specifying an affine
  *           transform from the specified CRS, in the order: xScale, yShearing,
  *           xShearing, yScale, xTranslation and yTranslation.
- *       dimensions: an optional array of two integers defining the width and
+ *     + dimensions: an optional array of two integers defining the width and
  *           height to which the band is cropped.
- *       scale: an optional number, specifying the scale in meters of the band;
+ *     + scale: an optional number, specifying the scale in meters of the band;
  *              ignored if crs and crs_transform is specified.
- *     crs: a default CRS string to use for any bands that do not explicitly
+ *   - crs: a default CRS string to use for any bands that do not explicitly
  *         specify one.
- *     crs_transform: a default affine transform to use for any bands that do
+ *   - crs_transform: a default affine transform to use for any bands that do
  *         not specify one, of the same format as the crs_transform of bands.
- *     dimensions: default image cropping dimensions to use for any bands that
+ *   - dimensions: default image cropping dimensions to use for any bands that
  *         do not specify them.
- *     scale: a default scale to use for any bands that do not specify one;
+ *   - scale: a default scale to use for any bands that do not specify one;
  *         ignored if crs and crs_transform is specified.
- *     region: a polygon specifying a region to download; ignored if crs
+ *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
@@ -308,10 +311,11 @@ ee.data.makeDownloadUrl = function(id) {
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {Object} The list of algorithm signatures.
+ * @hidden
  */
 ee.data.getAlgorithms = function(opt_callback) {
   return ee.data.send_('/algorithms',
-                       ee.data.makeRequest_({}),
+                       null,
                        opt_callback,
                        'GET');
 };
@@ -325,6 +329,7 @@ ee.data.getAlgorithms = function(opt_callback) {
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {Object}  A description of the saved asset, including a generated ID.
+ * @hidden
  */
 ee.data.createAsset = function(value, opt_path, opt_callback) {
   var args = {'value': value, 'json_format': 'v2'};
@@ -333,6 +338,78 @@ ee.data.createAsset = function(value, opt_path, opt_callback) {
   }
   return ee.data.send_('/create',
                        ee.data.makeRequest_(args),
+                       opt_callback);
+};
+
+
+/**
+ * Generate an ID for a long-running task.
+ *
+ * @param {number=} opt_count Number of IDs to generate, one by default.
+ * @param {function(Object, string=)=} opt_callback An optional callback.
+ *     If not supplied, the call is made synchronously.
+ * @return {Array} An array containing generated ID strings.
+ * @hidden
+ */
+ee.data.newTaskId = function(opt_count, opt_callback) {
+  var params = {};
+  if (goog.isNumber(opt_count)) {
+    params['count'] = opt_count;
+  }
+  return ee.data.send_('/newtaskid',
+                       ee.data.makeRequest_(params),
+                       opt_callback);
+};
+
+
+/**
+ * Retrieve status of one or more long-running tasks.
+ *
+ * @param {string|!Array.<string>} task_id ID of the task or an array of
+ *     multiple task IDs.
+ * @param {function(Object, string=)=} opt_callback An optional callback.
+ *     If not supplied, the call is made synchronously.
+ * @return {Array}  An array containing one object for each queried task,
+ *     in the same order as the input array, each object containing the
+ *     following values:
+ *     id (string) ID of the task.
+ *     state (string) State of the task, one of READY, RUNNING, COMPLETED,
+ *         FAILED, CANCELLED; or UNKNOWN if the task with the specified ID
+ *         doesn't exist.
+ *     error_message (string) For a FAILED task, a description of the error.
+ * @hidden
+ */
+ee.data.getTaskStatus = function(task_id, opt_callback) {
+  if (goog.isString(task_id)) {
+    task_id = [task_id];
+  } else if (!goog.isArray(task_id)) {
+    throw new Error('Invalid task_id: expected a string or ' +
+        'an array of strings.');
+  }
+  return ee.data.send_('/taskstatus?q=' + task_id.join(),
+                       null,
+                       opt_callback,
+                       'GET');
+};
+
+
+/**
+ * Create processing task which computes a value.
+ *
+ * @param {string} task_id ID for the task (obtained using newTaskId).
+ * @param {Object} params The value to be evaluated, with the following
+ *     possible values:
+ *        json (string) A JSON object to be evaluated.
+ * @param {function(Object, string=)=} opt_callback An optional callback.
+ *     If not supplied, the call is made synchronously.
+ * @return {Object} May contain field 'note' with value 'ALREADY_EXISTS' if
+ *     an identical task with the same ID already exists.
+ * @hidden
+ */
+ee.data.prepareValue = function(task_id, params, opt_callback) {
+  params['tid'] = task_id;
+  return ee.data.send_('/prepare',
+                       ee.data.makeRequest_(params),
                        opt_callback);
 };
 
@@ -374,7 +451,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     // Totally malformed, with either invalid JSON or JSON with
     // neither a data nor an error property.
     if (jsonIsInvalid || !('data' in response || 'error' in response)) {
-      errorMessage = 'Malformed request: ' + responseText;
+      errorMessage = 'Malformed response: ' + responseText;
     } else if ('error' in response) {
       errorMessage = response['error']['message'];
     }
@@ -436,7 +513,8 @@ ee.data.makeRequest_ = function(params) {
  * Mock the networking calls used in send_.
  *
  * @param {Object=} opt_calls A dictionary containing the responses to return
- * for each URL, keyed to URL.
+ *     for each URL, keyed to URL.
+ * @hidden
  */
 ee.data.setupMockSend = function(opt_calls) {
   var calls = opt_calls || {};

@@ -6,7 +6,7 @@ See: https://sites.google.com/site/earthengineapidocs for more details.
 
 
 # Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
+# pylint: disable=g-bad-name
 
 import apifunction
 import computedobject
@@ -22,23 +22,36 @@ class Image(computedobject.ComputedObject):
 
   _initialized = False
 
-  def __init__(self, args=None):
+  def __init__(self, args=None, version=None):
     """Constructs an Earth Engine image.
 
     Args:
       args: This constructor accepts a variety of arguments:
-          1) A string - an EarthEngine asset id,
-          2) A number - creates a constant image,
-          3) An array - creates an image out of each element of the array and
-             combines them into a single image,
-          4) An ee.Image - returns the argument,
-          5) Nothing - results in an empty transparent image.
+          - A string - an EarthEngine asset id,
+          - A string and a number - an EarthEngine asset id and version,
+          - A number - creates a constant image,
+          - An array - creates an image out of each element of the array and
+            combines them into a single image,
+          - An ee.Image - returns the argument,
+          - Nothing - results in an empty transparent image.
 
     Raises:
       EEException: if passed something other than the above.
     """
 
     self.initialize()
+
+    if version is not None:
+      if ee_types.isString(args) and ee_types.isNumber(version):
+        # An ID and version.
+        super(Image, self).__init__(
+            apifunction.ApiFunction.lookup('Image.load'),
+            {'id': args, 'version': version})
+      else:
+        raise ee_exception.EEException(
+            'Unrecognized argument type to convert to an Image: %s' %
+            (args, version))
+      return
 
     if ee_types.isNumber(args):
       # A constant image.

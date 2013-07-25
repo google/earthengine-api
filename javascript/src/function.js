@@ -17,10 +17,13 @@ goog.require('goog.functions');
 /**
  * An abstract base class for functions callable by the EE API. Subclasses
  * must implement encode() and getSignature().
- * @constructor
- * @extends {ee.Encodable}
+ *
  * TODO(user): Implement Function.bind() while supporting both positional
  *              and named args and avoiding dependendency on CustomFunction.
+ *
+ * @constructor
+ * @extends {ee.Encodable}
+ * @hidden
  */
 ee.Function = function() {
   if (!(this instanceof ee.Function)) {
@@ -45,6 +48,7 @@ ee.Function.promoter_ = goog.functions.identity;
  *     and a type name as the second. Can be used, for example, promote
  *     numbers or strings to Images. Should return the input promoted if
  *     the type is recognized, otherwise the original input.
+ * @hidden
  */
 ee.Function.registerPromoter = function(promoter) {
   ee.Function.promoter_ = promoter;
@@ -59,6 +63,7 @@ ee.Function.prototype.encode = goog.abstractMethod;
  * Returns a description of the interface provided by this function.
  *
  * @return {ee.Function.Signature}
+ * @hidden
  */
 ee.Function.prototype.getSignature = goog.abstractMethod;
 
@@ -157,9 +162,7 @@ ee.Function.prototype.nameArgs = function(args) {
 
 
 /**
- * Returns the name of the return type of the function.
- *
- * @return {string}
+ * @return {string} The name of the return type of the function.
  * @protected
  */
 ee.Function.prototype.getReturnType = function() {
@@ -168,12 +171,11 @@ ee.Function.prototype.getReturnType = function() {
 
 
 /**
- * Returns a formatted description of the function based on its signature.
- *
  * @param {string=} opt_name An optional override of the function name.
  * @param {boolean=} opt_isInstance If true, the first argument is documented
  *     to be "this".
- * @return {string} A user-friendly string description of the function.
+ * @return {string} A user-friendly formatted description of the function based
+ *     on its signature.
  * @override
  */
 ee.Function.prototype.toString = function(opt_name, opt_isInstance) {

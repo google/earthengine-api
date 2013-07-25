@@ -3,7 +3,7 @@
 
 
 # Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
+# pylint: disable=g-bad-name
 
 import datetime
 import json
@@ -140,7 +140,7 @@ def toJSON(obj, opt_pretty=False):
     A JSON string representing the input.
   """
   serializer = Serializer(not opt_pretty)
-  encoded = serializer._encode(obj)  # pylint: disable-msg=protected-access
+  encoded = serializer._encode(obj)  # pylint: disable=protected-access
   return json.dumps(encoded, indent=2 if opt_pretty else None)
 
 

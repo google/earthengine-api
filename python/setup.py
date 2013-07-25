@@ -7,16 +7,16 @@
 try:
   # if setuptools is available, use it to take advantage of its dependency
   # handling
-  from setuptools import setup                          # pylint: disable=C6204
+  from setuptools import setup                          # pylint: disable=g-import-not-at-top
 except ImportError:
   # if setuptools is not available, use distutils (standard library). Users
   # will receive errors for missing packages
-  from distutils.core import setup                      # pylint: disable=C6204
+  from distutils.core import setup                      # pylint: disable=g-import-not-at-top
 
 # check if the Python imaging libraries used by the mapclient module are
 # installed, and print a warning
 try:
-  import ImageTk                                  # pylint: disable=W0611,C6204
+  import ImageTk                                  # pylint: disable=unused-import,g-import-not-at-top
 except ImportError:
   print """
     WARNING: A Python library (PIL) used by the Earth Engine API mapclient
@@ -24,7 +24,7 @@ except ImportError:
     http://pypi.python.org/pypi/PIL
     """
 try:
-  import Tkinter                                  # pylint: disable=W0611,C6204
+  import Tkinter                                  # pylint: disable=unused-import,g-import-not-at-top
 except ImportError:
   print """
     WARNING: A Python library (Tkinter) used by the Earth Engine API
@@ -33,7 +33,7 @@ except ImportError:
     http://tkinter.unpythonic.net/wiki/How_to_install_Tkinter
     """
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 setup(
     name='earthengine-api',

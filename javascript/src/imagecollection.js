@@ -15,10 +15,10 @@ goog.require('goog.array');
 
 /**
  * ImageCollections can be constructed from the following arguments:
- *   1) A string: assumed to be the name of a collection,
- *   2) An array of images, or anything that can be used to construct an image.
- *   3) A single image.
- *   5) A computed object - reinterpreted as a collection.
+ *   - A string: assumed to be the name of a collection,
+ *   - An array of images, or anything that can be used to construct an image.
+ *   - A single image.
+ *   - A computed object - reinterpreted as a collection.
  *
  * @param {string|Array.<*>|ee.Image|ee.ComputedObject} args
  *     The constructor arguments.
@@ -31,6 +31,11 @@ ee.ImageCollection = function(args) {
     return new ee.ImageCollection(args);
   } else if (args instanceof ee.ImageCollection) {
     return args;
+  }
+
+  if (arguments.length != 1) {
+    throw Error('The ImageCollection constructor takes exactly 1 argument (' +
+                arguments.length + ' given)');
   }
 
   ee.ImageCollection.initialize();
@@ -71,7 +76,10 @@ goog.inherits(ee.ImageCollection, ee.Collection);
 ee.ImageCollection.initialized_ = false;
 
 
-/** Imports API functions to this class. */
+/**
+ * Imports API functions to this class.
+ * @hidden
+ */
 ee.ImageCollection.initialize = function() {
   if (!ee.ImageCollection.initialized_) {
     ee.ApiFunction.importApi(
@@ -84,7 +92,10 @@ ee.ImageCollection.initialize = function() {
 };
 
 
-/** Removes imported API functions from this class. */
+/**
+ * Removes imported API functions from this class.
+ * @hidden
+ */
 ee.ImageCollection.reset = function() {
   ee.ApiFunction.clearApi(ee.ImageCollection);
   ee.ImageCollection.initialized_ = false;
@@ -110,11 +121,7 @@ ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   }
 };
 
-
-/**
- * Maps an algorithm over a collection. @see ee.Collection.mapInternal().
- * @return {ee.ImageCollection} The mapped collection.
- */
+/** @inheritDoc */
 ee.ImageCollection.prototype.map = function(
     algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
   return /** @type {ee.ImageCollection} */(this.mapInternal(
@@ -123,7 +130,7 @@ ee.ImageCollection.prototype.map = function(
 };
 
 
-/** @override */
+/** @inheritDoc */
 ee.ImageCollection.prototype.name = function() {
   return 'ImageCollection';
 };

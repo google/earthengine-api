@@ -31,6 +31,10 @@ class ApiFunction(function.Function):
   # A dictionary of functions defined by the API server.
   _api = None
 
+  # A set of algorithm names containing all algorithms that have been bound to
+  # a function so far using importApi().
+  _bound_signatures = set()
+
   def __init__(self, name, opt_signature=None):
     """Creates a function defined by the EE API.
 
@@ -96,6 +100,13 @@ class ApiFunction(function.Function):
     return {name: func.getSignature() for name, func in cls._api.iteritems()}
 
   @classmethod
+  def unboundFunctions(cls):
+    """Returns the functions that have not been bound using importApi() yet."""
+    cls.initialize()
+    return {name: func for name, func in cls._api.iteritems()
+            if name not in cls._bound_signatures}
+
+  @classmethod
   def lookup(cls, name):
     """Looks up an API function by name.
 
@@ -129,6 +140,7 @@ class ApiFunction(function.Function):
   def reset(cls):
     """Clears the API functions list so it will be reloaded from the server."""
     cls._api = None
+    cls._bound_signatures = set()
 
   @classmethod
   def importApi(cls, target, prefix, type_name, opt_prepend=None):
@@ -150,6 +162,8 @@ class ApiFunction(function.Function):
       if len(parts) == 2 and parts[0] == prefix:
         fname = prepend + parts[1]
         signature = api_func.getSignature()
+
+        cls._bound_signatures.add(name)
 
         # Specifically handle the function names that are illegal in python.
         if keyword.iskeyword(fname):

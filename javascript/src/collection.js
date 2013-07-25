@@ -23,6 +23,7 @@ goog.require('goog.object');
  * @param {Object} args The same argument as in ee.ComputedObject().
  * @constructor
  * @extends {ee.ComputedObject}
+ * @hidden
  */
 ee.Collection = function(func, args) {
   goog.base(this, func, args);
@@ -47,7 +48,10 @@ ee.Collection.serialMappingId_ = 0;
 ee.Collection.initialized_ = false;
 
 
-/** Imports API functions to this class. */
+/**
+ * Imports API functions to this class.
+ * @hidden
+ */
 ee.Collection.initialize = function() {
   if (!ee.Collection.initialized_) {
     ee.ApiFunction.importApi(ee.Collection, 'Collection', 'Collection');
@@ -63,6 +67,7 @@ ee.Collection.initialize = function() {
 /**
  * Removes imported API functions from this class and resets the serial ID
  * used for mapping JS functions to 0.
+ * @hidden
  */
 ee.Collection.reset = function() {
   ee.ApiFunction.clearApi(ee.Collection);
@@ -147,11 +152,11 @@ ee.Collection.prototype.filterDate = function(start, end) {
  *
  * @param {function(Object)=} opt_callback An optional callback.  If not
  *     supplied, the call is made synchronously.
- * @return {Object|undefined} The return contents vary but include at least:
- *     features - an array containing metadata about the items in the
- *                collection that passed all filters.
- *     properties - a dictionary containing the collection's metadata
- *                  properties.
+ * @return {Object|undefined} An object whose attributes vary but include:
+ *     - features: an array containing metadata about the items in the
+ *           collection that passed all filters.
+ *     - properties: a dictionary containing the collection's metadata
+ *           properties.
  */
 ee.Collection.prototype.getInfo = function(opt_callback) {
   return /** @type {Object|undefined} */(
@@ -224,32 +229,14 @@ ee.Collection.prototype.name = function() {
 
 
 /**
- * Maps an algorithm over a collection.
+ * Maps an algorithm over a collection. @see ee.Collection.map() for details.
  *
  * @param {function(new:Object, ?): Object} type The collection elements' type.
- * @param {string|Object|function(*):Object} algorithm The operation to map over
- *     the images or features of the collection. Either an algorithm name as a
- *     string, or a JavaScript function that receives an image or features and
- *     returns one. If a function is passed, it is called only once and the
- *     result is captured as a description, so it cannot perform imperative
- *     operations or rely on external state.
- * @param {Object.<string,*>?=} opt_dynamicArgs A map specifying which
- *     properties of the input objects to pass to each argument of the
- *     algorithm. This maps from argument names to selector strings. Selector
- *     strings are property names, optionally concatenated into chains separated
- *     by a period to access properties-of-properties. To pass the whole object,
- *     use the special selector string '.all', and to pass the geometry, use
- *     '.geo'. If this argument is not specified, the names of the arguments
- *     will be matched exactly to the properties of the input object. If
- *     algorithm is a JavaScript function, this must be null or undefined as
- *     the image will always be the only dynamic argument.
- * @param {Object.<string,*>?=} opt_constantArgs A map from argument names to
- *     constant values to be passed to the algorithm on every invocation.
- * @param {string=} opt_destination The property where the result of the
- *     algorithm will be put. If this is null or undefined, the result of the
- *     algorithm will replace the input, as is the usual behavior of a mapping
- *     opeartion.
- * @return {ee.Collection} The mapped collection.
+ * @param {string|Object|function(*):Object} algorithm
+ * @param {Object.<string,*>?=} opt_dynamicArgs
+ * @param {Object.<string,*>?=} opt_constantArgs
+ * @param {string=} opt_destination
+ * @return {ee.Collection}
  * @protected
  */
 ee.Collection.prototype.mapInternal = function(
@@ -281,6 +268,41 @@ ee.Collection.prototype.mapInternal = function(
   if (opt_constantArgs) { args['constantArgs'] = opt_constantArgs; }
   if (opt_destination) { args['destination'] = opt_destination; }
   return this.cast_(ee.ApiFunction._apply('Collection.map', args));
+};
+
+
+/**
+ * Maps an algorithm over a collection.
+ *
+ * @param {string|Object|function(*):Object} algorithm The operation to map over
+ *     the images or features of the collection. Either an algorithm name as a
+ *     string, or a JavaScript function that receives an image or features and
+ *     returns one. If a function is passed, it is called only once and the
+ *     result is captured as a description, so it cannot perform imperative
+ *     operations or rely on external state.
+ * @param {Object.<string,*>?=} opt_dynamicArgs A map specifying which
+ *     properties of the input objects to pass to each argument of the
+ *     algorithm. This maps from argument names to selector strings. Selector
+ *     strings are property names, optionally concatenated into chains separated
+ *     by a period to access properties-of-properties. To pass the whole object,
+ *     use the special selector string '.all', and to pass the geometry, use
+ *     '.geo'. If this argument is not specified, the names of the arguments
+ *     will be matched exactly to the properties of the input object. If
+ *     algorithm is a JavaScript function, this must be null or undefined as
+ *     the image will always be the only dynamic argument.
+ * @param {Object.<string,*>?=} opt_constantArgs A map from argument names to
+ *     constant values to be passed to the algorithm on every invocation.
+ * @param {string=} opt_destination The property where the result of the
+ *     algorithm will be put. If this is null or undefined, the result of the
+ *     algorithm will replace the input, as is the usual behavior of a mapping
+ *     opeartion.
+ * @return {ee.Collection} The mapped collection.
+ */
+ee.Collection.prototype.map = function(
+    algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
+  return this.mapInternal(
+      ee.ComputedObject, algorithm,
+      opt_dynamicArgs, opt_constantArgs, opt_destination);
 };
 
 

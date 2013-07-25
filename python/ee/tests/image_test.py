@@ -38,6 +38,12 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEquals({'image': ee.Image(0), 'mask': ee.Image(0)},
                       from_nothing.args)
 
+    from_id_and_version = ee.Image('abcd', 123)
+    self.assertEquals(ee.ApiFunction.lookup('Image.load'),
+                      from_id_and_version.func)
+    self.assertEquals({'id': 'abcd', 'version': 123},
+                      from_id_and_version.args)
+
   def testImageSignatures(self):
     """Verifies that the API functions are added to ee.Image."""
     self.assertTrue(hasattr(ee.Image(1), 'addBands'))

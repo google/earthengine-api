@@ -10,6 +10,7 @@ goog.provide('ee.Encodable');
  * An interface implemented by objects that know how to serialize themselves.
  * Not an actual Closure interface because we need instanceof to work.
  * @constructor
+ * @hidden
  */
 ee.Encodable = function() {};
 

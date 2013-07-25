@@ -22,6 +22,7 @@ ee.Types.VAR_TYPE_KEY = '__EE_VAR_TYPE';
  * Converts a class constructor to the API-friendly type name.
  * @param {Function} klass The class constructor.
  * @return {string} The name of the class, or "Object" if not recognized.
+ * @hidden
  */
 ee.Types.classToName = function(klass) {
   if (klass.prototype instanceof ee.ComputedObject) {
@@ -49,6 +50,7 @@ ee.Types.classToName = function(klass) {
  * @param {string} firstType The first type name.
  * @param {string} secondType The second type name.
  * @return {boolean} Whether secondType is a subtype of firstType.
+ * @hidden
  */
 ee.Types.isSubtype = function(firstType, secondType) {
   if (secondType == firstType) {
@@ -83,6 +85,7 @@ ee.Types.isSubtype = function(firstType, secondType) {
  *
  * @param {*} obj The object to check.
  * @return {boolean} Whether the object is a number or number variable.
+ * @hidden
  */
 ee.Types.isNumber = function(obj) {
   return goog.isNumber(obj) || ee.Types.isVarOfType(obj, Number);
@@ -94,6 +97,7 @@ ee.Types.isNumber = function(obj) {
  *
  * @param {*} obj The object to check.
  * @return {boolean} Whether the object is a string or string variable.
+ * @hidden
  */
 ee.Types.isString = function(obj) {
   return goog.isString(obj) || ee.Types.isVarOfType(obj, String);
@@ -105,6 +109,7 @@ ee.Types.isString = function(obj) {
  *
  * @param {*} obj The object to check.
  * @return {boolean} Whether the object is an array or array variable.
+ * @hidden
  */
 ee.Types.isArray = function(obj) {
   return goog.isArray(obj) || ee.Types.isVarOfType(obj, Array);
@@ -117,6 +122,7 @@ ee.Types.isArray = function(obj) {
  * @param {*} obj The object to check.
  * @param {Function} klass The class constructor to check against.
  * @return {boolean} Whether the object is a variable of the given type.
+ * @hidden
  */
 ee.Types.isVarOfType = function(obj, klass) {
   if (obj instanceof ee.Encodable) {

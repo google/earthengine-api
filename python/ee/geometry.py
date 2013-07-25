@@ -23,7 +23,8 @@ class Geometry(encodable.Encodable):
     Args:
       geo_json: The GeoJSON object describing the geometry. Supports
           CRS specifications as per the GeoJSON spec, but only allows named
-          (rather than "linked" CRSs).
+          (rather than "linked" CRSs). If this includes a 'geodesic' field,
+          and opt_geodesic is not specified, it will be used as opt_geodesic.
       opt_proj: An optional projection specification, either as a CRS ID
           code or as a WKT string. If specified, overrides any CRS found
           in the geo_json parameter. If unspecified and the geo_json does not
@@ -58,6 +59,8 @@ class Geometry(encodable.Encodable):
 
     # Whether the geometry has spherical geodesic edges.
     self._geodesic = opt_geodesic
+    if opt_geodesic is None and 'geodesic' in geo_json:
+      self._geodesic = bool(geo_json['geodesic'])
 
   def __eq__(self, other):
     # pylint: disable-msg=protected-access
@@ -261,10 +264,7 @@ class Geometry(encodable.Encodable):
 
   def toGeoJSON(self):
     """Returns a GeoJSON representation of the geometry."""
-    result = self.encode()
-    if 'geodesic' in result:
-      del result['geodesic']  # Not part of the GeoJSON spec.
-    return result
+    return self.encode()
 
   def toGeoJSONString(self):
     """Returns a GeoJSON string representation of the geometry."""

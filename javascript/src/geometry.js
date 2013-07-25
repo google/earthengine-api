@@ -14,7 +14,8 @@ goog.require('goog.json.Serializer');
  * Creates a geometry.
  * @param {Object} geoJson The GeoJSON object describing the geometry. Supports
  *     CRS specifications as per the GeoJSON spec, but only allows named
- *     (rather than "linked" CRSs).
+ *     (rather than "linked" CRSs). If this includes a 'geodesic' field,
+ *     and opt_geodesic is not specified, it will be used as opt_geodesic.
  * @param {String=} opt_proj An optional projection specification, either as
  *     a CRS ID code or as a WKT string. If specified, overrides any CRS found
  *     in the geoJson parameter. If unspecified and the geoJson does not
@@ -37,6 +38,11 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
     } else {
       return geoJson;
     }
+  }
+
+  if (arguments.length > 3) {
+    throw Error('The Geometry constructor takes at most 3 arguments (' +
+                arguments.length + ' given)');
   }
 
   if (!ee.Geometry.isValidGeometry_(geoJson)) {
@@ -78,6 +84,9 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
    * @private
    */
   this.geodesic_ = opt_geodesic;
+  if (!goog.isDef(opt_geodesic) && 'geodesic' in geoJson) {
+    this.geodesic_ = Boolean(geoJson['geodesic']);
+  }
 };
 goog.inherits(ee.Geometry, ee.Encodable);
 
@@ -96,6 +105,12 @@ ee.Geometry.Point = function(lon, lat) {
   if (!(this instanceof ee.Geometry.Point)) {
     return ee.Geometry.createInstance_(ee.Geometry.Point, arguments);
   }
+
+  if (arguments.length > 2) {
+    throw Error('The Geometry.Point constructor takes at most 2 arguments (' +
+                arguments.length + ' given)');
+  }
+
   if (arguments.length == 1 &&
       goog.isArray(arguments[0]) &&
       arguments[0].length == 2) {
@@ -149,6 +164,12 @@ ee.Geometry.Rectangle = function(lon1, lat1, lon2, lat2) {
   if (!(this instanceof ee.Geometry.Rectangle)) {
     return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2);
   }
+
+  if (arguments.length > 4) {
+    throw Error('The Geometry.Rectangle constructor takes at most 4 ' +
+                'arguments (' + arguments.length + ' given)');
+  }
+
   if (goog.isArray(lon1)) {
     var args = lon1;
     lon1 = args[0];
@@ -212,9 +233,8 @@ goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
 
 
 /**
- * Constructs a MultiLineString from the given coordinates.
- * Create a new GeoJSON MultiLineString from either a list of points, or an
- * array of LineStrings.
+ * Constructs a MultiLineString from the given coordinates, either a list of
+ * points, or an array of LineStrings.
  *
  * @param {number|!Array.<!Array.<!Array.<number>>>} coordinates The
  *     MultiLineString coordinates as either a var_args list of numbers, or
@@ -240,9 +260,8 @@ goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
 
 
 /**
- * Constructs a Polygon from the given coordinates.
- * Create a new GeoJSON Polygon from either a list of points, or an
- * array of linear rings.  If created from points, only an outer ring
+ * Constructs a Polygon from the given coordinates, either a list of points,
+ * or an array of linear rings. If created from points, only an outer ring
  * can be specified.
  *
  * @param {number|!Array.<!Array.<!Array.<number>>>} coordinates The polygon
@@ -329,9 +348,7 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
  * @return {Object} A GeoJSON representation of the geometry.
  */
 ee.Geometry.prototype.toGeoJSON = function() {
-  var result = this.encode();
-  delete result['geodesic'];  // Not part of the GeoJSON spec.
-  return result;
+  return this.encode();
 };
 
 
@@ -351,7 +368,7 @@ ee.Geometry.prototype.serialize = function() {
 };
 
 
-/** @override */
+/** @inheritDoc */
 ee.Geometry.prototype.toString = function() {
   return 'ee.Geometry(' + this.toGeoJSONString() + ')';
 };

@@ -18,9 +18,9 @@ goog.require('goog.string');
 
 /**
  * Constructs a new filter. This constuctor accepts the following args:
- *    1) Another filter.
- *    2) An array of filters (which are implicitly ANDed together).
- *    3) A ComputedObject returning a filter. Users shouldn't be making these;
+ *    - Another filter.
+ *    - An array of filters (which are implicitly ANDed together).
+ *    - A ComputedObject returning a filter. Users shouldn't be making these;
  *       they're produced by the generator functions below.
  *
  * @param {ee.Filter|Array.<*>|Object=} opt_filter Optional filter to add.
@@ -132,9 +132,9 @@ ee.Filter.prototype.length = function() {
  *
  * @param {ee.Filter|Array.<ee.Filter|Object>|Object} newFilter The filter
  *     to append.  Possible types are:
- *     1) another fully constructed ee.Filter,
- *     2) a ComputedObject producing a filter,
- *     3) an array of 1 or 2.
+ *     - another fully constructed ee.Filter,
+ *     - a ComputedObject producing a filter,
+ *     - an array of 1 or 2.
  * @return {ee.Filter} A new filter that is the combination of both.
  * @private
  */
@@ -173,6 +173,8 @@ ee.Filter.prototype.not = function() {
  * @return {ee.Filter} The constructed filter.
  */
 ee.Filter.metadata = function(name, operator, value) {
+  operator = operator.toLowerCase();
+
   // Check for negated filters.
   var negated = false;
   if (goog.string.startsWith(operator, 'not_')) {
@@ -564,7 +566,7 @@ ee.Filter.prototype.and = function() {
 };
 
 
-/**
+/*
  * There is no prototype version of 'or', to avoid the abiguous syntax.
  * Example:  a.or(b), doesn't do what it looks like it would; it appends
  * "or(b)" to the list of filters that includes a, which is equal
