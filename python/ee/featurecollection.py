@@ -71,6 +71,7 @@ class FeatureCollection(collection.Collection):
   def initialize(cls):
     """Imports API functions to this class."""
     if not cls._initialized:
+      super(FeatureCollection, cls).initialize()
       apifunction.ApiFunction.importApi(
           cls, 'FeatureCollection', 'FeatureCollection')
       collection.Collection.createAutoMapFunctions(feature.Feature)

@@ -181,7 +181,7 @@ def _Promote(arg, klass):
       # TODO(user): Decide whether we want to leave this in. It can be
       #              quite dangerous on large collections.
       return ApiFunction.call_(
-          'Feature', ApiFunction.call_('ExtractGeometry', arg))
+          'Feature', ApiFunction.call_('Collection.geometry', arg))
     elif klass == 'EEObject' and isinstance(arg, Image):
       # An Image is already an EEObject.
       return arg
@@ -189,7 +189,7 @@ def _Promote(arg, klass):
       return Feature(arg)
   elif klass in ('ProjGeometry', 'Geometry'):
     if isinstance(arg, Collection):
-      return ApiFunction.call_('ExtractGeometry', arg)
+      return ApiFunction.call_('Collection.geometry', arg)
     if isinstance(arg, ComputedObject):
       return arg
     else:
@@ -246,7 +246,11 @@ def _Promote(arg, klass):
 
 
 def _InitializeUnboundMethods():
-  for name, func in ApiFunction.unboundFunctions().iteritems():
+  # Sort the items by length, so parents get created before children.
+  items = ApiFunction.unboundFunctions().items()
+  items.sort(key=lambda x: len(x[0]))
+
+  for name, func in items:
     signature = func.getSignature()
     if signature.get('hidden', False):
       continue
@@ -256,9 +260,9 @@ def _InitializeUnboundMethods():
     target = Algorithms
     while len(name_parts) > 1:
       first = name_parts[0]
-      if first not in target:
-        target[first] = _AlgorithmsContainer()
-      target = target[first]
+      if not hasattr(target, first):
+        setattr(target, first, _AlgorithmsContainer())
+      target = getattr(target, first)
       name_parts = name_parts[1:]
 
     # Attach the function.
@@ -267,7 +271,7 @@ def _InitializeUnboundMethods():
     bound = lambda *args, **kwargs: func.call(*args, **kwargs)
     # pylint: enable=unnecessary-lambda
     bound.signature = signature
-    bound.__doc___ = str(func)
+    bound.__doc__ = str(func)
     setattr(target, name_parts[0], bound)
 
 

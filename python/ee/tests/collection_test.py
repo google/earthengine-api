@@ -30,6 +30,14 @@ class CollectionTestCase(apitestcase.ApiTestCase):
         {'collection': collection, 'key': 'bar', 'ascending': True},
         sorted_collection.args)
 
+    reverse_sorted_collection = collection.sort('bar', False)
+    self.assertEquals(
+        ee.ApiFunction.lookup('Collection.limit'),
+        reverse_sorted_collection.func)
+    self.assertEquals(
+        {'collection': collection, 'key': 'bar', 'ascending': False},
+        reverse_sorted_collection.args)
+
   def testFilter(self):
     """Verifies the behavior of filter() method."""
     collection = ee.Collection(ee.Function(), {})

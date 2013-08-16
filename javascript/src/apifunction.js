@@ -113,6 +113,7 @@ ee.ApiFunction.boundSignatures_ = {};
 /**
  * @return {Object.<ee.Function.Signature>} A map from the name to signature
  *     for all API functions.
+ * @hidden
  */
 ee.ApiFunction.allSignatures = function() {
   ee.ApiFunction.initialize();
@@ -126,6 +127,7 @@ ee.ApiFunction.allSignatures = function() {
  * Returns the functions that have not been bound using importApi() yet.
  *
  * @return {Object.<ee.ApiFunction>} A map from name to function.
+ * @hidden
  */
 ee.ApiFunction.unboundFunctions = function() {
   ee.ApiFunction.initialize();

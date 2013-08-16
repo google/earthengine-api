@@ -195,17 +195,6 @@ ee.Collection.prototype.sort = function(property, opt_ascending) {
 
 
 /**
- * Run an algorithm to extract the geometry from this collection.
- *
- * @return {ee.ComputedObject} An object representing the algorithm call.
- * TODO(user): Maybe this becomes a Feature?
- */
-ee.Collection.prototype.geometry = function() {
-  return ee.ApiFunction._call('ExtractGeometry', this);
-};
-
-
-/**
  * Cast a ComputedObject to a new instance of the same class as this.
  * @param {ee.ComputedObject} obj The object to cast.
  * @return {ee.Collection} The cast instance.
@@ -348,5 +337,3 @@ goog.exportProperty(ee.Collection.prototype, 'limit',
                     ee.Collection.prototype.limit);
 goog.exportProperty(ee.Collection.prototype, 'sort',
                     ee.Collection.prototype.sort);
-goog.exportProperty(ee.Collection.prototype, 'geometry',
-                    ee.Collection.prototype.geometry);

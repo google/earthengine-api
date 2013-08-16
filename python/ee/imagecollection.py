@@ -60,6 +60,7 @@ class ImageCollection(collection.Collection):
   def initialize(cls):
     """Imports API functions to this class."""
     if not cls._initialized:
+      super(ImageCollection, cls).initialize()
       apifunction.ApiFunction.importApi(
           cls, 'ImageCollection', 'ImageCollection')
       apifunction.ApiFunction.importApi(

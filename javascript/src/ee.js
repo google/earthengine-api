@@ -209,7 +209,7 @@ ee.promote_ = function(arg, klass) {
         // TODO(user): Decide whether we want to leave this in. It can be
         //              quite dangerous on large collections.
         return ee.ApiFunction._call(
-            'Feature', ee.ApiFunction._call('ExtractGeometry', arg));
+            'Feature', ee.ApiFunction._call('Collection.geometry', arg));
       } else if ((klass == 'EEObject') && (arg instanceof ee.Image)) {
         // An Image is already an EEObject.
         return arg;
@@ -219,7 +219,7 @@ ee.promote_ = function(arg, klass) {
     case 'ProjGeometry':
     case 'Geometry':
       if (arg instanceof ee.FeatureCollection) {
-        return ee.ApiFunction._call('ExtractGeometry', arg);
+        return ee.ApiFunction._call('Collection.geometry', arg);
       } else if (arg instanceof ee.ComputedObject) {
         return arg;
       } else {

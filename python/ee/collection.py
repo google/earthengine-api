@@ -165,19 +165,10 @@ class Collection(computedobject.ComputedObject):
        The collection.
     """
     args = {'collection': self, 'key': prop}
-    if opt_ascending:
+    if opt_ascending is not None:
       args['ascending'] = opt_ascending
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
-
-  def geometry(self):
-    """Run an algorithm to extract the geometry from this collection.
-
-    Returns:
-      A naked Algorithm invocation (a JSON dictionary), not an ee object,
-      however this object can be used any place a Geometry object can be used.
-    """
-    return apifunction.ApiFunction.call_('ExtractGeometry', self)
 
   @classmethod
   def _cast(cls, obj):

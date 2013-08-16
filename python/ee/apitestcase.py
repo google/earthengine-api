@@ -359,7 +359,7 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'returns': 'Image'
     },
-    'ExtractGeometry': {
+    'Collection.geometry': {
         'type': 'Algorithm',
         'args': [
             {

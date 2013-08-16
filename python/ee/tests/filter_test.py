@@ -108,9 +108,10 @@ class FilterTest(apitestcase.ApiTestCase):
 
     # Collection-to-geometry promotion.
     collection = ee.FeatureCollection('foo')
+    feature = ee.ApiFunction.call_(
+        'Feature', ee.ApiFunction.call_('Collection.geometry', collection))
     self.assertEquals(
-        ee.ApiFunction.call_('Filter.intersects', '.all', ee.ApiFunction.call_(
-            'Feature', ee.ApiFunction.call_('ExtractGeometry', collection))),
+        ee.ApiFunction.call_('Filter.intersects', '.all', feature),
         ee.Filter.geometry(collection))
 
   def testInList(self):
