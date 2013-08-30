@@ -27,7 +27,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
         ee.ApiFunction.lookup('Collection.limit'),
         sorted_collection.func)
     self.assertEquals(
-        {'collection': collection, 'key': 'bar', 'ascending': True},
+        {'collection': collection, 'key': ee.String('bar'), 'ascending': True},
         sorted_collection.args)
 
     reverse_sorted_collection = collection.sort('bar', False)
@@ -35,7 +35,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
         ee.ApiFunction.lookup('Collection.limit'),
         reverse_sorted_collection.func)
     self.assertEquals(
-        {'collection': collection, 'key': 'bar', 'ascending': False},
+        {'collection': collection, 'key': ee.String('bar'), 'ascending': False},
         reverse_sorted_collection.args)
 
   def testFilter(self):
@@ -74,7 +74,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     """Verifies the behavior of the map() method."""
     collection = ee.ImageCollection('foo')
     mapped = collection.map(
-        (lambda img: img.select('bar')), None, {'baz': 42}, 'quux')
+        (lambda img: img.select('bar')), None, {'baz': 42}, ee.String('quux'))
     body = ee.CustomFunction.variable(ee.Image, '_MAPPING_VAR_0').select('bar')
 
     self.assertTrue(isinstance(mapped, ee.ImageCollection))
@@ -82,7 +82,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     self.assertEquals(collection, mapped.args['collection'])
     self.assertEquals({'_MAPPING_VAR_0': '.all'}, mapped.args['dynamicArgs'])
     self.assertEquals({'baz': 42}, mapped.args['constantArgs'])
-    self.assertEquals('quux', mapped.args['destination'])
+    self.assertEquals(ee.String('quux'), mapped.args['destination'])
 
     # Need to do a serialized comparison for the function body because
     # variables returned from CustomFunction.variable() do not implement

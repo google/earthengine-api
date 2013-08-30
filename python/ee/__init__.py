@@ -27,6 +27,7 @@ from geometry import Geometry
 from image import Image
 from imagecollection import ImageCollection
 from serializer import Serializer
+from ee_string import String
 
 
 OAUTH2_SCOPE = 'https://www.googleapis.com/auth/earthengine.readonly'
@@ -71,6 +72,8 @@ def Initialize(credentials=None, opt_url=None):
   ImageCollection.initialize()
   FeatureCollection.initialize()
   Filter.initialize()
+  Geometry.initialize()
+  String.initialize()
   _InitializeGeneratedClasses()
   _InitializeUnboundMethods()
 
@@ -85,6 +88,8 @@ def Reset():
   ImageCollection.reset()
   FeatureCollection.reset()
   Filter.reset()
+  Geometry.reset()
+  String.reset()
   _ResetGeneratedClasses()
   global Algorithms
   Algorithms = _AlgorithmsContainer()
@@ -187,11 +192,9 @@ def _Promote(arg, klass):
       return arg
     else:
       return Feature(arg)
-  elif klass in ('ProjGeometry', 'Geometry'):
+  elif klass == 'Geometry':
     if isinstance(arg, Collection):
       return ApiFunction.call_('Collection.geometry', arg)
-    if isinstance(arg, ComputedObject):
-      return arg
     else:
       return Geometry(arg)
   elif klass in ('FeatureCollection', 'EECollection', 'Collection'):
@@ -229,6 +232,14 @@ def _Promote(arg, klass):
       return cls(arg)
     else:
       # Can't promote non-ComputedObjects up to Dictionary; no constructor.
+      return arg
+  elif klass == 'String':
+    if (types.isString(arg) or
+        isinstance(arg, ComputedObject) or
+        isinstance(arg, String) or
+        types.isVarOfType(arg, String)):
+      return String(arg)
+    else:
       return arg
   elif klass in globals():
     cls = globals()[klass]
@@ -283,9 +294,11 @@ def _InitializeGeneratedClasses():
   # Collect the return types of all functions.
   returns = set([signatures[sig]['returns'] for sig in signatures])
   # We generate classes for all return types that match algorithms names TYPE.x
-  # excluding those already handled by the client library.
+  # excluding those already handled by the client library, and those
+  # explicitly blacklisted.
+  blacklist = ['List']
   want = [name for name in names.intersection(returns)
-          if name not in globals()]
+          if name not in globals() and name not in blacklist]
 
   for name in want:
     globals()[name] = _MakeClass(name)

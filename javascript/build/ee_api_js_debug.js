@@ -938,7 +938,7 @@ goog.string.countOf = function(s, ss) {
 };
 goog.string.removeAt = function(s, index, stringLength) {
   var resultStr = s;
-  0 <= index && (index < s.length && 0 < stringLength) && (resultStr = s.substr(0, index) + s.substr(index + stringLength, s.length - index - stringLength));
+  0 <= index && index < s.length && 0 < stringLength && (resultStr = s.substr(0, index) + s.substr(index + stringLength, s.length - index - stringLength));
   return resultStr
 };
 goog.string.remove = function(s, ss) {
@@ -1717,7 +1717,7 @@ goog.events.EventType = {CLICK:"click", DBLCLICK:"dblclick", MOUSEDOWN:"mousedow
 DRAGSTART:"dragstart", DRAG:"drag", DRAGENTER:"dragenter", DRAGOVER:"dragover", DRAGLEAVE:"dragleave", DROP:"drop", DRAGEND:"dragend", TOUCHSTART:"touchstart", TOUCHMOVE:"touchmove", TOUCHEND:"touchend", TOUCHCANCEL:"touchcancel", BEFOREUNLOAD:"beforeunload", CONSOLEMESSAGE:"consolemessage", CONTEXTMENU:"contextmenu", DOMCONTENTLOADED:"DOMContentLoaded", ERROR:"error", HELP:"help", LOAD:"load", LOSECAPTURE:"losecapture", ORIENTATIONCHANGE:"orientationchange", READYSTATECHANGE:"readystatechange", 
 RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), 
 TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROVER:"MSPointerOver", MSPOINTEROUT:"MSPointerOut", 
-MSPOINTERUP:"MSPointerUp", TEXTINPUT:"textinput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive"};
+MSPOINTERUP:"MSPointerUp", TEXTINPUT:"textinput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   opt_e && this.init(opt_e, opt_currentTarget)
 };
@@ -1739,7 +1739,6 @@ goog.events.BrowserEvent.prototype.ctrlKey = !1;
 goog.events.BrowserEvent.prototype.altKey = !1;
 goog.events.BrowserEvent.prototype.shiftKey = !1;
 goog.events.BrowserEvent.prototype.metaKey = !1;
-goog.events.BrowserEvent.prototype.platformModifierKey = !1;
 goog.events.BrowserEvent.prototype.event_ = null;
 goog.events.BrowserEvent.prototype.init = function(e, opt_currentTarget) {
   var type = this.type = e.type;
@@ -1762,7 +1761,6 @@ goog.events.BrowserEvent.prototype.init = function(e, opt_currentTarget) {
   this.altKey = e.altKey;
   this.shiftKey = e.shiftKey;
   this.metaKey = e.metaKey;
-  this.platformModifierKey = goog.userAgent.MAC ? e.metaKey : e.ctrlKey;
   this.state = e.state;
   this.event_ = e;
   e.defaultPrevented && this.preventDefault();
@@ -1831,13 +1829,6 @@ goog.events.ListenerMap = function(src) {
 };
 goog.events.ListenerMap.prototype.getTypeCount = function() {
   return this.typeCount_
-};
-goog.events.ListenerMap.prototype.getListenerCount = function() {
-  var count = 0, type;
-  for(type in this.listeners) {
-    count += this.listeners[type].length
-  }
-  return count
 };
 goog.events.ListenerMap.prototype.add = function(type, listener, callOnce, opt_useCapture, opt_listenerScope) {
   var listenerArray = this.listeners[type];
@@ -1911,11 +1902,12 @@ goog.events.ListenerMap.findListenerIndex_ = function(listenerArray, listener, o
   return-1
 };
 goog.events.listeners_ = {};
-goog.events.listenerTree_ = {};
+goog.events.LISTENER_MAP_PROP_ = "closure_lm_" + (1E6 * Math.random() | 0);
 goog.events.onString_ = "on";
 goog.events.onStringMap_ = {};
 goog.events.CaptureSimulationMode = {OFF_AND_FAIL:0, OFF_AND_SILENT:1, ON:2};
 goog.events.CAPTURE_SIMULATION_MODE = 2;
+goog.events.listenerCountEstimate_ = 0;
 goog.events.listen = function(src, type, listener, opt_capt, opt_handler) {
   if(goog.isArray(type)) {
     for(var i = 0;i < type.length;i++) {
@@ -1939,8 +1931,8 @@ goog.events.listen_ = function(src, type, listener, callOnce, opt_capt, opt_hand
       return null
     }
   }
-  var srcUid = goog.getUid(src), listenerMap = goog.events.listenerTree_[srcUid];
-  listenerMap || (goog.events.listenerTree_[srcUid] = listenerMap = new goog.events.ListenerMap(src));
+  var listenerMap = goog.events.getListenerMap_(src);
+  listenerMap || (src[goog.events.LISTENER_MAP_PROP_] = listenerMap = new goog.events.ListenerMap(src));
   var listenerObj = listenerMap.add(type, listener, callOnce, opt_capt, opt_handler);
   if(listenerObj.proxy) {
     return listenerObj
@@ -1950,7 +1942,8 @@ goog.events.listen_ = function(src, type, listener, callOnce, opt_capt, opt_hand
   proxy.src = src;
   proxy.listener = listenerObj;
   src.addEventListener ? src.addEventListener(type, proxy, capture) : src.attachEvent(goog.events.getOnString_(type), proxy);
-  return goog.events.listeners_[listenerObj.key] = listenerObj
+  goog.events.listenerCountEstimate_++;
+  return listenerObj
 };
 goog.events.getProxy = function() {
   var proxyCallbackFunction = goog.events.handleBrowserEvent_, f = goog.events.BrowserFeature.HAS_W3C_EVENT_SUPPORT ? function(eventObject) {
@@ -1990,9 +1983,9 @@ goog.events.unlisten = function(src, type, listener, opt_capt, opt_handler) {
   if(!src) {
     return!1
   }
-  var capture = !!opt_capt, listenerMap = goog.events.getListenerMap_(src);
+  var listenerMap = goog.events.getListenerMap_(src);
   if(listenerMap) {
-    var listenerObj = listenerMap.getListener(type, listener, capture, opt_handler);
+    var listenerObj = listenerMap.getListener(type, listener, !!opt_capt, opt_handler);
     if(listenerObj) {
       return goog.events.unlistenByKey(listenerObj)
     }
@@ -2009,19 +2002,22 @@ goog.events.unlistenByKey = function(key) {
   }
   var type = key.type, proxy = key.proxy;
   src.removeEventListener ? src.removeEventListener(type, proxy, key.capture) : src.detachEvent && src.detachEvent(goog.events.getOnString_(type), proxy);
+  goog.events.listenerCountEstimate_--;
   var listenerMap = goog.events.getListenerMap_(src);
-  listenerMap ? (listenerMap.removeByKey(key), 0 == listenerMap.getTypeCount() && (listenerMap.src = null, delete goog.events.listenerTree_[goog.getUid(src)])) : key.markAsRemoved();
-  delete goog.events.listeners_[key.key];
+  listenerMap ? (listenerMap.removeByKey(key), 0 == listenerMap.getTypeCount() && (listenerMap.src = null, src[goog.events.LISTENER_MAP_PROP_] = null)) : key.markAsRemoved();
   return!0
 };
 goog.events.unlistenWithWrapper = function(src, wrapper, listener, opt_capt, opt_handler) {
   wrapper.unlisten(src, listener, opt_capt, opt_handler)
 };
 goog.events.removeAll = function(opt_obj, opt_type) {
-  return opt_obj ? goog.events.Listenable.isImplementedBy(opt_obj) ? opt_obj.removeAllListeners(opt_type) : goog.events.removeAll_(goog.getUid(opt_obj), opt_type) : goog.events.removeAllNativeListeners()
-};
-goog.events.removeAll_ = function(srcUid, opt_type) {
-  var listenerMap = goog.events.listenerTree_[srcUid];
+  if(!opt_obj) {
+    return 0
+  }
+  if(goog.events.Listenable.isImplementedBy(opt_obj)) {
+    return opt_obj.removeAllListeners(opt_type)
+  }
+  var listenerMap = goog.events.getListenerMap_(opt_obj);
   if(!listenerMap) {
     return 0
   }
@@ -2036,11 +2032,7 @@ goog.events.removeAll_ = function(srcUid, opt_type) {
   return count
 };
 goog.events.removeAllNativeListeners = function() {
-  var count = 0, srcUid;
-  for(srcUid in goog.events.listenerTree_) {
-    count += goog.events.removeAll_(srcUid)
-  }
-  return count
+  return goog.events.listenerCountEstimate_ = 0
 };
 goog.events.getListeners = function(obj, type, capture) {
   if(goog.events.Listenable.isImplementedBy(obj)) {
@@ -2091,7 +2083,7 @@ goog.events.fireListeners_ = function(obj, type, capture, eventObject) {
     if(listenerArray) {
       for(var listenerArray = goog.array.clone(listenerArray), i = 0;i < listenerArray.length;i++) {
         var listener = listenerArray[i];
-        listener && (listener.capture == capture && !listener.removed) && (retval &= !1 !== goog.events.fireListener(listener, eventObject))
+        listener && listener.capture == capture && !listener.removed && (retval &= !1 !== goog.events.fireListener(listener, eventObject))
       }
     }
   }
@@ -2103,11 +2095,7 @@ goog.events.fireListener = function(listener, eventObject) {
   return listenerFn.call(listenerHandler, eventObject)
 };
 goog.events.getTotalListenerCount = function() {
-  var count = 0, srcUid;
-  for(srcUid in goog.events.listenerTree_) {
-    count += goog.events.listenerTree_[srcUid].getListenerCount()
-  }
-  return count
+  return goog.events.listenerCountEstimate_
 };
 goog.events.dispatchEvent = function(src, e) {
   goog.asserts.assert(goog.events.Listenable.isImplementedBy(src), "Can not use goog.events.dispatchEvent with non-goog.events.Listenable instance.");
@@ -2164,7 +2152,8 @@ goog.events.getUniqueId = function(identifier) {
   return identifier + "_" + goog.events.uniqueIdCounter_++
 };
 goog.events.getListenerMap_ = function(src) {
-  return goog.hasUid(src) ? goog.events.listenerTree_[goog.getUid(src)] || null : null
+  var listenerMap = src[goog.events.LISTENER_MAP_PROP_];
+  return listenerMap instanceof goog.events.ListenerMap ? listenerMap : null
 };
 goog.events.LISTENER_WRAPPER_PROP_ = "__closure_events_fn_" + (1E9 * Math.random() >>> 0);
 goog.events.wrapListener_ = function(listener) {
@@ -3105,13 +3094,12 @@ goog.debug.fnNameCache_ = {};
 goog.debug.LogRecord = function(level, msg, loggerName, opt_time, opt_sequenceNumber) {
   this.reset(level, msg, loggerName, opt_time, opt_sequenceNumber)
 };
-goog.debug.LogRecord.prototype.sequenceNumber_ = 0;
 goog.debug.LogRecord.prototype.exception_ = null;
 goog.debug.LogRecord.prototype.exceptionText_ = null;
 goog.debug.LogRecord.ENABLE_SEQUENCE_NUMBERS = !0;
 goog.debug.LogRecord.nextSequenceNumber_ = 0;
 goog.debug.LogRecord.prototype.reset = function(level, msg, loggerName, opt_time, opt_sequenceNumber) {
-  goog.debug.LogRecord.ENABLE_SEQUENCE_NUMBERS && (this.sequenceNumber_ = "number" == typeof opt_sequenceNumber ? opt_sequenceNumber : goog.debug.LogRecord.nextSequenceNumber_++);
+  goog.debug.LogRecord.ENABLE_SEQUENCE_NUMBERS && ("number" == typeof opt_sequenceNumber || goog.debug.LogRecord.nextSequenceNumber_++);
   opt_time || goog.now();
   this.level_ = level;
   this.msg_ = msg;
@@ -3818,7 +3806,7 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
     headers.set(key, value)
   });
   var contentTypeKey = goog.array.find(headers.getKeys(), goog.net.XhrIo.isContentTypeHeader_), contentIsFormData = goog.global.FormData && content instanceof goog.global.FormData;
-  !goog.array.contains(goog.net.XhrIo.METHODS_WITH_FORM_DATA, method) || (contentTypeKey || contentIsFormData) || headers.set(goog.net.XhrIo.CONTENT_TYPE_HEADER, goog.net.XhrIo.FORM_CONTENT_TYPE);
+  !goog.array.contains(goog.net.XhrIo.METHODS_WITH_FORM_DATA, method) || contentTypeKey || contentIsFormData || headers.set(goog.net.XhrIo.CONTENT_TYPE_HEADER, goog.net.XhrIo.FORM_CONTENT_TYPE);
   goog.structs.forEach(headers, function(value, key) {
     this.xhr_.setRequestHeader(key, value)
   }, this);
@@ -4426,6 +4414,10 @@ ee.data.prepareValue = function(task_id, params, opt_callback) {
   params.tid = task_id;
   return ee.data.send_("/prepare", ee.data.makeRequest_(params), opt_callback)
 };
+ee.data.startProcessing = function(task_id, params, opt_callback) {
+  params.id = task_id;
+  return ee.data.send_("/processingrequest", ee.data.makeRequest_(params), opt_callback)
+};
 ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
   function handleResponse(responseText, opt_callback) {
     var jsonIsInvalid = !1;
@@ -4782,213 +4774,10 @@ ee.Function.prototype.toString = function(opt_name, opt_isInstance) {
 ee.Function.prototype.serialize = function() {
   return ee.Serializer.toJSON(this)
 };
-ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
-  if(!(this instanceof ee.Geometry)) {
-    return new ee.Geometry(geoJson, opt_proj, opt_geodesic)
-  }
-  if(geoJson instanceof ee.Geometry) {
-    if(goog.isDefAndNotNull(opt_proj) || goog.isDefAndNotNull(opt_geodesic)) {
-      geoJson = geoJson.encode()
-    }else {
-      return geoJson
-    }
-  }
-  if(3 < arguments.length) {
-    throw Error("The Geometry constructor takes at most 3 arguments (" + arguments.length + " given)");
-  }
-  if(!ee.Geometry.isValidGeometry_(geoJson)) {
-    throw Error("Invalid GeoJSON geometry: " + JSON.stringify(geoJson));
-  }
-  this.type_ = geoJson.type;
-  this.coordinates_ = geoJson.coordinates || null;
-  this.geometries_ = geoJson.geometries || null;
-  this.proj_ = opt_proj;
-  this.geodesic_ = opt_geodesic;
-  !goog.isDef(opt_geodesic) && "geodesic" in geoJson && (this.geodesic_ = Boolean(geoJson.geodesic))
-};
-goog.inherits(ee.Geometry, ee.Encodable);
-ee.Geometry.Point = function(lon, lat) {
-  if(!(this instanceof ee.Geometry.Point)) {
-    return ee.Geometry.createInstance_(ee.Geometry.Point, arguments)
-  }
-  if(2 < arguments.length) {
-    throw Error("The Geometry.Point constructor takes at most 2 arguments (" + arguments.length + " given)");
-  }
-  if(1 == arguments.length && goog.isArray(arguments[0]) && 2 == arguments[0].length) {
-    var coords = arguments[0];
-    lon = coords[0];
-    lat = coords[1]
-  }
-  ee.Geometry.call(this, {type:"Point", coordinates:[lon, lat]})
-};
-goog.inherits(ee.Geometry.Point, ee.Geometry);
-ee.Geometry.MultiPoint = function(coordinates) {
-  if(!(this instanceof ee.Geometry.MultiPoint)) {
-    return ee.Geometry.createInstance_(ee.Geometry.MultiPoint, arguments)
-  }
-  ee.Geometry.call(this, {type:"MultiPoint", coordinates:ee.Geometry.makeGeometry_(coordinates, 2, arguments)})
-};
-goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
-ee.Geometry.Rectangle = function(lon1, lat1, lon2, lat2) {
-  if(!(this instanceof ee.Geometry.Rectangle)) {
-    return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2)
-  }
-  if(4 < arguments.length) {
-    throw Error("The Geometry.Rectangle constructor takes at most 4 arguments (" + arguments.length + " given)");
-  }
-  if(goog.isArray(lon1)) {
-    var args = lon1;
-    lon1 = args[0];
-    lat1 = args[1];
-    lon2 = args[2];
-    lat2 = args[3]
-  }
-  ee.Geometry.call(this, {type:"Polygon", coordinates:[[[lon1, lat2], [lon1, lat1], [lon2, lat1], [lon2, lat2]]]})
-};
-goog.inherits(ee.Geometry.Rectangle, ee.Geometry);
-ee.Geometry.LineString = function(coordinates) {
-  if(!(this instanceof ee.Geometry.LineString)) {
-    return ee.Geometry.createInstance_(ee.Geometry.LineString, arguments)
-  }
-  ee.Geometry.call(this, {type:"LineString", coordinates:ee.Geometry.makeGeometry_(coordinates, 2, arguments)})
-};
-goog.inherits(ee.Geometry.LineString, ee.Geometry);
-ee.Geometry.LinearRing = function(coordinates) {
-  if(!(this instanceof ee.Geometry.LinearRing)) {
-    return ee.Geometry.createInstance_(ee.Geometry.LinearRing, arguments)
-  }
-  ee.Geometry.call(this, {type:"LinearRing", coordinates:ee.Geometry.makeGeometry_(coordinates, 2, arguments)})
-};
-goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
-ee.Geometry.MultiLineString = function(coordinates) {
-  if(!(this instanceof ee.Geometry.MultiLineString)) {
-    return ee.Geometry.createInstance_(ee.Geometry.MultiLineString, arguments)
-  }
-  ee.Geometry.call(this, {type:"MultiLineString", coordinates:ee.Geometry.makeGeometry_(coordinates, 3, arguments)})
-};
-goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
-ee.Geometry.Polygon = function(coordinates) {
-  if(!(this instanceof ee.Geometry.Polygon)) {
-    return ee.Geometry.createInstance_(ee.Geometry.Polygon, arguments)
-  }
-  ee.Geometry.call(this, {type:"Polygon", coordinates:ee.Geometry.makeGeometry_(coordinates, 3, arguments)})
-};
-goog.inherits(ee.Geometry.Polygon, ee.Geometry);
-ee.Geometry.MultiPolygon = function(coordinates) {
-  if(!(this instanceof ee.Geometry.MultiPolygon)) {
-    return ee.Geometry.createInstance_(ee.Geometry.MultiPolygon, arguments)
-  }
-  ee.Geometry.call(this, {type:"MultiPolygon", coordinates:ee.Geometry.makeGeometry_(coordinates, 4, arguments)})
-};
-goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
-ee.Geometry.prototype.encode = function() {
-  var result = {type:this.type_};
-  "GeometryCollection" == this.type_ ? result.geometries = this.geometries_ : result.coordinates = this.coordinates_;
-  goog.isDefAndNotNull(this.proj_) && (result.crs = {type:"name", properties:{name:this.proj_}});
-  goog.isDefAndNotNull(this.geodesic_) && (result.geodesic = this.geodesic_);
-  return result
-};
-ee.Geometry.prototype.toGeoJSON = function() {
-  return this.encode()
-};
-ee.Geometry.prototype.toGeoJSONString = function() {
-  return(new goog.json.Serializer).serialize(this.toGeoJSON())
-};
-ee.Geometry.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this)
-};
-ee.Geometry.prototype.toString = function() {
-  return"ee.Geometry(" + this.toGeoJSONString() + ")"
-};
-ee.Geometry.isValidGeometry_ = function(geometry) {
-  var type = geometry.type;
-  if("GeometryCollection" == type) {
-    var geometries = geometry.geometries;
-    if(!goog.isArray(geometries)) {
-      return!1
-    }
-    for(var i = 0;i < geometries.length;i++) {
-      if(!ee.Geometry.isValidGeometry_(geometries[i])) {
-        return!1
-      }
-    }
-    return!0
-  }
-  var nesting = ee.Geometry.isValidCoordinates_(geometry.coordinates);
-  return"Point" == type && 1 == nesting || "MultiPoint" == type && 2 == nesting || "LineString" == type && 2 == nesting || "LinearRing" == type && 2 == nesting || "MultiLineString" == type && 3 == nesting || "Polygon" == type && 3 == nesting || "MultiPolygon" == type && 4 == nesting
-};
-ee.Geometry.isValidCoordinates_ = function(shape) {
-  if(!goog.isArray(shape)) {
-    return-1
-  }
-  if(goog.isArray(shape[0])) {
-    for(var count = ee.Geometry.isValidCoordinates_(shape[0]), i = 1;i < shape.length;i++) {
-      if(ee.Geometry.isValidCoordinates_(shape[i]) != count) {
-        return-1
-      }
-    }
-    return count + 1
-  }
-  for(i = 0;i < shape.length;i++) {
-    if(!goog.isNumber(shape[i])) {
-      return-1
-    }
-  }
-  return 0 == shape.length % 2 ? 1 : -1
-};
-ee.Geometry.coordinatesToLine_ = function(coordinates) {
-  if("number" == typeof coordinates[0]) {
-    if(0 != coordinates.length % 2) {
-      throw Error("Invalid number of coordinates: " + coordinates.length);
-    }
-    for(var line = [], i = 0;i < coordinates.length;i += 2) {
-      line.push([coordinates[i], coordinates[i + 1]])
-    }
-    coordinates = line
-  }
-  return coordinates
-};
-ee.Geometry.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
-  if(2 > nesting || 4 < nesting) {
-    throw Error("Unexpected nesting level.");
-  }
-  !goog.isArray(geometry) && opt_coordinates && (geometry = ee.Geometry.coordinatesToLine_(Array.prototype.slice.call(opt_coordinates)));
-  for(var item = geometry, count = 0;goog.isArray(item);) {
-    item = item[0], count++
-  }
-  for(;count < nesting;) {
-    geometry = [geometry], count++
-  }
-  if(ee.Geometry.isValidCoordinates_(geometry) != nesting) {
-    throw Error("Invalid geometry");
-  }
-  return geometry
-};
-ee.Geometry.createInstance_ = function(klass, args) {
-  var f = function() {
-  };
-  f.prototype = klass.prototype;
-  var instance = new f, result = klass.apply(instance, args);
-  return void 0 !== result ? result : instance
-};
-goog.exportSymbol("ee.Geometry", ee.Geometry);
-goog.exportProperty(ee.Geometry, "Point", ee.Geometry.Point);
-goog.exportProperty(ee.Geometry, "MultiPoint", ee.Geometry.MultiPoint);
-goog.exportProperty(ee.Geometry, "Rectangle", ee.Geometry.Rectangle);
-goog.exportProperty(ee.Geometry, "LineString", ee.Geometry.LineString);
-goog.exportProperty(ee.Geometry, "LinearRing", ee.Geometry.LinearRing);
-goog.exportProperty(ee.Geometry, "MultiLineString", ee.Geometry.MultiLineString);
-goog.exportProperty(ee.Geometry, "Polygon", ee.Geometry.Polygon);
-goog.exportProperty(ee.Geometry, "MultiPolygon", ee.Geometry.MultiPolygon);
-goog.exportProperty(ee.Geometry.prototype, "encode", ee.Geometry.prototype.encode);
-goog.exportProperty(ee.Geometry.prototype, "serialize", ee.Geometry.prototype.serialize);
-goog.exportProperty(ee.Geometry.prototype, "toGeoJSON", ee.Geometry.prototype.toGeoJSON);
-goog.exportProperty(ee.Geometry.prototype, "toGeoJSONString", ee.Geometry.prototype.toGeoJSONString);
-goog.exportProperty(ee.Geometry.prototype, "toString", ee.Geometry.prototype.toString);
 ee.Types = {};
 ee.Types.VAR_TYPE_KEY = "__EE_VAR_TYPE";
 ee.Types.classToName = function(klass) {
-  return klass.prototype instanceof ee.ComputedObject ? klass.prototype.name.call(null) : klass == ee.Geometry ? "Geometry" : klass == Number ? "Number" : klass == String ? "String" : klass == Array ? "Array" : klass == Date ? "Date" : "Object"
+  return klass.prototype instanceof ee.ComputedObject ? klass.prototype.name.call(null) : klass == Number ? "Number" : klass == String ? "String" : klass == Array ? "Array" : klass == Date ? "Date" : "Object"
 };
 ee.Types.isSubtype = function(firstType, secondType) {
   if(secondType == firstType) {
@@ -5176,72 +4965,6 @@ ee.CustomFunction.variable = function(type, name) {
   instance[ee.Types.VAR_TYPE_KEY] = type;
   return instance
 };
-ee.Feature = function(geometry, opt_properties) {
-  if(!(this instanceof ee.Feature)) {
-    return new ee.Feature(geometry, opt_properties)
-  }
-  if(geometry instanceof ee.Feature) {
-    if(opt_properties) {
-      throw Error("Can't create Feature out of a Feature and properties.");
-    }
-    return geometry
-  }
-  if(2 < arguments.length) {
-    throw Error("The Feature constructor takes at most 2 arguments (" + arguments.length + " given)");
-  }
-  ee.Feature.initialize();
-  geometry instanceof ee.ComputedObject ? opt_properties ? ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null}) : ee.ComputedObject.call(this, geometry.func, geometry.args) : geometry instanceof ee.Geometry || null === geometry ? ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null}) : "Feature" == geometry.type ? ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), 
-  metadata:geometry.properties || null}) : ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry), metadata:opt_properties || null})
-};
-goog.inherits(ee.Feature, ee.ComputedObject);
-ee.Feature.initialized_ = !1;
-ee.Feature.initialize = function() {
-  ee.Feature.initialized_ || (ee.ApiFunction.importApi(ee.Feature, "Feature", "Feature"), ee.Feature.initialized_ = !0)
-};
-ee.Feature.reset = function() {
-  ee.ApiFunction.clearApi(ee.Feature);
-  ee.Feature.initialized_ = !1
-};
-ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
-  return ee.ApiFunction._call("Collection", [this]).getMap(opt_visParams, opt_callback)
-};
-ee.Feature.Point = function(lon, lat) {
-  return ee.Geometry.Point.apply(null, arguments)
-};
-ee.Feature.MultiPoint = function(coordinates) {
-  return ee.Geometry.MultiPoint.apply(null, arguments)
-};
-ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
-  return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2)
-};
-ee.Feature.LineString = function(coordinates) {
-  return ee.Geometry.LineString.apply(null, arguments)
-};
-ee.Feature.LinearRing = function(coordinates) {
-  return ee.Geometry.LinearRing.apply(null, arguments)
-};
-ee.Feature.MultiLine = function(coordinates) {
-  return ee.Geometry.MultiLineString.apply(null, arguments)
-};
-ee.Feature.Polygon = function(coordinates) {
-  return ee.Geometry.Polygon.apply(null, arguments)
-};
-ee.Feature.MultiPolygon = function(coordinates) {
-  return ee.Geometry.MultiPolygon.apply(null, arguments)
-};
-ee.Feature.prototype.name = function() {
-  return"Feature"
-};
-goog.exportSymbol("ee.Feature", ee.Feature);
-goog.exportProperty(ee.Feature, "Point", ee.Feature.Point);
-goog.exportProperty(ee.Feature, "MultiPoint", ee.Feature.MultiPoint);
-goog.exportProperty(ee.Feature, "Rectangle", ee.Feature.Rectangle);
-goog.exportProperty(ee.Feature, "LineString", ee.Feature.LineString);
-goog.exportProperty(ee.Feature, "LinearRing", ee.Feature.LinearRing);
-goog.exportProperty(ee.Feature, "MultiLine", ee.Feature.MultiLine);
-goog.exportProperty(ee.Feature, "Polygon", ee.Feature.Polygon);
-goog.exportProperty(ee.Feature, "MultiPolygon", ee.Feature.MultiPolygon);
-goog.exportProperty(ee.Feature, "getMap", ee.Feature.prototype.getMap);
 ee.Filter = function(opt_filter) {
   if(!(this instanceof ee.Filter)) {
     return new ee.Filter(opt_filter)
@@ -5534,6 +5257,297 @@ goog.exportProperty(ee.Collection.prototype, "filterBounds", ee.Collection.proto
 goog.exportProperty(ee.Collection.prototype, "filterDate", ee.Collection.prototype.filterDate);
 goog.exportProperty(ee.Collection.prototype, "limit", ee.Collection.prototype.limit);
 goog.exportProperty(ee.Collection.prototype, "sort", ee.Collection.prototype.sort);
+ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
+  if(!(this instanceof ee.Geometry)) {
+    return new ee.Geometry(geoJson, opt_proj, opt_geodesic)
+  }
+  ee.Geometry.initialize();
+  var options = goog.isDefAndNotNull(opt_proj) || goog.isDefAndNotNull(opt_geodesic);
+  if(geoJson instanceof ee.ComputedObject && Boolean(geoJson.func)) {
+    if(options) {
+      throw Error("Setting the CRS or geodesic on a computed Geometry is not suported.  Use Geometry.transform().");
+    }
+    ee.ComputedObject.call(this, geoJson.func, geoJson.args)
+  }else {
+    geoJson instanceof ee.Geometry && (geoJson = geoJson.encode());
+    if(3 < arguments.length) {
+      throw Error("The Geometry constructor takes at most 3 arguments (" + arguments.length + " given)");
+    }
+    if(!ee.Geometry.isValidGeometry_(geoJson)) {
+      throw Error("Invalid GeoJSON geometry: " + JSON.stringify(geoJson));
+    }
+    ee.ComputedObject.call(this, null, null);
+    this.type_ = geoJson.type;
+    this.coordinates_ = geoJson.coordinates || null;
+    this.geometries_ = geoJson.geometries || null;
+    this.proj_ = opt_proj;
+    this.geodesic_ = opt_geodesic;
+    !goog.isDef(opt_geodesic) && "geodesic" in geoJson && (this.geodesic_ = Boolean(geoJson.geodesic))
+  }
+};
+goog.inherits(ee.Geometry, ee.ComputedObject);
+ee.Geometry.initialized_ = !1;
+ee.Geometry.initialize = function() {
+  ee.Geometry.initialized_ || (ee.ApiFunction.importApi(ee.Geometry, "Geometry", "Geometry"), ee.Geometry.initialized_ = !0)
+};
+ee.Geometry.reset = function() {
+  ee.ApiFunction.clearApi(ee.Geometry);
+  ee.Geometry.initialized_ = !1
+};
+ee.Geometry.Point = function(lon, lat) {
+  if(!(this instanceof ee.Geometry.Point)) {
+    return ee.Geometry.createInstance_(ee.Geometry.Point, arguments)
+  }
+  if(2 < arguments.length) {
+    throw Error("The Geometry.Point constructor takes at most 2 arguments (" + arguments.length + " given)");
+  }
+  if(1 == arguments.length && goog.isArray(arguments[0]) && 2 == arguments[0].length) {
+    var coords = arguments[0];
+    lon = coords[0];
+    lat = coords[1]
+  }
+  ee.Geometry.call(this, {type:"Point", coordinates:[lon, lat]})
+};
+goog.inherits(ee.Geometry.Point, ee.Geometry);
+ee.Geometry.MultiPoint = function(coordinates) {
+  if(!(this instanceof ee.Geometry.MultiPoint)) {
+    return ee.Geometry.createInstance_(ee.Geometry.MultiPoint, arguments)
+  }
+  ee.Geometry.call(this, {type:"MultiPoint", coordinates:ee.Geometry.makeGeometry_(coordinates, 2, arguments)})
+};
+goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
+ee.Geometry.Rectangle = function(lon1, lat1, lon2, lat2) {
+  if(!(this instanceof ee.Geometry.Rectangle)) {
+    return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2)
+  }
+  if(4 < arguments.length) {
+    throw Error("The Geometry.Rectangle constructor takes at most 4 arguments (" + arguments.length + " given)");
+  }
+  if(goog.isArray(lon1)) {
+    var args = lon1;
+    lon1 = args[0];
+    lat1 = args[1];
+    lon2 = args[2];
+    lat2 = args[3]
+  }
+  ee.Geometry.call(this, {type:"Polygon", coordinates:[[[lon1, lat2], [lon1, lat1], [lon2, lat1], [lon2, lat2]]]})
+};
+goog.inherits(ee.Geometry.Rectangle, ee.Geometry);
+ee.Geometry.LineString = function(coordinates) {
+  if(!(this instanceof ee.Geometry.LineString)) {
+    return ee.Geometry.createInstance_(ee.Geometry.LineString, arguments)
+  }
+  ee.Geometry.call(this, {type:"LineString", coordinates:ee.Geometry.makeGeometry_(coordinates, 2, arguments)})
+};
+goog.inherits(ee.Geometry.LineString, ee.Geometry);
+ee.Geometry.LinearRing = function(coordinates) {
+  if(!(this instanceof ee.Geometry.LinearRing)) {
+    return ee.Geometry.createInstance_(ee.Geometry.LinearRing, arguments)
+  }
+  ee.Geometry.call(this, {type:"LinearRing", coordinates:ee.Geometry.makeGeometry_(coordinates, 2, arguments)})
+};
+goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
+ee.Geometry.MultiLineString = function(coordinates) {
+  if(!(this instanceof ee.Geometry.MultiLineString)) {
+    return ee.Geometry.createInstance_(ee.Geometry.MultiLineString, arguments)
+  }
+  ee.Geometry.call(this, {type:"MultiLineString", coordinates:ee.Geometry.makeGeometry_(coordinates, 3, arguments)})
+};
+goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
+ee.Geometry.Polygon = function(coordinates) {
+  if(!(this instanceof ee.Geometry.Polygon)) {
+    return ee.Geometry.createInstance_(ee.Geometry.Polygon, arguments)
+  }
+  ee.Geometry.call(this, {type:"Polygon", coordinates:ee.Geometry.makeGeometry_(coordinates, 3, arguments)})
+};
+goog.inherits(ee.Geometry.Polygon, ee.Geometry);
+ee.Geometry.MultiPolygon = function(coordinates) {
+  if(!(this instanceof ee.Geometry.MultiPolygon)) {
+    return ee.Geometry.createInstance_(ee.Geometry.MultiPolygon, arguments)
+  }
+  ee.Geometry.call(this, {type:"MultiPolygon", coordinates:ee.Geometry.makeGeometry_(coordinates, 4, arguments)})
+};
+goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
+ee.Geometry.prototype.encode = function(opt_encoder) {
+  if(this.func) {
+    return ee.ComputedObject.prototype.encode.call(this, opt_encoder)
+  }
+  var result = {type:this.type_};
+  "GeometryCollection" == this.type_ ? result.geometries = this.geometries_ : result.coordinates = this.coordinates_;
+  goog.isDefAndNotNull(this.proj_) && (result.crs = {type:"name", properties:{name:this.proj_}});
+  goog.isDefAndNotNull(this.geodesic_) && (result.geodesic = this.geodesic_);
+  return result
+};
+ee.Geometry.prototype.toGeoJSON = function() {
+  if(this.func) {
+    throw Error("Can't convert a computed Geometry to GeoJSON.  Use getInfo() instead.");
+  }
+  return this.encode()
+};
+ee.Geometry.prototype.toGeoJSONString = function() {
+  if(this.func) {
+    throw Error("Can't convert a computed Geometry to GeoJSON.  Use getInfo() instead.");
+  }
+  return(new goog.json.Serializer).serialize(this.toGeoJSON())
+};
+ee.Geometry.prototype.serialize = function() {
+  return ee.Serializer.toJSON(this)
+};
+ee.Geometry.prototype.toString = function() {
+  return"ee.Geometry(" + this.toGeoJSONString() + ")"
+};
+ee.Geometry.isValidGeometry_ = function(geometry) {
+  var type = geometry.type;
+  if("GeometryCollection" == type) {
+    var geometries = geometry.geometries;
+    if(!goog.isArray(geometries)) {
+      return!1
+    }
+    for(var i = 0;i < geometries.length;i++) {
+      if(!ee.Geometry.isValidGeometry_(geometries[i])) {
+        return!1
+      }
+    }
+    return!0
+  }
+  var nesting = ee.Geometry.isValidCoordinates_(geometry.coordinates);
+  return"Point" == type && 1 == nesting || "MultiPoint" == type && 2 == nesting || "LineString" == type && 2 == nesting || "LinearRing" == type && 2 == nesting || "MultiLineString" == type && 3 == nesting || "Polygon" == type && 3 == nesting || "MultiPolygon" == type && 4 == nesting
+};
+ee.Geometry.isValidCoordinates_ = function(shape) {
+  if(!goog.isArray(shape)) {
+    return-1
+  }
+  if(goog.isArray(shape[0])) {
+    for(var count = ee.Geometry.isValidCoordinates_(shape[0]), i = 1;i < shape.length;i++) {
+      if(ee.Geometry.isValidCoordinates_(shape[i]) != count) {
+        return-1
+      }
+    }
+    return count + 1
+  }
+  for(i = 0;i < shape.length;i++) {
+    if(!goog.isNumber(shape[i])) {
+      return-1
+    }
+  }
+  return 0 == shape.length % 2 ? 1 : -1
+};
+ee.Geometry.coordinatesToLine_ = function(coordinates) {
+  if("number" == typeof coordinates[0]) {
+    if(0 != coordinates.length % 2) {
+      throw Error("Invalid number of coordinates: " + coordinates.length);
+    }
+    for(var line = [], i = 0;i < coordinates.length;i += 2) {
+      line.push([coordinates[i], coordinates[i + 1]])
+    }
+    coordinates = line
+  }
+  return coordinates
+};
+ee.Geometry.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
+  if(2 > nesting || 4 < nesting) {
+    throw Error("Unexpected nesting level.");
+  }
+  !goog.isArray(geometry) && opt_coordinates && (geometry = ee.Geometry.coordinatesToLine_(Array.prototype.slice.call(opt_coordinates)));
+  for(var item = geometry, count = 0;goog.isArray(item);) {
+    item = item[0], count++
+  }
+  for(;count < nesting;) {
+    geometry = [geometry], count++
+  }
+  if(ee.Geometry.isValidCoordinates_(geometry) != nesting) {
+    throw Error("Invalid geometry");
+  }
+  return geometry
+};
+ee.Geometry.createInstance_ = function(klass, args) {
+  var f = function() {
+  };
+  f.prototype = klass.prototype;
+  var instance = new f, result = klass.apply(instance, args);
+  return void 0 !== result ? result : instance
+};
+ee.Geometry.prototype.name = function() {
+  return"Geometry"
+};
+goog.exportSymbol("ee.Geometry", ee.Geometry);
+goog.exportProperty(ee.Geometry, "Point", ee.Geometry.Point);
+goog.exportProperty(ee.Geometry, "MultiPoint", ee.Geometry.MultiPoint);
+goog.exportProperty(ee.Geometry, "Rectangle", ee.Geometry.Rectangle);
+goog.exportProperty(ee.Geometry, "LineString", ee.Geometry.LineString);
+goog.exportProperty(ee.Geometry, "LinearRing", ee.Geometry.LinearRing);
+goog.exportProperty(ee.Geometry, "MultiLineString", ee.Geometry.MultiLineString);
+goog.exportProperty(ee.Geometry, "Polygon", ee.Geometry.Polygon);
+goog.exportProperty(ee.Geometry, "MultiPolygon", ee.Geometry.MultiPolygon);
+goog.exportProperty(ee.Geometry.prototype, "toGeoJSON", ee.Geometry.prototype.toGeoJSON);
+goog.exportProperty(ee.Geometry.prototype, "toGeoJSONString", ee.Geometry.prototype.toGeoJSONString);
+goog.exportProperty(ee.Geometry.prototype, "toString", ee.Geometry.prototype.toString);
+ee.Feature = function(geometry, opt_properties) {
+  if(!(this instanceof ee.Feature)) {
+    return new ee.Feature(geometry, opt_properties)
+  }
+  if(geometry instanceof ee.Feature) {
+    if(opt_properties) {
+      throw Error("Can't create Feature out of a Feature and properties.");
+    }
+    return geometry
+  }
+  if(2 < arguments.length) {
+    throw Error("The Feature constructor takes at most 2 arguments (" + arguments.length + " given)");
+  }
+  ee.Feature.initialize();
+  geometry instanceof ee.Geometry || null === geometry ? ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null}) : geometry instanceof ee.ComputedObject ? ee.ComputedObject.call(this, geometry.func, geometry.args) : "Feature" == geometry.type ? ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), metadata:geometry.properties || null}) : ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), 
+  {geometry:new ee.Geometry(geometry), metadata:opt_properties || null})
+};
+goog.inherits(ee.Feature, ee.ComputedObject);
+ee.Feature.initialized_ = !1;
+ee.Feature.initialize = function() {
+  ee.Feature.initialized_ || (ee.ApiFunction.importApi(ee.Feature, "Feature", "Feature"), ee.Feature.initialized_ = !0)
+};
+ee.Feature.reset = function() {
+  ee.ApiFunction.clearApi(ee.Feature);
+  ee.Feature.initialized_ = !1
+};
+ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
+  return ee.ApiFunction._call("Collection", [this]).getMap(opt_visParams, opt_callback)
+};
+ee.Feature.Point = function(lon, lat) {
+  return ee.Geometry.Point.apply(null, arguments)
+};
+ee.Feature.MultiPoint = function(coordinates) {
+  return ee.Geometry.MultiPoint.apply(null, arguments)
+};
+ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
+  return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2)
+};
+ee.Feature.LineString = function(coordinates) {
+  return ee.Geometry.LineString.apply(null, arguments)
+};
+ee.Feature.LinearRing = function(coordinates) {
+  return ee.Geometry.LinearRing.apply(null, arguments)
+};
+ee.Feature.MultiLine = function(coordinates) {
+  return ee.Geometry.MultiLineString.apply(null, arguments)
+};
+ee.Feature.Polygon = function(coordinates) {
+  return ee.Geometry.Polygon.apply(null, arguments)
+};
+ee.Feature.MultiPolygon = function(coordinates) {
+  return ee.Geometry.MultiPolygon.apply(null, arguments)
+};
+ee.Feature.prototype.name = function() {
+  return"Feature"
+};
+goog.exportSymbol("ee.Feature", ee.Feature);
+goog.exportProperty(ee.Feature, "Point", ee.Feature.Point);
+goog.exportProperty(ee.Feature, "MultiPoint", ee.Feature.MultiPoint);
+goog.exportProperty(ee.Feature, "Rectangle", ee.Feature.Rectangle);
+goog.exportProperty(ee.Feature, "LineString", ee.Feature.LineString);
+goog.exportProperty(ee.Feature, "LinearRing", ee.Feature.LinearRing);
+goog.exportProperty(ee.Feature, "MultiLine", ee.Feature.MultiLine);
+goog.exportProperty(ee.Feature, "Polygon", ee.Feature.Polygon);
+goog.exportProperty(ee.Feature, "MultiPolygon", ee.Feature.MultiPolygon);
+goog.exportProperty(ee.Feature, "getMap", ee.Feature.prototype.getMap);
 ee.FeatureCollection = function(args, opt_column) {
   if(!(this instanceof ee.FeatureCollection)) {
     return new ee.FeatureCollection(args, opt_column)
@@ -5575,7 +5589,7 @@ ee.FeatureCollection.reset = function() {
   ee.FeatureCollection.initialized_ = !1
 };
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var painted = ee.ApiFunction._apply("DrawVector", {collection:this, color:(opt_visParams || {}).color || "000000"});
+  var painted = ee.ApiFunction._apply("Collection.draw", {collection:this, color:(opt_visParams || {}).color || "000000"});
   if(opt_callback) {
     painted.getMap(null, opt_callback)
   }else {
@@ -5798,6 +5812,42 @@ ee.ImageCollection.prototype.name = function() {
 goog.exportSymbol("ee.ImageCollection", ee.ImageCollection);
 goog.exportProperty(ee.ImageCollection.prototype, "map", ee.ImageCollection.prototype.map);
 goog.exportProperty(ee.ImageCollection.prototype, "getMap", ee.ImageCollection.prototype.getMap);
+ee.String = function(string) {
+  if(!(this instanceof ee.String)) {
+    return new ee.String(string)
+  }
+  if(string instanceof ee.String) {
+    return string
+  }
+  ee.String.initialize();
+  if(goog.isString(string)) {
+    ee.ComputedObject.call(this, null, null)
+  }else {
+    if(string instanceof ee.ComputedObject) {
+      ee.ComputedObject.call(this, string.func, string.args)
+    }else {
+      throw Error("Invalid argument specified for ee.String(): " + string);
+    }
+  }
+  this.string_ = string
+};
+goog.inherits(ee.String, ee.ComputedObject);
+ee.String.initialized_ = !1;
+ee.String.initialize = function() {
+  ee.String.initialized_ || (ee.ApiFunction.importApi(ee.String, "String", "String"), ee.String.initialized_ = !0)
+};
+ee.String.reset = function() {
+  ee.ApiFunction.clearApi(ee.String);
+  ee.String.initialized_ = !1
+};
+ee.String.prototype.encode = function(encoder) {
+  return goog.isString(this.string_) ? this.string_ : this.string_.encode(encoder)
+};
+ee.String.prototype.name = function() {
+  return"String"
+};
+goog.exportSymbol("ee.String", ee.String);
+goog.exportProperty(ee.String.prototype, "encode", ee.String.prototype.encode);
 ee.initialize = function(opt_baseurl, opt_tileurl, opt_callback) {
   if(ee.ready_ != ee.InitState.READY || opt_baseurl || opt_tileurl) {
     if(ee.ready() == ee.InitState.LOADING) {
@@ -5812,6 +5862,8 @@ ee.initialize = function(opt_baseurl, opt_tileurl, opt_callback) {
       ee.ImageCollection.initialize();
       ee.FeatureCollection.initialize();
       ee.Filter.initialize();
+      ee.Geometry.initialize();
+      ee.String.initialize();
       ee.initializeGeneratedClasses_();
       ee.initializeUnboundMethods_();
       ee.ready_ = ee.InitState.READY;
@@ -5838,6 +5890,8 @@ ee.reset = function() {
   ee.ImageCollection.reset();
   ee.FeatureCollection.reset();
   ee.Filter.reset();
+  ee.Geometry.reset();
+  ee.String.reset();
   ee.resetGeneratedClasses_();
   ee.Algorithms = {}
 };
@@ -5872,10 +5926,8 @@ ee.promote_ = function(arg, klass) {
       ;
       case "EEObject":
         return arg instanceof ee.Collection ? ee.ApiFunction._call("Feature", ee.ApiFunction._call("Collection.geometry", arg)) : "EEObject" == klass && arg instanceof ee.Image ? arg : new ee.Feature(arg);
-      case "ProjGeometry":
-      ;
       case "Geometry":
-        return arg instanceof ee.FeatureCollection ? ee.ApiFunction._call("Collection.geometry", arg) : arg instanceof ee.ComputedObject ? arg : new ee.Geometry(arg);
+        return arg instanceof ee.FeatureCollection ? ee.ApiFunction._call("Collection.geometry", arg) : new ee.Geometry(arg);
       case "FeatureCollection":
       ;
       case "EECollection":
@@ -5892,6 +5944,10 @@ ee.promote_ = function(arg, klass) {
         return goog.isString(arg) ? new Date(arg) : goog.isNumber(arg) ? new Date(arg) : arg;
       case "Dictionary":
         return klass in ee ? arg instanceof ee[klass] ? arg : arg instanceof ee.ComputedObject ? new ee[klass](arg) : arg : arg;
+      case "String":
+        return ee.Types.isString(arg) || arg instanceof ee.String || arg instanceof ee.ComputedObject || ee.Types.isVarOfType(arg, ee.String) ? new ee.String(arg) : arg;
+      case "List":
+        return arg;
       default:
         if(klass in ee && arg) {
           if(arg instanceof ee[klass]) {
@@ -5935,6 +5991,10 @@ ee.initializeGeneratedClasses_ = function() {
     }
     var rtype = signatures[sig].returns.replace(/<.*>/, "");
     returnTypes[rtype] = !0
+  }
+  var blacklist = ["List"], badName;
+  for(badName in blacklist) {
+    names[badName] && delete names[badName]
   }
   for(var name in names) {
     name in returnTypes && !(name in ee) && (ee[name] = ee.makeClass_(name), ee.generatedClasses_.push(name))

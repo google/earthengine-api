@@ -46,22 +46,15 @@ class Feature(computedobject.ComputedObject):
     self.initialize()
 
     feature_constructor = apifunction.ApiFunction.lookup('Feature')
-    if isinstance(geom, computedobject.ComputedObject):
-      if opt_properties:
-        # A computed geometry.
-        super(Feature, self).__init__(feature_constructor, {
-            'geometry': geom,
-            'metadata': opt_properties
-        })
-      else:
-        # A custom object to reinterpret as a Feature.
-        super(Feature, self).__init__(geom.func, geom.args)
-    elif geom is None or isinstance(geom, geometry.Geometry):
+    if geom is None or isinstance(geom, geometry.Geometry):
       # A geometry object.
       super(Feature, self).__init__(feature_constructor, {
           'geometry': geom,
           'metadata': opt_properties or None
       })
+    elif isinstance(geom, computedobject.ComputedObject):
+      # A custom object to reinterpret as a Feature.
+      super(Feature, self).__init__(geom.func, geom.args)
     elif isinstance(geom, dict) and geom.get('type') == 'Feature':
       # Try to convert a GeoJSON Feature.
       super(Feature, self).__init__(feature_constructor, {
@@ -97,8 +90,9 @@ class Feature(computedobject.ComputedObject):
           'color', containing a hex RGB color string is allowed.
 
     Returns:
-      An object containing a mapid string, an access token, plus a DrawVector
-      image wrapping a FeatureCollection containing this feature.
+      An object containing a mapid string, an access token, plus a
+      Collection.draw image wrapping a FeatureCollection containing
+      this feature.
     """
     # Create a collection containing this one feature and render it.
     collection = apifunction.ApiFunction.call_('Collection', [self])

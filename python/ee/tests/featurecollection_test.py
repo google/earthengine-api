@@ -51,10 +51,10 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     self.assertEquals({'x': 'y'}, from_computed_object.args)
 
   def testGetMapId(self):
-    """Verifies that getMap() uses DrawVector to draw FeatureCollections."""
+    """Verifies that getMap() uses Collection.draw to draw."""
     collection = ee.FeatureCollection(5)
     mapid = collection.getMapId({'color': 'ABCDEF'})
-    manual = ee.ApiFunction.call_('DrawVector', collection, 'ABCDEF')
+    manual = ee.ApiFunction.call_('Collection.draw', collection, 'ABCDEF')
 
     self.assertEquals('fakeMapId', mapid['mapid'])
     self.assertEquals(manual, mapid['image'])

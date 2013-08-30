@@ -92,7 +92,8 @@ class Serializer(object):
     elif isinstance(obj, datetime.datetime):
       # Dates are encoded as typed UTC microseconds since the Unix epoch.
       # They are returned directly and not saved in the scope either.
-      microseconds = (obj - _EPOCH_DATETIME).total_seconds() * 1e6
+      td = (obj - _EPOCH_DATETIME)
+      microseconds = td.microseconds + (td.seconds + td.days * 24 * 3600) * 1e6
       return {
           'type': 'Date',
           'value': math.floor(microseconds)
@@ -111,7 +112,8 @@ class Serializer(object):
       # Dictionary are encoded recursively and wrapped in a type specifier.
       result = {
           'type': 'Dictionary',
-          'value': {key: self._encodeValue(value) for key, value in obj.items()}
+          'value': dict([(key, self._encodeValue(value))
+                         for key, value in obj.iteritems()])
       }
     else:
       raise ee_exception.EEException('Can\'t encode object: %s' % obj)

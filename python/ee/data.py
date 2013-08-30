@@ -5,12 +5,10 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-import json
-import urllib
-
-import httplib2
-
 import ee_exception
+import json
+import httplib2
+import urllib
 
 
 # OAuth2 credentials object.  This may be set by ee.Initialize().
@@ -272,6 +270,8 @@ def getDownloadId(params):
     A dict containing a docid and token.
   """
   params['json_format'] = 'v2'
+  if 'bands' in params and not isinstance(params['bands'], basestring):
+    params['bands'] = json.dumps(params['bands'])
   return send_('/download', params)
 
 
@@ -321,6 +321,75 @@ def createAsset(value, opt_path=None):
   if opt_path is not None:
     args['id'] = opt_path
   return send_('/create', args)
+
+
+def newTaskId(count=1):
+  """Generate an ID for a long-running task.
+
+  Args:
+    count: Optional count of IDs to generate, one by default.
+
+  Returns:
+    A list containing generated ID strings.
+  """
+  args = {'count': count}
+  return send_('/newtaskid', args)
+
+
+def getTaskStatus(taskId):
+  """Retrieve status of one or more long-running tasks.
+
+  Args:
+    taskId: ID of the task or a list of multiple IDs.
+
+  Returns:
+    List containing one object for each queried task, in the same order as
+    the input array, each object containing the following values:
+      id (string) ID of the task.
+      state (string) State of the task, one of READY, RUNNING, COMPLETED,
+        FAILED, CANCELLED; or UNKNOWN if the task with the specified ID
+        doesn't exist.
+     error_message (string) For a FAILED task, a description of the error.
+  """
+  if isinstance(taskId, basestring):
+    taskId = [taskId]
+  args = {'q': ','.join(taskId)}
+  return send_('/taskstatus', args, 'GET')
+
+
+def prepareValue(taskId, params):
+  """Create processing task which computes a value.
+
+  Args:
+    taskId: ID for the task (obtained using newTaskId).
+    params: The object that describes the value to be evaluated, with the
+      following field:
+        json (string) A JSON object to be evaluated.
+
+  Returns:
+    A dict with optional notes about the created task.
+  """
+  args = params.copy()
+  args['tid'] = taskId
+  return send_('/prepare', args)
+
+
+def startProcessing(taskId, params):
+  """Create processing task that exports or pre-renders an image.
+
+  Args:
+    taskId: ID for the task (obtained using newTaskId).
+    params: The object that describes the processing task; only fields
+      that are common for all processing types are documented below.
+        type (string) Either 'export_image' or 'render'.
+        imageJson (string) JSON description of the image.
+
+  Returns:
+    A dict with optional notes about the created task.
+  """
+  args = params.copy()
+  args['id'] = taskId
+  return send_('/processingrequest', args)
 
 
 def send_(path, params, opt_method='POST', opt_raw=False):

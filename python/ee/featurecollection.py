@@ -91,10 +91,10 @@ class FeatureCollection(collection.Collection):
           'color', containing a hex RGB color string is allowed.
 
     Returns:
-      An object containing a mapid string, an access token, plus a DrawVector
-      image wrapping this collection.
+      An object containing a mapid string, an access token, plus a
+      Collection.draw image wrapping this collection.
     """
-    painted = apifunction.ApiFunction.apply_('DrawVector', {
+    painted = apifunction.ApiFunction.apply_('Collection.draw', {
         'collection': self,
         'color': (vis_params or {}).get('color', '000000')
     })

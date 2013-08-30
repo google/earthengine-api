@@ -22,12 +22,14 @@ class FeatureTest(apitestcase.ApiTestCase):
     self.assertEquals({'geometry': None, 'metadata': {'x': 2}},
                       from_null_geometry.args)
 
-    computed_geometry = ee.ComputedObject(ee.Function(), {'a': 1})
+    computed_geometry = ee.Geometry(ee.ComputedObject(ee.Function(), {'a': 1}))
     computed_properties = ee.ComputedObject(ee.Function(), {'b': 2})
     from_computed_one = ee.Feature(computed_geometry)
     from_computed_both = ee.Feature(computed_geometry, computed_properties)
-    self.assertEquals(computed_geometry.func, from_computed_one.func)
-    self.assertEquals(computed_geometry.args, from_computed_one.args)
+    self.assertEquals(ee.ApiFunction('Feature'), from_computed_one.func)
+    self.assertEquals({'geometry': computed_geometry,
+                       'metadata': None},
+                      from_computed_one.args)
     self.assertEquals(ee.ApiFunction('Feature'), from_computed_both.func)
     self.assertEquals({'geometry': computed_geometry,
                        'metadata': computed_properties},
@@ -43,11 +45,11 @@ class FeatureTest(apitestcase.ApiTestCase):
     self.assertEquals({'foo': 42}, from_geo_json_feature.args['metadata'])
 
   def testGetMap(self):
-    """Verifies that getMap() uses DrawVector to rasterize Features."""
+    """Verifies that getMap() uses Collection.draw to rasterize Features."""
     feature = ee.Feature(None)
     mapid = feature.getMapId({'color': 'ABCDEF'})
     manual = ee.ApiFunction.call_(
-        'DrawVector', ee.FeatureCollection(feature), 'ABCDEF')
+        'Collection.draw', ee.FeatureCollection(feature), 'ABCDEF')
 
     self.assertEquals('fakeMapId', mapid['mapid'])
     self.assertEquals(manual, mapid['image'])

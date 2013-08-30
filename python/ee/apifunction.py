@@ -97,14 +97,15 @@ class ApiFunction(function.Function):
   def allSignatures(cls):
     """Returns a map from the name to signature for all API functions."""
     cls.initialize()
-    return {name: func.getSignature() for name, func in cls._api.iteritems()}
+    return dict([(name, func.getSignature())
+                 for name, func in cls._api.iteritems()])
 
   @classmethod
   def unboundFunctions(cls):
     """Returns the functions that have not been bound using importApi() yet."""
     cls.initialize()
-    return {name: func for name, func in cls._api.iteritems()
-            if name not in cls._bound_signatures}
+    return dict([(name, func) for name, func in cls._api.iteritems()
+                 if name not in cls._bound_signatures])
 
   @classmethod
   def lookup(cls, name):

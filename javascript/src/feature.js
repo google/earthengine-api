@@ -44,23 +44,15 @@ ee.Feature = function(geometry, opt_properties) {
 
   ee.Feature.initialize();
 
-  if (geometry instanceof ee.ComputedObject) {
-    if (opt_properties) {
-      // A computed geometry.
-      goog.base(this, new ee.ApiFunction('Feature'), {
-        'geometry': geometry,
-        'metadata': opt_properties || null
-      });
-    } else {
-      // A custom object to reinterpret as a Feature.
-      goog.base(this, geometry.func, geometry.args);
-    }
-  } else if (geometry instanceof ee.Geometry || geometry === null) {
+  if (geometry instanceof ee.Geometry || geometry === null) {
     // A Geometry object.
     goog.base(this, new ee.ApiFunction('Feature'), {
       'geometry': geometry,
       'metadata': opt_properties || null
     });
+  } else if (geometry instanceof ee.ComputedObject) {
+    // A custom object to reinterpret as a Feature.
+    goog.base(this, geometry.func, geometry.args);
   } else if (geometry['type'] == 'Feature') {
     // Try to convert a GeoJSON Feature.
     goog.base(this, new ee.ApiFunction('Feature'), {
@@ -118,8 +110,8 @@ ee.Feature.reset = function() {
  *     vis_params is null, black ("000000") is used.
  * @param {function(Object, string=)=} opt_callback An async callback.
  * @return {ee.data.mapid} An object containing a mapid string, an access
- *    token, plus a DrawVector image wrapping a FeatureCollection containing
- *    this feature.
+ *    token, plus a Collection.draw image wrapping a FeatureCollection
+ *    containing this feature.
  */
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
   var collection = ee.ApiFunction._call('Collection', [this]);

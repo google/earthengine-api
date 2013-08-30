@@ -6,7 +6,6 @@ goog.provide('ee.Types');
 
 goog.require('ee.ComputedObject');
 goog.require('ee.Encodable');
-goog.require('ee.Geometry');
 
 
 /**
@@ -28,8 +27,6 @@ ee.Types.classToName = function(klass) {
   if (klass.prototype instanceof ee.ComputedObject) {
     // Assume that name() does not care about the instance.
     return klass.prototype.name.call(null);
-  } else if (klass == ee.Geometry) {
-    return 'Geometry';
   } else if (klass == Number) {
     return 'Number';
   } else if (klass == String) {
@@ -100,7 +97,10 @@ ee.Types.isNumber = function(obj) {
  * @hidden
  */
 ee.Types.isString = function(obj) {
-  return goog.isString(obj) || ee.Types.isVarOfType(obj, String);
+  // We can't check for ee.String types here due to circular dependencies.
+  // In theory, the only place this matters is in promote, where we do
+  // all these tests explicitly.
+  return (goog.isString(obj) || ee.Types.isVarOfType(obj, String));
 };
 
 

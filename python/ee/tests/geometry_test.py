@@ -5,9 +5,10 @@
 import unittest
 
 import ee
+from ee import apitestcase
 
 
-class GeometryTest(unittest.TestCase):
+class GeometryTest(apitestcase.ApiTestCase):
 
   def testValid_Point(self):
     """Verifies Point constructor behavior with valid arguments."""
@@ -150,6 +151,51 @@ class GeometryTest(unittest.TestCase):
     })
     self.assertTrue(geodesic.toGeoJSON()['geodesic'])
     self.assertFalse(projected.toGeoJSON()['geodesic'])
+
+  def testConstructor(self):
+    """Check the behavior of the Geometry constructor.
+
+    There are 5 options:
+      1) A geoJSON object.
+      2) A not-computed geometry.
+      3) A not-computed geometry with overrides.
+      4) A computed geometry.
+      5) something to cast to geometry.
+    """
+    line = ee.Geometry.LineString(1, 2, 3, 4)
+
+    # GeoJSON.
+    line2 = ee.Geometry(line)
+    self.assertEquals(line2.func, None)
+    self.assertEquals(line2._type, 'LineString')
+    self.assertEquals(line2._coordinates, [[1, 2], [3, 4]])
+
+    # A not-computed geometry.
+    self.assertEquals(ee.Geometry(line), line)
+
+    # A not-computed geometry with an override.
+    line3 = ee.Geometry(line, 'SR-ORG:6974')
+    self.assertEquals(line3._proj, 'SR-ORG:6974')
+
+    # A computed geometry.
+    self.assertEquals(ee.Geometry(line.bounds()), line.bounds())
+
+    # Something to cast to a geometry.
+    computed = ee.ComputedObject(ee.Function(), {'a': 1})
+    geom = ee.Geometry(computed)
+    self.assertEquals(computed.func, geom.func)
+    self.assertEquals(computed.args, geom.args)
+
+  def testComputedGeometries(self):
+    """Verifies the computed object behavior of the Geometry constructor."""
+    line = ee.Geometry.LineString(1, 2, 3, 4)
+    bounds = line.bounds()
+
+    self.assertTrue(isinstance(bounds, ee.Geometry))
+    self.assertEquals(
+        ee.ApiFunction.lookup('Geometry.bounds'), bounds.func)
+    self.assertEquals(line, bounds.args['geometry'])
+    self.assertTrue(hasattr(bounds, 'bounds'))
 
   def assertValid(self, nesting, ctor, *coords):
     """Checks that geometry is valid and has the expected nesting level.

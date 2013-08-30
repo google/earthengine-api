@@ -123,10 +123,10 @@ ee.FeatureCollection.reset = function() {
  *     vis_params isn't specified, then the color #000000 is used.
  * @param {function(Object, string=)=} opt_callback An async callback.
  * @return {ee.data.mapid} An object containing a mapid string, an access
- *     token, plus a DrawVector image wrapping this collection.
+ *     token, plus a Collection.draw image wrapping this collection.
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var painted = ee.ApiFunction._apply('DrawVector', {
+  var painted = ee.ApiFunction._apply('Collection.draw', {
     'collection': this,
     'color': (opt_visParams || {})['color'] || '000000'
   });

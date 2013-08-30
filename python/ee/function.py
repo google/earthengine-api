@@ -139,7 +139,8 @@ class Function(encodable.Encodable):
     if len(specs) < len(args):
       raise ee_exception.EEException(
           'Too many (%d) arguments to function: %s' % (len(args), self))
-    named_args = {spec['name']: value for spec, value in zip(specs, args)}
+    named_args = dict([(spec['name'], value)
+                       for spec, value in zip(specs, args)])
 
     # Handle keyword arguments.
     if extra_keyword_args:

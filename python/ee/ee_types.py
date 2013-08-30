@@ -10,7 +10,6 @@ import numbers
 
 import computedobject
 import encodable
-import geometry
 
 # The name of the property inserted into objects created by
 # ee.CustomFunction.variable() whose value is the type (class)
@@ -29,8 +28,6 @@ def classToName(klass):
   """
   if issubclass(klass, computedobject.ComputedObject):
     return klass.name()
-  elif klass == geometry.Geometry:
-    return 'Geometry'
   elif issubclass(klass, numbers.Number):
     return 'Number'
   elif issubclass(klass, basestring):

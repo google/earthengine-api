@@ -8,6 +8,7 @@ import json
 import unittest
 
 import ee
+from ee import apitestcase
 from ee import serializer
 
 # The encoded output.
@@ -80,7 +81,7 @@ EXPECTED_OUTPUT = {
 }
 
 
-class SerializerTest(unittest.TestCase):
+class SerializerTest(apitestcase.ApiTestCase):
 
   def testSerialization(self):
     """Verifies a complex serialization case."""

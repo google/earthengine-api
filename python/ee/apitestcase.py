@@ -177,7 +177,7 @@ BUILTIN_FUNCTIONS = {
                 'description': '',
                 'optional': True,
                 'name': 'geometry',
-                'type': 'ProjGeometry'
+                'type': 'Geometry'
             },
             {
                 'default': {},
@@ -314,7 +314,7 @@ BUILTIN_FUNCTIONS = {
             }
         ],
         'description': '',
-        'returns': 'TaskResult'
+        'returns': 'FeatureCollection'
     },
     'ImageCollection.load': {
         'type': 'Algorithm',
@@ -380,9 +380,9 @@ BUILTIN_FUNCTIONS = {
             }
         ],
         'description': '',
-        'returns': 'TaskResult'
+        'returns': 'Geometry'
     },
-    'DrawVector': {
+    'Collection.draw': {
         'type': 'Algorithm',
         'args': [
             {
@@ -865,7 +865,7 @@ BUILTIN_FUNCTIONS = {
             },
             {
                 'default': None,
-                'type': 'ProjGeometry',
+                'type': 'Geometry',
                 'optional': True,
                 'description': '',
                 'name': 'geometry'
@@ -897,6 +897,53 @@ BUILTIN_FUNCTIONS = {
                 'optional': True,
                 'description': '',
                 'name': 'bestEffort'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
+    # An algorithm for testing ee.String.
+    'String.cat': {
+        'returns': 'String',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'String',
+                'description': '',
+                'name': 'string1'
+            },
+            {
+                'type': 'String',
+                'description': '',
+                'name': 'string2'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
+    # An algorithm for testing computed Geometries.
+    'Geometry.bounds': {
+        'returns': 'Geometry',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'Geometry',
+                'description': '',
+                'name': 'geometry'
+            },
+            {
+                'default': None,
+                'type': 'ErrorMargin',
+                'optional': True,
+                'description': '',
+                'name': 'maxError'
+            },
+            {
+                'default': None,
+                'type': 'Projection',
+                'optional': True,
+                'description': '',
+                'name': 'proj'
             }
         ],
         'type': 'Algorithm',

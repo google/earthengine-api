@@ -87,14 +87,14 @@ class FilterTest(apitestcase.ApiTestCase):
     self.assertEquals(ee.ApiFunction.lookup('Filter.dateRangeContains'),
                       open_filter.func)
     self.assertEquals({'leftValue': open_range,
-                       'rightField': 'system:time_start'},
+                       'rightField': ee.String('system:time_start')},
                       open_filter.args)
 
     closed_filter = ee.Filter.date(d1, d2)
     self.assertEquals(ee.ApiFunction.lookup('Filter.dateRangeContains'),
                       closed_filter.func)
     self.assertEquals({'leftValue': closed_range,
-                       'rightField': 'system:time_start'},
+                       'rightField': ee.String('system:time_start')},
                       closed_filter.args)
 
   def testBounds(self):

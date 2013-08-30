@@ -415,6 +415,28 @@ ee.data.prepareValue = function(task_id, params, opt_callback) {
 
 
 /**
+ * Create processing task that exports or pre-renders an image.
+ *
+ * @param {string} task_id ID for the task (obtained using newTaskId).
+ * @param {Object} params The object that describes the processing task;
+ *    only fields that are common for all processing types are documented here.
+ *      type (string) Either 'export_image' or 'render'.
+ *      imageJson (string) JSON description of the image.
+ * @param {function(Object, string=)=} opt_callback An optional callback.
+ *     If not supplied, the call is made synchronously.
+ * @return {Object} May contain field 'note' with value 'ALREADY_EXISTS' if
+ *     an identical task with the same ID already exists.
+ * @hidden
+ */
+ee.data.startProcessing = function(task_id, params, opt_callback) {
+  params['id'] = task_id;
+  return ee.data.send_('/processingrequest',
+                       ee.data.makeRequest_(params),
+                       opt_callback);
+};
+
+
+/**
  * Send an API call.
  *
  * @param {string} path The API endpoint to call.

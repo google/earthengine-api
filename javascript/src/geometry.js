@@ -4,7 +4,8 @@
 
 goog.provide('ee.Geometry');
 
-goog.require('ee.Encodable');
+goog.require('ee.ApiFunction');
+goog.require('ee.ComputedObject');
 goog.require('ee.Serializer');
 goog.require('goog.json.Serializer');
 
@@ -12,7 +13,8 @@ goog.require('goog.json.Serializer');
 
 /**
  * Creates a geometry.
- * @param {Object} geoJson The GeoJSON object describing the geometry. Supports
+ * @param {Object} geoJson The GeoJSON object describing the geometry or
+ *     a CompuedObject to be reinterpreted as a Geometry. Supports
  *     CRS specifications as per the GeoJSON spec, but only allows named
  *     (rather than "linked" CRSs). If this includes a 'geodesic' field,
  *     and opt_geodesic is not specified, it will be used as opt_geodesic.
@@ -26,18 +28,32 @@ goog.require('goog.json.Serializer');
  *     to true if the CRS is geographic (including the default EPSG:4326),
  *     or to false if the CRS is projected.
  * @constructor
- * @extends {ee.Encodable}
+ * @extends {ee.ComputedObject}
  */
 ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
   if (!(this instanceof ee.Geometry)) {
     return new ee.Geometry(geoJson, opt_proj, opt_geodesic);
-  } else if (geoJson instanceof ee.Geometry) {
-    if (goog.isDefAndNotNull(opt_proj) || goog.isDefAndNotNull(opt_geodesic)) {
-      // Some overrides.
-      geoJson = geoJson.encode();
+  }
+
+  ee.Geometry.initialize();
+
+  var computed = geoJson instanceof ee.ComputedObject && Boolean(geoJson.func);
+  var options = (goog.isDefAndNotNull(opt_proj) ||
+                 goog.isDefAndNotNull(opt_geodesic));
+  if (computed) {
+    if (options) {
+      throw new Error(
+          'Setting the CRS or geodesic on a computed Geometry ' +
+          'is not suported.  Use Geometry.transform().');
     } else {
-      return geoJson;
+      goog.base(this, geoJson.func, geoJson.args);
+      return;
     }
+  }
+
+  // Below here, we're working with a GeoJSON literal.
+  if (geoJson instanceof ee.Geometry) {
+    geoJson = geoJson.encode();
   }
 
   if (arguments.length > 3) {
@@ -49,6 +65,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
     throw Error('Invalid GeoJSON geometry: ' + JSON.stringify(geoJson));
   }
 
+  goog.base(this, null, null);
   /**
    * The type of the geometry.
    * @type {string}
@@ -88,8 +105,37 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
     this.geodesic_ = Boolean(geoJson['geodesic']);
   }
 };
-goog.inherits(ee.Geometry, ee.Encodable);
+goog.inherits(ee.Geometry, ee.ComputedObject);
 
+
+/**
+ * Whether the class has been initialized with API functions.
+ * @type {boolean}
+ * @private
+ */
+ee.Geometry.initialized_ = false;
+
+
+/**
+ * Imports API functions to this class.
+ * @hidden
+ */
+ee.Geometry.initialize = function() {
+  if (!ee.Geometry.initialized_) {
+    ee.ApiFunction.importApi(ee.Geometry, 'Geometry', 'Geometry');
+    ee.Geometry.initialized_ = true;
+  }
+};
+
+
+/**
+ * Removes imported API functions from this class.
+ * @hidden
+ */
+ee.Geometry.reset = function() {
+  ee.ApiFunction.clearApi(ee.Geometry);
+  ee.Geometry.initialized_ = false;
+};
 
 
 /**
@@ -153,10 +199,10 @@ goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
 /**
  * Constructs a rectangular polygon from the given corner points.
  *
- * @param {number} lon1 Longitude of the first corner point.
- * @param {number} lat1 Latitude of the first corner point.
- * @param {number} lon2 Longiude of the second corner point.
- * @param {number} lat2 latitude of the second corner point.
+ * @param {number} lon1 The minimum X coordinate (e.g. longitude).
+ * @param {number} lat1 The minimum Y coordinate (e.g. latitude).
+ * @param {number} lon2 The maximum X coordinate (e.g. longitude).
+ * @param {number} lat2 The maximum Y coordinate (e.g. latitude).
  * @constructor
  * @extends {ee.Geometry}
  */
@@ -320,6 +366,10 @@ goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
  * @return {Object} A GeoJSON-compatible representation of the geometry.
  */
 ee.Geometry.prototype.encode = function(opt_encoder) {
+  if (this.func) {
+    return ee.ComputedObject.prototype.encode.call(this, opt_encoder);
+  }
+
   var result = {'type': this.type_};
   if (this.type_ == 'GeometryCollection') {
     result['geometries'] = this.geometries_;
@@ -348,6 +398,10 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
  * @return {Object} A GeoJSON representation of the geometry.
  */
 ee.Geometry.prototype.toGeoJSON = function() {
+  if (this.func) {
+    throw new Error('Can\'t convert a computed Geometry to GeoJSON.  ' +
+                    'Use getInfo() instead.');
+  }
   return this.encode();
 };
 
@@ -356,6 +410,10 @@ ee.Geometry.prototype.toGeoJSON = function() {
  * @return {string} A GeoJSON string representation of the geometry.
  */
 ee.Geometry.prototype.toGeoJSONString = function() {
+  if (this.func) {
+    throw new Error('Can\'t convert a computed Geometry to GeoJSON.  ' +
+                    'Use getInfo() instead.');
+  }
   return (new goog.json.Serializer()).serialize(this.toGeoJSON());
 };
 
@@ -526,6 +584,12 @@ ee.Geometry.createInstance_ = function(klass, args) {
 };
 
 
+/** @inheritDoc */
+ee.Geometry.prototype.name = function() {
+  return 'Geometry';
+};
+
+
 goog.exportSymbol('ee.Geometry', ee.Geometry);
 goog.exportProperty(ee.Geometry, 'Point', ee.Geometry.Point);
 goog.exportProperty(ee.Geometry, 'MultiPoint', ee.Geometry.MultiPoint);
@@ -536,10 +600,6 @@ goog.exportProperty(ee.Geometry, 'MultiLineString',
                     ee.Geometry.MultiLineString);
 goog.exportProperty(ee.Geometry, 'Polygon', ee.Geometry.Polygon);
 goog.exportProperty(ee.Geometry, 'MultiPolygon', ee.Geometry.MultiPolygon);
-goog.exportProperty(ee.Geometry.prototype, 'encode',
-                    ee.Geometry.prototype.encode);
-goog.exportProperty(ee.Geometry.prototype, 'serialize',
-                    ee.Geometry.prototype.serialize);
 goog.exportProperty(ee.Geometry.prototype, 'toGeoJSON',
                     ee.Geometry.prototype.toGeoJSON);
 goog.exportProperty(ee.Geometry.prototype, 'toGeoJSONString',
