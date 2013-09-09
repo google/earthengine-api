@@ -7,6 +7,7 @@ goog.provide('ee.Serializer');
 
 goog.require('ee.Encodable');
 goog.require('goog.array');
+goog.require('goog.crypt.Md5');
 goog.require('goog.json.Serializer');
 goog.require('goog.object');
 
@@ -21,6 +22,11 @@ goog.require('goog.object');
  * @hidden
  */
 ee.Serializer = function(opt_isCompound) {
+  /**
+   * The name of the hash key we insert into objects.
+   */
+  this.HASH_KEY = '__ee_hash__';
+
   /**
    * Whether the encoding should factor out shared subtrees.
    *
@@ -49,14 +55,26 @@ ee.Serializer = function(opt_isCompound) {
 
 
 /**
+ * A JSON serializer instance for this class
+ * @private
+ */
+ee.Serializer.jsonSerializer_ = new goog.json.Serializer();
+
+/**
+ * A hash instance for this class
+ * @private
+ */
+ee.Serializer.hash_ = new goog.crypt.Md5();
+
+
+/**
  * Serialize an object to a JSON string appropriate for API calls.
  * @param {*} obj The object to Serialize.
  * @return {string} A JSON represenation of the input.
  */
 ee.Serializer.toJSON = function(obj) {
   var eeSerializer = new ee.Serializer(true);
-  var jsonSerializer = new goog.json.Serializer();
-  return jsonSerializer.serialize(eeSerializer.encode_(obj));
+  return ee.Serializer.jsonSerializer_.serialize(eeSerializer.encode_(obj));
 };
 
 
@@ -73,8 +91,7 @@ ee.Serializer.toReadableJSON = function(obj) {
     return window['JSON']['stringify'](encoded, null, '  ');
   } else {
     // Fall back to the non-pretty Closure serializer.
-    var jsonSerializer = new goog.json.Serializer();
-    return jsonSerializer.serialize(encoded);
+    return ee.Serializer.jsonSerializer_.serialize(encoded);
   }
 };
 
@@ -123,20 +140,21 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     throw Error('Can\'t encode an undefined value.');
   }
 
-  var id = goog.isObject(object) ? goog.getUid(object) : null;
-  var encoded = this.isCompound_ ? this.encoded_[id] : undefined;
   var result;
 
-  if (goog.isDef(encoded)) {
-    // Already encoded objects are encoded as ValueRefs and returned directly.
+  var hash = goog.isObject(object) ? object[this.HASH_KEY] : null;
+  if (this.isCompound_ && hash != null && this.encoded_[hash]) {
+    // Any object that's already been encoded should have a hash on it.
+    // If we find one and it's in the map of encoded values,
+    // return a value ref instead.
     return {
-      'type': 'ValueRef',
-      'value': encoded
+       'type': 'ValueRef',
+       'value': this.encoded_[hash]
     };
   } else if (object === null ||
-             goog.isBoolean(object) ||
-             goog.isNumber(object) ||
-             goog.isString(object)) {
+      goog.isBoolean(object) ||
+      goog.isNumber(object) ||
+      goog.isString(object)) {
     // Primitives are encoded as is and not saved in the scope.
     return object;
   } else if (goog.isDateLike(object)) {
@@ -166,8 +184,8 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
         return this.encodeValue_(element);
       }
     }, this);
-    // Note that the ID introduced by goog.getUid() needs to be removed.
-    goog.removeUid(encodedObject);
+    // Remove any hash values introduced by encoding.
+    goog.object.remove(encodedObject, this.HASH_KEY);
     result = {
       'type': 'Dictionary',
       'value': encodedObject
@@ -177,10 +195,19 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
   }
 
   if (this.isCompound_) {
-    // Save the new object and return a ValueRef.
-    var name = String(this.scope_.length);
-    this.scope_.push([name, result]);
-    this.encoded_[id] = name;
+    ee.Serializer.hash_.reset();
+    ee.Serializer.hash_.update(ee.Serializer.jsonSerializer_.serialize(result));
+    hash = ee.Serializer.hash_.digest();
+    var name;
+    if (this.encoded_[hash]) {
+      name = this.encoded_[hash];
+    } else {
+      // We haven't seen this object or one like it yet, save it.
+      name = String(this.scope_.length);
+      this.scope_.push([name, result]);
+      this.encoded_[hash] = name;
+    }
+    object[this.HASH_KEY] = hash;
     return {
       'type': 'ValueRef',
       'value': name

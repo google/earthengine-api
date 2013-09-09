@@ -133,8 +133,9 @@ ee.TILE_SIZE = 256;
 ee.generatedClasses_ = [];
 
 /**
- * A dictionary of algorithms that are not bound to a specific class.
- * @type {Object.<Function>}
+ * A dictionary of algorithms that are not bound to a specific class. Can
+ * contain nested namespaces (e.g. ee.Algorithms.Landsat.SimpleComposite).
+ * @type {Object.<Object|Function>}
  */
 ee.Algorithms = {};
 

@@ -75,7 +75,7 @@ ee.String.reset = function() {
 /**
  * @param {function(*): *} encoder A function that can be called to encode
  *    the components of an object.
- * @return {string|Object} A representation of the string.
+ * @return {*} A representation of the string.
  */
 ee.String.prototype.encode = function(encoder) {
   if (goog.isString(this.string_)) {

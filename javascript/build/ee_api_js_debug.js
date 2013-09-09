@@ -678,6 +678,8 @@ goog.debug.Error = function(opt_msg) {
 };
 goog.inherits(goog.debug.Error, Error);
 goog.debug.Error.prototype.name = "CustomError";
+goog.dom = {};
+goog.dom.NodeType = {ELEMENT:1, ATTRIBUTE:2, TEXT:3, CDATA_SECTION:4, ENTITY_REFERENCE:5, ENTITY:6, PROCESSING_INSTRUCTION:7, COMMENT:8, DOCUMENT:9, DOCUMENT_TYPE:10, DOCUMENT_FRAGMENT:11, NOTATION:12};
 goog.string = {};
 goog.string.Unicode = {NBSP:"\u00a0"};
 goog.string.startsWith = function(str, prefix) {
@@ -1080,6 +1082,10 @@ goog.asserts.assertArray = function(value, opt_message, var_args) {
 };
 goog.asserts.assertBoolean = function(value, opt_message, var_args) {
   goog.asserts.ENABLE_ASSERTS && !goog.isBoolean(value) && goog.asserts.doAssertFailure_("Expected boolean but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
+  return value
+};
+goog.asserts.assertElement = function(value, opt_message, var_args) {
+  !goog.asserts.ENABLE_ASSERTS || goog.isObject(value) && value.nodeType == goog.dom.NodeType.ELEMENT || goog.asserts.doAssertFailure_("Expected Element but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
   return value
 };
 goog.asserts.assertInstanceof = function(value, type, opt_message, var_args) {
@@ -4408,7 +4414,8 @@ ee.data.getTaskStatus = function(task_id, opt_callback) {
       throw Error("Invalid task_id: expected a string or an array of strings.");
     }
   }
-  return ee.data.send_("/taskstatus?q=" + task_id.join(), null, opt_callback, "GET")
+  var url = "/taskstatus?q=" + task_id.join();
+  return ee.data.send_(url, null, opt_callback, "GET")
 };
 ee.data.prepareValue = function(task_id, params, opt_callback) {
   params.tid = task_id;
@@ -4598,17 +4605,114 @@ goog.functions.cacheReturnValue = function(fn) {
 };
 ee.Encodable = function() {
 };
+goog.crypt = {};
+goog.crypt.Hash = function() {
+};
+goog.crypt.Md5 = function() {
+  this.chain_ = Array(4);
+  this.block_ = Array(64);
+  this.totalLength_ = this.blockLength_ = 0;
+  this.reset()
+};
+goog.inherits(goog.crypt.Md5, goog.crypt.Hash);
+goog.crypt.Md5.prototype.reset = function() {
+  this.chain_[0] = 1732584193;
+  this.chain_[1] = 4023233417;
+  this.chain_[2] = 2562383102;
+  this.chain_[3] = 271733878;
+  this.totalLength_ = this.blockLength_ = 0
+};
+goog.crypt.Md5.prototype.compress_ = function(buf, opt_offset) {
+  opt_offset || (opt_offset = 0);
+  var X = Array(16);
+  if(goog.isString(buf)) {
+    for(var i = 0;16 > i;++i) {
+      X[i] = buf.charCodeAt(opt_offset++) | buf.charCodeAt(opt_offset++) << 8 | buf.charCodeAt(opt_offset++) << 16 | buf.charCodeAt(opt_offset++) << 24
+    }
+  }else {
+    for(i = 0;16 > i;++i) {
+      X[i] = buf[opt_offset++] | buf[opt_offset++] << 8 | buf[opt_offset++] << 16 | buf[opt_offset++] << 24
+    }
+  }
+  var A = this.chain_[0], B = this.chain_[1], C = this.chain_[2], D = this.chain_[3], sum = 0, sum = A + (D ^ B & (C ^ D)) + X[0] + 3614090360 & 4294967295, A = B + (sum << 7 & 4294967295 | sum >>> 25), sum = D + (C ^ A & (B ^ C)) + X[1] + 3905402710 & 4294967295, D = A + (sum << 12 & 4294967295 | sum >>> 20), sum = C + (B ^ D & (A ^ B)) + X[2] + 606105819 & 4294967295, C = D + (sum << 17 & 4294967295 | sum >>> 15), sum = B + (A ^ C & (D ^ A)) + X[3] + 3250441966 & 4294967295, B = C + (sum << 22 & 
+  4294967295 | sum >>> 10), sum = A + (D ^ B & (C ^ D)) + X[4] + 4118548399 & 4294967295, A = B + (sum << 7 & 4294967295 | sum >>> 25), sum = D + (C ^ A & (B ^ C)) + X[5] + 1200080426 & 4294967295, D = A + (sum << 12 & 4294967295 | sum >>> 20), sum = C + (B ^ D & (A ^ B)) + X[6] + 2821735955 & 4294967295, C = D + (sum << 17 & 4294967295 | sum >>> 15), sum = B + (A ^ C & (D ^ A)) + X[7] + 4249261313 & 4294967295, B = C + (sum << 22 & 4294967295 | sum >>> 10), sum = A + (D ^ B & (C ^ D)) + X[8] + 1770035416 & 
+  4294967295, A = B + (sum << 7 & 4294967295 | sum >>> 25), sum = D + (C ^ A & (B ^ C)) + X[9] + 2336552879 & 4294967295, D = A + (sum << 12 & 4294967295 | sum >>> 20), sum = C + (B ^ D & (A ^ B)) + X[10] + 4294925233 & 4294967295, C = D + (sum << 17 & 4294967295 | sum >>> 15), sum = B + (A ^ C & (D ^ A)) + X[11] + 2304563134 & 4294967295, B = C + (sum << 22 & 4294967295 | sum >>> 10), sum = A + (D ^ B & (C ^ D)) + X[12] + 1804603682 & 4294967295, A = B + (sum << 7 & 4294967295 | sum >>> 25), sum = 
+  D + (C ^ A & (B ^ C)) + X[13] + 4254626195 & 4294967295, D = A + (sum << 12 & 4294967295 | sum >>> 20), sum = C + (B ^ D & (A ^ B)) + X[14] + 2792965006 & 4294967295, C = D + (sum << 17 & 4294967295 | sum >>> 15), sum = B + (A ^ C & (D ^ A)) + X[15] + 1236535329 & 4294967295, B = C + (sum << 22 & 4294967295 | sum >>> 10), sum = A + (C ^ D & (B ^ C)) + X[1] + 4129170786 & 4294967295, A = B + (sum << 5 & 4294967295 | sum >>> 27), sum = D + (B ^ C & (A ^ B)) + X[6] + 3225465664 & 4294967295, D = A + 
+  (sum << 9 & 4294967295 | sum >>> 23), sum = C + (A ^ B & (D ^ A)) + X[11] + 643717713 & 4294967295, C = D + (sum << 14 & 4294967295 | sum >>> 18), sum = B + (D ^ A & (C ^ D)) + X[0] + 3921069994 & 4294967295, B = C + (sum << 20 & 4294967295 | sum >>> 12), sum = A + (C ^ D & (B ^ C)) + X[5] + 3593408605 & 4294967295, A = B + (sum << 5 & 4294967295 | sum >>> 27), sum = D + (B ^ C & (A ^ B)) + X[10] + 38016083 & 4294967295, D = A + (sum << 9 & 4294967295 | sum >>> 23), sum = C + (A ^ B & (D ^ A)) + 
+  X[15] + 3634488961 & 4294967295, C = D + (sum << 14 & 4294967295 | sum >>> 18), sum = B + (D ^ A & (C ^ D)) + X[4] + 3889429448 & 4294967295, B = C + (sum << 20 & 4294967295 | sum >>> 12), sum = A + (C ^ D & (B ^ C)) + X[9] + 568446438 & 4294967295, A = B + (sum << 5 & 4294967295 | sum >>> 27), sum = D + (B ^ C & (A ^ B)) + X[14] + 3275163606 & 4294967295, D = A + (sum << 9 & 4294967295 | sum >>> 23), sum = C + (A ^ B & (D ^ A)) + X[3] + 4107603335 & 4294967295, C = D + (sum << 14 & 4294967295 | 
+  sum >>> 18), sum = B + (D ^ A & (C ^ D)) + X[8] + 1163531501 & 4294967295, B = C + (sum << 20 & 4294967295 | sum >>> 12), sum = A + (C ^ D & (B ^ C)) + X[13] + 2850285829 & 4294967295, A = B + (sum << 5 & 4294967295 | sum >>> 27), sum = D + (B ^ C & (A ^ B)) + X[2] + 4243563512 & 4294967295, D = A + (sum << 9 & 4294967295 | sum >>> 23), sum = C + (A ^ B & (D ^ A)) + X[7] + 1735328473 & 4294967295, C = D + (sum << 14 & 4294967295 | sum >>> 18), sum = B + (D ^ A & (C ^ D)) + X[12] + 2368359562 & 
+  4294967295, B = C + (sum << 20 & 4294967295 | sum >>> 12), sum = A + (B ^ C ^ D) + X[5] + 4294588738 & 4294967295, A = B + (sum << 4 & 4294967295 | sum >>> 28), sum = D + (A ^ B ^ C) + X[8] + 2272392833 & 4294967295, D = A + (sum << 11 & 4294967295 | sum >>> 21), sum = C + (D ^ A ^ B) + X[11] + 1839030562 & 4294967295, C = D + (sum << 16 & 4294967295 | sum >>> 16), sum = B + (C ^ D ^ A) + X[14] + 4259657740 & 4294967295, B = C + (sum << 23 & 4294967295 | sum >>> 9), sum = A + (B ^ C ^ D) + X[1] + 
+  2763975236 & 4294967295, A = B + (sum << 4 & 4294967295 | sum >>> 28), sum = D + (A ^ B ^ C) + X[4] + 1272893353 & 4294967295, D = A + (sum << 11 & 4294967295 | sum >>> 21), sum = C + (D ^ A ^ B) + X[7] + 4139469664 & 4294967295, C = D + (sum << 16 & 4294967295 | sum >>> 16), sum = B + (C ^ D ^ A) + X[10] + 3200236656 & 4294967295, B = C + (sum << 23 & 4294967295 | sum >>> 9), sum = A + (B ^ C ^ D) + X[13] + 681279174 & 4294967295, A = B + (sum << 4 & 4294967295 | sum >>> 28), sum = D + (A ^ B ^ 
+  C) + X[0] + 3936430074 & 4294967295, D = A + (sum << 11 & 4294967295 | sum >>> 21), sum = C + (D ^ A ^ B) + X[3] + 3572445317 & 4294967295, C = D + (sum << 16 & 4294967295 | sum >>> 16), sum = B + (C ^ D ^ A) + X[6] + 76029189 & 4294967295, B = C + (sum << 23 & 4294967295 | sum >>> 9), sum = A + (B ^ C ^ D) + X[9] + 3654602809 & 4294967295, A = B + (sum << 4 & 4294967295 | sum >>> 28), sum = D + (A ^ B ^ C) + X[12] + 3873151461 & 4294967295, D = A + (sum << 11 & 4294967295 | sum >>> 21), sum = 
+  C + (D ^ A ^ B) + X[15] + 530742520 & 4294967295, C = D + (sum << 16 & 4294967295 | sum >>> 16), sum = B + (C ^ D ^ A) + X[2] + 3299628645 & 4294967295, B = C + (sum << 23 & 4294967295 | sum >>> 9), sum = A + (C ^ (B | ~D)) + X[0] + 4096336452 & 4294967295, A = B + (sum << 6 & 4294967295 | sum >>> 26), sum = D + (B ^ (A | ~C)) + X[7] + 1126891415 & 4294967295, D = A + (sum << 10 & 4294967295 | sum >>> 22), sum = C + (A ^ (D | ~B)) + X[14] + 2878612391 & 4294967295, C = D + (sum << 15 & 4294967295 | 
+  sum >>> 17), sum = B + (D ^ (C | ~A)) + X[5] + 4237533241 & 4294967295, B = C + (sum << 21 & 4294967295 | sum >>> 11), sum = A + (C ^ (B | ~D)) + X[12] + 1700485571 & 4294967295, A = B + (sum << 6 & 4294967295 | sum >>> 26), sum = D + (B ^ (A | ~C)) + X[3] + 2399980690 & 4294967295, D = A + (sum << 10 & 4294967295 | sum >>> 22), sum = C + (A ^ (D | ~B)) + X[10] + 4293915773 & 4294967295, C = D + (sum << 15 & 4294967295 | sum >>> 17), sum = B + (D ^ (C | ~A)) + X[1] + 2240044497 & 4294967295, B = 
+  C + (sum << 21 & 4294967295 | sum >>> 11), sum = A + (C ^ (B | ~D)) + X[8] + 1873313359 & 4294967295, A = B + (sum << 6 & 4294967295 | sum >>> 26), sum = D + (B ^ (A | ~C)) + X[15] + 4264355552 & 4294967295, D = A + (sum << 10 & 4294967295 | sum >>> 22), sum = C + (A ^ (D | ~B)) + X[6] + 2734768916 & 4294967295, C = D + (sum << 15 & 4294967295 | sum >>> 17), sum = B + (D ^ (C | ~A)) + X[13] + 1309151649 & 4294967295, B = C + (sum << 21 & 4294967295 | sum >>> 11), sum = A + (C ^ (B | ~D)) + X[4] + 
+  4149444226 & 4294967295, A = B + (sum << 6 & 4294967295 | sum >>> 26), sum = D + (B ^ (A | ~C)) + X[11] + 3174756917 & 4294967295, D = A + (sum << 10 & 4294967295 | sum >>> 22), sum = C + (A ^ (D | ~B)) + X[2] + 718787259 & 4294967295, C = D + (sum << 15 & 4294967295 | sum >>> 17), sum = B + (D ^ (C | ~A)) + X[9] + 3951481745 & 4294967295;
+  this.chain_[0] = this.chain_[0] + A & 4294967295;
+  this.chain_[1] = this.chain_[1] + (C + (sum << 21 & 4294967295 | sum >>> 11)) & 4294967295;
+  this.chain_[2] = this.chain_[2] + C & 4294967295;
+  this.chain_[3] = this.chain_[3] + D & 4294967295
+};
+goog.crypt.Md5.prototype.update = function(bytes, opt_length) {
+  goog.isDef(opt_length) || (opt_length = bytes.length);
+  for(var lengthMinusBlock = opt_length - 64, block = this.block_, blockLength = this.blockLength_, i = 0;i < opt_length;) {
+    if(0 == blockLength) {
+      for(;i <= lengthMinusBlock;) {
+        this.compress_(bytes, i), i += 64
+      }
+    }
+    if(goog.isString(bytes)) {
+      for(;i < opt_length;) {
+        if(block[blockLength++] = bytes.charCodeAt(i++), 64 == blockLength) {
+          this.compress_(block);
+          blockLength = 0;
+          break
+        }
+      }
+    }else {
+      for(;i < opt_length;) {
+        if(block[blockLength++] = bytes[i++], 64 == blockLength) {
+          this.compress_(block);
+          blockLength = 0;
+          break
+        }
+      }
+    }
+  }
+  this.blockLength_ = blockLength;
+  this.totalLength_ += opt_length
+};
+goog.crypt.Md5.prototype.digest = function() {
+  var pad = Array((56 > this.blockLength_ ? 64 : 128) - this.blockLength_);
+  pad[0] = 128;
+  for(var i = 1;i < pad.length - 8;++i) {
+    pad[i] = 0
+  }
+  for(var totalBits = 8 * this.totalLength_, i = pad.length - 8;i < pad.length;++i) {
+    pad[i] = totalBits & 255, totalBits /= 256
+  }
+  this.update(pad);
+  for(var digest = Array(16), n = 0, i = 0;4 > i;++i) {
+    for(var j = 0;32 > j;j += 8) {
+      digest[n++] = this.chain_[i] >>> j & 255
+    }
+  }
+  return digest
+};
 ee.Serializer = function(opt_isCompound) {
+  this.HASH_KEY = "__ee_hash__";
   this.isCompound_ = !1 !== opt_isCompound;
   this.scope_ = [];
   this.encoded_ = {}
 };
+ee.Serializer.jsonSerializer_ = new goog.json.Serializer;
+ee.Serializer.hash_ = new goog.crypt.Md5;
 ee.Serializer.toJSON = function(obj) {
-  return(new goog.json.Serializer).serialize((new ee.Serializer(!0)).encode_(obj))
+  return ee.Serializer.jsonSerializer_.serialize((new ee.Serializer(!0)).encode_(obj))
 };
 ee.Serializer.toReadableJSON = function(obj) {
   var encoded = (new ee.Serializer(!1)).encode_(obj);
-  return"JSON" in window ? window.JSON.stringify(encoded, null, "  ") : (new goog.json.Serializer).serialize(encoded)
+  return"JSON" in window ? window.JSON.stringify(encoded, null, "  ") : ee.Serializer.jsonSerializer_.serialize(encoded)
 };
 ee.Serializer.prototype.encode_ = function(object) {
   var value = this.encodeValue_(object);
@@ -4619,9 +4723,9 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
   if(!goog.isDef(object)) {
     throw Error("Can't encode an undefined value.");
   }
-  var id = goog.isObject(object) ? goog.getUid(object) : null, encoded = this.isCompound_ ? this.encoded_[id] : void 0, result;
-  if(goog.isDef(encoded)) {
-    return{type:"ValueRef", value:encoded}
+  var result, hash = goog.isObject(object) ? object[this.HASH_KEY] : null;
+  if(this.isCompound_ && null != hash && this.encoded_[hash]) {
+    return{type:"ValueRef", value:this.encoded_[hash]}
   }
   if(null === object || goog.isBoolean(object) || goog.isNumber(object) || goog.isString(object)) {
     return object
@@ -4645,7 +4749,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
             return this.encodeValue_(element)
           }
         }, this);
-        goog.removeUid(encodedObject);
+        goog.object.remove(encodedObject, this.HASH_KEY);
         result = {type:"Dictionary", value:encodedObject}
       }else {
         throw Error("Can't encode object: " + object);
@@ -4653,9 +4757,11 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     }
   }
   if(this.isCompound_) {
-    var name = String(this.scope_.length);
-    this.scope_.push([name, result]);
-    this.encoded_[id] = name;
+    ee.Serializer.hash_.reset();
+    ee.Serializer.hash_.update(ee.Serializer.jsonSerializer_.serialize(result));
+    var hash = ee.Serializer.hash_.digest(), name;
+    this.encoded_[hash] ? name = this.encoded_[hash] : (name = String(this.scope_.length), this.scope_.push([name, result]), this.encoded_[hash] = name);
+    object[this.HASH_KEY] = hash;
     return{type:"ValueRef", value:name}
   }
   return result
@@ -5370,6 +5476,9 @@ ee.Geometry.MultiPolygon = function(coordinates) {
 goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
 ee.Geometry.prototype.encode = function(opt_encoder) {
   if(this.func) {
+    if(!opt_encoder) {
+      throw Error("Must specify an encode function when encoding a computed geometry.");
+    }
     return ee.ComputedObject.prototype.encode.call(this, opt_encoder)
   }
   var result = {type:this.type_};
@@ -5614,8 +5723,8 @@ ee.Image = function(args) {
   }
   ee.Image.initialize();
   var argCount = arguments.length;
-  if(0 == argCount) {
-    ee.ComputedObject.call(this, new ee.ApiFunction("Image.mask"), {image:ee.Image(0), mask:ee.Image(0)})
+  if(0 == argCount || 1 == argCount && !goog.isDef(args)) {
+    ee.ComputedObject.call(this, new ee.ApiFunction("Image.mask"), {image:new ee.Image(0), mask:new ee.Image(0)})
   }else {
     if(1 == argCount) {
       if(ee.Types.isNumber(args)) {

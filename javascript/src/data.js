@@ -64,8 +64,9 @@ ee.data.DEFAULT_TILE_BASE_URL_ = 'https://earthengine.googleapis.com';
 /**
  * Initializes the data module, setting base URLs.
  *
- * @param {string=} opt_apiBaseUrl The (proxied) EarthEngine REST API endpoint.
- * @param {string=} opt_tileBaseUrl The (unproxied) EarthEngine REST tile
+ * @param {string|null=} opt_apiBaseUrl The (proxied) EarthEngine REST API
+ *     endpoint.
+ * @param {string|null=} opt_tileBaseUrl The (unproxied) EarthEngine REST tile
  *     endpoint.
  * @hidden
  */
@@ -231,7 +232,7 @@ ee.data.getValue = function(params, opt_callback) {
  *       - format (string) Either 'png' (default) or 'jpg'.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
- * @return {Object} The thumb call results, usually an image.
+ * @return {{thumbid: string, token: string}} The thumb ID and token.
  */
 ee.data.getThumbId = function(params, opt_callback) {
   params['json_format'] = 'v2';
@@ -239,7 +240,8 @@ ee.data.getThumbId = function(params, opt_callback) {
     params['size'] = params['size'].join('x');
   }
   var request = ee.data.makeRequest_(params).add('getid', '1');
-  return ee.data.send_('/thumb', request, opt_callback);
+  return /** @type {{thumbid: string, token: string}} */(
+      ee.data.send_('/thumb', request, opt_callback));
 };
 
 
@@ -356,9 +358,8 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
   if (goog.isNumber(opt_count)) {
     params['count'] = opt_count;
   }
-  return ee.data.send_('/newtaskid',
-                       ee.data.makeRequest_(params),
-                       opt_callback);
+  return /** @type {Array} */ (
+    ee.data.send_('/newtaskid', ee.data.makeRequest_(params), opt_callback));
 };
 
 
@@ -386,10 +387,8 @@ ee.data.getTaskStatus = function(task_id, opt_callback) {
     throw new Error('Invalid task_id: expected a string or ' +
         'an array of strings.');
   }
-  return ee.data.send_('/taskstatus?q=' + task_id.join(),
-                       null,
-                       opt_callback,
-                       'GET');
+  var url = '/taskstatus?q=' + task_id.join();
+  return /** @type {Array} */ (ee.data.send_(url, null, opt_callback, 'GET'));
 };
 
 

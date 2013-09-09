@@ -8,6 +8,7 @@
 import datetime
 import json
 import math
+import md5
 import numbers
 
 import ee_exception
@@ -34,9 +35,11 @@ class Serializer(object):
     # A list of shared subtrees as [name, value] pairs.
     self._scope = []
 
-    # A lookup table from object ID as retrieved by id() to subtree
-    # names as stored in self._scope.
+    # A lookup table from object hash to subtree names as stored in self._scope
     self._encoded = {}
+
+    # A lookup table from object ID as retrieved by id() to md5 hash values.
+    self._hashcache = {}
 
   def _encode(self, obj):
     """Encodes a top level object in the EE API v2 (DAG) format.
@@ -64,6 +67,7 @@ class Serializer(object):
       # Clear state in case of future encoding.
       self._scope = []
       self._encoded = {}
+      self._hashcache = {}
     return value
 
   def _encodeValue(self, obj):
@@ -78,9 +82,9 @@ class Serializer(object):
       An encoded object.
     """
     obj_id = id(obj)
-    encoded = self._encoded.get(obj_id, None)
-
-    if encoded is not None:
+    hashval = self._hashcache.get(obj_id)
+    encoded = self._encoded.get(hashval, None)
+    if self._is_compound and encoded:
       # Already encoded objects are encoded as ValueRefs and returned directly.
       return {
           'type': 'ValueRef',
@@ -120,9 +124,13 @@ class Serializer(object):
 
     if self._is_compound:
       # Save the new object and return a ValueRef.
-      name = str(len(self._scope))
-      self._scope.append((name, result))
-      self._encoded[obj_id] = name
+      hashval = md5.new(json.dumps(result)).digest()
+      self._hashcache[obj_id] = hashval
+      name = self._encoded.get(hashval, None)
+      if not name:
+        name = str(len(self._scope))
+        self._scope.append((name, result))
+        self._encoded[hashval] = name
       return {
           'type': 'ValueRef',
           'value': name

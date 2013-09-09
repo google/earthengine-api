@@ -103,7 +103,7 @@ ee.ApiFunction.api_ = null;
  * A set of algorithm names containing all algorithms that have been bound to
  * a function so far using importApi().
  *
- * @type {Object.<string>}
+ * @type {Object.<boolean>}
  * @private
  * @hidden
  */

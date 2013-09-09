@@ -42,10 +42,10 @@ ee.Image = function(args) {
   ee.Image.initialize();
 
   var argCount = arguments.length;
-  if (argCount == 0) {
+  if (argCount == 0 || (argCount == 1 && !goog.isDef(args))) {
     goog.base(this, new ee.ApiFunction('Image.mask'), {
-      'image': ee.Image(0),
-      'mask': ee.Image(0)
+      'image': new ee.Image(0),
+      'mask': new ee.Image(0)
     });
   } else if (argCount == 1) {
     if (ee.Types.isNumber(args)) {
@@ -342,7 +342,11 @@ ee.Image.prototype.expression = function(expression, opt_map) {
   func.encode = function(encoder) {
     return body.encode(encoder);
   };
-  func.getSignature = function(encoder) {
+  /**
+   * @this {ee.Function}
+   * @return {ee.Function.Signature}
+   */
+  func.getSignature = function() {
     return {
       'name': '',
       'args': goog.array.map(argNames, function(name) {

@@ -53,7 +53,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
 
   // Below here, we're working with a GeoJSON literal.
   if (geoJson instanceof ee.Geometry) {
-    geoJson = geoJson.encode();
+    geoJson = /** @type {Object} */(geoJson.encode());
   }
 
   if (arguments.length > 3) {
@@ -188,8 +188,7 @@ ee.Geometry.MultiPoint = function(coordinates) {
   }
   goog.base(this, {
     'type': 'MultiPoint',
-    'coordinates': ee.Geometry.makeGeometry_(
-        coordinates, 2, /** @type {!Array.<number>} */ (arguments))
+    'coordinates': ee.Geometry.makeGeometry_(coordinates, 2, arguments)
   });
 };
 goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
@@ -247,8 +246,7 @@ ee.Geometry.LineString = function(coordinates) {
   }
   goog.base(this, {
     'type': 'LineString',
-    'coordinates': ee.Geometry.makeGeometry_(
-        coordinates, 2, /** @type {!Array.<number>} */ (arguments))
+    'coordinates': ee.Geometry.makeGeometry_(coordinates, 2, arguments)
   });
 };
 goog.inherits(ee.Geometry.LineString, ee.Geometry);
@@ -270,8 +268,7 @@ ee.Geometry.LinearRing = function(coordinates) {
   }
   goog.base(this, {
     'type': 'LinearRing',
-    'coordinates': ee.Geometry.makeGeometry_(
-        coordinates, 2, /** @type {!Array.<number>} */ (arguments))
+    'coordinates': ee.Geometry.makeGeometry_(coordinates, 2, arguments)
   });
 };
 goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
@@ -297,8 +294,7 @@ ee.Geometry.MultiLineString = function(coordinates) {
   }
   goog.base(this, {
     'type': 'MultiLineString',
-    'coordinates': ee.Geometry.makeGeometry_(
-        coordinates, 3, /** @type {!Array.<number>} */ (arguments))
+    'coordinates': ee.Geometry.makeGeometry_(coordinates, 3, arguments)
   });
 };
 goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
@@ -325,8 +321,7 @@ ee.Geometry.Polygon = function(coordinates) {
   }
   goog.base(this, {
     'type': 'Polygon',
-    'coordinates': ee.Geometry.makeGeometry_(
-        coordinates, 3, /** @type {!Array.<number>} */ (arguments))
+    'coordinates': ee.Geometry.makeGeometry_(coordinates, 3, arguments)
   });
 };
 goog.inherits(ee.Geometry.Polygon, ee.Geometry);
@@ -353,8 +348,7 @@ ee.Geometry.MultiPolygon = function(coordinates) {
   }
   goog.base(this, {
     'type': 'MultiPolygon',
-    'coordinates': ee.Geometry.makeGeometry_(
-        coordinates, 4, /** @type {!Array.<number>} */ (arguments))
+    'coordinates': ee.Geometry.makeGeometry_(coordinates, 4, arguments)
   });
 };
 goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
@@ -363,10 +357,14 @@ goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
 /**
  * @param {function(*): *=} opt_encoder A function that can be called to encode
  *    the components of an object.
- * @return {Object} A GeoJSON-compatible representation of the geometry.
+ * @return {*} A GeoJSON-compatible representation of the geometry.
  */
 ee.Geometry.prototype.encode = function(opt_encoder) {
   if (this.func) {
+    if (!opt_encoder) {
+      throw Error('Must specify an encode function when encoding a ' +
+                  'computed geometry.');
+    }
     return ee.ComputedObject.prototype.encode.call(this, opt_encoder);
   }
 
@@ -402,7 +400,7 @@ ee.Geometry.prototype.toGeoJSON = function() {
     throw new Error('Can\'t convert a computed Geometry to GeoJSON.  ' +
                     'Use getInfo() instead.');
   }
-  return this.encode();
+  return /** @type {Object} */(this.encode());
 };
 
 
@@ -529,8 +527,8 @@ ee.Geometry.coordinatesToLine_ = function(coordinates) {
  *
  * @param {number|!Array.<*>} geometry The geometry to check.
  * @param {number} nesting The expected level of array nesting.
- * @param {Array.<number>=} opt_coordinates A list of coordinates to decode
- *     from the calling function's arguments parameter.
+ * @param {goog.array.ArrayLike=} opt_coordinates A list of coordinates to
+ *     decode from the calling function's arguments parameter.
  * @return {!Array.<*>} The processed geometry.
  * @private
  */
@@ -542,8 +540,7 @@ ee.Geometry.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
   // Handle a list of points.
   if (!goog.isArray(geometry) && opt_coordinates) {
     geometry = ee.Geometry.coordinatesToLine_(
-        Array.prototype.slice.call(
-            /** @type {goog.array.ArrayLike} */ (opt_coordinates)));
+        Array.prototype.slice.call(opt_coordinates));
   }
 
   // Make sure the number of nesting levels is correct.
@@ -568,7 +565,7 @@ ee.Geometry.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
 
 /**
  * Creates an instance of an object given a constructor and a set of arguments.
- * @param {function(this:T, ?): T} klass The class constructor.
+ * @param {function(this:T, ...[?]): T} klass The class constructor.
  * @param {Arguments} args The arguments to pass to the constructor.
  * @return {T} The new instance.
  * @template T

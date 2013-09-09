@@ -18,6 +18,6 @@ goog.addDependency('../../geo/gestalt/client/javascript/function.js', ['ee.Funct
 goog.addDependency('../../geo/gestalt/client/javascript/geometry.js', ['ee.Geometry'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.Serializer', 'goog.json.Serializer']);
 goog.addDependency('../../geo/gestalt/client/javascript/image.js', ['ee.Image'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.CustomFunction', 'ee.Geometry', 'ee.Types', 'ee.data', 'goog.array', 'goog.object']);
 goog.addDependency('../../geo/gestalt/client/javascript/imagecollection.js', ['ee.ImageCollection'], ['ee.ApiFunction', 'ee.Collection', 'ee.ComputedObject', 'ee.Image', 'ee.Types', 'goog.array']);
-goog.addDependency('../../geo/gestalt/client/javascript/serializer.js', ['ee.Serializer'], ['ee.Encodable', 'goog.array', 'goog.json.Serializer', 'goog.object']);
+goog.addDependency('../../geo/gestalt/client/javascript/serializer.js', ['ee.Serializer'], ['ee.Encodable', 'goog.array', 'goog.crypt.Md5', 'goog.json.Serializer', 'goog.object']);
 goog.addDependency('../../geo/gestalt/client/javascript/string.js', ['ee.String'], ['ee.ApiFunction', 'ee.ComputedObject', 'goog.array', 'goog.string']);
 goog.addDependency('../../geo/gestalt/client/javascript/types.js', ['ee.Types'], ['ee.ComputedObject', 'ee.Encodable']);

@@ -220,7 +220,7 @@ ee.Collection.prototype.name = function() {
 /**
  * Maps an algorithm over a collection. @see ee.Collection.map() for details.
  *
- * @param {function(new:Object, ?): Object} type The collection elements' type.
+ * @param {function(new:Object, ...[?])} type The collection elements' type.
  * @param {string|Object|function(*):Object} algorithm
  * @param {Object.<string,*>?=} opt_dynamicArgs
  * @param {Object.<string,*>?=} opt_constantArgs

@@ -19,6 +19,6 @@ ee.Encodable = function() {};
  * Encodes the object in a format compatible with ee.Serializer.
  * @param {function(*): *} encoder A function that can be called to encode
  *    the components of an object.
- * @return {Object} The encoded form of the object.
+ * @return {*} The encoded form of the object.
  */
 ee.Encodable.prototype.encode = goog.abstractMethod;

@@ -131,6 +131,41 @@ class SerializerTest(apitestcase.ApiTestCase):
 
     self.assertEquals(EXPECTED_OUTPUT, json.loads(serializer.toJSON(to_encode)))
 
+  def testRepeats(self):
+    """Verifies serialization finds and removes repeated values."""
+    test1 = ee.Image(5).mask(ee.Image(5))     # pylint: disable-msg=no-member
+    expected1 = {
+        'type': 'CompoundValue',
+        'scope': [
+            ['0', {
+                'type': 'Invocation',
+                'arguments': {
+                    'value': 5
+                },
+                'functionName': 'Image.constant'
+            }],
+            ['1', {
+                'type': 'Invocation',
+                'arguments': {
+                    'image': {
+                        'type': 'ValueRef',
+                        'value': '0'
+                    },
+                    'mask': {
+                        'type': 'ValueRef',
+                        'value': '0'
+                    }
+                },
+                'functionName': 'Image.mask'
+            }]
+        ],
+        'value': {
+            'type': 'ValueRef',
+            'value': '1'
+        }
+    }
+    self.assertEquals(expected1, json.loads(serializer.toJSON(test1)))
+
 
 if __name__ == '__main__':
   unittest.main()
