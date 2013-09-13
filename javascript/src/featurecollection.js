@@ -41,8 +41,8 @@ ee.FeatureCollection = function(args, opt_column) {
 
   if (arguments.length > 2) {
     throw Error(
-      'The FeatureCollection constructor takes at most 2 arguments (' +
-      arguments.length + ' given)');
+        'The FeatureCollection constructor takes at most 2 arguments (' +
+        arguments.length + ' given)');
   }
 
   ee.FeatureCollection.initialize();
@@ -122,7 +122,7 @@ ee.FeatureCollection.reset = function() {
  *     one parameter, 'color', containing an RGB color string is allowed.  If
  *     vis_params isn't specified, then the color #000000 is used.
  * @param {function(Object, string=)=} opt_callback An async callback.
- * @return {ee.data.mapid} An object containing a mapid string, an access
+ * @return {ee.data.MapId} An object containing a mapid string, an access
  *     token, plus a Collection.draw image wrapping this collection.
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
@@ -136,6 +136,25 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   } else {
     return painted.getMap();
   }
+};
+
+
+/**
+ * An imperative function that returns all the known information about this
+ * collection via an AJAX call.
+ *
+ * @param {function(ee.data.FeatureCollectionDescription)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.FeatureCollectionDescription} A collection description
+ *     whose fields include:
+ *     - features: an array containing metadata about the features in the
+ *           collection.
+ *     - properties: an optional dictionary containing the collection's
+ *           metadata properties.
+ */
+ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
+  return /** @type {ee.data.FeatureCollectionDescription} */(
+      goog.base(this, 'getInfo', opt_callback));
 };
 
 

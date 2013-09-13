@@ -7,7 +7,7 @@ goog.provide('ee.Image');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
-goog.require('ee.CustomFunction');
+goog.require('ee.Function');
 goog.require('ee.Geometry');
 goog.require('ee.Types');
 goog.require('ee.data');
@@ -120,17 +120,17 @@ ee.Image.reset = function() {
 
 
 /**
- * An imperative function that returns information about this image via a
- * synchronous AJAX call.
+ * An imperative function that returns information about this image via an
+ * AJAX call.
  *
- * @param {function(Object)=} opt_callback An optional callback.  If not
- *     supplied, the call is made synchronously.
- * @return {Object|undefined} An object whose attributes vary but include:
+ * @param {function(ee.data.ImageDescription?)=} opt_callback An optional
+ *     callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.ImageDescription} A description of the image. Includes:
  *     - bands - an array containing metadata about the bands in the collection.
  *     - properties - a dictionary containing the image's metadata properties.
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
-  return /** @type {Object|undefined} */(
+  return /** @type {ee.data.ImageDescription} */(
       goog.base(this, 'getInfo', opt_callback));
 };
 
@@ -142,7 +142,7 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * @param {Object?=} opt_visParams The visualization parameters.
  *     See ee.data.getMapId.
  * @param {function(Object, string=)=} opt_callback An async callback.
- * @return {ee.data.mapid} An object containing a mapid string, an access token,
+ * @return {ee.data.MapId} An object containing a mapid string, an access token,
  *     plus this object, or an error message.
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
@@ -162,7 +162,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   } else {
     var response = ee.data.getMapId(request);
     response['image'] = this;
-    return response;
+    return /** @type {ee.data.MapId} */(response);
   }
 };
 

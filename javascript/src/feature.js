@@ -102,6 +102,20 @@ ee.Feature.reset = function() {
 
 
 /**
+ * An imperative function that returns information about this feature via an
+ * AJAX call.
+ *
+ * @param {function(ee.data.GeoJSONFeature?)=} opt_callback An optional
+ *     callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.GeoJSONFeature} A description of the feature.
+ */
+ee.Feature.prototype.getInfo = function(opt_callback) {
+  return /** @type {ee.data.GeoJSONFeature} */(
+      goog.base(this, 'getInfo', opt_callback));
+};
+
+
+/**
  * An imperative function that returns a map ID and token, suitable for
  * generating a Map overlay.
  *
@@ -109,7 +123,7 @@ ee.Feature.reset = function() {
  *     one parameter, 'color', containing an RGB color string is user.  If
  *     vis_params is null, black ("000000") is used.
  * @param {function(Object, string=)=} opt_callback An async callback.
- * @return {ee.data.mapid} An object containing a mapid string, an access
+ * @return {ee.data.MapId} An object containing a mapid string, an access
  *    token, plus a Collection.draw image wrapping a FeatureCollection
  *    containing this feature.
  */

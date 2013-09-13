@@ -110,7 +110,7 @@ ee.ImageCollection.reset = function() {
  *
  * @param {Object?=} opt_visParams The visualization parameters.
  * @param {function(Object, string=)=} opt_callback An async callback.
- * @return {ee.data.mapid} A mapid and token.
+ * @return {ee.data.MapId} A mapid and token.
  */
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   var mosaic = ee.ApiFunction._call('ImageCollection.mosaic', this);
@@ -120,6 +120,28 @@ ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
     return mosaic.getMap(opt_visParams);
   }
 };
+
+
+/**
+ * An imperative function that returns all the known information about this
+ * collection via an AJAX call.
+ *
+ * @param {function(ee.data.ImageCollectionDescription)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.ImageCollectionDescription} A collection description
+ *     whose fields include:
+ *     - features: an array containing metadata about the images in the
+ *           collection.
+ *     - bands: a dictionary describing the bands of the images in this
+ *           collection.
+ *     - properties: an optional dictionary containing the collection's
+ *           metadata properties.
+ */
+ee.ImageCollection.prototype.getInfo = function(opt_callback) {
+  return /** @type {ee.data.ImageCollectionDescription} */(
+      goog.base(this, 'getInfo', opt_callback));
+};
+
 
 /** @inheritDoc */
 ee.ImageCollection.prototype.map = function(

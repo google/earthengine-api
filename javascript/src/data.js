@@ -4,6 +4,23 @@
  */
 
 goog.provide('ee.data');
+goog.provide('ee.data.AlgorithmArgument');
+goog.provide('ee.data.AlgorithmSignature');
+goog.provide('ee.data.AlgorithmsRegistry');
+goog.provide('ee.data.BandDescription');
+goog.provide('ee.data.DownloadId');
+goog.provide('ee.data.FeatureCollectionDescription');
+goog.provide('ee.data.GeoJSONFeature');
+goog.provide('ee.data.GeoJSONGeometry');
+goog.provide('ee.data.ImageCollectionDescription');
+goog.provide('ee.data.ImageDescription');
+goog.provide('ee.data.ImageList');
+goog.provide('ee.data.MapId');
+goog.provide('ee.data.PixelTypeDescription');
+goog.provide('ee.data.ProcessingResponse');
+goog.provide('ee.data.RawMapId');
+goog.provide('ee.data.TaskStatus');
+goog.provide('ee.data.ThumbnailId');
 
 goog.require('goog.Uri');
 goog.require('goog.json');
@@ -111,14 +128,20 @@ ee.data.setDeadline = function(milliseconds) {
 
 
 /**
- * Load info for an asset, given an asset id.
+ * Load info for an asset, given an asset id. DEPRECATED. Use getValue()
+ * instead.
  *
  * @param {string} id The asset to be retrieved.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {Object} The value call results.
+ * @deprecated Use getValue.
  */
 ee.data.getInfo = function(id, opt_callback) {
+  if (window && window.console && window.console.error) {
+    window.console.error(
+        'ee.data.getInfo is DEPRECATED. Use ee.data.getValue() instead.');
+  }
   return ee.data.send_('/info',
                        new goog.Uri.QueryData().add('id', id),
                        opt_callback);
@@ -133,24 +156,15 @@ ee.data.getInfo = function(id, opt_callback) {
  *       - starttime (number) Start time, in msec since the epoch.
  *       - endtime (number) End time, in msec since the epoch.
  *       - fields (comma-separated strings) Field names to return.
- * @param {function(Object, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {Object} The list call results.
+ * @param {function(ee.data.ImageList, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.ImageList} The list call results.
  */
 ee.data.getList = function(params, opt_callback) {
   var request = ee.data.makeRequest_(params);
-  return ee.data.send_('/list', request, opt_callback);
+  return /** @type {ee.data.ImageList} */(
+      ee.data.send_('/list', request, opt_callback));
 };
-
-
-/**
- * @typedef {{
- *     mapid: string,
- *     token: string,
- *     image: ee.Image
- * }}
- */
-ee.data.mapid;
 
 
 /**
@@ -174,20 +188,20 @@ ee.data.mapid;
  *       - palette (comma-separated strings) List of CSS-style color
  *             strings (single-band previews only).
  *       - format (string) Either "jpg" or "png".
- * @param {function(Object, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {ee.data.mapid} The mapId call results.
+ * @param {function(ee.data.RawMapId, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.RawMapId} The mapId call results.
  */
 ee.data.getMapId = function(params, opt_callback) {
   params['json_format'] = 'v2';
-  return /** @type {ee.data.mapid} */ (
+  return /** @type {ee.data.RawMapId} */ (
       ee.data.send_('/mapid', ee.data.makeRequest_(params), opt_callback));
 };
 
 
 /**
  * Generate a URL for map tiles from a Map ID and coordinates.
- * @param {ee.data.mapid} mapid The mapid to generate tiles for.
+ * @param {ee.data.RawMapId} mapid The mapid to generate tiles for.
  * @param {number} x The tile x coordinate.
  * @param {number} y The tile y coordinate.
  * @param {number} z The tile zoom level.
@@ -209,9 +223,9 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
  * @param {Object} params The value to be evaluated, with the following
  *     possible values:
  *      - json (String) A JSON object to be evaluated.
- * @param {function(Object, string=)=} opt_callback An optional callback.
+ * @param {function(?, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
- * @return {Object} The value call results.
+ * @return {?} The value call results.
  */
 ee.data.getValue = function(params, opt_callback) {
   params['json_format'] = 'v2';
@@ -230,9 +244,9 @@ ee.data.getValue = function(params, opt_callback) {
  *       - region (E,S,W,N or GeoJSON) Geospatial region of the image
  *             to render. By default, the whole image.
  *       - format (string) Either 'png' (default) or 'jpg'.
- * @param {function(Object, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {{thumbid: string, token: string}} The thumb ID and token.
+ * @param {function(ee.data.ThumbnailId, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.ThumbnailId} The thumb ID and token.
  */
 ee.data.getThumbId = function(params, opt_callback) {
   params['json_format'] = 'v2';
@@ -240,14 +254,14 @@ ee.data.getThumbId = function(params, opt_callback) {
     params['size'] = params['size'].join('x');
   }
   var request = ee.data.makeRequest_(params).add('getid', '1');
-  return /** @type {{thumbid: string, token: string}} */(
+  return /** @type {ee.data.ThumbnailId} */(
       ee.data.send_('/thumb', request, opt_callback));
 };
 
 
 /**
  * Create a thumbnail URL from a thumbid and token.
- * @param {{thumbid: string, token: string}} id A thumbnail ID and token.
+ * @param {ee.data.ThumbnailId} id A thumbnail ID and token.
  * @return {string} The thumbnail URL.
  */
 ee.data.makeThumbUrl = function(id) {
@@ -283,13 +297,13 @@ ee.data.makeThumbUrl = function(id) {
  *         ignored if crs and crs_transform is specified.
  *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
- * @param {function(Object, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {{docid: string, token: string}} A download ID and token.
+ * @param {function(ee.data.DownloadId, string=)=} opt_callback An optional
+ *     callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.DownloadId} A download ID and token.
  */
 ee.data.getDownloadId = function(params, opt_callback) {
   params['json_format'] = 'v2';
-  return /** @type {{docid: string, token: string}} */ (ee.data.send_(
+  return /** @type {ee.data.DownloadId} */ (ee.data.send_(
       '/download',
       ee.data.makeRequest_(params),
       opt_callback));
@@ -298,7 +312,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
 
 /**
  * Create a download URL from a docid and token.
- * @param {{docid: string, token: string}} id A download ID and token.
+ * @param {ee.data.DownloadId} id A download ID and token.
  * @return {string} The download URL.
  */
 ee.data.makeDownloadUrl = function(id) {
@@ -310,9 +324,10 @@ ee.data.makeDownloadUrl = function(id) {
 /**
  * Get the list of algorithms.
  *
- * @param {function(Object, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {Object} The list of algorithm signatures.
+ * @param {function(ee.data.AlgorithmsRegistry, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.AlgorithmsRegistry} The list of algorithm
+ *     signatures.
  * @hidden
  */
 ee.data.getAlgorithms = function(opt_callback) {
@@ -330,7 +345,7 @@ ee.data.getAlgorithms = function(opt_callback) {
  * @param {string=} opt_path An optional desired ID, including full path.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
- * @return {Object}  A description of the saved asset, including a generated ID.
+ * @return {Object} A description of the saved asset, including a generated ID.
  * @hidden
  */
 ee.data.createAsset = function(value, opt_path, opt_callback) {
@@ -348,9 +363,9 @@ ee.data.createAsset = function(value, opt_path, opt_callback) {
  * Generate an ID for a long-running task.
  *
  * @param {number=} opt_count Number of IDs to generate, one by default.
- * @param {function(Object, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {Array} An array containing generated ID strings.
+ * @param {function(Array.<string>, string=)=} opt_callback An optional
+ *     callback. If not supplied, the call is made synchronously.
+ * @return {Array.<string>} An array containing generated ID strings.
  * @hidden
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
@@ -358,8 +373,8 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
   if (goog.isNumber(opt_count)) {
     params['count'] = opt_count;
   }
-  return /** @type {Array} */ (
-    ee.data.send_('/newtaskid', ee.data.makeRequest_(params), opt_callback));
+  return /** @type {Array.<string>} */ (
+      ee.data.send_('/newtaskid', ee.data.makeRequest_(params), opt_callback));
 };
 
 
@@ -368,16 +383,16 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
  *
  * @param {string|!Array.<string>} task_id ID of the task or an array of
  *     multiple task IDs.
- * @param {function(Object, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {Array}  An array containing one object for each queried task,
- *     in the same order as the input array, each object containing the
- *     following values:
- *     id (string) ID of the task.
- *     state (string) State of the task, one of READY, RUNNING, COMPLETED,
+ * @param {function(Array.<ee.data.TaskStatus>, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {Array.<ee.data.TaskStatus>} An array containing one object for
+ *     each queried task, in the same order as the input array, each object
+ *     containing the following values:
+ *     - id (string) ID of the task.
+ *     - state (string) State of the task, one of READY, RUNNING, COMPLETED,
  *         FAILED, CANCELLED; or UNKNOWN if the task with the specified ID
  *         doesn't exist.
- *     error_message (string) For a FAILED task, a description of the error.
+ *     - error_message (string) For a FAILED task, a description of the error.
  * @hidden
  */
 ee.data.getTaskStatus = function(task_id, opt_callback) {
@@ -388,7 +403,8 @@ ee.data.getTaskStatus = function(task_id, opt_callback) {
         'an array of strings.');
   }
   var url = '/taskstatus?q=' + task_id.join();
-  return /** @type {Array} */ (ee.data.send_(url, null, opt_callback, 'GET'));
+  return /** @type {Array.<ee.data.TaskStatus>} */ (
+      ee.data.send_(url, null, opt_callback, 'GET'));
 };
 
 
@@ -399,17 +415,16 @@ ee.data.getTaskStatus = function(task_id, opt_callback) {
  * @param {Object} params The value to be evaluated, with the following
  *     possible values:
  *        json (string) A JSON object to be evaluated.
- * @param {function(Object, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {Object} May contain field 'note' with value 'ALREADY_EXISTS' if
- *     an identical task with the same ID already exists.
+ * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.ProcessingResponse} May contain field 'note' with value
+ *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
  * @hidden
  */
 ee.data.prepareValue = function(task_id, params, opt_callback) {
   params['tid'] = task_id;
-  return ee.data.send_('/prepare',
-                       ee.data.makeRequest_(params),
-                       opt_callback);
+  return /** @type {ee.data.ProcessingResponse} */ (
+      ee.data.send_('/prepare', ee.data.makeRequest_(params), opt_callback));
 };
 
 
@@ -421,17 +436,16 @@ ee.data.prepareValue = function(task_id, params, opt_callback) {
  *    only fields that are common for all processing types are documented here.
  *      type (string) Either 'export_image' or 'render'.
  *      imageJson (string) JSON description of the image.
- * @param {function(Object, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {Object} May contain field 'note' with value 'ALREADY_EXISTS' if
- *     an identical task with the same ID already exists.
+ * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
+ *     optional callback. If not supplied, the call is made synchronously.
+ * @return {ee.data.ProcessingResponse} May contain field 'note' with value
+ *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
  * @hidden
  */
 ee.data.startProcessing = function(task_id, params, opt_callback) {
   params['id'] = task_id;
-  return ee.data.send_('/processingrequest',
-                       ee.data.makeRequest_(params),
-                       opt_callback);
+  return /** @type {ee.data.ProcessingResponse} */ (ee.data.send_(
+      '/processingrequest', ee.data.makeRequest_(params), opt_callback));
 };
 
 
@@ -440,7 +454,7 @@ ee.data.startProcessing = function(task_id, params, opt_callback) {
  *
  * @param {string} path The API endpoint to call.
  * @param {?goog.Uri.QueryData} params The call parameters.
- * @param {function(Object, string=)=} opt_callback An optional callback.
+ * @param {function(?, string=)=} opt_callback An optional callback.
  *     If not specified, the call is made synchronously and the response
  *     is returned.
  * @param {string=} opt_method The HTTPRequest method (GET or POST), default
@@ -595,6 +609,217 @@ ee.data.setupMockSend = function(opt_calls) {
     return /** @type {?} */ (new fakeXmlHttp());
   };
 };
+
+
+/**
+ * The response from the /list servlet.
+ * @typedef {Array.<{
+ *   type: string,
+ *   id: string,
+ *   properties: (undefined|Object)
+ * }>}
+ */
+ee.data.ImageList;
+
+
+/**
+ * An object describing a FeatureCollection, as returned by getValue.
+ * Compatible with GeoJSON. The type field is always "FeatureCollection".
+ * @typedef {{
+ *   type: string,
+ *   features: Array.<ee.data.GeoJSONFeature>
+ * }}
+ */
+ee.data.FeatureCollectionDescription;
+
+
+/**
+ * An object describing a Feature, as returned by getValue.
+ * Compatible with GeoJSON. The type field is always "Feature".
+ * @typedef {{
+ *   type: string,
+ *   id: (undefined|string),
+ *   geometry: (null|ee.data.GeoJSONGeometry),
+ *   properties: (undefined|Object)
+ * }}
+ */
+ee.data.GeoJSONFeature;
+
+
+/**
+ * An object describing a GeoJSON Geometry, as returned by getValue.
+ * @typedef {{
+ *   type: string,
+ *   coordinates: Array.<number|Array.<number|Array.<number|Array.<number>>>>,
+ *   crs: (undefined|{
+ *     type: string,
+ *     properties: {
+ *       name: string
+ *     }
+ *   }),
+ *   geodesic: boolean,
+ *   geometries: (undefined|Array.<ee.data.GeoJSONGeometry>)
+ * }}
+ */
+ee.data.GeoJSONGeometry;
+
+
+/**
+ * An object describing an ImageCollection, as returned by getValue.
+ * The type field is always "ImageCollection".
+ * @typedef {{
+ *   type: string,
+ *   id: (undefined|string),
+ *   version: (undefined|number),
+ *   bands: Array.<ee.data.BandDescription>,
+ *   properties: (undefined|Object),
+ *   features: Array.<ee.data.ImageDescription>
+ * }}
+ */
+ee.data.ImageCollectionDescription;
+
+
+/**
+ * An object describing an Image, as returned by getValue.
+ * The type field is always "Image".
+ * @typedef {{
+ *   type: string,
+ *   id: (undefined|string),
+ *   version: (undefined|number),
+ *   bands: Array.<ee.data.BandDescription>,
+ *   properties: (undefined|Object)
+ * }}
+ */
+ee.data.ImageDescription;
+
+
+/**
+ * An object describing an Image band, as returned by getValue.
+ * The dimensions field is [width, height].
+ * @typedef {{
+ *   id: string,
+ *   data_type: ee.data.PixelTypeDescription,
+ *   dimensions: (undefined|Array.<number>),
+ *   crs: string,
+ *   crs_transform: (undefined|Array.<number>),
+ *   crs_transform_wkt: (undefined|string),
+ *   properties: (undefined|Object)
+ * }}
+ */
+ee.data.BandDescription;
+
+
+/**
+ * An object describing a PixelType, as returned by getValue.
+ * The type field is always "PixelType". The precision field is
+ * "int", "float" or "double".
+ * @typedef {{
+ *   type: string,
+ *   precision: string,
+ *   min: (undefined|number),
+ *   max: (undefined|number),
+ *   dimensions: (undefined|number)
+ * }}
+ */
+ee.data.PixelTypeDescription;
+
+
+/**
+ * The registry of EE algorithms.
+ *
+ * @typedef {Object.<ee.data.AlgorithmSignature>}
+ */
+ee.data.AlgorithmsRegistry;
+
+
+/**
+ * The signature of an algorithm.
+ *
+ * @typedef {{
+ *   args: Array.<ee.data.AlgorithmArgument>,
+ *   returns: string
+ * }}
+ */
+ee.data.AlgorithmSignature;
+
+
+/**
+ * The signature of a single algorithm argument.
+ * @typedef {{
+ *   name: string,
+ *   type: string,
+ *   optional: boolean,
+ *   default: *
+ * }}
+ */
+ee.data.AlgorithmArgument;
+
+
+/**
+ * An identifier and security token for a thumbnail image.
+ * @typedef {{
+ *   thumbid: string,
+ *   token: string
+ * }}
+ */
+ee.data.ThumbnailId;
+
+
+/**
+ * An identifier and security token for an image to download.
+ * @typedef {{
+ *   docid: string,
+ *   token: string
+ * }}
+ */
+ee.data.DownloadId;
+
+
+/**
+ * An identifier and security token for a tiled map.
+ * @typedef {{
+ *     mapid: string,
+ *     token: string
+ * }}
+ */
+ee.data.RawMapId;
+
+
+/**
+ * A RawMapID together with the image from which it was generated.
+ * @typedef {{
+ *     mapid: string,
+ *     token: string,
+ *     image: ee.Image
+ * }}
+ */
+ee.data.MapId;
+
+
+/**
+ * A description of the status of a long-running tasks. The state field is
+ * one of READY, RUNNING, COMPLETED, FAILED, CANCELLED; or UNKNOWN.
+ * The error_message only appears for FAILED tasks.
+ * @typedef {{
+ *   id: string,
+ *   state: string,
+ *   error_message: (undefined|string)
+ * }}
+ */
+ee.data.TaskStatus;
+
+
+/**
+ * A response for a call to start a batch process.
+ * The "started" field is always "OK".
+ * The note field is either "ALREADY_EXISTS" or missing.
+ * @typedef {{
+ *   started: string,
+ *   note: (undefined|string)
+ * }}
+ */
+ee.data.ProcessingResponse;
+
 
 // Explicit exports.
 goog.exportSymbol('ee.data', ee.data);

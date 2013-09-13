@@ -44,13 +44,13 @@ ee.Serializer = function(opt_isCompound) {
   this.scope_ = [];
 
   /**
-   * A lookup table from object IDs as retrieved by goog.getUid() to subtree
-   * names as stored in this.scope_.
+   * A lookup table from object hashes to {name, object} pairs, where
+   * the name comes from the subtree stored in this.scope_.
    *
-   * @type {Object.<string>}
+   * @type {{name: string, object: *}}
    * @private
    */
-  this.encoded_ = {};
+  this.encoded_ = /** @type {{name: string, object: *}} */ ({});
 };
 
 
@@ -59,6 +59,7 @@ ee.Serializer = function(opt_isCompound) {
  * @private
  */
 ee.Serializer.jsonSerializer_ = new goog.json.Serializer();
+
 
 /**
  * A hash instance for this class
@@ -121,7 +122,11 @@ ee.Serializer.prototype.encode_ = function(object) {
     }
     // Clear state in case of future encoding.
     this.scope_ = [];
-    this.encoded_ = {};
+    for (var hash in this.encoded_) {
+      var item = this.encoded_[hash];
+      delete item['object'][this.HASH_KEY];
+    }
+    this.encoded_ = /** @type {{name: string, object: *}} */ ({});
   }
   return value;
 };
@@ -148,8 +153,8 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     // If we find one and it's in the map of encoded values,
     // return a value ref instead.
     return {
-       'type': 'ValueRef',
-       'value': this.encoded_[hash]
+      'type': 'ValueRef',
+      'value': this.encoded_[hash]['name']
     };
   } else if (object === null ||
       goog.isBoolean(object) ||
@@ -200,12 +205,15 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     hash = ee.Serializer.hash_.digest();
     var name;
     if (this.encoded_[hash]) {
-      name = this.encoded_[hash];
+      name = this.encoded_[hash]['name'];
     } else {
       // We haven't seen this object or one like it yet, save it.
       name = String(this.scope_.length);
       this.scope_.push([name, result]);
-      this.encoded_[hash] = name;
+      this.encoded_[hash] = {
+        'name': name,
+        'object': object
+      };
     }
     object[this.HASH_KEY] = hash;
     return {

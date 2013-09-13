@@ -69,6 +69,7 @@ class EETestCase(apitestcase.ApiTestCase):
         raise Exception('Unexpected API call to %s with %s' % (path, params))
     ee.data.send_ = MockSend
 
+    ee.Initialize()
     image1 = ee.Image(1)
     image2 = ee.Image(2)
     expected = ee.Image(ee.ComputedObject(
@@ -86,8 +87,8 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertEquals(expected, called_with_numbers)
 
     # Test call and apply() with a custom function.
-    func = ee.CustomFunction({'foo': ee.Image}, ee.Image,
-                             lambda foo: ee.call('fakeFunction', 42, foo))
+    sig = {'returns': 'Image', 'args': [{'name': 'foo', 'type': 'Image'}]}
+    func = ee.CustomFunction(sig, lambda foo: ee.call('fakeFunction', 42, foo))
     expected_custom_function_call = ee.Image(
         ee.ComputedObject(func, {'foo': ee.Image(13)}))
     self.assertEquals(expected_custom_function_call, ee.call(func, 13))

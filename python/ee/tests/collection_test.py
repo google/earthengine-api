@@ -75,7 +75,6 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     collection = ee.ImageCollection('foo')
     mapped = collection.map(
         (lambda img: img.select('bar')), None, {'baz': 42}, ee.String('quux'))
-    body = ee.CustomFunction.variable(ee.Image, '_MAPPING_VAR_0').select('bar')
 
     self.assertTrue(isinstance(mapped, ee.ImageCollection))
     self.assertEquals(ee.ApiFunction.lookup('Collection.map'), mapped.func)
@@ -87,7 +86,11 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     # Need to do a serialized comparison for the function body because
     # variables returned from CustomFunction.variable() do not implement
     # __eq__.
-    expected_function = ee.CustomFunction(['_MAPPING_VAR_0'], ee.Image, body)
+    sig = {
+        'returns': 'Image',
+        'args': [{'name': '_MAPPING_VAR_0', 'type': 'Image'}]
+    }
+    expected_function = ee.CustomFunction(sig, lambda img: img.select('bar'))
     self.assertEquals(expected_function.serialize(),
                       mapped.args['baseAlgorithm'].serialize())
 

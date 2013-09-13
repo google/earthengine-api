@@ -3,7 +3,6 @@
  */
 
 goog.provide('ee.Function');
-goog.provide('ee.Function.Argument');
 goog.provide('ee.Function.Signature');
 
 goog.require('ee.ComputedObject');
@@ -224,23 +223,11 @@ ee.Function.prototype.serialize = function() {
 
 
 /**
- * The signature of a single function argument.
- * @typedef {{
- *   name: string,
- *   type: string,
- *   optional: boolean,
- *   default: *
- * }}
- */
-ee.Function.Argument;
-
-
-/**
  * The signature of a function.
  *
  * @typedef {{
  *   name: string,
- *   args: Array.<ee.Function.Argument>,
+ *   args: Array.<ee.data.AlgorithmArgument>,
  *   returns: string
  * }}
  */

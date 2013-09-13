@@ -147,24 +147,6 @@ ee.Collection.prototype.filterDate = function(start, end) {
 
 
 /**
- * An imperative function that returns all the known information about this
- * collection via a synchronous AJAX call.
- *
- * @param {function(Object)=} opt_callback An optional callback.  If not
- *     supplied, the call is made synchronously.
- * @return {Object|undefined} An object whose attributes vary but include:
- *     - features: an array containing metadata about the items in the
- *           collection that passed all filters.
- *     - properties: a dictionary containing the collection's metadata
- *           properties.
- */
-ee.Collection.prototype.getInfo = function(opt_callback) {
-  return /** @type {Object|undefined} */(
-      goog.base(this, 'getInfo', opt_callback));
-};
-
-
-/**
  * Limit a collection to the specified number of elements, optionally
  * sorting them by a specified property first.
  *
@@ -236,8 +218,16 @@ ee.Collection.prototype.mapInternal = function(
       throw Error('Can\'t use dynamicArgs with a mapped JS function.');
     }
     var varName = '_MAPPING_VAR_' + ee.Collection.serialMappingId_++;
-    algorithm = new ee.CustomFunction(
-        goog.object.create(varName, type), type, algorithm);
+    var className = ee.Types.classToName(type);
+    var signature = {
+      'name': '',
+      'returns': className,
+      'args': [{
+        'name': varName,
+        'type': className
+      }]
+    };
+    algorithm = new ee.CustomFunction(signature, algorithm);
   } else if (goog.isString(algorithm)) {
     algorithm = new ee.ApiFunction(algorithm);
   } else if (!(algorithm instanceof ee.Function)) {

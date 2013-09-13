@@ -13,81 +13,42 @@ goog.require('goog.array');
 
 /**
  * Creates a function defined by a given expression with unbound variables.
- * @param {Array.<string>|Object.<Function>} args The arguments to the function.
- *     If body is a JavaScript function, this must be a map from argument names
- *     to types (classes). Otherwise this is an array of names.
- * @param {Function?} returnType The expected return type of the
- *     function as a class constructor, if known.
- * @param {Function|*} body The expression to evaluate. Can be either:
- *     - A JavaScript function, in which case the args argument must describe
- *       the types of this function's arguments.
- *     - An expression made out of primitives (boolean, number, string, Date),
- *       data structures (array, object), ComputedObjects or variables
- *       (created by CustomFunction.variable()). Variables refer to the
- *       elements of args by names. Structures and ComputedObjects can
- *       recursively contain any of the above.
+ * The expression is created by evaluating the given javascript function
+ * using variables as placeholders.
+ *
+ * @param {ee.Function.Signature} signature The function's signature.
+ * @param {Function} body The JavaScript function to evaluate.
+ *
  * @constructor
  * @extends {ee.Function}
  * @hidden
  */
-ee.CustomFunction = function(args, returnType, body) {
+ee.CustomFunction = function(signature, body) {
   if (!(this instanceof ee.CustomFunction)) {
-    return new ee.CustomFunction(args, returnType, body);
+    return new ee.CustomFunction(signature, body);
   }
 
-  var argNames;
-  var argTypes;
-  if (goog.isFunction(body)) {
-    if (goog.isArray(args) || !goog.isObject(args)) {
-      throw Error('The "args" of a custom function created from a native JS ' +
-                  'function must be a map from name to type.');
-    }
-    argNames = [];
-    argTypes = [];
-    var vars = [];
-    for (var name in args) {
-      var type = args[name];
-      argNames.push(name);
-      argTypes.push(type);
-      vars.push(ee.CustomFunction.variable(type, name));
-    }
-    body = body.apply(null, vars);
-  } else {
-    if (!goog.isArray(args)) {
-      throw Error('The "args" of a custom function created from an ' +
-                  'expression must be an array of names.');
-    }
-    argNames = args;
-    argTypes = goog.array.map(args, function() { return Object; });
+  var vars = [];
+  var args = signature['args'];
+  for (var i = 0; i < args.length; i++) {
+    var arg = args[i];
+    var type = ee.Types.nameToClass(arg['type']);
+    vars.push(ee.CustomFunction.variable(type, arg['name']));
   }
 
   /**
-   * The names of the function arguments.
-   * @type {Array.<string>}
+   * The signature of the function.
+   * @type {ee.Function.Signature}
    * @private
    */
-  this.argNames_ = /** @type {Array.<string>} */(argNames);
+  this.signature_ = signature;
 
   /**
-   * The types of the function arguments.
-   * @type {Array.<Function>}
-   * @private
-   */
-  this.argTypes_ = /** @type {Array.<Function>} */(argTypes);
-
-  /**
-   * The return type of the function.
-   * @type {Function}
-   * @private
-   */
-  this.returnType_ = returnType || Object;
-
-  /**
-   * The expression to evaluate.
+   * The function evaluated using placeholders.
    * @type {*}
    * @private
    */
-  this.body_ = body;
+  this.body_ = body.apply(null, vars);
 };
 goog.inherits(ee.CustomFunction, ee.Function);
 
@@ -96,7 +57,8 @@ goog.inherits(ee.CustomFunction, ee.Function);
 ee.CustomFunction.prototype.encode = function(encoder) {
   return {
     'type': 'Function',
-    'argumentNames': this.argNames_,
+    'argumentNames': goog.array.map(
+        this.signature_['args'], function(arg) { return arg['name']; }),
     'body': encoder(this.body_)
   };
 };
@@ -104,17 +66,7 @@ ee.CustomFunction.prototype.encode = function(encoder) {
 
 /** @inheritDoc */
 ee.CustomFunction.prototype.getSignature = function() {
-  return {
-    'name': '',
-    'args': goog.array.map(this.argNames_, function(name, i) {
-      return {
-        'name': name,
-        'type': ee.Types.classToName(this.argTypes_[i]),
-        'optional': false
-      };
-    }, this),
-    'returns': ee.Types.classToName(this.returnType_)
-  };
+  return this.signature_;
 };
 
 

@@ -16,6 +16,19 @@ import encodable
 # of the variable.
 VAR_TYPE_KEY = '__EE_VAR_TYPE'
 
+# A dictionary of the classes in the ee module.  Set by registerClasses.
+_registered_classes = {}
+
+
+def _registerClasses(classes):
+  """Registers the known classes.
+
+  Args:
+    classes: A dictionary of the classes available in the ee module.
+  """
+  global _registered_classes
+  _registered_classes = classes
+
 
 def classToName(klass):
   """Converts a class to the API-friendly type name.
@@ -38,6 +51,18 @@ def classToName(klass):
     return 'Date'
   else:
     return 'Object'
+
+
+def nameToClass(name):
+  """Converts a class name to a class.  Returns None if not an ee class.
+
+  Args:
+    name: The class name.
+
+  Returns:
+    The named class.
+  """
+  return _registered_classes.get(name)
 
 
 def isSubtype(firstType, secondType):

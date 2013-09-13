@@ -54,7 +54,8 @@ goog.inherits(ee.ComputedObject, ee.Encodable);
 /**
  * An imperative function that returns information about this object (usually
  * the value) via a synchronous AJAX call.
- * @param {function(Object)=} opt_callback An optional callback.  If not
+ *
+ * @param {function(?)=} opt_callback An optional callback.  If not
  *     supplied, the call is made synchronously.
  * @return {*} The computed value of this object.
  */

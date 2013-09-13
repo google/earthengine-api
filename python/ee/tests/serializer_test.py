@@ -103,8 +103,12 @@ class SerializerTest(apitestcase.ApiTestCase):
         }
 
     call = ee.ComputedObject('SerializeThisThing', {'a': 'x', 'b': 5})
-    variable = ee.CustomFunction.variable(None, 'y')
-    custom_function = ee.CustomFunction(['x', 'y'], object, variable)
+    body = lambda x, y: ee.CustomFunction.variable(None, 'y')
+    sig = {'returns': 'Object',
+           'args': [
+               {'name': 'x', 'type': 'Object'},
+               {'name': 'y', 'type': 'Object'}]}
+    custom_function = ee.CustomFunction(sig, body)
     to_encode = [
         None,
         True,

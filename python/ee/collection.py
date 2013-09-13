@@ -237,7 +237,10 @@ class Collection(computedobject.ComputedObject):
             'Can\'t use dynamicArgs with a mapped Python function.')
       varName = '_MAPPING_VAR_%d' % Collection._serialMappingId
       Collection._serialMappingId += 1
-      algorithm = customfunction.CustomFunction({varName: cls}, cls, algorithm)
+
+      typeName = ee_types.classToName(cls)
+      sig = {'returns': typeName, 'args': [{'name': varName, 'type': typeName}]}
+      algorithm = customfunction.CustomFunction(sig, algorithm)
     elif isinstance(algorithm, basestring):
       algorithm = apifunction.ApiFunction.lookup(algorithm)
     elif not isinstance(algorithm, function.Function):

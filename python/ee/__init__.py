@@ -103,6 +103,9 @@ def _ResetGeneratedClasses():
     ApiFunction.clearApi(globals()[name])
     del globals()[name]
   _generatedClasses = []
+  # Warning: we're passing all of globals() into registerClasses.
+  # This is a) pass by reference, and b) a lot more stuff.
+  types._registerClasses(globals())     # pylint: disable=protected-access
 
 
 def ServiceAccountCredentials(email, key_file=None, key_data=None):
@@ -303,6 +306,10 @@ def _InitializeGeneratedClasses():
   for name in want:
     globals()[name] = _MakeClass(name)
     _generatedClasses.append(name)
+
+  # Warning: we're passing all of globals() into registerClasses.
+  # This is a) pass by reference, and b) a lot more stuff.
+  types._registerClasses(globals())     # pylint: disable=protected-access
 
 
 def _MakeClass(name):

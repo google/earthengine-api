@@ -18,6 +18,42 @@ ee.Types.VAR_TYPE_KEY = '__EE_VAR_TYPE';
 
 
 /**
+ * A dictionary of the ee classes.
+ * Not technically needed in the JavaScript library, but it matches what
+ * we have to do in the Python library.
+ * The keys are the names of the ee classes.  The values the class objects.
+ * @type {Object}
+ * @private
+ */
+ee.Types.registeredClasses_ = {};
+
+
+/**
+ * Register the classes available in the ee object for lookup.
+ * @param {Object} classes The classes available in the ee object for lookup.
+ */
+ee.Types.registerClasses = function(classes) {
+  ee.Types.registeredClasses_ = classes;
+};
+
+
+/**
+ * Converts a type name to a class constructor.
+ *
+ * @param {string} name The class name.
+ * @return {Function} The constructor for the named class or null if it's not an
+ *     ee class.
+ */
+ee.Types.nameToClass = function(name) {
+  if (name in ee.Types.registeredClasses_) {
+    return ee.Types.registeredClasses_[name];
+  } else {
+    return null;
+  }
+};
+
+
+/**
  * Converts a class constructor to the API-friendly type name.
  * @param {Function} klass The class constructor.
  * @return {string} The name of the class, or "Object" if not recognized.

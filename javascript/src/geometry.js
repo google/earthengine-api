@@ -138,6 +138,7 @@ ee.Geometry.reset = function() {
 };
 
 
+
 /**
  * Constructs a GeoJSON point.
  *
@@ -357,7 +358,7 @@ goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
 /**
  * @param {function(*): *=} opt_encoder A function that can be called to encode
  *    the components of an object.
- * @return {*} A GeoJSON-compatible representation of the geometry.
+ * @return {*} An encoded representation of the geometry.
  */
 ee.Geometry.prototype.encode = function(opt_encoder) {
   if (this.func) {
@@ -388,19 +389,19 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
     result['geodesic'] = this.geodesic_;
   }
 
-  return result;
+  return /** @type {ee.data.GeoJSONGeometry} */(result);
 };
 
 
 /**
- * @return {Object} A GeoJSON representation of the geometry.
+ * @return {ee.data.GeoJSONGeometry} A GeoJSON representation of the geometry.
  */
 ee.Geometry.prototype.toGeoJSON = function() {
   if (this.func) {
     throw new Error('Can\'t convert a computed Geometry to GeoJSON.  ' +
                     'Use getInfo() instead.');
   }
-  return /** @type {Object} */(this.encode());
+  return /** @type {ee.data.GeoJSONGeometry} */(this.encode());
 };
 
 

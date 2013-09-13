@@ -19,6 +19,8 @@ goog.require('ee.ImageCollection');
 goog.require('ee.String');
 goog.require('ee.Types');
 goog.require('ee.data');
+goog.require('goog.array');
+goog.require('goog.object');
 
 
 /**
@@ -125,12 +127,14 @@ ee.ready_ = ee.InitState.NOT_READY;
  */
 ee.TILE_SIZE = 256;
 
+
 /**
  * The list of auto-generated class names.
  * @type {Array.<string>}
  * @private
  */
 ee.generatedClasses_ = [];
+
 
 /**
  * A dictionary of algorithms that are not bound to a specific class. Can
@@ -379,6 +383,7 @@ ee.initializeGeneratedClasses_ = function() {
       ee.generatedClasses_.push(name);
     }
   }
+  ee.Types.registerClasses(ee);
 };
 
 
@@ -393,6 +398,7 @@ ee.resetGeneratedClasses_ = function() {
     delete ee[name];
   }
   ee.generatedClasses_ = [];
+  ee.Types.registerClasses(ee);
 };
 
 
@@ -407,7 +413,7 @@ ee.makeClass_ = function(name) {
   /**
    * Construct a new instance of the given class.
    *
-   * @param {*} var_args The constructor args.  Can be one of:
+   * @param {...[*]} var_args The constructor args.  Can be one of:
    *   1) A computed value to be promoted to this type.
    *   2) Arguments to be passed to the algorithm with the same name as
    *      this class.

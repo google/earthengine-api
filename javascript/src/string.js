@@ -6,15 +6,13 @@ goog.provide('ee.String');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
-goog.require('goog.array');
-goog.require('goog.string');
 
 
 
 /**
  * Constructs a new String.
  *
- * @param {string|Object=} string A string or a computed object.
+ * @param {string|Object} string A string or a computed object.
  *
  * @constructor
  * @extends {ee.ComputedObject}
@@ -81,7 +79,7 @@ ee.String.prototype.encode = function(encoder) {
   if (goog.isString(this.string_)) {
     return this.string_;
   } else {
-    return /** @type ee.ComputedObject */(this.string_).encode(encoder);
+    return /** @type {ee.ComputedObject} */(this.string_).encode(encoder);
   }
 };
 
