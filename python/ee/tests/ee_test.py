@@ -259,5 +259,17 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertTrue('Quux' not in ee.Algorithms)
     self.assertEquals(ee.call('Foo.bar'), ee.Algorithms.Foo.bar())
 
+  def testDatePromtion(self):
+    # Make a feature, put a time in it, and get it out as a date.
+    self.InitializeApi()
+    point = ee.Geometry.Point(1, 2)
+    feature = ee.Feature(point, {'x': 1, 'y': 2})
+    date_range = ee.call('DateRange', feature.get('x'), feature.get('y'))
+
+    # Check that the start and end args are wrapped in a call to Date.
+    self.assertEquals(date_range.args['start'].func._signature['name'], 'Date')
+    self.assertEquals(date_range.args['end'].func._signature['name'], 'Date')
+
+
 if __name__ == '__main__':
   unittest.main()

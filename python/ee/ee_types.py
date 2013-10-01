@@ -12,7 +12,7 @@ import computedobject
 import encodable
 
 # The name of the property inserted into objects created by
-# ee.CustomFunction.variable() whose value is the type (class)
+# ee.CustomFunction.variable_() whose value is the type (class)
 # of the variable.
 VAR_TYPE_KEY = '__EE_VAR_TYPE'
 

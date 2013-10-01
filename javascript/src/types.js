@@ -10,7 +10,8 @@ goog.require('ee.Encodable');
 
 /**
  * The name of the property inserted into objects created by
- * ee.CustomFunction.variable() whose value is the type (class) of the variable.
+ * ee.CustomFunction.variable_() whose value is the type (class) of the
+ * variable.
  * @type {string}
  * @const
  */

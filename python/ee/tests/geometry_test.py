@@ -165,17 +165,30 @@ class GeometryTest(apitestcase.ApiTestCase):
     line = ee.Geometry.LineString(1, 2, 3, 4)
 
     # GeoJSON.
-    line2 = ee.Geometry(line)
-    self.assertEquals(line2.func, None)
-    self.assertEquals(line2._type, 'LineString')
-    self.assertEquals(line2._coordinates, [[1, 2], [3, 4]])
+    from_json = ee.Geometry(line.toGeoJSON())
+    self.assertEquals(from_json.func, None)
+    self.assertEquals(from_json._type, 'LineString')
+    self.assertEquals(from_json._coordinates, [[1, 2], [3, 4]])
+
+    # GeoJSON with a CRS specified.
+    json_with_crs = line.toGeoJSON()
+    json_with_crs['crs'] = {
+        'type': 'name',
+        'properties': {
+            'name': 'SR-ORG:6974'
+        }
+    }
+    from_json_with_crs = ee.Geometry(json_with_crs)
+    self.assertEquals(from_json_with_crs.func, None)
+    self.assertEquals(from_json_with_crs._type, 'LineString')
+    self.assertEquals(from_json_with_crs._proj, 'SR-ORG:6974')
 
     # A not-computed geometry.
     self.assertEquals(ee.Geometry(line), line)
 
     # A not-computed geometry with an override.
-    line3 = ee.Geometry(line, 'SR-ORG:6974')
-    self.assertEquals(line3._proj, 'SR-ORG:6974')
+    with_override = ee.Geometry(line, 'SR-ORG:6974')
+    self.assertEquals(with_override._proj, 'SR-ORG:6974')
 
     # A computed geometry.
     self.assertEquals(ee.Geometry(line.bounds()), line.bounds())

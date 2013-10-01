@@ -190,6 +190,24 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'returns': 'Feature'
     },
+    'Feature.get': {
+        'type': 'Algorithm',
+        'returns': '<any>',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'EEObject',
+                'description': '',
+                'name': 'object'
+            },
+            {
+                'type': 'String',
+                'description': '',
+                'name': 'property'
+            }
+        ],
+        'description': ''
+    },
     'Collection': {
         'type': 'Algorithm',
         'args': [
@@ -429,6 +447,19 @@ BUILTIN_FUNCTIONS = {
         ],
         'description': '',
         'returns': 'DateRange'
+    },
+    'Date': {
+        'returns': 'Date',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'Long',
+                'description': '',
+                'name': 'microseconds'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
     },
     'ErrorMargin': {
         'type': 'Algorithm',
@@ -949,4 +980,70 @@ BUILTIN_FUNCTIONS = {
         'type': 'Algorithm',
         'description': ''
     },
+}
+
+# A sample of encoded EE API JSON, used by SerializerTest and DeserializerTest.
+ENCODED_JSON_SAMPLE = {
+    'type': 'CompoundValue',
+    'scope': [
+        ['0', {
+            'type': 'LineString',
+            'coordinates': [[1, 2], [3, 4]],
+            'crs': {
+                'type': 'name',
+                'properties': {
+                    'name': 'SR-ORG:6974'
+                }
+            }
+        }],
+        ['1', {
+            'type': 'Polygon',
+            'coordinates': [
+                [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+                [[5, 6], [7, 6], [7, 8], [5, 8]],
+                [[1, 1], [2, 1], [2, 2], [1, 2]]
+            ]
+        }],
+        ['2', {
+            'type': 'Bytes',
+            'value': 'aGVsbG8='
+        }],
+        ['3', {
+            'type': 'Invocation',
+            'functionName': 'String.cat',
+            'arguments': {
+                'string1': 'x',
+                'string2': 'y'
+            }
+        }],
+        ['4', {
+            'type': 'Dictionary',
+            'value': {
+                'foo': 'bar',
+                'baz': {'type': 'ValueRef', 'value': '3'}
+            }
+        }],
+        ['5', {
+            'type': 'Function',
+            'argumentNames': ['x', 'y'],
+            'body': {'type': 'ArgumentRef', 'value': 'y'}
+        }],
+        ['6', [
+            None,
+            True,
+            5,
+            7,
+            3.4,
+            2.5,
+            'hello',
+            {'type': 'Date', 'value': 1234567890000000},
+            {'type': 'ValueRef', 'value': '0'},
+            {'type': 'ValueRef', 'value': '1'},
+            {'type': 'ValueRef', 'value': '2'},
+            {'type': 'ValueRef', 'value': '4'},
+            {'type': 'ValueRef', 'value': '3'},
+            {'type': 'ValueRef', 'value': '5'}
+        ]]
+    ],
+    'value': {'type': 'ValueRef', 'value': '6'}
 }

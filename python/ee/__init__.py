@@ -9,14 +9,13 @@ import datetime
 import numbers
 import sys
 
-import oauth2client.client
-
 from apifunction import ApiFunction
 from collection import Collection
 from computedobject import ComputedObject
 from customfunction import CustomFunction
 import data
 from ee_exception import EEException
+from ee_string import String
 import ee_types as types
 from encodable import Encodable
 from feature import Feature
@@ -26,8 +25,8 @@ from function import Function
 from geometry import Geometry
 from image import Image
 from imagecollection import ImageCollection
+import oauth2client.client
 from serializer import Serializer
-from ee_string import String
 
 
 OAUTH2_SCOPE = 'https://www.googleapis.com/auth/earthengine.readonly'
@@ -222,6 +221,10 @@ def _Promote(arg, klass):
         return dateutil.parser.parse(arg)
     elif isinstance(arg, numbers.Number):
       return datetime.datetime.fromtimestamp(arg / 1000)
+    elif isinstance(arg, ComputedObject):
+      # Bypass promotion of this and do it directly.
+      func = ApiFunction.lookup('Date')
+      return ComputedObject(func, func.promoteArgs(func.nameArgs([arg])))
     else:
       return arg
   elif klass == 'Dictionary':

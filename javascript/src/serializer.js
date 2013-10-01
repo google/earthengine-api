@@ -69,20 +69,29 @@ ee.Serializer.hash_ = new goog.crypt.Md5();
 
 
 /**
+ * Serialize an object to a JSON representation appropriate for API calls.
+ * @param {*} obj The object to Serialize.
+ * @return {*} A JSON-compatible structure representing the input.
+ */
+ee.Serializer.encode = function(obj) {
+  return new ee.Serializer(true).encode_(obj);
+};
+
+
+/**
  * Serialize an object to a JSON string appropriate for API calls.
  * @param {*} obj The object to Serialize.
- * @return {string} A JSON represenation of the input.
+ * @return {string} A JSON representation of the input.
  */
 ee.Serializer.toJSON = function(obj) {
-  var eeSerializer = new ee.Serializer(true);
-  return ee.Serializer.jsonSerializer_.serialize(eeSerializer.encode_(obj));
+  return ee.Serializer.jsonSerializer_.serialize(ee.Serializer.encode(obj));
 };
 
 
 /**
  * Serialize an object to a human-friendly JSON string (if possible).
  * @param {*} obj The object to convert.
- * @return {string} A human-friendly JSON represenation of the input.
+ * @return {string} A human-friendly JSON representation of the input.
  */
 ee.Serializer.toReadableJSON = function(obj) {
   var eeSerializer = new ee.Serializer(false);

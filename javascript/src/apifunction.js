@@ -156,13 +156,26 @@ ee.ApiFunction.lookup = function(name) {
 /**
  * Initializes the list of signatures from the Earth Engine front-end.
  *
- * @param {function()=} opt_callback An optional callback.  If not
- *     supplied, the call is made synchronously.
+ * @param {function()=} opt_successCallback An optional success callback.
+ *     If not supplied, the call is made synchronously.
+ * @param {function(Error)=} opt_failureCallback An optional failure callback.
+ *     Only valid if opt_successCallback is specified.
  * @hidden
  */
-ee.ApiFunction.initialize = function(opt_callback) {
+ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
   if (!ee.ApiFunction.api_) {
-    var callback = function(data) {
+    /**
+     * @param {ee.data.AlgorithmsRegistry} data
+     * @param {string=} opt_error
+     */
+    var callback = function(data, opt_error) {
+      if (opt_error) {
+        if (opt_failureCallback) {
+          opt_failureCallback(Error(opt_error));
+        }
+        return;
+      }
+
       ee.ApiFunction.api_ = goog.object.map(data, function(sig, name) {
         // Strip type parameters.
         sig['returns'] = sig['returns'].replace(/<.*>/, '');
@@ -171,9 +184,9 @@ ee.ApiFunction.initialize = function(opt_callback) {
         }
         return new ee.ApiFunction(name, sig);
       });
-      if (opt_callback) opt_callback();
+      if (opt_successCallback) opt_successCallback();
     };
-    if (opt_callback) {
+    if (opt_successCallback) {
       ee.data.getAlgorithms(callback);
     } else {
       callback(ee.data.getAlgorithms());
@@ -233,11 +246,22 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       // Add the actual function
       destination[fname] = function(var_args) {
         var args = Array.prototype.slice.call(arguments, 0);
-        if (isInstance) {
-          // Add the parent object as the first arg.
-          args.unshift(this);
+        var namedArgs;
+        if (args.length == 1 && args[0].constructor == Object) {
+          // Assume keyword arguments if we get a single dictionary.
+          namedArgs = goog.object.clone(args[0]);
+          if (isInstance) {
+            var firstArgName = signature['args'][0]['name'];
+            if (firstArgName in namedArgs) {
+              throw Error('Named args for ' + fname +
+                          ' can\'t contain keyword ' + firstArgName);
+            }
+            namedArgs[firstArgName] = this;
+          }
+        } else {
+          namedArgs = apiFunc.nameArgs(isInstance ? [this].concat(args) : args);
         }
-        return apiFunc.call.apply(apiFunc, args);
+        return apiFunc.apply(namedArgs);
       };
       // Add a friendly formatting.
       destination[fname].toString =

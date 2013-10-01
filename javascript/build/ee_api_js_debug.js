@@ -1724,8 +1724,9 @@ goog.events.getVendorPrefixedName_ = function(eventName) {
 goog.events.EventType = {CLICK:"click", DBLCLICK:"dblclick", MOUSEDOWN:"mousedown", MOUSEUP:"mouseup", MOUSEOVER:"mouseover", MOUSEOUT:"mouseout", MOUSEMOVE:"mousemove", SELECTSTART:"selectstart", KEYPRESS:"keypress", KEYDOWN:"keydown", KEYUP:"keyup", BLUR:"blur", FOCUS:"focus", DEACTIVATE:"deactivate", FOCUSIN:goog.userAgent.IE ? "focusin" : "DOMFocusIn", FOCUSOUT:goog.userAgent.IE ? "focusout" : "DOMFocusOut", CHANGE:"change", SELECT:"select", SUBMIT:"submit", INPUT:"input", PROPERTYCHANGE:"propertychange", 
 DRAGSTART:"dragstart", DRAG:"drag", DRAGENTER:"dragenter", DRAGOVER:"dragover", DRAGLEAVE:"dragleave", DROP:"drop", DRAGEND:"dragend", TOUCHSTART:"touchstart", TOUCHMOVE:"touchmove", TOUCHEND:"touchend", TOUCHCANCEL:"touchcancel", BEFOREUNLOAD:"beforeunload", CONSOLEMESSAGE:"consolemessage", CONTEXTMENU:"contextmenu", DOMCONTENTLOADED:"DOMContentLoaded", ERROR:"error", HELP:"help", LOAD:"load", LOSECAPTURE:"losecapture", ORIENTATIONCHANGE:"orientationchange", READYSTATECHANGE:"readystatechange", 
 RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), 
-TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROVER:"MSPointerOver", MSPOINTEROUT:"MSPointerOut", 
-MSPOINTERUP:"MSPointerUp", TEXTINPUT:"textinput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange"};
+TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", 
+MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXTINPUT:"textinput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", 
+COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   opt_e && this.init(opt_e, opt_currentTarget)
 };
@@ -2213,13 +2214,13 @@ goog.events.EventTarget.prototype.disposeInternal = function() {
 };
 goog.events.EventTarget.prototype.listen = function(type, listener, opt_useCapture, opt_listenerScope) {
   this.assertInitialized_();
-  return this.eventTargetListeners_.add(type, listener, !1, opt_useCapture, opt_listenerScope)
+  return this.eventTargetListeners_.add(String(type), listener, !1, opt_useCapture, opt_listenerScope)
 };
 goog.events.EventTarget.prototype.listenOnce = function(type, listener, opt_useCapture, opt_listenerScope) {
-  return this.eventTargetListeners_.add(type, listener, !0, opt_useCapture, opt_listenerScope)
+  return this.eventTargetListeners_.add(String(type), listener, !0, opt_useCapture, opt_listenerScope)
 };
 goog.events.EventTarget.prototype.unlisten = function(type, listener, opt_useCapture, opt_listenerScope) {
-  return this.eventTargetListeners_.remove(type, listener, opt_useCapture, opt_listenerScope)
+  return this.eventTargetListeners_.remove(String(type), listener, opt_useCapture, opt_listenerScope)
 };
 goog.events.EventTarget.prototype.unlistenByKey = function(key) {
   return this.eventTargetListeners_.removeByKey(key)
@@ -2228,7 +2229,7 @@ goog.events.EventTarget.prototype.removeAllListeners = function(opt_type) {
   return this.eventTargetListeners_ ? this.eventTargetListeners_.removeAll(opt_type) : 0
 };
 goog.events.EventTarget.prototype.fireListeners = function(type, capture, eventObject) {
-  var listenerArray = this.eventTargetListeners_.listeners[type];
+  var listenerArray = this.eventTargetListeners_.listeners[String(type)];
   if(!listenerArray) {
     return!0
   }
@@ -2243,13 +2244,13 @@ goog.events.EventTarget.prototype.fireListeners = function(type, capture, eventO
   return rv && !1 != eventObject.returnValue_
 };
 goog.events.EventTarget.prototype.getListeners = function(type, capture) {
-  return this.eventTargetListeners_.getListeners(type, capture)
+  return this.eventTargetListeners_.getListeners(String(type), capture)
 };
 goog.events.EventTarget.prototype.getListener = function(type, listener, capture, opt_listenerScope) {
-  return this.eventTargetListeners_.getListener(type, listener, capture, opt_listenerScope)
+  return this.eventTargetListeners_.getListener(String(type), listener, capture, opt_listenerScope)
 };
 goog.events.EventTarget.prototype.hasListener = function(opt_type, opt_capture) {
-  return this.eventTargetListeners_.hasListener(opt_type, opt_capture)
+  return this.eventTargetListeners_.hasListener(goog.isDef(opt_type) ? String(opt_type) : void 0, opt_capture)
 };
 goog.events.EventTarget.prototype.assertInitialized_ = function() {
   goog.asserts.assert(this.eventTargetListeners_, "Event target is not initialized. Did you call the superclass (goog.events.EventTarget) constructor?")
@@ -2283,6 +2284,207 @@ goog.events.EventTarget.dispatchEventInternal_ = function(target, e, opt_ancesto
 };
 goog.structs = {};
 goog.structs.Collection = function() {
+};
+goog.functions = {};
+goog.functions.constant = function(retValue) {
+  return function() {
+    return retValue
+  }
+};
+goog.functions.FALSE = goog.functions.constant(!1);
+goog.functions.TRUE = goog.functions.constant(!0);
+goog.functions.NULL = goog.functions.constant(null);
+goog.functions.identity = function(opt_returnValue) {
+  return opt_returnValue
+};
+goog.functions.error = function(message) {
+  return function() {
+    throw Error(message);
+  }
+};
+goog.functions.fail = function(err) {
+  return function() {
+    throw err;
+  }
+};
+goog.functions.lock = function(f, opt_numArgs) {
+  opt_numArgs = opt_numArgs || 0;
+  return function() {
+    return f.apply(this, Array.prototype.slice.call(arguments, 0, opt_numArgs))
+  }
+};
+goog.functions.nth = function(n) {
+  return function() {
+    return arguments[n]
+  }
+};
+goog.functions.withReturnValue = function(f, retValue) {
+  return goog.functions.sequence(f, goog.functions.constant(retValue))
+};
+goog.functions.compose = function(fn, var_args) {
+  var functions = arguments, length = functions.length;
+  return function() {
+    var result;
+    length && (result = functions[length - 1].apply(this, arguments));
+    for(var i = length - 2;0 <= i;i--) {
+      result = functions[i].call(this, result)
+    }
+    return result
+  }
+};
+goog.functions.sequence = function(var_args) {
+  var functions = arguments, length = functions.length;
+  return function() {
+    for(var result, i = 0;i < length;i++) {
+      result = functions[i].apply(this, arguments)
+    }
+    return result
+  }
+};
+goog.functions.and = function(var_args) {
+  var functions = arguments, length = functions.length;
+  return function() {
+    for(var i = 0;i < length;i++) {
+      if(!functions[i].apply(this, arguments)) {
+        return!1
+      }
+    }
+    return!0
+  }
+};
+goog.functions.or = function(var_args) {
+  var functions = arguments, length = functions.length;
+  return function() {
+    for(var i = 0;i < length;i++) {
+      if(functions[i].apply(this, arguments)) {
+        return!0
+      }
+    }
+    return!1
+  }
+};
+goog.functions.not = function(f) {
+  return function() {
+    return!f.apply(this, arguments)
+  }
+};
+goog.functions.create = function(constructor, var_args) {
+  var temp = function() {
+  };
+  temp.prototype = constructor.prototype;
+  var obj = new temp;
+  constructor.apply(obj, Array.prototype.slice.call(arguments, 1));
+  return obj
+};
+goog.functions.CACHE_RETURN_VALUE = !0;
+goog.functions.cacheReturnValue = function(fn) {
+  var called = !1, value;
+  return function() {
+    if(!goog.functions.CACHE_RETURN_VALUE) {
+      return fn()
+    }
+    called || (value = fn(), called = !0);
+    return value
+  }
+};
+goog.math = {};
+goog.math.randomInt = function(a) {
+  return Math.floor(Math.random() * a)
+};
+goog.math.uniformRandom = function(a, b) {
+  return a + Math.random() * (b - a)
+};
+goog.math.clamp = function(value, min, max) {
+  return Math.min(Math.max(value, min), max)
+};
+goog.math.modulo = function(a, b) {
+  var r = a % b;
+  return 0 > r * b ? r + b : r
+};
+goog.math.lerp = function(a, b, x) {
+  return a + x * (b - a)
+};
+goog.math.nearlyEquals = function(a, b, opt_tolerance) {
+  return Math.abs(a - b) <= (opt_tolerance || 1E-6)
+};
+goog.math.standardAngle = function(angle) {
+  return goog.math.modulo(angle, 360)
+};
+goog.math.toRadians = function(angleDegrees) {
+  return angleDegrees * Math.PI / 180
+};
+goog.math.toDegrees = function(angleRadians) {
+  return 180 * angleRadians / Math.PI
+};
+goog.math.angleDx = function(degrees, radius) {
+  return radius * Math.cos(goog.math.toRadians(degrees))
+};
+goog.math.angleDy = function(degrees, radius) {
+  return radius * Math.sin(goog.math.toRadians(degrees))
+};
+goog.math.angle = function(x1, y1, x2, y2) {
+  return goog.math.standardAngle(goog.math.toDegrees(Math.atan2(y2 - y1, x2 - x1)))
+};
+goog.math.angleDifference = function(startAngle, endAngle) {
+  var d = goog.math.standardAngle(endAngle) - goog.math.standardAngle(startAngle);
+  180 < d ? d -= 360 : -180 >= d && (d = 360 + d);
+  return d
+};
+goog.math.sign = function(x) {
+  return 0 == x ? 0 : 0 > x ? -1 : 1
+};
+goog.math.longestCommonSubsequence = function(array1, array2, opt_compareFn, opt_collectorFn) {
+  for(var compare = opt_compareFn || function(a, b) {
+    return a == b
+  }, collect = opt_collectorFn || function(i1) {
+    return array1[i1]
+  }, length1 = array1.length, length2 = array2.length, arr = [], i = 0;i < length1 + 1;i++) {
+    arr[i] = [], arr[i][0] = 0
+  }
+  for(var j = 0;j < length2 + 1;j++) {
+    arr[0][j] = 0
+  }
+  for(i = 1;i <= length1;i++) {
+    for(j = 1;j <= length2;j++) {
+      compare(array1[i - 1], array2[j - 1]) ? arr[i][j] = arr[i - 1][j - 1] + 1 : arr[i][j] = Math.max(arr[i - 1][j], arr[i][j - 1])
+    }
+  }
+  for(var result = [], i = length1, j = length2;0 < i && 0 < j;) {
+    compare(array1[i - 1], array2[j - 1]) ? (result.unshift(collect(i - 1, j - 1)), i--, j--) : arr[i - 1][j] > arr[i][j - 1] ? i-- : j--
+  }
+  return result
+};
+goog.math.sum = function(var_args) {
+  return goog.array.reduce(arguments, function(sum, value) {
+    return sum + value
+  }, 0)
+};
+goog.math.average = function(var_args) {
+  return goog.math.sum.apply(null, arguments) / arguments.length
+};
+goog.math.standardDeviation = function(var_args) {
+  var sampleSize = arguments.length;
+  if(2 > sampleSize) {
+    return 0
+  }
+  var mean = goog.math.average.apply(null, arguments), variance = goog.math.sum.apply(null, goog.array.map(arguments, function(val) {
+    return Math.pow(val - mean, 2)
+  })) / (sampleSize - 1);
+  return Math.sqrt(variance)
+};
+goog.math.isInt = function(num) {
+  return isFinite(num) && 0 == num % 1
+};
+goog.math.isFiniteNumber = function(num) {
+  return isFinite(num) && !isNaN(num)
+};
+goog.math.safeFloor = function(num, opt_epsilon) {
+  goog.asserts.assert(!goog.isDef(opt_epsilon) || 0 < opt_epsilon);
+  return Math.floor(num + (opt_epsilon || 2E-15))
+};
+goog.math.safeCeil = function(num, opt_epsilon) {
+  goog.asserts.assert(!goog.isDef(opt_epsilon) || 0 < opt_epsilon);
+  return Math.ceil(num - (opt_epsilon || 2E-15))
 };
 goog.iter = {};
 goog.iter.StopIteration = "StopIteration" in goog.global ? goog.global.StopIteration : Error("StopIteration");
@@ -2577,6 +2779,159 @@ goog.iter.count = function(opt_start, opt_step) {
     var returnValue = counter;
     counter += step;
     return returnValue
+  };
+  return iter
+};
+goog.iter.repeat = function(value) {
+  var iter = new goog.iter.Iterator;
+  iter.next = goog.functions.constant(value);
+  return iter
+};
+goog.iter.accumulate = function(iterable) {
+  var iterator = goog.iter.toIterator(iterable), total = 0, iter = new goog.iter.Iterator;
+  iter.next = function() {
+    return total += iterator.next()
+  };
+  return iter
+};
+goog.iter.zip = function(var_args) {
+  var args = arguments, iter = new goog.iter.Iterator;
+  if(0 < args.length) {
+    var iterators = goog.array.map(args, goog.iter.toIterator);
+    iter.next = function() {
+      return goog.array.map(iterators, function(it) {
+        return it.next()
+      })
+    }
+  }
+  return iter
+};
+goog.iter.zipLongest = function(fillValue, var_args) {
+  var args = goog.array.slice(arguments, 1), iter = new goog.iter.Iterator;
+  if(0 < args.length) {
+    var iterators = goog.array.map(args, goog.iter.toIterator);
+    iter.next = function() {
+      var iteratorsHaveValues = !1, arr = goog.array.map(iterators, function(it) {
+        var returnValue;
+        try {
+          returnValue = it.next(), iteratorsHaveValues = !0
+        }catch(ex) {
+          if(ex !== goog.iter.StopIteration) {
+            throw ex;
+          }
+          returnValue = fillValue
+        }
+        return returnValue
+      });
+      if(!iteratorsHaveValues) {
+        throw goog.iter.StopIteration;
+      }
+      return arr
+    }
+  }
+  return iter
+};
+goog.iter.compress = function(iterable, selectors) {
+  var selectorIterator = goog.iter.toIterator(selectors);
+  return goog.iter.filter(iterable, function() {
+    return!!selectorIterator.next()
+  })
+};
+goog.iter.GroupByIterator_ = function(iterable, opt_keyFunc) {
+  this.iterator = goog.iter.toIterator(iterable);
+  this.keyFunc = opt_keyFunc || goog.functions.identity
+};
+goog.inherits(goog.iter.GroupByIterator_, goog.iter.Iterator);
+goog.iter.GroupByIterator_.prototype.next = function() {
+  for(;this.currentKey == this.targetKey;) {
+    this.currentValue = this.iterator.next(), this.currentKey = this.keyFunc(this.currentValue)
+  }
+  this.targetKey = this.currentKey;
+  return[this.currentKey, this.groupItems_(this.targetKey)]
+};
+goog.iter.GroupByIterator_.prototype.groupItems_ = function(targetKey) {
+  for(var arr = [];this.currentKey == targetKey;) {
+    arr.push(this.currentValue);
+    try {
+      this.currentValue = this.iterator.next()
+    }catch(ex) {
+      if(ex !== goog.iter.StopIteration) {
+        throw ex;
+      }
+      break
+    }
+    this.currentKey = this.keyFunc(this.currentValue)
+  }
+  return arr
+};
+goog.iter.groupBy = function(iterable, opt_keyFunc) {
+  return new goog.iter.GroupByIterator_(iterable, opt_keyFunc)
+};
+goog.iter.tee = function(iterable, opt_num) {
+  var iterator = goog.iter.toIterator(iterable), buffers = goog.array.map(goog.array.range(goog.isNumber(opt_num) ? opt_num : 2), function() {
+    return[]
+  }), addNextIteratorValueToBuffers = function() {
+    var val = iterator.next();
+    goog.array.forEach(buffers, function(buffer) {
+      buffer.push(val)
+    })
+  };
+  return goog.array.map(buffers, function(buffer) {
+    var iter = new goog.iter.Iterator;
+    iter.next = function() {
+      goog.array.isEmpty(buffer) && addNextIteratorValueToBuffers();
+      goog.asserts.assert(!goog.array.isEmpty(buffer));
+      return buffer.shift()
+    };
+    return iter
+  })
+};
+goog.iter.enumerate = function(iterable, opt_start) {
+  return goog.iter.zip(goog.iter.count(opt_start), iterable)
+};
+goog.iter.limit = function(iterable, limitSize) {
+  goog.asserts.assert(goog.math.isInt(limitSize) && 0 <= limitSize);
+  var iterator = goog.iter.toIterator(iterable), iter = new goog.iter.Iterator, remaining = limitSize;
+  iter.next = function() {
+    if(0 < remaining--) {
+      return iterator.next()
+    }
+    throw goog.iter.StopIteration;
+  };
+  return iter
+};
+goog.iter.consume = function(iterable, count) {
+  goog.asserts.assert(goog.math.isInt(count) && 0 <= count);
+  for(var iterator = goog.iter.toIterator(iterable);0 < count--;) {
+    goog.iter.nextOrValue(iterator, null)
+  }
+  return iterator
+};
+goog.iter.slice = function(iterable, start, opt_end) {
+  goog.asserts.assert(goog.math.isInt(start) && 0 <= start);
+  var iterator = goog.iter.consume(iterable, start);
+  goog.isNumber(opt_end) && (goog.asserts.assert(goog.math.isInt(opt_end) && opt_end >= start), iterator = goog.iter.limit(iterator, opt_end - start));
+  return iterator
+};
+goog.iter.hasDuplicates_ = function(arr) {
+  var deduped = [];
+  goog.array.removeDuplicates(arr, deduped);
+  return arr.length != deduped.length
+};
+goog.iter.permutations = function(iterable, opt_length) {
+  var pool = goog.iter.toArray(iterable), sets = goog.array.repeat(pool, goog.isNumber(opt_length) ? opt_length : pool.length), product = goog.iter.product.apply(void 0, sets);
+  return goog.iter.filter(product, function(arr) {
+    return!goog.iter.hasDuplicates_(arr)
+  })
+};
+goog.iter.combinations = function(iterable, length) {
+  var pool = goog.iter.toArray(iterable), indexes = goog.iter.range(pool.length), indexIterator = goog.iter.permutations(indexes, length), sortedIndexIterator = goog.iter.filter(indexIterator, function(arr) {
+    return goog.array.isSorted(arr)
+  }), iter = new goog.iter.Iterator;
+  iter.next = function() {
+    return goog.array.map(sortedIndexIterator.next(), function(i) {
+      return pool[i]
+    })
   };
   return iter
 };
@@ -4513,108 +4868,6 @@ goog.exportProperty(ee.data, "getThumbId", ee.data.getThumbId);
 goog.exportProperty(ee.data, "makeThumbUrl", ee.data.makeThumbUrl);
 goog.exportProperty(ee.data, "getDownloadId", ee.data.getDownloadId);
 goog.exportProperty(ee.data, "makeDownloadUrl", ee.data.makeDownloadUrl);
-goog.functions = {};
-goog.functions.constant = function(retValue) {
-  return function() {
-    return retValue
-  }
-};
-goog.functions.FALSE = goog.functions.constant(!1);
-goog.functions.TRUE = goog.functions.constant(!0);
-goog.functions.NULL = goog.functions.constant(null);
-goog.functions.identity = function(opt_returnValue) {
-  return opt_returnValue
-};
-goog.functions.error = function(message) {
-  return function() {
-    throw Error(message);
-  }
-};
-goog.functions.fail = function(err) {
-  return function() {
-    throw err;
-  }
-};
-goog.functions.lock = function(f, opt_numArgs) {
-  opt_numArgs = opt_numArgs || 0;
-  return function() {
-    return f.apply(this, Array.prototype.slice.call(arguments, 0, opt_numArgs))
-  }
-};
-goog.functions.nth = function(n) {
-  return function() {
-    return arguments[n]
-  }
-};
-goog.functions.withReturnValue = function(f, retValue) {
-  return goog.functions.sequence(f, goog.functions.constant(retValue))
-};
-goog.functions.compose = function(fn, var_args) {
-  var functions = arguments, length = functions.length;
-  return function() {
-    var result;
-    length && (result = functions[length - 1].apply(this, arguments));
-    for(var i = length - 2;0 <= i;i--) {
-      result = functions[i].call(this, result)
-    }
-    return result
-  }
-};
-goog.functions.sequence = function(var_args) {
-  var functions = arguments, length = functions.length;
-  return function() {
-    for(var result, i = 0;i < length;i++) {
-      result = functions[i].apply(this, arguments)
-    }
-    return result
-  }
-};
-goog.functions.and = function(var_args) {
-  var functions = arguments, length = functions.length;
-  return function() {
-    for(var i = 0;i < length;i++) {
-      if(!functions[i].apply(this, arguments)) {
-        return!1
-      }
-    }
-    return!0
-  }
-};
-goog.functions.or = function(var_args) {
-  var functions = arguments, length = functions.length;
-  return function() {
-    for(var i = 0;i < length;i++) {
-      if(functions[i].apply(this, arguments)) {
-        return!0
-      }
-    }
-    return!1
-  }
-};
-goog.functions.not = function(f) {
-  return function() {
-    return!f.apply(this, arguments)
-  }
-};
-goog.functions.create = function(constructor, var_args) {
-  var temp = function() {
-  };
-  temp.prototype = constructor.prototype;
-  var obj = new temp;
-  constructor.apply(obj, Array.prototype.slice.call(arguments, 1));
-  return obj
-};
-goog.functions.CACHE_RETURN_VALUE = !0;
-goog.functions.cacheReturnValue = function(fn) {
-  var called = !1, value;
-  return function() {
-    if(!goog.functions.CACHE_RETURN_VALUE) {
-      return fn()
-    }
-    called || (value = fn(), called = !0);
-    return value
-  }
-};
 ee.Encodable = function() {
 };
 goog.crypt = {};
@@ -4719,8 +4972,11 @@ ee.Serializer = function(opt_isCompound) {
 };
 ee.Serializer.jsonSerializer_ = new goog.json.Serializer;
 ee.Serializer.hash_ = new goog.crypt.Md5;
+ee.Serializer.encode = function(obj) {
+  return(new ee.Serializer(!0)).encode_(obj)
+};
 ee.Serializer.toJSON = function(obj) {
-  return ee.Serializer.jsonSerializer_.serialize((new ee.Serializer(!0)).encode_(obj))
+  return ee.Serializer.jsonSerializer_.serialize(ee.Serializer.encode(obj))
 };
 ee.Serializer.toReadableJSON = function(obj) {
   var encoded = (new ee.Serializer(!1)).encode_(obj);
@@ -4991,19 +5247,18 @@ ee.ApiFunction.lookup = function(name) {
   }
   return func
 };
-ee.ApiFunction.initialize = function(opt_callback) {
+ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
   if(!ee.ApiFunction.api_) {
-    var callback = function(data) {
-      ee.ApiFunction.api_ = goog.object.map(data, function(sig, name) {
+    var callback = function(data, opt_error) {
+      opt_error ? opt_failureCallback && opt_failureCallback(Error(opt_error)) : (ee.ApiFunction.api_ = goog.object.map(data, function(sig, name) {
         sig.returns = sig.returns.replace(/<.*>/, "");
         for(var i = 0;i < sig.args.length;i++) {
           sig.args[i].type = sig.args[i].type.replace(/<.*>/, "")
         }
         return new ee.ApiFunction(name, sig)
-      });
-      opt_callback && opt_callback()
+      }), opt_successCallback && opt_successCallback())
     };
-    opt_callback ? ee.data.getAlgorithms(callback) : callback(ee.data.getAlgorithms())
+    opt_successCallback ? ee.data.getAlgorithms(callback) : callback(ee.data.getAlgorithms())
   }
 };
 ee.ApiFunction.reset = function() {
@@ -5025,9 +5280,19 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       var destination = isInstance ? target.prototype : target;
       fname in destination && (fname += "_");
       destination[fname] = function(var_args) {
-        var args = Array.prototype.slice.call(arguments, 0);
-        isInstance && args.unshift(this);
-        return apiFunc.call.apply(apiFunc, args)
+        var args = Array.prototype.slice.call(arguments, 0), namedArgs;
+        if(1 == args.length && args[0].constructor == Object) {
+          if(namedArgs = goog.object.clone(args[0]), isInstance) {
+            var firstArgName = signature.args[0].name;
+            if(firstArgName in namedArgs) {
+              throw Error("Named args for " + fname + " can't contain keyword " + firstArgName);
+            }
+            namedArgs[firstArgName] = this
+          }
+        }else {
+          namedArgs = apiFunc.nameArgs(isInstance ? [this].concat(args) : args)
+        }
+        return apiFunc.apply(namedArgs)
       };
       destination[fname].toString = goog.bind(apiFunc.toString, apiFunc, fname, isInstance);
       destination[fname].signature = signature
@@ -5049,10 +5314,10 @@ ee.CustomFunction = function(signature, body) {
   }
   for(var vars = [], args = signature.args, i = 0;i < args.length;i++) {
     var arg = args[i];
-    vars.push(ee.CustomFunction.variable(ee.Types.nameToClass(arg.type), arg.name))
+    vars.push(ee.CustomFunction.variable_(ee.Types.nameToClass(arg.type), arg.name))
   }
-  this.signature_ = signature;
-  this.body_ = body.apply(null, vars)
+  this.body_ = body.apply(null, vars);
+  this.signature_ = ee.CustomFunction.resolveNamelessArgs_(signature, vars, this.body_)
 };
 goog.inherits(ee.CustomFunction, ee.Function);
 ee.CustomFunction.prototype.encode = function(encoder) {
@@ -5063,17 +5328,38 @@ ee.CustomFunction.prototype.encode = function(encoder) {
 ee.CustomFunction.prototype.getSignature = function() {
   return this.signature_
 };
-ee.CustomFunction.variable = function(type, name) {
+ee.CustomFunction.variable_ = function(type, name) {
   var Variable = function() {
   };
   type = type || Object;
   Variable.prototype = type.prototype instanceof ee.Encodable ? type.prototype : ee.Encodable.prototype;
   var instance = new Variable;
+  instance.name_ = name;
   instance.encode = function() {
-    return{type:"ArgumentRef", value:name}
+    return{type:"ArgumentRef", value:this.name_}
   };
   instance[ee.Types.VAR_TYPE_KEY] = type;
   return instance
+};
+ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
+  for(var namelessArgIndices = [], i = 0;i < vars.length;i++) {
+    goog.isNull(vars[i].name_) && namelessArgIndices.push(i)
+  }
+  if(0 == namelessArgIndices.length) {
+    return signature
+  }
+  for(var countVariables = function(expression) {
+    var count = 0;
+    goog.isObject(expression) && !goog.isFunction(expression) && ("ArgumentRef" != expression.type || goog.isNull(expression.value) ? goog.object.forEach(expression, function(subExpression) {
+      count += countVariables(subExpression)
+    }) : count++);
+    return count
+  }, serializedBody = ee.Serializer.encode(body), baseName = "_MAPPING_VAR_" + countVariables(serializedBody) + "_", i = 0;i < namelessArgIndices.length;i++) {
+    var index = namelessArgIndices[i], name = baseName + i;
+    vars[index].name_ = name;
+    signature.args[index].name = name
+  }
+  return signature
 };
 ee.Filter = function(opt_filter) {
   if(!(this instanceof ee.Filter)) {
@@ -5283,15 +5569,13 @@ ee.Collection = function(func, args) {
   ee.Collection.initialize()
 };
 goog.inherits(ee.Collection, ee.ComputedObject);
-ee.Collection.serialMappingId_ = 0;
 ee.Collection.initialized_ = !1;
 ee.Collection.initialize = function() {
   ee.Collection.initialized_ || (ee.ApiFunction.importApi(ee.Collection, "Collection", "Collection"), ee.ApiFunction.importApi(ee.Collection, "AggregateFeatureCollection", "Collection", "aggregate_"), ee.Collection.initialized_ = !0)
 };
 ee.Collection.reset = function() {
   ee.ApiFunction.clearApi(ee.Collection);
-  ee.Collection.initialized_ = !1;
-  ee.Collection.serialMappingId_ = 0
+  ee.Collection.initialized_ = !1
 };
 ee.Collection.prototype.filter = function(newFilter) {
   if(!newFilter) {
@@ -5325,8 +5609,8 @@ ee.Collection.prototype.mapInternal = function(type, algorithm, opt_dynamicArgs,
     if(opt_dynamicArgs) {
       throw Error("Can't use dynamicArgs with a mapped JS function.");
     }
-    var varName = "_MAPPING_VAR_" + ee.Collection.serialMappingId_++, className = ee.Types.classToName(type);
-    algorithm = new ee.CustomFunction({name:"", returns:className, args:[{name:varName, type:className}]}, algorithm)
+    var className = ee.Types.classToName(type);
+    algorithm = new ee.CustomFunction({name:"", returns:className, args:[{name:null, type:className}]}, algorithm)
   }else {
     if(goog.isString(algorithm)) {
       algorithm = new ee.ApiFunction(algorithm)
@@ -5337,7 +5621,12 @@ ee.Collection.prototype.mapInternal = function(type, algorithm, opt_dynamicArgs,
     }
   }
   var args = {collection:this, baseAlgorithm:algorithm};
-  opt_dynamicArgs ? args.dynamicArgs = opt_dynamicArgs : (varName = algorithm.getSignature().args[0].name, args.dynamicArgs = goog.object.create(varName, ".all"));
+  if(opt_dynamicArgs) {
+    args.dynamicArgs = opt_dynamicArgs
+  }else {
+    var varName = algorithm.getSignature().args[0].name;
+    args.dynamicArgs = goog.object.create(varName, ".all")
+  }
   opt_constantArgs && (args.constantArgs = opt_constantArgs);
   opt_destination && (args.destination = opt_destination);
   return this.cast_(ee.ApiFunction._apply("Collection.map", args))
@@ -5387,7 +5676,17 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
     this.type_ = geoJson.type;
     this.coordinates_ = geoJson.coordinates || null;
     this.geometries_ = geoJson.geometries || null;
-    this.proj_ = opt_proj;
+    if(goog.isDefAndNotNull(opt_proj)) {
+      this.proj_ = opt_proj
+    }else {
+      if("crs" in geoJson) {
+        if(goog.isObject(geoJson.crs) && "name" == geoJson.crs.type && goog.isObject(geoJson.crs.properties) && goog.isString(geoJson.crs.properties.name)) {
+          this.proj_ = geoJson.crs.properties.name
+        }else {
+          throw Error("Invalid CRS declaration in GeoJSON: " + (new goog.json.Serializer).serialize(geoJson.crs));
+        }
+      }
+    }
     this.geodesic_ = opt_geodesic;
     !goog.isDef(opt_geodesic) && "geodesic" in geoJson && (this.geodesic_ = Boolean(geoJson.geodesic))
   }
@@ -5592,6 +5891,111 @@ goog.exportProperty(ee.Geometry, "MultiPolygon", ee.Geometry.MultiPolygon);
 goog.exportProperty(ee.Geometry.prototype, "toGeoJSON", ee.Geometry.prototype.toGeoJSON);
 goog.exportProperty(ee.Geometry.prototype, "toGeoJSONString", ee.Geometry.prototype.toGeoJSONString);
 goog.exportProperty(ee.Geometry.prototype, "toString", ee.Geometry.prototype.toString);
+ee.Deserializer = function() {
+};
+ee.Deserializer.fromJSON = function(json) {
+  return ee.Deserializer.decode(goog.json.parse(json))
+};
+ee.Deserializer.decode = function(json) {
+  var namedValues = {};
+  if(goog.isObject(json) && "CompoundValue" == json.type) {
+    for(var scopes = json.scope, i = 0;i < scopes.length;i++) {
+      var key = scopes[i][0], value = scopes[i][1];
+      if(key in namedValues) {
+        throw Error('Duplicate scope key "' + key + '" in scope #' + i + ".");
+      }
+      namedValues[key] = ee.Deserializer.decodeValue_(value, namedValues)
+    }
+    json = json.value
+  }
+  return ee.Deserializer.decodeValue_(json, namedValues)
+};
+ee.Deserializer.decodeValue_ = function(json, namedValues) {
+  if(goog.isNull(json) || goog.isNumber(json) || goog.isBoolean(json) || goog.isString(json)) {
+    return json
+  }
+  if(goog.isArray(json)) {
+    return goog.array.map(json, function(element) {
+      return ee.Deserializer.decodeValue_(element, namedValues)
+    })
+  }
+  if(!goog.isObject(json) || goog.isFunction(json)) {
+    throw Error("Cannot decode object: " + json);
+  }
+  var typeName = json.type;
+  switch(typeName) {
+    case "ValueRef":
+      if(json.value in namedValues) {
+        return namedValues[json.value]
+      }
+      throw Error("Unknown ValueRef: " + json);;
+    case "ArgumentRef":
+      var varName = json.value;
+      if(!goog.isString(varName)) {
+        throw Error("Invalid variable name: " + varName);
+      }
+      return ee.CustomFunction.variable_(Object, varName);
+    case "Date":
+      var microseconds = json.value;
+      if(!goog.isNumber(microseconds)) {
+        throw Error("Invalid date value: " + microseconds);
+      }
+      return new Date(microseconds / 1E3);
+    case "Bytes":
+      var result = new ee.Encodable;
+      result.encode = function() {
+        return json
+      };
+      return result;
+    case "Invocation":
+      var func;
+      func = "functionName" in json ? ee.ApiFunction.lookup(json.functionName) : ee.Deserializer.decodeValue_(json["function"], namedValues);
+      var args = goog.object.map(json.arguments, function(element) {
+        return ee.Deserializer.decodeValue_(element, namedValues)
+      });
+      if(func instanceof ee.Function) {
+        return func.apply(args)
+      }
+      if(func instanceof ee.ComputedObject) {
+        return new ee.ComputedObject(func, args)
+      }
+      throw Error("Invalid function value: " + json["function"]);;
+    case "Dictionary":
+      return goog.object.map(json.value, function(element) {
+        return ee.Deserializer.decodeValue_(element, namedValues)
+      });
+    case "Function":
+      var body = ee.Deserializer.decodeValue_(json.body, namedValues), signature = {name:"", args:goog.array.map(json.argumentNames, function(argName) {
+        return{name:argName, type:"Object", optional:!1}
+      }), returns:"Object"};
+      return new ee.CustomFunction(signature, function() {
+        return body
+      });
+    case "Point":
+    ;
+    case "MultiPoint":
+    ;
+    case "LineString":
+    ;
+    case "MultiLineString":
+    ;
+    case "Polygon":
+    ;
+    case "MultiPolygon":
+    ;
+    case "LinearRing":
+    ;
+    case "GeometryCollection":
+      return new ee.Geometry(json);
+    case "CompoundValue":
+      throw Error("Nested CompoundValues are disallowed.");;
+    default:
+      throw Error("Unknown encoded object type: " + typeName);
+  }
+};
+goog.exportSymbol("ee.Deserializer", ee.Deserializer);
+goog.exportSymbol("ee.Deserializer.decode", ee.Deserializer.decode);
+goog.exportSymbol("ee.Deserializer.fromJSON", ee.Deserializer.fromJSON);
 ee.Feature = function(geometry, opt_properties) {
   if(!(this instanceof ee.Feature)) {
     return new ee.Feature(geometry, opt_properties)
@@ -5967,36 +6371,31 @@ ee.String.prototype.name = function() {
 };
 goog.exportSymbol("ee.String", ee.String);
 goog.exportProperty(ee.String.prototype, "encode", ee.String.prototype.encode);
-ee.initialize = function(opt_baseurl, opt_tileurl, opt_callback) {
+ee.initialize = function(opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback) {
   if(ee.ready_ != ee.InitState.READY || opt_baseurl || opt_tileurl) {
-    if(ee.ready() == ee.InitState.LOADING) {
-      throw Error("Already loading.");
-    }
-    ee.ready_ = ee.InitState.LOADING;
-    ee.data.initialize(opt_baseurl, opt_tileurl);
-    var finish = function() {
-      ee.Image.initialize();
-      ee.Feature.initialize();
-      ee.Collection.initialize();
-      ee.ImageCollection.initialize();
-      ee.FeatureCollection.initialize();
-      ee.Filter.initialize();
-      ee.Geometry.initialize();
-      ee.String.initialize();
-      ee.initializeGeneratedClasses_();
-      ee.initializeUnboundMethods_();
-      ee.ready_ = ee.InitState.READY;
-      opt_callback && opt_callback()
-    };
-    if(opt_callback) {
-      ee.ApiFunction.initialize(finish)
-    }else {
-      try {
-        ee.ApiFunction.initialize(), finish()
-      }catch(e) {
-        alert("Could not read algorithm list.")
+    var isAsynchronous = goog.isDefAndNotNull(opt_successCallback);
+    if(opt_errorCallback) {
+      if(isAsynchronous) {
+        ee.errorCallbacks_.push(opt_errorCallback)
+      }else {
+        throw Error("Can't pass an error callback without a success callback.");
       }
     }
+    if(ee.ready_ == ee.InitState.LOADING && isAsynchronous) {
+      ee.successCallbacks_.push(opt_successCallback)
+    }else {
+      if(ee.ready_ = ee.InitState.LOADING, ee.data.initialize(opt_baseurl, opt_tileurl), isAsynchronous) {
+        ee.successCallbacks_.push(opt_successCallback), ee.ApiFunction.initialize(ee.initializationSuccess_, ee.initializationFailure_)
+      }else {
+        try {
+          ee.ApiFunction.initialize(), ee.initializationSuccess_()
+        }catch(e) {
+          throw ee.initializationFailure_(e), e;
+        }
+      }
+    }
+  }else {
+    opt_successCallback && opt_successCallback()
   }
 };
 ee.reset = function() {
@@ -6016,6 +6415,8 @@ ee.reset = function() {
 };
 ee.InitState = {NOT_READY:"not_ready", LOADING:"loading", READY:"ready"};
 ee.ready_ = ee.InitState.NOT_READY;
+ee.successCallbacks_ = [];
+ee.errorCallbacks_ = [];
 ee.TILE_SIZE = 256;
 ee.generatedClasses_ = [];
 ee.Algorithms = {};
@@ -6030,6 +6431,27 @@ ee.call = function(func, var_args) {
 ee.apply = function(func, namedArgs) {
   goog.isString(func) && (func = new ee.ApiFunction(func));
   return func.apply(namedArgs)
+};
+ee.initializationSuccess_ = function() {
+  if(ee.ready_ == ee.InitState.LOADING) {
+    try {
+      ee.Image.initialize(), ee.Feature.initialize(), ee.Collection.initialize(), ee.ImageCollection.initialize(), ee.FeatureCollection.initialize(), ee.Filter.initialize(), ee.Geometry.initialize(), ee.String.initialize(), ee.initializeGeneratedClasses_(), ee.initializeUnboundMethods_()
+    }catch(e) {
+      ee.initializationFailure_(e);
+      return
+    }
+    ee.ready_ = ee.InitState.READY;
+    for(ee.errorCallbacks_ = [];0 < ee.successCallbacks_.length;) {
+      ee.successCallbacks_.shift()()
+    }
+  }
+};
+ee.initializationFailure_ = function(e) {
+  if(ee.ready_ == ee.InitState.LOADING) {
+    for(ee.ready_ = ee.InitState.NOT_READY, ee.successCallbacks_ = [];0 < ee.errorCallbacks_.length;) {
+      ee.errorCallbacks_.shift()(e)
+    }
+  }
 };
 ee.promote_ = function(arg, klass) {
   if(goog.isNull(arg)) {
@@ -6060,7 +6482,17 @@ ee.promote_ = function(arg, klass) {
       case "Algorithm":
         return goog.isString(arg) ? new ee.ApiFunction(arg) : arg;
       case "Date":
-        return goog.isString(arg) ? new Date(arg) : goog.isNumber(arg) ? new Date(arg) : arg;
+        if(goog.isString(arg)) {
+          return new Date(arg)
+        }
+        if(goog.isNumber(arg)) {
+          return new Date(arg)
+        }
+        if(arg instanceof ee.ComputedObject) {
+          var func = ee.ApiFunction.lookup("Date");
+          return new ee.ComputedObject(func, func.promoteArgs(func.nameArgs([arg])))
+        }
+        return arg;
       case "Dictionary":
         return klass in ee ? arg instanceof ee[klass] ? arg : arg instanceof ee.ComputedObject ? new ee[klass](arg) : arg : arg;
       case "String":
@@ -6090,7 +6522,7 @@ ee.initializeUnboundMethods_ = function() {
     if(!signature.hidden) {
       for(var nameParts = name.split("."), target = ee.Algorithms;1 < nameParts.length;) {
         var first = nameParts[0];
-        first in target || (target[first] = {});
+        first in target || (target[first] = {signature:{}});
         target = target[first];
         nameParts = goog.array.slice(nameParts, 1)
       }

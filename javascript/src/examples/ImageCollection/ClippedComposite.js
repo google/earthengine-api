@@ -7,7 +7,7 @@
 
 // Create a Landsat 7, median-pixel composite for Spring of 2000.
 var collection = ee.ImageCollection('L7_L1T')
-    .filterDate(new Date('4/1/2000'), new Date('7/1/2000'));
+    .filterDate(new Date('2000-04-01 GMT'), new Date('2000-07-01 GMT'));
 var image1 = collection.median();
 
 // Clip to the output image to the Nevada and Arizona state boundaries.

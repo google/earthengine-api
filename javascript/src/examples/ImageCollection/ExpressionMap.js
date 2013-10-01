@@ -6,7 +6,7 @@
 
 // Filter the L7 collection to a single month.
 var collection = ee.ImageCollection('L7_L1T_TOA')
-    .filterDate(new Date('2002/11/1'), new Date('2002/12/1'));
+    .filterDate(new Date('2002-11-01 GMT'), new Date('2002-12-01 GMT'));
 
 // A function to compute NDVI.
 var ndvi = function(image) {

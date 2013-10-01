@@ -33,14 +33,6 @@ goog.inherits(ee.Collection, ee.ComputedObject);
 
 
 /**
- * The serial number of the next mapping variable.
- * @type {number}
- * @private
- */
-ee.Collection.serialMappingId_ = 0;
-
-
-/**
  * Whether the class has been initialized with API functions.
  * @type {boolean}
  * @private
@@ -72,7 +64,6 @@ ee.Collection.initialize = function() {
 ee.Collection.reset = function() {
   ee.ApiFunction.clearApi(ee.Collection);
   ee.Collection.initialized_ = false;
-  ee.Collection.serialMappingId_ = 0;
 };
 
 
@@ -217,13 +208,12 @@ ee.Collection.prototype.mapInternal = function(
       // TODO(user): Remove this once we have a getProperty() algorithm.
       throw Error('Can\'t use dynamicArgs with a mapped JS function.');
     }
-    var varName = '_MAPPING_VAR_' + ee.Collection.serialMappingId_++;
     var className = ee.Types.classToName(type);
     var signature = {
       'name': '',
       'returns': className,
       'args': [{
-        'name': varName,
+        'name': null,
         'type': className
       }]
     };

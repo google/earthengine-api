@@ -22,9 +22,6 @@ class Collection(computedobject.ComputedObject):
 
   _initialized = False
 
-  # The serial number of the next mapping variable.
-  _serialMappingId = 0
-
   def __init__(self, func, args):
     """Constructs a collection by initializing its ComputedObject."""
     super(Collection, self).__init__(func, args)
@@ -46,7 +43,6 @@ class Collection(computedobject.ComputedObject):
     """
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
-    cls._serialMappingId = 0
 
   def filter(self, new_filter):
     """Apply a filter to this collection.
@@ -235,11 +231,9 @@ class Collection(computedobject.ComputedObject):
         # TODO(user): Remove this once we have a getProperty() algorithm.
         raise ee_exception.EEException(
             'Can\'t use dynamicArgs with a mapped Python function.')
-      varName = '_MAPPING_VAR_%d' % Collection._serialMappingId
-      Collection._serialMappingId += 1
 
       typeName = ee_types.classToName(cls)
-      sig = {'returns': typeName, 'args': [{'name': varName, 'type': typeName}]}
+      sig = {'returns': typeName, 'args': [{'name': None, 'type': typeName}]}
       algorithm = customfunction.CustomFunction(sig, algorithm)
     elif isinstance(algorithm, basestring):
       algorithm = apifunction.ApiFunction.lookup(algorithm)

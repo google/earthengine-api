@@ -16,7 +16,7 @@ var polygon = ee.Feature.Polygon([[
 // Create a Landsat 7 composite for Spring of 2000, and filter by
 // the bounds of the FeatureCollection.
 var collection = ee.ImageCollection('L7_L1T')
-    .filterDate(new Date('4/1/2000'), new Date('7/1/2000'))
+    .filterDate(new Date('2000-04-01 GMT'), new Date('2000-07-01 GMT'))
     .filterBounds(polygon);
 
 // Select the median pixel.

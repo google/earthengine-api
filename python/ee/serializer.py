@@ -139,11 +139,24 @@ class Serializer(object):
       return result
 
 
+def encode(obj):
+  """Serialize an object to a JSON-compatible structure for API calls.
+
+  Args:
+    obj: The object to serialize.
+
+  Returns:
+    A JSON-compatible structure representing the input.
+  """
+  serializer = Serializer(True)
+  return serializer._encode(obj)  # pylint: disable=protected-access
+
+
 def toJSON(obj, opt_pretty=False):
   """Serialize an object to a JSON string appropriate for API calls.
 
   Args:
-    obj: The object to Serialize.
+    obj: The object to serialize.
     opt_pretty: True to pretty-print the object.
 
   Returns:

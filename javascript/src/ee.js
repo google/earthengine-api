@@ -30,50 +30,65 @@ goog.require('goog.object');
  * un-initialization of e.g.: the previously loaded Algorithms, but will
  * overwrite them and let point at alternate servers.
  *
+ * If initialize() is first called in asynchronous mode (by passing a success
+ * callback), any future asynchronous mode calls will add their callbacks to a
+ * queue and all the callbacks will be run together.
+ *
+ * If a synchronous mode call is made after any number of asynchronous calls,
+ * it will block and execute all the previously supplied callbacks before
+ * returning.
+ *
  * @param {string?=} opt_baseurl The (proxied) EarthEngine REST API endpoint.
  * @param {string?=} opt_tileurl The (unproxied) EarthEngine REST tile endpoint.
- * @param {function()=} opt_callback An optional callback to be invoked when
- *     the initialization is done.  If not provided the initialization is
- *     done synchronously.
+ * @param {function()=} opt_successCallback An optional callback to be invoked
+ *     when the initialization is successful. If not provided, the
+ *     initialization is done synchronously.
+ * @param {function(Error)=} opt_errorCallback An optional callback to be
+ *     invoked with an error if the initialization fails.
  */
-ee.initialize = function(opt_baseurl, opt_tileurl, opt_callback) {
+ee.initialize = function(
+    opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback) {
   // If we're already initialized and not getting new parameters, just return.
   if (ee.ready_ == ee.InitState.READY && !opt_baseurl && !opt_tileurl) {
+    if (opt_successCallback) {
+      opt_successCallback();
+    }
     return;
-  } else if (ee.ready() == ee.InitState.LOADING) {
-    throw new Error('Already loading.');
+  }
+
+  var isAsynchronous = goog.isDefAndNotNull(opt_successCallback);
+
+  // Register the error callback.
+  if (opt_errorCallback) {
+    if (isAsynchronous) {
+      ee.errorCallbacks_.push(opt_errorCallback);
+    } else {
+      throw Error('Can\'t pass an error callback without a success callback.');
+    }
+  }
+
+  // If we're already loading, and this is asynchronous, register the success
+  // callback and return. Synchronous initialization runs immediately,
+  // effectively overriding the currently running asynchronous one.
+  if (ee.ready_ == ee.InitState.LOADING && isAsynchronous) {
+    ee.successCallbacks_.push(opt_successCallback);
+    return;
   }
 
   ee.ready_ = ee.InitState.LOADING;
   ee.data.initialize(opt_baseurl, opt_tileurl);
 
-  // Initialize the dynamically loaded functions on the objects that want them.
-  var finish = function() {
-    ee.Image.initialize();
-    ee.Feature.initialize();
-    ee.Collection.initialize();
-    ee.ImageCollection.initialize();
-    ee.FeatureCollection.initialize();
-    ee.Filter.initialize();
-    ee.Geometry.initialize();
-    ee.String.initialize();
-    ee.initializeGeneratedClasses_();
-    ee.initializeUnboundMethods_();
-
-    ee.ready_ = ee.InitState.READY;
-    if (opt_callback) {
-      opt_callback();
-    }
-  };
-
-  if (opt_callback) {
-    ee.ApiFunction.initialize(finish);
+  if (isAsynchronous) {
+    ee.successCallbacks_.push(opt_successCallback);
+    ee.ApiFunction.initialize(
+        ee.initializationSuccess_, ee.initializationFailure_);
   } else {
     try {
       ee.ApiFunction.initialize();
-      finish();
+      ee.initializationSuccess_();
     } catch (e) {
-      alert('Could not read algorithm list.');
+      ee.initializationFailure_(e);
+      throw e;
     }
   }
 };
@@ -116,9 +131,30 @@ ee.InitState = {
 
 /**
  * A flag to indicate the initialization state.
+ * @type {ee.InitState}
  * @private
  */
 ee.ready_ = ee.InitState.NOT_READY;
+
+
+/**
+ * The list of callbacks to call on successful initialization. Added by
+ * initialize() and cleared by initializationSuccess_() and
+ * initializationFailure_().
+ * @type {Array.<function()>}
+ * @private
+ */
+ee.successCallbacks_ = [];
+
+
+/**
+ * The list of callbacks to call on failed initialization. Added by
+ * initialize() and cleared by initializationSuccess_() and
+ * initializationFailure_().
+ * @type {Array.<function(Error)>}
+ * @private
+ */
+ee.errorCallbacks_ = [];
 
 
 /**
@@ -193,6 +229,80 @@ ee.apply = function(func, namedArgs) {
 
 
 /**
+ * Finishes the initialization of the library, assuming ApiFunction has been
+ * initialized successfully.
+ * @private
+ */
+ee.initializationSuccess_ = function() {
+  if (ee.ready_ != ee.InitState.LOADING) {
+    // We have already been called. Can happen if a blocking initialization is
+    // started while an asynchronous one is in progress. The asynchronous one
+    // will report success after the synchronous one has already reported
+    // success or failure.
+    return;
+  }
+
+  try {
+    // Update classes with bound methods.
+    ee.Image.initialize();
+    ee.Feature.initialize();
+    ee.Collection.initialize();
+    ee.ImageCollection.initialize();
+    ee.FeatureCollection.initialize();
+    ee.Filter.initialize();
+    ee.Geometry.initialize();
+    ee.String.initialize();
+
+    // Generate trivial classes.
+    ee.initializeGeneratedClasses_();
+    ee.initializeUnboundMethods_();
+  } catch (e) {
+    ee.initializationFailure_(e);
+    return;
+  }
+
+  // Declare ourselves ready.
+  ee.ready_ = ee.InitState.READY;
+
+  // Clear failure callbacks.
+  ee.errorCallbacks_ = [];
+
+  // Call success callbacks.
+  while (ee.successCallbacks_.length > 0) {
+    // If one of these throws an exception, we explode. Maybe we should ignore
+    // it and continue?
+    ee.successCallbacks_.shift()();
+  }
+};
+
+
+/**
+ * Reports initialization failure.
+ * @param {Error} e The cause of the failure.
+ * @private
+ */
+ee.initializationFailure_ = function(e) {
+  if (ee.ready_ != ee.InitState.LOADING) {
+    // Duplicate call. See reasoning in ee.initializationSuccess_.
+    return;
+  }
+
+  // Declare ourselves unready.
+  ee.ready_ = ee.InitState.NOT_READY;
+
+  // Clear success callbacks.
+  ee.successCallbacks_ = [];
+
+  // Call failure callbacks.
+  while (ee.errorCallbacks_.length > 0) {
+    // If one of these throws an exception, we explode. Maybe we should ignore
+    // it and continue?
+    ee.errorCallbacks_.shift()(e);
+  }
+};
+
+
+/**
  * Wrap an argument in an object of the specified class. This is used to
  * e.g.: promote numbers or strings to Images and arrays to Collections.
  *
@@ -260,6 +370,11 @@ ee.promote_ = function(arg, klass) {
         return new Date(arg);
       } else if (goog.isNumber(arg)) {
         return new Date(arg);
+      } else if (arg instanceof ee.ComputedObject) {
+        // Not using call to avoid the return type being recast as date.
+        var func = ee.ApiFunction.lookup('Date');
+        return new ee.ComputedObject(
+            func, func.promoteArgs(func.nameArgs([arg])));
       } else {
         return arg;
       }
@@ -328,7 +443,9 @@ ee.initializeUnboundMethods_ = function() {
     while (nameParts.length > 1) {
       var first = nameParts[0];
       if (!(first in target)) {
-        target[first] = {};
+        // We must add a signature property so the playground docbox recognizes
+        // these objects as parts of the API.
+        target[first] = {'signature': {}};
       }
       target = target[first];
       nameParts = goog.array.slice(nameParts, 1);

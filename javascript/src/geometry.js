@@ -93,7 +93,20 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
    * @type {String|undefined}
    * @private
    */
-  this.proj_ = opt_proj;
+  this.proj_;
+  if (goog.isDefAndNotNull(opt_proj)) {
+    this.proj_ = opt_proj;
+  } else if ('crs' in geoJson) {
+    if (goog.isObject(geoJson['crs']) &&
+        geoJson['crs']['type'] == 'name' &&
+        goog.isObject(geoJson['crs']['properties']) &&
+        goog.isString(geoJson['crs']['properties']['name'])) {
+      this.proj_ = geoJson['crs']['properties']['name'];
+    } else {
+      throw Error('Invalid CRS declaration in GeoJSON: ' +
+                  (new goog.json.Serializer()).serialize(geoJson['crs']));
+    }
+  }
 
   /**
    * Whether the geometry has spherical geodesic edges.
