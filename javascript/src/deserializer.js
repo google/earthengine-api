@@ -12,6 +12,7 @@ goog.require('ee.Encodable');
 goog.require('ee.Function');
 goog.require('ee.Geometry');
 goog.require('goog.array');
+goog.require('goog.json');
 goog.require('goog.object');
 
 
@@ -19,15 +20,17 @@ goog.require('goog.object');
 /**
  * A deserializer for EE object trees.
  * @constructor
- * @hidden
  */
 ee.Deserializer = function() {};
+// Exporting manually to avoid marking the class public in the docs.
+goog.exportSymbol('ee.Deserializer', ee.Deserializer);
 
 
 /**
  * Deserialize an object from a JSON string appropriate for API calls.
  * @param {string} json The JSON represenation of the input.
  * @return {*} The deserialized object.
+ * @export
  */
 ee.Deserializer.fromJSON = function(json) {
   return ee.Deserializer.decode(goog.json.parse(json));
@@ -39,6 +42,7 @@ ee.Deserializer.fromJSON = function(json) {
  *
  * @param {*} json The serialied object to decode.
  * @return {*} The decoded object.
+ * @export
  */
 ee.Deserializer.decode = function(json) {
   var namedValues = {};
@@ -71,6 +75,7 @@ ee.Deserializer.decode = function(json) {
  * @param {Object} namedValues The objects that can be referenced by ValueRefs.
  * @return {*} The decoded object.
  * @private
+ * @suppress {accessControls} We call ee.CustomFunction.variable_().
  */
 ee.Deserializer.decodeValue_ = function(json, namedValues) {
   // Check for primitive values.
@@ -133,7 +138,7 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       } else if (func instanceof ee.ComputedObject) {
         // We have to allow ComputedObjects for cases where invocations
         // return a function, e.g. Image.parseExpression().
-        return new ee.ComputedObject(/** @type {ee.Function} */(func), args);
+        return new ee.ComputedObject(/** @type {?} */(func), args);
       } else {
         throw Error('Invalid function value: ' + json['function']);
       }
@@ -170,8 +175,3 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       throw Error('Unknown encoded object type: ' + typeName);
   }
 };
-
-
-goog.exportSymbol('ee.Deserializer', ee.Deserializer);
-goog.exportSymbol('ee.Deserializer.decode', ee.Deserializer.decode);
-goog.exportSymbol('ee.Deserializer.fromJSON', ee.Deserializer.fromJSON);

@@ -5,7 +5,7 @@
 
 var bart = ee.FeatureCollection('ft:1xCCZkVn8DIkB7i7RVkvsYWxAxsdsQZ6SbD9PCXw');
 var parks = ee.FeatureCollection('ft:10KC6VfBWMUvNcuxU7mbSEg__F_4UVe9uDkCldBw');
-var bufferedBart = bart.map_buffer(2000);
+var bufferedBart = bart.map(function(f) { return f.buffer(2000); });
 var closeParks = parks.filterBounds(bufferedBart);
 
 addToMap(bufferedBart, {color: 'b0b0b0'});

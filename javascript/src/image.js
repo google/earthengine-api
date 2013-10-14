@@ -30,6 +30,7 @@ goog.require('goog.object');
  * @param {number|string|Array.<*>|ee.Image|Object} args Constructor argument.
  * @constructor
  * @extends {ee.ComputedObject}
+ * @export
  */
 ee.Image = function(args) {
   // Constructor safety.
@@ -98,7 +99,6 @@ ee.Image.initialized_ = false;
 
 /**
  * Imports API functions to this class.
- * @hidden
  */
 ee.Image.initialize = function() {
   if (!ee.Image.initialized_) {
@@ -111,7 +111,6 @@ ee.Image.initialize = function() {
 
 /**
  * Removes imported API functions from this class.
- * @hidden
  */
 ee.Image.reset = function() {
   ee.ApiFunction.clearApi(ee.Image);
@@ -128,6 +127,7 @@ ee.Image.reset = function() {
  * @return {ee.data.ImageDescription} A description of the image. Includes:
  *     - bands - an array containing metadata about the bands in the collection.
  *     - properties - a dictionary containing the image's metadata properties.
+ * @export
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.ImageDescription} */(
@@ -144,6 +144,7 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * @param {function(Object, string=)=} opt_callback An async callback.
  * @return {ee.data.MapId} An object containing a mapid string, an access token,
  *     plus this object, or an error message.
+ * @export
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   var request = opt_visParams || {};
@@ -194,6 +195,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
  * @return {string} A download URL.
+ * @export
  */
 ee.Image.prototype.getDownloadURL = function(params) {
   var request = params || {};
@@ -214,6 +216,7 @@ ee.Image.prototype.getDownloadURL = function(params) {
  *         to render. By default, the whole image.
  *   - format (string) Either 'png' (default) or 'jpg'.
  * @return {string} A thumbnail URL.
+ * @export
  */
 ee.Image.prototype.getThumbURL = function(params) {
   var request = params || {};
@@ -234,6 +237,7 @@ ee.Image.prototype.getThumbURL = function(params) {
  * @param {ee.Image} g The green image.
  * @param {ee.Image} b The blue image.
  * @return {ee.Image} The combined image.
+ * @export
  */
 ee.Image.rgb = function(r, g, b) {
   return ee.Image.combine_([r, g, b], ['vis-red', 'vis-green', 'vis-blue']);
@@ -245,6 +249,7 @@ ee.Image.rgb = function(r, g, b) {
  *
  * @param {...ee.Image} var_args The images to be combined.
  * @return {ee.Image} The combined image.
+ * @export
  */
 ee.Image.cat = function(var_args) {
   var args = Array.prototype.slice.call(arguments);
@@ -290,6 +295,7 @@ ee.Image.combine_ = function(images, opt_names) {
  * @param {Array.<string>=} opt_names Array of new names for the output bands.
  *     Must match the number of bands selected.
  * @return {ee.Image} The image.
+ * @export
  */
 ee.Image.prototype.select = function(selectors, opt_names) {
   // If the user didn't pass an array as the first argument, assume
@@ -321,6 +327,7 @@ ee.Image.prototype.select = function(selectors, opt_names) {
  * @param {string} expression The expression to evaluate.
  * @param {Object.<ee.Image>=} opt_map A map of input images available by name.
  * @return {ee.Image} The image created by the provided expression.
+ * @export
  */
 ee.Image.prototype.expression = function(expression, opt_map) {
   var argName = 'DEFAULT_EXPRESSION_IMAGE';
@@ -371,6 +378,7 @@ ee.Image.prototype.expression = function(expression, opt_map) {
  * @param {ee.Geometry|ee.Feature|ee.FeatureCollection|Object} geometry
  *     The Geometry, Feature or FeatureCollection to clip to.
  * @return {ee.Image} The clipped image.
+ * @export
  */
 ee.Image.prototype.clip = function(geometry) {
   try {
@@ -385,28 +393,33 @@ ee.Image.prototype.clip = function(geometry) {
 };
 
 
+/**
+ * Overrides one or more metadata properties of an Image.
+ *
+ * @param {Object.<*>} properties The property values to override.
+ * @return {ee.Image} The image with the specified properties overridden.
+ * @export
+ */
+ee.Image.prototype.set = function(properties) {
+  if (arguments.length != 1 || !goog.isObject(properties)) {
+    throw Error('Image.set() takes only one argument (a dictionary).');
+  }
+  // Try to be smart about interpreting the argument.
+  // Check that we have a plain object, with 1 property called 'properties',
+  // which is itself a plain object.
+  if (properties.constructor == Object &&
+      goog.array.equals(goog.object.getKeys(properties), ['properties']) &&
+      goog.isObject(properties['properties']) &&
+      properties['properties'].constructor == Object) {
+    // Looks like a call with keyword parameters. Extract them.
+    properties = /** @type {Object.<*>} */(properties['properties']);
+  }
+  // Manually cast the result to an image.
+  return new ee.Image(ee.ApiFunction._call('Image.set', this, properties));
+};
+
+
 /** @inheritDoc */
 ee.Image.prototype.name = function() {
   return 'Image';
 };
-
-
-// Explicit exports.
-goog.exportSymbol('ee.Image', ee.Image);
-goog.exportProperty(ee.Image.prototype, 'getInfo',
-                    ee.Image.prototype.getInfo);
-goog.exportProperty(ee.Image.prototype, 'getDownloadURL',
-                    ee.Image.prototype.getDownloadURL);
-goog.exportProperty(ee.Image.prototype, 'getThumbURL',
-                    ee.Image.prototype.getThumbURL);
-goog.exportProperty(ee.Image.prototype, 'getMap',
-                    ee.Image.prototype.getMap);
-goog.exportProperty(ee.Image.prototype, 'select',
-                    ee.Image.prototype.select);
-goog.exportProperty(ee.Image.prototype, 'expression',
-                    ee.Image.prototype.expression);
-goog.exportProperty(ee.Image.prototype, 'clip',
-                    ee.Image.prototype.clip);
-goog.exportProperty(ee.Image, 'cat', ee.Image.cat);
-goog.exportProperty(ee.Image, 'rgb', ee.Image.rgb);
-goog.exportProperty(ee.Image, 'toString', ee.Image.toString);

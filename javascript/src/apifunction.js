@@ -28,7 +28,6 @@ goog.require('goog.object');
  *     The signature of the function. If unspecified, looked up dynamically.
  * @constructor
  * @extends {ee.Function}
- * @hidden
  */
 ee.ApiFunction = function(name, opt_signature) {
   if (!goog.isDef(opt_signature)) {
@@ -47,6 +46,8 @@ ee.ApiFunction = function(name, opt_signature) {
   this.signature_['name'] = name;
 };
 goog.inherits(ee.ApiFunction, ee.Function);
+// Exporting manually to avoid marking the class public in the docs.
+goog.exportSymbol('ee.ApiFunction', ee.ApiFunction);
 
 
 /**
@@ -57,6 +58,7 @@ goog.inherits(ee.ApiFunction, ee.Function);
  * @return {ee.ComputedObject} An object representing the called function.
  *     If the signature specifies a recognized return type, the returned
  *     value will be cast to that type.
+ * @export
  */
 ee.ApiFunction._call = function(name, var_args) {
   return ee.Function.prototype.call.apply(
@@ -72,6 +74,7 @@ ee.ApiFunction._call = function(name, var_args) {
  * @return {ee.ComputedObject} An object representing the called function.
  *     If the signature specifies a recognized return type, the returned
  *     value will be cast to that type.
+ * @export
  */
 ee.ApiFunction._apply = function(name, namedArgs) {
   return ee.ApiFunction.lookup(name).apply(namedArgs);
@@ -105,7 +108,6 @@ ee.ApiFunction.api_ = null;
  *
  * @type {Object.<boolean>}
  * @private
- * @hidden
  */
 ee.ApiFunction.boundSignatures_ = {};
 
@@ -113,7 +115,6 @@ ee.ApiFunction.boundSignatures_ = {};
 /**
  * @return {Object.<ee.Function.Signature>} A map from the name to signature
  *     for all API functions.
- * @hidden
  */
 ee.ApiFunction.allSignatures = function() {
   ee.ApiFunction.initialize();
@@ -127,7 +128,6 @@ ee.ApiFunction.allSignatures = function() {
  * Returns the functions that have not been bound using importApi() yet.
  *
  * @return {Object.<ee.ApiFunction>} A map from name to function.
- * @hidden
  */
 ee.ApiFunction.unboundFunctions = function() {
   ee.ApiFunction.initialize();
@@ -142,6 +142,7 @@ ee.ApiFunction.unboundFunctions = function() {
  *
  * @param {string} name The name of the function to get.
  * @return {ee.ApiFunction} The requested function.
+ * @export
  */
 ee.ApiFunction.lookup = function(name) {
   ee.ApiFunction.initialize();
@@ -160,7 +161,6 @@ ee.ApiFunction.lookup = function(name) {
  *     If not supplied, the call is made synchronously.
  * @param {function(Error)=} opt_failureCallback An optional failure callback.
  *     Only valid if opt_successCallback is specified.
- * @hidden
  */
 ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
   if (!ee.ApiFunction.api_) {
@@ -182,7 +182,8 @@ ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
         for (var i = 0; i < sig['args'].length; i++) {
           sig['args'][i]['type'] = sig['args'][i]['type'].replace(/<.*>/, '');
         }
-        return new ee.ApiFunction(name, sig);
+        return new ee.ApiFunction(
+            name, /** @type {ee.Function.Signature} */(sig));
       });
       if (opt_successCallback) opt_successCallback();
     };
@@ -197,7 +198,6 @@ ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
 
 /**
  * Clears the API functions list so it will be reloaded from the server.
- * @hidden
  */
 ee.ApiFunction.reset = function() {
   ee.ApiFunction.api_ = null;
@@ -215,7 +215,6 @@ ee.ApiFunction.reset = function() {
  *     those whose first argument doesn't match are bound as static methods.
  * @param {string=} opt_prepend An optional string to prepend to the names
  *     of the added functions.
- * @hidden
  */
 ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
   ee.ApiFunction.initialize();
@@ -276,7 +275,6 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
 /**
  * Removes all methods added by importApi() from a target class.
  * @param {Function} target The class to remove from.
- * @hidden
  */
 ee.ApiFunction.clearApi = function(target) {
   var clear = function(target) {

@@ -65,7 +65,6 @@ class ImageCollection(collection.Collection):
           cls, 'ImageCollection', 'ImageCollection')
       apifunction.ApiFunction.importApi(
           cls, 'reduce', 'ImageCollection')
-      collection.Collection.createAutoMapFunctions(image.Image)
       cls._initialized = True
 
   @classmethod
@@ -89,14 +88,25 @@ class ImageCollection(collection.Collection):
     mosaic = apifunction.ApiFunction.call_('ImageCollection.mosaic', self)
     return mosaic.getMapId(vis_params)
 
-  def map(self,
-          algorithm,
-          opt_dynamicArgs=None,
-          opt_constantArgs=None,
-          opt_destination=None):
+  def map(self, algorithm):
     """Maps an algorithm over a collection. See ee.Collection.mapInternal()."""
-    return self.mapInternal(image.Image, algorithm,
-                            opt_dynamicArgs, opt_constantArgs, opt_destination)
+    return self.mapInternal(image.Image, algorithm)
+
+  def select(self, selectors, opt_names=None, *args):
+    """Select bands from each image in a collection.
+
+    Args:
+      selectors: An array of names, regexes or numeric indices specifying
+          the bands to select.
+      opt_names: An array of strings specifying the new names for the
+          selected bands.  If supplied, the length must match the number
+          of bands selected.
+      *args: Selector elements as varargs.
+
+    Returns:
+      The image collection with selected bands.
+    """
+    return self.map(lambda img: img.select(selectors, opt_names, *args))
 
   @staticmethod
   def name():

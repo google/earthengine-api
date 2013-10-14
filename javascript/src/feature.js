@@ -7,6 +7,8 @@ goog.provide('ee.Feature');
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.Geometry');
+goog.require('goog.array');
+goog.require('goog.object');
 
 
 
@@ -25,6 +27,7 @@ goog.require('ee.Geometry');
        first parameter is a Feature (instead of a geometry), this is unused.
  * @constructor
  * @extends {ee.ComputedObject}
+ * @export
  */
 ee.Feature = function(geometry, opt_properties) {
   if (!(this instanceof ee.Feature)) {
@@ -81,7 +84,6 @@ ee.Feature.initialized_ = false;
 
 /**
  * Imports API functions to this class.
- * @hidden
  */
 ee.Feature.initialize = function() {
   if (!ee.Feature.initialized_) {
@@ -93,7 +95,6 @@ ee.Feature.initialize = function() {
 
 /**
  * Removes imported API functions from this class.
- * @hidden
  */
 ee.Feature.reset = function() {
   ee.ApiFunction.clearApi(ee.Feature);
@@ -108,6 +109,7 @@ ee.Feature.reset = function() {
  * @param {function(ee.data.GeoJSONFeature?)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {ee.data.GeoJSONFeature} A description of the feature.
+ * @export
  */
 ee.Feature.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.GeoJSONFeature} */(
@@ -126,6 +128,7 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
  * @return {ee.data.MapId} An object containing a mapid string, an access
  *    token, plus a Collection.draw image wrapping a FeatureCollection
  *    containing this feature.
+ * @export
  */
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
   var collection = ee.ApiFunction._call('Collection', [this]);
@@ -141,6 +144,7 @@ ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
  *     a tuple of the longitude and latitude, in which case lat is ignored.
  * @param {number} lat The latitude of the point.
  * @return {ee.Geometry} A GeoJSON Point.
+ * @export
  */
 ee.Feature.Point = function(lon, lat) {
   return ee.Geometry.Point.apply(null, arguments);
@@ -154,6 +158,7 @@ ee.Feature.Point = function(lon, lat) {
  *     either an array of [lon, lat] tuples, or literal pairs of
  *     coordinate longitudes and latitudes, such as MultiPoint(1, 2, 3, 4).
  * @return {Object} A GeoJSON MultiPoint object.
+ * @export
  */
 ee.Feature.MultiPoint = function(coordinates) {
   return ee.Geometry.MultiPoint.apply(null, arguments);
@@ -168,6 +173,7 @@ ee.Feature.MultiPoint = function(coordinates) {
  * @param {number} lon2 Longiude of the second corner point.
  * @param {number} lat2 latitude of the second corner point.
  * @return {Object} A GeoJSON Polygon.
+ * @export
  */
 ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
   return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2);
@@ -180,8 +186,8 @@ ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
  * @param {number|!Array.<!Array.<number>>} coordinates The coordinates as
  *     either an array of [lon, lat] tuples, or literal pairs of
  *     coordinate longitudes and latitudes, such as LineString(1, 2, 3, 4).
- *
  * @return {ee.Geometry} A GeoJSON LineString.
+ * @export
  */
 ee.Feature.LineString = function(coordinates) {
   return ee.Geometry.LineString.apply(null, arguments);
@@ -194,8 +200,8 @@ ee.Feature.LineString = function(coordinates) {
  * @param {number|!Array.<!Array.<number>>} coordinates The coordinates as
  *     either an array of [lon, lat] tuples, or literal pairs of coordinate
  *     longitudes and latitudes, such as LinearRing(1, 2, 3, 4, 5, 6).
- *
  * @return {ee.Geometry} A GeoJSON LinearRing.
+ * @export
  */
 ee.Feature.LinearRing = function(coordinates) {
   return ee.Geometry.LinearRing.apply(null, arguments);
@@ -210,6 +216,7 @@ ee.Feature.LinearRing = function(coordinates) {
  *     coordinates as either a var_args list of numbers, or an array of
  *     lineStrings, each of which is an array of points.
  * @return {ee.Geometry} The newly constructed MultiLine.
+ * @export
  *
  * TODO(user): This actually doesn't accept an array of
  * ee.Feature.LineStrings, but it should.
@@ -228,6 +235,7 @@ ee.Feature.MultiLine = function(coordinates) {
  *     coordinates as either a var_args list of numbers, or an array of rings,
  *     each of which is an array of points.
  * @return {ee.Geometry} The newly constructed polygon.
+ * @export
  *
  * TODO(user): This actually doesn't accept an array of
  * ee.Feature.LinearRings, but it should.
@@ -245,6 +253,7 @@ ee.Feature.Polygon = function(coordinates) {
  *     multipolygon coordinates either as a var_args list of numbers of
  *     an array of polygons.
  * @return {ee.Geometry} The newly constructed MultiPolygon.
+ * @export
  *
  * TODO(user): This actually doesn't accept an array of
  * ee.Feature.Polygon, but it should.
@@ -254,19 +263,34 @@ ee.Feature.MultiPolygon = function(coordinates) {
 };
 
 
+/**
+ * Overrides one or more metadata properties of a Feature.
+ *
+ * @param {Object.<*>} properties The property values to override.
+ * @return {ee.Feature} The feature with the specified properties overridden.
+ * @export
+ */
+ee.Feature.prototype.set = function(properties) {
+  // NOTE: This is virtually identical to Image.set() and relies on its test.
+  if (arguments.length != 1 || !goog.isObject(properties)) {
+    throw Error('Feature.set() takes only one argument (a dictionary).');
+  }
+  // Try to be smart about interpreting the argument.
+  // Check that we have a plain object, with 1 property called 'properties',
+  // which is itself a plain object.
+  if (properties.constructor == Object &&
+      goog.array.equals(goog.object.getKeys(properties), ['properties']) &&
+      goog.isObject(properties['properties']) &&
+      properties['properties'].constructor == Object) {
+    // Looks like a call with keyword parameters. Extract them.
+    properties = /** @type {Object.<*>} */(properties['properties']);
+  }
+  // Manually cast the result to a feature.
+  return new ee.Feature(ee.ApiFunction._call('Feature.set', this, properties));
+};
+
+
 /** @inheritDoc */
 ee.Feature.prototype.name = function() {
   return 'Feature';
 };
-
-
-goog.exportSymbol('ee.Feature', ee.Feature);
-goog.exportProperty(ee.Feature, 'Point', ee.Feature.Point);
-goog.exportProperty(ee.Feature, 'MultiPoint', ee.Feature.MultiPoint);
-goog.exportProperty(ee.Feature, 'Rectangle', ee.Feature.Rectangle);
-goog.exportProperty(ee.Feature, 'LineString', ee.Feature.LineString);
-goog.exportProperty(ee.Feature, 'LinearRing', ee.Feature.LinearRing);
-goog.exportProperty(ee.Feature, 'MultiLine', ee.Feature.MultiLine);
-goog.exportProperty(ee.Feature, 'Polygon', ee.Feature.Polygon);
-goog.exportProperty(ee.Feature, 'MultiPolygon', ee.Feature.MultiPolygon);
-goog.exportProperty(ee.Feature, 'getMap', ee.Feature.prototype.getMap);

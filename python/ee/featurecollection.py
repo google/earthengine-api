@@ -74,7 +74,6 @@ class FeatureCollection(collection.Collection):
       super(FeatureCollection, cls).initialize()
       apifunction.ApiFunction.importApi(
           cls, 'FeatureCollection', 'FeatureCollection')
-      collection.Collection.createAutoMapFunctions(feature.Feature)
       cls._initialized = True
 
   @classmethod
@@ -100,14 +99,9 @@ class FeatureCollection(collection.Collection):
     })
     return painted.getMapId({})
 
-  def map(self,
-          algorithm,
-          opt_dynamicArgs=None,
-          opt_constantArgs=None,
-          opt_destination=None):
+  def map(self, algorithm):
     """Maps an algorithm over a collection. See ee.Collection.mapInternal()."""
-    return self.mapInternal(feature.Feature, algorithm,
-                            opt_dynamicArgs, opt_constantArgs, opt_destination)
+    return self.mapInternal(feature.Feature, algorithm)
 
   @staticmethod
   def name():

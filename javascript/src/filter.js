@@ -26,6 +26,7 @@ goog.require('goog.string');
  * @param {ee.Filter|Array.<*>|Object=} opt_filter Optional filter to add.
  * @constructor
  * @extends {ee.ComputedObject}
+ * @export
  */
 ee.Filter = function(opt_filter) {
   // Constructor safety.
@@ -121,6 +122,7 @@ ee.Filter.functionNames_ = {
 /**
  * @return {number} The number of predicates that have been added to this
  * filter. This does not count nested predicates.
+ * @export
  */
 ee.Filter.prototype.length = function() {
   return this.filter_.length;
@@ -156,6 +158,7 @@ ee.Filter.prototype.append_ = function(newFilter) {
  * Returns the opposite of this filter, i.e. a filter that will match iff
  * this filter doesn't.
  * @return {ee.Filter} The negated filter.
+ * @export
  */
 ee.Filter.prototype.not = function() {
   return /** @type {ee.Filter} */(ee.ApiFunction._call('Filter.not', this));
@@ -171,6 +174,7 @@ ee.Filter.prototype.not = function() {
  *    "ends_with", or any of these prefixed with "not_".
  * @param {*} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.metadata = function(name, operator, value) {
   operator = operator.toLowerCase();
@@ -200,6 +204,7 @@ ee.Filter.metadata = function(name, operator, value) {
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.eq = function(name, value) {
   return /** @type {ee.Filter} */(
@@ -213,6 +218,7 @@ ee.Filter.eq = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.neq = function(name, value) {
   return ee.Filter.eq(name, value).not();
@@ -225,6 +231,7 @@ ee.Filter.neq = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.lt = function(name, value) {
   return /** @type {ee.Filter} */(
@@ -238,6 +245,7 @@ ee.Filter.lt = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.gte = function(name, value) {
   return ee.Filter.lt(name, value).not();
@@ -250,6 +258,7 @@ ee.Filter.gte = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.gt = function(name, value) {
   return /** @type {ee.Filter} */(
@@ -263,6 +272,7 @@ ee.Filter.gt = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {*} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.lte = function(name, value) {
   return ee.Filter.gt(name, value).not();
@@ -275,6 +285,7 @@ ee.Filter.lte = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.contains = function(name, value) {
   return /** @type {ee.Filter} */(
@@ -288,6 +299,7 @@ ee.Filter.contains = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.not_contains = function(name, value) {
   return ee.Filter.contains(name, value).not();
@@ -300,6 +312,7 @@ ee.Filter.not_contains = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.starts_with = function(name, value) {
   return /** @type {ee.Filter} */(
@@ -313,6 +326,7 @@ ee.Filter.starts_with = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.not_starts_with = function(name, value) {
   return ee.Filter.starts_with(name, value).not();
@@ -325,6 +339,7 @@ ee.Filter.not_starts_with = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.ends_with = function(name, value) {
   return /** @type {ee.Filter} */(
@@ -338,6 +353,7 @@ ee.Filter.ends_with = function(name, value) {
  * @param {string} name The property name to filter on.
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.not_ends_with = function(name, value) {
   return ee.Filter.ends_with(name, value).not();
@@ -349,6 +365,7 @@ ee.Filter.not_ends_with = function(name, value) {
  *
  * @param {...ee.Filter} var_args The filters to combine.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.and = function(var_args) {
   var args = Array.prototype.slice.call(arguments);
@@ -361,6 +378,7 @@ ee.Filter.and = function(var_args) {
  *
  * @param {...ee.Filter} var_args The filters to combine.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.or = function(var_args) {
   var args = Array.prototype.slice.call(arguments);
@@ -374,6 +392,7 @@ ee.Filter.or = function(var_args) {
  * @param {Date|string|number} start The start date.
  * @param {Date|string|number=} opt_end The end date.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.date = function(start, opt_end) {
   if (!goog.isDef(opt_end)) {
@@ -401,6 +420,7 @@ ee.Filter.date = function(start, opt_end) {
  * @param {Array|Object=} opt_leftValue The value of the left operand.
  *     Should not be specified if leftField is specified.
  * @return {ee.Filter} The constructed filter.
+ * @export
  */
 ee.Filter.inList = function(
     opt_leftField, opt_rightValue, opt_rightField, opt_leftValue) {
@@ -425,6 +445,7 @@ ee.Filter.inList = function(
  * @param {number|ee.ComputedObject=} opt_errorMargin An optional error margin.
  *     If a number, interpreted as sphere surface meters.
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.bounds = function(geometry, opt_errorMargin) {
   // Invoke geometry promotion then manually promote to a Feature.
@@ -447,6 +468,7 @@ ee.Filter.bounds = function(geometry, opt_errorMargin) {
 /**
  * @see ee.Filter.eq
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.eq = function() {
   return this.append_(ee.Filter.eq.apply(null, [].slice.call(arguments)));
@@ -456,6 +478,7 @@ ee.Filter.prototype.eq = function() {
 /**
  * @see ee.Filter.neq
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.neq = function() {
   return this.append_(ee.Filter.neq.apply(null, [].slice.call(arguments)));
@@ -465,6 +488,7 @@ ee.Filter.prototype.neq = function() {
 /**
  * @see ee.Filter.lt
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.lt = function() {
   return this.append_(ee.Filter.lt.apply(null, [].slice.call(arguments)));
@@ -474,6 +498,7 @@ ee.Filter.prototype.lt = function() {
 /**
  * @see ee.Filter.gte
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.gte = function() {
   return this.append_(ee.Filter.gte.apply(null, [].slice.call(arguments)));
@@ -483,6 +508,7 @@ ee.Filter.prototype.gte = function() {
 /**
  * @see ee.Filter.gt
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.gt = function() {
   return this.append_(ee.Filter.gt.apply(null, [].slice.call(arguments)));
@@ -492,6 +518,7 @@ ee.Filter.prototype.gt = function() {
 /**
  * @see ee.Filter.lte
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.lte = function() {
   return this.append_(ee.Filter.lte.apply(null, [].slice.call(arguments)));
@@ -501,6 +528,7 @@ ee.Filter.prototype.lte = function() {
 /**
  * @see ee.Filter.contains
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.contains = function() {
   return this.append_(ee.Filter.contains.apply(null, [].slice.call(arguments)));
@@ -510,6 +538,7 @@ ee.Filter.prototype.contains = function() {
 /**
  * @see ee.Filter.not_contains
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.not_contains = function() {
   return this.append_(
@@ -520,6 +549,7 @@ ee.Filter.prototype.not_contains = function() {
 /**
  * @see ee.Filter.starts_with
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.starts_with = function() {
   return this.append_(
@@ -530,6 +560,7 @@ ee.Filter.prototype.starts_with = function() {
 /**
  * @see ee.Filter.not_starts_with
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.not_starts_with = function() {
   return this.append_(
@@ -540,6 +571,7 @@ ee.Filter.prototype.not_starts_with = function() {
 /**
  * @see ee.Filter.ends_with
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.ends_with = function() {
   return this.append_(
@@ -550,6 +582,7 @@ ee.Filter.prototype.ends_with = function() {
 /**
  * @see ee.Filter.not_ends_with
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.not_ends_with = function() {
   return this.append_(
@@ -560,6 +593,7 @@ ee.Filter.prototype.not_ends_with = function() {
 /**
  * @see ee.Filter.and
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.and = function() {
   return this.append_(ee.Filter.and.apply(null, [].slice.call(arguments)));
@@ -577,6 +611,7 @@ ee.Filter.prototype.and = function() {
 /**
  * @see ee.Filter.date
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.date = function() {
   return this.append_(ee.Filter.date.apply(null, [].slice.call(arguments)));
@@ -586,6 +621,7 @@ ee.Filter.prototype.date = function() {
 /**
  * @see ee.Filter.inList
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.inList = function() {
   return this.append_(ee.Filter.inList.apply(null, [].slice.call(arguments)));
@@ -595,69 +631,14 @@ ee.Filter.prototype.inList = function() {
 /**
  * @see ee.Filter.bounds
  * @return {ee.Filter} The modified filter.
+ * @export
  */
 ee.Filter.prototype.bounds = function() {
   return this.append_(ee.Filter.bounds.apply(null, [].slice.call(arguments)));
 };
 
 
-/**
- * @return {string} The name of the object, used in toString().
- * @protected
- */
+/** @inheritDoc */
 ee.Filter.prototype.name = function() {
   return 'Filter';
 };
-
-
-// Exported symbols
-goog.exportSymbol('ee.Filter', ee.Filter);
-goog.exportProperty(ee.Filter.prototype, 'length', ee.Filter.prototype.length);
-goog.exportProperty(ee.Filter.prototype, 'and', ee.Filter.prototype.and);
-goog.exportProperty(ee.Filter.prototype, 'eq', ee.Filter.prototype.eq);
-goog.exportProperty(ee.Filter.prototype, 'neq', ee.Filter.prototype.neq);
-goog.exportProperty(ee.Filter.prototype, 'lt', ee.Filter.prototype.lt);
-goog.exportProperty(ee.Filter.prototype, 'gte', ee.Filter.prototype.gte);
-goog.exportProperty(ee.Filter.prototype, 'gt', ee.Filter.prototype.gt);
-goog.exportProperty(ee.Filter.prototype, 'lte', ee.Filter.prototype.lte);
-goog.exportProperty(ee.Filter.prototype, 'contains',
-                    ee.Filter.prototype.contains);
-goog.exportProperty(ee.Filter.prototype, 'not_contains',
-                    ee.Filter.prototype.not_contains);
-goog.exportProperty(ee.Filter.prototype, 'starts_with',
-                    ee.Filter.prototype.starts_with);
-goog.exportProperty(ee.Filter.prototype, 'not_starts_with',
-                    ee.Filter.prototype.not_starts_with);
-goog.exportProperty(ee.Filter.prototype, 'ends_with',
-                    ee.Filter.prototype.ends_with);
-goog.exportProperty(ee.Filter.prototype, 'not_ends_with',
-                    ee.Filter.prototype.not_ends_with);
-goog.exportProperty(ee.Filter.prototype, 'bounds',
-                    ee.Filter.prototype.bounds);
-goog.exportProperty(ee.Filter.prototype, 'inList',
-                    ee.Filter.prototype.inList);
-goog.exportProperty(ee.Filter.prototype, 'date',
-                    ee.Filter.prototype.date);
-goog.exportProperty(ee.Filter.prototype, 'serialize',
-                    ee.Filter.prototype.serialize);
-goog.exportProperty(ee.Filter.prototype, 'toString',
-                    ee.Filter.prototype.toString);
-
-// Static versions.
-goog.exportProperty(ee.Filter, 'and', ee.Filter.and);
-goog.exportProperty(ee.Filter, 'or', ee.Filter.or);
-goog.exportProperty(ee.Filter, 'eq', ee.Filter.eq);
-goog.exportProperty(ee.Filter, 'neq', ee.Filter.neq);
-goog.exportProperty(ee.Filter, 'lt', ee.Filter.lt);
-goog.exportProperty(ee.Filter, 'gte', ee.Filter.gte);
-goog.exportProperty(ee.Filter, 'gt', ee.Filter.gt);
-goog.exportProperty(ee.Filter, 'lte', ee.Filter.lte);
-goog.exportProperty(ee.Filter, 'contains', ee.Filter.contains);
-goog.exportProperty(ee.Filter, 'not_contains', ee.Filter.not_contains);
-goog.exportProperty(ee.Filter, 'starts_with', ee.Filter.starts_with);
-goog.exportProperty(ee.Filter, 'not_starts_with', ee.Filter.not_starts_with);
-goog.exportProperty(ee.Filter, 'ends_with', ee.Filter.ends_with);
-goog.exportProperty(ee.Filter, 'not_ends_with', ee.Filter.not_ends_with);
-goog.exportProperty(ee.Filter, 'bounds', ee.Filter.bounds);
-goog.exportProperty(ee.Filter, 'inList', ee.Filter.inList);
-goog.exportProperty(ee.Filter, 'date', ee.Filter.date);

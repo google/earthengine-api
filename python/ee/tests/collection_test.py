@@ -73,15 +73,11 @@ class CollectionTestCase(apitestcase.ApiTestCase):
   def testMapping(self):
     """Verifies the behavior of the map() method."""
     collection = ee.ImageCollection('foo')
-    mapped = collection.map(
-        (lambda img: img.select('bar')), None, {'baz': 42}, ee.String('quux'))
+    mapped = collection.map(lambda img: img.select('bar'))
 
     self.assertTrue(isinstance(mapped, ee.ImageCollection))
     self.assertEquals(ee.ApiFunction.lookup('Collection.map'), mapped.func)
     self.assertEquals(collection, mapped.args['collection'])
-    self.assertEquals({'_MAPPING_VAR_0_0': '.all'}, mapped.args['dynamicArgs'])
-    self.assertEquals({'baz': 42}, mapped.args['constantArgs'])
-    self.assertEquals(ee.String('quux'), mapped.args['destination'])
 
     # Need to do a serialized comparison for the function body because
     # variables returned from CustomFunction.variable() do not implement

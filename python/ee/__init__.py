@@ -15,6 +15,7 @@ from computedobject import ComputedObject
 from customfunction import CustomFunction
 import data
 from ee_exception import EEException
+from ee_number import Number
 from ee_string import String
 import ee_types as types
 from encodable import Encodable
@@ -72,6 +73,7 @@ def Initialize(credentials=None, opt_url=None):
   FeatureCollection.initialize()
   Filter.initialize()
   Geometry.initialize()
+  Number.initialize()
   String.initialize()
   _InitializeGeneratedClasses()
   _InitializeUnboundMethods()
@@ -88,6 +90,7 @@ def Reset():
   FeatureCollection.reset()
   Filter.reset()
   Geometry.reset()
+  Number.reset()
   String.reset()
   _ResetGeneratedClasses()
   global Algorithms
@@ -284,9 +287,9 @@ def _InitializeUnboundMethods():
 
     # Attach the function.
     # We need a copy of the function to attach properties.
-    # pylint: disable=unnecessary-lambda
-    bound = lambda *args, **kwargs: func.call(*args, **kwargs)
-    # pylint: enable=unnecessary-lambda
+    def GenerateFunction(f):
+      return lambda *args, **kwargs: f.call(*args, **kwargs)  # pylint: disable=unnecessary-lambda
+    bound = GenerateFunction(func)
     bound.signature = signature
     bound.__doc__ = str(func)
     setattr(target, name_parts[0], bound)

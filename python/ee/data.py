@@ -136,7 +136,8 @@ def getMapId(params):
           factor (or one per band)
       palette - (comma-separated strings) List of CSS-style color
           strings (single-band previews only).
-      format (string) Either 'jpg' or 'png'.
+      format (string) Either 'jpg' (does not support transparency) or
+          'png' (supports transparency).
 
   Returns:
     A dictionary containing "mapid" and "token" strings, which can

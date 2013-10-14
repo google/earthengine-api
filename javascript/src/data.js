@@ -28,7 +28,7 @@ goog.require('goog.net.XhrIo');
 goog.require('goog.net.XmlHttp');
 
 
-/** Required for exportSymbol() to work without lint warnings. */
+/** @export */
 ee.data = {};
 
 
@@ -85,7 +85,6 @@ ee.data.DEFAULT_TILE_BASE_URL_ = 'https://earthengine.googleapis.com';
  *     endpoint.
  * @param {string|null=} opt_tileBaseUrl The (unproxied) EarthEngine REST tile
  *     endpoint.
- * @hidden
  */
 ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl) {
   // If already initialized, only replace the explicitly specified parts.
@@ -106,7 +105,6 @@ ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl) {
 
 /**
  * Resets the data module, clearing custom base URLs.
- * @hidden
  */
 ee.data.reset = function() {
   ee.data.apiBaseUrl_ = null;
@@ -120,10 +118,20 @@ ee.data.reset = function() {
  *
  * @param {number} milliseconds The number of milliseconds to wait for a
  *     request before considering it timed out. 0 means no limit.
- * @hidden
  */
 ee.data.setDeadline = function(milliseconds) {
   ee.data.deadlineMs_ = milliseconds;
+};
+
+
+/**
+ * Returns the base URL used for tiles.
+ *
+ * @return {string?} The current base URL.
+ * @export
+ */
+ee.data.getTileBaseUrl = function() {
+  return ee.data.tileBaseUrl_;
 };
 
 
@@ -136,10 +144,11 @@ ee.data.setDeadline = function(milliseconds) {
  *     If not supplied, the call is made synchronously.
  * @return {Object} The value call results.
  * @deprecated Use getValue.
+ * @export
  */
 ee.data.getInfo = function(id, opt_callback) {
-  if (window && window.console && window.console.error) {
-    window.console.error(
+  if (goog.global.console && goog.global.console.error) {
+    goog.global.console.error(
         'ee.data.getInfo is DEPRECATED. Use ee.data.getValue() instead.');
   }
   return ee.data.send_('/info',
@@ -159,6 +168,7 @@ ee.data.getInfo = function(id, opt_callback) {
  * @param {function(ee.data.ImageList, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {ee.data.ImageList} The list call results.
+ * @export
  */
 ee.data.getList = function(params, opt_callback) {
   var request = ee.data.makeRequest_(params);
@@ -191,6 +201,7 @@ ee.data.getList = function(params, opt_callback) {
  * @param {function(ee.data.RawMapId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {ee.data.RawMapId} The mapId call results.
+ * @export
  */
 ee.data.getMapId = function(params, opt_callback) {
   params['json_format'] = 'v2';
@@ -206,6 +217,7 @@ ee.data.getMapId = function(params, opt_callback) {
  * @param {number} y The tile y coordinate.
  * @param {number} z The tile zoom level.
  * @return {string} The tile URL.
+ * @export
  */
 ee.data.getTileUrl = function(mapid, x, y, z) {
   var width = Math.pow(2, z);
@@ -226,6 +238,7 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
  * @param {function(?, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?} The value call results.
+ * @export
  */
 ee.data.getValue = function(params, opt_callback) {
   params['json_format'] = 'v2';
@@ -247,6 +260,7 @@ ee.data.getValue = function(params, opt_callback) {
  * @param {function(ee.data.ThumbnailId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {ee.data.ThumbnailId} The thumb ID and token.
+ * @export
  */
 ee.data.getThumbId = function(params, opt_callback) {
   params['json_format'] = 'v2';
@@ -263,6 +277,7 @@ ee.data.getThumbId = function(params, opt_callback) {
  * Create a thumbnail URL from a thumbid and token.
  * @param {ee.data.ThumbnailId} id A thumbnail ID and token.
  * @return {string} The thumbnail URL.
+ * @export
  */
 ee.data.makeThumbUrl = function(id) {
   return ee.data.tileBaseUrl_ + '/api/thumb?thumbid=' + id['thumbid'] +
@@ -300,6 +315,7 @@ ee.data.makeThumbUrl = function(id) {
  * @param {function(ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {ee.data.DownloadId} A download ID and token.
+ * @export
  */
 ee.data.getDownloadId = function(params, opt_callback) {
   params['json_format'] = 'v2';
@@ -314,6 +330,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
  * Create a download URL from a docid and token.
  * @param {ee.data.DownloadId} id A download ID and token.
  * @return {string} The download URL.
+ * @export
  */
 ee.data.makeDownloadUrl = function(id) {
   return ee.data.tileBaseUrl_ + '/api/download?docid=' + id['docid'] +
@@ -328,7 +345,6 @@ ee.data.makeDownloadUrl = function(id) {
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {ee.data.AlgorithmsRegistry} The list of algorithm
  *     signatures.
- * @hidden
  */
 ee.data.getAlgorithms = function(opt_callback) {
   return ee.data.send_('/algorithms',
@@ -346,7 +362,6 @@ ee.data.getAlgorithms = function(opt_callback) {
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {Object} A description of the saved asset, including a generated ID.
- * @hidden
  */
 ee.data.createAsset = function(value, opt_path, opt_callback) {
   var args = {'value': value, 'json_format': 'v2'};
@@ -366,7 +381,6 @@ ee.data.createAsset = function(value, opt_path, opt_callback) {
  * @param {function(Array.<string>, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {Array.<string>} An array containing generated ID strings.
- * @hidden
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
@@ -393,7 +407,6 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
  *         FAILED, CANCELLED; or UNKNOWN if the task with the specified ID
  *         doesn't exist.
  *     - error_message (string) For a FAILED task, a description of the error.
- * @hidden
  */
 ee.data.getTaskStatus = function(task_id, opt_callback) {
   if (goog.isString(task_id)) {
@@ -419,7 +432,6 @@ ee.data.getTaskStatus = function(task_id, opt_callback) {
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {ee.data.ProcessingResponse} May contain field 'note' with value
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
- * @hidden
  */
 ee.data.prepareValue = function(task_id, params, opt_callback) {
   params['tid'] = task_id;
@@ -440,7 +452,6 @@ ee.data.prepareValue = function(task_id, params, opt_callback) {
  *     optional callback. If not supplied, the call is made synchronously.
  * @return {ee.data.ProcessingResponse} May contain field 'note' with value
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
- * @hidden
  */
 ee.data.startProcessing = function(task_id, params, opt_callback) {
   params['id'] = task_id;
@@ -549,7 +560,6 @@ ee.data.makeRequest_ = function(params) {
  *
  * @param {Object=} opt_calls A dictionary containing the responses to return
  *     for each URL, keyed to URL.
- * @hidden
  */
 ee.data.setupMockSend = function(opt_calls) {
   var calls = opt_calls || {};
@@ -819,15 +829,3 @@ ee.data.TaskStatus;
  * }}
  */
 ee.data.ProcessingResponse;
-
-
-// Explicit exports.
-goog.exportSymbol('ee.data', ee.data);
-goog.exportProperty(ee.data, 'getInfo', ee.data.getInfo);
-goog.exportProperty(ee.data, 'getList', ee.data.getList);
-goog.exportProperty(ee.data, 'getMapId', ee.data.getMapId);
-goog.exportProperty(ee.data, 'getValue', ee.data.getValue);
-goog.exportProperty(ee.data, 'getThumbId', ee.data.getThumbId);
-goog.exportProperty(ee.data, 'makeThumbUrl', ee.data.makeThumbUrl);
-goog.exportProperty(ee.data, 'getDownloadId', ee.data.getDownloadId);
-goog.exportProperty(ee.data, 'makeDownloadUrl', ee.data.makeDownloadUrl);

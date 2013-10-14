@@ -16,6 +16,7 @@ goog.require('ee.ComputedObject');
  *
  * @constructor
  * @extends {ee.ComputedObject}
+ * @export
  */
 ee.String = function(string) {
   // Constructor safety.
@@ -70,11 +71,7 @@ ee.String.reset = function() {
 };
 
 
-/**
- * @param {function(*): *} encoder A function that can be called to encode
- *    the components of an object.
- * @return {*} A representation of the string.
- */
+/** @inheritDoc */
 ee.String.prototype.encode = function(encoder) {
   if (goog.isString(this.string_)) {
     return this.string_;
@@ -84,16 +81,7 @@ ee.String.prototype.encode = function(encoder) {
 };
 
 
-/**
- * @return {string} The name of the object, used in toString().
- * @protected
- */
+/** @inheritDoc */
 ee.String.prototype.name = function() {
   return 'String';
 };
-
-
-// Exported symbols
-goog.exportSymbol('ee.String', ee.String);
-goog.exportProperty(ee.String.prototype, 'encode',
-                    ee.String.prototype.encode);

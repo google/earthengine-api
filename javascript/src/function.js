@@ -22,7 +22,6 @@ goog.require('goog.functions');
  *
  * @constructor
  * @extends {ee.Encodable}
- * @hidden
  */
 ee.Function = function() {
   if (!(this instanceof ee.Function)) {
@@ -30,6 +29,8 @@ ee.Function = function() {
   }
 };
 goog.inherits(ee.Function, ee.Encodable);
+// Exporting manually to avoid marking the class public in the docs.
+goog.exportSymbol('ee.Function', ee.Function);
 
 
 /**
@@ -47,22 +48,16 @@ ee.Function.promoter_ = goog.functions.identity;
  *     and a type name as the second. Can be used, for example, promote
  *     numbers or strings to Images. Should return the input promoted if
  *     the type is recognized, otherwise the original input.
- * @hidden
  */
 ee.Function.registerPromoter = function(promoter) {
   ee.Function.promoter_ = promoter;
 };
 
 
-/** @inheritDoc */
-ee.Function.prototype.encode = goog.abstractMethod;
-
-
 /**
  * Returns a description of the interface provided by this function.
  *
  * @return {ee.Function.Signature}
- * @hidden
  */
 ee.Function.prototype.getSignature = goog.abstractMethod;
 
@@ -74,6 +69,7 @@ ee.Function.prototype.getSignature = goog.abstractMethod;
  * @return {ee.ComputedObject} An object representing the called function.
  *     If the signature specifies a recognized return type, the returned
  *     value will be cast to that type.
+ * @export
  */
 ee.Function.prototype.call = function(var_args) {
   return this.apply(this.nameArgs(Array.prototype.slice.call(arguments, 0)));
@@ -87,6 +83,7 @@ ee.Function.prototype.call = function(var_args) {
  * @return {ee.ComputedObject} An object representing the lazy result of
  *     the called function. If the signature specifies a recognized return
  *     type, the returned value will be cast to that type.
+ * @export
  */
 ee.Function.prototype.apply = function(namedArgs) {
   var result = new ee.ComputedObject(this, this.promoteArgs(namedArgs));

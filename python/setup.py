@@ -33,7 +33,7 @@ except ImportError:
     http://tkinter.unpythonic.net/wiki/How_to_install_Tkinter
     """
 
-VERSION = '0.1.8'
+VERSION = '0.1.9'
 
 setup(
     name='earthengine-api',

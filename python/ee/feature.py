@@ -138,6 +138,29 @@ class Feature(computedobject.ComputedObject):
     """Create a GeoJSON MultiPolygon."""
     return geometry.Geometry.MultiPolygon(*args, **kwargs)
 
+  def set(self, properties):
+    """Overrides one or more metadata properties of a Feature.
+
+    Args:
+      properties: The property values to override.
+
+    Returns:
+      The feature with the specified properties overridden.
+    """
+    # NOTE: This is virtually identical to Image.set() and relies on its test.
+    if not isinstance(properties, (dict, computedobject.ComputedObject)):
+      raise ee_exception.EEException('Feature.set() requires a dictionary.')
+
+    # Try to be smart about interpreting the argument.
+    if (isinstance(properties, dict) and
+        properties.keys() == ['properties'] and
+        isinstance(properties['properties'], dict)):
+      # Looks like a call with keyword parameters. Extract them.
+      properties = properties['properties']
+    # Manually cast the result to an feature.
+    return Feature(
+        apifunction.ApiFunction.call_('Feature.set', self, properties))
+
   @staticmethod
   def name():
     return 'Feature'

@@ -3,6 +3,14 @@
  */
 
 goog.provide('ee.Geometry');
+goog.provide('ee.Geometry.LineString');
+goog.provide('ee.Geometry.LinearRing');
+goog.provide('ee.Geometry.MultiLineString');
+goog.provide('ee.Geometry.MultiPoint');
+goog.provide('ee.Geometry.MultiPolygon');
+goog.provide('ee.Geometry.Point');
+goog.provide('ee.Geometry.Polygon');
+goog.provide('ee.Geometry.Rectangle');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
@@ -29,6 +37,7 @@ goog.require('goog.json.Serializer');
  *     or to false if the CRS is projected.
  * @constructor
  * @extends {ee.ComputedObject}
+ * @export
  */
 ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
   if (!(this instanceof ee.Geometry)) {
@@ -131,7 +140,6 @@ ee.Geometry.initialized_ = false;
 
 /**
  * Imports API functions to this class.
- * @hidden
  */
 ee.Geometry.initialize = function() {
   if (!ee.Geometry.initialized_) {
@@ -143,7 +151,6 @@ ee.Geometry.initialize = function() {
 
 /**
  * Removes imported API functions from this class.
- * @hidden
  */
 ee.Geometry.reset = function() {
   ee.ApiFunction.clearApi(ee.Geometry);
@@ -160,6 +167,7 @@ ee.Geometry.reset = function() {
  * @param {number} lat The latitude of the point.
  * @constructor
  * @extends {ee.Geometry}
+ * @export
  */
 ee.Geometry.Point = function(lon, lat) {
   if (!(this instanceof ee.Geometry.Point)) {
@@ -195,6 +203,7 @@ goog.inherits(ee.Geometry.Point, ee.Geometry);
  *     coordinate longitudes and latitudes, such as MultiPoint(1, 2, 3, 4).
  * @constructor
  * @extends {ee.Geometry}
+ * @export
  */
 ee.Geometry.MultiPoint = function(coordinates) {
   if (!(this instanceof ee.Geometry.MultiPoint)) {
@@ -218,6 +227,7 @@ goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
  * @param {number} lat2 The maximum Y coordinate (e.g. latitude).
  * @constructor
  * @extends {ee.Geometry}
+ * @export
  */
 ee.Geometry.Rectangle = function(lon1, lat1, lon2, lat2) {
   if (!(this instanceof ee.Geometry.Rectangle)) {
@@ -253,6 +263,7 @@ goog.inherits(ee.Geometry.Rectangle, ee.Geometry);
  *     coordinate longitudes and latitudes, such as LineString(1, 2, 3, 4).
  * @constructor
  * @extends {ee.Geometry}
+ * @export
  */
 ee.Geometry.LineString = function(coordinates) {
   if (!(this instanceof ee.Geometry.LineString)) {
@@ -275,6 +286,7 @@ goog.inherits(ee.Geometry.LineString, ee.Geometry);
  *     longitudes and latitudes, such as LinearRing(1, 2, 3, 4, 5, 6).
  * @constructor
  * @extends {ee.Geometry}
+ * @export
  */
 ee.Geometry.LinearRing = function(coordinates) {
   if (!(this instanceof ee.Geometry.LinearRing)) {
@@ -298,6 +310,7 @@ goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
  *     an array of LineStrings, each of which is an array of points.
  * @constructor
  * @extends {ee.Geometry}
+ * @export
  *
  * TODO(user): This actually doesn't accept an array of
  * ee.Geometry.LineStrings, but it should.
@@ -325,6 +338,7 @@ goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
  *     each of which is an array of points.
  * @constructor
  * @extends {ee.Geometry}
+ * @export
  *
  * TODO(user): This actually doesn't accept an array of
  * ee.Geometry.LinearRings, but it should.
@@ -352,6 +366,7 @@ goog.inherits(ee.Geometry.Polygon, ee.Geometry);
  *     an array of polygons.
  * @constructor
  * @extends {ee.Geometry}
+ * @export
  *
  * TODO(user): This actually doesn't accept an array of
  * ee.Geometry.Polygon, but it should.
@@ -408,10 +423,11 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
 
 /**
  * @return {ee.data.GeoJSONGeometry} A GeoJSON representation of the geometry.
+ * @export
  */
 ee.Geometry.prototype.toGeoJSON = function() {
   if (this.func) {
-    throw new Error('Can\'t convert a computed Geometry to GeoJSON.  ' +
+    throw new Error('Can\'t convert a computed Geometry to GeoJSON. ' +
                     'Use getInfo() instead.');
   }
   return /** @type {ee.data.GeoJSONGeometry} */(this.encode());
@@ -420,10 +436,11 @@ ee.Geometry.prototype.toGeoJSON = function() {
 
 /**
  * @return {string} A GeoJSON string representation of the geometry.
+ * @export
  */
 ee.Geometry.prototype.toGeoJSONString = function() {
   if (this.func) {
-    throw new Error('Can\'t convert a computed Geometry to GeoJSON.  ' +
+    throw new Error('Can\'t convert a computed Geometry to GeoJSON. ' +
                     'Use getInfo() instead.');
   }
   return (new goog.json.Serializer()).serialize(this.toGeoJSON());
@@ -431,7 +448,21 @@ ee.Geometry.prototype.toGeoJSONString = function() {
 
 
 /**
+ * @return {string} The GeoJSON type of the geometry.
+ * @export
+ */
+ee.Geometry.prototype.type = function() {
+  if (this.func) {
+    throw new Error('Can\'t get the type of a computed Geometry to GeoJSON. ' +
+                    'Use getInfo() instead.');
+  }
+  return this.type_;
+};
+
+
+/**
  * @return {string} The serialized representation of this object.
+ * @export
  */
 ee.Geometry.prototype.serialize = function() {
   return ee.Serializer.toJSON(this);
@@ -599,21 +630,3 @@ ee.Geometry.createInstance_ = function(klass, args) {
 ee.Geometry.prototype.name = function() {
   return 'Geometry';
 };
-
-
-goog.exportSymbol('ee.Geometry', ee.Geometry);
-goog.exportProperty(ee.Geometry, 'Point', ee.Geometry.Point);
-goog.exportProperty(ee.Geometry, 'MultiPoint', ee.Geometry.MultiPoint);
-goog.exportProperty(ee.Geometry, 'Rectangle', ee.Geometry.Rectangle);
-goog.exportProperty(ee.Geometry, 'LineString', ee.Geometry.LineString);
-goog.exportProperty(ee.Geometry, 'LinearRing', ee.Geometry.LinearRing);
-goog.exportProperty(ee.Geometry, 'MultiLineString',
-                    ee.Geometry.MultiLineString);
-goog.exportProperty(ee.Geometry, 'Polygon', ee.Geometry.Polygon);
-goog.exportProperty(ee.Geometry, 'MultiPolygon', ee.Geometry.MultiPolygon);
-goog.exportProperty(ee.Geometry.prototype, 'toGeoJSON',
-                    ee.Geometry.prototype.toGeoJSON);
-goog.exportProperty(ee.Geometry.prototype, 'toGeoJSONString',
-                    ee.Geometry.prototype.toGeoJSONString);
-goog.exportProperty(ee.Geometry.prototype, 'toString',
-                    ee.Geometry.prototype.toString);

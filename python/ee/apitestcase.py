@@ -312,7 +312,9 @@ BUILTIN_FUNCTIONS = {
                 'type': 'Algorithm'
             },
             {
+                'default': None,
                 'description': '',
+                'optional': True,
                 'name': 'dynamicArgs',
                 'type': 'Dictionary<String>'
             },
@@ -975,6 +977,61 @@ BUILTIN_FUNCTIONS = {
                 'optional': True,
                 'description': '',
                 'name': 'proj'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
+    # Image and Feature property setting, used by the client-side overrides.
+    'Feature.set': {
+        'returns': 'EEObject',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'EEObject',
+                'description': '',
+                'name': 'object'
+            },
+            {
+                'type': 'Dictionary<Object>',
+                'description': '',
+                'name': 'properties'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
+    'Image.set': {
+        'returns': 'EEObject',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'EEObject',
+                'description': '',
+                'name': 'object'
+            },
+            {
+                'type': 'Dictionary<Object>',
+                'description': '',
+                'name': 'properties'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
+    'Number.add': {
+        'returns': 'Number',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'Number',
+                'description': '',
+                'name': 'left'
+            },
+            {
+                'type': 'Number',
+                'description': '',
+                'name': 'right'
             }
         ],
         'type': 'Algorithm',

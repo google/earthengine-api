@@ -44,6 +44,7 @@ ee.Types.registerClasses = function(classes) {
  * @param {string} name The class name.
  * @return {Function} The constructor for the named class or null if it's not an
  *     ee class.
+ * @export
  */
 ee.Types.nameToClass = function(name) {
   if (name in ee.Types.registeredClasses_) {
@@ -58,7 +59,7 @@ ee.Types.nameToClass = function(name) {
  * Converts a class constructor to the API-friendly type name.
  * @param {Function} klass The class constructor.
  * @return {string} The name of the class, or "Object" if not recognized.
- * @hidden
+ * @export
  */
 ee.Types.classToName = function(klass) {
   if (klass.prototype instanceof ee.ComputedObject) {
@@ -84,7 +85,6 @@ ee.Types.classToName = function(klass) {
  * @param {string} firstType The first type name.
  * @param {string} secondType The second type name.
  * @return {boolean} Whether secondType is a subtype of firstType.
- * @hidden
  */
 ee.Types.isSubtype = function(firstType, secondType) {
   if (secondType == firstType) {
@@ -119,7 +119,6 @@ ee.Types.isSubtype = function(firstType, secondType) {
  *
  * @param {*} obj The object to check.
  * @return {boolean} Whether the object is a number or number variable.
- * @hidden
  */
 ee.Types.isNumber = function(obj) {
   return goog.isNumber(obj) || ee.Types.isVarOfType(obj, Number);
@@ -131,7 +130,6 @@ ee.Types.isNumber = function(obj) {
  *
  * @param {*} obj The object to check.
  * @return {boolean} Whether the object is a string or string variable.
- * @hidden
  */
 ee.Types.isString = function(obj) {
   // We can't check for ee.String types here due to circular dependencies.
@@ -146,7 +144,6 @@ ee.Types.isString = function(obj) {
  *
  * @param {*} obj The object to check.
  * @return {boolean} Whether the object is an array or array variable.
- * @hidden
  */
 ee.Types.isArray = function(obj) {
   return goog.isArray(obj) || ee.Types.isVarOfType(obj, Array);
@@ -159,7 +156,6 @@ ee.Types.isArray = function(obj) {
  * @param {*} obj The object to check.
  * @param {Function} klass The class constructor to check against.
  * @return {boolean} Whether the object is a variable of the given type.
- * @hidden
  */
 ee.Types.isVarOfType = function(obj, klass) {
   if (obj instanceof ee.Encodable) {

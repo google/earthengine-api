@@ -26,7 +26,6 @@ goog.require('ee.data');
  *     arguments to the correct types.
  * @constructor
  * @extends {ee.Encodable}
- * @hidden
  */
 ee.ComputedObject = function(func, args) {
   // Constructor safety.
@@ -49,6 +48,9 @@ ee.ComputedObject = function(func, args) {
   this.args = args;
 };
 goog.inherits(ee.ComputedObject, ee.Encodable);
+// Exporting manually to avoid marking the class public in the docs.
+goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
+
 
 
 /**
@@ -58,6 +60,7 @@ goog.inherits(ee.ComputedObject, ee.Encodable);
  * @param {function(?)=} opt_callback An optional callback.  If not
  *     supplied, the call is made synchronously.
  * @return {*} The computed value of this object.
+ * @export
  */
 ee.ComputedObject.prototype.getInfo = function(opt_callback) {
   return ee.data.getValue({
@@ -86,6 +89,7 @@ ee.ComputedObject.prototype.encode = function(encoder) {
 
 /**
  * @return {string} The serialized representation of this object.
+ * @export
  */
 ee.ComputedObject.prototype.serialize = function() {
   return ee.Serializer.toJSON(this);
@@ -94,6 +98,7 @@ ee.ComputedObject.prototype.serialize = function() {
 
 /**
  * @return {string} A human-readable representation of the object.
+ * @export
  */
 ee.ComputedObject.prototype.toString = function() {
   return 'ee.' + this.name() + '(' + ee.Serializer.toReadableJSON(this) + ')';
@@ -107,12 +112,3 @@ ee.ComputedObject.prototype.toString = function() {
 ee.ComputedObject.prototype.name = function() {
   return 'ComputedObject';
 };
-
-
-goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
-goog.exportProperty(ee.ComputedObject.prototype, 'getInfo',
-                    ee.ComputedObject.prototype.getInfo);
-goog.exportProperty(ee.ComputedObject.prototype, 'serialize',
-                    ee.ComputedObject.prototype.serialize);
-goog.exportProperty(ee.ComputedObject.prototype, 'toString',
-                    ee.ComputedObject.prototype.toString);

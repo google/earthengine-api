@@ -19,7 +19,6 @@ goog.require('goog.object');
  * @param {boolean=} opt_isCompound Whether the encoding should factor out
  *     shared subtrees. Defaults to true.
  * @constructor
- * @hidden
  */
 ee.Serializer = function(opt_isCompound) {
   /**
@@ -52,6 +51,8 @@ ee.Serializer = function(opt_isCompound) {
    */
   this.encoded_ = /** @type {{name: string, object: *}} */ ({});
 };
+// Exporting manually to avoid marking the class public in the docs.
+goog.exportSymbol('ee.Serializer', ee.Serializer);
 
 
 /**
@@ -72,6 +73,7 @@ ee.Serializer.hash_ = new goog.crypt.Md5();
  * Serialize an object to a JSON representation appropriate for API calls.
  * @param {*} obj The object to Serialize.
  * @return {*} A JSON-compatible structure representing the input.
+ * @export
  */
 ee.Serializer.encode = function(obj) {
   return new ee.Serializer(true).encode_(obj);
@@ -82,6 +84,7 @@ ee.Serializer.encode = function(obj) {
  * Serialize an object to a JSON string appropriate for API calls.
  * @param {*} obj The object to Serialize.
  * @return {string} A JSON representation of the input.
+ * @export
  */
 ee.Serializer.toJSON = function(obj) {
   return ee.Serializer.jsonSerializer_.serialize(ee.Serializer.encode(obj));
@@ -92,13 +95,14 @@ ee.Serializer.toJSON = function(obj) {
  * Serialize an object to a human-friendly JSON string (if possible).
  * @param {*} obj The object to convert.
  * @return {string} A human-friendly JSON representation of the input.
+ * @export
  */
 ee.Serializer.toReadableJSON = function(obj) {
   var eeSerializer = new ee.Serializer(false);
   var encoded = eeSerializer.encode_(obj);
-  if ('JSON' in window) {
+  if ('JSON' in goog.global) {
     // All modern browsers; Pretty-print.
-    return window['JSON']['stringify'](encoded, null, '  ');
+    return goog.global['JSON']['stringify'](encoded, null, '  ');
   } else {
     // Fall back to the non-pretty Closure serializer.
     return ee.Serializer.jsonSerializer_.serialize(encoded);
@@ -233,8 +237,3 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     return result;
   }
 };
-
-
-goog.exportSymbol('ee.Serializer', ee.Serializer);
-goog.exportSymbol('ee.Serializer.toJSON', ee.Serializer.toJSON);
-goog.exportSymbol('ee.Serializer.toReadableJSON', ee.Serializer.toReadableJSON);

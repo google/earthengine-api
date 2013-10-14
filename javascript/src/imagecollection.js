@@ -24,6 +24,7 @@ goog.require('goog.array');
  *     The constructor arguments.
  * @constructor
  * @extends {ee.Collection}
+ * @export
  */
 ee.ImageCollection = function(args) {
   // Constructor safety.
@@ -78,7 +79,6 @@ ee.ImageCollection.initialized_ = false;
 
 /**
  * Imports API functions to this class.
- * @hidden
  */
 ee.ImageCollection.initialize = function() {
   if (!ee.ImageCollection.initialized_) {
@@ -86,7 +86,6 @@ ee.ImageCollection.initialize = function() {
         ee.ImageCollection, 'ImageCollection', 'ImageCollection');
     ee.ApiFunction.importApi(
         ee.ImageCollection, 'reduce', 'ImageCollection');
-    ee.Collection.createAutoMapFunctions(ee.ImageCollection, ee.Image);
     ee.ImageCollection.initialized_ = true;
   }
 };
@@ -94,7 +93,6 @@ ee.ImageCollection.initialize = function() {
 
 /**
  * Removes imported API functions from this class.
- * @hidden
  */
 ee.ImageCollection.reset = function() {
   ee.ApiFunction.clearApi(ee.ImageCollection);
@@ -111,6 +109,7 @@ ee.ImageCollection.reset = function() {
  * @param {Object?=} opt_visParams The visualization parameters.
  * @param {function(Object, string=)=} opt_callback An async callback.
  * @return {ee.data.MapId} A mapid and token.
+ * @export
  */
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   var mosaic = ee.ApiFunction._call('ImageCollection.mosaic', this);
@@ -136,6 +135,7 @@ ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
  *           collection.
  *     - properties: an optional dictionary containing the collection's
  *           metadata properties.
+ * @export
  */
 ee.ImageCollection.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.ImageCollectionDescription} */(
@@ -144,11 +144,27 @@ ee.ImageCollection.prototype.getInfo = function(opt_callback) {
 
 
 /** @inheritDoc */
-ee.ImageCollection.prototype.map = function(
-    algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
-  return /** @type {ee.ImageCollection} */(this.mapInternal(
-      ee.Image, algorithm,
-      opt_dynamicArgs, opt_constantArgs, opt_destination));
+ee.ImageCollection.prototype.map = function(algorithm) {
+  return /** @type {ee.ImageCollection} */(
+      this.mapInternal(ee.Image, algorithm));
+};
+
+
+/**
+ * Select bands from each image in a collection.
+ *
+ * @param {Array.<string|number>} selectors An array of names,
+ *     regexes or numeric indicies specifying the bands to select.
+ * @param {Array.<string>=} opt_names Array of new names for the output bands.
+ *     Must match the number of bands selected.
+ * @return {ee.ImageCollection} The image collection with selected bands.
+ * @export
+ */
+ee.ImageCollection.prototype.select = function(selectors, opt_names) {
+  var varargs = arguments;
+  return /** @type {ee.ImageCollection} */(this.map(function(img) {
+    return img.select.apply(img, varargs);
+  }));
 };
 
 
@@ -156,10 +172,3 @@ ee.ImageCollection.prototype.map = function(
 ee.ImageCollection.prototype.name = function() {
   return 'ImageCollection';
 };
-
-
-goog.exportSymbol('ee.ImageCollection', ee.ImageCollection);
-goog.exportProperty(ee.ImageCollection.prototype, 'map',
-                    ee.ImageCollection.prototype.map);
-goog.exportProperty(ee.ImageCollection.prototype, 'getMap',
-                    ee.ImageCollection.prototype.getMap);

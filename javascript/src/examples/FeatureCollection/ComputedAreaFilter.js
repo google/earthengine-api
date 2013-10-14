@@ -5,7 +5,9 @@
 
 var counties = ee.FeatureCollection(
     'ft:1pjtcfSKIbYbj4wRcBjc0Bb6NB-sQRI-L2nIzHiU');
-var countiesWithArea = counties.map_area();
+var countiesWithArea = counties.map(function(f) {
+  return f.set({area: f.area()});
+});
 var smallCounties = countiesWithArea.filterMetadata('area', 'less_than', 3e9);
 
 addToMap(smallCounties, {color: '900000'});

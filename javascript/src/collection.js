@@ -10,9 +10,7 @@ goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.CustomFunction');
 goog.require('ee.Filter');
-goog.require('ee.Function');
 goog.require('ee.Types');
-goog.require('goog.object');
 
 
 
@@ -23,13 +21,14 @@ goog.require('goog.object');
  * @param {Object} args The same argument as in ee.ComputedObject().
  * @constructor
  * @extends {ee.ComputedObject}
- * @hidden
  */
 ee.Collection = function(func, args) {
   goog.base(this, func, args);
   ee.Collection.initialize();
 };
 goog.inherits(ee.Collection, ee.ComputedObject);
+// Exporting manually to avoid marking the class public in the docs.
+goog.exportSymbol('ee.Collection', ee.Collection);
 
 
 /**
@@ -42,7 +41,6 @@ ee.Collection.initialized_ = false;
 
 /**
  * Imports API functions to this class.
- * @hidden
  */
 ee.Collection.initialize = function() {
   if (!ee.Collection.initialized_) {
@@ -59,7 +57,6 @@ ee.Collection.initialize = function() {
 /**
  * Removes imported API functions from this class and resets the serial ID
  * used for mapping JS functions to 0.
- * @hidden
  */
 ee.Collection.reset = function() {
   ee.ApiFunction.clearApi(ee.Collection);
@@ -78,6 +75,7 @@ ee.Collection.reset = function() {
  *
  * @param {ee.Filter} newFilter - A filter to add to this collection.
  * @return {ee.Collection} The filtered collection.
+ * @export
  */
 ee.Collection.prototype.filter = function(newFilter) {
   if (!newFilter) {
@@ -99,6 +97,7 @@ ee.Collection.prototype.filter = function(newFilter) {
  *     "not_contains".
  * @param {*} value - The value to compare against.
  * @return {ee.Collection} The filtered collection.
+ * @export
  */
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
   return this.filter(ee.Filter.metadata(name, operator, value));
@@ -113,6 +112,7 @@ ee.Collection.prototype.filterMetadata = function(name, operator, value) {
  * This is equivalent to this.filter(ee.Filter.bounds(...)).
  * @param {ee.Feature|ee.Geometry} geometry The geometry to filter to.
  * @return {ee.Collection} The filtered collection.
+ * @export
  */
 ee.Collection.prototype.filterBounds = function(geometry) {
   return this.filter(ee.Filter.bounds(geometry));
@@ -131,6 +131,7 @@ ee.Collection.prototype.filterBounds = function(geometry) {
  * @param {Date|string|number} end The end date as a Date object,
  *     a string representation of a date, or milliseconds since epoch.
  * @return {ee.Collection} The filtered collection.
+ * @export
  */
 ee.Collection.prototype.filterDate = function(start, end) {
   return this.filter(ee.Filter.date(start, end));
@@ -146,6 +147,7 @@ ee.Collection.prototype.filterDate = function(start, end) {
  * @param {boolean=} opt_ascending - Whether to sort in ascending or
  *     descending order.  The default is true (ascending).
  * @return {ee.Collection} The limited collection.
+ * @export
  */
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
   return this.cast_(ee.ApiFunction._call(
@@ -160,6 +162,7 @@ ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
  * @param {boolean=} opt_ascending - Whether to sort in ascending or descending
  *     order.  The default is true (ascending).
  * @return {ee.Collection} The sorted collection.
+ * @export
  */
 ee.Collection.prototype.sort = function(property, opt_ascending) {
   return this.cast_(ee.ApiFunction._call(
@@ -194,126 +197,40 @@ ee.Collection.prototype.name = function() {
  * Maps an algorithm over a collection. @see ee.Collection.map() for details.
  *
  * @param {function(new:Object, ...[?])} type The collection elements' type.
- * @param {string|Object|function(*):Object} algorithm
- * @param {Object.<string,*>?=} opt_dynamicArgs
- * @param {Object.<string,*>?=} opt_constantArgs
- * @param {string=} opt_destination
+ * @param {function(Object):Object} algorithm
  * @return {ee.Collection}
  * @protected
  */
-ee.Collection.prototype.mapInternal = function(
-    type, algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
-  if (goog.isFunction(algorithm)) {
-    if (opt_dynamicArgs) {
-      // TODO(user): Remove this once we have a getProperty() algorithm.
-      throw Error('Can\'t use dynamicArgs with a mapped JS function.');
-    }
-    var className = ee.Types.classToName(type);
-    var signature = {
-      'name': '',
-      'returns': className,
-      'args': [{
-        'name': null,
-        'type': className
-      }]
-    };
-    algorithm = new ee.CustomFunction(signature, algorithm);
-  } else if (goog.isString(algorithm)) {
-    algorithm = new ee.ApiFunction(algorithm);
-  } else if (!(algorithm instanceof ee.Function)) {
+ee.Collection.prototype.mapInternal = function(type, algorithm) {
+  if (!goog.isFunction(algorithm)) {
     throw Error('Can\'t map non-callable object: ' + algorithm);
   }
-  var args = {
-    'collection': this,
-    'baseAlgorithm': algorithm
+  var signature = {
+    'name': '',
+    'returns': 'Object',
+    'args': [{
+      'name': null,
+      'type': ee.Types.classToName(type)
+    }]
   };
-  if (opt_dynamicArgs) {
-    args['dynamicArgs'] = opt_dynamicArgs;
-  } else {
-    // Use the function's first argument.
-    var varName = algorithm.getSignature()['args'][0]['name'];
-    args['dynamicArgs'] = goog.object.create(varName, '.all');
-  }
-  if (opt_constantArgs) { args['constantArgs'] = opt_constantArgs; }
-  if (opt_destination) { args['destination'] = opt_destination; }
-  return this.cast_(ee.ApiFunction._apply('Collection.map', args));
+  return this.cast_(ee.ApiFunction._apply('Collection.map', {
+    'collection': this,
+    'baseAlgorithm': new ee.CustomFunction(signature, algorithm)
+  }));
 };
 
 
 /**
  * Maps an algorithm over a collection.
  *
- * @param {string|Object|function(*):Object} algorithm The operation to map over
- *     the images or features of the collection. Either an algorithm name as a
- *     string, or a JavaScript function that receives an image or features and
- *     returns one. If a function is passed, it is called only once and the
- *     result is captured as a description, so it cannot perform imperative
- *     operations or rely on external state.
- * @param {Object.<string,*>?=} opt_dynamicArgs A map specifying which
- *     properties of the input objects to pass to each argument of the
- *     algorithm. This maps from argument names to selector strings. Selector
- *     strings are property names, optionally concatenated into chains separated
- *     by a period to access properties-of-properties. To pass the whole object,
- *     use the special selector string '.all', and to pass the geometry, use
- *     '.geo'. If this argument is not specified, the names of the arguments
- *     will be matched exactly to the properties of the input object. If
- *     algorithm is a JavaScript function, this must be null or undefined as
- *     the image will always be the only dynamic argument.
- * @param {Object.<string,*>?=} opt_constantArgs A map from argument names to
- *     constant values to be passed to the algorithm on every invocation.
- * @param {string=} opt_destination The property where the result of the
- *     algorithm will be put. If this is null or undefined, the result of the
- *     algorithm will replace the input, as is the usual behavior of a mapping
- *     opeartion.
+ * @param {function(Object):Object} algorithm The operation to map over
+ *     the images or features of the collection. A JavaScript function that
+ *     receives an image or features and returns one. The function is called
+ *     only once and the result is captured as a description, so it cannot
+ *     perform imperative operations or rely on external state.
  * @return {ee.Collection} The mapped collection.
+ * @export
  */
-ee.Collection.prototype.map = function(
-    algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
-  return this.mapInternal(
-      ee.ComputedObject, algorithm,
-      opt_dynamicArgs, opt_constantArgs, opt_destination);
+ee.Collection.prototype.map = function(algorithm) {
+  return this.mapInternal(ee.ComputedObject, algorithm);
 };
-
-
-/**
- * Creates a map_* method on collectionClass for each generated instance
- * method on elementClass that maps that method over the collection.
- *
- * @param {function(new:ee.Collection, ?): ee.Collection} collectionClass
- *     The collection type.
- * @param {function(new:Object, ?): Object} elementClass
- *     The collection elements' type.
- * @protected
- * TODO(user): Deprecate these.
- */
-ee.Collection.createAutoMapFunctions = function(collectionClass, elementClass) {
-  goog.object.forEach(elementClass.prototype, function(method, name) {
-    if (goog.isFunction(method) && method['signature']) {
-      collectionClass.prototype['map_' + name] = function() {
-        var destination = null;
-        if (!ee.Types.isSubtype('EEObject', method['signature']['returns'])) {
-          destination = name;
-        }
-        var constArgs = Array.prototype.slice.call(arguments, 0);
-        return this.mapInternal(elementClass, function(elem) {
-          return method.apply(elem, constArgs);
-        }, null, null, destination);
-      };
-    }
-  });
-};
-
-
-goog.exportSymbol('ee.Collection', ee.Collection);
-goog.exportProperty(ee.Collection.prototype, 'filter',
-                    ee.Collection.prototype.filter);
-goog.exportProperty(ee.Collection.prototype, 'filterMetadata',
-                    ee.Collection.prototype.filterMetadata);
-goog.exportProperty(ee.Collection.prototype, 'filterBounds',
-                    ee.Collection.prototype.filterBounds);
-goog.exportProperty(ee.Collection.prototype, 'filterDate',
-                    ee.Collection.prototype.filterDate);
-goog.exportProperty(ee.Collection.prototype, 'limit',
-                    ee.Collection.prototype.limit);
-goog.exportProperty(ee.Collection.prototype, 'sort',
-                    ee.Collection.prototype.sort);

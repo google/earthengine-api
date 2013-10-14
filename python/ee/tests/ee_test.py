@@ -247,6 +247,12 @@ class EETestCase(apitestcase.ApiTestCase):
                 'args': [],
                 'description': '',
                 'returns': 'Object'
+            },
+            'last': {
+                'type': 'Algorithm',
+                'args': [],
+                'description': '',
+                'returns': 'Object'
             }
         }
     ee.data.send_ = MockSend
@@ -258,6 +264,7 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertTrue(callable(ee.Algorithms.Foo.bar))
     self.assertTrue('Quux' not in ee.Algorithms)
     self.assertEquals(ee.call('Foo.bar'), ee.Algorithms.Foo.bar())
+    self.assertNotEquals(ee.Algorithms.Foo.bar(), ee.Algorithms.last())
 
   def testDatePromtion(self):
     # Make a feature, put a time in it, and get it out as a date.

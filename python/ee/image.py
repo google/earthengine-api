@@ -317,6 +317,27 @@ class Image(computedobject.ComputedObject):
       pass  # Not an ee.Geometry or GeoJSON. Just pass it along.
     return apifunction.ApiFunction.call_('Image.clip', self, clip_geometry)
 
+  def set(self, properties):
+    """Overrides one or more metadata properties of an Image.
+
+    Args:
+      properties: The property values to override.
+
+    Returns:
+      The image with the specified properties overridden.
+    """
+    if not isinstance(properties, (dict, computedobject.ComputedObject)):
+      raise ee_exception.EEException('Image.set() requires a dictionary.')
+
+    # Try to be smart about interpreting the argument.
+    if (isinstance(properties, dict) and
+        properties.keys() == ['properties'] and
+        isinstance(properties['properties'], dict)):
+      # Looks like a call with keyword parameters. Extract them.
+      properties = properties['properties']
+    # Manually cast the result to an image.
+    return Image(apifunction.ApiFunction.call_('Image.set', self, properties))
+
   @staticmethod
   def name():
     return 'Image'

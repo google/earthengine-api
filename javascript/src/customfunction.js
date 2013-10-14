@@ -25,7 +25,6 @@ goog.require('goog.object');
  *
  * @constructor
  * @extends {ee.Function}
- * @hidden
  */
 ee.CustomFunction = function(signature, body) {
   if (!(this instanceof ee.CustomFunction)) {
@@ -56,6 +55,8 @@ ee.CustomFunction = function(signature, body) {
       signature, vars, this.body_);
 };
 goog.inherits(ee.CustomFunction, ee.Function);
+// Exporting manually to avoid marking the class public in the docs.
+goog.exportSymbol('ee.CustomFunction', ee.CustomFunction);
 
 
 /** @inheritDoc */
@@ -85,6 +86,7 @@ ee.CustomFunction.prototype.getSignature = function() {
  *     name will be auto-generated in resolveNamelessArgs_().
  * @return {*} A variable with the given name implementing the given type.
  * @private
+ * @suppress {globalThis} The compiler doesn't recognize inline class creation.
  */
 ee.CustomFunction.variable_ = function(type, name) {
   /** @constructor */

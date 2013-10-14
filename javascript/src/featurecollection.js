@@ -30,6 +30,7 @@ goog.require('goog.array');
  *     useful with constructor types 1 and 2.
  * @constructor
  * @extends {ee.Collection}
+ * @export
  */
 ee.FeatureCollection = function(args, opt_column) {
   // Constructor safety.
@@ -92,13 +93,11 @@ ee.FeatureCollection.initialized_ = false;
 
 /**
  * Imports API functions to this class.
- * @hidden
  */
 ee.FeatureCollection.initialize = function() {
   if (!ee.FeatureCollection.initialized_) {
     ee.ApiFunction.importApi(
         ee.FeatureCollection, 'FeatureCollection', 'FeatureCollection');
-    ee.Collection.createAutoMapFunctions(ee.FeatureCollection, ee.Feature);
     ee.FeatureCollection.initialized_ = true;
   }
 };
@@ -106,7 +105,6 @@ ee.FeatureCollection.initialize = function() {
 
 /**
  * Removes imported API functions from this class.
- * @hidden
  */
 ee.FeatureCollection.reset = function() {
   ee.ApiFunction.clearApi(ee.FeatureCollection);
@@ -124,6 +122,7 @@ ee.FeatureCollection.reset = function() {
  * @param {function(Object, string=)=} opt_callback An async callback.
  * @return {ee.data.MapId} An object containing a mapid string, an access
  *     token, plus a Collection.draw image wrapping this collection.
+ * @export
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   var painted = ee.ApiFunction._apply('Collection.draw', {
@@ -151,6 +150,7 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
  *           collection.
  *     - properties: an optional dictionary containing the collection's
  *           metadata properties.
+ * @export
  */
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.FeatureCollectionDescription} */(
@@ -159,11 +159,9 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 
 
 /** @inheritDoc */
-ee.FeatureCollection.prototype.map = function(
-    algorithm, opt_dynamicArgs, opt_constantArgs, opt_destination) {
-  return /** @type {ee.FeatureCollection} */(this.mapInternal(
-      ee.Feature, algorithm,
-      opt_dynamicArgs, opt_constantArgs, opt_destination));
+ee.FeatureCollection.prototype.map = function(algorithm) {
+  return /** @type {ee.FeatureCollection} */(
+      this.mapInternal(ee.Feature, algorithm));
 };
 
 
@@ -171,10 +169,3 @@ ee.FeatureCollection.prototype.map = function(
 ee.FeatureCollection.prototype.name = function() {
   return 'FeatureCollection';
 };
-
-
-goog.exportSymbol('ee.FeatureCollection', ee.FeatureCollection);
-goog.exportProperty(ee.FeatureCollection.prototype, 'map',
-                    ee.FeatureCollection.prototype.map);
-goog.exportProperty(ee.FeatureCollection.prototype, 'getMap',
-                    ee.FeatureCollection.prototype.getMap);

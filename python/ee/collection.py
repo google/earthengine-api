@@ -14,7 +14,6 @@ import customfunction
 import ee_exception
 import ee_types
 import filter   # pylint: disable=redefined-builtin
-import function
 
 
 class Collection(computedobject.ComputedObject):
@@ -187,97 +186,35 @@ class Collection(computedobject.ComputedObject):
   def name():
     return 'Collection'
 
-  def mapInternal(self,
-                  cls,
-                  algorithm,
-                  opt_dynamicArgs=None,
-                  opt_constantArgs=None,
-                  opt_destination=None):
+  def mapInternal(self, cls, algorithm):
     """Maps an algorithm over a collection.
 
     Args:
       cls: The collection elements' type (class).
       algorithm: The operation to map over the images or features of the
-          collection. Either an algorithm name as a string, or a Python
-          function that receives an image or features and returns one. If a
-          function is passed, it is called only once and the result is captured
-          as a description, so it cannot perform imperative operations or rely
-          on external state.
-      opt_dynamicArgs: A map specifying which properties of the input objects
-          to pass to each argument of the algorithm. This maps from argument
-          names to selector strings. Selector strings are property names,
-          optionally concatenated into chains separated by a period to access
-          properties-of-properties. To pass the whole object, use the special
-          selector string '.all', and to pass the geometry, use '.geo'. If
-          this argument is not specified, the names of the arguments will be
-          matched exactly to the properties of the input object. If algorithm
-          is a Python function, this must be null or undefined as the
-          image will always be the only dynamic argument.
-      opt_constantArgs: A map from argument names to constant values to be
-          passed to the algorithm on every invocation.
-      opt_destination: The property where the result of the algorithm will be
-          put. If this is null or undefined, the result of the algorithm will
-          replace the input, as is the usual behavior of a mapping opeartion.
+          collection, a Python function that receives an image or features and
+          returns one. The function is called only once and the result is
+          captured as a description, so it cannot perform imperative operations
+          or rely on external state.
 
     Returns:
       The mapped collection.
 
     Raises:
-      RuntimeError: if algorithm is a Python function and opt_dynamicArgs is
-          specified.
+      ee_exception.EEException: if algorithm is not a function.
     """
-    if callable(algorithm):
-      if opt_dynamicArgs:
-        # TODO(user): Remove this once we have a getProperty() algorithm.
-        raise ee_exception.EEException(
-            'Can\'t use dynamicArgs with a mapped Python function.')
-
-      typeName = ee_types.classToName(cls)
-      sig = {'returns': typeName, 'args': [{'name': None, 'type': typeName}]}
-      algorithm = customfunction.CustomFunction(sig, algorithm)
-    elif isinstance(algorithm, basestring):
-      algorithm = apifunction.ApiFunction.lookup(algorithm)
-    elif not isinstance(algorithm, function.Function):
+    if not callable(algorithm):
       raise ee_exception.EEException(
           'Can\'t map non-callable object: %s' % algorithm)
-
-    args = {
-        'collection': self,
-        'baseAlgorithm': algorithm
+    signature = {
+        'name': '',
+        'returns': 'Object',
+        'args': [{
+            'name': None,
+            'type': ee_types.classToName(cls)
+        }]
     }
-    if opt_dynamicArgs:
-      args['dynamicArgs'] = opt_dynamicArgs
-    else:
-      # Use the function's first argument.
-      varName = algorithm.getSignature()['args'][0]['name']
-      args['dynamicArgs'] = {varName: '.all'}
-
-    if opt_constantArgs: args['constantArgs'] = opt_constantArgs
-    if opt_destination: args['destination'] = opt_destination
-    return self._cast(apifunction.ApiFunction.apply_('Collection.map', args))
-
-  @classmethod
-  def createAutoMapFunctions(cls, elementClass):
-    """Creates map_*() methods on collectionClass.
-
-    Creates a map_* method on collectionClass for each generated instance
-    method on elementClass that maps that method over the collection.
-
-    TODO(user): Deprecate these.
-
-    Args:
-      elementClass: The collection elements' type.
-    """
-    for name in dir(elementClass):
-      method = getattr(elementClass, name)
-      if callable(method) and hasattr(method, 'signature'):
-        def MakeMapFunction(name, method):   # Capture scope.
-          def MapFunction(self, *args, **kwargs):
-            method_caller = lambda elem: method(elem, *args, **kwargs)
-            destination = None
-            if not ee_types.isSubtype('EEObject', method.signature['returns']):
-              destination = name
-            return self.mapInternal(
-                elementClass, method_caller, None, None, destination)
-          return MapFunction
-        setattr(cls, 'map_' + name, MakeMapFunction(name, method))
+    return self._cast(apifunction.ApiFunction.apply_('Collection.map', {
+        'collection': self,
+        'baseAlgorithm': customfunction.CustomFunction(signature, algorithm)
+    }))
