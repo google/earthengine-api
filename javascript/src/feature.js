@@ -106,8 +106,10 @@ ee.Feature.reset = function() {
  * An imperative function that returns information about this feature via an
  * AJAX call.
  *
- * @param {function(ee.data.GeoJSONFeature?)=} opt_callback An optional
- *     callback. If not supplied, the call is made synchronously.
+ * @param {function(ee.data.GeoJSONFeature, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ *     If supplied, will be called with the first parameter if successful and
+ *     the second if unsuccessful.
  * @return {ee.data.GeoJSONFeature} A description of the feature.
  * @export
  */

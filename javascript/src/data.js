@@ -118,6 +118,7 @@ ee.data.reset = function() {
  *
  * @param {number} milliseconds The number of milliseconds to wait for a
  *     request before considering it timed out. 0 means no limit.
+ * @export
  */
 ee.data.setDeadline = function(milliseconds) {
   ee.data.deadlineMs_ = milliseconds;
@@ -372,6 +373,7 @@ ee.data.createAsset = function(value, opt_path, opt_callback) {
                        ee.data.makeRequest_(args),
                        opt_callback);
 };
+goog.exportSymbol('ee.data.createAsset', ee.data.createAsset);
 
 
 /**
@@ -390,6 +392,7 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
   return /** @type {Array.<string>} */ (
       ee.data.send_('/newtaskid', ee.data.makeRequest_(params), opt_callback));
 };
+goog.exportSymbol('ee.data.newTaskId', ee.data.newTaskId);
 
 
 /**
@@ -419,6 +422,7 @@ ee.data.getTaskStatus = function(task_id, opt_callback) {
   return /** @type {Array.<ee.data.TaskStatus>} */ (
       ee.data.send_(url, null, opt_callback, 'GET'));
 };
+goog.exportSymbol('ee.data.getTaskStatus', ee.data.getTaskStatus);
 
 
 /**
@@ -438,6 +442,7 @@ ee.data.prepareValue = function(task_id, params, opt_callback) {
   return /** @type {ee.data.ProcessingResponse} */ (
       ee.data.send_('/prepare', ee.data.makeRequest_(params), opt_callback));
 };
+goog.exportSymbol('ee.data.prepareValue', ee.data.prepareValue);
 
 
 /**
@@ -447,7 +452,7 @@ ee.data.prepareValue = function(task_id, params, opt_callback) {
  * @param {Object} params The object that describes the processing task;
  *    only fields that are common for all processing types are documented here.
  *      type (string) Either 'export_image' or 'render'.
- *      imageJson (string) JSON description of the image.
+ *      json (string) JSON description of the image.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
  * @return {ee.data.ProcessingResponse} May contain field 'note' with value
@@ -458,6 +463,7 @@ ee.data.startProcessing = function(task_id, params, opt_callback) {
   return /** @type {ee.data.ProcessingResponse} */ (ee.data.send_(
       '/processingrequest', ee.data.makeRequest_(params), opt_callback));
 };
+goog.exportSymbol('ee.data.startProcessing', ee.data.startProcessing);
 
 
 /**

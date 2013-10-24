@@ -27,46 +27,49 @@ goog.require('goog.object');
  *   - An ee.Image: returns the argument,
  *   - Nothing: results in an empty transparent image.
  *
- * @param {number|string|Array.<*>|ee.Image|Object} args Constructor argument.
+ * @param {number|string|Array.<*>|ee.Image|Object=} opt_args
+ *     Constructor argument.
  * @constructor
  * @extends {ee.ComputedObject}
  * @export
  */
-ee.Image = function(args) {
+ee.Image = function(opt_args) {
   // Constructor safety.
   if (!(this instanceof ee.Image)) {
-    return new ee.Image(args);
-  } else if (args instanceof ee.Image) {
-    return args;
+    return new ee.Image(opt_args);
+  } else if (opt_args instanceof ee.Image) {
+    return opt_args;
   }
 
   ee.Image.initialize();
 
   var argCount = arguments.length;
-  if (argCount == 0 || (argCount == 1 && !goog.isDef(args))) {
+  if (argCount == 0 || (argCount == 1 && !goog.isDef(opt_args))) {
     goog.base(this, new ee.ApiFunction('Image.mask'), {
       'image': new ee.Image(0),
       'mask': new ee.Image(0)
     });
   } else if (argCount == 1) {
-    if (ee.Types.isNumber(args)) {
+    if (ee.Types.isNumber(opt_args)) {
       // A constant image.
-      goog.base(this, new ee.ApiFunction('Image.constant'), {'value': args});
-    } else if (ee.Types.isString(args)) {
+      goog.base(this, new ee.ApiFunction('Image.constant'),
+                {'value': opt_args});
+    } else if (ee.Types.isString(opt_args)) {
       // An ID.
-      goog.base(this, new ee.ApiFunction('Image.load'), {'id': args});
-    } else if (goog.isArray(args)) {
+      goog.base(this, new ee.ApiFunction('Image.load'), {'id': opt_args});
+    } else if (goog.isArray(opt_args)) {
       // Make an image out of each element.
       return ee.Image.combine_(goog.array.map(
-          /** @type {Array.<*>} */ (args),
+          /** @type {Array.<*>} */ (opt_args),
           function(elem) {
             return new ee.Image(/** @type {?} */ (elem));
           }));
-    } else if (args instanceof ee.ComputedObject) {
+    } else if (opt_args instanceof ee.ComputedObject) {
       // A custom object to reinterpret as an Image.
-      goog.base(this, args.func, args.args);
+      goog.base(this, opt_args.func, opt_args.args);
     } else {
-      throw Error('Unrecognized argument type to convert to an Image: ' + args);
+      throw Error('Unrecognized argument type to convert to an Image: ' +
+                  opt_args);
     }
   } else if (argCount == 2) {
     // An ID and version.
@@ -122,8 +125,10 @@ ee.Image.reset = function() {
  * An imperative function that returns information about this image via an
  * AJAX call.
  *
- * @param {function(ee.data.ImageDescription?)=} opt_callback An optional
- *     callback. If not supplied, the call is made synchronously.
+ * @param {function(ee.data.ImageDescription, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ *     If supplied, will be called with the first parameter if successful and
+ *     the second if unsuccessful.
  * @return {ee.data.ImageDescription} A description of the image. Includes:
  *     - bands - an array containing metadata about the bands in the collection.
  *     - properties - a dictionary containing the image's metadata properties.
@@ -194,14 +199,25 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *         ignored if crs and crs_transform is specified.
  *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
+ * @param {function(string?, string=)=} opt_callback An optional
+ *     callback. If not supplied, the call is made synchronously.
  * @return {string} A download URL.
  * @export
  */
-ee.Image.prototype.getDownloadURL = function(params) {
+ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   var request = params || {};
   request['image'] = this.serialize();
-  var downloadId = ee.data.getDownloadId(request);
-  return ee.data.makeDownloadUrl(downloadId);
+  if (opt_callback) {
+    ee.data.getDownloadId(request, function(downloadId, error) {
+      if (downloadId) {
+        opt_callback(ee.data.makeDownloadUrl(downloadId));
+      } else {
+        opt_callback(null, error);
+      }
+    });
+  } else {
+    return ee.data.makeDownloadUrl(ee.data.getDownloadId(request));
+  }
 };
 
 
@@ -290,10 +306,10 @@ ee.Image.combine_ = function(images, opt_names) {
  * Select bands from an image.  This is an override to the normal
  * Image.select function to allow varargs usage.
  *
- * @param {Array.<string|number>} selectors An array of names,
+ * @param {Array.<string|number>|number} selectors An array of names,
  *     regexes or numeric indicies specifying the bands to select.
- * @param {Array.<string>=} opt_names Array of new names for the output bands.
- *     Must match the number of bands selected.
+ * @param {Array.<string>|number=} opt_names Array of new names for the
+ *     output bands. Must match the number of bands selected.
  * @return {ee.Image} The image.
  * @export
  */

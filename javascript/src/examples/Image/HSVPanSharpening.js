@@ -6,15 +6,17 @@
 // chosen to roughly match the other bands.)
 var image1 = ee.Image('LANDSAT/L7/LE72300681999227EDC00');
 
-rgb = image1.select('30', '20', '10').unitScale(0, 255);
-gray = image1.select('80').unitScale(0, 155);
+var rgb = image1.select('30', '20', '10').unitScale(0, 255);
+var gray = image1.select('80').unitScale(0, 155);
 
 // Convert to HSV, swap in the pan band, and convert back to RGB.
-huesat = rgb.rgbtohsv().select('hue', 'saturation');
-upres = ee.Image.cat(huesat, gray).hsvtorgb();
+var huesat = rgb.rgbtohsv().select('hue', 'saturation');
+var upres = ee.Image.cat(huesat, gray).hsvtorgb();
 
 // Display before and after layers using the same vis parameters.
-visparams = {min: [.15, .15, .25], max: [1, .9, .9], gamma: 1.6};
+var visparams = {min: [0.15, 0.15, 0.25],
+                 max: [1, 0.9, 0.9],
+                 gamma: 1.6};
 addToMap(rgb, visparams, 'Original');
 addToMap(upres, visparams, 'Pansharpened');
 
