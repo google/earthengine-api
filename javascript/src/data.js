@@ -143,7 +143,7 @@ ee.data.getTileBaseUrl = function() {
  * @param {string} id The asset to be retrieved.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
- * @return {Object} The value call results.
+ * @return {?Object} The value call results, or null if a callback is specified.
  * @deprecated Use getValue.
  * @export
  */
@@ -168,12 +168,13 @@ ee.data.getInfo = function(id, opt_callback) {
  *       - fields (comma-separated strings) Field names to return.
  * @param {function(ee.data.ImageList, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {ee.data.ImageList} The list call results.
+ * @return {?ee.data.ImageList} The list call results, or null if a callback
+ *     is specified.
  * @export
  */
 ee.data.getList = function(params, opt_callback) {
   var request = ee.data.makeRequest_(params);
-  return /** @type {ee.data.ImageList} */(
+  return /** @type {?ee.data.ImageList} */(
       ee.data.send_('/list', request, opt_callback));
 };
 
@@ -201,12 +202,14 @@ ee.data.getList = function(params, opt_callback) {
  *       - format (string) Either "jpg" or "png".
  * @param {function(ee.data.RawMapId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {ee.data.RawMapId} The mapId call results.
+ * @return {?ee.data.RawMapId} The mapId call results, or null if a callback
+ *     is specified.
  * @export
  */
 ee.data.getMapId = function(params, opt_callback) {
+  params = goog.object.clone(params);
   params['json_format'] = 'v2';
-  return /** @type {ee.data.RawMapId} */ (
+  return /** @type {?ee.data.RawMapId} */ (
       ee.data.send_('/mapid', ee.data.makeRequest_(params), opt_callback));
 };
 
@@ -238,10 +241,11 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
  *      - json (String) A JSON object to be evaluated.
  * @param {function(?, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
- * @return {?} The value call results.
+ * @return {?} The value call results, or null if a callback is specified.
  * @export
  */
 ee.data.getValue = function(params, opt_callback) {
+  params = goog.object.clone(params);
   params['json_format'] = 'v2';
   return ee.data.send_('/value', ee.data.makeRequest_(params), opt_callback);
 };
@@ -260,16 +264,18 @@ ee.data.getValue = function(params, opt_callback) {
  *       - format (string) Either 'png' (default) or 'jpg'.
  * @param {function(ee.data.ThumbnailId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {ee.data.ThumbnailId} The thumb ID and token.
+ * @return {?ee.data.ThumbnailId} The thumb ID and token, or null if a
+ *     callback is specified.
  * @export
  */
 ee.data.getThumbId = function(params, opt_callback) {
+  params = goog.object.clone(params);
   params['json_format'] = 'v2';
   if (goog.isArray(params['size'])) {
     params['size'] = params['size'].join('x');
   }
   var request = ee.data.makeRequest_(params).add('getid', '1');
-  return /** @type {ee.data.ThumbnailId} */(
+  return /** @type {?ee.data.ThumbnailId} */(
       ee.data.send_('/thumb', request, opt_callback));
 };
 
@@ -315,12 +321,14 @@ ee.data.makeThumbUrl = function(id) {
  *         and crs_transform is specified.
  * @param {function(ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
- * @return {ee.data.DownloadId} A download ID and token.
+ * @return {?ee.data.DownloadId} A download ID and token, or null if a callback
+ *     is specified.
  * @export
  */
 ee.data.getDownloadId = function(params, opt_callback) {
+  params = goog.object.clone(params);
   params['json_format'] = 'v2';
-  return /** @type {ee.data.DownloadId} */ (ee.data.send_(
+  return /** @type {?ee.data.DownloadId} */ (ee.data.send_(
       '/download',
       ee.data.makeRequest_(params),
       opt_callback));
@@ -344,14 +352,12 @@ ee.data.makeDownloadUrl = function(id) {
  *
  * @param {function(ee.data.AlgorithmsRegistry, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {ee.data.AlgorithmsRegistry} The list of algorithm
- *     signatures.
+ * @return {?ee.data.AlgorithmsRegistry} The list of algorithm
+ *     signatures, or null if a callback is specified.
  */
 ee.data.getAlgorithms = function(opt_callback) {
-  return ee.data.send_('/algorithms',
-                       null,
-                       opt_callback,
-                       'GET');
+  return /** @type {?ee.data.AlgorithmsRegistry} */ (
+      ee.data.send_('/algorithms', null, opt_callback, 'GET'));
 };
 
 
@@ -362,7 +368,8 @@ ee.data.getAlgorithms = function(opt_callback) {
  * @param {string=} opt_path An optional desired ID, including full path.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
- * @return {Object} A description of the saved asset, including a generated ID.
+ * @return {?Object} A description of the saved asset, including a generated
+ *     ID, or null if a callback is specified.
  */
 ee.data.createAsset = function(value, opt_path, opt_callback) {
   var args = {'value': value, 'json_format': 'v2'};
@@ -382,14 +389,15 @@ goog.exportSymbol('ee.data.createAsset', ee.data.createAsset);
  * @param {number=} opt_count Number of IDs to generate, one by default.
  * @param {function(Array.<string>, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
- * @return {Array.<string>} An array containing generated ID strings.
+ * @return {?Array.<string>} An array containing generated ID strings, or null
+ *     if a callback is specified.
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
   if (goog.isNumber(opt_count)) {
     params['count'] = opt_count;
   }
-  return /** @type {Array.<string>} */ (
+  return /** @type {?Array.<string>} */ (
       ee.data.send_('/newtaskid', ee.data.makeRequest_(params), opt_callback));
 };
 goog.exportSymbol('ee.data.newTaskId', ee.data.newTaskId);
@@ -402,9 +410,10 @@ goog.exportSymbol('ee.data.newTaskId', ee.data.newTaskId);
  *     multiple task IDs.
  * @param {function(Array.<ee.data.TaskStatus>, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {Array.<ee.data.TaskStatus>} An array containing one object for
- *     each queried task, in the same order as the input array, each object
- *     containing the following values:
+ * @return {?Array.<ee.data.TaskStatus>} Null if a callback isn't specified,
+ *     otherwise an array containing one object for each queried task, in the
+ *     same order as the input array, each object containing the following
+ *     values:
  *     - id (string) ID of the task.
  *     - state (string) State of the task, one of READY, RUNNING, COMPLETED,
  *         FAILED, CANCELLED; or UNKNOWN if the task with the specified ID
@@ -419,7 +428,7 @@ ee.data.getTaskStatus = function(task_id, opt_callback) {
         'an array of strings.');
   }
   var url = '/taskstatus?q=' + task_id.join();
-  return /** @type {Array.<ee.data.TaskStatus>} */ (
+  return /** @type {?Array.<ee.data.TaskStatus>} */ (
       ee.data.send_(url, null, opt_callback, 'GET'));
 };
 goog.exportSymbol('ee.data.getTaskStatus', ee.data.getTaskStatus);
@@ -434,12 +443,14 @@ goog.exportSymbol('ee.data.getTaskStatus', ee.data.getTaskStatus);
  *        json (string) A JSON object to be evaluated.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {ee.data.ProcessingResponse} May contain field 'note' with value
+ * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
+ *     Null if a callback is specified.
  */
 ee.data.prepareValue = function(task_id, params, opt_callback) {
+  params = goog.object.clone(params);
   params['tid'] = task_id;
-  return /** @type {ee.data.ProcessingResponse} */ (
+  return /** @type {?ee.data.ProcessingResponse} */ (
       ee.data.send_('/prepare', ee.data.makeRequest_(params), opt_callback));
 };
 goog.exportSymbol('ee.data.prepareValue', ee.data.prepareValue);
@@ -455,12 +466,14 @@ goog.exportSymbol('ee.data.prepareValue', ee.data.prepareValue);
  *      json (string) JSON description of the image.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
- * @return {ee.data.ProcessingResponse} May contain field 'note' with value
+ * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
+ *     Null if a callback is specified.
  */
 ee.data.startProcessing = function(task_id, params, opt_callback) {
+  params = goog.object.clone(params);
   params['id'] = task_id;
-  return /** @type {ee.data.ProcessingResponse} */ (ee.data.send_(
+  return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
       '/processingrequest', ee.data.makeRequest_(params), opt_callback));
 };
 goog.exportSymbol('ee.data.startProcessing', ee.data.startProcessing);
@@ -477,7 +490,8 @@ goog.exportSymbol('ee.data.startProcessing', ee.data.startProcessing);
  * @param {string=} opt_method The HTTPRequest method (GET or POST), default
  *     is POST.
  *
- * @return {?Object} The data object returned by the API call.
+ * @return {?Object} The data object returned by the API call, or null if a
+ *     callback was specified.
  * @private
  */
 ee.data.send_ = function(path, params, opt_callback, opt_method) {
@@ -568,7 +582,7 @@ ee.data.makeRequest_ = function(params) {
  *     for each URL, keyed to URL.
  */
 ee.data.setupMockSend = function(opt_calls) {
-  var calls = opt_calls || {};
+  var calls = opt_calls ? goog.object.clone(opt_calls) : {};
   // Mock XhrIo.send for async calls.
   goog.net.XhrIo.send = function(url, callback, method, data) {
     // An anonymous class to simulate an event.  Closure doesn't like this.

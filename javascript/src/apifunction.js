@@ -246,7 +246,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       destination[fname] = function(var_args) {
         var args = Array.prototype.slice.call(arguments, 0);
         var namedArgs;
-        if (args.length == 1 && args[0].constructor == Object) {
+        if (args.length == 1 && ee.Types.isRegularObject(args[0])) {
           // Assume keyword arguments if we get a single dictionary.
           namedArgs = goog.object.clone(args[0]);
           if (isInstance) {

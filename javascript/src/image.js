@@ -152,7 +152,7 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * @export
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
-  var request = opt_visParams || {};
+  var request = opt_visParams ? goog.object.clone(opt_visParams) : {};
   request['image'] = this.serialize();
 
   if (opt_callback) {
@@ -205,7 +205,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  * @export
  */
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
-  var request = params || {};
+  var request = params ? goog.object.clone(params) : {};
   request['image'] = this.serialize();
   if (opt_callback) {
     ee.data.getDownloadId(request, function(downloadId, error) {
@@ -216,7 +216,8 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
       }
     });
   } else {
-    return ee.data.makeDownloadUrl(ee.data.getDownloadId(request));
+    return ee.data.makeDownloadUrl(
+        /** @type {ee.data.DownloadId} */ (ee.data.getDownloadId(request)));
   }
 };
 
@@ -235,9 +236,10 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
  * @export
  */
 ee.Image.prototype.getThumbURL = function(params) {
-  var request = params || {};
+  var request = params ? goog.object.clone(params) : {};
   request['image'] = this.serialize();
-  return ee.data.makeThumbUrl(ee.data.getThumbId(request));
+  return ee.data.makeThumbUrl(
+        /** @type {ee.data.ThumbnailId} */ (ee.data.getThumbId(request)));
 };
 
 // ///////////////////////////////////////////////////////////////
@@ -423,10 +425,9 @@ ee.Image.prototype.set = function(properties) {
   // Try to be smart about interpreting the argument.
   // Check that we have a plain object, with 1 property called 'properties',
   // which is itself a plain object.
-  if (properties.constructor == Object &&
+  if (ee.Types.isRegularObject(properties) &&
       goog.array.equals(goog.object.getKeys(properties), ['properties']) &&
-      goog.isObject(properties['properties']) &&
-      properties['properties'].constructor == Object) {
+      ee.Types.isRegularObject(properties['properties'])) {
     // Looks like a call with keyword parameters. Extract them.
     properties = /** @type {Object.<*>} */(properties['properties']);
   }

@@ -280,10 +280,9 @@ ee.Feature.prototype.set = function(properties) {
   // Try to be smart about interpreting the argument.
   // Check that we have a plain object, with 1 property called 'properties',
   // which is itself a plain object.
-  if (properties.constructor == Object &&
+  if (ee.Types.isRegularObject(properties) &&
       goog.array.equals(goog.object.getKeys(properties), ['properties']) &&
-      goog.isObject(properties['properties']) &&
-      properties['properties'].constructor == Object) {
+      ee.Types.isRegularObject(properties['properties'])) {
     // Looks like a call with keyword parameters. Extract them.
     properties = /** @type {Object.<*>} */(properties['properties']);
   }

@@ -165,3 +165,18 @@ ee.Types.isVarOfType = function(obj, klass) {
     return false;
   }
 };
+
+
+/**
+ * @param {*} obj The object to check.
+ * @return {boolean} Whether the object is a regular, non-prototyped,
+ *     non-function Object.
+ */
+ee.Types.isRegularObject = function(obj) {
+  if (goog.isObject(obj) && !goog.isFunction(obj)) {
+    var proto = Object.getPrototypeOf(obj);
+    return !goog.isNull(proto) && goog.isNull(Object.getPrototypeOf(proto));
+  } else {
+    return false;
+  }
+};

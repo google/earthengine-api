@@ -5,21 +5,16 @@
 // to transfer them to the client.
 
 var img = ee.Image('srtm90_v4');
-var meanReducer = ee.call('Reducer.mean');
-var sigmaReducer = ee.call('Reducer.std_dev');
+var meanReducer = ee.Reducer.mean();
+var sigmaReducer = ee.Reducer.stdDev();
 var region = ee.Geometry.Rectangle(9, 9, 10, 10);
 var scale = 10000;       // 10km pixels.
 
 // Extract the mean and standard deviation properties.
 // These come back from reduceRegion in a dictionary,
 // with a key that's the name of the band it came from.
-var mean = ee.call('Dictionary.get',
-  img.reduceRegion(meanReducer, region, scale),
-  'elevation');
-
-var sigma = ee.call('Dictionary.get',
-  img.reduceRegion(sigmaReducer, region, scale),
-  'elevation');
+var mean = img.reduceRegion(meanReducer, region, scale).get('elevation');
+var sigma = img.reduceRegion(sigmaReducer, region, scale).get('elevation');
 
 // Stretch with the stats to normalize the image so that
 // 3*sigma fits within [0:1].

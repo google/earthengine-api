@@ -115,7 +115,9 @@ ee.reset = function() {
   ee.Number.reset();
   ee.String.reset();
   ee.resetGeneratedClasses_();
-  ee.Algorithms = {};
+  // Can't simply reassign ee.Algorithms to {} since it's been exported by
+  // reference.
+  goog.object.clear(ee.Algorithms);
 };
 
 
