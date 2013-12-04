@@ -802,7 +802,7 @@ goog.string.newLineToBr = function(str, opt_xml) {
 };
 goog.string.htmlEscape = function(str, opt_isLikelyToContainHtmlChars) {
   if (opt_isLikelyToContainHtmlChars) {
-    return str.replace(goog.string.amperRe_, "&amp;").replace(goog.string.ltRe_, "&lt;").replace(goog.string.gtRe_, "&gt;").replace(goog.string.quotRe_, "&quot;");
+    return str.replace(goog.string.amperRe_, "&amp;").replace(goog.string.ltRe_, "&lt;").replace(goog.string.gtRe_, "&gt;").replace(goog.string.quotRe_, "&quot;").replace(goog.string.singleQuoteRe_, "&#39;");
   }
   if (!goog.string.allRe_.test(str)) {
     return str;
@@ -811,13 +811,15 @@ goog.string.htmlEscape = function(str, opt_isLikelyToContainHtmlChars) {
   -1 != str.indexOf("<") && (str = str.replace(goog.string.ltRe_, "&lt;"));
   -1 != str.indexOf(">") && (str = str.replace(goog.string.gtRe_, "&gt;"));
   -1 != str.indexOf('"') && (str = str.replace(goog.string.quotRe_, "&quot;"));
+  -1 != str.indexOf("'") && (str = str.replace(goog.string.singleQuoteRe_, "&#39;"));
   return str;
 };
 goog.string.amperRe_ = /&/g;
 goog.string.ltRe_ = /</g;
 goog.string.gtRe_ = />/g;
-goog.string.quotRe_ = /\"/g;
-goog.string.allRe_ = /[&<>\"]/;
+goog.string.quotRe_ = /"/g;
+goog.string.singleQuoteRe_ = /'/g;
+goog.string.allRe_ = /[&<>"']/;
 goog.string.unescapeEntities = function(str) {
   return goog.string.contains(str, "&") ? "document" in goog.global ? goog.string.unescapeEntitiesUsingDom_(str) : goog.string.unescapePureXmlEntities_(str) : str;
 };
@@ -1599,14 +1601,13 @@ goog.events.EventId.prototype.toString = function() {
 goog.events.Event = function(type, opt_target) {
   this.type = type instanceof goog.events.EventId ? String(type) : type;
   this.currentTarget = this.target = opt_target;
+  this.defaultPrevented = this.propagationStopped_ = !1;
+  this.returnValue_ = !0;
 };
 goog.events.Event.prototype.disposeInternal = function() {
 };
 goog.events.Event.prototype.dispose = function() {
 };
-goog.events.Event.prototype.propagationStopped_ = !1;
-goog.events.Event.prototype.defaultPrevented = !1;
-goog.events.Event.prototype.returnValue_ = !0;
 goog.events.Event.prototype.stopPropagation = function() {
   this.propagationStopped_ = !0;
 };
@@ -1755,31 +1756,20 @@ TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), POINTERDOWN:"
 MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXTINPUT:"textinput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", 
 COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
+  goog.events.Event.call(this, opt_e ? opt_e.type : "");
+  this.relatedTarget = this.currentTarget = this.target = null;
+  this.charCode = this.keyCode = this.button = this.screenY = this.screenX = this.clientY = this.clientX = this.offsetY = this.offsetX = 0;
+  this.metaKey = this.shiftKey = this.altKey = this.ctrlKey = !1;
+  this.state = null;
+  this.platformModifierKey = !1;
+  this.event_ = null;
   opt_e && this.init(opt_e, opt_currentTarget);
 };
 goog.inherits(goog.events.BrowserEvent, goog.events.Event);
 goog.events.BrowserEvent.MouseButton = {LEFT:0, MIDDLE:1, RIGHT:2};
 goog.events.BrowserEvent.IEButtonMap = [1, 4, 2];
-goog.events.BrowserEvent.prototype.target = null;
-goog.events.BrowserEvent.prototype.relatedTarget = null;
-goog.events.BrowserEvent.prototype.offsetX = 0;
-goog.events.BrowserEvent.prototype.offsetY = 0;
-goog.events.BrowserEvent.prototype.clientX = 0;
-goog.events.BrowserEvent.prototype.clientY = 0;
-goog.events.BrowserEvent.prototype.screenX = 0;
-goog.events.BrowserEvent.prototype.screenY = 0;
-goog.events.BrowserEvent.prototype.button = 0;
-goog.events.BrowserEvent.prototype.keyCode = 0;
-goog.events.BrowserEvent.prototype.charCode = 0;
-goog.events.BrowserEvent.prototype.ctrlKey = !1;
-goog.events.BrowserEvent.prototype.altKey = !1;
-goog.events.BrowserEvent.prototype.shiftKey = !1;
-goog.events.BrowserEvent.prototype.metaKey = !1;
-goog.events.BrowserEvent.prototype.platformModifierKey = !1;
-goog.events.BrowserEvent.prototype.event_ = null;
 goog.events.BrowserEvent.prototype.init = function(e, opt_currentTarget) {
   var type = this.type = e.type;
-  goog.events.Event.call(this, type);
   this.target = e.target || e.srcElement;
   this.currentTarget = opt_currentTarget;
   var relatedTarget = e.relatedTarget;
@@ -1802,7 +1792,6 @@ goog.events.BrowserEvent.prototype.init = function(e, opt_currentTarget) {
   this.state = e.state;
   this.event_ = e;
   e.defaultPrevented && this.preventDefault();
-  delete this.propagationStopped_;
 };
 goog.events.BrowserEvent.prototype.isButton = function(button) {
   return goog.events.BrowserFeature.HAS_W3C_BUTTON ? this.event_.button == button : "click" == this.type ? button == goog.events.BrowserEvent.MouseButton.LEFT : !!(this.event_.button & goog.events.BrowserEvent.IEButtonMap[button]);

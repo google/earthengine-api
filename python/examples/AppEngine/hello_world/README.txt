@@ -8,18 +8,23 @@ local App Engine development environment.  Instructions for how to configure
 each are below.
 
 In all cases, the Python environment running the code will need to access
-the oauth2client, httplib2, and ee libraries.  When running locally, make sure
-your Python environment contains these libraries (yolk is a useful tool
-for this).  When running in App Engine, you will need to include these
-libraries in the directory containing the app.yaml file. Instructions for
-downloading the libraries are at the end of this file.
+the oauth2client, httplib2, pycrypto, and ee libraries.  When running locally,
+make sure your Python environment contains these libraries (yolk is a useful
+tool for this).  When running in App Engine, you will need to include the
+oauth2client, httplib2, and ee libraries in the directory containing the
+app.yaml file. Instructions for downloading the libraries are at the end of
+this file.
 
 For local development using a personal service account:
 * Set up a service account as described here:
   https://sites.google.com/site/earthengineapidocs/creating-oauth2-service-account
 * Email the service account email address to your google contact.
 * Convert the private key of that service account to a pem file:
-  openssl pkcs12 -in downloaded-privatekey.p12 -out privatekey.pem -nodes
+  openssl pkcs12 -in downloaded-privatekey.p12 -nodes -nocerts > privatekey.pem
+* Old versions of oauth2client will require you to delete the first few
+  lines of the of the .pem file so it begins with
+  ---BEGIN
+  We recommend you update to the most recent version of the libraries.
 * Copy the pem file into the directory that has your app.yaml file.
 * Update the included config.py file with your service account email
   address.
@@ -60,3 +65,8 @@ Earth Engine
 httplib2
 * hg clone https://code.google.com/p/httplib2/
 * move httplib2/python2/httplib2 into the directory containing app.yaml
+
+pycrypto:
+* download from https://www.dlitz.net/software/pycrypto/
+* python setup.py build
+* python setup.py install

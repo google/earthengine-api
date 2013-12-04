@@ -28,10 +28,6 @@ goog.require('goog.net.XhrIo');
 goog.require('goog.net.XmlHttp');
 
 
-/** @export */
-ee.data = {};
-
-
 /**
  * @type {string?} The base URL for all API calls.
  * @private
