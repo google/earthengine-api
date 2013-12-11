@@ -6,9 +6,8 @@ goog.provide('ee.Feature');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
+goog.require('ee.Element');
 goog.require('ee.Geometry');
-goog.require('goog.array');
-goog.require('goog.object');
 
 
 
@@ -26,7 +25,7 @@ goog.require('goog.object');
  * @param {Object=} opt_properties A dictionary of metadata properties. If the
        first parameter is a Feature (instead of a geometry), this is unused.
  * @constructor
- * @extends {ee.ComputedObject}
+ * @extends {ee.Element}
  * @export
  */
 ee.Feature = function(geometry, opt_properties) {
@@ -71,7 +70,7 @@ ee.Feature = function(geometry, opt_properties) {
     });
   }
 };
-goog.inherits(ee.Feature, ee.ComputedObject);
+goog.inherits(ee.Feature, ee.Element);
 
 
 /**
@@ -262,32 +261,6 @@ ee.Feature.Polygon = function(coordinates) {
  */
 ee.Feature.MultiPolygon = function(coordinates) {
   return ee.Geometry.MultiPolygon.apply(null, arguments);
-};
-
-
-/**
- * Overrides one or more metadata properties of a Feature.
- *
- * @param {Object.<*>} properties The property values to override.
- * @return {ee.Feature} The feature with the specified properties overridden.
- * @export
- */
-ee.Feature.prototype.set = function(properties) {
-  // NOTE: This is virtually identical to Image.set() and relies on its test.
-  if (arguments.length != 1 || !goog.isObject(properties)) {
-    throw Error('Feature.set() takes only one argument (a dictionary).');
-  }
-  // Try to be smart about interpreting the argument.
-  // Check that we have a plain object, with 1 property called 'properties',
-  // which is itself a plain object.
-  if (ee.Types.isRegularObject(properties) &&
-      goog.array.equals(goog.object.getKeys(properties), ['properties']) &&
-      ee.Types.isRegularObject(properties['properties'])) {
-    // Looks like a call with keyword parameters. Extract them.
-    properties = /** @type {Object.<*>} */(properties['properties']);
-  }
-  // Manually cast the result to a feature.
-  return new ee.Feature(ee.ApiFunction._call('Feature.set', this, properties));
 };
 
 

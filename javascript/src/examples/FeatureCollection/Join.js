@@ -6,7 +6,9 @@
 var bart = ee.FeatureCollection('ft:1xCCZkVn8DIkB7i7RVkvsYWxAxsdsQZ6SbD9PCXw');
 var parks = ee.FeatureCollection('ft:10KC6VfBWMUvNcuxU7mbSEg__F_4UVe9uDkCldBw');
 var bufferedBart = bart.map(function(f) { return f.buffer(2000); });
-var closeParks = parks.filterBounds(bufferedBart);
+
+var joinFilter = ee.Filter.withinDistance(2000, '.geo', null, '.geo');
+var closeParks = ee.Join.simple().apply(parks, bart, joinFilter);
 
 addToMap(bufferedBart, {color: 'b0b0b0'});
 addToMap(closeParks, {color: '008000'});

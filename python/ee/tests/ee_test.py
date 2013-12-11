@@ -214,14 +214,13 @@ class EETestCase(apitestcase.ApiTestCase):
     self.InitializeApi()
 
     # Features and Images are both already EEObjects.
-    self.assertTrue(isinstance(ee._Promote(ee.Feature(None), 'EEObject'),
+    self.assertTrue(isinstance(ee._Promote(ee.Feature(None), 'Element'),
                                ee.Feature))
-    self.assertTrue(isinstance(ee._Promote(ee.Image(0), 'EEObject'), ee.Image))
+    self.assertTrue(isinstance(ee._Promote(ee.Image(0), 'Element'), ee.Image))
 
-    # When asked to promote an untyped object to an EEObject, we
-    # currently assume that means Feature.
+    # Promote an untyped object to an Element.
     untyped = ee.ComputedObject('foo', {})
-    self.assertTrue(isinstance(ee._Promote(untyped, 'EEObject'), ee.Feature))
+    self.assertTrue(isinstance(ee._Promote(untyped, 'Element'), ee.Element))
 
   def testUnboundMethods(self):
     """Verifies unbound method attachment to ee.Algorithms."""

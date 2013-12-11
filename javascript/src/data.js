@@ -10,6 +10,7 @@ goog.provide('ee.data.AlgorithmsRegistry');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.FeatureCollectionDescription');
+goog.provide('ee.data.GMEProject');
 goog.provide('ee.data.GeoJSONFeature');
 goog.provide('ee.data.GeoJSONGeometry');
 goog.provide('ee.data.ImageCollectionDescription');
@@ -20,12 +21,14 @@ goog.provide('ee.data.PixelTypeDescription');
 goog.provide('ee.data.ProcessingResponse');
 goog.provide('ee.data.RawMapId');
 goog.provide('ee.data.TaskStatus');
+goog.provide('ee.data.TaskUpdateActions');
 goog.provide('ee.data.ThumbnailId');
 
 goog.require('goog.Uri');
 goog.require('goog.json');
 goog.require('goog.net.XhrIo');
 goog.require('goog.net.XmlHttp');
+goog.require('goog.object');
 
 
 /**
@@ -72,6 +75,16 @@ ee.data.DEFAULT_API_BASE_URL_ = '/api';
  * @const
  */
 ee.data.DEFAULT_TILE_BASE_URL_ = 'https://earthengine.googleapis.com';
+
+
+/**
+ * Actions that can update existing tasks.
+ * @enum {string}
+ */
+ee.data.TaskUpdateActions = {
+  CANCEL: 'CANCEL',
+  UPDATE: 'UPDATE'
+};
 
 
 /**
@@ -358,6 +371,20 @@ ee.data.getAlgorithms = function(opt_callback) {
 
 
 /**
+ * Get the list of GME projects for the current user.
+ *
+ * @param {function(Array.<ee.data.GMEProject>)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {?Array.<ee.data.GMEProject>} Null if a callback isn't specified,
+ *     otherwise an array containing one object for each GME project.
+ */
+ee.data.getGMEProjects = function(opt_callback) {
+  return /** @type {?Array.<ee.data.GMEProject>} */ (
+      ee.data.send_('/gmeprojects', null, opt_callback, 'GET'));
+};
+
+
+/**
  * Save an asset.
  *
  * @param {string} value The JSON-serialized value of the asset.
@@ -408,13 +435,7 @@ goog.exportSymbol('ee.data.newTaskId', ee.data.newTaskId);
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?Array.<ee.data.TaskStatus>} Null if a callback isn't specified,
  *     otherwise an array containing one object for each queried task, in the
- *     same order as the input array, each object containing the following
- *     values:
- *     - id (string) ID of the task.
- *     - state (string) State of the task, one of READY, RUNNING, COMPLETED,
- *         FAILED, CANCELLED; or UNKNOWN if the task with the specified ID
- *         doesn't exist.
- *     - error_message (string) For a FAILED task, a description of the error.
+ *     same order as the input array.
  */
 ee.data.getTaskStatus = function(task_id, opt_callback) {
   if (goog.isString(task_id)) {
@@ -428,6 +449,74 @@ ee.data.getTaskStatus = function(task_id, opt_callback) {
       ee.data.send_(url, null, opt_callback, 'GET'));
 };
 goog.exportSymbol('ee.data.getTaskStatus', ee.data.getTaskStatus);
+
+
+/**
+ * Retrieve a list of the users tasks.
+ *
+ * @param {function(Array.<ee.data.TaskStatus>, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {?Array.<ee.data.TaskStatus>} An array of existing tasks, or null
+ *     if a callback is specified.
+ */
+ee.data.getTaskList = function(opt_callback) {
+  var url = '/tasklist';
+  return /** @type {?Array.<ee.data.TaskStatus>} */ (
+      ee.data.send_(url, null, opt_callback, 'GET'));
+};
+goog.exportSymbol('ee.data.getTaskList', ee.data.getTaskList);
+
+
+/**
+ * Cancels the task provided.
+ *
+ * @param {string} task_id ID of the task.
+ * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {?Array.<ee.data.TaskStatus>} An array of updated tasks, or null
+ *     if a callback is specified.
+ */
+ee.data.cancelTask = function(task_id, opt_callback) {
+  return ee.data.updateTask(
+      task_id, ee.data.TaskUpdateActions.CANCEL, opt_callback);
+};
+goog.exportSymbol('ee.data.cancelTask', ee.data.cancelTask);
+
+
+/**
+ * Update one or more tasks' properties. For now, only the following properties
+ * may be updated: State (to CANCELLED)
+ * @param {string|!Array.<string>} task_id ID of the task or an array of
+ *     multiple task IDs.
+ * @param {ee.data.TaskUpdateActions} action Action performed on tasks.
+ * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {?Array.<ee.data.TaskStatus>} An array of updated tasks, or null
+ *     if a callback is specified.
+ */
+ee.data.updateTask = function(task_id, action, opt_callback) {
+  //also cancel
+  if (goog.isString(task_id)) {
+    task_id = [task_id];
+  } else if (!goog.isArray(task_id)) {
+    throw new Error('Invalid task_id: expected a string or ' +
+        'an array of strings.');
+  }
+  if (!goog.object.containsValue(ee.data.TaskUpdateActions, action)) {
+    var errorMessage = 'Invalid action: ' + action;
+    throw new Error(errorMessage);
+  }
+
+  var url = '/updatetask';
+  var params = {
+    'id': task_id,
+    'action': action
+  };
+
+  return /** @type {?Array.<ee.data.TaskStatus>} */ (
+      ee.data.send_(url, ee.data.makeRequest_(params), opt_callback, 'POST'));
+};
+goog.exportSymbol('ee.data.updateTask', ee.data.updateTask);
 
 
 /**
@@ -660,6 +749,18 @@ ee.data.FeatureCollectionDescription;
 
 
 /**
+ * An object that depicts a GME Project that the user may export to with
+ * attribution ids for each project.
+ * @typedef {{
+ *   id: string,
+ *   name: string,
+ *   attributions: Array.<Object>
+ * }}
+ */
+ee.data.GMEProject;
+
+
+/**
  * An object describing a Feature, as returned by getValue.
  * Compatible with GeoJSON. The type field is always "Feature".
  * @typedef {{
@@ -823,11 +924,22 @@ ee.data.MapId;
 
 
 /**
- * A description of the status of a long-running tasks. The state field is
- * one of READY, RUNNING, COMPLETED, FAILED, CANCELLED; or UNKNOWN.
- * The error_message only appears for FAILED tasks.
+ * A description of the status of a long-running tasks.
+ * id: Unique task id.
+ * creation_timestamp_ms: Time in ms of task creation.
+ * description: Human readable description of task.
+ * priority: Defaults to 0, higher has increased priority.
+ * progress: 0.0-1.0, 1.0 being complete.
+ * source_url: URL from which the task was spawned.
+ * state: One of READY, RUNNING, COMPLETED, FAILED, CANCELLED, or UNKNOWN.
+ * error_message: Appears only for FAILED tasks.
  * @typedef {{
  *   id: string,
+ *   creation_timestamp_ms: (undefined|number),
+ *   description: string,
+ *   priority: (undefined|number),
+ *   progress: (undefined|number),
+ *   source_url: (undefined|string),
  *   state: string,
  *   error_message: (undefined|string)
  * }}

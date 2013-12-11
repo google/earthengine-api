@@ -78,12 +78,12 @@ def isSubtype(firstType, secondType):
   if secondType == firstType:
     return True
 
-  if firstType == 'EEObject':
-    return secondType in ('Image', 'Feature', 'Collection', 'EECollection',
-                          'ImageCollection', 'FeatureCollection')
-  elif firstType in ('FeatureCollection', 'EECollection', 'Collection'):
-    return secondType in ('Collection', 'EECollection',
-                          'ImageCollection', 'FeatureCollection')
+  if firstType in ('Element', 'EEObject'):
+    # TODO(user): Remove 'EEObject' once the server is updated.
+    return secondType in ('EEObject', 'Element', 'Image', 'Feature',
+                          'Collection', 'ImageCollection', 'FeatureCollection')
+  elif firstType in ('FeatureCollection', 'Collection'):
+    return secondType in ('Collection', 'ImageCollection', 'FeatureCollection')
   elif firstType == object:
     return True
   else:

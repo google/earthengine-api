@@ -196,7 +196,7 @@ BUILTIN_FUNCTIONS = {
         'hidden': False,
         'args': [
             {
-                'type': 'EEObject',
+                'type': 'Element',
                 'description': '',
                 'name': 'object'
             },
@@ -982,38 +982,25 @@ BUILTIN_FUNCTIONS = {
         'type': 'Algorithm',
         'description': ''
     },
-    # Image and Feature property setting, used by the client-side overrides.
-    'Feature.set': {
-        'returns': 'EEObject',
+    # Element property setting, used by the client-side override.
+    'Element.set': {
+        'returns': 'Element',
         'hidden': False,
         'args': [
             {
-                'type': 'EEObject',
+                'type': 'Element',
                 'description': '',
                 'name': 'object'
             },
             {
-                'type': 'Dictionary<Object>',
+                'type': 'String',
                 'description': '',
-                'name': 'properties'
-            }
-        ],
-        'type': 'Algorithm',
-        'description': ''
-    },
-    'Image.set': {
-        'returns': 'EEObject',
-        'hidden': False,
-        'args': [
-            {
-                'type': 'EEObject',
-                'description': '',
-                'name': 'object'
+                'name': 'key'
             },
             {
-                'type': 'Dictionary<Object>',
+                'type': 'Object',
                 'description': '',
-                'name': 'properties'
+                'name': 'value'
             }
         ],
         'type': 'Algorithm',

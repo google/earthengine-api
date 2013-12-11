@@ -9,6 +9,8 @@ import datetime
 import numbers
 import sys
 
+import oauth2client.client
+
 from apifunction import ApiFunction
 from collection import Collection
 from computedobject import ComputedObject
@@ -18,6 +20,7 @@ from ee_exception import EEException
 from ee_number import Number
 from ee_string import String
 import ee_types as types
+from element import Element
 from encodable import Encodable
 from feature import Feature
 from featurecollection import FeatureCollection
@@ -26,7 +29,6 @@ from function import Function
 from geometry import Geometry
 from image import Image
 from imagecollection import ImageCollection
-import oauth2client.client
 from serializer import Serializer
 
 
@@ -66,6 +68,7 @@ def Initialize(credentials=None, opt_url=None):
   data.initialize(credentials, (opt_url + '/api' if opt_url else None), opt_url)
   # Initialize the dynamically loaded functions on the objects that want them.
   ApiFunction.initialize()
+  Element.initialize()
   Image.initialize()
   Feature.initialize()
   Collection.initialize()
@@ -83,6 +86,7 @@ def Reset():
   """Reset the library. Useful for re-initializing to a different server."""
   data.reset()
   ApiFunction.reset()
+  Element.reset()
   Image.reset()
   Feature.reset()
   Collection.reset()
@@ -184,33 +188,40 @@ def _Promote(arg, klass):
 
   if klass == 'Image':
     return Image(arg)
-  elif klass == 'ImageCollection':
-    return ImageCollection(arg)
-  elif klass in ('Feature', 'EEObject'):
+  elif klass == 'Feature':
     if isinstance(arg, Collection):
       # TODO(user): Decide whether we want to leave this in. It can be
       #              quite dangerous on large collections.
       return ApiFunction.call_(
           'Feature', ApiFunction.call_('Collection.geometry', arg))
-    elif klass == 'EEObject' and isinstance(arg, Image):
-      # An Image is already an EEObject.
-      return arg
     else:
       return Feature(arg)
+  elif klass in ('Element', 'EEObject'):
+    # TODO(user): Remove EEObject once the server is updated.
+    if isinstance(arg, Element):
+      # Already an EEObject.
+      return arg
+    elif isinstance(arg, ComputedObject):
+      # Try a cast.
+      return Element(arg.func, arg.args)
+    else:
+      # No way to convert.
+      raise EEException('Cannot convert %s to Element.' % arg)
   elif klass == 'Geometry':
     if isinstance(arg, Collection):
       return ApiFunction.call_('Collection.geometry', arg)
     else:
       return Geometry(arg)
-  elif klass in ('FeatureCollection', 'EECollection', 'Collection'):
+  elif klass in ('FeatureCollection', 'Collection'):
+    # For now Collection is synonymous with FeatureCollection.
     if isinstance(arg, Collection):
       return arg
     else:
       return FeatureCollection(arg)
+  elif klass == 'ImageCollection':
+    return ImageCollection(arg)
   elif klass == 'Filter':
     return Filter(arg)
-  elif klass == 'ErrorMargin' and isinstance(arg, numbers.Number):
-    return ApiFunction.call_('ErrorMargin', arg, 'meters')
   elif klass == 'Algorithm' and isinstance(arg, basestring):
     return ApiFunction.lookup(arg)
   elif klass == 'Date':
@@ -298,8 +309,8 @@ def _InitializeUnboundMethods():
 def _InitializeGeneratedClasses():
   """Generate classes for extra types that appear in the web API."""
   signatures = ApiFunction.allSignatures()
-  # Collect the first part of any function names that contain a '.'.
-  names = set([name.split('.')[0] for name in signatures if '.' in name])
+  # Collect the first part of all function names.
+  names = set([name.split('.')[0] for name in signatures])
   # Collect the return types of all functions.
   returns = set([signatures[sig]['returns'] for sig in signatures])
   # We generate classes for all return types that match algorithms names TYPE.x
@@ -319,6 +330,8 @@ def _InitializeGeneratedClasses():
 
 
 def _MakeClass(name):
+  """Generates a dynamic API class for a given name."""
+
   def init(self, *args):
     """Initializer for dynamically created classes.
 

@@ -107,3 +107,24 @@ class ComputedObject(encodable.Encodable):
   def name(cls):
     """Returns the name of the object, used in __str__()."""
     return 'ComputedObject'
+
+  @classmethod
+  def _cast(cls, obj):
+    """Cast a ComputedObject to a new instance of the same class as this.
+
+    Args:
+      obj: The object to cast.
+
+    Returns:
+      The cast object, and instance of the class on which this method is called.
+    """
+    if isinstance(obj, cls):
+      return obj
+    else:
+      # Hack: check if this is a variable class.
+      if cls.__name__ == 'Variable':
+        cls = cls.__bases__[0]
+
+      # Assumes all subclass constructors can be called with a
+      # ComputedObject as their first parameter.
+      return cls(obj)

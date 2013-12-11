@@ -9,24 +9,24 @@ goog.provide('ee.Collection');
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.CustomFunction');
+goog.require('ee.Element');
 goog.require('ee.Filter');
 goog.require('ee.Types');
 
 
 
 /**
- * Constructs a base collection by passing the representaion up to
- * ComputedObject.
+ * Constructs a base collection by passing the representaion up to Element.
  * @param {ee.Function} func The same argument as in ee.ComputedObject().
  * @param {Object} args The same argument as in ee.ComputedObject().
  * @constructor
- * @extends {ee.ComputedObject}
+ * @extends {ee.Element}
  */
 ee.Collection = function(func, args) {
   goog.base(this, func, args);
   ee.Collection.initialize();
 };
-goog.inherits(ee.Collection, ee.ComputedObject);
+goog.inherits(ee.Collection, ee.Element);
 // Exporting manually to avoid marking the class public in the docs.
 goog.exportSymbol('ee.Collection', ee.Collection);
 
@@ -81,7 +81,7 @@ ee.Collection.prototype.filter = function(newFilter) {
   if (!newFilter) {
     throw new Error('Empty filters.');
   }
-  return this.cast_(ee.ApiFunction._call('Collection.filter', this, newFilter));
+  return this.cast(ee.ApiFunction._call('Collection.filter', this, newFilter));
 };
 
 
@@ -150,7 +150,7 @@ ee.Collection.prototype.filterDate = function(start, end) {
  * @export
  */
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  return this.cast_(ee.ApiFunction._call(
+  return this.cast(ee.ApiFunction._call(
       'Collection.limit', this, max, opt_property, opt_ascending));
 };
 
@@ -165,25 +165,8 @@ ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
  * @export
  */
 ee.Collection.prototype.sort = function(property, opt_ascending) {
-  return this.cast_(ee.ApiFunction._call(
+  return this.cast(ee.ApiFunction._call(
       'Collection.limit', this, undefined, property, opt_ascending));
-};
-
-
-/**
- * Cast a ComputedObject to a new instance of the same class as this.
- * @param {ee.ComputedObject} obj The object to cast.
- * @return {ee.Collection} The cast instance.
- * @private
- */
-ee.Collection.prototype.cast_ = function(obj) {
-  if (obj instanceof this.constructor) {
-    return obj;
-  } else {
-    // Assumes all subclass constructors can be called with a
-    // ComputedObject as their first parameter.
-    return new this.constructor(obj);
-  }
 };
 
 
@@ -213,7 +196,7 @@ ee.Collection.prototype.mapInternal = function(type, algorithm) {
       'type': ee.Types.classToName(type)
     }]
   };
-  return this.cast_(ee.ApiFunction._apply('Collection.map', {
+  return this.cast(ee.ApiFunction._apply('Collection.map', {
     'collection': this,
     'baseAlgorithm': new ee.CustomFunction(signature, algorithm)
   }));

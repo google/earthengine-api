@@ -96,22 +96,6 @@ class ImageTestCase(apitestcase.ApiTestCase):
         self.last_thumb_call['data'])
     self.assertEquals('/api/thumb?thumbid=3&token=4', url)
 
-  def testSet(self):
-    """Verifies Image.set() keyword argument interpretation."""
-
-    def AssertProperties(expected, image):
-      self.assertEquals(ee.ApiFunction.lookup('Image.set'), image.func)
-      self.assertEquals(expected, image.args['properties'])
-
-    image = ee.Image(1)
-
-    AssertProperties({'foo': 'bar'}, image.set({'foo': 'bar'}))
-    AssertProperties({'foo': 'bar'}, image.set({'properties': {'foo': 'bar'}}))
-    AssertProperties({'properties': 5}, image.set({'properties': 5}))
-    AssertProperties({'properties': image}, image.set({'properties': image}))
-    AssertProperties({'properties': {'foo': 'bar'}, 'baz': 'quux'},
-                     image.set({'properties': {'foo': 'bar'}, 'baz': 'quux'}))
-
 
 if __name__ == '__main__':
   unittest.main()

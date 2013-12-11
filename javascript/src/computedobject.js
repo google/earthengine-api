@@ -52,7 +52,6 @@ goog.inherits(ee.ComputedObject, ee.Encodable);
 goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
 
 
-
 /**
  * An imperative function that returns information about this object (usually
  * the value) via a synchronous AJAX call.
@@ -111,4 +110,21 @@ ee.ComputedObject.prototype.toString = function() {
  */
 ee.ComputedObject.prototype.name = function() {
   return 'ComputedObject';
+};
+
+
+/**
+ * Cast a ComputedObject to a new instance of the same class as this.
+ * @param {ee.ComputedObject} obj The object to cast.
+ * @return {?} The converted instance.
+ * @protected
+ */
+ee.ComputedObject.prototype.cast = function(obj) {
+  if (obj instanceof this.constructor) {
+    return obj;
+  } else {
+    // Assumes all subclass constructors can be called with a
+    // ComputedObject as their first parameter.
+    return new this.constructor(obj);
+  }
 };

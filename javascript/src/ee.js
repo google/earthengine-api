@@ -9,6 +9,7 @@ goog.provide('ee.InitState');
 goog.require('ee.ApiFunction');
 goog.require('ee.Collection');
 goog.require('ee.ComputedObject');
+goog.require('ee.Element');
 goog.require('ee.Feature');
 goog.require('ee.FeatureCollection');
 goog.require('ee.Filter');
@@ -105,6 +106,7 @@ ee.reset = function() {
   ee.ready_ = ee.InitState.NOT_READY;
   ee.data.reset();
   ee.ApiFunction.reset();
+  ee.Element.reset();
   ee.Image.reset();
   ee.Feature.reset();
   ee.Collection.reset();
@@ -258,6 +260,7 @@ ee.initializationSuccess_ = function() {
 
   try {
     // Update classes with bound methods.
+    ee.Element.initialize();
     ee.Image.initialize();
     ee.Feature.initialize();
     ee.Collection.initialize();
@@ -340,20 +343,27 @@ ee.promote_ = function(arg, klass) {
   switch (klass) {
     case 'Image':
       return new ee.Image(/** @type {Object} */ (arg));
-    case 'ImageCollection':
-      return new ee.ImageCollection(/** @type {?} */ (arg));
     case 'Feature':
-    case 'EEObject':
       if (arg instanceof ee.Collection) {
         // TODO(user): Decide whether we want to leave this in. It can be
         //              quite dangerous on large collections.
         return ee.ApiFunction._call(
             'Feature', ee.ApiFunction._call('Collection.geometry', arg));
-      } else if ((klass == 'EEObject') && (arg instanceof ee.Image)) {
-        // An Image is already an EEObject.
-        return arg;
       } else {
         return new ee.Feature(/** @type {Object} */ (arg));
+      }
+    case 'Element':
+    case 'EEObject':  // TODO(user): Remove once the server is updated.
+      if (arg instanceof ee.Element) {
+        // Already an Element.
+        return arg;
+      } else if (arg instanceof ee.ComputedObject) {
+        // Try a cast.
+        var co = /** @type {ee.ComputedObject} */ (arg);
+        return new ee.Element(co.func, co.args);
+      } else {
+        // No way to convert.
+        throw Error('Cannot convert ' + arg + ' to Element.');
       }
     case 'Geometry':
       if (arg instanceof ee.FeatureCollection) {
@@ -362,21 +372,16 @@ ee.promote_ = function(arg, klass) {
         return new ee.Geometry(/** @type {?} */ (arg));
       }
     case 'FeatureCollection':
-    case 'EECollection':
-    case 'Collection':
+    case 'Collection':  // For now this is synonymous with FeatureCollection.
       if (arg instanceof ee.Collection) {
         return arg;
       } else {
         return new ee.FeatureCollection(/** @type {?} */ (arg));
       }
+    case 'ImageCollection':
+      return new ee.ImageCollection(/** @type {?} */ (arg));
     case 'Filter':
       return new ee.Filter(/** @type {Object} */ (arg));
-    case 'ErrorMargin':
-      if (goog.isNumber(arg)) {
-        return ee.ApiFunction._call('ErrorMargin', arg, 'meters');
-      } else {
-        return arg;
-      }
     case 'Algorithm':
       if (goog.isString(arg)) {
         return new ee.ApiFunction(arg);
@@ -489,15 +494,17 @@ ee.initializeUnboundMethods_ = function() {
 ee.initializeGeneratedClasses_ = function() {
   var signatures = ee.ApiFunction.allSignatures();
 
-  // Collect all the type names from functions that have a '.' in them,
-  // and all the return types.
+  // Collect all the type names from functions, and all the return types.
   var names = {};
   var returnTypes = {};
   for (var sig in signatures) {
+    var type;
     if (sig.indexOf('.') != -1) {
-      var type = sig.slice(0, sig.indexOf('.'));
-      names[type] = true;
+      type = sig.slice(0, sig.indexOf('.'));
+    } else {
+      type = sig;
     }
+    names[type] = true;
     // Strip off extra type info.  e.g.: Dictionary<Object>
     var rtype = signatures[sig]['returns'].replace(/<.*>/, '');
     returnTypes[rtype] = true;

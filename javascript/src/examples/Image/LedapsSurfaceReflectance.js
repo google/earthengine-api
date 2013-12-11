@@ -5,7 +5,9 @@
 var precomputed = ee.Image('LEDAPS/L7_PRE/LE70230391999217GNC00');
 
 // Compute the Surface Reflectance result using default auxilary data.
-var ee_sr = ee.call('LedapsSurfaceReflectance', precomputed, 'L7');
+var ee_sr = ee.call(
+    'LedapsSurfaceReflectance', precomputed, 'L7',
+    ee.ImageCollection('LE7_L1T'));
 
 centerMap(-90.7945, 30.0958, 11);
 

@@ -4980,6 +4980,7 @@ ee.data.initialized_ = !1;
 ee.data.deadlineMs_ = 0;
 ee.data.DEFAULT_API_BASE_URL_ = "/api";
 ee.data.DEFAULT_TILE_BASE_URL_ = "https://earthengine.googleapis.com";
+ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
 ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl) {
   goog.isDefAndNotNull(opt_apiBaseUrl) ? ee.data.apiBaseUrl_ = opt_apiBaseUrl : ee.data.initialized_ || (ee.data.apiBaseUrl_ = ee.data.DEFAULT_API_BASE_URL_);
   goog.isDefAndNotNull(opt_tileBaseUrl) ? ee.data.tileBaseUrl_ = opt_tileBaseUrl : ee.data.initialized_ || (ee.data.tileBaseUrl_ = ee.data.DEFAULT_TILE_BASE_URL_);
@@ -5041,6 +5042,9 @@ ee.data.makeDownloadUrl = function(id) {
 ee.data.getAlgorithms = function(opt_callback) {
   return ee.data.send_("/algorithms", null, opt_callback, "GET");
 };
+ee.data.getGMEProjects = function(opt_callback) {
+  return ee.data.send_("/gmeprojects", null, opt_callback, "GET");
+};
 ee.data.createAsset = function(value, opt_path, opt_callback) {
   var args = {value:value, json_format:"v2"};
   void 0 !== opt_path && (args.id = opt_path);
@@ -5065,6 +5069,28 @@ ee.data.getTaskStatus = function(task_id, opt_callback) {
   return ee.data.send_(url, null, opt_callback, "GET");
 };
 goog.exportSymbol("ee.data.getTaskStatus", ee.data.getTaskStatus);
+ee.data.getTaskList = function(opt_callback) {
+  return ee.data.send_("/tasklist", null, opt_callback, "GET");
+};
+goog.exportSymbol("ee.data.getTaskList", ee.data.getTaskList);
+ee.data.cancelTask = function(task_id, opt_callback) {
+  return ee.data.updateTask(task_id, ee.data.TaskUpdateActions.CANCEL, opt_callback);
+};
+goog.exportSymbol("ee.data.cancelTask", ee.data.cancelTask);
+ee.data.updateTask = function(task_id, action, opt_callback) {
+  if (goog.isString(task_id)) {
+    task_id = [task_id];
+  } else {
+    if (!goog.isArray(task_id)) {
+      throw Error("Invalid task_id: expected a string or an array of strings.");
+    }
+  }
+  if (!goog.object.containsValue(ee.data.TaskUpdateActions, action)) {
+    throw Error("Invalid action: " + action);
+  }
+  return ee.data.send_("/updatetask", ee.data.makeRequest_({id:task_id, action:action}), opt_callback, "POST");
+};
+goog.exportSymbol("ee.data.updateTask", ee.data.updateTask);
 ee.data.prepareValue = function(task_id, params, opt_callback) {
   params = goog.object.clone(params);
   params.tid = task_id;
@@ -5348,6 +5374,9 @@ ee.ComputedObject.prototype.toString = function() {
 ee.ComputedObject.prototype.name = function() {
   return "ComputedObject";
 };
+ee.ComputedObject.prototype.cast = function(obj) {
+  return obj instanceof this.constructor ? obj : new this.constructor(obj);
+};
 ee.Function = function() {
   if (!(this instanceof ee.Function)) {
     return new ee.Function;
@@ -5444,14 +5473,14 @@ ee.Types.isSubtype = function(firstType, secondType) {
     return!0;
   }
   switch(firstType) {
+    case "Element":
+    ;
     case "EEObject":
-      return "Image" == secondType || "Feature" == secondType || "Collection" == secondType || "EECollection" == secondType || "ImageCollection" == secondType || "FeatureCollection" == secondType;
+      return "EEObject" == secondType || "Element" == secondType || "Image" == secondType || "Feature" == secondType || "Collection" == secondType || "ImageCollection" == secondType || "FeatureCollection" == secondType;
     case "FeatureCollection":
     ;
-    case "EECollection":
-    ;
     case "Collection":
-      return "Collection" == secondType || "EECollection" == secondType || "ImageCollection" == secondType || "FeatureCollection" == secondType;
+      return "Collection" == secondType || "ImageCollection" == secondType || "FeatureCollection" == secondType;
     case "Object":
       return!0;
     default:
@@ -5642,6 +5671,56 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
   }
   return signature;
 };
+ee.Element = function(func, args) {
+  ee.ComputedObject.call(this, func, args);
+  ee.Element.initialize();
+};
+goog.inherits(ee.Element, ee.ComputedObject);
+goog.exportSymbol("ee.Element", ee.Element);
+ee.Element.initialized_ = !1;
+ee.Element.initialize = function() {
+  ee.Element.initialized_ || (ee.ApiFunction.importApi(ee.Element, "Element", "Element"), ee.Element.initialized_ = !0);
+};
+ee.Element.reset = function() {
+  ee.ApiFunction.clearApi(ee.Element);
+  ee.Element.initialized_ = !1;
+};
+ee.Element.prototype.name = function() {
+  return "Element";
+};
+ee.Element.prototype.set = function(var_args) {
+  var result = this;
+  if (1 >= arguments.length) {
+    var properties = arguments[0];
+    if (!goog.isObject(properties)) {
+      throw Error("When Element.set() is passed one argument, it must be a dictionary.");
+    }
+    ee.Types.isRegularObject(properties) && goog.array.equals(goog.object.getKeys(properties), ["properties"]) && ee.Types.isRegularObject(properties.properties) && (properties = properties.properties);
+    try {
+      for (var key in properties) {
+        var value = properties[key], result = ee.ApiFunction._call("Element.set", result, key, value)
+      }
+    } catch (e) {
+      result = ee.ApiFunction._call("Feature.set", result, properties);
+    }
+  } else {
+    if (0 != arguments.length % 2) {
+      throw Error("When Element.set() is passed multiple arguments, there must be an even number of them.");
+    }
+    try {
+      for (var i = 0;i < arguments.length;i += 2) {
+        key = arguments[i], value = arguments[i + 1], result = ee.ApiFunction._call("Element.set", result, key, value);
+      }
+    } catch (e$$0) {
+      properties = {};
+      for (i = 0;i < arguments.length;i += 2) {
+        key = arguments[i], value = arguments[i + 1], properties[key] = value;
+      }
+      result = ee.ApiFunction._call("Feature.set", result, properties);
+    }
+  }
+  return this.cast(result);
+};
 ee.Filter = function(opt_filter) {
   if (!(this instanceof ee.Filter)) {
     return new ee.Filter(opt_filter);
@@ -5809,10 +5888,10 @@ ee.Filter.prototype.name = function() {
   return "Filter";
 };
 ee.Collection = function(func, args) {
-  ee.ComputedObject.call(this, func, args);
+  ee.Element.call(this, func, args);
   ee.Collection.initialize();
 };
-goog.inherits(ee.Collection, ee.ComputedObject);
+goog.inherits(ee.Collection, ee.Element);
 goog.exportSymbol("ee.Collection", ee.Collection);
 ee.Collection.initialized_ = !1;
 ee.Collection.initialize = function() {
@@ -5826,7 +5905,7 @@ ee.Collection.prototype.filter = function(newFilter) {
   if (!newFilter) {
     throw Error("Empty filters.");
   }
-  return this.cast_(ee.ApiFunction._call("Collection.filter", this, newFilter));
+  return this.cast(ee.ApiFunction._call("Collection.filter", this, newFilter));
 };
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
   return this.filter(ee.Filter.metadata(name, operator, value));
@@ -5838,13 +5917,10 @@ ee.Collection.prototype.filterDate = function(start, end) {
   return this.filter(ee.Filter.date(start, end));
 };
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  return this.cast_(ee.ApiFunction._call("Collection.limit", this, max, opt_property, opt_ascending));
+  return this.cast(ee.ApiFunction._call("Collection.limit", this, max, opt_property, opt_ascending));
 };
 ee.Collection.prototype.sort = function(property, opt_ascending) {
-  return this.cast_(ee.ApiFunction._call("Collection.limit", this, void 0, property, opt_ascending));
-};
-ee.Collection.prototype.cast_ = function(obj) {
-  return obj instanceof this.constructor ? obj : new this.constructor(obj);
+  return this.cast(ee.ApiFunction._call("Collection.limit", this, void 0, property, opt_ascending));
 };
 ee.Collection.prototype.name = function() {
   return "Collection";
@@ -5854,7 +5930,7 @@ ee.Collection.prototype.mapInternal = function(type, algorithm) {
     throw Error("Can't map non-callable object: " + algorithm);
   }
   var signature = {name:"", returns:"Object", args:[{name:null, type:ee.Types.classToName(type)}]};
-  return this.cast_(ee.ApiFunction._apply("Collection.map", {collection:this, baseAlgorithm:new ee.CustomFunction(signature, algorithm)}));
+  return this.cast(ee.ApiFunction._apply("Collection.map", {collection:this, baseAlgorithm:new ee.CustomFunction(signature, algorithm)}));
 };
 ee.Collection.prototype.map = function(algorithm) {
   return this.mapInternal(ee.ComputedObject, algorithm);
@@ -6208,10 +6284,10 @@ ee.Feature = function(geometry, opt_properties) {
     throw Error("The Feature constructor takes at most 2 arguments (" + arguments.length + " given)");
   }
   ee.Feature.initialize();
-  geometry instanceof ee.Geometry || null === geometry ? ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null}) : geometry instanceof ee.ComputedObject ? ee.ComputedObject.call(this, geometry.func, geometry.args) : "Feature" == geometry.type ? ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), metadata:geometry.properties || null}) : ee.ComputedObject.call(this, new ee.ApiFunction("Feature"), 
-  {geometry:new ee.Geometry(geometry), metadata:opt_properties || null});
+  geometry instanceof ee.Geometry || null === geometry ? ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null}) : geometry instanceof ee.ComputedObject ? ee.Element.call(this, geometry.func, geometry.args) : "Feature" == geometry.type ? ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), metadata:geometry.properties || null}) : ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry), 
+  metadata:opt_properties || null});
 };
-goog.inherits(ee.Feature, ee.ComputedObject);
+goog.inherits(ee.Feature, ee.Element);
 ee.Feature.initialized_ = !1;
 ee.Feature.initialize = function() {
   ee.Feature.initialized_ || (ee.ApiFunction.importApi(ee.Feature, "Feature", "Feature"), ee.Feature.initialized_ = !0);
@@ -6249,13 +6325,6 @@ ee.Feature.Polygon = function(coordinates) {
 };
 ee.Feature.MultiPolygon = function(coordinates) {
   return ee.Geometry.MultiPolygon.apply(null, arguments);
-};
-ee.Feature.prototype.set = function(properties) {
-  if (1 != arguments.length || !goog.isObject(properties)) {
-    throw Error("Feature.set() takes only one argument (a dictionary).");
-  }
-  ee.Types.isRegularObject(properties) && goog.array.equals(goog.object.getKeys(properties), ["properties"]) && ee.Types.isRegularObject(properties.properties) && (properties = properties.properties);
-  return new ee.Feature(ee.ApiFunction._call("Feature.set", this, properties));
 };
 ee.Feature.prototype.name = function() {
   return "Feature";
@@ -6327,14 +6396,14 @@ ee.Image = function(opt_args) {
   ee.Image.initialize();
   var argCount = arguments.length;
   if (0 == argCount || 1 == argCount && !goog.isDef(opt_args)) {
-    ee.ComputedObject.call(this, new ee.ApiFunction("Image.mask"), {image:new ee.Image(0), mask:new ee.Image(0)});
+    ee.Element.call(this, new ee.ApiFunction("Image.mask"), {image:new ee.Image(0), mask:new ee.Image(0)});
   } else {
     if (1 == argCount) {
       if (ee.Types.isNumber(opt_args)) {
-        ee.ComputedObject.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args});
+        ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args});
       } else {
         if (ee.Types.isString(opt_args)) {
-          ee.ComputedObject.call(this, new ee.ApiFunction("Image.load"), {id:opt_args});
+          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:opt_args});
         } else {
           if (goog.isArray(opt_args)) {
             return ee.Image.combine_(goog.array.map(opt_args, function(elem) {
@@ -6342,7 +6411,7 @@ ee.Image = function(opt_args) {
             }));
           }
           if (opt_args instanceof ee.ComputedObject) {
-            ee.ComputedObject.call(this, opt_args.func, opt_args.args);
+            ee.Element.call(this, opt_args.func, opt_args.args);
           } else {
             throw Error("Unrecognized argument type to convert to an Image: " + opt_args);
           }
@@ -6352,7 +6421,7 @@ ee.Image = function(opt_args) {
       if (2 == argCount) {
         var id = arguments[0], version = arguments[1];
         if (ee.Types.isString(id) && ee.Types.isNumber(version)) {
-          ee.ComputedObject.call(this, new ee.ApiFunction("Image.load"), {id:id, version:version});
+          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:id, version:version});
         } else {
           throw Error("Unrecognized argument types to convert to an Image: " + arguments);
         }
@@ -6362,7 +6431,7 @@ ee.Image = function(opt_args) {
     }
   }
 };
-goog.inherits(ee.Image, ee.ComputedObject);
+goog.inherits(ee.Image, ee.Element);
 ee.Image.initialized_ = !1;
 ee.Image.initialize = function() {
   ee.Image.initialized_ || (ee.ApiFunction.importApi(ee.Image, "Image", "Image"), ee.ApiFunction.importApi(ee.Image, "Window", "Image", "focal_"), ee.Image.initialized_ = !0);
@@ -6460,13 +6529,6 @@ ee.Image.prototype.clip = function(geometry) {
   } catch (e) {
   }
   return ee.ApiFunction._call("Image.clip", this, geometry);
-};
-ee.Image.prototype.set = function(properties) {
-  if (1 != arguments.length || !goog.isObject(properties)) {
-    throw Error("Image.set() takes only one argument (a dictionary).");
-  }
-  ee.Types.isRegularObject(properties) && goog.array.equals(goog.object.getKeys(properties), ["properties"]) && ee.Types.isRegularObject(properties.properties) && (properties = properties.properties);
-  return new ee.Image(ee.ApiFunction._call("Image.set", this, properties));
 };
 ee.Image.prototype.name = function() {
   return "Image";
@@ -6629,6 +6691,7 @@ ee.reset = function() {
   ee.ready_ = ee.InitState.NOT_READY;
   ee.data.reset();
   ee.ApiFunction.reset();
+  ee.Element.reset();
   ee.Image.reset();
   ee.Feature.reset();
   ee.Collection.reset();
@@ -6666,7 +6729,7 @@ ee.apply = function(func, namedArgs) {
 ee.initializationSuccess_ = function() {
   if (ee.ready_ == ee.InitState.LOADING) {
     try {
-      ee.Image.initialize(), ee.Feature.initialize(), ee.Collection.initialize(), ee.ImageCollection.initialize(), ee.FeatureCollection.initialize(), ee.Filter.initialize(), ee.Geometry.initialize(), ee.Number.initialize(), ee.String.initialize(), ee.initializeGeneratedClasses_(), ee.initializeUnboundMethods_();
+      ee.Element.initialize(), ee.Image.initialize(), ee.Feature.initialize(), ee.Collection.initialize(), ee.ImageCollection.initialize(), ee.FeatureCollection.initialize(), ee.Filter.initialize(), ee.Geometry.initialize(), ee.Number.initialize(), ee.String.initialize(), ee.initializeGeneratedClasses_(), ee.initializeUnboundMethods_();
     } catch (e) {
       ee.initializationFailure_(e);
       return;
@@ -6693,24 +6756,28 @@ ee.promote_ = function(arg, klass) {
     switch(klass) {
       case "Image":
         return new ee.Image(arg);
-      case "ImageCollection":
-        return new ee.ImageCollection(arg);
       case "Feature":
+        return arg instanceof ee.Collection ? ee.ApiFunction._call("Feature", ee.ApiFunction._call("Collection.geometry", arg)) : new ee.Feature(arg);
+      case "Element":
       ;
       case "EEObject":
-        return arg instanceof ee.Collection ? ee.ApiFunction._call("Feature", ee.ApiFunction._call("Collection.geometry", arg)) : "EEObject" == klass && arg instanceof ee.Image ? arg : new ee.Feature(arg);
+        if (arg instanceof ee.Element) {
+          return arg;
+        }
+        if (arg instanceof ee.ComputedObject) {
+          return new ee.Element(arg.func, arg.args);
+        }
+        throw Error("Cannot convert " + arg + " to Element.");;
       case "Geometry":
         return arg instanceof ee.FeatureCollection ? ee.ApiFunction._call("Collection.geometry", arg) : new ee.Geometry(arg);
       case "FeatureCollection":
       ;
-      case "EECollection":
-      ;
       case "Collection":
         return arg instanceof ee.Collection ? arg : new ee.FeatureCollection(arg);
+      case "ImageCollection":
+        return new ee.ImageCollection(arg);
       case "Filter":
         return new ee.Filter(arg);
-      case "ErrorMargin":
-        return goog.isNumber(arg) ? ee.ApiFunction._call("ErrorMargin", arg, "meters") : arg;
       case "Algorithm":
         return goog.isString(arg) ? new ee.ApiFunction(arg) : arg;
       case "Date":
@@ -6768,10 +6835,9 @@ ee.initializeUnboundMethods_ = function() {
 ee.initializeGeneratedClasses_ = function() {
   var signatures = ee.ApiFunction.allSignatures(), names = {}, returnTypes = {}, sig;
   for (sig in signatures) {
-    if (-1 != sig.indexOf(".")) {
-      var type = sig.slice(0, sig.indexOf("."));
-      names[type] = !0;
-    }
+    var type;
+    type = -1 != sig.indexOf(".") ? sig.slice(0, sig.indexOf(".")) : sig;
+    names[type] = !0;
     var rtype = signatures[sig].returns.replace(/<.*>/, "");
     returnTypes[rtype] = !0;
   }

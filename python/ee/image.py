@@ -13,11 +13,12 @@ import computedobject
 import data
 import ee_exception
 import ee_types
+import element
 import function
 import geometry
 
 
-class Image(computedobject.ComputedObject):
+class Image(element.Element):
   """An object to represent an Earth Engine image."""
 
   _initialized = False
@@ -34,6 +35,7 @@ class Image(computedobject.ComputedObject):
             combines them into a single image,
           - An ee.Image - returns the argument,
           - Nothing - results in an empty transparent image.
+      version: An optional asset version.
 
     Raises:
       EEException: if passed something other than the above.
@@ -49,8 +51,8 @@ class Image(computedobject.ComputedObject):
             {'id': args, 'version': version})
       else:
         raise ee_exception.EEException(
-            'Unrecognized argument type to convert to an Image: %s' %
-            (args, version))
+            'If version is specified, the arg to Image() must be a string. '
+            'Received: %s' % (args,))
       return
 
     if ee_types.isNumber(args):
@@ -316,27 +318,6 @@ class Image(computedobject.ComputedObject):
     except ee_exception.EEException:
       pass  # Not an ee.Geometry or GeoJSON. Just pass it along.
     return apifunction.ApiFunction.call_('Image.clip', self, clip_geometry)
-
-  def set(self, properties):
-    """Overrides one or more metadata properties of an Image.
-
-    Args:
-      properties: The property values to override.
-
-    Returns:
-      The image with the specified properties overridden.
-    """
-    if not isinstance(properties, (dict, computedobject.ComputedObject)):
-      raise ee_exception.EEException('Image.set() requires a dictionary.')
-
-    # Try to be smart about interpreting the argument.
-    if (isinstance(properties, dict) and
-        properties.keys() == ['properties'] and
-        isinstance(properties['properties'], dict)):
-      # Looks like a call with keyword parameters. Extract them.
-      properties = properties['properties']
-    # Manually cast the result to an image.
-    return Image(apifunction.ApiFunction.call_('Image.set', self, properties))
 
   @staticmethod
   def name():

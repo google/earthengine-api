@@ -9,14 +9,14 @@ This class is never intended to be instantiated by the user.
 # pylint: disable=g-bad-name
 
 import apifunction
-import computedobject
 import customfunction
 import ee_exception
 import ee_types
+import element
 import filter   # pylint: disable=redefined-builtin
 
 
-class Collection(computedobject.ComputedObject):
+class Collection(element.Element):
   """Base class for ImageCollection and FeatureCollection."""
 
   _initialized = False
@@ -164,23 +164,6 @@ class Collection(computedobject.ComputedObject):
       args['ascending'] = opt_ascending
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
-
-  @classmethod
-  def _cast(cls, obj):
-    """Cast a ComputedObject to a new instance of the same class as this.
-
-    Args:
-      obj: The object to cast.
-
-    Returns:
-      The cast object, and instance of the class on which this method is called.
-    """
-    if isinstance(obj, cls):
-      return obj
-    else:
-      # Assumes all subclass constructors can be called with a
-      # ComputedObject as their first parameter.
-      return cls(obj)
 
   @staticmethod
   def name():

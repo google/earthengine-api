@@ -7,6 +7,7 @@ goog.provide('ee.Image');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
+goog.require('ee.Element');
 goog.require('ee.Function');
 goog.require('ee.Geometry');
 goog.require('ee.Types');
@@ -30,7 +31,7 @@ goog.require('goog.object');
  * @param {number|string|Array.<*>|ee.Image|Object=} opt_args
  *     Constructor argument.
  * @constructor
- * @extends {ee.ComputedObject}
+ * @extends {ee.Element}
  * @export
  */
 ee.Image = function(opt_args) {
@@ -89,7 +90,7 @@ ee.Image = function(opt_args) {
                 argCount + ' given)');
   }
 };
-goog.inherits(ee.Image, ee.ComputedObject);
+goog.inherits(ee.Image, ee.Element);
 
 
 /**
@@ -239,7 +240,7 @@ ee.Image.prototype.getThumbURL = function(params) {
   var request = params ? goog.object.clone(params) : {};
   request['image'] = this.serialize();
   return ee.data.makeThumbUrl(
-        /** @type {ee.data.ThumbnailId} */ (ee.data.getThumbId(request)));
+      /** @type {ee.data.ThumbnailId} */ (ee.data.getThumbId(request)));
 };
 
 // ///////////////////////////////////////////////////////////////
@@ -408,31 +409,6 @@ ee.Image.prototype.clip = function(geometry) {
   }
   return /** @type {ee.Image} */(
       ee.ApiFunction._call('Image.clip', this, geometry));
-};
-
-
-/**
- * Overrides one or more metadata properties of an Image.
- *
- * @param {Object.<*>} properties The property values to override.
- * @return {ee.Image} The image with the specified properties overridden.
- * @export
- */
-ee.Image.prototype.set = function(properties) {
-  if (arguments.length != 1 || !goog.isObject(properties)) {
-    throw Error('Image.set() takes only one argument (a dictionary).');
-  }
-  // Try to be smart about interpreting the argument.
-  // Check that we have a plain object, with 1 property called 'properties',
-  // which is itself a plain object.
-  if (ee.Types.isRegularObject(properties) &&
-      goog.array.equals(goog.object.getKeys(properties), ['properties']) &&
-      ee.Types.isRegularObject(properties['properties'])) {
-    // Looks like a call with keyword parameters. Extract them.
-    properties = /** @type {Object.<*>} */(properties['properties']);
-  }
-  // Manually cast the result to an image.
-  return new ee.Image(ee.ApiFunction._call('Image.set', this, properties));
 };
 
 
