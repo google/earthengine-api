@@ -59,7 +59,8 @@ oauth2client:
   containing app.yaml
 
 Earth Engine
-* git clone https://thau%40google.com@code.google.com/p/earthengine-api/
+* follow the instructions at:
+  https://code.google.com/p/earthengine-api/source/checkout
 * move ee into the directory containing app.yaml
 
 httplib2

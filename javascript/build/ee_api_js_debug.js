@@ -4321,7 +4321,7 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   this.xhrOptions_ = this.xmlHttpFactory_ ? this.xmlHttpFactory_.getOptions() : goog.net.XmlHttp.getOptions();
   this.xhr_.onreadystatechange = goog.bind(this.onReadyStateChange_, this);
   try {
-    goog.log.fine(this.logger_, this.formatMsg_("Opening Xhr")), this.inOpen_ = !0, this.xhr_.open(method, url, !0), this.inOpen_ = !1;
+    goog.log.fine(this.logger_, this.formatMsg_("Opening Xhr")), this.inOpen_ = !0, this.xhr_.open(method, String(url), !0), this.inOpen_ = !1;
   } catch (err) {
     goog.log.fine(this.logger_, this.formatMsg_("Error opening Xhr: " + err.message));
     this.error_(goog.net.ErrorCode.EXCEPTION, err);
