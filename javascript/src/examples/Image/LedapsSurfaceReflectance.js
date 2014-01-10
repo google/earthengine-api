@@ -1,13 +1,37 @@
 // Ledaps Surface Reflectance
 // #section Image:7
 
+// The main scene.
+var scene = ee.Image('LE7_L1T/LE70230391999217GNC00');
+
 // The LEDAPS precomputed image products for our scene of interest.
 var precomputed = ee.Image('LEDAPS/L7_PRE/LE70230391999217GNC00');
 
+// Ancillary data.
+var surfaceWv = [ee.Image('NCEP_RE/surface_wv/pr_wtr_eatm_1999080500'),
+                 ee.Image('NCEP_RE/surface_wv/pr_wtr_eatm_1999080506'),
+                 ee.Image('NCEP_RE/surface_wv/pr_wtr_eatm_1999080512'),
+                 ee.Image('NCEP_RE/surface_wv/pr_wtr_eatm_1999080518')];
+var pressure = [ee.Image('NCEP_RE/sea_level_pressure/slp_1999080500'),
+                ee.Image('NCEP_RE/sea_level_pressure/slp_1999080506'),
+                ee.Image('NCEP_RE/sea_level_pressure/slp_1999080512'),
+                ee.Image('NCEP_RE/sea_level_pressure/slp_1999080518')];
+var surfaceTemp = [ee.Image('NCEP_RE/surface_temp/air_sig995_1999080500'),
+                   ee.Image('NCEP_RE/surface_temp/air_sig995_1999080506'),
+                   ee.Image('NCEP_RE/surface_temp/air_sig995_1999080512'),
+                   ee.Image('NCEP_RE/surface_temp/air_sig995_1999080518')];
+var ozone = ee.Image('TOMS/MERGED/L3_ozone_epc_19990805');
+var dem = ee.Image('srtm90_v4');
+
 // Compute the Surface Reflectance result using default auxilary data.
-var ee_sr = ee.call(
-    'LedapsSurfaceReflectance', precomputed, 'L7',
-    ee.ImageCollection('LE7_L1T'));
+var ee_sr = ee.Algorithms.LedapsSurfaceReflectance(
+        scene,
+        precomputed,
+        surfaceWv,
+        pressure,
+        surfaceTemp,
+        ozone,
+        dem);
 
 centerMap(-90.7945, 30.0958, 11);
 

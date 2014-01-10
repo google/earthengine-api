@@ -5174,10 +5174,13 @@ ee.Encodable = function() {
 };
 goog.crypt = {};
 goog.crypt.Hash = function() {
+  this.blockSize = -1;
 };
 goog.crypt.Md5 = function() {
+  goog.crypt.Hash.call(this);
+  this.blockSize = 64;
   this.chain_ = Array(4);
-  this.block_ = Array(64);
+  this.block_ = Array(this.blockSize);
   this.totalLength_ = this.blockLength_ = 0;
   this.reset();
 };
@@ -5222,15 +5225,15 @@ goog.crypt.Md5.prototype.compress_ = function(buf, opt_offset) {
 };
 goog.crypt.Md5.prototype.update = function(bytes, opt_length) {
   goog.isDef(opt_length) || (opt_length = bytes.length);
-  for (var lengthMinusBlock = opt_length - 64, block = this.block_, blockLength = this.blockLength_, i = 0;i < opt_length;) {
+  for (var lengthMinusBlock = opt_length - this.blockSize, block = this.block_, blockLength = this.blockLength_, i = 0;i < opt_length;) {
     if (0 == blockLength) {
       for (;i <= lengthMinusBlock;) {
-        this.compress_(bytes, i), i += 64;
+        this.compress_(bytes, i), i += this.blockSize;
       }
     }
     if (goog.isString(bytes)) {
       for (;i < opt_length;) {
-        if (block[blockLength++] = bytes.charCodeAt(i++), 64 == blockLength) {
+        if (block[blockLength++] = bytes.charCodeAt(i++), blockLength == this.blockSize) {
           this.compress_(block);
           blockLength = 0;
           break;
@@ -5238,7 +5241,7 @@ goog.crypt.Md5.prototype.update = function(bytes, opt_length) {
       }
     } else {
       for (;i < opt_length;) {
-        if (block[blockLength++] = bytes[i++], 64 == blockLength) {
+        if (block[blockLength++] = bytes[i++], blockLength == this.blockSize) {
           this.compress_(block);
           blockLength = 0;
           break;
@@ -5250,7 +5253,7 @@ goog.crypt.Md5.prototype.update = function(bytes, opt_length) {
   this.totalLength_ += opt_length;
 };
 goog.crypt.Md5.prototype.digest = function() {
-  var pad = Array((56 > this.blockLength_ ? 64 : 128) - this.blockLength_);
+  var pad = Array((56 > this.blockLength_ ? this.blockSize : 2 * this.blockSize) - this.blockLength_);
   pad[0] = 128;
   for (var i = 1;i < pad.length - 8;++i) {
     pad[i] = 0;
@@ -6780,18 +6783,6 @@ ee.promote_ = function(arg, klass) {
         return new ee.Filter(arg);
       case "Algorithm":
         return goog.isString(arg) ? new ee.ApiFunction(arg) : arg;
-      case "Date":
-        if (goog.isString(arg)) {
-          return new Date(arg);
-        }
-        if (goog.isNumber(arg)) {
-          return new Date(arg);
-        }
-        if (arg instanceof ee.ComputedObject) {
-          var func = ee.ApiFunction.lookup("Date");
-          return new ee.ComputedObject(func, func.promoteArgs(func.nameArgs([arg])));
-        }
-        return arg;
       case "Dictionary":
         return klass in exportedEE ? arg instanceof exportedEE[klass] ? arg : arg instanceof ee.ComputedObject ? new exportedEE[klass](arg) : arg : arg;
       case "String":

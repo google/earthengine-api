@@ -388,19 +388,6 @@ ee.promote_ = function(arg, klass) {
       } else {
         return arg;
       }
-    case 'Date':
-      if (goog.isString(arg)) {
-        return new Date(arg);
-      } else if (goog.isNumber(arg)) {
-        return new Date(arg);
-      } else if (arg instanceof ee.ComputedObject) {
-        // Not using call to avoid the return type being recast as date.
-        var func = ee.ApiFunction.lookup('Date');
-        return new ee.ComputedObject(
-            func, func.promoteArgs(func.nameArgs([arg])));
-      } else {
-        return arg;
-      }
     case 'Dictionary':
       if (!(klass in exportedEE)) {
         // No dictionary class defined.

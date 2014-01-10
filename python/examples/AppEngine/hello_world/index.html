@@ -33,32 +33,25 @@ for details.
           url += '?token=' + TOKEN
           return url;
         },
-        tileSize: new google.maps.Size(256, 256),
-        maxZoom: 9,
-        minZoom: 0,
-        name: "SRTM"
+        tileSize: new google.maps.Size(256, 256)
       };
 
       // Create the map type.
       var mapType = new google.maps.ImageMapType(eeMapOptions);
 
-      // Initialize the Google Map and set the controls appropriately.
+      // Initialize the Google Map and add our custom layer overlay.
       function initialize() {
         var myLatLng = new google.maps.LatLng(-34.397, 150.644);
         var mapOptions = {
           center: myLatLng,
           zoom: 8,
-          streetViewControl: false,
-          mapTypeControlOptions: {
-            mapTypeIds: ["SRTM", google.maps.MapTypeId.ROADMAP,
-                        google.maps.MapTypeId.SATELLITE]
-          }
+          maxZoom: 10,
+          streetViewControl: false
         };
 
         var map = new google.maps.Map(document.getElementById("map"),
                                       mapOptions);
-        map.mapTypes.set("SRTM", mapType);
-        map.setMapTypeId("SRTM");
+        map.overlayMapTypes.push(mapType);
       }
 
       window.onload = initialize;
