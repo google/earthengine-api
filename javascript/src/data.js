@@ -20,6 +20,8 @@ goog.provide('ee.data.MapId');
 goog.provide('ee.data.PixelTypeDescription');
 goog.provide('ee.data.ProcessingResponse');
 goog.provide('ee.data.RawMapId');
+goog.provide('ee.data.TaskConfig');
+goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
 goog.provide('ee.data.TaskUpdateActions');
 goog.provide('ee.data.ThumbnailId');
@@ -454,14 +456,15 @@ goog.exportSymbol('ee.data.getTaskStatus', ee.data.getTaskStatus);
 /**
  * Retrieve a list of the users tasks.
  *
- * @param {function(Array.<ee.data.TaskStatus>, string=)=} opt_callback
- *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?Array.<ee.data.TaskStatus>} An array of existing tasks, or null
- *     if a callback is specified.
+ * @param {function(ee.data.TaskListResponse, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is
+ *     made synchronously.
+ * @return {ee.data.TaskListResponse} An array of existing tasks,
+ *     or null if a callback is specified.
  */
 ee.data.getTaskList = function(opt_callback) {
   var url = '/tasklist';
-  return /** @type {?Array.<ee.data.TaskStatus>} */ (
+  return /** @type {ee.data.TaskListResponse} */ (
       ee.data.send_(url, null, opt_callback, 'GET'));
 };
 goog.exportSymbol('ee.data.getTaskList', ee.data.getTaskList);
@@ -924,15 +927,35 @@ ee.data.MapId;
 
 
 /**
- * A description of the status of a long-running tasks.
- * id: Unique task id.
- * creation_timestamp_ms: Time in ms of task creation.
- * description: Human readable description of task.
- * priority: Defaults to 0, higher has increased priority.
- * progress: 0.0-1.0, 1.0 being complete.
- * source_url: URL from which the task was spawned.
- * state: One of READY, RUNNING, COMPLETED, FAILED, CANCELLED, or UNKNOWN.
- * error_message: Appears only for FAILED tasks.
+ * An object for specifying user preferences for the creation of a new
+ * task. See com.google.earthengine.service.frontend.ProcessingInput.
+ *
+ * @typedef {{
+ *   id: (undefined|string),
+ *   type: (undefined|string),
+ *   description: (undefined|string),
+ *   sourceURL: (undefined|string),
+ *   json: (undefined|string),
+ *   crs: (undefined|string),
+ *   crs_transform: (undefined|string),
+ *   dimensions: (undefined|string),
+ *   scale: (undefined|number),
+ *   region: (undefined|string),
+ *   maxPixels: (undefined|number),
+ *   gmeProjectId: (undefined|string),
+ *   gmeAttributionName: (undefined|string),
+ *   gmeMosaic: (undefined|string),
+ *   driveFolder: (undefined|string),
+ *   driveFileNamePrefix: (undefined|string)
+ * }}
+ */
+ee.data.TaskConfig;
+
+
+/**
+ * A description of the status of a long-running tasks. See the Task
+ * proto in geo_enterprise.processingmanager for a description of
+ * these fields.
  * @typedef {{
  *   id: string,
  *   creation_timestamp_ms: (undefined|number),
@@ -957,3 +980,12 @@ ee.data.TaskStatus;
  * }}
  */
 ee.data.ProcessingResponse;
+
+
+/**
+ * A response for a call to get task status data.
+ * @typedef {{
+ *   tasks: Array.<ee.data.TaskStatus>
+ * }}
+ */
+ee.data.TaskListResponse;

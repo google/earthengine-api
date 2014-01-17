@@ -5626,7 +5626,7 @@ ee.CustomFunction = function(signature, body) {
   }
   for (var vars = [], args = signature.args, i = 0;i < args.length;i++) {
     var arg = args[i];
-    vars.push(ee.CustomFunction.variable_(ee.Types.nameToClass(arg.type), arg.name));
+    vars.push(ee.CustomFunction.variable(ee.Types.nameToClass(arg.type), arg.name));
   }
   this.body_ = body.apply(null, vars);
   this.signature_ = ee.CustomFunction.resolveNamelessArgs_(signature, vars, this.body_);
@@ -5641,7 +5641,7 @@ ee.CustomFunction.prototype.encode = function(encoder) {
 ee.CustomFunction.prototype.getSignature = function() {
   return this.signature_;
 };
-ee.CustomFunction.variable_ = function(type, name) {
+ee.CustomFunction.variable = function(type, name) {
   var Variable = function() {
   };
   type = type || Object;
@@ -6214,7 +6214,7 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       if (!goog.isString(varName)) {
         throw Error("Invalid variable name: " + varName);
       }
-      return ee.CustomFunction.variable_(Object, varName);
+      return ee.CustomFunction.variable(Object, varName);
     case "Date":
       var microseconds = json.value;
       if (!goog.isNumber(microseconds)) {
@@ -6287,8 +6287,14 @@ ee.Feature = function(geometry, opt_properties) {
     throw Error("The Feature constructor takes at most 2 arguments (" + arguments.length + " given)");
   }
   ee.Feature.initialize();
-  geometry instanceof ee.Geometry || null === geometry ? ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null}) : geometry instanceof ee.ComputedObject ? ee.Element.call(this, geometry.func, geometry.args) : "Feature" == geometry.type ? ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), metadata:geometry.properties || null}) : ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry), 
-  metadata:opt_properties || null});
+  if (geometry instanceof ee.Geometry || null === geometry) {
+    ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null});
+  } else {
+    if (ee.Types.isVarOfType(geometry, Object)) {
+      return ee.CustomFunction.variable(ee.Feature, geometry.name_);
+    }
+    geometry instanceof ee.ComputedObject ? ee.Element.call(this, geometry.func, geometry.args) : "Feature" == geometry.type ? ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), metadata:geometry.properties || null}) : ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry), metadata:opt_properties || null});
+  }
 };
 goog.inherits(ee.Feature, ee.Element);
 ee.Feature.initialized_ = !1;
@@ -6412,6 +6418,9 @@ ee.Image = function(opt_args) {
             return ee.Image.combine_(goog.array.map(opt_args, function(elem) {
               return new ee.Image(elem);
             }));
+          }
+          if (ee.Types.isVarOfType(opt_args, Object)) {
+            return ee.CustomFunction.variable(ee.Image, opt_args.name_);
           }
           if (opt_args instanceof ee.ComputedObject) {
             ee.Element.call(this, opt_args.func, opt_args.args);

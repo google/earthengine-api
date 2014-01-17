@@ -35,6 +35,11 @@ class FeatureTest(apitestcase.ApiTestCase):
                        'metadata': computed_properties},
                       from_computed_both.args)
 
+    from_variable = ee.Feature(ee.CustomFunction.variable(None, 'foo'))
+    self.assertTrue(isinstance(from_variable, ee.Feature))
+    self.assertEquals({'type': 'ArgumentRef', 'value': 'foo'},
+                      from_variable.encode(None))
+
     from_geo_json_feature = ee.Feature({
         'type': 'Feature',
         'geometry': point.toGeoJSON(),

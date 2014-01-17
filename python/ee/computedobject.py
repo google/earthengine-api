@@ -5,7 +5,9 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+import customfunction
 import data
+import ee_types
 import encodable
 import serializer
 
@@ -36,6 +38,11 @@ class ComputedObject(encodable.Encodable):
       if len(args) == 1 and not kwargs and isinstance(args[0], cls):
         # Self-casting returns the argument unchanged.
         return args[0]
+      elif (len(args) == 1 and not kwargs and
+            ee_types.isVarOfType(args[0], object)):
+        # A variable to cast.
+        return customfunction.CustomFunction.variable(
+            ee_types.classToName(cls), args[0]._name)  # pylint: disable=protected-access
       else:
         return type.__call__(cls, *args, **kwargs)
 

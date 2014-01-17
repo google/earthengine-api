@@ -44,6 +44,11 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEquals({'id': 'abcd', 'version': 123},
                       from_id_and_version.args)
 
+    from_variable = ee.Image(ee.CustomFunction.variable(None, 'foo'))
+    self.assertTrue(isinstance(from_variable, ee.Image))
+    self.assertEquals({'type': 'ArgumentRef', 'value': 'foo'},
+                      from_variable.encode(None))
+
   def testImageSignatures(self):
     """Verifies that the API functions are added to ee.Image."""
     self.assertTrue(hasattr(ee.Image(1), 'addBands'))

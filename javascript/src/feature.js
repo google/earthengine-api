@@ -6,8 +6,10 @@ goog.provide('ee.Feature');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
+goog.require('ee.CustomFunction');
 goog.require('ee.Element');
 goog.require('ee.Geometry');
+goog.require('ee.Types');
 
 
 
@@ -52,6 +54,9 @@ ee.Feature = function(geometry, opt_properties) {
       'geometry': geometry,
       'metadata': opt_properties || null
     });
+  } else if (ee.Types.isVarOfType(geometry, Object)) {
+    // A variable to cast to a feature.
+    return ee.CustomFunction.variable(ee.Feature, geometry.name_);
   } else if (geometry instanceof ee.ComputedObject) {
     // A custom object to reinterpret as a Feature.
     goog.base(this, geometry.func, geometry.args);

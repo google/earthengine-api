@@ -56,8 +56,8 @@ goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
  * An imperative function that returns information about this object (usually
  * the value) via a synchronous AJAX call.
  *
- * @param {function(?)=} opt_callback An optional callback.  If not
- *     supplied, the call is made synchronously.
+ * @param {function (?, string=): ?=} opt_callback An optional
+ * callback. If not supplied, the call is made synchronously.
  * @return {*} The computed value of this object.
  * @export
  */

@@ -92,7 +92,7 @@ def _decodeValue(json_obj, named_values):
     var_name = json_obj['value']
     if not isinstance(var_name, basestring):
       raise ee_exception.EEException('Invalid variable name: ' + var_name)
-    return customfunction.CustomFunction._variable(None, var_name)  # pylint: disable=protected-access
+    return customfunction.CustomFunction.variable(None, var_name)  # pylint: disable=protected-access
   elif type_name == 'Date':
     microseconds = json_obj['value']
     if not isinstance(microseconds, numbers.Number):

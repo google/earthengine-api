@@ -36,7 +36,7 @@ ee.CustomFunction = function(signature, body) {
   for (var i = 0; i < args.length; i++) {
     var arg = args[i];
     var type = ee.Types.nameToClass(arg['type']);
-    vars.push(ee.CustomFunction.variable_(type, arg['name']));
+    vars.push(ee.CustomFunction.variable(type, arg['name']));
   }
 
   /**
@@ -85,10 +85,9 @@ ee.CustomFunction.prototype.getSignature = function() {
  *     arguments of the custom functions that use this variable. If null, a
  *     name will be auto-generated in resolveNamelessArgs_().
  * @return {*} A variable with the given name implementing the given type.
- * @private
  * @suppress {globalThis} The compiler doesn't recognize inline class creation.
  */
-ee.CustomFunction.variable_ = function(type, name) {
+ee.CustomFunction.variable = function(type, name) {
   /** @constructor */
   var Variable = function() {};
   var proto;

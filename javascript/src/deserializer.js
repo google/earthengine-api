@@ -75,7 +75,6 @@ ee.Deserializer.decode = function(json) {
  * @param {Object} namedValues The objects that can be referenced by ValueRefs.
  * @return {*} The decoded object.
  * @private
- * @suppress {accessControls} We call ee.CustomFunction.variable_().
  */
 ee.Deserializer.decodeValue_ = function(json, namedValues) {
   // Check for primitive values.
@@ -112,7 +111,7 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       if (!goog.isString(varName)) {
         throw Error('Invalid variable name: ' + varName);
       }
-      return ee.CustomFunction.variable_(Object, varName);
+      return ee.CustomFunction.variable(Object, varName);
     case 'Date':
       var microseconds = json['value'];
       if (!goog.isNumber(microseconds)) {

@@ -26,7 +26,7 @@ class CustomFunction(function.Function):
           the body.
       body: The Python function to evaluate.
     """
-    variables = [CustomFunction._variable(arg['type'], arg['name'])
+    variables = [CustomFunction.variable(arg['type'], arg['name'])
                  for arg in signature['args']]
 
     # The expression to evaluate.
@@ -48,7 +48,7 @@ class CustomFunction(function.Function):
     return self._signature
 
   @staticmethod
-  def _variable(type_name, name):
+  def variable(type_name, name):
     """Returns a placeholder variable with a given name and EE type.
 
     Args:

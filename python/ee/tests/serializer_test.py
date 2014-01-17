@@ -34,7 +34,7 @@ class SerializerTest(apitestcase.ApiTestCase):
         }
 
     call = ee.ComputedObject('String.cat', {'string1': 'x', 'string2': 'y'})
-    body = lambda x, y: ee.CustomFunction._variable(None, 'y')
+    body = lambda x, y: ee.CustomFunction.variable(None, 'y')
     sig = {'returns': 'Object',
            'args': [
                {'name': 'x', 'type': 'Object'},

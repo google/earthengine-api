@@ -7,6 +7,7 @@ goog.provide('ee.Image');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
+goog.require('ee.CustomFunction');
 goog.require('ee.Element');
 goog.require('ee.Function');
 goog.require('ee.Geometry');
@@ -65,9 +66,13 @@ ee.Image = function(opt_args) {
           function(elem) {
             return new ee.Image(/** @type {?} */ (elem));
           }));
+    } else if (ee.Types.isVarOfType(opt_args, Object)) {
+      // A variable to cast to an image.
+      return ee.CustomFunction.variable(ee.Image, opt_args.name_);
     } else if (opt_args instanceof ee.ComputedObject) {
       // A custom object to reinterpret as an Image.
       goog.base(this, opt_args.func, opt_args.args);
+
     } else {
       throw Error('Unrecognized argument type to convert to an Image: ' +
                   opt_args);
