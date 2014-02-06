@@ -959,6 +959,7 @@ ee.data.TaskConfig;
  * @typedef {{
  *   id: string,
  *   creation_timestamp_ms: (undefined|number),
+ *   update_timestamp_ms: (undefined|number),
  *   description: string,
  *   priority: (undefined|number),
  *   progress: (undefined|number),

@@ -192,6 +192,10 @@ ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
     } else {
       callback(ee.data.getAlgorithms());
     }
+  } else if (opt_successCallback) {
+    // The API signatures have previously been initialized by some
+    // other means. Immediately execute the callback.
+    opt_successCallback();
   }
 };
 

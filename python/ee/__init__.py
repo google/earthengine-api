@@ -16,6 +16,7 @@ from collection import Collection
 from computedobject import ComputedObject
 from customfunction import CustomFunction
 import data
+from ee_date import Date
 from ee_exception import EEException
 from ee_number import Number
 from ee_string import String
@@ -78,6 +79,7 @@ def Initialize(credentials=None, opt_url=None):
   Geometry.initialize()
   Number.initialize()
   String.initialize()
+  Date.initialize()
   _InitializeGeneratedClasses()
   _InitializeUnboundMethods()
 
@@ -96,6 +98,7 @@ def Reset():
   Geometry.reset()
   Number.reset()
   String.reset()
+  Date.reset()
   _ResetGeneratedClasses()
   global Algorithms
   Algorithms = _AlgorithmsContainer()
@@ -224,23 +227,6 @@ def _Promote(arg, klass):
     return Filter(arg)
   elif klass == 'Algorithm' and isinstance(arg, basestring):
     return ApiFunction.lookup(arg)
-  elif klass == 'Date':
-    if isinstance(arg, basestring):
-      try:
-        import dateutil.parser    # pylint: disable=g-import-not-at-top
-      except ImportError:
-        raise EEException(
-            'Conversion of strings to dates requires the dateutil library.')
-      else:
-        return dateutil.parser.parse(arg)
-    elif isinstance(arg, numbers.Number):
-      return datetime.datetime.fromtimestamp(arg / 1000)
-    elif isinstance(arg, ComputedObject):
-      # Bypass promotion of this and do it directly.
-      func = ApiFunction.lookup('Date')
-      return ComputedObject(func, func.promoteArgs(func.nameArgs([arg])))
-    else:
-      return arg
   elif klass == 'Dictionary':
     if klass not in globals():
       # No dictionary class defined.

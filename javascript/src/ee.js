@@ -9,6 +9,7 @@ goog.provide('ee.InitState');
 goog.require('ee.ApiFunction');
 goog.require('ee.Collection');
 goog.require('ee.ComputedObject');
+goog.require('ee.Date');
 goog.require('ee.Element');
 goog.require('ee.Feature');
 goog.require('ee.FeatureCollection');
@@ -106,6 +107,7 @@ ee.reset = function() {
   ee.ready_ = ee.InitState.NOT_READY;
   ee.data.reset();
   ee.ApiFunction.reset();
+  ee.Date.reset();
   ee.Element.reset();
   ee.Image.reset();
   ee.Feature.reset();
@@ -260,6 +262,7 @@ ee.initializationSuccess_ = function() {
 
   try {
     // Update classes with bound methods.
+    ee.Date.initialize();
     ee.Element.initialize();
     ee.Image.initialize();
     ee.Feature.initialize();

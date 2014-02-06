@@ -19,6 +19,13 @@ import encodable
 _EPOCH_DATETIME = datetime.datetime.utcfromtimestamp(0)
 
 
+def DatetimeToMicroseconds(date):
+  """Convert a datetime to a timestamp, microseconds since the epoch."""
+  td = (date - _EPOCH_DATETIME)
+  microseconds = td.microseconds + (td.seconds + td.days * 24 * 3600) * 1e6
+  return math.floor(microseconds)
+
+
 class Serializer(object):
   """A serializer for EE object trees."""
 
@@ -96,11 +103,9 @@ class Serializer(object):
     elif isinstance(obj, datetime.datetime):
       # Dates are encoded as typed UTC microseconds since the Unix epoch.
       # They are returned directly and not saved in the scope either.
-      td = (obj - _EPOCH_DATETIME)
-      microseconds = td.microseconds + (td.seconds + td.days * 24 * 3600) * 1e6
       return {
           'type': 'Date',
-          'value': math.floor(microseconds)
+          'value': DatetimeToMicroseconds(obj)
       }
     elif isinstance(obj, encodable.Encodable):
       # Some objects know how to encode themselves.
