@@ -332,11 +332,12 @@ ee.data.makeThumbUrl = function(id) {
  *         and crs_transform is specified.
  * @param {function(ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
- * @return {?ee.data.DownloadId} A download ID and token, or null if a callback
+ * @return {?ee.data.DownloadId} A download id and token, or null if a callback
  *     is specified.
  * @export
  */
 ee.data.getDownloadId = function(params, opt_callback) {
+  // TODO(user): Redirect to getImageDownloadId.
   params = goog.object.clone(params);
   params['json_format'] = 'v2';
   return /** @type {?ee.data.DownloadId} */ (ee.data.send_(
@@ -348,12 +349,48 @@ ee.data.getDownloadId = function(params, opt_callback) {
 
 /**
  * Create a download URL from a docid and token.
- * @param {ee.data.DownloadId} id A download ID and token.
+ * @param {ee.data.DownloadId} id A download id and token.
  * @return {string} The download URL.
  * @export
  */
 ee.data.makeDownloadUrl = function(id) {
+  // TODO(user): Redirect to makeImageDownloadUrl.
   return ee.data.tileBaseUrl_ + '/api/download?docid=' + id['docid'] +
+      '&token=' + id['token'];
+};
+
+
+/**
+ * Get a download id.
+ * @param {Object} params An object containing table download options with the
+ *     following possible values:
+ *   - format: The download format, CSV or JSON.
+ *   - selectors: Comma separated string of selectors that can be used to
+ *          determine which attributes will be downloaded.
+ * @param {function(ee.data.DownloadId, string=)=} opt_callback An optional
+ *     callback. If not supplied, the call is made synchronously.
+ * @return {?ee.data.DownloadId} A download id and token, or null if a
+ *     callback is specified.
+ * @export
+ */
+ee.data.getTableDownloadId = function(params, opt_callback) {
+  params = goog.object.clone(params);
+  params['json_format'] = 'v2';
+  return /** @type {?ee.data.DownloadId} */ (ee.data.send_(
+      '/table',
+      ee.data.makeRequest_(params),
+      opt_callback));
+};
+
+
+/**
+ * Create a table download URL from a docid and token.
+ * @param {ee.data.DownloadId} id A table download id and token.
+ * @return {string} The download URL.
+ * @export
+ */
+ee.data.makeTableDownloadUrl = function(id) {
+  return ee.data.tileBaseUrl_ + '/api/table?docid=' + id['docid'] +
       '&token=' + id['token'];
 };
 
@@ -896,7 +933,7 @@ ee.data.ThumbnailId;
 
 
 /**
- * An identifier and security token for an image to download.
+ * An identifier and security token for an image or table to download.
  * @typedef {{
  *   docid: string,
  *   token: string
@@ -957,14 +994,15 @@ ee.data.TaskConfig;
  * proto in geo_enterprise.processingmanager for a description of
  * these fields.
  * @typedef {{
- *   id: string,
+ *   id: (undefined|string),
  *   creation_timestamp_ms: (undefined|number),
  *   update_timestamp_ms: (undefined|number),
- *   description: string,
+ *   description: (undefined|string),
  *   priority: (undefined|number),
  *   progress: (undefined|number),
  *   source_url: (undefined|string),
- *   state: string,
+ *   output_url: (undefined|Array.<string>),
+ *   state: (undefined|string),
  *   error_message: (undefined|string)
  * }}
  */

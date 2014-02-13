@@ -10,6 +10,7 @@ goog.require('ee.ComputedObject');
 goog.require('ee.Feature');
 goog.require('ee.Geometry');
 goog.require('ee.Types');
+goog.require('ee.data');
 goog.require('goog.array');
 
 
@@ -157,6 +158,45 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.FeatureCollectionDescription} */(
       goog.base(this, 'getInfo', opt_callback));
+};
+
+
+/**
+ * Get a download URL.
+ * @param {Object} format The format of download, either CSV or JSON.
+ * @param {string=} opt_selectors Selectors that should be used to determine
+ *     which attributes will be downloaded.
+ * @param {function(string?, string=)=} opt_callback An optional
+ *     callback. If not supplied, the call is made synchronously.
+ * @return {string} A download URL.
+ * @export
+ */
+ee.FeatureCollection.prototype.getDownloadURL = function(
+    format, opt_selectors, opt_callback) {
+  var request = {};
+  request['table'] = this.serialize();
+  if (format && goog.array.contains(['CSV', 'JSON'], format.toUpperCase())) {
+    request['format'] = format.toUpperCase();
+  } else {
+    throw Error('FeatureCollection download format required.');
+  }
+  if (opt_selectors) {
+    request['selectors'] = opt_selectors;
+  }
+
+  if (opt_callback) {
+    ee.data.getTableDownloadId(request, function(downloadId, error) {
+      if (downloadId) {
+        opt_callback(ee.data.makeTableDownloadUrl(downloadId));
+      } else {
+        opt_callback(null, error);
+      }
+    });
+  } else {
+    return ee.data.makeTableDownloadUrl(
+        /** @type {ee.data.DownloadId} */ (
+            ee.data.getTableDownloadId(request)));
+  }
 };
 
 

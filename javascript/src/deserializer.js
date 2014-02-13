@@ -8,6 +8,7 @@ goog.provide('ee.Deserializer');
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.CustomFunction');
+goog.require('ee.Date');
 goog.require('ee.Encodable');
 goog.require('ee.Function');
 goog.require('ee.Geometry');
@@ -117,7 +118,7 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       if (!goog.isNumber(microseconds)) {
         throw Error('Invalid date value: ' + microseconds);
       }
-      return new Date(microseconds / 1000);
+      return new ee.Date(microseconds / 1000);
     case 'Bytes':
       var result = new ee.Encodable();
       result.encode = function(encoder) { return json; };

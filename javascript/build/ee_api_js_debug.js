@@ -584,10 +584,11 @@ goog.object.isImmutableView = function(obj) {
   return!!Object.isFrozen && Object.isFrozen(obj);
 };
 goog.json = {};
+goog.json.USE_NATIVE_JSON = !1;
 goog.json.isValid_ = function(s) {
   return/^\s*$/.test(s) ? !1 : /^[\],:{}\s\u2028\u2029]*$/.test(s.replace(/\\["\\\/bfnrtu]/g, "@").replace(/"[^"\\\n\r\u2028\u2029\x00-\x08\x0a-\x1f]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:[\s\u2028\u2029]*\[)+/g, ""));
 };
-goog.json.parse = function(s) {
+goog.json.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(s) {
   var o = String(s);
   if (goog.json.isValid_(o)) {
     try {
@@ -597,10 +598,10 @@ goog.json.parse = function(s) {
   }
   throw Error("Invalid JSON string: " + o);
 };
-goog.json.unsafeParse = function(s) {
+goog.json.unsafeParse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(s) {
   return eval("(" + s + ")");
 };
-goog.json.serialize = function(object, opt_replacer) {
+goog.json.serialize = goog.json.USE_NATIVE_JSON ? goog.global.JSON.stringify : function(object, opt_replacer) {
   return(new goog.json.Serializer(opt_replacer)).serialize(object);
 };
 goog.json.Serializer = function(opt_replacer) {
@@ -1758,7 +1759,7 @@ INPUT:"input", PROPERTYCHANGE:"propertychange", DRAGSTART:"dragstart", DRAG:"dra
 READYSTATECHANGE:"readystatechange", RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), 
 TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", 
 MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXTINPUT:"textinput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", 
-COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange"};
+COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
@@ -5047,6 +5048,14 @@ ee.data.getDownloadId = function(params, opt_callback) {
 ee.data.makeDownloadUrl = function(id) {
   return ee.data.tileBaseUrl_ + "/api/download?docid=" + id.docid + "&token=" + id.token;
 };
+ee.data.getTableDownloadId = function(params, opt_callback) {
+  params = goog.object.clone(params);
+  params.json_format = "v2";
+  return ee.data.send_("/table", ee.data.makeRequest_(params), opt_callback);
+};
+ee.data.makeTableDownloadUrl = function(id) {
+  return ee.data.tileBaseUrl_ + "/api/table?docid=" + id.docid + "&token=" + id.token;
+};
 ee.data.getAlgorithms = function(opt_callback) {
   return ee.data.send_("/algorithms", null, opt_callback, "GET");
 };
@@ -5320,7 +5329,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     return object;
   }
   if (goog.isDateLike(object)) {
-    return{type:"Date", value:Math.floor(1E3 * object.getTime())};
+    return{type:"Invocation", functionName:"Date", arguments:{value:Math.floor(object.getTime())}};
   }
   if (object instanceof ee.Encodable) {
     if (result = object.encode(goog.bind(this.encodeValue_, this)), !goog.isObject(result) || "ArgumentRef" == result.type) {
@@ -5973,7 +5982,7 @@ ee.Date = function(date, opt_tz) {
         args.value = Math.floor(date.getTime());
       } else {
         if (date instanceof ee.ComputedObject) {
-          "Date" != date.func ? args.value = date : (func = date.func, args = date.args);
+          date.func != func ? args.value = date : (func = date.func, args = date.args);
         } else {
           throw Error("Invalid argument specified for ee.Date(): " + date);
         }
@@ -6276,7 +6285,7 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       if (!goog.isNumber(microseconds)) {
         throw Error("Invalid date value: " + microseconds);
       }
-      return new Date(microseconds / 1E3);
+      return new ee.Date(microseconds / 1E3);
     case "Bytes":
       var result = new ee.Encodable;
       result.encode = function(encoder) {
@@ -6444,6 +6453,23 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
   return ee.FeatureCollection.superClass_.getInfo.call(this, opt_callback);
+};
+ee.FeatureCollection.prototype.getDownloadURL = function(format, opt_selectors, opt_callback) {
+  var request = {};
+  request.table = this.serialize();
+  if (format && goog.array.contains(["CSV", "JSON"], format.toUpperCase())) {
+    request.format = format.toUpperCase();
+  } else {
+    throw Error("FeatureCollection download format required.");
+  }
+  opt_selectors && (request.selectors = opt_selectors);
+  if (opt_callback) {
+    ee.data.getTableDownloadId(request, function(downloadId, error) {
+      downloadId ? opt_callback(ee.data.makeTableDownloadUrl(downloadId)) : opt_callback(null, error);
+    });
+  } else {
+    return ee.data.makeTableDownloadUrl(ee.data.getTableDownloadId(request));
+  }
 };
 ee.FeatureCollection.prototype.map = function(algorithm) {
   return this.mapInternal(ee.Feature, algorithm);

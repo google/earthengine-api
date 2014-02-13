@@ -455,9 +455,16 @@ BUILTIN_FUNCTIONS = {
         'hidden': False,
         'args': [
             {
-                'type': 'Long',
+                'type': 'Object',
                 'description': '',
-                'name': 'microseconds'
+                'name': 'value'
+            },
+            {
+                'type': 'String',
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'timeZone'
             }
         ],
         'type': 'Algorithm',
@@ -1031,6 +1038,13 @@ ENCODED_JSON_SAMPLE = {
     'type': 'CompoundValue',
     'scope': [
         ['0', {
+            'type': 'Invocation',
+            'functionName': 'Date',
+            'arguments': {
+                'value': 1234567890000
+            }
+        }],
+        ['1', {
             'type': 'LineString',
             'coordinates': [[1, 2], [3, 4]],
             'crs': {
@@ -1040,7 +1054,7 @@ ENCODED_JSON_SAMPLE = {
                 }
             }
         }],
-        ['1', {
+        ['2', {
             'type': 'Polygon',
             'coordinates': [
                 [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
@@ -1048,11 +1062,11 @@ ENCODED_JSON_SAMPLE = {
                 [[1, 1], [2, 1], [2, 2], [1, 2]]
             ]
         }],
-        ['2', {
+        ['3', {
             'type': 'Bytes',
             'value': 'aGVsbG8='
         }],
-        ['3', {
+        ['4', {
             'type': 'Invocation',
             'functionName': 'String.cat',
             'arguments': {
@@ -1060,19 +1074,19 @@ ENCODED_JSON_SAMPLE = {
                 'string2': 'y'
             }
         }],
-        ['4', {
+        ['5', {
             'type': 'Dictionary',
             'value': {
                 'foo': 'bar',
-                'baz': {'type': 'ValueRef', 'value': '3'}
+                'baz': {'type': 'ValueRef', 'value': '4'}
             }
         }],
-        ['5', {
+        ['6', {
             'type': 'Function',
             'argumentNames': ['x', 'y'],
             'body': {'type': 'ArgumentRef', 'value': 'y'}
         }],
-        ['6', [
+        ['7', [
             None,
             True,
             5,
@@ -1080,14 +1094,14 @@ ENCODED_JSON_SAMPLE = {
             3.4,
             2.5,
             'hello',
-            {'type': 'Date', 'value': 1234567890000000},
             {'type': 'ValueRef', 'value': '0'},
             {'type': 'ValueRef', 'value': '1'},
             {'type': 'ValueRef', 'value': '2'},
-            {'type': 'ValueRef', 'value': '4'},
             {'type': 'ValueRef', 'value': '3'},
-            {'type': 'ValueRef', 'value': '5'}
+            {'type': 'ValueRef', 'value': '5'},
+            {'type': 'ValueRef', 'value': '4'},
+            {'type': 'ValueRef', 'value': '6'}
         ]]
     ],
-    'value': {'type': 'ValueRef', 'value': '6'}
+    'value': {'type': 'ValueRef', 'value': '7'}
 }

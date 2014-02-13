@@ -2,7 +2,6 @@
 
 
 
-import datetime
 import json
 
 import unittest
@@ -48,7 +47,7 @@ class SerializerTest(apitestcase.ApiTestCase):
         3.4,
         2.5,
         'hello',
-        datetime.datetime.utcfromtimestamp(1234567890),
+        ee.Date(1234567890000),
         ee.Geometry(ee.Geometry.LineString(1, 2, 3, 4), 'SR-ORG:6974'),
         ee.Geometry.Polygon([
             [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],

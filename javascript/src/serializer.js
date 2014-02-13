@@ -176,11 +176,12 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     // Primitives are encoded as is and not saved in the scope.
     return object;
   } else if (goog.isDateLike(object)) {
-    // Dates are encoded as typed UTC microseconds since the Unix epoch.
-    // They are returned directly and not saved in the scope either.
+    // A raw date slipped through. Wrap it. Calling ee.Date from here would
+    // cause a circular dependency, so we encode it manually.
     return {
-      'type': 'Date',
-      'value': Math.floor(object.getTime() * 1000)
+      'type': 'Invocation',
+      'functionName': 'Date',
+      'arguments': {'value': Math.floor(/** @type Date */(object).getTime())}
     };
   } else if (object instanceof ee.Encodable) {
     // Some objects know how to encode themselves.

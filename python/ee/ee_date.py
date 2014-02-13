@@ -54,7 +54,7 @@ class Date(computedobject.ComputedObject):
           raise ee_exception.EEException(
               'Invalid argument specified for ee.Date(..., opt_tz): %s' % date)
     elif isinstance(date, computedobject.ComputedObject):
-      if date.func != 'Date':
+      if date.func != func:
         args = {'value': date}
       else:
         func = date.func

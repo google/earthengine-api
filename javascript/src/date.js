@@ -58,7 +58,7 @@ ee.Date = function(date, opt_tz) {
   } else if (goog.isDateLike(date)) {
     args['value'] = Math.floor(/** @type Date */(date).getTime());
   } else if (date instanceof ee.ComputedObject) {
-    if (date.func != 'Date') {
+    if (date.func != func) {
       args['value'] = date;
     } else {
       // In the case of a computedObject that's already calling date, just cast.

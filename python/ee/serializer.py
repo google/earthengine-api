@@ -101,11 +101,12 @@ class Serializer(object):
       # Primitives are encoded as is and not saved in the scope.
       return obj
     elif isinstance(obj, datetime.datetime):
-      # Dates are encoded as typed UTC microseconds since the Unix epoch.
-      # They are returned directly and not saved in the scope either.
+      # A raw date slipped through. Wrap it. Calling ee.Date from here would
+      # cause a circular dependency, so we encode it manually.
       return {
-          'type': 'Date',
-          'value': DatetimeToMicroseconds(obj)
+          'type': 'Invocation',
+          'functionName': 'Date',
+          'arguments': {'value': DatetimeToMicroseconds(obj) / 1e3}
       }
     elif isinstance(obj, encodable.Encodable):
       # Some objects know how to encode themselves.
