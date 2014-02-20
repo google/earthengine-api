@@ -514,6 +514,11 @@ ee.initializeGeneratedClasses_ = function() {
     if (name in returnTypes && !(name in exportedEE)) {
       exportedEE[name] = ee.makeClass_(name);
       ee.generatedClasses_.push(name);
+      // Mark this class as a constructor if it is.
+      if (signatures[name]) {
+        exportedEE[name]['signature'] = signatures[name];
+        exportedEE[name]['signature']['isConstructor'] = true;
+      }
     }
   }
   ee.Types.registerClasses(exportedEE);

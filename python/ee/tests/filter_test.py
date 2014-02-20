@@ -79,23 +79,22 @@ class FilterTest(apitestcase.ApiTestCase):
     """Verifies that date filters work."""
     d1 = datetime.datetime.strptime('1/1/2000', '%m/%d/%Y')
     d2 = datetime.datetime.strptime('1/1/2001', '%m/%d/%Y')
-    open_range = ee.ApiFunction.call_(
-        'DateRange', d1, datetime.datetime(9999, 1, 1))
-    closed_range = ee.ApiFunction.call_('DateRange', d1, d2)
+    instant_range = ee.ApiFunction.call_('DateRange', d1, None)
+    long_range = ee.ApiFunction.call_('DateRange', d1, d2)
 
-    open_filter = ee.Filter.date(d1)
+    instant_filter = ee.Filter.date(d1)
     self.assertEquals(ee.ApiFunction.lookup('Filter.dateRangeContains'),
-                      open_filter.func)
-    self.assertEquals({'leftValue': open_range,
+                      instant_filter.func)
+    self.assertEquals({'leftValue': instant_range,
                        'rightField': ee.String('system:time_start')},
-                      open_filter.args)
+                      instant_filter.args)
 
-    closed_filter = ee.Filter.date(d1, d2)
+    long_filter = ee.Filter.date(d1, d2)
     self.assertEquals(ee.ApiFunction.lookup('Filter.dateRangeContains'),
-                      closed_filter.func)
-    self.assertEquals({'leftValue': closed_range,
+                      long_filter.func)
+    self.assertEquals({'leftValue': long_range,
                        'rightField': ee.String('system:time_start')},
-                      closed_filter.args)
+                      long_filter.args)
 
   def testBounds(self):
     """Verifies that geometry intersection filters work."""

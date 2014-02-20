@@ -395,10 +395,6 @@ ee.Filter.or = function(var_args) {
  * @export
  */
 ee.Filter.date = function(start, opt_end) {
-  if (!goog.isDef(opt_end)) {
-    // Can't create half-open DateRanges. Hack around it.
-    opt_end = 0x0000FFFFFFFFFFFF;   // 8000+ years gotta be enough.
-  }
   var range = ee.ApiFunction._call('DateRange', start, opt_end);
   var filter = ee.ApiFunction._apply('Filter.dateRangeContains', {
     'leftValue': range,

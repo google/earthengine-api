@@ -442,7 +442,9 @@ BUILTIN_FUNCTIONS = {
                 'type': 'Date'
             },
             {
+                'default': None,
                 'description': '',
+                'optional': True,
                 'name': 'end',
                 'type': 'Date'
             }

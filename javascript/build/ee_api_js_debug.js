@@ -5848,7 +5848,6 @@ ee.Filter.or = function(var_args) {
   return ee.ApiFunction._call("Filter.or", args);
 };
 ee.Filter.date = function(start, opt_end) {
-  goog.isDef(opt_end) || (opt_end = 0xffffffffffff);
   var range = ee.ApiFunction._call("DateRange", start, opt_end);
   return ee.ApiFunction._apply("Filter.dateRangeContains", {leftValue:range, rightField:"system:time_start"});
 };
@@ -6930,7 +6929,7 @@ ee.initializeGeneratedClasses_ = function() {
   }
   var exportedEE = goog.global.ee, name;
   for (name in names) {
-    name in returnTypes && !(name in exportedEE) && (exportedEE[name] = ee.makeClass_(name), ee.generatedClasses_.push(name));
+    name in returnTypes && !(name in exportedEE) && (exportedEE[name] = ee.makeClass_(name), ee.generatedClasses_.push(name), signatures[name] && (exportedEE[name].signature = signatures[name], exportedEE[name].signature.isConstructor = !0));
   }
   ee.Types.registerClasses(exportedEE);
 };
