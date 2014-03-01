@@ -37,7 +37,7 @@ ee.Serializer = function(opt_isCompound) {
   /**
    * A list of shared subtrees as [name, value] pairs.
    *
-   * @type {Array}
+   * @type {!Array}
    * @private
    */
   this.scope_ = [];
@@ -46,10 +46,18 @@ ee.Serializer = function(opt_isCompound) {
    * A lookup table from object hashes to {name, object} pairs, where
    * the name comes from the subtree stored in this.scope_.
    *
-   * @type {{name: string, object: *}}
+   * @type {!Object.<string, string>}
    * @private
    */
-  this.encoded_ = /** @type {{name: string, object: *}} */ ({});
+  this.encoded_ = /** @type {!Object.<string, string>} */ ({});
+
+  /**
+   * A list of objects that have to be cleared of hashes.
+   *
+   * @type {!Array}
+   * @private
+   */
+  this.withHashes_ = [];
 };
 // Exporting manually to avoid marking the class public in the docs.
 goog.exportSymbol('ee.Serializer', ee.Serializer);
@@ -135,11 +143,11 @@ ee.Serializer.prototype.encode_ = function(object) {
     }
     // Clear state in case of future encoding.
     this.scope_ = [];
-    for (var hash in this.encoded_) {
-      var item = this.encoded_[hash];
-      delete item['object'][this.HASH_KEY];
-    }
-    this.encoded_ = /** @type {{name: string, object: *}} */ ({});
+    goog.array.forEach(this.withHashes_, goog.bind(function(obj) {
+      delete obj[this.HASH_KEY];
+    }, this));
+    this.withHashes_ = [];
+    this.encoded_ = /** @type {!Object.<string, string>} */ ({});
   }
   return value;
 };
@@ -167,7 +175,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     // return a value ref instead.
     return {
       'type': 'ValueRef',
-      'value': this.encoded_[hash]['name']
+      'value': this.encoded_[hash]
     };
   } else if (object === null ||
       goog.isBoolean(object) ||
@@ -181,7 +189,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     return {
       'type': 'Invocation',
       'functionName': 'Date',
-      'arguments': {'value': Math.floor(/** @type Date */(object).getTime())}
+      'arguments': {'value': Math.floor(/** @type {Date} */(object).getTime())}
     };
   } else if (object instanceof ee.Encodable) {
     // Some objects know how to encode themselves.
@@ -216,20 +224,18 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
   if (this.isCompound_) {
     ee.Serializer.hash_.reset();
     ee.Serializer.hash_.update(ee.Serializer.jsonSerializer_.serialize(result));
-    hash = ee.Serializer.hash_.digest();
+    hash = ee.Serializer.hash_.digest().toString();
     var name;
     if (this.encoded_[hash]) {
-      name = this.encoded_[hash]['name'];
+      name = this.encoded_[hash];
     } else {
       // We haven't seen this object or one like it yet, save it.
       name = String(this.scope_.length);
       this.scope_.push([name, result]);
-      this.encoded_[hash] = {
-        'name': name,
-        'object': object
-      };
+      this.encoded_[hash] = name;
     }
     object[this.HASH_KEY] = hash;
+    this.withHashes_.push(object);
     return {
       'type': 'ValueRef',
       'value': name

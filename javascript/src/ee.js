@@ -414,6 +414,13 @@ ee.promote_ = function(arg, klass) {
       }
     case 'List':
       return arg;
+    case 'Number':
+    case 'Float':
+    case 'Long':
+    case 'Integer':
+    case 'Short':
+    case 'Byte':
+      return new ee.Number(/** @type {?} */ (arg));
     default:
       // Handle dynamically generated classes.
       if (klass in exportedEE && arg) {
@@ -480,6 +487,7 @@ ee.initializeUnboundMethods_ = function() {
  *   - The class doesn't already exist as an ee.TYPE.
  *
  * @private
+ * @suppress {accessControls} We update ApiFunction.boundSignatures_.
  */
 ee.initializeGeneratedClasses_ = function() {
   var signatures = ee.ApiFunction.allSignatures();
@@ -518,6 +526,7 @@ ee.initializeGeneratedClasses_ = function() {
       if (signatures[name]) {
         exportedEE[name]['signature'] = signatures[name];
         exportedEE[name]['signature']['isConstructor'] = true;
+        ee.ApiFunction.boundSignatures_[name] = true;
       }
     }
   }
@@ -547,12 +556,13 @@ ee.resetGeneratedClasses_ = function() {
  * @param {string} name The name of the class to create.
  * @return {Function} The generated class.
  * @private
+ * @suppress {accessControls}
  */
 ee.makeClass_ = function(name) {
   /**
    * Construct a new instance of the given class.
    *
-   * @param {...[*]} var_args The constructor args.  Can be one of:
+   * @param {...*} var_args The constructor args.  Can be one of:
    *   1) A computed value to be promoted to this type.
    *   2) Arguments to be passed to the algorithm with the same name as
    *      this class.
@@ -561,7 +571,6 @@ ee.makeClass_ = function(name) {
    *
    * @constructor
    * @extends {ee.ComputedObject}
-   * @suppress {accessControls}
    */
   var target = function(var_args) {
     // TODO(user): Generate docs for these classes.
@@ -587,6 +596,7 @@ ee.makeClass_ = function(name) {
     }
   };
   goog.inherits(target, ee.ComputedObject);
+  target.prototype.name = function() { return name; };
   ee.ApiFunction.importApi(target, name, name);
   return target;
 };

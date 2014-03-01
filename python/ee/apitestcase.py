@@ -51,7 +51,7 @@ BUILTIN_FUNCTIONS = {
             {
                 'description': '',
                 'name': 'value',
-                'type': 'Number'
+                'type': 'Object'
             }
         ],
         'description': '',
@@ -137,14 +137,14 @@ BUILTIN_FUNCTIONS = {
             {
                 'description': '',
                 'name': 'bandSelectors',
-                'type': 'Array<Object>'
+                'type': 'List<Object>'
             },
             {
                 'default': None,
                 'description': '',
                 'optional': True,
                 'name': 'newNames',
-                'type': 'Array<String>'
+                'type': 'List<String>'
             }
         ],
         'description': '',
@@ -1028,6 +1028,24 @@ BUILTIN_FUNCTIONS = {
                 'type': 'Number',
                 'description': '',
                 'name': 'right'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
+    'Array': {
+        'returns': 'Array',
+        'hidden': False,
+        'args': [
+            {
+                'name': 'values',
+                'type': 'Object'
+            },
+            {
+                'name': 'pixelType',
+                'type': 'PixelType',
+                'optional': True,
+                'default': None
             }
         ],
         'type': 'Algorithm',

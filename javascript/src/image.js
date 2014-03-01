@@ -23,7 +23,7 @@ goog.require('goog.object');
  * variety of arguments:
  *   - A string: an EarthEngine asset id,
  *   - A string and a number - an EarthEngine asset id and version,
- *   - A number: creates a constant image,
+ *   - A number or EEArray: creates a constant image,
  *   - An array: creates an image out of each element of the array and
  *     combines them into a single image,
  *   - An ee.Image: returns the argument,
@@ -70,9 +70,14 @@ ee.Image = function(opt_args) {
       // A variable to cast to an image.
       return ee.CustomFunction.variable(ee.Image, opt_args.name_);
     } else if (opt_args instanceof ee.ComputedObject) {
-      // A custom object to reinterpret as an Image.
-      goog.base(this, opt_args.func, opt_args.args);
-
+      if (opt_args.name() == 'Array') {
+        // A constant array image.
+        goog.base(this, new ee.ApiFunction('Image.constant'),
+                  {'value': opt_args});
+      } else {
+        // A custom object to reinterpret as an Image.
+        goog.base(this, opt_args.func, opt_args.args);
+      }
     } else {
       throw Error('Unrecognized argument type to convert to an Image: ' +
                   opt_args);

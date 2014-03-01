@@ -412,7 +412,7 @@ ee.data.getAlgorithms = function(opt_callback) {
 /**
  * Get the list of GME projects for the current user.
  *
- * @param {function(Array.<ee.data.GMEProject>)=} opt_callback
+ * @param {function(Array.<ee.data.GMEProject>, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?Array.<ee.data.GMEProject>} Null if a callback isn't specified,
  *     otherwise an array containing one object for each GME project.

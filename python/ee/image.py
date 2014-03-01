@@ -31,7 +31,8 @@ class Image(element.Element):
           - A string - an EarthEngine asset id,
           - A string and a number - an EarthEngine asset id and version,
           - A number - creates a constant image,
-          - An array - creates an image out of each element of the array and
+          - An EEArray - creates a constant array image,
+          - A list - creates an image out of each element of the array and
             combines them into a single image,
           - An ee.Image - returns the argument,
           - Nothing - results in an empty transparent image.
@@ -68,8 +69,13 @@ class Image(element.Element):
       image = Image.combine_([Image(i) for i in args])
       super(Image, self).__init__(image.func, image.args)
     elif isinstance(args, computedobject.ComputedObject):
-      # A custom object to reinterpret as an Image.
-      super(Image, self).__init__(args.func, args.args)
+      if args.name() == 'Array':
+        # A constant array image.
+        super(Image, self).__init__(
+            apifunction.ApiFunction.lookup('Image.constant'), {'value': args})
+      else:
+        # A custom object to reinterpret as an Image.
+        super(Image, self).__init__(args.func, args.args)
     elif args is None:
       super(Image, self).__init__(
           apifunction.ApiFunction.lookup('Image.mask'),

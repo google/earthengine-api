@@ -247,6 +247,8 @@ def _Promote(arg, klass):
       return String(arg)
     else:
       return arg
+  elif klass in ('Number', 'Float', 'Long', 'Integer', 'Short', 'Byte'):
+    return Number(arg)
   elif klass in globals():
     cls = globals()[klass]
     # Handle dynamically created classes.
@@ -309,6 +311,7 @@ def _InitializeGeneratedClasses():
   for name in want:
     globals()[name] = _MakeClass(name)
     _generatedClasses.append(name)
+    ApiFunction._bound_signatures.add(name)  # pylint: disable=protected-access
 
   # Warning: we're passing all of globals() into registerClasses.
   # This is a) pass by reference, and b) a lot more stuff.
@@ -336,7 +339,8 @@ def _MakeClass(name):
 
     ComputedObject.__init__(self, result.func, result.args)
 
-  new_class = type(str(name), (ComputedObject,), {'__init__': init})
+  properties = {'__init__': init, 'name': lambda self: name}
+  new_class = type(str(name), (ComputedObject,), properties)
   ApiFunction.importApi(new_class, name, name)
   return new_class
 

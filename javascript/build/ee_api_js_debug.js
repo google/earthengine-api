@@ -1880,18 +1880,19 @@ goog.events.ListenerMap.prototype.getListenerCount = function() {
   return count;
 };
 goog.events.ListenerMap.prototype.add = function(type, listener, callOnce, opt_useCapture, opt_listenerScope) {
-  var listenerArray = this.listeners[type];
-  listenerArray || (listenerArray = this.listeners[type] = [], this.typeCount_++);
+  var typeStr = type.toString(), listenerArray = this.listeners[typeStr];
+  listenerArray || (listenerArray = this.listeners[typeStr] = [], this.typeCount_++);
   var listenerObj, index = goog.events.ListenerMap.findListenerIndex_(listenerArray, listener, opt_useCapture, opt_listenerScope);
-  -1 < index ? (listenerObj = listenerArray[index], callOnce || (listenerObj.callOnce = !1)) : (listenerObj = new goog.events.Listener(listener, null, this.src, type, !!opt_useCapture, opt_listenerScope), listenerObj.callOnce = callOnce, listenerArray.push(listenerObj));
+  -1 < index ? (listenerObj = listenerArray[index], callOnce || (listenerObj.callOnce = !1)) : (listenerObj = new goog.events.Listener(listener, null, this.src, typeStr, !!opt_useCapture, opt_listenerScope), listenerObj.callOnce = callOnce, listenerArray.push(listenerObj));
   return listenerObj;
 };
 goog.events.ListenerMap.prototype.remove = function(type, listener, opt_useCapture, opt_listenerScope) {
-  if (!(type in this.listeners)) {
+  var typeStr = type.toString();
+  if (!(typeStr in this.listeners)) {
     return!1;
   }
-  var listenerArray = this.listeners[type], index = goog.events.ListenerMap.findListenerIndex_(listenerArray, listener, opt_useCapture, opt_listenerScope);
-  return-1 < index ? (listenerArray[index].markAsRemoved(), goog.array.removeAt(listenerArray, index), 0 == listenerArray.length && (delete this.listeners[type], this.typeCount_--), !0) : !1;
+  var listenerArray = this.listeners[typeStr], index = goog.events.ListenerMap.findListenerIndex_(listenerArray, listener, opt_useCapture, opt_listenerScope);
+  return-1 < index ? (listenerArray[index].markAsRemoved(), goog.array.removeAt(listenerArray, index), 0 == listenerArray.length && (delete this.listeners[typeStr], this.typeCount_--), !0) : !1;
 };
 goog.events.ListenerMap.prototype.removeByKey = function(listener) {
   var type = listener.type;
@@ -1903,9 +1904,9 @@ goog.events.ListenerMap.prototype.removeByKey = function(listener) {
   return removed;
 };
 goog.events.ListenerMap.prototype.removeAll = function(opt_type) {
-  var count = 0, type;
+  var typeStr = opt_type && opt_type.toString(), count = 0, type;
   for (type in this.listeners) {
-    if (!opt_type || type == opt_type) {
+    if (!typeStr || type == typeStr) {
       for (var listenerArray = this.listeners[type], i = 0;i < listenerArray.length;i++) {
         ++count, listenerArray[i].markAsRemoved();
       }
@@ -1916,7 +1917,7 @@ goog.events.ListenerMap.prototype.removeAll = function(opt_type) {
   return count;
 };
 goog.events.ListenerMap.prototype.getListeners = function(type, capture) {
-  var listenerArray = this.listeners[type], rv = [];
+  var listenerArray = this.listeners[type.toString()], rv = [];
   if (listenerArray) {
     for (var i = 0;i < listenerArray.length;++i) {
       var listenerObj = listenerArray[i];
@@ -1926,15 +1927,15 @@ goog.events.ListenerMap.prototype.getListeners = function(type, capture) {
   return rv;
 };
 goog.events.ListenerMap.prototype.getListener = function(type, listener, capture, opt_listenerScope) {
-  var listenerArray = this.listeners[type], i = -1;
+  var listenerArray = this.listeners[type.toString()], i = -1;
   listenerArray && (i = goog.events.ListenerMap.findListenerIndex_(listenerArray, listener, capture, opt_listenerScope));
   return-1 < i ? listenerArray[i] : null;
 };
 goog.events.ListenerMap.prototype.hasListener = function(opt_type, opt_capture) {
-  var hasType = goog.isDef(opt_type), hasCapture = goog.isDef(opt_capture);
+  var hasType = goog.isDef(opt_type), typeStr = hasType ? opt_type.toString() : "", hasCapture = goog.isDef(opt_capture);
   return goog.object.some(this.listeners, function(listenerArray, type) {
     for (var i = 0;i < listenerArray.length;++i) {
-      if (!(hasType && listenerArray[i].type != opt_type || hasCapture && listenerArray[i].capture != opt_capture)) {
+      if (!(hasType && listenerArray[i].type != typeStr || hasCapture && listenerArray[i].capture != opt_capture)) {
         return!0;
       }
     }
@@ -1990,7 +1991,7 @@ goog.events.listen_ = function(src, type, listener, callOnce, opt_capt, opt_hand
   listenerObj.proxy = proxy;
   proxy.src = src;
   proxy.listener = listenerObj;
-  src.addEventListener ? src.addEventListener(type, proxy, capture) : src.attachEvent(goog.events.getOnString_(type), proxy);
+  src.addEventListener ? src.addEventListener(type.toString(), proxy, capture) : src.attachEvent(goog.events.getOnString_(type.toString()), proxy);
   goog.events.listenerCountEstimate_++;
   return listenerObj;
 };
@@ -2070,9 +2071,9 @@ goog.events.removeAll = function(opt_obj, opt_type) {
   if (!listenerMap) {
     return 0;
   }
-  var count = 0, type;
+  var count = 0, typeStr = opt_type && opt_type.toString(), type;
   for (type in listenerMap.listeners) {
-    if (!opt_type || type == opt_type) {
+    if (!typeStr || type == typeStr) {
       for (var listeners = goog.array.clone(listenerMap.listeners[type]), i = 0;i < listeners.length;++i) {
         goog.events.unlistenByKey(listeners[i]) && ++count;
       }
@@ -2128,7 +2129,7 @@ goog.events.fireListeners = function(obj, type, capture, eventObject) {
 goog.events.fireListeners_ = function(obj, type, capture, eventObject) {
   var retval = 1, listenerMap = goog.events.getListenerMap_(obj);
   if (listenerMap) {
-    var listenerArray = listenerMap.listeners[type];
+    var listenerArray = listenerMap.listeners[type.toString()];
     if (listenerArray) {
       for (var listenerArray = goog.array.clone(listenerArray), i = 0;i < listenerArray.length;i++) {
         var listener = listenerArray[i];
@@ -2527,6 +2528,13 @@ goog.math.isInt = function(num) {
 goog.math.isFiniteNumber = function(num) {
   return isFinite(num) && !isNaN(num);
 };
+goog.math.log10Floor = function(num) {
+  if (0 < num) {
+    var x = Math.round(Math.log(num) * Math.LOG10E);
+    return x - (Math.pow(10, x) > num);
+  }
+  return 0 == num ? -Infinity : NaN;
+};
 goog.math.safeFloor = function(num, opt_epsilon) {
   goog.asserts.assert(!goog.isDef(opt_epsilon) || 0 < opt_epsilon);
   return Math.floor(num + (opt_epsilon || 2E-15));
@@ -2626,10 +2634,8 @@ goog.iter.join = function(iterable, deliminator) {
 goog.iter.map = function(iterable, f, opt_obj) {
   var iterator = goog.iter.toIterator(iterable), newIter = new goog.iter.Iterator;
   newIter.next = function() {
-    for (;;) {
-      var val = iterator.next();
-      return f.call(opt_obj, val, void 0, iterator);
-    }
+    var val = iterator.next();
+    return f.call(opt_obj, val, void 0, iterator);
   };
   return newIter;
 };
@@ -3072,6 +3078,12 @@ goog.structs.Map.prototype.addAll = function(map) {
   map instanceof goog.structs.Map ? (keys = map.getKeys(), values = map.getValues()) : (keys = goog.object.getKeys(map), values = goog.object.getValues(map));
   for (var i = 0;i < keys.length;i++) {
     this.set(keys[i], values[i]);
+  }
+};
+goog.structs.Map.prototype.forEach = function(f, opt_obj) {
+  for (var keys = this.getKeys(), i = 0;i < keys.length;i++) {
+    var key = keys[i], value = this.get(key);
+    f.call(opt_obj, value, key, this);
   }
 };
 goog.structs.Map.prototype.clone = function() {
@@ -4342,7 +4354,7 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   });
   var contentTypeKey = goog.array.find(headers.getKeys(), goog.net.XhrIo.isContentTypeHeader_), contentIsFormData = goog.global.FormData && content instanceof goog.global.FormData;
   !goog.array.contains(goog.net.XhrIo.METHODS_WITH_FORM_DATA, method) || contentTypeKey || contentIsFormData || headers.set(goog.net.XhrIo.CONTENT_TYPE_HEADER, goog.net.XhrIo.FORM_CONTENT_TYPE);
-  goog.structs.forEach(headers, function(value, key) {
+  headers.forEach(function(value, key) {
     this.xhr_.setRequestHeader(key, value);
   }, this);
   this.responseType_ && (this.xhr_.responseType = this.responseType_);
@@ -4952,7 +4964,7 @@ goog.Uri.QueryData.prototype.invalidateCache_ = function() {
 };
 goog.Uri.QueryData.prototype.filterKeys = function(keys) {
   this.ensureKeyMapInitialized_();
-  goog.structs.forEach(this.keyMap_, function(value, key, map) {
+  this.keyMap_.forEach(function(value, key) {
     goog.array.contains(keys, key) || this.remove(key);
   }, this);
   return this;
@@ -4969,7 +4981,7 @@ goog.Uri.QueryData.prototype.getKeyName_ = function(arg) {
   return keyName;
 };
 goog.Uri.QueryData.prototype.setIgnoreCase = function(ignoreCase) {
-  ignoreCase && !this.ignoreCase_ && (this.ensureKeyMapInitialized_(), this.invalidateCache_(), goog.structs.forEach(this.keyMap_, function(value, key) {
+  ignoreCase && !this.ignoreCase_ && (this.ensureKeyMapInitialized_(), this.invalidateCache_(), this.keyMap_.forEach(function(value, key) {
     var lowerCase = key.toLowerCase();
     key != lowerCase && (this.remove(key), this.setValues(lowerCase, value));
   }, this));
@@ -5291,6 +5303,7 @@ ee.Serializer = function(opt_isCompound) {
   this.isCompound_ = !1 !== opt_isCompound;
   this.scope_ = [];
   this.encoded_ = {};
+  this.withHashes_ = [];
 };
 goog.exportSymbol("ee.Serializer", ee.Serializer);
 ee.Serializer.jsonSerializer_ = new goog.json.Serializer;
@@ -5307,14 +5320,9 @@ ee.Serializer.toReadableJSON = function(obj) {
 };
 ee.Serializer.prototype.encode_ = function(object) {
   var value = this.encodeValue_(object);
-  if (this.isCompound_) {
-    value = goog.isObject(value) && "ValueRef" == value.type && 1 == this.scope_.length ? this.scope_[0][1] : {type:"CompoundValue", scope:this.scope_, value:value};
-    this.scope_ = [];
-    for (var hash in this.encoded_) {
-      delete this.encoded_[hash].object[this.HASH_KEY];
-    }
-    this.encoded_ = {};
-  }
+  this.isCompound_ && (value = goog.isObject(value) && "ValueRef" == value.type && 1 == this.scope_.length ? this.scope_[0][1] : {type:"CompoundValue", scope:this.scope_, value:value}, this.scope_ = [], goog.array.forEach(this.withHashes_, goog.bind(function(obj) {
+    delete obj[this.HASH_KEY];
+  }, this)), this.withHashes_ = [], this.encoded_ = {});
   return value;
 };
 ee.Serializer.prototype.encodeValue_ = function(object) {
@@ -5323,7 +5331,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
   }
   var result, hash = goog.isObject(object) ? object[this.HASH_KEY] : null;
   if (this.isCompound_ && null != hash && this.encoded_[hash]) {
-    return{type:"ValueRef", value:this.encoded_[hash].name};
+    return{type:"ValueRef", value:this.encoded_[hash]};
   }
   if (null === object || goog.isBoolean(object) || goog.isNumber(object) || goog.isString(object)) {
     return object;
@@ -5357,9 +5365,10 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
   if (this.isCompound_) {
     ee.Serializer.hash_.reset();
     ee.Serializer.hash_.update(ee.Serializer.jsonSerializer_.serialize(result));
-    var hash = ee.Serializer.hash_.digest(), name;
-    this.encoded_[hash] ? name = this.encoded_[hash].name : (name = String(this.scope_.length), this.scope_.push([name, result]), this.encoded_[hash] = {name:name, object:object});
+    var hash = ee.Serializer.hash_.digest().toString(), name;
+    this.encoded_[hash] ? name = this.encoded_[hash] : (name = String(this.scope_.length), this.scope_.push([name, result]), this.encoded_[hash] = name);
     object[this.HASH_KEY] = hash;
+    this.withHashes_.push(object);
     return{type:"ValueRef", value:name};
   }
   return result;
@@ -6504,7 +6513,7 @@ ee.Image = function(opt_args) {
             return ee.CustomFunction.variable(ee.Image, opt_args.name_);
           }
           if (opt_args instanceof ee.ComputedObject) {
-            ee.Element.call(this, opt_args.func, opt_args.args);
+            "Array" == opt_args.name() ? ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args}) : ee.Element.call(this, opt_args.func, opt_args.args);
           } else {
             throw Error("Unrecognized argument type to convert to an Image: " + opt_args);
           }
@@ -6880,6 +6889,18 @@ ee.promote_ = function(arg, klass) {
         return ee.Types.isString(arg) || arg instanceof ee.String || arg instanceof ee.ComputedObject || ee.Types.isVarOfType(arg, ee.String) ? new ee.String(arg) : arg;
       case "List":
         return arg;
+      case "Number":
+      ;
+      case "Float":
+      ;
+      case "Long":
+      ;
+      case "Integer":
+      ;
+      case "Short":
+      ;
+      case "Byte":
+        return new ee.Number(arg);
       default:
         if (klass in exportedEE && arg) {
           if (arg instanceof exportedEE[klass]) {
@@ -6929,7 +6950,7 @@ ee.initializeGeneratedClasses_ = function() {
   }
   var exportedEE = goog.global.ee, name;
   for (name in names) {
-    name in returnTypes && !(name in exportedEE) && (exportedEE[name] = ee.makeClass_(name), ee.generatedClasses_.push(name), signatures[name] && (exportedEE[name].signature = signatures[name], exportedEE[name].signature.isConstructor = !0));
+    name in returnTypes && !(name in exportedEE) && (exportedEE[name] = ee.makeClass_(name), ee.generatedClasses_.push(name), signatures[name] && (exportedEE[name].signature = signatures[name], exportedEE[name].signature.isConstructor = !0, ee.ApiFunction.boundSignatures_[name] = !0));
   }
   ee.Types.registerClasses(exportedEE);
 };
@@ -6954,6 +6975,9 @@ ee.makeClass_ = function(name) {
     }
   };
   goog.inherits(target, ee.ComputedObject);
+  target.prototype.name = function() {
+    return name;
+  };
   ee.ApiFunction.importApi(target, name, name);
   return target;
 };

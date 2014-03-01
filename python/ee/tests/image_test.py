@@ -17,6 +17,12 @@ class ImageTestCase(apitestcase.ApiTestCase):
                       from_constant.func)
     self.assertEquals({'value': 1}, from_constant.args)
 
+    array_constant = ee.Array([1, 2])
+    from_array_constant = ee.Image(array_constant)
+    self.assertEquals(ee.ApiFunction.lookup('Image.constant'),
+                      from_array_constant.func)
+    self.assertEquals({'value': array_constant}, from_array_constant.args)
+
     from_id = ee.Image('abcd')
     self.assertEquals(ee.ApiFunction.lookup('Image.load'), from_id.func)
     self.assertEquals({'id': 'abcd'}, from_id.args)
