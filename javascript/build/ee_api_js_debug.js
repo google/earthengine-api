@@ -1308,6 +1308,9 @@ goog.array.removeIf = function(arr, f, opt_obj) {
 goog.array.concat = function(var_args) {
   return goog.array.ARRAY_PROTOTYPE_.concat.apply(goog.array.ARRAY_PROTOTYPE_, arguments);
 };
+goog.array.join = function(var_args) {
+  return goog.array.ARRAY_PROTOTYPE_.concat.apply(goog.array.ARRAY_PROTOTYPE_, arguments);
+};
 goog.array.toArray = function(object) {
   var length = object.length;
   if (0 < length) {
@@ -2456,6 +2459,9 @@ goog.math.nearlyEquals = function(a, b, opt_tolerance) {
 };
 goog.math.standardAngle = function(angle) {
   return goog.math.modulo(angle, 360);
+};
+goog.math.standardAngleInRadians = function(angle) {
+  return goog.math.modulo(angle, 2 * Math.PI);
 };
 goog.math.toRadians = function(angleDegrees) {
   return angleDegrees * Math.PI / 180;
@@ -6462,7 +6468,7 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
   return ee.FeatureCollection.superClass_.getInfo.call(this, opt_callback);
 };
-ee.FeatureCollection.prototype.getDownloadURL = function(format, opt_selectors, opt_callback) {
+ee.FeatureCollection.prototype.getDownloadURL = function(format, opt_selectors, opt_filename, opt_callback) {
   var request = {};
   request.table = this.serialize();
   if (format && goog.array.contains(["CSV", "JSON"], format.toUpperCase())) {
@@ -6470,6 +6476,7 @@ ee.FeatureCollection.prototype.getDownloadURL = function(format, opt_selectors, 
   } else {
     throw Error("FeatureCollection download format required.");
   }
+  opt_filename && (request.filename = opt_filename);
   opt_selectors && (request.selectors = opt_selectors);
   if (opt_callback) {
     ee.data.getTableDownloadId(request, function(downloadId, error) {

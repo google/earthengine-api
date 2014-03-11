@@ -166,19 +166,23 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
  * @param {Object} format The format of download, either CSV or JSON.
  * @param {string=} opt_selectors Selectors that should be used to determine
  *     which attributes will be downloaded.
+ * @param {string=} opt_filename Name of the file to be downloaded.
  * @param {function(string?, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {string} A download URL.
  * @export
  */
 ee.FeatureCollection.prototype.getDownloadURL = function(
-    format, opt_selectors, opt_callback) {
+    format, opt_selectors, opt_filename, opt_callback) {
   var request = {};
   request['table'] = this.serialize();
   if (format && goog.array.contains(['CSV', 'JSON'], format.toUpperCase())) {
     request['format'] = format.toUpperCase();
   } else {
     throw Error('FeatureCollection download format required.');
+  }
+  if (opt_filename) {
+    request['filename'] = opt_filename;
   }
   if (opt_selectors) {
     request['selectors'] = opt_selectors;

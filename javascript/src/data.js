@@ -367,6 +367,7 @@ ee.data.makeDownloadUrl = function(id) {
  *   - format: The download format, CSV or JSON.
  *   - selectors: Comma separated string of selectors that can be used to
  *          determine which attributes will be downloaded.
+ *   - filename: The name of the file that will be downloaded.
  * @param {function(ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.DownloadId} A download id and token, or null if a
