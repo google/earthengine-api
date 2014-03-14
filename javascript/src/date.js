@@ -10,6 +10,8 @@ goog.provide('ee.Date');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
+goog.require('ee.Types');
+
 
 
 /**
@@ -34,7 +36,7 @@ goog.require('ee.ComputedObject');
 ee.Date = function(date, opt_tz) {
   // Constructor safety.
   if (!(this instanceof ee.Date)) {
-    return new ee.Date(date, opt_tz);
+    return ee.ComputedObject.construct(ee.Date, arguments);
   } else if (date instanceof ee.Date) {
     return date;
   }
@@ -43,6 +45,7 @@ ee.Date = function(date, opt_tz) {
 
   var func = new ee.ApiFunction('Date');
   var args = {};
+  var varName = null;
   if (ee.Types.isString(date)) {
     args['value'] = date;
     if (opt_tz) {
@@ -53,10 +56,10 @@ ee.Date = function(date, opt_tz) {
             'Invalid argument specified for ee.Date(..., opt_tz): ' + opt_tz);
       }
     }
-  } else if (ee.Types.isNumber(date) || ee.Types.isVarOfType(date, Object)) {
+  } else if (ee.Types.isNumber(date)) {
     args['value'] = date;
   } else if (goog.isDateLike(date)) {
-    args['value'] = Math.floor(/** @type Date */(date).getTime());
+    args['value'] = Math.floor(/** @type {Date} */(date).getTime());
   } else if (date instanceof ee.ComputedObject) {
     if (date.func != func) {
       args['value'] = date;
@@ -64,11 +67,12 @@ ee.Date = function(date, opt_tz) {
       // In the case of a computedObject that's already calling date, just cast.
       func = date.func;
       args = date.args;
+      varName = date.varName;
     }
   } else {
     throw Error('Invalid argument specified for ee.Date(): ' + date);
   }
-  goog.base(this, func, args);
+  goog.base(this, func, args, varName);
 };
 goog.inherits(ee.Date, ee.ComputedObject);
 

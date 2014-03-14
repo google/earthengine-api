@@ -7,7 +7,6 @@ goog.provide('ee.Image');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
-goog.require('ee.CustomFunction');
 goog.require('ee.Element');
 goog.require('ee.Function');
 goog.require('ee.Geometry');
@@ -38,7 +37,7 @@ goog.require('goog.object');
 ee.Image = function(opt_args) {
   // Constructor safety.
   if (!(this instanceof ee.Image)) {
-    return new ee.Image(opt_args);
+    return ee.ComputedObject.construct(ee.Image, arguments);
   } else if (opt_args instanceof ee.Image) {
     return opt_args;
   }
@@ -66,9 +65,6 @@ ee.Image = function(opt_args) {
           function(elem) {
             return new ee.Image(/** @type {?} */ (elem));
           }));
-    } else if (ee.Types.isVarOfType(opt_args, Object)) {
-      // A variable to cast to an image.
-      return ee.CustomFunction.variable(ee.Image, opt_args.name_);
     } else if (opt_args instanceof ee.ComputedObject) {
       if (opt_args.name() == 'Array') {
         // A constant array image.
@@ -76,7 +72,7 @@ ee.Image = function(opt_args) {
                   {'value': opt_args});
       } else {
         // A custom object to reinterpret as an Image.
-        goog.base(this, opt_args.func, opt_args.args);
+        goog.base(this, opt_args.func, opt_args.args, opt_args.varName);
       }
     } else {
       throw Error('Unrecognized argument type to convert to an Image: ' +

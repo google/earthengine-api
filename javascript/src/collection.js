@@ -19,11 +19,12 @@ goog.require('ee.Types');
  * Constructs a base collection by passing the representaion up to Element.
  * @param {ee.Function} func The same argument as in ee.ComputedObject().
  * @param {Object} args The same argument as in ee.ComputedObject().
+ * @param {string?=} opt_varName The same argument as in ee.ComputedObject().
  * @constructor
  * @extends {ee.Element}
  */
-ee.Collection = function(func, args) {
-  goog.base(this, func, args);
+ee.Collection = function(func, args, opt_varName) {
+  goog.base(this, func, args, opt_varName);
   ee.Collection.initialize();
 };
 goog.inherits(ee.Collection, ee.Element);

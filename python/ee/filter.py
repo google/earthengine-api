@@ -89,7 +89,8 @@ class Filter(computedobject.ComputedObject):
         return
 
     if isinstance(opt_filter, computedobject.ComputedObject):
-      super(Filter, self).__init__(opt_filter.func, opt_filter.args)
+      super(Filter, self).__init__(
+          opt_filter.func, opt_filter.args, opt_filter.varName)
       self._filter = (opt_filter,)
     elif opt_filter is None:
       # A silly call with no arguments left for backward-compatibility.

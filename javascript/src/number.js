@@ -21,7 +21,7 @@ goog.require('ee.ComputedObject');
 ee.Number = function(number) {
   // Constructor safety.
   if (!(this instanceof ee.Number)) {
-    return new ee.Number(number);
+    return ee.ComputedObject.construct(ee.Number, arguments);
   } else if (number instanceof ee.Number) {
     return number;
   }
@@ -40,7 +40,7 @@ ee.Number = function(number) {
     goog.base(this, null, null);
     this.number_ = /** @type {number} */ (number);
   } else if (number instanceof ee.ComputedObject) {
-    goog.base(this, number.func, number.args);
+    goog.base(this, number.func, number.args, number.varName);
     this.number_ = null;
   } else {
     throw Error('Invalid argument specified for ee.Number(): ' + number);

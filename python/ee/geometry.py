@@ -3,7 +3,7 @@
 
 
 # Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
+# pylint: disable=g-bad-name
 
 import collections
 import json
@@ -45,7 +45,8 @@ class Geometry(computedobject.ComputedObject):
     self.initialize()
 
     computed = (isinstance(geo_json, computedobject.ComputedObject) and
-                geo_json.func is not None)
+                not (isinstance(geo_json, Geometry) and
+                     geo_json._type is not None))  # pylint: disable=protected-access
     options = opt_proj or opt_geodesic
     if computed:
       if options:
@@ -53,7 +54,8 @@ class Geometry(computedobject.ComputedObject):
             'Setting the CRS or geodesic on a computed Geometry is not '
             'suported.  Use Geometry.transform().')
       else:
-        super(Geometry, self).__init__(geo_json.func, geo_json.args)
+        super(Geometry, self).__init__(
+            geo_json.func, geo_json.args, geo_json.varName)
         return
 
     # Below here we're working with a GeoJSON literal.
@@ -109,7 +111,7 @@ class Geometry(computedobject.ComputedObject):
     cls._initialized = False
 
   def __eq__(self, other):
-    # pylint: disable-msg=protected-access
+    # pylint: disable=protected-access
     if self.func:
       return (type(self) == type(other) and
               self.func == other.func and
@@ -121,7 +123,7 @@ class Geometry(computedobject.ComputedObject):
               self._geometries == other._geometries and
               self._proj == other._proj and
               self._geodesic == other._geodesic)
-      # pylint: enable-msg=protected-access
+    # pylint: enable=protected-access
 
   def __ne__(self, other):
     return not self.__eq__(other)
@@ -292,9 +294,9 @@ class Geometry(computedobject.ComputedObject):
             coordinates[0], 4, coordinates[1:])
     })
 
-  def encode(self, opt_encoder=None):  # pylint: disable-msg=unused-argument
+  def encode(self, opt_encoder=None):  # pylint: disable=unused-argument
     """Returns a GeoJSON-compatible representation of the geometry."""
-    if self.func:
+    if not getattr(self, '_type', None):
       return super(Geometry, self).encode(opt_encoder)
 
     result = {'type': self._type}

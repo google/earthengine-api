@@ -242,8 +242,7 @@ def _Promote(arg, klass):
   elif klass == 'String':
     if (types.isString(arg) or
         isinstance(arg, ComputedObject) or
-        isinstance(arg, String) or
-        types.isVarOfType(arg, String)):
+        isinstance(arg, String)):
       return String(arg)
     else:
       return arg

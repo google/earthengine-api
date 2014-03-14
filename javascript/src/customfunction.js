@@ -4,9 +4,11 @@
 
 goog.provide('ee.CustomFunction');
 
-goog.require('ee.Encodable');
+goog.require('ee.ComputedObject');
 goog.require('ee.Function');
+goog.require('ee.Number');
 goog.require('ee.Serializer');
+goog.require('ee.String');
 goog.require('ee.Types');
 goog.require('goog.array');
 goog.require('goog.object');
@@ -28,7 +30,7 @@ goog.require('goog.object');
  */
 ee.CustomFunction = function(signature, body) {
   if (!(this instanceof ee.CustomFunction)) {
-    return new ee.CustomFunction(signature, body);
+    return ee.ComputedObject.construct(ee.CustomFunction, arguments);
   }
 
   var vars = [];
@@ -85,29 +87,36 @@ ee.CustomFunction.prototype.getSignature = function() {
  *     arguments of the custom functions that use this variable. If null, a
  *     name will be auto-generated in resolveNamelessArgs_().
  * @return {*} A variable with the given name implementing the given type.
- * @suppress {globalThis} The compiler doesn't recognize inline class creation.
  */
 ee.CustomFunction.variable = function(type, name) {
-  /** @constructor */
-  var Variable = function() {};
-  var proto;
   type = type || Object;
-  if (type.prototype instanceof ee.Encodable) {
-    proto = type.prototype;
-  } else {
-    proto = ee.Encodable.prototype;
+  if (!(type.prototype instanceof ee.ComputedObject)) {
+    // Try co convert to an EE type.
+    if (!type || type == Object) {
+      type = ee.ComputedObject;
+    } else if (type == String) {
+      type = ee.String;
+    } else if (type == Number) {
+      type = ee.Number;
+    } else if (type == Array) {
+      type = goog.global['ee']['List'];
+    } else {
+      throw Error('Variables must be of an EE type, ' +
+                  'e.g. ee.Image or ee.Number.');
+    }
   }
-  Variable.prototype = proto;
-  var instance = new Variable();
-  instance.name_ = name;
-  instance.encode = function(encoder) {
-    return {
-      'type': 'ArgumentRef',
-      'value': this.name_
-    };
-  };
-  instance[ee.Types.VAR_TYPE_KEY] = type;
-  return instance;
+
+  /**
+   * Avoid Object.create() for backwards compatibility.
+   * @constructor
+   */
+  var klass = function() {};
+  klass.prototype = type.prototype;
+  var obj = new klass();
+  obj.func = null;
+  obj.args = null;
+  obj.varName = name;
+  return obj;
 };
 
 
@@ -117,16 +126,18 @@ ee.CustomFunction.variable = function(type, name) {
  *
  * @param {ee.Function.Signature} signature The signature which may contain
  *     null argument names.
- * @param {Array.<*>} vars A list of variables, some of which may be nameless.
- *     These will be updated to include names when this method returns.
+ * @param {Array.<ee.ComputedObject>} vars A list of variables, some of which
+ *     may be nameless. These will be updated to include names when this
+ *     method returns.
  * @param {*} body The body of the function.
  * @return {ee.Function.Signature} The signature with null arg names resolved.
  * @private
+ * @suppress {accessControls} We are accessing the protected varName.
  */
 ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
   var namelessArgIndices = [];
   for (var i = 0; i < vars.length; i++) {
-    if (goog.isNull(vars[i].name_)) {
+    if (goog.isNull(vars[i].varName)) {
       namelessArgIndices.push(i);
     }
   }
@@ -162,7 +173,7 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
   for (var i = 0; i < namelessArgIndices.length; i++) {
     var index = namelessArgIndices[i];
     var name = baseName + i;
-    vars[index].name_ = name;
+    vars[index].varName = name;
     signature['args'][index]['name'] = name;
   }
 

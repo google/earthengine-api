@@ -3,10 +3,10 @@
 
 
 # Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
+# pylint: disable=g-bad-name
 
+import computedobject
 import ee_types
-import encodable
 import function
 import serializer
 
@@ -60,26 +60,12 @@ class CustomFunction(function.Function):
     Returns:
       A variable with the given name implementing the given type.
     """
-    var_type = ee_types.nameToClass(type_name) or object
-    if issubclass(var_type, encodable.Encodable):
-      base = var_type
-    else:
-      base = encodable.Encodable
-
-    class Variable(base):
-      def __init__(self):
-        # Don't call the base class's constructor.
-        self._name = name
-
-      def encode(self, unused_encoder):
-        return {
-            'type': 'ArgumentRef',
-            'value': self._name
-        }
-
-    instance = Variable()
-    setattr(instance, ee_types.VAR_TYPE_KEY, var_type)
-    return instance
+    var_type = ee_types.nameToClass(type_name) or computedobject.ComputedObject
+    result = var_type.__new__(var_type)
+    result.func = None
+    result.args = None
+    result.varName = name
+    return result
 
   @staticmethod
   def _resolveNamelessArgs(signature, variables, body):
@@ -98,7 +84,7 @@ class CustomFunction(function.Function):
     """
     nameless_arg_indices = []
     for i, variable in enumerate(variables):
-      if variable._name is None:  # pylint: disable-msg=protected-access
+      if variable.varName is None:
         nameless_arg_indices.append(i)
 
     # Do we have any nameless arguments at all?
@@ -130,7 +116,7 @@ class CustomFunction(function.Function):
     # Update the vars and signature by the name.
     for (i, index) in enumerate(nameless_arg_indices):
       name = base_name + str(i)
-      variables[index]._name = name  # pylint: disable-msg=protected-access
+      variables[index].varName = name
       signature['args'][index]['name'] = name
 
     return signature

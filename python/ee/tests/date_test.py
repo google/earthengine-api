@@ -32,14 +32,16 @@ class DateTest(apitestcase.ApiTestCase):
 
     d5 = ee.Date(ee.CustomFunction.variable('Date', 'foo'))
     self.assertTrue(isinstance(d5, ee.Date))
-    self.assertTrue(ee.types.isVarOfType(d5, ee.Date))
+    self.assertTrue(d5.isVariable())
+    self.assertEquals('foo', d5.varName)
 
+    # A non-date variable.
     v = ee.CustomFunction.variable('Number', 'bar')
     d6 = ee.Date(v)
     self.assertTrue(isinstance(d6, ee.Date))
-    # In python, unlike javascript, casting a Variable just retypes it.
-    # TODO(user): Fix Variable casting in the python client.
-    self.assertTrue(ee.types.isVarOfType(d6, ee.Date))
+    self.assertFalse(d6.isVariable())
+    self.assertEquals(datefunc, d6.func)
+    self.assertEquals({'value': v}, d6.args)
 
     # A non-date ComputedObject, promotion and casting.
     obj = ee.ApiFunction.call_('DateRange', 1, 2)

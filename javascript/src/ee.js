@@ -406,8 +406,7 @@ ee.promote_ = function(arg, klass) {
     case 'String':
       if (ee.Types.isString(arg) ||
           arg instanceof ee.String ||
-          arg instanceof ee.ComputedObject ||
-          ee.Types.isVarOfType(arg, ee.String)) {
+          arg instanceof ee.ComputedObject) {
         return new ee.String(arg);
       } else {
         return arg;

@@ -15,22 +15,44 @@ goog.require('ee.data');
  * An object to represent a computed Earth Engine object, a base for most
  * API objects.
  *
- * This exists to wrap the return values of algorithms that produce
+ * This is used to wrap the return values of algorithms that produce
  * unrecognized types with the minimal functionality necessary to
  * interact well with the rest of the API.
+ *
+ * ComputedObjects come in two flavors:
+ * 1. If func != null and args != null, the ComputedObject is encoded as an
+ *    invocation of func with args.
+ * 2. If func == null and agrs == null, the ComputedObject is a variable
+ *    reference. The variable name is stored in its varName member. Note that
+ *    in this case, varName may still be null; this allows the name to be
+ *    deterministically generated at a later time. This is used to generate
+ *    deterministic variable names for mapped functions, ensuring that nested
+ *    mapping calls do not use the same variable name.
  *
  * @param {ee.Function} func The function called to compute this
  *     object, either as an Algorithm name or an ee.Function object.
  * @param {Object} args A dictionary of arguments to pass to the specified
  *     function. Note that the caller is responsible for promoting the
  *     arguments to the correct types.
+ * @param {string?=} opt_varName A variable name. If not null, the object will
+ *     be encoded as a reference to a CustomFunction variable of this name,
+ *     and both 'func' and 'args' must be null. If all arguments are null, the
+ *     object is considered an unnamed variable, and a name will be generated
+ *     when it is included in an ee.CustomFunction.
  * @constructor
  * @extends {ee.Encodable}
  */
-ee.ComputedObject = function(func, args) {
+ee.ComputedObject = function(func, args, opt_varName) {
   // Constructor safety.
   if (!(this instanceof ee.ComputedObject)) {
-    return new ee.ComputedObject(func, args);
+    return ee.ComputedObject.construct(ee.ComputedObject, arguments);
+  }
+
+  if (opt_varName && (func || args)) {
+    throw Error('When "opt_varName" is specified, ' +
+                '"func" and "args" must be null.');
+  } else if (func && !args) {
+    throw Error('When "func" is specified, "args" must not be null.');
   }
 
   /**
@@ -46,6 +68,13 @@ ee.ComputedObject = function(func, args) {
    * @protected
    */
   this.args = args;
+
+  /**
+   * The name of the variable which this ComputedObject represents.
+   * @type {string?}
+   * @protected
+   */
+  this.varName = opt_varName || null;
 };
 goog.inherits(ee.ComputedObject, ee.Encodable);
 // Exporting manually to avoid marking the class public in the docs.
@@ -70,19 +99,26 @@ ee.ComputedObject.prototype.getInfo = function(opt_callback) {
 
 /** @inheritDoc */
 ee.ComputedObject.prototype.encode = function(encoder) {
-  var encodedArgs = {};
-  for (var name in this.args) {
-    if (goog.isDef(this.args[name])) {
-      encodedArgs[name] = encoder(this.args[name]);
+  if (this.isVariable()) {
+    return {
+      'type': 'ArgumentRef',
+      'value': this.varName
+    };
+  } else {
+    var encodedArgs = {};
+    for (var name in this.args) {
+      if (goog.isDef(this.args[name])) {
+        encodedArgs[name] = encoder(this.args[name]);
+      }
     }
+    var result = {
+      'type': 'Invocation',
+      'arguments': encodedArgs
+    };
+    var func = encoder(this.func);
+    result[goog.isString(func) ? 'functionName' : 'function'] = func;
+    return result;
   }
-  var result = {
-    'type': 'Invocation',
-    'arguments': encodedArgs
-  };
-  var func = encoder(this.func);
-  result[goog.isString(func) ? 'functionName' : 'function'] = func;
-  return result;
 };
 
 
@@ -105,8 +141,17 @@ ee.ComputedObject.prototype.toString = function() {
 
 
 /**
+ * @return {boolean} Whether this computed object is a variable reference.
+ */
+ee.ComputedObject.prototype.isVariable = function() {
+  // We can't just check for varName != null, since we allow that
+  // to remain null until for CustomFunction.resolveNamelessArgs_().
+  return goog.isNull(this.func) && goog.isNull(this.args);
+};
+
+
+/**
  * @return {string} The name of the object, used in toString().
- * @protected
  */
 ee.ComputedObject.prototype.name = function() {
   return 'ComputedObject';
@@ -123,8 +168,33 @@ ee.ComputedObject.prototype.cast = function(obj) {
   if (obj instanceof this.constructor) {
     return obj;
   } else {
-    // Assumes all subclass constructors can be called with a
-    // ComputedObject as their first parameter.
-    return new this.constructor(obj);
+    /**
+     * Avoid Object.create() for browser compatibility.
+     * @constructor
+     */
+    var klass = function() {};
+    klass.prototype = this.constructor.prototype;
+    var result = new klass();
+    result.func = obj.func;
+    result.args = obj.args;
+    result.varName = obj.varName;
+    return result;
   }
+};
+
+
+/**
+ * A helper function to construct a class with variable args.
+ *
+ * @param {Function} constructor The constructor to construct.
+ * @param {goog.array.ArrayLike} argsArray The args array.
+ * @return {Object} The newly constructed object.
+ */
+ee.ComputedObject.construct = function(constructor, argsArray) {
+  /** @constructor */
+  function F() {
+    return constructor.apply(this, argsArray);
+  }
+  F.prototype = constructor.prototype;
+  return new F;
 };

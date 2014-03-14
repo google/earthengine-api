@@ -6,10 +6,8 @@ goog.provide('ee.Feature');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
-goog.require('ee.CustomFunction');
 goog.require('ee.Element');
 goog.require('ee.Geometry');
-goog.require('ee.Types');
 
 
 
@@ -32,7 +30,7 @@ goog.require('ee.Types');
  */
 ee.Feature = function(geometry, opt_properties) {
   if (!(this instanceof ee.Feature)) {
-    return new ee.Feature(geometry, opt_properties);
+    return ee.ComputedObject.construct(ee.Feature, arguments);
   } else if (geometry instanceof ee.Feature) {
     // A pre-constructed Feature. Return as is.
     if (opt_properties) {
@@ -54,12 +52,9 @@ ee.Feature = function(geometry, opt_properties) {
       'geometry': geometry,
       'metadata': opt_properties || null
     });
-  } else if (ee.Types.isVarOfType(geometry, Object)) {
-    // A variable to cast to a feature.
-    return ee.CustomFunction.variable(ee.Feature, geometry.name_);
   } else if (geometry instanceof ee.ComputedObject) {
     // A custom object to reinterpret as a Feature.
-    goog.base(this, geometry.func, geometry.args);
+    goog.base(this, geometry.func, geometry.args, geometry.varName);
   } else if (geometry['type'] == 'Feature') {
     // Try to convert a GeoJSON Feature.
     goog.base(this, new ee.ApiFunction('Feature'), {

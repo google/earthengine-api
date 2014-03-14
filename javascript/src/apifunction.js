@@ -14,6 +14,7 @@
 
 goog.provide('ee.ApiFunction');
 
+goog.require('ee.ComputedObject');
 goog.require('ee.Function');
 goog.require('ee.Types');
 goog.require('ee.data');
@@ -33,7 +34,7 @@ ee.ApiFunction = function(name, opt_signature) {
   if (!goog.isDef(opt_signature)) {
     return ee.ApiFunction.lookup(name);
   } else if (!(this instanceof ee.ApiFunction)) {
-    return new ee.ApiFunction(name, opt_signature);
+    return ee.ComputedObject.construct(ee.ApiFunction, arguments);
   }
 
   /**

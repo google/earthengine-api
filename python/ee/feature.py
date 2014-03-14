@@ -55,7 +55,7 @@ class Feature(element.Element):
       })
     elif isinstance(geom, computedobject.ComputedObject):
       # A custom object to reinterpret as a Feature.
-      super(Feature, self).__init__(geom.func, geom.args)
+      super(Feature, self).__init__(geom.func, geom.args, geom.varName)
     elif isinstance(geom, dict) and geom.get('type') == 'Feature':
       # Try to convert a GeoJSON Feature.
       super(Feature, self).__init__(feature_constructor, {

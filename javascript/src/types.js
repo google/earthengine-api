@@ -5,17 +5,6 @@
 goog.provide('ee.Types');
 
 goog.require('ee.ComputedObject');
-goog.require('ee.Encodable');
-
-
-/**
- * The name of the property inserted into objects created by
- * ee.CustomFunction.variable() whose value is the type (class) of the
- * variable.
- * @type {string}
- * @const
- */
-ee.Types.VAR_TYPE_KEY = '__EE_VAR_TYPE';
 
 
 /**
@@ -122,7 +111,8 @@ ee.Types.isSubtype = function(firstType, secondType) {
  * @return {boolean} Whether the object is a number or number variable.
  */
 ee.Types.isNumber = function(obj) {
-  return goog.isNumber(obj) || ee.Types.isVarOfType(obj, Number);
+  return goog.isNumber(obj) ||
+         (obj instanceof ee.ComputedObject && obj.name() == 'Number');
 };
 
 
@@ -133,10 +123,8 @@ ee.Types.isNumber = function(obj) {
  * @return {boolean} Whether the object is a string or string variable.
  */
 ee.Types.isString = function(obj) {
-  // We can't check for ee.String types here due to circular dependencies.
-  // In theory, the only place this matters is in promote, where we do
-  // all these tests explicitly.
-  return (goog.isString(obj) || ee.Types.isVarOfType(obj, String));
+  return goog.isString(obj) ||
+         (obj instanceof ee.ComputedObject && obj.name() == 'String');
 };
 
 
@@ -147,24 +135,8 @@ ee.Types.isString = function(obj) {
  * @return {boolean} Whether the object is an array or array variable.
  */
 ee.Types.isArray = function(obj) {
-  return goog.isArray(obj) || ee.Types.isVarOfType(obj, Array);
-};
-
-
-/**
- * Returns true if this object is an EE variable with the given type.
- *
- * @param {*} obj The object to check.
- * @param {Function} klass The class constructor to check against.
- * @return {boolean} Whether the object is a variable of the given type.
- */
-ee.Types.isVarOfType = function(obj, klass) {
-  if (obj instanceof ee.Encodable) {
-    var type = obj[ee.Types.VAR_TYPE_KEY];
-    return type && (type == klass || type.prototype instanceof klass);
-  } else {
-    return false;
-  }
+  return goog.isArray(obj) ||
+         (obj instanceof ee.ComputedObject && obj.name() == 'List');
 };
 
 

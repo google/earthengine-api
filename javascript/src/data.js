@@ -361,7 +361,7 @@ ee.data.makeDownloadUrl = function(id) {
 
 
 /**
- * Get a download id.
+ * Get a download ID.
  * @param {Object} params An object containing table download options with the
  *     following possible values:
  *   - format: The download format, CSV or JSON.

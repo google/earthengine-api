@@ -18,11 +18,12 @@ goog.require('goog.object');
  * A ComputedObject that can be stored in a collection.
  * @param {ee.Function} func The same argument as in ee.ComputedObject().
  * @param {Object} args The same argument as in ee.ComputedObject().
+ * @param {string?=} opt_varName The same argument as in ee.ComputedObject().
  * @constructor
  * @extends {ee.ComputedObject}
  */
-ee.Element = function(func, args) {
-  goog.base(this, func, args);
+ee.Element = function(func, args, opt_varName) {
+  goog.base(this, func, args, opt_varName);
   ee.Element.initialize();
 };
 goog.inherits(ee.Element, ee.ComputedObject);

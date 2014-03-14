@@ -107,10 +107,10 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     # Verify the references.
     self.assertEquals(
         '_MAPPING_VAR_1_0',
-        inner_result.args['baseAlgorithm']._body[0]._name)
+        inner_result.args['baseAlgorithm']._body[0].varName)
     self.assertEquals(
         '_MAPPING_VAR_0_0',
-        inner_result.args['baseAlgorithm']._body[1]._name)
+        inner_result.args['baseAlgorithm']._body[1].varName)
 
 
 if __name__ == '__main__':

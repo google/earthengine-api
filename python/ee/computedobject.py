@@ -5,9 +5,8 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-import customfunction
 import data
-import ee_types
+import ee_exception
 import encodable
 import serializer
 
@@ -20,6 +19,16 @@ class ComputedObject(encodable.Encodable):
   The class itself is not abstract as it is used to wrap the return values of
   algorithms that produce unrecognized types with the minimal functionality
   necessary to interact well with the rest of the API.
+
+  ComputedObjects come in two flavors:
+  1. If func != null and args != null, the ComputedObject is encoded as an
+     invocation of func with args.
+  2. If func == null and agrs == null, the ComputedObject is a variable
+     reference. The variable name is stored in its varName member. Note that
+     in this case, varName may still be null; this allows the name to be
+     deterministically generated at a later time. This is used to generate
+     deterministic variable names for mapped functions, ensuring that nested
+     mapping calls do not use the same variable name.
   """
 
   class __metaclass__(type):
@@ -28,9 +37,6 @@ class ComputedObject(encodable.Encodable):
     If an instance of a ComputedObject subclass is instantiated by passing
     another instance of that class as the sole argument, this short-circuits
     and returns that argument.
-
-    This is necessary for CustomFunction variables to pretend to be instances
-    of any type.
     """
 
     def __call__(cls, *args, **kwargs):
@@ -38,15 +44,10 @@ class ComputedObject(encodable.Encodable):
       if len(args) == 1 and not kwargs and isinstance(args[0], cls):
         # Self-casting returns the argument unchanged.
         return args[0]
-      elif (len(args) == 1 and not kwargs and
-            ee_types.isVarOfType(args[0], object)):
-        # A variable to cast.
-        return customfunction.CustomFunction.variable(
-            ee_types.classToName(cls), args[0]._name)  # pylint: disable=protected-access
       else:
         return type.__call__(cls, *args, **kwargs)
 
-  def __init__(self, func, args):
+  def __init__(self, func, args, opt_varName=None):
     """Creates a computed object.
 
     Args:
@@ -55,14 +56,24 @@ class ComputedObject(encodable.Encodable):
       args: A dictionary of arguments to pass to the specified function.
           Note that the caller is responsible for promoting the arguments
           to the correct types.
+      opt_varName: A variable name. If not None, the object will be encoded
+          as a reference to a CustomFunction variable of this name, and both
+          'func' and 'args' must be None. If all arguments are None, the
+          object is considered an unnamed variable, and a name will be
+          generated when it is included in an ee.CustomFunction.
     """
+    if opt_varName and (func or args):
+      raise ee_exception.EEException(
+          'When "opt_varName" is specified, "func" and "args" must be null.')
     self.func = func
     self.args = args
+    self.varName = opt_varName
 
   def __eq__(self, other):
     return (type(self) == type(other) and
             self.func == other.func and
-            self.args == other.args)
+            self.args == other.args and
+            self.varName == other.varName)
 
   def __ne__(self, other):
     return not self.__eq__(other)
@@ -77,23 +88,28 @@ class ComputedObject(encodable.Encodable):
 
   def encode(self, encoder):
     """Encodes the object in a format compatible with Serializer."""
+    if self.isVariable():
+      return {
+          'type': 'ArgumentRef',
+          'value': self.varName
+      }
+    else:
+      # Encode the function that we're calling.
+      func = encoder(self.func)
+      # Built-in functions are encoded as strings under a different key.
+      key = 'functionName' if isinstance(func, basestring) else 'function'
 
-    # Encode the function that we're calling.
-    func = encoder(self.func)
-    # Built-in functions are encoded as strings under a different key.
-    key = 'functionName' if isinstance(func, basestring) else 'function'
+      # Encode all arguments recursively.
+      encoded_args = {}
+      for name, value in self.args.iteritems():
+        if value is not None:
+          encoded_args[name] = encoder(value)
 
-    # Encode all arguments recursively.
-    encoded_args = {}
-    for name, value in self.args.iteritems():
-      if value is not None:
-        encoded_args[name] = encoder(value)
-
-    return {
-        'type': 'Invocation',
-        'arguments': encoded_args,
-        key: func
-    }
+      return {
+          'type': 'Invocation',
+          'arguments': encoded_args,
+          key: func
+      }
 
   def serialize(self, opt_pretty=False):
     """Serialize this object into a JSON string.
@@ -109,6 +125,12 @@ class ComputedObject(encodable.Encodable):
   def __str__(self):
     """Writes out the object in a human-readable form."""
     return 'ee.%s(%s)' % (self.name(), serializer.toReadableJSON(self))
+
+  def isVariable(self):
+    """Returns whether this computed object is a variable reference."""
+    # We can't just check for varName != null, since we allow that
+    # to remain null until for CustomFunction.resolveNamelessArgs_().
+    return self.func is None and self.args is None
 
   @classmethod
   def name(cls):
@@ -128,10 +150,8 @@ class ComputedObject(encodable.Encodable):
     if isinstance(obj, cls):
       return obj
     else:
-      # Hack: check if this is a variable class.
-      if cls.__name__ == 'Variable':
-        cls = cls.__bases__[0]
-
-      # Assumes all subclass constructors can be called with a
-      # ComputedObject as their first parameter.
-      return cls(obj)
+      result = cls.__new__(cls)
+      result.func = obj.func
+      result.args = obj.args
+      result.varName = obj.varName
+      return result

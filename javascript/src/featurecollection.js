@@ -36,7 +36,7 @@ goog.require('goog.array');
 ee.FeatureCollection = function(args, opt_column) {
   // Constructor safety.
   if (!(this instanceof ee.FeatureCollection)) {
-    return new ee.FeatureCollection(args, opt_column);
+    return ee.ComputedObject.construct(ee.FeatureCollection, arguments);
   } else if (args instanceof ee.FeatureCollection) {
     return args;
   }
@@ -75,7 +75,7 @@ ee.FeatureCollection = function(args, opt_column) {
     });
   } else if (args instanceof ee.ComputedObject) {
     // A custom object to reinterpret as a FeatureCollection.
-    goog.base(this, args.func, args.args);
+    goog.base(this, args.func, args.args, args.varName);
   } else {
     throw Error('Unrecognized argument type to convert to a ' +
                 'FeatureCollection: ' + args);
@@ -163,7 +163,7 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 
 /**
  * Get a download URL.
- * @param {Object} format The format of download, either CSV or JSON.
+ * @param {string=} opt_format The format of download, either CSV or JSON.
  * @param {string=} opt_selectors Selectors that should be used to determine
  *     which attributes will be downloaded.
  * @param {string=} opt_filename Name of the file to be downloaded.
@@ -173,13 +173,11 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
  * @export
  */
 ee.FeatureCollection.prototype.getDownloadURL = function(
-    format, opt_selectors, opt_filename, opt_callback) {
+    opt_format, opt_selectors, opt_filename, opt_callback) {
   var request = {};
   request['table'] = this.serialize();
-  if (format && goog.array.contains(['CSV', 'JSON'], format.toUpperCase())) {
-    request['format'] = format.toUpperCase();
-  } else {
-    throw Error('FeatureCollection download format required.');
+  if (opt_format) {
+    request['format'] = opt_format.toUpperCase();
   }
   if (opt_filename) {
     request['filename'] = opt_filename;

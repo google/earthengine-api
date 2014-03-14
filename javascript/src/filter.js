@@ -31,7 +31,7 @@ goog.require('goog.string');
 ee.Filter = function(opt_filter) {
   // Constructor safety.
   if (!(this instanceof ee.Filter)) {
-    return new ee.Filter(opt_filter);
+    return ee.ComputedObject.construct(ee.Filter, arguments);
   } else if (opt_filter instanceof ee.Filter) {
     // If we've been passed another filter, just return it.
     return opt_filter;
@@ -62,7 +62,7 @@ ee.Filter = function(opt_filter) {
     }
   } else if (opt_filter instanceof ee.ComputedObject) {
     // Actual filter object.
-    goog.base(this, opt_filter.func, opt_filter.args);
+    goog.base(this, opt_filter.func, opt_filter.args, opt_filter.varName);
     this.filter_ = [opt_filter];
   } else if (!goog.isDef(opt_filter)) {
     // A silly call with no arguments left for backward-compatibility.

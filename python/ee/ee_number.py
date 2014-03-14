@@ -33,7 +33,7 @@ class Number(computedobject.ComputedObject):
       super(Number, self).__init__(None, None)
       self._number = number
     elif isinstance(number, computedobject.ComputedObject):
-      super(Number, self).__init__(number.func, number.args)
+      super(Number, self).__init__(number.func, number.args, number.varName)
       self._number = None
     else:
       raise ee_exception.EEException(

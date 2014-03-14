@@ -289,6 +289,37 @@ def makeDownloadUrl(downloadId):
       _tile_base_url, downloadId['docid'], downloadId['token'])
 
 
+def getTableDownloadId(params):
+  """Get a Download ID.
+
+  Args:
+    params: An object containing table download options with the following
+      possible values:
+        format - The download format, CSV or JSON.
+        selectors - Comma separated string of selectors that can be used to
+            determine which attributes will be downloaded.
+        filename - The name of the file that will be downloaded.
+
+  Returns:
+    A dict containing a docid and token.
+  """
+  params['json_format'] = 'v2'
+  return send_('/table', params)
+
+
+def makeTableDownloadUrl(downloadId):
+  """Create a table download URL from a docid and token.
+
+  Args:
+    downloadId: A table download id and token.
+
+  Returns:
+    A Url from which the download can be obtained.
+  """
+  return '%s/api/table?docid=%s&token=%s' % (
+      _tile_base_url, downloadId['docid'], downloadId['token'])
+
+
 def getAlgorithms():
   """Get the list of algorithms.
 

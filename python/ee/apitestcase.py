@@ -20,6 +20,7 @@ class ApiTestCase(unittest.TestCase):
     """
     self.last_download_call = None
     self.last_thumb_call = None
+    self.last_table_call = None
 
     def MockSend(path, params, unused_method=None, unused_raw=None):
       if path == '/algorithms':
@@ -36,6 +37,10 @@ class ApiTestCase(unittest.TestCase):
         # Hang on to the call arguments.
         self.last_thumb_call = {'url': path, 'data': params}
         return {'thumbid': '3', 'token': '4'}
+      elif path == '/table':
+        # Hang on to the call arguments.
+        self.last_table_call = {'url': path, 'data': params}
+        return {'docid': '5', 'token': '6'}
       else:
         raise Exception('Unexpected API call to %s with %s' % (path, params))
     ee.data.send_ = MockSend

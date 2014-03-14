@@ -50,7 +50,7 @@ class ImageCollection(collection.Collection):
           })
     elif isinstance(args, computedobject.ComputedObject):
       # A custom object to reinterpret as a ImageCollection.
-      super(ImageCollection, self).__init__(args.func, args.args)
+      super(ImageCollection, self).__init__(args.func, args.args, args.varName)
     else:
       raise ee_exception.EEException(
           'Unrecognized argument type to convert to a ImageCollection: %s' %

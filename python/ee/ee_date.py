@@ -4,7 +4,6 @@
 
 import datetime
 import math
-import numbers
 
 import apifunction
 import computedobject
@@ -40,10 +39,11 @@ class Date(computedobject.ComputedObject):
 
     func = apifunction.ApiFunction('Date')
     args = None
+    varName = None
     if isinstance(date, datetime.datetime):
       args = {'value':
               math.floor(serializer.DatetimeToMicroseconds(date) / 1000)}
-    elif isinstance(date, numbers.Number) or types.isVarOfType(date, object):
+    elif types.isNumber(date):
       args = {'value': date}
     elif isinstance(date, basestring):
       args = {'value': date}
@@ -59,11 +59,12 @@ class Date(computedobject.ComputedObject):
       else:
         func = date.func
         args = date.args
+        varName = date.varName
     else:
       raise ee_exception.EEException(
           'Invalid argument specified for ee.Date(): %s' % date)
 
-    super(Date, self).__init__(func, args)
+    super(Date, self).__init__(func, args, varName)
     self._date = None
 
   @classmethod

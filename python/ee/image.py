@@ -75,7 +75,7 @@ class Image(element.Element):
             apifunction.ApiFunction.lookup('Image.constant'), {'value': args})
       else:
         # A custom object to reinterpret as an Image.
-        super(Image, self).__init__(args.func, args.args)
+        super(Image, self).__init__(args.func, args.args, args.varName)
     elif args is None:
       super(Image, self).__init__(
           apifunction.ApiFunction.lookup('Image.mask'),

@@ -29,7 +29,7 @@ goog.require('goog.array');
 ee.ImageCollection = function(args) {
   // Constructor safety.
   if (!(this instanceof ee.ImageCollection)) {
-    return new ee.ImageCollection(args);
+    return ee.ComputedObject.construct(ee.ImageCollection, arguments);
   } else if (args instanceof ee.ImageCollection) {
     return args;
   }
@@ -60,7 +60,7 @@ ee.ImageCollection = function(args) {
     });
   } else if (args instanceof ee.ComputedObject) {
     // A custom object to reinterpret as an ImageCollection.
-    goog.base(this, args.func, args.args);
+    goog.base(this, args.func, args.args, args.varName);
   } else {
     throw Error('Unrecognized argument type to convert to an ' +
                 'ImageCollection: ' + args);

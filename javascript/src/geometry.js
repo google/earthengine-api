@@ -41,12 +41,13 @@ goog.require('goog.json.Serializer');
  */
 ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
   if (!(this instanceof ee.Geometry)) {
-    return new ee.Geometry(geoJson, opt_proj, opt_geodesic);
+    return ee.ComputedObject.construct(ee.Geometry, arguments);
   }
 
   ee.Geometry.initialize();
 
-  var computed = geoJson instanceof ee.ComputedObject && Boolean(geoJson.func);
+  var computed = geoJson instanceof ee.ComputedObject &&
+                 !(geoJson instanceof ee.Geometry && geoJson.type_);
   var options = (goog.isDefAndNotNull(opt_proj) ||
                  goog.isDefAndNotNull(opt_geodesic));
   if (computed) {
@@ -55,7 +56,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
           'Setting the CRS or geodesic on a computed Geometry ' +
           'is not suported.  Use Geometry.transform().');
     } else {
-      goog.base(this, geoJson.func, geoJson.args);
+      goog.base(this, geoJson.func, geoJson.args, geoJson.varName);
       return;
     }
   }
@@ -231,7 +232,7 @@ goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
  */
 ee.Geometry.Rectangle = function(lon1, lat1, lon2, lat2) {
   if (!(this instanceof ee.Geometry.Rectangle)) {
-    return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2);
+    return ee.ComputedObject.construct(ee.Geometry.Rectangle, arguments);
   }
 
   if (arguments.length > 4) {
@@ -389,7 +390,8 @@ goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
  * @return {*} An encoded representation of the geometry.
  */
 ee.Geometry.prototype.encode = function(opt_encoder) {
-  if (this.func) {
+  if (!this.type_) {
+    // This is not a concrete Geometry.
     if (!opt_encoder) {
       throw Error('Must specify an encode function when encoding a ' +
                   'computed geometry.');

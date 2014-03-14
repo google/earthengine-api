@@ -8,6 +8,7 @@
 import apifunction
 import collection
 import computedobject
+import data
 import ee_exception
 import ee_types
 import feature
@@ -61,7 +62,8 @@ class FeatureCollection(collection.Collection):
           })
     elif isinstance(args, computedobject.ComputedObject):
       # A custom object to reinterpret as a FeatureCollection.
-      super(FeatureCollection, self).__init__(args.func, args.args)
+      super(FeatureCollection, self).__init__(
+          args.func, args.args, args.varName)
     else:
       raise ee_exception.EEException(
           'Unrecognized argument type to convert to a FeatureCollection: %s' %
@@ -102,6 +104,28 @@ class FeatureCollection(collection.Collection):
   def map(self, algorithm):
     """Maps an algorithm over a collection. See ee.Collection.mapInternal()."""
     return self.mapInternal(feature.Feature, algorithm)
+
+  def getDownloadUrl(self, filetype=None, selectors=None, filename=None):
+    """Get a download URL for this feature collection.
+
+    Args:
+      filetype: The filetype of download, either CSV or JSON. Defaults to CSV.
+      selectors: The selectors that should be used to determine which attributes
+          will be downloaded.
+      filename: The name of the file to be downloaded.
+
+    Returns:
+      A URL to download the specified feature collection.
+    """
+    request = {}
+    request['table'] = self.serialize()
+    if filetype is not None:
+      request['format'] = filetype.upper()
+    if filename is not None:
+      request['filename'] = filename
+    if selectors is not None:
+      request['selectors'] = selectors
+    return data.makeTableDownloadUrl(data.getTableDownloadId(request))
 
   @staticmethod
   def name():

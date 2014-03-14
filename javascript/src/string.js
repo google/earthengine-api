@@ -21,7 +21,7 @@ goog.require('ee.ComputedObject');
 ee.String = function(string) {
   // Constructor safety.
   if (!(this instanceof ee.String)) {
-    return new ee.String(string);
+    return ee.ComputedObject.construct(ee.String, arguments);
   } else if (string instanceof ee.String) {
     return string;
   }
@@ -31,7 +31,7 @@ ee.String = function(string) {
   if (goog.isString(string)) {
     goog.base(this, null, null);
   } else if (string instanceof ee.ComputedObject) {
-    goog.base(this, string.func, string.args);
+    goog.base(this, string.func, string.args, string.varName);
   } else {
     throw Error('Invalid argument specified for ee.String(): ' + string);
   }

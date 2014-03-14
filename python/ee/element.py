@@ -18,9 +18,9 @@ class Element(computedobject.ComputedObject):
 
   _initialized = False
 
-  def __init__(self, func, args):
+  def __init__(self, func, args, opt_varName=None):
     """Constructs a collection by initializing its ComputedObject."""
-    super(Element, self).__init__(func, args)
+    super(Element, self).__init__(func, args, opt_varName)
 
   @classmethod
   def initialize(cls):
