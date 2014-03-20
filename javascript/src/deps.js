@@ -24,6 +24,8 @@ goog.addDependency('../../geo/gestalt/client/javascript/imagecollection.js', ['e
 goog.addDependency('../../geo/gestalt/client/javascript/maplayeroverlay.js', ['ee.MapLayerOverlay'], ['ee.MapTileManager', 'goog.array', 'goog.dom', 'goog.events.Event', 'goog.events.EventTarget', 'goog.events.EventType', 'goog.iter', 'goog.net.EventType', 'goog.structs.Set', 'goog.style']);
 goog.addDependency('../../geo/gestalt/client/javascript/maptilemanager.js', ['ee.MapTileManager'], ['goog.Disposable', 'goog.array', 'goog.events', 'goog.events.Event', 'goog.events.EventTarget', 'goog.events.EventType', 'goog.net.EventType', 'goog.net.ImageLoader', 'goog.structs.Map', 'goog.structs.PriorityPool']);
 goog.addDependency('../../geo/gestalt/client/javascript/number.js', ['ee.Number'], ['ee.ApiFunction', 'ee.ComputedObject']);
+goog.addDependency('../../geo/gestalt/client/javascript/package.js', ['ee.Package'], ['ee.ApiFunction', 'ee.CustomFunction', 'ee.SavedFunction', 'ee.data']);
+goog.addDependency('../../geo/gestalt/client/javascript/savedfunction.js', ['ee.SavedFunction'], ['ee.ApiFunction', 'ee.Function']);
 goog.addDependency('../../geo/gestalt/client/javascript/serializer.js', ['ee.Serializer'], ['ee.Encodable', 'goog.array', 'goog.crypt.Md5', 'goog.json.Serializer', 'goog.object']);
 goog.addDependency('../../geo/gestalt/client/javascript/string.js', ['ee.String'], ['ee.ApiFunction', 'ee.ComputedObject']);
 goog.addDependency('../../geo/gestalt/client/javascript/types.js', ['ee.Types'], ['ee.ComputedObject']);

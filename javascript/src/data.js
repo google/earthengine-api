@@ -433,6 +433,7 @@ ee.data.getGMEProjects = function(opt_callback) {
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the saved asset, including a generated
  *     ID, or null if a callback is specified.
+ * @export
  */
 ee.data.createAsset = function(value, opt_path, opt_callback) {
   var args = {'value': value, 'json_format': 'v2'};
@@ -443,7 +444,25 @@ ee.data.createAsset = function(value, opt_path, opt_callback) {
                        ee.data.makeRequest_(args),
                        opt_callback);
 };
-goog.exportSymbol('ee.data.createAsset', ee.data.createAsset);
+
+
+/**
+ * Create a folder.
+ *
+ * @param {string} path The path of the folder to create.
+ * @param {function(Object, string=)=} opt_callback An optional callback.
+ *     If not supplied, the call is made synchronously.
+ * @return {?Object} A description of the newly created folder.
+ * @export
+ */
+ee.data.createFolder = function(path, opt_callback) {
+  var args = {
+    'id': path
+  };
+  return ee.data.send_('/createfolder',
+                       ee.data.makeRequest_(args),
+                       opt_callback);
+};
 
 
 /**

@@ -179,15 +179,18 @@ ee.Function.prototype.toString = function(opt_name, opt_isInstance) {
   var buffer = [];
   buffer.push(opt_name || signature['name']);
   buffer.push('(');
-  buffer.push(goog.array.map(signature['args'].slice(1), function(elem) {
-    return elem['name'];
-  }).join(', '));
+  buffer.push(goog.array.map(signature['args'].slice(opt_isInstance ? 1 : 0),
+      function(elem) {
+        return elem['name'];
+      }).join(', '));
   buffer.push(')\n');
+  buffer.push('\n');
   if (signature['description']) {
-    buffer.push('\n');
     buffer.push(signature['description']);
-    buffer.push('\n');
+  } else {
+    buffer.push('Undocumented.');
   }
+  buffer.push('\n');
   if (signature['args'].length) {
     buffer.push('\nArgs:\n');
     for (var i = 0; i < signature['args'].length; i++) {
@@ -204,7 +207,11 @@ ee.Function.prototype.toString = function(opt_name, opt_isInstance) {
         buffer.push(', optional');
       }
       buffer.push('): ');
-      buffer.push(arg['description']);
+      if (arg['description']) {
+        buffer.push(arg['description']);
+      } else {
+        buffer.push('Undocumented.');
+      }
     }
   }
   return buffer.join('');

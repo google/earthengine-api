@@ -245,6 +245,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       if (fname in destination) {
         // Don't overwrite existing functions; suffix them with '_'.
         fname = fname + '_';
+        signature['hidden'] = true;
       }
 
       // Add the actual function

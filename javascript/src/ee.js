@@ -459,6 +459,7 @@ ee.initializeUnboundMethods_ = function() {
     // Create nested objects as needed.
     var nameParts = name.split('.');
     var target = ee.Algorithms;
+    target['signature'] = {};
     while (nameParts.length > 1) {
       var first = nameParts[0];
       if (!(first in target)) {
@@ -526,6 +527,8 @@ ee.initializeGeneratedClasses_ = function() {
         exportedEE[name]['signature'] = signatures[name];
         exportedEE[name]['signature']['isConstructor'] = true;
         ee.ApiFunction.boundSignatures_[name] = true;
+      } else {
+        exportedEE[name]['signature'] = {};
       }
     }
   }

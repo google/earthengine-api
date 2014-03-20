@@ -13,6 +13,7 @@ goog.define = function(name, defaultValue) {
 goog.DEBUG = !0;
 goog.LOCALE = "en";
 goog.TRUSTED_SITE = !0;
+goog.STRICT_MODE_COMPATIBLE = !1;
 goog.provide = function(name) {
   var namespace;
   goog.exportPath_(name);
@@ -344,8 +345,8 @@ goog.inherits = function(childCtor, parentCtor) {
 };
 goog.base = function(me, opt_methodName, var_args) {
   var caller = arguments.callee.caller;
-  if (goog.DEBUG && !caller) {
-    throw Error("arguments.caller not defined.  goog.base() expects not to be running in strict mode. See http://www.ecma-international.org/ecma-262/5.1/#sec-C");
+  if (goog.STRICT_MODE_COMPATIBLE || goog.DEBUG && !caller) {
+    throw Error("arguments.caller not defined.  goog.base() cannot be used with strict mode code. See http://www.ecma-international.org/ecma-262/5.1/#sec-C");
   }
   if (caller.superClass_) {
     return caller.superClass_.constructor.apply(me, Array.prototype.slice.call(arguments, 1));
@@ -609,10 +610,10 @@ goog.json.Serializer = function(opt_replacer) {
 };
 goog.json.Serializer.prototype.serialize = function(object) {
   var sb = [];
-  this.serialize_(object, sb);
+  this.serializeInternal(object, sb);
   return sb.join("");
 };
-goog.json.Serializer.prototype.serialize_ = function(object, sb) {
+goog.json.Serializer.prototype.serializeInternal = function(object, sb) {
   switch(typeof object) {
     case "string":
       this.serializeString_(object, sb);
@@ -664,7 +665,7 @@ goog.json.Serializer.prototype.serializeArray = function(arr, sb) {
   for (var sep = "", i = 0;i < l;i++) {
     sb.push(sep);
     var value = arr[i];
-    this.serialize_(this.replacer_ ? this.replacer_.call(arr, String(i), value) : value, sb);
+    this.serializeInternal(this.replacer_ ? this.replacer_.call(arr, String(i), value) : value, sb);
     sep = ",";
   }
   sb.push("]");
@@ -675,7 +676,7 @@ goog.json.Serializer.prototype.serializeObject_ = function(obj, sb) {
   for (key in obj) {
     if (Object.prototype.hasOwnProperty.call(obj, key)) {
       var value = obj[key];
-      "function" != typeof value && (sb.push(sep), this.serializeString_(key, sb), sb.push(":"), this.serialize_(this.replacer_ ? this.replacer_.call(obj, key, value) : value, sb), sep = ",");
+      "function" != typeof value && (sb.push(sep), this.serializeString_(key, sb), sb.push(":"), this.serializeInternal(this.replacer_ ? this.replacer_.call(obj, key, value) : value, sb), sep = ",");
     }
   }
   sb.push("}");
@@ -952,8 +953,11 @@ goog.string.toMap = function(s) {
   }
   return rv;
 };
-goog.string.contains = function(s, ss) {
-  return-1 != s.indexOf(ss);
+goog.string.contains = function(str, subString) {
+  return-1 != str.indexOf(subString);
+};
+goog.string.caseInsensitiveContains = function(str, subString) {
+  return goog.string.contains(str.toLowerCase(), subString.toLowerCase());
 };
 goog.string.countOf = function(s, ss) {
   return s && ss ? s.split(ss).length - 1 : 0;
@@ -1670,6 +1674,9 @@ goog.labs.userAgent.util.getUserAgent = function() {
 };
 goog.labs.userAgent.util.matchUserAgent = function(str) {
   return goog.string.contains(goog.labs.userAgent.util.getUserAgent(), str);
+};
+goog.labs.userAgent.util.matchUserAgentIgnoreCase = function(str) {
+  return goog.string.caseInsensitiveContains(goog.labs.userAgent.util.getUserAgent(), str);
 };
 goog.labs.userAgent.util.extractVersionTuples = function(userAgent) {
   for (var versionRegExp = RegExp("(\\w[\\w ]+)/([^\\s]+)\\s*(?:\\((.*?)\\))?", "g"), data = [], match;match = versionRegExp.exec(userAgent);) {
@@ -5237,7 +5244,9 @@ ee.data.createAsset = function(value, opt_path, opt_callback) {
   void 0 !== opt_path && (args.id = opt_path);
   return ee.data.send_("/create", ee.data.makeRequest_(args), opt_callback);
 };
-goog.exportSymbol("ee.data.createAsset", ee.data.createAsset);
+ee.data.createFolder = function(path, opt_callback) {
+  return ee.data.send_("/createfolder", ee.data.makeRequest_({id:path}), opt_callback);
+};
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
   goog.isNumber(opt_count) && (params.count = opt_count);
@@ -5650,11 +5659,13 @@ ee.Function.prototype.toString = function(opt_name, opt_isInstance) {
   var signature = this.getSignature(), buffer = [];
   buffer.push(opt_name || signature.name);
   buffer.push("(");
-  buffer.push(goog.array.map(signature.args.slice(1), function(elem) {
+  buffer.push(goog.array.map(signature.args.slice(opt_isInstance ? 1 : 0), function(elem) {
     return elem.name;
   }).join(", "));
   buffer.push(")\n");
-  signature.description && (buffer.push("\n"), buffer.push(signature.description), buffer.push("\n"));
+  buffer.push("\n");
+  signature.description ? buffer.push(signature.description) : buffer.push("Undocumented.");
+  buffer.push("\n");
   if (signature.args.length) {
     buffer.push("\nArgs:\n");
     for (var i = 0;i < signature.args.length;i++) {
@@ -5665,7 +5676,7 @@ ee.Function.prototype.toString = function(opt_name, opt_isInstance) {
       buffer.push(arg.type);
       arg.optional && buffer.push(", optional");
       buffer.push("): ");
-      buffer.push(arg.description);
+      arg.description ? buffer.push(arg.description) : buffer.push("Undocumented.");
     }
   }
   return buffer.join("");
@@ -5798,7 +5809,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
         var firstArgType = signature.args[0].type, isInstance = "Object" != firstArgType && ee.Types.isSubtype(firstArgType, typeName)
       }
       var destination = isInstance ? target.prototype : target;
-      fname in destination && (fname += "_");
+      fname in destination && (fname += "_", signature.hidden = !0);
       destination[fname] = function(var_args) {
         var args = Array.prototype.slice.call(arguments, 0), namedArgs;
         if (1 == args.length && ee.Types.isRegularObject(args[0])) {
@@ -7107,7 +7118,8 @@ ee.initializeUnboundMethods_ = function() {
   goog.object.forEach(ee.ApiFunction.unboundFunctions(), function(func, name) {
     var signature = func.getSignature();
     if (!signature.hidden) {
-      for (var nameParts = name.split("."), target = ee.Algorithms;1 < nameParts.length;) {
+      var nameParts = name.split("."), target = ee.Algorithms;
+      for (target.signature = {};1 < nameParts.length;) {
         var first = nameParts[0];
         first in target || (target[first] = {signature:{}});
         target = target[first];
@@ -7135,7 +7147,7 @@ ee.initializeGeneratedClasses_ = function() {
   }
   var exportedEE = goog.global.ee, name;
   for (name in names) {
-    name in returnTypes && !(name in exportedEE) && (exportedEE[name] = ee.makeClass_(name), ee.generatedClasses_.push(name), signatures[name] && (exportedEE[name].signature = signatures[name], exportedEE[name].signature.isConstructor = !0, ee.ApiFunction.boundSignatures_[name] = !0));
+    name in returnTypes && !(name in exportedEE) && (exportedEE[name] = ee.makeClass_(name), ee.generatedClasses_.push(name), signatures[name] ? (exportedEE[name].signature = signatures[name], exportedEE[name].signature.isConstructor = !0, ee.ApiFunction.boundSignatures_[name] = !0) : exportedEE[name].signature = {});
   }
   ee.Types.registerClasses(exportedEE);
 };
@@ -9673,4 +9685,134 @@ ee.TileEvent_ = function(count) {
   this.count = count;
 };
 goog.inherits(ee.TileEvent_, goog.events.Event);
+ee.SavedFunction = function(path, signature) {
+  if (!(this instanceof ee.SavedFunction)) {
+    return new ee.SavedFunction(path, signature);
+  }
+  this.path_ = path;
+  this.signature_ = signature;
+};
+goog.inherits(ee.SavedFunction, ee.Function);
+ee.SavedFunction.prototype.encode = function(encoder) {
+  return ee.ApiFunction._call("LoadAlgorithmById", this.path_).encode(encoder);
+};
+ee.SavedFunction.prototype.getSignature = function() {
+  return this.signature_;
+};
+goog.exportProperty(ee.SavedFunction, "getSignature", ee.SavedFunction.prototype.getSignature);
+ee.Package = function(opt_path) {
+  if (opt_path && ee.Package.importedPackages_[opt_path]) {
+    return ee.Package.importedPackages_[opt_path];
+  }
+  if (!(this instanceof ee.Package)) {
+    return new ee.Package(opt_path);
+  }
+  if (opt_path) {
+    for (var contents = ee.Package.getFolder(opt_path), i = 0;i < contents.length;i++) {
+      var parts = contents[i].id.split("/"), name = parts[parts.length - 1];
+      this[name] = ee.Package.makeInvocation_(opt_path, name, contents[i]);
+    }
+    ee.Package.importedPackages_[opt_path] = this;
+  }
+};
+ee.Package.importedPackages_ = {};
+ee.Package.makeFunction = function(signature, body) {
+  "string" == typeof signature && (signature = ee.Package.decodeDecl(signature));
+  var func = function() {
+    throw Error("Package not saved.");
+  };
+  func.body = body;
+  func.signature = signature;
+  return func;
+};
+ee.Package.save = function(pkg, path) {
+  if (!path) {
+    throw Error("No path specified.");
+  }
+  var original = {}, name;
+  for (name in pkg) {
+    if (pkg.hasOwnProperty(name)) {
+      var member = pkg[name];
+      if (member instanceof Function) {
+        if (member.isSaved) {
+          var expected = path + "/" + name;
+          if (member.path != expected) {
+            throw Error("Function name mismatch.  Expected path: " + expected + " but found: " + member.path);
+          }
+        } else {
+          if ("signature" in member) {
+            original[name] = member, pkg[name] = ee.Package.makeInvocation_(path, name, member.signature);
+          } else {
+            throw Error("No signature for function: " + name);
+          }
+        }
+      } else {
+        throw Error("Can't save constants: " + name);
+      }
+    }
+  }
+  var custom = [];
+  for (name in original) {
+    var body = original[name].body, signature = original[name].signature, func = new ee.CustomFunction(signature, body);
+    custom.push({name:name, algorithm:ee.ApiFunction._call("SavedAlgorithm", func, signature, {text:body.toString()})});
+  }
+  if (custom.length) {
+    try {
+      ee.data.createFolder(path);
+    } catch (e) {
+      if (!e.message.match(/exists/)) {
+        throw e;
+      }
+    }
+    for (var index = 0;index < custom.length;index++) {
+      name = custom[index].name;
+      var algorithm = custom[index].algorithm.serialize();
+      ee.data.createAsset(algorithm, path + "/" + name);
+    }
+  }
+};
+ee.Package.getFolder = function(path) {
+  return ee.ApiFunction.lookup("LoadFolder").call(path).getInfo();
+};
+ee.Package.decodeDecl = function(decl) {
+  var parts = decl.match(/\w+|\S/g), cur = 0, expect = function(regex) {
+    var match = parts[cur] && parts[cur].match(regex);
+    if (match) {
+      return cur++, match[0];
+    }
+    throw Error("Unable to decode declaration.");
+  }, type = expect(/\w+/);
+  expect(/\w+/);
+  expect(/\(/);
+  for (var collected = [];parts[cur] && !parts[cur].match("\\)");) {
+    collected.length && expect(","), collected.push({type:expect(/\w+/), name:expect(/\w+/)});
+  }
+  expect(/\)/);
+  ";" == parts[cur] && expect(";");
+  if (parts[cur]) {
+    throw Error("Unable to decode declaration.  Found extra trailing input.");
+  }
+  return{returns:type, args:collected};
+};
+ee.Package.encodeDecl_ = function(signature, name) {
+  var out = [signature.returns, " ", name, "("];
+  if (signature.args) {
+    for (var i = 0;i < signature.args.length;i++) {
+      0 < i && out.push(", "), out.push(signature.args[i].type + " " + signature.args[i].name);
+    }
+  }
+  out.push(")");
+  return out.join("");
+};
+ee.Package.makeInvocation_ = function(path, name, signature) {
+  var savedFunction = new ee.SavedFunction(path + "/" + name, signature), fn = function(var_args) {
+    var args = Array.prototype.slice.call(arguments);
+    return savedFunction.call.apply(savedFunction, args);
+  };
+  fn.toString = function() {
+    return signature.returns + " " + savedFunction.toString(name);
+  };
+  fn.isSaved = !0;
+  return fn;
+};
 
