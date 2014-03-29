@@ -156,7 +156,7 @@ ee.Feature.Point = function(lon, lat) {
  * Construct a GeoJSON MultiPoint.
  *
  * @param {number|!Array.<!Array.<number>>} coordinates The coordinates as
- *     either an array of [lon, lat] tuples, or literal pairs of
+ *     either a list of [lon, lat] tuples, or literal pairs of
  *     coordinate longitudes and latitudes, such as MultiPoint(1, 2, 3, 4).
  * @return {Object} A GeoJSON MultiPoint object.
  * @export
@@ -185,7 +185,7 @@ ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
  * Construct a LineString from the given coordinates.
  *
  * @param {number|!Array.<!Array.<number>>} coordinates The coordinates as
- *     either an array of [lon, lat] tuples, or literal pairs of
+ *     either a list of [lon, lat] tuples, or literal pairs of
  *     coordinate longitudes and latitudes, such as LineString(1, 2, 3, 4).
  * @return {ee.Geometry} A GeoJSON LineString.
  * @export
@@ -199,7 +199,7 @@ ee.Feature.LineString = function(coordinates) {
  * Construct a LinearRing from the given coordinates.
  *
  * @param {number|!Array.<!Array.<number>>} coordinates The coordinates as
- *     either an array of [lon, lat] tuples, or literal pairs of coordinate
+ *     either a list of [lon, lat] tuples, or literal pairs of coordinate
  *     longitudes and latitudes, such as LinearRing(1, 2, 3, 4, 5, 6).
  * @return {ee.Geometry} A GeoJSON LinearRing.
  * @export
@@ -211,15 +211,15 @@ ee.Feature.LinearRing = function(coordinates) {
 
 /**
  * Construct a MultiLine from the given coordinates, either a list of points,
- * or an array of linestrings.
+ * or a list of linestrings.
  *
  * @param {number|!Array.<!Array.<!Array.<number>>>} coordinates The MultiLine
- *     coordinates as either a var_args list of numbers, or an array of
- *     lineStrings, each of which is an array of points.
+ *     coordinates as either a var_args list of numbers, or a list of
+ *     lineStrings, each of which is a list of points.
  * @return {ee.Geometry} The newly constructed MultiLine.
  * @export
  *
- * TODO(user): This actually doesn't accept an array of
+ * TODO(user): This actually doesn't accept a list of
  * ee.Feature.LineStrings, but it should.
  */
 ee.Feature.MultiLine = function(coordinates) {
@@ -229,16 +229,16 @@ ee.Feature.MultiLine = function(coordinates) {
 
 /**
  * Construct a Polygon from the given coordinates, either a list of points,
- * or an array of linear rings. If created from points, only an outer ring
+ * or a list of linear rings. If created from points, only an outer ring
  * can be specified.
  *
  * @param {number|!Array.<!Array.<!Array.<number>>>} coordinates The polygon
- *     coordinates as either a var_args list of numbers, or an array of rings,
- *     each of which is an array of points.
+ *     coordinates as either a var_args list of numbers, or a list of rings,
+ *     each of which is a list of points.
  * @return {ee.Geometry} The newly constructed polygon.
  * @export
  *
- * TODO(user): This actually doesn't accept an array of
+ * TODO(user): This actually doesn't accept a list of
  * ee.Feature.LinearRings, but it should.
  */
 ee.Feature.Polygon = function(coordinates) {
@@ -247,16 +247,16 @@ ee.Feature.Polygon = function(coordinates) {
 
 
 /**
- * Create a new GeoJSON MultiPolygon from either a list of points, or an array
+ * Create a new GeoJSON MultiPolygon from either a list of points, or a list
  * of Polygons.  If created from points, only one polygon can be specified.
  *
  * @param {number|!Array.<!Array.<!Array.<!Array.<number>>>>} coordinates The
  *     multipolygon coordinates either as a var_args list of numbers of
- *     an array of polygons.
+ *     a list of polygons.
  * @return {ee.Geometry} The newly constructed MultiPolygon.
  * @export
  *
- * TODO(user): This actually doesn't accept an array of
+ * TODO(user): This actually doesn't accept a list of
  * ee.Feature.Polygon, but it should.
  */
 ee.Feature.MultiPolygon = function(coordinates) {

@@ -18,6 +18,7 @@ from customfunction import CustomFunction
 import data
 from ee_date import Date
 from ee_exception import EEException
+from ee_list import List
 from ee_number import Number
 from ee_string import String
 import ee_types as types
@@ -77,6 +78,7 @@ def Initialize(credentials=None, opt_url=None):
   FeatureCollection.initialize()
   Filter.initialize()
   Geometry.initialize()
+  List.initialize()
   Number.initialize()
   String.initialize()
   Date.initialize()
@@ -96,6 +98,7 @@ def Reset():
   FeatureCollection.reset()
   Filter.reset()
   Geometry.reset()
+  List.reset()
   Number.reset()
   String.reset()
   Date.reset()
@@ -246,6 +249,8 @@ def _Promote(arg, klass):
       return String(arg)
     else:
       return arg
+  elif klass == 'List':
+    return List(arg)
   elif klass in ('Number', 'Float', 'Long', 'Integer', 'Short', 'Byte'):
     return Number(arg)
   elif klass in globals():
@@ -300,12 +305,8 @@ def _InitializeGeneratedClasses():
   names = set([name.split('.')[0] for name in signatures])
   # Collect the return types of all functions.
   returns = set([signatures[sig]['returns'] for sig in signatures])
-  # We generate classes for all return types that match algorithms names TYPE.x
-  # excluding those already handled by the client library, and those
-  # explicitly blacklisted.
-  blacklist = ['List']
-  want = [name for name in names.intersection(returns)
-          if name not in globals() and name not in blacklist]
+
+  want = [name for name in names.intersection(returns) if name not in globals()]
 
   for name in want:
     globals()[name] = _MakeClass(name)

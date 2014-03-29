@@ -9,6 +9,7 @@ goog.require('ee.Collection');
 goog.require('ee.ComputedObject');
 goog.require('ee.Feature');
 goog.require('ee.Geometry');
+goog.require('ee.List');
 goog.require('ee.Types');
 goog.require('ee.data');
 goog.require('goog.array');
@@ -21,7 +22,7 @@ goog.require('goog.array');
  *   - A number: assumed to be the ID of a Fusion Table.
  *   - A single geometry.
  *   - A single feature.
- *   - An array of features.
+ *   - A list of features.
  *   - A computed object: reinterpreted as a collection.
  *
  * @param {string|number|Array.<*>|ee.ComputedObject|
@@ -73,6 +74,9 @@ ee.FeatureCollection = function(args, opt_column) {
         return new ee.Feature(elem);
       })
     });
+  } else if (args instanceof ee.List) {
+    // A computed list of features.  This can't get the extra ee.Feature()
+    goog.base(this, new ee.ApiFunction('Collection'), { 'features': args });
   } else if (args instanceof ee.ComputedObject) {
     // A custom object to reinterpret as a FeatureCollection.
     goog.base(this, args.func, args.args, args.varName);
@@ -149,7 +153,7 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
  *     successful and the second if unsuccessful.
  * @return {ee.data.FeatureCollectionDescription} A collection description
  *     whose fields include:
- *     - features: an array containing metadata about the features in the
+ *     - features: a list containing metadata about the features in the
  *           collection.
  *     - properties: an optional dictionary containing the collection's
  *           metadata properties.

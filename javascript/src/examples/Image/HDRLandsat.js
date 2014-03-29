@@ -1,14 +1,13 @@
-// HDR Landsat
-// #section Image:6
+// HDR Landsat.
 //
 // Display portions of an image with different dynamic ranges.
 // The land areas are displayed normally, but the water areas
 // are streched to show more details.
 
 // Filter the L7 collection to a single date.
-var collection = ee.ImageCollection('L7_L1T')
+var collection = ee.ImageCollection('LE7_L1T')
         .filterDate(new Date('11/8/2002'), new Date('11/9/2002'));
-var image = collection.mosaic().select('30', '20', '10');
+var image = collection.mosaic().select('B3', 'B2', 'B1');
 
 // Display the image normally.
 addToMap(image, {gain: '1.6, 1.4, 1.1'}, 'Land');

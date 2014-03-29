@@ -1,4 +1,4 @@
-// NormalizedDifference
+// NormalizedDifference example.
 //
 // Compute Normalized Difference Vegetation Index over MOD09GA product.
 // NDVI = (NIR - RED) / (NIR + RED), where

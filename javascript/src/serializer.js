@@ -194,7 +194,8 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
   } else if (object instanceof ee.Encodable) {
     // Some objects know how to encode themselves.
     result = object.encode(goog.bind(this.encodeValue_, this));
-    if (!goog.isObject(result) || result['type'] == 'ArgumentRef') {
+    if (!goog.isArray(result) &&
+        (!goog.isObject(result) || result['type'] == 'ArgumentRef')) {
       // Optimization: simple enough that adding it to the scope is probably
       // not worth it.
       return result;

@@ -1775,7 +1775,7 @@ goog.labs.userAgent.engine.isTrident = function() {
   return goog.labs.userAgent.util.matchUserAgent("Trident") || goog.labs.userAgent.util.matchUserAgent("MSIE");
 };
 goog.labs.userAgent.engine.isWebKit = function() {
-  return goog.labs.userAgent.util.matchUserAgent("WebKit");
+  return goog.labs.userAgent.util.matchUserAgentIgnoreCase("WebKit");
 };
 goog.labs.userAgent.engine.isGecko = function() {
   return goog.labs.userAgent.util.matchUserAgent("Gecko") && !goog.labs.userAgent.engine.isWebKit() && !goog.labs.userAgent.engine.isTrident();
@@ -3597,8 +3597,9 @@ goog.debug.normalizeErrorObject = function(err) {
   return!threwError && err.lineNumber && err.fileName && err.stack && err.message && err.name ? err : {message:err.message || "Not available", name:err.name || "UnknownError", lineNumber:lineNumber, fileName:fileName, stack:err.stack || "Not available"};
 };
 goog.debug.enhanceError = function(err, opt_message) {
-  var error = "string" == typeof err ? Error(err) : err;
-  error.stack || (error.stack = goog.debug.getStacktrace(arguments.callee.caller));
+  var error;
+  "string" == typeof err ? (error = Error(err), Error.captureStackTrace && Error.captureStackTrace(error, goog.debug.enhanceError)) : error = err;
+  error.stack || (error.stack = goog.debug.getStacktrace(goog.debug.enhanceError));
   if (opt_message) {
     for (var x = 0;error["message" + x];) {
       ++x;
@@ -3608,6 +3609,12 @@ goog.debug.enhanceError = function(err, opt_message) {
   return error;
 };
 goog.debug.getStacktraceSimple = function(opt_depth) {
+  if (goog.STRICT_MODE_COMPATIBLE) {
+    var stack = goog.debug.getNativeStackTrace_(goog.debug.getStacktraceSimple);
+    if (stack) {
+      return stack;
+    }
+  }
   for (var sb = [], fn = arguments.callee.caller, depth = 0;fn && (!opt_depth || depth < opt_depth);) {
     sb.push(goog.debug.getFunctionName(fn));
     sb.push("()\n");
@@ -3627,8 +3634,24 @@ goog.debug.getStacktraceSimple = function(opt_depth) {
   return sb.join("");
 };
 goog.debug.MAX_STACK_DEPTH = 50;
+goog.debug.getNativeStackTrace_ = function(fn) {
+  var tempErr = Error();
+  if (Error.captureStackTrace) {
+    return Error.captureStackTrace(tempErr, fn), String(tempErr.stack);
+  }
+  try {
+    throw tempErr;
+  } catch (e) {
+    tempErr = e;
+  }
+  var stack = tempErr.stack;
+  return stack ? String(stack) : null;
+};
 goog.debug.getStacktrace = function(opt_fn) {
-  return goog.debug.getStacktraceHelper_(opt_fn || arguments.callee.caller, []);
+  var stack;
+  goog.STRICT_MODE_COMPATIBLE && (stack = goog.debug.getNativeStackTrace_(opt_fn || goog.debug.getStacktrace));
+  stack || (stack = goog.debug.getStacktraceHelper_(opt_fn || arguments.callee.caller, []));
+  return stack;
 };
 goog.debug.getStacktraceHelper_ = function(fn, visited) {
   var sb = [];
@@ -3894,11 +3917,11 @@ goog.debug.Logger.prototype.isLoggable = function(level) {
   return goog.debug.LOGGING_ENABLED && level.value >= this.getEffectiveLevel().value;
 };
 goog.debug.Logger.prototype.log = function(level, msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.isLoggable(level) && (goog.isFunction(msg) && (msg = msg()), this.doLogRecord_(this.getLogRecord(level, msg, opt_exception)));
+  goog.debug.LOGGING_ENABLED && this.isLoggable(level) && (goog.isFunction(msg) && (msg = msg()), this.doLogRecord_(this.getLogRecord(level, msg, opt_exception, goog.debug.Logger.prototype.log)));
 };
-goog.debug.Logger.prototype.getLogRecord = function(level, msg, opt_exception) {
+goog.debug.Logger.prototype.getLogRecord = function(level, msg, opt_exception, opt_fnStackContext) {
   var logRecord = goog.debug.LogBuffer.isBufferingEnabled() ? goog.debug.LogBuffer.getInstance().addRecord(level, msg, this.name_) : new goog.debug.LogRecord(level, String(msg), this.name_);
-  opt_exception && (logRecord.setException(opt_exception), logRecord.setExceptionText(goog.debug.exposeException(opt_exception, arguments.callee.caller)));
+  opt_exception && (logRecord.setException(opt_exception), logRecord.setExceptionText(goog.debug.exposeException(opt_exception, opt_fnStackContext || goog.debug.Logger.prototype.getLogRecord)));
   return logRecord;
 };
 goog.debug.Logger.prototype.shout = function(msg, opt_exception) {
@@ -5239,13 +5262,14 @@ ee.data.getAlgorithms = function(opt_callback) {
 ee.data.getGMEProjects = function(opt_callback) {
   return ee.data.send_("/gmeprojects", null, opt_callback, "GET");
 };
-ee.data.createAsset = function(value, opt_path, opt_callback) {
+ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
   var args = {value:value, json_format:"v2"};
   void 0 !== opt_path && (args.id = opt_path);
+  args.force = opt_force || !1;
   return ee.data.send_("/create", ee.data.makeRequest_(args), opt_callback);
 };
-ee.data.createFolder = function(path, opt_callback) {
-  return ee.data.send_("/createfolder", ee.data.makeRequest_({id:path}), opt_callback);
+ee.data.createFolder = function(path, opt_force, opt_callback) {
+  return ee.data.send_("/createfolder", ee.data.makeRequest_({id:path, force:opt_force || !1}), opt_callback);
 };
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
@@ -5507,7 +5531,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     return{type:"Invocation", functionName:"Date", arguments:{value:Math.floor(object.getTime())}};
   }
   if (object instanceof ee.Encodable) {
-    if (result = object.encode(goog.bind(this.encodeValue_, this)), !goog.isObject(result) || "ArgumentRef" == result.type) {
+    if (result = object.encode(goog.bind(this.encodeValue_, this)), !(goog.isArray(result) || goog.isObject(result) && "ArgumentRef" != result.type)) {
       return result;
     }
   } else {
@@ -5769,12 +5793,15 @@ ee.ApiFunction.unboundFunctions = function() {
   });
 };
 ee.ApiFunction.lookup = function(name) {
-  ee.ApiFunction.initialize();
-  var func = ee.ApiFunction.api_[name];
+  var func = ee.ApiFunction.lookupInternal(name);
   if (!func) {
     throw Error("Unknown built-in function name: " + name);
   }
   return func;
+};
+ee.ApiFunction.lookupInternal = function(name) {
+  ee.ApiFunction.initialize();
+  return ee.ApiFunction.api_[name] || null;
 };
 ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
   if (ee.ApiFunction.api_) {
@@ -5881,15 +5908,14 @@ ee.String = function(string) {
   }
   ee.String.initialize();
   if (goog.isString(string)) {
-    ee.ComputedObject.call(this, null, null);
+    ee.ComputedObject.call(this, null, null), this.string_ = string;
   } else {
     if (string instanceof ee.ComputedObject) {
-      ee.ComputedObject.call(this, string.func, string.args, string.varName);
+      ee.ComputedObject.call(this, string.func, string.args, string.varName), this.string_ = null;
     } else {
       throw Error("Invalid argument specified for ee.String(): " + string);
     }
   }
-  this.string_ = string;
 };
 goog.inherits(ee.String, ee.ComputedObject);
 ee.String.initialized_ = !1;
@@ -5901,7 +5927,7 @@ ee.String.reset = function() {
   ee.String.initialized_ = !1;
 };
 ee.String.prototype.encode = function(encoder) {
-  return goog.isString(this.string_) ? this.string_ : this.string_.encode(encoder);
+  return goog.isString(this.string_) ? this.string_ : ee.String.superClass_.encode.call(this, encoder);
 };
 ee.String.prototype.name = function() {
   return "String";
@@ -6680,6 +6706,41 @@ ee.Feature.MultiPolygon = function(coordinates) {
 ee.Feature.prototype.name = function() {
   return "Feature";
 };
+ee.List = function(list) {
+  if (!(this instanceof ee.List)) {
+    return ee.ComputedObject.construct(ee.List, arguments);
+  }
+  if (list instanceof ee.List) {
+    return list;
+  }
+  ee.List.initialize();
+  if (goog.isArray(list)) {
+    ee.ComputedObject.call(this, null, null), this.list_ = list;
+  } else {
+    if (list instanceof ee.ComputedObject) {
+      ee.ComputedObject.call(this, list.func, list.args, list.varName), this.list_ = null;
+    } else {
+      throw Error("Invalid argument specified for ee.List(): " + list);
+    }
+  }
+};
+goog.inherits(ee.List, ee.ComputedObject);
+ee.List.initialized_ = !1;
+ee.List.initialize = function() {
+  ee.List.initialized_ || (ee.ApiFunction.importApi(ee.List, "List", "List"), ee.List.initialized_ = !0);
+};
+ee.List.reset = function() {
+  ee.ApiFunction.clearApi(ee.List);
+  ee.List.initialized_ = !1;
+};
+ee.List.prototype.encode = function(opt_encoder) {
+  return goog.isArray(this.list_) ? goog.array.map(this.list_, function(elem) {
+    return opt_encoder(elem);
+  }) : ee.List.superClass_.encode.call(this, opt_encoder);
+};
+ee.List.prototype.name = function() {
+  return "List";
+};
 ee.FeatureCollection = function(args, opt_column) {
   if (!(this instanceof ee.FeatureCollection)) {
     return ee.ComputedObject.construct(ee.FeatureCollection, arguments);
@@ -6703,10 +6764,14 @@ ee.FeatureCollection = function(args, opt_column) {
         return new ee.Feature(elem);
       })});
     } else {
-      if (args instanceof ee.ComputedObject) {
-        ee.Collection.call(this, args.func, args.args, args.varName);
+      if (args instanceof ee.List) {
+        ee.Collection.call(this, new ee.ApiFunction("Collection"), {features:args});
       } else {
-        throw Error("Unrecognized argument type to convert to a FeatureCollection: " + args);
+        if (args instanceof ee.ComputedObject) {
+          ee.Collection.call(this, args.func, args.args, args.varName);
+        } else {
+          throw Error("Unrecognized argument type to convert to a FeatureCollection: " + args);
+        }
       }
     }
   }
@@ -6998,6 +7063,7 @@ ee.reset = function() {
   ee.FeatureCollection.reset();
   ee.Filter.reset();
   ee.Geometry.reset();
+  ee.List.reset();
   ee.Number.reset();
   ee.String.reset();
   ee.resetGeneratedClasses_();
@@ -7028,7 +7094,7 @@ ee.apply = function(func, namedArgs) {
 ee.initializationSuccess_ = function() {
   if (ee.ready_ == ee.InitState.LOADING) {
     try {
-      ee.Date.initialize(), ee.Element.initialize(), ee.Image.initialize(), ee.Feature.initialize(), ee.Collection.initialize(), ee.ImageCollection.initialize(), ee.FeatureCollection.initialize(), ee.Filter.initialize(), ee.Geometry.initialize(), ee.Number.initialize(), ee.String.initialize(), ee.initializeGeneratedClasses_(), ee.initializeUnboundMethods_();
+      ee.Date.initialize(), ee.Element.initialize(), ee.Image.initialize(), ee.Feature.initialize(), ee.Collection.initialize(), ee.ImageCollection.initialize(), ee.FeatureCollection.initialize(), ee.Filter.initialize(), ee.Geometry.initialize(), ee.List.initialize(), ee.Number.initialize(), ee.String.initialize(), ee.initializeGeneratedClasses_(), ee.initializeUnboundMethods_();
     } catch (e) {
       ee.initializationFailure_(e);
       return;
@@ -7084,7 +7150,7 @@ ee.promote_ = function(arg, klass) {
       case "String":
         return ee.Types.isString(arg) || arg instanceof ee.String || arg instanceof ee.ComputedObject ? new ee.String(arg) : arg;
       case "List":
-        return arg;
+        return new ee.List(arg);
       case "Number":
       ;
       case "Float":
@@ -7141,10 +7207,6 @@ ee.initializeGeneratedClasses_ = function() {
     var rtype = signatures[sig].returns.replace(/<.*>/, "");
     returnTypes[rtype] = !0;
   }
-  var blacklist = ["List"], badName;
-  for (badName in blacklist) {
-    names[badName] && delete names[badName];
-  }
   var exportedEE = goog.global.ee, name;
   for (name in names) {
     name in returnTypes && !(name in exportedEE) && (exportedEE[name] = ee.makeClass_(name), ee.generatedClasses_.push(name), signatures[name] ? (exportedEE[name].signature = signatures[name], exportedEE[name].signature.isConstructor = !0, ee.ApiFunction.boundSignatures_[name] = !0) : exportedEE[name].signature = {});
@@ -7162,13 +7224,26 @@ ee.resetGeneratedClasses_ = function() {
 };
 ee.makeClass_ = function(name) {
   var target = function(var_args) {
-    var args = Array.prototype.slice.apply(arguments), result;
-    args[0] instanceof ee.ComputedObject && 1 == args.length ? result = args[0] : (args.unshift(name), result = ee.ApiFunction._call.apply(null, args));
-    var exportedEE = goog.global.ee;
-    if (this instanceof exportedEE[name]) {
-      ee.ComputedObject.call(this, result.func, result.args);
+    var klass = goog.global.ee[name], args = Array.prototype.slice.call(arguments), onlyOneArg = 1 == args.length;
+    if (onlyOneArg && args[0] instanceof klass) {
+      return args[0];
+    }
+    if (!(this instanceof klass)) {
+      return ee.ComputedObject.construct(klass, args);
+    }
+    var ctor = ee.ApiFunction.lookupInternal(name), firstArgIsComputed = args[0] instanceof ee.ComputedObject, shouldUseConstructor = !1;
+    ctor && (onlyOneArg ? firstArgIsComputed ? args[0].func != ctor && (shouldUseConstructor = !0) : shouldUseConstructor = !0 : shouldUseConstructor = !0);
+    if (shouldUseConstructor) {
+      ee.ComputedObject.call(this, ctor, ctor.promoteArgs(ctor.nameArgs(args)));
     } else {
-      return new exportedEE[name](result);
+      if (!onlyOneArg) {
+        throw Error("Too many arguments for ee." + name + "(): " + args);
+      }
+      if (!firstArgIsComputed) {
+        throw Error("Invalid argument for ee." + name + "(): " + args + ". Must be a ComputedObject.");
+      }
+      var theOneArg = args[0];
+      ee.ComputedObject.call(this, theOneArg.func, theOneArg.args, theOneArg.varName);
     }
   };
   goog.inherits(target, ee.ComputedObject);
@@ -9699,7 +9774,6 @@ ee.SavedFunction.prototype.encode = function(encoder) {
 ee.SavedFunction.prototype.getSignature = function() {
   return this.signature_;
 };
-goog.exportProperty(ee.SavedFunction, "getSignature", ee.SavedFunction.prototype.getSignature);
 ee.Package = function(opt_path) {
   if (opt_path && ee.Package.importedPackages_[opt_path]) {
     return ee.Package.importedPackages_[opt_path];

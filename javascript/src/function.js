@@ -135,9 +135,9 @@ ee.Function.prototype.promoteArgs = function(args) {
 
 
 /**
- * Converts an array of positional arguments to a map of keyword arguments
+ * Converts a list of positional arguments to a map of keyword arguments
  * using the function's signature. Note that this does not check whether
- * the array contains enough arguments to satisfy the call.
+ * the list contains enough arguments to satisfy the call.
  *
  * @param {Array} args Positional arguments to the function.
  * @return {Object} Keyword arguments to the function.

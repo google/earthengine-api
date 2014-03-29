@@ -1,12 +1,11 @@
-// Download example
-// #section Image:8
+// Download example.
 //
-// Display an image given its ID.
+// This displays a link containing the URL of the image to download.
 
-var image1 = ee.Image('srtm90_v4');
-var path = image1.getDownloadURL({
+var image = ee.Image('srtm90_v4');
+var path = image.getDownloadURL({
   'scale': 30,
   'crs': 'EPSG:4326',
   'region': '[[-120, 35], [-119, 35], [-119, 34], [-120, 34]]'
 });
-alert(path);
+print(path);

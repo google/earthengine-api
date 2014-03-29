@@ -1,11 +1,11 @@
-// ModisCloudMasking
+// Modis Cloud Masking example.
 //
 // Calculate how frequently a location is labeled as clear (i.e. non-cloudy)
 // according to the "internal cloud algorithm flag" of the MODIS "state 1km"
 // QA band.
 
 /*
- * Returns an image containing just the specified QA bits.
+ * A function that returns an image containing just the specified QA bits.
  *
  * Args:
  *   image - The QA Image to get bits from.
@@ -22,18 +22,18 @@ var getQABits = function(image, start, end, newName) {
     // Return a single band image of the extracted QA bits, giving the band
     // a new name.
     return image.select([0], [newName])
-                  .bitwise_and(pattern)
-                  .right_shift(start);
+                  .bitwiseAnd(pattern)
+                  .rightShift(start);
 };
 
-// Mask out pixels that did not have observations.
+// A function to mask out pixels that did not have observations.
 var maskEmptyPixels = function(image) {
   // Find pixels that had observations.
   var withObs = image.select('num_observations_1km').gt(0);
   return image.mask(withObs);
 };
 
-// Mask out cloudy pixels.
+// A function to mask out cloudy pixels.
 var maskClouds = function(image) {
   // Select the QA band.
   var QA = image.select('state_1km');
@@ -45,7 +45,7 @@ var maskClouds = function(image) {
 
 // Start with an image collection for a 3 month period.
 var collection = ee.ImageCollection('MOD09GA')
-                   .filterDate(new Date('4/1/2011'), new Date('7/1/2011'));
+                   .filterDate('2011-04-01', '2011-07-01');
 
 // Mask out areas that were not observed.
 var collection = collection.map(maskEmptyPixels);
@@ -66,8 +66,11 @@ var clearObsCount = collectionCloudMasked.count()
 
 addToMap(
     collectionCloudMasked.median(),
-    {bands: 'sur_refl_b01, sur_refl_b04, sur_refl_b03', gain: 0.07, gamma: 1.4},
-    'median of masked collection',
+    {bands: ['sur_refl_b01', 'sur_refl_b04', 'sur_refl_b03'],
+     gain: 0.07,
+     gamma: 1.4
+    },
+    'median of masked collection'
   );
 addToMap(
     totalObsCount,
@@ -84,5 +87,5 @@ addToMap(
 addToMap(
     clearObsCount.toFloat().divide(totalObsCount),
     {min: 0, max: 1},
-    'ratio of clear to total observations',
+    'ratio of clear to total observations'
   );

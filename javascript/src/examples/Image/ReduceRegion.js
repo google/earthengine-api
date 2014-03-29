@@ -17,8 +17,7 @@
 var image = ee.Image('srtm90_v4');
 
 // The region to reduce within.
-var poly = ee.Geometry.Polygon(
-    [[-109.05, 41], [-109.05, 37], [-102.05, 37], [-102.05, 41]]);
+var poly = ee.Geometry.Rectangle(-109.05, 41, -102.05, 37);
 
 // Reduce the image within the given region, using a reducer that
 // computes the max pixel value.  We also specify the spatial

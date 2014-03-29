@@ -48,7 +48,7 @@ goog.require('ee.data');
  *
  * @extends {ee.Encodable}
  * @constructor
- * @export
+ * TODO(user): Add an at-export annotations once packages are ready.
  */
 ee.Package = function(opt_path) {
   // If this package has already been loaded, return it.
@@ -98,8 +98,6 @@ ee.Package.importedPackages_ = {};
  *     or a C-style function declaration string, to construct a signature from.
  * @param {Function} body The function's body.
  * @return {Function} The newly added function.
- *
- * @export
  */
 ee.Package.makeFunction = function(signature, body) {
   if (typeof(signature) == 'string') {
@@ -130,8 +128,6 @@ ee.Package.makeFunction = function(signature, body) {
  *
  * @param {ee.Package} pkg The package to save.
  * @param {string} path The path to save the package under.
- *
- * @export
  */
 ee.Package.save = function(pkg, path) {
   if (!path) {
@@ -229,8 +225,6 @@ ee.Package.getFolder = function(path) {
  *
  * @param {string} decl A string containing the function's declaration.
  * @return {ee.Function.Signature} The newly constructed signature or null.
- *
- * @export
  */
 ee.Package.decodeDecl = function(decl) {
   // This is implemented as a simple parser with peek() and expect().

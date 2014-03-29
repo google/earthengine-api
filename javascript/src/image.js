@@ -23,8 +23,8 @@ goog.require('goog.object');
  *   - A string: an EarthEngine asset id,
  *   - A string and a number - an EarthEngine asset id and version,
  *   - A number or EEArray: creates a constant image,
- *   - An array: creates an image out of each element of the array and
- *     combines them into a single image,
+ *   - A list: creates an image out of each list element and combines them
+ *     into a single image,
  *   - An ee.Image: returns the argument,
  *   - Nothing: results in an empty transparent image.
  *
@@ -137,7 +137,7 @@ ee.Image.reset = function() {
  *     If supplied, will be called with the first parameter if successful and
  *     the second if unsuccessful.
  * @return {ee.data.ImageDescription} A description of the image. Includes:
- *     - bands - an array containing metadata about the bands in the collection.
+ *     - bands - a list containing metadata about the bands in the collection.
  *     - properties - a dictionary containing the image's metadata properties.
  * @export
  */
@@ -185,14 +185,14 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  * @param {Object} params An object containing download options with the
  *     following possible values:
  *   - name: a base name to use when constructing filenames.
- *   - bands: a description of the bands to download. Must be an array of
+ *   - bands: a description of the bands to download. Must be a list of
  *         dictionaries, each with the following keys:
  *     + id: the name of the band, a string, required.
  *     + crs: an optional CRS string defining the band projection.
- *     + crs_transform: an optional array of 6 numbers specifying an affine
+ *     + crs_transform: an optional list of 6 numbers specifying an affine
  *           transform from the specified CRS, in the order: xScale, yShearing,
  *           xShearing, yScale, xTranslation and yTranslation.
- *     + dimensions: an optional array of two integers defining the width and
+ *     + dimensions: an optional list of two integers defining the width and
  *           height to which the band is cropped.
  *     + scale: an optional number, specifying the scale in meters of the band;
  *              ignored if crs and crs_transform is specified.
@@ -287,7 +287,7 @@ ee.Image.cat = function(var_args) {
  * optional renaming.
  *
  * @param {Array.<ee.Image>} images The images to be combined.
- * @param {Array.<string>=} opt_names An array of names for the output bands.
+ * @param {Array.<string>=} opt_names A list of names for the output bands.
  * @return {ee.Image} The combined image.
  * @private
  */
@@ -315,9 +315,9 @@ ee.Image.combine_ = function(images, opt_names) {
  * Select bands from an image.  This is an override to the normal
  * Image.select function to allow varargs usage.
  *
- * @param {Array.<string|number>|number} selectors An array of names,
+ * @param {Array.<string|number>|number} selectors A list of names,
  *     regexes or numeric indicies specifying the bands to select.
- * @param {Array.<string>|number=} opt_names Array of new names for the
+ * @param {Array.<string>|number=} opt_names A list of new names for the
  *     output bands. Must match the number of bands selected.
  * @return {ee.Image} The image.
  * @export

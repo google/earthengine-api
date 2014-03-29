@@ -1,7 +1,5 @@
-// PixelArea
-//
 // Displays the decreasing area covered by a single pixel at
-// higher lattitudes.
+// higher lattitudes using the Image.pixelArea() function.
 
 var img = ee.Image.pixelArea();
 centerMap(0, 0, 3);

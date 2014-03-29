@@ -1,8 +1,7 @@
-// Dictionary.get example
+// Extract values from a dictionary returned by reduceRegion.
 //
-// Compute the mean and standard deviation of an image,
-// and stretch the image using those values without needing
-// to transfer them to the client.
+// This example computes the mean and standard deviation of an image
+// and then stretches the image with those values.
 
 var img = ee.Image('srtm90_v4');
 var meanReducer = ee.Reducer.mean();
@@ -20,13 +19,12 @@ var sigma = img.reduceRegion(sigmaReducer, region, scale).get('elevation');
 // 3*sigma fits within [0:1].
 var stretch = function(img, mean, sigma) {
   return ee.Image(0).expression(
-    '((img - mean) / sigma) / 3 + 0.5', {
+    '((img - mean) / (sigma * 3)) + 0.5', {
       'img': img,
       'mean': ee.Image.constant(mean),
       'sigma': ee.Image.constant(sigma)
     });
 };
 
-
 centerMap(9.5, 9.5, 9);
-addToMap(stretch(img, mean, sigma), {min: -3, max: 3});
+addToMap(stretch(img, mean, sigma), {min: 0, max: 1});

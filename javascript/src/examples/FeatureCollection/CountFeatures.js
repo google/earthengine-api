@@ -1,5 +1,4 @@
-// Count Features
-// #section FeatureCollection:8
+// Count Features.
 //
 // Count Panoramio photos near SF that mention bridges.
 
@@ -13,6 +12,6 @@ addToMap(photosNearSF, {color: '0040b0'});
 addToMap(bridgePhotos, {color: 'e02070'});
 centerMap(-122.39, 37.7857, 12);
 
-alert('There are ' +
+print('There are ' +
       bridgePhotos.aggregate_count('.all').getInfo() +
       ' bridge photos around SF.');

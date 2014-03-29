@@ -111,7 +111,8 @@ class Serializer(object):
     elif isinstance(obj, encodable.Encodable):
       # Some objects know how to encode themselves.
       result = obj.encode(self._encodeValue)
-      if not isinstance(result, dict) or result['type'] == 'ArgumentRef':
+      if (not isinstance(result, (list, tuple)) and
+          (not isinstance(result, (dict)) or result['type'] == 'ArgumentRef')):
         # Optimization: simple enough that adding it to the scope is probably
         # not worth it.
         return result

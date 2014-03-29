@@ -1,5 +1,4 @@
-// Where operator
-// #section Image:5
+// Where operator.
 //
 // Select the forest classes from the MODIS land cover image and intersect them
 // with elevations above 1000m.

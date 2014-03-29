@@ -10,6 +10,7 @@ import collection
 import computedobject
 import data
 import ee_exception
+import ee_list
 import ee_types
 import feature
 import geometry
@@ -59,6 +60,12 @@ class FeatureCollection(collection.Collection):
       super(FeatureCollection, self).__init__(
           apifunction.ApiFunction.lookup('Collection'), {
               'features': [feature.Feature(i) for i in args]
+          })
+    elif isinstance(args, ee_list.List):
+      # A computed list of features.
+      super(FeatureCollection, self).__init__(
+          apifunction.ApiFunction.lookup('Collection'), {
+              'features': args
           })
     elif isinstance(args, computedobject.ComputedObject):
       # A custom object to reinterpret as a FeatureCollection.

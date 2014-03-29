@@ -1,5 +1,3 @@
-// ModisQaBands
-//
 // Extract MODIS QA information from the "state_1km" QA band
 //
 // QA Band information is available at:
@@ -23,8 +21,8 @@ var getQABits = function(image, start, end, newName) {
        pattern += Math.pow(2, i);
     }
     return image.select([0], [newName])
-                  .bitwise_and(pattern)
-                  .right_shift(start);
+                  .bitwiseAnd(pattern)
+                  .rightShift(start);
 };
 
 // Reference a single MODIS MOD09GA image.

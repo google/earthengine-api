@@ -1056,6 +1056,27 @@ BUILTIN_FUNCTIONS = {
         'type': 'Algorithm',
         'description': ''
     },
+    'List.slice': {
+        'returns': 'List<Object>',
+        'args': [
+            {
+                'type': 'List<Object>',
+                'name': 'list'
+            },
+            {
+                'type': 'Integer',
+                'name': 'start'
+            },
+            {
+                'default': None,
+                'type': 'Integer',
+                'optional': True,
+                'name': 'end'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': '',
+    },
 }
 
 # A sample of encoded EE API JSON, used by SerializerTest and DeserializerTest.

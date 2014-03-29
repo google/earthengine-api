@@ -1,4 +1,5 @@
-// Collection.distance.
+// Collection.distance example.
+//
 // Computes the distance to the nearest feature in a collection.
 
 var fc = ee.FeatureCollection([

@@ -429,17 +429,19 @@ ee.data.getGMEProjects = function(opt_callback) {
  *
  * @param {string} value The JSON-serialized value of the asset.
  * @param {string=} opt_path An optional desired ID, including full path.
+ * @param {boolean=} opt_force Force overwrite.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the saved asset, including a generated
  *     ID, or null if a callback is specified.
  * @export
  */
-ee.data.createAsset = function(value, opt_path, opt_callback) {
+ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
   var args = {'value': value, 'json_format': 'v2'};
   if (opt_path !== undefined) {
     args['id'] = opt_path;
   }
+  args['force'] = opt_force || false;
   return ee.data.send_('/create',
                        ee.data.makeRequest_(args),
                        opt_callback);
@@ -450,14 +452,16 @@ ee.data.createAsset = function(value, opt_path, opt_callback) {
  * Create a folder.
  *
  * @param {string} path The path of the folder to create.
+ * @param {boolean=} opt_force Force overwrite.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the newly created folder.
  * @export
  */
-ee.data.createFolder = function(path, opt_callback) {
+ee.data.createFolder = function(path, opt_force, opt_callback) {
   var args = {
-    'id': path
+    'id': path,
+    'force': opt_force || false
   };
   return ee.data.send_('/createfolder',
                        ee.data.makeRequest_(args),

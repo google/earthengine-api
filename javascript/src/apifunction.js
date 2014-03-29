@@ -146,12 +146,23 @@ ee.ApiFunction.unboundFunctions = function() {
  * @export
  */
 ee.ApiFunction.lookup = function(name) {
-  ee.ApiFunction.initialize();
-  var func = ee.ApiFunction.api_[name];
+  var func = ee.ApiFunction.lookupInternal(name);
   if (!func) {
     throw Error('Unknown built-in function name: ' + name);
   }
   return func;
+};
+
+
+/**
+ * Looks up an API function by name, but doesn't throw an error.
+ *
+ * @param {string} name The name of the function to get.
+ * @return {ee.ApiFunction} The requested function or null if it's not found.
+ */
+ee.ApiFunction.lookupInternal = function(name) {
+  ee.ApiFunction.initialize();
+  return ee.ApiFunction.api_[name] || null;
 };
 
 

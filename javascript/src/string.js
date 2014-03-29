@@ -28,21 +28,23 @@ ee.String = function(string) {
 
   ee.String.initialize();
 
-  if (goog.isString(string)) {
-    goog.base(this, null, null);
-  } else if (string instanceof ee.ComputedObject) {
-    goog.base(this, string.func, string.args, string.varName);
-  } else {
-    throw Error('Invalid argument specified for ee.String(): ' + string);
-  }
-
   /**
    * The internal rerpresentation of this string.
    *
-   * @type {string|Object}
+   * @type {string?}
    * @private
    */
-  this.string_ = string;
+  this.string_;
+
+  if (goog.isString(string)) {
+    goog.base(this, null, null);
+    this.string_ = /** @type {string} */ (string);
+  } else if (string instanceof ee.ComputedObject) {
+    goog.base(this, string.func, string.args, string.varName);
+    this.string_ = null;
+  } else {
+    throw Error('Invalid argument specified for ee.String(): ' + string);
+  }
 };
 goog.inherits(ee.String, ee.ComputedObject);
 
@@ -76,7 +78,7 @@ ee.String.prototype.encode = function(encoder) {
   if (goog.isString(this.string_)) {
     return this.string_;
   } else {
-    return /** @type {ee.ComputedObject} */(this.string_).encode(encoder);
+    return goog.base(this, 'encode', encoder);
   }
 };
 

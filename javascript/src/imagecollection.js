@@ -16,7 +16,7 @@ goog.require('goog.array');
 /**
  * ImageCollections can be constructed from the following arguments:
  *   - A string: assumed to be the name of a collection,
- *   - An array of images, or anything that can be used to construct an image.
+ *   - A list of images, or anything that can be used to construct an image.
  *   - A single image.
  *   - A computed object - reinterpreted as a collection.
  *
@@ -131,7 +131,7 @@ ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
  *     the second if unsuccessful.
  * @return {ee.data.ImageCollectionDescription} A collection description
  *     whose fields include:
- *     - features: an array containing metadata about the images in the
+ *     - features: a list containing metadata about the images in the
  *           collection.
  *     - bands: a dictionary describing the bands of the images in this
  *           collection.
@@ -155,9 +155,9 @@ ee.ImageCollection.prototype.map = function(algorithm) {
 /**
  * Select bands from each image in a collection.
  *
- * @param {Array.<string|number>} selectors An array of names,
+ * @param {Array.<string|number>} selectors A list of names,
  *     regexes or numeric indicies specifying the bands to select.
- * @param {Array.<string>=} opt_names Array of new names for the output bands.
+ * @param {Array.<string>=} opt_names A list of new names for the output bands.
  *     Must match the number of bands selected.
  * @return {ee.ImageCollection} The image collection with selected bands.
  * @export

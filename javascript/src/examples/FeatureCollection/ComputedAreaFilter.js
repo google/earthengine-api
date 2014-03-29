@@ -1,5 +1,4 @@
-// Computed area filter
-// #section FeatureCollection:7
+// Computed area filter.
 //
 // Find US counties smaller than 3k square kilometers in area.
 

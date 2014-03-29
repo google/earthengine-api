@@ -46,6 +46,11 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     self.assertEquals(ee.ApiFunction.lookup('Collection'), from_geometries.func)
     self.assertEquals({'features': [feature]}, from_geometries.args)
 
+    # Test a computed list object.
+    l = ee.List([feature]).slice(0)
+    from_list = ee.FeatureCollection(l)
+    self.assertEquals({'features': l}, from_list.args)
+
     from_computed_object = ee.FeatureCollection(
         ee.ComputedObject(None, {'x': 'y'}))
     self.assertEquals({'x': 'y'}, from_computed_object.args)

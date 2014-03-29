@@ -1,5 +1,4 @@
-// Hillshade
-// #section Image:7
+// Hillshade example.
 
 function radians(img) {
   return img.toFloat().multiply(Math.PI).divide(180);
@@ -18,7 +17,7 @@ function hillshade(az, ze, slope, aspect) {
       zenith.cos().multiply(slope.cos()));
 }
 
-var terrain = ee.call('Terrain', ee.Image('srtm90_v4'));
+var terrain = ee.Algorithms.Terrain(ee.Image('srtm90_v4'));
 var slope = radians(terrain.select('slope'));
 var aspect = radians(terrain.select('aspect'));
 

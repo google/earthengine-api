@@ -53,11 +53,12 @@ class FeatureTest(apitestcase.ApiTestCase):
     """Verifies that getMap() uses Collection.draw to rasterize Features."""
     feature = ee.Feature(None)
     mapid = feature.getMapId({'color': 'ABCDEF'})
-    manual = ee.ApiFunction.call_(
-        'Collection.draw', ee.FeatureCollection(feature), 'ABCDEF')
+    manual = ee.ApiFunction.apply_('Collection.draw', {
+        'collection': ee.FeatureCollection([feature]),
+        'color': 'ABCDEF'})
 
     self.assertEquals('fakeMapId', mapid['mapid'])
-    self.assertEquals(manual, mapid['image'])
+    self.assertEquals(manual.serialize(), mapid['image'].serialize())
 
 
 if __name__ == '__main__':

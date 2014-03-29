@@ -72,8 +72,8 @@ class ImageTestCase(apitestcase.ApiTestCase):
     combined = ee.Image.combine_([image1, image2], ['a', 'b', 'c', 'd'])
 
     self.assertEquals(ee.ApiFunction.lookup('Image.select'), combined.func)
-    self.assertEquals(['.*'], combined.args['bandSelectors'])
-    self.assertEquals(['a', 'b', 'c', 'd'], combined.args['newNames'])
+    self.assertEquals(ee.List(['.*']), combined.args['bandSelectors'])
+    self.assertEquals(ee.List(['a', 'b', 'c', 'd']), combined.args['newNames'])
     self.assertEquals(ee.ApiFunction.lookup('Image.addBands'),
                       combined.args['input'].func)
     self.assertEquals({'dstImg': image1, 'srcImg': image2},

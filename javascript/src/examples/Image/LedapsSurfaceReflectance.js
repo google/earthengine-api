@@ -1,5 +1,4 @@
-// Ledaps Surface Reflectance
-// #section Image:7
+// Ledaps Surface Reflectance.
 
 // The main scene.
 var scene = ee.Image('LE7_L1T/LE70230391999217GNC00');
@@ -46,18 +45,18 @@ addToMap(ee_sr, {min: 0, max: 2000}, 'EE Surface Reflectance');
 // QA Bit 5: Water indicator.  (0 == water).
 // QA Bit 6: Pixel used as "dense dark vegetation"
 
-var invalid = ee_sr.select('QA').bitwise_and(2).neq(0);
+var invalid = ee_sr.select('QA').bitwiseAnd(2).neq(0);
 invalid = invalid.mask(invalid);
 
-var cloud = ee_sr.select('QA').bitwise_and(4).neq(0);
+var cloud = ee_sr.select('QA').bitwiseAnd(4).neq(0);
 cloud = cloud.mask(cloud);
 
 // This flag is technically a "not water" flag, so we check for it
 // being unset (eq(0)) instead of set (neq(0)).
-var water = ee_sr.select('QA').bitwise_and(32).eq(0);
+var water = ee_sr.select('QA').bitwiseAnd(32).eq(0);
 water = water.mask(water);
 
-var dense_dark_vegetation = ee_sr.select('QA').bitwise_and(64).neq(0);
+var dense_dark_vegetation = ee_sr.select('QA').bitwiseAnd(64).neq(0);
 dense_dark_vegetation = dense_dark_vegetation.mask(dense_dark_vegetation);
 
 // Show various bits from the QA Mask Band.

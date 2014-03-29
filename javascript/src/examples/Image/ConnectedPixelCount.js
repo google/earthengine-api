@@ -1,4 +1,4 @@
-// ConnectedPixelCount
+// Image.ConnectedPixelCount example.
 //
 // Split pixels of band 01 into "bright" (arbitrarily defined as
 // reflectance > 0.3) and "dim". Highlight small (<30 pixels)
@@ -19,4 +19,3 @@ centerMap(-107.24304, 35.78663, 8);
 addToMap(img, {min: 0, max: 1}, 'original');
 addToMap(smallClusters.mask(smallClusters),
          {min: 0, max: 1, palette: 'FF0000'}, 'cc');
-

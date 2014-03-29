@@ -200,7 +200,7 @@ goog.inherits(ee.Geometry.Point, ee.Geometry);
  * Constructs a GeoJSON MultiPoint.
  *
  * @param {number|!Array.<!Array.<number>>} coordinates The coordinates as
- *     either an array of [lon, lat] tuples, or literal pairs of
+ *     either a list of [lon, lat] tuples, or literal pairs of
  *     coordinate longitudes and latitudes, such as MultiPoint(1, 2, 3, 4).
  * @constructor
  * @extends {ee.Geometry}
@@ -260,7 +260,7 @@ goog.inherits(ee.Geometry.Rectangle, ee.Geometry);
  * Constructs a LineString from the given coordinates.
  *
  * @param {number|!Array.<!Array.<number>>} coordinates The coordinates as
- *     either an array of [lon, lat] tuples, or literal pairs of
+ *     either a list of [lon, lat] tuples, or literal pairs of
  *     coordinate longitudes and latitudes, such as LineString(1, 2, 3, 4).
  * @constructor
  * @extends {ee.Geometry}
@@ -283,7 +283,7 @@ goog.inherits(ee.Geometry.LineString, ee.Geometry);
  * Constructs a LinearRing from the given coordinates.
  *
  * @param {number|!Array.<!Array.<number>>} coordinates The coordinates as
- *     either an array of [lon, lat] tuples, or literal pairs of coordinate
+ *     either a list of [lon, lat] tuples, or literal pairs of coordinate
  *     longitudes and latitudes, such as LinearRing(1, 2, 3, 4, 5, 6).
  * @constructor
  * @extends {ee.Geometry}
@@ -304,16 +304,16 @@ goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
 
 /**
  * Constructs a MultiLineString from the given coordinates, either a list of
- * points, or an array of LineStrings.
+ * points, or a list of LineStrings.
  *
  * @param {number|!Array.<!Array.<!Array.<number>>>} coordinates The
  *     MultiLineString coordinates as either a var_args list of numbers, or
- *     an array of LineStrings, each of which is an array of points.
+ *     a list of LineStrings, each of which is a list of points.
  * @constructor
  * @extends {ee.Geometry}
  * @export
  *
- * TODO(user): This actually doesn't accept an array of
+ * TODO(user): This actually doesn't accept a list of
  * ee.Geometry.LineStrings, but it should.
  */
 ee.Geometry.MultiLineString = function(coordinates) {
@@ -331,17 +331,17 @@ goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
 
 /**
  * Constructs a Polygon from the given coordinates, either a list of points,
- * or an array of linear rings. If created from points, only an outer ring
+ * or a list of linear rings. If created from points, only an outer ring
  * can be specified.
  *
  * @param {number|!Array.<!Array.<!Array.<number>>>} coordinates The polygon
- *     coordinates as either a var_args list of numbers, or an array of rings,
- *     each of which is an array of points.
+ *     coordinates as either a var_args list of numbers, or a list of rings,
+ *     each of which is a list of points.
  * @constructor
  * @extends {ee.Geometry}
  * @export
  *
- * TODO(user): This actually doesn't accept an array of
+ * TODO(user): This actually doesn't accept a list of
  * ee.Geometry.LinearRings, but it should.
  */
 ee.Geometry.Polygon = function(coordinates) {
@@ -358,18 +358,18 @@ goog.inherits(ee.Geometry.Polygon, ee.Geometry);
 
 
 /**
- * Cosntructs a new GeoJSON MultiPolygon from either a list of points, or an
- * array of Polygons.  If created from points, only one polygon can be
+ * Cosntructs a new GeoJSON MultiPolygon from either a list of points, or a
+ * list of Polygons.  If created from points, only one polygon can be
  * specified.
  *
  * @param {number|!Array.<!Array.<!Array.<!Array.<number>>>>} coordinates The
  *     multipolygon coordinates either as a var_args list of numbers of
- *     an array of polygons.
+ *     a list of polygons.
  * @constructor
  * @extends {ee.Geometry}
  * @export
  *
- * TODO(user): This actually doesn't accept an array of
+ * TODO(user): This actually doesn't accept a list of
  * ee.Geometry.Polygon, but it should.
  */
 ee.Geometry.MultiPolygon = function(coordinates) {
@@ -513,7 +513,7 @@ ee.Geometry.isValidGeometry_ = function(geometry) {
 /**
  * Validate the coordinates of a geometry.
  * @param {number|!Array.<*>} shape The coordinates to validate.
- * @return {number} The number of nested arrays or -1 on error.
+ * @return {number} The number of nested lists or -1 on error.
  * @private
  */
 ee.Geometry.isValidCoordinates_ = function(shape) {
@@ -546,7 +546,7 @@ ee.Geometry.isValidCoordinates_ = function(shape) {
  * Create a line from a list of points.
  * @param {!Array.<number>} coordinates The points to convert.  Must be a
  *     multiple of 2.
- * @return {!Array.<!Array.<number>>} An array of pairs of points.
+ * @return {!Array.<!Array.<number>>} A list of pairs of points.
  * @private
  */
 ee.Geometry.coordinatesToLine_ = function(coordinates) {
@@ -573,7 +573,7 @@ ee.Geometry.coordinatesToLine_ = function(coordinates) {
  * Polygon(1,2,3,4,5,6) and Polygon([[[1,2],[3,4],[5,6]]])
  *
  * @param {number|!Array.<*>} geometry The geometry to check.
- * @param {number} nesting The expected level of array nesting.
+ * @param {number} nesting The expected level of list nesting.
  * @param {goog.array.ArrayLike=} opt_coordinates A list of coordinates to
  *     decode from the calling function's arguments parameter.
  * @return {!Array.<*>} The processed geometry.

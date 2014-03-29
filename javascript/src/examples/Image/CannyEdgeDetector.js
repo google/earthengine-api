@@ -1,10 +1,11 @@
-// CannyEdgeDetector
+// Canny Edge Detector example.
 
-var image = ee.Image('L5_L1T_8DAY_EVI/20110618');
-var canny = ee.call('CannyEdgeDetector', image, 0.7);
+var image = ee.Image('LT5_L1T_8DAY_EVI/20110618');
+var canny = ee.Algorithms.CannyEdgeDetector(image, 0.7);
+// Mask the image with itself to get rid of 0 pixels.
+canny = canny.mask(canny);
 
 centerMap(-101.05259, 37.93418, 13);
 addToMap(image, {min: 0, max: 1}, 'Landsat EVI');
-addToMap(canny.mask(canny), {min: 0, max: 1, palette: 'FF0000'},
-         'Canny Edges');
+addToMap(canny, {min: 0, max: 1, palette: 'FF0000'}, 'Canny Edges');
 

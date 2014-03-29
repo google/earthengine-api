@@ -1,7 +1,12 @@
-// ZeroCrossing
-//
-// Mark pixels where the elevation crosses 1000m value.
+// Mark pixels where the elevation crosses 1000m value and compare
+// that to pixels that are exactly equal to 1000m.
+
 var elev = ee.Image('srtm90_v4');
 var image = elev.subtract(1000).zeroCrossing();
-centerMap(-121.91734, 37.88170, 15);
-addToMap(image, {min: 0, max: 1, opacity: 0.5}, '1000m');
+
+centerMap(-121.68148, 37.50877, 13);
+addToMap(image, {min: 0, max: 1, opacity: 0.5}, 'Crossing 1000m');
+
+var exact = elev.eq(1000);
+addToMap(
+    exact.mask(exact), {min: 0, max: 1, palette: 'FF0000'}, 'Exactly 1000m');

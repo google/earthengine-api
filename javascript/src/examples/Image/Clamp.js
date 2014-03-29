@@ -1,4 +1,4 @@
-// Image.clamp
+// Image.clamp example.
 //
 // Clamp the values of all bands in an image to lie within the specified range.
 // Values below the low value of that range are set to low value, values above

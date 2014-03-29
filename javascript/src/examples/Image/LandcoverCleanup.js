@@ -1,17 +1,16 @@
-// Landcover cleanup
-// #section Image:3
+// Landcover cleanup.
 //
 // Display the MODIS land cover classification image with appropriate colors.
 
 // Force projection of 500 meters/pixel, which is the native MODIS resolution.
-var VECTORIZATION_SCALE = 500;
+var SCALE = 500;
 
 var image1 = ee.Image('MCD12Q1/MCD12Q1_005_2001_01_01');
 var image2 = image1.select(['Land_Cover_Type_1']);
-var image3 = image2.reproject('EPSG:4326', null, 500);
+var image3 = image2.reproject('EPSG:4326', null, SCALE);
 var image4 = image3.focal_mode();
 var image5 = image4.focal_max(3).focal_min(5).focal_max(3);
-var image6 = image5.reproject('EPSG:4326', null, 500);
+var image6 = image5.reproject('EPSG:4326', null, SCALE);
 
 var PALETTE = [
     'aec3d4', // water

@@ -1,18 +1,17 @@
-// Reverse mask a region
-// #section FeatureCollection:4
+// Reverse mask a region.
 //
 // Create an image that masks everything except for the specified polygon.
 
 var fc = ee.FeatureCollection('ft:1Ec8IWsP8asxN-ywSqgXWMuBaxI6pPaeh6hC64lA')
     .filter(ee.Filter().eq('ECO_NAME', 'Great Basin shrub steppe'));
 
-// Start with a black image.
-var empty = ee.Image(0).toByte();
 // Fill and outline the polygons in two colors
-var filled = empty.paint(fc, 2);
-var both = filled.paint(fc, 1, 5);
+var region = ee.Image(0).byte()
+    .paint(fc, 2)       // Fill with 2
+    .paint(fc, 1, 2);   // Outline with 1, width 5.
+
 // Mask off everything that matches the fill color.
-var result = both.mask(filled.neq(2));
+var result = region.mask(region.neq(2));
 
 addToMap(result, {
   palette: '000000,FF0000',

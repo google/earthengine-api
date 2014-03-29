@@ -1,6 +1,5 @@
-// PixelLatLong
-//
-// Draws 60 lat/long lines per degree.
+// Draws 60 lat/long lines per degree using the pixelLonLat() function.
+
 var img = ee.Image.pixelLonLat().multiply(60.0);
 img = img.subtract(img.floor()).lt(0.05);
 var grid = img.select('latitude').or(img.select('longitude'));

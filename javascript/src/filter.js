@@ -19,7 +19,7 @@ goog.require('goog.string');
 /**
  * Constructs a new filter. This constuctor accepts the following args:
  *    - Another filter.
- *    - An array of filters (which are implicitly ANDed together).
+ *    - A list of filters (which are implicitly ANDed together).
  *    - A ComputedObject returning a filter. Users shouldn't be making these;
  *       they're produced by the generator functions below.
  *
@@ -41,7 +41,7 @@ ee.Filter = function(opt_filter) {
 
   /**
    * The internal rerpresentation of this filter.  This is
-   * an array of filter objects which are implicitly ANDed together.
+   * a list of filter objects which are implicitly ANDed together.
    *
    * @type {Array.<*>}
    * @private
@@ -136,7 +136,7 @@ ee.Filter.prototype.length = function() {
  *     to append.  Possible types are:
  *     - another fully constructed ee.Filter,
  *     - a ComputedObject producing a filter,
- *     - an array of 1 or 2.
+ *     - a list of 1 or 2.
  * @return {ee.Filter} A new filter that is the combination of both.
  * @private
  */

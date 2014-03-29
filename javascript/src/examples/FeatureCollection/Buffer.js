@@ -1,5 +1,4 @@
-// Buffer
-// #section FeatureCollection:5
+// Feature buffer example.
 //
 // Display the area within 2 kilometers of any San Francisco BART station.
 

@@ -1,7 +1,5 @@
-// Polynomial
-//
 // Applies a non-linear contrast enhancement to a MODIS image using
-// function -1.2x^2 + 2.4x - 0.2
+// function -1.2x^2 + 2.4x - 0.2.
 
 var img = ee.Image('MOD09GA/MOD09GA_005_2012_03_09')
               .select(['sur_refl_b01', 'sur_refl_b04', 'sur_refl_b03'])

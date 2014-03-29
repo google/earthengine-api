@@ -18,7 +18,6 @@ goog.require('ee.Function');
  *
  * @constructor
  * @extends {ee.Function}
- * @export
  */
 ee.SavedFunction = function(path, signature) {
   if (!(this instanceof ee.SavedFunction)) {
@@ -51,11 +50,7 @@ ee.SavedFunction.prototype.encode = function(encoder) {
 
 /**
  * @inheritDoc
- * @export
  */
 ee.SavedFunction.prototype.getSignature = function() {
   return this.signature_;
 };
-
-goog.exportProperty(ee.SavedFunction, 'getSignature',
-    ee.SavedFunction.prototype.getSignature);
