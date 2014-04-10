@@ -1910,7 +1910,8 @@ INPUT:"input", PROPERTYCHANGE:"propertychange", DRAGSTART:"dragstart", DRAG:"dra
 READYSTATECHANGE:"readystatechange", RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), 
 TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", 
 MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXTINPUT:"textinput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", 
-COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage"};
+COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage", DOMSUBTREEMODIFIED:"DOMSubtreeModified", DOMNODEINSERTED:"DOMNodeInserted", DOMNODEREMOVED:"DOMNodeRemoved", DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", 
+DOMATTRMODIFIED:"DOMAttrModified", DOMCHARACTERDATAMODIFIED:"DOMCharacterDataModified"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
@@ -2685,7 +2686,7 @@ goog.math.isFiniteNumber = function(num) {
 goog.math.log10Floor = function(num) {
   if (0 < num) {
     var x = Math.round(Math.log(num) * Math.LOG10E);
-    return x - (Math.pow(10, x) > num);
+    return x - (parseFloat("1e" + x) > num);
   }
   return 0 == num ? -Infinity : NaN;
 };
@@ -5271,6 +5272,10 @@ ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
 ee.data.createFolder = function(path, opt_force, opt_callback) {
   return ee.data.send_("/createfolder", ee.data.makeRequest_({id:path, force:opt_force || !1}), opt_callback);
 };
+ee.data.search = function(query, opt_callback) {
+  var searchParams = (new goog.Uri.QueryData).add("q", query);
+  return ee.data.send_("/search", searchParams, opt_callback, "GET");
+};
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
   goog.isNumber(opt_count) && (params.count = opt_count);
@@ -5940,8 +5945,8 @@ ee.CustomFunction = function(signature, body) {
     var arg = args[i];
     vars.push(ee.CustomFunction.variable(ee.Types.nameToClass(arg.type), arg.name));
   }
+  this.signature_ = ee.CustomFunction.resolveNamelessArgs_(signature, vars, body);
   this.body_ = body.apply(null, vars);
-  this.signature_ = ee.CustomFunction.resolveNamelessArgs_(signature, vars, this.body_);
 };
 goog.inherits(ee.CustomFunction, ee.Function);
 goog.exportSymbol("ee.CustomFunction", ee.CustomFunction);
@@ -5990,13 +5995,13 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
   if (0 == namelessArgIndices.length) {
     return signature;
   }
-  for (var countVariables = function(expression) {
+  for (var countFunctions = function(expression) {
     var count = 0;
-    goog.isObject(expression) && !goog.isFunction(expression) && ("ArgumentRef" != expression.type || goog.isNull(expression.value) ? goog.object.forEach(expression, function(subExpression) {
-      count += countVariables(subExpression);
-    }) : count++);
+    goog.isObject(expression) && !goog.isFunction(expression) && ("Function" == expression.type && count++, goog.object.forEach(expression, function(subExpression) {
+      count += countFunctions(subExpression);
+    }));
     return count;
-  }, serializedBody = ee.Serializer.encode(body), baseName = "_MAPPING_VAR_" + countVariables(serializedBody) + "_", i = 0;i < namelessArgIndices.length;i++) {
+  }, serializedBody = ee.Serializer.encode(body.apply(null, vars)), baseName = "_MAPPING_VAR_" + countFunctions(serializedBody) + "_", i = 0;i < namelessArgIndices.length;i++) {
     var index = namelessArgIndices[i], name = baseName + i;
     vars[index].varName = name;
     signature.args[index].name = name;
@@ -6661,8 +6666,27 @@ ee.Feature = function(geometry, opt_properties) {
     throw Error("The Feature constructor takes at most 2 arguments (" + arguments.length + " given)");
   }
   ee.Feature.initialize();
-  geometry instanceof ee.Geometry || null === geometry ? ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null}) : geometry instanceof ee.ComputedObject ? ee.Element.call(this, geometry.func, geometry.args, geometry.varName) : "Feature" == geometry.type ? ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), metadata:geometry.properties || null}) : ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry), 
-  metadata:opt_properties || null});
+  if (geometry instanceof ee.Geometry || null === geometry) {
+    ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null});
+  } else {
+    if (geometry instanceof ee.ComputedObject) {
+      ee.Element.call(this, geometry.func, geometry.args, geometry.varName);
+    } else {
+      if ("Feature" == geometry.type) {
+        var properties = geometry.properties || {};
+        if ("id" in geometry) {
+          if ("system:index" in properties) {
+            throw Error('Can\t specify both "id" and "system:index".');
+          }
+          properties = goog.object.clone(properties);
+          properties["system:index"] = geometry.id;
+        }
+        ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), metadata:properties});
+      } else {
+        ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry), metadata:opt_properties || null});
+      }
+    }
+  }
 };
 goog.inherits(ee.Feature, ee.Element);
 ee.Feature.initialized_ = !1;
@@ -6740,6 +6764,12 @@ ee.List.prototype.encode = function(opt_encoder) {
 };
 ee.List.prototype.name = function() {
   return "List";
+};
+ee.List.prototype.map = function(algorithm) {
+  if (!goog.isFunction(algorithm)) {
+    throw Error("Can't map non-callable object: " + algorithm);
+  }
+  return this.cast(ee.ApiFunction._apply("List.map", {list:this, baseAlgorithm:new ee.CustomFunction({name:"", returns:"Object", args:[{name:null, type:"Object"}]}, algorithm)}));
 };
 ee.FeatureCollection = function(args, opt_column) {
   if (!(this instanceof ee.FeatureCollection)) {

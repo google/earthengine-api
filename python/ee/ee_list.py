@@ -4,6 +4,7 @@
 
 import apifunction
 import computedobject
+import customfunction
 import ee_exception
 
 # Using lowercase function naming to match the JavaScript names.
@@ -62,3 +63,34 @@ class List(computedobject.ComputedObject):
       return [opt_encoder(elem) for elem in self._list]
     else:
       return super(List, self).encode(opt_encoder)
+
+  def map(self, algorithm):
+    """Maps an algorithm over a list.
+
+    Args:
+      algorithm: The operation to map over the list.  A Python function that
+          receives an object returns one. The function is called only once
+          and the result is captured as a description, so it cannot perform
+          imperative operations or rely on external state.
+
+    Returns:
+      The mapped list.
+
+    Raises:
+      ee_exception.EEException: if algorithm is not a function.
+    """
+    if not callable(algorithm):
+      raise ee_exception.EEException(
+          'Can\'t map non-callable object: %s' % algorithm)
+    signature = {
+        'name': '',
+        'returns': 'Object',
+        'args': [{
+            'name': None,
+            'type': 'Object',
+        }]
+    }
+    return self._cast(apifunction.ApiFunction.apply_('List.map', {
+        'list': self,
+        'baseAlgorithm': customfunction.CustomFunction(signature, algorithm)
+    }))

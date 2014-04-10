@@ -57,10 +57,17 @@ class Feature(element.Element):
       # A custom object to reinterpret as a Feature.
       super(Feature, self).__init__(geom.func, geom.args, geom.varName)
     elif isinstance(geom, dict) and geom.get('type') == 'Feature':
+      properties = geom.get('properties', {})
+      if 'id' in geom:
+        if 'system:index' in properties:
+          raise ee_exception.EEException(
+              'Can\t specify both "id" and "system:index".')
+        properties = properties.copy()
+        properties['system:index'] = geom['id']
       # Try to convert a GeoJSON Feature.
       super(Feature, self).__init__(feature_constructor, {
           'geometry': geometry.Geometry(geom.get('geometry', None)),
-          'metadata': geom.get('properties', None)
+          'metadata': properties
       })
     else:
       # Try to convert the geometry arg to a Geometry, in the hopes of it

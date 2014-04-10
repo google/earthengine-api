@@ -7,6 +7,7 @@ goog.provide('ee.data');
 goog.provide('ee.data.AlgorithmArgument');
 goog.provide('ee.data.AlgorithmSignature');
 goog.provide('ee.data.AlgorithmsRegistry');
+goog.provide('ee.data.AssetDescription');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.FeatureCollectionDescription');
@@ -466,6 +467,20 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
   return ee.data.send_('/createfolder',
                        ee.data.makeRequest_(args),
                        opt_callback);
+};
+
+
+/**
+ * Retrieve a list of Asset snippets matching a query.
+ * @param {string} query Search query for assets.
+ * @param {function(?Array, string=)=} opt_callback An optional
+ *     callback. If not supplied, the callback is made synchronously.
+ * @return {Array.<ee.data.AssetDescription>} An array of data set indices.
+ */
+ee.data.search = function(query, opt_callback) {
+  var searchParams = new goog.Uri.QueryData().add('q', query);
+  return /** @type {Array.<ee.data.AssetDescription>} */ (
+      ee.data.send_('/search', searchParams, opt_callback, 'GET'));
 };
 
 
@@ -1052,3 +1067,20 @@ ee.data.ProcessingResponse;
  * }}
  */
 ee.data.TaskListResponse;
+
+
+/**
+ * A public asset description.
+ * @typedef {{
+ *   tags: (undefined|Array.<string>),
+ *   thumb: (undefined|string),
+ *   title: string,
+ *   provider: string,
+ *   type: string,
+ *   period: number,
+ *   period_mapping: (undefined|Array.<number>),
+ *   description: string,
+ *   id: string
+ * }}
+ */
+ee.data.AssetDescription;

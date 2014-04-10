@@ -42,19 +42,19 @@ ee.CustomFunction = function(signature, body) {
   }
 
   /**
-   * The function evaluated using placeholders.
-   * @type {*}
-   * @private
-   */
-  this.body_ = body.apply(null, vars);
-
-  /**
    * The signature of the function.
    * @type {ee.Function.Signature}
    * @private
    */
   this.signature_ = ee.CustomFunction.resolveNamelessArgs_(
-      signature, vars, this.body_);
+      signature, vars, body);
+
+  /**
+   * The function evaluated using placeholders.
+   * @type {*}
+   * @private
+   */
+  this.body_ = body.apply(null, vars);
 };
 goog.inherits(ee.CustomFunction, ee.Function);
 // Exporting manually to avoid marking the class public in the docs.
@@ -129,7 +129,7 @@ ee.CustomFunction.variable = function(type, name) {
  * @param {Array.<ee.ComputedObject>} vars A list of variables, some of which
  *     may be nameless. These will be updated to include names when this
  *     method returns.
- * @param {*} body The body of the function.
+ * @param {Function} body The JavaScript function to evaluate.
  * @return {ee.Function.Signature} The signature with null arg names resolved.
  * @private
  * @suppress {accessControls} We are accessing the protected varName.
@@ -147,27 +147,25 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
     return signature;
   }
 
-  // Generate the name base by counting the number of named variable
-  // references within the body.
-  var countVariables = function(expression) {
+  // Generate the name base by counting the number of custom functions
+  // within the body.
+  var countFunctions = function(expression) {
     var count = 0;
     if (goog.isObject(expression) && !goog.isFunction(expression)) {
-      if (expression['type'] == 'ArgumentRef' &&
-          !goog.isNull(expression['value'])) {
+      if (expression['type'] == 'Function') {
         // Technically this allows false positives if one of the user
-        // dictionaries contains type=ArgumentRef, but that does not matter
+        // dictionaries contains type=Function, but that does not matter
         // for this use case, as we only care about determinism.
         count++;
-      } else {
-        goog.object.forEach(expression, function(subExpression) {
-          count += countVariables(subExpression);
-        });
       }
+      goog.object.forEach(expression, function(subExpression) {
+        count += countFunctions(subExpression);
+      });
     }
     return count;
   };
-  var serializedBody = ee.Serializer.encode(body);
-  var baseName = '_MAPPING_VAR_' + countVariables(serializedBody) + '_';
+  var serializedBody = ee.Serializer.encode(body.apply(null, vars));
+  var baseName = '_MAPPING_VAR_' + countFunctions(serializedBody) + '_';
 
   // Update the vars and signature by the name.
   for (var i = 0; i < namelessArgIndices.length; i++) {

@@ -29,12 +29,12 @@ class CustomFunction(function.Function):
     variables = [CustomFunction.variable(arg['type'], arg['name'])
                  for arg in signature['args']]
 
-    # The expression to evaluate.
-    self._body = body(*variables)
-
     # The signature of the function.
     self._signature = CustomFunction._resolveNamelessArgs(
-        signature, variables, self._body)
+        signature, variables, body)
+
+    # The expression to evaluate.
+    self._body = body(*variables)
 
   def encode(self, encoder):
     return {
@@ -77,7 +77,7 @@ class CustomFunction(function.Function):
       signature: The signature which may contain null argument names.
       variables: A list of variables, some of which may be nameless.
           These will be updated to include names when this method returns.
-      body: The body of the function.
+      body: The Python function to evaluate.
 
     Returns:
       The signature with null arg names resolved.
@@ -91,27 +91,26 @@ class CustomFunction(function.Function):
     if not nameless_arg_indices:
       return signature
 
-    # Generate the name base by counting the number of named variable
-    # references within the body.
-    def CountVariables(expression):
-      """Counts the number of variable references in a serialized expression."""
+    # Generate the name base by counting the number of custom functions
+    # within the body.
+    def CountFunctions(expression):
+      """Counts the number of custom functions in a serialized expression."""
       count = 0
       if isinstance(expression, dict):
-        if (expression.get('type') == 'ArgumentRef' and
-            expression.get('value') is not None):
+        if expression.get('type') == 'Function':
           # Technically this allows false positives if one of the user
-          # dictionaries contains type=ArgumentRef, but that does not matter
+          # dictionaries contains type=Function, but that does not matter
           # for this use case, as we only care about determinism.
           count += 1
         else:
           for sub_expression in expression.itervalues():
-            count += CountVariables(sub_expression)
+            count += CountFunctions(sub_expression)
       elif isinstance(expression, (list, tuple)):
         for sub_expression in expression:
-          count += CountVariables(sub_expression)
+          count += CountFunctions(sub_expression)
       return count
-    serialized_body = serializer.encode(body)
-    base_name = '_MAPPING_VAR_%d_' % CountVariables(serialized_body)
+    serialized_body = serializer.encode(body(*variables))
+    base_name = '_MAPPING_VAR_%d_' % CountFunctions(serialized_body)
 
     # Update the vars and signature by the name.
     for (i, index) in enumerate(nameless_arg_indices):

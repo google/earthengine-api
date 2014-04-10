@@ -8,7 +8,7 @@ var fc = ee.FeatureCollection('ft:1Ec8IWsP8asxN-ywSqgXWMuBaxI6pPaeh6hC64lA')
 // Fill and outline the polygons in two colors
 var region = ee.Image(0).byte()
     .paint(fc, 2)       // Fill with 2
-    .paint(fc, 1, 2);   // Outline with 1, width 5.
+    .paint(fc, 1, 2);   // Outline with 1, width 2.
 
 // Mask off everything that matches the fill color.
 var result = region.mask(region.neq(2));

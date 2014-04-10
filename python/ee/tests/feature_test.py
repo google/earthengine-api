@@ -42,12 +42,14 @@ class FeatureTest(apitestcase.ApiTestCase):
 
     from_geo_json_feature = ee.Feature({
         'type': 'Feature',
+        'id': 'bar',
         'geometry': point.toGeoJSON(),
         'properties': {'foo': 42}
     })
     self.assertEquals(ee.ApiFunction('Feature'), from_geo_json_feature.func)
     self.assertEquals(point, from_geo_json_feature.args['geometry'])
-    self.assertEquals({'foo': 42}, from_geo_json_feature.args['metadata'])
+    self.assertEquals({'foo': 42, 'system:index': 'bar'},
+                      from_geo_json_feature.args['metadata'])
 
   def testGetMap(self):
     """Verifies that getMap() uses Collection.draw to rasterize Features."""

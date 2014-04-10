@@ -1077,6 +1077,23 @@ BUILTIN_FUNCTIONS = {
         'type': 'Algorithm',
         'description': '',
     },
+    'List.map': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'description': '',
+                'name': 'list',
+                'type': 'List'
+            },
+            {
+                'description': '',
+                'name': 'baseAlgorithm',
+                'type': 'Algorithm'
+            },
+        ],
+        'description': '',
+        'returns': 'List'
+    },
 }
 
 # A sample of encoded EE API JSON, used by SerializerTest and DeserializerTest.

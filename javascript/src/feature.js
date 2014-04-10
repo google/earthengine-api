@@ -8,6 +8,7 @@ goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.Element');
 goog.require('ee.Geometry');
+goog.require('goog.object');
 
 
 
@@ -57,9 +58,17 @@ ee.Feature = function(geometry, opt_properties) {
     goog.base(this, geometry.func, geometry.args, geometry.varName);
   } else if (geometry['type'] == 'Feature') {
     // Try to convert a GeoJSON Feature.
+    var properties = geometry['properties'] || {};
+    if ('id' in geometry) {
+      if ('system:index' in properties) {
+        throw Error('Can\t specify both "id" and "system:index".');
+      }
+      properties = goog.object.clone(properties);
+      properties['system:index'] = geometry['id'];
+    }
     goog.base(this, new ee.ApiFunction('Feature'), {
       'geometry': new ee.Geometry(geometry['geometry']),
-      'metadata': geometry['properties'] || null
+      'metadata': properties
     });
   } else {
     // Try to convert the geometry arg to a Geometry, in the hopes of it
