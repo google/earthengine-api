@@ -1,10 +1,13 @@
 var goog = goog || {};
 goog.global = this;
+goog.isDef = function(val) {
+  return void 0 !== val;
+};
 goog.exportPath_ = function(name, opt_object, opt_objectToExportTo) {
   var parts = name.split("."), cur = opt_objectToExportTo || goog.global;
   parts[0] in cur || !cur.execScript || cur.execScript("var " + parts[0]);
   for (var part;parts.length && (part = parts.shift());) {
-    parts.length || void 0 === opt_object ? cur = cur[part] ? cur[part] : cur[part] = {} : cur[part] = opt_object;
+    !parts.length && goog.isDef(opt_object) ? cur[part] = opt_object : cur = cur[part] ? cur[part] : cur[part] = {};
   }
 };
 goog.define = function(name, defaultValue) {
@@ -170,9 +173,6 @@ goog.typeOf = function(value) {
   }
   return s;
 };
-goog.isDef = function(val) {
-  return void 0 !== val;
-};
 goog.isNull = function(val) {
   return null === val;
 };
@@ -318,7 +318,7 @@ goog.getMsg = function(str, opt_values) {
   var values = opt_values || {}, key;
   for (key in values) {
     var value = ("" + values[key]).replace(/\$/g, "$$$$");
-    str = str.replace(RegExp("\\{\\$" + key + "\\}", "gi"), value);
+    str = str.replace(new RegExp("\\{\\$" + key + "\\}", "gi"), value);
   }
   return str;
 };
@@ -968,11 +968,11 @@ goog.string.removeAt = function(s, index, stringLength) {
   return resultStr;
 };
 goog.string.remove = function(s, ss) {
-  var re = RegExp(goog.string.regExpEscape(ss), "");
+  var re = new RegExp(goog.string.regExpEscape(ss), "");
   return s.replace(re, "");
 };
 goog.string.removeAll = function(s, ss) {
-  var re = RegExp(goog.string.regExpEscape(ss), "g");
+  var re = new RegExp(goog.string.regExpEscape(ss), "g");
   return s.replace(re, "");
 };
 goog.string.regExpEscape = function(s) {
@@ -1042,7 +1042,7 @@ goog.string.toSelectorCase = function(str) {
 };
 goog.string.toTitleCase = function(str, opt_delimiters) {
   var delimiters = goog.isString(opt_delimiters) ? goog.string.regExpEscape(opt_delimiters) : "\\s";
-  return str.replace(RegExp("(^" + (delimiters ? "|[" + delimiters + "]+" : "") + ")([a-z])", "g"), function(all, p1, p2) {
+  return str.replace(new RegExp("(^" + (delimiters ? "|[" + delimiters + "]+" : "") + ")([a-z])", "g"), function(all, p1, p2) {
     return p1 + p2.toUpperCase();
   });
 };
@@ -1128,6 +1128,7 @@ goog.array.ASSUME_NATIVE_FUNCTIONS = !1;
 goog.array.peek = function(array) {
   return array[array.length - 1];
 };
+goog.array.last = goog.array.peek;
 goog.array.ARRAY_PROTOTYPE_ = Array.prototype;
 goog.array.indexOf = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCTIONS || goog.array.ARRAY_PROTOTYPE_.indexOf) ? function(arr, obj, opt_fromIndex) {
   goog.asserts.assert(null != arr.length);
@@ -5204,6 +5205,9 @@ ee.data.reset = function() {
 ee.data.setDeadline = function(milliseconds) {
   ee.data.deadlineMs_ = milliseconds;
 };
+ee.data.getApiBaseUrl = function() {
+  return ee.data.apiBaseUrl_;
+};
 ee.data.getTileBaseUrl = function() {
   return ee.data.tileBaseUrl_;
 };
@@ -5612,7 +5616,7 @@ ee.ComputedObject.prototype.isVariable = function() {
 ee.ComputedObject.prototype.name = function() {
   return "ComputedObject";
 };
-ee.ComputedObject.prototype.cast = function(obj) {
+ee.ComputedObject.prototype.castInternal = function(obj) {
   if (obj instanceof this.constructor) {
     return obj;
   }
@@ -5843,8 +5847,14 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       var destination = isInstance ? target.prototype : target;
       fname in destination && (fname += "_", signature.hidden = !0);
       destination[fname] = function(var_args) {
-        var args = Array.prototype.slice.call(arguments, 0), namedArgs;
+        var args = Array.prototype.slice.call(arguments, 0), useKeywordArgs = !1;
         if (1 == args.length && ee.Types.isRegularObject(args[0])) {
+          var params = signature.args;
+          isInstance && (params = params.slice(1));
+          params.length && (useKeywordArgs = !((1 == params.length || params[1].optional) && "Dictionary" == params[0].type));
+        }
+        var namedArgs;
+        if (useKeywordArgs) {
           if (namedArgs = goog.object.clone(args[0]), isInstance) {
             var firstArgName = signature.args[0].name;
             if (firstArgName in namedArgs) {
@@ -6056,7 +6066,7 @@ ee.Element.prototype.set = function(var_args) {
       result = ee.ApiFunction._call("Feature.set", result, properties);
     }
   }
-  return this.cast(result);
+  return this.castInternal(result);
 };
 ee.Filter = function(opt_filter) {
   if (!(this instanceof ee.Filter)) {
@@ -6241,7 +6251,7 @@ ee.Collection.prototype.filter = function(newFilter) {
   if (!newFilter) {
     throw Error("Empty filters.");
   }
-  return this.cast(ee.ApiFunction._call("Collection.filter", this, newFilter));
+  return this.castInternal(ee.ApiFunction._call("Collection.filter", this, newFilter));
 };
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
   return this.filter(ee.Filter.metadata(name, operator, value));
@@ -6253,10 +6263,10 @@ ee.Collection.prototype.filterDate = function(start, end) {
   return this.filter(ee.Filter.date(start, end));
 };
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  return this.cast(ee.ApiFunction._call("Collection.limit", this, max, opt_property, opt_ascending));
+  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, max, opt_property, opt_ascending));
 };
 ee.Collection.prototype.sort = function(property, opt_ascending) {
-  return this.cast(ee.ApiFunction._call("Collection.limit", this, void 0, property, opt_ascending));
+  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, void 0, property, opt_ascending));
 };
 ee.Collection.prototype.name = function() {
   return "Collection";
@@ -6266,7 +6276,7 @@ ee.Collection.prototype.mapInternal = function(type, algorithm) {
     throw Error("Can't map non-callable object: " + algorithm);
   }
   var signature = {name:"", returns:"Object", args:[{name:null, type:ee.Types.classToName(type)}]};
-  return this.cast(ee.ApiFunction._apply("Collection.map", {collection:this, baseAlgorithm:new ee.CustomFunction(signature, algorithm)}));
+  return this.castInternal(ee.ApiFunction._apply("Collection.map", {collection:this, baseAlgorithm:new ee.CustomFunction(signature, algorithm)}));
 };
 ee.Collection.prototype.map = function(algorithm) {
   return this.mapInternal(ee.ComputedObject, algorithm);
@@ -6769,7 +6779,7 @@ ee.List.prototype.map = function(algorithm) {
   if (!goog.isFunction(algorithm)) {
     throw Error("Can't map non-callable object: " + algorithm);
   }
-  return this.cast(ee.ApiFunction._apply("List.map", {list:this, baseAlgorithm:new ee.CustomFunction({name:"", returns:"Object", args:[{name:null, type:"Object"}]}, algorithm)}));
+  return this.castInternal(ee.ApiFunction._apply("List.map", {list:this, baseAlgorithm:new ee.CustomFunction({name:"", returns:"Object", args:[{name:null, type:"Object"}]}, algorithm)}));
 };
 ee.FeatureCollection = function(args, opt_column) {
   if (!(this instanceof ee.FeatureCollection)) {
@@ -7160,7 +7170,7 @@ ee.promote_ = function(arg, klass) {
           return arg;
         }
         if (arg instanceof ee.ComputedObject) {
-          return new ee.Element(arg.func, arg.args);
+          return new ee.Element(arg.func, arg.args, arg.varName);
         }
         throw Error("Cannot convert " + arg + " to Element.");;
       case "Geometry":
@@ -7194,15 +7204,19 @@ ee.promote_ = function(arg, klass) {
       case "Byte":
         return new ee.Number(arg);
       default:
-        if (klass in exportedEE && arg) {
+        if (klass in exportedEE) {
+          var ctor = ee.ApiFunction.lookupInternal(klass);
           if (arg instanceof exportedEE[klass]) {
             return arg;
           }
+          if (ctor) {
+            return new exportedEE[klass](arg);
+          }
           if (goog.isString(arg)) {
-            if (!(arg in exportedEE[klass])) {
-              throw Error("Unknown algorithm: " + klass + "." + arg);
+            if (arg in exportedEE[klass]) {
+              return exportedEE[klass][arg].call();
             }
-            return exportedEE[klass][arg].call();
+            throw Error("Unknown algorithm: " + klass + "." + arg);
           }
           return new exportedEE[klass](arg);
         }
@@ -7261,15 +7275,15 @@ ee.makeClass_ = function(name) {
     if (!(this instanceof klass)) {
       return ee.ComputedObject.construct(klass, args);
     }
-    var ctor = ee.ApiFunction.lookupInternal(name), firstArgIsComputed = args[0] instanceof ee.ComputedObject, shouldUseConstructor = !1;
-    ctor && (onlyOneArg ? firstArgIsComputed ? args[0].func != ctor && (shouldUseConstructor = !0) : shouldUseConstructor = !0 : shouldUseConstructor = !0);
+    var ctor = ee.ApiFunction.lookupInternal(name), firstArgIsPrimitive = !(args[0] instanceof ee.ComputedObject), shouldUseConstructor = !1;
+    ctor && (onlyOneArg ? firstArgIsPrimitive ? shouldUseConstructor = !0 : args[0].func != ctor && (shouldUseConstructor = !0) : shouldUseConstructor = !0);
     if (shouldUseConstructor) {
       ee.ComputedObject.call(this, ctor, ctor.promoteArgs(ctor.nameArgs(args)));
     } else {
       if (!onlyOneArg) {
         throw Error("Too many arguments for ee." + name + "(): " + args);
       }
-      if (!firstArgIsComputed) {
+      if (firstArgIsPrimitive) {
         throw Error("Invalid argument for ee." + name + "(): " + args + ". Must be a ComputedObject.");
       }
       var theOneArg = args[0];
@@ -7915,6 +7929,7 @@ goog.dom.findCommonAncestor = function(var_args) {
   return output;
 };
 goog.dom.getOwnerDocument = function(node) {
+  goog.asserts.assert(node, "Node cannot be null or undefined.");
   return node.nodeType == goog.dom.NodeType.DOCUMENT ? node : node.ownerDocument || node.document;
 };
 goog.dom.getFrameContentDocument = function(frame) {
@@ -8981,7 +8996,7 @@ goog.style.getBorderBox = function(element) {
 };
 goog.style.getFontFamily = function(el) {
   var doc = goog.dom.getOwnerDocument(el), font = "";
-  if (doc.body.createTextRange) {
+  if (doc.body.createTextRange && goog.dom.contains(doc, el)) {
     var range = doc.body.createTextRange();
     range.moveToElementText(el);
     try {

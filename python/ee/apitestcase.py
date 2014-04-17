@@ -1094,6 +1094,32 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'returns': 'List'
     },
+    'Projection': {
+        'returns': 'Projection',
+        'type': 'Algorithm',
+        'description': '',
+        'args': [
+            {
+                'name': 'crs',
+                'type': 'Object',
+                'description': ''
+            },
+            {
+                'name': 'transform',
+                'default': None,
+                'type': 'List<Number>',
+                'optional': True,
+                'description': ''
+            },
+            {
+                'name': 'transformWkt',
+                'default': None,
+                'type': 'String',
+                'optional': True,
+                'description': '',
+            }
+        ]
+    },
 }
 
 # A sample of encoded EE API JSON, used by SerializerTest and DeserializerTest.

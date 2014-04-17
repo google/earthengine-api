@@ -120,7 +120,7 @@ ee.List.prototype.map = function(algorithm) {
       'type': 'Object'
     }]
   };
-  return this.cast(ee.ApiFunction._apply('List.map', {
+  return this.castInternal(ee.ApiFunction._apply('List.map', {
     'list': this,
     'baseAlgorithm': new ee.CustomFunction(signature, algorithm)
   }));

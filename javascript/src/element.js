@@ -125,5 +125,5 @@ ee.Element.prototype.set = function(var_args) {
     }
   }
   // Manually cast the result to an image.
-  return this.cast(result);
+  return this.castInternal(result);
 };

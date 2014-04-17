@@ -82,7 +82,8 @@ ee.Collection.prototype.filter = function(newFilter) {
   if (!newFilter) {
     throw new Error('Empty filters.');
   }
-  return this.cast(ee.ApiFunction._call('Collection.filter', this, newFilter));
+  return this.castInternal(ee.ApiFunction._call(
+      'Collection.filter', this, newFilter));
 };
 
 
@@ -151,7 +152,7 @@ ee.Collection.prototype.filterDate = function(start, end) {
  * @export
  */
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  return this.cast(ee.ApiFunction._call(
+  return this.castInternal(ee.ApiFunction._call(
       'Collection.limit', this, max, opt_property, opt_ascending));
 };
 
@@ -166,7 +167,7 @@ ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
  * @export
  */
 ee.Collection.prototype.sort = function(property, opt_ascending) {
-  return this.cast(ee.ApiFunction._call(
+  return this.castInternal(ee.ApiFunction._call(
       'Collection.limit', this, undefined, property, opt_ascending));
 };
 
@@ -197,7 +198,7 @@ ee.Collection.prototype.mapInternal = function(type, algorithm) {
       'type': ee.Types.classToName(type)
     }]
   };
-  return this.cast(ee.ApiFunction._apply('Collection.map', {
+  return this.castInternal(ee.ApiFunction._apply('Collection.map', {
     'collection': this,
     'baseAlgorithm': new ee.CustomFunction(signature, algorithm)
   }));

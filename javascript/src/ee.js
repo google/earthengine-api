@@ -366,7 +366,7 @@ ee.promote_ = function(arg, klass) {
       } else if (arg instanceof ee.ComputedObject) {
         // Try a cast.
         var co = /** @type {ee.ComputedObject} */ (arg);
-        return new ee.Element(co.func, co.args);
+        return new ee.Element(co.func, co.args, co.varName);
       } else {
         // No way to convert.
         throw Error('Cannot convert ' + arg + ' to Element.');
@@ -425,18 +425,23 @@ ee.promote_ = function(arg, klass) {
       return new ee.Number(/** @type {?} */ (arg));
     default:
       // Handle dynamically generated classes.
-      if (klass in exportedEE && arg) {
+      if (klass in exportedEE) {
+        var ctor = ee.ApiFunction.lookupInternal(klass);
         if (arg instanceof exportedEE[klass]) {
-          // Don't need to re-promote.
+          // Return unchanged.
           return arg;
+        } else if (ctor) {
+          // The client-side constructor will call the server-side constructor.
+          return new exportedEE[klass](arg);
         } else if (goog.isString(arg)) {
-          if (!(arg in exportedEE[klass])) {
+          if (arg in exportedEE[klass]) {
+            // arg is the name of a method on klass.
+            return exportedEE[klass][arg].call();
+          } else {
             throw new Error('Unknown algorithm: ' + klass + '.' + arg);
           }
-          // Special case promoting a string to Klass.Name().
-          // The function must be callable with no arguments.
-          return exportedEE[klass][arg].call();
         } else {
+          // Client-side cast.
           return new exportedEE[klass](arg);
         }
       } else {
@@ -589,13 +594,13 @@ ee.makeClass_ = function(name) {
     // Decide whether to call a server-side constructor or just do a
     // client-side cast.
     var ctor = ee.ApiFunction.lookupInternal(name);
-    var firstArgIsComputed = args[0] instanceof ee.ComputedObject;
+    var firstArgIsPrimitive = !(args[0] instanceof ee.ComputedObject);
     var shouldUseConstructor = false;
     if (ctor) {
       if (!onlyOneArg) {
         // Can't client-cast multiple arguments.
         shouldUseConstructor = true;
-      } else if (!firstArgIsComputed) {
+      } else if (firstArgIsPrimitive) {
         // Can't cast a primitive.
         shouldUseConstructor = true;
       } else if (args[0].func != ctor) {
@@ -613,7 +618,7 @@ ee.makeClass_ = function(name) {
       if (!onlyOneArg) {
         // We don't know what to do with multiple args.
         throw Error('Too many arguments for ee.' + name + '(): ' + args);
-      } else if (!firstArgIsComputed) {
+      } else if (firstArgIsPrimitive) {
         // Can't cast a primitive.
         throw Error('Invalid argument for ee.' + name + '(): ' + args +
                     '. Must be a ComputedObject.');

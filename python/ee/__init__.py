@@ -209,7 +209,7 @@ def _Promote(arg, klass):
       return arg
     elif isinstance(arg, ComputedObject):
       # Try a cast.
-      return Element(arg.func, arg.args)
+      return Element(arg.func, arg.args, arg.varName)
     else:
       # No way to convert.
       raise EEException('Cannot convert %s to Element.' % arg)
@@ -255,14 +255,22 @@ def _Promote(arg, klass):
     return Number(arg)
   elif klass in globals():
     cls = globals()[klass]
+    ctor = ApiFunction.lookupInternal(klass)
     # Handle dynamically created classes.
     if isinstance(arg, cls):
+      # Return unchanged.
       return arg
+    elif ctor:
+      # The client-side constructor will call the server-side constructor.
+      return cls(arg)
     elif isinstance(arg, basestring):
-      if not hasattr(cls, arg):
+      if hasattr(cls, arg):
+        # arg is the name of a method in klass.
+        return getattr(cls, arg)()
+      else:
         raise EEException('Unknown algorithm: %s.%s' % (klass, arg))
-      return getattr(cls, arg)()
     else:
+      # Client-side cast.
       return cls(arg)
   else:
     return arg
@@ -332,12 +340,46 @@ def _MakeClass(name):
     Returns:
       The new class.
     """
-    if isinstance(args[0], ComputedObject) and len(args) == 1:
+    klass = globals()[name]
+    onlyOneArg = (len(args) == 1)
+    # Are we trying to cast something that's already of the right class?
+    if onlyOneArg and isinstance(args[0], klass):
       result = args[0]
     else:
-      result = ApiFunction.call_(name, *args)
+      # Decide whether to call a server-side constructor or just do a
+      # client-side cast.
+      ctor = ApiFunction.lookupInternal(name)
+      firstArgIsPrimitive = not isinstance(args[0], ComputedObject)
+      shouldUseConstructor = False
+      if ctor:
+        if not onlyOneArg:
+          # Can't client-cast multiple arguments.
+          shouldUseConstructor = True
+        elif firstArgIsPrimitive:
+          # Can't cast a primitive.
+          shouldUseConstructor = True
+        elif args[0].func != ctor:
+          # We haven't already called the constructor on this object.
+          shouldUseConstructor = True
 
-    ComputedObject.__init__(self, result.func, result.args)
+    # Apply our decision.
+    if shouldUseConstructor:
+      # Call ctor manually to avoid having promote() called on the output.
+      ComputedObject.__init__(self, ctor, ctor.promoteArgs(ctor.nameArgs(args)))
+    else:
+      # Just cast and hope for the best.
+      if not onlyOneArg:
+        # We don't know what to do with multiple args.
+        raise EEException(
+            'Too many arguments for ee.%s(): %s' % (name, args))
+      elif firstArgIsPrimitive:
+        # Can't cast a primitive.
+        raise EEException(
+            'Invalid argument for ee.%s(): %s.  Must be a ComputedObject.' %
+            (name, args))
+      else:
+        result = args[0]
+      ComputedObject.__init__(self, result.func, result.args, result.varName)
 
   properties = {'__init__': init, 'name': lambda self: name}
   new_class = type(str(name), (ComputedObject,), properties)

@@ -164,7 +164,7 @@ ee.ComputedObject.prototype.name = function() {
  * @return {?} The converted instance.
  * @protected
  */
-ee.ComputedObject.prototype.cast = function(obj) {
+ee.ComputedObject.prototype.castInternal = function(obj) {
   if (obj instanceof this.constructor) {
     return obj;
   } else {

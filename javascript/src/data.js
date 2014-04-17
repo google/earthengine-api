@@ -138,9 +138,20 @@ ee.data.setDeadline = function(milliseconds) {
 
 
 /**
+ * Returns the base URL used for API calls.
+ *
+ * @return {string?} The current API base URL.
+ * @export
+ */
+ee.data.getApiBaseUrl = function() {
+  return ee.data.apiBaseUrl_;
+};
+
+
+/**
  * Returns the base URL used for tiles.
  *
- * @return {string?} The current base URL.
+ * @return {string?} The current tile base URL.
  * @export
  */
 ee.data.getTileBaseUrl = function() {
