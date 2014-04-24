@@ -5277,8 +5277,7 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
   return ee.data.send_("/createfolder", ee.data.makeRequest_({id:path, force:opt_force || !1}), opt_callback);
 };
 ee.data.search = function(query, opt_callback) {
-  var searchParams = (new goog.Uri.QueryData).add("q", query);
-  return ee.data.send_("/search", searchParams, opt_callback, "GET");
+  return ee.data.send_("/search", ee.data.makeRequest_({q:query}), opt_callback);
 };
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
@@ -6962,16 +6961,16 @@ ee.Image.combine_ = function(images, opt_names) {
 };
 ee.Image.prototype.select = function(selectors, opt_names) {
   var args = {input:this, bandSelectors:selectors};
-  if (goog.isArray(selectors)) {
-    opt_names && (args.newNames = opt_names);
-  } else {
+  if (ee.Types.isString(selectors) || ee.Types.isNumber(selectors)) {
     selectors = Array.prototype.slice.call(arguments);
     for (var i = 0;i < selectors.length;i++) {
-      if (!goog.isString(selectors[i]) && !goog.isNumber(selectors[i])) {
+      if (!(ee.Types.isString(selectors[i]) || ee.Types.isNumber(selectors[i]) || selectors[i] instanceof ee.ComputedObject)) {
         throw Error("Illegal argument to select(): " + selectors[i]);
       }
     }
     args.bandSelectors = selectors;
+  } else {
+    opt_names && (args.newNames = opt_names);
   }
   return ee.ApiFunction._apply("Image.select", args);
 };

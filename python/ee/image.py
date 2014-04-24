@@ -251,7 +251,8 @@ class Image(element.Element):
         'input': self,
         'bandSelectors': selectors,
     }
-    if isinstance(selectors, (basestring, int, long)):
+    if (isinstance(selectors, (basestring, int, long)) or
+        ee_types.isString(selectors) or ee_types.isNumber(selectors)):
       # Varargs inputs.
       selectors = [selectors]
       if opt_names is not None:

@@ -489,9 +489,9 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
  * @return {Array.<ee.data.AssetDescription>} An array of data set indices.
  */
 ee.data.search = function(query, opt_callback) {
-  var searchParams = new goog.Uri.QueryData().add('q', query);
+  var params = {'q': query};
   return /** @type {Array.<ee.data.AssetDescription>} */ (
-      ee.data.send_('/search', searchParams, opt_callback, 'GET'));
+      ee.data.send_('/search', ee.data.makeRequest_(params), opt_callback));
 };
 
 
