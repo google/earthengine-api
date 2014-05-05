@@ -837,7 +837,7 @@ goog.string.unescapeEntitiesWithDocument = function(str, document) {
 };
 goog.string.unescapeEntitiesUsingDom_ = function(str, opt_document) {
   var seen = {"&amp;":"&", "&lt;":"<", "&gt;":">", "&quot;":'"'}, div;
-  div = opt_document ? opt_document.createElement("div") : document.createElement("div");
+  div = opt_document ? opt_document.createElement("div") : goog.global.document.createElement("div");
   return str.replace(goog.string.HTML_ENTITY_PATTERN_, function(s, entity) {
     var value = seen[s];
     if (value) {
@@ -2227,7 +2227,7 @@ goog.events.removeAll = function(opt_obj, opt_type) {
   var count = 0, typeStr = opt_type && opt_type.toString(), type;
   for (type in listenerMap.listeners) {
     if (!typeStr || type == typeStr) {
-      for (var listeners = goog.array.clone(listenerMap.listeners[type]), i = 0;i < listeners.length;++i) {
+      for (var listeners = listenerMap.listeners[type].concat(), i = 0;i < listeners.length;++i) {
         goog.events.unlistenByKey(listeners[i]) && ++count;
       }
     }
@@ -2284,7 +2284,7 @@ goog.events.fireListeners_ = function(obj, type, capture, eventObject) {
   if (listenerMap) {
     var listenerArray = listenerMap.listeners[type.toString()];
     if (listenerArray) {
-      for (var listenerArray = goog.array.clone(listenerArray), i = 0;i < listenerArray.length;i++) {
+      for (var listenerArray = listenerArray.concat(), i = 0;i < listenerArray.length;i++) {
         var listener = listenerArray[i];
         listener && listener.capture == capture && !listener.removed && (retval &= !1 !== goog.events.fireListener(listener, eventObject));
       }
@@ -6661,6 +6661,39 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       throw Error("Unknown encoded object type: " + typeName);;
   }
 };
+ee.Dictionary = function(dict) {
+  if (!(this instanceof ee.Dictionary)) {
+    return ee.ComputedObject.construct(ee.Dictionary, arguments);
+  }
+  if (dict instanceof ee.Dictionary) {
+    return dict;
+  }
+  ee.Dictionary.initialize();
+  if (ee.Types.isRegularObject(dict)) {
+    ee.ComputedObject.call(this, null, null), this.dict_ = dict;
+  } else {
+    if (dict instanceof ee.ComputedObject) {
+      ee.ComputedObject.call(this, dict.func, dict.args, dict.varName), this.dict_ = null;
+    } else {
+      throw Error("Invalid argument specified for ee.Dictionary(): " + dict);
+    }
+  }
+};
+goog.inherits(ee.Dictionary, ee.ComputedObject);
+ee.Dictionary.initialized_ = !1;
+ee.Dictionary.initialize = function() {
+  ee.Dictionary.initialized_ || (ee.ApiFunction.importApi(ee.Dictionary, "Dictionary", "Dictionary"), ee.Dictionary.initialized_ = !0);
+};
+ee.Dictionary.reset = function() {
+  ee.ApiFunction.clearApi(ee.Dictionary);
+  ee.Dictionary.initialized_ = !1;
+};
+ee.Dictionary.prototype.encode = function(encoder) {
+  return goog.isNull(this.dict_) ? ee.Dictionary.superClass_.encode.call(this, encoder) : encoder(this.dict_);
+};
+ee.Dictionary.prototype.name = function() {
+  return "Dictionary";
+};
 ee.Feature = function(geometry, opt_properties) {
   if (!(this instanceof ee.Feature)) {
     return ee.ComputedObject.construct(ee.Feature, arguments);
@@ -7094,6 +7127,7 @@ ee.reset = function() {
   ee.data.reset();
   ee.ApiFunction.reset();
   ee.Date.reset();
+  ee.Dictionary.reset();
   ee.Element.reset();
   ee.Image.reset();
   ee.Feature.reset();
@@ -7133,7 +7167,7 @@ ee.apply = function(func, namedArgs) {
 ee.initializationSuccess_ = function() {
   if (ee.ready_ == ee.InitState.LOADING) {
     try {
-      ee.Date.initialize(), ee.Element.initialize(), ee.Image.initialize(), ee.Feature.initialize(), ee.Collection.initialize(), ee.ImageCollection.initialize(), ee.FeatureCollection.initialize(), ee.Filter.initialize(), ee.Geometry.initialize(), ee.List.initialize(), ee.Number.initialize(), ee.String.initialize(), ee.initializeGeneratedClasses_(), ee.initializeUnboundMethods_();
+      ee.Date.initialize(), ee.Dictionary.initialize(), ee.Element.initialize(), ee.Image.initialize(), ee.Feature.initialize(), ee.Collection.initialize(), ee.ImageCollection.initialize(), ee.FeatureCollection.initialize(), ee.Filter.initialize(), ee.Geometry.initialize(), ee.List.initialize(), ee.Number.initialize(), ee.String.initialize(), ee.initializeGeneratedClasses_(), ee.initializeUnboundMethods_();
     } catch (e) {
       ee.initializationFailure_(e);
       return;
@@ -7184,10 +7218,10 @@ ee.promote_ = function(arg, klass) {
         return new ee.Filter(arg);
       case "Algorithm":
         return goog.isString(arg) ? new ee.ApiFunction(arg) : arg;
-      case "Dictionary":
-        return klass in exportedEE ? arg instanceof exportedEE[klass] ? arg : arg instanceof ee.ComputedObject ? new exportedEE[klass](arg) : arg : arg;
       case "String":
         return ee.Types.isString(arg) || arg instanceof ee.String || arg instanceof ee.ComputedObject ? new ee.String(arg) : arg;
+      case "Dictionary":
+        return ee.Types.isRegularObject(arg) ? arg : new ee.Dictionary(arg);
       case "List":
         return new ee.List(arg);
       case "Number":
@@ -7832,10 +7866,11 @@ goog.dom.isWindow = function(obj) {
   return goog.isObject(obj) && obj.window == obj;
 };
 goog.dom.getParentElement = function(element) {
-  if (goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY && !(goog.userAgent.IE && goog.userAgent.isVersionOrHigher("9") && !goog.userAgent.isVersionOrHigher("10") && goog.global.SVGElement && element instanceof goog.global.SVGElement)) {
-    return element.parentElement;
+  var parent;
+  if (goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY && !(goog.userAgent.IE && goog.userAgent.isVersionOrHigher("9") && !goog.userAgent.isVersionOrHigher("10") && goog.global.SVGElement && element instanceof goog.global.SVGElement) && (parent = element.parentElement)) {
+    return parent;
   }
-  var parent = element.parentNode;
+  parent = element.parentNode;
   return goog.dom.isElement(parent) ? parent : null;
 };
 goog.dom.contains = function(parent, descendant) {
@@ -8492,7 +8527,7 @@ goog.style.setStyle_ = function(element, value, style) {
 goog.style.getVendorJsStyleName_ = function(element, style) {
   var camelStyle = goog.string.toCamelCase(style);
   if (void 0 === element.style[camelStyle]) {
-    var prefixedStyle = goog.dom.vendor.getVendorJsPrefix() + goog.string.toTitleCase(style);
+    var prefixedStyle = goog.dom.vendor.getVendorJsPrefix() + goog.string.toTitleCase(camelStyle);
     if (void 0 !== element.style[prefixedStyle]) {
       return prefixedStyle;
     }
@@ -8502,7 +8537,7 @@ goog.style.getVendorJsStyleName_ = function(element, style) {
 goog.style.getVendorStyleName_ = function(element, style) {
   var camelStyle = goog.string.toCamelCase(style);
   if (void 0 === element.style[camelStyle]) {
-    var prefixedStyle = goog.dom.vendor.getVendorJsPrefix() + goog.string.toTitleCase(style);
+    var prefixedStyle = goog.dom.vendor.getVendorJsPrefix() + goog.string.toTitleCase(camelStyle);
     if (void 0 !== element.style[prefixedStyle]) {
       return goog.dom.vendor.getVendorPrefix() + "-" + style;
     }

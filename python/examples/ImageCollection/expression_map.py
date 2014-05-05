@@ -12,14 +12,14 @@ import ee.mapclient
 ee.Initialize()
 
 # Filter the L7 collection to a single month.
-collection = (ee.ImageCollection('L7_L1T_TOA')
+collection = (ee.ImageCollection('LE7_L1T_TOA')
               .filterDate(datetime.datetime(2002, 11, 1),
                           datetime.datetime(2002, 12, 1)))
 
 
 def NDVI(image):
   """A function to compute NDVI."""
-  return image.expression('float(b("40") - b("30")) / (b("40") + b("30"))')
+  return image.expression('float(b("B4") - b("B3")) / (b("B4") + b("B3"))')
 
 
 def SAVI(image):
@@ -27,8 +27,8 @@ def SAVI(image):
   return ee.Image(0).expression(
       '(1 + L) * float(nir - red)/ (nir + red + L)',
       {
-          'nir': image.select('40'),
-          'red': image.select('30'),
+          'nir': image.select('B4'),
+          'red': image.select('B3'),
           'L': 0.2
       })
 

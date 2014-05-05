@@ -10,7 +10,7 @@ var palette = [
   '004C00', '023B01', '012E01', '011D01', '011301'];
 
 // Just display the image with the palette.
-var image = ee.Image('L5_L1T_8DAY_EVI/20110618');
+var image = ee.Image('LT5_L1T_8DAY_EVI/20110618');
 addToMap(image, {min: 0, max: 1, palette: palette}, 'Landsat EVI');
 
 // Find the difference between convolution with circles and squares.

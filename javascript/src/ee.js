@@ -10,6 +10,7 @@ goog.require('ee.ApiFunction');
 goog.require('ee.Collection');
 goog.require('ee.ComputedObject');
 goog.require('ee.Date');
+goog.require('ee.Dictionary');
 goog.require('ee.Element');
 goog.require('ee.Feature');
 goog.require('ee.FeatureCollection');
@@ -109,6 +110,7 @@ ee.reset = function() {
   ee.data.reset();
   ee.ApiFunction.reset();
   ee.Date.reset();
+  ee.Dictionary.reset();
   ee.Element.reset();
   ee.Image.reset();
   ee.Feature.reset();
@@ -265,6 +267,7 @@ ee.initializationSuccess_ = function() {
   try {
     // Update classes with bound methods.
     ee.Date.initialize();
+    ee.Dictionary.initialize();
     ee.Element.initialize();
     ee.Image.initialize();
     ee.Feature.initialize();
@@ -394,18 +397,6 @@ ee.promote_ = function(arg, klass) {
       } else {
         return arg;
       }
-    case 'Dictionary':
-      if (!(klass in exportedEE)) {
-        // No dictionary class defined.
-        return arg;
-      } else if (arg instanceof exportedEE[klass]) {
-        return arg;
-      } else if (arg instanceof ee.ComputedObject) {
-        return new exportedEE[klass](arg);
-      } else {
-        // Can't promote non-ComputedObjects up to Dictionary; no constructor.
-        return arg;
-      }
     case 'String':
       if (ee.Types.isString(arg) ||
           arg instanceof ee.String ||
@@ -413,6 +404,12 @@ ee.promote_ = function(arg, klass) {
         return new ee.String(arg);
       } else {
         return arg;
+      }
+    case 'Dictionary':
+      if (ee.Types.isRegularObject(arg)) {
+        return arg;
+      } else {
+        return new ee.Dictionary(/** @type {?} */ (arg));
       }
     case 'List':
       return new ee.List(/** @type {?} */ (arg));

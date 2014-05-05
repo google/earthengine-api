@@ -16,6 +16,7 @@ from collection import Collection
 from computedobject import ComputedObject
 from customfunction import CustomFunction
 import data
+from dictionary import Dictionary
 from ee_date import Date
 from ee_exception import EEException
 from ee_list import List
@@ -82,6 +83,7 @@ def Initialize(credentials=None, opt_url=None):
   Number.initialize()
   String.initialize()
   Date.initialize()
+  Dictionary.initialize()
   _InitializeGeneratedClasses()
   _InitializeUnboundMethods()
 
@@ -102,6 +104,7 @@ def Reset():
   Number.reset()
   String.reset()
   Date.reset()
+  Dictionary.reset()
   _ResetGeneratedClasses()
   global Algorithms
   Algorithms = _AlgorithmsContainer()
@@ -231,17 +234,10 @@ def _Promote(arg, klass):
   elif klass == 'Algorithm' and isinstance(arg, basestring):
     return ApiFunction.lookup(arg)
   elif klass == 'Dictionary':
-    if klass not in globals():
-      # No dictionary class defined.
+    if isinstance(arg, dict):
       return arg
-    cls = globals()[klass]
-    if isinstance(arg, cls):
-      return arg
-    elif isinstance(arg, ComputedObject):
-      return cls(arg)
     else:
-      # Can't promote non-ComputedObjects up to Dictionary; no constructor.
-      return arg
+      return Dictionary(arg)
   elif klass == 'String':
     if (types.isString(arg) or
         isinstance(arg, ComputedObject) or
