@@ -1020,6 +1020,24 @@ BUILTIN_FUNCTIONS = {
         'type': 'Algorithm',
         'description': ''
     },
+    'Element.setMulti': {
+        'returns': 'Element',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'Element',
+                'description': '',
+                'name': 'object'
+            },
+            {
+                'type': 'Dictionary<Object>',
+                'description': '',
+                'name': 'properties'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
     'Number.add': {
         'returns': 'Number',
         'hidden': False,

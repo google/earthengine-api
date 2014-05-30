@@ -253,7 +253,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       }
       var destination = isInstance ? target.prototype : target;
 
-      if (fname in destination) {
+      while (fname in destination) {
         // Don't overwrite existing functions; suffix them with '_'.
         fname = fname + '_';
         signature['hidden'] = true;

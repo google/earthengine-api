@@ -184,7 +184,7 @@ class ApiFunction(function.Function):
           fname = fname.title()
 
         # Don't overwrite existing versions of this function.
-        if hasattr(target, fname):
+        while hasattr(target, fname):
           fname = '_' + fname
 
         # Create a new function so we can attach properties to it.

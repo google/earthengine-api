@@ -74,32 +74,33 @@ ee.Element.prototype.name = function() {
  * @export
  */
 ee.Element.prototype.set = function(var_args) {
-  // TODO(user): Remove fallback once Element.set() is live.
-  var result = this;
+  var result;
   if (arguments.length <= 1) {
     var properties = arguments[0];
-    if (!goog.isObject(properties)) {
-      throw Error('When Element.set() is passed one argument, it must ' +
-                  'be a dictionary.');
-    }
-    // Try to be smart about interpreting the argument.
-    // Check that we have a plain object, with 1 property called 'properties',
-    // which is itself a plain object.
+
+    // If this is a keyword call, unwrap it.
     if (ee.Types.isRegularObject(properties) &&
         goog.array.equals(goog.object.getKeys(properties), ['properties']) &&
-        ee.Types.isRegularObject(properties['properties'])) {
+        goog.isObject(properties['properties'])) {
       // Looks like a call with keyword parameters. Extract them.
       properties = /** @type {Object.<*>} */(properties['properties']);
     }
 
-    try {
+    if (ee.Types.isRegularObject(properties)) {
+      // Still a plain object. Extract its keys. Setting the keys separately
+      // allows filter propagation.
+      result = this;
       for (var key in properties) {
         var value = properties[key];
         result = ee.ApiFunction._call('Element.set', result, key, value);
       }
-    } catch (e) {
-      // No Element.set() defined yet. Use Feature.set().
-      result = ee.ApiFunction._call('Feature.set', result, properties);
+    } else if (properties instanceof ee.ComputedObject &&
+               ee.ApiFunction.lookupInternal('Element.setMulti')) {
+      // A computed dictionary. Can't set each key separately.
+      result = ee.ApiFunction._call('Element.setMulti', this, properties);
+    } else {
+      throw Error('When Element.set() is passed one argument, it must ' +
+                  'be a dictionary.');
     }
   } else {
     // Interpret as key1, value1, key2, value2, ...
@@ -107,21 +108,11 @@ ee.Element.prototype.set = function(var_args) {
       throw Error('When Element.set() is passed multiple arguments, there ' +
                   'must be an even number of them.');
     }
-    try {
-      for (var i = 0; i < arguments.length; i += 2) {
-        var key = arguments[i];
-        var value = arguments[i + 1];
-        result = ee.ApiFunction._call('Element.set', result, key, value);
-      }
-    } catch (e) {
-      // No Element.set() defined yet. Use Feature.set().
-      var properties = {};
-      for (var i = 0; i < arguments.length; i += 2) {
-        var key = arguments[i];
-        var value = arguments[i + 1];
-        properties[key] = value;
-      }
-      result = ee.ApiFunction._call('Feature.set', result, properties);
+    result = this;
+    for (var i = 0; i < arguments.length; i += 2) {
+      var key = arguments[i];
+      var value = arguments[i + 1];
+      result = ee.ApiFunction._call('Element.set', result, key, value);
     }
   }
   // Manually cast the result to an image.
