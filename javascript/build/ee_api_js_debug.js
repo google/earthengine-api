@@ -315,11 +315,9 @@ goog.setCssNameMapping = function(mapping, opt_style) {
   goog.cssNameMappingStyle_ = opt_style;
 };
 goog.getMsg = function(str, opt_values) {
-  var values = opt_values || {}, key;
-  for (key in values) {
-    var value = ("" + values[key]).replace(/\$/g, "$$$$");
-    str = str.replace(new RegExp("\\{\\$" + key + "\\}", "gi"), value);
-  }
+  opt_values && (str = str.replace(/\{\$([^}]+)}/g, function(match, key) {
+    return key in opt_values ? opt_values[key] : match;
+  }));
   return str;
 };
 goog.getMsgWithFallback = function(a, b) {
@@ -387,9 +385,9 @@ goog.MODIFY_FUNCTION_PROTOTYPES && (Function.prototype.bind = Function.prototype
 });
 goog.defineClass = function(superClass, def) {
   var constructor = def.constructor, statics = def.statics;
-  if (!constructor || constructor == Object.prototype.constructor) {
-    throw Error("constructor property is required.");
-  }
+  constructor && constructor != Object.prototype.constructor || (constructor = function() {
+    throw Error("cannot instantiate an interface (no constructor defined).");
+  });
   var cls = goog.defineClass.createSealingConstructor_(constructor);
   superClass && goog.inherits(cls, superClass);
   delete def.constructor;
@@ -1110,6 +1108,10 @@ goog.asserts.AssertionError = function(messagePattern, messageArgs) {
 };
 goog.inherits(goog.asserts.AssertionError, goog.debug.Error);
 goog.asserts.AssertionError.prototype.name = "AssertionError";
+goog.asserts.DEFAULT_ERROR_HANDLER = function(e) {
+  throw e;
+};
+goog.asserts.errorHandler_ = goog.asserts.DEFAULT_ERROR_HANDLER;
 goog.asserts.doAssertFailure_ = function(defaultMessage, defaultArgs, givenMessage, givenArgs) {
   var message = "Assertion failed";
   if (givenMessage) {
@@ -1117,16 +1119,18 @@ goog.asserts.doAssertFailure_ = function(defaultMessage, defaultArgs, givenMessa
   } else {
     defaultMessage && (message += ": " + defaultMessage, args = defaultArgs);
   }
-  throw new goog.asserts.AssertionError("" + message, args || []);
+  var e = new goog.asserts.AssertionError("" + message, args || []);
+  goog.asserts.errorHandler_(e);
+};
+goog.asserts.setErrorHandler = function(errorHandler) {
+  goog.asserts.ENABLE_ASSERTS && (goog.asserts.errorHandler_ = errorHandler);
 };
 goog.asserts.assert = function(condition, opt_message, var_args) {
   goog.asserts.ENABLE_ASSERTS && !condition && goog.asserts.doAssertFailure_("", null, opt_message, Array.prototype.slice.call(arguments, 2));
   return condition;
 };
 goog.asserts.fail = function(opt_message, var_args) {
-  if (goog.asserts.ENABLE_ASSERTS) {
-    throw new goog.asserts.AssertionError("Failure" + (opt_message ? ": " + opt_message : ""), Array.prototype.slice.call(arguments, 1));
-  }
+  goog.asserts.ENABLE_ASSERTS && goog.asserts.errorHandler_(new goog.asserts.AssertionError("Failure" + (opt_message ? ": " + opt_message : ""), Array.prototype.slice.call(arguments, 1)));
 };
 goog.asserts.assertNumber = function(value, opt_message, var_args) {
   goog.asserts.ENABLE_ASSERTS && !goog.isNumber(value) && goog.asserts.doAssertFailure_("Expected number but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
@@ -2252,14 +2256,14 @@ goog.events.unlistenByKey = function(key) {
 goog.events.unlistenWithWrapper = function(src, wrapper, listener, opt_capt, opt_handler) {
   wrapper.unlisten(src, listener, opt_capt, opt_handler);
 };
-goog.events.removeAll = function(opt_obj, opt_type) {
-  if (!opt_obj) {
+goog.events.removeAll = function(obj, opt_type) {
+  if (!obj) {
     return 0;
   }
-  if (goog.events.Listenable.isImplementedBy(opt_obj)) {
-    return opt_obj.removeAllListeners(opt_type);
+  if (goog.events.Listenable.isImplementedBy(obj)) {
+    return obj.removeAllListeners(opt_type);
   }
-  var listenerMap = goog.events.getListenerMap_(opt_obj);
+  var listenerMap = goog.events.getListenerMap_(obj);
   if (!listenerMap) {
     return 0;
   }
@@ -2415,11 +2419,11 @@ goog.events.EventTarget = function() {
   goog.Disposable.call(this);
   this.eventTargetListeners_ = new goog.events.ListenerMap(this);
   this.actualEventTarget_ = this;
+  this.parentEventTarget_ = null;
 };
 goog.inherits(goog.events.EventTarget, goog.Disposable);
 goog.events.Listenable.addImplementation(goog.events.EventTarget);
 goog.events.EventTarget.MAX_ANCESTORS_ = 1E3;
-goog.events.EventTarget.prototype.parentEventTarget_ = null;
 goog.events.EventTarget.prototype.getParentEventTarget = function() {
   return this.parentEventTarget_;
 };
@@ -7030,16 +7034,17 @@ ee.Image.combine_ = function(images, opt_names) {
   opt_names && (result = result.select([".*"], opt_names));
   return result;
 };
-ee.Image.prototype.select = function(selectors, opt_names) {
-  var args = {input:this, bandSelectors:selectors};
-  if (ee.Types.isString(selectors) || ee.Types.isNumber(selectors)) {
-    selectors = Array.prototype.slice.call(arguments);
-    for (var i = 0;i < selectors.length;i++) {
-      if (!(ee.Types.isString(selectors[i]) || ee.Types.isNumber(selectors[i]) || selectors[i] instanceof ee.ComputedObject)) {
-        throw Error("Illegal argument to select(): " + selectors[i]);
+ee.Image.prototype.select = function(opt_selectors, opt_names) {
+  goog.isDef(opt_selectors) || (opt_selectors = []);
+  var args = {input:this, bandSelectors:opt_selectors};
+  if (ee.Types.isString(opt_selectors) || ee.Types.isNumber(opt_selectors)) {
+    opt_selectors = Array.prototype.slice.call(arguments);
+    for (var i = 0;i < opt_selectors.length;i++) {
+      if (!(ee.Types.isString(opt_selectors[i]) || ee.Types.isNumber(opt_selectors[i]) || opt_selectors[i] instanceof ee.ComputedObject)) {
+        throw Error("Illegal argument to select(): " + opt_selectors[i]);
       }
     }
-    args.bandSelectors = selectors;
+    args.bandSelectors = opt_selectors;
   } else {
     opt_names && (args.newNames = opt_names);
   }
@@ -7698,7 +7703,7 @@ goog.dom.createDom_ = function(doc, args) {
     tagName = tagNameArr.join("");
   }
   var element = doc.createElement(tagName);
-  attributes && (goog.isString(attributes) ? element.className = attributes : goog.isArray(attributes) ? goog.dom.classes.add.apply(null, [element].concat(attributes)) : goog.dom.setProperties(element, attributes));
+  attributes && (goog.isString(attributes) ? element.className = attributes : goog.isArray(attributes) ? element.className = attributes.join(" ") : goog.dom.setProperties(element, attributes));
   2 < args.length && goog.dom.append_(doc, element, args, 2);
   return element;
 };
@@ -8173,7 +8178,7 @@ goog.dom.getAncestorByTagNameAndClass = function(element, opt_tag, opt_class) {
   }
   var tagName = opt_tag ? opt_tag.toUpperCase() : null;
   return goog.dom.getAncestor(element, function(node) {
-    return(!tagName || node.nodeName == tagName) && (!opt_class || goog.dom.classes.has(node, opt_class));
+    return(!tagName || node.nodeName == tagName) && (!opt_class || goog.isString(node.className) && goog.array.contains(node.className.split(/\s+/), opt_class));
   }, !0);
 };
 goog.dom.getAncestorByClass = function(element, className) {

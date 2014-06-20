@@ -230,14 +230,14 @@ class Image(element.Element):
 
     return result
 
-  def select(self, selectors, opt_names=None, *args):
+  def select(self, opt_selectors=None, opt_names=None, *args):
     """Select bands from an image.
 
     This is an override to the normal Image.select function to allow
     varargs specification of selectors.
 
     Args:
-      selectors: An array of names, regexes or numeric indices specifying
+      opt_selectors: An array of names, regexes or numeric indices specifying
           the bands to select.
       opt_names: An array of strings specifying the new names for the
           selected bands.  If supplied, the length must match the number
@@ -247,19 +247,22 @@ class Image(element.Element):
     Returns:
       An image with the selected bands.
     """
+    if opt_selectors is None:
+      opt_selectors = []
+
     arguments = {
         'input': self,
-        'bandSelectors': selectors,
+        'bandSelectors': opt_selectors,
     }
-    if (isinstance(selectors, (basestring, int, long)) or
-        ee_types.isString(selectors) or ee_types.isNumber(selectors)):
+    if (isinstance(opt_selectors, (basestring, int, long)) or
+        ee_types.isString(opt_selectors) or ee_types.isNumber(opt_selectors)):
       # Varargs inputs.
-      selectors = [selectors]
+      opt_selectors = [opt_selectors]
       if opt_names is not None:
-        selectors.append(opt_names)
+        opt_selectors.append(opt_names)
         opt_names = None
-      selectors.extend(args)
-    arguments['bandSelectors'] = selectors
+      opt_selectors.extend(args)
+    arguments['bandSelectors'] = opt_selectors
     if opt_names:
       arguments['newNames'] = opt_names
     return apifunction.ApiFunction.apply_('Image.select', arguments)
@@ -292,6 +295,7 @@ class Image(element.Element):
     # Reinterpret the body call as an ee.Function by hand-generating the
     # signature so the computed function knows its input and output types.
     class ReinterpretedFunction(function.Function):
+
       def encode(self, encoder):
         return body.encode(encoder)
 

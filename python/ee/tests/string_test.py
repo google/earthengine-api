@@ -9,6 +9,7 @@ from ee import apitestcase
 
 
 class StringTest(apitestcase.ApiTestCase):
+
   def testString(self):
     """Verifies basic behavior of ee.String."""
     bare_string = ee.String('foo')
@@ -19,6 +20,18 @@ class StringTest(apitestcase.ApiTestCase):
     self.assertEquals(ee.ApiFunction.lookup('String.cat'), computed.func)
     self.assertEquals({'string1': ee.String('foo'),
                        'string2': ee.String('bar')}, computed.args)
+
+  def testInternals(self):
+    """Test eq(), ne() and hash()."""
+    a = ee.String('one')
+    b = ee.String('two')
+    c = ee.String('one')
+
+    self.assertEquals(a, a)
+    self.assertNotEquals(a, b)
+    self.assertEquals(a, c)
+    self.assertNotEquals(b, c)
+    self.assertNotEquals(hash(a), hash(b))
 
 
 if __name__ == '__main__':

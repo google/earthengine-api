@@ -315,7 +315,8 @@ ee.Image.combine_ = function(images, opt_names) {
  * Select bands from an image.  This is an override to the normal
  * Image.select function to allow varargs usage.
  *
- * @param {Array.<string|number|ee.ComputedObject>|ee.ComputedObject} selectors
+ * @param {Array.<string|number|ee.ComputedObject>|ee.ComputedObject=}
+ *     opt_selectors
  *     A list of names, regexes or numeric indicies specifying the bands
  *     to select.
  * @param {Array.<string|ee.ComputedObject>=} opt_names
@@ -324,25 +325,28 @@ ee.Image.combine_ = function(images, opt_names) {
  * @return {ee.Image} The image.
  * @export
  */
-ee.Image.prototype.select = function(selectors, opt_names) {
+ee.Image.prototype.select = function(opt_selectors, opt_names) {
   // If the user didn't pass an array as the first argument, assume
   // that everything in the arguments array is actually a selector.
+  if (!goog.isDef(opt_selectors)) {
+    opt_selectors = [];
+  }
   var args = {
     'input': this,
-    'bandSelectors': selectors
+    'bandSelectors': opt_selectors
   };
 
-  if (ee.Types.isString(selectors) || ee.Types.isNumber(selectors)) {
-    selectors = Array.prototype.slice.call(arguments);
+  if (ee.Types.isString(opt_selectors) || ee.Types.isNumber(opt_selectors)) {
+    opt_selectors = Array.prototype.slice.call(arguments);
     // Verify we didn't get anything unexpected.
-    for (var i = 0; i < selectors.length; i++) {
-      if (!ee.Types.isString(selectors[i]) &&
-          !ee.Types.isNumber(selectors[i]) &&
-          !(selectors[i] instanceof ee.ComputedObject)) {
-        throw Error('Illegal argument to select(): ' + selectors[i]);
+    for (var i = 0; i < opt_selectors.length; i++) {
+      if (!ee.Types.isString(opt_selectors[i]) &&
+          !ee.Types.isNumber(opt_selectors[i]) &&
+          !(opt_selectors[i] instanceof ee.ComputedObject)) {
+        throw Error('Illegal argument to select(): ' + opt_selectors[i]);
       }
     }
-    args['bandSelectors'] = selectors;
+    args['bandSelectors'] = opt_selectors;
   } else if (opt_names) {
     args['newNames'] = opt_names;
   }

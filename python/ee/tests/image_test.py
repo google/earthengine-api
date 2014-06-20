@@ -79,6 +79,12 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEquals({'dstImg': image1, 'srcImg': image2},
                       combined.args['input'].args)
 
+  def testSelect(self):
+    """Verifies regression in the behavior of empty ee.Image.select()."""
+    image = ee.Image([1, 2]).select()
+    self.assertEquals(ee.ApiFunction.lookup('Image.select'), image.func)
+    self.assertEquals(ee.List([]), image.args['bandSelectors'])
+
   def testDownload(self):
     """Verifies Download ID and URL generation."""
     url = ee.Image(1).getDownloadUrl()

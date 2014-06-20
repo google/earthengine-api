@@ -159,6 +159,18 @@ class FilterTest(apitestcase.ApiTestCase):
     f2 = ee.Filter.date(d1, d2)
     self.assertEquals(f1, f2)
 
+  def testInternals(self):
+    """Test eq(), ne() and hash()."""
+    a = ee.Filter.eq('x', 1)
+    b = ee.Filter.eq('x', 2)
+    c = ee.Filter.eq('x', 1)
+
+    self.assertEquals(a, a)
+    self.assertNotEquals(a, b)
+    self.assertEquals(a, c)
+    self.assertNotEquals(b, c)
+    self.assertNotEquals(hash(a), hash(b))
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -28,6 +28,18 @@ class DictionaryTest(apitestcase.ApiTestCase):
     else:
       self.fail('Expected an exception.')
 
+  def testInternals(self):
+    """Test eq(), ne() and hash()."""
+    a = ee.Dictionary({'one': 1})
+    b = ee.Dictionary({'two': 2})
+    c = ee.Dictionary({'one': 1})
+
+    self.assertEquals(a, a)
+    self.assertNotEquals(a, b)
+    self.assertEquals(a, c)
+    self.assertNotEquals(b, c)
+    self.assertNotEquals(hash(a), hash(b))
+
 
 if __name__ == '__main__':
   unittest.main()

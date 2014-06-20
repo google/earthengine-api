@@ -41,6 +41,18 @@ class ListTest(apitestcase.ApiTestCase):
     self.assertEquals(expected_function.serialize(),
                       mapped.args['baseAlgorithm'].serialize())
 
+  def testInternals(self):
+    """Test eq(), ne() and hash()."""
+    a = ee.List([1, 2])
+    b = ee.List([2, 1])
+    c = ee.List([1, 2])
+
+    self.assertTrue(a.__eq__(a))
+    self.assertFalse(a.__eq__(b))
+    self.assertTrue(a.__eq__(c))
+    self.assertTrue(b.__ne__(c))
+    self.assertNotEquals(a.__hash__(), b.__hash__())
+    self.assertEquals(a.__hash__(), c.__hash__())
 
 if __name__ == '__main__':
   unittest.main()

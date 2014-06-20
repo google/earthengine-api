@@ -71,12 +71,13 @@ class ComputedObject(encodable.Encodable):
 
   def __eq__(self, other):
     return (type(self) == type(other) and
-            self.func == other.func and
-            self.args == other.args and
-            self.varName == other.varName)
+            self.__dict__ == other.__dict__)
 
   def __ne__(self, other):
     return not self.__eq__(other)
+
+  def __hash__(self):
+    return hash(ComputedObject.freeze(self.__dict__))
 
   def getInfo(self):
     """Fetch and return information about this object.
@@ -155,3 +156,14 @@ class ComputedObject(encodable.Encodable):
       result.args = obj.args
       result.varName = obj.varName
       return result
+
+  @staticmethod
+  def freeze(obj):
+    """Freeze a list or dict so it can be hashed."""
+    if isinstance(obj, dict):
+      return frozenset(
+          (key, ComputedObject.freeze(val)) for key, val in obj.items())
+    elif isinstance(obj, list):
+      return tuple(map(ComputedObject.freeze, obj))
+    else:
+      return obj

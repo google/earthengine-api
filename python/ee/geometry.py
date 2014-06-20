@@ -110,24 +110,6 @@ class Geometry(computedobject.ComputedObject):
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def __eq__(self, other):
-    # pylint: disable=protected-access
-    if self.func:
-      return (type(self) == type(other) and
-              self.func == other.func and
-              self.args == other.args)
-    else:
-      return (type(self) == type(other) and
-              self._type == other._type and
-              self._coordinates == other._coordinates and
-              self._geometries == other._geometries and
-              self._proj == other._proj and
-              self._geodesic == other._geodesic)
-    # pylint: enable=protected-access
-
-  def __ne__(self, other):
-    return not self.__eq__(other)
-
   def __getitem__(self, key):
     """Allows access to GeoJSON properties for backward-compatibility."""
     return self.toGeoJSON()[key]

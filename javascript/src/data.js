@@ -1032,6 +1032,7 @@ ee.data.MapId;
  *   gmeProjectId: (undefined|string),
  *   gmeAttributionName: (undefined|string),
  *   gmeMosaic: (undefined|string),
+ *   gmeTerrain: (undefined|boolean),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string)
  * }}

@@ -65,7 +65,6 @@ class Date(computedobject.ComputedObject):
           'Invalid argument specified for ee.Date(): %s' % date)
 
     super(Date, self).__init__(func, args, varName)
-    self._date = None
 
   @classmethod
   def initialize(cls):
