@@ -61,13 +61,13 @@ ee.Date = function(date, opt_tz) {
   } else if (goog.isDateLike(date)) {
     args['value'] = Math.floor(/** @type {Date} */(date).getTime());
   } else if (date instanceof ee.ComputedObject) {
-    if (date.func != func) {
-      args['value'] = date;
-    } else {
-      // In the case of a computedObject that's already calling date, just cast.
+    if (date.func && date.func.getSignature()['returns'] == 'Date') {
+      // If it's a call that's already returning a Date, just cast.
       func = date.func;
       args = date.args;
       varName = date.varName;
+    } else {
+      args['value'] = date;
     }
   } else {
     throw Error('Invalid argument specified for ee.Date(): ' + date);

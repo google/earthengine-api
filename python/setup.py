@@ -4,6 +4,8 @@
 
 """Setup file for Earth Engine Python API package."""
 
+import re
+
 try:
   # if setuptools is available, use it to take advantage of its dependency
   # handling
@@ -33,11 +35,15 @@ except ImportError:
     http://tkinter.unpythonic.net/wiki/How_to_install_Tkinter
     """
 
-VERSION = '0.1.31'
+
+def GetVersion():
+  with open('ee/__init__.py') as f:
+    return re.findall(r'__version__\s*=\s*\'([.\d]+)\'', f.read())[0]
+
 
 setup(
     name='earthengine-api',
-    version=VERSION,
+    version=GetVersion(),
     description='Earth Engine Python API',
     url='http://code.google.com/p/earthengine-api/',  # home page for package
     download_url='',  # package download URL

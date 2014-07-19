@@ -32,6 +32,7 @@ goog.require('goog.json');
 goog.require('goog.net.XhrIo');
 goog.require('goog.net.XmlHttp');
 goog.require('goog.object');
+goog.require('goog.string');
 
 
 /**
@@ -46,6 +47,13 @@ ee.data.apiBaseUrl_ = null;
  * @private
  */
 ee.data.tileBaseUrl_ = null;
+
+
+/**
+ * @type {string?} A string to pass in the "xsrfToken" parameter of XHRs.
+ * @private
+ */
+ee.data.xsrfToken_ = null;
 
 
 /**
@@ -93,12 +101,14 @@ ee.data.TaskUpdateActions = {
 /**
  * Initializes the data module, setting base URLs.
  *
- * @param {string|null=} opt_apiBaseUrl The (proxied) EarthEngine REST API
+ * @param {string?=} opt_apiBaseUrl The (proxied) EarthEngine REST API
  *     endpoint.
- * @param {string|null=} opt_tileBaseUrl The (unproxied) EarthEngine REST tile
+ * @param {string?=} opt_tileBaseUrl The (unproxied) EarthEngine REST tile
  *     endpoint.
+ * @param {string?=} opt_xsrfToken A string to pass in the "xsrfToken"
+ *     parameter of XHRs.
  */
-ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl) {
+ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl, opt_xsrfToken) {
   // If already initialized, only replace the explicitly specified parts.
 
   if (goog.isDefAndNotNull(opt_apiBaseUrl)) {
@@ -111,6 +121,9 @@ ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl) {
   } else if (!ee.data.initialized_) {
     ee.data.tileBaseUrl_ = ee.data.DEFAULT_TILE_BASE_URL_;
   }
+  if (goog.isDef(opt_xsrfToken)) {  // Passing an explicit null clears it.
+    ee.data.xsrfToken_ = opt_xsrfToken;
+  }
   ee.data.initialized_ = true;
 };
 
@@ -121,6 +134,7 @@ ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl) {
 ee.data.reset = function() {
   ee.data.apiBaseUrl_ = null;
   ee.data.tileBaseUrl_ = null;
+  ee.data.xsrfToken_ = null;
   ee.data.initialized_ = false;
 };
 
@@ -231,7 +245,6 @@ ee.data.getList = function(params, opt_callback) {
  */
 ee.data.getMapId = function(params, opt_callback) {
   params = goog.object.clone(params);
-  params['json_format'] = 'v2';
   return /** @type {?ee.data.RawMapId} */ (
       ee.data.send_('/mapid', ee.data.makeRequest_(params), opt_callback));
 };
@@ -269,7 +282,6 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
  */
 ee.data.getValue = function(params, opt_callback) {
   params = goog.object.clone(params);
-  params['json_format'] = 'v2';
   return ee.data.send_('/value', ee.data.makeRequest_(params), opt_callback);
 };
 
@@ -293,7 +305,6 @@ ee.data.getValue = function(params, opt_callback) {
  */
 ee.data.getThumbId = function(params, opt_callback) {
   params = goog.object.clone(params);
-  params['json_format'] = 'v2';
   if (goog.isArray(params['size'])) {
     params['size'] = params['size'].join('x');
   }
@@ -351,7 +362,6 @@ ee.data.makeThumbUrl = function(id) {
 ee.data.getDownloadId = function(params, opt_callback) {
   // TODO(user): Redirect to getImageDownloadId.
   params = goog.object.clone(params);
-  params['json_format'] = 'v2';
   return /** @type {?ee.data.DownloadId} */ (ee.data.send_(
       '/download',
       ee.data.makeRequest_(params),
@@ -388,7 +398,6 @@ ee.data.makeDownloadUrl = function(id) {
  */
 ee.data.getTableDownloadId = function(params, opt_callback) {
   params = goog.object.clone(params);
-  params['json_format'] = 'v2';
   return /** @type {?ee.data.DownloadId} */ (ee.data.send_(
       '/table',
       ee.data.makeRequest_(params),
@@ -449,7 +458,7 @@ ee.data.getGMEProjects = function(opt_callback) {
  * @export
  */
 ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
-  var args = {'value': value, 'json_format': 'v2'};
+  var args = {'value': value};
   if (opt_path !== undefined) {
     args['id'] = opt_path;
   }
@@ -674,6 +683,19 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   ee.data.initialize();
 
   opt_method = opt_method || 'POST';
+
+  if (goog.isDefAndNotNull(ee.data.xsrfToken_)) {
+    if (opt_method == 'GET') {
+      path += goog.string.contains(path, '?') ? '&' : '?';
+      path += 'xsrfToken=' + ee.data.xsrfToken_;
+    } else {
+      if (!params) {
+        params = new goog.Uri.QueryData();
+      }
+      params.add('xsrfToken', ee.data.xsrfToken_);
+    }
+  }
+
   var url = ee.data.apiBaseUrl_ + path;
   var requestData = params ? params.toString() : '';
 

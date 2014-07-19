@@ -40,8 +40,13 @@ ee.String = function(string) {
     goog.base(this, null, null);
     this.string_ = /** @type {string} */ (string);
   } else if (string instanceof ee.ComputedObject) {
-    goog.base(this, string.func, string.args, string.varName);
     this.string_ = null;
+    if (string.func && string.func.getSignature()['returns'] == 'String') {
+      // If it's a call that's already returning a String, just cast.
+      goog.base(this, string.func, string.args, string.varName);
+    } else {
+      goog.base(this, new ee.ApiFunction('String'), {'input': string}, null);
+    }
   } else {
     throw Error('Invalid argument specified for ee.String(): ' + string);
   }

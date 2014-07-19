@@ -21,6 +21,13 @@ class StringTest(apitestcase.ApiTestCase):
     self.assertEquals({'string1': ee.String('foo'),
                        'string2': ee.String('bar')}, computed.args)
 
+    # Casting a non-string ComputedObject.
+    obj = ee.Number(1).add(1)
+    s = ee.String(obj)
+    self.assertTrue(isinstance(s, ee.String))
+    self.assertEquals(ee.ApiFunction.lookup('String'), s.func)
+    self.assertEquals({'input': obj}, s.args)
+
   def testInternals(self):
     """Test eq(), ne() and hash()."""
     a = ee.String('one')

@@ -949,7 +949,20 @@ BUILTIN_FUNCTIONS = {
         'type': 'Algorithm',
         'description': ''
     },
-    # An algorithm for testing ee.String.
+    # Algorithms for testing ee.String.
+    'String': {
+        'returns': 'String',
+        'hidden': False,
+        'args': [
+            {
+                'type': 'Object',
+                'description': '',
+                'name': 'input'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
     'String.cat': {
         'returns': 'String',
         'hidden': False,

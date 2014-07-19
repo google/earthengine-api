@@ -45,15 +45,18 @@ goog.require('goog.object');
  *
  * @param {string?=} opt_baseurl The (proxied) EarthEngine REST API endpoint.
  * @param {string?=} opt_tileurl The (unproxied) EarthEngine REST tile endpoint.
- * @param {function()=} opt_successCallback An optional callback to be invoked
+ * @param {function()?=} opt_successCallback An optional callback to be invoked
  *     when the initialization is successful. If not provided, the
  *     initialization is done synchronously.
- * @param {function(Error)=} opt_errorCallback An optional callback to be
+ * @param {function(Error)?=} opt_errorCallback An optional callback to be
  *     invoked with an error if the initialization fails.
+ * @param {string?=} opt_xsrfToken A string to pass in the "xsrfToken"
+ *     parameter of EE API XHRs.
  * @export
  */
 ee.initialize = function(
-    opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback) {
+    opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback,
+    opt_xsrfToken) {
   // If we're already initialized and not getting new parameters, just return.
   if (ee.ready_ == ee.InitState.READY && !opt_baseurl && !opt_tileurl) {
     if (opt_successCallback) {
@@ -82,7 +85,7 @@ ee.initialize = function(
   }
 
   ee.ready_ = ee.InitState.LOADING;
-  ee.data.initialize(opt_baseurl, opt_tileurl);
+  ee.data.initialize(opt_baseurl, opt_tileurl, opt_xsrfToken);
 
   if (isAsynchronous) {
     ee.successCallbacks_.push(opt_successCallback);

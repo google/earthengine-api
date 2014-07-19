@@ -54,12 +54,13 @@ class Date(computedobject.ComputedObject):
           raise ee_exception.EEException(
               'Invalid argument specified for ee.Date(..., opt_tz): %s' % date)
     elif isinstance(date, computedobject.ComputedObject):
-      if date.func != func:
-        args = {'value': date}
-      else:
+      if date.func and date.func.getSignature()['returns'] == 'Date':
+        # If it's a call that's already returning a Date, just cast.
         func = date.func
         args = date.args
         varName = date.varName
+      else:
+        args = {'value': date}
     else:
       raise ee_exception.EEException(
           'Invalid argument specified for ee.Date(): %s' % date)
