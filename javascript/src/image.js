@@ -315,7 +315,7 @@ ee.Image.combine_ = function(images, opt_names) {
  * Select bands from an image.  This is an override to the normal
  * Image.select function to allow varargs usage.
  *
- * @param {Array.<string|number|ee.ComputedObject>|ee.ComputedObject=}
+ * @param {Array.<string|number|ee.ComputedObject>|ee.ComputedObject|number=}
  *     opt_selectors
  *     A list of names, regexes or numeric indicies specifying the bands
  *     to select.

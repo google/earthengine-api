@@ -34,6 +34,8 @@ goog.require('goog.net.XmlHttp');
 goog.require('goog.object');
 goog.require('goog.string');
 
+goog.forwardDeclare('ee.Image');
+
 
 /**
  * @type {string?} The base URL for all API calls.
