@@ -12,11 +12,11 @@ import ee.mapclient
 ee.Initialize()
 ee.mapclient.centerMap(-95.738, 18.453, 9)
 
-# Filter the L7 collection to a single date.
-collection = (ee.ImageCollection('L7_L1T')
+# Filter the LE7 collection to a single date.
+collection = (ee.ImageCollection('LE7_L1T')
               .filterDate(datetime.datetime(2002, 11, 8),
                           datetime.datetime(2002, 11, 9)))
-image = collection.mosaic().select('30', '20', '10')
+image = collection.mosaic().select('B3', 'B2', 'B1')
 
 # Display the image normally.
 ee.mapclient.addToMap(image, {'gain': '1.6, 1.4, 1.1'}, 'Land')

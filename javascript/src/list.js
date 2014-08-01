@@ -6,7 +6,6 @@ goog.provide('ee.List');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
-goog.require('ee.CustomFunction');
 goog.require('goog.array');
 
 
@@ -94,34 +93,4 @@ ee.List.prototype.encode = function(opt_encoder) {
  */
 ee.List.prototype.name = function() {
   return 'List';
-};
-
-
-/**
- * Maps an algorithm over a list.
- *
- * @param {function(Object):Object} algorithm The operation to map over
- *     the items in the list. A JavaScript function that receives an object
- *     and returns one. The function is called only once and the result is
- *     captured as a description, so it cannot perform imperative operations
- *     or rely on external state.
- * @return {ee.List} The mapped list.
- * @export
- */
-ee.List.prototype.map = function(algorithm) {
-  if (!goog.isFunction(algorithm)) {
-    throw Error('Can\'t map non-callable object: ' + algorithm);
-  }
-  var signature = {
-    'name': '',
-    'returns': 'Object',
-    'args': [{
-      'name': null,
-      'type': 'Object'
-    }]
-  };
-  return this.castInternal(ee.ApiFunction._apply('List.map', {
-    'list': this,
-    'baseAlgorithm': new ee.CustomFunction(signature, algorithm)
-  }));
 };

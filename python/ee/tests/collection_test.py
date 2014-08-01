@@ -73,7 +73,8 @@ class CollectionTestCase(apitestcase.ApiTestCase):
   def testMapping(self):
     """Verifies the behavior of the map() method."""
     collection = ee.ImageCollection('foo')
-    mapped = collection.map(lambda img: img.select('bar'))
+    algorithm = lambda img: img.select('bar')
+    mapped = collection.map(algorithm)
 
     self.assertTrue(isinstance(mapped, ee.ImageCollection))
     self.assertEquals(ee.ApiFunction.lookup('Collection.map'), mapped.func)
@@ -86,7 +87,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
         'returns': 'Image',
         'args': [{'name': '_MAPPING_VAR_0_0', 'type': 'Image'}]
     }
-    expected_function = ee.CustomFunction(sig, lambda img: img.select('bar'))
+    expected_function = ee.CustomFunction(sig, algorithm)
     self.assertEquals(expected_function.serialize(),
                       mapped.args['baseAlgorithm'].serialize())
 
@@ -111,6 +112,31 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     self.assertEquals(
         '_MAPPING_VAR_0_0',
         inner_result.args['baseAlgorithm']._body[1].varName)
+
+  def testIteration(self):
+    """Verifies the behavior of the iterate() method."""
+    collection = ee.ImageCollection('foo')
+    first = ee.Image(0)
+    algorithm = lambda img, prev: img.addBands(ee.Image(prev))
+    result = collection.iterate(algorithm, first)
+
+    self.assertEquals(ee.ApiFunction.lookup('Collection.iterate'), result.func)
+    self.assertEquals(collection, result.args['collection'])
+    self.assertEquals(first, result.args['first'])
+
+    # Need to do a serialized comparison for the function body because
+    # variables returned from CustomFunction.variable() do not implement
+    # __eq__.
+    sig = {
+        'returns': 'Object',
+        'args': [
+            {'name': '_MAPPING_VAR_0_0', 'type': 'Image'},
+            {'name': '_MAPPING_VAR_0_1', 'type': 'Object'}
+        ]
+    }
+    expected_function = ee.CustomFunction(sig, algorithm)
+    self.assertEquals(expected_function.serialize(),
+                      result.args['function'].serialize())
 
 
 if __name__ == '__main__':

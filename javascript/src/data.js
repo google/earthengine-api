@@ -723,6 +723,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
 
     if (opt_callback) {
       opt_callback(data, errorMessage);
+      return null;
     } else {
       if (!errorMessage) {
         return data;
@@ -744,6 +745,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
         requestData,
         {'Content-Type': 'application/x-www-form-urlencoded'},
         ee.data.deadlineMs_);
+    return null;
   } else {
     // Construct a synchronous request.
     var xmlhttp = goog.net.XmlHttp();
@@ -805,6 +807,7 @@ ee.data.setupMockSend = function(opt_calls) {
     };
     // Call the callback in a timeout to simulate asynchronous behavior.
     setTimeout(goog.bind(/** @type {function()} */ (callback), e, e), 0);
+    return new goog.net.XhrIo(); // Expected to be unused.
   };
 
   // Mock goog.net.XmlHttp for sync calls.

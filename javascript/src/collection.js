@@ -7,11 +7,8 @@
 goog.provide('ee.Collection');
 
 goog.require('ee.ApiFunction');
-goog.require('ee.ComputedObject');
-goog.require('ee.CustomFunction');
 goog.require('ee.Element');
 goog.require('ee.Filter');
-goog.require('ee.Types');
 
 
 
@@ -179,29 +176,12 @@ ee.Collection.prototype.name = function() {
 
 
 /**
- * Maps an algorithm over a collection. @see ee.Collection.map() for details.
- *
- * @param {function(new:Object, ...[?])} type The collection elements' type.
- * @param {function(Object):Object} algorithm
- * @return {ee.Collection}
+ * Returns the type constructor of the collection's elements.
+ * @return {function(new:Object, ...[?])}
  * @protected
  */
-ee.Collection.prototype.mapInternal = function(type, algorithm) {
-  if (!goog.isFunction(algorithm)) {
-    throw Error('Can\'t map non-callable object: ' + algorithm);
-  }
-  var signature = {
-    'name': '',
-    'returns': 'Object',
-    'args': [{
-      'name': null,
-      'type': ee.Types.classToName(type)
-    }]
-  };
-  return this.castInternal(ee.ApiFunction._apply('Collection.map', {
-    'collection': this,
-    'baseAlgorithm': new ee.CustomFunction(signature, algorithm)
-  }));
+ee.Collection.prototype.elementType = function() {
+  return ee.Element;
 };
 
 
@@ -217,5 +197,30 @@ ee.Collection.prototype.mapInternal = function(type, algorithm) {
  * @export
  */
 ee.Collection.prototype.map = function(algorithm) {
-  return this.mapInternal(ee.ComputedObject, algorithm);
+  var elementType = this.elementType();
+  var withCast = function(e) { return algorithm(new elementType(e)); };
+  return this.castInternal(ee.ApiFunction._call(
+      'Collection.map', this, withCast));
+};
+
+
+/**
+ * Applies a user-supplied function to each element of a collection. The
+ * user-supplied function is given two arguments: the current element, and
+ * the value returned by the previous call to iterate() or the first argument,
+ * for the first iteration. The result is the value returned by the final
+ * call to the user-supplied function.
+ *
+ * @param {function(Object, Object):Object} algorithm The function to apply
+ *     to each element. Must take two arguments: an element of the collection
+ *     and the value from the previous iteration.
+ * @param {*=} opt_first The initial state.
+ * @return {ee.ComputedObject} The result of the Collection.iterate() call.
+ * @export
+ */
+ee.Collection.prototype.iterate = function(algorithm, opt_first) {
+  var first = goog.isDef(opt_first) ? opt_first : null;
+  var elementType = this.elementType();
+  var withCast = function(e, p) { return algorithm(new elementType(e), p); };
+  return ee.ApiFunction._call('Collection.iterate', this, withCast, first);
 };

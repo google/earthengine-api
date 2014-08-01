@@ -9,9 +9,11 @@ goog.provide('ee.InitState');
 goog.require('ee.ApiFunction');
 goog.require('ee.Collection');
 goog.require('ee.ComputedObject');
+goog.require('ee.CustomFunction');
 goog.require('ee.Date');
 goog.require('ee.Dictionary');
 goog.require('ee.Element');
+goog.require('ee.Encodable');
 goog.require('ee.Feature');
 goog.require('ee.FeatureCollection');
 goog.require('ee.Filter');
@@ -396,9 +398,18 @@ ee.promote_ = function(arg, klass) {
       return new ee.Filter(/** @type {Object} */ (arg));
     case 'Algorithm':
       if (goog.isString(arg)) {
+        // An API function name.
         return new ee.ApiFunction(arg);
-      } else {
+      } else if (goog.isFunction(arg)) {
+        // A native function that needs to be wrapped.
+        return ee.CustomFunction.create(
+            arg, 'Object', goog.array.repeat('Object', arg.length));
+      } else if (arg instanceof ee.Encodable) {
+        // An ee.Function or a computed function like the return value of
+        // Image.parseExpression().
         return arg;
+      } else {
+        throw Error('Argument is not a function: ' + arg);
       }
     case 'String':
       if (ee.Types.isString(arg) ||

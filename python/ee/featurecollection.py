@@ -108,10 +108,6 @@ class FeatureCollection(collection.Collection):
     })
     return painted.getMapId({})
 
-  def map(self, algorithm):
-    """Maps an algorithm over a collection. See ee.Collection.mapInternal()."""
-    return self.mapInternal(feature.Feature, algorithm)
-
   def getDownloadUrl(self, filetype=None, selectors=None, filename=None):
     """Get a download URL for this feature collection.
 
@@ -137,3 +133,7 @@ class FeatureCollection(collection.Collection):
   @staticmethod
   def name():
     return 'FeatureCollection'
+
+  @staticmethod
+  def elementType():
+    return feature.Feature

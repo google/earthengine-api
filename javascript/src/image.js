@@ -154,8 +154,9 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * @param {Object?=} opt_visParams The visualization parameters.
  *     See ee.data.getMapId.
  * @param {function(Object, string=)=} opt_callback An async callback.
- * @return {ee.data.MapId} An object containing a mapid string, an access token,
- *     plus this object, or an error message.
+ * @return {ee.data.MapId|undefined} An object containing a mapid string, an
+ *     access token plus this object, or an error message. Or undefined if a
+ *     callback was specified.
  * @export
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
@@ -208,8 +209,8 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *         and crs_transform is specified.
  * @param {function(string?, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
- * @return {string} A download URL.
- * @export
+ * @return {string|undefined} Returns a download URL, or undefined if a callback
+ *     was specified.
  */
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   var request = params ? goog.object.clone(params) : {};

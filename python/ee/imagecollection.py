@@ -88,10 +88,6 @@ class ImageCollection(collection.Collection):
     mosaic = apifunction.ApiFunction.call_('ImageCollection.mosaic', self)
     return mosaic.getMapId(vis_params)
 
-  def map(self, algorithm):
-    """Maps an algorithm over a collection. See ee.Collection.mapInternal()."""
-    return self.mapInternal(image.Image, algorithm)
-
   def select(self, selectors, opt_names=None, *args):
     """Select bands from each image in a collection.
 
@@ -111,3 +107,7 @@ class ImageCollection(collection.Collection):
   @staticmethod
   def name():
     return 'ImageCollection'
+
+  @staticmethod
+  def elementType():
+    return image.Image

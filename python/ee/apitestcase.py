@@ -341,6 +341,30 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'returns': 'FeatureCollection'
     },
+    'Collection.iterate': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'description': '',
+                'name': 'collection',
+                'type': 'FeatureCollection'
+            },
+            {
+                'description': '',
+                'name': 'function',
+                'type': 'Algorithm'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'first',
+                'type': 'Object'
+            }
+        ],
+        'description': '',
+        'returns': 'Object',
+    },
     'ImageCollection.load': {
         'type': 'Algorithm',
         'args': [

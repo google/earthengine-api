@@ -313,9 +313,6 @@ class Image(element.Element):
   def clip(self, clip_geometry):
     """Clips an image by a Geometry, Feature or FeatureCollection.
 
-    This is an override to the normal Image.select function to allow
-    varargs specification of selectors.
-
     Args:
       clip_geometry: The Geometry, Feature or FeatureCollection to clip to.
 

@@ -33,7 +33,7 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     self.assertFalse(hasattr(TestClass, 'select'))
     self.assertTrue(isinstance(TestClass.pre_select, types.MethodType))
     self.assertTrue(isinstance(TestClass.pre_addBands, types.MethodType))
-    self.assertTrue(isinstance(TestClass._pre_addBands, types.MethodType))
+    self.assertFalse(hasattr(TestClass, '_pre_addBands'))
 
     ee.ApiFunction.clearApi(TestClass)
     self.assertFalse(hasattr(TestClass, 'pre_load'))

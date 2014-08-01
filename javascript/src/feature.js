@@ -135,9 +135,9 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
  *     one parameter, 'color', containing an RGB color string is user.  If
  *     vis_params is null, black ("000000") is used.
  * @param {function(Object, string=)=} opt_callback An async callback.
- * @return {ee.data.MapId} An object containing a mapid string, an access
- *    token, plus a Collection.draw image wrapping a FeatureCollection
- *    containing this feature.
+ * @return {ee.data.MapId|undefined} An object containing a mapid string, an
+ *     access token plus a Collection.draw image wrapping a FeatureCollection
+ *     containing this feature. Or undefined if a callback is provided.
  * @export
  */
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {

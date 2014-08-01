@@ -125,8 +125,9 @@ ee.FeatureCollection.reset = function() {
  *     one parameter, 'color', containing an RGB color string is allowed.  If
  *     vis_params isn't specified, then the color #000000 is used.
  * @param {function(Object, string=)=} opt_callback An async callback.
- * @return {ee.data.MapId} An object containing a mapid string, an access
- *     token, plus a Collection.draw image wrapping this collection.
+ * @return {ee.data.MapId|undefined} An object containing a mapid string, an
+ *     acess token, plus a Collection.draw image wrapping this collection. Or
+ *     undefined if a callback was specified.
  * @export
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
@@ -173,7 +174,8 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
  * @param {string=} opt_filename Name of the file to be downloaded.
  * @param {function(string?, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
- * @return {string} A download URL.
+ * @return {string|undefined} A download URL or undefined if a callback was
+ *     specified.
  * @export
  */
 ee.FeatureCollection.prototype.getDownloadURL = function(
@@ -207,13 +209,12 @@ ee.FeatureCollection.prototype.getDownloadURL = function(
 
 
 /** @inheritDoc */
-ee.FeatureCollection.prototype.map = function(algorithm) {
-  return /** @type {ee.FeatureCollection} */(
-      this.mapInternal(ee.Feature, algorithm));
+ee.FeatureCollection.prototype.name = function() {
+  return 'FeatureCollection';
 };
 
 
 /** @inheritDoc */
-ee.FeatureCollection.prototype.name = function() {
-  return 'FeatureCollection';
+ee.FeatureCollection.prototype.elementType = function() {
+  return ee.Feature;
 };

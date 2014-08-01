@@ -1,16 +1,17 @@
 """The EE Javascript library."""
 
 
-__version__ = '0.1.33'
+__version__ = '0.1.34'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
 import datetime
+import inspect
 import numbers
 import sys
 
-import oauth2client.client
+import oauth2client.client  # pylint: disable=g-bad-import-order
 
 from apifunction import ApiFunction
 from collection import Collection
@@ -44,6 +45,7 @@ _generatedClasses = []
 
 # A lightweight class that is used as a dictionary with dot notation.
 class _AlgorithmsContainer(dict):
+
   def __getattr__(self, name):
     return self[name]
 
@@ -232,8 +234,20 @@ def _Promote(arg, klass):
     return ImageCollection(arg)
   elif klass == 'Filter':
     return Filter(arg)
-  elif klass == 'Algorithm' and isinstance(arg, basestring):
-    return ApiFunction.lookup(arg)
+  elif klass == 'Algorithm':
+    if isinstance(arg, basestring):
+      # An API function name.
+      return ApiFunction.lookup(arg)
+    elif callable(arg):
+      # A native function that needs to be wrapped.
+      args_count = len(inspect.getargspec(arg).args)
+      return CustomFunction.create(arg, 'Object', ['Object'] * args_count)
+    elif isinstance(arg, Encodable):
+      # An ee.Function or a computed function like the return value of
+      # Image.parseExpression().
+      return arg
+    else:
+      raise EEException('Argument is not a function: %s' % arg)
   elif klass == 'Dictionary':
     if isinstance(arg, dict):
       return arg

@@ -9,9 +9,7 @@ This class is never intended to be instantiated by the user.
 # pylint: disable=g-bad-name
 
 import apifunction
-import customfunction
 import ee_exception
-import ee_types
 import element
 import filter   # pylint: disable=redefined-builtin
 
@@ -169,11 +167,15 @@ class Collection(element.Element):
   def name():
     return 'Collection'
 
-  def mapInternal(self, cls, algorithm):
+  @staticmethod
+  def elementType():
+    """Returns the type of the collection's elements."""
+    return element.Element
+
+  def map(self, algorithm):
     """Maps an algorithm over a collection.
 
     Args:
-      cls: The collection elements' type (class).
       algorithm: The operation to map over the images or features of the
           collection, a Python function that receives an image or features and
           returns one. The function is called only once and the result is
@@ -186,18 +188,33 @@ class Collection(element.Element):
     Raises:
       ee_exception.EEException: if algorithm is not a function.
     """
-    if not callable(algorithm):
-      raise ee_exception.EEException(
-          'Can\'t map non-callable object: %s' % algorithm)
-    signature = {
-        'name': '',
-        'returns': 'Object',
-        'args': [{
-            'name': None,
-            'type': ee_types.classToName(cls)
-        }]
-    }
-    return self._cast(apifunction.ApiFunction.apply_('Collection.map', {
-        'collection': self,
-        'baseAlgorithm': customfunction.CustomFunction(signature, algorithm)
-    }))
+    element_type = self.elementType()
+    with_cast = lambda e: algorithm(element_type(e))
+    return self._cast(apifunction.ApiFunction.call_(
+        'Collection.map', self, with_cast))
+
+  def iterate(self, algorithm, first=None):
+    """Iterates over a collection with an algorithm.
+
+    Applies a user-supplied function to each element of a collection. The
+    user-supplied function is given two arguments: the current element, and
+    the value returned by the previous call to iterate() or the first argument,
+    for the first iteration. The result is the value returned by the final
+    call to the user-supplied function.
+
+    Args:
+      algorithm: The function to apply to each element. Must take two
+          arguments - an element of the collection and the value from the
+          previous iteration.
+      first: The initial state.
+
+    Returns:
+      The result of the Collection.iterate() call.
+
+    Raises:
+      ee_exception.EEException: if algorithm is not a function.
+    """
+    element_type = self.elementType()
+    with_cast = lambda e, prev: algorithm(element_type(e), prev)
+    return apifunction.ApiFunction.call_(
+        'Collection.iterate', self, with_cast, first)

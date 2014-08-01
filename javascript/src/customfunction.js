@@ -121,6 +121,40 @@ ee.CustomFunction.variable = function(type, name) {
 
 
 /**
+ * Creates a CustomFunction calling a given native function with the specified
+ * return type and argument types and auto-generated argument names.
+ *
+ * @param {Function} func The native function to wrap.
+ * @param {string|Function} returnType The type of the return value, either
+ *     as a string or a constructor/class reference.
+ * @param {Array.<string|Function>} arg_types The types of the arguments,
+ *     either as strings or constructor/class references.
+ * @return {ee.CustomFunction} The constructed CustomFunction.
+ */
+ee.CustomFunction.create = function(func, returnType, arg_types) {
+  var stringifyType = function(type) {
+    if (goog.isString(type)) {
+      return type;
+    } else {
+      return ee.Types.classToName(type);
+    }
+  };
+  var args = goog.array.map(arg_types, function(argType) {
+    return {
+      'name': null,
+      'type': stringifyType(argType)
+    };
+  });
+  var signature = {
+    'name': '',
+    'returns': stringifyType(returnType),
+    'args': args
+  };
+  return new ee.CustomFunction(signature, func);
+};
+
+
+/**
  * Deterministically generates names for the unnamed variables, based on the
  * body.
  *

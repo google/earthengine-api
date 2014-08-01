@@ -184,8 +184,8 @@ class ApiFunction(function.Function):
           fname = fname.title()
 
         # Don't overwrite existing versions of this function.
-        while hasattr(target, fname):
-          fname = '_' + fname
+        if hasattr(target, fname):
+          continue
 
         # Create a new function so we can attach properties to it.
         def MakeBoundFunction(func):

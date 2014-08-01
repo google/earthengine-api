@@ -423,302 +423,6 @@ goog.defineClass.applyProperties_ = function(target, source) {
 goog.tagUnsealableClass = function(ctr) {
 };
 goog.UNSEALABLE_CONSTRUCTOR_PROPERTY_ = "goog_defineClass_legacy_unsealable";
-goog.object = {};
-goog.object.forEach = function(obj, f, opt_obj) {
-  for (var key in obj) {
-    f.call(opt_obj, obj[key], key, obj);
-  }
-};
-goog.object.filter = function(obj, f, opt_obj) {
-  var res = {}, key;
-  for (key in obj) {
-    f.call(opt_obj, obj[key], key, obj) && (res[key] = obj[key]);
-  }
-  return res;
-};
-goog.object.map = function(obj, f, opt_obj) {
-  var res = {}, key;
-  for (key in obj) {
-    res[key] = f.call(opt_obj, obj[key], key, obj);
-  }
-  return res;
-};
-goog.object.some = function(obj, f, opt_obj) {
-  for (var key in obj) {
-    if (f.call(opt_obj, obj[key], key, obj)) {
-      return!0;
-    }
-  }
-  return!1;
-};
-goog.object.every = function(obj, f, opt_obj) {
-  for (var key in obj) {
-    if (!f.call(opt_obj, obj[key], key, obj)) {
-      return!1;
-    }
-  }
-  return!0;
-};
-goog.object.getCount = function(obj) {
-  var rv = 0, key;
-  for (key in obj) {
-    rv++;
-  }
-  return rv;
-};
-goog.object.getAnyKey = function(obj) {
-  for (var key in obj) {
-    return key;
-  }
-};
-goog.object.getAnyValue = function(obj) {
-  for (var key in obj) {
-    return obj[key];
-  }
-};
-goog.object.contains = function(obj, val) {
-  return goog.object.containsValue(obj, val);
-};
-goog.object.getValues = function(obj) {
-  var res = [], i = 0, key;
-  for (key in obj) {
-    res[i++] = obj[key];
-  }
-  return res;
-};
-goog.object.getKeys = function(obj) {
-  var res = [], i = 0, key;
-  for (key in obj) {
-    res[i++] = key;
-  }
-  return res;
-};
-goog.object.getValueByKeys = function(obj, var_args) {
-  for (var isArrayLike = goog.isArrayLike(var_args), keys = isArrayLike ? var_args : arguments, i = isArrayLike ? 0 : 1;i < keys.length && (obj = obj[keys[i]], goog.isDef(obj));i++) {
-  }
-  return obj;
-};
-goog.object.containsKey = function(obj, key) {
-  return key in obj;
-};
-goog.object.containsValue = function(obj, val) {
-  for (var key in obj) {
-    if (obj[key] == val) {
-      return!0;
-    }
-  }
-  return!1;
-};
-goog.object.findKey = function(obj, f, opt_this) {
-  for (var key in obj) {
-    if (f.call(opt_this, obj[key], key, obj)) {
-      return key;
-    }
-  }
-};
-goog.object.findValue = function(obj, f, opt_this) {
-  var key = goog.object.findKey(obj, f, opt_this);
-  return key && obj[key];
-};
-goog.object.isEmpty = function(obj) {
-  for (var key in obj) {
-    return!1;
-  }
-  return!0;
-};
-goog.object.clear = function(obj) {
-  for (var i in obj) {
-    delete obj[i];
-  }
-};
-goog.object.remove = function(obj, key) {
-  var rv;
-  (rv = key in obj) && delete obj[key];
-  return rv;
-};
-goog.object.add = function(obj, key, val) {
-  if (key in obj) {
-    throw Error('The object already contains the key "' + key + '"');
-  }
-  goog.object.set(obj, key, val);
-};
-goog.object.get = function(obj, key, opt_val) {
-  return key in obj ? obj[key] : opt_val;
-};
-goog.object.set = function(obj, key, value) {
-  obj[key] = value;
-};
-goog.object.setIfUndefined = function(obj, key, value) {
-  return key in obj ? obj[key] : obj[key] = value;
-};
-goog.object.clone = function(obj) {
-  var res = {}, key;
-  for (key in obj) {
-    res[key] = obj[key];
-  }
-  return res;
-};
-goog.object.unsafeClone = function(obj) {
-  var type = goog.typeOf(obj);
-  if ("object" == type || "array" == type) {
-    if (obj.clone) {
-      return obj.clone();
-    }
-    var clone = "array" == type ? [] : {}, key;
-    for (key in obj) {
-      clone[key] = goog.object.unsafeClone(obj[key]);
-    }
-    return clone;
-  }
-  return obj;
-};
-goog.object.transpose = function(obj) {
-  var transposed = {}, key;
-  for (key in obj) {
-    transposed[obj[key]] = key;
-  }
-  return transposed;
-};
-goog.object.PROTOTYPE_FIELDS_ = "constructor hasOwnProperty isPrototypeOf propertyIsEnumerable toLocaleString toString valueOf".split(" ");
-goog.object.extend = function(target, var_args) {
-  for (var key, source, i = 1;i < arguments.length;i++) {
-    source = arguments[i];
-    for (key in source) {
-      target[key] = source[key];
-    }
-    for (var j = 0;j < goog.object.PROTOTYPE_FIELDS_.length;j++) {
-      key = goog.object.PROTOTYPE_FIELDS_[j], Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
-    }
-  }
-};
-goog.object.create = function(var_args) {
-  var argLength = arguments.length;
-  if (1 == argLength && goog.isArray(arguments[0])) {
-    return goog.object.create.apply(null, arguments[0]);
-  }
-  if (argLength % 2) {
-    throw Error("Uneven number of arguments");
-  }
-  for (var rv = {}, i = 0;i < argLength;i += 2) {
-    rv[arguments[i]] = arguments[i + 1];
-  }
-  return rv;
-};
-goog.object.createSet = function(var_args) {
-  var argLength = arguments.length;
-  if (1 == argLength && goog.isArray(arguments[0])) {
-    return goog.object.createSet.apply(null, arguments[0]);
-  }
-  for (var rv = {}, i = 0;i < argLength;i++) {
-    rv[arguments[i]] = !0;
-  }
-  return rv;
-};
-goog.object.createImmutableView = function(obj) {
-  var result = obj;
-  Object.isFrozen && !Object.isFrozen(obj) && (result = Object.create(obj), Object.freeze(result));
-  return result;
-};
-goog.object.isImmutableView = function(obj) {
-  return!!Object.isFrozen && Object.isFrozen(obj);
-};
-goog.json = {};
-goog.json.USE_NATIVE_JSON = !1;
-goog.json.isValid = function(s) {
-  return/^\s*$/.test(s) ? !1 : /^[\],:{}\s\u2028\u2029]*$/.test(s.replace(/\\["\\\/bfnrtu]/g, "@").replace(/"[^"\\\n\r\u2028\u2029\x00-\x08\x0a-\x1f]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:[\s\u2028\u2029]*\[)+/g, ""));
-};
-goog.json.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(s) {
-  var o = String(s);
-  if (goog.json.isValid(o)) {
-    try {
-      return eval("(" + o + ")");
-    } catch (ex) {
-    }
-  }
-  throw Error("Invalid JSON string: " + o);
-};
-goog.json.unsafeParse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(s) {
-  return eval("(" + s + ")");
-};
-goog.json.serialize = goog.json.USE_NATIVE_JSON ? goog.global.JSON.stringify : function(object, opt_replacer) {
-  return(new goog.json.Serializer(opt_replacer)).serialize(object);
-};
-goog.json.Serializer = function(opt_replacer) {
-  this.replacer_ = opt_replacer;
-};
-goog.json.Serializer.prototype.serialize = function(object) {
-  var sb = [];
-  this.serializeInternal(object, sb);
-  return sb.join("");
-};
-goog.json.Serializer.prototype.serializeInternal = function(object, sb) {
-  switch(typeof object) {
-    case "string":
-      this.serializeString_(object, sb);
-      break;
-    case "number":
-      this.serializeNumber_(object, sb);
-      break;
-    case "boolean":
-      sb.push(object);
-      break;
-    case "undefined":
-      sb.push("null");
-      break;
-    case "object":
-      if (null == object) {
-        sb.push("null");
-        break;
-      }
-      if (goog.isArray(object)) {
-        this.serializeArray(object, sb);
-        break;
-      }
-      this.serializeObject_(object, sb);
-      break;
-    case "function":
-      break;
-    default:
-      throw Error("Unknown type: " + typeof object);;
-  }
-};
-goog.json.Serializer.charToJsonCharCache_ = {'"':'\\"', "\\":"\\\\", "/":"\\/", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\u000b"};
-goog.json.Serializer.charsToReplace_ = /\uffff/.test("\uffff") ? /[\\\"\x00-\x1f\x7f-\uffff]/g : /[\\\"\x00-\x1f\x7f-\xff]/g;
-goog.json.Serializer.prototype.serializeString_ = function(s, sb) {
-  sb.push('"', s.replace(goog.json.Serializer.charsToReplace_, function(c) {
-    if (c in goog.json.Serializer.charToJsonCharCache_) {
-      return goog.json.Serializer.charToJsonCharCache_[c];
-    }
-    var cc = c.charCodeAt(0), rv = "\\u";
-    16 > cc ? rv += "000" : 256 > cc ? rv += "00" : 4096 > cc && (rv += "0");
-    return goog.json.Serializer.charToJsonCharCache_[c] = rv + cc.toString(16);
-  }), '"');
-};
-goog.json.Serializer.prototype.serializeNumber_ = function(n, sb) {
-  sb.push(isFinite(n) && !isNaN(n) ? n : "null");
-};
-goog.json.Serializer.prototype.serializeArray = function(arr, sb) {
-  var l = arr.length;
-  sb.push("[");
-  for (var sep = "", i = 0;i < l;i++) {
-    sb.push(sep);
-    var value = arr[i];
-    this.serializeInternal(this.replacer_ ? this.replacer_.call(arr, String(i), value) : value, sb);
-    sep = ",";
-  }
-  sb.push("]");
-};
-goog.json.Serializer.prototype.serializeObject_ = function(obj, sb) {
-  sb.push("{");
-  var sep = "", key;
-  for (key in obj) {
-    if (Object.prototype.hasOwnProperty.call(obj, key)) {
-      var value = obj[key];
-      "function" != typeof value && (sb.push(sep), this.serializeString_(key, sb), sb.push(":"), this.serializeInternal(this.replacer_ ? this.replacer_.call(obj, key, value) : value, sb), sep = ",");
-    }
-  }
-  sb.push("}");
-};
 goog.debug = {};
 goog.debug.Error = function(opt_msg) {
   if (Error.captureStackTrace) {
@@ -1567,6 +1271,313 @@ goog.array.shuffle = function(arr, opt_randFn) {
     arr[i] = arr[j];
     arr[j] = tmp;
   }
+};
+goog.object = {};
+goog.object.forEach = function(obj, f, opt_obj) {
+  for (var key in obj) {
+    f.call(opt_obj, obj[key], key, obj);
+  }
+};
+goog.object.filter = function(obj, f, opt_obj) {
+  var res = {}, key;
+  for (key in obj) {
+    f.call(opt_obj, obj[key], key, obj) && (res[key] = obj[key]);
+  }
+  return res;
+};
+goog.object.map = function(obj, f, opt_obj) {
+  var res = {}, key;
+  for (key in obj) {
+    res[key] = f.call(opt_obj, obj[key], key, obj);
+  }
+  return res;
+};
+goog.object.some = function(obj, f, opt_obj) {
+  for (var key in obj) {
+    if (f.call(opt_obj, obj[key], key, obj)) {
+      return!0;
+    }
+  }
+  return!1;
+};
+goog.object.every = function(obj, f, opt_obj) {
+  for (var key in obj) {
+    if (!f.call(opt_obj, obj[key], key, obj)) {
+      return!1;
+    }
+  }
+  return!0;
+};
+goog.object.getCount = function(obj) {
+  var rv = 0, key;
+  for (key in obj) {
+    rv++;
+  }
+  return rv;
+};
+goog.object.getAnyKey = function(obj) {
+  for (var key in obj) {
+    return key;
+  }
+};
+goog.object.getAnyValue = function(obj) {
+  for (var key in obj) {
+    return obj[key];
+  }
+};
+goog.object.contains = function(obj, val) {
+  return goog.object.containsValue(obj, val);
+};
+goog.object.getValues = function(obj) {
+  var res = [], i = 0, key;
+  for (key in obj) {
+    res[i++] = obj[key];
+  }
+  return res;
+};
+goog.object.getKeys = function(obj) {
+  var res = [], i = 0, key;
+  for (key in obj) {
+    res[i++] = key;
+  }
+  return res;
+};
+goog.object.getValueByKeys = function(obj, var_args) {
+  for (var isArrayLike = goog.isArrayLike(var_args), keys = isArrayLike ? var_args : arguments, i = isArrayLike ? 0 : 1;i < keys.length && (obj = obj[keys[i]], goog.isDef(obj));i++) {
+  }
+  return obj;
+};
+goog.object.containsKey = function(obj, key) {
+  return key in obj;
+};
+goog.object.containsValue = function(obj, val) {
+  for (var key in obj) {
+    if (obj[key] == val) {
+      return!0;
+    }
+  }
+  return!1;
+};
+goog.object.findKey = function(obj, f, opt_this) {
+  for (var key in obj) {
+    if (f.call(opt_this, obj[key], key, obj)) {
+      return key;
+    }
+  }
+};
+goog.object.findValue = function(obj, f, opt_this) {
+  var key = goog.object.findKey(obj, f, opt_this);
+  return key && obj[key];
+};
+goog.object.isEmpty = function(obj) {
+  for (var key in obj) {
+    return!1;
+  }
+  return!0;
+};
+goog.object.clear = function(obj) {
+  for (var i in obj) {
+    delete obj[i];
+  }
+};
+goog.object.remove = function(obj, key) {
+  var rv;
+  (rv = key in obj) && delete obj[key];
+  return rv;
+};
+goog.object.add = function(obj, key, val) {
+  if (key in obj) {
+    throw Error('The object already contains the key "' + key + '"');
+  }
+  goog.object.set(obj, key, val);
+};
+goog.object.get = function(obj, key, opt_val) {
+  return key in obj ? obj[key] : opt_val;
+};
+goog.object.set = function(obj, key, value) {
+  obj[key] = value;
+};
+goog.object.setIfUndefined = function(obj, key, value) {
+  return key in obj ? obj[key] : obj[key] = value;
+};
+goog.object.equals = function(a, b) {
+  if (!goog.array.equals(goog.object.getKeys(a), goog.object.getKeys(b))) {
+    return!1;
+  }
+  for (var k in a) {
+    if (a[k] !== b[k]) {
+      return!1;
+    }
+  }
+  return!0;
+};
+goog.object.clone = function(obj) {
+  var res = {}, key;
+  for (key in obj) {
+    res[key] = obj[key];
+  }
+  return res;
+};
+goog.object.unsafeClone = function(obj) {
+  var type = goog.typeOf(obj);
+  if ("object" == type || "array" == type) {
+    if (obj.clone) {
+      return obj.clone();
+    }
+    var clone = "array" == type ? [] : {}, key;
+    for (key in obj) {
+      clone[key] = goog.object.unsafeClone(obj[key]);
+    }
+    return clone;
+  }
+  return obj;
+};
+goog.object.transpose = function(obj) {
+  var transposed = {}, key;
+  for (key in obj) {
+    transposed[obj[key]] = key;
+  }
+  return transposed;
+};
+goog.object.PROTOTYPE_FIELDS_ = "constructor hasOwnProperty isPrototypeOf propertyIsEnumerable toLocaleString toString valueOf".split(" ");
+goog.object.extend = function(target, var_args) {
+  for (var key, source, i = 1;i < arguments.length;i++) {
+    source = arguments[i];
+    for (key in source) {
+      target[key] = source[key];
+    }
+    for (var j = 0;j < goog.object.PROTOTYPE_FIELDS_.length;j++) {
+      key = goog.object.PROTOTYPE_FIELDS_[j], Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
+    }
+  }
+};
+goog.object.create = function(var_args) {
+  var argLength = arguments.length;
+  if (1 == argLength && goog.isArray(arguments[0])) {
+    return goog.object.create.apply(null, arguments[0]);
+  }
+  if (argLength % 2) {
+    throw Error("Uneven number of arguments");
+  }
+  for (var rv = {}, i = 0;i < argLength;i += 2) {
+    rv[arguments[i]] = arguments[i + 1];
+  }
+  return rv;
+};
+goog.object.createSet = function(var_args) {
+  var argLength = arguments.length;
+  if (1 == argLength && goog.isArray(arguments[0])) {
+    return goog.object.createSet.apply(null, arguments[0]);
+  }
+  for (var rv = {}, i = 0;i < argLength;i++) {
+    rv[arguments[i]] = !0;
+  }
+  return rv;
+};
+goog.object.createImmutableView = function(obj) {
+  var result = obj;
+  Object.isFrozen && !Object.isFrozen(obj) && (result = Object.create(obj), Object.freeze(result));
+  return result;
+};
+goog.object.isImmutableView = function(obj) {
+  return!!Object.isFrozen && Object.isFrozen(obj);
+};
+goog.json = {};
+goog.json.USE_NATIVE_JSON = !1;
+goog.json.isValid = function(s) {
+  return/^\s*$/.test(s) ? !1 : /^[\],:{}\s\u2028\u2029]*$/.test(s.replace(/\\["\\\/bfnrtu]/g, "@").replace(/"[^"\\\n\r\u2028\u2029\x00-\x08\x0a-\x1f]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?/g, "]").replace(/(?:^|:|,)(?:[\s\u2028\u2029]*\[)+/g, ""));
+};
+goog.json.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(s) {
+  var o = String(s);
+  if (goog.json.isValid(o)) {
+    try {
+      return eval("(" + o + ")");
+    } catch (ex) {
+    }
+  }
+  throw Error("Invalid JSON string: " + o);
+};
+goog.json.unsafeParse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(s) {
+  return eval("(" + s + ")");
+};
+goog.json.serialize = goog.json.USE_NATIVE_JSON ? goog.global.JSON.stringify : function(object, opt_replacer) {
+  return(new goog.json.Serializer(opt_replacer)).serialize(object);
+};
+goog.json.Serializer = function(opt_replacer) {
+  this.replacer_ = opt_replacer;
+};
+goog.json.Serializer.prototype.serialize = function(object) {
+  var sb = [];
+  this.serializeInternal(object, sb);
+  return sb.join("");
+};
+goog.json.Serializer.prototype.serializeInternal = function(object, sb) {
+  switch(typeof object) {
+    case "string":
+      this.serializeString_(object, sb);
+      break;
+    case "number":
+      this.serializeNumber_(object, sb);
+      break;
+    case "boolean":
+      sb.push(object);
+      break;
+    case "undefined":
+      sb.push("null");
+      break;
+    case "object":
+      if (null == object) {
+        sb.push("null");
+        break;
+      }
+      if (goog.isArray(object)) {
+        this.serializeArray(object, sb);
+        break;
+      }
+      this.serializeObject_(object, sb);
+      break;
+    case "function":
+      break;
+    default:
+      throw Error("Unknown type: " + typeof object);;
+  }
+};
+goog.json.Serializer.charToJsonCharCache_ = {'"':'\\"', "\\":"\\\\", "/":"\\/", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\u000b"};
+goog.json.Serializer.charsToReplace_ = /\uffff/.test("\uffff") ? /[\\\"\x00-\x1f\x7f-\uffff]/g : /[\\\"\x00-\x1f\x7f-\xff]/g;
+goog.json.Serializer.prototype.serializeString_ = function(s, sb) {
+  sb.push('"', s.replace(goog.json.Serializer.charsToReplace_, function(c) {
+    if (c in goog.json.Serializer.charToJsonCharCache_) {
+      return goog.json.Serializer.charToJsonCharCache_[c];
+    }
+    var cc = c.charCodeAt(0), rv = "\\u";
+    16 > cc ? rv += "000" : 256 > cc ? rv += "00" : 4096 > cc && (rv += "0");
+    return goog.json.Serializer.charToJsonCharCache_[c] = rv + cc.toString(16);
+  }), '"');
+};
+goog.json.Serializer.prototype.serializeNumber_ = function(n, sb) {
+  sb.push(isFinite(n) && !isNaN(n) ? n : "null");
+};
+goog.json.Serializer.prototype.serializeArray = function(arr, sb) {
+  var l = arr.length;
+  sb.push("[");
+  for (var sep = "", i = 0;i < l;i++) {
+    sb.push(sep);
+    var value = arr[i];
+    this.serializeInternal(this.replacer_ ? this.replacer_.call(arr, String(i), value) : value, sb);
+    sep = ",";
+  }
+  sb.push("]");
+};
+goog.json.Serializer.prototype.serializeObject_ = function(obj, sb) {
+  sb.push("{");
+  var sep = "", key;
+  for (key in obj) {
+    if (Object.prototype.hasOwnProperty.call(obj, key)) {
+      var value = obj[key];
+      "function" != typeof value && (sb.push(sep), this.serializeString_(key, sb), sb.push(":"), this.serializeInternal(this.replacer_ ? this.replacer_.call(obj, key, value) : value, sb), sep = ",");
+    }
+  }
+  sb.push("}");
 };
 goog.debug.entryPointRegistry = {};
 goog.debug.EntryPointMonitor = function() {
@@ -2487,7 +2498,7 @@ goog.events.EventTarget.prototype.fireListeners = function(type, capture, eventO
       rv = !1 !== listenerFn.call(listenerHandler, eventObject) && rv;
     }
   }
-  return rv && !1 != eventObject.returnValue_;
+  return rv && 0 != eventObject.returnValue_;
 };
 goog.events.EventTarget.prototype.getListeners = function(type, capture) {
   return this.eventTargetListeners_.getListeners(String(type), capture);
@@ -4823,18 +4834,18 @@ goog.Uri.prototype.isReadOnly_ = !1;
 goog.Uri.prototype.ignoreCase_ = !1;
 goog.Uri.prototype.toString = function() {
   var out = [], scheme = this.getScheme();
-  scheme && out.push(goog.Uri.encodeSpecialChars_(scheme, goog.Uri.reDisallowedInSchemeOrUserInfo_), ":");
+  scheme && out.push(goog.Uri.encodeSpecialChars_(scheme, goog.Uri.reDisallowedInSchemeOrUserInfo_, !0), ":");
   var domain = this.getDomain();
   if (domain) {
     out.push("//");
     var userInfo = this.getUserInfo();
-    userInfo && out.push(goog.Uri.encodeSpecialChars_(userInfo, goog.Uri.reDisallowedInSchemeOrUserInfo_), "@");
-    out.push(goog.string.urlEncode(domain));
+    userInfo && out.push(goog.Uri.encodeSpecialChars_(userInfo, goog.Uri.reDisallowedInSchemeOrUserInfo_, !0), "@");
+    out.push(goog.Uri.removeDoubleEncoding_(goog.string.urlEncode(domain)));
     var port = this.getPort();
     null != port && out.push(":", String(port));
   }
   var path = this.getPath();
-  path && (this.hasDomain() && "/" != path.charAt(0) && out.push("/"), out.push(goog.Uri.encodeSpecialChars_(path, "/" == path.charAt(0) ? goog.Uri.reDisallowedInAbsolutePath_ : goog.Uri.reDisallowedInRelativePath_)));
+  path && (this.hasDomain() && "/" != path.charAt(0) && out.push("/"), out.push(goog.Uri.encodeSpecialChars_(path, "/" == path.charAt(0) ? goog.Uri.reDisallowedInAbsolutePath_ : goog.Uri.reDisallowedInRelativePath_, !0)));
   var query = this.getEncodedQuery();
   query && out.push("?", query);
   var fragment = this.getFragment();
@@ -4875,7 +4886,7 @@ goog.Uri.prototype.getScheme = function() {
 };
 goog.Uri.prototype.setScheme = function(newScheme, opt_decode) {
   this.enforceReadOnly();
-  if (this.scheme_ = opt_decode ? goog.Uri.decodeOrEmpty_(newScheme) : newScheme) {
+  if (this.scheme_ = opt_decode ? goog.Uri.decodeOrEmpty_(newScheme, !0) : newScheme) {
     this.scheme_ = this.scheme_.replace(/:$/, "");
   }
   return this;
@@ -4899,7 +4910,7 @@ goog.Uri.prototype.getDomain = function() {
 };
 goog.Uri.prototype.setDomain = function(newDomain, opt_decode) {
   this.enforceReadOnly();
-  this.domain_ = opt_decode ? goog.Uri.decodeOrEmpty_(newDomain) : newDomain;
+  this.domain_ = opt_decode ? goog.Uri.decodeOrEmpty_(newDomain, !0) : newDomain;
   return this;
 };
 goog.Uri.prototype.hasDomain = function() {
@@ -4929,7 +4940,7 @@ goog.Uri.prototype.getPath = function() {
 };
 goog.Uri.prototype.setPath = function(newPath, opt_decode) {
   this.enforceReadOnly();
-  this.path_ = opt_decode ? goog.Uri.decodeOrEmpty_(newPath) : newPath;
+  this.path_ = opt_decode ? goog.Uri.decodeOrEmpty_(newPath, !0) : newPath;
   return this;
 };
 goog.Uri.prototype.hasPath = function() {
@@ -5051,15 +5062,23 @@ goog.Uri.removeDotSegments = function(path) {
   }
   return path;
 };
-goog.Uri.decodeOrEmpty_ = function(val) {
-  return val ? decodeURIComponent(val) : "";
+goog.Uri.decodeOrEmpty_ = function(val, opt_preserveReserved) {
+  return val ? opt_preserveReserved ? decodeURI(val) : decodeURIComponent(val) : "";
 };
-goog.Uri.encodeSpecialChars_ = function(unescapedPart, extra) {
-  return goog.isString(unescapedPart) ? encodeURI(unescapedPart).replace(extra, goog.Uri.encodeChar_) : null;
+goog.Uri.encodeSpecialChars_ = function(unescapedPart, extra, opt_removeDoubleEncoding) {
+  if (goog.isString(unescapedPart)) {
+    var encoded = encodeURI(unescapedPart).replace(extra, goog.Uri.encodeChar_);
+    opt_removeDoubleEncoding && (encoded = goog.Uri.removeDoubleEncoding_(encoded));
+    return encoded;
+  }
+  return null;
 };
 goog.Uri.encodeChar_ = function(ch) {
   var n = ch.charCodeAt(0);
   return "%" + (n >> 4 & 15).toString(16) + (n & 15).toString(16);
+};
+goog.Uri.removeDoubleEncoding_ = function(doubleEncodedString) {
+  return doubleEncodedString.replace(/%25([0-9a-fA-F]{2})/g, "%$1");
 };
 goog.Uri.reDisallowedInSchemeOrUserInfo_ = /[#\/\?@]/g;
 goog.Uri.reDisallowedInRelativePath_ = /[\#\?:]/g;
@@ -5392,29 +5411,27 @@ ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
     var errorMessage = void 0;
     jsonIsInvalid || !("data" in response || "error" in response) ? errorMessage = "Malformed response: " + responseText : "error" in response && (errorMessage = response.error.message);
     if (opt_callback) {
-      opt_callback(data, errorMessage);
-    } else {
-      if (!errorMessage) {
-        return data;
-      }
-      throw Error(errorMessage);
+      return opt_callback(data, errorMessage), null;
     }
+    if (!errorMessage) {
+      return data;
+    }
+    throw Error(errorMessage);
   }
   ee.data.initialize();
   opt_method = opt_method || "POST";
   goog.isDefAndNotNull(ee.data.xsrfToken_) && ("GET" == opt_method ? (path += goog.string.contains(path, "?") ? "&" : "?", path += "xsrfToken=" + ee.data.xsrfToken_) : (params || (params = new goog.Uri.QueryData), params.add("xsrfToken", ee.data.xsrfToken_)));
   var url = ee.data.apiBaseUrl_ + path, requestData = params ? params.toString() : "";
   if (opt_callback$$0) {
-    goog.net.XhrIo.send(url, function(e) {
+    return goog.net.XhrIo.send(url, function(e) {
       return handleResponse(e.target.getResponseText(), opt_callback$$0);
-    }, opt_method, requestData, {"Content-Type":"application/x-www-form-urlencoded"}, ee.data.deadlineMs_);
-  } else {
-    var xmlhttp = goog.net.XmlHttp();
-    xmlhttp.open(opt_method, url, !1);
-    xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
-    xmlhttp.send(requestData);
-    return handleResponse(xmlhttp.responseText, null);
+    }, opt_method, requestData, {"Content-Type":"application/x-www-form-urlencoded"}, ee.data.deadlineMs_), null;
   }
+  var xmlhttp = goog.net.XmlHttp();
+  xmlhttp.open(opt_method, url, !1);
+  xmlhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+  xmlhttp.send(requestData);
+  return handleResponse(xmlhttp.responseText, null);
 };
 ee.data.makeRequest_ = function(params) {
   var request = new goog.Uri.QueryData, item;
@@ -5433,6 +5450,7 @@ ee.data.setupMockSend = function(opt_calls) {
       return url in calls ? goog.isString(calls[url]) ? calls[url] : calls[url](url, callback, method, data) : '{"error": {}}';
     };
     setTimeout(goog.bind(callback, e, e), 0);
+    return new goog.net.XhrIo;
   };
   var fakeXmlHttp = function() {
   };
@@ -5894,10 +5912,8 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       if (signature.args.length) {
         var firstArgType = signature.args[0].type, isInstance = "Object" != firstArgType && ee.Types.isSubtype(firstArgType, typeName)
       }
-      for (var destination = isInstance ? target.prototype : target;fname in destination;) {
-        fname += "_", signature.hidden = !0;
-      }
-      destination[fname] = function(var_args) {
+      var destination = isInstance ? target.prototype : target;
+      fname in destination || (destination[fname] = function(var_args) {
         var args = Array.prototype.slice.call(arguments, 0), useKeywordArgs = !1;
         if (1 == args.length && ee.Types.isRegularObject(args[0])) {
           var params = signature.args;
@@ -5917,9 +5933,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
           namedArgs = apiFunc.nameArgs(isInstance ? [this].concat(args) : args);
         }
         return apiFunc.apply(namedArgs);
-      };
-      destination[fname].toString = goog.bind(apiFunc.toString, apiFunc, fname, isInstance);
-      destination[fname].signature = signature;
+      }, destination[fname].toString = goog.bind(apiFunc.toString, apiFunc, fname, isInstance), destination[fname].signature = signature);
     }
   });
 };
@@ -5931,143 +5945,6 @@ ee.ApiFunction.clearApi = function(target$$0) {
   };
   clear(target$$0);
   clear(target$$0.prototype);
-};
-ee.Number = function(number) {
-  if (!(this instanceof ee.Number)) {
-    return ee.ComputedObject.construct(ee.Number, arguments);
-  }
-  if (number instanceof ee.Number) {
-    return number;
-  }
-  ee.Number.initialize();
-  if (goog.isNumber(number)) {
-    ee.ComputedObject.call(this, null, null), this.number_ = number;
-  } else {
-    if (number instanceof ee.ComputedObject) {
-      ee.ComputedObject.call(this, number.func, number.args, number.varName), this.number_ = null;
-    } else {
-      throw Error("Invalid argument specified for ee.Number(): " + number);
-    }
-  }
-};
-goog.inherits(ee.Number, ee.ComputedObject);
-ee.Number.initialized_ = !1;
-ee.Number.initialize = function() {
-  ee.Number.initialized_ || (ee.ApiFunction.importApi(ee.Number, "Number", "Number"), ee.Number.initialized_ = !0);
-};
-ee.Number.reset = function() {
-  ee.ApiFunction.clearApi(ee.Number);
-  ee.Number.initialized_ = !1;
-};
-ee.Number.prototype.encode = function(encoder) {
-  return goog.isNumber(this.number_) ? this.number_ : ee.Number.superClass_.encode.call(this, encoder);
-};
-ee.Number.prototype.name = function() {
-  return "Number";
-};
-ee.String = function(string) {
-  if (!(this instanceof ee.String)) {
-    return ee.ComputedObject.construct(ee.String, arguments);
-  }
-  if (string instanceof ee.String) {
-    return string;
-  }
-  ee.String.initialize();
-  if (goog.isString(string)) {
-    ee.ComputedObject.call(this, null, null), this.string_ = string;
-  } else {
-    if (string instanceof ee.ComputedObject) {
-      this.string_ = null, string.func && "String" == string.func.getSignature().returns ? ee.ComputedObject.call(this, string.func, string.args, string.varName) : ee.ComputedObject.call(this, new ee.ApiFunction("String"), {input:string}, null);
-    } else {
-      throw Error("Invalid argument specified for ee.String(): " + string);
-    }
-  }
-};
-goog.inherits(ee.String, ee.ComputedObject);
-ee.String.initialized_ = !1;
-ee.String.initialize = function() {
-  ee.String.initialized_ || (ee.ApiFunction.importApi(ee.String, "String", "String"), ee.String.initialized_ = !0);
-};
-ee.String.reset = function() {
-  ee.ApiFunction.clearApi(ee.String);
-  ee.String.initialized_ = !1;
-};
-ee.String.prototype.encode = function(encoder) {
-  return goog.isString(this.string_) ? this.string_ : ee.String.superClass_.encode.call(this, encoder);
-};
-ee.String.prototype.name = function() {
-  return "String";
-};
-ee.CustomFunction = function(signature, body) {
-  if (!(this instanceof ee.CustomFunction)) {
-    return ee.ComputedObject.construct(ee.CustomFunction, arguments);
-  }
-  for (var vars = [], args = signature.args, i = 0;i < args.length;i++) {
-    var arg = args[i];
-    vars.push(ee.CustomFunction.variable(ee.Types.nameToClass(arg.type), arg.name));
-  }
-  this.signature_ = ee.CustomFunction.resolveNamelessArgs_(signature, vars, body);
-  this.body_ = body.apply(null, vars);
-};
-goog.inherits(ee.CustomFunction, ee.Function);
-goog.exportSymbol("ee.CustomFunction", ee.CustomFunction);
-ee.CustomFunction.prototype.encode = function(encoder) {
-  return{type:"Function", argumentNames:goog.array.map(this.signature_.args, function(arg) {
-    return arg.name;
-  }), body:encoder(this.body_)};
-};
-ee.CustomFunction.prototype.getSignature = function() {
-  return this.signature_;
-};
-ee.CustomFunction.variable = function(type, name) {
-  type = type || Object;
-  if (!(type.prototype instanceof ee.ComputedObject)) {
-    if (type && type != Object) {
-      if (type == String) {
-        type = ee.String;
-      } else {
-        if (type == Number) {
-          type = ee.Number;
-        } else {
-          if (type == Array) {
-            type = goog.global.ee.List;
-          } else {
-            throw Error("Variables must be of an EE type, e.g. ee.Image or ee.Number.");
-          }
-        }
-      }
-    } else {
-      type = ee.ComputedObject;
-    }
-  }
-  var klass = function() {
-  };
-  klass.prototype = type.prototype;
-  var obj = new klass;
-  obj.func = null;
-  obj.args = null;
-  obj.varName = name;
-  return obj;
-};
-ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
-  for (var namelessArgIndices = [], i = 0;i < vars.length;i++) {
-    goog.isNull(vars[i].varName) && namelessArgIndices.push(i);
-  }
-  if (0 == namelessArgIndices.length) {
-    return signature;
-  }
-  for (var countFunctions = function(expression) {
-    var count = 0;
-    goog.isObject(expression) && !goog.isFunction(expression) && ("Function" == expression.type && count++, goog.object.forEach(expression, function(subExpression) {
-      count += countFunctions(subExpression);
-    }));
-    return count;
-  }, serializedBody = ee.Serializer.encode(body.apply(null, vars)), baseName = "_MAPPING_VAR_" + countFunctions(serializedBody) + "_", i = 0;i < namelessArgIndices.length;i++) {
-    var index = namelessArgIndices[i], name = baseName + i;
-    vars[index].varName = name;
-    signature.args[index].name = name;
-  }
-  return signature;
 };
 ee.Element = function(func, args, opt_varName) {
   ee.ComputedObject.call(this, func, args, opt_varName);
@@ -6318,15 +6195,165 @@ ee.Collection.prototype.sort = function(property, opt_ascending) {
 ee.Collection.prototype.name = function() {
   return "Collection";
 };
-ee.Collection.prototype.mapInternal = function(type, algorithm) {
-  if (!goog.isFunction(algorithm)) {
-    throw Error("Can't map non-callable object: " + algorithm);
-  }
-  var signature = {name:"", returns:"Object", args:[{name:null, type:ee.Types.classToName(type)}]};
-  return this.castInternal(ee.ApiFunction._apply("Collection.map", {collection:this, baseAlgorithm:new ee.CustomFunction(signature, algorithm)}));
+ee.Collection.prototype.elementType = function() {
+  return ee.Element;
 };
 ee.Collection.prototype.map = function(algorithm) {
-  return this.mapInternal(ee.ComputedObject, algorithm);
+  var elementType = this.elementType();
+  return this.castInternal(ee.ApiFunction._call("Collection.map", this, function(e) {
+    return algorithm(new elementType(e));
+  }));
+};
+ee.Collection.prototype.iterate = function(algorithm, opt_first) {
+  var first = goog.isDef(opt_first) ? opt_first : null, elementType = this.elementType();
+  return ee.ApiFunction._call("Collection.iterate", this, function(e, p) {
+    return algorithm(new elementType(e), p);
+  }, first);
+};
+ee.Number = function(number) {
+  if (!(this instanceof ee.Number)) {
+    return ee.ComputedObject.construct(ee.Number, arguments);
+  }
+  if (number instanceof ee.Number) {
+    return number;
+  }
+  ee.Number.initialize();
+  if (goog.isNumber(number)) {
+    ee.ComputedObject.call(this, null, null), this.number_ = number;
+  } else {
+    if (number instanceof ee.ComputedObject) {
+      ee.ComputedObject.call(this, number.func, number.args, number.varName), this.number_ = null;
+    } else {
+      throw Error("Invalid argument specified for ee.Number(): " + number);
+    }
+  }
+};
+goog.inherits(ee.Number, ee.ComputedObject);
+ee.Number.initialized_ = !1;
+ee.Number.initialize = function() {
+  ee.Number.initialized_ || (ee.ApiFunction.importApi(ee.Number, "Number", "Number"), ee.Number.initialized_ = !0);
+};
+ee.Number.reset = function() {
+  ee.ApiFunction.clearApi(ee.Number);
+  ee.Number.initialized_ = !1;
+};
+ee.Number.prototype.encode = function(encoder) {
+  return goog.isNumber(this.number_) ? this.number_ : ee.Number.superClass_.encode.call(this, encoder);
+};
+ee.Number.prototype.name = function() {
+  return "Number";
+};
+ee.String = function(string) {
+  if (!(this instanceof ee.String)) {
+    return ee.ComputedObject.construct(ee.String, arguments);
+  }
+  if (string instanceof ee.String) {
+    return string;
+  }
+  ee.String.initialize();
+  if (goog.isString(string)) {
+    ee.ComputedObject.call(this, null, null), this.string_ = string;
+  } else {
+    if (string instanceof ee.ComputedObject) {
+      this.string_ = null, string.func && "String" == string.func.getSignature().returns ? ee.ComputedObject.call(this, string.func, string.args, string.varName) : ee.ComputedObject.call(this, new ee.ApiFunction("String"), {input:string}, null);
+    } else {
+      throw Error("Invalid argument specified for ee.String(): " + string);
+    }
+  }
+};
+goog.inherits(ee.String, ee.ComputedObject);
+ee.String.initialized_ = !1;
+ee.String.initialize = function() {
+  ee.String.initialized_ || (ee.ApiFunction.importApi(ee.String, "String", "String"), ee.String.initialized_ = !0);
+};
+ee.String.reset = function() {
+  ee.ApiFunction.clearApi(ee.String);
+  ee.String.initialized_ = !1;
+};
+ee.String.prototype.encode = function(encoder) {
+  return goog.isString(this.string_) ? this.string_ : ee.String.superClass_.encode.call(this, encoder);
+};
+ee.String.prototype.name = function() {
+  return "String";
+};
+ee.CustomFunction = function(signature, body) {
+  if (!(this instanceof ee.CustomFunction)) {
+    return ee.ComputedObject.construct(ee.CustomFunction, arguments);
+  }
+  for (var vars = [], args = signature.args, i = 0;i < args.length;i++) {
+    var arg = args[i];
+    vars.push(ee.CustomFunction.variable(ee.Types.nameToClass(arg.type), arg.name));
+  }
+  this.signature_ = ee.CustomFunction.resolveNamelessArgs_(signature, vars, body);
+  this.body_ = body.apply(null, vars);
+};
+goog.inherits(ee.CustomFunction, ee.Function);
+goog.exportSymbol("ee.CustomFunction", ee.CustomFunction);
+ee.CustomFunction.prototype.encode = function(encoder) {
+  return{type:"Function", argumentNames:goog.array.map(this.signature_.args, function(arg) {
+    return arg.name;
+  }), body:encoder(this.body_)};
+};
+ee.CustomFunction.prototype.getSignature = function() {
+  return this.signature_;
+};
+ee.CustomFunction.variable = function(type, name) {
+  type = type || Object;
+  if (!(type.prototype instanceof ee.ComputedObject)) {
+    if (type && type != Object) {
+      if (type == String) {
+        type = ee.String;
+      } else {
+        if (type == Number) {
+          type = ee.Number;
+        } else {
+          if (type == Array) {
+            type = goog.global.ee.List;
+          } else {
+            throw Error("Variables must be of an EE type, e.g. ee.Image or ee.Number.");
+          }
+        }
+      }
+    } else {
+      type = ee.ComputedObject;
+    }
+  }
+  var klass = function() {
+  };
+  klass.prototype = type.prototype;
+  var obj = new klass;
+  obj.func = null;
+  obj.args = null;
+  obj.varName = name;
+  return obj;
+};
+ee.CustomFunction.create = function(func, returnType, arg_types) {
+  var stringifyType = function(type) {
+    return goog.isString(type) ? type : ee.Types.classToName(type);
+  }, args = goog.array.map(arg_types, function(argType) {
+    return{name:null, type:stringifyType(argType)};
+  }), signature = {name:"", returns:stringifyType(returnType), args:args};
+  return new ee.CustomFunction(signature, func);
+};
+ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
+  for (var namelessArgIndices = [], i = 0;i < vars.length;i++) {
+    goog.isNull(vars[i].varName) && namelessArgIndices.push(i);
+  }
+  if (0 == namelessArgIndices.length) {
+    return signature;
+  }
+  for (var countFunctions = function(expression) {
+    var count = 0;
+    goog.isObject(expression) && !goog.isFunction(expression) && ("Function" == expression.type && count++, goog.object.forEach(expression, function(subExpression) {
+      count += countFunctions(subExpression);
+    }));
+    return count;
+  }, serializedBody = ee.Serializer.encode(body.apply(null, vars)), baseName = "_MAPPING_VAR_" + countFunctions(serializedBody) + "_", i = 0;i < namelessArgIndices.length;i++) {
+    var index = namelessArgIndices[i], name = baseName + i;
+    vars[index].varName = name;
+    signature.args[index].name = name;
+  }
+  return signature;
 };
 ee.Date = function(date, opt_tz) {
   if (!(this instanceof ee.Date)) {
@@ -6855,12 +6882,6 @@ ee.List.prototype.encode = function(opt_encoder) {
 ee.List.prototype.name = function() {
   return "List";
 };
-ee.List.prototype.map = function(algorithm) {
-  if (!goog.isFunction(algorithm)) {
-    throw Error("Can't map non-callable object: " + algorithm);
-  }
-  return this.castInternal(ee.ApiFunction._apply("List.map", {list:this, baseAlgorithm:new ee.CustomFunction({name:"", returns:"Object", args:[{name:null, type:"Object"}]}, algorithm)}));
-};
 ee.FeatureCollection = function(args, opt_column) {
   if (!(this instanceof ee.FeatureCollection)) {
     return ee.ComputedObject.construct(ee.FeatureCollection, arguments);
@@ -6930,11 +6951,11 @@ ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selecto
     return ee.data.makeTableDownloadUrl(ee.data.getTableDownloadId(request));
   }
 };
-ee.FeatureCollection.prototype.map = function(algorithm) {
-  return this.mapInternal(ee.Feature, algorithm);
-};
 ee.FeatureCollection.prototype.name = function() {
   return "FeatureCollection";
+};
+ee.FeatureCollection.prototype.elementType = function() {
+  return ee.Feature;
 };
 ee.Image = function(opt_args) {
   if (!(this instanceof ee.Image)) {
@@ -7132,9 +7153,6 @@ ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 ee.ImageCollection.prototype.getInfo = function(opt_callback) {
   return ee.ImageCollection.superClass_.getInfo.call(this, opt_callback);
 };
-ee.ImageCollection.prototype.map = function(algorithm) {
-  return this.mapInternal(ee.Image, algorithm);
-};
 ee.ImageCollection.prototype.select = function(selectors, opt_names) {
   var varargs = arguments;
   return this.map(function(img) {
@@ -7143,6 +7161,9 @@ ee.ImageCollection.prototype.select = function(selectors, opt_names) {
 };
 ee.ImageCollection.prototype.name = function() {
   return "ImageCollection";
+};
+ee.ImageCollection.prototype.elementType = function() {
+  return ee.Image;
 };
 ee.initialize = function(opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback, opt_xsrfToken) {
   if (ee.ready_ != ee.InitState.READY || opt_baseurl || opt_tileurl) {
@@ -7266,7 +7287,16 @@ ee.promote_ = function(arg, klass) {
       case "Filter":
         return new ee.Filter(arg);
       case "Algorithm":
-        return goog.isString(arg) ? new ee.ApiFunction(arg) : arg;
+        if (goog.isString(arg)) {
+          return new ee.ApiFunction(arg);
+        }
+        if (goog.isFunction(arg)) {
+          return ee.CustomFunction.create(arg, "Object", goog.array.repeat("Object", arg.length));
+        }
+        if (arg instanceof ee.Encodable) {
+          return arg;
+        }
+        throw Error("Argument is not a function: " + arg);;
       case "String":
         return ee.Types.isString(arg) || arg instanceof ee.String || arg instanceof ee.ComputedObject ? new ee.String(arg) : arg;
       case "Dictionary":
@@ -7601,7 +7631,7 @@ goog.dom.getDocumentHeight_ = function(win) {
   var doc = win.document, height = 0;
   if (doc) {
     var body = doc.body, docEl = doc.documentElement;
-    if (!body && !docEl) {
+    if (!docEl || !body) {
       return 0;
     }
     var vh = goog.dom.getViewportSize_(win).height;
@@ -8740,7 +8770,7 @@ goog.style.getFramedPageOffset = function(el, relativeWin) {
 goog.style.translateRectForAnotherFrame = function(rect, origBase, newBase) {
   if (origBase.getDocument() != newBase.getDocument()) {
     var body = origBase.getDocument().body, pos = goog.style.getFramedPageOffset(body, newBase.getWindow()), pos = goog.math.Coordinate.difference(pos, goog.style.getPageOffset(body));
-    goog.userAgent.IE && !origBase.isCss1CompatMode() && (pos = goog.math.Coordinate.difference(pos, origBase.getDocumentScroll()));
+    !goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9) || origBase.isCss1CompatMode() || (pos = goog.math.Coordinate.difference(pos, origBase.getDocumentScroll()));
     rect.left += pos.x;
     rect.top += pos.y;
   }
@@ -8939,7 +8969,7 @@ goog.style.getBorderBoxSize = function(element) {
 };
 goog.style.setBorderBoxSize = function(element, size) {
   var doc = goog.dom.getOwnerDocument(element), isCss1CompatMode = goog.dom.getDomHelper(doc).isCss1CompatMode();
-  if (!goog.userAgent.IE || isCss1CompatMode && goog.userAgent.isVersionOrHigher("8")) {
+  if (!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10") || isCss1CompatMode && goog.userAgent.isVersionOrHigher("8")) {
     goog.style.setBoxSizingSize_(element, size, "border-box");
   } else {
     var style = element.style;
@@ -8963,7 +8993,7 @@ goog.style.getContentBoxSize = function(element) {
 };
 goog.style.setContentBoxSize = function(element, size) {
   var doc = goog.dom.getOwnerDocument(element), isCss1CompatMode = goog.dom.getDomHelper(doc).isCss1CompatMode();
-  if (!goog.userAgent.IE || isCss1CompatMode && goog.userAgent.isVersionOrHigher("8")) {
+  if (!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10") || isCss1CompatMode && goog.userAgent.isVersionOrHigher("8")) {
     goog.style.setBoxSizingSize_(element, size, "content-box");
   } else {
     var style = element.style;

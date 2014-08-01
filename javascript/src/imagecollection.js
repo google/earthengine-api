@@ -108,7 +108,8 @@ ee.ImageCollection.reset = function() {
  *
  * @param {Object?=} opt_visParams The visualization parameters.
  * @param {function(Object, string=)=} opt_callback An async callback.
- * @return {ee.data.MapId} A mapid and token.
+ * @return {ee.data.MapId|undefined} Returns a mapid and token, or undefined if
+ *     a callback was specified.
  * @export
  */
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
@@ -145,13 +146,6 @@ ee.ImageCollection.prototype.getInfo = function(opt_callback) {
 };
 
 
-/** @inheritDoc */
-ee.ImageCollection.prototype.map = function(algorithm) {
-  return /** @type {ee.ImageCollection} */(
-      this.mapInternal(ee.Image, algorithm));
-};
-
-
 /**
  * Select bands from each image in a collection.
  *
@@ -173,4 +167,10 @@ ee.ImageCollection.prototype.select = function(selectors, opt_names) {
 /** @inheritDoc */
 ee.ImageCollection.prototype.name = function() {
   return 'ImageCollection';
+};
+
+
+/** @inheritDoc */
+ee.ImageCollection.prototype.elementType = function() {
+  return ee.Image;
 };

@@ -68,6 +68,35 @@ class CustomFunction(function.Function):
     return result
 
   @staticmethod
+  def create(func, return_type, arg_types):
+    """Creates a CustomFunction.
+
+    The result calls a given native function with the specified return type and
+    argument types and auto-generated argument names.
+
+    Args:
+      func: The native function to wrap.
+      return_type: The type of the return value, either as a string or a
+          class reference.
+      arg_types: The types of the arguments, either as strings or class
+          references.
+
+    Returns:
+      The constructed CustomFunction.
+    """
+
+    def StringifyType(t):
+      return t if isinstance(t, basestring) else ee_types.classToName(t)
+
+    args = [{'name': None, 'type': StringifyType(i)} for i in arg_types]
+    signature = {
+        'name': '',
+        'returns': StringifyType(return_type),
+        'args': args
+    }
+    return CustomFunction(signature, func)
+
+  @staticmethod
   def _resolveNamelessArgs(signature, variables, body):
     """Deterministically generates names for unnamed variables.
 
