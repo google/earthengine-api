@@ -211,6 +211,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *     callback. If not supplied, the call is made synchronously.
  * @return {string|undefined} Returns a download URL, or undefined if a callback
  *     was specified.
+ * @export
  */
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   var request = params ? goog.object.clone(params) : {};

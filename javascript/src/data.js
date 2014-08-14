@@ -11,17 +11,18 @@ goog.provide('ee.data.AssetDescription');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.FeatureCollectionDescription');
+goog.provide('ee.data.FeaturesTaskConfig');
 goog.provide('ee.data.GMEProject');
 goog.provide('ee.data.GeoJSONFeature');
 goog.provide('ee.data.GeoJSONGeometry');
 goog.provide('ee.data.ImageCollectionDescription');
 goog.provide('ee.data.ImageDescription');
 goog.provide('ee.data.ImageList');
+goog.provide('ee.data.ImageTaskConfig');
 goog.provide('ee.data.MapId');
 goog.provide('ee.data.PixelTypeDescription');
 goog.provide('ee.data.ProcessingResponse');
 goog.provide('ee.data.RawMapId');
-goog.provide('ee.data.TaskConfig');
 goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
 goog.provide('ee.data.TaskUpdateActions');
@@ -1064,7 +1065,25 @@ ee.data.MapId;
  *   driveFileNamePrefix: (undefined|string)
  * }}
  */
-ee.data.TaskConfig;
+ee.data.ImageTaskConfig;
+
+
+/**
+ * An object for specifying configuration of an task to export feature
+ * collections.
+ *
+ * @typedef {{
+ *   id: (undefined|string),
+ *   type: string,
+ *   description: (undefined|string),
+ *   driveFolder: (undefined|string),
+ *   driveFileNamePrefix: (undefined|string),
+ *   fileFormat: (undefined|string),
+ *   sourceURL: (undefined|string),
+ *   json: (undefined|string)
+ * }}
+ */
+ee.data.FeaturesTaskConfig;
 
 
 /**

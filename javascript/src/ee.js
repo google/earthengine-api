@@ -469,7 +469,9 @@ ee.promote_ = function(arg, klass) {
  * @private
  */
 ee.initializeUnboundMethods_ = function() {
-  goog.object.forEach(ee.ApiFunction.unboundFunctions(), function(func, name) {
+  var unbound = ee.ApiFunction.unboundFunctions();
+  goog.object.getKeys(unbound).sort().forEach(function(name) {
+    var func = unbound[name];
     var signature = func.getSignature();
     if (signature['hidden']) {
       return;
