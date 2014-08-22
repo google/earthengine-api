@@ -273,7 +273,7 @@ ee.Feature.MultiPolygon = function(coordinates) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.Feature.prototype.name = function() {
   return 'Feature';
 };

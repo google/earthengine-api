@@ -169,7 +169,7 @@ ee.Collection.prototype.sort = function(property, opt_ascending) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.Collection.prototype.name = function() {
   return 'Collection';
 };

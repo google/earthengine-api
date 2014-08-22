@@ -102,7 +102,7 @@ ee.Date.reset = function() {
 
 
 /**
- * @inheritDoc
+ * @override
  */
 ee.Date.prototype.name = function() {
   return 'Date';

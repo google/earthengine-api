@@ -78,7 +78,7 @@ ee.String.reset = function() {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.String.prototype.encode = function(encoder) {
   if (goog.isString(this.string_)) {
     return this.string_;
@@ -88,7 +88,7 @@ ee.String.prototype.encode = function(encoder) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.String.prototype.name = function() {
   return 'String';
 };

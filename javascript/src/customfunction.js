@@ -41,6 +41,12 @@ ee.CustomFunction = function(signature, body) {
     vars.push(ee.CustomFunction.variable(type, arg['name']));
   }
 
+  // Check that the method returns something, before we try
+  // encoding it in resolveNamelessArgs_().
+  if (!goog.isDef(body.apply(null, vars))) {
+    throw Error('User-defined methods must return a value.');
+  }
+
   /**
    * The signature of the function.
    * @type {ee.Function.Signature}
@@ -61,7 +67,7 @@ goog.inherits(ee.CustomFunction, ee.Function);
 goog.exportSymbol('ee.CustomFunction', ee.CustomFunction);
 
 
-/** @inheritDoc */
+/** @override */
 ee.CustomFunction.prototype.encode = function(encoder) {
   return {
     'type': 'Function',
@@ -72,7 +78,7 @@ ee.CustomFunction.prototype.encode = function(encoder) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.CustomFunction.prototype.getSignature = function() {
   return this.signature_;
 };

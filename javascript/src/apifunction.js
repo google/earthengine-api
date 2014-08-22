@@ -82,13 +82,13 @@ ee.ApiFunction._apply = function(name, namedArgs) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.ApiFunction.prototype.encode = function(encoder) {
   return this.signature_['name'];
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.ApiFunction.prototype.getSignature = function() {
   return this.signature_;
 };

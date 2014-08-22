@@ -76,7 +76,7 @@ ee.Dictionary.reset = function() {
 
 
 /**
- * @inheritDoc
+ * @override
  */
 ee.Dictionary.prototype.encode = function(encoder) {
   if (!goog.isNull(this.dict_)) {
@@ -88,7 +88,7 @@ ee.Dictionary.prototype.encode = function(encoder) {
 
 
 /**
- * @inheritDoc
+ * @override
  */
 ee.Dictionary.prototype.name = function() {
   return 'Dictionary';

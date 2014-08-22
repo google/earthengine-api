@@ -41,7 +41,7 @@ ee.SavedFunction = function(path, signature) {
 goog.inherits(ee.SavedFunction, ee.Function);
 
 
-/** @inheritDoc */
+/** @override */
 ee.SavedFunction.prototype.encode = function(encoder) {
   var body = ee.ApiFunction._call('LoadAlgorithmById', this.path_);
   return body.encode(encoder);
@@ -49,7 +49,7 @@ ee.SavedFunction.prototype.encode = function(encoder) {
 
 
 /**
- * @inheritDoc
+ * @override
  */
 ee.SavedFunction.prototype.getSignature = function() {
   return this.signature_;

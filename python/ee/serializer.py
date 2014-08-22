@@ -146,16 +146,17 @@ class Serializer(object):
       return result
 
 
-def encode(obj):
+def encode(obj, is_compound=True):
   """Serialize an object to a JSON-compatible structure for API calls.
 
   Args:
     obj: The object to serialize.
+    is_compound: Whether the encoding should factor out shared subtrees.
 
   Returns:
     A JSON-compatible structure representing the input.
   """
-  serializer = Serializer(True)
+  serializer = Serializer(is_compound)
   return serializer._encode(obj)  # pylint: disable=protected-access
 
 

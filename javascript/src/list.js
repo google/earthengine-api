@@ -76,7 +76,7 @@ ee.List.reset = function() {
 
 
 /**
- * @inheritDoc
+ * @override
  */
 ee.List.prototype.encode = function(opt_encoder) {
   if (goog.isArray(this.list_)) {
@@ -113,7 +113,7 @@ ee.List.prototype.iterate = function(algorithm, first) {
 
 
 /**
- * @inheritDoc
+ * @override
  */
 ee.List.prototype.name = function() {
   return 'List';

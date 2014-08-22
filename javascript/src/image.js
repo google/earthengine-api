@@ -429,7 +429,7 @@ ee.Image.prototype.clip = function(geometry) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.Image.prototype.name = function() {
   return 'Image';
 };

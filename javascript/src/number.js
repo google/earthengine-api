@@ -74,7 +74,7 @@ ee.Number.reset = function() {
 
 
 /**
- * @inheritDoc
+ * @override
  */
 ee.Number.prototype.encode = function(encoder) {
   if (goog.isNumber(this.number_)) {
@@ -86,7 +86,7 @@ ee.Number.prototype.encode = function(encoder) {
 
 
 /**
- * @inheritDoc
+ * @override
  */
 ee.Number.prototype.name = function() {
   return 'Number';

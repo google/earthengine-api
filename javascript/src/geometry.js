@@ -471,7 +471,7 @@ ee.Geometry.prototype.serialize = function() {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.Geometry.prototype.toString = function() {
   return 'ee.Geometry(' + this.toGeoJSONString() + ')';
 };
@@ -628,7 +628,7 @@ ee.Geometry.createInstance_ = function(klass, args) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.Geometry.prototype.name = function() {
   return 'Geometry';
 };

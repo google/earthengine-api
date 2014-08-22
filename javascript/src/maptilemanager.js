@@ -591,7 +591,7 @@ ee.MapTileManager.Request_.prototype.getRequestCompleteCallback = function() {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.MapTileManager.Request_.prototype.disposeInternal = function() {
   ee.MapTileManager.Request_.superClass_.disposeInternal.call(this);
   delete this.imageEventCallback_;
@@ -705,7 +705,7 @@ ee.MapTileManager.TokenPool_.prototype.disposeObject = function(obj) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.MapTileManager.TokenPool_.prototype.objectCanBeReused = function(obj) {
   // An active ImageLoader object should never be used.
   return !obj.isDisposed() && !obj.isActive();

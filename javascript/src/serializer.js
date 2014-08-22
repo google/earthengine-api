@@ -80,11 +80,14 @@ ee.Serializer.hash_ = new goog.crypt.Md5();
 /**
  * Serialize an object to a JSON representation appropriate for API calls.
  * @param {*} obj The object to Serialize.
+ * @param {boolean=} opt_isCompound Whether the encoding should factor out
+ *     shared subtrees. Defaults to true.
  * @return {*} A JSON-compatible structure representing the input.
  * @export
  */
-ee.Serializer.encode = function(obj) {
-  return new ee.Serializer(true).encode_(obj);
+ee.Serializer.encode = function(obj, opt_isCompound) {
+  var compound = goog.isDef(opt_isCompound) ? opt_isCompound : true;
+  return new ee.Serializer(compound).encode_(obj);
 };
 
 

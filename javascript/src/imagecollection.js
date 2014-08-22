@@ -164,13 +164,13 @@ ee.ImageCollection.prototype.select = function(selectors, opt_names) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.ImageCollection.prototype.name = function() {
   return 'ImageCollection';
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.ImageCollection.prototype.elementType = function() {
   return ee.Image;
 };

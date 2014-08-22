@@ -634,7 +634,7 @@ ee.Filter.prototype.bounds = function() {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.Filter.prototype.name = function() {
   return 'Filter';
 };

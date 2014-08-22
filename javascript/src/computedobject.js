@@ -97,7 +97,7 @@ ee.ComputedObject.prototype.getInfo = function(opt_callback) {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.ComputedObject.prototype.encode = function(encoder) {
   if (this.isVariable()) {
     return {

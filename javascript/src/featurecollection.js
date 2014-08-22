@@ -208,13 +208,13 @@ ee.FeatureCollection.prototype.getDownloadURL = function(
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.FeatureCollection.prototype.name = function() {
   return 'FeatureCollection';
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.FeatureCollection.prototype.elementType = function() {
   return ee.Feature;
 };

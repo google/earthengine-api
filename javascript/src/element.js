@@ -59,7 +59,7 @@ ee.Element.reset = function() {
 };
 
 
-/** @inheritDoc */
+/** @override */
 ee.Element.prototype.name = function() {
   return 'Element';
 };

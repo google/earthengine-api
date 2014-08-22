@@ -706,7 +706,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   function handleResponse(responseText, opt_callback) {
     var jsonIsInvalid = false;
     try {
-      var response = goog.json.parse(responseText);
+      var response = goog.json.unsafeParse(responseText);
       var data = response['data'];
     } catch (e) {
       jsonIsInvalid = true;
