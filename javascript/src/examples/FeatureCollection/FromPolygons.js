@@ -17,10 +17,10 @@ var image = ee.Image().toByte()
     .paint(fc, 'fill')       // Get color from property named 'fill'
     .paint(fc, 3, 5);        // Outline using color 3, width 5.
 
-addToMap(image, {
+Map.addLayer(image, {
     palette: '000000,FF0000,00FF00,0000FF',
     max: 3,
     opacity: 0.5
 });
 
-centerMap(-107, 41, 6);
+Map.setCenter(-107, 41, 6);

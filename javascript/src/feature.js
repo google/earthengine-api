@@ -24,7 +24,7 @@ goog.require('goog.object');
  * @param {ee.Geometry|ee.Feature|ee.ComputedObject|Object} geometry
  *     A geometry or feature.
  * @param {Object=} opt_properties A dictionary of metadata properties. If the
-       first parameter is a Feature (instead of a geometry), this is unused.
+ *     first parameter is a Feature (instead of a geometry), this is unused.
  * @constructor
  * @extends {ee.Element}
  * @export

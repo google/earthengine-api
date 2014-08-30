@@ -16,9 +16,9 @@ var upres = ee.Image.cat(huesat, gray).hsvtorgb();
 var visparams = {min: [0.15, 0.15, 0.25],
                  max: [1, 0.9, 0.9],
                  gamma: 1.6};
-addToMap(rgb, visparams, 'Original');
-addToMap(upres, visparams, 'Pansharpened');
+Map.addLayer(rgb, visparams, 'Original');
+Map.addLayer(upres, visparams, 'Pansharpened');
 
 // There are many fine places to look; here is one.  Comment
 // this out if you want to twiddle knobs while panning around.
-centerMap(-61.61625, -11.64273, 14);
+Map.setCenter(-61.61625, -11.64273, 14);

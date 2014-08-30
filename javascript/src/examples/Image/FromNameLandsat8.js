@@ -7,5 +7,5 @@ var vizParams = {'bands': 'B4,B3,B2',
                  'min': 5000,
                  'max': 30000,
                  'gamma': 1.6};
-centerMap(-122.24487, 37.52280, 8);
-addToMap(image, vizParams);
+Map.setCenter(-122.24487, 37.52280, 8);
+Map.addLayer(image, vizParams);

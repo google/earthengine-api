@@ -4,9 +4,9 @@
 var elev = ee.Image('srtm90_v4');
 var image = elev.subtract(1000).zeroCrossing();
 
-centerMap(-121.68148, 37.50877, 13);
-addToMap(image, {min: 0, max: 1, opacity: 0.5}, 'Crossing 1000m');
+Map.setCenter(-121.68148, 37.50877, 13);
+Map.addLayer(image, {min: 0, max: 1, opacity: 0.5}, 'Crossing 1000m');
 
 var exact = elev.eq(1000);
-addToMap(
+Map.addLayer(
     exact.mask(exact), {min: 0, max: 1, palette: 'FF0000'}, 'Exactly 1000m');

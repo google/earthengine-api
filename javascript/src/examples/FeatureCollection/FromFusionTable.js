@@ -9,6 +9,6 @@ var image1 = ee.Image()
                .byte()
                .paint(fc, 'ECO_NUM');
 // Display the image using random colors for each value.
-addToMap(image1.randomVisualizer());
+Map.addLayer(image1.randomVisualizer());
 
-centerMap(-93, 40, 4);
+Map.setCenter(-93, 40, 4);

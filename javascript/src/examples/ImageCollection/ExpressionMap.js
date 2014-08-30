@@ -35,6 +35,6 @@ var vis = {
   ]
 };
 
-centerMap(-93.7848, 30.3252, 11);
-addToMap(collection.map(NDVI).mean(), vis, 'Mean NDVI');
-addToMap(collection.map(SAVI).mean(), vis, 'Mean SAVI');
+Map.setCenter(-93.7848, 30.3252, 11);
+Map.addLayer(collection.map(NDVI).mean(), vis, 'Mean NDVI');
+Map.addLayer(collection.map(SAVI).mean(), vis, 'Mean SAVI');

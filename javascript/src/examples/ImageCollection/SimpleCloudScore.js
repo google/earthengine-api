@@ -46,5 +46,5 @@ var collection = ee.ImageCollection('LC8_L1T_TOA')
 
 // Define visualization parameters for a true color image.
 var vizParams = {'bands': ['B4', 'B3', 'B2'], 'max': 0.4, 'gamma': 1.6};
-centerMap(-120.24487, 37.52280, 8);
-addToMap(collection.qualityMosaic('cloudscore'), vizParams);
+Map.setCenter(-120.24487, 37.52280, 8);
+Map.addLayer(collection.qualityMosaic('cloudscore'), vizParams);

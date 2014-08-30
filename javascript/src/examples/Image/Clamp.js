@@ -10,6 +10,6 @@
 var image = ee.Image('srtm90_v4');
 var clamped = image.clamp(1000, 2000);
 
-centerMap(-121.753, 46.855, 9);
-addToMap(image, {min: 0, max: 4300}, 'Full stretch');
-addToMap(clamped, {min: 0, max: 4300}, 'Clamped');
+Map.setCenter(-121.753, 46.855, 9);
+Map.addLayer(image, {min: 0, max: 4300}, 'Full stretch');
+Map.addLayer(clamped, {min: 0, max: 4300}, 'Clamped');

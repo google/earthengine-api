@@ -27,9 +27,9 @@ var PALETTE = [
 
 var vis_params = {min: 0, max: 17, palette: PALETTE};
 
-centerMap(-113.41842, 40.055489, 6);
-addToMap(image2, vis_params, 'IGBP classification');
-addToMap(image3, vis_params, 'Reprojected');
-addToMap(image4, vis_params, 'Mode');
-addToMap(image5, vis_params, 'Smooth');
-addToMap(image6, vis_params, 'Smooth');
+Map.setCenter(-113.41842, 40.055489, 6);
+Map.addLayer(image2, vis_params, 'IGBP classification');
+Map.addLayer(image3, vis_params, 'Reprojected');
+Map.addLayer(image4, vis_params, 'Mode');
+Map.addLayer(image5, vis_params, 'Smooth');
+Map.addLayer(image6, vis_params, 'Smooth');

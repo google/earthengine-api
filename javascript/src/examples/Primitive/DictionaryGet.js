@@ -26,5 +26,5 @@ var stretch = function(img, mean, sigma) {
     });
 };
 
-centerMap(9.5, 9.5, 9);
-addToMap(stretch(img, mean, sigma), {min: 0, max: 1});
+Map.setCenter(9.5, 9.5, 9);
+Map.addLayer(stretch(img, mean, sigma), {min: 0, max: 1});

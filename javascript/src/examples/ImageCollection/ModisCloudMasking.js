@@ -64,7 +64,7 @@ var clearObsCount = collectionCloudMasked.count()
                                          .select('num_observations_1km')
                                          .mask(1);
 
-addToMap(
+Map.addLayer(
     collectionCloudMasked.median(),
     {bands: ['sur_refl_b01', 'sur_refl_b04', 'sur_refl_b03'],
      gain: 0.07,
@@ -72,19 +72,19 @@ addToMap(
     },
     'median of masked collection'
   );
-addToMap(
+Map.addLayer(
     totalObsCount,
     {min: 84, max: 92},
     'count of total observations',
     false
   );
-addToMap(
+Map.addLayer(
     clearObsCount,
     {min: 0, max: 90},
     'count of clear observations',
     false
   );
-addToMap(
+Map.addLayer(
     clearObsCount.toFloat().divide(totalObsCount),
     {min: 0, max: 1},
     'ratio of clear to total observations'

@@ -57,16 +57,16 @@ function dcs(image, region, scale) {
 
 var image = ee.Image('MODIS/MCD43A4/MCD43A4_005_2002_07_04');
 
-centerMap(-52.09717, -7.03548, 7);
+Map.setCenter(-52.09717, -7.03548, 7);
 
 // View the original bland image.
 var rgb = [0, 3, 2];
-addToMap(image.select(rgb), {min: -100, max: 2000}, 'Original Image');
+Map.addLayer(image.select(rgb), {min: -100, max: 2000}, 'Original Image');
 
 // Stretch the values within an interesting region.
 var region = ee.Feature.Rectangle(-57.04651, -8.91823, -47.24121, -5.13531);
-addToMap(dcs(image, region, 1000).select(rgb), {}, 'DCS Image');
+Map.addLayer(dcs(image, region, 1000).select(rgb), {}, 'DCS Image');
 
 // Display the region in which covariance stats were computed.
-addToMap(ee.Image().paint(region, 0, 2), {}, 'Region');
+Map.addLayer(ee.Image().paint(region, 0, 2), {}, 'Region');
 

@@ -33,7 +33,6 @@ ee.Types.registerClasses = function(classes) {
  * @param {string} name The class name.
  * @return {Function} The constructor for the named class or null if it's not an
  *     ee class.
- * @export
  */
 ee.Types.nameToClass = function(name) {
   if (name in ee.Types.registeredClasses_) {
@@ -48,7 +47,6 @@ ee.Types.nameToClass = function(name) {
  * Converts a class constructor to the API-friendly type name.
  * @param {Function} klass The class constructor.
  * @return {string} The name of the class, or "Object" if not recognized.
- * @export
  */
 ee.Types.classToName = function(klass) {
   if (klass.prototype instanceof ee.ComputedObject) {

@@ -460,7 +460,8 @@ def send_(path, params, opt_method='POST', opt_raw=False):
     raise ee_exception.EEException('Unexpected request method: ' + opt_method)
 
   try:
-    response, content = http.request(url, opt_method, payload, headers)
+    response, content = http.request(url, method=opt_method, body=payload,
+                                     headers=headers)
   except httplib2.HttpLib2Error, e:
     raise ee_exception.EEException(
         'Unexpected HTTP error: %s' % e.message)

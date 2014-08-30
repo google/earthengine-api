@@ -39,6 +39,6 @@ var fit = x.matrixSolve(y);
 // NDVI trend.
 var slope = fit.arrayGet([1, 0]);
 
-centerMap(lng, lat, 12);
-addToMap(slope, {min: -0.03, max: 0.03}, 'Slope');
+Map.setCenter(lng, lat, 12);
+Map.addLayer(slope, {min: -0.03, max: 0.03}, 'Slope');
 

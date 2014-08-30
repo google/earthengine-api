@@ -32,11 +32,11 @@ var ee_sr = ee.Algorithms.LedapsSurfaceReflectance(
         ozone,
         dem);
 
-centerMap(-90.7945, 30.0958, 11);
+Map.setCenter(-90.7945, 30.0958, 11);
 
 // Surface reflectance is a unitless ratio scaled to the range 0-10000
 // and typically less than 2000.
-addToMap(ee_sr, {min: 0, max: 2000}, 'EE Surface Reflectance');
+Map.addLayer(ee_sr, {min: 0, max: 2000}, 'EE Surface Reflectance');
 
 // The "QA" band has various flags encoded in different bits.  We extract
 // some of them as individual mask bands.
@@ -60,8 +60,8 @@ var dense_dark_vegetation = ee_sr.select('QA').bitwiseAnd(64).neq(0);
 dense_dark_vegetation = dense_dark_vegetation.mask(dense_dark_vegetation);
 
 // Show various bits from the QA Mask Band.
-addToMap(invalid, {palette: '000000,ff0000'}, 'Invalid');
-addToMap(cloud, {palette: '000000,ffffff'}, 'Cloud');
-addToMap(water, {palette: '000000,0000ff'}, 'Not Land');
-addToMap(dense_dark_vegetation, {palette: '000000,00ff00'},
+Map.addLayer(invalid, {palette: '000000,ff0000'}, 'Invalid');
+Map.addLayer(cloud, {palette: '000000,ffffff'}, 'Cloud');
+Map.addLayer(water, {palette: '000000,0000ff'}, 'Not Land');
+Map.addLayer(dense_dark_vegetation, {palette: '000000,00ff00'},
          'Dense Dark Vegetation');

@@ -22,7 +22,7 @@ var slope = radians(terrain.select('slope'));
 var aspect = radians(terrain.select('aspect'));
 
 for (var i = 0; i < 360; i += 60) {
-  addToMap(hillshade(i, 60, slope, aspect), {}, i + ' deg');
+  Map.addLayer(hillshade(i, 60, slope, aspect), {}, i + ' deg');
 }
-centerMap(-121.767, 46.852, 11);
+Map.setCenter(-121.767, 46.852, 11);
 

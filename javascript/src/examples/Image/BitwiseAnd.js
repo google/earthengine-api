@@ -11,9 +11,9 @@
 var modis = ee.Image('MOD09GQ/MOD09GQ_005_2012_02_08');
 var qual = modis.select('QC_250m').bitwiseAnd(0x03).neq(0);
 
-centerMap(-90.79994, 44.21912, 11);
-addToMap(ee.Image([1, 0, 0]).mask(qual), {min: 0, max: 1},
+Map.setCenter(-90.79994, 44.21912, 11);
+Map.addLayer(ee.Image([1, 0, 0]).mask(qual), {min: 0, max: 1},
          'quality_not_ideal');
-addToMap(modis.select('sur_refl_b01').mask(qual.not()),
+Map.addLayer(modis.select('sur_refl_b01').mask(qual.not()),
          {min: 100, max: 16000}, 'refl_b01');
 

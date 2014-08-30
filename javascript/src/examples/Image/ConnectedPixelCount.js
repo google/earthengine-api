@@ -15,7 +15,7 @@ var conn = bright.connectedPixelCount(30 /* maxSize */,
                                       true /* eightConnected */);
 var smallClusters = conn.lt(30);
 
-centerMap(-107.24304, 35.78663, 8);
-addToMap(img, {min: 0, max: 1}, 'original');
-addToMap(smallClusters.mask(smallClusters),
+Map.setCenter(-107.24304, 35.78663, 8);
+Map.addLayer(img, {min: 0, max: 1}, 'original');
+Map.addLayer(smallClusters.mask(smallClusters),
          {min: 0, max: 1, palette: 'FF0000'}, 'cc');

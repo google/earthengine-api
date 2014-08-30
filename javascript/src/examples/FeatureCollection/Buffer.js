@@ -7,6 +7,6 @@ var bartStations = ee.FeatureCollection(
 var buffered = bartStations.map(function(f) { return f.buffer(2000); });
 var unioned = buffered.union();
 
-addToMap(unioned, {color: '800080'});
+Map.addLayer(unioned, {color: '800080'});
 
-centerMap(-122.4, 37.7, 11);
+Map.setCenter(-122.4, 37.7, 11);

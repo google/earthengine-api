@@ -9,6 +9,6 @@ var countiesWithArea = counties.map(function(f) {
 });
 var smallCounties = countiesWithArea.filterMetadata('area', 'less_than', 3e9);
 
-addToMap(smallCounties, {color: '900000'});
+Map.addLayer(smallCounties, {color: '900000'});
 
-centerMap(-119.7, 38.26, 7);
+Map.setCenter(-119.7, 38.26, 7);

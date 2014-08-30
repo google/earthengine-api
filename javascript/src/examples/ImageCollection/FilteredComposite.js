@@ -21,5 +21,5 @@ var median = collection.median();
 
 // Select the red, green and blue bands.
 var result = median.select('B3', 'B2', 'B1');
-addToMap(result, {gain: '1.4, 1.4, 1.1'});
-centerMap(-110, 40, 5);
+Map.addLayer(result, {gain: '1.4, 1.4, 1.1'});
+Map.setCenter(-110, 40, 5);

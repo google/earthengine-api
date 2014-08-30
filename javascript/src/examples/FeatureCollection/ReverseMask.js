@@ -13,9 +13,9 @@ var region = ee.Image(0).byte()
 // Mask off everything that matches the fill color.
 var result = region.mask(region.neq(2));
 
-addToMap(result, {
+Map.addLayer(result, {
   palette: '000000,FF0000',
   max: 1,
   opacity: 0.5
 });
-centerMap(-100, 40, 4);
+Map.setCenter(-100, 40, 4);

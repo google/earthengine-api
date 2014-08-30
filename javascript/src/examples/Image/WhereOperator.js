@@ -17,5 +17,5 @@ var output = blank.where(
 // Output contains 0s and 1s.  Mask it with itself to get rid of the 0s.
 var result = output.mask(output);
 
-addToMap(result, {palette: '00AA00'});
-centerMap(-113.41842, 40.055489, 6);
+Map.addLayer(result, {palette: '00AA00'});
+Map.setCenter(-113.41842, 40.055489, 6);

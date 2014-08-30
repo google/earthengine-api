@@ -6,6 +6,6 @@ var img = ee.Image('MOD09GA/MOD09GA_005_2012_03_09')
               .multiply(0.0001);
 var adj = img.polynomial([-0.2, 2.4, -1.2]);
 
-centerMap(-107.24304, 35.78663, 8);
-addToMap(img, {min: 0, max: 1}, 'original');
-addToMap(adj, {min: 0, max: 1}, 'adjusted');
+Map.setCenter(-107.24304, 35.78663, 8);
+Map.addLayer(img, {min: 0, max: 1}, 'original');
+Map.addLayer(adj, {min: 0, max: 1}, 'adjusted');

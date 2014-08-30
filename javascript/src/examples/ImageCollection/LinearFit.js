@@ -13,12 +13,12 @@ var collection = ee.ImageCollection('NOAA/DMSP-OLS/NIGHTTIME_LIGHTS')
 var fit = collection.reduce(ee.Reducer.linearFit());
 
 // Display a single image
-centerMap(30, 45, 4);
-addToMap(ee.Image(collection.select('stable_lights').first()),
+Map.setCenter(30, 45, 4);
+Map.addLayer(ee.Image(collection.select('stable_lights').first()),
          {min: 0, max: 63},
          'stable lights first asset');
 
 // Display trend in red/blue, brightness in green.
-addToMap(fit,
+Map.addLayer(fit,
          {min: 0, max: [0.18, 20, -0.18], bands: ['scale', 'offset', 'scale']},
          'stable lights trend');

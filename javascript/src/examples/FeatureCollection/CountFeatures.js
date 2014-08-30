@@ -8,9 +8,9 @@ var bridgePhotos = photosNearSF.filter(ee.Filter.or(
     ee.Filter.contains('title', 'Bridge'),
     ee.Filter.contains('title', 'bridge')));
 
-addToMap(photosNearSF, {color: '0040b0'});
-addToMap(bridgePhotos, {color: 'e02070'});
-centerMap(-122.39, 37.7857, 12);
+Map.addLayer(photosNearSF, {color: '0040b0'});
+Map.addLayer(bridgePhotos, {color: 'e02070'});
+Map.setCenter(-122.39, 37.7857, 12);
 
 print('There are ' +
       bridgePhotos.aggregate_count('.all').getInfo() +

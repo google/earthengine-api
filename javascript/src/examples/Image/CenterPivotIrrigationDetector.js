@@ -1,7 +1,7 @@
 // Center-pivot Irrigation Detector.
 //
 // Finds circles that are 500m in radius.
-centerMap(-106.06, 37.71, 12);
+Map.setCenter(-106.06, 37.71, 12);
 
 // A nice EVI palette.
 var palette = [
@@ -11,7 +11,7 @@ var palette = [
 
 // Just display the image with the palette.
 var image = ee.Image('LT5_L1T_8DAY_EVI/20110618');
-addToMap(image, {min: 0, max: 1, palette: palette}, 'Landsat EVI');
+Map.addLayer(image, {min: 0, max: 1, palette: palette}, 'Landsat EVI');
 
 // Find the difference between convolution with circles and squares.
 // This difference, in theory, will be strongest at the center of
@@ -34,7 +34,7 @@ var thresh = local.gt(2);
 // Here, we highlight the maximum differences as "Kernel Peaks"
 // and draw them in red.
 var peaks = thresh.focal_max({kernel: circleKernel});
-addToMap(peaks.mask(peaks), {palette: 'FF3737'}, 'Kernel Peaks');
+Map.addLayer(peaks.mask(peaks), {palette: 'FF3737'}, 'Kernel Peaks');
 
 // Detect the edges of the features.  Discard the edges with lower intensity.
 var canny = ee.Algorithms.CannyEdgeDetector(image, 0);
@@ -47,4 +47,4 @@ var ring = outer.add(inner, true);
 
 // Highlight the places where the feature edges best match the circle kernel.
 var centers = canny.convolve(ring).gt(0.5).focal_max({kernel: circleKernel});
-addToMap(centers.mask(centers), {palette: '4285FF'}, 'Ring centers');
+Map.addLayer(centers.mask(centers), {palette: '4285FF'}, 'Ring centers');

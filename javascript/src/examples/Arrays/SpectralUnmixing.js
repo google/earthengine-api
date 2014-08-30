@@ -32,9 +32,9 @@ var unmixed = inverse.matrixMultiply(inputValues);
 var colored = unmixed
   .arrayProject([0])
   .arrayFlatten([['urban', 'veg', 'water']]);
-centerMap(-98.4, 19, 11);
+Map.setCenter(-98.4, 19, 11);
 
 // Load a hillshade to use as a backdrop.
-addToMap(ee.Algorithms.Terrain(ee.Image('srtm90_v4')).select('hillshade'));
-addToMap(colored, {min: 0, max: 1},
+Map.addLayer(ee.Algorithms.Terrain(ee.Image('srtm90_v4')).select('hillshade'));
+Map.addLayer(colored, {min: 0, max: 1},
   'Unmixed (red=urban, green=veg, blue=water)');

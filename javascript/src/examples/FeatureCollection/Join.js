@@ -11,7 +11,7 @@ var closeParks = ee.Join.simple().apply(parks, bart, joinFilter);
 
 // Buffer the bart stations by 2km for display purposes.
 var bufferedBart = bart.map(function(f) { return f.buffer(2000); });
-addToMap(bufferedBart, {color: 'b0b0b0'});
-addToMap(closeParks, {color: '008000'});
+Map.addLayer(bufferedBart, {color: 'b0b0b0'});
+Map.addLayer(closeParks, {color: '008000'});
 
-centerMap(-122.45, 37.75, 13);
+Map.setCenter(-122.45, 37.75, 13);

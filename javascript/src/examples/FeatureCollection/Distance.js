@@ -10,6 +10,7 @@ var fc = ee.FeatureCollection([
       -72.93411, 41.30902, -72.93411, 41.31902, -72.94411, 41.31902)
 ]);
 
-centerMap(-72.94, 41.32, 13);
-addToMap(fc.distance(1000), {min: 0, max: 1000, palette: ['FFFF00', 'FF0000']});
-addToMap(fc);
+Map.setCenter(-72.94, 41.32, 13);
+Map.addLayer(fc.distance(1000),
+             {min: 0, max: 1000, palette: ['FFFF00', 'FF0000']});
+Map.addLayer(fc);
