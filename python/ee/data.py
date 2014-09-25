@@ -5,10 +5,11 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-import ee_exception
 import json
-import httplib2
 import urllib
+
+import ee_exception
+import httplib2
 
 
 # OAuth2 credentials object.  This may be set by ee.Initialize().

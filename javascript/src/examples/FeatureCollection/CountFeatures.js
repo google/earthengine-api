@@ -12,6 +12,5 @@ Map.addLayer(photosNearSF, {color: '0040b0'});
 Map.addLayer(bridgePhotos, {color: 'e02070'});
 Map.setCenter(-122.39, 37.7857, 12);
 
-print('There are ' +
-      bridgePhotos.aggregate_count('.all').getInfo() +
-      ' bridge photos around SF.');
+print('Number of bridge photos around SF:',
+      bridgePhotos.aggregate_count('.all'));

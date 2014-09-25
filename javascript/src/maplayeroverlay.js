@@ -1,14 +1,3 @@
-// Copyright 2011 Google Inc. All Rights Reserved.
-
-/**
- * @fileoverview Class implementing the google.maps.MapType interface
- * for display of a layer of rendered Earth Engine tiles. This class
- * behaves much like an ImageMapType, but adds events for knowing when
- * the tiles have finished loading.
- *
- * @ignore
- */
-
 goog.provide('ee.MapLayerOverlay');
 
 goog.require('ee.MapTileManager');
@@ -25,7 +14,9 @@ goog.require('goog.style');
 
 
 /**
- * Construct a MapLayerOverlay.
+ * A google.maps.MapType implementation used to display Earth Engine tiles.
+ * This class behaves much like an ImageMapType, but emits events when tiles
+ * are loaded.
  * @param {string} url The url for fetching this layer's tiles.
  * @param {string} mapId The map ID for fetching this layer's tiles.
  * @param {string} token The temporary token for fetching tiles.
@@ -33,6 +24,7 @@ goog.require('goog.style');
  *     google.maps.ImageMapTypeOptions object.
  * @constructor
  * @extends {goog.events.EventTarget}
+ * @ignore
  */
 ee.MapLayerOverlay = function(url, mapId, token, init) {
   goog.base(this);
@@ -48,45 +40,44 @@ ee.MapLayerOverlay = function(url, mapId, token, init) {
     throw Error("Google Maps API hasn't been initialized.");
   }
   this.tileSize = init.tileSize || new google.maps.Size(256, 256);
-  this.isPng = init.isPng || true;
+  this.isPng = goog.isDef(init.isPng) ? init.isPng : true;
 
   /**
    * Array representing the set of tiles that are currently being
    * loaded. They are added to this array by getTile() and removed
    * with handleImageCompleted_().
-   * @type {Array.<string>}
-   * @private
+   * @private {!Array.<string>}
    */
   this.tilesLoading_ = [];
 
-  /**
-   * Set representing the loaded set of tiles.
-   * @private
-   */
+  /** @private {goog.structs.Set} The set of loaded tiles. */
   this.tiles_ = new goog.structs.Set();
+
+  /** @private {goog.structs.Set} The set of failed tile IDs. */
+  this.tilesFailed_ = new goog.structs.Set();
 
   /**
    * Incrementing counter that helps make tile request ids unique.
-   * @private
-   * @type {number}
+   * @private {number}
    */
   this.tileCounter_ = 0;
 
-  /**
-   * The url from which to fetch tiles.
-   * @type {string}
-   */
+  /** @protected {string} The url from which to fetch tiles. */
   this.url = url;
 
-  /**
-   * The layer's opacity setting.
-   * @private
-   */
+  /** @private {number} The layer's opacity. */
   this.opacity_ = 1.0;
 
+  /** @private {boolean} Whether the layer is currently visible. */
   this.visible_ = true;
 };
 goog.inherits(ee.MapLayerOverlay, goog.events.EventTarget);
+
+
+/** @enum {string} Event types. */
+ee.MapLayerOverlay.EventType = {
+  TILE_LOADED: 'tileevent'
+};
 
 
 /**
@@ -94,8 +85,7 @@ goog.inherits(ee.MapLayerOverlay, goog.events.EventTarget);
  * @private
  */
 ee.MapLayerOverlay.prototype.dispatchTileEvent_ = function() {
-  this.dispatchEvent(
-      new ee.TileEvent_(this.tilesLoading_.length));
+  this.dispatchEvent(new ee.TileEvent_(this.tilesLoading_.length));
 };
 
 
@@ -133,10 +123,7 @@ ee.MapLayerOverlay.prototype.getTile = function(
   var uniqueTileId = tileId + '/' + this.tileCounter_;
   this.tileCounter_ += 1;
 
-  var div = goog.dom.createDom(
-      'div', {
-        'id': uniqueTileId
-      });
+  var div = goog.dom.createDom('div', {'id': uniqueTileId});
 
   // Use the current time in seconds as the priority for the tile
   // loading queue. Smaller priorities move to the front of the queue,
@@ -156,14 +143,34 @@ ee.MapLayerOverlay.prototype.getTile = function(
 };
 
 
+/** @return {number} The number of tiles successfully loaded. */
+ee.MapLayerOverlay.prototype.getLoadedTilesCount = function() {
+  return this.tiles_.getCount();
+};
+
+
+/** @return {number} The number of tiles currently loading. */
+ee.MapLayerOverlay.prototype.getLoadingTilesCount = function() {
+  return this.tilesLoading_.length;
+};
+
+
+/** @return {number} The number of tiles which have failed. */
+ee.MapLayerOverlay.prototype.getFailedTilesCount = function() {
+  return this.tilesFailed_.getCount();
+};
+
+
 /**
  * Implements releaseTile() for the google.maps.MapType
  * interface.
- * @param {Node} tileNode The tile that has been released.
+ * @param {Node} tileDiv The tile that has been released.
  */
-ee.MapLayerOverlay.prototype.releaseTile = function(tileNode) {
-  ee.MapTileManager.getInstance().abort(tileNode.id);
-  this.tiles_.remove(tileNode);
+ee.MapLayerOverlay.prototype.releaseTile = function(tileDiv) {
+  ee.MapTileManager.getInstance().abort(tileDiv.id);
+  var tileImg = goog.dom.getFirstElementChild(tileDiv);
+  this.tiles_.remove(tileImg);
+  this.tilesFailed_.remove(tileDiv.id);
 };
 
 
@@ -197,8 +204,8 @@ goog.exportProperty(
 
 /**
  * Handle image 'load' and 'error' events. When the last one has
- * finished, dispatch a 'tileevent' event. Handle bookkeeping to keep
- * the tilesLoading_ array accurate.
+ * finished, dispatch an ee.MapLayerOverlay.EventType.TILE_LOADED event.
+ * Handle bookkeeping to keep the tilesLoading_ array accurate.
  * @param {Node} div Tile div to which images should be appended.
  * @param {string} tileId The id of the tile that was requested.
  * @param {goog.events.Event} e Image loading event.
@@ -208,6 +215,8 @@ ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(
     div, tileId, e) {
   if (e.type == goog.net.EventType.ERROR) {
     // Forward error events.
+    goog.array.remove(this.tilesLoading_, tileId);
+    this.tilesFailed_.add(tileId);
     this.dispatchEvent(e);
   } else {
     // Convert tile loading events to our own type.
@@ -235,7 +244,7 @@ ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(
  * @extends {goog.events.Event}
  */
 ee.TileEvent_ = function(count) {
-  goog.events.Event.call(this, 'tileevent');
+  goog.events.Event.call(this, ee.MapLayerOverlay.EventType.TILE_LOADED);
   this.count = count;
 };
 goog.inherits(ee.TileEvent_, goog.events.Event);

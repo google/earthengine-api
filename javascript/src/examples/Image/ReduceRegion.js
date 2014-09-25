@@ -25,6 +25,5 @@ var poly = ee.Geometry.Rectangle(-109.05, 41, -102.05, 37);
 // meters.
 var max = image.reduceRegion(ee.Reducer.max(), poly, 200);
 
-// Use the getInfo() call to evaluate the result, and then print it to
-// the console.
-print(max.getInfo());
+// Print the result to the console.
+print(max);

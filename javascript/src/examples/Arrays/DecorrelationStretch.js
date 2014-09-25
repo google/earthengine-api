@@ -64,7 +64,7 @@ var rgb = [0, 3, 2];
 Map.addLayer(image.select(rgb), {min: -100, max: 2000}, 'Original Image');
 
 // Stretch the values within an interesting region.
-var region = ee.Feature.Rectangle(-57.04651, -8.91823, -47.24121, -5.13531);
+var region = ee.Geometry.Rectangle(-57.04651, -8.91823, -47.24121, -5.13531);
 Map.addLayer(dcs(image, region, 1000).select(rgb), {}, 'DCS Image');
 
 // Display the region in which covariance stats were computed.

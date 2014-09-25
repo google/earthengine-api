@@ -36,8 +36,8 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertEquals(ee.ApiFunction._api, {})
     self.assertTrue(ee.Image._initialized)
 
-    # Verify that parameterless ee.Initialize() does not override custom URLs.
-    ee.Initialize()
+    # Verify that ee.Initialize(None) does not override custom URLs.
+    ee.Initialize(None)
     self.assertTrue(ee.data._initialized)
     self.assertEquals(ee.data._api_base_url, 'foo/api')
 
@@ -69,7 +69,7 @@ class EETestCase(apitestcase.ApiTestCase):
         raise Exception('Unexpected API call to %s with %s' % (path, params))
     ee.data.send_ = MockSend
 
-    ee.Initialize()
+    ee.Initialize(None)
     image1 = ee.Image(1)
     image2 = ee.Image(2)
     expected = ee.Image(ee.ComputedObject(
@@ -173,7 +173,7 @@ class EETestCase(apitestcase.ApiTestCase):
         }
     ee.data.send_ = MockSend
 
-    ee.Initialize()
+    ee.Initialize(None)
 
     # Verify that the expected classes got generated.
     self.assertTrue(hasattr(ee, 'Array'))
@@ -245,7 +245,7 @@ class EETestCase(apitestcase.ApiTestCase):
         }
 
     ee.data.send_ = MockSend
-    ee.Initialize()
+    ee.Initialize(None)
 
     # Try to cast something that's already of the right class.
     x = ee.Foo('argument')

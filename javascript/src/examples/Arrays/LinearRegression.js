@@ -6,7 +6,7 @@ var start = '2000-01-01';
 var end = '2010-01-01';
 var lng = -111.83533;
 var lat = 34.57499;
-var region = ee.Feature.Point(lng, lat);
+var region = ee.Geometry.Point(lng, lat);
 
 // Filter to Landsat 7 images in the given time and place, filter to a regular
 // time of year to avoid seasonal affects, and for each image create the bands

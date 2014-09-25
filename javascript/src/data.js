@@ -177,6 +177,17 @@ ee.data.getTileBaseUrl = function() {
 
 
 /**
+ * Returns the current XSRF token.
+ *
+ * @return {string?} A string to pass in the "xsrfToken" parameter of XHRs.
+ * @export
+ */
+ee.data.getXsrfToken = function() {
+  return ee.data.xsrfToken_;
+};
+
+
+/**
  * Load info for an asset, given an asset id. DEPRECATED. Use getValue()
  * instead.
  *

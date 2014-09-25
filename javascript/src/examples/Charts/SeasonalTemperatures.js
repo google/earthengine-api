@@ -26,7 +26,8 @@ var months = {
 // Prepare the chart.
 var extremeSeasonalTemps = Chart.feature.byProperty(
     extremeCities, months, 'city_name');
-Chart.print(extremeSeasonalTemps, 'LineChart', {
+extremeSeasonalTemps = extremeSeasonalTemps.setChartType('LineChart');
+extremeSeasonalTemps = extremeSeasonalTemps.setOptions({
   title: 'Average Temperatures in U.S. Cities',
   hAxis: {
     title: 'Month',
@@ -41,6 +42,8 @@ Chart.print(extremeSeasonalTemps, 'LineChart', {
   lineWidth: 1,
   pointSize: 3
 });
+
+print(extremeSeasonalTemps);
 
 Map.addLayer(extremeCities);
 Map.setCenter(-98.5, 39.8, 4);

@@ -6,7 +6,7 @@ var rainierWaypoints =
 
 var waypointElevations = Chart.image.byRegion(
     elevation, rainierWaypoints, null, 200, 'name');
-Chart.print(waypointElevations, 'LineChart', {
+waypointElevations = waypointElevations.setOptions({
   title: 'Mt. Rainier Summit Trail Elevation',
   vAxis: {
     title: 'Elevation (meters)'
@@ -15,6 +15,8 @@ Chart.print(waypointElevations, 'LineChart', {
   lineWidth: 1,
   pointSize: 4
 });
+
+print(waypointElevations);
 
 Map.addLayer(rainierWaypoints);
 Map.setCenter(-121.75976, 46.85257, 11);

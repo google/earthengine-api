@@ -9,9 +9,11 @@ var deserts = ecoregions.filter(ee.Filter.contains('ECO_NAME', 'desert'))
 
 // Prepare the chart.  Specifying a minBucketWidth makes for nice bucket sizes.
 var plantHistogram = Chart.feature.histogram(deserts, 'plant_spcs', null, 300);
-Chart.print(plantHistogram, 'ColumnChart', {
+plantHistogram = plantHistogram.setOptions({
   title: 'Histogram of Desert Plant Species Counts'
 });
+
+print(plantHistogram);
 
 Map.addLayer(deserts);
 Map.setCenter(0, 0, 2);
