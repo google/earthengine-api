@@ -208,6 +208,25 @@ ee.FeatureCollection.prototype.getDownloadURL = function(
 };
 
 
+/**
+ * Select properties from each Feature in a collection.
+ *
+ * @param {Array.<string>} selectors A list of names or regexes
+ *     specifying the attributes to select.
+ * @param {Array.<string>=} opt_names A list of new names for the output
+ *     properties. Must match the number of properties selected.
+ * @return {ee.FeatureCollection} The feature collection with selected
+ * properties.
+ * @export
+ */
+ee.FeatureCollection.prototype.select = function(selectors, opt_names) {
+  var varargs = arguments;
+  return /** @type {ee.FeatureCollection} */(this.map(function(feature) {
+    return feature.select.apply(feature, varargs);
+  }));
+};
+
+
 /** @override */
 ee.FeatureCollection.prototype.name = function() {
   return 'FeatureCollection';

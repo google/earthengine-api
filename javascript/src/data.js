@@ -4,6 +4,7 @@
  */
 
 goog.provide('ee.data');
+goog.provide('ee.data.AbstractTaskConfig');
 goog.provide('ee.data.AlgorithmArgument');
 goog.provide('ee.data.AlgorithmSignature');
 goog.provide('ee.data.AlgorithmsRegistry');
@@ -11,7 +12,6 @@ goog.provide('ee.data.AssetDescription');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.FeatureCollectionDescription');
-goog.provide('ee.data.FeaturesTaskConfig');
 goog.provide('ee.data.GMEProject');
 goog.provide('ee.data.GeoJSONFeature');
 goog.provide('ee.data.GeoJSONGeometry');
@@ -23,6 +23,7 @@ goog.provide('ee.data.MapId');
 goog.provide('ee.data.PixelTypeDescription');
 goog.provide('ee.data.ProcessingResponse');
 goog.provide('ee.data.RawMapId');
+goog.provide('ee.data.TableTaskConfig');
 goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
 goog.provide('ee.data.TaskUpdateActions');
@@ -469,7 +470,6 @@ ee.data.getGMEProjects = function(opt_callback) {
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the saved asset, including a generated
  *     ID, or null if a callback is specified.
- * @export
  */
 ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
   var args = {'value': value};
@@ -481,6 +481,7 @@ ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
                        ee.data.makeRequest_(args),
                        opt_callback);
 };
+goog.exportSymbol('ee.data.createAsset', ee.data.createAsset);
 
 
 /**
@@ -491,7 +492,6 @@ ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the newly created folder.
- * @export
  */
 ee.data.createFolder = function(path, opt_force, opt_callback) {
   var args = {
@@ -502,6 +502,7 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
                        ee.data.makeRequest_(args),
                        opt_callback);
 };
+goog.exportSymbol('ee.data.createFolder', ee.data.createFolder);
 
 
 /**
@@ -660,7 +661,7 @@ goog.exportSymbol('ee.data.prepareValue', ee.data.prepareValue);
  * @param {string} task_id ID for the task (obtained using newTaskId).
  * @param {Object} params The object that describes the processing task;
  *    only fields that are common for all processing types are documented here.
- *      type (string) Either 'export_image' or 'render'.
+ *      type (string) Either 'EXPORT_IMAGE' or 'EXPORT_FEATURES'.
  *      json (string) JSON description of the image.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
@@ -1053,6 +1054,21 @@ ee.data.MapId;
 
 
 /**
+ * An object to specifying common user preferences for the creation of a new
+ * task.
+ *
+ * @typedef {{
+ *   id: (undefined|string),
+ *   type: string,
+ *   description: (undefined|string),
+ *   sourceURL: (undefined|string),
+ *   json: (undefined|string)
+ * }}
+ */
+ee.data.AbstractTaskConfig;
+
+
+/**
  * An object for specifying user preferences for the creation of a new
  * task. See com.google.earthengine.service.frontend.ProcessingInput.
  *
@@ -1091,10 +1107,13 @@ ee.data.ImageTaskConfig;
  *   driveFileNamePrefix: (undefined|string),
  *   fileFormat: (undefined|string),
  *   sourceURL: (undefined|string),
- *   json: (undefined|string)
+ *   json: (undefined|string),
+ *   gmeProjectId: (undefined|string),
+ *   gmeAttributionName: (undefined|string),
+ *   gmeAssetName: (undefined|string)
  * }}
  */
-ee.data.FeaturesTaskConfig;
+ee.data.TableTaskConfig;
 
 
 /**
@@ -1103,6 +1122,7 @@ ee.data.FeaturesTaskConfig;
  * these fields.
  * @typedef {{
  *   id: (undefined|string),
+ *   task_type: (undefined|string),
  *   creation_timestamp_ms: (undefined|number),
  *   update_timestamp_ms: (undefined|number),
  *   description: (undefined|string),
@@ -1111,6 +1131,7 @@ ee.data.FeaturesTaskConfig;
  *   source_url: (undefined|string),
  *   output_url: (undefined|Array.<string>),
  *   state: (undefined|string),
+ *   internal_error_info: (undefined|string),
  *   error_message: (undefined|string)
  * }}
  */

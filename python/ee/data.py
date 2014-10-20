@@ -414,8 +414,8 @@ def startProcessing(taskId, params):
     taskId: ID for the task (obtained using newTaskId).
     params: The object that describes the processing task; only fields
       that are common for all processing types are documented below.
-        type (string) Either 'export_image' or 'render'.
-        imageJson (string) JSON description of the image.
+        type (string) Either 'EXPORT_IMAGE' or 'EXPORT_FEATURES'.
+        json (string) JSON description of the image.
 
   Returns:
     A dict with optional notes about the created task.

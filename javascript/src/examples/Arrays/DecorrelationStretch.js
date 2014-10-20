@@ -23,7 +23,11 @@ function dcs(image, region, scale) {
   var centered = arrays.subtract(meansArray);
 
   // Compute the covariance of the bands within the region.
-  var covar = centered.reduceRegion(ee.Reducer.covariance(), region, scale);
+  var covar = centered.reduceRegion({
+    reducer: ee.Reducer.centeredCovariance(),
+    geometry: region,
+    scale: scale
+  });
 
   // Get the 'array' result and cast to an array. Note this is a
   // single array, not one array per pixel, and represents the
