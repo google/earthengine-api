@@ -79,11 +79,8 @@ ee.Types.isSubtype = function(firstType, secondType) {
   }
 
   switch (firstType) {
-    // TODO(user): Remove 'EEObject' once the server is updated.
     case 'Element':
-    case 'EEObject':
-      return secondType == 'EEObject' ||
-             secondType == 'Element' ||
+      return secondType == 'Element' ||
              secondType == 'Image' ||
              secondType == 'Feature' ||
              secondType == 'Collection' ||

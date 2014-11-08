@@ -1,7 +1,7 @@
 """The EE Javascript library."""
 
 
-__version__ = '0.1.39'
+__version__ = '0.1.40'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -234,10 +234,9 @@ def _Promote(arg, klass):
           'Feature', ApiFunction.call_('Collection.geometry', arg))
     else:
       return Feature(arg)
-  elif klass in ('Element', 'EEObject'):
-    # TODO(user): Remove EEObject once the server is updated.
+  elif klass == 'Element':
     if isinstance(arg, Element):
-      # Already an EEObject.
+      # Already an Element.
       return arg
     elif isinstance(arg, ComputedObject):
       # Try a cast.

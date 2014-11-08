@@ -5,7 +5,7 @@ var ee;
 ee.Algorithms = {};
 /**
  * @param {string} name
- * @param {{args: (Array.<{default: *, name: string, optional: boolean, type: string, ...}>|null), name: string, returns: string}=} opt_signature
+ * @param {{args: (Array<{default: *, name: string, optional: boolean, type: string, ...}>|null), name: string, returns: string}=} opt_signature
  * @return {?}
  * @extends {ee.Function}
  * @constructor
@@ -114,7 +114,7 @@ ee.ComputedObject.prototype.serialize = function() {
 ee.ComputedObject.prototype.toString = function() {
 };
 /**
- * @param {{args: (Array.<{default: *, name: string, optional: boolean, type: string, ...}>|null), name: string, returns: string}} signature
+ * @param {{args: (Array<{default: *, name: string, optional: boolean, type: string, ...}>|null), name: string, returns: string}} signature
  * @param {(Function|null)} body
  * @return {?}
  * @extends {ee.Function}
@@ -181,44 +181,44 @@ ee.Element.prototype.set = function(var_args) {
 ee.Feature = function(geometry, opt_properties) {
 };
 /**
- * @param {(Array.<Array.<number>>|number)} coordinates
+ * @param {(Array<Array<number>>|number)} coordinates
  * @return {(ee.Geometry|null)}
  */
 ee.Feature.LineString = function(coordinates) {
 };
 /**
- * @param {(Array.<Array.<number>>|number)} coordinates
+ * @param {(Array<Array<number>>|number)} coordinates
  * @return {(ee.Geometry|null)}
  */
 ee.Feature.LinearRing = function(coordinates) {
 };
 /**
- * @param {(Array.<Array.<Array.<number>>>|number)} coordinates
+ * @param {(Array<Array<Array<number>>>|number)} coordinates
  * @return {(ee.Geometry|null)}
  */
 ee.Feature.MultiLine = function(coordinates) {
 };
 /**
- * @param {(Array.<Array.<number>>|number)} coordinates
+ * @param {(Array<Array<number>>|number)} coordinates
  * @return {(Object|null)}
  */
 ee.Feature.MultiPoint = function(coordinates) {
 };
 /**
- * @param {(Array.<Array.<Array.<Array.<number>>>>|number)} coordinates
+ * @param {(Array<Array<Array<Array<number>>>>|number)} coordinates
  * @return {(ee.Geometry|null)}
  */
 ee.Feature.MultiPolygon = function(coordinates) {
 };
 /**
- * @param {(Array.<number>|null|number)} lon
+ * @param {(Array<number>|null|number)} lon
  * @param {number} lat
  * @return {(ee.Geometry|null)}
  */
 ee.Feature.Point = function(lon, lat) {
 };
 /**
- * @param {(Array.<Array.<Array.<number>>>|number)} coordinates
+ * @param {(Array<Array<Array<number>>>|number)} coordinates
  * @return {(ee.Geometry|null)}
  */
 ee.Feature.Polygon = function(coordinates) {
@@ -246,7 +246,7 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 /**
- * @param {(Array.<*>|ee.ComputedObject|null|number|string)} args
+ * @param {(Array<*>|ee.ComputedObject|null|number|string)} args
  * @param {string=} opt_column
  * @return {?}
  * @extends {ee.Collection}
@@ -264,8 +264,8 @@ ee.FeatureCollection = function(args, opt_column) {
 ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selectors, opt_filename, opt_callback) {
 };
 /**
- * @param {function ({features: (Array.<ee.data.GeoJSONFeature>|null), type: string}, string=): ?=} opt_callback
- * @return {{features: (Array.<ee.data.GeoJSONFeature>|null), type: string}}
+ * @param {function ({features: (Array<ee.data.GeoJSONFeature>|null), type: string}, string=): ?=} opt_callback
+ * @return {{features: (Array<ee.data.GeoJSONFeature>|null), type: string}}
  */
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 };
@@ -277,8 +277,8 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 /**
- * @param {(Array.<string>|null)} selectors
- * @param {(Array.<string>|null)=} opt_names
+ * @param {(Array<string>|null)} selectors
+ * @param {(Array<string>|null)=} opt_names
  * @return {(ee.FeatureCollection|null)}
  */
 ee.FeatureCollection.prototype.select = function(selectors, opt_names) {
@@ -538,7 +538,7 @@ ee.Function.prototype.call = function(var_args) {
 ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
 };
 /**
- * @param {(Array.<Array.<number>>|number)} coordinates
+ * @param {(Array<Array<number>>|number)} coordinates
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
@@ -546,7 +546,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
 ee.Geometry.LineString = function(coordinates) {
 };
 /**
- * @param {(Array.<Array.<number>>|number)} coordinates
+ * @param {(Array<Array<number>>|number)} coordinates
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
@@ -554,7 +554,7 @@ ee.Geometry.LineString = function(coordinates) {
 ee.Geometry.LinearRing = function(coordinates) {
 };
 /**
- * @param {(Array.<Array.<Array.<number>>>|number)} coordinates
+ * @param {(Array<Array<Array<number>>>|number)} coordinates
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
@@ -562,7 +562,7 @@ ee.Geometry.LinearRing = function(coordinates) {
 ee.Geometry.MultiLineString = function(coordinates) {
 };
 /**
- * @param {(Array.<Array.<number>>|number)} coordinates
+ * @param {(Array<Array<number>>|number)} coordinates
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
@@ -570,7 +570,7 @@ ee.Geometry.MultiLineString = function(coordinates) {
 ee.Geometry.MultiPoint = function(coordinates) {
 };
 /**
- * @param {(Array.<Array.<Array.<Array.<number>>>>|number)} coordinates
+ * @param {(Array<Array<Array<Array<number>>>>|number)} coordinates
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
@@ -578,7 +578,7 @@ ee.Geometry.MultiPoint = function(coordinates) {
 ee.Geometry.MultiPolygon = function(coordinates) {
 };
 /**
- * @param {(Array.<number>|null|number)} lon
+ * @param {(Array<number>|null|number)} lon
  * @param {number} lat
  * @return {?}
  * @extends {ee.Geometry}
@@ -587,7 +587,7 @@ ee.Geometry.MultiPolygon = function(coordinates) {
 ee.Geometry.Point = function(lon, lat) {
 };
 /**
- * @param {(Array.<Array.<Array.<number>>>|number)} coordinates
+ * @param {(Array<Array<Array<number>>>|number)} coordinates
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
@@ -611,7 +611,7 @@ ee.Geometry.Rectangle = function(lon1, lat1, lon2, lat2) {
 ee.Geometry.prototype.serialize = function() {
 };
 /**
- * @return {{coordinates: (Array.<(Array.<(Array.<(Array.<number>|null|number)>|null|number)>|null|number)>|null), crs: (undefined|{properties: {name: string}, type: string}), geodesic: boolean, geometries: (Array.<?>|null|undefined), type: string}}
+ * @return {{coordinates: (Array<(Array<(Array<(Array<number>|null|number)>|null|number)>|null|number)>|null), crs: (undefined|{properties: {name: string}, type: string}), geodesic: boolean, geometries: (Array<?>|null|undefined), type: string}}
  */
 ee.Geometry.prototype.toGeoJSON = function() {
 };
@@ -647,7 +647,7 @@ ee.Image.prototype.clip = function(geometry) {
 };
 /**
  * @param {string} expression
- * @param {(Object.<?,(ee.Image|null)>|null)=} opt_map
+ * @param {(Object<?,(ee.Image|null)>|null)=} opt_map
  * @return {(ee.Image|null)}
  */
 ee.Image.prototype.expression = function(expression, opt_map) {
@@ -660,8 +660,8 @@ ee.Image.prototype.expression = function(expression, opt_map) {
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 };
 /**
- * @param {function ({bands: (Array.<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
- * @return {{bands: (Array.<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}}
+ * @param {function ({bands: (Array<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
+ * @return {{bands: (Array<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}}
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
 };
@@ -679,8 +679,8 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 ee.Image.prototype.getThumbURL = function(params) {
 };
 /**
- * @param {(Array.<(ee.ComputedObject|null|number|string)>|ee.ComputedObject|null|number)=} opt_selectors
- * @param {(Array.<(ee.ComputedObject|null|string)>|null)=} opt_names
+ * @param {(Array<(ee.ComputedObject|null|number|string)>|ee.ComputedObject|null|number)=} opt_selectors
+ * @param {(Array<(ee.ComputedObject|null|string)>|null)=} opt_names
  * @return {(ee.Image|null)}
  */
 ee.Image.prototype.select = function(opt_selectors, opt_names) {
@@ -694,7 +694,7 @@ ee.Image.prototype.select = function(opt_selectors, opt_names) {
 ee.Image.rgb = function(r, g, b) {
 };
 /**
- * @param {(Array.<*>|ee.ComputedObject|null|string)} args
+ * @param {(Array<*>|ee.ComputedObject|null|string)} args
  * @return {?}
  * @extends {ee.Collection}
  * @constructor
@@ -702,8 +702,8 @@ ee.Image.rgb = function(r, g, b) {
 ee.ImageCollection = function(args) {
 };
 /**
- * @param {function ({bands: (Array.<ee.data.BandDescription>|null), features: (Array.<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
- * @return {{bands: (Array.<ee.data.BandDescription>|null), features: (Array.<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}}
+ * @param {function ({bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
+ * @return {{bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}}
  */
 ee.ImageCollection.prototype.getInfo = 
 function(opt_callback) {
@@ -716,8 +716,8 @@ function(opt_callback) {
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 /**
- * @param {(Array.<(number|string)>|null)} selectors
- * @param {(Array.<string>|null)=} opt_names
+ * @param {(Array<(number|string)>|null)} selectors
+ * @param {(Array<string>|null)=} opt_names
  * @return {(ee.ImageCollection|null)}
  */
 ee.ImageCollection.prototype.select = function(selectors, opt_names) {
@@ -734,13 +734,6 @@ ee.InitState.READY;
  * @constructor
  */
 ee.List = function(list) {
-};
-/**
- * @param {function ((Object|null), (Object|null)): (Object|null)} algorithm
- * @param {(Object|null)} first
- * @return {(Object|null)}
- */
-ee.List.prototype.iterate = function(algorithm, first) {
 };
 ee.MapLayerOverlay;
 /**
@@ -809,7 +802,7 @@ ee.data;
 /**
  * @param {string} task_id
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
- * @return {(Array.<ee.data.TaskStatus>|null)}
+ * @return {(Array<ee.data.TaskStatus>|null)}
  */
 ee.data.cancelTask = function(task_id, opt_callback) {
 };
@@ -851,8 +844,8 @@ ee.data.getInfo = function(id, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function ((Array.<{id: string, properties: (Object|null|undefined), type: string}>|null), string=): ?=} opt_callback
- * @return {(Array.<{id: string, properties: (Object|null|undefined), type: string}>|null)}
+ * @param {function ((Array<{id: string, properties: (Object|null|undefined), type: string}>|null), string=): ?=} opt_callback
+ * @return {(Array<{id: string, properties: (Object|null|undefined), type: string}>|null)}
  */
 ee.data.getList = function(params, opt_callback) {
 };
@@ -871,15 +864,15 @@ ee.data.getMapId = function(params, opt_callback) {
 ee.data.getTableDownloadId = function(params, opt_callback) {
 };
 /**
- * @param {function ({tasks: (Array.<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), ...}>|null)}, string=): ?=} opt_callback
- * @return {{tasks: (Array.<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), ...}>|null)}}
+ * @param {function ({tasks: (Array<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), ...}>|null)}, string=): ?=} opt_callback
+ * @return {{tasks: (Array<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), ...}>|null)}}
  */
 ee.data.getTaskList = function(opt_callback) {
 };
 /**
- * @param {(Array.<string>|string)} task_id
- * @param {function ((Array.<ee.data.TaskStatus>|null), string=): ?=} opt_callback
- * @return {(Array.<ee.data.TaskStatus>|null)}
+ * @param {(Array<string>|string)} task_id
+ * @param {function ((Array<ee.data.TaskStatus>|null), string=): ?=} opt_callback
+ * @return {(Array<ee.data.TaskStatus>|null)}
  */
 ee.data.getTaskStatus = function(task_id, opt_callback) {
 };
@@ -936,8 +929,8 @@ ee.data.makeThumbUrl = function(id) {
 };
 /**
  * @param {number=} opt_count
- * @param {function ((Array.<string>|null), string=): ?=} opt_callback
- * @return {(Array.<string>|null)}
+ * @param {function ((Array<string>|null), string=): ?=} opt_callback
+ * @return {(Array<string>|null)}
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
 };
@@ -964,10 +957,10 @@ ee.data.setDeadline = function(milliseconds) {
 ee.data.startProcessing = function(task_id, params, opt_callback) {
 };
 /**
- * @param {(Array.<string>|string)} task_id
+ * @param {(Array<string>|string)} task_id
  * @param {string} action
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
- * @return {(Array.<ee.data.TaskStatus>|null)}
+ * @return {(Array<ee.data.TaskStatus>|null)}
  */
 ee.data.updateTask = function(task_id, action, opt_callback) {
 };

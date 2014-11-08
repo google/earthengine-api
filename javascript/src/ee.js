@@ -367,7 +367,6 @@ ee.promote_ = function(arg, klass) {
         return new ee.Feature(/** @type {Object} */ (arg));
       }
     case 'Element':
-    case 'EEObject':  // TODO(user): Remove once the server is updated.
       if (arg instanceof ee.Element) {
         // Already an Element.
         return arg;

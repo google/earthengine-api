@@ -306,7 +306,7 @@ class EETestCase(apitestcase.ApiTestCase):
     """Verifies object promotion rules."""
     self.InitializeApi()
 
-    # Features and Images are both already EEObjects.
+    # Features and Images are both already Elements.
     self.assertTrue(isinstance(ee._Promote(ee.Feature(None), 'Element'),
                                ee.Feature))
     self.assertTrue(isinstance(ee._Promote(ee.Image(0), 'Element'), ee.Image))

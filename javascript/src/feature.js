@@ -61,7 +61,7 @@ ee.Feature = function(geometry, opt_properties) {
     var properties = geometry['properties'] || {};
     if ('id' in geometry) {
       if ('system:index' in properties) {
-        throw Error('Can\t specify both "id" and "system:index".');
+        throw Error('Can\'t specify both "id" and "system:index".');
       }
       properties = goog.object.clone(properties);
       properties['system:index'] = geometry['id'];

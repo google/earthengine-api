@@ -61,7 +61,7 @@ class Feature(element.Element):
       if 'id' in geom:
         if 'system:index' in properties:
           raise ee_exception.EEException(
-              'Can\t specify both "id" and "system:index".')
+              'Can\'t specify both "id" and "system:index".')
         properties = properties.copy()
         properties['system:index'] = geom['id']
       # Try to convert a GeoJSON Feature.

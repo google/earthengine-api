@@ -6,7 +6,6 @@ goog.provide('ee.List');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
-goog.require('ee.CustomFunction');
 goog.require('goog.array');
 
 
@@ -86,29 +85,6 @@ ee.List.prototype.encode = function(opt_encoder) {
   } else {
     return goog.base(this, 'encode', opt_encoder);
   }
-};
-
-
-/**
- * Iterate over a list.
- *
- * @param {function(Object, Object):Object} algorithm The operation to apply to
- *     each elementy of the list.  A JavaScript function that receives
- *     two objects: the current element of the list being operated on, and the
- *     result returned from the previous iteration or the value of first for the
- *     first iteration. The function is called only once and the result is
- *     captured as a description, so it cannot perform imperative operations
- *     or rely on external state.
- * @param {Object} first The value to provide for the first iteration.
- * @return {Object} The value returned by the last iteration.
- * @export
- *
- * TODO(user): Remove this when multi-argument functions can be detected.
- */
-ee.List.prototype.iterate = function(algorithm, first) {
-  var f = ee.CustomFunction.create(
-      algorithm, 'Object', goog.array.repeat('Object', 2));
-  return ee.ApiFunction._call('List.iterate', this, f, first);
 };
 
 
