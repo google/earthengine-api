@@ -97,6 +97,8 @@ ee.Collection.prototype.filter = function(newFilter) {
  * @param {*} value - The value to compare against.
  * @return {ee.Collection} The filtered collection.
  * @export
+ * @suppress {deprecated} We get to use this for now.
+ * TODO(user): Decide whether to deprecate this.
  */
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
   return this.filter(ee.Filter.metadata(name, operator, value));

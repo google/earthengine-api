@@ -281,16 +281,17 @@ class Image(element.Element):
       The image created by the provided expression.
     """
     arg_name = 'DEFAULT_EXPRESSION_IMAGE'
-    body = apifunction.ApiFunction.call_(
-        'Image.parseExpression', expression, arg_name)
-    arg_names = [arg_name]
+    all_vars = [arg_name]
     args = {arg_name: self}
 
     # Add custom arguments, promoting them to Images manually.
     if opt_map:
       for name, value in opt_map.iteritems():
-        arg_names.append(name)
+        all_vars.append(name)
         args[name] = Image(value)
+
+    body = apifunction.ApiFunction.call_(
+        'Image.parseExpression', expression, arg_name, all_vars)
 
     # Reinterpret the body call as an ee.Function by hand-generating the
     # signature so the computed function knows its input and output types.
@@ -303,7 +304,7 @@ class Image(element.Element):
         return {
             'name': '',
             'args': [{'name': name, 'type': 'Image', 'optional': False}
-                     for name in arg_names],
+                     for name in all_vars],
             'returns': 'Image'
         }
 

@@ -231,8 +231,10 @@ ee.Function.prototype.serialize = function() {
  *
  * @typedef {{
  *   name: string,
- *   args: Array.<ee.data.AlgorithmArgument>,
- *   returns: string
+ *   args: !Array.<ee.data.AlgorithmArgument>,
+ *   returns: string,
+ *   description: (string|undefined),
+ *   deprecated: (string|undefined)
  * }}
  */
 ee.Function.Signature;

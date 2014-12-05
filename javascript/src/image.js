@@ -367,17 +367,19 @@ ee.Image.prototype.select = function(opt_selectors, opt_names) {
  */
 ee.Image.prototype.expression = function(expression, opt_map) {
   var argName = 'DEFAULT_EXPRESSION_IMAGE';
-  var body = ee.ApiFunction._call('Image.parseExpression', expression, argName);
-  var argNames = [argName];
+  var vars = [argName];
   var args = goog.object.create(argName, this);
 
   // Add custom arguments, promoting them to Images manually.
   if (opt_map) {
     for (var name in opt_map) {
-      argNames.push(name);
+      vars.push(name);
       args[name] = new ee.Image(opt_map[name]);
     }
   }
+
+  var body = ee.ApiFunction._call('Image.parseExpression',
+      expression, argName, vars);
 
   // Reinterpret the body call as an ee.Function by hand-generating the
   // signature so the computed function knows its input and output types.
@@ -392,7 +394,7 @@ ee.Image.prototype.expression = function(expression, opt_map) {
   func.getSignature = function() {
     return {
       'name': '',
-      'args': goog.array.map(argNames, function(name) {
+      'args': goog.array.map(vars, function(name) {
         return {
           'name': name,
           'type': 'Image',

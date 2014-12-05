@@ -189,14 +189,13 @@ ee.data.getXsrfToken = function() {
 
 
 /**
- * Load info for an asset, given an asset id. DEPRECATED. Use getValue()
- * instead.
+ * Load info for an asset, given an asset id.
  *
  * @param {string} id The asset to be retrieved.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} The value call results, or null if a callback is specified.
- * @deprecated Use getValue.
+ * @deprecated Use ee.data.getValue().
  * @export
  */
 ee.data.getInfo = function(id, opt_callback) {
@@ -715,23 +714,28 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   var requestData = params ? params.toString() : '';
 
   // Handle processing and dispatching a callback response.
-  function handleResponse(responseText, opt_callback) {
-    var jsonIsInvalid = false;
+  function handleResponse(xhr, responseText, opt_callback) {
+    var jsonIsValid = true;
+    var response, data;
     try {
-      var response = goog.json.unsafeParse(responseText);
-      var data = response['data'];
+      response = goog.json.unsafeParse(responseText);
+      data = response['data'];
     } catch (e) {
-      jsonIsInvalid = true;
+      jsonIsValid = false;
     }
-
-    var errorMessage = undefined;
 
     // Totally malformed, with either invalid JSON or JSON with
     // neither a data nor an error property.
-    if (jsonIsInvalid || !('data' in response || 'error' in response)) {
-      errorMessage = 'Malformed response: ' + responseText;
-    } else if ('error' in response) {
-      errorMessage = response['error']['message'];
+    var errorMessage = undefined;
+    if (jsonIsValid && goog.isObject(response)) {
+      if ('error' in response && 'message' in response['error']) {
+        errorMessage = response['error']['message'];
+      } else if (!('data' in response)) {
+        errorMessage = 'Malformed response: ' + responseText;
+      }
+    } else if (xhr.status >= 300) {
+      errorMessage = 'HTTP ' + xhr.status + ': ' +
+                     (responseText || xhr.statusText);
     }
 
     if (opt_callback) {
@@ -752,7 +756,8 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     goog.net.XhrIo.send(
         url,
         function(e) {
-          return handleResponse(e.target.getResponseText(), opt_callback);
+          var responseText = e.target.getResponseText();
+          return handleResponse(e.target, responseText, opt_callback);
         },
         opt_method,
         requestData,
@@ -768,7 +773,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     xmlhttp.setRequestHeader(
         'Content-Type', 'application/x-www-form-urlencoded');
     xmlhttp.send(requestData);
-    return handleResponse(xmlhttp.responseText, null);
+    return handleResponse(xmlhttp, xmlhttp.responseText, null);
   }
 };
 
@@ -994,7 +999,9 @@ ee.data.AlgorithmsRegistry;
  *
  * @typedef {{
  *   args: Array.<ee.data.AlgorithmArgument>,
- *   returns: string
+ *   returns: string,
+ *   description: string,
+ *   deprecated: (string|undefined)
  * }}
  */
 ee.data.AlgorithmSignature;
@@ -1096,7 +1103,7 @@ ee.data.ImageTaskConfig;
 
 
 /**
- * An object for specifying configuration of an task to export feature
+ * An object for specifying configuration of a task to export feature
  * collections.
  *
  * @typedef {{
@@ -1106,7 +1113,7 @@ ee.data.ImageTaskConfig;
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   fileFormat: (undefined|string),
- *   sourceURL: (undefined|string),
+ *   sourceUrl: (undefined|string),
  *   json: (undefined|string),
  *   gmeProjectId: (undefined|string),
  *   gmeAttributionName: (undefined|string),
@@ -1118,8 +1125,7 @@ ee.data.TableTaskConfig;
 
 /**
  * A description of the status of a long-running tasks. See the Task
- * proto in geo_enterprise.processingmanager for a description of
- * these fields.
+ * proto for a description of these fields.
  * @typedef {{
  *   id: (undefined|string),
  *   task_type: (undefined|string),

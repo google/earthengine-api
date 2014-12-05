@@ -85,6 +85,31 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEquals(ee.ApiFunction.lookup('Image.select'), image.func)
     self.assertEquals(ee.List([]), image.args['bandSelectors'])
 
+  def testExpression(self):
+    """Verifies the behavior of ee.Image.expression()."""
+    image = ee.Image([1, 2]).expression('a', {'b': 'c'})
+    expression_func = image.func
+
+    # The call is buried in a one-time override of .encode so we have to call
+    # it rather than comparing the object structure.
+    def dummy_encoder(x):
+      if isinstance(x, ee.encodable.Encodable):
+        return x.encode(dummy_encoder)
+      else:
+        return x
+
+    self.assertEquals(
+        {
+            'type': 'Invocation',
+            'functionName': 'Image.parseExpression',
+            'arguments': {
+                'expression': 'a',
+                'argName': 'DEFAULT_EXPRESSION_IMAGE',
+                'vars': ['DEFAULT_EXPRESSION_IMAGE', 'b']
+            }
+        },
+        dummy_encoder(expression_func))
+
   def testDownload(self):
     """Verifies Download ID and URL generation."""
     url = ee.Image(1).getDownloadUrl()

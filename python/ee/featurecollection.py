@@ -32,8 +32,8 @@ class FeatureCollection(collection.Collection):
           4) A feature.
           5) An array of features.
           6) A computed object - reinterpreted as a collection.
-      opt_column: The name of the geometry column to use. Only useful with
-          constructor types 1 and 2.
+      opt_column: The name of the geometry column to use. Only useful with the
+          string or number constructor arguments.
 
     Raises:
       EEException: if passed something other than the above.

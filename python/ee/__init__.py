@@ -1,7 +1,7 @@
 """The EE Javascript library."""
 
 
-__version__ = '0.1.40'
+__version__ = '0.1.41'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -16,6 +16,7 @@ import sys
 import oauth2client.client  # pylint: disable=g-bad-import-order
 
 from apifunction import ApiFunction
+import batch
 from collection import Collection
 from computedobject import ComputedObject
 from customfunction import CustomFunction

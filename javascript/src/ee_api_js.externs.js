@@ -5,7 +5,7 @@ var ee;
 ee.Algorithms = {};
 /**
  * @param {string} name
- * @param {{args: (Array<{default: *, name: string, optional: boolean, type: string, ...}>|null), name: string, returns: string}=} opt_signature
+ * @param {{args: Array<{default: *, name: string, optional: boolean, type: string, ...}>, deprecated: (string|undefined), description: (string|undefined), name: string, returns: string}=} opt_signature
  * @return {?}
  * @extends {ee.Function}
  * @constructor
@@ -114,7 +114,7 @@ ee.ComputedObject.prototype.serialize = function() {
 ee.ComputedObject.prototype.toString = function() {
 };
 /**
- * @param {{args: (Array<{default: *, name: string, optional: boolean, type: string, ...}>|null), name: string, returns: string}} signature
+ * @param {{args: Array<{default: *, name: string, optional: boolean, type: string, ...}>, deprecated: (string|undefined), description: (string|undefined), name: string, returns: string}} signature
  * @param {(Function|null)} body
  * @return {?}
  * @extends {ee.Function}

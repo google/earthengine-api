@@ -166,7 +166,7 @@ ee.Filter.prototype.not = function() {
 
 
 /**
- * Filter on metadata. This is deprecated.
+ * Filter on metadata.
  *
  * @param {string} name The property name to filter on.
  * @param {string} operator The type of comparison.  One of:
@@ -175,6 +175,7 @@ ee.Filter.prototype.not = function() {
  * @param {*} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
  * @export
+ * @deprecated Use ee.Filter.eq(), ee.Filter.gte(), etc.
  */
 ee.Filter.metadata = function(name, operator, value) {
   operator = operator.toLowerCase();

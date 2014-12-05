@@ -369,6 +369,17 @@ def newTaskId(count=1):
   return send_('/newtaskid', args)
 
 
+def getTaskList():
+  """Retrieves a list of the user's tasks.
+
+  Returns:
+    A list of task status dictionaries, one for each task submitted to EE by
+    the current user. These include currently running tasks as well as recently
+    canceled or failed tasks.
+  """
+  return send_('/tasklist', {}, 'GET')['tasks']
+
+
 def getTaskStatus(taskId):
   """Retrieve status of one or more long-running tasks.
 
@@ -382,12 +393,17 @@ def getTaskStatus(taskId):
       state (string) State of the task, one of READY, RUNNING, COMPLETED,
         FAILED, CANCELLED; or UNKNOWN if the task with the specified ID
         doesn't exist.
-     error_message (string) For a FAILED task, a description of the error.
+      error_message (string) For a FAILED task, a description of the error.
   """
   if isinstance(taskId, basestring):
     taskId = [taskId]
   args = {'q': ','.join(taskId)}
   return send_('/taskstatus', args, 'GET')
+
+
+def cancelTask(taskId):
+  """Cancels a batch task."""
+  send_('/updatetask', {'id': taskId, 'action': 'CANCEL'})
 
 
 def prepareValue(taskId, params):

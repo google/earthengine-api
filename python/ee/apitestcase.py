@@ -169,6 +169,13 @@ BUILTIN_FUNCTIONS = {
                 'optional': True,
                 'name': 'argName',
                 'type': 'String'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'vars',
+                'type': 'List<String>'
             }
         ],
         'description': '',
