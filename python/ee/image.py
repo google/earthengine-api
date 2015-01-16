@@ -268,17 +268,25 @@ class Image(element.Element):
     return apifunction.ApiFunction.apply_('Image.select', arguments)
 
   def expression(self, expression, opt_map=None):
-    """Evaluates an expression on an image.
+    """Evaluates an arithmetic expression on an image or images.
 
-    This is an override to the normal Image.select function to allow
-    varargs specification of selectors.
+    The bands of the primary input image are available using the built-in
+    function b(), as b(0) or b('band_name').
+
+    Variables in the expression are interpreted as additional image parameters
+    which must be supplied in opt_map. The bands of each such image can be
+    accessed like image.band_name or image[0].
+
+    Both b() and image[] allow multiple arguments, to specify multiple bands,
+    such as b(1, 'name', 3).  Calling b() with no arguments, or using a variable
+    by itself, returns all bands of the image.
 
     Args:
       expression: The expression to evaluate.
       opt_map: An optional map of input images available by name.
 
     Returns:
-      The image created by the provided expression.
+      The image computed by the provided expression.
     """
     arg_name = 'DEFAULT_EXPRESSION_IMAGE'
     all_vars = [arg_name]

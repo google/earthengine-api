@@ -19,6 +19,7 @@ import functools
 
 import apifunction
 import computedobject
+import deprecation
 import ee_exception
 
 
@@ -36,10 +37,13 @@ class _FilterAutoCreator(object):
     if filter_instance is None:
       return self.func
 
-    @functools.wraps(self.func)
+    deprecated_decorator = deprecation.Deprecated(
+        'Use the static version of this method.')
+    deprecated_func = deprecated_decorator(self.func)
+    @functools.wraps(deprecated_func)
     def PassThroughAppend(*args, **kwargs):
       return filter_instance._append(  # pylint: disable=protected-access
-          self.func(*args, **kwargs))
+          deprecated_func(*args, **kwargs))
 
     return PassThroughAppend
 
@@ -157,6 +161,7 @@ class Filter(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_('Filter.not', self)
 
   @_FilterAutoCreator
+  @deprecation.Deprecated('Use ee.Filter.eq(), ee.Filter.gte(), etc.')
   def metadata_(name, operator, value):
     """Filter on metadata. This is deprecated.
 
@@ -218,31 +223,37 @@ class Filter(computedobject.ComputedObject):
     return Filter.gt(name, value).Not()
 
   @_FilterAutoCreator
+  @deprecation.Deprecated('Use ee.Filter.stringContains().')
   def contains(name, value):
     """Filter on metadata containing the given string."""
     return apifunction.ApiFunction.call_('Filter.stringContains', name, value)
 
   @_FilterAutoCreator
+  @deprecation.Deprecated('Use ee.Filter.stringStartsWith(...).Not().')
   def not_contains(name, value):
     """Filter on metadata not containing the given string."""
     return Filter.contains(name, value).Not()
 
   @_FilterAutoCreator
+  @deprecation.Deprecated('Use ee.Filter.stringStartsWith().')
   def starts_with(name, value):
     """Filter on metadata begining with the given string."""
     return apifunction.ApiFunction.call_('Filter.stringStartsWith', name, value)
 
   @_FilterAutoCreator
+  @deprecation.Deprecated('Use ee.Filter.stringStartsWith().Not().')
   def not_starts_with(name, value):
     """Filter on metadata not begining with the given string."""
     return Filter.starts_with(name, value).Not()
 
   @_FilterAutoCreator
+  @deprecation.Deprecated('Use ee.Filter.stringEndsWith().')
   def ends_with(name, value):
     """Filter on metadata ending with the given string."""
     return apifunction.ApiFunction.call_('Filter.stringEndsWith', name, value)
 
   @_FilterAutoCreator
+  @deprecation.Deprecated('Use ee.Filter.stringEndsWith().Not().')
   def not_ends_with(name, value):
     """Filter on metadata not ending with the given string."""
     return Filter.ends_with(name, value).Not()

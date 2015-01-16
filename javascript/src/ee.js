@@ -24,6 +24,7 @@ goog.require('ee.ImageCollection');
 goog.require('ee.List');
 goog.require('ee.Number');
 goog.require('ee.String');
+goog.require('ee.Terrain');
 goog.require('ee.Types');
 goog.require('ee.data');
 goog.require('goog.array');
@@ -127,6 +128,7 @@ ee.reset = function() {
   ee.List.reset();
   ee.Number.reset();
   ee.String.reset();
+  ee.Terrain.reset();
   ee.resetGeneratedClasses_();
   // Can't simply reassign ee.Algorithms to {} since it's been exported by
   // reference.
@@ -284,6 +286,7 @@ ee.initializationSuccess_ = function() {
     ee.List.initialize();
     ee.Number.initialize();
     ee.String.initialize();
+    ee.Terrain.initialize();
 
     // Generate trivial classes.
     ee.initializeGeneratedClasses_();

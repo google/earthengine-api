@@ -87,6 +87,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'start_timestamp_ms': 13,
             'task_type': 'EXPORT_IMAGE',
         }, tasks[0].status())
+    self.assertTrue(tasks[0].active())
     self.assertEquals(
         {
             'state': 'FAILED',
@@ -98,12 +99,14 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'start_timestamp_ms': 113,
             'task_type': 'EXPORT_FEATURES',
         }, tasks[1].status())
+    self.assertFalse(tasks[1].active())
     new_task = ee.batch.Export.table(ee.FeatureCollection('foo'))
     self.assertEquals({
         'state': 'UNSUBMITTED',
         'creation_timestamp_ms': 0,
         'id': 'TESTTASKID',
     }, new_task.status())
+    self.assertFalse(new_task.active())
 
   def testTaskStart(self):
     """Verifies that Task.start() calls the server appropriately."""
@@ -152,7 +155,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
         },
         task.config)
 
-  def testExportTableImage(self):
+  def testExportTable(self):
     """Verifies the task created by Export.table()."""
     task = ee.batch.Export.table(ee.FeatureCollection('foo'))
     self.assertEquals('TESTTASKID', task.id)

@@ -123,6 +123,7 @@ ee.Filter.functionNames_ = {
  * @return {number} The number of predicates that have been added to this
  * filter. This does not count nested predicates.
  * @export
+ * @deprecated This is an implementation detail that is subject to change.
  */
 ee.Filter.prototype.length = function() {
   return this.filter_.length;
@@ -287,6 +288,7 @@ ee.Filter.lte = function(name, value) {
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
  * @export
+ * @deprecated Use ee.Filter.stringContains().
  */
 ee.Filter.contains = function(name, value) {
   return /** @type {ee.Filter} */(
@@ -301,6 +303,7 @@ ee.Filter.contains = function(name, value) {
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
  * @export
+ * @deprecated Use ee.Filter.stringStartsWith(...).not().
  */
 ee.Filter.not_contains = function(name, value) {
   return ee.Filter.contains(name, value).not();
@@ -314,6 +317,7 @@ ee.Filter.not_contains = function(name, value) {
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
  * @export
+ * @deprecated Use ee.Filter.stringStartsWith().
  */
 ee.Filter.starts_with = function(name, value) {
   return /** @type {ee.Filter} */(
@@ -328,6 +332,7 @@ ee.Filter.starts_with = function(name, value) {
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
  * @export
+ * @deprecated Use ee.Filter.stringStartsWith(...).not().
  */
 ee.Filter.not_starts_with = function(name, value) {
   return ee.Filter.starts_with(name, value).not();
@@ -341,6 +346,7 @@ ee.Filter.not_starts_with = function(name, value) {
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
  * @export
+ * @deprecated Use ee.Filter.stringEndsWith().
  */
 ee.Filter.ends_with = function(name, value) {
   return /** @type {ee.Filter} */(
@@ -355,6 +361,7 @@ ee.Filter.ends_with = function(name, value) {
  * @param {string} value The value to compare against.
  * @return {ee.Filter} The constructed filter.
  * @export
+ * @deprecated Use ee.Filter.stringEndsWith(...).not().
  */
 ee.Filter.not_ends_with = function(name, value) {
   return ee.Filter.ends_with(name, value).not();
@@ -466,6 +473,7 @@ ee.Filter.bounds = function(geometry, opt_errorMargin) {
  * @see ee.Filter.eq
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.eq = function() {
   return this.append_(ee.Filter.eq.apply(null, [].slice.call(arguments)));
@@ -476,6 +484,7 @@ ee.Filter.prototype.eq = function() {
  * @see ee.Filter.neq
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.neq = function() {
   return this.append_(ee.Filter.neq.apply(null, [].slice.call(arguments)));
@@ -486,6 +495,7 @@ ee.Filter.prototype.neq = function() {
  * @see ee.Filter.lt
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.lt = function() {
   return this.append_(ee.Filter.lt.apply(null, [].slice.call(arguments)));
@@ -496,6 +506,7 @@ ee.Filter.prototype.lt = function() {
  * @see ee.Filter.gte
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.gte = function() {
   return this.append_(ee.Filter.gte.apply(null, [].slice.call(arguments)));
@@ -506,6 +517,7 @@ ee.Filter.prototype.gte = function() {
  * @see ee.Filter.gt
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.gt = function() {
   return this.append_(ee.Filter.gt.apply(null, [].slice.call(arguments)));
@@ -516,6 +528,7 @@ ee.Filter.prototype.gt = function() {
  * @see ee.Filter.lte
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.lte = function() {
   return this.append_(ee.Filter.lte.apply(null, [].slice.call(arguments)));
@@ -526,6 +539,7 @@ ee.Filter.prototype.lte = function() {
  * @see ee.Filter.contains
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.contains = function() {
   return this.append_(ee.Filter.contains.apply(null, [].slice.call(arguments)));
@@ -536,6 +550,7 @@ ee.Filter.prototype.contains = function() {
  * @see ee.Filter.not_contains
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.not_contains = function() {
   return this.append_(
@@ -547,6 +562,7 @@ ee.Filter.prototype.not_contains = function() {
  * @see ee.Filter.starts_with
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.starts_with = function() {
   return this.append_(
@@ -558,6 +574,7 @@ ee.Filter.prototype.starts_with = function() {
  * @see ee.Filter.not_starts_with
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.not_starts_with = function() {
   return this.append_(
@@ -569,6 +586,7 @@ ee.Filter.prototype.not_starts_with = function() {
  * @see ee.Filter.ends_with
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.ends_with = function() {
   return this.append_(
@@ -580,6 +598,7 @@ ee.Filter.prototype.ends_with = function() {
  * @see ee.Filter.not_ends_with
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.not_ends_with = function() {
   return this.append_(
@@ -591,6 +610,7 @@ ee.Filter.prototype.not_ends_with = function() {
  * @see ee.Filter.and
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.and = function() {
   return this.append_(ee.Filter.and.apply(null, [].slice.call(arguments)));
@@ -609,6 +629,7 @@ ee.Filter.prototype.and = function() {
  * @see ee.Filter.date
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.date = function() {
   return this.append_(ee.Filter.date.apply(null, [].slice.call(arguments)));
@@ -619,6 +640,7 @@ ee.Filter.prototype.date = function() {
  * @see ee.Filter.inList
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.inList = function() {
   return this.append_(ee.Filter.inList.apply(null, [].slice.call(arguments)));
@@ -629,6 +651,7 @@ ee.Filter.prototype.inList = function() {
  * @see ee.Filter.bounds
  * @return {ee.Filter} The modified filter.
  * @export
+ * @deprecated Use the static version of this method.
  */
 ee.Filter.prototype.bounds = function() {
   return this.append_(ee.Filter.bounds.apply(null, [].slice.call(arguments)));

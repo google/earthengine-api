@@ -179,7 +179,7 @@ ee.Collection.prototype.name = function() {
 
 /**
  * Returns the type constructor of the collection's elements.
- * @return {function(new:Object, ...[?])}
+ * @return {function(new:Object, ...?)}
  * @protected
  */
 ee.Collection.prototype.elementType = function() {

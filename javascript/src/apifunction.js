@@ -224,7 +224,7 @@ ee.ApiFunction.reset = function() {
 /**
  * Adds all API functions that begin with a given prefix to a target class.
  *
- * @param {Function} target The class to add to.
+ * @param {Function|Object} target The class to add to.
  * @param {string} prefix The prefix to search for in the signatures.
  * @param {string} typeName The name of the object's type. Functions whose
  *     first argument matches this type are bound as instance methods, and
@@ -305,7 +305,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
 
 /**
  * Removes all methods added by importApi() from a target class.
- * @param {Function} target The class to remove from.
+ * @param {Function|Object} target The class to remove from.
  */
 ee.ApiFunction.clearApi = function(target) {
   var clear = function(target) {

@@ -12,7 +12,7 @@ goog.addDependency('../../geo/gestalt/client/javascript/data.js', ['ee.data', 'e
 goog.addDependency('../../geo/gestalt/client/javascript/date.js', ['ee.Date'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.Types'], false);
 goog.addDependency('../../geo/gestalt/client/javascript/deserializer.js', ['ee.Deserializer'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.CustomFunction', 'ee.Date', 'ee.Encodable', 'ee.Function', 'ee.Geometry', 'goog.array', 'goog.json', 'goog.object'], false);
 goog.addDependency('../../geo/gestalt/client/javascript/dictionary.js', ['ee.Dictionary'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.Types'], false);
-goog.addDependency('../../geo/gestalt/client/javascript/ee.js', ['ee', 'ee.Algorithms', 'ee.InitState'], ['ee.ApiFunction', 'ee.Collection', 'ee.ComputedObject', 'ee.CustomFunction', 'ee.Date', 'ee.Dictionary', 'ee.Element', 'ee.Encodable', 'ee.Feature', 'ee.FeatureCollection', 'ee.Filter', 'ee.Function', 'ee.Geometry', 'ee.Image', 'ee.ImageCollection', 'ee.List', 'ee.Number', 'ee.String', 'ee.Types', 'ee.data', 'goog.array', 'goog.object'], false);
+goog.addDependency('../../geo/gestalt/client/javascript/ee.js', ['ee', 'ee.Algorithms', 'ee.InitState'], ['ee.ApiFunction', 'ee.Collection', 'ee.ComputedObject', 'ee.CustomFunction', 'ee.Date', 'ee.Dictionary', 'ee.Element', 'ee.Encodable', 'ee.Feature', 'ee.FeatureCollection', 'ee.Filter', 'ee.Function', 'ee.Geometry', 'ee.Image', 'ee.ImageCollection', 'ee.List', 'ee.Number', 'ee.String', 'ee.Terrain', 'ee.Types', 'ee.data', 'goog.array', 'goog.object'], false);
 goog.addDependency('../../geo/gestalt/client/javascript/element.js', ['ee.Element'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.Types', 'goog.array', 'goog.object'], false);
 goog.addDependency('../../geo/gestalt/client/javascript/encodable.js', ['ee.Encodable'], [], false);
 goog.addDependency('../../geo/gestalt/client/javascript/feature.js', ['ee.Feature'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.Element', 'ee.Geometry', 'goog.object'], false);
@@ -30,4 +30,5 @@ goog.addDependency('../../geo/gestalt/client/javascript/package.js', ['ee.Packag
 goog.addDependency('../../geo/gestalt/client/javascript/savedfunction.js', ['ee.SavedFunction'], ['ee.ApiFunction', 'ee.Function'], false);
 goog.addDependency('../../geo/gestalt/client/javascript/serializer.js', ['ee.Serializer'], ['ee.Encodable', 'goog.array', 'goog.crypt.Md5', 'goog.json.Serializer', 'goog.object'], false);
 goog.addDependency('../../geo/gestalt/client/javascript/string.js', ['ee.String'], ['ee.ApiFunction', 'ee.ComputedObject'], false);
+goog.addDependency('../../geo/gestalt/client/javascript/terrain.js', ['ee.Terrain'], ['ee.ApiFunction'], false);
 goog.addDependency('../../geo/gestalt/client/javascript/types.js', ['ee.Types'], ['ee.ComputedObject'], false);

@@ -155,6 +155,7 @@ ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
  * @param {number} lat The latitude of the point.
  * @return {ee.Geometry} A GeoJSON Point.
  * @export
+ * @deprecated Use ee.Geometry.Point().
  */
 ee.Feature.Point = function(lon, lat) {
   return ee.Geometry.Point.apply(null, arguments);
@@ -169,6 +170,7 @@ ee.Feature.Point = function(lon, lat) {
  *     coordinate longitudes and latitudes, such as MultiPoint(1, 2, 3, 4).
  * @return {Object} A GeoJSON MultiPoint object.
  * @export
+ * @deprecated Use ee.Geometry.MultiPoint().
  */
 ee.Feature.MultiPoint = function(coordinates) {
   return ee.Geometry.MultiPoint.apply(null, arguments);
@@ -184,6 +186,7 @@ ee.Feature.MultiPoint = function(coordinates) {
  * @param {number} lat2 latitude of the second corner point.
  * @return {Object} A GeoJSON Polygon.
  * @export
+ * @deprecated Use ee.Geometry.Rectangle().
  */
 ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
   return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2);
@@ -198,6 +201,7 @@ ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
  *     coordinate longitudes and latitudes, such as LineString(1, 2, 3, 4).
  * @return {ee.Geometry} A GeoJSON LineString.
  * @export
+ * @deprecated Use ee.Geometry.LineString().
  */
 ee.Feature.LineString = function(coordinates) {
   return ee.Geometry.LineString.apply(null, arguments);
@@ -212,6 +216,7 @@ ee.Feature.LineString = function(coordinates) {
  *     longitudes and latitudes, such as LinearRing(1, 2, 3, 4, 5, 6).
  * @return {ee.Geometry} A GeoJSON LinearRing.
  * @export
+ * @deprecated Use ee.Geometry.LinearRing().
  */
 ee.Feature.LinearRing = function(coordinates) {
   return ee.Geometry.LinearRing.apply(null, arguments);
@@ -227,6 +232,7 @@ ee.Feature.LinearRing = function(coordinates) {
  *     lineStrings, each of which is a list of points.
  * @return {ee.Geometry} The newly constructed MultiLine.
  * @export
+ * @deprecated Use ee.Geometry.MultiLine().
  *
  * TODO(user): This actually doesn't accept a list of
  * ee.Feature.LineStrings, but it should.
@@ -246,6 +252,7 @@ ee.Feature.MultiLine = function(coordinates) {
  *     each of which is a list of points.
  * @return {ee.Geometry} The newly constructed polygon.
  * @export
+ * @deprecated Use ee.Geometry.Polygon().
  *
  * TODO(user): This actually doesn't accept a list of
  * ee.Feature.LinearRings, but it should.
@@ -264,6 +271,7 @@ ee.Feature.Polygon = function(coordinates) {
  *     a list of polygons.
  * @return {ee.Geometry} The newly constructed MultiPolygon.
  * @export
+ * @deprecated Use ee.Geometry.MultiPolygon().
  *
  * TODO(user): This actually doesn't accept a list of
  * ee.Feature.Polygon, but it should.

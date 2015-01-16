@@ -169,7 +169,7 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 /**
  * Get a download URL.
  * @param {string=} opt_format The format of download, one of:
-       "csv", "json", "kml", "kmz".
+ *     "csv", "json", "kml", "kmz".
  * @param {string=} opt_selectors Selectors that should be used to determine
  *     which attributes will be downloaded.
  * @param {string=} opt_filename Name of the file to be downloaded.

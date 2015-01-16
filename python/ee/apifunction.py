@@ -13,13 +13,14 @@ to apply each EE algorithm.
 
 
 # Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
+# pylint: disable=g-bad-name
 
 import copy
 import keyword
 import re
 
 import data
+import deprecation
 import ee_exception
 import ee_types
 import function
@@ -190,9 +191,7 @@ class ApiFunction(function.Function):
         # Create a new function so we can attach properties to it.
         def MakeBoundFunction(func):
           # We need the lambda to capture "func" from the enclosing scope.
-          # pylint: disable-msg=unnecessary-lambda
-          return lambda *args, **kwargs: func.call(*args, **kwargs)
-          # pylint: enable-msg=unnecessary-lambda
+          return lambda *args, **kwargs: func.call(*args, **kwargs)  # pylint: disable=unnecessary-lambda
         bound_function = MakeBoundFunction(api_func)
 
         # Add docs.
@@ -200,6 +199,11 @@ class ApiFunction(function.Function):
         bound_function.__doc__ = str(api_func)
         # Attach the signature object for documentation generators.
         bound_function.signature = signature
+
+        # Mark as deprecated if needed.
+        if signature.get('deprecated'):
+          deprecated_decorator = deprecation.Deprecated(signature['deprecated'])
+          bound_function = deprecated_decorator(bound_function)
 
         # Decide whether this is a static or an instance function.
         is_instance = (signature['args'] and

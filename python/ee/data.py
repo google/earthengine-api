@@ -8,6 +8,7 @@
 import json
 import urllib
 
+import deprecation
 import ee_exception
 import httplib2
 
@@ -86,6 +87,7 @@ def setDeadline(milliseconds):
   _deadline_ms = milliseconds
 
 
+@deprecation.Deprecated('Use ee.data.getValue()')
 def getInfo(asset_id):
   """Load info for an asset, given an asset id.
 

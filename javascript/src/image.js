@@ -357,12 +357,23 @@ ee.Image.prototype.select = function(opt_selectors, opt_names) {
 
 
 /**
- * Evaluates an expression on an image.
+ * Evaluates an arithmetic expression on an image, possibly involving additional
+ * images.
  *
- * @see ee.Image.parseExpression()
+ * The bands of the primary input image are available using the built-in
+ * function b(), as b(0) or b('band_name').
+ *
+ * Variables in the expression are interpreted as additional image parameters
+ * which must be supplied in opt_map. The bands of each such image can be
+ * accessed like image.band_name or image[0].
+ *
+ * Both b() and image[] allow multiple arguments, to specify multiple bands,
+ * such as b(1, 'name', 3).  Calling b() with no arguments, or using a variable
+ * by itself, returns all bands of the image.
+ *
  * @param {string} expression The expression to evaluate.
  * @param {Object.<ee.Image>=} opt_map A map of input images available by name.
- * @return {ee.Image} The image created by the provided expression.
+ * @return {!ee.Image} The image computed by the provided expression.
  * @export
  */
 ee.Image.prototype.expression = function(expression, opt_map) {
@@ -406,7 +417,7 @@ ee.Image.prototype.expression = function(expression, opt_map) {
   };
 
   // Perform the call.
-  return /** @type {ee.Image} */(func.apply(args));
+  return /** @type {!ee.Image} */(func.apply(args));
 };
 
 

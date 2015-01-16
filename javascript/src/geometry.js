@@ -163,14 +163,15 @@ ee.Geometry.reset = function() {
 /**
  * Constructs a GeoJSON point.
  *
- * @param {number|Array.<number>} lon The longitude of the point, or
+ * @param {Array.<number>|number} coordsOrLon The longitude of the point, or
  *     a tuple of the longitude and latitude, in which case lat is ignored.
- * @param {number} lat The latitude of the point.
+ * @param {number=} opt_lat The latitude of the point. Ignored if the first
+ *     argument is an array.
  * @constructor
  * @extends {ee.Geometry}
  * @export
  */
-ee.Geometry.Point = function(lon, lat) {
+ee.Geometry.Point = function(coordsOrLon, opt_lat) {
   if (!(this instanceof ee.Geometry.Point)) {
     return ee.Geometry.createInstance_(ee.Geometry.Point, arguments);
   }
@@ -184,12 +185,12 @@ ee.Geometry.Point = function(lon, lat) {
       goog.isArray(arguments[0]) &&
       arguments[0].length == 2) {
     var coords = arguments[0];
-    lon = coords[0];
-    lat = coords[1];
+    coordsOrLon = coords[0];
+    opt_lat = coords[1];
   }
   goog.base(this, {
     'type': 'Point',
-    'coordinates': [lon, lat]
+    'coordinates': [coordsOrLon, opt_lat]
   });
 };
 goog.inherits(ee.Geometry.Point, ee.Geometry);
@@ -222,15 +223,17 @@ goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
 /**
  * Constructs a rectangular polygon from the given corner points.
  *
- * @param {number} lon1 The minimum X coordinate (e.g. longitude).
- * @param {number} lat1 The minimum Y coordinate (e.g. latitude).
- * @param {number} lon2 The maximum X coordinate (e.g. longitude).
- * @param {number} lat2 The maximum Y coordinate (e.g. latitude).
+ * @param {Array.<number>|number} coordsOrLon1 An array of coordinates
+ *     ordered as [lon1, lat1, lon2, lat2] OR the minimum X coordinate
+ *     (e.g. longitude). Other arguments are ignored if this is an array.
+ * @param {number=} opt_lat1 The minimum Y coordinate (e.g. latitude).
+ * @param {number=} opt_lon2 The maximum X coordinate (e.g. longitude).
+ * @param {number=} opt_lat2 The maximum Y coordinate (e.g. latitude).
  * @constructor
  * @extends {ee.Geometry}
  * @export
  */
-ee.Geometry.Rectangle = function(lon1, lat1, lon2, lat2) {
+ee.Geometry.Rectangle = function(coordsOrLon1, opt_lat1, opt_lon2, opt_lat2) {
   if (!(this instanceof ee.Geometry.Rectangle)) {
     return ee.ComputedObject.construct(ee.Geometry.Rectangle, arguments);
   }
@@ -240,16 +243,17 @@ ee.Geometry.Rectangle = function(lon1, lat1, lon2, lat2) {
                 'arguments (' + arguments.length + ' given)');
   }
 
-  if (goog.isArray(lon1)) {
-    var args = lon1;
-    lon1 = args[0];
-    lat1 = args[1];
-    lon2 = args[2];
-    lat2 = args[3];
+  if (goog.isArray(coordsOrLon1)) {
+    var args = coordsOrLon1;
+    coordsOrLon1 = args[0];
+    opt_lat1 = args[1];
+    opt_lon2 = args[2];
+    opt_lat2 = args[3];
   }
   goog.base(this, {
     'type': 'Polygon',
-    'coordinates': [[[lon1, lat2], [lon1, lat1], [lon2, lat1], [lon2, lat2]]]
+    'coordinates': [[[coordsOrLon1, opt_lat2], [coordsOrLon1, opt_lat1],
+                     [opt_lon2, opt_lat1], [opt_lon2, opt_lat2]]]
   });
 };
 goog.inherits(ee.Geometry.Rectangle, ee.Geometry);
@@ -450,19 +454,6 @@ ee.Geometry.prototype.toGeoJSONString = function() {
 
 
 /**
- * @return {string} The GeoJSON type of the geometry.
- * @export
- */
-ee.Geometry.prototype.type = function() {
-  if (this.func) {
-    throw new Error('Can\'t get the type of a computed Geometry to GeoJSON. ' +
-                    'Use getInfo() instead.');
-  }
-  return this.type_;
-};
-
-
-/**
  * @return {string} The serialized representation of this object.
  * @export
  */
@@ -612,7 +603,7 @@ ee.Geometry.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
 
 /**
  * Creates an instance of an object given a constructor and a set of arguments.
- * @param {function(this:T, ...[?]): T} klass The class constructor.
+ * @param {function(this:T, ...?): T} klass The class constructor.
  * @param {Arguments} args The arguments to pass to the constructor.
  * @return {T} The new instance.
  * @template T

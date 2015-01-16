@@ -317,14 +317,6 @@ class Geometry(computedobject.ComputedObject):
           'Use getInfo() instead.')
     return json.dumps(self.toGeoJSON())
 
-  def type(self):
-    """Returns the GeoJSON type of the geometry."""
-    if self.func:
-      raise ee_exception.EEException(
-          'Can\'t get the type of a computed geometry to GeoJSON. '
-          'Use getInfo() instead.')
-    return self._type
-
   def serialize(self):
     """Returns the serialized representation of this object."""
     return serializer.toJSON(self)

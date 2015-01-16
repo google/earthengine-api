@@ -578,13 +578,13 @@ ee.Geometry.MultiPoint = function(coordinates) {
 ee.Geometry.MultiPolygon = function(coordinates) {
 };
 /**
- * @param {(Array<number>|null|number)} lon
- * @param {number} lat
+ * @param {(Array<number>|null|number)} coordsOrLon
+ * @param {number=} opt_lat
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.Point = function(lon, lat) {
+ee.Geometry.Point = function(coordsOrLon, opt_lat) {
 };
 /**
  * @param {(Array<Array<Array<number>>>|number)} coordinates
@@ -595,15 +595,15 @@ ee.Geometry.Point = function(lon, lat) {
 ee.Geometry.Polygon = function(coordinates) {
 };
 /**
- * @param {number} lon1
- * @param {number} lat1
- * @param {number} lon2
- * @param {number} lat2
+ * @param {(Array<number>|null|number)} coordsOrLon1
+ * @param {number=} opt_lat1
+ * @param {number=} opt_lon2
+ * @param {number=} opt_lat2
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.Rectangle = function(lon1, lat1, lon2, lat2) {
+ee.Geometry.Rectangle = function(coordsOrLon1, opt_lat1, opt_lon2, opt_lat2) {
 };
 /**
  * @return {string}
@@ -619,11 +619,6 @@ ee.Geometry.prototype.toGeoJSON = function() {
  * @return {string}
  */
 ee.Geometry.prototype.toGeoJSONString = function() {
-};
-/**
- * @return {string}
- */
-ee.Geometry.prototype.type = function() {
 };
 /**
  * @param {(Object|null|number|string)=} opt_args
@@ -648,7 +643,7 @@ ee.Image.prototype.clip = function(geometry) {
 /**
  * @param {string} expression
  * @param {(Object<?,(ee.Image|null)>|null)=} opt_map
- * @return {(ee.Image|null)}
+ * @return {ee.Image}
  */
 ee.Image.prototype.expression = function(expression, opt_map) {
 };
@@ -784,6 +779,8 @@ ee.Serializer.toReadableJSON = function(obj) {
 };
 ee.String;
 ee.TILE_SIZE;
+/** @type {{initialize: function (): undefined, initialized_: boolean, reset: function (): undefined}} */
+ee.Terrain = {};
 /**
  * @param {(ee.Function|null|string)} func
  * @param {(Object|null)} namedArgs
