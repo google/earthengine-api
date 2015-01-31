@@ -3092,7 +3092,7 @@ goog.html.SafeUrl.unwrap = function(safeUrl) {
 goog.html.SafeUrl.fromConstant = function(url) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
 };
-goog.html.SAFE_URL_PATTERN_ = /^(?:(?:https?|mailto):|[^&:/?#]*(?:[/?#]|$))/i;
+goog.html.SAFE_URL_PATTERN_ = /^(?:(?:https?|mailto|ftp):|[^&:/?#]*(?:[/?#]|$))/i;
 goog.html.SafeUrl.sanitize = function(url) {
   if (url instanceof goog.html.SafeUrl) {
     return url;
@@ -4970,7 +4970,7 @@ goog.async.nextTick = function(callback, opt_context, opt_useSetImmediate) {
 };
 goog.async.nextTick.getSetImmediateEmulator_ = function() {
   var Channel = goog.global.MessageChannel;
-  "undefined" === typeof Channel && "undefined" !== typeof window && window.postMessage && window.addEventListener && (Channel = function() {
+  "undefined" === typeof Channel && "undefined" !== typeof window && window.postMessage && window.addEventListener && !goog.labs.userAgent.engine.isPresto() && (Channel = function() {
     var iframe = document.createElement("iframe");
     iframe.style.display = "none";
     iframe.src = "";
@@ -7497,8 +7497,8 @@ ee.Collection.prototype.filterMetadata = function(name, operator, value) {
 ee.Collection.prototype.filterBounds = function(geometry) {
   return this.filter(ee.Filter.bounds(geometry));
 };
-ee.Collection.prototype.filterDate = function(start, end) {
-  return this.filter(ee.Filter.date(start, end));
+ee.Collection.prototype.filterDate = function(start, opt_end) {
+  return this.filter(ee.Filter.date(start, opt_end));
 };
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
   return this.castInternal(ee.ApiFunction._call("Collection.limit", this, max, opt_property, opt_ascending));
@@ -10031,7 +10031,7 @@ goog.style.getOffsetParent = function(element) {
     return element.offsetParent;
   }
   for (var doc = goog.dom.getOwnerDocument(element), positionStyle = goog.style.getStyle_(element, "position"), skipStatic = "fixed" == positionStyle || "absolute" == positionStyle, parent = element.parentNode;parent && parent != doc;parent = parent.parentNode) {
-    if (positionStyle = goog.style.getStyle_(parent, "position"), skipStatic = skipStatic && "static" == positionStyle && parent != doc.documentElement && parent != doc.body, !skipStatic && (parent.scrollWidth > parent.clientWidth || parent.scrollHeight > parent.clientHeight || "fixed" == positionStyle || "absolute" == positionStyle || "relative" == positionStyle)) {
+    if (parent.nodeType == goog.dom.NodeType.DOCUMENT_FRAGMENT && parent.host && (parent = parent.host), positionStyle = goog.style.getStyle_(parent, "position"), skipStatic = skipStatic && "static" == positionStyle && parent != doc.documentElement && parent != doc.body, !skipStatic && (parent.scrollWidth > parent.clientWidth || parent.scrollHeight > parent.clientHeight || "fixed" == positionStyle || "absolute" == positionStyle || "relative" == positionStyle)) {
       return parent;
     }
   }
@@ -11006,10 +11006,6 @@ ee.MapTileManager.Event_ = function(type, target, id, imageLoader) {
   this.imageLoader = imageLoader;
 };
 goog.inherits(ee.MapTileManager.Event_, goog.events.Event);
-ee.MapTileManager.Event_.prototype.disposeInternal = function() {
-  delete this.id;
-  this.imageLoader = null;
-};
 ee.MapTileManager.Request_ = function(id, url, opt_imageEventCallback, opt_requestCompleteCallback, opt_maxRetries) {
   goog.Disposable.call(this);
   this.id_ = id;

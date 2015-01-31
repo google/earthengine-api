@@ -129,13 +129,13 @@ ee.Collection.prototype.filterBounds = function(geometry) {
  *
  * @param {Date|string|number} start The start date as a Date object,
  *     a string representation of a date, or milliseconds since epoch.
- * @param {Date|string|number} end The end date as a Date object,
+ * @param {Date|string|number=} opt_end The end date as a Date object,
  *     a string representation of a date, or milliseconds since epoch.
  * @return {ee.Collection} The filtered collection.
  * @export
  */
-ee.Collection.prototype.filterDate = function(start, end) {
-  return this.filter(ee.Filter.date(start, end));
+ee.Collection.prototype.filterDate = function(start, opt_end) {
+  return this.filter(ee.Filter.date(start, opt_end));
 };
 
 

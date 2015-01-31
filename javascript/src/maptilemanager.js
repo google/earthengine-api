@@ -257,13 +257,6 @@ ee.MapTileManager.Event_ = function(type, target, id, imageLoader) {
 goog.inherits(ee.MapTileManager.Event_, goog.events.Event);
 
 
-/** @override */
-ee.MapTileManager.Event_.prototype.disposeInternal = function() {
-  delete this.id;
-  this.imageLoader = null;
-};
-
-
 
 /**
  * An encapsulation of everything needed to make a Xhr request.

@@ -191,8 +191,8 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *     + id: the name of the band, a string, required.
  *     + crs: an optional CRS string defining the band projection.
  *     + crs_transform: an optional list of 6 numbers specifying an affine
- *           transform from the specified CRS, in the order: xScale, yShearing,
- *           xShearing, yScale, xTranslation and yTranslation.
+ *           transform from the specified CRS, in row-major order:
+ *           [xScale, yShearing, xTranslation, xShearing, yScale, yTranslation]
  *     + dimensions: an optional list of two integers defining the width and
  *           height to which the band is cropped.
  *     + scale: an optional number, specifying the scale in meters of the band;

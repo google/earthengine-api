@@ -55,10 +55,10 @@ ee.Collection.prototype.filterBounds = function(geometry) {
 };
 /**
  * @param {(Date|null|number|string)} start
- * @param {(Date|null|number|string)} end
+ * @param {(Date|null|number|string)=} opt_end
  * @return {(ee.Collection|null)}
  */
-ee.Collection.prototype.filterDate = function(start, end) {
+ee.Collection.prototype.filterDate = function(start, opt_end) {
 };
 /**
  * @param {string} name

@@ -15,26 +15,6 @@ except ImportError:
   # will receive errors for missing packages
   from distutils.core import setup                      # pylint: disable=g-import-not-at-top
 
-# check if the Python imaging libraries used by the mapclient module are
-# installed, and print a warning
-try:
-  import ImageTk                                  # pylint: disable=unused-import,g-import-not-at-top
-except ImportError:
-  print """
-    WARNING: A Python library (PIL) used by the Earth Engine API mapclient
-    module was not found. Information on PIL can be found at:
-    http://pypi.python.org/pypi/PIL
-    """
-try:
-  import Tkinter                                  # pylint: disable=unused-import,g-import-not-at-top
-except ImportError:
-  print """
-    WARNING: A Python library (Tkinter) used by the Earth Engine API
-    mapclient module was not found. Instructions for installing Tkinter
-    can be found at:
-    http://tkinter.unpythonic.net/wiki/How_to_install_Tkinter
-    """
-
 
 def GetVersion():
   with open('ee/__init__.py') as f:
