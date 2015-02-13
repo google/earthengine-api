@@ -130,6 +130,22 @@ class FeatureCollection(collection.Collection):
       request['selectors'] = selectors
     return data.makeTableDownloadUrl(data.getTableDownloadId(request))
 
+  def select(self, selectors, opt_names=None, *args):
+    """Select properties from each feature in a collection.
+
+    Args:
+      selectors: An array of names or regexes specifying the properties
+          to select.
+      opt_names: An array of strings specifying the new names for the
+          selected properties.  If supplied, the length must match the number
+          of properties selected.
+      *args: Selector elements as varargs.
+
+    Returns:
+      The feature collection with selected properties.
+    """
+    return self.map(lambda feat: feat.select(selectors, opt_names, *args))
+
   @staticmethod
   def name():
     return 'FeatureCollection'
@@ -137,3 +153,4 @@ class FeatureCollection(collection.Collection):
   @staticmethod
   def elementType():
     return feature.Feature
+

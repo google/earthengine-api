@@ -797,6 +797,15 @@ ee.call = function(func, var_args) {
 };
 ee.data;
 /**
+ * @param {(null|string)} clientId
+ * @param {function (): ?} success
+ * @param {function (string): ?=} opt_error
+ * @param {Array<string>=} opt_extraScopes
+ * @return {undefined}
+ */
+ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes) {
+};
+/**
  * @param {string} task_id
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(Array<ee.data.TaskStatus>|null)}

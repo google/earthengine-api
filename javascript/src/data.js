@@ -30,9 +30,11 @@ goog.provide('ee.data.TaskUpdateActions');
 goog.provide('ee.data.ThumbnailId');
 
 goog.require('goog.Uri');
+goog.require('goog.array');
 goog.require('goog.json');
 goog.require('goog.net.XhrIo');
 goog.require('goog.net.XmlHttp');
+goog.require('goog.net.jsloader');
 goog.require('goog.object');
 goog.require('goog.string');
 
@@ -58,6 +60,36 @@ ee.data.tileBaseUrl_ = null;
  * @private
  */
 ee.data.xsrfToken_ = null;
+
+
+/**
+ * @private {string?} An OAuth2 token to use for authenticating EE API calls.
+ */
+ee.data.authToken_ = null;
+
+
+/**
+ * @private {string?} The client ID used to retrieve OAuth2 tokens.
+ */
+ee.data.authClientId_ = null;
+
+
+/**
+ * @private {!Array<string>} The scopes to request when retrieving OAuth tokens.
+ */
+ee.data.authScopes_ = [];
+
+
+/**
+ * @private @const {string} The OAuth scope for the EE API.
+ */
+ee.data.AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine.readonly';
+
+
+/**
+ * @private @const {string} The URL of the Google APIs Client Library.
+ */
+ee.data.AUTH_LIBRARY_URL_ = 'https://apis.google.com/js/client.js';
 
 
 /**
@@ -139,7 +171,60 @@ ee.data.reset = function() {
   ee.data.apiBaseUrl_ = null;
   ee.data.tileBaseUrl_ = null;
   ee.data.xsrfToken_ = null;
+  ee.data.authClientId_ = null;
+  ee.data.authScopes_ = [];
+  ee.data.authToken_ = null;
   ee.data.initialized_ = false;
+};
+
+
+/**
+ * Configures client-side authentication of EE API calls through the
+ * Google APIs Client Library for JavaScript. The library will be loaded
+ * automatically if it is not already loaded on the page. The user will be
+ * asked to grant the application identified by clientId access to their EE
+ * data if they have not done so previously.
+ *
+ * This should be called before the EE library is initialized.
+ *
+ * @param {?string} clientId The application's OAuth client ID, or null to
+ *     disable authenticated calls. This can be obtained through the Google
+ *     Developers Console. The project must have a JavaScript origin that
+ *     corresponds to the domain where the script is running.
+ * @param {function()} success The function to call if authentication succeeded.
+ * @param {function(string)=} opt_error The function to call if authentication
+ *     failed, passed the error message.
+ * @param {!Array<string>=} opt_extraScopes Extra OAuth scopes to request.
+ * @export
+ *
+ * TODO(user): Figure out if we need to deal with pop-up blockers.
+ */
+ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes) {
+  // Remember the auth options.
+  var scopes = [ee.data.AUTH_SCOPE_];
+  if (opt_extraScopes) {
+    goog.array.extend(scopes, opt_extraScopes);
+    goog.array.removeDuplicates(scopes);
+  }
+  ee.data.authClientId_ = clientId;
+  ee.data.authScopes_ = scopes;
+
+  // Start the authentication flow as soon as we have the auth library.
+  if (goog.isObject(goog.global['gapi']) &&
+      goog.isObject(goog.global['gapi']['auth']) &&
+      goog.isFunction(goog.global['gapi']['auth']['authorize'])) {
+    ee.data.refreshAuthToken_(success, opt_error);
+  } else {
+    // The library is not loaded; load it now.
+    var callbackName = goog.now().toString(36);
+    while (callbackName in goog.global) callbackName += '_';
+    goog.global[callbackName] = function() {
+      delete goog.global[callbackName];
+      ee.data.refreshAuthToken_(success, opt_error);
+    };
+    goog.net.jsloader.load(
+        ee.data.AUTH_LIBRARY_URL_ + '?onload=' + callbackName);
+  }
 };
 
 
@@ -696,10 +781,20 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   // Make sure we never perform API calls before initialization.
   ee.data.initialize();
 
-  opt_method = opt_method || 'POST';
+  var method = opt_method || 'POST';
+  // WARNING: The content-type header here must use this exact capitalization
+  // to remain compatible with the Node.JS environment. See:
+  // https://github.com/driverdan/node-XMLHttpRequest/issues/20
+  var headers = {'Content-Type': 'application/x-www-form-urlencoded'};
 
+  // Client-side authorization.
+  if (goog.isDefAndNotNull(ee.data.authToken_)) {
+    headers['Authorization'] = ee.data.authToken_;
+  }
+
+  // XSRF protection for a server-side API proxy.
   if (goog.isDefAndNotNull(ee.data.xsrfToken_)) {
-    if (opt_method == 'GET') {
+    if (method == 'GET') {
       path += goog.string.contains(path, '?') ? '&' : '?';
       path += 'xsrfToken=' + ee.data.xsrfToken_;
     } else {
@@ -710,24 +805,19 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     }
   }
 
-  var url = ee.data.apiBaseUrl_ + path;
-  var requestData = params ? params.toString() : '';
-
   // Handle processing and dispatching a callback response.
-  function handleResponse(xhr, responseText, opt_callback) {
-    var jsonIsValid = true;
-    var response, data;
+  var handleResponse = function(xhr, responseText, opt_callback) {
+    var response, data, errorMessage;
     try {
       response = goog.json.unsafeParse(responseText);
       data = response['data'];
     } catch (e) {
-      jsonIsValid = false;
+      errorMessage = 'Invalid JSON: ' + responseText;
     }
 
     // Totally malformed, with either invalid JSON or JSON with
     // neither a data nor an error property.
-    var errorMessage = undefined;
-    if (jsonIsValid && goog.isObject(response)) {
+    if (goog.isObject(response)) {
       if ('error' in response && 'message' in response['error']) {
         errorMessage = response['error']['message'];
       } else if (!('data' in response)) {
@@ -749,32 +839,77 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     }
   };
 
-  // WARNING: The content-type header in the section below must use this exact
-  // capitalization to remain compatible with the Node.JS environment. See:
-  // https://github.com/driverdan/node-XMLHttpRequest/issues/20
+  var url = ee.data.apiBaseUrl_ + path;
+  var requestData = params ? params.toString() : '';
   if (opt_callback) {
+    // Send an asynchronous request.
     goog.net.XhrIo.send(
         url,
         function(e) {
           var responseText = e.target.getResponseText();
           return handleResponse(e.target, responseText, opt_callback);
         },
-        opt_method,
+        method,
         requestData,
-        {'Content-Type': 'application/x-www-form-urlencoded'},
+        headers,
         ee.data.deadlineMs_);
     return null;
   } else {
-    // Construct a synchronous request.
-    var xmlhttp = goog.net.XmlHttp();
-
-    // Send request.
-    xmlhttp.open(opt_method, url, false);
-    xmlhttp.setRequestHeader(
-        'Content-Type', 'application/x-www-form-urlencoded');
-    xmlhttp.send(requestData);
-    return handleResponse(xmlhttp, xmlhttp.responseText, null);
+    // Send a synchronous request.
+    var xmlHttp = goog.net.XmlHttp();
+    xmlHttp.open(method, url, false);
+    goog.object.forEach(headers, function(value, key) {
+      xmlHttp.setRequestHeader(key, value);
+    });
+    xmlHttp.send(requestData);
+    return handleResponse(xmlHttp, xmlHttp.responseText, null);
   }
+};
+
+
+/**
+ * Retrieves a new OAuth2 token for the currently configured ID and scopes.
+ *
+ * @param {function()=} opt_success The function to call if token refresh
+ *     succeeds.
+ * @param {function(string)=} opt_error The function to call if token refresh
+ *     fails, passing the error message.
+ * @private
+ */
+ee.data.refreshAuthToken_ = function(opt_success, opt_error) {
+  // Set up auth options.
+  var authArgs = {
+    'client_id': ee.data.authClientId_,
+    'immediate': true,
+    'scope': ee.data.authScopes_.join(' ')
+  };
+
+  // A function to run when we get the authorization result.
+  var done = function(result) {
+    if (result['access_token']) {
+      ee.data.authToken_ = result['token_type'] + ' ' + result['access_token'];
+      // Set up a refresh timer. This is necessary because we cannot refresh
+      // synchronously, but since we want to allow synchronous API requests,
+      // something must ensure that the auth token is always valid.
+      setTimeout(ee.data.refreshAuthToken_, result['expires_in'] * 1000 / 2);
+      if (opt_success) opt_success();
+    } else if (opt_error) {
+      opt_error(result['error'] || 'Unknown error.');
+    }
+  };
+
+  // Start the authorization flow, first trying immediate mode, which tries to
+  // get the token behind the scenes, with no UI shown.
+  var authorize = goog.global['gapi']['auth']['authorize'];
+  authorize(authArgs, function(result) {
+    if (result['error'] == 'immediate_failed') {
+      // Could not auth invisibly. Auth using a dialog.
+      authArgs['immediate'] = false;
+      authorize(authArgs, done);
+    } else {
+      done(result);
+    }
+  });
 };
 
 
@@ -901,7 +1036,7 @@ ee.data.GMEProject;
  * @typedef {{
  *   type: string,
  *   id: (undefined|string),
- *   geometry: (null|ee.data.GeoJSONGeometry),
+ *   geometry: ?ee.data.GeoJSONGeometry,
  *   properties: (undefined|Object)
  * }}
  */

@@ -276,9 +276,13 @@ class Filter(computedobject.ComputedObject):
   def date(start, opt_end=None):
     """Filter images by date.
 
+    The start and end may be a Date, numbers (interpreted as milliseconds since
+    1970-01-01T00:00:00Z), or strings (such as '1996-01-01T08:00').
+
     Args:
-      start: The start date as a UTC datetime or ms since Unix epoch.
-      opt_end: The end date as a UTC datetime or ms since Unix epoch.
+      start: The inclusive start date.
+      opt_end: The optional exclusive end date, If not specified, a
+               1-millisecond range starting at 'start' is created.
 
     Returns:
       The modified filter.
