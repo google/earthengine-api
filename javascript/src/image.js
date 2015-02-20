@@ -314,45 +314,49 @@ ee.Image.combine_ = function(images, opt_names) {
 
 
 /**
- * Select bands from an image.  This is an override to the normal
- * Image.select function to allow varargs usage.
+ * Selects bands from an image.
  *
- * @param {Array.<string|number|ee.ComputedObject>|ee.ComputedObject|number=}
- *     opt_selectors
- *     A list of names, regexes or numeric indicies specifying the bands
- *     to select.
- * @param {Array.<string|ee.ComputedObject>=} opt_names
- *     A list of new names for the output bands. Must match the number of
- *     bands selected.
- * @return {ee.Image} The image.
+ * @param {...*} var_args One of two possibilities:
+ * - Any number of non-list arguments. All of these will be interpreted as band
+ *   selectors. These can be band names, regexes, or numeric indices. E.g.
+ *   selected = image.select('a', 'b', 3, 'd');
+ * - Two lists. The first will be used as band selectors and the second
+ *   as new names for the selected bands. The number of new names must match
+ *   the number of selected bands. E.g.
+ *   selected = image.select(['a', 4], ['newA', 'newB']);
+ *
+ * @return {ee.Image} An image with the selected bands.
  * @export
  */
-ee.Image.prototype.select = function(opt_selectors, opt_names) {
-  // If the user didn't pass an array as the first argument, assume
-  // that everything in the arguments array is actually a selector.
-  if (!goog.isDef(opt_selectors)) {
-    opt_selectors = [];
-  }
-  var args = {
+ee.Image.prototype.select = function(var_args) {
+  var args = Array.prototype.slice.call(arguments);
+
+  var algorithmArgs = {
     'input': this,
-    'bandSelectors': opt_selectors
+    'bandSelectors': args[0] || []
   };
 
-  if (ee.Types.isString(opt_selectors) || ee.Types.isNumber(opt_selectors)) {
-    opt_selectors = Array.prototype.slice.call(arguments);
+  // If the user didn't pass an array as the first argument, assume
+  // that everything in the arguments array is actually a selector.
+  if (args.length > 2 ||
+      ee.Types.isString(args[0]) ||
+      ee.Types.isNumber(args[0])) {
+    // Varargs inputs.
+    var selectors = args;
     // Verify we didn't get anything unexpected.
-    for (var i = 0; i < opt_selectors.length; i++) {
-      if (!ee.Types.isString(opt_selectors[i]) &&
-          !ee.Types.isNumber(opt_selectors[i]) &&
-          !(opt_selectors[i] instanceof ee.ComputedObject)) {
-        throw Error('Illegal argument to select(): ' + opt_selectors[i]);
+    for (var i = 0; i < selectors.length; i++) {
+      if (!ee.Types.isString(selectors[i]) &&
+          !ee.Types.isNumber(selectors[i]) &&
+          !(selectors[i] instanceof ee.ComputedObject)) {
+        throw Error('Illegal argument to select(): ' + selectors[i]);
       }
     }
-    args['bandSelectors'] = opt_selectors;
-  } else if (opt_names) {
-    args['newNames'] = opt_names;
+    algorithmArgs['bandSelectors'] = selectors;
+  } else if (args[1]) {
+    algorithmArgs['newNames'] = args[1];
   }
-  return /** @type {ee.Image} */(ee.ApiFunction._apply('Image.select', args));
+  return /** @type {ee.Image} */ (
+      ee.ApiFunction._apply('Image.select', algorithmArgs));
 };
 
 

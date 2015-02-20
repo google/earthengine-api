@@ -412,49 +412,58 @@ ee.Filter.not_starts_with = function(name, value) {
 ee.Filter.or = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.and = function() {
+ee.Filter.prototype.and = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.bounds = function() {
+ee.Filter.prototype.bounds = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.contains = function() {
+ee.Filter.prototype.contains = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.date = function() {
+ee.Filter.prototype.date = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.ends_with = function() {
+ee.Filter.prototype.ends_with = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.eq = function() {
+ee.Filter.prototype.eq = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.gt = function() {
+ee.Filter.prototype.gt = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.gte = function() {
+ee.Filter.prototype.gte = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.inList = function() {
+ee.Filter.prototype.inList = function(var_args) {
 };
 /**
  * @return {number}
@@ -462,19 +471,22 @@ ee.Filter.prototype.inList = function() {
 ee.Filter.prototype.length = function() {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.lt = function() {
+ee.Filter.prototype.lt = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.lte = function() {
+ee.Filter.prototype.lte = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.neq = function() {
+ee.Filter.prototype.neq = function(var_args) {
 };
 /**
  * @return {(ee.Filter|null)}
@@ -482,24 +494,28 @@ ee.Filter.prototype.neq = function() {
 ee.Filter.prototype.not = function() {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.not_contains = function() {
+ee.Filter.prototype.not_contains = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.not_ends_with = function() {
+ee.Filter.prototype.not_ends_with = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.not_starts_with = function() {
+ee.Filter.prototype.not_starts_with = function(var_args) {
 };
 /**
+ * @param {...?} var_args
  * @return {(ee.Filter|null)}
  */
-ee.Filter.prototype.starts_with = function() {
+ee.Filter.prototype.starts_with = function(var_args) {
 };
 /**
  * @param {string} name
@@ -674,11 +690,10 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 ee.Image.prototype.getThumbURL = function(params) {
 };
 /**
- * @param {(Array<(ee.ComputedObject|null|number|string)>|ee.ComputedObject|null|number)=} opt_selectors
- * @param {(Array<(ee.ComputedObject|null|string)>|null)=} opt_names
+ * @param {...*} var_args
  * @return {(ee.Image|null)}
  */
-ee.Image.prototype.select = function(opt_selectors, opt_names) {
+ee.Image.prototype.select = function(var_args) {
 };
 /**
  * @param {(ee.Image|null)} r

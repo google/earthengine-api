@@ -260,38 +260,9 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
 
       // Add the actual function
       destination[fname] = function(var_args) {
-        var args = Array.prototype.slice.call(arguments, 0);
-        // Assume keyword arguments if we get a single dictionary.
-        var useKeywordArgs = false;
-        if (args.length == 1 && ee.Types.isRegularObject(args[0])) {
-          // Decide whether the algorithm expects a dictionary as an only arg.
-          var params = signature['args'];
-          if (isInstance) {
-            params = params.slice(1);
-          }
-          if (params.length) {
-            var requiresOneArg = (params.length == 1 || params[1]['optional']);
-            var aSingleDictionaryIsValid =
-                (requiresOneArg && params[0]['type'] == 'Dictionary');
-            useKeywordArgs = !aSingleDictionaryIsValid;
-          }
-        }
-        // Convert positional to named args.
-        var namedArgs;
-        if (useKeywordArgs) {
-          namedArgs = goog.object.clone(args[0]);
-          if (isInstance) {
-            var firstArgName = signature['args'][0]['name'];
-            if (firstArgName in namedArgs) {
-              throw Error('Named args for ' + fname +
-                          ' can\'t contain keyword ' + firstArgName);
-            }
-            namedArgs[firstArgName] = this;
-          }
-        } else {
-          namedArgs = apiFunc.nameArgs(isInstance ? [this].concat(args) : args);
-        }
-        return apiFunc.apply(namedArgs);
+        return apiFunc.callOrApply(
+            isInstance ? this : undefined,
+            Array.prototype.slice.call(arguments, 0));
       };
       // Add a friendly formatting.
       destination[fname].toString =

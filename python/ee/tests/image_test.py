@@ -112,7 +112,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
 
   def testDownload(self):
     """Verifies Download ID and URL generation."""
-    url = ee.Image(1).getDownloadUrl()
+    url = ee.Image(1).getDownloadURL()
 
     self.assertEquals('/download', self.last_download_call['url'])
     self.assertEquals(
@@ -125,7 +125,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
 
   def testThumb(self):
     """Verifies Thumbnail ID and URL generation."""
-    url = ee.Image(1).getThumbUrl({'size': [13, 42]})
+    url = ee.Image(1).getThumbURL({'size': [13, 42]})
 
     self.assertEquals('/thumb', self.last_thumb_call['url'])
     self.assertEquals(

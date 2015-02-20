@@ -474,88 +474,96 @@ ee.Filter.bounds = function(geometry, opt_errorMargin) {
 
 /**
  * @see ee.Filter.eq
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.eq = function() {
+ee.Filter.prototype.eq = function(var_args) {
   return this.append_(ee.Filter.eq.apply(null, [].slice.call(arguments)));
 };
 
 
 /**
  * @see ee.Filter.neq
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.neq = function() {
+ee.Filter.prototype.neq = function(var_args) {
   return this.append_(ee.Filter.neq.apply(null, [].slice.call(arguments)));
 };
 
 
 /**
  * @see ee.Filter.lt
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.lt = function() {
+ee.Filter.prototype.lt = function(var_args) {
   return this.append_(ee.Filter.lt.apply(null, [].slice.call(arguments)));
 };
 
 
 /**
  * @see ee.Filter.gte
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.gte = function() {
+ee.Filter.prototype.gte = function(var_args) {
   return this.append_(ee.Filter.gte.apply(null, [].slice.call(arguments)));
 };
 
 
 /**
  * @see ee.Filter.gt
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.gt = function() {
+ee.Filter.prototype.gt = function(var_args) {
   return this.append_(ee.Filter.gt.apply(null, [].slice.call(arguments)));
 };
 
 
 /**
  * @see ee.Filter.lte
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.lte = function() {
+ee.Filter.prototype.lte = function(var_args) {
   return this.append_(ee.Filter.lte.apply(null, [].slice.call(arguments)));
 };
 
 
 /**
  * @see ee.Filter.contains
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.contains = function() {
+ee.Filter.prototype.contains = function(var_args) {
   return this.append_(ee.Filter.contains.apply(null, [].slice.call(arguments)));
 };
 
 
 /**
  * @see ee.Filter.not_contains
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.not_contains = function() {
+ee.Filter.prototype.not_contains = function(var_args) {
   return this.append_(
       ee.Filter.not_contains.apply(null, [].slice.call(arguments)));
 };
@@ -563,11 +571,12 @@ ee.Filter.prototype.not_contains = function() {
 
 /**
  * @see ee.Filter.starts_with
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.starts_with = function() {
+ee.Filter.prototype.starts_with = function(var_args) {
   return this.append_(
       ee.Filter.starts_with.apply(null, [].slice.call(arguments)));
 };
@@ -575,11 +584,12 @@ ee.Filter.prototype.starts_with = function() {
 
 /**
  * @see ee.Filter.not_starts_with
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.not_starts_with = function() {
+ee.Filter.prototype.not_starts_with = function(var_args) {
   return this.append_(
       ee.Filter.not_starts_with.apply(null, [].slice.call(arguments)));
 };
@@ -587,11 +597,12 @@ ee.Filter.prototype.not_starts_with = function() {
 
 /**
  * @see ee.Filter.ends_with
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.ends_with = function() {
+ee.Filter.prototype.ends_with = function(var_args) {
   return this.append_(
       ee.Filter.ends_with.apply(null, [].slice.call(arguments)));
 };
@@ -599,11 +610,12 @@ ee.Filter.prototype.ends_with = function() {
 
 /**
  * @see ee.Filter.not_ends_with
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.not_ends_with = function() {
+ee.Filter.prototype.not_ends_with = function(var_args) {
   return this.append_(
       ee.Filter.not_ends_with.apply(null, [].slice.call(arguments)));
 };
@@ -611,11 +623,12 @@ ee.Filter.prototype.not_ends_with = function() {
 
 /**
  * @see ee.Filter.and
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.and = function() {
+ee.Filter.prototype.and = function(var_args) {
   return this.append_(ee.Filter.and.apply(null, [].slice.call(arguments)));
 };
 
@@ -630,33 +643,36 @@ ee.Filter.prototype.and = function() {
 
 /**
  * @see ee.Filter.date
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.date = function() {
+ee.Filter.prototype.date = function(var_args) {
   return this.append_(ee.Filter.date.apply(null, [].slice.call(arguments)));
 };
 
 
 /**
  * @see ee.Filter.inList
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.inList = function() {
+ee.Filter.prototype.inList = function(var_args) {
   return this.append_(ee.Filter.inList.apply(null, [].slice.call(arguments)));
 };
 
 
 /**
  * @see ee.Filter.bounds
+ * @param {...?} var_args
  * @return {ee.Filter} The modified filter.
  * @export
  * @deprecated Use the static version of this method.
  */
-ee.Filter.prototype.bounds = function() {
+ee.Filter.prototype.bounds = function(var_args) {
   return this.append_(ee.Filter.bounds.apply(null, [].slice.call(arguments)));
 };
 

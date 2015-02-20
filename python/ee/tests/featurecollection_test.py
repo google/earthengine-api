@@ -66,7 +66,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
 
   def testDownload(self):
     """Verifies that Download ID and URL generation."""
-    csv_url = ee.FeatureCollection(7).getDownloadUrl('csv')
+    csv_url = ee.FeatureCollection(7).getDownloadURL('csv')
 
     self.assertEquals('/table', self.last_table_call['url'])
     self.assertEquals(
@@ -78,7 +78,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
         self.last_table_call['data'])
     self.assertEquals('/api/table?docid=5&token=6', csv_url)
 
-    everything_url = ee.FeatureCollection(8).getDownloadUrl(
+    everything_url = ee.FeatureCollection(8).getDownloadURL(
         'json', 'bar, baz', 'qux')
     self.assertEquals(
         {
@@ -90,6 +90,9 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
         },
         self.last_table_call['data'])
     self.assertEquals('/api/table?docid=5&token=6', everything_url)
+
+    self.assertEquals(ee.FeatureCollection(7).getDownloadUrl('csv'),
+                      ee.FeatureCollection(7).getDownloadURL('csv'))
 
 
 if __name__ == '__main__':

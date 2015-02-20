@@ -9,6 +9,7 @@ import apifunction
 import collection
 import computedobject
 import data
+import deprecation
 import ee_exception
 import ee_list
 import ee_types
@@ -108,7 +109,7 @@ class FeatureCollection(collection.Collection):
     })
     return painted.getMapId({})
 
-  def getDownloadUrl(self, filetype=None, selectors=None, filename=None):
+  def getDownloadURL(self, filetype=None, selectors=None, filename=None):
     """Get a download URL for this feature collection.
 
     Args:
@@ -129,6 +130,10 @@ class FeatureCollection(collection.Collection):
     if selectors is not None:
       request['selectors'] = selectors
     return data.makeTableDownloadUrl(data.getTableDownloadId(request))
+
+  # Deprecated spelling to match the JS library.
+  getDownloadUrl = deprecation.Deprecated('Use getDownloadURL().')(
+      getDownloadURL)
 
   def select(self, selectors, opt_names=None, *args):
     """Select properties from each feature in a collection.
@@ -153,4 +158,3 @@ class FeatureCollection(collection.Collection):
   @staticmethod
   def elementType():
     return feature.Feature
-

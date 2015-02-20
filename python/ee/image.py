@@ -11,6 +11,7 @@ See: https://sites.google.com/site/earthengineapidocs for more details.
 import apifunction
 import computedobject
 import data
+import deprecation
 import ee_exception
 import ee_types
 import element
@@ -123,7 +124,7 @@ class Image(element.Element):
     response['image'] = self
     return response
 
-  def getDownloadUrl(self, params=None):
+  def getDownloadURL(self, params=None):
     """Get a download URL for this image.
 
     Args:
@@ -159,7 +160,7 @@ class Image(element.Element):
     request['image'] = self.serialize()
     return data.makeDownloadUrl(data.getDownloadId(request))
 
-  def getThumbUrl(self, params=None):
+  def getThumbURL(self, params=None):
     """Get a thumbnail URL for this image.
 
     Args:
@@ -178,6 +179,11 @@ class Image(element.Element):
     request = params or {}
     request['image'] = self.serialize()
     return data.makeThumbUrl(data.getThumbId(request))
+
+  # Deprecated spellings to match the JS library.
+  getDownloadUrl = deprecation.Deprecated('Use getDownloadURL().')(
+      getDownloadURL)
+  getThumbUrl = deprecation.Deprecated('Use getThumbURL().')(getThumbURL)
 
   ###################################################
   # Static methods.
@@ -231,41 +237,56 @@ class Image(element.Element):
     return result
 
   def select(self, opt_selectors=None, opt_names=None, *args):
-    """Select bands from an image.
+    """Selects bands from an image.
 
-    This is an override to the normal Image.select function to allow
-    varargs specification of selectors.
+    Can be called in one of two ways:
+      - Passed any number of non-list arguments. All of these will be
+        interpreted as band selectors. These can be band names, regexes, or
+        numeric indices. E.g.
+        selected = image.select('a', 'b', 3, 'd');
+      - Passed two lists. The first will be used as band selectors and the
+        second as new names for the selected bands. The number of new names
+        must match the number of selected bands. E.g.
+        selected = image.select(['a', 4], ['newA', 'newB']);
 
     Args:
       opt_selectors: An array of names, regexes or numeric indices specifying
           the bands to select.
       opt_names: An array of strings specifying the new names for the
-          selected bands.  If supplied, the length must match the number
-          of bands selected.
+          selected bands.
       *args: Selector elements as varargs.
 
     Returns:
       An image with the selected bands.
     """
-    if opt_selectors is None:
-      opt_selectors = []
-
-    arguments = {
-        'input': self,
-        'bandSelectors': opt_selectors,
-    }
-    if (isinstance(opt_selectors, (basestring, int, long)) or
-        ee_types.isString(opt_selectors) or ee_types.isNumber(opt_selectors)):
-      # Varargs inputs.
-      opt_selectors = [opt_selectors]
+    if opt_selectors is not None:
+      args = list(args)
       if opt_names is not None:
-        opt_selectors.append(opt_names)
-        opt_names = None
-      opt_selectors.extend(args)
-    arguments['bandSelectors'] = opt_selectors
-    if opt_names:
-      arguments['newNames'] = opt_names
-    return apifunction.ApiFunction.apply_('Image.select', arguments)
+        args.insert(0, opt_names)
+      args.insert(0, opt_selectors)
+    algorithm_args = {
+        'input': self,
+        'bandSelectors': args[0] if args else [],
+    }
+    if args:
+      # If the user didn't pass an array as the first argument, assume
+      # that everything in the arguments array is actually a selector.
+      if (len(args) > 2 or
+          ee_types.isString(args[0]) or
+          ee_types.isNumber(args[0])):
+        # Varargs inputs.
+        selectors = args
+        # Verify we didn't get anything unexpected.
+        for selector in selectors:
+          if (not ee_types.isString(selector) and
+              not ee_types.isNumber(selector) and
+              not isinstance(selector, computedobject.ComputedObject)):
+            raise ee_exception.EEException(
+                'Illegal argument to select(): ' + selector)
+        algorithm_args['bandSelectors'] = selectors
+      elif len(args) > 1:
+        algorithm_args['newNames'] = args[1]
+    return apifunction.ApiFunction.apply_('Image.select', algorithm_args)
 
   def expression(self, expression, opt_map=None):
     """Evaluates an arithmetic expression on an image or images.

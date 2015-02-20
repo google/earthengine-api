@@ -495,7 +495,10 @@ ee.initializeUnboundMethods_ = function() {
     }
 
     // Attach the function.
-    var bound = goog.bind(func.call, func);
+    var bound = function(var_args) {
+      return func.callOrApply(
+          undefined, Array.prototype.slice.call(arguments, 0));
+    };
     bound['signature'] = signature;
     bound.toString = goog.bind(func.toString, func);
     target[nameParts[0]] = bound;

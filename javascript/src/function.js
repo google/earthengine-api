@@ -8,8 +8,10 @@ goog.provide('ee.Function.Signature');
 goog.require('ee.ComputedObject');
 goog.require('ee.Encodable');
 goog.require('ee.Serializer');
+goog.require('ee.Types');
 goog.require('goog.array');
 goog.require('goog.functions');
+goog.require('goog.object');
 
 
 
@@ -89,6 +91,59 @@ ee.Function.prototype.apply = function(namedArgs) {
   var result = new ee.ComputedObject(this, this.promoteArgs(namedArgs));
   return /** @type {ee.ComputedObject} */(
       ee.Function.promoter_(result, this.getReturnType()));
+};
+
+
+/**
+ * Call the function automatically deciding whether to interpret the arguments
+ * as positional ones or as a dictionary of named ones.
+ *
+ * @param {*|undefined} thisValue The "this" value on which the function was
+ *     called. If defined, interpreted as the first argument.
+ * @param {Array<*>} args A list containing either positional args or a
+ *    keyword arg dictionary.
+ * @return {ee.ComputedObject} An object representing the called function.
+ *     If the signature specifies a recognized return type, the returned
+ *     value will be cast to that type.
+ * @package
+ */
+ee.Function.prototype.callOrApply = function(thisValue, args) {
+  var isInstance = goog.isDef(thisValue);
+  var signature = this.getSignature();
+
+  // Assume keyword arguments if we get a single dictionary.
+  var useKeywordArgs = false;
+  if (args.length == 1 && ee.Types.isRegularObject(args[0])) {
+    // Decide whether the algorithm expects a dictionary as an only arg.
+    var params = signature['args'];
+    if (isInstance) {
+      params = params.slice(1);
+    }
+    if (params.length) {
+      var requiresOneArg = (params.length == 1 || params[1]['optional']);
+      var aSingleDictionaryIsValid =
+          (requiresOneArg && params[0]['type'] == 'Dictionary');
+      useKeywordArgs = !aSingleDictionaryIsValid;
+    }
+  }
+
+  // Convert positional to named args.
+  var namedArgs;
+  if (useKeywordArgs) {
+    namedArgs = goog.object.clone(/** @type {Object} */ (args[0]));
+    if (isInstance) {
+      var firstArgName = signature['args'][0]['name'];
+      if (firstArgName in namedArgs) {
+        throw Error('Named args for ' + signature['name'] +
+                    ' can\'t contain keyword ' + firstArgName);
+      }
+      namedArgs[firstArgName] = thisValue;
+    }
+  } else {
+    namedArgs = this.nameArgs(isInstance ? [thisValue].concat(args) : args);
+  }
+
+  return this.apply(namedArgs);
 };
 
 
