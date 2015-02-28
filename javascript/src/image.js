@@ -241,14 +241,24 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
  *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
  *         to render. By default, the whole image.
  *   - format (string) Either 'png' (default) or 'jpg'.
- * @return {string} A thumbnail URL.
+ * @param {function(string)=} opt_callback An optional
+ *     callback. If not supplied, the call is made synchronously.
+ * @return {string|undefined} A thumbnail URL, or undefined if a callback
+ *     was specified.
  * @export
  */
-ee.Image.prototype.getThumbURL = function(params) {
+ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   var request = params ? goog.object.clone(params) : {};
   request['image'] = this.serialize();
-  return ee.data.makeThumbUrl(
-      /** @type {ee.data.ThumbnailId} */ (ee.data.getThumbId(request)));
+  if (opt_callback) {
+    var callbackWrapper = function(thumbId) {
+      opt_callback(ee.data.makeThumbUrl(thumbId));
+    };
+    ee.data.getThumbId(request, callbackWrapper);
+  } else {
+    return ee.data.makeThumbUrl(
+        /** @type {ee.data.ThumbnailId} */ (ee.data.getThumbId(request)));
+  }
 };
 
 // ///////////////////////////////////////////////////////////////

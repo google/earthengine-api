@@ -1040,6 +1040,32 @@ BUILTIN_FUNCTIONS = {
         'type': 'Algorithm',
         'description': ''
     },
+    'Geometry.centroid': {
+        'returns': 'Geometry',
+        'args': [
+            {
+                'description': '',
+                'name': 'geometry',
+                'type': 'Geometry'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'maxError',
+                'type': 'ErrorMargin'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'proj',
+                'type': 'Projection'
+            }
+        ],
+        'description': '',
+        'type': 'Algorithm',
+    },
     # Element property setting, used by the client-side override.
     'Element.set': {
         'returns': 'Element',
@@ -1081,6 +1107,39 @@ BUILTIN_FUNCTIONS = {
         ],
         'type': 'Algorithm',
         'description': ''
+    },
+    'Image.geometry': {
+        'returns': 'Geometry',
+        'args': [
+            {
+                'description': '',
+                'name': 'feature',
+                'type': 'Element'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'maxError',
+                'type': 'ErrorMargin'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'proj',
+                'type': 'Projection'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'geodesics',
+                'type': 'Boolean'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': '',
     },
     'Number.add': {
         'returns': 'Number',
@@ -1181,6 +1240,42 @@ BUILTIN_FUNCTIONS = {
                 'description': '',
             }
         ]
+    },
+    'Image.cast': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'description': '',
+                'name': 'image',
+                'type': 'Image'
+            },
+            {
+                'description': '',
+                'name': 'bandTypes',
+                'type': 'Dictionary'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'bandOrder',
+                'type': 'List'
+            }
+        ],
+        'description': '',
+        'returns': 'Image'
+    },
+    'Describe': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'description': '',
+                'name': 'input',
+                'type': 'Object'
+            }
+        ],
+        'description': '',
+        'returns': 'Object',
     },
 }
 

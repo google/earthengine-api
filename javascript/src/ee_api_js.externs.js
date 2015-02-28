@@ -685,9 +685,10 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @return {string}
+ * @param {function (string): ?=} opt_callback
+ * @return {(string|undefined)}
  */
-ee.Image.prototype.getThumbURL = function(params) {
+ee.Image.prototype.getThumbURL = function(params, opt_callback) {
 };
 /**
  * @param {...*} var_args
@@ -821,11 +822,11 @@ ee.data;
 ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes) {
 };
 /**
- * @param {string} task_id
+ * @param {string} taskId
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(Array<ee.data.TaskStatus>|null)}
  */
-ee.data.cancelTask = function(task_id, opt_callback) {
+ee.data.cancelTask = function(taskId, opt_callback) {
 };
 /**
  * @param {string} value
@@ -891,11 +892,11 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
 ee.data.getTaskList = function(opt_callback) {
 };
 /**
- * @param {(Array<string>|string)} task_id
+ * @param {(Array<string>|string)} taskId
  * @param {function ((Array<ee.data.TaskStatus>|null), string=): ?=} opt_callback
  * @return {(Array<ee.data.TaskStatus>|null)}
  */
-ee.data.getTaskStatus = function(task_id, opt_callback) {
+ee.data.getTaskStatus = function(taskId, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
@@ -956,12 +957,12 @@ ee.data.makeThumbUrl = function(id) {
 ee.data.newTaskId = function(opt_count, opt_callback) {
 };
 /**
- * @param {string} task_id
+ * @param {string} taskId
  * @param {(Object|null)} params
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */
-ee.data.prepareValue = function(task_id, params, opt_callback) {
+ee.data.prepareValue = function(taskId, params, opt_callback) {
 };
 /**
  * @param {number} milliseconds
@@ -970,20 +971,28 @@ ee.data.prepareValue = function(task_id, params, opt_callback) {
 ee.data.setDeadline = function(milliseconds) {
 };
 /**
- * @param {string} task_id
+ * @param {string} taskId
+ * @param {(Object|null)} request
+ * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
+ * @return {(ee.data.ProcessingResponse|null)}
+ */
+ee.data.startImport = function(taskId, request, opt_callback) {
+};
+/**
+ * @param {string} taskId
  * @param {(Object|null)} params
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */
-ee.data.startProcessing = function(task_id, params, opt_callback) {
+ee.data.startProcessing = function(taskId, params, opt_callback) {
 };
 /**
- * @param {(Array<string>|string)} task_id
+ * @param {(Array<string>|string)} taskId
  * @param {string} action
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(Array<ee.data.TaskStatus>|null)}
  */
-ee.data.updateTask = function(task_id, action, opt_callback) {
+ee.data.updateTask = function(taskId, action, opt_callback) {
 };
 /**
  * @param {(null|string)=} opt_baseurl

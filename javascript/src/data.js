@@ -28,6 +28,7 @@ goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
 goog.provide('ee.data.TaskUpdateActions');
 goog.provide('ee.data.ThumbnailId');
+goog.provide('ee.data.VideoTaskConfig');
 
 goog.require('goog.Uri');
 goog.require('goog.array');
@@ -626,7 +627,7 @@ goog.exportSymbol('ee.data.newTaskId', ee.data.newTaskId);
 /**
  * Retrieve status of one or more long-running tasks.
  *
- * @param {string|!Array.<string>} task_id ID of the task or an array of
+ * @param {string|!Array.<string>} taskId ID of the task or an array of
  *     multiple task IDs.
  * @param {function(Array.<ee.data.TaskStatus>, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
@@ -634,14 +635,14 @@ goog.exportSymbol('ee.data.newTaskId', ee.data.newTaskId);
  *     otherwise an array containing one object for each queried task, in the
  *     same order as the input array.
  */
-ee.data.getTaskStatus = function(task_id, opt_callback) {
-  if (goog.isString(task_id)) {
-    task_id = [task_id];
-  } else if (!goog.isArray(task_id)) {
-    throw new Error('Invalid task_id: expected a string or ' +
+ee.data.getTaskStatus = function(taskId, opt_callback) {
+  if (goog.isString(taskId)) {
+    taskId = [taskId];
+  } else if (!goog.isArray(taskId)) {
+    throw new Error('Invalid taskId: expected a string or ' +
         'an array of strings.');
   }
-  var url = '/taskstatus?q=' + task_id.join();
+  var url = '/taskstatus?q=' + taskId.join();
   return /** @type {?Array.<ee.data.TaskStatus>} */ (
       ee.data.send_(url, null, opt_callback, 'GET'));
 };
@@ -668,15 +669,15 @@ goog.exportSymbol('ee.data.getTaskList', ee.data.getTaskList);
 /**
  * Cancels the task provided.
  *
- * @param {string} task_id ID of the task.
+ * @param {string} taskId ID of the task.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?Array.<ee.data.TaskStatus>} An array of updated tasks, or null
  *     if a callback is specified.
  */
-ee.data.cancelTask = function(task_id, opt_callback) {
+ee.data.cancelTask = function(taskId, opt_callback) {
   return ee.data.updateTask(
-      task_id, ee.data.TaskUpdateActions.CANCEL, opt_callback);
+      taskId, ee.data.TaskUpdateActions.CANCEL, opt_callback);
 };
 goog.exportSymbol('ee.data.cancelTask', ee.data.cancelTask);
 
@@ -684,7 +685,7 @@ goog.exportSymbol('ee.data.cancelTask', ee.data.cancelTask);
 /**
  * Update one or more tasks' properties. For now, only the following properties
  * may be updated: State (to CANCELLED)
- * @param {string|!Array.<string>} task_id ID of the task or an array of
+ * @param {string|!Array.<string>} taskId ID of the task or an array of
  *     multiple task IDs.
  * @param {ee.data.TaskUpdateActions} action Action performed on tasks.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
@@ -692,12 +693,12 @@ goog.exportSymbol('ee.data.cancelTask', ee.data.cancelTask);
  * @return {?Array.<ee.data.TaskStatus>} An array of updated tasks, or null
  *     if a callback is specified.
  */
-ee.data.updateTask = function(task_id, action, opt_callback) {
+ee.data.updateTask = function(taskId, action, opt_callback) {
   //also cancel
-  if (goog.isString(task_id)) {
-    task_id = [task_id];
-  } else if (!goog.isArray(task_id)) {
-    throw new Error('Invalid task_id: expected a string or ' +
+  if (goog.isString(taskId)) {
+    taskId = [taskId];
+  } else if (!goog.isArray(taskId)) {
+    throw new Error('Invalid taskId: expected a string or ' +
         'an array of strings.');
   }
   if (!goog.object.containsValue(ee.data.TaskUpdateActions, action)) {
@@ -707,7 +708,7 @@ ee.data.updateTask = function(task_id, action, opt_callback) {
 
   var url = '/updatetask';
   var params = {
-    'id': task_id,
+    'id': taskId,
     'action': action
   };
 
@@ -720,7 +721,7 @@ goog.exportSymbol('ee.data.updateTask', ee.data.updateTask);
 /**
  * Create processing task which computes a value.
  *
- * @param {string} task_id ID for the task (obtained using newTaskId).
+ * @param {string} taskId ID for the task (obtained using newTaskId).
  * @param {Object} params The value to be evaluated, with the following
  *     possible values:
  *        json (string) A JSON object to be evaluated.
@@ -730,9 +731,9 @@ goog.exportSymbol('ee.data.updateTask', ee.data.updateTask);
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
  *     Null if a callback is specified.
  */
-ee.data.prepareValue = function(task_id, params, opt_callback) {
+ee.data.prepareValue = function(taskId, params, opt_callback) {
   params = goog.object.clone(params);
-  params['tid'] = task_id;
+  params['tid'] = taskId;
   return /** @type {?ee.data.ProcessingResponse} */ (
       ee.data.send_('/prepare', ee.data.makeRequest_(params), opt_callback));
 };
@@ -742,7 +743,7 @@ goog.exportSymbol('ee.data.prepareValue', ee.data.prepareValue);
 /**
  * Create processing task that exports or pre-renders an image.
  *
- * @param {string} task_id ID for the task (obtained using newTaskId).
+ * @param {string} taskId ID for the task (obtained using newTaskId).
  * @param {Object} params The object that describes the processing task;
  *    only fields that are common for all processing types are documented here.
  *      type (string) Either 'EXPORT_IMAGE' or 'EXPORT_FEATURES'.
@@ -753,13 +754,39 @@ goog.exportSymbol('ee.data.prepareValue', ee.data.prepareValue);
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
  *     Null if a callback is specified.
  */
-ee.data.startProcessing = function(task_id, params, opt_callback) {
+ee.data.startProcessing = function(taskId, params, opt_callback) {
   params = goog.object.clone(params);
-  params['id'] = task_id;
+  params['id'] = taskId;
   return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
       '/processingrequest', ee.data.makeRequest_(params), opt_callback));
 };
 goog.exportSymbol('ee.data.startProcessing', ee.data.startProcessing);
+
+
+/**
+ * Creates an asset import task.
+ *
+ * @param {string} taskId ID for the task (obtained using newTaskId).
+ * @param {Object} request The object that describes the import task, which
+ *     should have these fields:
+ *      asset_id (string) The destination asset id (e.g. users/foo/bar).
+ *      file_name (string) The source file's Google Cloud Storage object name.
+ *        e.g. '/gs/ee.google.com.a.appspot.com/L2FwcGhvc3Rpbmdf'
+ * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
+ *     optional callback. If not supplied, the call is made synchronously.
+ * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
+ *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
+ *     Null if a callback is specified.
+ */
+ee.data.startImport = function(taskId, request, opt_callback) {
+  var params = {
+    'id': taskId,
+    'request': goog.json.serialize(request)
+  };
+  return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
+      '/import', ee.data.makeRequest_(params), opt_callback));
+};
+goog.exportSymbol('ee.data.startImport', ee.data.startImport);
 
 
 /**
@@ -1215,11 +1242,11 @@ ee.data.AbstractTaskConfig;
  * task. See com.google.earthengine.service.frontend.ProcessingInput.
  *
  * @typedef {{
- *   id: (undefined|string),
- *   type: (undefined|string),
+ *   id: string,
+ *   type: string,
+ *   json: string,
  *   description: (undefined|string),
  *   sourceURL: (undefined|string),
- *   json: (undefined|string),
  *   crs: (undefined|string),
  *   crs_transform: (undefined|string),
  *   dimensions: (undefined|string),
@@ -1242,20 +1269,43 @@ ee.data.ImageTaskConfig;
  * collections.
  *
  * @typedef {{
- *   id: (undefined|string),
+ *   id: string,
  *   type: string,
+ *   json: string,
  *   description: (undefined|string),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   fileFormat: (undefined|string),
  *   sourceUrl: (undefined|string),
- *   json: (undefined|string),
  *   gmeProjectId: (undefined|string),
  *   gmeAttributionName: (undefined|string),
  *   gmeAssetName: (undefined|string)
  * }}
  */
 ee.data.TableTaskConfig;
+
+
+/**
+ * An object for specifying configuration of a task to export image
+ * collections as video.
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: string,
+ *   json: string,
+ *   sourceUrl: (undefined|string),
+ *   description: (undefined|string),
+ *   driveFolder: (undefined|string),
+ *   driveFileNamePrefix: (undefined|string),
+ *   fps: (undefined|number),
+ *   crs: (undefined|string),
+ *   crs_transform: (undefined|string),
+ *   dimensions: (undefined|Array),
+ *   region: (undefined|string),
+ *   scale: (undefined|number)
+ * }}
+ */
+ee.data.VideoTaskConfig;
 
 
 /**

@@ -4,7 +4,7 @@ var ecoregions =
     ee.FeatureCollection('ft:1Vzl5xYdsbL2GkUhf8w5FhQ8ucGjp4V-Qevigwnd6');
 
 // Select desert ecoregions.
-var deserts = ecoregions.filter(ee.Filter.contains('ECO_NAME', 'desert'))
+var deserts = ecoregions.filter(ee.Filter.stringContains('ECO_NAME', 'desert'))
     .distinct('ECO_NAME');
 
 // Prepare the chart.  Specifying a minBucketWidth makes for nice bucket sizes.

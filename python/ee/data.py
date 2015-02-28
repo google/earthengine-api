@@ -443,6 +443,24 @@ def startProcessing(taskId, params):
   return send_('/processingrequest', args)
 
 
+def startImport(taskId, request):
+  """Creates an asset import task.
+
+  Args:
+    taskId: ID for the task (obtained using newTaskId).
+    request: The object that describes the import task, which
+        should have these fields:
+          asset_id (string) The destination asset id (e.g. users/foo/bar).
+          file_name (string) The source file's Google Cloud Storage object name.
+            e.g. '/gs/ee.google.com.a.appspot.com/L2FwcGhvc3Rpbmdf'
+
+  Returns:
+    A dict with optional notes about the created task.
+  """
+  args = {'id': taskId, 'request': json.dumps(request)}
+  return send_('/import', args)
+
+
 def send_(path, params, opt_method='POST', opt_raw=False):
   """Send an API call.
 
