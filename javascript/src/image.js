@@ -13,6 +13,7 @@ goog.require('ee.Geometry');
 goog.require('ee.Types');
 goog.require('ee.data');
 goog.require('goog.array');
+goog.require('goog.json');
 goog.require('goog.object');
 
 
@@ -233,14 +234,14 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 
 /**
  * Get a thumbnail URL for this image.
- * @param {Object} params Parameters identical to getMapId, plus:
+ * @param {Object} params Parameters identical to getMapId, plus, optionally:
  *   - size (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
  *         dimensions of the thumbnail to render, in pixels. If only one
  *         number is passed, it is used as the maximum, and the other
  *         dimension is computed by proportional scaling.
  *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
  *         to render. By default, the whole image.
- *   - format (string) Either 'png' (default) or 'jpg'.
+ *   - format (string) Either 'png' or 'jpg'.
  * @param {function(string)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {string|undefined} A thumbnail URL, or undefined if a callback
@@ -250,6 +251,15 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   var request = params ? goog.object.clone(params) : {};
   request['image'] = this.serialize();
+  if (request['region']) {
+    if (goog.isArray(request['region']) ||
+        ee.Types.isRegularObject(request['region'])) {
+      request['region'] = goog.json.serialize(request['region']);
+    } else if (!goog.isString(request['region'])) {
+      // TODO(user): Support ee.Geometry.
+      throw Error('The region parameter must be an array or a GeoJSON object.');
+    }
+  }
   if (opt_callback) {
     var callbackWrapper = function(thumbId) {
       opt_callback(ee.data.makeThumbUrl(thumbId));

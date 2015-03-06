@@ -8,6 +8,8 @@ See: https://sites.google.com/site/earthengineapidocs for more details.
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+import json
+
 import apifunction
 import computedobject
 import data
@@ -164,20 +166,30 @@ class Image(element.Element):
     """Get a thumbnail URL for this image.
 
     Args:
-      params: Parameters identical to getMapId, plus:
+      params: Parameters identical to getMapId, plus, optionally:
           size - (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
             dimensions of the thumbnail to render, in pixels. If only one number
             is passed, it is used as the maximum, and the other dimension is
             computed by proportional scaling.
           region - (E,S,W,N or GeoJSON) Geospatial region of the image
             to render. By default, the whole image.
-          format - (string) Either 'png' (default) or 'jpg'.
+          format - (string) Either 'png' or 'jpg'.
 
     Returns:
       A URL to download a thumbnail the specified image.
+
+    Raises:
+      EEException: If the region parameter is not an array or GeoJSON object.
     """
     request = params or {}
     request['image'] = self.serialize()
+    if request.has_key('region'):
+      if (isinstance(request['region'], dict) or
+          isinstance(request['region'], list)):
+        request['region'] = json.dumps(request['region'])
+      elif not isinstance(request['region'], str):
+        raise ee_exception.EEException(
+            'The region parameter must be an array or a GeoJSON object.')
     return data.makeThumbUrl(data.getThumbId(request))
 
   # Deprecated spellings to match the JS library.

@@ -2,6 +2,8 @@
 
 
 
+import json
+
 import unittest
 
 import ee
@@ -125,17 +127,27 @@ class ImageTestCase(apitestcase.ApiTestCase):
 
   def testThumb(self):
     """Verifies Thumbnail ID and URL generation."""
-    url = ee.Image(1).getThumbURL({'size': [13, 42]})
+    geo_json = {
+        'type': 'Polygon',
+        'coordinates': [[
+            [-112.587890625, 44.94924926661151],
+            [-114.873046875, 39.48708498168749],
+            [-103.623046875, 41.82045509614031],
+        ]],
+    }
+    url = ee.Image(1).getThumbURL({
+        'size': [13, 42],
+        'region': geo_json,
+    })
 
     self.assertEquals('/thumb', self.last_thumb_call['url'])
-    self.assertEquals(
-        {
-            'image': ee.Image(1).serialize(),
-            'json_format': 'v2',
-            'size': '13x42',
-            'getid': '1'
-        },
-        self.last_thumb_call['data'])
+    self.assertEquals({
+        'image': ee.Image(1).serialize(),
+        'json_format': 'v2',
+        'size': '13x42',
+        'getid': '1',
+        'region': json.dumps(geo_json),
+    }, self.last_thumb_call['data'])
     self.assertEquals('/api/thumb?thumbid=3&token=4', url)
 
 

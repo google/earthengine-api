@@ -1,7 +1,7 @@
 """The EE Javascript library."""
 
 
-__version__ = '0.1.46'
+__version__ = '0.1.47'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -242,6 +242,9 @@ def _Promote(arg, klass):
     if isinstance(arg, Element):
       # Already an Element.
       return arg
+    elif isinstance(arg, Geometry):
+      # Geometries get promoted to Features.
+      return Feature(arg)
     elif isinstance(arg, ComputedObject):
       # Try a cast.
       return Element(arg.func, arg.args, arg.varName)

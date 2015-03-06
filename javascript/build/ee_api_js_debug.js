@@ -4089,9 +4089,11 @@ goog.Promise.UNHANDLED_REJECTION_DELAY = 0;
 goog.Promise.State_ = {PENDING:0, BLOCKED:1, FULFILLED:2, REJECTED:3};
 goog.Promise.CallbackEntry_ = function() {
   this.next = this.context = this.onRejected = this.onFulfilled = this.child = null;
+  this.always = !1;
 };
 goog.Promise.CallbackEntry_.prototype.reset = function() {
   this.context = this.onRejected = this.onFulfilled = this.child = null;
+  this.always = !1;
 };
 goog.Promise.DEFAULT_MAX_UNUSED = 100;
 goog.Promise.freelist_ = new goog.async.FreeList(function() {
@@ -4123,7 +4125,7 @@ goog.Promise.race = function(promises) {
   return new goog.Promise(function(resolve, reject) {
     promises.length || resolve(void 0);
     for (var i = 0, promise;promise = promises[i];i++) {
-      promise.then(resolve, reject);
+      goog.Promise.maybeThenVoid_(promise, resolve, reject);
     }
   });
 };
@@ -4138,7 +4140,7 @@ goog.Promise.all = function(promises) {
       }, onReject = function(reason) {
         reject(reason);
       }, i = 0, promise;promise = promises[i];i++) {
-        promise.then(goog.partial(onFulfill, i), onReject);
+        goog.Promise.maybeThenVoid_(promise, goog.partial(onFulfill, i), onReject);
       }
     } else {
       resolve(values);
@@ -4156,7 +4158,7 @@ goog.Promise.firstFulfilled = function(promises) {
         reasons[index] = reason;
         0 == toReject && reject(reasons);
       }, i = 0, promise;promise = promises[i];i++) {
-        promise.then(onFulfill, goog.partial(onReject, i));
+        goog.Promise.maybeThenVoid_(promise, onFulfill, goog.partial(onReject, i));
       }
     } else {
       resolve(void 0);
@@ -4177,6 +4179,15 @@ goog.Promise.prototype.then = function(opt_onFulfilled, opt_onRejected, opt_cont
   return this.addChildPromise_(goog.isFunction(opt_onFulfilled) ? opt_onFulfilled : null, goog.isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
 };
 goog.Thenable.addImplementation(goog.Promise);
+goog.Promise.prototype.thenVoid = function(opt_onFulfilled, opt_onRejected, opt_context) {
+  null != opt_onFulfilled && goog.asserts.assertFunction(opt_onFulfilled, "opt_onFulfilled should be a function.");
+  null != opt_onRejected && goog.asserts.assertFunction(opt_onRejected, "opt_onRejected should be a function. Did you pass opt_context as the second argument instead of the third?");
+  goog.Promise.LONG_STACK_TRACES && this.addStackTrace_(Error("then"));
+  this.addCallbackEntry_(goog.Promise.getCallbackEntry_(opt_onFulfilled || goog.nullFunction, opt_onRejected || null, opt_context));
+};
+goog.Promise.maybeThenVoid_ = function(promise, onFulfilled, onRejected, opt_context) {
+  promise instanceof goog.Promise ? promise.thenVoid(onFulfilled, onRejected, opt_context) : promise.then(onFulfilled, onRejected, opt_context);
+};
 goog.Promise.prototype.thenAlways = function(onResolved, opt_context) {
   goog.Promise.LONG_STACK_TRACES && this.addStackTrace_(Error("thenAlways"));
   var callback = function() {
@@ -4185,8 +4196,9 @@ goog.Promise.prototype.thenAlways = function(onResolved, opt_context) {
     } catch (err) {
       goog.Promise.handleRejection_.call(null, err);
     }
-  };
-  this.addCallbackEntry_(goog.Promise.getCallbackEntry_(callback, callback, null));
+  }, entry = goog.Promise.getCallbackEntry_(callback, callback, null);
+  entry.always = !0;
+  this.addCallbackEntry_(entry);
   return this;
 };
 goog.Promise.prototype.thenCatch = function(onRejected, opt_context) {
@@ -4204,11 +4216,7 @@ goog.Promise.prototype.cancelInternal_ = function(err) {
 };
 goog.Promise.prototype.cancelChild_ = function(childPromise, err) {
   if (this.callbackEntries_) {
-    for (var childCount = 0, childEntry = null, beforeChildEntry = null, entry = this.callbackEntries_;entry;entry = entry.next) {
-      var child = entry.child;
-      if (child && (childCount++, child == childPromise && (childEntry = entry), childEntry && 1 < childCount)) {
-        break;
-      }
+    for (var childCount = 0, childEntry = null, beforeChildEntry = null, entry = this.callbackEntries_;entry && (entry.always || (childCount++, entry.child == childPromise && (childEntry = entry), !(childEntry && 1 < childCount)));entry = entry.next) {
       childEntry || (beforeChildEntry = entry);
     }
     childEntry && (this.state_ == goog.Promise.State_.PENDING && 1 == childCount ? this.cancelInternal_(err) : (beforeChildEntry ? this.removeEntryAfter_(beforeChildEntry) : this.popEntry_(), this.executeCallback_(childEntry, goog.Promise.State_.REJECTED, err)));
@@ -4259,7 +4267,7 @@ goog.Promise.prototype.resolve_ = function(state, x) {
     } else {
       if (goog.Thenable.isImplementedBy(x)) {
         this.state_ = goog.Promise.State_.BLOCKED;
-        x.then(this.unblockAndFulfill_, this.unblockAndReject_, this);
+        goog.Promise.maybeThenVoid_(x, this.unblockAndFulfill_, this.unblockAndReject_, this);
         return;
       }
       if (goog.isObject(x)) {
@@ -4302,7 +4310,6 @@ goog.Promise.prototype.hasEntry_ = function() {
 };
 goog.Promise.prototype.queueEntry_ = function(entry) {
   goog.asserts.assert(null != entry.onFulfilled);
-  goog.asserts.assert(null != entry.onRejected);
   this.callbackEntriesTail_ ? this.callbackEntriesTail_.next = entry : this.callbackEntries_ = entry;
   this.callbackEntriesTail_ = entry;
 };
@@ -4310,7 +4317,7 @@ goog.Promise.prototype.popEntry_ = function() {
   var entry = null;
   this.callbackEntries_ && (entry = this.callbackEntries_, this.callbackEntries_ = entry.next, entry.next = null);
   this.callbackEntries_ || (this.callbackEntriesTail_ = null);
-  null != entry && (goog.asserts.assert(null != entry.onFulfilled), goog.asserts.assert(null != entry.onRejected));
+  null != entry && goog.asserts.assert(null != entry.onFulfilled);
   return entry;
 };
 goog.Promise.prototype.removeEntryAfter_ = function(previous) {
@@ -4327,7 +4334,7 @@ goog.Promise.prototype.executeCallbacks_ = function() {
 };
 goog.Promise.prototype.executeCallback_ = function(callbackEntry, state, result) {
   callbackEntry.child && (callbackEntry.child.parent_ = null);
-  state == goog.Promise.State_.FULFILLED ? callbackEntry.onFulfilled.call(callbackEntry.context, result) : (callbackEntry.child && this.removeUnhandledRejection_(), callbackEntry.onRejected.call(callbackEntry.context, result));
+  state == goog.Promise.State_.FULFILLED ? callbackEntry.onFulfilled.call(callbackEntry.context, result) : null != callbackEntry.onRejected && (callbackEntry.always || this.removeUnhandledRejection_(), callbackEntry.onRejected.call(callbackEntry.context, result));
   goog.Promise.returnEntry_(callbackEntry);
 };
 goog.Promise.prototype.addStackTrace_ = function(err) {
@@ -9784,6 +9791,15 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   var request = params ? goog.object.clone(params) : {};
   request.image = this.serialize();
+  if (request.region) {
+    if (goog.isArray(request.region) || ee.Types.isRegularObject(request.region)) {
+      request.region = goog.json.serialize(request.region);
+    } else {
+      if (!goog.isString(request.region)) {
+        throw Error("The region parameter must be an array or a GeoJSON object.");
+      }
+    }
+  }
   if (opt_callback) {
     ee.data.getThumbId(request, function(thumbId) {
       opt_callback(ee.data.makeThumbUrl(thumbId));
