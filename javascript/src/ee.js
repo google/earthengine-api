@@ -373,6 +373,9 @@ ee.promote_ = function(arg, klass) {
       if (arg instanceof ee.Element) {
         // Already an Element.
         return arg;
+      } else if (arg instanceof ee.Geometry) {
+        // Geometries get promoted to Features.
+        return new ee.Feature(/** @type {ee.Geometry} */ (arg));
       } else if (arg instanceof ee.ComputedObject) {
         // Try a cast.
         var co = /** @type {ee.ComputedObject} */ (arg);

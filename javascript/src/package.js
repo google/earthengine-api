@@ -46,7 +46,6 @@ goog.require('ee.data');
  *
  * @param {string=} opt_path The asset ID of an existing package.
  *
- * @extends {ee.Encodable}
  * @constructor
  * TODO(user): Add an at-export annotations once packages are ready.
  */

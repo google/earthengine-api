@@ -9,9 +9,12 @@ goog.provide('ee.data.AlgorithmArgument');
 goog.provide('ee.data.AlgorithmSignature');
 goog.provide('ee.data.AlgorithmsRegistry');
 goog.provide('ee.data.AssetDescription');
+goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.FeatureCollectionDescription');
+goog.provide('ee.data.FileSource');
+goog.provide('ee.data.Fileset');
 goog.provide('ee.data.GMEProject');
 goog.provide('ee.data.GeoJSONFeature');
 goog.provide('ee.data.GeoJSONGeometry');
@@ -19,6 +22,7 @@ goog.provide('ee.data.ImageCollectionDescription');
 goog.provide('ee.data.ImageDescription');
 goog.provide('ee.data.ImageList');
 goog.provide('ee.data.ImageTaskConfig');
+goog.provide('ee.data.IngestionRequest');
 goog.provide('ee.data.MapId');
 goog.provide('ee.data.PixelTypeDescription');
 goog.provide('ee.data.ProcessingResponse');
@@ -764,29 +768,26 @@ goog.exportSymbol('ee.data.startProcessing', ee.data.startProcessing);
 
 
 /**
- * Creates an asset import task.
+ * Creates an asset ingestion task.
  *
  * @param {string} taskId ID for the task (obtained using newTaskId).
- * @param {Object} request The object that describes the import task, which
- *     should have these fields:
- *      asset_id (string) The destination asset id (e.g. users/foo/bar).
- *      file_name (string) The source file's Google Cloud Storage object name.
- *        e.g. '/gs/ee.google.com.a.appspot.com/L2FwcGhvc3Rpbmdf'
+ * @param {ee.data.IngestionRequest} request The object that describes the
+ *     ingestion.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
  *     Null if a callback is specified.
  */
-ee.data.startImport = function(taskId, request, opt_callback) {
+ee.data.startIngestion = function(taskId, request, opt_callback) {
   var params = {
     'id': taskId,
     'request': goog.json.serialize(request)
   };
   return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
-      '/import', ee.data.makeRequest_(params), opt_callback));
+      '/ingestionrequest', ee.data.makeRequest_(params), opt_callback));
 };
-goog.exportSymbol('ee.data.startImport', ee.data.startImport);
+goog.exportSymbol('ee.data.startIngestion', ee.data.startIngestion);
 
 
 /**
@@ -833,13 +834,19 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   }
 
   // Handle processing and dispatching a callback response.
-  var handleResponse = function(xhr, responseText, opt_callback) {
+  var handleResponse = function(
+      status, contentType, responseText, opt_callback) {
     var response, data, errorMessage;
-    try {
-      response = goog.json.unsafeParse(responseText);
-      data = response['data'];
-    } catch (e) {
-      errorMessage = 'Invalid JSON: ' + responseText;
+    if (contentType.split(';')[0] === 'application/json' ||
+        contentType.split(';')[0] === 'text/json') {
+      try {
+        response = goog.json.unsafeParse(responseText);
+        data = response['data'];
+      } catch (e) {
+        errorMessage = 'Invalid JSON: ' + responseText;
+      }
+    } else {
+      errorMessage = 'Response was unexpectedly not JSON, but ' + contentType;
     }
 
     // Totally malformed, with either invalid JSON or JSON with
@@ -850,9 +857,8 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
       } else if (!('data' in response)) {
         errorMessage = 'Malformed response: ' + responseText;
       }
-    } else if (xhr.status >= 300) {
-      errorMessage = 'HTTP ' + xhr.status + ': ' +
-                     (responseText || xhr.statusText);
+    } else if (status >= 300) {
+      errorMessage = 'Server returned HTTP code: ' + status;
     }
 
     if (opt_callback) {
@@ -873,8 +879,13 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     goog.net.XhrIo.send(
         url,
         function(e) {
-          var responseText = e.target.getResponseText();
-          return handleResponse(e.target, responseText, opt_callback);
+          var xhrIo = e.target;
+
+          return handleResponse(
+              xhrIo.getStatus(),
+              xhrIo.getResponseHeader('Content-Type'),
+              xhrIo.getResponseText(),
+              opt_callback);
         },
         method,
         requestData,
@@ -889,7 +900,19 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
       xmlHttp.setRequestHeader(key, value);
     });
     xmlHttp.send(requestData);
-    return handleResponse(xmlHttp, xmlHttp.responseText, null);
+    var contentType;
+    try {
+      contentType = xmlHttp.getResponseHeader('Content-Type');
+    } catch (e) {
+      // Workaround for a non-browser XMLHttpRequest shim that doesn't implement
+      // getResponseHeader when synchronous.
+      contentType = 'application/json';
+    }
+    return handleResponse(
+        xmlHttp.status,
+        contentType,
+        xmlHttp.responseText,
+        null);
   }
 };
 
@@ -959,30 +982,66 @@ ee.data.makeRequest_ = function(params) {
 /**
  * Mock the networking calls used in send_.
  *
+ * TODO(user): Make the global patching done here reversible.
+ *
  * @param {Object=} opt_calls A dictionary containing the responses to return
  *     for each URL, keyed to URL.
  */
 ee.data.setupMockSend = function(opt_calls) {
   var calls = opt_calls ? goog.object.clone(opt_calls) : {};
+
+  // If the mock is set up with a string for this URL, return that.
+  // If it's a function, call the function and use its return value.
+  // If it's an object it has fields specifying more details.
+  // If there's nothing set for this url, throw.
+  function getResponse(url, method, data) {
+    var response;
+    if (url in calls) {
+      response = calls[url];
+    } else {
+      throw new Error(url + ' mock response not specified');
+    }
+    if (goog.isFunction(response)) {
+      response = response(url, method, data);
+    }
+    if (goog.isString(response)) {
+      response = {
+        'text': response,
+        'status': 200,
+        'contentType': 'application/json; charset=utf-8'
+      };
+    }
+    if (!goog.isString(response.text)) {
+      throw new Error(url + ' mock response missing/invalid text');
+    }
+    if (!goog.isNumber(response.status)) {
+      throw new Error(url + ' mock response missing/invalid status');
+    }
+    if (!goog.isString(response.contentType)) {
+      throw new Error(url + ' mock response missing/invalid contentType');
+    }
+    return response;
+  }
+
   // Mock XhrIo.send for async calls.
   goog.net.XhrIo.send = function(url, callback, method, data) {
+    var responseData = getResponse(url, method, data);
     // An anonymous class to simulate an event.  Closure doesn't like this.
     /** @constructor */
     var fakeEvent = function() {};
     var e = new fakeEvent();
     e.target = {};
     e.target.getResponseText = function() {
-      // If the mock is set up with a string for this URL, return that.
-      // Otherwise, assume it's a function and call it.  If there's nothing
-      // set for this url, return an error response.
-      if (url in calls) {
-        if (goog.isString(calls[url])) {
-          return calls[url];
-        } else {
-          return calls[url](url, callback, method, data);
-        }
+      return responseData.text;
+    };
+    e.target.getStatus = function() {
+      return responseData.status;
+    };
+    e.target.getResponseHeader = function(header) {
+      if (header === 'Content-Type') {
+        return responseData.contentType;
       } else {
-        return '{"error": {}}';
+        return null;
       }
     };
     // Call the callback in a timeout to simulate asynchronous behavior.
@@ -999,23 +1058,18 @@ ee.data.setupMockSend = function(opt_calls) {
     this.method = method;
   };
   fakeXmlHttp.prototype.setRequestHeader = function() {};
-  fakeXmlHttp.prototype.send = function(data) {
-    if (this.url in calls) {
-      if (goog.isString(calls[this.url])) {
-        this.responseText = calls[this.url];
-      } else {
-        this.responseText = calls[this.url](this.url, this.method, data);
-      }
+  fakeXmlHttp.prototype.getResponseHeader = function(header) {
+    if (header === 'Content-Type') {
+      return this.contentType_ || null;
     } else {
-      // Return the input arguments.
-      this.responseText = goog.json.serialize({
-        'data': {
-          'url': this.url,
-          'method': this.method,
-          'data': data
-        }
-      });
+      return null;
     }
+  };
+  fakeXmlHttp.prototype.send = function(data) {
+    var responseData = getResponse(this.url, this.method, data);
+    this.responseText = responseData.text;
+    this.status = responseData.status;
+    this.contentType_ = responseData.contentType;
   };
   goog.net.XmlHttp = function() {
     return /** @type {?} */ (new fakeXmlHttp());
@@ -1365,3 +1419,55 @@ ee.data.TaskListResponse;
  * }}
  */
 ee.data.AssetDescription;
+
+
+/**
+ * A request to import an asset. "name" is the destination asset ID
+ * (e.g. "users/yourname/assetname"). "filesets" is the list of source
+ * filesets for the asset.
+ *
+ * @typedef {{
+ *   'name': string,
+ *   'filesets': !Array<ee.data.Fileset>,
+ *   'bands': (undefined|!Array<ee.data.Band>)
+ * }}
+ */
+ee.data.IngestionRequest;
+
+
+/**
+ * An object describing properties of a single raster band.
+ * @typedef {{
+ *   'name': string
+ * }}
+ */
+ee.data.Band;
+
+
+/**
+ * An object describing properties of a single fileset.
+ * @typedef {{
+ *   'sources': !Array<ee.data.FileSource>
+ * }}
+ */
+ee.data.Fileset;
+
+
+/**
+ * An object describing properties of a single raster.
+ *
+ * For requests sent directly through the API, paths should be Google Cloud
+ * Storage object names (e.g. 'gs://bucketname/filename'). In manifests
+ * uploaded through the Playground IDE, paths should be relative file
+ * names (e.g. 'file1.tif').
+ *
+ * Extensions are the file extensions as strings and must be in order,
+ * with the primary file's extension first.
+ *
+ * @typedef {{
+ *   'primaryPath': string,
+ *   'additionalPaths': (undefined|!Array<string>),
+ *   'fileExtensions': (undefined|!Array<string>)
+ * }}
+ */
+ee.data.FileSource;

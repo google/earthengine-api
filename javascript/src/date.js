@@ -15,14 +15,11 @@ goog.require('ee.Types');
 
 
 /**
- * Constructs a new Date.
- *
- * We don't autoconstruct this class because we want all objects to go
- * through the server-side constructor.
+ * Constructs a new Date object.
  *
  * @param {number|String|ee.ComputedObject|Date} date The date to convert,
  *     one of:
- *     a number (number of microseconds since the epoch),
+ *     a number (number of milliseconds since the epoch),
  *     an ISO Date string,
  *     a javascript Date
  *     or a ComputedObject.
@@ -34,6 +31,9 @@ goog.require('ee.Types');
  * @export
  */
 ee.Date = function(date, opt_tz) {
+  // Note: We don't autoconstruct this class because we want all objects to go
+  // through the server-side constructor.
+
   // Constructor safety.
   if (!(this instanceof ee.Date)) {
     return ee.ComputedObject.construct(ee.Date, arguments);

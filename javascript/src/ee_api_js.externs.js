@@ -972,11 +972,11 @@ ee.data.setDeadline = function(milliseconds) {
 };
 /**
  * @param {string} taskId
- * @param {(Object|null)} request
+ * @param {{bands: (Array<ee.data.Band>|undefined), filesets: Array<ee.data.Fileset>, name: string}} request
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */
-ee.data.startImport = function(taskId, request, opt_callback) {
+ee.data.startIngestion = function(taskId, request, opt_callback) {
 };
 /**
  * @param {string} taskId

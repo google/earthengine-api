@@ -448,11 +448,21 @@ def startImport(taskId, request):
 
   Args:
     taskId: ID for the task (obtained using newTaskId).
-    request: The object that describes the import task, which
-        should have these fields:
-          asset_id (string) The destination asset id (e.g. users/foo/bar).
-          file_name (string) The source file's Google Cloud Storage object name.
-            e.g. '/gs/ee.google.com.a.appspot.com/L2FwcGhvc3Rpbmdf'
+    request: The object that describes the import task, which can
+        have these fields:
+          name (string) The destination asset id (e.g. users/foo/bar).
+          filesets (array) A list of Google Cloud Storage source file paths
+            formatted like:
+              [{'sources': [
+                  {'primaryPath': 'foo.tif', 'additionalPaths': ['foo.prj']},
+                  {'primaryPath': 'bar.tif', 'additionalPaths': ['bar.prj'},
+              ]}]
+            Where path values correspond to source files' Google Cloud Storage
+            object names, e.g. 'gs://bucketname/filename.tif'
+          bands (array) An optional list of band names formatted like:
+            [{'name': 'R'}, {'name': 'G'}, {'name': 'B'}]
+          extensions (array) An optional list of file extensions formatted like:
+            ['tif', 'prj']. Useful if the file names in GCS lack extensions.
 
   Returns:
     A dict with optional notes about the created task.
@@ -503,16 +513,31 @@ def send_(path, params, opt_method='POST', opt_raw=False):
     raise ee_exception.EEException(
         'Unexpected HTTP error: %s' % e.message)
 
-  if response.status != 200:
+  # Whether or not the response is an error, it may be JSON.
+  if (response['content-type'].split(';')[0] == 'application/json' and
+      not opt_raw):
+    try:
+      json_content = json.loads(content)
+    except Exception, e:
+      raise ee_exception.EEException('Invalid JSON: ' + content)
+    if 'error' in json_content:
+      raise ee_exception.EEException(json_content['error']['message'])
+    if 'data' not in content:
+      raise ee_exception.EEException('Malformed response: ' + content)
+  else:
+    json_content = None
+
+  if response.status >= 300:
+    # Note if the response is JSON and contains an error value, we raise that
+    # error above rather than this generic one.
     raise ee_exception.EEException('Server returned HTTP code: %d' %
                                    response.status)
 
+  # Now known not to be an error response...
   if opt_raw:
     return content
+  elif json_content is None:
+    raise ee_exception.EEException(
+        'Response was unexpectedly not JSON, but %s' % response['content-type'])
   else:
-    content = json.loads(content)
-    if 'error' in content:
-      raise ee_exception.EEException(content['error'])
-    if 'data' not in content:
-      raise ee_exception.EEException('Missing data in response: ' + content)
-    return content['data']
+    return json_content['data']
