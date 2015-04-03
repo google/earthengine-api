@@ -55,6 +55,10 @@ class DataTest(unittest.TestCase):
       self.assertEqual(u'Response was unexpectedly not JSON, but text/html',
                        cm.exception.message)
 
+  def testNoContentType(self):
+    with DoStubHttp(200, None, '{"data": "bar"}'):
+      self.assertEqual('bar', ee.data.send_('/foo', {}))
+
   def testContentTypeParameterAllowed(self):
     with DoStubHttp(200, 'application/json; charset=utf-8', '{"data": ""}'):
       self.assertEqual('', ee.data.send_('/foo', {}))

@@ -685,7 +685,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function (string): ?=} opt_callback
+ * @param {function (string, string=): ?=} opt_callback
  * @return {(string|undefined)}
  */
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
@@ -851,6 +851,12 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
 ee.data.getApiBaseUrl = function() {
 };
 /**
+ * @param {function (Array<ee.data.FolderDescription>, string=): ?=} opt_callback
+ * @return {(Array<ee.data.FolderDescription>|null)}
+ */
+ee.data.getAssetRoots = function(opt_callback) {
+};
+/**
  * @param {(Object|null)} params
  * @param {function ({docid: string, token: string}, string=): ?=} opt_callback
  * @return {(ee.data.DownloadId|null)}
@@ -866,8 +872,8 @@ ee.data.getInfo = function(id, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function ((Array<{id: string, properties: (Object|null|undefined), type: string}>|null), string=): ?=} opt_callback
- * @return {(Array<{id: string, properties: (Object|null|undefined), type: string}>|null)}
+ * @param {function ((Array<{id: string, properties: (Object|null|undefined), type: ee.data.AssetType<string>}>|null), string=): ?=} opt_callback
+ * @return {(Array<{id: string, properties: (Object|null|undefined), type: ee.data.AssetType<string>}>|null)}
  */
 ee.data.getList = function(params, opt_callback) {
 };

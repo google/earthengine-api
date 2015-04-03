@@ -514,8 +514,8 @@ def send_(path, params, opt_method='POST', opt_raw=False):
         'Unexpected HTTP error: %s' % e.message)
 
   # Whether or not the response is an error, it may be JSON.
-  if (response['content-type'].split(';')[0] == 'application/json' and
-      not opt_raw):
+  content_type = (response['content-type'] or 'application/json').split(';')[0]
+  if content_type in ('application/json', 'text/json') and not opt_raw:
     try:
       json_content = json.loads(content)
     except Exception, e:
@@ -527,7 +527,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   else:
     json_content = None
 
-  if response.status >= 300:
+  if response.status < 100 or response.status >= 300:
     # Note if the response is JSON and contains an error value, we raise that
     # error above rather than this generic one.
     raise ee_exception.EEException('Server returned HTTP code: %d' %

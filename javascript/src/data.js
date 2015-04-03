@@ -9,24 +9,27 @@ goog.provide('ee.data.AlgorithmArgument');
 goog.provide('ee.data.AlgorithmSignature');
 goog.provide('ee.data.AlgorithmsRegistry');
 goog.provide('ee.data.AssetDescription');
+goog.provide('ee.data.AssetList');
+goog.provide('ee.data.AssetType');
 goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.FileSource');
 goog.provide('ee.data.Fileset');
+goog.provide('ee.data.FolderDescription');
 goog.provide('ee.data.GMEProject');
 goog.provide('ee.data.GeoJSONFeature');
 goog.provide('ee.data.GeoJSONGeometry');
 goog.provide('ee.data.ImageCollectionDescription');
 goog.provide('ee.data.ImageDescription');
-goog.provide('ee.data.ImageList');
 goog.provide('ee.data.ImageTaskConfig');
 goog.provide('ee.data.IngestionRequest');
 goog.provide('ee.data.MapId');
 goog.provide('ee.data.PixelTypeDescription');
 goog.provide('ee.data.ProcessingResponse');
 goog.provide('ee.data.RawMapId');
+goog.provide('ee.data.ShortAssetDescription');
 goog.provide('ee.data.TableTaskConfig');
 goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
@@ -300,22 +303,23 @@ ee.data.getInfo = function(id, opt_callback) {
 
 
 /**
- * Get a list of contents for a collection asset.
+ * Returns a list of the contents in an asset collection or folder.
  * @param {Object} params An object containing request parameters with
  *     the following possible values:
  *       - id (string) The asset id of the collection to list.
  *       - starttime (number) Start time, in msec since the epoch.
  *       - endtime (number) End time, in msec since the epoch.
  *       - fields (comma-separated strings) Field names to return.
- * @param {function(ee.data.ImageList, string=)=} opt_callback
+ * @param {function(ee.data.AssetList, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?ee.data.ImageList} The list call results, or null if a callback
+ * @return {?ee.data.AssetList} The list call results,
+ *     or null if a callback
  *     is specified.
  * @export
  */
 ee.data.getList = function(params, opt_callback) {
   var request = ee.data.makeRequest_(params);
-  return /** @type {?ee.data.ImageList} */(
+  return /** @type {?ee.data.AssetList} */ (
       ee.data.send_('/list', request, opt_callback));
 };
 
@@ -791,6 +795,22 @@ goog.exportSymbol('ee.data.startIngestion', ee.data.startIngestion);
 
 
 /**
+ * Returns the list of the root folders the user owns. The "id" values for roots
+ * are two levels deep, e.g. "users/johndoe" not "users/johndoe/notaroot".
+ *
+ * @param {function(!Array<ee.data.FolderDescription>, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {Array<ee.data.FolderDescription>} The list of writable folders.
+ *     Null if a callback is specified.
+ */
+ee.data.getAssetRoots = function(opt_callback) {
+  return /** @type {Array<ee.data.FolderDescription>} */ (ee.data.send_(
+      '/buckets', null, opt_callback, 'GET'));
+};
+goog.exportSymbol('ee.data.getAssetRoots', ee.data.getAssetRoots);
+
+
+/**
  * Send an API call.
  *
  * @param {string} path The API endpoint to call.
@@ -837,8 +857,9 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   var handleResponse = function(
       status, contentType, responseText, opt_callback) {
     var response, data, errorMessage;
-    if (contentType.split(';')[0] === 'application/json' ||
-        contentType.split(';')[0] === 'text/json') {
+    contentType = contentType ?
+        contentType.replace(/;.*/, '') : 'application/json';
+    if (contentType == 'application/json' || contentType == 'text/json') {
       try {
         response = goog.json.unsafeParse(responseText);
         data = response['data'];
@@ -857,7 +878,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
       } else if (!('data' in response)) {
         errorMessage = 'Malformed response: ' + responseText;
       }
-    } else if (status >= 300) {
+    } else if (status < 200 || status >= 300) {
       errorMessage = 'Server returned HTTP code: ' + status;
     }
 
@@ -1017,9 +1038,6 @@ ee.data.setupMockSend = function(opt_calls) {
     if (!goog.isNumber(response.status)) {
       throw new Error(url + ' mock response missing/invalid status');
     }
-    if (!goog.isString(response.contentType)) {
-      throw new Error(url + ' mock response missing/invalid contentType');
-    }
     return response;
   }
 
@@ -1077,15 +1095,42 @@ ee.data.setupMockSend = function(opt_calls) {
 };
 
 
+/** @enum {string} The types of assets. */
+ee.data.AssetType = {
+  IMAGE: 'Image',
+  IMAGE_COLLECTION: 'ImageCollection',
+  FOLDER: 'Folder',
+  ALGORITHM: 'Algorithm',
+  UNKNOWN: 'Unknown'
+};
+
+
 /**
- * The response from the /list servlet.
- * @typedef {Array.<{
- *   type: string,
+ * An entry in a list returned by the /list servlet.
+ * @typedef {{
+ *   type: ee.data.AssetType,
  *   id: string,
  *   properties: (undefined|Object)
- * }>}
+ * }}
  */
-ee.data.ImageList;
+ee.data.ShortAssetDescription;
+
+
+/**
+ * A list returned by the /list servlet.
+ * @typedef {Array<ee.data.ShortAssetDescription>}
+ */
+ee.data.AssetList;
+
+
+/**
+ * A description of a folder. The type value is always ee.data.AssetType.FOLDER.
+ * @typedef {{
+ *   type: ee.data.AssetType,
+ *   id: string
+ * }}
+ */
+ee.data.FolderDescription;
 
 
 /**

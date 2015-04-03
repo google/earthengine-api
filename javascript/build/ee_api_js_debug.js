@@ -4537,7 +4537,9 @@ goog.async.Deferred.prototype.fire_ = function() {
       try {
         var ret = f.call(scope || this.defaultScope_, res);
         goog.isDef(ret) && (this.hadError_ = this.hadError_ && (ret == res || this.isError(ret)), this.result_ = res = ret);
-        goog.Thenable.isImplementedBy(res) && (this.blocked_ = isNewlyBlocked = !0);
+        if (goog.Thenable.isImplementedBy(res) || "function" === typeof goog.global.Promise && res instanceof goog.global.Promise) {
+          this.blocked_ = isNewlyBlocked = !0;
+        }
       } catch (ex) {
         res = ex, this.hadError_ = !0, this.makeStackTraceLong_(res), this.hasErrback_() || (unhandledException = !0);
       }
@@ -4812,8 +4814,8 @@ goog.events.getVendorPrefixedName_ = function(eventName) {
   return goog.userAgent.WEBKIT ? "webkit" + eventName : goog.userAgent.OPERA ? "o" + eventName.toLowerCase() : eventName.toLowerCase();
 };
 goog.events.EventType = {CLICK:"click", RIGHTCLICK:"rightclick", DBLCLICK:"dblclick", MOUSEDOWN:"mousedown", MOUSEUP:"mouseup", MOUSEOVER:"mouseover", MOUSEOUT:"mouseout", MOUSEMOVE:"mousemove", MOUSEENTER:"mouseenter", MOUSELEAVE:"mouseleave", SELECTSTART:"selectstart", WHEEL:"wheel", KEYPRESS:"keypress", KEYDOWN:"keydown", KEYUP:"keyup", BLUR:"blur", FOCUS:"focus", DEACTIVATE:"deactivate", FOCUSIN:goog.userAgent.IE ? "focusin" : "DOMFocusIn", FOCUSOUT:goog.userAgent.IE ? "focusout" : "DOMFocusOut", 
-CHANGE:"change", SELECT:"select", SUBMIT:"submit", INPUT:"input", PROPERTYCHANGE:"propertychange", DRAGSTART:"dragstart", DRAG:"drag", DRAGENTER:"dragenter", DRAGOVER:"dragover", DRAGLEAVE:"dragleave", DROP:"drop", DRAGEND:"dragend", TOUCHSTART:"touchstart", TOUCHMOVE:"touchmove", TOUCHEND:"touchend", TOUCHCANCEL:"touchcancel", BEFOREUNLOAD:"beforeunload", CONSOLEMESSAGE:"consolemessage", CONTEXTMENU:"contextmenu", DOMCONTENTLOADED:"DOMContentLoaded", ERROR:"error", HELP:"help", LOAD:"load", LOSECAPTURE:"losecapture", 
-ORIENTATIONCHANGE:"orientationchange", READYSTATECHANGE:"readystatechange", RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), 
+CHANGE:"change", RESET:"reset", SELECT:"select", SUBMIT:"submit", INPUT:"input", PROPERTYCHANGE:"propertychange", DRAGSTART:"dragstart", DRAG:"drag", DRAGENTER:"dragenter", DRAGOVER:"dragover", DRAGLEAVE:"dragleave", DROP:"drop", DRAGEND:"dragend", TOUCHSTART:"touchstart", TOUCHMOVE:"touchmove", TOUCHEND:"touchend", TOUCHCANCEL:"touchcancel", BEFOREUNLOAD:"beforeunload", CONSOLEMESSAGE:"consolemessage", CONTEXTMENU:"contextmenu", DOMCONTENTLOADED:"DOMContentLoaded", ERROR:"error", HELP:"help", LOAD:"load", 
+LOSECAPTURE:"losecapture", ORIENTATIONCHANGE:"orientationchange", READYSTATECHANGE:"readystatechange", RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), 
 ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", 
 MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXT:"text", 
 TEXTINPUT:"textInput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage", DOMSUBTREEMODIFIED:"DOMSubtreeModified", DOMNODEINSERTED:"DOMNodeInserted", DOMNODEREMOVED:"DOMNodeRemoved", 
@@ -8132,6 +8134,10 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
   return ee.data.send_("/ingestionrequest", ee.data.makeRequest_(params), opt_callback);
 };
 goog.exportSymbol("ee.data.startIngestion", ee.data.startIngestion);
+ee.data.getAssetRoots = function(opt_callback) {
+  return ee.data.send_("/buckets", null, opt_callback, "GET");
+};
+goog.exportSymbol("ee.data.getAssetRoots", ee.data.getAssetRoots);
 ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
   ee.data.initialize();
   var method = opt_method || "POST", headers = {"Content-Type":"application/x-www-form-urlencoded"};
@@ -8139,7 +8145,8 @@ ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
   goog.isDefAndNotNull(ee.data.xsrfToken_) && ("GET" == method ? (path += goog.string.contains(path, "?") ? "&" : "?", path += "xsrfToken=" + ee.data.xsrfToken_) : (params || (params = new goog.Uri.QueryData), params.add("xsrfToken", ee.data.xsrfToken_)));
   var handleResponse = function(status, contentType, responseText, opt_callback) {
     var response, data, errorMessage;
-    if ("application/json" === contentType.split(";")[0] || "text/json" === contentType.split(";")[0]) {
+    contentType = contentType ? contentType.replace(/;.*/, "") : "application/json";
+    if ("application/json" == contentType || "text/json" == contentType) {
       try {
         response = goog.json.unsafeParse(responseText), data = response.data;
       } catch (e) {
@@ -8148,7 +8155,13 @@ ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
     } else {
       errorMessage = "Response was unexpectedly not JSON, but " + contentType;
     }
-    goog.isObject(response) ? "error" in response && "message" in response.error ? errorMessage = response.error.message : "data" in response || (errorMessage = "Malformed response: " + responseText) : 300 <= status && (errorMessage = "Server returned HTTP code: " + status);
+    if (goog.isObject(response)) {
+      "error" in response && "message" in response.error ? errorMessage = response.error.message : "data" in response || (errorMessage = "Malformed response: " + responseText);
+    } else {
+      if (200 > status || 300 <= status) {
+        errorMessage = "Server returned HTTP code: " + status;
+      }
+    }
     if (opt_callback) {
       return opt_callback(data, errorMessage), null;
     }
@@ -8208,9 +8221,6 @@ ee.data.setupMockSend = function(opt_calls) {
     if (!goog.isNumber(response.status)) {
       throw Error(url + " mock response missing/invalid status");
     }
-    if (!goog.isString(response.contentType)) {
-      throw Error(url + " mock response missing/invalid contentType");
-    }
     return response;
   }
   var calls = opt_calls ? goog.object.clone(opt_calls) : {};
@@ -8251,6 +8261,7 @@ ee.data.setupMockSend = function(opt_calls) {
     return new fakeXmlHttp;
   };
 };
+ee.data.AssetType = {IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", FOLDER:"Folder", ALGORITHM:"Algorithm", UNKNOWN:"Unknown"};
 ee.Encodable = function() {
 };
 goog.crypt = {};
@@ -9840,8 +9851,16 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
     }
   }
   if (opt_callback) {
-    ee.data.getThumbId(request, function(thumbId) {
-      opt_callback(ee.data.makeThumbUrl(thumbId));
+    ee.data.getThumbId(request, function(thumbId, opt_error) {
+      var thumbUrl = "";
+      if (!goog.isDef(opt_error)) {
+        try {
+          thumbUrl = ee.data.makeThumbUrl(thumbId);
+        } catch (e) {
+          opt_error = String(e.message);
+        }
+      }
+      opt_callback(thumbUrl, opt_error);
     });
   } else {
     return ee.data.makeThumbUrl(ee.data.getThumbId(request));
