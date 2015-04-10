@@ -2943,6 +2943,25 @@ goog.dom.safe.setAnchorHref = function(anchor, url) {
   safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
   anchor.href = goog.html.SafeUrl.unwrap(safeUrl);
 };
+goog.dom.safe.setEmbedSrc = function(embed, url) {
+  embed.src = goog.html.TrustedResourceUrl.unwrap(url);
+};
+goog.dom.safe.setFrameSrc = function(frame, url) {
+  frame.src = goog.html.TrustedResourceUrl.unwrap(url);
+};
+goog.dom.safe.setIframeSrc = function(iframe, url) {
+  iframe.src = goog.html.TrustedResourceUrl.unwrap(url);
+};
+goog.dom.safe.setLinkHrefAndRel = function(link, url, rel) {
+  link.rel = rel;
+  goog.string.caseInsensitiveContains(rel, "stylesheet") ? (goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"'), link.href = goog.html.TrustedResourceUrl.unwrap(url)) : link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrap(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrap(url) : goog.html.SafeUrl.sanitize(url).getTypedStringValue();
+};
+goog.dom.safe.setObjectData = function(object, url) {
+  object.data = goog.html.TrustedResourceUrl.unwrap(url);
+};
+goog.dom.safe.setScriptSrc = function(script, url) {
+  script.src = goog.html.TrustedResourceUrl.unwrap(url);
+};
 goog.dom.safe.setLocationHref = function(loc, url) {
   var safeUrl;
   safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
@@ -4149,6 +4168,22 @@ goog.Promise.all = function(promises) {
     }
   });
 };
+goog.Promise.allSettled = function(promises) {
+  return new goog.Promise(function(resolve, reject) {
+    var toSettle = promises.length, results = [];
+    if (toSettle) {
+      for (var onSettled = function(index, fulfilled, result) {
+        toSettle--;
+        results[index] = fulfilled ? {fulfilled:!0, value:result} : {fulfilled:!1, reason:result};
+        0 == toSettle && resolve(results);
+      }, i = 0, promise;promise = promises[i];i++) {
+        goog.Promise.maybeThenVoid_(promise, goog.partial(onSettled, i, !0), goog.partial(onSettled, i, !1));
+      }
+    } else {
+      resolve(results);
+    }
+  });
+};
 goog.Promise.firstFulfilled = function(promises) {
   return new goog.Promise(function(resolve, reject) {
     var toReject = promises.length, reasons = [];
@@ -4190,11 +4225,11 @@ goog.Promise.prototype.thenVoid = function(opt_onFulfilled, opt_onRejected, opt_
 goog.Promise.maybeThenVoid_ = function(promise, onFulfilled, onRejected, opt_context) {
   promise instanceof goog.Promise ? promise.thenVoid(onFulfilled, onRejected, opt_context) : promise.then(onFulfilled, onRejected, opt_context);
 };
-goog.Promise.prototype.thenAlways = function(onResolved, opt_context) {
+goog.Promise.prototype.thenAlways = function(onSettled, opt_context) {
   goog.Promise.LONG_STACK_TRACES && this.addStackTrace_(Error("thenAlways"));
   var callback = function() {
     try {
-      onResolved.call(opt_context);
+      onSettled.call(opt_context);
     } catch (err) {
       goog.Promise.handleRejection_.call(null, err);
     }
@@ -6022,18 +6057,16 @@ goog.structs.Map.prototype.getValueIterator = function() {
 };
 goog.structs.Map.prototype.__iterator__ = function(opt_keys) {
   this.cleanupKeysArray_();
-  var i = 0, keys = this.keys_, map = this.map_, version = this.version_, selfObj = this, newIter = new goog.iter.Iterator;
+  var i = 0, version = this.version_, selfObj = this, newIter = new goog.iter.Iterator;
   newIter.next = function() {
-    for (;;) {
-      if (version != selfObj.version_) {
-        throw Error("The map has changed since the iterator was created");
-      }
-      if (i >= keys.length) {
-        throw goog.iter.StopIteration;
-      }
-      var key = keys[i++];
-      return opt_keys ? key : map[key];
+    if (version != selfObj.version_) {
+      throw Error("The map has changed since the iterator was created");
     }
+    if (i >= selfObj.keys_.length) {
+      throw goog.iter.StopIteration;
+    }
+    var key = selfObj.keys_[i++];
+    return opt_keys ? key : selfObj.map_[key];
   };
   return newIter;
 };
@@ -9366,8 +9399,8 @@ ee.Geometry.isValidGeometry_ = function(geometry) {
     }
     return !0;
   }
-  var nesting = ee.Geometry.isValidCoordinates_(geometry.coordinates);
-  return "Point" == type && 1 == nesting || "MultiPoint" == type && 2 == nesting || "LineString" == type && 2 == nesting || "LinearRing" == type && 2 == nesting || "MultiLineString" == type && 3 == nesting || "Polygon" == type && 3 == nesting || "MultiPolygon" == type && 4 == nesting;
+  var coords = geometry.coordinates, nesting = ee.Geometry.isValidCoordinates_(coords);
+  return "Point" == type && 1 == nesting || "MultiPoint" == type && (2 == nesting || 0 == coords.length) || "LineString" == type && 2 == nesting || "LinearRing" == type && 2 == nesting || "MultiLineString" == type && (3 == nesting || 0 == coords.length) || "Polygon" == type && 3 == nesting || "MultiPolygon" == type && (4 == nesting || 0 == coords.length);
 };
 ee.Geometry.isValidCoordinates_ = function(shape) {
   if (!goog.isArray(shape)) {
@@ -9414,6 +9447,7 @@ ee.Geometry.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
   if (ee.Geometry.isValidCoordinates_(geometry) != nesting) {
     throw Error("Invalid geometry");
   }
+  1 == geometry.length && 0 == geometry[0].length && (geometry = []);
   return geometry;
 };
 ee.Geometry.createInstance_ = function(klass, args) {
@@ -9641,11 +9675,15 @@ ee.Feature.prototype.name = function() {
   return "Feature";
 };
 ee.List = function(list) {
-  if (!(this instanceof ee.List)) {
+  if (this instanceof ee.List) {
+    if (1 < arguments.length) {
+      throw Error("ee.List() only accepts 1 argument.");
+    }
+    if (list instanceof ee.List) {
+      return list;
+    }
+  } else {
     return ee.ComputedObject.construct(ee.List, arguments);
-  }
-  if (list instanceof ee.List) {
-    return list;
   }
   ee.List.initialize();
   if (goog.isArray(list)) {

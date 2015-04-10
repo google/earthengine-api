@@ -491,12 +491,12 @@ ee.Geometry.isValidGeometry_ = function(geometry) {
     var coords = geometry['coordinates'];
     var nesting = ee.Geometry.isValidCoordinates_(coords);
     return (type == 'Point' && nesting == 1) ||
-        (type == 'MultiPoint' && nesting == 2) ||
+        (type == 'MultiPoint' && (nesting == 2 || coords.length == 0)) ||
         (type == 'LineString' && nesting == 2) ||
         (type == 'LinearRing' && nesting == 2) ||
-        (type == 'MultiLineString' && nesting == 3) ||
+        (type == 'MultiLineString' && (nesting == 3 || coords.length == 0)) ||
         (type == 'Polygon' && nesting == 3) ||
-        (type == 'MultiPolygon' && nesting == 4);
+        (type == 'MultiPolygon' && (nesting == 4 || coords.length == 0));
   }
 };
 
@@ -595,6 +595,11 @@ ee.Geometry.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
 
   if (ee.Geometry.isValidCoordinates_(geometry) != nesting) {
     throw Error('Invalid geometry');
+  }
+
+  // Empty arrays should not be wrapped.
+  if (geometry.length == 1 && geometry[0].length == 0) {
+    geometry = [];
   }
 
   return /** @type {!Array.<*>} */ (geometry);

@@ -23,6 +23,8 @@ ee.List = function(list) {
   // Constructor safety.
   if (!(this instanceof ee.List)) {
     return ee.ComputedObject.construct(ee.List, arguments);
+  } else if (arguments.length > 1) {
+    throw Error('ee.List() only accepts 1 argument.');
   } else if (list instanceof ee.List) {
     return list;
   }

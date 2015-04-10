@@ -18,6 +18,7 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testValid_MultiPoint(self):
     """Verifies MultiPoint constructor behavior with valid arguments."""
     self.assertValid(2, ee.Geometry.MultiPoint, 1, 2, 3, 4, 5, 6)
+    self.assertValid(1, ee.Geometry.MultiPoint)
 
   def testValid_LineString(self):
     """Verifies LineString constructor behavior with valid arguments."""

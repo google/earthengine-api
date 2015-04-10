@@ -148,8 +148,7 @@ class Geometry(computedobject.ComputedObject):
     """
     return Geometry({
         'type': 'MultiPoint',
-        'coordinates': Geometry._makeGeometry(
-            coordinates[0], 2, coordinates[1:])
+        'coordinates': Geometry._makeGeometry(2, coordinates)
     })
 
   @staticmethod
@@ -184,8 +183,7 @@ class Geometry(computedobject.ComputedObject):
     """
     return Geometry({
         'type': 'LineString',
-        'coordinates': Geometry._makeGeometry(
-            coordinates[0], 2, coordinates[1:])
+        'coordinates': Geometry._makeGeometry(2, coordinates)
     })
 
   @staticmethod
@@ -202,8 +200,7 @@ class Geometry(computedobject.ComputedObject):
     """
     return Geometry({
         'type': 'LinearRing',
-        'coordinates': Geometry._makeGeometry(
-            coordinates[0], 2, coordinates[1:])
+        'coordinates': Geometry._makeGeometry(2, coordinates)
     })
 
   @staticmethod
@@ -227,8 +224,7 @@ class Geometry(computedobject.ComputedObject):
     """
     return Geometry({
         'type': 'MultiLineString',
-        'coordinates': Geometry._makeGeometry(
-            coordinates[0], 3, coordinates[1:])
+        'coordinates': Geometry._makeGeometry(3, coordinates)
     })
 
   @staticmethod
@@ -250,8 +246,7 @@ class Geometry(computedobject.ComputedObject):
     """
     return Geometry({
         'type': 'Polygon',
-        'coordinates': Geometry._makeGeometry(
-            coordinates[0], 3, coordinates[1:])
+        'coordinates': Geometry._makeGeometry(3, coordinates)
     })
 
   @staticmethod
@@ -272,8 +267,7 @@ class Geometry(computedobject.ComputedObject):
     """
     return Geometry({
         'type': 'MultiPolygon',
-        'coordinates': Geometry._makeGeometry(
-            coordinates[0], 4, coordinates[1:])
+        'coordinates': Geometry._makeGeometry(4, coordinates)
     })
 
   def encode(self, opt_encoder=None):  # pylint: disable=unused-argument
@@ -349,12 +343,15 @@ class Geometry(computedobject.ComputedObject):
       coords = geometry.get('coordinates')
       nesting = Geometry._isValidCoordinates(coords)
       return ((geometry_type == 'Point' and nesting == 1) or
-              (geometry_type == 'MultiPoint' and nesting == 2) or
+              (geometry_type == 'MultiPoint' and
+               (nesting == 2 or not coords)) or
               (geometry_type == 'LineString' and nesting == 2) or
               (geometry_type == 'LinearRing' and nesting == 2) or
-              (geometry_type == 'MultiLineString' and nesting == 3) or
+              (geometry_type == 'MultiLineString' and
+               (nesting == 3 or not coords)) or
               (geometry_type == 'Polygon' and nesting == 3) or
-              (geometry_type == 'MultiPolygon' and nesting == 4))
+              (geometry_type == 'MultiPolygon' and
+               (nesting == 4 or not coords)))
 
   @staticmethod
   def _isValidCoordinates(shape):
@@ -369,8 +366,7 @@ class Geometry(computedobject.ComputedObject):
     if not isinstance(shape, collections.Iterable):
       return -1
 
-    shape = list(shape)
-    if isinstance(shape[0], collections.Iterable):
+    if shape and isinstance(shape[0], collections.Iterable):
       count = Geometry._isValidCoordinates(shape[0])
       # If more than 1 ring or polygon, they should have the same nesting.
       for i in xrange(1, len(shape)):
@@ -379,8 +375,8 @@ class Geometry(computedobject.ComputedObject):
       return count + 1
     else:
       # Make sure the pts are all numbers.
-      for i in xrange(0, len(shape)):
-        if not isinstance(shape[i], numbers.Number):
+      for i in shape:
+        if not isinstance(i, numbers.Number):
           return -1
 
       # Test that we have an even number of pts.
@@ -400,7 +396,7 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An array of pairs of points.
     """
-    if isinstance(coordinates[0], numbers.Number):
+    if coordinates and isinstance(coordinates[0], numbers.Number):
       line = []
       if len(coordinates) % 2 != 0:
         raise ee_exception.EEException('Invalid number of coordinates: %s' %
@@ -413,7 +409,7 @@ class Geometry(computedobject.ComputedObject):
     return coordinates
 
   @staticmethod
-  def _makeGeometry(geometry, nesting, opt_coordinates=()):
+  def _makeGeometry(nesting, opt_coordinates=()):
     """Check that the given geometry has the specified level of nesting.
 
     If the user passed a list of points to one of the Geometry functions,
@@ -422,9 +418,8 @@ class Geometry(computedobject.ComputedObject):
     Polygon(1,2,3,4,5,6) and Polygon([[[1,2],[3,4],[5,6]]])
 
     Args:
-      geometry: The geometry to check.
       nesting: The expected level of array nesting.
-      opt_coordinates: A list of extra coordinates to decode.
+      opt_coordinates: A list of all the coordinates to decode.
 
     Returns:
       The processed geometry.
@@ -436,16 +431,17 @@ class Geometry(computedobject.ComputedObject):
       raise ee_exception.EEException('Unexpected nesting level.')
 
     # Handle a list of points.
-    if isinstance(geometry, numbers.Number) and opt_coordinates:
-      coordinates = [geometry]
-      coordinates.extend(opt_coordinates)
-      geometry = Geometry._coordinatesToLine(coordinates)
+    if (len(opt_coordinates) == 1 and
+        isinstance(opt_coordinates[0], (list, tuple))):
+      geometry = opt_coordinates[0]
+    else:
+      geometry = Geometry._coordinatesToLine(opt_coordinates)
 
     # Make sure the number of nesting levels is correct.
     item = geometry
     count = 0
-    while isinstance(item, list) or isinstance(item, tuple):
-      item = item[0]
+    while isinstance(item, (list, tuple)):
+      item = item[0] if item else None
       count += 1
 
     while count < nesting:
@@ -454,6 +450,9 @@ class Geometry(computedobject.ComputedObject):
 
     if Geometry._isValidCoordinates(geometry) != nesting:
       raise ee_exception.EEException('Invalid geometry.')
+
+    # Empty arrays should not be wrapped.
+    if list(geometry) in ([[]], [()]): geometry = []
 
     return geometry
 
