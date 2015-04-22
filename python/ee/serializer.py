@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A serializer that encodes EE object trees as JSON DAGs."""
 
 

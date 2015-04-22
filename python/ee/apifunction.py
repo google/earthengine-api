@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A class for representing built-in EE API Function.
 
 Earth Engine can dynamically produce a JSON array listing the

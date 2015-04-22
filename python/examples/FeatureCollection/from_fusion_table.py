@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Select rows from a fusion table."""
 
 import ee

@@ -100,9 +100,6 @@ goog.require = function(name) {
 goog.basePath = "";
 goog.nullFunction = function() {
 };
-goog.identityFunction = function(opt_returnValue, var_args) {
-  return opt_returnValue;
-};
 goog.abstractMethod = function() {
   throw Error("unimplemented abstract method");
 };
@@ -1724,46 +1721,45 @@ goog.json.Serializer.prototype.serialize = function(object) {
   return sb.join("");
 };
 goog.json.Serializer.prototype.serializeInternal = function(object, sb) {
-  switch(typeof object) {
-    case "string":
-      this.serializeString_(object, sb);
-      break;
-    case "number":
-      this.serializeNumber_(object, sb);
-      break;
-    case "boolean":
-      sb.push(object);
-      break;
-    case "undefined":
-      sb.push("null");
-      break;
-    case "object":
-      if (null == object) {
-        sb.push("null");
-        break;
-      }
+  if (null == object) {
+    sb.push("null");
+  } else {
+    if ("object" == typeof object) {
       if (goog.isArray(object)) {
         this.serializeArray(object, sb);
-        break;
+        return;
       }
-      this.serializeObject_(object, sb);
-      break;
-    case "function":
-      break;
-    default:
-      throw Error("Unknown type: " + typeof object);;
+      if (object instanceof String || object instanceof Number || object instanceof Boolean) {
+        object = object.valueOf();
+      } else {
+        this.serializeObject_(object, sb);
+        return;
+      }
+    }
+    switch(typeof object) {
+      case "string":
+        this.serializeString_(object, sb);
+        break;
+      case "number":
+        this.serializeNumber_(object, sb);
+        break;
+      case "boolean":
+        sb.push(object);
+        break;
+      case "function":
+        break;
+      default:
+        throw Error("Unknown type: " + typeof object);;
+    }
   }
 };
 goog.json.Serializer.charToJsonCharCache_ = {'"':'\\"', "\\":"\\\\", "/":"\\/", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\u000b"};
 goog.json.Serializer.charsToReplace_ = /\uffff/.test("\uffff") ? /[\\\"\x00-\x1f\x7f-\uffff]/g : /[\\\"\x00-\x1f\x7f-\xff]/g;
 goog.json.Serializer.prototype.serializeString_ = function(s, sb) {
   sb.push('"', s.replace(goog.json.Serializer.charsToReplace_, function(c) {
-    if (c in goog.json.Serializer.charToJsonCharCache_) {
-      return goog.json.Serializer.charToJsonCharCache_[c];
-    }
-    var cc = c.charCodeAt(0), rv = "\\u";
-    16 > cc ? rv += "000" : 256 > cc ? rv += "00" : 4096 > cc && (rv += "0");
-    return goog.json.Serializer.charToJsonCharCache_[c] = rv + cc.toString(16);
+    var rv = goog.json.Serializer.charToJsonCharCache_[c];
+    rv || (rv = "\\u" + (c.charCodeAt(0) | 65536).toString(16).substr(1), goog.json.Serializer.charToJsonCharCache_[c] = rv);
+    return rv;
   }), '"');
 };
 goog.json.Serializer.prototype.serializeNumber_ = function(n, sb) {
@@ -2966,6 +2962,11 @@ goog.dom.safe.setLocationHref = function(loc, url) {
   var safeUrl;
   safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
   loc.href = goog.html.SafeUrl.unwrap(safeUrl);
+};
+goog.dom.safe.openInWindow = function(url, opt_openerWin, opt_name, opt_specs, opt_replace) {
+  var safeUrl;
+  safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
+  return (opt_openerWin || window).open(goog.html.SafeUrl.unwrap(safeUrl), opt_name ? goog.string.Const.unwrap(opt_name) : "", opt_specs, opt_replace);
 };
 goog.dom.ASSUME_QUIRKS_MODE = !1;
 goog.dom.ASSUME_STANDARDS_MODE = !1;
@@ -4227,13 +4228,7 @@ goog.Promise.maybeThenVoid_ = function(promise, onFulfilled, onRejected, opt_con
 };
 goog.Promise.prototype.thenAlways = function(onSettled, opt_context) {
   goog.Promise.LONG_STACK_TRACES && this.addStackTrace_(Error("thenAlways"));
-  var callback = function() {
-    try {
-      onSettled.call(opt_context);
-    } catch (err) {
-      goog.Promise.handleRejection_.call(null, err);
-    }
-  }, entry = goog.Promise.getCallbackEntry_(callback, callback, null);
+  var entry = goog.Promise.getCallbackEntry_(onSettled, onSettled, opt_context);
   entry.always = !0;
   this.addCallbackEntry_(entry);
   return this;
@@ -4370,9 +4365,20 @@ goog.Promise.prototype.executeCallbacks_ = function() {
   this.executing_ = !1;
 };
 goog.Promise.prototype.executeCallback_ = function(callbackEntry, state, result) {
-  callbackEntry.child && (callbackEntry.child.parent_ = null);
-  state == goog.Promise.State_.FULFILLED ? callbackEntry.onFulfilled.call(callbackEntry.context, result) : null != callbackEntry.onRejected && (callbackEntry.always || this.removeUnhandledRejection_(), callbackEntry.onRejected.call(callbackEntry.context, result));
+  state == goog.Promise.State_.REJECTED && callbackEntry.onRejected && !callbackEntry.always && this.removeUnhandledRejection_();
+  if (callbackEntry.child) {
+    callbackEntry.child.parent_ = null, goog.Promise.invokeCallback_(callbackEntry, state, result);
+  } else {
+    try {
+      callbackEntry.always ? callbackEntry.onFulfilled.call(callbackEntry.context) : goog.Promise.invokeCallback_(callbackEntry, state, result);
+    } catch (err) {
+      goog.Promise.handleRejection_.call(null, err);
+    }
+  }
   goog.Promise.returnEntry_(callbackEntry);
+};
+goog.Promise.invokeCallback_ = function(callbackEntry, state, result) {
+  state == goog.Promise.State_.FULFILLED ? callbackEntry.onFulfilled.call(callbackEntry.context, result) : callbackEntry.onRejected && callbackEntry.onRejected.call(callbackEntry.context, result);
 };
 goog.Promise.prototype.addStackTrace_ = function(err) {
   if (goog.Promise.LONG_STACK_TRACES && goog.isString(err.stack)) {
@@ -5484,7 +5490,7 @@ goog.structs = {};
 goog.structs.Collection = function() {
 };
 goog.iter = {};
-goog.iter.StopIteration = "StopIteration" in goog.global ? goog.global.StopIteration : Error("StopIteration");
+goog.iter.StopIteration = "StopIteration" in goog.global ? goog.global.StopIteration : {message:"StopIteration", stack:""};
 goog.iter.Iterator = function() {
 };
 goog.iter.Iterator.prototype.next = function() {
@@ -6511,6 +6517,9 @@ goog.debug.getFunctionName = function(fn) {
 };
 goog.debug.makeWhitespaceVisible = function(string) {
   return string.replace(/ /g, "[_]").replace(/\f/g, "[f]").replace(/\n/g, "[n]\n").replace(/\r/g, "[r]").replace(/\t/g, "[t]");
+};
+goog.debug.runtimeType = function(value) {
+  return value instanceof Function ? value.displayName || value.name || "unknown type name" : value instanceof Object ? value.constructor.displayName || value.constructor.name || Object.prototype.toString.call(value) : null === value ? "null" : typeof value;
 };
 goog.debug.fnNameCache_ = {};
 goog.debug.LogRecord = function(level, msg, loggerName, opt_time, opt_sequenceNumber) {
@@ -8171,6 +8180,15 @@ ee.data.getAssetRoots = function(opt_callback) {
   return ee.data.send_("/buckets", null, opt_callback, "GET");
 };
 goog.exportSymbol("ee.data.getAssetRoots", ee.data.getAssetRoots);
+ee.data.getAssetAcl = function(assetId, opt_callback) {
+  return ee.data.send_("/getacl", ee.data.makeRequest_({id:assetId}), opt_callback, "GET");
+};
+goog.exportSymbol("ee.data.getAssetAcl", ee.data.getAssetAcl);
+ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
+  var request = {id:assetId, value:goog.json.serialize(aclUpdate)};
+  ee.data.send_("/setacl", ee.data.makeRequest_(request), opt_callback);
+};
+goog.exportSymbol("ee.data.setAssetAcl", ee.data.setAssetAcl);
 ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
   ee.data.initialize();
   var method = opt_method || "POST", headers = {"Content-Type":"application/x-www-form-urlencoded"};
@@ -8202,7 +8220,9 @@ ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
       return data;
     }
     throw Error(errorMessage);
-  }, url = ee.data.apiBaseUrl_ + path, requestData = params ? params.toString() : "";
+  }, requestData = params ? params.toString() : "";
+  "GET" != method || goog.string.isEmpty(requestData) || (path += goog.string.contains(path, "?") ? "&" : "?", path += requestData, requestData = null);
+  var url = ee.data.apiBaseUrl_ + path;
   if (opt_callback$$0) {
     return goog.net.XhrIo.send(url, function(e) {
       var xhrIo = e.target;

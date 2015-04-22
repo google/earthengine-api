@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A slippy map GUI.
 
 Implements a tiled slippy map using Tk canvas. Displays map tiles using

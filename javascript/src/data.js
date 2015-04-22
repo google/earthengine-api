@@ -8,6 +8,8 @@ goog.provide('ee.data.AbstractTaskConfig');
 goog.provide('ee.data.AlgorithmArgument');
 goog.provide('ee.data.AlgorithmSignature');
 goog.provide('ee.data.AlgorithmsRegistry');
+goog.provide('ee.data.AssetAcl');
+goog.provide('ee.data.AssetAclUpdate');
 goog.provide('ee.data.AssetDescription');
 goog.provide('ee.data.AssetList');
 goog.provide('ee.data.AssetType');
@@ -811,6 +813,48 @@ goog.exportSymbol('ee.data.getAssetRoots', ee.data.getAssetRoots);
 
 
 /**
+ * Returns the access control list of the asset with the given ID.
+ *
+ * The authenticated user must be a writer or owner of an asset to see its ACL.
+ *
+ * @param {string} assetId The ID of the asset to check.
+ * @param {function(ee.data.AssetAcl, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {?ee.data.AssetAcl} The asset's ACL. Null if a callback is specified.
+ */
+ee.data.getAssetAcl = function(assetId, opt_callback) {
+  return /** @type {?ee.data.AssetAcl} */ (ee.data.send_(
+      '/getacl', ee.data.makeRequest_({'id': assetId}), opt_callback, 'GET'));
+};
+goog.exportSymbol('ee.data.getAssetAcl', ee.data.getAssetAcl);
+
+
+/**
+ * Sets the access control list of the asset with the given ID.
+ *
+ * The owner ACL cannot be changed, and the final ACL of the asset
+ * is constructed by merging the OWNER entries of the old ACL with
+ * the incoming ACL record.
+ *
+ * The authenticated user must be a writer or owner of an asset to set its ACL.
+ *
+ * @param {string} assetId The ID of the asset to set the ACL on.
+ * @param {ee.data.AssetAclUpdate} aclUpdate The updated ACL.
+ * @param {function(Object, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ *     The callback is passed an empty object.
+ */
+ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
+  var request = {
+    'id': assetId,
+    'value': goog.json.serialize(aclUpdate)
+  };
+  ee.data.send_('/setacl', ee.data.makeRequest_(request), opt_callback);
+};
+goog.exportSymbol('ee.data.setAssetAcl', ee.data.setAssetAcl);
+
+
+/**
  * Send an API call.
  *
  * @param {string} path The API endpoint to call.
@@ -893,8 +937,15 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     }
   };
 
-  var url = ee.data.apiBaseUrl_ + path;
+  // Encode the request params in the URL if the request is a GET request.
   var requestData = params ? params.toString() : '';
+  if (method == 'GET' && !goog.string.isEmpty(requestData)) {
+    path += goog.string.contains(path, '?') ? '&' : '?';
+    path += requestData;
+    requestData = null;
+  }
+
+  var url = ee.data.apiBaseUrl_ + path;
   if (opt_callback) {
     // Send an asynchronous request.
     goog.net.XhrIo.send(
@@ -1121,6 +1172,30 @@ ee.data.ShortAssetDescription;
  * @typedef {Array<ee.data.ShortAssetDescription>}
  */
 ee.data.AssetList;
+
+
+/**
+ * An access control list for an asset. The strings are all email addresses (for
+ * either individuals or groups).
+ * @typedef {{
+ *   owners: !Array<string>,
+ *   writers: !Array<string>,
+ *   readers: !Array<string>,
+ *   all_users_can_read: (undefined|boolean)
+ * }}
+ */
+ee.data.AssetAcl;
+
+
+/**
+ * An update to an access control list for an asset. Owners cannot be changed.
+ * @typedef {{
+ *   writers: !Array<string>,
+ *   readers: !Array<string>,
+ *   all_users_can_read: (undefined|boolean)
+ * }}
+ */
+ee.data.AssetAclUpdate;
 
 
 /**
@@ -1396,10 +1471,10 @@ ee.data.TableTaskConfig;
  *   description: (undefined|string),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
- *   fps: (undefined|number),
+ *   framesPerSecond: (undefined|number),
  *   crs: (undefined|string),
  *   crs_transform: (undefined|string),
- *   dimensions: (undefined|Array),
+ *   dimensions: (undefined|number|string),
  *   region: (undefined|string),
  *   scale: (undefined|number)
  * }}

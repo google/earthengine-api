@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A simple exception for the EE library."""
 
 

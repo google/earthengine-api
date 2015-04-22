@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Singleton for all of the library's communcation with the Earth Engine API."""
 
 
@@ -471,6 +472,39 @@ def startImport(taskId, request):
   return send_('/import', args)
 
 
+def getAssetAcl(assetId):
+  """Returns the access control list of the asset with the given ID.
+
+  Args:
+    assetId: The ID of the asset to check.
+
+  Returns:
+    A dict describing the asset's ACL. Looks like:
+      {
+         "owners" : ["user@domain1.com"],
+         "writers": ["user2@domain1.com", "user3@domain1.com"],
+         "readers": ["some_group@domain2.com"],
+         "all_users_can_read" : True
+      }
+  """
+  return send_('/getacl', {'id': assetId}, 'GET')
+
+
+def setAssetAcl(assetId, aclUpdate):
+  """Sets the access control list of the asset with the given ID.
+
+  The owner ACL cannot be changed, and the final ACL of the asset
+  is constructed by merging the OWNER entries of the old ACL with
+  the incoming ACL record.
+
+  Args:
+    assetId: The ID of the asset to set the ACL on.
+    aclUpdate: The updated ACL for the asset. Must be formatted like the
+        value returned by getAssetAcl but without "owners".
+  """
+  send_('/setacl', {'id': assetId, 'value': aclUpdate})
+
+
 def send_(path, params, opt_method='POST', opt_raw=False):
   """Send an API call.
 
@@ -499,7 +533,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
     http = _credentials.authorize(http)
 
   if opt_method == 'GET':
-    url = url + '?' + payload
+    url = url + ('&' if '?' in url else '?') + payload
     payload = None
   elif opt_method == 'POST':
     headers['Content-type'] = 'application/x-www-form-urlencoded'

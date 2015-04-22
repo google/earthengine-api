@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A TestCase that initializes the library with standard API methods."""
 
 

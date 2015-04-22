@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Download example."""
 
 import ee

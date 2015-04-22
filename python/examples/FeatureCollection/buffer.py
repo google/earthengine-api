@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Buffer Example.
 
 Display the area within 2 kilometers of any San Francisco BART station.

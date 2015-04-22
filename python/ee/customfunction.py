@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """An object representing a custom EE Function."""
 
 

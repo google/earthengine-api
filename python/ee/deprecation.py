@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Decorators to mark function deprecated."""
 
 

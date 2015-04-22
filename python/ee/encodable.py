@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """An interface implemented by serializable objects."""
 
 

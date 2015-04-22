@@ -851,6 +851,13 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
 ee.data.getApiBaseUrl = function() {
 };
 /**
+ * @param {string} assetId
+ * @param {function ({all_users_can_read: (boolean|undefined), owners: Array<string>, readers: Array<string>, writers: Array<string>}, string=): ?=} opt_callback
+ * @return {(ee.data.AssetAcl|null)}
+ */
+ee.data.getAssetAcl = function(assetId, opt_callback) {
+};
+/**
  * @param {function (Array<ee.data.FolderDescription>, string=): ?=} opt_callback
  * @return {(Array<ee.data.FolderDescription>|null)}
  */
@@ -969,6 +976,14 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
  * @return {(ee.data.ProcessingResponse|null)}
  */
 ee.data.prepareValue = function(taskId, params, opt_callback) {
+};
+/**
+ * @param {string} assetId
+ * @param {{all_users_can_read: (boolean|undefined), readers: Array<string>, writers: Array<string>}} aclUpdate
+ * @param {function ((Object|null), string=): ?=} opt_callback
+ * @return {undefined}
+ */
+ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
 };
 /**
  * @param {number} milliseconds

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Landcover cleanup.
 
 Display the MODIS land cover classification image with appropriate colors.

@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Test for the ee.__init__ file."""
 
 

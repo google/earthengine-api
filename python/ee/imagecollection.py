@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Representation for an Earth Engine ImageCollection."""
 
 

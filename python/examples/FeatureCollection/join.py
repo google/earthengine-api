@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """FeatureCollection Join example.
 
 Show parks in San Francisco within 2 kilometers of a BART station.

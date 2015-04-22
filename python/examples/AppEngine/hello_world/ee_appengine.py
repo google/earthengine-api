@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A simple example of connecting to Earth Engine using App Engine."""
 
 

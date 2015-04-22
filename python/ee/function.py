@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A base class for EE Functions."""
 
 

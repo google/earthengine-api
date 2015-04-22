@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Common representation for ImageCollection and FeatureCollection.
 
 This class is never intended to be instantiated by the user.

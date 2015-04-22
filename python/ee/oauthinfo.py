@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Earth Engine OAuth2 client information."""
 
 import os

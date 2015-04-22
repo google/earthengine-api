@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A set of utilities to work with EE types."""
 
 

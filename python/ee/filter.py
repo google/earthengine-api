@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Collection filters.
 
 Example usage:

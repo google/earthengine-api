@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Map an expression.
 
 Computes the mean NDVI and SAVI by mapping an expression over a collection

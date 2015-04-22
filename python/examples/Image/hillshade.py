@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Compute hillshade from elevation."""
 
 import math

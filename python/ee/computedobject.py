@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A representation of an Earth Engine computed object."""
 
 

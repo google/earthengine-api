@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """A deserializer that decodes EE object trees from JSON DAGs."""
 
 

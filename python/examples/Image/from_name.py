@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 """Display an image given its ID."""
 
 import ee
