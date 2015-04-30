@@ -838,6 +838,13 @@ ee.data.cancelTask = function(taskId, opt_callback) {
 ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
 };
 /**
+ * @param {string} requestedId
+ * @param {function (Array<ee.data.FolderDescription>, string=): ?=} opt_callback
+ * @return {undefined}
+ */
+ee.data.createAssetHome = function(requestedId, opt_callback) {
+};
+/**
  * @param {string} path
  * @param {boolean=} opt_force
  * @param {function ((Object|null), string=): ?=} opt_callback

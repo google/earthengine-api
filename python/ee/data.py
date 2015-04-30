@@ -444,7 +444,7 @@ def startProcessing(taskId, params):
   return send_('/processingrequest', args)
 
 
-def startImport(taskId, request):
+def startIngestion(taskId, request):
   """Creates an asset import task.
 
   Args:
@@ -469,7 +469,23 @@ def startImport(taskId, request):
     A dict with optional notes about the created task.
   """
   args = {'id': taskId, 'request': json.dumps(request)}
-  return send_('/import', args)
+  return send_('/ingestionrequest', args)
+
+
+def getAssetRoots():
+  """Returns the list of the root folders the user owns.
+
+  Note: The "id" values for roots are two levels deep, e.g. "users/johndoe"
+        not "users/johndoe/notaroot".
+
+  Returns:
+    A list of folder descriptions formatted like:
+      [
+          {"type": "Folder", "id": "users/foo"},
+          {"type": "Folder", "id": "projects/bar"},
+      ]
+  """
+  return send_('/buckets', None, 'GET')
 
 
 def getAssetAcl(assetId):
@@ -503,6 +519,18 @@ def setAssetAcl(assetId, aclUpdate):
         value returned by getAssetAcl but without "owners".
   """
   send_('/setacl', {'id': assetId, 'value': aclUpdate})
+
+
+def createAssetHome(requestedId):
+  """Attempts to create a home root folder for the current user ("users/joe").
+
+  Results in an error if the user already has a home root folder or the
+  requested ID is unavailable.
+
+  Args:
+    requestedId: The requested ID of the home folder (e.g. "users/joe").
+  """
+  send_('/createbucket', {'id': requestedId})
 
 
 def send_(path, params, opt_method='POST', opt_raw=False):

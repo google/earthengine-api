@@ -18,6 +18,7 @@ goog.LOCALE = "en";
 goog.TRUSTED_SITE = !0;
 goog.STRICT_MODE_COMPATIBLE = !1;
 goog.DISALLOW_TEST_ONLY_CODE = !goog.DEBUG;
+goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING = !1;
 goog.provide = function(name) {
   goog.constructNamespace_(name);
 };
@@ -203,10 +204,19 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
 }, goog.loadModuleFromSource_ = function(source) {
   eval(source);
   return {};
+}, goog.writeScriptSrcNode_ = function(src) {
+  goog.global.document.write('<script type="text/javascript" src="' + src + '">\x3c/script>');
+}, goog.appendScriptSrcNode_ = function(src) {
+  var doc = goog.global.document, scriptEl = doc.createElement("script");
+  scriptEl.type = "text/javascript";
+  scriptEl.src = src;
+  scriptEl.defer = !1;
+  scriptEl.async = !1;
+  doc.head.appendChild(scriptEl);
 }, goog.writeScriptTag_ = function(src, opt_sourceText) {
   if (goog.inHtmlDocument_()) {
     var doc = goog.global.document;
-    if ("complete" == doc.readyState) {
+    if (!goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING && "complete" == doc.readyState) {
       if (/\bdeps.js$/.test(src)) {
         return !1;
       }
@@ -218,7 +228,7 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
         var state = " onreadystatechange='goog.onScriptLoad_(this, " + ++goog.lastNonModuleScriptIndex_ + ")' ";
         doc.write('<script type="text/javascript" src="' + src + '"' + state + ">\x3c/script>");
       } else {
-        doc.write('<script type="text/javascript" src="' + src + '">\x3c/script>');
+        goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING ? goog.appendScriptSrcNode_(src) : goog.writeScriptSrcNode_(src);
       }
     } else {
       doc.write('<script type="text/javascript">' + opt_sourceText + "\x3c/script>");
@@ -1914,6 +1924,18 @@ goog.i18n.bidi.detectRtlDirectionality = function(str, opt_isHtml) {
 goog.i18n.bidi.setElementDirAndAlign = function(element, dir) {
   element && (dir = goog.i18n.bidi.toDir(dir)) && (element.style.textAlign = dir == goog.i18n.bidi.Dir.RTL ? goog.i18n.bidi.RIGHT : goog.i18n.bidi.LEFT, element.dir = dir == goog.i18n.bidi.Dir.RTL ? "rtl" : "ltr");
 };
+goog.i18n.bidi.setElementDirByTextDirectionality = function(element, text) {
+  switch(goog.i18n.bidi.estimateDirection(text)) {
+    case goog.i18n.bidi.Dir.LTR:
+      element.dir = "ltr";
+      break;
+    case goog.i18n.bidi.Dir.RTL:
+      element.dir = "rtl";
+      break;
+    default:
+      element.removeAttribute("dir");
+  }
+};
 goog.i18n.bidi.DirectionalString = function() {
 };
 goog.string.TypedString = function() {
@@ -3607,6 +3629,7 @@ goog.dom.getAncestorByClass = function(element, className, opt_maxSearchSteps) {
 goog.dom.getAncestor = function(element, matcher, opt_includeNode, opt_maxSearchSteps) {
   opt_includeNode || (element = element.parentNode);
   for (var ignoreSearchSteps = null == opt_maxSearchSteps, steps = 0;element && (ignoreSearchSteps || steps <= opt_maxSearchSteps);) {
+    goog.asserts.assert("parentNode" != element.name);
     if (matcher(element)) {
       return element;
     }
@@ -8176,6 +8199,11 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
   return ee.data.send_("/ingestionrequest", ee.data.makeRequest_(params), opt_callback);
 };
 goog.exportSymbol("ee.data.startIngestion", ee.data.startIngestion);
+ee.data.createAssetHome = function(requestedId, opt_callback) {
+  var request = ee.data.makeRequest_({id:requestedId});
+  ee.data.send_("/createbucket", request, opt_callback);
+};
+goog.exportSymbol("ee.data.createAssetHome", ee.data.createAssetHome);
 ee.data.getAssetRoots = function(opt_callback) {
   return ee.data.send_("/buckets", null, opt_callback, "GET");
 };
@@ -11090,11 +11118,12 @@ goog.style.toStyleAttribute = function(obj) {
   });
   return buffer.join("");
 };
+goog.style.FLOAT_CSS_PROPERTY_NAME_ = goog.userAgent.IE && !goog.userAgent.isVersionOrHigher(12) ? "styleFloat" : "cssFloat";
 goog.style.setFloat = function(el, value) {
-  el.style[goog.userAgent.IE ? "styleFloat" : "cssFloat"] = value;
+  el.style[goog.style.FLOAT_CSS_PROPERTY_NAME_] = value;
 };
 goog.style.getFloat = function(el) {
-  return el.style[goog.userAgent.IE ? "styleFloat" : "cssFloat"] || "";
+  return el.style[goog.style.FLOAT_CSS_PROPERTY_NAME_] || "";
 };
 goog.style.getScrollbarWidth = function(opt_className) {
   var outerDiv = goog.dom.createElement(goog.dom.TagName.DIV);

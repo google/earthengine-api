@@ -43,9 +43,9 @@ var maskClouds = function(image) {
   return image.mask(internalCloud.eq(0));
 };
 
-// Start with an image collection for a 3 month period.
+// Start with an image collection for a 1 month period.
 var collection = ee.ImageCollection('MOD09GA')
-                   .filterDate('2011-04-01', '2011-07-01');
+                   .filterDate('2010-04-01', '2010-05-01');
 
 // Mask out areas that were not observed.
 var collection = collection.map(maskEmptyPixels);

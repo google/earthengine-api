@@ -207,4 +207,5 @@ Note that the file locations may vary depending on you system configuration.
 # Testing Out the Full Installation #
 
 In order to test out installation, users first need to authenticate using
-OAuth 2.0. Please see the Earth Engine API Docs for details.
+OAuth 2.0. Please see the [Earth Engine API Docs](https://sites.google.com/site/earthengineapidocs/creating-oauth2-service-account)
+for details.

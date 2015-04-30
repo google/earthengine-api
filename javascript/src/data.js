@@ -756,7 +756,8 @@ goog.exportSymbol('ee.data.prepareValue', ee.data.prepareValue);
  * @param {string} taskId ID for the task (obtained using newTaskId).
  * @param {Object} params The object that describes the processing task;
  *    only fields that are common for all processing types are documented here.
- *      type (string) Either 'EXPORT_IMAGE' or 'EXPORT_FEATURES'.
+ *      type (string) Either 'EXPORT_IMAGE', 'EXPORT_FEATURES' or
+ *      'EXPORT_VIDEO'.
  *      json (string) JSON description of the image.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
@@ -794,6 +795,23 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
       '/ingestionrequest', ee.data.makeRequest_(params), opt_callback));
 };
 goog.exportSymbol('ee.data.startIngestion', ee.data.startIngestion);
+
+
+/**
+ * Attempts to create a home root folder (e.g. "users/joe") for the current
+ * user. This results in an error if the user already has a home root folder or
+ * the requested ID is unavailable.
+ *
+ * @param {string} requestedId The requested ID of the home folder
+ *     (e.g. "users/joe").
+ * @param {function(!Array<ee.data.FolderDescription>, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ */
+ee.data.createAssetHome = function(requestedId, opt_callback) {
+  var request = ee.data.makeRequest_({'id': requestedId});
+  ee.data.send_('/createbucket', request, opt_callback);
+};
+goog.exportSymbol('ee.data.createAssetHome', ee.data.createAssetHome);
 
 
 /**

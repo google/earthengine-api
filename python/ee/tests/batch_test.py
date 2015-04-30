@@ -150,7 +150,6 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'description': 'TestName',
             'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
             'scale': 1000,
-            'crs': 'EPSG:4326',
             'driveFileNamePrefix': 'TestName',
             'maxPixels': 10**10,
         },
@@ -168,6 +167,26 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'description': 'myExportTableTask',
             'driveFileNamePrefix': 'myExportTableTask',
             'fileFormat': 'CSV',
+        },
+        task.config)
+
+  def testExportVideo(self):
+    """Verifies the task created by Export.video()."""
+    region = ee.Geometry.Rectangle(1, 2, 3, 4)
+    config = dict(region=region['coordinates'], dimensions=16)
+    collection = ee.ImageCollection([ee.Image(1), ee.Image(2)])
+    task = ee.batch.Export.video(collection, 'TestVideoName', config)
+    self.assertEquals('TESTTASKID', task.id)
+    self.assertEquals(
+        {
+            'type': 'EXPORT_VIDEO',
+            'state': 'UNSUBMITTED',
+            'json': collection.serialize(),
+            'description': 'TestVideoName',
+            'crs': 'SR-ORG:6627',
+            'driveFileNamePrefix': 'TestVideoName',
+            'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
+            'dimensions': 16
         },
         task.config)
 
