@@ -17,3 +17,11 @@ libraries:
   version: "2.5.2"
 - name: pycrypto
   version: "2.6"
+
+skip_files:
+- ^(.*/)?#.*#$
+- ^(.*/)?.*~$
+- ^(.*/)?.*\.pyo$
+- ^(.*/)?.*/RCS/.*$
+- ^(.*/)?\..*$
+

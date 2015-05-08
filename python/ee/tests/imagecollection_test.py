@@ -30,6 +30,10 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
     from_other_image_collection = ee.ImageCollection(original)
     self.assertEquals(from_other_image_collection, original)
 
+    l = ee.List([ee.Image(1)]).slice(0)
+    from_list = ee.ImageCollection(l)
+    self.assertEquals({'images': l}, from_list.args)
+
     from_computed_object = ee.ImageCollection(
         ee.ComputedObject(None, {'x': 'y'}))
     self.assertEquals({'x': 'y'}, from_computed_object.args)

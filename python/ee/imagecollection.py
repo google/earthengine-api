@@ -10,6 +10,7 @@ import apifunction
 import collection
 import computedobject
 import ee_exception
+import ee_list
 import ee_types
 import image
 
@@ -48,6 +49,12 @@ class ImageCollection(collection.Collection):
       super(ImageCollection, self).__init__(
           apifunction.ApiFunction.lookup('ImageCollection.fromImages'), {
               'images': [image.Image(i) for i in args]
+          })
+    elif isinstance(args, ee_list.List):
+      # A computed list of images.
+      super(ImageCollection, self).__init__(
+          apifunction.ApiFunction.lookup('ImageCollection.fromImages'), {
+              'images': args
           })
     elif isinstance(args, computedobject.ComputedObject):
       # A custom object to reinterpret as a ImageCollection.

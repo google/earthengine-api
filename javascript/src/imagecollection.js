@@ -8,6 +8,7 @@ goog.require('ee.ApiFunction');
 goog.require('ee.Collection');
 goog.require('ee.ComputedObject');
 goog.require('ee.Image');
+goog.require('ee.List');
 goog.require('ee.Types');
 goog.require('goog.array');
 
@@ -57,6 +58,11 @@ ee.ImageCollection = function(args) {
       'images': goog.array.map(args, function(elem) {
         return new ee.Image(elem);
       })
+    });
+  } else if (args instanceof ee.List) {
+    // A computed list of image. This can't get the extra ee.Image().
+    goog.base(this, new ee.ApiFunction('ImageCollection.fromImages'), {
+      'images': args
     });
   } else if (args instanceof ee.ComputedObject) {
     // A custom object to reinterpret as an ImageCollection.

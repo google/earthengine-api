@@ -716,8 +716,7 @@ ee.ImageCollection = function(args) {
  * @param {function ({bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
  * @return {{bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}}
  */
-ee.ImageCollection.prototype.getInfo = 
-function(opt_callback) {
+ee.ImageCollection.prototype.getInfo = function(opt_callback) {
 };
 /**
  * @param {(Object|null)=} opt_visParams

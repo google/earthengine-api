@@ -282,8 +282,17 @@ goog.normalizePath_ = function(path) {
   }
   return components.join("/");
 };
+goog.loadFileSync_ = function(src) {
+  if (goog.global.CLOSURE_LOAD_FILE_SYNC) {
+    return goog.global.CLOSURE_LOAD_FILE_SYNC(src);
+  }
+  var xhr = new goog.global.XMLHttpRequest;
+  xhr.open("get", src, !1);
+  xhr.send();
+  return xhr.responseText;
+};
 goog.retrieveAndExecModule_ = function(src) {
-  var execModuleScript, xhr, scriptText, importScript, originalPath;
+  var execModuleScript, scriptText, importScript, originalPath;
 };
 goog.typeOf = function(value) {
   var s = typeof value;
@@ -4053,9 +4062,10 @@ goog.async.run.initializeRunner_ = function() {
     };
   }
 };
-goog.async.run.forceNextTick = function() {
+goog.async.run.forceNextTick = function(opt_realSetTimeout) {
   goog.async.run.schedule_ = function() {
     goog.async.nextTick(goog.async.run.processWorkQueue);
+    opt_realSetTimeout && opt_realSetTimeout(goog.async.run.processWorkQueue);
   };
 };
 goog.async.run.workQueueScheduled_ = !1;
@@ -7830,7 +7840,7 @@ goog.Uri.removeDotSegments = function(path) {
   return path;
 };
 goog.Uri.decodeOrEmpty_ = function(val, opt_preserveReserved) {
-  return val ? opt_preserveReserved ? decodeURI(val) : decodeURIComponent(val) : "";
+  return val ? opt_preserveReserved ? decodeURI(val.replace(/%25/g, "%2525")) : decodeURIComponent(val) : "";
 };
 goog.Uri.encodeSpecialChars_ = function(unescapedPart, extra, opt_removeDoubleEncoding) {
   if (goog.isString(unescapedPart)) {
@@ -10031,10 +10041,14 @@ ee.ImageCollection = function(args) {
         return new ee.Image(elem);
       })});
     } else {
-      if (args instanceof ee.ComputedObject) {
-        ee.Collection.call(this, args.func, args.args, args.varName);
+      if (args instanceof ee.List) {
+        ee.Collection.call(this, new ee.ApiFunction("ImageCollection.fromImages"), {images:args});
       } else {
-        throw Error("Unrecognized argument type to convert to an ImageCollection: " + args);
+        if (args instanceof ee.ComputedObject) {
+          ee.Collection.call(this, args.func, args.args, args.varName);
+        } else {
+          throw Error("Unrecognized argument type to convert to an ImageCollection: " + args);
+        }
       }
     }
   }
