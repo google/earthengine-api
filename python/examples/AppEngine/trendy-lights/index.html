@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Trendy Lights</title>
+    <meta charset="utf-8">
+
+    <!-- Support for browsers on mobile phones. -->
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, user-scalable=no">
+
+    <!-- Google Web Fonts. -->
+    <link href='https://fonts.googleapis.com/css?family=Roboto+Condensed'
+          rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Lobster'
+          rel='stylesheet' type='text/css'>
+
+    <!-- Custom CSS styles for our application. -->
+    <link rel="stylesheet" href="/static/style.css">
+
+    <!-- The Google JavaScript loader tool (for the Maps, Charts APIs). -->
+    <script src="https://www.google.com/jsapi"></script>
+
+    <!-- Our custom JavaScript for Trendy Lights. -->
+    <script src="/static/script.js"></script>
+
+  </head>
+  <body>
+
+    <!-- The DOM of our application. -->
+    <div class="trendy">
+
+      <!-- The title of the application. -->
+      <h1>Trendy Lights</h1>
+
+      <!-- A container which the Maps API will populate with a map. -->
+      <div class="map"></div>
+
+      <!-- The panel to show details about a place. -->
+      <div class="panel">
+
+        <!-- The button to toggle the panel expanded/collapsed. Mobile-only. -->
+        <div class="toggler">toggle</div>
+
+        <!-- The button to close the panel. Desktop-only. -->
+        <div class="close">close</div>
+
+        <!-- The title of the place for which details are being shown. -->
+        <h2 class="title"></h2>
+
+        <!-- A scrollable container for details about the polygon. -->
+        <div class="details">
+
+          <!-- A container which the Charts API will populate. -->
+          <div class="chart"></div>
+
+          <!-- The link to the polygon's Wikipedia page. -->
+          <a class="wiki-url">Wikipedia article</a>
+
+          <!-- The element to hold the error message. -->
+          <p class="error"></p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Boot our JavaScript once the body has loaded. -->
+    <script>
+      trendy.boot(
+          '{{ eeMapId | safe }}',
+          '{{ eeToken | safe }}',
+          '{{ serializedPolygonIds | safe }}');
+    </script>
+
+  </body>
+</html>

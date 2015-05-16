@@ -168,7 +168,7 @@ class Image(element.Element):
 
     Args:
       params: Parameters identical to getMapId, plus, optionally:
-          size - (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
+          dimensions - (a number or pair of numbers in format WIDTHxHEIGHT) Max
             dimensions of the thumbnail to render, in pixels. If only one number
             is passed, it is used as the maximum, and the other dimension is
             computed by proportional scaling.

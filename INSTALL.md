@@ -20,7 +20,7 @@ Python 2.6 or 2.7.
 The following installation instructions assume that you are using the Python
 package manager. Pip can be installed with the following command:
 
-`sudo apt-get python-pip`
+`sudo apt-get install python-pip`
 
 ## Google APIs Client Library for Python ##
 
@@ -206,6 +206,6 @@ Note that the file locations may vary depending on you system configuration.
 
 # Testing Out the Full Installation #
 
-In order to test out installation, users first need to authenticate using
-OAuth 2.0. Please see the [Earth Engine API Docs](https://sites.google.com/site/earthengineapidocs/creating-oauth2-service-account)
+In order to test out installation, users first need to authenticate.
+Please see the [Earth Engine API Docs](https://sites.google.com/site/earthengineapidocs/python-api)
 for details.
