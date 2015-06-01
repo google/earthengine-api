@@ -3125,7 +3125,7 @@ goog.dom.getDocumentScrollElement = function() {
   return goog.dom.getDocumentScrollElement_(document);
 };
 goog.dom.getDocumentScrollElement_ = function(doc) {
-  return !goog.userAgent.WEBKIT && goog.dom.isCss1CompatMode_(doc) ? doc.documentElement : doc.body || doc.documentElement;
+  return doc.scrollingElement ? doc.scrollingElement : !goog.userAgent.WEBKIT && goog.dom.isCss1CompatMode_(doc) ? doc.documentElement : doc.body || doc.documentElement;
 };
 goog.dom.getWindow = function(opt_doc) {
   return opt_doc ? goog.dom.getWindow_(opt_doc) : window;
@@ -8095,7 +8095,6 @@ ee.data.getXsrfToken = function() {
   return ee.data.xsrfToken_;
 };
 ee.data.getInfo = function(id, opt_callback) {
-  goog.global.console && goog.global.console.error && goog.global.console.error("ee.data.getInfo is DEPRECATED. Use ee.data.getValue() instead.");
   return ee.data.send_("/info", (new goog.Uri.QueryData).add("id", id), opt_callback);
 };
 ee.data.getList = function(params, opt_callback) {
@@ -8238,7 +8237,7 @@ ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
   ee.data.initialize();
   var method = opt_method || "POST", headers = {"Content-Type":"application/x-www-form-urlencoded"};
   goog.isDefAndNotNull(ee.data.authToken_) && (headers.Authorization = ee.data.authToken_);
-  goog.isDefAndNotNull(ee.data.xsrfToken_) && ("GET" == method ? (path += goog.string.contains(path, "?") ? "&" : "?", path += "xsrfToken=" + ee.data.xsrfToken_) : (params || (params = new goog.Uri.QueryData), params.add("xsrfToken", ee.data.xsrfToken_)));
+  goog.isDefAndNotNull(ee.data.xsrfToken_) && (headers["X-XSRF-Token"] = ee.data.xsrfToken_);
   var handleResponse = function(status, contentType, responseText, opt_callback) {
     var response, data, errorMessage;
     contentType = contentType ? contentType.replace(/;.*/, "") : "application/json";
@@ -10480,6 +10479,9 @@ goog.math.Rect.prototype.clone = function() {
 goog.math.Rect.prototype.toBox = function() {
   return new goog.math.Box(this.top, this.left + this.width, this.top + this.height, this.left);
 };
+goog.math.Rect.createFromPositionAndSize = function(position, size) {
+  return new goog.math.Rect(position.x, position.y, size.width, size.height);
+};
 goog.math.Rect.createFromBox = function(box) {
   return new goog.math.Rect(box.left, box.top, box.right - box.left, box.bottom - box.top);
 };
@@ -10965,10 +10967,10 @@ goog.style.setUnselectable = function(el, unselectable, opt_noRecurse) {
   var descendants = opt_noRecurse ? null : el.getElementsByTagName("*"), name = goog.style.unselectableStyle_;
   if (name) {
     var value = unselectable ? "none" : "";
-    el.style[name] = value;
+    el.style && (el.style[name] = value);
     if (descendants) {
       for (var i = 0, descendant;descendant = descendants[i];i++) {
-        descendant.style[name] = value;
+        descendant.style && (descendant.style[name] = value);
       }
     }
   } else {

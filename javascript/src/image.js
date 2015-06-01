@@ -152,8 +152,8 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * An imperative function that returns a map id and token, suitable for
  * generating a Map overlay.
  *
- * @param {Object?=} opt_visParams The visualization parameters.
- *     See ee.data.getMapId.
+ * @param {ee.data.ImageVisualizationParameters=} opt_visParams
+ *     The visualization parameters.
  * @param {function(Object, string=)=} opt_callback An async callback.
  * @return {ee.data.MapId|undefined} An object containing a mapid string, an
  *     access token plus this object, or an error message. Or undefined if a
@@ -161,7 +161,8 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * @export
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
-  var request = opt_visParams ? goog.object.clone(opt_visParams) : {};
+  var request = /** @type {ee.data.ImageVisualizationParameters} */ (
+      opt_visParams ? goog.object.clone(opt_visParams) : {});
   request['image'] = this.serialize();
 
   if (opt_callback) {

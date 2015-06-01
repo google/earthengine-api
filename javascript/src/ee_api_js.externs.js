@@ -677,7 +677,7 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 ee.Image.prototype.getInfo = function(opt_callback) {
 };
 /**
- * @param {(Object|null)=} opt_visParams
+ * @param {{bands: (Array<string>|null|string|undefined), bias: (Array<number>|null|number|undefined), format: (string|undefined), gain: (Array<number>|null|number|undefined), gamma: (Array<number>|null|number|undefined), image: (ee.Image|null), max: (Array<number>|null|number|undefined), min: (Array<number>|null|number|undefined), opacity: (number|undefined), palette: (Array<string>|null|string|undefined)}=} opt_visParams
  * @param {function ((Object|null), string=): ?=} opt_callback
  * @return {(undefined|{image: (ee.Image|null), mapid: string, token: string})}
  */
@@ -891,7 +891,7 @@ ee.data.getInfo = function(id, opt_callback) {
 ee.data.getList = function(params, opt_callback) {
 };
 /**
- * @param {(Object|null)} params
+ * @param {{bands: (Array<string>|null|string|undefined), bias: (Array<number>|null|number|undefined), format: (string|undefined), gain: (Array<number>|null|number|undefined), gamma: (Array<number>|null|number|undefined), image: (ee.Image|null), max: (Array<number>|null|number|undefined), min: (Array<number>|null|number|undefined), opacity: (number|undefined), palette: (Array<string>|null|string|undefined)}} params
  * @param {function ({mapid: string, token: string}, string=): ?=} opt_callback
  * @return {(ee.data.RawMapId|null)}
  */

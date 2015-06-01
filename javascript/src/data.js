@@ -17,6 +17,7 @@ goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.FeatureCollectionDescription');
+goog.provide('ee.data.FeatureVisualizationParameters');
 goog.provide('ee.data.FileSource');
 goog.provide('ee.data.Fileset');
 goog.provide('ee.data.FolderDescription');
@@ -26,6 +27,7 @@ goog.provide('ee.data.GeoJSONGeometry');
 goog.provide('ee.data.ImageCollectionDescription');
 goog.provide('ee.data.ImageDescription');
 goog.provide('ee.data.ImageTaskConfig');
+goog.provide('ee.data.ImageVisualizationParameters');
 goog.provide('ee.data.IngestionRequest');
 goog.provide('ee.data.MapId');
 goog.provide('ee.data.PixelTypeDescription');
@@ -66,7 +68,7 @@ ee.data.tileBaseUrl_ = null;
 
 
 /**
- * @type {string?} A string to pass in the "xsrfToken" parameter of XHRs.
+ * @type {string?} A string to pass in the X-XSRF-Token header of XHRs.
  * @private
  */
 ee.data.xsrfToken_ = null;
@@ -151,8 +153,8 @@ ee.data.TaskUpdateActions = {
  *     endpoint.
  * @param {string?=} opt_tileBaseUrl The (unproxied) EarthEngine REST tile
  *     endpoint.
- * @param {string?=} opt_xsrfToken A string to pass in the "xsrfToken"
- *     parameter of XHRs.
+ * @param {string?=} opt_xsrfToken A string to pass in the X-XSRF-Token header
+ *     of XHRs.
  */
 ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl, opt_xsrfToken) {
   // If already initialized, only replace the explicitly specified parts.
@@ -275,7 +277,7 @@ ee.data.getTileBaseUrl = function() {
 /**
  * Returns the current XSRF token.
  *
- * @return {string?} A string to pass in the "xsrfToken" parameter of XHRs.
+ * @return {string?} A string to pass in the X-XSRF-Token header of XHRs.
  * @export
  */
 ee.data.getXsrfToken = function() {
@@ -290,14 +292,9 @@ ee.data.getXsrfToken = function() {
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} The value call results, or null if a callback is specified.
- * @deprecated Use ee.data.getValue().
  * @export
  */
 ee.data.getInfo = function(id, opt_callback) {
-  if (goog.global.console && goog.global.console.error) {
-    goog.global.console.error(
-        'ee.data.getInfo is DEPRECATED. Use ee.data.getValue() instead.');
-  }
   return ee.data.send_('/info',
                        new goog.Uri.QueryData().add('id', id),
                        opt_callback);
@@ -328,8 +325,8 @@ ee.data.getList = function(params, opt_callback) {
 
 /**
  * Get a Map ID for a given asset
- * @param {Object} params An object containing visualization
- *     options with the following possible values:
+ * @param {ee.data.ImageVisualizationParameters} params
+ *     The visualization parameters. For Images and ImageCollections:
  *       - image (JSON string) The image to render.
  *       - version (number) Version number of image (or latest).
  *       - bands (comma-seprated strings) Comma-delimited list of
@@ -346,6 +343,7 @@ ee.data.getList = function(params, opt_callback) {
  *             factor (or one per band)
  *       - palette (comma-separated strings) List of CSS-style color
  *             strings (single-band previews only).
+ *       - opacity (number) a number between 0 and 1 for opacity.
  *       - format (string) Either "jpg" or "png".
  * @param {function(ee.data.RawMapId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
@@ -354,7 +352,8 @@ ee.data.getList = function(params, opt_callback) {
  * @export
  */
 ee.data.getMapId = function(params, opt_callback) {
-  params = goog.object.clone(params);
+  params = /** @type {ee.data.ImageVisualizationParameters} */ (
+      goog.object.clone(params));
   return /** @type {?ee.data.RawMapId} */ (
       ee.data.send_('/mapid', ee.data.makeRequest_(params), opt_callback));
 };
@@ -398,7 +397,7 @@ ee.data.getValue = function(params, opt_callback) {
 
 /**
  * Get a Thumbnail Id for a given asset.
- * @param {Object} params Parameters identical to those for the vizOptions for
+ * @param {Object} params Parameters identical to those for the visParams for
  *     getMapId with the following additions:
  *       - size (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
  *             dimensions of the thumbnail to render, in pixels. If only one
@@ -904,15 +903,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
 
   // XSRF protection for a server-side API proxy.
   if (goog.isDefAndNotNull(ee.data.xsrfToken_)) {
-    if (method == 'GET') {
-      path += goog.string.contains(path, '?') ? '&' : '?';
-      path += 'xsrfToken=' + ee.data.xsrfToken_;
-    } else {
-      if (!params) {
-        params = new goog.Uri.QueryData();
-      }
-      params.add('xsrfToken', ee.data.xsrfToken_);
-    }
+    headers['X-XSRF-Token'] = ee.data.xsrfToken_;
   }
 
   // Handle processing and dispatching a callback response.
@@ -1238,6 +1229,16 @@ ee.data.FeatureCollectionDescription;
 
 
 /**
+ * An object describing ee.Feature visualization parameters. Color is
+ * a 6-character hex string in the RRGGBB format.
+ * @typedef {{
+ *   color: (string|undefined)
+ * }}
+ */
+ee.data.FeatureVisualizationParameters;
+
+
+/**
  * An object that depicts a GME Project that the user may export to with
  * attribution ids for each project.
  * @typedef {{
@@ -1307,6 +1308,24 @@ ee.data.ImageCollectionDescription;
  * }}
  */
 ee.data.ImageDescription;
+
+
+/**
+ * An object describing ee.Image visualization parameters. See ee.data.getMapId.
+ * @typedef {{
+ *   image: ee.Image,
+ *   bands: (string|Array<string>|undefined),
+ *   gain: (number|Array<number>|undefined),
+ *   bias: (number|Array<number>|undefined),
+ *   min: (number|Array<number>|undefined),
+ *   max: (number|Array<number>|undefined),
+ *   gamma: (number|Array<number>|undefined),
+ *   palette: (string|Array<string>|undefined),
+ *   opacity: (number|undefined),
+ *   format: (string|undefined)
+ * }}
+ */
+ee.data.ImageVisualizationParameters;
 
 
 /**
