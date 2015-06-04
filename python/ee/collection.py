@@ -175,7 +175,7 @@ class Collection(element.Element):
     """Returns the type of the collection's elements."""
     return element.Element
 
-  def map(self, algorithm):
+  def map(self, algorithm, opt_dropNulls=None):
     """Maps an algorithm over a collection.
 
     Args:
@@ -184,6 +184,8 @@ class Collection(element.Element):
           returns one. The function is called only once and the result is
           captured as a description, so it cannot perform imperative operations
           or rely on external state.
+      opt_dropNulls: If true, the mapped algorithm is allowed to return nulls,
+          and the elements for which it returns nulls will be dropped.
 
     Returns:
       The mapped collection.
@@ -194,7 +196,7 @@ class Collection(element.Element):
     element_type = self.elementType()
     with_cast = lambda e: algorithm(element_type(e))
     return self._cast(apifunction.ApiFunction.call_(
-        'Collection.map', self, with_cast))
+        'Collection.map', self, with_cast, opt_dropNulls))
 
   def iterate(self, algorithm, first=None):
     """Iterates over a collection with an algorithm.

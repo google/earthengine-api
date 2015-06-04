@@ -4176,7 +4176,7 @@ goog.Promise.returnEntry_ = function(entry) {
 goog.Promise.RESOLVE_FAST_PATH_ = function() {
 };
 goog.Promise.resolve = function(opt_value) {
-  return new goog.Promise(goog.Promise.RESOLVE_FAST_PATH_, opt_value);
+  return opt_value instanceof goog.Promise ? opt_value : new goog.Promise(goog.Promise.RESOLVE_FAST_PATH_, opt_value);
 };
 goog.Promise.reject = function(opt_reason) {
   return new goog.Promise(function(resolve, reject) {
@@ -4900,7 +4900,7 @@ LOSECAPTURE:"losecapture", ORIENTATIONCHANGE:"orientationchange", READYSTATECHAN
 ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", 
 MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXT:"text", 
 TEXTINPUT:"textInput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage", DOMSUBTREEMODIFIED:"DOMSubtreeModified", DOMNODEINSERTED:"DOMNodeInserted", DOMNODEREMOVED:"DOMNodeRemoved", 
-DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", DOMATTRMODIFIED:"DOMAttrModified", DOMCHARACTERDATAMODIFIED:"DOMCharacterDataModified"};
+DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", DOMATTRMODIFIED:"DOMAttrModified", DOMCHARACTERDATAMODIFIED:"DOMCharacterDataModified", BEFOREPRINT:"beforeprint", AFTERPRINT:"afterprint"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
@@ -5125,7 +5125,15 @@ goog.events.listen_ = function(src, type, listener, callOnce, opt_capt, opt_hand
   listenerObj.proxy = proxy;
   proxy.src = src;
   proxy.listener = listenerObj;
-  src.addEventListener ? src.addEventListener(type.toString(), proxy, capture) : src.attachEvent(goog.events.getOnString_(type.toString()), proxy);
+  if (src.addEventListener) {
+    src.addEventListener(type.toString(), proxy, capture);
+  } else {
+    if (src.attachEvent) {
+      src.attachEvent(goog.events.getOnString_(type.toString()), proxy);
+    } else {
+      throw Error("addEventListener and attachEvent are unavailable.");
+    }
+  }
   goog.events.listenerCountEstimate_++;
   return listenerObj;
 };
@@ -8064,23 +8072,27 @@ ee.data.reset = function() {
   ee.data.authToken_ = null;
   ee.data.initialized_ = !1;
 };
-ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes) {
+ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
   var scopes = [ee.data.AUTH_SCOPE_];
   opt_extraScopes && (goog.array.extend(scopes, opt_extraScopes), goog.array.removeDuplicates(scopes));
   ee.data.authClientId_ = clientId;
   ee.data.authScopes_ = scopes;
+  var onImmediateFailed = opt_onImmediateFailed || goog.partial(ee.data.authenticateViaPopup, success, opt_error);
   if (goog.isObject(goog.global.gapi) && goog.isObject(goog.global.gapi.auth) && goog.isFunction(goog.global.gapi.auth.authorize)) {
-    ee.data.refreshAuthToken_(success, opt_error);
+    ee.data.refreshAuthToken_(success, opt_error, onImmediateFailed);
   } else {
     for (var callbackName = goog.now().toString(36);callbackName in goog.global;) {
       callbackName += "_";
     }
     goog.global[callbackName] = function() {
       delete goog.global[callbackName];
-      ee.data.refreshAuthToken_(success, opt_error);
+      ee.data.refreshAuthToken_(success, opt_error, onImmediateFailed);
     };
     goog.net.jsloader.load(ee.data.AUTH_LIBRARY_URL_ + "?onload=" + callbackName);
   }
+};
+ee.data.authenticateViaPopup = function(opt_success, opt_error) {
+  goog.global.gapi.auth.authorize({client_id:ee.data.authClientId_, immediate:!1, scope:ee.data.authScopes_.join(" ")}, goog.partial(ee.data.handleAuthResult_, opt_success, opt_error));
 };
 ee.data.setDeadline = function(milliseconds) {
   ee.data.deadlineMs_ = milliseconds;
@@ -8287,13 +8299,14 @@ ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
   }
   return handleResponse(xmlHttp.status, contentType$$0, xmlHttp.responseText, null);
 };
-ee.data.refreshAuthToken_ = function(opt_success, opt_error) {
-  var authArgs = {client_id:ee.data.authClientId_, immediate:!0, scope:ee.data.authScopes_.join(" ")}, done = function(result) {
-    result.access_token ? (ee.data.authToken_ = result.token_type + " " + result.access_token, setTimeout(ee.data.refreshAuthToken_, 1E3 * result.expires_in / 2), opt_success && opt_success()) : opt_error && opt_error(result.error || "Unknown error.");
-  }, authorize = goog.global.gapi.auth.authorize;
-  authorize(authArgs, function(result) {
-    "immediate_failed" == result.error ? (authArgs.immediate = !1, authorize(authArgs, done)) : done(result);
+ee.data.refreshAuthToken_ = function(opt_success, opt_error, opt_onImmediateFailed) {
+  var authArgs = {client_id:ee.data.authClientId_, immediate:!0, scope:ee.data.authScopes_.join(" ")};
+  goog.global.gapi.auth.authorize(authArgs, function(result) {
+    "immediate_failed" == result.error && opt_onImmediateFailed ? opt_onImmediateFailed() : ee.data.handleAuthResult_(opt_success, opt_error, result);
   });
+};
+ee.data.handleAuthResult_ = function(success, error, result) {
+  result.access_token ? (ee.data.authToken_ = result.token_type + " " + result.access_token, setTimeout(ee.data.refreshAuthToken_, 1E3 * result.expires_in / 2), success && success()) : error && error(result.error || "Unknown error.");
 };
 ee.data.makeRequest_ = function(params) {
   var request = new goog.Uri.QueryData, item;
@@ -9091,11 +9104,11 @@ ee.Collection.prototype.name = function() {
 ee.Collection.prototype.elementType = function() {
   return ee.Element;
 };
-ee.Collection.prototype.map = function(algorithm) {
+ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
   var elementType = this.elementType();
   return this.castInternal(ee.ApiFunction._call("Collection.map", this, function(e) {
     return algorithm(new elementType(e));
-  }));
+  }, opt_dropNulls));
 };
 ee.Collection.prototype.iterate = function(algorithm, opt_first) {
   var first = goog.isDef(opt_first) ? opt_first : null, elementType = this.elementType();
@@ -9344,78 +9357,76 @@ ee.Geometry.reset = function() {
   ee.ApiFunction.clearApi(ee.Geometry);
   ee.Geometry.initialized_ = !1;
 };
-ee.Geometry.Point = function(coordsOrLon, opt_lat) {
+ee.Geometry.Point = function(coords, opt_proj) {
   if (!(this instanceof ee.Geometry.Point)) {
     return ee.Geometry.createInstance_(ee.Geometry.Point, arguments);
   }
-  if (2 < arguments.length) {
-    throw Error("The Geometry.Point constructor takes at most 2 arguments (" + arguments.length + " given)");
+  var init = ee.Geometry.parseArgs_("Point", 1, arguments);
+  if (!(init instanceof ee.ComputedObject)) {
+    var xy = init.coordinates;
+    if (!goog.isArray(xy) || 2 != xy.length) {
+      throw Error("The Geometry.Point constructor requires 2 coordinates.");
+    }
   }
-  if (1 == arguments.length && goog.isArray(arguments[0]) && 2 == arguments[0].length) {
-    var coords = arguments[0];
-    coordsOrLon = coords[0];
-    opt_lat = coords[1];
-  }
-  ee.Geometry.call(this, {type:"Point", coordinates:[coordsOrLon, opt_lat]});
+  ee.Geometry.call(this, init);
 };
 goog.inherits(ee.Geometry.Point, ee.Geometry);
-ee.Geometry.MultiPoint = function(coordinates) {
+ee.Geometry.MultiPoint = function(coords, opt_proj) {
   if (!(this instanceof ee.Geometry.MultiPoint)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiPoint, arguments);
   }
-  ee.Geometry.call(this, {type:"MultiPoint", coordinates:ee.Geometry.makeGeometry_(coordinates, 2, arguments)});
+  ee.Geometry.call(this, ee.Geometry.parseArgs_("MultiPoint", 2, arguments));
 };
 goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
-ee.Geometry.Rectangle = function(coordsOrLon1, opt_lat1, opt_lon2, opt_lat2) {
+ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_maxError) {
   if (!(this instanceof ee.Geometry.Rectangle)) {
-    return ee.ComputedObject.construct(ee.Geometry.Rectangle, arguments);
+    return ee.Geometry.createInstance_(ee.Geometry.Rectangle, arguments);
   }
-  if (4 < arguments.length) {
-    throw Error("The Geometry.Rectangle constructor takes at most 4 arguments (" + arguments.length + " given)");
+  var init = ee.Geometry.parseArgs_("Polygon", 2, arguments);
+  if (!(init instanceof ee.ComputedObject)) {
+    var xy = init.coordinates;
+    if (2 != xy.length) {
+      throw Error("The Geometry.Rectangle constructor requires 2 points or 4 coordinates.");
+    }
+    var x1 = xy[0][0], y1 = xy[0][1], x2 = xy[1][0], y2 = xy[1][1];
+    init.coordinates = [[[x1, y2], [x1, y1], [x2, y1], [x2, y2]]];
   }
-  if (goog.isArray(coordsOrLon1)) {
-    var args = coordsOrLon1;
-    coordsOrLon1 = args[0];
-    opt_lat1 = args[1];
-    opt_lon2 = args[2];
-    opt_lat2 = args[3];
-  }
-  ee.Geometry.call(this, {type:"Polygon", coordinates:[[[coordsOrLon1, opt_lat2], [coordsOrLon1, opt_lat1], [opt_lon2, opt_lat1], [opt_lon2, opt_lat2]]]});
+  ee.Geometry.call(this, init);
 };
 goog.inherits(ee.Geometry.Rectangle, ee.Geometry);
-ee.Geometry.LineString = function(coordinates) {
+ee.Geometry.LineString = function(coords, opt_proj, opt_geodesic, opt_maxError) {
   if (!(this instanceof ee.Geometry.LineString)) {
     return ee.Geometry.createInstance_(ee.Geometry.LineString, arguments);
   }
-  ee.Geometry.call(this, {type:"LineString", coordinates:ee.Geometry.makeGeometry_(coordinates, 2, arguments)});
+  ee.Geometry.call(this, ee.Geometry.parseArgs_("LineString", 2, arguments));
 };
 goog.inherits(ee.Geometry.LineString, ee.Geometry);
-ee.Geometry.LinearRing = function(coordinates) {
+ee.Geometry.LinearRing = function(coords, opt_proj, opt_geodesic, opt_maxError) {
   if (!(this instanceof ee.Geometry.LinearRing)) {
     return ee.Geometry.createInstance_(ee.Geometry.LinearRing, arguments);
   }
-  ee.Geometry.call(this, {type:"LinearRing", coordinates:ee.Geometry.makeGeometry_(coordinates, 2, arguments)});
+  ee.Geometry.call(this, ee.Geometry.parseArgs_("LinearRing", 2, arguments));
 };
 goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
-ee.Geometry.MultiLineString = function(coordinates) {
+ee.Geometry.MultiLineString = function(coords, opt_proj, opt_geodesic, opt_maxError) {
   if (!(this instanceof ee.Geometry.MultiLineString)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiLineString, arguments);
   }
-  ee.Geometry.call(this, {type:"MultiLineString", coordinates:ee.Geometry.makeGeometry_(coordinates, 3, arguments)});
+  ee.Geometry.call(this, ee.Geometry.parseArgs_("MultiLineString", 3, arguments));
 };
 goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
-ee.Geometry.Polygon = function(coordinates) {
+ee.Geometry.Polygon = function(coords, opt_proj, opt_geodesic, opt_maxError) {
   if (!(this instanceof ee.Geometry.Polygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.Polygon, arguments);
   }
-  ee.Geometry.call(this, {type:"Polygon", coordinates:ee.Geometry.makeGeometry_(coordinates, 3, arguments)});
+  ee.Geometry.call(this, ee.Geometry.parseArgs_("Polygon", 3, arguments));
 };
 goog.inherits(ee.Geometry.Polygon, ee.Geometry);
-ee.Geometry.MultiPolygon = function(coordinates) {
+ee.Geometry.MultiPolygon = function(coords, opt_proj, opt_geodesic, opt_maxError) {
   if (!(this instanceof ee.Geometry.MultiPolygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiPolygon, arguments);
   }
-  ee.Geometry.call(this, {type:"MultiPolygon", coordinates:ee.Geometry.makeGeometry_(coordinates, 4, arguments)});
+  ee.Geometry.call(this, ee.Geometry.parseArgs_("MultiPolygon", 4, arguments));
 };
 goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
 ee.Geometry.prototype.encode = function(opt_encoder) {
@@ -9486,33 +9497,57 @@ ee.Geometry.isValidCoordinates_ = function(shape) {
   return 0 == shape.length % 2 ? 1 : -1;
 };
 ee.Geometry.coordinatesToLine_ = function(coordinates) {
-  if ("number" == typeof coordinates[0]) {
-    if (0 != coordinates.length % 2) {
-      throw Error("Invalid number of coordinates: " + coordinates.length);
-    }
-    for (var line = [], i = 0;i < coordinates.length;i += 2) {
-      line.push([coordinates[i], coordinates[i + 1]]);
-    }
-    coordinates = line;
+  if (!goog.isNumber(coordinates[0]) || 2 == coordinates.length) {
+    return coordinates;
   }
-  return coordinates;
+  if (0 != coordinates.length % 2) {
+    throw Error("Invalid number of coordinates: " + coordinates.length);
+  }
+  for (var line = [], i = 0;i < coordinates.length;i += 2) {
+    line.push([coordinates[i], coordinates[i + 1]]);
+  }
+  return line;
 };
-ee.Geometry.makeGeometry_ = function(geometry, nesting, opt_coordinates) {
-  if (2 > nesting || 4 < nesting) {
+ee.Geometry.parseArgs_ = function(ctorName, depth, args) {
+  var result = {}, keys = ["coordinates", "crs", "geodesic", "maxError"];
+  if (goog.array.every(args, ee.Types.isNumber)) {
+    result.coordinates = goog.array.toArray(args);
+  } else {
+    if (args.length > keys.length) {
+      throw Error("Geometry constructor given extra arguments.");
+    }
+    for (var i = 0;i < keys.length;i++) {
+      goog.isDefAndNotNull(args[i]) && (result[keys[i]] = args[i]);
+    }
+  }
+  if (ee.Geometry.hasServerValue_(result.coordinates) || goog.isDefAndNotNull(result.crs) || goog.isDefAndNotNull(result.geodesic) || goog.isDefAndNotNull(result.maxError)) {
+    return (new ee.ApiFunction("GeometryConstructors." + ctorName)).apply(result);
+  }
+  result.type = ctorName;
+  result.coordinates = ee.Geometry.fixDepth_(depth, result.coordinates);
+  return result;
+};
+ee.Geometry.hasServerValue_ = function(coordinates) {
+  return goog.isArray(coordinates) ? goog.array.some(coordinates, ee.Geometry.hasServerValue_) : coordinates instanceof ee.ComputedObject;
+};
+ee.Geometry.fixDepth_ = function(depth, coords) {
+  if (1 > depth || 4 < depth) {
     throw Error("Unexpected nesting level.");
   }
-  !goog.isArray(geometry) && opt_coordinates && (geometry = ee.Geometry.coordinatesToLine_(Array.prototype.slice.call(opt_coordinates)));
-  for (var item = geometry, count = 0;goog.isArray(item);) {
+  goog.array.every(coords, goog.isNumber) && (coords = ee.Geometry.coordinatesToLine_(coords));
+  for (var item = coords, count = 0;goog.isArray(item);) {
     item = item[0], count++;
   }
-  for (;count < nesting;) {
-    geometry = [geometry], count++;
+  for (;count < depth;) {
+    coords = [coords], count++;
   }
-  if (ee.Geometry.isValidCoordinates_(geometry) != nesting) {
+  if (ee.Geometry.isValidCoordinates_(coords) != depth) {
     throw Error("Invalid geometry");
   }
-  1 == geometry.length && 0 == geometry[0].length && (geometry = []);
-  return geometry;
+  for (item = coords;goog.isArray(item) && 1 == item.length;) {
+    item = item[0];
+  }
+  return goog.isArray(item) && 0 == item.length ? [] : coords;
 };
 ee.Geometry.createInstance_ = function(klass, args) {
   var f = function() {
@@ -9718,7 +9753,7 @@ ee.Feature.MultiPoint = function(coordinates) {
   return ee.Geometry.MultiPoint.apply(null, arguments);
 };
 ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
-  return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2);
+  return new ee.Geometry.Rectangle([lon1, lat1, lon2, lat2]);
 };
 ee.Feature.LineString = function(coordinates) {
   return ee.Geometry.LineString.apply(null, arguments);
@@ -11840,6 +11875,7 @@ ee.MapLayerOverlay = function(url, mapId, token, init) {
   }
   this.tileSize = init.tileSize || new google.maps.Size(256, 256);
   this.isPng = goog.isDef(init.isPng) ? init.isPng : !0;
+  this.name = init.name;
   this.tilesLoading_ = [];
   this.tiles_ = new goog.structs.Set;
   this.tilesFailed_ = new goog.structs.Set;

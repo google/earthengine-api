@@ -199,19 +199,32 @@ ee.data.reset = function() {
  *
  * This should be called before the EE library is initialized.
  *
+ * Note that if the user has not previously granted access to the application
+ * identified by the client ID, by default this will try to pop up a dialog
+ * window prompting the user to grant the required permission. However, this
+ * popup can be blocked by the browser. To avoid this, specify the
+ * opt_onImmediateFailed callback, and in it render an in-page login button,
+ * then call ee.data.authenticateViaPopup() from the click event handler of
+ * this button. This stops the browser from blocking the popup, as it is now the
+ * direct result of a user action.
+ *
  * @param {?string} clientId The application's OAuth client ID, or null to
  *     disable authenticated calls. This can be obtained through the Google
  *     Developers Console. The project must have a JavaScript origin that
  *     corresponds to the domain where the script is running.
  * @param {function()} success The function to call if authentication succeeded.
  * @param {function(string)=} opt_error The function to call if authentication
- *     failed, passed the error message.
+ *     failed, passed the error message. If authentication in immediate
+ *     (behind-the-scenes) mode fails and opt_onImmediateFailed is specified,
+ *     that function is called instead of opt_error.
  * @param {!Array<string>=} opt_extraScopes Extra OAuth scopes to request.
+ * @param {function()=} opt_onImmediateFailed The function to call if
+ *     automatic behind-the-scenes authentication fails. Defaults to
+ *     ee.data.authenticateViaPopup(), bound to the passed callbacks.
  * @export
- *
- * TODO(user): Figure out if we need to deal with pop-up blockers.
  */
-ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes) {
+ee.data.authenticate = function(
+    clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
   // Remember the auth options.
   var scopes = [ee.data.AUTH_SCOPE_];
   if (opt_extraScopes) {
@@ -222,21 +235,43 @@ ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes) {
   ee.data.authScopes_ = scopes;
 
   // Start the authentication flow as soon as we have the auth library.
+  var onImmediateFailed = opt_onImmediateFailed || goog.partial(
+      ee.data.authenticateViaPopup, success, opt_error);
   if (goog.isObject(goog.global['gapi']) &&
       goog.isObject(goog.global['gapi']['auth']) &&
       goog.isFunction(goog.global['gapi']['auth']['authorize'])) {
-    ee.data.refreshAuthToken_(success, opt_error);
+    ee.data.refreshAuthToken_(success, opt_error, onImmediateFailed);
   } else {
     // The library is not loaded; load it now.
     var callbackName = goog.now().toString(36);
     while (callbackName in goog.global) callbackName += '_';
     goog.global[callbackName] = function() {
       delete goog.global[callbackName];
-      ee.data.refreshAuthToken_(success, opt_error);
+      ee.data.refreshAuthToken_(success, opt_error, onImmediateFailed);
     };
     goog.net.jsloader.load(
         ee.data.AUTH_LIBRARY_URL_ + '?onload=' + callbackName);
   }
+};
+
+
+/**
+ * Shows a popup asking for the user's permission. Should only be called if
+ * ee.data.authenticate() called its opt_onImmediateFailed argument in the past.
+ *
+ * May be blocked by pop-up blockers if called outside a user-initiated handler.
+ *
+ * @param {function()=} opt_success The function to call if authentication
+ *     succeeds.
+ * @param {function(string)=} opt_error The function to call if authentication
+ *     fails, passing the error message.
+ */
+ee.data.authenticateViaPopup = function(opt_success, opt_error) {
+  goog.global['gapi']['auth']['authorize']({
+    'client_id': ee.data.authClientId_,
+    'immediate': false,
+    'scope': ee.data.authScopes_.join(' ')
+  }, goog.partial(ee.data.handleAuthResult_, opt_success, opt_error));
 };
 
 
@@ -1005,9 +1040,12 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
  *     succeeds.
  * @param {function(string)=} opt_error The function to call if token refresh
  *     fails, passing the error message.
+ * @param {function()=} opt_onImmediateFailed The function to call if
+ *     automatic behind-the-scenes authentication fails.
  * @private
  */
-ee.data.refreshAuthToken_ = function(opt_success, opt_error) {
+ee.data.refreshAuthToken_ = function(
+    opt_success, opt_error, opt_onImmediateFailed) {
   // Set up auth options.
   var authArgs = {
     'client_id': ee.data.authClientId_,
@@ -1015,32 +1053,40 @@ ee.data.refreshAuthToken_ = function(opt_success, opt_error) {
     'scope': ee.data.authScopes_.join(' ')
   };
 
-  // A function to run when we get the authorization result.
-  var done = function(result) {
-    if (result['access_token']) {
-      ee.data.authToken_ = result['token_type'] + ' ' + result['access_token'];
-      // Set up a refresh timer. This is necessary because we cannot refresh
-      // synchronously, but since we want to allow synchronous API requests,
-      // something must ensure that the auth token is always valid.
-      setTimeout(ee.data.refreshAuthToken_, result['expires_in'] * 1000 / 2);
-      if (opt_success) opt_success();
-    } else if (opt_error) {
-      opt_error(result['error'] || 'Unknown error.');
-    }
-  };
-
   // Start the authorization flow, first trying immediate mode, which tries to
   // get the token behind the scenes, with no UI shown.
-  var authorize = goog.global['gapi']['auth']['authorize'];
-  authorize(authArgs, function(result) {
-    if (result['error'] == 'immediate_failed') {
-      // Could not auth invisibly. Auth using a dialog.
-      authArgs['immediate'] = false;
-      authorize(authArgs, done);
+  goog.global['gapi']['auth']['authorize'](authArgs, function(result) {
+    if (result['error'] == 'immediate_failed' && opt_onImmediateFailed) {
+      opt_onImmediateFailed();
     } else {
-      done(result);
+      ee.data.handleAuthResult_(opt_success, opt_error, result);
     }
   });
+};
+
+
+/**
+ * Handles the result of gapi.auth.authorize(), filling ee.data.authToken_ on
+ * success and setting up a refresh timeout.
+ *
+ * @param {function()|undefined} success The function to call if token refresh
+ *     succeeds.
+ * @param {function(string)|undefined} error The function to call if auth fails,
+ *     passing the error message.
+ * @param {Object} result The result object produced by gapi.auth.authorize().
+ * @private
+ */
+ee.data.handleAuthResult_ = function(success, error, result) {
+  if (result['access_token']) {
+    ee.data.authToken_ = result['token_type'] + ' ' + result['access_token'];
+    // Set up a refresh timer. This is necessary because we cannot refresh
+    // synchronously, but since we want to allow synchronous API requests,
+    // something must ensure that the auth token is always valid.
+    setTimeout(ee.data.refreshAuthToken_, result['expires_in'] * 1000 / 2);
+    if (success) success();
+  } else if (error) {
+    error(result['error'] || 'Unknown error.');
+  }
 };
 
 

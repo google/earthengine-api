@@ -1067,6 +1067,58 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'type': 'Algorithm',
     },
+    'GeometryConstructors.Point': {
+        'returns': 'Geometry',
+        'args': [
+            {
+                'name': 'coordinates',
+                'type': 'List<Number>',
+                'description': ''
+            },
+            {
+                'name': 'crs',
+                'type': 'Projection',
+                'description': '',
+                'optional': True,
+                'default': 'epsg:4326'
+            }
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
+    'GeometryConstructors.LineString': {
+        'returns': 'Geometry',
+        'args': [
+            {
+                'name': 'coordinates',
+                'type': 'List<Object>',
+                'description': ''
+            },
+            {
+                'name': 'crs',
+                'type': 'Projection',
+                'description': '',
+                'optional': True,
+                'default': 'epsg:4326'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'geodesic',
+                'type': 'Boolean'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'maxError',
+                'type': 'ErrorMargin'
+            },
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
     # Element property setting, used by the client-side override.
     'Element.set': {
         'returns': 'Element',

@@ -46,6 +46,7 @@ goog.require('goog.structs.PriorityPool');
  * A manager of a TokenPool.
  * @constructor
  * @extends {goog.events.EventTarget}
+ * @export
  */
 ee.MapTileManager = function() {
   goog.base(this);

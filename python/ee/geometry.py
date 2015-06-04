@@ -13,7 +13,12 @@ import numbers
 import apifunction
 import computedobject
 import ee_exception
+import ee_types
 import serializer
+
+
+# A sentinel value used to detect unspecified function parameters.
+_UNSPECIFIED = object()
 
 
 class Geometry(computedobject.ComputedObject):
@@ -30,10 +35,11 @@ class Geometry(computedobject.ComputedObject):
           CRS specifications as per the GeoJSON spec, but only allows named
           (rather than "linked" CRSs). If this includes a 'geodesic' field,
           and opt_geodesic is not specified, it will be used as opt_geodesic.
-      opt_proj: An optional projection specification, either as a CRS ID
-          code or as a WKT string. If specified, overrides any CRS found
-          in the geo_json parameter. If unspecified and the geo_json does not
-          declare a CRS, defaults to "EPSG:4326" (x=longitude, y=latitude).
+      opt_proj: An optional projection specification, either as an
+          ee.Projection, as a CRS ID code or as a WKT string. If specified,
+          overrides any CRS found in the geo_json parameter. If unspecified and
+          the geo_json does not declare a CRS, defaults to "EPSG:4326"
+          (x=longitude, y=latitude).
       opt_geodesic: Whether line segments should be interpreted as spherical
           geodesics. If false, indicates that line segments should be
           interpreted as planar lines in the specified CRS. If absent,
@@ -116,160 +122,266 @@ class Geometry(computedobject.ComputedObject):
     return self.toGeoJSON()[key]
 
   @staticmethod
-  def Point(lon, lat=None):
-    """Construct a GeoJSON Point.
+  def Point(coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args, **kwargs):
+    """Constructs an ee.Geometry describing a point.
 
     Args:
-      lon: The longitude of the point, or a (lon, lat) list/tuple.
-      lat: The latitude of the point.
+      coords: A list of two [x,y] coordinates in the given projection.
+      proj: The projection of this geometry, or EPSG:4326 if unspecified.
+      *args: For convenience, varargs may be used when all arguments are
+          numbers. This allows creating EPSG:4326 points, e.g.
+          ee.Geometry.Point(lng, lat).
+      **kwargs: Keyword args that accept "lon" and "lat" for backward-
+          compatibility.
 
     Returns:
-      A dictionary representing a GeoJSON Point.
+      An ee.Geometry describing a point.
     """
-    if (lat is None and
-        isinstance(lon, (list, tuple)) and
-        len(lon) == 2):
-      lon, lat = lon
-    return Geometry({
-        'type': 'Point',
-        'coordinates': [lon, lat]
-    })
+    init = Geometry._parseArgs('Point', 1, Geometry._GetSpecifiedArgs(
+        (coords, proj) + args, ('lon', 'lat'), **kwargs))
+    if not isinstance(init, computedobject.ComputedObject):
+      xy = init['coordinates']
+      if not isinstance(xy, (list, tuple)) or len(xy) != 2:
+        raise ee_exception.EEException(
+            'The Geometry.Point constructor requires 2 coordinates.')
+    return Geometry(init)
 
   @staticmethod
-  def MultiPoint(*coordinates):
-    """Create a GeoJSON MultiPoint.
+  def MultiPoint(coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args):
+    """Constructs an ee.Geometry describing a MultiPoint.
 
     Args:
-      *coordinates: The coordinates as either an array of [lon, lat] tuples,
-          or literal pairs of coordinate longitudes and latitudes, such as
-          MultiPoint(1, 2, 3, 4).
+      coords: A list of points, each in the GeoJSON 'coordinates' format of a
+          Point, or a list of the x,y coordinates in the given projection, or
+          an ee.Geometry describing a point.
+      proj: The projection of this geometry. If unspecified, the default is
+          the projection of the input ee.Geometry, or EPSG:4326 if there are
+          no ee.Geometry inputs.
+      *args: For convenience, varargs may be used when all arguments are
+          numbers. This allows creating EPSG:4326 MultiPoints given an even
+          number of arguments, e.g.
+          ee.Geometry.MultiPoint(aLng, aLat, bLng, bLat, ...).
 
     Returns:
-      A dictionary representing a GeoJSON MultiPoint.
+      An ee.Geometry describing a MultiPoint.
     """
-    return Geometry({
-        'type': 'MultiPoint',
-        'coordinates': Geometry._makeGeometry(2, coordinates)
-    })
+    all_args = Geometry._GetSpecifiedArgs((coords, proj) + args)
+    return Geometry(Geometry._parseArgs('MultiPoint', 2, all_args))
 
   @staticmethod
-  def Rectangle(xlo, ylo, xhi, yhi):
-    """Construct a rectangular polygon from the given corner points.
+  def Rectangle(coords=_UNSPECIFIED, proj=_UNSPECIFIED,
+                geodesic=_UNSPECIFIED, maxError=_UNSPECIFIED,
+                *args, **kwargs):
+    """Constructs an ee.Geometry describing a rectangular polygon.
 
     Args:
-      xlo: The minimum X coordinate (e.g. longitude).
-      ylo: The minimum Y coordinate (e.g. latitude).
-      xhi: The maximum X coordinate (e.g. longitude).
-      yhi: The maximum Y coordinate (e.g. latitude).
+      coords: The minimum and maximum corners of the rectangle, as a list of
+          two points each in the format of GeoJSON 'Point' coordinates, or a
+          list of two ee.Geometry describing a point, or a list of four
+          numbers in the order xMin, yMin, xMax, yMax.
+      proj: The projection of this geometry. If unspecified, the default is the
+          projection of the input ee.Geometry, or EPSG:4326 if there are no
+          ee.Geometry inputs.
+      geodesic: If false, edges are straight in the projection. If true, edges
+          are curved to follow the shortest path on the surface of the Earth.
+          The default is the geodesic state of the inputs, or true if the
+          inputs are numbers.
+      maxError: Max error when input geometry must be reprojected to an
+          explicitly requested result projection or geodesic state.
+      *args: For convenience, varargs may be used when all arguments are
+          numbers. This allows creating EPSG:4326 Polygons given exactly four
+          coordinates, e.g.
+          ee.Geometry.Rectangle(minLng, minLat, maxLng, maxLat).
+      **kwargs: Keyword args that accept "xlo", "ylo", "xhi" and "yhi" for
+          backward-compatibility.
 
     Returns:
-      A dictionary representing a GeoJSON Polygon.
+      An ee.Geometry describing a rectangular polygon.
     """
-    return Geometry({
-        'type': 'Polygon',
-        'coordinates': [[[xlo, yhi], [xlo, ylo], [xhi, ylo], [xhi, yhi]]]
-    })
+    init = Geometry._parseArgs('Polygon', 2, Geometry._GetSpecifiedArgs(
+        (coords, proj, geodesic, maxError) + args,
+        ('xlo', 'ylo', 'xhi', 'yhi'), **kwargs))
+    if not isinstance(init, computedobject.ComputedObject):
+      xy = init['coordinates']
+      if not isinstance(xy, (list, tuple)) or len(xy) != 2:
+        raise ee_exception.EEException(
+            'The Geometry.Rectangle constructor requires 2 points or 4 '
+            'coordinates.')
+      x1 = xy[0][0]
+      y1 = xy[0][1]
+      x2 = xy[1][0]
+      y2 = xy[1][1]
+      init['coordinates'] = [[[x1, y2], [x1, y1], [x2, y1], [x2, y2]]]
+    return Geometry(init)
 
   @staticmethod
-  def LineString(*coordinates):
-    """Create a GeoJSON LineString.
+  def LineString(coords=_UNSPECIFIED, proj=_UNSPECIFIED,
+                 geodesic=_UNSPECIFIED, maxError=_UNSPECIFIED,
+                 *args):
+    """Constructs an ee.Geometry describing a LineString.
 
     Args:
-      *coordinates: The coordinates as either an array of [lon, lat] tuples,
-          or literal pairs of coordinate longitudes and latitudes, such as
-          LineString(1, 2, 3, 4).
+      coords: A list of at least two points.  May be a list of coordinates in
+          the GeoJSON 'LineString' format, a list of at least two ee.Geometry
+          describing a point, or a list of at least four numbers defining the
+          [x,y] coordinates of at least two points.
+      proj: The projection of this geometry. If unspecified, the default is the
+          projection of the input ee.Geometry, or EPSG:4326 if there are no
+          ee.Geometry inputs.
+      geodesic: If false, edges are straight in the projection. If true, edges
+          are curved to follow the shortest path on the surface of the Earth.
+          The default is the geodesic state of the inputs, or true if the
+          inputs are numbers.
+      maxError: Max error when input geometry must be reprojected to an
+          explicitly requested result projection or geodesic state.
+      *args: For convenience, varargs may be used when all arguments are
+          numbers. This allows creating geodesic EPSG:4326 LineStrings given
+          an even number of arguments, e.g.
+          ee.Geometry.LineString(aLng, aLat, bLng, bLat, ...).
 
     Returns:
-      A dictionary representing a GeoJSON LineString.
+      An ee.Geometry describing a LineString.
     """
-    return Geometry({
-        'type': 'LineString',
-        'coordinates': Geometry._makeGeometry(2, coordinates)
-    })
+    all_args = Geometry._GetSpecifiedArgs(
+        (coords, proj, geodesic, maxError) + args)
+    return Geometry(Geometry._parseArgs('LineString', 2, all_args))
 
   @staticmethod
-  def LinearRing(*coordinates):
-    """Construct a LinearRing from the given coordinates.
+  def LinearRing(coords=_UNSPECIFIED, proj=_UNSPECIFIED,
+                 geodesic=_UNSPECIFIED, maxError=_UNSPECIFIED,
+                 *args):
+    """Constructs an ee.Geometry describing a LinearRing.
+
+    If the last point is not equal to the first, a duplicate of the first
+    point will be added at the end.
 
     Args:
-      *coordinates: The coordinates as either an array of [lon, lat] tuples,
-          or literal pairs of coordinate longitudes and latitudes, such as
-          LinearRing(1, 2, 3, 4, 5, 6).
+      coords: A list of points in the ring. May be a list of coordinates in
+          the GeoJSON 'LinearRing' format, a list of at least three ee.Geometry
+          describing a point, or a list of at least six numbers defining the
+          [x,y] coordinates of at least three points.
+      proj: The projection of this geometry. If unspecified, the default is the
+          projection of the input ee.Geometry, or EPSG:4326 if there are no
+          ee.Geometry inputs.
+      geodesic: If false, edges are straight in the projection. If true, edges
+          are curved to follow the shortest path on the surface of the Earth.
+          The default is the geodesic state of the inputs, or true if the
+          inputs are numbers.
+      maxError: Max error when input geometry must be reprojected to an
+          explicitly requested result projection or geodesic state.
+      *args: For convenience, varargs may be used when all arguments are
+          numbers. This allows creating geodesic EPSG:4326 LinearRings given
+          an even number of arguments, e.g.
+          ee.Geometry.LinearRing(aLng, aLat, bLng, bLat, ...).
 
     Returns:
       A dictionary representing a GeoJSON LinearRing.
     """
-    return Geometry({
-        'type': 'LinearRing',
-        'coordinates': Geometry._makeGeometry(2, coordinates)
-    })
+    all_args = Geometry._GetSpecifiedArgs(
+        (coords, proj, geodesic, maxError) + args)
+    return Geometry(Geometry._parseArgs('LinearRing', 2, all_args))
 
   @staticmethod
-  def MultiLineString(*coordinates):
-    """Create a GeoJSON MultiLineString.
+  def MultiLineString(coords=_UNSPECIFIED, proj=_UNSPECIFIED,
+                      geodesic=_UNSPECIFIED, maxError=_UNSPECIFIED,
+                      *args):
+    """Constructs an ee.Geometry describing a MultiLineString.
 
     Create a GeoJSON MultiLineString from either a list of points, or an array
     of lines (each an array of Points).  If a list of points is specified,
     only a single line is created.
 
     Args:
-      *coordinates: The coordinates as either an array of arrays of
-          [lon, lat] tuples, or literal pairs of coordinate longitudes
-          and latitudes, such as MultiLineString(1, 2, 3, 4, 5, 6).
+      coords: A list of linestrings. May be a list of coordinates in the
+          GeoJSON 'MultiLineString' format, a list of at least two ee.Geometry
+          describing a LineString, or a list of number defining a single
+          linestring.
+      proj: The projection of this geometry. If unspecified, the default is the
+          projection of the input ee.Geometry, or EPSG:4326 if there are no
+          ee.Geometry inputs.
+      geodesic: If false, edges are straight in the projection. If true, edges
+          are curved to follow the shortest path on the surface of the Earth.
+          The default is the geodesic state of the inputs, or true if the
+          inputs are numbers.
+      maxError: Max error when input geometry must be reprojected to an
+          explicitly requested result projection or geodesic state.
+      *args: For convenience, varargs may be used when all arguments are
+          numbers. This allows creating geodesic EPSG:4326 MultiLineStrings
+          with a single LineString, given an even number of arguments, e.g.
+          ee.Geometry.MultiLineString(aLng, aLat, bLng, bLat, ...).
 
     Returns:
-      A dictionary representing a GeoJSON MultiLineString.
-
-    TODO(user): This actually doesn't accept an array of
-    Geometry.LineString, but it should.
+      An ee.Geometry describing a MultiLineString.
     """
-    return Geometry({
-        'type': 'MultiLineString',
-        'coordinates': Geometry._makeGeometry(3, coordinates)
-    })
+    all_args = Geometry._GetSpecifiedArgs(
+        (coords, proj, geodesic, maxError) + args)
+    return Geometry(Geometry._parseArgs('MultiLineString', 3, all_args))
 
   @staticmethod
-  def Polygon(*coordinates):
-    """Create a GeoJSON Polygon.
-
-    Create a GeoJSON Polygon from either a list of points, or an array of
-    linear rings.  If created from points, only an outer ring can be specified.
+  def Polygon(coords=_UNSPECIFIED, proj=_UNSPECIFIED,
+              geodesic=_UNSPECIFIED, maxError=_UNSPECIFIED,
+              *args):
+    """Constructs an ee.Geometry describing a polygon.
 
     Args:
-      *coordinates: The polygon coordinates as either a var_args list of
-          numbers, or an array of rings, each of which is an array of points.
+      coords: A list of rings defining the boundaries of the polygon. May be a
+          list of coordinates in the GeoJSON 'Polygon' format, a list of
+          ee.Geometry describing a LinearRing, or a list of number defining a
+          single polygon boundary.
+      proj: The projection of this geometry. If unspecified, the default is the
+          projection of the input ee.Geometry, or EPSG:4326 if there are no
+          ee.Geometry inputs.
+      geodesic: If false, edges are straight in the projection. If true, edges
+          are curved to follow the shortest path on the surface of the Earth.
+          The default is the geodesic state of the inputs, or true if the
+          inputs are numbers.
+      maxError: Max error when input geometry must be reprojected to an
+          explicitly requested result projection or geodesic state.
+      *args: For convenience, varargs may be used when all arguments are
+          numbers. This allows creating geodesic EPSG:4326 Polygons with a
+          single LinearRing given an even number of arguments, e.g.
+          ee.Geometry.Polygon(aLng, aLat, bLng, bLat, ..., aLng, aLat).
 
     Returns:
-      A dictionary representing a GeoJSON polygon.
-
-    TODO(user): This actually doesn't accept an array of
-    Geometry.LinearRings, but it should.
+      An ee.Geometry describing a polygon.
     """
-    return Geometry({
-        'type': 'Polygon',
-        'coordinates': Geometry._makeGeometry(3, coordinates)
-    })
+    all_args = Geometry._GetSpecifiedArgs(
+        (coords, proj, geodesic, maxError) + args)
+    return Geometry(Geometry._parseArgs('Polygon', 3, all_args))
 
   @staticmethod
-  def MultiPolygon(*coordinates):
-    """Create a GeoJSON MultiPolygon.
+  def MultiPolygon(coords=_UNSPECIFIED, proj=_UNSPECIFIED,
+                   geodesic=_UNSPECIFIED, maxError=_UNSPECIFIED,
+                   *args):
+    """Constructs an ee.Geometry describing a MultiPolygon.
 
     If created from points, only one polygon can be specified.
 
     Args:
-      *coordinates: The multipolygon coordinates either as a var_args list
-          of numbers of an array of polygons.
+      coords: A list of polygons. May be a list of coordinates in the GeoJSON
+          'MultiPolygon' format, a list of ee.Geometry describing a Polygon,
+          or a list of number defining a single polygon boundary.
+      proj: The projection of this geometry. If unspecified, the default is the
+          projection of the input ee.Geometry, or EPSG:4326 if there are no
+          ee.Geometry inputs.
+      geodesic: If false, edges are straight in the projection. If true, edges
+          are curved to follow the shortest path on the surface of the Earth.
+          The default is the geodesic state of the inputs, or true if the
+          inputs are numbers.
+      maxError: Max error when input geometry must be reprojected to an
+          explicitly requested result projection or geodesic state.
+      *args: For convenience, varargs may be used when all arguments are
+          numbers. This allows creating geodesic EPSG:4326 MultiPolygons with
+          a single Polygon with a single LinearRing given an even number of
+          arguments, e.g.
+          ee.Geometry.MultiPolygon(aLng, aLat, bLng, bLat, ..., aLng, aLat).
 
     Returns:
-      A dictionary representing a GeoJSON MultiPolygon.
-
-    TODO(user): This actually doesn't accept an array of
-    Geometry.Polygon, but it should.
+      An ee.Geometry describing a MultiPolygon.
     """
-    return Geometry({
-        'type': 'MultiPolygon',
-        'coordinates': Geometry._makeGeometry(4, coordinates)
-    })
+    all_args = Geometry._GetSpecifiedArgs(
+        (coords, proj, geodesic, maxError) + args)
+    return Geometry(Geometry._parseArgs('MultiPolygon', 4, all_args))
 
   def encode(self, opt_encoder=None):  # pylint: disable=unused-argument
     """Returns a GeoJSON-compatible representation of the geometry."""
@@ -397,65 +509,138 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An array of pairs of points.
     """
-    if coordinates and isinstance(coordinates[0], numbers.Number):
-      line = []
-      if len(coordinates) % 2 != 0:
-        raise ee_exception.EEException('Invalid number of coordinates: %s' %
-                                       len(coordinates))
-      for i in xrange(0, len(coordinates), 2):
-        pt = [coordinates[i], coordinates[i + 1]]
-        line.append(pt)
+    if not (coordinates and isinstance(coordinates[0], numbers.Number)):
+      return coordinates
+    if len(coordinates) == 2:
+      return coordinates
+    if len(coordinates) % 2 != 0:
+      raise ee_exception.EEException('Invalid number of coordinates: %s' %
+                                     len(coordinates))
 
-      coordinates = line
-    return coordinates
+    line = []
+    for i in xrange(0, len(coordinates), 2):
+      pt = [coordinates[i], coordinates[i + 1]]
+      line.append(pt)
+    return line
 
   @staticmethod
-  def _makeGeometry(nesting, opt_coordinates=()):
-    """Check that the given geometry has the specified level of nesting.
-
-    If the user passed a list of points to one of the Geometry functions,
-    then geometry will not be used and the coordinates in opt_coordinates
-    will be processed instead.  This is to allow calls such as:
-    Polygon(1,2,3,4,5,6) and Polygon([[[1,2],[3,4],[5,6]]])
+  def _parseArgs(ctor_name, depth, args):
+    """Parses arguments into a GeoJSON dictionary or a ComputedObject.
 
     Args:
-      nesting: The expected level of array nesting.
-      opt_coordinates: A list of all the coordinates to decode.
+      ctor_name: The name of the constructor to use.
+      depth: The nesting depth at which points are found.
+      args: The array of values to test.
 
     Returns:
-      The processed geometry.
+      If the arguments are simple, a GeoJSON object describing the geometry.
+      Otherwise a ComputedObject calling the appropriate constructor.
+    """
+    result = {}
+    keys = ['coordinates', 'crs', 'geodesic', 'maxError']
+
+    if all(ee_types.isNumber(i) for i in args):
+      # All numbers, so convert them to a true array.
+      result['coordinates'] = args
+    else:
+      # Parse parameters by position.
+      if len(args) > len(keys):
+        raise ee_exception.EEException(
+            'Geometry constructor given extra arguments.')
+      for key, arg in zip(keys, args):
+        if arg is not None:
+          result[key] = arg
+
+    # Standardize the coordinates and test if they are simple enough for
+    # client-side initialization.
+    if (Geometry._hasServerValue(result['coordinates']) or
+        result.get('crs') is not None or
+        result.get('geodesic') is not None or
+        result.get('maxError') is not None):
+      # Some arguments cannot be handled in the client, so make a server call.
+      server_name = 'GeometryConstructors.' + ctor_name
+      return apifunction.ApiFunction.lookup(server_name).apply(result)
+    else:
+      # Everything can be handled here, so check the depth and init this object.
+      result['type'] = ctor_name
+      result['coordinates'] = Geometry._fixDepth(depth, result['coordinates'])
+      return result
+
+  @staticmethod
+  def _hasServerValue(coordinates):
+    """Returns whether any of the coordinates are computed values or geometries.
+
+    Computed items must be resolved by the server (evaluated in the case of
+    computed values, and processed to a single projection and geodesic state
+    in the case of geometries.
+
+    Args:
+      coordinates: A nested list of ... of number coordinates.
+
+    Returns:
+      Whether all coordinates are lists or numbers.
+    """
+    if isinstance(coordinates, (list, tuple)):
+      return any(Geometry._hasServerValue(i) for i in coordinates)
+    else:
+      return isinstance(coordinates, computedobject.ComputedObject)
+
+  @staticmethod
+  def _fixDepth(depth, coords):
+    """Fixes the depth of the given coordinates.
+
+    Checks that each element has the expected depth as all other elements
+    at that depth.
+
+    Args:
+      depth: The desired depth.
+      coords: The coordinates to fix.
+
+    Returns:
+      The fixed coordinates, with the deepest elements at the requested depth.
 
     Raises:
-      EEException: if the nesting level of the arrays isn't supported.
+      EEException: if the depth is invalid and could not be fixed.
     """
-    if nesting < 2 or nesting > 4:
+    if depth < 1 or depth > 4:
       raise ee_exception.EEException('Unexpected nesting level.')
 
-    # Handle a list of points.
-    if (len(opt_coordinates) == 1 and
-        isinstance(opt_coordinates[0], (list, tuple))):
-      geometry = opt_coordinates[0]
-    else:
-      geometry = Geometry._coordinatesToLine(opt_coordinates)
+    # Handle a list of numbers.
+    if all(isinstance(i, numbers.Number) for i in coords):
+      coords = Geometry._coordinatesToLine(coords)
 
     # Make sure the number of nesting levels is correct.
-    item = geometry
+    item = coords
     count = 0
     while isinstance(item, (list, tuple)):
       item = item[0] if item else None
       count += 1
-
-    while count < nesting:
-      geometry = [geometry]
+    while count < depth:
+      coords = [coords]
       count += 1
 
-    if Geometry._isValidCoordinates(geometry) != nesting:
+    if Geometry._isValidCoordinates(coords) != depth:
       raise ee_exception.EEException('Invalid geometry.')
 
     # Empty arrays should not be wrapped.
-    if list(geometry) in ([[]], [()]): geometry = []
+    item = coords
+    while isinstance(item, (list, tuple)) and len(item) == 1:
+      item = item[0]
+    if isinstance(item, (list, tuple)) and not item:
+      return []
 
-    return geometry
+    return coords
+
+  @staticmethod
+  def _GetSpecifiedArgs(args, keywords=(), **kwargs):
+    """Returns args, filtering out _UNSPECIFIED and checking for keywords."""
+    if keywords:
+      args = list(args)
+      for i, keyword in enumerate(keywords):
+        if keyword in kwargs:
+          assert args[i] is _UNSPECIFIED
+          args[i] = kwargs[keyword]
+    return [i for i in args if i != _UNSPECIFIED]
 
   @staticmethod
   def name():

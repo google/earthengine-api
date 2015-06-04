@@ -189,7 +189,7 @@ ee.Feature.MultiPoint = function(coordinates) {
  * @deprecated Use ee.Geometry.Rectangle().
  */
 ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
-  return new ee.Geometry.Rectangle(lon1, lat1, lon2, lat2);
+  return new ee.Geometry.Rectangle([lon1, lat1, lon2, lat2]);
 };
 
 

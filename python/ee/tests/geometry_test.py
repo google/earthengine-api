@@ -32,6 +32,7 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testValid_MultiLineString(self):
     """Verifies MultiLineString constructor behavior with valid arguments."""
     self.assertValid(3, ee.Geometry.MultiLineString, 1, 2, 3, 4, 5, 6)
+    self.assertValid(1, ee.Geometry.MultiLineString)
 
   def testValid_Polygon(self):
     """Verifies Polygon constructor behavior with valid arguments."""
@@ -44,13 +45,14 @@ class GeometryTest(apitestcase.ApiTestCase):
   def testValid_MultiPolygon(self):
     """Verifies MultiPolygon constructor behavior with valid arguments."""
     self.assertValid(4, ee.Geometry.MultiPolygon, 1, 2, 3, 4, 5, 6)
+    self.assertValid(1, ee.Geometry.MultiPolygon)
 
   def testInvalid_MultiPoint(self):
     """Verifies MultiPoint constructor behavior with invalid arguments."""
     f = ee.Geometry.MultiPoint
     self.assertInvalid(
         f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
-    self.assertInvalid(f, 'Invalid geometry', [1, 2, 3, 4, 5])
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
     self.assertInvalid(f, 'Invalid geometry', [[[1, 2], [3, 4]]])
@@ -60,7 +62,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     f = ee.Geometry.LineString
     self.assertInvalid(
         f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
-    self.assertInvalid(f, 'Invalid geometry', [1, 2, 3, 4, 5])
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
     self.assertInvalid(f, 'Invalid geometry', [[[1, 2], [3, 4]]])
@@ -70,7 +72,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     f = ee.Geometry.LinearRing
     self.assertInvalid(
         f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
-    self.assertInvalid(f, 'Invalid geometry', [1, 2, 3, 4, 5])
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
     self.assertInvalid(f, 'Invalid geometry', [[[1, 2], [3, 4]]])
@@ -80,7 +82,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     f = ee.Geometry.MultiLineString
     self.assertInvalid(
         f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
-    self.assertInvalid(f, 'Invalid geometry', [1, 2, 3, 4, 5])
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
     self.assertInvalid(f, 'Invalid geometry', [[[[1, 2], [3, 4]]]])
@@ -92,7 +94,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     f = ee.Geometry.Polygon
     self.assertInvalid(
         f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
-    self.assertInvalid(f, 'Invalid geometry', [1, 2, 3, 4, 5])
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
     self.assertInvalid(f, 'Invalid geometry', [[[[1, 2], [3, 4], [5, 6]]]])
@@ -103,7 +105,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     """Verifies MultiPolygon constructor behavior with invalid arguments."""
     f = ee.Geometry.MultiPolygon
     self.assertInvalid(f, 'Invalid number of coordinates: 5', 1, 2, 3, 4, 5)
-    self.assertInvalid(f, 'Invalid geometry', [1, 2, 3, 4, 5])
+    self.assertInvalid(f, 'Invalid number of coordinates: 5', [1, 2, 3, 4, 5])
     self.assertInvalid(f, 'Invalid geometry', [[1, 2], [3, 4], 5])
     # Too many nesting levels.
     self.assertInvalid(f, 'Invalid geometry', [[[[[1, 2], [3, 4], [5, 6]]]]])
@@ -211,6 +213,62 @@ class GeometryTest(apitestcase.ApiTestCase):
         ee.ApiFunction.lookup('Geometry.bounds'), bounds.func)
     self.assertEquals(line, bounds.args['geometry'])
     self.assertTrue(hasattr(bounds, 'bounds'))
+
+  def testComputedCoordinate(self):
+    """Verifies that a computed coordinate produces a computed geometry."""
+    coords = [1, ee.Number(1).add(1)]
+    p = ee.Geometry.Point(coords)
+
+    self.assertTrue(isinstance(p, ee.Geometry))
+    self.assertEquals(
+        ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
+    self.assertEquals({'coordinates': ee.List(coords)}, p.args)
+
+  def testComputedList(self):
+    """Verifies that a computed coordinate produces a computed geometry."""
+    lst = ee.List([1, 2, 3, 4]).slice(0, 2)
+    p = ee.Geometry.Point(lst)
+
+    self.assertTrue(isinstance(p, ee.Geometry))
+    self.assertEquals(
+        ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
+    self.assertEquals({'coordinates': lst}, p.args)
+
+  def testComputedProjection(self):
+    """Verifies that a geometry with a projection can be constructed."""
+    p = ee.Geometry.Point([1, 2], 'epsg:4326')
+
+    self.assertTrue(isinstance(p, ee.Geometry))
+    self.assertEquals(
+        ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
+    expected_args = {
+        'coordinates': ee.List([1, 2]),
+        'crs': ee.ApiFunction.lookup('Projection').call('epsg:4326')
+    }
+    self.assertEquals(expected_args, p.args)
+
+  def testGeometryInputs(self):
+    """Verifies that a geometry with geometry inputs can be constructed."""
+    p1 = ee.Geometry.Point([1, 2])
+    p2 = ee.Geometry.Point([3, 4])
+    line = ee.Geometry.LineString([p1, p2])
+
+    self.assertTrue(isinstance(line, ee.Geometry))
+    self.assertEquals(
+        ee.ApiFunction.lookup('GeometryConstructors.LineString'), line.func)
+    self.assertEquals({'coordinates': ee.List([p1, p2])}, line.args)
+
+  def testOldPointKeywordArgs(self):
+    """Verifies that Points still allow keyword lon/lat args."""
+    self.assertEquals(ee.Geometry.Point(1, 2), ee.Geometry.Point(lon=1, lat=2))
+    self.assertEquals(ee.Geometry.Point(1, 2), ee.Geometry.Point(1, lat=2))
+
+  def testOldRectangleKeywordArgs(self):
+    """Verifies that Rectangles still allow keyword xlo/ylo/xhi/yhi args."""
+    self.assertEquals(ee.Geometry.Rectangle(1, 2, 3, 4),
+                      ee.Geometry.Rectangle(xlo=1, ylo=2, xhi=3, yhi=4))
+    self.assertEquals(ee.Geometry.Rectangle(1, 2, 3, 4),
+                      ee.Geometry.Rectangle(1, 2, xhi=3, yhi=4))
 
   def assertValid(self, nesting, ctor, *coords):
     """Checks that geometry is valid and has the expected nesting level.

@@ -85,9 +85,10 @@ ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
 };
 /**
  * @param {function ((Object|null)): (Object|null)} algorithm
+ * @param {boolean=} opt_dropNulls
  * @return {(ee.Collection|null)}
  */
-ee.Collection.prototype.map = function(algorithm) {
+ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
 };
 /**
  * @param {string} property
@@ -545,7 +546,7 @@ ee.Function.prototype.call = function(var_args) {
 };
 /**
  * @param {(Object|null)} geoJson
- * @param {(String|null)=} opt_proj
+ * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @return {?}
  * @extends {ee.ComputedObject}
@@ -554,72 +555,88 @@ ee.Function.prototype.call = function(var_args) {
 ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
 };
 /**
- * @param {(Array<Array<number>>|number)} coordinates
+ * @param {(Array|null)} coords
+ * @param {(ee.Projection|null)=} opt_proj
+ * @param {boolean=} opt_geodesic
+ * @param {(ee.ErrorMargin|null)=} opt_maxError
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.LineString = function(coordinates) {
+ee.Geometry.LineString = function(coords, opt_proj, opt_geodesic, opt_maxError) {
 };
 /**
- * @param {(Array<Array<number>>|number)} coordinates
+ * @param {(Array|null)} coords
+ * @param {(ee.Projection|null)=} opt_proj
+ * @param {boolean=} opt_geodesic
+ * @param {(ee.ErrorMargin|null)=} opt_maxError
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.LinearRing = function(coordinates) {
+ee.Geometry.LinearRing = function(coords, opt_proj, opt_geodesic, opt_maxError) {
 };
 /**
- * @param {(Array<Array<Array<number>>>|number)} coordinates
+ * @param {(Array|null)} coords
+ * @param {(ee.Projection|null)=} opt_proj
+ * @param {boolean=} opt_geodesic
+ * @param {(ee.ErrorMargin|null)=} opt_maxError
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.MultiLineString = function(coordinates) {
+ee.Geometry.MultiLineString = function(coords, opt_proj, opt_geodesic, opt_maxError) {
 };
 /**
- * @param {(Array<Array<number>>|number)} coordinates
+ * @param {(Array|null)} coords
+ * @param {(ee.Projection|null)=} opt_proj
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.MultiPoint = function(coordinates) {
+ee.Geometry.MultiPoint = function(coords, opt_proj) {
 };
 /**
- * @param {(Array<Array<Array<Array<number>>>>|number)} coordinates
+ * @param {(Array|null)} coords
+ * @param {(ee.Projection|null)=} opt_proj
+ * @param {boolean=} opt_geodesic
+ * @param {(ee.ErrorMargin|null)=} opt_maxError
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.MultiPolygon = function(coordinates) {
+ee.Geometry.MultiPolygon = function(coords, opt_proj, opt_geodesic, opt_maxError) {
 };
 /**
- * @param {(Array<number>|null|number)} coordsOrLon
- * @param {number=} opt_lat
+ * @param {Array<number>} coords
+ * @param {(ee.Projection|null)=} opt_proj
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.Point = function(coordsOrLon, opt_lat) {
+ee.Geometry.Point = function(coords, opt_proj) {
 };
 /**
- * @param {(Array<Array<Array<number>>>|number)} coordinates
+ * @param {(Array|null)} coords
+ * @param {(ee.Projection|null)=} opt_proj
+ * @param {boolean=} opt_geodesic
+ * @param {(ee.ErrorMargin|null)=} opt_maxError
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.Polygon = function(coordinates) {
+ee.Geometry.Polygon = function(coords, opt_proj, opt_geodesic, opt_maxError) {
 };
 /**
- * @param {(Array<number>|null|number)} coordsOrLon1
- * @param {number=} opt_lat1
- * @param {number=} opt_lon2
- * @param {number=} opt_lat2
+ * @param {(Array|null)} coords
+ * @param {(ee.Projection|null)=} opt_proj
+ * @param {boolean=} opt_geodesic
+ * @param {(ee.ErrorMargin|null)=} opt_maxError
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.Rectangle = function(coordsOrLon1, opt_lat1, opt_lon2, opt_lat2) {
+ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_maxError) {
 };
 /**
  * @return {string}
@@ -745,7 +762,18 @@ ee.InitState.READY;
  */
 ee.List = function(list) {
 };
-ee.MapLayerOverlay;
+/**
+ * @param {string} url
+ * @param {string} mapId
+ * @param {string} token
+ * @param {(Object|null)} init
+ * @extends {goog.events.EventTarget}
+ * @implements {goog.disposable.IDisposable}
+ * @implements {goog.events.Listenable}
+ * @constructor
+ */
+ee.MapLayerOverlay = function(url, mapId, token, init) {
+};
 /**
  * @param {(google.maps.Point|null)} coord
  * @param {number} zoom
@@ -765,6 +793,14 @@ ee.MapLayerOverlay.prototype.releaseTile = function(tileDiv) {
  * @return {undefined}
  */
 ee.MapLayerOverlay.prototype.setOpacity = function(opacity) {
+};
+/**
+ * @extends {goog.events.EventTarget}
+ * @implements {goog.disposable.IDisposable}
+ * @implements {goog.events.Listenable}
+ * @constructor
+ */
+ee.MapTileManager = function() {
 };
 ee.Number;
 /**
@@ -816,9 +852,10 @@ ee.data;
  * @param {function (): ?} success
  * @param {function (string): ?=} opt_error
  * @param {Array<string>=} opt_extraScopes
+ * @param {function (): ?=} opt_onImmediateFailed
  * @return {undefined}
  */
-ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes) {
+ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
 };
 /**
  * @param {string} taskId

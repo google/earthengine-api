@@ -24,6 +24,7 @@ goog.require('goog.style');
  *     google.maps.ImageMapTypeOptions object.
  * @constructor
  * @extends {goog.events.EventTarget}
+ * @export
  * @ignore
  */
 ee.MapLayerOverlay = function(url, mapId, token, init) {
@@ -41,6 +42,7 @@ ee.MapLayerOverlay = function(url, mapId, token, init) {
   }
   this.tileSize = init.tileSize || new google.maps.Size(256, 256);
   this.isPng = goog.isDef(init.isPng) ? init.isPng : true;
+  this.name = init.name;
 
   /**
    * Array representing the set of tiles that are currently being

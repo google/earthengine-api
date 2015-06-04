@@ -195,14 +195,17 @@ ee.Collection.prototype.elementType = function() {
  *     receives an image or features and returns one. The function is called
  *     only once and the result is captured as a description, so it cannot
  *     perform imperative operations or rely on external state.
+ * @param {boolean=} opt_dropNulls If true, the mapped algorithm is allowed
+ *     to return nulls, and the elements for which it returns nulls will be
+ *     dropped.
  * @return {ee.Collection} The mapped collection.
  * @export
  */
-ee.Collection.prototype.map = function(algorithm) {
+ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
   var elementType = this.elementType();
   var withCast = function(e) { return algorithm(new elementType(e)); };
   return this.castInternal(ee.ApiFunction._call(
-      'Collection.map', this, withCast));
+      'Collection.map', this, withCast, opt_dropNulls));
 };
 
 
