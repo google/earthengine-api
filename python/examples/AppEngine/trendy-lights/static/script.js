@@ -50,15 +50,15 @@ trendy.App = function(mapType, polygonIds) {
   this.addPolygons(polygonIds);
 
   // Register a click handler to show a panel when the user clicks on a place.
-  this.map.data.addListener('click', $.proxy(this.handlePolygonClick, this));
+  this.map.data.addListener('click', this.handlePolygonClick.bind(this));
 
   // Register a click handler to hide the panel when the user clicks close.
-  $('.panel .close').click($.proxy(this.hidePanel, this));
+  $('.panel .close').click(this.hidePanel.bind(this));
 
   // Register a click handler to expand the panel when the user taps on toggle.
-  $('.panel .toggler').click($.proxy(function() {
+  $('.panel .toggler').click((function() {
     $('.panel').toggleClass('expanded');
-  }, this));
+  }).bind(this));
 };
 
 
@@ -89,9 +89,9 @@ trendy.App.prototype.createMap = function(mapType) {
  *     For example ['poland', 'moldova'].
  */
 trendy.App.prototype.addPolygons = function(polygonIds) {
-  polygonIds.forEach($.proxy(function(polygonId) {
+  polygonIds.forEach((function(polygonId) {
     this.map.data.loadGeoJson('static/polygons/' + polygonId + '.json');
-  }, this));
+  }).bind(this));
   this.map.data.setStyle(function(feature) {
     return {
       fillColor: 'white',
@@ -120,14 +120,14 @@ trendy.App.prototype.handlePolygonClick = function(event) {
 
   // Asynchronously load and show details about the polygon.
   var id = feature.getProperty('id');
-  $.get('/details?polygon_id=' + id).done($.proxy(function(data) {
+  $.get('/details?polygon_id=' + id).done((function(data) {
     if (data['error']) {
       $('.panel .error').show().html(data['error']);
     } else {
       $('.panel .wiki-url').show().attr('href', data['wikiUrl']);
       this.showChart(data['timeSeries']);
     }
-  }, this));
+  }.bind(this));
 };
 
 

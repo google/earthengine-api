@@ -99,6 +99,13 @@ ee.Collection.prototype.sort = function(property, opt_ascending) {
 };
 ee.ComputedObject;
 /**
+ * @param {(Function|null)} func
+ * @param {...*} var_args
+ * @return {(ee.ComputedObject|null)}
+ */
+ee.ComputedObject.prototype.aside = function(func, var_args) {
+};
+/**
  * @param {function (?, string=): ?=} opt_callback
  * @return {*}
  */
@@ -708,6 +715,12 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
 };
 /**
+ * @param {...(Object|null|string)} var_args
+ * @return {(ee.Image|null)}
+ */
+ee.Image.prototype.rename = function(var_args) {
+};
+/**
  * @param {...*} var_args
  * @return {(ee.Image|null)}
  */
@@ -775,6 +788,12 @@ ee.List = function(list) {
 ee.MapLayerOverlay = function(url, mapId, token, init) {
 };
 /**
+ * @param {function ((ee.TileEvent|null)): ?} callback
+ * @return {Object}
+ */
+ee.MapLayerOverlay.prototype.addTileCallback = function(callback) {
+};
+/**
  * @param {(google.maps.Point|null)} coord
  * @param {number} zoom
  * @param {(Node|null)} ownerDocument
@@ -787,6 +806,12 @@ ee.MapLayerOverlay.prototype.getTile = function(coord, zoom, ownerDocument) {
  * @return {undefined}
  */
 ee.MapLayerOverlay.prototype.releaseTile = function(tileDiv) {
+};
+/**
+ * @param {Object} callbackId
+ * @return {undefined}
+ */
+ee.MapLayerOverlay.prototype.removeTileCallback = function(callbackId) {
 };
 /**
  * @param {number} opacity
@@ -858,6 +883,13 @@ ee.data;
 ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
 };
 /**
+ * @param {function (): ?=} opt_success
+ * @param {function (string): ?=} opt_error
+ * @return {undefined}
+ */
+ee.data.authenticateViaPopup = function(opt_success, opt_error) {
+};
+/**
  * @param {string} taskId
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(Array<ee.data.TaskStatus>|null)}
@@ -905,6 +937,21 @@ ee.data.getAssetAcl = function(assetId, opt_callback) {
  * @return {(Array<ee.data.FolderDescription>|null)}
  */
 ee.data.getAssetRoots = function(opt_callback) {
+};
+/**
+ * @return {(null|string)}
+ */
+ee.data.getAuthClientId = function() {
+};
+/**
+ * @return {Array<string>}
+ */
+ee.data.getAuthScopes = function() {
+};
+/**
+ * @return {(null|string)}
+ */
+ee.data.getAuthToken = function() {
 };
 /**
  * @param {(Object|null)} params
@@ -1029,10 +1076,28 @@ ee.data.prepareValue = function(taskId, params, opt_callback) {
 ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
 };
 /**
+ * @param {string} clientId
+ * @param {string} tokenType
+ * @param {string} accessToken
+ * @param {number} expiresIn
+ * @param {Array<string>=} opt_extraScopes
+ * @param {function (): ?=} opt_callback
+ * @param {boolean=} opt_updateAuthLibrary
+ * @return {undefined}
+ */
+ee.data.setAuthToken = function(clientId, tokenType, accessToken, expiresIn, opt_extraScopes, opt_callback, opt_updateAuthLibrary) {
+};
+/**
  * @param {number} milliseconds
  * @return {undefined}
  */
 ee.data.setDeadline = function(milliseconds) {
+};
+/**
+ * @param {(function (goog.Uri.QueryData, string): goog.Uri.QueryData|null)} augmenter
+ * @return {undefined}
+ */
+ee.data.setParamAugmenter = function(augmenter) {
 };
 /**
  * @param {string} taskId

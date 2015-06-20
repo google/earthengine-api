@@ -198,10 +198,11 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An ee.Geometry describing a rectangular polygon.
     """
-    init = Geometry._parseArgs('Polygon', 2, Geometry._GetSpecifiedArgs(
+    init = Geometry._parseArgs('Rectangle', 2, Geometry._GetSpecifiedArgs(
         (coords, proj, geodesic, maxError) + args,
         ('xlo', 'ylo', 'xhi', 'yhi'), **kwargs))
     if not isinstance(init, computedobject.ComputedObject):
+      # GeoJSON does not have a Rectangle type, so expand to a Polygon.
       xy = init['coordinates']
       if not isinstance(xy, (list, tuple)) or len(xy) != 2:
         raise ee_exception.EEException(
@@ -212,6 +213,7 @@ class Geometry(computedobject.ComputedObject):
       x2 = xy[1][0]
       y2 = xy[1][1]
       init['coordinates'] = [[[x1, y2], [x1, y1], [x2, y1], [x2, y2]]]
+      init['type'] = 'Polygon'
     return Geometry(init)
 
   @staticmethod

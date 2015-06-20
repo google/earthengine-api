@@ -6,8 +6,6 @@
 import os
 
 import ee
-from ee.oauthinfo import OAuthInfo
-from oauth2client.appengine import AppAssertionCredentials
 
 # The URL of the Earth Engine API.
 EE_URL = 'https://earthengine.googleapis.com'
@@ -27,13 +25,5 @@ EE_PRIVATE_KEY_FILE = 'privatekey.pem'
 DEBUG_MODE = ('SERVER_SOFTWARE' in os.environ and
               os.environ['SERVER_SOFTWARE'].startswith('Dev'))
 
-# Set up the appropriate credentials depending on where we're running.
-if DEBUG_MODE:
-  EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT, EE_PRIVATE_KEY_FILE)
-else:
-  EE_CREDENTIALS = AppAssertionCredentials(OAuthInfo.SCOPE)
-  # Change the above line to the below to use your private credentials in
-  # an App Engine instance.
-  # EE_CREDENTIALS =
-  #    ee.ServiceAccountCredentials(EE_ACCOUNT, EE_PRIVATE_KEY_FILE)
+EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT, EE_PRIVATE_KEY_FILE)
 

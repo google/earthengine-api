@@ -1330,7 +1330,25 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'returns': 'Object',
     },
+    'Image.rename': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'description': '',
+                'name': 'input',
+                'type': 'Image'
+            },
+            {
+                'description': '',
+                'name': 'names',
+                'type': 'List'
+            }
+        ],
+        'description': '',
+        'returns': 'Image'
+    },
 }
+
 
 # A sample of encoded EE API JSON, used by SerializerTest and DeserializerTest.
 ENCODED_JSON_SAMPLE = {

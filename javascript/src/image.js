@@ -475,6 +475,28 @@ ee.Image.prototype.clip = function(geometry) {
 };
 
 
+/**
+ * Rename the bands of an image.
+ *
+ * @param {...string|Object|Array<string>} var_args The new names for the bands.
+ *    Must match the number of bands in the Image.
+ * @return {ee.Image} The renamed image.
+ * @export
+ */
+ee.Image.prototype.rename = function(var_args) {
+  var names;
+  if (arguments.length == 1 && !ee.Types.isString(arguments[0])) {
+    // An array.
+    names = arguments[0];
+  } else {
+    // Varargs list of strings.
+    names = goog.array.clone(arguments);
+  }
+  return /** @type {ee.Image} */(
+      ee.ApiFunction._call('Image.rename', this, names));
+};
+
+
 /** @override */
 ee.Image.prototype.name = function() {
   return 'Image';

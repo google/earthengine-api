@@ -1,34 +1,34 @@
-Trendy Lights EE Demo App
-=========================
+Hello World EE Demo App
+=======================
 
-This is an example [Google App Engine](https://cloud.google.com/appengine/docs)
-web app that communicates with [Google Earth Engine](https://earthengine.google.org).
-It uses memcache to cache results and avoid exceeding request quotas.
+This example shows how to build a simple Google App Engine web application that
+communicates with Google Earth Engine.  Upon successful deployment, you will see
+a webpage with a Google map showing the SRTM DEM zoomed into the east coast of
+Australia.
 
-
-Download Trendy Lights
-----------------------
+Download Hello World
+--------------------
 
 Download the Earth Engine API repository from GitHub:
 
     git clone https://github.com/google/earthengine-api.git
 
-Navigate to the Trendy Lights example code:
+Navigate to the Hello World example code:
 
-    cd ./earthengine-api/python/examples/AppEngine/trendy-lights/
+    cd ./python/examples/AppEngine/hello-world/
 
 
 Create your own project
 -----------------------
 
 Each App Engine app needs its own project. The project ID for
-the default instance of this app is `trendy-lights`. To deploy
+the default instance of this app is `hello-earth-engine`. To deploy
 your own instance, you'll need to create a new project with a
 different ID.
 
 To create an App Engine project for your app:
 
-1. Open the [Google Developers Console](//console.developers.google.com).
+1. Open the [Google Developers Console](https://console.developers.google.com).
 2. Click **Create Project**.
 3. Enter a project name and a project ID.
 4. Click **Create**.
@@ -50,7 +50,7 @@ Set up a service account
 Build the app
 -------------
 
-From within the trendy-lights folder, run:
+From within the hello-world folder, run:
 
     . ./build.sh
 
@@ -61,6 +61,6 @@ install the [Google Cloud SDK](https://cloud.google.com/sdk/) if necessary.
 Run the app!
 ------------
 
-From within the trendy-lights folder, run:
+From within the hello-world folder, run:
 
     dev_appserver.py ./

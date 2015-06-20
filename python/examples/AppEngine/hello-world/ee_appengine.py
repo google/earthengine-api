@@ -20,6 +20,7 @@ jinja_environment = jinja2.Environment(
 
 
 class MainPage(webapp2.RequestHandler):
+
   def get(self):                             # pylint: disable=g-bad-name
     """Request an image from Earth Engine and render it to a web page."""
     ee.Initialize(config.EE_CREDENTIALS, config.EE_URL)

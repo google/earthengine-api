@@ -370,6 +370,31 @@ class Image(element.Element):
       pass  # Not an ee.Geometry or GeoJSON. Just pass it along.
     return apifunction.ApiFunction.call_('Image.clip', self, clip_geometry)
 
+  def rename(self, names, *args):
+    """Rename the bands of an image.
+
+    Can be called with either a list of strings or any number of strings.
+
+    Args:
+      names: An array of strings specifying the new names for the
+          bands.  Must exactly match the number of bands in the image.
+      *args: Band names as varargs.
+
+    Returns:
+      An image with the renamed bands.
+    """
+    if args:
+      # Handle varargs; everything else we let the server handle.
+      args = list(args)
+      args.insert(0, names)
+      names = args
+
+    algorithm_args = {
+        'input': self,
+        'names': names
+    }
+    return apifunction.ApiFunction.apply_('Image.rename', algorithm_args)
+
   @staticmethod
   def name():
     return 'Image'

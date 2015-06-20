@@ -134,6 +134,27 @@ class ComputedObject(encodable.Encodable):
     # to remain null until for CustomFunction.resolveNamelessArgs_().
     return self.func is None and self.args is None
 
+  def aside(self, func, *var_args):
+    """Calls a function passing this object as the first argument.
+
+    Returns the object itself for chaining. Convenient e.g. when debugging:
+
+    c = (ee.ImageCollection('foo').aside(logging.info)
+             .filterDate('2001-01-01', '2002-01-01').aside(logging.info)
+             .filterBounds(geom).aside(logging.info)
+             .aside(addToMap, {'min': 0, 'max': 142})
+             .select('a', 'b'))
+
+    Args:
+      func: The function to call.
+      *var_args: Any extra arguments to pass to the function.
+
+    Returns:
+      The same object, for chaining.
+    """
+    func(self, *var_args)
+    return self
+
   @classmethod
   def name(cls):
     """Returns the name of the object, used in __str__()."""

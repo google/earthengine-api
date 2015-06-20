@@ -8,6 +8,7 @@ goog.provide('ee.ComputedObject');
 goog.require('ee.Encodable');
 goog.require('ee.Serializer');
 goog.require('ee.data');
+goog.require('goog.array');
 
 
 
@@ -155,6 +156,29 @@ ee.ComputedObject.prototype.isVariable = function() {
  */
 ee.ComputedObject.prototype.name = function() {
   return 'ComputedObject';
+};
+
+
+/**
+ * Calls a function passing this object as the first argument, and returning
+ * itself. Convenient e.g. when debugging:
+ *
+ * var c = ee.ImageCollection('foo').aside(print)
+ *   .filterDate('2001-01-01', '2002-01-01').aside(print, 'In 2001')
+ *   .filterBounds(geom).aside(print, 'In region')
+ *   .aside(Map.addLayer, {min: 0, max: 142}, 'Filtered')
+ *   .select('a', 'b');
+ *
+ * @param {Function} func The function to call.
+ * @param {...*} var_args Any extra arguments to pass to the function.
+ * @return {ee.ComputedObject} The same object, for chaining.
+ * @export
+ */
+ee.ComputedObject.prototype.aside = function(func, var_args) {
+  var args = goog.array.clone(arguments);
+  args[0] = this;
+  func.apply(goog.global, args);
+  return this;
 };
 
 

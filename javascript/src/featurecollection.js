@@ -190,6 +190,9 @@ ee.FeatureCollection.prototype.getDownloadURL = function(
     request['filename'] = opt_filename;
   }
   if (opt_selectors) {
+    if (goog.isArrayLike(opt_selectors)) {
+      opt_selectors = opt_selectors.join(',');
+    }
     request['selectors'] = opt_selectors;
   }
 

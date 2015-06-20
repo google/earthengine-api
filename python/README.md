@@ -92,19 +92,30 @@ cd earthengine-api-VERSION
 python setup.py install
 ```
 
-# Mac OSX Installation #
+# Mac OS X Installation #
 
-The installation instructions assume that you are using the
-[Fink](http://www.finkproject.org/) package manager and the
+The installation instructions assume that you are using Mac OS X 10.9+, the
+[Homebrew](http://brew.sh/) Mac OS package manager, and the
 [PIP](http://pip.readthedocs.org/en/latest/) Python package manager.
-Pip can be installed with the following command:
+Feel free to use a different package manager such as [Fink](www.finkproject.org)
+or [MacPorts](https://www.macports.org/) if you prefer.
 
-`fink install pip`
+Homebrew can be installed with:
+
+`ruby -e "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/master/install)"`
+
+Then Pip (and Python) can be installed with the following command:
+
+`brew install python`
+
+Note: Mac OS X ships with a default version of Python 2. Homebrew will install
+its own Python 2.7, which we'll be using to avoid interfering with
+the system-level configuration.
 
 ## Python 2.6+ ##
 
-Mac OSX users will already have Python installed. You can check the version of
-Python that is installed by running the following command:
+You can check the version of Python that is installed by running the
+following command:
 
 `python --version`
 
@@ -113,14 +124,12 @@ Python 2.6 or 2.7.
 
 ## Google APIs Client Library for Python ##
 
-The Google APIs Client Library for Python provides support for authenticating
-to the Earth Engine servers. The library can be installed from the Python
-Package index by running the following command:
+The [Google APIs Client Library](https://github.com/google/google-api-python-client)
+for Python provides support for authenticating to the Earth Engine servers.
+The library can be installed from the Python Package index by running the
+following command:
 
-`sudo pip install google-api-python-client`
-
-Alternatively, the library can be built from the source code,
-[available on GitHub](https://github.com/google/google-api-python-client).
+`pip install google-api-python-client`
 
 ## OpenSSL ##
 
@@ -130,21 +139,18 @@ which will print the version of the library:
 
 `openssl version`
 
-On Ubuntu/Debian systems, the library can be installed by running the following
-command:
+The library can be installed by running the following command:
 
-`fink install openssl`
+`brew install openssl`
 
 
 ## pyOpenSSL ##
 
-pyOpenSSL is a Python wrapper for the OpenSSL library. The pyOpenSSL library
-can be installed from the Python Package Index by running the following command:
+[pyOpenSSL](https://github.com/pyca/pyopenssl) is a Python wrapper for the
+OpenSSL library. The pyOpenSSL library can be installed from the Python Package
+Index by running the following command:
 
-`sudo pip install 'pyOpenSSL>=0.11'`
-
-Alternatively, the library can be built from the source code,
-[available on GitHub](https://github.com/pyca/pyopenssl)
+`pip install 'pyOpenSSL>=0.11'`
 
 
 ## pyCrypto ##
@@ -152,7 +158,7 @@ Alternatively, the library can be built from the source code,
 The pyCrypto library can be installed from the Python Package Index by running
 the following command:
 
-`sudo pip install pyCrypto`
+`pip install pyCrypto`
 
 To verify that the pyCrypto library has been installed correctly, run the
 following command:
@@ -166,7 +172,7 @@ If no error is returned, the library has been correctly installed.
 The Earth Engine Python library can be installed from the Python Package Index
 by running the following command:
 
-`sudo pip install earthengine-api`
+`pip install earthengine-api`
 
 # Windows Installation #
 

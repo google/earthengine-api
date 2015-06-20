@@ -259,8 +259,9 @@ ee.Geometry.Rectangle = function(
   if (!(this instanceof ee.Geometry.Rectangle)) {
     return ee.Geometry.createInstance_(ee.Geometry.Rectangle, arguments);
   }
-  var init = ee.Geometry.parseArgs_('Polygon', 2, arguments);
+  var init = ee.Geometry.parseArgs_('Rectangle', 2, arguments);
   if (!(init instanceof ee.ComputedObject)) {
+    // GeoJSON does not have a 'Rectangle' type, so expand it into a Polygon.
     var xy = init['coordinates'];
     if (xy.length != 2) {
       throw Error('The Geometry.Rectangle constructor requires 2 points or 4 ' +
@@ -271,6 +272,7 @@ ee.Geometry.Rectangle = function(
     var x2 = xy[1][0];
     var y2 = xy[1][1];
     init['coordinates'] = [[[x1, y2], [x1, y1], [x2, y1], [x2, y2]]];
+    init['type'] = 'Polygon';
   }
   goog.base(this, init);
 };

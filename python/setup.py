@@ -46,6 +46,7 @@ setup(
         'Development Status :: 2 - Pre-Alpha',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
+        'License :: OSI Approved :: Apache Software License',
         'Topic :: Multimedia :: Graphics :: Viewers',
         'Topic :: Scientific/Engineering :: GIS',
         'Topic :: Scientific/Engineering :: Visualization',

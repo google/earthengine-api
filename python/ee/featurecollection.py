@@ -129,6 +129,8 @@ class FeatureCollection(collection.Collection):
     if filename is not None:
       request['filename'] = filename
     if selectors is not None:
+      if isinstance(selectors, (list, tuple)):
+        selectors = ','.join(selectors)
       request['selectors'] = selectors
     return data.makeTableDownloadUrl(data.getTableDownloadId(request))
 
