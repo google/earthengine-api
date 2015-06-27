@@ -46,6 +46,10 @@ goog.require('goog.object');
  * it will block and execute all the previously supplied callbacks before
  * returning.
  *
+ * In most cases, an authorization token should be set before the library
+ * is initialized, either with ee.data.authorize() or ee.data.setAuthToken().
+ * When a proxy is used, an auth token may not be required.
+ *
  * @param {string?=} opt_baseurl The (proxied) EarthEngine REST API endpoint.
  * @param {string?=} opt_tileurl The (unproxied) EarthEngine REST tile endpoint.
  * @param {function()?=} opt_successCallback An optional callback to be invoked

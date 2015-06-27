@@ -5,10 +5,12 @@ api_version: 1
 threadsafe: true
 
 handlers:
-- url: /.*
-  script: ee_appengine.app
+- url: /static/
+  static_dir: static
 - url: /oauth2callback
   script: oauth2client.appengine.application
+- url: /.*
+  script: server.app
 
 libraries:
 - name: jinja2
@@ -17,11 +19,3 @@ libraries:
   version: "2.5.2"
 - name: pycrypto
   version: "2.6"
-
-skip_files:
-- ^(.*/)?#.*#$
-- ^(.*/)?.*~$
-- ^(.*/)?.*\.pyo$
-- ^(.*/)?.*/RCS/.*$
-- ^(.*/)?\..*$
-

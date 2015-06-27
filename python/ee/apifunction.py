@@ -186,7 +186,8 @@ class ApiFunction(function.Function):
           fname = fname.title()
 
         # Don't overwrite existing versions of this function.
-        if hasattr(target, fname):
+        if (hasattr(target, fname) and
+            not hasattr(getattr(target, fname), 'signature')):
           continue
 
         # Create a new function so we can attach properties to it.

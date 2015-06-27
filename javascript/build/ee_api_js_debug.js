@@ -544,10 +544,8 @@ goog.MODIFY_FUNCTION_PROTOTYPES && (Function.prototype.bind = Function.prototype
     return goog.bind.apply(null, args);
   }
   return goog.bind(this, selfObj);
-}, Function.prototype.partial = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
-  args.unshift(this, null);
-  return goog.bind.apply(null, args);
+}, Function.prototype.inherits = function(parentCtor) {
+  goog.inherits(this, parentCtor);
 });
 goog.defineClass = function(superClass, def) {
   var constructor = def.constructor, statics = def.statics;
@@ -2268,21 +2266,9 @@ goog.html.SafeUrl.sanitize = function(url) {
     return url;
   }
   url = url.implementsGoogStringTypedString ? url.getTypedStringValue() : String(url);
-  url = goog.html.SAFE_URL_PATTERN_.test(url) ? goog.html.SafeUrl.normalize_(url) : goog.html.SafeUrl.INNOCUOUS_STRING;
+  goog.html.SAFE_URL_PATTERN_.test(url) || (url = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
 };
-goog.html.SafeUrl.normalize_ = function(url) {
-  try {
-    var normalized = encodeURI(url);
-  } catch (e) {
-    return goog.html.SafeUrl.INNOCUOUS_STRING;
-  }
-  return normalized.replace(goog.html.SafeUrl.NORMALIZE_MATCHER_, function(match) {
-    return goog.html.SafeUrl.NORMALIZE_REPLACER_MAP_[match];
-  });
-};
-goog.html.SafeUrl.NORMALIZE_MATCHER_ = /[()']|%5B|%5D|%25/g;
-goog.html.SafeUrl.NORMALIZE_REPLACER_MAP_ = {"'":"%27", "(":"%28", ")":"%29", "%5B":"[", "%5D":"]", "%25":"%"};
 goog.html.SafeUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
 goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse = function(url) {
   var safeUrl = new goog.html.SafeUrl;
@@ -8093,7 +8079,7 @@ ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, o
   ee.data.authScopes_ = scopes;
   goog.isNull(clientId) ? ee.data.authToken_ = null : ee.data.ensureAuthLibLoaded_(function() {
     var onImmediateFailed = opt_onImmediateFailed || goog.partial(ee.data.authenticateViaPopup, success, opt_error);
-    ee.data.refreshAuthToken_(success, opt_error, onImmediateFailed);
+    ee.data.refreshAuthToken(success, opt_error, onImmediateFailed);
   });
 };
 ee.data.authenticateViaPopup = function(opt_success, opt_error) {
@@ -8129,6 +8115,9 @@ ee.data.getXsrfToken = function() {
 };
 ee.data.getAuthToken = function() {
   return ee.data.authToken_;
+};
+ee.data.clearAuthToken = function() {
+  ee.data.authToken_ = null;
 };
 ee.data.getAuthClientId = function() {
   return ee.data.authClientId_;
@@ -8348,14 +8337,27 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
     goog.net.jsloader.load(ee.data.AUTH_LIBRARY_URL_ + "?onload=" + callbackName);
   }
 };
-ee.data.refreshAuthToken_ = function(opt_success, opt_error, opt_onImmediateFailed) {
+ee.data.refreshAuthToken = function(opt_success, opt_error, opt_onImmediateFailed) {
   var authArgs = {client_id:ee.data.authClientId_, immediate:!0, scope:ee.data.authScopes_.join(" ")};
   goog.global.gapi.auth.authorize(authArgs, function(result) {
     "immediate_failed" == result.error && opt_onImmediateFailed ? opt_onImmediateFailed() : ee.data.handleAuthResult_(opt_success, opt_error, result);
   });
 };
 ee.data.handleAuthResult_ = function(success, error, result) {
-  result.access_token ? (ee.data.authToken_ = result.token_type + " " + result.access_token, isFinite(result.expires_in) && setTimeout(ee.data.refreshAuthToken_, 1E3 * result.expires_in / 2), success && success()) : error && error(result.error || "Unknown error.");
+  if (result.access_token) {
+    var token = result.token_type + " " + result.access_token;
+    if (isFinite(result.expires_in)) {
+      var expires_in_ms = 1E3 * result.expires_in;
+      setTimeout(ee.data.refreshAuthToken, .5 * expires_in_ms);
+      setTimeout(function() {
+        ee.data.getAuthToken() == token && ee.data.clearAuthToken();
+      }, .95 * expires_in_ms);
+    }
+    ee.data.authToken_ = token;
+    success && success();
+  } else {
+    error && error(result.error || "Unknown error.");
+  }
 };
 ee.data.makeRequest_ = function(params) {
   var request = new goog.Uri.QueryData, item;
@@ -8893,7 +8895,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
         var firstArgType = signature.args[0].type, isInstance = "Object" != firstArgType && ee.Types.isSubtype(firstArgType, typeName)
       }
       var destination = isInstance ? target.prototype : target;
-      fname in destination || (destination[fname] = function(var_args) {
+      fname in destination && !destination[fname].signature || (destination[fname] = function(var_args) {
         return apiFunc.callOrApply(isInstance ? this : void 0, Array.prototype.slice.call(arguments, 0));
       }, destination[fname].toString = goog.bind(apiFunc.toString, apiFunc, fname, isInstance), destination[fname].signature = signature);
     }
@@ -11238,12 +11240,11 @@ goog.style.toStyleAttribute = function(obj) {
   });
   return buffer.join("");
 };
-goog.style.FLOAT_CSS_PROPERTY_NAME_ = goog.userAgent.IE && !goog.userAgent.isVersionOrHigher(12) ? "styleFloat" : "cssFloat";
 goog.style.setFloat = function(el, value) {
-  el.style[goog.style.FLOAT_CSS_PROPERTY_NAME_] = value;
+  el.style[goog.userAgent.IE ? "styleFloat" : "cssFloat"] = value;
 };
 goog.style.getFloat = function(el) {
-  return el.style[goog.style.FLOAT_CSS_PROPERTY_NAME_] || "";
+  return el.style[goog.userAgent.IE ? "styleFloat" : "cssFloat"] || "";
 };
 goog.style.getScrollbarWidth = function(opt_className) {
   var outerDiv = goog.dom.createElement(goog.dom.TagName.DIV);

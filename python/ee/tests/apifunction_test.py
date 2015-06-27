@@ -43,6 +43,22 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     self.assertTrue(hasattr(TestClass, 'pre_addBands'))
     self.assertFalse(hasattr(TestClass, '_pre_addBands'))
 
+  def testAddFunctions_Inherited(self):
+    """Verifies that inherited non-client functions can be overriden."""
+
+    class Base(object):
+
+      def ClientOverride(self):
+        pass
+
+    class Child(Base):
+      pass
+
+    ee.ApiFunction.importApi(Base, 'Image', 'Image')
+    ee.ApiFunction.importApi(Child, 'Image', 'Image')
+    self.assertEquals(Base.ClientOverride, Child.ClientOverride)
+    self.assertNotEquals(Base.addBands, Child.addBands)
+
 
 if __name__ == '__main__':
   unittest.main()

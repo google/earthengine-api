@@ -253,8 +253,8 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       }
       var destination = isInstance ? target.prototype : target;
 
-      if (fname in destination) {
-        // Don't overwrite existing functions.
+      if (fname in destination && !destination[fname]['signature']) {
+        // Don't overwrite client-defined functions.
         return;
       }
 

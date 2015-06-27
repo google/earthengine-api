@@ -897,6 +897,11 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
 ee.data.cancelTask = function(taskId, opt_callback) {
 };
 /**
+ * @return {undefined}
+ */
+ee.data.clearAuthToken = function() {
+};
+/**
  * @param {string} value
  * @param {string=} opt_path
  * @param {boolean=} opt_force

@@ -50,6 +50,15 @@ body,
   display: none;
 }
 
+.trendy .powered-by-ee {
+  position: absolute;
+  z-index: 1;
+  bottom: 10px;
+  left: 50%;
+  margin-left: -150px;
+  width: 300px;
+}
+
 /* Small screens. */
 
 @media (max-width: 900px) {
@@ -88,6 +97,10 @@ body,
 
   .trendy .panel.expanded  {
     height: 278px;
+  }
+
+  .trendy .powered-by-ee {
+    width: 180px;
   }
 }
 

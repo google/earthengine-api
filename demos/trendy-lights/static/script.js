@@ -34,6 +34,7 @@ trendy.boot = function(eeMapId, eeToken, serializedPolygonIds) {
 ///////////////////////////////////////////////////////////////////////////////
 
 
+
 /**
  * The main Trendy Lights application.
  * This constructor renders the UI and sets up event handling.

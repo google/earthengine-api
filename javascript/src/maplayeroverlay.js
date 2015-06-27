@@ -93,8 +93,8 @@ ee.MapLayerOverlay.EventType = {
  * @export
  */
 ee.MapLayerOverlay.prototype.addTileCallback = function(callback) {
-  return goog.events.listen(
-      this, ee.MapLayerOverlay.EventType.TILE_LOADED, callback);
+  return /** @type {!Object} */ (goog.events.listen(
+      this, ee.MapLayerOverlay.EventType.TILE_LOADED, callback));
 };
 
 

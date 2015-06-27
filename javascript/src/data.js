@@ -215,6 +215,11 @@ ee.data.reset = function() {
  * this button. This stops the browser from blocking the popup, as it is now the
  * direct result of a user action.
  *
+ * The token will be periodically refreshed but may be cleared if, for example,
+ * the client is offline during attempted refresh. To properly handle these
+ * cases, check that an auth token is set with ee.data.getAuthToken() and use
+ * ee.data.refreshAuthToken() as needed.
+ *
  * @param {?string} clientId The application's OAuth client ID, or null to
  *     disable authenticated calls. This can be obtained through the Google
  *     Developers Console. The project must have a JavaScript origin that
@@ -250,7 +255,7 @@ ee.data.authenticate = function(
   ee.data.ensureAuthLibLoaded_(function() {
     var onImmediateFailed = opt_onImmediateFailed || goog.partial(
         ee.data.authenticateViaPopup, success, opt_error);
-    ee.data.refreshAuthToken_(success, opt_error, onImmediateFailed);
+    ee.data.refreshAuthToken(success, opt_error, onImmediateFailed);
   });
 };
 
@@ -384,7 +389,7 @@ ee.data.getXsrfToken = function() {
 
 /**
  * Returns the current OAuth token; null unless ee.data.setAuthToken() or
- * ee.data.authorize() previously suceeded.
+ * ee.data.authenticate() previously suceeded.
  *
  * @return {?string} The string to pass in the Authorization header of XHRs.
  * @export
@@ -395,8 +400,18 @@ ee.data.getAuthToken = function() {
 
 
 /**
+ * Clears the current OAuth token by setting it to null.
+ *
+ * @export
+ */
+ee.data.clearAuthToken = function() {
+  ee.data.authToken_ = null;
+};
+
+
+/**
  * Returns the current OAuth client ID; null unless ee.data.setAuthToken() or
- * ee.data.authorize() previously suceeded.
+ * ee.data.authenticate() previously suceeded.
  *
  * @return {?string} The OAuth2 client ID for client-side authentication.
  * @export
@@ -408,7 +423,7 @@ ee.data.getAuthClientId = function() {
 
 /**
  * Returns the current OAuth scopes; empty unless ee.data.setAuthToken() or
- * ee.data.authorize() previously suceeded.
+ * ee.data.authenticate() previously suceeded.
  *
  * @return {!Array<string>} The OAuth2 scopes for client-side authentication.
  * @export
@@ -1033,6 +1048,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   if (goog.isDefAndNotNull(ee.data.authToken_)) {
     headers['Authorization'] = ee.data.authToken_;
   }
+  // TODO(user): Refresh auth token if request is async and the token is null.
 
   // Apply any custom param augmentation.
   params = ee.data.paramAugmenter_(params || new goog.Uri.QueryData(), path);
@@ -1172,9 +1188,8 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
  *     fails, passing the error message.
  * @param {function()=} opt_onImmediateFailed The function to call if
  *     automatic behind-the-scenes authentication fails.
- * @private
  */
-ee.data.refreshAuthToken_ = function(
+ee.data.refreshAuthToken = function(
     opt_success, opt_error, opt_onImmediateFailed) {
   // Set up auth options.
   var authArgs = {
@@ -1208,13 +1223,27 @@ ee.data.refreshAuthToken_ = function(
  */
 ee.data.handleAuthResult_ = function(success, error, result) {
   if (result['access_token']) {
-    ee.data.authToken_ = result['token_type'] + ' ' + result['access_token'];
-    // Set up a refresh timer. This is necessary because we cannot refresh
-    // synchronously, but since we want to allow synchronous API requests,
-    // something must ensure that the auth token is always valid.
+    var token = result['token_type'] + ' ' + result['access_token'];
     if (isFinite(result['expires_in'])) {
-      setTimeout(ee.data.refreshAuthToken_, result['expires_in'] * 1000 / 2);
+      var expires_in_ms = result['expires_in'] * 1000;
+
+      // Set up a refresh timer. This is necessary because we cannot refresh
+      // synchronously, but since we want to allow synchronous API requests,
+      // something must ensure that the auth token is always valid.
+      setTimeout(ee.data.refreshAuthToken, expires_in_ms * 0.5);
+
+      // Just before the token expires, check that the token has indeed been
+      // refreshed and clear it if not.
+      setTimeout(function() {
+        if (ee.data.getAuthToken() == token) {
+          // The token refresh failed, possibly because the user was offline
+          // when the refresh timer fired.  Set the auth token to null because
+          // it's now expired.
+          ee.data.clearAuthToken();
+        }
+      }, expires_in_ms * 0.95);
     }
+    ee.data.authToken_ = token;
     if (success) success();
   } else if (error) {
     error(result['error'] || 'Unknown error.');
