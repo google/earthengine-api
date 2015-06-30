@@ -128,7 +128,7 @@ trendy.App.prototype.handlePolygonClick = function(event) {
       $('.panel .wiki-url').show().attr('href', data['wikiUrl']);
       this.showChart(data['timeSeries']);
     }
-  }.bind(this));
+  }).bind(this));
 };
 
 
