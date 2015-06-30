@@ -8,8 +8,8 @@ communicates with Google Earth Engine.  Upon successful deployment, you will see
 a webpage with a Google map showing the SRTM DEM zoomed into the east coast of
 Australia.
 
-Download Hello World
---------------------
+Download the demo
+-----------------
 
 Download the Earth Engine API repository from GitHub:
 
