@@ -17,7 +17,7 @@ Download the Earth Engine API repository from GitHub:
 
 Navigate to the Trendy Lights example code:
 
-    cd ./earthengine-api/python/examples/AppEngine/trendy-lights/
+    cd ./earthengine-api/demos/trendy-lights/
 
 
 Create your own project
