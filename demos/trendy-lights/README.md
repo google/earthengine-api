@@ -1,5 +1,7 @@
-Trendy Lights EE Demo App
-=========================
+Earth Engine Demo: Trendy Lights
+================================
+
+[Live Demo](https://trendy-lights-dot-ee-demos.appspot.com)
 
 This is an example [Google App Engine](https://cloud.google.com/appengine/docs)
 web app that communicates with [Google Earth Engine](https://earthengine.google.org).
@@ -28,7 +30,7 @@ different ID.
 
 To create an App Engine project for your app:
 
-1. Open the [Google Developers Console](//console.developers.google.com).
+1. Open the [Google Developers Console](https://console.developers.google.com).
 2. Click **Create Project**.
 3. Enter a project name and a project ID.
 4. Click **Create**.
@@ -39,7 +41,7 @@ Once you've selected a project ID, update your `app.yaml` file.
 Set up a service account
 ------------------------
 
-- [Create a service account](https://sites.google.com/site/earthengineapidocs/creating-oauth2-service-account).
+- [Create a service account](https://developers.google.com/earth-engine/service_account).
 - Download a P12 private key from the Google Developers Console.
 - Convert the private key of that service account to a `.pem` file:  
   `openssl pkcs12 -in downloaded-privatekey.p12 -nodes -nocerts > privatekey.pem`

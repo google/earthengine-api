@@ -5,8 +5,7 @@
 import ee
 
 # The service account email address authorized by your Google contact.
-# Set up a service account as described here:
-# https://sites.google.com/site/earthengineapidocs/creating-oauth2-service-account
+# Set up a service account as described in the README.
 EE_ACCOUNT = 'your-service-account-id@developer.gserviceaccount.com'
 
 # The private key associated with your service account in Privacy Enhanced

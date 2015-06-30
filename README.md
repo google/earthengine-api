@@ -16,20 +16,21 @@ Here's an example screenshot and the corresponding Playground JavaScript code:
 
 ![Trendy Lights Image](https://raw.github.com/google/earthengine-api/master/trendy-lights.png)
 
-    // Compute the trend of nighttime lights from DMSP.
+    // Compute the trend of night-time lights.
 
-    // Add a band containing image date as years since 1991.
+    // Adds a band containing image date as years since 1991.
     function createTimeBand(img) {
       var year = ee.Date(img.get('system:time_start')).get('year').subtract(1991);
       return ee.Image(year).byte().addBands(img);
     }
 
-    // Fit a linear trend to the nighttime lights collection.
+    // Map the time band creation helper over the night-time lights collection.
+    // https://earthengine.google.org/#detail/NOAA%2FDMSP-OLS%2FNIGHTTIME_LIGHTS
     var collection = ee.ImageCollection('NOAA/DMSP-OLS/NIGHTTIME_LIGHTS')
         .select('stable_lights')
         .map(createTimeBand);
 
-    // Display trend in red/blue, brightness in green.
+    // Visualize brightness in green and a linear fit trend line in red/blue.
     Map.addLayer(
         collection.reduce(ee.Reducer.linearFit()),
         {min: 0, max: [0.18, 20, -0.18], bands: ['scale', 'offset', 'scale']},

@@ -146,17 +146,18 @@ def GetPolygonTimeSeries(polygon_id):
   if details is not None:
     return details
 
-  # If not, compute the details.
-  details = json.dumps({
-      'wikiUrl': WIKI_URL + polygon_id.replace('-', '%20'),
-      'timeSeries': ComputePolygonTimeSeries(polygon_id),
-  })
+  details = {'wikiUrl': WIKI_URL + polygon_id.replace('-', '%20')}
 
-  # Store the results in memcache.
-  memcache.add(polygon_id, details, MEMCACHE_EXPIRATION)
+  try:
+    details['timeSeries'] = ComputePolygonTimeSeries(polygon_id)
+    # Store the results in memcache.
+    memcache.add(polygon_id, json.dumps(details), MEMCACHE_EXPIRATION)
+  except ee.EEException as e:
+    # Handle exceptions from the EE client library.
+    details['error'] = str(e)
 
   # Send the results to the browser.
-  return details
+  return json.dumps(details)
 
 
 def ComputePolygonTimeSeries(polygon_id):

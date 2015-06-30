@@ -25,12 +25,12 @@ then clicking "APIs & auth" > "Credentials" in the left column.
 You must also specify authorized JavaScript origins, for example:
 
     http://localhost:8080/
-    http://<your-application-id>.appspot.com/
+    https://<your-application-id>.appspot.com/
 
 And authorized redirect URIs, for example:
 
     http://localhost:8080/oauth2callback
-    http://<your-application-id>.appspot.com/oauth2callback
+    https://<your-application-id>.appspot.com/oauth2callback
 
 Then update `static/script.js` to use your client ID.
 Check out the [Google Identity OAuth documentation](
@@ -51,7 +51,7 @@ Run and Deploy
 Once you have a client ID and `ee_api_js.js`, you can run the demo locally
 with Python:
 
-    cd ~/path/to/client-auth/static
+    cd ~/path/to/map-layer/static
     python -m SimpleHTTPServer 8080
 
 And then navigate to the site in your web browser:
@@ -62,7 +62,7 @@ To run locally using [Google App Engine](https://cloud.google.com/appengine/docs
 navigate to the root directory (not `static`) and use the
 [App Engine Python SDK](https://cloud.google.com/appengine/downloads):
 
-    cd ~/path/to/client-auth
+    cd ~/path/to/map-layer
     dev_appserver.py ./
 
 To deploy to App Engine, ensure your application ID is set in `app.yaml` and run:

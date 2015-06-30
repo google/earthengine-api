@@ -17,12 +17,12 @@ then clicking "APIs & auth" > "Credentials" in the left column.
 You must also specify authorized JavaScript origins, for example:
 
     http://localhost:8080/
-    http://<your-application-id>.appspot.com/
+    https://<your-application-id>.appspot.com/
 
 And authorized redirect URIs, for example:
 
     http://localhost:8080/oauth2callback
-    http://<your-application-id>.appspot.com/oauth2callback
+    https://<your-application-id>.appspot.com/oauth2callback
 
 Then update `static/script.js` to use your client ID.
 Check out the [Google Identity OAuth documentation](
