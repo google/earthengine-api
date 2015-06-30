@@ -15,9 +15,9 @@ Download the Earth Engine API repository from GitHub:
 
     git clone https://github.com/google/earthengine-api.git
 
-Navigate to the Hello World example code:
+Navigate to the server-auth example code:
 
-    cd ./python/examples/AppEngine/hello-world/
+    cd ./earthengine-api/demos/server-auth
 
 
 Create your own project
