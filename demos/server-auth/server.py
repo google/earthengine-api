@@ -23,7 +23,7 @@ class MainPage(webapp2.RequestHandler):
 
   def get(self):                             # pylint: disable=g-bad-name
     """Request an image from Earth Engine and render it to a web page."""
-    ee.Initialize(config.EE_CREDENTIALS, config.EE_URL)
+    ee.Initialize(config.EE_CREDENTIALS)
     mapid = ee.Image('srtm90_v4').getMapId({'min': 0, 'max': 1000})
 
     # These could be put directly into template.render, but it
