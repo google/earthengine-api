@@ -1,8 +1,8 @@
 #!/usr/bin/env python
-"""The EE Javascript library."""
+"""The EE Python library."""
 
 
-__version__ = '0.1.59'
+__version__ = '0.1.60'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name

@@ -3,8 +3,8 @@ var CLIENT_ID = '<your-oauth-client-id>';
 // Runs a simple EE analysis and output the results to the web page.
 var runAnalysis = function() {
   ee.initialize();
-  var serializedImage = ee.Image(1).getInfo();
-  $('.output').text(JSON.stringify(serializedImage));
+  var imageMetadata = ee.Image(1).getInfo();
+  $('.output').text(JSON.stringify(imageMetadata), null, ' ');
 };
 
 $(document).ready(function() {

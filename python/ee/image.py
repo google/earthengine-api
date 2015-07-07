@@ -121,7 +121,7 @@ class Image(element.Element):
     Returns:
       An object containing a mapid and access token, or an error message.
     """
-    request = vis_params or {}
+    request = (vis_params or {}).copy()
     request['image'] = self.serialize()
     response = data.getMapId(request)
     response['image'] = self

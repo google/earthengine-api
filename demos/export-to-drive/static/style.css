@@ -1,0 +1,180 @@
+html,
+body,
+.exporter,
+.exporter .map {
+  height: 100%;
+  margin: 0px;
+  padding: 0px;
+  overflow: hidden;
+}
+
+body,
+input,
+textarea,
+select,
+button,
+keygen,
+isindex {
+  font-family: 'Roboto', Arial, sans-serif;
+  font-size: 14px;
+}
+
+.exporter .ui {
+  position: absolute;
+  top: 20px;
+  left: 90px;
+  width: 470px;
+  z-index: 1;
+}
+
+.exporter .panel {
+  border-radius: 2px;
+  background-color: white;
+  padding: 15px;
+  box-shadow: 0px 0px 5px gray;
+  overflow: auto;
+  margin-bottom: 0;
+}
+
+.exporter header {
+  padding-bottom: 5px;
+}
+
+.exporter .instructions {
+  margin: 0;
+}
+
+.exporter .intro {
+  margin: 0;
+}
+
+.exporter h1 {
+  margin-top: 0;
+  margin-bottom: 0;
+  display: block;
+}
+
+.exporter .controls {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: flex-end;
+}
+
+.exporter .inputs {
+  flex-grow: 8;
+}
+
+.exporter .inputs,
+.exporter .btn.export {
+  display: inline-block;
+}
+
+.exporter .input-block {
+  display: block;
+  margin-top: 7px;
+}
+
+.exporter .input-block.region {
+  height: 22px;
+}
+
+.exporter .input-block-label {
+  font-weight: bold;
+  display: inline-block;
+  width: 65px;
+}
+
+.exporter .date-type-picker input[type=radio] {
+  vertical-align: top;
+  margin-top: 2px;
+}
+
+.exporter .date-type-picker label {
+  font-style: italic;
+  font-weight: normal;
+}
+
+.exporter .date-type-picker .or {
+  padding: 0 .3em;
+}
+
+.exporter .range-picker,
+.exporter .average-picker, {
+  display: block;
+}
+
+.exporter .filename {
+  width: 80%;
+  display: inline;
+}
+
+.exporter .date-picker {
+  display: inline-block;
+  width: 35%;
+}
+
+.exporter .region .message {
+  font-style: italic;
+  color: gray;
+}
+
+.exporter .region .message-drawing,
+.exporter .region .message-selected {
+  display: none;
+}
+
+.exporter .region.selected .message,
+.exporter .region.drawing .message {
+  display: none;
+}
+
+.exporter .region.drawing .message-drawing {
+  display: inline;
+}
+
+.exporter .region.selected .message-selected {
+  display: inline;
+  color: green;
+  font-style: normal;
+}
+
+.exporter .region.selected .message-selected .clear {
+  color: black;
+}
+
+.exporter .exporter {
+  flex-grow: 1;
+}
+
+.exporter .exporter:disabled {
+  color: gray;
+}
+
+.exporter .alerts .alert {
+  margin-top: 8px;
+  margin-bottom: 0;
+}
+
+.exporter .alerts .alert.visible {
+  visibility: visible;
+  opacity: 1;
+  transition: opacity 2s linear;
+}
+
+.exporter .alerts .alert {
+  visibility: hidden;
+  opacity: 0;
+  transition: visibility 0s 2s, opacity 2s linear;
+}
+
+.exporter .alerts .alert .line2 {
+  font-style: italic;
+}
+
+.exporter .alerts .multifile {
+  padding-left: 1ex;
+}
+
+.exporter .templates {
+  display: none;
+}
