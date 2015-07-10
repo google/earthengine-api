@@ -10,7 +10,7 @@ will likely need to be updated.**_
 
 - [Earth Engine Homepage](https://earthengine.google.org/)
 - [Playground Web IDE](https://ee-api.appspot.com/)
-- [Python Installation](python/README.md)
+- [Python Installation](/python/README.md)
 
 Here's an example screenshot and the corresponding Playground JavaScript code:
 
