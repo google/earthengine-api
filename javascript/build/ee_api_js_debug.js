@@ -1822,6 +1822,16 @@ goog.functions.cacheReturnValue = function(fn) {
     return value;
   };
 };
+goog.functions.once = function(f) {
+  var inner = f;
+  return function() {
+    if (inner) {
+      var tmp = inner;
+      inner = null;
+      tmp();
+    }
+  };
+};
 goog.json = {};
 goog.json.USE_NATIVE_JSON = !1;
 goog.json.isValid = function(s) {
@@ -8046,32 +8056,6 @@ goog.Uri.QueryData.prototype.extend = function(var_args) {
   }
 };
 var ee = {data:{}};
-ee.data.apiBaseUrl_ = null;
-ee.data.tileBaseUrl_ = null;
-ee.data.xsrfToken_ = null;
-ee.data.paramAugmenter_ = goog.functions.identity;
-ee.data.authToken_ = null;
-ee.data.authClientId_ = null;
-ee.data.authScopes_ = [];
-ee.data.AUTH_SCOPE_ = "https://www.googleapis.com/auth/earthengine.readonly";
-ee.data.AUTH_LIBRARY_URL_ = "https://apis.google.com/js/client.js";
-ee.data.initialized_ = !1;
-ee.data.deadlineMs_ = 0;
-ee.data.DEFAULT_API_BASE_URL_ = "https://earthengine.googleapis.com/api";
-ee.data.DEFAULT_TILE_BASE_URL_ = "https://earthengine.googleapis.com";
-ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
-ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl, opt_xsrfToken) {
-  goog.isDefAndNotNull(opt_apiBaseUrl) ? ee.data.apiBaseUrl_ = opt_apiBaseUrl : ee.data.initialized_ || (ee.data.apiBaseUrl_ = ee.data.DEFAULT_API_BASE_URL_);
-  goog.isDefAndNotNull(opt_tileBaseUrl) ? ee.data.tileBaseUrl_ = opt_tileBaseUrl : ee.data.initialized_ || (ee.data.tileBaseUrl_ = ee.data.DEFAULT_TILE_BASE_URL_);
-  goog.isDef(opt_xsrfToken) && (ee.data.xsrfToken_ = opt_xsrfToken);
-  ee.data.initialized_ = !0;
-};
-ee.data.reset = function() {
-  ee.data.apiBaseUrl_ = null;
-  ee.data.tileBaseUrl_ = null;
-  ee.data.xsrfToken_ = null;
-  ee.data.initialized_ = !1;
-};
 ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
   var scopes = [ee.data.AUTH_SCOPE_];
   opt_extraScopes && (goog.array.extend(scopes, opt_extraScopes), goog.array.removeDuplicates(scopes));
@@ -8097,6 +8081,36 @@ ee.data.setAuthToken = function(clientId, tokenType, accessToken, expiresIn, opt
     opt_callback && opt_callback();
   });
 };
+ee.data.refreshAuthToken = function(opt_success, opt_error, opt_onImmediateFailed) {
+  var authArgs = {client_id:ee.data.authClientId_, immediate:!0, scope:ee.data.authScopes_.join(" ")};
+  goog.global.gapi.auth.authorize(authArgs, function(result) {
+    "immediate_failed" == result.error && opt_onImmediateFailed ? opt_onImmediateFailed() : ee.data.handleAuthResult_(opt_success, opt_error, result);
+  });
+};
+ee.data.getAuthToken = function() {
+  return ee.data.authToken_;
+};
+ee.data.clearAuthToken = function() {
+  ee.data.authToken_ = null;
+};
+ee.data.getAuthClientId = function() {
+  return ee.data.authClientId_;
+};
+ee.data.getAuthScopes = function() {
+  return ee.data.authScopes_;
+};
+ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl, opt_xsrfToken) {
+  goog.isDefAndNotNull(opt_apiBaseUrl) ? ee.data.apiBaseUrl_ = opt_apiBaseUrl : ee.data.initialized_ || (ee.data.apiBaseUrl_ = ee.data.DEFAULT_API_BASE_URL_);
+  goog.isDefAndNotNull(opt_tileBaseUrl) ? ee.data.tileBaseUrl_ = opt_tileBaseUrl : ee.data.initialized_ || (ee.data.tileBaseUrl_ = ee.data.DEFAULT_TILE_BASE_URL_);
+  goog.isDef(opt_xsrfToken) && (ee.data.xsrfToken_ = opt_xsrfToken);
+  ee.data.initialized_ = !0;
+};
+ee.data.reset = function() {
+  ee.data.apiBaseUrl_ = null;
+  ee.data.tileBaseUrl_ = null;
+  ee.data.xsrfToken_ = null;
+  ee.data.initialized_ = !1;
+};
 ee.data.setDeadline = function(milliseconds) {
   ee.data.deadlineMs_ = milliseconds;
 };
@@ -8113,24 +8127,8 @@ ee.data.getTileBaseUrl = function() {
 ee.data.getXsrfToken = function() {
   return ee.data.xsrfToken_;
 };
-ee.data.getAuthToken = function() {
-  return ee.data.authToken_;
-};
-ee.data.clearAuthToken = function() {
-  ee.data.authToken_ = null;
-};
-ee.data.getAuthClientId = function() {
-  return ee.data.authClientId_;
-};
-ee.data.getAuthScopes = function() {
-  return ee.data.authScopes_;
-};
-ee.data.getInfo = function(id, opt_callback) {
-  return ee.data.send_("/info", (new goog.Uri.QueryData).add("id", id), opt_callback);
-};
-ee.data.getList = function(params, opt_callback) {
-  var request = ee.data.makeRequest_(params);
-  return ee.data.send_("/list", request, opt_callback);
+ee.data.getAlgorithms = function(opt_callback) {
+  return ee.data.send_("/algorithms", null, opt_callback, "GET");
 };
 ee.data.getMapId = function(params, opt_callback) {
   params = goog.object.clone(params);
@@ -8168,26 +8166,6 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
 };
 ee.data.makeTableDownloadUrl = function(id) {
   return ee.data.tileBaseUrl_ + "/api/table?docid=" + id.docid + "&token=" + id.token;
-};
-ee.data.getAlgorithms = function(opt_callback) {
-  return ee.data.send_("/algorithms", null, opt_callback, "GET");
-};
-ee.data.getGMEProjects = function(opt_callback) {
-  return ee.data.send_("/gmeprojects", null, opt_callback, "GET");
-};
-ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
-  var args = {value:value};
-  void 0 !== opt_path && (args.id = opt_path);
-  args.force = opt_force || !1;
-  return ee.data.send_("/create", ee.data.makeRequest_(args), opt_callback);
-};
-goog.exportSymbol("ee.data.createAsset", ee.data.createAsset);
-ee.data.createFolder = function(path, opt_force, opt_callback) {
-  return ee.data.send_("/createfolder", ee.data.makeRequest_({id:path, force:opt_force || !1}), opt_callback);
-};
-goog.exportSymbol("ee.data.createFolder", ee.data.createFolder);
-ee.data.search = function(query, opt_callback) {
-  return ee.data.send_("/search", ee.data.makeRequest_({q:query}), opt_callback);
 };
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
@@ -8246,15 +8224,39 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
   return ee.data.send_("/ingestionrequest", ee.data.makeRequest_(params), opt_callback);
 };
 goog.exportSymbol("ee.data.startIngestion", ee.data.startIngestion);
+ee.data.getInfo = function(id, opt_callback) {
+  return ee.data.send_("/info", (new goog.Uri.QueryData).add("id", id), opt_callback);
+};
+ee.data.getList = function(params, opt_callback) {
+  var request = ee.data.makeRequest_(params);
+  return ee.data.send_("/list", request, opt_callback);
+};
+ee.data.getAssetRoots = function(opt_callback) {
+  return ee.data.send_("/buckets", null, opt_callback, "GET");
+};
+goog.exportSymbol("ee.data.getAssetRoots", ee.data.getAssetRoots);
+ee.data.getGMEProjects = function(opt_callback) {
+  return ee.data.send_("/gmeprojects", null, opt_callback, "GET");
+};
 ee.data.createAssetHome = function(requestedId, opt_callback) {
   var request = ee.data.makeRequest_({id:requestedId});
   ee.data.send_("/createbucket", request, opt_callback);
 };
 goog.exportSymbol("ee.data.createAssetHome", ee.data.createAssetHome);
-ee.data.getAssetRoots = function(opt_callback) {
-  return ee.data.send_("/buckets", null, opt_callback, "GET");
+ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
+  var args = {value:value};
+  void 0 !== opt_path && (args.id = opt_path);
+  args.force = opt_force || !1;
+  return ee.data.send_("/create", ee.data.makeRequest_(args), opt_callback);
 };
-goog.exportSymbol("ee.data.getAssetRoots", ee.data.getAssetRoots);
+goog.exportSymbol("ee.data.createAsset", ee.data.createAsset);
+ee.data.createFolder = function(path, opt_force, opt_callback) {
+  return ee.data.send_("/createfolder", ee.data.makeRequest_({id:path, force:opt_force || !1}), opt_callback);
+};
+goog.exportSymbol("ee.data.createFolder", ee.data.createFolder);
+ee.data.search = function(query, opt_callback) {
+  return ee.data.send_("/search", ee.data.makeRequest_({q:query}), opt_callback);
+};
 ee.data.getAssetAcl = function(assetId, opt_callback) {
   return ee.data.send_("/getacl", ee.data.makeRequest_({id:assetId}), opt_callback, "GET");
 };
@@ -8264,6 +8266,8 @@ ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
   ee.data.send_("/setacl", ee.data.makeRequest_(request), opt_callback);
 };
 goog.exportSymbol("ee.data.setAssetAcl", ee.data.setAssetAcl);
+ee.data.AssetType = {IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", FOLDER:"Folder", ALGORITHM:"Algorithm", UNKNOWN:"Unknown"};
+ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
 ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
   ee.data.initialize();
   var method = opt_method || "POST", headers = {"Content-Type":"application/x-www-form-urlencoded"};
@@ -8336,12 +8340,6 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
     };
     goog.net.jsloader.load(ee.data.AUTH_LIBRARY_URL_ + "?onload=" + callbackName);
   }
-};
-ee.data.refreshAuthToken = function(opt_success, opt_error, opt_onImmediateFailed) {
-  var authArgs = {client_id:ee.data.authClientId_, immediate:!0, scope:ee.data.authScopes_.join(" ")};
-  goog.global.gapi.auth.authorize(authArgs, function(result) {
-    "immediate_failed" == result.error && opt_onImmediateFailed ? opt_onImmediateFailed() : ee.data.handleAuthResult_(opt_success, opt_error, result);
-  });
 };
 ee.data.handleAuthResult_ = function(success, error, result) {
   if (result.access_token) {
@@ -8423,7 +8421,19 @@ ee.data.setupMockSend = function(opt_calls) {
     return new fakeXmlHttp;
   };
 };
-ee.data.AssetType = {IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", FOLDER:"Folder", ALGORITHM:"Algorithm", UNKNOWN:"Unknown"};
+ee.data.apiBaseUrl_ = null;
+ee.data.tileBaseUrl_ = null;
+ee.data.xsrfToken_ = null;
+ee.data.paramAugmenter_ = goog.functions.identity;
+ee.data.authToken_ = null;
+ee.data.authClientId_ = null;
+ee.data.authScopes_ = [];
+ee.data.AUTH_SCOPE_ = "https://www.googleapis.com/auth/earthengine.readonly";
+ee.data.AUTH_LIBRARY_URL_ = "https://apis.google.com/js/client.js";
+ee.data.initialized_ = !1;
+ee.data.deadlineMs_ = 0;
+ee.data.DEFAULT_API_BASE_URL_ = "https://earthengine.googleapis.com/api";
+ee.data.DEFAULT_TILE_BASE_URL_ = "https://earthengine.googleapis.com";
 ee.Encodable = function() {
 };
 goog.crypt = {};

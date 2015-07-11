@@ -37,9 +37,6 @@ BuildDep https://github.com/google/oauth2client.git tags/v1.3.2 oauth2client
 # Build httplib2.
 BuildDep https://github.com/jcgregorio/httplib2.git tags/v0.9.1 python2/httplib2
 
-# Build PyCrypto.
-BuildDep https://github.com/dlitz/pycrypto.git tags/v2.6.1 lib/Crypto
-
 # Build the Google API Python Client.
 BuildDep https://github.com/google/google-api-python-client.git tags/v1.3.2 googleapiclient
 

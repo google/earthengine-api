@@ -85,6 +85,15 @@ or, if you cloned the entire EE API repo, move it from `earthengine-api/javascri
 on your local filesystem.
 
 
+Ensure that a crypto library is installed
+-----------------------------------------
+
+If the following command yields an error, then follow the crypto library
+instructions in the [EE Python client library README](/python/README.md).
+
+    python -c "from oauth2client import crypt"
+
+
 Run the app!
 ------------
 

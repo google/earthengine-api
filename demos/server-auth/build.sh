@@ -27,14 +27,10 @@ BuildDep () {
 BuildDep https://github.com/google/oauth2client.git tags/v1.3.2 oauth2client
 
 # Build the Earth Engine Python client library.
-SHA_v0153="92b1b5f"  # v0.1.53
-BuildDep https://github.com/google/earthengine-api.git $SHA_v0153 python/ee
+BuildDep https://github.com/google/earthengine-api.git v0.1.60 python/ee
 
 # Build httplib2.
 BuildDep https://github.com/jcgregorio/httplib2.git tags/v0.9.1 python2/httplib2
-
-# Build PyCrypto.
-BuildDep https://github.com/dlitz/pycrypto.git tags/v2.6.1 lib/Crypto
 
 # Install the Google App Engine command line tools.
 if ! hash dev_appserver.py 2>/dev/null; then
