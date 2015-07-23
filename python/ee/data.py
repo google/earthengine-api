@@ -357,6 +357,15 @@ def createAsset(value, opt_path=None):
   return send_('/create', args)
 
 
+def deleteAsset(assetId):
+  """Deletes the asset with the given id.
+
+  Args:
+    assetId: The ID of the asset to delete.
+  """
+  send_('/delete', {'id': assetId})
+
+
 def newTaskId(count=1):
   """Generate an ID for a long-running task.
 

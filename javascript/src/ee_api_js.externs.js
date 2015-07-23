@@ -264,7 +264,7 @@ ee.FeatureCollection = function(args, opt_column) {
 };
 /**
  * @param {string=} opt_format
- * @param {string=} opt_selectors
+ * @param {(Array<string>|string)=} opt_selectors
  * @param {string=} opt_filename
  * @param {function ((null|string), string=): ?=} opt_callback
  * @return {(string|undefined)}

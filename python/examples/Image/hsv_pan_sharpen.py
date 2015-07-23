@@ -19,8 +19,8 @@ rgb = image1.select('B3', 'B2', 'B1').unitScale(0, 255)
 gray = image1.select('B8').unitScale(0, 155)
 
 # Convert to HSV, swap in the pan band, and convert back to RGB.
-huesat = rgb.rgbtohsv().select('hue', 'saturation')
-upres = ee.Image.cat(huesat, gray).hsvtorgb()
+huesat = rgb.rgbToHsv().select('hue', 'saturation')
+upres = ee.Image.cat(huesat, gray).hsvToRgb()
 
 # Display before and after layers using the same vis parameters.
 visparams = {'min': [.15, .15, .25], 'max': [1, .9, .9], 'gamma': 1.6}

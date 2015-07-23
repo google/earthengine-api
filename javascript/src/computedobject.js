@@ -10,6 +10,8 @@ goog.require('ee.Serializer');
 goog.require('ee.data');
 goog.require('goog.array');
 
+goog.forwardDeclare('ee.Function');
+
 
 
 /**

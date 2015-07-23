@@ -934,6 +934,20 @@ ee.data.search = function(query, opt_callback) {
 
 
 /**
+ * Deletes the asset with the given id.
+ *
+ * @param {string} assetId The ID of the asset to delete.
+ * @param {function(Object, string=)=} opt_callback An optional callback.
+ *     If not supplied, the call is made synchronously. The callback is
+ *     passed an empty object and an error message, if any.
+ */
+ee.data.deleteAsset = function(assetId, opt_callback) {
+  var params = {'id': assetId};
+  ee.data.send_('/delete', ee.data.makeRequest_(params), opt_callback);
+};
+
+
+/**
  * Returns the access control list of the asset with the given ID.
  *
  * The authenticated user must be a writer or owner of an asset to see its ACL.
