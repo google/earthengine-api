@@ -155,6 +155,26 @@ class BatchTestCase(apitestcase.ApiTestCase):
         },
         task.config)
 
+  def testExportImageToCloudStorage(self):
+    """Verifies the Cloud Storge export task created by Export.image()."""
+    region = ee.Geometry.Rectangle(1, 2, 3, 4)
+    config = dict(region=region['coordinates'], maxPixels=10**10,
+                  outputBucket='test-bucket')
+    task = ee.batch.Export.image(ee.Image(1), 'TestName', config)
+    self.assertEquals('TESTTASKID', task.id)
+    self.assertEquals(
+        {
+            'type': 'EXPORT_IMAGE',
+            'state': 'UNSUBMITTED',
+            'json': ee.Image(1).serialize(),
+            'description': 'TestName',
+            'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
+            'scale': 1000,
+            'outputBucket': 'test-bucket',
+            'maxPixels': 10**10,
+        },
+        task.config)
+
   def testExportTable(self):
     """Verifies the task created by Export.table()."""
     task = ee.batch.Export.table(ee.FeatureCollection('foo'))

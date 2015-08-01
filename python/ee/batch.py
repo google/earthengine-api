@@ -163,6 +163,9 @@ class Export(object):
           - gmeTerrain: A boolean specifying whether the export to GME will
             create an asset of type TERRAIN. The image must contain a
             single band of type 'float'.
+          If exporting to Google Cloud Storage:
+          - outputBucket: The name of a Cloud Storage bucket for the export.
+          - outputPrefix: Cloud Storage object name prefix for the export.
 
     Returns:
       An unstarted Task that exports the image.
@@ -170,7 +173,8 @@ class Export(object):
     config = (config or {}).copy()
     if 'scale' not in config and 'crs_transform' not in config:
       config['scale'] = 1000
-    if 'driveFileNamePrefix' not in config and 'gmeProjectId' not in config:
+    if ('driveFileNamePrefix' not in config and 'gmeProjectId' not in config and
+        'outputBucket' not in config):
       config['driveFileNamePrefix'] = description
 
     if 'region' in config:

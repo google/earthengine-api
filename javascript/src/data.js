@@ -39,6 +39,7 @@ goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
 goog.provide('ee.data.TaskUpdateActions');
 goog.provide('ee.data.ThumbnailId');
+goog.provide('ee.data.TilesTaskConfig');
 goog.provide('ee.data.VideoTaskConfig');
 
 goog.require('goog.Uri');
@@ -741,8 +742,8 @@ goog.exportSymbol('ee.data.prepareValue', ee.data.prepareValue);
  * @param {string} taskId ID for the task (obtained using newTaskId).
  * @param {Object} params The object that describes the processing task;
  *    only fields that are common for all processing types are documented here.
- *      type (string) Either 'EXPORT_IMAGE', 'EXPORT_FEATURES' or
- *      'EXPORT_VIDEO'.
+ *      type (string) Either 'EXPORT_IMAGE', 'EXPORT_FEATURES',
+ *      'EXPORT_VIDEO', or 'EXPORT_TILES'.
  *      json (string) JSON description of the image.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
@@ -1152,7 +1153,7 @@ ee.data.ImageDescription;
 /**
  * An object describing ee.Image visualization parameters. See ee.data.getMapId.
  * @typedef {{
- *   image: ee.Image,
+ *   image: (ee.Image|undefined),
  *   bands: (string|Array<string>|undefined),
  *   gain: (number|Array<number>|undefined),
  *   bias: (number|Array<number>|undefined),
@@ -1358,6 +1359,27 @@ ee.data.TableTaskConfig;
  * }}
  */
 ee.data.VideoTaskConfig;
+
+
+/**
+ * An object for specifying configuration of a task to export Maps
+ * Mercator map tiles of an image to Cloud Storage.
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: string,
+ *   json: string,
+ *   sourceUrl: (undefined|string),
+ *   description: (undefined|string),
+ *   outputBucket: (undefined|string),
+ *   outputPrefix: (undefined|string),
+ *   minZoom: (undefined|number),
+ *   maxZoom: (undefined|number),
+ *   region: (undefined|string),
+ *   fileFormat: (undefined|string)
+ * }}
+ */
+ee.data.TilesTaskConfig;
 
 
 /**

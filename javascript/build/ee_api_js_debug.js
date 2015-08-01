@@ -1878,6 +1878,7 @@ goog.json.Serializer.prototype.serializeInternal = function(object, sb) {
         sb.push(object);
         break;
       case "function":
+        sb.push("null");
         break;
       default:
         throw Error("Unknown type: " + typeof object);;
@@ -3777,8 +3778,8 @@ goog.dom.getActiveElement = function(doc) {
   return null;
 };
 goog.dom.getPixelRatio = function() {
-  var win = goog.dom.getWindow(), isFirefoxMobile = goog.userAgent.GECKO && goog.userAgent.MOBILE;
-  return goog.isDef(win.devicePixelRatio) && !isFirefoxMobile ? win.devicePixelRatio : win.matchMedia ? goog.dom.matchesPixelRatio_(.75) || goog.dom.matchesPixelRatio_(1.5) || goog.dom.matchesPixelRatio_(2) || goog.dom.matchesPixelRatio_(3) || 1 : 1;
+  var win = goog.dom.getWindow();
+  return goog.isDef(win.devicePixelRatio) ? win.devicePixelRatio : win.matchMedia ? goog.dom.matchesPixelRatio_(.75) || goog.dom.matchesPixelRatio_(1.5) || goog.dom.matchesPixelRatio_(2) || goog.dom.matchesPixelRatio_(3) || 1 : 1;
 };
 goog.dom.matchesPixelRatio_ = function(pixelRatio) {
   return goog.dom.getWindow().matchMedia("(-webkit-min-device-pixel-ratio: " + pixelRatio + "),(min--moz-device-pixel-ratio: " + pixelRatio + "),(min-resolution: " + pixelRatio + "dppx)").matches ? pixelRatio : 0;
@@ -10078,7 +10079,7 @@ ee.Image.cat = function(var_args) {
 };
 ee.Image.combine_ = function(images, opt_names) {
   if (0 == images.length) {
-    throw Error("Can't combine 0 images.");
+    return ee.ApiFunction._call("Image.constant", []);
   }
   for (var result = new ee.Image(images[0]), i = 1;i < images.length;i++) {
     result = ee.ApiFunction._call("Image.addBands", result, images[i]);

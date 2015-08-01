@@ -5,7 +5,7 @@ var ee;
 ee.Algorithms = {};
 /**
  * @param {string} name
- * @param {{args: Array<{default: *, name: string, optional: boolean, type: string, ...}>, deprecated: (string|undefined), description: (string|undefined), name: string, returns: string}=} opt_signature
+ * @param {{args: Array<{default: *, name: string, optional: boolean, type: string}>, deprecated: (string|undefined), description: (string|undefined), name: string, returns: string}=} opt_signature
  * @return {?}
  * @extends {ee.Function}
  * @constructor
@@ -122,7 +122,7 @@ ee.ComputedObject.prototype.serialize = function() {
 ee.ComputedObject.prototype.toString = function() {
 };
 /**
- * @param {{args: Array<{default: *, name: string, optional: boolean, type: string, ...}>, deprecated: (string|undefined), description: (string|undefined), name: string, returns: string}} signature
+ * @param {{args: Array<{default: *, name: string, optional: boolean, type: string}>, deprecated: (string|undefined), description: (string|undefined), name: string, returns: string}} signature
  * @param {(Function|null)} body
  * @return {?}
  * @extends {ee.Function}
@@ -701,7 +701,7 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 ee.Image.prototype.getInfo = function(opt_callback) {
 };
 /**
- * @param {{bands: (Array<string>|null|string|undefined), bias: (Array<number>|null|number|undefined), format: (string|undefined), gain: (Array<number>|null|number|undefined), gamma: (Array<number>|null|number|undefined), image: (ee.Image|null), max: (Array<number>|null|number|undefined), min: (Array<number>|null|number|undefined), opacity: (number|undefined), palette: (Array<string>|null|string|undefined)}=} opt_visParams
+ * @param {{bands: (Array<string>|null|string|undefined), bias: (Array<number>|null|number|undefined), format: (string|undefined), gain: (Array<number>|null|number|undefined), gamma: (Array<number>|null|number|undefined), image: (ee.Image|null|undefined), max: (Array<number>|null|number|undefined), min: (Array<number>|null|number|undefined), opacity: (number|undefined), palette: (Array<string>|null|string|undefined)}=} opt_visParams
  * @param {function ((Object|null), string=): ?=} opt_callback
  * @return {(undefined|{image: (ee.Image|null), mapid: string, token: string})}
  */
@@ -974,13 +974,13 @@ ee.data.getInfo = function(id, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function ((Array<{id: string, properties: (Object|null|undefined), type: ee.data.AssetType<string>}>|null), string=): ?=} opt_callback
- * @return {(Array<{id: string, properties: (Object|null|undefined), type: ee.data.AssetType<string>}>|null)}
+ * @param {function ((Array<{id: string, properties: (Object|null|undefined), type: string}>|null), string=): ?=} opt_callback
+ * @return {(Array<{id: string, properties: (Object|null|undefined), type: string}>|null)}
  */
 ee.data.getList = function(params, opt_callback) {
 };
 /**
- * @param {{bands: (Array<string>|null|string|undefined), bias: (Array<number>|null|number|undefined), format: (string|undefined), gain: (Array<number>|null|number|undefined), gamma: (Array<number>|null|number|undefined), image: (ee.Image|null), max: (Array<number>|null|number|undefined), min: (Array<number>|null|number|undefined), opacity: (number|undefined), palette: (Array<string>|null|string|undefined)}} params
+ * @param {{bands: (Array<string>|null|string|undefined), bias: (Array<number>|null|number|undefined), format: (string|undefined), gain: (Array<number>|null|number|undefined), gamma: (Array<number>|null|number|undefined), image: (ee.Image|null|undefined), max: (Array<number>|null|number|undefined), min: (Array<number>|null|number|undefined), opacity: (number|undefined), palette: (Array<string>|null|string|undefined)}} params
  * @param {function ({mapid: string, token: string}, string=): ?=} opt_callback
  * @return {(ee.data.RawMapId|null)}
  */
@@ -994,8 +994,8 @@ ee.data.getMapId = function(params, opt_callback) {
 ee.data.getTableDownloadId = function(params, opt_callback) {
 };
 /**
- * @param {function ({tasks: (Array<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), ...}>|null)}, string=): ?=} opt_callback
- * @return {{tasks: (Array<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), ...}>|null)}}
+ * @param {function ({tasks: (Array<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), internal_error_info: (string|undefined), output_url: (Array<string>|null|undefined), priority: (number|undefined), progress: (number|undefined), source_url: (string|undefined), state: (string|undefined), task_type: (string|undefined), update_timestamp_ms: (number|undefined)}>|null)}, string=): ?=} opt_callback
+ * @return {{tasks: (Array<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), internal_error_info: (string|undefined), output_url: (Array<string>|null|undefined), priority: (number|undefined), progress: (number|undefined), source_url: (string|undefined), state: (string|undefined), task_type: (string|undefined), update_timestamp_ms: (number|undefined)}>|null)}}
  */
 ee.data.getTaskList = function(opt_callback) {
 };

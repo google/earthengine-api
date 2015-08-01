@@ -324,7 +324,7 @@ ee.Image.cat = function(var_args) {
  */
 ee.Image.combine_ = function(images, opt_names) {
   if (images.length == 0) {
-    throw Error('Can\'t combine 0 images.');
+    return /** @type {ee.Image} */ (ee.ApiFunction._call('Image.constant', []));
   }
 
   // Append all the bands.
