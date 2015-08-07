@@ -1882,7 +1882,7 @@ ee.data.authScopes_ = [];
 /**
  * @private @const {string} The OAuth scope for the EE API.
  */
-ee.data.AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine.readonly';
+ee.data.AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine';
 
 
 /**

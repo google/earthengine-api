@@ -48,12 +48,6 @@ goog.moduleLoaderState_ = null;
 goog.isInModuleLoader_ = function() {
   return null != goog.moduleLoaderState_;
 };
-goog.module.declareTestMethods = function() {
-  if (!goog.isInModuleLoader_()) {
-    throw Error("goog.module.declareTestMethods must be called from within a goog.module");
-  }
-  goog.moduleLoaderState_.declareTestMethods = !0;
-};
 goog.module.declareLegacyNamespace = function() {
   goog.moduleLoaderState_.declareLegacyNamespace = !0;
 };
@@ -122,7 +116,7 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
   var doc = goog.global.document;
   return "undefined" != typeof doc && "write" in doc;
 }, goog.findBasePath_ = function() {
-  if (goog.global.CLOSURE_BASE_PATH) {
+  if (goog.isDef(goog.global.CLOSURE_BASE_PATH)) {
     goog.basePath = goog.global.CLOSURE_BASE_PATH;
   } else {
     if (goog.inHtmlDocument_()) {
@@ -137,7 +131,7 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
   }
 }, goog.importScript_ = function(src, opt_sourceText) {
   (goog.global.CLOSURE_IMPORT_SCRIPT || goog.writeScriptTag_)(src, opt_sourceText) && (goog.dependencies_.written[src] = !0);
-}, goog.IS_OLD_IE_ = !goog.global.atob && goog.global.document && goog.global.document.all, goog.importModule_ = function(src) {
+}, goog.IS_OLD_IE_ = !(goog.global.atob || !goog.global.document || !goog.global.document.all), goog.importModule_ = function(src) {
   goog.importScript_("", 'goog.retrieveAndExecModule_("' + src + '");') && (goog.dependencies_.written[src] = !0);
 }, goog.queuedModules_ = [], goog.wrapModule_ = function(srcUrl, scriptText) {
   return goog.LOAD_MODULE_USING_EVAL && goog.isDef(goog.global.JSON) ? "goog.loadModule(" + goog.global.JSON.stringify(scriptText + "\n//# sourceURL=" + srcUrl + "\n") + ");" : 'goog.loadModule(function(exports) {"use strict";' + scriptText + "\n;return exports});\n//# sourceURL=" + srcUrl + "\n";
@@ -174,7 +168,7 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
 }, goog.loadModule = function(moduleDef) {
   var previousState = goog.moduleLoaderState_;
   try {
-    goog.moduleLoaderState_ = {moduleName:void 0, declareTestMethods:!1};
+    goog.moduleLoaderState_ = {moduleName:void 0};
     var exports;
     if (goog.isFunction(moduleDef)) {
       exports = moduleDef.call(goog.global, {});
@@ -191,18 +185,11 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
     }
     goog.moduleLoaderState_.declareLegacyNamespace ? goog.constructNamespace_(moduleName, exports) : goog.SEAL_MODULE_EXPORTS && Object.seal && Object.seal(exports);
     goog.loadedModules_[moduleName] = exports;
-    if (goog.moduleLoaderState_.declareTestMethods) {
-      for (var entry in exports) {
-        if (0 === entry.indexOf("test", 0) || "tearDown" == entry || "setUp" == entry || "setUpPage" == entry || "tearDownPage" == entry) {
-          goog.global[entry] = exports[entry];
-        }
-      }
-    }
   } finally {
     goog.moduleLoaderState_ = previousState;
   }
-}, goog.loadModuleFromSource_ = function(source) {
-  eval(source);
+}, goog.loadModuleFromSource_ = function(JSCompiler_OptimizeArgumentsArray_p0) {
+  eval(JSCompiler_OptimizeArgumentsArray_p0);
   return {};
 }, goog.writeScriptSrcNode_ = function(src) {
   goog.global.document.write('<script type="text/javascript" src="' + src + '">\x3c/script>');
@@ -8426,7 +8413,7 @@ ee.data.paramAugmenter_ = goog.functions.identity;
 ee.data.authToken_ = null;
 ee.data.authClientId_ = null;
 ee.data.authScopes_ = [];
-ee.data.AUTH_SCOPE_ = "https://www.googleapis.com/auth/earthengine.readonly";
+ee.data.AUTH_SCOPE_ = "https://www.googleapis.com/auth/earthengine";
 ee.data.AUTH_LIBRARY_URL_ = "https://apis.google.com/js/client.js";
 ee.data.initialized_ = !1;
 ee.data.deadlineMs_ = 0;
