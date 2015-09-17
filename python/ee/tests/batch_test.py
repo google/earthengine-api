@@ -190,6 +190,22 @@ class BatchTestCase(apitestcase.ApiTestCase):
         },
         task.config)
 
+  def testExportTableToCloudStorage(self):
+    """Verifies the Cloud Storage task created by Export.table()."""
+    config = dict(outputBucket='test-bucket')
+    task = ee.batch.Export.table(ee.FeatureCollection('foo'), config=config)
+    self.assertEquals('TESTTASKID', task.id)
+    self.assertEquals(
+        {
+            'type': 'EXPORT_FEATURES',
+            'state': 'UNSUBMITTED',
+            'json': ee.FeatureCollection('foo').serialize(),
+            'description': 'myExportTableTask',
+            'outputBucket': 'test-bucket',
+            'fileFormat': 'CSV',
+        },
+        task.config)
+
   def testExportVideo(self):
     """Verifies the task created by Export.video()."""
     region = ee.Geometry.Rectangle(1, 2, 3, 4)
@@ -205,6 +221,27 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'description': 'TestVideoName',
             'crs': 'SR-ORG:6627',
             'driveFileNamePrefix': 'TestVideoName',
+            'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
+            'dimensions': 16
+        },
+        task.config)
+
+  def testExportVideoToCloudStorage(self):
+    """Verifies the Cloud Storage task created by Export.video()."""
+    region = ee.Geometry.Rectangle(1, 2, 3, 4)
+    config = dict(region=region['coordinates'], dimensions=16,
+                  outputBucket='test-bucket')
+    collection = ee.ImageCollection([ee.Image(1), ee.Image(2)])
+    task = ee.batch.Export.video(collection, 'TestVideoName', config)
+    self.assertEquals('TESTTASKID', task.id)
+    self.assertEquals(
+        {
+            'type': 'EXPORT_VIDEO',
+            'state': 'UNSUBMITTED',
+            'json': collection.serialize(),
+            'description': 'TestVideoName',
+            'crs': 'SR-ORG:6627',
+            'outputBucket': 'test-bucket',
             'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
             'dimensions': 16
         },

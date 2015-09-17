@@ -492,7 +492,7 @@ def getAssetRoots():
           {"type": "Folder", "id": "projects/bar"},
       ]
   """
-  return send_('/buckets', None, 'GET')
+  return send_('/buckets', {}, 'GET')
 
 
 def getAssetAcl(assetId):

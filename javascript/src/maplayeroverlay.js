@@ -13,6 +13,8 @@ goog.require('goog.net.EventType');
 goog.require('goog.structs.Set');
 goog.require('goog.style');
 
+goog.forwardDeclare('ee.data.Profiler');
+
 
 
 /**
@@ -24,12 +26,14 @@ goog.require('goog.style');
  * @param {string} token The temporary token for fetching tiles.
  * @param {Object} init Initialization options, of the same form as a
  *     google.maps.ImageMapTypeOptions object.
+ * @param {ee.data.Profiler=} opt_profiler Map tile calculation cost will be
+ *     sent to this profiler, if its enabled flag is set.
  * @constructor
  * @extends {goog.events.EventTarget}
  * @export
  * @ignore
  */
-ee.MapLayerOverlay = function(url, mapId, token, init) {
+ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
   goog.base(this);
 
   // Store mapId and token.
@@ -74,6 +78,13 @@ ee.MapLayerOverlay = function(url, mapId, token, init) {
 
   /** @private {boolean} Whether the layer is currently visible. */
   this.visible_ = true;
+
+  /**
+   * Map tile calculation cost will be sent to this profiler, if its enabled
+   * flag is set.
+   * @private {?ee.data.Profiler}
+   */
+  this.profiler_ = opt_profiler || null;
 };
 goog.inherits(ee.MapLayerOverlay, goog.events.EventTarget);
 
@@ -127,7 +138,6 @@ ee.MapLayerOverlay.prototype.dispatchTileEvent_ = function() {
  */
 ee.MapLayerOverlay.prototype.getTile = function(
     coord, zoom, ownerDocument) {
-  var result;
   var maxCoord = 1 << zoom;
   if (zoom < this.minZoom || coord.y < 0 || coord.y >= maxCoord) {
     // Construct and return the tile immediately.
@@ -142,8 +152,14 @@ ee.MapLayerOverlay.prototype.getTile = function(
     x += maxCoord;
   }
 
+  var profiling = this.profiler_ && this.profiler_.isEnabled();
+
   var tileId = [this.mapId, zoom, x, coord.y].join('/');
+  // TODO(user): no-cache=1 should not be needed; b/23419909
   var src = [this.url, tileId].join('/') + '?token=' + this.token;
+  if (profiling) {
+    src += '&profiling=1&no-cache=1';
+  }
 
   // Append a unique string to the tileid to make sure that
   // repeated requests for the same tile and cancellations thereof
@@ -152,6 +168,7 @@ ee.MapLayerOverlay.prototype.getTile = function(
   var uniqueTileId = tileId + '/' + this.tileCounter_;
   this.tileCounter_ += 1;
 
+  // Holds the <img> element created asynchronously.
   var div = goog.dom.createDom('div', {'id': uniqueTileId});
 
   // Use the current time in seconds as the priority for the tile
@@ -163,12 +180,12 @@ ee.MapLayerOverlay.prototype.getTile = function(
   // method, and the obsolete requests will be removed from the queue.
   var priority = new Date().getTime() / 1000;
   this.tilesLoading_.push(uniqueTileId);
+
   ee.MapTileManager.getInstance().send(
       uniqueTileId, src, priority,
       goog.bind(this.handleImageCompleted_, this, div, uniqueTileId));
   this.dispatchTileEvent_();
-  result = div;
-  return result;
+  return div;
 };
 
 
@@ -200,6 +217,9 @@ ee.MapLayerOverlay.prototype.releaseTile = function(tileDiv) {
   var tileImg = goog.dom.getFirstElementChild(tileDiv);
   this.tiles_.remove(tileImg);
   this.tilesFailed_.remove(tileDiv.id);
+  if (this.profiler_) {
+    this.profiler_.removeTile(tileDiv.id);
+  }
 };
 
 
@@ -237,11 +257,12 @@ goog.exportProperty(
  * Handle bookkeeping to keep the tilesLoading_ array accurate.
  * @param {Node} div Tile div to which images should be appended.
  * @param {string} tileId The id of the tile that was requested.
- * @param {goog.events.Event} e Image loading event.
+ * @param {!goog.events.Event} e Image loading event.
+ * @param {?string} profileId If profiling, profile ID for the tile.
  * @private
  */
 ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(
-    div, tileId, e) {
+    div, tileId, e, profileId) {
   if (e.type == goog.net.EventType.ERROR) {
     // Forward error events.
     goog.array.remove(this.tilesLoading_, tileId);
@@ -260,6 +281,10 @@ ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(
       div.appendChild(tile);
     }
     this.dispatchTileEvent_();
+  }
+
+  if (this.profiler_ && !goog.isNull(profileId)) {
+    this.profiler_.addTile(tileId, profileId);
   }
 };
 

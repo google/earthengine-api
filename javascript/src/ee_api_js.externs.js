@@ -768,7 +768,7 @@ ee.InitState.LOADING;
 ee.InitState.NOT_READY;
 ee.InitState.READY;
 /**
- * @param {(Object|null)} list
+ * @param {(Arguments|NodeList|Object|null)} list
  * @return {?}
  * @extends {ee.ComputedObject}
  * @constructor
@@ -780,12 +780,13 @@ ee.List = function(list) {
  * @param {string} mapId
  * @param {string} token
  * @param {(Object|null)} init
+ * @param {(ee.data.Profiler|null)=} opt_profiler
  * @extends {goog.events.EventTarget}
  * @implements {goog.disposable.IDisposable}
  * @implements {goog.events.Listenable}
  * @constructor
  */
-ee.MapLayerOverlay = function(url, mapId, token, init) {
+ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
 };
 /**
  * @param {function ((ee.TileEvent|null)): ?} callback
@@ -1106,7 +1107,7 @@ ee.data.setParamAugmenter = function(augmenter) {
 };
 /**
  * @param {string} taskId
- * @param {{bands: (Array<ee.data.Band>|undefined), filesets: Array<ee.data.Fileset>, name: string}} request
+ * @param {{bands: (Array<ee.data.Band>|undefined), filesets: Array<ee.data.Fileset>, missingData: (ee.data.MissingData|undefined), name: string, reductionPolicy: (ee.data.ReductionPolicy|undefined)}} request
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */
@@ -1127,6 +1128,14 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
  * @return {(Array<ee.data.TaskStatus>|null)}
  */
 ee.data.updateTask = function(taskId, action, opt_callback) {
+};
+/**
+ * @param {(function (string): ?|null)} hook
+ * @param {function (): *} body
+ * @param {*=} opt_this
+ * @return {*}
+ */
+ee.data.withProfiling = function(hook, body, opt_this) {
 };
 /**
  * @param {(null|string)=} opt_baseurl

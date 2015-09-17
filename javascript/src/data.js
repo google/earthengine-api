@@ -15,6 +15,7 @@ goog.provide('ee.data.AssetList');
 goog.provide('ee.data.AssetType');
 goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
+goog.provide('ee.data.BandMap');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.FeatureVisualizationParameters');
@@ -30,9 +31,12 @@ goog.provide('ee.data.ImageTaskConfig');
 goog.provide('ee.data.ImageVisualizationParameters');
 goog.provide('ee.data.IngestionRequest');
 goog.provide('ee.data.MapId');
+goog.provide('ee.data.MapZoomRange');
+goog.provide('ee.data.MissingData');
 goog.provide('ee.data.PixelTypeDescription');
 goog.provide('ee.data.ProcessingResponse');
 goog.provide('ee.data.RawMapId');
+goog.provide('ee.data.ReductionPolicy');
 goog.provide('ee.data.ShortAssetDescription');
 goog.provide('ee.data.TableTaskConfig');
 goog.provide('ee.data.TaskListResponse');
@@ -593,6 +597,34 @@ ee.data.makeTableDownloadUrl = function(id) {
   return ee.data.tileBaseUrl_ + '/api/table?docid=' + id['docid'] +
       '&token=' + id['token'];
 };
+
+
+/**
+ * If hook is not null, enables profiling for all API calls begun during the
+ * execution of the body function and call the hook function with all resulting
+ * profile IDs. If hook is null, disables profiling (or leaves it disabled).
+ *
+ * Note: Profiling is not a generally available feature yet. Do not expect this
+ * function to be useful.
+ *
+ * @param {?function(string)} hook
+ *     A function to be called whenever there is new profile data available,
+ *     with the profile ID as an argument.
+ * @param {function():*} body Will be called once, with profiling enabled for
+ *     all API calls made by it.
+ * @param {*=} opt_this
+ * @return {*}
+ */
+ee.data.withProfiling = function(hook, body, opt_this) {
+  var saved = ee.data.profileHook_;
+  try {
+    ee.data.profileHook_ = hook;
+    return body.call(opt_this);
+  } finally {
+    ee.data.profileHook_ = saved;
+  }
+};
+goog.exportSymbol('ee.data.withProfiling', ee.data.withProfiling);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1276,6 +1308,16 @@ ee.data.MapId;
 
 
 /**
+ * The range of zoom levels for our map tiles.
+ * @enum {number}
+ */
+ee.data.MapZoomRange = {
+  MIN: 0,
+  MAX: 24
+};
+
+
+/**
  * An object to specifying common user preferences for the creation of a new
  * task.
  *
@@ -1462,10 +1504,29 @@ ee.data.AssetDescription;
  * @typedef {{
  *   'name': string,
  *   'filesets': !Array<ee.data.Fileset>,
- *   'bands': (undefined|!Array<ee.data.Band>)
+ *   'bands': (undefined|!Array<ee.data.Band>),
+ *   'reductionPolicy': (undefined|ee.data.ReductionPolicy),
+ *   'missingData': (undefined|ee.data.MissingData)
  * }}
  */
 ee.data.IngestionRequest;
+
+
+/**
+ * An object describing which value to treat as (fill, nodata) in an asset.
+ *
+ * @typedef {{
+ *   'value': number
+ * }}
+ */
+ee.data.MissingData;
+
+
+/** @enum {string} The reduction policies choices for newly uploaded assets. */
+ee.data.ReductionPolicy = {
+  MEAN: 'MEAN',
+  SAMPLE: 'SAMPLE'
+};
 
 
 /**
@@ -1482,10 +1543,22 @@ ee.data.Band;
  * An object describing properties of a single fileset.
  *
  * @typedef {{
- *   'sources': !Array<ee.data.FileSource>
+ *   'sources': !Array<ee.data.FileSource>,
+ *   'bandMaps': (undefined|!Array<ee.data.BandMap>)
  * }}
  */
 ee.data.Fileset;
+
+
+/**
+ * An object describing properties of band map within a fileset.
+ *
+ * @typedef {{
+ *   'fileBand': number,
+ *   'isMask': boolean
+ * }}
+ */
+ee.data.BandMap;
 
 
 /**
@@ -1544,8 +1617,20 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   }
   // TODO(user): Refresh auth token if request is async and the token is null.
 
+  params = params ? params.clone() : new goog.Uri.QueryData();
+
+  // Request profiling results.
+  var profileHookAtCallTime;
+  if (ee.data.profileHook_) {
+    params.add('profiling', '1');
+
+    // Snapshot the profile hook so we don't depend on its state at callback
+    // time.
+    profileHookAtCallTime = ee.data.profileHook_;
+  }
+
   // Apply any custom param augmentation.
-  params = ee.data.paramAugmenter_(params || new goog.Uri.QueryData(), path);
+  params = ee.data.paramAugmenter_(params, path);
 
   // XSRF protection for a server-side API proxy.
   if (goog.isDefAndNotNull(ee.data.xsrfToken_)) {
@@ -1554,8 +1639,14 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
 
   // Handle processing and dispatching a callback response.
   var handleResponse = function(
-      status, contentType, responseText, opt_callback) {
+      status, getResponseHeader, responseText, opt_callback) {
+    var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
+    if (profileId && profileHookAtCallTime) {
+      profileHookAtCallTime(profileId);
+    }
+
     var response, data, errorMessage;
+    var contentType = getResponseHeader('Content-Type');
     contentType = contentType ?
         contentType.replace(/;.*/, '') : 'application/json';
     if (contentType == 'application/json' || contentType == 'text/json') {
@@ -1610,7 +1701,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
 
           return handleResponse(
               xhrIo.getStatus(),
-              xhrIo.getResponseHeader('Content-Type'),
+              goog.bind(xhrIo.getResponseHeader, xhrIo),
               xhrIo.getResponseText(),
               opt_callback);
         },
@@ -1627,17 +1718,17 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
       xmlHttp.setRequestHeader(key, value);
     });
     xmlHttp.send(requestData);
-    var contentType;
-    try {
-      contentType = xmlHttp.getResponseHeader('Content-Type');
-    } catch (e) {
-      // Workaround for a non-browser XMLHttpRequest shim that doesn't implement
-      // getResponseHeader when synchronous.
-      contentType = 'application/json';
-    }
     return handleResponse(
         xmlHttp.status,
-        contentType,
+        function getResponseHeaderSafe(header) {
+          try {
+            return xmlHttp.getResponseHeader(header);
+          } catch (e) {
+            // Workaround for a non-browser XMLHttpRequest shim that doesn't
+            // implement getResponseHeader when synchronous.
+            return null;
+          }
+        },
         xmlHttp.responseText,
         null);
   }
@@ -1905,6 +1996,22 @@ ee.data.initialized_ = false;
  * @private
  */
 ee.data.deadlineMs_ = 0;
+
+
+/**
+ * @private {?function(string)} A function called when profile results are
+ *     received from the server. Takes the profile ID as an argument.
+ *     Null if profiling is disabled.
+ */
+ee.data.profileHook_ = null;
+
+
+/**
+ * @type {string} The HTTP header through which profile results are returned.
+ * @package
+ * @const
+ */
+ee.data.PROFILE_HEADER = 'X-Earth-Engine-Computation-Profile';
 
 
 /**

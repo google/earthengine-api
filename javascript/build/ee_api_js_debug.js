@@ -112,7 +112,7 @@ goog.LOAD_MODULE_USING_EVAL = !0;
 goog.SEAL_MODULE_EXPORTS = goog.DEBUG;
 goog.loadedModules_ = {};
 goog.DEPENDENCIES_ENABLED = !1;
-goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsModule:{}, nameToPath:{}, requires:{}, visited:{}, written:{}, deferred:{}}, goog.inHtmlDocument_ = function() {
+goog.DEPENDENCIES_ENABLED && (goog.dependencies_ = {pathIsModule:{}, nameToPath:{}, requires:{}, visited:{}, written:{}, deferred:{}}, goog.inHtmlDocument_ = function() {
   var doc = goog.global.document;
   return "undefined" != typeof doc && "write" in doc;
 }, goog.findBasePath_ = function() {
@@ -226,10 +226,11 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
 }, goog.lastNonModuleScriptIndex_ = 0, goog.onScriptLoad_ = function(script, scriptIndex) {
   "complete" == script.readyState && goog.lastNonModuleScriptIndex_ == scriptIndex && goog.loadQueuedModules_();
   return !0;
-}, goog.writeScripts_ = function() {
+}, goog.writeScripts_ = function(pathToLoad) {
   function visitNode(path) {
-    if (!(path in deps.written)) {
-      if (!(path in deps.visited) && (deps.visited[path] = !0, path in deps.requires)) {
+    if (!(path in deps.written || path in deps.visited)) {
+      deps.visited[path] = !0;
+      if (path in deps.requires) {
         for (var requireName in deps.requires[path]) {
           if (!goog.isProvided_(requireName)) {
             if (requireName in deps.nameToPath) {
@@ -243,18 +244,17 @@ goog.DEPENDENCIES_ENABLED && (goog.included_ = {}, goog.dependencies_ = {pathIsM
       path in seenScript || (seenScript[path] = !0, scripts.push(path));
     }
   }
-  var scripts = [], seenScript = {}, deps = goog.dependencies_, path$$0;
-  for (path$$0 in goog.included_) {
-    deps.written[path$$0] || visitNode(path$$0);
-  }
+  var scripts = [], seenScript = {}, deps = goog.dependencies_;
+  visitNode(pathToLoad);
   for (var i = 0;i < scripts.length;i++) {
-    path$$0 = scripts[i], goog.dependencies_.written[path$$0] = !0;
+    var path$$0 = scripts[i];
+    goog.dependencies_.written[path$$0] = !0;
   }
   var moduleState = goog.moduleLoaderState_;
   goog.moduleLoaderState_ = null;
-  for (var loadingModule = !1, i = 0;i < scripts.length;i++) {
+  for (i = 0;i < scripts.length;i++) {
     if (path$$0 = scripts[i]) {
-      deps.pathIsModule[path$$0] ? (loadingModule = !0, goog.importModule_(goog.basePath + path$$0)) : goog.importScript_(goog.basePath + path$$0);
+      deps.pathIsModule[path$$0] ? goog.importModule_(goog.basePath + path$$0) : goog.importScript_(goog.basePath + path$$0);
     } else {
       throw goog.moduleLoaderState_ = moduleState, Error("Undefined script input");
     }
@@ -723,7 +723,7 @@ goog.object.clone = function(obj) {
 goog.object.unsafeClone = function(obj) {
   var type = goog.typeOf(obj);
   if ("object" == type || "array" == type) {
-    if (obj.clone) {
+    if (goog.isFunction(obj.clone)) {
       return obj.clone();
     }
     var clone = "array" == type ? [] : {}, key;
@@ -1093,7 +1093,9 @@ goog.string.removeAll = function(s, ss) {
 goog.string.regExpEscape = function(s) {
   return String(s).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, "\\$1").replace(/\x08/g, "\\x08");
 };
-goog.string.repeat = function(string, length) {
+goog.string.repeat = String.prototype.repeat ? function(string, length) {
+  return string.repeat(length);
+} : function(string, length) {
   return Array(length + 1).join(string);
 };
 goog.string.padNumber = function(num, length, opt_precision) {
@@ -1126,10 +1128,9 @@ goog.string.compareVersions = function(version1, version2) {
 goog.string.compareElements_ = function(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
 };
-goog.string.HASHCODE_MAX_ = 4294967296;
 goog.string.hashCode = function(str) {
   for (var result = 0, i = 0;i < str.length;++i) {
-    result = 31 * result + str.charCodeAt(i), result %= goog.string.HASHCODE_MAX_;
+    result = 31 * result + str.charCodeAt(i) >>> 0;
   }
   return result;
 };
@@ -1809,6 +1810,24 @@ goog.functions.once = function(f) {
     }
   };
 };
+goog.functions.debounce = function(f, interval, opt_scope) {
+  opt_scope && (f = goog.bind(f, opt_scope));
+  var timeout = null;
+  return function() {
+    goog.global.clearTimeout(timeout);
+    timeout = goog.global.setTimeout(f, interval);
+  };
+};
+goog.functions.throttle = function(f, interval, opt_scope) {
+  opt_scope && (f = goog.bind(f, opt_scope));
+  var timeout = null, shouldFire = !1, handleTimeout = function() {
+    timeout = null;
+    shouldFire && (shouldFire = !1, timeout = goog.global.setTimeout(handleTimeout, interval), f());
+  };
+  return function() {
+    timeout ? shouldFire = !0 : (timeout = goog.global.setTimeout(handleTimeout, interval), f());
+  };
+};
 goog.json = {};
 goog.json.USE_NATIVE_JSON = !1;
 goog.json.isValid = function(s) {
@@ -1911,7 +1930,7 @@ DIALOG:"DIALOG", DIR:"DIR", DIV:"DIV", DL:"DL", DT:"DT", EM:"EM", EMBED:"EMBED",
 MAP:"MAP", MARK:"MARK", MATH:"MATH", MENU:"MENU", META:"META", METER:"METER", NAV:"NAV", NOFRAMES:"NOFRAMES", NOSCRIPT:"NOSCRIPT", OBJECT:"OBJECT", OL:"OL", OPTGROUP:"OPTGROUP", OPTION:"OPTION", OUTPUT:"OUTPUT", P:"P", PARAM:"PARAM", PRE:"PRE", PROGRESS:"PROGRESS", Q:"Q", RP:"RP", RT:"RT", RUBY:"RUBY", S:"S", SAMP:"SAMP", SCRIPT:"SCRIPT", SECTION:"SECTION", SELECT:"SELECT", SMALL:"SMALL", SOURCE:"SOURCE", SPAN:"SPAN", STRIKE:"STRIKE", STRONG:"STRONG", STYLE:"STYLE", SUB:"SUB", SUMMARY:"SUMMARY", 
 SUP:"SUP", SVG:"SVG", TABLE:"TABLE", TBODY:"TBODY", TD:"TD", TEMPLATE:"TEMPLATE", TEXTAREA:"TEXTAREA", TFOOT:"TFOOT", TH:"TH", THEAD:"THEAD", TIME:"TIME", TITLE:"TITLE", TR:"TR", TRACK:"TRACK", TT:"TT", U:"U", UL:"UL", VAR:"VAR", VIDEO:"VIDEO", WBR:"WBR"};
 goog.dom.tags = {};
-goog.dom.tags.VOID_TAGS_ = goog.object.createSet("area base br col command embed hr img input keygen link meta param source track wbr".split(" "));
+goog.dom.tags.VOID_TAGS_ = {area:!0, base:!0, br:!0, col:!0, command:!0, embed:!0, hr:!0, img:!0, input:!0, keygen:!0, link:!0, meta:!0, param:!0, source:!0, track:!0, wbr:!0};
 goog.dom.tags.isVoidTag = function(tagName) {
   return !0 === goog.dom.tags.VOID_TAGS_[tagName];
 };
@@ -3008,10 +3027,17 @@ goog.userAgent.X11 = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_X11 
 goog.userAgent.ANDROID = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_ANDROID : goog.labs.userAgent.platform.isAndroid();
 goog.userAgent.IPHONE = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPHONE : goog.labs.userAgent.platform.isIphone();
 goog.userAgent.IPAD = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPAD : goog.labs.userAgent.platform.isIpad();
+goog.userAgent.operaVersion_ = function() {
+  var version = goog.global.opera.version;
+  try {
+    return version();
+  } catch (e) {
+    return version;
+  }
+};
 goog.userAgent.determineVersion_ = function() {
   if (goog.userAgent.OPERA && goog.global.opera) {
-    var operaVersion = goog.global.opera.version;
-    return goog.isFunction(operaVersion) ? operaVersion() : operaVersion;
+    return goog.userAgent.operaVersion_();
   }
   var version = "", arr = goog.userAgent.getVersionRegexResult_();
   arr && (version = arr ? arr[1] : "");
@@ -4135,8 +4161,8 @@ goog.Promise = function(resolver, opt_context) {
         }
         self.resolve_(goog.Promise.State_.REJECTED, reason);
       });
-    } catch (e$$0) {
-      this.resolve_(goog.Promise.State_.REJECTED, e$$0);
+    } catch (e) {
+      this.resolve_(goog.Promise.State_.REJECTED, e);
     }
   }
 };
@@ -4701,18 +4727,22 @@ goog.net.jsloader.GLOBAL_VERIFY_OBJS_ = "closure_verification";
 goog.net.jsloader.DEFAULT_TIMEOUT = 5E3;
 goog.net.jsloader.scriptsToLoad_ = [];
 goog.net.jsloader.loadMany = function(uris, opt_options) {
-  if (uris.length) {
-    var isAnotherModuleLoading = goog.net.jsloader.scriptsToLoad_.length;
-    goog.array.extend(goog.net.jsloader.scriptsToLoad_, uris);
-    if (!isAnotherModuleLoading) {
-      uris = goog.net.jsloader.scriptsToLoad_;
-      var popAndLoadNextScript = function() {
-        var uri = uris.shift(), deferred = goog.net.jsloader.load(uri, opt_options);
-        uris.length && deferred.addBoth(popAndLoadNextScript);
-      };
-      popAndLoadNextScript();
-    }
+  if (!uris.length) {
+    return goog.async.Deferred.succeed(null);
   }
+  var isAnotherModuleLoading = goog.net.jsloader.scriptsToLoad_.length;
+  goog.array.extend(goog.net.jsloader.scriptsToLoad_, uris);
+  if (isAnotherModuleLoading) {
+    return goog.net.jsloader.scriptLoadingDeferred_;
+  }
+  uris = goog.net.jsloader.scriptsToLoad_;
+  var popAndLoadNextScript = function() {
+    var uri = uris.shift(), deferred = goog.net.jsloader.load(uri, opt_options);
+    uris.length && deferred.addBoth(popAndLoadNextScript);
+    return deferred;
+  };
+  goog.net.jsloader.scriptLoadingDeferred_ = popAndLoadNextScript();
+  return goog.net.jsloader.scriptLoadingDeferred_;
 };
 goog.net.jsloader.load = function(uri, opt_options) {
   var options = opt_options || {}, doc = options.document || document, script = goog.dom.createElement(goog.dom.TagName.SCRIPT), request = {script_:script, timeout_:void 0}, deferred = new goog.async.Deferred(goog.net.jsloader.cancel_, request), timeout = null, timeoutDuration = goog.isDefAndNotNull(options.timeout) ? options.timeout : goog.net.jsloader.DEFAULT_TIMEOUT;
@@ -4907,18 +4937,14 @@ goog.inherits(goog.events.BrowserEvent, goog.events.Event);
 goog.events.BrowserEvent.MouseButton = {LEFT:0, MIDDLE:1, RIGHT:2};
 goog.events.BrowserEvent.IEButtonMap = [1, 4, 2];
 goog.events.BrowserEvent.prototype.init = function(e, opt_currentTarget) {
-  var type = this.type = e.type;
+  var type = this.type = e.type, relevantTouch = e.changedTouches ? e.changedTouches[0] : null;
   this.target = e.target || e.srcElement;
   this.currentTarget = opt_currentTarget;
   var relatedTarget = e.relatedTarget;
   relatedTarget ? goog.userAgent.GECKO && (goog.reflect.canAccessProperty(relatedTarget, "nodeName") || (relatedTarget = null)) : type == goog.events.EventType.MOUSEOVER ? relatedTarget = e.fromElement : type == goog.events.EventType.MOUSEOUT && (relatedTarget = e.toElement);
   this.relatedTarget = relatedTarget;
-  this.offsetX = goog.userAgent.WEBKIT || void 0 !== e.offsetX ? e.offsetX : e.layerX;
-  this.offsetY = goog.userAgent.WEBKIT || void 0 !== e.offsetY ? e.offsetY : e.layerY;
-  this.clientX = void 0 !== e.clientX ? e.clientX : e.pageX;
-  this.clientY = void 0 !== e.clientY ? e.clientY : e.pageY;
-  this.screenX = e.screenX || 0;
-  this.screenY = e.screenY || 0;
+  goog.isNull(relevantTouch) ? (this.offsetX = goog.userAgent.WEBKIT || void 0 !== e.offsetX ? e.offsetX : e.layerX, this.offsetY = goog.userAgent.WEBKIT || void 0 !== e.offsetY ? e.offsetY : e.layerY, this.clientX = void 0 !== e.clientX ? e.clientX : e.pageX, this.clientY = void 0 !== e.clientY ? e.clientY : e.pageY, this.screenX = e.screenX || 0, this.screenY = e.screenY || 0) : (this.clientX = void 0 !== relevantTouch.clientX ? relevantTouch.clientX : relevantTouch.pageX, this.clientY = void 0 !== 
+  relevantTouch.clientY ? relevantTouch.clientY : relevantTouch.pageY, this.screenX = relevantTouch.screenX || 0, this.screenY = relevantTouch.screenY || 0);
   this.button = e.button;
   this.keyCode = e.keyCode || 0;
   this.charCode = e.charCode || ("keypress" == type ? e.keyCode : 0);
@@ -5578,9 +5604,9 @@ goog.iter.forEach = function(iterable, f, opt_obj) {
       for (;;) {
         f.call(opt_obj, iterable.next(), void 0, iterable);
       }
-    } catch (ex$$0) {
-      if (ex$$0 !== goog.iter.StopIteration) {
-        throw ex$$0;
+    } catch (ex) {
+      if (ex !== goog.iter.StopIteration) {
+        throw ex;
       }
     }
   }
@@ -6427,7 +6453,7 @@ goog.debug.normalizeErrorObject = function(err) {
   }
   try {
     fileName = err.fileName || err.filename || err.sourceURL || goog.global.$googDebugFname || href;
-  } catch (e$$0) {
+  } catch (e) {
     fileName = "Not available", threwError = !0;
   }
   return !threwError && err.lineNumber && err.fileName && err.stack && err.message && err.name ? err : {message:err.message || "Not available", name:err.name || "UnknownError", lineNumber:lineNumber, fileName:fileName, stack:err.stack || "Not available"};
@@ -6960,24 +6986,7 @@ goog.uri.utils.buildFromEncodedParts = function(opt_scheme, opt_userInfo, opt_do
 goog.uri.utils.splitRe_ = /^(?:([^:/?#.]+):)?(?:\/\/(?:([^/?#]*)@)?([^/#?]*?)(?::([0-9]+))?(?=[/#?]|$))?([^?#]+)?(?:\?([^#]*))?(?:#(.*))?$/;
 goog.uri.utils.ComponentIndex = {SCHEME:1, USER_INFO:2, DOMAIN:3, PORT:4, PATH:5, QUERY_DATA:6, FRAGMENT:7};
 goog.uri.utils.split = function(uri) {
-  goog.uri.utils.phishingProtection_();
   return uri.match(goog.uri.utils.splitRe_);
-};
-goog.uri.utils.needsPhishingProtection_ = goog.userAgent.WEBKIT;
-goog.uri.utils.phishingProtection_ = function() {
-  if (goog.uri.utils.needsPhishingProtection_) {
-    goog.uri.utils.needsPhishingProtection_ = !1;
-    var location = goog.global.location;
-    if (location) {
-      var href = location.href;
-      if (href) {
-        var domain = goog.uri.utils.getDomain(href);
-        if (domain && domain != location.hostname) {
-          throw goog.uri.utils.needsPhishingProtection_ = !0, Error();
-        }
-      }
-    }
-  }
 };
 goog.uri.utils.decodeIfPossible_ = function(uri, opt_preserveReserved) {
   return uri ? opt_preserveReserved ? decodeURI(uri) : decodeURIComponent(uri) : uri;
@@ -7318,7 +7327,7 @@ goog.net.XhrIo = function(opt_xmlHttpFactory) {
   this.timeoutInterval_ = 0;
   this.timeoutId_ = null;
   this.responseType_ = goog.net.XhrIo.ResponseType.DEFAULT;
-  this.useXhr2Timeout_ = this.withCredentials_ = !1;
+  this.useXhr2Timeout_ = this.progressEventsEnabled_ = this.withCredentials_ = !1;
 };
 goog.inherits(goog.net.XhrIo, goog.events.EventTarget);
 goog.net.XhrIo.ResponseType = {DEFAULT:"", TEXT:"text", DOCUMENT:"document", BLOB:"blob", ARRAY_BUFFER:"arraybuffer"};
@@ -7370,6 +7379,12 @@ goog.net.XhrIo.prototype.setWithCredentials = function(withCredentials) {
 goog.net.XhrIo.prototype.getWithCredentials = function() {
   return this.withCredentials_;
 };
+goog.net.XhrIo.prototype.setProgressEventsEnabled = function(enabled) {
+  this.progressEventsEnabled_ = enabled;
+};
+goog.net.XhrIo.prototype.getProgressEventsEnabled = function() {
+  return this.progressEventsEnabled_;
+};
 goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_headers) {
   if (this.xhr_) {
     throw Error("[goog.net.XhrIo] Object is active with another request=" + this.lastUri_ + "; newUri=" + url);
@@ -7384,6 +7399,7 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   this.xhr_ = this.createXhr();
   this.xhrOptions_ = this.xmlHttpFactory_ ? this.xmlHttpFactory_.getOptions() : goog.net.XmlHttp.getOptions();
   this.xhr_.onreadystatechange = goog.bind(this.onReadyStateChange_, this);
+  this.getProgressEventsEnabled() && "onprogress" in this.xhr_ && (this.xhr_.onprogress = goog.bind(this.onProgressHandler_, this), this.xhr_.upload && (this.xhr_.upload.onprogress = goog.bind(this.onProgressHandler_, this)));
   try {
     goog.log.fine(this.logger_, this.formatMsg_("Opening Xhr")), this.inOpen_ = !0, this.xhr_.open(method, String(url), !0), this.inOpen_ = !1;
   } catch (err) {
@@ -7405,8 +7421,8 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   try {
     this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (this.useXhr2Timeout_ = goog.net.XhrIo.shouldUseXhr2Timeout_(this.xhr_), goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete, xhr2 " + this.useXhr2Timeout_)), this.useXhr2Timeout_ ? (this.xhr_[goog.net.XhrIo.XHR2_TIMEOUT_] = this.timeoutInterval_, this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = goog.bind(this.timeout_, this)) : this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, 
     this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
-  } catch (err$$0) {
-    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$$0.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$$0);
+  } catch (err) {
+    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err);
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
@@ -7471,6 +7487,10 @@ goog.net.XhrIo.prototype.onReadyStateChangeHelper_ = function() {
       }
     }
   }
+};
+goog.net.XhrIo.prototype.onProgressHandler_ = function(e) {
+  goog.asserts.assert(e.type === goog.net.EventType.PROGRESS, "goog.net.EventType.PROGRESS is of the same type as raw XHR progress.");
+  this.dispatchEvent(e);
 };
 goog.net.XhrIo.prototype.cleanUpXhr_ = function(opt_fromDispose) {
   if (this.xhr_) {
@@ -7622,7 +7642,7 @@ goog.Uri.prototype.toString = function() {
   var out = [], scheme = this.getScheme();
   scheme && out.push(goog.Uri.encodeSpecialChars_(scheme, goog.Uri.reDisallowedInSchemeOrUserInfo_, !0), ":");
   var domain = this.getDomain();
-  if (domain) {
+  if (domain || "file" == scheme) {
     out.push("//");
     var userInfo = this.getUserInfo();
     userInfo && out.push(goog.Uri.encodeSpecialChars_(userInfo, goog.Uri.reDisallowedInSchemeOrUserInfo_, !0), "@");
@@ -8149,6 +8169,15 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
 ee.data.makeTableDownloadUrl = function(id) {
   return ee.data.tileBaseUrl_ + "/api/table?docid=" + id.docid + "&token=" + id.token;
 };
+ee.data.withProfiling = function(hook, body, opt_this) {
+  var saved = ee.data.profileHook_;
+  try {
+    return ee.data.profileHook_ = hook, body.call(opt_this);
+  } finally {
+    ee.data.profileHook_ = saved;
+  }
+};
+goog.exportSymbol("ee.data.withProfiling", ee.data.withProfiling);
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
   goog.isNumber(opt_count) && (params.count = opt_count);
@@ -8252,16 +8281,22 @@ ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
 };
 goog.exportSymbol("ee.data.setAssetAcl", ee.data.setAssetAcl);
 ee.data.AssetType = {IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", FOLDER:"Folder", ALGORITHM:"Algorithm", UNKNOWN:"Unknown"};
+ee.data.MapZoomRange = {MIN:0, MAX:24};
 ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
+ee.data.ReductionPolicy = {MEAN:"MEAN", SAMPLE:"SAMPLE"};
 ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
   ee.data.initialize();
   var method = opt_method || "POST", headers = {"Content-Type":"application/x-www-form-urlencoded"};
   goog.isDefAndNotNull(ee.data.authToken_) && (headers.Authorization = ee.data.authToken_);
-  params = ee.data.paramAugmenter_(params || new goog.Uri.QueryData, path);
+  params = params ? params.clone() : new goog.Uri.QueryData;
+  var profileHookAtCallTime;
+  ee.data.profileHook_ && (params.add("profiling", "1"), profileHookAtCallTime = ee.data.profileHook_);
+  params = ee.data.paramAugmenter_(params, path);
   goog.isDefAndNotNull(ee.data.xsrfToken_) && (headers["X-XSRF-Token"] = ee.data.xsrfToken_);
-  var handleResponse = function(status, contentType, responseText, opt_callback) {
-    var response, data, errorMessage;
-    contentType = contentType ? contentType.replace(/;.*/, "") : "application/json";
+  var handleResponse = function(status, getResponseHeader, responseText, opt_callback) {
+    var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
+    profileId && profileHookAtCallTime && profileHookAtCallTime(profileId);
+    var response, data, errorMessage, contentType = getResponseHeader("Content-Type"), contentType = contentType ? contentType.replace(/;.*/, "") : "application/json";
     if ("application/json" == contentType || "text/json" == contentType) {
       try {
         response = goog.json.unsafeParse(responseText), data = response.data;
@@ -8291,7 +8326,7 @@ ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
   if (opt_callback$$0) {
     return goog.net.XhrIo.send(url, function(e) {
       var xhrIo = e.target;
-      return handleResponse(xhrIo.getStatus(), xhrIo.getResponseHeader("Content-Type"), xhrIo.getResponseText(), opt_callback$$0);
+      return handleResponse(xhrIo.getStatus(), goog.bind(xhrIo.getResponseHeader, xhrIo), xhrIo.getResponseText(), opt_callback$$0);
     }, method, requestData, headers, ee.data.deadlineMs_), null;
   }
   var xmlHttp = goog.net.XmlHttp();
@@ -8300,13 +8335,13 @@ ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
     xmlHttp.setRequestHeader(key, value);
   });
   xmlHttp.send(requestData);
-  var contentType$$0;
-  try {
-    contentType$$0 = xmlHttp.getResponseHeader("Content-Type");
-  } catch (e$$0) {
-    contentType$$0 = "application/json";
-  }
-  return handleResponse(xmlHttp.status, contentType$$0, xmlHttp.responseText, null);
+  return handleResponse(xmlHttp.status, function getResponseHeaderSafe(header) {
+    try {
+      return xmlHttp.getResponseHeader(header);
+    } catch (e) {
+      return null;
+    }
+  }, xmlHttp.responseText, null);
 };
 ee.data.ensureAuthLibLoaded_ = function(callback) {
   var done = function() {
@@ -8417,6 +8452,8 @@ ee.data.AUTH_SCOPE_ = "https://www.googleapis.com/auth/earthengine";
 ee.data.AUTH_LIBRARY_URL_ = "https://apis.google.com/js/client.js";
 ee.data.initialized_ = !1;
 ee.data.deadlineMs_ = 0;
+ee.data.profileHook_ = null;
+ee.data.PROFILE_HEADER = "X-Earth-Engine-Computation-Profile";
 ee.data.DEFAULT_API_BASE_URL_ = "https://earthengine.googleapis.com/api";
 ee.data.DEFAULT_TILE_BASE_URL_ = "https://earthengine.googleapis.com";
 ee.Encodable = function() {
@@ -10473,11 +10510,7 @@ goog.math.Box = function(top, right, bottom, left) {
 };
 goog.math.Box.boundingBox = function(var_args) {
   for (var box = new goog.math.Box(arguments[0].y, arguments[0].x, arguments[0].y, arguments[0].x), i = 1;i < arguments.length;i++) {
-    var coord = arguments[i];
-    box.top = Math.min(box.top, coord.y);
-    box.right = Math.max(box.right, coord.x);
-    box.bottom = Math.max(box.bottom, coord.y);
-    box.left = Math.min(box.left, coord.x);
+    box.expandToIncludeCoordinate(arguments[i]);
   }
   return box;
 };
@@ -10505,6 +10538,12 @@ goog.math.Box.prototype.expandToInclude = function(box) {
   this.top = Math.min(this.top, box.top);
   this.right = Math.max(this.right, box.right);
   this.bottom = Math.max(this.bottom, box.bottom);
+};
+goog.math.Box.prototype.expandToIncludeCoordinate = function(coord) {
+  this.top = Math.min(this.top, coord.y);
+  this.right = Math.max(this.right, coord.x);
+  this.bottom = Math.max(this.bottom, coord.y);
+  this.left = Math.min(this.left, coord.x);
 };
 goog.math.Box.equals = function(a, b) {
   return a == b ? !0 : a && b ? a.top == b.top && a.right == b.right && a.bottom == b.bottom && a.left == b.left : !1;
@@ -10844,16 +10883,20 @@ goog.style.getVisibleRectForElement = function(element) {
   visibleRect.bottom = Math.min(visibleRect.bottom, scrollY + winSize.height);
   return 0 <= visibleRect.top && 0 <= visibleRect.left && visibleRect.bottom > visibleRect.top && visibleRect.right > visibleRect.left ? visibleRect : null;
 };
-goog.style.getContainerOffsetToScrollInto = function(element, container, opt_center) {
-  var elementPos = goog.style.getPageOffset(element), containerPos = goog.style.getPageOffset(container), containerBorder = goog.style.getBorderBox(container), relX = elementPos.x - containerPos.x - containerBorder.left, relY = elementPos.y - containerPos.y - containerBorder.top, spaceX = container.clientWidth - element.offsetWidth, spaceY = container.clientHeight - element.offsetHeight, scrollLeft = container.scrollLeft, scrollTop = container.scrollTop;
-  if (container == goog.dom.getDocument().body || container == goog.dom.getDocument().documentElement) {
-    scrollLeft = containerPos.x + containerBorder.left, scrollTop = containerPos.y + containerBorder.top, goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(10) && (scrollLeft += containerBorder.left, scrollTop += containerBorder.top);
+goog.style.getContainerOffsetToScrollInto = function(element, opt_container, opt_center) {
+  var container = opt_container || goog.dom.getDocumentScrollElement(), elementPos = goog.style.getPageOffset(element), containerPos = goog.style.getPageOffset(container), containerBorder = goog.style.getBorderBox(container);
+  if (container == goog.dom.getDocumentScrollElement()) {
+    var relX = elementPos.x - container.scrollLeft, relY = elementPos.y - container.scrollTop;
+    goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(10) && (relX += containerBorder.left, relY += containerBorder.top);
+  } else {
+    relX = elementPos.x - containerPos.x - containerBorder.left, relY = elementPos.y - containerPos.y - containerBorder.top;
   }
+  var spaceX = container.clientWidth - element.offsetWidth, spaceY = container.clientHeight - element.offsetHeight, scrollLeft = container.scrollLeft, scrollTop = container.scrollTop;
   opt_center ? (scrollLeft += relX - spaceX / 2, scrollTop += relY - spaceY / 2) : (scrollLeft += Math.min(relX, Math.max(relX - spaceX, 0)), scrollTop += Math.min(relY, Math.max(relY - spaceY, 0)));
   return new goog.math.Coordinate(scrollLeft, scrollTop);
 };
-goog.style.scrollIntoContainerView = function(element, container, opt_center) {
-  var offset = goog.style.getContainerOffsetToScrollInto(element, container, opt_center);
+goog.style.scrollIntoContainerView = function(element, opt_container, opt_center) {
+  var container = opt_container || goog.dom.getDocumentScrollElement(), offset = goog.style.getContainerOffsetToScrollInto(element, container, opt_center);
   container.scrollLeft = offset.x;
   container.scrollTop = offset.y;
 };
@@ -10908,8 +10951,7 @@ goog.style.getClientPosition = function(el) {
   if (el.nodeType == goog.dom.NodeType.ELEMENT) {
     return goog.style.getClientPositionForElement_(el);
   }
-  var isAbstractedEvent = goog.isFunction(el.getBrowserEvent), targetEvent = el;
-  el.targetTouches && el.targetTouches.length ? targetEvent = el.targetTouches[0] : isAbstractedEvent && el.getBrowserEvent().targetTouches && el.getBrowserEvent().targetTouches.length && (targetEvent = el.getBrowserEvent().targetTouches[0]);
+  var targetEvent = el.changedTouches ? el.changedTouches[0] : el;
   return new goog.math.Coordinate(targetEvent.clientX, targetEvent.clientY);
 };
 goog.style.setPageOffset = function(el, x, opt_y) {
@@ -11223,8 +11265,11 @@ goog.style.getFontSize = function(el) {
 goog.style.parseStyleAttribute = function(value) {
   var result = {};
   goog.array.forEach(value.split(/\s*;\s*/), function(pair) {
-    var keyValue = pair.split(/\s*:\s*/);
-    2 == keyValue.length && (result[goog.string.toCamelCase(keyValue[0].toLowerCase())] = keyValue[1]);
+    var keyValue = pair.match(/\s*([\w-]+)\s*\:(.+)/);
+    if (keyValue) {
+      var styleName = keyValue[1], styleValue = goog.string.trim(keyValue[2]);
+      result[goog.string.toCamelCase(styleName.toLowerCase())] = styleValue;
+    }
   });
   return result;
 };
@@ -11799,10 +11844,11 @@ ee.MapTileManager.Request_ = function(id, url, opt_imageEventCallback, opt_reque
 };
 goog.inherits(ee.MapTileManager.Request_, goog.Disposable);
 ee.MapTileManager.Request_.prototype.attemptCount_ = 0;
-ee.MapTileManager.Request_.aborted_ = !1;
-ee.MapTileManager.Request_.imageLoader_ = null;
-ee.MapTileManager.Request_.token_ = null;
-ee.MapTileManager.Request_.event_ = null;
+ee.MapTileManager.Request_.prototype.aborted_ = !1;
+ee.MapTileManager.Request_.prototype.imageLoader_ = null;
+ee.MapTileManager.Request_.prototype.token_ = null;
+ee.MapTileManager.Request_.prototype.event_ = null;
+ee.MapTileManager.Request_.prototype.profileId_ = null;
 ee.MapTileManager.Request_.IMAGE_LOADER_EVENT_TYPES_ = [goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR];
 ee.MapTileManager.Request_.prototype.getImageLoader = function() {
   return this.imageLoader_;
@@ -11820,7 +11866,7 @@ ee.MapTileManager.Request_.prototype.addImageEventListener = function() {
   goog.events.listenOnce(this.imageLoader_, ee.MapTileManager.Request_.IMAGE_LOADER_EVENT_TYPES_, goog.bind(this.handleImageEvent_, this));
 };
 ee.MapTileManager.Request_.prototype.fireImageEventCallback = function() {
-  this.imageEventCallback_ && this.imageEventCallback_(this.event_);
+  this.imageEventCallback_ && this.imageEventCallback_(this.event_, this.profileId_);
 };
 ee.MapTileManager.Request_.prototype.getId = function() {
   return this.id_;
@@ -11872,12 +11918,6 @@ ee.MapTileManager.Request_.prototype.handleSuccess_ = function(e) {
 ee.MapTileManager.Request_.prototype.handleError_ = function(e) {
   this.retry() || (this.event_ = e, this.markCompleted_());
 };
-ee.MapTileManager.Request_.prototype.getImageEventCallback = function() {
-  return this.imageEventCallback_;
-};
-ee.MapTileManager.Request_.prototype.getRequestCompleteCallback = function() {
-  return this.requestCompleteCallback_;
-};
 ee.MapTileManager.Request_.prototype.disposeInternal = function() {
   ee.MapTileManager.Request_.superClass_.disposeInternal.call(this);
   delete this.imageEventCallback_;
@@ -11893,7 +11933,30 @@ ee.MapTileManager.Request_.prototype.retry = function() {
   return !0;
 };
 ee.MapTileManager.Request_.prototype.start_ = function() {
-  this.getAborted() || (this.imageLoader_.addImage(this.id_, this.getUrl()), this.addImageEventListener(), this.imageLoader_.start());
+  if (!this.getAborted()) {
+    var actuallyLoadImage = goog.bind(function(imageUrl) {
+      this.imageLoader_.addImage(this.id_, imageUrl);
+      this.addImageEventListener();
+      this.imageLoader_.start();
+    }, this), sourceUrl = this.getUrl();
+    if (goog.Uri.parse(sourceUrl).getQueryData().containsKey("profiling")) {
+      var xhrIo = new goog.net.XhrIo;
+      xhrIo.setResponseType(goog.net.XhrIo.ResponseType.BLOB);
+      xhrIo.listen(goog.net.EventType.COMPLETE, goog.bind(function(event) {
+        this.profileId_ = xhrIo.getResponseHeader(ee.data.PROFILE_HEADER) || null;
+        var objectUrl;
+        try {
+          objectUrl = URL.createObjectURL(xhrIo.getResponse());
+        } catch (e) {
+        }
+        actuallyLoadImage(objectUrl || sourceUrl);
+      }, this));
+      xhrIo.listenOnce(goog.net.EventType.READY, goog.bind(xhrIo.dispose, xhrIo));
+      xhrIo.send(sourceUrl, "GET");
+    } else {
+      actuallyLoadImage(sourceUrl);
+    }
+  }
 };
 ee.MapTileManager.Token_ = function() {
   this.active_ = !1;
@@ -11918,7 +11981,7 @@ ee.MapTileManager.TokenPool_.prototype.disposeObject = function(obj) {
 ee.MapTileManager.TokenPool_.prototype.objectCanBeReused = function(obj) {
   return !obj.isDisposed() && !obj.isActive();
 };
-ee.MapLayerOverlay = function(url, mapId, token, init) {
+ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
   goog.events.EventTarget.call(this);
   this.mapId = mapId;
   this.token = token;
@@ -11937,6 +12000,7 @@ ee.MapLayerOverlay = function(url, mapId, token, init) {
   this.url = url;
   this.opacity_ = 1;
   this.visible_ = !0;
+  this.profiler_ = opt_profiler || null;
 };
 goog.inherits(ee.MapLayerOverlay, goog.events.EventTarget);
 ee.MapLayerOverlay.EventType = {TILE_LOADED:"tileevent"};
@@ -11959,7 +12023,9 @@ ee.MapLayerOverlay.prototype.getTile = function(coord, zoom, ownerDocument) {
   }
   var x = coord.x % maxCoord;
   0 > x && (x += maxCoord);
-  var tileId = [this.mapId, zoom, x, coord.y].join("/"), src = [this.url, tileId].join("/") + "?token=" + this.token, uniqueTileId = tileId + "/" + this.tileCounter_;
+  var profiling = this.profiler_ && this.profiler_.isEnabled(), tileId = [this.mapId, zoom, x, coord.y].join("/"), src = [this.url, tileId].join("/") + "?token=" + this.token;
+  profiling && (src += "&profiling=1&no-cache=1");
+  var uniqueTileId = tileId + "/" + this.tileCounter_;
   this.tileCounter_ += 1;
   var div = goog.dom.createDom("div", {id:uniqueTileId}), priority = (new Date).getTime() / 1E3;
   this.tilesLoading_.push(uniqueTileId);
@@ -11981,6 +12047,7 @@ ee.MapLayerOverlay.prototype.releaseTile = function(tileDiv) {
   var tileImg = goog.dom.getFirstElementChild(tileDiv);
   this.tiles_.remove(tileImg);
   this.tilesFailed_.remove(tileDiv.id);
+  this.profiler_ && this.profiler_.removeTile(tileDiv.id);
 };
 ee.MapLayerOverlay.prototype.setOpacity = function(opacity) {
   this.opacity_ = opacity;
@@ -11992,7 +12059,7 @@ ee.MapLayerOverlay.prototype.setOpacity = function(opacity) {
 goog.exportProperty(ee.MapLayerOverlay.prototype, "getTile", ee.MapLayerOverlay.prototype.getTile);
 goog.exportProperty(ee.MapLayerOverlay.prototype, "setOpacity", ee.MapLayerOverlay.prototype.setOpacity);
 goog.exportProperty(ee.MapLayerOverlay.prototype, "releaseTile", ee.MapLayerOverlay.prototype.releaseTile);
-ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(div, tileId, e) {
+ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(div, tileId, e, profileId) {
   if (e.type == goog.net.EventType.ERROR) {
     goog.array.remove(this.tilesLoading_, tileId), this.tilesFailed_.add(tileId), this.dispatchEvent(e);
   } else {
@@ -12001,6 +12068,7 @@ ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(div, tileId, e) {
     e.target && e.type == goog.events.EventType.LOAD && (tile = e.target, this.tiles_.add(tile), 1 != this.opacity_ && goog.style.setOpacity(tile, this.opacity_), div.appendChild(tile));
     this.dispatchTileEvent_();
   }
+  this.profiler_ && !goog.isNull(profileId) && this.profiler_.addTile(tileId, profileId);
 };
 ee.TileEvent = function(count) {
   goog.events.Event.call(this, ee.MapLayerOverlay.EventType.TILE_LOADED);
@@ -12136,4 +12204,116 @@ ee.Package.makeInvocation_ = function(path, name, signature) {
   fn.isSaved = !0;
   return fn;
 };
+goog.async.Delay = function(listener, opt_interval, opt_handler) {
+  goog.Disposable.call(this);
+  this.listener_ = listener;
+  this.interval_ = opt_interval || 0;
+  this.handler_ = opt_handler;
+  this.callback_ = goog.bind(this.doAction_, this);
+};
+goog.inherits(goog.async.Delay, goog.Disposable);
+goog.Delay = goog.async.Delay;
+goog.async.Delay.prototype.id_ = 0;
+goog.async.Delay.prototype.disposeInternal = function() {
+  goog.async.Delay.superClass_.disposeInternal.call(this);
+  this.stop();
+  delete this.listener_;
+  delete this.handler_;
+};
+goog.async.Delay.prototype.start = function(opt_interval) {
+  this.stop();
+  this.id_ = goog.Timer.callOnce(this.callback_, goog.isDef(opt_interval) ? opt_interval : this.interval_);
+};
+goog.async.Delay.prototype.startIfNotActive = function(opt_interval) {
+  this.isActive() || this.start(opt_interval);
+};
+goog.async.Delay.prototype.stop = function() {
+  this.isActive() && goog.Timer.clear(this.id_);
+  this.id_ = 0;
+};
+goog.async.Delay.prototype.fire = function() {
+  this.stop();
+  this.doAction_();
+};
+goog.async.Delay.prototype.fireIfActive = function() {
+  this.isActive() && this.fire();
+};
+goog.async.Delay.prototype.isActive = function() {
+  return 0 != this.id_;
+};
+goog.async.Delay.prototype.doAction_ = function() {
+  this.id_ = 0;
+  this.listener_ && this.listener_.call(this.handler_);
+};
+ee.data.Profiler = function() {
+  goog.events.EventTarget.call(this);
+  this.isEnabled_ = !1;
+  this.lastRefreshToken_ = null;
+  this.profileIds_ = Object.create(null);
+  this.tileProfileIds_ = Object.create(null);
+  this.throttledRefresh_ = new goog.async.Delay(goog.bind(this.refresh_, this), ee.data.Profiler.DELAY_BEFORE_REFRESH_);
+  this.profileData_ = "";
+};
+goog.inherits(ee.data.Profiler, goog.events.EventTarget);
+ee.data.Profiler.DELAY_BEFORE_REFRESH_ = 500;
+ee.data.Profiler.prototype.isEnabled = function() {
+  return this.isEnabled_;
+};
+ee.data.Profiler.prototype.setEnabled = function(value) {
+  this.isEnabled_ = Boolean(value);
+  this.dispatchEvent(new goog.events.Event(ee.data.Profiler.EventType.STATE_CHANGED));
+};
+ee.data.Profiler.prototype.isLoading = function() {
+  return null !== this.lastRefreshToken_;
+};
+ee.data.Profiler.prototype.isError = function() {
+  return goog.isDefAndNotNull(this.profileError_);
+};
+ee.data.Profiler.prototype.getStatusText = function() {
+  if (this.profileError_) {
+    return this.profileError_;
+  }
+  if (this.lastRefreshToken_) {
+    return "Loading...";
+  }
+  var profiles = goog.object.getCount(this.profileIds_), tileProfiles = goog.object.getCount(this.tileProfileIds_);
+  return "Viewing " + profiles + " profiles, " + (profiles - tileProfiles) + " from computed values and " + tileProfiles + " from map tiles.";
+};
+ee.data.Profiler.prototype.getProfileData = function() {
+  return this.profileData_;
+};
+ee.data.Profiler.prototype.clearAndDrop = function() {
+  this.profileIds_ = Object.create(null);
+  this.tileProfileIds_ = Object.create(null);
+  this.refresh_();
+};
+ee.data.Profiler.prototype.getProfileHook = function() {
+  var profileIds = this.profileIds_;
+  return this.isEnabled_ ? goog.bind(function(profileId) {
+    profileIds[profileId] = null;
+    this.throttledRefresh_.start();
+  }, this) : null;
+};
+ee.data.Profiler.prototype.refresh_ = function() {
+  var marker = {};
+  this.lastRefreshToken_ = marker;
+  var handleResponse = goog.bind(function(result, error) {
+    marker == this.lastRefreshToken_ && (this.profileData_ = (this.profileError_ = error) ? "" : result, this.lastRefreshToken_ = null, this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED), this.dispatchEvent(ee.data.Profiler.EventType.DATA_CHANGED));
+  }, this), ids = goog.object.getKeys(this.profileIds_);
+  0 === ids.length ? handleResponse("", void 0) : (ee.ApiFunction._call("Profile.getProfiles", ids).getInfo(handleResponse), this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED));
+};
+ee.data.Profiler.prototype.addTile = function(tileId, profileId) {
+  this.tileProfileIds_[tileId] = profileId;
+  this.profileIds_[profileId] = null;
+  this.throttledRefresh_.start();
+};
+ee.data.Profiler.prototype.removeTile = function(tileId) {
+  delete this.profileIds_[this.tileProfileIds_[tileId]];
+  delete this.tileProfileIds_[tileId];
+  this.throttledRefresh_.start();
+};
+ee.data.Profiler.prototype.setParentEventTarget = function(parent) {
+  throw Error("not applicable");
+};
+ee.data.Profiler.EventType = {STATE_CHANGED:"statechanged", DATA_CHANGED:"datachanged"};
 
