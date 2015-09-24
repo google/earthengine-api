@@ -135,8 +135,8 @@ class Export(object):
             specifying the region to export. Can be specified as a nested
             lists of numbers or a serialized string. Defaults to the image's
             region.
-          - scale: The resolution in meters per pixel. Defaults to 1000 unless
-            a crs_transform is specified.
+          - scale: The resolution in meters per pixel. Defaults to the native
+            resolution of the image assset unless a crs_transform is specified.
           - maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more pixels
             in the specified projection. Defaults to 100,000,000.
@@ -171,8 +171,6 @@ class Export(object):
       An unstarted Task that exports the image.
     """
     config = (config or {}).copy()
-    if 'scale' not in config and 'crs_transform' not in config:
-      config['scale'] = 1000
     if ('driveFileNamePrefix' not in config and 'gmeProjectId' not in config and
         'outputBucket' not in config):
       config['driveFileNamePrefix'] = description
@@ -210,10 +208,14 @@ class Export(object):
             where WIDTH and HEIGHT are each positive integers.
           - framesPerSecond: A number between .1 and 100 describing the
             framerate of the exported video.
+          If exporting to Google Drive (default):
           - driveFolder: The name of a unique folder in your Drive account to
             export into. Defaults to the root of the drive.
           - driveFileNamePrefix: The Google Drive filename for the export.
             Defaults to the name of the task.
+          If exporting to Google Cloud Storage:
+          - outputBucket: The name of a Cloud Storage bucket for the export.
+          - outputPrefix: Cloud Storage object name prefix for the export.
 
     Returns:
       An unstarted Task that exports the video.
@@ -221,7 +223,7 @@ class Export(object):
     config = (config or {}).copy()
     if 'crs' not in config:
       config['crs'] = 'SR-ORG:6627'
-    if 'driveFileNamePrefix' not in config:
+    if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
       config['driveFileNamePrefix'] = description
 
     if 'region' in config:
@@ -239,17 +241,23 @@ class Export(object):
       collection: The feature collection to be exported.
       description: Human-readable name of the task.
       config: A dictionary of configuration parameters for the task (strings):
+          If exporting to Google Drive (default):
           - driveFolder: The name of a unique folder in your Drive account to
             export into. Defaults to the root of the drive.
           - driveFileNamePrefix: The Google Drive filename for the export.
             Defaults to the name of the task.
+          If exporting to Google Cloud Storage:
+          - outputBucket: The name of a Cloud Storage bucket for the export.
+          - outputPrefix: Cloud Storage object name prefix for the export.
           - fileFormat: The output format: CSV (default), GeoJSON, KML, or KMZ.
 
     Returns:
       An unstarted Task that exports the table.
     """
     config = (config or {}).copy()
-    if 'driveFileNamePrefix' not in config and 'gmeAssetName' not in config:
+    if ('driveFileNamePrefix' not in config and
+        'gmeAssetName' not in config and
+        'outputBucket' not in config):
       config['driveFileNamePrefix'] = description
     if 'fileFormat' not in config:
       config['fileFormat'] = 'CSV'

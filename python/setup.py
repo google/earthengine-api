@@ -27,7 +27,7 @@ setup(
     description='Earth Engine Python API',
     url='http://code.google.com/p/earthengine-api/',  # home page for package
     download_url='',  # package download URL
-    packages=['ee'],
+    packages=['ee', 'cli'],
     package_data={
         'ee': [
             'tests/*.py',
@@ -38,6 +38,11 @@ setup(
         'google-api-python-client',
         'pyOpenSSL>=0.11',
     ],
+    entry_points={
+        'console_scripts': [
+            'earthengine = cli.eecli:main',
+        ],
+    },
     classifiers=[
         # Get strings from
         # http://pypi.python.org/pypi?%3Aaction=list_classifiers
