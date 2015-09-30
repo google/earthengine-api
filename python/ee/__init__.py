@@ -2,7 +2,7 @@
 """The EE Python library."""
 
 
-__version__ = '0.1.64'
+__version__ = '0.1.66'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -22,6 +22,7 @@ from collection import Collection
 from computedobject import ComputedObject
 from customfunction import CustomFunction
 import data
+import deserializer
 from dictionary import Dictionary
 from ee_date import Date
 from ee_exception import EEException

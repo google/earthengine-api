@@ -342,7 +342,10 @@ def getAlgorithms():
 
 
 def createAsset(value, opt_path=None):
-  """Save an asset.
+  """Creates an asset from a JSON value.
+
+  To create an empty image collection or folder, pass in a "value" object
+  with a "type" key whose value is "ImageCollection" or "Folder".
 
   Args:
     value: The JSON-serialized value of the asset.
@@ -351,10 +354,23 @@ def createAsset(value, opt_path=None):
   Returns:
     A description of the saved asset, including a generated ID.
   """
-  args = {'value': value, 'json_format': 'v2'}
+  args = {'value': json.dumps(value), 'json_format': 'v2'}
   if opt_path is not None:
     args['id'] = opt_path
   return send_('/create', args)
+
+
+def renameAsset(sourceId, destinationId):
+  """Renames the asset from sourceId to destinationId.
+
+  Args:
+    sourceId: The ID of the asset to rename.
+    destinationId: The new ID of the asset.
+  """
+  send_('/rename', {
+      'sourceId': sourceId,
+      'destinationId': destinationId,
+  })
 
 
 def deleteAsset(assetId):
@@ -451,15 +467,15 @@ def startProcessing(taskId, params):
   return send_('/processingrequest', args)
 
 
-def startIngestion(taskId, request):
+def startIngestion(taskId, params):
   """Creates an asset import task.
 
   Args:
     taskId: ID for the task (obtained using newTaskId).
-    request: The object that describes the import task, which can
+    params: The object that describes the import task, which can
         have these fields:
-          name (string) The destination asset id (e.g. users/foo/bar).
-          filesets (array) A list of Google Cloud Storage source file paths
+          id (string) The destination asset id (e.g. users/foo/bar).
+          tilesets (array) A list of Google Cloud Storage source file paths
             formatted like:
               [{'sources': [
                   {'primaryPath': 'foo.tif', 'additionalPaths': ['foo.prj']},
@@ -475,7 +491,7 @@ def startIngestion(taskId, request):
   Returns:
     A dict with optional notes about the created task.
   """
-  args = {'id': taskId, 'request': json.dumps(request)}
+  args = {'id': taskId, 'request': json.dumps(params)}
   return send_('/ingestionrequest', args)
 
 
@@ -492,7 +508,7 @@ def getAssetRoots():
           {"type": "Folder", "id": "projects/bar"},
       ]
   """
-  return send_('/buckets', None, 'GET')
+  return send_('/buckets', {}, 'GET')
 
 
 def getAssetAcl(assetId):

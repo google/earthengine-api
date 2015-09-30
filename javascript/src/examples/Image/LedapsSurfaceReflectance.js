@@ -23,7 +23,7 @@ var ozone = ee.Image('TOMS/MERGED/L3_ozone_epc_19990805');
 var dem = ee.Image('srtm90_v4');
 
 // Compute the Surface Reflectance result using default auxilary data.
-var ee_sr = ee.Algorithms.LedapsSurfaceReflectance(
+var ee_sr = ee.Algorithms.Landsat.surfaceReflectance(
         scene,
         precomputed,
         surfaceWv,

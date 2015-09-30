@@ -29,7 +29,9 @@
 
 goog.provide('ee.MapTileManager');
 
+goog.require('ee.data');
 goog.require('goog.Disposable');
+goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.events');
 goog.require('goog.events.Event');
@@ -37,6 +39,7 @@ goog.require('goog.events.EventTarget');
 goog.require('goog.events.EventType');
 goog.require('goog.net.EventType');
 goog.require('goog.net.ImageLoader');
+goog.require('goog.net.XhrIo');
 goog.require('goog.structs.Map');
 goog.require('goog.structs.PriorityPool');
 
@@ -103,8 +106,9 @@ ee.MapTileManager.prototype.getOutstandingCount = function() {
  * @param {string} id The id of the request.
  * @param {string} url Uri to make the request to.
  * @param {number=} opt_priority The priority of the request.
- * @param {Function=} opt_imageCompletedCallback Callback function for when
-       request is complete. The only param is the event object.
+ * @param {function(!goog.events.Event, ?string)=} opt_imageCompletedCallback
+ *     Callback function for when request is complete. Second param is the
+ *     profile ID, if any.
  * @param {number=} opt_maxRetries The maximum number of times the request
  *     should be retried.
  * @return {ee.MapTileManager.Request_} The queued request object.
@@ -296,7 +300,7 @@ ee.MapTileManager.Request_.prototype.attemptCount_ = 0;
  * @type {boolean}
  * @private
  */
-ee.MapTileManager.Request_.aborted_ = false;
+ee.MapTileManager.Request_.prototype.aborted_ = false;
 
 
 /**
@@ -305,7 +309,7 @@ ee.MapTileManager.Request_.aborted_ = false;
  * @type {goog.net.ImageLoader}
  * @private
  */
-ee.MapTileManager.Request_.imageLoader_ = null;
+ee.MapTileManager.Request_.prototype.imageLoader_ = null;
 
 
 /**
@@ -313,7 +317,7 @@ ee.MapTileManager.Request_.imageLoader_ = null;
  * @type {ee.MapTileManager.Token_}
  * @private
  */
-ee.MapTileManager.Request_.token_ = null;
+ee.MapTileManager.Request_.prototype.token_ = null;
 
 
 /**
@@ -321,7 +325,16 @@ ee.MapTileManager.Request_.token_ = null;
  * @type {goog.events.Event}
  * @private
  */
-ee.MapTileManager.Request_.event_ = null;
+ee.MapTileManager.Request_.prototype.event_ = null;
+
+
+/**
+ * After the request has finished, the profile ID returned by the server, if
+ * any.
+ * @type {?string}
+ * @private
+ */
+ee.MapTileManager.Request_.prototype.profileId_ = null;
 
 
 /**
@@ -391,13 +404,12 @@ ee.MapTileManager.Request_.prototype.addImageEventListener = function() {
  */
 ee.MapTileManager.Request_.prototype.fireImageEventCallback = function() {
   if (this.imageEventCallback_) {
-    this.imageEventCallback_(this.event_);
+    this.imageEventCallback_(this.event_, this.profileId_);
   }
 };
 
 
 /**
-**
  * Gets the request id.
  * @return {string} The id of the request.
  */
@@ -534,25 +546,6 @@ ee.MapTileManager.Request_.prototype.handleError_ = function(e) {
 };
 
 
-/**
- * Gets the callback attached to the events of the ImageLoader object.
- * @return {Function|undefined} The callback attached to the events of the
- *     ImageLoader object.
- */
-ee.MapTileManager.Request_.prototype.getImageEventCallback = function() {
-  return this.imageEventCallback_;
-};
-
-
-/**
- * Gets the callback for when the request is complete.
- * @return {Function|undefined} The callback for when the request is complete.
- */
-ee.MapTileManager.Request_.prototype.getRequestCompleteCallback = function() {
-  return this.requestCompleteCallback_;
-};
-
-
 /** @override */
 ee.MapTileManager.Request_.prototype.disposeInternal = function() {
   ee.MapTileManager.Request_.superClass_.disposeInternal.call(this);
@@ -587,9 +580,46 @@ ee.MapTileManager.Request_.prototype.start_ = function() {
   if (this.getAborted()) {
     return;
   }
-  this.imageLoader_.addImage(this.id_, this.getUrl());
-  this.addImageEventListener();
-  this.imageLoader_.start();
+
+  var actuallyLoadImage = goog.bind(function(imageUrl) {
+    this.imageLoader_.addImage(this.id_, imageUrl);
+    this.addImageEventListener();
+    this.imageLoader_.start();
+  }, this);
+
+  var sourceUrl = this.getUrl();
+  // Parsing the URL here isn't all that great. It's just a way to not have to
+  // pass another parameter from MapLayerOverlay to here containing the same
+  // information.
+  if (goog.Uri.parse(sourceUrl).getQueryData().containsKey('profiling')) {
+
+    // Fetch the image using XHR so that we can obtain the profile ID from the
+    // response headers. Then construct an object URL for the response (possible
+    // because we specified 'blob' response type) so that we can load it as an
+    // image for the actual map tile display.
+    var xhrIo = new goog.net.XhrIo();
+    xhrIo.setResponseType(goog.net.XhrIo.ResponseType.BLOB);
+    xhrIo.listen(goog.net.EventType.COMPLETE, goog.bind(function(event) {
+      this.profileId_ = xhrIo.getResponseHeader(ee.data.PROFILE_HEADER) || null;
+
+      var objectUrl;
+      try {
+        objectUrl = URL.createObjectURL(
+            /** @type {!Blob} */ (xhrIo.getResponse()));
+      } catch (e) {
+        // Browser did not support blob response, or browser did not support
+        // createObjectURL, or we made a mistake. We will fall back to
+        // re-requesting the tile as an image since objectUrl is left as null.
+      }
+
+      actuallyLoadImage(objectUrl || sourceUrl);
+    }, this));
+    xhrIo.listenOnce(goog.net.EventType.READY, goog.bind(xhrIo.dispose, xhrIo));
+    xhrIo.send(sourceUrl, 'GET');
+    // TODO(user): xhrIo.dispose() sooner if this Request_ is aborted
+  } else {
+    actuallyLoadImage(sourceUrl);
+  }
 };
 
 
