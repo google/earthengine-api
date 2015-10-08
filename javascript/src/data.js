@@ -13,6 +13,8 @@ goog.provide('ee.data.AssetAclUpdate');
 goog.provide('ee.data.AssetDescription');
 goog.provide('ee.data.AssetList');
 goog.provide('ee.data.AssetType');
+goog.provide('ee.data.AuthArgs');
+goog.provide('ee.data.AuthResponse');
 goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.BandMap');
@@ -207,6 +209,10 @@ ee.data.setAuthToken = function(clientId, tokenType, accessToken,
  */
 ee.data.refreshAuthToken = function(
     opt_success, opt_error, opt_onImmediateFailed) {
+  if (!goog.isString(ee.data.authClientId_) || !ee.data.authTokenRefresher_) {
+    return;  // Refresh disabled.
+  }
+
   // Set up auth options.
   var authArgs = {
     'client_id': ee.data.authClientId_,
@@ -216,13 +222,29 @@ ee.data.refreshAuthToken = function(
 
   // Start the authorization flow, first trying immediate mode, which tries to
   // get the token behind the scenes, with no UI shown.
-  goog.global['gapi']['auth']['authorize'](authArgs, function(result) {
+  ee.data.authTokenRefresher_(authArgs, function(result) {
     if (result['error'] == 'immediate_failed' && opt_onImmediateFailed) {
       opt_onImmediateFailed();
     } else {
       ee.data.handleAuthResult_(opt_success, opt_error, result);
     }
   });
+};
+
+
+/**
+ * Sets the current OAuth token refresher. By default, automatically set to
+ * gapi.auth.authorize() after the auth library loads. Set to null to disable
+ * token refreshing.
+ *
+ * @param {?function(ee.data.AuthArgs, function(ee.data.AuthResponse))}
+ *     refresher A function that takes as input 1) auth arguments and
+ *     2) a callback to which it passes an auth response object upon
+ *     completion.
+ * @export
+ */
+ee.data.setAuthTokenRefresher = function(refresher) {
+  ee.data.authTokenRefresher_ = refresher;
 };
 
 
@@ -911,7 +933,8 @@ goog.exportSymbol('ee.data.createAssetHome', ee.data.createAssetHome);
  * or folder, pass in a "value" object with a "type" key whose value is
  * one of ee.data.AssetType.* (i.e. "ImageCollection" or "Folder").
  *
- * @param {string} value The JSON-serialized value of the asset.
+ * @param {!Object|string} value An object describing the asset to create or
+ *     a JSON string with the already-serialized value for the new asset.
  * @param {string=} opt_path An optional desired ID, including full path.
  * @param {boolean=} opt_force Force overwrite.
  * @param {function(Object, string=)=} opt_callback An optional callback.
@@ -920,7 +943,10 @@ goog.exportSymbol('ee.data.createAssetHome', ee.data.createAssetHome);
  *     ID, or null if a callback is specified.
  */
 ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
-  var args = {'value': goog.json.serialize(value)};
+  if (!goog.isString(value)) {
+    value = goog.json.serialize(value);
+  }
+  var args = {'value': value};
   if (opt_path !== undefined) {
     args['id'] = opt_path;
   }
@@ -1598,6 +1624,32 @@ ee.data.BandMap;
 ee.data.FileSource;
 
 
+/**
+ * The authentication arguments passed the token refresher when the token
+ * needs to be refreshed.
+ *
+ * @typedef {{
+ *   'client_id': string,
+ *   'immediate': boolean,
+ *   'scope': string
+ * }}
+ */
+ee.data.AuthArgs;
+
+
+/**
+ * The result of a token refresh. Passed by the token refresher to the callback
+ * passed to it when it was called. 'expires_in' is in seconds.
+ *
+ * @typedef {{
+ *   'access_token': string,
+ *   'token_type': string,
+ *   'expires_in': number,
+ *   'error': (undefined|string)
+ * }}
+ */
+ee.data.AuthResponse;
+
 ////////////////////////////////////////////////////////////////////////////////
 //                              Private helpers.                              //
 ////////////////////////////////////////////////////////////////////////////////
@@ -1761,6 +1813,9 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
   var done = function() {
     // Speed up auth request by using CORS instead of an iframe.
     goog.global['gapi']['config']['update']('client/cors', true);
+    if (!ee.data.authTokenRefresher_) {
+      ee.data.setAuthTokenRefresher(goog.global['gapi']['auth']['authorize']);
+    }
     callback();
   };
   if (goog.isObject(goog.global['gapi']) &&
@@ -1789,7 +1844,8 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
  *     succeeds.
  * @param {function(string)|undefined} error The function to call if auth fails,
  *     passing the error message.
- * @param {Object} result The result object produced by gapi.auth.authorize().
+ * @param {ee.data.AuthResponse} result The result object produced by
+ *     a token refresher such as gapi.auth.authorize().
  * @private
  */
 ee.data.handleAuthResult_ = function(success, error, result) {
@@ -1985,6 +2041,14 @@ ee.data.authClientId_ = null;
  * @private {!Array<string>} The scopes to request when retrieving OAuth tokens.
  */
 ee.data.authScopes_ = [];
+
+
+/**
+ * @private {?function(ee.data.AuthArgs, function(ee.data.AuthResponse))}
+ *     A function that takes as input 1) auth arguments and 2) a callback to
+ *     which it passes an auth response object upon completion.
+ */
+ee.data.authTokenRefresher_ = null;
 
 
 /**

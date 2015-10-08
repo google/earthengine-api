@@ -21,11 +21,19 @@ goog.require('goog.object');
  * to successfully retrieve profile data.
  *
  * @constructor
+ * @param {ee.data.Profiler.Format} format The format of the data to be returned
+ *     by getProfileData.
  * @extends {goog.events.EventTarget}
  * @ignore
  */
-ee.data.Profiler = function() {
+ee.data.Profiler = function(format) {
   goog.base(this);
+
+  /**
+   * @private {ee.data.Profiler.Format} The data format to be returned by
+   * getProfileData.
+   */
+  this.format_ = format;
 
   /**
    * Whether to request profile data.
@@ -67,9 +75,11 @@ ee.data.Profiler = function() {
 
   /**
    * The combined profile data, to be displayed in the UI.
-   * @private {string}
+   * @private {ee.data.Profiler.AnyFormatData}
    */
-  this.profileData_ = '';
+  this.profileData_ = ee.data.Profiler.getEmptyProfile_(format);
+  // Note: the above initialization also causes the value of format to be
+  // validated.
 };
 goog.inherits(ee.data.Profiler, goog.events.EventTarget);
 
@@ -142,8 +152,8 @@ ee.data.Profiler.prototype.getStatusText = function() {
 
 
 /**
- * Returns the profile data in a monospace-formatted form.
- * @return {string}
+ * Returns the profile data in the format specified in the constructor.
+ * @return {ee.data.Profiler.AnyFormatData}
  */
 ee.data.Profiler.prototype.getProfileData = function() {
   return this.profileData_;
@@ -195,7 +205,8 @@ ee.data.Profiler.prototype.refresh_ = function() {
     if (marker != this.lastRefreshToken_) return;  // Superseded.
 
     this.profileError_ = error;
-    this.profileData_ = error ? '' : result;
+    this.profileData_ = error ?
+        ee.data.Profiler.getEmptyProfile_(this.format_) : result;
     this.lastRefreshToken_ = null;
     this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED);
     this.dispatchEvent(ee.data.Profiler.EventType.DATA_CHANGED);
@@ -204,9 +215,12 @@ ee.data.Profiler.prototype.refresh_ = function() {
   var ids = goog.object.getKeys(this.profileIds_);
   if (ids.length === 0) {
     // Shortcut: no input, so no output.
-    handleResponse('', undefined);
+    handleResponse(ee.data.Profiler.getEmptyProfile_(this.format_), undefined);
   } else {
-    var profileValue = ee.ApiFunction._call('Profile.getProfiles', ids);
+    var profileValue = ee.ApiFunction._apply('Profile.getProfiles', {
+      'ids': ids,
+      'format': this.format_
+    });
     profileValue.getInfo(handleResponse);
     this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED);
   }
@@ -252,8 +266,46 @@ ee.data.Profiler.prototype.setParentEventTarget = function(parent) {
 };
 
 
+/**
+ * @param {ee.data.Profiler.Format} format A profile data format.
+ * @return {ee.data.Profiler.AnyFormatData} Empty value of the specified format.
+ * @private
+ */
+ee.data.Profiler.getEmptyProfile_ = function(format) {
+  switch (format) {
+    case ee.data.Profiler.Format.TEXT:
+      return '';
+    case ee.data.Profiler.Format.JSON:
+      return ee.data.Profiler.EMPTY_JSON_PROFILE_;
+    default:
+      throw new Error('Invalid Profiler data format: ' + format);
+  }
+};
+
+
+/** @private {google.visualization.DataTableLiteral} */
+ee.data.Profiler.EMPTY_JSON_PROFILE_ = {'cols': [], 'rows': []};
+
+
 /** @enum {string} Event types. */
 ee.data.Profiler.EventType = {
   STATE_CHANGED: 'statechanged',
   DATA_CHANGED: 'datachanged'
 };
+
+
+/**
+ * Available profile data formats.
+ *
+ * This enum must be in sync with the format parameter of the
+ * Profile.getProfiles algorithm.
+ * @enum {string}
+ */
+ee.data.Profiler.Format = {
+  TEXT: 'text',
+  JSON: 'json'
+};
+
+
+/** @typedef {string|google.visualization.DataTableLiteral} */
+ee.data.Profiler.AnyFormatData;

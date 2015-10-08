@@ -903,7 +903,7 @@ ee.data.cancelTask = function(taskId, opt_callback) {
 ee.data.clearAuthToken = function() {
 };
 /**
- * @param {string} value
+ * @param {(Object|string)} value
  * @param {string=} opt_path
  * @param {boolean=} opt_force
  * @param {function ((Object|null), string=): ?=} opt_callback
@@ -1092,6 +1092,12 @@ ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
  * @return {undefined}
  */
 ee.data.setAuthToken = function(clientId, tokenType, accessToken, expiresIn, opt_extraScopes, opt_callback, opt_updateAuthLibrary) {
+};
+/**
+ * @param {(function ({client_id: string, immediate: boolean, scope: string}, function ({access_token: string, error: (string|undefined), expires_in: number, token_type: string}): ?): ?|null)} refresher
+ * @return {undefined}
+ */
+ee.data.setAuthTokenRefresher = function(refresher) {
 };
 /**
  * @param {number} milliseconds

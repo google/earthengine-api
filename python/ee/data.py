@@ -348,13 +348,16 @@ def createAsset(value, opt_path=None):
   with a "type" key whose value is "ImageCollection" or "Folder".
 
   Args:
-    value: The JSON-serialized value of the asset.
+    value: An object describing the asset to create or a JSON string
+        with the already-serialized value for the new asset.
     opt_path: An optional desired ID, including full path.
 
   Returns:
     A description of the saved asset, including a generated ID.
   """
-  args = {'value': json.dumps(value), 'json_format': 'v2'}
+  if not isinstance(value, basestring):
+    value = json.dumps(value)
+  args = {'value': value, 'json_format': 'v2'}
   if opt_path is not None:
     args['id'] = opt_path
   return send_('/create', args)
