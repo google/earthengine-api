@@ -283,7 +283,7 @@ ee.data.Profiler.getEmptyProfile_ = function(format) {
 };
 
 
-/** @private {google.visualization.DataTableLiteral} */
+/** @private {ee.data.Profiler.VizApiDataTableLiteral} */
 ee.data.Profiler.EMPTY_JSON_PROFILE_ = {'cols': [], 'rows': []};
 
 
@@ -307,5 +307,21 @@ ee.data.Profiler.Format = {
 };
 
 
-/** @typedef {string|google.visualization.DataTableLiteral} */
+/**
+ * The argument to the google.visualization.DataTable constructor (which is
+ * unfortunately not declared in the standard externs file). The name of this
+ * type is unofficial.
+ *
+ * References to cols and rows should be quoted to avoid being obfuscated
+ * by the compiler.
+ *
+ * @typedef {{
+ *   'cols': Array<{id: string, label: string, type: string}>,
+ *   'rows': Array<Array<{v: *, f: string}>>
+ * }}
+ */
+ee.data.Profiler.VizApiDataTableLiteral;
+
+
+/** @typedef {string|ee.data.Profiler.VizApiDataTableLiteral} */
 ee.data.Profiler.AnyFormatData;

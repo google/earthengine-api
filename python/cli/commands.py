@@ -18,6 +18,15 @@ ASSET_TYPE_FOLDER = 'Folder'
 ASSET_TYPE_IMAGE_COLL = 'ImageCollection'
 
 
+def _add_wait_arg(parser):
+  parser.add_argument(
+      '--wait', '-w', nargs='?', default=-1, type=int, const=sys.maxint,
+      help=('Wait for the task to finish,'
+            ' or timeout after the specified number of seconds.'
+            ' Without this flag, the command just starts an export'
+            ' task in the background, and returns immediately.'))
+
+
 class AssetCommand(object):
   """Prints the metadata related to the asset with the specified asset_id."""
 
@@ -132,6 +141,7 @@ class ExportCommand(object):
 
   def setup_common_args(self, parser):
     """Sets up the parser with the arguments common for all exports."""
+    _add_wait_arg(parser)
     parser.add_argument(
         '--config-json', '-cj',
         help='Path to a JSON file with export configuration parameters.')
@@ -150,12 +160,6 @@ class ExportCommand(object):
     parser.add_argument(
         '--desc', '-d', default='exportAssetExample',
         help='Description for the export task.')
-    parser.add_argument(
-        '--wait', '-w', nargs='?', default=-1, type=int, const=sys.maxint,
-        help=('Wait for the export task to finish,'
-              ' or timeout after the specified number of seconds.'
-              ' Without this flag, the command just starts an export'
-              ' task in the background, and returns immediately.'))
     parser.add_argument(
         '--asset-id', '-ai',
         help='ID of the asset that needs to be exported.')

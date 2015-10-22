@@ -84,10 +84,12 @@ goog.forwardDeclare('ee.Image');
  * this button. This stops the browser from blocking the popup, as it is now the
  * direct result of a user action.
  *
- * The token will be periodically refreshed but may be cleared if, for example,
- * the client is offline during attempted refresh. To properly handle these
- * cases, check that an auth token is set with ee.data.getAuthToken() and use
- * ee.data.refreshAuthToken() as needed.
+ * The auth token will be refreshed automatically when possible. You can safely
+ * assume that all async calls will be sent with the appropriate credentials.
+ * For synchronous calls, however, you should check for an auth token with
+ * ee.data.getAuthToken() and call ee.data.refreshAuthToken() manually if there
+ * is none. The token refresh operation is asynchronous and cannot be performed
+ * behind-the-scenes on-demand prior to synchronous calls.
  *
  * @param {?string} clientId The application's OAuth client ID, or null to
  *     disable authenticated calls. This can be obtained through the Google
@@ -209,13 +211,13 @@ ee.data.setAuthToken = function(clientId, tokenType, accessToken,
  */
 ee.data.refreshAuthToken = function(
     opt_success, opt_error, opt_onImmediateFailed) {
-  if (!goog.isString(ee.data.authClientId_) || !ee.data.authTokenRefresher_) {
-    return;  // Refresh disabled.
+  if (!ee.data.isAuthTokenRefreshingEnabled_()) {
+    return;
   }
 
   // Set up auth options.
   var authArgs = {
-    'client_id': ee.data.authClientId_,
+    'client_id': String(ee.data.authClientId_),
     'immediate': true,
     'scope': ee.data.authScopes_.join(' ')
   };
@@ -249,13 +251,19 @@ ee.data.setAuthTokenRefresher = function(refresher) {
 
 
 /**
- * Returns the current OAuth token; null unless ee.data.setAuthToken() or
- * ee.data.authenticate() previously suceeded.
+ * Returns the current valid OAuth token, if any.
+ *
+ * Use ee.data.setAuthToken() or ee.data.authenticate() to set an auth token.
  *
  * @return {?string} The string to pass in the Authorization header of XHRs.
  * @export
  */
 ee.data.getAuthToken = function() {
+  var isExpired = ee.data.authTokenExpiration_ &&
+                  (goog.now() - ee.data.authTokenExpiration_) >= 0;
+  if (isExpired) {
+    ee.data.clearAuthToken();
+  }
   return ee.data.authToken_;
 };
 
@@ -267,6 +275,7 @@ ee.data.getAuthToken = function() {
  */
 ee.data.clearAuthToken = function() {
   ee.data.authToken_ = null;
+  ee.data.authTokenExpiration_ = null;
 };
 
 
@@ -1010,6 +1019,21 @@ ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
 
 
 /**
+ * Copies the asset from sourceId into destinationId.
+ *
+ * @param {string} sourceId The ID of the asset to copy.
+ * @param {string} destinationId The ID of the new asset created by copying.
+ * @param {function(Object, string=)=} opt_callback An optional callback.
+ *     If not supplied, the call is made synchronously. The callback is
+ *     passed an empty object and an error message, if any.
+ */
+ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
+  var params = {'sourceId': sourceId, 'destinationId': destinationId};
+  ee.data.send_('/copy', ee.data.makeRequest_(params), opt_callback);
+};
+
+
+/**
  * Deletes the asset with the given id.
  *
  * @param {string} assetId The ID of the asset to delete.
@@ -1612,13 +1636,9 @@ ee.data.BandMap;
  * uploaded through the Playground IDE, paths should be relative file
  * names (e.g. 'file1.tif').
  *
- * Extensions are the file extensions as strings and must be in order,
- * with the primary file's extension first.
- *
  * @typedef {{
  *   'primaryPath': string,
- *   'additionalPaths': (undefined|!Array<string>),
- *   'fileExtensions': (undefined|!Array<string>)
+ *   'additionalPaths': (undefined|!Array<string>)
  * }}
  */
 ee.data.FileSource;
@@ -1674,32 +1694,38 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   // Make sure we never perform API calls before initialization.
   ee.data.initialize();
 
-  var method = opt_method || 'POST';
+  // Snapshot the profile hook so we don't depend on its state during async
+  // operations.
+  var profileHookAtCallTime = ee.data.profileHook_;
+
   // WARNING: The content-type header here must use this exact capitalization
   // to remain compatible with the Node.JS environment. See:
   // https://github.com/driverdan/node-XMLHttpRequest/issues/20
   var headers = {'Content-Type': 'application/x-www-form-urlencoded'};
 
-  // Client-side authorization.
-  if (goog.isDefAndNotNull(ee.data.authToken_)) {
-    headers['Authorization'] = ee.data.authToken_;
+  // Set up client-side authorization.
+  var authToken = ee.data.getAuthToken();
+  if (goog.isDefAndNotNull(authToken)) {
+    headers['Authorization'] = authToken;
+  } else if (opt_callback && ee.data.isAuthTokenRefreshingEnabled_()) {
+    // If the authToken is null, the call is asynchronous, and token refreshing
+    // is enabled, refresh the auth token before making the call.
+    ee.data.refreshAuthToken(function() {
+      ee.data.withProfiling(profileHookAtCallTime, function() {
+        ee.data.send_(path, params, opt_callback, opt_method);
+      });
+    });
+    return null;
   }
-  // TODO(user): Refresh auth token if request is async and the token is null.
 
+  var method = opt_method || 'POST';
+
+  // Set up request parameters.
   params = params ? params.clone() : new goog.Uri.QueryData();
-
-  // Request profiling results.
-  var profileHookAtCallTime;
-  if (ee.data.profileHook_) {
-    params.add('profiling', '1');
-
-    // Snapshot the profile hook so we don't depend on its state at callback
-    // time.
-    profileHookAtCallTime = ee.data.profileHook_;
+  if (profileHookAtCallTime) {
+    params.add('profiling', '1');  // Request profiling results.
   }
-
-  // Apply any custom param augmentation.
-  params = ee.data.paramAugmenter_(params, path);
+  params = ee.data.paramAugmenter_(params, path);  // Apply custom augmentation.
 
   // XSRF protection for a server-side API proxy.
   if (goog.isDefAndNotNull(ee.data.xsrfToken_)) {
@@ -1837,7 +1863,7 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
 
 
 /**
- * Handles the result of gapi.auth.authorize(), filling ee.data.authToken_ on
+ * Handles the result of gapi.auth.authorize(), storing the auth token on
  * success and setting up a refresh timeout.
  *
  * @param {function()|undefined} success The function to call if token refresh
@@ -1852,23 +1878,22 @@ ee.data.handleAuthResult_ = function(success, error, result) {
   if (result['access_token']) {
     var token = result['token_type'] + ' ' + result['access_token'];
     if (isFinite(result['expires_in'])) {
-      var expires_in_ms = result['expires_in'] * 1000;
+      // Conservatively consider tokens expired slightly before actual expiry.
+      var expiresInMs = result['expires_in'] * 1000 * .9;
 
       // Set up a refresh timer. This is necessary because we cannot refresh
       // synchronously, but since we want to allow synchronous API requests,
-      // something must ensure that the auth token is always valid.
-      setTimeout(ee.data.refreshAuthToken, expires_in_ms * 0.5);
+      // something must ensure that the auth token is always valid. However,
+      // this approach fails if the user is offline or suspends their computer,
+      // so in addition to this timeout, invalid tokens are detected and
+      // autorefreshed on demand prior to async calls. Prior to sync calls,
+      // users are advised to check ee.data.getAuthToken() and manually refresh
+      // the token if needed. See ee.data.authenticate() docs for more info.
+      // Note that we multiply by .9 *again* to prevent simultaneous
+      // on-demand-refresh and timer-refresh.
+      setTimeout(ee.data.refreshAuthToken, expiresInMs * .9);
 
-      // Just before the token expires, check that the token has indeed been
-      // refreshed and clear it if not.
-      setTimeout(function() {
-        if (ee.data.getAuthToken() == token) {
-          // The token refresh failed, possibly because the user was offline
-          // when the refresh timer fired.  Set the auth token to null because
-          // it's now expired.
-          ee.data.clearAuthToken();
-        }
-      }, expires_in_ms * 0.95);
+      ee.data.authTokenExpiration_ = goog.now() + expiresInMs;
     }
     ee.data.authToken_ = token;
     if (success) success();
@@ -1990,6 +2015,14 @@ ee.data.setupMockSend = function(opt_calls) {
 };
 
 
+/**
+ * @return {boolean} Whether auth token refreshing is enabled.
+ * @private
+ */
+ee.data.isAuthTokenRefreshingEnabled_ = function() {
+  return Boolean(ee.data.authTokenRefresher_ && ee.data.authClientId_);
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 //                             Private variables.                             //
 ////////////////////////////////////////////////////////////////////////////////
@@ -2029,6 +2062,12 @@ ee.data.paramAugmenter_ = goog.functions.identity;
  * @private {string?} An OAuth2 token to use for authenticating EE API calls.
  */
 ee.data.authToken_ = null;
+
+
+/**
+ * @private {number?} The milliseconds in epoch time when the token expires.
+ */
+ee.data.authTokenExpiration_ = null;
 
 
 /**

@@ -40,11 +40,17 @@ goog.forwardDeclare('ee.Projection');
  *     be interpreted as planar lines in the specified CRS. If absent, defaults
  *     to true if the CRS is geographic (including the default EPSG:4326),
  *     or to false if the CRS is projected.
+ * @param {boolean=} opt_evenOdd If true, polygon interiors will be determined
+ *     by the even/odd rule, where a point is inside if it crosses an odd number
+ *     of edges to reach a point at infinity. Otherwise polygons use the left-
+ *     inside rule, where interiors are on the left side of the shell's edges
+ *     when walking the vertices in the given order. If unspecified, defaults to
+ *     true.
  * @constructor
  * @extends {ee.ComputedObject}
  * @export
  */
-ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
+ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   if (!(this instanceof ee.Geometry)) {
     return ee.ComputedObject.construct(ee.Geometry, arguments);
   }
@@ -54,11 +60,12 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
   var computed = geoJson instanceof ee.ComputedObject &&
                  !(geoJson instanceof ee.Geometry && geoJson.type_);
   var options = (goog.isDefAndNotNull(opt_proj) ||
-                 goog.isDefAndNotNull(opt_geodesic));
+                 goog.isDefAndNotNull(opt_geodesic) ||
+                 goog.isDefAndNotNull(opt_evenOdd));
   if (computed) {
     if (options) {
       throw new Error(
-          'Setting the CRS or geodesic on a computed Geometry ' +
+          'Setting the CRS, geodesic, or evenOdd flag on a computed Geometry ' +
           'is not suported.  Use Geometry.transform().');
     } else {
       goog.base(this, geoJson.func, geoJson.args, geoJson.varName);
@@ -71,8 +78,8 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
     geoJson = /** @type {Object} */(geoJson.encode());
   }
 
-  if (arguments.length > 3) {
-    throw Error('The Geometry constructor takes at most 3 arguments (' +
+  if (arguments.length > 4) {
+    throw Error('The Geometry constructor takes at most 4 arguments (' +
                 arguments.length + ' given)');
   }
 
@@ -81,6 +88,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
   }
 
   goog.base(this, null, null);
+
   /**
    * The type of the geometry.
    * @type {string}
@@ -131,6 +139,17 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
   this.geodesic_ = opt_geodesic;
   if (!goog.isDef(opt_geodesic) && 'geodesic' in geoJson) {
     this.geodesic_ = Boolean(geoJson['geodesic']);
+  }
+
+  /**
+   * Whether polygon interiors are based on the even/odd rule. If false,
+   * the left-inside rule is used. If unspecified, defaults to true.
+   * @type {boolean|undefined}
+   * @private
+   */
+  this.evenOdd_ = opt_evenOdd;
+  if (!goog.isDef(opt_evenOdd) && 'evenOdd' in geoJson) {
+    this.evenOdd_ = Boolean(geoJson['evenOdd']);
   }
 };
 goog.inherits(ee.Geometry, ee.ComputedObject);
@@ -250,12 +269,18 @@ goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
  * @param {ee.ErrorMargin=} opt_maxError Max error when input geometry must be
  *     reprojected to an explicitly requested result projection or geodesic
  *     state.
+ * @param {boolean=} opt_evenOdd If true, polygon interiors will be determined
+ *     by the even/odd rule, where a point is inside if it crosses an odd number
+ *     of edges to reach a point at infinity. Otherwise polygons use the left-
+ *     inside rule, where interiors are on the left side of the shell's edges
+ *     when walking the vertices in the given order. If unspecified, defaults to
+ *     true.
  * @constructor
  * @extends {ee.Geometry}
  * @export
  */
 ee.Geometry.Rectangle = function(
-    coords, opt_proj, opt_geodesic, opt_maxError) {
+    coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
   if (!(this instanceof ee.Geometry.Rectangle)) {
     return ee.Geometry.createInstance_(ee.Geometry.Rectangle, arguments);
   }
@@ -424,11 +449,18 @@ goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
  * @param {ee.ErrorMargin=} opt_maxError Max error when input geometry must be
  *     reprojected to an explicitly requested result projection or geodesic
  *     state.
+ * @param {boolean=} opt_evenOdd If true, polygon interiors will be determined
+ *     by the even/odd rule, where a point is inside if it crosses an odd number
+ *     of edges to reach a point at infinity. Otherwise polygons use the left-
+ *     inside rule, where interiors are on the left side of the shell's edges
+ *     when walking the vertices in the given order. If unspecified, defaults to
+ *     true.
  * @constructor
  * @extends {ee.Geometry}
  * @export
  */
-ee.Geometry.Polygon = function(coords, opt_proj, opt_geodesic, opt_maxError) {
+ee.Geometry.Polygon = function(
+    coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
   if (!(this instanceof ee.Geometry.Polygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.Polygon, arguments);
   }
@@ -462,12 +494,18 @@ goog.inherits(ee.Geometry.Polygon, ee.Geometry);
  * @param {ee.ErrorMargin=} opt_maxError Max error when input geometry must be
  *     reprojected to an explicitly requested result projection or geodesic
  *     state.
+ * @param {boolean=} opt_evenOdd If true, polygon interiors will be determined
+ *     by the even/odd rule, where a point is inside if it crosses an odd number
+ *     of edges to reach a point at infinity. Otherwise polygons use the left-
+ *     inside rule, where interiors are on the left side of the shell's edges
+ *     when walking the vertices in the given order. If unspecified, defaults to
+ *     true.
  * @constructor
  * @extends {ee.Geometry}
  * @export
  */
 ee.Geometry.MultiPolygon = function(
-    coords, opt_proj, opt_geodesic, opt_maxError) {
+    coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
   if (!(this instanceof ee.Geometry.MultiPolygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiPolygon, arguments);
   }
@@ -509,6 +547,10 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
 
   if (goog.isDefAndNotNull(this.geodesic_)) {
     result['geodesic'] = this.geodesic_;
+  }
+
+  if (goog.isDefAndNotNull(this.evenOdd_)) {
+    result['evenOdd'] = this.evenOdd_;
   }
 
   return /** @type {ee.data.GeoJSONGeometry} */(result);
@@ -660,7 +702,7 @@ ee.Geometry.coordinatesToLine_ = function(coordinates) {
  */
 ee.Geometry.parseArgs_ = function(ctorName, depth, args) {
   var result = {};
-  var keys = ['coordinates', 'crs', 'geodesic', 'maxError'];
+  var keys = ['coordinates', 'crs', 'geodesic', 'maxError', 'evenOdd'];
 
   if (goog.array.every(args, ee.Types.isNumber)) {
     // All numbers, so convert them to a true array.
@@ -672,6 +714,7 @@ ee.Geometry.parseArgs_ = function(ctorName, depth, args) {
     }
     for (var i = 0; i < keys.length; i++) {
       if (goog.isDefAndNotNull(args[i])) {
+        // Use provided values always.
         result[keys[i]] = args[i];
       }
     }
@@ -684,12 +727,19 @@ ee.Geometry.parseArgs_ = function(ctorName, depth, args) {
       goog.isDefAndNotNull(result['geodesic']) ||
       goog.isDefAndNotNull(result['maxError'])) {
     // Some arguments cannot be handled in the client, so make a server call.
+    // Note we don't declare a default evenOdd value, so the server can infer
+    // a default based on the projection.
     var serverName = 'GeometryConstructors.' + ctorName;
     return new ee.ApiFunction(serverName).apply(result);
   } else {
     // Everything can be handled here, so check the depth and init this object.
     result['type'] = ctorName;
     result['coordinates'] = ee.Geometry.fixDepth_(depth, result['coordinates']);
+    if (!goog.isDefAndNotNull(result['evenOdd']) && goog.array.contains(
+        ['Polygon', 'Rectangle', 'MultiPolygon'], ctorName)) {
+      // Default to evenOdd=true for any kind of polygon.
+      result['evenOdd'] = true;
+    }
     return result;
   }
 };

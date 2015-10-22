@@ -1372,6 +1372,7 @@ ENCODED_JSON_SAMPLE = {
             }
         }],
         ['2', {
+            'evenOdd': True,
             'type': 'Polygon',
             'coordinates': [
                 [[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],

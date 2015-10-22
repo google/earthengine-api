@@ -161,11 +161,13 @@ ee.MapLayerOverlay.prototype.getTile = function(
     src += '&profiling=1&no-cache=1';
   }
 
-  // Append a unique string to the tileid to make sure that
+  // Append 1) a unique counter string to the tileid to make sure that
   // repeated requests for the same tile and cancellations thereof
   // (which may occur if the user quickly moves the map around)
-  // don't overwrite each other's state.
-  var uniqueTileId = tileId + '/' + this.tileCounter_;
+  // don't overwrite each other's state, and 2) the unique token for this
+  // layer to differentiate its tile requests from other tile requests
+  // for other layers with the same map ID.
+  var uniqueTileId = [tileId, this.tileCounter_, this.token].join('/');
   this.tileCounter_ += 1;
 
   // Holds the <img> element created asynchronously.

@@ -27,6 +27,9 @@ class Task(object):
     - Calling any of the methods on the Export static class.
     - Unpickling a previously pickled Task object.
 
+    If you're looking for a task's status but don't need a full task object,
+    ee.data.getTaskStatus() may be appropriate.
+
     Args:
       taskId: The task ID, originally obtained through ee.data.newTaskId().
       config: The task configuration dictionary. Only necessary if start()

@@ -555,11 +555,12 @@ ee.Function.prototype.call = function(var_args) {
  * @param {(Object|null)} geoJson
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
+ * @param {boolean=} opt_evenOdd
  * @return {?}
  * @extends {ee.ComputedObject}
  * @constructor
  */
-ee.Geometry = function(geoJson, opt_proj, opt_geodesic) {
+ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 };
 /**
  * @param {(Array|null)} coords
@@ -608,11 +609,12 @@ ee.Geometry.MultiPoint = function(coords, opt_proj) {
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @param {(ee.ErrorMargin|null)=} opt_maxError
+ * @param {boolean=} opt_evenOdd
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.MultiPolygon = function(coords, opt_proj, opt_geodesic, opt_maxError) {
+ee.Geometry.MultiPolygon = function(coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
 };
 /**
  * @param {Array<number>} coords
@@ -628,22 +630,24 @@ ee.Geometry.Point = function(coords, opt_proj) {
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @param {(ee.ErrorMargin|null)=} opt_maxError
+ * @param {boolean=} opt_evenOdd
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.Polygon = function(coords, opt_proj, opt_geodesic, opt_maxError) {
+ee.Geometry.Polygon = function(coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
 };
 /**
  * @param {(Array|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @param {(ee.ErrorMargin|null)=} opt_maxError
+ * @param {boolean=} opt_evenOdd
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_maxError) {
+ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
 };
 /**
  * @return {string}
@@ -768,7 +772,7 @@ ee.InitState.LOADING;
 ee.InitState.NOT_READY;
 ee.InitState.READY;
 /**
- * @param {(Arguments|NodeList|Object|null)} list
+ * @param {(Object|null)} list
  * @return {?}
  * @extends {ee.ComputedObject}
  * @constructor

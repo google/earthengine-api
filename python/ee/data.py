@@ -363,6 +363,19 @@ def createAsset(value, opt_path=None):
   return send_('/create', args)
 
 
+def copyAsset(sourceId, destinationId):
+  """Copies the asset from sourceId into destinationId.
+
+  Args:
+    sourceId: The ID of the asset to copy.
+    destinationId: The ID of the new asset created by copying.
+  """
+  send_('/copy', {
+      'sourceId': sourceId,
+      'destinationId': destinationId,
+  })
+
+
 def renameAsset(sourceId, destinationId):
   """Renames the asset from sourceId to destinationId.
 

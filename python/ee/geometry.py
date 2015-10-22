@@ -26,7 +26,8 @@ class Geometry(computedobject.ComputedObject):
 
   _initialized = False
 
-  def __init__(self, geo_json, opt_proj=None, opt_geodesic=None):
+  def __init__(self, geo_json, opt_proj=None, opt_geodesic=None,
+               opt_evenOdd=None):
     """Creates a geometry.
 
     Args:
@@ -45,7 +46,12 @@ class Geometry(computedobject.ComputedObject):
           interpreted as planar lines in the specified CRS. If absent,
           defaults to true if the CRS is geographic (including the default
           EPSG:4326), or to false if the CRS is projected.
-
+      opt_evenOdd: If true, polygon interiors will be determined by the even/odd
+          rule, where a point is inside if it crosses an odd number of edges to
+          reach a point at infinity. Otherwise polygons use the left-inside
+          rule, where interiors are on the left side of the shell's edges when
+          walking the vertices in the given order. If unspecified, defaults to
+          True.
     Raises:
       EEException: if the given geometry isn't valid.
     """
@@ -54,7 +60,7 @@ class Geometry(computedobject.ComputedObject):
     computed = (isinstance(geo_json, computedobject.ComputedObject) and
                 not (isinstance(geo_json, Geometry) and
                      geo_json._type is not None))  # pylint: disable=protected-access
-    options = opt_proj or opt_geodesic
+    options = opt_proj or opt_geodesic or opt_evenOdd
     if computed:
       if options:
         raise ee_exception.EEException(
@@ -103,6 +109,11 @@ class Geometry(computedobject.ComputedObject):
     self._geodesic = opt_geodesic
     if opt_geodesic is None and 'geodesic' in geo_json:
       self._geodesic = bool(geo_json['geodesic'])
+
+    # Whether polygon interiors use the even/odd rule.
+    self._evenOdd = opt_evenOdd
+    if opt_evenOdd is None and 'evenOdd' in geo_json:
+      self._evenOdd = bool(geo_json['evenOdd'])
 
   @classmethod
   def initialize(cls):
@@ -171,7 +182,7 @@ class Geometry(computedobject.ComputedObject):
   @staticmethod
   def Rectangle(coords=_UNSPECIFIED, proj=_UNSPECIFIED,
                 geodesic=_UNSPECIFIED, maxError=_UNSPECIFIED,
-                *args, **kwargs):
+                evenOdd=_UNSPECIFIED, *args, **kwargs):
     """Constructs an ee.Geometry describing a rectangular polygon.
 
     Args:
@@ -188,6 +199,12 @@ class Geometry(computedobject.ComputedObject):
           inputs are numbers.
       maxError: Max error when input geometry must be reprojected to an
           explicitly requested result projection or geodesic state.
+      evenOdd: If true, polygon interiors will be determined by the even/odd
+          rule, where a point is inside if it crosses an odd number of edges to
+          reach a point at infinity. Otherwise polygons use the left-inside
+          rule, where interiors are on the left side of the shell's edges when
+          walking the vertices in the given order. If unspecified, defaults to
+          True.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating EPSG:4326 Polygons given exactly four
           coordinates, e.g.
@@ -199,7 +216,7 @@ class Geometry(computedobject.ComputedObject):
       An ee.Geometry describing a rectangular polygon.
     """
     init = Geometry._parseArgs('Rectangle', 2, Geometry._GetSpecifiedArgs(
-        (coords, proj, geodesic, maxError) + args,
+        (coords, proj, geodesic, maxError, evenOdd) + args,
         ('xlo', 'ylo', 'xhi', 'yhi'), **kwargs))
     if not isinstance(init, computedobject.ComputedObject):
       # GeoJSON does not have a Rectangle type, so expand to a Polygon.
@@ -322,7 +339,7 @@ class Geometry(computedobject.ComputedObject):
   @staticmethod
   def Polygon(coords=_UNSPECIFIED, proj=_UNSPECIFIED,
               geodesic=_UNSPECIFIED, maxError=_UNSPECIFIED,
-              *args):
+              evenOdd=_UNSPECIFIED, *args):
     """Constructs an ee.Geometry describing a polygon.
 
     Args:
@@ -339,6 +356,12 @@ class Geometry(computedobject.ComputedObject):
           inputs are numbers.
       maxError: Max error when input geometry must be reprojected to an
           explicitly requested result projection or geodesic state.
+      evenOdd: If true, polygon interiors will be determined by the even/odd
+          rule, where a point is inside if it crosses an odd number of edges to
+          reach a point at infinity. Otherwise polygons use the left-inside
+          rule, where interiors are on the left side of the shell's edges when
+          walking the vertices in the given order. If unspecified, defaults to
+          True.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 Polygons with a
           single LinearRing given an even number of arguments, e.g.
@@ -348,13 +371,13 @@ class Geometry(computedobject.ComputedObject):
       An ee.Geometry describing a polygon.
     """
     all_args = Geometry._GetSpecifiedArgs(
-        (coords, proj, geodesic, maxError) + args)
+        (coords, proj, geodesic, maxError, evenOdd) + args)
     return Geometry(Geometry._parseArgs('Polygon', 3, all_args))
 
   @staticmethod
   def MultiPolygon(coords=_UNSPECIFIED, proj=_UNSPECIFIED,
                    geodesic=_UNSPECIFIED, maxError=_UNSPECIFIED,
-                   *args):
+                   evenOdd=_UNSPECIFIED, *args):
     """Constructs an ee.Geometry describing a MultiPolygon.
 
     If created from points, only one polygon can be specified.
@@ -372,6 +395,12 @@ class Geometry(computedobject.ComputedObject):
           inputs are numbers.
       maxError: Max error when input geometry must be reprojected to an
           explicitly requested result projection or geodesic state.
+      evenOdd: If true, polygon interiors will be determined by the even/odd
+          rule, where a point is inside if it crosses an odd number of edges to
+          reach a point at infinity. Otherwise polygons use the left-inside
+          rule, where interiors are on the left side of the shell's edges when
+          walking the vertices in the given order. If unspecified, defaults to
+          True.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 MultiPolygons with
           a single Polygon with a single LinearRing given an even number of
@@ -382,7 +411,7 @@ class Geometry(computedobject.ComputedObject):
       An ee.Geometry describing a MultiPolygon.
     """
     all_args = Geometry._GetSpecifiedArgs(
-        (coords, proj, geodesic, maxError) + args)
+        (coords, proj, geodesic, maxError, evenOdd) + args)
     return Geometry(Geometry._parseArgs('MultiPolygon', 4, all_args))
 
   def encode(self, opt_encoder=None):  # pylint: disable=unused-argument
@@ -406,6 +435,9 @@ class Geometry(computedobject.ComputedObject):
 
     if self._geodesic is not None:
       result['geodesic'] = self._geodesic
+
+    if self._evenOdd is not None:
+      result['evenOdd'] = self._evenOdd
 
     return result
 
@@ -539,7 +571,7 @@ class Geometry(computedobject.ComputedObject):
       Otherwise a ComputedObject calling the appropriate constructor.
     """
     result = {}
-    keys = ['coordinates', 'crs', 'geodesic', 'maxError']
+    keys = ['coordinates', 'crs', 'geodesic', 'maxError', 'evenOdd']
 
     if all(ee_types.isNumber(i) for i in args):
       # All numbers, so convert them to a true array.
@@ -560,12 +592,18 @@ class Geometry(computedobject.ComputedObject):
         result.get('geodesic') is not None or
         result.get('maxError') is not None):
       # Some arguments cannot be handled in the client, so make a server call.
+      # Note we don't declare a default evenOdd value, so the server can infer
+      # a default based on the projection.
       server_name = 'GeometryConstructors.' + ctor_name
       return apifunction.ApiFunction.lookup(server_name).apply(result)
     else:
       # Everything can be handled here, so check the depth and init this object.
       result['type'] = ctor_name
       result['coordinates'] = Geometry._fixDepth(depth, result['coordinates'])
+      # Enable evenOdd by default for any kind of polygon.
+      if ('evenOdd' not in result and
+          ctor_name in ['Polygon', 'Rectangle', 'MultiPolygon']):
+        result['evenOdd'] = True
       return result
 
   @staticmethod

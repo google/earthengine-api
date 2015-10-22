@@ -112,6 +112,12 @@ class GeometryTest(apitestcase.ApiTestCase):
     # Bad nesting
     self.assertInvalid(f, 'Invalid geometry', [[[[1, 2], [3, 4]], [1, 2]]])
 
+  def testEvenOddPolygon(self):
+    poly1 = ee.Geometry.Polygon([0, 0, 0, 5, 5, 0])
+    self.assertTrue(poly1.toGeoJSON()['evenOdd'])
+    poly2 = ee.Geometry.Polygon([0, 0, 0, 5, 5, 0], None, None, None, False)
+    self.assertFalse(poly2.toGeoJSON()['evenOdd'])
+
   def testArrayConstructors(self):
     """Verifies that constructors that take arrays fix nesting."""
     get_coordinates_count = lambda g: len(g.toGeoJSON()['coordinates'])
