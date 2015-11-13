@@ -6,6 +6,7 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+import contextlib
 import json
 import urllib
 
@@ -28,6 +29,20 @@ _initialized = False
 # Sets the number of milliseconds to wait for a request before considering
 # it timed out. 0 means no limit.
 _deadline_ms = 0
+
+# A function called when profile results are received from the server. Takes the
+# profile ID as an argument. None if profiling is disabled.
+#
+# This is a global variable because the alternative is to add a parameter to
+# ee.data.send_, which would then have to be propagated from the assorted API
+# call functions (ee.data.getInfo, ee.data.getMapId, etc.), and the user would
+# have to modify each call to profile, rather than enabling profiling as a
+# wrapper around the entire program (with ee.data.profiling, defined below).
+_profile_hook = None
+
+# The HTTP header through which profile results are returned.
+# Lowercase because that's how httplib2 does things.
+_PROFILE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
 
 # The default base URL for API calls.
 DEFAULT_API_BASE_URL = 'https://earthengine.googleapis.com/api'
@@ -85,6 +100,31 @@ def setDeadline(milliseconds):
   """
   global _deadline_ms
   _deadline_ms = milliseconds
+
+
+@contextlib.contextmanager
+def profiling(hook):
+  # pylint: disable=g-doc-return-or-yield
+  """Returns a context manager which enables or disables profiling.
+
+  If hook is not None, enables profiling for all API calls in its scope and
+  calls the hook function with all resulting profile IDs. If hook is null,
+  disables profiling (or leaves it disabled).
+
+  Note: Profiling is not a generally available feature yet. Do not expect this
+  function to be useful.
+
+  Args:
+    hook: A function of one argument which is called with each profile
+        ID obtained from API calls, just before the API call returns.
+  """
+  global _profile_hook
+  saved_hook = _profile_hook
+  _profile_hook = hook
+  try:
+    yield
+  finally:
+    _profile_hook = saved_hook
 
 
 def getInfo(asset_id):
@@ -591,6 +631,10 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   # Make sure we never perform API calls before initialization.
   initialize()
 
+  if _profile_hook:
+    params = params.copy()
+    params['profiling'] = '1'
+
   url = _api_base_url + path
   payload = urllib.urlencode(params)
   http = httplib2.Http(timeout=int(_deadline_ms / 1000) or None)
@@ -613,6 +657,11 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   except httplib2.HttpLib2Error, e:
     raise ee_exception.EEException(
         'Unexpected HTTP error: %s' % e.message)
+
+  # Call the profile hook if present. Note that this is done before we handle
+  # the content, so that profiles are reported even if the response is an error.
+  if _profile_hook and _PROFILE_HEADER_LOWERCASE in response:
+    _profile_hook(response[_PROFILE_HEADER_LOWERCASE])
 
   # Whether or not the response is an error, it may be JSON.
   content_type = (response['content-type'] or 'application/json').split(';')[0]

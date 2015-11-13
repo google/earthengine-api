@@ -85,11 +85,38 @@ class DataTest(unittest.TestCase):
       self.assertEqual('{"error": {"code": 400, "message": "bar"}}',
                        ee.data.send_('/foo', {}, opt_raw=True))
 
+  def testNotProfiling(self):
+    # Test that we do not request profiling.
+    with DoProfileStubHttp(self, False):
+      ee.data.send_('/foo', {})
+
+  def testProfiling(self):
+    with DoProfileStubHttp(self, True):
+      seen = []
+      def ProfileHook(profile_id):
+        seen.append(profile_id)
+
+      with ee.data.profiling(ProfileHook):
+        ee.data.send_('/foo', {})
+      self.assertEqual(['someProfileId'], seen)
+
+  def testProfilingCleanup(self):
+    with DoProfileStubHttp(self, True):
+      try:
+        with ee.data.profiling(lambda _: None):
+          raise ExceptionForTest()
+      except ExceptionForTest:
+        pass
+
+    # Should not have profiling enabled after exiting the context by raising.
+    with DoProfileStubHttp(self, False):
+      ee.data.send_('/foo', {})
+
 
 def DoStubHttp(status, mime, resp_body):
   """Context manager for temporarily overriding Http."""
   def Request(unused_self, unused_url, method, body, headers):
-    _ = method, body, headers  # unused kwargs
+    _ = method, body, headers  # Unused kwargs.
     response = httplib2.Response({
         'status': status,
         'content-type': mime,
@@ -98,10 +125,23 @@ def DoStubHttp(status, mime, resp_body):
   return mock.patch('httplib2.Http.request', new=Request)
 
 
-class StubResponse(object):
+def DoProfileStubHttp(test, expect_profiling):
+  def Request(unused_self, unused_url, method, body, headers):
+    _ = method, headers  # Unused kwargs.
+    test.assertEqual(expect_profiling, 'profiling=1' in body, msg=body)
+    response_dict = {
+        'status': 200,
+        'content-type': 'application/json'
+    }
+    if expect_profiling:
+      response_dict['x-earth-engine-computation-profile'] = 'someProfileId'
+    response = httplib2.Response(response_dict)
+    return response, '{"data": "dummy_data"}'
+  return mock.patch('httplib2.Http.request', new=Request)
 
-  def __init__(self, status):
-    self.status = status
+
+class ExceptionForTest(Exception):
+  pass
 
 
 if __name__ == '__main__':

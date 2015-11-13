@@ -17,7 +17,7 @@ goog.provide('ee.data.AuthArgs');
 goog.provide('ee.data.AuthResponse');
 goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
-goog.provide('ee.data.BandMap');
+goog.provide('ee.data.BandMapping');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.FeatureVisualizationParameters');
@@ -1611,21 +1611,26 @@ ee.data.Band;
  *
  * @typedef {{
  *   'sources': !Array<ee.data.FileSource>,
- *   'bandMaps': (undefined|!Array<ee.data.BandMap>)
+ *   'bandMappings': (undefined|!Array<ee.data.BandMapping>)
  * }}
  */
 ee.data.Tileset;
 
 
 /**
- * An object describing properties of band map within a tileset.
+ * An object describing properties of a band map within a tileset.
+ *
+ * - fileBandIndex is a 0-based index of a band in a GDAL file.
+ *   Currently can only be -1 to indicate treating last band as mask band.
+ * - maskForAllBands indicates whether the specified file band should
+ *   be treated as mask band.
  *
  * @typedef {{
- *   'fileBand': number,
- *   'isMask': boolean
+ *   'fileBandIndex': number,
+ *   'maskForAllBands': boolean
  * }}
  */
-ee.data.BandMap;
+ee.data.BandMapping;
 
 
 /**

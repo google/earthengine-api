@@ -2,7 +2,7 @@
 """The EE Python library."""
 
 
-__version__ = '0.1.68'
+__version__ = '0.1.69'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -141,8 +141,7 @@ def _GetPersistentCredentials():
     script = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                           'authenticate.py')
     raise EEException('Please authorize access to your Earth Engine account ' +
-                      'by running\n\n%s %s\n\nand then retry.' %
-                      (sys.executable, script))
+                      'by running\n\npython %s\n\nand then retry.' % script)
 
 
 def _ResetGeneratedClasses():
