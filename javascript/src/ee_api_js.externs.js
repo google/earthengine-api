@@ -1070,14 +1070,6 @@ ee.data.makeThumbUrl = function(id) {
 ee.data.newTaskId = function(opt_count, opt_callback) {
 };
 /**
- * @param {string} taskId
- * @param {(Object|null)} params
- * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
- * @return {(ee.data.ProcessingResponse|null)}
- */
-ee.data.prepareValue = function(taskId, params, opt_callback) {
-};
-/**
  * @param {string} assetId
  * @param {{all_users_can_read: (boolean|undefined), readers: Array<string>, writers: Array<string>}} aclUpdate
  * @param {function ((Object|null), string=): ?=} opt_callback

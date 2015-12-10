@@ -582,6 +582,9 @@ ee.MapTileManager.Request_.prototype.start_ = function() {
   }
 
   var actuallyLoadImage = goog.bind(function(imageUrl) {
+    if (this.getAborted()) {
+      return;
+    }
     this.imageLoader_.addImage(this.id_, imageUrl);
     this.addImageEventListener();
     this.imageLoader_.start();

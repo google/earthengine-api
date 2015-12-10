@@ -155,10 +155,9 @@ ee.MapLayerOverlay.prototype.getTile = function(
   var profiling = this.profiler_ && this.profiler_.isEnabled();
 
   var tileId = [this.mapId, zoom, x, coord.y].join('/');
-  // TODO(user): no-cache=1 should not be needed; b/23419909
   var src = [this.url, tileId].join('/') + '?token=' + this.token;
   if (profiling) {
-    src += '&profiling=1&no-cache=1';
+    src += '&profiling=1';
   }
 
   // Append 1) a unique counter string to the tileid to make sure that
@@ -218,9 +217,11 @@ ee.MapLayerOverlay.prototype.releaseTile = function(tileDiv) {
   ee.MapTileManager.getInstance().abort(tileDiv.id);
   var tileImg = goog.dom.getFirstElementChild(tileDiv);
   this.tiles_.remove(tileImg);
-  this.tilesFailed_.remove(tileDiv.id);
-  if (this.profiler_) {
-    this.profiler_.removeTile(tileDiv.id);
+  if (tileDiv.id !== '') {  // Out-of-bounds tiles have no ID.
+    this.tilesFailed_.remove(tileDiv.id);
+    if (this.profiler_) {
+      this.profiler_.removeTile(tileDiv.id);
+    }
   }
 };
 

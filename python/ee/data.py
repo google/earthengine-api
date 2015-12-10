@@ -488,23 +488,6 @@ def cancelTask(taskId):
   send_('/updatetask', {'id': taskId, 'action': 'CANCEL'})
 
 
-def prepareValue(taskId, params):
-  """Create processing task which computes a value.
-
-  Args:
-    taskId: ID for the task (obtained using newTaskId).
-    params: The object that describes the value to be evaluated, with the
-      following field:
-        json (string) A JSON object to be evaluated.
-
-  Returns:
-    A dict with optional notes about the created task.
-  """
-  args = params.copy()
-  args['tid'] = taskId
-  return send_('/prepare', args)
-
-
 def startProcessing(taskId, params):
   """Create processing task that exports or pre-renders an image.
 
@@ -691,3 +674,21 @@ def send_(path, params, opt_method='POST', opt_raw=False):
         'Response was unexpectedly not JSON, but %s' % response['content-type'])
   else:
     return json_content['data']
+
+
+def create_assets(asset_ids, asset_type, mk_parents):
+  """Creates the specified assets if they do not exist."""
+  asset = {'type': asset_type}
+  for asset_id in asset_ids:
+    if mk_parents:
+      parts = asset_id.split('/')
+      path = ''
+      for part in parts:
+        path += part
+        if getInfo(path) is None:
+          createAsset(asset, path)
+        path += '/'
+    elif getInfo(asset_id) is None:
+      createAsset(asset, asset_id)
+    else:
+      print 'Asset %s already exists' % asset_id

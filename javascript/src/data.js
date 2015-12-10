@@ -778,28 +778,6 @@ goog.exportSymbol('ee.data.updateTask', ee.data.updateTask);
 
 
 /**
- * Create processing task which computes a value.
- *
- * @param {string} taskId ID for the task (obtained using newTaskId).
- * @param {Object} params The value to be evaluated, with the following
- *     possible values:
- *        json (string) A JSON object to be evaluated.
- * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
- *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
- *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
- *     Null if a callback is specified.
- */
-ee.data.prepareValue = function(taskId, params, opt_callback) {
-  params = goog.object.clone(params);
-  params['tid'] = taskId;
-  return /** @type {?ee.data.ProcessingResponse} */ (
-      ee.data.send_('/prepare', ee.data.makeRequest_(params), opt_callback));
-};
-goog.exportSymbol('ee.data.prepareValue', ee.data.prepareValue);
-
-
-/**
  * Create processing task that exports or pre-renders an image.
  *
  * @param {string} taskId ID for the task (obtained using newTaskId).
@@ -1485,6 +1463,7 @@ ee.data.VideoTaskConfig;
  *   minZoom: (undefined|number),
  *   maxZoom: (undefined|number),
  *   region: (undefined|string),
+ *   scale: (undefined|number),
  *   fileFormat: (undefined|string)
  * }}
  */

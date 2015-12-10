@@ -7,7 +7,7 @@
 /* Shared across all screen sizes. */
 
 .trendy h1 {
-  font-family: 'Lobster', cursive;
+  font-family: 'Roboto Condensed', sans-serif;
   position: absolute;
   z-index: 1;
   margin: 0px;
@@ -95,7 +95,7 @@ body,
     visibility: visible;
   }
 
-  .trendy .panel.expanded  {
+  .trendy .panel.expanded {
     height: 278px;
   }
 
@@ -110,19 +110,23 @@ body,
   .trendy h1 {
     left: 40px;
     top: 30px;
-    font-size: 80px;
+    font-size: 56px;
+    opacity: .98;
   }
 
   .trendy .panel {
     width: 400px;
     left: 40px;
-    top: 180px;
+    top: 126px;
+    padding: 14px;
+    opacity: .98;
+    border-radius: 4px;
   }
 
   .trendy .panel .close {
     position: absolute;
-    top: 10px;
-    right: 10px;
+    top: 14px;
+    right: 14px;
     cursor: pointer;
   }
 

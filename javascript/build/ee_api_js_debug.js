@@ -2073,6 +2073,143 @@ goog.i18n.bidi.setElementDirByTextDirectionality = function(element, text) {
 };
 goog.i18n.bidi.DirectionalString = function() {
 };
+goog.labs = {};
+goog.labs.userAgent = {};
+goog.labs.userAgent.util = {};
+goog.labs.userAgent.util.getNativeUserAgentString_ = function() {
+  var navigator = goog.labs.userAgent.util.getNavigator_();
+  if (navigator) {
+    var userAgent = navigator.userAgent;
+    if (userAgent) {
+      return userAgent;
+    }
+  }
+  return "";
+};
+goog.labs.userAgent.util.getNavigator_ = function() {
+  return goog.global.navigator;
+};
+goog.labs.userAgent.util.userAgent_ = goog.labs.userAgent.util.getNativeUserAgentString_();
+goog.labs.userAgent.util.setUserAgent = function(opt_userAgent) {
+  goog.labs.userAgent.util.userAgent_ = opt_userAgent || goog.labs.userAgent.util.getNativeUserAgentString_();
+};
+goog.labs.userAgent.util.getUserAgent = function() {
+  return goog.labs.userAgent.util.userAgent_;
+};
+goog.labs.userAgent.util.matchUserAgent = function(str) {
+  return goog.string.contains(goog.labs.userAgent.util.getUserAgent(), str);
+};
+goog.labs.userAgent.util.matchUserAgentIgnoreCase = function(str) {
+  return goog.string.caseInsensitiveContains(goog.labs.userAgent.util.getUserAgent(), str);
+};
+goog.labs.userAgent.util.extractVersionTuples = function(userAgent) {
+  for (var versionRegExp = RegExp("(\\w[\\w ]+)/([^\\s]+)\\s*(?:\\((.*?)\\))?", "g"), data = [], match;match = versionRegExp.exec(userAgent);) {
+    data.push([match[1], match[2], match[3] || void 0]);
+  }
+  return data;
+};
+goog.labs.userAgent.browser = {};
+goog.labs.userAgent.browser.matchOpera_ = function() {
+  return goog.labs.userAgent.util.matchUserAgent("Opera") || goog.labs.userAgent.util.matchUserAgent("OPR");
+};
+goog.labs.userAgent.browser.matchIE_ = function() {
+  return goog.labs.userAgent.util.matchUserAgent("Trident") || goog.labs.userAgent.util.matchUserAgent("MSIE");
+};
+goog.labs.userAgent.browser.matchEdge_ = function() {
+  return goog.labs.userAgent.util.matchUserAgent("Edge");
+};
+goog.labs.userAgent.browser.matchFirefox_ = function() {
+  return goog.labs.userAgent.util.matchUserAgent("Firefox");
+};
+goog.labs.userAgent.browser.matchSafari_ = function() {
+  return goog.labs.userAgent.util.matchUserAgent("Safari") && !(goog.labs.userAgent.browser.matchChrome_() || goog.labs.userAgent.browser.matchCoast_() || goog.labs.userAgent.browser.matchOpera_() || goog.labs.userAgent.browser.matchEdge_() || goog.labs.userAgent.browser.isSilk() || goog.labs.userAgent.util.matchUserAgent("Android"));
+};
+goog.labs.userAgent.browser.matchCoast_ = function() {
+  return goog.labs.userAgent.util.matchUserAgent("Coast");
+};
+goog.labs.userAgent.browser.matchIosWebview_ = function() {
+  return (goog.labs.userAgent.util.matchUserAgent("iPad") || goog.labs.userAgent.util.matchUserAgent("iPhone")) && !goog.labs.userAgent.browser.matchSafari_() && !goog.labs.userAgent.browser.matchChrome_() && !goog.labs.userAgent.browser.matchCoast_() && goog.labs.userAgent.util.matchUserAgent("AppleWebKit");
+};
+goog.labs.userAgent.browser.matchChrome_ = function() {
+  return (goog.labs.userAgent.util.matchUserAgent("Chrome") || goog.labs.userAgent.util.matchUserAgent("CriOS")) && !goog.labs.userAgent.browser.matchOpera_() && !goog.labs.userAgent.browser.matchEdge_();
+};
+goog.labs.userAgent.browser.matchAndroidBrowser_ = function() {
+  return goog.labs.userAgent.util.matchUserAgent("Android") && !(goog.labs.userAgent.browser.isChrome() || goog.labs.userAgent.browser.isFirefox() || goog.labs.userAgent.browser.isOpera() || goog.labs.userAgent.browser.isSilk());
+};
+goog.labs.userAgent.browser.isOpera = goog.labs.userAgent.browser.matchOpera_;
+goog.labs.userAgent.browser.isIE = goog.labs.userAgent.browser.matchIE_;
+goog.labs.userAgent.browser.isEdge = goog.labs.userAgent.browser.matchEdge_;
+goog.labs.userAgent.browser.isFirefox = goog.labs.userAgent.browser.matchFirefox_;
+goog.labs.userAgent.browser.isSafari = goog.labs.userAgent.browser.matchSafari_;
+goog.labs.userAgent.browser.isCoast = goog.labs.userAgent.browser.matchCoast_;
+goog.labs.userAgent.browser.isIosWebview = goog.labs.userAgent.browser.matchIosWebview_;
+goog.labs.userAgent.browser.isChrome = goog.labs.userAgent.browser.matchChrome_;
+goog.labs.userAgent.browser.isAndroidBrowser = goog.labs.userAgent.browser.matchAndroidBrowser_;
+goog.labs.userAgent.browser.isSilk = function() {
+  return goog.labs.userAgent.util.matchUserAgent("Silk");
+};
+goog.labs.userAgent.browser.getVersion = function() {
+  function lookUpValueWithKeys(keys) {
+    var key = goog.array.find(keys, versionMapHasKey);
+    return versionMap[key] || "";
+  }
+  var userAgentString = goog.labs.userAgent.util.getUserAgent();
+  if (goog.labs.userAgent.browser.isIE()) {
+    return goog.labs.userAgent.browser.getIEVersion_(userAgentString);
+  }
+  var versionTuples = goog.labs.userAgent.util.extractVersionTuples(userAgentString), versionMap = {};
+  goog.array.forEach(versionTuples, function(tuple) {
+    versionMap[tuple[0]] = tuple[1];
+  });
+  var versionMapHasKey = goog.partial(goog.object.containsKey, versionMap);
+  if (goog.labs.userAgent.browser.isOpera()) {
+    return lookUpValueWithKeys(["Version", "Opera", "OPR"]);
+  }
+  if (goog.labs.userAgent.browser.isEdge()) {
+    return lookUpValueWithKeys(["Edge"]);
+  }
+  if (goog.labs.userAgent.browser.isChrome()) {
+    return lookUpValueWithKeys(["Chrome", "CriOS"]);
+  }
+  var tuple = versionTuples[2];
+  return tuple && tuple[1] || "";
+};
+goog.labs.userAgent.browser.isVersionOrHigher = function(version) {
+  return 0 <= goog.string.compareVersions(goog.labs.userAgent.browser.getVersion(), version);
+};
+goog.labs.userAgent.browser.getIEVersion_ = function(userAgent) {
+  var rv = /rv: *([\d\.]*)/.exec(userAgent);
+  if (rv && rv[1]) {
+    return rv[1];
+  }
+  var version = "", msie = /MSIE +([\d\.]+)/.exec(userAgent);
+  if (msie && msie[1]) {
+    var tridentVersion = /Trident\/(\d.\d)/.exec(userAgent);
+    if ("7.0" == msie[1]) {
+      if (tridentVersion && tridentVersion[1]) {
+        switch(tridentVersion[1]) {
+          case "4.0":
+            version = "8.0";
+            break;
+          case "5.0":
+            version = "9.0";
+            break;
+          case "6.0":
+            version = "10.0";
+            break;
+          case "7.0":
+            version = "11.0";
+            break;
+        }
+      } else {
+        version = "7.0";
+      }
+    } else {
+      version = msie[1];
+    }
+  }
+  return version;
+};
 goog.string.TypedString = function() {
 };
 goog.string.Const = function() {
@@ -2177,7 +2314,7 @@ goog.html.SafeStyle.concat = function(var_args) {
 };
 goog.html.SafeStyleSheet = function() {
   this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = "";
-  this.SAFE_SCRIPT_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
+  this.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
 };
 goog.html.SafeStyleSheet.prototype.implementsGoogStringTypedString = !0;
 goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
@@ -2203,7 +2340,7 @@ goog.DEBUG && (goog.html.SafeStyleSheet.prototype.toString = function() {
   return "SafeStyleSheet{" + this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ + "}";
 });
 goog.html.SafeStyleSheet.unwrap = function(safeStyleSheet) {
-  if (safeStyleSheet instanceof goog.html.SafeStyleSheet && safeStyleSheet.constructor === goog.html.SafeStyleSheet && safeStyleSheet.SAFE_SCRIPT_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_) {
+  if (safeStyleSheet instanceof goog.html.SafeStyleSheet && safeStyleSheet.constructor === goog.html.SafeStyleSheet && safeStyleSheet.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_) {
     return safeStyleSheet.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;
   }
   goog.asserts.fail("expected object of type SafeStyleSheet, got '" + safeStyleSheet + "'");
@@ -2393,6 +2530,11 @@ goog.html.SafeHtml.createStyle = function(styleSheet, opt_attributes) {
   }
   var htmlContent = goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content, goog.i18n.bidi.Dir.NEUTRAL);
   return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("style", attributes, htmlContent);
+};
+goog.html.SafeHtml.createMetaRefresh = function(url, opt_secs) {
+  var unwrappedUrl = goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitize(url));
+  (goog.labs.userAgent.browser.isIE() || goog.labs.userAgent.browser.isEdge()) && goog.string.contains(unwrappedUrl, ";") && (unwrappedUrl = "'" + unwrappedUrl.replace(/'/g, "%27") + "'");
+  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("meta", {"http-equiv":"refresh", content:(opt_secs || 0) + "; url=" + unwrappedUrl});
 };
 goog.html.SafeHtml.getAttrNameAndValue_ = function(tagName, name, value) {
   if (value instanceof goog.string.Const) {
@@ -2748,143 +2890,6 @@ goog.math.Size.prototype.scaleToCover = function(target) {
 };
 goog.math.Size.prototype.scaleToFit = function(target) {
   return this.scale(this.aspectRatio() > target.aspectRatio() ? target.width / this.width : target.height / this.height);
-};
-goog.labs = {};
-goog.labs.userAgent = {};
-goog.labs.userAgent.util = {};
-goog.labs.userAgent.util.getNativeUserAgentString_ = function() {
-  var navigator = goog.labs.userAgent.util.getNavigator_();
-  if (navigator) {
-    var userAgent = navigator.userAgent;
-    if (userAgent) {
-      return userAgent;
-    }
-  }
-  return "";
-};
-goog.labs.userAgent.util.getNavigator_ = function() {
-  return goog.global.navigator;
-};
-goog.labs.userAgent.util.userAgent_ = goog.labs.userAgent.util.getNativeUserAgentString_();
-goog.labs.userAgent.util.setUserAgent = function(opt_userAgent) {
-  goog.labs.userAgent.util.userAgent_ = opt_userAgent || goog.labs.userAgent.util.getNativeUserAgentString_();
-};
-goog.labs.userAgent.util.getUserAgent = function() {
-  return goog.labs.userAgent.util.userAgent_;
-};
-goog.labs.userAgent.util.matchUserAgent = function(str) {
-  return goog.string.contains(goog.labs.userAgent.util.getUserAgent(), str);
-};
-goog.labs.userAgent.util.matchUserAgentIgnoreCase = function(str) {
-  return goog.string.caseInsensitiveContains(goog.labs.userAgent.util.getUserAgent(), str);
-};
-goog.labs.userAgent.util.extractVersionTuples = function(userAgent) {
-  for (var versionRegExp = RegExp("(\\w[\\w ]+)/([^\\s]+)\\s*(?:\\((.*?)\\))?", "g"), data = [], match;match = versionRegExp.exec(userAgent);) {
-    data.push([match[1], match[2], match[3] || void 0]);
-  }
-  return data;
-};
-goog.labs.userAgent.browser = {};
-goog.labs.userAgent.browser.matchOpera_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Opera") || goog.labs.userAgent.util.matchUserAgent("OPR");
-};
-goog.labs.userAgent.browser.matchIE_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Trident") || goog.labs.userAgent.util.matchUserAgent("MSIE");
-};
-goog.labs.userAgent.browser.matchEdge_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Edge");
-};
-goog.labs.userAgent.browser.matchFirefox_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Firefox");
-};
-goog.labs.userAgent.browser.matchSafari_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Safari") && !(goog.labs.userAgent.browser.matchChrome_() || goog.labs.userAgent.browser.matchCoast_() || goog.labs.userAgent.browser.matchOpera_() || goog.labs.userAgent.browser.matchEdge_() || goog.labs.userAgent.browser.isSilk() || goog.labs.userAgent.util.matchUserAgent("Android"));
-};
-goog.labs.userAgent.browser.matchCoast_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Coast");
-};
-goog.labs.userAgent.browser.matchIosWebview_ = function() {
-  return (goog.labs.userAgent.util.matchUserAgent("iPad") || goog.labs.userAgent.util.matchUserAgent("iPhone")) && !goog.labs.userAgent.browser.matchSafari_() && !goog.labs.userAgent.browser.matchChrome_() && !goog.labs.userAgent.browser.matchCoast_() && goog.labs.userAgent.util.matchUserAgent("AppleWebKit");
-};
-goog.labs.userAgent.browser.matchChrome_ = function() {
-  return (goog.labs.userAgent.util.matchUserAgent("Chrome") || goog.labs.userAgent.util.matchUserAgent("CriOS")) && !goog.labs.userAgent.browser.matchOpera_() && !goog.labs.userAgent.browser.matchEdge_();
-};
-goog.labs.userAgent.browser.matchAndroidBrowser_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Android") && !(goog.labs.userAgent.browser.isChrome() || goog.labs.userAgent.browser.isFirefox() || goog.labs.userAgent.browser.isOpera() || goog.labs.userAgent.browser.isSilk());
-};
-goog.labs.userAgent.browser.isOpera = goog.labs.userAgent.browser.matchOpera_;
-goog.labs.userAgent.browser.isIE = goog.labs.userAgent.browser.matchIE_;
-goog.labs.userAgent.browser.isEdge = goog.labs.userAgent.browser.matchEdge_;
-goog.labs.userAgent.browser.isFirefox = goog.labs.userAgent.browser.matchFirefox_;
-goog.labs.userAgent.browser.isSafari = goog.labs.userAgent.browser.matchSafari_;
-goog.labs.userAgent.browser.isCoast = goog.labs.userAgent.browser.matchCoast_;
-goog.labs.userAgent.browser.isIosWebview = goog.labs.userAgent.browser.matchIosWebview_;
-goog.labs.userAgent.browser.isChrome = goog.labs.userAgent.browser.matchChrome_;
-goog.labs.userAgent.browser.isAndroidBrowser = goog.labs.userAgent.browser.matchAndroidBrowser_;
-goog.labs.userAgent.browser.isSilk = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Silk");
-};
-goog.labs.userAgent.browser.getVersion = function() {
-  function lookUpValueWithKeys(keys) {
-    var key = goog.array.find(keys, versionMapHasKey);
-    return versionMap[key] || "";
-  }
-  var userAgentString = goog.labs.userAgent.util.getUserAgent();
-  if (goog.labs.userAgent.browser.isIE()) {
-    return goog.labs.userAgent.browser.getIEVersion_(userAgentString);
-  }
-  var versionTuples = goog.labs.userAgent.util.extractVersionTuples(userAgentString), versionMap = {};
-  goog.array.forEach(versionTuples, function(tuple) {
-    versionMap[tuple[0]] = tuple[1];
-  });
-  var versionMapHasKey = goog.partial(goog.object.containsKey, versionMap);
-  if (goog.labs.userAgent.browser.isOpera()) {
-    return lookUpValueWithKeys(["Version", "Opera", "OPR"]);
-  }
-  if (goog.labs.userAgent.browser.isEdge()) {
-    return lookUpValueWithKeys(["Edge"]);
-  }
-  if (goog.labs.userAgent.browser.isChrome()) {
-    return lookUpValueWithKeys(["Chrome", "CriOS"]);
-  }
-  var tuple = versionTuples[2];
-  return tuple && tuple[1] || "";
-};
-goog.labs.userAgent.browser.isVersionOrHigher = function(version) {
-  return 0 <= goog.string.compareVersions(goog.labs.userAgent.browser.getVersion(), version);
-};
-goog.labs.userAgent.browser.getIEVersion_ = function(userAgent) {
-  var rv = /rv: *([\d\.]*)/.exec(userAgent);
-  if (rv && rv[1]) {
-    return rv[1];
-  }
-  var version = "", msie = /MSIE +([\d\.]+)/.exec(userAgent);
-  if (msie && msie[1]) {
-    var tridentVersion = /Trident\/(\d.\d)/.exec(userAgent);
-    if ("7.0" == msie[1]) {
-      if (tridentVersion && tridentVersion[1]) {
-        switch(tridentVersion[1]) {
-          case "4.0":
-            version = "8.0";
-            break;
-          case "5.0":
-            version = "9.0";
-            break;
-          case "6.0":
-            version = "10.0";
-            break;
-          case "7.0":
-            version = "11.0";
-            break;
-        }
-      } else {
-        version = "7.0";
-      }
-    } else {
-      version = msie[1];
-    }
-  }
-  return version;
 };
 goog.labs.userAgent.engine = {};
 goog.labs.userAgent.engine.isPresto = function() {
@@ -3520,6 +3525,9 @@ goog.dom.getParentElement = function(element) {
   return goog.dom.isElement(parent) ? parent : null;
 };
 goog.dom.contains = function(parent, descendant) {
+  if (!parent || !descendant) {
+    return !1;
+  }
   if (parent.contains && descendant.nodeType == goog.dom.NodeType.ELEMENT) {
     return parent == descendant || parent.contains(descendant);
   }
@@ -3695,7 +3703,8 @@ goog.dom.nativelySupportsFocus_ = function(element) {
   return element.tagName == goog.dom.TagName.A || element.tagName == goog.dom.TagName.INPUT || element.tagName == goog.dom.TagName.TEXTAREA || element.tagName == goog.dom.TagName.SELECT || element.tagName == goog.dom.TagName.BUTTON;
 };
 goog.dom.hasNonZeroBoundingRect_ = function(element) {
-  var rect = goog.isFunction(element.getBoundingClientRect) ? element.getBoundingClientRect() : {height:element.offsetHeight, width:element.offsetWidth};
+  var rect;
+  rect = !goog.isFunction(element.getBoundingClientRect) || goog.userAgent.IE && null == element.parentElement ? {height:element.offsetHeight, width:element.offsetWidth} : element.getBoundingClientRect();
   return goog.isDefAndNotNull(rect) && 0 < rect.height && 0 < rect.width;
 };
 goog.dom.getTextContent = function(node) {
@@ -8240,12 +8249,6 @@ ee.data.updateTask = function(taskId, action, opt_callback) {
   return ee.data.send_("/updatetask", ee.data.makeRequest_({id:taskId, action:action}), opt_callback, "POST");
 };
 goog.exportSymbol("ee.data.updateTask", ee.data.updateTask);
-ee.data.prepareValue = function(taskId, params, opt_callback) {
-  params = goog.object.clone(params);
-  params.tid = taskId;
-  return ee.data.send_("/prepare", ee.data.makeRequest_(params), opt_callback);
-};
-goog.exportSymbol("ee.data.prepareValue", ee.data.prepareValue);
 ee.data.startProcessing = function(taskId, params, opt_callback) {
   params = goog.object.clone(params);
   params.id = taskId;
@@ -11988,9 +11991,7 @@ ee.MapTileManager.Request_.prototype.retry = function() {
 ee.MapTileManager.Request_.prototype.start_ = function() {
   if (!this.getAborted()) {
     var actuallyLoadImage = goog.bind(function(imageUrl) {
-      this.imageLoader_.addImage(this.id_, imageUrl);
-      this.addImageEventListener();
-      this.imageLoader_.start();
+      this.getAborted() || (this.imageLoader_.addImage(this.id_, imageUrl), this.addImageEventListener(), this.imageLoader_.start());
     }, this), sourceUrl = this.getUrl();
     if (goog.Uri.parse(sourceUrl).getQueryData().containsKey("profiling")) {
       var xhrIo = new goog.net.XhrIo;
@@ -12077,7 +12078,7 @@ ee.MapLayerOverlay.prototype.getTile = function(coord, zoom, ownerDocument) {
   var x = coord.x % maxCoord;
   0 > x && (x += maxCoord);
   var profiling = this.profiler_ && this.profiler_.isEnabled(), tileId = [this.mapId, zoom, x, coord.y].join("/"), src = [this.url, tileId].join("/") + "?token=" + this.token;
-  profiling && (src += "&profiling=1&no-cache=1");
+  profiling && (src += "&profiling=1");
   var uniqueTileId = [tileId, this.tileCounter_, this.token].join("/");
   this.tileCounter_ += 1;
   var div = goog.dom.createDom("div", {id:uniqueTileId}), priority = (new Date).getTime() / 1E3;
@@ -12099,8 +12100,7 @@ ee.MapLayerOverlay.prototype.releaseTile = function(tileDiv) {
   ee.MapTileManager.getInstance().abort(tileDiv.id);
   var tileImg = goog.dom.getFirstElementChild(tileDiv);
   this.tiles_.remove(tileImg);
-  this.tilesFailed_.remove(tileDiv.id);
-  this.profiler_ && this.profiler_.removeTile(tileDiv.id);
+  "" !== tileDiv.id && (this.tilesFailed_.remove(tileDiv.id), this.profiler_ && this.profiler_.removeTile(tileDiv.id));
 };
 ee.MapLayerOverlay.prototype.setOpacity = function(opacity) {
   this.opacity_ = opacity;
@@ -12305,6 +12305,7 @@ ee.data.Profiler = function(format) {
   this.lastRefreshToken_ = null;
   this.profileIds_ = Object.create(null);
   this.tileProfileIds_ = Object.create(null);
+  this.showInternal_ = !1;
   this.throttledRefresh_ = new goog.async.Delay(goog.bind(this.refresh_, this), ee.data.Profiler.DELAY_BEFORE_REFRESH_);
   this.profileData_ = ee.data.Profiler.getEmptyProfile_(format);
 };
@@ -12330,8 +12331,12 @@ ee.data.Profiler.prototype.getStatusText = function() {
   if (this.lastRefreshToken_) {
     return "Loading...";
   }
-  var profiles = goog.object.getCount(this.profileIds_), tileProfiles = goog.object.getCount(this.tileProfileIds_);
-  return "Viewing " + profiles + " profiles, " + (profiles - tileProfiles) + " from computed values and " + tileProfiles + " from map tiles.";
+  var profiles = 0, nonTileProfiles = 0, tileProfiles = 0;
+  goog.object.forEach(this.profileIds_, function(refCount) {
+    profiles++;
+    Infinity === refCount ? nonTileProfiles++ : tileProfiles++;
+  }, this);
+  return "Viewing " + profiles + " profiles, " + nonTileProfiles + " from API calls and " + tileProfiles + " from map tiles.";
 };
 ee.data.Profiler.prototype.getProfileData = function() {
   return this.profileData_;
@@ -12344,9 +12349,13 @@ ee.data.Profiler.prototype.clearAndDrop = function() {
 ee.data.Profiler.prototype.getProfileHook = function() {
   var profileIds = this.profileIds_;
   return this.isEnabled_ ? goog.bind(function(profileId) {
-    profileIds[profileId] = null;
+    profileIds[profileId] = Infinity;
     this.throttledRefresh_.start();
   }, this) : null;
+};
+ee.data.Profiler.prototype.removeProfile_ = function(profileId) {
+  var count = this.profileIds_[profileId];
+  1 < count ? this.profileIds_[profileId]-- : void 0 !== count && (delete this.profileIds_[profileId], this.throttledRefresh_.start());
 };
 ee.data.Profiler.prototype.refresh_ = function() {
   var marker = {};
@@ -12354,17 +12363,21 @@ ee.data.Profiler.prototype.refresh_ = function() {
   var handleResponse = goog.bind(function(result, error) {
     marker == this.lastRefreshToken_ && (this.profileData_ = (this.profileError_ = error) ? ee.data.Profiler.getEmptyProfile_(this.format_) : result, this.lastRefreshToken_ = null, this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED), this.dispatchEvent(ee.data.Profiler.EventType.DATA_CHANGED));
   }, this), ids = goog.object.getKeys(this.profileIds_);
-  0 === ids.length ? handleResponse(ee.data.Profiler.getEmptyProfile_(this.format_), void 0) : (ee.ApiFunction._apply("Profile.getProfiles", {ids:ids, format:this.format_}).getInfo(handleResponse), this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED));
+  0 === ids.length ? handleResponse(ee.data.Profiler.getEmptyProfile_(this.format_), void 0) : (ee.ApiFunction._apply(this.showInternal_ ? "Profile.getProfilesInternal" : "Profile.getProfiles", {ids:ids, format:this.format_}).getInfo(handleResponse), this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED));
 };
 ee.data.Profiler.prototype.addTile = function(tileId, profileId) {
-  this.tileProfileIds_[tileId] = profileId;
-  this.profileIds_[profileId] = null;
-  this.throttledRefresh_.start();
+  this.tileProfileIds_[tileId] || (this.tileProfileIds_[tileId] = profileId, this.profileIds_[profileId] = (this.profileIds_[profileId] || 0) + 1, this.throttledRefresh_.start());
 };
 ee.data.Profiler.prototype.removeTile = function(tileId) {
-  delete this.profileIds_[this.tileProfileIds_[tileId]];
-  delete this.tileProfileIds_[tileId];
-  this.throttledRefresh_.start();
+  var profileId = this.tileProfileIds_[tileId];
+  profileId && (delete this.tileProfileIds_[tileId], this.removeProfile_(profileId));
+};
+ee.data.Profiler.prototype.getShowInternal = function() {
+  return this.showInternal_;
+};
+ee.data.Profiler.prototype.setShowInternal = function(value) {
+  this.showInternal_ = Boolean(value);
+  this.throttledRefresh_.fire();
 };
 ee.data.Profiler.prototype.setParentEventTarget = function(parent) {
   throw Error("not applicable");

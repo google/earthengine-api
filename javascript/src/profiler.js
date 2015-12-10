@@ -53,8 +53,10 @@ ee.data.Profiler = function(format) {
   this.lastRefreshToken_ = null;
 
   /**
-   * All profile IDs contributing to the current combined profile.
-   * @private {!Object<null>}
+   * All profile IDs contributing to the current combined profile. Keys are IDs,
+   * values are reference counts for tile profiles or Infinity for other
+   * profiles (which are never removed).
+   * @private {!Object<number>}
    */
   this.profileIds_ = Object.create(null);
 
@@ -65,6 +67,14 @@ ee.data.Profiler = function(format) {
    * @private {!Object<string>}
    */
   this.tileProfileIds_ = Object.create(null);
+
+  /**
+   * Whether to show implementation details in the retrieved profiles.
+   * This option requires additional privileges and will cause errors if set
+   * to true by a normal user.
+   * @private {boolean}
+   */
+  this.showInternal_ = false;
 
   /**
    * Helper to ensure we don't make too many profile requests.
@@ -143,10 +153,19 @@ ee.data.Profiler.prototype.getStatusText = function() {
   } else if (this.lastRefreshToken_) {
     return 'Loading...';
   } else {
-    var profiles = goog.object.getCount(this.profileIds_);
-    var tileProfiles = goog.object.getCount(this.tileProfileIds_);
-    return 'Viewing ' + profiles + ' profiles, ' + (profiles - tileProfiles) +
-        ' from computed values and ' + tileProfiles + ' from map tiles.';
+    var profiles = 0;
+    var nonTileProfiles = 0;
+    var tileProfiles = 0;
+    goog.object.forEach(this.profileIds_, function(refCount) {
+      profiles++;
+      if (refCount === Infinity) {
+        nonTileProfiles++;
+      } else {
+        tileProfiles++;
+      }
+    }, this);
+    return 'Viewing ' + profiles + ' profiles, ' + nonTileProfiles +
+        ' from API calls and ' + tileProfiles + ' from map tiles.';
   }
 };
 
@@ -183,11 +202,34 @@ ee.data.Profiler.prototype.getProfileHook = function() {
 
   if (this.isEnabled_) {
     return goog.bind(function(profileId) {
-      profileIds[profileId] = null;
+      // This profile is never removed, so it gets a reference count of
+      // Infinity. 1 would be equally good, but this allows us to distinguish
+      // which kind of profile it is later.
+      profileIds[profileId] = Infinity;
       this.throttledRefresh_.start();
     }, this);
   } else {
     return null;
+  }
+};
+
+
+/**
+ * Decrement reference count for the given profile ID and update the combined
+ * profile if it should change.
+ *
+ * @param {string} profileId
+ * @private
+ */
+ee.data.Profiler.prototype.removeProfile_ = function(profileId) {
+  var count = this.profileIds_[profileId];
+  if (count > 1) {
+    // Reference count will be decremented but not to zero.
+    this.profileIds_[profileId]--;
+  } else if (count !== undefined) {
+    // Reference count would be decremented to zero (or is bogus).
+    delete this.profileIds_[profileId];
+    this.throttledRefresh_.start();
   }
 };
 
@@ -217,7 +259,9 @@ ee.data.Profiler.prototype.refresh_ = function() {
     // Shortcut: no input, so no output.
     handleResponse(ee.data.Profiler.getEmptyProfile_(this.format_), undefined);
   } else {
-    var profileValue = ee.ApiFunction._apply('Profile.getProfiles', {
+    var getProfilesFn = this.showInternal_ ?
+        'Profile.getProfilesInternal' : 'Profile.getProfiles';
+    var profileValue = ee.ApiFunction._apply(getProfilesFn, {
       'ids': ids,
       'format': this.format_
     });
@@ -231,14 +275,23 @@ ee.data.Profiler.prototype.refresh_ = function() {
  * Adds the profile for a map tile. The tileId will be remembered to allow
  * removal based on the tileId rather than the profileId.
  *
+ * Multiple tile IDs with the same profile ID may be used and they will count
+ * once until all are removed. (This occurs when the map is zoomed out to show
+ * more than 360° of longitude.) Multiple identical tile IDs are not expected
+ * and will be ignored.
+ *
  * Interface for MapLayerOverlay. Not for general use.
  * @param {string} tileId
  * @param {string} profileId
  * @package
  */
 ee.data.Profiler.prototype.addTile = function(tileId, profileId) {
+  if (this.tileProfileIds_[tileId]) {
+    // (Shouldn't happen, but we don't want to throw and break the map.)
+    return;
+  }
   this.tileProfileIds_[tileId] = profileId;
-  this.profileIds_[profileId] = null;
+  this.profileIds_[profileId] = (this.profileIds_[profileId] || 0) + 1;
   this.throttledRefresh_.start();
 };
 
@@ -251,9 +304,35 @@ ee.data.Profiler.prototype.addTile = function(tileId, profileId) {
  * @package
  */
 ee.data.Profiler.prototype.removeTile = function(tileId) {
-  delete this.profileIds_[this.tileProfileIds_[tileId]];
+  var profileId = this.tileProfileIds_[tileId];
+  if (!profileId) {
+    // This can occur when profiling was not enabled before (or if a tileId is
+    // duplicated, which should not occur).
+    return;
+  }
   delete this.tileProfileIds_[tileId];
-  this.throttledRefresh_.start();
+  this.removeProfile_(profileId);
+};
+
+
+/**
+ * Returns whether implementation details are shown in the retrieved profiles.
+ * @return {boolean}
+ */
+ee.data.Profiler.prototype.getShowInternal = function() {
+  return this.showInternal_;
+};
+
+
+/**
+ * Sets whether to show implementation details in the retrieved profiles.
+ * This option requires additional privileges and will cause errors if set
+ * to true by a normal user.
+ * @param {boolean} value
+ */
+ee.data.Profiler.prototype.setShowInternal = function(value) {
+  this.showInternal_ = Boolean(value);
+  this.throttledRefresh_.fire();
 };
 
 
