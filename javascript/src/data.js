@@ -1067,6 +1067,27 @@ ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
 goog.exportSymbol('ee.data.setAssetAcl', ee.data.setAssetAcl);
 
 
+/**
+ * Sets metadata properties of the asset with the given ID.
+ * To delete a property, set its value to null.
+ * The authenticated user must be a writer or owner of the asset.
+ *
+ * @param {string} assetId The ID of the asset to set the ACL on.
+ * @param {!Object} properties The keys and values of the properties to update.
+ * @param {function(Object, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ *     The callback is passed an empty object.
+ */
+ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
+  var request = {
+    'id': assetId,
+    'properties': goog.json.serialize(properties)
+  };
+  ee.data.send_('/setproperties', ee.data.makeRequest_(request), opt_callback);
+};
+goog.exportSymbol('ee.data.setAssetProperties', ee.data.setAssetProperties);
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //                               Types and enums.                             //
 ////////////////////////////////////////////////////////////////////////////////
@@ -1579,7 +1600,7 @@ ee.data.ReductionPolicy = {
  * An object describing properties of a single raster band.
  *
  * @typedef {{
- *   'name': string
+ *   'id': string
  * }}
  */
 ee.data.Band;

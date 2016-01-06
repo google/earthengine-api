@@ -1078,6 +1078,14 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
 ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
 };
 /**
+ * @param {string} assetId
+ * @param {Object} properties
+ * @param {function ((Object|null), string=): ?=} opt_callback
+ * @return {undefined}
+ */
+ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
+};
+/**
  * @param {string} clientId
  * @param {string} tokenType
  * @param {string} accessToken

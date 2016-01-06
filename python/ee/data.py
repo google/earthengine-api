@@ -523,7 +523,7 @@ def startIngestion(taskId, params):
             Where path values correspond to source files' Google Cloud Storage
             object names, e.g. 'gs://bucketname/filename.tif'
           bands (array) An optional list of band names formatted like:
-            [{'name': 'R'}, {'name': 'G'}, {'name': 'B'}]
+            [{'id': 'R'}, {'id': 'G'}, {'id': 'B'}]
           extensions (array) An optional list of file extensions formatted like:
             ['tif', 'prj']. Useful if the file names in GCS lack extensions.
 
@@ -581,6 +581,19 @@ def setAssetAcl(assetId, aclUpdate):
         value returned by getAssetAcl but without "owners".
   """
   send_('/setacl', {'id': assetId, 'value': aclUpdate})
+
+
+def setAssetProperties(assetId, properties):
+  """Sets metadata properties of the asset with the given ID.
+
+  To delete a property, set its value to null.
+  The authenticated user must be a writer or owner of the asset.
+
+  Args:
+    assetId: The ID of the asset to set the ACL on.
+    properties: A dictionary of keys and values for the properties to update.
+  """
+  send_('/setproperties', {'id': assetId, 'properties': json.dumps(properties)})
 
 
 def createAssetHome(requestedId):
