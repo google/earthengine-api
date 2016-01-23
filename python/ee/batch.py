@@ -158,14 +158,6 @@ class Export(object):
             export into. Defaults to the root of the drive.
           - driveFileNamePrefix: The Google Drive filename for the export.
             Defaults to the name of the task.
-          If exporting to Google Maps Engine:
-          - gmeProjectId: The name of a GME project for the export.
-            If present, attribution and mosaic name must also be given.
-          - gmeAttributionName: The Name of an attribution for the export.
-          - gmeMosaic: The name of the mosaic to export to.
-          - gmeTerrain: A boolean specifying whether the export to GME will
-            create an asset of type TERRAIN. The image must contain a
-            single band of type 'float'.
           If exporting to Google Cloud Storage:
           - outputBucket: The name of a Cloud Storage bucket for the export.
           - outputPrefix: Cloud Storage object name prefix for the export.
@@ -174,8 +166,7 @@ class Export(object):
       An unstarted Task that exports the image.
     """
     config = (config or {}).copy()
-    if ('driveFileNamePrefix' not in config and 'gmeProjectId' not in config and
-        'outputBucket' not in config):
+    if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
       config['driveFileNamePrefix'] = description
 
     if 'region' in config:
@@ -244,23 +235,21 @@ class Export(object):
       collection: The feature collection to be exported.
       description: Human-readable name of the task.
       config: A dictionary of configuration parameters for the task (strings):
-          If exporting to Google Drive (default):
-          - driveFolder: The name of a unique folder in your Drive account to
-            export into. Defaults to the root of the drive.
-          - driveFileNamePrefix: The Google Drive filename for the export.
-            Defaults to the name of the task.
-          If exporting to Google Cloud Storage:
-          - outputBucket: The name of a Cloud Storage bucket for the export.
-          - outputPrefix: Cloud Storage object name prefix for the export.
           - fileFormat: The output format: CSV (default), GeoJSON, KML, or KMZ.
+          If exporting to Google Drive (default):
+            - driveFolder: The name of a unique folder in your Drive account to
+              export into. Defaults to the root of the drive.
+            - driveFileNamePrefix: The Google Drive filename for the export.
+              Defaults to the name of the task.
+          If exporting to Google Cloud Storage:
+            - outputBucket: The name of a Cloud Storage bucket for the export.
+            - outputPrefix: Cloud Storage object name prefix for the export.
 
     Returns:
       An unstarted Task that exports the table.
     """
     config = (config or {}).copy()
-    if ('driveFileNamePrefix' not in config and
-        'gmeAssetName' not in config and
-        'outputBucket' not in config):
+    if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
       config['driveFileNamePrefix'] = description
     if 'fileFormat' not in config:
       config['fileFormat'] = 'CSV'

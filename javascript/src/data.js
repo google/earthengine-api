@@ -23,7 +23,6 @@ goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.FeatureVisualizationParameters');
 goog.provide('ee.data.FileSource');
 goog.provide('ee.data.FolderDescription');
-goog.provide('ee.data.GMEProject');
 goog.provide('ee.data.GeoJSONFeature');
 goog.provide('ee.data.GeoJSONGeometry');
 goog.provide('ee.data.ImageCollectionDescription');
@@ -885,20 +884,6 @@ goog.exportSymbol('ee.data.getAssetRoots', ee.data.getAssetRoots);
 
 
 /**
- * Returns the list of GME projects for the current user.
- *
- * @param {function(Array.<ee.data.GMEProject>, string=)=} opt_callback
- *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?Array.<ee.data.GMEProject>} Null if a callback isn't specified,
- *     otherwise an array containing one object for each GME project.
- */
-ee.data.getGMEProjects = function(opt_callback) {
-  return /** @type {?Array.<ee.data.GMEProject>} */ (
-      ee.data.send_('/gmeprojects', null, opt_callback, 'GET'));
-};
-
-
-/**
  * Attempts to create a home root folder (e.g. "users/joe") for the current
  * user. This results in an error if the user already has a home root folder or
  * the requested ID is unavailable.
@@ -994,6 +979,7 @@ ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
   var params = {'sourceId': sourceId, 'destinationId': destinationId};
   ee.data.send_('/rename', ee.data.makeRequest_(params), opt_callback);
 };
+goog.exportSymbol('ee.data.renameAsset', ee.data.renameAsset);
 
 
 /**
@@ -1009,6 +995,7 @@ ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
   var params = {'sourceId': sourceId, 'destinationId': destinationId};
   ee.data.send_('/copy', ee.data.makeRequest_(params), opt_callback);
 };
+goog.exportSymbol('ee.data.copyAsset', ee.data.copyAsset);
 
 
 /**
@@ -1023,6 +1010,7 @@ ee.data.deleteAsset = function(assetId, opt_callback) {
   var params = {'id': assetId};
   ee.data.send_('/delete', ee.data.makeRequest_(params), opt_callback);
 };
+goog.exportSymbol('ee.data.deleteAsset', ee.data.deleteAsset);
 
 
 /**
@@ -1174,18 +1162,6 @@ ee.data.FeatureCollectionDescription;
  * }}
  */
 ee.data.FeatureVisualizationParameters;
-
-
-/**
- * An object that depicts a GME Project that the user may export to with
- * attribution ids for each project.
- * @typedef {{
- *   id: string,
- *   name: string,
- *   attributions: Array.<Object>
- * }}
- */
-ee.data.GMEProject;
 
 
 /**
@@ -1414,10 +1390,6 @@ ee.data.AbstractTaskConfig;
  *   scale: (undefined|number),
  *   region: (undefined|string),
  *   maxPixels: (undefined|number),
- *   gmeProjectId: (undefined|string),
- *   gmeAttributionName: (undefined|string),
- *   gmeMosaic: (undefined|string),
- *   gmeTerrain: (undefined|boolean),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string)
  * }}
@@ -1437,10 +1409,7 @@ ee.data.ImageTaskConfig;
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   fileFormat: (undefined|string),
- *   sourceUrl: (undefined|string),
- *   gmeProjectId: (undefined|string),
- *   gmeAttributionName: (undefined|string),
- *   gmeAssetName: (undefined|string)
+ *   sourceUrl: (undefined|string)
  * }}
  */
 ee.data.TableTaskConfig;

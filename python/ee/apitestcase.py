@@ -1347,6 +1347,18 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'returns': 'Image'
     },
+    'Dictionary': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'description': '',
+                'name': 'input',
+                'optional': 'true',
+                'type': 'Object'
+            }
+        ],
+        'returns': 'Dictionary'
+    },
 }
 
 

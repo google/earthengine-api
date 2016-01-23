@@ -63,8 +63,6 @@ import json
 import os
 
 import config
-import config
-import ee
 import ee
 import jinja2
 import webapp2

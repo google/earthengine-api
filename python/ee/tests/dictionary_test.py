@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Test for the ee.number module."""
+"""Test for the ee.dictionary module."""
 
 
 
@@ -22,12 +22,14 @@ class DictionaryTest(apitestcase.ApiTestCase):
     computed = ee.Dictionary(f.get('properties'))
     self.assertTrue(isinstance(computed, ee.Dictionary))
 
-    try:
-      ee.Dictionary(1)
-    except ee.EEException as e:
-      self.assertTrue('Invalid argument' in str(e))
-    else:
-      self.fail('Expected an exception.')
+    # The 4 types of arguments we expect
+    cons = (ee.Dictionary(src),
+            ee.Dictionary(f.get('properties')),
+            ee.Dictionary(),
+            ee.Dictionary(('one', 1)))
+
+    for d in cons:
+      self.assertTrue(isinstance(d, ee.ComputedObject))
 
   def testInternals(self):
     """Test eq(), ne() and hash()."""

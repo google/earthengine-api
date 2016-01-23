@@ -1730,6 +1730,14 @@ goog.functions.nth = function(n) {
     return arguments[n];
   };
 };
+goog.functions.partialRight = function(fn, var_args) {
+  var rightArgs = Array.prototype.slice.call(arguments, 1);
+  return function() {
+    var newArgs = Array.prototype.slice.call(arguments);
+    newArgs.push.apply(newArgs, rightArgs);
+    return fn.apply(this, newArgs);
+  };
+};
 goog.functions.withReturnValue = function(f, retValue) {
   return goog.functions.sequence(f, goog.functions.constant(retValue));
 };
@@ -3240,6 +3248,9 @@ goog.dom.getViewportSize_ = function(win) {
 };
 goog.dom.getDocumentHeight = function() {
   return goog.dom.getDocumentHeight_(window);
+};
+goog.dom.getDocumentHeightForWindow = function(win) {
+  return goog.dom.getDocumentHeight_(win);
 };
 goog.dom.getDocumentHeight_ = function(win) {
   var doc = win.document, height = 0;
@@ -8274,9 +8285,6 @@ ee.data.getAssetRoots = function(opt_callback) {
   return ee.data.send_("/buckets", null, opt_callback, "GET");
 };
 goog.exportSymbol("ee.data.getAssetRoots", ee.data.getAssetRoots);
-ee.data.getGMEProjects = function(opt_callback) {
-  return ee.data.send_("/gmeprojects", null, opt_callback, "GET");
-};
 ee.data.createAssetHome = function(requestedId, opt_callback) {
   var request = ee.data.makeRequest_({id:requestedId});
   ee.data.send_("/createbucket", request, opt_callback);
@@ -8300,12 +8308,15 @@ ee.data.search = function(query, opt_callback) {
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
   ee.data.send_("/rename", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
 };
+goog.exportSymbol("ee.data.renameAsset", ee.data.renameAsset);
 ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
   ee.data.send_("/copy", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
 };
+goog.exportSymbol("ee.data.copyAsset", ee.data.copyAsset);
 ee.data.deleteAsset = function(assetId, opt_callback) {
   ee.data.send_("/delete", ee.data.makeRequest_({id:assetId}), opt_callback);
 };
+goog.exportSymbol("ee.data.deleteAsset", ee.data.deleteAsset);
 ee.data.getAssetAcl = function(assetId, opt_callback) {
   return ee.data.send_("/getacl", ee.data.makeRequest_({id:assetId}), opt_callback, "GET");
 };
@@ -9819,15 +9830,7 @@ ee.Dictionary = function(dict) {
     return dict;
   }
   ee.Dictionary.initialize();
-  if (ee.Types.isRegularObject(dict)) {
-    ee.ComputedObject.call(this, null, null), this.dict_ = dict;
-  } else {
-    if (dict instanceof ee.ComputedObject) {
-      ee.ComputedObject.call(this, dict.func, dict.args, dict.varName), this.dict_ = null;
-    } else {
-      throw Error("Invalid argument specified for ee.Dictionary(): " + dict);
-    }
-  }
+  ee.Types.isRegularObject(dict) ? (ee.ComputedObject.call(this, null, null), this.dict_ = dict) : (dict instanceof ee.ComputedObject && dict.func && "Dictionary" == dict.func.getSignature().returns ? ee.ComputedObject.call(this, dict.func, dict.args, dict.varName) : ee.ComputedObject.call(this, new ee.ApiFunction("Dictionary"), {input:dict}, null), this.dict_ = null);
 };
 goog.inherits(ee.Dictionary, ee.ComputedObject);
 ee.Dictionary.initialized_ = !1;

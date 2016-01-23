@@ -5,7 +5,6 @@
 
 import apifunction
 import computedobject
-import ee_exception
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -16,27 +15,31 @@ class Dictionary(computedobject.ComputedObject):
 
   _initialized = False
 
-  def __init__(self, arg):
-    """Construct a dictionary wrapper.
-
-    This constuctor accepts the following args:
-      1) A bare dictionary.
-      2) A ComputedObject returning a dictionary.
+  def __init__(self, arg=None):
+    """Construct a dictionary.
 
     Args:
-      arg: The dictionary to wrap.
+      arg: This constructor accepts the following args:
+        1) Another dictionary.
+        2) A list of key/value pairs.
+        3) A null or no argument (producing an empty dictionary)
     """
     self.initialize()
 
     if isinstance(arg, dict):
       super(Dictionary, self).__init__(None, None)
       self._dictionary = arg
-    elif isinstance(arg, computedobject.ComputedObject):
-      super(Dictionary, self).__init__(arg.func, arg.args, arg.varName)
-      self._dictionary = None
     else:
-      raise ee_exception.EEException(
-          'Invalid argument specified for ee.Dictionary(): %s' % arg)
+      self._dictionary = None
+      if (isinstance(arg, computedobject.ComputedObject)
+          and arg.func
+          and arg.func.getSignature()['returns'] == 'Dictionary'):
+        # If it's a call that's already returning a Dictionary, just cast.
+        super(Dictionary, self).__init__(arg.func, arg.args, arg.varName)
+      else:
+        # Delegate everything else to the server-side constuctor.
+        super(Dictionary, self).__init__(
+            apifunction.ApiFunction('Dictionary'), {'input': arg})
 
   @classmethod
   def initialize(cls):

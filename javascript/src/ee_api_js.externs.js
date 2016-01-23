@@ -157,7 +157,7 @@ ee.Deserializer.decode = function(json) {
 ee.Deserializer.fromJSON = function(json) {
 };
 /**
- * @param {(Object|null)} dict
+ * @param {(Object|null)=} dict
  * @return {?}
  * @extends {ee.ComputedObject}
  * @constructor
@@ -907,6 +907,14 @@ ee.data.cancelTask = function(taskId, opt_callback) {
 ee.data.clearAuthToken = function() {
 };
 /**
+ * @param {string} sourceId
+ * @param {string} destinationId
+ * @param {function ((Object|null), string=): ?=} opt_callback
+ * @return {undefined}
+ */
+ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
+};
+/**
  * @param {(Object|string)} value
  * @param {string=} opt_path
  * @param {boolean=} opt_force
@@ -929,6 +937,13 @@ ee.data.createAssetHome = function(requestedId, opt_callback) {
  * @return {(Object|null)}
  */
 ee.data.createFolder = function(path, opt_force, opt_callback) {
+};
+/**
+ * @param {string} assetId
+ * @param {function ((Object|null), string=): ?=} opt_callback
+ * @return {undefined}
+ */
+ee.data.deleteAsset = function(assetId, opt_callback) {
 };
 /**
  * @return {(null|string)}
@@ -1068,6 +1083,14 @@ ee.data.makeThumbUrl = function(id) {
  * @return {(Array<string>|null)}
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
+};
+/**
+ * @param {string} sourceId
+ * @param {string} destinationId
+ * @param {function ((Object|null), string=): ?=} opt_callback
+ * @return {undefined}
+ */
+ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
 };
 /**
  * @param {string} assetId

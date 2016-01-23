@@ -13,7 +13,11 @@ goog.require('ee.Types');
 /**
  * Constructs a new Dictionary.
  *
- * @param {Object|ee.ComputedObject} dict A dictionary or a computed object.
+ * @param {Object|ee.ComputedObject=} dict An object to convert to a dictionary.
+ *    This constructor accepts the following types:
+ *      1) Another dictionary.
+ *      2) A list of key/value pairs.
+ *      3) A null or no argument (producing an empty dictionary)
  *
  * @constructor
  * @extends {ee.ComputedObject}
@@ -41,11 +45,16 @@ ee.Dictionary = function(dict) {
     // Cast to a dictionary.
     goog.base(this, null, null);
     this.dict_ = /** @type {Object} */ (dict);
-  } else if (dict instanceof ee.ComputedObject) {
-    goog.base(this, dict.func, dict.args, dict.varName);
-    this.dict_ = null;
   } else {
-    throw Error('Invalid argument specified for ee.Dictionary(): ' + dict);
+    if (dict instanceof ee.ComputedObject && dict.func &&
+        dict.func.getSignature()['returns'] == 'Dictionary') {
+      // If it's a call that's already returning a Dictionary, just cast.
+      goog.base(this, dict.func, dict.args, dict.varName);
+    } else {
+      // Delegate everything else to the server-side constructor.
+      goog.base(this, new ee.ApiFunction('Dictionary'), {'input': dict}, null);
+    }
+    this.dict_ = null;
   }
 };
 goog.inherits(ee.Dictionary, ee.ComputedObject);
