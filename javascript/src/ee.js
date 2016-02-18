@@ -171,7 +171,7 @@ ee.ready_ = ee.InitState.NOT_READY;
  * The list of callbacks to call on successful initialization. Added by
  * initialize() and cleared by initializationSuccess_() and
  * initializationFailure_().
- * @type {Array.<function()>}
+ * @type {Array.<function()?>}
  * @private
  */
 ee.successCallbacks_ = [];

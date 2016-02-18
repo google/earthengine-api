@@ -38,6 +38,7 @@ goog.provide('ee.data.ProcessingResponse');
 goog.provide('ee.data.RawMapId');
 goog.provide('ee.data.ReductionPolicy');
 goog.provide('ee.data.ShortAssetDescription');
+goog.provide('ee.data.SystemTimeProperty');
 goog.provide('ee.data.TableTaskConfig');
 goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
@@ -49,6 +50,7 @@ goog.provide('ee.data.VideoTaskConfig');
 
 goog.require('goog.Uri');
 goog.require('goog.array');
+goog.require('goog.async.Throttle');
 goog.require('goog.functions');
 goog.require('goog.json');
 goog.require('goog.net.XhrIo');
@@ -1091,6 +1093,13 @@ ee.data.AssetType = {
 };
 
 
+/** @enum {string} The names of the EE system time asset properties. */
+ee.data.SystemTimeProperty = {
+  'START': 'system:time_start',
+  'END': 'system:time_end'
+};
+
+
 /**
  * An entry in a list returned by the /list servlet.
  * @typedef {{
@@ -1391,7 +1400,9 @@ ee.data.AbstractTaskConfig;
  *   region: (undefined|string),
  *   maxPixels: (undefined|number),
  *   driveFolder: (undefined|string),
- *   driveFileNamePrefix: (undefined|string)
+ *   driveFileNamePrefix: (undefined|string),
+ *   outputBucket: (undefined|string),
+ *   outputPrefix: (undefined|string)
  * }}
  */
 ee.data.ImageTaskConfig;
@@ -1406,10 +1417,12 @@ ee.data.ImageTaskConfig;
  *   type: string,
  *   json: string,
  *   description: (undefined|string),
+ *   fileFormat: (undefined|string),
+ *   sourceUrl: (undefined|string),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
- *   fileFormat: (undefined|string),
- *   sourceUrl: (undefined|string)
+ *   outputBucket: (undefined|string),
+ *   outputPrefix: (undefined|string)
  * }}
  */
 ee.data.TableTaskConfig;
@@ -1425,14 +1438,16 @@ ee.data.TableTaskConfig;
  *   json: string,
  *   sourceUrl: (undefined|string),
  *   description: (undefined|string),
- *   driveFolder: (undefined|string),
- *   driveFileNamePrefix: (undefined|string),
  *   framesPerSecond: (undefined|number),
  *   crs: (undefined|string),
  *   crs_transform: (undefined|string),
  *   dimensions: (undefined|number|string),
  *   region: (undefined|string),
- *   scale: (undefined|number)
+ *   scale: (undefined|number),
+ *   driveFolder: (undefined|string),
+ *   driveFileNamePrefix: (undefined|string),
+ *   outputBucket: (undefined|string),
+ *   outputPrefix: (undefined|string)
  * }}
  */
 ee.data.VideoTaskConfig;
@@ -1448,13 +1463,13 @@ ee.data.VideoTaskConfig;
  *   json: string,
  *   sourceUrl: (undefined|string),
  *   description: (undefined|string),
- *   outputBucket: (undefined|string),
- *   outputPrefix: (undefined|string),
  *   minZoom: (undefined|number),
  *   maxZoom: (undefined|number),
  *   region: (undefined|string),
  *   scale: (undefined|number),
- *   fileFormat: (undefined|string)
+ *   fileFormat: (undefined|string),
+ *   outputBucket: (undefined|string),
+ *   outputPrefix: (undefined|string)
  * }}
  */
 ee.data.TilesTaskConfig;
@@ -1535,12 +1550,14 @@ ee.data.AssetDescription;
 /**
  * A request to import an asset. "id" is the destination asset ID
  * (e.g. "users/yourname/assetname"). "tilesets" is the list of source
- * files for the asset, clustered by tile.
+ * files for the asset, clustered by tile. "properties" is a mapping from
+ * metadata property names to values.
  *
  * @typedef {{
  *   'id': string,
  *   'tilesets': !Array<ee.data.Tileset>,
  *   'bands': (undefined|!Array<ee.data.Band>),
+ *   'properties: (undefined|!Object),
  *   'reductionPolicy': (undefined|ee.data.ReductionPolicy),
  *   'missingData': (undefined|ee.data.MissingData)
  * }}
@@ -1656,7 +1673,8 @@ ee.data.AuthResponse;
  * @param {?goog.Uri.QueryData} params The call parameters.
  * @param {function(?, string=)=} opt_callback An optional callback.
  *     If not specified, the call is made synchronously and the response
- *     is returned.
+ *     is returned. If specified, the call will be made asynchronously and
+ *     may be queued to avoid exceeding server queries-per-seconds quota.
  * @param {string=} opt_method The HTTPRequest method (GET or POST), default
  *     is POST.
  *
@@ -1763,21 +1781,22 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   var url = ee.data.apiBaseUrl_ + path;
   if (opt_callback) {
     // Send an asynchronous request.
-    goog.net.XhrIo.send(
-        url,
-        function(e) {
-          var xhrIo = e.target;
+    ee.data.requestQueue_.push({
+      url: url,
+      callback: function(e) {
+        var xhrIo = e.target;
 
-          return handleResponse(
-              xhrIo.getStatus(),
-              goog.bind(xhrIo.getResponseHeader, xhrIo),
-              xhrIo.getResponseText(),
-              opt_callback);
-        },
-        method,
-        requestData,
-        headers,
-        ee.data.deadlineMs_);
+        return handleResponse(
+            xhrIo.getStatus(),
+            goog.bind(xhrIo.getResponseHeader, xhrIo),
+            xhrIo.getResponseText(),
+            opt_callback);
+      },
+      method: method,
+      content: requestData,
+      headers: headers
+    });
+    ee.data.RequestThrottle_.fire();
     return null;
   } else {
     // Send a synchronous request.
@@ -1904,12 +1923,19 @@ ee.data.makeRequest_ = function(params) {
 ee.data.setupMockSend = function(opt_calls) {
   var calls = opt_calls ? goog.object.clone(opt_calls) : {};
 
+  // We don't use ee.data.apiBaseUrl_ directly because it may be cleared by
+  // ee.reset() in a test tearDown() before all queued asynchronous requests
+  // finish. Further, we cannot spanshot it here because tests may call
+  // setupMockSend() before ee.initialize(). So we snapshot it when the first
+  // request is made below.
+  var apiBaseUrl;
+
   // If the mock is set up with a string for this URL, return that.
   // If it's a function, call the function and use its return value.
   // If it's an object it has fields specifying more details.
   // If there's nothing set for this url, throw.
   function getResponse(url, method, data) {
-    url = url.replace(ee.data.apiBaseUrl_, '');
+    url = url.replace(apiBaseUrl, '');
     var response;
     if (url in calls) {
       response = calls[url];
@@ -1937,6 +1963,7 @@ ee.data.setupMockSend = function(opt_calls) {
 
   // Mock XhrIo.send for async calls.
   goog.net.XhrIo.send = function(url, callback, method, data) {
+    apiBaseUrl = apiBaseUrl || ee.data.apiBaseUrl_;
     var responseData = getResponse(url, method, data);
     // An anonymous class to simulate an event.  Closure doesn't like this.
     /** @constructor */
@@ -1966,6 +1993,7 @@ ee.data.setupMockSend = function(opt_calls) {
   var fakeXmlHttp = function() {};
   var method = null;
   fakeXmlHttp.prototype.open = function(method, urlIn) {
+    apiBaseUrl = apiBaseUrl || ee.data.apiBaseUrl_;
     this.url = urlIn;
     this.method = method;
   };
@@ -1998,8 +2026,51 @@ ee.data.isAuthTokenRefreshingEnabled_ = function() {
 };
 
 ////////////////////////////////////////////////////////////////////////////////
-//                             Private variables.                             //
+//                     Private variables and types.                           //
 ////////////////////////////////////////////////////////////////////////////////
+
+
+/**
+ * A data model for a network request.
+ * @typedef {{
+ *   url: string,
+ *   callback: !Function,
+ *   method: string,
+ *   content: ?string,
+ *   headers: !Object
+ * }}
+ * @private
+ */
+ee.data.NetworkRequest_;
+
+
+/**
+ * @private {!Array<ee.data.NetworkRequest_>} A list of queued network requests.
+ */
+ee.data.requestQueue_ = [];
+
+
+/**
+ * @private {number} The network request throttle interval in milliseconds. The
+ *     server permits ~3 QPS https://developers.google.com/earth-engine/usage.
+ */
+ee.data.REQUEST_THROTTLE_INTERVAL_MS_ = 350;
+
+
+/**
+ * @private {!goog.async.Throttle} A throttle for sending network requests.
+ */
+ee.data.RequestThrottle_ = new goog.async.Throttle(function() {
+  var request = ee.data.requestQueue_.shift();
+  if (request) {
+    goog.net.XhrIo.send(
+        request.url, request.callback, request.method, request.content,
+        request.headers, ee.data.deadlineMs_);
+  }
+  if (!goog.array.isEmpty(ee.data.requestQueue_)) {
+    ee.data.RequestThrottle_.fire();
+  }
+}, ee.data.REQUEST_THROTTLE_INTERVAL_MS_);
 
 
 /**

@@ -13,8 +13,8 @@ goog.require('ee.Types');
 /**
  * Constructs a new Dictionary.
  *
- * @param {Object|ee.ComputedObject=} dict An object to convert to a dictionary.
- *    This constructor accepts the following types:
+ * @param {Object|ee.ComputedObject=} opt_dict An object to convert to
+ *    a dictionary. This constructor accepts the following types:
  *      1) Another dictionary.
  *      2) A list of key/value pairs.
  *      3) A null or no argument (producing an empty dictionary)
@@ -23,12 +23,12 @@ goog.require('ee.Types');
  * @extends {ee.ComputedObject}
  * @export
  */
-ee.Dictionary = function(dict) {
+ee.Dictionary = function(opt_dict) {
   // Constructor safety.
   if (!(this instanceof ee.Dictionary)) {
     return ee.ComputedObject.construct(ee.Dictionary, arguments);
-  } else if (dict instanceof ee.Dictionary) {
-    return dict;
+  } else if (opt_dict instanceof ee.Dictionary) {
+    return opt_dict;
   }
 
   ee.Dictionary.initialize();
@@ -41,18 +41,19 @@ ee.Dictionary = function(dict) {
    */
   this.dict_;
 
-  if (ee.Types.isRegularObject(dict)) {
+  if (ee.Types.isRegularObject(opt_dict)) {
     // Cast to a dictionary.
     goog.base(this, null, null);
-    this.dict_ = /** @type {Object} */ (dict);
+    this.dict_ = /** @type {Object} */ (opt_dict);
   } else {
-    if (dict instanceof ee.ComputedObject && dict.func &&
-        dict.func.getSignature()['returns'] == 'Dictionary') {
+    if (opt_dict instanceof ee.ComputedObject && opt_dict.func &&
+        opt_dict.func.getSignature()['returns'] == 'Dictionary') {
       // If it's a call that's already returning a Dictionary, just cast.
-      goog.base(this, dict.func, dict.args, dict.varName);
+      goog.base(this, opt_dict.func, opt_dict.args, opt_dict.varName);
     } else {
       // Delegate everything else to the server-side constructor.
-      goog.base(this, new ee.ApiFunction('Dictionary'), {'input': dict}, null);
+      goog.base(
+          this, new ee.ApiFunction('Dictionary'), {'input': opt_dict}, null);
     }
     this.dict_ = null;
   }

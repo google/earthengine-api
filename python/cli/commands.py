@@ -95,6 +95,8 @@ class ConfigCommand(object):
       self.set_config(args, config)
 
 
+
+
 class ExportCommand(object):
   """Exports an asset to Google Drive or Cloud Storage."""
 
@@ -482,6 +484,22 @@ class ListCommand(object):
 
 
 
+class RenameCommand(object):
+  """Renames an Earth Engine asset."""
+
+  name = 'mv'
+
+  def __init__(self, parser):
+    parser.add_argument(
+        'source', help='Full path of the source asset.')
+    parser.add_argument(
+        'destination', help='Full path of the destination asset.')
+
+  def run(self, args, config):
+    config.ee_init()
+    ee.data.renameAsset(args.source, args.destination)
+
+
 class RmCommand(object):
   """Deletes the specified assets."""
 
@@ -489,7 +507,7 @@ class RmCommand(object):
 
   def __init__(self, parser):
     parser.add_argument(
-        'asset', nargs='+', help='Full path name of an asset to delete.')
+        'asset', nargs='+', help='Full path of an asset to delete.')
     parser.add_argument(
         '--recursive', '-r', action='store_true',
         help='Recursively delete child assets.')

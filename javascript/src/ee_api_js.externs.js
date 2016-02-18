@@ -69,7 +69,7 @@ ee.Collection.prototype.filterDate = function(start, opt_end) {
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
 };
 /**
- * @param {function ((Object|null), (Object|null)): (Object|null)} algorithm
+ * @param {!function ((Object|null), (Object|null)): (Object|null)} algorithm
  * @param {*=} opt_first
  * @return {(ee.ComputedObject|null)}
  */
@@ -84,7 +84,7 @@ ee.Collection.prototype.iterate = function(algorithm, opt_first) {
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
 };
 /**
- * @param {function ((Object|null)): (Object|null)} algorithm
+ * @param {!function ((Object|null)): (Object|null)} algorithm
  * @param {boolean=} opt_dropNulls
  * @return {(ee.Collection|null)}
  */
@@ -106,7 +106,7 @@ ee.ComputedObject;
 ee.ComputedObject.prototype.aside = function(func, var_args) {
 };
 /**
- * @param {function (?, string=): ?=} opt_callback
+ * @param {!function (?, string=): ?=} opt_callback
  * @return {*}
  */
 ee.ComputedObject.prototype.getInfo = function(opt_callback) {
@@ -157,12 +157,12 @@ ee.Deserializer.decode = function(json) {
 ee.Deserializer.fromJSON = function(json) {
 };
 /**
- * @param {(Object|null)=} dict
+ * @param {(Object|null)=} opt_dict
  * @return {?}
  * @extends {ee.ComputedObject}
  * @constructor
  */
-ee.Dictionary = function(dict) {
+ee.Dictionary = function(opt_dict) {
 };
 /**
  * @param {(ee.Function|null)} func
@@ -241,14 +241,14 @@ ee.Feature.Polygon = function(coordinates) {
 ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
 };
 /**
- * @param {function ({geometry: (ee.data.GeoJSONGeometry|null), id: (string|undefined), properties: (Object|null|undefined), type: string}, string=): ?=} opt_callback
+ * @param {!function ({geometry: (ee.data.GeoJSONGeometry|null), id: (string|undefined), properties: (Object|null|undefined), type: string}, string=): ?=} opt_callback
  * @return {{geometry: (ee.data.GeoJSONGeometry|null), id: (string|undefined), properties: (Object|null|undefined), type: string}}
  */
 ee.Feature.prototype.getInfo = function(opt_callback) {
 };
 /**
  * @param {(Object|null)=} opt_visParams
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {(undefined|{image: (ee.Image|null), mapid: string, token: string})}
  */
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
@@ -266,20 +266,20 @@ ee.FeatureCollection = function(args, opt_column) {
  * @param {string=} opt_format
  * @param {(Array<string>|string)=} opt_selectors
  * @param {string=} opt_filename
- * @param {function ((null|string), string=): ?=} opt_callback
+ * @param {!function ((null|string), string=): ?=} opt_callback
  * @return {(string|undefined)}
  */
 ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selectors, opt_filename, opt_callback) {
 };
 /**
- * @param {function ({features: (Array<ee.data.GeoJSONFeature>|null), type: string}, string=): ?=} opt_callback
+ * @param {!function ({features: (Array<ee.data.GeoJSONFeature>|null), type: string}, string=): ?=} opt_callback
  * @return {{features: (Array<ee.data.GeoJSONFeature>|null), type: string}}
  */
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 };
 /**
  * @param {(Object|null)=} opt_visParams
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {(undefined|{image: (ee.Image|null), mapid: string, token: string})}
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
@@ -617,7 +617,7 @@ ee.Geometry.MultiPoint = function(coords, opt_proj) {
 ee.Geometry.MultiPolygon = function(coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
 };
 /**
- * @param {Array<number>} coords
+ * @param {!Array<number>} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @return {?}
  * @extends {ee.Geometry}
@@ -687,33 +687,33 @@ ee.Image.prototype.clip = function(geometry) {
 /**
  * @param {string} expression
  * @param {(Object<?,(ee.Image|null)>|null)=} opt_map
- * @return {ee.Image}
+ * @return {!ee.Image}
  */
 ee.Image.prototype.expression = function(expression, opt_map) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function ((null|string), string=): ?=} opt_callback
+ * @param {!function ((null|string), string=): ?=} opt_callback
  * @return {(string|undefined)}
  */
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 };
 /**
- * @param {function ({bands: (Array<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
+ * @param {!function ({bands: (Array<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
  * @return {{bands: (Array<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}}
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
 };
 /**
  * @param {{bands: (Array<string>|null|string|undefined), bias: (Array<number>|null|number|undefined), format: (string|undefined), gain: (Array<number>|null|number|undefined), gamma: (Array<number>|null|number|undefined), image: (ee.Image|null|undefined), max: (Array<number>|null|number|undefined), min: (Array<number>|null|number|undefined), opacity: (number|undefined), palette: (Array<string>|null|string|undefined)}=} opt_visParams
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {(undefined|{image: (ee.Image|null), mapid: string, token: string})}
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function (string, string=): ?=} opt_callback
+ * @param {!function (string, string=): ?=} opt_callback
  * @return {(string|undefined)}
  */
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
@@ -747,14 +747,14 @@ ee.Image.rgb = function(r, g, b) {
 ee.ImageCollection = function(args) {
 };
 /**
- * @param {function ({bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
+ * @param {!function ({bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
  * @return {{bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}}
  */
 ee.ImageCollection.prototype.getInfo = function(opt_callback) {
 };
 /**
  * @param {(Object|null)=} opt_visParams
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {(undefined|{image: (ee.Image|null), mapid: string, token: string})}
  */
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
@@ -793,8 +793,8 @@ ee.List = function(list) {
 ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
 };
 /**
- * @param {function ((ee.TileEvent|null)): ?} callback
- * @return {Object}
+ * @param {!function ((ee.TileEvent|null)): ?} callback
+ * @return {!Object}
  */
 ee.MapLayerOverlay.prototype.addTileCallback = function(callback) {
 };
@@ -813,7 +813,7 @@ ee.MapLayerOverlay.prototype.getTile = function(coord, zoom, ownerDocument) {
 ee.MapLayerOverlay.prototype.releaseTile = function(tileDiv) {
 };
 /**
- * @param {Object} callbackId
+ * @param {!Object} callbackId
  * @return {undefined}
  */
 ee.MapLayerOverlay.prototype.removeTileCallback = function(callbackId) {
@@ -879,24 +879,24 @@ ee.call = function(func, var_args) {
 ee.data;
 /**
  * @param {(null|string)} clientId
- * @param {function (): ?} success
- * @param {function (string): ?=} opt_error
- * @param {Array<string>=} opt_extraScopes
- * @param {function (): ?=} opt_onImmediateFailed
+ * @param {!function (): ?} success
+ * @param {!function (string): ?=} opt_error
+ * @param {!Array<string>=} opt_extraScopes
+ * @param {!function (): ?=} opt_onImmediateFailed
  * @return {undefined}
  */
 ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
 };
 /**
- * @param {function (): ?=} opt_success
- * @param {function (string): ?=} opt_error
+ * @param {!function (): ?=} opt_success
+ * @param {!function (string): ?=} opt_error
  * @return {undefined}
  */
 ee.data.authenticateViaPopup = function(opt_success, opt_error) {
 };
 /**
  * @param {string} taskId
- * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
+ * @param {!function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(Array<ee.data.TaskStatus>|null)}
  */
 ee.data.cancelTask = function(taskId, opt_callback) {
@@ -909,7 +909,7 @@ ee.data.clearAuthToken = function() {
 /**
  * @param {string} sourceId
  * @param {string} destinationId
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {undefined}
  */
 ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
@@ -918,14 +918,14 @@ ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
  * @param {(Object|string)} value
  * @param {string=} opt_path
  * @param {boolean=} opt_force
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {(Object|null)}
  */
 ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
 };
 /**
  * @param {string} requestedId
- * @param {function (Array<ee.data.FolderDescription>, string=): ?=} opt_callback
+ * @param {!function (Array<ee.data.FolderDescription>, string=): ?=} opt_callback
  * @return {undefined}
  */
 ee.data.createAssetHome = function(requestedId, opt_callback) {
@@ -933,14 +933,14 @@ ee.data.createAssetHome = function(requestedId, opt_callback) {
 /**
  * @param {string} path
  * @param {boolean=} opt_force
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {(Object|null)}
  */
 ee.data.createFolder = function(path, opt_force, opt_callback) {
 };
 /**
  * @param {string} assetId
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {undefined}
  */
 ee.data.deleteAsset = function(assetId, opt_callback) {
@@ -952,13 +952,13 @@ ee.data.getApiBaseUrl = function() {
 };
 /**
  * @param {string} assetId
- * @param {function ({all_users_can_read: (boolean|undefined), owners: Array<string>, readers: Array<string>, writers: Array<string>}, string=): ?=} opt_callback
+ * @param {!function ({all_users_can_read: (boolean|undefined), owners: Array<string>, readers: Array<string>, writers: Array<string>}, string=): ?=} opt_callback
  * @return {(ee.data.AssetAcl|null)}
  */
 ee.data.getAssetAcl = function(assetId, opt_callback) {
 };
 /**
- * @param {function (Array<ee.data.FolderDescription>, string=): ?=} opt_callback
+ * @param {!function (Array<ee.data.FolderDescription>, string=): ?=} opt_callback
  * @return {(Array<ee.data.FolderDescription>|null)}
  */
 ee.data.getAssetRoots = function(opt_callback) {
@@ -969,7 +969,7 @@ ee.data.getAssetRoots = function(opt_callback) {
 ee.data.getAuthClientId = function() {
 };
 /**
- * @return {Array<string>}
+ * @return {!Array<string>}
  */
 ee.data.getAuthScopes = function() {
 };
@@ -980,55 +980,55 @@ ee.data.getAuthToken = function() {
 };
 /**
  * @param {(Object|null)} params
- * @param {function ({docid: string, token: string}, string=): ?=} opt_callback
+ * @param {!function ({docid: string, token: string}, string=): ?=} opt_callback
  * @return {(ee.data.DownloadId|null)}
  */
 ee.data.getDownloadId = function(params, opt_callback) {
 };
 /**
  * @param {string} id
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {(Object|null)}
  */
 ee.data.getInfo = function(id, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function ((Array<{id: string, properties: (Object|null|undefined), type: string}>|null), string=): ?=} opt_callback
+ * @param {!function ((Array<{id: string, properties: (Object|null|undefined), type: string}>|null), string=): ?=} opt_callback
  * @return {(Array<{id: string, properties: (Object|null|undefined), type: string}>|null)}
  */
 ee.data.getList = function(params, opt_callback) {
 };
 /**
  * @param {{bands: (Array<string>|null|string|undefined), bias: (Array<number>|null|number|undefined), format: (string|undefined), gain: (Array<number>|null|number|undefined), gamma: (Array<number>|null|number|undefined), image: (ee.Image|null|undefined), max: (Array<number>|null|number|undefined), min: (Array<number>|null|number|undefined), opacity: (number|undefined), palette: (Array<string>|null|string|undefined)}} params
- * @param {function ({mapid: string, token: string}, string=): ?=} opt_callback
+ * @param {!function ({mapid: string, token: string}, string=): ?=} opt_callback
  * @return {(ee.data.RawMapId|null)}
  */
 ee.data.getMapId = function(params, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function ({docid: string, token: string}, string=): ?=} opt_callback
+ * @param {!function ({docid: string, token: string}, string=): ?=} opt_callback
  * @return {(ee.data.DownloadId|null)}
  */
 ee.data.getTableDownloadId = function(params, opt_callback) {
 };
 /**
- * @param {function ({tasks: (Array<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), internal_error_info: (string|undefined), output_url: (Array<string>|null|undefined), priority: (number|undefined), progress: (number|undefined), source_url: (string|undefined), state: (string|undefined), task_type: (string|undefined), update_timestamp_ms: (number|undefined)}>|null)}, string=): ?=} opt_callback
+ * @param {!function ({tasks: (Array<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), internal_error_info: (string|undefined), output_url: (Array<string>|null|undefined), priority: (number|undefined), progress: (number|undefined), source_url: (string|undefined), state: (string|undefined), task_type: (string|undefined), update_timestamp_ms: (number|undefined)}>|null)}, string=): ?=} opt_callback
  * @return {{tasks: (Array<{creation_timestamp_ms: (number|undefined), description: (string|undefined), error_message: (string|undefined), id: (string|undefined), internal_error_info: (string|undefined), output_url: (Array<string>|null|undefined), priority: (number|undefined), progress: (number|undefined), source_url: (string|undefined), state: (string|undefined), task_type: (string|undefined), update_timestamp_ms: (number|undefined)}>|null)}}
  */
 ee.data.getTaskList = function(opt_callback) {
 };
 /**
  * @param {(Array<string>|string)} taskId
- * @param {function ((Array<ee.data.TaskStatus>|null), string=): ?=} opt_callback
+ * @param {!function ((Array<ee.data.TaskStatus>|null), string=): ?=} opt_callback
  * @return {(Array<ee.data.TaskStatus>|null)}
  */
 ee.data.getTaskStatus = function(taskId, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function ({thumbid: string, token: string}, string=): ?=} opt_callback
+ * @param {!function ({thumbid: string, token: string}, string=): ?=} opt_callback
  * @return {(ee.data.ThumbnailId|null)}
  */
 ee.data.getThumbId = function(params, opt_callback) {
@@ -1049,7 +1049,7 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function (?, string=): ?=} opt_callback
+ * @param {!function (?, string=): ?=} opt_callback
  * @return {?}
  */
 ee.data.getValue = function(params, opt_callback) {
@@ -1079,7 +1079,7 @@ ee.data.makeThumbUrl = function(id) {
 };
 /**
  * @param {number=} opt_count
- * @param {function ((Array<string>|null), string=): ?=} opt_callback
+ * @param {!function ((Array<string>|null), string=): ?=} opt_callback
  * @return {(Array<string>|null)}
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
@@ -1087,7 +1087,7 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
 /**
  * @param {string} sourceId
  * @param {string} destinationId
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {undefined}
  */
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
@@ -1095,15 +1095,15 @@ ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
 /**
  * @param {string} assetId
  * @param {{all_users_can_read: (boolean|undefined), readers: Array<string>, writers: Array<string>}} aclUpdate
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {undefined}
  */
 ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
 };
 /**
  * @param {string} assetId
- * @param {Object} properties
- * @param {function ((Object|null), string=): ?=} opt_callback
+ * @param {!Object} properties
+ * @param {!function ((Object|null), string=): ?=} opt_callback
  * @return {undefined}
  */
 ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
@@ -1113,8 +1113,8 @@ ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
  * @param {string} tokenType
  * @param {string} accessToken
  * @param {number} expiresIn
- * @param {Array<string>=} opt_extraScopes
- * @param {function (): ?=} opt_callback
+ * @param {!Array<string>=} opt_extraScopes
+ * @param {!function (): ?=} opt_callback
  * @param {boolean=} opt_updateAuthLibrary
  * @return {undefined}
  */
@@ -1140,8 +1140,8 @@ ee.data.setParamAugmenter = function(augmenter) {
 };
 /**
  * @param {string} taskId
- * @param {{bands: (Array<ee.data.Band>|undefined), id: string, missingData: (ee.data.MissingData|undefined), reductionPolicy: (ee.data.ReductionPolicy|undefined), tilesets: Array<ee.data.Tileset>}} request
- * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
+ * @param {{bands: (Array<ee.data.Band>|undefined), id: string, missingData: (ee.data.MissingData|undefined), propertie: (Object|undefined), reductionPolicy: (ee.data.ReductionPolicy|undefined), tilesets: Array<ee.data.Tileset>}} request
+ * @param {!function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */
 ee.data.startIngestion = function(taskId, request, opt_callback) {
@@ -1149,7 +1149,7 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
 /**
  * @param {string} taskId
  * @param {(Object|null)} params
- * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
+ * @param {!function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */
 ee.data.startProcessing = function(taskId, params, opt_callback) {
@@ -1157,14 +1157,14 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
 /**
  * @param {(Array<string>|string)} taskId
  * @param {string} action
- * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
+ * @param {!function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(Array<ee.data.TaskStatus>|null)}
  */
 ee.data.updateTask = function(taskId, action, opt_callback) {
 };
 /**
  * @param {(function (string): ?|null)} hook
- * @param {function (): *} body
+ * @param {!function (): *} body
  * @param {*=} opt_this
  * @return {*}
  */

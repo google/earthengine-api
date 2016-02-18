@@ -22,6 +22,7 @@ COMMANDS = [
     commands.ConfigCommand,
     commands.ExportCommand,
     commands.ListCommand,
+    commands.RenameCommand,
     commands.RmCommand,
     commands.TasksCommand,
 ]
