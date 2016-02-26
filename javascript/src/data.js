@@ -1578,6 +1578,9 @@ ee.data.MissingData;
 /** @enum {string} The reduction policies choices for newly uploaded assets. */
 ee.data.ReductionPolicy = {
   MEAN: 'MEAN',
+  MODE: 'MODE',
+  MIN: 'MIN',
+  MAX: 'MAX',
   SAMPLE: 'SAMPLE'
 };
 
