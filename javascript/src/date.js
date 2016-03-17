@@ -11,6 +11,7 @@ goog.provide('ee.Date');
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.Types');
+goog.require('ee.arguments');
 
 
 
@@ -43,17 +44,21 @@ ee.Date = function(date, opt_tz) {
 
   ee.Date.initialize();
 
+  var jsArgs = ee.arguments.extract(ee.Date, arguments);
+  date = jsArgs['date'];
+  var tz = jsArgs['tz'];
+
   var func = new ee.ApiFunction('Date');
   var args = {};
   var varName = null;
   if (ee.Types.isString(date)) {
     args['value'] = date;
-    if (opt_tz) {
-      if (ee.Types.isString(opt_tz)) {
-        args['timeZone'] = opt_tz;
+    if (tz) {
+      if (ee.Types.isString(tz)) {
+        args['timeZone'] = tz;
       } else {
         throw Error(
-            'Invalid argument specified for ee.Date(..., opt_tz): ' + opt_tz);
+            'Invalid argument specified for ee.Date(..., opt_tz): ' + tz);
       }
     }
   } else if (ee.Types.isNumber(date)) {

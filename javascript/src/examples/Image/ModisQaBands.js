@@ -38,17 +38,17 @@ var cloud = getQABits(QA, 0, 1, 'cloud_state')
 // Get the land_water_flag bits.
 var landWaterFlag = getQABits(QA, 3, 5, 'land_water_flag');
 
-var mask = image.mask(landWaterFlag.neq(7)).and(cloud.not());
+var mask = landWaterFlag.neq(7).and(cloud.not());
 
 Map.addLayer(
-  image.mask(mask),
+  image.updateMask(mask),
   {bands: 'sur_refl_b01,sur_refl_b04,sur_refl_b03', min: -100, max: 2000},
   'MOD09GA 143'
 );
 
 // Add a semi-transparent map layer that displays the clouds.
 Map.addLayer(
-  cloud.mask(cloud),
+  cloud.updateMask(cloud),
   {palette: 'FFFFFF', opacity: 0.8},
   'clouds'
 );

@@ -16,8 +16,10 @@ goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.Serializer');
 goog.require('ee.Types');
+goog.require('ee.arguments');
 goog.require('goog.array');
 goog.require('goog.json.Serializer');
+goog.require('goog.object');
 
 goog.forwardDeclare('ee.ErrorMargin');
 goog.forwardDeclare('ee.Projection');
@@ -55,6 +57,26 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
     return ee.ComputedObject.construct(ee.Geometry, arguments);
   }
 
+  // Note: evenOdd is a parameter name and may be a key in the
+  // first argument, the geoJson object. This means ee.arguments.extract()
+  // cannot reliably differentiate:
+  //
+  //       1) ee.Geometry(myGeoJsonObject)
+  //  from 2) ee.Geometry({geoJson: myGeoJsonObject})
+  //
+  // However, we know that the geoJson object MUST contain the "type" key,
+  // which is not an expected param name. If we see this key in the first
+  // argument, we know the arguments were passed in sequence. If not, we
+  // assume the user intended to pass a named argument dictionary and use
+  // ee.arguments.extract() to validate and extract the keys.
+  if (!('type' in geoJson)) {
+    var args = ee.arguments.extract(ee.Geometry, arguments);
+    geoJson = args['geoJson'];
+    opt_proj = args['proj'];
+    opt_geodesic = args['geodesic'];
+    opt_evenOdd = args['evenOdd'];
+  }
+
   ee.Geometry.initialize();
 
   var computed = geoJson instanceof ee.ComputedObject &&
@@ -76,11 +98,6 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   // Below here, we're working with a GeoJSON literal.
   if (geoJson instanceof ee.Geometry) {
     geoJson = /** @type {Object} */(geoJson.encode());
-  }
-
-  if (arguments.length > 4) {
-    throw Error('The Geometry constructor takes at most 4 arguments (' +
-                arguments.length + ' given)');
   }
 
   if (!ee.Geometry.isValidGeometry_(geoJson)) {
@@ -137,7 +154,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
    * @private
    */
   this.geodesic_ = opt_geodesic;
-  if (!goog.isDef(opt_geodesic) && 'geodesic' in geoJson) {
+  if (!goog.isDef(this.geodesic_) && 'geodesic' in geoJson) {
     this.geodesic_ = Boolean(geoJson['geodesic']);
   }
 
@@ -148,7 +165,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
    * @private
    */
   this.evenOdd_ = opt_evenOdd;
-  if (!goog.isDef(opt_evenOdd) && 'evenOdd' in geoJson) {
+  if (!goog.isDef(this.evenOdd_) && 'evenOdd' in geoJson) {
     this.evenOdd_ = Boolean(geoJson['evenOdd']);
   }
 };
@@ -184,6 +201,12 @@ ee.Geometry.reset = function() {
 
 
 
+////////////////////////////////////////////////////////////////////////////////
+//                           Subclass constructors.                           //
+////////////////////////////////////////////////////////////////////////////////
+
+
+
 /**
  * Constructs an ee.Geometry describing a point.
  *
@@ -202,7 +225,7 @@ ee.Geometry.Point = function(coords, opt_proj) {
   if (!(this instanceof ee.Geometry.Point)) {
     return ee.Geometry.createInstance_(ee.Geometry.Point, arguments);
   }
-  var init = ee.Geometry.parseArgs_('Point', 1, arguments);
+  var init = ee.Geometry.construct_(ee.Geometry.Point, 'Point', 1, arguments);
   if (!(init instanceof ee.ComputedObject)) {
     var xy = init['coordinates'];
     if (!goog.isArray(xy) || xy.length != 2) {
@@ -239,7 +262,8 @@ ee.Geometry.MultiPoint = function(coords, opt_proj) {
   if (!(this instanceof ee.Geometry.MultiPoint)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiPoint, arguments);
   }
-  goog.base(this, ee.Geometry.parseArgs_('MultiPoint', 2, arguments));
+  goog.base(this, ee.Geometry.construct_(
+      ee.Geometry.MultiPoint, 'MultiPoint', 2, arguments));
 };
 goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
 
@@ -284,7 +308,8 @@ ee.Geometry.Rectangle = function(
   if (!(this instanceof ee.Geometry.Rectangle)) {
     return ee.Geometry.createInstance_(ee.Geometry.Rectangle, arguments);
   }
-  var init = ee.Geometry.parseArgs_('Rectangle', 2, arguments);
+  var init = ee.Geometry.construct_(
+      ee.Geometry.Rectangle, 'Rectangle', 2, arguments);
   if (!(init instanceof ee.ComputedObject)) {
     // GeoJSON does not have a 'Rectangle' type, so expand it into a Polygon.
     var xy = init['coordinates'];
@@ -338,7 +363,8 @@ ee.Geometry.LineString = function(
   if (!(this instanceof ee.Geometry.LineString)) {
     return ee.Geometry.createInstance_(ee.Geometry.LineString, arguments);
   }
-  goog.base(this, ee.Geometry.parseArgs_('LineString', 2, arguments));
+  goog.base(this, ee.Geometry.construct_(
+      ee.Geometry.LineString, 'LineString', 2, arguments));
 };
 goog.inherits(ee.Geometry.LineString, ee.Geometry);
 
@@ -379,7 +405,8 @@ ee.Geometry.LinearRing = function(
   if (!(this instanceof ee.Geometry.LinearRing)) {
     return ee.Geometry.createInstance_(ee.Geometry.LinearRing, arguments);
   }
-  goog.base(this, ee.Geometry.parseArgs_('LinearRing', 2, arguments));
+  goog.base(this, ee.Geometry.construct_(
+      ee.Geometry.LinearRing, 'LinearRing', 2, arguments));
 };
 goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
 
@@ -418,7 +445,8 @@ ee.Geometry.MultiLineString = function(
   if (!(this instanceof ee.Geometry.MultiLineString)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiLineString, arguments);
   }
-  goog.base(this, ee.Geometry.parseArgs_('MultiLineString', 3, arguments));
+  goog.base(this, ee.Geometry.construct_(
+      ee.Geometry.MultiLineString, 'MultiLineString', 3, arguments));
 };
 goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
 
@@ -464,7 +492,8 @@ ee.Geometry.Polygon = function(
   if (!(this instanceof ee.Geometry.Polygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.Polygon, arguments);
   }
-  goog.base(this, ee.Geometry.parseArgs_('Polygon', 3, arguments));
+  goog.base(this, ee.Geometry.construct_(
+      ee.Geometry.Polygon, 'Polygon', 3, arguments));
 };
 goog.inherits(ee.Geometry.Polygon, ee.Geometry);
 
@@ -509,9 +538,15 @@ ee.Geometry.MultiPolygon = function(
   if (!(this instanceof ee.Geometry.MultiPolygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiPolygon, arguments);
   }
-  goog.base(this, ee.Geometry.parseArgs_('MultiPolygon', 4, arguments));
+  goog.base(this, ee.Geometry.construct_(
+      ee.Geometry.MultiPolygon, 'MultiPolygon', 4, arguments));
 };
 goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
+
+
+////////////////////////////////////////////////////////////////////////////////
+//                              Instance methods.                             //
+////////////////////////////////////////////////////////////////////////////////
 
 
 /**
@@ -598,6 +633,12 @@ ee.Geometry.prototype.toString = function() {
 };
 
 
+
+////////////////////////////////////////////////////////////////////////////////
+//                              Implementation.                               //
+////////////////////////////////////////////////////////////////////////////////
+
+
 /**
  * Checks if a geometry looks valid.
  * @param {Object} geometry The geometry to validate.
@@ -665,7 +706,7 @@ ee.Geometry.isValidCoordinates_ = function(shape) {
 
 /**
  * Create a line from a list of points.
- * @param {goog.array.ArrayLike} coordinates The points to convert.  Must be a
+ * @param {IArrayLike} coordinates The points to convert.  Must be a
  *     multiple of 2.
  * @return {!Array<!Array<number>>} A list of pairs of points.
  * @private
@@ -690,57 +731,74 @@ ee.Geometry.coordinatesToLine_ = function(coordinates) {
 
 
 /**
- * Parses arguments into a GeoJSON dictionary or a ComputedObject.
- * @param {string} ctorName The name of the constructor to use.
- * @param {number} depth The nesting depth at which points are
- *     found.
- * @param {goog.array.ArrayLike} args The array of values to test.
+ * Constructs either a GeoJSON object or a ComputedObject for a JS geometry
+ * constructor and its arguments.
+ * @param {!Function} jsConstructorFn The JS geometry constructor called.
+ * @param {string} apiConstructorName The name of the server-side geometry
+ *     constructor to use.
+ * @param {number} depth The nesting depth at which points are found within
+ *     the coordinates array.
+ * @param {!Arguments} originalArgs The arguments to the JS constructor.
  * @return {!Object|ee.ComputedObject} If the arguments are simple,
  *     a GeoJSON object describing the geometry. Otherwise a
- *     ComputedObject calling the appropriate constructor.
+ *     ComputedObject calling the appropriate server-side constructor.
  * @private
  */
-ee.Geometry.parseArgs_ = function(ctorName, depth, args) {
-  var result = {};
-  var keys = ['coordinates', 'crs', 'geodesic', 'maxError', 'evenOdd'];
-
-  if (goog.array.every(args, ee.Types.isNumber)) {
-    // All numbers, so convert them to a true array.
-    result['coordinates'] = goog.array.toArray(args);
-  } else {
-    // Parse parameters by position.
-    if (args.length > keys.length) {
-      throw new Error('Geometry constructor given extra arguments.');
-    }
-    for (var i = 0; i < keys.length; i++) {
-      if (goog.isDefAndNotNull(args[i])) {
-        // Use provided values always.
-        result[keys[i]] = args[i];
-      }
-    }
-  }
+ee.Geometry.construct_ = function(
+    jsConstructorFn, apiConstructorName, depth, originalArgs) {
+  var eeArgs = ee.Geometry.getEeApiArgs_(jsConstructorFn, originalArgs);
 
   // Standardize the coordinates and test if they are simple enough for
   // client-side initialization.
-  if (ee.Geometry.hasServerValue_(result['coordinates']) ||
-      goog.isDefAndNotNull(result['crs']) ||
-      goog.isDefAndNotNull(result['geodesic']) ||
-      goog.isDefAndNotNull(result['maxError'])) {
+  if (ee.Geometry.hasServerValue_(eeArgs['coordinates']) ||
+      goog.isDefAndNotNull(eeArgs['crs']) ||
+      goog.isDefAndNotNull(eeArgs['geodesic']) ||
+      goog.isDefAndNotNull(eeArgs['maxError'])) {
     // Some arguments cannot be handled in the client, so make a server call.
     // Note we don't declare a default evenOdd value, so the server can infer
     // a default based on the projection.
-    var serverName = 'GeometryConstructors.' + ctorName;
-    return new ee.ApiFunction(serverName).apply(result);
+    var serverName = 'GeometryConstructors.' + apiConstructorName;
+    return new ee.ApiFunction(serverName).apply(eeArgs);
   } else {
-    // Everything can be handled here, so check the depth and init this object.
-    result['type'] = ctorName;
-    result['coordinates'] = ee.Geometry.fixDepth_(depth, result['coordinates']);
-    if (!goog.isDefAndNotNull(result['evenOdd']) && goog.array.contains(
-        ['Polygon', 'Rectangle', 'MultiPolygon'], ctorName)) {
+    // Everything can be handled here, so init a simple GeoJSON object.
+    var geoJson = eeArgs;
+    geoJson['type'] = apiConstructorName;
+    geoJson['coordinates'] = ee.Geometry.fixDepth_(
+        depth, geoJson['coordinates']);
+    if (!goog.isDefAndNotNull(geoJson['evenOdd']) && goog.array.contains(
+        ['Polygon', 'Rectangle', 'MultiPolygon'], apiConstructorName)) {
       // Default to evenOdd=true for any kind of polygon.
-      result['evenOdd'] = true;
+      geoJson['evenOdd'] = true;
     }
-    return result;
+    return geoJson;
+  }
+};
+
+
+/**
+ * Creates an argument dictionary for a server-side geometry constructor from
+ * the arguments to a JS geometry constructor. The arguments the JS constructor
+ * can be passed as either a list of coordinates (as var_args), a sequence of
+ * parameters, or a dictionary of named parameters.
+ * @param {!Function} jsConstructorFn The JS constructor to parse arguments for.
+ * @param {!Arguments} originalArgs The arguments to the JS constructor.
+ * @return {!Object} The named server-side geometry constructor arguments.
+ * @private
+ */
+ee.Geometry.getEeApiArgs_ = function(jsConstructorFn, originalArgs) {
+  if (goog.array.every(originalArgs, ee.Types.isNumber)) {
+    // All numbers, so convert them to a true array.
+    return {'coordinates': goog.array.toArray(originalArgs)};
+  } else {
+    var args = ee.arguments.extract(jsConstructorFn, originalArgs);
+    // Convert the argument dictionary to proper GeoJSON. Some of the parameter
+    // names intentionally don't map precisely to GeoJSON key names.
+    // For example, the server expects different CRS values than GeoJSON.
+    args['coordinates'] = args['coords'];
+    delete args['coords'];
+    args['crs'] = args['proj'];
+    delete args['proj'];
+    return goog.object.filter(args, goog.isDefAndNotNull);
   }
 };
 

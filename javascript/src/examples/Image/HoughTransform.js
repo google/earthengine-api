@@ -6,7 +6,7 @@ var h = ee.Algorithms.HoughTransform(canny, 256, 50, 100);
 
 Map.setCenter(-103.80140, 40.21729, 13);
 Map.addLayer(image, {min: 0, max: 1}, 'source_image');
-Map.addLayer(canny.mask(canny.gt(0)), {min: 0, max: 1, palette: '00FF00'},
+Map.addLayer(canny.updateMask(canny.gt(0)), {min: 0, max: 1, palette: '00FF00'},
          'canny');
-Map.addLayer(h.mask(h.gt(0)), {min: 0, max: 1, palette: 'FF0000'}, 'hough');
+Map.addLayer(h.updateMask(h.gt(0)), {min: 0, max: 1, palette: 'FF0000'}, 'hough');
 

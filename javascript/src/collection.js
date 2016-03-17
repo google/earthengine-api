@@ -9,6 +9,7 @@ goog.provide('ee.Collection');
 goog.require('ee.ApiFunction');
 goog.require('ee.Element');
 goog.require('ee.Filter');
+goog.require('ee.arguments');
 
 
 
@@ -71,7 +72,7 @@ ee.Collection.reset = function() {
  * we can add to, however if the collection doesn't have a filter, this
  * will wrap it in one.
  *
- * @param {ee.Filter} newFilter - A filter to add to this collection.
+ * @param {ee.Filter} newFilter A filter to add to this collection.
  * @return {ee.Collection} The filtered collection.
  * @export
  */
@@ -101,7 +102,10 @@ ee.Collection.prototype.filter = function(newFilter) {
  * TODO(user): Decide whether to deprecate this.
  */
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
-  return this.filter(ee.Filter.metadata(name, operator, value));
+  var args = ee.arguments.extract(
+      ee.Collection.prototype.filterMetadata, arguments);
+  return this.filter(ee.Filter.metadata(
+      args['name'], args['operator'], args['value']));
 };
 
 
@@ -135,7 +139,9 @@ ee.Collection.prototype.filterBounds = function(geometry) {
  * @export
  */
 ee.Collection.prototype.filterDate = function(start, opt_end) {
-  return this.filter(ee.Filter.date(start, opt_end));
+  var args = ee.arguments.extract(
+      ee.Collection.prototype.filterDate, arguments);
+  return this.filter(ee.Filter.date(args['start'], args['end']));
 };
 
 
@@ -143,31 +149,35 @@ ee.Collection.prototype.filterDate = function(start, opt_end) {
  * Limit a collection to the specified number of elements, optionally
  * sorting them by a specified property first.
  *
- * @param {number} max - The number to limit the collection to.
- * @param {string=} opt_property - The property to sort by, if sorting.
- * @param {boolean=} opt_ascending - Whether to sort in ascending or
+ * @param {number} max The number to limit the collection to.
+ * @param {string=} opt_property The property to sort by, if sorting.
+ * @param {boolean=} opt_ascending Whether to sort in ascending or
  *     descending order.  The default is true (ascending).
  * @return {ee.Collection} The limited collection.
  * @export
  */
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
+  var args = ee.arguments.extract(ee.Collection.prototype.limit, arguments);
   return this.castInternal(ee.ApiFunction._call(
-      'Collection.limit', this, max, opt_property, opt_ascending));
+      'Collection.limit', this,
+      args['max'], args['property'], args['ascending']));
 };
 
 
 /**
  * Sort a collection by the specified property.
  *
- * @param {string} property - The property to sort by.
- * @param {boolean=} opt_ascending - Whether to sort in ascending or descending
+ * @param {string} property The property to sort by.
+ * @param {boolean=} opt_ascending Whether to sort in ascending or descending
  *     order.  The default is true (ascending).
  * @return {ee.Collection} The sorted collection.
  * @export
  */
 ee.Collection.prototype.sort = function(property, opt_ascending) {
+  var args = ee.arguments.extract(ee.Collection.prototype.sort, arguments);
   return this.castInternal(ee.ApiFunction._call(
-      'Collection.limit', this, undefined, property, opt_ascending));
+      'Collection.limit', this,
+      undefined, args['property'], args['ascending']));
 };
 
 

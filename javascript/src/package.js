@@ -33,6 +33,7 @@ goog.provide('ee.Package');
 goog.require('ee.ApiFunction');
 goog.require('ee.CustomFunction');
 goog.require('ee.SavedFunction');
+goog.require('ee.arguments');
 goog.require('ee.data');
 
 
@@ -129,6 +130,10 @@ ee.Package.makeFunction = function(signature, body) {
  * @param {string} path The path to save the package under.
  */
 ee.Package.save = function(pkg, path) {
+  var args = ee.arguments.extract(ee.Package.save, arguments);
+  pkg = args['pkg'];
+  path = args['path'];
+
   if (!path) {
     throw Error('No path specified.');
   }
@@ -150,7 +155,6 @@ ee.Package.save = function(pkg, path) {
             throw Error('Function name mismatch.  Expected path: ' +
                 expected + ' but found: ' + member['path']);
           }
-          continue;
         } else {
           if ('signature' in member) {
             // Save the existing function and replace it with a SavedFunction.

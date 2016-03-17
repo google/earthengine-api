@@ -10,6 +10,7 @@ goog.require('ee.ComputedObject');
 goog.require('ee.Image');
 goog.require('ee.List');
 goog.require('ee.Types');
+goog.require('ee.arguments');
 goog.require('goog.array');
 
 
@@ -119,11 +120,13 @@ ee.ImageCollection.reset = function() {
  * @export
  */
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
+  var args = ee.arguments.extract(
+      ee.ImageCollection.prototype.getMap, arguments);
   var mosaic = ee.ApiFunction._call('ImageCollection.mosaic', this);
-  if (opt_callback) {
-    mosaic.getMap(opt_visParams, opt_callback);
+  if (args['callback']) {
+    mosaic.getMap(args['visParams'], args['callback']);
   } else {
-    return mosaic.getMap(opt_visParams);
+    return mosaic.getMap(args['visParams']);
   }
 };
 
@@ -164,7 +167,7 @@ ee.ImageCollection.prototype.getInfo = function(opt_callback) {
  */
 ee.ImageCollection.prototype.select = function(selectors, opt_names) {
   var varargs = arguments;
-  return /** @type {ee.ImageCollection} */(this.map(function(img) {
+  return /** @type {ee.ImageCollection} */ (this.map(function(img) {
     return img.select.apply(img, varargs);
   }));
 };

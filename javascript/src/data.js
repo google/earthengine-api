@@ -1664,8 +1664,9 @@ ee.data.AuthArgs;
  */
 ee.data.AuthResponse;
 
+
 ////////////////////////////////////////////////////////////////////////////////
-//                              Private helpers.                              //
+//                               Private helpers.                             //
 ////////////////////////////////////////////////////////////////////////////////
 
 
@@ -1758,6 +1759,9 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
       } else if (!('data' in response)) {
         errorMessage = 'Malformed response: ' + responseText;
       }
+    } else if (status === 0) {
+      errorMessage = 'Failed to contact Earth Engine servers. Please check ' +
+          'your connection, firewall, or browser extension settings.';
     } else if (status < 200 || status >= 300) {
       errorMessage = 'Server returned HTTP code: ' + status;
     }

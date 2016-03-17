@@ -1034,8 +1034,8 @@ goog.string.truncateMiddle = function(str, chars, opt_protectEscapedCharacters, 
     opt_trailingChars > chars && (opt_trailingChars = chars), str = str.substring(0, chars - opt_trailingChars) + "..." + str.substring(str.length - opt_trailingChars);
   } else {
     if (str.length > chars) {
-      var half = Math.floor(chars / 2), endPos = str.length - half;
-      str = str.substring(0, half + chars % 2) + "..." + str.substring(endPos);
+      var half = Math.floor(chars / 2);
+      str = str.substring(0, half + chars % 2) + "..." + str.substring(str.length - half);
     }
   }
   opt_protectEscapedCharacters && (str = goog.string.htmlEscape(str));
@@ -1187,6 +1187,20 @@ goog.string.splitLimit = function(str, separator, limit) {
   }
   parts.length && returnVal.push(parts.join(separator));
   return returnVal;
+};
+goog.string.lastComponent = function(str, separators) {
+  if (separators) {
+    "string" == typeof separators && (separators = [separators]);
+  } else {
+    return str;
+  }
+  for (var lastSeparatorIndex = -1, i = 0;i < separators.length;i++) {
+    if ("" != separators[i]) {
+      var currentSeparatorIndex = str.lastIndexOf(separators[i]);
+      currentSeparatorIndex > lastSeparatorIndex && (lastSeparatorIndex = currentSeparatorIndex);
+    }
+  }
+  return -1 == lastSeparatorIndex ? str : str.slice(lastSeparatorIndex + 1);
 };
 goog.string.editDistance = function(a, b) {
   var v0 = [], v1 = [];
@@ -1463,6 +1477,10 @@ goog.array.remove = function(arr, obj) {
   var i = goog.array.indexOf(arr, obj), rv;
   (rv = 0 <= i) && goog.array.removeAt(arr, i);
   return rv;
+};
+goog.array.removeLast = function(arr, obj) {
+  var i = goog.array.lastIndexOf(arr, obj);
+  return 0 <= i ? (goog.array.removeAt(arr, i), !0) : !1;
 };
 goog.array.removeAt = function(arr, i) {
   goog.asserts.assert(null != arr.length);
@@ -1836,6 +1854,10 @@ goog.reflect.canAccessProperty = function(obj, prop) {
   } catch (e) {
   }
   return !1;
+};
+goog.reflect.cache = function(cacheObj, key, valueFn, opt_keyFn) {
+  var storedKey = opt_keyFn ? opt_keyFn(key) : key;
+  return storedKey in cacheObj ? cacheObj[storedKey] : cacheObj[storedKey] = valueFn(key);
 };
 goog.labs = {};
 goog.labs.userAgent = {};
@@ -3986,6 +4008,10 @@ goog.html.SafeUrl.fromDataUrl = function(dataUrl) {
   var match = dataUrl.match(goog.html.DATA_URL_PATTERN_), valid = match && goog.html.SAFE_MIME_TYPE_PATTERN_.test(match[1]);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(valid ? dataUrl : goog.html.SafeUrl.INNOCUOUS_STRING);
 };
+goog.html.SafeUrl.fromTelUrl = function(telUrl) {
+  goog.string.caseInsensitiveStartsWith(telUrl, "tel:") || (telUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(telUrl);
+};
 goog.html.SAFE_URL_PATTERN_ = /^(?:(?:https?|mailto|ftp):|[^&:/?#]*(?:[/?#]|$))/i;
 goog.html.SafeUrl.sanitize = function(url) {
   if (url instanceof goog.html.SafeUrl) {
@@ -4089,13 +4115,16 @@ goog.html.SafeHtml.VALID_NAMES_IN_TAG_ = /^[a-zA-Z0-9-]+$/;
 goog.html.SafeHtml.URL_ATTRIBUTES_ = {action:!0, cite:!0, data:!0, formaction:!0, href:!0, manifest:!0, poster:!0, src:!0};
 goog.html.SafeHtml.NOT_ALLOWED_TAG_NAMES_ = goog.object.createSet(goog.dom.TagName.APPLET, goog.dom.TagName.BASE, goog.dom.TagName.EMBED, goog.dom.TagName.IFRAME, goog.dom.TagName.LINK, goog.dom.TagName.MATH, goog.dom.TagName.META, goog.dom.TagName.OBJECT, goog.dom.TagName.SCRIPT, goog.dom.TagName.STYLE, goog.dom.TagName.SVG, goog.dom.TagName.TEMPLATE);
 goog.html.SafeHtml.create = function(tagName, opt_attributes, opt_content) {
+  goog.html.SafeHtml.verifyTagName(tagName);
+  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(tagName, opt_attributes, opt_content);
+};
+goog.html.SafeHtml.verifyTagName = function(tagName) {
   if (!goog.html.SafeHtml.VALID_NAMES_IN_TAG_.test(tagName)) {
     throw Error("Invalid tag name <" + tagName + ">.");
   }
   if (tagName.toUpperCase() in goog.html.SafeHtml.NOT_ALLOWED_TAG_NAMES_) {
     throw Error("Tag name <" + tagName + "> is not allowed for SafeHtml.");
   }
-  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(tagName, opt_attributes, opt_content);
 };
 goog.html.SafeHtml.createIframe = function(opt_src, opt_srcdoc, opt_attributes, opt_content) {
   opt_src && goog.html.TrustedResourceUrl.unwrap(opt_src);
@@ -4104,6 +4133,20 @@ goog.html.SafeHtml.createIframe = function(opt_src, opt_srcdoc, opt_attributes, 
   fixedAttributes.srcdoc = opt_srcdoc && goog.html.SafeHtml.unwrap(opt_srcdoc);
   var attributes = goog.html.SafeHtml.combineAttributes(fixedAttributes, {sandbox:""}, opt_attributes);
   return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("iframe", attributes, opt_content);
+};
+goog.html.SafeHtml.createSandboxIframe = function(opt_src, opt_srcdoc, opt_attributes, opt_content) {
+  if (!goog.html.SafeHtml.canUseSandboxIframe()) {
+    throw Error("The browser does not support sandboxed iframes.");
+  }
+  var fixedAttributes = {};
+  fixedAttributes.src = opt_src ? goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitize(opt_src)) : null;
+  fixedAttributes.srcdoc = opt_srcdoc || null;
+  fixedAttributes.sandbox = "";
+  var attributes = goog.html.SafeHtml.combineAttributes(fixedAttributes, {}, opt_attributes);
+  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("iframe", attributes, opt_content);
+};
+goog.html.SafeHtml.canUseSandboxIframe = function() {
+  return goog.global.HTMLIFrameElement && "sandbox" in goog.global.HTMLIFrameElement.prototype;
 };
 goog.html.SafeHtml.createScriptSrc = function(src, opt_attributes) {
   goog.html.TrustedResourceUrl.unwrap(src);
@@ -4196,7 +4239,23 @@ goog.html.SafeHtml.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(ht
   return this;
 };
 goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse = function(tagName, opt_attributes, opt_content) {
-  var dir = null, result = "<" + tagName;
+  var dir = null, result;
+  result = "<" + tagName + goog.html.SafeHtml.stringifyAttributes(tagName, opt_attributes);
+  var content = opt_content;
+  goog.isDefAndNotNull(content) ? goog.isArray(content) || (content = [content]) : content = [];
+  if (goog.dom.tags.isVoidTag(tagName.toLowerCase())) {
+    goog.asserts.assert(!content.length, "Void tag <" + tagName + "> does not allow content."), result += ">";
+  } else {
+    var html = goog.html.SafeHtml.concat(content);
+    result += ">" + goog.html.SafeHtml.unwrap(html) + "</" + tagName + ">";
+    dir = html.getDirection();
+  }
+  var dirAttribute = opt_attributes && opt_attributes.dir;
+  dirAttribute && (dir = /^(ltr|rtl|auto)$/i.test(dirAttribute) ? goog.i18n.bidi.Dir.NEUTRAL : null);
+  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(result, dir);
+};
+goog.html.SafeHtml.stringifyAttributes = function(tagName, opt_attributes) {
+  var result = "";
   if (opt_attributes) {
     for (var name in opt_attributes) {
       if (!goog.html.SafeHtml.VALID_NAMES_IN_TAG_.test(name)) {
@@ -4206,16 +4265,7 @@ goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse = function(
       goog.isDefAndNotNull(value) && (result += " " + goog.html.SafeHtml.getAttrNameAndValue_(tagName, name, value));
     }
   }
-  var content = opt_content;
-  goog.isDefAndNotNull(content) ? goog.isArray(content) || (content = [content]) : content = [];
-  if (goog.dom.tags.isVoidTag(tagName.toLowerCase())) {
-    goog.asserts.assert(!content.length, "Void tag <" + tagName + "> does not allow content."), result += ">";
-  } else {
-    var html = goog.html.SafeHtml.concat(content), result = result + (">" + goog.html.SafeHtml.unwrap(html) + "</" + tagName + ">"), dir = html.getDirection()
-  }
-  var dirAttribute = opt_attributes && opt_attributes.dir;
-  dirAttribute && (dir = /^(ltr|rtl|auto)$/i.test(dirAttribute) ? goog.i18n.bidi.Dir.NEUTRAL : null);
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(result, dir);
+  return result;
 };
 goog.html.SafeHtml.combineAttributes = function(fixedAttributes, defaultAttributes, opt_attributes) {
   var combinedAttributes = {}, name;
@@ -4246,6 +4296,10 @@ goog.html.legacyconversions.safeHtmlFromString = function(html) {
 goog.html.legacyconversions.safeStyleFromString = function(style) {
   goog.html.legacyconversions.reportCallback_();
   return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
+};
+goog.html.legacyconversions.safeStyleSheetFromString = function(styleSheet) {
+  goog.html.legacyconversions.reportCallback_();
+  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
 };
 goog.html.legacyconversions.safeUrlFromString = function(url) {
   goog.html.legacyconversions.reportCallback_();
@@ -8435,8 +8489,12 @@ ee.data.send_ = function(path, params, opt_callback$$0, opt_method) {
     if (goog.isObject(response)) {
       "error" in response && "message" in response.error ? errorMessage = response.error.message : "data" in response || (errorMessage = "Malformed response: " + responseText);
     } else {
-      if (200 > status || 300 <= status) {
-        errorMessage = "Server returned HTTP code: " + status;
+      if (0 === status) {
+        errorMessage = "Failed to contact Earth Engine servers. Please check your connection, firewall, or browser extension settings.";
+      } else {
+        if (200 > status || 300 <= status) {
+          errorMessage = "Server returned HTTP code: " + status;
+        }
       }
     }
     if (opt_callback) {
@@ -9081,6 +9139,55 @@ ee.ApiFunction.clearApi = function(target$$0) {
   clear(target$$0);
   clear(target$$0.prototype);
 };
+ee.arguments = {};
+ee.arguments.extract = function(fn, originalArgs) {
+  var paramNamesWithOptPrefix = ee.arguments.getParamNames_(fn), paramNames = goog.array.map(paramNamesWithOptPrefix, function(param) {
+    return param.replace(/^opt_/, "");
+  }), fnName = ee.arguments.getFnName_(fn), fnNameSnippet = fnName ? " to function " + fnName : "", args = {}, firstArg = originalArgs[0], firstArgCouldBeDictionary = goog.isObject(firstArg) && !goog.isFunction(firstArg) && !goog.isArray(firstArg) && !(firstArg instanceof ee.ComputedObject);
+  if (1 < originalArgs.length || !firstArgCouldBeDictionary) {
+    if (originalArgs.length > paramNames.length) {
+      throw Error("Received too many arguments" + fnNameSnippet + ". Expected at most " + paramNames.length + " but got " + originalArgs.length + ".");
+    }
+    for (var i = 0;i < originalArgs.length;i++) {
+      args[paramNames[i]] = originalArgs[i];
+    }
+  } else {
+    var seen = new goog.structs.Set(goog.object.getKeys(firstArg)), expected = new goog.structs.Set(paramNames);
+    if (expected.intersection(seen).isEmpty()) {
+      args[paramNames[0]] = originalArgs[0];
+    } else {
+      var unexpected = seen.difference(expected);
+      if (!unexpected.isEmpty()) {
+        throw Error("Unexpected arguments" + fnNameSnippet + ": " + unexpected.getValues().join(", "));
+      }
+      args = goog.object.clone(firstArg);
+    }
+  }
+  var provided = new goog.structs.Set(goog.object.getKeys(args)), missing = (new goog.structs.Set(goog.array.filter(paramNamesWithOptPrefix, function(param) {
+    return !goog.string.startsWith(param, "opt_");
+  }))).difference(provided);
+  if (!missing.isEmpty()) {
+    throw Error("Missing required arguments" + fnNameSnippet + ": " + missing.getValues().join(", "));
+  }
+  return args;
+};
+ee.arguments.getParamNames_ = function(fn) {
+  var paramNames = [];
+  if (goog.global.EXPORTED_FN_INFO) {
+    var exportedFnInfo = goog.global.EXPORTED_FN_INFO[fn.toString()];
+    goog.asserts.assertObject(exportedFnInfo);
+    paramNames = exportedFnInfo.paramNames;
+    goog.asserts.assertArray(paramNames);
+  } else {
+    paramNames = fn.toString().replace(ee.arguments.JS_COMMENT_MATCHER_, "").match(ee.arguments.JS_PARAM_DECL_MATCHER_)[1].split(",") || [];
+  }
+  return paramNames;
+};
+ee.arguments.getFnName_ = function(fn) {
+  return goog.global.EXPORTED_FN_INFO ? goog.global.EXPORTED_FN_INFO[fn.toString()].name.split(".").pop() + "()" : null;
+};
+ee.arguments.JS_COMMENT_MATCHER_ = /((\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s))/mg;
+ee.arguments.JS_PARAM_DECL_MATCHER_ = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
 ee.Element = function(func, args, opt_varName) {
   ee.ComputedObject.call(this, func, args, opt_varName);
   ee.Element.initialize();
@@ -9166,9 +9273,6 @@ ee.Filter.reset = function() {
   ee.Filter.initialized_ = !1;
 };
 ee.Filter.functionNames_ = {equals:"equals", less_than:"lessThan", greater_than:"greaterThan", contains:"stringContains", starts_with:"stringStartsWith", ends_with:"stringEndsWith"};
-ee.Filter.prototype.length = function() {
-  return this.filter_.length;
-};
 ee.Filter.prototype.append_ = function(newFilter) {
   var prev = this.filter_.slice(0);
   newFilter instanceof ee.Filter ? goog.array.extend(prev, newFilter.filter_) : newFilter instanceof Array ? goog.array.extend(prev, newFilter) : prev.push(newFilter);
@@ -9176,6 +9280,52 @@ ee.Filter.prototype.append_ = function(newFilter) {
 };
 ee.Filter.prototype.not = function() {
   return ee.ApiFunction._call("Filter.not", this);
+};
+ee.Filter.eq = function(name, value) {
+  var args = ee.arguments.extract(ee.Filter.eq, arguments);
+  return ee.ApiFunction._call("Filter.equals", args.name, args.value);
+};
+ee.Filter.neq = function(name, value) {
+  var args = ee.arguments.extract(ee.Filter.neq, arguments);
+  return ee.Filter.eq(args.name, args.value).not();
+};
+ee.Filter.lt = function(name, value) {
+  var args = ee.arguments.extract(ee.Filter.lt, arguments);
+  return ee.ApiFunction._call("Filter.lessThan", args.name, args.value);
+};
+ee.Filter.gte = function(name, value) {
+  var args = ee.arguments.extract(ee.Filter.gte, arguments);
+  return ee.Filter.lt(args.name, args.value).not();
+};
+ee.Filter.gt = function(name, value) {
+  var args = ee.arguments.extract(ee.Filter.gt, arguments);
+  return ee.ApiFunction._call("Filter.greaterThan", args.name, args.value);
+};
+ee.Filter.lte = function(name, value) {
+  var args = ee.arguments.extract(ee.Filter.lte, arguments);
+  return ee.Filter.gt(args.name, args.value).not();
+};
+ee.Filter.and = function(var_args) {
+  var args = Array.prototype.slice.call(arguments);
+  return ee.ApiFunction._call("Filter.and", args);
+};
+ee.Filter.or = function(var_args) {
+  var args = Array.prototype.slice.call(arguments);
+  return ee.ApiFunction._call("Filter.or", args);
+};
+ee.Filter.date = function(start, opt_end) {
+  var args = ee.arguments.extract(ee.Filter.date, arguments), range = ee.ApiFunction._call("DateRange", args.start, args.end);
+  return ee.ApiFunction._apply("Filter.dateRangeContains", {leftValue:range, rightField:"system:time_start"});
+};
+ee.Filter.inList = function(opt_leftField, opt_rightValue, opt_rightField, opt_leftValue) {
+  var args = ee.arguments.extract(ee.Filter.inList, arguments);
+  return ee.ApiFunction._apply("Filter.listContains", {leftField:args.rightField, rightValue:args.leftValue, rightField:args.leftField, leftValue:args.rightValue});
+};
+ee.Filter.bounds = function(geometry, opt_errorMargin) {
+  return ee.ApiFunction._apply("Filter.intersects", {leftField:".all", rightValue:ee.ApiFunction._call("Feature", geometry), maxError:opt_errorMargin});
+};
+ee.Filter.prototype.name = function() {
+  return "Filter";
 };
 ee.Filter.metadata = function(name, operator, value) {
   operator = operator.toLowerCase();
@@ -9186,24 +9336,6 @@ ee.Filter.metadata = function(name, operator, value) {
   }
   var filter = ee.ApiFunction._call("Filter." + ee.Filter.functionNames_[operator], name, value);
   return negated ? filter.not() : filter;
-};
-ee.Filter.eq = function(name, value) {
-  return ee.ApiFunction._call("Filter.equals", name, value);
-};
-ee.Filter.neq = function(name, value) {
-  return ee.Filter.eq(name, value).not();
-};
-ee.Filter.lt = function(name, value) {
-  return ee.ApiFunction._call("Filter.lessThan", name, value);
-};
-ee.Filter.gte = function(name, value) {
-  return ee.Filter.lt(name, value).not();
-};
-ee.Filter.gt = function(name, value) {
-  return ee.ApiFunction._call("Filter.greaterThan", name, value);
-};
-ee.Filter.lte = function(name, value) {
-  return ee.Filter.gt(name, value).not();
 };
 ee.Filter.contains = function(name, value) {
   return ee.ApiFunction._call("Filter.stringContains", name, value);
@@ -9223,26 +9355,11 @@ ee.Filter.ends_with = function(name, value) {
 ee.Filter.not_ends_with = function(name, value) {
   return ee.Filter.ends_with(name, value).not();
 };
-ee.Filter.and = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
-  return ee.ApiFunction._call("Filter.and", args);
-};
-ee.Filter.or = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
-  return ee.ApiFunction._call("Filter.or", args);
-};
-ee.Filter.date = function(start, opt_end) {
-  var range = ee.ApiFunction._call("DateRange", start, opt_end);
-  return ee.ApiFunction._apply("Filter.dateRangeContains", {leftValue:range, rightField:"system:time_start"});
-};
-ee.Filter.inList = function(opt_leftField, opt_rightValue, opt_rightField, opt_leftValue) {
-  return ee.ApiFunction._apply("Filter.listContains", {leftField:opt_rightField, rightValue:opt_leftValue, rightField:opt_leftField, leftValue:opt_rightValue});
-};
-ee.Filter.bounds = function(geometry, opt_errorMargin) {
-  return ee.ApiFunction._apply("Filter.intersects", {leftField:".all", rightValue:ee.ApiFunction._call("Feature", geometry), maxError:opt_errorMargin});
-};
 ee.Filter.prototype.eq = function(var_args) {
   return this.append_(ee.Filter.eq.apply(null, [].slice.call(arguments)));
+};
+ee.Filter.prototype.length = function() {
+  return this.filter_.length;
 };
 ee.Filter.prototype.neq = function(var_args) {
   return this.append_(ee.Filter.neq.apply(null, [].slice.call(arguments)));
@@ -9289,9 +9406,6 @@ ee.Filter.prototype.inList = function(var_args) {
 ee.Filter.prototype.bounds = function(var_args) {
   return this.append_(ee.Filter.bounds.apply(null, [].slice.call(arguments)));
 };
-ee.Filter.prototype.name = function() {
-  return "Filter";
-};
 ee.Collection = function(func, args, opt_varName) {
   ee.Element.call(this, func, args, opt_varName);
   ee.Collection.initialize();
@@ -9313,19 +9427,23 @@ ee.Collection.prototype.filter = function(newFilter) {
   return this.castInternal(ee.ApiFunction._call("Collection.filter", this, newFilter));
 };
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
-  return this.filter(ee.Filter.metadata(name, operator, value));
+  var args = ee.arguments.extract(ee.Collection.prototype.filterMetadata, arguments);
+  return this.filter(ee.Filter.metadata(args.name, args.operator, args.value));
 };
 ee.Collection.prototype.filterBounds = function(geometry) {
   return this.filter(ee.Filter.bounds(geometry));
 };
 ee.Collection.prototype.filterDate = function(start, opt_end) {
-  return this.filter(ee.Filter.date(start, opt_end));
+  var args = ee.arguments.extract(ee.Collection.prototype.filterDate, arguments);
+  return this.filter(ee.Filter.date(args.start, args.end));
 };
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, max, opt_property, opt_ascending));
+  var args = ee.arguments.extract(ee.Collection.prototype.limit, arguments);
+  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, args.max, args.property, args.ascending));
 };
 ee.Collection.prototype.sort = function(property, opt_ascending) {
-  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, void 0, property, opt_ascending));
+  var args = ee.arguments.extract(ee.Collection.prototype.sort, arguments);
+  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, void 0, args.property, args.ascending));
 };
 ee.Collection.prototype.name = function() {
   return "Collection";
@@ -9501,13 +9619,15 @@ ee.Date = function(date, opt_tz) {
     return date;
   }
   ee.Date.initialize();
-  var func = new ee.ApiFunction("Date"), args = {}, varName = null;
+  var jsArgs = ee.arguments.extract(ee.Date, arguments);
+  date = jsArgs.date;
+  var tz = jsArgs.tz, func = new ee.ApiFunction("Date"), args = {}, varName = null;
   if (ee.Types.isString(date)) {
-    if (args.value = date, opt_tz) {
-      if (ee.Types.isString(opt_tz)) {
-        args.timeZone = opt_tz;
+    if (args.value = date, tz) {
+      if (ee.Types.isString(tz)) {
+        args.timeZone = tz;
       } else {
-        throw Error("Invalid argument specified for ee.Date(..., opt_tz): " + opt_tz);
+        throw Error("Invalid argument specified for ee.Date(..., opt_tz): " + tz);
       }
     }
   } else {
@@ -9543,6 +9663,13 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   if (!(this instanceof ee.Geometry)) {
     return ee.ComputedObject.construct(ee.Geometry, arguments);
   }
+  if (!("type" in geoJson)) {
+    var args = ee.arguments.extract(ee.Geometry, arguments);
+    geoJson = args.geoJson;
+    opt_proj = args.proj;
+    opt_geodesic = args.geodesic;
+    opt_evenOdd = args.evenOdd;
+  }
   ee.Geometry.initialize();
   var options = goog.isDefAndNotNull(opt_proj) || goog.isDefAndNotNull(opt_geodesic) || goog.isDefAndNotNull(opt_evenOdd);
   if (geoJson instanceof ee.ComputedObject && !(geoJson instanceof ee.Geometry && geoJson.type_)) {
@@ -9552,9 +9679,6 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
     ee.ComputedObject.call(this, geoJson.func, geoJson.args, geoJson.varName);
   } else {
     geoJson instanceof ee.Geometry && (geoJson = geoJson.encode());
-    if (4 < arguments.length) {
-      throw Error("The Geometry constructor takes at most 4 arguments (" + arguments.length + " given)");
-    }
     if (!ee.Geometry.isValidGeometry_(geoJson)) {
       throw Error("Invalid GeoJSON geometry: " + JSON.stringify(geoJson));
     }
@@ -9574,9 +9698,9 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
       }
     }
     this.geodesic_ = opt_geodesic;
-    !goog.isDef(opt_geodesic) && "geodesic" in geoJson && (this.geodesic_ = !!geoJson.geodesic);
+    !goog.isDef(this.geodesic_) && "geodesic" in geoJson && (this.geodesic_ = !!geoJson.geodesic);
     this.evenOdd_ = opt_evenOdd;
-    !goog.isDef(opt_evenOdd) && "evenOdd" in geoJson && (this.evenOdd_ = !!geoJson.evenOdd);
+    !goog.isDef(this.evenOdd_) && "evenOdd" in geoJson && (this.evenOdd_ = !!geoJson.evenOdd);
   }
 };
 goog.inherits(ee.Geometry, ee.ComputedObject);
@@ -9592,7 +9716,7 @@ ee.Geometry.Point = function(coords, opt_proj) {
   if (!(this instanceof ee.Geometry.Point)) {
     return ee.Geometry.createInstance_(ee.Geometry.Point, arguments);
   }
-  var init = ee.Geometry.parseArgs_("Point", 1, arguments);
+  var init = ee.Geometry.construct_(ee.Geometry.Point, "Point", 1, arguments);
   if (!(init instanceof ee.ComputedObject)) {
     var xy = init.coordinates;
     if (!goog.isArray(xy) || 2 != xy.length) {
@@ -9606,14 +9730,14 @@ ee.Geometry.MultiPoint = function(coords, opt_proj) {
   if (!(this instanceof ee.Geometry.MultiPoint)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiPoint, arguments);
   }
-  ee.Geometry.call(this, ee.Geometry.parseArgs_("MultiPoint", 2, arguments));
+  ee.Geometry.call(this, ee.Geometry.construct_(ee.Geometry.MultiPoint, "MultiPoint", 2, arguments));
 };
 goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
 ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
   if (!(this instanceof ee.Geometry.Rectangle)) {
     return ee.Geometry.createInstance_(ee.Geometry.Rectangle, arguments);
   }
-  var init = ee.Geometry.parseArgs_("Rectangle", 2, arguments);
+  var init = ee.Geometry.construct_(ee.Geometry.Rectangle, "Rectangle", 2, arguments);
   if (!(init instanceof ee.ComputedObject)) {
     var xy = init.coordinates;
     if (2 != xy.length) {
@@ -9630,35 +9754,35 @@ ee.Geometry.LineString = function(coords, opt_proj, opt_geodesic, opt_maxError) 
   if (!(this instanceof ee.Geometry.LineString)) {
     return ee.Geometry.createInstance_(ee.Geometry.LineString, arguments);
   }
-  ee.Geometry.call(this, ee.Geometry.parseArgs_("LineString", 2, arguments));
+  ee.Geometry.call(this, ee.Geometry.construct_(ee.Geometry.LineString, "LineString", 2, arguments));
 };
 goog.inherits(ee.Geometry.LineString, ee.Geometry);
 ee.Geometry.LinearRing = function(coords, opt_proj, opt_geodesic, opt_maxError) {
   if (!(this instanceof ee.Geometry.LinearRing)) {
     return ee.Geometry.createInstance_(ee.Geometry.LinearRing, arguments);
   }
-  ee.Geometry.call(this, ee.Geometry.parseArgs_("LinearRing", 2, arguments));
+  ee.Geometry.call(this, ee.Geometry.construct_(ee.Geometry.LinearRing, "LinearRing", 2, arguments));
 };
 goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
 ee.Geometry.MultiLineString = function(coords, opt_proj, opt_geodesic, opt_maxError) {
   if (!(this instanceof ee.Geometry.MultiLineString)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiLineString, arguments);
   }
-  ee.Geometry.call(this, ee.Geometry.parseArgs_("MultiLineString", 3, arguments));
+  ee.Geometry.call(this, ee.Geometry.construct_(ee.Geometry.MultiLineString, "MultiLineString", 3, arguments));
 };
 goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
 ee.Geometry.Polygon = function(coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
   if (!(this instanceof ee.Geometry.Polygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.Polygon, arguments);
   }
-  ee.Geometry.call(this, ee.Geometry.parseArgs_("Polygon", 3, arguments));
+  ee.Geometry.call(this, ee.Geometry.construct_(ee.Geometry.Polygon, "Polygon", 3, arguments));
 };
 goog.inherits(ee.Geometry.Polygon, ee.Geometry);
 ee.Geometry.MultiPolygon = function(coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
   if (!(this instanceof ee.Geometry.MultiPolygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiPolygon, arguments);
   }
-  ee.Geometry.call(this, ee.Geometry.parseArgs_("MultiPolygon", 4, arguments));
+  ee.Geometry.call(this, ee.Geometry.construct_(ee.Geometry.MultiPolygon, "MultiPolygon", 4, arguments));
 };
 goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
 ee.Geometry.prototype.encode = function(opt_encoder) {
@@ -9741,25 +9865,26 @@ ee.Geometry.coordinatesToLine_ = function(coordinates) {
   }
   return line;
 };
-ee.Geometry.parseArgs_ = function(ctorName, depth, args) {
-  var result = {}, keys = ["coordinates", "crs", "geodesic", "maxError", "evenOdd"];
-  if (goog.array.every(args, ee.Types.isNumber)) {
-    result.coordinates = goog.array.toArray(args);
-  } else {
-    if (args.length > keys.length) {
-      throw Error("Geometry constructor given extra arguments.");
-    }
-    for (var i = 0;i < keys.length;i++) {
-      goog.isDefAndNotNull(args[i]) && (result[keys[i]] = args[i]);
-    }
+ee.Geometry.construct_ = function(jsConstructorFn, apiConstructorName, depth, originalArgs) {
+  var eeArgs = ee.Geometry.getEeApiArgs_(jsConstructorFn, originalArgs);
+  if (ee.Geometry.hasServerValue_(eeArgs.coordinates) || goog.isDefAndNotNull(eeArgs.crs) || goog.isDefAndNotNull(eeArgs.geodesic) || goog.isDefAndNotNull(eeArgs.maxError)) {
+    return (new ee.ApiFunction("GeometryConstructors." + apiConstructorName)).apply(eeArgs);
   }
-  if (ee.Geometry.hasServerValue_(result.coordinates) || goog.isDefAndNotNull(result.crs) || goog.isDefAndNotNull(result.geodesic) || goog.isDefAndNotNull(result.maxError)) {
-    return (new ee.ApiFunction("GeometryConstructors." + ctorName)).apply(result);
+  eeArgs.type = apiConstructorName;
+  eeArgs.coordinates = ee.Geometry.fixDepth_(depth, eeArgs.coordinates);
+  !goog.isDefAndNotNull(eeArgs.evenOdd) && goog.array.contains(["Polygon", "Rectangle", "MultiPolygon"], apiConstructorName) && (eeArgs.evenOdd = !0);
+  return eeArgs;
+};
+ee.Geometry.getEeApiArgs_ = function(jsConstructorFn, originalArgs) {
+  if (goog.array.every(originalArgs, ee.Types.isNumber)) {
+    return {coordinates:goog.array.toArray(originalArgs)};
   }
-  result.type = ctorName;
-  result.coordinates = ee.Geometry.fixDepth_(depth, result.coordinates);
-  !goog.isDefAndNotNull(result.evenOdd) && goog.array.contains(["Polygon", "Rectangle", "MultiPolygon"], ctorName) && (result.evenOdd = !0);
-  return result;
+  var args = ee.arguments.extract(jsConstructorFn, originalArgs);
+  args.coordinates = args.coords;
+  delete args.coords;
+  args.crs = args.proj;
+  delete args.proj;
+  return goog.object.filter(args, goog.isDefAndNotNull);
 };
 ee.Geometry.hasServerValue_ = function(coordinates) {
   return goog.isArray(coordinates) ? goog.array.some(coordinates, ee.Geometry.hasServerValue_) : coordinates instanceof ee.ComputedObject;
@@ -9970,7 +10095,8 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
   return ee.Feature.superClass_.getInfo.call(this, opt_callback);
 };
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
-  return ee.ApiFunction._call("Collection", [this]).getMap(opt_visParams, opt_callback);
+  var args = ee.arguments.extract(ee.Feature.prototype.getMap, arguments);
+  return ee.ApiFunction._call("Collection", [this]).getMap(args.visParams, args.callback);
 };
 ee.Feature.Point = function(lon, lat) {
   return ee.Geometry.Point.apply(null, arguments);
@@ -10083,9 +10209,9 @@ ee.FeatureCollection.reset = function() {
   ee.FeatureCollection.initialized_ = !1;
 };
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var painted = ee.ApiFunction._apply("Collection.draw", {collection:this, color:(opt_visParams || {}).color || "000000"});
-  if (opt_callback) {
-    painted.getMap(null, opt_callback);
+  var args = ee.arguments.extract(ee.FeatureCollection.prototype.getMap, arguments), painted = ee.ApiFunction._apply("Collection.draw", {collection:this, color:(args.visParams || {}).color || "000000"});
+  if (args.callback) {
+    painted.getMap(null, args.callback);
   } else {
     return painted.getMap();
   }
@@ -10094,14 +10220,18 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
   return ee.FeatureCollection.superClass_.getInfo.call(this, opt_callback);
 };
 ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selectors, opt_filename, opt_callback) {
-  var request = {};
+  var args = ee.arguments.extract(ee.FeatureCollection.prototype.getDownloadURL, arguments), request = {};
   request.table = this.serialize();
-  opt_format && (request.format = opt_format.toUpperCase());
-  opt_filename && (request.filename = opt_filename);
-  opt_selectors && (goog.isArrayLike(opt_selectors) && (opt_selectors = opt_selectors.join(",")), request.selectors = opt_selectors);
-  if (opt_callback) {
+  args.format && (request.format = args.format.toUpperCase());
+  args.filename && (request.filename = args.filename);
+  if (args.selectors) {
+    var selectors = args.selectors;
+    goog.isArrayLike(selectors) && (selectors = selectors.join(","));
+    request.selectors = selectors;
+  }
+  if (args.callback) {
     ee.data.getTableDownloadId(request, function(downloadId, error) {
-      downloadId ? opt_callback(ee.data.makeTableDownloadUrl(downloadId)) : opt_callback(null, error);
+      downloadId ? args.callback(ee.data.makeTableDownloadUrl(downloadId)) : args.callback(null, error);
     });
   } else {
     return ee.data.makeTableDownloadUrl(ee.data.getTableDownloadId(request));
@@ -10127,40 +10257,15 @@ ee.Image = function(opt_args) {
     return opt_args;
   }
   ee.Image.initialize();
-  var argCount = arguments.length;
-  if (0 == argCount || 1 == argCount && !goog.isDef(opt_args)) {
-    ee.Element.call(this, new ee.ApiFunction("Image.mask"), {image:new ee.Image(0), mask:new ee.Image(0)});
+  var args = opt_args, argCount = arguments.length;
+  if (1 >= argCount) {
+    ee.Types.isString(args) ? ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:args}) : args instanceof ee.ComputedObject && (args.func && "Image" == args.func.getSignature().returns || null == args.func && null == args.args) ? ee.Element.call(this, args.func, args.args, args.varName) : ee.Element.call(this, new ee.ApiFunction("Image.create"), {value:args}, null);
   } else {
-    if (1 == argCount) {
-      if (ee.Types.isNumber(opt_args)) {
-        ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args});
-      } else {
-        if (ee.Types.isString(opt_args)) {
-          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:opt_args});
-        } else {
-          if (goog.isArray(opt_args)) {
-            return ee.Image.combine_(goog.array.map(opt_args, function(elem) {
-              return new ee.Image(elem);
-            }));
-          }
-          if (opt_args instanceof ee.ComputedObject) {
-            "Array" == opt_args.name() ? ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args}) : ee.Element.call(this, opt_args.func, opt_args.args, opt_args.varName);
-          } else {
-            throw Error("Unrecognized argument type to convert to an Image: " + opt_args);
-          }
-        }
-      }
+    if (2 == argCount && ee.Types.isString(arguments[0]) && ee.Types.isNumber(arguments[1])) {
+      var id = arguments[0], version = arguments[1];
+      ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:id, version:version});
     } else {
-      if (2 == argCount) {
-        var id = arguments[0], version = arguments[1];
-        if (ee.Types.isString(id) && ee.Types.isNumber(version)) {
-          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:id, version:version});
-        } else {
-          throw Error("Unrecognized argument types to convert to an Image: " + arguments);
-        }
-      } else {
-        throw Error("The Image constructor takes at most 2 arguments (" + argCount + " given)");
-      }
+      throw Error("Too many arguments to ee.Image.  Expected 1.");
     }
   }
 };
@@ -10177,12 +10282,12 @@ ee.Image.prototype.getInfo = function(opt_callback) {
   return ee.Image.superClass_.getInfo.call(this, opt_callback);
 };
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
-  var request = opt_visParams ? goog.object.clone(opt_visParams) : {};
+  var args = ee.arguments.extract(ee.Image.prototype.getMap, arguments), request = args.visParams ? goog.object.clone(args.visParams) : {};
   request.image = this.serialize();
-  if (opt_callback) {
+  if (args.callback) {
     ee.data.getMapId(request, goog.bind(function(data, error) {
       data && (data.image = this);
-      opt_callback(data, error);
+      args.callback(data, error);
     }, this));
   } else {
     var response = ee.data.getMapId(request);
@@ -10191,18 +10296,19 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   }
 };
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
-  var request = params ? goog.object.clone(params) : {};
+  var args = ee.arguments.extract(ee.Image.prototype.getDownloadURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
   request.image = this.serialize();
-  if (opt_callback) {
+  if (args.callback) {
+    var callback = args.callback;
     ee.data.getDownloadId(request, function(downloadId, error) {
-      downloadId ? opt_callback(ee.data.makeDownloadUrl(downloadId)) : opt_callback(null, error);
+      downloadId ? callback(ee.data.makeDownloadUrl(downloadId)) : callback(null, error);
     });
   } else {
     return ee.data.makeDownloadUrl(ee.data.getDownloadId(request));
   }
 };
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
-  var request = params ? goog.object.clone(params) : {};
+  var args = ee.arguments.extract(ee.Image.prototype.getThumbURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
   request.image = this.serialize();
   if (request.region) {
     if (goog.isArray(request.region) || ee.Types.isRegularObject(request.region)) {
@@ -10213,7 +10319,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
       }
     }
   }
-  if (opt_callback) {
+  if (args.callback) {
     ee.data.getThumbId(request, function(thumbId, opt_error) {
       var thumbUrl = "";
       if (!goog.isDef(opt_error)) {
@@ -10223,28 +10329,20 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
           opt_error = String(e.message);
         }
       }
-      opt_callback(thumbUrl, opt_error);
+      args.callback(thumbUrl, opt_error);
     });
   } else {
     return ee.data.makeThumbUrl(ee.data.getThumbId(request));
   }
 };
 ee.Image.rgb = function(r, g, b) {
-  return ee.Image.combine_([r, g, b], ["vis-red", "vis-green", "vis-blue"]);
+  var args = ee.arguments.extract(ee.Image.rgb, arguments);
+  return ee.Image.create([(new ee.Image(args.r)).select([0], ["vis-red"]), (new ee.Image(args.g)).select([0], ["vis-green"]), (new ee.Image(args.b)).select([0], ["vis-blue"])]);
 };
 ee.Image.cat = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
-  return ee.Image.combine_(args, null);
-};
-ee.Image.combine_ = function(images, opt_names) {
-  if (0 == images.length) {
-    return ee.ApiFunction._call("Image.constant", []);
-  }
-  for (var result = new ee.Image(images[0]), i = 1;i < images.length;i++) {
-    result = ee.ApiFunction._call("Image.addBands", result, images[i]);
-  }
-  opt_names && (result = result.select([".*"], opt_names));
-  return result;
+  var args;
+  args = 1 == arguments.length ? arguments[0] : Array.prototype.slice.call(arguments);
+  return ee.Image.create(args);
 };
 ee.Image.prototype.select = function(var_args) {
   var args = Array.prototype.slice.call(arguments), algorithmArgs = {input:this, bandSelectors:args[0] || []};
@@ -10261,13 +10359,14 @@ ee.Image.prototype.select = function(var_args) {
   return ee.ApiFunction._apply("Image.select", algorithmArgs);
 };
 ee.Image.prototype.expression = function(expression, opt_map) {
-  var vars = ["DEFAULT_EXPRESSION_IMAGE"], args = {DEFAULT_EXPRESSION_IMAGE:this};
-  if (opt_map) {
-    for (var name$$0 in opt_map) {
-      vars.push(name$$0), args[name$$0] = new ee.Image(opt_map[name$$0]);
+  var originalArgs = ee.arguments.extract(ee.Image.prototype.expression, arguments), vars = ["DEFAULT_EXPRESSION_IMAGE"], eeArgs = {DEFAULT_EXPRESSION_IMAGE:this};
+  if (originalArgs.map) {
+    var map = originalArgs.map, name$$0;
+    for (name$$0 in map) {
+      vars.push(name$$0), eeArgs[name$$0] = new ee.Image(map[name$$0]);
     }
   }
-  var body = ee.ApiFunction._call("Image.parseExpression", expression, "DEFAULT_EXPRESSION_IMAGE", vars), func = new ee.Function;
+  var body = ee.ApiFunction._call("Image.parseExpression", originalArgs.expression, "DEFAULT_EXPRESSION_IMAGE", vars), func = new ee.Function;
   func.encode = function(encoder) {
     return body.encode(encoder);
   };
@@ -10276,7 +10375,7 @@ ee.Image.prototype.expression = function(expression, opt_map) {
       return {name:name, type:"Image", optional:!1};
     }, this), returns:"Image"};
   };
-  return func.apply(args);
+  return func.apply(eeArgs);
 };
 ee.Image.prototype.clip = function(geometry) {
   try {
@@ -10335,11 +10434,11 @@ ee.ImageCollection.reset = function() {
   ee.ImageCollection.initialized_ = !1;
 };
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var mosaic = ee.ApiFunction._call("ImageCollection.mosaic", this);
-  if (opt_callback) {
-    mosaic.getMap(opt_visParams, opt_callback);
+  var args = ee.arguments.extract(ee.ImageCollection.prototype.getMap, arguments), mosaic = ee.ApiFunction._call("ImageCollection.mosaic", this);
+  if (args.callback) {
+    mosaic.getMap(args.visParams, args.callback);
   } else {
-    return mosaic.getMap(opt_visParams);
+    return mosaic.getMap(args.visParams);
   }
 };
 ee.ImageCollection.prototype.getInfo = function(opt_callback) {
@@ -11204,9 +11303,12 @@ goog.style.isElementShown = function(el) {
   return "none" != el.style.display;
 };
 goog.style.installStyles = function(stylesString, opt_node) {
+  return goog.style.installSafeStyleSheet(goog.html.legacyconversions.safeStyleSheetFromString(stylesString), opt_node);
+};
+goog.style.installSafeStyleSheet = function(safeStyleSheet, opt_node) {
   var dh = goog.dom.getDomHelper(opt_node), styleSheet = null, doc = dh.getDocument();
   if (goog.userAgent.IE && doc.createStyleSheet) {
-    styleSheet = doc.createStyleSheet(), goog.style.setStyles(styleSheet, stylesString);
+    styleSheet = doc.createStyleSheet(), goog.style.setSafeStyleSheet(styleSheet, safeStyleSheet);
   } else {
     var head = dh.getElementsByTagNameAndClass(goog.dom.TagName.HEAD)[0];
     if (!head) {
@@ -11214,7 +11316,7 @@ goog.style.installStyles = function(stylesString, opt_node) {
       body.parentNode.insertBefore(head, body);
     }
     styleSheet = dh.createDom(goog.dom.TagName.STYLE);
-    goog.style.setStyles(styleSheet, stylesString);
+    goog.style.setSafeStyleSheet(styleSheet, safeStyleSheet);
     dh.appendChild(head, styleSheet);
   }
   return styleSheet;
@@ -11223,7 +11325,11 @@ goog.style.uninstallStyles = function(styleSheet) {
   goog.dom.removeNode(styleSheet.ownerNode || styleSheet.owningElement || styleSheet);
 };
 goog.style.setStyles = function(element, stylesString) {
-  goog.userAgent.IE && goog.isDef(element.cssText) ? element.cssText = stylesString : element.innerHTML = stylesString;
+  goog.style.setSafeStyleSheet(element, goog.html.legacyconversions.safeStyleSheetFromString(stylesString));
+};
+goog.style.setSafeStyleSheet = function(element, safeStyleSheet) {
+  var stylesString = goog.html.SafeStyleSheet.unwrap(safeStyleSheet);
+  goog.userAgent.IE && goog.isDef(element.cssText) ? element.cssText = stylesString : goog.dom.setTextContent(element, stylesString);
 };
 goog.style.setPreWrap = function(el) {
   var style = el.style;
@@ -11628,12 +11734,7 @@ goog.structs.Queue.prototype.contains = function(obj) {
   return goog.array.contains(this.front_, obj) || goog.array.contains(this.back_, obj);
 };
 goog.structs.Queue.prototype.remove = function(obj) {
-  var index = goog.array.lastIndexOf(this.front_, obj);
-  if (0 > index) {
-    return goog.array.remove(this.back_, obj);
-  }
-  goog.array.removeAt(this.front_, index);
-  return !0;
+  return goog.array.removeLast(this.front_, obj) || goog.array.remove(this.back_, obj);
 };
 goog.structs.Queue.prototype.getValues = function() {
   for (var res = [], i = this.front_.length - 1;0 <= i;--i) {
@@ -11774,7 +11875,7 @@ goog.structs.Heap.prototype.insert = function(key, value) {
 goog.structs.Heap.prototype.insertAll = function(heap) {
   var keys, values;
   if (heap instanceof goog.structs.Heap) {
-    if (keys = heap.getKeys(), values = heap.getValues(), 0 >= heap.getCount()) {
+    if (keys = heap.getKeys(), values = heap.getValues(), 0 >= this.getCount()) {
       for (var nodes = this.nodes_, i = 0;i < keys.length;i++) {
         nodes.push(new goog.structs.Node(keys[i], values[i]));
       }
@@ -12253,6 +12354,9 @@ ee.Package.makeFunction = function(signature, body) {
   return func;
 };
 ee.Package.save = function(pkg, path) {
+  var args = ee.arguments.extract(ee.Package.save, arguments);
+  pkg = args.pkg;
+  path = args.path;
   if (!path) {
     throw Error("No path specified.");
   }

@@ -13,7 +13,7 @@ goog.require('goog.array');
 /**
  * Constructs a new list.
  *
- * @param {goog.array.ArrayLike|Object} list A list or a computed object.
+ * @param {IArrayLike|Object} list A list or a computed object.
  *
  * @constructor
  * @extends {ee.ComputedObject}
@@ -34,14 +34,14 @@ ee.List = function(list) {
   /**
    * The internal rerpresentation of this list.
    *
-   * @type {goog.array.ArrayLike?}
+   * @type {IArrayLike?}
    * @private
    */
   this.list_;
 
   if (goog.isArray(list)) {
     goog.base(this, null, null);
-    this.list_ = /** @type {goog.array.ArrayLike} */ (list);
+    this.list_ = /** @type {IArrayLike} */ (list);
   } else if (list instanceof ee.ComputedObject) {
     goog.base(this, list.func, list.args, list.varName);
     this.list_ = null;

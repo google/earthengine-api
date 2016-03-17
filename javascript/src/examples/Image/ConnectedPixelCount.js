@@ -17,5 +17,5 @@ var smallClusters = conn.lt(30);
 
 Map.setCenter(-107.24304, 35.78663, 8);
 Map.addLayer(img, {min: 0, max: 1}, 'original');
-Map.addLayer(smallClusters.mask(smallClusters),
+Map.addLayer(smallClusters.updateMask(smallClusters),
          {min: 0, max: 1, palette: 'FF0000'}, 'cc');

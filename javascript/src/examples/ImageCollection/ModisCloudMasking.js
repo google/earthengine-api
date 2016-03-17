@@ -30,7 +30,7 @@ var getQABits = function(image, start, end, newName) {
 var maskEmptyPixels = function(image) {
   // Find pixels that had observations.
   var withObs = image.select('num_observations_1km').gt(0);
-  return image.mask(image.mask().and(withObs));
+  return image.updateMask(withObs);
 };
 
 // A function to mask out cloudy pixels.
@@ -40,7 +40,7 @@ var maskClouds = function(image) {
   // Get the internal_cloud_algorithm_flag bit.
   var internalCloud = getQABits(QA, 10, 10, 'internal_cloud_algorithm_flag');
   // Return an image masking out cloudy areas.
-  return image.mask(image.mask().and(internalCloud.eq(0)));
+  return image.updateMask(internalCloud.eq(0));
 };
 
 // Start with an image collection for a 1 month period.

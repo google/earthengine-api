@@ -8,6 +8,7 @@ goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.Element');
 goog.require('ee.Geometry');
+goog.require('ee.arguments');
 goog.require('goog.object');
 
 
@@ -141,9 +142,10 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
  * @export
  */
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
+  var args = ee.arguments.extract(ee.Feature.prototype.getMap, arguments);
   var collection = ee.ApiFunction._call('Collection', [this]);
   return /** @type {ee.FeatureCollection} */(collection)
-      .getMap(opt_visParams, opt_callback);
+      .getMap(args['visParams'], args['callback']);
 };
 
 

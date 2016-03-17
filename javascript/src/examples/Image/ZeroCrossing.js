@@ -9,4 +9,4 @@ Map.addLayer(image, {min: 0, max: 1, opacity: 0.5}, 'Crossing 1000m');
 
 var exact = elev.eq(1000);
 Map.addLayer(
-    exact.mask(exact), {min: 0, max: 1, palette: 'FF0000'}, 'Exactly 1000m');
+    exact.updateMask(exact), {min: 0, max: 1, palette: 'FF0000'}, 'Exactly 1000m');

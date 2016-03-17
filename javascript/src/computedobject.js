@@ -213,7 +213,7 @@ ee.ComputedObject.prototype.castInternal = function(obj) {
  * A helper function to construct a class with variable args.
  *
  * @param {Function} constructor The constructor to construct.
- * @param {goog.array.ArrayLike} argsArray The args array.
+ * @param {IArrayLike} argsArray The args array.
  * @return {Object} The newly constructed object.
  */
 ee.ComputedObject.construct = function(constructor, argsArray) {

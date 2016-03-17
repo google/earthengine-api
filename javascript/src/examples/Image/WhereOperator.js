@@ -15,7 +15,7 @@ var output = blank.where(
     1);
 
 // Output contains 0s and 1s.  Mask it with itself to get rid of the 0s.
-var result = output.mask(output);
+var result = output.updateMask(output);
 
 Map.addLayer(result, {palette: '00AA00'});
 Map.setCenter(-113.41842, 40.055489, 6);

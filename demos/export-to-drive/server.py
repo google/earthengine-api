@@ -37,7 +37,6 @@ import json
 import logging
 import os
 import random
-import socket
 import string
 import time
 
@@ -60,7 +59,7 @@ from google.appengine.api import users
 
 
 # The URL fetch timeout (seconds).
-URL_FETCH_TIMEOUT = 30
+URL_FETCH_TIMEOUT = 60
 
 # Our App Engine service account's credentials for use with Earth Engine.
 EE_CREDENTIALS = ee.ServiceAccountCredentials(
@@ -68,8 +67,6 @@ EE_CREDENTIALS = ee.ServiceAccountCredentials(
 
 # Initialize the EE API.
 ee.Initialize(EE_CREDENTIALS)
-ee.data.setDeadline(URL_FETCH_TIMEOUT)
-socket.setdefaulttimeout(URL_FETCH_TIMEOUT)
 
 # The Jinja templating system we use to dynamically generate HTML. See:
 # http://jinja.pocoo.org/docs/dev/
@@ -167,6 +164,8 @@ class DataHandler(webapp2.RequestHandler):
   @OAUTH_DECORATOR.oauth_required
   def Handle(self, handle_function):
     """Responds with the result of the handle_function or errors, if any."""
+    # Note: The fetch timeout is thread-local so must be set separately
+    # for each incoming request.
     urlfetch.set_default_fetch_deadline(URL_FETCH_TIMEOUT)
     try:
       response = handle_function()

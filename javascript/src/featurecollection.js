@@ -11,6 +11,7 @@ goog.require('ee.Feature');
 goog.require('ee.Geometry');
 goog.require('ee.List');
 goog.require('ee.Types');
+goog.require('ee.arguments');
 goog.require('ee.data');
 goog.require('goog.array');
 
@@ -131,13 +132,16 @@ ee.FeatureCollection.reset = function() {
  * @export
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
+  var args = ee.arguments.extract(
+      ee.FeatureCollection.prototype.getMap, arguments);
+
   var painted = ee.ApiFunction._apply('Collection.draw', {
     'collection': this,
-    'color': (opt_visParams || {})['color'] || '000000'
+    'color': (args['visParams'] || {})['color'] || '000000'
   });
 
-  if (opt_callback) {
-    painted.getMap(null, opt_callback);
+  if (args['callback']) {
+    painted.getMap(null, args['callback']);
   } else {
     return painted.getMap();
   }
@@ -181,27 +185,30 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
  */
 ee.FeatureCollection.prototype.getDownloadURL = function(
     opt_format, opt_selectors, opt_filename, opt_callback) {
+  var args = ee.arguments.extract(
+      ee.FeatureCollection.prototype.getDownloadURL, arguments);
   var request = {};
   request['table'] = this.serialize();
-  if (opt_format) {
-    request['format'] = opt_format.toUpperCase();
+  if (args['format']) {
+    request['format'] = args['format'].toUpperCase();
   }
-  if (opt_filename) {
-    request['filename'] = opt_filename;
+  if (args['filename']) {
+    request['filename'] = args['filename'];
   }
-  if (opt_selectors) {
-    if (goog.isArrayLike(opt_selectors)) {
-      opt_selectors = opt_selectors.join(',');
+  if (args['selectors']) {
+    var selectors = args['selectors'];
+    if (goog.isArrayLike(selectors)) {
+      selectors = selectors.join(',');
     }
-    request['selectors'] = opt_selectors;
+    request['selectors'] = selectors;
   }
 
-  if (opt_callback) {
+  if (args['callback']) {
     ee.data.getTableDownloadId(request, function(downloadId, error) {
       if (downloadId) {
-        opt_callback(ee.data.makeTableDownloadUrl(downloadId));
+        args['callback'](ee.data.makeTableDownloadUrl(downloadId));
       } else {
-        opt_callback(null, error);
+        args['callback'](null, error);
       }
     });
   } else {

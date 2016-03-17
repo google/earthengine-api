@@ -46,18 +46,18 @@ Map.addLayer(ee_sr, {min: 0, max: 2000}, 'EE Surface Reflectance');
 // QA Bit 6: Pixel used as "dense dark vegetation"
 
 var invalid = ee_sr.select('QA').bitwiseAnd(2).neq(0);
-invalid = invalid.mask(invalid);
+invalid = invalid.updateMask(invalid);
 
 var cloud = ee_sr.select('QA').bitwiseAnd(4).neq(0);
-cloud = cloud.mask(cloud);
+cloud = cloud.updateMask(cloud);
 
 // This flag is technically a "not water" flag, so we check for it
 // being unset (eq(0)) instead of set (neq(0)).
 var water = ee_sr.select('QA').bitwiseAnd(32).eq(0);
-water = water.mask(water);
+water = water.updateMask(water);
 
 var dense_dark_vegetation = ee_sr.select('QA').bitwiseAnd(64).neq(0);
-dense_dark_vegetation = dense_dark_vegetation.mask(dense_dark_vegetation);
+dense_dark_vegetation = dense_dark_vegetation.updateMask(dense_dark_vegetation);
 
 // Show various bits from the QA Mask Band.
 Map.addLayer(invalid, {palette: '000000,ff0000'}, 'Invalid');
