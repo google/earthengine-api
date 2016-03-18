@@ -16,13 +16,13 @@ class ImageTestCase(apitestcase.ApiTestCase):
   def testConstructors(self):
     """Verifies that constructors understand valid parameters."""
     from_constant = ee.Image(1)
-    self.assertEquals(ee.ApiFunction.lookup('Image.create'),
+    self.assertEquals(ee.ApiFunction.lookup('Image.constant'),
                       from_constant.func)
     self.assertEquals({'value': 1}, from_constant.args)
 
     array_constant = ee.Array([1, 2])
     from_array_constant = ee.Image(array_constant)
-    self.assertEquals(ee.ApiFunction.lookup('Image.create'),
+    self.assertEquals(ee.ApiFunction.lookup('Image.constant'),
                       from_array_constant.func)
     self.assertEquals({'value': array_constant}, from_array_constant.args)
 
@@ -31,20 +31,21 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEquals({'id': 'abcd'}, from_id.args)
 
     from_array = ee.Image([1, 2])
-    self.assertEquals(ee.ApiFunction.lookup('Image.create'), from_array.func)
-    self.assertEquals({'value': [1, 2]}, from_array.args)
+    self.assertEquals(ee.ApiFunction.lookup('Image.addBands'), from_array.func)
+    self.assertEquals({'dstImg': ee.Image(1), 'srcImg': ee.Image(2)},
+                      from_array.args)
 
-    computed_object = ee.ComputedObject(None, {'x': 'y'})
-    from_computed_object = ee.Image(computed_object)
-    self.assertEquals({'value': computed_object}, from_computed_object.args)
+    from_computed_object = ee.Image(ee.ComputedObject(None, {'x': 'y'}))
+    self.assertEquals({'x': 'y'}, from_computed_object.args)
 
     original = ee.Image(1)
     from_other_image = ee.Image(original)
     self.assertEquals(from_other_image, original)
 
     from_nothing = ee.Image()
-    self.assertEquals(ee.ApiFunction.lookup('Image.create'), from_nothing.func)
-    self.assertEquals({'value': None}, from_nothing.args)
+    self.assertEquals(ee.ApiFunction.lookup('Image.mask'), from_nothing.func)
+    self.assertEquals({'image': ee.Image(0), 'mask': ee.Image(0)},
+                      from_nothing.args)
 
     from_id_and_version = ee.Image('abcd', 123)
     self.assertEquals(ee.ApiFunction.lookup('Image.load'),
@@ -66,6 +67,20 @@ class ImageTestCase(apitestcase.ApiTestCase):
     image = ee.Image(1)
     self.assertEquals({'value': 'fakeValue'}, image.getInfo())
     self.assertEquals({'mapid': 'fakeMapId', 'image': image}, image.getMapId())
+
+  def testCombine(self):
+    """Verifies the behavior of ee.Image.combine_()."""
+    image1 = ee.Image([1, 2])
+    image2 = ee.Image([3, 4])
+    combined = ee.Image.combine_([image1, image2], ['a', 'b', 'c', 'd'])
+
+    self.assertEquals(ee.ApiFunction.lookup('Image.select'), combined.func)
+    self.assertEquals(ee.List(['.*']), combined.args['bandSelectors'])
+    self.assertEquals(ee.List(['a', 'b', 'c', 'd']), combined.args['newNames'])
+    self.assertEquals(ee.ApiFunction.lookup('Image.addBands'),
+                      combined.args['input'].func)
+    self.assertEquals({'dstImg': image1, 'srcImg': image2},
+                      combined.args['input'].args)
 
   def testSelect(self):
     """Verifies regression in the behavior of empty ee.Image.select()."""

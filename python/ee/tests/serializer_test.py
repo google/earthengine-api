@@ -78,7 +78,7 @@ class SerializerTest(apitestcase.ApiTestCase):
                 'arguments': {
                     'value': 5
                 },
-                'functionName': 'Image.create'
+                'functionName': 'Image.constant'
             }],
             ['1', {
                 'type': 'Invocation',

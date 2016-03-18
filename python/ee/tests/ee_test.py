@@ -64,6 +64,7 @@ class EETestCase(apitestcase.ApiTestCase):
                 ],
                 'returns': 'Image'
             },
+            'Image.constant': apitestcase.BUILTIN_FUNCTIONS['Image.constant']
         }
       else:
         raise Exception('Unexpected API call to %s with %s' % (path, params))

@@ -10257,15 +10257,40 @@ ee.Image = function(opt_args) {
     return opt_args;
   }
   ee.Image.initialize();
-  var args = opt_args, argCount = arguments.length;
-  if (1 >= argCount) {
-    ee.Types.isString(args) ? ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:args}) : args instanceof ee.ComputedObject && (args.func && "Image" == args.func.getSignature().returns || null == args.func && null == args.args) ? ee.Element.call(this, args.func, args.args, args.varName) : ee.Element.call(this, new ee.ApiFunction("Image.create"), {value:args}, null);
+  var argCount = arguments.length;
+  if (0 == argCount || 1 == argCount && !goog.isDef(opt_args)) {
+    ee.Element.call(this, new ee.ApiFunction("Image.mask"), {image:new ee.Image(0), mask:new ee.Image(0)});
   } else {
-    if (2 == argCount && ee.Types.isString(arguments[0]) && ee.Types.isNumber(arguments[1])) {
-      var id = arguments[0], version = arguments[1];
-      ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:id, version:version});
+    if (1 == argCount) {
+      if (ee.Types.isNumber(opt_args)) {
+        ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args});
+      } else {
+        if (ee.Types.isString(opt_args)) {
+          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:opt_args});
+        } else {
+          if (goog.isArray(opt_args)) {
+            return ee.Image.combine_(goog.array.map(opt_args, function(elem) {
+              return new ee.Image(elem);
+            }));
+          }
+          if (opt_args instanceof ee.ComputedObject) {
+            "Array" == opt_args.name() ? ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args}) : ee.Element.call(this, opt_args.func, opt_args.args, opt_args.varName);
+          } else {
+            throw Error("Unrecognized argument type to convert to an Image: " + opt_args);
+          }
+        }
+      }
     } else {
-      throw Error("Too many arguments to ee.Image.  Expected 1.");
+      if (2 == argCount) {
+        var id = arguments[0], version = arguments[1];
+        if (ee.Types.isString(id) && ee.Types.isNumber(version)) {
+          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:id, version:version});
+        } else {
+          throw Error("Unrecognized argument types to convert to an Image: " + arguments);
+        }
+      } else {
+        throw Error("The Image constructor takes at most 2 arguments (" + argCount + " given)");
+      }
     }
   }
 };
@@ -10337,12 +10362,21 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
 };
 ee.Image.rgb = function(r, g, b) {
   var args = ee.arguments.extract(ee.Image.rgb, arguments);
-  return ee.Image.create([(new ee.Image(args.r)).select([0], ["vis-red"]), (new ee.Image(args.g)).select([0], ["vis-green"]), (new ee.Image(args.b)).select([0], ["vis-blue"])]);
+  return ee.Image.combine_([args.r, args.g, args.b], ["vis-red", "vis-green", "vis-blue"]);
 };
 ee.Image.cat = function(var_args) {
-  var args;
-  args = 1 == arguments.length ? arguments[0] : Array.prototype.slice.call(arguments);
-  return ee.Image.create(args);
+  var args = Array.prototype.slice.call(arguments);
+  return ee.Image.combine_(args, null);
+};
+ee.Image.combine_ = function(images, opt_names) {
+  if (0 == images.length) {
+    return ee.ApiFunction._call("Image.constant", []);
+  }
+  for (var result = new ee.Image(images[0]), i = 1;i < images.length;i++) {
+    result = ee.ApiFunction._call("Image.addBands", result, images[i]);
+  }
+  opt_names && (result = result.select([".*"], opt_names));
+  return result;
 };
 ee.Image.prototype.select = function(var_args) {
   var args = Array.prototype.slice.call(arguments), algorithmArgs = {input:this, bandSelectors:args[0] || []};

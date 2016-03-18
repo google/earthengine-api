@@ -28,11 +28,7 @@ goog.require('goog.object');
  *   - A list: creates an image out of each list element and combines them
  *     into a single image,
  *   - An ee.Image: returns the argument,
- *   - A dictonary containing Numbers or EEArrays: creates a constant
- *     band for each element, named with the dictionary key.  Bands are
- *     sorted in the natural ordering of the keys.
  *   - Nothing: results in an empty transparent image.
- *
  *
  * @param {number|string|Array.<*>|ee.Image|Object=} opt_args
  *     Constructor argument.
@@ -50,38 +46,56 @@ ee.Image = function(opt_args) {
 
   ee.Image.initialize();
 
-  var args = opt_args;
   var argCount = arguments.length;
-  if (argCount <= 1) {
-    if (ee.Types.isString(args)) { // An ID.
-      goog.base(this, new ee.ApiFunction('Image.load'), {'id': args});
-      return;
-    } else if (args instanceof ee.ComputedObject) {
-      if ((args.func && args.func.getSignature()['returns'] == 'Image') ||
-          (args.func == null && args.args == null)) {
-        // If it's a call that's already returning an Image, just cast.
-        // Because of auto-promotion, the client can end up doing LOTS of
-        // casting, this lets us skip unnecessary calls to the constructor.
-        goog.base(this, args.func, args.args, args.varName);
-        return;
+  if (argCount == 0 || (argCount == 1 && !goog.isDef(opt_args))) {
+    goog.base(this, new ee.ApiFunction('Image.mask'), {
+      'image': new ee.Image(0),
+      'mask': new ee.Image(0)
+    });
+  } else if (argCount == 1) {
+    if (ee.Types.isNumber(opt_args)) {
+      // A constant image.
+      goog.base(this, new ee.ApiFunction('Image.constant'),
+                {'value': opt_args});
+    } else if (ee.Types.isString(opt_args)) {
+      // An ID.
+      goog.base(this, new ee.ApiFunction('Image.load'), {'id': opt_args});
+    } else if (goog.isArray(opt_args)) {
+      // Make an image out of each element.
+      return ee.Image.combine_(goog.array.map(
+          /** @type {Array.<*>} */ (opt_args),
+          function(elem) {
+            return new ee.Image(/** @type {?} */ (elem));
+          }));
+    } else if (opt_args instanceof ee.ComputedObject) {
+      if (opt_args.name() == 'Array') {
+        // A constant array image.
+        goog.base(this, new ee.ApiFunction('Image.constant'),
+                  {'value': opt_args});
+      } else {
+        // A custom object to reinterpret as an Image.
+        goog.base(this, opt_args.func, opt_args.args, opt_args.varName);
       }
+    } else {
+      throw Error('Unrecognized argument type to convert to an Image: ' +
+                  opt_args);
     }
-    // Fall-through for everything else.
-    // We don't know what this is, pass it to the server constructor.
-    goog.base(this,
-        new ee.ApiFunction('Image.create'), {'value': args}, null);
-  } else if (argCount == 2 &&
-      ee.Types.isString(arguments[0]) &&
-      ee.Types.isNumber(arguments[1])) {
+  } else if (argCount == 2) {
+    // An ID and version.
     var id = arguments[0];
     var version = arguments[1];
-    goog.base(this, new ee.ApiFunction('Image.load'), {
-      'id': id,
-      'version': version
-    });
+    if (ee.Types.isString(id) && ee.Types.isNumber(version)) {
+      goog.base(this, new ee.ApiFunction('Image.load'), {
+        'id': id,
+        'version': version
+      });
+    } else {
+      throw Error('Unrecognized argument types to convert to an Image: ' +
+                  arguments);
+    }
   } else {
-    // Intentionally not mentioning the 2 argument option.  It's not used.
-    throw new Error('Too many arguments to ee.Image.  Expected 1.');
+    throw Error('The Image constructor takes at most 2 arguments (' +
+                argCount + ' given)');
   }
 };
 goog.inherits(ee.Image, ee.Element);
@@ -289,10 +303,9 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
  */
 ee.Image.rgb = function(r, g, b) {
   var args = ee.arguments.extract(ee.Image.rgb, arguments);
-  return ee.Image.create([
-    new ee.Image(args['r']).select([0], ['vis-red']),
-    new ee.Image(args['g']).select([0], ['vis-green']),
-    new ee.Image(args['b']).select([0], ['vis-blue'])]);
+  return ee.Image.combine_(
+      [args['r'], args['g'], args['b']],
+      ['vis-red', 'vis-green', 'vis-blue']);
 };
 
 
@@ -304,14 +317,37 @@ ee.Image.rgb = function(r, g, b) {
  * @export
  */
 ee.Image.cat = function(var_args) {
-  var args;
-  if (arguments.length == 1) {
-    // No varargs.  Just pass it along.
-    args = arguments[0];
-  } else {
-    args = Array.prototype.slice.call(arguments);
+  var args = Array.prototype.slice.call(arguments);
+  return ee.Image.combine_(args, null);
+};
+
+
+/**
+ * Combine all the bands from the given images into a single image, with
+ * optional renaming.
+ *
+ * @param {Array.<ee.Image>} images The images to be combined.
+ * @param {Array.<string>=} opt_names A list of names for the output bands.
+ * @return {ee.Image} The combined image.
+ * @private
+ */
+ee.Image.combine_ = function(images, opt_names) {
+  if (images.length == 0) {
+    return /** @type {ee.Image} */ (ee.ApiFunction._call('Image.constant', []));
   }
-  return ee.Image.create(args);
+
+  // Append all the bands.
+  var result = new ee.Image(images[0]);
+  for (var i = 1; i < images.length; i++) {
+    result = ee.ApiFunction._call('Image.addBands', result, images[i]);
+  }
+
+  // Optionally, rename the bands of the result.
+  if (opt_names) {
+    result = result.select(['.*'], opt_names);
+  }
+
+  return result;
 };
 
 

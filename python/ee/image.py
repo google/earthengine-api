@@ -39,9 +39,6 @@ class Image(element.Element):
           - A list - creates an image out of each element of the array and
             combines them into a single image,
           - An ee.Image - returns the argument,
-          - A dictionary containing Numbers or EEArrays: creates a constant
-            band for each element, named with the dictionary key.  Bands are
-            sorted in the the natural ordering of the keys.
           - Nothing - results in an empty transparent image.
       version: An optional asset version.
 
@@ -63,20 +60,33 @@ class Image(element.Element):
             'Received: %s' % (args,))
       return
 
-    if ee_types.isString(args):
+    if ee_types.isNumber(args):
+      # A constant image.
+      super(Image, self).__init__(
+          apifunction.ApiFunction.lookup('Image.constant'), {'value': args})
+    elif ee_types.isString(args):
       # An ID.
       super(Image, self).__init__(
           apifunction.ApiFunction.lookup('Image.load'), {'id': args})
-    elif (isinstance(args, computedobject.ComputedObject) and
-          ((args.func and args.func.getSignature()['returns'] == 'Image') or
-           (args.func is None and args.args is None))):
-      # A custom object to reinterpret as an Image.
-      # Because of auto-promotion, the client can end up doing LOTS of
-      # casting, this lets us skip unnecessary calls to the constructor.
-      super(Image, self).__init__(args.func, args.args, args.varName)
-    else:
+    elif isinstance(args, (list, tuple)):
+      # Make an image out of each element.
+      image = Image.combine_([Image(i) for i in args])
+      super(Image, self).__init__(image.func, image.args)
+    elif isinstance(args, computedobject.ComputedObject):
+      if args.name() == 'Array':
+        # A constant array image.
+        super(Image, self).__init__(
+            apifunction.ApiFunction.lookup('Image.constant'), {'value': args})
+      else:
+        # A custom object to reinterpret as an Image.
+        super(Image, self).__init__(args.func, args.args, args.varName)
+    elif args is None:
       super(Image, self).__init__(
-          apifunction.ApiFunction.lookup('Image.create'), {'value': args})
+          apifunction.ApiFunction.lookup('Image.mask'),
+          {'image': Image(0), 'mask': Image(0)})
+    else:
+      raise ee_exception.EEException(
+          'Unrecognized argument type to convert to an Image: %s' % args)
 
   @classmethod
   def initialize(cls):
@@ -207,15 +217,37 @@ class Image(element.Element):
     Returns:
       The combined image.
     """
-    return apifunction.ApiFunction.call_('Image.create', [
-        Image(r).select([0], ['vis-red']),
-        Image(g).select([0], ['vis-green']),
-        Image(b).select([0], ['vis-blue'])])
+    return Image.combine_([r, g, b], ['vis-red', 'vis-green', 'vis-blue'])
 
   @staticmethod
   def cat(*args):
     """Concatenate the given images together into a single image."""
-    return apifunction.ApiFunction.call_('Image.create', args)
+    return Image.combine_(args)
+
+  @staticmethod
+  def combine_(images, names=None):
+    """Combine all the bands from the given images into a single image.
+
+    Args:
+      images: The images to be combined.
+      names: An array of names for the output bands.
+
+    Returns:
+      The combined image.
+    """
+    if not images:
+      raise ee_exception.EEException('Can\'t combine 0 images.')
+
+    # Append all the bands.
+    result = Image(images[0])
+    for image in images[1:]:
+      result = apifunction.ApiFunction.call_('Image.addBands', result, image)
+
+    # Optionally, rename the bands of the result.
+    if names:
+      result = result.select(['.*'], names)
+
+    return result
 
   def select(self, opt_selectors=None, opt_names=None, *args):
     """Selects bands from an image.

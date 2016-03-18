@@ -1359,17 +1359,6 @@ BUILTIN_FUNCTIONS = {
         ],
         'returns': 'Dictionary'
     },
-    'Image.create': {
-        'type': 'Algorithm',
-        'args': [
-            {
-                'name': 'value',
-                'type': 'Object'
-            },
-        ],
-        'description': '',
-        'returns': 'Image'
-    },
 }
 
 
