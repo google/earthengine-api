@@ -137,7 +137,7 @@ goog.DEPENDENCIES_ENABLED && (goog.dependencies_ = {pathIsModule:{}, nameToPath:
 }, goog.importScript_ = function(src, opt_sourceText) {
   (goog.global.CLOSURE_IMPORT_SCRIPT || goog.writeScriptTag_)(src, opt_sourceText) && (goog.dependencies_.written[src] = !0);
 }, goog.IS_OLD_IE_ = !(goog.global.atob || !goog.global.document || !goog.global.document.all), goog.importModule_ = function(src) {
-  goog.importScript_("", 'goog.retrieveAndExecModule_("' + src + '");') && (goog.dependencies_.written[src] = !0);
+  goog.importScript_("", 'goog.retrieveAndExecModule_("' + src + '");');
 }, goog.queuedModules_ = [], goog.wrapModule_ = function(srcUrl, scriptText) {
   return goog.LOAD_MODULE_USING_EVAL && goog.isDef(goog.global.JSON) ? "goog.loadModule(" + goog.global.JSON.stringify(scriptText + "\n//# sourceURL=" + srcUrl + "\n") + ");" : 'goog.loadModule(function(exports) {"use strict";' + scriptText + "\n;return exports});\n//# sourceURL=" + srcUrl + "\n";
 }, goog.loadQueuedModules_ = function() {
@@ -548,19 +548,19 @@ goog.defineClass = function(superClass, def) {
 };
 goog.defineClass.SEAL_CLASS_INSTANCES = goog.DEBUG;
 goog.defineClass.createSealingConstructor_ = function(ctr, superClass) {
-  if (goog.defineClass.SEAL_CLASS_INSTANCES && Object.seal instanceof Function) {
-    if (superClass && superClass.prototype && superClass.prototype[goog.UNSEALABLE_CONSTRUCTOR_PROPERTY_]) {
-      return ctr;
-    }
-    var wrappedCtr = function() {
-      var instance = ctr.apply(this, arguments) || this;
-      instance[goog.UID_PROPERTY_] = instance[goog.UID_PROPERTY_];
-      this.constructor === wrappedCtr && Object.seal(instance);
-      return instance;
-    };
-    return wrappedCtr;
+  if (!goog.defineClass.SEAL_CLASS_INSTANCES) {
+    return ctr;
   }
-  return ctr;
+  var superclassSealable = !goog.defineClass.isUnsealable_(superClass), wrappedCtr = function() {
+    var instance = ctr.apply(this, arguments) || this;
+    instance[goog.UID_PROPERTY_] = instance[goog.UID_PROPERTY_];
+    this.constructor === wrappedCtr && superclassSealable && Object.seal instanceof Function && Object.seal(instance);
+    return instance;
+  };
+  return wrappedCtr;
+};
+goog.defineClass.isUnsealable_ = function(ctr) {
+  return ctr && ctr.prototype && ctr.prototype[goog.UNSEALABLE_CONSTRUCTOR_PROPERTY_];
 };
 goog.defineClass.OBJECT_PROTOTYPE_FIELDS_ = "constructor hasOwnProperty isPrototypeOf propertyIsEnumerable toLocaleString toString valueOf".split(" ");
 goog.defineClass.applyProperties_ = function(target, source) {
@@ -1857,7 +1857,7 @@ goog.reflect.canAccessProperty = function(obj, prop) {
 };
 goog.reflect.cache = function(cacheObj, key, valueFn, opt_keyFn) {
   var storedKey = opt_keyFn ? opt_keyFn(key) : key;
-  return storedKey in cacheObj ? cacheObj[storedKey] : cacheObj[storedKey] = valueFn(key);
+  return Object.prototype.hasOwnProperty.call(cacheObj, storedKey) ? cacheObj[storedKey] : cacheObj[storedKey] = valueFn(key);
 };
 goog.labs = {};
 goog.labs.userAgent = {};
@@ -4288,31 +4288,6 @@ goog.html.SafeHtml.combineAttributes = function(fixedAttributes, defaultAttribut
 goog.html.SafeHtml.DOCTYPE_HTML = goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("<!DOCTYPE html>", goog.i18n.bidi.Dir.NEUTRAL);
 goog.html.SafeHtml.EMPTY = goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("", goog.i18n.bidi.Dir.NEUTRAL);
 goog.html.SafeHtml.BR = goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("<br>", goog.i18n.bidi.Dir.NEUTRAL);
-goog.html.legacyconversions = {};
-goog.html.legacyconversions.safeHtmlFromString = function(html) {
-  goog.html.legacyconversions.reportCallback_();
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(html, null);
-};
-goog.html.legacyconversions.safeStyleFromString = function(style) {
-  goog.html.legacyconversions.reportCallback_();
-  return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
-};
-goog.html.legacyconversions.safeStyleSheetFromString = function(styleSheet) {
-  goog.html.legacyconversions.reportCallback_();
-  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
-};
-goog.html.legacyconversions.safeUrlFromString = function(url) {
-  goog.html.legacyconversions.reportCallback_();
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
-};
-goog.html.legacyconversions.trustedResourceUrlFromString = function(url) {
-  goog.html.legacyconversions.reportCallback_();
-  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(url);
-};
-goog.html.legacyconversions.reportCallback_ = goog.nullFunction;
-goog.html.legacyconversions.setReportCallback = function(callback) {
-  goog.html.legacyconversions.reportCallback_ = callback;
-};
 goog.math = {};
 goog.math.randomInt = function(a) {
   return Math.floor(Math.random() * a);
@@ -4800,9 +4775,6 @@ goog.dom.safeHtmlToNode_ = function(doc, html) {
   var tempDiv = doc.createElement(goog.dom.TagName.DIV);
   goog.dom.BrowserFeature.INNER_HTML_NEEDS_SCOPED_ELEMENT ? (goog.dom.safe.setInnerHtml(tempDiv, goog.html.SafeHtml.concat(goog.html.SafeHtml.BR, html)), tempDiv.removeChild(tempDiv.firstChild)) : goog.dom.safe.setInnerHtml(tempDiv, html);
   return goog.dom.childrenToNode_(doc, tempDiv);
-};
-goog.dom.htmlToDocumentFragment = function(htmlString) {
-  return goog.dom.safeHtmlToNode_(document, goog.html.legacyconversions.safeHtmlFromString(htmlString));
 };
 goog.dom.childrenToNode_ = function(doc, tempDiv) {
   if (1 == tempDiv.childNodes.length) {
@@ -5331,9 +5303,6 @@ goog.dom.DomHelper.prototype.createTable = function(rows, columns, opt_fillWithN
 };
 goog.dom.DomHelper.prototype.safeHtmlToNode = function(html) {
   return goog.dom.safeHtmlToNode_(this.document_, html);
-};
-goog.dom.DomHelper.prototype.htmlToDocumentFragment = function(htmlString) {
-  return goog.dom.safeHtmlToNode_(this.document_, goog.html.legacyconversions.safeHtmlFromString(htmlString));
 };
 goog.dom.DomHelper.prototype.isCss1CompatMode = function() {
   return goog.dom.isCss1CompatMode_(this.document_);
@@ -8450,6 +8419,7 @@ ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
 };
 goog.exportSymbol("ee.data.setAssetProperties", ee.data.setAssetProperties);
 ee.data.AssetType = {IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", FOLDER:"Folder", ALGORITHM:"Algorithm", UNKNOWN:"Unknown"};
+ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO"};
 ee.data.SystemTimeProperty = {START:"system:time_start", END:"system:time_end"};
 ee.data.MapZoomRange = {MIN:0, MAX:24};
 ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
@@ -10769,6 +10739,31 @@ goog.dom.vendor.getPrefixedPropertyName = function(propertyName, opt_object) {
 };
 goog.dom.vendor.getPrefixedEventType = function(eventType) {
   return ((goog.dom.vendor.getVendorJsPrefix() || "") + eventType).toLowerCase();
+};
+goog.html.legacyconversions = {};
+goog.html.legacyconversions.safeHtmlFromString = function(html) {
+  goog.html.legacyconversions.reportCallback_();
+  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(html, null);
+};
+goog.html.legacyconversions.safeStyleFromString = function(style) {
+  goog.html.legacyconversions.reportCallback_();
+  return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
+};
+goog.html.legacyconversions.safeStyleSheetFromString = function(styleSheet) {
+  goog.html.legacyconversions.reportCallback_();
+  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
+};
+goog.html.legacyconversions.safeUrlFromString = function(url) {
+  goog.html.legacyconversions.reportCallback_();
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
+};
+goog.html.legacyconversions.trustedResourceUrlFromString = function(url) {
+  goog.html.legacyconversions.reportCallback_();
+  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(url);
+};
+goog.html.legacyconversions.reportCallback_ = goog.nullFunction;
+goog.html.legacyconversions.setReportCallback = function(callback) {
+  goog.html.legacyconversions.reportCallback_ = callback;
 };
 goog.math.Box = function(top, right, bottom, left) {
   this.top = top;

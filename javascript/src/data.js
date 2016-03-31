@@ -19,6 +19,7 @@ goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.BandMapping');
 goog.provide('ee.data.DownloadId');
+goog.provide('ee.data.ExportType');
 goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.FeatureVisualizationParameters');
 goog.provide('ee.data.FileSource');
@@ -31,6 +32,7 @@ goog.provide('ee.data.ImageTaskConfig');
 goog.provide('ee.data.ImageVisualizationParameters');
 goog.provide('ee.data.IngestionRequest');
 goog.provide('ee.data.MapId');
+goog.provide('ee.data.MapTaskConfig');
 goog.provide('ee.data.MapZoomRange');
 goog.provide('ee.data.MissingData');
 goog.provide('ee.data.PixelTypeDescription');
@@ -44,7 +46,6 @@ goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
 goog.provide('ee.data.TaskUpdateActions');
 goog.provide('ee.data.ThumbnailId');
-goog.provide('ee.data.TilesTaskConfig');
 goog.provide('ee.data.Tileset');
 goog.provide('ee.data.VideoTaskConfig');
 
@@ -1093,6 +1094,15 @@ ee.data.AssetType = {
 };
 
 
+/** @enum {string} The types of export. */
+ee.data.ExportType = {
+  IMAGE: 'EXPORT_IMAGE',
+  MAP: 'EXPORT_TILES',
+  TABLE: 'EXPORT_FEATURES',
+  VIDEO: 'EXPORT_VIDEO'
+};
+
+
 /** @enum {string} The names of the EE system time asset properties. */
 ee.data.SystemTimeProperty = {
   'START': 'system:time_start',
@@ -1384,8 +1394,8 @@ ee.data.AbstractTaskConfig;
 
 
 /**
- * An object for specifying user preferences for the creation of a new
- * task. See com.google.earthengine.service.frontend.ProcessingInput.
+ * An object for specifying configuration of a task to export an image.
+ * See com.google.earthengine.service.frontend.ProcessingInput.
  *
  * @typedef {{
  *   id: string,
@@ -1406,6 +1416,29 @@ ee.data.AbstractTaskConfig;
  * }}
  */
 ee.data.ImageTaskConfig;
+
+
+/**
+ * An object for specifying configuration of a task to export an image as
+ * Maps Mercator map tiles to Cloud Storage.
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: string,
+ *   json: string,
+ *   sourceUrl: (undefined|string),
+ *   description: (undefined|string),
+ *   minZoom: (undefined|number),
+ *   maxZoom: (undefined|number),
+ *   region: (undefined|string),
+ *   scale: (undefined|number),
+ *   fileFormat: (undefined|string),
+ *   writePublicTiles: (undefined|boolean),
+ *   outputBucket: (undefined|string),
+ *   outputPrefix: (undefined|string)
+ * }}
+ */
+ee.data.MapTaskConfig;
 
 
 /**
@@ -1451,28 +1484,6 @@ ee.data.TableTaskConfig;
  * }}
  */
 ee.data.VideoTaskConfig;
-
-
-/**
- * An object for specifying configuration of a task to export Maps
- * Mercator map tiles of an image to Cloud Storage.
- *
- * @typedef {{
- *   id: string,
- *   type: string,
- *   json: string,
- *   sourceUrl: (undefined|string),
- *   description: (undefined|string),
- *   minZoom: (undefined|number),
- *   maxZoom: (undefined|number),
- *   region: (undefined|string),
- *   scale: (undefined|number),
- *   fileFormat: (undefined|string),
- *   outputBucket: (undefined|string),
- *   outputPrefix: (undefined|string)
- * }}
- */
-ee.data.TilesTaskConfig;
 
 
 /**
