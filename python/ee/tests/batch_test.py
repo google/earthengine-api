@@ -3,6 +3,7 @@
 
 
 
+import inspect
 import unittest
 
 import ee
@@ -139,7 +140,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
   def testExportImage(self):
     """Verifies the task created by Export.image()."""
     region = ee.Geometry.Rectangle(1, 2, 3, 4)
-    config = dict(region=region['coordinates'], maxPixels=10**10)
+    config = dict(region=region['coordinates'], maxPixels=10**10,
+                  crs='foo', crs_transform='bar')
     task = ee.batch.Export.image(ee.Image(1), 'TestName', config)
     self.assertEquals('TESTTASKID', task.id)
     self.assertEquals(
@@ -151,6 +153,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
             'driveFileNamePrefix': 'TestName',
             'maxPixels': 10**10,
+            'crs': 'foo',
+            'crs_transform': 'bar',
         },
         task.config)
 
@@ -159,7 +163,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
     region = ee.Geometry.Rectangle(1, 2, 3, 4)
     config = dict(region=region['coordinates'], maxPixels=10**10,
                   outputBucket='test-bucket')
-    task = ee.batch.Export.image(ee.Image(1), 'TestName', config)
+    if inspect.isfunction(ee.batch.Export.image):
+      task = ee.batch.Export.image(ee.Image(1), 'TestName', config)
     self.assertEquals('TESTTASKID', task.id)
     self.assertEquals(
         {
@@ -169,6 +174,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'description': 'TestName',
             'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
             'outputBucket': 'test-bucket',
+            'outputPrefix': 'TestName',
             'maxPixels': 10**10,
         },
         task.config)

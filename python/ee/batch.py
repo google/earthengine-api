@@ -57,6 +57,7 @@ class Task(object):
     CANCEL_REQUESTED = 'CANCEL_REQUESTED'
     CANCELLED = 'CANCELLED'
 
+
   def start(self):
     """Starts the task. No-op for started tasks."""
     if not self.config:
@@ -126,55 +127,62 @@ class Export(object):
     """Forbids class instantiation."""
     raise AssertionError('This class cannot be instantiated.')
 
-  @staticmethod
-  def image(image, description='myExportImageTask', config=None):
-    """Creates a task to export an EE Image.
+  class image(object):
+    """A static class with methods to start image export tasks."""
 
-    Args:
-      image: The image to be exported.
-      description: Human-readable name of the task.
-      config: A dictionary of configuration parameters for the task:
-          - region: The lon,lat coordinates for a LinearRing or Polygon
-            specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Defaults to the image's
-            region.
-          - scale: The resolution in meters per pixel. Defaults to the native
-            resolution of the image assset unless a crs_transform is specified.
-          - maxPixels: The maximum allowed number of pixels in the exported
-            image. The task will fail if the exported region covers more pixels
-            in the specified projection. Defaults to 100,000,000.
-          - crs: The coordinate reference system of the exported image's
-            projection. Defaults to the image's default projection.
-          - crs_transform: A comma-separated string of 6 numbers describing
-            the affine transform of the coordinate reference system of the
-            exported image's projection, in the order: xScale, yShearing,
-            xShearing, yScale, xTranslation and yTranslation. Defaults to
-            the image's native CRS transform.
-          - dimensions: The dimensions of the exported image. Takes either a
-            single positive integer as the maximum dimension or "WIDTHxHEIGHT"
-            where WIDTH and HEIGHT are each positive integers.
-          If exporting to Google Drive (default):
-          - driveFolder: The name of a unique folder in your Drive account to
-            export into. Defaults to the root of the drive.
-          - driveFileNamePrefix: The Google Drive filename for the export.
-            Defaults to the name of the task.
-          If exporting to Google Cloud Storage:
-          - outputBucket: The name of a Cloud Storage bucket for the export.
-          - outputPrefix: Cloud Storage object name prefix for the export.
+    def __init__(self):
+      """Forbids class instantiation."""
+      raise AssertionError('This class cannot be instantiated.')
 
-    Returns:
-      An unstarted Task that exports the image.
-    """
-    config = (config or {}).copy()
-    if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
-      config['driveFileNamePrefix'] = description
+    def __new__(cls, image, description='myExportImageTask', config=None):
+      """Creates a task to export an EE Image.
 
-    if 'region' in config:
-      # Convert the region to a serialized form, if necessary.
-      config['region'] = Export._GetSerializedRegion(config.get('region'))
+      Args:
+        image: The image to be exported.
+        description: Human-readable name of the task.
+        config: A dictionary of configuration parameters for the task:
+            - region: The lon,lat coordinates for a LinearRing or Polygon
+              specifying the region to export. Can be specified as a nested
+              lists of numbers or a serialized string. Defaults to the image's
+              region.
+            - scale: The resolution in meters per pixel.
+              Defaults to the native resolution of the image assset unless
+              a crs_transform is specified.
+            - maxPixels: The maximum allowed number of pixels in the exported
+              image. The task will fail if the exported region covers
+              more pixels in the specified projection. Defaults to 100,000,000.
+            - crs: The coordinate reference system of the exported image's
+              projection. Defaults to the image's default projection.
+            - crs_transform: A comma-separated string of 6 numbers describing
+              the affine transform of the coordinate reference system of the
+              exported image's projection, in the order: xScale, yShearing,
+              xShearing, yScale, xTranslation and yTranslation. Defaults to
+              the image's native CRS transform.
+            - dimensions: The dimensions of the exported image. Takes either a
+              single positive integer as the maximum dimension or
+              "WIDTHxHEIGHT" where WIDTH and HEIGHT are each positive integers.
+            If exporting to Google Drive (default):
+            - driveFolder: The name of a unique folder in your Drive account to
+              export into. Defaults to the root of the drive.
+            - driveFileNamePrefix: The Google Drive filename for the export.
+              Defaults to the name of the task.
+            If exporting to Google Cloud Storage:
+            - outputBucket: The name of a Cloud Storage bucket for the export.
+            - outputPrefix: Cloud Storage object name prefix for the export.
 
-    return Export._CreateTask(
-        Task.Type.EXPORT_IMAGE, image, description, config)
+      Returns:
+        An unstarted Task that exports the image.
+      """
+      config = (config or {}).copy()
+      if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
+        config['driveFileNamePrefix'] = description
+
+      if 'region' in config:
+        # Convert the region to a serialized form, if necessary.
+        config['region'] = _GetSerializedRegion(config.get('region'))
+
+      return _CreateTask(
+          Task.Type.EXPORT_IMAGE, image, description, config)
 
   @staticmethod
   def video(imageCollection, description='myExportVideoTask', config=None):
@@ -222,9 +230,9 @@ class Export(object):
 
     if 'region' in config:
       # Convert the region to a serialized form, if necessary.
-      config['region'] = Export._GetSerializedRegion(config.get('region'))
+      config['region'] = _GetSerializedRegion(config.get('region'))
 
-    return Export._CreateTask(
+    return _CreateTask(
         Task.Type.EXPORT_VIDEO, imageCollection, description, config)
 
   @staticmethod
@@ -253,47 +261,49 @@ class Export(object):
       config['driveFileNamePrefix'] = description
     if 'fileFormat' not in config:
       config['fileFormat'] = 'CSV'
-    return Export._CreateTask(
+    return _CreateTask(
         Task.Type.EXPORT_TABLE, collection, description, config)
 
-  @staticmethod
-  def _CreateTask(task_type, ee_object, description, config):
-    """Creates an export task.
 
-    Args:
-      task_type: The type of the task to create. One of Task.Type.
-      ee_object: The object to export.
-      description: Human-readable name of the task.
-      config: Custom config fields for the task.
+def _CreateTask(task_type, ee_object, description, config):
+  """Creates an export task.
 
-    Returns:
-      An unstarted export Task.
-    """
-    full_config = {
-        'type': task_type,
-        'json': ee_object.serialize(),
-        'description': description,
-        'state': Task.State.UNSUBMITTED,
-    }
-    if config: full_config.update(config)
-    return Task(data.newTaskId()[0], full_config)
+  Args:
+    task_type: The type of the task to create. One of Task.Type.
+    ee_object: The object to export.
+    description: Human-readable name of the task.
+    config: Custom config fields for the task.
 
-  @staticmethod
-  def _GetSerializedRegion(region):
-    """Converts a region parameter to serialized form, if it isn't already."""
-    region_error = ee_exception.EEException(
-        'Invalid format for region property. '
-        'See Export.image() documentation for more details.')
-    if isinstance(region, basestring):
-      try:
-        region = json.loads(region)
-      except:
-        raise region_error
+  Returns:
+    An unstarted export Task.
+  """
+  full_config = {
+      'type': task_type,
+      'json': ee_object.serialize(),
+      'description': description,
+      'state': Task.State.UNSUBMITTED,
+  }
+  if config: full_config.update(config)
+  return Task(data.newTaskId()[0], full_config)
+
+
+def _GetSerializedRegion(region):
+  """Converts a region parameter to serialized form, if it isn't already."""
+  region_error = ee_exception.EEException(
+      'Invalid format for region property. '
+      'See Export.image() documentation for more details.')
+  if isinstance(region, basestring):
     try:
-      geometry.Geometry.LineString(region)
-    except:  # pylint: disable=bare-except
-      try:
-        geometry.Geometry.Polygon(region)
-      except:
-        raise region_error
-    return json.dumps(region)
+      region = json.loads(region)
+    except:
+      raise region_error
+  try:
+    geometry.Geometry.LineString(region)
+  except:  # pylint: disable=bare-except
+    try:
+      geometry.Geometry.Polygon(region)
+    except:
+      raise region_error
+  return json.dumps(region)
+
+
