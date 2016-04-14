@@ -1726,6 +1726,9 @@ goog.array.copyByIndex = function(arr, index_arr) {
   });
   return result;
 };
+goog.array.concatMap = function(arr, f, opt_obj) {
+  return goog.array.concat.apply([], goog.array.map(arr, f, opt_obj));
+};
 goog.disposable = {};
 goog.disposable.IDisposable = function() {
 };
