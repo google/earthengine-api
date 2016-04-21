@@ -114,7 +114,7 @@ class ExportCommand(object):
     self.setup_common_args(export_img_parser)
     self.setup_visualization_args(export_img_parser)
     export_img_parser.add_argument(
-        '--max-pixels', type=int,
+        '--max_pixels', type=int,
         help=('The maximum allowed number of pixels in the exported'
               ' image. The task will fail if the exported region covers more'
               ' pixels in the specified projection. Defaults to 100,000,000.'))
@@ -129,7 +129,7 @@ class ExportCommand(object):
     self.setup_common_args(export_vid_parser)
     self.setup_visualization_args(export_vid_parser)
     export_vid_parser.add_argument(
-        '--frame-rate', type=float,
+        '--frame_rate', type=float,
         help=('A number between 0.1 and 100 describing the frame rate of'
               ' the exported video.'))
 
@@ -138,24 +138,24 @@ class ExportCommand(object):
         'table', description=export_table_desc, help=export_table_desc)
     self.setup_common_args(export_table_parser)
     export_table_parser.add_argument(
-        '--file-format', help=('Output file format. Must be one of '
+        '--file_format', help=('Output file format. Must be one of '
                                'CSV (default), GeoJSON, KML or KMZ.'))
 
   def setup_common_args(self, parser):
     """Sets up the parser with the arguments common for all exports."""
     _add_wait_arg(parser)
     parser.add_argument(
-        '--config-json', '-cj',
+        '--config_json', '-cj',
         help='Path to a JSON file with export configuration parameters.')
     parser.add_argument(
-        '--drive-folder', '-df',
+        '--drive_folder', '-df',
         help=('Name of the Google Drive folder to export into. '
               'If not specified, the asset will be exported to the root.'))
     parser.add_argument(
-        '--file-prefix', '-fp',
+        '--file_prefix', '-fp',
         help='A file name prefix to be added to all exported files.')
     parser.add_argument(
-        '--gs-url', '-gu',
+        '--gs_url', '-gu',
         help=('A URL that points to an export destination in Google Cloud'
               ' Storage. Must have the prefix \'gs://\'. The URL may'
               ' reference a bucket or a directory within one.'))
@@ -163,10 +163,10 @@ class ExportCommand(object):
         '--desc', '-d', default='exportAssetExample',
         help='Description for the export task.')
     parser.add_argument(
-        '--asset-id', '-ai',
+        '--asset_id', '-ai',
         help='ID of the asset that needs to be exported.')
     parser.add_argument(
-        '--json-file', '-jf',
+        '--json_file', '-jf',
         help='Path to a JSON file that describes the asset to be exported.')
 
   def setup_visualization_args(self, parser):
@@ -186,7 +186,7 @@ class ExportCommand(object):
         help=('The coordinate reference system of the exported asset\'s'
               ' projection. Defaults to the asset\'s default projection.'))
     parser.add_argument(
-        '--crs-transform',
+        '--crs_transform',
         help=('A comma-separated string of 6 numbers describing'
               ' the affine transform of the coordinate reference system of the'
               ' exported asset\'s projection, in the order: xScale, yShearing,'
@@ -439,7 +439,7 @@ class ListCommand(object):
         '-l', action='store_true',
         help='Print output in long format.')
     parser.add_argument(
-        '--max-items', '-m', default=-1, type=int,
+        '--max_items', '-m', default=-1, type=int,
         help='Maximum number of items to list for each collection.')
 
   def list_asset_content(self, asset, max_items, total_assets, long_format):
@@ -507,12 +507,12 @@ class RmCommand(object):
 
   def __init__(self, parser):
     parser.add_argument(
-        'asset', nargs='+', help='Full path of an asset to delete.')
+        'asset_id', nargs='+', help='Full path of an asset to delete.')
     parser.add_argument(
         '--recursive', '-r', action='store_true',
         help='Recursively delete child assets.')
     parser.add_argument(
-        '--dry-run', action='store_true',
+        '--dry_run', action='store_true',
         help=('Perform a dry run of the delete operation. Does not '
               'delete any assets.'))
     parser.add_argument(
@@ -539,7 +539,7 @@ class RmCommand(object):
 
   def run(self, args, config):
     config.ee_init()
-    for asset in args.asset:
+    for asset in args.asset_id:
       try:
         self.delete_asset(asset, args.recursive, args.verbose, args.dry_run)
       except ee.EEException as e:

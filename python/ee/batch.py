@@ -3,11 +3,9 @@
 
 Use the static methods on the Export class to create export tasks, call start()
 on them to launch them, then poll status() to find out when they are finished.
+The function styling uses camelCase to match the JavaScript names.
 """
 
-
-
-# Using camelCase public function naming to match the rest of the library.
 # pylint: disable=g-bad-name
 
 import json
@@ -121,7 +119,7 @@ class Task(object):
 
 
 class Export(object):
-  """A static class with methods to start export tasks."""
+  """A class with static methods to start export tasks."""
 
   def __init__(self):
     """Forbids class instantiation."""
@@ -135,12 +133,13 @@ class Export(object):
       raise AssertionError('This class cannot be instantiated.')
 
     def __new__(cls, image, description='myExportImageTask', config=None):
-      """Creates a task to export an EE Image.
+      """Creates a task to export an EE Image to Google Drive or Cloud Storage.
 
       Args:
         image: The image to be exported.
         description: Human-readable name of the task.
-        config: A dictionary of configuration parameters for the task:
+        config: A dictionary that will be copied and used as parameters
+            for the task:
             - region: The lon,lat coordinates for a LinearRing or Polygon
               specifying the region to export. Can be specified as a nested
               lists of numbers or a serialized string. Defaults to the image's
@@ -183,6 +182,48 @@ class Export(object):
 
       return _CreateTask(
           Task.Type.EXPORT_IMAGE, image, description, config)
+
+# *.toCloudStorage and *.toDrive are still being dogfooded.
+
+  class table(object):
+    """A class with static methods to start table export tasks."""
+
+    def __init__(self):
+      """Forbids class instantiation."""
+      raise AssertionError('This class cannot be instantiated.')
+
+    def __new__(cls, collection, description='myExportTableTask', config=None):
+      """Export an EE FeatureCollection as a table.
+
+      The exported table will reside in Google Drive or Cloud Storage.
+
+      Args:
+        collection: The feature collection to be exported.
+        description: Human-readable name of the task.
+        config: A dictionary that will be copied and used as parameters
+            for the task:
+            - fileFormat: The output format: CSV (default), GeoJSON,
+              KML, or KMZ.
+            If exporting to Google Drive (default):
+            - driveFolder: The name of a unique folder in your Drive
+              account to export into. Defaults to the root of the drive.
+            - driveFileNamePrefix: The Google Drive filename for the export.
+              Defaults to the name of the task.
+            If exporting to Google Cloud Storage:
+            - outputBucket: The name of a Cloud Storage bucket for the export.
+            - outputPrefix: Cloud Storage object name prefix for the export.
+
+      Returns:
+        An unstarted Task that exports the table.
+      """
+      config = (config or {}).copy()
+      if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
+        config['driveFileNamePrefix'] = description
+      if 'fileFormat' not in config:
+        config['fileFormat'] = 'CSV'
+      return _CreateTask(
+          Task.Type.EXPORT_TABLE, collection, description, config)
+
 
   @staticmethod
   def video(imageCollection, description='myExportVideoTask', config=None):
@@ -234,35 +275,6 @@ class Export(object):
 
     return _CreateTask(
         Task.Type.EXPORT_VIDEO, imageCollection, description, config)
-
-  @staticmethod
-  def table(collection, description='myExportTableTask', config=None):
-    """Creates a task to export an EE FeatureCollection as a table.
-
-    Args:
-      collection: The feature collection to be exported.
-      description: Human-readable name of the task.
-      config: A dictionary of configuration parameters for the task (strings):
-          - fileFormat: The output format: CSV (default), GeoJSON, KML, or KMZ.
-          If exporting to Google Drive (default):
-            - driveFolder: The name of a unique folder in your Drive account to
-              export into. Defaults to the root of the drive.
-            - driveFileNamePrefix: The Google Drive filename for the export.
-              Defaults to the name of the task.
-          If exporting to Google Cloud Storage:
-            - outputBucket: The name of a Cloud Storage bucket for the export.
-            - outputPrefix: Cloud Storage object name prefix for the export.
-
-    Returns:
-      An unstarted Task that exports the table.
-    """
-    config = (config or {}).copy()
-    if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
-      config['driveFileNamePrefix'] = description
-    if 'fileFormat' not in config:
-      config['fileFormat'] = 'CSV'
-    return _CreateTask(
-        Task.Type.EXPORT_TABLE, collection, description, config)
 
 
 def _CreateTask(task_type, ee_object, description, config):
