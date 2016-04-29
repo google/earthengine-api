@@ -958,6 +958,13 @@ ee.data.getApiBaseUrl = function() {
 ee.data.getAssetAcl = function(assetId, opt_callback) {
 };
 /**
+ * @param {string} rootId
+ * @param {!function ({all_users_can_read: (boolean|undefined), owners: Array<string>, readers: Array<string>, writers: Array<string>}, string=): ?=} opt_callback
+ * @return {(ee.data.AssetQuotaDetails|null)}
+ */
+ee.data.getAssetRootQuota = function(rootId, opt_callback) {
+};
+/**
  * @param {!function (Array<ee.data.FolderDescription>, string=): ?=} opt_callback
  * @return {(Array<ee.data.FolderDescription>|null)}
  */

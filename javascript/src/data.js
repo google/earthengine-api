@@ -12,6 +12,7 @@ goog.provide('ee.data.AssetAcl');
 goog.provide('ee.data.AssetAclUpdate');
 goog.provide('ee.data.AssetDescription');
 goog.provide('ee.data.AssetList');
+goog.provide('ee.data.AssetQuotaDetails');
 goog.provide('ee.data.AssetType');
 goog.provide('ee.data.AuthArgs');
 goog.provide('ee.data.AuthResponse');
@@ -1079,6 +1080,30 @@ ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
 goog.exportSymbol('ee.data.setAssetProperties', ee.data.setAssetProperties);
 
 
+/**
+ * Returns quota usage details for the asset root with the given ID.
+ *
+ * Usage notes:
+ *
+ *   - The id *must* be a root folder like "users/foo" (not "users/foo/bar").
+ *   - The authenticated user must own the asset root to see its quota usage.
+ *
+ * @param {string} rootId The ID of the asset root to check, e.g. "users/foo".
+ * @param {function(ee.data.AssetAcl, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {?ee.data.AssetQuotaDetails} The asset root's quota usage details.
+ *     Null if a callback is specified.
+ */
+ee.data.getAssetRootQuota = function(rootId, opt_callback) {
+  return /** @type {?ee.data.AssetQuotaDetails} */ (ee.data.send_(
+      '/quota',
+      ee.data.makeRequest_({'id': rootId}),
+      opt_callback,
+      'GET'));
+};
+goog.exportSymbol('ee.data.getAssetRootQuota', ee.data.getAssetRootQuota);
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //                               Types and enums.                             //
 ////////////////////////////////////////////////////////////////////////////////
@@ -1108,6 +1133,10 @@ ee.data.SystemTimeProperty = {
   'START': 'system:time_start',
   'END': 'system:time_end'
 };
+
+
+/** @const {string} The name of the EE system asset size property. */
+ee.data.SYSTEM_ASSET_SIZE_PROPERTY = 'system:asset_size';
 
 
 /**
@@ -1150,6 +1179,17 @@ ee.data.AssetAcl;
  * }}
  */
 ee.data.AssetAclUpdate;
+
+
+/**
+ * Details about an asset root folder's quota usage and limits.
+ * Asset size values are in bytes. Negative limit means "unlimited".
+ * @typedef {{
+ *   asset_count: {usage: number, limit: number},
+ *   asset_size: {usage: number, limit: number}
+ * }}
+ */
+ee.data.AssetQuotaDetails;
 
 
 /**

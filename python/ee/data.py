@@ -550,6 +550,27 @@ def getAssetRoots():
   return send_('/buckets', {}, 'GET')
 
 
+def getAssetRootQuota(rootId):
+  """Returns quota usage details for the asset root with the given ID.
+
+  Usage notes:
+
+    - The id *must* be a root folder like "users/foo" (not "users/foo/bar").
+    - The authenticated user must own the asset root to see its quota usage.
+
+  Args:
+    rootId: The ID of the asset to check.
+
+  Returns:
+    A dict describing the asset's quota usage. Looks like, with size in bytes:
+      {
+          asset_count: {usage: number, limit: number},
+          asset_size: {usage: number, limit: number},
+      }
+  """
+  return send_('/quota', {'id': rootId}, 'GET')
+
+
 def getAssetAcl(assetId):
   """Returns the access control list of the asset with the given ID.
 
