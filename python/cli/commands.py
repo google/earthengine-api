@@ -6,6 +6,10 @@ defines the supported positional and optional arguments, as well as
 the actions to be taken when the command is executed.
 """
 
+import argparse
+import calendar
+from collections import Counter
+import datetime
 import json
 import os
 import sys
@@ -544,5 +548,293 @@ class RmCommand(object):
         self.delete_asset(asset, args.recursive, args.verbose, args.dry_run)
       except ee.EEException as e:
         print 'Failed to delete %s. %s' % (asset, e)
+
+
+def _upload(args, config, request):
+  config.ee_init()
+  if 0 <= args.wait < 10:
+    print 'Wait time should be at least 10 seconds.'
+    return
+  task_id = ee.data.newTaskId()[0]
+  ee.data.startIngestion(task_id, request)
+  print 'Started upload task with ID: %s' % task_id
+  if args.wait >= 0:
+    print 'Waiting for the upload task to complete...'
+    utils.wait_for_task(task_id, args.wait)
+
+
+def _get_properties(string_properties, number_properties, date_properties):
+  """Processes the property arguments into a dictionary.
+
+  Args:
+    string_properties: String properties, e.g.: [{'a': 'z'}, ...]
+    number_properties: Number properties, e.g.: [{'b': 1}, ...]
+    date_properties: Date properties, e.g.: [{'c': 1000000}, ...]
+
+  Returns:
+    A dictionary of properties and values,
+    e.g.: {'a': 1, 'b': 2}
+
+  Raises:
+    ValueError: Duplicated properties.
+  """
+  properties = list(string_properties) if string_properties else []
+  properties += number_properties if number_properties else []
+  properties += date_properties if date_properties else []
+  result = {}
+  if properties:
+    names = [x.keys()[0] for x in properties]
+    dups = [k for k, v in Counter(names).items() if v > 1]
+    if dups:
+      raise ValueError('Duplicated property name(s): {}'.format(dups))
+
+    for prop in properties:
+      name = prop.keys()[0]
+      result[name] = prop[name]
+  return result
+
+
+# Argument types
+def _comma_separated_numbers(string):
+  """Parses an input consisting of comma-separated numbers."""
+  error_msg = 'Argument should be a comma-separated list of numbers: {}'
+  values = string.split(',')
+  if not values:
+    raise argparse.ArgumentTypeError(error_msg.format(string))
+  numbervalues = []
+  for value in values:
+    try:
+      numbervalues.append(int(value))
+    except ValueError:
+      try:
+        numbervalues.append(float(value))
+      except ValueError:
+        raise argparse.ArgumentTypeError(error_msg.format(string))
+  return numbervalues
+
+
+def _comma_separated_reduction_policies(string):
+  """Parses an input consisting of comma-separated reduction policies."""
+  error_msg = ('Argument should be a comma-separated list of: '
+               '{{"mean", "sample", "min", "max", "mode"}}: {}')
+  values = string.split(',')
+  if not values:
+    raise argparse.ArgumentTypeError(error_msg.format(string))
+  redvalues = []
+  for value in values:
+    if value.lower() not in {'mean', 'sample', 'min', 'max', 'mode'}:
+      raise argparse.ArgumentTypeError(error_msg.format(string))
+    redvalues.append(value.lower())
+  return redvalues
+
+
+def _string_property(string):
+  """Parses an input consisting of a property name and a string value."""
+  if string.count('=') != 1:
+    raise argparse.ArgumentTypeError(('Argument should be a property and '
+                                      'a value separated by "=": {}')
+                                     .format(string))
+  name, value = string.split('=')
+  return {name: value}
+
+
+def _number_property(string):
+  """Parses an input consisting of a property name and a number value."""
+  if string.count('=') != 1:
+    raise argparse.ArgumentTypeError(('Argument should be a property and '
+                                      'a value separated by "=": {}')
+                                     .format(string))
+  name, value = string.split('=')
+  try:
+    return {name: int(value)}
+  except ValueError:
+    try:
+      return {name: float(value)}
+    except ValueError:
+      raise argparse.ArgumentTypeError('Value should be a number: {}'
+                                       .format(string))
+
+
+def _timestamp_ms_for_datetime(datetime_obj):
+  """Return epoch in ms for the given UTC datetime object."""
+  return (
+      int(calendar.timegm(datetime_obj.timetuple()) * 1000) +
+      datetime_obj.microsecond / 1000)
+
+
+def _parse_date(value):
+  """Parses a date and turn into milliseconds since epoch."""
+  try:
+    return int(value)
+  except ValueError:
+    date_formats = ['%Y-%m-%d',
+                    '%Y-%m-%dT%H:%M:%S',
+                    '%Y-%m-%dT%H:%M:%S.%f']
+    for date_format in date_formats:
+      try:
+        dt = datetime.datetime.strptime(value, date_format)
+        return _timestamp_ms_for_datetime(dt)
+      except ValueError:
+        pass
+    return
+
+
+def _date_property(string):
+  """Parses an input consisting of a property name and a date value."""
+  if string.count('=') != 1:
+    raise argparse.ArgumentTypeError(('Argument should be a property and '
+                                      'a value separated by "=": {}')
+                                     .format(string))
+  name, value = string.split('=')
+  milliseconds = _parse_date(value)
+  if not milliseconds:
+    raise argparse.ArgumentTypeError('Value should be a date: {}'
+                                     .format(string))
+  return {name: milliseconds}
+
+
+def _check_valid_files(filenames):
+  for filename in filenames:
+    if not filename.startswith('gs://'):
+      print 'Invalid Cloud Storage URL: ' + filename
+      return False
+  return True
+
+
+# TODO(user): in both upload tasks, check if the parent namespace
+# exists and is writeable first.
+class UploadCommand(object):
+  """Uploads a file from Cloud Storage to Earth Engine."""
+
+  name = 'upload'
+
+  def __init__(self, parser):
+    _add_wait_arg(parser)
+    parser.add_argument(
+        'src_files',
+        help=('Cloud Storage URL(s) of the file(s) to upload. '
+              'Must have the prefix \'gs://\'.'),
+        nargs='+')
+    parser.add_argument(
+        '--asset_id',
+        help='Destination asset ID for the uploaded file.')
+    parser.add_argument(
+        '--last_band_alpha',
+        help='Use the last band as a masking channel for all bands. '
+             'Mutually exclusive with nodata_value.',
+        action='store_true')
+    parser.add_argument(
+        '--nodata_value',
+        help='Value for missing data. '
+             'Mutually exclusive with last_band_alpha.',
+        type=_comma_separated_numbers)
+    parser.add_argument(
+        '--reduction_policy',
+        help='The pyramid reduction policy to use',
+        type=_comma_separated_reduction_policies)
+    parser.add_argument(
+        '--string_property',
+        help='Property name and value, separated by "="',
+        action='append',
+        type=_string_property)
+    parser.add_argument(
+        '--number_property',
+        help='Property name and value, separated by "="',
+        action='append',
+        type=_number_property)
+    parser.add_argument(
+        '--date_property',
+        help='Property name and value, separated by "="',
+        action='append',
+        type=_date_property)
+    # TODO(user): add --bands arg
+
+  def run(self, args, config):
+    """Starts the upload task, and waits for completion if requested."""
+    if not _check_valid_files(args.src_files):
+      return
+
+    if args.last_band_alpha and args.nodata_value:
+      raise ValueError(
+          'last_band_alpha and nodata_value are mutually exclusive.')
+
+    properties = _get_properties(args.string_property, args.number_property,
+                                 args.date_property)
+
+    request = {
+        'id': args.asset_id,
+        'properties': properties
+    }
+
+    sources = [{'primaryPath': source} for source in args.src_files]
+    tileset = {'sources': sources}
+    if args.last_band_alpha:
+      tileset['bandMappings'] = [{'fileBandIndex': -1, 'maskForAllBands': True}]
+    request['tilesets'] = [tileset]
+
+    if args.reduction_policy:
+      if len(args.reduction_policy) == 1:
+        request['reductionPolicy'] = args.reduction_policy[0].upper()
+      else:
+        bands = []
+        for index, policy in enumerate(args.reduction_policy):
+          bands.append({'id': index, 'reductionPolicy': policy.upper()})
+        request['bands'] = bands
+
+    if args.nodata_value:
+      if len(args.nodata_value) == 1:
+        request['missingData'] = args.nodata_value[0]
+      else:
+        if 'bands' in request:
+          if len(request['bands']) != len(args.nodata_value):
+            raise ValueError('Inconsistent number of bands: {} and {}'
+                             .format(args.reduction_policy, args.nodata_value))
+        else:
+          request['bands'] = []
+        bands = request['bands']
+        for index, nodata in enumerate(args.nodata_value):
+          if index < len(bands):
+            bands[index]['missingData'] = nodata
+          else:
+            bands.append({'id': index, 'missingData': nodata})
+
+    _upload(args, config, request)
+
+
+class SetPropertiesCommand(object):
+  """Sets properties on an asset."""
+
+  name = 'setproperties'
+
+  def __init__(self, parser):
+    parser.add_argument(
+        '--asset_id',
+        help='Asset ID on which to set properties.')
+    parser.add_argument(
+        '--string_property',
+        help='Property name and value, separated by "="',
+        action='append',
+        type=_string_property)
+    parser.add_argument(
+        '--number_property',
+        help='Property name and value, separated by "="',
+        action='append',
+        type=_number_property)
+    parser.add_argument(
+        '--date_property',
+        help='Property name and value, separated by "="',
+        action='append',
+        type=_date_property)
+
+  def run(self, args, config):
+    """Sets properties on an asset."""
+
+    config.ee_init()
+    properties = _get_properties(args.string_property, args.number_property,
+                                 args.date_property)
+    if properties:
+      ee.data.setAssetProperties(args.asset_id, properties)
+    else:
+      raise ValueError('No properties specified.')
 
 

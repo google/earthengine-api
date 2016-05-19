@@ -24,7 +24,9 @@ COMMANDS = [
     commands.ListCommand,
     commands.RenameCommand,
     commands.RmCommand,
+    commands.SetPropertiesCommand,
     commands.TasksCommand,
+    commands.UploadCommand,
 ]
 
 
