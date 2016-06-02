@@ -60,6 +60,7 @@ class Task(object):
   class ExportDestination(object):
     DRIVE = 'DRIVE'
     GCS = 'GOOGLE_CLOUD_STORAGE'
+    ASSET = 'ASSET'
 
   def start(self):
     """Starts the task. No-op for started tasks."""
@@ -188,7 +189,64 @@ class Export(object):
       return _CreateTask(
           Task.Type.EXPORT_IMAGE, image, description, config)
 
-    # Disable argument usage check; arguments are accessed using local().
+    # Disable argument usage check; arguments are accessed using locals().
+    # pylint: disable=unused-argument
+    @staticmethod
+    def toAsset(image, description='myExportImageTask', assetId=None,
+                pyramidingPolicy=None, dimensions=None, region=None,
+                scale=None, crs=None, crsTransform=None, maxPixels=None,
+                **kwargs):
+      """Creates a task to export an EE Image to an EE Asset.
+
+      Args:
+        image: The image to be exported.
+        description: Human-readable name of the task.
+        assetId: The destination asset ID.
+        pyramidingPolicy: The pyramiding policy to apply to each band in the
+            image, a dictionary keyed by band name. Values must be
+            one of: "mean", "sample", "min", "max", or "mode".
+            Defaults to "mean". A special key, ".default", may be used to
+            change the default for all bands.
+        dimensions: The dimensions of the exported image. Takes either a
+            single positive integer as the maximum dimension or "WIDTHxHEIGHT"
+            where WIDTH and HEIGHT are each positive integers.
+        region: The lon,lat coordinates for a LinearRing or Polygon
+            specifying the region to export. Can be specified as a nested
+            lists of numbers or a serialized string. Defaults to the image's
+            region.
+        scale: The resolution in meters per pixel. Defaults to the
+            native resolution of the image assset unless a crsTransform
+            is specified.
+        crs: The coordinate reference system of the exported image's
+            projection. Defaults to the image's default projection.
+        crsTransform: A comma-separated string of 6 numbers describing
+            the affine transform of the coordinate reference system of the
+            exported image's projection, in the order: xScale, yShearing,
+            xShearing, yScale, xTranslation and yTranslation. Defaults to
+            the image's native CRS transform.
+        maxPixels: The maximum allowed number of pixels in the exported
+            image. The task will fail if the exported region covers more
+            pixels in the specified projection. Defaults to 100,000,000.
+        **kwargs: Holds other keyword arguments that may have been deprecated
+            such as 'crs_transform'.
+
+      Returns:
+        An unstarted Task that exports the image to Drive.
+      """
+      # _CopyDictFilterNone must be called first because it copies locals to
+      # support deprecated arguments.
+      config = _CopyDictFilterNone(locals())
+
+      _ConvertToServerParams(config, 'image', Task.ExportDestination.ASSET)
+
+      if 'region' in config:
+        # Convert the region to a serialized form, if necessary.
+        config['region'] = _GetSerializedRegion(config.get('region'))
+
+      return _CreateTask(
+          Task.Type.EXPORT_IMAGE, image, description, config)
+
+    # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(image, description='myExportImageTask',
@@ -212,7 +270,7 @@ class Export(object):
             lists of numbers or a serialized string. Defaults to the image's
             region.
         scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image assset unless a crs_transform
+            native resolution of the image assset unless a crsTransform
             is specified.
         crs: The coordinate reference system of the exported image's
             projection. Defaults to the image's default projection.
@@ -265,7 +323,7 @@ class Export(object):
             lists of numbers or a serialized string. Defaults to the image's
             region.
         scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image assset unless a crs_transform
+            native resolution of the image assset unless a crsTransform
             is specified.
         crs: The coordinate reference system of the exported image's
             projection. Defaults to the image's default projection.
@@ -308,7 +366,7 @@ class Export(object):
       """Forbids class instantiation."""
       raise AssertionError('This class cannot be instantiated.')
 
-    # Disable argument usage check; arguments are accessed using local().
+    # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(image, description='myExportMapTask', bucket=None,
@@ -408,7 +466,7 @@ class Export(object):
       return _CreateTask(
           Task.Type.EXPORT_TABLE, collection, description, config)
 
-    # Disable argument usage check; arguments are accessed using local().
+    # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(collection, description='myExportTableTask',
@@ -539,7 +597,7 @@ class Export(object):
       return _CreateTask(
           Task.Type.EXPORT_VIDEO, collection, description, config)
 
-    # Disable argument usage check; arguments are accessed using local().
+    # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
     def toCloudStorage(collection, description='myExportVideoTask',
@@ -746,5 +804,5 @@ def _ConvertToServerParams(configDict, eeElementKey, destination):
         configDict['driveFileNamePrefix'] = configDict.pop('fileNamePrefix')
       else:
         del configDict['fileNamePrefix']
-  else:
+  elif destination is not Task.ExportDestination.ASSET:
     raise ee_exception.EEException('Unknown export destination.')

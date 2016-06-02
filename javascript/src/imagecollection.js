@@ -115,6 +115,7 @@ ee.ImageCollection.reset = function() {
  *
  * @param {Object?=} opt_visParams The visualization parameters.
  * @param {function(Object, string=)=} opt_callback An async callback.
+ *     If not supplied, the call is made synchronously.
  * @return {ee.data.MapId|undefined} Returns a mapid and token, or undefined if
  *     a callback was specified.
  * @export

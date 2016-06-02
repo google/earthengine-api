@@ -50,6 +50,10 @@ DEFAULT_API_BASE_URL = 'https://earthengine.googleapis.com/api'
 # The default base URL for media/tile calls.
 DEFAULT_TILE_BASE_URL = 'https://earthengine.googleapis.com/'
 
+# Asset types recognized by create_assets().
+ASSET_TYPE_FOLDER = 'Folder'
+ASSET_TYPE_IMAGE_COLL = 'ImageCollection'
+
 
 def initialize(credentials=None, api_base_url=None, tile_base_url=None):
   """Initializes the data module, setting credentials and base URLs.
@@ -176,8 +180,9 @@ def getMapId(params):
           to map onto 00-FF.
       gamma - (comma-separated numbers) Gamma correction
           factor (or one per band)
-      palette - (comma-separated strings) List of CSS-style color
-          strings (single-band previews only).
+      palette - (comma-separated strings) A string of comma-separated
+          CSS-style color strings (single-band previews only). For example,
+          'FF0000,000000'.
       format (string) Either 'jpg' (does not support transparency) or
           'png' (supports transparency).
 
@@ -495,7 +500,8 @@ def startProcessing(taskId, params):
     taskId: ID for the task (obtained using newTaskId).
     params: The object that describes the processing task; only fields
       that are common for all processing types are documented below.
-        type (string) Either 'EXPORT_IMAGE' or 'EXPORT_FEATURES'.
+        type (string) Either 'EXPORT_IMAGE', 'EXPORT_FEATURES',
+          'EXPORT_VIDEO', or 'EXPORT_TILES'.
         json (string) JSON description of the image.
 
   Returns:
@@ -712,17 +718,16 @@ def send_(path, params, opt_method='POST', opt_raw=False):
 
 def create_assets(asset_ids, asset_type, mk_parents):
   """Creates the specified assets if they do not exist."""
-  asset = {'type': asset_type}
   for asset_id in asset_ids:
+    if getInfo(asset_id):
+      print 'Asset %s already exists' % asset_id
+      continue
     if mk_parents:
       parts = asset_id.split('/')
       path = ''
-      for part in parts:
+      for part in parts[:-1]:
         path += part
         if getInfo(path) is None:
-          createAsset(asset, path)
+          createAsset({'type': ASSET_TYPE_FOLDER}, path)
         path += '/'
-    elif getInfo(asset_id) is None:
-      createAsset(asset, asset_id)
-    else:
-      print 'Asset %s already exists' % asset_id
+    createAsset({'type': asset_type}, asset_id)

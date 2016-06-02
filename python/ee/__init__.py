@@ -2,7 +2,7 @@
 """The EE Python library."""
 
 
-__version__ = '0.1.82'
+__version__ = '0.1.83'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -138,10 +138,9 @@ def _GetPersistentCredentials():
         None, OAuthInfo.CLIENT_ID, OAuthInfo.CLIENT_SECRET, refresh_token,
         None, 'https://accounts.google.com/o/oauth2/token', None)
   except IOError:
-    script = os.path.join(os.path.dirname(os.path.realpath(__file__)),
-                          'authenticate.py')
-    raise EEException('Please authorize access to your Earth Engine account ' +
-                      'by running\n\npython %s\n\nand then retry.' % script)
+    raise EEException('Please authorize access to your Earth Engine account '
+                      'by running\n\nearthengine authenticate\n\nin your '
+                      'command line, and then retry.')
 
 
 def _ResetGeneratedClasses():

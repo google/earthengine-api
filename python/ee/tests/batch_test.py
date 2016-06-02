@@ -157,6 +157,39 @@ class BatchTestCase(apitestcase.ApiTestCase):
         },
         task.config)
 
+  def testExportImageToAsset(self):
+    """Verifies the Asset export task created by Export.image.toAsset()."""
+    config = dict(
+        image=ee.Image(1), assetId='user/foo/bar',
+        pyramidingPolicy={'B1': 'min'})
+
+    # Test keyed parameters.
+    task_keyed = ee.batch.Export.image.toAsset(
+        image=config['image'], assetId=config['assetId'],
+        pyramidingPolicy=config['pyramidingPolicy'])
+    self.assertEquals('TESTTASKID', task_keyed.id)
+    self.assertEquals(
+        {
+            'type': 'EXPORT_IMAGE',
+            'state': 'UNSUBMITTED',
+            'json': config['image'].serialize(),
+            'description': 'myExportImageTask',
+            'assetId': config['assetId'],
+            'pyramidingPolicy': config['pyramidingPolicy']
+        }, task_keyed.config)
+
+    task_ordered = ee.batch.Export.image.toAsset(
+        config['image'], 'TestDescription', config['assetId'], maxPixels=1000)
+    self.assertEquals(
+        {
+            'type': 'EXPORT_IMAGE',
+            'state': 'UNSUBMITTED',
+            'json': config['image'].serialize(),
+            'description': 'TestDescription',
+            'assetId': config['assetId'],
+            'maxPixels': 1000
+        }, task_ordered.config)
+
   def testExportImageToCloudStorage(self):
     """Verifies the Cloud Storge export task created by Export.image()."""
     region = ee.Geometry.Rectangle(1, 2, 3, 4)

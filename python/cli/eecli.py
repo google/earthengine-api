@@ -11,23 +11,28 @@ commands as in a typical terminal program.
 """
 
 import argparse
+import sys
 
+import ee
 import commands
 import utils
 
 
-COMMANDS = [
-    commands.AclCommand,
-    commands.AssetCommand,
-    commands.ConfigCommand,
-    commands.ExportCommand,
-    commands.ListCommand,
-    commands.RenameCommand,
-    commands.RmCommand,
-    commands.SetPropertiesCommand,
-    commands.TasksCommand,
-    commands.UploadCommand,
-]
+class CommandDispatcher(commands.Dispatcher):
+  name = 'main'
+
+  COMMANDS = [
+      commands.AuthenticateCommand,
+      commands.AclCommand,
+      commands.AssetCommand,
+      commands.CopyCommand,
+      commands.CreateCommand,
+      commands.ListCommand,
+      commands.MoveCommand,
+      commands.RmCommand,
+      commands.TaskCommand,
+      commands.UploadCommand,
+  ]
 
 
 def main():
@@ -35,19 +40,28 @@ def main():
   parser = argparse.ArgumentParser(
       prog='earthengine', description='Earth Engine Command Line Interface.')
   parser.add_argument(
-      '--ee-config', help='Path to the CLI configuration file.')
+      '--ee_config', help='Path to the earthengine configuration file. '
+      'Defaults to "~/%s".' % utils.DEFAULT_EE_CONFIG_FILE_RELATIVE)
 
-  subparsers = parser.add_subparsers(title='Commands', dest='top_cmd')
-  command_objects = {}
-  for command in COMMANDS:
-    subparser = subparsers.add_parser(
-        command.name, description=command.__doc__, help=command.__doc__)
-    command_objects[command.name] = command(subparser)
+  dispatcher = CommandDispatcher(parser)
+
+  # Print the list of commands if the user supplied no arguments at all.
+  if len(sys.argv) == 1:
+    parser.print_help()
+    return
+
   args = parser.parse_args()
-
   config = utils.CommandLineConfig(args.ee_config)
-  command_objects[args.top_cmd].run(args, config)
 
+  # Catch EEException errors, which wrap server-side Earth Engine
+  # errors, and print the error message without the irrelevant local
+  # stack trace. (Individual commands may also catch EEException if
+  # they want to be able to continue despite errors.)
+  try:
+    dispatcher.run(args, config)
+  except ee.EEException as e:
+    print e
+    sys.exit(1)
 
 if __name__ == '__main__':
   main()

@@ -85,11 +85,38 @@ goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
 
 
 /**
- * An imperative function that returns information about this object (usually
- * the value) via a synchronous AJAX call.
+ * Asynchronously retrieves the value of this object from the server and
+ * passes it to the provided callback function.
+ *
+ * @param {function (?, string=)} callback A function of the form
+ *     function(success, failure), called when the server returns an answer.
+ *     If the request succeeded, the success argument contains the evaluated
+ *     result.  If the request failed, the failure argument will contains an
+ *     error message.
+ * @export
+ */
+ee.ComputedObject.prototype.evaluate = function(callback) {
+  if (!callback || !goog.isFunction(callback)) {
+    throw Error('evaluate() requires a callback function.');
+  }
+  ee.data.getValue({
+    'json': this.serialize()
+  }, callback);
+};
+
+
+/**
+ * Retrieves the value of this object from the server.
+ *
+ * If no callback function is provided, the request is made synchronously. If
+ * a callback is provided, the request is made asynchronously.
+ *
+ * The asynchronous mode is preferred because the synchronous mode stops all
+ * other code (for example, the EE Code Editor UI) while waiting for the server.
+ * To make an asynchronous request, evaluate() is preferred over getInfo().
  *
  * @param {function (?, string=): ?=} opt_callback An optional
- * callback. If not supplied, the call is made synchronously.
+ *     callback. If not supplied, the call is made synchronously.
  * @return {*} The computed value of this object.
  * @export
  */

@@ -126,6 +126,7 @@ ee.FeatureCollection.reset = function() {
  *     one parameter, 'color', containing an RGB color string is allowed.  If
  *     vis_params isn't specified, then the color #000000 is used.
  * @param {function(Object, string=)=} opt_callback An async callback.
+ *     If not supplied, the call is made synchronously.
  * @return {ee.data.MapId|undefined} An object containing a mapid string, an
  *     acess token, plus a Collection.draw image wrapping this collection. Or
  *     undefined if a callback was specified.

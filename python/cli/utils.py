@@ -18,8 +18,10 @@ from ee.oauthinfo import OAuthInfo
 
 HOMEDIR = os.path.expanduser('~')
 EE_CONFIG_FILE = 'EE_CONFIG_FILE'
+DEFAULT_EE_CONFIG_FILE_RELATIVE = os.path.join(
+    '.config', 'earthengine', 'credentials')
 DEFAULT_EE_CONFIG_FILE = os.path.join(
-    HOMEDIR, '.config', 'earthengine', 'credentials')
+    HOMEDIR, DEFAULT_EE_CONFIG_FILE_RELATIVE)
 
 CONFIG_PARAMS = {
     'url': 'https://earthengine.googleapis.com',

@@ -1,3 +1,7 @@
+/**
+ * @fileoverview Generated externs.
+ * @externs
+ */
 var ctor$$2;
 ctor$$2.prototype.then;
 var ee;
@@ -104,6 +108,12 @@ ee.ComputedObject;
  * @return {(ee.ComputedObject|null)}
  */
 ee.ComputedObject.prototype.aside = function(func, var_args) {
+};
+/**
+ * @param {!function (?, string=): ?} callback
+ * @return {undefined}
+ */
+ee.ComputedObject.prototype.evaluate = function(callback) {
 };
 /**
  * @param {!function (?, string=): ?=} opt_callback

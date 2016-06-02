@@ -433,7 +433,8 @@ ee.data.getAlgorithms = function(opt_callback) {
 /**
  * Get a Map ID for a given asset
  * @param {ee.data.ImageVisualizationParameters} params
- *     The visualization parameters. For Images and ImageCollections:
+ *     The visualization parameters as a (client-side) JavaScript object.
+ *     For Images and ImageCollections:
  *       - image (JSON string) The image to render.
  *       - version (number) Version number of image (or latest).
  *       - bands (comma-seprated strings) Comma-delimited list of
@@ -1452,7 +1453,8 @@ ee.data.AbstractTaskConfig;
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),
- *   outputPrefix: (undefined|string)
+ *   outputPrefix: (undefined|string),
+ *   pyramidingPolicy: (undefined|string)
  * }}
  */
 ee.data.ImageTaskConfig;

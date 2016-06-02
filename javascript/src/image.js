@@ -156,6 +156,7 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * @param {ee.data.ImageVisualizationParameters=} opt_visParams
  *     The visualization parameters.
  * @param {function(Object, string=)=} opt_callback An async callback.
+ *     If not supplied, the call is made synchronously.
  * @return {ee.data.MapId|undefined} An object containing a mapid string, an
  *     access token plus this object, or an error message. Or undefined if a
  *     callback was specified.
