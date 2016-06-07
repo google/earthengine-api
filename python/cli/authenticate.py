@@ -3,26 +3,24 @@
 
 Stores credentials (refresh token) for later use.
 """
+from __future__ import print_function
 
 import errno
 import json
 import os
 import webbrowser
-from ee import oauthinfo
 
 # pylint: disable=g-import-not-at-top
 try:
-  # Python 3.x
-  import urllib.error
-  from urllib.error import HTTPError
-  import urllib.parse
-  import urllib.request
+    from urllib.parse import urlencode
+    from urllib.request import urlopen
+    from urllib.error import HTTPError
 except ImportError:
-  # Python 2.x
-  import urllib
-  import urllib2
-  from urllib2 import HTTPError
-
+    import urllib
+    from urllib import urlencode
+    import urllib2
+    from urllib2 import urlopen
+    from urllib2 import HTTPError
 from ee import oauthinfo
 
 # This URI prompts user to copy and paste a code after successful
@@ -57,18 +55,18 @@ class Authenticate(object):
         'client_id': oauthinfo.OAuthInfo.CLIENT_ID
     }
     auth_request_url = ('https://accounts.google.com/o/oauth2/auth?' +
-                        urllib.urlencode(auth_request_params))
+                        urlencode(auth_request_params))
 
     webbrowser.open_new(auth_request_url)
 
-    print """
+    print("""
     Opening web browser to address %s
     Please authorize access to your Earth Engine account, and paste
     the resulting code below.
     If the web browser does not start, please manually browse the the URL above.
-    """ % auth_request_url
+    """ % auth_request_url)
 
-    auth_code = raw_input('Please enter authorization code: ').strip()
+    auth_code = input('Please enter authorization code: ').strip()
     return auth_code
 
   @classmethod
@@ -85,8 +83,14 @@ class Authenticate(object):
 
     refresh_token = None
     try:
-      response = urllib2.urlopen('https://accounts.google.com/o/oauth2/token',
+      try:
+        # Python 2.x
+        response = urllib2.urlopen('https://accounts.google.com/o/oauth2/token',
                                  urllib.urlencode(token_request_params)).read()
+      except NameError:
+        # Python 3.x
+        response = urlopen('https://accounts.google.com/o/oauth2/token',
+                         urlencode(token_request_params).encode()).read().decode()
       tokens = json.loads(response)
       refresh_token = tokens['refresh_token']
     except HTTPError as e:
@@ -103,10 +107,10 @@ class Authenticate(object):
     dirname = os.path.dirname(credentials_path)
     try:
       os.makedirs(dirname)
-    except OSError, e:
+    except OSError as e:
       if e.errno != errno.EEXIST:
         raise Exception('Error creating %s: %s' % (dirname, e))
 
     json.dump({'refresh_token': refresh_token}, open(credentials_path, 'w'))
 
-    print '\nSuccessfully saved authorization to %s' % credentials_path
+    print('\nSuccessfully saved authorization to %s' % credentials_path)

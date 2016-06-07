@@ -179,7 +179,7 @@ class ApiFunction(function.Function):
     """
     cls.initialize()
     prepend = opt_prepend or ''
-    for name, api_func in cls._api.iteritems():
+    for name, api_func in cls._api.items():
       parts = name.split('.')
       if len(parts) == 2 and parts[0] == prefix:
         fname = prepend + parts[1]
