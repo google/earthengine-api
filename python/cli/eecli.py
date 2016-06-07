@@ -17,13 +17,13 @@ import commands  # Used by Python 3.x
 import sys
 
 import ee
-// MOE:begin_strip
+# MOE:begin_strip
 import commands
 import utils
-/* MOE:end_strip_and_replace
+""" MOE:end_strip_and_replace
 from . import commands
 from . import utils
-*/
+"""
 
 class CommandDispatcher(commands.Dispatcher):
   name = 'main'
