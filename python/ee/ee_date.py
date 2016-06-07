@@ -6,7 +6,7 @@
 # pylint: disable=g-bad-import-order
 import datetime
 import math
-import six  # For Python 2/3 compatibility
+import six
 
 from . import apifunction
 from . import computedobject

@@ -55,7 +55,7 @@ class Element(computedobject.ComputedObject):
 
       # If this is a keyword call, unwrap it.
       if (isinstance(properties, dict) and
-          (len(properties) == 1 and 'properties' in properties.keys()) and
+          (len(properties) == 1 and 'properties' in properties) and
           isinstance(properties['properties'],
                      (dict, computedobject.ComputedObject))):
         # Looks like a call with keyword parameters. Extract them.

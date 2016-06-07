@@ -12,7 +12,7 @@ import hashlib
 import json
 import math
 import numbers
-import six  # For Python 2/3 compatibility
+import six
 
 from . import ee_exception
 from . import encodable
@@ -135,7 +135,6 @@ class Serializer(object):
 
     if self._is_compound:
       # Save the new object and return a ValueRef.
-      #
       hashval = hashlib.md5(json.dumps(result).encode()).digest()
       self._hashcache[obj_id] = hashval
       name = self._encoded.get(hashval, None)

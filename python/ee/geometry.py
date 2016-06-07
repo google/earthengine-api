@@ -10,7 +10,7 @@
 import collections
 import json
 import numbers
-import six  # For Python 2/3 compatibility
+import six
 
 from . import apifunction
 from . import computedobject

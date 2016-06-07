@@ -35,7 +35,7 @@ import Queue
 import sys
 import threading
 import urllib2
-import six  # For Python 2/3 compatibility
+import six
 
 # check if the Python imaging libraries used by the mapclient module are
 # installed

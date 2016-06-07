@@ -10,7 +10,7 @@ The function styling uses camelCase to match the JavaScript names.
 
 # pylint: disable=g-bad-import-order
 import json
-import six  # For Python 2/3 compatibility
+import six
 
 from . import data
 from . import ee_exception

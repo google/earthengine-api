@@ -7,7 +7,7 @@
 # pylint: disable=g-bad-name
 
 # pylint: disable=g-bad-import-order
-import six  # For Python 2/3 compatibility
+import six
 
 from . import computedobject
 from . import ee_types

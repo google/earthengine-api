@@ -9,7 +9,7 @@
 # pylint: disable=g-bad-import-order
 import datetime
 import numbers
-import six  # For Python 2/3 compatibility
+import six
 
 from . import computedobject
 

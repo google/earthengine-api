@@ -12,7 +12,7 @@ from __future__ import print_function
 import contextlib
 import json
 import httplib2
-import six  # For Python 2/3 compatibility
+import six
 
 # pylint: disable=g-import-not-at-top
 try:

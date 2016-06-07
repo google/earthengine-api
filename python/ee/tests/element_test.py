@@ -3,7 +3,7 @@
 
 
 
-import six  # For Python 2/3 compatibility
+import six
 
 import unittest
 import ee

@@ -15,7 +15,7 @@ import json
 import numbers
 import os
 import sys
-import six  # For Python 2/3 compatibility
+import six
 
 import oauth2client.client  # pylint: disable=g-bad-import-order
 
