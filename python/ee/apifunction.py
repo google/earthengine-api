@@ -20,11 +20,12 @@ import copy
 import keyword
 import re
 
-import data
-import deprecation
-import ee_exception
-import ee_types
-import function
+from . import computedobject
+from . import data
+from . import deprecation
+from . import ee_exception
+from . import ee_types
+from . import function
 
 
 class ApiFunction(function.Function):
@@ -55,6 +56,11 @@ class ApiFunction(function.Function):
   def __eq__(self, other):
     return (isinstance(other, ApiFunction) and
             self.getSignature() == other.getSignature())
+
+  # For Python 3, __hash__ is needed because __eq__ is defined.
+  # See https://docs.python.org/3/reference/datamodel.html#object.__hash__
+  def __hash__(self):
+    return hash(computedobject.ComputedObject.freeze(self.getSignature()))
 
   def __ne__(self, other):
     return not self.__eq__(other)
@@ -100,13 +106,13 @@ class ApiFunction(function.Function):
     """Returns a map from the name to signature for all API functions."""
     cls.initialize()
     return dict([(name, func.getSignature())
-                 for name, func in cls._api.iteritems()])
+                 for name, func in cls._api.items()])
 
   @classmethod
   def unboundFunctions(cls):
     """Returns the functions that have not been bound using importApi() yet."""
     cls.initialize()
-    return dict([(name, func) for name, func in cls._api.iteritems()
+    return dict([(name, func) for name, func in cls._api.items()
                  if name not in cls._bound_signatures])
 
   @classmethod
@@ -144,7 +150,7 @@ class ApiFunction(function.Function):
     if not cls._api:
       signatures = data.getAlgorithms()
       api = {}
-      for name, sig in signatures.iteritems():
+      for name, sig in signatures.items():
         # Strip type parameters.
         sig['returns'] = re.sub('<.*>', '', sig['returns'])
         for arg in sig['args']:
@@ -197,8 +203,10 @@ class ApiFunction(function.Function):
         bound_function = MakeBoundFunction(api_func)
 
         # Add docs.
-        setattr(bound_function, '__name__', name.encode('utf8'))
+        setattr(bound_function, '__name__', str(name))
         bound_function.__doc__ = str(api_func)
+        # Python 2.x  A TypeError is raised if name is unicode.
+
         # Attach the signature object for documentation generators.
         bound_function.signature = signature
 

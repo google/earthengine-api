@@ -3,10 +3,10 @@
 
 
 
+import six  # For Python 2/3 compatibility
+
 import unittest
-
 import ee
-
 from ee import apitestcase
 
 
@@ -16,7 +16,7 @@ class ComputedObjectTest(apitestcase.ApiTestCase):
     """Verifies that untyped calls wrap the result in a ComputedObject."""
 
     result = ee.ApiFunction.call_('DateRange', 1, 2)
-    self.assertTrue(isinstance(result.serialize(), basestring))
+    self.assertTrue(isinstance(result.serialize(), six.string_types))
     self.assertEquals({'value': 'fakeValue'}, result.getInfo())
 
   def testInternals(self):

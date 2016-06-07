@@ -3,8 +3,8 @@
 
 
 
-import apifunction
-import computedobject
+from . import apifunction
+from . import computedobject
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name

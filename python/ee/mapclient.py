@@ -35,6 +35,7 @@ import Queue
 import sys
 import threading
 import urllib2
+import six  # For Python 2/3 compatibility
 
 # check if the Python imaging libraries used by the mapclient module are
 # installed
@@ -160,6 +161,7 @@ class MapClient(threading.Thread):
   def GetViewport(self):
     """Return the visible portion of the map as [xlo, ylo, xhi, yhi]."""
     width, height = self.GetMapSize()
+    # pylint: disable=invalid-unary-operand-type
     return [-self.origin_x, -self.origin_y,
             -self.origin_x + width, -self.origin_y + height]
 
@@ -477,10 +479,10 @@ def addToMap(eeobject, vis_params=None, *unused_args):
   # Flatten any lists to comma separated strings.
   if vis_params:
     vis_params = dict(vis_params)
-    for key in vis_params.keys():
+    for key in vis_params:
       item = vis_params.get(key)
       if (isinstance(item, collections.Iterable) and
-          not isinstance(item, basestring)):
+          not isinstance(item, six.string_types)):
         vis_params[key] = ','.join([str(x) for x in item])
 
   overlay = MakeOverlay(eeobject.getMapId(vis_params))

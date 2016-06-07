@@ -3,9 +3,9 @@
 
 
 
-import apifunction
-import computedobject
-import ee_exception
+from . import apifunction
+from . import computedobject
+from . import ee_exception
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name

@@ -1,18 +1,30 @@
 #!/usr/bin/env python
 """Singleton for all of the library's communcation with the Earth Engine API."""
 
+from __future__ import print_function
+
 
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+# pylint: disable=g-bad-import-order
 import contextlib
 import json
-import urllib
-
-import ee_exception
 import httplib2
+import six  # For Python 2/3 compatibility
 
+# pylint: disable=g-import-not-at-top
+try:
+  # Python 3.x
+  import urllib.error
+  import urllib.parse
+  import urllib.request
+except ImportError:
+  # Python 2.x
+  import urllib
+
+from . import ee_exception
 
 # OAuth2 credentials object.  This may be set by ee.Initialize().
 _credentials = None
@@ -318,7 +330,7 @@ def getDownloadId(params):
     A dict containing a docid and token.
   """
   params['json_format'] = 'v2'
-  if 'bands' in params and not isinstance(params['bands'], basestring):
+  if 'bands' in params and not isinstance(params['bands'], six.string_types):
     params['bands'] = json.dumps(params['bands'])
   return send_('/download', params)
 
@@ -400,7 +412,7 @@ def createAsset(value, opt_path=None):
   Returns:
     A description of the saved asset, including a generated ID.
   """
-  if not isinstance(value, basestring):
+  if not isinstance(value, six.string_types):
     value = json.dumps(value)
   args = {'value': value, 'json_format': 'v2'}
   if opt_path is not None:
@@ -482,7 +494,7 @@ def getTaskStatus(taskId):
         doesn't exist.
       error_message (string) For a FAILED task, a description of the error.
   """
-  if isinstance(taskId, basestring):
+  if isinstance(taskId, six.string_types):
     taskId = [taskId]
   args = {'q': ','.join(taskId)}
   return send_('/taskstatus', args, 'GET')
@@ -659,7 +671,10 @@ def send_(path, params, opt_method='POST', opt_raw=False):
     params['profiling'] = '1'
 
   url = _api_base_url + path
-  payload = urllib.urlencode(params)
+  try:
+    payload = urllib.parse.urlencode(params)  # Python 3.x
+  except AttributeError:
+    payload = urllib.urlencode(params)  # Python 2.x
   http = httplib2.Http(timeout=int(_deadline_ms / 1000) or None)
 
   headers = {}
@@ -677,7 +692,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   try:
     response, content = http.request(url, method=opt_method, body=payload,
                                      headers=headers)
-  except httplib2.HttpLib2Error, e:
+  except httplib2.HttpLib2Error as e:
     raise ee_exception.EEException(
         'Unexpected HTTP error: %s' % e.message)
 
@@ -690,13 +705,22 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   content_type = (response['content-type'] or 'application/json').split(';')[0]
   if content_type in ('application/json', 'text/json') and not opt_raw:
     try:
+      try:
+        # Python 3.x
+        try:
+          content = content.decode()
+        except AttributeError:
+          pass
+      except UnicodeDecodeError:
+        # Python 2.x
+        content = content
       json_content = json.loads(content)
-    except Exception, e:
-      raise ee_exception.EEException('Invalid JSON: ' + content)
+    except Exception as e:
+      raise ee_exception.EEException('Invalid JSON: %s' % content)
     if 'error' in json_content:
       raise ee_exception.EEException(json_content['error']['message'])
     if 'data' not in content:
-      raise ee_exception.EEException('Malformed response: ' + content)
+      raise ee_exception.EEException('Malformed response: ' + str(content))
   else:
     json_content = None
 
@@ -720,7 +744,7 @@ def create_assets(asset_ids, asset_type, mk_parents):
   """Creates the specified assets if they do not exist."""
   for asset_id in asset_ids:
     if getInfo(asset_id):
-      print 'Asset %s already exists' % asset_id
+      print('Asset %s already exists' % asset_id)
       continue
     if mk_parents:
       parts = asset_id.split('/')

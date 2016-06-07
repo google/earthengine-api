@@ -7,9 +7,21 @@ Stores credentials (refresh token) for later use.
 import errno
 import json
 import os
-import urllib
-import urllib2
 import webbrowser
+from ee import oauthinfo
+
+# pylint: disable=g-import-not-at-top
+try:
+  # Python 3.x
+  import urllib.error
+  from urllib.error import HTTPError
+  import urllib.parse
+  import urllib.request
+except ImportError:
+  # Python 2.x
+  import urllib
+  import urllib2
+  from urllib2 import HTTPError
 
 from ee import oauthinfo
 
@@ -77,7 +89,7 @@ class Authenticate(object):
                                  urllib.urlencode(token_request_params)).read()
       tokens = json.loads(response)
       refresh_token = tokens['refresh_token']
-    except urllib2.HTTPError, e:
+    except HTTPError as e:
       raise Exception('Problem requesting tokens.  Please try again.  %s %s' %
                       (e, e.read()))
 

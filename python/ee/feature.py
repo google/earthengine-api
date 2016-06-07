@@ -6,12 +6,12 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-import apifunction
-import computedobject
-import deprecation
-import ee_exception
-import element
-import geometry
+from . import apifunction
+from . import computedobject
+from . import deprecation
+from . import ee_exception
+from . import element
+from . import geometry
 
 
 class Feature(element.Element):

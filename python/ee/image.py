@@ -9,17 +9,20 @@ See: https://sites.google.com/site/earthengineapidocs for more details.
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+# Disable lint messages caused by Python 3 compatibility changes.
+# pylint: disable=superfluous-parens
+
 import json
 
-import apifunction
-import computedobject
-import data
-import deprecation
-import ee_exception
-import ee_types
-import element
-import function
-import geometry
+from . import apifunction
+from . import computedobject
+from . import data
+from . import deprecation
+from . import ee_exception
+from . import ee_types
+from . import element
+from . import function
+from . import geometry
 
 
 class Image(element.Element):
@@ -184,7 +187,7 @@ class Image(element.Element):
     """
     request = params or {}
     request['image'] = self.serialize()
-    if request.has_key('region'):
+    if 'region' in request:
       if (isinstance(request['region'], dict) or
           isinstance(request['region'], list)):
         request['region'] = json.dumps(request['region'])
@@ -328,7 +331,7 @@ class Image(element.Element):
 
     # Add custom arguments, promoting them to Images manually.
     if opt_map:
-      for name, value in opt_map.iteritems():
+      for name, value in opt_map.items():
         all_vars.append(name)
         args[name] = Image(value)
 

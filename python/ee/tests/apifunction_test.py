@@ -20,7 +20,8 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     # Check instance vs static functions, and trampling of
     # existing functions.
     class TestClass(object):
-      def pre_addBands(self):  # pylint: disable-msg=g-bad-name
+
+      def pre_addBands(self):  # pylint: disable=g-bad-name
         pass
 
     self.assertFalse(hasattr(TestClass, 'pre_load'))
@@ -32,8 +33,12 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     ee.ApiFunction.importApi(TestClass, 'Image', 'Image', 'pre_')
     self.assertFalse(isinstance(TestClass.pre_load, types.MethodType))
     self.assertFalse(hasattr(TestClass, 'select'))
-    self.assertTrue(isinstance(TestClass.pre_select, types.MethodType))
-    self.assertTrue(isinstance(TestClass.pre_addBands, types.MethodType))
+    # Unbound methods are just functions in Python 3. Check both to maintain
+    # backward compatibility.
+    self.assertTrue(isinstance(TestClass.pre_select,
+                               (types.FunctionType, types.MethodType)))
+    self.assertTrue(isinstance(TestClass.pre_addBands,
+                               (types.FunctionType, types.MethodType)))
     self.assertFalse(hasattr(TestClass, '_pre_addBands'))
 
     ee.ApiFunction.clearApi(TestClass)
