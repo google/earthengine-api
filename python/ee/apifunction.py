@@ -203,9 +203,14 @@ class ApiFunction(function.Function):
         bound_function = MakeBoundFunction(api_func)
 
         # Add docs.
-        setattr(bound_function, '__name__', str(name))
-        bound_function.__doc__ = str(api_func)
-        # Python 2.x  A TypeError is raised if name is unicode.
+        try:
+          setattr(bound_function, '__name__', str(name))
+        except TypeError:
+          setattr(bound_function, '__name__', name.encode('utf8'))
+        try:
+          bound_function.__doc__ = str(api_func)
+        except UnicodeEncodeError:
+          bound_function.__doc__ = api_func.__str__().encode('utf8')
 
         # Attach the signature object for documentation generators.
         bound_function.signature = signature
