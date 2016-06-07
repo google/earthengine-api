@@ -5,7 +5,7 @@ Stores credentials (refresh token) for later use.
 """
 from __future__ import print_function
 
-from builtins import input
+from six.moves import input
 import errno
 import json
 import os
