@@ -12,7 +12,7 @@ COUNTRIES_TABLE_ID = 'ft:1jCnx50Qb7dTG6fURnpvT2QXiUzewJti8ApBPO8dg'
 ECOREGIONS_TABLE_ID = 'ft:11SfWB6oBS1iWGiQxEOqF_wUgBJL7Bux-pWU-mqd5'
 
 # The root file path from the working directory during generate.py execution.
-FILEPATH_ROOT = '../'
+FILEPATH_ROOT = '../frontend/'
 
 # The global forest change raster on which to base analysis.
 HANSEN_IMAGE_ID = 'UMD/hansen/global_forest_change_2015'
