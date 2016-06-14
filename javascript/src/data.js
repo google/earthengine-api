@@ -11,6 +11,7 @@ goog.provide('ee.data.AlgorithmsRegistry');
 goog.provide('ee.data.AssetAcl');
 goog.provide('ee.data.AssetAclUpdate');
 goog.provide('ee.data.AssetDescription');
+goog.provide('ee.data.AssetDetailsProperty');
 goog.provide('ee.data.AssetList');
 goog.provide('ee.data.AssetQuotaDetails');
 goog.provide('ee.data.AssetType');
@@ -1138,6 +1139,23 @@ ee.data.SystemTimeProperty = {
 
 /** @const {string} The name of the EE system asset size property. */
 ee.data.SYSTEM_ASSET_SIZE_PROPERTY = 'system:asset_size';
+
+
+/**
+ * @enum {string} The names of the editable EE system asset properties.
+ *   The title property contains the human readable name of the asset, e.g.
+ *     "My Map Asset 2016".
+ *   The description property contains an HTML description of the asset.
+ *   The provider_url contains a url to more info about the asset/provider,
+ *     e.g. "http://www.providerwebsite.com"
+ *   The tags property contains a list of tags relevant to the asset, e.g.
+ *     "landcover, global" etc.
+ */
+ee.data.AssetDetailsProperty = {
+  TITLE: 'system:title',
+  DESCRIPTION: 'system:description',
+  TAGS: 'system:tags'
+};
 
 
 /**

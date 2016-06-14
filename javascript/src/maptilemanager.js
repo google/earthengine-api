@@ -605,14 +605,19 @@ ee.MapTileManager.Request_.prototype.start_ = function() {
     xhrIo.listen(goog.net.EventType.COMPLETE, goog.bind(function(event) {
       this.profileId_ = xhrIo.getResponseHeader(ee.data.PROFILE_HEADER) || null;
 
+      // Store the response, but only if it is not an error, because if we did
+      // then we would attempt to interpret the error response as an image.
+      // This also ensures that the Code Editor can display the error message.
       var objectUrl;
-      try {
-        objectUrl = URL.createObjectURL(
-            /** @type {!Blob} */ (xhrIo.getResponse()));
-      } catch (e) {
-        // Browser did not support blob response, or browser did not support
-        // createObjectURL, or we made a mistake. We will fall back to
-        // re-requesting the tile as an image since objectUrl is left as null.
+      if (xhrIo.getStatus() >= 200 && xhrIo.getStatus() < 300) {
+        try {
+          objectUrl = URL.createObjectURL(
+              /** @type {!Blob} */ (xhrIo.getResponse()));
+        } catch (e) {
+          // Browser did not support blob response, or browser did not support
+          // createObjectURL, or we made a mistake. We will fall back to
+          // re-requesting the tile as an image since objectUrl is left as null.
+        }
       }
 
       actuallyLoadImage(objectUrl || sourceUrl);

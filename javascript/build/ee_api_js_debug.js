@@ -174,32 +174,6 @@ goog.DEPENDENCIES_ENABLED && (goog.dependencies_ = {loadFlags:{}, nameToPath:{},
   }
 }, goog.loadModuleFromUrl = function(url) {
   goog.retrieveAndExec_(url, !0, !1);
-}, goog.loadModule = function(moduleDef) {
-  var previousState = goog.moduleLoaderState_;
-  try {
-    goog.moduleLoaderState_ = {moduleName:void 0, declareLegacyNamespace:!1};
-    var exports;
-    if (goog.isFunction(moduleDef)) {
-      exports = moduleDef.call(goog.global, {});
-    } else {
-      if (goog.isString(moduleDef)) {
-        exports = goog.loadModuleFromSource_.call(goog.global, moduleDef);
-      } else {
-        throw Error("Invalid module definition");
-      }
-    }
-    var moduleName = goog.moduleLoaderState_.moduleName;
-    if (!goog.isString(moduleName) || !moduleName) {
-      throw Error('Invalid module name "' + moduleName + '"');
-    }
-    goog.moduleLoaderState_.declareLegacyNamespace ? goog.constructNamespace_(moduleName, exports) : goog.SEAL_MODULE_EXPORTS && Object.seal && Object.seal(exports);
-    goog.loadedModules_[moduleName] = exports;
-  } finally {
-    goog.moduleLoaderState_ = previousState;
-  }
-}, goog.loadModuleFromSource_ = function(JSCompiler_OptimizeArgumentsArray_p0) {
-  eval(JSCompiler_OptimizeArgumentsArray_p0);
-  return {};
 }, goog.writeScriptSrcNode_ = function(src) {
   goog.global.document.write('<script type="text/javascript" src="' + src + '">\x3c/script>');
 }, goog.appendScriptSrcNode_ = function(src) {
@@ -288,6 +262,34 @@ goog.DEPENDENCIES_ENABLED && (goog.dependencies_ = {loadFlags:{}, nameToPath:{},
 }, goog.getPathFromDeps_ = function(rule) {
   return rule in goog.dependencies_.nameToPath ? goog.dependencies_.nameToPath[rule] : null;
 }, goog.findBasePath_(), goog.global.CLOSURE_NO_DEPS || goog.importScript_(goog.basePath + "deps.js"));
+goog.loadModule = function(moduleDef) {
+  var previousState = goog.moduleLoaderState_;
+  try {
+    goog.moduleLoaderState_ = {moduleName:void 0, declareLegacyNamespace:!1};
+    var exports;
+    if (goog.isFunction(moduleDef)) {
+      exports = moduleDef.call(goog.global, {});
+    } else {
+      if (goog.isString(moduleDef)) {
+        exports = goog.loadModuleFromSource_.call(goog.global, moduleDef);
+      } else {
+        throw Error("Invalid module definition");
+      }
+    }
+    var moduleName = goog.moduleLoaderState_.moduleName;
+    if (!goog.isString(moduleName) || !moduleName) {
+      throw Error('Invalid module name "' + moduleName + '"');
+    }
+    goog.moduleLoaderState_.declareLegacyNamespace ? goog.constructNamespace_(moduleName, exports) : goog.SEAL_MODULE_EXPORTS && Object.seal && Object.seal(exports);
+    goog.loadedModules_[moduleName] = exports;
+  } finally {
+    goog.moduleLoaderState_ = previousState;
+  }
+};
+goog.loadModuleFromSource_ = function(JSCompiler_OptimizeArgumentsArray_p0) {
+  eval(JSCompiler_OptimizeArgumentsArray_p0);
+  return {};
+};
 goog.normalizePath_ = function(path) {
   for (var components = path.split("/"), i = 0;i < components.length;) {
     "." == components[i] ? components.splice(i, 1) : i && ".." == components[i] && components[i - 1] && ".." != components[i - 1] ? components.splice(--i, 2) : i++;
@@ -1887,6 +1889,9 @@ goog.reflect = {};
 goog.reflect.object = function(type, object) {
   return object;
 };
+goog.reflect.objectProperty = function(prop, object) {
+  return prop;
+};
 goog.reflect.sinkValue = function(x) {
   goog.reflect.sinkValue[" "](x);
   return x;
@@ -3382,7 +3387,7 @@ goog.Promise.prototype.unblockAndReject_ = function(reason) {
   this.resolve_(goog.Promise.State_.REJECTED, reason);
 };
 goog.Promise.prototype.resolve_ = function(state, x) {
-  this.state_ == goog.Promise.State_.PENDING && (this == x && (state = goog.Promise.State_.REJECTED, x = new TypeError("Promise cannot resolve to itself")), this.state_ = goog.Promise.State_.BLOCKED, goog.Promise.maybeThen_(x, this.unblockAndFulfill_, this.unblockAndReject_, this) || (this.result_ = x, this.state_ = state, this.parent_ = null, this.scheduleCallbacks_(), state != goog.Promise.State_.REJECTED || x instanceof goog.Promise.CancellationError || goog.Promise.addUnhandledRejection_(this, 
+  this.state_ == goog.Promise.State_.PENDING && (this === x && (state = goog.Promise.State_.REJECTED, x = new TypeError("Promise cannot resolve to itself")), this.state_ = goog.Promise.State_.BLOCKED, goog.Promise.maybeThen_(x, this.unblockAndFulfill_, this.unblockAndReject_, this) || (this.result_ = x, this.state_ = state, this.parent_ = null, this.scheduleCallbacks_(), state != goog.Promise.State_.REJECTED || x instanceof goog.Promise.CancellationError || goog.Promise.addUnhandledRejection_(this, 
   x)));
 };
 goog.Promise.maybeThen_ = function(value, onFulfilled, onRejected, context) {
@@ -4827,7 +4832,7 @@ goog.dom.createDom = function(tagName, opt_attributes, var_args) {
   return goog.dom.createDom_(document, arguments);
 };
 goog.dom.createDom_ = function(doc, args) {
-  var tagName = args[0], attributes = args[1];
+  var tagName = String(args[0]), attributes = args[1];
   if (!goog.dom.BrowserFeature.CAN_ADD_NAME_OR_TYPE_ATTRIBUTES && attributes && (attributes.name || attributes.type)) {
     var tagNameArr = ["<", tagName];
     attributes.name && tagNameArr.push(' name="', goog.string.htmlEscape(attributes.name), '"');
@@ -4857,7 +4862,7 @@ goog.dom.append_ = function(doc, parent, args, startIndex) {
 };
 goog.dom.$dom = goog.dom.createDom;
 goog.dom.createElement = function(name) {
-  return document.createElement(name);
+  return document.createElement(String(name));
 };
 goog.dom.createTextNode = function(content) {
   return document.createTextNode(String(content));
@@ -5405,7 +5410,7 @@ goog.dom.DomHelper.prototype.createDom = function(tagName, opt_attributes, var_a
 };
 goog.dom.DomHelper.prototype.$dom = goog.dom.DomHelper.prototype.createDom;
 goog.dom.DomHelper.prototype.createElement = function(name) {
-  return this.document_.createElement(name);
+  return this.document_.createElement(String(name));
 };
 goog.dom.DomHelper.prototype.createTextNode = function(content) {
   return this.document_.createTextNode(String(content));
@@ -8476,6 +8481,7 @@ ee.data.AssetType = {IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", FOLDER:"
 ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO"};
 ee.data.SystemTimeProperty = {START:"system:time_start", END:"system:time_end"};
 ee.data.SYSTEM_ASSET_SIZE_PROPERTY = "system:asset_size";
+ee.data.AssetDetailsProperty = {TITLE:"system:title", DESCRIPTION:"system:description", TAGS:"system:tags"};
 ee.data.MapZoomRange = {MIN:0, MAX:24};
 ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
 ee.data.ReductionPolicy = {MEAN:"MEAN", MODE:"MODE", MIN:"MIN", MAX:"MAX", SAMPLE:"SAMPLE"};
@@ -10924,6 +10930,8 @@ goog.math.Box.prototype.scale = function(sx, opt_sy) {
   this.bottom *= sy;
   return this;
 };
+goog.math.IRect = function() {
+};
 goog.math.Rect = function(x, y, w, h) {
   this.left = x;
   this.top = y;
@@ -11000,12 +11008,12 @@ goog.math.Rect.boundingRect = function(a, b) {
   if (!a || !b) {
     return null;
   }
-  var clone = a.clone();
-  clone.boundingRect(b);
-  return clone;
+  var newRect = new goog.math.Rect(a.left, a.top, a.width, a.height);
+  newRect.boundingRect(b);
+  return newRect;
 };
 goog.math.Rect.prototype.contains = function(another) {
-  return another instanceof goog.math.Rect ? this.left <= another.left && this.left + this.width >= another.left + another.width && this.top <= another.top && this.top + this.height >= another.top + another.height : another.x >= this.left && another.x <= this.left + this.width && another.y >= this.top && another.y <= this.top + this.height;
+  return another instanceof goog.math.Coordinate ? another.x >= this.left && another.x <= this.left + this.width && another.y >= this.top && another.y <= this.top + this.height : this.left <= another.left && this.left + this.width >= another.left + another.width && this.top <= another.top && this.top + this.height >= another.top + another.height;
 };
 goog.math.Rect.prototype.squaredDistance = function(point) {
   var dx = point.x < this.left ? this.left - point.x : Math.max(point.x - (this.left + this.width), 0), dy = point.y < this.top ? this.top - point.y : Math.max(point.y - (this.top + this.height), 0);
@@ -12275,9 +12283,11 @@ ee.MapTileManager.Request_.prototype.start_ = function() {
       xhrIo.listen(goog.net.EventType.COMPLETE, goog.bind(function(event) {
         this.profileId_ = xhrIo.getResponseHeader(ee.data.PROFILE_HEADER) || null;
         var objectUrl;
-        try {
-          objectUrl = URL.createObjectURL(xhrIo.getResponse());
-        } catch (e) {
+        if (200 <= xhrIo.getStatus() && 300 > xhrIo.getStatus()) {
+          try {
+            objectUrl = URL.createObjectURL(xhrIo.getResponse());
+          } catch (e) {
+          }
         }
         actuallyLoadImage(objectUrl || sourceUrl);
       }, this));
