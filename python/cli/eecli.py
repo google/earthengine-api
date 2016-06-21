@@ -19,7 +19,6 @@ import ee
 from . import commands
 from . import utils
 
-
 class CommandDispatcher(commands.Dispatcher):
   name = 'main'
 

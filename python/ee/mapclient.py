@@ -43,21 +43,21 @@ try:
   import ImageTk             # pylint: disable=g-import-not-at-top
   import Image               # pylint: disable=g-import-not-at-top
 except ImportError:
-  print """
+  print("""
     ERROR: A Python library (PIL) used by the Earth Engine API mapclient module
     was not found. Information on PIL can be found at:
     http://pypi.python.org/pypi/PIL
-    """
+    """)
   raise
 
 try:
   import Tkinter             # pylint: disable=g-import-not-at-top
 except ImportError:
-  print """
+  print("""
     ERROR: A Python library (Tkinter) used by the Earth Engine API mapclient
     module was not found. Instructions for installing Tkinter can be found at:
     http://tkinter.unpythonic.net/wiki/How_to_install_Tkinter
-    """
+    """)
   raise
 
 # The default URL to fetch tiles from.  We could pull this from the EE library,
@@ -441,7 +441,7 @@ class MapOverlay(object):
             try:
               data = urllib2.urlopen(url).read()
             except urllib2.HTTPError as e:
-              print >> sys.stderr, e
+              print() >> sys.stderr, e
             else:
               # PhotoImage can't handle alpha on LA images.
               image = Image.open(cStringIO.StringIO(data)).convert('RGBA')
