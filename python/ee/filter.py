@@ -18,10 +18,10 @@ Example usage:
 
 import functools
 
-import apifunction
-import computedobject
-import deprecation
-import ee_exception
+from . import apifunction
+from . import computedobject
+from . import deprecation
+from . import ee_exception
 
 
 class _FilterAutoCreator(object):

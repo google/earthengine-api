@@ -9,9 +9,9 @@ This class is never intended to be instantiated by the user.
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-import apifunction
-import computedobject
-import ee_exception
+from . import apifunction
+from . import computedobject
+from . import ee_exception
 
 
 class Element(computedobject.ComputedObject):
@@ -55,7 +55,7 @@ class Element(computedobject.ComputedObject):
 
       # If this is a keyword call, unwrap it.
       if (isinstance(properties, dict) and
-          properties.keys() == ['properties'] and
+          (len(properties) == 1 and 'properties' in properties) and
           isinstance(properties['properties'],
                      (dict, computedobject.ComputedObject))):
         # Looks like a call with keyword parameters. Extract them.
@@ -65,7 +65,7 @@ class Element(computedobject.ComputedObject):
         # Still a plain object. Extract its keys. Setting the keys separately
         # allows filter propagation.
         result = self
-        for key, value in properties.iteritems():
+        for key, value in properties.items():
           result = apifunction.ApiFunction.call_(
               'Element.set', result, key, value)
       elif (isinstance(properties, computedobject.ComputedObject) and

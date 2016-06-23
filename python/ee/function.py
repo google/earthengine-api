@@ -4,14 +4,14 @@
 
 
 # Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
+# pylint: disable=g-bad-name
 
 import textwrap
 
-import computedobject
-import ee_exception
-import encodable
-import serializer
+from . import computedobject
+from . import ee_exception
+from . import encodable
+from . import serializer
 
 
 class Function(encodable.Encodable):
@@ -184,4 +184,4 @@ class Function(encodable.Encodable):
                                 width=DOCSTRING_WIDTH - len(name_part),
                                 subsequent_indent=' ' * 6)
         parts.append(arg_doc)
-    return u'\n'.join(parts).encode('utf8')
+    return '\n'.join(parts)

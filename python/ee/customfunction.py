@@ -6,10 +6,13 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-import computedobject
-import ee_types
-import function
-import serializer
+# pylint: disable=g-bad-import-order
+import six
+
+from . import computedobject
+from . import ee_types
+from . import function
+from . import serializer
 
 
 class CustomFunction(function.Function):
@@ -87,7 +90,7 @@ class CustomFunction(function.Function):
     """
 
     def StringifyType(t):
-      return t if isinstance(t, basestring) else ee_types.classToName(t)
+      return t if isinstance(t, six.string_types) else ee_types.classToName(t)
 
     args = [{'name': None, 'type': StringifyType(i)} for i in arg_types]
     signature = {
@@ -133,7 +136,7 @@ class CustomFunction(function.Function):
           # for this use case, as we only care about determinism.
           count += 1
         else:
-          for sub_expression in expression.itervalues():
+          for sub_expression in expression.values():
             count += CountFunctions(sub_expression)
       elif isinstance(expression, (list, tuple)):
         for sub_expression in expression:

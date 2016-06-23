@@ -6,15 +6,17 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+# pylint: disable=g-bad-import-order
 import collections
 import json
 import numbers
+import six
 
-import apifunction
-import computedobject
-import ee_exception
-import ee_types
-import serializer
+from . import apifunction
+from . import computedobject
+from . import ee_exception
+from . import ee_types
+from . import serializer
 
 
 # A sentinel value used to detect unspecified function parameters.
@@ -97,7 +99,8 @@ class Geometry(computedobject.ComputedObject):
       if (isinstance(geo_json.get('crs'), dict) and
           geo_json['crs'].get('type') == 'name' and
           isinstance(geo_json['crs'].get('properties'), dict) and
-          isinstance(geo_json['crs']['properties'].get('name'), basestring)):
+          isinstance(
+              geo_json['crs']['properties'].get('name'), six.string_types)):
         self._proj = geo_json['crs']['properties']['name']
       else:
         raise ee_exception.EEException('Invalid CRS declaration in GeoJSON: ' +
@@ -516,7 +519,7 @@ class Geometry(computedobject.ComputedObject):
     if shape and isinstance(shape[0], collections.Iterable):
       count = Geometry._isValidCoordinates(shape[0])
       # If more than 1 ring or polygon, they should have the same nesting.
-      for i in xrange(1, len(shape)):
+      for i in range(1, len(shape)):
         if Geometry._isValidCoordinates(shape[i]) != count:
           return -1
       return count + 1
@@ -552,7 +555,7 @@ class Geometry(computedobject.ComputedObject):
                                      len(coordinates))
 
     line = []
-    for i in xrange(0, len(coordinates), 2):
+    for i in range(0, len(coordinates), 2):
       pt = [coordinates[i], coordinates[i + 1]]
       line.append(pt)
     return line

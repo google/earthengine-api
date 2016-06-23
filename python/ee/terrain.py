@@ -3,7 +3,7 @@
 
 
 
-import apifunction
+from . import apifunction
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name

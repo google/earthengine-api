@@ -8,10 +8,13 @@ The function styling uses camelCase to match the JavaScript names.
 
 # pylint: disable=g-bad-name
 
+# pylint: disable=g-bad-import-order
 import json
-import data
-import ee_exception
-import geometry
+import six
+
+from . import data
+from . import ee_exception
+from . import geometry
 
 
 class Task(object):
@@ -744,7 +747,7 @@ def _GetSerializedRegion(region):
   region_error = ee_exception.EEException(
       'Invalid format for region property. '
       'See Export.image() documentation for more details.')
-  if isinstance(region, basestring):
+  if isinstance(region, six.string_types):
     try:
       region = json.loads(region)
     except:
@@ -761,7 +764,7 @@ def _GetSerializedRegion(region):
 
 def _CopyDictFilterNone(originalDict):
   """Copies a dictionary and filters out None values."""
-  return dict((k, v) for k, v in originalDict.iteritems() if v is not None)
+  return dict((k, v) for k, v in originalDict.items() if v is not None)
 
 
 def _ConvertToServerParams(configDict, eeElementKey, destination):

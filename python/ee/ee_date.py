@@ -3,14 +3,16 @@
 
 
 
+# pylint: disable=g-bad-import-order
 import datetime
 import math
+import six
 
-import apifunction
-import computedobject
-import ee_exception
-import ee_types as types
-import serializer
+from . import apifunction
+from . import computedobject
+from . import ee_exception
+from . import ee_types as types
+from . import serializer
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -46,10 +48,10 @@ class Date(computedobject.ComputedObject):
               math.floor(serializer.DatetimeToMicroseconds(date) / 1000)}
     elif types.isNumber(date):
       args = {'value': date}
-    elif isinstance(date, basestring):
+    elif isinstance(date, six.string_types):
       args = {'value': date}
       if opt_tz:
-        if isinstance(opt_tz, basestring):
+        if isinstance(opt_tz, six.string_types):
           args['timeZone'] = opt_tz
         else:
           raise ee_exception.EEException(

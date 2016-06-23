@@ -6,14 +6,16 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+# pylint: disable=g-bad-import-order
 import datetime
+import hashlib
 import json
 import math
-import md5
 import numbers
+import six
 
-import ee_exception
-import encodable
+from . import ee_exception
+from . import encodable
 
 
 # The datetime for the beginning of the Unix epoch.
@@ -98,7 +100,8 @@ class Serializer(object):
           'type': 'ValueRef',
           'value': encoded
       }
-    elif obj is None or isinstance(obj, (bool, numbers.Number, basestring)):
+    elif obj is None or isinstance(
+        obj, (bool, numbers.Number, six.string_types)):
       # Primitives are encoded as is and not saved in the scope.
       return obj
     elif isinstance(obj, datetime.datetime):
@@ -125,14 +128,14 @@ class Serializer(object):
       result = {
           'type': 'Dictionary',
           'value': dict([(key, self._encodeValue(value))
-                         for key, value in obj.iteritems()])
+                         for key, value in obj.items()])
       }
     else:
       raise ee_exception.EEException('Can\'t encode object: %s' % obj)
 
     if self._is_compound:
       # Save the new object and return a ValueRef.
-      hashval = md5.new(json.dumps(result)).digest()
+      hashval = hashlib.md5(json.dumps(result).encode()).digest()
       self._hashcache[obj_id] = hashval
       name = self._encoded.get(hashval, None)
       if not name:

@@ -35,6 +35,7 @@ import Queue
 import sys
 import threading
 import urllib2
+import six
 
 # check if the Python imaging libraries used by the mapclient module are
 # installed
@@ -42,21 +43,23 @@ try:
   import ImageTk             # pylint: disable=g-import-not-at-top
   import Image               # pylint: disable=g-import-not-at-top
 except ImportError:
-  print """
+  # pylint: disable=superfluous-parens
+  print("""
     ERROR: A Python library (PIL) used by the Earth Engine API mapclient module
     was not found. Information on PIL can be found at:
     http://pypi.python.org/pypi/PIL
-    """
+    """)
   raise
 
 try:
   import Tkinter             # pylint: disable=g-import-not-at-top
 except ImportError:
-  print """
+  # pylint: disable=superfluous-parens
+  print("""
     ERROR: A Python library (Tkinter) used by the Earth Engine API mapclient
     module was not found. Instructions for installing Tkinter can be found at:
     http://tkinter.unpythonic.net/wiki/How_to_install_Tkinter
-    """
+    """)
   raise
 
 # The default URL to fetch tiles from.  We could pull this from the EE library,
@@ -160,6 +163,7 @@ class MapClient(threading.Thread):
   def GetViewport(self):
     """Return the visible portion of the map as [xlo, ylo, xhi, yhi]."""
     width, height = self.GetMapSize()
+    # pylint: disable=invalid-unary-operand-type
     return [-self.origin_x, -self.origin_y,
             -self.origin_x + width, -self.origin_y + height]
 
@@ -439,7 +443,7 @@ class MapOverlay(object):
             try:
               data = urllib2.urlopen(url).read()
             except urllib2.HTTPError as e:
-              print >> sys.stderr, e
+              print() >> sys.stderr, e
             else:
               # PhotoImage can't handle alpha on LA images.
               image = Image.open(cStringIO.StringIO(data)).convert('RGBA')
@@ -477,10 +481,10 @@ def addToMap(eeobject, vis_params=None, *unused_args):
   # Flatten any lists to comma separated strings.
   if vis_params:
     vis_params = dict(vis_params)
-    for key in vis_params.keys():
+    for key in vis_params:
       item = vis_params.get(key)
       if (isinstance(item, collections.Iterable) and
-          not isinstance(item, basestring)):
+          not isinstance(item, six.string_types)):
         vis_params[key] = ','.join([str(x) for x in item])
 
   overlay = MakeOverlay(eeobject.getMapId(vis_params))

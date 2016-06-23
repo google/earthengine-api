@@ -21,40 +21,40 @@ class DataTest(unittest.TestCase):
     with DoStubHttp(200, 'application/json', '{"data"}'):
       with self.assertRaises(ee.ee_exception.EEException) as cm:
         ee.data.send_('/foo', {})
-      self.assertEqual('Invalid JSON: {"data"}', cm.exception.message)
+      self.assertEqual('Invalid JSON: {"data"}', str(cm.exception))
 
   def testJsonStructureError(self):
     with DoStubHttp(200, 'application/json', '{}'):
       with self.assertRaises(ee.ee_exception.EEException) as cm:
         ee.data.send_('/foo', {})
-      self.assertEqual('Malformed response: {}', cm.exception.message)
+      self.assertEqual('Malformed response: {}', str(cm.exception))
 
   def testUnexpectedStatus(self):
     with DoStubHttp(418, 'text/html', '<html>'):
       with self.assertRaises(ee.ee_exception.EEException) as cm:
         ee.data.send_('/foo', {})
-      self.assertEqual('Server returned HTTP code: 418', cm.exception.message)
+      self.assertEqual('Server returned HTTP code: 418', str(cm.exception))
 
   def testJson200Error(self):
     with DoStubHttp(200, 'application/json',
                     '{"error": {"code": 500, "message": "bar"}}'):
       with self.assertRaises(ee.ee_exception.EEException) as cm:
         ee.data.send_('/foo', {})
-      self.assertEqual(u'bar', cm.exception.message)
+      self.assertEqual(u'bar', str(cm.exception))
 
   def testJsonNon2xxError(self):
     with DoStubHttp(400, 'application/json',
                     '{"error": {"code": 400, "message": "bar"}}'):
       with self.assertRaises(ee.ee_exception.EEException) as cm:
         ee.data.send_('/foo', {})
-      self.assertEqual(u'bar', cm.exception.message)
+      self.assertEqual(u'bar', str(cm.exception))
 
   def testWrongContentType(self):
     with DoStubHttp(200, 'text/html', '{"data": "bar"}'):
       with self.assertRaises(ee.ee_exception.EEException) as cm:
         ee.data.send_('/foo', {})
       self.assertEqual(u'Response was unexpectedly not JSON, but text/html',
-                       cm.exception.message)
+                       str(cm.exception))
 
   def testNoContentType(self):
     with DoStubHttp(200, None, '{"data": "bar"}'):
@@ -73,7 +73,7 @@ class DataTest(unittest.TestCase):
                     '{"error": {"code": 400, "message": "bar"}}'):
       with self.assertRaises(ee.ee_exception.EEException) as cm:
         ee.data.send_('/foo', {}, opt_raw=True)
-      self.assertEqual(u'Server returned HTTP code: 400', cm.exception.message)
+      self.assertEqual(u'Server returned HTTP code: 400', str(cm.exception))
 
   def testRaw200Error(self):
     """Raw shouldn't be parsed, so the error-in-200 shouldn't be noticed.
