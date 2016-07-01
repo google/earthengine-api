@@ -2,7 +2,7 @@
 """The EE Python library."""
 
 
-__version__ = '0.1.86'
+__version__ = '0.1.87'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -23,6 +23,7 @@ from . import batch
 from . import data
 from . import deserializer
 from . import ee_types as types
+from . import oauth
 
 from .apifunction import ApiFunction
 from .collection import Collection
@@ -43,7 +44,6 @@ from .function import Function
 from .geometry import Geometry
 from .image import Image
 from .imagecollection import ImageCollection
-from .oauthinfo import OAuthInfo
 from .serializer import Serializer
 from .terrain import Terrain
 
@@ -140,10 +140,10 @@ def _GetPersistentCredentials():
     OAuth2Credentials built from persistently stored refresh_token
   """
   try:
-    tokens = json.load(open(OAuthInfo.credentials_path()))
+    tokens = json.load(open(oauth.get_credentials_path()))
     refresh_token = tokens['refresh_token']
     return oauth2client.client.OAuth2Credentials(
-        None, OAuthInfo.CLIENT_ID, OAuthInfo.CLIENT_SECRET, refresh_token,
+        None, oauth.CLIENT_ID, oauth.CLIENT_SECRET, refresh_token,
         None, 'https://accounts.google.com/o/oauth2/token', None)
   except IOError:
     raise EEException('Please authorize access to your Earth Engine account '
@@ -179,7 +179,7 @@ def ServiceAccountCredentials(email, key_file=None, key_data=None):
   if key_file:
     key_data = open(key_file, 'rb').read()
   return oauth2client.client.SignedJwtAssertionCredentials(
-      email, key_data, OAuthInfo.SCOPE)
+      email, key_data, oauth.SCOPE)
 
 
 def call(func, *args, **kwargs):

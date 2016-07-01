@@ -15,10 +15,10 @@ import os
 import re
 import sys
 import urlparse
+import webbrowser
 
 import ee
-import authenticate
-import utils
+from ee.cli import utils
 
 # Constants used in ACLs.
 ALL_USERS = 'AllUsers'
@@ -235,7 +235,23 @@ class AuthenticateCommand(object):
     pass
 
   def run(self, unused_args, unused_config):
-    authenticate.Authenticate.authenticate()
+    """Generates and opens a URL to get auth code, then retrieve a token."""
+
+    auth_url = ee.oauth.get_authorization_url()
+    webbrowser.open_new(auth_url)
+
+    print """
+    Opening web browser to address %s
+    Please authorize access to your Earth Engine account, and paste
+    the resulting code below.
+    If the web browser does not start, please manually browse the URL above.
+    """ % auth_url
+
+    auth_code = raw_input('Please enter authorization code: ').strip()
+
+    token = ee.oauth.request_token(auth_code)
+    ee.oauth.write_token(token)
+    print '\nSuccessfully saved authorization token.'
 
 
 class AclChCommand(object):

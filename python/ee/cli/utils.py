@@ -14,7 +14,6 @@ import time
 import oauth2client.client
 
 import ee
-from ee.oauthinfo import OAuthInfo
 
 HOMEDIR = os.path.expanduser('~')
 EE_CONFIG_FILE = 'EE_CONFIG_FILE'
@@ -63,7 +62,7 @@ class CommandLineConfig(object):
       credentials = ee.ServiceAccountCredentials(self.account, self.private_key)
     elif self.refresh_token:
       credentials = oauth2client.client.OAuth2Credentials(
-          None, OAuthInfo.CLIENT_ID, OAuthInfo.CLIENT_SECRET,
+          None, ee.oauth.CLIENT_ID, ee.oauth.CLIENT_SECRET,
           self.refresh_token, None,
           'https://accounts.google.com/o/oauth2/token', None)
     else:

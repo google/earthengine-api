@@ -27,7 +27,7 @@ setup(
     description='Earth Engine Python API',
     url='http://code.google.com/p/earthengine-api/',  # home page for package
     download_url='',  # package download URL
-    packages=['ee', 'cli'],
+    packages=['ee', 'ee.cli'],
     package_data={
         'ee': [
             'tests/*.py',
@@ -40,7 +40,7 @@ setup(
     ],
     entry_points={
         'console_scripts': [
-            'earthengine = cli.eecli:main',
+            'earthengine = ee.cli.eecli:main',
         ],
     },
     classifiers=[

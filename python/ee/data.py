@@ -52,6 +52,7 @@ _deadline_ms = 0
 # wrapper around the entire program (with ee.data.profiling, defined below).
 _profile_hook = None
 
+
 # The HTTP header through which profile results are returned.
 # Lowercase because that's how httplib2 does things.
 _PROFILE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
@@ -141,6 +142,8 @@ def profiling(hook):
     yield
   finally:
     _profile_hook = saved_hook
+
+
 
 
 def getInfo(asset_id):
@@ -671,13 +674,15 @@ def send_(path, params, opt_method='POST', opt_raw=False):
     params['profiling'] = '1'
 
   url = _api_base_url + path
+  headers = {}
+
+
   try:
     payload = urllib.parse.urlencode(params)  # Python 3.x
   except AttributeError:
     payload = urllib.urlencode(params)  # Python 2.x
   http = httplib2.Http(timeout=int(_deadline_ms / 1000) or None)
 
-  headers = {}
   if _credentials:
     http = _credentials.authorize(http)
 

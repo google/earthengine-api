@@ -16,8 +16,8 @@ import argparse
 import sys
 
 import ee
-import commands
-import utils
+from ee.cli import commands
+from ee.cli import utils
 
 
 class CommandDispatcher(commands.Dispatcher):
