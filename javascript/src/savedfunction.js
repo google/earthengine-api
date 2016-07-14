@@ -39,6 +39,8 @@ ee.SavedFunction = function(path, signature) {
   this.signature_ = signature;
 };
 goog.inherits(ee.SavedFunction, ee.Function);
+// Exporting manually to avoid marking the class public in the docs.
+goog.exportSymbol('ee.SavedFunction', ee.SavedFunction);
 
 
 /** @override */

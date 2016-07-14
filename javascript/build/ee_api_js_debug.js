@@ -4829,7 +4829,10 @@ goog.dom.getWindow = function(opt_doc) {
 goog.dom.getWindow_ = function(doc) {
   return doc.parentWindow || doc.defaultView;
 };
-goog.dom.createDom = function(tagName, opt_attributes, var_args) {
+goog.dom.createDom = function(tagName, opt_properties, var_args) {
+  return goog.dom.createDom_(document, arguments);
+};
+goog.dom.createUntypedDom = function(tagName, opt_attributes, var_args) {
   return goog.dom.createDom_(document, arguments);
 };
 goog.dom.createDom_ = function(doc, args) {
@@ -5407,6 +5410,9 @@ goog.dom.DomHelper.prototype.getDocumentHeight = function() {
   return goog.dom.getDocumentHeight_(this.getWindow());
 };
 goog.dom.DomHelper.prototype.createDom = function(tagName, opt_attributes, var_args) {
+  return goog.dom.createDom_(this.document_, arguments);
+};
+goog.dom.DomHelper.prototype.createUntypedDom = function(tagName, opt_attributes, var_args) {
   return goog.dom.createDom_(this.document_, arguments);
 };
 goog.dom.DomHelper.prototype.$dom = goog.dom.DomHelper.prototype.createDom;
@@ -8483,6 +8489,7 @@ ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FE
 ee.data.SystemTimeProperty = {START:"system:time_start", END:"system:time_end"};
 ee.data.SYSTEM_ASSET_SIZE_PROPERTY = "system:asset_size";
 ee.data.AssetDetailsProperty = {TITLE:"system:title", DESCRIPTION:"system:description", TAGS:"system:tags"};
+ee.data.ALLOWED_DESCRIPTION_HTML_ELEMENTS = "a code em i li ol p strong sub sup ul".split(" ");
 ee.data.MapZoomRange = {MIN:0, MAX:24};
 ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
 ee.data.ReductionPolicy = {MEAN:"MEAN", MODE:"MODE", MIN:"MIN", MAX:"MAX", SAMPLE:"SAMPLE"};
@@ -11224,7 +11231,7 @@ goog.style.getContainerOffsetToScrollInto = function(element, opt_container, opt
   } else {
     relX = elementPos.x - containerPos.x - containerBorder.left, relY = elementPos.y - containerPos.y - containerBorder.top;
   }
-  var spaceX = container.clientWidth - element.offsetWidth, spaceY = container.clientHeight - element.offsetHeight, scrollLeft = container.scrollLeft, scrollTop = container.scrollTop;
+  var elementSize = goog.style.getSizeWithDisplay_(element), spaceX = container.clientWidth - elementSize.width, spaceY = container.clientHeight - elementSize.height, scrollLeft = container.scrollLeft, scrollTop = container.scrollTop;
   opt_center ? (scrollLeft += relX - spaceX / 2, scrollTop += relY - spaceY / 2) : (scrollLeft += Math.min(relX, Math.max(relX - spaceX, 0)), scrollTop += Math.min(relY, Math.max(relY - spaceY, 0)));
   return new goog.math.Coordinate(scrollLeft, scrollTop);
 };
@@ -12423,6 +12430,7 @@ ee.SavedFunction = function(path, signature) {
   this.signature_ = signature;
 };
 goog.inherits(ee.SavedFunction, ee.Function);
+goog.exportSymbol("ee.SavedFunction", ee.SavedFunction);
 ee.SavedFunction.prototype.encode = function(encoder) {
   return ee.ApiFunction._call("LoadAlgorithmById", this.path_).encode(encoder);
 };

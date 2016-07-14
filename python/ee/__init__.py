@@ -2,7 +2,7 @@
 """The EE Python library."""
 
 
-__version__ = '0.1.87'
+__version__ = '0.1.88'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -11,20 +11,21 @@ __version__ = '0.1.87'
 import collections
 import datetime
 import inspect
-import json
 import numbers
 import os
-import sys
 import six
-
-import oauth2client.client  # pylint: disable=g-bad-import-order
 
 from . import batch
 from . import data
 from . import deserializer
 from . import ee_types as types
-from . import oauth
+from ._helpers import _GetPersistentCredentials
 
+# Public re-exports.
+from ._helpers import ServiceAccountCredentials
+from ._helpers import apply  # pylint: disable=redefined-builtin
+from ._helpers import call
+from ._helpers import profilePrinting
 from .apifunction import ApiFunction
 from .collection import Collection
 from .computedobject import ComputedObject
@@ -131,26 +132,6 @@ def Reset():
   Algorithms = _AlgorithmsContainer()
 
 
-def _GetPersistentCredentials():
-  """Read persistent credentials from ~/.config/earthengine.
-
-  Raises EEException with helpful explanation if credentials don't exist.
-
-  Returns:
-    OAuth2Credentials built from persistently stored refresh_token
-  """
-  try:
-    tokens = json.load(open(oauth.get_credentials_path()))
-    refresh_token = tokens['refresh_token']
-    return oauth2client.client.OAuth2Credentials(
-        None, oauth.CLIENT_ID, oauth.CLIENT_SECRET, refresh_token,
-        None, 'https://accounts.google.com/o/oauth2/token', None)
-  except IOError:
-    raise EEException('Please authorize access to your Earth Engine account '
-                      'by running\n\nearthengine authenticate\n\nin your '
-                      'command line, and then retry.')
-
-
 def _ResetGeneratedClasses():
   """Remove the dynamic classes."""
   global _generatedClasses
@@ -162,61 +143,6 @@ def _ResetGeneratedClasses():
   # Warning: we're passing all of globals() into registerClasses.
   # This is a) pass by reference, and b) a lot more stuff.
   types._registerClasses(globals())     # pylint: disable=protected-access
-
-
-def ServiceAccountCredentials(email, key_file=None, key_data=None):
-  """Configure OAuth2 credentials for a Google Service Account.
-
-  Args:
-    email: The email address of the account for which to configure credentials.
-    key_file: The path to a file containing the private key associated with
-        the service account.
-    key_data: Raw key data to use, if key_file is not specified.
-
-  Returns:
-    An OAuth2 credentials object.
-  """
-  if key_file:
-    key_data = open(key_file, 'rb').read()
-  return oauth2client.client.SignedJwtAssertionCredentials(
-      email, key_data, oauth.SCOPE)
-
-
-def call(func, *args, **kwargs):
-  """Invoke the given algorithm with the specified args.
-
-  Args:
-    func: The function to call. Either an ee.Function object or the name of
-        an API function.
-    *args: The positional arguments to pass to the function.
-    **kwargs: The named arguments to pass to the function.
-
-  Returns:
-    A ComputedObject representing the called function. If the signature
-    specifies a recognized return type, the returned value will be cast
-    to that type.
-  """
-  if isinstance(func, six.string_types):
-    func = ApiFunction.lookup(func)
-  return func.call(*args, **kwargs)
-
-
-def apply(func, named_args):  # pylint: disable=redefined-builtin
-  """Call a function with a dictionary of named arguments.
-
-  Args:
-    func: The function to call. Either an ee.Function object or the name of
-        an API function.
-    named_args: A dictionary of arguments to the function.
-
-  Returns:
-    A ComputedObject representing the called function. If the signature
-    specifies a recognized return type, the returned value will be cast
-    to that type.
-  """
-  if isinstance(func, six.string_types):
-    func = ApiFunction.lookup(func)
-  return func.apply(named_args)
 
 
 def _Promote(arg, klass):

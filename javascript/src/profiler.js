@@ -17,9 +17,6 @@ goog.require('goog.object');
  * and fetches the combined profile. Also maintains a boolean value to control
  * whether profiling is enabled.
  *
- * Note: Profiling is not a generally available feature yet. Do not expect this
- * to successfully retrieve profile data.
- *
  * @constructor
  * @param {ee.data.Profiler.Format} format The format of the data to be returned
  *     by getProfileData.

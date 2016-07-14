@@ -9,17 +9,17 @@
 #   2. The tag name or commit SHA at which to checkout the repo.
 #   3. The path within the repo to the library folder.
 BuildDep () {
-  DST_FOLDER=`basename "$3"`
+  DST_FOLDER=$(basename "$3")
   echo "Building $DST_FOLDER..."
   if [ ! -d "$DST_FOLDER" ]; then
     # See: http://unix.stackexchange.com/a/84980
-    TEMP_DIR=`mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir'`
-    cd $TEMP_DIR
+    TEMP_DIR=$(mktemp -d 2>/dev/null || mktemp -d -t 'mytmpdir')
+    cd "$TEMP_DIR"
     git clone "$1" .
     git checkout "$2" .
     cd -
     mv "$TEMP_DIR/$3" ./
-    rm -rf $TEMP_DIR
+    rm -rf "$TEMP_DIR"
   fi
 }
 

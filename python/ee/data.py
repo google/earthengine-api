@@ -128,9 +128,6 @@ def profiling(hook):
   calls the hook function with all resulting profile IDs. If hook is null,
   disables profiling (or leaves it disabled).
 
-  Note: Profiling is not a generally available feature yet. Do not expect this
-  function to be useful.
-
   Args:
     hook: A function of one argument which is called with each profile
         ID obtained from API calls, just before the API call returns.

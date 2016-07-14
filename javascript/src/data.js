@@ -640,9 +640,6 @@ ee.data.makeTableDownloadUrl = function(id) {
  * execution of the body function and call the hook function with all resulting
  * profile IDs. If hook is null, disables profiling (or leaves it disabled).
  *
- * Note: Profiling is not a generally available feature yet. Do not expect this
- * function to be useful.
- *
  * @param {?function(string)} hook
  *     A function to be called whenever there is new profile data available,
  *     with the profile ID as an argument.
@@ -1146,6 +1143,7 @@ ee.data.SYSTEM_ASSET_SIZE_PROPERTY = 'system:asset_size';
  *   The title property contains the human readable name of the asset, e.g.
  *     "My Map Asset 2016".
  *   The description property contains an HTML description of the asset.
+ *     Should be sanitized before being rendered.
  *   The provider_url contains a url to more info about the asset/provider,
  *     e.g. "http://www.providerwebsite.com"
  *   The tags property contains a list of tags relevant to the asset, e.g.
@@ -1156,6 +1154,14 @@ ee.data.AssetDetailsProperty = {
   DESCRIPTION: 'system:description',
   TAGS: 'system:tags'
 };
+
+
+/**
+ * The HTML element names that should be allowed in asset descriptions.
+ * @const {!Array<string>}
+ */
+ee.data.ALLOWED_DESCRIPTION_HTML_ELEMENTS =
+    ['a', 'code', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub', 'sup', 'ul'];
 
 
 /**

@@ -844,6 +844,15 @@ ee.MapTileManager = function() {
 };
 ee.Number;
 /**
+ * @param {string} path
+ * @param {{args: Array<{default: *, name: string, optional: boolean, type: string}>, deprecated: (string|undefined), description: (string|undefined), name: string, returns: string}} signature
+ * @return {?}
+ * @extends {ee.Function}
+ * @constructor
+ */
+ee.SavedFunction = function(path, signature) {
+};
+/**
  * @param {boolean=} opt_isCompound
  * @constructor
  */
