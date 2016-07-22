@@ -119,9 +119,10 @@ def profilePrinting(destination=sys.stderr):
   # that.
   getProfiles = ApiFunction.lookup('Profile.getProfiles')
 
-  profileIds = []
+  profile_ids = []
   try:
-    with data.profiling(profileIds.append):
+    with data.profiling(profile_ids.append):
       yield
   finally:
-    destination.write(getProfiles.call(ids=profileIds).getInfo())
+    profile_text = getProfiles.call(ids=profile_ids).getInfo()
+    destination.write(profile_text)

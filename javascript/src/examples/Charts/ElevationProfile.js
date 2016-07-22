@@ -4,9 +4,13 @@ var elevation = ee.Image('srtm90_v4');
 var rainierWaypoints =
     ee.FeatureCollection('ft:14q5k1isVmMMBepZAm4YIExnI7y5hE8P3Mi33WwO0');
 
-var waypointElevations = Chart.image.byRegion(
-    elevation, rainierWaypoints, null, 200, 'name');
-waypointElevations = waypointElevations.setOptions({
+var chart = ui.Chart.image.byRegion({
+  image: elevation,
+  regions: rainierWaypoints,
+  scale: 200,
+  xProperty: 'name'
+});
+chart.setOptions({
   title: 'Mt. Rainier Summit Trail Elevation',
   vAxis: {
     title: 'Elevation (meters)'
@@ -16,7 +20,8 @@ waypointElevations = waypointElevations.setOptions({
   pointSize: 4
 });
 
-print(waypointElevations);
+print(chart);
 
-Map.addLayer(rainierWaypoints);
+Map.addLayer(elevation, {min: 500, max: 4500});
+Map.addLayer(rainierWaypoints, {color: 'FF0000'});
 Map.setCenter(-121.75976, 46.85257, 11);

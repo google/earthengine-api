@@ -6,6 +6,10 @@ defines the supported positional and optional arguments, as well as
 the actions to be taken when the command is executed.
 """
 
+from __future__ import print_function
+
+# pylint: disable=g-bad-import-order
+from six.moves import input  # pylint: disable=redefined-builtin
 import argparse
 import calendar
 from collections import Counter
@@ -14,8 +18,15 @@ import json
 import os
 import re
 import sys
-import urlparse
 import webbrowser
+
+# pylint: disable=g-import-not-at-top
+try:
+  # Python 2.x
+  import urlparse
+except ImportError:
+  # Python 3.x
+  from urllib.parse import urlparse
 
 import ee
 from ee.cli import utils
@@ -50,7 +61,7 @@ TASK_TYPES = {
 
 def _add_wait_arg(parser):
   parser.add_argument(
-      '--wait', '-w', nargs='?', default=-1, type=int, const=sys.maxint,
+      '--wait', '-w', nargs='?', default=-1, type=int, const=sys.maxsize,
       help=('Wait for the task to finish,'
             ' or timeout after the specified number of seconds.'
             ' Without this flag, the command just starts an export'
@@ -63,9 +74,9 @@ def _upload(args, config, request):
     raise ee.EEException('Wait time should be at least 10 seconds.')
   task_id = ee.data.newTaskId()[0]
   ee.data.startIngestion(task_id, request)
-  print 'Started upload task with ID: %s' % task_id
+  print('Started upload task with ID: %s' % task_id)
   if args.wait >= 0:
-    print 'Waiting for the upload task to complete...'
+    print('Waiting for the upload task to complete...')
     utils.wait_for_task(task_id, args.wait)
 
 
@@ -206,7 +217,7 @@ def _check_valid_files(filenames):
 
 def _pretty_print_json(json_obj):
   """Pretty-prints a JSON object to stdandard output."""
-  print json.dumps(json_obj, sort_keys=True, indent=2, separators=(',', ': '))
+  print(json.dumps(json_obj, sort_keys=True, indent=2, separators=(',', ': ')))
 
 
 class Dispatcher(object):
@@ -216,6 +227,7 @@ class Dispatcher(object):
     self.command_dict = {}
     self.dest = self.name + '_cmd'
     subparsers = parser.add_subparsers(title='Commands', dest=self.dest)
+    subparsers.required = True  # Needed for proper missing arg handling in 3.x
     for command in self.COMMANDS:
       subparser = subparsers.add_parser(
           command.name, description=command.__doc__,
@@ -240,18 +252,18 @@ class AuthenticateCommand(object):
     auth_url = ee.oauth.get_authorization_url()
     webbrowser.open_new(auth_url)
 
-    print """
+    print("""
     Opening web browser to address %s
     Please authorize access to your Earth Engine account, and paste
     the resulting code below.
     If the web browser does not start, please manually browse the URL above.
-    """ % auth_url
+          """ % auth_url)
 
-    auth_code = raw_input('Please enter authorization code: ').strip()
+    auth_code = input('Please enter authorization code: ').strip()
 
     token = ee.oauth.request_token(auth_code)
     ee.oauth.write_token(token)
-    print '\nSuccessfully saved authorization token.'
+    print('\nSuccessfully saved authorization token.')
 
 
 class AclChCommand(object):
@@ -385,7 +397,7 @@ class AclSetCommand(object):
       # stanza, but EE does not currently allow setting the owner ACL,
       # so we have to remove it.
       if 'owners' in acl:
-        print 'Warning: Not updating the owner ACL.'
+        print('Warning: Not updating the owner ACL.')
         del acl['owners']
     ee.data.setAssetAcl(args.asset_id, json.dumps(acl))
 
@@ -548,7 +560,7 @@ class ListCommand(object):
     count = 0
     for asset in assets:
       if count > 0:
-        print
+        print()
       self._list_asset_content(
           asset, args.max_items, len(assets), args.l)
       count += 1
@@ -563,9 +575,9 @@ class ListCommand(object):
         # Example output:
         # [Image]           user/test/my_img
         # [ImageCollection] user/test/my_coll
-        print format_str.format('['+asset['type']+']', asset['id'])
+        print(format_str.format('['+asset['type']+']', asset['id']))
       else:
-        print asset['id']
+        print(asset['id'])
 
   def _list_asset_content(self, asset, max_items, total_assets, long_format):
     try:
@@ -575,11 +587,11 @@ class ListCommand(object):
       children = ee.data.getList(list_req)
       indent = ''
       if total_assets > 1:
-        print '%s:' % asset
+        print('%s:' % asset)
         indent = '  '
       self._print_assets(children, indent, long_format)
     except ee.EEException as e:
-      print e
+      print(e)
 
 
 class MoveCommand(object):
@@ -626,7 +638,7 @@ class RmCommand(object):
     """Attempts to delete the specified asset or asset collection."""
     info = ee.data.getInfo(asset_id)
     if info is None:
-      print 'Asset does not exist or is not accessible: %s' % asset_id
+      print('Asset does not exist or is not accessible: %s' % asset_id)
       return
     if recursive:
       if info['type'] in (ee.data.ASSET_TYPE_FOLDER,
@@ -635,14 +647,14 @@ class RmCommand(object):
         for child in children:
           self._delete_asset(child['id'], True, verbose, dry_run)
     if dry_run:
-      print '[dry-run] Deleting asset: %s' % asset_id
+      print('[dry-run] Deleting asset: %s' % asset_id)
     else:
       if verbose:
-        print 'Deleting asset: %s' % asset_id
+        print('Deleting asset: %s' % asset_id)
       try:
         ee.data.deleteAsset(asset_id)
       except ee.EEException as e:
-        print 'Failed to delete %s. %s' % (asset_id, e)
+        print('Failed to delete %s. %s' % (asset_id, e))
 
 
 class TaskCancelCommand(object):
@@ -662,10 +674,10 @@ class TaskCancelCommand(object):
       if state == 'UNKNOWN':
         raise ee.EEException('Unknown task id "%s"' % task_id)
       elif state == 'READY' or state == 'RUNNING':
-        print 'Canceling task "%s"' % task_id
+        print('Canceling task "%s"' % task_id)
         ee.data.cancelTask(task_id)
       else:
-        print 'Task "%s" already in state "%s".' % (status['id'], state)
+        print('Task "%s" already in state "%s".' % (status['id'], state))
 
 
 class TaskInfoCommand(object):
@@ -680,20 +692,22 @@ class TaskInfoCommand(object):
     config.ee_init()
     for i, status in enumerate(ee.data.getTaskStatus(args.task_id)):
       if i:
-        print
-      print '%s:' % status['id']
-      print '  State: %s' % status['state']
+        print()
+      print('%s:' % status['id'])
+      print('  State: %s' % status['state'])
       if status['state'] == 'UNKNOWN':
         continue
-      print '  Type: %s' % TASK_TYPES.get(status.get('task_type'), 'Unknown')
-      print '  Description: %s' % status.get('description')
-      print '  Created: %s' % self._format_time(status['creation_timestamp_ms'])
+      print('  Type: %s' % TASK_TYPES.get(status.get('task_type'), 'Unknown'))
+      print('  Description: %s' % status.get('description'))
+      print('  Created: %s'
+            % self._format_time(status['creation_timestamp_ms']))
       if 'start_timestamp_ms' in status:
-        print '  Started: %s' % self._format_time(status['start_timestamp_ms'])
+        print('  Started: %s' % self._format_time(status['start_timestamp_ms']))
       if 'update_timestamp_ms' in status:
-        print '  Updated: %s' % self._format_time(status['update_timestamp_ms'])
+        print('  Updated: %s'
+              % self._format_time(status['update_timestamp_ms']))
       if 'error_message' in status:
-        print '  Error: %s' % status['error_message']
+        print('  Error: %s' % status['error_message'])
 
   def _format_time(self, millis):
     return datetime.datetime.fromtimestamp(millis / 1000)
@@ -716,9 +730,9 @@ class TaskListCommand(object):
     for task in tasks:
       truncated_desc = utils.truncate(task.get('description', ''), 40)
       task_type = TASK_TYPES.get(task['task_type'], 'Unknown')
-      print format_str.format(
+      print(format_str.format(
           task['id'], task_type, truncated_desc,
-          task['state'], task.get('error_message', '---'))
+          task['state'], task.get('error_message', '---')))
 
 
 class TaskCommand(Dispatcher):

@@ -14,14 +14,26 @@ var westernRegions = new ee.FeatureCollection([city, forest, desert]);
 var landsat8Toa = ee.ImageCollection('LANDSAT/LC8_L1T_32DAY_TOA');
 landsat8Toa = landsat8Toa.select('B[1-7]');
 
-var bands = Chart.image.doySeries(landsat8Toa, forest, null, 200);
+// Create a chart using a sequence of arguments.
+var bands = ui.Chart.image.doySeries(landsat8Toa, forest, null, 200);
 print(bands);
 
-var years = Chart.image.doySeriesByYear(landsat8Toa, 'B1', forest, null, 200);
+// Create a chart using a dictionary of named arguments.
+var years = ui.Chart.image.doySeriesByYear({
+  imageCollection: landsat8Toa,
+  bandName: 'B1',
+  region: forest,
+  scale: 200
+});
 print(years);
 
-var regions = Chart.image.doySeriesByRegion(
-    landsat8Toa, 'B1', westernRegions, null, 500, null, 'label');
+var regions = ui.Chart.image.doySeriesByRegion({
+  imageCollection: landsat8Toa,
+  bandName: 'B1',
+  regions: westernRegions,
+  scale: 500,
+  seriesProperty: 'label'
+});
 print(regions);
 
 Map.addLayer(westernRegions);

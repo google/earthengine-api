@@ -1,12 +1,12 @@
 goog.provide('ee.MapLayerOverlay');
 goog.provide('ee.TileEvent');
 
+goog.require('ee.AbstractOverlay');
 goog.require('ee.MapTileManager');
 goog.require('goog.array');
 goog.require('goog.dom');
 goog.require('goog.events');
 goog.require('goog.events.Event');
-goog.require('goog.events.EventTarget');
 goog.require('goog.events.EventType');
 goog.require('goog.iter');
 goog.require('goog.net.EventType');
@@ -29,22 +29,18 @@ goog.forwardDeclare('ee.data.Profiler');
  * @param {ee.data.Profiler=} opt_profiler Map tile calculation cost will be
  *     sent to this profiler, if its enabled flag is set.
  * @constructor
- * @extends {goog.events.EventTarget}
+ * @extends {ee.AbstractOverlay}
  * @export
  * @ignore
  */
 ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
-  goog.base(this);
-
-  // Store mapId and token.
-  this.mapId = mapId;
-  this.token = token;
+  goog.base(this, url, mapId, token, init, opt_profiler);
 
   // Set ImageMapTypeOptions properties.
   this.minZoom = init.minZoom || 0;
   this.maxZoom = init.maxZoom || 20;
   if (!window['google'] || !window['google']['maps']) {
-    throw Error("Google Maps API hasn't been initialized.");
+    throw Error('Google Maps API hasn\'t been initialized.');
   }
   this.tileSize = init.tileSize || new google.maps.Size(256, 256);
   this.isPng = goog.isDef(init.isPng) ? init.isPng : true;
@@ -70,8 +66,6 @@ ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
    */
   this.tileCounter_ = 0;
 
-  /** @protected {string} The url from which to fetch tiles. */
-  this.url = url;
 
   /** @private {number} The layer's opacity. */
   this.opacity_ = 1.0;
@@ -86,7 +80,7 @@ ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
    */
   this.profiler_ = opt_profiler || null;
 };
-goog.inherits(ee.MapLayerOverlay, goog.events.EventTarget);
+goog.inherits(ee.MapLayerOverlay, ee.AbstractOverlay);
 
 
 /** @enum {string} Event types. */
@@ -131,7 +125,7 @@ ee.MapLayerOverlay.prototype.dispatchTileEvent_ = function() {
 
 /**
  * Implements getTile() for the google.maps.MapType interface.
- * @param {google.maps.Point} coord Position of tile.
+ * @param {!google.maps.Point} coord Position of tile.
  * @param {number} zoom Zoom level.
  * @param {Node} ownerDocument Parent document.
  * @return {Node} Element to be displayed as a map tile.
@@ -146,15 +140,9 @@ ee.MapLayerOverlay.prototype.getTile = function(
     img.style.height = '0px';
     return img;
   }
-  // Wrap longitude around.
-  var x = coord.x % maxCoord;
-  if (x < 0) {
-    x += maxCoord;
-  }
 
   var profiling = this.profiler_ && this.profiler_.isEnabled();
-
-  var tileId = [this.mapId, zoom, x, coord.y].join('/');
+  var tileId = this.getTileId(coord, zoom);
   var src = [this.url, tileId].join('/') + '?token=' + this.token;
   if (profiling) {
     src += '&profiling=1';
@@ -257,7 +245,7 @@ goog.exportProperty(
 /**
  * Handle image 'load' and 'error' events. When the last one has
  * finished, dispatch an ee.MapLayerOverlay.EventType.TILE_LOADED event.
- * Handle bookkeeping to keep the tilesLoading_ array accurate.
+ * Handle bookkeeping to keep the tilesLoading array accurate.
  * @param {Node} div Tile div to which images should be appended.
  * @param {string} tileId The id of the tile that was requested.
  * @param {!goog.events.Event} e Image loading event.

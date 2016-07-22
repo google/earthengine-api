@@ -9,10 +9,10 @@ var COLOR = {
 
 // Get the cities with the highest highs.
 var hottestStates = extremeTemps.limit(6, 'high_record', false);
-var hottestStatesChart = Chart.feature.byFeature(
+var hottestStatesChart = ui.Chart.feature.byFeature(
     hottestStates, 'state', ['high_record', 'low_record']);
-hottestStatesChart = hottestStatesChart.setChartType('LineChart');
-hottestStatesChart = hottestStatesChart.setOptions({
+hottestStatesChart.setChartType('LineChart');
+hottestStatesChart.setOptions({
   title: 'States with Highest Record Temperatures',
   vAxis: {
     title: 'Temperature (Celsius)'
@@ -48,9 +48,9 @@ var highs = individualTemps('high');
 var lows = individualTemps('low');
 var tempsByDate = highs.merge(lows);
 var tempsByDateChart =
-    Chart.feature.groups(tempsByDate, 'date', 'temp', 'series');
-tempsByDateChart = tempsByDateChart.setChartType('ScatterChart');
-tempsByDateChart = tempsByDateChart.setOptions({
+    ui.Chart.feature.groups(tempsByDate, 'date', 'temp', 'series');
+tempsByDateChart.setChartType('ScatterChart');
+tempsByDateChart.setOptions({
   title: 'Dates of Extreme Temperatures in the 50 US States',
   hAxis: {
     title: 'Date Recorded'

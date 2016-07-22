@@ -23,32 +23,32 @@ class ApiTestCase(unittest.TestCase):
     self.last_thumb_call = None
     self.last_table_call = None
 
-    def MockSend(path, params, unused_method=None, unused_raw=None):
-      if path == '/algorithms':
-        return BUILTIN_FUNCTIONS
-      elif path == '/value':
-        return {'value': 'fakeValue'}
-      elif path == '/mapid':
-        return {'mapid': 'fakeMapId'}
-      elif path == '/download':
-        # Hang on to the call arguments.
-        self.last_download_call = {'url': path, 'data': params}
-        return {'docid': '1', 'token': '2'}
-      elif path == '/thumb':
-        # Hang on to the call arguments.
-        self.last_thumb_call = {'url': path, 'data': params}
-        return {'thumbid': '3', 'token': '4'}
-      elif path == '/table':
-        # Hang on to the call arguments.
-        self.last_table_call = {'url': path, 'data': params}
-        return {'docid': '5', 'token': '6'}
-      else:
-        raise Exception('Unexpected API call to %s with %s' % (path, params))
-    ee.data.send_ = MockSend
+    ee.data.send_ = self.MockSend
 
     ee.Reset()
     ee.Initialize(None, '')
 
+  def MockSend(self, path, params, unused_method=None, unused_raw=None):
+    if path == '/algorithms':
+      return BUILTIN_FUNCTIONS
+    elif path == '/value':
+      return {'value': 'fakeValue'}
+    elif path == '/mapid':
+      return {'mapid': 'fakeMapId'}
+    elif path == '/download':
+      # Hang on to the call arguments.
+      self.last_download_call = {'url': path, 'data': params}
+      return {'docid': '1', 'token': '2'}
+    elif path == '/thumb':
+      # Hang on to the call arguments.
+      self.last_thumb_call = {'url': path, 'data': params}
+      return {'thumbid': '3', 'token': '4'}
+    elif path == '/table':
+      # Hang on to the call arguments.
+      self.last_table_call = {'url': path, 'data': params}
+      return {'docid': '5', 'token': '6'}
+    else:
+      raise Exception('Unexpected API call to %s with %s' % (path, params))
 
 BUILTIN_FUNCTIONS = {
     'Image.constant': {
@@ -1267,6 +1267,46 @@ BUILTIN_FUNCTIONS = {
         ],
         'description': '',
         'returns': 'List'
+    },
+    'Profile.getProfiles': {
+        'args': [
+            {
+                'description': '',
+                'name': 'ids',
+                'type': 'List<String>'
+            },
+            {
+                'default': 'text',
+                'description': '',
+                'name': 'format',
+                'optional': True,
+                'type': 'String'
+            }
+        ],
+        'description': '',
+        'returns': 'Object',
+        'type': 'Algorithm',
+        'hidden': True
+    },
+    'Profile.getProfilesInternal': {
+        'args': [
+            {
+                'description': '',
+                'name': 'ids',
+                'type': 'List<String>'
+            },
+            {
+                'default': 'text',
+                'description': '',
+                'name': 'format',
+                'optional': True,
+                'type': 'String'
+            }
+        ],
+        'description': '',
+        'returns': 'Object',
+        'type': 'Algorithm',
+        'hidden': True
     },
     'Projection': {
         'returns': 'Projection',

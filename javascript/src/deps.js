@@ -7,6 +7,7 @@
 // See http://goo.gl/SdiwZH
 // clang-format off
 
+goog.addDependency('../../geo/gestalt/client/javascript/abstractoverlay.js', ['ee.AbstractOverlay'], ['goog.events.EventTarget'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/apifunction.js', ['ee.ApiFunction'], ['ee.ComputedObject', 'ee.Function', 'ee.Types', 'ee.data', 'goog.object'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/apitestcase.js', ['ee.ApiTestCase', 'ee.ApiTestCase.BUILTIN_FUNCTIONS'], ['ee', 'ee.data', 'goog.json', 'goog.string', 'goog.testing.TestCase'], {'lang': 'es5'});
 goog.addDependency('../../geo/gestalt/client/javascript/arguments.js', ['ee.arguments'], ['ee.ComputedObject', 'goog.array', 'goog.asserts', 'goog.object', 'goog.string', 'goog.structs.Set'], {});
@@ -23,12 +24,13 @@ goog.addDependency('../../geo/gestalt/client/javascript/encodable.js', ['ee.Enco
 goog.addDependency('../../geo/gestalt/client/javascript/feature.js', ['ee.Feature'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.Element', 'ee.Geometry', 'ee.arguments', 'goog.object'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/featurecollection.js', ['ee.FeatureCollection'], ['ee.ApiFunction', 'ee.Collection', 'ee.ComputedObject', 'ee.Feature', 'ee.Geometry', 'ee.List', 'ee.Types', 'ee.arguments', 'ee.data', 'goog.array'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/filter.js', ['ee.Filter'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.arguments', 'goog.array', 'goog.string'], {});
+goog.addDependency('../../geo/gestalt/client/javascript/floattileoverlay.js', ['ee.FloatTileOverlay'], ['ee.AbstractOverlay', 'goog.dom', 'goog.net.XmlHttp', 'goog.structs.Map'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/function.js', ['ee.Function', 'ee.Function.Signature'], ['ee.ComputedObject', 'ee.Encodable', 'ee.Serializer', 'ee.Types', 'goog.array', 'goog.functions', 'goog.object'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/geometry.js', ['ee.Geometry', 'ee.Geometry.LineString', 'ee.Geometry.LinearRing', 'ee.Geometry.MultiLineString', 'ee.Geometry.MultiPoint', 'ee.Geometry.MultiPolygon', 'ee.Geometry.Point', 'ee.Geometry.Polygon', 'ee.Geometry.Rectangle'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.Serializer', 'ee.Types', 'ee.arguments', 'goog.array', 'goog.json.Serializer', 'goog.object'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/image.js', ['ee.Image'], ['ee.ApiFunction', 'ee.ComputedObject', 'ee.Element', 'ee.Function', 'ee.Geometry', 'ee.Types', 'ee.arguments', 'ee.data', 'goog.array', 'goog.json', 'goog.object'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/imagecollection.js', ['ee.ImageCollection'], ['ee.ApiFunction', 'ee.Collection', 'ee.ComputedObject', 'ee.Image', 'ee.List', 'ee.Types', 'ee.arguments', 'goog.array'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/list.js', ['ee.List'], ['ee.ApiFunction', 'ee.ComputedObject', 'goog.array'], {});
-goog.addDependency('../../geo/gestalt/client/javascript/maplayeroverlay.js', ['ee.MapLayerOverlay', 'ee.TileEvent'], ['ee.MapTileManager', 'goog.array', 'goog.dom', 'goog.events', 'goog.events.Event', 'goog.events.EventTarget', 'goog.events.EventType', 'goog.iter', 'goog.net.EventType', 'goog.structs.Set', 'goog.style'], {});
+goog.addDependency('../../geo/gestalt/client/javascript/maplayeroverlay.js', ['ee.MapLayerOverlay', 'ee.TileEvent'], ['ee.AbstractOverlay', 'ee.MapTileManager', 'goog.array', 'goog.dom', 'goog.events', 'goog.events.Event', 'goog.events.EventType', 'goog.iter', 'goog.net.EventType', 'goog.structs.Set', 'goog.style'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/maptilemanager.js', ['ee.MapTileManager'], ['ee.data', 'goog.Disposable', 'goog.Uri', 'goog.array', 'goog.events', 'goog.events.Event', 'goog.events.EventTarget', 'goog.events.EventType', 'goog.net.EventType', 'goog.net.ImageLoader', 'goog.net.XhrIo', 'goog.structs.Map', 'goog.structs.PriorityPool'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/number.js', ['ee.Number'], ['ee.ApiFunction', 'ee.ComputedObject'], {});
 goog.addDependency('../../geo/gestalt/client/javascript/package.js', ['ee.Package'], ['ee.ApiFunction', 'ee.CustomFunction', 'ee.SavedFunction', 'ee.arguments', 'ee.data'], {});

@@ -4,13 +4,17 @@ var elevation = ee.Image('srtm90_v4');
 var colorado = ee.Geometry.Rectangle(-109.05, 37, -102.05, 41);
 
 // Generate the histogram data.  Use minBucketWidth for nice sized buckets.
-var coloradoElevationHistogram =
-    Chart.image.histogram(elevation, colorado, 200, null, 300);
-coloradoElevationHistogram = coloradoElevationHistogram.setOptions({
+var histogram = ui.Chart.image.histogram({
+  image: elevation,
+  region: colorado,
+  scale: 200,
+  minBucketWidth: 300
+});
+histogram.setOptions({
   title: 'Histogram of Elevation in Colorado (meters)'
 });
 
-print(coloradoElevationHistogram);
+print(histogram);
 
 Map.addLayer(elevation.clip(colorado));
 Map.setCenter(-107, 39, 6);

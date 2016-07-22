@@ -4,7 +4,24 @@
  */
 var ctor$$2;
 ctor$$2.prototype.then;
-var ee;
+/**
+ @const
+ @suppress {const,duplicate}
+ */
+var ee = {};
+/**
+ * @param {string} url
+ * @param {string} mapId
+ * @param {string} token
+ * @param {(Object|null)=} opt_init
+ * @param {(ee.data.Profiler|null)=} opt_profiler
+ * @extends {goog.events.EventTarget}
+ * @implements {goog.disposable.IDisposable}
+ * @implements {goog.events.Listenable}
+ * @constructor
+ */
+ee.AbstractOverlay = function(url, mapId, token, opt_init, opt_profiler) {
+};
 /** @type {{}} */
 ee.Algorithms = {};
 /**
@@ -543,6 +560,17 @@ ee.Filter.prototype.starts_with = function(var_args) {
 ee.Filter.starts_with = function(name, value) {
 };
 /**
+ * @param {string} url
+ * @param {string} mapId
+ * @param {string} token
+ * @extends {ee.AbstractOverlay}
+ * @implements {goog.disposable.IDisposable}
+ * @implements {goog.events.Listenable}
+ * @constructor
+ */
+ee.FloatTileOverlay = function(url, mapId, token) {
+};
+/**
  * @return {?}
  * @extends {ee.Encodable}
  * @constructor
@@ -795,7 +823,7 @@ ee.List = function(list) {
  * @param {string} token
  * @param {(Object|null)} init
  * @param {(ee.data.Profiler|null)=} opt_profiler
- * @extends {goog.events.EventTarget}
+ * @extends {ee.AbstractOverlay}
  * @implements {goog.disposable.IDisposable}
  * @implements {goog.events.Listenable}
  * @constructor
@@ -809,7 +837,7 @@ ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
 ee.MapLayerOverlay.prototype.addTileCallback = function(callback) {
 };
 /**
- * @param {(google.maps.Point|null)} coord
+ * @param {!google.maps.Point} coord
  * @param {number} zoom
  * @param {(Node|null)} ownerDocument
  * @return {(Node|null)}

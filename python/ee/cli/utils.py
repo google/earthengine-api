@@ -5,7 +5,7 @@ This module defines the Command class which is the base class of all
 the commands supported by the EE command line tool. It also defines
 the classes for configuration and runtime context management.
 """
-
+from __future__ import print_function
 from datetime import datetime
 import json
 import os
@@ -80,7 +80,7 @@ class CommandLineConfig(object):
 
 
 def query_yes_no(msg):
-  print '%s (y/n)' % msg
+  print('%s (y/n)' % msg)
   while True:
     confirm = raw_input().lower()
     if confirm == 'y':
@@ -88,7 +88,7 @@ def query_yes_no(msg):
     elif confirm == 'n':
       return False
     else:
-      print 'Please respond with \'y\' or \'n\'.'
+      print('Please respond with \'y\' or \'n\'.')
 
 
 def truncate(string, length):
@@ -106,16 +106,17 @@ def wait_for_task(task_id, timeout, log_progress=True):
     state = status['state']
     if state in TASK_FINISHED_STATES:
       error_message = status.get('error_message', None)
-      print 'Task ended at state: %s after %.2f seconds' % (state, elapsed)
+      print('Task ended at state: %s after %.2f seconds' % (state, elapsed))
       if error_message:
-        print 'Error: %s' % error_message
+        print('Error: %s' % error_message)
       return
     if log_progress and elapsed - last_check >= 30:
-      print '[{:%H:%M:%S}] Current task state: {}'.format(datetime.now(), state)
+      print('[{:%H:%M:%S}] Current task state: {}'
+            .format(datetime.now(), state))
       last_check = elapsed
     remaining = timeout - elapsed
     if remaining > 0:
       time.sleep(min(10, remaining))
     else:
       break
-  print 'Wait timed out after %.2f seconds' % elapsed
+  print('Wait timed out after %.2f seconds' % elapsed)

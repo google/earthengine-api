@@ -41,7 +41,7 @@ var elevationAndTemp = array.slice(0, 1);  // For the Y axis.
 var distance = array.slice(0, 0, 1).project([1]);
 
 // Generate and style the chart.
-var chart = Chart.array.values(elevationAndTemp, 1, distance)
+var chart = ui.Chart.array.values(elevationAndTemp, 1, distance)
     .setChartType('LineChart')
     .setSeriesNames(['Elevation', 'Winter 2014', 'Summer 2014'])
     .setOptions({

@@ -24,10 +24,10 @@ var months = {
 };
 
 // Prepare the chart.
-var extremeSeasonalTemps = Chart.feature.byProperty(
+var extremeSeasonalTemps = ui.Chart.feature.byProperty(
     extremeCities, months, 'city_name');
-extremeSeasonalTemps = extremeSeasonalTemps.setChartType('LineChart');
-extremeSeasonalTemps = extremeSeasonalTemps.setOptions({
+extremeSeasonalTemps.setChartType('LineChart');
+extremeSeasonalTemps.setOptions({
   title: 'Average Temperatures in U.S. Cities',
   hAxis: {
     title: 'Month',

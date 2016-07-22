@@ -21,10 +21,14 @@ var mexicoImage = ee.Image(landsat8Toa.first()).clip(mexicoPoints.union());
 // Select bands B1 to B7.
 mexicoImage = mexicoImage.select(['B[1-7]']);
 
-var bandChart = Chart.image.regions(
-    mexicoImage, mexicoPoints, null, 30, 'label');
-bandChart = bandChart.setChartType('LineChart');
-bandChart = bandChart.setOptions({
+var bandChart = ui.Chart.image.regions({
+  image: mexicoImage,
+  regions: mexicoPoints,
+  scale: 30,
+  seriesProperty: 'label'
+});
+bandChart.setChartType('LineChart');
+bandChart.setOptions({
   title: 'Landsat 8 TOA band values at three points near Mexico City',
   hAxis: {
     title: 'Band'
@@ -44,10 +48,15 @@ bandChart = bandChart.setOptions({
 // From: http://landsat.usgs.gov/band_designations_landsat_satellites.php
 var wavelengths = [.44, .48, .56, .65, .86, 1.61, 2.2];
 
-var spectraChart = Chart.image.regions(
-    mexicoImage, mexicoPoints, null, 30, 'label', wavelengths);
-spectraChart = spectraChart.setChartType('LineChart');
-spectraChart = spectraChart.setOptions({
+var spectraChart = ui.Chart.image.regions({
+  image: mexicoImage,
+  regions: mexicoPoints,
+  scale: 30,
+  seriesProperty: 'label',
+  xLabels: wavelengths
+});
+spectraChart.setChartType('LineChart');
+spectraChart.setOptions({
   title: 'Landsat 8 TOA spectra at three points near Mexico City',
   hAxis: {
     title: 'Wavelength (micrometers)'

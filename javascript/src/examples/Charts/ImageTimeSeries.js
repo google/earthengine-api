@@ -8,7 +8,7 @@ var landsat8Toa = ee.ImageCollection('LANDSAT/LC8_L1T_32DAY_TOA')
     .select('B[1-7]');
 
 var sfTimeSeries =
-    Chart.image.series(landsat8Toa, sanFrancisco, ee.Reducer.mean(), 200);
+    ui.Chart.image.series(landsat8Toa, sanFrancisco, ee.Reducer.mean(), 200);
 
 print(sfTimeSeries);
 

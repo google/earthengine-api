@@ -28,10 +28,17 @@ temps2013 = temps2013.map(function(image) {
   return image.addBands(image.subtract(273.15).select([0], ['Temp']));
 });
 
-var tempTimeSeries = Chart.image.seriesByRegion(temps2013, westernRegions,
-    ee.Reducer.mean(), 'Temp', 200, 'system:time_start', 'label');
-tempTimeSeries = tempTimeSeries.setChartType('ScatterChart');
-tempTimeSeries = tempTimeSeries.setOptions({
+var tempTimeSeries = ui.Chart.image.seriesByRegion({
+  imageCollection: temps2013,
+  regions: westernRegions,
+  reducer: ee.Reducer.mean(),
+  band: 'Temp',
+  scale: 200,
+  xProperty: 'system:time_start',
+  seriesProperty: 'label'
+});
+tempTimeSeries.setChartType('ScatterChart');
+tempTimeSeries.setOptions({
   title: 'Temperature over time in regions of the American West',
   vAxis: {
     title: 'Temperature (Celsius)'
