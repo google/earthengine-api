@@ -1,12 +1,12 @@
 goog.provide('ee.MapLayerOverlay');
-goog.provide('ee.TileEvent');
 
 goog.require('ee.AbstractOverlay');
 goog.require('ee.MapTileManager');
+goog.require('ee.TileEvent');
 goog.require('goog.array');
 goog.require('goog.dom');
+goog.require('goog.dom.TagName');
 goog.require('goog.events');
-goog.require('goog.events.Event');
 goog.require('goog.events.EventType');
 goog.require('goog.iter');
 goog.require('goog.net.EventType');
@@ -46,26 +46,8 @@ ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
   this.isPng = goog.isDef(init.isPng) ? init.isPng : true;
   this.name = init.name;
 
-  /**
-   * Array representing the set of tiles that are currently being
-   * loaded. They are added to this array by getTile() and removed
-   * with handleImageCompleted_().
-   * @private {!Array.<string>}
-   */
-  this.tilesLoading_ = [];
-
   /** @private {goog.structs.Set} The set of loaded tiles. */
   this.tiles_ = new goog.structs.Set();
-
-  /** @private {goog.structs.Set} The set of failed tile IDs. */
-  this.tilesFailed_ = new goog.structs.Set();
-
-  /**
-   * Incrementing counter that helps make tile request ids unique.
-   * @private {number}
-   */
-  this.tileCounter_ = 0;
-
 
   /** @private {number} The layer's opacity. */
   this.opacity_ = 1.0;
@@ -83,12 +65,6 @@ ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
 goog.inherits(ee.MapLayerOverlay, ee.AbstractOverlay);
 
 
-/** @enum {string} Event types. */
-ee.MapLayerOverlay.EventType = {
-  TILE_LOADED: 'tileevent'
-};
-
-
 /**
  * Adds a callback to be fired each time a tile is loaded.
  * @param {function(ee.TileEvent)} callback The function to call when a
@@ -99,7 +75,7 @@ ee.MapLayerOverlay.EventType = {
  */
 ee.MapLayerOverlay.prototype.addTileCallback = function(callback) {
   return /** @type {!Object} */ (goog.events.listen(
-      this, ee.MapLayerOverlay.EventType.TILE_LOADED, callback));
+      this, ee.AbstractOverlay.EventType.TILE_LOADED, callback));
 };
 
 
@@ -119,7 +95,7 @@ ee.MapLayerOverlay.prototype.removeTileCallback = function(callbackId) {
  * @private
  */
 ee.MapLayerOverlay.prototype.dispatchTileEvent_ = function() {
-  this.dispatchEvent(new ee.TileEvent(this.tilesLoading_.length));
+  this.dispatchEvent(new ee.TileEvent(this.tilesLoading.length));
 };
 
 
@@ -154,11 +130,11 @@ ee.MapLayerOverlay.prototype.getTile = function(
   // don't overwrite each other's state, and 2) the unique token for this
   // layer to differentiate its tile requests from other tile requests
   // for other layers with the same map ID.
-  var uniqueTileId = [tileId, this.tileCounter_, this.token].join('/');
-  this.tileCounter_ += 1;
+  var uniqueTileId = [tileId, this.tileCounter, this.token].join('/');
+  this.tileCounter += 1;
 
   // Holds the <img> element created asynchronously.
-  var div = goog.dom.createDom('div', {'id': uniqueTileId});
+  var div = goog.dom.createDom(goog.dom.TagName.DIV, {'id': uniqueTileId});
 
   // Use the current time in seconds as the priority for the tile
   // loading queue. Smaller priorities move to the front of the queue,
@@ -168,7 +144,7 @@ ee.MapLayerOverlay.prototype.getTile = function(
   // if the map is moved around a lot, Maps API calls our releaseTile()
   // method, and the obsolete requests will be removed from the queue.
   var priority = new Date().getTime() / 1000;
-  this.tilesLoading_.push(uniqueTileId);
+  this.tilesLoading.push(uniqueTileId);
 
   ee.MapTileManager.getInstance().send(
       uniqueTileId, src, priority,
@@ -186,13 +162,7 @@ ee.MapLayerOverlay.prototype.getLoadedTilesCount = function() {
 
 /** @return {number} The number of tiles currently loading. */
 ee.MapLayerOverlay.prototype.getLoadingTilesCount = function() {
-  return this.tilesLoading_.length;
-};
-
-
-/** @return {number} The number of tiles which have failed. */
-ee.MapLayerOverlay.prototype.getFailedTilesCount = function() {
-  return this.tilesFailed_.getCount();
+  return this.tilesLoading.length;
 };
 
 
@@ -206,7 +176,7 @@ ee.MapLayerOverlay.prototype.releaseTile = function(tileDiv) {
   var tileImg = goog.dom.getFirstElementChild(tileDiv);
   this.tiles_.remove(tileImg);
   if (tileDiv.id !== '') {  // Out-of-bounds tiles have no ID.
-    this.tilesFailed_.remove(tileDiv.id);
+    this.tilesFailed.remove(tileDiv.id);
     if (this.profiler_) {
       this.profiler_.removeTile(tileDiv.id);
     }
@@ -244,7 +214,7 @@ goog.exportProperty(
 
 /**
  * Handle image 'load' and 'error' events. When the last one has
- * finished, dispatch an ee.MapLayerOverlay.EventType.TILE_LOADED event.
+ * finished, dispatch an ee.AbstractOverlay.EventType.TILE_LOADED event.
  * Handle bookkeeping to keep the tilesLoading array accurate.
  * @param {Node} div Tile div to which images should be appended.
  * @param {string} tileId The id of the tile that was requested.
@@ -256,12 +226,12 @@ ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(
     div, tileId, e, profileId) {
   if (e.type == goog.net.EventType.ERROR) {
     // Forward error events.
-    goog.array.remove(this.tilesLoading_, tileId);
-    this.tilesFailed_.add(tileId);
+    goog.array.remove(this.tilesLoading, tileId);
+    this.tilesFailed.add(tileId);
     this.dispatchEvent(e);
   } else {
     // Convert tile loading events to our own type.
-    goog.array.remove(this.tilesLoading_, tileId);
+    goog.array.remove(this.tilesLoading, tileId);
     var tile;
     if (e.target && (e.type == goog.events.EventType.LOAD)) {
       tile = /** @type {Node} */ (e.target);
@@ -278,17 +248,3 @@ ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(
     this.profiler_.addTile(tileId, profileId);
   }
 };
-
-
-
-/**
- * An event contaning the information about the tile status
- * @param {number} count The number of outstanding tile requests.
- * @constructor
- * @extends {goog.events.Event}
- */
-ee.TileEvent = function(count) {
-  goog.events.Event.call(this, ee.MapLayerOverlay.EventType.TILE_LOADED);
-  this.count = count;
-};
-goog.inherits(ee.TileEvent, goog.events.Event);

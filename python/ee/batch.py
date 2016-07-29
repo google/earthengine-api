@@ -391,7 +391,7 @@ class Export(object):
             will be encoded as 'jpg' and tiles with transparency will be
             encoded as 'png'.
         path: The string used as the output's path. A trailing '/'
-            is optional.
+            is optional. Defaults to the task's description.
         writePublicTiles: Whether to write public tiles instead of using the
             bucket's default object ACL. Defaults to true and requires the
             invoker to be an OWNER of bucket.
@@ -415,6 +415,11 @@ class Export(object):
       # _CopyDictFilterNone must be called first because it copies locals to
       # support deprecated arguments.
       config = _CopyDictFilterNone(locals())
+
+      # The path is defaulted before converting to server params so that it
+      # is properly converted into the server parameter 'outputPrefix'.
+      if 'path' not in config:
+        config['path'] = description
 
       _ConvertToServerParams(config, 'image', Task.ExportDestination.GCS)
 

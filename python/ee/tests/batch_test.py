@@ -284,6 +284,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'json': config['image'].serialize(),
             'description': 'TestDescription',
             'outputBucket': config['bucket'],
+            'outputPrefix': 'TestDescription',
             'scale': 30,
             'writePublicTiles': False,
             'fileFormat': 'jpeg'

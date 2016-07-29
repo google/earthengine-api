@@ -1,14 +1,12 @@
 goog.provide('forest.ForestChart');
 
+goog.require('goog.object');
 
 /**
  * <forest-chart> is the chart element.
  */
 forest.ForestChart = Polymer({
   is: 'forest-chart',
-
-  /** @type {boolean} */
-  isReady_: false,
 
   properties: {
     /** @type {string} */
@@ -18,40 +16,32 @@ forest.ForestChart = Polymer({
       notify: true
     },
 
-    /** @type {Object} */
+    /** @type {Object|undefined} */
     options: {
-      type: Object,
-      value: function() {},
-      notify: true,
-      observer: 'onOptionsChange'
+      type: Object
     },
 
-    /** @type {Object} */
+    /** @type {Object|undefined} */
     data: {
-      type: Object,
-      value: function() {},
-      notify: true
+      type: Object
     }
   },
 
   /**
-   * Handles option change events.
-   * @param {Object|undefined} newOpts The new options object, if any, else
-   *     undefined.
+   * Computes google-chart options from forest-chart options.
+   * Toggles display between block/none if options is defined/undefined.
+   * @param {Object|undefined} options the forest-chart options
+   * @return {Object|undefined} the google-chart options
    * @private
    */
-  onOptionsChange: function(newOpts) {
-    if (goog.isDefAndNotNull(newOpts)) {
-      for (var key in forest.ForestChart.DEFAULT_OPTIONS_) {
-        this.options[key] = forest.ForestChart.DEFAULT_OPTIONS_[key];
-      }
-      this.isReady_ = true;
+  _computeChartOptions: function(options) {
+    if (goog.isDefAndNotNull(options)) {
+      goog.object.extend(options, forest.ForestChart.DEFAULT_OPTIONS_);
       this.style.display = 'block';
     } else {
       this.style.display = 'none';
     }
-
-    this.$$('google-chart') && this.$$('google-chart').drawChart();
+    return options;
   }
 });
 

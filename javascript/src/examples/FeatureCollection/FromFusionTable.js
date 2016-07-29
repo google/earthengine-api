@@ -2,7 +2,7 @@
 //
 // Select "desert" features from the TNC Ecoregions fusion table.
 var fc = ee.FeatureCollection('ft:1Ec8IWsP8asxN-ywSqgXWMuBaxI6pPaeh6hC64lA')
-  .filter(ee.Filter.contains('ECO_NAME', 'desert'));
+  .filter(ee.Filter.stringContains('ECO_NAME', 'desert'));
 
 // Paint into a blank image.  Cast to byte() so we can use more than 1 color.
 var image1 = ee.Image()

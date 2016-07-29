@@ -1,7 +1,10 @@
 goog.provide('ee.FloatTileOverlay');
 
 goog.require('ee.AbstractOverlay');
+goog.require('ee.TileEvent');
+goog.require('goog.array');
 goog.require('goog.dom');
+goog.require('goog.dom.TagName');
 goog.require('goog.net.XmlHttp');
 goog.require('goog.structs.Map');
 
@@ -39,11 +42,16 @@ goog.inherits(ee.FloatTileOverlay, ee.AbstractOverlay);
 ee.FloatTileOverlay.prototype.getTile = function(coord, zoom, ownerDocument) {
   var tileId = this.getTileId(coord, zoom);
   var src = [this.url, tileId].join('/') + '?token=' + this.token;
-  var floatTile = this.loadFloatTile_(src, coord);
+  var uniqueTileId = [tileId, this.tileCounter, this.token].join('/');
+  this.tilesLoading.push(uniqueTileId);
+  this.tileCounter += 1;
+
+  var floatTile = this.loadFloatTile_(src, coord, uniqueTileId);
+  this.dispatchTileEvent_();
 
   // The Maps API expects a div for the tile. We don't actually want to render
   // the floating point tiles as a visible layer, so we return an empty div.
-  return goog.dom.createDom('div');
+  return goog.dom.createDom(goog.dom.TagName.DIV);
 };
 
 
@@ -58,9 +66,11 @@ ee.FloatTileOverlay.TILE_EDGE_LENGTH_ = 256;
  * Requests a floating point tile from the provided URL.
  * @param {string} tileUrl Tile URL
  * @param {google.maps.Point} coord Coordinates of the floating tile
+ * @param {string} tileId Unique tile ID
  * @private
  */
-ee.FloatTileOverlay.prototype.loadFloatTile_ = function(tileUrl, coord) {
+ee.FloatTileOverlay.prototype.loadFloatTile_ = function(
+    tileUrl, coord, tileId) {
   var tileRequest = goog.net.XmlHttp();
   tileRequest.open('GET', tileUrl, true);
   tileRequest.responseType = 'arraybuffer';
@@ -70,13 +80,30 @@ ee.FloatTileOverlay.prototype.loadFloatTile_ = function(tileUrl, coord) {
       var tileResponse = /** @type {Float32Array} */ (tileRequest.response);
       if (tileResponse) {
         var floatBuffer = new Float32Array(tileResponse);
-        this.floatTiles_.set(coord, floatBuffer);
+        this.handleFloatTileLoaded_(floatBuffer, coord, tileId);
       } else {
+        this.tilesFailed.add(tileId);
         throw new Error('Unable to request floating point array buffers.');
       }
     }
   }, this);
   tileRequest.send();
+};
+
+
+/**
+ * Handles float tile loaded events by storing the tile data and dispatching
+ * a tile event.
+ * @param {Float32Array} floatTile Successfully requested float tile
+ * @param {google.maps.Point} coord Coordinate of the floating tile
+ * @param {string} tileId Unique tile ID
+ * @private
+ */
+ee.FloatTileOverlay.prototype.handleFloatTileLoaded_ = function(
+    floatTile, coord, tileId) {
+  this.floatTiles_.set(coord, floatTile);
+  goog.array.remove(this.tilesLoading, tileId);
+  this.dispatchTileEvent_();
 };
 
 
@@ -87,6 +114,21 @@ ee.FloatTileOverlay.prototype.loadFloatTile_ = function(tileUrl, coord) {
  */
 ee.FloatTileOverlay.prototype.getAllFloatTiles = function() {
   return this.floatTiles_;
+};
+
+
+/** @return {number} The number of tiles successfully loaded. */
+ee.FloatTileOverlay.prototype.getLoadedFloatTilesCount = function() {
+  return this.floatTiles_.getCount();
+};
+
+
+/**
+ * Dispatches an event about a change in the number of outstanding tiles.
+ * @private
+ */
+ee.FloatTileOverlay.prototype.dispatchTileEvent_ = function() {
+  this.dispatchEvent(new ee.TileEvent(this.tilesLoading.length));
 };
 
 

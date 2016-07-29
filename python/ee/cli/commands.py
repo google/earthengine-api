@@ -68,12 +68,12 @@ def _add_wait_arg(parser):
             ' task in the background, and returns immediately.'))
 
 
-def _upload(args, config, request):
+def _upload(args, config, request, ingestion_function):
   config.ee_init()
   if 0 <= args.wait < 10:
     raise ee.EEException('Wait time should be at least 10 seconds.')
   task_id = ee.data.newTaskId()[0]
-  ee.data.startIngestion(task_id, request)
+  ingestion_function(task_id, request)
   print('Started upload task with ID: %s' % task_id)
   if args.wait >= 0:
     print('Waiting for the upload task to complete...')
@@ -832,7 +832,7 @@ class UploadImageCommand(object):
           else:
             bands.append({'id': index, 'missingData': {'value': nodata}})
 
-    _upload(args, config, request)
+    _upload(args, config, request, ee.data.startIngestion)
 
 
 class UploadCommand(Dispatcher):
