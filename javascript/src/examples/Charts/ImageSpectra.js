@@ -16,7 +16,7 @@ var urban = ee.Feature(
     ee.Geometry.Point(-99.21135, 19.31860), {'label': 'urban'});
 
 var mexicoPoints = ee.FeatureCollection([park, farm, urban]);
-var mexicoImage = ee.Image(landsat8Toa.first()).clip(mexicoPoints.union());
+var mexicoImage = ee.Image(landsat8Toa.first());
 
 // Select bands B1 to B7.
 mexicoImage = mexicoImage.select(['B[1-7]']);

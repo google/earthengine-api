@@ -469,10 +469,16 @@ ee.Image.prototype.expression = function(expression, opt_map) {
 
 
 /**
- * Clips an image by a Geometry, Feature or FeatureCollection.
+ * Clips an image to a Geometry or Feature.
  *
- * @param {ee.Geometry|ee.Feature|ee.FeatureCollection|Object} geometry
- *     The Geometry, Feature or FeatureCollection to clip to.
+ * The output bands correspond exactly the input bands, except data not
+ * covered by the geometry is masked. The output image retains the
+ * metadata of the input image.
+ *
+ * Use clipToCollection to clip an image to a FeatureCollection.
+ *
+ * @param {ee.Geometry|ee.Feature|Object} geometry
+ *     The Geometry or Feature to clip to.
  * @return {ee.Image} The clipped image.
  * @export
  */

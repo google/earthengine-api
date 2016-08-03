@@ -25,8 +25,8 @@ goog.require('goog.structs.Map');
 ee.FloatTileOverlay = function(url, mapId, token) {
   goog.base(this, url, mapId, token);
 
-  this.tileSize = new google.maps.Size(ee.FloatTileOverlay.TILE_EDGE_LENGTH_,
-      ee.FloatTileOverlay.TILE_EDGE_LENGTH_);
+  this.tileSize = new google.maps.Size(ee.FloatTileOverlay.TILE_EDGE_LENGTH,
+      ee.FloatTileOverlay.TILE_EDGE_LENGTH);
 
   /**
    * The set of loaded floating point buffer tiles. The keys are the coordinates
@@ -57,9 +57,9 @@ ee.FloatTileOverlay.prototype.getTile = function(coord, zoom, ownerDocument) {
 
 /**
  * The tile edge length of a float overlay tile.
- * @const @private {number}
+ * @const {number}
  */
-ee.FloatTileOverlay.TILE_EDGE_LENGTH_ = 256;
+ee.FloatTileOverlay.TILE_EDGE_LENGTH = 256;
 
 
 /**

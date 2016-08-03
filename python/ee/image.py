@@ -357,10 +357,16 @@ class Image(element.Element):
     return ReinterpretedFunction().apply(args)
 
   def clip(self, clip_geometry):
-    """Clips an image by a Geometry, Feature or FeatureCollection.
+    """Clips an image to a Geometry or Feature.
+
+    The output bands correspond exactly the input bands, except data not
+    covered by the geometry is masked. The output image retains the
+    metadata of the input image.
+
+    Use clipToCollection to clip an image to a FeatureCollection.
 
     Args:
-      clip_geometry: The Geometry, Feature or FeatureCollection to clip to.
+      clip_geometry: The Geometry or Feature to clip to.
 
     Returns:
       The clipped image.

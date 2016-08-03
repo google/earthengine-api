@@ -43,6 +43,7 @@ goog.provide('ee.data.RawMapId');
 goog.provide('ee.data.ReductionPolicy');
 goog.provide('ee.data.ShortAssetDescription');
 goog.provide('ee.data.SystemTimeProperty');
+goog.provide('ee.data.TableDescription');
 goog.provide('ee.data.TableTaskConfig');
 goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
@@ -1108,12 +1109,17 @@ goog.exportSymbol('ee.data.getAssetRootQuota', ee.data.getAssetRootQuota);
 ////////////////////////////////////////////////////////////////////////////////
 
 
-/** @enum {string} The types of assets. */
+/**
+ * The types of assets. Note that the server describes table assets as
+ * feature collections, though they should be described to users as tables.
+ * @enum {string}
+ */
 ee.data.AssetType = {
+  ALGORITHM: 'Algorithm',
+  FOLDER: 'Folder',
   IMAGE: 'Image',
   IMAGE_COLLECTION: 'ImageCollection',
-  FOLDER: 'Folder',
-  ALGORITHM: 'Algorithm',
+  TABLE: 'FeatureCollection',
   UNKNOWN: 'Unknown'
 };
 
@@ -1232,7 +1238,10 @@ ee.data.FolderDescription;
  * Compatible with GeoJSON. The type field is always "FeatureCollection".
  * @typedef {{
  *   type: string,
- *   features: Array.<ee.data.GeoJSONFeature>
+ *   columns: !Object<string, string>,
+ *   id: (string|undefined),
+ *   features: (!Array<ee.data.GeoJSONFeature>|undefined),
+ *   properties: (!Object|undefined)
  * }}
  */
 ee.data.FeatureCollectionDescription;
@@ -1306,6 +1315,22 @@ ee.data.ImageCollectionDescription;
  * }}
  */
 ee.data.ImageDescription;
+
+
+/**
+ * An object describing a Table asset, as returned by getValue.
+ * Compatible with GeoJSON. The type field is always "FeatureCollection",
+ * which describes the abstract object that wraps the table asset.
+ * @typedef {{
+ *   type: string,
+ *   columns: !Object<string, string>,
+ *   id: (string|undefined),
+ *   features: (!Array<ee.data.GeoJSONFeature>|undefined),
+ *   properties: (!Object|undefined),
+ *   version: (undefined|number)
+ * }}
+ */
+ee.data.TableDescription;
 
 
 /**

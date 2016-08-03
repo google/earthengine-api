@@ -299,8 +299,8 @@ ee.FeatureCollection = function(args, opt_column) {
 ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selectors, opt_filename, opt_callback) {
 };
 /**
- * @param {!function ({features: (Array<ee.data.GeoJSONFeature>|null), type: string}, string=): ?=} opt_callback
- * @return {{features: (Array<ee.data.GeoJSONFeature>|null), type: string}}
+ * @param {!function ({columns: Object<string,string>, features: (Array<ee.data.GeoJSONFeature>|undefined), id: (string|undefined), properties: (Object|undefined), type: string}, string=): ?=} opt_callback
+ * @return {{columns: Object<string,string>, features: (Array<ee.data.GeoJSONFeature>|undefined), id: (string|undefined), properties: (Object|undefined), type: string}}
  */
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 };

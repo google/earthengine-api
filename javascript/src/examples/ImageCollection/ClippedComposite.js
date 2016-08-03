@@ -11,7 +11,7 @@ var fc = ee.FeatureCollection('ft:1fRY18cjsHzDgGiJiS2nnpUU3v9JPDc2HNaR7Xk8')
     .filter(ee.Filter.or(
          ee.Filter.eq('Name', 'Nevada'),
          ee.Filter.eq('Name', 'Arizona')));
-var clipped = median.clip(fc);
+var clipped = median.clipToCollection(fc);
 
 // Select the red, green and blue bands.
 var result = clipped.select('B3', 'B2', 'B1');
