@@ -6,9 +6,11 @@ the commands supported by the EE command line tool. It also defines
 the classes for configuration and runtime context management.
 """
 from __future__ import print_function
+import collections
 from datetime import datetime
 import json
 import os
+import threading
 import time
 
 import oauth2client.client
@@ -106,17 +108,49 @@ def wait_for_task(task_id, timeout, log_progress=True):
     state = status['state']
     if state in TASK_FINISHED_STATES:
       error_message = status.get('error_message', None)
-      print('Task ended at state: %s after %.2f seconds' % (state, elapsed))
+      print('Task %s ended at state: %s after %.2f seconds'
+            % (task_id, state, elapsed))
       if error_message:
         print('Error: %s' % error_message)
       return
     if log_progress and elapsed - last_check >= 30:
-      print('[{:%H:%M:%S}] Current task state: {}'
-            .format(datetime.now(), state))
+      print('[{:%H:%M:%S}] Current state for task {}: {}'
+            .format(datetime.now(), task_id, state))
       last_check = elapsed
     remaining = timeout - elapsed
     if remaining > 0:
       time.sleep(min(10, remaining))
     else:
       break
-  print('Wait timed out after %.2f seconds' % elapsed)
+  print('Wait for task %s timed out after %.2f seconds' % (task_id, elapsed))
+
+
+def wait_for_tasks(task_id_list, timeout, log_progress=False):
+  """For each task specified in task_id_list, wait for that task or timeout."""
+
+  if len(task_id_list) == 1:
+    wait_for_task(task_id_list[0], timeout, log_progress)
+    return
+
+  threads = []
+  for task_id in task_id_list:
+    t = threading.Thread(target=wait_for_task,
+                         args=(task_id, timeout, log_progress))
+    threads.append(t)
+    t.start()
+
+  for thread in threads:
+    thread.join()
+
+  status_list = ee.data.getTaskStatus(task_id_list)
+  status_counts = collections.defaultdict(int)
+  for status in status_list:
+    status_counts[status['state']] += 1
+  num_incomplete = (len(status_list) - status_counts['COMPLETED']
+                    - status_counts['FAILED'] - status_counts['CANCELLED'])
+  print('Finished waiting for tasks.\n  Status summary:')
+  print('  %d tasks completed successfully.' % status_counts['COMPLETED'])
+  print('  %d tasks failed.' % status_counts['FAILED'])
+  print('  %d tasks cancelled.' % status_counts['CANCELLED'])
+  print('  %d tasks are still incomplete (timed-out)' % num_incomplete)
+

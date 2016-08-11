@@ -17,7 +17,7 @@ goog.require('goog.object');
 
 /**
  * Creates a function defined by a given expression with unbound variables.
- * The expression is created by evaluating the given javascript function
+ * The expression is created by evaluating the given JavaScript function
  * using variables as placeholders.
  *
  * @param {ee.Function.Signature} signature The function's signature. If any of

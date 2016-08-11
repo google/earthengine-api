@@ -44,7 +44,7 @@ var introPanel = ui.Panel([
   ui.Label('Airstrip developed for gold mining in the 1980\'s and 1990\'s.')
 ]);
 
-// Helper function to combine two javascript dictionaries.
+// Helper function to combine two JavaScript dictionaries.
 function combine(a, b) {
   var c = {};
   for (var key in a) c[key] = a[key];

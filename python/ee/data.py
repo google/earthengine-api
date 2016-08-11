@@ -680,7 +680,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
     payload = urllib.parse.urlencode(params)  # Python 3.x
   except AttributeError:
     payload = urllib.urlencode(params)  # Python 2.x
-  http = httplib2.Http(timeout=int(_deadline_ms / 1000) or None)
+  http = httplib2.Http(timeout=(_deadline_ms / 1000.0) or None)
 
   if _credentials:
     http = _credentials.authorize(http)

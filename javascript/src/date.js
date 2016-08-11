@@ -22,7 +22,7 @@ goog.require('ee.arguments');
  *     one of:
  *     a number (number of milliseconds since the epoch),
  *     an ISO Date string,
- *     a javascript Date
+ *     a JavaScript Date
  *     or a ComputedObject.
  * @param {string=} opt_tz An optional timezone only to be used with a
  *    string date.

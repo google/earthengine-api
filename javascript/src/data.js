@@ -509,10 +509,10 @@ ee.data.getValue = function(params, opt_callback) {
  * Get a Thumbnail Id for a given asset.
  * @param {Object} params Parameters identical to those for the visParams for
  *     getMapId with the following additions:
- *       - size (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
- *             dimensions of the thumbnail to render, in pixels. If only one
- *             number is passed, it is used as the maximum, and the other
- *             dimension is computed by proportional scaling.
+ *       - dimensions (a number or pair of numbers in format WIDTHxHEIGHT)
+ *             Maximum dimensions of the thumbnail to render, in pixels. If
+ *             only one number is passed, it is used as the maximum, and
+ *             the other dimension is computed by proportional scaling.
  *       - region (E,S,W,N or GeoJSON) Geospatial region of the image
  *             to render. By default, the whole image.
  *       - format (string) Either 'png' (default) or 'jpg'.
@@ -524,8 +524,8 @@ ee.data.getValue = function(params, opt_callback) {
  */
 ee.data.getThumbId = function(params, opt_callback) {
   params = goog.object.clone(params);
-  if (goog.isArray(params['size'])) {
-    params['size'] = params['size'].join('x');
+  if (goog.isArray(params['dimensions'])) {
+    params['dimensions'] = params['dimensions'].join('x');
   }
   var request = ee.data.makeRequest_(params).add('getid', '1');
   return /** @type {?ee.data.ThumbnailId} */(
@@ -1503,6 +1503,7 @@ ee.data.AbstractTaskConfig;
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
+ *   assetId: (undefined|string),
  *   pyramidingPolicy: (undefined|string)
  * }}
  */

@@ -663,11 +663,18 @@ class TaskCancelCommand(object):
   name = 'cancel'
 
   def __init__(self, parser):
-    parser.add_argument('task_id', nargs='*', help='ID of a task to cancel.')
+    parser.add_argument(
+        'task_ids', nargs='+',
+        help='IDs of one or more tasks to cancel,'
+        ' or `all` to cancel all tasks.')
 
   def run(self, args, config):
     config.ee_init()
-    statuses = ee.data.getTaskStatus(args.task_id)
+    cancel_all = args.task_ids == ['all']
+    if cancel_all:
+      statuses = ee.data.getTaskList()
+    else:
+      statuses = ee.data.getTaskStatus(args.task_ids)
     for status in statuses:
       state = status['state']
       task_id = status['id']
@@ -676,7 +683,7 @@ class TaskCancelCommand(object):
       elif state == 'READY' or state == 'RUNNING':
         print('Canceling task "%s"' % task_id)
         ee.data.cancelTask(task_id)
-      else:
+      elif not cancel_all:
         print('Task "%s" already in state "%s".' % (status['id'], state))
 
 
@@ -735,6 +742,47 @@ class TaskListCommand(object):
           task['state'], task.get('error_message', '---')))
 
 
+class TaskWaitCommand(object):
+  """Waits for the specified task or tasks to complete."""
+
+  name = 'wait'
+
+  def __init__(self, parser):
+    parser.add_argument(
+        '--timeout', '-t', default=sys.maxsize, type=int,
+        help=('Stop waiting for the task(s) to finish after the specified,'
+              ' number of seconds. Without this flag, the command will wait'
+              ' indefinitely.'))
+    parser.add_argument('--verbose', '-v', action='store_true',
+                        help=('Print periodic status messages for each'
+                              ' incomplete task.'))
+    parser.add_argument('task_ids', nargs='+',
+                        help=('Either a list of one or more currently-running'
+                              ' task ids to wait on; or \'all\' to wait on all'
+                              ' running tasks.'))
+
+  def run(self, args, config):
+    """Waits on the given tasks to complete or for a timeout to pass."""
+    config.ee_init()
+    task_ids = []
+    if args.task_ids == ['all']:
+      tasks = ee.data.getTaskList()
+      for task in tasks:
+        if task['state'] not in utils.TASK_FINISHED_STATES:
+          task_ids.append(task['id'])
+    else:
+      statuses = ee.data.getTaskStatus(args.task_ids)
+      for status in statuses:
+        state = status['state']
+        task_id = status['id']
+        if state == 'UNKNOWN':
+          raise ee.EEException('Unknown task id "%s"' % task_id)
+        else:
+          task_ids.append(task_id)
+
+    utils.wait_for_tasks(task_ids, args.timeout, log_progress=args.verbose)
+
+
 class TaskCommand(Dispatcher):
   """Prints information about or manages long-running tasks."""
 
@@ -744,6 +792,7 @@ class TaskCommand(Dispatcher):
       TaskCancelCommand,
       TaskInfoCommand,
       TaskListCommand,
+      TaskWaitCommand,
   ]
 
 

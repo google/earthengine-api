@@ -5,7 +5,7 @@
  * A package is intialized by synchronously retrieving the folder's contents.
  * The folder will contain 1 signature for each saved algorithm.  A
  * SavedFunction object is created for each saved algoirhtm and is wrapped
- * with a real javascript function to make it callable.  SavedFunction
+ * with a real JavaScript function to make it callable.  SavedFunction
  * is just a proxy for a call to LoadAlgorithmById().
  *
  * Adding an algorithm to a package requires specifying signature information
@@ -21,7 +21,7 @@
  * multiple times.
  *
  * WARNING: In the current playground implementation, ee.Package is injected
- * into the user's VM as javascript to get around limitations in Caja related
+ * into the user's VM as JavaScript to get around limitations in Caja related
  * to a bunch of functions being generated at runtime.  This means:
  * 1) no closure functions are available.  The lines in this file beginning
  *    with "^goog" are automatically stripped.

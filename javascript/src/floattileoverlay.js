@@ -25,7 +25,9 @@ goog.require('goog.structs.Map');
 ee.FloatTileOverlay = function(url, mapId, token) {
   goog.base(this, url, mapId, token);
 
-  this.tileSize = new google.maps.Size(ee.FloatTileOverlay.TILE_EDGE_LENGTH,
+  this.tileSize = new google.maps.Size(
+      ee.FloatTileOverlay.TILE_EDGE_LENGTH,
+
       ee.FloatTileOverlay.TILE_EDGE_LENGTH);
 
   /**
@@ -34,6 +36,14 @@ ee.FloatTileOverlay = function(url, mapId, token) {
    * @private {goog.structs.Map<!google.maps.Point, Float32Array>}
    */
   this.floatTiles_ = new goog.structs.Map();
+
+  /**
+   * The floating point buffer tile DIV elements returned by getTile().
+   * The keys are the coordinates of the tiles, and the values are the
+   * corresponding DIV elements.
+   * @private {goog.structs.Map<!google.maps.Point, !Element>}
+   */
+  this.floatTileDivs_ = new goog.structs.Map();
 };
 goog.inherits(ee.FloatTileOverlay, ee.AbstractOverlay);
 
@@ -46,12 +56,14 @@ ee.FloatTileOverlay.prototype.getTile = function(coord, zoom, ownerDocument) {
   this.tilesLoading.push(uniqueTileId);
   this.tileCounter += 1;
 
-  var floatTile = this.loadFloatTile_(src, coord, uniqueTileId);
+  var div = goog.dom.createDom(goog.dom.TagName.DIV);
+
+  var floatTile = this.loadFloatTile_(src, coord, uniqueTileId, div);
   this.dispatchTileEvent_();
 
   // The Maps API expects a div for the tile. We don't actually want to render
   // the floating point tiles as a visible layer, so we return an empty div.
-  return goog.dom.createDom(goog.dom.TagName.DIV);
+  return div;
 };
 
 
@@ -67,10 +79,11 @@ ee.FloatTileOverlay.TILE_EDGE_LENGTH = 256;
  * @param {string} tileUrl Tile URL
  * @param {google.maps.Point} coord Coordinates of the floating tile
  * @param {string} tileId Unique tile ID
+ * @param {!Element} div The corresponding DIV element.
  * @private
  */
 ee.FloatTileOverlay.prototype.loadFloatTile_ = function(
-    tileUrl, coord, tileId) {
+    tileUrl, coord, tileId, div) {
   var tileRequest = goog.net.XmlHttp();
   tileRequest.open('GET', tileUrl, true);
   tileRequest.responseType = 'arraybuffer';
@@ -80,7 +93,7 @@ ee.FloatTileOverlay.prototype.loadFloatTile_ = function(
       var tileResponse = /** @type {Float32Array} */ (tileRequest.response);
       if (tileResponse) {
         var floatBuffer = new Float32Array(tileResponse);
-        this.handleFloatTileLoaded_(floatBuffer, coord, tileId);
+        this.handleFloatTileLoaded_(floatBuffer, coord, tileId, div);
       } else {
         this.tilesFailed.add(tileId);
         throw new Error('Unable to request floating point array buffers.');
@@ -97,11 +110,13 @@ ee.FloatTileOverlay.prototype.loadFloatTile_ = function(
  * @param {Float32Array} floatTile Successfully requested float tile
  * @param {google.maps.Point} coord Coordinate of the floating tile
  * @param {string} tileId Unique tile ID
+ * @param {!Element} div The corresponding DIV element.
  * @private
  */
 ee.FloatTileOverlay.prototype.handleFloatTileLoaded_ = function(
-    floatTile, coord, tileId) {
+    floatTile, coord, tileId, div) {
   this.floatTiles_.set(coord, floatTile);
+  this.floatTileDivs_.set(coord, div);
   goog.array.remove(this.tilesLoading, tileId);
   this.dispatchTileEvent_();
 };
@@ -114,6 +129,16 @@ ee.FloatTileOverlay.prototype.handleFloatTileLoaded_ = function(
  */
 ee.FloatTileOverlay.prototype.getAllFloatTiles = function() {
   return this.floatTiles_;
+};
+
+
+/**
+ * Returns the map of all the floating tile divs that are visible and
+ * the corresponding coordinates.
+ * @return {goog.structs.Map}
+ */
+ee.FloatTileOverlay.prototype.getAllFloatTileDivs = function() {
+  return this.floatTileDivs_;
 };
 
 
@@ -135,6 +160,7 @@ ee.FloatTileOverlay.prototype.dispatchTileEvent_ = function() {
 /** @override */
 ee.FloatTileOverlay.prototype.disposeInternal = function() {
   this.floatTiles_ = null;
+  this.floatTileDivs_ = null;
 
   goog.base(this, 'disposeInternal');
 };
