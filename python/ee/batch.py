@@ -452,8 +452,8 @@ class Export(object):
         description: Human-readable name of the task.
         config: A dictionary that will be copied and used as parameters
             for the task:
-            - fileFormat: The output format: CSV (default), GeoJSON,
-              KML, or KMZ.
+            - fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
+              or "KMZ".
             If exporting to Google Drive (default):
             - driveFolder: The name of a unique folder in your Drive
               account to export into. Defaults to the root of the drive.
@@ -488,7 +488,8 @@ class Export(object):
         bucket: The name of a Cloud Storage bucket for the export.
         fileNamePrefix: Cloud Storage object name prefix for the export.
             Defaults to the name of the task.
-        fileFormat: The output format: CSV (default), GeoJSON, KML, or KMZ.
+        fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
+            or "KMZ".
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'outputBucket'.
 
@@ -520,7 +521,8 @@ class Export(object):
             export into. Defaults to the root of the drive.
         fileNamePrefix: The Google Drive filename for the export.
             Defaults to the name of the task.
-        fileFormat: The output format: CSV (default), GeoJSON, KML, or KMZ.
+        fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
+            or "KMZ".
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'driveFolder' and 'driveFileNamePrefix'.
 

@@ -1209,6 +1209,14 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
 ee.data.startProcessing = function(taskId, params, opt_callback) {
 };
 /**
+ * @param {string} taskId
+ * @param {{id: string, propertie: (Object|undefined), sources: Array<ee.data.FileSource>}} request
+ * @param {!function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
+ * @return {(ee.data.ProcessingResponse|null)}
+ */
+ee.data.startTableIngestion = function(taskId, request, opt_callback) {
+};
+/**
  * @param {(Array<string>|string)} taskId
  * @param {string} action
  * @param {!function ({note: (string|undefined), started: string}, string=): ?=} opt_callback

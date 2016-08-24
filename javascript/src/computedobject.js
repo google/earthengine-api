@@ -163,11 +163,13 @@ ee.ComputedObject.prototype.serialize = function() {
 
 /**
  * @return {string} A human-readable representation of the object.
- * @export
  */
 ee.ComputedObject.prototype.toString = function() {
   return 'ee.' + this.name() + '(' + ee.Serializer.toReadableJSON(this) + ')';
 };
+// Exporting manually to avoid marking the method public in the docs.
+goog.exportSymbol('ee.ComputedObject.prototype.toString',
+                  ee.ComputedObject.prototype.toString);
 
 
 /**

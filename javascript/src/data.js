@@ -805,7 +805,7 @@ goog.exportSymbol('ee.data.startProcessing', ee.data.startProcessing);
 
 
 /**
- * Creates an asset ingestion task.
+ * Creates an image asset ingestion task.
  *
  * @param {string} taskId ID for the task (obtained using newTaskId).
  * @param {ee.data.IngestionRequest} request The object that describes the
@@ -1547,7 +1547,8 @@ ee.data.MapTaskConfig;
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),
- *   outputPrefix: (undefined|string)
+ *   outputPrefix: (undefined|string),
+ *   assetId: (undefined|string)
  * }}
  */
 ee.data.TableTaskConfig;
@@ -1651,7 +1652,7 @@ ee.data.AssetDescription;
 
 
 /**
- * A request to import an asset. "id" is the destination asset ID
+ * A request to import an image asset. "id" is the destination asset ID
  * (e.g. "users/yourname/assetname"). "tilesets" is the list of source
  * files for the asset, clustered by tile. "properties" is a mapping from
  * metadata property names to values.

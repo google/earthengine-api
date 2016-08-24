@@ -68,8 +68,7 @@ def _add_wait_arg(parser):
             ' task in the background, and returns immediately.'))
 
 
-def _upload(args, config, request, ingestion_function):
-  config.ee_init()
+def _upload(args, request, ingestion_function):
   if 0 <= args.wait < 10:
     raise ee.EEException('Wait time should be at least 10 seconds.')
   task_id = ee.data.newTaskId()[0]
@@ -480,6 +479,7 @@ class CopyCommand(object):
         'destination', help='Full path of the destination asset.')
 
   def run(self, args, config):
+    """Runs the asset copy."""
     config.ee_init()
     ee.data.copyAsset(args.source, args.destination)
 
@@ -837,6 +837,7 @@ class UploadImageCommand(object):
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
     _check_valid_files(args.src_files)
+    config.ee_init()
 
     if args.last_band_alpha and args.nodata_value:
       raise ValueError(
@@ -849,7 +850,8 @@ class UploadImageCommand(object):
         'properties': properties
     }
 
-    sources = [{'primaryPath': source} for source in args.src_files]
+    source_files = utils.expand_gcs_wildcards(args.src_files)
+    sources = [{'primaryPath': source} for source in source_files]
     tileset = {'sources': sources}
     if args.last_band_alpha:
       tileset['bandMappings'] = [{'fileBandIndex': -1, 'maskForAllBands': True}]
@@ -881,7 +883,7 @@ class UploadImageCommand(object):
           else:
             bands.append({'id': index, 'missingData': {'value': nodata}})
 
-    _upload(args, config, request, ee.data.startIngestion)
+    _upload(args, request, ee.data.startIngestion)
 
 
 class UploadCommand(Dispatcher):

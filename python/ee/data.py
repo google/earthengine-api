@@ -649,6 +649,13 @@ def createAssetHome(requestedId):
   send_('/createbucket', {'id': requestedId})
 
 
+def authorizeHttp(http):
+  if _credentials:
+    return _credentials.authorize(http)
+  else:
+    return http
+
+
 def send_(path, params, opt_method='POST', opt_raw=False):
   """Send an API call.
 
@@ -681,9 +688,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   except AttributeError:
     payload = urllib.urlencode(params)  # Python 2.x
   http = httplib2.Http(timeout=(_deadline_ms / 1000.0) or None)
-
-  if _credentials:
-    http = _credentials.authorize(http)
+  http = authorizeHttp(http)
 
   if opt_method == 'GET':
     url = url + ('&' if '?' in url else '?') + payload
