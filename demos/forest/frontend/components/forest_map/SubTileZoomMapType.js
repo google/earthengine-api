@@ -53,7 +53,7 @@ forest.SubTileZoomMapType = function(options) {
   // Public options optional for the Maps API.
 
   /** @const {number|undefined} The minimum permitted zoom level. */
-  this.minZoom = options.maxZoom;
+  this.minZoom = options.minZoom;
 
   /** @const {string|undefined} The name of the map type instance. */
   this.name = options.name;
