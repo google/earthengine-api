@@ -1570,6 +1570,8 @@ ee.data.TableTaskConfig;
  *   dimensions: (undefined|number|string),
  *   region: (undefined|string),
  *   scale: (undefined|number),
+ *   maxPixels: (undefined|number),
+ *   maxFrames: (undefined|number),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),

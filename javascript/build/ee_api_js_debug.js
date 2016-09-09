@@ -35,7 +35,7 @@ goog.module = function(name) {
     throw Error("Invalid module identifier");
   }
   if (!goog.isInModuleLoader_()) {
-    throw Error("Module " + name + " has been loaded incorrectly.");
+    throw Error("Module " + name + " has been loaded incorrectly. Note, modules cannot be loaded as normal scripts. They require some kind of pre-processing step. You're likely trying to load a module via a script tag or as a part of a concatenated bundle without rewriting the module. For more info see: https://github.com/google/closure-library/wiki/goog.module:-an-ES6-module-like-alternative-to-goog.provide.");
   }
   if (goog.moduleLoaderState_.moduleName) {
     throw Error("goog.module may only be called once per module.");
@@ -214,8 +214,7 @@ goog.DEPENDENCIES_ENABLED && (goog.dependencies_ = {loadFlags:{}, nameToPath:{},
   if (!goog.transpiledLanguages_) {
     goog.transpiledLanguages_ = {es5:!0, es6:!0, "es6-impl":!0};
     try {
-      goog.transpiledLanguages_.es5 = eval("[1,].length!=1"), eval('(()=>{"use strict";let a={};const X=class{constructor(){}x(z){return new Map([...arguments]).get(z[0])==3}};return new X().x([a,3])})()') && (goog.transpiledLanguages_["es6-impl"] = !1), eval('(()=>{"use strict";class X{constructor(){if(new.target!=String)throw 1;this.x=42}}let q=Reflect.construct(X,[],String);if(q.x!=42||!(q instanceof String))throw 1;for(const a of[2,3]){if(a==2)continue;function f(z={a}){let a=0;return z.a}{function f(){return 0;}}return f()==3}})()') && 
-      (goog.transpiledLanguages_.es6 = !1);
+      goog.transpiledLanguages_.es5 = eval("[1,].length!=1"), eval('(()=>{"use strict";class X{constructor(){if(new.target!=String)throw 1;this.x=42}}let q=Reflect.construct(X,[],String);if(q.x!=42||!(q instanceof String))throw 1;for(const a of[2,3]){if(a==2)continue;function f(z={a}){let a=0;return z.a}{function f(){return 0;}}return f()==3}})()') && (goog.transpiledLanguages_.es6 = !1, goog.transpiledLanguages_["es6-impl"] = !1);
     } catch (err) {
     }
   }
@@ -3935,10 +3934,138 @@ goog.async.FreeList.prototype.put = function(item) {
 goog.async.FreeList.prototype.occupants = function() {
   return this.occupants_;
 };
-goog.dom.TagName = {A:"A", ABBR:"ABBR", ACRONYM:"ACRONYM", ADDRESS:"ADDRESS", APPLET:"APPLET", AREA:"AREA", ARTICLE:"ARTICLE", ASIDE:"ASIDE", AUDIO:"AUDIO", B:"B", BASE:"BASE", BASEFONT:"BASEFONT", BDI:"BDI", BDO:"BDO", BIG:"BIG", BLOCKQUOTE:"BLOCKQUOTE", BODY:"BODY", BR:"BR", BUTTON:"BUTTON", CANVAS:"CANVAS", CAPTION:"CAPTION", CENTER:"CENTER", CITE:"CITE", CODE:"CODE", COL:"COL", COLGROUP:"COLGROUP", COMMAND:"COMMAND", DATA:"DATA", DATALIST:"DATALIST", DD:"DD", DEL:"DEL", DETAILS:"DETAILS", DFN:"DFN", 
-DIALOG:"DIALOG", DIR:"DIR", DIV:"DIV", DL:"DL", DT:"DT", EM:"EM", EMBED:"EMBED", FIELDSET:"FIELDSET", FIGCAPTION:"FIGCAPTION", FIGURE:"FIGURE", FONT:"FONT", FOOTER:"FOOTER", FORM:"FORM", FRAME:"FRAME", FRAMESET:"FRAMESET", H1:"H1", H2:"H2", H3:"H3", H4:"H4", H5:"H5", H6:"H6", HEAD:"HEAD", HEADER:"HEADER", HGROUP:"HGROUP", HR:"HR", HTML:"HTML", I:"I", IFRAME:"IFRAME", IMG:"IMG", INPUT:"INPUT", INS:"INS", ISINDEX:"ISINDEX", KBD:"KBD", KEYGEN:"KEYGEN", LABEL:"LABEL", LEGEND:"LEGEND", LI:"LI", LINK:"LINK", 
-MAP:"MAP", MARK:"MARK", MATH:"MATH", MENU:"MENU", META:"META", METER:"METER", NAV:"NAV", NOFRAMES:"NOFRAMES", NOSCRIPT:"NOSCRIPT", OBJECT:"OBJECT", OL:"OL", OPTGROUP:"OPTGROUP", OPTION:"OPTION", OUTPUT:"OUTPUT", P:"P", PARAM:"PARAM", PRE:"PRE", PROGRESS:"PROGRESS", Q:"Q", RP:"RP", RT:"RT", RUBY:"RUBY", S:"S", SAMP:"SAMP", SCRIPT:"SCRIPT", SECTION:"SECTION", SELECT:"SELECT", SMALL:"SMALL", SOURCE:"SOURCE", SPAN:"SPAN", STRIKE:"STRIKE", STRONG:"STRONG", STYLE:"STYLE", SUB:"SUB", SUMMARY:"SUMMARY", 
-SUP:"SUP", SVG:"SVG", TABLE:"TABLE", TBODY:"TBODY", TD:"TD", TEMPLATE:"TEMPLATE", TEXTAREA:"TEXTAREA", TFOOT:"TFOOT", TH:"TH", THEAD:"THEAD", TIME:"TIME", TITLE:"TITLE", TR:"TR", TRACK:"TRACK", TT:"TT", U:"U", UL:"UL", VAR:"VAR", VIDEO:"VIDEO", WBR:"WBR"};
+goog.dom.TagName = function(tagName) {
+  this.tagName_ = tagName;
+};
+goog.dom.TagName.prototype.toString = function() {
+  return this.tagName_;
+};
+goog.dom.TagName.A = new goog.dom.TagName("A");
+goog.dom.TagName.ABBR = new goog.dom.TagName("ABBR");
+goog.dom.TagName.ACRONYM = new goog.dom.TagName("ACRONYM");
+goog.dom.TagName.ADDRESS = new goog.dom.TagName("ADDRESS");
+goog.dom.TagName.APPLET = new goog.dom.TagName("APPLET");
+goog.dom.TagName.AREA = new goog.dom.TagName("AREA");
+goog.dom.TagName.ARTICLE = new goog.dom.TagName("ARTICLE");
+goog.dom.TagName.ASIDE = new goog.dom.TagName("ASIDE");
+goog.dom.TagName.AUDIO = new goog.dom.TagName("AUDIO");
+goog.dom.TagName.B = new goog.dom.TagName("B");
+goog.dom.TagName.BASE = new goog.dom.TagName("BASE");
+goog.dom.TagName.BASEFONT = new goog.dom.TagName("BASEFONT");
+goog.dom.TagName.BDI = new goog.dom.TagName("BDI");
+goog.dom.TagName.BDO = new goog.dom.TagName("BDO");
+goog.dom.TagName.BIG = new goog.dom.TagName("BIG");
+goog.dom.TagName.BLOCKQUOTE = new goog.dom.TagName("BLOCKQUOTE");
+goog.dom.TagName.BODY = new goog.dom.TagName("BODY");
+goog.dom.TagName.BR = new goog.dom.TagName("BR");
+goog.dom.TagName.BUTTON = new goog.dom.TagName("BUTTON");
+goog.dom.TagName.CANVAS = new goog.dom.TagName("CANVAS");
+goog.dom.TagName.CAPTION = new goog.dom.TagName("CAPTION");
+goog.dom.TagName.CENTER = new goog.dom.TagName("CENTER");
+goog.dom.TagName.CITE = new goog.dom.TagName("CITE");
+goog.dom.TagName.CODE = new goog.dom.TagName("CODE");
+goog.dom.TagName.COL = new goog.dom.TagName("COL");
+goog.dom.TagName.COLGROUP = new goog.dom.TagName("COLGROUP");
+goog.dom.TagName.COMMAND = new goog.dom.TagName("COMMAND");
+goog.dom.TagName.DATA = new goog.dom.TagName("DATA");
+goog.dom.TagName.DATALIST = new goog.dom.TagName("DATALIST");
+goog.dom.TagName.DD = new goog.dom.TagName("DD");
+goog.dom.TagName.DEL = new goog.dom.TagName("DEL");
+goog.dom.TagName.DETAILS = new goog.dom.TagName("DETAILS");
+goog.dom.TagName.DFN = new goog.dom.TagName("DFN");
+goog.dom.TagName.DIALOG = new goog.dom.TagName("DIALOG");
+goog.dom.TagName.DIR = new goog.dom.TagName("DIR");
+goog.dom.TagName.DIV = new goog.dom.TagName("DIV");
+goog.dom.TagName.DL = new goog.dom.TagName("DL");
+goog.dom.TagName.DT = new goog.dom.TagName("DT");
+goog.dom.TagName.EM = new goog.dom.TagName("EM");
+goog.dom.TagName.EMBED = new goog.dom.TagName("EMBED");
+goog.dom.TagName.FIELDSET = new goog.dom.TagName("FIELDSET");
+goog.dom.TagName.FIGCAPTION = new goog.dom.TagName("FIGCAPTION");
+goog.dom.TagName.FIGURE = new goog.dom.TagName("FIGURE");
+goog.dom.TagName.FONT = new goog.dom.TagName("FONT");
+goog.dom.TagName.FOOTER = new goog.dom.TagName("FOOTER");
+goog.dom.TagName.FORM = new goog.dom.TagName("FORM");
+goog.dom.TagName.FRAME = new goog.dom.TagName("FRAME");
+goog.dom.TagName.FRAMESET = new goog.dom.TagName("FRAMESET");
+goog.dom.TagName.H1 = new goog.dom.TagName("H1");
+goog.dom.TagName.H2 = new goog.dom.TagName("H2");
+goog.dom.TagName.H3 = new goog.dom.TagName("H3");
+goog.dom.TagName.H4 = new goog.dom.TagName("H4");
+goog.dom.TagName.H5 = new goog.dom.TagName("H5");
+goog.dom.TagName.H6 = new goog.dom.TagName("H6");
+goog.dom.TagName.HEAD = new goog.dom.TagName("HEAD");
+goog.dom.TagName.HEADER = new goog.dom.TagName("HEADER");
+goog.dom.TagName.HGROUP = new goog.dom.TagName("HGROUP");
+goog.dom.TagName.HR = new goog.dom.TagName("HR");
+goog.dom.TagName.HTML = new goog.dom.TagName("HTML");
+goog.dom.TagName.I = new goog.dom.TagName("I");
+goog.dom.TagName.IFRAME = new goog.dom.TagName("IFRAME");
+goog.dom.TagName.IMG = new goog.dom.TagName("IMG");
+goog.dom.TagName.INPUT = new goog.dom.TagName("INPUT");
+goog.dom.TagName.INS = new goog.dom.TagName("INS");
+goog.dom.TagName.ISINDEX = new goog.dom.TagName("ISINDEX");
+goog.dom.TagName.KBD = new goog.dom.TagName("KBD");
+goog.dom.TagName.KEYGEN = new goog.dom.TagName("KEYGEN");
+goog.dom.TagName.LABEL = new goog.dom.TagName("LABEL");
+goog.dom.TagName.LEGEND = new goog.dom.TagName("LEGEND");
+goog.dom.TagName.LI = new goog.dom.TagName("LI");
+goog.dom.TagName.LINK = new goog.dom.TagName("LINK");
+goog.dom.TagName.MAP = new goog.dom.TagName("MAP");
+goog.dom.TagName.MARK = new goog.dom.TagName("MARK");
+goog.dom.TagName.MATH = new goog.dom.TagName("MATH");
+goog.dom.TagName.MENU = new goog.dom.TagName("MENU");
+goog.dom.TagName.META = new goog.dom.TagName("META");
+goog.dom.TagName.METER = new goog.dom.TagName("METER");
+goog.dom.TagName.NAV = new goog.dom.TagName("NAV");
+goog.dom.TagName.NOFRAMES = new goog.dom.TagName("NOFRAMES");
+goog.dom.TagName.NOSCRIPT = new goog.dom.TagName("NOSCRIPT");
+goog.dom.TagName.OBJECT = new goog.dom.TagName("OBJECT");
+goog.dom.TagName.OL = new goog.dom.TagName("OL");
+goog.dom.TagName.OPTGROUP = new goog.dom.TagName("OPTGROUP");
+goog.dom.TagName.OPTION = new goog.dom.TagName("OPTION");
+goog.dom.TagName.OUTPUT = new goog.dom.TagName("OUTPUT");
+goog.dom.TagName.P = new goog.dom.TagName("P");
+goog.dom.TagName.PARAM = new goog.dom.TagName("PARAM");
+goog.dom.TagName.PRE = new goog.dom.TagName("PRE");
+goog.dom.TagName.PROGRESS = new goog.dom.TagName("PROGRESS");
+goog.dom.TagName.Q = new goog.dom.TagName("Q");
+goog.dom.TagName.RP = new goog.dom.TagName("RP");
+goog.dom.TagName.RT = new goog.dom.TagName("RT");
+goog.dom.TagName.RUBY = new goog.dom.TagName("RUBY");
+goog.dom.TagName.S = new goog.dom.TagName("S");
+goog.dom.TagName.SAMP = new goog.dom.TagName("SAMP");
+goog.dom.TagName.SCRIPT = new goog.dom.TagName("SCRIPT");
+goog.dom.TagName.SECTION = new goog.dom.TagName("SECTION");
+goog.dom.TagName.SELECT = new goog.dom.TagName("SELECT");
+goog.dom.TagName.SMALL = new goog.dom.TagName("SMALL");
+goog.dom.TagName.SOURCE = new goog.dom.TagName("SOURCE");
+goog.dom.TagName.SPAN = new goog.dom.TagName("SPAN");
+goog.dom.TagName.STRIKE = new goog.dom.TagName("STRIKE");
+goog.dom.TagName.STRONG = new goog.dom.TagName("STRONG");
+goog.dom.TagName.STYLE = new goog.dom.TagName("STYLE");
+goog.dom.TagName.SUB = new goog.dom.TagName("SUB");
+goog.dom.TagName.SUMMARY = new goog.dom.TagName("SUMMARY");
+goog.dom.TagName.SUP = new goog.dom.TagName("SUP");
+goog.dom.TagName.SVG = new goog.dom.TagName("SVG");
+goog.dom.TagName.TABLE = new goog.dom.TagName("TABLE");
+goog.dom.TagName.TBODY = new goog.dom.TagName("TBODY");
+goog.dom.TagName.TD = new goog.dom.TagName("TD");
+goog.dom.TagName.TEMPLATE = new goog.dom.TagName("TEMPLATE");
+goog.dom.TagName.TEXTAREA = new goog.dom.TagName("TEXTAREA");
+goog.dom.TagName.TFOOT = new goog.dom.TagName("TFOOT");
+goog.dom.TagName.TH = new goog.dom.TagName("TH");
+goog.dom.TagName.THEAD = new goog.dom.TagName("THEAD");
+goog.dom.TagName.TIME = new goog.dom.TagName("TIME");
+goog.dom.TagName.TITLE = new goog.dom.TagName("TITLE");
+goog.dom.TagName.TR = new goog.dom.TagName("TR");
+goog.dom.TagName.TRACK = new goog.dom.TagName("TRACK");
+goog.dom.TagName.TT = new goog.dom.TagName("TT");
+goog.dom.TagName.U = new goog.dom.TagName("U");
+goog.dom.TagName.UL = new goog.dom.TagName("UL");
+goog.dom.TagName.VAR = new goog.dom.TagName("VAR");
+goog.dom.TagName.VIDEO = new goog.dom.TagName("VIDEO");
+goog.dom.TagName.WBR = new goog.dom.TagName("WBR");
 goog.async.throwException = function(exception) {
   goog.global.setTimeout(function() {
     throw exception;
@@ -4104,6 +4231,7 @@ goog.Thenable.isImplementedBy = function(object) {
   }
   try {
     return !!object[goog.Thenable.IMPLEMENTED_BY_PROP];
+    return !!object.$goog_Thenable;
   } catch (e) {
     return !1;
   }
@@ -5351,6 +5479,9 @@ goog.math.Coordinate.prototype.clone = function() {
 goog.DEBUG && (goog.math.Coordinate.prototype.toString = function() {
   return "(" + this.x + ", " + this.y + ")";
 });
+goog.math.Coordinate.prototype.equals = function(other) {
+  return other instanceof goog.math.Coordinate && goog.math.Coordinate.equals(this, other);
+};
 goog.math.Coordinate.equals = function(a, b) {
   return a == b ? !0 : a && b ? a.x == b.x && a.y == b.y : !1;
 };
@@ -5603,7 +5734,7 @@ goog.dom.getRequiredElementHelper_ = function(doc, id) {
 };
 goog.dom.$ = goog.dom.getElement;
 goog.dom.getElementsByTagName = function(tagName, opt_parent) {
-  return (opt_parent || document).getElementsByTagName(tagName);
+  return (opt_parent || document).getElementsByTagName(String(tagName));
 };
 goog.dom.getElementsByTagNameAndClass = function(opt_tag, opt_class, opt_el) {
   return goog.dom.getElementsByTagNameAndClass_(document, opt_tag, opt_class, opt_el);
@@ -5624,7 +5755,7 @@ goog.dom.canUseQuerySelector_ = function(parent) {
   return !(!parent.querySelectorAll || !parent.querySelector);
 };
 goog.dom.getElementsByTagNameAndClass_ = function(doc, opt_tag, opt_class, opt_el) {
-  var parent = opt_el || doc, tagName = opt_tag && "*" != opt_tag ? opt_tag.toUpperCase() : "";
+  var parent = opt_el || doc, tagName = opt_tag && "*" != opt_tag ? String(opt_tag).toUpperCase() : "";
   if (goog.dom.canUseQuerySelector_(parent) && (tagName || opt_class)) {
     return parent.querySelectorAll(tagName + (opt_class ? "." + opt_class : ""));
   }
@@ -5745,7 +5876,10 @@ goog.dom.append_ = function(doc, parent, args, startIndex) {
 };
 goog.dom.$dom = goog.dom.createDom;
 goog.dom.createElement = function(name) {
-  return document.createElement(String(name));
+  return goog.dom.createElement_(document, name);
+};
+goog.dom.createElement_ = function(doc, name) {
+  return doc.createElement(String(name));
 };
 goog.dom.createTextNode = function(content) {
   return document.createTextNode(String(content));
@@ -5754,9 +5888,9 @@ goog.dom.createTable = function(rows, columns, opt_fillWithNbsp) {
   return goog.dom.createTable_(document, rows, columns, !!opt_fillWithNbsp);
 };
 goog.dom.createTable_ = function(doc, rows, columns, fillWithNbsp) {
-  for (var table = doc.createElement("TABLE"), tbody = table.appendChild(doc.createElement("TBODY")), i = 0;i < rows;i++) {
-    for (var tr = doc.createElement("TR"), j = 0;j < columns;j++) {
-      var td = doc.createElement("TD");
+  for (var table = goog.dom.createElement_(doc, "TABLE"), tbody = table.appendChild(goog.dom.createElement_(doc, "TBODY")), i = 0;i < rows;i++) {
+    for (var tr = goog.dom.createElement_(doc, "TR"), j = 0;j < columns;j++) {
+      var td = goog.dom.createElement_(doc, "TD");
       fillWithNbsp && goog.dom.setTextContent(td, goog.string.Unicode.NBSP);
       tr.appendChild(td);
     }
@@ -5772,7 +5906,7 @@ goog.dom.safeHtmlToNode = function(html) {
   return goog.dom.safeHtmlToNode_(document, html);
 };
 goog.dom.safeHtmlToNode_ = function(doc, html) {
-  var tempDiv = doc.createElement("DIV");
+  var tempDiv = goog.dom.createElement_(doc, "DIV");
   goog.dom.BrowserFeature.INNER_HTML_NEEDS_SCOPED_ELEMENT ? (goog.dom.safe.setInnerHtml(tempDiv, goog.html.SafeHtml.concat(goog.html.SafeHtml.BR, html)), tempDiv.removeChild(tempDiv.firstChild)) : goog.dom.safe.setInnerHtml(tempDiv, html);
   return goog.dom.childrenToNode_(doc, tempDiv);
 };
@@ -6084,7 +6218,7 @@ goog.dom.getOuterHtml = function(element) {
   if ("outerHTML" in element) {
     return element.outerHTML;
   }
-  var div = goog.dom.getOwnerDocument(element).createElement("DIV");
+  var doc = goog.dom.getOwnerDocument(element), div = goog.dom.createElement_(doc, "DIV");
   div.appendChild(element.cloneNode(!0));
   return div.innerHTML;
 };
@@ -6217,7 +6351,7 @@ goog.dom.getAncestorByTagNameAndClass = function(element, opt_tag, opt_class, op
   if (!opt_tag && !opt_class) {
     return null;
   }
-  var tagName = opt_tag ? opt_tag.toUpperCase() : null;
+  var tagName = opt_tag ? String(opt_tag).toUpperCase() : null;
   return goog.dom.getAncestor(element, function(node) {
     return (!tagName || node.nodeName == tagName) && (!opt_class || goog.isString(node.className) && goog.array.contains(node.className.split(/\s+/), opt_class));
   }, !0, opt_maxSearchSteps);
@@ -6246,10 +6380,10 @@ goog.dom.getActiveElement = function(doc) {
 };
 goog.dom.getPixelRatio = function() {
   var win = goog.dom.getWindow();
-  return goog.isDef(win.devicePixelRatio) ? win.devicePixelRatio : win.matchMedia ? goog.dom.matchesPixelRatio_(.75) || goog.dom.matchesPixelRatio_(1.5) || goog.dom.matchesPixelRatio_(2) || goog.dom.matchesPixelRatio_(3) || 1 : 1;
+  return goog.isDef(win.devicePixelRatio) ? win.devicePixelRatio : win.matchMedia ? goog.dom.matchesPixelRatio_(3) || goog.dom.matchesPixelRatio_(2) || goog.dom.matchesPixelRatio_(1.5) || goog.dom.matchesPixelRatio_(1) || .75 : 1;
 };
 goog.dom.matchesPixelRatio_ = function(pixelRatio) {
-  return goog.dom.getWindow().matchMedia("(-webkit-min-device-pixel-ratio: " + pixelRatio + "),(min--moz-device-pixel-ratio: " + pixelRatio + "),(min-resolution: " + pixelRatio + "dppx)").matches ? pixelRatio : 0;
+  return goog.dom.getWindow().matchMedia("(min-resolution: " + pixelRatio + "dppx),(min--moz-device-pixel-ratio: " + pixelRatio + "),(min-resolution: " + 96 * pixelRatio + "dpi)").matches ? pixelRatio : 0;
 };
 goog.dom.getCanvasContext2D = function(canvas) {
   return canvas.getContext("2d");
@@ -6272,7 +6406,7 @@ goog.dom.DomHelper.prototype.getRequiredElement = function(id) {
 };
 goog.dom.DomHelper.prototype.$ = goog.dom.DomHelper.prototype.getElement;
 goog.dom.DomHelper.prototype.getElementsByTagName = function(tagName, opt_parent) {
-  return (opt_parent || this.document_).getElementsByTagName(tagName);
+  return (opt_parent || this.document_).getElementsByTagName(String(tagName));
 };
 goog.dom.DomHelper.prototype.getElementsByTagNameAndClass = function(opt_tag, opt_class, opt_el) {
   return goog.dom.getElementsByTagNameAndClass_(this.document_, opt_tag, opt_class, opt_el);
@@ -6299,7 +6433,7 @@ goog.dom.DomHelper.prototype.createDom = function(tagName, opt_attributes, var_a
 };
 goog.dom.DomHelper.prototype.$dom = goog.dom.DomHelper.prototype.createDom;
 goog.dom.DomHelper.prototype.createElement = function(name) {
-  return this.document_.createElement(String(name));
+  return goog.dom.createElement_(this.document_, name);
 };
 goog.dom.DomHelper.prototype.createTextNode = function(content) {
   return this.document_.createTextNode(String(content));
@@ -7648,6 +7782,7 @@ goog.inherits(goog.net.XhrIo, goog.events.EventTarget);
 goog.net.XhrIo.ResponseType = {DEFAULT:"", TEXT:"text", DOCUMENT:"document", BLOB:"blob", ARRAY_BUFFER:"arraybuffer"};
 goog.net.XhrIo.prototype.logger_ = goog.log.getLogger("goog.net.XhrIo");
 goog.net.XhrIo.CONTENT_TYPE_HEADER = "Content-Type";
+goog.net.XhrIo.CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
 goog.net.XhrIo.HTTP_SCHEME_PATTERN = /^https?$/i;
 goog.net.XhrIo.METHODS_WITH_FORM_DATA = ["POST", "PUT"];
 goog.net.XhrIo.FORM_CONTENT_TYPE = "application/x-www-form-urlencoded;charset=utf-8";

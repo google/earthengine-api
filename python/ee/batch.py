@@ -613,7 +613,8 @@ class Export(object):
     def toCloudStorage(collection, description='myExportVideoTask',
                        bucket=None, fileNamePrefix=None, framesPerSecond=None,
                        dimensions=None, region=None, scale=None, crs=None,
-                       crsTransform=None, maxPixels=None, **kwargs):
+                       crsTransform=None, maxPixels=None,
+                       maxFrames=None, **kwargs):
       """Creates a task to export an ImageCollection video to Cloud Storage.
 
       Args:
@@ -643,6 +644,9 @@ class Export(object):
         maxPixels: The maximum number of pixels per frame.
             Defaults to 1e8 pixels per frame. By setting this explicitly,
             you may raise or lower the limit.
+        maxFrames: The maximum number of frames to export.
+            Defaults to 1000 frames. By setting this explicitly, you may
+            raise or lower the limit.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -671,7 +675,7 @@ class Export(object):
     def toDrive(collection, description='myExportVideoTask',
                 folder=None, fileNamePrefix=None, framesPerSecond=None,
                 dimensions=None, region=None, scale=None, crs=None,
-                crsTransform=None, maxPixels=None, **kwargs):
+                crsTransform=None, maxPixels=None, maxFrames=None, **kwargs):
       """Creates a task to export an ImageCollection as a video to Drive.
 
       Args:
@@ -702,6 +706,9 @@ class Export(object):
         maxPixels: The maximum number of pixels per frame.
             Defaults to 1e8 pixels per frame. By setting this explicitly,
             you may raise or lower the limit.
+        maxFrames: The maximum number of frames to export.
+            Defaults to 1000 frames. By setting this explicitly, you may
+            raise or lower the limit.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
