@@ -61,17 +61,18 @@
   var loadMap = function() {
     // Create the base Google Map.
     map = new google.maps.Map($('.map').get(0), {
-          center: { lat: -34.397, lng: 150.644},
-          zoom: 8,
-          streetViewControl: false
-        });
+      center: { lat: -34.397, lng: 150.644},
+      zoom: 8,
+      streetViewControl: false
+    });
 
     ee.initialize();
     image = ee.Image('srtm90_v4');
     var eeMapConfig = image.getMap({'min': 0, 'max': 1000});
-    var overlay = new ee.MapLayerOverlay(
+    var eeTileSource = new ee.layers.EarthEngineTileSource(
         'https://earthengine.googleapis.com/map',
-        eeMapConfig.mapid, eeMapConfig.token, {});
+        eeMapConfig.mapid, eeMapConfig.token);
+    var overlay = new ee.layers.ImageOverlay(eeTileSource);
 
     // Show a count of the number of map tiles remaining.
     overlay.addTileCallback(function(event) {

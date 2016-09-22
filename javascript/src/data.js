@@ -2286,7 +2286,6 @@ ee.data.profileHook_ = null;
 
 /**
  * @type {string} The HTTP header through which profile results are returned.
- * @package
  * @const
  */
 ee.data.PROFILE_HEADER = 'X-Earth-Engine-Computation-Profile';

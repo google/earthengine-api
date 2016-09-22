@@ -8,7 +8,7 @@ var l8 = ee.ImageCollection('LANDSAT/LC8_L1T_TOA')
 // Create two collections to sample from, one for each plot.
 var rgb = l8.select(['B4', 'B3', 'B2']);
 var ndvi = l8.map(function(image) {
-  return image.select().addBands(image.normalizedDifference(["B5", "B4"]));
+  return image.select().addBands(image.normalizedDifference(['B5', 'B4']));
 });
 
 var vis = {min: 0, max: 1, palette: [

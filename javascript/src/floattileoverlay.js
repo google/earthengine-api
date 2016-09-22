@@ -21,6 +21,7 @@ goog.require('goog.structs.Map');
  * @extends {ee.AbstractOverlay}
  * @export
  * @ignore
+ * @deprecated Use ee.layers.BinaryOverlay instead.
  */
 ee.FloatTileOverlay = function(url, mapId, token) {
   goog.base(this, url, mapId, token);

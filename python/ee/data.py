@@ -61,7 +61,7 @@ _PROFILE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
 DEFAULT_API_BASE_URL = 'https://earthengine.googleapis.com/api'
 
 # The default base URL for media/tile calls.
-DEFAULT_TILE_BASE_URL = 'https://earthengine.googleapis.com/'
+DEFAULT_TILE_BASE_URL = 'https://earthengine.googleapis.com'
 
 # Asset types recognized by create_assets().
 ASSET_TYPE_FOLDER = 'Folder'

@@ -32,6 +32,7 @@ goog.forwardDeclare('ee.data.Profiler');
  * @extends {ee.AbstractOverlay}
  * @export
  * @ignore
+ * @deprecated Use ee.layers.ImageOverlay instead.
  */
 ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
   goog.base(this, url, mapId, token, init, opt_profiler);

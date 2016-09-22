@@ -1243,6 +1243,67 @@ ee.data.withProfiling = function(hook, body, opt_this) {
 ee.initialize = function(opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback, opt_xsrfToken) {
 };
 /**
+ @const
+ @suppress {const,duplicate}
+ */
+ee.layers = {};
+/**
+ * @param {!ee.layers.AbstractTileSource} tileSource
+ * @param {(Object|null)=} opt_options
+ * @extends {goog.events.EventTarget}
+ * @implements {goog.disposable.IDisposable}
+ * @implements {goog.events.Listenable}
+ * @implements {google.maps.MapType}
+ * @constructor
+ */
+ee.layers.AbstractOverlay = function(tileSource, opt_options) {
+};
+/**
+ * @param {!function ((ee.layers.TileLoadEvent|null)): ?} callback
+ * @return {!Object}
+ */
+ee.layers.AbstractOverlay.prototype.addTileCallback = function(callback) {
+};
+/**
+ * @param {!Object} callbackId
+ * @return {undefined}
+ */
+ee.layers.AbstractOverlay.prototype.removeTileCallback = function(callbackId) {
+};
+/**
+ * @param {!ee.layers.AbstractTileSource} tileSource
+ * @param {(Object|null)=} opt_options
+ * @extends {ee.layers.AbstractOverlay}
+ * @implements {goog.disposable.IDisposable}
+ * @implements {goog.events.Listenable}
+ * @implements {google.maps.MapType}
+ * @constructor
+ */
+ee.layers.BinaryOverlay = function(tileSource, opt_options) {
+};
+/**
+ * @param {string} url
+ * @param {string} mapId
+ * @param {string} token
+ * @param {(ee.data.Profiler|null)=} opt_profiler
+ * @extends {ee.layers.AbstractTileSource}
+ * @implements {goog.disposable.IDisposable}
+ * @constructor
+ */
+ee.layers.EarthEngineTileSource = function(url, mapId, token, opt_profiler) {
+};
+/**
+ * @param {!ee.layers.AbstractTileSource} tileSource
+ * @param {(Object|null)=} opt_options
+ * @extends {ee.layers.AbstractOverlay}
+ * @implements {goog.disposable.IDisposable}
+ * @implements {goog.events.Listenable}
+ * @implements {google.maps.MapType}
+ * @constructor
+ */
+ee.layers.ImageOverlay = function(tileSource, opt_options) {
+};
+/**
  * @return {undefined}
  */
 ee.reset = function() {

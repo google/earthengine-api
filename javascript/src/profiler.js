@@ -277,10 +277,9 @@ ee.data.Profiler.prototype.refresh_ = function() {
  * more than 360° of longitude.) Multiple identical tile IDs are not expected
  * and will be ignored.
  *
- * Interface for MapLayerOverlay. Not for general use.
+ * Interface for map layers. Not for general use.
  * @param {string} tileId
  * @param {string} profileId
- * @package
  */
 ee.data.Profiler.prototype.addTile = function(tileId, profileId) {
   if (this.tileProfileIds_[tileId]) {
@@ -296,9 +295,8 @@ ee.data.Profiler.prototype.addTile = function(tileId, profileId) {
 /**
  * Removes the profile for a map tile, identified by tileId.
  *
- * Interface for MapLayerOverlay. Not for general use.
+ * Interface for map layers. Not for general use.
  * @param {string} tileId
- * @package
  */
 ee.data.Profiler.prototype.removeTile = function(tileId) {
   var profileId = this.tileProfileIds_[tileId];

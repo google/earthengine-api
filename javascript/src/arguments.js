@@ -65,8 +65,8 @@ goog.require('goog.structs.Set');
  *   extract expected parameter names. When the client library is compiled
  *   with variable name obfuscation enabled, parameter names may not match the
  *   keys given in named argument dictionaries, and this function will not
- *   work UNLESS a goog.global.EXPORTED_FN_INFO map is provided. Within this
- *   map, the value of goog.global.EXPORTED_FN_INFO[fn.toString()] should be
+ *   work UNLESS a goog.global['EXPORTED_FN_INFO'] map is available. Within this
+ *   map, the value of goog.global['EXPORTED_FN_INFO'][fn.toString()] should be
  *   an object containing two unobfuscated keys:
  *
  *     - 'name': The original unobfuscated name of fn.
@@ -154,8 +154,8 @@ ee.arguments.extract = function(fn, originalArgs) {
  */
 ee.arguments.getParamNames_ = function(fn) {
   var paramNames = [];
-  if (goog.global.EXPORTED_FN_INFO) {
-    var exportedFnInfo = goog.global.EXPORTED_FN_INFO[fn.toString()];
+  if (goog.global['EXPORTED_FN_INFO']) {
+    var exportedFnInfo = goog.global['EXPORTED_FN_INFO'][fn.toString()];
     goog.asserts.assertObject(exportedFnInfo);
     paramNames = exportedFnInfo['paramNames'];
     goog.asserts.assertArray(paramNames);
@@ -178,8 +178,8 @@ ee.arguments.getParamNames_ = function(fn) {
  * @private
  */
 ee.arguments.getFnName_ = function(fn) {
-  if (goog.global.EXPORTED_FN_INFO) {
-    var entireName = goog.global.EXPORTED_FN_INFO[fn.toString()]['name'];
+  if (goog.global['EXPORTED_FN_INFO']) {
+    var entireName = goog.global['EXPORTED_FN_INFO'][fn.toString()]['name'];
     return entireName.split('.').pop() + '()';
   } else {
     return null;  // We cannot use reflection to determine the function name.
