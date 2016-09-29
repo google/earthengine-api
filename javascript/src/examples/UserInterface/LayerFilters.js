@@ -98,7 +98,7 @@ function addConstraint(name, image, defaultValue) {
   // Create a greater-than / less-than selector.
   var mode = ui.Select({
     items: [GREATER_THAN, LESS_THAN],
-    value: [GREATER_THAN],
+    value: GREATER_THAN,
     onChange: redraw,
   });
   subpanel.add(mode);
