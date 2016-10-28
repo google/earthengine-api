@@ -8,7 +8,6 @@
 
 from . import apifunction
 from . import computedobject
-from . import deprecation
 from . import ee_exception
 from . import element
 from . import geometry
@@ -107,54 +106,6 @@ class Feature(element.Element):
     # Create a collection containing this one feature and render it.
     collection = apifunction.ApiFunction.call_('Collection', [self])
     return collection.getMapId(vis_params)
-
-  @staticmethod
-  @deprecation.Deprecated('Use ee.Geometry.Point().')
-  def Point(*args, **kwargs):
-    """Construct a GeoJSON Point."""
-    return geometry.Geometry.Point(*args, **kwargs)
-
-  @staticmethod
-  @deprecation.Deprecated('Use ee.Geometry.MultiPoint().')
-  def MultiPoint(*args, **kwargs):
-    """Create a GeoJSON MultiPoint."""
-    return geometry.Geometry.MultiPoint(*args, **kwargs)
-
-  @staticmethod
-  @deprecation.Deprecated('Use ee.Geometry.Rectangle().')
-  def Rectangle(*args, **kwargs):
-    """Create a GeoJSON Rectangle."""
-    return geometry.Geometry.Rectangle(*args, **kwargs)
-
-  @staticmethod
-  @deprecation.Deprecated('Use ee.Geometry.LineString().')
-  def LineString(*args, **kwargs):
-    """Create a GeoJSON LineString."""
-    return geometry.Geometry.LineString(*args, **kwargs)
-
-  @staticmethod
-  @deprecation.Deprecated('Use ee.Geometry.LinearRing().')
-  def LinearRing(*args, **kwargs):
-    """Create a GeoJSON LinearRing."""
-    return geometry.Geometry.LinearRing(*args, **kwargs)
-
-  @staticmethod
-  @deprecation.Deprecated('Use ee.Geometry.MultiLineString().')
-  def MultiLineString(*args, **kwargs):
-    """Create a GeoJSON MultiLineString."""
-    return geometry.Geometry.MultiLineString(*args, **kwargs)
-
-  @staticmethod
-  @deprecation.Deprecated('Use ee.Geometry.Polygon().')
-  def Polygon(*args, **kwargs):
-    """Create a GeoJSON Polygon."""
-    return geometry.Geometry.Polygon(*args, **kwargs)
-
-  @staticmethod
-  @deprecation.Deprecated('Use ee.Geometry.MultiPolygon().')
-  def MultiPolygon(*args, **kwargs):
-    """Create a GeoJSON MultiPolygon."""
-    return geometry.Geometry.MultiPolygon(*args, **kwargs)
 
   @staticmethod
   def name():

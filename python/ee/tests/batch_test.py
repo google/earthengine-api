@@ -250,6 +250,16 @@ class BatchTestCase(apitestcase.ApiTestCase):
         },
         drive_task_with_old_keys.config)
 
+  def testExportImageFileDimensions(self):
+    """Verifies proper handling of the fileDimensions parameter."""
+    number_task = ee.batch.Export.image.toDrive(
+        image=ee.Image(1), fileDimensions=100)
+    self.assertEquals(100, number_task.config['fileDimensions'])
+
+    tuple_task = ee.batch.Export.image.toDrive(
+        image=ee.Image(1), fileDimensions=(100, 200))
+    self.assertEquals('100,200', tuple_task.config['fileDimensions'])
+
   def testExportMapToCloudStorage(self):
     """Verifies the task created by Export.map.toCloudStorage()."""
     config = dict(

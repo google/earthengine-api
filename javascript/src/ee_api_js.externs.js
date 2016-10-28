@@ -214,58 +214,6 @@ ee.Element.prototype.set = function(var_args) {
 ee.Feature = function(geometry, opt_properties) {
 };
 /**
- * @param {(Array<Array<number>>|number)} coordinates
- * @return {(ee.Geometry|null)}
- */
-ee.Feature.LineString = function(coordinates) {
-};
-/**
- * @param {(Array<Array<number>>|number)} coordinates
- * @return {(ee.Geometry|null)}
- */
-ee.Feature.LinearRing = function(coordinates) {
-};
-/**
- * @param {(Array<Array<Array<number>>>|number)} coordinates
- * @return {(ee.Geometry|null)}
- */
-ee.Feature.MultiLine = function(coordinates) {
-};
-/**
- * @param {(Array<Array<number>>|number)} coordinates
- * @return {(Object|null)}
- */
-ee.Feature.MultiPoint = function(coordinates) {
-};
-/**
- * @param {(Array<Array<Array<Array<number>>>>|number)} coordinates
- * @return {(ee.Geometry|null)}
- */
-ee.Feature.MultiPolygon = function(coordinates) {
-};
-/**
- * @param {(Array<number>|null|number)} lon
- * @param {number} lat
- * @return {(ee.Geometry|null)}
- */
-ee.Feature.Point = function(lon, lat) {
-};
-/**
- * @param {(Array<Array<Array<number>>>|number)} coordinates
- * @return {(ee.Geometry|null)}
- */
-ee.Feature.Polygon = function(coordinates) {
-};
-/**
- * @param {number} lon1
- * @param {number} lat1
- * @param {number} lon2
- * @param {number} lat2
- * @return {(Object|null)}
- */
-ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
-};
-/**
  * @param {function ({geometry: (ee.data.GeoJSONGeometry|null), id: (string|undefined), properties: (Object|null|undefined), type: string}, string=): ?=} opt_callback
  * @return {{geometry: (ee.data.GeoJSONGeometry|null), id: (string|undefined), properties: (Object|null|undefined), type: string}}
  */
@@ -338,25 +286,11 @@ ee.Filter.and = function(var_args) {
 ee.Filter.bounds = function(geometry, opt_errorMargin) {
 };
 /**
- * @param {string} name
- * @param {string} value
- * @return {(ee.Filter|null)}
- */
-ee.Filter.contains = function(name, value) {
-};
-/**
  * @param {(Date|null|number|string)} start
  * @param {(Date|null|number|string)=} opt_end
  * @return {(ee.Filter|null)}
  */
 ee.Filter.date = function(start, opt_end) {
-};
-/**
- * @param {string} name
- * @param {string} value
- * @return {(ee.Filter|null)}
- */
-ee.Filter.ends_with = function(name, value) {
 };
 /**
  * @param {string} name
@@ -418,144 +352,15 @@ ee.Filter.metadata = function(name, operator, value) {
 ee.Filter.neq = function(name, value) {
 };
 /**
- * @param {string} name
- * @param {string} value
- * @return {(ee.Filter|null)}
- */
-ee.Filter.not_contains = function(name, value) {
-};
-/**
- * @param {string} name
- * @param {string} value
- * @return {(ee.Filter|null)}
- */
-ee.Filter.not_ends_with = function(name, value) {
-};
-/**
- * @param {string} name
- * @param {string} value
- * @return {(ee.Filter|null)}
- */
-ee.Filter.not_starts_with = function(name, value) {
-};
-/**
  * @param {...(ee.Filter|null)} var_args
  * @return {(ee.Filter|null)}
  */
 ee.Filter.or = function(var_args) {
 };
 /**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.and = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.bounds = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.contains = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.date = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.ends_with = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.eq = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.gt = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.gte = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.inList = function(var_args) {
-};
-/**
- * @return {number}
- */
-ee.Filter.prototype.length = function() {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.lt = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.lte = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.neq = function(var_args) {
-};
-/**
  * @return {(ee.Filter|null)}
  */
 ee.Filter.prototype.not = function() {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.not_contains = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.not_ends_with = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.not_starts_with = function(var_args) {
-};
-/**
- * @param {...?} var_args
- * @return {(ee.Filter|null)}
- */
-ee.Filter.prototype.starts_with = function(var_args) {
-};
-/**
- * @param {string} name
- * @param {string} value
- * @return {(ee.Filter|null)}
- */
-ee.Filter.starts_with = function(name, value) {
 };
 /**
  * @param {string} url
@@ -1278,6 +1083,17 @@ ee.layers.AbstractOverlay.prototype.removeTileCallback = function(callbackId) {
  * @constructor
  */
 ee.layers.BinaryOverlay = function(tileSource, opt_options) {
+};
+/**
+ * @param {string} bucket
+ * @param {string} path
+ * @param {number} maxZoom
+ * @param {string=} opt_suffix
+ * @extends {ee.layers.AbstractTileSource}
+ * @implements {goog.disposable.IDisposable}
+ * @constructor
+ */
+ee.layers.CloudStorageTileSource = function(bucket, path, maxZoom, opt_suffix) {
 };
 /**
  * @param {string} url

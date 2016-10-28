@@ -13,40 +13,9 @@ Example usage:
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-# Our custom instance/static decorator is not recognized by lint.
-# pylint: disable=no-self-argument, no-method-argument, g-doc-args
-
-import functools
-
 from . import apifunction
 from . import computedobject
-from . import deprecation
 from . import ee_exception
-
-
-class _FilterAutoCreator(object):
-  """A decorator to make Filter methods both static and instance.
-
-  If the decorated method is called as an instance method, its result is passed
-  through _append().
-  """
-
-  def __init__(self, func):
-    self.func = func
-
-  def __get__(self, filter_instance, cls=None):
-    if filter_instance is None:
-      return self.func
-
-    deprecated_decorator = deprecation.Deprecated(
-        'Use the static version of this method.')
-    deprecated_func = deprecated_decorator(self.func)
-    @functools.wraps(deprecated_func)
-    def PassThroughAppend(*args, **kwargs):
-      return filter_instance._append(  # pylint: disable=protected-access
-          deprecated_func(*args, **kwargs))
-
-    return PassThroughAppend
 
 
 # A map from the deprecated old-style comparison operator names to API
@@ -161,8 +130,7 @@ class Filter(computedobject.ComputedObject):
     """
     return apifunction.ApiFunction.call_('Filter.not', self)
 
-  @_FilterAutoCreator
-  @deprecation.Deprecated('Use ee.Filter.eq(), ee.Filter.gte(), etc.')
+  @staticmethod
   def metadata_(name, operator, value):
     """Filter on metadata. This is deprecated.
 
@@ -175,6 +143,8 @@ class Filter(computedobject.ComputedObject):
 
     Returns:
       The new filter.
+
+    Deprecated.  Use ee.Filter.eq(), ee.Filter.gte(), etc.'
     """
     operator = operator.lower()
 
@@ -193,73 +163,37 @@ class Filter(computedobject.ComputedObject):
 
     return new_filter.Not() if negated else new_filter
 
-  @_FilterAutoCreator
+  @staticmethod
   def eq(name, value):
     """Filter to metadata equal to the given value."""
     return apifunction.ApiFunction.call_('Filter.equals', name, value)
 
-  @_FilterAutoCreator
+  @staticmethod
   def neq(name, value):
     """Filter to metadata not equal to the given value."""
     return Filter.eq(name, value).Not()
 
-  @_FilterAutoCreator
+  @staticmethod
   def lt(name, value):
     """Filter to metadata less than the given value."""
     return apifunction.ApiFunction.call_('Filter.lessThan', name, value)
 
-  @_FilterAutoCreator
+  @staticmethod
   def gte(name, value):
     """Filter on metadata greater than or equal to the given value."""
     return Filter.lt(name, value).Not()
 
-  @_FilterAutoCreator
+  @staticmethod
   def gt(name, value):
     """Filter on metadata greater than the given value."""
     return apifunction.ApiFunction.call_('Filter.greaterThan', name, value)
 
-  @_FilterAutoCreator
+  @staticmethod
   def lte(name, value):
     """Filter on metadata less than or equal to the given value."""
     return Filter.gt(name, value).Not()
 
-  @_FilterAutoCreator
-  @deprecation.Deprecated('Use ee.Filter.stringContains().')
-  def contains(name, value):
-    """Filter on metadata containing the given string."""
-    return apifunction.ApiFunction.call_('Filter.stringContains', name, value)
-
-  @_FilterAutoCreator
-  @deprecation.Deprecated('Use ee.Filter.stringStartsWith(...).Not().')
-  def not_contains(name, value):
-    """Filter on metadata not containing the given string."""
-    return Filter.contains(name, value).Not()
-
-  @_FilterAutoCreator
-  @deprecation.Deprecated('Use ee.Filter.stringStartsWith().')
-  def starts_with(name, value):
-    """Filter on metadata begining with the given string."""
-    return apifunction.ApiFunction.call_('Filter.stringStartsWith', name, value)
-
-  @_FilterAutoCreator
-  @deprecation.Deprecated('Use ee.Filter.stringStartsWith().Not().')
-  def not_starts_with(name, value):
-    """Filter on metadata not begining with the given string."""
-    return Filter.starts_with(name, value).Not()
-
-  @_FilterAutoCreator
-  @deprecation.Deprecated('Use ee.Filter.stringEndsWith().')
-  def ends_with(name, value):
-    """Filter on metadata ending with the given string."""
-    return apifunction.ApiFunction.call_('Filter.stringEndsWith', name, value)
-
-  @_FilterAutoCreator
-  @deprecation.Deprecated('Use ee.Filter.stringEndsWith().Not().')
-  def not_ends_with(name, value):
-    """Filter on metadata not ending with the given string."""
-    return Filter.ends_with(name, value).Not()
-
-  @_FilterAutoCreator
+  @staticmethod
   def And(*args):
     """Combine two or more filters using boolean AND."""
     if len(args) == 1 and isinstance(args[0], (list, tuple)):
@@ -273,7 +207,7 @@ class Filter(computedobject.ComputedObject):
       args = args[0]
     return apifunction.ApiFunction.call_('Filter.or', args)
 
-  @_FilterAutoCreator
+  @staticmethod
   def date(start, opt_end=None):
     """Filter images by date.
 
@@ -294,7 +228,7 @@ class Filter(computedobject.ComputedObject):
         'rightField': 'system:time_start'
     })
 
-  @_FilterAutoCreator
+  @staticmethod
   def inList(opt_leftField=None,
              opt_rightValue=None,
              opt_rightField=None,
@@ -324,7 +258,7 @@ class Filter(computedobject.ComputedObject):
         'leftValue': opt_rightValue
     })
 
-  @_FilterAutoCreator
+  @staticmethod
   def geometry(geometry, opt_errorMargin=None):
     """Filter on bounds.
 

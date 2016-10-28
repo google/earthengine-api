@@ -52,6 +52,8 @@ ee.layers.ImageOverlay.prototype.createTile = function(
  */
 ee.layers.ImageTile = function(coord, zoom, ownerDocument, uniqueId) {
   goog.base(this, coord, zoom, ownerDocument, uniqueId);
+  this.renderer = ee.layers.ImageTile.defaultRenderer_;
+  this.imageEl = null;
   this.imageLoader_ = null;
   this.imageLoaderListenerKey_ = null;
 };
@@ -78,7 +80,7 @@ ee.layers.ImageTile.prototype.finishLoad = function() {
       ee.layers.ImageTile.IMAGE_LOADER_EVENTS_,
       function(event) {
         if (event.type == goog.events.EventType.LOAD) {
-          this.div.appendChild(event.target);
+          this.imageEl = event.target;
           // Note: We cannot use goog.base() here because this happens inside
           // a callback rather than directly in the overridden method.
           ee.layers.AbstractTile.prototype.finishLoad.call(this);
@@ -108,3 +110,12 @@ ee.layers.ImageTile.IMAGE_LOADER_EVENTS_ = [
   goog.net.EventType.ABORT,
   goog.net.EventType.ERROR
 ];
+
+
+/**
+ * The default image tile renderer.
+ * @private {function(!ee.layers.AbstractTile):undefined}
+ */
+ee.layers.ImageTile.defaultRenderer_ = function(tile) {
+  tile.div.appendChild(tile.imageEl);
+};

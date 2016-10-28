@@ -9,11 +9,11 @@ ee.mapclient.centerMap(-107, 41, 6)
 
 fc = ee.FeatureCollection([
     ee.Feature(
-        ee.Feature.Polygon(
+        ee.Geometry.Polygon(
             [[-109.05, 41], [-109.05, 37], [-102.05, 37], [-102.05, 41]]),
         {'name': 'Colorado', 'fill': 1}),
     ee.Feature(
-        ee.Feature.Polygon(
+        ee.Geometry.Polygon(
             [[-114.05, 37.0], [-109.05, 37.0], [-109.05, 41.0],
              [-111.05, 41.0], [-111.05, 42.0], [-114.05, 42.0]]),
         {'name': 'Utah', 'fill': 2})

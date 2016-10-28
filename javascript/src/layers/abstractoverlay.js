@@ -263,7 +263,6 @@ ee.layers.AbstractOverlay.prototype.disposeInternal = function() {
   this.tilesById = null;
   goog.dispose(this.handler);
   this.handler = null;
-  // TODO(user): Dispose the tile source?
   this.tileSource = null;
 };
 
@@ -371,6 +370,12 @@ ee.layers.AbstractTile = function(coord, zoom, ownerDocument, uniqueId) {
   /** @package {Object} The response headers from the source data request. */
   this.sourceResponseHeaders;
 
+  /**
+   * A function that renders the tile into its DIV using the source data.
+   * @package {?function(!ee.layers.AbstractTile):undefined}
+   */
+  this.renderer = function() {};  // No-op by default.
+
   /** @private {goog.net.XhrIo} The request for the tile's source data. */
   this.xhrIo_;
 
@@ -440,12 +445,14 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
       this.sourceResponseHeaders = this.xhrIo_.getResponseHeaders();
       this.sourceData = blob;
       this.finishLoad();
-    } else {
+    } else if (blob) {
       var reader = new goog.fs.FileReader();
       reader.listen(goog.fs.FileReader.EventType.LOAD_END, function() {
         this.retryLoad(/** @type {string} */ (reader.getResult()));
       }, undefined, this);
       reader.readAsText(blob);
+    } else {
+      this.retryLoad('Failed to load tile.');
     }
   }, false, this);
   this.xhrIo_.listenOnce(
@@ -460,6 +467,7 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
  * @protected
  */
 ee.layers.AbstractTile.prototype.finishLoad = function() {
+  this.renderer(this);
   this.setStatus(ee.layers.AbstractTile.Status.LOADED);
 };
 
@@ -478,21 +486,19 @@ ee.layers.AbstractTile.prototype.cancelLoad = function() {
  * reached, then the status is set to failed and the retry is not attempted.
  * @param {string=} opt_errorMessage The message of the error that triggered
  *     the retry, if any.
- * @return {boolean} Whether the retry was attempted.
  * @package
  */
 ee.layers.AbstractTile.prototype.retryLoad = function(opt_errorMessage) {
   if (this.retryAttemptCount_ >= this.maxRetries) {
     this.errorMessage_ = opt_errorMessage;
     this.setStatus(ee.layers.AbstractTile.Status.FAILED);
-    return false;
+    return;
   }
   this.retryAttemptCount_++;
   this.isRetrying_ = true;
   this.cancelLoad();
   this.startLoad();
   this.isRetrying_ = false;
-  return true;
 };
 
 
@@ -508,7 +514,7 @@ ee.layers.AbstractTile.prototype.abort = function() {
 
 /** @return {boolean} Whether the tile is done: failed, aborted, or loaded. */
 ee.layers.AbstractTile.prototype.isDone = function() {
-  return this.status_ in ee.layers.AbstractTile.DONE_STATUSES_;
+  return this.status_ in ee.layers.AbstractTile.DONE_STATUS_SET_;
 };
 
 
@@ -521,17 +527,16 @@ ee.layers.AbstractTile.prototype.getStatus = function() {
 /**
  * Sets the tile's status.
  * @param {ee.layers.AbstractTile.Status} status The new status.
- * @protected
+ * @package
  */
 ee.layers.AbstractTile.prototype.setStatus = function(status) {
-  var Status = ee.layers.AbstractTile.Status;
   this.status_ = status;
   this.dispatchEvent(ee.layers.AbstractTile.EventType.STATUS_CHANGED);
 };
 
 
 /** @private @const {!Object<ee.layers.AbstractTile.Status>} */
-ee.layers.AbstractTile.DONE_STATUSES_ = goog.object.createSet(
+ee.layers.AbstractTile.DONE_STATUS_SET_ = goog.object.createSet(
     ee.layers.AbstractTile.Status.ABORTED,
     ee.layers.AbstractTile.Status.FAILED,
     ee.layers.AbstractTile.Status.LOADED);
@@ -542,6 +547,7 @@ ee.layers.AbstractTile.prototype.disposeInternal = function() {
   goog.base(this, 'disposeInternal');
   this.cancelLoad();
   this.div.remove();
+  this.renderer = null;
 };
 
 

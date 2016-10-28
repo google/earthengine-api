@@ -13,7 +13,7 @@ ee.Initialize()
 ee.mapclient.centerMap(-110, 40, 5)
 
 # Filter to only include images within the colorado and utah boundaries.
-polygon = ee.Feature.Polygon([[
+polygon = ee.Geometry.Polygon([[
     [-109.05, 37.0], [-102.05, 37.0], [-102.05, 41.0],   # colorado
     [-109.05, 41.0], [-111.05, 41.0], [-111.05, 42.0],   # utah
     [-114.05, 42.0], [-114.05, 37.0], [-109.05, 37.0]]])

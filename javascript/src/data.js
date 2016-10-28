@@ -1499,6 +1499,8 @@ ee.data.AbstractTaskConfig;
  *   scale: (undefined|number),
  *   region: (undefined|string),
  *   maxPixels: (undefined|number),
+ *   shardSize: (undefined|number),
+ *   fileDimensions: (undefined|string|number|Array<number>),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),
@@ -1525,6 +1527,7 @@ ee.data.ImageTaskConfig;
  *   region: (undefined|string),
  *   scale: (undefined|number),
  *   fileFormat: (undefined|string),
+ *   skipEmptyTiles: (undefined|boolean),
  *   writePublicTiles: (undefined|boolean),
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string)

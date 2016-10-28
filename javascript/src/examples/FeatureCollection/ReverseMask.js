@@ -3,7 +3,7 @@
 // Create an image that masks off the interior of the specified polygon.
 
 var fc = ee.FeatureCollection('ft:1Ec8IWsP8asxN-ywSqgXWMuBaxI6pPaeh6hC64lA')
-    .filter(ee.Filter().eq('ECO_NAME', 'Great Basin shrub steppe'));
+    .filter(ee.Filter.eq('ECO_NAME', 'Great Basin shrub steppe'));
 
 // Fill and outline the polygons in two colors
 var region = ee.Image(0).byte()

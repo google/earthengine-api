@@ -216,34 +216,6 @@ goog.DEPENDENCIES_ENABLED && (goog.dependencies_ = {loadFlags:{}, nameToPath:{},
     return goog.requiresTranspilation_[lang];
   }
   throw Error("Unknown language mode: " + lang);
-}, goog.createRequiresTranspilation_ = function() {
-  function addNewerLanguageTranspilationCheck(modeName, isSupported) {
-    transpilationRequiredForAllLaterModes ? requiresTranspilation[modeName] = !0 : isSupported() ? requiresTranspilation[modeName] = !1 : transpilationRequiredForAllLaterModes = requiresTranspilation[modeName] = !0;
-  }
-  function evalCheck(code) {
-    try {
-      return !!eval(code);
-    } catch (ignored) {
-      return !1;
-    }
-  }
-  var requiresTranspilation = {es3:!1}, transpilationRequiredForAllLaterModes = !1;
-  addNewerLanguageTranspilationCheck("es5", function() {
-    return evalCheck("[1,].length==1");
-  });
-  addNewerLanguageTranspilationCheck("es6", function() {
-    return evalCheck('(()=>{"use strict";class X{constructor(){if(new.target!=String)throw 1;this.x=42}}let q=Reflect.construct(X,[],String);if(q.x!=42||!(q instanceof String))throw 1;for(const a of[2,3]){if(a==2)continue;function f(z={a}){let a=0;return z.a}{function f(){return 0;}}return f()==3}})()');
-  });
-  addNewerLanguageTranspilationCheck("es6-impl", function() {
-    return !0;
-  });
-  addNewerLanguageTranspilationCheck("es7", function() {
-    return evalCheck("2 ** 2 == 4");
-  });
-  addNewerLanguageTranspilationCheck("es8", function() {
-    return evalCheck("async () => 1, true");
-  });
-  return requiresTranspilation;
 }, goog.requiresTranspilation_ = null, goog.lastNonModuleScriptIndex_ = 0, goog.onScriptLoad_ = function(script, scriptIndex) {
   "complete" == script.readyState && goog.lastNonModuleScriptIndex_ == scriptIndex && goog.loadQueuedModules_();
   return !0;
@@ -649,6 +621,35 @@ goog.defineClass.applyProperties_ = function(target, source) {
 goog.tagUnsealableClass = function(ctr) {
 };
 goog.UNSEALABLE_CONSTRUCTOR_PROPERTY_ = "goog_defineClass_legacy_unsealable";
+goog.createRequiresTranspilation_ = function() {
+  function addNewerLanguageTranspilationCheck(modeName, isSupported) {
+    transpilationRequiredForAllLaterModes ? requiresTranspilation[modeName] = !0 : isSupported() ? requiresTranspilation[modeName] = !1 : transpilationRequiredForAllLaterModes = requiresTranspilation[modeName] = !0;
+  }
+  function evalCheck(code) {
+    try {
+      return !!eval(code);
+    } catch (ignored) {
+      return !1;
+    }
+  }
+  var requiresTranspilation = {es3:!1}, transpilationRequiredForAllLaterModes = !1;
+  addNewerLanguageTranspilationCheck("es5", function() {
+    return evalCheck("[1,].length==1");
+  });
+  addNewerLanguageTranspilationCheck("es6", function() {
+    return evalCheck('(()=>{"use strict";class X{constructor(){if(new.target!=String)throw 1;this.x=42}}let q=Reflect.construct(X,[],String);if(q.x!=42||!(q instanceof String))throw 1;for(const a of[2,3]){if(a==2)continue;function f(z={a}){let a=0;return z.a}{function f(){return 0;}}return f()==3}})()');
+  });
+  addNewerLanguageTranspilationCheck("es6-impl", function() {
+    return !0;
+  });
+  addNewerLanguageTranspilationCheck("es7", function() {
+    return evalCheck("2 ** 2 == 4");
+  });
+  addNewerLanguageTranspilationCheck("es8", function() {
+    return evalCheck("async () => 1, true");
+  });
+  return requiresTranspilation;
+};
 goog.debug = {};
 goog.debug.Error = function(opt_msg) {
   if (Error.captureStackTrace) {
@@ -956,6 +957,10 @@ goog.string.remove = function(str, substr) {
 goog.string.removeAll = function(s, ss) {
   var re = new RegExp(goog.string.regExpEscape(ss), "g");
   return s.replace(re, "");
+};
+goog.string.replaceAll = function(s, ss, replacement) {
+  var re = new RegExp(goog.string.regExpEscape(ss), "g");
+  return s.replace(re, replacement.replace(/\$/g, "$$$$"));
 };
 goog.string.regExpEscape = function(s) {
   return String(s).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, "\\$1").replace(/\x08/g, "\\x08");
@@ -1976,7 +1981,7 @@ goog.labs.userAgent.util.matchUserAgentIgnoreCase = function(str) {
   return goog.string.caseInsensitiveContains(goog.labs.userAgent.util.getUserAgent(), str);
 };
 goog.labs.userAgent.util.extractVersionTuples = function(userAgent) {
-  for (var versionRegExp = RegExp("(\\w[\\w ]+)/([^\\s]+)\\s*(?:\\((.*?)\\))?", "g"), data = [], match;match = versionRegExp.exec(userAgent);) {
+  for (var versionRegExp = /(\w[\w ]+)\/([^\s]+)\s*(?:\((.*?)\))?/g, data = [], match;match = versionRegExp.exec(userAgent);) {
     data.push([match[1], match[2], match[3] || void 0]);
   }
   return data;
@@ -2232,6 +2237,7 @@ goog.userAgent.ANDROID = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_
 goog.userAgent.IPHONE = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPHONE : goog.labs.userAgent.platform.isIphone();
 goog.userAgent.IPAD = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPAD : goog.labs.userAgent.platform.isIpad();
 goog.userAgent.IPOD = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPOD : goog.labs.userAgent.platform.isIpod();
+goog.userAgent.IOS = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPHONE || goog.userAgent.ASSUME_IPAD || goog.userAgent.ASSUME_IPOD : goog.labs.userAgent.platform.isIos();
 goog.userAgent.determineVersion_ = function() {
   var version = "", arr = goog.userAgent.getVersionRegexResult_();
   arr && (version = arr ? arr[1] : "");
@@ -4387,6 +4393,7 @@ goog.string.Const.create__googStringSecurityPrivate_ = function(s) {
   stringConst.stringConstValueWithSecurityContract__googStringSecurityPrivate_ = s;
   return stringConst;
 };
+goog.string.Const.EMPTY = goog.string.Const.from("");
 goog.html = {};
 goog.html.SafeStyle = function() {
   this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = "";
@@ -4600,6 +4607,24 @@ goog.html.TrustedResourceUrl.unwrap = function(trustedResourceUrl) {
   goog.asserts.fail("expected object of type TrustedResourceUrl, got '" + trustedResourceUrl + "' of type " + goog.typeOf(trustedResourceUrl));
   return "type_error:TrustedResourceUrl";
 };
+goog.html.TrustedResourceUrl.format = function(format, args) {
+  var formatStr = goog.string.Const.unwrap(format);
+  if (!goog.html.TrustedResourceUrl.BASE_URL_.test(formatStr)) {
+    throw Error("Invalid TrustedResourceUrl format: " + formatStr);
+  }
+  var result = formatStr.replace(goog.html.TrustedResourceUrl.FORMAT_MARKER_, function(match, id) {
+    if (!Object.prototype.hasOwnProperty.call(args, id)) {
+      throw Error('Found marker, "' + id + '", in format string, "' + formatStr + '", but no valid label mapping found in args: ' + JSON.stringify(args));
+    }
+    var arg = args[id];
+    return arg instanceof goog.string.Const ? goog.string.Const.unwrap(arg) : encodeURIComponent(String(arg));
+  });
+  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(result);
+};
+goog.html.TrustedResourceUrl.FORMAT_MARKER_ = /%{(\w+)}/g;
+goog.html.TrustedResourceUrl.SCHEME_AND_ORIGIN_ = "(?:(?:https:)?//[0-9a-z.:[\\]-]+)?";
+goog.html.TrustedResourceUrl.BASE_ABSOLUTE_PATH_ = "(?:/[0-9a-z_~-]+(?:[/#?]|$))";
+goog.html.TrustedResourceUrl.BASE_URL_ = new RegExp("^" + goog.html.TrustedResourceUrl.SCHEME_AND_ORIGIN_ + goog.html.TrustedResourceUrl.BASE_ABSOLUTE_PATH_, "i");
 goog.html.TrustedResourceUrl.fromConstant = function(url) {
   return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
 };
@@ -5067,9 +5092,9 @@ goog.iter.forEach = function(iterable, f, opt_obj) {
       for (;;) {
         f.call(opt_obj, iterable.next(), void 0, iterable);
       }
-    } catch (ex) {
-      if (ex !== goog.iter.StopIteration) {
-        throw ex;
+    } catch (ex$0) {
+      if (ex$0 !== goog.iter.StopIteration) {
+        throw ex$0;
       }
     }
   }
@@ -5917,7 +5942,7 @@ goog.debug.normalizeErrorObject = function(err) {
   }
   try {
     fileName = err.fileName || err.filename || err.sourceURL || goog.global.$googDebugFname || href;
-  } catch (e) {
+  } catch (e$1) {
     fileName = "Not available", threwError = !0;
   }
   return !threwError && err.lineNumber && err.fileName && err.stack && err.message && err.name ? err : {message:err.message || "Not available", name:err.name || "UnknownError", lineNumber:lineNumber, fileName:fileName, stack:err.stack || "Not available"};
@@ -5963,10 +5988,7 @@ goog.debug.MAX_STACK_DEPTH = 50;
 goog.debug.getNativeStackTrace_ = function(fn) {
   var tempErr = Error();
   if (Error.captureStackTrace) {
-    try {
-      return Error.captureStackTrace(tempErr, fn), String(tempErr.stack);
-    } catch (e) {
-    }
+    return Error.captureStackTrace(tempErr, fn), String(tempErr.stack);
   }
   try {
     throw tempErr;
@@ -6508,6 +6530,10 @@ goog.uri.utils.getHost = function(uri) {
   var pieces = goog.uri.utils.split(uri);
   return goog.uri.utils.buildFromEncodedParts(pieces[goog.uri.utils.ComponentIndex.SCHEME], pieces[goog.uri.utils.ComponentIndex.USER_INFO], pieces[goog.uri.utils.ComponentIndex.DOMAIN], pieces[goog.uri.utils.ComponentIndex.PORT]);
 };
+goog.uri.utils.getOrigin = function(uri) {
+  var pieces = goog.uri.utils.split(uri);
+  return goog.uri.utils.buildFromEncodedParts(pieces[goog.uri.utils.ComponentIndex.SCHEME], null, pieces[goog.uri.utils.ComponentIndex.DOMAIN], pieces[goog.uri.utils.ComponentIndex.PORT]);
+};
 goog.uri.utils.getPathAndAfter = function(uri) {
   var pieces = goog.uri.utils.split(uri);
   return goog.uri.utils.buildFromEncodedParts(null, null, null, null, pieces[goog.uri.utils.ComponentIndex.PATH], pieces[goog.uri.utils.ComponentIndex.QUERY_DATA], pieces[goog.uri.utils.ComponentIndex.FRAGMENT]);
@@ -6885,8 +6911,8 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   try {
     this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (this.useXhr2Timeout_ = goog.net.XhrIo.shouldUseXhr2Timeout_(this.xhr_), goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete, xhr2 " + this.useXhr2Timeout_)), this.useXhr2Timeout_ ? (this.xhr_[goog.net.XhrIo.XHR2_TIMEOUT_] = this.timeoutInterval_, this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = goog.bind(this.timeout_, this)) : this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, 
     this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
-  } catch (err) {
-    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err);
+  } catch (err$2) {
+    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$2.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$2);
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
@@ -7066,7 +7092,10 @@ goog.net.XhrIo.prototype.getResponse = function() {
   }
 };
 goog.net.XhrIo.prototype.getResponseHeader = function(key) {
-  return this.xhr_ && this.isComplete() ? this.xhr_.getResponseHeader(key) : void 0;
+  if (this.xhr_ && this.isComplete()) {
+    var value = this.xhr_.getResponseHeader(key);
+    return goog.isNull(value) ? void 0 : value;
+  }
 };
 goog.net.XhrIo.prototype.getAllResponseHeaders = function() {
   return this.xhr_ && this.isComplete() ? this.xhr_.getAllResponseHeaders() : "";
@@ -7860,8 +7889,11 @@ goog.dom.isFocusable = function(element) {
   return (focusable = goog.dom.nativelySupportsFocus_(element) ? !element.disabled && (!goog.dom.hasSpecifiedTabIndex_(element) || goog.dom.isTabIndexFocusable_(element)) : goog.dom.isFocusableTabIndex(element)) && goog.userAgent.IE ? goog.dom.hasNonZeroBoundingRect_(element) : focusable;
 };
 goog.dom.hasSpecifiedTabIndex_ = function(element) {
-  var attrNode = element.getAttributeNode("tabindex");
-  return goog.isDefAndNotNull(attrNode) && attrNode.specified;
+  if (goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9")) {
+    var attrNode = element.getAttributeNode("tabindex");
+    return goog.isDefAndNotNull(attrNode) && attrNode.specified;
+  }
+  return element.hasAttribute("tabindex");
 };
 goog.dom.isTabIndexFocusable_ = function(element) {
   var index = element.tabIndex;
@@ -7965,7 +7997,7 @@ goog.dom.getAncestorByClass = function(element, className, opt_maxSearchSteps) {
   return goog.dom.getAncestorByTagNameAndClass(element, null, className, opt_maxSearchSteps);
 };
 goog.dom.getAncestor = function(element, matcher, opt_includeNode, opt_maxSearchSteps) {
-  opt_includeNode || (element = element.parentNode);
+  element && !opt_includeNode && (element = element.parentNode);
   for (var steps = 0;element && (null == opt_maxSearchSteps || steps <= opt_maxSearchSteps);) {
     goog.asserts.assert("parentNode" != element.name);
     if (matcher(element)) {
@@ -8844,7 +8876,7 @@ goog.style.getIePixelValue_ = function(element, value, name, pixelName) {
   var pixelValue = element.style[pixelName];
   element.style[name] = oldStyleValue;
   element.runtimeStyle[name] = oldRuntimeValue;
-  return pixelValue;
+  return +pixelValue;
 };
 goog.style.getIePixelDistance_ = function(element, propName) {
   var value = goog.style.getCascadedStyle(element, propName);
@@ -9076,6 +9108,8 @@ ee.layers.AbstractTile = function(coord, zoom, ownerDocument, uniqueId) {
   this.div = ownerDocument.createElement("div");
   this.div.id = uniqueId;
   this.maxRetries = ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_;
+  this.renderer = function() {
+  };
   this.status_ = ee.layers.AbstractTile.Status.NEW;
   this.retryAttemptCount_ = 0;
   this.isRetrying_ = !1;
@@ -9095,53 +9129,50 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
     if (200 <= this.xhrIo_.getStatus() && 300 > this.xhrIo_.getStatus()) {
       this.sourceResponseHeaders = this.xhrIo_.getResponseHeaders(), this.sourceData = blob, this.finishLoad();
     } else {
-      var reader = new goog.fs.FileReader;
-      reader.listen(goog.fs.FileReader.EventType.LOAD_END, function() {
-        this.retryLoad(reader.getResult());
-      }, void 0, this);
-      reader.readAsText(blob);
+      if (blob) {
+        var reader = new goog.fs.FileReader;
+        reader.listen(goog.fs.FileReader.EventType.LOAD_END, function() {
+          this.retryLoad(reader.getResult());
+        }, void 0, this);
+        reader.readAsText(blob);
+      } else {
+        this.retryLoad("Failed to load tile.");
+      }
     }
   }, !1, this);
   this.xhrIo_.listenOnce(goog.net.EventType.READY, goog.partial(goog.dispose, this.xhrIo_));
   this.xhrIo_.send(this.sourceUrl, "GET");
 };
 ee.layers.AbstractTile.prototype.finishLoad = function() {
+  this.renderer(this);
   this.setStatus(ee.layers.AbstractTile.Status.LOADED);
 };
 ee.layers.AbstractTile.prototype.cancelLoad = function() {
   goog.dispose(this.xhrIo_);
 };
 ee.layers.AbstractTile.prototype.retryLoad = function(opt_errorMessage) {
-  if (this.retryAttemptCount_ >= this.maxRetries) {
-    return this.errorMessage_ = opt_errorMessage, this.setStatus(ee.layers.AbstractTile.Status.FAILED), !1;
-  }
-  this.retryAttemptCount_++;
-  this.isRetrying_ = !0;
-  this.cancelLoad();
-  this.startLoad();
-  this.isRetrying_ = !1;
-  return !0;
+  this.retryAttemptCount_ >= this.maxRetries ? (this.errorMessage_ = opt_errorMessage, this.setStatus(ee.layers.AbstractTile.Status.FAILED)) : (this.retryAttemptCount_++, this.isRetrying_ = !0, this.cancelLoad(), this.startLoad(), this.isRetrying_ = !1);
 };
 ee.layers.AbstractTile.prototype.abort = function() {
   this.cancelLoad();
   this.setStatus(ee.layers.AbstractTile.Status.ABORTED);
 };
 ee.layers.AbstractTile.prototype.isDone = function() {
-  return this.status_ in ee.layers.AbstractTile.DONE_STATUSES_;
+  return this.status_ in ee.layers.AbstractTile.DONE_STATUS_SET_;
 };
 ee.layers.AbstractTile.prototype.getStatus = function() {
   return this.status_;
 };
 ee.layers.AbstractTile.prototype.setStatus = function(status) {
-  var Status = ee.layers.AbstractTile.Status;
   this.status_ = status;
   this.dispatchEvent(ee.layers.AbstractTile.EventType.STATUS_CHANGED);
 };
-ee.layers.AbstractTile.DONE_STATUSES_ = goog.object.createSet(ee.layers.AbstractTile.Status.ABORTED, ee.layers.AbstractTile.Status.FAILED, ee.layers.AbstractTile.Status.LOADED);
+ee.layers.AbstractTile.DONE_STATUS_SET_ = goog.object.createSet(ee.layers.AbstractTile.Status.ABORTED, ee.layers.AbstractTile.Status.FAILED, ee.layers.AbstractTile.Status.LOADED);
 ee.layers.AbstractTile.prototype.disposeInternal = function() {
   ee.layers.AbstractTile.superClass_.disposeInternal.call(this);
   this.cancelLoad();
   this.div.remove();
+  this.renderer = null;
 };
 ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_ = 1;
 ee.layers.AbstractTileSource = function() {
@@ -9185,6 +9216,89 @@ ee.layers.BinaryTile.prototype.finishLoad = function() {
   }, void 0, this);
   reader.readAsArrayBuffer(this.sourceData);
 };
+goog.string.path = {};
+goog.string.path.baseName = function(path) {
+  var i = path.lastIndexOf("/") + 1;
+  return path.slice(i);
+};
+goog.string.path.basename = goog.string.path.baseName;
+goog.string.path.dirname = function(path) {
+  var i = path.lastIndexOf("/") + 1, head = path.slice(0, i);
+  /^\/+$/.test(head) || (head = head.replace(/\/+$/, ""));
+  return head;
+};
+goog.string.path.extension = function(path) {
+  var baseName = goog.string.path.baseName(path).replace(/\.+/g, "."), separatorIndex = baseName.lastIndexOf(".");
+  return 0 >= separatorIndex ? "" : baseName.substr(separatorIndex + 1);
+};
+goog.string.path.join = function(var_args) {
+  for (var path = arguments[0], i = 1;i < arguments.length;i++) {
+    var arg = arguments[i], path = goog.string.startsWith(arg, "/") ? arg : "" == path || goog.string.endsWith(path, "/") ? path + arg : path + ("/" + arg);
+  }
+  return path;
+};
+goog.string.path.normalizePath = function(path) {
+  if ("" == path) {
+    return ".";
+  }
+  var initialSlashes = "";
+  goog.string.startsWith(path, "/") && (initialSlashes = "/", goog.string.startsWith(path, "//") && !goog.string.startsWith(path, "///") && (initialSlashes = "//"));
+  for (var parts = path.split("/"), newParts = [], i = 0;i < parts.length;i++) {
+    var part = parts[i];
+    "" != part && "." != part && (".." != part || !initialSlashes && !newParts.length || ".." == goog.array.peek(newParts) ? newParts.push(part) : newParts.pop());
+  }
+  return initialSlashes + newParts.join("/") || ".";
+};
+goog.string.path.split = function(path) {
+  var head = goog.string.path.dirname(path), tail = goog.string.path.baseName(path);
+  return [head, tail];
+};
+ee.layers.CloudStorageTileSource = function(bucket, path, maxZoom, opt_suffix) {
+  ee.layers.AbstractTileSource.call(this);
+  this.bucket_ = bucket;
+  this.path_ = path;
+  this.suffix_ = opt_suffix || "";
+  this.maxZoom_ = maxZoom;
+};
+goog.inherits(ee.layers.CloudStorageTileSource, ee.layers.AbstractTileSource);
+ee.layers.CloudStorageTileSource.prototype.loadTile = function(tile, opt_priority) {
+  if (tile.zoom <= this.maxZoom_) {
+    tile.sourceUrl = this.getTileUrl_(tile.coord, tile.zoom);
+  } else {
+    var zoomSteps = tile.zoom - this.maxZoom_, zoomFactor = Math.pow(2, zoomSteps), upperCoord = new google.maps.Point(Math.floor(tile.coord.x / zoomFactor), Math.floor(tile.coord.y / zoomFactor));
+    tile.sourceUrl = this.getTileUrl_(upperCoord, tile.zoom - zoomSteps);
+    tile.renderer = goog.partial(ee.layers.CloudStorageTileSource.zoomTileRenderer_, this.maxZoom_);
+  }
+  var originalRetryLoad = goog.bind(tile.retryLoad, tile);
+  tile.retryLoad = goog.bind(function(opt_errorMessage) {
+    opt_errorMessage && goog.string.contains(opt_errorMessage, ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_) ? tile.setStatus(ee.layers.AbstractTile.Status.LOADED) : originalRetryLoad(opt_errorMessage);
+  }, tile);
+  tile.startLoad();
+};
+ee.layers.CloudStorageTileSource.prototype.getUniqueId = function() {
+  return [this.bucket_, this.path_, this.maxZoom_, this.suffix_].join("-");
+};
+ee.layers.CloudStorageTileSource.prototype.getTileUrl_ = function(coord, zoom) {
+  var url = goog.string.path.join(ee.layers.CloudStorageTileSource.BASE_URL_, this.bucket_, this.path_, String(zoom), String(coord.x), String(coord.y));
+  this.suffix_ && (url += this.suffix_);
+  return url;
+};
+ee.layers.CloudStorageTileSource.zoomTileRenderer_ = function(maxZoom, tile) {
+  if (!tile.imageEl) {
+    throw Error("Tile must have an image element to be rendered.");
+  }
+  var zoomFactor = Math.pow(2, tile.zoom - maxZoom), sideLength = tile.tileSize.width, canv = tile.div.ownerDocument.createElement("canvas");
+  canv.setAttribute("width", sideLength);
+  canv.setAttribute("height", sideLength);
+  tile.div.appendChild(canv);
+  var context = canv.getContext("2d");
+  context.imageSmoothingEnabled = !1;
+  context.mozImageSmoothingEnabled = !1;
+  context.webkitImageSmoothingEnabled = !1;
+  context.drawImage(tile.imageEl, sideLength / zoomFactor * (tile.coord.x % zoomFactor), sideLength / zoomFactor * (tile.coord.y % zoomFactor), sideLength / zoomFactor, sideLength / zoomFactor, 0, 0, sideLength, sideLength);
+};
+ee.layers.CloudStorageTileSource.BASE_URL_ = "https://storage.googleapis.com";
+ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_ = "The specified key does not exist.";
 goog.async.Throttle = function(listener, interval, opt_handler) {
   goog.Disposable.call(this);
   this.listener_ = null != opt_handler ? goog.bind(listener, opt_handler) : listener;
@@ -10640,7 +10754,8 @@ ee.layers.ImageOverlay.prototype.createTile = function(coord, zoom, ownerDocumen
 };
 ee.layers.ImageTile = function(coord, zoom, ownerDocument, uniqueId) {
   ee.layers.AbstractTile.call(this, coord, zoom, ownerDocument, uniqueId);
-  this.imageLoaderListenerKey_ = this.imageLoader_ = null;
+  this.renderer = ee.layers.ImageTile.defaultRenderer_;
+  this.imageLoaderListenerKey_ = this.imageLoader_ = this.imageEl = null;
 };
 goog.inherits(ee.layers.ImageTile, ee.layers.AbstractTile);
 ee.layers.ImageTile.prototype.finishLoad = function() {
@@ -10653,7 +10768,7 @@ ee.layers.ImageTile.prototype.finishLoad = function() {
   this.imageLoader_ = new goog.net.ImageLoader;
   this.imageLoader_.addImage(this.div.id + "-image", imageUrl);
   this.imageLoaderListenerKey_ = goog.events.listenOnce(this.imageLoader_, ee.layers.ImageTile.IMAGE_LOADER_EVENTS_, function(event) {
-    event.type == goog.events.EventType.LOAD ? (this.div.appendChild(event.target), ee.layers.AbstractTile.prototype.finishLoad.call(this)) : this.retryLoad();
+    event.type == goog.events.EventType.LOAD ? (this.imageEl = event.target, ee.layers.AbstractTile.prototype.finishLoad.call(this)) : this.retryLoad();
   }, void 0, this);
   this.imageLoader_.start();
 };
@@ -10662,6 +10777,9 @@ ee.layers.ImageTile.prototype.cancelLoad = function() {
   this.imageLoader_ && (goog.events.unlistenByKey(this.imageLoaderListenerKey_), goog.dispose(this.imageLoader_));
 };
 ee.layers.ImageTile.IMAGE_LOADER_EVENTS_ = [goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR];
+ee.layers.ImageTile.defaultRenderer_ = function(tile) {
+  tile.div.appendChild(tile.imageEl);
+};
 ee.AbstractOverlay = function(url, mapId, token, opt_init, opt_profiler) {
   goog.events.EventTarget.call(this);
   this.mapId = mapId;
@@ -11385,75 +11503,6 @@ ee.Filter.metadata = function(name, operator, value) {
   var filter = ee.ApiFunction._call("Filter." + ee.Filter.functionNames_[operator], name, value);
   return negated ? filter.not() : filter;
 };
-ee.Filter.contains = function(name, value) {
-  return ee.ApiFunction._call("Filter.stringContains", name, value);
-};
-ee.Filter.not_contains = function(name, value) {
-  return ee.Filter.contains(name, value).not();
-};
-ee.Filter.starts_with = function(name, value) {
-  return ee.ApiFunction._call("Filter.stringStartsWith", name, value);
-};
-ee.Filter.not_starts_with = function(name, value) {
-  return ee.Filter.starts_with(name, value).not();
-};
-ee.Filter.ends_with = function(name, value) {
-  return ee.ApiFunction._call("Filter.stringEndsWith", name, value);
-};
-ee.Filter.not_ends_with = function(name, value) {
-  return ee.Filter.ends_with(name, value).not();
-};
-ee.Filter.prototype.eq = function(var_args) {
-  return this.append_(ee.Filter.eq.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.length = function() {
-  return this.filter_.length;
-};
-ee.Filter.prototype.neq = function(var_args) {
-  return this.append_(ee.Filter.neq.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.lt = function(var_args) {
-  return this.append_(ee.Filter.lt.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.gte = function(var_args) {
-  return this.append_(ee.Filter.gte.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.gt = function(var_args) {
-  return this.append_(ee.Filter.gt.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.lte = function(var_args) {
-  return this.append_(ee.Filter.lte.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.contains = function(var_args) {
-  return this.append_(ee.Filter.contains.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.not_contains = function(var_args) {
-  return this.append_(ee.Filter.not_contains.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.starts_with = function(var_args) {
-  return this.append_(ee.Filter.starts_with.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.not_starts_with = function(var_args) {
-  return this.append_(ee.Filter.not_starts_with.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.ends_with = function(var_args) {
-  return this.append_(ee.Filter.ends_with.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.not_ends_with = function(var_args) {
-  return this.append_(ee.Filter.not_ends_with.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.and = function(var_args) {
-  return this.append_(ee.Filter.and.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.date = function(var_args) {
-  return this.append_(ee.Filter.date.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.inList = function(var_args) {
-  return this.append_(ee.Filter.inList.apply(null, [].slice.call(arguments)));
-};
-ee.Filter.prototype.bounds = function(var_args) {
-  return this.append_(ee.Filter.bounds.apply(null, [].slice.call(arguments)));
-};
 ee.Collection = function(func, args, opt_varName) {
   ee.Element.call(this, func, args, opt_varName);
   ee.Collection.initialize();
@@ -12135,30 +12184,6 @@ ee.Feature.reset = function() {
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extract(ee.Feature.prototype.getMap, arguments);
   return ee.ApiFunction._call("Collection", [this]).getMap(args.visParams, args.callback);
-};
-ee.Feature.Point = function(lon, lat) {
-  return ee.Geometry.Point.apply(null, arguments);
-};
-ee.Feature.MultiPoint = function(coordinates) {
-  return ee.Geometry.MultiPoint.apply(null, arguments);
-};
-ee.Feature.Rectangle = function(lon1, lat1, lon2, lat2) {
-  return new ee.Geometry.Rectangle([lon1, lat1, lon2, lat2]);
-};
-ee.Feature.LineString = function(coordinates) {
-  return ee.Geometry.LineString.apply(null, arguments);
-};
-ee.Feature.LinearRing = function(coordinates) {
-  return ee.Geometry.LinearRing.apply(null, arguments);
-};
-ee.Feature.MultiLine = function(coordinates) {
-  return ee.Geometry.MultiLineString.apply(null, arguments);
-};
-ee.Feature.Polygon = function(coordinates) {
-  return ee.Geometry.Polygon.apply(null, arguments);
-};
-ee.Feature.MultiPolygon = function(coordinates) {
-  return ee.Geometry.MultiPolygon.apply(null, arguments);
 };
 ee.Feature.prototype.name = function() {
   return "Feature";

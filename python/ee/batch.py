@@ -256,7 +256,7 @@ class Export(object):
                        bucket=None, fileNamePrefix=None,
                        dimensions=None, region=None, scale=None,
                        crs=None, crsTransform=None, maxPixels=None,
-                       **kwargs):
+                       shardSize=None, fileDimensions=None, **kwargs):
       """Creates a task to export an EE Image to Google Cloud Storage.
 
       Args:
@@ -285,6 +285,14 @@ class Export(object):
         maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more
             pixels in the specified projection. Defaults to 100,000,000.
+        shardSize: Size in pixels of the shards in which this image will be
+            computed. Defaults to 256.
+        fileDimensions: The dimensions in pixels of each image file, if the
+            image is too large to fit in a single file. May specify a
+            single number to indicate a square shape, or a tuple of two
+            dimensions to indicate (width,height). Note that the image will
+            still be clipped to the overall image dimensions. Must be a
+            multiple of shardSize.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -308,7 +316,7 @@ class Export(object):
     def toDrive(image, description='myExportImageTask', folder=None,
                 fileNamePrefix=None, dimensions=None, region=None,
                 scale=None, crs=None, crsTransform=None, maxPixels=None,
-                **kwargs):
+                shardSize=None, fileDimensions=None, **kwargs):
       """Creates a task to export an EE Image to Drive.
 
       Args:
@@ -338,6 +346,14 @@ class Export(object):
         maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more
             pixels in the specified projection. Defaults to 100,000,000.
+        shardSize: Size in pixels of the shards in which this image will be
+            computed. Defaults to 256.
+        fileDimensions: The dimensions in pixels of each image file, if the
+            image is too large to fit in a single file. May specify a
+            single number to indicate a square shape, or a tuple of two
+            dimensions to indicate (width,height). Note that the image will
+            still be clipped to the overall image dimensions. Must be a
+            multiple of shardSize.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform', 'driveFolder', and 'driveFileNamePrefix'.
 
@@ -375,7 +391,7 @@ class Export(object):
     def toCloudStorage(image, description='myExportMapTask', bucket=None,
                        fileFormat=None, path=None, writePublicTiles=None,
                        maxZoom=None, scale=None, minZoom=None,
-                       region=None, **kwargs):
+                       region=None, skipEmptyTiles=None, **kwargs):
       """Creates a task to export an Image as a pyramid of map tiles.
 
       Exports a rectangular pyramid of map tiles for use with web map
@@ -405,6 +421,8 @@ class Export(object):
             lists of numbers or a serialized string. Map tiles will be
             produced in the rectangular region containing this geometry.
             Defaults to the image's region.
+        skipEmptyTiles: If true, skip writing empty (i.e. fully-transparent)
+            map tiles.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -798,6 +816,15 @@ def _ConvertToServerParams(configDict, eeElementKey, destination):
 
   if 'crsTransform' in configDict:
     configDict['crs_transform'] = configDict.pop('crsTransform')
+
+  # Convert iterable fileDimensions to a comma-separated string.
+  if 'fileDimensions' in configDict:
+    dimensions = configDict['fileDimensions']
+    try:
+      configDict['fileDimensions'] = ','.join('%d' % dim for dim in dimensions)
+    except TypeError:
+      # We pass numbers straight through.
+      pass
 
   if destination is Task.ExportDestination.GCS:
     if 'bucket' in configDict:
