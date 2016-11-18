@@ -19,7 +19,7 @@ class MainPage(webapp2.RequestHandler):
 
   def get(self):
     """Writes the index page to the response based on the template."""
-    template = jinja_environment.get_template('index.html')
+    template = jinja_environment.get_template('templates/index.html')
     self.response.out.write(template.render({
         'cache_bust': random.randint(0, 150000)
     }))

@@ -88,7 +88,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
     if (options) {
       throw new Error(
           'Setting the CRS, geodesic, or evenOdd flag on a computed Geometry ' +
-          'is not suported.  Use Geometry.transform().');
+          'is not supported.  Use Geometry.transform().');
     } else {
       goog.base(this, geoJson.func, geoJson.args, geoJson.varName);
       return;

@@ -23,4 +23,4 @@ var styles = {
   ]
 };
 
-Map.setStyle('satellite', styles);
+Map.setOptions('satellite', styles);

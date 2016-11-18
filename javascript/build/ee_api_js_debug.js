@@ -199,11 +199,13 @@ goog.DEPENDENCIES_ENABLED && (goog.dependencies_ = {loadFlags:{}, nameToPath:{},
         goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING ? goog.appendScriptSrcNode_(src) : goog.writeScriptSrcNode_(src);
       }
     } else {
-      doc.write('<script type="text/javascript">' + opt_sourceText + "\x3c/script>");
+      doc.write('<script type="text/javascript">' + goog.protectScriptTag_(opt_sourceText) + "\x3c/script>");
     }
     return !0;
   }
   return !1;
+}, goog.protectScriptTag_ = function(str) {
+  return str.replace(/<\/(SCRIPT)/ig, "\\x3c\\$1");
 }, goog.needsTranspile_ = function(lang) {
   if ("always" == goog.TRANSPILE) {
     return !0;
@@ -1591,8 +1593,6 @@ goog.array.concatMap = function(arr, f, opt_obj) {
 goog.disposable = {};
 goog.disposable.IDisposable = function() {
 };
-goog.disposable.IDisposable.prototype.dispose = goog.abstractMethod;
-goog.disposable.IDisposable.prototype.isDisposed = goog.abstractMethod;
 goog.Disposable = function() {
   goog.Disposable.MONITORING_MODE != goog.Disposable.MonitoringMode.OFF && (goog.Disposable.INCLUDE_STACK_ON_CREATION && (this.creationStack = Error().stack), goog.Disposable.instances_[goog.getUid(this)] = this);
   this.disposed_ = this.disposed_;
@@ -1898,6 +1898,21 @@ goog.object.createImmutableView = function(obj) {
 };
 goog.object.isImmutableView = function(obj) {
   return !!Object.isFrozen && Object.isFrozen(obj);
+};
+goog.object.getAllPropertyNames = function(obj, opt_includeObjectPrototype) {
+  if (!obj) {
+    return [];
+  }
+  if (!Object.getOwnPropertyNames || !Object.getPrototypeOf) {
+    return goog.object.getKeys(obj);
+  }
+  for (var visitedSet = {}, proto = obj;proto && (proto !== Object.prototype || opt_includeObjectPrototype);) {
+    for (var names = Object.getOwnPropertyNames(proto), i = 0;i < names.length;i++) {
+      visitedSet[names[i]] = !0;
+    }
+    proto = Object.getPrototypeOf(proto);
+  }
+  return goog.object.getKeys(visitedSet);
 };
 goog.debug.entryPointRegistry = {};
 goog.debug.EntryPointMonitor = function() {
@@ -6739,11 +6754,9 @@ goog.net.XhrLike.prototype.getAllResponseHeaders = function() {
 goog.net.XmlHttpFactory = function() {
 };
 goog.net.XmlHttpFactory.prototype.cachedOptions_ = null;
-goog.net.XmlHttpFactory.prototype.createInstance = goog.abstractMethod;
 goog.net.XmlHttpFactory.prototype.getOptions = function() {
   return this.cachedOptions_ || (this.cachedOptions_ = this.internalGetOptions());
 };
-goog.net.XmlHttpFactory.prototype.internalGetOptions = goog.abstractMethod;
 goog.net.WrapperXmlHttpFactory = function(xhrFactory, optionsFactory) {
   this.xhrFactory_ = xhrFactory;
   this.optionsFactory_ = optionsFactory;
@@ -9072,7 +9085,6 @@ ee.layers.AbstractOverlay.prototype.releaseTile = function(tileDiv) {
   this.tilesById.remove(tileDiv.id);
   tile && (tile.abort(), goog.dispose(tile));
 };
-ee.layers.AbstractOverlay.prototype.createTile = goog.abstractMethod;
 ee.layers.AbstractOverlay.prototype.getUniqueTileId_ = function(coord, z) {
   var tileId = [coord.x, coord.y, z, this.tileCounter].join("-"), sourceId = this.tileSource.getUniqueId();
   return [tileId, sourceId].join("-");
@@ -9179,8 +9191,6 @@ ee.layers.AbstractTileSource = function() {
   goog.Disposable.call(this);
 };
 goog.inherits(ee.layers.AbstractTileSource, goog.Disposable);
-ee.layers.AbstractTileSource.prototype.loadTile = goog.abstractMethod;
-ee.layers.AbstractTileSource.prototype.getUniqueId = goog.abstractMethod;
 ee.layers.BinaryOverlay = function(tileSource, opt_options) {
   ee.layers.AbstractOverlay.call(this, tileSource, opt_options);
   this.buffersByCoord_ = new goog.structs.Map;
@@ -9488,7 +9498,7 @@ goog.Uri.prototype.resolve = function(relativeUri) {
     }
   }
   overridden ? absoluteUri.setPath(path) : overridden = relativeUri.hasQuery();
-  overridden ? absoluteUri.setQueryData(relativeUri.getDecodedQuery()) : overridden = relativeUri.hasFragment();
+  overridden ? absoluteUri.setQueryData(relativeUri.getQueryData().clone()) : overridden = relativeUri.hasFragment();
   overridden && absoluteUri.setFragment(relativeUri.getFragment());
   return absoluteUri;
 };
@@ -10791,7 +10801,6 @@ ee.AbstractOverlay = function(url, mapId, token, opt_init, opt_profiler) {
 };
 goog.inherits(ee.AbstractOverlay, goog.events.EventTarget);
 ee.AbstractOverlay.EventType = {TILE_LOADED:"tileevent"};
-ee.AbstractOverlay.prototype.getTile = goog.abstractMethod;
 ee.AbstractOverlay.prototype.getTileId = function(coord, zoom) {
   var maxCoord = 1 << zoom, x = coord.x % maxCoord;
   0 > x && (x += maxCoord);
@@ -10810,14 +10819,10 @@ ee.TileEvent = function(count) {
 goog.inherits(ee.TileEvent, goog.events.Event);
 ee.Encodable = function() {
 };
-ee.Encodable.prototype.encode = goog.abstractMethod;
 goog.crypt = {};
 goog.crypt.Hash = function() {
   this.blockSize = -1;
 };
-goog.crypt.Hash.prototype.reset = goog.abstractMethod;
-goog.crypt.Hash.prototype.update = goog.abstractMethod;
-goog.crypt.Hash.prototype.digest = goog.abstractMethod;
 goog.crypt.Md5 = function() {
   goog.crypt.Hash.call(this);
   this.blockSize = 64;
@@ -11116,7 +11121,6 @@ ee.Function.promoter_ = goog.functions.identity;
 ee.Function.registerPromoter = function(promoter) {
   ee.Function.promoter_ = promoter;
 };
-ee.Function.prototype.getSignature = goog.abstractMethod;
 ee.Function.prototype.call = function(var_args) {
   return this.apply(this.nameArgs(Array.prototype.slice.call(arguments, 0)));
 };
@@ -11771,7 +11775,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   var options = goog.isDefAndNotNull(opt_proj) || goog.isDefAndNotNull(opt_geodesic) || goog.isDefAndNotNull(opt_evenOdd);
   if (geoJson instanceof ee.ComputedObject && !(geoJson instanceof ee.Geometry && geoJson.type_)) {
     if (options) {
-      throw Error("Setting the CRS, geodesic, or evenOdd flag on a computed Geometry is not suported.  Use Geometry.transform().");
+      throw Error("Setting the CRS, geodesic, or evenOdd flag on a computed Geometry is not supported.  Use Geometry.transform().");
     }
     ee.ComputedObject.call(this, geoJson.func, geoJson.args, geoJson.varName);
   } else {

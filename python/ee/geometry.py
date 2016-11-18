@@ -67,7 +67,7 @@ class Geometry(computedobject.ComputedObject):
       if options:
         raise ee_exception.EEException(
             'Setting the CRS or geodesic on a computed Geometry is not '
-            'suported.  Use Geometry.transform().')
+            'supported.  Use Geometry.transform().')
       else:
         super(Geometry, self).__init__(
             geo_json.func, geo_json.args, geo_json.varName)

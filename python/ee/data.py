@@ -542,8 +542,6 @@ def startIngestion(taskId, params):
             object names, e.g. 'gs://bucketname/filename.tif'
           bands (array) An optional list of band names formatted like:
             [{'id': 'R'}, {'id': 'G'}, {'id': 'B'}]
-          extensions (array) An optional list of file extensions formatted like:
-            ['tif', 'prj']. Useful if the file names in GCS lack extensions.
 
   Returns:
     A dict with optional notes about the created task.

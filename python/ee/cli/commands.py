@@ -854,7 +854,7 @@ class UploadImageCommand(object):
     sources = [{'primaryPath': source} for source in source_files]
     tileset = {'sources': sources}
     if args.last_band_alpha:
-      tileset['bandMappings'] = [{'fileBandIndex': -1, 'maskForAllBands': True}]
+      tileset['fileBands'] = [{'fileBandIndex': -1, 'maskForAllBands': True}]
     request['tilesets'] = [tileset]
 
     if args.pyramiding_policy:
