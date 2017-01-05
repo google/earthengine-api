@@ -752,7 +752,6 @@ ee.Geometry.construct_ = function(
   // client-side initialization.
   if (ee.Geometry.hasServerValue_(eeArgs['coordinates']) ||
       goog.isDefAndNotNull(eeArgs['crs']) ||
-      goog.isDefAndNotNull(eeArgs['geodesic']) ||
       goog.isDefAndNotNull(eeArgs['maxError'])) {
     // Some arguments cannot be handled in the client, so make a server call.
     // Note we don't declare a default evenOdd value, so the server can infer
@@ -765,11 +764,22 @@ ee.Geometry.construct_ = function(
     geoJson['type'] = apiConstructorName;
     geoJson['coordinates'] = ee.Geometry.fixDepth_(
         depth, geoJson['coordinates']);
-    if (!goog.isDefAndNotNull(geoJson['evenOdd']) && goog.array.contains(
-        ['Polygon', 'Rectangle', 'MultiPolygon'], apiConstructorName)) {
+    var isPolygon =
+        goog.array.contains(
+            ['Polygon', 'Rectangle', 'MultiPolygon'],
+            apiConstructorName);
+
+    if (isPolygon && !goog.isDefAndNotNull(geoJson['evenOdd'])) {
       // Default to evenOdd=true for any kind of polygon.
       geoJson['evenOdd'] = true;
     }
+
+    if (isPolygon &&
+        geoJson['geodesic'] === false &&
+        geoJson['evenOdd'] === false) {
+      throw new Error('Planar interiors must be even/odd.');
+    }
+
     return geoJson;
   }
 };

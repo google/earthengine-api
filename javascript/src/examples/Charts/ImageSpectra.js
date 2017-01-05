@@ -45,7 +45,7 @@ bandChart.setOptions({
   }
 });
 
-// From: http://landsat.usgs.gov/band_designations_landsat_satellites.php
+// From: https://landsat.usgs.gov/what-are-best-spectral-bands-use-my-study
 var wavelengths = [.44, .48, .56, .65, .86, 1.61, 2.2];
 
 var spectraChart = ui.Chart.image.regions({

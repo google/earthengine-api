@@ -1,3 +1,7 @@
+/**
+ * @fileoverview
+ * @suppress {missingProperties} See: b/33430503
+ */
 goog.provide('forest.SubTileZoomMapType');
 
 
