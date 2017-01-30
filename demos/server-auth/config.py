@@ -11,5 +11,5 @@ from oauth2client.service_account import ServiceAccountCredentials
 EE_SCOPE = 'https://www.googleapis.com/auth/earthengine'
 EE_PRIVATE_KEY_FILE = 'privatekey.json'
 
-EE_CREDENTIALS = ServiceAccountCredentials(
+EE_CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
   EE_PRIVATE_KEY_FILE, EE_SCOPE)
