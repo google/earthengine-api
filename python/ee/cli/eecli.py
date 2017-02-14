@@ -29,6 +29,7 @@ class CommandDispatcher(commands.Dispatcher):
       commands.AssetCommand,
       commands.CopyCommand,
       commands.CreateCommand,
+      commands.SizeCommand,
       commands.ListCommand,
       commands.MoveCommand,
       commands.RmCommand,

@@ -532,8 +532,6 @@ class CreateCommand(Dispatcher):
   ]
 
 
-
-
 class ListCommand(object):
   """Prints the contents of a folder or collection."""
 
@@ -544,31 +542,38 @@ class ListCommand(object):
         'asset_id', nargs='*',
         help='A folder or image collection to be inspected.')
     parser.add_argument(
-        '-l', action='store_true',
+        '--long_format', '-l', action='store_true',
         help='Print output in long format.')
     parser.add_argument(
         '--max_items', '-m', default=-1, type=int,
         help='Maximum number of items to list for each collection.')
+    parser.add_argument(
+        '--recursive', '-r', action='store_true',
+        help='List folders recursively.')
 
   def run(self, args, config):
     config.ee_init()
     if not args.asset_id:
       roots = ee.data.getAssetRoots()
-      self._print_assets(roots, '', args.l)
+      self._print_assets(roots, args.max_items, '', args.long_format, args.recursive)
       return
     assets = args.asset_id
     count = 0
     for asset in assets:
       if count > 0:
         print()
-      self._list_asset_content(
-          asset, args.max_items, len(assets), args.l)
+      self._list_asset_content(asset, args.max_items, len(assets), args.long_format, args.recursive)
       count += 1
 
-  def _print_assets(self, assets, indent, long_format):
+  def _print_assets(self, assets, max_items, indent, long_format, recursive):
     if not assets:
       return
+
     max_type_length = max([len(asset['type']) for asset in assets])
+
+    if recursive:
+      max_type_length = 15 # fallback to max to include ImageCollection
+
     format_str = '%s{:%ds}{:s}' % (indent, max_type_length + 4)
     for asset in assets:
       if long_format:
@@ -576,10 +581,17 @@ class ListCommand(object):
         # [Image]           user/test/my_img
         # [ImageCollection] user/test/my_coll
         print(format_str.format('['+asset['type']+']', asset['id']))
+       
       else:
         print(asset['id'])
+      
+      # get children
+      if recursive and asset['type'] in (ee.data.ASSET_TYPE_FOLDER, ee.data.ASSET_TYPE_IMAGE_COLL):
+        list_req = {'id': asset['id']}
+        children = ee.data.getList(list_req)
+        self._print_assets(children, max_items, indent, long_format, recursive)
 
-  def _list_asset_content(self, asset, max_items, total_assets, long_format):
+  def _list_asset_content(self, asset, max_items, total_assets, long_format, recursive):
     try:
       list_req = {'id': asset}
       if max_items >= 0:
@@ -589,9 +601,65 @@ class ListCommand(object):
       if total_assets > 1:
         print('%s:' % asset)
         indent = '  '
-      self._print_assets(children, indent, long_format)
+      self._print_assets(children, max_items, indent, long_format, recursive)
     except ee.EEException as e:
       print(e)
+
+
+class SizeCommand(object):
+  """Prints the size and names of all items in a given folder or collection."""
+
+  name = 'du'
+
+  def __init__(self, parser):
+    parser.add_argument(
+        'asset_id', nargs='*',
+        help='A folder or image collection to be inspected.')
+
+  def run(self, args, config):
+    config.ee_init()
+
+    # detect assets to use
+    if not args.asset_id:
+      assets = ee.data.getAssetRoots()
+    else:
+      assets = [ee.data.getInfo(asset) for asset in args.asset_id]
+
+    # print sizes and names for all assets
+    for asset in assets:
+      # list size+name for every asset, otherwise shot only total
+      if asset['type'] == ee.data.ASSET_TYPE_FOLDER:
+        children = ee.data.getList(asset)
+        for child in children:
+          self._print_size(child)
+      else:
+        self._print_size(asset)
+
+  def _print_size(self, asset):
+    size = self._get_size(asset)
+    print('{:>16d}   {}'.format(size, asset['id']))
+
+  def _get_size(self, asset):
+    size_parsers = {'Image' : self._get_size_image, 'Folder' : self._get_size_folder, 'ImageCollection' : self._get_size_image_collection}
+
+    return size_parsers[asset['type']](asset)
+
+  def _get_size_image(self, asset):
+    info = ee.data.getInfo(asset['id'])
+
+    return info['properties']['system:asset_size']
+    
+  def _get_size_folder(self, asset):
+    children = ee.data.getList(asset)
+    sizes = [self._get_size(child) for child in children]
+
+    return sum(sizes)
+
+  def _get_size_image_collection(self, asset):
+    images = ee.ImageCollection(asset['id'])
+    sizes = images.aggregate_array('system:asset_size')
+
+    return sum(sizes.getInfo())
 
 
 class MoveCommand(object):
