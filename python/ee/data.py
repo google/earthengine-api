@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Singleton for all of the library's communcation with the Earth Engine API."""
+"""Singleton for the library's communication with the Earth Engine API."""
 
 from __future__ import print_function
 
@@ -11,6 +11,8 @@ from __future__ import print_function
 # pylint: disable=g-bad-import-order
 import contextlib
 import json
+import time
+
 import httplib2
 import six
 
@@ -56,6 +58,16 @@ _profile_hook = None
 # The HTTP header through which profile results are returned.
 # Lowercase because that's how httplib2 does things.
 _PROFILE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
+
+# Maximum number of times to retry a rate-limited request.
+MAX_RETRIES = 5
+
+# Maximum time to wait before retrying a rate-limited request (in milliseconds).
+MAX_RETRY_WAIT = 120000
+
+# Base time (in ms) to wait when performing exponential backoff in request
+# retries.
+BASE_RETRY_WAIT = 1000
 
 # The default base URL for API calls.
 DEFAULT_API_BASE_URL = 'https://earthengine.googleapis.com/api'
@@ -696,12 +708,34 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   else:
     raise ee_exception.EEException('Unexpected request method: ' + opt_method)
 
-  try:
-    response, content = http.request(url, method=opt_method, body=payload,
-                                     headers=headers)
-  except httplib2.HttpLib2Error as e:
-    raise ee_exception.EEException(
-        'Unexpected HTTP error: %s' % e.message)
+  def send_with_backoff(retries=0):
+    """Send an API call with backoff.
+
+    Attempts an API call. If the server's response has a 429 status, retry the
+    request using an incremental backoff strategy.
+
+    Args:
+      retries: The number of retries that have already occurred.
+
+    Returns:
+      A tuple of response, content returned by the API call.
+
+    Raises:
+      EEException: For errors from the server.
+    """
+    try:
+      response, content = http.request(url, method=opt_method, body=payload,
+                                       headers=headers)
+      if response.status == 429:
+        if retries < MAX_RETRIES:
+          time.sleep(min(2 ** retries * BASE_RETRY_WAIT, MAX_RETRY_WAIT) / 1000)
+          response, content = send_with_backoff(retries + 1)
+    except httplib2.HttpLib2Error as e:
+      raise ee_exception.EEException(
+          'Unexpected HTTP error: %s' % e.message)
+    return response, content
+
+  response, content = send_with_backoff()
 
   # Call the profile hook if present. Note that this is done before we handle
   # the content, so that profiles are reported even if the response is an error.
@@ -722,7 +756,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
         # Python 2.x
         content = content
       json_content = json.loads(content)
-    except Exception as e:
+    except Exception:
       raise ee_exception.EEException('Invalid JSON: %s' % content)
     if 'error' in json_content:
       raise ee_exception.EEException(json_content['error']['message'])

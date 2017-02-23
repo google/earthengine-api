@@ -19,7 +19,7 @@ class List(computedobject.ComputedObject):
   def __init__(self, arg):
     """Construct a list wrapper.
 
-    This constuctor accepts the following args:
+    This constructor accepts the following args:
       1) A bare list.
       2) A ComputedObject returning a list.
 

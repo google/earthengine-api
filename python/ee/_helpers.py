@@ -8,19 +8,18 @@ referenced from there (e.g. "ee.profilePrinting").
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
 import contextlib
 import json
-import six
 import sys
-
-import oauth2client.client
-
+# pylint: disable=g-importing-member
 from . import data
 from . import oauth
-
 from .apifunction import ApiFunction
 from .ee_exception import EEException
+# pylint: enable=g-importing-member
+import oauth2client.client
+import oauth2client.service_account
+import six
 
 
 def _GetPersistentCredentials():
@@ -49,16 +48,36 @@ def ServiceAccountCredentials(email, key_file=None, key_data=None):
   Args:
     email: The email address of the account for which to configure credentials.
     key_file: The path to a file containing the private key associated with
-        the service account.
+        the service account. PEM files are supported for oauth2client v1 and
+        JSON files are supported for oauth2client v2+.
     key_data: Raw key data to use, if key_file is not specified.
 
   Returns:
     An OAuth2 credentials object.
+
+  Raises:
+    NotImplementedError: Occurs if using oauth2client v2+ and a PEM formatted
+        credentials key file.
   """
-  if key_file:
-    key_data = open(key_file, 'rb').read()
-  return oauth2client.client.SignedJwtAssertionCredentials(
-      email, key_data, oauth.SCOPE)
+  try:
+    # oauth2client v2+ and JSON key
+    sa_creds = oauth2client.service_account.ServiceAccountCredentials
+    credentials = sa_creds.from_json_keyfile_name(key_file, oauth.SCOPE)
+  except ValueError:
+    # oauth2client v2+ and PEM key
+    raise NotImplementedError(
+        'When using oauth2client version 2 or later, you must use a JSON '
+        'formatted key file (instead of a p12 or PEM formatted file). See the '
+        'following page for information on creating a JSON formatted file:\n'
+        'https://developers.google.com/api-client-library/python/auth/web-app')
+  except AttributeError:
+    # oauth2client v1 (i.e. does not have a ServiceAccountCredentials)
+    if key_file:
+      with open(key_file, 'rb') as key_file:
+        key_data = key_file.read()
+    credentials = oauth2client.client.SignedJwtAssertionCredentials(
+        email, key_data, oauth.SCOPE)
+  return credentials
 
 
 def call(func, *args, **kwargs):

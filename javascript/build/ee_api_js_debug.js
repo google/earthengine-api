@@ -2343,7 +2343,9 @@ DOMNODEREMOVED:"DOMNodeRemoved", DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromD
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
-  this.charCode = this.keyCode = this.button = this.screenY = this.screenX = this.clientY = this.clientX = this.offsetY = this.offsetX = 0;
+  this.button = this.screenY = this.screenX = this.clientY = this.clientX = this.offsetY = this.offsetX = 0;
+  this.key = "";
+  this.charCode = this.keyCode = 0;
   this.metaKey = this.shiftKey = this.altKey = this.ctrlKey = !1;
   this.state = null;
   this.platformModifierKey = !1;
@@ -2364,6 +2366,7 @@ goog.events.BrowserEvent.prototype.init = function(e, opt_currentTarget) {
   relevantTouch.clientY ? relevantTouch.clientY : relevantTouch.pageY, this.screenX = relevantTouch.screenX || 0, this.screenY = relevantTouch.screenY || 0);
   this.button = e.button;
   this.keyCode = e.keyCode || 0;
+  this.key = e.key || "";
   this.charCode = e.charCode || ("keypress" == type ? e.keyCode : 0);
   this.ctrlKey = e.ctrlKey;
   this.altKey = e.altKey;
@@ -10171,16 +10174,16 @@ ee.data.ALLOWED_DESCRIPTION_HTML_ELEMENTS = "a code em i li ol p strong sub sup 
 ee.data.MapZoomRange = {MIN:0, MAX:24};
 ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
 ee.data.ReductionPolicy = {MEAN:"MEAN", MODE:"MODE", MIN:"MIN", MAX:"MAX", SAMPLE:"SAMPLE"};
-ee.data.send_ = function(path, params, opt_callback$jscomp$0, opt_method) {
+ee.data.send_ = function(path, params, opt_callback, opt_method) {
   ee.data.initialize();
   var profileHookAtCallTime = ee.data.profileHook_, headers = {"Content-Type":"application/x-www-form-urlencoded"}, authToken = ee.data.getAuthToken();
   if (goog.isDefAndNotNull(authToken)) {
     headers.Authorization = authToken;
   } else {
-    if (opt_callback$jscomp$0 && ee.data.isAuthTokenRefreshingEnabled_()) {
+    if (opt_callback && ee.data.isAuthTokenRefreshingEnabled_()) {
       return ee.data.refreshAuthToken(function() {
         ee.data.withProfiling(profileHookAtCallTime, function() {
-          ee.data.send_(path, params, opt_callback$jscomp$0, opt_method);
+          ee.data.send_(path, params, opt_callback, opt_method);
         });
       }), null;
     }
@@ -10190,59 +10193,74 @@ ee.data.send_ = function(path, params, opt_callback$jscomp$0, opt_method) {
   profileHookAtCallTime && params.add("profiling", "1");
   params = ee.data.paramAugmenter_(params, path);
   goog.isDefAndNotNull(ee.data.xsrfToken_) && (headers["X-XSRF-Token"] = ee.data.xsrfToken_);
-  var handleResponse = function(status, getResponseHeader, responseText, opt_callback) {
-    var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
-    profileId && profileHookAtCallTime && profileHookAtCallTime(profileId);
-    var response, data, errorMessage, contentType = getResponseHeader("Content-Type"), contentType = contentType ? contentType.replace(/;.*/, "") : "application/json";
-    if ("application/json" == contentType || "text/json" == contentType) {
-      try {
-        response = goog.json.unsafeParse(responseText), data = response.data;
-      } catch (e) {
-        errorMessage = "Invalid JSON: " + responseText;
-      }
-    } else {
-      errorMessage = "Response was unexpectedly not JSON, but " + contentType;
-    }
-    if (goog.isObject(response)) {
-      "error" in response && "message" in response.error ? errorMessage = response.error.message : "data" in response || (errorMessage = "Malformed response: " + responseText);
-    } else {
-      if (0 === status) {
-        errorMessage = "Failed to contact Earth Engine servers. Please check your connection, firewall, or browser extension settings.";
-      } else {
-        if (200 > status || 300 <= status) {
-          errorMessage = "Server returned HTTP code: " + status;
-        }
-      }
-    }
-    if (opt_callback) {
-      return opt_callback(data, errorMessage), null;
-    }
-    if (!errorMessage) {
-      return data;
-    }
-    throw Error(errorMessage);
-  }, requestData = params ? params.toString() : "";
+  var requestData = params ? params.toString() : "";
   "GET" != method || goog.string.isEmpty(requestData) || (path += goog.string.contains(path, "?") ? "&" : "?", path += requestData, requestData = null);
   var url = ee.data.apiBaseUrl_ + path;
-  if (opt_callback$jscomp$0) {
-    return ee.data.requestQueue_.push({url:url, callback:function(e) {
-      var xhrIo = e.target;
-      return handleResponse(xhrIo.getStatus(), goog.bind(xhrIo.getResponseHeader, xhrIo), xhrIo.getResponseText(), opt_callback$jscomp$0);
-    }, method:method, content:requestData, headers:headers}), ee.data.RequestThrottle_.fire(), null;
+  if (opt_callback) {
+    return ee.data.requestQueue_.push(ee.data.buildAsyncRequest_(url, opt_callback, method, requestData, headers)), ee.data.RequestThrottle_.fire(), null;
   }
-  var xmlHttp = goog.net.XmlHttp();
-  xmlHttp.open(method, url, !1);
-  goog.object.forEach(headers, function(value, key) {
-    xmlHttp.setRequestHeader(key, value);
-  });
-  xmlHttp.send(requestData);
-  return handleResponse(xmlHttp.status, function getResponseHeaderSafe(header) {
+  for (var setRequestHeader = function(value, key) {
+    this.setRequestHeader && this.setRequestHeader(key, value);
+  }, xmlHttp, retries = 0;;) {
+    xmlHttp = goog.net.XmlHttp();
+    xmlHttp.open(method, url, !1);
+    goog.object.forEach(headers, setRequestHeader, xmlHttp);
+    xmlHttp.send(requestData);
+    if (429 != xmlHttp.status || retries > ee.data.MAX_SYNC_RETRIES_) {
+      break;
+    }
+    retries++;
+  }
+  return ee.data.handleResponse_(xmlHttp.status, function getResponseHeaderSafe(header) {
     try {
       return xmlHttp.getResponseHeader(header);
     } catch (e) {
       return null;
     }
-  }, xmlHttp.responseText, null);
+  }, xmlHttp.responseText, profileHookAtCallTime);
+};
+ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
+  var retries = 0, request = {url:url, method:method, content:content, headers:headers}, profileHookAtCallTime = ee.data.profileHook_;
+  request.callback = function(e) {
+    var xhrIo = e.target;
+    return 429 == xhrIo.getStatus() && retries < ee.data.MAX_ASYNC_RETRIES_ ? (retries++, setTimeout(function() {
+      ee.data.requestQueue_.push(request);
+      ee.data.RequestThrottle_.fire();
+    }, ee.data.calculateRetryWait_(retries)), null) : ee.data.handleResponse_(xhrIo.getStatus(), goog.bind(xhrIo.getResponseHeader, xhrIo), xhrIo.getResponseText(), profileHookAtCallTime, callback);
+  };
+  return request;
+};
+ee.data.handleResponse_ = function(status, getResponseHeader, responseText, profileHook, opt_callback) {
+  var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
+  profileId && profileHook && profileHook(profileId);
+  var response, data, errorMessage, contentType = getResponseHeader("Content-Type"), contentType = contentType ? contentType.replace(/;.*/, "") : "application/json";
+  if ("application/json" == contentType || "text/json" == contentType) {
+    try {
+      response = goog.json.unsafeParse(responseText), data = response.data;
+    } catch (e) {
+      errorMessage = "Invalid JSON: " + responseText;
+    }
+  } else {
+    errorMessage = "Response was unexpectedly not JSON, but " + contentType;
+  }
+  if (goog.isObject(response)) {
+    "error" in response && "message" in response.error ? errorMessage = response.error.message : "data" in response || (errorMessage = "Malformed response: " + responseText);
+  } else {
+    if (0 === status) {
+      errorMessage = "Failed to contact Earth Engine servers. Please check your connection, firewall, or browser extension settings.";
+    } else {
+      if (200 > status || 300 <= status) {
+        errorMessage = "Server returned HTTP code: " + status;
+      }
+    }
+  }
+  if (opt_callback) {
+    return opt_callback(data, errorMessage), null;
+  }
+  if (!errorMessage) {
+    return data;
+  }
+  throw Error(errorMessage);
 };
 ee.data.ensureAuthLibLoaded_ = function(callback) {
   var done = function() {
@@ -10268,7 +10286,7 @@ ee.data.handleAuthResult_ = function(success, error, result) {
     var token = result.token_type + " " + result.access_token;
     if (isFinite(result.expires_in)) {
       var expiresInMs = 900 * result.expires_in;
-      setTimeout(ee.data.refreshAuthToken, .9 * expiresInMs);
+      setTimeout(ee.data.refreshAuthToken, 0.9 * expiresInMs);
       ee.data.authTokenExpiration_ = goog.now() + expiresInMs;
     }
     ee.data.authToken_ = token;
@@ -10298,7 +10316,7 @@ ee.data.setupMockSend = function(opt_calls) {
     if (!goog.isString(response.text)) {
       throw Error(url + " mock response missing/invalid text");
     }
-    if (!goog.isNumber(response.status)) {
+    if (!goog.isNumber(response.status) && !goog.isFunction(response.status)) {
       throw Error(url + " mock response missing/invalid status");
     }
     return response;
@@ -10312,7 +10330,7 @@ ee.data.setupMockSend = function(opt_calls) {
     e.target.getResponseText = function() {
       return responseData.text;
     };
-    e.target.getStatus = function() {
+    e.target.getStatus = goog.isFunction(responseData.status) ? responseData.status : function() {
       return responseData.status;
     };
     e.target.getResponseHeader = function(header) {
@@ -10336,7 +10354,7 @@ ee.data.setupMockSend = function(opt_calls) {
   fakeXmlHttp.prototype.send = function(data) {
     var responseData = getResponse(this.url, this.method, data);
     this.responseText = responseData.text;
-    this.status = responseData.status;
+    this.status = goog.isFunction(responseData.status) ? responseData.status() : responseData.status;
     this.contentType_ = responseData.contentType;
   };
   goog.net.XmlHttp = function() {
@@ -10345,6 +10363,13 @@ ee.data.setupMockSend = function(opt_calls) {
 };
 ee.data.isAuthTokenRefreshingEnabled_ = function() {
   return !(!ee.data.authTokenRefresher_ || !ee.data.authClientId_);
+};
+ee.data.calculateRetryWait_ = function(retryCount) {
+  return Math.min(ee.data.MAX_RETRY_WAIT_, Math.pow(2, retryCount) * ee.data.BASE_RETRY_WAIT_);
+};
+ee.data.sleep_ = function(timeInMs) {
+  for (var end = (new Date).getTime() + timeInMs;(new Date).getTime() < end;) {
+  }
 };
 ee.data.requestQueue_ = [];
 ee.data.REQUEST_THROTTLE_INTERVAL_MS_ = 350;
@@ -10367,6 +10392,10 @@ ee.data.AUTH_LIBRARY_URL_ = "https://apis.google.com/js/client.js";
 ee.data.initialized_ = !1;
 ee.data.deadlineMs_ = 0;
 ee.data.profileHook_ = null;
+ee.data.BASE_RETRY_WAIT_ = 1000;
+ee.data.MAX_RETRY_WAIT_ = 120000;
+ee.data.MAX_ASYNC_RETRIES_ = 10;
+ee.data.MAX_SYNC_RETRIES_ = 5;
 ee.data.PROFILE_HEADER = "X-Earth-Engine-Computation-Profile";
 ee.data.DEFAULT_API_BASE_URL_ = "https://earthengine.googleapis.com/api";
 ee.data.DEFAULT_TILE_BASE_URL_ = "https://earthengine.googleapis.com";
@@ -11826,7 +11855,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
     }
     ee.ComputedObject.call(this, null, null);
     this.type_ = geoJson.type;
-    this.coordinates_ = geoJson.coordinates || null;
+    this.coordinates_ = goog.isDefAndNotNull(geoJson.coordinates) ? goog.object.unsafeClone(geoJson.coordinates) : null;
     this.geometries_ = geoJson.geometries || null;
     if (goog.isDefAndNotNull(opt_proj)) {
       this.proj_ = opt_proj;

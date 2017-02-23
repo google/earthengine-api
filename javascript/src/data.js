@@ -194,11 +194,15 @@ ee.data.setAuthToken = function(clientId, tokenType, accessToken,
   ee.data.handleAuthResult_(undefined, undefined, tokenObject);
 
   if (opt_updateAuthLibrary === false) {
-    if (opt_callback) opt_callback();
+    if (opt_callback) {
+      opt_callback();
+    }
   } else {
     ee.data.ensureAuthLibLoaded_(function() {
       goog.global['gapi']['auth']['setToken'](tokenObject);
-      if (opt_callback) opt_callback();
+      if (opt_callback) {
+        opt_callback();
+      }
     });
   }
 };
@@ -1464,6 +1468,7 @@ ee.data.MapId;
  */
 ee.data.MapZoomRange = {
   MIN: 0,
+  // Keep this in sync with the definition of MAX_ZOOM in MapTileServlet.java.
   MAX: 24
 };
 
@@ -1837,54 +1842,6 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     headers['X-XSRF-Token'] = ee.data.xsrfToken_;
   }
 
-  // Handle processing and dispatching a callback response.
-  var handleResponse = function(
-      status, getResponseHeader, responseText, opt_callback) {
-    var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
-    if (profileId && profileHookAtCallTime) {
-      profileHookAtCallTime(profileId);
-    }
-
-    var response, data, errorMessage;
-    var contentType = getResponseHeader('Content-Type');
-    contentType = contentType ?
-        contentType.replace(/;.*/, '') : 'application/json';
-    if (contentType == 'application/json' || contentType == 'text/json') {
-      try {
-        response = goog.json.unsafeParse(responseText);
-        data = response['data'];
-      } catch (e) {
-        errorMessage = 'Invalid JSON: ' + responseText;
-      }
-    } else {
-      errorMessage = 'Response was unexpectedly not JSON, but ' + contentType;
-    }
-
-    // Totally malformed, with either invalid JSON or JSON with
-    // neither a data nor an error property.
-    if (goog.isObject(response)) {
-      if ('error' in response && 'message' in response['error']) {
-        errorMessage = response['error']['message'];
-      } else if (!('data' in response)) {
-        errorMessage = 'Malformed response: ' + responseText;
-      }
-    } else if (status === 0) {
-      errorMessage = 'Failed to contact Earth Engine servers. Please check ' +
-          'your connection, firewall, or browser extension settings.';
-    } else if (status < 200 || status >= 300) {
-      errorMessage = 'Server returned HTTP code: ' + status;
-    }
-
-    if (opt_callback) {
-      opt_callback(data, errorMessage);
-      return null;
-    } else {
-      if (!errorMessage) {
-        return data;
-      }
-      throw new Error(errorMessage);
-    }
-  };
 
   // Encode the request params in the URL if the request is a GET request.
   var requestData = params ? params.toString() : '';
@@ -1897,32 +1854,43 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   var url = ee.data.apiBaseUrl_ + path;
   if (opt_callback) {
     // Send an asynchronous request.
-    ee.data.requestQueue_.push({
-      url: url,
-      callback: function(e) {
-        var xhrIo = e.target;
+    var request =
+        ee.data.buildAsyncRequest_(
+            url, opt_callback, method, requestData, headers);
 
-        return handleResponse(
-            xhrIo.getStatus(),
-            goog.bind(xhrIo.getResponseHeader, xhrIo),
-            xhrIo.getResponseText(),
-            opt_callback);
-      },
-      method: method,
-      content: requestData,
-      headers: headers
-    });
+    ee.data.requestQueue_.push(request);
     ee.data.RequestThrottle_.fire();
     return null;
   } else {
     // Send a synchronous request.
-    var xmlHttp = goog.net.XmlHttp();
-    xmlHttp.open(method, url, false);
-    goog.object.forEach(headers, function(value, key) {
-      xmlHttp.setRequestHeader(key, value);
-    });
-    xmlHttp.send(requestData);
-    return handleResponse(
+    /**
+     * Wrapper around xmlHttp.setRequestHeader to be useable with parameter
+     * order of goog.object.forEach
+     * @this {!goog.net.XhrLike.OrNative}
+     * @param {string} value The value of the header.
+     * @param {string} key The key of the header;
+     */
+    var setRequestHeader = function(value, key) {
+      if (this.setRequestHeader) {
+        this.setRequestHeader(key, value);
+      }
+    };
+
+    // Retry 429 responses with exponential backoff.
+    var xmlHttp;
+    var retries = 0;
+    while (true) {
+      xmlHttp = goog.net.XmlHttp();
+      xmlHttp.open(method, url, false);
+      goog.object.forEach(headers, setRequestHeader, xmlHttp);
+      xmlHttp.send(requestData);
+      if (xmlHttp.status != 429 || retries > ee.data.MAX_SYNC_RETRIES_) {
+        break;
+      }
+      ee.data.sleep_(ee.data.calculateRetryWait_(retries++));
+    }
+
+    return ee.data.handleResponse_(
         xmlHttp.status,
         function getResponseHeaderSafe(header) {
           try {
@@ -1934,7 +1902,117 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
           }
         },
         xmlHttp.responseText,
-        null);
+        profileHookAtCallTime);
+  }
+};
+
+
+/**
+ * Creates an aync network request object using the specified parameters.
+ * The callback is wrapped so that exponential backoff is used in response to
+ * 429 errors.
+ * @param {string} url The request's URL.
+ * @param {!function(?, string=)} callback The callback to execute when the
+ *     request gets a response.
+ * @param {string} method The request's HTTP method.
+ * @param {?string} content The content of the request.
+ * @param {!Object<string,string>} headers The headers to send with the request.
+ * @return {ee.data.NetworkRequest_} The async request.
+ * @private
+ */
+ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
+  var retries = 0;
+  var request = {
+    url: url,
+    method: method,
+    content: content,
+    headers: headers
+  };
+  var profileHookAtCallTime = ee.data.profileHook_;
+  var wrappedCallback = function(e) {
+    var xhrIo = e.target;
+
+    if (xhrIo.getStatus() == 429 && retries < ee.data.MAX_ASYNC_RETRIES_) {
+      retries++;
+      setTimeout(function() {
+        ee.data.requestQueue_.push(request);
+        ee.data.RequestThrottle_.fire();
+      }, ee.data.calculateRetryWait_(retries));
+      return null;
+    }
+
+    return ee.data.handleResponse_(
+        xhrIo.getStatus(),
+        goog.bind(xhrIo.getResponseHeader, xhrIo),
+        xhrIo.getResponseText(),
+        profileHookAtCallTime,
+        callback);
+  };
+  request.callback = wrappedCallback;
+
+  return request;
+};
+
+
+/**
+ * Handles processing and dispatching a callback response.
+ * @param {number} status The status code of the response.
+ * @param {function(string):string?} getResponseHeader A function for getting
+ *     the value of a response headers for a given header name.
+ * @param {string} responseText The text of the response.
+ * @param {?function(string)} profileHook The profile hook at the time the
+ *     request was created.
+ * @param {function(?,string=)=} opt_callback An optional callback to execute if
+ *     the request is asynchronous.
+ * @return {Object} The response data, if the request is synchronous, otherwise
+ *     null, if the request is asynchronous.
+ * @private
+ */
+ee.data.handleResponse_ = function(
+    status, getResponseHeader, responseText, profileHook, opt_callback) {
+  var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
+  if (profileId && profileHook) {
+    profileHook(profileId);
+  }
+
+  var response, data, errorMessage;
+  var contentType = getResponseHeader('Content-Type');
+  contentType = contentType ?
+      contentType.replace(/;.*/, '') : 'application/json';
+  if (contentType == 'application/json' || contentType == 'text/json') {
+    try {
+      response = goog.json.unsafeParse(responseText);
+      data = response['data'];
+    } catch (e) {
+      errorMessage = 'Invalid JSON: ' + responseText;
+    }
+  } else {
+    errorMessage = 'Response was unexpectedly not JSON, but ' + contentType;
+  }
+
+  // Totally malformed, with either invalid JSON or JSON with
+  // neither a data nor an error property.
+  if (goog.isObject(response)) {
+    if ('error' in response && 'message' in response['error']) {
+      errorMessage = response['error']['message'];
+    } else if (!('data' in response)) {
+      errorMessage = 'Malformed response: ' + responseText;
+    }
+  } else if (status === 0) {
+    errorMessage = 'Failed to contact Earth Engine servers. Please check ' +
+        'your connection, firewall, or browser extension settings.';
+  } else if (status < 200 || status >= 300) {
+    errorMessage = 'Server returned HTTP code: ' + status;
+  }
+
+  if (opt_callback) {
+    opt_callback(data, errorMessage);
+    return null;
+  } else {
+    if (!errorMessage) {
+      return data;
+    }
+    throw new Error(errorMessage);
   }
 };
 
@@ -1960,7 +2038,9 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
   } else {
     // The library is not loaded; load it now.
     var callbackName = goog.now().toString(36);
-    while (callbackName in goog.global) callbackName += '_';
+    while (callbackName in goog.global) {
+      callbackName += '_';
+    }
     goog.global[callbackName] = function() {
       delete goog.global[callbackName];
       done();
@@ -1988,7 +2068,7 @@ ee.data.handleAuthResult_ = function(success, error, result) {
     var token = result['token_type'] + ' ' + result['access_token'];
     if (isFinite(result['expires_in'])) {
       // Conservatively consider tokens expired slightly before actual expiry.
-      var expiresInMs = result['expires_in'] * 1000 * .9;
+      var expiresInMs = result['expires_in'] * 1000 * 0.9;
 
       // Set up a refresh timer. This is necessary because we cannot refresh
       // synchronously, but since we want to allow synchronous API requests,
@@ -2000,12 +2080,14 @@ ee.data.handleAuthResult_ = function(success, error, result) {
       // the token if needed. See ee.data.authenticate() docs for more info.
       // Note that we multiply by .9 *again* to prevent simultaneous
       // on-demand-refresh and timer-refresh.
-      setTimeout(ee.data.refreshAuthToken, expiresInMs * .9);
+      setTimeout(ee.data.refreshAuthToken, expiresInMs * 0.9);
 
       ee.data.authTokenExpiration_ = goog.now() + expiresInMs;
     }
     ee.data.authToken_ = token;
-    if (success) success();
+    if (success) {
+      success();
+    }
   } else if (error) {
     error(result['error'] || 'Unknown error.');
   }
@@ -2071,7 +2153,8 @@ ee.data.setupMockSend = function(opt_calls) {
     if (!goog.isString(response.text)) {
       throw new Error(url + ' mock response missing/invalid text');
     }
-    if (!goog.isNumber(response.status)) {
+
+    if (!goog.isNumber(response.status) && !goog.isFunction(response.status)) {
       throw new Error(url + ' mock response missing/invalid status');
     }
     return response;
@@ -2089,9 +2172,11 @@ ee.data.setupMockSend = function(opt_calls) {
     e.target.getResponseText = function() {
       return responseData.text;
     };
-    e.target.getStatus = function() {
-      return responseData.status;
-    };
+    e.target.getStatus = goog.isFunction(responseData.status) ?
+        responseData.status :
+        function() {
+          return responseData.status;
+        };
     e.target.getResponseHeader = function(header) {
       if (header === 'Content-Type') {
         return responseData.contentType;
@@ -2124,7 +2209,8 @@ ee.data.setupMockSend = function(opt_calls) {
   fakeXmlHttp.prototype.send = function(data) {
     var responseData = getResponse(this.url, this.method, data);
     this.responseText = responseData.text;
-    this.status = responseData.status;
+    this.status = goog.isFunction(responseData.status) ?
+        responseData.status() : responseData.status;
     this.contentType_ = responseData.contentType;
   };
   goog.net.XmlHttp = function() {
@@ -2141,6 +2227,29 @@ ee.data.isAuthTokenRefreshingEnabled_ = function() {
   return Boolean(ee.data.authTokenRefresher_ && ee.data.authClientId_);
 };
 
+
+/**
+ * @param {number} retryCount The number of retries attempted including the
+ *     current one.
+ * @return {number} The time to wait before retrying a request.
+ * @private
+ */
+ee.data.calculateRetryWait_ = function(retryCount) {
+  return Math.min(ee.data.MAX_RETRY_WAIT_,
+                  Math.pow(2, retryCount) * ee.data.BASE_RETRY_WAIT_);
+};
+
+
+/**
+ * Block all script execution for a given period of time.
+ * @param {number} timeInMs The amount of time to sleep (in milliseconds).
+ * @private
+ */
+ee.data.sleep_ = function(timeInMs) {
+  var end = new Date().getTime() + timeInMs;
+  while (new Date().getTime() < end) {}
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 //                     Private variables and types.                           //
 ////////////////////////////////////////////////////////////////////////////////
@@ -2150,10 +2259,10 @@ ee.data.isAuthTokenRefreshingEnabled_ = function() {
  * A data model for a network request.
  * @typedef {{
  *   url: string,
- *   callback: !Function,
+ *   callback: !function(?, string=),
  *   method: string,
  *   content: ?string,
- *   headers: !Object
+ *   headers: !Object<string,string>
  * }}
  * @private
  */
@@ -2161,20 +2270,23 @@ ee.data.NetworkRequest_;
 
 
 /**
- * @private {!Array<ee.data.NetworkRequest_>} A list of queued network requests.
+ * A list of queued network requests.
+ * @private {!Array<!ee.data.NetworkRequest_>}
  */
 ee.data.requestQueue_ = [];
 
 
 /**
- * @private {number} The network request throttle interval in milliseconds. The
- *     server permits ~3 QPS https://developers.google.com/earth-engine/usage.
+ * The network request throttle interval in milliseconds. The server permits ~3
+ * QPS https://developers.google.com/earth-engine/usage.
+ * @private @const {number}
  */
 ee.data.REQUEST_THROTTLE_INTERVAL_MS_ = 350;
 
 
 /**
- * @private {!goog.async.Throttle} A throttle for sending network requests.
+ * A throttle for sending network requests.
+ * @private {!goog.async.Throttle}
  */
 ee.data.RequestThrottle_ = new goog.async.Throttle(function() {
   var request = ee.data.requestQueue_.shift();
@@ -2190,121 +2302,156 @@ ee.data.RequestThrottle_ = new goog.async.Throttle(function() {
 
 
 /**
- * @type {string?} The base URL for all API calls.
- * @private
+ * The base URL for all API calls.
+ * @private {?string}
  */
 ee.data.apiBaseUrl_ = null;
 
 
 /**
- * @type {string?} The base URL for map tiles.
- * @private
+ * The base URL for map tiles.
+ * @private {?string}
  */
 ee.data.tileBaseUrl_ = null;
 
 
 /**
- * @type {string?} A string to pass in the X-XSRF-Token header of XHRs.
- * @private
+ * A string to pass in the X-XSRF-Token header of XHRs.
+ * @private {?string}
  */
 ee.data.xsrfToken_ = null;
 
 
 /**
- * @type {function(!goog.Uri.QueryData, string): !goog.Uri.QueryData} A function
- *     used to transform parameters right before they are sent to the server.
- *     Takes the URL of the request as the second argument.
- * @private
+ * A function used to transform parameters right before they are sent to the
+ * server. Takes the URL of the request as the second argument.
+ * @private {function(!goog.Uri.QueryData, string): !goog.Uri.QueryData}
  */
 ee.data.paramAugmenter_ = goog.functions.identity;
 
 
 /**
- * @private {string?} An OAuth2 token to use for authenticating EE API calls.
+ * An OAuth2 token to use for authenticating EE API calls.
+ * @private {?string}
  */
 ee.data.authToken_ = null;
 
 
 /**
- * @private {number?} The milliseconds in epoch time when the token expires.
+ * The milliseconds in epoch time when the token expires.
+ * @private {?number}
  */
 ee.data.authTokenExpiration_ = null;
 
 
 /**
- * @private {string?} The client ID used to retrieve OAuth2 tokens.
+ * The client ID used to retrieve OAuth2 tokens.
+ * @private {?string}
  */
 ee.data.authClientId_ = null;
 
 
 /**
- * @private {!Array<string>} The scopes to request when retrieving OAuth tokens.
+ * The scopes to request when retrieving OAuth tokens.
+ * @private {!Array<string>}
  */
 ee.data.authScopes_ = [];
 
 
 /**
+ * A function that takes as input 1) auth arguments and 2) a callback to which
+ * it passes an auth response object upon completion.
  * @private {?function(ee.data.AuthArgs, function(ee.data.AuthResponse))}
- *     A function that takes as input 1) auth arguments and 2) a callback to
- *     which it passes an auth response object upon completion.
  */
 ee.data.authTokenRefresher_ = null;
 
 
 /**
- * @private @const {string} The OAuth scope for the EE API.
+ * The OAuth scope for the EE API.
+ * @private @const {string}
  */
 ee.data.AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine';
 
 
 /**
- * @private @const {string} The URL of the Google APIs Client Library.
+ * The URL of the Google APIs Client Library.
+ * @private @const {string}
  */
 ee.data.AUTH_LIBRARY_URL_ = 'https://apis.google.com/js/client.js';
 
 
 /**
- * @type {boolean} Whether the library has been initialized.
- * @private
+ * Whether the library has been initialized.
+ * @private {boolean}
  */
 ee.data.initialized_ = false;
 
 
 /**
- * @type {number} The number of milliseconds to wait for each request before
- *     considering it timed out. 0 means no limit. Note that this is not
- *     supported by browsers for synchronous requests.
- * @private
+ * The number of milliseconds to wait for each request before considering it
+ * timed out. 0 means no limit. Note that this is not supported by browsers for
+ * synchronous requests.
+ * @private {number}
  */
 ee.data.deadlineMs_ = 0;
 
 
 /**
- * @private {?function(string)} A function called when profile results are
- *     received from the server. Takes the profile ID as an argument.
- *     Null if profiling is disabled.
+ * A function called when profile results are received from the server. Takes
+ * the profile ID as an argument. Null if profiling is disabled.
+ * @private {?function(string)}
  */
 ee.data.profileHook_ = null;
 
 
 /**
- * @type {string} The HTTP header through which profile results are returned.
- * @const
+ * The minimum increment of time (in milliseconds) to wait before retrying a
+ * request in response to a 429 response.
+ * @private @const {number}
+ */
+ee.data.BASE_RETRY_WAIT_ = 1000;
+
+
+/**
+ * The minimum increment of time (in milliseconds) to wait before retrying a
+ * request in response to a 429 response.
+ * @private @const {number}
+ */
+ee.data.MAX_RETRY_WAIT_ = 120000;
+
+
+/**
+ * The maximum number of times to retry an asynchronous request if it is
+ * rate-limited.
+ * @private @const {number}
+ */
+ee.data.MAX_ASYNC_RETRIES_ = 10;
+
+
+/**
+ * The maximum number of times to retry a synchronous request if it is
+ * rate-limited.
+ * @private @const {number}
+ */
+ee.data.MAX_SYNC_RETRIES_ = 5;
+
+
+/**
+ * The HTTP header through which profile results are returned.
+ * @const {string}
  */
 ee.data.PROFILE_HEADER = 'X-Earth-Engine-Computation-Profile';
 
 
 /**
- * @type {string} The default base URL for API calls.
- * @private
- * @const
+ * The default base URL for API calls.
+ * @private @const {string}
  */
 ee.data.DEFAULT_API_BASE_URL_ = 'https://earthengine.googleapis.com/api';
 
 
 /**
- * @type {string} The default base URL for media/tile calls.
- * @private
- * @const
+ * The default base URL for media/tile calls.
+ * @private @const {string}
  */
 ee.data.DEFAULT_TILE_BASE_URL_ = 'https://earthengine.googleapis.com';

@@ -119,7 +119,10 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
    * @type {Array?}
    * @private
    */
-  this.coordinates_ = geoJson['coordinates'] || null;
+  this.coordinates_ =
+      goog.isDefAndNotNull(geoJson['coordinates']) ?
+      goog.object.unsafeClone(geoJson['coordinates']) :
+      null;
 
   /**
    * The subgeometries, non-null iff type is GeometryCollection.
