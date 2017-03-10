@@ -293,9 +293,6 @@ goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
  *     projection. If true, edges are curved to follow the shortest path on the
  *     surface of the Earth. The default is the geodesic state of the inputs, or
  *     true if the inputs are numbers.
- * @param {ee.ErrorMargin=} opt_maxError Max error when input geometry must be
- *     reprojected to an explicitly requested result projection or geodesic
- *     state.
  * @param {boolean=} opt_evenOdd If true, polygon interiors will be determined
  *     by the even/odd rule, where a point is inside if it crosses an odd number
  *     of edges to reach a point at infinity. Otherwise polygons use the left-
@@ -306,8 +303,7 @@ goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
  * @extends {ee.Geometry}
  * @export
  */
-ee.Geometry.Rectangle = function(
-    coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
+ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_evenOdd) {
   if (!(this instanceof ee.Geometry.Rectangle)) {
     return ee.Geometry.createInstance_(ee.Geometry.Rectangle, arguments);
   }

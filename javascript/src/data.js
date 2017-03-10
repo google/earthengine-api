@@ -1123,7 +1123,7 @@ ee.data.AssetType = {
   FOLDER: 'Folder',
   IMAGE: 'Image',
   IMAGE_COLLECTION: 'ImageCollection',
-  TABLE: 'FeatureCollection',
+  TABLE: 'Table',
   UNKNOWN: 'Unknown'
 };
 
@@ -1506,6 +1506,7 @@ ee.data.AbstractTaskConfig;
  *   maxPixels: (undefined|number),
  *   shardSize: (undefined|number),
  *   fileDimensions: (undefined|string|number|Array<number>),
+ *   skipEmptyTiles: (undefined|boolean),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),

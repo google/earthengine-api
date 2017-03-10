@@ -482,13 +482,12 @@ ee.Geometry.Polygon = function(coords, opt_proj, opt_geodesic, opt_maxError, opt
  * @param {(Array|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
- * @param {(ee.ErrorMargin|null)=} opt_maxError
  * @param {boolean=} opt_evenOdd
  * @return {?}
  * @extends {ee.Geometry}
  * @constructor
  */
-ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
+ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_evenOdd) {
 };
 /**
  * @return {string}

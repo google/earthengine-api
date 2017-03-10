@@ -80,6 +80,15 @@ def _upload(args, request, ingestion_function):
 
 
 # Argument types
+def _comma_separated_strings(string):
+  """Parses an input consisting of comma-separated strings."""
+  error_msg = 'Argument should be a comma-separated list of strings: {}'
+  values = string.split(',')
+  if not values:
+    raise argparse.ArgumentTypeError(error_msg.format(string))
+  return values
+
+
 def _comma_separated_numbers(string):
   """Parses an input consisting of comma-separated numbers."""
   error_msg = 'Argument should be a comma-separated list of numbers: {}'
@@ -831,8 +840,26 @@ class UploadImageCommand(object):
         '--pyramiding_policy',
         help='The pyramid reduction policy to use',
         type=_comma_separated_pyramiding_policies)
+    parser.add_argument(
+        '--bands',
+        help='Comma-separated list of names to use for the image bands.',
+        type=_comma_separated_strings)
+    parser.add_argument(
+        '--crs',
+        help='The coordinate reference system, to override the map projection '
+             'of the image. May be either a well-known authority code (e.g. '
+             'EPSG:4326) or a WKT string.')
     _add_property_flags(parser)
-    # TODO(user): add --bands arg
+
+  def _check_num_bands(self, request, num_bands, flag_name):
+    """Checks the number of bands, creating them if there are none yet."""
+    if 'bands' in request:
+      if len(request['bands']) != num_bands:
+        raise ValueError(
+            'Inconsistent number of bands in --{}: expected {} but found {}.'
+            .format(flag_name, len(request['bands']), num_bands))
+    else:
+      request['bands'] = [{'id': 'b%d' % (i + 1)} for i in xrange(num_bands)]
 
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
@@ -857,31 +884,28 @@ class UploadImageCommand(object):
       tileset['fileBands'] = [{'fileBandIndex': -1, 'maskForAllBands': True}]
     request['tilesets'] = [tileset]
 
+    if args.bands:
+      request['bands'] = [{'id': name} for name in args.bands]
+
     if args.pyramiding_policy:
       if len(args.pyramiding_policy) == 1:
         request['pyramidingPolicy'] = args.pyramiding_policy[0].upper()
       else:
-        bands = []
+        self._check_num_bands(request, len(args.pyramiding_policy),
+                              'pyramiding_policy')
         for index, policy in enumerate(args.pyramiding_policy):
-          bands.append({'id': index, 'pyramidingPolicy': policy.upper()})
-        request['bands'] = bands
+          request['bands'][index]['pyramidingPolicy'] = policy.upper()
 
     if args.nodata_value:
       if len(args.nodata_value) == 1:
         request['missingData'] = {'value': args.nodata_value[0]}
       else:
-        if 'bands' in request:
-          if len(request['bands']) != len(args.nodata_value):
-            raise ValueError('Inconsistent number of bands: {} and {}'
-                             .format(args.pyramiding_policy, args.nodata_value))
-        else:
-          request['bands'] = []
-        bands = request['bands']
+        self._check_num_bands(request, len(args.nodata_value), 'nodata_value')
         for index, nodata in enumerate(args.nodata_value):
-          if index < len(bands):
-            bands[index]['missingData'] = {'value': nodata}
-          else:
-            bands.append({'id': index, 'missingData': {'value': nodata}})
+          request['bands'][index]['missingData'] = {'value': nodata}
+
+    if args.crs:
+      request['crs'] = args.crs
 
     _upload(args, request, ee.data.startIngestion)
 
