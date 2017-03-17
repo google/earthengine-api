@@ -1846,7 +1846,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
 
   // Encode the request params in the URL if the request is a GET request.
   var requestData = params ? params.toString() : '';
-  if (method == 'GET' && !goog.string.isEmpty(requestData)) {
+  if (method == 'GET' && !goog.string.isEmptyOrWhitespace(requestData)) {
     path += goog.string.contains(path, '?') ? '&' : '?';
     path += requestData;
     requestData = null;
