@@ -10,7 +10,7 @@
 
 var gsw = ee.Image('JRC/GSW1_0/GlobalSurfaceWater');
 var occurrence = gsw.select('occurrence');
-var occurrence_change_intensity = gsw.select("change_abs");
+var change = gsw.select("change_abs");
 // [START define_transition]
 var transition = gsw.select('transition');
 // [END define_transition]
@@ -37,16 +37,10 @@ var VIS_WATER_MASK = {
   palette: ['white', 'black']
 };
 
-// [START define_create_feature]
+// [START define_helper_functions]
 //////////////////////////////////////////////////////////////
-// Helper functions.
+// Helper functions
 //////////////////////////////////////////////////////////////
-
-// Create a dictionary for looking up transition classes.
-var lookup = ee.Dictionary.fromLists(
-    ee.List(gsw.get('transition_class_values')).map(ee.String),
-    gsw.get('transition_class_names')
-);
 
 // Create a feature for a transition class that includes the area covered.
 function createFeature(transition_class_stats) {
@@ -54,16 +48,38 @@ function createFeature(transition_class_stats) {
   var class_number = transition_class_stats.get('transition_class_value');
   var result = {
       transition_class_number: class_number,
-      transition_class_name: lookup.get(class_number),
+      transition_class_name: lookup_names.get(class_number),
+      transition_class_palette: lookup_palette.get(class_number),
       area_m2: transition_class_stats.get('sum')
   };
   return ee.Feature(null, result);   // Creates a feature without a geometry.
 }
-// [END define_create_feature]
 
+// Create a JSON dictionary that defines piechart colors based on the
+// transition class palette.
+// https://developers.google.com/chart/interactive/docs/gallery/piechart
+function createPieChartSliceDictionary(fc) {
+  return ee.List(fc.aggregate_array("transition_class_palette"))
+    .map(function(p) { return {'color': p}; }).getInfo();
+}
+// [END define_helper_functions]
+
+// [START define_lookup_dictionaries]
 //////////////////////////////////////////////////////////////
 // Calculations
 //////////////////////////////////////////////////////////////
+
+// Create a dictionary for looking up names of transition classes.
+var lookup_names = ee.Dictionary.fromLists(
+    ee.List(gsw.get('transition_class_values')).map(ee.String),
+    gsw.get('transition_class_names')
+);
+// Create a dictionary for looking up colors of transition classes.
+var lookup_palette = ee.Dictionary.fromLists(
+    ee.List(gsw.get('transition_class_values')).map(ee.String),
+    gsw.get('transition_class_palette')
+);
+// [END define_lookup_dictionaries]
 
 // Create a water mask layer, and set the image mask so that non-water areas
 // are transparent.
@@ -71,7 +87,7 @@ var water_mask = occurrence.gt(90).mask(1);
 
 // Generate a histogram object and print it to the console tab.
 var histogram = ui.Chart.image.histogram({
-  image: occurrence_change_intensity,
+  image: change,
   region: roi,
   scale: 30,
   minBucketWidth: 10
@@ -116,7 +132,9 @@ var transition_summary_chart = ui.Chart.feature.byFeature({
   })
   .setChartType('PieChart')
   .setOptions({
-    title: 'Summary of transition class areas'
+    title: 'Summary of transition class areas',
+    slices: createPieChartSliceDictionary(transition_fc),
+    sliceVisibilityThreshold: 0  // Don't group small slices.
   });
 print(transition_summary_chart);
 // [END add_summary_chart]
@@ -151,13 +169,13 @@ Map.addLayer({
   shown: false
 });
 Map.addLayer({
-  eeObject: occurrence,
+  eeObject: occurrence.updateMask(occurrence.divide(100)),
   name: "Water Occurrence (1984-2015)",
   visParams: VIS_OCCURRENCE,
   shown: false
 });
 Map.addLayer({
-  eeObject: occurrence_change_intensity,
+  eeObject: change,
   visParams: VIS_CHANGE,
   name: 'occurrence change intensity',
   shown: false

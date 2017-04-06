@@ -16,14 +16,6 @@ Map.addLayer({
 });
 // [END addLayer_occurrence_v1]
 
-// [START addLayer_occurrence_v2]
-Map.addLayer({
-  eeObject: occurrence,
-  name: "Water Occurrence (1984-2015)",
-  visParams: VIS_OCCURRENCE
-});
-// [END addLayer_occurrence_v2]
-
 // [START addLayer_watermask]
 Map.addLayer({
   eeObject: water_mask,
@@ -95,11 +87,11 @@ Map.addLayer({
   name: '90% occurrence water mask',
   shown: false
 });
-// [START addLayer_occurrence]
+// [START addLayer_occurrence_v2]
 Map.addLayer({
-  eeObject: occurrence,
+  eeObject: occurrence.updateMask(occurrence.divide(100)),
   name: "Water Occurrence (1984-2015)",
   visParams: VIS_OCCURRENCE
 });
-// [END addLayer_occurrence]
+// [END addLayer_occurrence_v2]
 // [START final_script]

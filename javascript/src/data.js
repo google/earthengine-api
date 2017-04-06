@@ -39,8 +39,8 @@ goog.provide('ee.data.MapZoomRange');
 goog.provide('ee.data.MissingData');
 goog.provide('ee.data.PixelTypeDescription');
 goog.provide('ee.data.ProcessingResponse');
+goog.provide('ee.data.PyramidingPolicy');
 goog.provide('ee.data.RawMapId');
-goog.provide('ee.data.ReductionPolicy');
 goog.provide('ee.data.ShortAssetDescription');
 goog.provide('ee.data.SystemTimeProperty');
 goog.provide('ee.data.TableDescription');
@@ -1672,8 +1672,8 @@ ee.data.AssetDescription;
  *   'id': string,
  *   'tilesets': !Array<ee.data.Tileset>,
  *   'bands': (undefined|!Array<ee.data.Band>),
- *   'properties: (undefined|!Object),
- *   'reductionPolicy': (undefined|ee.data.ReductionPolicy),
+ *   'properties': (undefined|!Object),
+ *   'pyramidingPolicy': (undefined|ee.data.PyramidingPolicy),
  *   'missingData': (undefined|ee.data.MissingData)
  * }}
  */
@@ -1690,8 +1690,8 @@ ee.data.IngestionRequest;
 ee.data.MissingData;
 
 
-/** @enum {string} The reduction policies choices for newly uploaded assets. */
-ee.data.ReductionPolicy = {
+/** @enum {string} The pyramiding policy choices for newly uploaded assets. */
+ee.data.PyramidingPolicy = {
   MEAN: 'MEAN',
   MODE: 'MODE',
   MIN: 'MIN',

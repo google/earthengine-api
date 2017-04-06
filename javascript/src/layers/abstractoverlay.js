@@ -2,6 +2,7 @@ goog.provide('ee.layers.AbstractOverlay');
 goog.provide('ee.layers.AbstractTile');
 goog.provide('ee.layers.TileFailEvent');
 goog.provide('ee.layers.TileLoadEvent');
+goog.provide('ee.layers.TileThrottleEvent');
 
 goog.require('goog.array');
 goog.require('goog.events');
@@ -9,7 +10,9 @@ goog.require('goog.events.Event');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventTarget');
 goog.require('goog.fs.FileReader');
+goog.require('goog.json');
 goog.require('goog.net.EventType');
+goog.require('goog.net.HttpStatus');
 goog.require('goog.net.XhrIo');
 goog.require('goog.object');
 goog.require('goog.structs.Map');
@@ -83,6 +86,7 @@ goog.inherits(ee.layers.AbstractOverlay, goog.events.EventTarget);
 /** @enum {string} The event types dispatched by AbstractOverlay. */
 ee.layers.AbstractOverlay.EventType = {
   TILE_FAIL: 'tile-fail',
+  TILE_THROTTLE: 'tile-throttle',
   TILE_LOAD: 'tile-load'
 };
 
@@ -115,10 +119,11 @@ ee.layers.AbstractOverlay.prototype.removeTileCallback = function(callbackId) {
 
 /**
  * @return {number} The number of tiles yet to be loaded. Includes tiles
- *     with the status NEW or LOADING.
+ *     with the status NEW or LOADING or THROTTLED.
  */
 ee.layers.AbstractOverlay.prototype.getLoadingTilesCount = function() {
   return (
+      this.getTileCountForStatus_(ee.layers.AbstractTile.Status.THROTTLED) +
       this.getTileCountForStatus_(ee.layers.AbstractTile.Status.LOADING) +
       this.getTileCountForStatus_(ee.layers.AbstractTile.Status.NEW));
 };
@@ -180,13 +185,20 @@ ee.layers.AbstractOverlay.prototype.getTile = function(
   // Notify listeners when the tile has loaded.
   this.handler.listen(
       tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
-        if (tile.getStatus() == ee.layers.AbstractTile.Status.LOADED) {
-          this.dispatchEvent(
-              new ee.layers.TileLoadEvent(this.getLoadingTilesCount()));
-        }
-        if (tile.getStatus() == ee.layers.AbstractTile.Status.FAILED) {
-          this.dispatchEvent(
-              new ee.layers.TileFailEvent(tile.sourceUrl, tile.errorMessage_));
+        var Status = ee.layers.AbstractTile.Status;
+
+        switch (tile.getStatus()) {
+          case Status.LOADED:
+            this.dispatchEvent(
+                new ee.layers.TileLoadEvent(this.getLoadingTilesCount()));
+            break;
+          case Status.THROTTLED:
+            this.dispatchEvent(new ee.layers.TileThrottleEvent(tile.sourceUrl));
+            break;
+          case Status.FAILED:
+            this.dispatchEvent(new ee.layers.TileFailEvent(
+                tile.sourceUrl, tile.errorMessage_));
+            break;
         }
       });
 
@@ -299,6 +311,22 @@ ee.layers.TileLoadEvent = function(loadingTileCount) {
 goog.inherits(ee.layers.TileLoadEvent, goog.events.Event);
 
 
+/**
+ * An event dispatched when a tile fails to load due to throttling.
+ * @param {string} tileUrl The URL of the throttled tile.
+ * @constructor
+ * @extends {goog.events.Event}
+ */
+ee.layers.TileThrottleEvent = function(tileUrl) {
+  goog.events.Event.call(
+      this, ee.layers.AbstractOverlay.EventType.TILE_THROTTLE);
+
+  /** @const {string} The URL of the throttled tile. */
+  this.tileUrl = tileUrl;
+};
+goog.inherits(ee.layers.TileThrottleEvent, goog.events.Event);
+
+
 
 /**
  * An event dispatched when a tile fails.
@@ -408,6 +436,8 @@ ee.layers.AbstractTile.EventType = {
  *
  *   - NEW after instantiation until startLoad() is invoked.
  *   - LOADING once the network request for source data is dispatched.
+ *   - THROTTLED if the tile is waiting to retry after the concurrent tile
+ *     request limit has been exceeded.
  *   - LOADED once the source data has been received and tile's been rendered.
  *   - FAILED if the maximum retry limit is exceeded.
  *   - ABORTED if abort() is invoked.
@@ -417,6 +447,7 @@ ee.layers.AbstractTile.EventType = {
 ee.layers.AbstractTile.Status = {
   NEW: 'new',
   LOADING: 'loading',
+  THROTTLED: 'throttled',
   LOADED: 'loaded',
   FAILED: 'failed',
   ABORTED: 'aborted'
@@ -441,7 +472,14 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
   this.xhrIo_.setResponseType(goog.net.XhrIo.ResponseType.BLOB);
   this.xhrIo_.listen(goog.net.EventType.COMPLETE, function(event) {
     var blob = /** @type {!Blob} */ (this.xhrIo_.getResponse());
-    if (this.xhrIo_.getStatus() >= 200 && this.xhrIo_.getStatus() < 300) {
+    var status = this.xhrIo_.getStatus();
+    var HttpStatus = goog.net.HttpStatus;
+    if (status == HttpStatus.TOO_MANY_REQUESTS) {
+      this.setStatus(ee.layers.AbstractTile.Status.THROTTLED);
+    }
+
+    // Ensure the response code is in the 200 block of "successful" statuses.
+    if (status >= HttpStatus.OK && status < HttpStatus.MULTIPLE_CHOICES) {
       this.sourceResponseHeaders = this.xhrIo_.getResponseHeaders();
       this.sourceData = blob;
       this.finishLoad();
@@ -482,23 +520,40 @@ ee.layers.AbstractTile.prototype.cancelLoad = function() {
 
 
 /**
- * Retries the tile load. If the maximum number of attempts has already been
- * reached, then the status is set to failed and the retry is not attempted.
+ * Retries the tile load using exponential backoff. If the maximum number of
+ * attempts has already been reached, then the status is set to failed and the
+ * retry is not attempted.
  * @param {string=} opt_errorMessage The message of the error that triggered
  *     the retry, if any.
  * @package
  */
 ee.layers.AbstractTile.prototype.retryLoad = function(opt_errorMessage) {
+  var parseError = function(error) {
+    try {
+      error = goog.json.unsafeParse(error);
+      if (error['error'] && error['error']['message']) {
+        return error['error']['message'];
+      }
+    } catch (e) {
+      // The response isn't JSON.
+    }
+
+    return error;
+  };
+
   if (this.retryAttemptCount_ >= this.maxRetries) {
-    this.errorMessage_ = opt_errorMessage;
+    this.errorMessage_ = parseError(opt_errorMessage);
     this.setStatus(ee.layers.AbstractTile.Status.FAILED);
     return;
   }
-  this.retryAttemptCount_++;
-  this.isRetrying_ = true;
   this.cancelLoad();
-  this.startLoad();
-  this.isRetrying_ = false;
+  setTimeout(goog.bind(function() {
+    if (!this.isDisposed()) {
+      this.isRetrying_ = true;
+      this.startLoad();
+      this.isRetrying_ = false;
+    }
+  }, this), 1000 * Math.pow(2, this.retryAttemptCount_++));
 };
 
 
@@ -552,4 +607,4 @@ ee.layers.AbstractTile.prototype.disposeInternal = function() {
 
 
 /** @private {number} The default number of maximum tile load attempts. */
-ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_ = 1;
+ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_ = 5;

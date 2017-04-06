@@ -996,7 +996,7 @@ ee.data.setParamAugmenter = function(augmenter) {
 };
 /**
  * @param {string} taskId
- * @param {{bands: (Array<ee.data.Band>|undefined), id: string, missingData: (ee.data.MissingData|undefined), propertie: (Object|undefined), reductionPolicy: (ee.data.ReductionPolicy|undefined), tilesets: !Array<ee.data.Tileset>}} request
+ * @param {{bands: (Array<ee.data.Band>|undefined), id: string, missingData: (ee.data.MissingData|undefined), properties: (Object|undefined), pyramidingPolicy: (ee.data.PyramidingPolicy|undefined), tilesets: !Array<ee.data.Tileset>}} request
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */
@@ -1012,7 +1012,7 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
 };
 /**
  * @param {string} taskId
- * @param {{id: string, propertie: (Object|undefined), sources: !Array<ee.data.FileSource>}} request
+ * @param {{id: string, properties: (Object|undefined), sources: !Array<ee.data.FileSource>}} request
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */

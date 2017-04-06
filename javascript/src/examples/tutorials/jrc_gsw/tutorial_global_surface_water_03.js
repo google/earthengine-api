@@ -5,7 +5,7 @@
 
 // [START histogram_reducer]
 // Calculate a change intensity for the region of interest.
-var histogram = occurrence_change_intensity.reduceRegion({
+var histogram = change.reduceRegion({
   reducer: ee.Reducer.histogram(),
   geometry: roi,
   scale: 30,
@@ -101,7 +101,7 @@ Map.addLayer({
   shown: false
 });
 Map.addLayer({
-  eeObject: occurrence,
+  eeObject: occurrence.updateMask(occurrence.divide(100)),
   name: "Water Occurrence (1984-2015)",
   visParams: VIS_OCCURRENCE,
   shown: false
