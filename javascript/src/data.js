@@ -1166,12 +1166,20 @@ ee.data.AssetDetailsProperty = {
 };
 
 
+ee.data.ALLOWED_DESCRIPTION_HTML_TABLE_ELEMENTS_ = [
+  'col', 'colgroup', 'caption', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead',
+  'tr'
+];
+
+
 /**
  * The HTML element names that should be allowed in asset descriptions.
  * @const {!Array<string>}
  */
 ee.data.ALLOWED_DESCRIPTION_HTML_ELEMENTS =
-    ['a', 'code', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub', 'sup', 'ul'];
+    ee.data.ALLOWED_DESCRIPTION_HTML_TABLE_ELEMENTS_.concat([
+      'a', 'code', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub', 'sup', 'ul'
+    ]);
 
 
 /**
@@ -1982,7 +1990,7 @@ ee.data.handleResponse_ = function(
       contentType.replace(/;.*/, '') : 'application/json';
   if (contentType == 'application/json' || contentType == 'text/json') {
     try {
-      response = goog.json.unsafeParse(responseText);
+      response = JSON.parse(responseText);
       data = response['data'];
     } catch (e) {
       errorMessage = 'Invalid JSON: ' + responseText;

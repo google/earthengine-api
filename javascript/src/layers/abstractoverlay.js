@@ -10,7 +10,6 @@ goog.require('goog.events.Event');
 goog.require('goog.events.EventHandler');
 goog.require('goog.events.EventTarget');
 goog.require('goog.fs.FileReader');
-goog.require('goog.json');
 goog.require('goog.net.EventType');
 goog.require('goog.net.HttpStatus');
 goog.require('goog.net.XhrIo');
@@ -530,7 +529,7 @@ ee.layers.AbstractTile.prototype.cancelLoad = function() {
 ee.layers.AbstractTile.prototype.retryLoad = function(opt_errorMessage) {
   var parseError = function(error) {
     try {
-      error = goog.json.unsafeParse(error);
+      error = JSON.parse(error);
       if (error['error'] && error['error']['message']) {
         return error['error']['message'];
       }
