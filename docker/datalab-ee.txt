@@ -1,0 +1,12 @@
+
+## Earth Engine API Library and Dependencies
+- asn1crypto [https://pypi.python.org/pypi/asn1crypto]
+- cffi [https://pypi.python.org/pypi/cffi]
+- cryptography [https://pypi.python.org/pypi/cryptography]
+- earthengine-api [https://pypi.python.org/pypi/earthengine-api]
+- idna [https://pypi.python.org/pypi/idna]
+- ipaddress [https://pypi.python.org/pypi/ipaddress]
+- pbr [https://pypi.python.org/pypi/pbr]
+- pycparser [https://pypi.python.org/pypi/pycparser]
+- pyOpenSSL [https://pypi.python.org/pypi/pyOpenSSL]
+- setuptools [https://pypi.python.org/pypi/setuptools]
