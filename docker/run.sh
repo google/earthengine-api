@@ -18,8 +18,8 @@ TMPDIR=temp-repo
 mkdir -p /content/datalab
 cd /content/datalab
 
-echo "Ensuring the Earth Engine examples have been cloned."
-if [ ! -d "ee-jupyter-examples" ]; then
+if [[ ! -d "docs-earthengine" ]]; then
+  echo "Adding Earth Engine docs to the Datalab container..."
   # Clone the repository into a temporary directory.
   git clone https://github.com/google/earthengine-api $TMPDIR
   # Copy the IPython Notebook examples.
