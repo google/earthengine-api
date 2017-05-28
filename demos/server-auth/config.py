@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 """An example config.py file."""
 
-
 import ee
+from oauth2client.service_account import ServiceAccountCredentials
 
-# The service account email address authorized by your Google contact.
-# Set up a service account as described in the README.
-EE_ACCOUNT = 'your-service-account-id@developer.gserviceaccount.com'
+# Set up a service account as described in the README, and generate a 
+# a private key in JSON format via the Google API Console.
+# https://console.cloud.google.com/iam-admin/serviceaccounts/
 
-# The private key associated with your service account in Privacy Enhanced
-# Email format (.pem suffix).  To convert a private key from the RSA format
-# (.p12 suffix) to .pem, run the openssl command like this:
-# openssl pkcs12 -in downloaded-privatekey.p12 -nodes -nocerts > privatekey.pem
-EE_PRIVATE_KEY_FILE = 'privatekey.pem'
+EE_SCOPE = 'https://www.googleapis.com/auth/earthengine'
+EE_PRIVATE_KEY_FILE = 'privatekey.json'
 
-EE_CREDENTIALS = ee.ServiceAccountCredentials(EE_ACCOUNT, EE_PRIVATE_KEY_FILE)
+EE_CREDENTIALS = ServiceAccountCredentials.from_json_keyfile_name(
+  EE_PRIVATE_KEY_FILE, EE_SCOPE)
