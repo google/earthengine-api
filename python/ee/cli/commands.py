@@ -825,6 +825,7 @@ class UploadImageCommand(object):
         nargs='+')
     parser.add_argument(
         '--asset_id',
+        required=True,
         help='Destination asset ID for the uploaded file.')
     parser.add_argument(
         '--last_band_alpha',
@@ -910,6 +911,43 @@ class UploadImageCommand(object):
     _upload(args, request, ee.data.startIngestion)
 
 
+# TODO(user): update src_files help string when secondary files
+# can be uploaded.
+class UploadTableCommand(object):
+  """Uploads a table from Cloud Storage to Earth Engine."""
+
+  name = 'table'
+
+  def __init__(self, parser):
+    _add_wait_arg(parser)
+    parser.add_argument(
+        'src_file',
+        help=('Cloud Storage URL of the .zip or .shp file '
+        'to upload. Must have the prefix \'gs://\'. For .shp '
+        'files, related .dbf, .shx, and .prj files must be '
+        'present in the same location.'),
+        nargs=1)
+    parser.add_argument(
+        '--asset_id',
+        required=True,
+        help='Destination asset ID for the uploaded file.')
+    _add_property_flags(parser)
+
+  def run(self, args, config):
+    """Starts the upload task, and waits for completion if requested."""
+    _check_valid_files(args.src_file)
+    config.ee_init()
+    source_files = list(utils.expand_gcs_wildcards(args.src_file))
+    if len(source_files) != 1:
+      raise ValueError('Exactly one file must be specified.')
+
+    request = {
+        'id': args.asset_id,
+        'sources': [{'primaryPath': source_files[0]}]
+    }
+    _upload(args, request, ee.data.startTableIngestion)
+
+
 class UploadCommand(Dispatcher):
   """Uploads assets to Earth Engine."""
 
@@ -917,6 +955,7 @@ class UploadCommand(Dispatcher):
 
   COMMANDS = [
       UploadImageCommand,
+      UploadTableCommand,
   ]
 
 
