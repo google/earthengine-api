@@ -6050,7 +6050,8 @@ goog.uri.utils.appendParamsFromMap = function(uri, map) {
   return goog.uri.utils.appendQueryDataToUri_(uri, queryData);
 };
 goog.uri.utils.appendParam = function(uri, key, opt_value) {
-  return goog.uri.utils.appendQueryDataToUri_(uri, key + (goog.isDefAndNotNull(opt_value) ? "=" + goog.string.urlEncode(opt_value) : ""));
+  var value = goog.isDefAndNotNull(opt_value) ? "=" + goog.string.urlEncode(opt_value) : "";
+  return goog.uri.utils.appendQueryDataToUri_(uri, key + value);
 };
 goog.uri.utils.findParam_ = function(uri, startIndex, keyEncoded, hashOrEndIndex) {
   for (var index = startIndex, keyLength = keyEncoded.length; 0 <= (index = uri.indexOf(keyEncoded, index)) && index < hashOrEndIndex;) {
@@ -6453,6 +6454,77 @@ goog.net.XhrIo.prototype.formatMsg_ = function(msg) {
 goog.debug.entryPointRegistry.register(function(transformer) {
   goog.net.XhrIo.prototype.onReadyStateChangeEntryPoint_ = transformer(goog.net.XhrIo.prototype.onReadyStateChangeEntryPoint_);
 });
+goog.dom.asserts = {};
+goog.dom.asserts.assertIsLocation = function(o) {
+  if (goog.asserts.ENABLE_ASSERTS) {
+    var win = goog.dom.asserts.getWindow_(o);
+    "undefined" != typeof win.Location && "undefined" != typeof win.Element && goog.asserts.assert(o && (o instanceof win.Location || !(o instanceof win.Element)), "Argument is not a Location (or a non-Element mock); got: %s", goog.dom.asserts.debugStringForType_(o));
+  }
+  return o;
+};
+goog.dom.asserts.assertIsHTMLAnchorElement = function(o) {
+  if (goog.asserts.ENABLE_ASSERTS) {
+    var win = goog.dom.asserts.getWindow_(o);
+    "undefined" != typeof win.HTMLAnchorElement && "undefined" != typeof win.Location && "undefined" != typeof win.Element && goog.asserts.assert(o && (o instanceof win.HTMLAnchorElement || !(o instanceof win.Location || o instanceof win.Element)), "Argument is not a HTMLAnchorElement (or a non-Element mock); got: %s", goog.dom.asserts.debugStringForType_(o));
+  }
+  return o;
+};
+goog.dom.asserts.assertIsHTMLLinkElement = function(o) {
+  if (goog.asserts.ENABLE_ASSERTS) {
+    var win = goog.dom.asserts.getWindow_(o);
+    "undefined" != typeof win.HTMLLinkElement && "undefined" != typeof win.Location && "undefined" != typeof win.Element && goog.asserts.assert(o && (o instanceof win.HTMLLinkElement || !(o instanceof win.Location || o instanceof win.Element)), "Argument is not a HTMLLinkElement (or a non-Element mock); got: %s", goog.dom.asserts.debugStringForType_(o));
+  }
+  return o;
+};
+goog.dom.asserts.assertIsHTMLImageElement = function(o) {
+  if (goog.asserts.ENABLE_ASSERTS) {
+    var win = goog.dom.asserts.getWindow_(o);
+    "undefined" != typeof win.HTMLImageElement && "undefined" != typeof win.Element && goog.asserts.assert(o && (o instanceof win.HTMLImageElement || !(o instanceof win.Element)), "Argument is not a HTMLImageElement (or a non-Element mock); got: %s", goog.dom.asserts.debugStringForType_(o));
+  }
+  return o;
+};
+goog.dom.asserts.assertIsHTMLEmbedElement = function(o) {
+  if (goog.asserts.ENABLE_ASSERTS) {
+    var win = goog.dom.asserts.getWindow_(o);
+    "undefined" != typeof win.HTMLEmbedElement && "undefined" != typeof win.Element && goog.asserts.assert(o && (o instanceof win.HTMLEmbedElement || !(o instanceof win.Element)), "Argument is not a HTMLEmbedElement (or a non-Element mock); got: %s", goog.dom.asserts.debugStringForType_(o));
+  }
+  return o;
+};
+goog.dom.asserts.assertIsHTMLFrameElement = function(o) {
+  if (goog.asserts.ENABLE_ASSERTS) {
+    var win = goog.dom.asserts.getWindow_(o);
+    "undefined" != typeof win.HTMLFrameElement && "undefined" != typeof win.Element && goog.asserts.assert(o && (o instanceof win.HTMLFrameElement || !(o instanceof win.Element)), "Argument is not a HTMLFrameElement (or a non-Element mock); got: %s", goog.dom.asserts.debugStringForType_(o));
+  }
+  return o;
+};
+goog.dom.asserts.assertIsHTMLIFrameElement = function(o) {
+  if (goog.asserts.ENABLE_ASSERTS) {
+    var win = goog.dom.asserts.getWindow_(o);
+    "undefined" != typeof win.HTMLIFrameElement && "undefined" != typeof win.Element && goog.asserts.assert(o && (o instanceof win.HTMLIFrameElement || !(o instanceof win.Element)), "Argument is not a HTMLIFrameElement (or a non-Element mock); got: %s", goog.dom.asserts.debugStringForType_(o));
+  }
+  return o;
+};
+goog.dom.asserts.assertIsHTMLObjectElement = function(o) {
+  if (goog.asserts.ENABLE_ASSERTS) {
+    var win = goog.dom.asserts.getWindow_(o);
+    "undefined" != typeof win.HTMLObjectElement && "undefined" != typeof win.Element && goog.asserts.assert(o && (o instanceof win.HTMLObjectElement || !(o instanceof win.Element)), "Argument is not a HTMLObjectElement (or a non-Element mock); got: %s", goog.dom.asserts.debugStringForType_(o));
+  }
+  return o;
+};
+goog.dom.asserts.assertIsHTMLScriptElement = function(o) {
+  if (goog.asserts.ENABLE_ASSERTS) {
+    var win = goog.dom.asserts.getWindow_(o);
+    "undefined" != typeof win.HTMLScriptElement && "undefined" != typeof win.Element && goog.asserts.assert(o && (o instanceof win.HTMLScriptElement || !(o instanceof win.Element)), "Argument is not a HTMLScriptElement (or a non-Element mock); got: %s", goog.dom.asserts.debugStringForType_(o));
+  }
+  return o;
+};
+goog.dom.asserts.debugStringForType_ = function(value) {
+  return goog.isObject(value) ? value.constructor.displayName || value.constructor.name || Object.prototype.toString.call(value) : void 0 === value ? "undefined" : null === value ? "null" : typeof value;
+};
+goog.dom.asserts.getWindow_ = function(o) {
+  var doc = o && o.ownerDocument;
+  return doc && (doc.defaultView || doc.parentWindow) || window;
+};
 goog.dom.BrowserFeature = {CAN_ADD_NAME_OR_TYPE_ATTRIBUTES:!goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9), CAN_USE_CHILDREN_ATTRIBUTE:!goog.userAgent.GECKO && !goog.userAgent.IE || goog.userAgent.IE && goog.userAgent.isDocumentModeOrHigher(9) || goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher("1.9.1"), CAN_USE_INNER_TEXT:goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9"), CAN_USE_PARENT_ELEMENT_PROPERTY:goog.userAgent.IE || goog.userAgent.OPERA || goog.userAgent.WEBKIT, 
 INNER_HTML_NEEDS_SCOPED_ELEMENT:goog.userAgent.IE, LEGACY_IE_RANGES:goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(9)};
 goog.dom.tags = {};
@@ -6570,8 +6642,8 @@ goog.html.SafeStyle.create = function(map) {
       throw Error("Name allows only [-_a-zA-Z0-9], got: " + name);
     }
     var value = map[name];
-    null != value && (value instanceof goog.string.Const ? (value = goog.string.Const.unwrap(value), goog.asserts.assert(!/[{;}]/.test(value), "Value does not allow [{;}].")) : goog.html.SafeStyle.VALUE_RE_.test(value) ? goog.html.SafeStyle.hasBalancedQuotes_(value) || (goog.asserts.fail("String value requires balanced quotes, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING) : (goog.asserts.fail("String value allows only [-,.\"'%_!# a-zA-Z0-9], rgb() and rgba(), got: " + value), value = 
-    goog.html.SafeStyle.INNOCUOUS_STRING), style += name + ":" + value + ";");
+    null != value && (value instanceof goog.string.Const ? (value = goog.string.Const.unwrap(value), goog.asserts.assert(!/[{;}]/.test(value), "Value does not allow [{;}].")) : goog.html.SafeStyle.VALUE_RE_.test(value) ? goog.html.SafeStyle.hasBalancedQuotes_(value) || (goog.asserts.fail("String value requires balanced quotes, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING) : (goog.asserts.fail("String value allows only [-,.\"'%_!# a-zA-Z0-9] and simple functions, got: " + value), 
+    value = goog.html.SafeStyle.INNOCUOUS_STRING), style += name + ":" + value + ";");
   }
   if (!style) {
     return goog.html.SafeStyle.EMPTY;
@@ -6586,7 +6658,7 @@ goog.html.SafeStyle.hasBalancedQuotes_ = function(value) {
   }
   return outsideSingle && outsideDouble;
 };
-goog.html.SafeStyle.VALUE_RE_ = /^([-,."'%_!# a-zA-Z0-9]+|(?:rgb|hsl)a?\([0-9.%, ]+\))$/;
+goog.html.SafeStyle.VALUE_RE_ = /^([-,."'%_!# a-zA-Z0-9]+|(hsl|hsla|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?)\([-0-9a-z.%, ]+\))$/;
 goog.html.SafeStyle.concat = function(var_args) {
   var style = "", addArgument = function(argument) {
     goog.isArray(argument) ? goog.array.forEach(argument, addArgument) : style += goog.html.SafeStyle.unwrap(argument);
@@ -6600,6 +6672,34 @@ goog.html.SafeStyleSheet = function() {
 };
 goog.html.SafeStyleSheet.prototype.implementsGoogStringTypedString = !0;
 goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
+goog.html.SafeStyleSheet.createRule = function(selector, style) {
+  if (goog.string.contains(selector, "<")) {
+    throw Error("Selector does not allow '<', got: " + selector);
+  }
+  var selectorToCheck = selector.replace(/('|")((?!\1)[^\r\n\f\\]|\\[\s\S])*\1/g, "");
+  if (!/^[-_a-zA-Z0-9#.:* ,>+~[\]()=^$|]+$/.test(selectorToCheck)) {
+    throw Error("Selector allows only [-_a-zA-Z0-9#.:* ,>+~[\\]()=^$|] and strings, got: " + selector);
+  }
+  if (!goog.html.SafeStyleSheet.hasBalancedBrackets_(selectorToCheck)) {
+    throw Error("() and [] in selector must be balanced, got: " + selector);
+  }
+  style instanceof goog.html.SafeStyle || (style = goog.html.SafeStyle.create(style));
+  var styleSheet = selector + "{" + goog.html.SafeStyle.unwrap(style) + "}";
+  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
+};
+goog.html.SafeStyleSheet.hasBalancedBrackets_ = function(s) {
+  for (var brackets = {"(":")", "[":"]"}, expectedBrackets = [], i = 0; i < s.length; i++) {
+    var ch = s[i];
+    if (brackets[ch]) {
+      expectedBrackets.push(brackets[ch]);
+    } else {
+      if (goog.object.contains(brackets, ch) && expectedBrackets.pop() != ch) {
+        return !1;
+      }
+    }
+  }
+  return 0 == expectedBrackets.length;
+};
 goog.html.SafeStyleSheet.concat = function(var_args) {
   var result = "", addArgument = function(argument) {
     goog.isArray(argument) ? goog.array.forEach(argument, addArgument) : result += goog.html.SafeStyleSheet.unwrap(argument);
@@ -7156,95 +7256,56 @@ goog.dom.safe.documentWrite = function(doc, html) {
   doc.write(goog.html.SafeHtml.unwrap(html));
 };
 goog.dom.safe.setAnchorHref = function(anchor, url) {
-  goog.dom.safe.assertIsHTMLAnchorElement_(anchor);
+  goog.dom.asserts.assertIsHTMLAnchorElement(anchor);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
   anchor.href = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setImageSrc = function(imageElement, url) {
-  goog.dom.safe.assertIsHTMLImageElement_(imageElement);
+  goog.dom.asserts.assertIsHTMLImageElement(imageElement);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
   imageElement.src = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setEmbedSrc = function(embed, url) {
-  goog.dom.safe.assertIsHTMLEmbedElement_(embed);
+  goog.dom.asserts.assertIsHTMLEmbedElement(embed);
   embed.src = goog.html.TrustedResourceUrl.unwrap(url);
 };
 goog.dom.safe.setFrameSrc = function(frame, url) {
-  goog.dom.safe.assertIsHTMLFrameElement_(frame);
+  goog.dom.asserts.assertIsHTMLFrameElement(frame);
   frame.src = goog.html.TrustedResourceUrl.unwrap(url);
 };
 goog.dom.safe.setIframeSrc = function(iframe, url) {
-  goog.dom.safe.assertIsHTMLIFrameElement_(iframe);
+  goog.dom.asserts.assertIsHTMLIFrameElement(iframe);
   iframe.src = goog.html.TrustedResourceUrl.unwrap(url);
 };
 goog.dom.safe.setIframeSrcdoc = function(iframe, html) {
-  goog.dom.safe.assertIsHTMLIFrameElement_(iframe);
+  goog.dom.asserts.assertIsHTMLIFrameElement(iframe);
   iframe.srcdoc = goog.html.SafeHtml.unwrap(html);
 };
 goog.dom.safe.setLinkHrefAndRel = function(link, url, rel) {
-  goog.dom.safe.assertIsHTMLLinkElement_(link);
+  goog.dom.asserts.assertIsHTMLLinkElement(link);
   link.rel = rel;
   goog.string.caseInsensitiveContains(rel, "stylesheet") ? (goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"'), link.href = goog.html.TrustedResourceUrl.unwrap(url)) : link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrap(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrap(url) : goog.html.SafeUrl.sanitize(url).getTypedStringValue();
 };
 goog.dom.safe.setObjectData = function(object, url) {
-  goog.dom.safe.assertIsHTMLObjectElement_(object);
+  goog.dom.asserts.assertIsHTMLObjectElement(object);
   object.data = goog.html.TrustedResourceUrl.unwrap(url);
 };
 goog.dom.safe.setScriptSrc = function(script, url) {
-  goog.dom.safe.assertIsHTMLScriptElement_(script);
+  goog.dom.asserts.assertIsHTMLScriptElement(script);
   script.src = goog.html.TrustedResourceUrl.unwrap(url);
 };
 goog.dom.safe.setScriptContent = function(script, content) {
-  goog.dom.safe.assertIsHTMLScriptElement_(script);
+  goog.dom.asserts.assertIsHTMLScriptElement(script);
   script.text = goog.html.SafeScript.unwrap(content);
 };
 goog.dom.safe.setLocationHref = function(loc, url) {
-  goog.dom.safe.assertIsLocation_(loc);
+  goog.dom.asserts.assertIsLocation(loc);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
   loc.href = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.openInWindow = function(url, opt_openerWin, opt_name, opt_specs, opt_replace) {
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
   return (opt_openerWin || window).open(goog.html.SafeUrl.unwrap(safeUrl), opt_name ? goog.string.Const.unwrap(opt_name) : "", opt_specs, opt_replace);
-};
-goog.dom.safe.assertIsLocation_ = function(o) {
-  goog.asserts.ENABLE_ASSERTS && "undefined" != typeof Location && "undefined" != typeof Element && goog.asserts.assert(o && (o instanceof Location || !(o instanceof Element)), "Argument is not a Location (or a non-Element mock); got: %s", goog.dom.safe.debugStringForType_(o));
-  return o;
-};
-goog.dom.safe.assertIsHTMLAnchorElement_ = function(o) {
-  goog.asserts.ENABLE_ASSERTS && "undefined" != typeof HTMLAnchorElement && "undefined" != typeof Location && "undefined" != typeof Element && goog.asserts.assert(o && (o instanceof HTMLAnchorElement || !(o instanceof Location || o instanceof Element)), "Argument is not a HTMLAnchorElement (or a non-Element mock); got: %s", goog.dom.safe.debugStringForType_(o));
-  return o;
-};
-goog.dom.safe.assertIsHTMLLinkElement_ = function(o) {
-  goog.asserts.ENABLE_ASSERTS && "undefined" != typeof HTMLLinkElement && "undefined" != typeof Location && "undefined" != typeof Element && goog.asserts.assert(o && (o instanceof HTMLLinkElement || !(o instanceof Location || o instanceof Element)), "Argument is not a HTMLLinkElement (or a non-Element mock); got: %s", goog.dom.safe.debugStringForType_(o));
-  return o;
-};
-goog.dom.safe.assertIsHTMLImageElement_ = function(o) {
-  goog.asserts.ENABLE_ASSERTS && "undefined" != typeof HTMLImageElement && "undefined" != typeof Element && goog.asserts.assert(o && (o instanceof HTMLImageElement || !(o instanceof Element)), "Argument is not a HTMLImageElement (or a non-Element mock); got: %s", goog.dom.safe.debugStringForType_(o));
-  return o;
-};
-goog.dom.safe.assertIsHTMLEmbedElement_ = function(o) {
-  goog.asserts.ENABLE_ASSERTS && "undefined" != typeof HTMLEmbedElement && "undefined" != typeof Element && goog.asserts.assert(o && (o instanceof HTMLEmbedElement || !(o instanceof Element)), "Argument is not a HTMLEmbedElement (or a non-Element mock); got: %s", goog.dom.safe.debugStringForType_(o));
-  return o;
-};
-goog.dom.safe.assertIsHTMLFrameElement_ = function(o) {
-  goog.asserts.ENABLE_ASSERTS && "undefined" != typeof HTMLFrameElement && "undefined" != typeof Element && goog.asserts.assert(o && (o instanceof HTMLFrameElement || !(o instanceof Element)), "Argument is not a HTMLFrameElement (or a non-Element mock); got: %s", goog.dom.safe.debugStringForType_(o));
-  return o;
-};
-goog.dom.safe.assertIsHTMLIFrameElement_ = function(o) {
-  goog.asserts.ENABLE_ASSERTS && "undefined" != typeof HTMLIFrameElement && "undefined" != typeof Element && goog.asserts.assert(o && (o instanceof HTMLIFrameElement || !(o instanceof Element)), "Argument is not a HTMLIFrameElement (or a non-Element mock); got: %s", goog.dom.safe.debugStringForType_(o));
-  return o;
-};
-goog.dom.safe.assertIsHTMLObjectElement_ = function(o) {
-  goog.asserts.ENABLE_ASSERTS && "undefined" != typeof HTMLObjectElement && "undefined" != typeof Element && goog.asserts.assert(o && (o instanceof HTMLObjectElement || !(o instanceof Element)), "Argument is not a HTMLObjectElement (or a non-Element mock); got: %s", goog.dom.safe.debugStringForType_(o));
-  return o;
-};
-goog.dom.safe.assertIsHTMLScriptElement_ = function(o) {
-  goog.asserts.ENABLE_ASSERTS && "undefined" != typeof HTMLScriptElement && "undefined" != typeof Element && goog.asserts.assert(o && (o instanceof HTMLScriptElement || !(o instanceof Element)), "Argument is not a HTMLScriptElement (or a non-Element mock); got: %s", goog.dom.safe.debugStringForType_(o));
-  return o;
-};
-goog.dom.safe.debugStringForType_ = function(value) {
-  return goog.isObject(value) ? value.constructor.displayName || value.constructor.name || Object.prototype.toString.call(value) : void 0 === value ? "undefined" : null === value ? "null" : typeof value;
 };
 goog.html.uncheckedconversions = {};
 goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract = function(justification, html, opt_dir) {
@@ -7402,10 +7463,12 @@ goog.math.Size.prototype.scale = function(sx, opt_sy) {
   return this;
 };
 goog.math.Size.prototype.scaleToCover = function(target) {
-  return this.scale(this.aspectRatio() <= target.aspectRatio() ? target.width / this.width : target.height / this.height);
+  var s = this.aspectRatio() <= target.aspectRatio() ? target.width / this.width : target.height / this.height;
+  return this.scale(s);
 };
 goog.math.Size.prototype.scaleToFit = function(target) {
-  return this.scale(this.aspectRatio() > target.aspectRatio() ? target.width / this.width : target.height / this.height);
+  var s = this.aspectRatio() > target.aspectRatio() ? target.width / this.width : target.height / this.height;
+  return this.scale(s);
 };
 goog.dom.ASSUME_QUIRKS_MODE = !1;
 goog.dom.ASSUME_STANDARDS_MODE = !1;
@@ -7881,13 +7944,13 @@ goog.dom.setTextContent = function(node, text) {
     node.textContent = text;
   } else {
     if (node.nodeType == goog.dom.NodeType.TEXT) {
-      node.data = text;
+      node.data = String(text);
     } else {
       if (node.firstChild && node.firstChild.nodeType == goog.dom.NodeType.TEXT) {
         for (; node.lastChild != node.firstChild;) {
           node.removeChild(node.lastChild);
         }
-        node.firstChild.data = text;
+        node.firstChild.data = String(text);
       } else {
         goog.dom.removeChildren(node);
         var doc = goog.dom.getOwnerDocument(node);
@@ -9199,8 +9262,14 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
   this.xhrIo_.listen(goog.net.EventType.COMPLETE, function(event) {
     var blob = this.xhrIo_.getResponse(), status = this.xhrIo_.getStatus(), HttpStatus = goog.net.HttpStatus;
     status == HttpStatus.TOO_MANY_REQUESTS && this.setStatus(ee.layers.AbstractTile.Status.THROTTLED);
-    if (status >= HttpStatus.OK && status < HttpStatus.MULTIPLE_CHOICES) {
-      this.sourceResponseHeaders = this.xhrIo_.getResponseHeaders(), this.sourceData = blob, this.finishLoad();
+    if (HttpStatus.isSuccess(status)) {
+      var sourceResponseHeaders = {};
+      goog.object.forEach(this.xhrIo_.getResponseHeaders(), function(value, name) {
+        sourceResponseHeaders[name.toLowerCase()] = value;
+      });
+      this.sourceResponseHeaders = sourceResponseHeaders;
+      this.sourceData = blob;
+      this.finishLoad();
     } else {
       if (blob) {
         var reader = new goog.fs.FileReader;
@@ -9463,8 +9532,9 @@ goog.net.jsloader.safeLoad = function(trustedUri, opt_options) {
     deferred.errback(new goog.net.jsloader.Error(goog.net.jsloader.ErrorCode.LOAD_ERROR, "Error while loading script " + uri));
   };
   var properties = options.attributes || {};
-  goog.object.extend(properties, {type:"text/javascript", charset:"UTF-8", src:uri});
+  goog.object.extend(properties, {type:"text/javascript", charset:"UTF-8"});
   goog.dom.setProperties(script, properties);
+  goog.dom.safe.setScriptSrc(script, trustedUri);
   goog.net.jsloader.getScriptParentElement_(doc).appendChild(script);
   return deferred;
 };
@@ -10209,7 +10279,25 @@ ee.data.ALLOWED_DESCRIPTION_HTML_TABLE_ELEMENTS_ = "col colgroup caption table t
 ee.data.ALLOWED_DESCRIPTION_HTML_ELEMENTS = ee.data.ALLOWED_DESCRIPTION_HTML_TABLE_ELEMENTS_.concat("a code em i li ol p strong sub sup ul".split(" "));
 ee.data.MapZoomRange = {MIN:0, MAX:24};
 ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
+ee.data.AssetDescription = function() {
+};
+ee.data.IngestionRequest = function() {
+};
+ee.data.MissingData = function() {
+};
 ee.data.PyramidingPolicy = {MEAN:"MEAN", MODE:"MODE", MIN:"MIN", MAX:"MAX", SAMPLE:"SAMPLE"};
+ee.data.Band = function() {
+};
+ee.data.Tileset = function() {
+};
+ee.data.FileBand = function() {
+};
+ee.data.FileSource = function() {
+};
+ee.data.TableIngestionRequest = function() {
+};
+ee.data.TableSource = function() {
+};
 ee.data.send_ = function(path, params, opt_callback, opt_method) {
   ee.data.initialize();
   var profileHookAtCallTime = ee.data.profileHook_, headers = {"Content-Type":"application/x-www-form-urlencoded"}, authToken = ee.data.getAuthToken();
@@ -10318,7 +10406,7 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
       delete goog.global[callbackName];
       done();
     };
-    goog.net.jsloader.load(ee.data.AUTH_LIBRARY_URL_ + "?onload=" + callbackName);
+    goog.net.jsloader.safeLoad(goog.html.TrustedResourceUrl.format(ee.data.AUTH_LIBRARY_URL_, {onload:callbackName}));
   }
 };
 ee.data.handleAuthResult_ = function(success, error, result) {
@@ -10427,7 +10515,7 @@ ee.data.authClientId_ = null;
 ee.data.authScopes_ = [];
 ee.data.authTokenRefresher_ = null;
 ee.data.AUTH_SCOPE_ = "https://www.googleapis.com/auth/earthengine";
-ee.data.AUTH_LIBRARY_URL_ = "https://apis.google.com/js/client.js";
+ee.data.AUTH_LIBRARY_URL_ = goog.string.Const.from("https://apis.google.com/js/client.js?onload=%{onload}");
 ee.data.initialized_ = !1;
 ee.data.deadlineMs_ = 0;
 ee.data.profileHook_ = null;

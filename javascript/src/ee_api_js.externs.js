@@ -214,8 +214,8 @@ ee.Element.prototype.set = function(var_args) {
 ee.Feature = function(geometry, opt_properties) {
 };
 /**
- * @param {function ({geometry: (ee.data.GeoJSONGeometry|null), id: (string|undefined), properties: (Object|null|undefined), type: string}, string=): ?=} opt_callback
- * @return {{geometry: (ee.data.GeoJSONGeometry|null), id: (string|undefined), properties: (Object|null|undefined), type: string}}
+ * @param {function ({geometry: (ee.data.GeoJSONGeometry|null), id: (string|undefined), properties: (Object|undefined), type: string}, string=): ?=} opt_callback
+ * @return {{geometry: (ee.data.GeoJSONGeometry|null), id: (string|undefined), properties: (Object|undefined), type: string}}
  */
 ee.Feature.prototype.getInfo = function(opt_callback) {
 };
@@ -539,8 +539,8 @@ ee.Image.prototype.expression = function(expression, opt_map) {
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 };
 /**
- * @param {function ({bands: (Array<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
- * @return {{bands: (Array<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}}
+ * @param {function ({bands: (Array<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
+ * @return {{bands: (Array<ee.data.BandDescription>|null), id: (string|undefined), properties: (Object|undefined), type: string, version: (number|undefined)}}
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
 };
@@ -587,8 +587,8 @@ ee.Image.rgb = function(r, g, b) {
 ee.ImageCollection = function(args) {
 };
 /**
- * @param {function ({bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
- * @return {{bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|null|undefined), type: string, version: (number|undefined)}}
+ * @param {function ({bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|undefined), type: string, version: (number|undefined)}, string=): ?=} opt_callback
+ * @return {{bands: (Array<ee.data.BandDescription>|null), features: (Array<ee.data.ImageDescription>|null), id: (string|undefined), properties: (Object|undefined), type: string, version: (number|undefined)}}
  */
 ee.ImageCollection.prototype.getInfo = function(opt_callback) {
 };
@@ -850,8 +850,8 @@ ee.data.getInfo = function(id, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function ((Array<{id: string, properties: (Object|null|undefined), type: string}>|null), string=): ?=} opt_callback
- * @return {(Array<{id: string, properties: (Object|null|undefined), type: string}>|null)}
+ * @param {function (!Array<{id: string, properties: (Object|undefined), type: string}>, string=): ?=} opt_callback
+ * @return {(ee.data.AssetList|null)}
  */
 ee.data.getList = function(params, opt_callback) {
 };
@@ -996,7 +996,7 @@ ee.data.setParamAugmenter = function(augmenter) {
 };
 /**
  * @param {string} taskId
- * @param {{bands: (Array<ee.data.Band>|undefined), id: string, missingData: (ee.data.MissingData|undefined), properties: (Object|undefined), pyramidingPolicy: (ee.data.PyramidingPolicy|undefined), tilesets: !Array<ee.data.Tileset>}} request
+ * @param {(ee.data.IngestionRequest|null)} request
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */
@@ -1012,7 +1012,7 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
 };
 /**
  * @param {string} taskId
- * @param {{id: string, properties: (Object|undefined), sources: !Array<ee.data.FileSource>}} request
+ * @param {!ee.data.TableIngestionRequest} request
  * @param {function ({note: (string|undefined), started: string}, string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */

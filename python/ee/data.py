@@ -537,7 +537,7 @@ def startProcessing(taskId, params):
 
 
 def startIngestion(taskId, params):
-  """Creates an asset import task.
+  """Creates an image asset import task.
 
   Args:
     taskId: ID for the task (obtained using newTaskId).
@@ -562,6 +562,25 @@ def startIngestion(taskId, params):
   return send_('/ingestionrequest', args)
 
 
+def startTableIngestion(taskId, params):
+  """Creates a table asset import task.
+
+  Args:
+    taskId: ID for the task (obtained using newTaskId).
+    params: The object that describes the import task, which can
+        have these fields:
+          id (string) The destination asset id (e.g. users/foo/bar).
+          sources (array) A list of CNS source file paths with optional
+            character encoding formatted like:
+            "sources": [{ "primaryPath": "states.shp", "charset": "UTF-8" }]
+            Where path values correspond to source files' CNS locations,
+            e.g. 'googlefile://namespace/foobar.shp', and 'charset' refers to
+            the character encoding of the source file.
+  Returns:
+    A dict with optional notes about the created task.
+  """
+  args = {'id': taskId, 'tableRequest': json.dumps(params)}
+  return send_('/ingestionrequest', args)
 
 
 def getAssetRoots():

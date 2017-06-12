@@ -56,12 +56,14 @@ goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.async.Throttle');
 goog.require('goog.functions');
+goog.require('goog.html.TrustedResourceUrl');
 goog.require('goog.json');
 goog.require('goog.net.XhrIo');
 goog.require('goog.net.XmlHttp');
 goog.require('goog.net.jsloader');
 goog.require('goog.object');
 goog.require('goog.string');
+goog.require('goog.string.Const');
 
 goog.forwardDeclare('ee.Image');
 
@@ -1185,9 +1187,9 @@ ee.data.ALLOWED_DESCRIPTION_HTML_ELEMENTS =
 /**
  * An entry in a list returned by the /list servlet.
  * @typedef {{
- *   type: ee.data.AssetType,
+ *   type: !ee.data.AssetType,
  *   id: string,
- *   properties: (undefined|Object)
+ *   properties: (undefined|!Object)
  * }}
  */
 ee.data.ShortAssetDescription;
@@ -1195,7 +1197,7 @@ ee.data.ShortAssetDescription;
 
 /**
  * A list returned by the /list servlet.
- * @typedef {Array<ee.data.ShortAssetDescription>}
+ * @typedef {!Array<!ee.data.ShortAssetDescription>}
  */
 ee.data.AssetList;
 
@@ -1238,7 +1240,7 @@ ee.data.AssetQuotaDetails;
 /**
  * A description of a folder. The type value is always ee.data.AssetType.FOLDER.
  * @typedef {{
- *   type: ee.data.AssetType,
+ *   type: !ee.data.AssetType,
  *   id: string
  * }}
  */
@@ -1249,7 +1251,7 @@ ee.data.FolderDescription;
  * An object describing a FeatureCollection, as returned by getValue.
  * Compatible with GeoJSON. The type field is always "FeatureCollection".
  * @typedef {{
- *   type: string,
+ *   type: !ee.data.AssetType,
  *   columns: !Object<string, string>,
  *   id: (string|undefined),
  *   features: (!Array<ee.data.GeoJSONFeature>|undefined),
@@ -1276,7 +1278,7 @@ ee.data.FeatureVisualizationParameters;
  *   type: string,
  *   id: (undefined|string),
  *   geometry: ?ee.data.GeoJSONGeometry,
- *   properties: (undefined|Object)
+ *   properties: (undefined|!Object)
  * }}
  */
 ee.data.GeoJSONFeature;
@@ -1304,11 +1306,11 @@ ee.data.GeoJSONGeometry;
  * An object describing an ImageCollection, as returned by getValue.
  * The type field is always "ImageCollection".
  * @typedef {{
- *   type: string,
+ *   type: !ee.data.AssetType,
  *   id: (undefined|string),
  *   version: (undefined|number),
  *   bands: Array.<ee.data.BandDescription>,
- *   properties: (undefined|Object),
+ *   properties: (undefined|!Object),
  *   features: Array.<ee.data.ImageDescription>
  * }}
  */
@@ -1319,11 +1321,11 @@ ee.data.ImageCollectionDescription;
  * An object describing an Image, as returned by getValue.
  * The type field is always "Image".
  * @typedef {{
- *   type: string,
+ *   type: !ee.data.AssetType,
  *   id: (undefined|string),
  *   version: (undefined|number),
  *   bands: Array.<ee.data.BandDescription>,
- *   properties: (undefined|Object)
+ *   properties: (undefined|!Object)
  * }}
  */
 ee.data.ImageDescription;
@@ -1331,10 +1333,9 @@ ee.data.ImageDescription;
 
 /**
  * An object describing a Table asset, as returned by getValue.
- * Compatible with GeoJSON. The type field is always "FeatureCollection",
- * which describes the abstract object that wraps the table asset.
+ * Compatible with GeoJSON. The type field is always "Table."
  * @typedef {{
- *   type: string,
+ *   type: !ee.data.AssetType,
  *   columns: !Object<string, string>,
  *   id: (string|undefined),
  *   features: (!Array<ee.data.GeoJSONFeature>|undefined),
@@ -1368,12 +1369,12 @@ ee.data.ImageVisualizationParameters;
  * The dimensions field is [width, height].
  * @typedef {{
  *   id: string,
- *   data_type: ee.data.PixelTypeDescription,
- *   dimensions: (undefined|Array.<number>),
+ *   data_type: !ee.data.PixelTypeDescription,
+ *   dimensions: (undefined|!Array<number>),
  *   crs: string,
- *   crs_transform: (undefined|Array.<number>),
+ *   crs_transform: (undefined|!Array<number>),
  *   crs_transform_wkt: (undefined|string),
- *   properties: (undefined|Object)
+ *   properties: (undefined|!Object)
  * }}
  */
 ee.data.BandDescription;
@@ -1654,48 +1655,73 @@ ee.data.TaskUpdateActions = {
 
 /**
  * A public asset description.
- *
- * @typedef {{
- *   tags: (undefined|Array.<string>),
- *   thumb: (undefined|string),
- *   title: string,
- *   provider: string,
- *   type: string,
- *   period: number,
- *   period_mapping: (undefined|Array.<number>),
- *   description: string,
- *   id: string
- * }}
+ * @record @struct
  */
-ee.data.AssetDescription;
+ee.data.AssetDescription = class {
+  constructor() {
+    /** @export {!Array<string>|undefined} */
+    this.tags;
+    /** @export {string|undefined} */
+    this.thumb;
+    /** @export {string} */
+    this.title;
+    /** @export {string} */
+    this.provider;
+    /** @export {!ee.data.AssetType} */
+    this.type;
+    /** @export {number} */
+    this.period;
+    /** @export {!Array<number>|undefined} */
+    this.period_mapping;
+    /** @export {string} */
+    this.description;
+    /** @export {string} */
+    this.id;
+  }
+};
 
 
 /**
- * A request to import an image asset. "id" is the destination asset ID
- * (e.g. "users/yourname/assetname"). "tilesets" is the list of source
- * files for the asset, clustered by tile. "properties" is a mapping from
- * metadata property names to values.
- *
- * @typedef {{
- *   'id': string,
- *   'tilesets': !Array<ee.data.Tileset>,
- *   'bands': (undefined|!Array<ee.data.Band>),
- *   'properties': (undefined|!Object),
- *   'pyramidingPolicy': (undefined|ee.data.PyramidingPolicy),
- *   'missingData': (undefined|ee.data.MissingData)
- * }}
+ * A request to import an image asset.
+ * @record @struct
  */
-ee.data.IngestionRequest;
+ee.data.IngestionRequest = class {
+  constructor() {
+    /**
+     * The destination asset ID (e.g. "users/yourname/assetname").
+     * @export {string}
+     */
+    this.id;
+    /**
+     * The list of source files for the asset, clustered by tile.
+     * @export {!Array<!ee.data.Tileset>}
+     */
+    this.tilesets;
+    /** @export {!Array<!ee.data.Band>|undefined} */
+    this.bands;
+    /**
+     * A mapping from metadata property names to values.
+     * @export {!Object|undefined}
+     */
+    this.properties;
+    /** @export {!ee.data.PyramidingPolicy|undefined} */
+    this.pyramidingPolicy;
+    /** @export {!ee.data.MissingData|undefined} */
+    this.missingData;
+  }
+};
 
 
 /**
  * An object describing which value to treat as (fill, nodata) in an asset.
- *
- * @typedef {{
- *   'value': number
- * }}
+ * @record @struct
  */
-ee.data.MissingData;
+ee.data.MissingData = class {
+  constructor() {
+    /** @export {number} */
+    this.value;
+  }
+};
 
 
 /** @enum {string} The pyramiding policy choices for newly uploaded assets. */
@@ -1710,39 +1736,50 @@ ee.data.PyramidingPolicy = {
 
 /**
  * An object describing properties of a single raster band.
- *
- * @typedef {{
- *   'id': string
- * }}
+ * @record @struct
  */
-ee.data.Band;
+ee.data.Band = class {
+  constructor() {
+    /** @export {string} */
+    this.id;
+  }
+};
 
 
 /**
  * An object describing a single tileset.
- *
- * @typedef {{
- *   'sources': !Array<ee.data.FileSource>,
- *   'bandMappings': (undefined|!Array<ee.data.FileBand>)
- * }}
+ * @record @struct
  */
-ee.data.Tileset;
+ee.data.Tileset = class {
+  constructor() {
+    /** @export {!Array<!ee.data.FileSource>} */
+    this.sources;
+    /** @export {!Array<!ee.data.FileBand>|undefined} */
+    this.fileBands;
+  }
+};
 
 
 /**
  * An object describing properties of a file band within a tileset.
- *
- * - fileBandIndex is a 0-based index of a band in a GDAL file.
- *   Currently can only be -1 to indicate treating last band as mask band.
- * - maskForAllBands indicates whether the specified file band should
- *   be treated as mask band.
- *
- * @typedef {{
- *   'fileBandIndex': number,
- *   'maskForAllBands': boolean
- * }}
+ * @record @struct
  */
-ee.data.FileBand;
+ee.data.FileBand = class {
+  constructor() {
+    /**
+     * A 0-based index of a band in a GDAL file.
+     * Currently can only be -1 to indicate treating last band as mask band.
+     * @export {number}
+     */
+    this.fileBandIndex;
+
+    /**
+     * Indicates whether the specified file band should be treated as mask band.
+     * @export {boolean}
+     */
+    this.maskForAllBands;
+  }
+};
 
 
 /**
@@ -1752,13 +1789,23 @@ ee.data.FileBand;
  * Storage object names (e.g. 'gs://bucketname/filename'). In manifests
  * uploaded through the Playground IDE, paths should be relative file
  * names (e.g. 'file1.tif').
- *
- * @typedef {{
- *   'primaryPath': string,
- *   'additionalPaths': (undefined|!Array<string>)
- * }}
+ * @record @struct
  */
-ee.data.FileSource;
+ee.data.FileSource = class {
+  constructor() {
+    /**
+     * The path of the primary file from which to import the asset.
+     * @export {string}
+     */
+    this.primaryPath;
+
+    /**
+     * A list of paths for additional files to use in importing the asset.
+     * @export {!Array<string>|undefined}
+     */
+    this.additionalPaths;
+  }
+};
 
 
 /**
@@ -2054,8 +2101,8 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
       delete goog.global[callbackName];
       done();
     };
-    goog.net.jsloader.load(
-        ee.data.AUTH_LIBRARY_URL_ + '?onload=' + callbackName);
+    goog.net.jsloader.safeLoad(goog.html.TrustedResourceUrl.format(
+        ee.data.AUTH_LIBRARY_URL_, {'onload': callbackName}));
   }
 };
 
@@ -2201,7 +2248,6 @@ ee.data.setupMockSend = function(opt_calls) {
   // Mock goog.net.XmlHttp for sync calls.
   /** @constructor */
   var fakeXmlHttp = function() {};
-  var method = null;
   fakeXmlHttp.prototype.open = function(method, urlIn) {
     apiBaseUrl = apiBaseUrl || ee.data.apiBaseUrl_;
     this.url = urlIn;
@@ -2384,9 +2430,10 @@ ee.data.AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine';
 
 /**
  * The URL of the Google APIs Client Library.
- * @private @const {string}
+ * @private @const {!goog.string.Const}
  */
-ee.data.AUTH_LIBRARY_URL_ = 'https://apis.google.com/js/client.js';
+ee.data.AUTH_LIBRARY_URL_ = goog.string.Const.from(
+    'https://apis.google.com/js/client.js?onload=%{onload}');
 
 
 /**

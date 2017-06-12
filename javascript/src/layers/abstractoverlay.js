@@ -477,9 +477,15 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
       this.setStatus(ee.layers.AbstractTile.Status.THROTTLED);
     }
 
-    // Ensure the response code is in the 200 block of "successful" statuses.
-    if (status >= HttpStatus.OK && status < HttpStatus.MULTIPLE_CHOICES) {
-      this.sourceResponseHeaders = this.xhrIo_.getResponseHeaders();
+    if (HttpStatus.isSuccess(status)) {
+      // Normalize case in headers so lookups can be naïve — XhrIo does not.
+      const sourceResponseHeaders = {};
+      goog.object.forEach(this.xhrIo_.getResponseHeaders(),
+          function(value, name) {
+        sourceResponseHeaders[name.toLowerCase()] = value;
+      });
+      this.sourceResponseHeaders = sourceResponseHeaders;
+
       this.sourceData = blob;
       this.finishLoad();
     } else if (blob) {

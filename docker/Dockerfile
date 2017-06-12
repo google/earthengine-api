@@ -11,6 +11,13 @@ RUN apt-get update \
   && apt-get clean \
   && rm -rf /var/lib/apt/lists/*
 
+# Install IPyLeaflet. The notebook library dependency is downgraded to
+# version 4.2.3 as "higher versions may not work well with datalab"
+# https://github.com/googledatalab/datalab/blob/master/containers/base/Dockerfile#L139
+RUN pip install ipyleaflet \
+  && jupyter nbextension enable --py --sys-prefix ipyleaflet \
+  && pip install notebook==4.2.3
+
 # Install the Earth Engine Python API.
 RUN pip install earthengine-api
 
