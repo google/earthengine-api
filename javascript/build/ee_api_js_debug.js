@@ -1,3 +1,45 @@
+var $jscomp = $jscomp || {};
+$jscomp.scope = {};
+$jscomp.checkStringArgs = function(thisArg, arg, func) {
+  if (null == thisArg) {
+    throw new TypeError("The 'this' value for String.prototype." + func + " must not be null or undefined");
+  }
+  if (arg instanceof RegExp) {
+    throw new TypeError("First argument to String.prototype." + func + " must not be a regular expression");
+  }
+  return thisArg + "";
+};
+$jscomp.ASSUME_ES5 = !1;
+$jscomp.ASSUME_NO_NATIVE_MAP = !1;
+$jscomp.ASSUME_NO_NATIVE_SET = !1;
+$jscomp.defineProperty = $jscomp.ASSUME_ES5 || "function" == typeof Object.defineProperties ? Object.defineProperty : function(target, property, descriptor) {
+  target != Array.prototype && target != Object.prototype && (target[property] = descriptor.value);
+};
+$jscomp.getGlobal = function(maybeGlobal) {
+  return "undefined" != typeof window && window === maybeGlobal ? maybeGlobal : "undefined" != typeof global && null != global ? global : maybeGlobal;
+};
+$jscomp.global = $jscomp.getGlobal(this);
+$jscomp.polyfill = function(target, polyfill, fromLang, toLang) {
+  if (polyfill) {
+    for (var obj = $jscomp.global, split = target.split("."), i = 0; i < split.length - 1; i++) {
+      var key = split[i];
+      key in obj || (obj[key] = {});
+      obj = obj[key];
+    }
+    var property = split[split.length - 1], orig = obj[property], impl = polyfill(orig);
+    impl != orig && null != impl && $jscomp.defineProperty(obj, property, {configurable:!0, writable:!0, value:impl});
+  }
+};
+$jscomp.findInternal = function(array, callback, thisArg) {
+  array instanceof String && (array = String(array));
+  for (var len = array.length, i = 0; i < len; i++) {
+    var value = array[i];
+    if (callback.call(thisArg, value, i, array)) {
+      return {i:i, v:value};
+    }
+  }
+  return {i:-1, v:void 0};
+};
 var goog = goog || {};
 goog.global = this;
 goog.isDef = function(val) {
@@ -2330,9 +2372,22 @@ goog.userAgent.DOCUMENT_MODE = function() {
     return goog.userAgent.getDocumentMode_() || ("CSS1Compat" == doc.compatMode ? parseInt(goog.userAgent.VERSION, 10) : 5);
   }
 }();
+$jscomp.scope.purify = function(fn) {
+  return fn();
+};
 goog.events.BrowserFeature = {HAS_W3C_BUTTON:!goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9), HAS_W3C_EVENT_SUPPORT:!goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9), SET_KEY_CODE_TO_PREVENT_DEFAULT:goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9"), HAS_NAVIGATOR_ONLINE_PROPERTY:!goog.userAgent.WEBKIT || goog.userAgent.isVersionOrHigher("528"), HAS_HTML5_NETWORK_EVENT_SUPPORT:goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher("1.9b") || goog.userAgent.IE && 
 goog.userAgent.isVersionOrHigher("8") || goog.userAgent.OPERA && goog.userAgent.isVersionOrHigher("9.5") || goog.userAgent.WEBKIT && goog.userAgent.isVersionOrHigher("528"), HTML5_NETWORK_EVENTS_FIRE_ON_BODY:goog.userAgent.GECKO && !goog.userAgent.isVersionOrHigher("8") || goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9"), TOUCH_ENABLED:"ontouchstart" in goog.global || !!(goog.global.document && document.documentElement && "ontouchstart" in document.documentElement) || !(!goog.global.navigator || 
-!goog.global.navigator.msMaxTouchPoints)};
+!goog.global.navigator.msMaxTouchPoints), PASSIVE_EVENTS:(0,$jscomp.scope.purify)(function() {
+  if (!goog.global.addEventListener || !Object.defineProperty) {
+    return !1;
+  }
+  var passive = !1, options = Object.defineProperty({}, "passive", {get:function() {
+    passive = !0;
+  }});
+  goog.global.addEventListener("test", null, options);
+  goog.global.removeEventListener("test", null, options);
+  return passive;
+})};
 goog.events.getVendorPrefixedName_ = function(eventName) {
   return goog.userAgent.WEBKIT ? "webkit" + eventName : goog.userAgent.OPERA ? "o" + eventName.toLowerCase() : eventName.toLowerCase();
 };
@@ -2540,21 +2595,24 @@ goog.events.onStringMap_ = {};
 goog.events.CaptureSimulationMode = {OFF_AND_FAIL:0, OFF_AND_SILENT:1, ON:2};
 goog.events.CAPTURE_SIMULATION_MODE = 2;
 goog.events.listenerCountEstimate_ = 0;
-goog.events.listen = function(src, type, listener, opt_capt, opt_handler) {
+goog.events.listen = function(src, type, listener, opt_options, opt_handler) {
+  if (opt_options && opt_options.once) {
+    return goog.events.listenOnce(src, type, listener, opt_options, opt_handler);
+  }
   if (goog.isArray(type)) {
     for (var i = 0; i < type.length; i++) {
-      goog.events.listen(src, type[i], listener, opt_capt, opt_handler);
+      goog.events.listen(src, type[i], listener, opt_options, opt_handler);
     }
     return null;
   }
   listener = goog.events.wrapListener(listener);
-  return goog.events.Listenable.isImplementedBy(src) ? src.listen(type, listener, opt_capt, opt_handler) : goog.events.listen_(src, type, listener, !1, opt_capt, opt_handler);
+  return goog.events.Listenable.isImplementedBy(src) ? src.listen(type, listener, goog.isObject(opt_options) ? !!opt_options.capture : !!opt_options, opt_handler) : goog.events.listen_(src, type, listener, !1, opt_options, opt_handler);
 };
-goog.events.listen_ = function(src, type, listener, callOnce, opt_capt, opt_handler) {
+goog.events.listen_ = function(src, type, listener, callOnce, opt_options, opt_handler) {
   if (!type) {
     throw Error("Invalid event type");
   }
-  var capture = !!opt_capt;
+  var capture = goog.isObject(opt_options) ? !!opt_options.capture : !!opt_options;
   if (capture && !goog.events.BrowserFeature.HAS_W3C_EVENT_SUPPORT) {
     if (goog.events.CAPTURE_SIMULATION_MODE == goog.events.CaptureSimulationMode.OFF_AND_FAIL) {
       return goog.asserts.fail("Can not register capture listener in IE8-."), null;
@@ -2565,7 +2623,7 @@ goog.events.listen_ = function(src, type, listener, callOnce, opt_capt, opt_hand
   }
   var listenerMap = goog.events.getListenerMap_(src);
   listenerMap || (src[goog.events.LISTENER_MAP_PROP_] = listenerMap = new goog.events.ListenerMap(src));
-  var listenerObj = listenerMap.add(type, listener, callOnce, opt_capt, opt_handler);
+  var listenerObj = listenerMap.add(type, listener, callOnce, capture, opt_handler);
   if (listenerObj.proxy) {
     return listenerObj;
   }
@@ -2574,7 +2632,7 @@ goog.events.listen_ = function(src, type, listener, callOnce, opt_capt, opt_hand
   proxy.src = src;
   proxy.listener = listenerObj;
   if (src.addEventListener) {
-    src.addEventListener(type.toString(), proxy, capture);
+    goog.events.BrowserFeature.PASSIVE_EVENTS || (opt_options = capture), void 0 === opt_options && (opt_options = !1), src.addEventListener(type.toString(), proxy, opt_options);
   } else {
     if (src.attachEvent) {
       src.attachEvent(goog.events.getOnString_(type.toString()), proxy);
@@ -2596,36 +2654,37 @@ goog.events.getProxy = function() {
   };
   return f;
 };
-goog.events.listenOnce = function(src, type, listener, opt_capt, opt_handler) {
+goog.events.listenOnce = function(src, type, listener, opt_options, opt_handler) {
   if (goog.isArray(type)) {
     for (var i = 0; i < type.length; i++) {
-      goog.events.listenOnce(src, type[i], listener, opt_capt, opt_handler);
+      goog.events.listenOnce(src, type[i], listener, opt_options, opt_handler);
     }
     return null;
   }
   listener = goog.events.wrapListener(listener);
-  return goog.events.Listenable.isImplementedBy(src) ? src.listenOnce(type, listener, opt_capt, opt_handler) : goog.events.listen_(src, type, listener, !0, opt_capt, opt_handler);
+  return goog.events.Listenable.isImplementedBy(src) ? src.listenOnce(type, listener, goog.isObject(opt_options) ? !!opt_options.capture : !!opt_options, opt_handler) : goog.events.listen_(src, type, listener, !0, opt_options, opt_handler);
 };
 goog.events.listenWithWrapper = function(src, wrapper, listener, opt_capt, opt_handler) {
   wrapper.listen(src, listener, opt_capt, opt_handler);
 };
-goog.events.unlisten = function(src, type, listener, opt_capt, opt_handler) {
+goog.events.unlisten = function(src, type, listener, opt_options, opt_handler) {
   if (goog.isArray(type)) {
     for (var i = 0; i < type.length; i++) {
-      goog.events.unlisten(src, type[i], listener, opt_capt, opt_handler);
+      goog.events.unlisten(src, type[i], listener, opt_options, opt_handler);
     }
     return null;
   }
+  var capture = goog.isObject(opt_options) ? !!opt_options.capture : !!opt_options;
   listener = goog.events.wrapListener(listener);
   if (goog.events.Listenable.isImplementedBy(src)) {
-    return src.unlisten(type, listener, opt_capt, opt_handler);
+    return src.unlisten(type, listener, capture, opt_handler);
   }
   if (!src) {
     return !1;
   }
-  var capture, listenerMap = goog.events.getListenerMap_(src);
+  var listenerMap = goog.events.getListenerMap_(src);
   if (listenerMap) {
-    var listenerObj = listenerMap.getListener(type, listener, !!opt_capt, opt_handler);
+    var listenerObj = listenerMap.getListener(type, listener, capture, opt_handler);
     if (listenerObj) {
       return goog.events.unlistenByKey(listenerObj);
     }
@@ -2818,16 +2877,16 @@ goog.events.EventHandler = function(opt_scope) {
 };
 goog.inherits(goog.events.EventHandler, goog.Disposable);
 goog.events.EventHandler.typeArray_ = [];
-goog.events.EventHandler.prototype.listen = function(src, type, opt_fn, opt_capture) {
-  return this.listen_(src, type, opt_fn, opt_capture);
+goog.events.EventHandler.prototype.listen = function(src, type, opt_fn, opt_options) {
+  return this.listen_(src, type, opt_fn, opt_options);
 };
-goog.events.EventHandler.prototype.listenWithScope = function(src, type, fn, capture, scope) {
-  return this.listen_(src, type, fn, capture, scope);
+goog.events.EventHandler.prototype.listenWithScope = function(src, type, fn, options, scope) {
+  return this.listen_(src, type, fn, options, scope);
 };
-goog.events.EventHandler.prototype.listen_ = function(src, type, opt_fn, opt_capture, opt_scope) {
+goog.events.EventHandler.prototype.listen_ = function(src, type, opt_fn, opt_options, opt_scope) {
   goog.isArray(type) || (type && (goog.events.EventHandler.typeArray_[0] = type.toString()), type = goog.events.EventHandler.typeArray_);
   for (var i = 0; i < type.length; i++) {
-    var listenerObj = goog.events.listen(src, type[i], opt_fn || this.handleEvent, opt_capture || !1, opt_scope || this.handler_ || this);
+    var listenerObj = goog.events.listen(src, type[i], opt_fn || this.handleEvent, opt_options || !1, opt_scope || this.handler_ || this);
     if (!listenerObj) {
       break;
     }
@@ -2835,19 +2894,19 @@ goog.events.EventHandler.prototype.listen_ = function(src, type, opt_fn, opt_cap
   }
   return this;
 };
-goog.events.EventHandler.prototype.listenOnce = function(src, type, opt_fn, opt_capture) {
-  return this.listenOnce_(src, type, opt_fn, opt_capture);
+goog.events.EventHandler.prototype.listenOnce = function(src, type, opt_fn, opt_options) {
+  return this.listenOnce_(src, type, opt_fn, opt_options);
 };
 goog.events.EventHandler.prototype.listenOnceWithScope = function(src, type, fn, capture, scope) {
   return this.listenOnce_(src, type, fn, capture, scope);
 };
-goog.events.EventHandler.prototype.listenOnce_ = function(src, type, opt_fn, opt_capture, opt_scope) {
+goog.events.EventHandler.prototype.listenOnce_ = function(src, type, opt_fn, opt_options, opt_scope) {
   if (goog.isArray(type)) {
     for (var i = 0; i < type.length; i++) {
-      this.listenOnce_(src, type[i], opt_fn, opt_capture, opt_scope);
+      this.listenOnce_(src, type[i], opt_fn, opt_options, opt_scope);
     }
   } else {
-    var listenerObj = goog.events.listenOnce(src, type, opt_fn || this.handleEvent, opt_capture, opt_scope || this.handler_ || this);
+    var listenerObj = goog.events.listenOnce(src, type, opt_fn || this.handleEvent, opt_options, opt_scope || this.handler_ || this);
     if (!listenerObj) {
       return this;
     }
@@ -2872,13 +2931,13 @@ goog.events.EventHandler.prototype.getListenerCount = function() {
   }
   return count;
 };
-goog.events.EventHandler.prototype.unlisten = function(src, type, opt_fn, opt_capture, opt_scope) {
+goog.events.EventHandler.prototype.unlisten = function(src, type, opt_fn, opt_options, opt_scope) {
   if (goog.isArray(type)) {
     for (var i = 0; i < type.length; i++) {
-      this.unlisten(src, type[i], opt_fn, opt_capture, opt_scope);
+      this.unlisten(src, type[i], opt_fn, opt_options, opt_scope);
     }
   } else {
-    var listener = goog.events.getListener(src, type, opt_fn || this.handleEvent, opt_capture, opt_scope || this.handler_ || this);
+    var listener = goog.events.getListener(src, type, opt_fn || this.handleEvent, goog.isObject(opt_options) ? !!opt_options.capture : !!opt_options, opt_scope || this.handler_ || this);
     listener && (goog.events.unlistenByKey(listener), delete this.keys_[listener.key]);
   }
   return this;
@@ -6594,148 +6653,6 @@ goog.html.SafeScript.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(
   return this;
 };
 goog.html.SafeScript.EMPTY = goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("");
-goog.html.SafeStyle = function() {
-  this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = "";
-  this.SAFE_STYLE_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeStyle.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
-};
-goog.html.SafeStyle.prototype.implementsGoogStringTypedString = !0;
-goog.html.SafeStyle.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
-goog.html.SafeStyle.fromConstant = function(style) {
-  var styleString = goog.string.Const.unwrap(style);
-  if (0 === styleString.length) {
-    return goog.html.SafeStyle.EMPTY;
-  }
-  goog.html.SafeStyle.checkStyle_(styleString);
-  goog.asserts.assert(goog.string.endsWith(styleString, ";"), "Last character of style string is not ';': " + styleString);
-  goog.asserts.assert(goog.string.contains(styleString, ":"), "Style string must contain at least one ':', to specify a \"name: value\" pair: " + styleString);
-  return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(styleString);
-};
-goog.html.SafeStyle.checkStyle_ = function(style) {
-  goog.asserts.assert(!/[<>]/.test(style), "Forbidden characters in style string: " + style);
-};
-goog.html.SafeStyle.prototype.getTypedStringValue = function() {
-  return this.privateDoNotAccessOrElseSafeStyleWrappedValue_;
-};
-goog.DEBUG && (goog.html.SafeStyle.prototype.toString = function() {
-  return "SafeStyle{" + this.privateDoNotAccessOrElseSafeStyleWrappedValue_ + "}";
-});
-goog.html.SafeStyle.unwrap = function(safeStyle) {
-  if (safeStyle instanceof goog.html.SafeStyle && safeStyle.constructor === goog.html.SafeStyle && safeStyle.SAFE_STYLE_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === goog.html.SafeStyle.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_) {
-    return safeStyle.privateDoNotAccessOrElseSafeStyleWrappedValue_;
-  }
-  goog.asserts.fail("expected object of type SafeStyle, got '" + safeStyle + "' of type " + goog.typeOf(safeStyle));
-  return "type_error:SafeStyle";
-};
-goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse = function(style) {
-  return (new goog.html.SafeStyle).initSecurityPrivateDoNotAccessOrElse_(style);
-};
-goog.html.SafeStyle.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(style) {
-  this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = style;
-  return this;
-};
-goog.html.SafeStyle.EMPTY = goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse("");
-goog.html.SafeStyle.INNOCUOUS_STRING = "zClosurez";
-goog.html.SafeStyle.create = function(map) {
-  var style = "", name;
-  for (name in map) {
-    if (!/^[-_a-zA-Z0-9]+$/.test(name)) {
-      throw Error("Name allows only [-_a-zA-Z0-9], got: " + name);
-    }
-    var value = map[name];
-    null != value && (value instanceof goog.string.Const ? (value = goog.string.Const.unwrap(value), goog.asserts.assert(!/[{;}]/.test(value), "Value does not allow [{;}].")) : goog.html.SafeStyle.VALUE_RE_.test(value) ? goog.html.SafeStyle.hasBalancedQuotes_(value) || (goog.asserts.fail("String value requires balanced quotes, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING) : (goog.asserts.fail("String value allows only [-,.\"'%_!# a-zA-Z0-9] and simple functions, got: " + value), 
-    value = goog.html.SafeStyle.INNOCUOUS_STRING), style += name + ":" + value + ";");
-  }
-  if (!style) {
-    return goog.html.SafeStyle.EMPTY;
-  }
-  goog.html.SafeStyle.checkStyle_(style);
-  return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
-};
-goog.html.SafeStyle.hasBalancedQuotes_ = function(value) {
-  for (var outsideSingle = !0, outsideDouble = !0, i = 0; i < value.length; i++) {
-    var c = value.charAt(i);
-    "'" == c && outsideDouble ? outsideSingle = !outsideSingle : '"' == c && outsideSingle && (outsideDouble = !outsideDouble);
-  }
-  return outsideSingle && outsideDouble;
-};
-goog.html.SafeStyle.VALUE_RE_ = /^([-,."'%_!# a-zA-Z0-9]+|(hsl|hsla|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?)\([-0-9a-z.%, ]+\))$/;
-goog.html.SafeStyle.concat = function(var_args) {
-  var style = "", addArgument = function(argument) {
-    goog.isArray(argument) ? goog.array.forEach(argument, addArgument) : style += goog.html.SafeStyle.unwrap(argument);
-  };
-  goog.array.forEach(arguments, addArgument);
-  return style ? goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style) : goog.html.SafeStyle.EMPTY;
-};
-goog.html.SafeStyleSheet = function() {
-  this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = "";
-  this.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
-};
-goog.html.SafeStyleSheet.prototype.implementsGoogStringTypedString = !0;
-goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
-goog.html.SafeStyleSheet.createRule = function(selector, style) {
-  if (goog.string.contains(selector, "<")) {
-    throw Error("Selector does not allow '<', got: " + selector);
-  }
-  var selectorToCheck = selector.replace(/('|")((?!\1)[^\r\n\f\\]|\\[\s\S])*\1/g, "");
-  if (!/^[-_a-zA-Z0-9#.:* ,>+~[\]()=^$|]+$/.test(selectorToCheck)) {
-    throw Error("Selector allows only [-_a-zA-Z0-9#.:* ,>+~[\\]()=^$|] and strings, got: " + selector);
-  }
-  if (!goog.html.SafeStyleSheet.hasBalancedBrackets_(selectorToCheck)) {
-    throw Error("() and [] in selector must be balanced, got: " + selector);
-  }
-  style instanceof goog.html.SafeStyle || (style = goog.html.SafeStyle.create(style));
-  var styleSheet = selector + "{" + goog.html.SafeStyle.unwrap(style) + "}";
-  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
-};
-goog.html.SafeStyleSheet.hasBalancedBrackets_ = function(s) {
-  for (var brackets = {"(":")", "[":"]"}, expectedBrackets = [], i = 0; i < s.length; i++) {
-    var ch = s[i];
-    if (brackets[ch]) {
-      expectedBrackets.push(brackets[ch]);
-    } else {
-      if (goog.object.contains(brackets, ch) && expectedBrackets.pop() != ch) {
-        return !1;
-      }
-    }
-  }
-  return 0 == expectedBrackets.length;
-};
-goog.html.SafeStyleSheet.concat = function(var_args) {
-  var result = "", addArgument = function(argument) {
-    goog.isArray(argument) ? goog.array.forEach(argument, addArgument) : result += goog.html.SafeStyleSheet.unwrap(argument);
-  };
-  goog.array.forEach(arguments, addArgument);
-  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(result);
-};
-goog.html.SafeStyleSheet.fromConstant = function(styleSheet) {
-  var styleSheetString = goog.string.Const.unwrap(styleSheet);
-  if (0 === styleSheetString.length) {
-    return goog.html.SafeStyleSheet.EMPTY;
-  }
-  goog.asserts.assert(!goog.string.contains(styleSheetString, "<"), "Forbidden '<' character in style sheet string: " + styleSheetString);
-  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheetString);
-};
-goog.html.SafeStyleSheet.prototype.getTypedStringValue = function() {
-  return this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;
-};
-goog.DEBUG && (goog.html.SafeStyleSheet.prototype.toString = function() {
-  return "SafeStyleSheet{" + this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ + "}";
-});
-goog.html.SafeStyleSheet.unwrap = function(safeStyleSheet) {
-  if (safeStyleSheet instanceof goog.html.SafeStyleSheet && safeStyleSheet.constructor === goog.html.SafeStyleSheet && safeStyleSheet.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_) {
-    return safeStyleSheet.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;
-  }
-  goog.asserts.fail("expected object of type SafeStyleSheet, got '" + safeStyleSheet + "' of type " + goog.typeOf(safeStyleSheet));
-  return "type_error:SafeStyleSheet";
-};
-goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse = function(styleSheet) {
-  return (new goog.html.SafeStyleSheet).initSecurityPrivateDoNotAccessOrElse_(styleSheet);
-};
-goog.html.SafeStyleSheet.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(styleSheet) {
-  this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = styleSheet;
-  return this;
-};
-goog.html.SafeStyleSheet.EMPTY = goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse("");
 goog.fs.url = {};
 goog.fs.url.createObjectUrl = function(blob) {
   return goog.fs.url.getUrlObject_().createObjectURL(blob);
@@ -6907,21 +6824,31 @@ goog.html.TrustedResourceUrl.unwrap = function(trustedResourceUrl) {
   return "type_error:TrustedResourceUrl";
 };
 goog.html.TrustedResourceUrl.format = function(format, args) {
+  var result = goog.html.TrustedResourceUrl.format_(format, args);
+  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(result);
+};
+goog.html.TrustedResourceUrl.format_ = function(format, args) {
   var formatStr = goog.string.Const.unwrap(format);
   if (!goog.html.TrustedResourceUrl.BASE_URL_.test(formatStr)) {
     throw Error("Invalid TrustedResourceUrl format: " + formatStr);
   }
-  var result = formatStr.replace(goog.html.TrustedResourceUrl.FORMAT_MARKER_, function(match, id) {
+  return formatStr.replace(goog.html.TrustedResourceUrl.FORMAT_MARKER_, function(match, id) {
     if (!Object.prototype.hasOwnProperty.call(args, id)) {
       throw Error('Found marker, "' + id + '", in format string, "' + formatStr + '", but no valid label mapping found in args: ' + JSON.stringify(args));
     }
     var arg = args[id];
     return arg instanceof goog.string.Const ? goog.string.Const.unwrap(arg) : encodeURIComponent(String(arg));
   });
-  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(result);
 };
 goog.html.TrustedResourceUrl.FORMAT_MARKER_ = /%{(\w+)}/g;
 goog.html.TrustedResourceUrl.BASE_URL_ = /^(?:https:)?\/\/[0-9a-z.:[\]-]+\/|^\/[^\/\\]|^about:blank(#|$)/i;
+goog.html.TrustedResourceUrl.formatWithParams = function(format, args, params) {
+  var url = goog.html.TrustedResourceUrl.format_(format, args), separator = /\?/.test(url) ? "&" : "?", key;
+  for (key in params) {
+    null != params[key] && (url += separator + encodeURIComponent(key) + "=" + encodeURIComponent(String(params[key])), separator = "&");
+  }
+  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(url);
+};
 goog.html.TrustedResourceUrl.fromConstant = function(url) {
   return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
 };
@@ -6996,6 +6923,160 @@ goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse = function(url) 
   return safeUrl;
 };
 goog.html.SafeUrl.ABOUT_BLANK = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse("about:blank");
+goog.html.SafeStyle = function() {
+  this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = "";
+  this.SAFE_STYLE_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeStyle.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
+};
+goog.html.SafeStyle.prototype.implementsGoogStringTypedString = !0;
+goog.html.SafeStyle.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
+goog.html.SafeStyle.fromConstant = function(style) {
+  var styleString = goog.string.Const.unwrap(style);
+  if (0 === styleString.length) {
+    return goog.html.SafeStyle.EMPTY;
+  }
+  goog.html.SafeStyle.checkStyle_(styleString);
+  goog.asserts.assert(goog.string.endsWith(styleString, ";"), "Last character of style string is not ';': " + styleString);
+  goog.asserts.assert(goog.string.contains(styleString, ":"), "Style string must contain at least one ':', to specify a \"name: value\" pair: " + styleString);
+  return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(styleString);
+};
+goog.html.SafeStyle.checkStyle_ = function(style) {
+  goog.asserts.assert(!/[<>]/.test(style), "Forbidden characters in style string: " + style);
+};
+goog.html.SafeStyle.prototype.getTypedStringValue = function() {
+  return this.privateDoNotAccessOrElseSafeStyleWrappedValue_;
+};
+goog.DEBUG && (goog.html.SafeStyle.prototype.toString = function() {
+  return "SafeStyle{" + this.privateDoNotAccessOrElseSafeStyleWrappedValue_ + "}";
+});
+goog.html.SafeStyle.unwrap = function(safeStyle) {
+  if (safeStyle instanceof goog.html.SafeStyle && safeStyle.constructor === goog.html.SafeStyle && safeStyle.SAFE_STYLE_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === goog.html.SafeStyle.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_) {
+    return safeStyle.privateDoNotAccessOrElseSafeStyleWrappedValue_;
+  }
+  goog.asserts.fail("expected object of type SafeStyle, got '" + safeStyle + "' of type " + goog.typeOf(safeStyle));
+  return "type_error:SafeStyle";
+};
+goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse = function(style) {
+  return (new goog.html.SafeStyle).initSecurityPrivateDoNotAccessOrElse_(style);
+};
+goog.html.SafeStyle.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(style) {
+  this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = style;
+  return this;
+};
+goog.html.SafeStyle.EMPTY = goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse("");
+goog.html.SafeStyle.INNOCUOUS_STRING = "zClosurez";
+goog.html.SafeStyle.create = function(map) {
+  var style = "", name;
+  for (name in map) {
+    if (!/^[-_a-zA-Z0-9]+$/.test(name)) {
+      throw Error("Name allows only [-_a-zA-Z0-9], got: " + name);
+    }
+    var value = map[name];
+    null != value && (value instanceof goog.string.Const ? (value = goog.string.Const.unwrap(value), goog.asserts.assert(!/[{;}]/.test(value), "Value does not allow [{;}].")) : (value = String(value), goog.html.SafeStyle.VALUE_RE_.test(value.replace(goog.html.SafeUrl.URL_RE_, "url")) ? goog.html.SafeStyle.hasBalancedQuotes_(value) ? value = goog.html.SafeStyle.sanitizeUrl_(value) : (goog.asserts.fail("String value requires balanced quotes, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING) : 
+    (goog.asserts.fail("String value allows only [-,.\"'%_!# a-zA-Z0-9] and simple functions, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING)), style += name + ":" + value + ";");
+  }
+  if (!style) {
+    return goog.html.SafeStyle.EMPTY;
+  }
+  goog.html.SafeStyle.checkStyle_(style);
+  return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
+};
+goog.html.SafeStyle.hasBalancedQuotes_ = function(value) {
+  for (var outsideSingle = !0, outsideDouble = !0, i = 0; i < value.length; i++) {
+    var c = value.charAt(i);
+    "'" == c && outsideDouble ? outsideSingle = !outsideSingle : '"' == c && outsideSingle && (outsideDouble = !outsideDouble);
+  }
+  return outsideSingle && outsideDouble;
+};
+goog.html.SafeStyle.VALUE_RE_ = /^([-,."'%_!# a-zA-Z0-9]+|(hsl|hsla|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?)\([-0-9a-z.%, ]+\))$/;
+goog.html.SafeUrl.URL_RE_ = /\b(url\([ \t\n]*)('[ -&(-\[\]-~]*'|"[ !#-\[\]-~]*"|[!#-&*-\[\]-~]*)([ \t\n]*\))/g;
+goog.html.SafeStyle.sanitizeUrl_ = function(value) {
+  return value.replace(goog.html.SafeUrl.URL_RE_, function(match$jscomp$0, before, url, after) {
+    var quote = "";
+    url = url.replace(/^(['"])(.*)\1$/, function(match, start, inside) {
+      quote = start;
+      return inside;
+    });
+    var sanitized = goog.html.SafeUrl.sanitize(url).getTypedStringValue();
+    return before + quote + sanitized + quote + after;
+  });
+};
+goog.html.SafeStyle.concat = function(var_args) {
+  var style = "", addArgument = function(argument) {
+    goog.isArray(argument) ? goog.array.forEach(argument, addArgument) : style += goog.html.SafeStyle.unwrap(argument);
+  };
+  goog.array.forEach(arguments, addArgument);
+  return style ? goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style) : goog.html.SafeStyle.EMPTY;
+};
+goog.html.SafeStyleSheet = function() {
+  this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = "";
+  this.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
+};
+goog.html.SafeStyleSheet.prototype.implementsGoogStringTypedString = !0;
+goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
+goog.html.SafeStyleSheet.createRule = function(selector, style) {
+  if (goog.string.contains(selector, "<")) {
+    throw Error("Selector does not allow '<', got: " + selector);
+  }
+  var selectorToCheck = selector.replace(/('|")((?!\1)[^\r\n\f\\]|\\[\s\S])*\1/g, "");
+  if (!/^[-_a-zA-Z0-9#.:* ,>+~[\]()=^$|]+$/.test(selectorToCheck)) {
+    throw Error("Selector allows only [-_a-zA-Z0-9#.:* ,>+~[\\]()=^$|] and strings, got: " + selector);
+  }
+  if (!goog.html.SafeStyleSheet.hasBalancedBrackets_(selectorToCheck)) {
+    throw Error("() and [] in selector must be balanced, got: " + selector);
+  }
+  style instanceof goog.html.SafeStyle || (style = goog.html.SafeStyle.create(style));
+  var styleSheet = selector + "{" + goog.html.SafeStyle.unwrap(style) + "}";
+  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
+};
+goog.html.SafeStyleSheet.hasBalancedBrackets_ = function(s) {
+  for (var brackets = {"(":")", "[":"]"}, expectedBrackets = [], i = 0; i < s.length; i++) {
+    var ch = s[i];
+    if (brackets[ch]) {
+      expectedBrackets.push(brackets[ch]);
+    } else {
+      if (goog.object.contains(brackets, ch) && expectedBrackets.pop() != ch) {
+        return !1;
+      }
+    }
+  }
+  return 0 == expectedBrackets.length;
+};
+goog.html.SafeStyleSheet.concat = function(var_args) {
+  var result = "", addArgument = function(argument) {
+    goog.isArray(argument) ? goog.array.forEach(argument, addArgument) : result += goog.html.SafeStyleSheet.unwrap(argument);
+  };
+  goog.array.forEach(arguments, addArgument);
+  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(result);
+};
+goog.html.SafeStyleSheet.fromConstant = function(styleSheet) {
+  var styleSheetString = goog.string.Const.unwrap(styleSheet);
+  if (0 === styleSheetString.length) {
+    return goog.html.SafeStyleSheet.EMPTY;
+  }
+  goog.asserts.assert(!goog.string.contains(styleSheetString, "<"), "Forbidden '<' character in style sheet string: " + styleSheetString);
+  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheetString);
+};
+goog.html.SafeStyleSheet.prototype.getTypedStringValue = function() {
+  return this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;
+};
+goog.DEBUG && (goog.html.SafeStyleSheet.prototype.toString = function() {
+  return "SafeStyleSheet{" + this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ + "}";
+});
+goog.html.SafeStyleSheet.unwrap = function(safeStyleSheet) {
+  if (safeStyleSheet instanceof goog.html.SafeStyleSheet && safeStyleSheet.constructor === goog.html.SafeStyleSheet && safeStyleSheet.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_) {
+    return safeStyleSheet.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;
+  }
+  goog.asserts.fail("expected object of type SafeStyleSheet, got '" + safeStyleSheet + "' of type " + goog.typeOf(safeStyleSheet));
+  return "type_error:SafeStyleSheet";
+};
+goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse = function(styleSheet) {
+  return (new goog.html.SafeStyleSheet).initSecurityPrivateDoNotAccessOrElse_(styleSheet);
+};
+goog.html.SafeStyleSheet.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(styleSheet) {
+  this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = styleSheet;
+  return this;
+};
+goog.html.SafeStyleSheet.EMPTY = goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse("");
 goog.html.SafeHtml = function() {
   this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = "";
   this.SAFE_HTML_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeHtml.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;

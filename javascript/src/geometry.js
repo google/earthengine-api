@@ -638,6 +638,8 @@ ee.Geometry.prototype.toString = function() {
 ////////////////////////////////////////////////////////////////////////////////
 
 
+// TODO(user): Validation should ensure that a polygon has >2 points.
+// Context at cl/158861478.
 /**
  * Checks if a geometry looks valid.
  * @param {Object} geometry The geometry to validate.
