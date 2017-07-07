@@ -398,7 +398,9 @@ goog.transpile_ = function(code$jscomp$0, path$jscomp$0) {
     }
   }
   if (!transpile) {
-    var suffix = " requires transpilation but no transpiler was found.", suffix = suffix + ' Please add "//javascript/closure:transpiler" as a data dependency to ensure it is included.', transpile = jscomp.transpile = function(code, path) {
+    var suffix = " requires transpilation but no transpiler was found.";
+    suffix += ' Please add "//javascript/closure:transpiler" as a data dependency to ensure it is included.';
+    transpile = jscomp.transpile = function(code, path) {
       goog.logToConsole_(path + suffix);
       return code;
     };
@@ -622,7 +624,8 @@ goog.base = function(me, opt_methodName, var_args) {
     }
     return caller.superClass_.constructor.apply(me, ctorArgs);
   }
-  for (var args = Array(arguments.length - 2), i = 2; i < arguments.length; i++) {
+  var args = Array(arguments.length - 2);
+  for (i = 2; i < arguments.length; i++) {
     args[i - 2] = arguments[i];
   }
   for (var foundCaller = !1, ctor = me.constructor; ctor; ctor = ctor.superClass_ && ctor.superClass_.constructor) {
@@ -2777,10 +2780,12 @@ goog.events.fireListeners_ = function(obj, type, capture, eventObject) {
   if (listenerMap) {
     var listenerArray = listenerMap.listeners[type.toString()];
     if (listenerArray) {
-      for (var listenerArray = listenerArray.concat(), i = 0; i < listenerArray.length; i++) {
+      listenerArray = listenerArray.concat();
+      for (var i = 0; i < listenerArray.length; i++) {
         var listener = listenerArray[i];
         if (listener && listener.capture == capture && !listener.removed) {
-          var result = goog.events.fireListener(listener, eventObject), retval = retval && !1 !== result;
+          var result = goog.events.fireListener(listener, eventObject);
+          retval = retval && !1 !== result;
         }
       }
     }
@@ -3017,7 +3022,8 @@ goog.events.EventTarget.prototype.fireListeners = function(type, capture, eventO
   if (!listenerArray) {
     return !0;
   }
-  for (var listenerArray = listenerArray.concat(), rv = !0, i = 0; i < listenerArray.length; ++i) {
+  listenerArray = listenerArray.concat();
+  for (var rv = !0, i = 0; i < listenerArray.length; ++i) {
     var listener = listenerArray[i];
     if (listener && !listener.removed && listener.capture == capture) {
       var listenerFn = listener.listener, listenerHandler = listener.handler || listener.src;
@@ -3895,7 +3901,8 @@ goog.Promise.invokeCallback_ = function(callbackEntry, state, result) {
 };
 goog.Promise.prototype.addStackTrace_ = function(err) {
   if (goog.Promise.LONG_STACK_TRACES && goog.isString(err.stack)) {
-    var trace = err.stack.split("\n", 4)[3], message = err.message, message = message + Array(11 - message.length).join(" ");
+    var trace = err.stack.split("\n", 4)[3], message = err.message;
+    message += Array(11 - message.length).join(" ");
     this.stack_.push(message + trace);
   }
 };
@@ -4851,7 +4858,9 @@ goog.math.longestCommonSubsequence = function(array1, array2, opt_compareFn, opt
       compare(array1[i - 1], array2[j - 1]) ? arr[i][j] = arr[i - 1][j - 1] + 1 : arr[i][j] = Math.max(arr[i - 1][j], arr[i][j - 1]);
     }
   }
-  for (var result = [], i = length1, j = length2; 0 < i && 0 < j;) {
+  var result = [];
+  i = length1;
+  for (j = length2; 0 < i && 0 < j;) {
     compare(array1[i - 1], array2[j - 1]) ? (result.unshift(collect(i - 1, j - 1)), i--, j--) : arr[i - 1][j] > arr[i][j - 1] ? i-- : j--;
   }
   return result;
@@ -5979,7 +5988,8 @@ goog.uri.utils.getScheme = function(uri) {
 goog.uri.utils.getEffectiveScheme = function(uri) {
   var scheme = goog.uri.utils.getScheme(uri);
   if (!scheme && goog.global.self && goog.global.self.location) {
-    var protocol = goog.global.self.location.protocol, scheme = protocol.substr(0, protocol.length - 1);
+    var protocol = goog.global.self.location.protocol;
+    scheme = protocol.substr(0, protocol.length - 1);
   }
   return scheme ? scheme.toLowerCase() : "";
 };
@@ -6916,6 +6926,14 @@ goog.html.SafeUrl.sanitize = function(url) {
   goog.html.SAFE_URL_PATTERN_.test(url) || (url = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
 };
+goog.html.SafeUrl.sanitizeAssertUnchanged = function(url) {
+  if (url instanceof goog.html.SafeUrl) {
+    return url;
+  }
+  url = url.implementsGoogStringTypedString ? url.getTypedStringValue() : String(url);
+  goog.asserts.assert(goog.html.SAFE_URL_PATTERN_.test(url)) || (url = goog.html.SafeUrl.INNOCUOUS_STRING);
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
+};
 goog.html.SafeUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
 goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse = function(url) {
   var safeUrl = new goog.html.SafeUrl;
@@ -6971,8 +6989,16 @@ goog.html.SafeStyle.create = function(map) {
       throw Error("Name allows only [-_a-zA-Z0-9], got: " + name);
     }
     var value = map[name];
-    null != value && (value instanceof goog.string.Const ? (value = goog.string.Const.unwrap(value), goog.asserts.assert(!/[{;}]/.test(value), "Value does not allow [{;}].")) : (value = String(value), goog.html.SafeStyle.VALUE_RE_.test(value.replace(goog.html.SafeUrl.URL_RE_, "url")) ? goog.html.SafeStyle.hasBalancedQuotes_(value) ? value = goog.html.SafeStyle.sanitizeUrl_(value) : (goog.asserts.fail("String value requires balanced quotes, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING) : 
-    (goog.asserts.fail("String value allows only [-,.\"'%_!# a-zA-Z0-9] and simple functions, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING)), style += name + ":" + value + ";");
+    if (null != value) {
+      if (value instanceof goog.string.Const) {
+        value = goog.string.Const.unwrap(value), goog.asserts.assert(!/[{;}]/.test(value), "Value does not allow [{;}].");
+      } else {
+        value = String(value);
+        var valueWithoutFunctions = value.replace(goog.html.SafeUrl.FUNCTIONS_RE_, "$1").replace(goog.html.SafeUrl.URL_RE_, "url");
+        goog.html.SafeStyle.VALUE_RE_.test(valueWithoutFunctions) ? goog.html.SafeStyle.hasBalancedQuotes_(value) ? value = goog.html.SafeStyle.sanitizeUrl_(value) : (goog.asserts.fail("String value requires balanced quotes, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING) : (goog.asserts.fail("String value allows only " + goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ + " and simple functions, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING);
+      }
+      style += name + ":" + value + ";";
+    }
   }
   if (!style) {
     return goog.html.SafeStyle.EMPTY;
@@ -6987,8 +7013,10 @@ goog.html.SafeStyle.hasBalancedQuotes_ = function(value) {
   }
   return outsideSingle && outsideDouble;
 };
-goog.html.SafeStyle.VALUE_RE_ = /^([-,."'%_!# a-zA-Z0-9]+|(hsl|hsla|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?)\([-0-9a-z.%, ]+\))$/;
+goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ = "[-,.\"'%_!# a-zA-Z0-9]";
+goog.html.SafeStyle.VALUE_RE_ = new RegExp("^" + goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ + "+$");
 goog.html.SafeUrl.URL_RE_ = /\b(url\([ \t\n]*)('[ -&(-\[\]-~]*'|"[ !#-\[\]-~]*"|[!#-&*-\[\]-~]*)([ \t\n]*\))/g;
+goog.html.SafeUrl.FUNCTIONS_RE_ = /\b(hsl|hsla|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?)\([-0-9a-z.%, ]+\)/g;
 goog.html.SafeStyle.sanitizeUrl_ = function(value) {
   return value.replace(goog.html.SafeUrl.URL_RE_, function(match$jscomp$0, before, url, after) {
     var quote = "";
@@ -7338,12 +7366,12 @@ goog.dom.safe.documentWrite = function(doc, html) {
 };
 goog.dom.safe.setAnchorHref = function(anchor, url) {
   goog.dom.asserts.assertIsHTMLAnchorElement(anchor);
-  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
+  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
   anchor.href = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setImageSrc = function(imageElement, url) {
   goog.dom.asserts.assertIsHTMLImageElement(imageElement);
-  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
+  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
   imageElement.src = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setEmbedSrc = function(embed, url) {
@@ -7365,7 +7393,7 @@ goog.dom.safe.setIframeSrcdoc = function(iframe, html) {
 goog.dom.safe.setLinkHrefAndRel = function(link, url, rel) {
   goog.dom.asserts.assertIsHTMLLinkElement(link);
   link.rel = rel;
-  goog.string.caseInsensitiveContains(rel, "stylesheet") ? (goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"'), link.href = goog.html.TrustedResourceUrl.unwrap(url)) : link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrap(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrap(url) : goog.html.SafeUrl.sanitize(url).getTypedStringValue();
+  goog.string.caseInsensitiveContains(rel, "stylesheet") ? (goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"'), link.href = goog.html.TrustedResourceUrl.unwrap(url)) : link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrap(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrap(url) : goog.html.SafeUrl.sanitizeAssertUnchanged(url).getTypedStringValue();
 };
 goog.dom.safe.setObjectData = function(object, url) {
   goog.dom.asserts.assertIsHTMLObjectElement(object);
@@ -7381,11 +7409,11 @@ goog.dom.safe.setScriptContent = function(script, content) {
 };
 goog.dom.safe.setLocationHref = function(loc, url) {
   goog.dom.asserts.assertIsLocation(loc);
-  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
+  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
   loc.href = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.openInWindow = function(url, opt_openerWin, opt_name, opt_specs, opt_replace) {
-  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitize(url);
+  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
   return (opt_openerWin || window).open(goog.html.SafeUrl.unwrap(safeUrl), opt_name ? goog.string.Const.unwrap(opt_name) : "", opt_specs, opt_replace);
 };
 goog.html.uncheckedconversions = {};
@@ -8149,7 +8177,8 @@ goog.dom.getNodeAtOffset = function(parent, offset, opt_result) {
   for (var stack = [parent], pos = 0, cur = null; 0 < stack.length && pos < offset;) {
     if (cur = stack.pop(), !(cur.nodeName in goog.dom.TAGS_TO_IGNORE_)) {
       if (cur.nodeType == goog.dom.NodeType.TEXT) {
-        var text = cur.nodeValue.replace(/(\r\n|\r|\n)/g, "").replace(/ +/g, " "), pos = pos + text.length;
+        var text = cur.nodeValue.replace(/(\r\n|\r|\n)/g, "").replace(/ +/g, " ");
+        pos += text.length;
       } else {
         if (cur.nodeName in goog.dom.PREDEFINED_TAG_VALUES_) {
           pos += goog.dom.PREDEFINED_TAG_VALUES_[cur.nodeName].length;
@@ -8346,7 +8375,8 @@ goog.dom.vendor.getPrefixedPropertyName = function(propertyName, opt_object) {
   }
   var prefix = goog.dom.vendor.getVendorJsPrefix();
   if (prefix) {
-    var prefix = prefix.toLowerCase(), prefixedPropertyName = prefix + goog.string.toTitleCase(propertyName);
+    prefix = prefix.toLowerCase();
+    var prefixedPropertyName = prefix + goog.string.toTitleCase(propertyName);
     return !goog.isDef(opt_object) || prefixedPropertyName in opt_object ? prefixedPropertyName : null;
   }
   return null;
@@ -8632,7 +8662,8 @@ goog.style.styleNameCache_ = {};
 goog.style.getVendorJsStyleName_ = function(element, style) {
   var propertyName = goog.style.styleNameCache_[style];
   if (!propertyName) {
-    var camelStyle = goog.string.toCamelCase(style), propertyName = camelStyle;
+    var camelStyle = goog.string.toCamelCase(style);
+    propertyName = camelStyle;
     if (void 0 === element.style[camelStyle]) {
       var prefixedStyle = goog.dom.vendor.getVendorJsPrefix() + goog.string.toTitleCase(camelStyle);
       void 0 !== element.style[prefixedStyle] && (propertyName = prefixedStyle);
@@ -8818,7 +8849,8 @@ goog.style.getFramedPageOffset = function(el, relativeWin) {
 };
 goog.style.translateRectForAnotherFrame = function(rect, origBase, newBase) {
   if (origBase.getDocument() != newBase.getDocument()) {
-    var body = origBase.getDocument().body, pos = goog.style.getFramedPageOffset(body, newBase.getWindow()), pos = goog.math.Coordinate.difference(pos, goog.style.getPageOffset(body));
+    var body = origBase.getDocument().body, pos = goog.style.getFramedPageOffset(body, newBase.getWindow());
+    pos = goog.math.Coordinate.difference(pos, goog.style.getPageOffset(body));
     !goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9) || origBase.isCss1CompatMode() || (pos = goog.math.Coordinate.difference(pos, origBase.getDocumentScroll()));
     rect.left += pos.x;
     rect.top += pos.y;
@@ -8960,7 +8992,8 @@ goog.style.installSafeStyleSheet = function(safeStyleSheet, opt_node) {
   } else {
     var head = dh.getElementsByTagNameAndClass("HEAD")[0];
     if (!head) {
-      var body = dh.getElementsByTagNameAndClass("BODY")[0], head = dh.createDom("HEAD");
+      var body = dh.getElementsByTagNameAndClass("BODY")[0];
+      head = dh.createDom("HEAD");
       body.parentNode.insertBefore(head, body);
     }
     styleSheet = dh.createDom("STYLE");
@@ -9465,7 +9498,8 @@ goog.string.path.extension = function(path) {
 };
 goog.string.path.join = function(var_args) {
   for (var path = arguments[0], i = 1; i < arguments.length; i++) {
-    var arg = arguments[i], path = goog.string.startsWith(arg, "/") ? arg : "" == path || goog.string.endsWith(path, "/") ? path + arg : path + ("/" + arg);
+    var arg = arguments[i];
+    path = goog.string.startsWith(arg, "/") ? arg : "" == path || goog.string.endsWith(path, "/") ? path + arg : path + ("/" + arg);
   }
   return path;
 };
@@ -10107,7 +10141,7 @@ goog.Uri.QueryData.prototype.extend = function(var_args) {
   }
 };
 ee.data = {};
-ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
+ee.data.authenticateViaOauth = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
   var scopes = [ee.data.AUTH_SCOPE_];
   opt_extraScopes && (goog.array.extend(scopes, opt_extraScopes), goog.array.removeDuplicates(scopes));
   ee.data.authClientId_ = clientId;
@@ -10117,8 +10151,27 @@ ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, o
     ee.data.refreshAuthToken(success, opt_error, onImmediateFailed);
   });
 };
+ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
+  ee.data.authenticateViaOauth(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed);
+};
 ee.data.authenticateViaPopup = function(opt_success, opt_error) {
   goog.global.gapi.auth.authorize({client_id:ee.data.authClientId_, immediate:!1, scope:ee.data.authScopes_.join(" ")}, goog.partial(ee.data.handleAuthResult_, opt_success, opt_error));
+};
+ee.data.authenticateViaPrivateKey = function(privateKey, opt_success, opt_error, opt_extraScopes) {
+  if ("undefined" === typeof process) {
+    throw Error("Use of private key authentication in the browser is insecure. Consider using OAuth, instead.");
+  }
+  var scopes = [ee.data.AUTH_SCOPE_, ee.data.STORAGE_SCOPE_];
+  opt_extraScopes && (goog.array.extend(scopes, opt_extraScopes), goog.array.removeDuplicates(scopes));
+  ee.data.authClientId_ = privateKey.client_email;
+  ee.data.authScopes_ = scopes;
+  var jwtClient = new googleapis.auth.JWT(privateKey.client_email, null, privateKey.private_key, scopes, null);
+  ee.data.setAuthTokenRefresher(function(authArgs, callback) {
+    jwtClient.authorize(function(error, token) {
+      error ? callback({error:error}) : callback({access_token:token.access_token, token_type:token.token_type, expires_in:(token.expiry_date - Date.now()) / 1000});
+    });
+  });
+  ee.data.refreshAuthToken(opt_success, opt_error);
 };
 ee.data.setAuthToken = function(clientId, tokenType, accessToken, expiresIn, opt_extraScopes, opt_callback, opt_updateAuthLibrary) {
   var scopes = [ee.data.AUTH_SCOPE_];
@@ -10358,6 +10411,18 @@ ee.data.SYSTEM_ASSET_SIZE_PROPERTY = "system:asset_size";
 ee.data.AssetDetailsProperty = {TITLE:"system:title", DESCRIPTION:"system:description", TAGS:"system:tags"};
 ee.data.ALLOWED_DESCRIPTION_HTML_TABLE_ELEMENTS_ = "col colgroup caption table tbody td tfoot th thead tr".split(" ");
 ee.data.ALLOWED_DESCRIPTION_HTML_ELEMENTS = ee.data.ALLOWED_DESCRIPTION_HTML_TABLE_ELEMENTS_.concat("a code em i li ol p strong sub sup ul".split(" "));
+ee.data.FeatureCollectionDescription = function() {
+};
+ee.data.GeoJSONFeature = function() {
+};
+ee.data.GeoJSONGeometry = function() {
+};
+ee.data.GeoJSONGeometryCrs = function() {
+};
+ee.data.GeoJSONGeometryCrsProperties = function() {
+};
+ee.data.ImageVisualizationParameters = function() {
+};
 ee.data.MapZoomRange = {MIN:0, MAX:24};
 ee.data.TaskUpdateActions = {CANCEL:"CANCEL", UPDATE:"UPDATE"};
 ee.data.AssetDescription = function() {
@@ -10441,7 +10506,8 @@ ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
 ee.data.handleResponse_ = function(status, getResponseHeader, responseText, profileHook, opt_callback) {
   var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
   profileId && profileHook && profileHook(profileId);
-  var contentType = getResponseHeader("Content-Type"), contentType = contentType ? contentType.replace(/;.*/, "") : "application/json";
+  var contentType = getResponseHeader("Content-Type");
+  contentType = contentType ? contentType.replace(/;.*/, "") : "application/json";
   if ("application/json" == contentType || "text/json" == contentType) {
     try {
       var response = JSON.parse(responseText);
@@ -10597,6 +10663,7 @@ ee.data.authScopes_ = [];
 ee.data.authTokenRefresher_ = null;
 ee.data.AUTH_SCOPE_ = "https://www.googleapis.com/auth/earthengine";
 ee.data.AUTH_LIBRARY_URL_ = goog.string.Const.from("https://apis.google.com/js/client.js?onload=%{onload}");
+ee.data.STORAGE_SCOPE_ = "https://www.googleapis.com/auth/devstorage.read_write";
 ee.data.initialized_ = !1;
 ee.data.deadlineMs_ = 0;
 ee.data.profileHook_ = null;
@@ -10766,7 +10833,8 @@ goog.structs.Queue.prototype.getValues = function() {
   for (var res = [], i = this.front_.length - 1; 0 <= i; --i) {
     res.push(this.front_[i]);
   }
-  for (var len = this.back_.length, i = 0; i < len; ++i) {
+  var len = this.back_.length;
+  for (i = 0; i < len; ++i) {
     res.push(this.back_[i]);
   }
   return res;
@@ -11041,7 +11109,8 @@ ee.layers.EarthEngineTileSource.prototype.handleAvailableToken_ = function(tile,
   }
 };
 ee.layers.EarthEngineTileSource.prototype.getTileUrl_ = function(coord, zoom) {
-  var url = [this.url_, this.mapId_, zoom, coord.x, coord.y].join("/"), url = url + ("?token=" + this.token_);
+  var url = [this.url_, this.mapId_, zoom, coord.x, coord.y].join("/");
+  url += "?token=" + this.token_;
   this.profiler_ && this.profiler_.isEnabled() && (url += "&profiling=1");
   return url;
 };
@@ -11208,20 +11277,134 @@ goog.crypt.Md5.prototype.compress_ = function(buf, opt_offset) {
       X[i] = buf[opt_offset++] | buf[opt_offset++] << 8 | buf[opt_offset++] << 16 | buf[opt_offset++] << 24;
     }
   }
-  var A = this.chain_[0], B = this.chain_[1], C = this.chain_[2], D = this.chain_[3], sum = 0, sum = A + (D ^ B & (C ^ D)) + X[0] + 3614090360 & 4294967295, A = B + (sum << 7 & 4294967295 | sum >>> 25), sum = D + (C ^ A & (B ^ C)) + X[1] + 3905402710 & 4294967295, D = A + (sum << 12 & 4294967295 | sum >>> 20), sum = C + (B ^ D & (A ^ B)) + X[2] + 606105819 & 4294967295, C = D + (sum << 17 & 4294967295 | sum >>> 15), sum = B + (A ^ C & (D ^ A)) + X[3] + 3250441966 & 4294967295, B = C + (sum << 22 & 
-  4294967295 | sum >>> 10), sum = A + (D ^ B & (C ^ D)) + X[4] + 4118548399 & 4294967295, A = B + (sum << 7 & 4294967295 | sum >>> 25), sum = D + (C ^ A & (B ^ C)) + X[5] + 1200080426 & 4294967295, D = A + (sum << 12 & 4294967295 | sum >>> 20), sum = C + (B ^ D & (A ^ B)) + X[6] + 2821735955 & 4294967295, C = D + (sum << 17 & 4294967295 | sum >>> 15), sum = B + (A ^ C & (D ^ A)) + X[7] + 4249261313 & 4294967295, B = C + (sum << 22 & 4294967295 | sum >>> 10), sum = A + (D ^ B & (C ^ D)) + X[8] + 1770035416 & 
-  4294967295, A = B + (sum << 7 & 4294967295 | sum >>> 25), sum = D + (C ^ A & (B ^ C)) + X[9] + 2336552879 & 4294967295, D = A + (sum << 12 & 4294967295 | sum >>> 20), sum = C + (B ^ D & (A ^ B)) + X[10] + 4294925233 & 4294967295, C = D + (sum << 17 & 4294967295 | sum >>> 15), sum = B + (A ^ C & (D ^ A)) + X[11] + 2304563134 & 4294967295, B = C + (sum << 22 & 4294967295 | sum >>> 10), sum = A + (D ^ B & (C ^ D)) + X[12] + 1804603682 & 4294967295, A = B + (sum << 7 & 4294967295 | sum >>> 25), sum = 
-  D + (C ^ A & (B ^ C)) + X[13] + 4254626195 & 4294967295, D = A + (sum << 12 & 4294967295 | sum >>> 20), sum = C + (B ^ D & (A ^ B)) + X[14] + 2792965006 & 4294967295, C = D + (sum << 17 & 4294967295 | sum >>> 15), sum = B + (A ^ C & (D ^ A)) + X[15] + 1236535329 & 4294967295, B = C + (sum << 22 & 4294967295 | sum >>> 10), sum = A + (C ^ D & (B ^ C)) + X[1] + 4129170786 & 4294967295, A = B + (sum << 5 & 4294967295 | sum >>> 27), sum = D + (B ^ C & (A ^ B)) + X[6] + 3225465664 & 4294967295, D = A + 
-  (sum << 9 & 4294967295 | sum >>> 23), sum = C + (A ^ B & (D ^ A)) + X[11] + 643717713 & 4294967295, C = D + (sum << 14 & 4294967295 | sum >>> 18), sum = B + (D ^ A & (C ^ D)) + X[0] + 3921069994 & 4294967295, B = C + (sum << 20 & 4294967295 | sum >>> 12), sum = A + (C ^ D & (B ^ C)) + X[5] + 3593408605 & 4294967295, A = B + (sum << 5 & 4294967295 | sum >>> 27), sum = D + (B ^ C & (A ^ B)) + X[10] + 38016083 & 4294967295, D = A + (sum << 9 & 4294967295 | sum >>> 23), sum = C + (A ^ B & (D ^ A)) + 
-  X[15] + 3634488961 & 4294967295, C = D + (sum << 14 & 4294967295 | sum >>> 18), sum = B + (D ^ A & (C ^ D)) + X[4] + 3889429448 & 4294967295, B = C + (sum << 20 & 4294967295 | sum >>> 12), sum = A + (C ^ D & (B ^ C)) + X[9] + 568446438 & 4294967295, A = B + (sum << 5 & 4294967295 | sum >>> 27), sum = D + (B ^ C & (A ^ B)) + X[14] + 3275163606 & 4294967295, D = A + (sum << 9 & 4294967295 | sum >>> 23), sum = C + (A ^ B & (D ^ A)) + X[3] + 4107603335 & 4294967295, C = D + (sum << 14 & 4294967295 | 
-  sum >>> 18), sum = B + (D ^ A & (C ^ D)) + X[8] + 1163531501 & 4294967295, B = C + (sum << 20 & 4294967295 | sum >>> 12), sum = A + (C ^ D & (B ^ C)) + X[13] + 2850285829 & 4294967295, A = B + (sum << 5 & 4294967295 | sum >>> 27), sum = D + (B ^ C & (A ^ B)) + X[2] + 4243563512 & 4294967295, D = A + (sum << 9 & 4294967295 | sum >>> 23), sum = C + (A ^ B & (D ^ A)) + X[7] + 1735328473 & 4294967295, C = D + (sum << 14 & 4294967295 | sum >>> 18), sum = B + (D ^ A & (C ^ D)) + X[12] + 2368359562 & 
-  4294967295, B = C + (sum << 20 & 4294967295 | sum >>> 12), sum = A + (B ^ C ^ D) + X[5] + 4294588738 & 4294967295, A = B + (sum << 4 & 4294967295 | sum >>> 28), sum = D + (A ^ B ^ C) + X[8] + 2272392833 & 4294967295, D = A + (sum << 11 & 4294967295 | sum >>> 21), sum = C + (D ^ A ^ B) + X[11] + 1839030562 & 4294967295, C = D + (sum << 16 & 4294967295 | sum >>> 16), sum = B + (C ^ D ^ A) + X[14] + 4259657740 & 4294967295, B = C + (sum << 23 & 4294967295 | sum >>> 9), sum = A + (B ^ C ^ D) + X[1] + 
-  2763975236 & 4294967295, A = B + (sum << 4 & 4294967295 | sum >>> 28), sum = D + (A ^ B ^ C) + X[4] + 1272893353 & 4294967295, D = A + (sum << 11 & 4294967295 | sum >>> 21), sum = C + (D ^ A ^ B) + X[7] + 4139469664 & 4294967295, C = D + (sum << 16 & 4294967295 | sum >>> 16), sum = B + (C ^ D ^ A) + X[10] + 3200236656 & 4294967295, B = C + (sum << 23 & 4294967295 | sum >>> 9), sum = A + (B ^ C ^ D) + X[13] + 681279174 & 4294967295, A = B + (sum << 4 & 4294967295 | sum >>> 28), sum = D + (A ^ B ^ 
-  C) + X[0] + 3936430074 & 4294967295, D = A + (sum << 11 & 4294967295 | sum >>> 21), sum = C + (D ^ A ^ B) + X[3] + 3572445317 & 4294967295, C = D + (sum << 16 & 4294967295 | sum >>> 16), sum = B + (C ^ D ^ A) + X[6] + 76029189 & 4294967295, B = C + (sum << 23 & 4294967295 | sum >>> 9), sum = A + (B ^ C ^ D) + X[9] + 3654602809 & 4294967295, A = B + (sum << 4 & 4294967295 | sum >>> 28), sum = D + (A ^ B ^ C) + X[12] + 3873151461 & 4294967295, D = A + (sum << 11 & 4294967295 | sum >>> 21), sum = 
-  C + (D ^ A ^ B) + X[15] + 530742520 & 4294967295, C = D + (sum << 16 & 4294967295 | sum >>> 16), sum = B + (C ^ D ^ A) + X[2] + 3299628645 & 4294967295, B = C + (sum << 23 & 4294967295 | sum >>> 9), sum = A + (C ^ (B | ~D)) + X[0] + 4096336452 & 4294967295, A = B + (sum << 6 & 4294967295 | sum >>> 26), sum = D + (B ^ (A | ~C)) + X[7] + 1126891415 & 4294967295, D = A + (sum << 10 & 4294967295 | sum >>> 22), sum = C + (A ^ (D | ~B)) + X[14] + 2878612391 & 4294967295, C = D + (sum << 15 & 4294967295 | 
-  sum >>> 17), sum = B + (D ^ (C | ~A)) + X[5] + 4237533241 & 4294967295, B = C + (sum << 21 & 4294967295 | sum >>> 11), sum = A + (C ^ (B | ~D)) + X[12] + 1700485571 & 4294967295, A = B + (sum << 6 & 4294967295 | sum >>> 26), sum = D + (B ^ (A | ~C)) + X[3] + 2399980690 & 4294967295, D = A + (sum << 10 & 4294967295 | sum >>> 22), sum = C + (A ^ (D | ~B)) + X[10] + 4293915773 & 4294967295, C = D + (sum << 15 & 4294967295 | sum >>> 17), sum = B + (D ^ (C | ~A)) + X[1] + 2240044497 & 4294967295, B = 
-  C + (sum << 21 & 4294967295 | sum >>> 11), sum = A + (C ^ (B | ~D)) + X[8] + 1873313359 & 4294967295, A = B + (sum << 6 & 4294967295 | sum >>> 26), sum = D + (B ^ (A | ~C)) + X[15] + 4264355552 & 4294967295, D = A + (sum << 10 & 4294967295 | sum >>> 22), sum = C + (A ^ (D | ~B)) + X[6] + 2734768916 & 4294967295, C = D + (sum << 15 & 4294967295 | sum >>> 17), sum = B + (D ^ (C | ~A)) + X[13] + 1309151649 & 4294967295, B = C + (sum << 21 & 4294967295 | sum >>> 11), sum = A + (C ^ (B | ~D)) + X[4] + 
-  4149444226 & 4294967295, A = B + (sum << 6 & 4294967295 | sum >>> 26), sum = D + (B ^ (A | ~C)) + X[11] + 3174756917 & 4294967295, D = A + (sum << 10 & 4294967295 | sum >>> 22), sum = C + (A ^ (D | ~B)) + X[2] + 718787259 & 4294967295, C = D + (sum << 15 & 4294967295 | sum >>> 17), sum = B + (D ^ (C | ~A)) + X[9] + 3951481745 & 4294967295;
+  var A = this.chain_[0], B = this.chain_[1], C = this.chain_[2], D = this.chain_[3], sum = 0;
+  sum = A + (D ^ B & (C ^ D)) + X[0] + 3614090360 & 4294967295;
+  A = B + (sum << 7 & 4294967295 | sum >>> 25);
+  sum = D + (C ^ A & (B ^ C)) + X[1] + 3905402710 & 4294967295;
+  D = A + (sum << 12 & 4294967295 | sum >>> 20);
+  sum = C + (B ^ D & (A ^ B)) + X[2] + 606105819 & 4294967295;
+  C = D + (sum << 17 & 4294967295 | sum >>> 15);
+  sum = B + (A ^ C & (D ^ A)) + X[3] + 3250441966 & 4294967295;
+  B = C + (sum << 22 & 4294967295 | sum >>> 10);
+  sum = A + (D ^ B & (C ^ D)) + X[4] + 4118548399 & 4294967295;
+  A = B + (sum << 7 & 4294967295 | sum >>> 25);
+  sum = D + (C ^ A & (B ^ C)) + X[5] + 1200080426 & 4294967295;
+  D = A + (sum << 12 & 4294967295 | sum >>> 20);
+  sum = C + (B ^ D & (A ^ B)) + X[6] + 2821735955 & 4294967295;
+  C = D + (sum << 17 & 4294967295 | sum >>> 15);
+  sum = B + (A ^ C & (D ^ A)) + X[7] + 4249261313 & 4294967295;
+  B = C + (sum << 22 & 4294967295 | sum >>> 10);
+  sum = A + (D ^ B & (C ^ D)) + X[8] + 1770035416 & 4294967295;
+  A = B + (sum << 7 & 4294967295 | sum >>> 25);
+  sum = D + (C ^ A & (B ^ C)) + X[9] + 2336552879 & 4294967295;
+  D = A + (sum << 12 & 4294967295 | sum >>> 20);
+  sum = C + (B ^ D & (A ^ B)) + X[10] + 4294925233 & 4294967295;
+  C = D + (sum << 17 & 4294967295 | sum >>> 15);
+  sum = B + (A ^ C & (D ^ A)) + X[11] + 2304563134 & 4294967295;
+  B = C + (sum << 22 & 4294967295 | sum >>> 10);
+  sum = A + (D ^ B & (C ^ D)) + X[12] + 1804603682 & 4294967295;
+  A = B + (sum << 7 & 4294967295 | sum >>> 25);
+  sum = D + (C ^ A & (B ^ C)) + X[13] + 4254626195 & 4294967295;
+  D = A + (sum << 12 & 4294967295 | sum >>> 20);
+  sum = C + (B ^ D & (A ^ B)) + X[14] + 2792965006 & 4294967295;
+  C = D + (sum << 17 & 4294967295 | sum >>> 15);
+  sum = B + (A ^ C & (D ^ A)) + X[15] + 1236535329 & 4294967295;
+  B = C + (sum << 22 & 4294967295 | sum >>> 10);
+  sum = A + (C ^ D & (B ^ C)) + X[1] + 4129170786 & 4294967295;
+  A = B + (sum << 5 & 4294967295 | sum >>> 27);
+  sum = D + (B ^ C & (A ^ B)) + X[6] + 3225465664 & 4294967295;
+  D = A + (sum << 9 & 4294967295 | sum >>> 23);
+  sum = C + (A ^ B & (D ^ A)) + X[11] + 643717713 & 4294967295;
+  C = D + (sum << 14 & 4294967295 | sum >>> 18);
+  sum = B + (D ^ A & (C ^ D)) + X[0] + 3921069994 & 4294967295;
+  B = C + (sum << 20 & 4294967295 | sum >>> 12);
+  sum = A + (C ^ D & (B ^ C)) + X[5] + 3593408605 & 4294967295;
+  A = B + (sum << 5 & 4294967295 | sum >>> 27);
+  sum = D + (B ^ C & (A ^ B)) + X[10] + 38016083 & 4294967295;
+  D = A + (sum << 9 & 4294967295 | sum >>> 23);
+  sum = C + (A ^ B & (D ^ A)) + X[15] + 3634488961 & 4294967295;
+  C = D + (sum << 14 & 4294967295 | sum >>> 18);
+  sum = B + (D ^ A & (C ^ D)) + X[4] + 3889429448 & 4294967295;
+  B = C + (sum << 20 & 4294967295 | sum >>> 12);
+  sum = A + (C ^ D & (B ^ C)) + X[9] + 568446438 & 4294967295;
+  A = B + (sum << 5 & 4294967295 | sum >>> 27);
+  sum = D + (B ^ C & (A ^ B)) + X[14] + 3275163606 & 4294967295;
+  D = A + (sum << 9 & 4294967295 | sum >>> 23);
+  sum = C + (A ^ B & (D ^ A)) + X[3] + 4107603335 & 4294967295;
+  C = D + (sum << 14 & 4294967295 | sum >>> 18);
+  sum = B + (D ^ A & (C ^ D)) + X[8] + 1163531501 & 4294967295;
+  B = C + (sum << 20 & 4294967295 | sum >>> 12);
+  sum = A + (C ^ D & (B ^ C)) + X[13] + 2850285829 & 4294967295;
+  A = B + (sum << 5 & 4294967295 | sum >>> 27);
+  sum = D + (B ^ C & (A ^ B)) + X[2] + 4243563512 & 4294967295;
+  D = A + (sum << 9 & 4294967295 | sum >>> 23);
+  sum = C + (A ^ B & (D ^ A)) + X[7] + 1735328473 & 4294967295;
+  C = D + (sum << 14 & 4294967295 | sum >>> 18);
+  sum = B + (D ^ A & (C ^ D)) + X[12] + 2368359562 & 4294967295;
+  B = C + (sum << 20 & 4294967295 | sum >>> 12);
+  sum = A + (B ^ C ^ D) + X[5] + 4294588738 & 4294967295;
+  A = B + (sum << 4 & 4294967295 | sum >>> 28);
+  sum = D + (A ^ B ^ C) + X[8] + 2272392833 & 4294967295;
+  D = A + (sum << 11 & 4294967295 | sum >>> 21);
+  sum = C + (D ^ A ^ B) + X[11] + 1839030562 & 4294967295;
+  C = D + (sum << 16 & 4294967295 | sum >>> 16);
+  sum = B + (C ^ D ^ A) + X[14] + 4259657740 & 4294967295;
+  B = C + (sum << 23 & 4294967295 | sum >>> 9);
+  sum = A + (B ^ C ^ D) + X[1] + 2763975236 & 4294967295;
+  A = B + (sum << 4 & 4294967295 | sum >>> 28);
+  sum = D + (A ^ B ^ C) + X[4] + 1272893353 & 4294967295;
+  D = A + (sum << 11 & 4294967295 | sum >>> 21);
+  sum = C + (D ^ A ^ B) + X[7] + 4139469664 & 4294967295;
+  C = D + (sum << 16 & 4294967295 | sum >>> 16);
+  sum = B + (C ^ D ^ A) + X[10] + 3200236656 & 4294967295;
+  B = C + (sum << 23 & 4294967295 | sum >>> 9);
+  sum = A + (B ^ C ^ D) + X[13] + 681279174 & 4294967295;
+  A = B + (sum << 4 & 4294967295 | sum >>> 28);
+  sum = D + (A ^ B ^ C) + X[0] + 3936430074 & 4294967295;
+  D = A + (sum << 11 & 4294967295 | sum >>> 21);
+  sum = C + (D ^ A ^ B) + X[3] + 3572445317 & 4294967295;
+  C = D + (sum << 16 & 4294967295 | sum >>> 16);
+  sum = B + (C ^ D ^ A) + X[6] + 76029189 & 4294967295;
+  B = C + (sum << 23 & 4294967295 | sum >>> 9);
+  sum = A + (B ^ C ^ D) + X[9] + 3654602809 & 4294967295;
+  A = B + (sum << 4 & 4294967295 | sum >>> 28);
+  sum = D + (A ^ B ^ C) + X[12] + 3873151461 & 4294967295;
+  D = A + (sum << 11 & 4294967295 | sum >>> 21);
+  sum = C + (D ^ A ^ B) + X[15] + 530742520 & 4294967295;
+  C = D + (sum << 16 & 4294967295 | sum >>> 16);
+  sum = B + (C ^ D ^ A) + X[2] + 3299628645 & 4294967295;
+  B = C + (sum << 23 & 4294967295 | sum >>> 9);
+  sum = A + (C ^ (B | ~D)) + X[0] + 4096336452 & 4294967295;
+  A = B + (sum << 6 & 4294967295 | sum >>> 26);
+  sum = D + (B ^ (A | ~C)) + X[7] + 1126891415 & 4294967295;
+  D = A + (sum << 10 & 4294967295 | sum >>> 22);
+  sum = C + (A ^ (D | ~B)) + X[14] + 2878612391 & 4294967295;
+  C = D + (sum << 15 & 4294967295 | sum >>> 17);
+  sum = B + (D ^ (C | ~A)) + X[5] + 4237533241 & 4294967295;
+  B = C + (sum << 21 & 4294967295 | sum >>> 11);
+  sum = A + (C ^ (B | ~D)) + X[12] + 1700485571 & 4294967295;
+  A = B + (sum << 6 & 4294967295 | sum >>> 26);
+  sum = D + (B ^ (A | ~C)) + X[3] + 2399980690 & 4294967295;
+  D = A + (sum << 10 & 4294967295 | sum >>> 22);
+  sum = C + (A ^ (D | ~B)) + X[10] + 4293915773 & 4294967295;
+  C = D + (sum << 15 & 4294967295 | sum >>> 17);
+  sum = B + (D ^ (C | ~A)) + X[1] + 2240044497 & 4294967295;
+  B = C + (sum << 21 & 4294967295 | sum >>> 11);
+  sum = A + (C ^ (B | ~D)) + X[8] + 1873313359 & 4294967295;
+  A = B + (sum << 6 & 4294967295 | sum >>> 26);
+  sum = D + (B ^ (A | ~C)) + X[15] + 4264355552 & 4294967295;
+  D = A + (sum << 10 & 4294967295 | sum >>> 22);
+  sum = C + (A ^ (D | ~B)) + X[6] + 2734768916 & 4294967295;
+  C = D + (sum << 15 & 4294967295 | sum >>> 17);
+  sum = B + (D ^ (C | ~A)) + X[13] + 1309151649 & 4294967295;
+  B = C + (sum << 21 & 4294967295 | sum >>> 11);
+  sum = A + (C ^ (B | ~D)) + X[4] + 4149444226 & 4294967295;
+  A = B + (sum << 6 & 4294967295 | sum >>> 26);
+  sum = D + (B ^ (A | ~C)) + X[11] + 3174756917 & 4294967295;
+  D = A + (sum << 10 & 4294967295 | sum >>> 22);
+  sum = C + (A ^ (D | ~B)) + X[2] + 718787259 & 4294967295;
+  C = D + (sum << 15 & 4294967295 | sum >>> 17);
+  sum = B + (D ^ (C | ~A)) + X[9] + 3951481745 & 4294967295;
   this.chain_[0] = this.chain_[0] + A & 4294967295;
   this.chain_[1] = this.chain_[1] + (C + (sum << 21 & 4294967295 | sum >>> 11)) & 4294967295;
   this.chain_[2] = this.chain_[2] + C & 4294967295;
@@ -11262,11 +11445,13 @@ goog.crypt.Md5.prototype.digest = function() {
   for (var i = 1; i < pad.length - 8; ++i) {
     pad[i] = 0;
   }
-  for (var totalBits = 8 * this.totalLength_, i = pad.length - 8; i < pad.length; ++i) {
+  var totalBits = 8 * this.totalLength_;
+  for (i = pad.length - 8; i < pad.length; ++i) {
     pad[i] = totalBits & 255, totalBits /= 256;
   }
   this.update(pad);
-  for (var digest = Array(16), n = 0, i = 0; 4 > i; ++i) {
+  var digest = Array(16), n = 0;
+  for (i = 0; 4 > i; ++i) {
     for (var j = 0; 32 > j; j += 8) {
       digest[n++] = this.chain_[i] >>> j & 255;
     }
@@ -11341,7 +11526,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
   if (this.isCompound_) {
     ee.Serializer.hash_.reset();
     ee.Serializer.hash_.update(ee.Serializer.jsonSerializer_.serialize(result));
-    var hash = ee.Serializer.hash_.digest().toString();
+    hash = ee.Serializer.hash_.digest().toString();
     if (this.encoded_[hash]) {
       var name = this.encoded_[hash];
     } else {
@@ -11653,7 +11838,8 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
       ee.ApiFunction.boundSignatures_[name] = !0;
       var isInstance = !1;
       if (signature.args.length) {
-        var firstArgType = signature.args[0].type, isInstance = "Object" != firstArgType && ee.Types.isSubtype(firstArgType, typeName);
+        var firstArgType = signature.args[0].type;
+        isInstance = "Object" != firstArgType && ee.Types.isSubtype(firstArgType, typeName);
       }
       var destination = isInstance ? target.prototype : target;
       fname in destination && !destination[fname].signature || (destination[fname] = function(var_args) {
@@ -11711,15 +11897,18 @@ ee.arguments.getParamNames_ = function(fn) {
     paramNames = exportedFnInfo.paramNames;
     goog.asserts.assertArray(paramNames);
   } else {
-    paramNames = fn.toString().replace(ee.arguments.JS_COMMENT_MATCHER_, "").match(ee.arguments.JS_PARAM_DECL_MATCHER_)[1].split(",") || [];
+    fn._meta ? (goog.asserts.assertObject(fn._meta), paramNames = fn._meta.paramNames, goog.asserts.assertArray(paramNames)) : paramNames = (fn.toString().replace(ee.arguments.JS_COMMENT_MATCHER_, "").match(ee.arguments.JS_PARAM_DECL_MATCHER_)[1].split(",") || []).map(function(p) {
+      return p.replace(ee.arguments.JS_PARAM_DEFAULT_MATCHER_, "");
+    });
   }
   return paramNames;
 };
 ee.arguments.getFnName_ = function(fn) {
-  return goog.global.EXPORTED_FN_INFO ? goog.global.EXPORTED_FN_INFO[fn.toString()].name.split(".").pop() + "()" : null;
+  return goog.global.EXPORTED_FN_INFO ? goog.global.EXPORTED_FN_INFO[fn.toString()].name.split(".").pop() + "()" : fn._meta ? fn._meta.name.split(".").pop() + "()" : null;
 };
 ee.arguments.JS_COMMENT_MATCHER_ = /((\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s))/mg;
 ee.arguments.JS_PARAM_DECL_MATCHER_ = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+ee.arguments.JS_PARAM_DEFAULT_MATCHER_ = /=.*$/;
 ee.Element = function(func, args, opt_varName) {
   ee.ComputedObject.call(this, func, args, opt_varName);
   ee.Element.initialize();
@@ -12062,13 +12251,14 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
   if (0 == namelessArgIndices.length) {
     return signature;
   }
-  for (var countFunctions = function(expression) {
+  var countFunctions = function(expression) {
     var count = 0;
     goog.isObject(expression) && !goog.isFunction(expression) && ("Function" == expression.type && count++, goog.object.forEach(expression, function(subExpression) {
       count += countFunctions(subExpression);
     }));
     return count;
-  }, serializedBody = ee.Serializer.encode(body.apply(null, vars)), baseName = "_MAPPING_VAR_" + countFunctions(serializedBody) + "_", i = 0; i < namelessArgIndices.length; i++) {
+  }, serializedBody = ee.Serializer.encode(body.apply(null, vars)), baseName = "_MAPPING_VAR_" + countFunctions(serializedBody) + "_";
+  for (i = 0; i < namelessArgIndices.length; i++) {
     var index = namelessArgIndices[i], name = baseName + i;
     vars[index].varName = name;
     signature.args[index].name = name;

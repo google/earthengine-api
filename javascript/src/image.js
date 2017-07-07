@@ -166,7 +166,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extract(ee.Image.prototype.getMap, arguments);
   var request = /** @type {ee.data.ImageVisualizationParameters} */ (
       args['visParams'] ? goog.object.clone(args['visParams']) : {});
-  request['image'] = this.serialize();
+  request.image = this.serialize();
 
   if (args['callback']) {
     ee.data.getMapId(

@@ -16,6 +16,7 @@ goog.provide('ee.data.AssetList');
 goog.provide('ee.data.AssetQuotaDetails');
 goog.provide('ee.data.AssetType');
 goog.provide('ee.data.AuthArgs');
+goog.provide('ee.data.AuthPrivateKey');
 goog.provide('ee.data.AuthResponse');
 goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
@@ -80,7 +81,8 @@ goog.forwardDeclare('ee.Image');
  * asked to grant the application identified by clientId access to their EE
  * data if they have not done so previously.
  *
- * This should be called before ee.initialize().
+ * This or another authentication method should be called before
+ * ee.initialize().
  *
  * Note that if the user has not previously granted access to the application
  * identified by the client ID, by default this will try to pop up a dialog
@@ -113,7 +115,7 @@ goog.forwardDeclare('ee.Image');
  *     ee.data.authenticateViaPopup(), bound to the passed callbacks.
  * @export
  */
-ee.data.authenticate = function(
+ee.data.authenticateViaOauth = function(
     clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
   // Remember the auth options.
   var scopes = [ee.data.AUTH_SCOPE_];
@@ -139,6 +141,33 @@ ee.data.authenticate = function(
 
 
 /**
+ * Configures client-side OAuth authentication. Alias of
+ * ee.data.authenticateViaOauth().
+ *
+ * @deprecated Use ee.data.authenticateViaOauth().
+ * @param {?string} clientId The application's OAuth client ID, or null to
+ *     disable authenticated calls. This can be obtained through the Google
+ *     Developers Console. The project must have a JavaScript origin that
+ *     corresponds to the domain where the script is running.
+ * @param {function()} success The function to call if authentication succeeded.
+ * @param {function(string)=} opt_error The function to call if authentication
+ *     failed, passed the error message. If authentication in immediate
+ *     (behind-the-scenes) mode fails and opt_onImmediateFailed is specified,
+ *     that function is called instead of opt_error.
+ * @param {!Array<string>=} opt_extraScopes Extra OAuth scopes to request.
+ * @param {function()=} opt_onImmediateFailed The function to call if
+ *     automatic behind-the-scenes authentication fails. Defaults to
+ *     ee.data.authenticateViaPopup(), bound to the passed callbacks.
+ * @export
+ */
+ee.data.authenticate = function(
+    clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
+  ee.data.authenticateViaOauth(
+      clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed);
+};
+
+
+/**
  * Shows a popup asking for the user's permission. Should only be called if
  * ee.data.authenticate() called its opt_onImmediateFailed argument in the past.
  *
@@ -157,6 +186,8 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
     'scope': ee.data.authScopes_.join(' ')
   }, goog.partial(ee.data.handleAuthResult_, opt_success, opt_error));
 };
+
+
 
 
 /**
@@ -1250,15 +1281,36 @@ ee.data.FolderDescription;
 /**
  * An object describing a FeatureCollection, as returned by getValue.
  * Compatible with GeoJSON. The type field is always "FeatureCollection".
- * @typedef {{
- *   type: !ee.data.AssetType,
- *   columns: !Object<string, string>,
- *   id: (string|undefined),
- *   features: (!Array<ee.data.GeoJSONFeature>|undefined),
- *   properties: (!Object|undefined)
- * }}
+ * @record @struct
  */
-ee.data.FeatureCollectionDescription;
+ee.data.FeatureCollectionDescription = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {!Object<string, string>}
+     */
+    this.columns;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {!Array<!ee.data.GeoJSONFeature>|undefined}
+     */
+    this.features;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
@@ -1274,32 +1326,106 @@ ee.data.FeatureVisualizationParameters;
 /**
  * An object describing a Feature, as returned by getValue.
  * Compatible with GeoJSON. The type field is always "Feature".
- * @typedef {{
- *   type: string,
- *   id: (undefined|string),
- *   geometry: ?ee.data.GeoJSONGeometry,
- *   properties: (undefined|!Object)
- * }}
+ * @record @struct
  */
-ee.data.GeoJSONFeature;
+ee.data.GeoJSONFeature = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.type;
+    /**
+     * @export {undefined|string}
+     */
+    this.id;
+    /**
+     * @export {!ee.data.GeoJSONGeometry}
+     */
+    this.geometry;
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
  * An object describing a GeoJSON Geometry, as returned by getValue.
- * @typedef {{
- *   type: string,
- *   coordinates: Array.<number|Array.<number|Array.<number|Array.<number>>>>,
- *   crs: (undefined|{
- *     type: string,
- *     properties: {
- *       name: string
- *     }
- *   }),
- *   geodesic: boolean,
- *   geometries: (undefined|Array.<ee.data.GeoJSONGeometry>)
- * }}
+ * @record @struct
  */
-ee.data.GeoJSONGeometry;
+ee.data.GeoJSONGeometry = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.type;
+
+    /**
+     * The coordinates, with the appropriate level of nesting for the given type
+     * of geometry.
+     * @export {!Array<number>|
+     *          !Array<!Array<number>>|
+     *          !Array<!Array<!Array<number>>>|
+     *          !Array<!Array<!Array<!Array<number>>>>}
+     */
+    this.coordinates;
+
+    /**
+     * @export {!ee.data.GeoJSONGeometryCrs|undefined}
+     */
+    this.crs;
+
+    /**
+     * @export {boolean|undefined}
+     */
+    this.geodesic;
+
+    /**
+     * @export {boolean|undefined}
+     */
+    this.evenOdd;
+
+    /**
+     * @export {!Array<!ee.data.GeoJSONGeometry>|undefined}
+     */
+    this.geometries;
+  }
+};
+
+
+/**
+ * The properties of a GeoJSON geometry's "crs" property, which represents the
+ * geometry's coordinate reference system.
+ * @record @struct
+ */
+ee.data.GeoJSONGeometryCrs = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.type;
+    /**
+     * @export {!ee.data.GeoJSONGeometryCrsProperties}
+     */
+    this.properties;
+  }
+};
+
+
+/**
+ * The properties of a GeoJSON geometry's coordinate reference system.
+ * @record @struct
+ */
+ee.data.GeoJSONGeometryCrsProperties = class {
+  constructor() {
+    /**
+     * The name of the coordinate reference system.
+     * @export {string}
+     */
+    this.name;
+  }
+};
 
 
 /**
@@ -1309,7 +1435,7 @@ ee.data.GeoJSONGeometry;
  *   type: !ee.data.AssetType,
  *   id: (undefined|string),
  *   version: (undefined|number),
- *   bands: Array.<ee.data.BandDescription>,
+ *   bands: !Array<!ee.data.BandDescription>,
  *   properties: (undefined|!Object),
  *   features: Array.<ee.data.ImageDescription>
  * }}
@@ -1324,7 +1450,7 @@ ee.data.ImageCollectionDescription;
  *   type: !ee.data.AssetType,
  *   id: (undefined|string),
  *   version: (undefined|number),
- *   bands: Array.<ee.data.BandDescription>,
+ *   bands: !Array<!ee.data.BandDescription>,
  *   properties: (undefined|!Object)
  * }}
  */
@@ -1347,21 +1473,69 @@ ee.data.TableDescription;
 
 
 /**
- * An object describing ee.Image visualization parameters. See ee.data.getMapId.
- * @typedef {{
- *   image: (ee.Image|undefined),
- *   bands: (string|Array<string>|undefined),
- *   gain: (number|Array<number>|undefined),
- *   bias: (number|Array<number>|undefined),
- *   min: (number|Array<number>|undefined),
- *   max: (number|Array<number>|undefined),
- *   gamma: (number|Array<number>|undefined),
- *   palette: (string|Array<string>|undefined),
- *   opacity: (number|undefined),
- *   format: (string|undefined)
- * }}
+ * An object describing ee.Image visualization parameters.
+ * @see ee.data.getMapId
+ * @record @struct
  */
-ee.data.ImageVisualizationParameters;
+ee.data.ImageVisualizationParameters = class {
+  constructor() {
+    /**
+     * The image to render, represented as a JSON string.
+     * @export {!ee.Image|string|undefined}
+     */
+    this.image;
+    /**
+     * Version number of image (or latest).
+     * @export {number|undefined}
+     */
+    this.version;
+    /**
+     * Comma-delimited list of band names to be mapped to RGB.
+     * @export {string|!Array<string>|undefined}
+     */
+    this.bands;
+    /**
+     * Gain (or one per band) to map onto 00-FF.
+     * @export {number|!Array<number>|undefined}
+     */
+    this.gain;
+    /**
+     * Offset (or one per band) to map onto 00-FF.
+     * @export {number|!Array<number>|undefined}
+     */
+    this.bias;
+    /**
+     * Value (or one per band) to map onto 00.
+     * @export {number|!Array<number>|undefined}
+     */
+    this.min;
+    /**
+     * Value (or one per band) to map onto FF.
+     * @export {number|!Array<number>|undefined}
+     */
+    this.max;
+    /**
+     * Gamma correction factor (or one per band)
+     * @export {number|!Array<number>|undefined}
+     */
+    this.gamma;
+    /**
+     * List of CSS-style color strings (single-band previews only).
+     * @export {string|!Array<string>|undefined}
+     */
+    this.palette;
+    /**
+     * A number between 0 and 1 for opacity.
+     * @export {number|undefined}
+     */
+    this.opacity;
+    /**
+     * Either "jpg" or "png".
+     * @export {string|undefined}
+     */
+    this.format;
+  }
+};
 
 
 /**
@@ -1826,13 +2000,15 @@ ee.data.AuthArgs;
  * passed to it when it was called. 'expires_in' is in seconds.
  *
  * @typedef {{
- *   'access_token': string,
- *   'token_type': string,
- *   'expires_in': number,
+ *   'access_token': (undefined|string),
+ *   'token_type': (undefined|string),
+ *   'expires_in': (undefined|number),
  *   'error': (undefined|string)
  * }}
  */
 ee.data.AuthResponse;
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2435,6 +2611,13 @@ ee.data.AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine';
 ee.data.AUTH_LIBRARY_URL_ = goog.string.Const.from(
     'https://apis.google.com/js/client.js?onload=%{onload}');
 
+
+/**
+ * The OAuth scope for Cloud Storage.
+ * @private @const {string}
+ */
+ee.data.STORAGE_SCOPE_ =
+    'https://www.googleapis.com/auth/devstorage.read_write';
 
 /**
  * Whether the library has been initialized.

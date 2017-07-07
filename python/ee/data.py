@@ -78,6 +78,8 @@ DEFAULT_TILE_BASE_URL = 'https://earthengine.googleapis.com'
 # Asset types recognized by create_assets().
 ASSET_TYPE_FOLDER = 'Folder'
 ASSET_TYPE_IMAGE_COLL = 'ImageCollection'
+# Max length of the above type names
+MAX_TYPE_LENGTH = len(ASSET_TYPE_IMAGE_COLL)
 
 
 def initialize(credentials=None, api_base_url=None, tile_base_url=None):
