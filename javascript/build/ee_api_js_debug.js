@@ -2387,8 +2387,8 @@ goog.userAgent.isVersionOrHigher("8") || goog.userAgent.OPERA && goog.userAgent.
   var passive = !1, options = Object.defineProperty({}, "passive", {get:function() {
     passive = !0;
   }});
-  goog.global.addEventListener("test", null, options);
-  goog.global.removeEventListener("test", null, options);
+  goog.global.addEventListener("test", goog.nullFunction, options);
+  goog.global.removeEventListener("test", goog.nullFunction, options);
   return passive;
 })};
 goog.events.getVendorPrefixedName_ = function(eventName) {
@@ -9652,10 +9652,6 @@ goog.net.jsloader.safeLoad = function(trustedUri, opt_options) {
   goog.dom.safe.setScriptSrc(script, trustedUri);
   goog.net.jsloader.getScriptParentElement_(doc).appendChild(script);
   return deferred;
-};
-goog.net.jsloader.loadAndVerify = function(uri, verificationObjName, options) {
-  var trustedUri = goog.html.legacyconversions.trustedResourceUrlFromString(uri);
-  return goog.net.jsloader.safeLoadAndVerify(trustedUri, verificationObjName, options);
 };
 goog.net.jsloader.safeLoadAndVerify = function(trustedUri, verificationObjName, options) {
   goog.global[goog.net.jsloader.GLOBAL_VERIFY_OBJS_] || (goog.global[goog.net.jsloader.GLOBAL_VERIFY_OBJS_] = {});

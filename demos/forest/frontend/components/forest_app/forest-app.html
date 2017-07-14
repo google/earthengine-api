@@ -180,8 +180,8 @@
     <carbon-location route="{{route_}}" use-hash-as-path></carbon-location>
 
     <paper-toolbar class="title-toolbar">
-      <div class="title">Global Forest Change Explorer</div>
-      <a class="about" href="http://globalforestchange.org">
+      <div class="title" slot="top">Global Forest Change Explorer</div>
+      <a class="about" href="http://globalforestchange.org" slot="top">
         <template is="dom-if" if="{{!narrowViewport}}">
           <paper-button class="about action-button">About</paper-button>
         </template>
