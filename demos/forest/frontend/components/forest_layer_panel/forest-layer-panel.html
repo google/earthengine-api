@@ -92,7 +92,7 @@
           <paper-dropdown-menu>
             <paper-listbox class="dropdown-content"
                            on-iron-select="handleDropdownSelect_"
-                           selected="0">
+                           selected="0" slot="dropdown-content">
               <template is="dom-repeat" items="{{forestLayerMetadataList_}}">
                 <paper-item name="[[item.id]]">[[item.title]]</paper-item>
               </template>
@@ -112,7 +112,7 @@
             <paper-dropdown-menu id="backgroundDropdown" class="simple">
               <paper-listbox class="dropdown-content"
                              selected="{{selectedBackgroundType_}}"
-                             attr-for-selected="name">
+                             attr-for-selected="name" slot="dropdown-content">
                 <template is="dom-repeat" items="{{backgroundTypeList_}}">
                   <paper-item name="[[item]]">[[item]]</paper-item>
                 </template>
@@ -124,7 +124,7 @@
             <paper-dropdown-menu class="simple">
               <paper-listbox class="dropdown-content"
                              selected="{{selectedBaseLayerId}}"
-                             attr-for-selected="name">
+                             attr-for-selected="name" slot="dropdown-content">
                 <template is="dom-repeat" items="{{baseLayerIdList_}}">
                   <paper-item name="[[item]]">[[item]]</paper-item>
                 </template>

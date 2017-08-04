@@ -4654,8 +4654,10 @@ goog.debug.Logger.getLogger = function(name) {
   return goog.debug.LogManager.getLogger(name);
 };
 goog.debug.Logger.logToProfilers = function(msg) {
-  goog.global.console && (goog.global.console.timeStamp ? goog.global.console.timeStamp(msg) : goog.global.console.markTimeline && goog.global.console.markTimeline(msg));
-  goog.global.msWriteProfilerMark && goog.global.msWriteProfilerMark(msg);
+  var console = goog.global.console;
+  console && console.timeStamp && console.timeStamp(msg);
+  var msWriteProfilerMark = goog.global.msWriteProfilerMark;
+  msWriteProfilerMark && msWriteProfilerMark(msg);
 };
 goog.debug.Logger.prototype.getName = function() {
   return this.name_;
@@ -5470,6 +5472,32 @@ goog.json.Serializer.prototype.serializeObject_ = function(obj, sb) {
     }
   }
   sb.push("}");
+};
+goog.json.hybrid = {};
+goog.json.hybrid.stringify = goog.json.USE_NATIVE_JSON ? goog.global.JSON.stringify : function(obj) {
+  if (goog.global.JSON) {
+    try {
+      return goog.global.JSON.stringify(obj);
+    } catch (e) {
+    }
+  }
+  return goog.json.serialize(obj);
+};
+goog.json.hybrid.parse_ = function(jsonString, fallbackParser) {
+  if (goog.global.JSON) {
+    try {
+      var obj = goog.global.JSON.parse(jsonString);
+      goog.asserts.assertObject(obj);
+      return obj;
+    } catch (e) {
+    }
+  }
+  obj = fallbackParser(jsonString);
+  goog.asserts.assert(obj);
+  return obj;
+};
+goog.json.hybrid.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(jsonString) {
+  return goog.json.hybrid.parse_(jsonString, goog.json.parse);
 };
 goog.log = {};
 goog.log.ENABLED = goog.debug.LOGGING_ENABLED;
@@ -6461,7 +6489,7 @@ goog.net.XhrIo.prototype.getResponseJson = function(opt_xssiPrefix) {
   if (this.xhr_) {
     var responseText = this.xhr_.responseText;
     opt_xssiPrefix && 0 == responseText.indexOf(opt_xssiPrefix) && (responseText = responseText.substring(opt_xssiPrefix.length));
-    return goog.json.parse(responseText);
+    return goog.json.hybrid.parse(responseText);
   }
 };
 goog.net.XhrIo.prototype.getResponse = function() {
@@ -6900,7 +6928,7 @@ goog.html.SafeUrl.unwrap = function(safeUrl) {
 goog.html.SafeUrl.fromConstant = function(url) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
 };
-goog.html.SAFE_MIME_TYPE_PATTERN_ = /^(?:image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|video\/(?:mpeg|mp4|ogg|webm))$/i;
+goog.html.SAFE_MIME_TYPE_PATTERN_ = /^(?:audio\/(?:3gpp|3gpp2|aac|midi|mp4|mpeg|ogg|x-m4a|x-wav|webm)|image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|video\/(?:mpeg|mp4|ogg|webm))$/i;
 goog.html.SafeUrl.fromBlob = function(blob) {
   var url = goog.html.SAFE_MIME_TYPE_PATTERN_.test(blob.type) ? goog.fs.url.createObjectUrl(blob) : goog.html.SafeUrl.INNOCUOUS_STRING;
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
@@ -6989,22 +7017,25 @@ goog.html.SafeStyle.create = function(map) {
       throw Error("Name allows only [-_a-zA-Z0-9], got: " + name);
     }
     var value = map[name];
-    if (null != value) {
-      if (value instanceof goog.string.Const) {
-        value = goog.string.Const.unwrap(value), goog.asserts.assert(!/[{;}]/.test(value), "Value does not allow [{;}].");
-      } else {
-        value = String(value);
-        var valueWithoutFunctions = value.replace(goog.html.SafeUrl.FUNCTIONS_RE_, "$1").replace(goog.html.SafeUrl.URL_RE_, "url");
-        goog.html.SafeStyle.VALUE_RE_.test(valueWithoutFunctions) ? goog.html.SafeStyle.hasBalancedQuotes_(value) ? value = goog.html.SafeStyle.sanitizeUrl_(value) : (goog.asserts.fail("String value requires balanced quotes, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING) : (goog.asserts.fail("String value allows only " + goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ + " and simple functions, got: " + value), value = goog.html.SafeStyle.INNOCUOUS_STRING);
-      }
-      style += name + ":" + value + ";";
-    }
+    null != value && (value = goog.isArray(value) ? goog.array.map(value, goog.html.SafeStyle.sanitizePropertyValue_).join(" ") : goog.html.SafeStyle.sanitizePropertyValue_(value), style += name + ":" + value + ";");
   }
   if (!style) {
     return goog.html.SafeStyle.EMPTY;
   }
   goog.html.SafeStyle.checkStyle_(style);
   return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
+};
+goog.html.SafeStyle.sanitizePropertyValue_ = function(value) {
+  if (value instanceof goog.html.SafeUrl) {
+    return 'url("' + goog.html.SafeUrl.unwrap(value).replace(/</g, "%3c").replace(/[\\"]/g, "\\$&") + '")';
+  }
+  var result = value instanceof goog.string.Const ? goog.string.Const.unwrap(value) : goog.html.SafeStyle.sanitizePropertyValueString_(String(value));
+  goog.asserts.assert(!/[{;}]/.test(result), "Value does not allow [{;}].");
+  return result;
+};
+goog.html.SafeStyle.sanitizePropertyValueString_ = function(value) {
+  var valueWithoutFunctions = value.replace(goog.html.SafeUrl.FUNCTIONS_RE_, "$1").replace(goog.html.SafeUrl.URL_RE_, "url");
+  return goog.html.SafeStyle.VALUE_RE_.test(valueWithoutFunctions) ? goog.html.SafeStyle.hasBalancedQuotes_(value) ? goog.html.SafeStyle.sanitizeUrl_(value) : (goog.asserts.fail("String value requires balanced quotes, got: " + value), goog.html.SafeStyle.INNOCUOUS_STRING) : (goog.asserts.fail("String value allows only " + goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ + " and simple functions, got: " + value), goog.html.SafeStyle.INNOCUOUS_STRING);
 };
 goog.html.SafeStyle.hasBalancedQuotes_ = function(value) {
   for (var outsideSingle = !0, outsideDouble = !0, i = 0; i < value.length; i++) {
@@ -8389,6 +8420,10 @@ goog.html.legacyconversions.safeHtmlFromString = function(html) {
   goog.html.legacyconversions.reportCallback_();
   return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(html, null);
 };
+goog.html.legacyconversions.safeScriptFromString = function(script) {
+  goog.html.legacyconversions.reportCallback_();
+  return goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(script);
+};
 goog.html.legacyconversions.safeStyleFromString = function(style) {
   goog.html.legacyconversions.reportCallback_();
   return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
@@ -9607,10 +9642,6 @@ goog.net.jsloader = {};
 goog.net.jsloader.GLOBAL_VERIFY_OBJS_ = "closure_verification";
 goog.net.jsloader.DEFAULT_TIMEOUT = 5000;
 goog.net.jsloader.scriptsToLoad_ = [];
-goog.net.jsloader.loadMany = function(uris, opt_options) {
-  var trustedUris = goog.array.map(uris, goog.html.legacyconversions.trustedResourceUrlFromString);
-  return goog.net.jsloader.safeLoadMany(trustedUris, opt_options);
-};
 goog.net.jsloader.safeLoadMany = function(trustedUris, opt_options) {
   if (!trustedUris.length) {
     return goog.async.Deferred.succeed(null);
