@@ -538,7 +538,7 @@ def startProcessing(taskId, params):
   return send_('/processingrequest', args)
 
 
-def startIngestion(taskId, params):
+def startIngestion(taskId, params, allow_overwrite=False):
   """Creates an image asset import task.
 
   Args:
@@ -556,15 +556,21 @@ def startIngestion(taskId, params):
             object names, e.g. 'gs://bucketname/filename.tif'
           bands (array) An optional list of band names formatted like:
             [{'id': 'R'}, {'id': 'G'}, {'id': 'B'}]
+    allow_overwrite: Whether the ingested image can overwrite an
+        existing version.
 
   Returns:
     A dict with optional notes about the created task.
   """
-  args = {'id': taskId, 'request': json.dumps(params)}
+  args = {
+      'id': taskId,
+      'request': json.dumps(params),
+      'allowOverwrite': allow_overwrite
+  }
   return send_('/ingestionrequest', args)
 
 
-def startTableIngestion(taskId, params):
+def startTableIngestion(taskId, params, allow_overwrite=False):
   """Creates a table asset import task.
 
   Args:
@@ -578,10 +584,16 @@ def startTableIngestion(taskId, params):
             Where path values correspond to source files' CNS locations,
             e.g. 'googlefile://namespace/foobar.shp', and 'charset' refers to
             the character encoding of the source file.
+    allow_overwrite: Whether the ingested image can overwrite an
+        existing version.
   Returns:
     A dict with optional notes about the created task.
   """
-  args = {'id': taskId, 'tableRequest': json.dumps(params)}
+  args = {
+      'id': taskId,
+      'tableRequest': json.dumps(params),
+      'allowOverwrite': allow_overwrite
+  }
   return send_('/ingestionrequest', args)
 
 

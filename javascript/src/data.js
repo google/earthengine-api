@@ -267,7 +267,7 @@ ee.data.refreshAuthToken = function(
   // Start the authorization flow, first trying immediate mode, which tries to
   // get the token behind the scenes, with no UI shown.
   ee.data.authTokenRefresher_(authArgs, function(result) {
-    if (result['error'] == 'immediate_failed' && opt_onImmediateFailed) {
+    if (result.error == 'immediate_failed' && opt_onImmediateFailed) {
       opt_onImmediateFailed();
     } else {
       ee.data.handleAuthResult_(opt_success, opt_error, result);
@@ -281,7 +281,7 @@ ee.data.refreshAuthToken = function(
  * gapi.auth.authorize() after the auth library loads. Set to null to disable
  * token refreshing.
  *
- * @param {?function(ee.data.AuthArgs, function(ee.data.AuthResponse))}
+ * @param {?function(!ee.data.AuthArgs, function(!ee.data.AuthResponse))}
  *     refresher A function that takes as input 1) auth arguments and
  *     2) a callback to which it passes an auth response object upon
  *     completion.
@@ -453,14 +453,18 @@ ee.data.getXsrfToken = function() {
 /**
  * Get the list of algorithms.
  *
- * @param {function(ee.data.AlgorithmsRegistry, string=)=} opt_callback
+ * @param {function(!ee.data.AlgorithmsRegistry, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AlgorithmsRegistry} The list of algorithm
  *     signatures, or null if a callback is specified.
  */
 ee.data.getAlgorithms = function(opt_callback) {
-  return /** @type {?ee.data.AlgorithmsRegistry} */ (
-      ee.data.send_('/algorithms', null, opt_callback, 'GET'));
+  const result = ee.data.send_('/algorithms', null, opt_callback, 'GET');
+  if (!opt_callback) {
+    return /** @type {!ee.data.AlgorithmsRegistry} */ (result);
+  }
+
+  return null;
 };
 
 
@@ -499,7 +503,7 @@ ee.data.getAlgorithms = function(opt_callback) {
  * @export
  */
 ee.data.getMapId = function(params, opt_callback) {
-  params = /** @type {ee.data.ImageVisualizationParameters} */ (
+  params = /** @type {!ee.data.ImageVisualizationParameters} */ (
       goog.object.clone(params));
   return /** @type {?ee.data.RawMapId} */ (
       ee.data.send_('/mapid', ee.data.makeRequest_(params), opt_callback));
@@ -521,8 +525,8 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
   if (x < 0) {
     x += width;
   }
-  return [ee.data.tileBaseUrl_, 'map', mapid['mapid'], z, x, y].join('/') +
-      '?token=' + mapid['token'];
+  return [ee.data.tileBaseUrl_, 'map', mapid.mapid, z, x, y].join('/') +
+      '?token=' + mapid.token;
 };
 
 
@@ -577,8 +581,8 @@ ee.data.getThumbId = function(params, opt_callback) {
  * @export
  */
 ee.data.makeThumbUrl = function(id) {
-  return ee.data.tileBaseUrl_ + '/api/thumb?thumbid=' + id['thumbid'] +
-      '&token=' + id['token'];
+  return ee.data.tileBaseUrl_ + '/api/thumb?thumbid=' + id.thumbid +
+      '&token=' + id.token;
 };
 
 
@@ -627,14 +631,14 @@ ee.data.getDownloadId = function(params, opt_callback) {
 
 /**
  * Create a download URL from a docid and token.
- * @param {ee.data.DownloadId} id A download id and token.
+ * @param {!ee.data.DownloadId} id A download id and token.
  * @return {string} The download URL.
  * @export
  */
 ee.data.makeDownloadUrl = function(id) {
   // TODO(user): Redirect to makeImageDownloadUrl.
-  return ee.data.tileBaseUrl_ + '/api/download?docid=' + id['docid'] +
-      '&token=' + id['token'];
+  return ee.data.tileBaseUrl_ + '/api/download?docid=' + id.docid +
+      '&token=' + id.token;
 };
 
 
@@ -646,7 +650,7 @@ ee.data.makeDownloadUrl = function(id) {
  *   - selectors: Comma separated string of selectors that can be used to
  *          determine which attributes will be downloaded.
  *   - filename: The name of the file that will be downloaded.
- * @param {function(ee.data.DownloadId, string=)=} opt_callback An optional
+ * @param {function(!ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.DownloadId} A download id and token, or null if a
  *     callback is specified.
@@ -663,13 +667,13 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
 
 /**
  * Create a table download URL from a docid and token.
- * @param {ee.data.DownloadId} id A table download id and token.
+ * @param {!ee.data.DownloadId} id A table download id and token.
  * @return {string} The download URL.
  * @export
  */
 ee.data.makeTableDownloadUrl = function(id) {
-  return ee.data.tileBaseUrl_ + '/api/table?docid=' + id['docid'] +
-      '&token=' + id['token'];
+  return ee.data.tileBaseUrl_ + '/api/table?docid=' + id.docid +
+      '&token=' + id.token;
 };
 
 
@@ -888,7 +892,7 @@ ee.data.getInfo = function(id, opt_callback) {
 /**
  * Returns a list of the contents in an asset collection or folder.
  *
- * @param {Object} params An object containing request parameters with
+ * @param {!Object} params An object containing request parameters with
  *     the following possible values:
  *       - id (string) The asset id of the collection to list.
  *       - starttime (number) Start time, in msec since the epoch.
@@ -1060,7 +1064,7 @@ goog.exportSymbol('ee.data.deleteAsset', ee.data.deleteAsset);
  * The authenticated user must be a writer or owner of an asset to see its ACL.
  *
  * @param {string} assetId The ID of the asset to check.
- * @param {function(ee.data.AssetAcl, string=)=} opt_callback
+ * @param {function(!ee.data.AssetAcl, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AssetAcl} The asset's ACL. Null if a callback is specified.
  */
@@ -1081,7 +1085,7 @@ goog.exportSymbol('ee.data.getAssetAcl', ee.data.getAssetAcl);
  * The authenticated user must be a writer or owner of an asset to set its ACL.
  *
  * @param {string} assetId The ID of the asset to set the ACL on.
- * @param {ee.data.AssetAclUpdate} aclUpdate The updated ACL.
+ * @param {!ee.data.AssetAclUpdate} aclUpdate The updated ACL.
  * @param {function(Object, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  *     The callback is passed an empty object.
@@ -1126,7 +1130,7 @@ goog.exportSymbol('ee.data.setAssetProperties', ee.data.setAssetProperties);
  *   - The authenticated user must own the asset root to see its quota usage.
  *
  * @param {string} rootId The ID of the asset root to check, e.g. "users/foo".
- * @param {function(ee.data.AssetAcl, string=)=} opt_callback
+ * @param {function(!ee.data.AssetQuotaDetails, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AssetQuotaDetails} The asset root's quota usage details.
  *     Null if a callback is specified.
@@ -1217,13 +1221,26 @@ ee.data.ALLOWED_DESCRIPTION_HTML_ELEMENTS =
 
 /**
  * An entry in a list returned by the /list servlet.
- * @typedef {{
- *   type: !ee.data.AssetType,
- *   id: string,
- *   properties: (undefined|!Object)
- * }}
+ * @record @struct
  */
-ee.data.ShortAssetDescription;
+ee.data.ShortAssetDescription = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string}
+     */
+    this.id;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
@@ -1236,46 +1253,111 @@ ee.data.AssetList;
 /**
  * An access control list for an asset. The strings are all email addresses (for
  * either individuals or groups).
- * @typedef {{
- *   owners: !Array<string>,
- *   writers: !Array<string>,
- *   readers: !Array<string>,
- *   all_users_can_read: (undefined|boolean)
- * }}
+ * @record @struct
  */
-ee.data.AssetAcl;
+ee.data.AssetAcl = class {
+  constructor() {
+    /**
+     * @export {!Array<string>}
+     */
+    this.owners;
+
+    /**
+     * @export {!Array<string>}
+     */
+    this.writers;
+
+    /**
+     * @export {!Array<string>}
+     */
+    this.readers;
+
+    /**
+     * @export {undefined|boolean}
+     */
+    this.all_users_can_read;
+  }
+};
 
 
 /**
  * An update to an access control list for an asset. Owners cannot be changed.
- * @typedef {{
- *   writers: !Array<string>,
- *   readers: !Array<string>,
- *   all_users_can_read: (undefined|boolean)
- * }}
+ * @record @struct
  */
-ee.data.AssetAclUpdate;
+ee.data.AssetAclUpdate = class {
+  constructor() {
+    /**
+     * @export {!Array<string>}
+     */
+    this.writers;
 
+    /**
+     * @export {!Array<string>}
+     */
+    this.readers;
+
+    /**
+     * @export {boolean|undefined}
+     */
+    this.all_users_can_read;
+  }
+};
+
+/**
+ * A limit for an asset quota entry.
+ * @record @struct
+ */
+ee.data.AssetQuotaEntry = class {
+  constructor() {
+    /**
+     * @export {number}
+     */
+    this.usage;
+
+    /**
+     * @export {number}
+     */
+    this.limit;
+  }
+};
 
 /**
  * Details about an asset root folder's quota usage and limits.
  * Asset size values are in bytes. Negative limit means "unlimited".
- * @typedef {{
- *   asset_count: {usage: number, limit: number},
- *   asset_size: {usage: number, limit: number}
- * }}
+ * @record @struct
  */
-ee.data.AssetQuotaDetails;
+ee.data.AssetQuotaDetails = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetQuotaEntry}
+     */
+    this.asset_count;
+
+    /**
+     * @export {!ee.data.AssetQuotaEntry}
+     */
+    this.asset_size;
+  }
+};
 
 
 /**
  * A description of a folder. The type value is always ee.data.AssetType.FOLDER.
- * @typedef {{
- *   type: !ee.data.AssetType,
- *   id: string
- * }}
+ * @record @struct
  */
-ee.data.FolderDescription;
+ee.data.FolderDescription = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string}
+     */
+    this.id;
+  }
+};
 
 
 /**
@@ -1316,11 +1398,16 @@ ee.data.FeatureCollectionDescription = class {
 /**
  * An object describing ee.Feature visualization parameters. Color is
  * a 6-character hex string in the RRGGBB format.
- * @typedef {{
- *   color: (string|undefined)
- * }}
+ * @record @struct
  */
-ee.data.FeatureVisualizationParameters;
+ee.data.FeatureVisualizationParameters = class {
+  constructor() {
+    /**
+     * @export {string|undefined}
+     */
+    this.color;
+  }
+};
 
 
 /**
@@ -1334,14 +1421,17 @@ ee.data.GeoJSONFeature = class {
      * @export {string}
      */
     this.type;
+
     /**
      * @export {undefined|string}
      */
     this.id;
+
     /**
      * @export {!ee.data.GeoJSONGeometry}
      */
     this.geometry;
+
     /**
      * @export {!Object|undefined}
      */
@@ -1405,6 +1495,7 @@ ee.data.GeoJSONGeometryCrs = class {
      * @export {string}
      */
     this.type;
+
     /**
      * @export {!ee.data.GeoJSONGeometryCrsProperties}
      */
@@ -1430,46 +1521,146 @@ ee.data.GeoJSONGeometryCrsProperties = class {
 
 /**
  * An object describing an ImageCollection, as returned by getValue.
- * The type field is always "ImageCollection".
- * @typedef {{
- *   type: !ee.data.AssetType,
- *   id: (undefined|string),
- *   version: (undefined|number),
- *   bands: !Array<!ee.data.BandDescription>,
- *   properties: (undefined|!Object),
- *   features: Array.<ee.data.ImageDescription>
- * }}
+ * @record @struct
  */
-ee.data.ImageCollectionDescription;
+ee.data.ImageCollectionDescription = class {
+  constructor() {
+    /**
+     * This field is always "ImageCollection".
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.version;
+
+    /**
+     * @export {!Array<!ee.data.BandDescription>}
+     */
+    this.bands;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+
+    /**
+     * @export {!Array<!ee.data.ImageDescription>|undefined}
+     */
+    this.features;
+  }
+};
 
 
 /**
  * An object describing an Image, as returned by getValue.
- * The type field is always "Image".
- * @typedef {{
- *   type: !ee.data.AssetType,
- *   id: (undefined|string),
- *   version: (undefined|number),
- *   bands: !Array<!ee.data.BandDescription>,
- *   properties: (undefined|!Object)
- * }}
+ * @record @struct
  */
-ee.data.ImageDescription;
+ee.data.ImageDescription = class {
+  constructor() {
+    /**
+     * This field is always "Image".
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.version;
+
+    /**
+     * @export {!Array<!ee.data.BandDescription>}
+     */
+    this.bands;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
  * An object describing a Table asset, as returned by getValue.
- * Compatible with GeoJSON. The type field is always "Table."
- * @typedef {{
- *   type: !ee.data.AssetType,
- *   columns: !Object<string, string>,
- *   id: (string|undefined),
- *   features: (!Array<ee.data.GeoJSONFeature>|undefined),
- *   properties: (!Object|undefined),
- *   version: (undefined|number)
- * }}
+ * Compatible with GeoJSON.
+ * @record @struct
  */
-ee.data.TableDescription;
+ee.data.TableDescription = class {
+  constructor() {
+    /**
+     * This field is always "Table."
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {!Object<string, string>}
+     */
+    this.columns;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {!Array<!ee.data.GeoJSONFeature>|undefined}
+     */
+    this.features;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.version;
+  }
+};
+
+
+/**
+ * An object containing table download options.
+ * @record @struct
+ */
+ee.data.TableDownloadParameters = class {
+  constructor() {
+    /**
+     * The download format, one of either "CSV" or "JSON."
+     * @export {string}
+     */
+    this.format;
+
+    /**
+     * A comma separated string of selectors that can be used to determine which
+     * attributes will be downloaded.
+     * @export {string}
+     */
+    this.selectors;
+
+    /**
+     * The name of the file that will be downloaded.
+     * @export {string}
+     */
+    this.filename;
+  }
+};
 
 
 /**
@@ -1484,51 +1675,61 @@ ee.data.ImageVisualizationParameters = class {
      * @export {!ee.Image|string|undefined}
      */
     this.image;
+
     /**
      * Version number of image (or latest).
      * @export {number|undefined}
      */
     this.version;
+
     /**
      * Comma-delimited list of band names to be mapped to RGB.
      * @export {string|!Array<string>|undefined}
      */
     this.bands;
+
     /**
      * Gain (or one per band) to map onto 00-FF.
      * @export {number|!Array<number>|undefined}
      */
     this.gain;
+
     /**
      * Offset (or one per band) to map onto 00-FF.
      * @export {number|!Array<number>|undefined}
      */
     this.bias;
+
     /**
      * Value (or one per band) to map onto 00.
      * @export {number|!Array<number>|undefined}
      */
     this.min;
+
     /**
      * Value (or one per band) to map onto FF.
      * @export {number|!Array<number>|undefined}
      */
     this.max;
+
     /**
      * Gamma correction factor (or one per band)
      * @export {number|!Array<number>|undefined}
      */
     this.gamma;
+
     /**
      * List of CSS-style color strings (single-band previews only).
      * @export {string|!Array<string>|undefined}
      */
     this.palette;
+
     /**
      * A number between 0 and 1 for opacity.
      * @export {number|undefined}
      */
     this.opacity;
+
     /**
      * Either "jpg" or "png".
      * @export {string|undefined}
@@ -1539,110 +1740,258 @@ ee.data.ImageVisualizationParameters = class {
 
 
 /**
- * An object describing an Image band, as returned by getValue.
- * The dimensions field is [width, height].
- * @typedef {{
- *   id: string,
- *   data_type: !ee.data.PixelTypeDescription,
- *   dimensions: (undefined|!Array<number>),
- *   crs: string,
- *   crs_transform: (undefined|!Array<number>),
- *   crs_transform_wkt: (undefined|string),
- *   properties: (undefined|!Object)
- * }}
+ * An object describing the parameters for generating a thumbnail image.
+ * Consists of all parameters of ee.data.ImageVisualizationParameters as well as
+ * additional fields.
+ * @see ee.data.ImageVisualizationParameters
+ * @record @struct
  */
-ee.data.BandDescription;
+ee.data.ThumbnailOptions = class extends ee.data.ImageVisualizationParameters {
+  constructor() {
+    super();
+
+    /**
+     * The maximum dimensions of the thumbnail to render, in pixels. If only one
+     * number is passed, it is used as the maximum, and the other dimension is
+     * computed by proportional scaling. Otherwise, a pair of numbers in the
+     * format [width, height].
+     * @export {number|!Array<number>|undefined}
+     */
+    this.dimensions;
+
+    /**
+     * The geospatial region of the image to render. By default, the whole
+     * image. If defined, either an array in the format [east, south, west,
+     * north] or else a GeoJSON geometry.
+     * @export {!Array<number>|!ee.data.GeoJSONGeometry|undefined}
+     */
+    this.region;
+  }
+};
+
+
+/**
+ * An object describing an Image band, as returned by getValue.
+ * @record @struct
+ */
+ee.data.BandDescription = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.id;
+
+    /**
+     * @export {!ee.data.PixelTypeDescription}
+     */
+    this.data_type;
+
+    /**
+     * This field is [width, height].
+     * @export {!Array<number>|undefined}
+     */
+    this.dimensions;
+
+    /**
+     * @export {string}
+     */
+    this.crs;
+
+    /**
+     * @export {!Array<number>|undefined}
+     */
+    this.crs_transform;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.crs_transform_wkt;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
  * An object describing a PixelType, as returned by getValue.
- * The type field is always "PixelType". The precision field is
- * "int", "float" or "double".
- * @typedef {{
- *   type: string,
- *   precision: string,
- *   min: (undefined|number),
- *   max: (undefined|number),
- *   dimensions: (undefined|number)
- * }}
+ * @record @struct
  */
-ee.data.PixelTypeDescription;
+ee.data.PixelTypeDescription = class {
+  constructor() {
+    /**
+     * This field is always "PixelType."
+     * @export {string}
+     */
+    this.type;
+
+    /**
+     * This field is "int," "float," or "double."
+     * @export {string}
+     */
+    this.precision;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.min;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.max;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.dimensions;
+  }
+};
 
 
 /**
  * The registry of EE algorithms.
- *
- * @typedef {Object.<ee.data.AlgorithmSignature>}
+ * @typedef {!Object<string, !ee.data.AlgorithmSignature>}
  */
 ee.data.AlgorithmsRegistry;
 
 
 /**
  * The signature of an algorithm.
- *
- * @typedef {{
- *   args: Array.<ee.data.AlgorithmArgument>,
- *   returns: string,
- *   description: string,
- *   deprecated: (string|undefined)
- * }}
+ * @record @struct
  */
-ee.data.AlgorithmSignature;
+ee.data.AlgorithmSignature = class {
+  constructor() {
+    /**
+     * @export {!Array<!ee.data.AlgorithmArgument>}
+     */
+    this.args;
+
+    /**
+     * @export {string}
+     */
+    this.returns;
+
+    /**
+     * @export {string}
+     */
+    this.description;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.deprecated;
+  }
+};
 
 
 /**
  * The signature of a single algorithm argument.
- * @typedef {{
- *   name: string,
- *   type: string,
- *   optional: boolean,
- *   default: *
- * }}
+ * @record @struct
  */
-ee.data.AlgorithmArgument;
+ee.data.AlgorithmArgument = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.name;
+
+    /**
+     * @export {string}
+     */
+    this.type;
+
+    /**
+     * @export {boolean}
+     */
+    this.optional;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.description;
+
+    /**
+     * @export {*}
+     */
+    this.default;
+  }
+};
 
 
 /**
  * An identifier and security token for a thumbnail image.
- * @typedef {{
- *   thumbid: string,
- *   token: string
- * }}
+ * @record @struct
  */
-ee.data.ThumbnailId;
+ee.data.ThumbnailId = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.thumbid;
+
+    /**
+     * @export {string}
+     */
+    this.token;
+  }
+};
 
 
 /**
  * An identifier and security token for an image or table to download.
- * @typedef {{
- *   docid: string,
- *   token: string
- * }}
+ * @record @struct
  */
-ee.data.DownloadId;
+ee.data.DownloadId = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.docid;
+
+    /**
+     * @export {string}
+     */
+    this.token;
+  }
+};
 
 
 /**
  * An identifier and security token for a tiled map.
- *
- * @typedef {{
- *     mapid: string,
- *     token: string
- * }}
+ * @record @struct
  */
-ee.data.RawMapId;
+ee.data.RawMapId = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.mapid;
+
+    /**
+     * @export {string}
+     */
+    this.token;
+  }
+};
 
 
 /**
- * A RawMapID together with the image from which it was generated.
- *
- * @typedef {{
- *     mapid: string,
- *     token: string,
- *     image: ee.Image
- * }}
+ * A raw map ID together with the image from which it was generated.
+ * @record @struct
  */
-ee.data.MapId;
+ee.data.MapId = class extends ee.data.RawMapId {
+  constructor() {
+    super();
+
+    /**
+     * @export {!ee.Image}
+     */
+    this.image;
+  }
+};
 
 
 /**
@@ -1776,45 +2125,105 @@ ee.data.VideoTaskConfig;
 /**
  * A description of the status of a long-running tasks. See the Task
  * proto for a description of these fields.
- *
- * @typedef {{
- *   id: (undefined|string),
- *   task_type: (undefined|string),
- *   creation_timestamp_ms: (undefined|number),
- *   update_timestamp_ms: (undefined|number),
- *   description: (undefined|string),
- *   priority: (undefined|number),
- *   progress: (undefined|number),
- *   source_url: (undefined|string),
- *   output_url: (undefined|Array.<string>),
- *   state: (undefined|string),
- *   internal_error_info: (undefined|string),
- *   error_message: (undefined|string)
- * }}
+ * @record @struct
  */
-ee.data.TaskStatus;
+ee.data.TaskStatus = class {
+  constructor() {
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.task_type;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.creation_timestamp_ms;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.update_timestamp_ms;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.description;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.priority;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.progress;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.source_url;
+
+    /**
+     * @export {!Array<string>|undefined}
+     */
+    this.output_url;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.state;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.internal_error_info;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.error_message;
+  }
+};
 
 
 /**
  * A response for a call to start a batch process.
- * The "started" field is always "OK".
- * The note field is either "ALREADY_EXISTS" or missing.
- * @typedef {{
- *   started: string,
- *   note: (undefined|string)
- * }}
+ * @record @struct
  */
-ee.data.ProcessingResponse;
+ee.data.ProcessingResponse = class {
+  constructor() {
+    /**
+     * This field is always "OK".
+     * @export {string}
+     */
+    this.started;
+    /**
+     * This field is either "ALREADY_EXISTS" or missing.
+     * @export {string|undefined}
+     */
+    this.note;
+  }
+};
 
 
 /**
  * A response for a call to get task status data.
- *
- * @typedef {{
- *   tasks: Array.<ee.data.TaskStatus>
- * }}
+ * @record @struct
  */
-ee.data.TaskListResponse;
+ee.data.TaskListResponse = class {
+  constructor() {
+    /**
+     * @export {!Array<!ee.data.TaskStatus>}
+     */
+    this.tasks;
+  }
+};
 
 
 /**
@@ -1833,24 +2242,65 @@ ee.data.TaskUpdateActions = {
  */
 ee.data.AssetDescription = class {
   constructor() {
-    /** @export {!Array<string>|undefined} */
-    this.tags;
-    /** @export {string|undefined} */
-    this.thumb;
-    /** @export {string} */
-    this.title;
-    /** @export {string} */
-    this.provider;
-    /** @export {!ee.data.AssetType} */
-    this.type;
-    /** @export {number} */
-    this.period;
-    /** @export {!Array<number>|undefined} */
-    this.period_mapping;
-    /** @export {string} */
+    /**
+     * @export {!Array<number>|undefined}
+     */
+    this.date_range;
+
+    /**
+     * @export {string}
+     */
     this.description;
-    /** @export {string} */
+
+    /**
+     * @export {string}
+     */
     this.id;
+
+    /**
+     * @export {number}
+     */
+    this.period;
+
+    /**
+     * @export {!Array<number>|undefined}
+     */
+    this.period_mapping;
+
+    /**
+     * @export {string}
+     */
+    this.provider;
+
+    /**
+     * @export {string}
+     */
+    this.provider_url;
+
+    /**
+     * @export {string}
+     */
+    this.sample;
+
+    /**
+     * @export {!Array<string>|undefined}
+     */
+    this.tags;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.thumb;
+
+    /**
+     * @export {string}
+     */
+    this.title;
+
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
   }
 };
 
@@ -1866,21 +2316,32 @@ ee.data.IngestionRequest = class {
      * @export {string}
      */
     this.id;
+
     /**
      * The list of source files for the asset, clustered by tile.
      * @export {!Array<!ee.data.Tileset>}
      */
     this.tilesets;
-    /** @export {!Array<!ee.data.Band>|undefined} */
+
+    /**
+     * @export {!Array<!ee.data.Band>|undefined}
+     */
     this.bands;
+
     /**
      * A mapping from metadata property names to values.
      * @export {!Object|undefined}
      */
     this.properties;
-    /** @export {!ee.data.PyramidingPolicy|undefined} */
+
+    /**
+     * @export {!ee.data.PyramidingPolicy|undefined}
+     */
     this.pyramidingPolicy;
-    /** @export {!ee.data.MissingData|undefined} */
+
+    /**
+     * @export {!ee.data.MissingData|undefined}
+     */
     this.missingData;
   }
 };
@@ -1892,7 +2353,9 @@ ee.data.IngestionRequest = class {
  */
 ee.data.MissingData = class {
   constructor() {
-    /** @export {number} */
+    /**
+     * @export {number}
+     */
     this.value;
   }
 };
@@ -1914,7 +2377,9 @@ ee.data.PyramidingPolicy = {
  */
 ee.data.Band = class {
   constructor() {
-    /** @export {string} */
+    /**
+     * @export {string}
+     */
     this.id;
   }
 };
@@ -1926,9 +2391,14 @@ ee.data.Band = class {
  */
 ee.data.Tileset = class {
   constructor() {
-    /** @export {!Array<!ee.data.FileSource>} */
+    /**
+     * @export {!Array<!ee.data.FileSource>}
+     */
     this.sources;
-    /** @export {!Array<!ee.data.FileBand>|undefined} */
+
+    /**
+     * @export {!Array<!ee.data.FileBand>|undefined}
+     */
     this.fileBands;
   }
 };
@@ -1960,9 +2430,9 @@ ee.data.FileBand = class {
  * An object describing properties of a single raster.
  *
  * For requests sent directly through the API, paths should be Google Cloud
- * Storage object names (e.g. 'gs://bucketname/filename'). In manifests
- * uploaded through the Playground IDE, paths should be relative file
- * names (e.g. 'file1.tif').
+ * Storage object names (e.g. 'gs://bucketname/filename'). In manifests uploaded
+ * through the Playground IDE, paths should be relative file names (e.g.
+ * 'file1.tif').
  * @record @struct
  */
 ee.data.FileSource = class {
@@ -1985,28 +2455,56 @@ ee.data.FileSource = class {
 /**
  * The authentication arguments passed the token refresher when the token
  * needs to be refreshed.
- *
- * @typedef {{
- *   'client_id': string,
- *   'immediate': boolean,
- *   'scope': string
- * }}
+ * @record @struct
  */
-ee.data.AuthArgs;
+ee.data.AuthArgs = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.client_id;
+
+    /**
+     * @export {boolean}
+     */
+    this.immediate;
+
+    /**
+     * @export {string}
+     */
+    this.scope;
+  }
+};
 
 
 /**
  * The result of a token refresh. Passed by the token refresher to the callback
  * passed to it when it was called. 'expires_in' is in seconds.
- *
- * @typedef {{
- *   'access_token': (undefined|string),
- *   'token_type': (undefined|string),
- *   'expires_in': (undefined|number),
- *   'error': (undefined|string)
- * }}
+ * @record @struct
  */
-ee.data.AuthResponse;
+ee.data.AuthResponse = class {
+  constructor() {
+    /**
+     * @export {string|undefined}
+     */
+    this.access_token;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.token_type;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.expires_in;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.error;
+  }
+};
 
 
 
@@ -2149,7 +2647,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
  * @param {string} method The request's HTTP method.
  * @param {?string} content The content of the request.
  * @param {!Object<string,string>} headers The headers to send with the request.
- * @return {ee.data.NetworkRequest_} The async request.
+ * @return {!ee.data.NetworkRequest_} The async request.
  * @private
  */
 ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
@@ -2291,16 +2789,16 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
  *     succeeds.
  * @param {function(string)|undefined} error The function to call if auth fails,
  *     passing the error message.
- * @param {ee.data.AuthResponse} result The result object produced by
+ * @param {!ee.data.AuthResponse} result The result object produced by
  *     a token refresher such as gapi.auth.authorize().
  * @private
  */
 ee.data.handleAuthResult_ = function(success, error, result) {
-  if (result['access_token']) {
-    var token = result['token_type'] + ' ' + result['access_token'];
-    if (isFinite(result['expires_in'])) {
+  if (result.access_token) {
+    var token = result.token_type + ' ' + result.access_token;
+    if (isFinite(result.expires_in)) {
       // Conservatively consider tokens expired slightly before actual expiry.
-      var expiresInMs = result['expires_in'] * 1000 * 0.9;
+      var expiresInMs = result.expires_in * 1000 * 0.9;
 
       // Set up a refresh timer. This is necessary because we cannot refresh
       // synchronously, but since we want to allow synchronous API requests,
@@ -2321,22 +2819,22 @@ ee.data.handleAuthResult_ = function(success, error, result) {
       success();
     }
   } else if (error) {
-    error(result['error'] || 'Unknown error.');
+    error(result.error || 'Unknown error.');
   }
 };
 
 
 /**
- * Convert an object into a goog.Uri.QueryData.
- *
- * @param {Object} params The params to convert.
- * @return {goog.Uri.QueryData} The converted parameters.
+ * Convert an object into a goog.Uri.QueryData. Parameters that are of type
+ * array or object are serialized to JSON.
+ * @param {!Object} params The params to convert.
+ * @return {!goog.Uri.QueryData} The converted parameters.
  * @private
  */
 ee.data.makeRequest_ = function(params) {
   var request = new goog.Uri.QueryData();
-  for (var item in params) {
-    request.set(item, params[item]);
+  for (let [name, item] of Object.entries(params)) {
+    request.set(name, item);
   }
   return request;
 };
@@ -2488,16 +2986,37 @@ ee.data.sleep_ = function(timeInMs) {
 
 /**
  * A data model for a network request.
- * @typedef {{
- *   url: string,
- *   callback: !function(?, string=),
- *   method: string,
- *   content: ?string,
- *   headers: !Object<string,string>
- * }}
+ * @record @struct
  * @private
  */
-ee.data.NetworkRequest_;
+ee.data.NetworkRequest_ = class {
+  constructor() {
+    /**
+     * @type {string}
+     */
+    this.url;
+
+    /**
+     * @type {!function(?, string=)}
+     */
+    this.callback;
+
+    /**
+     * @type {string}
+     */
+    this.method;
+
+    /**
+     * @type {?string}
+     */
+    this.content;
+
+    /**
+     * @type {!Object<string, string>}
+     */
+    this.headers;
+  }
+};
 
 
 /**
@@ -2592,7 +3111,7 @@ ee.data.authScopes_ = [];
 /**
  * A function that takes as input 1) auth arguments and 2) a callback to which
  * it passes an auth response object upon completion.
- * @private {?function(ee.data.AuthArgs, function(ee.data.AuthResponse))}
+ * @private {?function(!ee.data.AuthArgs, function(!ee.data.AuthResponse))}
  */
 ee.data.authTokenRefresher_ = null;
 

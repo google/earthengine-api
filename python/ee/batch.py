@@ -113,9 +113,9 @@ class Task(object):
     tasks = []
     for status in statuses:
       tasks.append(Task(status['id'], {
-          'type': status['task_type'],
-          'description': status['description'],
-          'state': status['state'],
+          'type': status.get('task_type'),
+          'description': status.get('description'),
+          'state': status.get('state'),
       }))
     return tasks
 

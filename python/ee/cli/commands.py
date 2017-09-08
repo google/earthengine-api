@@ -68,11 +68,17 @@ def _add_wait_arg(parser):
             ' task in the background, and returns immediately.'))
 
 
+def _add_overwrite_arg(parser):
+  parser.add_argument(
+      '--force', '-f', action='store_true',
+      help='Overwrite any existing version of the asset.')
+
+
 def _upload(args, request, ingestion_function):
   if 0 <= args.wait < 10:
     raise ee.EEException('Wait time should be at least 10 seconds.')
   task_id = ee.data.newTaskId()[0]
-  ingestion_function(task_id, request)
+  ingestion_function(task_id, request, args.force)
   print('Started upload task with ID: %s' % task_id)
   if args.wait >= 0:
     print('Waiting for the upload task to complete...')
@@ -905,6 +911,7 @@ class UploadImageCommand(object):
 
   def __init__(self, parser):
     _add_wait_arg(parser)
+    _add_overwrite_arg(parser)
     parser.add_argument(
         'src_files',
         help=('Cloud Storage URL(s) of the file(s) to upload. '
@@ -1007,6 +1014,7 @@ class UploadTableCommand(object):
 
   def __init__(self, parser):
     _add_wait_arg(parser)
+    _add_overwrite_arg(parser)
     parser.add_argument(
         'src_file',
         help=('Cloud Storage URL of the .zip or .shp file '
