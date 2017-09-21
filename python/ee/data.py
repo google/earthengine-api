@@ -412,7 +412,7 @@ def getAlgorithms():
   return send_('/algorithms', {}, 'GET')
 
 
-def createAsset(value, opt_path=None):
+def createAsset(value, opt_path=None, opt_force=False):
   """Creates an asset from a JSON value.
 
   To create an empty image collection or folder, pass in a "value" object
@@ -422,6 +422,7 @@ def createAsset(value, opt_path=None):
     value: An object describing the asset to create or a JSON string
         with the already-serialized value for the new asset.
     opt_path: An optional desired ID, including full path.
+    opt_force: True if asset overwrite is allowed
 
   Returns:
     A description of the saved asset, including a generated ID.
@@ -431,6 +432,7 @@ def createAsset(value, opt_path=None):
   args = {'value': value, 'json_format': 'v2'}
   if opt_path is not None:
     args['id'] = opt_path
+  args['force'] = opt_force
   return send_('/create', args)
 
 
