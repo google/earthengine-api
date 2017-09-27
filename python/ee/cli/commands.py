@@ -640,10 +640,15 @@ class SizeCommand(object):
     print('{:>16d}   {}'.format(size, asset['id']))
 
   def _get_size(self, asset):
-    size_parsers = {'Image' : self._get_size_image, 'Folder' : self._get_size_folder, 'ImageCollection' : self._get_size_image_collection}
+    size_parsers = {'Table' : self._get_size_table, 'Image' : self._get_size_image, 'Folder' : self._get_size_folder, 'ImageCollection' : self._get_size_image_collection}
 
     return size_parsers[asset['type']](asset)
 
+  def _get_size_table(self, asset):
+    info = ee.data.getInfo(asset['id'])
+
+    return info['properties']['system:asset_size']
+    
   def _get_size_image(self, asset):
     info = ee.data.getInfo(asset['id'])
 
