@@ -19,7 +19,7 @@ trendy.boot = function(eeMapId, eeToken, serializedPolygonIds) {
   // Load external libraries.
   google.load('visualization', '1.0');
   google.load('jquery', '1');
-  google.load('maps', '3');
+  google.load('maps', '3', {'other_params': 'key=your-api-key-here'});
 
   // Create the Trendy Lights app.
   google.setOnLoadCallback(function() {

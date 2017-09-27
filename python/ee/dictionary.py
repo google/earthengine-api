@@ -37,7 +37,7 @@ class Dictionary(computedobject.ComputedObject):
         # If it's a call that's already returning a Dictionary, just cast.
         super(Dictionary, self).__init__(arg.func, arg.args, arg.varName)
       else:
-        # Delegate everything else to the server-side constuctor.
+        # Delegate everything else to the server-side constructor.
         super(Dictionary, self).__init__(
             apifunction.ApiFunction('Dictionary'), {'input': arg})
 

@@ -13,10 +13,10 @@ goog.require('goog.array');
 /**
  * Constructs a new list.
  *
- * @param {IArrayLike|Object} list A list or a computed object.
- *
+ * @param {!IArrayLike|!Object} list A list or a computed object.
  * @constructor
- * @extends {ee.ComputedObject}
+ * @extends {ee.ComputedObject<!Array<T>>}
+ * @template T
  * @export
  */
 ee.List = function(list) {

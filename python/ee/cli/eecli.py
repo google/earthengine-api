@@ -31,6 +31,7 @@ class CommandDispatcher(commands.Dispatcher):
       commands.CreateCommand,
       commands.SizeCommand,
       commands.ListCommand,
+      commands.SizeCommand,
       commands.MoveCommand,
       commands.RmCommand,
       commands.TaskCommand,

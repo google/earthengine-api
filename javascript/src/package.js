@@ -303,7 +303,7 @@ ee.Package.encodeDecl_ = function(signature, name) {
       if (i > 0) {
         out.push(', ');
       }
-      out.push(signature.args[i]['type'] + ' ' + signature.args[i]['name']);
+      out.push(signature.args[i].type + ' ' + signature.args[i].name);
     }
   }
   out.push(')');

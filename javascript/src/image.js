@@ -153,35 +153,39 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * An imperative function that returns a map id and token, suitable for
  * generating a Map overlay.
  *
- * @param {ee.data.ImageVisualizationParameters=} opt_visParams
+ * @param {!ee.data.ImageVisualizationParameters=} opt_visParams
  *     The visualization parameters.
- * @param {function(Object, string=)=} opt_callback An async callback.
+ * @param {function(!ee.data.MapId, string=)=} opt_callback An async callback.
  *     If not supplied, the call is made synchronously.
- * @return {ee.data.MapId|undefined} An object containing a mapid string, an
+ * @return {!ee.data.MapId|undefined} An object containing a mapid string, an
  *     access token plus this object, or an error message. Or undefined if a
  *     callback was specified.
  * @export
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extract(ee.Image.prototype.getMap, arguments);
-  var request = /** @type {ee.data.ImageVisualizationParameters} */ (
+  var request = /** @type {!ee.data.ImageVisualizationParameters} */ (
       args['visParams'] ? goog.object.clone(args['visParams']) : {});
-  request['image'] = this.serialize();
+  request.image = this.serialize();
 
   if (args['callback']) {
+    const callback =
+        /** @type {!function(!ee.data.MapId=, string=)} */ (args['callback']);
     ee.data.getMapId(
         request,
         // Put the image object into the response from getMapId.
-        goog.bind(function(data, error) {
-          if (data) {
-            data['image'] = this;
-          }
-          args['callback'](data, error);
-        }, this));
+        (data, error) => {
+          const mapId = data ?
+              /** @type {!ee.data.MapId} */ (
+                  Object.assign(data, {image: this})) :
+              undefined;
+          callback(mapId, error);
+        });
   } else {
-    var response = ee.data.getMapId(request);
-    response['image'] = this;
-    return /** @type {ee.data.MapId} */(response);
+    var response =
+        /** @type {!ee.data.MapId} */ (ee.data.getMapId(request));
+    response.image = this;
+    return response;
   }
 };
 
@@ -233,7 +237,7 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
     });
   } else {
     return ee.data.makeDownloadUrl(
-        /** @type {ee.data.DownloadId} */ (ee.data.getDownloadId(request)));
+        /** @type {!ee.data.DownloadId} */ (ee.data.getDownloadId(request)));
   }
 };
 

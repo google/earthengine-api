@@ -59,7 +59,7 @@ ee.MapTileManager = function() {
    * @type {ee.MapTileManager.TokenPool_}
    * @private
    */
-  this.tokenPool_ = new ee.MapTileManager.TokenPool_(0, 4);
+  this.tokenPool_ = new ee.MapTileManager.TokenPool_(0, 60);
 
   /**
    * Map of IDs to requests.

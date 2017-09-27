@@ -8,9 +8,10 @@ trusted testers. The API is in active development, and users should expect the
 API to change.  When (not if) API changes occur, applications that use the API
 will likely need to be updated.**_
 
-- [Earth Engine Homepage](https://earthengine.google.com/)
-- [Web Code Editor](https://code.earthengine.google.com/)
-- [Python Installation](https://developers.google.com/earth-engine/python_install)
+-   [Earth Engine Homepage](https://earthengine.google.com/)
+-   [Web Code Editor](https://code.earthengine.google.com/)
+-   [Python
+    Installation](https://developers.google.com/earth-engine/python_install)
 
 Here's an example screenshot and the corresponding Code Editor JavaScript code:
 

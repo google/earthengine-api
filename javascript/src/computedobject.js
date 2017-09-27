@@ -32,18 +32,19 @@ goog.forwardDeclare('ee.Function');
  *    deterministic variable names for mapped functions, ensuring that nested
  *    mapping calls do not use the same variable name.
  *
- * @param {ee.Function} func The function called to compute this
+ * @param {?ee.Function} func The function called to compute this
  *     object, either as an Algorithm name or an ee.Function object.
- * @param {Object} args A dictionary of arguments to pass to the specified
+ * @param {?Object} args A dictionary of arguments to pass to the specified
  *     function. Note that the caller is responsible for promoting the
  *     arguments to the correct types.
- * @param {string?=} opt_varName A variable name. If not null, the object will
+ * @param {?string=} opt_varName A variable name. If not null, the object will
  *     be encoded as a reference to a CustomFunction variable of this name,
  *     and both 'func' and 'args' must be null. If all arguments are null, the
  *     object is considered an unnamed variable, and a name will be generated
  *     when it is included in an ee.CustomFunction.
  * @constructor
  * @extends {ee.Encodable}
+ * @template T
  */
 ee.ComputedObject = function(func, args, opt_varName) {
   // Constructor safety.
@@ -60,21 +61,21 @@ ee.ComputedObject = function(func, args, opt_varName) {
 
   /**
    * The Function called to compute this object.
-   * @type {ee.Function}
+   * @type {?ee.Function}
    * @protected
    */
   this.func = func;
 
   /**
    * The arguments passed to the function.
-   * @type {Object}
+   * @type {?Object}
    * @protected
    */
   this.args = args;
 
   /**
    * The name of the variable which this ComputedObject represents.
-   * @type {string?}
+   * @type {?string}
    * @protected
    */
   this.varName = opt_varName || null;
@@ -88,7 +89,7 @@ goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
  * Asynchronously retrieves the value of this object from the server and
  * passes it to the provided callback function.
  *
- * @param {function (?, string=)} callback A function of the form
+ * @param {function (T, string=)} callback A function of the form
  *     function(success, failure), called when the server returns an answer.
  *     If the request succeeded, the success argument contains the evaluated
  *     result.  If the request failed, the failure argument will contains an
@@ -115,9 +116,9 @@ ee.ComputedObject.prototype.evaluate = function(callback) {
  * other code (for example, the EE Code Editor UI) while waiting for the server.
  * To make an asynchronous request, evaluate() is preferred over getInfo().
  *
- * @param {function (?, string=): ?=} opt_callback An optional
+ * @param {function (T, string=): ?=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
- * @return {*} The computed value of this object.
+ * @return {T} The computed value of this object.
  * @export
  */
 ee.ComputedObject.prototype.getInfo = function(opt_callback) {

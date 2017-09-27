@@ -25,7 +25,7 @@ goog.require('goog.object');
 /**
  * Creates a function defined by the EE API.
  * @param {string} name The name of the function.
- * @param {ee.Function.Signature=} opt_signature
+ * @param {!ee.Function.Signature|!ee.data.AlgorithmSignature=} opt_signature
  *     The signature of the function. If unspecified, looked up dynamically.
  * @constructor
  * @extends {ee.Function}
@@ -39,10 +39,10 @@ ee.ApiFunction = function(name, opt_signature) {
 
   /**
    * The signature of this API function.
-   * @type {ee.Function.Signature}
+   * @type {!ee.Function.Signature}
    * @private
    */
-  this.signature_ = /** @type {ee.Function.Signature} */(
+  this.signature_ = /** @type {!ee.Function.Signature} */ (
       goog.object.unsafeClone(opt_signature));
   this.signature_['name'] = name;
 };
@@ -177,7 +177,7 @@ ee.ApiFunction.lookupInternal = function(name) {
 ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
   if (!ee.ApiFunction.api_) {
     /**
-     * @param {ee.data.AlgorithmsRegistry} data
+     * @param {!ee.data.AlgorithmsRegistry} data
      * @param {string=} opt_error
      */
     var callback = function(data, opt_error) {
@@ -190,19 +190,19 @@ ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
 
       ee.ApiFunction.api_ = goog.object.map(data, function(sig, name) {
         // Strip type parameters.
-        sig['returns'] = sig['returns'].replace(/<.*>/, '');
-        for (var i = 0; i < sig['args'].length; i++) {
-          sig['args'][i]['type'] = sig['args'][i]['type'].replace(/<.*>/, '');
+        sig.returns = sig.returns.replace(/<.*>/, '');
+        for (var i = 0; i < sig.args.length; i++) {
+          sig.args[i].type = sig.args[i].type.replace(/<.*>/, '');
         }
-        return new ee.ApiFunction(
-            name, /** @type {ee.Function.Signature} */(sig));
+        return new ee.ApiFunction(name, sig);
       });
       if (opt_successCallback) opt_successCallback();
     };
     if (opt_successCallback) {
       ee.data.getAlgorithms(callback);
     } else {
-      callback(ee.data.getAlgorithms());
+      callback(
+          /** @type {!ee.data.AlgorithmsRegistry} */ (ee.data.getAlgorithms()));
     }
   } else if (opt_successCallback) {
     // The API signatures have previously been initialized by some

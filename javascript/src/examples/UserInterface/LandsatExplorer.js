@@ -34,8 +34,8 @@ app.createPanels = function() {
   app.filters.panel = ui.Panel({
     widgets: [
       ui.Label('1) Select filters', {fontWeight: 'bold'}),
-      ui.Label('Start date', app.HELP_TEXT_STYLE), app.filters.startDate,
-      ui.Label('End date', app.HELP_TEXT_STYLE), app.filters.endDate,
+      ui.Label('Start date', app.HELPER_TEXT_STYLE), app.filters.startDate,
+      ui.Label('End date', app.HELPER_TEXT_STYLE), app.filters.endDate,
       app.filters.mapCenter,
       ui.Panel([
         app.filters.applyButton,

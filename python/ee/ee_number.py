@@ -21,7 +21,7 @@ class Number(computedobject.ComputedObject):
   def __init__(self, number):
     """Construct a number wrapper.
 
-    This constuctor accepts the following args:
+    This constructor accepts the following args:
       1) A bare number.
       2) A ComputedObject returning a number.
 

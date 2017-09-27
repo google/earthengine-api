@@ -9,9 +9,18 @@ import ee
 
 class DataTest(unittest.TestCase):
 
-  def testSuccess(self):
+  @mock.patch('time.sleep')
+  def testSuccess(self, mock_sleep):
     with DoStubHttp(200, 'application/json', '{"data": "bar"}'):
       self.assertEqual('bar', ee.data.send_('/foo', {}))
+    self.assertEqual(False, mock_sleep.called)
+
+  @mock.patch('time.sleep')
+  def testRetry(self, mock_sleep):
+    with DoStubHttp(429, 'application/json', '{"data": "bar"}'):
+      with self.assertRaises(ee.ee_exception.EEException):
+        ee.data.send_('/foo', {})
+    self.assertEqual(5, mock_sleep.call_count)
 
   def testNon200Success(self):
     with DoStubHttp(202, 'application/json', '{"data": "bar"}'):

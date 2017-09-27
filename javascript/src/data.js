@@ -16,6 +16,7 @@ goog.provide('ee.data.AssetList');
 goog.provide('ee.data.AssetQuotaDetails');
 goog.provide('ee.data.AssetType');
 goog.provide('ee.data.AuthArgs');
+goog.provide('ee.data.AuthPrivateKey');
 goog.provide('ee.data.AuthResponse');
 goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
@@ -39,8 +40,8 @@ goog.provide('ee.data.MapZoomRange');
 goog.provide('ee.data.MissingData');
 goog.provide('ee.data.PixelTypeDescription');
 goog.provide('ee.data.ProcessingResponse');
+goog.provide('ee.data.PyramidingPolicy');
 goog.provide('ee.data.RawMapId');
-goog.provide('ee.data.ReductionPolicy');
 goog.provide('ee.data.ShortAssetDescription');
 goog.provide('ee.data.SystemTimeProperty');
 goog.provide('ee.data.TableDescription');
@@ -56,12 +57,14 @@ goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.async.Throttle');
 goog.require('goog.functions');
+goog.require('goog.html.TrustedResourceUrl');
 goog.require('goog.json');
 goog.require('goog.net.XhrIo');
 goog.require('goog.net.XmlHttp');
 goog.require('goog.net.jsloader');
 goog.require('goog.object');
 goog.require('goog.string');
+goog.require('goog.string.Const');
 
 goog.forwardDeclare('ee.Image');
 
@@ -78,7 +81,8 @@ goog.forwardDeclare('ee.Image');
  * asked to grant the application identified by clientId access to their EE
  * data if they have not done so previously.
  *
- * This should be called before ee.initialize().
+ * This or another authentication method should be called before
+ * ee.initialize().
  *
  * Note that if the user has not previously granted access to the application
  * identified by the client ID, by default this will try to pop up a dialog
@@ -111,7 +115,7 @@ goog.forwardDeclare('ee.Image');
  *     ee.data.authenticateViaPopup(), bound to the passed callbacks.
  * @export
  */
-ee.data.authenticate = function(
+ee.data.authenticateViaOauth = function(
     clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
   // Remember the auth options.
   var scopes = [ee.data.AUTH_SCOPE_];
@@ -137,6 +141,33 @@ ee.data.authenticate = function(
 
 
 /**
+ * Configures client-side OAuth authentication. Alias of
+ * ee.data.authenticateViaOauth().
+ *
+ * @deprecated Use ee.data.authenticateViaOauth().
+ * @param {?string} clientId The application's OAuth client ID, or null to
+ *     disable authenticated calls. This can be obtained through the Google
+ *     Developers Console. The project must have a JavaScript origin that
+ *     corresponds to the domain where the script is running.
+ * @param {function()} success The function to call if authentication succeeded.
+ * @param {function(string)=} opt_error The function to call if authentication
+ *     failed, passed the error message. If authentication in immediate
+ *     (behind-the-scenes) mode fails and opt_onImmediateFailed is specified,
+ *     that function is called instead of opt_error.
+ * @param {!Array<string>=} opt_extraScopes Extra OAuth scopes to request.
+ * @param {function()=} opt_onImmediateFailed The function to call if
+ *     automatic behind-the-scenes authentication fails. Defaults to
+ *     ee.data.authenticateViaPopup(), bound to the passed callbacks.
+ * @export
+ */
+ee.data.authenticate = function(
+    clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
+  ee.data.authenticateViaOauth(
+      clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed);
+};
+
+
+/**
  * Shows a popup asking for the user's permission. Should only be called if
  * ee.data.authenticate() called its opt_onImmediateFailed argument in the past.
  *
@@ -155,6 +186,8 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
     'scope': ee.data.authScopes_.join(' ')
   }, goog.partial(ee.data.handleAuthResult_, opt_success, opt_error));
 };
+
+
 
 
 /**
@@ -194,11 +227,15 @@ ee.data.setAuthToken = function(clientId, tokenType, accessToken,
   ee.data.handleAuthResult_(undefined, undefined, tokenObject);
 
   if (opt_updateAuthLibrary === false) {
-    if (opt_callback) opt_callback();
+    if (opt_callback) {
+      opt_callback();
+    }
   } else {
     ee.data.ensureAuthLibLoaded_(function() {
       goog.global['gapi']['auth']['setToken'](tokenObject);
-      if (opt_callback) opt_callback();
+      if (opt_callback) {
+        opt_callback();
+      }
     });
   }
 };
@@ -230,7 +267,7 @@ ee.data.refreshAuthToken = function(
   // Start the authorization flow, first trying immediate mode, which tries to
   // get the token behind the scenes, with no UI shown.
   ee.data.authTokenRefresher_(authArgs, function(result) {
-    if (result['error'] == 'immediate_failed' && opt_onImmediateFailed) {
+    if (result.error == 'immediate_failed' && opt_onImmediateFailed) {
       opt_onImmediateFailed();
     } else {
       ee.data.handleAuthResult_(opt_success, opt_error, result);
@@ -244,7 +281,7 @@ ee.data.refreshAuthToken = function(
  * gapi.auth.authorize() after the auth library loads. Set to null to disable
  * token refreshing.
  *
- * @param {?function(ee.data.AuthArgs, function(ee.data.AuthResponse))}
+ * @param {?function(!ee.data.AuthArgs, function(!ee.data.AuthResponse))}
  *     refresher A function that takes as input 1) auth arguments and
  *     2) a callback to which it passes an auth response object upon
  *     completion.
@@ -416,14 +453,18 @@ ee.data.getXsrfToken = function() {
 /**
  * Get the list of algorithms.
  *
- * @param {function(ee.data.AlgorithmsRegistry, string=)=} opt_callback
+ * @param {function(!ee.data.AlgorithmsRegistry, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AlgorithmsRegistry} The list of algorithm
  *     signatures, or null if a callback is specified.
  */
 ee.data.getAlgorithms = function(opt_callback) {
-  return /** @type {?ee.data.AlgorithmsRegistry} */ (
-      ee.data.send_('/algorithms', null, opt_callback, 'GET'));
+  const result = ee.data.send_('/algorithms', null, opt_callback, 'GET');
+  if (!opt_callback) {
+    return /** @type {!ee.data.AlgorithmsRegistry} */ (result);
+  }
+
+  return null;
 };
 
 
@@ -462,7 +503,7 @@ ee.data.getAlgorithms = function(opt_callback) {
  * @export
  */
 ee.data.getMapId = function(params, opt_callback) {
-  params = /** @type {ee.data.ImageVisualizationParameters} */ (
+  params = /** @type {!ee.data.ImageVisualizationParameters} */ (
       goog.object.clone(params));
   return /** @type {?ee.data.RawMapId} */ (
       ee.data.send_('/mapid', ee.data.makeRequest_(params), opt_callback));
@@ -484,8 +525,8 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
   if (x < 0) {
     x += width;
   }
-  return [ee.data.tileBaseUrl_, 'map', mapid['mapid'], z, x, y].join('/') +
-      '?token=' + mapid['token'];
+  return [ee.data.tileBaseUrl_, 'map', mapid.mapid, z, x, y].join('/') +
+      '?token=' + mapid.token;
 };
 
 
@@ -540,8 +581,8 @@ ee.data.getThumbId = function(params, opt_callback) {
  * @export
  */
 ee.data.makeThumbUrl = function(id) {
-  return ee.data.tileBaseUrl_ + '/api/thumb?thumbid=' + id['thumbid'] +
-      '&token=' + id['token'];
+  return ee.data.tileBaseUrl_ + '/api/thumb?thumbid=' + id.thumbid +
+      '&token=' + id.token;
 };
 
 
@@ -590,14 +631,14 @@ ee.data.getDownloadId = function(params, opt_callback) {
 
 /**
  * Create a download URL from a docid and token.
- * @param {ee.data.DownloadId} id A download id and token.
+ * @param {!ee.data.DownloadId} id A download id and token.
  * @return {string} The download URL.
  * @export
  */
 ee.data.makeDownloadUrl = function(id) {
   // TODO(user): Redirect to makeImageDownloadUrl.
-  return ee.data.tileBaseUrl_ + '/api/download?docid=' + id['docid'] +
-      '&token=' + id['token'];
+  return ee.data.tileBaseUrl_ + '/api/download?docid=' + id.docid +
+      '&token=' + id.token;
 };
 
 
@@ -609,7 +650,7 @@ ee.data.makeDownloadUrl = function(id) {
  *   - selectors: Comma separated string of selectors that can be used to
  *          determine which attributes will be downloaded.
  *   - filename: The name of the file that will be downloaded.
- * @param {function(ee.data.DownloadId, string=)=} opt_callback An optional
+ * @param {function(!ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.DownloadId} A download id and token, or null if a
  *     callback is specified.
@@ -626,13 +667,13 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
 
 /**
  * Create a table download URL from a docid and token.
- * @param {ee.data.DownloadId} id A table download id and token.
+ * @param {!ee.data.DownloadId} id A table download id and token.
  * @return {string} The download URL.
  * @export
  */
 ee.data.makeTableDownloadUrl = function(id) {
-  return ee.data.tileBaseUrl_ + '/api/table?docid=' + id['docid'] +
-      '&token=' + id['token'];
+  return ee.data.tileBaseUrl_ + '/api/table?docid=' + id.docid +
+      '&token=' + id.token;
 };
 
 
@@ -851,7 +892,7 @@ ee.data.getInfo = function(id, opt_callback) {
 /**
  * Returns a list of the contents in an asset collection or folder.
  *
- * @param {Object} params An object containing request parameters with
+ * @param {!Object} params An object containing request parameters with
  *     the following possible values:
  *       - id (string) The asset id of the collection to list.
  *       - starttime (number) Start time, in msec since the epoch.
@@ -1023,7 +1064,7 @@ goog.exportSymbol('ee.data.deleteAsset', ee.data.deleteAsset);
  * The authenticated user must be a writer or owner of an asset to see its ACL.
  *
  * @param {string} assetId The ID of the asset to check.
- * @param {function(ee.data.AssetAcl, string=)=} opt_callback
+ * @param {function(!ee.data.AssetAcl, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AssetAcl} The asset's ACL. Null if a callback is specified.
  */
@@ -1044,7 +1085,7 @@ goog.exportSymbol('ee.data.getAssetAcl', ee.data.getAssetAcl);
  * The authenticated user must be a writer or owner of an asset to set its ACL.
  *
  * @param {string} assetId The ID of the asset to set the ACL on.
- * @param {ee.data.AssetAclUpdate} aclUpdate The updated ACL.
+ * @param {!ee.data.AssetAclUpdate} aclUpdate The updated ACL.
  * @param {function(Object, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  *     The callback is passed an empty object.
@@ -1089,7 +1130,7 @@ goog.exportSymbol('ee.data.setAssetProperties', ee.data.setAssetProperties);
  *   - The authenticated user must own the asset root to see its quota usage.
  *
  * @param {string} rootId The ID of the asset root to check, e.g. "users/foo".
- * @param {function(ee.data.AssetAcl, string=)=} opt_callback
+ * @param {function(!ee.data.AssetQuotaDetails, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AssetQuotaDetails} The asset root's quota usage details.
  *     Null if a callback is specified.
@@ -1119,7 +1160,7 @@ ee.data.AssetType = {
   FOLDER: 'Folder',
   IMAGE: 'Image',
   IMAGE_COLLECTION: 'ImageCollection',
-  TABLE: 'FeatureCollection',
+  TABLE: 'Table',
   UNKNOWN: 'Unknown'
 };
 
@@ -1162,28 +1203,49 @@ ee.data.AssetDetailsProperty = {
 };
 
 
+ee.data.ALLOWED_DESCRIPTION_HTML_TABLE_ELEMENTS_ = [
+  'col', 'colgroup', 'caption', 'table', 'tbody', 'td', 'tfoot', 'th', 'thead',
+  'tr'
+];
+
+
 /**
  * The HTML element names that should be allowed in asset descriptions.
  * @const {!Array<string>}
  */
 ee.data.ALLOWED_DESCRIPTION_HTML_ELEMENTS =
-    ['a', 'code', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub', 'sup', 'ul'];
+    ee.data.ALLOWED_DESCRIPTION_HTML_TABLE_ELEMENTS_.concat([
+      'a', 'code', 'em', 'i', 'li', 'ol', 'p', 'strong', 'sub', 'sup', 'ul'
+    ]);
 
 
 /**
  * An entry in a list returned by the /list servlet.
- * @typedef {{
- *   type: ee.data.AssetType,
- *   id: string,
- *   properties: (undefined|Object)
- * }}
+ * @record @struct
  */
-ee.data.ShortAssetDescription;
+ee.data.ShortAssetDescription = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string}
+     */
+    this.id;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
  * A list returned by the /list servlet.
- * @typedef {Array<ee.data.ShortAssetDescription>}
+ * @typedef {!Array<!ee.data.ShortAssetDescription>}
  */
 ee.data.AssetList;
 
@@ -1191,271 +1253,745 @@ ee.data.AssetList;
 /**
  * An access control list for an asset. The strings are all email addresses (for
  * either individuals or groups).
- * @typedef {{
- *   owners: !Array<string>,
- *   writers: !Array<string>,
- *   readers: !Array<string>,
- *   all_users_can_read: (undefined|boolean)
- * }}
+ * @record @struct
  */
-ee.data.AssetAcl;
+ee.data.AssetAcl = class {
+  constructor() {
+    /**
+     * @export {!Array<string>}
+     */
+    this.owners;
+
+    /**
+     * @export {!Array<string>}
+     */
+    this.writers;
+
+    /**
+     * @export {!Array<string>}
+     */
+    this.readers;
+
+    /**
+     * @export {undefined|boolean}
+     */
+    this.all_users_can_read;
+  }
+};
 
 
 /**
  * An update to an access control list for an asset. Owners cannot be changed.
- * @typedef {{
- *   writers: !Array<string>,
- *   readers: !Array<string>,
- *   all_users_can_read: (undefined|boolean)
- * }}
+ * @record @struct
  */
-ee.data.AssetAclUpdate;
+ee.data.AssetAclUpdate = class {
+  constructor() {
+    /**
+     * @export {!Array<string>}
+     */
+    this.writers;
 
+    /**
+     * @export {!Array<string>}
+     */
+    this.readers;
+
+    /**
+     * @export {boolean|undefined}
+     */
+    this.all_users_can_read;
+  }
+};
+
+/**
+ * A limit for an asset quota entry.
+ * @record @struct
+ */
+ee.data.AssetQuotaEntry = class {
+  constructor() {
+    /**
+     * @export {number}
+     */
+    this.usage;
+
+    /**
+     * @export {number}
+     */
+    this.limit;
+  }
+};
 
 /**
  * Details about an asset root folder's quota usage and limits.
  * Asset size values are in bytes. Negative limit means "unlimited".
- * @typedef {{
- *   asset_count: {usage: number, limit: number},
- *   asset_size: {usage: number, limit: number}
- * }}
+ * @record @struct
  */
-ee.data.AssetQuotaDetails;
+ee.data.AssetQuotaDetails = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetQuotaEntry}
+     */
+    this.asset_count;
+
+    /**
+     * @export {!ee.data.AssetQuotaEntry}
+     */
+    this.asset_size;
+  }
+};
 
 
 /**
  * A description of a folder. The type value is always ee.data.AssetType.FOLDER.
- * @typedef {{
- *   type: ee.data.AssetType,
- *   id: string
- * }}
+ * @record @struct
  */
-ee.data.FolderDescription;
+ee.data.FolderDescription = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string}
+     */
+    this.id;
+  }
+};
 
 
 /**
  * An object describing a FeatureCollection, as returned by getValue.
  * Compatible with GeoJSON. The type field is always "FeatureCollection".
- * @typedef {{
- *   type: string,
- *   columns: !Object<string, string>,
- *   id: (string|undefined),
- *   features: (!Array<ee.data.GeoJSONFeature>|undefined),
- *   properties: (!Object|undefined)
- * }}
+ * @record @struct
  */
-ee.data.FeatureCollectionDescription;
+ee.data.FeatureCollectionDescription = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {!Object<string, string>}
+     */
+    this.columns;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {!Array<!ee.data.GeoJSONFeature>|undefined}
+     */
+    this.features;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
  * An object describing ee.Feature visualization parameters. Color is
  * a 6-character hex string in the RRGGBB format.
- * @typedef {{
- *   color: (string|undefined)
- * }}
+ * @record @struct
  */
-ee.data.FeatureVisualizationParameters;
+ee.data.FeatureVisualizationParameters = class {
+  constructor() {
+    /**
+     * @export {string|undefined}
+     */
+    this.color;
+  }
+};
 
 
 /**
  * An object describing a Feature, as returned by getValue.
  * Compatible with GeoJSON. The type field is always "Feature".
- * @typedef {{
- *   type: string,
- *   id: (undefined|string),
- *   geometry: ?ee.data.GeoJSONGeometry,
- *   properties: (undefined|Object)
- * }}
+ * @record @struct
  */
-ee.data.GeoJSONFeature;
+ee.data.GeoJSONFeature = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.type;
+
+    /**
+     * @export {undefined|string}
+     */
+    this.id;
+
+    /**
+     * @export {!ee.data.GeoJSONGeometry}
+     */
+    this.geometry;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
  * An object describing a GeoJSON Geometry, as returned by getValue.
- * @typedef {{
- *   type: string,
- *   coordinates: Array.<number|Array.<number|Array.<number|Array.<number>>>>,
- *   crs: (undefined|{
- *     type: string,
- *     properties: {
- *       name: string
- *     }
- *   }),
- *   geodesic: boolean,
- *   geometries: (undefined|Array.<ee.data.GeoJSONGeometry>)
- * }}
+ * @record @struct
  */
-ee.data.GeoJSONGeometry;
+ee.data.GeoJSONGeometry = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.type;
+
+    /**
+     * The coordinates, with the appropriate level of nesting for the given type
+     * of geometry.
+     * @export {!Array<number>|
+     *          !Array<!Array<number>>|
+     *          !Array<!Array<!Array<number>>>|
+     *          !Array<!Array<!Array<!Array<number>>>>}
+     */
+    this.coordinates;
+
+    /**
+     * @export {!ee.data.GeoJSONGeometryCrs|undefined}
+     */
+    this.crs;
+
+    /**
+     * @export {boolean|undefined}
+     */
+    this.geodesic;
+
+    /**
+     * @export {boolean|undefined}
+     */
+    this.evenOdd;
+
+    /**
+     * @export {!Array<!ee.data.GeoJSONGeometry>|undefined}
+     */
+    this.geometries;
+  }
+};
+
+
+/**
+ * The properties of a GeoJSON geometry's "crs" property, which represents the
+ * geometry's coordinate reference system.
+ * @record @struct
+ */
+ee.data.GeoJSONGeometryCrs = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.type;
+
+    /**
+     * @export {!ee.data.GeoJSONGeometryCrsProperties}
+     */
+    this.properties;
+  }
+};
+
+
+/**
+ * The properties of a GeoJSON geometry's coordinate reference system.
+ * @record @struct
+ */
+ee.data.GeoJSONGeometryCrsProperties = class {
+  constructor() {
+    /**
+     * The name of the coordinate reference system.
+     * @export {string}
+     */
+    this.name;
+  }
+};
 
 
 /**
  * An object describing an ImageCollection, as returned by getValue.
- * The type field is always "ImageCollection".
- * @typedef {{
- *   type: string,
- *   id: (undefined|string),
- *   version: (undefined|number),
- *   bands: Array.<ee.data.BandDescription>,
- *   properties: (undefined|Object),
- *   features: Array.<ee.data.ImageDescription>
- * }}
+ * @record @struct
  */
-ee.data.ImageCollectionDescription;
+ee.data.ImageCollectionDescription = class {
+  constructor() {
+    /**
+     * This field is always "ImageCollection".
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.version;
+
+    /**
+     * @export {!Array<!ee.data.BandDescription>}
+     */
+    this.bands;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+
+    /**
+     * @export {!Array<!ee.data.ImageDescription>|undefined}
+     */
+    this.features;
+  }
+};
 
 
 /**
  * An object describing an Image, as returned by getValue.
- * The type field is always "Image".
- * @typedef {{
- *   type: string,
- *   id: (undefined|string),
- *   version: (undefined|number),
- *   bands: Array.<ee.data.BandDescription>,
- *   properties: (undefined|Object)
- * }}
+ * @record @struct
  */
-ee.data.ImageDescription;
+ee.data.ImageDescription = class {
+  constructor() {
+    /**
+     * This field is always "Image".
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.version;
+
+    /**
+     * @export {!Array<!ee.data.BandDescription>}
+     */
+    this.bands;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
  * An object describing a Table asset, as returned by getValue.
- * Compatible with GeoJSON. The type field is always "FeatureCollection",
- * which describes the abstract object that wraps the table asset.
- * @typedef {{
- *   type: string,
- *   columns: !Object<string, string>,
- *   id: (string|undefined),
- *   features: (!Array<ee.data.GeoJSONFeature>|undefined),
- *   properties: (!Object|undefined),
- *   version: (undefined|number)
- * }}
+ * Compatible with GeoJSON.
+ * @record @struct
  */
-ee.data.TableDescription;
+ee.data.TableDescription = class {
+  constructor() {
+    /**
+     * This field is always "Table."
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {!Object<string, string>}
+     */
+    this.columns;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {!Array<!ee.data.GeoJSONFeature>|undefined}
+     */
+    this.features;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.version;
+  }
+};
 
 
 /**
- * An object describing ee.Image visualization parameters. See ee.data.getMapId.
- * @typedef {{
- *   image: (ee.Image|undefined),
- *   bands: (string|Array<string>|undefined),
- *   gain: (number|Array<number>|undefined),
- *   bias: (number|Array<number>|undefined),
- *   min: (number|Array<number>|undefined),
- *   max: (number|Array<number>|undefined),
- *   gamma: (number|Array<number>|undefined),
- *   palette: (string|Array<string>|undefined),
- *   opacity: (number|undefined),
- *   format: (string|undefined)
- * }}
+ * An object containing table download options.
+ * @record @struct
  */
-ee.data.ImageVisualizationParameters;
+ee.data.TableDownloadParameters = class {
+  constructor() {
+    /**
+     * The download format, one of either "CSV" or "JSON."
+     * @export {string}
+     */
+    this.format;
+
+    /**
+     * A comma separated string of selectors that can be used to determine which
+     * attributes will be downloaded.
+     * @export {string}
+     */
+    this.selectors;
+
+    /**
+     * The name of the file that will be downloaded.
+     * @export {string}
+     */
+    this.filename;
+  }
+};
+
+
+/**
+ * An object describing ee.Image visualization parameters.
+ * @see ee.data.getMapId
+ * @record @struct
+ */
+ee.data.ImageVisualizationParameters = class {
+  constructor() {
+    /**
+     * The image to render, represented as a JSON string.
+     * @export {!ee.Image|string|undefined}
+     */
+    this.image;
+
+    /**
+     * Version number of image (or latest).
+     * @export {number|undefined}
+     */
+    this.version;
+
+    /**
+     * Comma-delimited list of band names to be mapped to RGB.
+     * @export {string|!Array<string>|undefined}
+     */
+    this.bands;
+
+    /**
+     * Gain (or one per band) to map onto 00-FF.
+     * @export {number|!Array<number>|undefined}
+     */
+    this.gain;
+
+    /**
+     * Offset (or one per band) to map onto 00-FF.
+     * @export {number|!Array<number>|undefined}
+     */
+    this.bias;
+
+    /**
+     * Value (or one per band) to map onto 00.
+     * @export {number|!Array<number>|undefined}
+     */
+    this.min;
+
+    /**
+     * Value (or one per band) to map onto FF.
+     * @export {number|!Array<number>|undefined}
+     */
+    this.max;
+
+    /**
+     * Gamma correction factor (or one per band)
+     * @export {number|!Array<number>|undefined}
+     */
+    this.gamma;
+
+    /**
+     * List of CSS-style color strings (single-band previews only).
+     * @export {string|!Array<string>|undefined}
+     */
+    this.palette;
+
+    /**
+     * A number between 0 and 1 for opacity.
+     * @export {number|undefined}
+     */
+    this.opacity;
+
+    /**
+     * Either "jpg" or "png".
+     * @export {string|undefined}
+     */
+    this.format;
+  }
+};
+
+
+/**
+ * An object describing the parameters for generating a thumbnail image.
+ * Consists of all parameters of ee.data.ImageVisualizationParameters as well as
+ * additional fields.
+ * @see ee.data.ImageVisualizationParameters
+ * @record @struct
+ */
+ee.data.ThumbnailOptions = class extends ee.data.ImageVisualizationParameters {
+  constructor() {
+    super();
+
+    /**
+     * The maximum dimensions of the thumbnail to render, in pixels. If only one
+     * number is passed, it is used as the maximum, and the other dimension is
+     * computed by proportional scaling. Otherwise, a pair of numbers in the
+     * format [width, height].
+     * @export {number|!Array<number>|undefined}
+     */
+    this.dimensions;
+
+    /**
+     * The geospatial region of the image to render. By default, the whole
+     * image. If defined, either an array in the format [east, south, west,
+     * north] or else a GeoJSON geometry.
+     * @export {!Array<number>|!ee.data.GeoJSONGeometry|undefined}
+     */
+    this.region;
+  }
+};
 
 
 /**
  * An object describing an Image band, as returned by getValue.
- * The dimensions field is [width, height].
- * @typedef {{
- *   id: string,
- *   data_type: ee.data.PixelTypeDescription,
- *   dimensions: (undefined|Array.<number>),
- *   crs: string,
- *   crs_transform: (undefined|Array.<number>),
- *   crs_transform_wkt: (undefined|string),
- *   properties: (undefined|Object)
- * }}
+ * @record @struct
  */
-ee.data.BandDescription;
+ee.data.BandDescription = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.id;
+
+    /**
+     * @export {!ee.data.PixelTypeDescription}
+     */
+    this.data_type;
+
+    /**
+     * This field is [width, height].
+     * @export {!Array<number>|undefined}
+     */
+    this.dimensions;
+
+    /**
+     * @export {string}
+     */
+    this.crs;
+
+    /**
+     * @export {!Array<number>|undefined}
+     */
+    this.crs_transform;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.crs_transform_wkt;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+  }
+};
 
 
 /**
  * An object describing a PixelType, as returned by getValue.
- * The type field is always "PixelType". The precision field is
- * "int", "float" or "double".
- * @typedef {{
- *   type: string,
- *   precision: string,
- *   min: (undefined|number),
- *   max: (undefined|number),
- *   dimensions: (undefined|number)
- * }}
+ * @record @struct
  */
-ee.data.PixelTypeDescription;
+ee.data.PixelTypeDescription = class {
+  constructor() {
+    /**
+     * This field is always "PixelType."
+     * @export {string}
+     */
+    this.type;
+
+    /**
+     * This field is "int," "float," or "double."
+     * @export {string}
+     */
+    this.precision;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.min;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.max;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.dimensions;
+  }
+};
 
 
 /**
  * The registry of EE algorithms.
- *
- * @typedef {Object.<ee.data.AlgorithmSignature>}
+ * @typedef {!Object<string, !ee.data.AlgorithmSignature>}
  */
 ee.data.AlgorithmsRegistry;
 
 
 /**
  * The signature of an algorithm.
- *
- * @typedef {{
- *   args: Array.<ee.data.AlgorithmArgument>,
- *   returns: string,
- *   description: string,
- *   deprecated: (string|undefined)
- * }}
+ * @record @struct
  */
-ee.data.AlgorithmSignature;
+ee.data.AlgorithmSignature = class {
+  constructor() {
+    /**
+     * @export {!Array<!ee.data.AlgorithmArgument>}
+     */
+    this.args;
+
+    /**
+     * @export {string}
+     */
+    this.returns;
+
+    /**
+     * @export {string}
+     */
+    this.description;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.deprecated;
+  }
+};
 
 
 /**
  * The signature of a single algorithm argument.
- * @typedef {{
- *   name: string,
- *   type: string,
- *   optional: boolean,
- *   default: *
- * }}
+ * @record @struct
  */
-ee.data.AlgorithmArgument;
+ee.data.AlgorithmArgument = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.name;
+
+    /**
+     * @export {string}
+     */
+    this.type;
+
+    /**
+     * @export {boolean}
+     */
+    this.optional;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.description;
+
+    /**
+     * @export {*}
+     */
+    this.default;
+  }
+};
 
 
 /**
  * An identifier and security token for a thumbnail image.
- * @typedef {{
- *   thumbid: string,
- *   token: string
- * }}
+ * @record @struct
  */
-ee.data.ThumbnailId;
+ee.data.ThumbnailId = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.thumbid;
+
+    /**
+     * @export {string}
+     */
+    this.token;
+  }
+};
 
 
 /**
  * An identifier and security token for an image or table to download.
- * @typedef {{
- *   docid: string,
- *   token: string
- * }}
+ * @record @struct
  */
-ee.data.DownloadId;
+ee.data.DownloadId = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.docid;
+
+    /**
+     * @export {string}
+     */
+    this.token;
+  }
+};
 
 
 /**
  * An identifier and security token for a tiled map.
- *
- * @typedef {{
- *     mapid: string,
- *     token: string
- * }}
+ * @record @struct
  */
-ee.data.RawMapId;
+ee.data.RawMapId = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.mapid;
+
+    /**
+     * @export {string}
+     */
+    this.token;
+  }
+};
 
 
 /**
- * A RawMapID together with the image from which it was generated.
- *
- * @typedef {{
- *     mapid: string,
- *     token: string,
- *     image: ee.Image
- * }}
+ * A raw map ID together with the image from which it was generated.
+ * @record @struct
  */
-ee.data.MapId;
+ee.data.MapId = class extends ee.data.RawMapId {
+  constructor() {
+    super();
+
+    /**
+     * @export {!ee.Image}
+     */
+    this.image;
+  }
+};
 
 
 /**
@@ -1464,6 +2000,7 @@ ee.data.MapId;
  */
 ee.data.MapZoomRange = {
   MIN: 0,
+  // Keep this in sync with the definition of MAX_ZOOM in MapTileServlet.java.
   MAX: 24
 };
 
@@ -1501,6 +2038,7 @@ ee.data.AbstractTaskConfig;
  *   maxPixels: (undefined|number),
  *   shardSize: (undefined|number),
  *   fileDimensions: (undefined|string|number|Array<number>),
+ *   skipEmptyTiles: (undefined|boolean),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),
@@ -1587,45 +2125,105 @@ ee.data.VideoTaskConfig;
 /**
  * A description of the status of a long-running tasks. See the Task
  * proto for a description of these fields.
- *
- * @typedef {{
- *   id: (undefined|string),
- *   task_type: (undefined|string),
- *   creation_timestamp_ms: (undefined|number),
- *   update_timestamp_ms: (undefined|number),
- *   description: (undefined|string),
- *   priority: (undefined|number),
- *   progress: (undefined|number),
- *   source_url: (undefined|string),
- *   output_url: (undefined|Array.<string>),
- *   state: (undefined|string),
- *   internal_error_info: (undefined|string),
- *   error_message: (undefined|string)
- * }}
+ * @record @struct
  */
-ee.data.TaskStatus;
+ee.data.TaskStatus = class {
+  constructor() {
+    /**
+     * @export {string|undefined}
+     */
+    this.id;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.task_type;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.creation_timestamp_ms;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.update_timestamp_ms;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.description;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.priority;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.progress;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.source_url;
+
+    /**
+     * @export {!Array<string>|undefined}
+     */
+    this.output_url;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.state;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.internal_error_info;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.error_message;
+  }
+};
 
 
 /**
  * A response for a call to start a batch process.
- * The "started" field is always "OK".
- * The note field is either "ALREADY_EXISTS" or missing.
- * @typedef {{
- *   started: string,
- *   note: (undefined|string)
- * }}
+ * @record @struct
  */
-ee.data.ProcessingResponse;
+ee.data.ProcessingResponse = class {
+  constructor() {
+    /**
+     * This field is always "OK".
+     * @export {string}
+     */
+    this.started;
+    /**
+     * This field is either "ALREADY_EXISTS" or missing.
+     * @export {string|undefined}
+     */
+    this.note;
+  }
+};
 
 
 /**
  * A response for a call to get task status data.
- *
- * @typedef {{
- *   tasks: Array.<ee.data.TaskStatus>
- * }}
+ * @record @struct
  */
-ee.data.TaskListResponse;
+ee.data.TaskListResponse = class {
+  constructor() {
+    /**
+     * @export {!Array<!ee.data.TaskStatus>}
+     */
+    this.tasks;
+  }
+};
 
 
 /**
@@ -1640,52 +2238,131 @@ ee.data.TaskUpdateActions = {
 
 /**
  * A public asset description.
- *
- * @typedef {{
- *   tags: (undefined|Array.<string>),
- *   thumb: (undefined|string),
- *   title: string,
- *   provider: string,
- *   type: string,
- *   period: number,
- *   period_mapping: (undefined|Array.<number>),
- *   description: string,
- *   id: string
- * }}
+ * @record @struct
  */
-ee.data.AssetDescription;
+ee.data.AssetDescription = class {
+  constructor() {
+    /**
+     * @export {!Array<number>|undefined}
+     */
+    this.date_range;
+
+    /**
+     * @export {string}
+     */
+    this.description;
+
+    /**
+     * @export {string}
+     */
+    this.id;
+
+    /**
+     * @export {number}
+     */
+    this.period;
+
+    /**
+     * @export {!Array<number>|undefined}
+     */
+    this.period_mapping;
+
+    /**
+     * @export {string}
+     */
+    this.provider;
+
+    /**
+     * @export {string}
+     */
+    this.provider_url;
+
+    /**
+     * @export {string}
+     */
+    this.sample;
+
+    /**
+     * @export {!Array<string>|undefined}
+     */
+    this.tags;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.thumb;
+
+    /**
+     * @export {string}
+     */
+    this.title;
+
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+  }
+};
 
 
 /**
- * A request to import an image asset. "id" is the destination asset ID
- * (e.g. "users/yourname/assetname"). "tilesets" is the list of source
- * files for the asset, clustered by tile. "properties" is a mapping from
- * metadata property names to values.
- *
- * @typedef {{
- *   'id': string,
- *   'tilesets': !Array<ee.data.Tileset>,
- *   'bands': (undefined|!Array<ee.data.Band>),
- *   'properties: (undefined|!Object),
- *   'reductionPolicy': (undefined|ee.data.ReductionPolicy),
- *   'missingData': (undefined|ee.data.MissingData)
- * }}
+ * A request to import an image asset.
+ * @record @struct
  */
-ee.data.IngestionRequest;
+ee.data.IngestionRequest = class {
+  constructor() {
+    /**
+     * The destination asset ID (e.g. "users/yourname/assetname").
+     * @export {string}
+     */
+    this.id;
+
+    /**
+     * The list of source files for the asset, clustered by tile.
+     * @export {!Array<!ee.data.Tileset>}
+     */
+    this.tilesets;
+
+    /**
+     * @export {!Array<!ee.data.Band>|undefined}
+     */
+    this.bands;
+
+    /**
+     * A mapping from metadata property names to values.
+     * @export {!Object|undefined}
+     */
+    this.properties;
+
+    /**
+     * @export {!ee.data.PyramidingPolicy|undefined}
+     */
+    this.pyramidingPolicy;
+
+    /**
+     * @export {!ee.data.MissingData|undefined}
+     */
+    this.missingData;
+  }
+};
 
 
 /**
  * An object describing which value to treat as (fill, nodata) in an asset.
- *
- * @typedef {{
- *   'value': number
- * }}
+ * @record @struct
  */
-ee.data.MissingData;
+ee.data.MissingData = class {
+  constructor() {
+    /**
+     * @export {number}
+     */
+    this.value;
+  }
+};
 
 
-/** @enum {string} The reduction policies choices for newly uploaded assets. */
-ee.data.ReductionPolicy = {
+/** @enum {string} The pyramiding policy choices for newly uploaded assets. */
+ee.data.PyramidingPolicy = {
   MEAN: 'MEAN',
   MODE: 'MODE',
   MIN: 'MIN',
@@ -1696,82 +2373,140 @@ ee.data.ReductionPolicy = {
 
 /**
  * An object describing properties of a single raster band.
- *
- * @typedef {{
- *   'id': string
- * }}
+ * @record @struct
  */
-ee.data.Band;
+ee.data.Band = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.id;
+  }
+};
 
 
 /**
  * An object describing a single tileset.
- *
- * @typedef {{
- *   'sources': !Array<ee.data.FileSource>,
- *   'bandMappings': (undefined|!Array<ee.data.FileBand>)
- * }}
+ * @record @struct
  */
-ee.data.Tileset;
+ee.data.Tileset = class {
+  constructor() {
+    /**
+     * @export {!Array<!ee.data.FileSource>}
+     */
+    this.sources;
+
+    /**
+     * @export {!Array<!ee.data.FileBand>|undefined}
+     */
+    this.fileBands;
+  }
+};
 
 
 /**
  * An object describing properties of a file band within a tileset.
- *
- * - fileBandIndex is a 0-based index of a band in a GDAL file.
- *   Currently can only be -1 to indicate treating last band as mask band.
- * - maskForAllBands indicates whether the specified file band should
- *   be treated as mask band.
- *
- * @typedef {{
- *   'fileBandIndex': number,
- *   'maskForAllBands': boolean
- * }}
+ * @record @struct
  */
-ee.data.FileBand;
+ee.data.FileBand = class {
+  constructor() {
+    /**
+     * A 0-based index of a band in a GDAL file.
+     * Currently can only be -1 to indicate treating last band as mask band.
+     * @export {number}
+     */
+    this.fileBandIndex;
+
+    /**
+     * Indicates whether the specified file band should be treated as mask band.
+     * @export {boolean}
+     */
+    this.maskForAllBands;
+  }
+};
 
 
 /**
  * An object describing properties of a single raster.
  *
  * For requests sent directly through the API, paths should be Google Cloud
- * Storage object names (e.g. 'gs://bucketname/filename'). In manifests
- * uploaded through the Playground IDE, paths should be relative file
- * names (e.g. 'file1.tif').
- *
- * @typedef {{
- *   'primaryPath': string,
- *   'additionalPaths': (undefined|!Array<string>)
- * }}
+ * Storage object names (e.g. 'gs://bucketname/filename'). In manifests uploaded
+ * through the Playground IDE, paths should be relative file names (e.g.
+ * 'file1.tif').
+ * @record @struct
  */
-ee.data.FileSource;
+ee.data.FileSource = class {
+  constructor() {
+    /**
+     * The path of the primary file from which to import the asset.
+     * @export {string}
+     */
+    this.primaryPath;
+
+    /**
+     * A list of paths for additional files to use in importing the asset.
+     * @export {!Array<string>|undefined}
+     */
+    this.additionalPaths;
+  }
+};
 
 
 /**
  * The authentication arguments passed the token refresher when the token
  * needs to be refreshed.
- *
- * @typedef {{
- *   'client_id': string,
- *   'immediate': boolean,
- *   'scope': string
- * }}
+ * @record @struct
  */
-ee.data.AuthArgs;
+ee.data.AuthArgs = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.client_id;
+
+    /**
+     * @export {boolean}
+     */
+    this.immediate;
+
+    /**
+     * @export {string}
+     */
+    this.scope;
+  }
+};
 
 
 /**
  * The result of a token refresh. Passed by the token refresher to the callback
  * passed to it when it was called. 'expires_in' is in seconds.
- *
- * @typedef {{
- *   'access_token': string,
- *   'token_type': string,
- *   'expires_in': number,
- *   'error': (undefined|string)
- * }}
+ * @record @struct
  */
-ee.data.AuthResponse;
+ee.data.AuthResponse = class {
+  constructor() {
+    /**
+     * @export {string|undefined}
+     */
+    this.access_token;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.token_type;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.expires_in;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.error;
+  }
+};
+
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1837,58 +2572,10 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
     headers['X-XSRF-Token'] = ee.data.xsrfToken_;
   }
 
-  // Handle processing and dispatching a callback response.
-  var handleResponse = function(
-      status, getResponseHeader, responseText, opt_callback) {
-    var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
-    if (profileId && profileHookAtCallTime) {
-      profileHookAtCallTime(profileId);
-    }
-
-    var response, data, errorMessage;
-    var contentType = getResponseHeader('Content-Type');
-    contentType = contentType ?
-        contentType.replace(/;.*/, '') : 'application/json';
-    if (contentType == 'application/json' || contentType == 'text/json') {
-      try {
-        response = goog.json.unsafeParse(responseText);
-        data = response['data'];
-      } catch (e) {
-        errorMessage = 'Invalid JSON: ' + responseText;
-      }
-    } else {
-      errorMessage = 'Response was unexpectedly not JSON, but ' + contentType;
-    }
-
-    // Totally malformed, with either invalid JSON or JSON with
-    // neither a data nor an error property.
-    if (goog.isObject(response)) {
-      if ('error' in response && 'message' in response['error']) {
-        errorMessage = response['error']['message'];
-      } else if (!('data' in response)) {
-        errorMessage = 'Malformed response: ' + responseText;
-      }
-    } else if (status === 0) {
-      errorMessage = 'Failed to contact Earth Engine servers. Please check ' +
-          'your connection, firewall, or browser extension settings.';
-    } else if (status < 200 || status >= 300) {
-      errorMessage = 'Server returned HTTP code: ' + status;
-    }
-
-    if (opt_callback) {
-      opt_callback(data, errorMessage);
-      return null;
-    } else {
-      if (!errorMessage) {
-        return data;
-      }
-      throw new Error(errorMessage);
-    }
-  };
 
   // Encode the request params in the URL if the request is a GET request.
   var requestData = params ? params.toString() : '';
-  if (method == 'GET' && !goog.string.isEmpty(requestData)) {
+  if (method == 'GET' && !goog.string.isEmptyOrWhitespace(requestData)) {
     path += goog.string.contains(path, '?') ? '&' : '?';
     path += requestData;
     requestData = null;
@@ -1897,32 +2584,43 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   var url = ee.data.apiBaseUrl_ + path;
   if (opt_callback) {
     // Send an asynchronous request.
-    ee.data.requestQueue_.push({
-      url: url,
-      callback: function(e) {
-        var xhrIo = e.target;
+    var request =
+        ee.data.buildAsyncRequest_(
+            url, opt_callback, method, requestData, headers);
 
-        return handleResponse(
-            xhrIo.getStatus(),
-            goog.bind(xhrIo.getResponseHeader, xhrIo),
-            xhrIo.getResponseText(),
-            opt_callback);
-      },
-      method: method,
-      content: requestData,
-      headers: headers
-    });
+    ee.data.requestQueue_.push(request);
     ee.data.RequestThrottle_.fire();
     return null;
   } else {
     // Send a synchronous request.
-    var xmlHttp = goog.net.XmlHttp();
-    xmlHttp.open(method, url, false);
-    goog.object.forEach(headers, function(value, key) {
-      xmlHttp.setRequestHeader(key, value);
-    });
-    xmlHttp.send(requestData);
-    return handleResponse(
+    /**
+     * Wrapper around xmlHttp.setRequestHeader to be useable with parameter
+     * order of goog.object.forEach
+     * @this {!goog.net.XhrLike.OrNative}
+     * @param {string} value The value of the header.
+     * @param {string} key The key of the header;
+     */
+    var setRequestHeader = function(value, key) {
+      if (this.setRequestHeader) {
+        this.setRequestHeader(key, value);
+      }
+    };
+
+    // Retry 429 responses with exponential backoff.
+    var xmlHttp;
+    var retries = 0;
+    while (true) {
+      xmlHttp = goog.net.XmlHttp();
+      xmlHttp.open(method, url, false);
+      goog.object.forEach(headers, setRequestHeader, xmlHttp);
+      xmlHttp.send(requestData);
+      if (xmlHttp.status != 429 || retries > ee.data.MAX_SYNC_RETRIES_) {
+        break;
+      }
+      ee.data.sleep_(ee.data.calculateRetryWait_(retries++));
+    }
+
+    return ee.data.handleResponse_(
         xmlHttp.status,
         function getResponseHeaderSafe(header) {
           try {
@@ -1934,7 +2632,117 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
           }
         },
         xmlHttp.responseText,
-        null);
+        profileHookAtCallTime);
+  }
+};
+
+
+/**
+ * Creates an aync network request object using the specified parameters.
+ * The callback is wrapped so that exponential backoff is used in response to
+ * 429 errors.
+ * @param {string} url The request's URL.
+ * @param {!function(?, string=)} callback The callback to execute when the
+ *     request gets a response.
+ * @param {string} method The request's HTTP method.
+ * @param {?string} content The content of the request.
+ * @param {!Object<string,string>} headers The headers to send with the request.
+ * @return {!ee.data.NetworkRequest_} The async request.
+ * @private
+ */
+ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
+  var retries = 0;
+  var request = {
+    url: url,
+    method: method,
+    content: content,
+    headers: headers
+  };
+  var profileHookAtCallTime = ee.data.profileHook_;
+  var wrappedCallback = function(e) {
+    var xhrIo = e.target;
+
+    if (xhrIo.getStatus() == 429 && retries < ee.data.MAX_ASYNC_RETRIES_) {
+      retries++;
+      setTimeout(function() {
+        ee.data.requestQueue_.push(request);
+        ee.data.RequestThrottle_.fire();
+      }, ee.data.calculateRetryWait_(retries));
+      return null;
+    }
+
+    return ee.data.handleResponse_(
+        xhrIo.getStatus(),
+        goog.bind(xhrIo.getResponseHeader, xhrIo),
+        xhrIo.getResponseText(),
+        profileHookAtCallTime,
+        callback);
+  };
+  request.callback = wrappedCallback;
+
+  return request;
+};
+
+
+/**
+ * Handles processing and dispatching a callback response.
+ * @param {number} status The status code of the response.
+ * @param {function(string):string?} getResponseHeader A function for getting
+ *     the value of a response headers for a given header name.
+ * @param {string} responseText The text of the response.
+ * @param {?function(string)} profileHook The profile hook at the time the
+ *     request was created.
+ * @param {function(?,string=)=} opt_callback An optional callback to execute if
+ *     the request is asynchronous.
+ * @return {Object} The response data, if the request is synchronous, otherwise
+ *     null, if the request is asynchronous.
+ * @private
+ */
+ee.data.handleResponse_ = function(
+    status, getResponseHeader, responseText, profileHook, opt_callback) {
+  var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
+  if (profileId && profileHook) {
+    profileHook(profileId);
+  }
+
+  var response, data, errorMessage;
+  var contentType = getResponseHeader('Content-Type');
+  contentType = contentType ?
+      contentType.replace(/;.*/, '') : 'application/json';
+  if (contentType == 'application/json' || contentType == 'text/json') {
+    try {
+      response = JSON.parse(responseText);
+      data = response['data'];
+    } catch (e) {
+      errorMessage = 'Invalid JSON: ' + responseText;
+    }
+  } else {
+    errorMessage = 'Response was unexpectedly not JSON, but ' + contentType;
+  }
+
+  // Totally malformed, with either invalid JSON or JSON with
+  // neither a data nor an error property.
+  if (goog.isObject(response)) {
+    if ('error' in response && 'message' in response['error']) {
+      errorMessage = response['error']['message'];
+    } else if (!('data' in response)) {
+      errorMessage = 'Malformed response: ' + responseText;
+    }
+  } else if (status === 0) {
+    errorMessage = 'Failed to contact Earth Engine servers. Please check ' +
+        'your connection, firewall, or browser extension settings.';
+  } else if (status < 200 || status >= 300) {
+    errorMessage = 'Server returned HTTP code: ' + status;
+  }
+
+  if (opt_callback) {
+    opt_callback(data, errorMessage);
+    return null;
+  } else {
+    if (!errorMessage) {
+      return data;
+    }
+    throw new Error(errorMessage);
   }
 };
 
@@ -1960,13 +2768,15 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
   } else {
     // The library is not loaded; load it now.
     var callbackName = goog.now().toString(36);
-    while (callbackName in goog.global) callbackName += '_';
+    while (callbackName in goog.global) {
+      callbackName += '_';
+    }
     goog.global[callbackName] = function() {
       delete goog.global[callbackName];
       done();
     };
-    goog.net.jsloader.load(
-        ee.data.AUTH_LIBRARY_URL_ + '?onload=' + callbackName);
+    goog.net.jsloader.safeLoad(goog.html.TrustedResourceUrl.format(
+        ee.data.AUTH_LIBRARY_URL_, {'onload': callbackName}));
   }
 };
 
@@ -1979,16 +2789,16 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
  *     succeeds.
  * @param {function(string)|undefined} error The function to call if auth fails,
  *     passing the error message.
- * @param {ee.data.AuthResponse} result The result object produced by
+ * @param {!ee.data.AuthResponse} result The result object produced by
  *     a token refresher such as gapi.auth.authorize().
  * @private
  */
 ee.data.handleAuthResult_ = function(success, error, result) {
-  if (result['access_token']) {
-    var token = result['token_type'] + ' ' + result['access_token'];
-    if (isFinite(result['expires_in'])) {
+  if (result.access_token) {
+    var token = result.token_type + ' ' + result.access_token;
+    if (isFinite(result.expires_in)) {
       // Conservatively consider tokens expired slightly before actual expiry.
-      var expiresInMs = result['expires_in'] * 1000 * .9;
+      var expiresInMs = result.expires_in * 1000 * 0.9;
 
       // Set up a refresh timer. This is necessary because we cannot refresh
       // synchronously, but since we want to allow synchronous API requests,
@@ -2000,29 +2810,31 @@ ee.data.handleAuthResult_ = function(success, error, result) {
       // the token if needed. See ee.data.authenticate() docs for more info.
       // Note that we multiply by .9 *again* to prevent simultaneous
       // on-demand-refresh and timer-refresh.
-      setTimeout(ee.data.refreshAuthToken, expiresInMs * .9);
+      setTimeout(ee.data.refreshAuthToken, expiresInMs * 0.9);
 
       ee.data.authTokenExpiration_ = goog.now() + expiresInMs;
     }
     ee.data.authToken_ = token;
-    if (success) success();
+    if (success) {
+      success();
+    }
   } else if (error) {
-    error(result['error'] || 'Unknown error.');
+    error(result.error || 'Unknown error.');
   }
 };
 
 
 /**
- * Convert an object into a goog.Uri.QueryData.
- *
- * @param {Object} params The params to convert.
- * @return {goog.Uri.QueryData} The converted parameters.
+ * Convert an object into a goog.Uri.QueryData. Parameters that are of type
+ * array or object are serialized to JSON.
+ * @param {!Object} params The params to convert.
+ * @return {!goog.Uri.QueryData} The converted parameters.
  * @private
  */
 ee.data.makeRequest_ = function(params) {
   var request = new goog.Uri.QueryData();
-  for (var item in params) {
-    request.set(item, params[item]);
+  for (let [name, item] of Object.entries(params)) {
+    request.set(name, item);
   }
   return request;
 };
@@ -2071,7 +2883,8 @@ ee.data.setupMockSend = function(opt_calls) {
     if (!goog.isString(response.text)) {
       throw new Error(url + ' mock response missing/invalid text');
     }
-    if (!goog.isNumber(response.status)) {
+
+    if (!goog.isNumber(response.status) && !goog.isFunction(response.status)) {
       throw new Error(url + ' mock response missing/invalid status');
     }
     return response;
@@ -2089,9 +2902,11 @@ ee.data.setupMockSend = function(opt_calls) {
     e.target.getResponseText = function() {
       return responseData.text;
     };
-    e.target.getStatus = function() {
-      return responseData.status;
-    };
+    e.target.getStatus = goog.isFunction(responseData.status) ?
+        responseData.status :
+        function() {
+          return responseData.status;
+        };
     e.target.getResponseHeader = function(header) {
       if (header === 'Content-Type') {
         return responseData.contentType;
@@ -2107,7 +2922,6 @@ ee.data.setupMockSend = function(opt_calls) {
   // Mock goog.net.XmlHttp for sync calls.
   /** @constructor */
   var fakeXmlHttp = function() {};
-  var method = null;
   fakeXmlHttp.prototype.open = function(method, urlIn) {
     apiBaseUrl = apiBaseUrl || ee.data.apiBaseUrl_;
     this.url = urlIn;
@@ -2124,7 +2938,8 @@ ee.data.setupMockSend = function(opt_calls) {
   fakeXmlHttp.prototype.send = function(data) {
     var responseData = getResponse(this.url, this.method, data);
     this.responseText = responseData.text;
-    this.status = responseData.status;
+    this.status = goog.isFunction(responseData.status) ?
+        responseData.status() : responseData.status;
     this.contentType_ = responseData.contentType;
   };
   goog.net.XmlHttp = function() {
@@ -2141,6 +2956,29 @@ ee.data.isAuthTokenRefreshingEnabled_ = function() {
   return Boolean(ee.data.authTokenRefresher_ && ee.data.authClientId_);
 };
 
+
+/**
+ * @param {number} retryCount The number of retries attempted including the
+ *     current one.
+ * @return {number} The time to wait before retrying a request.
+ * @private
+ */
+ee.data.calculateRetryWait_ = function(retryCount) {
+  return Math.min(ee.data.MAX_RETRY_WAIT_,
+                  Math.pow(2, retryCount) * ee.data.BASE_RETRY_WAIT_);
+};
+
+
+/**
+ * Block all script execution for a given period of time.
+ * @param {number} timeInMs The amount of time to sleep (in milliseconds).
+ * @private
+ */
+ee.data.sleep_ = function(timeInMs) {
+  var end = new Date().getTime() + timeInMs;
+  while (new Date().getTime() < end) {}
+};
+
 ////////////////////////////////////////////////////////////////////////////////
 //                     Private variables and types.                           //
 ////////////////////////////////////////////////////////////////////////////////
@@ -2148,33 +2986,57 @@ ee.data.isAuthTokenRefreshingEnabled_ = function() {
 
 /**
  * A data model for a network request.
- * @typedef {{
- *   url: string,
- *   callback: !Function,
- *   method: string,
- *   content: ?string,
- *   headers: !Object
- * }}
+ * @record @struct
  * @private
  */
-ee.data.NetworkRequest_;
+ee.data.NetworkRequest_ = class {
+  constructor() {
+    /**
+     * @type {string}
+     */
+    this.url;
+
+    /**
+     * @type {!function(?, string=)}
+     */
+    this.callback;
+
+    /**
+     * @type {string}
+     */
+    this.method;
+
+    /**
+     * @type {?string}
+     */
+    this.content;
+
+    /**
+     * @type {!Object<string, string>}
+     */
+    this.headers;
+  }
+};
 
 
 /**
- * @private {!Array<ee.data.NetworkRequest_>} A list of queued network requests.
+ * A list of queued network requests.
+ * @private {!Array<!ee.data.NetworkRequest_>}
  */
 ee.data.requestQueue_ = [];
 
 
 /**
- * @private {number} The network request throttle interval in milliseconds. The
- *     server permits ~3 QPS https://developers.google.com/earth-engine/usage.
+ * The network request throttle interval in milliseconds. The server permits ~3
+ * QPS https://developers.google.com/earth-engine/usage.
+ * @private @const {number}
  */
 ee.data.REQUEST_THROTTLE_INTERVAL_MS_ = 350;
 
 
 /**
- * @private {!goog.async.Throttle} A throttle for sending network requests.
+ * A throttle for sending network requests.
+ * @private {!goog.async.Throttle}
  */
 ee.data.RequestThrottle_ = new goog.async.Throttle(function() {
   var request = ee.data.requestQueue_.shift();
@@ -2190,121 +3052,164 @@ ee.data.RequestThrottle_ = new goog.async.Throttle(function() {
 
 
 /**
- * @type {string?} The base URL for all API calls.
- * @private
+ * The base URL for all API calls.
+ * @private {?string}
  */
 ee.data.apiBaseUrl_ = null;
 
 
 /**
- * @type {string?} The base URL for map tiles.
- * @private
+ * The base URL for map tiles.
+ * @private {?string}
  */
 ee.data.tileBaseUrl_ = null;
 
 
 /**
- * @type {string?} A string to pass in the X-XSRF-Token header of XHRs.
- * @private
+ * A string to pass in the X-XSRF-Token header of XHRs.
+ * @private {?string}
  */
 ee.data.xsrfToken_ = null;
 
 
 /**
- * @type {function(!goog.Uri.QueryData, string): !goog.Uri.QueryData} A function
- *     used to transform parameters right before they are sent to the server.
- *     Takes the URL of the request as the second argument.
- * @private
+ * A function used to transform parameters right before they are sent to the
+ * server. Takes the URL of the request as the second argument.
+ * @private {function(!goog.Uri.QueryData, string): !goog.Uri.QueryData}
  */
 ee.data.paramAugmenter_ = goog.functions.identity;
 
 
 /**
- * @private {string?} An OAuth2 token to use for authenticating EE API calls.
+ * An OAuth2 token to use for authenticating EE API calls.
+ * @private {?string}
  */
 ee.data.authToken_ = null;
 
 
 /**
- * @private {number?} The milliseconds in epoch time when the token expires.
+ * The milliseconds in epoch time when the token expires.
+ * @private {?number}
  */
 ee.data.authTokenExpiration_ = null;
 
 
 /**
- * @private {string?} The client ID used to retrieve OAuth2 tokens.
+ * The client ID used to retrieve OAuth2 tokens.
+ * @private {?string}
  */
 ee.data.authClientId_ = null;
 
 
 /**
- * @private {!Array<string>} The scopes to request when retrieving OAuth tokens.
+ * The scopes to request when retrieving OAuth tokens.
+ * @private {!Array<string>}
  */
 ee.data.authScopes_ = [];
 
 
 /**
- * @private {?function(ee.data.AuthArgs, function(ee.data.AuthResponse))}
- *     A function that takes as input 1) auth arguments and 2) a callback to
- *     which it passes an auth response object upon completion.
+ * A function that takes as input 1) auth arguments and 2) a callback to which
+ * it passes an auth response object upon completion.
+ * @private {?function(!ee.data.AuthArgs, function(!ee.data.AuthResponse))}
  */
 ee.data.authTokenRefresher_ = null;
 
 
 /**
- * @private @const {string} The OAuth scope for the EE API.
+ * The OAuth scope for the EE API.
+ * @private @const {string}
  */
 ee.data.AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine';
 
 
 /**
- * @private @const {string} The URL of the Google APIs Client Library.
+ * The URL of the Google APIs Client Library.
+ * @private @const {!goog.string.Const}
  */
-ee.data.AUTH_LIBRARY_URL_ = 'https://apis.google.com/js/client.js';
+ee.data.AUTH_LIBRARY_URL_ = goog.string.Const.from(
+    'https://apis.google.com/js/client.js?onload=%{onload}');
 
 
 /**
- * @type {boolean} Whether the library has been initialized.
- * @private
+ * The OAuth scope for Cloud Storage.
+ * @private @const {string}
+ */
+ee.data.STORAGE_SCOPE_ =
+    'https://www.googleapis.com/auth/devstorage.read_write';
+
+/**
+ * Whether the library has been initialized.
+ * @private {boolean}
  */
 ee.data.initialized_ = false;
 
 
 /**
- * @type {number} The number of milliseconds to wait for each request before
- *     considering it timed out. 0 means no limit. Note that this is not
- *     supported by browsers for synchronous requests.
- * @private
+ * The number of milliseconds to wait for each request before considering it
+ * timed out. 0 means no limit. Note that this is not supported by browsers for
+ * synchronous requests.
+ * @private {number}
  */
 ee.data.deadlineMs_ = 0;
 
 
 /**
- * @private {?function(string)} A function called when profile results are
- *     received from the server. Takes the profile ID as an argument.
- *     Null if profiling is disabled.
+ * A function called when profile results are received from the server. Takes
+ * the profile ID as an argument. Null if profiling is disabled.
+ * @private {?function(string)}
  */
 ee.data.profileHook_ = null;
 
 
 /**
- * @type {string} The HTTP header through which profile results are returned.
- * @const
+ * The minimum increment of time (in milliseconds) to wait before retrying a
+ * request in response to a 429 response.
+ * @private @const {number}
+ */
+ee.data.BASE_RETRY_WAIT_ = 1000;
+
+
+/**
+ * The minimum increment of time (in milliseconds) to wait before retrying a
+ * request in response to a 429 response.
+ * @private @const {number}
+ */
+ee.data.MAX_RETRY_WAIT_ = 120000;
+
+
+/**
+ * The maximum number of times to retry an asynchronous request if it is
+ * rate-limited.
+ * @private @const {number}
+ */
+ee.data.MAX_ASYNC_RETRIES_ = 10;
+
+
+/**
+ * The maximum number of times to retry a synchronous request if it is
+ * rate-limited.
+ * @private @const {number}
+ */
+ee.data.MAX_SYNC_RETRIES_ = 5;
+
+
+/**
+ * The HTTP header through which profile results are returned.
+ * @const {string}
  */
 ee.data.PROFILE_HEADER = 'X-Earth-Engine-Computation-Profile';
 
 
 /**
- * @type {string} The default base URL for API calls.
- * @private
- * @const
+ * The default base URL for API calls.
+ * @private @const {string}
  */
 ee.data.DEFAULT_API_BASE_URL_ = 'https://earthengine.googleapis.com/api';
 
 
 /**
- * @type {string} The default base URL for media/tile calls.
- * @private
- * @const
+ * The default base URL for media/tile calls.
+ * @private @const {string}
  */
 ee.data.DEFAULT_TILE_BASE_URL_ = 'https://earthengine.googleapis.com';

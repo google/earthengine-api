@@ -39,7 +39,7 @@ class Filter(computedobject.ComputedObject):
   def __init__(self, opt_filter=None):
     """Construct a filter.
 
-    This constuctor accepts the following args:
+    This constructor accepts the following args:
       1) Another filter.
       2) An array of filters (which are implicitly ANDed together).
       3) A ComputedObject returning a filter. Users shouldn't be making these;

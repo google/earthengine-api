@@ -113,9 +113,9 @@ class Task(object):
     tasks = []
     for status in statuses:
       tasks.append(Task(status['id'], {
-          'type': status['task_type'],
-          'description': status['description'],
-          'state': status['state'],
+          'type': status.get('task_type'),
+          'description': status.get('description'),
+          'state': status.get('state'),
       }))
     return tasks
 
@@ -169,6 +169,8 @@ class Export(object):
             - dimensions: The dimensions of the exported image. Takes either a
               single positive integer as the maximum dimension or
               "WIDTHxHEIGHT" where WIDTH and HEIGHT are each positive integers.
+            - skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
+              image tiles.
             If exporting to Google Drive (default):
             - driveFolder: The name of a unique folder in your Drive account to
               export into. Defaults to the root of the drive.
@@ -256,7 +258,8 @@ class Export(object):
                        bucket=None, fileNamePrefix=None,
                        dimensions=None, region=None, scale=None,
                        crs=None, crsTransform=None, maxPixels=None,
-                       shardSize=None, fileDimensions=None, **kwargs):
+                       shardSize=None, fileDimensions=None,
+                       skipEmptyTiles=None, **kwargs):
       """Creates a task to export an EE Image to Google Cloud Storage.
 
       Args:
@@ -293,6 +296,8 @@ class Export(object):
             dimensions to indicate (width,height). Note that the image will
             still be clipped to the overall image dimensions. Must be a
             multiple of shardSize.
+        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
+              image tiles.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -315,8 +320,9 @@ class Export(object):
     @staticmethod
     def toDrive(image, description='myExportImageTask', folder=None,
                 fileNamePrefix=None, dimensions=None, region=None,
-                scale=None, crs=None, crsTransform=None, maxPixels=None,
-                shardSize=None, fileDimensions=None, **kwargs):
+                scale=None, crs=None, crsTransform=None,
+                maxPixels=None, shardSize=None, fileDimensions=None,
+                skipEmptyTiles=None, **kwargs):
       """Creates a task to export an EE Image to Drive.
 
       Args:
@@ -354,6 +360,8 @@ class Export(object):
             dimensions to indicate (width,height). Note that the image will
             still be clipped to the overall image dimensions. Must be a
             multiple of shardSize.
+        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
+              image tiles.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform', 'driveFolder', and 'driveFileNamePrefix'.
 

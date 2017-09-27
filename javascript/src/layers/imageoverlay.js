@@ -52,10 +52,31 @@ ee.layers.ImageOverlay.prototype.createTile = function(
  */
 ee.layers.ImageTile = function(coord, zoom, ownerDocument, uniqueId) {
   goog.base(this, coord, zoom, ownerDocument, uniqueId);
+
+  /**
+   * The default image tile renderer.
+   * @type {function(!ee.layers.AbstractTile):undefined}
+   */
   this.renderer = ee.layers.ImageTile.defaultRenderer_;
+
+  /** @type {?HTMLImageElement} The image element.*/
   this.imageEl = null;
+
+  /**
+   * The ImageLoader instance handling the load request.
+   * @private {?goog.net.ImageLoader}
+   */
   this.imageLoader_ = null;
+
+  /** @private {?goog.events.Key} The image loader listener key. */
   this.imageLoaderListenerKey_ = null;
+
+  /**
+   * The URL, representing a Blob object, used as the image source with the
+   * ImageLoader.
+   * @private {string}
+   */
+  this.objectUrl_ = '';
 };
 goog.inherits(ee.layers.ImageTile, ee.layers.AbstractTile);
 
@@ -64,7 +85,8 @@ goog.inherits(ee.layers.ImageTile, ee.layers.AbstractTile);
 ee.layers.ImageTile.prototype.finishLoad = function() {
   var imageUrl;
   try {
-    imageUrl = URL.createObjectURL(this.sourceData);
+    this.objectUrl_ = URL.createObjectURL(this.sourceData);
+    imageUrl = this.objectUrl_;
   } catch (e) {
     // Browser did not support blob response, or browser did not support
     // createObjectURL, or we made a mistake. We will fall back to
@@ -102,6 +124,18 @@ ee.layers.ImageTile.prototype.cancelLoad = function() {
     goog.dispose(this.imageLoader_);
   }
 };
+
+
+/** @override */
+ee.layers.ImageTile.prototype.disposeInternal = function() {
+  goog.base(this, 'disposeInternal');
+  if (this.objectUrl_) {
+    // See notes section of
+    // https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL
+    URL.revokeObjectURL(this.objectUrl_);
+  }
+};
+
 
 
 /** @private @const {!Array<string>} The image loader events. */

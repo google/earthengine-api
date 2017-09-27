@@ -155,16 +155,27 @@ ee.arguments.extract = function(fn, originalArgs) {
 ee.arguments.getParamNames_ = function(fn) {
   var paramNames = [];
   if (goog.global['EXPORTED_FN_INFO']) {
+    // For pre-minified builds, use a global map of function metadata, keyed by
+    // the toString() value of the function body.
     var exportedFnInfo = goog.global['EXPORTED_FN_INFO'][fn.toString()];
     goog.asserts.assertObject(exportedFnInfo);
     paramNames = exportedFnInfo['paramNames'];
     goog.asserts.assertArray(paramNames);
   } else {
-    // Note: This is inspired by Angular's inferInjectionArgs().
+    // For un-compiled code, infer parameter names directly from the function
+    // body. Inspired by Angular's inferInjectionArgs():
     var fnStr = fn.toString().replace(ee.arguments.JS_COMMENT_MATCHER_, '');
     var fnParamDecl = fnStr.match(ee.arguments.JS_PARAM_DECL_MATCHER_)[1];
-    var fnParamList = fnParamDecl.split(',');
-    paramNames = fnParamList || [];
+    var fnParamList = fnParamDecl.split(',') || [];
+    paramNames = fnParamList.map(
+        /**
+         * Removes defaulted values from the parameters if present.
+         * @param {string} p The parameter name with possible default value.
+         * @return {string} The parameter name with any default value removed.
+         * @see ee.arguments.JS_PARAM_DEFAULT_MATCHER
+         */
+        (p) => p.replace(ee.arguments.JS_PARAM_DEFAULT_MATCHER_, ''));
+
   }
   return paramNames;
 };
@@ -196,3 +207,13 @@ ee.arguments.JS_COMMENT_MATCHER_ = /((\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s))/mg;
  * @const @private {RegExp}
  */
 ee.arguments.JS_PARAM_DECL_MATCHER_ = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+
+/**
+ * Matches a default value within a function parameter. This is used to remove
+ * argument defaults when parsing parameter names.
+ *
+ * For example, fn(myparam = undefined) should have its parameter name parsed as
+ * "myparam" rather than "myparam=undefined".
+ * @const @private {!RegExp}
+ */
+ee.arguments.JS_PARAM_DEFAULT_MATCHER_ = /=.*$/;

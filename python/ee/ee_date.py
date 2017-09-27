@@ -28,7 +28,7 @@ class Date(computedobject.ComputedObject):
 
     This sends all inputs (except another Date) through the Date function.
 
-    This constuctor accepts the following args:
+    This constructor accepts the following args:
       1) A bare date.
       2) An ISO string
       3) A integer number of milliseconds since the epoch.

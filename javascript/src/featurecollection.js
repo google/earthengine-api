@@ -214,7 +214,7 @@ ee.FeatureCollection.prototype.getDownloadURL = function(
     });
   } else {
     return ee.data.makeTableDownloadUrl(
-        /** @type {ee.data.DownloadId} */ (
+        /** @type {!ee.data.DownloadId} */ (
             ee.data.getTableDownloadId(request)));
   }
 };

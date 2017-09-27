@@ -119,7 +119,10 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
    * @type {Array?}
    * @private
    */
-  this.coordinates_ = geoJson['coordinates'] || null;
+  this.coordinates_ =
+      goog.isDefAndNotNull(geoJson['coordinates']) ?
+      goog.object.unsafeClone(geoJson['coordinates']) :
+      null;
 
   /**
    * The subgeometries, non-null iff type is GeometryCollection.
@@ -290,9 +293,6 @@ goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
  *     projection. If true, edges are curved to follow the shortest path on the
  *     surface of the Earth. The default is the geodesic state of the inputs, or
  *     true if the inputs are numbers.
- * @param {ee.ErrorMargin=} opt_maxError Max error when input geometry must be
- *     reprojected to an explicitly requested result projection or geodesic
- *     state.
  * @param {boolean=} opt_evenOdd If true, polygon interiors will be determined
  *     by the even/odd rule, where a point is inside if it crosses an odd number
  *     of edges to reach a point at infinity. Otherwise polygons use the left-
@@ -303,8 +303,7 @@ goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
  * @extends {ee.Geometry}
  * @export
  */
-ee.Geometry.Rectangle = function(
-    coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
+ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_evenOdd) {
   if (!(this instanceof ee.Geometry.Rectangle)) {
     return ee.Geometry.createInstance_(ee.Geometry.Rectangle, arguments);
   }
@@ -593,7 +592,7 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
 
 
 /**
- * @return {ee.data.GeoJSONGeometry} A GeoJSON representation of the geometry.
+ * @return {!ee.data.GeoJSONGeometry} A GeoJSON representation of the geometry.
  * @export
  */
 ee.Geometry.prototype.toGeoJSON = function() {
@@ -601,7 +600,7 @@ ee.Geometry.prototype.toGeoJSON = function() {
     throw new Error('Can\'t convert a computed Geometry to GeoJSON. ' +
                     'Use getInfo() instead.');
   }
-  return /** @type {ee.data.GeoJSONGeometry} */(this.encode());
+  return /** @type {!ee.data.GeoJSONGeometry} */ (this.encode());
 };
 
 
@@ -639,6 +638,8 @@ ee.Geometry.prototype.toString = function() {
 ////////////////////////////////////////////////////////////////////////////////
 
 
+// TODO(user): Validation should ensure that a polygon has >2 points.
+// Context at cl/158861478.
 /**
  * Checks if a geometry looks valid.
  * @param {Object} geometry The geometry to validate.

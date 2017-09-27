@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Singleton for all of the library's communcation with the Earth Engine API."""
+"""Singleton for the library's communication with the Earth Engine API."""
 
 from __future__ import print_function
 
@@ -11,6 +11,8 @@ from __future__ import print_function
 # pylint: disable=g-bad-import-order
 import contextlib
 import json
+import time
+
 import httplib2
 import six
 
@@ -57,6 +59,16 @@ _profile_hook = None
 # Lowercase because that's how httplib2 does things.
 _PROFILE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
 
+# Maximum number of times to retry a rate-limited request.
+MAX_RETRIES = 5
+
+# Maximum time to wait before retrying a rate-limited request (in milliseconds).
+MAX_RETRY_WAIT = 120000
+
+# Base time (in ms) to wait when performing exponential backoff in request
+# retries.
+BASE_RETRY_WAIT = 1000
+
 # The default base URL for API calls.
 DEFAULT_API_BASE_URL = 'https://earthengine.googleapis.com/api'
 
@@ -66,6 +78,8 @@ DEFAULT_TILE_BASE_URL = 'https://earthengine.googleapis.com'
 # Asset types recognized by create_assets().
 ASSET_TYPE_FOLDER = 'Folder'
 ASSET_TYPE_IMAGE_COLL = 'ImageCollection'
+# Max length of the above type names
+MAX_TYPE_LENGTH = len(ASSET_TYPE_IMAGE_COLL)
 
 
 def initialize(credentials=None, api_base_url=None, tile_base_url=None):
@@ -398,7 +412,7 @@ def getAlgorithms():
   return send_('/algorithms', {}, 'GET')
 
 
-def createAsset(value, opt_path=None):
+def createAsset(value, opt_path=None, opt_force=False):
   """Creates an asset from a JSON value.
 
   To create an empty image collection or folder, pass in a "value" object
@@ -408,6 +422,7 @@ def createAsset(value, opt_path=None):
     value: An object describing the asset to create or a JSON string
         with the already-serialized value for the new asset.
     opt_path: An optional desired ID, including full path.
+    opt_force: True if asset overwrite is allowed
 
   Returns:
     A description of the saved asset, including a generated ID.
@@ -417,6 +432,7 @@ def createAsset(value, opt_path=None):
   args = {'value': value, 'json_format': 'v2'}
   if opt_path is not None:
     args['id'] = opt_path
+  args['force'] = opt_force
   return send_('/create', args)
 
 
@@ -524,8 +540,8 @@ def startProcessing(taskId, params):
   return send_('/processingrequest', args)
 
 
-def startIngestion(taskId, params):
-  """Creates an asset import task.
+def startIngestion(taskId, params, allow_overwrite=False):
+  """Creates an image asset import task.
 
   Args:
     taskId: ID for the task (obtained using newTaskId).
@@ -542,14 +558,45 @@ def startIngestion(taskId, params):
             object names, e.g. 'gs://bucketname/filename.tif'
           bands (array) An optional list of band names formatted like:
             [{'id': 'R'}, {'id': 'G'}, {'id': 'B'}]
+    allow_overwrite: Whether the ingested image can overwrite an
+        existing version.
 
   Returns:
     A dict with optional notes about the created task.
   """
-  args = {'id': taskId, 'request': json.dumps(params)}
+  args = {
+      'id': taskId,
+      'request': json.dumps(params),
+      'allowOverwrite': allow_overwrite
+  }
   return send_('/ingestionrequest', args)
 
 
+def startTableIngestion(taskId, params, allow_overwrite=False):
+  """Creates a table asset import task.
+
+  Args:
+    taskId: ID for the task (obtained using newTaskId).
+    params: The object that describes the import task, which can
+        have these fields:
+          id (string) The destination asset id (e.g. users/foo/bar).
+          sources (array) A list of CNS source file paths with optional
+            character encoding formatted like:
+            "sources": [{ "primaryPath": "states.shp", "charset": "UTF-8" }]
+            Where path values correspond to source files' CNS locations,
+            e.g. 'googlefile://namespace/foobar.shp', and 'charset' refers to
+            the character encoding of the source file.
+    allow_overwrite: Whether the ingested image can overwrite an
+        existing version.
+  Returns:
+    A dict with optional notes about the created task.
+  """
+  args = {
+      'id': taskId,
+      'tableRequest': json.dumps(params),
+      'allowOverwrite': allow_overwrite
+  }
+  return send_('/ingestionrequest', args)
 
 
 def getAssetRoots():
@@ -696,12 +743,34 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   else:
     raise ee_exception.EEException('Unexpected request method: ' + opt_method)
 
-  try:
-    response, content = http.request(url, method=opt_method, body=payload,
-                                     headers=headers)
-  except httplib2.HttpLib2Error as e:
-    raise ee_exception.EEException(
-        'Unexpected HTTP error: %s' % e.message)
+  def send_with_backoff(retries=0):
+    """Send an API call with backoff.
+
+    Attempts an API call. If the server's response has a 429 status, retry the
+    request using an incremental backoff strategy.
+
+    Args:
+      retries: The number of retries that have already occurred.
+
+    Returns:
+      A tuple of response, content returned by the API call.
+
+    Raises:
+      EEException: For errors from the server.
+    """
+    try:
+      response, content = http.request(url, method=opt_method, body=payload,
+                                       headers=headers)
+      if response.status == 429:
+        if retries < MAX_RETRIES:
+          time.sleep(min(2 ** retries * BASE_RETRY_WAIT, MAX_RETRY_WAIT) / 1000)
+          response, content = send_with_backoff(retries + 1)
+    except httplib2.HttpLib2Error as e:
+      raise ee_exception.EEException(
+          'Unexpected HTTP error: %s' % e.message)
+    return response, content
+
+  response, content = send_with_backoff()
 
   # Call the profile hook if present. Note that this is done before we handle
   # the content, so that profiles are reported even if the response is an error.
@@ -722,7 +791,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
         # Python 2.x
         content = content
       json_content = json.loads(content)
-    except Exception as e:
+    except Exception:
       raise ee_exception.EEException('Invalid JSON: %s' % content)
     if 'error' in json_content:
       raise ee_exception.EEException(json_content['error']['message'])

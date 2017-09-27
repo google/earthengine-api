@@ -18,7 +18,7 @@ goog.require('goog.string');
 
 
 /**
- * Constructs a new filter. This constuctor accepts the following args:
+ * Constructs a new filter. This constructor accepts the following args:
  *    - Another filter.
  *    - A list of filters (which are implicitly ANDed together).
  *    - A ComputedObject returning a filter. Users shouldn't be making these;

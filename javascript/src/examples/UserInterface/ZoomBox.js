@@ -20,8 +20,8 @@ Map.style().set('cursor', 'crosshair');
 
 // Create a map to be used as the zoom box.
 var zoomBox = ui.Map({style: {stretch: 'both', shown: false}})
-    .addLayer(fit, visParams)
     .setControlVisibility(false);
+zoomBox.addLayer(fit, visParams);
 
 // Update the center of the zoom box map when the base map is clicked.
 Map.onClick(function(coords) {
