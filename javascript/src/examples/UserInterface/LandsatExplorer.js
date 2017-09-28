@@ -21,8 +21,8 @@ app.createPanels = function() {
   /* The collection filter controls. */
   app.filters = {
     mapCenter: ui.Checkbox({label: 'Filter to map center', value: true}),
-    startDate: ui.Textbox('YYYY-MM-DD', '2014-02-01'),
-    endDate: ui.Textbox('YYYY-MM-DD', '2014-03-01'),
+    startDate: ui.Textbox('YYYY-MM-DD', '2017-05-01'),
+    endDate: ui.Textbox('YYYY-MM-DD', '2017-09-01'),
     applyButton: ui.Button('Apply filters', app.applyFilters),
     loadingLabel: ui.Label({
       value: 'Loading...',
@@ -202,7 +202,7 @@ app.createHelpers = function() {
 
 /** Creates the app constants. */
 app.createConstants = function() {
-  app.COLLECTION_ID = 'LANDSAT/LC8_L1T_TOA';
+  app.COLLECTION_ID = 'LANDSAT/LC08/C01/T1_RT_TOA';
   app.SECTION_STYLE = {margin: '20px 0 0 0'};
   app.HELPER_TEXT_STYLE = {
       margin: '8px 0 -3px 8px',

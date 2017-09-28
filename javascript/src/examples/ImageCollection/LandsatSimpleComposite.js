@@ -3,7 +3,7 @@
 // Pick a spot with lots of clouds.
 Map.setCenter(-47.6735, -0.6344, 12);
 
-var L8 = ee.ImageCollection('LANDSAT/LC8_L1T');
+var L8 = ee.ImageCollection('LANDSAT/LC08/C01/T1');
 
 // "asFloat: true" gives proper (floating-point) TOA output instead of
 // the mangled-to-UINT8 outputs of the original simpleComposite().

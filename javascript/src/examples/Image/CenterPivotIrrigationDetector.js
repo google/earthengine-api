@@ -3,15 +3,17 @@
 // Finds circles that are 500m in radius.
 Map.setCenter(-106.06, 37.71, 12);
 
-// A nice EVI palette.
+// A nice NDVI palette.
 var palette = [
   'FFFFFF', 'CE7E45', 'DF923D', 'F1B555', 'FCD163', '99B718',
   '74A901', '66A000', '529400', '3E8601', '207401', '056201',
   '004C00', '023B01', '012E01', '011D01', '011301'];
 
 // Just display the image with the palette.
-var image = ee.Image('LT5_L1T_8DAY_EVI/20110618');
-Map.addLayer(image, {min: 0, max: 1, palette: palette}, 'Landsat EVI');
+var image = ee.Image('LANDSAT/LC08/C01/T1_TOA/LC08_034034_20170608');
+var ndvi = image.normalizedDifference(['B5','B4']);
+
+Map.addLayer(ndvi, {min: 0, max: 1, palette: palette}, 'Landsat NDVI');
 
 // Find the difference between convolution with circles and squares.
 // This difference, in theory, will be strongest at the center of
@@ -20,8 +22,8 @@ Map.addLayer(image, {min: 0, max: 1, palette: palette}, 'Landsat EVI');
 var farmSize = 500;  // Radius of a farm, in meters.
 var circleKernel = ee.Kernel.circle(farmSize, 'meters');
 var squareKernel = ee.Kernel.square(farmSize, 'meters');
-var circles = image.convolve(circleKernel);
-var squares = image.convolve(squareKernel);
+var circles = ndvi.convolve(circleKernel);
+var squares = ndvi.convolve(squareKernel);
 var diff = circles.subtract(squares);
 
 // Scale by 100 and find the best fitting pixel in each neighborhood.
@@ -37,7 +39,7 @@ var peaks = thresh.focal_max({kernel: circleKernel});
 Map.addLayer(peaks.updateMask(peaks), {palette: 'FF3737'}, 'Kernel Peaks');
 
 // Detect the edges of the features.  Discard the edges with lower intensity.
-var canny = ee.Algorithms.CannyEdgeDetector(image, 0);
+var canny = ee.Algorithms.CannyEdgeDetector(ndvi, 0);
 canny = canny.gt(0.3);
 
 // Create a "ring" kernel from two circular kernels.

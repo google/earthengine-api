@@ -257,27 +257,54 @@ class AuthenticateCommand(object):
 
   name = 'authenticate'
 
-  def __init__(self, unused_parser):
-    pass
+  def __init__(self, parser):
+    parser.add_argument(
+        '--authorization-code',
+        help='Use this specified authorization code.')
+    parser.add_argument(
+        '--quiet',
+        action='store_true',
+        help='Do not issue any interactive prompts.')
 
-  def run(self, unused_args, unused_config):
-    """Generates and opens a URL to get auth code, then retrieve a token."""
+  def run(self, args, unused_config):
+    """Prompts for an auth code, requests a token and saves it."""
+
+    def write_token(auth_code):
+      token = ee.oauth.request_token(auth_code)
+      ee.oauth.write_token(token)
+      print('\nSuccessfully saved authorization token.')
+
+    if args.authorization_code:
+      auth_code = args.authorization_code
+      write_token(auth_code)
+      return
 
     auth_url = ee.oauth.get_authorization_url()
-    webbrowser.open_new(auth_url)
+    if args.quiet:
+      print('Paste the following address into a web browser:\n'
+            '\n'
+            '    %s\n'
+            '\n'
+            'On the web page, please authorize access to your '
+            'Earth Engine account and copy the authentication code. '
+            'Next authenticate with the following command:\n'
+            '\n'
+            '    earthengine authenticate '
+            '--authorization-code=PLACE_AUTH_CODE_HERE\n'
+            % auth_url)
+    else:
+      webbrowser.open_new(auth_url)
+      print('Opening the following address in a web browser:\n'
+            '\n'
+            '    %s\n'
+            '\n'
+            'Please authorize access to your Earth Engine account, and paste '
+            'the generated code below. If the web browser does not start, '
+            'please manually browse the URL above.\n'
+            % auth_url)
 
-    print("""
-    Opening web browser to address %s
-    Please authorize access to your Earth Engine account, and paste
-    the resulting code below.
-    If the web browser does not start, please manually browse the URL above.
-          """ % auth_url)
-
-    auth_code = input('Please enter authorization code: ').strip()
-
-    token = ee.oauth.request_token(auth_code)
-    ee.oauth.write_token(token)
-    print('\nSuccessfully saved authorization token.')
+      auth_code = input('Please enter authorization code: ').strip()
+      write_token(auth_code)
 
 
 class AclChCommand(object):

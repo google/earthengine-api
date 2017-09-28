@@ -5,7 +5,7 @@ var sf = [-122.416667, 37.783333];
 var transect = ee.Geometry.LineString([reno, sf]);
 
 // Get brightness temperature data for 1 year.
-var landsat8Toa = ee.ImageCollection('LANDSAT/LC8_L1T_32DAY_TOA');
+var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA');
 var temperature = landsat8Toa.filterBounds(transect)
     .select(['B10'], ['temp'])
     .map(function(image) {

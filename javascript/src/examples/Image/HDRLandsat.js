@@ -5,7 +5,7 @@
 // are streched to show more details.
 
 // Filter the L7 collection to a single date.
-var collection = ee.ImageCollection('LE7_L1T')
+var collection = ee.ImageCollection('LANDSAT/LE07/C01/T1')
         .filterDate('2002-11-08', '2002-11-09');
 var image = collection.mosaic().select('B3', 'B2', 'B1');
 

@@ -5,7 +5,7 @@
 // Image.expression.
 
 // Filter the L7 collection to a single month.
-var collection = ee.ImageCollection('LE7_L1T_TOA')
+var collection = ee.ImageCollection('LANDSAT/LE07/C01/T1_TOA')
     .filterDate('2002-11-01', '2002-12-01');
 
 // A function to compute NDVI.

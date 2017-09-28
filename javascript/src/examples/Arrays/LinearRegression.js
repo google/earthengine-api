@@ -14,7 +14,7 @@ var region = ee.Geometry.Point(lng, lat);
 // 1. A 1, so the resulting array has a column of ones to capture the offset.
 // 2. Fractional year past 2000-01-01.
 // 3. NDVI.
-var images = ee.ImageCollection('LE7_L1T')
+var images = ee.ImageCollection('LANDSAT/LE07/C01/T1')
   .filterDate(start, end)
   .filter(ee.Filter.dayOfYear(160, 240))
   .filterBounds(region)

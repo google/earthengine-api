@@ -2,7 +2,7 @@
 // See also: FilteredComposite, which filters the collection by bounds instead.
 
 // Create a Landsat 7, median-pixel composite for Spring of 2000.
-var collection = ee.ImageCollection('LE7_L1T')
+var collection = ee.ImageCollection('LANDSAT/LE07/C01/T1')
     .filterDate('2000-04-01', '2000-07-01');
 var median = collection.median();
 

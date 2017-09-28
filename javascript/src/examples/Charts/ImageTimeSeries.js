@@ -4,8 +4,8 @@
 var sanFrancisco =
     ee.Geometry.Rectangle(-122.45, 37.74, -122.4, 37.8);
 
-var landsat8Toa = ee.ImageCollection('LANDSAT/LC8_L1T_32DAY_TOA')
-    .filterDate('2012-12-25', '2013-12-25')
+var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+    .filterDate('2015-12-25', '2016-12-25')
     .select('B[1-7]');
 
 // Create an image time series chart.

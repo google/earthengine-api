@@ -11,7 +11,8 @@ var desert = ee.Feature(  // Black Rock Desert.
     {label: 'Desert'});
 var westernRegions = new ee.FeatureCollection([city, forest, desert]);
 
-var landsat8Toa = ee.ImageCollection('LANDSAT/LC8_L1T_32DAY_TOA');
+var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+    .filterBounds(westernRegions);
 landsat8Toa = landsat8Toa.select('B[1-7]');
 
 // Create a chart using a sequence of arguments.

@@ -18,9 +18,9 @@ var desert = ee.Feature(  // Black Rock Desert.
 var westernRegions = new ee.FeatureCollection([city, forest, desert]);
 
 // Get brightness temperature data for 1 year.
-var landsat8Toa = ee.ImageCollection('LANDSAT/LC8_L1T_32DAY_TOA');
+var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA');
 var temps2013 = landsat8Toa.filterBounds(westernRegions)
-    .filterDate('2012-12-25', '2013-12-25')
+    .filterDate('2015-12-25', '2016-12-25')
     .select('B10');
 
 // Convert temperature to Celsius.

@@ -1,8 +1,12 @@
 // Desmontrate asynchronous updating of UI elements through evaluate().
 
 // Filter a collection to a time of interest.
-var ndvi = ee.ImageCollection('LANDSAT/LC8_L1T_32DAY_NDVI')
+var l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
     .filterDate('2014-06-01', '2015-06-01');
+
+var ndvi = l8.map(function(image) {
+  return image.select().addBands(image.normalizedDifference(['B5', 'B4']));
+});
 
 // Nice visualization parameters for a vegetation index.
 var vis = {min: 0, max: 1, palette: [
@@ -36,7 +40,7 @@ Map.onClick(function(coords) {
   var point = ee.Geometry.Point(coords.lon, coords.lat);
   var temporalMean = ndvi.reduce(ee.Reducer.mean());
   var sampledPoint = temporalMean.reduceRegion(ee.Reducer.mean(), point, 30);
-  var computedValue = sampledPoint.get('NDVI_mean');
+  var computedValue = sampledPoint.get('nd_mean');
 
   // Request the value from the server and use the results in a function.
   computedValue.evaluate(function(result) {
