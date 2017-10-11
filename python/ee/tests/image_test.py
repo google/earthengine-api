@@ -98,6 +98,10 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEquals(ee.ApiFunction.lookup('Image.rename'), image.func)
     self.assertEquals(ee.List(['a', 'b']), image.args['names'])
 
+    image = ee.Image([1]).rename('a')
+    self.assertEquals(ee.ApiFunction.lookup('Image.rename'), image.func)
+    self.assertEquals(ee.List(['a']), image.args['names'])
+
   def testExpression(self):
     """Verifies the behavior of ee.Image.expression()."""
     image = ee.Image([1, 2]).expression('a', {'b': 'c'})

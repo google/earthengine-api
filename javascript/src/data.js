@@ -954,12 +954,15 @@ goog.exportSymbol('ee.data.createAssetHome', ee.data.createAssetHome);
  *     a JSON string with the already-serialized value for the new asset.
  * @param {string=} opt_path An optional desired ID, including full path.
  * @param {boolean=} opt_force Force overwrite.
+ * @param {!Object=} opt_properties The keys and values of the properties to set
+       on the created asset.
  * @param {function(Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the saved asset, including a generated
  *     ID, or null if a callback is specified.
  */
-ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
+ee.data.createAsset = function(
+    value, opt_path, opt_force, opt_properties, opt_callback) {
   if (!goog.isString(value)) {
     value = goog.json.serialize(value);
   }
@@ -968,6 +971,9 @@ ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
     args['id'] = opt_path;
   }
   args['force'] = opt_force || false;
+  if (opt_properties != undefined) {
+    args['properties'] = goog.json.serialize(opt_properties);
+  }
   return ee.data.send_('/create',
                        ee.data.makeRequest_(args),
                        opt_callback);

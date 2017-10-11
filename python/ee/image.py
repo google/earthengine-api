@@ -392,7 +392,7 @@ class Image(element.Element):
     Returns:
       An image with the renamed bands.
     """
-    if args:
+    if args or ee_types.isString(names):
       # Handle varargs; everything else we let the server handle.
       args = list(args)
       args.insert(0, names)
