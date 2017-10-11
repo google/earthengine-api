@@ -11,6 +11,7 @@ from __future__ import print_function
 # pylint: disable=g-bad-import-order
 import contextlib
 import json
+import threading
 import time
 
 import httplib2
@@ -44,16 +45,24 @@ _initialized = False
 # it timed out. 0 means no limit.
 _deadline_ms = 0
 
-# A function called when profile results are received from the server. Takes the
-# profile ID as an argument. None if profiling is disabled.
-#
-# This is a global variable because the alternative is to add a parameter to
-# ee.data.send_, which would then have to be propagated from the assorted API
-# call functions (ee.data.getInfo, ee.data.getMapId, etc.), and the user would
-# have to modify each call to profile, rather than enabling profiling as a
-# wrapper around the entire program (with ee.data.profiling, defined below).
-_profile_hook = None
 
+class _ThreadLocals(threading.local):
+
+  def __init__(self):
+    # pylint: disable=super-init-not-called
+
+    # A function called when profile results are received from the server. Takes
+    # the profile ID as an argument. None if profiling is disabled.
+    #
+    # This is a thread-local variable because the alternative is to add a
+    # parameter to ee.data.send_, which would then have to be propagated from
+    # the assorted API call functions (ee.data.getInfo, ee.data.getMapId, etc.),
+    # and the user would have to modify each call to profile, rather than
+    # enabling profiling as a wrapper around the entire program (with
+    # ee.data.profiling, defined below).
+    self.profile_hook = None
+
+_thread_locals = _ThreadLocals()
 
 # The HTTP header through which profile results are returned.
 # Lowercase because that's how httplib2 does things.
@@ -146,13 +155,12 @@ def profiling(hook):
     hook: A function of one argument which is called with each profile
         ID obtained from API calls, just before the API call returns.
   """
-  global _profile_hook
-  saved_hook = _profile_hook
-  _profile_hook = hook
+  saved_hook = _thread_locals.profile_hook
+  _thread_locals.profile_hook = hook
   try:
     yield
   finally:
-    _profile_hook = saved_hook
+    _thread_locals.profile_hook = saved_hook
 
 
 
@@ -412,7 +420,7 @@ def getAlgorithms():
   return send_('/algorithms', {}, 'GET')
 
 
-def createAsset(value, opt_path=None, opt_force=False):
+def createAsset(value, opt_path=None, opt_force=False, opt_properties=None):
   """Creates an asset from a JSON value.
 
   To create an empty image collection or folder, pass in a "value" object
@@ -423,6 +431,8 @@ def createAsset(value, opt_path=None, opt_force=False):
         with the already-serialized value for the new asset.
     opt_path: An optional desired ID, including full path.
     opt_force: True if asset overwrite is allowed
+    opt_properties: The keys and values of the properties to set
+        on the created asset.
 
   Returns:
     A description of the saved asset, including a generated ID.
@@ -433,6 +443,8 @@ def createAsset(value, opt_path=None, opt_force=False):
   if opt_path is not None:
     args['id'] = opt_path
   args['force'] = opt_force
+  if opt_properties is not None:
+    args['properties'] = json.dumps(opt_properties)
   return send_('/create', args)
 
 
@@ -720,7 +732,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   # Make sure we never perform API calls before initialization.
   initialize()
 
-  if _profile_hook:
+  if _thread_locals.profile_hook:
     params = params.copy()
     params['profiling'] = '1'
 
@@ -774,8 +786,8 @@ def send_(path, params, opt_method='POST', opt_raw=False):
 
   # Call the profile hook if present. Note that this is done before we handle
   # the content, so that profiles are reported even if the response is an error.
-  if _profile_hook and _PROFILE_HEADER_LOWERCASE in response:
-    _profile_hook(response[_PROFILE_HEADER_LOWERCASE])
+  if _thread_locals.profile_hook and _PROFILE_HEADER_LOWERCASE in response:
+    _thread_locals.profile_hook(response[_PROFILE_HEADER_LOWERCASE])
 
   # Whether or not the response is an error, it may be JSON.
   content_type = (response['content-type'] or 'application/json').split(';')[0]

@@ -17,7 +17,7 @@ class ProfilingTest(apitestcase.ApiTestCase):
     """Overridden to check for profiling-related data."""
     if path == '/value':
       value = deserializer.fromJSON(params['json'])
-      hooked = ee.data._profile_hook is not None
+      hooked = ee.data._thread_locals.profile_hook is not None
       is_get_profiles = (isinstance(value, ComputedObject) and value.func ==
                          ApiFunction.lookup('Profile.getProfiles'))
       return 'hooked=%s getProfiles=%s' % (hooked, is_get_profiles)

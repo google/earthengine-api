@@ -118,7 +118,7 @@ ee.Collection.prototype.sort = function(property, opt_ascending) {
 };
 ee.ComputedObject;
 /**
- * @param {(Function|null)} func
+ * @param {(!Function|null)} func
  * @param {...*} var_args
  * @return {(ee.ComputedObject|null)}
  */
@@ -148,7 +148,7 @@ ee.ComputedObject.prototype.toString = function() {
 };
 /**
  * @param {{args: !Array<(ee.data.AlgorithmArgument|null)>, deprecated: (string|undefined), description: (string|undefined), name: string, returns: string}} signature
- * @param {(Function|null)} body
+ * @param {(!Function|null)} body
  * @return {?}
  * @extends {ee.Function}
  * @constructor
@@ -787,10 +787,11 @@ ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
  * @param {(Object|string)} value
  * @param {string=} opt_path
  * @param {boolean=} opt_force
+ * @param {!Object=} opt_properties
  * @param {function((Object|null), string=): ?=} opt_callback
  * @return {(Object|null)}
  */
-ee.data.createAsset = function(value, opt_path, opt_force, opt_callback) {
+ee.data.createAsset = function(value, opt_path, opt_force, opt_properties, opt_callback) {
 };
 /**
  * @param {string} requestedId
