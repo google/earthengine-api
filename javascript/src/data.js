@@ -2522,7 +2522,6 @@ ee.data.AuthResponse = class {
 
 /**
  * Sends an API call.
- *
  * @param {string} path The API endpoint to call.
  * @param {?goog.Uri.QueryData} params The call parameters.
  * @param {function(?, string=)=} opt_callback An optional callback.
@@ -2531,7 +2530,6 @@ ee.data.AuthResponse = class {
  *     may be queued to avoid exceeding server queries-per-seconds quota.
  * @param {string=} opt_method The HTTPRequest method (GET or POST), default
  *     is POST.
- *
  * @return {?Object} The data object returned by the API call, or null if a
  *     callback was specified.
  * @private

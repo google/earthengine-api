@@ -7,7 +7,6 @@ goog.require('goog.events.EventTarget');
 goog.require('goog.object');
 
 
-
 // TODO(user): The part about fetching the combined profile is potentially
 // separate from the part about collecting profile IDs. The former can be moved
 // to the UI code, which would make more overall complexity but simplify the
@@ -18,17 +17,18 @@ goog.require('goog.object');
  * whether profiling is enabled.
  *
  * @constructor
- * @param {ee.data.Profiler.Format} format The format of the data to be returned
- *     by getProfileData.
+ * @param {!ee.data.Profiler.Format<T>} format The format of the data to be
+ *     returned by getProfileData.
  * @extends {goog.events.EventTarget}
+ * @template T
  * @ignore
  */
 ee.data.Profiler = function(format) {
   goog.base(this);
 
   /**
-   * @private {ee.data.Profiler.Format} The data format to be returned by
-   * getProfileData.
+   * The data format to be returned by getProfileData.
+   * @private {!ee.data.Profiler.Format<T>}
    */
   this.format_ = format;
 
@@ -82,7 +82,7 @@ ee.data.Profiler = function(format) {
 
   /**
    * The combined profile data, to be displayed in the UI.
-   * @private {ee.data.Profiler.AnyFormatData}
+   * @private {T}
    */
   this.profileData_ = ee.data.Profiler.getEmptyProfile_(format);
   // Note: the above initialization also causes the value of format to be
@@ -169,7 +169,7 @@ ee.data.Profiler.prototype.getStatusText = function() {
 
 /**
  * Returns the profile data in the format specified in the constructor.
- * @return {ee.data.Profiler.AnyFormatData}
+ * @return {T}
  */
 ee.data.Profiler.prototype.getProfileData = function() {
   return this.profileData_;
@@ -260,7 +260,7 @@ ee.data.Profiler.prototype.refresh_ = function() {
         'Profile.getProfilesInternal' : 'Profile.getProfiles';
     var profileValue = ee.ApiFunction._apply(getProfilesFn, {
       'ids': ids,
-      'format': this.format_
+      'format': this.format_.toString(),
     });
     profileValue.getInfo(handleResponse);
     this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED);
@@ -341,9 +341,10 @@ ee.data.Profiler.prototype.setParentEventTarget = function(parent) {
 
 
 /**
- * @param {ee.data.Profiler.Format} format A profile data format.
- * @return {ee.data.Profiler.AnyFormatData} Empty value of the specified format.
+ * @param {!ee.data.Profiler.Format<T>} format A profile data format.
+ * @return {T} Empty value of the specified format.
  * @private
+ * @template T
  */
 ee.data.Profiler.getEmptyProfile_ = function(format) {
   switch (format) {
@@ -357,8 +358,10 @@ ee.data.Profiler.getEmptyProfile_ = function(format) {
 };
 
 
-/** @private {ee.data.Profiler.VizApiDataTableLiteral} */
-ee.data.Profiler.EMPTY_JSON_PROFILE_ = {'cols': [], 'rows': []};
+/**
+ * @private {!google.visualization.DataObject}
+ */
+ee.data.Profiler.EMPTY_JSON_PROFILE_ = {cols: [], rows: []};
 
 
 /** @enum {string} Event types. */
@@ -369,33 +372,36 @@ ee.data.Profiler.EventType = {
 
 
 /**
- * Available profile data formats.
- *
- * This enum must be in sync with the format parameter of the
+ * A profile data format.
+ * The formats must be in sync with the format parameter of the
  * Profile.getProfiles algorithm.
- * @enum {string}
+ * @template T
  */
-ee.data.Profiler.Format = {
-  TEXT: 'text',
-  JSON: 'json'
+ee.data.Profiler.Format = class {
+  /**
+   * @param {string} format
+   */
+  constructor(format) {
+    /**
+     * @const @private {string}
+     */
+    this.format_ = format;
+  }
+
+  /**
+   * @override
+   */
+  toString() {
+    return this.format_;
+  }
 };
 
+/**
+ * @const {!ee.data.Profiler.Format<string>}
+ */
+ee.data.Profiler.Format.TEXT = new ee.data.Profiler.Format('text');
 
 /**
- * The argument to the google.visualization.DataTable constructor (which is
- * unfortunately not declared in the standard externs file). The name of this
- * type is unofficial.
- *
- * References to cols and rows should be quoted to avoid being obfuscated
- * by the compiler.
- *
- * @typedef {{
- *   'cols': Array<{id: string, label: string, type: string}>,
- *   'rows': Array<Array<{v: *, f: string}>>
- * }}
+ * @const {!ee.data.Profiler.Format<!google.visualization.DataObject>}
  */
-ee.data.Profiler.VizApiDataTableLiteral;
-
-
-/** @typedef {string|ee.data.Profiler.VizApiDataTableLiteral} */
-ee.data.Profiler.AnyFormatData;
+ee.data.Profiler.Format.JSON = new ee.data.Profiler.Format('json');
