@@ -5,6 +5,7 @@
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
+# pylint: disable=g-long-lambda
 
 from . import apifunction
 from . import collection
@@ -138,21 +139,34 @@ class FeatureCollection(collection.Collection):
   getDownloadUrl = deprecation.Deprecated('Use getDownloadURL().')(
       getDownloadURL)
 
-  def select(self, selectors, opt_names=None, *args):
+  def select(self, propertySelectors, newProperties=None,
+             retainGeometry=True, *args):
     """Select properties from each feature in a collection.
 
     Args:
-      selectors: An array of names or regexes specifying the properties
+      propertySelectors: An array of names or regexes specifying the properties
           to select.
-      opt_names: An array of strings specifying the new names for the
+      newProperties: An array of strings specifying the new names for the
           selected properties.  If supplied, the length must match the number
           of properties selected.
+      retainGeometry: A boolean.  When false, the result will have no geometry.
       *args: Selector elements as varargs.
 
     Returns:
       The feature collection with selected properties.
     """
-    return self.map(lambda feat: feat.select(selectors, opt_names, *args))
+    if len(args) or ee_types.isString(propertySelectors):
+      args = list(args)
+      if not isinstance(retainGeometry, bool):
+        args.insert(0, retainGeometry)
+      if newProperties is not None:
+        args.insert(0, newProperties)
+      args.insert(0, propertySelectors)
+      return self.map(lambda feat: feat.select(args, None, True))
+    else:
+      return self.map(
+          lambda feat: feat.select(
+              propertySelectors, newProperties, retainGeometry))
 
   @staticmethod
   def name():

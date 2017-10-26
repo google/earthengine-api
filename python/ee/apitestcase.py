@@ -203,6 +203,37 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'returns': 'Feature'
     },
+    'Feature.select': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'description': 'The feature to select properties from.',
+                'name': 'input',
+                'type': 'Element'
+            },
+            {
+                'description': '',
+                'name': 'propertySelectors',
+                'type': 'List<String>'
+            },
+            {
+                'default': None,
+                'description': '',
+                'name': 'newProperties',
+                'optional': True,
+                'type': 'List<String>'
+            },
+            {
+                'default': True,
+                'description': '',
+                'name': 'retainGeometry',
+                'optional': True,
+                'type': 'Boolean'
+            }
+        ],
+        'description': '',
+        'returns': 'Element',
+    },
     'Feature.get': {
         'type': 'Algorithm',
         'returns': '<any>',

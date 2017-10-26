@@ -95,6 +95,19 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     self.assertEquals(ee.FeatureCollection(7).getDownloadUrl('csv'),
                       ee.FeatureCollection(7).getDownloadURL('csv'))
 
+  def testSelect(self):
+    def equals(c1, c2):
+      self.assertEquals(c1.serialize(), c2.serialize())
+
+    fc = ee.FeatureCollection(ee.Feature(ee.Geometry.Point(0, 0), {'a': 5}))
+    equals(fc.select('a'), fc.select(['a']))
+    equals(fc.select('a', 'b'), fc.select(['a', 'b']))
+    equals(fc.select('a', 'b', 'c'), fc.select(['a', 'b', 'c']))
+    equals(fc.select('a', 'b', 'c', 'd'), fc.select(['a', 'b', 'c', 'd']))
+
+    equals(fc.select(['a']), fc.select(['a'], None, True))
+    equals(fc.select(['a'], None, False),
+           fc.select(propertySelectors=['a'], retainGeometry=False))
 
 if __name__ == '__main__':
   unittest.main()

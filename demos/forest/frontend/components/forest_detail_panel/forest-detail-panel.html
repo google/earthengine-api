@@ -26,12 +26,12 @@
     }
 
     :host[narrow-viewport] #detailContent p {
-      @apply(--paper-font-body1);
+      @apply --paper-font-body1;
     }
 
     /* Rules for wide display. */
     :host:not([narrow-viewport]) paper-material {
-      @apply(--layout-vertical);
+      @apply --layout-vertical;
     }
 
     :host:not([narrow-viewport]) #detailContent {
@@ -88,7 +88,7 @@
     }
 
     :host.loading paper-spinner {
-      @apply(--layout-fit);
+      @apply --layout-fit;
       display: block;
       margin: auto;
     }

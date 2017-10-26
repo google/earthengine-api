@@ -221,21 +221,36 @@ ee.FeatureCollection.prototype.getDownloadURL = function(
 
 
 /**
- * Select properties from each Feature in a collection.
+ * Select properties from each Feature in a collection.  It is also
+ * possible to call this function with only string arguments; they
+ * will be all be interpreted as propertySelectors (varargs).
  *
- * @param {Array.<string>} selectors A list of names or regexes
+ * @param {!Array<string>} propertySelectors A list of names or regexes
  *     specifying the attributes to select.
- * @param {Array.<string>=} opt_names A list of new names for the output
- *     properties. Must match the number of properties selected.
- * @return {ee.FeatureCollection} The feature collection with selected
- * properties.
+ * @param {!Array<string>=} opt_newProperties A list of new names for the
+ *     output properties. Must match the number of properties selected.
+ * @param {boolean=} opt_retainGeometry When false, the result will have a
+ *     NULL geometry. Defaults to true.
+ * @return {!ee.FeatureCollection} The feature collection with selected
+ *     properties.
  * @export
  */
-ee.FeatureCollection.prototype.select = function(selectors, opt_names) {
-  var varargs = arguments;
-  return /** @type {ee.FeatureCollection} */(this.map(function(feature) {
-    return feature.select.apply(feature, varargs);
-  }));
+ee.FeatureCollection.prototype.select = function(
+    propertySelectors, opt_newProperties, opt_retainGeometry) {
+  if (ee.Types.isString(propertySelectors)) {
+    // Varargs.
+    var varargs = Array.prototype.slice.call(arguments);
+    return /** @type {!ee.FeatureCollection} */ (this.map(function(feature) {
+      return feature.select(varargs);
+    }));
+  } else {
+    // Translate the argument names.
+    var args =
+        ee.arguments.extract(ee.FeatureCollection.prototype.select, arguments);
+    return /** @type {!ee.FeatureCollection} */ (this.map(function(feature) {
+      return feature.select(args);
+    }));
+  }
 };
 
 

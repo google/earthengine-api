@@ -258,11 +258,12 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 /**
- * @param {(Array<string>|null)} selectors
- * @param {(Array<string>|null)=} opt_names
- * @return {(ee.FeatureCollection|null)}
+ * @param {!Array<string>} propertySelectors
+ * @param {!Array<string>=} opt_newProperties
+ * @param {boolean=} opt_retainGeometry
+ * @return {!ee.FeatureCollection}
  */
-ee.FeatureCollection.prototype.select = function(selectors, opt_names) {
+ee.FeatureCollection.prototype.select = function(propertySelectors, opt_newProperties, opt_retainGeometry) {
 };
 /**
  * @param {(Object|null)=} opt_filter
