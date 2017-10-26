@@ -68,17 +68,11 @@ def _add_wait_arg(parser):
             ' task in the background, and returns immediately.'))
 
 
-def _add_overwrite_arg(parser):
-  parser.add_argument(
-      '--force', '-f', action='store_true',
-      help='Overwrite any existing version of the asset.')
-
-
 def _upload(args, request, ingestion_function):
   if 0 <= args.wait < 10:
     raise ee.EEException('Wait time should be at least 10 seconds.')
   task_id = ee.data.newTaskId()[0]
-  ingestion_function(task_id, request, args.force)
+  ingestion_function(task_id, request)
   print('Started upload task with ID: %s' % task_id)
   if args.wait >= 0:
     print('Waiting for the upload task to complete...')
@@ -86,15 +80,6 @@ def _upload(args, request, ingestion_function):
 
 
 # Argument types
-def _comma_separated_strings(string):
-  """Parses an input consisting of comma-separated strings."""
-  error_msg = 'Argument should be a comma-separated list of strings: {}'
-  values = string.split(',')
-  if not values:
-    raise argparse.ArgumentTypeError(error_msg.format(string))
-  return values
-
-
 def _comma_separated_numbers(string):
   """Parses an input consisting of comma-separated numbers."""
   error_msg = 'Argument should be a comma-separated list of numbers: {}'
@@ -574,8 +559,6 @@ class CreateCommand(Dispatcher):
   ]
 
 
-
-
 class ListCommand(object):
   """Prints the contents of a folder or collection."""
 
@@ -586,45 +569,37 @@ class ListCommand(object):
         'asset_id', nargs='*',
         help='A folder or image collection to be inspected.')
     parser.add_argument(
-        '--long_format',
-        '-l',
-        action='store_true',
+        '--long_format', '-l', action='store_true',
         help='Print output in long format.')
     parser.add_argument(
         '--max_items', '-m', default=-1, type=int,
         help='Maximum number of items to list for each collection.')
     parser.add_argument(
-        '--recursive',
-        '-r',
-        action='store_true',
+        '--recursive', '-r', action='store_true',
         help='List folders recursively.')
 
   def run(self, args, config):
     config.ee_init()
     if not args.asset_id:
       roots = ee.data.getAssetRoots()
-      self._print_assets(roots, args.max_items, '', args.long_format,
-                         args.recursive)
+      self._print_assets(roots, args.max_items, '', args.long_format, args.recursive)
       return
     assets = args.asset_id
     count = 0
     for asset in assets:
       if count > 0:
         print()
-      self._list_asset_content(asset, args.max_items,
-                               len(assets), args.long_format, args.recursive)
+      self._list_asset_content(asset, args.max_items, len(assets), args.long_format, args.recursive)
       count += 1
 
   def _print_assets(self, assets, max_items, indent, long_format, recursive):
-    """Prints the listing of given assets."""
     if not assets:
       return
 
     max_type_length = max([len(asset['type']) for asset in assets])
 
     if recursive:
-      # fallback to max to include the string 'ImageCollection'
-      max_type_length = ee.data.MAX_TYPE_LENGTH
+      max_type_length = 15 # fallback to max to include ImageCollection
 
     format_str = '%s{:%ds}{:s}' % (indent, max_type_length + 4)
     for asset in assets:
@@ -633,17 +608,17 @@ class ListCommand(object):
         # [Image]           user/test/my_img
         # [ImageCollection] user/test/my_coll
         print(format_str.format('['+asset['type']+']', asset['id']))
-
+       
       else:
         print(asset['id'])
-
-      if recursive and asset['type'] == ee.data.ASSET_TYPE_FOLDER:
+      
+      # get children
+      if recursive and asset['type'] in (ee.data.ASSET_TYPE_FOLDER, ee.data.ASSET_TYPE_IMAGE_COLL):
         list_req = {'id': asset['id']}
         children = ee.data.getList(list_req)
         self._print_assets(children, max_items, indent, long_format, recursive)
 
-  def _list_asset_content(self, asset, max_items, total_assets, long_format,
-                          recursive):
+  def _list_asset_content(self, asset, max_items, total_assets, long_format, recursive):
     try:
       list_req = {'id': asset}
       if max_items >= 0:
@@ -665,21 +640,21 @@ class SizeCommand(object):
 
   def __init__(self, parser):
     parser.add_argument(
-        'asset_id',
-        nargs='*',
+        'asset_id', nargs='*',
         help='A folder or image collection to be inspected.')
 
   def run(self, args, config):
     config.ee_init()
 
-    # Select all available asset roots if no asset ids are given.
+    # detect assets to use
     if not args.asset_id:
       assets = ee.data.getAssetRoots()
     else:
       assets = [ee.data.getInfo(asset) for asset in args.asset_id]
 
+    # print sizes and names for all assets
     for asset in assets:
-      # List size+name for every leaf asset, and show totals for non-leaves.
+      # list size+name for every asset, otherwise shot only total
       if asset['type'] == ee.data.ASSET_TYPE_FOLDER:
         children = ee.data.getList(asset)
         for child in children:
@@ -692,24 +667,20 @@ class SizeCommand(object):
     print('{:>16d}   {}'.format(size, asset['id']))
 
   def _get_size(self, asset):
-    """Returns the size of the given asset in bytes."""
-    size_parsers = {
-        'Image': self._get_size_image,
-        'Folder': self._get_size_folder,
-        'ImageCollection': self._get_size_image_collection
-    }
-
-    if asset['type'] not in size_parsers:
-      raise ee.EEException(
-          'Cannot get size for asset type "%s"' % asset['type'])
+    size_parsers = {'Table' : self._get_size_table, 'Image' : self._get_size_image, 'Folder' : self._get_size_folder, 'ImageCollection' : self._get_size_image_collection}
 
     return size_parsers[asset['type']](asset)
 
+  def _get_size_table(self, asset):
+    info = ee.data.getInfo(asset['id'])
+
+    return info['properties']['system:asset_size']
+    
   def _get_size_image(self, asset):
     info = ee.data.getInfo(asset['id'])
 
     return info['properties']['system:asset_size']
-
+    
   def _get_size_folder(self, asset):
     children = ee.data.getList(asset)
     sizes = [self._get_size(child) for child in children]
@@ -938,7 +909,6 @@ class UploadImageCommand(object):
 
   def __init__(self, parser):
     _add_wait_arg(parser)
-    _add_overwrite_arg(parser)
     parser.add_argument(
         'src_files',
         help=('Cloud Storage URL(s) of the file(s) to upload. '
@@ -946,7 +916,6 @@ class UploadImageCommand(object):
         nargs='+')
     parser.add_argument(
         '--asset_id',
-        required=True,
         help='Destination asset ID for the uploaded file.')
     parser.add_argument(
         '--last_band_alpha',
@@ -962,26 +931,8 @@ class UploadImageCommand(object):
         '--pyramiding_policy',
         help='The pyramid reduction policy to use',
         type=_comma_separated_pyramiding_policies)
-    parser.add_argument(
-        '--bands',
-        help='Comma-separated list of names to use for the image bands.',
-        type=_comma_separated_strings)
-    parser.add_argument(
-        '--crs',
-        help='The coordinate reference system, to override the map projection '
-             'of the image. May be either a well-known authority code (e.g. '
-             'EPSG:4326) or a WKT string.')
     _add_property_flags(parser)
-
-  def _check_num_bands(self, request, num_bands, flag_name):
-    """Checks the number of bands, creating them if there are none yet."""
-    if 'bands' in request:
-      if len(request['bands']) != num_bands:
-        raise ValueError(
-            'Inconsistent number of bands in --{}: expected {} but found {}.'
-            .format(flag_name, len(request['bands']), num_bands))
-    else:
-      request['bands'] = [{'id': 'b%d' % (i + 1)} for i in xrange(num_bands)]
+    # TODO(user): add --bands arg
 
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
@@ -1006,68 +957,33 @@ class UploadImageCommand(object):
       tileset['fileBands'] = [{'fileBandIndex': -1, 'maskForAllBands': True}]
     request['tilesets'] = [tileset]
 
-    if args.bands:
-      request['bands'] = [{'id': name} for name in args.bands]
-
     if args.pyramiding_policy:
       if len(args.pyramiding_policy) == 1:
         request['pyramidingPolicy'] = args.pyramiding_policy[0].upper()
       else:
-        self._check_num_bands(request, len(args.pyramiding_policy),
-                              'pyramiding_policy')
+        bands = []
         for index, policy in enumerate(args.pyramiding_policy):
-          request['bands'][index]['pyramidingPolicy'] = policy.upper()
+          bands.append({'id': index, 'pyramidingPolicy': policy.upper()})
+        request['bands'] = bands
 
     if args.nodata_value:
       if len(args.nodata_value) == 1:
         request['missingData'] = {'value': args.nodata_value[0]}
       else:
-        self._check_num_bands(request, len(args.nodata_value), 'nodata_value')
+        if 'bands' in request:
+          if len(request['bands']) != len(args.nodata_value):
+            raise ValueError('Inconsistent number of bands: {} and {}'
+                             .format(args.pyramiding_policy, args.nodata_value))
+        else:
+          request['bands'] = []
+        bands = request['bands']
         for index, nodata in enumerate(args.nodata_value):
-          request['bands'][index]['missingData'] = {'value': nodata}
-
-    if args.crs:
-      request['crs'] = args.crs
+          if index < len(bands):
+            bands[index]['missingData'] = {'value': nodata}
+          else:
+            bands.append({'id': index, 'missingData': {'value': nodata}})
 
     _upload(args, request, ee.data.startIngestion)
-
-
-# TODO(user): update src_files help string when secondary files
-# can be uploaded.
-class UploadTableCommand(object):
-  """Uploads a table from Cloud Storage to Earth Engine."""
-
-  name = 'table'
-
-  def __init__(self, parser):
-    _add_wait_arg(parser)
-    _add_overwrite_arg(parser)
-    parser.add_argument(
-        'src_file',
-        help=('Cloud Storage URL of the .zip or .shp file '
-        'to upload. Must have the prefix \'gs://\'. For .shp '
-        'files, related .dbf, .shx, and .prj files must be '
-        'present in the same location.'),
-        nargs=1)
-    parser.add_argument(
-        '--asset_id',
-        required=True,
-        help='Destination asset ID for the uploaded file.')
-    _add_property_flags(parser)
-
-  def run(self, args, config):
-    """Starts the upload task, and waits for completion if requested."""
-    _check_valid_files(args.src_file)
-    config.ee_init()
-    source_files = list(utils.expand_gcs_wildcards(args.src_file))
-    if len(source_files) != 1:
-      raise ValueError('Exactly one file must be specified.')
-
-    request = {
-        'id': args.asset_id,
-        'sources': [{'primaryPath': source_files[0]}]
-    }
-    _upload(args, request, ee.data.startTableIngestion)
 
 
 class UploadCommand(Dispatcher):
@@ -1077,7 +993,6 @@ class UploadCommand(Dispatcher):
 
   COMMANDS = [
       UploadImageCommand,
-      UploadTableCommand,
   ]
 
 
