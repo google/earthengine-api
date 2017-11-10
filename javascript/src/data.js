@@ -2074,7 +2074,8 @@ ee.data.ImageTaskConfig;
  *   skipEmptyTiles: (undefined|boolean),
  *   writePublicTiles: (undefined|boolean),
  *   outputBucket: (undefined|string),
- *   outputPrefix: (undefined|string)
+ *   outputPrefix: (undefined|string),
+ *   generateEarthKml: (undefined|boolean)
  * }}
  */
 ee.data.MapTaskConfig;

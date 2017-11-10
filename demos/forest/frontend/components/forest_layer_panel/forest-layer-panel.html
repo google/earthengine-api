@@ -8,78 +8,78 @@
 <link rel="import" href="../../bower_components/paper-slider/paper-slider.html">
 
 <dom-module id="forest-layer-panel">
-  <style>
-    :host > paper-material {
-      border-radius: 0 2px 2px 0;
-    }
-
-    :host > * {
-      padding: 4px;
-    }
-
-    :host {
-      display: none;
-      width: 400px;
-      height: 400px;
-    }
-
-    paper-slider {
-      width: 100%;
-    }
-
-    paper-dropdown-menu {
-      width: 100%;
-    }
-
-    .label-container {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .label-container label {
-      position: absolute;
-      color: var(--secondary-text-color);
-      font-size: 11px;
-      top: 12px;
-    }
-
-    .label-container.opacity {
-      margin-top: 12px;
-      margin-bottom: -6px;
-    }
-
-    .label-container.opacity label {
-      top: 0;
-    }
-
-    .label-container.base-layer {
-      margin-left: 12px;
-    }
-
-    paper-dropdown-menu.simple paper-item,
-    paper-dropdown-menu.simple ::content input {
-      text-transform: capitalize;
-    }
-
-    .bottom-options {
-      display: flex;
-    }
-
-    paper-slider ::content #sliderContainer.paper-slider {
-      margin-left: 0;
-    }
-
-    .data-layer paper-listbox {
-      width: 300px;
-    }
-
-    .base-layer paper-listbox,
-    .background paper-listbox {
-      width: 140px;
-    }
-  </style>
   <template>
+    <style include="iron-flex">
+      :host > paper-material {
+        border-radius: 0 2px 2px 0;
+      }
+
+      :host > * {
+        padding: 4px;
+      }
+
+      :host {
+        display: none;
+        width: 400px;
+        height: 400px;
+      }
+
+      paper-slider {
+        width: 100%;
+      }
+
+      paper-dropdown-menu {
+        width: 100%;
+      }
+
+      .label-container {
+        position: relative;
+        display: flex;
+        align-items: center;
+      }
+
+      .label-container label {
+        position: absolute;
+        color: var(--secondary-text-color);
+        font-size: 11px;
+        top: 12px;
+      }
+
+      .label-container.opacity {
+        margin-top: 12px;
+        margin-bottom: -6px;
+      }
+
+      .label-container.opacity label {
+        top: 0;
+      }
+
+      .label-container.base-layer {
+        margin-left: 12px;
+      }
+
+      paper-dropdown-menu.simple paper-item,
+      paper-dropdown-menu.simple ::content input {
+        text-transform: capitalize;
+      }
+
+      .bottom-options {
+        display: flex;
+      }
+
+      paper-slider ::content #sliderContainer.paper-slider {
+        margin-left: 0;
+      }
+
+      .data-layer paper-listbox {
+        width: 300px;
+      }
+
+      .base-layer paper-listbox,
+      .background paper-listbox {
+        width: 140px;
+      }
+    </style>
     <paper-material elevation="1" class="layout vertical" stretch>
       <div class="header layout horizontal center">
         <paper-icon-button icon="chevron-left" on-tap="close"></paper-icon-button>

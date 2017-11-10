@@ -11,97 +11,97 @@
 
 
 <dom-module id="forest-detail-panel">
-  <style>
-    /* Rules for narrow display. */
-    :host[narrow-viewport] paper-material {
-      height: 100%;
-    }
-
-    :host[narrow-viewport] #destinationTitle {
-      display: none;
-    }
-
-    :host[narrow-viewport] #detailContent {
-      padding: 32px;
-    }
-
-    :host[narrow-viewport] #detailContent p {
-      @apply --paper-font-body1;
-    }
-
-    /* Rules for wide display. */
-    :host:not([narrow-viewport]) paper-material {
-      @apply --layout-vertical;
-    }
-
-    :host:not([narrow-viewport]) #detailContent {
-      padding: 16px;
-    }
-
-    :host:not([narrow-viewport]) #destinationTitle {
-      margin-top: 140px;
-      margin-bottom: 25px;
-    }
-
-    /* Base rules. */
-    :host {
-      --paper-toolbar-background: var(--primary-background-color);
-      display: flex;
-      align-items: stretch;
-    }
-
-    .main {
-      display: flex;
-      flex-grow: 1;
-      flex-direction: column;
-    }
-
-    #destinationTitle {
-      margin-left: 0px;
-      white-space: normal;
-      line-height: 24px;
-      font-family: 'Roboto Slab', serif;
-      white-space: normal;  /* Allows multi-line titles. */
-      font-size: large;
-    }
-
-    #detailContent {
-      flex-grow: 1;
-      overflow-y: auto;
-    }
-
-    paper-material {
-      padding: 0;
-      background-color: var(--paper-grey-900);
-    }
-
-    .nav {
-      flex: 0 0 45px;
-      display: flex;
-      justify-content: space-between;
-    }
-
-    /* Loading styles. */
-    :host.loading #detailToolbar,
-    :host.loading #detailContent {
-      opacity: var(--dark-secondary-opacity);
-    }
-
-    :host.loading paper-spinner {
-      @apply --layout-fit;
-      display: block;
-      margin: auto;
-    }
-
-    :host.loading #contentPage p {
-      visibility: hidden;
-    }
-
-    paper-spinner {
-      display: none;
-    }
-  </style>
   <template>
+    <style include="iron-flex">
+      /* Rules for narrow display. */
+      :host[narrow-viewport] paper-material {
+        height: 100%;
+      }
+
+      :host[narrow-viewport] #destinationTitle {
+        display: none;
+      }
+
+      :host[narrow-viewport] #detailContent {
+        padding: 32px;
+      }
+
+      :host[narrow-viewport] #detailContent p {
+        @apply --paper-font-body1;
+      }
+
+      /* Rules for wide display. */
+      :host:not([narrow-viewport]) paper-material {
+        @apply --layout-vertical;
+      }
+
+      :host:not([narrow-viewport]) #detailContent {
+        padding: 16px;
+      }
+
+      :host:not([narrow-viewport]) #destinationTitle {
+        margin-top: 140px;
+        margin-bottom: 25px;
+      }
+
+      /* Base rules. */
+      :host {
+        --paper-toolbar-background: var(--primary-background-color);
+        display: flex;
+        align-items: stretch;
+      }
+
+      .main {
+        display: flex;
+        flex-grow: 1;
+        flex-direction: column;
+      }
+
+      #destinationTitle {
+        margin-left: 0px;
+        white-space: normal;
+        line-height: 24px;
+        font-family: 'Roboto Slab', serif;
+        white-space: normal;  /* Allows multi-line titles. */
+        font-size: large;
+      }
+
+      #detailContent {
+        flex-grow: 1;
+        overflow-y: auto;
+      }
+
+      paper-material {
+        padding: 0;
+        background-color: var(--paper-grey-900);
+      }
+
+      .nav {
+        flex: 0 0 45px;
+        display: flex;
+        justify-content: space-between;
+      }
+
+      /* Loading styles. */
+      :host.loading #detailToolbar,
+      :host.loading #detailContent {
+        opacity: var(--dark-secondary-opacity);
+      }
+
+      :host.loading paper-spinner {
+        @apply --layout-fit;
+        display: block;
+        margin: auto;
+      }
+
+      :host.loading #contentPage p {
+        visibility: hidden;
+      }
+
+      paper-spinner {
+        display: none;
+      }
+    </style>
     <paper-material elevation="1" class="main">
       <paper-spinner id="contentSpinner" class="blue flex" active></paper-spinner>
       <div id="detailContent">

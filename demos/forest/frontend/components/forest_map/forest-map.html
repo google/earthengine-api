@@ -13,45 +13,45 @@
 <link rel="import" href="../forest_search_panel/forest-search-panel.html">
 
 <dom-module id="forest-map">
-  <style>
-    google-map {
-      @apply --layout-fit;
-    }
-
-    forest-legend,
-    forest-controls,
-    forest-layer-panel,
-    forest-search-panel {
-      position: absolute;
-      left: 0px;
-      border-radius: 0 2px 0 2px;
-    }
-
-    forest-controls,
-    forest-layer-panel,
-    forest-search-panel {
-      top: 100px;
-    }
-
-    forest-legend {
-      bottom: 50px;
-    }
-
-    :host[narrow-viewport] forest-controls {
-      display: none;
-    }
-
-    .side-drawer ::content .content {
-      padding: 20px;
-      padding-top: 10px;
-    }
-
-    .side-drawer ::content .header {
-      padding-top: 10px;
-      padding-left: 5px;
-    }
-  </style>
   <template>
+    <style>
+      google-map {
+        @apply --layout-fit;
+      }
+
+      forest-legend,
+      forest-controls,
+      forest-layer-panel,
+      forest-search-panel {
+        position: absolute;
+        left: 0px;
+        border-radius: 0 2px 0 2px;
+      }
+
+      forest-controls,
+      forest-layer-panel,
+      forest-search-panel {
+        top: 100px;
+      }
+
+      forest-legend {
+        bottom: 50px;
+      }
+
+      :host[narrow-viewport] forest-controls {
+        display: none;
+      }
+
+      .side-drawer ::content .content {
+        padding: 20px;
+        padding-top: 10px;
+      }
+
+      .side-drawer ::content .header {
+        padding-top: 10px;
+        padding-left: 5px;
+      }
+    </style>
     <google-map map="{{gMap_}}"
                 latitude="{{lat_}}"
                 longitude="{{lon_}}"

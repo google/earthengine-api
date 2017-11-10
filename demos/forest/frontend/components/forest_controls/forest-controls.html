@@ -7,13 +7,13 @@
 
 
 <dom-module id="forest-controls">
-  <style>
-    paper-material {
-      border-radius: 0 2px 2px 0;
-      padding: 4px;
-    }
-  </style>
   <template>
+    <style include="iron-flex">
+      paper-material {
+        border-radius: 0 2px 2px 0;
+        padding: 4px;
+      }
+    </style>
     <paper-material elevation="1" class="layout vertical controls-icon-panel">
       <paper-icon-button id="search" icon="icons:search" on-tap="handleSearchTap_">
       </paper-icon-button>

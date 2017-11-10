@@ -4,25 +4,25 @@
 <link rel="import" href="../../bower_components/paper-radio-button/paper-radio-button.html">
 
 <dom-module id="forest-question">
-  <style>
-    paper-radio-button.tried ::content #radioLabel {
-      color: var(--error-color);
-    }
-
-    p {
-      margin-bottom: 10px;
-    }
-
-    .explanation,
-    :host.answered .question {
-      display: none;
-    }
-
-    :host.answered .explanation {
-      display: block;
-    }
-  </style>
   <template>
+    <style include="iron-flex">
+      paper-radio-button.tried ::content #radioLabel {
+        color: var(--error-color);
+      }
+
+      p {
+        margin-bottom: 10px;
+      }
+
+      .explanation,
+      :host.answered .question {
+        display: none;
+      }
+
+      :host.answered .explanation {
+        display: block;
+      }
+    </style>
     <div class="question">
       <p>What is the primary cause of the pattern of forest change seen here?</p>
       <paper-radio-group

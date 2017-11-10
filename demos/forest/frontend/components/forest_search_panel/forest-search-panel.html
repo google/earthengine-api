@@ -12,24 +12,24 @@
 <link rel="import" href="../../bower_components/google-apis/google-maps-api.html">
 
 <dom-module id="forest-search-panel">
-  <style>
-    paper-material {
-      display: block;
-      padding: 16px;
-      border-radius: 0 2px 2px 0;
-      min-height: 160px;
-    }
-
-    :host {
-      display: none;
-      width: 250px;
-    }
-
-    .results-list {
-      overflow-y: hidden;
-    }
-  </style>
   <template>
+    <style include="iron-flex">
+      paper-material {
+        display: block;
+        padding: 16px;
+        border-radius: 0 2px 2px 0;
+        min-height: 160px;
+      }
+
+      :host {
+        display: none;
+        width: 250px;
+      }
+
+      .results-list {
+        overflow-y: hidden;
+      }
+    </style>
     <google-maps-api id="api" on-api-load="initPlacesApi_"></google-maps-api>
 
     <paper-material elevation="1" class="layout vertical" stretch>
