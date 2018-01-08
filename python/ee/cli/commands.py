@@ -669,6 +669,10 @@ class SizeCommand(object):
         nargs='*',
         help='A folder or image collection to be inspected.')
 
+    parser.add_argument(
+        '--summarize', '-s', action='store_true',
+        help='Display only a total.')
+
   def run(self, args, config):
     config.ee_init()
 
@@ -680,7 +684,8 @@ class SizeCommand(object):
 
     for asset in assets:
       # List size+name for every leaf asset, and show totals for non-leaves.
-      if asset['type'] == ee.data.ASSET_TYPE_FOLDER:
+      if ( asset['type'] in [ee.data.ASSET_TYPE_FOLDER, ee.data.ASSET_TYPE_IMAGE_COLL] and
+           not args.summarize ):
         children = ee.data.getList(asset)
         for child in children:
           self._print_size(child)
