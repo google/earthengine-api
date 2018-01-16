@@ -30,13 +30,12 @@ class FeatureCollection(collection.Collection):
     Args:
       args: constructor argument.  One of:
           1) A string - assumed to be the name of a collection.
-          2) A number - assumed to be the ID of a Fusion Table.
-          3) A geometry.
-          4) A feature.
-          5) An array of features.
-          6) A computed object - reinterpreted as a collection.
+          2) A geometry.
+          3) A feature.
+          4) An array of features.
+          5) A computed object - reinterpreted as a collection.
       opt_column: The name of the geometry column to use. Only useful with the
-          string or number constructor arguments.
+          string constructor.
 
     Raises:
       EEException: if passed something other than the above.
@@ -51,7 +50,7 @@ class FeatureCollection(collection.Collection):
     if isinstance(args, feature.Feature):
       args = [args]
 
-    if ee_types.isNumber(args) or ee_types.isString(args):
+    if ee_types.isString(args):
       # An ID.
       actual_args = {'tableId': args}
       if opt_column:

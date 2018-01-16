@@ -668,8 +668,12 @@ class SizeCommand(object):
         'asset_id',
         nargs='*',
         help='A folder or image collection to be inspected.')
+    parser.add_argument(
+        '--summarize', '-s', action='store_true',
+        help='Display only a total.')
 
   def run(self, args, config):
+    """Runs the du command."""
     config.ee_init()
 
     # Select all available asset roots if no asset ids are given.
@@ -678,14 +682,22 @@ class SizeCommand(object):
     else:
       assets = [ee.data.getInfo(asset) for asset in args.asset_id]
 
+    # If args.summarize is True, list size+name for every leaf child asset,
+    # and show totals for non-leaf children.
+    # If args.summarize is False, print sizes of all children.
     for asset in assets:
-      # List size+name for every leaf asset, and show totals for non-leaves.
-      if asset['type'] == ee.data.ASSET_TYPE_FOLDER:
+      is_parent = asset['type'] in [
+          ee.data.ASSET_TYPE_FOLDER,
+          ee.data.ASSET_TYPE_IMAGE_COLL]
+      if not is_parent or args.summarize:
+        self._print_size(asset)
+      else:
         children = ee.data.getList(asset)
+        if not children:
+          # A leaf asset
+          children = [asset]
         for child in children:
           self._print_size(child)
-      else:
-        self._print_size(asset)
 
   def _print_size(self, asset):
     size = self._get_size(asset)

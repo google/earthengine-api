@@ -3,7 +3,7 @@
 // This example computes the mean and standard deviation of an image
 // and then stretches the image with those values.
 
-var img = ee.Image('srtm90_v4');
+var img = ee.Image('CGIAR/SRTM90_V4');
 var meanReducer = ee.Reducer.mean();
 var sigmaReducer = ee.Reducer.stdDev();
 var region = ee.Geometry.Rectangle(9, 9, 10, 10);

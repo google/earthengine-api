@@ -11,7 +11,7 @@ import ee.mapclient
 ee.Initialize()
 ee.mapclient.centerMap(-113.41842, 40.055489, 6)
 
-elev = ee.Image('srtm90_v4')
+elev = ee.Image('CGIAR/SRTM90_V4')
 cover = ee.Image('MCD12Q1/MCD12Q1_005_2001_01_01').select('Land_Cover_Type_1')
 blank = ee.Image(0)
 

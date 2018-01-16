@@ -1,6 +1,6 @@
 // Plot elevation at waypoints along the Mt. Rainier summit trail.
 
-var elevation = ee.Image('srtm90_v4');
+var elevation = ee.Image('CGIAR/SRTM90_V4');
 var rainierWaypoints =
     ee.FeatureCollection('ft:14q5k1isVmMMBepZAm4YIExnI7y5hE8P3Mi33WwO0');
 

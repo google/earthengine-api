@@ -24,7 +24,7 @@ ee.mapclient.addToMap(image, {'gain': '1.6, 1.4, 1.1'}, 'Land')
 
 # Add and stretch the water.  Once where the elevation is masked,
 # and again where the elevation is zero.
-elev = ee.Image('srtm90_v4')
+elev = ee.Image('CGIAR/SRTM90_V4')
 mask1 = elev.mask().eq(0).And(image.mask())
 mask2 = elev.eq(0).And(image.mask())
 ee.mapclient.addToMap(

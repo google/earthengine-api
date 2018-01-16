@@ -1,30 +1,7 @@
 // Modis Cloud Masking example.
-//
 // Calculate how frequently a location is labeled as clear (i.e. non-cloudy)
 // according to the "internal cloud algorithm flag" of the MODIS "state 1km"
 // QA band.
-
-/*
- * A function that returns an image containing just the specified QA bits.
- *
- * Args:
- *   image - The QA Image to get bits from.
- *   start - The first bit position, 0-based.
- *   end   - The last bit position, inclusive.
- *   name  - A name for the output image.
- */
-var getQABits = function(image, start, end, newName) {
-    // Compute the bits we need to extract.
-    var pattern = 0;
-    for (var i = start; i <= end; i++) {
-       pattern += Math.pow(2, i);
-    }
-    // Return a single band image of the extracted QA bits, giving the band
-    // a new name.
-    return image.select([0], [newName])
-                  .bitwiseAnd(pattern)
-                  .rightShift(start);
-};
 
 // A function to mask out pixels that did not have observations.
 var maskEmptyPixels = function(image) {
@@ -37,10 +14,10 @@ var maskEmptyPixels = function(image) {
 var maskClouds = function(image) {
   // Select the QA band.
   var QA = image.select('state_1km');
-  // Get the internal_cloud_algorithm_flag bit.
-  var internalCloud = getQABits(QA, 10, 10, 'internal_cloud_algorithm_flag');
+  // Make a mask to get bit 10, the internal_cloud_algorithm_flag bit.
+  var bitMask = ee.Number(2).pow(10).int();
   // Return an image masking out cloudy areas.
-  return image.updateMask(internalCloud.eq(0));
+  return image.updateMask(QA.bitwiseAnd(bitMask).eq(0));
 };
 
 // Start with an image collection for a 1 month period.
@@ -89,3 +66,5 @@ Map.addLayer(
     {min: 0, max: 1},
     'ratio of clear to total observations'
   );
+
+

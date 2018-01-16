@@ -189,7 +189,6 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
 
 
 
-
 /**
  * Configures client-side authentication of EE API calls by providing a
  * current OAuth2 token to use. This is a replacement for expected
@@ -2075,7 +2074,7 @@ ee.data.ImageTaskConfig;
  *   writePublicTiles: (undefined|boolean),
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
- *   generateEarthKml: (undefined|boolean)
+ *   generateEarthHtml: (undefined|boolean)
  * }}
  */
 ee.data.MapTaskConfig;
@@ -2570,6 +2569,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
   if (profileHookAtCallTime) {
     params.add('profiling', '1');  // Request profiling results.
   }
+
   params = ee.data.paramAugmenter_(params, path);  // Apply custom augmentation.
 
   // XSRF protection for a server-side API proxy.
@@ -3142,6 +3142,7 @@ ee.data.AUTH_LIBRARY_URL_ = goog.string.Const.from(
  */
 ee.data.STORAGE_SCOPE_ =
     'https://www.googleapis.com/auth/devstorage.read_write';
+
 
 /**
  * Whether the library has been initialized.
