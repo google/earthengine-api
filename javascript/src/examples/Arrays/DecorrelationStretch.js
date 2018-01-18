@@ -59,7 +59,7 @@ function dcs(image, region, scale) {
     .add(127).byte();
 }
 
-var image = ee.Image('MODIS/MCD43A4/MCD43A4_005_2002_07_04');
+var image = ee.Image('MODIS/006/MCD43A4/2002_07_04');
 
 Map.setCenter(-52.09717, -7.03548, 7);
 

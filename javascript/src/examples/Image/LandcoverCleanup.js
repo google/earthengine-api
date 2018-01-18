@@ -9,7 +9,7 @@
 var SCALE = 500;
 
 // Load a 2001 MODIS land cover image.
-var image1 = ee.Image('MCD12Q1/MCD12Q1_005_2001_01_01');
+var image1 = ee.Image('MODIS/051/MCD12Q1/2001_01_01');
 // Select the classification band of interest.
 var image2 = image1.select(['Land_Cover_Type_1']);
 // Reproject to WGS84 to force the image to be reprojected on load.

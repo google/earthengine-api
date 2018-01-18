@@ -6,7 +6,7 @@
 // NIR is sur_refl_b02, 841-876nm
 
 // Load a MODIS image.
-var img = ee.Image('MOD09GA/MOD09GA_005_2012_03_09');
+var img = ee.Image('MODIS/006/MOD09GA/2012_03_09');
 
 // Use the normalizedDifference(A, B) to compute (A - B) / (A + B)
 var ndvi = img.normalizedDifference(['sur_refl_b02', 'sur_refl_b01']);

@@ -2,7 +2,7 @@
 // classification image.
 var BAND_NAME = 'Land_Cover_Type_1';
 
-var image = ee.Image('MCD12Q1/MCD12Q1_005_2001_01_01')
+var image = ee.Image('MODIS/051/MCD12Q1/2001_01_01')
             .select(BAND_NAME);
 
 // Create the panel for the legend items.

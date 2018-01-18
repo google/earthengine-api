@@ -13,7 +13,7 @@ ee.mapclient.centerMap(-113.41842, 40.055489, 6)
 # Force projection of 500 meters/pixel, which is the native MODIS resolution.
 VECTORIZATION_SCALE = 500
 
-image1 = ee.Image('MCD12Q1/MCD12Q1_005_2001_01_01')
+image1 = ee.Image('MODIS/051/MCD12Q1/2001_01_01')
 image2 = image1.select(['Land_Cover_Type_1'])
 image3 = image2.reproject('EPSG:4326', None, 500)
 image4 = image3.focal_mode()

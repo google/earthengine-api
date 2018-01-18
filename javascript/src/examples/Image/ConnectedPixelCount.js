@@ -3,7 +3,7 @@
 // Split pixels of band 01 into "bright" (arbitrarily defined as
 // reflectance > 0.3) and "dim". Highlight small (<30 pixels)
 // standalone islands of "bright" or "dim" type.
-var img = ee.Image('MOD09GA/MOD09GA_005_2012_03_09')
+var img = ee.Image('MODIS/006/MOD09GA/2012_03_09')
               .select('sur_refl_b01')
               .multiply(0.0001);
 

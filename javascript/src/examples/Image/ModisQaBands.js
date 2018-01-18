@@ -26,7 +26,7 @@ var getQABits = function(image, start, end, newName) {
 };
 
 // Reference a single MODIS MOD09GA image.
-var image = ee.Image('MOD09GA/MOD09GA_005_2012_10_11');
+var image = ee.Image('MODIS/006/MOD09GA/2012_10_11');
 
 // Select the QA band
 var QA = image.select('state_1km');

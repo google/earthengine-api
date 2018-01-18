@@ -2,7 +2,7 @@
 // using an expression.
 
 // Load a MODIS image and apply the scaling factor.
-var img = ee.Image('MOD09GA/MOD09GA_005_2012_03_09').multiply(0.0001);
+var img = ee.Image('MODIS/006/MOD09GA/2012_03_09').multiply(0.0001);
 
 // Compute EVI using an expression.  The second argument is a map from
 // variable name to band name in the input image.
