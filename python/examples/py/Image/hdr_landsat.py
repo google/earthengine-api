@@ -14,7 +14,7 @@ ee.Initialize()
 ee.mapclient.centerMap(-95.738, 18.453, 9)
 
 # Filter the LE7 collection to a single date.
-collection = (ee.ImageCollection('LE7_L1T')
+collection = (ee.ImageCollection('LANDSAT/LE07/C01/T1')
               .filterDate(datetime.datetime(2002, 11, 8),
                           datetime.datetime(2002, 11, 9)))
 image = collection.mosaic().select('B3', 'B2', 'B1')

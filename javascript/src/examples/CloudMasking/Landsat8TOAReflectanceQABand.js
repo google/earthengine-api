@@ -3,7 +3,7 @@
 // https://landsat.usgs.gov/sites/default/files/documents/Landsat8DataUsersHandbook.pdf
 
 // Load Landsat 8 TOA data.
-var l8 = ee.ImageCollection('LANDSAT/LC8_L1T_TOA');
+var l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA');
 
 // Function to cloud mask from the quality band of Landsat 8.
 function maskL8(image) {

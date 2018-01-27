@@ -20,7 +20,7 @@ polygon = ee.Geometry.Polygon([[
 
 # Create a Landsat 7 composite for Spring of 2000, and filter by
 # the bounds of the FeatureCollection.
-collection = (ee.ImageCollection('LE7_L1T')
+collection = (ee.ImageCollection('LANDSAT/LE07/C01/T1')
               .filterDate(datetime.datetime(2000, 4, 1),
                           datetime.datetime(2000, 7, 1))
               .filterBounds(polygon))
