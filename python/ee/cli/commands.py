@@ -672,10 +672,6 @@ class SizeCommand(object):
         '--summarize', '-s', action='store_true',
         help='Display only a total.')
 
-    parser.add_argument(
-        '--summarize', '-s', action='store_true',
-        help='Display only a total.')
-
   def run(self, args, config):
     """Runs the du command."""
     config.ee_init()
