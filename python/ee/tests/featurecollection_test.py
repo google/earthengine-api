@@ -24,17 +24,6 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     self.assertEquals({'tableId': 'abcd', 'geometryColumn': 'xyz'},
                       from_id_and_geom_column.args)
 
-    from_numeric_id = ee.FeatureCollection(123456)
-    self.assertEquals(ee.ApiFunction.lookup('Collection.loadTable'),
-                      from_numeric_id.func)
-    self.assertEquals({'tableId': 123456}, from_numeric_id.args)
-
-    from_numeric_id_and_geom_column = ee.FeatureCollection(123456, 'xyz')
-    self.assertEquals(ee.ApiFunction('Collection.loadTable'),
-                      from_numeric_id_and_geom_column.func)
-    self.assertEquals({'tableId': 123456, 'geometryColumn': 'xyz'},
-                      from_numeric_id_and_geom_column.args)
-
     geometry = ee.Geometry.Point(1, 2)
     feature = ee.Feature(geometry)
     from_geometries = ee.FeatureCollection([geometry])
@@ -58,7 +47,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
 
   def testGetMapId(self):
     """Verifies that getMap() uses Collection.draw to draw."""
-    collection = ee.FeatureCollection(5)
+    collection = ee.FeatureCollection('test5')
     mapid = collection.getMapId({'color': 'ABCDEF'})
     manual = ee.ApiFunction.call_('Collection.draw', collection, 'ABCDEF')
 
@@ -67,23 +56,23 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
 
   def testDownload(self):
     """Verifies that Download ID and URL generation."""
-    csv_url = ee.FeatureCollection(7).getDownloadURL('csv')
+    csv_url = ee.FeatureCollection('test7').getDownloadURL('csv')
 
     self.assertEquals('/table', self.last_table_call['url'])
     self.assertEquals(
         {
-            'table': ee.FeatureCollection(7).serialize(),
+            'table': ee.FeatureCollection('test7').serialize(),
             'json_format': 'v2',
             'format': 'CSV'
         },
         self.last_table_call['data'])
     self.assertEquals('/api/table?docid=5&token=6', csv_url)
 
-    everything_url = ee.FeatureCollection(8).getDownloadURL(
+    everything_url = ee.FeatureCollection('test8').getDownloadURL(
         'json', 'bar, baz', 'qux')
     self.assertEquals(
         {
-            'table': ee.FeatureCollection(8).serialize(),
+            'table': ee.FeatureCollection('test8').serialize(),
             'json_format': 'v2',
             'format': 'JSON',
             'selectors': 'bar, baz',
@@ -92,8 +81,8 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
         self.last_table_call['data'])
     self.assertEquals('/api/table?docid=5&token=6', everything_url)
 
-    self.assertEquals(ee.FeatureCollection(7).getDownloadUrl('csv'),
-                      ee.FeatureCollection(7).getDownloadURL('csv'))
+    self.assertEquals(ee.FeatureCollection('test7').getDownloadUrl('csv'),
+                      ee.FeatureCollection('test7').getDownloadURL('csv'))
 
   def testSelect(self):
     def equals(c1, c2):

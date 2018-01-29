@@ -13,7 +13,7 @@ ee.mapclient.centerMap(-61.61625, -11.64273, 14)
 # Grab a sample L7 image and pull out the RGB and pan bands
 # in the range (0, 1).  (The range of the pan band values was
 # chosen to roughly match the other bands.)
-image1 = ee.Image('LANDSAT/LE7/LE72300681999227EDC00')
+image1 = ee.Image('LANDSAT/LE07/C01/T1/LE07_230068_19990815')
 
 rgb = image1.select('B3', 'B2', 'B1').unitScale(0, 255)
 gray = image1.select('B8').unitScale(0, 155)

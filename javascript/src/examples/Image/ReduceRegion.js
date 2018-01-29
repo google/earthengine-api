@@ -6,7 +6,7 @@
 // more fixed outputs.  The result is a dictionary that contains the
 // computed values, which in this example is the maximum pixel value
 // in the region.
-//
+
 // This example shows how to print the resulting dictionary to the
 // console, which is useful when developing and debugging your
 // scripts, but in a larger workflow you might instead use the
@@ -14,16 +14,20 @@
 // dictionary for use as inputs to other functions.
 
 // The input image to reduce, in this case an SRTM elevation map.
-var image = ee.Image('srtm90_v4');
+var image = ee.Image('CGIAR/SRTM90_V4');
 
 // The region to reduce within.
-var poly = ee.Geometry.Rectangle(-109.05, 41, -102.05, 37);
+var poly = ee.Geometry.Rectangle([-109.05, 41, -102.05, 37]);
 
 // Reduce the image within the given region, using a reducer that
 // computes the max pixel value.  We also specify the spatial
 // resolution at which to perform the computation, in this case 200
 // meters.
-var max = image.reduceRegion(ee.Reducer.max(), poly, 200);
+var max = image.reduceRegion({
+  reducer: ee.Reducer.max(),
+  geometry: poly,
+  scale: 200
+});
 
-// Print the result to the console.
+// Print the result (a Dictionary) to the console.
 print(max);

@@ -1,6 +1,6 @@
 // Plot a histogram of elevation in Colorado.
 
-var elevation = ee.Image('srtm90_v4');
+var elevation = ee.Image('CGIAR/SRTM90_V4');
 var colorado = ee.Geometry.Rectangle(-109.05, 37, -102.05, 41);
 
 // Generate the histogram data.  Use minBucketWidth for nice sized buckets.

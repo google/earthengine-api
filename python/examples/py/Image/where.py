@@ -11,8 +11,8 @@ import ee.mapclient
 ee.Initialize()
 ee.mapclient.centerMap(-113.41842, 40.055489, 6)
 
-elev = ee.Image('srtm90_v4')
-cover = ee.Image('MCD12Q1/MCD12Q1_005_2001_01_01').select('Land_Cover_Type_1')
+elev = ee.Image('CGIAR/SRTM90_V4')
+cover = ee.Image('MODIS/051/MCD12Q1/2001_01_01').select('Land_Cover_Type_1')
 blank = ee.Image(0)
 
 # Where (1 <= cover <= 4) and (elev > 1000), set the output to 1.

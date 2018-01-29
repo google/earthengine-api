@@ -1,13 +1,10 @@
-// Image.clamp example.
-//
+// ee.Image.clamp() example.
+
 // Clamp the values of all bands in an image to lie within the specified range.
 // Values below the low value of that range are set to low value, values above
 // the high value of that range are set to the high value.
-//
-// Usage: image.clamp(low, high)
-//
 
-var image = ee.Image('srtm90_v4');
+var image = ee.Image('CGIAR/SRTM90_V4');
 var clamped = image.clamp(1000, 2000);
 
 Map.setCenter(-121.753, 46.855, 9);

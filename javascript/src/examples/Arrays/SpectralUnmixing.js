@@ -36,6 +36,6 @@ var colored = unmixed
 Map.setCenter(-98.4, 19, 11);
 
 // Load a hillshade to use as a backdrop.
-Map.addLayer(ee.Algorithms.Terrain(ee.Image('srtm90_v4')).select('hillshade'));
+Map.addLayer(ee.Algorithms.Terrain(ee.Image('CGIAR/SRTM90_V4')).select('hillshade'));
 Map.addLayer(colored, {min: 0, max: 1},
   'Unmixed (red=urban, green=veg, blue=water)');

@@ -1,13 +1,20 @@
 // Computed area filter.
-//
 // Find US counties smaller than 3k square kilometers in area.
 
-var counties = ee.FeatureCollection(
-    'ft:1pjtcfSKIbYbj4wRcBjc0Bb6NB-sQRI-L2nIzHiU');
+// Load counties from a Fusion Table.
+var counties = ee.FeatureCollection('ft:1pjtcfSKIbYbj4wRcBjc0Bb6NB-sQRI-L2nIzHiU');
+
+// Map a function over the counties to set the area of each.
 var countiesWithArea = counties.map(function(f) {
-  return f.set({area: f.area()});
+  // Compute area in square meters.  Convert to hectares.
+  var areaHa = f.area().divide(100 * 100);
+
+  // A new property called 'area' will be set on each feature.
+  return f.set({area: areaHa});
 });
-var smallCounties = countiesWithArea.filterMetadata('area', 'less_than', 3e9);
+
+// Filter to get only smaller counties.
+var smallCounties = countiesWithArea.filter(ee.Filter.lt('area', 3e5));
 
 Map.addLayer(smallCounties, {color: '900000'});
 

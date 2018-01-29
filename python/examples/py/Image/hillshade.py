@@ -25,7 +25,7 @@ def Hillshade(az, ze, slope, aspect):
           .add(
               zenith.cos().multiply(slope.cos())))
 
-terrain = ee.Algorithms.Terrain(ee.Image('srtm90_v4'))
+terrain = ee.Algorithms.Terrain(ee.Image('CGIAR/SRTM90_V4'))
 slope_img = Radians(terrain.select('slope'))
 aspect_img = Radians(terrain.select('aspect'))
 

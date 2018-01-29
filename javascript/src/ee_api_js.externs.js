@@ -971,6 +971,12 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
 };
 /**
+ * @param {string} apiKey
+ * @return {undefined}
+ */
+ee.data.setApiKey = function(apiKey) {
+};
+/**
  * @param {string} assetId
  * @param {!ee.data.AssetAclUpdate} aclUpdate
  * @param {function((Object|null), string=): ?=} opt_callback

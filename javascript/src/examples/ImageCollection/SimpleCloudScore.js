@@ -45,6 +45,6 @@ var collection = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
     });
 
 // Define visualization parameters for a true color image.
-var vizParams = {'bands': ['B4', 'B3', 'B2'], 'max': 0.4, 'gamma': 1.6};
+var vizParams = {bands: ['B4', 'B3', 'B2'], max: 0.4, gamma: 1.6};
 Map.setCenter(-120.24487, 37.52280, 8);
 Map.addLayer(collection.qualityMosaic('cloudscore'), vizParams);

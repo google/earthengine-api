@@ -15,7 +15,7 @@ var NDVI = function(image) {
 
 // A function to compute Soil Adjusted Vegetation Index.
 var SAVI = function(image) {
-  return ee.Image(0).expression(
+  return image.expression(
       '(1 + L) * float(nir - red)/ (nir + red + L)',
       {
         'nir': image.select('B4'),
@@ -36,5 +36,7 @@ var vis = {
 };
 
 Map.setCenter(-93.7848, 30.3252, 11);
+
+// Map the functions over the collection, reduce to mean and display.
 Map.addLayer(collection.map(NDVI).mean(), vis, 'Mean NDVI');
 Map.addLayer(collection.map(SAVI).mean(), vis, 'Mean SAVI');

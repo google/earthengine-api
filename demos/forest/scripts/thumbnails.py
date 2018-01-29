@@ -90,7 +90,7 @@ def _GetPrettyEarthImage():
   Returns:
     A pretty ee.Image of the world.
   """
-  landsat8 = (ee.ImageCollection('LC8_L1T_TOA')
+  landsat8 = (ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
               .filter(ee.Filter.date('2015-05-01', '2015-12-31'))
               .filter(ee.Filter.lte('CLOUD_COVER', 20)))
 

@@ -1,19 +1,22 @@
 // Composite an image collection and clip it to a boundary.
-// See also: FilteredComposite, which filters the collection by bounds instead.
 
-// Create a Landsat 7, median-pixel composite for Spring of 2000.
+// Load Landsat 7 raw imagery and filter it to April-July 2000.
 var collection = ee.ImageCollection('LANDSAT/LE07/C01/T1')
     .filterDate('2000-04-01', '2000-07-01');
+
+// Reduce the collection by taking the median.
 var median = collection.median();
 
-// Clip to the output image to the Nevada and Arizona state boundaries.
+// Load a Fusion Table of state boundaries and filter.
 var fc = ee.FeatureCollection('ft:1fRY18cjsHzDgGiJiS2nnpUU3v9JPDc2HNaR7Xk8')
     .filter(ee.Filter.or(
          ee.Filter.eq('Name', 'Nevada'),
          ee.Filter.eq('Name', 'Arizona')));
+
+// Clip to the output image to the Nevada and Arizona state boundaries.
 var clipped = median.clipToCollection(fc);
 
-// Select the red, green and blue bands.
-var result = clipped.select('B3', 'B2', 'B1');
-Map.addLayer(result, {gain: '1.4, 1.4, 1.1'});
+// Display the result.
 Map.setCenter(-110, 40, 5);
+var visParams = {bands: ['B3', 'B2', 'B1'], gain: '1.4, 1.4, 1.1'};
+Map.addLayer(clipped, visParams, 'clipped composite');

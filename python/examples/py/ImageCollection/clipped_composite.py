@@ -13,7 +13,7 @@ ee.Initialize()
 ee.mapclient.centerMap(-110, 40, 5)
 
 # Create a Landsat 7, median-pixel composite for Spring of 2000.
-collection = (ee.ImageCollection('LE7_L1T')
+collection = (ee.ImageCollection('LANDSAT/LE07/C01/T1')
               .filterDate(datetime.datetime(2000, 4, 1),
                           datetime.datetime(2000, 7, 1)))
 image1 = collection.median()

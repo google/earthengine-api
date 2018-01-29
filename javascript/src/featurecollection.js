@@ -20,7 +20,6 @@ goog.require('goog.array');
 /**
  * FeatureCollections can be constructed from the following arguments:
  *   - A string: assumed to be the name of a collection.
- *   - A number: assumed to be the ID of a Fusion Table.
  *   - A single geometry.
  *   - A single feature.
  *   - A list of features.
@@ -30,7 +29,7 @@ goog.require('goog.array');
  *         ee.Geometry|ee.Feature|ee.FeatureCollection} args
  *     The constructor arguments.
  * @param {string=} opt_column The name of the geometry column to use.  Only
- *     useful with constructor types 1 and 2.
+ *     useful with constructor type 1.
  * @constructor
  * @extends {ee.Collection}
  * @export
@@ -61,7 +60,7 @@ ee.FeatureCollection = function(args, opt_column) {
     args = [args];
   }
 
-  if (ee.Types.isNumber(args) || ee.Types.isString(args)) {
+  if (ee.Types.isString(args)) {
     // An ID.
     var actualArgs = {'tableId': args};
     if (opt_column) {

@@ -11,7 +11,7 @@ var visParams = {
   gamma: [1.1, 1.1, 1]
 };
 
-var images = ee.ImageCollection('LANDSAT/LT5_SR')
+var images = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR')
     .filterBounds(box)
     .filterDate('1984-01-01', '1991-01-01');
 
