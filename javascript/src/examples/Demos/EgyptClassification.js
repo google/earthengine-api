@@ -13,7 +13,7 @@ var geometry = /* color: #ffc82d */ee.FeatureCollection(
             })]);
 
 // Use the MCD12 land-cover as training data.
-var modisLandcover = ee.Image('MCD12Q1/MCD12Q1_005_2001_01_01')
+var modisLandcover = ee.Image('MODIS/051/MCD12Q1/2001_01_01')
   .select('Land_Cover_Type_1');
 
 // A pallete to use for visualizing landcover images.

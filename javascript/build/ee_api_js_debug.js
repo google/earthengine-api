@@ -93,18 +93,19 @@ $jscomp.polyfill("Object.entries", function(orig) {
     return result;
   };
 }, "es8", "es3");
-$jscomp.polyfill("Object.assign", function(orig) {
-  return orig ? orig : function(target, var_args) {
-    for (var i = 1; i < arguments.length; i++) {
-      var source = arguments[i];
-      if (source) {
-        for (var key in source) {
-          $jscomp.owns(source, key) && (target[key] = source[key]);
-        }
+$jscomp.assign = "function" == typeof Object.assign ? Object.assign : function(target, var_args) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+    if (source) {
+      for (var key in source) {
+        $jscomp.owns(source, key) && (target[key] = source[key]);
       }
     }
-    return target;
-  };
+  }
+  return target;
+};
+$jscomp.polyfill("Object.assign", function(orig) {
+  return orig || $jscomp.assign;
 }, "es6", "es3");
 var goog = goog || {};
 goog.global = this;

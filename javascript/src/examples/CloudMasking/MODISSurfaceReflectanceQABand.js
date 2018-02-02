@@ -21,7 +21,7 @@ var maskClouds = function(image) {
 };
 
 // Start with an image collection for a 1 month period.
-var collection = ee.ImageCollection('MOD09GA')
+var collection = ee.ImageCollection('MODIS/006/MOD09GA')
                    .filterDate('2010-04-01', '2010-05-01');
 
 // Mask out areas that were not observed.

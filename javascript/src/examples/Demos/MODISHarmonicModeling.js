@@ -4,7 +4,7 @@
 // harmonic terms and a long-term trend in the data.
 
 // Load the input collection and select the  EVI band.
-var c = ee.ImageCollection('MODIS/MOD13A1').select('EVI');
+var c = ee.ImageCollection('MODIS/006/MOD13A1').select('EVI');
 
 // A function to compute the independent variables (namely a
 // first-order Fourier model plus a linear model) based on
