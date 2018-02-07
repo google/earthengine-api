@@ -505,7 +505,7 @@ class Export(object):
     @staticmethod
     def toCloudStorage(collection, description='myExportTableTask',
                        bucket=None, fileNamePrefix=None,
-                       fileFormat=None, **kwargs):
+                       fileFormat=None, selectors=None, **kwargs):
       """Creates a task to export a FeatureCollection to Google Cloud Storage.
 
       Args:
@@ -516,6 +516,9 @@ class Export(object):
             Defaults to the name of the task.
         fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
             or "KMZ".
+        selectors: The list of properties to include in the output, as a list
+            of strings or a comma-separated string. By default, all properties
+            are included.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'outputBucket'.
 
@@ -537,7 +540,8 @@ class Export(object):
 
     @staticmethod
     def toDrive(collection, description='myExportTableTask',
-                folder=None, fileNamePrefix=None, fileFormat=None, **kwargs):
+                folder=None, fileNamePrefix=None, fileFormat=None,
+                selectors=None, **kwargs):
       """Creates a task to export a FeatureCollection to Google Cloud Storage.
 
       Args:
@@ -549,6 +553,9 @@ class Export(object):
             Defaults to the name of the task.
         fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
             or "KMZ".
+        selectors: The list of properties to include in the output, as a list
+            of strings or a comma-separated string. By default, all properties
+            are included.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'driveFolder' and 'driveFileNamePrefix'.
 
@@ -833,6 +840,11 @@ def _ConvertToServerParams(configDict, eeElementKey, destination):
     except TypeError:
       # We pass numbers straight through.
       pass
+
+  if 'selectors' in configDict:
+    selectors = configDict['selectors']
+    if isinstance(selectors, (tuple, list)):
+      configDict['selectors'] = ','.join([str(i) for i in selectors])
 
   if destination is Task.ExportDestination.GCS:
     if 'bucket' in configDict:

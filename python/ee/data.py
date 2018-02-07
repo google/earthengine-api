@@ -32,6 +32,7 @@ from . import ee_exception
 # OAuth2 credentials object.  This may be set by ee.Initialize().
 _credentials = None
 
+
 # The base URL for all data calls.  This is set by ee.initialize().
 _api_base_url = None
 
@@ -129,6 +130,8 @@ def reset():
   _api_base_url = None
   _tile_base_url = None
   _initialized = False
+
+
 
 
 def setDeadline(milliseconds):
@@ -735,6 +738,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   if _thread_locals.profile_hook:
     params = params.copy()
     params['profiling'] = '1'
+
 
   url = _api_base_url + path
   headers = {}

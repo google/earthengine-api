@@ -315,6 +315,22 @@ class BatchTestCase(apitestcase.ApiTestCase):
         },
         task.config)
 
+  def testExportTableSelectors(self):
+    """Verifies that table export accepts a list or tuple of selectors."""
+    task = ee.batch.Export.table.toCloudStorage(
+        collection=ee.FeatureCollection('foo'),
+        selectors=['ab', 'bb', 'c'])
+    self.assertEquals('ab,bb,c', task.config['selectors'])
+    task = ee.batch.Export.table.toCloudStorage(
+        collection=ee.FeatureCollection('foo'),
+        selectors=('x', 'y'))
+    self.assertEquals('x,y', task.config['selectors'])
+    # Single string should work too.
+    task = ee.batch.Export.table.toCloudStorage(
+        collection=ee.FeatureCollection('foo'),
+        selectors='ab,cd,ef')
+    self.assertEquals('ab,cd,ef', task.config['selectors'])
+
   def testExportTableToCloudStorage(self):
     """Verifies the Cloud Storage task created by Export.table()."""
     task = ee.batch.Export.table.toCloudStorage(
