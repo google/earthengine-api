@@ -158,7 +158,7 @@ ee.Serializer.prototype.encode_ = function(object) {
 
 /**
  * Encodes a subtree as a Value in the EE API v2 (DAG) format. If isCompound_
- * is true, this will fill the {@code scope} and {@code encoded} properties.
+ * is true, this will fill the `scope` and `encoded` properties.
  *
  * @param {*} object The object to encode.
  * @return {*} The encoded object.

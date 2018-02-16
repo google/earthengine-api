@@ -5186,7 +5186,7 @@ goog.iter.filterFalse = function(iterable, f, opt_obj) {
 };
 goog.iter.range = function(startOrStop, opt_stop, opt_step) {
   var start = 0, stop = startOrStop, step = opt_step || 1;
-  1 < arguments.length && (start = startOrStop, stop = opt_stop);
+  1 < arguments.length && (start = startOrStop, stop = +opt_stop);
   if (0 == step) {
     throw Error("Range step argument must not be zero");
   }

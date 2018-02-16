@@ -1094,3 +1094,43 @@ class UploadCommand(Dispatcher):
   ]
 
 
+class _UploadManifestBase(object):
+  """Uploads an asset to Earth Engine using the given manifest file."""
+
+  def __init__(self, parser):
+    _add_wait_arg(parser)
+    _add_overwrite_arg(parser)
+    parser.add_argument(
+        'manifest',
+        help=('Local path to a JSON asset manifest file.'))
+
+  def run(self, args, config, ingestion_function):
+    """Starts the upload task, and waits for completion if requested."""
+    config.ee_init()
+    with open(args.manifest) as fh:
+      manifest = json.loads(fh.read())
+
+    _upload(args, manifest, ingestion_function)
+
+
+class UploadImageManifestCommand(_UploadManifestBase):
+  """Uploads an image to Earth Engine using the given manifest file."""
+
+  name = 'upload_manifest'
+
+  def run(self, args, config):
+    """Starts the upload task, and waits for completion if requested."""
+    super(UploadImageManifestCommand, self).run(
+        args, config, ee.data.startIngestion)
+
+
+class UploadTableManifestCommand(_UploadManifestBase):
+  """Uploads a table to Earth Engine using the given manifest file."""
+
+  name = 'upload_table_manifest'
+
+  def run(self, args, config):
+    super(UploadTableManifestCommand, self).run(
+        args, config, ee.data.startTableIngestion)
+
+
