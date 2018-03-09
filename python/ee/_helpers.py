@@ -62,7 +62,10 @@ def ServiceAccountCredentials(email, key_file=None, key_data=None):
   try:
     # oauth2client v2+ and JSON key
     sa_creds = oauth2client.service_account.ServiceAccountCredentials
-    credentials = sa_creds.from_json_keyfile_name(key_file, oauth.SCOPE)
+    if key_file:
+      credentials = sa_creds.from_json_keyfile_name(key_file, oauth.SCOPE)
+    else:
+      credentials = sa_creds.from_json_keyfile_dict(key_data, oauth.SCOPE)
   except ValueError:
     # oauth2client v2+ and PEM key
     raise NotImplementedError(
