@@ -451,16 +451,18 @@ def createAsset(value, opt_path=None, opt_force=False, opt_properties=None):
   return send_('/create', args)
 
 
-def copyAsset(sourceId, destinationId):
+def copyAsset(sourceId, destinationId, allowOverwrite=False):
   """Copies the asset from sourceId into destinationId.
 
   Args:
     sourceId: The ID of the asset to copy.
     destinationId: The ID of the new asset created by copying.
+    allowOverwrite: If True, allows overwriting an existing asset.
   """
   send_('/copy', {
       'sourceId': sourceId,
       'destinationId': destinationId,
+      'allowOverwrite': allowOverwrite,
   })
 
 

@@ -170,7 +170,7 @@ class Export(object):
               single positive integer as the maximum dimension or
               "WIDTHxHEIGHT" where WIDTH and HEIGHT are each positive integers.
             - skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-              image tiles.
+              image tiles. Defaults to false.
             If exporting to Google Drive (default):
             - driveFolder: The name of a unique folder in your Drive account to
               export into. Defaults to the root of the drive.
@@ -297,7 +297,7 @@ class Export(object):
             still be clipped to the overall image dimensions. Must be a
             multiple of shardSize.
         skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-              image tiles.
+            image tiles. Defaults to false.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -361,7 +361,7 @@ class Export(object):
             still be clipped to the overall image dimensions. Must be a
             multiple of shardSize.
         skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-              image tiles.
+            image tiles. Defaults to false.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform', 'driveFolder', and 'driveFileNamePrefix'.
 
@@ -430,7 +430,7 @@ class Export(object):
             produced in the rectangular region containing this geometry.
             Defaults to the image's region.
         skipEmptyTiles: If true, skip writing empty (i.e. fully-transparent)
-            map tiles.
+            map tiles. Defaults to false.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 

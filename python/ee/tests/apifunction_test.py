@@ -49,7 +49,7 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     self.assertFalse(hasattr(TestClass, '_pre_addBands'))
 
   def testAddFunctions_Inherited(self):
-    """Verifies that inherited non-client functions can be overriden."""
+    """Verifies that inherited non-client functions can be overridden."""
 
     class Base(object):
 

@@ -188,6 +188,73 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
 };
 
 
+/**
+ * Configures server-side authentication of EE API calls through the
+ * Google APIs Node.js Client. Private key authentication is strictly for
+ * server-side API calls: for browser-based applications, use
+ * ee.data.authenticateViaOauth(). No user interaction (e.g. authentication
+ * popup) is necessary when using server-side authentication.
+ *
+ * This or another authentication method should be called before
+ * ee.initialize().
+ *
+ * The auth token will be refreshed automatically when possible. You can safely
+ * assume that all async calls will be sent with the appropriate credentials.
+ * For synchronous calls, however, you should check for an auth token with
+ * ee.data.getAuthToken() and call ee.data.refreshAuthToken() manually if there
+ * is none. The token refresh operation is asynchronous and cannot be performed
+ * behind-the-scenes, on demand, prior to synchronous calls.
+ *
+ * @param {!ee.data.AuthPrivateKey} privateKey JSON content of private key.
+ * @param {function()=} opt_success The function to call if authentication
+ *     succeeded.
+ * @param {function(string)=} opt_error The function to call if authentication
+ *     failed, passed the error message.
+ * @param {!Array<string>=} opt_extraScopes Extra OAuth scopes to request.
+ * @export
+ */
+ee.data.authenticateViaPrivateKey = function(
+    privateKey, opt_success, opt_error, opt_extraScopes) {
+
+  // Verify that the Node.js global object exists, to ensure this process is not
+  // running in the browser.
+  if (typeof process === 'undefined') {
+    throw new Error(
+        'Use of private key authentication in the browser is insecure. ' +
+        'Consider using OAuth, instead.');
+  }
+
+  var scopes = [ee.data.AUTH_SCOPE_, ee.data.STORAGE_SCOPE_];
+  if (opt_extraScopes) {
+    goog.array.extend(scopes, opt_extraScopes);
+    goog.array.removeDuplicates(scopes);
+  }
+  ee.data.authClientId_ = privateKey.client_email;
+  ee.data.authScopes_ = scopes;
+
+  // Initialize JWT client to authorize as service account.
+  var jwtClient = new googleapis.auth.JWT(
+      privateKey.client_email, null, privateKey.private_key, scopes, null);
+
+  // Configure authentication refresher to use JWT client.
+  ee.data.setAuthTokenRefresher(function(authArgs, callback) {
+    jwtClient.authorize(function(error, token) {
+      if (error) {
+        callback({'error': error});
+      } else {
+        callback({
+          'access_token': token.access_token,
+          'token_type': token.token_type,
+          'expires_in': (token.expiry_date - Date.now()) / 1000,
+        });
+      }
+    });
+  });
+
+  ee.data.refreshAuthToken(opt_success, opt_error);
+};
+
+
 
 /**
  * Configures client-side authentication of EE API calls by providing a
@@ -2513,6 +2580,23 @@ ee.data.AuthResponse = class {
 };
 
 
+/**
+ * Private key JSON object, provided by Google Cloud Console.
+ * @record @struct
+ */
+ee.data.AuthPrivateKey = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.private_key;
+
+    /**
+     * @export {string}
+     */
+    this.client_email;
+  }
+};
 
 
 ////////////////////////////////////////////////////////////////////////////////

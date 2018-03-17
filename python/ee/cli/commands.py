@@ -519,11 +519,14 @@ class CopyCommand(object):
         'source', help='Full path of the source asset.')
     parser.add_argument(
         'destination', help='Full path of the destination asset.')
+    parser.add_argument(
+        '--force', action='store_true', help=(
+            'Overwrite any existing version of the asset.'))
 
   def run(self, args, config):
     """Runs the asset copy."""
     config.ee_init()
-    ee.data.copyAsset(args.source, args.destination)
+    ee.data.copyAsset(args.source, args.destination, args.force)
 
 
 class CreateCommandBase(object):
