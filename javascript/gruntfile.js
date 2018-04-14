@@ -2,9 +2,8 @@ const grunt = require('grunt');
 
 
 /**
- * Grunt configuration. Defines two tasks for creating browser and Node.js
- * CommonJS modules:
- * - `grunt`: Builds both modules.
+ * Grunt configuration. Defines a task (`npm run build`) for creating both
+ * browser and Node.js CommonJS modules that can be published to NPM.
  */
 
 grunt.loadNpmTasks('grunt-contrib-concat');
@@ -25,7 +24,7 @@ const BROWSER_FOOTER = [
 
 /**
  * Node.js build.
- * - CommonJS exports.
+ * - CommonJS exports. See b/77731705.
  * - 'googleapis' dependency, used for serverside authentication.
  * - XmlHttpRequest polyfill, for network requests.
  */
@@ -35,7 +34,7 @@ const NODEJS_BANNER = [
 ].join('\n') + '\n';
 const NODEJS_FOOTER = [
   'goog.Timer.defaultTimerObject = global;',
-  'module.exports = ee;'
+  'module.exports = goog.global.ee = ee;'
 ].join('\n') + '\n';
 
 // clang-format on

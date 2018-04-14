@@ -55,4 +55,32 @@ describe('ee', function() {
     lossYear = lossYear.mask(lossYear);
     expect(lossYear).toBeTruthy();
   });
+
+  it('supports joins, generated functions', function(done) {
+    const primary = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+                        .filterDate('2014-04-01', '2014-06-01')
+                        .filterBounds(ee.Geometry.Point(-122.09, 37.42));
+
+    const fluxnet =
+        ee.FeatureCollection('ft:1f85fvccyKSlaZJiAta8ojlXGhgf-LPPNmICG9kQ');
+
+    const distFilter = ee.Filter.withinDistance({
+      distance: 100000,
+      leftField: '.geo',
+      rightField: '.geo',
+      maxError: 10
+    });
+
+    const distSaveAll =
+        ee.Join.saveAll({matchesKey: 'points', measureKey: 'distance'});
+
+    const spatialJoined = distSaveAll.apply(primary, fluxnet, distFilter);
+
+    spatialJoined.evaluate((info) => {
+      expect(info.type).toBe('ImageCollection');
+      expect(info.bands.length).toBeGreaterThan(0);
+      expect(info.features.length).toBeGreaterThan(0);
+      done();
+    });
+  });
 });

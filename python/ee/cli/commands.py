@@ -1070,6 +1070,20 @@ class UploadTableCommand(object):
         required=True,
         help='Destination asset ID for the uploaded file.')
     _add_property_flags(parser)
+    parser.add_argument(
+        '--max_error',
+        help='Max allowed error in meters when transforming geometry '
+             'between coordinate systems.',
+        type=int, nargs='?')
+    parser.add_argument(
+        '--max_vertices',
+        help='Max number of vertices per geometry. If set, geometry will be '
+             'subdivided into spatially disjoint pieces each under this limit.',
+        type=int, nargs='?')
+    parser.add_argument(
+        '--max_failed_features',
+        help='The maximum number of failed features to allow during ingestion.',
+        type=int, nargs='?')
 
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
@@ -1079,9 +1093,16 @@ class UploadTableCommand(object):
     if len(source_files) != 1:
       raise ValueError('Exactly one file must be specified.')
 
+    source = {'primaryPath': source_files[0]}
+    if args.max_error:
+      source['max_error'] = args.max_error
+    if args.max_vertices:
+      source['max_vertices'] = args.max_vertices
+    if args.max_failed_features:
+      source['max_failed_features'] = args.max_failed_features
     request = {
         'id': args.asset_id,
-        'sources': [{'primaryPath': source_files[0]}]
+        'sources': [source]
     }
     _upload(args, request, ee.data.startTableIngestion)
 

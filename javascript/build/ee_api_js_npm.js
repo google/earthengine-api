@@ -140,7 +140,7 @@ goog.DISALLOW_TEST_ONLY_CODE = !goog.DEBUG;
 goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING = !1;
 goog.provide = function(name) {
   if (goog.isInModuleLoader_()) {
-    throw Error("goog.provide can not be used within a goog.module.");
+    throw Error("goog.provide can not be used within a module.");
   }
   goog.constructNamespace_(name);
 };
@@ -148,12 +148,28 @@ goog.constructNamespace_ = function(name, opt_obj) {
   var namespace;
   goog.exportPath_(name, opt_obj);
 };
+goog.getScriptNonce = function() {
+  null === goog.cspNonce_ && (goog.cspNonce_ = goog.getScriptNonce_(goog.global.document) || "");
+  return goog.cspNonce_;
+};
+goog.NONCE_PATTERN_ = /^[\w+/_-]+[=]{0,2}$/;
+goog.cspNonce_ = null;
+goog.getScriptNonce_ = function(doc) {
+  var script = doc.querySelector("script[nonce]");
+  if (script) {
+    var nonce = script.nonce || script.getAttribute("nonce");
+    if (nonce && goog.NONCE_PATTERN_.test(nonce)) {
+      return nonce;
+    }
+  }
+  return null;
+};
 goog.VALID_MODULE_RE_ = /^[a-zA-Z_$][a-zA-Z0-9._$]*$/;
 goog.module = function(name) {
   if (!goog.isString(name) || !name || -1 == name.search(goog.VALID_MODULE_RE_)) {
     throw Error("Invalid module identifier");
   }
-  if (!goog.isInModuleLoader_()) {
+  if (!goog.isInGoogModuleLoader_()) {
     throw Error("Module " + name + " has been loaded incorrectly. Note, modules cannot be loaded as normal scripts. They require some kind of pre-processing step. You're likely trying to load a module via a script tag or as a part of a concatenated bundle without rewriting the module. For more info see: https://github.com/google/closure-library/wiki/goog.module:-an-ES6-module-like-alternative-to-goog.provide.");
   }
   if (goog.moduleLoaderState_.moduleName) {
@@ -168,9 +184,19 @@ goog.module.getInternal_ = function(name) {
   var ns;
   return null;
 };
+goog.ModuleType = {ES6:"es6", GOOG:"goog"};
 goog.moduleLoaderState_ = null;
 goog.isInModuleLoader_ = function() {
-  return null != goog.moduleLoaderState_;
+  return goog.isInGoogModuleLoader_() || goog.isInEs6ModuleLoader_();
+};
+goog.isInGoogModuleLoader_ = function() {
+  return !!goog.moduleLoaderState_ && goog.moduleLoaderState_.type == goog.ModuleType.GOOG;
+};
+goog.isInEs6ModuleLoader_ = function() {
+  return !!goog.moduleLoaderState_ && goog.moduleLoaderState_.type == goog.ModuleType.ES6;
+};
+goog.getModulePath_ = function() {
+  return goog.moduleLoaderState_ && goog.moduleLoaderState_.path;
 };
 goog.module.declareLegacyNamespace = function() {
   goog.moduleLoaderState_.declareLegacyNamespace = !0;
@@ -197,19 +223,27 @@ goog.globalize = function(obj, opt_global) {
   }
 };
 goog.addDependency = function(relPath, provides, requires, opt_loadFlags) {
-  if (goog.DEPENDENCIES_ENABLED) {
-    var loader = goog.getLoader_();
-    loader && loader.addDependency(relPath, provides, requires, opt_loadFlags);
-  }
 };
 goog.useStrictRequires = !1;
 goog.ENABLE_DEBUG_LOADER = !0;
 goog.logToConsole_ = function(msg) {
   goog.global.console && goog.global.console.error(msg);
 };
+goog.isPath_ = function(requireOrPath) {
+  return 0 == requireOrPath.indexOf("./") || 0 == requireOrPath.indexOf("../");
+};
 goog.require = function(name) {
-  var loader, moduleLoaderState;
-  goog.ENABLE_DEBUG_LOADER && goog.debugLoader_ && goog.getLoader_().earlyProcessLoad(name);
+  var moduleLoaderState;
+  if (goog.isPath_(name)) {
+    if (goog.isInGoogModuleLoader_()) {
+      if (!goog.getModulePath_()) {
+        throw Error("Current module has no path information. Was it loaded via goog.loadModule without a path argument?");
+      }
+      name = goog.normalizePath_(goog.getModulePath_() + "/../" + name);
+    } else {
+      throw Error("Cannot require by path outside of goog.modules.");
+    }
+  }
 };
 goog.basePath = "";
 goog.nullFunction = function() {
@@ -234,7 +268,6 @@ goog.loadedModules_ = {};
 goog.DEPENDENCIES_ENABLED = !1;
 goog.TRANSPILE = "detect";
 goog.TRANSPILER = "transpile.js";
-goog.DEBUG_LOADER = "";
 goog.hasBadLetScoping = null;
 goog.useSafari10Workaround = function() {
   if (null == goog.hasBadLetScoping) {
@@ -250,10 +283,10 @@ goog.useSafari10Workaround = function() {
 goog.workaroundSafari10EvalBug = function(moduleDef) {
   return "(function(){" + moduleDef + "\n;})();\n";
 };
-goog.loadModule = function(moduleDef) {
+goog.loadModule = function(moduleDef, opt_path) {
   var previousState = goog.moduleLoaderState_;
   try {
-    goog.moduleLoaderState_ = {moduleName:"", declareLegacyNamespace:!1};
+    goog.moduleLoaderState_ = {moduleName:"", declareLegacyNamespace:!1, type:goog.ModuleType.GOOG, path:opt_path};
     if (goog.isFunction(moduleDef)) {
       var exports = moduleDef.call(void 0, {});
     } else {
@@ -265,7 +298,10 @@ goog.loadModule = function(moduleDef) {
     }
     var moduleName = goog.moduleLoaderState_.moduleName;
     if (goog.isString(moduleName) && moduleName) {
-      goog.moduleLoaderState_.declareLegacyNamespace ? goog.constructNamespace_(moduleName, exports) : goog.SEAL_MODULE_EXPORTS && Object.seal && "object" == typeof exports && null != exports && Object.seal(exports), goog.loadedModules_[moduleName] = exports;
+      goog.moduleLoaderState_.declareLegacyNamespace ? goog.constructNamespace_(moduleName, exports) : goog.SEAL_MODULE_EXPORTS && Object.seal && "object" == typeof exports && null != exports && Object.seal(exports);
+      var data = {exports:exports, type:goog.ModuleType.GOOG, moduleId:goog.moduleLoaderState_.moduleName};
+      goog.loadedModules_[moduleName] = data;
+      opt_path && (goog.loadedModules_[opt_path] = data);
     } else {
       throw Error('Invalid module name "' + moduleName + '"');
     }
@@ -545,6 +581,9 @@ goog.base = function(me, opt_methodName, var_args) {
     }
     return caller.superClass_.constructor.apply(me, ctorArgs);
   }
+  if ("string" != typeof opt_methodName && "symbol" != typeof opt_methodName) {
+    throw Error("method names provided to goog.base must be a string or a symbol");
+  }
   var args = Array(arguments.length - 2);
   for (i = 2; i < arguments.length; i++) {
     args[i - 2] = arguments[i];
@@ -565,7 +604,7 @@ goog.base = function(me, opt_methodName, var_args) {
 };
 goog.scope = function(fn) {
   if (goog.isInModuleLoader_()) {
-    throw Error("goog.scope is not supported within a goog.module.");
+    throw Error("goog.scope is not supported within a module.");
   }
   fn.call(goog.global);
 };
@@ -610,238 +649,6 @@ goog.defineClass.applyProperties_ = function(target, source) {
 goog.tagUnsealableClass = function(ctr) {
 };
 goog.UNSEALABLE_CONSTRUCTOR_PROPERTY_ = "goog_defineClass_legacy_unsealable";
-goog.DEPENDENCIES_ENABLED && (goog.inHtmlDocument_ = function() {
-  var doc = goog.global.document;
-  return null != doc && "write" in doc;
-}, goog.findBasePath_ = function() {
-  if (goog.isDef(goog.global.CLOSURE_BASE_PATH) && goog.isString(goog.global.CLOSURE_BASE_PATH)) {
-    goog.basePath = goog.global.CLOSURE_BASE_PATH;
-  } else {
-    if (goog.inHtmlDocument_()) {
-      for (var doc = goog.global.document, currentScript = doc.currentScript, scripts = currentScript ? [currentScript] : doc.getElementsByTagName("SCRIPT"), i = scripts.length - 1; 0 <= i; --i) {
-        var src = scripts[i].src, qmark = src.lastIndexOf("?"), l = -1 == qmark ? src.length : qmark;
-        if ("base.js" == src.substr(l - 7, 7)) {
-          goog.basePath = src.substr(0, l - 7);
-          break;
-        }
-      }
-    }
-  }
-}, goog.findBasePath_(), goog.Transpiler = function() {
-  this.requiresTranspilation_ = null;
-}, goog.Transpiler.prototype.createRequiresTranspilation_ = function() {
-  function addNewerLanguageTranspilationCheck(modeName, isSupported) {
-    transpilationRequiredForAllLaterModes ? requiresTranspilation[modeName] = !0 : isSupported() ? requiresTranspilation[modeName] = !1 : transpilationRequiredForAllLaterModes = requiresTranspilation[modeName] = !0;
-  }
-  function evalCheck(code) {
-    try {
-      return !!eval(code);
-    } catch (ignored) {
-      return !1;
-    }
-  }
-  var requiresTranspilation = {es3:!1}, transpilationRequiredForAllLaterModes = !1, userAgent = goog.global.navigator && goog.global.navigator.userAgent ? goog.global.navigator.userAgent : "";
-  addNewerLanguageTranspilationCheck("es5", function() {
-    return evalCheck("[1,].length==1");
-  });
-  addNewerLanguageTranspilationCheck("es6", function() {
-    var edgeUserAgent = userAgent.match(/Edge\/(\d+)(\.\d)*/i);
-    return edgeUserAgent && 15 > Number(edgeUserAgent[1]) ? !1 : evalCheck('(()=>{"use strict";class X{constructor(){if(new.target!=String)throw 1;this.x=42}}let q=Reflect.construct(X,[],String);if(q.x!=42||!(q instanceof String))throw 1;for(const a of[2,3]){if(a==2)continue;function f(z={a}){let a=0;return z.a}{function f(){return 0;}}return f()==3}})()');
-  });
-  addNewerLanguageTranspilationCheck("es6-impl", function() {
-    return !0;
-  });
-  addNewerLanguageTranspilationCheck("es7", function() {
-    return evalCheck("2 ** 2 == 4");
-  });
-  addNewerLanguageTranspilationCheck("es8", function() {
-    return evalCheck("async () => 1, true");
-  });
-  addNewerLanguageTranspilationCheck("es_next", function() {
-    return evalCheck("({...rest} = {}), true");
-  });
-  return requiresTranspilation;
-}, goog.Transpiler.prototype.needsTranspile = function(lang) {
-  if ("always" == goog.TRANSPILE) {
-    return !0;
-  }
-  if ("never" == goog.TRANSPILE) {
-    return !1;
-  }
-  this.requiresTranspilation_ || (this.requiresTranspilation_ = this.createRequiresTranspilation_());
-  if (lang in this.requiresTranspilation_) {
-    return this.requiresTranspilation_[lang];
-  }
-  throw Error("Unknown language mode: " + lang);
-}, goog.Transpiler.prototype.transpile = function(code, path) {
-  return goog.transpile_(code, path);
-}, goog.transpiler_ = new goog.Transpiler, goog.DebugLoader = function() {
-  this.dependencies_ = {loadFlags:{}, nameToPath:{}, requires:{}, visited:{}, written:{}, deferred:{}};
-  this.oldIeWaiting_ = !1;
-  this.queuedModules_ = [];
-  this.lastNonModuleScriptIndex_ = 0;
-}, goog.DebugLoader.IS_OLD_IE_ = !(goog.global.atob || !goog.global.document || !goog.global.document.all), goog.DebugLoader.prototype.earlyProcessLoad = function(name) {
-  goog.DebugLoader.IS_OLD_IE_ && this.maybeProcessDeferredDep_(name);
-}, goog.DebugLoader.prototype.load = function(name) {
-  var pathToLoad = this.getPathFromDeps_(name);
-  if (pathToLoad) {
-    var scripts = [], seenScript = {}, deps = this.dependencies_, loader = this, visitNode = function(path) {
-      if (!(path in deps.written || path in deps.visited)) {
-        deps.visited[path] = !0;
-        if (path in deps.requires) {
-          for (var requireName in deps.requires[path]) {
-            if (!loader.isProvided(requireName)) {
-              if (requireName in deps.nameToPath) {
-                visitNode(deps.nameToPath[requireName]);
-              } else {
-                throw Error("Undefined nameToPath for " + requireName);
-              }
-            }
-          }
-        }
-        path in seenScript || (seenScript[path] = !0, scripts.push(path));
-      }
-    };
-    visitNode(pathToLoad);
-    for (var i = 0; i < scripts.length; i++) {
-      var path$jscomp$0 = scripts[i];
-      this.dependencies_.written[path$jscomp$0] = !0;
-    }
-    for (i = 0; i < scripts.length; i++) {
-      if (path$jscomp$0 = scripts[i]) {
-        var loadFlags = deps.loadFlags[path$jscomp$0] || {}, needsTranspile = this.getTranspiler().needsTranspile(loadFlags.lang || "es3");
-        "goog" == loadFlags.module || needsTranspile ? this.importProcessedScript_(goog.basePath + path$jscomp$0, "goog" == loadFlags.module, needsTranspile) : this.importScript_(goog.basePath + path$jscomp$0);
-      } else {
-        throw Error("Undefined script input");
-      }
-    }
-  } else {
-    var errorMessage = "goog.require could not find: " + name;
-    this.logToConsole(errorMessage);
-    if (goog.useStrictRequires) {
-      throw Error(errorMessage);
-    }
-  }
-}, goog.DebugLoader.prototype.addDependency = function(relPath, provides, requires, opt_loadFlags) {
-  var provide, require, path = relPath.replace(/\\/g, "/"), deps = this.dependencies_;
-  opt_loadFlags && "boolean" !== typeof opt_loadFlags || (opt_loadFlags = opt_loadFlags ? {module:"goog"} : {});
-  for (var i = 0; provide = provides[i]; i++) {
-    deps.nameToPath[provide] = path, deps.loadFlags[path] = opt_loadFlags;
-  }
-  for (var j = 0; require = requires[j]; j++) {
-    path in deps.requires || (deps.requires[path] = {}), deps.requires[path][require] = !0;
-  }
-}, goog.DebugLoader.prototype.importScript_ = function(src, opt_sourceText) {
-  (goog.global.CLOSURE_IMPORT_SCRIPT || goog.bind(this.writeScriptTag_, this))(src, opt_sourceText) && (this.dependencies_.written[src] = !0);
-}, goog.DebugLoader.prototype.importProcessedScript_ = function(src, isModule, needsTranspile) {
-  this.importScript_("", 'goog.debugLoader_.retrieveAndExec_("' + src + '", ' + isModule + ", " + needsTranspile + ");");
-}, goog.DebugLoader.prototype.retrieveAndExec_ = function(src, isModule, needsTranspile) {
-  var scriptText, importScript, originalPath;
-}, goog.DebugLoader.prototype.wrapModule_ = function(srcUrl, scriptText) {
-  return goog.LOAD_MODULE_USING_EVAL && goog.isDef(goog.global.JSON) ? "goog.loadModule(" + goog.global.JSON.stringify(scriptText + "\n//# sourceURL=" + srcUrl + "\n") + ");" : 'goog.loadModule(function(exports) {"use strict";' + scriptText + "\n;return exports});\n//# sourceURL=" + srcUrl + "\n";
-}, goog.DebugLoader.prototype.loadQueuedModules_ = function() {
-  var count = this.queuedModules_.length;
-  if (0 < count) {
-    var queue = this.queuedModules_;
-    this.queuedModules_ = [];
-    for (var i = 0; i < count; i++) {
-      this.maybeProcessDeferredPath_(queue[i]);
-    }
-  }
-  this.oldIeWaiting_ = !1;
-}, goog.DebugLoader.prototype.maybeProcessDeferredDep_ = function(name) {
-  this.isDeferredModule_(name) && this.allDepsAreAvailable_(name) && this.maybeProcessDeferredPath_(goog.basePath + this.getPathFromDeps_(name));
-}, goog.DebugLoader.prototype.isDeferredModule_ = function(name) {
-  var path = this.getPathFromDeps_(name), loadFlags = path && this.dependencies_.loadFlags[path] || {}, languageLevel = loadFlags.lang || "es3";
-  return path && ("goog" == loadFlags.module || this.getTranspiler().needsTranspile(languageLevel)) ? goog.basePath + path in this.dependencies_.deferred : !1;
-}, goog.DebugLoader.prototype.allDepsAreAvailable_ = function(name) {
-  var path = this.getPathFromDeps_(name);
-  if (path && path in this.dependencies_.requires) {
-    for (var requireName in this.dependencies_.requires[path]) {
-      if (!this.isProvided(requireName) && !this.isDeferredModule_(requireName)) {
-        return !1;
-      }
-    }
-  }
-  return !0;
-}, goog.DebugLoader.prototype.maybeProcessDeferredPath_ = function(abspath) {
-  if (abspath in this.dependencies_.deferred) {
-    var src = this.dependencies_.deferred[abspath];
-    delete this.dependencies_.deferred[abspath];
-    goog.globalEval(src);
-  }
-}, goog.DebugLoader.prototype.writeScriptSrcNode_ = function(src) {
-  goog.global.document.write('<script type="text/javascript" src="' + src + '">\x3c/script>');
-}, goog.DebugLoader.prototype.appendScriptSrcNode_ = function(src) {
-  var doc = goog.global.document, scriptEl = doc.createElement("script");
-  scriptEl.type = "text/javascript";
-  scriptEl.src = src;
-  scriptEl.defer = !1;
-  scriptEl.async = !1;
-  doc.head.appendChild(scriptEl);
-}, goog.DebugLoader.prototype.writeScriptTag_ = function(src, opt_sourceText) {
-  if (this.inHtmlDocument()) {
-    var doc = goog.global.document;
-    if (!goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING && "complete" == doc.readyState) {
-      if (/\bdeps.js$/.test(src)) {
-        return !1;
-      }
-      throw Error('Cannot write "' + src + '" after document load');
-    }
-    if (void 0 === opt_sourceText) {
-      if (goog.DebugLoader.IS_OLD_IE_) {
-        this.oldIeWaiting_ = !0;
-        var state = " onreadystatechange='goog.debugLoader_.onScriptLoad_(this, " + ++this.lastNonModuleScriptIndex_ + ")' ";
-        doc.write('<script type="text/javascript" src="' + src + '"' + state + ">\x3c/script>");
-      } else {
-        goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING ? this.appendScriptSrcNode_(src) : this.writeScriptSrcNode_(src);
-      }
-    } else {
-      doc.write('<script type="text/javascript">' + this.protectScriptTag_(opt_sourceText) + "\x3c/script>");
-    }
-    return !0;
-  }
-  return !1;
-}, goog.DebugLoader.prototype.protectScriptTag_ = function(str) {
-  return str.replace(/<\/(SCRIPT)/ig, "\\x3c/$1");
-}, goog.DebugLoader.prototype.onScriptLoad_ = function(script, scriptIndex) {
-  "complete" == script.readyState && this.lastNonModuleScriptIndex_ == scriptIndex && this.loadQueuedModules_();
-  return !0;
-}, goog.DebugLoader.prototype.getPathFromDeps_ = function(rule) {
-  return rule in this.dependencies_.nameToPath ? this.dependencies_.nameToPath[rule] : null;
-}, goog.DebugLoader.prototype.getTranspiler = function() {
-  return goog.transpiler_;
-}, goog.DebugLoader.prototype.isProvided = function(namespaceOrPath) {
-  return goog.isProvided_(namespaceOrPath);
-}, goog.DebugLoader.prototype.inHtmlDocument = function() {
-  return goog.inHtmlDocument_();
-}, goog.DebugLoader.prototype.logToConsole = function(message) {
-  goog.logToConsole_(message);
-}, goog.DebugLoader.prototype.loadFileSync = function(srcUrl) {
-  return goog.loadFileSync_(srcUrl);
-}, goog.DebugLoader.prototype.normalizePath = function(path) {
-  return goog.normalizePath_(path);
-}, goog.debugLoader_ = null, goog.registerDebugLoader = function(loader) {
-  if (goog.debugLoader_) {
-    throw Error("Debug loader already registered!");
-  }
-  if (!(loader instanceof goog.DebugLoader)) {
-    throw Error("Not a goog.DebugLoader.");
-  }
-  goog.debugLoader_ = loader;
-}, goog.getLoader_ = function() {
-  if (!goog.debugLoader_ && goog.DEBUG_LOADER) {
-    throw Error("Loaded debug loader file but no loader was registered!");
-  }
-  goog.debugLoader_ || (goog.debugLoader_ = new goog.DebugLoader);
-  return goog.debugLoader_;
-}, function() {
-  if (goog.DEBUG_LOADER) {
-    var tempLoader = new goog.DebugLoader;
-    tempLoader.importScript_(goog.basePath + goog.DEBUG_LOADER);
-  }
-  goog.global.CLOSURE_NO_DEPS || (tempLoader = tempLoader || new goog.DebugLoader, goog.DEBUG_LOADER || goog.registerDebugLoader(tempLoader), tempLoader.importScript_(goog.basePath + "deps.js"));
-}());
 goog.debug = {};
 goog.debug.Error = function(opt_msg) {
   if (Error.captureStackTrace) {
@@ -2752,9 +2559,9 @@ goog.debug.freezeInternal_ = goog.DEBUG && Object.freeze || function(arg) {
   return arg;
 };
 goog.debug.freeze = function(arg) {
-  return function() {
+  return {valueOf:function() {
     return goog.debug.freezeInternal_(arg);
-  }();
+  }}.valueOf();
 };
 goog.debug.entryPointRegistry = {};
 goog.debug.EntryPointMonitor = function() {
@@ -2786,7 +2593,7 @@ goog.debug.entryPointRegistry.unmonitorAllIfPossible = function(monitor) {
   monitors.length--;
 };
 $jscomp.scope.purify = function(fn) {
-  return fn();
+  return {valueOf:fn}.valueOf();
 };
 goog.events.BrowserFeature = {HAS_W3C_BUTTON:!goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9), HAS_W3C_EVENT_SUPPORT:!goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9), SET_KEY_CODE_TO_PREVENT_DEFAULT:goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9"), HAS_NAVIGATOR_ONLINE_PROPERTY:!goog.userAgent.WEBKIT || goog.userAgent.isVersionOrHigher("528"), HAS_HTML5_NETWORK_EVENT_SUPPORT:goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher("1.9b") || goog.userAgent.IE && 
 goog.userAgent.isVersionOrHigher("8") || goog.userAgent.OPERA && goog.userAgent.isVersionOrHigher("9.5") || goog.userAgent.WEBKIT && goog.userAgent.isVersionOrHigher("528"), HTML5_NETWORK_EVENTS_FIRE_ON_BODY:goog.userAgent.GECKO && !goog.userAgent.isVersionOrHigher("8") || goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9"), TOUCH_ENABLED:"ontouchstart" in goog.global || !!(goog.global.document && document.documentElement && "ontouchstart" in document.documentElement) || !(!goog.global.navigator || 
@@ -2804,21 +2611,22 @@ goog.userAgent.isVersionOrHigher("8") || goog.userAgent.OPERA && goog.userAgent.
 goog.events.getVendorPrefixedName_ = function(eventName) {
   return goog.userAgent.WEBKIT ? "webkit" + eventName : goog.userAgent.OPERA ? "o" + eventName.toLowerCase() : eventName.toLowerCase();
 };
-goog.events.EventType = {CLICK:"click", RIGHTCLICK:"rightclick", DBLCLICK:"dblclick", MOUSEDOWN:"mousedown", MOUSEUP:"mouseup", MOUSEOVER:"mouseover", MOUSEOUT:"mouseout", MOUSEMOVE:"mousemove", MOUSEENTER:"mouseenter", MOUSELEAVE:"mouseleave", SELECTIONCHANGE:"selectionchange", SELECTSTART:"selectstart", WHEEL:"wheel", KEYPRESS:"keypress", KEYDOWN:"keydown", KEYUP:"keyup", BLUR:"blur", FOCUS:"focus", DEACTIVATE:"deactivate", FOCUSIN:"focusin", FOCUSOUT:"focusout", CHANGE:"change", RESET:"reset", 
-SELECT:"select", SUBMIT:"submit", INPUT:"input", PROPERTYCHANGE:"propertychange", DRAGSTART:"dragstart", DRAG:"drag", DRAGENTER:"dragenter", DRAGOVER:"dragover", DRAGLEAVE:"dragleave", DROP:"drop", DRAGEND:"dragend", TOUCHSTART:"touchstart", TOUCHMOVE:"touchmove", TOUCHEND:"touchend", TOUCHCANCEL:"touchcancel", BEFOREUNLOAD:"beforeunload", CONSOLEMESSAGE:"consolemessage", CONTEXTMENU:"contextmenu", DEVICECHANGE:"devicechange", DEVICEMOTION:"devicemotion", DEVICEORIENTATION:"deviceorientation", DOMCONTENTLOADED:"DOMContentLoaded", 
-ERROR:"error", HELP:"help", LOAD:"load", LOSECAPTURE:"losecapture", ORIENTATIONCHANGE:"orientationchange", READYSTATECHANGE:"readystatechange", RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", CANPLAY:"canplay", CANPLAYTHROUGH:"canplaythrough", DURATIONCHANGE:"durationchange", EMPTIED:"emptied", ENDED:"ended", LOADEDDATA:"loadeddata", LOADEDMETADATA:"loadedmetadata", PAUSE:"pause", PLAY:"play", PLAYING:"playing", RATECHANGE:"ratechange", SEEKED:"seeked", SEEKING:"seeking", STALLED:"stalled", SUSPEND:"suspend", 
-TIMEUPDATE:"timeupdate", VOLUMECHANGE:"volumechange", WAITING:"waiting", SOURCEOPEN:"sourceopen", SOURCEENDED:"sourceended", SOURCECLOSED:"sourceclosed", ABORT:"abort", UPDATE:"update", UPDATESTART:"updatestart", UPDATEEND:"updateend", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", 
-INSTALL:"install", ACTIVATE:"activate", FETCH:"fetch", FOREIGNFETCH:"foreignfetch", MESSAGEERROR:"messageerror", STATECHANGE:"statechange", UPDATEFOUND:"updatefound", CONTROLLERCHANGE:"controllerchange", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), POINTERDOWN:"pointerdown", 
-POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", 
+goog.events.EventType = {CLICK:"click", RIGHTCLICK:"rightclick", DBLCLICK:"dblclick", MOUSEDOWN:"mousedown", MOUSEUP:"mouseup", MOUSEOVER:"mouseover", MOUSEOUT:"mouseout", MOUSEMOVE:"mousemove", MOUSEENTER:"mouseenter", MOUSELEAVE:"mouseleave", MOUSECANCEL:"mousecancel", SELECTIONCHANGE:"selectionchange", SELECTSTART:"selectstart", WHEEL:"wheel", KEYPRESS:"keypress", KEYDOWN:"keydown", KEYUP:"keyup", BLUR:"blur", FOCUS:"focus", DEACTIVATE:"deactivate", FOCUSIN:"focusin", FOCUSOUT:"focusout", CHANGE:"change", 
+RESET:"reset", SELECT:"select", SUBMIT:"submit", INPUT:"input", PROPERTYCHANGE:"propertychange", DRAGSTART:"dragstart", DRAG:"drag", DRAGENTER:"dragenter", DRAGOVER:"dragover", DRAGLEAVE:"dragleave", DROP:"drop", DRAGEND:"dragend", TOUCHSTART:"touchstart", TOUCHMOVE:"touchmove", TOUCHEND:"touchend", TOUCHCANCEL:"touchcancel", BEFOREUNLOAD:"beforeunload", CONSOLEMESSAGE:"consolemessage", CONTEXTMENU:"contextmenu", DEVICECHANGE:"devicechange", DEVICEMOTION:"devicemotion", DEVICEORIENTATION:"deviceorientation", 
+DOMCONTENTLOADED:"DOMContentLoaded", ERROR:"error", HELP:"help", LOAD:"load", LOSECAPTURE:"losecapture", ORIENTATIONCHANGE:"orientationchange", READYSTATECHANGE:"readystatechange", RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", CANPLAY:"canplay", CANPLAYTHROUGH:"canplaythrough", DURATIONCHANGE:"durationchange", EMPTIED:"emptied", ENDED:"ended", LOADEDDATA:"loadeddata", LOADEDMETADATA:"loadedmetadata", PAUSE:"pause", PLAY:"play", PLAYING:"playing", RATECHANGE:"ratechange", SEEKED:"seeked", SEEKING:"seeking", 
+STALLED:"stalled", SUSPEND:"suspend", TIMEUPDATE:"timeupdate", VOLUMECHANGE:"volumechange", WAITING:"waiting", SOURCEOPEN:"sourceopen", SOURCEENDED:"sourceended", SOURCECLOSED:"sourceclosed", ABORT:"abort", UPDATE:"update", UPDATESTART:"updatestart", UPDATEEND:"updateend", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", 
+MESSAGE:"message", CONNECT:"connect", INSTALL:"install", ACTIVATE:"activate", FETCH:"fetch", FOREIGNFETCH:"foreignfetch", MESSAGEERROR:"messageerror", STATECHANGE:"statechange", UPDATEFOUND:"updatefound", CONTROLLERCHANGE:"controllerchange", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), 
+POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", 
 MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXT:"text", TEXTINPUT:goog.userAgent.IE ? "textinput" : "textInput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", 
 BEFOREINPUT:"beforeinput", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage", DOMSUBTREEMODIFIED:"DOMSubtreeModified", DOMNODEINSERTED:"DOMNodeInserted", DOMNODEREMOVED:"DOMNodeRemoved", DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", 
 DOMATTRMODIFIED:"DOMAttrModified", DOMCHARACTERDATAMODIFIED:"DOMCharacterDataModified", BEFOREPRINT:"beforeprint", AFTERPRINT:"afterprint", BEFOREINSTALLPROMPT:"beforeinstallprompt", APPINSTALLED:"appinstalled"};
 goog.events.getPointerFallbackEventName_ = function(pointerEventName, msPointerEventName, mouseEventName) {
   return goog.events.BrowserFeature.POINTER_EVENTS ? pointerEventName : goog.events.BrowserFeature.MSPOINTER_EVENTS ? msPointerEventName : mouseEventName;
 };
-goog.events.PointerFallbackEventType = {POINTERDOWN:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERDOWN, goog.events.EventType.MSPOINTERDOWN, goog.events.EventType.MOUSEDOWN), POINTERUP:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERUP, goog.events.EventType.MSPOINTERUP, goog.events.EventType.MOUSEUP), POINTERCANCEL:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERCANCEL, goog.events.EventType.MSPOINTERCANCEL, "mousecancel"), POINTERMOVE:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERMOVE, 
-goog.events.EventType.MSPOINTERMOVE, goog.events.EventType.MOUSEMOVE), POINTEROVER:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTEROVER, goog.events.EventType.MSPOINTEROVER, goog.events.EventType.MOUSEOVER), POINTEROUT:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTEROUT, goog.events.EventType.MSPOINTEROUT, goog.events.EventType.MOUSEOUT), POINTERENTER:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERENTER, goog.events.EventType.MSPOINTERENTER, 
-goog.events.EventType.MOUSEENTER), POINTERLEAVE:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERLEAVE, goog.events.EventType.MSPOINTERLEAVE, goog.events.EventType.MOUSELEAVE)};
+goog.events.PointerFallbackEventType = {POINTERDOWN:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERDOWN, goog.events.EventType.MSPOINTERDOWN, goog.events.EventType.MOUSEDOWN), POINTERUP:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERUP, goog.events.EventType.MSPOINTERUP, goog.events.EventType.MOUSEUP), POINTERCANCEL:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERCANCEL, goog.events.EventType.MSPOINTERCANCEL, goog.events.EventType.MOUSECANCEL), 
+POINTERMOVE:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERMOVE, goog.events.EventType.MSPOINTERMOVE, goog.events.EventType.MOUSEMOVE), POINTEROVER:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTEROVER, goog.events.EventType.MSPOINTEROVER, goog.events.EventType.MOUSEOVER), POINTEROUT:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTEROUT, goog.events.EventType.MSPOINTEROUT, goog.events.EventType.MOUSEOUT), POINTERENTER:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERENTER, 
+goog.events.EventType.MSPOINTERENTER, goog.events.EventType.MOUSEENTER), POINTERLEAVE:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERLEAVE, goog.events.EventType.MSPOINTERLEAVE, goog.events.EventType.MOUSELEAVE)};
+goog.events.PointerAsMouseEventType = {MOUSEDOWN:goog.events.PointerFallbackEventType.POINTERDOWN, MOUSEUP:goog.events.PointerFallbackEventType.POINTERUP, MOUSECANCEL:goog.events.PointerFallbackEventType.POINTERCANCEL, MOUSEMOVE:goog.events.PointerFallbackEventType.POINTERMOVE, MOUSEOVER:goog.events.PointerFallbackEventType.POINTEROVER, MOUSEOUT:goog.events.PointerFallbackEventType.POINTEROUT, MOUSEENTER:goog.events.PointerFallbackEventType.POINTERENTER, MOUSELEAVE:goog.events.PointerFallbackEventType.POINTERLEAVE};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
@@ -3939,7 +3747,7 @@ goog.async.run = function(callback, opt_context) {
   goog.async.run.workQueue_.add(callback, opt_context);
 };
 goog.async.run.initializeRunner_ = function() {
-  if (-1 != String(goog.global.Promise).indexOf("[native code]")) {
+  if (goog.global.Promise && goog.global.Promise.resolve) {
     var promise = goog.global.Promise.resolve(void 0);
     goog.async.run.schedule_ = function() {
       promise.then(goog.async.run.processWorkQueue);
@@ -7637,10 +7445,14 @@ goog.dom.safe.setObjectData = function(object, url) {
 goog.dom.safe.setScriptSrc = function(script, url) {
   goog.dom.asserts.assertIsHTMLScriptElement(script);
   script.src = goog.html.TrustedResourceUrl.unwrap(url);
+  var nonce = goog.getScriptNonce();
+  nonce && (script.nonce = nonce);
 };
 goog.dom.safe.setScriptContent = function(script, content) {
   goog.dom.asserts.assertIsHTMLScriptElement(script);
   script.text = goog.html.SafeScript.unwrap(content);
+  var nonce = goog.getScriptNonce();
+  nonce && (script.nonce = nonce);
 };
 goog.dom.safe.setLocationHref = function(loc, url) {
   goog.dom.asserts.assertIsLocation(loc);
@@ -8469,10 +8281,11 @@ goog.dom.getAncestor = function(element, matcher, opt_includeNode, opt_maxSearch
 };
 goog.dom.getActiveElement = function(doc) {
   try {
-    return doc && doc.activeElement;
+    var activeElement = doc && doc.activeElement;
+    return activeElement && activeElement.nodeName ? activeElement : null;
   } catch (e) {
+    return null;
   }
-  return null;
 };
 goog.dom.getPixelRatio = function() {
   var win = goog.dom.getWindow();
@@ -14225,19 +14038,19 @@ ee.data.Profiler.Format.prototype.toString = function() {
 ee.data.Profiler.Format.TEXT = new ee.data.Profiler.Format("text");
 ee.data.Profiler.Format.JSON = new ee.data.Profiler.Format("json");
 (function() {
-  var exportedFnInfo = {}, orderedFnNames = "ee.data.setApiKey ee.Feature ee.ImageCollection.prototype.select ee.Image.rgb ee.Algorithms ee.Image.prototype.expression ee.call ee.FeatureCollection ee.data.getXsrfToken ee.Filter.prototype.not ee.Geometry ee.Collection.prototype.map ee.data.getTileUrl ee.Collection.prototype.iterate ee.Geometry.Point ee.Filter.date ee.Date ee.TILE_SIZE ee.Filter.neq ee.data.getInfo ee.data.makeTableDownloadUrl ee.data.makeDownloadUrl ee.data.authenticateViaPrivateKey ee.data.setAuthTokenRefresher ee.Collection.prototype.limit ee.Geometry.prototype.serialize ee.FeatureCollection.prototype.select ee.Deserializer.fromJSON ee.data.getTileBaseUrl ee.Collection.prototype.filterBounds ee.Collection.prototype.sort ee.data.getValue ee.Geometry.Polygon ee.data.authenticateViaOauth ee.Element.prototype.set ee.apply ee.ImageCollection ee.data.getApiBaseUrl ee.Geometry.MultiPoint ee.Number ee.Serializer.toReadableJSON ee.data.makeThumbUrl ee.Geometry.prototype.toGeoJSONString ee.Filter.metadata ee.ComputedObject.prototype.serialize ee.String ee.Collection.prototype.filterDate ee.Geometry.LinearRing ee.data.clearAuthToken ee.Geometry.prototype.toGeoJSON ee.Serializer.encode ee.ApiFunction.lookup ee.Filter.eq ee.data.getList ee.data.authenticateViaPopup ee.data.setDeadline ee.Terrain ee.Geometry.Rectangle ee.Collection.prototype.filterMetadata ee.Deserializer.decode ee.Image.prototype.getDownloadURL ee.Image.prototype.getInfo ee.Image.prototype.clip ee.Filter.bounds ee.ComputedObject.prototype.aside ee.Filter.lt ee.ComputedObject.prototype.getInfo ee.data.setAuthToken ee.Image.cat ee.Image.prototype.getThumbURL ee.data.getDownloadId ee.FeatureCollection.prototype.getDownloadURL ee.List ee.Filter.inList ee.ImageCollection.prototype.getInfo ee.Filter.or ee.InitState ee.Feature.prototype.getMap ee.Filter.gt ee.ComputedObject.prototype.evaluate ee.Image.prototype.getMap ee.Serializer.toJSON ee.Geometry.MultiPolygon ee.initialize ee.Image.prototype.rename ee.ApiFunction._apply ee.Function.prototype.apply ee.data.getMapId ee.Filter ee.data.getAuthScopes ee.ApiFunction._call ee.Filter.and ee.data.getAuthToken ee.FeatureCollection.prototype.getMap ee.Filter.gte ee.Image ee.Dictionary ee.data.getAuthClientId ee.data.getThumbId ee.Collection.prototype.filter ee.Function.prototype.call ee.Geometry.MultiLineString ee.data.getTableDownloadId ee.data.authenticate ee.ImageCollection.prototype.getMap ee.Geometry.LineString ee.FeatureCollection.prototype.getInfo ee.Filter.lte ee.Feature.prototype.getInfo ee.reset ee.Image.prototype.select".split(" "), 
-  orderedParamLists = [["apiKey"], ["geometry", "opt_properties"], ["selectors", "opt_names"], ["r", "g", "b"], [], ["expression", "opt_map"], ["func", "var_args"], ["args", "opt_column"], [], [], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["algorithm", "opt_dropNulls"], ["mapid", "x", "y", "z"], ["algorithm", "opt_first"], ["coords", "opt_proj"], ["start", "opt_end"], ["date", "opt_tz"], [], ["name", "value"], ["id", "opt_callback"], ["id"], ["id"], ["privateKey", "opt_success", "opt_error", 
-  "opt_extraScopes"], ["refresher"], ["max", "opt_property", "opt_ascending"], [], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["json"], [], ["geometry"], ["property", "opt_ascending"], ["params", "opt_callback"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["var_args"], ["func", "namedArgs"], ["args"], [], ["coords", "opt_proj"], ["number"], ["obj"], ["id"], [], ["name", 
-  "operator", "value"], [], ["string"], ["start", "opt_end"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], [], ["obj", "opt_isCompound"], ["name"], ["name", "value"], ["params", "opt_callback"], ["opt_success", "opt_error"], ["milliseconds"], [], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["name", "operator", "value"], ["json"], ["params", "opt_callback"], ["opt_callback"], ["geometry"], ["geometry", "opt_errorMargin"], ["func", "var_args"], ["name", "value"], ["opt_callback"], 
-  "clientId tokenType accessToken expiresIn opt_extraScopes opt_callback opt_updateAuthLibrary".split(" "), ["var_args"], ["params", "opt_callback"], ["params", "opt_callback"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["list"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], ["opt_callback"], ["var_args"], [], ["opt_visParams", "opt_callback"], ["name", "value"], ["callback"], ["opt_visParams", "opt_callback"], ["obj"], ["coords", "opt_proj", "opt_geodesic", 
-  "opt_maxError", "opt_evenOdd"], ["opt_baseurl", "opt_tileurl", "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], ["var_args"], ["name", "namedArgs"], ["namedArgs"], ["params", "opt_callback"], ["opt_filter"], [], ["name", "var_args"], ["var_args"], [], ["opt_visParams", "opt_callback"], ["name", "value"], ["opt_args"], ["opt_dict"], [], ["params", "opt_callback"], ["newFilter"], ["var_args"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["params", "opt_callback"], ["clientId", 
-  "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["opt_visParams", "opt_callback"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["opt_callback"], ["name", "value"], ["opt_callback"], [], ["var_args"]];
-  [ee.data.setApiKey, ee.Feature, ee.ImageCollection.prototype.select, ee.Image.rgb, ee.Algorithms, ee.Image.prototype.expression, ee.call, ee.FeatureCollection, ee.data.getXsrfToken, ee.Filter.prototype.not, ee.Geometry, ee.Collection.prototype.map, ee.data.getTileUrl, ee.Collection.prototype.iterate, ee.Geometry.Point, ee.Filter.date, ee.Date, ee.TILE_SIZE, ee.Filter.neq, ee.data.getInfo, ee.data.makeTableDownloadUrl, ee.data.makeDownloadUrl, ee.data.authenticateViaPrivateKey, ee.data.setAuthTokenRefresher, 
-  ee.Collection.prototype.limit, ee.Geometry.prototype.serialize, ee.FeatureCollection.prototype.select, ee.Deserializer.fromJSON, ee.data.getTileBaseUrl, ee.Collection.prototype.filterBounds, ee.Collection.prototype.sort, ee.data.getValue, ee.Geometry.Polygon, ee.data.authenticateViaOauth, ee.Element.prototype.set, ee.apply, ee.ImageCollection, ee.data.getApiBaseUrl, ee.Geometry.MultiPoint, ee.Number, ee.Serializer.toReadableJSON, ee.data.makeThumbUrl, ee.Geometry.prototype.toGeoJSONString, ee.Filter.metadata, 
-  ee.ComputedObject.prototype.serialize, ee.String, ee.Collection.prototype.filterDate, ee.Geometry.LinearRing, ee.data.clearAuthToken, ee.Geometry.prototype.toGeoJSON, ee.Serializer.encode, ee.ApiFunction.lookup, ee.Filter.eq, ee.data.getList, ee.data.authenticateViaPopup, ee.data.setDeadline, ee.Terrain, ee.Geometry.Rectangle, ee.Collection.prototype.filterMetadata, ee.Deserializer.decode, ee.Image.prototype.getDownloadURL, ee.Image.prototype.getInfo, ee.Image.prototype.clip, ee.Filter.bounds, 
-  ee.ComputedObject.prototype.aside, ee.Filter.lt, ee.ComputedObject.prototype.getInfo, ee.data.setAuthToken, ee.Image.cat, ee.Image.prototype.getThumbURL, ee.data.getDownloadId, ee.FeatureCollection.prototype.getDownloadURL, ee.List, ee.Filter.inList, ee.ImageCollection.prototype.getInfo, ee.Filter.or, ee.InitState, ee.Feature.prototype.getMap, ee.Filter.gt, ee.ComputedObject.prototype.evaluate, ee.Image.prototype.getMap, ee.Serializer.toJSON, ee.Geometry.MultiPolygon, ee.initialize, ee.Image.prototype.rename, 
-  ee.ApiFunction._apply, ee.Function.prototype.apply, ee.data.getMapId, ee.Filter, ee.data.getAuthScopes, ee.ApiFunction._call, ee.Filter.and, ee.data.getAuthToken, ee.FeatureCollection.prototype.getMap, ee.Filter.gte, ee.Image, ee.Dictionary, ee.data.getAuthClientId, ee.data.getThumbId, ee.Collection.prototype.filter, ee.Function.prototype.call, ee.Geometry.MultiLineString, ee.data.getTableDownloadId, ee.data.authenticate, ee.ImageCollection.prototype.getMap, ee.Geometry.LineString, ee.FeatureCollection.prototype.getInfo, 
-  ee.Filter.lte, ee.Feature.prototype.getInfo, ee.reset, ee.Image.prototype.select].forEach(function(fn, i) {
+  var exportedFnInfo = {}, orderedFnNames = "ee.Dictionary ee.apply ee.ApiFunction._call ee.Feature.prototype.getInfo ee.Filter.date ee.Filter.metadata ee.Filter.lte ee.Geometry ee.FeatureCollection.prototype.getDownloadURL ee.Filter.gt ee.Geometry.LineString ee.data.makeThumbUrl ee.String ee.Image.cat ee.Collection.prototype.filterBounds ee.Filter ee.Image.prototype.getInfo ee.Geometry.prototype.toGeoJSONString ee.Filter.and ee.Element.prototype.set ee.Algorithms ee.data.getValue ee.data.authenticateViaPopup ee.ComputedObject.prototype.evaluate ee.data.setApiKey ee.Geometry.MultiPolygon ee.Image.prototype.select ee.ImageCollection.prototype.select ee.data.getList ee.Collection.prototype.filterMetadata ee.data.getAuthToken ee.Function.prototype.call ee.Filter.lt ee.Collection.prototype.map ee.Image.prototype.clip ee.data.authenticateViaPrivateKey ee.ComputedObject.prototype.serialize ee.Geometry.MultiPoint ee.data.getApiBaseUrl ee.TILE_SIZE ee.List ee.Filter.eq ee.Collection.prototype.filter ee.ComputedObject.prototype.getInfo ee.data.getXsrfToken ee.ImageCollection.prototype.getMap ee.ComputedObject.prototype.aside ee.FeatureCollection.prototype.select ee.data.authenticate ee.Filter.or ee.call ee.data.authenticateViaOauth ee.Image.prototype.rename ee.Geometry.prototype.serialize ee.Serializer.toReadableJSON ee.Collection.prototype.filterDate ee.data.setDeadline ee.ImageCollection.prototype.getInfo ee.Geometry.Polygon ee.data.makeTableDownloadUrl ee.FeatureCollection.prototype.getInfo ee.ImageCollection ee.Image ee.Geometry.Point ee.Serializer.toJSON ee.initialize ee.FeatureCollection ee.Deserializer.fromJSON ee.Image.prototype.getMap ee.data.setAuthToken ee.Collection.prototype.iterate ee.data.getDownloadId ee.Filter.neq ee.data.setAuthTokenRefresher ee.Function.prototype.apply ee.data.getInfo ee.data.makeDownloadUrl ee.Deserializer.decode ee.data.getAuthClientId ee.FeatureCollection.prototype.getMap ee.Filter.inList ee.ApiFunction._apply ee.data.clearAuthToken ee.data.getTableDownloadId ee.Geometry.MultiLineString ee.Geometry.prototype.toGeoJSON ee.Serializer.encode ee.Image.rgb ee.Image.prototype.getDownloadURL ee.Feature ee.Collection.prototype.sort ee.ApiFunction.lookup ee.Number ee.InitState ee.Image.prototype.getThumbURL ee.data.getTileBaseUrl ee.Date ee.Geometry.LinearRing ee.Feature.prototype.getMap ee.Collection.prototype.limit ee.reset ee.data.getTileUrl ee.Filter.prototype.not ee.Image.prototype.expression ee.Terrain ee.Geometry.Rectangle ee.data.getThumbId ee.Filter.gte ee.Filter.bounds ee.data.getAuthScopes ee.data.getMapId".split(" "), 
+  orderedParamLists = [["opt_dict"], ["func", "namedArgs"], ["name", "var_args"], ["opt_callback"], ["start", "opt_end"], ["name", "operator", "value"], ["name", "value"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["name", "value"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["id"], ["string"], ["var_args"], ["geometry"], ["opt_filter"], ["opt_callback"], [], ["var_args"], ["var_args"], [], ["params", "opt_callback"], 
+  ["opt_success", "opt_error"], ["callback"], ["apiKey"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["var_args"], ["selectors", "opt_names"], ["params", "opt_callback"], ["name", "operator", "value"], [], ["var_args"], ["name", "value"], ["algorithm", "opt_dropNulls"], ["geometry"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes"], [], ["coords", "opt_proj"], [], [], ["list"], ["name", "value"], ["newFilter"], ["opt_callback"], [], ["opt_visParams", "opt_callback"], 
+  ["func", "var_args"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["var_args"], ["func", "var_args"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["var_args"], [], ["obj"], ["start", "opt_end"], ["milliseconds"], ["opt_callback"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["id"], ["opt_callback"], ["args"], ["opt_args"], ["coords", 
+  "opt_proj"], ["obj"], ["opt_baseurl", "opt_tileurl", "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], ["args", "opt_column"], ["json"], ["opt_visParams", "opt_callback"], "clientId tokenType accessToken expiresIn opt_extraScopes opt_callback opt_updateAuthLibrary".split(" "), ["algorithm", "opt_first"], ["params", "opt_callback"], ["name", "value"], ["refresher"], ["namedArgs"], ["id", "opt_callback"], ["id"], ["json"], [], ["opt_visParams", "opt_callback"], ["opt_leftField", "opt_rightValue", 
+  "opt_rightField", "opt_leftValue"], ["name", "namedArgs"], [], ["params", "opt_callback"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], ["obj", "opt_isCompound"], ["r", "g", "b"], ["params", "opt_callback"], ["geometry", "opt_properties"], ["property", "opt_ascending"], ["name"], ["number"], [], ["params", "opt_callback"], [], ["date", "opt_tz"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["opt_visParams", "opt_callback"], ["max", "opt_property", "opt_ascending"], [], 
+  ["mapid", "x", "y", "z"], [], ["expression", "opt_map"], [], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["params", "opt_callback"], ["name", "value"], ["geometry", "opt_errorMargin"], [], ["params", "opt_callback"]];
+  [ee.Dictionary, ee.apply, ee.ApiFunction._call, ee.Feature.prototype.getInfo, ee.Filter.date, ee.Filter.metadata, ee.Filter.lte, ee.Geometry, ee.FeatureCollection.prototype.getDownloadURL, ee.Filter.gt, ee.Geometry.LineString, ee.data.makeThumbUrl, ee.String, ee.Image.cat, ee.Collection.prototype.filterBounds, ee.Filter, ee.Image.prototype.getInfo, ee.Geometry.prototype.toGeoJSONString, ee.Filter.and, ee.Element.prototype.set, ee.Algorithms, ee.data.getValue, ee.data.authenticateViaPopup, ee.ComputedObject.prototype.evaluate, 
+  ee.data.setApiKey, ee.Geometry.MultiPolygon, ee.Image.prototype.select, ee.ImageCollection.prototype.select, ee.data.getList, ee.Collection.prototype.filterMetadata, ee.data.getAuthToken, ee.Function.prototype.call, ee.Filter.lt, ee.Collection.prototype.map, ee.Image.prototype.clip, ee.data.authenticateViaPrivateKey, ee.ComputedObject.prototype.serialize, ee.Geometry.MultiPoint, ee.data.getApiBaseUrl, ee.TILE_SIZE, ee.List, ee.Filter.eq, ee.Collection.prototype.filter, ee.ComputedObject.prototype.getInfo, 
+  ee.data.getXsrfToken, ee.ImageCollection.prototype.getMap, ee.ComputedObject.prototype.aside, ee.FeatureCollection.prototype.select, ee.data.authenticate, ee.Filter.or, ee.call, ee.data.authenticateViaOauth, ee.Image.prototype.rename, ee.Geometry.prototype.serialize, ee.Serializer.toReadableJSON, ee.Collection.prototype.filterDate, ee.data.setDeadline, ee.ImageCollection.prototype.getInfo, ee.Geometry.Polygon, ee.data.makeTableDownloadUrl, ee.FeatureCollection.prototype.getInfo, ee.ImageCollection, 
+  ee.Image, ee.Geometry.Point, ee.Serializer.toJSON, ee.initialize, ee.FeatureCollection, ee.Deserializer.fromJSON, ee.Image.prototype.getMap, ee.data.setAuthToken, ee.Collection.prototype.iterate, ee.data.getDownloadId, ee.Filter.neq, ee.data.setAuthTokenRefresher, ee.Function.prototype.apply, ee.data.getInfo, ee.data.makeDownloadUrl, ee.Deserializer.decode, ee.data.getAuthClientId, ee.FeatureCollection.prototype.getMap, ee.Filter.inList, ee.ApiFunction._apply, ee.data.clearAuthToken, ee.data.getTableDownloadId, 
+  ee.Geometry.MultiLineString, ee.Geometry.prototype.toGeoJSON, ee.Serializer.encode, ee.Image.rgb, ee.Image.prototype.getDownloadURL, ee.Feature, ee.Collection.prototype.sort, ee.ApiFunction.lookup, ee.Number, ee.InitState, ee.Image.prototype.getThumbURL, ee.data.getTileBaseUrl, ee.Date, ee.Geometry.LinearRing, ee.Feature.prototype.getMap, ee.Collection.prototype.limit, ee.reset, ee.data.getTileUrl, ee.Filter.prototype.not, ee.Image.prototype.expression, ee.Terrain, ee.Geometry.Rectangle, ee.data.getThumbId, 
+  ee.Filter.gte, ee.Filter.bounds, ee.data.getAuthScopes, ee.data.getMapId].forEach(function(fn, i) {
     fn && (exportedFnInfo[fn.toString()] = {name:orderedFnNames[i], paramNames:orderedParamLists[i]});
   });
   goog.global.EXPORTED_FN_INFO = exportedFnInfo;
