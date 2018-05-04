@@ -819,20 +819,99 @@ goog.exportSymbol('ee.data.getTaskStatus', ee.data.getTaskStatus);
 
 
 /**
+ * The maximum number of tasks to retrieve in each request to "/tasklist".
+ * @private @const {number}
+ */
+ee.data.TASKLIST_PAGE_SIZE_ = 500;
+
+
+/**
  * Retrieve a list of the users tasks.
  *
- * @param {function(ee.data.TaskListResponse, string=)=} opt_callback
+ * @param {?function(!ee.data.TaskListResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is
  *     made synchronously.
- * @return {ee.data.TaskListResponse} An array of existing tasks,
+ * @return {?ee.data.TaskListResponse} An array of existing tasks,
  *     or null if a callback is specified.
  */
 ee.data.getTaskList = function(opt_callback) {
-  var url = '/tasklist';
-  return /** @type {ee.data.TaskListResponse} */ (
-      ee.data.send_(url, null, opt_callback, 'GET'));
+  return ee.data.getTaskListWithLimit(undefined, opt_callback);
 };
 goog.exportSymbol('ee.data.getTaskList', ee.data.getTaskList);
+
+
+/**
+ * Retrieve a list of the users tasks.
+ *
+ * @param {number=} opt_limit An optional limit to the number of tasks returned.
+ *     If not supplied, all tasks are returned.
+ * @param {?function(!ee.data.TaskListResponse, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is
+ *     made synchronously.
+ * @return {?ee.data.TaskListResponse} An array of existing tasks,
+ *     or null if a callback is specified.
+ */
+ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
+  var url = '/tasklist';
+  var taskListResponse = {'tasks': []};
+
+  // buildParams returns a configured params object.
+  function buildParams(pageToken) {
+    const params = {'pagesize': ee.data.TASKLIST_PAGE_SIZE_};
+    if (opt_limit) {
+      // pagesize is the lesser of TASKLIST_PAGE_SIZE_ and the number of
+      // remaining tasks to retrieve.
+      params['pagesize'] = Math.min(
+          params['pagesize'], opt_limit - taskListResponse.tasks.length);
+    }
+    if (pageToken) {
+      params['pagetoken'] = pageToken;
+    }
+    return params;
+  }
+
+  // inner retrieves the task list asynchronously and calls callback with a
+  // response/error when done.
+  function inner(callback, opt_pageToken) {
+    const params = buildParams(opt_pageToken);
+    ee.data.send_(url, ee.data.makeRequest_(params), function(resp, err) {
+      if (err) {
+        callback(taskListResponse, err);
+        return;
+      }
+      goog.array.extend(taskListResponse.tasks, resp.tasks);
+      if (!resp.next_page_token ||
+          (opt_limit && taskListResponse.tasks.length >= opt_limit)) {
+        callback(taskListResponse);
+      } else {
+        inner(callback, resp.next_page_token);
+      }
+    }, 'GET');
+  }
+
+  if (opt_callback) {
+    // Handle the asynchronous case.
+    inner(opt_callback);
+    return null;
+  } else {
+    // Handle the synchronous case.
+    let nextPageToken = '';
+    while (true) {
+      const params = buildParams(nextPageToken);
+      const resp =
+          ee.data.send_(url, ee.data.makeRequest_(params), undefined, 'GET');
+      goog.array.extend(taskListResponse.tasks, resp.tasks);
+      nextPageToken = resp.next_page_token;
+
+      if (!resp.next_page_token ||
+          (opt_limit && taskListResponse.tasks.length >= opt_limit)) {
+        break;
+      }
+    }
+  }
+  return /** @type {?ee.data.TaskListResponse} */ (taskListResponse);
+};
+goog.exportSymbol('ee.data.getTaskListWithLimit', ee.data.getTaskListWithLimit);
 
 
 /**
@@ -2091,6 +2170,36 @@ ee.data.MapZoomRange = {
  */
 ee.data.AbstractTaskConfig;
 
+/**
+ * An object for specifying configuration of a task to export an image
+ * substuting a format options dictionary for format-specific options.
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: string,
+ *   json: string,
+ *   description: (undefined|string),
+ *   sourceURL: (undefined|string),
+ *   crs: (undefined|string),
+ *   crs_transform: (undefined|string),
+ *   dimensions: (undefined|string),
+ *   scale: (undefined|number),
+ *   region: (undefined|string),
+ *   maxPixels: (undefined|number),
+ *   shardSize: (undefined|number),
+ *   fileDimensions: (undefined|string|number|?Array<number>),
+ *   skipEmptyTiles: (undefined|boolean),
+ *   fileFormat: (undefined|string),
+ *   formatOptions: (undefined|!ee.data.ImageExportFormatConfig),
+ *   driveFolder: (undefined|string),
+ *   driveFileNamePrefix: (undefined|string),
+ *   outputBucket: (undefined|string),
+ *   outputPrefix: (undefined|string),
+ *   assetId: (undefined|string),
+ *   pyramidingPolicy: (undefined|string)
+ * }}
+ */
+ee.data.ImageTaskConfigUnformatted;
 
 /**
  * An object for specifying configuration of a task to export an image.
@@ -2111,6 +2220,8 @@ ee.data.AbstractTaskConfig;
  *   shardSize: (undefined|number),
  *   fileDimensions: (undefined|string|number|Array<number>),
  *   skipEmptyTiles: (undefined|boolean),
+ *   fileFormat: (undefined|string),
+ *   tiffCloudOptimized: (undefined|boolean),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),
@@ -2120,6 +2231,16 @@ ee.data.AbstractTaskConfig;
  * }}
  */
 ee.data.ImageTaskConfig;
+
+
+/**
+ * An object for specifying format specific image export options.
+ *
+ * @typedef {{
+ *   cloudOptimized: (undefined|boolean)
+ * }}
+ */
+ee.data.ImageExportFormatConfig;
 
 
 /**
@@ -2295,6 +2416,11 @@ ee.data.TaskListResponse = class {
      * @export {!Array<!ee.data.TaskStatus>}
      */
     this.tasks;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.next_page_token;
   }
 };
 
@@ -2731,7 +2857,7 @@ ee.data.send_ = function(path, params, opt_callback, opt_method) {
  * The callback is wrapped so that exponential backoff is used in response to
  * 429 errors.
  * @param {string} url The request's URL.
- * @param {!function(?, string=)} callback The callback to execute when the
+ * @param {function(?, string=)} callback The callback to execute when the
  *     request gets a response.
  * @param {string} method The request's HTTP method.
  * @param {?string} content The content of the request.
@@ -3086,7 +3212,7 @@ ee.data.NetworkRequest_ = class {
     this.url;
 
     /**
-     * @type {!function(?, string=)}
+     * @type {function(?, string=)}
      */
     this.callback;
 

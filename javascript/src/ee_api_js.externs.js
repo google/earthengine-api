@@ -892,10 +892,17 @@ ee.data.getMapId = function(params, opt_callback) {
 ee.data.getTableDownloadId = function(params, opt_callback) {
 };
 /**
- * @param {function((ee.data.TaskListResponse|null), string=): ?=} opt_callback
+ * @param {(function(!ee.data.TaskListResponse, string=): ?|null)=} opt_callback
  * @return {(ee.data.TaskListResponse|null)}
  */
 ee.data.getTaskList = function(opt_callback) {
+};
+/**
+ * @param {number=} opt_limit
+ * @param {(function(!ee.data.TaskListResponse, string=): ?|null)=} opt_callback
+ * @return {(ee.data.TaskListResponse|null)}
+ */
+ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
 };
 /**
  * @param {(Array<string>|string)} taskId

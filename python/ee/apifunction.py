@@ -177,58 +177,76 @@ class ApiFunction(function.Function):
       opt_prepend: An optional string to prepend to the names of the
           added functions.
     """
+
+    def addSignature(target, fname, name, type_name, signature, api_func,
+                     deprecated_signature):
+      """Adds the signature of a function to the target."""
+      # Specifically handle the function names that are illegal in python.
+      if keyword.iskeyword(fname):
+        fname = fname.title()
+
+      # Don't overwrite existing versions of this function.
+      if (hasattr(target, fname) and
+          not hasattr(getattr(target, fname), 'signature')):
+        return
+
+      # Create a new function so we can attach properties to it.
+      def MakeBoundFunction(func):
+        # We need the lambda to capture "func" from the enclosing scope.
+        return lambda *args, **kwargs: func.call(*args, **kwargs)  # pylint: disable=unnecessary-lambda
+
+      bound_function = MakeBoundFunction(api_func)
+
+      # Add docs.
+      try:
+        setattr(bound_function, '__name__', str(name))
+      except TypeError:
+        setattr(bound_function, '__name__', name.encode('utf8'))
+      try:
+        bound_function.__doc__ = str(api_func)
+      except UnicodeEncodeError:
+        bound_function.__doc__ = api_func.__str__().encode('utf8')
+
+      # Attach the signature object for documentation generators.
+      bound_function.signature = signature
+
+      # Mark as deprecated if needed.
+      if deprecated_signature:
+        deprecated_decorator = deprecation.Deprecated(deprecated_signature)
+        bound_function = deprecated_decorator(bound_function)
+
+      # Decide whether this is a static or an instance function.
+      is_instance = (
+          signature['args'] and
+          ee_types.isSubtype(signature['args'][0]['type'], type_name))
+      if not is_instance:
+        bound_function = staticmethod(bound_function)
+
+      # Attach the function as a method.
+      setattr(target, fname, bound_function)
+
     cls.initialize()
-    prepend = opt_prepend or ''
     for name, api_func in cls._api.items():
       parts = name.split('.')
       if len(parts) == 2 and parts[0] == prefix:
-        fname = prepend + parts[1]
         signature = api_func.getSignature()
-
+        # Mark signature as used.
         cls._bound_signatures.add(name)
 
-        # Specifically handle the function names that are illegal in python.
-        if keyword.iskeyword(fname):
-          fname = fname.title()
+        if opt_prepend:
+          # Add the old-style (deprecated) name with underscore, e.g. focal_min
+          part_1 = parts[1]
+          fname_with_underscore = opt_prepend + '_' + part_1
+          fname_camelcase = opt_prepend + part_1[0].upper() + part_1[1:]
+          addSignature(target, fname_with_underscore, name, type_name,
+                       signature, api_func, 'Use ' + fname_camelcase + '().')
 
-        # Don't overwrite existing versions of this function.
-        if (hasattr(target, fname) and
-            not hasattr(getattr(target, fname), 'signature')):
-          continue
-
-        # Create a new function so we can attach properties to it.
-        def MakeBoundFunction(func):
-          # We need the lambda to capture "func" from the enclosing scope.
-          return lambda *args, **kwargs: func.call(*args, **kwargs)  # pylint: disable=unnecessary-lambda
-        bound_function = MakeBoundFunction(api_func)
-
-        # Add docs.
-        try:
-          setattr(bound_function, '__name__', str(name))
-        except TypeError:
-          setattr(bound_function, '__name__', name.encode('utf8'))
-        try:
-          bound_function.__doc__ = str(api_func)
-        except UnicodeEncodeError:
-          bound_function.__doc__ = api_func.__str__().encode('utf8')
-
-        # Attach the signature object for documentation generators.
-        bound_function.signature = signature
-
-        # Mark as deprecated if needed.
-        if signature.get('deprecated'):
-          deprecated_decorator = deprecation.Deprecated(signature['deprecated'])
-          bound_function = deprecated_decorator(bound_function)
-
-        # Decide whether this is a static or an instance function.
-        is_instance = (signature['args'] and
-                       ee_types.isSubtype(signature['args'][0]['type'],
-                                          type_name))
-        if not is_instance:
-          bound_function = staticmethod(bound_function)
-
-        # Attach the function as a method.
-        setattr(target, fname, bound_function)
+          # Add the new-style camelcase name, e.g. focalMin
+          addSignature(target, fname_camelcase, name, type_name, signature,
+                       api_func, signature.get('deprecated'))
+        else:
+          addSignature(target, parts[1], name, type_name, signature, api_func,
+                       signature.get('deprecated'))
 
   @staticmethod
   def clearApi(target):

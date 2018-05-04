@@ -31,7 +31,7 @@ class Collection(element.Element):
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Collection', 'Collection')
       apifunction.ApiFunction.importApi(
-          cls, 'AggregateFeatureCollection', 'Collection', 'aggregate_')
+          cls, 'AggregateFeatureCollection', 'Collection', 'aggregate')
       cls._initialized = True
 
   @classmethod

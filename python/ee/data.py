@@ -91,6 +91,9 @@ ASSET_TYPE_IMAGE_COLL = 'ImageCollection'
 # Max length of the above type names
 MAX_TYPE_LENGTH = len(ASSET_TYPE_IMAGE_COLL)
 
+# The maximum number of tasks to retrieve in each request to "/tasklist".
+_TASKLIST_PAGE_SIZE = 500
+
 
 def initialize(credentials=None, api_base_url=None, tile_base_url=None):
   """Initializes the data module, setting credentials and base URLs.
@@ -509,7 +512,16 @@ def getTaskList():
     the current user. These include currently running tasks as well as recently
     canceled or failed tasks.
   """
-  return send_('/tasklist', {}, 'GET')['tasks']
+  params = {'pagesize': _TASKLIST_PAGE_SIZE}
+  tasks = []
+  while True:
+    r = send_('/tasklist', params, 'GET')
+    tasks.extend(r['tasks'])
+    next_page_token = r.get('next_page_token', '')
+    if not next_page_token:
+      break
+    params['pagetoken'] = next_page_token
+  return tasks
 
 
 def getTaskStatus(taskId):

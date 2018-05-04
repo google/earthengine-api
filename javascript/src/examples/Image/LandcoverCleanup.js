@@ -18,9 +18,9 @@ var image2 = image1.select(['Land_Cover_Type_1']);
 // to force the computation to occur at native scale.
 var image3 = image2.reproject('EPSG:4326', null, SCALE);
 // Smooth with a mode filter.
-var image4 = image3.focal_mode();
+var image4 = image3.focalMode();
 // Use erosion and dilation to get rid of small islands.
-var image5 = image4.focal_max(3).focal_min(5).focal_max(3);
+var image5 = image4.focalMax(3).focalMin(5).focalMax(3);
 // Reproject to force the operations to be performed at SCALE.
 var image6 = image5.reproject('EPSG:4326', null, SCALE);
 

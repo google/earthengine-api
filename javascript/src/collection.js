@@ -47,7 +47,7 @@ ee.Collection.initialize = function() {
     ee.ApiFunction.importApi(ee.Collection,
                              'AggregateFeatureCollection',
                              'Collection',
-                             'aggregate_');
+                             'aggregate');
     ee.Collection.initialized_ = true;
   }
 };

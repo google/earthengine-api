@@ -1,13 +1,11 @@
 #!/usr/bin/env python
 """Test for the ee.batch module."""
-
-
+import copy
 
 import unittest
 
 import ee
 from ee import apitestcase
-
 
 TASK_STATUS_1 = {
     'description': 'FirstTestTask',
@@ -211,6 +209,55 @@ class BatchTestCase(apitestcase.ApiTestCase):
             'maxPixels': 10**10,
         },
         task.config)
+
+  def testUnknownFileFormat(self):
+    self.assertRaisesRegexp(ee.EEException, '.*file format.*',
+                            ee.batch.ConvertFormatSpecificParams,
+                            {'fileFormat': 'mp3'})
+
+  def testFormatParamSpecifiedTwice(self):
+    self.assertRaisesRegexp(ee.EEException, '.*at least twice.*',
+                            ee.batch.ConvertFormatSpecificParams, {
+                                'cloudOptimized': False,
+                                'formatOptions': {
+                                    'cloudOptimized': True
+                                }
+                            })
+
+  def testDisallowedFormatPrefix(self):
+    self.assertRaisesRegexp(ee.EEException, '.*prefix \'tiff\' disallowed.*',
+                            ee.batch.ConvertFormatSpecificParams, {
+                                'tiffCloudOptimized': False,
+                                'formatOptions': {
+                                    'cloudOptimized': True
+                                }
+                            })
+
+  def testUnknownFormatOption(self):
+    self.assertRaisesRegexp(ee.EEException, '.*not a valid option.*',
+                            ee.batch.ConvertFormatSpecificParams,
+                            {'formatOptions': {
+                                'garbage': 0
+                            }})
+
+  def testConvertFormat(self):
+    config = {
+        'fieldA': 1,
+        'fieldB': 3,
+        'fileFormat': 'GeoTIFF',
+        'formatOptions': {
+            'cloudOptimized': False
+        }
+    }
+    fixed_config = copy.copy(config)
+    ee.batch.ConvertFormatSpecificParams(fixed_config)
+    self.assertEquals(
+        fixed_config, {
+            'fieldA': 1,
+            'fieldB': 3,
+            'fileFormat': 'GeoTIFF',
+            'tiffCloudOptimized': False
+        })
 
   def testExportImageToGoogleDrive(self):
     """Verifies the Drive destined task created by Export.table.toDrive()."""
