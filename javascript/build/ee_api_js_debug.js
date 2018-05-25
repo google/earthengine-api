@@ -206,6 +206,18 @@ goog.getModulePath_ = function() {
 goog.module.declareLegacyNamespace = function() {
   goog.moduleLoaderState_.declareLegacyNamespace = !0;
 };
+goog.module.declareNamespace = function(namespace) {
+  if (goog.moduleLoaderState_) {
+    goog.moduleLoaderState_.moduleName = namespace;
+  } else {
+    var jscomp = goog.global.$jscomp;
+    if (!jscomp || "function" != typeof jscomp.getCurrentModulePath) {
+      throw Error('Module with namespace "' + namespace + '" has been loaded incorrectly.');
+    }
+    var exports = jscomp.require(jscomp.getCurrentModulePath());
+    goog.loadedModules_[namespace] = {exports:exports, type:goog.ModuleType.ES6, moduleId:namespace};
+  }
+};
 goog.setTestOnly = function(opt_message) {
   if (goog.DISALLOW_TEST_ONLY_CODE) {
     throw opt_message = opt_message || "", Error("Importing test-only code into non-debug environment" + (opt_message ? ": " + opt_message : "."));
@@ -234,21 +246,8 @@ goog.ENABLE_DEBUG_LOADER = !0;
 goog.logToConsole_ = function(msg) {
   goog.global.console && goog.global.console.error(msg);
 };
-goog.isPath_ = function(requireOrPath) {
-  return 0 == requireOrPath.indexOf("./") || 0 == requireOrPath.indexOf("../");
-};
-goog.require = function(nameOrPath) {
+goog.require = function(namespace) {
   var moduleLoaderState;
-  if (goog.isPath_(nameOrPath)) {
-    if (goog.isInGoogModuleLoader_()) {
-      if (!goog.getModulePath_()) {
-        throw Error("Current module has no path information. Was it loaded via goog.loadModule without a path argument?");
-      }
-      nameOrPath = goog.normalizePath_(goog.getModulePath_() + "/../" + nameOrPath);
-    } else {
-      throw Error("Cannot require by path outside of goog.modules.");
-    }
-  }
 };
 goog.basePath = "";
 goog.nullFunction = function() {
@@ -5942,7 +5941,7 @@ goog.Timer.prototype.setInterval = function(interval) {
 goog.Timer.prototype.tick_ = function() {
   if (this.enabled) {
     var elapsed = goog.now() - this.last_;
-    0 < elapsed && elapsed < this.interval_ * goog.Timer.intervalScale ? this.timer_ = this.timerObject_.setTimeout(this.boundTick_, this.interval_ - elapsed) : (this.timer_ && (this.timerObject_.clearTimeout(this.timer_), this.timer_ = null), this.dispatchTick(), this.enabled && (this.timer_ = this.timerObject_.setTimeout(this.boundTick_, this.interval_), this.last_ = goog.now()));
+    0 < elapsed && elapsed < this.interval_ * goog.Timer.intervalScale ? this.timer_ = this.timerObject_.setTimeout(this.boundTick_, this.interval_ - elapsed) : (this.timer_ && (this.timerObject_.clearTimeout(this.timer_), this.timer_ = null), this.dispatchTick(), this.enabled && (this.stop(), this.start()));
   }
 };
 goog.Timer.prototype.dispatchTick = function() {
@@ -7451,13 +7450,13 @@ goog.dom.safe.setScriptSrc = function(script, url) {
   goog.dom.asserts.assertIsHTMLScriptElement(script);
   script.src = goog.html.TrustedResourceUrl.unwrap(url);
   var nonce = goog.getScriptNonce();
-  nonce && (script.nonce = nonce);
+  nonce && script.setAttribute("nonce", nonce);
 };
 goog.dom.safe.setScriptContent = function(script, content) {
   goog.dom.asserts.assertIsHTMLScriptElement(script);
   script.text = goog.html.SafeScript.unwrap(content);
   var nonce = goog.getScriptNonce();
-  nonce && (script.nonce = nonce);
+  nonce && script.setAttribute("nonce", nonce);
 };
 goog.dom.safe.setLocationHref = function(loc, url) {
   goog.dom.asserts.assertIsLocation(loc);
@@ -10448,7 +10447,7 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
 };
 goog.exportSymbol("ee.data.getAssetRootQuota", ee.data.getAssetRootQuota);
 ee.data.AssetType = {ALGORITHM:"Algorithm", FOLDER:"Folder", IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", TABLE:"Table", UNKNOWN:"Unknown"};
-ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO"};
+ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO", VIDEO_MAP:"EXPORT_VIDEO_MAP"};
 ee.data.SystemTimeProperty = {START:"system:time_start", END:"system:time_end"};
 ee.data.SYSTEM_ASSET_SIZE_PROPERTY = "system:asset_size";
 ee.data.AssetDetailsProperty = {TITLE:"system:title", DESCRIPTION:"system:description", TAGS:"system:tags"};
@@ -11924,25 +11923,23 @@ ee.ApiFunction.reset = function() {
   ee.ApiFunction.api_ = null;
   ee.ApiFunction.boundSignatures_ = {};
 };
-ee.ApiFunction.importApi = function(target$jscomp$0, prefix, typeName, opt_prepend) {
+ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
   ee.ApiFunction.initialize();
-  var addSignature = function(target, fname, typeName, signature, apiFunc) {
-    var isInstance = !1;
-    if (signature.args.length) {
-      var firstArgType = signature.args[0].type;
-      isInstance = "Object" != firstArgType && ee.Types.isSubtype(firstArgType, typeName);
-    }
-    var destination = isInstance ? target.prototype : target;
-    fname in destination && !destination[fname].signature || (destination[fname] = function(var_args) {
-      return apiFunc.callOrApply(isInstance ? this : void 0, Array.prototype.slice.call(arguments, 0));
-    }, destination[fname].toString = goog.bind(apiFunc.toString, apiFunc, fname, isInstance), destination[fname].signature = signature);
-  };
+  var prepend = opt_prepend || "";
   goog.object.forEach(ee.ApiFunction.api_, function(apiFunc, name) {
     var parts = name.split(".");
     if (2 == parts.length && parts[0] == prefix) {
-      var signature = apiFunc.getSignature();
+      var fname = prepend + parts[1], signature = apiFunc.getSignature();
       ee.ApiFunction.boundSignatures_[name] = !0;
-      void 0 !== opt_prepend ? (addSignature(target$jscomp$0, opt_prepend + "_" + parts[1], typeName, signature, apiFunc), addSignature(target$jscomp$0, opt_prepend + (parts[1].charAt(0).toUpperCase() + parts[1].substr(1)), typeName, signature, apiFunc)) : addSignature(target$jscomp$0, parts[1], typeName, signature, apiFunc);
+      var isInstance = !1;
+      if (signature.args.length) {
+        var firstArgType = signature.args[0].type;
+        isInstance = "Object" != firstArgType && ee.Types.isSubtype(firstArgType, typeName);
+      }
+      var destination = isInstance ? target.prototype : target;
+      fname in destination && !destination[fname].signature || (destination[fname] = function(var_args) {
+        return apiFunc.callOrApply(isInstance ? this : void 0, Array.prototype.slice.call(arguments, 0));
+      }, destination[fname].toString = goog.bind(apiFunc.toString, apiFunc, fname, isInstance), destination[fname].signature = signature);
     }
   });
 };
@@ -12163,7 +12160,7 @@ goog.inherits(ee.Collection, ee.Element);
 goog.exportSymbol("ee.Collection", ee.Collection);
 ee.Collection.initialized_ = !1;
 ee.Collection.initialize = function() {
-  ee.Collection.initialized_ || (ee.ApiFunction.importApi(ee.Collection, "Collection", "Collection"), ee.ApiFunction.importApi(ee.Collection, "AggregateFeatureCollection", "Collection", "aggregate"), ee.Collection.initialized_ = !0);
+  ee.Collection.initialized_ || (ee.ApiFunction.importApi(ee.Collection, "Collection", "Collection"), ee.ApiFunction.importApi(ee.Collection, "AggregateFeatureCollection", "Collection", "aggregate_"), ee.Collection.initialized_ = !0);
 };
 ee.Collection.reset = function() {
   ee.ApiFunction.clearApi(ee.Collection);
@@ -13019,7 +13016,7 @@ ee.Image = function(opt_args) {
 goog.inherits(ee.Image, ee.Element);
 ee.Image.initialized_ = !1;
 ee.Image.initialize = function() {
-  ee.Image.initialized_ || (ee.ApiFunction.importApi(ee.Image, "Image", "Image"), ee.ApiFunction.importApi(ee.Image, "Window", "Image", "focal"), ee.Image.initialized_ = !0);
+  ee.Image.initialized_ || (ee.ApiFunction.importApi(ee.Image, "Image", "Image"), ee.ApiFunction.importApi(ee.Image, "Window", "Image", "focal_"), ee.Image.initialized_ = !0);
 };
 ee.Image.reset = function() {
   ee.ApiFunction.clearApi(ee.Image);

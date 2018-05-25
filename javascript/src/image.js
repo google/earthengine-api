@@ -115,7 +115,7 @@ ee.Image.initialized_ = false;
 ee.Image.initialize = function() {
   if (!ee.Image.initialized_) {
     ee.ApiFunction.importApi(ee.Image, 'Image', 'Image');
-    ee.ApiFunction.importApi(ee.Image, 'Window', 'Image', 'focal');
+    ee.ApiFunction.importApi(ee.Image, 'Window', 'Image', 'focal_');
     ee.Image.initialized_ = true;
   }
 };

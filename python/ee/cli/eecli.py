@@ -47,6 +47,9 @@ def main():
   parser.add_argument(
       '--ee_config', help='Path to the earthengine configuration file. '
       'Defaults to "~/%s".' % utils.DEFAULT_EE_CONFIG_FILE_RELATIVE)
+  parser.add_argument(
+      '--service_account_file', help='Path to a service account credentials'
+      'file.  Overrides any ee_config if specified.')
 
   dispatcher = CommandDispatcher(parser)
 
@@ -56,7 +59,7 @@ def main():
     return
 
   args = parser.parse_args()
-  config = utils.CommandLineConfig(args.ee_config)
+  config = utils.CommandLineConfig(args.ee_config, args.service_account_file)
 
   # Catch EEException errors, which wrap server-side Earth Engine
   # errors, and print the error message without the irrelevant local

@@ -28,14 +28,14 @@ var diff = circles.subtract(squares);
 
 // Scale by 100 and find the best fitting pixel in each neighborhood.
 var diff = diff.abs().multiply(100).toByte();
-var max = diff.focalMax({radius: farmSize * 1.8, units: 'meters'});
+var max = diff.focal_max({radius: farmSize * 1.8, units: 'meters'});
 // If a pixel isn't the local max, set it to 0.
 var local = diff.where(diff.neq(max), 0);
 var thresh = local.gt(2);
 
 // Here, we highlight the maximum differences as "Kernel Peaks"
 // and draw them in red.
-var peaks = thresh.focalMax({kernel: circleKernel});
+var peaks = thresh.focal_max({kernel: circleKernel});
 Map.addLayer(peaks.updateMask(peaks), {palette: 'FF3737'}, 'Kernel Peaks');
 
 // Detect the edges of the features.  Discard the edges with lower intensity.
@@ -48,5 +48,5 @@ var outer = ee.Kernel.circle(farmSize + 20, 'meters', false, 1);
 var ring = outer.add(inner, true);
 
 // Highlight the places where the feature edges best match the circle kernel.
-var centers = canny.convolve(ring).gt(0.5).focalMax({kernel: circleKernel});
+var centers = canny.convolve(ring).gt(0.5).focal_max({kernel: circleKernel});
 Map.addLayer(centers.updateMask(centers), {palette: '4285FF'}, 'Ring centers');

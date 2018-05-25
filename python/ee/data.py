@@ -558,12 +558,13 @@ def startProcessing(taskId, params):
     params: The object that describes the processing task; only fields
       that are common for all processing types are documented below.
         type (string) Either 'EXPORT_IMAGE', 'EXPORT_FEATURES',
-          'EXPORT_VIDEO', or 'EXPORT_TILES'.
+          'EXPORT_VIDEO' or 'EXPORT_TILES'.
         json (string) JSON description of the image.
 
   Returns:
     A dict with optional notes about the created task.
   """
+
   args = params.copy()
   args['id'] = taskId
   return send_('/processingrequest', args)

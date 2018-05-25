@@ -30,7 +30,7 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     self.assertTrue(hasattr(TestClass, 'pre_addBands'))
     self.assertFalse(hasattr(TestClass, '_pre_addBands'))
 
-    ee.ApiFunction.importApi(TestClass, 'Image', 'Image', 'pre')
+    ee.ApiFunction.importApi(TestClass, 'Image', 'Image', 'pre_')
     self.assertFalse(isinstance(TestClass.pre_load, types.MethodType))
     self.assertFalse(hasattr(TestClass, 'select'))
     # Unbound methods are just functions in Python 3. Check both to maintain
@@ -38,10 +38,6 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     self.assertTrue(isinstance(TestClass.pre_select,
                                (types.FunctionType, types.MethodType)))
     self.assertTrue(isinstance(TestClass.pre_addBands,
-                               (types.FunctionType, types.MethodType)))
-    self.assertTrue(isinstance(TestClass.preSelect,
-                               (types.FunctionType, types.MethodType)))
-    self.assertTrue(isinstance(TestClass.preAddBands,
                                (types.FunctionType, types.MethodType)))
     self.assertFalse(hasattr(TestClass, '_pre_addBands'))
 

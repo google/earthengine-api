@@ -234,56 +234,45 @@ ee.ApiFunction.reset = function() {
  */
 ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
   ee.ApiFunction.initialize();
-  var addSignature = function(target, fname, typeName, signature, apiFunc) {
-    // Decide whether this is a static or an instance function.
-    var isInstance = false;
-    if (signature['args'].length) {
-      var firstArgType = signature['args'][0]['type'];
-      isInstance = firstArgType != 'Object' &&
-          ee.Types.isSubtype(firstArgType, typeName);
-    }
-    var destination = isInstance ? target.prototype : target;
-
-    if (fname in destination && !destination[fname]['signature']) {
-      // Don't overwrite client-defined functions.
-      return;
-    }
-
-    // Add the actual function
-    destination[fname] = function(var_args) {
-      return apiFunc.callOrApply(
-          isInstance ? this : undefined,
-          Array.prototype.slice.call(arguments, 0));
-    };
-    // Add a friendly formatting.
-    destination[fname].toString =
-        goog.bind(apiFunc.toString, apiFunc, fname, isInstance);
-    // Attach the signature object for documentation generators.
-    destination[fname]['signature'] = signature;
-  };
-
+  var prepend = opt_prepend || '';
   goog.object.forEach(ee.ApiFunction.api_, function(apiFunc, name) {
     var parts = name.split('.');
     if (parts.length == 2 && parts[0] == prefix) {
+      var fname = prepend + parts[1];
       var signature = apiFunc.getSignature();
-      // Mark signature as used.
+
+      // Mark signatures as used.
       ee.ApiFunction.boundSignatures_[name] = true;
 
-      if (opt_prepend !== undefined) {
-        // Add the old-style (deprecated) name with underscore, e.g. focal_min
-        var fnameWithUnderscore = opt_prepend + '_' + parts[1];
-        addSignature(target, fnameWithUnderscore, typeName, signature, apiFunc);
-
-        // Add the new-style camelcase name, e.g. focalMin
-        var capitalized = parts[1].charAt(0).toUpperCase() + parts[1].substr(1);
-        var fnameCamelcase = opt_prepend + capitalized;
-        addSignature(target, fnameCamelcase, typeName, signature, apiFunc);
-      } else {
-        addSignature(target, parts[1], typeName, signature, apiFunc);
+      // Decide whether this is a static or an instance function.
+      var isInstance = false;
+      if (signature['args'].length) {
+        var firstArgType = signature['args'][0]['type'];
+        isInstance = firstArgType != 'Object' &&
+                     ee.Types.isSubtype(firstArgType, typeName);
       }
+      var destination = isInstance ? target.prototype : target;
+
+      if (fname in destination && !destination[fname]['signature']) {
+        // Don't overwrite client-defined functions.
+        return;
+      }
+
+      // Add the actual function
+      destination[fname] = function(var_args) {
+        return apiFunc.callOrApply(
+            isInstance ? this : undefined,
+            Array.prototype.slice.call(arguments, 0));
+      };
+      // Add a friendly formatting.
+      destination[fname].toString =
+          goog.bind(apiFunc.toString, apiFunc, fname, isInstance);
+      // Attach the signature object for documentation generators.
+      destination[fname]['signature'] = signature;
     }
   });
 };
+
 
 /**
  * Removes all methods added by importApi() from a target class.

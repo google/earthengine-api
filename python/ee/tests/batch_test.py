@@ -244,7 +244,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     config = {
         'fieldA': 1,
         'fieldB': 3,
-        'fileFormat': 'GeoTIFF',
+        'fileFormat': 'GEoTIFF',
         'formatOptions': {
             'cloudOptimized': False
         }
@@ -255,8 +255,25 @@ class BatchTestCase(apitestcase.ApiTestCase):
         fixed_config, {
             'fieldA': 1,
             'fieldB': 3,
-            'fileFormat': 'GeoTIFF',
+            'fileFormat': 'GEoTIFF',
             'tiffCloudOptimized': False
+        })
+
+  def testConvertFormatTfRecord(self):
+    config = {
+        'fileFormat': 'tfrecord',
+        'formatOptions': {
+            'patchDimensions': [10, 10],
+            'compressed': True
+        }
+    }
+    fixed_config = copy.copy(config)
+    ee.batch.ConvertFormatSpecificParams(fixed_config)
+    self.assertEquals(
+        fixed_config, {
+            'fileFormat': 'tfrecord',
+            'tfrecordPatchDimensions': '10,10',
+            'tfrecordCompressed': True
         })
 
   def testExportImageToGoogleDrive(self):
@@ -540,6 +557,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
         collection, 'TestVideoName', 'test-folder', None, None, 16,
         region['coordinates'], None, 'SR-ORG:6627', 'bar')
     self.assertEquals(expected_config, task_ordered.config)
+
+
 
 if __name__ == '__main__':
   unittest.main()

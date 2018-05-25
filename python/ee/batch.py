@@ -189,7 +189,7 @@ class Export(object):
 
       if 'region' in config:
         # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config.get('region'))
+        config['region'] = _GetSerializedRegion(config['region'])
 
       return _CreateTask(
           Task.Type.EXPORT_IMAGE, image, description, config)
@@ -246,7 +246,7 @@ class Export(object):
 
       if 'region' in config:
         # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config.get('region'))
+        config['region'] = _GetSerializedRegion(config['region'])
 
       return _CreateTask(
           Task.Type.EXPORT_IMAGE, image, description, config)
@@ -300,10 +300,9 @@ class Export(object):
         skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
             image tiles. Defaults to false.
         fileFormat: The string file format to which the image is exported.
-            Currently only 'GeoTIFF' is supported, defaults to 'GeoTIFF'.
+            Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
+            'GeoTIFF'.
         formatOptions: A dictionary of string keys to format specific options.
-            Currently optional: only boolean entry 'cloudOptimized' specific to
-            GeoTIFF is supported.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -319,7 +318,7 @@ class Export(object):
 
       if 'region' in config:
         # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config.get('region'))
+        config['region'] = _GetSerializedRegion(config['region'])
 
       return _CreateTask(
           Task.Type.EXPORT_IMAGE, image, description, config)
@@ -371,10 +370,9 @@ class Export(object):
         skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
             image tiles. Defaults to false.
         fileFormat: The string file format to which the image is exported.
-            Currently only 'GeoTIFF' is supported, defaults to 'GeoTIFF'.
+            Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
+            'GeoTIFF'.
         formatOptions: A dictionary of string keys to format specific options.
-            Currently optional: only boolean entry 'cloudOptimized' specific to
-            GeoTIFF is supported.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform', 'driveFolder', and 'driveFileNamePrefix'.
 
@@ -394,7 +392,7 @@ class Export(object):
 
       if 'region' in config:
         # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config.get('region'))
+        config['region'] = _GetSerializedRegion(config['region'])
 
       return _CreateTask(
           Task.Type.EXPORT_IMAGE, image, description, config)
@@ -418,7 +416,8 @@ class Export(object):
 
       Exports a rectangular pyramid of map tiles for use with web map
       viewers. The map tiles will be accompanied by a reference
-      index.html file that displays them using the Google Maps API.
+      index.html file that displays them using the Google Maps API,
+      and an earth.html file for opening the map on Google Earth.
 
       Args:
         image: The image to export as tiles.
@@ -431,7 +430,7 @@ class Export(object):
         path: The string used as the output's path. A trailing '/'
             is optional. Defaults to the task's description.
         writePublicTiles: Whether to write public tiles instead of using the
-            bucket's default object ACL. Defaults to true and requires the
+            bucket's default object ACL. Defaults to True and requires the
             invoker to be an OWNER of bucket.
         maxZoom: The maximum zoom level of the map tiles to export.
         scale: The max image resolution in meters per pixel, as an alternative
@@ -469,7 +468,7 @@ class Export(object):
         config['writePublicTiles'] = True
       if 'region' in config:
         # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config.get('region'))
+        config['region'] = _GetSerializedRegion(config['region'])
 
       return _CreateTask(
           Task.Type.EXPORT_MAP, image, description, config)
@@ -649,7 +648,7 @@ class Export(object):
 
       if 'region' in config:
         # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config.get('region'))
+        config['region'] = _GetSerializedRegion(config['region'])
 
       return _CreateTask(
           Task.Type.EXPORT_VIDEO, collection, description, config)
@@ -713,7 +712,7 @@ class Export(object):
 
       if 'region' in config:
         # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config.get('region'))
+        config['region'] = _GetSerializedRegion(config['region'])
 
       return _CreateTask(
           Task.Type.EXPORT_VIDEO, collection, description, config)
@@ -774,11 +773,11 @@ class Export(object):
 
       if 'region' in config:
         # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config.get('region'))
+        config['region'] = _GetSerializedRegion(config['region'])
 
       return _CreateTask(
           Task.Type.EXPORT_VIDEO, collection, description, config)
-    # pylint: enable=unused-argument
+
 
 
 def _CheckConfigDisallowedPrefixes(config, prefix):
@@ -788,26 +787,41 @@ def _CheckConfigDisallowedPrefixes(config, prefix):
           'Export config parameter prefix \'{}\' disallowed, found \'{}\''.
           format(prefix, key))
 
-
-def _GetFormatSpecificPrefix(formatString):  # pylint: disable=unused-argument
-  # TODO(user): Support formats other than GeoTIFF
-  return 'tiff'
-
+# Mapping from file formats to prefixes attached to format specific config.
+FORMAT_PREFIX_MAP = {'GEOTIFF': 'tiff', 'TFRECORD': 'tfrecord'}
 
 # Configuration field specifying file format for image exports.
 IMAGE_FORMAT_FIELD = 'fileFormat'
 
-# Image format specific options dictionary config field.
+# Image format-specific options dictionary config field.
 IMAGE_FORMAT_OPTIONS_FIELD = 'formatOptions'
 
-# Format specific options permitted in formatOptions config parameter.
-PERMISSABLE_FORMAT_OPTIONS = {'tiffCloudOptimized'}
+# Format-specific options permitted in formatOptions config parameter.
+ALLOWED_FORMAT_OPTIONS = {
+    'tiffCloudOptimized', 'tiffFileDimensions', 'tfrecordPatchDimensions',
+    'tfrecordKernelSize', 'tfrecordCompressed', 'tfrecordMaxFileSize',
+    'tfrecordDefaultValue', 'tfrecordTensorDepths', 'tfrecordSequenceData',
+    'tfrecordCollapseBands', 'tfrecordMaskedThreshold'
+}
+
+
+def _ConvertConfigParams(config):
+  """Converts numeric sequences into comma-separated string representations."""
+  updatedConfig = {}
+  for k, v in config.items():
+    if v and isinstance(v, (list, tuple)):
+      # Leave nested lists/tuples alone. We're only interested in converting
+      # lists of strings or numbers.
+      if not isinstance(v[0], (list, tuple)):
+        updatedConfig[k] = ','.join(str(e) for e in v)
+
+  return updatedConfig
 
 
 # TODO(user): This method and its uses are very hack-y, and once we're using One
 # Platform API we should stop sending arbitrary parameters from "options".
-def ConvertFormatSpecificParams(config):
-  """Mutates config into server params by extracting format specific options.
+def ConvertFormatSpecificParams(configDict):
+  """Mutates configDict into server params by extracting format options.
 
     For example:
       {'fileFormat': 'GeoTIFF', 'formatOptions': {'cloudOptimized': true}}
@@ -819,43 +833,47 @@ def ConvertFormatSpecificParams(config):
     parameters.
 
   Args:
-    config: A task config dict from _ConvertToServerParams
+    configDict: A task config dict
+
   Raises:
     EEException: We were unable to create format specific parameters for the
     server.
   """
 
   formatString = 'GeoTIFF'
-  if IMAGE_FORMAT_FIELD in config:
-    formatString = config[IMAGE_FORMAT_FIELD]
+  if IMAGE_FORMAT_FIELD in configDict:
+    formatString = configDict[IMAGE_FORMAT_FIELD]
 
-  # TODO(user): Support formats other than GeoTIFF
-  if formatString != 'GeoTIFF':
+  formatString = formatString.upper()
+  if formatString not in FORMAT_PREFIX_MAP:
     raise ee_exception.EEException(
-        'Invalid file format. Currently only \'GeoTIFF\' is supported.')
+        'Invalid file format. Currently only \'GeoTIFF\' and \'TFRecord\' is '
+        'supported.')
 
-  if IMAGE_FORMAT_OPTIONS_FIELD in config:
-    options = config[IMAGE_FORMAT_OPTIONS_FIELD]
-    del config[IMAGE_FORMAT_OPTIONS_FIELD]
+  if IMAGE_FORMAT_OPTIONS_FIELD in configDict:
+    options = configDict[IMAGE_FORMAT_OPTIONS_FIELD]
+    del configDict[IMAGE_FORMAT_OPTIONS_FIELD]
 
-    if set(options) & set(config):
+    if set(options) & set(configDict):
       raise ee_exception.EEException(
           'Parameter specified at least twice: once in config, '
           'and once in format options.')
 
-    prefix = _GetFormatSpecificPrefix(formatString)
-    _CheckConfigDisallowedPrefixes(config, prefix)
+    prefix = FORMAT_PREFIX_MAP[formatString]
+    _CheckConfigDisallowedPrefixes(configDict, prefix)
 
     prefixedOptions = {}
     for key, value in options.items():
       prefixedKey = prefix + key[:1].upper() + key[1:]
-      if prefixedKey not in PERMISSABLE_FORMAT_OPTIONS:
+      if prefixedKey not in ALLOWED_FORMAT_OPTIONS:
         raise ee_exception.EEException(
             '\'{}\' is not a valid option for \'{}\'.'.format(
                 key, formatString))
       prefixedOptions[prefixedKey] = value
 
-    config.update(prefixedOptions)
+    prefixedOptions.update(_ConvertConfigParams(prefixedOptions))
+
+    configDict.update(prefixedOptions)
 
 
 def _CreateTask(task_type, ee_object, description, config):
@@ -923,19 +941,7 @@ def _ConvertToServerParams(configDict, eeElementKey, destination):
   if 'crsTransform' in configDict:
     configDict['crs_transform'] = configDict.pop('crsTransform')
 
-  # Convert iterable fileDimensions to a comma-separated string.
-  if 'fileDimensions' in configDict:
-    dimensions = configDict['fileDimensions']
-    try:
-      configDict['fileDimensions'] = ','.join('%d' % dim for dim in dimensions)
-    except TypeError:
-      # We pass numbers straight through.
-      pass
-
-  if 'selectors' in configDict:
-    selectors = configDict['selectors']
-    if isinstance(selectors, (tuple, list)):
-      configDict['selectors'] = ','.join([str(i) for i in selectors])
+  configDict.update(_ConvertConfigParams(configDict))
 
   if destination is Task.ExportDestination.GCS:
     if 'bucket' in configDict:
