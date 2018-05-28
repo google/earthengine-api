@@ -870,16 +870,23 @@ class TaskListCommand(object):
 
   name = 'list'
 
-  def __init__(self, unused_parser):
-    pass
+  def __init__(self, parser):
+    parser.add_argument('--status', '-s', required=False, nargs='*',
+                        choices=['READY', 'RUNNING', 'COMPLETED', 'FAILED',
+                              'CANCELLED', 'UNKNOWN'],
+                        help=('List tasks only with a given status'))
 
-  def run(self, unused_args, config):
+  def run(self, args, config):
     config.ee_init()
+    status = args.status
     tasks = ee.data.getTaskList()
     descs = [utils.truncate(task.get('description', ''), 40) for task in tasks]
     desc_length = max(len(word) for word in descs)
     format_str = '{:25s} {:13s} {:%ds} {:10s} {:s}' % (desc_length + 1)
     for task in tasks:
+      if status and task['state'] not in status:
+        continue
+
       truncated_desc = utils.truncate(task.get('description', ''), 40)
       task_type = TASK_TYPES.get(task['task_type'], 'Unknown')
       print(format_str.format(
