@@ -37,6 +37,7 @@ setup(
     install_requires=[
         'google-api-python-client',
         'pyOpenSSL>=0.11',
+        'six'
     ],
     entry_points={
         'console_scripts': [

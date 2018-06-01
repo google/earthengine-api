@@ -128,7 +128,7 @@ def wait_for_task(task_id, timeout, log_progress=True):
       print('Task %s ended at state: %s after %.2f seconds'
             % (task_id, state, elapsed))
       if error_message:
-        print('Error: %s' % error_message)
+        raise ee.ee_exception.EEException('Error: %s' % error_message)
       return
     if log_progress and elapsed - last_check >= 30:
       print('[{:%H:%M:%S}] Current state for task {}: {}'

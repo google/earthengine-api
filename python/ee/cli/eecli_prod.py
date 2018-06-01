@@ -7,20 +7,29 @@ allow upload_manifest and upload_table_manifest to point at manifest files in
 prod).
 
 Why do we need a separate binary from eecli.py?
-  GFile requires using main() to launch the program. The app module handles
-  initializing GFile as well as various other Google libraries and the parsing
-  of arguments for the absl flags module. However, the absl and argparse flags
-  may collide when using main(). A possible workaround is using the
-  absl.flags.argparse_flags, but the -v and --verbose flags in some of the
-  command classes still collide with the corresponding absl flags.
+  GFile requires using absl.app.run to launch the program. The app module
+  handles initializing GFile as well as various other Google libraries and the
+  parsing of arguments for the absl.flags module.
+
+  In order to avoid a collision between absl and argparse flags when using
+  absl.app.run, the absl.flags.argparse_flags module is used. The module
+  provides an argparse_flags.ArgumentParser class which has the same API as
+  argparse.ArgumentParser, but will take into account all flags defined with
+  absl.flags. To use it together with absl.app.run, you will need to define your
+  argparse flags and call parse_args inside a function with type
+  Callable[[List[Text]], Any].
+  However, this only works for command classes that do not define argparse
+  flags that collide with the corresponding absl flags. For example, RmCommand
+  and TaskWaitCommand both define the -v and --verbose flags that collide with
+  the same absl flags and therefore will not work here.
 """
 
 from __future__ import print_function
 
-import argparse
 import sys
 
 from absl import app
+from absl.flags import argparse_flags
 import ee
 from ee.cli import commands
 from ee.cli import utils
@@ -35,20 +44,24 @@ class CommandDispatcher(commands.Dispatcher):
   ]
 
 
-def main(argv):
-  del argv
+def parse_flags(argv):
+  """Function passed to absl.app.run to call parse_args."""
   # Set the program name to 'earthengine' for proper help text display.
-  parser = argparse.ArgumentParser(
+  parser = argparse_flags.ArgumentParser(
       prog='earthengine', description='Earth Engine Command Line Interface.')
 
-  dispatcher = CommandDispatcher(parser)
-
   # Print the list of commands if the user supplied no arguments at all.
-  if len(sys.argv) == 1:
+  if len(argv) == 1:
     parser.print_help()
-    return
+    sys.exit(0)
 
-  args = parser.parse_args()
+  dispatcher = CommandDispatcher(parser)
+  args = parser.parse_args(argv[1:])
+  return dispatcher, args
+
+
+def main(dispatcher_and_args):
+  dispatcher, args = dispatcher_and_args
   config = utils.CommandLineConfig()
 
   # Catch EEException errors, which wrap server-side Earth Engine
@@ -62,4 +75,4 @@ def main(argv):
     sys.exit(1)
 
 if __name__ == '__main__':
-  app.run(main)
+  app.run(main, flags_parser=parse_flags)

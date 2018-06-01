@@ -21,6 +21,8 @@ goog.provide('ee.data.AuthResponse');
 goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.DownloadId');
+goog.provide('ee.data.ExportDestination');
+goog.provide('ee.data.ExportState');
 goog.provide('ee.data.ExportType');
 goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.FeatureVisualizationParameters');
@@ -1323,6 +1325,24 @@ ee.data.ExportType = {
   TABLE: 'EXPORT_FEATURES',
   VIDEO: 'EXPORT_VIDEO',
   VIDEO_MAP: 'EXPORT_VIDEO_MAP'
+};
+
+/** @enum {string} The status of the export. */
+ee.data.ExportState = {
+  UNSUBMITTED: 'UNSUBMITTED',
+  READY: 'READY',
+  RUNNING: 'RUNNING',
+  COMPLETED: 'COMPLETED',
+  FAILED: 'FAILED',
+  CANCEL_REQUESTED: 'CANCEL_REQUESTED',
+  CANCELLED: 'CANCELLED',
+};
+
+/** @enum {string} The destination of the export. */
+ee.data.ExportDestination = {
+  DRIVE: 'DRIVE',
+  GCS: 'GOOGLE_CLOUD_STORAGE',
+  ASSET: 'ASSET',
 };
 
 
