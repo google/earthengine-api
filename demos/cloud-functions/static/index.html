@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>EE Demo: Cloud Functions and Hex Binning</title>
+
+    <!-- Load our styles. -->
+    <link rel="stylesheet" href="style.css">
+  </head>
+  <body>
+    <h1>Cloud Functions and Hex Binning</h1>
+    <p>Google Earth Engine demo</p>
+
+    <div class="map-wrap">
+      <div id="map"></div>
+      <div id="spinner" class="spinner">
+        <div class="bounce1"></div>
+        <div class="bounce2"></div>
+        <div class="bounce3"></div>
+      </div>
+    </div>
+
+    <!-- Load our compiled script. -->
+    <script src="bundle.js"></script>
+
+    <!-- Load the Google Maps API, and run the initMap() callback when finished. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap"
+            async defer></script>
+  </body>
+</html>

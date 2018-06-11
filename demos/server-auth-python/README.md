@@ -1,7 +1,6 @@
-Earth Engine Demo: Server-Side Authentication
-=============================================
+# Earth Engine Demo: Server-Side Authentication in Python
 
-[Live Demo](https://server-auth-dot-ee-demos.appspot.com/)
+[Live Demo](https://server-auth-python-dot-ee-demos.appspot.com/)
 
 This example shows how to build a simple Google App Engine web application that
 communicates with Google Earth Engine.  Upon successful deployment, you will see
@@ -10,11 +9,15 @@ Australia.
 
 To set the app up yourself, download the Earth Engine API repository from GitHub:
 
-    git clone https://github.com/google/earthengine-api.git
+```
+git clone https://github.com/google/earthengine-api.git
+```
 
 Navigate to the Server Auth example code:
 
-    cd ./earthengine-api/demos/server-auth
+```
+cd ./earthengine-api/demos/server-auth-python
+```
 
 Then follow the instructions in the Developer Docs to
 [deploy an EE-based App Engine app](

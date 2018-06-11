@@ -32,7 +32,7 @@ BuildDep () {
                  pip install -t "$TEMP_DIR" "$2"=="$3"
                  ;;
         *      )
-                 echo "ERROR: Unrecognized source type. Specifiy 'git' or 'pypi'."
+                 echo "ERROR: Unrecognized source type. Specify 'git' or 'pypi'."
                  cd -
       esac
       cd -

@@ -1,0 +1,26 @@
+{
+  "name": "ee-cloud-functions",
+  "private": true,
+  "version": "1.0.0",
+  "description": "",
+  "main": "function.js",
+  "scripts": {
+    "test": "node test.js",
+    "dev": "budo client.js:bundle.js -d static --live --port 3000",
+    "build": "browserify client.js -o static/bundle.js"
+  },
+  "author": "Google Inc.",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@google/earthengine": "^0.1.140-prerelease",
+    "@turf/hex-grid": "^4.6.1",
+    "d3-scale": "^1.0.6",
+    "debounce": "^1.0.2"
+  },
+  "devDependencies": {
+    "@google-cloud/functions-emulator": "^1.0.0-alpha.25",
+    "browserify": "^14.4.0",
+    "budo": "^10.0.4",
+    "express": "^4.15.4"
+  }
+}
