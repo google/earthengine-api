@@ -2,10 +2,7 @@
 // clouds in surface reflectance (SR) data.  It is suitable
 // for use with any of the Landsat SR datasets.
 
-// Load Landsat 8 surface reflectance data
-var l8sr = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR');
-
-// Function to cloud mask from the Fmask band of Landsat 8 SR data.
+// Function to cloud mask from the pixel_qa band of Landsat 8 SR data.
 function maskL8sr(image) {
   // Bits 3 and 5 are cloud shadow and cloud, respectively.
   var cloudShadowBitMask = ee.Number(2).pow(3).int();
@@ -18,14 +15,18 @@ function maskL8sr(image) {
   var mask = qa.bitwiseAnd(cloudShadowBitMask).eq(0)
       .and(qa.bitwiseAnd(cloudsBitMask).eq(0));
 
-  // Return the masked image, scaled to [0, 1].
-  return image.updateMask(mask).divide(10000);
+  // Return the masked image, scaled to TOA reflectance, without the QA bands.
+  return image.updateMask(mask).divide(10000)
+      .select("B[0-9]*")
+      .copyProperties(image, ["system:time_start"]);
 }
 
-// Map the function over one year of data and take the median.
-var composite = l8sr.filterDate('2016-01-01', '2016-12-31')
-                    .map(maskL8sr)
-                    .median();
+// Map the function over one year of data.
+var collection = ee.ImageCollection('LANDSAT/LC08/C01/T1_SR')
+    .filterDate('2016-01-01', '2016-12-31')
+    .map(maskL8sr)
+
+var composite = collection.median();
 
 // Display the results.
-Map.addLayer(composite, {bands: ['B4', 'B3', 'B2'], min: 0, max: 0.2});
+Map.addLayer(composite, {bands: ['B4', 'B3', 'B2'], min: 0, max: 0.3});

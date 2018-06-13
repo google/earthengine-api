@@ -591,6 +591,30 @@ class Export(object):
       return _CreateTask(
           Task.Type.EXPORT_TABLE, collection, description, config)
 
+    @staticmethod
+    def toAsset(collection, description='myExportTableTask', assetId=None,
+                **kwargs):
+      """Creates a task to export a FeatureCollection to an EE table asset.
+
+      Args:
+        collection: The feature collection to be exported.
+        description: Human-readable name of the task.
+        assetId: The destination asset ID.
+        **kwargs: Holds other keyword arguments that may have been deprecated.
+
+      Returns:
+        An unstarted Task that exports the table.
+      """
+      # _CopyDictFilterNone must be called first because it copies locals to
+      # support deprecated arguments.
+      config = _CopyDictFilterNone(locals())
+
+      _ConvertToServerParams(
+          config, 'collection', Task.ExportDestination.ASSET)
+
+      return _CreateTask(
+          Task.Type.EXPORT_TABLE, collection, description, config)
+
   class video(object):
     """A class with static methods to start video export task."""
 

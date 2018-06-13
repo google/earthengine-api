@@ -720,6 +720,173 @@ ee.Terrain = {};
  */
 ee.apply = function(func, namedArgs) {
 };
+ee.batch;
+ee.batch.Export;
+ee.batch.Export.image;
+/**
+ * @param {!ee.Image} image
+ * @param {string=} opt_description
+ * @param {string=} opt_assetId
+ * @param {(Object|null)=} opt_pyramidingPolicy
+ * @param {(number|string)=} opt_dimensions
+ * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
+ * @param {number=} opt_scale
+ * @param {string=} opt_crs
+ * @param {string=} opt_crsTransform
+ * @param {number=} opt_maxPixels
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.image.toAsset = function(image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels) {
+};
+/**
+ * @param {!ee.Image} image
+ * @param {string=} opt_description
+ * @param {string=} opt_bucket
+ * @param {string=} opt_fileNamePrefix
+ * @param {(number|string)=} opt_dimensions
+ * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
+ * @param {number=} opt_scale
+ * @param {string=} opt_crs
+ * @param {string=} opt_crsTransform
+ * @param {number=} opt_maxPixels
+ * @param {number=} opt_shardSize
+ * @param {(Array<number>|null|number)=} opt_fileDimensions
+ * @param {boolean=} opt_skipEmptyTiles
+ * @param {string=} opt_fileFormat
+ * @param {(null|{cloudOptimized: (boolean|undefined), collapseBands: (boolean|undefined), compressed: (boolean|undefined), defaultValue: (number|undefined), fileDimensions: (Array<number>|undefined), kernelSize: (Array<number>|undefined), maskedThreshold: (number|undefined), maxFileSize: (number|undefined), patchDimensions: (Array<number>|undefined), sequenceData: (boolean|undefined), tensorDepths: (Array<number>|undefined)})=} opt_formatOptions
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.image.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
+};
+/**
+ * @param {!ee.Image} image
+ * @param {string=} opt_description
+ * @param {string=} opt_folder
+ * @param {string=} opt_fileNamePrefix
+ * @param {(number|string)=} opt_dimensions
+ * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
+ * @param {number=} opt_scale
+ * @param {string=} opt_crs
+ * @param {string=} opt_crsTransform
+ * @param {number=} opt_maxPixels
+ * @param {number=} opt_shardSize
+ * @param {(Array<number>|null|number)=} opt_fileDimensions
+ * @param {boolean=} opt_skipEmptyTiles
+ * @param {string=} opt_fileFormat
+ * @param {(null|{cloudOptimized: (boolean|undefined), collapseBands: (boolean|undefined), compressed: (boolean|undefined), defaultValue: (number|undefined), fileDimensions: (Array<number>|undefined), kernelSize: (Array<number>|undefined), maskedThreshold: (number|undefined), maxFileSize: (number|undefined), patchDimensions: (Array<number>|undefined), sequenceData: (boolean|undefined), tensorDepths: (Array<number>|undefined)})=} opt_formatOptions
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.image.toDrive = function(image, opt_description, opt_folder, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
+};
+ee.batch.Export.map;
+/**
+ * @param {!ee.Image} image
+ * @param {string=} opt_description
+ * @param {string=} opt_bucket
+ * @param {string=} opt_fileFormat
+ * @param {string=} opt_path
+ * @param {boolean=} opt_writePublicTiles
+ * @param {number=} opt_scale
+ * @param {number=} opt_maxZoom
+ * @param {number=} opt_minZoom
+ * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
+ * @param {boolean=} opt_skipEmptyTiles
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles) {
+};
+ee.batch.Export.table;
+/**
+ * @param {!ee.FeatureCollection} collection
+ * @param {string=} opt_description
+ * @param {string=} opt_assetId
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.table.toAsset = function(collection, opt_description, opt_assetId) {
+};
+/**
+ * @param {!ee.FeatureCollection} collection
+ * @param {string=} opt_description
+ * @param {string=} opt_bucket
+ * @param {string=} opt_fileNamePrefix
+ * @param {string=} opt_fileFormat
+ * @param {(Array<string>|string)=} opt_selectors
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.table.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat, opt_selectors) {
+};
+/**
+ * @param {!ee.FeatureCollection} collection
+ * @param {string=} opt_description
+ * @param {string=} opt_folder
+ * @param {string=} opt_fileNamePrefix
+ * @param {string=} opt_fileFormat
+ * @param {(Array<string>|string)=} opt_selectors
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.table.toDrive = function(collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat, opt_selectors) {
+};
+ee.batch.Export.video;
+/**
+ * @param {!ee.ImageCollection} collection
+ * @param {string=} opt_description
+ * @param {string=} opt_bucket
+ * @param {string=} opt_fileNamePrefix
+ * @param {number=} opt_framesPerSecond
+ * @param {(number|string)=} opt_dimensions
+ * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
+ * @param {number=} opt_scale
+ * @param {string=} opt_crs
+ * @param {string=} opt_crsTransform
+ * @param {number=} opt_maxPixels
+ * @param {number=} opt_maxFrames
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.video.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
+};
+/**
+ * @param {!ee.ImageCollection} collection
+ * @param {string=} opt_description
+ * @param {string=} opt_folder
+ * @param {string=} opt_fileNamePrefix
+ * @param {number=} opt_framesPerSecond
+ * @param {(number|string)=} opt_dimensions
+ * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
+ * @param {number=} opt_scale
+ * @param {string=} opt_crs
+ * @param {string=} opt_crsTransform
+ * @param {number=} opt_maxPixels
+ * @param {number=} opt_maxFrames
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.video.toDrive = function(collection, opt_description, opt_folder, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
+};
+ee.batch.Export.videoMap;
+/**
+ * @param {!ee.ImageCollection} collection
+ * @param {string=} opt_description
+ * @param {string=} opt_bucket
+ * @param {string=} opt_fileNamePrefix
+ * @param {number=} opt_framesPerSecond
+ * @param {boolean=} opt_writePublicTiles
+ * @param {number=} opt_minZoom
+ * @param {number=} opt_maxZoom
+ * @param {number=} opt_scale
+ * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
+ * @param {boolean=} opt_skipEmptyTiles
+ * @return {!ee.batch.ExportTask}
+ */
+ee.batch.Export.videoMap.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_writePublicTiles, opt_minZoom, opt_maxZoom, opt_scale, opt_region, opt_skipEmptyTiles) {
+};
+ee.batch.ExportTask;
+ee.batch.ExportTask.prototype.id;
+/**
+ * @param {function(): ?=} opt_success
+ * @param {function(string=): ?=} opt_error
+ * @return {undefined}
+ */
+ee.batch.ExportTask.prototype.start = function(opt_success, opt_error) {
+};
 /**
  * @param {(ee.Function|null|string)} func
  * @param {...*} var_args

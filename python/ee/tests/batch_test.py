@@ -453,6 +453,21 @@ class BatchTestCase(apitestcase.ApiTestCase):
         fileNamePrefix='fooDriveFileNamePrefix')
     self.assertEquals(expected_config, task_new_keys.config)
 
+  def testExportTableToAsset(self):
+    """Verifies the export task created by Export.table.toAsset()."""
+    task = ee.batch.Export.table.toAsset(
+        collection=ee.FeatureCollection('foo'), assetId='users/foo/bar')
+    self.assertEquals('TESTTASKID', task.id)
+    self.assertEquals(
+        {
+            'type': 'EXPORT_FEATURES',
+            'state': 'UNSUBMITTED',
+            'json': ee.FeatureCollection('foo').serialize(),
+            'description': 'myExportTableTask',
+            'assetId': 'users/foo/bar'
+        },
+        task.config)
+
   def testExportVideo(self):
     """Verifies the task created by Export.video()."""
     region = ee.Geometry.Rectangle(1, 2, 3, 4)

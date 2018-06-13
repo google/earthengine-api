@@ -26,6 +26,8 @@ goog.require('ee.Number');
 goog.require('ee.String');
 goog.require('ee.Terrain');
 goog.require('ee.Types');
+/** @suppress {extraRequire} */
+goog.require('ee.batch');
 goog.require('ee.data');
 goog.require('goog.array');
 goog.require('goog.object');
