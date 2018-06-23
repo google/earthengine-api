@@ -198,7 +198,7 @@ goog.getScriptNonce = function() {
 goog.NONCE_PATTERN_ = /^[\w+/_-]+[=]{0,2}$/;
 goog.cspNonce_ = null;
 goog.getScriptNonce_ = function(doc) {
-  var script = doc.querySelector("script[nonce]");
+  var script = doc.querySelector && doc.querySelector("script[nonce]");
   if (script) {
     var nonce = script.nonce || script.getAttribute("nonce");
     if (nonce && goog.NONCE_PATTERN_.test(nonce)) {
@@ -310,6 +310,7 @@ goog.SEAL_MODULE_EXPORTS = goog.DEBUG;
 goog.loadedModules_ = {};
 goog.DEPENDENCIES_ENABLED = !1;
 goog.TRANSPILE = "detect";
+goog.TRANSPILE_TO_LANGUAGE = "";
 goog.TRANSPILER = "transpile.js";
 goog.hasBadLetScoping = null;
 goog.useSafari10Workaround = function() {
@@ -372,7 +373,7 @@ goog.loadFileSync_ = function(src) {
     return null;
   }
 };
-goog.transpile_ = function(code$jscomp$0, path$jscomp$0) {
+goog.transpile_ = function(code$jscomp$0, path$jscomp$0, target) {
   var jscomp = goog.global.$jscomp;
   jscomp || (goog.global.$jscomp = jscomp = {});
   var transpile = jscomp.transpile;
@@ -398,7 +399,7 @@ goog.transpile_ = function(code$jscomp$0, path$jscomp$0) {
       return code;
     };
   }
-  return transpile(code$jscomp$0, path$jscomp$0);
+  return transpile(code$jscomp$0, path$jscomp$0, target);
 };
 goog.typeOf = function(value) {
   var s = typeof value;
