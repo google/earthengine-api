@@ -2,7 +2,7 @@
 """The EE Python library."""
 
 
-__version__ = '0.1.142'
+__version__ = '0.1.143'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name

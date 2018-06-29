@@ -1040,7 +1040,7 @@ ee.data.getInfo = function(id, opt_callback) {
 /**
  * @param {!Object} params
  * @param {function(!Array<ee.data.ShortAssetDescription>, string=): ?=} opt_callback
- * @return {(ee.data.AssetList|null)}
+ * @return {(Array<ee.data.ShortAssetDescription>|null)}
  */
 ee.data.getList = function(params, opt_callback) {
 };
