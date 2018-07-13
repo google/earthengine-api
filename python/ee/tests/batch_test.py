@@ -134,6 +134,24 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEquals(
         '<Task "foo">', str(ee.batch.Task('foo')))
 
+  def testExportImageTrivialRegion(self):
+    """Verifies the task created by Export.image() with a trivial region."""
+    task = ee.batch.Export.image.toAsset(
+        ee.Image(42),
+        assetId='user/foo/bar',
+        region=[0, 0, 1, 0, 1, 1],
+        scale=1000)
+    self.assertEquals('TESTTASKID', task.id)
+    self.assertEquals({
+        'assetId': 'user/foo/bar',
+        'description': 'myExportImageTask',
+        'json': ee.Image(42).serialize(),
+        'region': '[0, 0, 1, 0, 1, 1]',
+        'scale': 1000,
+        'state': 'UNSUBMITTED',
+        'type': 'EXPORT_IMAGE'
+    }, task.config)
+
   def testExportImage(self):
     """Verifies the task created by Export.image()."""
     region = ee.Geometry.Rectangle(1, 2, 3, 4)

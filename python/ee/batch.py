@@ -912,6 +912,7 @@ def _CreateTask(task_type, ee_object, description, config):
   Returns:
     An unstarted export Task.
   """
+  config.update(_ConvertConfigParams(config))
   full_config = {
       'type': task_type,
       'json': ee_object.serialize(),
@@ -964,8 +965,6 @@ def _ConvertToServerParams(configDict, eeElementKey, destination):
 
   if 'crsTransform' in configDict:
     configDict['crs_transform'] = configDict.pop('crsTransform')
-
-  configDict.update(_ConvertConfigParams(configDict))
 
   if destination is Task.ExportDestination.GCS:
     if 'bucket' in configDict:
