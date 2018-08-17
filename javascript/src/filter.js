@@ -165,7 +165,7 @@ ee.Filter.prototype.not = function() {
  * @export
  */
 ee.Filter.eq = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.eq, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.eq, arguments);
   return /** @type {ee.Filter} */(
       ee.ApiFunction._call('Filter.equals', args['name'], args['value']));
 };
@@ -180,7 +180,7 @@ ee.Filter.eq = function(name, value) {
  * @export
  */
 ee.Filter.neq = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.neq, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.neq, arguments);
   return ee.Filter.eq(args['name'], args['value']).not();
 };
 
@@ -194,7 +194,7 @@ ee.Filter.neq = function(name, value) {
  * @export
  */
 ee.Filter.lt = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.lt, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.lt, arguments);
   return /** @type {ee.Filter} */(
       ee.ApiFunction._call('Filter.lessThan', args['name'], args['value']));
 };
@@ -209,7 +209,7 @@ ee.Filter.lt = function(name, value) {
  * @export
  */
 ee.Filter.gte = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.gte, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.gte, arguments);
   return ee.Filter.lt(args['name'], args['value']).not();
 };
 
@@ -223,7 +223,7 @@ ee.Filter.gte = function(name, value) {
  * @export
  */
 ee.Filter.gt = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.gt, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.gt, arguments);
   return /** @type {ee.Filter} */(
       ee.ApiFunction._call('Filter.greaterThan', args['name'], args['value']));
 };
@@ -238,7 +238,7 @@ ee.Filter.gt = function(name, value) {
  * @export
  */
 ee.Filter.lte = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.lte, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.lte, arguments);
   return ee.Filter.gt(args['name'], args['value']).not();
 };
 
@@ -281,7 +281,7 @@ ee.Filter.or = function(var_args) {
  * @export
  */
 ee.Filter.date = function(start, opt_end) {
-  var args = ee.arguments.extract(ee.Filter.date, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.date, arguments);
   var range = ee.ApiFunction._call('DateRange', args['start'], args['end']);
   var filter = ee.ApiFunction._apply('Filter.dateRangeContains', {
     'leftValue': range,
@@ -307,7 +307,7 @@ ee.Filter.date = function(start, opt_end) {
  */
 ee.Filter.inList = function(
     opt_leftField, opt_rightValue, opt_rightField, opt_leftValue) {
-  var args = ee.arguments.extract(ee.Filter.inList, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.inList, arguments);
   // Implement this in terms of listContains, with the arguments switched.
   // In listContains the list is on the left side, while in inList it's on
   // the right.

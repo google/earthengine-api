@@ -492,7 +492,7 @@ class Export(object):
         config: A dictionary that will be copied and used as parameters
             for the task:
             - fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
-              or "KMZ".
+              "KMZ", or "SHP".
             If exporting to Google Drive (default):
             - driveFolder: The name of a unique folder in your Drive
               account to export into. Defaults to the root of the drive.
@@ -527,8 +527,8 @@ class Export(object):
         bucket: The name of a Cloud Storage bucket for the export.
         fileNamePrefix: Cloud Storage object name prefix for the export.
             Defaults to the name of the task.
-        fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
-            or "KMZ".
+        fileFormat: The output format: "CSV" (default), "GeoJSON", "KML", "KMZ",
+            "SHP", or "TFRecord".
         selectors: The list of properties to include in the output, as a list
             of strings or a comma-separated string. By default, all properties
             are included.
@@ -565,7 +565,7 @@ class Export(object):
         fileNamePrefix: The Google Drive filename for the export.
             Defaults to the name of the task.
         fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
-            or "KMZ".
+            "KMZ", "SHP", or "TFRecord".
         selectors: The list of properties to include in the output, as a list
             of strings or a comma-separated string. By default, all properties
             are included.

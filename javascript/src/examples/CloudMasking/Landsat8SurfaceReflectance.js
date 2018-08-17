@@ -5,8 +5,8 @@
 // Function to cloud mask from the pixel_qa band of Landsat 8 SR data.
 function maskL8sr(image) {
   // Bits 3 and 5 are cloud shadow and cloud, respectively.
-  var cloudShadowBitMask = ee.Number(2).pow(3).int();
-  var cloudsBitMask = ee.Number(2).pow(5).int();
+  var cloudShadowBitMask = 1 << 3;
+  var cloudsBitMask = 1 << 5;
 
   // Get the pixel QA band.
   var qa = image.select('pixel_qa');

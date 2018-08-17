@@ -44,7 +44,7 @@ ee.Date = function(date, opt_tz) {
 
   ee.Date.initialize();
 
-  var jsArgs = ee.arguments.extract(ee.Date, arguments);
+  var jsArgs = ee.arguments.extractFromFunction(ee.Date, arguments);
   date = jsArgs['date'];
   var tz = jsArgs['tz'];
 

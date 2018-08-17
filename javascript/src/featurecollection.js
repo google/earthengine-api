@@ -132,7 +132,7 @@ ee.FeatureCollection.reset = function() {
  * @export
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extract(
+  var args = ee.arguments.extractFromFunction(
       ee.FeatureCollection.prototype.getMap, arguments);
 
   var painted = ee.ApiFunction._apply('Collection.draw', {
@@ -185,7 +185,7 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
  */
 ee.FeatureCollection.prototype.getDownloadURL = function(
     opt_format, opt_selectors, opt_filename, opt_callback) {
-  var args = ee.arguments.extract(
+  var args = ee.arguments.extractFromFunction(
       ee.FeatureCollection.prototype.getDownloadURL, arguments);
   var request = {};
   request['table'] = this.serialize();
@@ -244,8 +244,8 @@ ee.FeatureCollection.prototype.select = function(
     }));
   } else {
     // Translate the argument names.
-    var args =
-        ee.arguments.extract(ee.FeatureCollection.prototype.select, arguments);
+    var args = ee.arguments.extractFromFunction(
+        ee.FeatureCollection.prototype.select, arguments);
     return /** @type {!ee.FeatureCollection} */ (this.map(function(feature) {
       return feature.select(args);
     }));

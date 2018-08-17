@@ -142,7 +142,8 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
  * @export
  */
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extract(ee.Feature.prototype.getMap, arguments);
+  var args = 
+      ee.arguments.extractFromFunction(ee.Feature.prototype.getMap, arguments);
   var collection = ee.ApiFunction._call('Collection', [this]);
   return /** @type {ee.FeatureCollection} */(collection)
       .getMap(args['visParams'], args['callback']);

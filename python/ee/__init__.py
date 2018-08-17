@@ -2,7 +2,7 @@
 """The EE Python library."""
 
 
-__version__ = '0.1.145'
+__version__ = '0.1.146'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -72,7 +72,10 @@ class _AlgorithmsContainer(dict):
 Algorithms = _AlgorithmsContainer()
 
 
-def Initialize(credentials='persistent', opt_url=None):
+def Initialize(
+    credentials='persistent',
+    opt_url=None
+):
   """Initialize the EE library.
 
   If this hasn't been called by the time any object constructor is used,
@@ -88,7 +91,11 @@ def Initialize(credentials='persistent', opt_url=None):
   """
   if credentials == 'persistent':
     credentials = _GetPersistentCredentials()
-  data.initialize(credentials, (opt_url + '/api' if opt_url else None), opt_url)
+  data.initialize(
+      credentials=credentials,
+      api_base_url=(opt_url + '/api' if opt_url else None),
+      tile_base_url=opt_url
+  )
   # Initialize the dynamically loaded functions on the objects that want them.
   ApiFunction.initialize()
   Element.initialize()

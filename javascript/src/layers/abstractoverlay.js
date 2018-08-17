@@ -4,6 +4,7 @@ goog.provide('ee.layers.TileFailEvent');
 goog.provide('ee.layers.TileLoadEvent');
 goog.provide('ee.layers.TileThrottleEvent');
 
+goog.require('ee.layers.AbstractOverlayStats');
 goog.require('goog.array');
 goog.require('goog.events');
 goog.require('goog.events.Event');
@@ -56,6 +57,9 @@ ee.layers.AbstractOverlay = function(tileSource, opt_options) {
   this.opacity = 'opacity' in options ? options.opacity : 1;
 
   // Protected internal members.
+
+  /** @protected {!ee.layers.AbstractOverlayStats} */
+  this.stats = new ee.layers.AbstractOverlayStats(tileSource.getUniqueId());
 
   /** @protected {goog.structs.Map<string, ee.layers.AbstractTile>} */
   this.tilesById = new goog.structs.Map();
@@ -153,6 +157,13 @@ ee.layers.AbstractOverlay.prototype.setOpacity = function(opacity) {
   }, this);
 };
 
+/**
+ * @return {!ee.layers.AbstractOverlayStats} The stats for the layer
+ */
+ee.layers.AbstractOverlay.prototype.getStats = function() {
+  return this.stats;
+};
+
 
 // Interface for the Google Maps API.
 
@@ -182,25 +193,7 @@ ee.layers.AbstractOverlay.prototype.getTile = function(
   this.tilesById.set(uniqueId, tile);
 
   // Notify listeners when the tile has loaded.
-  this.handler.listen(
-      tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
-        var Status = ee.layers.AbstractTile.Status;
-
-        switch (tile.getStatus()) {
-          case Status.LOADED:
-            this.dispatchEvent(
-                new ee.layers.TileLoadEvent(this.getLoadingTilesCount()));
-            break;
-          case Status.THROTTLED:
-            this.dispatchEvent(new ee.layers.TileThrottleEvent(tile.sourceUrl));
-            break;
-          case Status.FAILED:
-            this.dispatchEvent(new ee.layers.TileFailEvent(
-                tile.sourceUrl, tile.errorMessage_));
-            break;
-        }
-      });
-
+  this.registerStatusChangeListener_(tile);
 
   // Use the current time in seconds as the priority for the tile
   // loading queue. Smaller priorities move to the front of the queue,
@@ -230,7 +223,37 @@ ee.layers.AbstractOverlay.prototype.releaseTile = function(tileDiv) {
 
 
 // Internals.
+/**
+ * Listen for tile status changes and respond accordingly.
+ * @param {ee.layers.AbstractTile} tile
+ * @private
+ */
+ee.layers.AbstractOverlay.prototype.registerStatusChangeListener_ =
+    function(tile) {
+  // Notify listeners when the tile has loaded.
+  this.handler.listen(
+      tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
+        var Status = ee.layers.AbstractTile.Status;
 
+        switch (tile.getStatus()) {
+          case Status.LOADED:
+            const endTs = new Date().getTime();
+            this.stats.addTileStats(tile.loadingStartTs_, endTs, tile.zoom);
+            this.dispatchEvent(
+                new ee.layers.TileLoadEvent(this.getLoadingTilesCount()));
+            break;
+          case Status.THROTTLED:
+            this.stats.incrementThrottleCounter(tile.zoom);
+            this.dispatchEvent(new ee.layers.TileThrottleEvent(tile.sourceUrl));
+            break;
+          case Status.FAILED:
+            this.stats.incrementErrorCounter(tile.zoom);
+            this.dispatchEvent(new ee.layers.TileFailEvent(
+                tile.sourceUrl, tile.errorMessage_));
+            break;
+        }
+      });
+};
 
 /**
  * Factory method to create a tile for this overlay.
@@ -420,6 +443,12 @@ ee.layers.AbstractTile = function(coord, zoom, ownerDocument, uniqueId) {
    * @private {string|undefined}
    */
   this.errorMessage_;
+
+  /**
+   * Loading start time.
+   * @private {number}
+   */
+  this.loadingStartTs_;
 };
 goog.inherits(ee.layers.AbstractTile, goog.events.EventTarget);
 
@@ -466,6 +495,7 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
         'Use retryLoad() after the first attempt.');
   }
   this.setStatus(ee.layers.AbstractTile.Status.LOADING);
+  this.loadingStartTs_ = new Date().getTime();
 
   this.xhrIo_ = new goog.net.XhrIo();
   this.xhrIo_.setResponseType(goog.net.XhrIo.ResponseType.BLOB);

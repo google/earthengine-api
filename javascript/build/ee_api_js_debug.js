@@ -32,6 +32,13 @@ $jscomp.initSymbolIterator = function() {
   $jscomp.initSymbolIterator = function() {
   };
 };
+$jscomp.initSymbolAsyncIterator = function() {
+  $jscomp.initSymbol();
+  var symbolAsyncIterator = $jscomp.global.Symbol.asyncIterator;
+  symbolAsyncIterator || (symbolAsyncIterator = $jscomp.global.Symbol.asyncIterator = $jscomp.global.Symbol("asyncIterator"));
+  $jscomp.initSymbolAsyncIterator = function() {
+  };
+};
 $jscomp.arrayIterator = function(array) {
   var index = 0;
   return $jscomp.iteratorPrototype(function() {
@@ -50,6 +57,47 @@ $jscomp.makeIterator = function(iterable) {
   $jscomp.initSymbolIterator();
   var iteratorFunction = iterable[Symbol.iterator];
   return iteratorFunction ? iteratorFunction.call(iterable) : $jscomp.arrayIterator(iterable);
+};
+$jscomp.objectCreate = $jscomp.ASSUME_ES5 || "function" == typeof Object.create ? Object.create : function(prototype) {
+  var ctor = function() {
+  };
+  ctor.prototype = prototype;
+  return new ctor;
+};
+$jscomp.underscoreProtoCanBeSet = function() {
+  var x = {a:!0}, y = {};
+  try {
+    return y.__proto__ = x, y.a;
+  } catch (e) {
+  }
+  return !1;
+};
+$jscomp.setPrototypeOf = "function" == typeof Object.setPrototypeOf ? Object.setPrototypeOf : $jscomp.underscoreProtoCanBeSet() ? function(target, proto) {
+  target.__proto__ = proto;
+  if (target.__proto__ !== proto) {
+    throw new TypeError(target + " is not extensible");
+  }
+  return target;
+} : null;
+$jscomp.inherits = function(childCtor, parentCtor) {
+  childCtor.prototype = $jscomp.objectCreate(parentCtor.prototype);
+  childCtor.prototype.constructor = childCtor;
+  if ($jscomp.setPrototypeOf) {
+    var setPrototypeOf = $jscomp.setPrototypeOf;
+    setPrototypeOf(childCtor, parentCtor);
+  } else {
+    for (var p in parentCtor) {
+      if ("prototype" != p) {
+        if (Object.defineProperties) {
+          var descriptor = Object.getOwnPropertyDescriptor(parentCtor, p);
+          descriptor && Object.defineProperty(childCtor, p, descriptor);
+        } else {
+          childCtor[p] = parentCtor[p];
+        }
+      }
+    }
+  }
+  childCtor.superClass_ = parentCtor.prototype;
 };
 $jscomp.findInternal = function(array, callback, thisArg) {
   array instanceof String && (array = String(array));
@@ -149,6 +197,219 @@ $jscomp.polyfill("Array.prototype.includes", function(orig) {
     return !1;
   };
 }, "es7", "es3");
+$jscomp.checkEs6ConformanceViaProxy = function() {
+  try {
+    var proxied = {}, proxy = Object.create(new $jscomp.global.Proxy(proxied, {get:function(target, key, receiver) {
+      return target == proxied && "q" == key && receiver == proxy;
+    }}));
+    return !0 === proxy.q;
+  } catch (err) {
+    return !1;
+  }
+};
+$jscomp.USE_PROXY_FOR_ES6_CONFORMANCE_CHECKS = !1;
+$jscomp.ES6_CONFORMANCE = $jscomp.USE_PROXY_FOR_ES6_CONFORMANCE_CHECKS && $jscomp.checkEs6ConformanceViaProxy();
+$jscomp.polyfill("WeakMap", function(NativeWeakMap) {
+  function isConformant() {
+    if (!NativeWeakMap || !Object.seal) {
+      return !1;
+    }
+    try {
+      var x = Object.seal({}), y = Object.seal({}), map = new NativeWeakMap([[x, 2], [y, 3]]);
+      if (2 != map.get(x) || 3 != map.get(y)) {
+        return !1;
+      }
+      map["delete"](x);
+      map.set(y, 4);
+      return !map.has(x) && 4 == map.get(y);
+    } catch (err) {
+      return !1;
+    }
+  }
+  function insert(target) {
+    $jscomp.owns(target, prop) || $jscomp.defineProperty(target, prop, {value:{}});
+  }
+  function patch(name) {
+    var prev = Object[name];
+    prev && (Object[name] = function(target) {
+      insert(target);
+      return prev(target);
+    });
+  }
+  if ($jscomp.USE_PROXY_FOR_ES6_CONFORMANCE_CHECKS) {
+    if (NativeWeakMap && $jscomp.ES6_CONFORMANCE) {
+      return NativeWeakMap;
+    }
+  } else {
+    if (isConformant()) {
+      return NativeWeakMap;
+    }
+  }
+  var prop = "$jscomp_hidden_" + Math.random();
+  patch("freeze");
+  patch("preventExtensions");
+  patch("seal");
+  var index = 0, PolyfillWeakMap = function(opt_iterable) {
+    this.id_ = (index += Math.random() + 1).toString();
+    if (opt_iterable) {
+      $jscomp.initSymbol();
+      $jscomp.initSymbolIterator();
+      for (var iter = $jscomp.makeIterator(opt_iterable), entry; !(entry = iter.next()).done;) {
+        var item = entry.value;
+        this.set(item[0], item[1]);
+      }
+    }
+  };
+  PolyfillWeakMap.prototype.set = function(key, value) {
+    insert(key);
+    if (!$jscomp.owns(key, prop)) {
+      throw Error("WeakMap key fail: " + key);
+    }
+    key[prop][this.id_] = value;
+    return this;
+  };
+  PolyfillWeakMap.prototype.get = function(key) {
+    return $jscomp.owns(key, prop) ? key[prop][this.id_] : void 0;
+  };
+  PolyfillWeakMap.prototype.has = function(key) {
+    return $jscomp.owns(key, prop) && $jscomp.owns(key[prop], this.id_);
+  };
+  PolyfillWeakMap.prototype["delete"] = function(key) {
+    return $jscomp.owns(key, prop) && $jscomp.owns(key[prop], this.id_) ? delete key[prop][this.id_] : !1;
+  };
+  return PolyfillWeakMap;
+}, "es6", "es3");
+$jscomp.MapEntry = function() {
+};
+$jscomp.polyfill("Map", function(NativeMap) {
+  function isConformant() {
+    if ($jscomp.ASSUME_NO_NATIVE_MAP || !NativeMap || "function" != typeof NativeMap || !NativeMap.prototype.entries || "function" != typeof Object.seal) {
+      return !1;
+    }
+    try {
+      var key = Object.seal({x:4}), map = new NativeMap($jscomp.makeIterator([[key, "s"]]));
+      if ("s" != map.get(key) || 1 != map.size || map.get({x:4}) || map.set({x:4}, "t") != map || 2 != map.size) {
+        return !1;
+      }
+      var iter = map.entries(), item = iter.next();
+      if (item.done || item.value[0] != key || "s" != item.value[1]) {
+        return !1;
+      }
+      item = iter.next();
+      return item.done || 4 != item.value[0].x || "t" != item.value[1] || !iter.next().done ? !1 : !0;
+    } catch (err) {
+      return !1;
+    }
+  }
+  if ($jscomp.USE_PROXY_FOR_ES6_CONFORMANCE_CHECKS) {
+    if (NativeMap && $jscomp.ES6_CONFORMANCE) {
+      return NativeMap;
+    }
+  } else {
+    if (isConformant()) {
+      return NativeMap;
+    }
+  }
+  $jscomp.initSymbol();
+  $jscomp.initSymbolIterator();
+  var idMap = new WeakMap, PolyfillMap = function(opt_iterable) {
+    this.data_ = {};
+    this.head_ = createHead();
+    this.size = 0;
+    if (opt_iterable) {
+      for (var iter = $jscomp.makeIterator(opt_iterable), entry; !(entry = iter.next()).done;) {
+        var item = entry.value;
+        this.set(item[0], item[1]);
+      }
+    }
+  };
+  PolyfillMap.prototype.set = function(key, value) {
+    key = 0 === key ? 0 : key;
+    var r = maybeGetEntry(this, key);
+    r.list || (r.list = this.data_[r.id] = []);
+    r.entry ? r.entry.value = value : (r.entry = {next:this.head_, previous:this.head_.previous, head:this.head_, key:key, value:value}, r.list.push(r.entry), this.head_.previous.next = r.entry, this.head_.previous = r.entry, this.size++);
+    return this;
+  };
+  PolyfillMap.prototype["delete"] = function(key) {
+    var r = maybeGetEntry(this, key);
+    return r.entry && r.list ? (r.list.splice(r.index, 1), r.list.length || delete this.data_[r.id], r.entry.previous.next = r.entry.next, r.entry.next.previous = r.entry.previous, r.entry.head = null, this.size--, !0) : !1;
+  };
+  PolyfillMap.prototype.clear = function() {
+    this.data_ = {};
+    this.head_ = this.head_.previous = createHead();
+    this.size = 0;
+  };
+  PolyfillMap.prototype.has = function(key) {
+    return !!maybeGetEntry(this, key).entry;
+  };
+  PolyfillMap.prototype.get = function(key) {
+    var entry = maybeGetEntry(this, key).entry;
+    return entry && entry.value;
+  };
+  PolyfillMap.prototype.entries = function() {
+    return makeIterator(this, function(entry) {
+      return [entry.key, entry.value];
+    });
+  };
+  PolyfillMap.prototype.keys = function() {
+    return makeIterator(this, function(entry) {
+      return entry.key;
+    });
+  };
+  PolyfillMap.prototype.values = function() {
+    return makeIterator(this, function(entry) {
+      return entry.value;
+    });
+  };
+  PolyfillMap.prototype.forEach = function(callback, opt_thisArg) {
+    for (var iter = this.entries(), item; !(item = iter.next()).done;) {
+      var entry = item.value;
+      callback.call(opt_thisArg, entry[1], entry[0], this);
+    }
+  };
+  PolyfillMap.prototype[Symbol.iterator] = PolyfillMap.prototype.entries;
+  var maybeGetEntry = function(map, key) {
+    var id = getId(key), list = map.data_[id];
+    if (list && $jscomp.owns(map.data_, id)) {
+      for (var index = 0; index < list.length; index++) {
+        var entry = list[index];
+        if (key !== key && entry.key !== entry.key || key === entry.key) {
+          return {id:id, list:list, index:index, entry:entry};
+        }
+      }
+    }
+    return {id:id, list:list, index:-1, entry:void 0};
+  }, makeIterator = function(map, func) {
+    var entry = map.head_;
+    return $jscomp.iteratorPrototype(function() {
+      if (entry) {
+        for (; entry.head != map.head_;) {
+          entry = entry.previous;
+        }
+        for (; entry.next != entry.head;) {
+          return entry = entry.next, {done:!1, value:func(entry)};
+        }
+        entry = null;
+      }
+      return {done:!0, value:void 0};
+    });
+  }, createHead = function() {
+    var head = {};
+    return head.previous = head.next = head.head = head;
+  }, mapIndex = 0, getId = function(obj) {
+    var type = obj && typeof obj;
+    if ("object" == type || "function" == type) {
+      if (!idMap.has(obj)) {
+        var id = "" + ++mapIndex;
+        idMap.set(obj, id);
+        return id;
+      }
+      return idMap.get(obj);
+    }
+    return "p_" + obj;
+  };
+  return PolyfillMap;
+}, "es6", "es3");
 var goog = goog || {};
 goog.global = this;
 goog.isDef = function(val) {
@@ -2650,8 +2911,10 @@ goog.userAgent.isVersionOrHigher("8") || goog.userAgent.OPERA && goog.userAgent.
   var passive = !1, options = Object.defineProperty({}, "passive", {get:function() {
     passive = !0;
   }});
-  goog.global.addEventListener("test", goog.nullFunction, options);
-  goog.global.removeEventListener("test", goog.nullFunction, options);
+  try {
+    goog.global.addEventListener("test", goog.nullFunction, options), goog.global.removeEventListener("test", goog.nullFunction, options);
+  } catch (e) {
+  }
   return passive;
 })};
 goog.events.getVendorPrefixedName_ = function(eventName) {
@@ -5292,8 +5555,8 @@ goog.i18n.bidi.DirectionalString = function() {
 };
 goog.string.TypedString = function() {
 };
-goog.string.Const = function() {
-  this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ = "";
+goog.string.Const = function(opt_token, opt_content) {
+  this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ = opt_token === goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content || "";
   this.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ = goog.string.Const.TYPE_MARKER_;
 };
 goog.string.Const.prototype.implementsGoogStringTypedString = !0;
@@ -5311,14 +5574,10 @@ goog.string.Const.unwrap = function(stringConst) {
   return "type_error:Const";
 };
 goog.string.Const.from = function(s) {
-  return goog.string.Const.create__googStringSecurityPrivate_(s);
+  return new goog.string.Const(goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_, s);
 };
 goog.string.Const.TYPE_MARKER_ = {};
-goog.string.Const.create__googStringSecurityPrivate_ = function(s) {
-  var stringConst = new goog.string.Const;
-  stringConst.stringConstValueWithSecurityContract__googStringSecurityPrivate_ = s;
-  return stringConst;
-};
+goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ = {};
 goog.string.Const.EMPTY = goog.string.Const.from("");
 goog.html = {};
 goog.html.TrustedResourceUrl = function() {
@@ -5667,10 +5926,41 @@ goog.html.SafeUrl.fromTelUrl = function(telUrl) {
   goog.string.caseInsensitiveStartsWith(telUrl, "tel:") || (telUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(telUrl);
 };
+goog.html.SIP_URL_PATTERN_ = /^sip[s]?:[+a-z0-9_.!$%&'*\/=^`{|}~-]+@([a-z0-9-]+\.)+[a-z0-9]{2,63}$/i;
+goog.html.SafeUrl.fromSipUrl = function(sipUrl) {
+  goog.html.SIP_URL_PATTERN_.test(decodeURIComponent(sipUrl)) || (sipUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(sipUrl);
+};
+goog.html.SafeUrl.fromSmsUrl = function(smsUrl) {
+  goog.string.caseInsensitiveStartsWith(smsUrl, "sms:") && goog.html.SafeUrl.isSmsUrlBodyValid_(smsUrl) || (smsUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(smsUrl);
+};
+goog.html.SafeUrl.isSmsUrlBodyValid_ = function(smsUrl) {
+  var hash = smsUrl.indexOf("#");
+  0 < hash && (smsUrl = smsUrl.substring(0, hash));
+  var bodyParams = smsUrl.match(/[?&]body=/gi);
+  if (!bodyParams) {
+    return !0;
+  }
+  if (1 < bodyParams.length) {
+    return !1;
+  }
+  var bodyValue = smsUrl.match(/[?&]body=([^&]*)/)[1];
+  if (!bodyValue) {
+    return !0;
+  }
+  try {
+    decodeURIComponent(bodyValue);
+  } catch (error) {
+    return !1;
+  }
+  return /^(?:[a-z0-9\-_.~]|%[0-9a-f]{2})+$/i.test(bodyValue);
+};
 goog.html.SafeUrl.fromTrustedResourceUrl = function(trustedResourceUrl) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.html.TrustedResourceUrl.unwrap(trustedResourceUrl));
 };
 goog.html.SAFE_URL_PATTERN_ = /^(?:(?:https?|mailto|ftp):|[^:/?#]*(?:[/?#]|$))/i;
+goog.html.SafeUrl.SAFE_URL_PATTERN = goog.html.SAFE_URL_PATTERN_;
 goog.html.SafeUrl.sanitize = function(url) {
   if (url instanceof goog.html.SafeUrl) {
     return url;
@@ -10234,8 +10524,18 @@ ee.ApiFunction.clearApi = function(target$jscomp$0) {
   clear(target$jscomp$0.prototype);
 };
 ee.arguments = {};
-ee.arguments.extract = function(fn, originalArgs) {
-  var paramNamesWithOptPrefix = ee.arguments.getParamNames_(fn), paramNames = goog.array.map(paramNamesWithOptPrefix, function(param) {
+ee.arguments.extractFromFunction = function(fn, originalArgs) {
+  return ee.arguments.extractImpl_(fn, originalArgs, ee.arguments.JS_PARAM_DECL_MATCHER_FUNCTION_);
+};
+ee.arguments.extractFromClassConstructor = function(fn, originalArgs) {
+  return ee.arguments.extractImpl_(fn, originalArgs, ee.arguments.JS_PARAM_DECL_MATCHER_CLASS_CONSTRUCTOR_);
+};
+ee.arguments.extractFromClassMethod = function(fn, originalArgs) {
+  return ee.arguments.extractImpl_(fn, originalArgs, ee.arguments.JS_PARAM_DECL_MATCHER_CLASS_METHOD_);
+};
+ee.arguments.extract = ee.arguments.extractFromFunction;
+ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
+  var paramNamesWithOptPrefix = ee.arguments.getParamNames_(fn, parameterMatcher), paramNames = goog.array.map(paramNamesWithOptPrefix, function(param) {
     return param.replace(/^opt_/, "");
   }), fnName = ee.arguments.getFnName_(fn), fnNameSnippet = fnName ? " to function " + fnName : "", args = {}, firstArg = originalArgs[0], firstArgCouldBeDictionary = goog.isObject(firstArg) && !goog.isFunction(firstArg) && !goog.isArray(firstArg) && !(firstArg instanceof ee.ComputedObject);
   if (1 < originalArgs.length || !firstArgCouldBeDictionary) {
@@ -10265,15 +10565,17 @@ ee.arguments.extract = function(fn, originalArgs) {
   }
   return args;
 };
-ee.arguments.getParamNames_ = function(fn) {
+ee.arguments.getParamNames_ = function(fn, parameterMatcher) {
   var paramNames = [];
   if (goog.global.EXPORTED_FN_INFO) {
     var exportedFnInfo = goog.global.EXPORTED_FN_INFO[fn.toString()];
-    goog.asserts.assertObject(exportedFnInfo);
+    goog.isObject(exportedFnInfo) || ee.arguments.throwMatchFailedError_();
     paramNames = exportedFnInfo.paramNames;
-    goog.asserts.assertArray(paramNames);
+    goog.isArray(paramNames) || ee.arguments.throwMatchFailedError_();
   } else {
-    paramNames = (fn.toString().replace(ee.arguments.JS_COMMENT_MATCHER_, "").match(ee.arguments.JS_PARAM_DECL_MATCHER_)[1].split(",") || []).map(function(p) {
+    var fnMatchResult = fn.toString().replace(ee.arguments.JS_COMMENT_MATCHER_, "").match(parameterMatcher);
+    null === fnMatchResult && ee.arguments.throwMatchFailedError_();
+    paramNames = (fnMatchResult[1].split(",") || []).map(function(p) {
       return p.replace(ee.arguments.JS_PARAM_DEFAULT_MATCHER_, "");
     });
   }
@@ -10282,8 +10584,13 @@ ee.arguments.getParamNames_ = function(fn) {
 ee.arguments.getFnName_ = function(fn) {
   return goog.global.EXPORTED_FN_INFO ? goog.global.EXPORTED_FN_INFO[fn.toString()].name.split(".").pop() + "()" : null;
 };
+ee.arguments.throwMatchFailedError_ = function() {
+  throw Error("Failed to locate function parameters.");
+};
 ee.arguments.JS_COMMENT_MATCHER_ = /((\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s))/mg;
-ee.arguments.JS_PARAM_DECL_MATCHER_ = /^function\s*[^\(]*\(\s*([^\)]*)\)/m;
+ee.arguments.JS_PARAM_DECL_MATCHER_FUNCTION_ = /^function[^\(]*\(([^\)]*)\)/m;
+ee.arguments.JS_PARAM_DECL_MATCHER_CLASS_CONSTRUCTOR_ = /^class[^\{]*{\S*?\bconstructor\(([^\)]*)\)/m;
+ee.arguments.JS_PARAM_DECL_MATCHER_CLASS_METHOD_ = /[^\(]*\(([^\)]*)\)/m;
 ee.arguments.JS_PARAM_DEFAULT_MATCHER_ = /=.*$/;
 ee.Element = function(func, args, opt_varName) {
   ee.ComputedObject.call(this, func, args, opt_varName);
@@ -10335,7 +10642,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
     return ee.ComputedObject.construct(ee.Geometry, arguments);
   }
   if (!("type" in geoJson)) {
-    var args = ee.arguments.extract(ee.Geometry, arguments);
+    var args = ee.arguments.extractFromFunction(ee.Geometry, arguments);
     geoJson = args.geoJson;
     opt_proj = args.proj;
     opt_geodesic = args.geodesic;
@@ -10554,7 +10861,7 @@ ee.Geometry.getEeApiArgs_ = function(jsConstructorFn, originalArgs) {
   if (goog.array.every(originalArgs, ee.Types.isNumber)) {
     return {coordinates:goog.array.toArray(originalArgs)};
   }
-  var args = ee.arguments.extract(jsConstructorFn, originalArgs);
+  var args = ee.arguments.extractFromFunction(jsConstructorFn, originalArgs);
   args.coordinates = args.coords;
   delete args.coords;
   args.crs = args.proj;
@@ -10631,45 +10938,45 @@ ee.batch.ExportTask.prototype.start = function(opt_success, opt_error) {
   }
 };
 ee.batch.Export.image.toAsset = function(image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.image.toAsset, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toAsset, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.IMAGE);
 };
 ee.batch.Export.image.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.image.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
   serverConfig = ee.batch.Export.reconcileImageFormat(serverConfig);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.IMAGE);
 };
 ee.batch.Export.image.toDrive = function(image, opt_description, opt_folder, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.image.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
   serverConfig = ee.batch.Export.reconcileImageFormat(serverConfig);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.IMAGE);
 };
 ee.batch.Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.map.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.map.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.MAP);
 };
 ee.batch.Export.table.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat, opt_selectors) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.table.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.table.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.TABLE);
 };
 ee.batch.Export.table.toDrive = function(collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat, opt_selectors) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.table.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.table.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.TABLE);
 };
 ee.batch.Export.table.toAsset = function(collection, opt_description, opt_assetId) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.table.toAsset, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.table.toAsset, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.TABLE);
 };
 ee.batch.Export.video.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.video.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.video.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.VIDEO);
 };
 ee.batch.Export.video.toDrive = function(collection, opt_description, opt_folder, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.video.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.video.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.VIDEO);
 };
 ee.batch.Export.videoMap.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_writePublicTiles, opt_minZoom, opt_maxZoom, opt_scale, opt_region, opt_skipEmptyTiles) {
-  var clientConfig = ee.arguments.extract(ee.batch.Export.videoMap.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.videoMap.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.VIDEO_MAP);
 };
 ee.batch.ServerTaskConfig = {};
@@ -10823,27 +11130,27 @@ ee.Filter.prototype.not = function() {
   return ee.ApiFunction._call("Filter.not", this);
 };
 ee.Filter.eq = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.eq, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.eq, arguments);
   return ee.ApiFunction._call("Filter.equals", args.name, args.value);
 };
 ee.Filter.neq = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.neq, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.neq, arguments);
   return ee.Filter.eq(args.name, args.value).not();
 };
 ee.Filter.lt = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.lt, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.lt, arguments);
   return ee.ApiFunction._call("Filter.lessThan", args.name, args.value);
 };
 ee.Filter.gte = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.gte, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.gte, arguments);
   return ee.Filter.lt(args.name, args.value).not();
 };
 ee.Filter.gt = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.gt, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.gt, arguments);
   return ee.ApiFunction._call("Filter.greaterThan", args.name, args.value);
 };
 ee.Filter.lte = function(name, value) {
-  var args = ee.arguments.extract(ee.Filter.lte, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.lte, arguments);
   return ee.Filter.gt(args.name, args.value).not();
 };
 ee.Filter.and = function(var_args) {
@@ -10855,11 +11162,11 @@ ee.Filter.or = function(var_args) {
   return ee.ApiFunction._call("Filter.or", args);
 };
 ee.Filter.date = function(start, opt_end) {
-  var args = ee.arguments.extract(ee.Filter.date, arguments), range = ee.ApiFunction._call("DateRange", args.start, args.end);
+  var args = ee.arguments.extractFromFunction(ee.Filter.date, arguments), range = ee.ApiFunction._call("DateRange", args.start, args.end);
   return ee.ApiFunction._apply("Filter.dateRangeContains", {leftValue:range, rightField:"system:time_start"});
 };
 ee.Filter.inList = function(opt_leftField, opt_rightValue, opt_rightField, opt_leftValue) {
-  var args = ee.arguments.extract(ee.Filter.inList, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Filter.inList, arguments);
   return ee.ApiFunction._apply("Filter.listContains", {leftField:args.rightField, rightValue:args.leftValue, rightField:args.leftField, leftValue:args.rightValue});
 };
 ee.Filter.bounds = function(geometry, opt_errorMargin) {
@@ -10899,22 +11206,22 @@ ee.Collection.prototype.filter = function(newFilter) {
   return this.castInternal(ee.ApiFunction._call("Collection.filter", this, newFilter));
 };
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
-  var args = ee.arguments.extract(ee.Collection.prototype.filterMetadata, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.filterMetadata, arguments);
   return this.filter(ee.Filter.metadata(args.name, args.operator, args.value));
 };
 ee.Collection.prototype.filterBounds = function(geometry) {
   return this.filter(ee.Filter.bounds(geometry));
 };
 ee.Collection.prototype.filterDate = function(start, opt_end) {
-  var args = ee.arguments.extract(ee.Collection.prototype.filterDate, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.filterDate, arguments);
   return this.filter(ee.Filter.date(args.start, args.end));
 };
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  var args = ee.arguments.extract(ee.Collection.prototype.limit, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.limit, arguments);
   return this.castInternal(ee.ApiFunction._call("Collection.limit", this, args.max, args.property, args.ascending));
 };
 ee.Collection.prototype.sort = function(property, opt_ascending) {
-  var args = ee.arguments.extract(ee.Collection.prototype.sort, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.sort, arguments);
   return this.castInternal(ee.ApiFunction._call("Collection.limit", this, void 0, args.property, args.ascending));
 };
 ee.Collection.prototype.name = function() {
@@ -11092,7 +11399,7 @@ ee.Date = function(date, opt_tz) {
     return date;
   }
   ee.Date.initialize();
-  var jsArgs = ee.arguments.extract(ee.Date, arguments);
+  var jsArgs = ee.arguments.extractFromFunction(ee.Date, arguments);
   date = jsArgs.date;
   var tz = jsArgs.tz, func = new ee.ApiFunction("Date"), args = {}, varName = null;
   if (ee.Types.isString(date)) {
@@ -11298,7 +11605,7 @@ ee.Feature.reset = function() {
   ee.Feature.initialized_ = !1;
 };
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extract(ee.Feature.prototype.getMap, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Feature.prototype.getMap, arguments);
   return ee.ApiFunction._call("Collection", [this]).getMap(args.visParams, args.callback);
 };
 ee.Feature.prototype.name = function() {
@@ -11388,7 +11695,7 @@ ee.FeatureCollection.reset = function() {
   ee.FeatureCollection.initialized_ = !1;
 };
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extract(ee.FeatureCollection.prototype.getMap, arguments), painted = ee.ApiFunction._apply("Collection.draw", {collection:this, color:(args.visParams || {}).color || "000000"});
+  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getMap, arguments), painted = ee.ApiFunction._apply("Collection.draw", {collection:this, color:(args.visParams || {}).color || "000000"});
   if (args.callback) {
     painted.getMap(null, args.callback);
   } else {
@@ -11396,7 +11703,7 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   }
 };
 ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selectors, opt_filename, opt_callback) {
-  var args = ee.arguments.extract(ee.FeatureCollection.prototype.getDownloadURL, arguments), request = {};
+  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getDownloadURL, arguments), request = {};
   request.table = this.serialize();
   args.format && (request.format = args.format.toUpperCase());
   args.filename && (request.filename = args.filename);
@@ -11420,7 +11727,7 @@ ee.FeatureCollection.prototype.select = function(propertySelectors, opt_newPrope
       return feature.select(varargs);
     });
   }
-  var args = ee.arguments.extract(ee.FeatureCollection.prototype.select, arguments);
+  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.select, arguments);
   return this.map(function(feature) {
     return feature.select(args);
   });
@@ -11486,7 +11793,7 @@ ee.Image.reset = function() {
   ee.Image.initialized_ = !1;
 };
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
-  var $jscomp$this = this, args = ee.arguments.extract(ee.Image.prototype.getMap, arguments), request = args.visParams ? goog.object.clone(args.visParams) : {};
+  var $jscomp$this = this, args = ee.arguments.extractFromFunction(ee.Image.prototype.getMap, arguments), request = args.visParams ? goog.object.clone(args.visParams) : {};
   request.image = this.serialize();
   if (args.callback) {
     var callback = args.callback;
@@ -11501,7 +11808,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   }
 };
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
-  var args = ee.arguments.extract(ee.Image.prototype.getDownloadURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
+  var args = ee.arguments.extractFromFunction(ee.Image.prototype.getDownloadURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
   request.image = this.serialize();
   if (args.callback) {
     var callback = args.callback;
@@ -11513,7 +11820,7 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   }
 };
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
-  var args = ee.arguments.extract(ee.Image.prototype.getThumbURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
+  var args = ee.arguments.extractFromFunction(ee.Image.prototype.getThumbURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
   request.image = this.serialize();
   if (request.region) {
     if (goog.isArray(request.region) || ee.Types.isRegularObject(request.region)) {
@@ -11541,7 +11848,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   }
 };
 ee.Image.rgb = function(r, g, b) {
-  var args = ee.arguments.extract(ee.Image.rgb, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Image.rgb, arguments);
   return ee.Image.combine_([args.r, args.g, args.b], ["vis-red", "vis-green", "vis-blue"]);
 };
 ee.Image.cat = function(var_args) {
@@ -11573,7 +11880,7 @@ ee.Image.prototype.select = function(var_args) {
   return ee.ApiFunction._apply("Image.select", algorithmArgs);
 };
 ee.Image.prototype.expression = function(expression, opt_map) {
-  var originalArgs = ee.arguments.extract(ee.Image.prototype.expression, arguments), vars = ["DEFAULT_EXPRESSION_IMAGE"], eeArgs = {DEFAULT_EXPRESSION_IMAGE:this};
+  var originalArgs = ee.arguments.extractFromFunction(ee.Image.prototype.expression, arguments), vars = ["DEFAULT_EXPRESSION_IMAGE"], eeArgs = {DEFAULT_EXPRESSION_IMAGE:this};
   if (originalArgs.map) {
     var map = originalArgs.map, name$jscomp$0;
     for (name$jscomp$0 in map) {
@@ -11647,7 +11954,7 @@ ee.ImageCollection.reset = function() {
   ee.ImageCollection.initialized_ = !1;
 };
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extract(ee.ImageCollection.prototype.getMap, arguments), mosaic = ee.ApiFunction._call("ImageCollection.mosaic", this);
+  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getMap, arguments), mosaic = ee.ApiFunction._call("ImageCollection.mosaic", this);
   if (args.callback) {
     mosaic.getMap(args.visParams, args.callback);
   } else {
@@ -11972,6 +12279,41 @@ ee.FloatTileOverlay.prototype.dispatchTileEvent_ = function() {
 ee.FloatTileOverlay.prototype.disposeInternal = function() {
   this.floatTileDivs_ = this.floatTiles_ = null;
   ee.FloatTileOverlay.superClass_.disposeInternal.call(this);
+};
+ee.layers = {};
+ee.layers.AbstractOverlayStats = function(uniqueId) {
+  this.statsByZoom_ = new Map;
+  this.uniqueId_ = uniqueId;
+};
+ee.layers.AbstractOverlayStats.prototype.addTileStats = function(start, end, zoom) {
+  this.getStatsForZoom_(zoom).tileLatencies.push(end - start);
+};
+ee.layers.AbstractOverlayStats.prototype.incrementThrottleCounter = function(zoom) {
+  this.getStatsForZoom_(zoom).throttleCount++;
+};
+ee.layers.AbstractOverlayStats.prototype.incrementErrorCounter = function(zoom) {
+  this.getStatsForZoom_(zoom).errorCount++;
+};
+ee.layers.AbstractOverlayStats.prototype.clear = function() {
+  this.statsByZoom_.clear();
+};
+ee.layers.AbstractOverlayStats.prototype.hasData = function() {
+  return 0 < this.statsByZoom_.size;
+};
+ee.layers.AbstractOverlayStats.prototype.getSummaryList = function() {
+  var $jscomp$this = this, summaryList = [];
+  this.statsByZoom_.forEach(function(stats, zoom) {
+    return summaryList.push({layerId:$jscomp$this.uniqueId_, zoomLevel:zoom, tileLatencies:stats.tileLatencies, throttleCount:stats.throttleCount, errorCount:stats.errorCount});
+  });
+  return summaryList;
+};
+ee.layers.AbstractOverlayStats.prototype.getStatsForZoom_ = function(zoom) {
+  this.statsByZoom_.has(zoom) || this.statsByZoom_.set(zoom, {throttleCount:0, errorCount:0, tileLatencies:[]});
+  return this.statsByZoom_.get(zoom);
+};
+ee.layers.AbstractOverlayStats.LayerStatsForZoomLevel = function() {
+};
+ee.layers.AbstractOverlayStats.Summary = function() {
 };
 goog.events.EventHandler = function(opt_scope) {
   goog.Disposable.call(this);
@@ -13019,7 +13361,6 @@ goog.style.getCssTranslation = function(element) {
   var matches = transform.match(goog.style.MATRIX_TRANSLATION_REGEX_);
   return matches ? new goog.math.Coordinate(parseFloat(matches[1]), parseFloat(matches[2])) : new goog.math.Coordinate(0, 0);
 };
-ee.layers = {};
 ee.layers.AbstractOverlay = function(tileSource, opt_options) {
   goog.events.EventTarget.call(this);
   var options = opt_options || {};
@@ -13032,6 +13373,7 @@ ee.layers.AbstractOverlay = function(tileSource, opt_options) {
   this.isPng = "isPng" in options ? options.isPng : !0;
   this.name = options.name;
   this.opacity = "opacity" in options ? options.opacity : 1;
+  this.stats = new ee.layers.AbstractOverlayStats(tileSource.getUniqueId());
   this.tilesById = new goog.structs.Map;
   this.tileCounter = 0;
   this.tileSource = tileSource;
@@ -13062,6 +13404,9 @@ ee.layers.AbstractOverlay.prototype.setOpacity = function(opacity) {
     goog.style.setOpacity(tile.div, this.opacity);
   }, this);
 };
+ee.layers.AbstractOverlay.prototype.getStats = function() {
+  return this.stats;
+};
 ee.layers.AbstractOverlay.prototype.getTile = function(coord, zoom, ownerDocument) {
   var maxCoord = 1 << zoom;
   if (zoom < this.minZoom || 0 > coord.y || coord.y >= maxCoord) {
@@ -13073,19 +13418,7 @@ ee.layers.AbstractOverlay.prototype.getTile = function(coord, zoom, ownerDocumen
   tile.tileSize = this.tileSize;
   goog.style.setOpacity(tile.div, this.opacity);
   this.tilesById.set(uniqueId, tile);
-  this.handler.listen(tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
-    var Status = ee.layers.AbstractTile.Status;
-    switch(tile.getStatus()) {
-      case Status.LOADED:
-        this.dispatchEvent(new ee.layers.TileLoadEvent(this.getLoadingTilesCount()));
-        break;
-      case Status.THROTTLED:
-        this.dispatchEvent(new ee.layers.TileThrottleEvent(tile.sourceUrl));
-        break;
-      case Status.FAILED:
-        this.dispatchEvent(new ee.layers.TileFailEvent(tile.sourceUrl, tile.errorMessage_));
-    }
-  });
+  this.registerStatusChangeListener_(tile);
   this.tileSource.loadTile(tile, (new Date).getTime() / 1000);
   return tile.div;
 };
@@ -13093,6 +13426,23 @@ ee.layers.AbstractOverlay.prototype.releaseTile = function(tileDiv) {
   var tile = this.tilesById.get(tileDiv.id);
   this.tilesById.remove(tileDiv.id);
   tile && (tile.abort(), goog.dispose(tile));
+};
+ee.layers.AbstractOverlay.prototype.registerStatusChangeListener_ = function(tile) {
+  this.handler.listen(tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
+    var Status = ee.layers.AbstractTile.Status;
+    switch(tile.getStatus()) {
+      case Status.LOADED:
+        this.stats.addTileStats(tile.loadingStartTs_, (new Date).getTime(), tile.zoom);
+        this.dispatchEvent(new ee.layers.TileLoadEvent(this.getLoadingTilesCount()));
+        break;
+      case Status.THROTTLED:
+        this.stats.incrementThrottleCounter(tile.zoom);
+        this.dispatchEvent(new ee.layers.TileThrottleEvent(tile.sourceUrl));
+        break;
+      case Status.FAILED:
+        this.stats.incrementErrorCounter(tile.zoom), this.dispatchEvent(new ee.layers.TileFailEvent(tile.sourceUrl, tile.errorMessage_));
+    }
+  });
 };
 ee.layers.AbstractOverlay.prototype.getUniqueTileId_ = function(coord, z) {
   var tileId = [coord.x, coord.y, z, this.tileCounter].join("-"), sourceId = this.tileSource.getUniqueId();
@@ -13148,6 +13498,7 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
     throw Error("startLoad() can only be invoked once. Use retryLoad() after the first attempt.");
   }
   this.setStatus(ee.layers.AbstractTile.Status.LOADING);
+  this.loadingStartTs_ = (new Date).getTime();
   this.xhrIo_ = new goog.net.XhrIo;
   this.xhrIo_.setResponseType(goog.net.XhrIo.ResponseType.BLOB);
   this.xhrIo_.listen(goog.net.EventType.COMPLETE, function(event) {
@@ -14131,7 +14482,7 @@ ee.Package.makeFunction = function(signature, body) {
   return func;
 };
 ee.Package.save = function(pkg, path) {
-  var args = ee.arguments.extract(ee.Package.save, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Package.save, arguments);
   pkg = args.pkg;
   path = args.path;
   if (!path) {

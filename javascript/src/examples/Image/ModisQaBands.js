@@ -1,4 +1,5 @@
 // Extract MODIS QA information from the "state_1km" QA band
+// and use it to mask out cloudy and deep ocean areas.
 //
 // QA Band information is available at:
 // https://lpdaac.usgs.gov/products/modis_products_table/mod09ga
@@ -38,8 +39,10 @@ var cloud = getQABits(QA, 0, 1, 'cloud_state')
 // Get the land_water_flag bits.
 var landWaterFlag = getQABits(QA, 3, 5, 'land_water_flag');
 
+// Create a mask that filters out deep ocean and cloudy areas.
 var mask = landWaterFlag.neq(7).and(cloud.not());
 
+// Add a map layer with the deep ocean and clouds areas masked out.
 Map.addLayer(
   image.updateMask(mask),
   {bands: 'sur_refl_b01,sur_refl_b04,sur_refl_b03', min: -100, max: 2000},

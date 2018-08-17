@@ -102,7 +102,7 @@ ee.Collection.prototype.filter = function(newFilter) {
  * TODO(user): Decide whether to deprecate this.
  */
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
-  var args = ee.arguments.extract(
+  var args = ee.arguments.extractFromFunction(
       ee.Collection.prototype.filterMetadata, arguments);
   return this.filter(ee.Filter.metadata(
       args['name'], args['operator'], args['value']));
@@ -139,7 +139,7 @@ ee.Collection.prototype.filterBounds = function(geometry) {
  * @export
  */
 ee.Collection.prototype.filterDate = function(start, opt_end) {
-  var args = ee.arguments.extract(
+  var args = ee.arguments.extractFromFunction(
       ee.Collection.prototype.filterDate, arguments);
   return this.filter(ee.Filter.date(args['start'], args['end']));
 };
@@ -157,7 +157,8 @@ ee.Collection.prototype.filterDate = function(start, opt_end) {
  * @export
  */
 ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  var args = ee.arguments.extract(ee.Collection.prototype.limit, arguments);
+  var args = ee.arguments.extractFromFunction(
+      ee.Collection.prototype.limit, arguments);
   return this.castInternal(ee.ApiFunction._call(
       'Collection.limit', this,
       args['max'], args['property'], args['ascending']));
@@ -174,7 +175,8 @@ ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
  * @export
  */
 ee.Collection.prototype.sort = function(property, opt_ascending) {
-  var args = ee.arguments.extract(ee.Collection.prototype.sort, arguments);
+  var args = ee.arguments.extractFromFunction(
+      ee.Collection.prototype.sort, arguments);
   return this.castInternal(ee.ApiFunction._call(
       'Collection.limit', this,
       undefined, args['property'], args['ascending']));

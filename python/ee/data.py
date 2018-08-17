@@ -17,6 +17,7 @@ import time
 import httplib2
 import six
 
+
 # pylint: disable=g-import-not-at-top
 try:
   # Python 3.x
@@ -32,12 +33,12 @@ from . import ee_exception
 # OAuth2 credentials object.  This may be set by ee.Initialize().
 _credentials = None
 
-
-# The base URL for all data calls.  This is set by ee.initialize().
+# The base URL for all data calls.  This is set by ee.Initialize().
 _api_base_url = None
 
-# The base URL for map tiles.  This is set by ee.initialize().
+# The base URL for map tiles.  This is set by ee.Initialize().
 _tile_base_url = None
+
 
 # Whether the module has been initialized.
 _initialized = False
@@ -63,6 +64,7 @@ class _ThreadLocals(threading.local):
     # ee.data.profiling, defined below).
     self.profile_hook = None
 
+
 _thread_locals = _ThreadLocals()
 
 # The HTTP header through which profile results are returned.
@@ -85,6 +87,7 @@ DEFAULT_API_BASE_URL = 'https://earthengine.googleapis.com/api'
 # The default base URL for media/tile calls.
 DEFAULT_TILE_BASE_URL = 'https://earthengine.googleapis.com'
 
+
 # Asset types recognized by create_assets().
 ASSET_TYPE_FOLDER = 'Folder'
 ASSET_TYPE_IMAGE_COLL = 'ImageCollection'
@@ -95,7 +98,11 @@ MAX_TYPE_LENGTH = len(ASSET_TYPE_IMAGE_COLL)
 _TASKLIST_PAGE_SIZE = 500
 
 
-def initialize(credentials=None, api_base_url=None, tile_base_url=None):
+def initialize(
+    credentials=None,
+    api_base_url=None,
+    tile_base_url=None
+):
   """Initializes the data module, setting credentials and base URLs.
 
   If any of the arguments are unspecified, they will keep their old values;
@@ -122,6 +129,7 @@ def initialize(credentials=None, api_base_url=None, tile_base_url=None):
     _tile_base_url = tile_base_url
   elif not _initialized:
     _tile_base_url = DEFAULT_TILE_BASE_URL
+
 
   _initialized = True
 
@@ -200,6 +208,8 @@ def getList(params):
   return send_('/list', params)
 
 
+
+
 def getMapId(params):
   """Get a Map ID for a given asset.
 
@@ -247,12 +257,12 @@ def getTileUrl(mapid, x, y, z):
   Returns:
     The tile URL.
   """
-  width = 2 ** z
+  width = 2**z
   x %= width
   if x < 0:
     x += width
-  return '%s/map/%s/%d/%d/%d?token=%s' % (
-      _tile_base_url, mapid['mapid'], z, x, y, mapid['token'])
+  return '%s/map/%s/%d/%d/%d?token=%s' % (_tile_base_url, mapid['mapid'], z, x,
+                                          y, mapid['token'])
 
 
 def getValue(params):
@@ -462,11 +472,12 @@ def copyAsset(sourceId, destinationId, allowOverwrite=False):
     destinationId: The ID of the new asset created by copying.
     allowOverwrite: If True, allows overwriting an existing asset.
   """
-  send_('/copy', {
-      'sourceId': sourceId,
-      'destinationId': destinationId,
-      'allowOverwrite': allowOverwrite,
-  })
+  send_(
+      '/copy', {
+          'sourceId': sourceId,
+          'destinationId': destinationId,
+          'allowOverwrite': allowOverwrite,
+      })
 
 
 def renameAsset(sourceId, destinationId):
@@ -790,15 +801,14 @@ def send_(path, params, opt_method='POST', opt_raw=False):
       EEException: For errors from the server.
     """
     try:
-      response, content = http.request(url, method=opt_method, body=payload,
-                                       headers=headers)
+      response, content = http.request(
+          url, method=opt_method, body=payload, headers=headers)
       if response.status == 429:
         if retries < MAX_RETRIES:
-          time.sleep(min(2 ** retries * BASE_RETRY_WAIT, MAX_RETRY_WAIT) / 1000)
+          time.sleep(min(2**retries * BASE_RETRY_WAIT, MAX_RETRY_WAIT) / 1000)
           response, content = send_with_backoff(retries + 1)
     except httplib2.HttpLib2Error as e:
-      raise ee_exception.EEException(
-          'Unexpected HTTP error: %s' % e.message)
+      raise ee_exception.EEException('Unexpected HTTP error: %s' % e.message)
     return response, content
 
   response, content = send_with_backoff()
@@ -834,8 +844,8 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   if response.status < 100 or response.status >= 300:
     # Note if the response is JSON and contains an error value, we raise that
     # error above rather than this generic one.
-    raise ee_exception.EEException('Server returned HTTP code: %d' %
-                                   response.status)
+    raise ee_exception.EEException(
+        'Server returned HTTP code: %d' % response.status)
 
   # Now known not to be an error response...
   if opt_raw:

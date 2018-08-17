@@ -153,8 +153,8 @@ ee.batch.ExportTask = class {
 ee.batch.Export.image.toAsset = function(
     image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels) {
-  const clientConfig =
-      ee.arguments.extract(ee.batch.Export.image.toAsset, arguments);
+  const clientConfig = ee.arguments.extractFromFunction(
+      ee.batch.Export.image.toAsset, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.ASSET);
   return ee.batch.ExportTask.create(serverConfig, ExportType.IMAGE);
@@ -185,8 +185,8 @@ ee.batch.Export.image.toCloudStorage = function(
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
     opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat,
     opt_formatOptions) {
-  const clientConfig =
-      ee.arguments.extract(ee.batch.Export.image.toCloudStorage, arguments);
+  const clientConfig = ee.arguments.extractFromFunction(
+      ee.batch.Export.image.toCloudStorage, arguments);
   let serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.GCS);
   serverConfig = ee.batch.Export.reconcileImageFormat(
@@ -219,8 +219,8 @@ ee.batch.Export.image.toDrive = function(
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
     opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat,
     opt_formatOptions) {
-  const clientConfig =
-      ee.arguments.extract(ee.batch.Export.image.toDrive, arguments);
+  const clientConfig = ee.arguments.extractFromFunction(
+      ee.batch.Export.image.toDrive, arguments);
   let serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.DRIVE);
   serverConfig = ee.batch.Export.reconcileImageFormat(
@@ -248,8 +248,8 @@ ee.batch.Export.map.toCloudStorage = function(
     image, opt_description, opt_bucket, opt_fileFormat, opt_path,
     opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region,
     opt_skipEmptyTiles) {
-  const clientConfig =
-      ee.arguments.extract(ee.batch.Export.map.toCloudStorage, arguments);
+  const clientConfig = ee.arguments.extractFromFunction(
+      ee.batch.Export.map.toCloudStorage, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.GCS);
   return ee.batch.ExportTask.create(serverConfig, ExportType.MAP);
@@ -269,8 +269,8 @@ ee.batch.Export.map.toCloudStorage = function(
 ee.batch.Export.table.toCloudStorage = function(
     collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat,
     opt_selectors) {
-  const clientConfig =
-      ee.arguments.extract(ee.batch.Export.table.toCloudStorage, arguments);
+  const clientConfig = ee.arguments.extractFromFunction(
+      ee.batch.Export.table.toCloudStorage, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.GCS);
   return ee.batch.ExportTask.create(serverConfig, ExportType.TABLE);
@@ -290,8 +290,8 @@ ee.batch.Export.table.toCloudStorage = function(
 ee.batch.Export.table.toDrive = function(
     collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat,
     opt_selectors) {
-  const clientConfig =
-      ee.arguments.extract(ee.batch.Export.table.toDrive, arguments);
+  const clientConfig = ee.arguments.extractFromFunction(
+      ee.batch.Export.table.toDrive, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.DRIVE);
   return ee.batch.ExportTask.create(serverConfig, ExportType.TABLE);
@@ -307,8 +307,8 @@ ee.batch.Export.table.toDrive = function(
  */
 ee.batch.Export.table.toAsset = function(
     collection, opt_description, opt_assetId) {
-  const clientConfig =
-      ee.arguments.extract(ee.batch.Export.table.toAsset, arguments);
+  const clientConfig = ee.arguments.extractFromFunction(
+      ee.batch.Export.table.toAsset, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.ASSET);
   return ee.batch.ExportTask.create(serverConfig, ExportType.TABLE);
@@ -335,8 +335,8 @@ ee.batch.Export.video.toCloudStorage = function(
     collection, opt_description, opt_bucket, opt_fileNamePrefix,
     opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs,
     opt_crsTransform, opt_maxPixels, opt_maxFrames) {
-  const clientConfig =
-      ee.arguments.extract(ee.batch.Export.video.toCloudStorage, arguments);
+  const clientConfig = ee.arguments.extractFromFunction(
+      ee.batch.Export.video.toCloudStorage, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.GCS);
   return ee.batch.ExportTask.create(serverConfig, ExportType.VIDEO);
@@ -363,8 +363,8 @@ ee.batch.Export.video.toDrive = function(
     collection, opt_description, opt_folder, opt_fileNamePrefix,
     opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs,
     opt_crsTransform, opt_maxPixels, opt_maxFrames) {
-  const clientConfig =
-      ee.arguments.extract(ee.batch.Export.video.toDrive, arguments);
+  const clientConfig = ee.arguments.extractFromFunction(
+      ee.batch.Export.video.toDrive, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.DRIVE);
   return ee.batch.ExportTask.create(serverConfig, ExportType.VIDEO);

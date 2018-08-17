@@ -9,8 +9,8 @@ function maskS2clouds(image) {
   var qa = image.select('QA60')
 
   // Bits 10 and 11 are clouds and cirrus, respectively.
-  var cloudBitMask = ee.Number(2).pow(10).int()
-  var cirrusBitMask = ee.Number(2).pow(11).int()
+  var cloudBitMask = 1 << 10;
+  var cirrusBitMask = 1 << 11;
 
   // Both flags should be set to zero, indicating clear conditions.
   var mask = qa.bitwiseAnd(cloudBitMask).eq(0).and(

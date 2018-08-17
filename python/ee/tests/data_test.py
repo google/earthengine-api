@@ -149,6 +149,7 @@ class DataTest(unittest.TestCase):
       ee.data.send_('/foo', {})
 
 
+
 def DoStubHttp(status, mime, resp_body):
   """Context manager for temporarily overriding Http."""
   def Request(unused_self, unused_url, method, body, headers):

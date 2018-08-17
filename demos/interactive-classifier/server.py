@@ -126,10 +126,10 @@ class GetMapData(webapp2.RequestHandler):
     )
 
     # Train a classifier using the aggregated data.
-    classifier = training.trainClassifier(
-        property_list=landsat_composite.bandNames(),
-        class_property='label',
-        classifier_name='FastNaiveBayes'
+    classifier = ee.Classifier.naiveBayes().train(
+        features=training,
+        classProperty='label',
+        inputProperties=landsat_composite.bandNames(),
     )
 
     # Apply the classifier to the original composite.

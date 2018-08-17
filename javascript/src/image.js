@@ -163,7 +163,8 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * @export
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extract(ee.Image.prototype.getMap, arguments);
+  var args = ee.arguments.extractFromFunction(
+      ee.Image.prototype.getMap, arguments);
   var request = /** @type {!ee.data.ImageVisualizationParameters} */ (
       args['visParams'] ? goog.object.clone(args['visParams']) : {});
   request.image = this.serialize();
@@ -223,7 +224,8 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  * @export
  */
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
-  var args = ee.arguments.extract(ee.Image.prototype.getDownloadURL, arguments);
+  var args = ee.arguments.extractFromFunction(
+      ee.Image.prototype.getDownloadURL, arguments);
   var request = args['params'] ? goog.object.clone(args['params']) : {};
   request['image'] = this.serialize();
   if (args['callback']) {
@@ -259,7 +261,8 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
  * @export
  */
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
-  var args = ee.arguments.extract(ee.Image.prototype.getThumbURL, arguments);
+  var args = ee.arguments.extractFromFunction(
+      ee.Image.prototype.getThumbURL, arguments);
   var request = args['params'] ? goog.object.clone(args['params']) : {};
   request['image'] = this.serialize();
   if (request['region']) {
@@ -307,7 +310,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
  * @export
  */
 ee.Image.rgb = function(r, g, b) {
-  var args = ee.arguments.extract(ee.Image.rgb, arguments);
+  var args = ee.arguments.extractFromFunction(ee.Image.rgb, arguments);
   return ee.Image.combine_(
       [args['r'], args['g'], args['b']],
       ['vis-red', 'vis-green', 'vis-blue']);
@@ -424,8 +427,8 @@ ee.Image.prototype.select = function(var_args) {
  * @export
  */
 ee.Image.prototype.expression = function(expression, opt_map) {
-  var originalArgs =
-      ee.arguments.extract(ee.Image.prototype.expression, arguments);
+  var originalArgs = ee.arguments.extractFromFunction(
+      ee.Image.prototype.expression, arguments);
 
   var eeArgName = 'DEFAULT_EXPRESSION_IMAGE';
   var vars = [eeArgName];

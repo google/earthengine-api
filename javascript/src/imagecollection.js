@@ -121,7 +121,7 @@ ee.ImageCollection.reset = function() {
  * @export
  */
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extract(
+  var args = ee.arguments.extractFromFunction(
       ee.ImageCollection.prototype.getMap, arguments);
   var mosaic = ee.ApiFunction._call('ImageCollection.mosaic', this);
   if (args['callback']) {

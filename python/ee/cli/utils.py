@@ -72,7 +72,7 @@ class CommandLineConfig(object):
         setattr(self, key, value)
 
   def ee_init(self):
-    """Loads the EE credentils and initializes the EE client."""
+    """Loads the EE credentials and initializes the EE client."""
     if self.service_account_file:
       credentials = ee.ServiceAccountCredentials(
           self.client_email, self.service_account_file)
@@ -86,7 +86,10 @@ class CommandLineConfig(object):
     else:
       credentials = 'persistent'
 
-    ee.Initialize(credentials=credentials, opt_url=self.url)
+    ee.Initialize(
+        credentials=credentials,
+        opt_url=self.url
+    )
 
   def save(self):
     config = {}

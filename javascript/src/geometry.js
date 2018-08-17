@@ -58,8 +58,8 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   }
 
   // Note: evenOdd is a parameter name and may be a key in the
-  // first argument, the geoJson object. This means ee.arguments.extract()
-  // cannot reliably differentiate:
+  // first argument, the geoJson object. This means
+  // ee.arguments.extractFromFunction() cannot reliably differentiate:
   //
   //       1) ee.Geometry(myGeoJsonObject)
   //  from 2) ee.Geometry({geoJson: myGeoJsonObject})
@@ -68,9 +68,9 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   // which is not an expected param name. If we see this key in the first
   // argument, we know the arguments were passed in sequence. If not, we
   // assume the user intended to pass a named argument dictionary and use
-  // ee.arguments.extract() to validate and extract the keys.
+  // ee.arguments.extractFromFunction() to validate and extract the keys.
   if (!('type' in geoJson)) {
-    var args = ee.arguments.extract(ee.Geometry, arguments);
+    var args = ee.arguments.extractFromFunction(ee.Geometry, arguments);
     geoJson = args['geoJson'];
     opt_proj = args['proj'];
     opt_geodesic = args['geodesic'];
@@ -801,7 +801,7 @@ ee.Geometry.getEeApiArgs_ = function(jsConstructorFn, originalArgs) {
     // All numbers, so convert them to a true array.
     return {'coordinates': goog.array.toArray(originalArgs)};
   } else {
-    var args = ee.arguments.extract(jsConstructorFn, originalArgs);
+    var args = ee.arguments.extractFromFunction(jsConstructorFn, originalArgs);
     // Convert the argument dictionary to proper GeoJSON. Some of the parameter
     // names intentionally don't map precisely to GeoJSON key names.
     // For example, the server expects different CRS values than GeoJSON.

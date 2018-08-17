@@ -15,7 +15,7 @@ var maskClouds = function(image) {
   // Select the QA band.
   var QA = image.select('state_1km')
   // Make a mask to get bit 10, the internal_cloud_algorithm_flag bit.
-  var bitMask = ee.Number(2).pow(10).int()
+  var bitMask = 1 << 10;
   // Return an image masking out cloudy areas.
   return image.updateMask(QA.bitwiseAnd(bitMask).eq(0))
 }
