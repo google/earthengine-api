@@ -63,3 +63,4 @@ class Dictionary(computedobject.ComputedObject):
       return opt_encoder(self._dictionary)
     else:
       return super(Dictionary, self).encode(opt_encoder)
+

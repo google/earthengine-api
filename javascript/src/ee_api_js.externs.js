@@ -61,10 +61,10 @@ ee.ApiFunction.lookup = function(name) {
 ee.Collection = function(func, args, opt_varName) {
 };
 /**
- * @param {(ee.Filter|null)} newFilter
+ * @param {(ee.Filter|null)} filter
  * @return {(ee.Collection|null)}
  */
-ee.Collection.prototype.filter = function(newFilter) {
+ee.Collection.prototype.filter = function(filter) {
 };
 /**
  * @param {(ee.Feature|ee.Geometry|null)} geometry
@@ -586,6 +586,11 @@ ee.Image.rgb = function(r, g, b) {
  * @constructor
  */
 ee.ImageCollection = function(args) {
+};
+/**
+ * @return {(ee.Image|null)}
+ */
+ee.ImageCollection.prototype.first = function() {
 };
 /**
  * @param {function((ee.data.ImageCollectionDescription|null), string=): ?=} opt_callback

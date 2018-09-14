@@ -14,10 +14,10 @@ from . import encodable
 from . import serializer
 
 
-class Function(encodable.Encodable):
+class Function(encodable.EncodableFunction):
   """An abstract base class for functions callable by the EE API.
 
-  Subclasses must implement encode() and getSignature().
+  Subclasses must implement encode_invocation() and getSignature().
   """
 
   # A function used to type-coerce arguments and return values.
@@ -158,8 +158,12 @@ class Function(encodable.Encodable):
   def getReturnType(self):
     return self.getSignature()['returns']
 
-  def serialize(self):
-    return serializer.toJSON(self)
+  def serialize(
+      self
+  ):
+    return serializer.toJSON(
+        self
+    )
 
   def __str__(self):
     """Returns a user-readable docstring for this function."""

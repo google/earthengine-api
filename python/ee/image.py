@@ -124,11 +124,42 @@ class Image(element.Element):
     Returns:
       An object containing a mapid and access token, or an error message.
     """
-    request = (vis_params or {}).copy()
-    request['image'] = self.serialize()
+    request = self._generateImageRequest(vis_params)
     response = data.getMapId(request)
     response['image'] = self
     return response
+
+  def _generateImageRequest(self, params):
+    """Prepare an image to be sent to an API endpoint.
+
+    Wraps the image in a call to visualize() if there are any recognized
+    visualization parameters present.
+
+    Args:
+      params: the visualization parameters.
+
+    Returns:
+      A request object ready to be sent to the server.
+    """
+    # Split the parameters into those handled handled by visualize()
+    # and those that aren't.
+    keys_to_extract = set(['bands', 'gain', 'bias', 'min', 'max',
+                           'gamma', 'palette', 'opacity', 'forceRgbOutput'])
+    request = {}
+    vis_params = {}
+    if params:
+      for key in params:
+        if key in keys_to_extract:
+          vis_params[key] = params[key]
+        else:
+          request[key] = params[key]
+
+    image = self
+    if vis_params:
+      vis_params['image'] = image
+      image = apifunction.ApiFunction.apply_('Image.visualize', vis_params)
+    request['image'] = image.serialize()
+    return request
 
   def getDownloadURL(self, params=None):
     """Get a download URL for this image.
@@ -185,8 +216,7 @@ class Image(element.Element):
     Raises:
       EEException: If the region parameter is not an array or GeoJSON object.
     """
-    request = params or {}
-    request['image'] = self.serialize()
+    request = self._generateImageRequest(params)
     if 'region' in request:
       if (isinstance(request['region'], dict) or
           isinstance(request['region'], list)):
@@ -338,12 +368,17 @@ class Image(element.Element):
     body = apifunction.ApiFunction.call_(
         'Image.parseExpression', expression, arg_name, all_vars)
 
-    # Reinterpret the body call as an ee.Function by hand-generating the
-    # signature so the computed function knows its input and output types.
+    # Like Spot the zebra, Image.parseExpression is not like all the others.
+    # It's an Algorithm whose output (in "body" here) is another Algorithm, one
+    # that takes a set of Images and produces an Image. We need to make an
+    # ee.Function to wrap it properly: encoding and specification of input and
+    # output types.
     class ReinterpretedFunction(function.Function):
+      """A function that executes the result of a function."""
 
-      def encode(self, encoder):
+      def encode_invocation(self, encoder):
         return body.encode(encoder)
+
 
       def getSignature(self):
         return {
@@ -353,7 +388,7 @@ class Image(element.Element):
             'returns': 'Image'
         }
 
-    # Perform the call.
+    # Perform the call to the result of Image.parseExpression
     return ReinterpretedFunction().apply(args)
 
   def clip(self, clip_geometry):

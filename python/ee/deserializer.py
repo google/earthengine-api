@@ -60,7 +60,7 @@ def decode(json_obj):
 def _decodeValue(json_obj, named_values):
   """Decodes an object previously encoded using the EE API v2 (DAG) format.
 
-  This uses a provided scopre for ValueRef lookup and does not not allow the
+  This uses a provided scope for ValueRef lookup and does not not allow the
   input to be a CompoundValue.
 
   Args:
@@ -120,7 +120,7 @@ def _decodeValue(json_obj, named_values):
       return computedobject.ComputedObject(func, args)
     else:
       raise ee_exception.EEException(
-          'Invalid function value: ' + json_obj['function'])
+          'Invalid function value: %s' % json_obj['function'])
   elif type_name == 'Dictionary':
     return dict((key, _decodeValue(value, named_values))
                 for (key, value) in json_obj['value'].items())

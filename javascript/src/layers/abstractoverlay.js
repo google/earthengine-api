@@ -283,7 +283,7 @@ ee.layers.AbstractOverlay.prototype.createTile = goog.abstractMethod;
  * @private
  */
 ee.layers.AbstractOverlay.prototype.getUniqueTileId_ = function(coord, z) {
-  var tileId = [coord.x, coord.y, z, this.tileCounter].join('-');
+  var tileId = [coord.x, coord.y, z, this.tileCounter++].join('-');
   var sourceId = this.tileSource.getUniqueId();
   return [tileId, sourceId].join('-');
 };

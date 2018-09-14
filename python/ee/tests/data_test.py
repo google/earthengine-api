@@ -171,10 +171,13 @@ def DoProfileStubHttp(test, expect_profiling):
         'content-type': 'application/json'
     }
     if expect_profiling:
-      response_dict['x-earth-engine-computation-profile'] = 'someProfileId'
+      response_dict[
+          ee.data._PROFILE_RESPONSE_HEADER_LOWERCASE] = 'someProfileId'
     response = httplib2.Response(response_dict)
     return response, '{"data": "dummy_data"}'
   return mock.patch('httplib2.Http.request', new=Request)
+
+
 
 
 class ExceptionForTest(Exception):

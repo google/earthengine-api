@@ -62,3 +62,4 @@ class Number(computedobject.ComputedObject):
       return self._number
     else:
       return super(Number, self).encode(opt_encoder)
+

@@ -63,3 +63,4 @@ class List(computedobject.ComputedObject):
       return [opt_encoder(elem) for elem in self._list]
     else:
       return super(List, self).encode(opt_encoder)
+

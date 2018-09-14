@@ -18,5 +18,5 @@ var clipped = median.clipToCollection(fc);
 
 // Display the result.
 Map.setCenter(-110, 40, 5);
-var visParams = {bands: ['B3', 'B2', 'B1'], gain: '1.4, 1.4, 1.1'};
+var visParams = {bands: ['B3', 'B2', 'B1'], gain: [1.4, 1.4, 1.1]};
 Map.addLayer(clipped, visParams, 'clipped composite');

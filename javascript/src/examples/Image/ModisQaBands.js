@@ -43,15 +43,17 @@ var landWaterFlag = getQABits(QA, 3, 5, 'land_water_flag');
 var mask = landWaterFlag.neq(7).and(cloud.not());
 
 // Add a map layer with the deep ocean and clouds areas masked out.
-Map.addLayer(
-  image.updateMask(mask),
-  {bands: 'sur_refl_b01,sur_refl_b04,sur_refl_b03', min: -100, max: 2000},
-  'MOD09GA 143'
+Map.addLayer(image.updateMask(mask),
+  {
+    bands: ['sur_refl_b01', 'sur_refl_b04', 'sur_refl_b03'],
+    min: -100,
+    max: 2000
+  }, 'MOD09GA 143'
 );
 
 // Add a semi-transparent map layer that displays the clouds.
 Map.addLayer(
-  cloud.updateMask(cloud),
-  {palette: 'FFFFFF', opacity: 0.8},
-  'clouds'
+    cloud.updateMask(cloud),
+    {palette: 'FFFFFF', opacity: 0.8},
+    'clouds'
 );

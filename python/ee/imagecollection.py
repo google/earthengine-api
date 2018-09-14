@@ -112,6 +112,14 @@ class ImageCollection(collection.Collection):
     """
     return self.map(lambda img: img.select(selectors, opt_names, *args))
 
+  def first(self):
+    """Returns the first entry from a given collection.
+
+    Returns:
+      The first entry from the collection.
+    """
+    return image.Image(apifunction.ApiFunction.call_('Collection.first', self))
+
   @staticmethod
   def name():
     return 'ImageCollection'

@@ -21,5 +21,5 @@ Map.setCenter(-94.84497, 39.01918, 8);
 
 // Display the input image and the NDVI derived from it.
 Map.addLayer(img.select(['sur_refl_b01', 'sur_refl_b04', 'sur_refl_b03']),
-         {gain: '0.1, 0.1, 0.1'}, 'MODIS bands 1/4/3');
+         {gain: [0.1, 0.1, 0.1]}, 'MODIS bands 1/4/3');
 Map.addLayer(ndvi, {min: 0, max: 1, palette: palette}, 'NDVI');

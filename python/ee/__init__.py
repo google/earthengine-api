@@ -2,7 +2,7 @@
 """The EE Python library."""
 
 
-__version__ = '0.1.146'
+__version__ = '0.1.148'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -291,7 +291,12 @@ def _InitializeUnboundMethods():
       return lambda *args, **kwargs: f.call(*args, **kwargs)  # pylint: disable=unnecessary-lambda
     bound = GenerateFunction(func)
     bound.signature = signature
-    bound.__doc__ = str(func)
+    # Add docs. If there are non-ASCII characters in the docs, and we're in
+    # Python 2, use a hammer to force them into a str.
+    try:
+      bound.__doc__ = str(func)
+    except UnicodeEncodeError:
+      bound.__doc__ = func.__str__().encode('utf8')
     setattr(target, name_parts[0], bound)
 
 

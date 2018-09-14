@@ -94,8 +94,9 @@ class ApiFunction(function.Function):
     """
     return cls.lookup(name).apply(named_args)
 
-  def encode(self, unused_encoder):
+  def encode_invocation(self, unused_encoder):
     return self._signature['name']
+
 
   def getSignature(self):
     """Returns a description of the interface provided by this function."""
@@ -202,7 +203,8 @@ class ApiFunction(function.Function):
           return lambda *args, **kwargs: func.call(*args, **kwargs)  # pylint: disable=unnecessary-lambda
         bound_function = MakeBoundFunction(api_func)
 
-        # Add docs.
+        # Add docs. If there are non-ASCII characters in the docs, and we're in
+        # Python 2, use a hammer to force them into a str.
         try:
           setattr(bound_function, '__name__', str(name))
         except TypeError:

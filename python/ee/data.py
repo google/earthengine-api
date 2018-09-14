@@ -69,7 +69,8 @@ _thread_locals = _ThreadLocals()
 
 # The HTTP header through which profile results are returned.
 # Lowercase because that's how httplib2 does things.
-_PROFILE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
+_PROFILE_RESPONSE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
+
 
 # Maximum number of times to retry a rate-limited request.
 MAX_RETRIES = 5
@@ -277,6 +278,18 @@ def getValue(params):
   """
   params['json_format'] = 'v2'
   return send_('/value', params)
+
+
+def computeValue(obj):
+  """Sends a request to compute a value.
+
+  Args:
+    obj: A ComputedObject whose value is desired.
+
+  Returns:
+    The result of evaluating that object on the server.
+  """
+  return send_('/value', ({'json': obj.serialize(), 'json_format': 'v2'}))
 
 
 def getThumbnail(params):
@@ -815,8 +828,9 @@ def send_(path, params, opt_method='POST', opt_raw=False):
 
   # Call the profile hook if present. Note that this is done before we handle
   # the content, so that profiles are reported even if the response is an error.
-  if _thread_locals.profile_hook and _PROFILE_HEADER_LOWERCASE in response:
-    _thread_locals.profile_hook(response[_PROFILE_HEADER_LOWERCASE])
+  if (_thread_locals.profile_hook and
+      _PROFILE_RESPONSE_HEADER_LOWERCASE in response):
+    _thread_locals.profile_hook(response[_PROFILE_RESPONSE_HEADER_LOWERCASE])
 
   # Whether or not the response is an error, it may be JSON.
   content_type = (response['content-type'] or 'application/json').split(';')[0]

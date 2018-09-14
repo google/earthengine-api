@@ -28,10 +28,8 @@ class SerializerTest(apitestcase.ApiTestCase):
         self._value = value
 
       def encode(self, unused_encoder):  # pylint: disable-msg=g-bad-name
-        return {
-            'type': 'Bytes',
-            'value': self._value
-        }
+        return {'type': 'Bytes', 'value': self._value}
+
 
     call = ee.ComputedObject('String.cat', {'string1': 'x', 'string2': 'y'})
     body = lambda x, y: ee.CustomFunction.variable(None, 'y')
@@ -46,7 +44,7 @@ class SerializerTest(apitestcase.ApiTestCase):
         5,
         7,
         3.4,
-        2.5,
+        112233445566778899,
         'hello',
         ee.Date(1234567890000),
         ee.Geometry(ee.Geometry.LineString(1, 2, 3, 4), 'SR-ORG:6974'),

@@ -45,7 +45,7 @@ class ComputedObject(six.with_metaclass(
   ComputedObjects come in two flavors:
   1. If func != null and args != null, the ComputedObject is encoded as an
      invocation of func with args.
-  2. If func == null and agrs == null, the ComputedObject is a variable
+  2. If func == null and args == null, the ComputedObject is a variable
      reference. The variable name is stored in its varName member. Note that
      in this case, varName may still be null; this allows the name to be
      deterministically generated at a later time. This is used to generate
@@ -92,7 +92,7 @@ class ComputedObject(six.with_metaclass(
     Returns:
       The object can evaluate to anything.
     """
-    return data.getValue({'json': self.serialize()})
+    return data.computeValue(self)
 
   def encode(self, encoder):
     """Encodes the object in a format compatible with Serializer."""
@@ -119,7 +119,11 @@ class ComputedObject(six.with_metaclass(
           key: func
       }
 
-  def serialize(self, opt_pretty=False):
+
+  def serialize(
+      self,
+      opt_pretty=False
+  ):
     """Serialize this object into a JSON string.
 
     Args:
@@ -128,7 +132,10 @@ class ComputedObject(six.with_metaclass(
     Returns:
       The serialized representation of this object.
     """
-    return serializer.toJSON(self, opt_pretty)
+    return serializer.toJSON(
+        self,
+        opt_pretty
+    )
 
   def __str__(self):
     """Writes out the object in a human-readable form."""

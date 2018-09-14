@@ -48,6 +48,6 @@ var greenest = qualityMosaic(withNd);
 // approach is that clouds are greener than water. So all the water is white.
 var rgb = greenest.select(['B3', 'B2', 'B1']);
 
-Map.addLayer(rgb, {gain: '1.4, 1.4, 1.1'}, 'Greenest');
+Map.addLayer(rgb, {gain: [1.4, 1.4, 1.1]}, 'Greenest');
 Map.setCenter(-90.08789, 16.38339, 11);
 

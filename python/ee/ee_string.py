@@ -68,3 +68,4 @@ class String(computedobject.ComputedObject):
       return self._string
     else:
       return self._string.encode(opt_encoder)
+

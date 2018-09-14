@@ -26,7 +26,7 @@ var image = ee.Image().toByte()
     .paint(fc, 3, 5); // Outline using color 3, width 5.
 
 Map.addLayer(image, {
-    palette: '000000,FF0000,00FF00,0000FF',
+    palette: ['000000', 'FF0000', '00FF00', '0000FF'],
     max: 3,
     opacity: 0.5
 });

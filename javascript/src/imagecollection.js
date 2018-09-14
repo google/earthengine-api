@@ -173,6 +173,16 @@ ee.ImageCollection.prototype.select = function(selectors, opt_names) {
   }));
 };
 
+/**
+ * Returns the first entry from a given collection.
+ *
+ * @return {ee.Image} The collection from which to select the first entry.
+ * @export
+ */
+ee.ImageCollection.prototype.first = function() {
+  return new ee.Image(ee.ApiFunction._call('Collection.first', this));
+};
+
 
 /** @override */
 ee.ImageCollection.prototype.name = function() {

@@ -145,7 +145,20 @@ def _timestamp_ms_for_datetime(datetime_obj):
 
 
 def _decode_date(string):
-  """Decodes a date from a command line argument, as msec since the epoch."""
+  """Decodes a date from a command line argument, returning msec since epoch".
+
+  Args:
+    string: See AssetSetCommand class comment for the allowable
+      date formats.
+
+  Returns:
+    long, ms since epoch
+
+  Raises:
+    argparse.ArgumentTypeError: if string does not conform to a legal
+      date format.
+  """
+
   try:
     return int(string)
   except ValueError:
@@ -163,13 +176,30 @@ def _decode_date(string):
 
 
 def _decode_property(string):
-  """Decodes a general key-value property from a command line argument."""
+  """Decodes a general key-value property from a command-line argument.
+
+  Args:
+    string: The string must have the form name=value or (type)name=value, where
+      type is one of 'number', 'string', or 'date'. The value format for dates
+      is YYYY-MM-DD[THH:MM:SS[.MS]].  The value 'null' is special: it evaluates
+      to None unless it is cast to a string of 'null'.
+
+  Returns:
+    a tuple representing the property in the format (name, value)
+
+  Raises:
+    argparse.ArgumentTypeError: if the flag value could not be decoded or if
+    the type is not recognized
+  """
+
   m = PROPERTY_RE.match(string)
   if not m:
     raise argparse.ArgumentTypeError(
         'Invalid property: "%s". Must have the form "name=value" or '
         '"(type)name=value".', string)
   _, type_str, name, value_str = m.groups()
+  if value_str == 'null' and type_str != TYPE_STRING:
+    return (name, None)
   if type_str is None:
     # Guess numeric types automatically.
     try:
@@ -185,7 +215,7 @@ def _decode_property(string):
   else:
     raise argparse.ArgumentTypeError(
         'Unrecognized property type name: "%s". Expected one of "string", '
-        '"number", "date", or a prefix.' % type_str)
+        '"number", or "date".' % type_str)
   return (name, value)
 
 
@@ -480,6 +510,11 @@ class AssetSetCommand(object):
   be specified in the form YYYY-MM-DD[Thh:mm:ss[.ff]] in UTC and are
   stored as numbers representing the number of milliseconds since the
   Unix epoch (00:00:00 UTC on 1 January 1970).
+
+  To delete a property, set it to null without a type:
+     prop=null.
+  To set a property to the string value 'null', use the assignment
+     (string)prop4=null.
   """
 
   name = 'set'
@@ -695,7 +730,7 @@ class SizeCommand(object):
       if not is_parent or args.summarize:
         self._print_size(asset)
       else:
-        children = ee.data.getList(asset)
+        children = ee.data.getList({'id': asset['id']})
         if not children:
           # A leaf asset
           children = [asset]
@@ -727,7 +762,7 @@ class SizeCommand(object):
     return info['properties']['system:asset_size']
 
   def _get_size_folder(self, asset):
-    children = ee.data.getList(asset)
+    children = ee.data.getList({'id': asset['id']})
     sizes = [self._get_size(child) for child in children]
 
     return sum(sizes)

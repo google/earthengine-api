@@ -165,9 +165,8 @@ ee.Image.prototype.getInfo = function(opt_callback) {
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getMap, arguments);
-  var request = /** @type {!ee.data.ImageVisualizationParameters} */ (
-      args['visParams'] ? goog.object.clone(args['visParams']) : {});
-  request.image = this.serialize();
+
+  var request = ee.Image.generateImageRequest_(this, args['visParams']);
 
   if (args['callback']) {
     const callback =
@@ -188,6 +187,42 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
     response.image = this;
     return response;
   }
+};
+
+
+/**
+ * Wraps an image in a call to visualize() if any parameters used by
+ * visualize() were provided.  Generates a request object containing
+ * the serialized image and any remaining parameters (e.g.: fileFormat)
+ *
+ * @param {!ee.Image} image The image to include in the request.
+ * @param {!ee.data.ImageVisualizationParameters} params The
+ *    visualization parameters.
+ * @return {!Object} A completed request object.
+ * @private
+ */
+ee.Image.generateImageRequest_ = function(image, params) {
+  // Split the parameters into those handled handled by visualize()
+  // and those that aren't.
+  var keysToExtract = ["bands", "gain", "bias", "min", "max",
+      "gamma", "palette", "opacity", "forceRgbOutput"];
+  var request = {};
+  var visParams = {};
+  goog.object.forEach(params, function(value, key) {
+    if (goog.array.contains(keysToExtract, key)) {
+      visParams[key] = value;
+    } else {
+      request[key] = value;
+    }
+  });
+
+  if (!goog.object.isEmpty(visParams)) {
+    visParams['image'] = image;
+    image = /** @type {!ee.Image} */ (
+        ee.ApiFunction._apply('Image.visualize', visParams));
+  }
+  request.image = image.serialize();
+  return request;
 };
 
 
@@ -263,8 +298,7 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   var args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getThumbURL, arguments);
-  var request = args['params'] ? goog.object.clone(args['params']) : {};
-  request['image'] = this.serialize();
+  var request = ee.Image.generateImageRequest_(this, args['params']);
   if (request['region']) {
     if (goog.isArray(request['region']) ||
         ee.Types.isRegularObject(request['region'])) {

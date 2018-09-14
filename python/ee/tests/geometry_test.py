@@ -47,6 +47,34 @@ class GeometryTest(apitestcase.ApiTestCase):
     self.assertValid(4, ee.Geometry.MultiPolygon, 1, 2, 3, 4, 5, 6)
     self.assertValid(1, ee.Geometry.MultiPolygon)
 
+  def testValid_GeometryCollection(self):
+    """Verifies GeometryCollection constructor behavior with valid arguments."""
+    geometry = ee.Geometry({
+        'type':
+            'GeometryCollection',
+        'geometries': [{
+            'type': 'Polygon',
+            'coordinates': [[[-1, -1], [0, 1], [1, -1]]],
+            'geodesic': True,
+            'evenOdd': True
+        }, {
+            'type': 'Point',
+            'coordinates': [0, 0]
+        }, {
+            'type':
+                'GeometryCollection',
+            'geometries': [{
+                'type': 'Point',
+                'coordinates': [1, 2]
+            }, {
+                'type': 'Point',
+                'coordinates': [2, 1]
+            }]
+        }],
+        'coordinates': []
+    })
+    self.assertTrue(isinstance(geometry, ee.Geometry))
+
   def testInvalid_MultiPoint(self):
     """Verifies MultiPoint constructor behavior with invalid arguments."""
     f = ee.Geometry.MultiPoint
@@ -302,12 +330,8 @@ class GeometryTest(apitestcase.ApiTestCase):
       msg: The expected error message in the thrown exception.
       *coords: The coordinates of the geometry.
     """
-    try:
+    with self.assertRaisesRegexp(ee.EEException, msg):
       ctor(*coords)
-    except ee.EEException as e:
-      self.assertTrue(msg in str(e))
-    else:
-      self.fail('Expected an exception.')
 
   def testInternals(self):
     """Test eq(), ne() and hash()."""

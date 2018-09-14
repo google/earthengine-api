@@ -55,6 +55,11 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
     self.assertEquals({'collection': collection, 'filter': noop_filter},
                       filtered.args)
 
+  def testFirst(self):
+    """Verifies that first gets promoted properly."""
+    first = ee.ImageCollection(ee.Image(1)).first()
+    self.assertTrue(isinstance(first, ee.Image))
+    self.assertEquals(ee.ApiFunction.lookup('Collection.first'), first.func)
 
 if __name__ == '__main__':
   unittest.main()

@@ -11,11 +11,17 @@ import six
 
 from . import computedobject
 from . import ee_types
+from . import encodable
 from . import function
 from . import serializer
 
 
-class CustomFunction(function.Function):
+# Multiple inheritance, yay! This is necessary because a CustomFunction needs to
+# know how to encode itself in different ways:
+# - as an Encodable: encode its definition
+# - as a Function: encode its invocation (which may also involve encoding its
+#   definition, if that hasn't happened yet).
+class CustomFunction(function.Function, encodable.Encodable):
   """An object representing a custom EE Function."""
 
   def __init__(self, signature, body):
@@ -46,6 +52,11 @@ class CustomFunction(function.Function):
         'argumentNames': [x['name'] for x in self._signature['args']],
         'body': encoder(self._body)
     }
+
+
+  def encode_invocation(self, encoder):
+    return self.encode(encoder)
+
 
   def getSignature(self):
     """Returns a description of the interface provided by this function."""

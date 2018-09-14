@@ -3,6 +3,8 @@
 
 
 
+import six
+
 import unittest
 
 import ee
@@ -363,6 +365,59 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertTrue('Quux' not in ee.Algorithms)
     self.assertEquals(ee.call('Foo.bar'), ee.Algorithms.Foo.bar())
     self.assertNotEquals(ee.Algorithms.Foo.bar(), ee.Algorithms.last())
+
+  def testNonAsciiDocumentation(self):
+    """Verifies that non-ASCII characters in documentation work."""
+    foo = u'\uFB00\u00F6\u01EB'
+    bar = u'b\u00E4r'
+    baz = u'b\u00E2\u00DF'
+
+    def MockSend(path, unused_params, unused_method=None, unused_raw=None):
+      if path == '/algorithms':
+        return {
+            'Foo': {
+                'type': 'Algorithm',
+                'args': [],
+                'description': foo,
+                'returns': 'Object'
+            },
+            'Image.bar': {
+                'type': 'Algorithm',
+                'args': [{
+                    'name': 'bar',
+                    'type': 'Bar',
+                    'description': bar
+                }],
+                'description': '',
+                'returns': 'Object'
+            },
+            'Image.baz': {
+                'type': 'Algorithm',
+                'args': [],
+                'description': baz,
+                'returns': 'Object'
+            }
+        }
+    ee.data.send_ = MockSend
+
+    ee.Initialize(None)
+
+    # The initialisation shouldn't blow up.
+    self.assertTrue(callable(ee.Algorithms.Foo))
+    self.assertTrue(callable(ee.Image.bar))
+    self.assertTrue(callable(ee.Image.baz))
+
+    # In Python 2, the docstrings end up UTF-8 encoded. In Python 3, they remain
+    # Unicode.
+    if six.PY3:
+      self.assertEquals(ee.Algorithms.Foo.__doc__, foo)
+      self.assertEquals(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
+      self.assertEquals(ee.Image.baz.__doc__, baz)
+    else:
+      self.assertEquals(ee.Algorithms.Foo.__doc__,
+                        '\xef\xac\x80\xc3\xb6\xc7\xab')
+      self.assertEquals(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: b\xc3\xa4r')
+      self.assertEquals(ee.Image.baz.__doc__, 'b\xc3\xa2\xc3\x9f')
 
   def testDatePromtion(self):
     # Make a feature, put a time in it, and get it out as a date.

@@ -66,22 +66,19 @@ ee.Collection.reset = function() {
 /**
  * Apply a filter to this collection.
  *
- * Collection filtering is done by wrapping a collection in a filter
- * algorithm.  As additional filters are applied to a collection, we
- * try to avoid adding more wrappers and instead search for a wrapper
- * we can add to, however if the collection doesn't have a filter, this
- * will wrap it in one.
- *
- * @param {ee.Filter} newFilter A filter to add to this collection.
+ * @param {ee.Filter} filter A filter to apply to this collection.
  * @return {ee.Collection} The filtered collection.
  * @export
  */
-ee.Collection.prototype.filter = function(newFilter) {
-  if (!newFilter) {
+ee.Collection.prototype.filter = function(filter) {
+  var args = ee.arguments.extractFromFunction(
+      ee.Collection.prototype.filter, arguments);
+  filter = args['filter'];
+  if (!filter) {
     throw new Error('Empty filters.');
   }
   return this.castInternal(ee.ApiFunction._call(
-      'Collection.filter', this, newFilter));
+      'Collection.filter', this, filter));
 };
 
 
