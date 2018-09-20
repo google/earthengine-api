@@ -18,43 +18,48 @@ Tiles are referenced using a key of (level, x, y) throughout.
 Several of the functions are named to match the Google Maps Javascript API,
 and therefore violate style guidelines.
 """
-
-
-
 # TODO(user):
 # 1) Add a zoom bar.
 # 2) When the move() is happening inside the Drag function, it'd be
 #    a good idea to use a semaphore to keep new tiles from being added
 #    and subsequently moved.
 
+from __future__ import print_function
+
+
+
 import collections
-import cStringIO
 import functools
 import math
-import Queue
 import sys
 import threading
-import urllib2
 import six
+from six.moves import queue
+from six.moves import urllib
+from six.moves import xrange
 
 # check if the Python imaging libraries used by the mapclient module are
 # installed
 try:
-  import ImageTk             # pylint: disable=g-import-not-at-top
-  import Image               # pylint: disable=g-import-not-at-top
+  # Python3
+  from PIL import ImageTk  # pylint: disable=g-import-not-at-top
+  from PIL import Image    # pylint: disable=g-import-not-at-top
 except ImportError:
-  # pylint: disable=superfluous-parens
-  print("""
-    ERROR: A Python library (PIL) used by the Earth Engine API mapclient module
-    was not found. Information on PIL can be found at:
-    http://pypi.python.org/pypi/PIL
-    """)
-  raise
+  try:
+    # Python2
+    import ImageTk         # pylint: disable=g-import-not-at-top
+    import Image           # pylint: disable=g-import-not-at-top
+  except ImportError:
+    print("""
+      ERROR: A Python library (PIL) used by the Earth Engine API mapclient module
+      was not found. Information on PIL can be found at:
+      http://pypi.python.org/pypi/PIL
+      """)
+    raise
 
 try:
-  import Tkinter             # pylint: disable=g-import-not-at-top
+  from six.moves import tkinter as Tkinter  # pylint: disable=g-import-not-at-top
 except ImportError:
-  # pylint: disable=superfluous-parens
   print("""
     ERROR: A Python library (Tkinter) used by the Earth Engine API mapclient
     module was not found. Instructions for installing Tkinter can be found at:
@@ -326,11 +331,12 @@ class MapOverlay(object):
   _images = {}               # The tile cache, keyed by (url, level, x, y).
   _lru_keys = []             # Keys to the cached tiles, for cache ejection.
 
-  def __init__(self, url):
+  def __init__(self, url, tile_fetcher=None):
     """Initialize the MapOverlay."""
     self.url = url
+    self.tile_fetcher = tile_fetcher
     # Make 10 workers.
-    self.queue = Queue.Queue()
+    self.queue = queue.Queue()
     self.fetchers = [MapOverlay.TileFetcher(self) for unused_x in range(10)]
     self.constant = None
 
@@ -439,14 +445,17 @@ class MapOverlay(object):
         if not self.overlay.GetCachedTile(key):
           (level, x, y) = key
           if x >= 0 and y >= 0 and x <= 2 ** level-1 and y <= 2 ** level-1:
-            url = self.overlay.url % key
             try:
-              data = urllib2.urlopen(url).read()
-            except urllib2.HTTPError as e:
-              print() >> sys.stderr, e
+              if self.overlay.tile_fetcher is not None:
+                data = self.overlay.tile_fetcher.fetch_tile(x=x, y=y, z=level)
+              else:
+                url = self.overlay.url % key
+                data = urllib.request.urlopen(url).read()
+            except Exception as e:  # pylint: disable=broad-except
+              print(e, file=sys.stderr)
             else:
               # PhotoImage can't handle alpha on LA images.
-              image = Image.open(cStringIO.StringIO(data)).convert('RGBA')
+              image = Image.open(six.BytesIO(data)).convert('RGBA')
               callback(image)
               self.overlay.PutCacheTile(key, image)
 
@@ -455,7 +464,7 @@ def MakeOverlay(mapid, baseurl=BASE_URL):
   """Create an overlay from a mapid."""
   url = (baseurl + '/map/' + mapid['mapid'] + '/%d/%d/%d?token=' +
          mapid['token'])
-  return MapOverlay(url)
+  return MapOverlay(url, tile_fetcher=mapid['tile_fetcher'])
 
 
 #
@@ -476,7 +485,7 @@ def addToMap(eeobject, vis_params=None, *unused_args):
 
   This call exists to be an equivalent to the playground addToMap() call.
   It uses a global MapInstance to hang on to "the map".  If the MapInstance
-  isn't initializd, this creates a new one.
+  isn't initialized, this creates a new one.
   """
   # Flatten any lists to comma separated strings.
   if vis_params:

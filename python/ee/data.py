@@ -217,9 +217,10 @@ def getMapId(params):
   Args:
     params: An object containing visualization options with the
             following possible values:
-      image - (JSON string) The image to render.
+      image - The image to render, as an Image or a JSON string.
+          The JSON string format is deprecated.
       version - (number) Version number of image (or latest).
-      bands - (comma-seprated strings) Comma-delimited list of
+      bands - (comma-separated strings) Comma-delimited list of
           band names to be mapped to RGB.
       min - (comma-separated numbers) Value (or one per band)
           to map onto 00.
@@ -230,27 +231,36 @@ def getMapId(params):
       bias - (comma-separated numbers) Offset (or one per band)
           to map onto 00-FF.
       gamma - (comma-separated numbers) Gamma correction
-          factor (or one per band)
+          factor (or one per band).
       palette - (comma-separated strings) A string of comma-separated
           CSS-style color strings (single-band previews only). For example,
           'FF0000,000000'.
-      format (string) Either 'jpg' (does not support transparency) or
-          'png' (supports transparency).
+      format - (string) The desired map tile image format. If omitted, one is
+          chosen automatically. Can be 'jpg' (does not support transparency)
+          or 'png' (supports transparency).
 
   Returns:
-    A dictionary containing "mapid" and "token" strings, which can
-    be combined to retrieve tiles from the /map service.
+    A dictionary containing:
+    - "mapid" and "token" strings: these identify the map.
+    - "tile_fetcher": a TileFetcher which can be used to fetch the tile
+      images, or to get a format for the tile URLs.
   """
+  if not isinstance(params['image'], six.string_types):
+    params['image'] = params['image'].serialize()
   params['json_format'] = 'v2'
-  return send_('/mapid', params)
+  result = send_('/mapid', params)
+  url_format = '%s/map/%s/{z}/{x}/{y}?token=%s' % (
+      _tile_base_url, result['mapid'], result['token'])
+  result['tile_fetcher'] = TileFetcher(url_format)
+  return result
 
 
 def getTileUrl(mapid, x, y, z):
   """Generate a URL for map tiles from a Map ID and coordinates.
 
   Args:
-    mapid: The Map ID to generate tiles for, a dictionary containing "mapid"
-        and "token" strings.
+    mapid: The Map ID to generate tiles for, a dictionary returned
+        by getMapId.
     x: The tile x coordinate.
     y: The tile y coordinate.
     z: The tile zoom level.
@@ -258,12 +268,59 @@ def getTileUrl(mapid, x, y, z):
   Returns:
     The tile URL.
   """
-  width = 2**z
-  x %= width
-  if x < 0:
-    x += width
-  return '%s/map/%s/%d/%d/%d?token=%s' % (_tile_base_url, mapid['mapid'], z, x,
-                                          y, mapid['token'])
+  return mapid['tile_fetcher'].format_tile_url(x, y, z)
+
+
+class TileFetcher(object):
+  """A helper class to fetch image tiles."""
+
+  def __init__(self, url_format):
+    self._url_format = url_format
+
+  @property
+  def url_format(self):
+    """Gets the URL format for this tile fetcher.
+
+    Returns:
+      A format string with {x}, {y}, and {z} placeholders.
+    """
+    return self._url_format
+
+  def format_tile_url(self, x, y, z):
+    """Generates the URL for a particular tile.
+
+    Args:
+      x: The tile x coordinate.
+      y: The tile y coordinate.
+      z: The tile zoom level.
+
+    Returns:
+      The tile's URL.
+    """
+    width = 2**z
+    x %= width
+    if x < 0:
+      x += width
+    return self.url_format.format(x=x, y=y, z=z)
+
+  def fetch_tile(self, x, y, z):
+    """Fetches the map tile specified by (x, y, z).
+
+    This method uses any credentials that were specified to ee.Initialize().
+
+    Args:
+      x: The tile x coordinate.
+      y: The tile y coordinate.
+      z: The tile zoom level.
+
+    Returns:
+      The map tile image data bytes.
+
+    Raises:
+      EEException if the fetch fails.
+    """
+    return send_(
+        self.format_tile_url(x, y, z), {}, opt_method='GET', opt_raw=True)
 
 
 def getValue(params):
@@ -330,6 +387,8 @@ def getThumbId(params):
   request = params.copy()
   request['getid'] = '1'
   request['json_format'] = 'v2'
+  if not isinstance(request['image'], six.string_types):
+    request['image'] = request['image'].serialize()
   if 'size' in request and isinstance(request['size'], (list, tuple)):
     request['size'] = 'x'.join(map(str, request['size']))
   return send_('/thumb', request)
@@ -759,7 +818,7 @@ def send_(path, params, opt_method='POST', opt_raw=False):
   """Send an API call.
 
   Args:
-    path: The API endpoint to call.
+    path: The API endpoint to call, or a full URL.
     params: The call parameters.
     opt_method: The HTTPRequest method (GET or POST).
     opt_raw: Whether the data should be returned raw, without attempting
@@ -779,7 +838,10 @@ def send_(path, params, opt_method='POST', opt_raw=False):
     params['profiling'] = '1'
 
 
-  url = _api_base_url + path
+  if not path.startswith('http'):
+    url = _api_base_url + path
+  else:
+    url = path
   headers = {}
 
 

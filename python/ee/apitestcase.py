@@ -38,7 +38,7 @@ class ApiTestCase(unittest.TestCase):
     elif path == '/mapid':
       # Hang on to the call arguments.
       self.last_mapid_call = {'url': path, 'data': params}
-      return {'mapid': 'fakeMapId'}
+      return {'mapid': 'fakeMapId', 'token': 'fakeToken'}
     elif path == '/download':
       # Hang on to the call arguments.
       self.last_download_call = {'url': path, 'data': params}

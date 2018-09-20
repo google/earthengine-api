@@ -158,7 +158,7 @@ class Image(element.Element):
     if vis_params:
       vis_params['image'] = image
       image = apifunction.ApiFunction.apply_('Image.visualize', vis_params)
-    request['image'] = image.serialize()
+    request['image'] = image
     return request
 
   def getDownloadURL(self, params=None):

@@ -66,7 +66,9 @@ class ImageTestCase(apitestcase.ApiTestCase):
     """Verifies that imperative functions return ready values."""
     image = ee.Image(1)
     self.assertEquals({'value': 'fakeValue'}, image.getInfo())
-    self.assertEquals({'mapid': 'fakeMapId', 'image': image}, image.getMapId())
+    map_id = image.getMapId()
+    self.assertEquals('fakeMapId', map_id['mapid'])
+    self.assertEquals(image, map_id['image'])
 
   def testGetMapIdVisualization(self):
     """Verifies that imperative functions return ready values."""
