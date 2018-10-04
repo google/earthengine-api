@@ -192,6 +192,8 @@ def getInfo(asset_id):
   return send_('/info', {'id': asset_id})
 
 
+
+
 def getList(params):
   """Get a list of contents for a collection asset.
 
@@ -941,8 +943,10 @@ def create_assets(asset_ids, asset_type, mk_parents):
       continue
     if mk_parents:
       parts = asset_id.split('/')
-      path = ''
-      for part in parts[:-1]:
+      # Don't check the top level - for some users, the 'users' meta-folder is
+      # invisible.
+      path = parts[0] + '/'
+      for part in parts[1:-1]:
         path += part
         if getInfo(path) is None:
           createAsset({'type': ASSET_TYPE_FOLDER}, path)

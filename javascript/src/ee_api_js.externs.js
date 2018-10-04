@@ -405,7 +405,7 @@ ee.Function.prototype.call = function(var_args) {
 ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 };
 /**
- * @param {(Array|null)} coords
+ * @param {(Array<?>|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @param {(ee.ErrorMargin|null)=} opt_maxError
@@ -416,7 +416,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 ee.Geometry.LineString = function(coords, opt_proj, opt_geodesic, opt_maxError) {
 };
 /**
- * @param {(Array|null)} coords
+ * @param {(Array<?>|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @param {(ee.ErrorMargin|null)=} opt_maxError
@@ -427,7 +427,7 @@ ee.Geometry.LineString = function(coords, opt_proj, opt_geodesic, opt_maxError) 
 ee.Geometry.LinearRing = function(coords, opt_proj, opt_geodesic, opt_maxError) {
 };
 /**
- * @param {(Array|null)} coords
+ * @param {(Array<?>|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @param {(ee.ErrorMargin|null)=} opt_maxError
@@ -438,7 +438,7 @@ ee.Geometry.LinearRing = function(coords, opt_proj, opt_geodesic, opt_maxError) 
 ee.Geometry.MultiLineString = function(coords, opt_proj, opt_geodesic, opt_maxError) {
 };
 /**
- * @param {(Array|null)} coords
+ * @param {(Array<?>|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @return {?}
  * @extends {ee.Geometry}
@@ -447,7 +447,7 @@ ee.Geometry.MultiLineString = function(coords, opt_proj, opt_geodesic, opt_maxEr
 ee.Geometry.MultiPoint = function(coords, opt_proj) {
 };
 /**
- * @param {(Array|null)} coords
+ * @param {(Array<?>|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @param {(ee.ErrorMargin|null)=} opt_maxError
@@ -468,7 +468,7 @@ ee.Geometry.MultiPolygon = function(coords, opt_proj, opt_geodesic, opt_maxError
 ee.Geometry.Point = function(coords, opt_proj) {
 };
 /**
- * @param {(Array|null)} coords
+ * @param {(Array<?>|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @param {(ee.ErrorMargin|null)=} opt_maxError
@@ -480,7 +480,7 @@ ee.Geometry.Point = function(coords, opt_proj) {
 ee.Geometry.Polygon = function(coords, opt_proj, opt_geodesic, opt_maxError, opt_evenOdd) {
 };
 /**
- * @param {(Array|null)} coords
+ * @param {(Array<?>|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
  * @param {boolean=} opt_evenOdd
