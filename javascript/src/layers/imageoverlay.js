@@ -5,6 +5,7 @@ goog.require('ee.layers.AbstractOverlay');
 goog.require('ee.layers.AbstractTile');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
+goog.require('goog.html.SafeUrl');
 goog.require('goog.net.EventType');
 goog.require('goog.net.ImageLoader');
 
@@ -85,8 +86,10 @@ goog.inherits(ee.layers.ImageTile, ee.layers.AbstractTile);
 ee.layers.ImageTile.prototype.finishLoad = function() {
   var imageUrl;
   try {
-    this.objectUrl_ = URL.createObjectURL(this.sourceData);
-    imageUrl = this.objectUrl_;
+    const safeUrl = goog.html.SafeUrl.fromBlob(this.sourceData);
+    this.objectUrl_ = goog.html.SafeUrl.unwrap(safeUrl);
+    const ok = (this.objectUrl_ !== goog.html.SafeUrl.INNOCUOUS_STRING);
+    imageUrl = ok ? this.objectUrl_ : this.sourceUrl;
   } catch (e) {
     // Browser did not support blob response, or browser did not support
     // createObjectURL, or we made a mistake. We will fall back to

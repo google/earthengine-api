@@ -13,6 +13,7 @@ import contextlib
 import json
 import threading
 import time
+import uuid
 
 import httplib2
 import six
@@ -538,7 +539,8 @@ def createAsset(value, opt_path=None, opt_force=False, opt_properties=None):
   return send_('/create', args)
 
 
-def copyAsset(sourceId, destinationId, allowOverwrite=False):
+def copyAsset(sourceId, destinationId, allowOverwrite=False
+             ):
   """Copies the asset from sourceId into destinationId.
 
   Args:
@@ -546,12 +548,12 @@ def copyAsset(sourceId, destinationId, allowOverwrite=False):
     destinationId: The ID of the new asset created by copying.
     allowOverwrite: If True, allows overwriting an existing asset.
   """
-  send_(
-      '/copy', {
-          'sourceId': sourceId,
-          'destinationId': destinationId,
-          'allowOverwrite': allowOverwrite,
-      })
+  request = {
+      'sourceId': sourceId,
+      'destinationId': destinationId,
+      'allowOverwrite': allowOverwrite,
+      }
+  send_('/copy', request)
 
 
 def renameAsset(sourceId, destinationId):
@@ -609,6 +611,8 @@ def getTaskList():
   return tasks
 
 
+
+
 def getTaskStatus(taskId):
   """Retrieve status of one or more long-running tasks.
 
@@ -630,9 +634,13 @@ def getTaskStatus(taskId):
   return send_('/taskstatus', args, 'GET')
 
 
+
+
 def cancelTask(taskId):
   """Cancels a batch task."""
   send_('/updatetask', {'id': taskId, 'action': 'CANCEL'})
+
+
 
 
 def startProcessing(taskId, params):
@@ -655,11 +663,11 @@ def startProcessing(taskId, params):
   return send_('/processingrequest', args)
 
 
-def startIngestion(taskId, params, allow_overwrite=False):
+def startIngestion(request_id, params, allow_overwrite=False):
   """Creates an image asset import task.
 
   Args:
-    taskId: ID for the task (obtained using newTaskId).
+    request_id (string): A unique ID for the ingestion, from newTaskId.
     params: The object that describes the import task, which can
         have these fields:
           id (string) The destination asset id (e.g. users/foo/bar).
@@ -677,21 +685,24 @@ def startIngestion(taskId, params, allow_overwrite=False):
         existing version.
 
   Returns:
-    A dict with optional notes about the created task.
+    A dict with notes about the created task. This will include the ID for the
+    import task (under 'id'), which may be different from request_id.
   """
   args = {
-      'id': taskId,
+      'id': request_id,
       'request': json.dumps(params),
       'allowOverwrite': allow_overwrite
   }
-  return send_('/ingestionrequest', args)
+  result = send_('/ingestionrequest', args)
+  result['id'] = request_id
+  return result
 
 
-def startTableIngestion(taskId, params, allow_overwrite=False):
+def startTableIngestion(request_id, params, allow_overwrite=False):
   """Creates a table asset import task.
 
   Args:
-    taskId: ID for the task (obtained using newTaskId).
+    request_id (string): A unique ID for the ingestion, from newTaskId.
     params: The object that describes the import task, which can
         have these fields:
           id (string) The destination asset id (e.g. users/foo/bar).
@@ -704,14 +715,17 @@ def startTableIngestion(taskId, params, allow_overwrite=False):
     allow_overwrite: Whether the ingested image can overwrite an
         existing version.
   Returns:
-    A dict with optional notes about the created task.
+    A dict with notes about the created task. This will include the ID for the
+    import task (under 'id'), which may be different from request_id.
   """
   args = {
-      'id': taskId,
+      'id': request_id,
       'tableRequest': json.dumps(params),
       'allowOverwrite': allow_overwrite
   }
-  return send_('/ingestionrequest', args)
+  result = send_('/ingestionrequest', args)
+  result['id'] = request_id
+  return result
 
 
 def getAssetRoots():
@@ -767,6 +781,8 @@ def getAssetAcl(assetId):
       }
   """
   return send_('/getacl', {'id': assetId}, 'GET')
+
+
 
 
 def setAssetAcl(assetId, aclUpdate):

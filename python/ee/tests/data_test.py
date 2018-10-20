@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 
 
-import urlparse
 import httplib2
 import mock
+from six.moves import urllib
 import unittest
 import ee
 
@@ -15,12 +15,12 @@ class DataTest(unittest.TestCase):
     def Request(unused_self, url, method, body, headers):
       _ = method, body, headers  # Unused kwargs.
 
-      parse_result = urlparse.urlparse(url)
+      parse_result = urllib.parse.urlparse(url)
       if parse_result.path != '/api/tasklist':
         return httplib2.Response({'status': 404}), 'not found'
 
       resp_body = '{}'
-      query_args = urlparse.parse_qs(parse_result.query)
+      query_args = urllib.parse.parse_qs(parse_result.query)
       if query_args == {'pagesize': ['500']}:
         resp_body = ('{"data": {"tasks": [{"id": "1"}],'
                      ' "next_page_token": "foo"}}')
@@ -35,6 +35,7 @@ class DataTest(unittest.TestCase):
 
     with mock.patch('httplib2.Http.request', new=Request):
       self.assertEqual([{'id': '1'}, {'id': '2'}], ee.data.getTaskList())
+
 
   @mock.patch('time.sleep')
   def testSuccess(self, mock_sleep):

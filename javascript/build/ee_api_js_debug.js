@@ -5864,6 +5864,9 @@ goog.html.SafeScript.fromConstantAndArgs = function(code, var_args) {
   }
   return goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("(" + goog.string.Const.unwrap(code) + ")(" + args.join(", ") + ");");
 };
+goog.html.SafeScript.fromJson = function(val) {
+  return goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(goog.html.SafeScript.stringify_(val));
+};
 goog.html.SafeScript.prototype.getTypedStringValue = function() {
   return this.privateDoNotAccessOrElseSafeScriptWrappedValue_;
 };
@@ -11664,6 +11667,9 @@ ee.Feature.reset = function() {
   ee.ApiFunction.clearApi(ee.Feature);
   ee.Feature.initialized_ = !1;
 };
+ee.Feature.prototype.getInfo = function(opt_callback) {
+  return ee.Feature.superClass_.getInfo.call(this, opt_callback);
+};
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.Feature.prototype.getMap, arguments);
   return ee.ApiFunction._call("Collection", [this]).getMap(args.visParams, args.callback);
@@ -11762,6 +11768,9 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
     return painted.getMap();
   }
 };
+ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
+  return ee.FeatureCollection.superClass_.getInfo.call(this, opt_callback);
+};
 ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selectors, opt_filename, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getDownloadURL, arguments), request = {};
   request.table = this.serialize();
@@ -11851,6 +11860,9 @@ ee.Image.initialize = function() {
 ee.Image.reset = function() {
   ee.ApiFunction.clearApi(ee.Image);
   ee.Image.initialized_ = !1;
+};
+ee.Image.prototype.getInfo = function(opt_callback) {
+  return ee.Image.superClass_.getInfo.call(this, opt_callback);
 };
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   var $jscomp$this = this, args = ee.arguments.extractFromFunction(ee.Image.prototype.getMap, arguments), request = ee.Image.generateImageRequest_(this, args.visParams);
@@ -12027,6 +12039,9 @@ ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   } else {
     return mosaic.getMap(args.visParams);
   }
+};
+ee.ImageCollection.prototype.getInfo = function(opt_callback) {
+  return ee.ImageCollection.superClass_.getInfo.call(this, opt_callback);
 };
 ee.ImageCollection.prototype.select = function(selectors, opt_names) {
   var varargs = arguments;
@@ -14207,7 +14222,9 @@ ee.layers.ImageTile = function(coord, zoom, ownerDocument, uniqueId) {
 goog.inherits(ee.layers.ImageTile, ee.layers.AbstractTile);
 ee.layers.ImageTile.prototype.finishLoad = function() {
   try {
-    var imageUrl = this.objectUrl_ = URL.createObjectURL(this.sourceData);
+    var safeUrl = goog.html.SafeUrl.fromBlob(this.sourceData);
+    this.objectUrl_ = goog.html.SafeUrl.unwrap(safeUrl);
+    var imageUrl = this.objectUrl_ !== goog.html.SafeUrl.INNOCUOUS_STRING ? this.objectUrl_ : this.sourceUrl;
   } catch (e) {
     imageUrl = this.sourceUrl;
   }

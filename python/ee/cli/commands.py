@@ -10,6 +10,7 @@ from __future__ import print_function
 
 # pylint: disable=g-bad-import-order
 from six.moves import input  # pylint: disable=redefined-builtin
+from six.moves import xrange
 import argparse
 import calendar
 from collections import Counter
@@ -77,8 +78,8 @@ def _add_overwrite_arg(parser):
 def _upload(args, request, ingestion_function):
   if 0 <= args.wait < 10:
     raise ee.EEException('Wait time should be at least 10 seconds.')
-  task_id = ee.data.newTaskId()[0]
-  ingestion_function(task_id, request, args.force)
+  request_id = ee.data.newTaskId()[0]
+  task_id = ingestion_function(request_id, request, args.force)['id']
   print('Started upload task with ID: %s' % task_id)
   if args.wait >= 0:
     print('Waiting for the upload task to complete...')
@@ -122,9 +123,10 @@ def _comma_separated_pyramiding_policies(string):
     raise argparse.ArgumentTypeError(error_msg.format(string))
   redvalues = []
   for value in values:
-    if value.lower() not in {'mean', 'sample', 'min', 'max', 'mode'}:
+    value = value.upper()
+    if value not in {'MEAN', 'SAMPLE', 'MIN', 'MAX', 'MODE'}:
       raise argparse.ArgumentTypeError(error_msg.format(string))
-    redvalues.append(value.lower())
+    redvalues.append(value)
   return redvalues
 
 
@@ -561,7 +563,11 @@ class CopyCommand(object):
   def run(self, args, config):
     """Runs the asset copy."""
     config.ee_init()
-    ee.data.copyAsset(args.source, args.destination, args.force)
+    ee.data.copyAsset(
+        args.source,
+        args.destination,
+        args.force
+    )
 
 
 class CreateCommandBase(object):
@@ -1024,15 +1030,16 @@ class UploadImageCommand(object):
              'EPSG:4326) or a WKT string.')
     _add_property_flags(parser)
 
-  def _check_num_bands(self, request, num_bands, flag_name):
+  def _check_num_bands(self, bands, num_bands, flag_name):
     """Checks the number of bands, creating them if there are none yet."""
-    if 'bands' in request:
-      if len(request['bands']) != num_bands:
+    if bands:
+      if len(bands) != num_bands:
         raise ValueError(
             'Inconsistent number of bands in --{}: expected {} but found {}.'
-            .format(flag_name, len(request['bands']), num_bands))
+            .format(flag_name, len(bands), num_bands))
     else:
-      request['bands'] = [{'id': 'b%d' % (i + 1)} for i in xrange(num_bands)]
+      bands = ['b%d' % (i + 1) for i in xrange(num_bands)]
+    return bands
 
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
@@ -1044,36 +1051,40 @@ class UploadImageCommand(object):
           'last_band_alpha and nodata_value are mutually exclusive.')
 
     properties = _decode_property_flags(args)
+    source_files = utils.expand_gcs_wildcards(args.src_files)
+    bands = args.bands
+    if args.pyramiding_policy and len(args.pyramiding_policy) != 1:
+      bands = self._check_num_bands(bands, len(args.pyramiding_policy),
+                                    'pyramiding_policy')
+    if args.nodata_value and len(args.nodata_value) != 1:
+      bands = self._check_num_bands(bands, len(args.nodata_value),
+                                    'nodata_value')
 
     request = {
         'id': args.asset_id,
         'properties': properties
     }
 
-    source_files = utils.expand_gcs_wildcards(args.src_files)
     sources = [{'primaryPath': source} for source in source_files]
     tileset = {'sources': sources}
     if args.last_band_alpha:
       tileset['fileBands'] = [{'fileBandIndex': -1, 'maskForAllBands': True}]
     request['tilesets'] = [tileset]
 
-    if args.bands:
-      request['bands'] = [{'id': name} for name in args.bands]
+    if bands:
+      request['bands'] = [{'id': name} for name in bands]
 
     if args.pyramiding_policy:
       if len(args.pyramiding_policy) == 1:
-        request['pyramidingPolicy'] = args.pyramiding_policy[0].upper()
+        request['pyramidingPolicy'] = args.pyramiding_policy[0]
       else:
-        self._check_num_bands(request, len(args.pyramiding_policy),
-                              'pyramiding_policy')
         for index, policy in enumerate(args.pyramiding_policy):
-          request['bands'][index]['pyramidingPolicy'] = policy.upper()
+          request['bands'][index]['pyramidingPolicy'] = policy
 
     if args.nodata_value:
       if len(args.nodata_value) == 1:
         request['missingData'] = {'value': args.nodata_value[0]}
       else:
-        self._check_num_bands(request, len(args.nodata_value), 'nodata_value')
         for index, nodata in enumerate(args.nodata_value):
           request['bands'][index]['missingData'] = {'value': nodata}
 
@@ -1127,6 +1138,7 @@ class UploadTableCommand(object):
     source_files = list(utils.expand_gcs_wildcards(args.src_file))
     if len(source_files) != 1:
       raise ValueError('Exactly one file must be specified.')
+
 
     source = {'primaryPath': source_files[0]}
     if args.max_error:
