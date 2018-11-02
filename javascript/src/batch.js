@@ -157,6 +157,8 @@ ee.batch.Export.image.toAsset = function(
       ee.batch.Export.image.toAsset, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.ASSET);
+  serverConfig['region'] =
+      ee.batch.Export.serializeRegion(serverConfig['region']);
   return ee.batch.ExportTask.create(serverConfig, ExportType.IMAGE);
 };
 
@@ -191,6 +193,8 @@ ee.batch.Export.image.toCloudStorage = function(
       clientConfig, ExportDestination.GCS);
   serverConfig = ee.batch.Export.reconcileImageFormat(
       /** @type {!ee.data.ImageTaskConfigUnformatted} */ (serverConfig));
+  serverConfig['region'] =
+      ee.batch.Export.serializeRegion(serverConfig['region']);
   return ee.batch.ExportTask.create(serverConfig, ExportType.IMAGE);
 };
 
@@ -225,6 +229,8 @@ ee.batch.Export.image.toDrive = function(
       clientConfig, ExportDestination.DRIVE);
   serverConfig = ee.batch.Export.reconcileImageFormat(
       /** @type {!ee.data.ImageTaskConfigUnformatted} */ (serverConfig));
+  serverConfig['region'] =
+      ee.batch.Export.serializeRegion(serverConfig['region']);
   return ee.batch.ExportTask.create(serverConfig, ExportType.IMAGE);
 };
 
@@ -252,6 +258,8 @@ ee.batch.Export.map.toCloudStorage = function(
       ee.batch.Export.map.toCloudStorage, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.GCS);
+  serverConfig['region'] =
+      ee.batch.Export.serializeRegion(serverConfig['region']);
   return ee.batch.ExportTask.create(serverConfig, ExportType.MAP);
 };
 
@@ -339,6 +347,8 @@ ee.batch.Export.video.toCloudStorage = function(
       ee.batch.Export.video.toCloudStorage, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.GCS);
+  serverConfig['region'] =
+      ee.batch.Export.serializeRegion(serverConfig['region']);
   return ee.batch.ExportTask.create(serverConfig, ExportType.VIDEO);
 };
 
@@ -367,6 +377,8 @@ ee.batch.Export.video.toDrive = function(
       ee.batch.Export.video.toDrive, arguments);
   const serverConfig = ee.batch.Export.convertToServerParams(
       clientConfig, ExportDestination.DRIVE);
+  serverConfig['region'] =
+      ee.batch.Export.serializeRegion(serverConfig['region']);
   return ee.batch.ExportTask.create(serverConfig, ExportType.VIDEO);
 };
 
@@ -388,26 +400,62 @@ ee.batch.Export.video.toDrive = function(
  */
 ee.batch.ServerTaskConfig = {};
 
+const REGION_ERROR = 'Invalid format for region property. Region must be ' +
+    'GeoJSON LinearRing or Polygon specified as actual coordinates or ' +
+    'serialized as a string. See Export documentation.';
 
 /**
- * Replaces the 'region' value, if any, with a valid region string. Defaults
- * the region if necessary. The backend  verifies the region, but this tries
- * to catch errors early on. Throws errors if the region is not valid GeoJSON.
+ * Serializes a 'region' value. Region may be a Geometry, a GeoJSON string, or a
+ * GeoJSON object. Only client-side validation is applied; this method does not
+ * support computed objects.
+ *
+ * @param {!ee.Geometry|!Object|string} region
+ * @return {string}
+ * #visibleForTesting
+ */
+ee.batch.Export.serializeRegion = function(region) {
+  // Convert region to a GeoJSON object.
+  if (region instanceof ee.Geometry) {
+    region = region.toGeoJSON();
+  } else if (goog.isString(region)) {
+    try {
+      region = googAsserts.assertObject(JSON.parse(region));
+    } catch (x) {
+      throw Error(REGION_ERROR);
+    }
+  }
+
+  // Ensure locally that the region is a valid LineString or Polygon geometry.
+  if (!goog.isObject(region) || !('type' in region)) {
+    try {
+      new ee.Geometry.LineString(/** @type {?} */ (region));
+    } catch (e) {
+      try {
+        new ee.Geometry.Polygon(/** @type {?} */ (region));
+      } catch (e2) {
+        throw Error(REGION_ERROR);
+      }
+    }
+  }
+
+  return json.serialize(region);
+};
+
+/**
+ * Replaces the 'region' value, if any, with a valid region string. The backend
+ * verifies the region, but this tries to catch errors early on. Throws errors
+ * if the region is not valid GeoJSON.
  *
  * @param {!Object} params The parameters with the region to validate.
  * @return {!GoogPromise<!Object>} A promise that resolves to a copy of the
  *     parameters with a known-to-be valid region.
  */
-ee.batch.Export.ensureValidRegion = function(params) {
+ee.batch.Export.resolveRegionParam = function(params) {
   params = googObject.clone(params);
 
   if (!params['region']) return GoogPromise.resolve(params);
 
-  var regionError = 'Invalid format for region property. Region must be ' +
-      'GeoJSON LinearRing or Polygon specified as actual coordinates or ' +
-      'serialized as a string. See Export documentation.';
-  var region = params['region'];
-  var regionJson;
+  let region = params['region'];
 
   if (region instanceof ComputedObject) {
     if (region instanceof ee.Element) {
@@ -418,39 +466,14 @@ ee.batch.Export.ensureValidRegion = function(params) {
         if (error) {
           reject(error);
         } else {
-          params['region'] = regionInfo;
-          resolve(ee.batch.Export.ensureValidRegion(params));
+          params['region'] = ee.batch.Export.serializeRegion(regionInfo);
+          resolve(params);
         }
       });
     });
   }
 
-  if (goog.isString(region)) {
-    try {
-      regionJson = JSON.parse(region);
-    } catch (x) {
-      throw Error(regionError);
-    }
-  } else {
-    regionJson = region;
-  }
-
-  if (goog.isObject(regionJson) && 'type' in regionJson) {
-    // Assume that the region is a GeoJSONGeometry.
-  } else {
-    // Verify that the region is valid.
-    try {
-      new ee.Geometry.LineString(/** @type {?} */ (regionJson));
-    } catch (e) {
-      try {
-        new ee.Geometry.Polygon(/** @type {?} */ (regionJson));
-      } catch (e2) {
-        throw Error(regionError);
-      }
-    }
-  }
-
-  params['region'] = json.serialize(regionJson);
+  params['region'] = ee.batch.Export.serializeRegion(region);
   return GoogPromise.resolve(params);
 };
 

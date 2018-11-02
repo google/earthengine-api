@@ -52,8 +52,10 @@ ee.layers.CloudStorageTileSource.prototype.loadTile = function(
   var originalRetryLoad = goog.bind(tile.retryLoad, tile);
   tile.retryLoad = goog.bind(function(opt_errorMessage) {
     if (opt_errorMessage &&
-        goog.string.contains(opt_errorMessage,
-            ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_)) {
+        (opt_errorMessage.includes(
+             ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_) ||
+         opt_errorMessage.includes(
+             ee.layers.CloudStorageTileSource.ACCESS_DENIED_ERROR_))) {
       tile.setStatus(ee.layers.AbstractTile.Status.LOADED);
     } else {
       originalRetryLoad(opt_errorMessage);
@@ -131,6 +133,17 @@ ee.layers.CloudStorageTileSource.zoomTileRenderer_ = function(maxZoom, tile) {
 ee.layers.CloudStorageTileSource.BASE_URL_ = 'https://storage.googleapis.com';
 
 
-/** @const @private {string} The error message when a tile is missing. */
+/**
+ * @const @private {string} The error message when a tile is missing and the
+ * cloud bucket is world readable. Corresponds to a 404 error.
+ * https://cloud.google.com/iam/docs/overview#allusers
+ */
 ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_ =
     'The specified key does not exist.';
+
+/**
+ * @const @private {string} The error message when a tile is missing but the
+ * cloud bucket is readable only to "authenticated users." This corresponds to a
+ * 403 error. https://cloud.google.com/iam/docs/overview#allauthenticatedusers.
+ */
+ee.layers.CloudStorageTileSource.ACCESS_DENIED_ERROR_ = 'AccessDenied';

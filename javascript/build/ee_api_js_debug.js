@@ -199,6 +199,11 @@ $jscomp.polyfill("Array.prototype.includes", function(orig) {
     return !1;
   };
 }, "es7", "es3");
+$jscomp.polyfill("String.prototype.includes", function(orig) {
+  return orig ? orig : function(searchString, opt_position) {
+    return -1 !== $jscomp.checkStringArgs(this, searchString, "includes").indexOf(searchString, opt_position || 0);
+  };
+}, "es6", "es3");
 $jscomp.checkEs6ConformanceViaProxy = function() {
   try {
     var proxied = {}, proxy = Object.create(new $jscomp.global.Proxy(proxied, {get:function(target, key, receiver) {
@@ -455,8 +460,11 @@ goog.constructNamespace_ = function(name, opt_obj) {
   var namespace;
   goog.exportPath_(name, opt_obj);
 };
-goog.getScriptNonce = function() {
-  null === goog.cspNonce_ && (goog.cspNonce_ = goog.getScriptNonce_(goog.global.document) || "");
+goog.getScriptNonce = function(opt_window) {
+  if (opt_window && opt_window != goog.global) {
+    return goog.getScriptNonce_(opt_window.document);
+  }
+  null === goog.cspNonce_ && (goog.cspNonce_ = goog.getScriptNonce_(goog.global.document));
   return goog.cspNonce_;
 };
 goog.NONCE_PATTERN_ = /^[\w+/_-]+[=]{0,2}$/;
@@ -469,7 +477,7 @@ goog.getScriptNonce_ = function(doc) {
       return nonce;
     }
   }
-  return null;
+  return "";
 };
 goog.VALID_MODULE_RE_ = /^[a-zA-Z_$][a-zA-Z0-9._$]*$/;
 goog.module = function(name) {
@@ -2946,6 +2954,7 @@ goog.events.PointerTouchFallbackEventType = {POINTERDOWN:goog.events.getPointerF
 POINTERMOVE:goog.events.getPointerFallbackEventName_(goog.events.EventType.POINTERMOVE, goog.events.EventType.MSPOINTERMOVE, goog.events.EventType.TOUCHMOVE)};
 goog.events.PointerAsMouseEventType = {MOUSEDOWN:goog.events.PointerFallbackEventType.POINTERDOWN, MOUSEUP:goog.events.PointerFallbackEventType.POINTERUP, MOUSECANCEL:goog.events.PointerFallbackEventType.POINTERCANCEL, MOUSEMOVE:goog.events.PointerFallbackEventType.POINTERMOVE, MOUSEOVER:goog.events.PointerFallbackEventType.POINTEROVER, MOUSEOUT:goog.events.PointerFallbackEventType.POINTEROUT, MOUSEENTER:goog.events.PointerFallbackEventType.POINTERENTER, MOUSELEAVE:goog.events.PointerFallbackEventType.POINTERLEAVE};
 goog.events.PointerAsTouchEventType = {TOUCHCANCEL:goog.events.PointerTouchFallbackEventType.POINTERCANCEL, TOUCHEND:goog.events.PointerTouchFallbackEventType.POINTERUP, TOUCHMOVE:goog.events.PointerTouchFallbackEventType.POINTERMOVE, TOUCHSTART:goog.events.PointerTouchFallbackEventType.POINTERDOWN};
+goog.events.USE_LAYER_XY_AS_OFFSET_XY = !1;
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
@@ -2967,14 +2976,14 @@ goog.events.BrowserEvent.IEButtonMap = goog.debug.freeze([1, 4, 2]);
 goog.events.BrowserEvent.IE_BUTTON_MAP = goog.events.BrowserEvent.IEButtonMap;
 goog.events.BrowserEvent.IE_POINTER_TYPE_MAP = goog.debug.freeze({2:goog.events.BrowserEvent.PointerType.TOUCH, 3:goog.events.BrowserEvent.PointerType.PEN, 4:goog.events.BrowserEvent.PointerType.MOUSE});
 goog.events.BrowserEvent.prototype.init = function(e, opt_currentTarget) {
-  var type = this.type = e.type, relevantTouch = e.changedTouches ? e.changedTouches[0] : null;
+  var type = this.type = e.type, relevantTouch = e.changedTouches && e.changedTouches.length ? e.changedTouches[0] : null;
   this.target = e.target || e.srcElement;
   this.currentTarget = opt_currentTarget;
   var relatedTarget = e.relatedTarget;
   relatedTarget ? goog.userAgent.GECKO && (goog.reflect.canAccessProperty(relatedTarget, "nodeName") || (relatedTarget = null)) : type == goog.events.EventType.MOUSEOVER ? relatedTarget = e.fromElement : type == goog.events.EventType.MOUSEOUT && (relatedTarget = e.toElement);
   this.relatedTarget = relatedTarget;
-  goog.isNull(relevantTouch) ? (this.offsetX = goog.userAgent.WEBKIT || void 0 !== e.offsetX ? e.offsetX : e.layerX, this.offsetY = goog.userAgent.WEBKIT || void 0 !== e.offsetY ? e.offsetY : e.layerY, this.clientX = void 0 !== e.clientX ? e.clientX : e.pageX, this.clientY = void 0 !== e.clientY ? e.clientY : e.pageY, this.screenX = e.screenX || 0, this.screenY = e.screenY || 0) : (this.clientX = void 0 !== relevantTouch.clientX ? relevantTouch.clientX : relevantTouch.pageX, this.clientY = void 0 !== 
-  relevantTouch.clientY ? relevantTouch.clientY : relevantTouch.pageY, this.screenX = relevantTouch.screenX || 0, this.screenY = relevantTouch.screenY || 0);
+  relevantTouch ? (this.clientX = void 0 !== relevantTouch.clientX ? relevantTouch.clientX : relevantTouch.pageX, this.clientY = void 0 !== relevantTouch.clientY ? relevantTouch.clientY : relevantTouch.pageY, this.screenX = relevantTouch.screenX || 0, this.screenY = relevantTouch.screenY || 0) : (goog.events.USE_LAYER_XY_AS_OFFSET_XY ? (this.offsetX = void 0 !== e.layerX ? e.layerX : e.offsetX, this.offsetY = void 0 !== e.layerY ? e.layerY : e.offsetY) : (this.offsetX = goog.userAgent.WEBKIT || void 0 !== 
+  e.offsetX ? e.offsetX : e.layerX, this.offsetY = goog.userAgent.WEBKIT || void 0 !== e.offsetY ? e.offsetY : e.layerY), this.clientX = void 0 !== e.clientX ? e.clientX : e.pageX, this.clientY = void 0 !== e.clientY ? e.clientY : e.pageY, this.screenX = e.screenX || 0, this.screenY = e.screenY || 0);
   this.button = e.button;
   this.keyCode = e.keyCode || 0;
   this.key = e.key || "";
@@ -5444,8 +5453,9 @@ goog.i18n = {};
 goog.i18n.bidi = {};
 goog.i18n.bidi.FORCE_RTL = !1;
 goog.i18n.bidi.IS_RTL = goog.i18n.bidi.FORCE_RTL || ("ar" == goog.LOCALE.substring(0, 2).toLowerCase() || "fa" == goog.LOCALE.substring(0, 2).toLowerCase() || "he" == goog.LOCALE.substring(0, 2).toLowerCase() || "iw" == goog.LOCALE.substring(0, 2).toLowerCase() || "ps" == goog.LOCALE.substring(0, 2).toLowerCase() || "sd" == goog.LOCALE.substring(0, 2).toLowerCase() || "ug" == goog.LOCALE.substring(0, 2).toLowerCase() || "ur" == goog.LOCALE.substring(0, 2).toLowerCase() || "yi" == goog.LOCALE.substring(0, 
-2).toLowerCase()) && (2 == goog.LOCALE.length || "-" == goog.LOCALE.substring(2, 3) || "_" == goog.LOCALE.substring(2, 3)) || 3 <= goog.LOCALE.length && "ckb" == goog.LOCALE.substring(0, 3).toLowerCase() && (3 == goog.LOCALE.length || "-" == goog.LOCALE.substring(3, 4) || "_" == goog.LOCALE.substring(3, 4)) || 7 <= goog.LOCALE.length && "ff" == goog.LOCALE.substring(0, 2).toLowerCase() && ("-" == goog.LOCALE.substring(2, 3) || "_" == goog.LOCALE.substring(2, 3)) && ("adlm" == goog.LOCALE.substring(3, 
-7).toLowerCase() || "arab" == goog.LOCALE.substring(3, 7).toLowerCase());
+2).toLowerCase()) && (2 == goog.LOCALE.length || "-" == goog.LOCALE.substring(2, 3) || "_" == goog.LOCALE.substring(2, 3)) || 3 <= goog.LOCALE.length && "ckb" == goog.LOCALE.substring(0, 3).toLowerCase() && (3 == goog.LOCALE.length || "-" == goog.LOCALE.substring(3, 4) || "_" == goog.LOCALE.substring(3, 4)) || 7 <= goog.LOCALE.length && ("-" == goog.LOCALE.substring(2, 3) || "_" == goog.LOCALE.substring(2, 3)) && ("adlm" == goog.LOCALE.substring(3, 7).toLowerCase() || "arab" == goog.LOCALE.substring(3, 
+7).toLowerCase() || "hebr" == goog.LOCALE.substring(3, 7).toLowerCase() || "nkoo" == goog.LOCALE.substring(3, 7).toLowerCase() || "rohg" == goog.LOCALE.substring(3, 7).toLowerCase() || "thaa" == goog.LOCALE.substring(3, 7).toLowerCase()) || 8 <= goog.LOCALE.length && ("-" == goog.LOCALE.substring(3, 4) || "_" == goog.LOCALE.substring(3, 4)) && ("adlm" == goog.LOCALE.substring(4, 8).toLowerCase() || "arab" == goog.LOCALE.substring(4, 8).toLowerCase() || "hebr" == goog.LOCALE.substring(4, 8).toLowerCase() || 
+"nkoo" == goog.LOCALE.substring(4, 8).toLowerCase() || "rohg" == goog.LOCALE.substring(4, 8).toLowerCase() || "thaa" == goog.LOCALE.substring(4, 8).toLowerCase());
 goog.i18n.bidi.Format = {LRE:"\u202a", RLE:"\u202b", PDF:"\u202c", LRM:"\u200e", RLM:"\u200f"};
 goog.i18n.bidi.Dir = {LTR:1, RTL:-1, NEUTRAL:0};
 goog.i18n.bidi.RIGHT = "right";
@@ -5506,7 +5516,7 @@ goog.i18n.bidi.endsWithRtl = function(str, opt_isHtml) {
   return goog.i18n.bidi.rtlExitDirCheckRe_.test(goog.i18n.bidi.stripHtmlIfNeeded_(str, opt_isHtml));
 };
 goog.i18n.bidi.isRtlExitText = goog.i18n.bidi.endsWithRtl;
-goog.i18n.bidi.rtlLocalesRe_ = /^(ar|ckb|dv|he|iw|fa|nqo|ps|sd|ug|ur|yi|.*[-_](Adlm|Arab|Hebr|Thaa|Nkoo|Tfng))(?!.*[-_](Latn|Cyrl)($|-|_))($|-|_)/i;
+goog.i18n.bidi.rtlLocalesRe_ = /^(ar|ckb|dv|he|iw|fa|nqo|ps|sd|ug|ur|yi|.*[-_](Adlm|Arab|Hebr|Nkoo|Rohg|Thaa))(?!.*[-_](Latn|Cyrl)($|-|_))($|-|_)/i;
 goog.i18n.bidi.isRtlLanguage = function(lang) {
   return goog.i18n.bidi.rtlLocalesRe_.test(lang);
 };
@@ -5662,12 +5672,12 @@ goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, 
     return currentString;
   }
   if (goog.isString(params)) {
-    return prefix + encodeURIComponent(params);
+    return params ? prefix + encodeURIComponent(params) : "";
   }
   for (var key in params) {
     for (var value = params[key], outputValues = goog.isArray(value) ? value : [value], i = 0; i < outputValues.length; i++) {
       var outputValue = outputValues[i];
-      null != outputValue && (currentString += (currentString ? "&" : prefix) + encodeURIComponent(key) + "=" + encodeURIComponent(String(outputValue)));
+      null != outputValue && (currentString || (currentString = prefix), currentString += (currentString.length > prefix.length ? "&" : "") + encodeURIComponent(key) + "=" + encodeURIComponent(String(outputValue)));
     }
   }
   return currentString;
@@ -11001,20 +11011,24 @@ ee.batch.ExportTask.prototype.start = function(opt_success, opt_error) {
 };
 ee.batch.Export.image.toAsset = function(image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels) {
   var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toAsset, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET);
+  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.IMAGE);
 };
 ee.batch.Export.image.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
   var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
   serverConfig = ee.batch.Export.reconcileImageFormat(serverConfig);
+  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.IMAGE);
 };
 ee.batch.Export.image.toDrive = function(image, opt_description, opt_folder, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
   var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
   serverConfig = ee.batch.Export.reconcileImageFormat(serverConfig);
+  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.IMAGE);
 };
 ee.batch.Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles) {
   var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.map.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
+  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.MAP);
 };
 ee.batch.Export.table.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat, opt_selectors) {
@@ -11031,18 +11045,46 @@ ee.batch.Export.table.toAsset = function(collection, opt_description, opt_assetI
 };
 ee.batch.Export.video.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
   var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.video.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
+  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.VIDEO);
 };
 ee.batch.Export.video.toDrive = function(collection, opt_description, opt_folder, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
   var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.video.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
+  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.VIDEO);
 };
 ee.batch.Export.videoMap.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_writePublicTiles, opt_minZoom, opt_maxZoom, opt_scale, opt_region, opt_skipEmptyTiles) {
   var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.videoMap.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
+  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
   return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.VIDEO_MAP);
 };
 ee.batch.ServerTaskConfig = {};
-ee.batch.Export.ensureValidRegion = function(params) {
+ee.batch.Export.serializeRegion = function(region) {
+  if (region instanceof ee.Geometry) {
+    region = region.toGeoJSON();
+  } else {
+    if (goog.isString(region)) {
+      try {
+        region = goog.asserts.assertObject(JSON.parse(region));
+      } catch (x) {
+        throw Error("Invalid format for region property. Region must be GeoJSON LinearRing or Polygon specified as actual coordinates or serialized as a string. See Export documentation.");
+      }
+    }
+  }
+  if (!(goog.isObject(region) && "type" in region)) {
+    try {
+      new ee.Geometry.LineString(region);
+    } catch (e) {
+      try {
+        new ee.Geometry.Polygon(region);
+      } catch (e2) {
+        throw Error("Invalid format for region property. Region must be GeoJSON LinearRing or Polygon specified as actual coordinates or serialized as a string. See Export documentation.");
+      }
+    }
+  }
+  return goog.json.serialize(region);
+};
+ee.batch.Export.resolveRegionParam = function(params) {
   params = goog.object.clone(params);
   if (!params.region) {
     return goog.Promise.resolve(params);
@@ -11051,31 +11093,11 @@ ee.batch.Export.ensureValidRegion = function(params) {
   if (region instanceof ee.ComputedObject) {
     return region instanceof ee.Element && (region = region.geometry()), new goog.Promise(function(resolve, reject) {
       region.getInfo(function(regionInfo, error) {
-        error ? reject(error) : (params.region = regionInfo, resolve(ee.batch.Export.ensureValidRegion(params)));
+        error ? reject(error) : (params.region = ee.batch.Export.serializeRegion(regionInfo), resolve(params));
       });
     });
   }
-  if (goog.isString(region)) {
-    try {
-      var regionJson = JSON.parse(region);
-    } catch (x) {
-      throw Error("Invalid format for region property. Region must be GeoJSON LinearRing or Polygon specified as actual coordinates or serialized as a string. See Export documentation.");
-    }
-  } else {
-    regionJson = region;
-  }
-  if (!(goog.isObject(regionJson) && "type" in regionJson)) {
-    try {
-      new ee.Geometry.LineString(regionJson);
-    } catch (e) {
-      try {
-        new ee.Geometry.Polygon(regionJson);
-      } catch (e2) {
-        throw Error("Invalid format for region property. Region must be GeoJSON LinearRing or Polygon specified as actual coordinates or serialized as a string. See Export documentation.");
-      }
-    }
-  }
-  params.region = goog.json.serialize(regionJson);
+  params.region = ee.batch.Export.serializeRegion(region);
   return goog.Promise.resolve(params);
 };
 ee.batch.Export.convertToServerParams = function(originalArgs, destination) {
@@ -13750,7 +13772,7 @@ ee.layers.CloudStorageTileSource.prototype.loadTile = function(tile, opt_priorit
   }
   var originalRetryLoad = goog.bind(tile.retryLoad, tile);
   tile.retryLoad = goog.bind(function(opt_errorMessage) {
-    opt_errorMessage && goog.string.contains(opt_errorMessage, ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_) ? tile.setStatus(ee.layers.AbstractTile.Status.LOADED) : originalRetryLoad(opt_errorMessage);
+    opt_errorMessage && (opt_errorMessage.includes(ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_) || opt_errorMessage.includes(ee.layers.CloudStorageTileSource.ACCESS_DENIED_ERROR_)) ? tile.setStatus(ee.layers.AbstractTile.Status.LOADED) : originalRetryLoad(opt_errorMessage);
   }, tile);
   tile.startLoad();
 };
@@ -13778,6 +13800,7 @@ ee.layers.CloudStorageTileSource.zoomTileRenderer_ = function(maxZoom, tile) {
 };
 ee.layers.CloudStorageTileSource.BASE_URL_ = "https://storage.googleapis.com";
 ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_ = "The specified key does not exist.";
+ee.layers.CloudStorageTileSource.ACCESS_DENIED_ERROR_ = "AccessDenied";
 goog.structs.Queue = function() {
   this.front_ = [];
   this.back_ = [];
@@ -14412,11 +14435,12 @@ ee.MapTileManager.Request_.prototype.start_ = function() {
         this.profileId_ = xhrIo.getResponseHeader(ee.data.PROFILE_HEADER) || null;
         if (200 <= xhrIo.getStatus() && 300 > xhrIo.getStatus()) {
           try {
-            var objectUrl = URL.createObjectURL(xhrIo.getResponse());
+            var objectUrl = goog.html.SafeUrl.unwrap(goog.html.SafeUrl.fromBlob(xhrIo.getResponse()));
+            var ok = objectUrl !== goog.html.SafeUrl.INNOCUOUS_STRING;
           } catch (e) {
           }
         }
-        actuallyLoadImage(objectUrl || sourceUrl);
+        actuallyLoadImage(ok ? objectUrl : sourceUrl);
       }, this));
       xhrIo.listenOnce(goog.net.EventType.READY, goog.bind(xhrIo.dispose, xhrIo));
       xhrIo.send(sourceUrl, "GET");
