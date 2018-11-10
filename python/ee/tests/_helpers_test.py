@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 
-import StringIO
+import six
 
 import unittest
 import ee
@@ -25,7 +25,7 @@ class ProfilingTest(apitestcase.ApiTestCase):
       return super(ProfilingTest, self).MockSend(path, params, *args)
 
   def testProfilePrinting(self):
-    out = StringIO.StringIO()
+    out = six.StringIO()
     with ee.profilePrinting(destination=out):
       self.assertEquals('hooked=True getProfiles=False', ee.Number(1).getInfo())
     self.assertEquals('hooked=False getProfiles=True', out.getvalue())
