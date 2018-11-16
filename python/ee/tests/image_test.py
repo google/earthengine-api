@@ -4,11 +4,13 @@
 
 
 import json
+import mock
 
 import unittest
 
 import ee
 from ee import apitestcase
+from ee import serializer
 
 
 class ImageTestCase(apitestcase.ApiTestCase):
@@ -187,6 +189,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEquals(
         ee.Image(1).visualize(min=0).serialize(),
         self.last_thumb_call['data']['image'])
+
 
 
 if __name__ == '__main__':

@@ -385,7 +385,8 @@ def getThumbId(params):
         format - (string) Either 'png' (default) or 'jpg'.
 
   Returns:
-    A thumbnail ID.
+    A dictionary containing "thumbid" and "token" strings, which identify the
+    thumbnail.
   """
   request = params.copy()
   request['getid'] = '1'
@@ -968,3 +969,5 @@ def create_assets(asset_ids, asset_type, mk_parents):
           createAsset({'type': ASSET_TYPE_FOLDER}, path)
         path += '/'
     createAsset({'type': asset_type}, asset_id)
+
+

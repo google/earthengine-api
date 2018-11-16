@@ -1705,6 +1705,48 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'returns': 'Element',
     },
+    'Image.clipToBoundsAndScale': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'name': 'input',
+                'type': 'Image',
+                'description': ''
+            },
+            {
+                'name': 'geometry',
+                'type': 'Geometry',
+                'description': '',
+                'optional': True,
+            },
+            {
+                'name': 'width',
+                'type': 'Integer',
+                'description': '',
+                'optional': True,
+            },
+            {
+                'name': 'height',
+                'type': 'Integer',
+                'description': '',
+                'optional': True,
+            },
+            {
+                'name': 'maxDimension',
+                'type': 'Integer',
+                'description': '',
+                'optional': True,
+            },
+            {
+                'name': 'scale',
+                'type': 'Double',
+                'description': '',
+                'optional': True,
+            }
+        ],
+        'description': '',
+        'returns': 'Image<unknown bands>',
+    },
 }
 
 

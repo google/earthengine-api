@@ -163,8 +163,8 @@ class Export(object):
               projection. Defaults to the image's default projection.
             - crs_transform: A comma-separated string of 6 numbers describing
               the affine transform of the coordinate reference system of the
-              exported image's projection, in the order: xScale, yShearing,
-              xShearing, yScale, xTranslation and yTranslation. Defaults to
+              exported image's projection, in the order: xScale, xShearing,
+              xTranslation, yShearing, yScale and yTranslation. Defaults to
               the image's native CRS transform.
             - dimensions: The dimensions of the exported image. Takes either a
               single positive integer as the maximum dimension or
@@ -226,8 +226,8 @@ class Export(object):
             projection. Defaults to the image's default projection.
         crsTransform: A comma-separated string of 6 numbers describing
             the affine transform of the coordinate reference system of the
-            exported image's projection, in the order: xScale, yShearing,
-            xShearing, yScale, xTranslation and yTranslation. Defaults to
+            exported image's projection, in the order: xScale, xShearing,
+            xTranslation, yShearing, yScale and yTranslation. Defaults to
             the image's native CRS transform.
         maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more
@@ -283,8 +283,8 @@ class Export(object):
             projection. Defaults to the image's default projection.
         crsTransform: A comma-separated string of 6 numbers describing
             the affine transform of the coordinate reference system of the
-            exported image's projection, in the order: xScale, yShearing,
-            xShearing, yScale, xTranslation and yTranslation. Defaults to
+            exported image's projection, in the order: xScale, xShearing,
+            xTranslation, yShearing, yScale and yTranslation. Defaults to
             the image's native CRS transform.
         maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more
@@ -353,8 +353,8 @@ class Export(object):
             projection. Defaults to the image's default projection.
         crsTransform: A comma-separated string of 6 numbers describing
             the affine transform of the coordinate reference system of the
-            exported image's projection, in the order: xScale, yShearing,
-            xShearing, yScale, xTranslation and yTranslation. Defaults to
+            exported image's projection, in the order: xScale, xShearing,
+            xTranslation, yShearing, yScale and yTranslation. Defaults to
             the image's native CRS transform.
         maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more
@@ -641,8 +641,8 @@ class Export(object):
               projection. Defaults to SR-ORG:6627.
             - crs_transform: A comma-separated string of 6 numbers describing
               the affine transform of the coordinate reference system of the
-              exported video's projection, in the order: xScale, yShearing,
-              xShearing, yScale, xTranslation and yTranslation. Defaults to
+              exported video's projection, in the order: xScale, xShearing,
+              xTranslation, yShearing, yScale and yTranslation. Defaults to
               the image collection's native CRS transform.
             - dimensions: The dimensions of the exported video. Takes either a
               single positive integer as the maximum dimension or "WIDTHxHEIGHT"
@@ -708,8 +708,8 @@ class Export(object):
             projection. Defaults to SR-ORG:6627.
         crsTransform: A comma-separated string of 6 numbers describing
             the affine transform of the coordinate reference system of the
-            exported video's projection, in the order: xScale, yShearing,
-            xShearing, yScale, xTranslation and yTranslation. Defaults to
+            exported video's projection, in the order: xScale, xShearing,
+            xTranslation, yShearing, yScale and yTranslation. Defaults to
             the image collection's native CRS transform.
         maxPixels: The maximum number of pixels per frame.
             Defaults to 1e8 pixels per frame. By setting this explicitly,
@@ -770,8 +770,8 @@ class Export(object):
             projection. Defaults to SR-ORG:6627.
         crsTransform: A comma-separated string of 6 numbers describing
             the affine transform of the coordinate reference system of the
-            exported video's projection, in the order: xScale, yShearing,
-            xShearing, yScale, xTranslation and yTranslation. Defaults to
+            exported video's projection, in the order: xScale, xShearing,
+            xTranslation, yShearing, yScale and yTranslation. Defaults to
             the image collection's native CRS transform.
         maxPixels: The maximum number of pixels per frame.
             Defaults to 1e8 pixels per frame. By setting this explicitly,

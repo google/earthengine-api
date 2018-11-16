@@ -24,6 +24,8 @@ from . import element
 from . import function
 from . import geometry
 
+import six
+
 
 class Image(element.Element):
   """An object to represent an Earth Engine image."""
@@ -124,22 +126,26 @@ class Image(element.Element):
     Returns:
       An object containing a mapid and access token, or an error message.
     """
-    request = self._generateImageRequest(vis_params)
+    vis_image, request = self._apply_visualization(vis_params)
+    request['image'] = vis_image
     response = data.getMapId(request)
     response['image'] = self
     return response
 
-  def _generateImageRequest(self, params):
-    """Prepare an image to be sent to an API endpoint.
+
+  def _apply_visualization(self, params):
+    """Applies visualization parameters to an image.
 
     Wraps the image in a call to visualize() if there are any recognized
     visualization parameters present.
 
     Args:
-      params: the visualization parameters.
+      params: the request parameters.
 
     Returns:
-      A request object ready to be sent to the server.
+      A tuple containing:
+      - the result of applying the visualization parameters to this image
+      - any remaining (non-visualization) parameters.
     """
     # Split the parameters into those handled handled by visualize()
     # and those that aren't.
@@ -158,8 +164,7 @@ class Image(element.Element):
     if vis_params:
       vis_params['image'] = image
       image = apifunction.ApiFunction.apply_('Image.visualize', vis_params)
-    request['image'] = image
-    return request
+    return image, request
 
   def getDownloadURL(self, params=None):
     """Get a download URL for this image.
@@ -216,15 +221,16 @@ class Image(element.Element):
     Raises:
       EEException: If the region parameter is not an array or GeoJSON object.
     """
-    request = self._generateImageRequest(params)
-    if 'region' in request:
-      if (isinstance(request['region'], dict) or
-          isinstance(request['region'], list)):
-        request['region'] = json.dumps(request['region'])
-      elif not isinstance(request['region'], str):
+    image, params = self._apply_visualization(params)
+    params['image'] = image
+    if 'region' in params:
+      if (isinstance(params['region'], dict) or
+          isinstance(params['region'], list)):
+        params['region'] = json.dumps(params['region'])
+      elif not isinstance(params['region'], str):
         raise ee_exception.EEException(
             'The region parameter must be an array or a GeoJSON object.')
-    return data.makeThumbUrl(data.getThumbId(request))
+    return data.makeThumbUrl(data.getThumbId(params))
 
   # Deprecated spellings to match the JS library.
   getDownloadUrl = deprecation.Deprecated('Use getDownloadURL().')(
