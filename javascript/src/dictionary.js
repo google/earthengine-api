@@ -43,17 +43,17 @@ ee.Dictionary = function(opt_dict) {
 
   if (ee.Types.isRegularObject(opt_dict)) {
     // Cast to a dictionary.
-    goog.base(this, null, null);
+    ee.Dictionary.base(this, 'constructor', null, null);
     this.dict_ = /** @type {Object} */ (opt_dict);
   } else {
     if (opt_dict instanceof ee.ComputedObject && opt_dict.func &&
         opt_dict.func.getSignature()['returns'] == 'Dictionary') {
       // If it's a call that's already returning a Dictionary, just cast.
-      goog.base(this, opt_dict.func, opt_dict.args, opt_dict.varName);
+      ee.Dictionary.base(this, 'constructor', opt_dict.func, opt_dict.args, opt_dict.varName);
     } else {
       // Delegate everything else to the server-side constructor.
-      goog.base(
-          this, new ee.ApiFunction('Dictionary'), {'input': opt_dict}, null);
+      ee.Dictionary.base(
+          this, 'constructor', new ee.ApiFunction('Dictionary'), {'input': opt_dict}, null);
     }
     this.dict_ = null;
   }
@@ -92,7 +92,7 @@ ee.Dictionary.prototype.encode = function(encoder) {
   if (!goog.isNull(this.dict_)) {
     return encoder(this.dict_);
   } else {
-    return goog.base(this, 'encode', encoder);
+    return ee.Dictionary.base(this, 'encode', encoder);
   }
 };
 

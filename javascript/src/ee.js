@@ -639,7 +639,8 @@ ee.makeClass_ = function(name) {
     // Apply our decision.
     if (shouldUseConstructor) {
       // Call manually to avoid having promote() called on the output.
-      goog.base(this, ctor, ctor.promoteArgs(ctor.nameArgs(args)));
+      target.base(this, 'constructor',
+          ctor, ctor.promoteArgs(ctor.nameArgs(args)));
     } else {
       // Just cast and hope for the best.
       if (!onlyOneArg) {
@@ -651,7 +652,8 @@ ee.makeClass_ = function(name) {
                     '. Must be a ComputedObject.');
       }
       var theOneArg = args[0];
-      goog.base(this, theOneArg.func, theOneArg.args, theOneArg.varName);
+      target.base(this, 'constructor',
+          theOneArg.func, theOneArg.args, theOneArg.varName);
     }
   };
   goog.inherits(target, ee.ComputedObject);

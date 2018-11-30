@@ -24,7 +24,7 @@ goog.forwardDeclare('ee.data.Profiler');
  * @ignore
  */
 ee.AbstractOverlay = function(url, mapId, token, opt_init, opt_profiler) {
-  goog.base(this);
+  ee.AbstractOverlay.base(this, 'constructor');
 
   // Store mapId and token.
   this.mapId = mapId;

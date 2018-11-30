@@ -35,7 +35,7 @@ goog.forwardDeclare('ee.data.Profiler');
  * @deprecated Use ee.layers.ImageOverlay instead.
  */
 ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
-  goog.base(this, url, mapId, token, init, opt_profiler);
+  ee.MapLayerOverlay.base(this, 'constructor', url, mapId, token, init, opt_profiler);
 
   // Set ImageMapTypeOptions properties.
   this.minZoom = init.minZoom || 0;

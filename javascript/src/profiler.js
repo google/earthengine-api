@@ -24,7 +24,7 @@ goog.require('goog.object');
  * @ignore
  */
 ee.data.Profiler = function(format) {
-  goog.base(this);
+  ee.data.Profiler.base(this, 'constructor');
 
   /**
    * The data format to be returned by getProfileData.
@@ -72,6 +72,11 @@ ee.data.Profiler = function(format) {
    * @private {boolean}
    */
   this.showInternal_ = false;
+
+  /**
+   * @private {?string}
+   */
+  this.profileError_ = null;
 
   /**
    * Helper to ensure we don't make too many profile requests.

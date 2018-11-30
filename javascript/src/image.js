@@ -8,6 +8,7 @@ goog.provide('ee.Image');
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.Element');
+goog.require('ee.Feature');
 goog.require('ee.Function');
 goog.require('ee.Geometry');
 goog.require('ee.Types');
@@ -48,18 +49,18 @@ ee.Image = function(opt_args) {
 
   var argCount = arguments.length;
   if (argCount == 0 || (argCount == 1 && !goog.isDef(opt_args))) {
-    goog.base(this, new ee.ApiFunction('Image.mask'), {
+    ee.Image.base(this, 'constructor', new ee.ApiFunction('Image.mask'), {
       'image': new ee.Image(0),
       'mask': new ee.Image(0)
     });
   } else if (argCount == 1) {
     if (ee.Types.isNumber(opt_args)) {
       // A constant image.
-      goog.base(this, new ee.ApiFunction('Image.constant'),
+      ee.Image.base(this, 'constructor', new ee.ApiFunction('Image.constant'),
                 {'value': opt_args});
     } else if (ee.Types.isString(opt_args)) {
       // An ID.
-      goog.base(this, new ee.ApiFunction('Image.load'), {'id': opt_args});
+      ee.Image.base(this, 'constructor', new ee.ApiFunction('Image.load'), {'id': opt_args});
     } else if (goog.isArray(opt_args)) {
       // Make an image out of each element.
       return ee.Image.combine_(goog.array.map(
@@ -70,11 +71,11 @@ ee.Image = function(opt_args) {
     } else if (opt_args instanceof ee.ComputedObject) {
       if (opt_args.name() == 'Array') {
         // A constant array image.
-        goog.base(this, new ee.ApiFunction('Image.constant'),
+        ee.Image.base(this, 'constructor', new ee.ApiFunction('Image.constant'),
                   {'value': opt_args});
       } else {
         // A custom object to reinterpret as an Image.
-        goog.base(this, opt_args.func, opt_args.args, opt_args.varName);
+        ee.Image.base(this, 'constructor', opt_args.func, opt_args.args, opt_args.varName);
       }
     } else {
       throw Error('Unrecognized argument type to convert to an Image: ' +
@@ -85,7 +86,7 @@ ee.Image = function(opt_args) {
     var id = arguments[0];
     var version = arguments[1];
     if (ee.Types.isString(id) && ee.Types.isNumber(version)) {
-      goog.base(this, new ee.ApiFunction('Image.load'), {
+      ee.Image.base(this, 'constructor', new ee.ApiFunction('Image.load'), {
         'id': id,
         'version': version
       });
@@ -145,7 +146,7 @@ ee.Image.reset = function() {
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.ImageDescription} */(
-      goog.base(this, 'getInfo', opt_callback));
+      ee.Image.base(this, 'getInfo', opt_callback));
 };
 
 
@@ -381,7 +382,8 @@ ee.Image.combine_ = function(images, opt_names) {
   // Append all the bands.
   var result = new ee.Image(images[0]);
   for (var i = 1; i < images.length; i++) {
-    result = ee.ApiFunction._call('Image.addBands', result, images[i]);
+    result = /** @type {!ee.Image} */ (
+        ee.ApiFunction._call('Image.addBands', result, images[i]));
   }
 
   // Optionally, rename the bands of the result.

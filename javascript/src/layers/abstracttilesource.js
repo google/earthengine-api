@@ -1,5 +1,6 @@
 goog.provide('ee.layers.AbstractTileSource');
 
+goog.require('ee.layers.AbstractTile');
 goog.require('goog.Disposable');
 
 
@@ -13,14 +14,14 @@ goog.require('goog.Disposable');
  * @ignore
  */
 ee.layers.AbstractTileSource = function() {
-  goog.base(this);
+  ee.layers.AbstractTileSource.base(this, 'constructor');
 };
 goog.inherits(ee.layers.AbstractTileSource, goog.Disposable);
 
 
 /**
  * Asynchronously loads the tile's source data.
- * @param {ee.layers.AbstractTile} tile The tile to load.
+ * @param {!ee.layers.AbstractTile} tile The tile to load.
  * @param {number=} opt_priority The priority of the tile. May be ignored.
  * @package
  */

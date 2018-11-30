@@ -9,6 +9,7 @@ goog.require('ee.Collection');
 goog.require('ee.ComputedObject');
 goog.require('ee.Feature');
 goog.require('ee.Geometry');
+goog.require('ee.Image');
 goog.require('ee.List');
 goog.require('ee.Types');
 goog.require('ee.arguments');
@@ -66,20 +67,20 @@ ee.FeatureCollection = function(args, opt_column) {
     if (opt_column) {
       actualArgs['geometryColumn'] = opt_column;
     }
-    goog.base(this, new ee.ApiFunction('Collection.loadTable'), actualArgs);
+    ee.FeatureCollection.base(this, 'constructor', new ee.ApiFunction('Collection.loadTable'), actualArgs);
   } else if (goog.isArray(args)) {
     // A list of features.
-    goog.base(this, new ee.ApiFunction('Collection'), {
+    ee.FeatureCollection.base(this, 'constructor', new ee.ApiFunction('Collection'), {
       'features': goog.array.map(args, function(elem) {
         return new ee.Feature(elem);
       })
     });
   } else if (args instanceof ee.List) {
     // A computed list of features.  This can't get the extra ee.Feature()
-    goog.base(this, new ee.ApiFunction('Collection'), { 'features': args });
+    ee.FeatureCollection.base(this, 'constructor', new ee.ApiFunction('Collection'), { 'features': args });
   } else if (args instanceof ee.ComputedObject) {
     // A custom object to reinterpret as a FeatureCollection.
-    goog.base(this, args.func, args.args, args.varName);
+    ee.FeatureCollection.base(this, 'constructor', args.func, args.args, args.varName);
   } else {
     throw Error('Unrecognized argument type to convert to a ' +
                 'FeatureCollection: ' + args);
@@ -135,13 +136,14 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extractFromFunction(
       ee.FeatureCollection.prototype.getMap, arguments);
 
-  var painted = ee.ApiFunction._apply('Collection.draw', {
-    'collection': this,
-    'color': (args['visParams'] || {})['color'] || '000000'
-  });
+  var painted = /** @type {!ee.Image} */(
+      ee.ApiFunction._apply('Collection.draw', {
+        'collection': this,
+        'color': (args['visParams'] || {})['color'] || '000000'
+      }));
 
   if (args['callback']) {
-    painted.getMap(null, args['callback']);
+    painted.getMap(undefined, args['callback']);
   } else {
     return painted.getMap();
   }
@@ -166,7 +168,7 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
  */
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.FeatureCollectionDescription} */(
-      goog.base(this, 'getInfo', opt_callback));
+      ee.FeatureCollection.base(this, 'getInfo', opt_callback));
 };
 
 
@@ -240,14 +242,14 @@ ee.FeatureCollection.prototype.select = function(
     // Varargs.
     var varargs = Array.prototype.slice.call(arguments);
     return /** @type {!ee.FeatureCollection} */ (this.map(function(feature) {
-      return feature.select(varargs);
+      return /** @type {!ee.Feature} */(feature).select(varargs);
     }));
   } else {
     // Translate the argument names.
     var args = ee.arguments.extractFromFunction(
         ee.FeatureCollection.prototype.select, arguments);
     return /** @type {!ee.FeatureCollection} */ (this.map(function(feature) {
-      return feature.select(args);
+      return /** @type {!ee.Feature} */(feature).select(args);
     }));
   }
 };

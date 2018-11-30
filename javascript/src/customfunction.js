@@ -116,13 +116,13 @@ ee.CustomFunction.variable = function(type, name) {
    * Avoid Object.create() for backwards compatibility.
    * @constructor
    */
-  var klass = function() {};
+  var klass = function(name) {
+    this.func = null;
+    this.args = null;
+    this.varName = name;
+  };
   klass.prototype = type.prototype;
-  var obj = new klass();
-  obj.func = null;
-  obj.args = null;
-  obj.varName = name;
-  return obj;
+  return new klass(name);
 };
 
 

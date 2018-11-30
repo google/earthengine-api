@@ -77,7 +77,7 @@ ee.Date = function(date, opt_tz) {
   } else {
     throw Error('Invalid argument specified for ee.Date(): ' + date);
   }
-  goog.base(this, func, args, varName);
+  ee.Date.base(this, 'constructor', func, args, varName);
 };
 goog.inherits(ee.Date, ee.ComputedObject);
 

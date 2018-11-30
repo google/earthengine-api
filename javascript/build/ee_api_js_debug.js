@@ -16,6 +16,7 @@ $jscomp.makeIterator = function(iterable) {
 $jscomp.ASSUME_ES5 = !1;
 $jscomp.ASSUME_NO_NATIVE_MAP = !1;
 $jscomp.ASSUME_NO_NATIVE_SET = !1;
+$jscomp.SIMPLE_FROUND_POLYFILL = !1;
 $jscomp.objectCreate = $jscomp.ASSUME_ES5 || "function" == typeof Object.create ? Object.create : function(prototype) {
   var ctor = function() {
   };
@@ -2328,16 +2329,16 @@ goog.labs.userAgent.browser.matchEdge_ = function() {
   return goog.labs.userAgent.util.matchUserAgent("Edge");
 };
 goog.labs.userAgent.browser.matchFirefox_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Firefox");
+  return goog.labs.userAgent.util.matchUserAgent("Firefox") || goog.labs.userAgent.util.matchUserAgent("FxiOS");
 };
 goog.labs.userAgent.browser.matchSafari_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Safari") && !(goog.labs.userAgent.browser.matchChrome_() || goog.labs.userAgent.browser.matchCoast_() || goog.labs.userAgent.browser.matchOpera_() || goog.labs.userAgent.browser.matchEdge_() || goog.labs.userAgent.browser.isSilk() || goog.labs.userAgent.util.matchUserAgent("Android"));
+  return goog.labs.userAgent.util.matchUserAgent("Safari") && !(goog.labs.userAgent.browser.matchChrome_() || goog.labs.userAgent.browser.matchCoast_() || goog.labs.userAgent.browser.matchOpera_() || goog.labs.userAgent.browser.matchEdge_() || goog.labs.userAgent.browser.matchFirefox_() || goog.labs.userAgent.browser.isSilk() || goog.labs.userAgent.util.matchUserAgent("Android"));
 };
 goog.labs.userAgent.browser.matchCoast_ = function() {
   return goog.labs.userAgent.util.matchUserAgent("Coast");
 };
 goog.labs.userAgent.browser.matchIosWebview_ = function() {
-  return (goog.labs.userAgent.util.matchUserAgent("iPad") || goog.labs.userAgent.util.matchUserAgent("iPhone")) && !goog.labs.userAgent.browser.matchSafari_() && !goog.labs.userAgent.browser.matchChrome_() && !goog.labs.userAgent.browser.matchCoast_() && goog.labs.userAgent.util.matchUserAgent("AppleWebKit");
+  return (goog.labs.userAgent.util.matchUserAgent("iPad") || goog.labs.userAgent.util.matchUserAgent("iPhone")) && !goog.labs.userAgent.browser.matchSafari_() && !goog.labs.userAgent.browser.matchChrome_() && !goog.labs.userAgent.browser.matchCoast_() && !goog.labs.userAgent.browser.matchFirefox_() && goog.labs.userAgent.util.matchUserAgent("AppleWebKit");
 };
 goog.labs.userAgent.browser.matchChrome_ = function() {
   return (goog.labs.userAgent.util.matchUserAgent("Chrome") || goog.labs.userAgent.util.matchUserAgent("CriOS")) && !goog.labs.userAgent.browser.matchEdge_();
@@ -5646,7 +5647,7 @@ goog.html.TrustedResourceUrl.format = function(format, args) {
   return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(result);
 };
 goog.html.TrustedResourceUrl.FORMAT_MARKER_ = /%{(\w+)}/g;
-goog.html.TrustedResourceUrl.BASE_URL_ = /^(?:https:)?\/\/[0-9a-z.:[\]-]+\/|^\/[^\/\\]|^about:blank#/i;
+goog.html.TrustedResourceUrl.BASE_URL_ = /^((https:)?\/\/[0-9a-z.:[\]-]+\/|\/[^/\\]|[^:/\\]+\/|[^:/\\]*[?#]|about:blank#)/i;
 goog.html.TrustedResourceUrl.URL_PARAM_PARSER_ = /^([^?#]*)(\?[^#]*)?(#[\s\S]*)?/;
 goog.html.TrustedResourceUrl.formatWithParams = function(format, args, searchParams, opt_hashParams) {
   return goog.html.TrustedResourceUrl.format(format, args).cloneWithParams(searchParams, opt_hashParams);
@@ -9862,7 +9863,7 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
 ee.data.handleAuthResult_ = function(success, error, result) {
   if (result.access_token) {
     var token = result.token_type + " " + result.access_token;
-    if (isFinite(result.expires_in)) {
+    if (result.expires_in || 0 === result.expires_in) {
       var expiresInMs = 900 * result.expires_in;
       setTimeout(ee.data.refreshAuthToken, 0.9 * expiresInMs);
       ee.data.authTokenExpiration_ = goog.now() + expiresInMs;
@@ -9902,8 +9903,8 @@ ee.data.setupMockSend = function(opt_calls) {
   goog.net.XhrIo.send = function(url, callback, method, data) {
     apiBaseUrl = apiBaseUrl || ee.data.apiBaseUrl_;
     var responseData = getResponse(url, method, data), e = new function() {
+      this.target = {};
     };
-    e.target = {};
     e.target.getResponseText = function() {
       return responseData.text;
     };
@@ -10592,7 +10593,7 @@ ee.ApiFunction.clearApi = function(target$jscomp$0) {
     }
   };
   clear(target$jscomp$0);
-  clear(target$jscomp$0.prototype);
+  clear(target$jscomp$0.prototype || {});
 };
 ee.arguments = {};
 ee.arguments.extractFromFunction = function(fn, originalArgs) {
@@ -10971,6 +10972,603 @@ ee.Geometry.createInstance_ = function(klass, args) {
 ee.Geometry.prototype.name = function() {
   return "Geometry";
 };
+ee.Filter = function(opt_filter) {
+  if (!(this instanceof ee.Filter)) {
+    return ee.ComputedObject.construct(ee.Filter, arguments);
+  }
+  if (opt_filter instanceof ee.Filter) {
+    return opt_filter;
+  }
+  ee.Filter.initialize();
+  if (goog.isArray(opt_filter)) {
+    if (0 == opt_filter.length) {
+      throw Error("Empty list specified for ee.Filter().");
+    }
+    if (1 == opt_filter.length) {
+      return new ee.Filter(opt_filter[0]);
+    }
+    ee.ComputedObject.call(this, new ee.ApiFunction("Filter.and"), {filters:opt_filter});
+    this.filter_ = opt_filter;
+  } else {
+    if (opt_filter instanceof ee.ComputedObject) {
+      ee.ComputedObject.call(this, opt_filter.func, opt_filter.args, opt_filter.varName), this.filter_ = [opt_filter];
+    } else {
+      if (goog.isDef(opt_filter)) {
+        throw Error("Invalid argument specified for ee.Filter(): " + opt_filter);
+      }
+      ee.ComputedObject.call(this, null, null);
+      this.filter_ = [];
+    }
+  }
+};
+goog.inherits(ee.Filter, ee.ComputedObject);
+ee.Filter.initialized_ = !1;
+ee.Filter.initialize = function() {
+  ee.Filter.initialized_ || (ee.ApiFunction.importApi(ee.Filter, "Filter", "Filter"), ee.Filter.initialized_ = !0);
+};
+ee.Filter.reset = function() {
+  ee.ApiFunction.clearApi(ee.Filter);
+  ee.Filter.initialized_ = !1;
+};
+ee.Filter.functionNames_ = {equals:"equals", less_than:"lessThan", greater_than:"greaterThan", contains:"stringContains", starts_with:"stringStartsWith", ends_with:"stringEndsWith"};
+ee.Filter.prototype.append_ = function(newFilter) {
+  var prev = this.filter_.slice(0);
+  newFilter instanceof ee.Filter ? goog.array.extend(prev, newFilter.filter_) : newFilter instanceof Array ? goog.array.extend(prev, newFilter) : prev.push(newFilter);
+  return new ee.Filter(prev);
+};
+ee.Filter.prototype.not = function() {
+  return ee.ApiFunction._call("Filter.not", this);
+};
+ee.Filter.eq = function(name, value) {
+  var args = ee.arguments.extractFromFunction(ee.Filter.eq, arguments);
+  return ee.ApiFunction._call("Filter.equals", args.name, args.value);
+};
+ee.Filter.neq = function(name, value) {
+  var args = ee.arguments.extractFromFunction(ee.Filter.neq, arguments);
+  return ee.Filter.eq(args.name, args.value).not();
+};
+ee.Filter.lt = function(name, value) {
+  var args = ee.arguments.extractFromFunction(ee.Filter.lt, arguments);
+  return ee.ApiFunction._call("Filter.lessThan", args.name, args.value);
+};
+ee.Filter.gte = function(name, value) {
+  var args = ee.arguments.extractFromFunction(ee.Filter.gte, arguments);
+  return ee.Filter.lt(args.name, args.value).not();
+};
+ee.Filter.gt = function(name, value) {
+  var args = ee.arguments.extractFromFunction(ee.Filter.gt, arguments);
+  return ee.ApiFunction._call("Filter.greaterThan", args.name, args.value);
+};
+ee.Filter.lte = function(name, value) {
+  var args = ee.arguments.extractFromFunction(ee.Filter.lte, arguments);
+  return ee.Filter.gt(args.name, args.value).not();
+};
+ee.Filter.and = function(var_args) {
+  var args = Array.prototype.slice.call(arguments);
+  return ee.ApiFunction._call("Filter.and", args);
+};
+ee.Filter.or = function(var_args) {
+  var args = Array.prototype.slice.call(arguments);
+  return ee.ApiFunction._call("Filter.or", args);
+};
+ee.Filter.date = function(start, opt_end) {
+  var args = ee.arguments.extractFromFunction(ee.Filter.date, arguments), range = ee.ApiFunction._call("DateRange", args.start, args.end);
+  return ee.ApiFunction._apply("Filter.dateRangeContains", {leftValue:range, rightField:"system:time_start"});
+};
+ee.Filter.inList = function(opt_leftField, opt_rightValue, opt_rightField, opt_leftValue) {
+  var args = ee.arguments.extractFromFunction(ee.Filter.inList, arguments);
+  return ee.ApiFunction._apply("Filter.listContains", {leftField:args.rightField, rightValue:args.leftValue, rightField:args.leftField, leftValue:args.rightValue});
+};
+ee.Filter.bounds = function(geometry, opt_errorMargin) {
+  return ee.ApiFunction._apply("Filter.intersects", {leftField:".all", rightValue:ee.ApiFunction._call("Feature", geometry), maxError:opt_errorMargin});
+};
+ee.Filter.prototype.name = function() {
+  return "Filter";
+};
+ee.Filter.metadata = function(name, operator, value) {
+  operator = operator.toLowerCase();
+  var negated = !1;
+  goog.string.startsWith(operator, "not_") && (negated = !0, operator = operator.substring(4));
+  if (!(operator in ee.Filter.functionNames_)) {
+    throw Error("Unknown filtering operator: " + operator);
+  }
+  var filter = ee.ApiFunction._call("Filter." + ee.Filter.functionNames_[operator], name, value);
+  return negated ? filter.not() : filter;
+};
+ee.Collection = function(func, args, opt_varName) {
+  ee.Element.call(this, func, args, opt_varName);
+  ee.Collection.initialize();
+};
+goog.inherits(ee.Collection, ee.Element);
+goog.exportSymbol("ee.Collection", ee.Collection);
+ee.Collection.initialized_ = !1;
+ee.Collection.initialize = function() {
+  ee.Collection.initialized_ || (ee.ApiFunction.importApi(ee.Collection, "Collection", "Collection"), ee.ApiFunction.importApi(ee.Collection, "AggregateFeatureCollection", "Collection", "aggregate_"), ee.Collection.initialized_ = !0);
+};
+ee.Collection.reset = function() {
+  ee.ApiFunction.clearApi(ee.Collection);
+  ee.Collection.initialized_ = !1;
+};
+ee.Collection.prototype.filter = function(filter) {
+  filter = ee.arguments.extractFromFunction(ee.Collection.prototype.filter, arguments).filter;
+  if (!filter) {
+    throw Error("Empty filters.");
+  }
+  return this.castInternal(ee.ApiFunction._call("Collection.filter", this, filter));
+};
+ee.Collection.prototype.filterMetadata = function(name, operator, value) {
+  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.filterMetadata, arguments);
+  return this.filter(ee.Filter.metadata(args.name, args.operator, args.value));
+};
+ee.Collection.prototype.filterBounds = function(geometry) {
+  return this.filter(ee.Filter.bounds(geometry));
+};
+ee.Collection.prototype.filterDate = function(start, opt_end) {
+  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.filterDate, arguments);
+  return this.filter(ee.Filter.date(args.start, args.end));
+};
+ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
+  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.limit, arguments);
+  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, args.max, args.property, args.ascending));
+};
+ee.Collection.prototype.sort = function(property, opt_ascending) {
+  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.sort, arguments);
+  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, void 0, args.property, args.ascending));
+};
+ee.Collection.prototype.name = function() {
+  return "Collection";
+};
+ee.Collection.prototype.elementType = function() {
+  return ee.Element;
+};
+ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
+  var elementType = this.elementType();
+  return this.castInternal(ee.ApiFunction._call("Collection.map", this, function(e) {
+    return algorithm(new elementType(e));
+  }, opt_dropNulls));
+};
+ee.Collection.prototype.iterate = function(algorithm, opt_first) {
+  var first = goog.isDef(opt_first) ? opt_first : null, elementType = this.elementType();
+  return ee.ApiFunction._call("Collection.iterate", this, function(e, p) {
+    return algorithm(new elementType(e), p);
+  }, first);
+};
+ee.Feature = function(geometry, opt_properties) {
+  if (!(this instanceof ee.Feature)) {
+    return ee.ComputedObject.construct(ee.Feature, arguments);
+  }
+  if (geometry instanceof ee.Feature) {
+    if (opt_properties) {
+      throw Error("Can't create Feature out of a Feature and properties.");
+    }
+    return geometry;
+  }
+  if (2 < arguments.length) {
+    throw Error("The Feature constructor takes at most 2 arguments (" + arguments.length + " given)");
+  }
+  ee.Feature.initialize();
+  if (geometry instanceof ee.Geometry || null === geometry) {
+    ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null});
+  } else {
+    if (geometry instanceof ee.ComputedObject) {
+      ee.Element.call(this, geometry.func, geometry.args, geometry.varName);
+    } else {
+      if ("Feature" == geometry.type) {
+        var properties = geometry.properties || {};
+        if ("id" in geometry) {
+          if ("system:index" in properties) {
+            throw Error('Can\'t specify both "id" and "system:index".');
+          }
+          properties = goog.object.clone(properties);
+          properties["system:index"] = geometry.id;
+        }
+        ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), metadata:properties});
+      } else {
+        ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry), metadata:opt_properties || null});
+      }
+    }
+  }
+};
+goog.inherits(ee.Feature, ee.Element);
+ee.Feature.initialized_ = !1;
+ee.Feature.initialize = function() {
+  ee.Feature.initialized_ || (ee.ApiFunction.importApi(ee.Feature, "Feature", "Feature"), ee.Feature.initialized_ = !0);
+};
+ee.Feature.reset = function() {
+  ee.ApiFunction.clearApi(ee.Feature);
+  ee.Feature.initialized_ = !1;
+};
+ee.Feature.prototype.getInfo = function(opt_callback) {
+  return ee.Feature.superClass_.getInfo.call(this, opt_callback);
+};
+ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.Feature.prototype.getMap, arguments);
+  return ee.ApiFunction._call("Collection", [this]).getMap(args.visParams, args.callback);
+};
+ee.Feature.prototype.name = function() {
+  return "Feature";
+};
+ee.Image = function(opt_args) {
+  if (!(this instanceof ee.Image)) {
+    return ee.ComputedObject.construct(ee.Image, arguments);
+  }
+  if (opt_args instanceof ee.Image) {
+    return opt_args;
+  }
+  ee.Image.initialize();
+  var argCount = arguments.length;
+  if (0 == argCount || 1 == argCount && !goog.isDef(opt_args)) {
+    ee.Element.call(this, new ee.ApiFunction("Image.mask"), {image:new ee.Image(0), mask:new ee.Image(0)});
+  } else {
+    if (1 == argCount) {
+      if (ee.Types.isNumber(opt_args)) {
+        ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args});
+      } else {
+        if (ee.Types.isString(opt_args)) {
+          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:opt_args});
+        } else {
+          if (goog.isArray(opt_args)) {
+            return ee.Image.combine_(goog.array.map(opt_args, function(elem) {
+              return new ee.Image(elem);
+            }));
+          }
+          if (opt_args instanceof ee.ComputedObject) {
+            "Array" == opt_args.name() ? ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args}) : ee.Element.call(this, opt_args.func, opt_args.args, opt_args.varName);
+          } else {
+            throw Error("Unrecognized argument type to convert to an Image: " + opt_args);
+          }
+        }
+      }
+    } else {
+      if (2 == argCount) {
+        var id = arguments[0], version = arguments[1];
+        if (ee.Types.isString(id) && ee.Types.isNumber(version)) {
+          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:id, version:version});
+        } else {
+          throw Error("Unrecognized argument types to convert to an Image: " + arguments);
+        }
+      } else {
+        throw Error("The Image constructor takes at most 2 arguments (" + argCount + " given)");
+      }
+    }
+  }
+};
+goog.inherits(ee.Image, ee.Element);
+ee.Image.initialized_ = !1;
+ee.Image.initialize = function() {
+  ee.Image.initialized_ || (ee.ApiFunction.importApi(ee.Image, "Image", "Image"), ee.ApiFunction.importApi(ee.Image, "Window", "Image", "focal_"), ee.Image.initialized_ = !0);
+};
+ee.Image.reset = function() {
+  ee.ApiFunction.clearApi(ee.Image);
+  ee.Image.initialized_ = !1;
+};
+ee.Image.prototype.getInfo = function(opt_callback) {
+  return ee.Image.superClass_.getInfo.call(this, opt_callback);
+};
+ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
+  var $jscomp$this = this, args = ee.arguments.extractFromFunction(ee.Image.prototype.getMap, arguments), request = ee.Image.generateImageRequest_(this, args.visParams);
+  if (args.callback) {
+    var callback = args.callback;
+    ee.data.getMapId(request, function(data, error) {
+      var mapId = data ? Object.assign(data, {image:$jscomp$this}) : void 0;
+      callback(mapId, error);
+    });
+  } else {
+    var response = ee.data.getMapId(request);
+    response.image = this;
+    return response;
+  }
+};
+ee.Image.generateImageRequest_ = function(image, params) {
+  var keysToExtract = "bands gain bias min max gamma palette opacity forceRgbOutput".split(" "), request = {}, visParams = {};
+  goog.object.forEach(params, function(value, key) {
+    goog.array.contains(keysToExtract, key) ? visParams[key] = value : request[key] = value;
+  });
+  goog.object.isEmpty(visParams) || (visParams.image = image, image = ee.ApiFunction._apply("Image.visualize", visParams));
+  request.image = image.serialize();
+  return request;
+};
+ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.Image.prototype.getDownloadURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
+  request.image = this.serialize();
+  if (args.callback) {
+    var callback = args.callback;
+    ee.data.getDownloadId(request, function(downloadId, error) {
+      downloadId ? callback(ee.data.makeDownloadUrl(downloadId)) : callback(null, error);
+    });
+  } else {
+    return ee.data.makeDownloadUrl(ee.data.getDownloadId(request));
+  }
+};
+ee.Image.prototype.getThumbURL = function(params, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.Image.prototype.getThumbURL, arguments), request = ee.Image.generateImageRequest_(this, args.params);
+  if (request.region) {
+    if (goog.isArray(request.region) || ee.Types.isRegularObject(request.region)) {
+      request.region = goog.json.serialize(request.region);
+    } else {
+      if (!goog.isString(request.region)) {
+        throw Error("The region parameter must be an array or a GeoJSON object.");
+      }
+    }
+  }
+  if (args.callback) {
+    ee.data.getThumbId(request, function(thumbId, opt_error) {
+      var thumbUrl = "";
+      if (!goog.isDef(opt_error)) {
+        try {
+          thumbUrl = ee.data.makeThumbUrl(thumbId);
+        } catch (e) {
+          opt_error = String(e.message);
+        }
+      }
+      args.callback(thumbUrl, opt_error);
+    });
+  } else {
+    return ee.data.makeThumbUrl(ee.data.getThumbId(request));
+  }
+};
+ee.Image.rgb = function(r, g, b) {
+  var args = ee.arguments.extractFromFunction(ee.Image.rgb, arguments);
+  return ee.Image.combine_([args.r, args.g, args.b], ["vis-red", "vis-green", "vis-blue"]);
+};
+ee.Image.cat = function(var_args) {
+  var args = Array.prototype.slice.call(arguments);
+  return ee.Image.combine_(args, null);
+};
+ee.Image.combine_ = function(images, opt_names) {
+  if (0 == images.length) {
+    return ee.ApiFunction._call("Image.constant", []);
+  }
+  for (var result = new ee.Image(images[0]), i = 1; i < images.length; i++) {
+    result = ee.ApiFunction._call("Image.addBands", result, images[i]);
+  }
+  opt_names && (result = result.select([".*"], opt_names));
+  return result;
+};
+ee.Image.prototype.select = function(var_args) {
+  var args = Array.prototype.slice.call(arguments), algorithmArgs = {input:this, bandSelectors:args[0] || []};
+  if (2 < args.length || ee.Types.isString(args[0]) || ee.Types.isNumber(args[0])) {
+    for (var i = 0; i < args.length; i++) {
+      if (!(ee.Types.isString(args[i]) || ee.Types.isNumber(args[i]) || args[i] instanceof ee.ComputedObject)) {
+        throw Error("Illegal argument to select(): " + args[i]);
+      }
+    }
+    algorithmArgs.bandSelectors = args;
+  } else {
+    args[1] && (algorithmArgs.newNames = args[1]);
+  }
+  return ee.ApiFunction._apply("Image.select", algorithmArgs);
+};
+ee.Image.prototype.expression = function(expression, opt_map) {
+  var originalArgs = ee.arguments.extractFromFunction(ee.Image.prototype.expression, arguments), vars = ["DEFAULT_EXPRESSION_IMAGE"], eeArgs = {DEFAULT_EXPRESSION_IMAGE:this};
+  if (originalArgs.map) {
+    var map = originalArgs.map, name$jscomp$0;
+    for (name$jscomp$0 in map) {
+      vars.push(name$jscomp$0), eeArgs[name$jscomp$0] = new ee.Image(map[name$jscomp$0]);
+    }
+  }
+  var body = ee.ApiFunction._call("Image.parseExpression", originalArgs.expression, "DEFAULT_EXPRESSION_IMAGE", vars), func = new ee.Function;
+  func.encode = function(encoder) {
+    return body.encode(encoder);
+  };
+  func.getSignature = function() {
+    return {name:"", args:goog.array.map(vars, function(name) {
+      return {name:name, type:"Image", optional:!1};
+    }, this), returns:"Image"};
+  };
+  return func.apply(eeArgs);
+};
+ee.Image.prototype.clip = function(geometry) {
+  try {
+    geometry = new ee.Geometry(geometry);
+  } catch (e) {
+  }
+  return ee.ApiFunction._call("Image.clip", this, geometry);
+};
+ee.Image.prototype.rename = function(var_args) {
+  var names = 1 != arguments.length || ee.Types.isString(arguments[0]) ? goog.array.clone(arguments) : arguments[0];
+  return ee.ApiFunction._call("Image.rename", this, names);
+};
+ee.Image.prototype.name = function() {
+  return "Image";
+};
+ee.List = function(list) {
+  if (this instanceof ee.List) {
+    if (1 < arguments.length) {
+      throw Error("ee.List() only accepts 1 argument.");
+    }
+    if (list instanceof ee.List) {
+      return list;
+    }
+  } else {
+    return ee.ComputedObject.construct(ee.List, arguments);
+  }
+  ee.List.initialize();
+  if (goog.isArray(list)) {
+    ee.ComputedObject.call(this, null, null), this.list_ = list;
+  } else {
+    if (list instanceof ee.ComputedObject) {
+      ee.ComputedObject.call(this, list.func, list.args, list.varName), this.list_ = null;
+    } else {
+      throw Error("Invalid argument specified for ee.List(): " + list);
+    }
+  }
+};
+goog.inherits(ee.List, ee.ComputedObject);
+ee.List.initialized_ = !1;
+ee.List.initialize = function() {
+  ee.List.initialized_ || (ee.ApiFunction.importApi(ee.List, "List", "List"), ee.List.initialized_ = !0);
+};
+ee.List.reset = function() {
+  ee.ApiFunction.clearApi(ee.List);
+  ee.List.initialized_ = !1;
+};
+ee.List.prototype.encode = function(opt_encoder) {
+  return goog.isArray(this.list_) ? goog.array.map(this.list_, function(elem) {
+    return opt_encoder(elem);
+  }) : ee.List.superClass_.encode.call(this, opt_encoder);
+};
+ee.List.prototype.name = function() {
+  return "List";
+};
+ee.FeatureCollection = function(args, opt_column) {
+  if (!(this instanceof ee.FeatureCollection)) {
+    return ee.ComputedObject.construct(ee.FeatureCollection, arguments);
+  }
+  if (args instanceof ee.FeatureCollection) {
+    return args;
+  }
+  if (2 < arguments.length) {
+    throw Error("The FeatureCollection constructor takes at most 2 arguments (" + arguments.length + " given)");
+  }
+  ee.FeatureCollection.initialize();
+  args instanceof ee.Geometry && (args = new ee.Feature(args));
+  args instanceof ee.Feature && (args = [args]);
+  if (ee.Types.isString(args)) {
+    var actualArgs = {tableId:args};
+    opt_column && (actualArgs.geometryColumn = opt_column);
+    ee.Collection.call(this, new ee.ApiFunction("Collection.loadTable"), actualArgs);
+  } else {
+    if (goog.isArray(args)) {
+      ee.Collection.call(this, new ee.ApiFunction("Collection"), {features:goog.array.map(args, function(elem) {
+        return new ee.Feature(elem);
+      })});
+    } else {
+      if (args instanceof ee.List) {
+        ee.Collection.call(this, new ee.ApiFunction("Collection"), {features:args});
+      } else {
+        if (args instanceof ee.ComputedObject) {
+          ee.Collection.call(this, args.func, args.args, args.varName);
+        } else {
+          throw Error("Unrecognized argument type to convert to a FeatureCollection: " + args);
+        }
+      }
+    }
+  }
+};
+goog.inherits(ee.FeatureCollection, ee.Collection);
+ee.FeatureCollection.initialized_ = !1;
+ee.FeatureCollection.initialize = function() {
+  ee.FeatureCollection.initialized_ || (ee.ApiFunction.importApi(ee.FeatureCollection, "FeatureCollection", "FeatureCollection"), ee.FeatureCollection.initialized_ = !0);
+};
+ee.FeatureCollection.reset = function() {
+  ee.ApiFunction.clearApi(ee.FeatureCollection);
+  ee.FeatureCollection.initialized_ = !1;
+};
+ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getMap, arguments), painted = ee.ApiFunction._apply("Collection.draw", {collection:this, color:(args.visParams || {}).color || "000000"});
+  if (args.callback) {
+    painted.getMap(void 0, args.callback);
+  } else {
+    return painted.getMap();
+  }
+};
+ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
+  return ee.FeatureCollection.superClass_.getInfo.call(this, opt_callback);
+};
+ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selectors, opt_filename, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getDownloadURL, arguments), request = {};
+  request.table = this.serialize();
+  args.format && (request.format = args.format.toUpperCase());
+  args.filename && (request.filename = args.filename);
+  if (args.selectors) {
+    var selectors = args.selectors;
+    goog.isArrayLike(selectors) && (selectors = selectors.join(","));
+    request.selectors = selectors;
+  }
+  if (args.callback) {
+    ee.data.getTableDownloadId(request, function(downloadId, error) {
+      downloadId ? args.callback(ee.data.makeTableDownloadUrl(downloadId)) : args.callback(null, error);
+    });
+  } else {
+    return ee.data.makeTableDownloadUrl(ee.data.getTableDownloadId(request));
+  }
+};
+ee.FeatureCollection.prototype.select = function(propertySelectors, opt_newProperties, opt_retainGeometry) {
+  if (ee.Types.isString(propertySelectors)) {
+    var varargs = Array.prototype.slice.call(arguments);
+    return this.map(function(feature) {
+      return feature.select(varargs);
+    });
+  }
+  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.select, arguments);
+  return this.map(function(feature) {
+    return feature.select(args);
+  });
+};
+ee.FeatureCollection.prototype.name = function() {
+  return "FeatureCollection";
+};
+ee.FeatureCollection.prototype.elementType = function() {
+  return ee.Feature;
+};
+ee.ImageCollection = function(args) {
+  if (!(this instanceof ee.ImageCollection)) {
+    return ee.ComputedObject.construct(ee.ImageCollection, arguments);
+  }
+  if (args instanceof ee.ImageCollection) {
+    return args;
+  }
+  if (1 != arguments.length) {
+    throw Error("The ImageCollection constructor takes exactly 1 argument (" + arguments.length + " given)");
+  }
+  ee.ImageCollection.initialize();
+  args instanceof ee.Image && (args = [args]);
+  if (ee.Types.isString(args)) {
+    ee.Collection.call(this, new ee.ApiFunction("ImageCollection.load"), {id:args});
+  } else {
+    if (goog.isArray(args)) {
+      ee.Collection.call(this, new ee.ApiFunction("ImageCollection.fromImages"), {images:goog.array.map(args, function(elem) {
+        return new ee.Image(elem);
+      })});
+    } else {
+      if (args instanceof ee.List) {
+        ee.Collection.call(this, new ee.ApiFunction("ImageCollection.fromImages"), {images:args});
+      } else {
+        if (args instanceof ee.ComputedObject) {
+          ee.Collection.call(this, args.func, args.args, args.varName);
+        } else {
+          throw Error("Unrecognized argument type to convert to an ImageCollection: " + args);
+        }
+      }
+    }
+  }
+};
+goog.inherits(ee.ImageCollection, ee.Collection);
+ee.ImageCollection.initialized_ = !1;
+ee.ImageCollection.initialize = function() {
+  ee.ImageCollection.initialized_ || (ee.ApiFunction.importApi(ee.ImageCollection, "ImageCollection", "ImageCollection"), ee.ApiFunction.importApi(ee.ImageCollection, "reduce", "ImageCollection"), ee.ImageCollection.initialized_ = !0);
+};
+ee.ImageCollection.reset = function() {
+  ee.ApiFunction.clearApi(ee.ImageCollection);
+  ee.ImageCollection.initialized_ = !1;
+};
+ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getMap, arguments), mosaic = ee.ApiFunction._call("ImageCollection.mosaic", this);
+  if (args.callback) {
+    mosaic.getMap(args.visParams, args.callback);
+  } else {
+    return mosaic.getMap(args.visParams);
+  }
+};
+ee.ImageCollection.prototype.getInfo = function(opt_callback) {
+  return ee.ImageCollection.superClass_.getInfo.call(this, opt_callback);
+};
+ee.ImageCollection.prototype.select = function(selectors, opt_names) {
+  var varargs = arguments;
+  return this.map(function(obj) {
+    return obj.select.apply(obj, varargs);
+  });
+};
+ee.ImageCollection.prototype.first = function() {
+  return new ee.Image(ee.ApiFunction._call("Collection.first", this));
+};
+ee.ImageCollection.prototype.name = function() {
+  return "ImageCollection";
+};
+ee.ImageCollection.prototype.elementType = function() {
+  return ee.Image;
+};
 ee.batch = {};
 var ComputedObject = ee.ComputedObject, ExportDestination = ee.data.ExportDestination, ExportType = ee.data.ExportType, GoogPromise = goog.Promise, googArray = goog.array, googAsserts = goog.asserts, googObject = goog.object, json = goog.json;
 ee.batch.Export = {image:{}, map:{}, table:{}, video:{}, videoMap:{}};
@@ -11165,167 +11763,6 @@ ee.batch.Export.reconcilePrefixOptions_ = function(taskConfig, formatOptions, fo
 };
 ee.batch.Export.CRS_TRANSFORM_KEY = "crs_transform";
 ee.batch.Export.EE_ELEMENT_KEYS = ["image", "collection"];
-ee.Filter = function(opt_filter) {
-  if (!(this instanceof ee.Filter)) {
-    return ee.ComputedObject.construct(ee.Filter, arguments);
-  }
-  if (opt_filter instanceof ee.Filter) {
-    return opt_filter;
-  }
-  ee.Filter.initialize();
-  if (goog.isArray(opt_filter)) {
-    if (0 == opt_filter.length) {
-      throw Error("Empty list specified for ee.Filter().");
-    }
-    if (1 == opt_filter.length) {
-      return new ee.Filter(opt_filter[0]);
-    }
-    ee.ComputedObject.call(this, new ee.ApiFunction("Filter.and"), {filters:opt_filter});
-    this.filter_ = opt_filter;
-  } else {
-    if (opt_filter instanceof ee.ComputedObject) {
-      ee.ComputedObject.call(this, opt_filter.func, opt_filter.args, opt_filter.varName), this.filter_ = [opt_filter];
-    } else {
-      if (goog.isDef(opt_filter)) {
-        throw Error("Invalid argument specified for ee.Filter(): " + opt_filter);
-      }
-      ee.ComputedObject.call(this, null, null);
-      this.filter_ = [];
-    }
-  }
-};
-goog.inherits(ee.Filter, ee.ComputedObject);
-ee.Filter.initialized_ = !1;
-ee.Filter.initialize = function() {
-  ee.Filter.initialized_ || (ee.ApiFunction.importApi(ee.Filter, "Filter", "Filter"), ee.Filter.initialized_ = !0);
-};
-ee.Filter.reset = function() {
-  ee.ApiFunction.clearApi(ee.Filter);
-  ee.Filter.initialized_ = !1;
-};
-ee.Filter.functionNames_ = {equals:"equals", less_than:"lessThan", greater_than:"greaterThan", contains:"stringContains", starts_with:"stringStartsWith", ends_with:"stringEndsWith"};
-ee.Filter.prototype.append_ = function(newFilter) {
-  var prev = this.filter_.slice(0);
-  newFilter instanceof ee.Filter ? goog.array.extend(prev, newFilter.filter_) : newFilter instanceof Array ? goog.array.extend(prev, newFilter) : prev.push(newFilter);
-  return new ee.Filter(prev);
-};
-ee.Filter.prototype.not = function() {
-  return ee.ApiFunction._call("Filter.not", this);
-};
-ee.Filter.eq = function(name, value) {
-  var args = ee.arguments.extractFromFunction(ee.Filter.eq, arguments);
-  return ee.ApiFunction._call("Filter.equals", args.name, args.value);
-};
-ee.Filter.neq = function(name, value) {
-  var args = ee.arguments.extractFromFunction(ee.Filter.neq, arguments);
-  return ee.Filter.eq(args.name, args.value).not();
-};
-ee.Filter.lt = function(name, value) {
-  var args = ee.arguments.extractFromFunction(ee.Filter.lt, arguments);
-  return ee.ApiFunction._call("Filter.lessThan", args.name, args.value);
-};
-ee.Filter.gte = function(name, value) {
-  var args = ee.arguments.extractFromFunction(ee.Filter.gte, arguments);
-  return ee.Filter.lt(args.name, args.value).not();
-};
-ee.Filter.gt = function(name, value) {
-  var args = ee.arguments.extractFromFunction(ee.Filter.gt, arguments);
-  return ee.ApiFunction._call("Filter.greaterThan", args.name, args.value);
-};
-ee.Filter.lte = function(name, value) {
-  var args = ee.arguments.extractFromFunction(ee.Filter.lte, arguments);
-  return ee.Filter.gt(args.name, args.value).not();
-};
-ee.Filter.and = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
-  return ee.ApiFunction._call("Filter.and", args);
-};
-ee.Filter.or = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
-  return ee.ApiFunction._call("Filter.or", args);
-};
-ee.Filter.date = function(start, opt_end) {
-  var args = ee.arguments.extractFromFunction(ee.Filter.date, arguments), range = ee.ApiFunction._call("DateRange", args.start, args.end);
-  return ee.ApiFunction._apply("Filter.dateRangeContains", {leftValue:range, rightField:"system:time_start"});
-};
-ee.Filter.inList = function(opt_leftField, opt_rightValue, opt_rightField, opt_leftValue) {
-  var args = ee.arguments.extractFromFunction(ee.Filter.inList, arguments);
-  return ee.ApiFunction._apply("Filter.listContains", {leftField:args.rightField, rightValue:args.leftValue, rightField:args.leftField, leftValue:args.rightValue});
-};
-ee.Filter.bounds = function(geometry, opt_errorMargin) {
-  return ee.ApiFunction._apply("Filter.intersects", {leftField:".all", rightValue:ee.ApiFunction._call("Feature", geometry), maxError:opt_errorMargin});
-};
-ee.Filter.prototype.name = function() {
-  return "Filter";
-};
-ee.Filter.metadata = function(name, operator, value) {
-  operator = operator.toLowerCase();
-  var negated = !1;
-  goog.string.startsWith(operator, "not_") && (negated = !0, operator = operator.substring(4));
-  if (!(operator in ee.Filter.functionNames_)) {
-    throw Error("Unknown filtering operator: " + operator);
-  }
-  var filter = ee.ApiFunction._call("Filter." + ee.Filter.functionNames_[operator], name, value);
-  return negated ? filter.not() : filter;
-};
-ee.Collection = function(func, args, opt_varName) {
-  ee.Element.call(this, func, args, opt_varName);
-  ee.Collection.initialize();
-};
-goog.inherits(ee.Collection, ee.Element);
-goog.exportSymbol("ee.Collection", ee.Collection);
-ee.Collection.initialized_ = !1;
-ee.Collection.initialize = function() {
-  ee.Collection.initialized_ || (ee.ApiFunction.importApi(ee.Collection, "Collection", "Collection"), ee.ApiFunction.importApi(ee.Collection, "AggregateFeatureCollection", "Collection", "aggregate_"), ee.Collection.initialized_ = !0);
-};
-ee.Collection.reset = function() {
-  ee.ApiFunction.clearApi(ee.Collection);
-  ee.Collection.initialized_ = !1;
-};
-ee.Collection.prototype.filter = function(filter) {
-  filter = ee.arguments.extractFromFunction(ee.Collection.prototype.filter, arguments).filter;
-  if (!filter) {
-    throw Error("Empty filters.");
-  }
-  return this.castInternal(ee.ApiFunction._call("Collection.filter", this, filter));
-};
-ee.Collection.prototype.filterMetadata = function(name, operator, value) {
-  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.filterMetadata, arguments);
-  return this.filter(ee.Filter.metadata(args.name, args.operator, args.value));
-};
-ee.Collection.prototype.filterBounds = function(geometry) {
-  return this.filter(ee.Filter.bounds(geometry));
-};
-ee.Collection.prototype.filterDate = function(start, opt_end) {
-  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.filterDate, arguments);
-  return this.filter(ee.Filter.date(args.start, args.end));
-};
-ee.Collection.prototype.limit = function(max, opt_property, opt_ascending) {
-  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.limit, arguments);
-  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, args.max, args.property, args.ascending));
-};
-ee.Collection.prototype.sort = function(property, opt_ascending) {
-  var args = ee.arguments.extractFromFunction(ee.Collection.prototype.sort, arguments);
-  return this.castInternal(ee.ApiFunction._call("Collection.limit", this, void 0, args.property, args.ascending));
-};
-ee.Collection.prototype.name = function() {
-  return "Collection";
-};
-ee.Collection.prototype.elementType = function() {
-  return ee.Element;
-};
-ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
-  var elementType = this.elementType();
-  return this.castInternal(ee.ApiFunction._call("Collection.map", this, function(e) {
-    return algorithm(new elementType(e));
-  }, opt_dropNulls));
-};
-ee.Collection.prototype.iterate = function(algorithm, opt_first) {
-  var first = goog.isDef(opt_first) ? opt_first : null, elementType = this.elementType();
-  return ee.ApiFunction._call("Collection.iterate", this, function(e, p) {
-    return algorithm(new elementType(e), p);
-  }, first);
-};
 ee.Number = function(number) {
   if (!(this instanceof ee.Number)) {
     return ee.ComputedObject.construct(ee.Number, arguments);
@@ -11416,7 +11853,7 @@ ee.CustomFunction.prototype.encode = function(encoder) {
 ee.CustomFunction.prototype.getSignature = function() {
   return this.signature_;
 };
-ee.CustomFunction.variable = function(type, name) {
+ee.CustomFunction.variable = function(type, name$jscomp$0) {
   type = type || Object;
   if (!(type.prototype instanceof ee.ComputedObject)) {
     if (type && type != Object) {
@@ -11437,14 +11874,12 @@ ee.CustomFunction.variable = function(type, name) {
       type = ee.ComputedObject;
     }
   }
-  var klass = function() {
+  var klass = function(name) {
+    this.args = this.func = null;
+    this.varName = name;
   };
   klass.prototype = type.prototype;
-  var obj = new klass;
-  obj.func = null;
-  obj.args = null;
-  obj.varName = name;
-  return obj;
+  return new klass(name$jscomp$0);
 };
 ee.CustomFunction.create = function(func, returnType, arg_types) {
   var stringifyType = function(type) {
@@ -11642,442 +12077,6 @@ ee.Dictionary.prototype.encode = function(encoder) {
 };
 ee.Dictionary.prototype.name = function() {
   return "Dictionary";
-};
-ee.Feature = function(geometry, opt_properties) {
-  if (!(this instanceof ee.Feature)) {
-    return ee.ComputedObject.construct(ee.Feature, arguments);
-  }
-  if (geometry instanceof ee.Feature) {
-    if (opt_properties) {
-      throw Error("Can't create Feature out of a Feature and properties.");
-    }
-    return geometry;
-  }
-  if (2 < arguments.length) {
-    throw Error("The Feature constructor takes at most 2 arguments (" + arguments.length + " given)");
-  }
-  ee.Feature.initialize();
-  if (geometry instanceof ee.Geometry || null === geometry) {
-    ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:geometry, metadata:opt_properties || null});
-  } else {
-    if (geometry instanceof ee.ComputedObject) {
-      ee.Element.call(this, geometry.func, geometry.args, geometry.varName);
-    } else {
-      if ("Feature" == geometry.type) {
-        var properties = geometry.properties || {};
-        if ("id" in geometry) {
-          if ("system:index" in properties) {
-            throw Error('Can\'t specify both "id" and "system:index".');
-          }
-          properties = goog.object.clone(properties);
-          properties["system:index"] = geometry.id;
-        }
-        ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry.geometry), metadata:properties});
-      } else {
-        ee.Element.call(this, new ee.ApiFunction("Feature"), {geometry:new ee.Geometry(geometry), metadata:opt_properties || null});
-      }
-    }
-  }
-};
-goog.inherits(ee.Feature, ee.Element);
-ee.Feature.initialized_ = !1;
-ee.Feature.initialize = function() {
-  ee.Feature.initialized_ || (ee.ApiFunction.importApi(ee.Feature, "Feature", "Feature"), ee.Feature.initialized_ = !0);
-};
-ee.Feature.reset = function() {
-  ee.ApiFunction.clearApi(ee.Feature);
-  ee.Feature.initialized_ = !1;
-};
-ee.Feature.prototype.getInfo = function(opt_callback) {
-  return ee.Feature.superClass_.getInfo.call(this, opt_callback);
-};
-ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.Feature.prototype.getMap, arguments);
-  return ee.ApiFunction._call("Collection", [this]).getMap(args.visParams, args.callback);
-};
-ee.Feature.prototype.name = function() {
-  return "Feature";
-};
-ee.List = function(list) {
-  if (this instanceof ee.List) {
-    if (1 < arguments.length) {
-      throw Error("ee.List() only accepts 1 argument.");
-    }
-    if (list instanceof ee.List) {
-      return list;
-    }
-  } else {
-    return ee.ComputedObject.construct(ee.List, arguments);
-  }
-  ee.List.initialize();
-  if (goog.isArray(list)) {
-    ee.ComputedObject.call(this, null, null), this.list_ = list;
-  } else {
-    if (list instanceof ee.ComputedObject) {
-      ee.ComputedObject.call(this, list.func, list.args, list.varName), this.list_ = null;
-    } else {
-      throw Error("Invalid argument specified for ee.List(): " + list);
-    }
-  }
-};
-goog.inherits(ee.List, ee.ComputedObject);
-ee.List.initialized_ = !1;
-ee.List.initialize = function() {
-  ee.List.initialized_ || (ee.ApiFunction.importApi(ee.List, "List", "List"), ee.List.initialized_ = !0);
-};
-ee.List.reset = function() {
-  ee.ApiFunction.clearApi(ee.List);
-  ee.List.initialized_ = !1;
-};
-ee.List.prototype.encode = function(opt_encoder) {
-  return goog.isArray(this.list_) ? goog.array.map(this.list_, function(elem) {
-    return opt_encoder(elem);
-  }) : ee.List.superClass_.encode.call(this, opt_encoder);
-};
-ee.List.prototype.name = function() {
-  return "List";
-};
-ee.FeatureCollection = function(args, opt_column) {
-  if (!(this instanceof ee.FeatureCollection)) {
-    return ee.ComputedObject.construct(ee.FeatureCollection, arguments);
-  }
-  if (args instanceof ee.FeatureCollection) {
-    return args;
-  }
-  if (2 < arguments.length) {
-    throw Error("The FeatureCollection constructor takes at most 2 arguments (" + arguments.length + " given)");
-  }
-  ee.FeatureCollection.initialize();
-  args instanceof ee.Geometry && (args = new ee.Feature(args));
-  args instanceof ee.Feature && (args = [args]);
-  if (ee.Types.isString(args)) {
-    var actualArgs = {tableId:args};
-    opt_column && (actualArgs.geometryColumn = opt_column);
-    ee.Collection.call(this, new ee.ApiFunction("Collection.loadTable"), actualArgs);
-  } else {
-    if (goog.isArray(args)) {
-      ee.Collection.call(this, new ee.ApiFunction("Collection"), {features:goog.array.map(args, function(elem) {
-        return new ee.Feature(elem);
-      })});
-    } else {
-      if (args instanceof ee.List) {
-        ee.Collection.call(this, new ee.ApiFunction("Collection"), {features:args});
-      } else {
-        if (args instanceof ee.ComputedObject) {
-          ee.Collection.call(this, args.func, args.args, args.varName);
-        } else {
-          throw Error("Unrecognized argument type to convert to a FeatureCollection: " + args);
-        }
-      }
-    }
-  }
-};
-goog.inherits(ee.FeatureCollection, ee.Collection);
-ee.FeatureCollection.initialized_ = !1;
-ee.FeatureCollection.initialize = function() {
-  ee.FeatureCollection.initialized_ || (ee.ApiFunction.importApi(ee.FeatureCollection, "FeatureCollection", "FeatureCollection"), ee.FeatureCollection.initialized_ = !0);
-};
-ee.FeatureCollection.reset = function() {
-  ee.ApiFunction.clearApi(ee.FeatureCollection);
-  ee.FeatureCollection.initialized_ = !1;
-};
-ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getMap, arguments), painted = ee.ApiFunction._apply("Collection.draw", {collection:this, color:(args.visParams || {}).color || "000000"});
-  if (args.callback) {
-    painted.getMap(null, args.callback);
-  } else {
-    return painted.getMap();
-  }
-};
-ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
-  return ee.FeatureCollection.superClass_.getInfo.call(this, opt_callback);
-};
-ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selectors, opt_filename, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getDownloadURL, arguments), request = {};
-  request.table = this.serialize();
-  args.format && (request.format = args.format.toUpperCase());
-  args.filename && (request.filename = args.filename);
-  if (args.selectors) {
-    var selectors = args.selectors;
-    goog.isArrayLike(selectors) && (selectors = selectors.join(","));
-    request.selectors = selectors;
-  }
-  if (args.callback) {
-    ee.data.getTableDownloadId(request, function(downloadId, error) {
-      downloadId ? args.callback(ee.data.makeTableDownloadUrl(downloadId)) : args.callback(null, error);
-    });
-  } else {
-    return ee.data.makeTableDownloadUrl(ee.data.getTableDownloadId(request));
-  }
-};
-ee.FeatureCollection.prototype.select = function(propertySelectors, opt_newProperties, opt_retainGeometry) {
-  if (ee.Types.isString(propertySelectors)) {
-    var varargs = Array.prototype.slice.call(arguments);
-    return this.map(function(feature) {
-      return feature.select(varargs);
-    });
-  }
-  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.select, arguments);
-  return this.map(function(feature) {
-    return feature.select(args);
-  });
-};
-ee.FeatureCollection.prototype.name = function() {
-  return "FeatureCollection";
-};
-ee.FeatureCollection.prototype.elementType = function() {
-  return ee.Feature;
-};
-ee.Image = function(opt_args) {
-  if (!(this instanceof ee.Image)) {
-    return ee.ComputedObject.construct(ee.Image, arguments);
-  }
-  if (opt_args instanceof ee.Image) {
-    return opt_args;
-  }
-  ee.Image.initialize();
-  var argCount = arguments.length;
-  if (0 == argCount || 1 == argCount && !goog.isDef(opt_args)) {
-    ee.Element.call(this, new ee.ApiFunction("Image.mask"), {image:new ee.Image(0), mask:new ee.Image(0)});
-  } else {
-    if (1 == argCount) {
-      if (ee.Types.isNumber(opt_args)) {
-        ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args});
-      } else {
-        if (ee.Types.isString(opt_args)) {
-          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:opt_args});
-        } else {
-          if (goog.isArray(opt_args)) {
-            return ee.Image.combine_(goog.array.map(opt_args, function(elem) {
-              return new ee.Image(elem);
-            }));
-          }
-          if (opt_args instanceof ee.ComputedObject) {
-            "Array" == opt_args.name() ? ee.Element.call(this, new ee.ApiFunction("Image.constant"), {value:opt_args}) : ee.Element.call(this, opt_args.func, opt_args.args, opt_args.varName);
-          } else {
-            throw Error("Unrecognized argument type to convert to an Image: " + opt_args);
-          }
-        }
-      }
-    } else {
-      if (2 == argCount) {
-        var id = arguments[0], version = arguments[1];
-        if (ee.Types.isString(id) && ee.Types.isNumber(version)) {
-          ee.Element.call(this, new ee.ApiFunction("Image.load"), {id:id, version:version});
-        } else {
-          throw Error("Unrecognized argument types to convert to an Image: " + arguments);
-        }
-      } else {
-        throw Error("The Image constructor takes at most 2 arguments (" + argCount + " given)");
-      }
-    }
-  }
-};
-goog.inherits(ee.Image, ee.Element);
-ee.Image.initialized_ = !1;
-ee.Image.initialize = function() {
-  ee.Image.initialized_ || (ee.ApiFunction.importApi(ee.Image, "Image", "Image"), ee.ApiFunction.importApi(ee.Image, "Window", "Image", "focal_"), ee.Image.initialized_ = !0);
-};
-ee.Image.reset = function() {
-  ee.ApiFunction.clearApi(ee.Image);
-  ee.Image.initialized_ = !1;
-};
-ee.Image.prototype.getInfo = function(opt_callback) {
-  return ee.Image.superClass_.getInfo.call(this, opt_callback);
-};
-ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
-  var $jscomp$this = this, args = ee.arguments.extractFromFunction(ee.Image.prototype.getMap, arguments), request = ee.Image.generateImageRequest_(this, args.visParams);
-  if (args.callback) {
-    var callback = args.callback;
-    ee.data.getMapId(request, function(data, error) {
-      var mapId = data ? Object.assign(data, {image:$jscomp$this}) : void 0;
-      callback(mapId, error);
-    });
-  } else {
-    var response = ee.data.getMapId(request);
-    response.image = this;
-    return response;
-  }
-};
-ee.Image.generateImageRequest_ = function(image, params) {
-  var keysToExtract = "bands gain bias min max gamma palette opacity forceRgbOutput".split(" "), request = {}, visParams = {};
-  goog.object.forEach(params, function(value, key) {
-    goog.array.contains(keysToExtract, key) ? visParams[key] = value : request[key] = value;
-  });
-  goog.object.isEmpty(visParams) || (visParams.image = image, image = ee.ApiFunction._apply("Image.visualize", visParams));
-  request.image = image.serialize();
-  return request;
-};
-ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.Image.prototype.getDownloadURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
-  request.image = this.serialize();
-  if (args.callback) {
-    var callback = args.callback;
-    ee.data.getDownloadId(request, function(downloadId, error) {
-      downloadId ? callback(ee.data.makeDownloadUrl(downloadId)) : callback(null, error);
-    });
-  } else {
-    return ee.data.makeDownloadUrl(ee.data.getDownloadId(request));
-  }
-};
-ee.Image.prototype.getThumbURL = function(params, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.Image.prototype.getThumbURL, arguments), request = ee.Image.generateImageRequest_(this, args.params);
-  if (request.region) {
-    if (goog.isArray(request.region) || ee.Types.isRegularObject(request.region)) {
-      request.region = goog.json.serialize(request.region);
-    } else {
-      if (!goog.isString(request.region)) {
-        throw Error("The region parameter must be an array or a GeoJSON object.");
-      }
-    }
-  }
-  if (args.callback) {
-    ee.data.getThumbId(request, function(thumbId, opt_error) {
-      var thumbUrl = "";
-      if (!goog.isDef(opt_error)) {
-        try {
-          thumbUrl = ee.data.makeThumbUrl(thumbId);
-        } catch (e) {
-          opt_error = String(e.message);
-        }
-      }
-      args.callback(thumbUrl, opt_error);
-    });
-  } else {
-    return ee.data.makeThumbUrl(ee.data.getThumbId(request));
-  }
-};
-ee.Image.rgb = function(r, g, b) {
-  var args = ee.arguments.extractFromFunction(ee.Image.rgb, arguments);
-  return ee.Image.combine_([args.r, args.g, args.b], ["vis-red", "vis-green", "vis-blue"]);
-};
-ee.Image.cat = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
-  return ee.Image.combine_(args, null);
-};
-ee.Image.combine_ = function(images, opt_names) {
-  if (0 == images.length) {
-    return ee.ApiFunction._call("Image.constant", []);
-  }
-  for (var result = new ee.Image(images[0]), i = 1; i < images.length; i++) {
-    result = ee.ApiFunction._call("Image.addBands", result, images[i]);
-  }
-  opt_names && (result = result.select([".*"], opt_names));
-  return result;
-};
-ee.Image.prototype.select = function(var_args) {
-  var args = Array.prototype.slice.call(arguments), algorithmArgs = {input:this, bandSelectors:args[0] || []};
-  if (2 < args.length || ee.Types.isString(args[0]) || ee.Types.isNumber(args[0])) {
-    for (var i = 0; i < args.length; i++) {
-      if (!(ee.Types.isString(args[i]) || ee.Types.isNumber(args[i]) || args[i] instanceof ee.ComputedObject)) {
-        throw Error("Illegal argument to select(): " + args[i]);
-      }
-    }
-    algorithmArgs.bandSelectors = args;
-  } else {
-    args[1] && (algorithmArgs.newNames = args[1]);
-  }
-  return ee.ApiFunction._apply("Image.select", algorithmArgs);
-};
-ee.Image.prototype.expression = function(expression, opt_map) {
-  var originalArgs = ee.arguments.extractFromFunction(ee.Image.prototype.expression, arguments), vars = ["DEFAULT_EXPRESSION_IMAGE"], eeArgs = {DEFAULT_EXPRESSION_IMAGE:this};
-  if (originalArgs.map) {
-    var map = originalArgs.map, name$jscomp$0;
-    for (name$jscomp$0 in map) {
-      vars.push(name$jscomp$0), eeArgs[name$jscomp$0] = new ee.Image(map[name$jscomp$0]);
-    }
-  }
-  var body = ee.ApiFunction._call("Image.parseExpression", originalArgs.expression, "DEFAULT_EXPRESSION_IMAGE", vars), func = new ee.Function;
-  func.encode = function(encoder) {
-    return body.encode(encoder);
-  };
-  func.getSignature = function() {
-    return {name:"", args:goog.array.map(vars, function(name) {
-      return {name:name, type:"Image", optional:!1};
-    }, this), returns:"Image"};
-  };
-  return func.apply(eeArgs);
-};
-ee.Image.prototype.clip = function(geometry) {
-  try {
-    geometry = new ee.Geometry(geometry);
-  } catch (e) {
-  }
-  return ee.ApiFunction._call("Image.clip", this, geometry);
-};
-ee.Image.prototype.rename = function(var_args) {
-  var names = 1 != arguments.length || ee.Types.isString(arguments[0]) ? goog.array.clone(arguments) : arguments[0];
-  return ee.ApiFunction._call("Image.rename", this, names);
-};
-ee.Image.prototype.name = function() {
-  return "Image";
-};
-ee.ImageCollection = function(args) {
-  if (!(this instanceof ee.ImageCollection)) {
-    return ee.ComputedObject.construct(ee.ImageCollection, arguments);
-  }
-  if (args instanceof ee.ImageCollection) {
-    return args;
-  }
-  if (1 != arguments.length) {
-    throw Error("The ImageCollection constructor takes exactly 1 argument (" + arguments.length + " given)");
-  }
-  ee.ImageCollection.initialize();
-  args instanceof ee.Image && (args = [args]);
-  if (ee.Types.isString(args)) {
-    ee.Collection.call(this, new ee.ApiFunction("ImageCollection.load"), {id:args});
-  } else {
-    if (goog.isArray(args)) {
-      ee.Collection.call(this, new ee.ApiFunction("ImageCollection.fromImages"), {images:goog.array.map(args, function(elem) {
-        return new ee.Image(elem);
-      })});
-    } else {
-      if (args instanceof ee.List) {
-        ee.Collection.call(this, new ee.ApiFunction("ImageCollection.fromImages"), {images:args});
-      } else {
-        if (args instanceof ee.ComputedObject) {
-          ee.Collection.call(this, args.func, args.args, args.varName);
-        } else {
-          throw Error("Unrecognized argument type to convert to an ImageCollection: " + args);
-        }
-      }
-    }
-  }
-};
-goog.inherits(ee.ImageCollection, ee.Collection);
-ee.ImageCollection.initialized_ = !1;
-ee.ImageCollection.initialize = function() {
-  ee.ImageCollection.initialized_ || (ee.ApiFunction.importApi(ee.ImageCollection, "ImageCollection", "ImageCollection"), ee.ApiFunction.importApi(ee.ImageCollection, "reduce", "ImageCollection"), ee.ImageCollection.initialized_ = !0);
-};
-ee.ImageCollection.reset = function() {
-  ee.ApiFunction.clearApi(ee.ImageCollection);
-  ee.ImageCollection.initialized_ = !1;
-};
-ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getMap, arguments), mosaic = ee.ApiFunction._call("ImageCollection.mosaic", this);
-  if (args.callback) {
-    mosaic.getMap(args.visParams, args.callback);
-  } else {
-    return mosaic.getMap(args.visParams);
-  }
-};
-ee.ImageCollection.prototype.getInfo = function(opt_callback) {
-  return ee.ImageCollection.superClass_.getInfo.call(this, opt_callback);
-};
-ee.ImageCollection.prototype.select = function(selectors, opt_names) {
-  var varargs = arguments;
-  return this.map(function(img) {
-    return img.select.apply(img, varargs);
-  });
-};
-ee.ImageCollection.prototype.first = function() {
-  return new ee.Image(ee.ApiFunction._call("Collection.first", this));
-};
-ee.ImageCollection.prototype.name = function() {
-  return "ImageCollection";
-};
-ee.ImageCollection.prototype.elementType = function() {
-  return ee.Image;
 };
 ee.Terrain = {};
 ee.Terrain.initialized_ = !1;
@@ -13715,6 +13714,104 @@ ee.layers.BinaryTile.prototype.finishLoad = function() {
   }, void 0, this);
   reader.readAsArrayBuffer(this.sourceData);
 };
+goog.net.ImageLoader = function(opt_parent) {
+  goog.events.EventTarget.call(this);
+  this.imageIdToRequestMap_ = {};
+  this.imageIdToImageMap_ = {};
+  this.handler_ = new goog.events.EventHandler(this);
+  this.parent_ = opt_parent;
+};
+goog.inherits(goog.net.ImageLoader, goog.events.EventTarget);
+goog.net.ImageLoader.CorsRequestType = {ANONYMOUS:"anonymous", USE_CREDENTIALS:"use-credentials"};
+goog.net.ImageLoader.IMAGE_LOAD_EVENTS_ = [goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("11") ? goog.net.EventType.READY_STATE_CHANGE : goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR];
+goog.net.ImageLoader.prototype.addImage = function(id, image, opt_corsRequestType) {
+  var src = goog.isString(image) ? image : image.src;
+  src && (this.imageIdToRequestMap_[id] = {src:src, corsRequestType:goog.isDef(opt_corsRequestType) ? opt_corsRequestType : null});
+};
+goog.net.ImageLoader.prototype.removeImage = function(id) {
+  delete this.imageIdToRequestMap_[id];
+  var image = this.imageIdToImageMap_[id];
+  image && (delete this.imageIdToImageMap_[id], this.handler_.unlisten(image, goog.net.ImageLoader.IMAGE_LOAD_EVENTS_, this.onNetworkEvent_), goog.object.isEmpty(this.imageIdToImageMap_) && goog.object.isEmpty(this.imageIdToRequestMap_) && this.dispatchEvent(goog.net.EventType.COMPLETE));
+};
+goog.net.ImageLoader.prototype.start = function() {
+  var imageIdToRequestMap = this.imageIdToRequestMap_;
+  goog.array.forEach(goog.object.getKeys(imageIdToRequestMap), function(id) {
+    var imageRequest = imageIdToRequestMap[id];
+    imageRequest && (delete imageIdToRequestMap[id], this.loadImage_(imageRequest, id));
+  }, this);
+};
+goog.net.ImageLoader.prototype.loadImage_ = function(imageRequest, id) {
+  if (!this.isDisposed()) {
+    var image = this.parent_ ? goog.dom.getDomHelper(this.parent_).createDom("IMG") : new Image;
+    imageRequest.corsRequestType && (image.crossOrigin = imageRequest.corsRequestType);
+    this.handler_.listen(image, goog.net.ImageLoader.IMAGE_LOAD_EVENTS_, this.onNetworkEvent_);
+    this.imageIdToImageMap_[id] = image;
+    image.id = id;
+    image.src = imageRequest.src;
+  }
+};
+goog.net.ImageLoader.prototype.onNetworkEvent_ = function(evt) {
+  var image = evt.currentTarget;
+  if (image) {
+    if (evt.type == goog.net.EventType.READY_STATE_CHANGE) {
+      if (image.readyState == goog.net.EventType.COMPLETE) {
+        evt.type = goog.events.EventType.LOAD;
+      } else {
+        return;
+      }
+    }
+    "undefined" == typeof image.naturalWidth && (evt.type == goog.events.EventType.LOAD ? (image.naturalWidth = image.width, image.naturalHeight = image.height) : (image.naturalWidth = 0, image.naturalHeight = 0));
+    this.dispatchEvent({type:evt.type, target:image});
+    this.isDisposed() || this.removeImage(image.id);
+  }
+};
+goog.net.ImageLoader.prototype.disposeInternal = function() {
+  delete this.imageIdToRequestMap_;
+  delete this.imageIdToImageMap_;
+  goog.dispose(this.handler_);
+  goog.net.ImageLoader.superClass_.disposeInternal.call(this);
+};
+ee.layers.ImageOverlay = function(tileSource, opt_options) {
+  ee.layers.AbstractOverlay.call(this, tileSource, opt_options);
+};
+goog.inherits(ee.layers.ImageOverlay, ee.layers.AbstractOverlay);
+ee.layers.ImageOverlay.prototype.createTile = function(coord, zoom, ownerDocument, uniqueId) {
+  return new ee.layers.ImageTile(coord, zoom, ownerDocument, uniqueId);
+};
+ee.layers.ImageTile = function(coord, zoom, ownerDocument, uniqueId) {
+  ee.layers.AbstractTile.call(this, coord, zoom, ownerDocument, uniqueId);
+  this.renderer = ee.layers.ImageTile.defaultRenderer_;
+  this.imageLoaderListenerKey_ = this.imageLoader_ = this.imageEl = null;
+  this.objectUrl_ = "";
+};
+goog.inherits(ee.layers.ImageTile, ee.layers.AbstractTile);
+ee.layers.ImageTile.prototype.finishLoad = function() {
+  try {
+    var safeUrl = goog.html.SafeUrl.fromBlob(this.sourceData);
+    this.objectUrl_ = goog.html.SafeUrl.unwrap(safeUrl);
+    var imageUrl = this.objectUrl_ !== goog.html.SafeUrl.INNOCUOUS_STRING ? this.objectUrl_ : this.sourceUrl;
+  } catch (e) {
+    imageUrl = this.sourceUrl;
+  }
+  this.imageLoader_ = new goog.net.ImageLoader;
+  this.imageLoader_.addImage(this.div.id + "-image", imageUrl);
+  this.imageLoaderListenerKey_ = goog.events.listenOnce(this.imageLoader_, ee.layers.ImageTile.IMAGE_LOADER_EVENTS_, function(event) {
+    event.type == goog.events.EventType.LOAD ? (this.imageEl = event.target, ee.layers.AbstractTile.prototype.finishLoad.call(this)) : this.retryLoad();
+  }, void 0, this);
+  this.imageLoader_.start();
+};
+ee.layers.ImageTile.prototype.cancelLoad = function() {
+  ee.layers.ImageTile.superClass_.cancelLoad.call(this);
+  this.imageLoader_ && (goog.events.unlistenByKey(this.imageLoaderListenerKey_), goog.dispose(this.imageLoader_));
+};
+ee.layers.ImageTile.prototype.disposeInternal = function() {
+  ee.layers.ImageTile.superClass_.disposeInternal.call(this);
+  this.objectUrl_ && URL.revokeObjectURL(this.objectUrl_);
+};
+ee.layers.ImageTile.IMAGE_LOADER_EVENTS_ = [goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR];
+ee.layers.ImageTile.defaultRenderer_ = function(tile) {
+  tile.div.appendChild(tile.imageEl);
+};
 goog.string.path = {};
 goog.string.path.baseName = function(path) {
   var i = path.lastIndexOf("/") + 1;
@@ -14171,104 +14268,6 @@ ee.layers.EarthEngineTileSource.getGlobalTokenPool_ = function() {
 };
 ee.layers.EarthEngineTileSource.TOKEN_POOL_ = null;
 ee.layers.EarthEngineTileSource.TOKEN_COUNT_ = 4;
-goog.net.ImageLoader = function(opt_parent) {
-  goog.events.EventTarget.call(this);
-  this.imageIdToRequestMap_ = {};
-  this.imageIdToImageMap_ = {};
-  this.handler_ = new goog.events.EventHandler(this);
-  this.parent_ = opt_parent;
-};
-goog.inherits(goog.net.ImageLoader, goog.events.EventTarget);
-goog.net.ImageLoader.CorsRequestType = {ANONYMOUS:"anonymous", USE_CREDENTIALS:"use-credentials"};
-goog.net.ImageLoader.IMAGE_LOAD_EVENTS_ = [goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("11") ? goog.net.EventType.READY_STATE_CHANGE : goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR];
-goog.net.ImageLoader.prototype.addImage = function(id, image, opt_corsRequestType) {
-  var src = goog.isString(image) ? image : image.src;
-  src && (this.imageIdToRequestMap_[id] = {src:src, corsRequestType:goog.isDef(opt_corsRequestType) ? opt_corsRequestType : null});
-};
-goog.net.ImageLoader.prototype.removeImage = function(id) {
-  delete this.imageIdToRequestMap_[id];
-  var image = this.imageIdToImageMap_[id];
-  image && (delete this.imageIdToImageMap_[id], this.handler_.unlisten(image, goog.net.ImageLoader.IMAGE_LOAD_EVENTS_, this.onNetworkEvent_), goog.object.isEmpty(this.imageIdToImageMap_) && goog.object.isEmpty(this.imageIdToRequestMap_) && this.dispatchEvent(goog.net.EventType.COMPLETE));
-};
-goog.net.ImageLoader.prototype.start = function() {
-  var imageIdToRequestMap = this.imageIdToRequestMap_;
-  goog.array.forEach(goog.object.getKeys(imageIdToRequestMap), function(id) {
-    var imageRequest = imageIdToRequestMap[id];
-    imageRequest && (delete imageIdToRequestMap[id], this.loadImage_(imageRequest, id));
-  }, this);
-};
-goog.net.ImageLoader.prototype.loadImage_ = function(imageRequest, id) {
-  if (!this.isDisposed()) {
-    var image = this.parent_ ? goog.dom.getDomHelper(this.parent_).createDom("IMG") : new Image;
-    imageRequest.corsRequestType && (image.crossOrigin = imageRequest.corsRequestType);
-    this.handler_.listen(image, goog.net.ImageLoader.IMAGE_LOAD_EVENTS_, this.onNetworkEvent_);
-    this.imageIdToImageMap_[id] = image;
-    image.id = id;
-    image.src = imageRequest.src;
-  }
-};
-goog.net.ImageLoader.prototype.onNetworkEvent_ = function(evt) {
-  var image = evt.currentTarget;
-  if (image) {
-    if (evt.type == goog.net.EventType.READY_STATE_CHANGE) {
-      if (image.readyState == goog.net.EventType.COMPLETE) {
-        evt.type = goog.events.EventType.LOAD;
-      } else {
-        return;
-      }
-    }
-    "undefined" == typeof image.naturalWidth && (evt.type == goog.events.EventType.LOAD ? (image.naturalWidth = image.width, image.naturalHeight = image.height) : (image.naturalWidth = 0, image.naturalHeight = 0));
-    this.dispatchEvent({type:evt.type, target:image});
-    this.isDisposed() || this.removeImage(image.id);
-  }
-};
-goog.net.ImageLoader.prototype.disposeInternal = function() {
-  delete this.imageIdToRequestMap_;
-  delete this.imageIdToImageMap_;
-  goog.dispose(this.handler_);
-  goog.net.ImageLoader.superClass_.disposeInternal.call(this);
-};
-ee.layers.ImageOverlay = function(tileSource, opt_options) {
-  ee.layers.AbstractOverlay.call(this, tileSource, opt_options);
-};
-goog.inherits(ee.layers.ImageOverlay, ee.layers.AbstractOverlay);
-ee.layers.ImageOverlay.prototype.createTile = function(coord, zoom, ownerDocument, uniqueId) {
-  return new ee.layers.ImageTile(coord, zoom, ownerDocument, uniqueId);
-};
-ee.layers.ImageTile = function(coord, zoom, ownerDocument, uniqueId) {
-  ee.layers.AbstractTile.call(this, coord, zoom, ownerDocument, uniqueId);
-  this.renderer = ee.layers.ImageTile.defaultRenderer_;
-  this.imageLoaderListenerKey_ = this.imageLoader_ = this.imageEl = null;
-  this.objectUrl_ = "";
-};
-goog.inherits(ee.layers.ImageTile, ee.layers.AbstractTile);
-ee.layers.ImageTile.prototype.finishLoad = function() {
-  try {
-    var safeUrl = goog.html.SafeUrl.fromBlob(this.sourceData);
-    this.objectUrl_ = goog.html.SafeUrl.unwrap(safeUrl);
-    var imageUrl = this.objectUrl_ !== goog.html.SafeUrl.INNOCUOUS_STRING ? this.objectUrl_ : this.sourceUrl;
-  } catch (e) {
-    imageUrl = this.sourceUrl;
-  }
-  this.imageLoader_ = new goog.net.ImageLoader;
-  this.imageLoader_.addImage(this.div.id + "-image", imageUrl);
-  this.imageLoaderListenerKey_ = goog.events.listenOnce(this.imageLoader_, ee.layers.ImageTile.IMAGE_LOADER_EVENTS_, function(event) {
-    event.type == goog.events.EventType.LOAD ? (this.imageEl = event.target, ee.layers.AbstractTile.prototype.finishLoad.call(this)) : this.retryLoad();
-  }, void 0, this);
-  this.imageLoader_.start();
-};
-ee.layers.ImageTile.prototype.cancelLoad = function() {
-  ee.layers.ImageTile.superClass_.cancelLoad.call(this);
-  this.imageLoader_ && (goog.events.unlistenByKey(this.imageLoaderListenerKey_), goog.dispose(this.imageLoader_));
-};
-ee.layers.ImageTile.prototype.disposeInternal = function() {
-  ee.layers.ImageTile.superClass_.disposeInternal.call(this);
-  this.objectUrl_ && URL.revokeObjectURL(this.objectUrl_);
-};
-ee.layers.ImageTile.IMAGE_LOADER_EVENTS_ = [goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR];
-ee.layers.ImageTile.defaultRenderer_ = function(tile) {
-  tile.div.appendChild(tile.imageEl);
-};
 ee.MapTileManager = function() {
   goog.events.EventTarget.call(this);
   this.tokenPool_ = new ee.MapTileManager.TokenPool_(0, 60);
@@ -14735,6 +14734,7 @@ ee.data.Profiler = function(format) {
   this.profileIds_ = Object.create(null);
   this.tileProfileIds_ = Object.create(null);
   this.showInternal_ = !1;
+  this.profileError_ = null;
   this.throttledRefresh_ = new goog.async.Delay(goog.bind(this.refresh_, this), ee.data.Profiler.DELAY_BEFORE_REFRESH_);
   this.profileData_ = ee.data.Profiler.getEmptyProfile_(format);
 };

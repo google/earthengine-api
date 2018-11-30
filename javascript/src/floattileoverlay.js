@@ -24,7 +24,7 @@ goog.require('goog.structs.Map');
  * @deprecated Use ee.layers.BinaryOverlay instead.
  */
 ee.FloatTileOverlay = function(url, mapId, token) {
-  goog.base(this, url, mapId, token);
+  ee.FloatTileOverlay.base(this, 'constructor', url, mapId, token);
 
   this.tileSize = new google.maps.Size(
       ee.FloatTileOverlay.TILE_EDGE_LENGTH,
@@ -163,5 +163,5 @@ ee.FloatTileOverlay.prototype.disposeInternal = function() {
   this.floatTiles_ = null;
   this.floatTileDivs_ = null;
 
-  goog.base(this, 'disposeInternal');
+  ee.FloatTileOverlay.base(this, 'disposeInternal');
 };

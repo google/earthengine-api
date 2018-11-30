@@ -10,6 +10,7 @@ Typical use-case consists of:
 """
 
 
+import datetime
 import errno
 import json
 import os
@@ -38,6 +39,8 @@ TOKEN_REQ_URL = 'https://accounts.google.com/o/oauth2/token'
 
 def get_credentials_path():
   return os.path.expanduser('~/.config/earthengine/credentials')
+
+
 
 
 def get_authorization_url():

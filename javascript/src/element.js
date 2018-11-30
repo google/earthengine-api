@@ -23,7 +23,7 @@ goog.require('goog.object');
  * @extends {ee.ComputedObject}
  */
 ee.Element = function(func, args, opt_varName) {
-  goog.base(this, func, args, opt_varName);
+  ee.Element.base(this, 'constructor', func, args, opt_varName);
   ee.Element.initialize();
 };
 goog.inherits(ee.Element, ee.ComputedObject);

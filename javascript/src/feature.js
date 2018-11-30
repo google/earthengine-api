@@ -11,7 +11,7 @@ goog.require('ee.Geometry');
 goog.require('ee.arguments');
 goog.require('goog.object');
 
-
+goog.forwardDeclare('ee.FeatureCollection');
 
 /**
  * Features can be constructed from one of the following arguments plus an
@@ -50,13 +50,13 @@ ee.Feature = function(geometry, opt_properties) {
 
   if (geometry instanceof ee.Geometry || geometry === null) {
     // A Geometry object.
-    goog.base(this, new ee.ApiFunction('Feature'), {
+    ee.Feature.base(this, 'constructor', new ee.ApiFunction('Feature'), {
       'geometry': geometry,
       'metadata': opt_properties || null
     });
   } else if (geometry instanceof ee.ComputedObject) {
     // A custom object to reinterpret as a Feature.
-    goog.base(this, geometry.func, geometry.args, geometry.varName);
+    ee.Feature.base(this, 'constructor', geometry.func, geometry.args, geometry.varName);
   } else if (geometry['type'] == 'Feature') {
     // Try to convert a GeoJSON Feature.
     var properties = geometry['properties'] || {};
@@ -67,14 +67,14 @@ ee.Feature = function(geometry, opt_properties) {
       properties = goog.object.clone(properties);
       properties['system:index'] = geometry['id'];
     }
-    goog.base(this, new ee.ApiFunction('Feature'), {
+    ee.Feature.base(this, 'constructor', new ee.ApiFunction('Feature'), {
       'geometry': new ee.Geometry(geometry['geometry']),
       'metadata': properties
     });
   } else {
     // Try to convert the geometry arg to a Geometry, in the hopes of it
     // turning out to be GeoJSON.
-    goog.base(this, new ee.ApiFunction('Feature'), {
+    ee.Feature.base(this, 'constructor', new ee.ApiFunction('Feature'), {
       'geometry': new ee.Geometry(geometry),
       'metadata': opt_properties || null
     });
@@ -124,7 +124,7 @@ ee.Feature.reset = function() {
  */
 ee.Feature.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.GeoJSONFeature} */(
-      goog.base(this, 'getInfo', opt_callback));
+      ee.Feature.base(this, 'getInfo', opt_callback));
 };
 
 
@@ -142,7 +142,7 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
  * @export
  */
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = 
+  var args =
       ee.arguments.extractFromFunction(ee.Feature.prototype.getMap, arguments);
   var collection = ee.ApiFunction._call('Collection', [this]);
   return /** @type {ee.FeatureCollection} */(collection)

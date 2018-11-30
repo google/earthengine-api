@@ -33,21 +33,21 @@ ee.ApiFunction = function(name, opt_signature) {
 };
 /**
  * @param {string} name
- * @param {(Object|null)} namedArgs
- * @return {(ee.ComputedObject|null)}
+ * @param {!Object} namedArgs
+ * @return {!ee.ComputedObject}
  */
 ee.ApiFunction._apply = function(name, namedArgs) {
 };
 /**
  * @param {string} name
  * @param {...*} var_args
- * @return {(ee.ComputedObject|null)}
+ * @return {!ee.ComputedObject}
  */
 ee.ApiFunction._call = function(name, var_args) {
 };
 /**
  * @param {string} name
- * @return {(ee.ApiFunction|null)}
+ * @return {!ee.ApiFunction}
  */
 ee.ApiFunction.lookup = function(name) {
 };
@@ -383,13 +383,13 @@ ee.Function = function() {
 };
 /**
  * @param {(Object|null)} namedArgs
- * @return {(ee.ComputedObject|null)}
+ * @return {!ee.ComputedObject}
  */
 ee.Function.prototype.apply = function(namedArgs) {
 };
 /**
  * @param {...*} var_args
- * @return {(ee.ComputedObject|null)}
+ * @return {!ee.ComputedObject}
  */
 ee.Function.prototype.call = function(var_args) {
 };
@@ -593,8 +593,8 @@ ee.ImageCollection = function(args) {
 ee.ImageCollection.prototype.first = function() {
 };
 /**
- * @param {function((ee.data.ImageCollectionDescription|null), string=): ?=} opt_callback
- * @return {(ee.data.ImageCollectionDescription|null)}
+ * @param {function(!ee.data.ImageCollectionDescription, string=): ?=} opt_callback
+ * @return {!ee.data.ImageCollectionDescription}
  */
 ee.ImageCollection.prototype.getInfo = function(opt_callback) {
 };
@@ -606,9 +606,9 @@ ee.ImageCollection.prototype.getInfo = function(opt_callback) {
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 /**
- * @param {(Array<(number|string)>|null)} selectors
- * @param {(Array<string>|null)=} opt_names
- * @return {(ee.ImageCollection|null)}
+ * @param {!Array<(number|string)>} selectors
+ * @param {!Array<string>=} opt_names
+ * @return {!ee.ImageCollection}
  */
 ee.ImageCollection.prototype.select = function(selectors, opt_names) {
 };
@@ -716,7 +716,7 @@ ee.Serializer.toReadableJSON = function(obj) {
 };
 ee.String;
 ee.TILE_SIZE;
-/** @type {{initialize: function(): undefined, initialized_: boolean, reset: function(): undefined}} */
+/** @type {{}} */
 ee.Terrain = {};
 /**
  * @param {(ee.Function|null|string)} func

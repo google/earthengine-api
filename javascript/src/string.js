@@ -37,15 +37,15 @@ ee.String = function(string) {
   this.string_;
 
   if (goog.isString(string)) {
-    goog.base(this, null, null);
+    ee.String.base(this, 'constructor', null, null);
     this.string_ = /** @type {string} */ (string);
   } else if (string instanceof ee.ComputedObject) {
     this.string_ = null;
     if (string.func && string.func.getSignature()['returns'] == 'String') {
       // If it's a call that's already returning a String, just cast.
-      goog.base(this, string.func, string.args, string.varName);
+      ee.String.base(this, 'constructor', string.func, string.args, string.varName);
     } else {
-      goog.base(this, new ee.ApiFunction('String'), {'input': string}, null);
+      ee.String.base(this, 'constructor', new ee.ApiFunction('String'), {'input': string}, null);
     }
   } else {
     throw Error('Invalid argument specified for ee.String(): ' + string);
@@ -83,7 +83,7 @@ ee.String.prototype.encode = function(encoder) {
   if (goog.isString(this.string_)) {
     return this.string_;
   } else {
-    return goog.base(this, 'encode', encoder);
+    return ee.String.base(this, 'encode', encoder);
   }
 };
 

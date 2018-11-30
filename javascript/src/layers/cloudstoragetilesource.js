@@ -2,6 +2,7 @@ goog.provide('ee.layers.CloudStorageTileSource');
 
 goog.require('ee.layers.AbstractTile');
 goog.require('ee.layers.AbstractTileSource');
+goog.require('ee.layers.ImageTile');
 goog.require('goog.string');
 goog.require('goog.string.path');
 
@@ -20,7 +21,7 @@ goog.require('goog.string.path');
  * @ignore
  */
 ee.layers.CloudStorageTileSource = function(bucket, path, maxZoom, opt_suffix) {
-  goog.base(this);
+  ee.layers.CloudStorageTileSource.base(this, 'constructor');
 
   this.bucket_ = bucket;
   this.path_ = path;
@@ -43,9 +44,9 @@ ee.layers.CloudStorageTileSource.prototype.loadTile = function(
         Math.floor(tile.coord.x / zoomFactor),
         Math.floor(tile.coord.y / zoomFactor));
     tile.sourceUrl = this.getTileUrl_(upperCoord, tile.zoom - zoomSteps);
-    tile.renderer = goog.partial(
-        ee.layers.CloudStorageTileSource.zoomTileRenderer_,
-        this.maxZoom_);
+    tile.renderer = /** @type {function(!ee.layers.AbstractTile)} */(
+        goog.partial(
+            ee.layers.CloudStorageTileSource.zoomTileRenderer_, this.maxZoom_));
   }
 
   // If the tile is missing, just show an empty DIV.
@@ -98,7 +99,7 @@ ee.layers.CloudStorageTileSource.prototype.getTileUrl_ = function(coord, zoom) {
  * Renders a tile with client-side zooming beyond the maximum zoom level for
  * which full-size tile images are available.
  * @param {number} maxZoom The maximum zoom level at which tiles are available.
- * @param {!ee.layers.AbstractTile} tile The tile to render.
+ * @param {!ee.layers.ImageTile} tile The tile to render.
  * @private
  */
 ee.layers.CloudStorageTileSource.zoomTileRenderer_ = function(maxZoom, tile) {

@@ -1060,6 +1060,46 @@ class UploadImageCommand(object):
       bands = self._check_num_bands(bands, len(args.nodata_value),
                                     'nodata_value')
 
+    if config.use_cloud_api:
+      args.asset_id = ee.data.convert_asset_id_to_asset_name(args.asset_id)
+      tileset = {
+          'id': 'ts',
+          'sources': [{'uris': [source]} for source in source_files]
+      }
+      request = {
+          'name': args.asset_id,
+          'properties': properties,
+          'tilesets': [tileset]
+      }
+
+      if bands:
+        file_bands = []
+        for i, band in enumerate(bands):
+          file_bands.append({
+              'id': band,
+              'tilesetId': tileset['id'],
+              'tilesetBandIndex': i
+          })
+        request['bands'] = file_bands
+
+      if args.pyramiding_policy:
+        if len(args.pyramiding_policy) == 1:
+          request['pyramidingPolicy'] = args.pyramiding_policy[0]
+        else:
+          for index, policy in enumerate(args.pyramiding_policy):
+            file_bands[index]['pyramidingPolicy'] = policy
+
+      if args.nodata_value:
+        if len(args.nodata_value) == 1:
+          request['missingData'] = {'values': [args.nodata_value[0]]}
+        else:
+          for index, value in enumerate(args.nodata_value):
+            file_bands[index]['missingData'] = {'values': [value]}
+
+      if args.last_band_alpha:
+        request['maskBands'] = {'tilesetId': tileset['id']}
+      _upload(args, request, ee.data.startIngestion)
+      return
     request = {
         'id': args.asset_id,
         'properties': properties
@@ -1139,6 +1179,24 @@ class UploadTableCommand(object):
     if len(source_files) != 1:
       raise ValueError('Exactly one file must be specified.')
 
+    if config.use_cloud_api:
+      properties = _decode_property_flags(args)
+      args.asset_id = ee.data.convert_asset_id_to_asset_name(args.asset_id)
+      source = {'uris': source_files}
+      if args.max_error:
+        source['maxErrorMeters'] = args.max_error
+      if args.max_vertices:
+        source['maxVertices'] = args.max_vertices
+      if args.max_failed_features:
+        raise ee.EEException(
+            '--max_failed_features is not supported with the Cloud API')
+      request = {
+          'name': args.asset_id,
+          'sources': [source],
+          'properties': properties
+      }
+      _upload(args, request, ee.data.startTableIngestion)
+      return
 
     source = {'primaryPath': source_files[0]}
     if args.max_error:

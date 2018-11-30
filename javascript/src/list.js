@@ -40,10 +40,10 @@ ee.List = function(list) {
   this.list_;
 
   if (goog.isArray(list)) {
-    goog.base(this, null, null);
+    ee.List.base(this, 'constructor', null, null);
     this.list_ = /** @type {IArrayLike} */ (list);
   } else if (list instanceof ee.ComputedObject) {
-    goog.base(this, list.func, list.args, list.varName);
+    ee.List.base(this, 'constructor', list.func, list.args, list.varName);
     this.list_ = null;
   } else {
     throw Error('Invalid argument specified for ee.List(): ' + list);
@@ -85,7 +85,7 @@ ee.List.prototype.encode = function(opt_encoder) {
       return opt_encoder(elem);
     });
   } else {
-    return goog.base(this, 'encode', opt_encoder);
+    return ee.List.base(this, 'encode', opt_encoder);
   }
 };
 

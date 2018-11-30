@@ -39,7 +39,7 @@ goog.forwardDeclare('ee.data.Profiler');
  * @ignore
  */
 ee.layers.AbstractOverlay = function(tileSource, opt_options) {
-  goog.base(this);
+  ee.layers.AbstractOverlay.base(this, 'constructor');
 
   // Public options required by the Maps API.
 
@@ -291,7 +291,7 @@ ee.layers.AbstractOverlay.prototype.getUniqueTileId_ = function(coord, z) {
 
 /** @override */
 ee.layers.AbstractOverlay.prototype.disposeInternal = function() {
-  goog.base(this, 'disposeInternal');
+  ee.layers.AbstractOverlay.base(this, 'disposeInternal');
   this.tilesById.forEach(goog.dispose);
   this.tilesById.clear();
   this.tilesById = null;
@@ -393,7 +393,7 @@ goog.inherits(ee.layers.TileFailEvent, goog.events.Event);
  * @ignore
  */
 ee.layers.AbstractTile = function(coord, zoom, ownerDocument, uniqueId) {
-  goog.base(this);
+  ee.layers.AbstractTile.base(this, 'constructor');
 
   /** @package @const {!google.maps.Point} The position of the tile. */
   this.coord = coord;
@@ -634,7 +634,7 @@ ee.layers.AbstractTile.DONE_STATUS_SET_ = goog.object.createSet(
 
 /** @override */
 ee.layers.AbstractTile.prototype.disposeInternal = function() {
-  goog.base(this, 'disposeInternal');
+  ee.layers.AbstractTile.base(this, 'disposeInternal');
   this.cancelLoad();
   this.div.remove();
   this.renderer = null;

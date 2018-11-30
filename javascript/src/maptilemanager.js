@@ -53,7 +53,7 @@ goog.require('goog.structs.PriorityPool');
  * @export
  */
 ee.MapTileManager = function() {
-  goog.base(this);
+  ee.MapTileManager.base(this, 'constructor');
 
   /**
    * The pool of tokens.
@@ -699,7 +699,7 @@ ee.MapTileManager.TokenPool_.prototype.createObject = function() {
 /**
  * Should be overridden to dispose of an object, default implementation is to
  * remove all its members which should render it useless.
- * @param {?Object} obj The object to dispose of.
+ * @param {!ee.MapTileManager.Token_} obj The object to dispose of.
  * @override
  */
 ee.MapTileManager.TokenPool_.prototype.disposeObject = function(obj) {

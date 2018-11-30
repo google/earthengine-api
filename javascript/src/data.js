@@ -900,8 +900,8 @@ ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
     let nextPageToken = '';
     while (true) {
       const params = buildParams(nextPageToken);
-      const resp =
-          ee.data.send_(url, ee.data.makeRequest_(params), undefined, 'GET');
+      const resp = /** @type {?ee.data.TaskListResponse} */ (
+          ee.data.send_(url, ee.data.makeRequest_(params), undefined, 'GET'));
       goog.array.extend(taskListResponse.tasks, resp.tasks);
       nextPageToken = resp.next_page_token;
 
@@ -3052,7 +3052,7 @@ ee.data.ensureAuthLibLoaded_ = function(callback) {
 ee.data.handleAuthResult_ = function(success, error, result) {
   if (result.access_token) {
     var token = result.token_type + ' ' + result.access_token;
-    if (isFinite(result.expires_in)) {
+    if (result.expires_in || result.expires_in === 0) {
       // Conservatively consider tokens expired slightly before actual expiry.
       var expiresInMs = result.expires_in * 1000 * 0.9;
 
@@ -3152,9 +3152,10 @@ ee.data.setupMockSend = function(opt_calls) {
     var responseData = getResponse(url, method, data);
     // An anonymous class to simulate an event.  Closure doesn't like this.
     /** @constructor */
-    var fakeEvent = function() {};
+    var fakeEvent = function() {
+      /** @type {!goog.net.XhrIo} */ this.target = /** @type {?} */({});
+    };
     var e = new fakeEvent();
-    e.target = {};
     e.target.getResponseText = function() {
       return responseData.text;
     };
@@ -3177,7 +3178,13 @@ ee.data.setupMockSend = function(opt_calls) {
 
   // Mock goog.net.XmlHttp for sync calls.
   /** @constructor */
-  var fakeXmlHttp = function() {};
+  var fakeXmlHttp = function() {
+    /** @type {string} */ this.url;
+    /** @type {string} */ this.method;
+    /** @type {string} */ this.contentType_;
+    /** @type {string} */ this.responseText;
+    /** @type {number} */ this.status;
+  };
   fakeXmlHttp.prototype.open = function(method, urlIn) {
     apiBaseUrl = apiBaseUrl || ee.data.apiBaseUrl_;
     this.url = urlIn;

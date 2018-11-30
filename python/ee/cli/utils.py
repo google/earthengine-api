@@ -33,6 +33,8 @@ CONFIG_PARAMS = {
     'account': None,
     'private_key': None,
     'refresh_token': None,
+    'use_cloud_api': False,
+    'cloud_api_key': None,
 }
 
 TASK_FINISHED_STATES = (ee.batch.Task.State.COMPLETED,
@@ -88,8 +90,9 @@ class CommandLineConfig(object):
 
     ee.Initialize(
         credentials=credentials,
-        opt_url=self.url
-    )
+        opt_url=self.url,
+        use_cloud_api=self.use_cloud_api,
+        cloud_api_key=self.cloud_api_key)
 
   def save(self):
     config = {}

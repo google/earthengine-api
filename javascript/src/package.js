@@ -145,7 +145,7 @@ ee.Package.save = function(pkg, path) {
     if (pkg.hasOwnProperty(name)) {
       var member = pkg[name];
       if (member instanceof Function) {
-        if (member.isSaved) {
+        if (member['isSaved']) {
           var expected = path + '/' + name;
           // Skip functions that have already been converted in the
           // case of adding functions to an existing package.
@@ -160,7 +160,7 @@ ee.Package.save = function(pkg, path) {
             // Save the existing function and replace it with a SavedFunction.
             original[name] = member;
             pkg[name] =
-                ee.Package.makeInvocation_(path, name, member.signature);
+                ee.Package.makeInvocation_(path, name, member['signature']);
           } else {
             throw Error('No signature for function: ' + name);
           }
@@ -332,6 +332,6 @@ ee.Package.makeInvocation_ = function(path, name, signature) {
   fn.toString = function() {
     return signature['returns'] + ' ' + savedFunction.toString(name);
   };
-  fn.isSaved = true;
+  fn['isSaved'] = true;
   return fn;
 };

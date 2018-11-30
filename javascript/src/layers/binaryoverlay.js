@@ -21,7 +21,7 @@ goog.require('goog.structs.Map');
  * @ignore
  */
 ee.layers.BinaryOverlay = function(tileSource, opt_options) {
-  goog.base(this, tileSource, opt_options);
+  ee.layers.BinaryOverlay.base(this, 'constructor', tileSource, opt_options);
 
   /**
    * The set of loaded floating point buffers. The keys are the coordinates
@@ -80,7 +80,7 @@ ee.layers.BinaryOverlay.prototype.getDivsByCoord = function() {
 
 /** @override */
 ee.layers.BinaryOverlay.prototype.disposeInternal = function() {
-  goog.base(this, 'disposeInternal');
+  ee.layers.BinaryOverlay.base(this, 'disposeInternal');
   this.buffersByCoord_ = null;
   this.divsByCoord_ = null;
 };
@@ -99,7 +99,7 @@ ee.layers.BinaryOverlay.prototype.disposeInternal = function() {
  * @ignore
  */
 ee.layers.BinaryTile = function(coord, zoom, ownerDocument, uniqueId) {
-  goog.base(this, coord, zoom, ownerDocument, uniqueId);
+  ee.layers.BinaryTile.base(this, 'constructor', coord, zoom, ownerDocument, uniqueId);
 
   /** @private {!Float32Array} The binary buffer data for this tile. */
   this.buffer_;
@@ -112,7 +112,7 @@ ee.layers.BinaryTile.prototype.finishLoad = function() {
   var reader = new goog.fs.FileReader();
   reader.listen(goog.fs.FileReader.EventType.LOAD_END, function() {
     this.buffer_ = /** @type {!Float32Array} */ (reader.getResult());
-    // Note: We cannot use goog.base() here because this happens inside
+    // Note: We cannot use .base() here because this happens inside
     // a callback rather than directly in the overridden method.
     ee.layers.AbstractTile.prototype.finishLoad.call(this);
   }, undefined, this);

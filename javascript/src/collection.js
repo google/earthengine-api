@@ -22,7 +22,7 @@ goog.require('ee.arguments');
  * @extends {ee.Element}
  */
 ee.Collection = function(func, args, opt_varName) {
-  goog.base(this, func, args, opt_varName);
+  ee.Collection.base(this, 'constructor', func, args, opt_varName);
   ee.Collection.initialize();
 };
 goog.inherits(ee.Collection, ee.Element);

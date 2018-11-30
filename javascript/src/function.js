@@ -68,7 +68,7 @@ ee.Function.prototype.getSignature = goog.abstractMethod;
  * Call the function with the given positional arguments.
  *
  * @param {...*} var_args Positional arguments to pass to the function.
- * @return {ee.ComputedObject} An object representing the called function.
+ * @return {!ee.ComputedObject} An object representing the called function.
  *     If the signature specifies a recognized return type, the returned
  *     value will be cast to that type.
  * @export
@@ -82,14 +82,14 @@ ee.Function.prototype.call = function(var_args) {
  * Call the function with a dictionary of named arguments.
  *
  * @param {Object} namedArgs A dictionary of arguments to the function.
- * @return {ee.ComputedObject} An object representing the lazy result of
+ * @return {!ee.ComputedObject} An object representing the lazy result of
  *     the called function. If the signature specifies a recognized return
  *     type, the returned value will be cast to that type.
  * @export
  */
 ee.Function.prototype.apply = function(namedArgs) {
   var result = new ee.ComputedObject(this, this.promoteArgs(namedArgs));
-  return /** @type {ee.ComputedObject} */(
+  return /** @type {!ee.ComputedObject} */(
       ee.Function.promoter_(result, this.getReturnType()));
 };
 
@@ -102,7 +102,7 @@ ee.Function.prototype.apply = function(namedArgs) {
  *     called. If defined, interpreted as the first argument.
  * @param {Array<*>} args A list containing either positional args or a
  *    keyword arg dictionary.
- * @return {ee.ComputedObject} An object representing the called function.
+ * @return {!ee.ComputedObject} An object representing the called function.
  *     If the signature specifies a recognized return type, the returned
  *     value will be cast to that type.
  * @package

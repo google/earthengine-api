@@ -21,9 +21,6 @@ goog.require('goog.array');
 goog.require('goog.json.Serializer');
 goog.require('goog.object');
 
-goog.forwardDeclare('ee.ErrorMargin');
-goog.forwardDeclare('ee.Projection');
-
 
 
 /**
@@ -90,7 +87,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
           'Setting the CRS, geodesic, or evenOdd flag on a computed Geometry ' +
           'is not supported.  Use Geometry.transform().');
     } else {
-      goog.base(this, geoJson.func, geoJson.args, geoJson.varName);
+      ee.Geometry.base(this, 'constructor', geoJson.func, geoJson.args, geoJson.varName);
       return;
     }
   }
@@ -104,7 +101,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
     throw Error('Invalid GeoJSON geometry: ' + JSON.stringify(geoJson));
   }
 
-  goog.base(this, null, null);
+  ee.Geometry.base(this, 'constructor', null, null);
 
   /**
    * The type of the geometry.
@@ -235,7 +232,7 @@ ee.Geometry.Point = function(coords, opt_proj) {
       throw Error('The Geometry.Point constructor requires 2 coordinates.');
     }
   }
-  goog.base(this, init);
+  ee.Geometry.Point.base(this, 'constructor', init);
 };
 goog.inherits(ee.Geometry.Point, ee.Geometry);
 
@@ -265,7 +262,7 @@ ee.Geometry.MultiPoint = function(coords, opt_proj) {
   if (!(this instanceof ee.Geometry.MultiPoint)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiPoint, arguments);
   }
-  goog.base(this, ee.Geometry.construct_(
+  ee.Geometry.MultiPoint.base(this, 'constructor', ee.Geometry.construct_(
       ee.Geometry.MultiPoint, 'MultiPoint', 2, arguments));
 };
 goog.inherits(ee.Geometry.MultiPoint, ee.Geometry);
@@ -323,7 +320,7 @@ ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_evenOdd) {
     init['coordinates'] = [[[x1, y2], [x1, y1], [x2, y1], [x2, y2]]];
     init['type'] = 'Polygon';
   }
-  goog.base(this, init);
+  ee.Geometry.Rectangle.base(this, 'constructor', init);
 };
 goog.inherits(ee.Geometry.Rectangle, ee.Geometry);
 
@@ -362,7 +359,7 @@ ee.Geometry.LineString = function(
   if (!(this instanceof ee.Geometry.LineString)) {
     return ee.Geometry.createInstance_(ee.Geometry.LineString, arguments);
   }
-  goog.base(this, ee.Geometry.construct_(
+  ee.Geometry.LineString.base(this, 'constructor', ee.Geometry.construct_(
       ee.Geometry.LineString, 'LineString', 2, arguments));
 };
 goog.inherits(ee.Geometry.LineString, ee.Geometry);
@@ -404,7 +401,7 @@ ee.Geometry.LinearRing = function(
   if (!(this instanceof ee.Geometry.LinearRing)) {
     return ee.Geometry.createInstance_(ee.Geometry.LinearRing, arguments);
   }
-  goog.base(this, ee.Geometry.construct_(
+  ee.Geometry.LinearRing.base(this, 'constructor', ee.Geometry.construct_(
       ee.Geometry.LinearRing, 'LinearRing', 2, arguments));
 };
 goog.inherits(ee.Geometry.LinearRing, ee.Geometry);
@@ -444,7 +441,7 @@ ee.Geometry.MultiLineString = function(
   if (!(this instanceof ee.Geometry.MultiLineString)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiLineString, arguments);
   }
-  goog.base(this, ee.Geometry.construct_(
+  ee.Geometry.MultiLineString.base(this, 'constructor', ee.Geometry.construct_(
       ee.Geometry.MultiLineString, 'MultiLineString', 3, arguments));
 };
 goog.inherits(ee.Geometry.MultiLineString, ee.Geometry);
@@ -491,7 +488,7 @@ ee.Geometry.Polygon = function(
   if (!(this instanceof ee.Geometry.Polygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.Polygon, arguments);
   }
-  goog.base(this, ee.Geometry.construct_(
+  ee.Geometry.Polygon.base(this, 'constructor', ee.Geometry.construct_(
       ee.Geometry.Polygon, 'Polygon', 3, arguments));
 };
 goog.inherits(ee.Geometry.Polygon, ee.Geometry);
@@ -537,7 +534,7 @@ ee.Geometry.MultiPolygon = function(
   if (!(this instanceof ee.Geometry.MultiPolygon)) {
     return ee.Geometry.createInstance_(ee.Geometry.MultiPolygon, arguments);
   }
-  goog.base(this, ee.Geometry.construct_(
+  ee.Geometry.MultiPolygon.base(this, 'constructor', ee.Geometry.construct_(
       ee.Geometry.MultiPolygon, 'MultiPolygon', 4, arguments));
 };
 goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);

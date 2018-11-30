@@ -27,7 +27,7 @@ goog.forwardDeclare('ee.data.Profiler');
  * @ignore
  */
 ee.layers.ImageOverlay = function(tileSource, opt_options) {
-  goog.base(this, tileSource, opt_options);
+  ee.layers.ImageOverlay.base(this, 'constructor', tileSource, opt_options);
 };
 goog.inherits(ee.layers.ImageOverlay, ee.layers.AbstractOverlay);
 
@@ -52,7 +52,7 @@ ee.layers.ImageOverlay.prototype.createTile = function(
  * @ignore
  */
 ee.layers.ImageTile = function(coord, zoom, ownerDocument, uniqueId) {
-  goog.base(this, coord, zoom, ownerDocument, uniqueId);
+  ee.layers.ImageTile.base(this, 'constructor', coord, zoom, ownerDocument, uniqueId);
 
   /**
    * The default image tile renderer.
@@ -106,7 +106,7 @@ ee.layers.ImageTile.prototype.finishLoad = function() {
       function(event) {
         if (event.type == goog.events.EventType.LOAD) {
           this.imageEl = event.target;
-          // Note: We cannot use goog.base() here because this happens inside
+          // Note: We cannot use .base() here because this happens inside
           // a callback rather than directly in the overridden method.
           ee.layers.AbstractTile.prototype.finishLoad.call(this);
         } else {
@@ -121,7 +121,7 @@ ee.layers.ImageTile.prototype.finishLoad = function() {
 
 /** @override */
 ee.layers.ImageTile.prototype.cancelLoad = function() {
-  goog.base(this, 'cancelLoad');
+  ee.layers.ImageTile.base(this, 'cancelLoad');
   if (this.imageLoader_) {
     goog.events.unlistenByKey(this.imageLoaderListenerKey_);
     goog.dispose(this.imageLoader_);
@@ -131,7 +131,7 @@ ee.layers.ImageTile.prototype.cancelLoad = function() {
 
 /** @override */
 ee.layers.ImageTile.prototype.disposeInternal = function() {
-  goog.base(this, 'disposeInternal');
+  ee.layers.ImageTile.base(this, 'disposeInternal');
   if (this.objectUrl_) {
     // See notes section of
     // https://developer.mozilla.org/en-US/docs/Web/API/URL/createObjectURL

@@ -21,7 +21,7 @@ goog.require('goog.structs.PriorityPool');
  * @ignore
  */
 ee.layers.EarthEngineTileSource = function(url, mapId, token, opt_profiler) {
-  goog.base(this);
+  ee.layers.EarthEngineTileSource.base(this, 'constructor');
 
   /** @const @private {string} The EE url for fetching this layer's tiles. */
   this.url_ = url;

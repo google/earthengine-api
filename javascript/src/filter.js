@@ -11,11 +11,13 @@ goog.provide('ee.Filter');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
+goog.require('ee.Geometry');
 goog.require('ee.arguments');
 goog.require('goog.array');
 goog.require('goog.string');
 
 
+goog.forwardDeclare('ee.FeatureCollection');
 
 /**
  * Constructs a new filter. This constructor accepts the following args:
@@ -56,20 +58,20 @@ ee.Filter = function(opt_filter) {
       return new ee.Filter(opt_filter[0]);
     } else {
       // AND filters together.
-      goog.base(this, new ee.ApiFunction('Filter.and'), {
+      ee.Filter.base(this, 'constructor', new ee.ApiFunction('Filter.and'), {
         'filters': opt_filter
       });
       this.filter_ = opt_filter;
     }
   } else if (opt_filter instanceof ee.ComputedObject) {
     // Actual filter object.
-    goog.base(this, opt_filter.func, opt_filter.args, opt_filter.varName);
+    ee.Filter.base(this, 'constructor', opt_filter.func, opt_filter.args, opt_filter.varName);
     this.filter_ = [opt_filter];
   } else if (!goog.isDef(opt_filter)) {
     // A silly call with no arguments left for backward-compatibility.
     // Encoding such a filter is expected to fail, but it can be composed
     // by calling the various methods that end up in append_().
-    goog.base(this, null, null);
+    ee.Filter.base(this, 'constructor', null, null);
     this.filter_ = [];
   } else {
     throw Error('Invalid argument specified for ee.Filter(): ' + opt_filter);
