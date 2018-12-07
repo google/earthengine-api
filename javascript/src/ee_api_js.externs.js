@@ -796,9 +796,10 @@ ee.batch.Export.map;
  * @param {number=} opt_minZoom
  * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
  * @param {boolean=} opt_skipEmptyTiles
+ * @param {string=} opt_mapsApiKey
  * @return {!ee.batch.ExportTask}
  */
-ee.batch.Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles) {
+ee.batch.Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles, opt_mapsApiKey) {
 };
 ee.batch.Export.table;
 /**
@@ -1188,6 +1189,12 @@ ee.data.setAuthToken = function(clientId, tokenType, accessToken, expiresIn, opt
  * @return {undefined}
  */
 ee.data.setAuthTokenRefresher = function(refresher) {
+};
+/**
+ * @param {boolean} enable
+ * @return {undefined}
+ */
+ee.data.setCloudApiEnabled = function(enable) {
 };
 /**
  * @param {number} milliseconds

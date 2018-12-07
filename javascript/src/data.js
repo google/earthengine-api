@@ -257,7 +257,6 @@ ee.data.authenticateViaPrivateKey = function(
 };
 
 
-
 /**
  * Configures client-side authentication of EE API calls by providing a
  * current OAuth2 token to use. This is a replacement for expected
@@ -2303,6 +2302,7 @@ ee.data.ImageExportFormatConfig;
  *   writePublicTiles: (undefined|boolean),
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
+ *   mapsApiKey: (undefined|string),
  *   generateEarthHtml: (undefined|boolean)
  * }}
  */
@@ -2950,12 +2950,15 @@ ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
  *     request was created.
  * @param {function(?,string=)=} opt_callback An optional callback to execute if
  *     the request is asynchronous.
+ * @param {function(*):!Object=} opt_getData A function to extract the
+ *     data payload from the response.  Defaults to using the 'data' field.
  * @return {Object} The response data, if the request is synchronous, otherwise
  *     null, if the request is asynchronous.
  * @private
  */
 ee.data.handleResponse_ = function(
-    status, getResponseHeader, responseText, profileHook, opt_callback) {
+    status, getResponseHeader, responseText, profileHook, opt_callback,
+    opt_getData = (response) => response['data']) {
   var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
   if (profileId && profileHook) {
     profileHook(profileId);
@@ -2968,7 +2971,7 @@ ee.data.handleResponse_ = function(
   if (contentType == 'application/json' || contentType == 'text/json') {
     try {
       response = JSON.parse(responseText);
-      data = response['data'];
+      data = opt_getData(response);
     } catch (e) {
       errorMessage = 'Invalid JSON: ' + responseText;
     }
@@ -2981,7 +2984,7 @@ ee.data.handleResponse_ = function(
   if (goog.isObject(response)) {
     if ('error' in response && 'message' in response['error']) {
       errorMessage = response['error']['message'];
-    } else if (!('data' in response)) {
+    } else if (data === undefined) {
       errorMessage = 'Malformed response: ' + responseText;
     }
   } else if (status === 0) {

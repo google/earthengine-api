@@ -411,7 +411,8 @@ class Export(object):
     def toCloudStorage(image, description='myExportMapTask', bucket=None,
                        fileFormat=None, path=None, writePublicTiles=None,
                        maxZoom=None, scale=None, minZoom=None,
-                       region=None, skipEmptyTiles=None, **kwargs):
+                       region=None, skipEmptyTiles=None, mapsApiKey=None,
+                       **kwargs):
       """Creates a task to export an Image as a pyramid of map tiles.
 
       Exports a rectangular pyramid of map tiles for use with web map
@@ -444,6 +445,8 @@ class Export(object):
             Defaults to the image's region.
         skipEmptyTiles: If true, skip writing empty (i.e. fully-transparent)
             map tiles. Defaults to false.
+        mapsApiKey: Used in index.html to initialize the Google Maps API. This
+            removes the "development purposes only" message from the map.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 

@@ -50,6 +50,10 @@ def main():
   parser.add_argument(
       '--service_account_file', help='Path to a service account credentials'
       'file.  Overrides any ee_config if specified.')
+  parser.add_argument(
+      '--use_cloud_api', help='Experimental: whether to use new EE Cloud API. '
+      'Not for broad use yet, as many calls have not been ported.',
+      action='store_true')
 
   dispatcher = CommandDispatcher(parser)
 
@@ -59,7 +63,8 @@ def main():
     return
 
   args = parser.parse_args()
-  config = utils.CommandLineConfig(args.ee_config, args.service_account_file)
+  config = utils.CommandLineConfig(
+      args.ee_config, args.service_account_file, args.use_cloud_api)
 
   # Catch EEException errors, which wrap server-side Earth Engine
   # errors, and print the error message without the irrelevant local

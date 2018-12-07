@@ -1000,10 +1000,9 @@ class UploadImageCommand(object):
         'src_files',
         help=('Cloud Storage URL(s) of the file(s) to upload. '
         'Must have the prefix \'gs://\'.'),
-        nargs='+')
+        nargs='*')
     parser.add_argument(
         '--asset_id',
-        required=True,
         help='Destination asset ID for the uploaded file.')
     parser.add_argument(
         '--last_band_alpha',
@@ -1028,6 +1027,10 @@ class UploadImageCommand(object):
         help='The coordinate reference system, to override the map projection '
              'of the image. May be either a well-known authority code (e.g. '
              'EPSG:4326) or a WKT string.')
+    parser.add_argument(
+        '--manifest',
+        help='Local path to a JSON asset manifest file. No other flags are '
+        'used if this flag is set.')
     _add_property_flags(parser)
 
   def _check_num_bands(self, bands, num_bands, flag_name):
@@ -1043,15 +1046,30 @@ class UploadImageCommand(object):
 
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
-    _check_valid_files(args.src_files)
     config.ee_init()
+    manifest = self.manifest_from_args(args, config)
+    _upload(args, manifest, ee.data.startIngestion)
 
+  def manifest_from_args(self, args, config):
+    """Constructs an upload manifest from the command-line flags."""
+
+    if args.manifest:
+      with open(args.manifest) as fh:
+        return json.loads(fh.read())
+
+    if not args.asset_id:
+      raise ValueError('Flag --asset_id must be set.')
+
+    _check_valid_files(args.src_files)
     if args.last_band_alpha and args.nodata_value:
       raise ValueError(
           'last_band_alpha and nodata_value are mutually exclusive.')
 
     properties = _decode_property_flags(args)
     source_files = utils.expand_gcs_wildcards(args.src_files)
+    if not source_files:
+      raise ValueError('At least one file must be specified.')
+
     bands = args.bands
     if args.pyramiding_policy and len(args.pyramiding_policy) != 1:
       bands = self._check_num_bands(bands, len(args.pyramiding_policy),
@@ -1066,7 +1084,7 @@ class UploadImageCommand(object):
           'id': 'ts',
           'sources': [{'uris': [source]} for source in source_files]
       }
-      request = {
+      manifest = {
           'name': args.asset_id,
           'properties': properties,
           'tilesets': [tileset]
@@ -1080,27 +1098,29 @@ class UploadImageCommand(object):
               'tilesetId': tileset['id'],
               'tilesetBandIndex': i
           })
-        request['bands'] = file_bands
+        manifest['bands'] = file_bands
 
       if args.pyramiding_policy:
         if len(args.pyramiding_policy) == 1:
-          request['pyramidingPolicy'] = args.pyramiding_policy[0]
+          manifest['pyramidingPolicy'] = args.pyramiding_policy[0]
         else:
           for index, policy in enumerate(args.pyramiding_policy):
             file_bands[index]['pyramidingPolicy'] = policy
 
       if args.nodata_value:
         if len(args.nodata_value) == 1:
-          request['missingData'] = {'values': [args.nodata_value[0]]}
+          manifest['missingData'] = {'values': [args.nodata_value[0]]}
         else:
           for index, value in enumerate(args.nodata_value):
             file_bands[index]['missingData'] = {'values': [value]}
 
       if args.last_band_alpha:
-        request['maskBands'] = {'tilesetId': tileset['id']}
-      _upload(args, request, ee.data.startIngestion)
-      return
-    request = {
+        manifest['maskBands'] = {'tilesetId': tileset['id']}
+
+      return manifest
+
+    # non-cloud API section
+    manifest = {
         'id': args.asset_id,
         'properties': properties
     }
@@ -1109,29 +1129,29 @@ class UploadImageCommand(object):
     tileset = {'sources': sources}
     if args.last_band_alpha:
       tileset['fileBands'] = [{'fileBandIndex': -1, 'maskForAllBands': True}]
-    request['tilesets'] = [tileset]
+    manifest['tilesets'] = [tileset]
 
     if bands:
-      request['bands'] = [{'id': name} for name in bands]
+      manifest['bands'] = [{'id': name} for name in bands]
 
     if args.pyramiding_policy:
       if len(args.pyramiding_policy) == 1:
-        request['pyramidingPolicy'] = args.pyramiding_policy[0]
+        manifest['pyramidingPolicy'] = args.pyramiding_policy[0]
       else:
         for index, policy in enumerate(args.pyramiding_policy):
-          request['bands'][index]['pyramidingPolicy'] = policy
+          manifest['bands'][index]['pyramidingPolicy'] = policy
 
     if args.nodata_value:
       if len(args.nodata_value) == 1:
-        request['missingData'] = {'value': args.nodata_value[0]}
+        manifest['missingData'] = {'value': args.nodata_value[0]}
       else:
         for index, nodata in enumerate(args.nodata_value):
-          request['bands'][index]['missingData'] = {'value': nodata}
+          manifest['bands'][index]['missingData'] = {'value': nodata}
 
     if args.crs:
-      request['crs'] = args.crs
+      manifest['crs'] = args.crs
 
-    _upload(args, request, ee.data.startIngestion)
+    return manifest
 
 
 # TODO(user): update src_files help string when secondary files
@@ -1150,10 +1170,9 @@ class UploadTableCommand(object):
         'to upload. Must have the prefix \'gs://\'. For .shp '
         'files, related .dbf, .shx, and .prj files must be '
         'present in the same location.'),
-        nargs=1)
+        nargs='*')
     parser.add_argument(
         '--asset_id',
-        required=True,
         help='Destination asset ID for the uploaded file.')
     _add_property_flags(parser)
     parser.add_argument(
@@ -1170,11 +1189,89 @@ class UploadTableCommand(object):
         '--max_failed_features',
         help='The maximum number of failed features to allow during ingestion.',
         type=int, nargs='?')
+    parser.add_argument(
+        '--crs',
+        help='The default CRS code or WKT string specifying the coordinate '
+             'reference system of any geometry without one. If unspecified, '
+             'the default will be EPSG:4326 (https://epsg.io/4326). For '
+             'CSV/TFRecord only.')
+    parser.add_argument(
+        '--geodesic',
+        help='The default strategy for interpreting edges in geometries that '
+             'do not have one specified. If false, edges are '
+             'straight in the projection. If true, edges are curved to follow '
+             'the shortest path on the surface of the Earth. When '
+             'unspecified, defaults to false if \'crs\' is a projected '
+             'coordinate system. For CSV/TFRecord only.',
+        action='store_true')
+    parser.add_argument(
+        '--primary_geometry_column',
+        help='The geometry column to use as a row\'s primary geometry when '
+             'there is more than one geometry column. If unspecified and more '
+             'than one geometry column exists, the first geometry column '
+             'is used. For CSV/TFRecord only.')
+    parser.add_argument(
+        '--x_column',
+        help='The name of the numeric x coordinate column for constructing '
+             'point gemometries. If the y_column is also specified, and both '
+             'columns contain numerical values, then a point geometry column '
+             'will be constructed with x,y values in the coordinate system '
+             'given in \'--crs\'. If unspecified and \'--crs\' does _not_ '
+             'specify a projected coordinate system, defaults to "longitude". '
+             'If unspecified and \'--crs\' _does_ specify a projected '
+             'coordinate system, defaults to "" and no point geometry is '
+             'generated. A generated point geometry column will be named '
+             '{x_column}_{y_column}_N where N might be appended to '
+             'disambiguate the column name. For CSV/TFRecord only.')
+    parser.add_argument(
+        '--y_column',
+        help='The name of the numeric y coordinate column for constructing '
+             'point gemometries. If the x_column is also specified, and both '
+             'columns contain numerical values, then a point geometry column '
+             'will be constructed with x,y values in the coordinate system '
+             'given in \'--crs\'. If unspecified and \'--crs\' does _not_ '
+             'specify a projected coordinate system, defaults to "latitude". '
+             'If unspecified and \'--crs\' _does_ specify a projected '
+             'coordinate system, defaults to "" and no point geometry is '
+             'generated. A generated point geometry column will be named '
+             '{x_column}_{y_column}_N where N might be appended to '
+             'disambiguate the column name. For CSV/TFRecord only.')
+    parser.add_argument(
+        '--date_format',
+        help='A format used to parse dates. The format pattern must follow '
+             'http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html. '
+             'If unspecified, dates will be imported as strings. For '
+             'CSV/TFRecord only.')
+    parser.add_argument(
+        '--csv_delimiter',
+        help='A single character used as a delimiter between column values '
+             'in a row. If unspecified, defaults to \',\'. For CSV only.')
+    parser.add_argument(
+        '--csv_qualifier',
+        help='A character that surrounds column values (a.k.a. '
+             '\"quote character"). If unspecified, defaults to \'\"\'.')
+    parser.add_argument(
+        '--manifest',
+        help='Local path to a JSON asset manifest file. No other flags are '
+        'used if this flag is set.')
 
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
-    _check_valid_files(args.src_file)
     config.ee_init()
+    manifest = self.manifest_from_args(args, config)
+    _upload(args, manifest, ee.data.startTableIngestion)
+
+  def manifest_from_args(self, args, config):
+    """Constructs an upload manifest from the command-line flags."""
+
+    if args.manifest:
+      with open(args.manifest) as fh:
+        return json.loads(fh.read())
+
+    if not args.asset_id:
+      raise ValueError('Flag --asset_id must be set.')
+
+    _check_valid_files(args.src_file)
     source_files = list(utils.expand_gcs_wildcards(args.src_file))
     if len(source_files) != 1:
       raise ValueError('Exactly one file must be specified.')
@@ -1190,14 +1287,13 @@ class UploadTableCommand(object):
       if args.max_failed_features:
         raise ee.EEException(
             '--max_failed_features is not supported with the Cloud API')
-      request = {
+      return {
           'name': args.asset_id,
           'sources': [source],
           'properties': properties
       }
-      _upload(args, request, ee.data.startTableIngestion)
-      return
 
+    # non-cloud API section
     source = {'primaryPath': source_files[0]}
     if args.max_error:
       source['max_error'] = args.max_error
@@ -1205,11 +1301,27 @@ class UploadTableCommand(object):
       source['max_vertices'] = args.max_vertices
     if args.max_failed_features:
       source['max_failed_features'] = args.max_failed_features
-    request = {
+    if args.crs:
+      source['crs'] = args.crs
+    if args.geodesic:
+      source['geodesic'] = args.geodesic
+    if args.primary_geometry_column:
+      source['primary_geometry_column'] = args.primary_geometry_column
+    if args.x_column:
+      source['x_column'] = args.x_column
+    if args.y_column:
+      source['y_column'] = args.y_column
+    if args.date_format:
+      source['date_format'] = args.date_format
+    if args.csv_delimiter:
+      source['csv_delimiter'] = args.csv_delimiter
+    if args.csv_qualifier:
+      source['csv_qualifier'] = args.csv_qualifier
+
+    return {
         'id': args.asset_id,
         'sources': [source]
     }
-    _upload(args, request, ee.data.startTableIngestion)
 
 
 class UploadCommand(Dispatcher):
@@ -1249,6 +1361,10 @@ class UploadImageManifestCommand(_UploadManifestBase):
 
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
+    print (
+        'This command is deprecated. '
+        'Use "earthengine upload image --manifest".'
+    )
     super(UploadImageManifestCommand, self).run(
         args, config, ee.data.startIngestion)
 
@@ -1259,6 +1375,10 @@ class UploadTableManifestCommand(_UploadManifestBase):
   name = 'upload_table_manifest'
 
   def run(self, args, config):
+    print (
+        'This command is deprecated. '
+        'Use "earthengine upload table --manifest".'
+    )
     super(UploadTableManifestCommand, self).run(
         args, config, ee.data.startTableIngestion)
 

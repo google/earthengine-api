@@ -55,7 +55,8 @@ class CommandLineConfig(object):
   If --service_account_file is specified, it is used instead.
   """
 
-  def __init__(self, config_file=None, service_account_file=None):
+  def __init__(
+      self, config_file=None, service_account_file=None, use_cloud_api=False):
     if not config_file:
       config_file = os.environ.get(EE_CONFIG_FILE, DEFAULT_EE_CONFIG_FILE)
     self.config_file = config_file
@@ -63,6 +64,7 @@ class CommandLineConfig(object):
     if os.path.exists(config_file):
       with open(config_file) as config_file_json:
         config = json.load(config_file_json)
+    CONFIG_PARAMS['use_cloud_api'] = use_cloud_api
     for key, default_value in CONFIG_PARAMS.items():
       setattr(self, key, config.get(key, default_value))
     self.service_account_file = service_account_file
@@ -265,6 +267,9 @@ def _gcs_ls(bucket, prefix=''):
       raise ee.ee_exception.EEException('Error retrieving bucket %s: %s' %
                                         (bucket, json_error))
 
+    if 'items' not in json_content:
+      raise ee.ee_exception.EEException(
+          'Cannot find items list in the response from GCS: %s' % json_content)
     objects = json_content['items']
     object_names = [str(gc_object['name']) for gc_object in objects]
 
