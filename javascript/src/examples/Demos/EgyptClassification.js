@@ -57,7 +57,7 @@ var training = modisLandcover.addBands(landsatComposite).sample({
 });
 
 // Train a classifier using the training data.
-var classifier = ee.Classifier.naiveBayes().train({
+var classifier = ee.Classifier.cart().train({
   features: training,
   classProperty: 'Land_Cover_Type_1',
 });

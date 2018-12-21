@@ -142,6 +142,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
         },
         dummy_encoder(expression_func))
 
+
   def testDownload(self):
     """Verifies Download ID and URL generation."""
     url = ee.Image(1).getDownloadURL()
