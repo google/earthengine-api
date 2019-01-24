@@ -1,4 +1,4 @@
-const hexGrid = require('@turf/hex-grid');
+const hexGrid = require('@turf/hex-grid').default;
 const ee = require('@google/earthengine');
 
 const PRIVATE_KEY = require('./privatekey.json');

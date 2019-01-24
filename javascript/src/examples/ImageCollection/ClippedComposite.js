@@ -7,11 +7,11 @@ var collection = ee.ImageCollection('LANDSAT/LE07/C01/T1')
 // Reduce the collection by taking the median.
 var median = collection.median();
 
-// Load a Fusion Table of state boundaries and filter.
-var fc = ee.FeatureCollection('ft:1fRY18cjsHzDgGiJiS2nnpUU3v9JPDc2HNaR7Xk8')
+// Load a table of state boundaries and filter.
+var fc = ee.FeatureCollection('TIGER/2016/States')
     .filter(ee.Filter.or(
-         ee.Filter.eq('Name', 'Nevada'),
-         ee.Filter.eq('Name', 'Arizona')));
+        ee.Filter.eq('NAME', 'Nevada'),
+        ee.Filter.eq('NAME', 'Arizona')));
 
 // Clip to the output image to the Nevada and Arizona state boundaries.
 var clipped = median.clipToCollection(fc);

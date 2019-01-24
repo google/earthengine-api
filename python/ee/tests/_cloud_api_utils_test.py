@@ -121,6 +121,12 @@ class CloudApiUtilsTest(unittest.TestCase):
         _cloud_api_utils.convert_asset_id_to_asset_name(
             'projects/foobar/assets/baz'))
 
+  def test_split_asset_name(self):
+    parent, asset_id = _cloud_api_utils.split_asset_name(
+        'projects/earthengine-legacy/assets/users/path/to/asset')
+    self.assertEqual('projects/earthengine-legacy', parent)
+    self.assertEqual('users/path/to/asset', asset_id)
+
   def test_convert_operation_name_to_task_id(self):
     self.assertEqual(
         'taskId',
@@ -217,12 +223,29 @@ class CloudApiUtilsTest(unittest.TestCase):
         }
     }, result)
 
-  def test_convert_to_file_format(self):
+  def test_convert_to_image_file_format(self):
     self.assertEqual('AUTO_PNG_JPEG',
-                     _cloud_api_utils.convert_to_file_format(None))
-    self.assertEqual('JPEG', _cloud_api_utils.convert_to_file_format('jpg'))
-    self.assertEqual('JPEG', _cloud_api_utils.convert_to_file_format('jpeg'))
-    self.assertEqual('PNG', _cloud_api_utils.convert_to_file_format('png'))
+                     _cloud_api_utils.convert_to_image_file_format(None))
+    self.assertEqual('AUTO_PNG_JPEG',
+                     _cloud_api_utils.convert_to_image_file_format('auto'))
+    self.assertEqual('JPEG',
+                     _cloud_api_utils.convert_to_image_file_format('jpg'))
+    self.assertEqual('JPEG',
+                     _cloud_api_utils.convert_to_image_file_format('jpeg'))
+    self.assertEqual('PNG',
+                     _cloud_api_utils.convert_to_image_file_format('png'))
+    self.assertEqual('GEO_TIFF',
+                     _cloud_api_utils.convert_to_image_file_format('GeoTIFF'))
+    self.assertEqual('TF_RECORD_IMAGE',
+                     _cloud_api_utils.convert_to_image_file_format('TFRecord'))
+
+  def test_convert_to_table_file_format(self):
+    self.assertEqual('CSV',
+                     _cloud_api_utils.convert_to_table_file_format('csv'))
+    self.assertEqual('GEO_JSON',
+                     _cloud_api_utils.convert_to_table_file_format('GeoJSON'))
+    self.assertEqual('TF_RECORD_TABLE',
+                     _cloud_api_utils.convert_to_table_file_format('TFRecord'))
 
   def test_convert_to_band_list(self):
     self.assertEqual([], _cloud_api_utils.convert_to_band_list(None))
@@ -296,9 +319,9 @@ class CloudApiUtilsTest(unittest.TestCase):
 
   def test_convert_iam_policy_to_acl(self):
     self.assertEqual({
-        'owners': ['owner@owner.domain'],
+        'owners': ['user:owner@owner.domain'],
         'writers': [],
-        'readers': ['readerGroup', 'readerUser'],
+        'readers': ['group:readerGroup', 'user:readerUser'],
         'all_users_can_read': True
     }, _cloud_api_utils.convert_iam_policy_to_acl({
         'bindings': [{
@@ -309,6 +332,30 @@ class CloudApiUtilsTest(unittest.TestCase):
             'members': ['group:readerGroup', 'allUsers', 'user:readerUser']
         }]
     }))
+
+  def test_convert_acl_to_iam_policy(self):
+    self.assertEqual({
+        'bindings': [{
+            'role': 'roles/owner',
+            'members': ['user:owner@owner.domain']
+        }, {
+            'role': 'roles/viewer',
+            'members': ['group:readerGroup', 'user:readerUser', 'allUsers']
+        }]
+    }, _cloud_api_utils.convert_acl_to_iam_policy({
+        'owners': ['user:owner@owner.domain'],
+        'writers': [],
+        'readers': ['group:readerGroup', 'user:readerUser'],
+        'all_users_can_read': True
+    }))
+
+  def test_convert_to_grid_dimension(self):
+    self.assertEqual({'width': 123, 'height': 123},
+                     _cloud_api_utils.convert_to_grid_dimensions(123))
+    self.assertEqual({'width': 123, 'height': 123},
+                     _cloud_api_utils.convert_to_grid_dimensions((123)))
+    self.assertEqual({'width': 123, 'height': 234},
+                     _cloud_api_utils.convert_to_grid_dimensions((123, 234)))
 
 
 if __name__ == '__main__':

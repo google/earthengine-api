@@ -27,14 +27,14 @@ class ProfilingTest(apitestcase.ApiTestCase):
   def testProfilePrinting(self):
     out = six.StringIO()
     with ee.profilePrinting(destination=out):
-      self.assertEquals('hooked=True getProfiles=False', ee.Number(1).getInfo())
-    self.assertEquals('hooked=False getProfiles=True', out.getvalue())
+      self.assertEqual('hooked=True getProfiles=False', ee.Number(1).getInfo())
+    self.assertEqual('hooked=False getProfiles=True', out.getvalue())
 
   def testProfilePrintingDefaultSmoke(self):
     # This will print to sys.stderr, so we can't make any assertions about the
     # output. But we can check that it doesn't fail.
     with ee.profilePrinting():
-      self.assertEquals('hooked=True getProfiles=False', ee.Number(1).getInfo())
+      self.assertEqual('hooked=True getProfiles=False', ee.Number(1).getInfo())
 
 
 if __name__ == '__main__':

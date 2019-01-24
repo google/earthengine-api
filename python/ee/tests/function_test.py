@@ -37,10 +37,10 @@ class FunctionTest(unittest.TestCase):
 
   def testNameArgs(self):
     """Verifies that Functions can convert positional to named arguments."""
-    self.assertEquals({}, TEST_FUNC.nameArgs([]))
-    self.assertEquals({'a': 42}, TEST_FUNC.nameArgs([42]))
-    self.assertEquals({'a': 42, 'b': 13}, TEST_FUNC.nameArgs([42, 13]))
-    self.assertEquals({'a': 3, 'b': 5}, TEST_FUNC.nameArgs([3], {'b': 5}))
+    self.assertEqual({}, TEST_FUNC.nameArgs([]))
+    self.assertEqual({'a': 42}, TEST_FUNC.nameArgs([42]))
+    self.assertEqual({'a': 42, 'b': 13}, TEST_FUNC.nameArgs([42, 13]))
+    self.assertEqual({'a': 3, 'b': 5}, TEST_FUNC.nameArgs([3], {'b': 5}))
 
     self.assertRaisesWithRegexpMatch('Too many', TEST_FUNC.nameArgs, [1, 2, 3])
 
@@ -50,12 +50,16 @@ class FunctionTest(unittest.TestCase):
     ee.Function._registerPromoter(lambda obj, type_name: [type_name, obj])
 
     # Regular call.
-    self.assertEquals({'a': ['Image', 42], 'b': ['Image', 13]},
-                      TEST_FUNC.promoteArgs({'a': 42, 'b': 13}))
+    self.assertEqual({
+        'a': ['Image', 42],
+        'b': ['Image', 13]
+    }, TEST_FUNC.promoteArgs({
+        'a': 42,
+        'b': 13
+    }))
 
     # Allow missing optional argument.
-    self.assertEquals({'a': ['Image', 42]},
-                      TEST_FUNC.promoteArgs({'a': 42}))
+    self.assertEqual({'a': ['Image', 42]}, TEST_FUNC.promoteArgs({'a': 42}))
 
     # Disallow unknown arguments.
     self.assertRaisesWithRegexpMatch(
@@ -74,17 +78,19 @@ class FunctionTest(unittest.TestCase):
     ee.Function._registerPromoter(lambda obj, type_name: [type_name, obj])
 
     return_type, return_value = TEST_FUNC.call(42, 13)
-    self.assertEquals('Image', return_type)
-    self.assertEquals(TEST_FUNC, return_value.func)
-    self.assertEquals({'a': ['Image', 42], 'b': ['Image', 13]},
-                      return_value.args)
+    self.assertEqual('Image', return_type)
+    self.assertEqual(TEST_FUNC, return_value.func)
+    self.assertEqual({
+        'a': ['Image', 42],
+        'b': ['Image', 13]
+    }, return_value.args)
 
     # Clean up.
     ee.Function._registerPromoter(old_promoter)
 
   def testToString(self):
     """Verifies function docstring generation."""
-    self.assertEquals(EXPECTED_DOC, str(TEST_FUNC))
+    self.assertEqual(EXPECTED_DOC, str(TEST_FUNC))
 
   def assertRaisesWithRegexpMatch(self, msg, func, *args):
     try:

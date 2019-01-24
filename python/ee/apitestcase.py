@@ -1123,6 +1123,39 @@ BUILTIN_FUNCTIONS = {
         'type': 'Algorithm',
         'description': ''
     },
+    'GeometryConstructors.Rectangle': {
+        'returns': 'Geometry',
+        'args': [
+            {
+                'name': 'coordinates',
+                'type': 'List<Object>',
+                'description': ''
+            },
+            {
+                'name': 'crs',
+                'type': 'Projection',
+                'description': '',
+                'optional': True,
+                'default': 'epsg:4326'
+            },
+            {
+                'default': None,
+                'description': '',
+                'optional': True,
+                'name': 'geodesic',
+                'type': 'Boolean'
+            },
+            {
+                'default': True,
+                'description': '',
+                'optional': True,
+                'name': 'evenOdd',
+                'type': 'Boolean'
+            },
+        ],
+        'type': 'Algorithm',
+        'description': ''
+    },
     'GeometryConstructors.LineString': {
         'returns': 'Geometry',
         'args': [
@@ -1705,6 +1738,64 @@ BUILTIN_FUNCTIONS = {
         'description': '',
         'returns': 'Element',
     },
+    'Image.reproject': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'name': 'image',
+                'type': 'Image',
+                'description': ''
+            },
+            {
+                'name': 'crs',
+                'type': 'Projection',
+                'description': ''
+            },
+            {
+                'name': 'crsTransform',
+                'type': 'List',
+                'description': '',
+                'optional': True,
+            },
+            {
+                'name': 'scale',
+                'type': 'Float',
+                'description': '',
+                'optional': True,
+            }
+        ],
+        'description': '',
+        'returns': 'Image',
+    },
+    'Image.setDefaultProjection': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'name': 'image',
+                'type': 'Image',
+                'description': ''
+            },
+            {
+                'name': 'crs',
+                'type': 'Projection',
+                'description': ''
+            },
+            {
+                'name': 'crsTransform',
+                'type': 'List',
+                'description': '',
+                'optional': True,
+            },
+            {
+                'name': 'scale',
+                'type': 'Float',
+                'description': '',
+                'optional': True,
+            }
+        ],
+        'description': '',
+        'returns': 'Image',
+    },
     'Image.clipToBoundsAndScale': {
         'type': 'Algorithm',
         'args': [
@@ -1746,6 +1837,18 @@ BUILTIN_FUNCTIONS = {
         ],
         'description': '',
         'returns': 'Image<unknown bands>',
+    },
+    'Image.projection': {
+        'type': 'Algorithm',
+        'args': [
+            {
+                'name': 'image',
+                'type': 'Image',
+                'description': ''
+            }
+        ],
+        'description': '',
+        'returns': 'Projection'
     },
 }
 

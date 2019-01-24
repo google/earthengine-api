@@ -7,15 +7,17 @@
   "scripts": {
     "test": "node test.js",
     "dev": "budo client.js:bundle.js -d static --live --port 3000",
-    "build": "browserify client.js -o static/bundle.js"
+    "build": "browserify client.js -o static/bundle.js",
+    "predeploy:function": "npm test",
+    "deploy:function": "gcloud beta functions deploy hexPopHttp --trigger-http --project ee-demos --stage-bucket ee-demos"
   },
-  "author": "Google Inc.",
+  "author": "Google LLC",
   "license": "Apache-2.0",
   "dependencies": {
-    "@google/earthengine": "^0.1.140-prerelease",
-    "@turf/hex-grid": "^4.6.1",
-    "d3-scale": "^1.0.6",
-    "debounce": "^1.0.2"
+    "@google/earthengine": "^0.1.x",
+    "@turf/hex-grid": "^6.0.2",
+    "d3-scale": "^2.1.2",
+    "debounce": "^1.2.0"
   },
   "devDependencies": {
     "@google-cloud/functions-emulator": "^1.0.0-alpha.25",

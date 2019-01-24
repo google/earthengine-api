@@ -62,8 +62,8 @@ class SerializerTest(apitestcase.ApiTestCase):
         custom_function
     ]
 
-    self.assertEquals(apitestcase.ENCODED_JSON_SAMPLE,
-                      json.loads(serializer.toJSON(to_encode)))
+    self.assertEqual(apitestcase.ENCODED_JSON_SAMPLE,
+                     json.loads(serializer.toJSON(to_encode)))
 
   def testRepeats(self):
     """Verifies serialization finds and removes repeated values."""
@@ -98,7 +98,7 @@ class SerializerTest(apitestcase.ApiTestCase):
             'value': '1'
         }
     }
-    self.assertEquals(expected1, json.loads(serializer.toJSON(test1)))
+    self.assertEqual(expected1, json.loads(serializer.toJSON(test1)))
 
 
 if __name__ == '__main__':

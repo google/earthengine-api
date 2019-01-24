@@ -3,7 +3,7 @@
 
 Use the static methods on the Export class to create export tasks, call start()
 on them to launch them, then poll status() to find out when they are finished.
-The function styling uses camelCase to match the JavaScript names.
+The public function styling uses camelCase to match the JavaScript names.
 """
 
 # pylint: disable=g-bad-name
@@ -20,7 +20,7 @@ from . import geometry
 class Task(object):
   """A batch task that can be run on the EE batch processing system."""
 
-  def __init__(self, taskId, config=None):
+  def __init__(self, task_id, task_type, state, config=None):
     """Creates a Task with the given ID and configuration.
 
     The constructor is not for public use. Instances can be obtained by:
@@ -32,17 +32,20 @@ class Task(object):
     ee.data.getTaskStatus() may be appropriate.
 
     Args:
-      taskId: The task ID, originally obtained through ee.data.newTaskId().
+      task_id: The task ID, originally obtained through ee.data.newTaskId().
+        May be None if the ID is not yet known.
+      task_type: The type of the task; one of the values in Task.Type.
+      state: The state of the task; one of the values entries in Task.State.
       config: The task configuration dictionary. Only necessary if start()
           will be called. Fields shared by all tasks are:
-          - type: The type of the task. One of entries in Task.Type.
-          - state: The state of the task. One of entries in Task.State.
           - description: The name of the task, a freeform string.
           - sourceURL: An optional URL for the script that generated the task.
           Specific task types have other custom config fields.
     """
-    self.id = taskId
+    self.id = self._request_id = task_id
     self.config = config and config.copy()
+    self.task_type = task_type
+    self.state = state
 
   class Type(object):
     EXPORT_IMAGE = 'EXPORT_IMAGE'
@@ -70,7 +73,20 @@ class Task(object):
     if not self.config:
       raise ee_exception.EEException(
           'Task config must be specified for tasks to be started.')
-    data.startProcessing(self.id, self.config)
+    if not self._request_id:
+      self._request_id = data.newTaskId()[0]
+
+    if self.task_type == Task.Type.EXPORT_IMAGE:
+      result = data.exportImage(self._request_id, self.config)
+    elif self.task_type == Task.Type.EXPORT_MAP:
+      result = data.exportMap(self._request_id, self.config)
+    elif self.task_type == Task.Type.EXPORT_TABLE:
+      result = data.exportTable(self._request_id, self.config)
+    elif self.task_type == Task.Type.EXPORT_VIDEO:
+      result = data.exportVideo(self._request_id, self.config)
+    else:
+      raise ee_exception.EEException(
+          'Unknown Task type "{}"'.format(self.task_type))
 
   def status(self):
     """Fetches the current status of the task.
@@ -85,8 +101,12 @@ class Task(object):
       - error_message: Failure reason. Appears only if state is FAILED.
       May also include other fields.
     """
-    result = data.getTaskStatus(self.id)[0]
-    if result['state'] == 'UNKNOWN': result['state'] = Task.State.UNSUBMITTED
+    if self.id:
+      result = data.getTaskStatus(self.id)[0]
+      if result['state'] == 'UNKNOWN':
+        result['state'] = Task.State.UNSUBMITTED
+    else:
+      result = {'state': Task.State.UNSUBMITTED}
     return result
 
   def active(self):
@@ -112,17 +132,17 @@ class Task(object):
     statuses = data.getTaskList()
     tasks = []
     for status in statuses:
-      tasks.append(Task(status['id'], {
-          'type': status.get('task_type'),
-          'description': status.get('description'),
-          'state': status.get('state'),
-      }))
+      tasks.append(Task(status['id'],
+                        status.get('task_type'),
+                        status.get('state'),
+                        {'description': status.get('description')}))
     return tasks
 
   def __repr__(self):
     """Returns a string representation of the task."""
     if self.config:
-      return '<Task %(type)s: %(description)s (%(state)s)>' % self.config
+      return '<Task %s: %s (%s)>' % (self.task_type, self.config['description'],
+                                     self.state)
     else:
       return '<Task "%s">' % self.id
 
@@ -187,12 +207,10 @@ class Export(object):
       if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
         config['driveFileNamePrefix'] = description
 
-      if 'region' in config:
-        # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config['region'])
-
-      return _CreateTask(
-          Task.Type.EXPORT_IMAGE, image, description, config)
+      if 'driveFileNamePrefix' in config:
+        return Export.image.toDrive(image, description, **config)
+      else:
+        return Export.image.toCloudStorage(image, description, **config)
 
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
@@ -238,18 +256,10 @@ class Export(object):
       Returns:
         An unstarted Task that exports the image to Drive.
       """
-      # _CopyDictFilterNone must be called first because it copies locals to
-      # support deprecated arguments.
-      config = _CopyDictFilterNone(locals())
-
-      _ConvertToServerParams(config, 'image', Task.ExportDestination.ASSET)
-
-      if 'region' in config:
-        # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config['region'])
-
-      return _CreateTask(
-          Task.Type.EXPORT_IMAGE, image, description, config)
+      config = _capture_parameters(locals(), ['image'])
+      config = _prepare_image_export_config(image, config,
+                                            Task.ExportDestination.ASSET)
+      return _create_export_task(config, Task.Type.EXPORT_IMAGE)
 
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
@@ -309,19 +319,10 @@ class Export(object):
       Returns:
         An unstarted Task that exports the image to Google Cloud Storage.
       """
-      # _CopyDictFilterNone must be called first because it copies locals to
-      # support deprecated arguments.
-      config = _CopyDictFilterNone(locals())
-
-      _ConvertToServerParams(config, 'image', Task.ExportDestination.GCS)
-      ConvertFormatSpecificParams(config)
-
-      if 'region' in config:
-        # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config['region'])
-
-      return _CreateTask(
-          Task.Type.EXPORT_IMAGE, image, description, config)
+      config = _capture_parameters(locals(), ['image'])
+      config = _prepare_image_export_config(image, config,
+                                            Task.ExportDestination.GCS)
+      return _create_export_task(config, Task.Type.EXPORT_IMAGE)
 
     @staticmethod
     def toDrive(image, description='myExportImageTask', folder=None,
@@ -379,23 +380,10 @@ class Export(object):
       Returns:
         An unstarted Task that exports the image to Drive.
       """
-      # _CopyDictFilterNone must be called first because it copies locals to
-      # support deprecated arguments.
-      config = _CopyDictFilterNone(locals())
-
-      # fileNamePrefix should be defaulted before converting to server params.
-      if 'fileNamePrefix' not in config:
-        config['fileNamePrefix'] = description
-
-      _ConvertToServerParams(config, 'image', Task.ExportDestination.DRIVE)
-      ConvertFormatSpecificParams(config)
-
-      if 'region' in config:
-        # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config['region'])
-
-      return _CreateTask(
-          Task.Type.EXPORT_IMAGE, image, description, config)
+      config = _capture_parameters(locals(), ['image'])
+      config = _prepare_image_export_config(image, config,
+                                            Task.ExportDestination.DRIVE)
+      return _create_export_task(config, Task.Type.EXPORT_IMAGE)
     # pylint: enable=unused-argument
 
   class map(object):
@@ -454,27 +442,9 @@ class Export(object):
         An unstarted Task that exports the image to Google Cloud Storage.
 
       """
-      # _CopyDictFilterNone must be called first because it copies locals to
-      # support deprecated arguments.
-      config = _CopyDictFilterNone(locals())
-
-      # The path is defaulted before converting to server params so that it
-      # is properly converted into the server parameter 'outputPrefix'.
-      if 'path' not in config:
-        config['path'] = description
-
-      _ConvertToServerParams(config, 'image', Task.ExportDestination.GCS)
-
-      if 'fileFormat' not in config:
-        config['fileFormat'] = 'auto'
-      if 'writePublicTiles' not in config:
-        config['writePublicTiles'] = True
-      if 'region' in config:
-        # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config['region'])
-
-      return _CreateTask(
-          Task.Type.EXPORT_MAP, image, description, config)
+      config = _capture_parameters(locals(), ['image'])
+      config = _prepare_map_export_config(image, config)
+      return _create_export_task(config, Task.Type.EXPORT_MAP)
     # pylint: enable=unused-argument
 
   class table(object):
@@ -511,10 +481,11 @@ class Export(object):
       config = (config or {}).copy()
       if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
         config['driveFileNamePrefix'] = description
-      if 'fileFormat' not in config:
-        config['fileFormat'] = 'CSV'
-      return _CreateTask(
-          Task.Type.EXPORT_TABLE, collection, description, config)
+
+      if 'driveFileNamePrefix' in config:
+        return Export.table.toDrive(collection, description, **config)
+      else:
+        return Export.table.toCloudStorage(collection, description, **config)
 
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
@@ -541,18 +512,10 @@ class Export(object):
       Returns:
         An unstarted Task that exports the table.
       """
-      # _CopyDictFilterNone must be called first because it copies locals to
-      # support deprecated arguments.
-      config = _CopyDictFilterNone(locals())
-
-      if 'fileFormat' not in config:
-        config['fileFormat'] = 'CSV'
-
-      _ConvertToServerParams(
-          config, 'collection', Task.ExportDestination.GCS)
-
-      return _CreateTask(
-          Task.Type.EXPORT_TABLE, collection, description, config)
+      config = _capture_parameters(locals(), ['collection'])
+      config = _prepare_table_export_config(collection, config,
+                                            Task.ExportDestination.GCS)
+      return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
     @staticmethod
     def toDrive(collection, description='myExportTableTask',
@@ -578,21 +541,10 @@ class Export(object):
       Returns:
         An unstarted Task that exports the table.
       """
-      # _CopyDictFilterNone must be called first because it copies locals to
-      # support deprecated arguments.
-      config = _CopyDictFilterNone(locals())
-
-      # fileNamePrefix should be defaulted before converting to server params.
-      if 'fileNamePrefix' not in config:
-        config['fileNamePrefix'] = description
-      if 'fileFormat' not in config:
-        config['fileFormat'] = 'CSV'
-
-      _ConvertToServerParams(
-          config, 'collection', Task.ExportDestination.DRIVE)
-
-      return _CreateTask(
-          Task.Type.EXPORT_TABLE, collection, description, config)
+      config = _capture_parameters(locals(), ['collection'])
+      config = _prepare_table_export_config(collection, config,
+                                            Task.ExportDestination.DRIVE)
+      return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
     @staticmethod
     def toAsset(collection, description='myExportTableTask', assetId=None,
@@ -608,15 +560,10 @@ class Export(object):
       Returns:
         An unstarted Task that exports the table.
       """
-      # _CopyDictFilterNone must be called first because it copies locals to
-      # support deprecated arguments.
-      config = _CopyDictFilterNone(locals())
-
-      _ConvertToServerParams(
-          config, 'collection', Task.ExportDestination.ASSET)
-
-      return _CreateTask(
-          Task.Type.EXPORT_TABLE, collection, description, config)
+      config = _capture_parameters(locals(), ['collection'])
+      config = _prepare_table_export_config(collection, config,
+                                            Task.ExportDestination.ASSET)
+      return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
   class video(object):
     """A class with static methods to start video export task."""
@@ -650,11 +597,14 @@ class Export(object):
             - dimensions: The dimensions of the exported video. Takes either a
               single positive integer as the maximum dimension or "WIDTHxHEIGHT"
               where WIDTH and HEIGHT are each positive integers.
-            - framesPerSecond: A number between .1 and 100 describing the
+            - framesPerSecond: A number between .1 and 120 describing the
               framerate of the exported video.
             - maxPixels: The maximum number of pixels per frame.
               Defaults to 1e8 pixels per frame. By setting this explicitly,
               you may raise or lower the limit.
+            - maxFrames: The maximum number of frames.
+              Defaults to 1000 frames. By setting this explicitly, you may
+              raise or lower the limit.
             If exporting to Google Drive (default):
             - driveFolder: The name of a unique folder in your Drive account to
               export into. Defaults to the root of the drive.
@@ -668,17 +618,13 @@ class Export(object):
         An unstarted Task that exports the video.
       """
       config = (config or {}).copy()
-      if 'crs' not in config:
-        config['crs'] = 'SR-ORG:6627'
       if 'driveFileNamePrefix' not in config and 'outputBucket' not in config:
         config['driveFileNamePrefix'] = description
 
-      if 'region' in config:
-        # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config['region'])
-
-      return _CreateTask(
-          Task.Type.EXPORT_VIDEO, collection, description, config)
+      if 'driveFileNamePrefix' in config:
+        return Export.video.toDrive(collection, description, **config)
+      else:
+        return Export.video.toCloudStorage(collection, description, **config)
 
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
@@ -697,7 +643,7 @@ class Export(object):
         bucket: The name of a Cloud Storage bucket for the export.
         fileNamePrefix: Cloud Storage object name prefix for the export.
             Defaults to the task's description.
-        framesPerSecond: A number between .1 and 100 describing the
+        framesPerSecond: A number between .1 and 120 describing the
             framerate of the exported video.
         dimensions: The dimensions of the exported video. Takes either a
             single positive integer as the maximum dimension or "WIDTHxHEIGHT"
@@ -727,22 +673,10 @@ class Export(object):
         An unstarted Task that exports the image collection
         to Google Cloud Storage.
       """
-      # _CopyDictFilterNone must be called first because it copies locals to
-      # support deprecated arguments.
-      config = _CopyDictFilterNone(locals())
-      if 'crs' not in config:
-        config['crs'] = 'SR-ORG:6627'
-      if 'fileNamePrefix' not in config:
-        config['fileNamePrefix'] = description
-
-      _ConvertToServerParams(config, 'collection', Task.ExportDestination.GCS)
-
-      if 'region' in config:
-        # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config['region'])
-
-      return _CreateTask(
-          Task.Type.EXPORT_VIDEO, collection, description, config)
+      config = _capture_parameters(locals(), ['collection'])
+      config = _prepare_video_export_config(collection, config,
+                                            Task.ExportDestination.GCS)
+      return _create_export_task(config, Task.Type.EXPORT_VIDEO)
 
     @staticmethod
     def toDrive(collection, description='myExportVideoTask',
@@ -759,7 +693,7 @@ class Export(object):
             export into. Defaults to the root of the drive.
         fileNamePrefix: The Google Drive filename for the export.
             Defaults to the name of the task.
-        framesPerSecond: A number between .1 and 100 describing the
+        framesPerSecond: A number between .1 and 120 describing the
             framerate of the exported video.
         dimensions: The dimensions of the exported video. Takes either a
             single positive integer as the maximum dimension or "WIDTHxHEIGHT"
@@ -788,22 +722,10 @@ class Export(object):
       Returns:
         An unstarted Task that exports the image collection to Drive.
       """
-      # _CopyDictFilterNone must be called first because it copies locals to
-      # support deprecated arguments.
-      config = _CopyDictFilterNone(locals())
-      if 'crs' not in config:
-        config['crs'] = 'SR-ORG:6627'
-      if 'fileNamePrefix' not in config:
-        config['fileNamePrefix'] = description
-
-      _ConvertToServerParams(config, 'collection', Task.ExportDestination.DRIVE)
-
-      if 'region' in config:
-        # Convert the region to a serialized form, if necessary.
-        config['region'] = _GetSerializedRegion(config['region'])
-
-      return _CreateTask(
-          Task.Type.EXPORT_VIDEO, collection, description, config)
+      config = _capture_parameters(locals(), ['collection'])
+      config = _prepare_video_export_config(collection, config,
+                                            Task.ExportDestination.DRIVE)
+      return _create_export_task(config, Task.Type.EXPORT_VIDEO)
 
 
 
@@ -811,7 +733,7 @@ def _CheckConfigDisallowedPrefixes(config, prefix):
   for key in config:
     if key.startswith(prefix):
       raise ee_exception.EEException(
-          'Export config parameter prefix \'{}\' disallowed, found \'{}\''.
+          'Export config parameter prefix "{}" disallowed, found "{}"'.
           format(prefix, key))
 
 # Mapping from file formats to prefixes attached to format specific config.
@@ -874,12 +796,11 @@ def ConvertFormatSpecificParams(configDict):
   formatString = formatString.upper()
   if formatString not in FORMAT_PREFIX_MAP:
     raise ee_exception.EEException(
-        'Invalid file format. Currently only \'GeoTIFF\' and \'TFRecord\' is '
+        'Invalid file format. Currently only "GeoTIFF" and "TFRecord" is '
         'supported.')
 
   if IMAGE_FORMAT_OPTIONS_FIELD in configDict:
-    options = configDict[IMAGE_FORMAT_OPTIONS_FIELD]
-    del configDict[IMAGE_FORMAT_OPTIONS_FIELD]
+    options = configDict.pop(IMAGE_FORMAT_OPTIONS_FIELD)
 
     if set(options) & set(configDict):
       raise ee_exception.EEException(
@@ -894,7 +815,7 @@ def ConvertFormatSpecificParams(configDict):
       prefixedKey = prefix + key[:1].upper() + key[1:]
       if prefixedKey not in ALLOWED_FORMAT_OPTIONS:
         raise ee_exception.EEException(
-            '\'{}\' is not a valid option for \'{}\'.'.format(
+            '"{}" is not a valid option for "{}".'.format(
                 key, formatString))
       prefixedOptions[prefixedKey] = value
 
@@ -903,7 +824,124 @@ def ConvertFormatSpecificParams(configDict):
     configDict.update(prefixedOptions)
 
 
-def _CreateTask(task_type, ee_object, description, config):
+def _prepare_image_export_config(image, config, export_destination):
+  """Performs all preparation steps for an image export.
+
+  Args:
+    image: The Image to be exported.
+    config: All the user-specified export parameters. May be modified.
+    export_destination: One of the Task.ExportDestination values.
+
+  Returns:
+    A config dict containing all information required for the export.
+  """
+  # Supply some defaults.
+  if (export_destination != Task.ExportDestination.ASSET and
+      'fileFormat' not in config):
+    config['fileFormat'] = 'GeoTIFF'
+
+  _canonicalize_parameters(config, export_destination)
+
+  image, config = image.prepare_for_export(config)
+  if export_destination != Task.ExportDestination.ASSET:
+    ConvertFormatSpecificParams(config)
+
+  config.update(_ConvertConfigParams(config))
+  config['json'] = image.serialize()
+
+  return config
+
+
+def _prepare_map_export_config(image, config):
+  """Performs all preparation steps for a map export.
+
+  Args:
+    image: The Image to be exported.
+    config: All the user-specified export parameters. May be modified.
+
+  Returns:
+    A config dict containing all information required for the export.
+  """
+  _canonicalize_parameters(config, Task.ExportDestination.GCS)
+
+  # We have to protect the "scale" parameter as prepare_for_export will try
+  # to interpret it inappropriately.
+  scale = config.pop('scale', None)
+  image, config = image.prepare_for_export(config)
+  if scale is not None:
+    config['scale'] = scale
+
+  if 'fileFormat' not in config:
+    config['fileFormat'] = 'auto'
+  if 'writePublicTiles' not in config:
+    config['writePublicTiles'] = True
+
+  config.update(_ConvertConfigParams(config))
+  config['json'] = image.serialize()
+
+  return config
+
+
+def _prepare_table_export_config(collection, config, export_destination):
+  """Performs all preparation steps for a table export.
+
+  Args:
+    collection: The FeatureCollection to be exported.
+    config: All the user-specified export parameters. May be modified.
+    export_destination: One of the Task.ExportDestination values.
+
+  Returns:
+    A config dict containing all information required for the export.
+  """
+  if export_destination != Task.ExportDestination.ASSET:
+    if 'fileFormat' not in config:
+      config['fileFormat'] = 'CSV'
+
+  _canonicalize_parameters(config, export_destination)
+
+  config.update(_ConvertConfigParams(config))
+  config['json'] = collection.serialize()
+
+  return config
+
+
+def _prepare_video_export_config(collection, config, export_destination):
+  """Performs all preparation steps for a video export.
+
+  Args:
+    collection: The ImageCollection to be exported as a video.
+    config: All the user-specified export parameters. May be modified.
+    export_destination: One of the Task.ExportDestination values.
+
+  Returns:
+    A config dict containing all information required for the export.
+  """
+  _canonicalize_parameters(config, export_destination)
+  if 'crs' not in config:
+    config['crs'] = 'SR-ORG:6627'
+  collection, config = collection.prepare_for_export(config)
+  config['json'] = collection.serialize()
+  return config
+
+
+
+
+
+
+def _create_export_task(config, task_type):
+  """Creates an export task.
+
+  Args:
+    config: Custom config fields for the task.
+    task_type: The type of the task to create. One of Task.Type.
+
+  Returns:
+    An unstarted export Task.
+  """
+  return Task(data.newTaskId()[0], task_type, Task.State.UNSUBMITTED, config)
+
+
+def _create_task(task_type, ee_object, description, config):
   """Creates an export task.
 
   Args:
@@ -917,20 +955,135 @@ def _CreateTask(task_type, ee_object, description, config):
   """
   config.update(_ConvertConfigParams(config))
   full_config = {
-      'type': task_type,
       'json': ee_object.serialize(),
       'description': description,
-      'state': Task.State.UNSUBMITTED,
   }
   if config: full_config.update(config)
-  return Task(data.newTaskId()[0], full_config)
+  return Task(data.newTaskId()[0], task_type, Task.State.UNSUBMITTED,
+              full_config)
 
 
-def _GetSerializedRegion(region):
-  """Converts a region parameter to serialized form, if it isn't already."""
+def _capture_parameters(all_locals, parameters_to_exclude):
+  """Creates a parameter dict by copying all non-None locals.
+
+  This is generally invoked as the first part of call processing, via
+  something like
+    _capture_parameters(locals(), ['image'])
+  so that all call parameters can be pulled into a single dict.
+
+  Args:
+    all_locals: The dict of local variables.
+    parameters_to_exclude: An iterable giving names of parameters that should
+      be excluded from the result.
+
+  Returns:
+    A dict containing all the non-None values in all_locals, except for
+    those listed in parameters_to_exclude.
+  """
+  result = {k: v for k, v in six.iteritems(all_locals) if v is not None}
+  for parameter_to_exclude in parameters_to_exclude:
+    if parameter_to_exclude in result:
+      del result[parameter_to_exclude]
+  return result
+
+
+def _canonicalize_parameters(config, destination):
+  """Canonicalizes a set of parameter names.
+
+  For legacy and other reasons, there are multiple ways to specify some export
+  parameters. This function applies canonicalization rules to simplify further
+  processing. It validates that the canonicalization introduces no collisions.
+
+  Note that config is changed in place and not returned.
+
+  The parameter name mappings performed here are:
+    crsTransform -> crs_transform
+    bucket -> outputBucket
+    fileNamePrefix, path -> outputPrefix or driveFileNamePrefix depending
+      on whether the destination is GCS or Drive. "description" is used as
+      the default value of outputPrefix or driveFileNamePrefix if nothing else
+      provided a value.
+    folder -> driveFolder
+    If "fileFormat" is "GeoTIFF": tiffX -> formatOptions { x }
+    If "fileFormat" is "TfRecord": tfrecordX -> formatOptions { x }
+
+  The "region" parameter's value, if present, is processed with
+  _canonicalize_region.
+
+  The "selectors" parameter's value, if present and a string, is converted
+  to a list by splitting at commas.
+
+  Args:
+    config: The configuration dictionary to be converted.
+    destination: The type of destination targeted by the export.
+  """
+  if 'kwargs' in config:
+    config.update(config['kwargs'])
+    del config['kwargs']
+
+  collision_error = 'Both {} and {} are specified.'
+  def canonicalize_name(a, b):
+    """Renames config[a] to config[b]."""
+    if a in config:
+      if b in config:
+        raise ee_exception.EEException(collision_error.format(a, b))
+      config[b] = config.pop(a)
+
+  canonicalize_name('crsTransform', 'crs_transform')
+
+  if 'region' in config:
+    config['region'] = _canonicalize_region(config['region'])
+
+  if 'selectors' in config and isinstance(config['selectors'],
+                                          six.string_types):
+    config['selectors'] = config['selectors'].split(',')
+
+  if destination == Task.ExportDestination.GCS:
+    canonicalize_name('bucket', 'outputBucket')
+    canonicalize_name('fileNamePrefix', 'outputPrefix')
+
+    # Only used with Export.map
+    canonicalize_name('path', 'outputPrefix')
+
+    if 'outputPrefix' not in config and 'description' in config:
+      config['outputPrefix'] = config['description']
+  elif destination == Task.ExportDestination.DRIVE:
+    canonicalize_name('folder', 'driveFolder')
+    canonicalize_name('fileNamePrefix', 'driveFileNamePrefix')
+
+    if 'driveFileNamePrefix' not in config and 'description' in config:
+      config['driveFileNamePrefix'] = config['description']
+  elif destination != Task.ExportDestination.ASSET:
+    raise ee_exception.EEException('Unknown export destination.')
+
+  if (IMAGE_FORMAT_FIELD in config and
+      config[IMAGE_FORMAT_FIELD].upper() in FORMAT_PREFIX_MAP):
+    prefix = FORMAT_PREFIX_MAP[config[IMAGE_FORMAT_FIELD].upper()]
+    format_options = config.get(IMAGE_FORMAT_OPTIONS_FIELD, {})
+    keys_to_delete = []
+    for key, value in six.iteritems(config):
+      if key.startswith(prefix):
+        # Transform like "tiffSomeKey" -> "someKey"
+        remapped_key = key[len(prefix):]
+        remapped_key = remapped_key[:1].lower() + remapped_key[1:]
+        if remapped_key in format_options:
+          raise ee_exception.EEException(
+              collision_error.format(key, remapped_key))
+        format_options[remapped_key] = value
+        keys_to_delete.append(key)
+    config[IMAGE_FORMAT_OPTIONS_FIELD] = format_options
+    for key in keys_to_delete:
+      del config[key]
+
+
+def _canonicalize_region(region):
+  """Converts a region parameter to a form appropriate for export."""
   region_error = ee_exception.EEException(
-      'Invalid format for region property. '
+      'Invalid format for "region" property. '
       'See Export.image() documentation for more details.')
+  # pylint: disable=bare-except
+  # If the GeoJSON blob we have parses as a LineString or Polygon, accept it,
+  # and turn it into a string. Which it might have started out as.
   if isinstance(region, six.string_types):
     try:
       region = json.loads(region)
@@ -938,58 +1091,10 @@ def _GetSerializedRegion(region):
       raise region_error
   try:
     geometry.Geometry.LineString(region)
-  except:  # pylint: disable=bare-except
+  except:
     try:
       geometry.Geometry.Polygon(region)
     except:
       raise region_error
   return json.dumps(region)
-
-
-def _CopyDictFilterNone(originalDict):
-  """Copies a dictionary and filters out None values."""
-  return dict((k, v) for k, v in originalDict.items() if v is not None)
-
-
-def _ConvertToServerParams(configDict, eeElementKey, destination):
-  """Converts an export configuration to server friendly parameters.
-
-  Note that configDict is changed in place and not returned.
-
-  Args:
-    configDict: The configuration dictionary to be converted.
-    eeElementKey: The key used to access the EE element.
-    destination: The destination to export to.
-  """
-  del configDict[eeElementKey]
-  if 'kwargs' in configDict:
-    configDict.update(configDict['kwargs'])
-    del configDict['kwargs']
-
-  if 'crsTransform' in configDict:
-    configDict['crs_transform'] = configDict.pop('crsTransform')
-
-  if destination is Task.ExportDestination.GCS:
-    if 'bucket' in configDict:
-      configDict['outputBucket'] = configDict.pop('bucket')
-
-    if 'fileNamePrefix' in configDict:
-      if 'outputPrefix' not in configDict:
-        configDict['outputPrefix'] = configDict.pop('fileNamePrefix')
-      else:
-        del configDict['fileNamePrefix']
-
-    # Only used with Export.map
-    if 'path' in configDict:
-      configDict['outputPrefix'] = configDict.pop('path')
-  elif destination is Task.ExportDestination.DRIVE:
-    if 'folder' in configDict:
-      configDict['driveFolder'] = configDict.pop('folder')
-
-    if 'fileNamePrefix' in configDict:
-      if 'driveFileNamePrefix' not in configDict:
-        configDict['driveFileNamePrefix'] = configDict.pop('fileNamePrefix')
-      else:
-        del configDict['fileNamePrefix']
-  elif destination is not Task.ExportDestination.ASSET:
-    raise ee_exception.EEException('Unknown export destination.')
+  # pylint: enable=bare-except

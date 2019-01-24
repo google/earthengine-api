@@ -14,13 +14,15 @@ class NumberTest(apitestcase.ApiTestCase):
   def testNumber(self):
     """Verifies basic behavior of ee.Number."""
     num = ee.Number(1)
-    self.assertEquals(1, num.encode())
+    self.assertEqual(1, num.encode())
 
     computed = ee.Number(1).add(2)
     self.assertTrue(isinstance(computed, ee.Number))
-    self.assertEquals(ee.ApiFunction.lookup('Number.add'), computed.func)
-    self.assertEquals({'left': ee.Number(1), 'right': ee.Number(2)},
-                      computed.args)
+    self.assertEqual(ee.ApiFunction.lookup('Number.add'), computed.func)
+    self.assertEqual({
+        'left': ee.Number(1),
+        'right': ee.Number(2)
+    }, computed.args)
 
   def testInternals(self):
     """Test eq(), ne() and hash()."""
@@ -28,11 +30,11 @@ class NumberTest(apitestcase.ApiTestCase):
     b = ee.Number(2.1)
     c = ee.Number(1)
 
-    self.assertEquals(a, a)
-    self.assertNotEquals(a, b)
-    self.assertEquals(a, c)
-    self.assertNotEquals(b, c)
-    self.assertNotEquals(hash(a), hash(b))
+    self.assertEqual(a, a)
+    self.assertNotEqual(a, b)
+    self.assertEqual(a, c)
+    self.assertNotEqual(b, c)
+    self.assertNotEqual(hash(a), hash(b))
 
 
 if __name__ == '__main__':

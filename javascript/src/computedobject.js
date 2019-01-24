@@ -100,9 +100,7 @@ ee.ComputedObject.prototype.evaluate = function(callback) {
   if (!callback || !goog.isFunction(callback)) {
     throw Error('evaluate() requires a callback function.');
   }
-  ee.data.getValue({
-    'json': this.serialize()
-  }, callback);
+  ee.data.computeValue(this, callback);
 };
 
 
@@ -122,9 +120,7 @@ ee.ComputedObject.prototype.evaluate = function(callback) {
  * @export
  */
 ee.ComputedObject.prototype.getInfo = function(opt_callback) {
-  return ee.data.getValue({
-    'json': this.serialize()
-  }, opt_callback);
+  return ee.data.computeValue(this, opt_callback);
 };
 
 

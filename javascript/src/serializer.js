@@ -30,7 +30,7 @@ ee.Serializer = function(opt_isCompound) {
    * Whether the encoding should factor out shared subtrees.
    *
    * @type {boolean}
-   * @private
+   * @private @const
    */
   this.isCompound_ = opt_isCompound !== false;
 
@@ -65,14 +65,14 @@ goog.exportSymbol('ee.Serializer', ee.Serializer);
 
 /**
  * A JSON serializer instance for this class
- * @private
+ * @private @const
  */
 ee.Serializer.jsonSerializer_ = new goog.json.Serializer();
 
 
 /**
  * A hash instance for this class
- * @private
+ * @private @const
  */
 ee.Serializer.hash_ = new goog.crypt.Md5();
 
@@ -96,6 +96,7 @@ ee.Serializer.encode = function(obj, opt_isCompound) {
  * @param {*} obj The object to Serialize.
  * @return {string} A JSON representation of the input.
  * @export
+ * @suppress {checkPrototypalTypes}
  */
 ee.Serializer.toJSON = function(obj) {
   return ee.Serializer.jsonSerializer_.serialize(ee.Serializer.encode(obj));
@@ -109,8 +110,15 @@ ee.Serializer.toJSON = function(obj) {
  * @export
  */
 ee.Serializer.toReadableJSON = function(obj) {
-  var eeSerializer = new ee.Serializer(false);
-  var encoded = eeSerializer.encode_(obj);
+  return ee.Serializer.stringify(ee.Serializer.encode(obj, false));
+};
+
+
+/**
+ * @param {*} encoded
+ * @return {string} A human-friendly JSON representation of the input.
+ */
+ee.Serializer.stringify = function(encoded) {
   if ('JSON' in goog.global) {
     // All modern browsers; Pretty-print.
     return goog.global['JSON']['stringify'](encoded, null, '  ');
@@ -192,7 +200,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     return {
       'type': 'Invocation',
       'functionName': 'Date',
-      'arguments': {'value': Math.floor(/** @type {Date} */(object).getTime())}
+      'arguments': {'value': Math.floor(/** @type {!Date} */(object).getTime())}
     };
   } else if (object instanceof ee.Encodable) {
     // Some objects know how to encode themselves.
@@ -226,9 +234,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
   }
 
   if (this.isCompound_) {
-    ee.Serializer.hash_.reset();
-    ee.Serializer.hash_.update(ee.Serializer.jsonSerializer_.serialize(result));
-    hash = ee.Serializer.hash_.digest().toString();
+    hash = ee.Serializer.computeHash(result);
     var name;
     if (this.encoded_[hash]) {
       name = this.encoded_[hash];
@@ -248,3 +254,15 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     return result;
   }
 };
+
+
+/**
+ * @param {*} obj An object to hash. Any JSON-serializable type is acceptable.
+ * @return {string}
+ */
+ee.Serializer.computeHash = function(obj) {
+  ee.Serializer.hash_.reset();
+  ee.Serializer.hash_.update(ee.Serializer.jsonSerializer_.serialize(obj));
+  return ee.Serializer.hash_.digest().toString();
+};
+

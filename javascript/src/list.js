@@ -79,13 +79,13 @@ ee.List.reset = function() {
 /**
  * @override
  */
-ee.List.prototype.encode = function(opt_encoder) {
+ee.List.prototype.encode = function(encoder) {
   if (goog.isArray(this.list_)) {
     return goog.array.map(this.list_, function(elem) {
-      return opt_encoder(elem);
+      return encoder(elem);
     });
   } else {
-    return ee.List.base(this, 'encode', opt_encoder);
+    return ee.List.base(this, 'encode', encoder);
   }
 };
 

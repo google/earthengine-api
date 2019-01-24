@@ -39,12 +39,14 @@
       </div>
 
       <div class="content">
-        <paper-input tabindex="0"
-                     type="search"
-                     always-float-label=true
-                     label="Zoom to a location on the map"
-                     on-value-changed="handleQuery_"
-                     on-keydown="handleInputKeyDown_">
+        <paper-input
+            tabindex="0"
+            type="search"
+            always-float-label="true"
+            label="Zoom to a location on the map"
+            on-value-changed="handleQuery_"
+            on-keydown="handleInputKeyDown_"
+            use-v2-underline>
         </paper-input>
 
         <div class="results-list" selectable="none">

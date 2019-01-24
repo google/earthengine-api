@@ -29,8 +29,8 @@ var forest = ee.Feature(
     {label: 'Tahoe National Forest'});
 
 var roi = ee.Feature(
-    ee.FeatureCollection('ft:1IXfrLpTHX4dtdj1LcNXjJADBB-d93rkdJ9acSEWK')
-        .filterMetadata('HUC6', 'equals', 180400)  // San Joaquin watershed
+    ee.FeatureCollection('USGS/WBD/2017/HUC06')
+        .filterMetadata('huc6', 'equals', '180400')  // San Joaquin watershed
         .first());
 
 var options = {

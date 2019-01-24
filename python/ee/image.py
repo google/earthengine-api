@@ -166,6 +166,21 @@ class Image(element.Element):
       image = apifunction.ApiFunction.apply_('Image.visualize', vis_params)
     return image, request
 
+  def prepare_for_export(self, params):
+    """Applies all relevant export parameters to an image.
+
+    Args:
+      params: the export request parameters.
+
+    Returns:
+      A tuple containing:
+      - an image that has had many of the request parameters applied
+        to it
+      - any remaining parameters.
+    """
+    image = self
+    return image, params
+
   def getDownloadURL(self, params=None):
     """Get a download URL for this image.
 
@@ -448,3 +463,5 @@ class Image(element.Element):
   @staticmethod
   def name():
     return 'Image'
+
+

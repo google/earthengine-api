@@ -10,9 +10,8 @@ goog.require('goog.structs.PriorityPool');
 /**
  * A layer tile source for tiles served by Earth Engine.
  *
- * @param {string} url The EE url for fetching this layer's tiles.
- * @param {string} mapId The EE map ID for fetching this layer's tiles.
- * @param {string} token The temporary EE token for fetching tiles.
+ * @param {!ee.data.RawMapId} mapId The EE map ID for fetching this layer's
+ *     tiles.
  * @param {ee.data.Profiler=} opt_profiler The profiler to send map tile
  *     calculation cost to, if any.
  * @constructor
@@ -20,17 +19,11 @@ goog.require('goog.structs.PriorityPool');
  * @export
  * @ignore
  */
-ee.layers.EarthEngineTileSource = function(url, mapId, token, opt_profiler) {
+ee.layers.EarthEngineTileSource = function(mapId, opt_profiler) {
   ee.layers.EarthEngineTileSource.base(this, 'constructor');
 
-  /** @const @private {string} The EE url for fetching this layer's tiles. */
-  this.url_ = url;
-
-  /** @const @private {string} The EE map ID for fetching this layer's tiles. */
+  /** @const @private {!ee.data.RawMapId} The EE map ID for fetching tiles. */
   this.mapId_ = mapId;
-
-  /** @const @private {string} The temporary EE token for fetching tiles. */
-  this.token_ = token;
 
   /**
    * Map tile calculation cost will be sent to this profiler, if its enabled
@@ -84,7 +77,7 @@ ee.layers.EarthEngineTileSource.prototype.loadTile = function(
 
 /** @override */
 ee.layers.EarthEngineTileSource.prototype.getUniqueId = function() {
-  return [this.mapId_, this.token_].join('-');
+  return this.mapId_.mapid + '-' + this.mapId_.token;
 };
 
 
@@ -129,10 +122,9 @@ ee.layers.EarthEngineTileSource.prototype.handleAvailableToken_ =
  * @private
  */
 ee.layers.EarthEngineTileSource.prototype.getTileUrl_ = function(coord, zoom) {
-  var url = [this.url_, this.mapId_, zoom, coord.x, coord.y].join('/');
-  url += '?token=' + this.token_;
+  const url = ee.data.getTileUrl(this.mapId_, coord.x, coord.y, zoom);
   if (this.profiler_ && this.profiler_.isEnabled()) {
-    url += '&profiling=1';
+    return url + '&profiling=1';
   }
   return url;
 };

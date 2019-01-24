@@ -1,8 +1,8 @@
 // Computed area filter.
 // Find US counties smaller than 3k square kilometers in area.
 
-// Load counties from a Fusion Table.
-var counties = ee.FeatureCollection('ft:1pjtcfSKIbYbj4wRcBjc0Bb6NB-sQRI-L2nIzHiU');
+// Load counties from TIGER boundaries table
+var counties = ee.FeatureCollection('TIGER/2016/Counties');
 
 // Map a function over the counties to set the area of each.
 var countiesWithArea = counties.map(function(f) {

@@ -20,7 +20,7 @@ class DeserializerTest(apitestcase.ApiTestCase):
     encoded = apitestcase.ENCODED_JSON_SAMPLE
     decoded = deserializer.decode(encoded)
     re_encoded = json.loads(serializer.toJSON(decoded))
-    self.assertEquals(encoded, re_encoded)
+    self.assertEqual(encoded, re_encoded)
 
   def testCast(self):
     """Verifies that decoding casts the result to the right class."""
@@ -32,8 +32,9 @@ class DeserializerTest(apitestcase.ApiTestCase):
     """Verifies that decoding results can be used and re-encoded."""
     input_image = ee.Image(13)
     output = deserializer.fromJSON(serializer.toJSON(input_image))
-    self.assertEquals(output.addBands(42).serialize(),
-                      input_image.addBands(42).serialize())
+    self.assertEqual(
+        output.addBands(42).serialize(),
+        input_image.addBands(42).serialize())
 
 if __name__ == '__main__':
   unittest.main()

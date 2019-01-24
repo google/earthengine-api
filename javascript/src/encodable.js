@@ -15,7 +15,7 @@ ee.Encodable = function() {};
 
 
 /**
- * Encodes the object in a format compatible with ee.Serializer.
+ * Encodes an object in a format compatible with ee.Serializer.encode().
  * @param {function(*): *} encoder A function that can be called to encode
  *    the components of an object.
  * @return {*} The encoded form of the object.

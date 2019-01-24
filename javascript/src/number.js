@@ -12,7 +12,7 @@ goog.require('ee.ComputedObject');
 /**
  * Constructs a new Number.
  *
- * @param {number|Object} number A number or a computed object.
+ * @param {number|!Object} number A number or a computed object.
  *
  * @constructor
  * @extends {ee.ComputedObject}

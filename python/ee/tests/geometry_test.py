@@ -151,29 +151,29 @@ class GeometryTest(apitestcase.ApiTestCase):
     get_coordinates_count = lambda g: len(g.toGeoJSON()['coordinates'])
 
     point = ee.Geometry.Point([1, 2])
-    self.assertEquals(2, get_coordinates_count(point))
+    self.assertEqual(2, get_coordinates_count(point))
 
     multipoint = ee.Geometry.MultiPoint([[1, 2], [3, 4], [5, 6]])
-    self.assertEquals(3, get_coordinates_count(multipoint))
+    self.assertEqual(3, get_coordinates_count(multipoint))
 
     line = ee.Geometry.LineString([[1, 2], [3, 4], [5, 6]])
-    self.assertEquals(3, get_coordinates_count(line))
+    self.assertEqual(3, get_coordinates_count(line))
 
     ring = ee.Geometry.LinearRing([[1, 2], [3, 4], [5, 6]])
-    self.assertEquals(3, get_coordinates_count(ring))
+    self.assertEqual(3, get_coordinates_count(ring))
 
     multiline = ee.Geometry.MultiLineString(
         [[[1, 2], [3, 4]],
          [[5, 6], [7, 8]]])
-    self.assertEquals(2, get_coordinates_count(multiline))
+    self.assertEqual(2, get_coordinates_count(multiline))
 
     polygon = ee.Geometry.Polygon([[[1, 2], [3, 4], [5, 6]]])
-    self.assertEquals(1, get_coordinates_count(polygon))
+    self.assertEqual(1, get_coordinates_count(polygon))
 
     mpolygon = ee.Geometry.MultiPolygon(
         [[[[1, 2], [3, 4], [5, 6]]],
          [[[1, 2], [3, 4], [5, 6]]]])
-    self.assertEquals(2, get_coordinates_count(mpolygon))
+    self.assertEqual(2, get_coordinates_count(mpolygon))
 
   def testGeodesicFlag(self):
     """Verifies that JSON parsing and generation preserves the geodesic flag."""
@@ -204,9 +204,9 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     # GeoJSON.
     from_json = ee.Geometry(line.toGeoJSON())
-    self.assertEquals(from_json.func, None)
-    self.assertEquals(from_json._type, 'LineString')
-    self.assertEquals(from_json._coordinates, [[1, 2], [3, 4]])
+    self.assertEqual(from_json.func, None)
+    self.assertEqual(from_json._type, 'LineString')
+    self.assertEqual(from_json._coordinates, [[1, 2], [3, 4]])
 
     # GeoJSON with a CRS specified.
     json_with_crs = line.toGeoJSON()
@@ -217,25 +217,25 @@ class GeometryTest(apitestcase.ApiTestCase):
         }
     }
     from_json_with_crs = ee.Geometry(json_with_crs)
-    self.assertEquals(from_json_with_crs.func, None)
-    self.assertEquals(from_json_with_crs._type, 'LineString')
-    self.assertEquals(from_json_with_crs._proj, 'SR-ORG:6974')
+    self.assertEqual(from_json_with_crs.func, None)
+    self.assertEqual(from_json_with_crs._type, 'LineString')
+    self.assertEqual(from_json_with_crs._proj, 'SR-ORG:6974')
 
     # A not-computed geometry.
-    self.assertEquals(ee.Geometry(line), line)
+    self.assertEqual(ee.Geometry(line), line)
 
     # A not-computed geometry with an override.
     with_override = ee.Geometry(line, 'SR-ORG:6974')
-    self.assertEquals(with_override._proj, 'SR-ORG:6974')
+    self.assertEqual(with_override._proj, 'SR-ORG:6974')
 
     # A computed geometry.
-    self.assertEquals(ee.Geometry(line.bounds()), line.bounds())
+    self.assertEqual(ee.Geometry(line.bounds()), line.bounds())
 
     # Something to cast to a geometry.
     computed = ee.ComputedObject(ee.Function(), {'a': 1})
     geom = ee.Geometry(computed)
-    self.assertEquals(computed.func, geom.func)
-    self.assertEquals(computed.args, geom.args)
+    self.assertEqual(computed.func, geom.func)
+    self.assertEqual(computed.args, geom.args)
 
   def testComputedGeometries(self):
     """Verifies the computed object behavior of the Geometry constructor."""
@@ -243,9 +243,8 @@ class GeometryTest(apitestcase.ApiTestCase):
     bounds = line.bounds()
 
     self.assertTrue(isinstance(bounds, ee.Geometry))
-    self.assertEquals(
-        ee.ApiFunction.lookup('Geometry.bounds'), bounds.func)
-    self.assertEquals(line, bounds.args['geometry'])
+    self.assertEqual(ee.ApiFunction.lookup('Geometry.bounds'), bounds.func)
+    self.assertEqual(line, bounds.args['geometry'])
     self.assertTrue(hasattr(bounds, 'bounds'))
 
   def testComputedCoordinate(self):
@@ -254,9 +253,9 @@ class GeometryTest(apitestcase.ApiTestCase):
     p = ee.Geometry.Point(coords)
 
     self.assertTrue(isinstance(p, ee.Geometry))
-    self.assertEquals(
+    self.assertEqual(
         ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
-    self.assertEquals({'coordinates': ee.List(coords)}, p.args)
+    self.assertEqual({'coordinates': ee.List(coords)}, p.args)
 
   def testComputedList(self):
     """Verifies that a computed coordinate produces a computed geometry."""
@@ -264,22 +263,22 @@ class GeometryTest(apitestcase.ApiTestCase):
     p = ee.Geometry.Point(lst)
 
     self.assertTrue(isinstance(p, ee.Geometry))
-    self.assertEquals(
+    self.assertEqual(
         ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
-    self.assertEquals({'coordinates': lst}, p.args)
+    self.assertEqual({'coordinates': lst}, p.args)
 
   def testComputedProjection(self):
     """Verifies that a geometry with a projection can be constructed."""
     p = ee.Geometry.Point([1, 2], 'epsg:4326')
 
     self.assertTrue(isinstance(p, ee.Geometry))
-    self.assertEquals(
+    self.assertEqual(
         ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
     expected_args = {
         'coordinates': ee.List([1, 2]),
         'crs': ee.ApiFunction.lookup('Projection').call('epsg:4326')
     }
-    self.assertEquals(expected_args, p.args)
+    self.assertEqual(expected_args, p.args)
 
   def testGeometryInputs(self):
     """Verifies that a geometry with geometry inputs can be constructed."""
@@ -288,21 +287,23 @@ class GeometryTest(apitestcase.ApiTestCase):
     line = ee.Geometry.LineString([p1, p2])
 
     self.assertTrue(isinstance(line, ee.Geometry))
-    self.assertEquals(
+    self.assertEqual(
         ee.ApiFunction.lookup('GeometryConstructors.LineString'), line.func)
-    self.assertEquals({'coordinates': ee.List([p1, p2])}, line.args)
+    self.assertEqual({'coordinates': ee.List([p1, p2])}, line.args)
 
   def testOldPointKeywordArgs(self):
     """Verifies that Points still allow keyword lon/lat args."""
-    self.assertEquals(ee.Geometry.Point(1, 2), ee.Geometry.Point(lon=1, lat=2))
-    self.assertEquals(ee.Geometry.Point(1, 2), ee.Geometry.Point(1, lat=2))
+    self.assertEqual(ee.Geometry.Point(1, 2), ee.Geometry.Point(lon=1, lat=2))
+    self.assertEqual(ee.Geometry.Point(1, 2), ee.Geometry.Point(1, lat=2))
 
   def testOldRectangleKeywordArgs(self):
     """Verifies that Rectangles still allow keyword xlo/ylo/xhi/yhi args."""
-    self.assertEquals(ee.Geometry.Rectangle(1, 2, 3, 4),
-                      ee.Geometry.Rectangle(xlo=1, ylo=2, xhi=3, yhi=4))
-    self.assertEquals(ee.Geometry.Rectangle(1, 2, 3, 4),
-                      ee.Geometry.Rectangle(1, 2, xhi=3, yhi=4))
+    self.assertEqual(
+        ee.Geometry.Rectangle(1, 2, 3, 4),
+        ee.Geometry.Rectangle(xlo=1, ylo=2, xhi=3, yhi=4))
+    self.assertEqual(
+        ee.Geometry.Rectangle(1, 2, 3, 4),
+        ee.Geometry.Rectangle(1, 2, xhi=3, yhi=4))
 
   def assertValid(self, nesting, ctor, *coords):
     """Checks that geometry is valid and has the expected nesting level.
@@ -317,7 +318,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     self.assertTrue(isinstance(geometry, ee.Geometry))
     self.assertTrue(isinstance(geometry.toGeoJSON(), dict))
     final_coords = geometry.toGeoJSON()['coordinates']
-    self.assertEquals(nesting, ee.Geometry._isValidCoordinates(final_coords))
+    self.assertEqual(nesting, ee.Geometry._isValidCoordinates(final_coords))
 
   def assertInvalid(self, ctor, msg, *coords):
     """Verifies that geometry is invalid.
@@ -339,11 +340,11 @@ class GeometryTest(apitestcase.ApiTestCase):
     b = ee.Geometry.Point(2, 1)
     c = ee.Geometry.Point(1, 2)
 
-    self.assertEquals(a, a)
-    self.assertNotEquals(a, b)
-    self.assertEquals(a, c)
-    self.assertNotEquals(b, c)
-    self.assertNotEquals(hash(a), hash(b))
+    self.assertEqual(a, a)
+    self.assertNotEqual(a, b)
+    self.assertEqual(a, c)
+    self.assertNotEqual(b, c)
+    self.assertNotEqual(hash(a), hash(b))
 
 
 if __name__ == '__main__':

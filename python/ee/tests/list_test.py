@@ -14,13 +14,15 @@ class ListTest(apitestcase.ApiTestCase):
   def testList(self):
     """Verifies basic behavior of ee.List."""
     l = ee.List([1, 2, 3])
-    self.assertEquals([1, 2, 3], ee.Serializer(False)._encode(l))
+    self.assertEqual([1, 2, 3], ee.Serializer(False)._encode(l))
 
     computed = ee.List([1, 2, 3]).slice(0)    # pylint: disable=no-member
     self.assertTrue(isinstance(computed, ee.List))
-    self.assertEquals(ee.ApiFunction.lookup('List.slice'), computed.func)
-    self.assertEquals({'list': ee.List([1, 2, 3]), 'start': ee.Number(0)},
-                      computed.args)
+    self.assertEqual(ee.ApiFunction.lookup('List.slice'), computed.func)
+    self.assertEqual({
+        'list': ee.List([1, 2, 3]),
+        'start': ee.Number(0)
+    }, computed.args)
 
   def testMapping(self):
     lst = ee.List(['foo', 'bar'])
@@ -28,8 +30,8 @@ class ListTest(apitestcase.ApiTestCase):
     mapped = lst.map(body)
 
     self.assertTrue(isinstance(mapped, ee.List))
-    self.assertEquals(ee.ApiFunction.lookup('List.map'), mapped.func)
-    self.assertEquals(lst, mapped.args['list'])
+    self.assertEqual(ee.ApiFunction.lookup('List.map'), mapped.func)
+    self.assertEqual(lst, mapped.args['list'])
 
     # Need to do a serialized comparison for the function body because
     # variables returned from CustomFunction.variable() do not implement
@@ -39,8 +41,8 @@ class ListTest(apitestcase.ApiTestCase):
         'args': [{'name': '_MAPPING_VAR_0_0', 'type': 'Object'}]
     }
     expected_function = ee.CustomFunction(sig, body)
-    self.assertEquals(expected_function.serialize(),
-                      mapped.args['baseAlgorithm'].serialize())
+    self.assertEqual(expected_function.serialize(),
+                     mapped.args['baseAlgorithm'].serialize())
 
   def testInternals(self):
     """Test eq(), ne() and hash()."""
@@ -52,8 +54,9 @@ class ListTest(apitestcase.ApiTestCase):
     self.assertFalse(a.__eq__(b))
     self.assertTrue(a.__eq__(c))
     self.assertTrue(b.__ne__(c))
-    self.assertNotEquals(a.__hash__(), b.__hash__())
-    self.assertEquals(a.__hash__(), c.__hash__())
+    self.assertNotEqual(a.__hash__(), b.__hash__())
+    self.assertEqual(a.__hash__(), c.__hash__())
+
 
 if __name__ == '__main__':
   unittest.main()

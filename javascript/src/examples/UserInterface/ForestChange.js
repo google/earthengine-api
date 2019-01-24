@@ -86,7 +86,7 @@ function addZeroAndWaterMask(visualized, original) {
  * Additional component configuration
  */
 
-// Add a title and some explanitory text to a side panel.
+// Add a title and some explanatory text to a side panel.
 var header = ui.Label('Global Forest Change', {fontSize: '36px', color: 'red'});
 var text = ui.Label(
     'Results from analysis of Landsat images characterizing forest extent and change.',
@@ -96,17 +96,14 @@ var toolPanel = ui.Panel([header, text], 'flow', {width: '300px'});
 ui.root.widgets().add(toolPanel);
 
 // Create a hyperlink to an external reference.
-var link = ui.Chart(
-    [
-      ['For more information'],
-      ['<a target="_blank" href=http://science.sciencemag.org/content/342/6160/850>' +
-       'Science paper by Hansen, Potapov, Moore, Hancher et al.</a>']
-    ],
-    'Table', {allowHtml: true});
-var linkPanel = ui.Panel([link], 'flow', {width: '300px', height: '125px'});
+var link = ui.Label(
+    'Science paper by Hansen, Potapov, Moore, Hancher et al.', {},
+    'http://science.sciencemag.org/content/342/6160/850');
+var linkPanel = ui.Panel(
+    [ui.Label('For more information', {fontWeight: 'bold'}), link]);
 toolPanel.add(linkPanel);
 
-// Create a layer selecter pulldown.
+// Create a layer selector pulldown.
 // The elements of the pulldown are the keys of the layerProperties dictionary.
 var selectItems = Object.keys(layerProperties);
 

@@ -25,31 +25,31 @@ class DateTest(apitestcase.ApiTestCase):
 
     for d in dates:
       self.assertTrue(isinstance(d, ee.Date))
-      self.assertEquals(datefunc, d.func)
+      self.assertEqual(datefunc, d.func)
 
-    self.assertEquals(d1.args, {'value': '2000-01-01'})
+    self.assertEqual(d1.args, {'value': '2000-01-01'})
     for d in dates[1:]:
-      self.assertEquals(d.args['value'], 946684800000)
+      self.assertEqual(d.args['value'], 946684800000)
 
     d5 = ee.Date(ee.CustomFunction.variable('Date', 'foo'))
     self.assertTrue(isinstance(d5, ee.Date))
     self.assertTrue(d5.isVariable())
-    self.assertEquals('foo', d5.varName)
+    self.assertEqual('foo', d5.varName)
 
     # A non-date variable.
     v = ee.CustomFunction.variable('Number', 'bar')
     d6 = ee.Date(v)
     self.assertTrue(isinstance(d6, ee.Date))
     self.assertFalse(d6.isVariable())
-    self.assertEquals(datefunc, d6.func)
-    self.assertEquals({'value': v}, d6.args)
+    self.assertEqual(datefunc, d6.func)
+    self.assertEqual({'value': v}, d6.args)
 
     # A non-date ComputedObject, promotion and casting.
     obj = ee.ApiFunction.call_('DateRange', 1, 2)
     d7 = ee.Date(obj)
     self.assertTrue(isinstance(d7, ee.Date))
-    self.assertEquals(datefunc, d7.func)
-    self.assertEquals({'value': obj}, d7.args)
+    self.assertEqual(datefunc, d7.func)
+    self.assertEqual({'value': obj}, d7.args)
 
 
 if __name__ == '__main__':

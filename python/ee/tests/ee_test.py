@@ -28,27 +28,27 @@ class EETestCase(apitestcase.ApiTestCase):
 
     # Verify that the base state is uninitialized.
     self.assertFalse(ee.data._initialized)
-    self.assertEquals(ee.data._api_base_url, None)
-    self.assertEquals(ee.ApiFunction._api, None)
+    self.assertEqual(ee.data._api_base_url, None)
+    self.assertEqual(ee.ApiFunction._api, None)
     self.assertFalse(ee.Image._initialized)
 
     # Verify that ee.Initialize() sets the URL and initializes classes.
     ee.Initialize(None, 'foo')
     self.assertTrue(ee.data._initialized)
-    self.assertEquals(ee.data._api_base_url, 'foo/api')
-    self.assertEquals(ee.ApiFunction._api, {})
+    self.assertEqual(ee.data._api_base_url, 'foo/api')
+    self.assertEqual(ee.ApiFunction._api, {})
     self.assertTrue(ee.Image._initialized)
 
     # Verify that ee.Initialize(None) does not override custom URLs.
     ee.Initialize(None)
     self.assertTrue(ee.data._initialized)
-    self.assertEquals(ee.data._api_base_url, 'foo/api')
+    self.assertEqual(ee.data._api_base_url, 'foo/api')
 
     # Verify that ee.Reset() reverts everything to the base state.
     ee.Reset()
     self.assertFalse(ee.data._initialized)
-    self.assertEquals(ee.data._api_base_url, None)
-    self.assertEquals(ee.ApiFunction._api, None)
+    self.assertEqual(ee.data._api_base_url, None)
+    self.assertEqual(ee.ApiFunction._api, None)
     self.assertFalse(ee.Image._initialized)
 
   def testCallAndApply(self):
@@ -81,26 +81,25 @@ class EETestCase(apitestcase.ApiTestCase):
 
     applied_with_images = ee.apply(
         'fakeFunction', {'image1': image1, 'image2': image2})
-    self.assertEquals(expected, applied_with_images)
+    self.assertEqual(expected, applied_with_images)
 
     applied_with_numbers = ee.apply('fakeFunction', {'image1': 1, 'image2': 2})
-    self.assertEquals(expected, applied_with_numbers)
+    self.assertEqual(expected, applied_with_numbers)
 
     called_with_numbers = ee.call('fakeFunction', 1, 2)
-    self.assertEquals(expected, called_with_numbers)
+    self.assertEqual(expected, called_with_numbers)
 
     # Test call and apply() with a custom function.
     sig = {'returns': 'Image', 'args': [{'name': 'foo', 'type': 'Image'}]}
     func = ee.CustomFunction(sig, lambda foo: ee.call('fakeFunction', 42, foo))
     expected_custom_function_call = ee.Image(
         ee.ComputedObject(func, {'foo': ee.Image(13)}))
-    self.assertEquals(expected_custom_function_call, ee.call(func, 13))
-    self.assertEquals(expected_custom_function_call,
-                      ee.apply(func, {'foo': 13}))
+    self.assertEqual(expected_custom_function_call, ee.call(func, 13))
+    self.assertEqual(expected_custom_function_call, ee.apply(func, {'foo': 13}))
 
     # Test None promotion.
     called_with_null = ee.call('fakeFunction', None, 1)
-    self.assertEquals(None, called_with_null.args['image1'])
+    self.assertEqual(None, called_with_null.args['image1'])
 
   def testDynamicClasses(self):
     """Verifies dynamic class initialization."""
@@ -186,25 +185,26 @@ class EETestCase(apitestcase.ApiTestCase):
 
     # Try out the constructors.
     kernel = ee.ApiFunction('Kernel.circle').call(1, 2)
-    self.assertEquals(kernel, ee.Kernel.circle(1, 2))
+    self.assertEqual(kernel, ee.Kernel.circle(1, 2))
 
     array = ee.ApiFunction('Array').call([1, 2])
-    self.assertEquals(array, ee.Array([1, 2]))
-    self.assertEquals(array, ee.Array(ee.Array([1, 2])))
+    self.assertEqual(array, ee.Array([1, 2]))
+    self.assertEqual(array, ee.Array(ee.Array([1, 2])))
 
     # Try out the member function.
-    self.assertEquals(ee.ApiFunction('Array.cos').call(array),
-                      ee.Array([1, 2]).cos())
+    self.assertEqual(
+        ee.ApiFunction('Array.cos').call(array),
+        ee.Array([1, 2]).cos())
 
     # Test argument promotion.
     f1 = ee.ApiFunction('Array.cos').call([1, 2])
     f2 = ee.ApiFunction('Array.cos').call(ee.Array([1, 2]))
-    self.assertEquals(f1, f2)
+    self.assertEqual(f1, f2)
     self.assertTrue(isinstance(f1, ee.Array))
 
     f3 = ee.call('fakeFunction', 'mean')
     f4 = ee.call('fakeFunction', ee.Reducer.mean())
-    self.assertEquals(f3, f4)
+    self.assertEqual(f3, f4)
 
     try:
       ee.call('fakeFunction', 'moo')
@@ -252,7 +252,7 @@ class EETestCase(apitestcase.ApiTestCase):
 
     # Try to cast something that's already of the right class.
     x = ee.Foo('argument')
-    self.assertEquals(ee.Foo(x), x)
+    self.assertEqual(ee.Foo(x), x)
 
     # Tests for dynamic classes, where there is a constructor.
     #
@@ -260,14 +260,14 @@ class EETestCase(apitestcase.ApiTestCase):
     x = ee.Foo('a')
     y = ee.Foo(x, 'b')
     ctor = ee.ApiFunction.lookup('Foo')
-    self.assertEquals(y.func, ctor)
-    self.assertEquals(y.args, {'arg1': x, 'arg2': 'b'})
+    self.assertEqual(y.func, ctor)
+    self.assertEqual(y.args, {'arg1': x, 'arg2': 'b'})
 
     # Can't cast a primitive; call the constructor.
-    self.assertEquals(ctor, ee.Foo(1).func)
+    self.assertEqual(ctor, ee.Foo(1).func)
 
     # A computed object, but not this class; call the constructor.
-    self.assertEquals(ctor, ee.Foo(ee.List([1, 2, 3])).func)
+    self.assertEqual(ctor, ee.Foo(ee.List([1, 2, 3])).func)
 
     # Tests for dynamic classes, where there isn't a constructor.
     #
@@ -281,7 +281,7 @@ class EETestCase(apitestcase.ApiTestCase):
     # Now cast something else to a Bar and verify it was just a cast.
     cast = ee.Bar(ee.Foo(1))
     self.assertTrue(isinstance(cast, ee.Bar))
-    self.assertEquals(ctor, cast.func)
+    self.assertEqual(ctor, cast.func)
 
     # We shouldn't be able to cast with more than 1 arg.
     try:
@@ -303,7 +303,7 @@ class EETestCase(apitestcase.ApiTestCase):
     result = ee.Geometry.Rectangle(1, 1, 2, 2).bounds(0, 'EPSG:4326')
     expected = (ee.Geometry.Polygon([[1, 2], [1, 1], [2, 1], [2, 2]])
                 .bounds(ee.ErrorMargin(0), ee.Projection('EPSG:4326')))
-    self.assertEquals(expected, result)
+    self.assertEqual(expected, result)
 
   def testPromotion(self):
     """Verifies object promotion rules."""
@@ -321,7 +321,7 @@ class EETestCase(apitestcase.ApiTestCase):
     # Promote an untyped variable to an Element.
     untyped = ee.ComputedObject(None, None, 'foo')
     self.assertTrue(isinstance(ee._Promote(untyped, 'Element'), ee.Element))
-    self.assertEquals('foo', ee._Promote(untyped, 'Element').varName)
+    self.assertEqual('foo', ee._Promote(untyped, 'Element').varName)
 
   def testUnboundMethods(self):
     """Verifies unbound method attachment to ee.Algorithms."""
@@ -363,8 +363,8 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertTrue(callable(ee.Algorithms.Foo))
     self.assertTrue(callable(ee.Algorithms.Foo.bar))
     self.assertTrue('Quux' not in ee.Algorithms)
-    self.assertEquals(ee.call('Foo.bar'), ee.Algorithms.Foo.bar())
-    self.assertNotEquals(ee.Algorithms.Foo.bar(), ee.Algorithms.last())
+    self.assertEqual(ee.call('Foo.bar'), ee.Algorithms.Foo.bar())
+    self.assertNotEqual(ee.Algorithms.Foo.bar(), ee.Algorithms.last())
 
   def testNonAsciiDocumentation(self):
     """Verifies that non-ASCII characters in documentation work."""
@@ -410,14 +410,14 @@ class EETestCase(apitestcase.ApiTestCase):
     # In Python 2, the docstrings end up UTF-8 encoded. In Python 3, they remain
     # Unicode.
     if six.PY3:
-      self.assertEquals(ee.Algorithms.Foo.__doc__, foo)
-      self.assertEquals(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
-      self.assertEquals(ee.Image.baz.__doc__, baz)
+      self.assertEqual(ee.Algorithms.Foo.__doc__, foo)
+      self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
+      self.assertEqual(ee.Image.baz.__doc__, baz)
     else:
-      self.assertEquals(ee.Algorithms.Foo.__doc__,
-                        '\xef\xac\x80\xc3\xb6\xc7\xab')
-      self.assertEquals(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: b\xc3\xa4r')
-      self.assertEquals(ee.Image.baz.__doc__, 'b\xc3\xa2\xc3\x9f')
+      self.assertEqual(ee.Algorithms.Foo.__doc__,
+                       '\xef\xac\x80\xc3\xb6\xc7\xab')
+      self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: b\xc3\xa4r')
+      self.assertEqual(ee.Image.baz.__doc__, 'b\xc3\xa2\xc3\x9f')
 
   def testDatePromtion(self):
     # Make a feature, put a time in it, and get it out as a date.
@@ -427,8 +427,8 @@ class EETestCase(apitestcase.ApiTestCase):
     date_range = ee.call('DateRange', feature.get('x'), feature.get('y'))
 
     # Check that the start and end args are wrapped in a call to Date.
-    self.assertEquals(date_range.args['start'].func._signature['name'], 'Date')
-    self.assertEquals(date_range.args['end'].func._signature['name'], 'Date')
+    self.assertEqual(date_range.args['start'].func._signature['name'], 'Date')
+    self.assertEqual(date_range.args['end'].func._signature['name'], 'Date')
 
 
 if __name__ == '__main__':

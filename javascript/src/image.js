@@ -167,11 +167,11 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getMap, arguments);
 
-  var request = ee.Image.generateImageRequest_(this, args['visParams']);
+  var request = ee.Image.applyVisualization_(this, args['visParams']);
 
   if (args['callback']) {
     const callback =
-        /** @type {!function(!ee.data.MapId=, string=)} */ (args['callback']);
+        /** @type {function(!ee.data.MapId=, string=)} */ (args['callback']);
     ee.data.getMapId(
         request,
         // Put the image object into the response from getMapId.
@@ -202,7 +202,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  * @return {!Object} A completed request object.
  * @private
  */
-ee.Image.generateImageRequest_ = function(image, params) {
+ee.Image.applyVisualization_ = function(image, params) {
   // Split the parameters into those handled handled by visualize()
   // and those that aren't.
   var keysToExtract = ["bands", "gain", "bias", "min", "max",
@@ -222,7 +222,7 @@ ee.Image.generateImageRequest_ = function(image, params) {
     image = /** @type {!ee.Image} */ (
         ee.ApiFunction._apply('Image.visualize', visParams));
   }
-  request.image = image.serialize();
+  request.image = image;
   return request;
 };
 
@@ -282,7 +282,7 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 
 /**
  * Get a thumbnail URL for this image.
- * @param {Object} params Parameters identical to getMapId, plus, optionally:
+ * @param {!Object} params Parameters identical to getMapId, plus, optionally:
  *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
  *         dimensions of the thumbnail to render, in pixels. If only one
  *         number is passed, it is used as the maximum, and the other
@@ -297,9 +297,10 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
  * @export
  */
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
-  var args = ee.arguments.extractFromFunction(
+  const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getThumbURL, arguments);
-  var request = ee.Image.generateImageRequest_(this, args['params']);
+  const
+  request = ee.Image.applyVisualization_(this, args['params']);
   if (request['region']) {
     if (goog.isArray(request['region']) ||
         ee.Types.isRegularObject(request['region'])) {
@@ -310,8 +311,8 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
     }
   }
   if (args['callback']) {
-    var callbackWrapper = function(thumbId, opt_error) {
-      var thumbUrl = '';
+    const callbackWrapper = function(thumbId, opt_error) {
+      let thumbUrl = '';
       if (!goog.isDef(opt_error)) {
         try {
           thumbUrl = ee.data.makeThumbUrl(thumbId);
@@ -324,7 +325,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
     ee.data.getThumbId(request, callbackWrapper);
   } else {
     return ee.data.makeThumbUrl(
-        /** @type {ee.data.ThumbnailId} */ (ee.data.getThumbId(request)));
+        /** @type {!ee.data.ThumbnailId} */ (ee.data.getThumbId(request)));
   }
 };
 

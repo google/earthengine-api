@@ -61,8 +61,8 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
 
     ee.ApiFunction.importApi(Base, 'Image', 'Image')
     ee.ApiFunction.importApi(Child, 'Image', 'Image')
-    self.assertEquals(Base.ClientOverride, Child.ClientOverride)
-    self.assertNotEquals(Base.addBands, Child.addBands)
+    self.assertEqual(Base.ClientOverride, Child.ClientOverride)
+    self.assertNotEqual(Base.addBands, Child.addBands)
 
 
 if __name__ == '__main__':

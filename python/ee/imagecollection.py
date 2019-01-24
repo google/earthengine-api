@@ -9,6 +9,7 @@
 from . import apifunction
 from . import collection
 from . import computedobject
+from . import data
 from . import ee_exception
 from . import ee_list
 from . import ee_types
@@ -127,3 +128,17 @@ class ImageCollection(collection.Collection):
   @staticmethod
   def elementType():
     return image.Image
+
+  def prepare_for_export(self, params):
+    """Applies all relevant export parameters to an ImageCollection.
+
+    Args:
+      params: the export request parameters.
+
+    Returns:
+      A tuple containing:
+      - an ImageCollection that has had many of the request parameters applied
+        to it
+      - any remaining parameters.
+    """
+    return self, params

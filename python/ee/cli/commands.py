@@ -18,6 +18,7 @@ import datetime
 import json
 import os
 import re
+import six
 import sys
 import webbrowser
 
@@ -33,7 +34,7 @@ import ee
 from ee.cli import utils
 
 # Constants used in ACLs.
-ALL_USERS = 'AllUsers'
+ALL_USERS = 'allUsers'
 ALL_USERS_CAN_READ = 'all_users_can_read'
 READERS = 'readers'
 WRITERS = 'writers'
@@ -146,6 +147,8 @@ def _timestamp_ms_for_datetime(datetime_obj):
       datetime_obj.microsecond / 1000)
 
 
+
+
 def _decode_date(string):
   """Decodes a date from a command line argument, returning msec since epoch".
 
@@ -154,12 +157,14 @@ def _decode_date(string):
       date formats.
 
   Returns:
-    long, ms since epoch
+    long, ms since epoch, or '' if the input is empty.
 
   Raises:
     argparse.ArgumentTypeError: if string does not conform to a legal
       date format.
   """
+  if not string:
+    return ''
 
   try:
     return int(string)
@@ -241,17 +246,23 @@ def _add_property_flags(parser):
 
 
 def _decode_property_flags(args):
-  """Decodes metadata properties from args as a list of (name,value) pairs."""
+  """Decodes metadata properties from args as a name->value dict."""
   property_list = list(args.property or [])
-  if args.time_start:
-    property_list.append((SYSTEM_TIME_START, args.time_start))
-  if args.time_end:
-    property_list.append((SYSTEM_TIME_END, args.time_end))
   names = [name for name, _ in property_list]
   duplicates = [name for name, count in Counter(names).items() if count > 1]
   if duplicates:
     raise ee.EEException('Duplicate property name(s): %s.' % duplicates)
   return dict(property_list)
+
+
+def _decode_timestamp_flags(args):
+  """Decodes timestamp properties from args as a name->value dict."""
+  result = {}
+  if args.time_start is not None:
+    result[SYSTEM_TIME_START] = args.time_start
+  if args.time_end is not None:
+    result[SYSTEM_TIME_END] = args.time_end
+  return result
 
 
 def _check_valid_files(filenames):
@@ -345,7 +356,7 @@ class AclChCommand(object):
   Each change specifies the email address of a user or group and,
   for additions, one of R or W corresponding to the read or write
   permissions to be granted, as in "user@domain.com:R". Use the
-  special name "AllUsers" to change whether all users can read the
+  special name "allUsers" to change whether all users can read the
   asset.
   """
 
@@ -359,14 +370,16 @@ class AclChCommand(object):
     parser.add_argument('asset_id', help='ID of the asset.')
 
   def run(self, args, config):
+    """Performs an ACL update."""
     config.ee_init()
     permissions = self._parse_permissions(args)
     acl = ee.data.getAssetAcl(args.asset_id)
     self._apply_permissions(acl, permissions)
-    # The original permissions will contain an 'owners' stanza, but EE
-    # does not currently allow setting the owner ACL so we have to
-    # remove it even though it has not changed.
-    del acl['owners']
+    if not config.use_cloud_api:
+      # The original permissions will contain an 'owners' stanza, but the
+      # non-Cloud EE API does not allow setting the owner ACL so we have to
+      # remove it even though it has not changed.
+      del acl['owners']
     ee.data.setAssetAcl(args.asset_id, json.dumps(acl))
 
   def _parse_permissions(self, args):
@@ -375,14 +388,14 @@ class AclChCommand(object):
     permissions = {}
     if args.u:
       for grant in args.u:
-        parts = grant.split(':')
+        parts = grant.rsplit(':', 1)
         if len(parts) != 2 or parts[1] not in ['R', 'W']:
           raise ee.EEException('Invalid permission "%s".' % grant)
         user, role = parts
         if user in permissions:
           raise ee.EEException('Multiple permission settings for "%s".' % user)
-        if user == ALL_USERS and role == 'W':
-          raise ee.EEException('Cannot grant write permissions to AllUsers.')
+        if self._is_all_users(user) and role == 'W':
+          raise ee.EEException('Cannot grant write permissions to all users.')
         permissions[user] = role
     if args.d:
       for user in args.d:
@@ -393,8 +406,8 @@ class AclChCommand(object):
 
   def _apply_permissions(self, acl, permissions):
     """Applies the given permission edits to the given acl."""
-    for user, role in permissions.iteritems():
-      if user == ALL_USERS:
+    for user, role in six.iteritems(permissions):
+      if self._is_all_users(user):
         acl[ALL_USERS_CAN_READ] = (role == 'R')
       elif role == 'R':
         if user not in acl[READERS]:
@@ -411,6 +424,14 @@ class AclChCommand(object):
           acl[READERS].remove(user)
         if user in acl[WRITERS]:
           acl[WRITERS].remove(user)
+
+  def _is_all_users(self, user):
+    """Determines if a user name represents the special "all users" entity."""
+    # We previously used "AllUsers" as the magic string to denote that we wanted
+    # to apply some permission to everyone. However, Google Cloud convention for
+    # this concept is "allUsers". Because some people might be using one and
+    # some the other, we do a case-insentive comparison.
+    return user.lower() == ALL_USERS.lower()
 
 
 class AclGetCommand(object):
@@ -466,10 +487,10 @@ class AclSetCommand(object):
     else:
       acl = json.load(open(args.file_or_acl_name))
       # In the expected usage the ACL file will have come from a previous
-      # invocation of 'acl get', which means it will include an 'owners'
-      # stanza, but EE does not currently allow setting the owner ACL,
-      # so we have to remove it.
-      if 'owners' in acl:
+      # invocation of 'acl get', which means it will include an 'owners' stanza,
+      # but the non-Cloud EE API does not allow setting the owner ACL, so we
+      # have to remove it.
+      if 'owners' in acl and not config.use_cloud_api:
         print('Warning: Not updating the owner ACL.')
         del acl['owners']
     ee.data.setAssetAcl(args.asset_id, json.dumps(acl))
@@ -526,10 +547,12 @@ class AssetSetCommand(object):
     _add_property_flags(parser)
 
   def run(self, args, config):
-    properties = _decode_property_flags(args)
+    """Runs the asset update."""
     config.ee_init()
-    if not properties:
+    properties = _decode_property_flags(args)
+    if not properties and args.time_start is None and args.time_end is None:
       raise ee.EEException('No properties specified.')
+    properties.update(_decode_timestamp_flags(args))
     ee.data.setAssetProperties(args.asset_id, properties)
 
 
@@ -681,7 +704,8 @@ class ListCommand(object):
       else:
         print(asset['id'])
 
-      if recursive and asset['type'] == ee.data.ASSET_TYPE_FOLDER:
+      if recursive and asset['type'] in (ee.data.ASSET_TYPE_FOLDER,
+                                         ee.data.ASSET_TYPE_FOLDER_CLOUD):
         list_req = {'id': asset['id']}
         children = ee.data.getList(list_req)
         self._print_assets(children, max_items, indent, long_format, recursive)
@@ -730,9 +754,12 @@ class SizeCommand(object):
     # and show totals for non-leaf children.
     # If args.summarize is False, print sizes of all children.
     for asset in assets:
-      is_parent = asset['type'] in [
+      is_parent = asset['type'] in (
           ee.data.ASSET_TYPE_FOLDER,
-          ee.data.ASSET_TYPE_IMAGE_COLL]
+          ee.data.ASSET_TYPE_IMAGE_COLL,
+          ee.data.ASSET_TYPE_FOLDER_CLOUD,
+          ee.data.ASSET_TYPE_IMAGE_COLL_CLOUD,
+      )
       if not is_parent or args.summarize:
         self._print_size(asset)
       else:
@@ -754,6 +781,10 @@ class SizeCommand(object):
         'Folder': self._get_size_folder,
         'ImageCollection': self._get_size_image_collection,
         'Table': self._get_size_asset,
+        'IMAGE': self._get_size_asset,
+        'FOLDER': self._get_size_folder,
+        'IMAGE_COLLECTION': self._get_size_image_collection,
+        'TABLE': self._get_size_asset,
     }
 
     if asset['type'] not in size_parsers:
@@ -828,7 +859,9 @@ class RmCommand(object):
       return
     if recursive:
       if info['type'] in (ee.data.ASSET_TYPE_FOLDER,
-                          ee.data.ASSET_TYPE_IMAGE_COLL):
+                          ee.data.ASSET_TYPE_IMAGE_COLL,
+                          ee.data.ASSET_TYPE_FOLDER_CLOUD,
+                          ee.data.ASSET_TYPE_IMAGE_COLL_CLOUD):
         children = ee.data.getList({'id': asset_id})
         for child in children:
           self._delete_asset(child['id'], True, verbose, dry_run)
@@ -1089,6 +1122,13 @@ class UploadImageCommand(object):
           'properties': properties,
           'tilesets': [tileset]
       }
+      # pylint:disable=g-explicit-bool-comparison
+      if args.time_start is not None and args.time_start != '':
+        manifest['start_time'] = _cloud_timestamp_for_timestamp_ms(
+            args.time_start)
+      if args.time_end is not None and args.time_end != '':
+        manifest['end_time'] = _cloud_timestamp_for_timestamp_ms(args.time_end)
+      # pylint:enable=g-explicit-bool-comparison
 
       if bands:
         file_bands = []
@@ -1120,6 +1160,7 @@ class UploadImageCommand(object):
       return manifest
 
     # non-cloud API section
+    properties.update(_decode_timestamp_flags(args))
     manifest = {
         'id': args.asset_id,
         'properties': properties
@@ -1213,7 +1254,7 @@ class UploadTableCommand(object):
     parser.add_argument(
         '--x_column',
         help='The name of the numeric x coordinate column for constructing '
-             'point gemometries. If the y_column is also specified, and both '
+             'point geometries. If the y_column is also specified, and both '
              'columns contain numerical values, then a point geometry column '
              'will be constructed with x,y values in the coordinate system '
              'given in \'--crs\'. If unspecified and \'--crs\' does _not_ '
@@ -1226,7 +1267,7 @@ class UploadTableCommand(object):
     parser.add_argument(
         '--y_column',
         help='The name of the numeric y coordinate column for constructing '
-             'point gemometries. If the x_column is also specified, and both '
+             'point geometries. If the x_column is also specified, and both '
              'columns contain numerical values, then a point geometry column '
              'will be constructed with x,y values in the coordinate system '
              'given in \'--crs\'. If unspecified and \'--crs\' does _not_ '
@@ -1287,11 +1328,19 @@ class UploadTableCommand(object):
       if args.max_failed_features:
         raise ee.EEException(
             '--max_failed_features is not supported with the Cloud API')
-      return {
+      manifest = {
           'name': args.asset_id,
           'sources': [source],
           'properties': properties
       }
+      # pylint:disable=g-explicit-bool-comparison
+      if args.time_start is not None and args.time_start != '':
+        manifest['start_time'] = _cloud_timestamp_for_timestamp_ms(
+            args.time_start)
+      if args.time_end is not None and args.time_end != '':
+        manifest['end_time'] = _cloud_timestamp_for_timestamp_ms(args.time_end)
+      # pylint:enable=g-explicit-bool-comparison
+      return manifest
 
     # non-cloud API section
     source = {'primaryPath': source_files[0]}

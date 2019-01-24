@@ -20,6 +20,7 @@ import six
 
 from . import _cloud_api_utils
 from . import deprecation
+from . import encodable
 from . import serializer
 import apiclient
 
@@ -110,8 +111,11 @@ DEFAULT_CLOUD_API_BASE_URL = 'https://earthengine.googleapis.com'
 # Asset types recognized by create_assets().
 ASSET_TYPE_FOLDER = 'Folder'
 ASSET_TYPE_IMAGE_COLL = 'ImageCollection'
+# Cloud API versions of the asset types.
+ASSET_TYPE_FOLDER_CLOUD = 'FOLDER'
+ASSET_TYPE_IMAGE_COLL_CLOUD = 'IMAGE_COLLECTION'
 # Max length of the above type names
-MAX_TYPE_LENGTH = len(ASSET_TYPE_IMAGE_COLL)
+MAX_TYPE_LENGTH = len(ASSET_TYPE_IMAGE_COLL_CLOUD)
 
 # The maximum number of tasks to retrieve in each request to "/tasklist".
 _TASKLIST_PAGE_SIZE = 500
@@ -226,6 +230,40 @@ def _handle_profiling_response(response):
     _thread_locals.profile_hook(response[_PROFILE_RESPONSE_HEADER_LOWERCASE])
 
 
+def _execute_cloud_call(call, num_retries=MAX_RETRIES):
+  """Executes a Cloud API call and translates errors to EEExceptions.
+
+  Args:
+    call: The Cloud API call, with all parameters set, ready to have execute()
+      called on it.
+    num_retries: How many times retryable failures should be retried.
+
+  Returns:
+    The value returned by executing that call.
+
+  Raises:
+    EEException if the call fails.
+  """
+  try:
+    return call.execute(num_retries=num_retries)
+  except apiclient.errors.HttpError as e:
+    raise _translate_cloud_exception(e)
+
+
+def _translate_cloud_exception(http_error):
+  """Translates a Cloud API exception into an EEException.
+
+  Args:
+    http_error: An apiclient.errors.HttpError.
+
+  Returns:
+    An EEException bearing the error message from http_error.
+  """
+  # The only sane way to get a message out of an HttpError is to use a protected
+  # method.
+  return ee_exception.EEException(http_error._get_reason())  # pylint: disable=protected-access
+
+
 def setCloudApiKey(cloud_api_key):
   """Sets the Cloud API key parameter ("api_key") for all requests."""
   global _cloud_api_key
@@ -275,7 +313,7 @@ def getInfo(asset_id):
     asset_id: The asset to be retrieved.
 
   Returns:
-    The value call results.
+    The value call results, or None if the asset does not exist.
   """
   return send_('/info', {'id': asset_id})
 
@@ -604,6 +642,7 @@ def createAsset(value, opt_path=None, opt_force=False, opt_properties=None):
 
   To create an empty image collection or folder, pass in a "value" object
   with a "type" key whose value is "ImageCollection" or "Folder".
+  If you are using the Cloud API, use "IMAGE_COLLECTION" or "FOLDER".
 
   Args:
     value: An object describing the asset to create or a JSON string
@@ -751,6 +790,70 @@ def startProcessing(taskId, params):
   return send_('/processingrequest', args)
 
 
+def exportImage(request_id, params):
+  """Starts an image export task running.
+
+  Args:
+    request_id (string): A unique ID for the task, from newTaskId.
+    params: The object that describes the export task.
+
+  Returns:
+    A dict with information about the created task.
+  """
+  params = params.copy()
+  params['type'] = 'EXPORT_IMAGE'
+  return startProcessing(request_id, params)
+
+
+def exportTable(request_id, params):
+  """Starts a table export task running.
+
+  Args:
+    request_id (string): A unique ID for the task, from newTaskId.
+    params: The object that describes the export task.
+
+  Returns:
+    A dict with information about the created task.
+  """
+  params = params.copy()
+  params['type'] = 'EXPORT_FEATURES'
+  return startProcessing(request_id, params)
+
+
+def exportVideo(request_id, params):
+  """Starts a video export task running.
+
+  Args:
+    request_id (string): A unique ID for the task, from newTaskId.
+    params: The object that describes the export task.
+
+  Returns:
+    A dict with information about the created task.
+  """
+  params = params.copy()
+  params['type'] = 'EXPORT_VIDEO'
+  return startProcessing(request_id, params)
+
+
+def exportMap(request_id, params):
+  """Starts a map export task running.
+
+  Args:
+    request_id (string): A unique ID for the task, from newTaskId.
+    params: The object that describes the export task.
+
+  Returns:
+    A dict with information about the created task.
+  """
+  params = params.copy()
+  params['type'] = 'EXPORT_TILES'
+  return startProcessing(request_id, params)
+
+
+
+
+
+
 def startIngestion(request_id, params, allow_overwrite=False):
   """Creates an image asset import task.
 
@@ -791,7 +894,8 @@ def startIngestion(request_id, params, allow_overwrite=False):
     # It's only safe to retry the request if there's a unique ID to make it
     # idempotent.
     num_retries = MAX_RETRIES if request_id else 0
-    operation = _cloud_api_resource.v1().ingestImage(body=request).execute(
+    operation = _execute_cloud_call(
+        _cloud_api_resource.v1().ingestImage(body=request),
         num_retries=num_retries)
     return {
         'id':
@@ -843,7 +947,8 @@ def startTableIngestion(request_id, params, allow_overwrite=False):
     # It's only safe to retry the request if there's a unique ID to make it
     # idempotent.
     num_retries = MAX_RETRIES if request_id else 0
-    operation = _cloud_api_resource.v1().ingestTable(body=request).execute(
+    operation = _execute_cloud_call(
+        _cloud_api_resource.v1().ingestTable(body=request),
         num_retries=num_retries)
     return {
         'id':
@@ -932,10 +1037,12 @@ def setAssetAcl(assetId, aclUpdate):
   send_('/setacl', {'id': assetId, 'value': aclUpdate})
 
 
+
+
 def setAssetProperties(assetId, properties):
   """Sets metadata properties of the asset with the given ID.
 
-  To delete a property, set its value to null.
+  To delete a property, set its value to None.
   The authenticated user must be a writer or owner of the asset.
 
   Args:
@@ -943,6 +1050,8 @@ def setAssetProperties(assetId, properties):
     properties: A dictionary of keys and values for the properties to update.
   """
   send_('/setproperties', {'id': assetId, 'properties': json.dumps(properties)})
+
+
 
 
 def createAssetHome(requestedId):
@@ -1087,7 +1196,7 @@ def create_assets(asset_ids, asset_type, mk_parents):
   """Creates the specified assets if they do not exist."""
   for asset_id in asset_ids:
     if getInfo(asset_id):
-      print('Asset %s already exists' % asset_id)
+      print('Asset %s already exists.' % asset_id)
       continue
     if mk_parents:
       parts = asset_id.split('/')
@@ -1097,7 +1206,10 @@ def create_assets(asset_ids, asset_type, mk_parents):
       for part in parts[1:-1]:
         path += part
         if getInfo(path) is None:
-          createAsset({'type': ASSET_TYPE_FOLDER}, path)
+          if _use_cloud_api:
+            createAsset({'type': ASSET_TYPE_FOLDER_CLOUD}, path)
+          else:
+            createAsset({'type': ASSET_TYPE_FOLDER}, path)
         path += '/'
     createAsset({'type': asset_type}, asset_id)
 

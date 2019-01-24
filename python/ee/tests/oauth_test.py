@@ -62,7 +62,7 @@ class OAuthTest(unittest.TestCase):
 
     with open(mock_credentials_path()) as f:
       token = json.load(f)
-      self.assertEquals({'refresh_token': '123'}, token)
+      self.assertEqual({'refresh_token': '123'}, token)
 
 
 if __name__ == '__main__':

@@ -542,7 +542,7 @@ ee.data.getAlgorithms = function(opt_callback) {
 
 /**
  * Get a Map ID for a given asset
- * @param {ee.data.ImageVisualizationParameters} params
+ * @param {!ee.data.ImageVisualizationParameters} params
  *     The visualization parameters as a (client-side) JavaScript object.
  *     For Images and ImageCollections:
  *       - image (JSON string) The image to render.
@@ -563,7 +563,7 @@ ee.data.getAlgorithms = function(opt_callback) {
  *             strings (single-band previews only).
  *       - opacity (number) a number between 0 and 1 for opacity.
  *       - format (string) Either "jpg" or "png".
- * @param {function(ee.data.RawMapId, string=)=} opt_callback
+ * @param {function(!ee.data.RawMapId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.RawMapId} The mapId call results, or null if a callback
  *     is specified.
@@ -572,14 +572,24 @@ ee.data.getAlgorithms = function(opt_callback) {
 ee.data.getMapId = function(params, opt_callback) {
   params = /** @type {!ee.data.ImageVisualizationParameters} */ (
       goog.object.clone(params));
-  return /** @type {?ee.data.RawMapId} */ (
-      ee.data.send_('/mapid', ee.data.makeRequest_(params), opt_callback));
+  if (!goog.isString(params.image)) {
+    params.image = params.image.serialize();
+  }
+  const makeMapId = (result) => ee.data.makeMapId_(
+      result['mapid'], result['token'], '/map/{}', '?token={}');
+  if (opt_callback) {
+    ee.data.send_('/mapid', ee.data.makeRequest_(params),
+        (result, err) => opt_callback(result && makeMapId(result), err));
+    return null;
+  } else {
+    return makeMapId(ee.data.send_('/mapid', ee.data.makeRequest_(params)));
+  }
 };
 
 
 /**
  * Generate a URL for map tiles from a Map ID and coordinates.
- * @param {ee.data.RawMapId} mapid The mapid to generate tiles for.
+ * @param {!ee.data.RawMapId} mapid The mapid to generate tiles for.
  * @param {number} x The tile x coordinate.
  * @param {number} y The tile y coordinate.
  * @param {number} z The tile zoom level.
@@ -587,18 +597,38 @@ ee.data.getMapId = function(params, opt_callback) {
  * @export
  */
 ee.data.getTileUrl = function(mapid, x, y, z) {
-  var width = Math.pow(2, z);
-  x = x % width;
-  if (x < 0) {
-    x += width;
-  }
-  return [ee.data.tileBaseUrl_, 'map', mapid.mapid, z, x, y].join('/') +
-      '?token=' + mapid.token;
+  return mapid.formatTileUrl(x, y, z);
+};
+
+
+/**
+ * Constructs a RawMapId, with formatTileUrl configured by path and suffix.
+ * @param {string} mapid Map ID.
+ * @param {string} token Token.
+ * @param {string} path appended to tileBaseUrl. {} is replaced by mapid.
+ * @param {string} suffix appended after tile coordinates. {} replaced by token.
+ * @return {!ee.data.RawMapId}
+ * @private
+ */
+ee.data.makeMapId_ = function(mapid, token, path, suffix) {
+  path = ee.data.tileBaseUrl_ + path.replace('{}', mapid);
+  suffix = suffix.replace('{}', token);
+  // Builds a URL of the form {tileBaseUrl}{path}/{z}/{x}/{y}{suffix}
+  const formatTileUrl = (x, y, z) => {
+    const width = Math.pow(2, z);
+    x = x % width;
+    if (x < 0) {
+      x += width;
+    }
+    return [path, z, x, y].join('/') + suffix;
+  };
+  return {mapid, token, formatTileUrl};
 };
 
 
 /**
  * Retrieve a processed value from the front end.
+ * @deprecated Use ee.data.computeValue().
  * @param {Object} params The value to be evaluated, with the following
  *     possible values:
  *      - json (String) A JSON object to be evaluated.
@@ -614,9 +644,20 @@ ee.data.getValue = function(params, opt_callback) {
 
 
 /**
+ * Sends a request to compute a value.
+ * @param {*} obj
+ * @param {function(*)=} opt_callback
+ */
+ee.data.computeValue = function(obj, opt_callback) {
+  const params = {'json': ee.Serializer.toJSON(obj)};
+  return ee.data.send_('/value', ee.data.makeRequest_(params), opt_callback);
+};
+
+
+/**
  * Get a Thumbnail Id for a given asset.
- * @param {Object} params Parameters identical to those for the visParams for
- *     getMapId with the following additions:
+ * @param {!ee.data.ThumbnailOptions} params Parameters identical to those for
+ *     the visParams for getMapId with the following additions:
  *       - dimensions (a number or pair of numbers in format WIDTHxHEIGHT)
  *             Maximum dimensions of the thumbnail to render, in pixels. If
  *             only one number is passed, it is used as the maximum, and
@@ -624,7 +665,7 @@ ee.data.getValue = function(params, opt_callback) {
  *       - region (E,S,W,N or GeoJSON) Geospatial region of the image
  *             to render. By default, the whole image.
  *       - format (string) Either 'png' (default) or 'jpg'.
- * @param {function(ee.data.ThumbnailId, string=)=} opt_callback
+ * @param {function(!ee.data.ThumbnailId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.ThumbnailId} The thumb ID and token, or null if a
  *     callback is specified.
@@ -632,6 +673,9 @@ ee.data.getValue = function(params, opt_callback) {
  */
 ee.data.getThumbId = function(params, opt_callback) {
   params = goog.object.clone(params);
+  if (!goog.isString(params['image'])) {
+    params['image'] = params['image'].serialize();
+  }
   if (goog.isArray(params['dimensions'])) {
     params['dimensions'] = params['dimensions'].join('x');
   }
@@ -643,7 +687,7 @@ ee.data.getThumbId = function(params, opt_callback) {
 
 /**
  * Create a thumbnail URL from a thumbid and token.
- * @param {ee.data.ThumbnailId} id A thumbnail ID and token.
+ * @param {!ee.data.ThumbnailId} id A thumbnail ID and token.
  * @return {string} The thumbnail URL.
  * @export
  */
@@ -2145,6 +2189,11 @@ ee.data.RawMapId = class {
      * @export {string}
      */
     this.token;
+
+    /**
+     * @export {function(number,number,number):string}
+     */
+    this.formatTileUrl;
   }
 };
 
@@ -2285,7 +2334,7 @@ ee.data.ImageExportFormatConfig;
 
 /**
  * An object for specifying configuration of a task to export an image as
- * Maps Mercator map tiles to Cloud Storage.
+ * Maps Mercator map tiles or a VideoMap to Cloud Storage.
  *
  * @typedef {{
  *   id: string,

@@ -348,6 +348,19 @@ def convert_asset_id_to_asset_name(asset_id):
     return 'projects/earthengine-public/assets/' + asset_id
 
 
+def split_asset_name(asset_name):
+  """Splits an asset name into the parent and ID parts.
+
+  Args:
+    asset_name: The asset ID to split, in the form 'projects/*/assets/**'.
+
+  Returns:
+    The parent ('projects/*') and ID ('**') parts of the name.
+  """
+  projects, parent, _, remainder = asset_name.split('/', 3)
+  return projects + '/' + parent, remainder
+
+
 def convert_operation_name_to_task_id(operation_name):
   """Converts an Operation name to a task ID."""
   return re.match('operations/(.*)', operation_name).group(1)
@@ -435,7 +448,7 @@ def _convert_algorithm_argument(arg):
       })
 
 
-def convert_to_file_format(format_str):
+def convert_to_image_file_format(format_str):
   """Converts a legacy file format string to an ImageFileFormat enum value.
 
   Args:
@@ -450,8 +463,35 @@ def convert_to_file_format(format_str):
   format_str = format_str.upper()
   if format_str == 'JPG':
     return 'JPEG'
+  elif format_str == 'AUTO':
+    return 'AUTO_PNG_JPEG'
+  elif format_str == 'GEOTIFF':
+    return 'GEO_TIFF'
+  elif format_str == 'TFRECORD':
+    return 'TF_RECORD_IMAGE'
   else:
     # It's probably "JPEG" or "PNG", but might be some other supported format.
+    # Let the server validate it.
+    return format_str
+
+
+def convert_to_table_file_format(format_str):
+  """Converts a legacy file format string to a TableFileFormat enum value.
+
+  Args:
+    format_str: A string describing a table file format that was passed to
+      one of the functions in ee.data that takes table file formats.
+
+  Returns:
+    A best guess at the corresponding TableFileFormat enum name.
+  """
+  format_str = format_str.upper()
+  if format_str == 'GEOJSON':
+    return 'GEO_JSON'
+  elif format_str == 'TFRECORD':
+    return 'TF_RECORD_TABLE'
+  else:
+    # It's probably "CSV" or "KML" or one of the others.
     # Let the server validate it.
     return format_str
 
@@ -579,8 +619,10 @@ def _convert_operation_state_to_task_state(state):
 
 def convert_iam_policy_to_acl(policy):
   """Converts an IAM Policy proto to the legacy ACL format."""
-  bindings = {binding['role']: binding.get('members', [])
-              for binding in policy.get('bindings', [])}
+  bindings = {
+      binding['role']: binding.get('members', [])
+      for binding in policy.get('bindings', [])
+  }
   owners = bindings.get('roles/owner', [])
   readers = bindings.get('roles/viewer', [])
   writers = bindings.get('roles/editor', [])
@@ -589,16 +631,42 @@ def convert_iam_policy_to_acl(policy):
     readers.remove('allUsers')
   else:
     all_users_can_read = False
-  result = {
-      'owners': _convert_iam_binding_members_to_acl_list(owners),
-      'readers': _convert_iam_binding_members_to_acl_list(readers),
-      'writers': _convert_iam_binding_members_to_acl_list(writers)
-  }
+  result = {'owners': owners, 'readers': readers, 'writers': writers}
   if all_users_can_read:
     result['all_users_can_read'] = True
   return result
 
 
-def _convert_iam_binding_members_to_acl_list(binding_member_list):
-  return [re.sub('^group:|^user:', '', member)
-          for member in binding_member_list]
+def convert_acl_to_iam_policy(acl):
+  """Converts the legacy ACL format to an IAM Policy proto."""
+  owners = acl.get('owners', [])
+  readers = acl.get('readers', [])
+  if acl.get('all_users_can_read', False):
+    readers.append('allUsers')
+  writers = acl.get('writers', [])
+  bindings = []
+  if owners:
+    bindings.append({'role': 'roles/owner', 'members': owners})
+  if readers:
+    bindings.append({'role': 'roles/viewer', 'members': readers})
+  if writers:
+    bindings.append({'role': 'roles/editor', 'members': writers})
+  return {'bindings': bindings}
+
+
+def convert_to_grid_dimensions(dimensions):
+  """Converts an input value to GridDimensions.
+
+  Args:
+    dimensions: May specify a single number to indicate a square shape,
+      or a tuple of two dimensions to indicate (width,height).
+
+  Returns:
+    A GridDimensions as a dict.
+  """
+  if isinstance(dimensions, six.integer_types):
+    return {'width': dimensions, 'height': dimensions}
+  elif len(dimensions) == 1:
+    return {'width': dimensions[0], 'height': dimensions[0]}
+  else:
+    return {'width': dimensions[0], 'height': dimensions[1]}

@@ -12,7 +12,7 @@ goog.require('ee.ComputedObject');
 /**
  * Constructs a new String.
  *
- * @param {string|Object} string A string or a computed object.
+ * @param {string|!Object} string A string or a computed object.
  *
  * @constructor
  * @extends {ee.ComputedObject}
