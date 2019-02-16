@@ -129,11 +129,12 @@ class ImageCollection(collection.Collection):
   def elementType():
     return image.Image
 
+
   def prepare_for_export(self, params):
     """Applies all relevant export parameters to an ImageCollection.
 
     Args:
-      params: the export request parameters.
+      params: The export request parameters.
 
     Returns:
       A tuple containing:

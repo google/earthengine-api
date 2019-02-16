@@ -16,15 +16,13 @@ trendy = {};  // Our namespace.
  *     polygons to show on the map. For example: "['poland', 'moldova']".
  */
 trendy.boot = function(eeMapId, eeToken, serializedPolygonIds) {
-  // Load external libraries.
-  google.load('visualization', '1.0');
-  google.load('jquery', '1');
-  google.load('maps', '3', {'other_params': 'key=your-api-key-here'});
-
   // Create the Trendy Lights app.
-  google.setOnLoadCallback(function() {
-    var mapType = trendy.App.getEeMapType(eeMapId, eeToken);
-    var app = new trendy.App(mapType, JSON.parse(serializedPolygonIds));
+  google.charts.load('current', {
+    packages: ['corechart'],
+    callback: function() {
+      var mapType = trendy.App.getEeMapType(eeMapId, eeToken);
+      var app = new trendy.App(mapType, JSON.parse(serializedPolygonIds));
+    }
   });
 };
 

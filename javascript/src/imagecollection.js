@@ -11,7 +11,10 @@ goog.require('ee.Image');
 goog.require('ee.List');
 goog.require('ee.Types');
 goog.require('ee.arguments');
+goog.require('ee.data');
+goog.require('ee.data.images');
 goog.require('goog.array');
+goog.require('goog.string');
 
 
 

@@ -86,6 +86,11 @@ $jscomp.polyfill = function(target, polyfill, fromLang, toLang) {
     impl != orig && null != impl && $jscomp.defineProperty(obj, property, {configurable:!0, writable:!0, value:impl});
   }
 };
+$jscomp.polyfill("Array.prototype.find", function(orig) {
+  return orig ? orig : function(callback, opt_thisArg) {
+    return $jscomp.findInternal(this, callback, opt_thisArg).v;
+  };
+}, "es6", "es3");
 $jscomp.checkStringArgs = function(thisArg, arg, func) {
   if (null == thisArg) {
     throw new TypeError("The 'this' value for String.prototype." + func + " must not be null or undefined");
@@ -95,23 +100,21 @@ $jscomp.checkStringArgs = function(thisArg, arg, func) {
   }
   return thisArg + "";
 };
-$jscomp.polyfill("Array.prototype.find", function(orig) {
-  return orig ? orig : function(callback, opt_thisArg) {
-    return $jscomp.findInternal(this, callback, opt_thisArg).v;
-  };
-}, "es6", "es3");
-$jscomp.owns = function(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-};
-$jscomp.polyfill("Object.entries", function(orig) {
-  return orig ? orig : function(obj) {
-    var result = [], key;
-    for (key in obj) {
-      $jscomp.owns(obj, key) && result.push([key, obj[key]]);
+$jscomp.polyfill("String.prototype.repeat", function(orig) {
+  return orig ? orig : function(copies) {
+    var string = $jscomp.checkStringArgs(this, null, "repeat");
+    if (0 > copies || 1342177279 < copies) {
+      throw new RangeError("Invalid count value");
+    }
+    copies |= 0;
+    for (var result = ""; copies;) {
+      if (copies & 1 && (result += string), copies >>>= 1) {
+        string += string;
+      }
     }
     return result;
   };
-}, "es8", "es3");
+}, "es6", "es3");
 $jscomp.SYMBOL_PREFIX = "jscomp_symbol_";
 $jscomp.initSymbol = function() {
   $jscomp.initSymbol = function() {
@@ -167,6 +170,42 @@ $jscomp.iteratorFromArray = function(array, transform) {
   };
   return iter;
 };
+$jscomp.polyfill("Object.is", function(orig) {
+  return orig ? orig : function(left, right) {
+    return left === right ? 0 !== left || 1 / left === 1 / right : left !== left && right !== right;
+  };
+}, "es6", "es3");
+$jscomp.polyfill("Array.prototype.includes", function(orig) {
+  return orig ? orig : function(searchElement, opt_fromIndex) {
+    var array = this;
+    array instanceof String && (array = String(array));
+    var len = array.length, i = opt_fromIndex || 0;
+    for (0 > i && (i = Math.max(i + len, 0)); i < len; i++) {
+      var element = array[i];
+      if (element === searchElement || Object.is(element, searchElement)) {
+        return !0;
+      }
+    }
+    return !1;
+  };
+}, "es7", "es3");
+$jscomp.polyfill("String.prototype.includes", function(orig) {
+  return orig ? orig : function(searchString, opt_position) {
+    return -1 !== $jscomp.checkStringArgs(this, searchString, "includes").indexOf(searchString, opt_position || 0);
+  };
+}, "es6", "es3");
+$jscomp.owns = function(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+};
+$jscomp.polyfill("Object.entries", function(orig) {
+  return orig ? orig : function(obj) {
+    var result = [], key;
+    for (key in obj) {
+      $jscomp.owns(obj, key) && result.push([key, obj[key]]);
+    }
+    return result;
+  };
+}, "es8", "es3");
 $jscomp.polyfill("Array.prototype.values", function(orig) {
   return orig ? orig : function() {
     return $jscomp.iteratorFromArray(this, function(k, v) {
@@ -390,30 +429,16 @@ $jscomp.assign = "function" == typeof Object.assign ? Object.assign : function(t
 $jscomp.polyfill("Object.assign", function(orig) {
   return orig || $jscomp.assign;
 }, "es6", "es3");
-$jscomp.polyfill("Object.is", function(orig) {
-  return orig ? orig : function(left, right) {
-    return left === right ? 0 !== left || 1 / left === 1 / right : left !== left && right !== right;
+$jscomp.stringPadding = function(padString, padLength) {
+  var padding = void 0 !== padString ? String(padString) : " ";
+  return 0 < padLength && padding ? padding.repeat(Math.ceil(padLength / padding.length)).substring(0, padLength) : "";
+};
+$jscomp.polyfill("String.prototype.padStart", function(orig) {
+  return orig ? orig : function(targetLength, opt_padString) {
+    var string = $jscomp.checkStringArgs(this, null, "padStart");
+    return $jscomp.stringPadding(opt_padString, targetLength - string.length) + string;
   };
-}, "es6", "es3");
-$jscomp.polyfill("Array.prototype.includes", function(orig) {
-  return orig ? orig : function(searchElement, opt_fromIndex) {
-    var array = this;
-    array instanceof String && (array = String(array));
-    var len = array.length, i = opt_fromIndex || 0;
-    for (0 > i && (i = Math.max(i + len, 0)); i < len; i++) {
-      var element = array[i];
-      if (element === searchElement || Object.is(element, searchElement)) {
-        return !0;
-      }
-    }
-    return !1;
-  };
-}, "es7", "es3");
-$jscomp.polyfill("String.prototype.includes", function(orig) {
-  return orig ? orig : function(searchString, opt_position) {
-    return -1 !== $jscomp.checkStringArgs(this, searchString, "includes").indexOf(searchString, opt_position || 0);
-  };
-}, "es6", "es3");
+}, "es8", "es3");
 $jscomp.checkEs6ConformanceViaProxy = function() {
   try {
     var proxied = {}, proxy = Object.create(new $jscomp.global.Proxy(proxied, {get:function(target, key, receiver) {
@@ -653,6 +678,7 @@ goog.exportPath_ = function(name, opt_object, opt_objectToExportTo) {
 goog.define = function(name, defaultValue) {
   var defines, uncompiledDefines;
   goog.exportPath_(name, defaultValue);
+  return defaultValue;
 };
 goog.DEBUG = !0;
 goog.LOCALE = "en";
@@ -1024,7 +1050,7 @@ goog.globalEval = function(script) {
         if ("undefined" != typeof goog.global._evalTest_) {
           try {
             delete goog.global._evalTest_;
-          } catch (ignore$9) {
+          } catch (ignore$12) {
           }
           goog.evalWorksForGlobals_ = !0;
         } else {
@@ -1832,425 +1858,87 @@ goog.debug.errorcontext.getErrorContext = function(err) {
 };
 goog.debug.errorcontext.CONTEXT_KEY_ = "__closure__error__context__984382";
 goog.string = {};
-goog.string.DETECT_DOUBLE_ESCAPING = !1;
-goog.string.FORCE_NON_DOM_HTML_UNESCAPING = !1;
-goog.string.Unicode = {NBSP:"\u00a0"};
-goog.string.startsWith = function(str, prefix) {
+goog.string.internal = {};
+goog.string.internal.startsWith = function(str, prefix) {
   return 0 == str.lastIndexOf(prefix, 0);
 };
-goog.string.endsWith = function(str, suffix) {
+goog.string.internal.endsWith = function(str, suffix) {
   var l = str.length - suffix.length;
   return 0 <= l && str.indexOf(suffix, l) == l;
 };
-goog.string.caseInsensitiveStartsWith = function(str, prefix) {
-  return 0 == goog.string.caseInsensitiveCompare(prefix, str.substr(0, prefix.length));
+goog.string.internal.caseInsensitiveStartsWith = function(str, prefix) {
+  return 0 == goog.string.internal.caseInsensitiveCompare(prefix, str.substr(0, prefix.length));
 };
-goog.string.caseInsensitiveEndsWith = function(str, suffix) {
-  return 0 == goog.string.caseInsensitiveCompare(suffix, str.substr(str.length - suffix.length, suffix.length));
+goog.string.internal.caseInsensitiveEndsWith = function(str, suffix) {
+  return 0 == goog.string.internal.caseInsensitiveCompare(suffix, str.substr(str.length - suffix.length, suffix.length));
 };
-goog.string.caseInsensitiveEquals = function(str1, str2) {
+goog.string.internal.caseInsensitiveEquals = function(str1, str2) {
   return str1.toLowerCase() == str2.toLowerCase();
 };
-goog.string.subs = function(str, var_args) {
-  for (var splitParts = str.split("%s"), returnString = "", subsArguments = Array.prototype.slice.call(arguments, 1); subsArguments.length && 1 < splitParts.length;) {
-    returnString += splitParts.shift() + subsArguments.shift();
-  }
-  return returnString + splitParts.join("%s");
-};
-goog.string.collapseWhitespace = function(str) {
-  return str.replace(/[\s\xa0]+/g, " ").replace(/^\s+|\s+$/g, "");
-};
-goog.string.isEmptyOrWhitespace = function(str) {
+goog.string.internal.isEmptyOrWhitespace = function(str) {
   return /^[\s\xa0]*$/.test(str);
 };
-goog.string.isEmptyString = function(str) {
-  return 0 == str.length;
-};
-goog.string.isEmpty = goog.string.isEmptyOrWhitespace;
-goog.string.isEmptyOrWhitespaceSafe = function(str) {
-  return goog.string.isEmptyOrWhitespace(goog.string.makeSafe(str));
-};
-goog.string.isEmptySafe = goog.string.isEmptyOrWhitespaceSafe;
-goog.string.isBreakingWhitespace = function(str) {
-  return !/[^\t\n\r ]/.test(str);
-};
-goog.string.isAlpha = function(str) {
-  return !/[^a-zA-Z]/.test(str);
-};
-goog.string.isNumeric = function(str) {
-  return !/[^0-9]/.test(str);
-};
-goog.string.isAlphaNumeric = function(str) {
-  return !/[^a-zA-Z0-9]/.test(str);
-};
-goog.string.isSpace = function(ch) {
-  return " " == ch;
-};
-goog.string.isUnicodeChar = function(ch) {
-  return 1 == ch.length && " " <= ch && "~" >= ch || "\u0080" <= ch && "\ufffd" >= ch;
-};
-goog.string.stripNewlines = function(str) {
-  return str.replace(/(\r\n|\r|\n)+/g, " ");
-};
-goog.string.canonicalizeNewlines = function(str) {
-  return str.replace(/(\r\n|\r|\n)/g, "\n");
-};
-goog.string.normalizeWhitespace = function(str) {
-  return str.replace(/\xa0|\s/g, " ");
-};
-goog.string.normalizeSpaces = function(str) {
-  return str.replace(/\xa0|[ \t]+/g, " ");
-};
-goog.string.collapseBreakingSpaces = function(str) {
-  return str.replace(/[\t\r\n ]+/g, " ").replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, "");
-};
-goog.string.trim = goog.TRUSTED_SITE && String.prototype.trim ? function(str) {
+goog.string.internal.trim = goog.TRUSTED_SITE && String.prototype.trim ? function(str) {
   return str.trim();
 } : function(str) {
   return /^[\s\xa0]*([\s\S]*?)[\s\xa0]*$/.exec(str)[1];
 };
-goog.string.trimLeft = function(str) {
-  return str.replace(/^[\s\xa0]+/, "");
-};
-goog.string.trimRight = function(str) {
-  return str.replace(/[\s\xa0]+$/, "");
-};
-goog.string.caseInsensitiveCompare = function(str1, str2) {
+goog.string.internal.caseInsensitiveCompare = function(str1, str2) {
   var test1 = String(str1).toLowerCase(), test2 = String(str2).toLowerCase();
   return test1 < test2 ? -1 : test1 == test2 ? 0 : 1;
 };
-goog.string.numberAwareCompare_ = function(str1, str2, tokenizerRegExp) {
-  if (str1 == str2) {
-    return 0;
-  }
-  if (!str1) {
-    return -1;
-  }
-  if (!str2) {
-    return 1;
-  }
-  for (var tokens1 = str1.toLowerCase().match(tokenizerRegExp), tokens2 = str2.toLowerCase().match(tokenizerRegExp), count = Math.min(tokens1.length, tokens2.length), i = 0; i < count; i++) {
-    var a = tokens1[i], b = tokens2[i];
-    if (a != b) {
-      var num1 = parseInt(a, 10);
-      if (!isNaN(num1)) {
-        var num2 = parseInt(b, 10);
-        if (!isNaN(num2) && num1 - num2) {
-          return num1 - num2;
-        }
-      }
-      return a < b ? -1 : 1;
-    }
-  }
-  return tokens1.length != tokens2.length ? tokens1.length - tokens2.length : str1 < str2 ? -1 : 1;
-};
-goog.string.intAwareCompare = function(str1, str2) {
-  return goog.string.numberAwareCompare_(str1, str2, /\d+|\D+/g);
-};
-goog.string.floatAwareCompare = function(str1, str2) {
-  return goog.string.numberAwareCompare_(str1, str2, /\d+|\.\d+|\D+/g);
-};
-goog.string.numerateCompare = goog.string.floatAwareCompare;
-goog.string.urlEncode = function(str) {
-  return encodeURIComponent(String(str));
-};
-goog.string.urlDecode = function(str) {
-  return decodeURIComponent(str.replace(/\+/g, " "));
-};
-goog.string.newLineToBr = function(str, opt_xml) {
+goog.string.internal.newLineToBr = function(str, opt_xml) {
   return str.replace(/(\r\n|\r|\n)/g, opt_xml ? "<br />" : "<br>");
 };
-goog.string.htmlEscape = function(str, opt_isLikelyToContainHtmlChars) {
+goog.string.internal.htmlEscape = function(str, opt_isLikelyToContainHtmlChars) {
   if (opt_isLikelyToContainHtmlChars) {
-    str = str.replace(goog.string.AMP_RE_, "&amp;").replace(goog.string.LT_RE_, "&lt;").replace(goog.string.GT_RE_, "&gt;").replace(goog.string.QUOT_RE_, "&quot;").replace(goog.string.SINGLE_QUOTE_RE_, "&#39;").replace(goog.string.NULL_RE_, "&#0;"), goog.string.DETECT_DOUBLE_ESCAPING && (str = str.replace(goog.string.E_RE_, "&#101;"));
+    str = str.replace(goog.string.internal.AMP_RE_, "&amp;").replace(goog.string.internal.LT_RE_, "&lt;").replace(goog.string.internal.GT_RE_, "&gt;").replace(goog.string.internal.QUOT_RE_, "&quot;").replace(goog.string.internal.SINGLE_QUOTE_RE_, "&#39;").replace(goog.string.internal.NULL_RE_, "&#0;");
   } else {
-    if (!goog.string.ALL_RE_.test(str)) {
+    if (!goog.string.internal.ALL_RE_.test(str)) {
       return str;
     }
-    -1 != str.indexOf("&") && (str = str.replace(goog.string.AMP_RE_, "&amp;"));
-    -1 != str.indexOf("<") && (str = str.replace(goog.string.LT_RE_, "&lt;"));
-    -1 != str.indexOf(">") && (str = str.replace(goog.string.GT_RE_, "&gt;"));
-    -1 != str.indexOf('"') && (str = str.replace(goog.string.QUOT_RE_, "&quot;"));
-    -1 != str.indexOf("'") && (str = str.replace(goog.string.SINGLE_QUOTE_RE_, "&#39;"));
-    -1 != str.indexOf("\x00") && (str = str.replace(goog.string.NULL_RE_, "&#0;"));
-    goog.string.DETECT_DOUBLE_ESCAPING && -1 != str.indexOf("e") && (str = str.replace(goog.string.E_RE_, "&#101;"));
+    -1 != str.indexOf("&") && (str = str.replace(goog.string.internal.AMP_RE_, "&amp;"));
+    -1 != str.indexOf("<") && (str = str.replace(goog.string.internal.LT_RE_, "&lt;"));
+    -1 != str.indexOf(">") && (str = str.replace(goog.string.internal.GT_RE_, "&gt;"));
+    -1 != str.indexOf('"') && (str = str.replace(goog.string.internal.QUOT_RE_, "&quot;"));
+    -1 != str.indexOf("'") && (str = str.replace(goog.string.internal.SINGLE_QUOTE_RE_, "&#39;"));
+    -1 != str.indexOf("\x00") && (str = str.replace(goog.string.internal.NULL_RE_, "&#0;"));
   }
   return str;
 };
-goog.string.AMP_RE_ = /&/g;
-goog.string.LT_RE_ = /</g;
-goog.string.GT_RE_ = />/g;
-goog.string.QUOT_RE_ = /"/g;
-goog.string.SINGLE_QUOTE_RE_ = /'/g;
-goog.string.NULL_RE_ = /\x00/g;
-goog.string.E_RE_ = /e/g;
-goog.string.ALL_RE_ = goog.string.DETECT_DOUBLE_ESCAPING ? /[\x00&<>"'e]/ : /[\x00&<>"']/;
-goog.string.unescapeEntities = function(str) {
-  return goog.string.contains(str, "&") ? !goog.string.FORCE_NON_DOM_HTML_UNESCAPING && "document" in goog.global ? goog.string.unescapeEntitiesUsingDom_(str) : goog.string.unescapePureXmlEntities_(str) : str;
+goog.string.internal.AMP_RE_ = /&/g;
+goog.string.internal.LT_RE_ = /</g;
+goog.string.internal.GT_RE_ = />/g;
+goog.string.internal.QUOT_RE_ = /"/g;
+goog.string.internal.SINGLE_QUOTE_RE_ = /'/g;
+goog.string.internal.NULL_RE_ = /\x00/g;
+goog.string.internal.ALL_RE_ = /[\x00&<>"']/;
+goog.string.internal.whitespaceEscape = function(str, opt_xml) {
+  return goog.string.internal.newLineToBr(str.replace(/  /g, " &#160;"), opt_xml);
 };
-goog.string.unescapeEntitiesWithDocument = function(str, document) {
-  return goog.string.contains(str, "&") ? goog.string.unescapeEntitiesUsingDom_(str, document) : str;
-};
-goog.string.unescapeEntitiesUsingDom_ = function(str, opt_document) {
-  var seen = {"&amp;":"&", "&lt;":"<", "&gt;":">", "&quot;":'"'};
-  var div = opt_document ? opt_document.createElement("div") : goog.global.document.createElement("div");
-  return str.replace(goog.string.HTML_ENTITY_PATTERN_, function(s, entity) {
-    var value = seen[s];
-    if (value) {
-      return value;
-    }
-    if ("#" == entity.charAt(0)) {
-      var n = Number("0" + entity.substr(1));
-      isNaN(n) || (value = String.fromCharCode(n));
-    }
-    value || (div.innerHTML = s + " ", value = div.firstChild.nodeValue.slice(0, -1));
-    return seen[s] = value;
-  });
-};
-goog.string.unescapePureXmlEntities_ = function(str) {
-  return str.replace(/&([^;]+);/g, function(s, entity) {
-    switch(entity) {
-      case "amp":
-        return "&";
-      case "lt":
-        return "<";
-      case "gt":
-        return ">";
-      case "quot":
-        return '"';
-      default:
-        if ("#" == entity.charAt(0)) {
-          var n = Number("0" + entity.substr(1));
-          if (!isNaN(n)) {
-            return String.fromCharCode(n);
-          }
-        }
-        return s;
-    }
-  });
-};
-goog.string.HTML_ENTITY_PATTERN_ = /&([^;\s<&]+);?/g;
-goog.string.whitespaceEscape = function(str, opt_xml) {
-  return goog.string.newLineToBr(str.replace(/  /g, " &#160;"), opt_xml);
-};
-goog.string.preserveSpaces = function(str) {
-  return str.replace(/(^|[\n ]) /g, "$1" + goog.string.Unicode.NBSP);
-};
-goog.string.stripQuotes = function(str, quoteChars) {
-  for (var length = quoteChars.length, i = 0; i < length; i++) {
-    var quoteChar = 1 == length ? quoteChars : quoteChars.charAt(i);
-    if (str.charAt(0) == quoteChar && str.charAt(str.length - 1) == quoteChar) {
-      return str.substring(1, str.length - 1);
-    }
-  }
-  return str;
-};
-goog.string.truncate = function(str, chars, opt_protectEscapedCharacters) {
-  opt_protectEscapedCharacters && (str = goog.string.unescapeEntities(str));
-  str.length > chars && (str = str.substring(0, chars - 3) + "...");
-  opt_protectEscapedCharacters && (str = goog.string.htmlEscape(str));
-  return str;
-};
-goog.string.truncateMiddle = function(str, chars, opt_protectEscapedCharacters, opt_trailingChars) {
-  opt_protectEscapedCharacters && (str = goog.string.unescapeEntities(str));
-  if (opt_trailingChars && str.length > chars) {
-    opt_trailingChars > chars && (opt_trailingChars = chars), str = str.substring(0, chars - opt_trailingChars) + "..." + str.substring(str.length - opt_trailingChars);
-  } else {
-    if (str.length > chars) {
-      var half = Math.floor(chars / 2);
-      str = str.substring(0, half + chars % 2) + "..." + str.substring(str.length - half);
-    }
-  }
-  opt_protectEscapedCharacters && (str = goog.string.htmlEscape(str));
-  return str;
-};
-goog.string.specialEscapeChars_ = {"\x00":"\\0", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\x0B", '"':'\\"', "\\":"\\\\", "<":"<"};
-goog.string.jsEscapeCache_ = {"'":"\\'"};
-goog.string.quote = function(s) {
-  s = String(s);
-  for (var sb = ['"'], i = 0; i < s.length; i++) {
-    var ch = s.charAt(i), cc = ch.charCodeAt(0);
-    sb[i + 1] = goog.string.specialEscapeChars_[ch] || (31 < cc && 127 > cc ? ch : goog.string.escapeChar(ch));
-  }
-  sb.push('"');
-  return sb.join("");
-};
-goog.string.escapeString = function(str) {
-  for (var sb = [], i = 0; i < str.length; i++) {
-    sb[i] = goog.string.escapeChar(str.charAt(i));
-  }
-  return sb.join("");
-};
-goog.string.escapeChar = function(c) {
-  if (c in goog.string.jsEscapeCache_) {
-    return goog.string.jsEscapeCache_[c];
-  }
-  if (c in goog.string.specialEscapeChars_) {
-    return goog.string.jsEscapeCache_[c] = goog.string.specialEscapeChars_[c];
-  }
-  var rv = c, cc = c.charCodeAt(0);
-  if (31 < cc && 127 > cc) {
-    rv = c;
-  } else {
-    if (256 > cc) {
-      if (rv = "\\x", 16 > cc || 256 < cc) {
-        rv += "0";
-      }
-    } else {
-      rv = "\\u", 4096 > cc && (rv += "0");
-    }
-    rv += cc.toString(16).toUpperCase();
-  }
-  return goog.string.jsEscapeCache_[c] = rv;
-};
-goog.string.contains = function(str, subString) {
+goog.string.internal.contains = function(str, subString) {
   return -1 != str.indexOf(subString);
 };
-goog.string.caseInsensitiveContains = function(str, subString) {
-  return goog.string.contains(str.toLowerCase(), subString.toLowerCase());
+goog.string.internal.caseInsensitiveContains = function(str, subString) {
+  return goog.string.internal.contains(str.toLowerCase(), subString.toLowerCase());
 };
-goog.string.countOf = function(s, ss) {
-  return s && ss ? s.split(ss).length - 1 : 0;
-};
-goog.string.removeAt = function(s, index, stringLength) {
-  var resultStr = s;
-  0 <= index && index < s.length && 0 < stringLength && (resultStr = s.substr(0, index) + s.substr(index + stringLength, s.length - index - stringLength));
-  return resultStr;
-};
-goog.string.remove = function(str, substr) {
-  return str.replace(substr, "");
-};
-goog.string.removeAll = function(s, ss) {
-  var re = new RegExp(goog.string.regExpEscape(ss), "g");
-  return s.replace(re, "");
-};
-goog.string.replaceAll = function(s, ss, replacement) {
-  var re = new RegExp(goog.string.regExpEscape(ss), "g");
-  return s.replace(re, replacement.replace(/\$/g, "$$$$"));
-};
-goog.string.regExpEscape = function(s) {
-  return String(s).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, "\\$1").replace(/\x08/g, "\\x08");
-};
-goog.string.repeat = String.prototype.repeat ? function(string, length) {
-  return string.repeat(length);
-} : function(string, length) {
-  return Array(length + 1).join(string);
-};
-goog.string.padNumber = function(num, length, opt_precision) {
-  var s = goog.isDef(opt_precision) ? num.toFixed(opt_precision) : String(num), index = s.indexOf(".");
-  -1 == index && (index = s.length);
-  return goog.string.repeat("0", Math.max(0, length - index)) + s;
-};
-goog.string.makeSafe = function(obj) {
-  return null == obj ? "" : String(obj);
-};
-goog.string.buildString = function(var_args) {
-  return Array.prototype.join.call(arguments, "");
-};
-goog.string.getRandomString = function() {
-  return Math.floor(2147483648 * Math.random()).toString(36) + Math.abs(Math.floor(2147483648 * Math.random()) ^ goog.now()).toString(36);
-};
-goog.string.compareVersions = function(version1, version2) {
-  for (var order = 0, v1Subs = goog.string.trim(String(version1)).split("."), v2Subs = goog.string.trim(String(version2)).split("."), subCount = Math.max(v1Subs.length, v2Subs.length), subIdx = 0; 0 == order && subIdx < subCount; subIdx++) {
+goog.string.internal.compareVersions = function(version1, version2) {
+  for (var order = 0, v1Subs = goog.string.internal.trim(String(version1)).split("."), v2Subs = goog.string.internal.trim(String(version2)).split("."), subCount = Math.max(v1Subs.length, v2Subs.length), subIdx = 0; 0 == order && subIdx < subCount; subIdx++) {
     var v1Sub = v1Subs[subIdx] || "", v2Sub = v2Subs[subIdx] || "";
     do {
       var v1Comp = /(\d*)(\D*)(.*)/.exec(v1Sub) || ["", "", "", ""], v2Comp = /(\d*)(\D*)(.*)/.exec(v2Sub) || ["", "", "", ""];
       if (0 == v1Comp[0].length && 0 == v2Comp[0].length) {
         break;
       }
-      order = goog.string.compareElements_(0 == v1Comp[1].length ? 0 : parseInt(v1Comp[1], 10), 0 == v2Comp[1].length ? 0 : parseInt(v2Comp[1], 10)) || goog.string.compareElements_(0 == v1Comp[2].length, 0 == v2Comp[2].length) || goog.string.compareElements_(v1Comp[2], v2Comp[2]);
+      order = goog.string.internal.compareElements_(0 == v1Comp[1].length ? 0 : parseInt(v1Comp[1], 10), 0 == v2Comp[1].length ? 0 : parseInt(v2Comp[1], 10)) || goog.string.internal.compareElements_(0 == v1Comp[2].length, 0 == v2Comp[2].length) || goog.string.internal.compareElements_(v1Comp[2], v2Comp[2]);
       v1Sub = v1Comp[3];
       v2Sub = v2Comp[3];
     } while (0 == order);
   }
   return order;
 };
-goog.string.compareElements_ = function(left, right) {
+goog.string.internal.compareElements_ = function(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
-};
-goog.string.hashCode = function(str) {
-  for (var result = 0, i = 0; i < str.length; ++i) {
-    result = 31 * result + str.charCodeAt(i) >>> 0;
-  }
-  return result;
-};
-goog.string.uniqueStringCounter_ = 2147483648 * Math.random() | 0;
-goog.string.createUniqueString = function() {
-  return "goog_" + goog.string.uniqueStringCounter_++;
-};
-goog.string.toNumber = function(str) {
-  var num = Number(str);
-  return 0 == num && goog.string.isEmptyOrWhitespace(str) ? NaN : num;
-};
-goog.string.isLowerCamelCase = function(str) {
-  return /^[a-z]+([A-Z][a-z]*)*$/.test(str);
-};
-goog.string.isUpperCamelCase = function(str) {
-  return /^([A-Z][a-z]*)+$/.test(str);
-};
-goog.string.toCamelCase = function(str) {
-  return String(str).replace(/\-([a-z])/g, function(all, match) {
-    return match.toUpperCase();
-  });
-};
-goog.string.toSelectorCase = function(str) {
-  return String(str).replace(/([A-Z])/g, "-$1").toLowerCase();
-};
-goog.string.toTitleCase = function(str, opt_delimiters) {
-  var delimiters = goog.isString(opt_delimiters) ? goog.string.regExpEscape(opt_delimiters) : "\\s";
-  return str.replace(new RegExp("(^" + (delimiters ? "|[" + delimiters + "]+" : "") + ")([a-z])", "g"), function(all, p1, p2) {
-    return p1 + p2.toUpperCase();
-  });
-};
-goog.string.capitalize = function(str) {
-  return String(str.charAt(0)).toUpperCase() + String(str.substr(1)).toLowerCase();
-};
-goog.string.parseInt = function(value) {
-  isFinite(value) && (value = String(value));
-  return goog.isString(value) ? /^\s*-?0x/i.test(value) ? parseInt(value, 16) : parseInt(value, 10) : NaN;
-};
-goog.string.splitLimit = function(str, separator, limit) {
-  for (var parts = str.split(separator), returnVal = []; 0 < limit && parts.length;) {
-    returnVal.push(parts.shift()), limit--;
-  }
-  parts.length && returnVal.push(parts.join(separator));
-  return returnVal;
-};
-goog.string.lastComponent = function(str, separators) {
-  if (separators) {
-    "string" == typeof separators && (separators = [separators]);
-  } else {
-    return str;
-  }
-  for (var lastSeparatorIndex = -1, i = 0; i < separators.length; i++) {
-    if ("" != separators[i]) {
-      var currentSeparatorIndex = str.lastIndexOf(separators[i]);
-      currentSeparatorIndex > lastSeparatorIndex && (lastSeparatorIndex = currentSeparatorIndex);
-    }
-  }
-  return -1 == lastSeparatorIndex ? str : str.slice(lastSeparatorIndex + 1);
-};
-goog.string.editDistance = function(a, b) {
-  var v0 = [], v1 = [];
-  if (a == b) {
-    return 0;
-  }
-  if (!a.length || !b.length) {
-    return Math.max(a.length, b.length);
-  }
-  for (var i = 0; i < b.length + 1; i++) {
-    v0[i] = i;
-  }
-  for (i = 0; i < a.length; i++) {
-    v1[0] = i + 1;
-    for (var j = 0; j < b.length; j++) {
-      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + Number(a[i] != b[j]));
-    }
-    for (j = 0; j < v0.length; j++) {
-      v0[j] = v1[j];
-    }
-  }
-  return v1[b.length];
 };
 goog.labs = {};
 goog.labs.userAgent = {};
@@ -2276,10 +1964,10 @@ goog.labs.userAgent.util.getUserAgent = function() {
   return goog.labs.userAgent.util.userAgent_;
 };
 goog.labs.userAgent.util.matchUserAgent = function(str) {
-  return goog.string.contains(goog.labs.userAgent.util.getUserAgent(), str);
+  return goog.string.internal.contains(goog.labs.userAgent.util.getUserAgent(), str);
 };
 goog.labs.userAgent.util.matchUserAgentIgnoreCase = function(str) {
-  return goog.string.caseInsensitiveContains(goog.labs.userAgent.util.getUserAgent(), str);
+  return goog.string.internal.caseInsensitiveContains(goog.labs.userAgent.util.getUserAgent(), str);
 };
 goog.labs.userAgent.util.extractVersionTuples = function(userAgent) {
   for (var versionRegExp = /(\w[\w ]+)\/([^\s]+)\s*(?:\((.*?)\))?/g, data = [], match; match = versionRegExp.exec(userAgent);) {
@@ -2595,7 +2283,7 @@ goog.labs.userAgent.browser.getVersion = function() {
   return tuple && tuple[1] || "";
 };
 goog.labs.userAgent.browser.isVersionOrHigher = function(version) {
-  return 0 <= goog.string.compareVersions(goog.labs.userAgent.browser.getVersion(), version);
+  return 0 <= goog.string.internal.compareVersions(goog.labs.userAgent.browser.getVersion(), version);
 };
 goog.labs.userAgent.browser.getIEVersion_ = function(userAgent) {
   var rv = /rv: *([\d\.]*)/.exec(userAgent);
@@ -2628,6 +2316,364 @@ goog.labs.userAgent.browser.getIEVersion_ = function(userAgent) {
     }
   }
   return version;
+};
+goog.string.DETECT_DOUBLE_ESCAPING = !1;
+goog.string.FORCE_NON_DOM_HTML_UNESCAPING = !1;
+goog.string.Unicode = {NBSP:"\u00a0"};
+goog.string.startsWith = goog.string.internal.startsWith;
+goog.string.endsWith = goog.string.internal.endsWith;
+goog.string.caseInsensitiveStartsWith = goog.string.internal.caseInsensitiveStartsWith;
+goog.string.caseInsensitiveEndsWith = goog.string.internal.caseInsensitiveEndsWith;
+goog.string.caseInsensitiveEquals = goog.string.internal.caseInsensitiveEquals;
+goog.string.subs = function(str, var_args) {
+  for (var splitParts = str.split("%s"), returnString = "", subsArguments = Array.prototype.slice.call(arguments, 1); subsArguments.length && 1 < splitParts.length;) {
+    returnString += splitParts.shift() + subsArguments.shift();
+  }
+  return returnString + splitParts.join("%s");
+};
+goog.string.collapseWhitespace = function(str) {
+  return str.replace(/[\s\xa0]+/g, " ").replace(/^\s+|\s+$/g, "");
+};
+goog.string.isEmptyOrWhitespace = goog.string.internal.isEmptyOrWhitespace;
+goog.string.isEmptyString = function(str) {
+  return 0 == str.length;
+};
+goog.string.isEmpty = goog.string.isEmptyOrWhitespace;
+goog.string.isEmptyOrWhitespaceSafe = function(str) {
+  return goog.string.isEmptyOrWhitespace(goog.string.makeSafe(str));
+};
+goog.string.isEmptySafe = goog.string.isEmptyOrWhitespaceSafe;
+goog.string.isBreakingWhitespace = function(str) {
+  return !/[^\t\n\r ]/.test(str);
+};
+goog.string.isAlpha = function(str) {
+  return !/[^a-zA-Z]/.test(str);
+};
+goog.string.isNumeric = function(str) {
+  return !/[^0-9]/.test(str);
+};
+goog.string.isAlphaNumeric = function(str) {
+  return !/[^a-zA-Z0-9]/.test(str);
+};
+goog.string.isSpace = function(ch) {
+  return " " == ch;
+};
+goog.string.isUnicodeChar = function(ch) {
+  return 1 == ch.length && " " <= ch && "~" >= ch || "\u0080" <= ch && "\ufffd" >= ch;
+};
+goog.string.stripNewlines = function(str) {
+  return str.replace(/(\r\n|\r|\n)+/g, " ");
+};
+goog.string.canonicalizeNewlines = function(str) {
+  return str.replace(/(\r\n|\r|\n)/g, "\n");
+};
+goog.string.normalizeWhitespace = function(str) {
+  return str.replace(/\xa0|\s/g, " ");
+};
+goog.string.normalizeSpaces = function(str) {
+  return str.replace(/\xa0|[ \t]+/g, " ");
+};
+goog.string.collapseBreakingSpaces = function(str) {
+  return str.replace(/[\t\r\n ]+/g, " ").replace(/^[\t\r\n ]+|[\t\r\n ]+$/g, "");
+};
+goog.string.trim = goog.string.internal.trim;
+goog.string.trimLeft = function(str) {
+  return str.replace(/^[\s\xa0]+/, "");
+};
+goog.string.trimRight = function(str) {
+  return str.replace(/[\s\xa0]+$/, "");
+};
+goog.string.caseInsensitiveCompare = goog.string.internal.caseInsensitiveCompare;
+goog.string.numberAwareCompare_ = function(str1, str2, tokenizerRegExp) {
+  if (str1 == str2) {
+    return 0;
+  }
+  if (!str1) {
+    return -1;
+  }
+  if (!str2) {
+    return 1;
+  }
+  for (var tokens1 = str1.toLowerCase().match(tokenizerRegExp), tokens2 = str2.toLowerCase().match(tokenizerRegExp), count = Math.min(tokens1.length, tokens2.length), i = 0; i < count; i++) {
+    var a = tokens1[i], b = tokens2[i];
+    if (a != b) {
+      var num1 = parseInt(a, 10);
+      if (!isNaN(num1)) {
+        var num2 = parseInt(b, 10);
+        if (!isNaN(num2) && num1 - num2) {
+          return num1 - num2;
+        }
+      }
+      return a < b ? -1 : 1;
+    }
+  }
+  return tokens1.length != tokens2.length ? tokens1.length - tokens2.length : str1 < str2 ? -1 : 1;
+};
+goog.string.intAwareCompare = function(str1, str2) {
+  return goog.string.numberAwareCompare_(str1, str2, /\d+|\D+/g);
+};
+goog.string.floatAwareCompare = function(str1, str2) {
+  return goog.string.numberAwareCompare_(str1, str2, /\d+|\.\d+|\D+/g);
+};
+goog.string.numerateCompare = goog.string.floatAwareCompare;
+goog.string.urlEncode = function(str) {
+  return encodeURIComponent(String(str));
+};
+goog.string.urlDecode = function(str) {
+  return decodeURIComponent(str.replace(/\+/g, " "));
+};
+goog.string.newLineToBr = goog.string.internal.newLineToBr;
+goog.string.htmlEscape = function(str, opt_isLikelyToContainHtmlChars) {
+  str = goog.string.internal.htmlEscape(str, opt_isLikelyToContainHtmlChars);
+  goog.string.DETECT_DOUBLE_ESCAPING && (str = str.replace(goog.string.E_RE_, "&#101;"));
+  return str;
+};
+goog.string.E_RE_ = /e/g;
+goog.string.unescapeEntities = function(str) {
+  return goog.string.contains(str, "&") ? !goog.string.FORCE_NON_DOM_HTML_UNESCAPING && "document" in goog.global ? goog.string.unescapeEntitiesUsingDom_(str) : goog.string.unescapePureXmlEntities_(str) : str;
+};
+goog.string.unescapeEntitiesWithDocument = function(str, document) {
+  return goog.string.contains(str, "&") ? goog.string.unescapeEntitiesUsingDom_(str, document) : str;
+};
+goog.string.unescapeEntitiesUsingDom_ = function(str, opt_document) {
+  var seen = {"&amp;":"&", "&lt;":"<", "&gt;":">", "&quot;":'"'};
+  var div = opt_document ? opt_document.createElement("div") : goog.global.document.createElement("div");
+  return str.replace(goog.string.HTML_ENTITY_PATTERN_, function(s, entity) {
+    var value = seen[s];
+    if (value) {
+      return value;
+    }
+    if ("#" == entity.charAt(0)) {
+      var n = Number("0" + entity.substr(1));
+      isNaN(n) || (value = String.fromCharCode(n));
+    }
+    value || (div.innerHTML = s + " ", value = div.firstChild.nodeValue.slice(0, -1));
+    return seen[s] = value;
+  });
+};
+goog.string.unescapePureXmlEntities_ = function(str) {
+  return str.replace(/&([^;]+);/g, function(s, entity) {
+    switch(entity) {
+      case "amp":
+        return "&";
+      case "lt":
+        return "<";
+      case "gt":
+        return ">";
+      case "quot":
+        return '"';
+      default:
+        if ("#" == entity.charAt(0)) {
+          var n = Number("0" + entity.substr(1));
+          if (!isNaN(n)) {
+            return String.fromCharCode(n);
+          }
+        }
+        return s;
+    }
+  });
+};
+goog.string.HTML_ENTITY_PATTERN_ = /&([^;\s<&]+);?/g;
+goog.string.whitespaceEscape = function(str, opt_xml) {
+  return goog.string.newLineToBr(str.replace(/  /g, " &#160;"), opt_xml);
+};
+goog.string.preserveSpaces = function(str) {
+  return str.replace(/(^|[\n ]) /g, "$1" + goog.string.Unicode.NBSP);
+};
+goog.string.stripQuotes = function(str, quoteChars) {
+  for (var length = quoteChars.length, i = 0; i < length; i++) {
+    var quoteChar = 1 == length ? quoteChars : quoteChars.charAt(i);
+    if (str.charAt(0) == quoteChar && str.charAt(str.length - 1) == quoteChar) {
+      return str.substring(1, str.length - 1);
+    }
+  }
+  return str;
+};
+goog.string.truncate = function(str, chars, opt_protectEscapedCharacters) {
+  opt_protectEscapedCharacters && (str = goog.string.unescapeEntities(str));
+  str.length > chars && (str = str.substring(0, chars - 3) + "...");
+  opt_protectEscapedCharacters && (str = goog.string.htmlEscape(str));
+  return str;
+};
+goog.string.truncateMiddle = function(str, chars, opt_protectEscapedCharacters, opt_trailingChars) {
+  opt_protectEscapedCharacters && (str = goog.string.unescapeEntities(str));
+  if (opt_trailingChars && str.length > chars) {
+    opt_trailingChars > chars && (opt_trailingChars = chars), str = str.substring(0, chars - opt_trailingChars) + "..." + str.substring(str.length - opt_trailingChars);
+  } else {
+    if (str.length > chars) {
+      var half = Math.floor(chars / 2);
+      str = str.substring(0, half + chars % 2) + "..." + str.substring(str.length - half);
+    }
+  }
+  opt_protectEscapedCharacters && (str = goog.string.htmlEscape(str));
+  return str;
+};
+goog.string.specialEscapeChars_ = {"\x00":"\\0", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\x0B", '"':'\\"', "\\":"\\\\", "<":"<"};
+goog.string.jsEscapeCache_ = {"'":"\\'"};
+goog.string.quote = function(s) {
+  s = String(s);
+  for (var sb = ['"'], i = 0; i < s.length; i++) {
+    var ch = s.charAt(i), cc = ch.charCodeAt(0);
+    sb[i + 1] = goog.string.specialEscapeChars_[ch] || (31 < cc && 127 > cc ? ch : goog.string.escapeChar(ch));
+  }
+  sb.push('"');
+  return sb.join("");
+};
+goog.string.escapeString = function(str) {
+  for (var sb = [], i = 0; i < str.length; i++) {
+    sb[i] = goog.string.escapeChar(str.charAt(i));
+  }
+  return sb.join("");
+};
+goog.string.escapeChar = function(c) {
+  if (c in goog.string.jsEscapeCache_) {
+    return goog.string.jsEscapeCache_[c];
+  }
+  if (c in goog.string.specialEscapeChars_) {
+    return goog.string.jsEscapeCache_[c] = goog.string.specialEscapeChars_[c];
+  }
+  var rv = c, cc = c.charCodeAt(0);
+  if (31 < cc && 127 > cc) {
+    rv = c;
+  } else {
+    if (256 > cc) {
+      if (rv = "\\x", 16 > cc || 256 < cc) {
+        rv += "0";
+      }
+    } else {
+      rv = "\\u", 4096 > cc && (rv += "0");
+    }
+    rv += cc.toString(16).toUpperCase();
+  }
+  return goog.string.jsEscapeCache_[c] = rv;
+};
+goog.string.contains = goog.string.internal.contains;
+goog.string.caseInsensitiveContains = goog.string.internal.caseInsensitiveContains;
+goog.string.countOf = function(s, ss) {
+  return s && ss ? s.split(ss).length - 1 : 0;
+};
+goog.string.removeAt = function(s, index, stringLength) {
+  var resultStr = s;
+  0 <= index && index < s.length && 0 < stringLength && (resultStr = s.substr(0, index) + s.substr(index + stringLength, s.length - index - stringLength));
+  return resultStr;
+};
+goog.string.remove = function(str, substr) {
+  return str.replace(substr, "");
+};
+goog.string.removeAll = function(s, ss) {
+  var re = new RegExp(goog.string.regExpEscape(ss), "g");
+  return s.replace(re, "");
+};
+goog.string.replaceAll = function(s, ss, replacement) {
+  var re = new RegExp(goog.string.regExpEscape(ss), "g");
+  return s.replace(re, replacement.replace(/\$/g, "$$$$"));
+};
+goog.string.regExpEscape = function(s) {
+  return String(s).replace(/([-()\[\]{}+?*.$\^|,:#<!\\])/g, "\\$1").replace(/\x08/g, "\\x08");
+};
+goog.string.repeat = String.prototype.repeat ? function(string, length) {
+  return string.repeat(length);
+} : function(string, length) {
+  return Array(length + 1).join(string);
+};
+goog.string.padNumber = function(num, length, opt_precision) {
+  var s = goog.isDef(opt_precision) ? num.toFixed(opt_precision) : String(num), index = s.indexOf(".");
+  -1 == index && (index = s.length);
+  return goog.string.repeat("0", Math.max(0, length - index)) + s;
+};
+goog.string.makeSafe = function(obj) {
+  return null == obj ? "" : String(obj);
+};
+goog.string.buildString = function(var_args) {
+  return Array.prototype.join.call(arguments, "");
+};
+goog.string.getRandomString = function() {
+  return Math.floor(2147483648 * Math.random()).toString(36) + Math.abs(Math.floor(2147483648 * Math.random()) ^ goog.now()).toString(36);
+};
+goog.string.compareVersions = goog.string.internal.compareVersions;
+goog.string.hashCode = function(str) {
+  for (var result = 0, i = 0; i < str.length; ++i) {
+    result = 31 * result + str.charCodeAt(i) >>> 0;
+  }
+  return result;
+};
+goog.string.uniqueStringCounter_ = 2147483648 * Math.random() | 0;
+goog.string.createUniqueString = function() {
+  return "goog_" + goog.string.uniqueStringCounter_++;
+};
+goog.string.toNumber = function(str) {
+  var num = Number(str);
+  return 0 == num && goog.string.isEmptyOrWhitespace(str) ? NaN : num;
+};
+goog.string.isLowerCamelCase = function(str) {
+  return /^[a-z]+([A-Z][a-z]*)*$/.test(str);
+};
+goog.string.isUpperCamelCase = function(str) {
+  return /^([A-Z][a-z]*)+$/.test(str);
+};
+goog.string.toCamelCase = function(str) {
+  return String(str).replace(/\-([a-z])/g, function(all, match) {
+    return match.toUpperCase();
+  });
+};
+goog.string.toSelectorCase = function(str) {
+  return String(str).replace(/([A-Z])/g, "-$1").toLowerCase();
+};
+goog.string.toTitleCase = function(str, opt_delimiters) {
+  var delimiters = goog.isString(opt_delimiters) ? goog.string.regExpEscape(opt_delimiters) : "\\s";
+  return str.replace(new RegExp("(^" + (delimiters ? "|[" + delimiters + "]+" : "") + ")([a-z])", "g"), function(all, p1, p2) {
+    return p1 + p2.toUpperCase();
+  });
+};
+goog.string.capitalize = function(str) {
+  return String(str.charAt(0)).toUpperCase() + String(str.substr(1)).toLowerCase();
+};
+goog.string.parseInt = function(value) {
+  isFinite(value) && (value = String(value));
+  return goog.isString(value) ? /^\s*-?0x/i.test(value) ? parseInt(value, 16) : parseInt(value, 10) : NaN;
+};
+goog.string.splitLimit = function(str, separator, limit) {
+  for (var parts = str.split(separator), returnVal = []; 0 < limit && parts.length;) {
+    returnVal.push(parts.shift()), limit--;
+  }
+  parts.length && returnVal.push(parts.join(separator));
+  return returnVal;
+};
+goog.string.lastComponent = function(str, separators) {
+  if (separators) {
+    "string" == typeof separators && (separators = [separators]);
+  } else {
+    return str;
+  }
+  for (var lastSeparatorIndex = -1, i = 0; i < separators.length; i++) {
+    if ("" != separators[i]) {
+      var currentSeparatorIndex = str.lastIndexOf(separators[i]);
+      currentSeparatorIndex > lastSeparatorIndex && (lastSeparatorIndex = currentSeparatorIndex);
+    }
+  }
+  return -1 == lastSeparatorIndex ? str : str.slice(lastSeparatorIndex + 1);
+};
+goog.string.editDistance = function(a, b) {
+  var v0 = [], v1 = [];
+  if (a == b) {
+    return 0;
+  }
+  if (!a.length || !b.length) {
+    return Math.max(a.length, b.length);
+  }
+  for (var i = 0; i < b.length + 1; i++) {
+    v0[i] = i;
+  }
+  for (i = 0; i < a.length; i++) {
+    v1[0] = i + 1;
+    for (var j = 0; j < b.length; j++) {
+      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + Number(a[i] != b[j]));
+    }
+    for (j = 0; j < v0.length; j++) {
+      v0[j] = v1[j];
+    }
+  }
+  return v1[b.length];
 };
 goog.labs.userAgent.engine = {};
 goog.labs.userAgent.engine.isPresto = function() {
@@ -2716,6 +2762,9 @@ goog.labs.userAgent.platform.isChromecast = function() {
 goog.labs.userAgent.platform.isKaiOS = function() {
   return goog.labs.userAgent.util.matchUserAgentIgnoreCase("KaiOS");
 };
+goog.labs.userAgent.platform.isGo2Phone = function() {
+  return goog.labs.userAgent.util.matchUserAgentIgnoreCase("GAFP");
+};
 goog.labs.userAgent.platform.getVersion = function() {
   var userAgentString = goog.labs.userAgent.util.getUserAgent(), version = "";
   if (goog.labs.userAgent.platform.isWindows()) {
@@ -2797,6 +2846,7 @@ goog.userAgent.ASSUME_IPHONE = !1;
 goog.userAgent.ASSUME_IPAD = !1;
 goog.userAgent.ASSUME_IPOD = !1;
 goog.userAgent.ASSUME_KAIOS = !1;
+goog.userAgent.ASSUME_GO2PHONE = !1;
 goog.userAgent.PLATFORM_KNOWN_ = goog.userAgent.ASSUME_MAC || goog.userAgent.ASSUME_WINDOWS || goog.userAgent.ASSUME_LINUX || goog.userAgent.ASSUME_X11 || goog.userAgent.ASSUME_ANDROID || goog.userAgent.ASSUME_IPHONE || goog.userAgent.ASSUME_IPAD || goog.userAgent.ASSUME_IPOD;
 goog.userAgent.MAC = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_MAC : goog.labs.userAgent.platform.isMacintosh();
 goog.userAgent.WINDOWS = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_WINDOWS : goog.labs.userAgent.platform.isWindows();
@@ -2815,6 +2865,7 @@ goog.userAgent.IPAD = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPA
 goog.userAgent.IPOD = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPOD : goog.labs.userAgent.platform.isIpod();
 goog.userAgent.IOS = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_IPHONE || goog.userAgent.ASSUME_IPAD || goog.userAgent.ASSUME_IPOD : goog.labs.userAgent.platform.isIos();
 goog.userAgent.KAIOS = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_KAIOS : goog.labs.userAgent.platform.isKaiOS();
+goog.userAgent.GO2PHONE = goog.userAgent.PLATFORM_KNOWN_ ? goog.userAgent.ASSUME_GO2PHONE : goog.labs.userAgent.platform.isGo2Phone();
 goog.userAgent.determineVersion_ = function() {
   var version = "", arr = goog.userAgent.getVersionRegexResult_();
   arr && (version = arr ? arr[1] : "");
@@ -2972,7 +3023,7 @@ goog.debug.normalizeErrorObject = function(err) {
   }
   try {
     var fileName = err.fileName || err.filename || err.sourceURL || goog.global.$googDebugFname || href;
-  } catch (e$10) {
+  } catch (e$13) {
     fileName = "Not available", threwError = !0;
   }
   if (!(!threwError && err.lineNumber && err.fileName && err.stack && err.message && err.name)) {
@@ -3143,8 +3194,8 @@ goog.userAgent.isVersionOrHigher("8") || goog.userAgent.OPERA && goog.userAgent.
 goog.events.getVendorPrefixedName_ = function(eventName) {
   return goog.userAgent.WEBKIT ? "webkit" + eventName : goog.userAgent.OPERA ? "o" + eventName.toLowerCase() : eventName.toLowerCase();
 };
-goog.events.EventType = {CLICK:"click", RIGHTCLICK:"rightclick", DBLCLICK:"dblclick", MOUSEDOWN:"mousedown", MOUSEUP:"mouseup", MOUSEOVER:"mouseover", MOUSEOUT:"mouseout", MOUSEMOVE:"mousemove", MOUSEENTER:"mouseenter", MOUSELEAVE:"mouseleave", MOUSECANCEL:"mousecancel", SELECTIONCHANGE:"selectionchange", SELECTSTART:"selectstart", WHEEL:"wheel", KEYPRESS:"keypress", KEYDOWN:"keydown", KEYUP:"keyup", BLUR:"blur", FOCUS:"focus", DEACTIVATE:"deactivate", FOCUSIN:"focusin", FOCUSOUT:"focusout", CHANGE:"change", 
-RESET:"reset", SELECT:"select", SUBMIT:"submit", INPUT:"input", PROPERTYCHANGE:"propertychange", DRAGSTART:"dragstart", DRAG:"drag", DRAGENTER:"dragenter", DRAGOVER:"dragover", DRAGLEAVE:"dragleave", DROP:"drop", DRAGEND:"dragend", TOUCHSTART:"touchstart", TOUCHMOVE:"touchmove", TOUCHEND:"touchend", TOUCHCANCEL:"touchcancel", BEFOREUNLOAD:"beforeunload", CONSOLEMESSAGE:"consolemessage", CONTEXTMENU:"contextmenu", DEVICECHANGE:"devicechange", DEVICEMOTION:"devicemotion", DEVICEORIENTATION:"deviceorientation", 
+goog.events.EventType = {CLICK:"click", RIGHTCLICK:"rightclick", DBLCLICK:"dblclick", AUXCLICK:"auxclick", MOUSEDOWN:"mousedown", MOUSEUP:"mouseup", MOUSEOVER:"mouseover", MOUSEOUT:"mouseout", MOUSEMOVE:"mousemove", MOUSEENTER:"mouseenter", MOUSELEAVE:"mouseleave", MOUSECANCEL:"mousecancel", SELECTIONCHANGE:"selectionchange", SELECTSTART:"selectstart", WHEEL:"wheel", KEYPRESS:"keypress", KEYDOWN:"keydown", KEYUP:"keyup", BLUR:"blur", FOCUS:"focus", DEACTIVATE:"deactivate", FOCUSIN:"focusin", FOCUSOUT:"focusout", 
+CHANGE:"change", RESET:"reset", SELECT:"select", SUBMIT:"submit", INPUT:"input", PROPERTYCHANGE:"propertychange", DRAGSTART:"dragstart", DRAG:"drag", DRAGENTER:"dragenter", DRAGOVER:"dragover", DRAGLEAVE:"dragleave", DROP:"drop", DRAGEND:"dragend", TOUCHSTART:"touchstart", TOUCHMOVE:"touchmove", TOUCHEND:"touchend", TOUCHCANCEL:"touchcancel", BEFOREUNLOAD:"beforeunload", CONSOLEMESSAGE:"consolemessage", CONTEXTMENU:"contextmenu", DEVICECHANGE:"devicechange", DEVICEMOTION:"devicemotion", DEVICEORIENTATION:"deviceorientation", 
 DOMCONTENTLOADED:"DOMContentLoaded", ERROR:"error", HELP:"help", LOAD:"load", LOSECAPTURE:"losecapture", ORIENTATIONCHANGE:"orientationchange", READYSTATECHANGE:"readystatechange", RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", CANPLAY:"canplay", CANPLAYTHROUGH:"canplaythrough", DURATIONCHANGE:"durationchange", EMPTIED:"emptied", ENDED:"ended", LOADEDDATA:"loadeddata", LOADEDMETADATA:"loadedmetadata", PAUSE:"pause", PLAY:"play", PLAYING:"playing", RATECHANGE:"ratechange", SEEKED:"seeked", SEEKING:"seeking", 
 STALLED:"stalled", SUSPEND:"suspend", TIMEUPDATE:"timeupdate", VOLUMECHANGE:"volumechange", WAITING:"waiting", SOURCEOPEN:"sourceopen", SOURCEENDED:"sourceended", SOURCECLOSED:"sourceclosed", ABORT:"abort", UPDATE:"update", UPDATESTART:"updatestart", UPDATEEND:"updateend", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", 
 MESSAGE:"message", CONNECT:"connect", INSTALL:"install", ACTIVATE:"activate", FETCH:"fetch", FOREIGNFETCH:"foreignfetch", MESSAGEERROR:"messageerror", STATECHANGE:"statechange", UPDATEFOUND:"updatefound", CONTROLLERCHANGE:"controllerchange", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), 
@@ -4093,9 +4144,9 @@ goog.iter.forEach = function(iterable, f, opt_obj) {
       for (;;) {
         f.call(opt_obj, iterable.next(), void 0, iterable);
       }
-    } catch (ex$11) {
-      if (ex$11 !== goog.iter.StopIteration) {
-        throw ex$11;
+    } catch (ex$14) {
+      if (ex$14 !== goog.iter.StopIteration) {
+        throw ex$14;
       }
     }
   }
@@ -4870,19 +4921,23 @@ create:{id:"earthengine.assets.create", path:"v1/assets", httpMethod:"POST", req
 path:{location:"query", required:!1}}}, getPixels:{id:"earthengine.assets.getPixels", path:"v1/{+name}:getPixels", httpMethod:"POST", request:{$ref:"GetPixelsRequest"}, parameters:{name:{location:"path", required:!0}}}, ingestImage:{id:"earthengine.assets.ingestImage", path:"v1/assets:ingestImage", httpMethod:"POST", request:{$ref:"IngestImageRequest"}}, ingestTable:{id:"earthengine.assets.ingestTable", path:"v1/assets:ingestTable", httpMethod:"POST", request:{$ref:"IngestTableRequest"}}, list:{id:"earthengine.assets.list", 
 path:"v1/{+name}:list", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, parentPath:{location:"query", required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}, listFeatures:{id:"earthengine.assets.listFeatures", path:"v1/{+name}:listFeatures", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}, region:{location:"query", required:!1}, filter:{location:"query", 
 required:!1}}}, listImages:{id:"earthengine.assets.listImages", path:"v1/{+name}:listImages", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, parentPath:{location:"query", required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}, startTime:{location:"query", required:!1}, endTime:{location:"query", required:!1}, region:{location:"query", required:!1}, filter:{location:"query", required:!1}, view:{location:"query", required:!1}}}, move:{id:"earthengine.assets.move", 
-path:"v1/{+sourceName}:move", httpMethod:"POST", request:{$ref:"MoveAssetRequest"}, parameters:{sourceName:{location:"path", required:!0}}}, patch:{id:"earthengine.assets.patch", path:"v1/{+name}", httpMethod:"PATCH", request:{$ref:"UpdateAssetRequest"}, parameters:{name:{location:"path", required:!0}}}}}, filmstrips:{methods:{create:{id:"earthengine.filmstrips.create", path:"v1/filmstrips", httpMethod:"POST", request:{$ref:"Filmstrip"}}, getPixels:{id:"earthengine.filmstrips.getPixels", path:"v1/{+name}:getPixels", 
-httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}, maps:{methods:{create:{id:"earthengine.maps.create", path:"v1/maps", httpMethod:"POST", request:{$ref:"EarthEngineMap"}}}, resources:{tiles:{methods:{get:{id:"earthengine.maps.tiles.get", path:"v1/{+parent}/tiles/{zoom}/{x}/{y}", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, zoom:{location:"path", required:!0}, x:{location:"path", required:!0}, y:{location:"path", required:!0}}}}}}}, operations:{methods:{cancel:{id:"earthengine.operations.cancel", 
-path:"v1/{+name}:cancel", httpMethod:"POST", request:{$ref:"CancelOperationRequest"}, parameters:{name:{location:"path", required:!0}}}, "delete":{id:"earthengine.operations.delete", path:"v1/{+name}", httpMethod:"DELETE", parameters:{name:{location:"path", required:!0}}}, get:{id:"earthengine.operations.get", path:"v1/{+name}", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}, list:{id:"earthengine.operations.list", path:"v1/{+name}", httpMethod:"GET", parameters:{name:{location:"path", 
-required:!0}, filter:{location:"query", required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}}}, projects:{methods:{}, resources:{assets:{methods:{copy:{id:"earthengine.projects.assets.copy", path:"v1/{+sourceName}:copy", httpMethod:"POST", request:{$ref:"CopyAssetRequest"}, parameters:{sourceName:{location:"path", required:!0}}}, create:{id:"earthengine.projects.assets.create", path:"v1/{+parent}/assets", httpMethod:"POST", request:{$ref:"EarthEngineAsset"}, 
-parameters:{parent:{location:"path", required:!0}, assetId:{location:"query", required:!1}, overwrite:{location:"query", required:!1}}}, "delete":{id:"earthengine.projects.assets.delete", path:"v1/{+name}", httpMethod:"DELETE", parameters:{name:{location:"path", required:!0}}}, get:{id:"earthengine.projects.assets.get", path:"v1/{+name}", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, path:{location:"query", required:!1}}}, getIamPolicy:{id:"earthengine.projects.assets.getIamPolicy", 
-path:"v1/{+resource}:getIamPolicy", httpMethod:"POST", request:{$ref:"GetIamPolicyRequest"}, parameters:{resource:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.assets.getPixels", path:"v1/{+name}:getPixels", httpMethod:"POST", request:{$ref:"GetPixelsRequest"}, parameters:{name:{location:"path", required:!0}}}, list:{id:"earthengine.projects.assets.list", path:"v1/{+name}:list", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, parentPath:{location:"query", 
-required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}, listFeatures:{id:"earthengine.projects.assets.listFeatures", path:"v1/{+name}:listFeatures", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}, region:{location:"query", required:!1}, filter:{location:"query", required:!1}}}, listImages:{id:"earthengine.projects.assets.listImages", path:"v1/{+name}:listImages", 
-httpMethod:"GET", parameters:{name:{location:"path", required:!0}, parentPath:{location:"query", required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}, startTime:{location:"query", required:!1}, endTime:{location:"query", required:!1}, region:{location:"query", required:!1}, filter:{location:"query", required:!1}, view:{location:"query", required:!1}}}, move:{id:"earthengine.projects.assets.move", path:"v1/{+sourceName}:move", httpMethod:"POST", request:{$ref:"MoveAssetRequest"}, 
-parameters:{sourceName:{location:"path", required:!0}}}, patch:{id:"earthengine.projects.assets.patch", path:"v1/{+name}", httpMethod:"PATCH", request:{$ref:"UpdateAssetRequest"}, parameters:{name:{location:"path", required:!0}}}, setIamPolicy:{id:"earthengine.projects.assets.setIamPolicy", path:"v1/{+resource}:setIamPolicy", httpMethod:"POST", request:{$ref:"SetIamPolicyRequest"}, parameters:{resource:{location:"path", required:!0}}}, testIamPermissions:{id:"earthengine.projects.assets.testIamPermissions", 
-path:"v1/{+resource}:testIamPermissions", httpMethod:"POST", request:{$ref:"TestIamPermissionsRequest"}, parameters:{resource:{location:"path", required:!0}}}}}}}, thumbnails:{methods:{create:{id:"earthengine.thumbnails.create", path:"v1/thumbnails", httpMethod:"POST", request:{$ref:"Thumbnail"}}, getPixels:{id:"earthengine.thumbnails.getPixels", path:"v1/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}, v1:{methods:{computeImage:{id:"earthengine.computeImage", 
-path:"v1:computeImage", httpMethod:"POST", request:{$ref:"ComputeImageRequest"}}, computeTable:{id:"earthengine.computeTable", path:"v1:computeTable", httpMethod:"POST", request:{$ref:"ComputeTableRequest"}}, computeValue:{id:"earthengine.computeValue", path:"v1:computeValue", httpMethod:"POST", request:{$ref:"ComputeValueRequest"}}, exportImage:{id:"earthengine.exportImage", path:"v1:exportImage", httpMethod:"POST", request:{$ref:"ExportImageRequest"}}, exportMap:{id:"earthengine.exportMap", path:"v1:exportMap", 
-httpMethod:"POST", request:{$ref:"ExportMapRequest"}}, exportTable:{id:"earthengine.exportTable", path:"v1:exportTable", httpMethod:"POST", request:{$ref:"ExportTableRequest"}}, exportVideo:{id:"earthengine.exportVideo", path:"v1:exportVideo", httpMethod:"POST", request:{$ref:"ExportVideoRequest"}}, exportVideoMap:{id:"earthengine.exportVideoMap", path:"v1:exportVideoMap", httpMethod:"POST", request:{$ref:"ExportVideoMapRequest"}}, ingestImage:{id:"earthengine.ingestImage", path:"v1:ingestImage", 
-httpMethod:"POST", request:{$ref:"IngestImageRequest"}}, ingestTable:{id:"earthengine.ingestTable", path:"v1:ingestTable", httpMethod:"POST", request:{$ref:"IngestTableRequest"}}, listBuckets:{id:"earthengine.listBuckets", path:"v1:listBuckets", httpMethod:"GET"}}}}, methods:{}};
+path:"v1/{+sourceName}:move", httpMethod:"POST", request:{$ref:"MoveAssetRequest"}, parameters:{sourceName:{location:"path", required:!0}}}, patch:{id:"earthengine.assets.patch", path:"v1/{+name}", httpMethod:"PATCH", request:{$ref:"UpdateAssetRequest"}, parameters:{name:{location:"path", required:!0}}}}}, filmstripThumbnails:{methods:{create:{id:"earthengine.filmstripThumbnails.create", path:"v1/filmstripThumbnails", httpMethod:"POST", request:{$ref:"FilmstripThumbnail"}, parameters:{parent:{location:"query", 
+required:!1}}}, getPixels:{id:"earthengine.filmstripThumbnails.getPixels", path:"v1/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}, maps:{methods:{create:{id:"earthengine.maps.create", path:"v1/maps", httpMethod:"POST", request:{$ref:"EarthEngineMap"}, parameters:{parent:{location:"query", required:!1}}}}, resources:{tiles:{methods:{get:{id:"earthengine.maps.tiles.get", path:"v1/{+parent}/tiles/{zoom}/{x}/{y}", httpMethod:"GET", parameters:{parent:{location:"path", 
+required:!0}, zoom:{location:"path", required:!0}, x:{location:"path", required:!0}, y:{location:"path", required:!0}}}}}}}, operations:{methods:{cancel:{id:"earthengine.operations.cancel", path:"v1/{+name}:cancel", httpMethod:"POST", request:{$ref:"CancelOperationRequest"}, parameters:{name:{location:"path", required:!0}}}, "delete":{id:"earthengine.operations.delete", path:"v1/{+name}", httpMethod:"DELETE", parameters:{name:{location:"path", required:!0}}}, get:{id:"earthengine.operations.get", 
+path:"v1/{+name}", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}, list:{id:"earthengine.operations.list", path:"v1/{+name}", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, filter:{location:"query", required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}}}, projects:{methods:{}, resources:{assets:{methods:{copy:{id:"earthengine.projects.assets.copy", path:"v1/{+sourceName}:copy", httpMethod:"POST", request:{$ref:"CopyAssetRequest"}, 
+parameters:{sourceName:{location:"path", required:!0}}}, create:{id:"earthengine.projects.assets.create", path:"v1/{+parent}/assets", httpMethod:"POST", request:{$ref:"EarthEngineAsset"}, parameters:{parent:{location:"path", required:!0}, assetId:{location:"query", required:!1}, overwrite:{location:"query", required:!1}}}, "delete":{id:"earthengine.projects.assets.delete", path:"v1/{+name}", httpMethod:"DELETE", parameters:{name:{location:"path", required:!0}}}, get:{id:"earthengine.projects.assets.get", 
+path:"v1/{+name}", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, path:{location:"query", required:!1}}}, getIamPolicy:{id:"earthengine.projects.assets.getIamPolicy", path:"v1/{+resource}:getIamPolicy", httpMethod:"POST", request:{$ref:"GetIamPolicyRequest"}, parameters:{resource:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.assets.getPixels", path:"v1/{+name}:getPixels", httpMethod:"POST", request:{$ref:"GetPixelsRequest"}, parameters:{name:{location:"path", 
+required:!0}}}, list:{id:"earthengine.projects.assets.list", path:"v1/{+name}:list", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, parentPath:{location:"query", required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}, listFeatures:{id:"earthengine.projects.assets.listFeatures", path:"v1/{+name}:listFeatures", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", 
+required:!1}, region:{location:"query", required:!1}, filter:{location:"query", required:!1}}}, listImages:{id:"earthengine.projects.assets.listImages", path:"v1/{+name}:listImages", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, parentPath:{location:"query", required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}, startTime:{location:"query", required:!1}, endTime:{location:"query", required:!1}, region:{location:"query", required:!1}, 
+filter:{location:"query", required:!1}, view:{location:"query", required:!1}}}, move:{id:"earthengine.projects.assets.move", path:"v1/{+sourceName}:move", httpMethod:"POST", request:{$ref:"MoveAssetRequest"}, parameters:{sourceName:{location:"path", required:!0}}}, patch:{id:"earthengine.projects.assets.patch", path:"v1/{+name}", httpMethod:"PATCH", request:{$ref:"UpdateAssetRequest"}, parameters:{name:{location:"path", required:!0}}}, setIamPolicy:{id:"earthengine.projects.assets.setIamPolicy", 
+path:"v1/{+resource}:setIamPolicy", httpMethod:"POST", request:{$ref:"SetIamPolicyRequest"}, parameters:{resource:{location:"path", required:!0}}}, testIamPermissions:{id:"earthengine.projects.assets.testIamPermissions", path:"v1/{+resource}:testIamPermissions", httpMethod:"POST", request:{$ref:"TestIamPermissionsRequest"}, parameters:{resource:{location:"path", required:!0}}}}}, filmstripThumbnails:{methods:{create:{id:"earthengine.projects.filmstripThumbnails.create", path:"v1/{+parent}/filmstripThumbnails", 
+httpMethod:"POST", request:{$ref:"FilmstripThumbnail"}, parameters:{parent:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.filmstripThumbnails.getPixels", path:"v1/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}, maps:{methods:{create:{id:"earthengine.projects.maps.create", path:"v1/{+parent}/maps", httpMethod:"POST", request:{$ref:"EarthEngineMap"}, parameters:{parent:{location:"path", required:!0}}}}, resources:{tiles:{methods:{get:{id:"earthengine.projects.maps.tiles.get", 
+path:"v1/{+parent}/tiles/{zoom}/{x}/{y}", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, zoom:{location:"path", required:!0}, x:{location:"path", required:!0}, y:{location:"path", required:!0}}}}}}}, thumbnails:{methods:{create:{id:"earthengine.projects.thumbnails.create", path:"v1/{+parent}/thumbnails", httpMethod:"POST", request:{$ref:"Thumbnail"}, parameters:{parent:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.thumbnails.getPixels", path:"v1/{+name}:getPixels", 
+httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}}}, thumbnails:{methods:{create:{id:"earthengine.thumbnails.create", path:"v1/thumbnails", httpMethod:"POST", request:{$ref:"Thumbnail"}, parameters:{parent:{location:"query", required:!1}}}, getPixels:{id:"earthengine.thumbnails.getPixels", path:"v1/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}, v1:{methods:{computeImage:{id:"earthengine.computeImage", path:"v1:computeImage", httpMethod:"POST", 
+request:{$ref:"ComputeImageRequest"}}, computeTable:{id:"earthengine.computeTable", path:"v1:computeTable", httpMethod:"POST", request:{$ref:"ComputeTableRequest"}}, computeValue:{id:"earthengine.computeValue", path:"v1:computeValue", httpMethod:"POST", request:{$ref:"ComputeValueRequest"}}, exportImage:{id:"earthengine.exportImage", path:"v1:exportImage", httpMethod:"POST", request:{$ref:"ExportImageRequest"}}, exportMap:{id:"earthengine.exportMap", path:"v1:exportMap", httpMethod:"POST", request:{$ref:"ExportMapRequest"}}, 
+exportTable:{id:"earthengine.exportTable", path:"v1:exportTable", httpMethod:"POST", request:{$ref:"ExportTableRequest"}}, exportVideo:{id:"earthengine.exportVideo", path:"v1:exportVideo", httpMethod:"POST", request:{$ref:"ExportVideoRequest"}}, exportVideoMap:{id:"earthengine.exportVideoMap", path:"v1:exportVideoMap", httpMethod:"POST", request:{$ref:"ExportVideoMapRequest"}}, ingestImage:{id:"earthengine.ingestImage", path:"v1:ingestImage", httpMethod:"POST", request:{$ref:"IngestImageRequest"}}, 
+ingestTable:{id:"earthengine.ingestTable", path:"v1:ingestTable", httpMethod:"POST", request:{$ref:"IngestTableRequest"}}, listBuckets:{id:"earthengine.listBuckets", path:"v1:listBuckets", httpMethod:"GET"}}}}, methods:{}};
+ee.rpc_proto = {};
 ee.Encodable = function() {
 };
 ee.rpc_node = {};
@@ -4910,13 +4965,45 @@ ee.rpc_node.functionDefinition = function(argumentNames, body) {
 ee.rpc_node.argumentReference = function(ref) {
   return {argumentReference:ref};
 };
+ee.rpc_proto.CreateAssetRequest = function() {
+};
+ee.rpc_proto.ListAssetsRequest = function() {
+};
+ee.rpc_proto.ListImagesRequest = function() {
+};
+ee.rpc_proto.ListOperationsRequest = function() {
+};
+var nameOnlyRequest_ = function() {
+};
+ee.rpc_proto.GetAssetRequest = nameOnlyRequest_;
+ee.rpc_proto.DeleteAssetRequest = nameOnlyRequest_;
+ee.rpc_proto.GetOperationRequest = nameOnlyRequest_;
+ee.rpc_proto.IamPolicy = function() {
+};
+ee.rpc_proto.Binding = function() {
+};
+ee.rpc_proto.Operation = function() {
+};
+ee.rpc_proto.Status = function() {
+};
 ee.rpc_convert = {};
 ee.rpc_convert.fileFormat = function(format) {
   if (!format) {
     return "AUTO_PNG_JPEG";
   }
   var upper = format.toUpperCase();
-  return "JPG" === upper ? "JPEG" : "AUTO" === upper ? "AUTO_PNG_JPEG" : "GEOTIFF" === upper ? "GEO_TIFF" : "TFRECORD" === upper ? "TF_RECORD_IMAGE" : upper;
+  switch(upper) {
+    case "JPG":
+      return "JPEG";
+    case "AUTO":
+      return "AUTO_PNG_JPEG";
+    case "GEOTIFF":
+      return "GEO_TIFF";
+    case "TFRECORD":
+      return "TF_RECORD_IMAGE";
+    default:
+      return upper;
+  }
 };
 ee.rpc_convert.bandList = function(bands) {
   if (!bands) {
@@ -4983,6 +5070,158 @@ ee.rpc_convert.pairedValues = function(obj, a, b) {
     var $jscomp$compprop3 = {};
     return $jscomp$compprop3[a] = value, $jscomp$compprop3[b] = bValues[index], $jscomp$compprop3;
   });
+};
+ee.rpc_convert.algorithms = function(result) {
+  for (var convertArgument = function(argument) {
+    var internalArgument = {};
+    internalArgument.description = argument.description || "";
+    internalArgument.type = argument.type || "";
+    goog.isDefAndNotNull(argument.argumentName) && (internalArgument.name = argument.argumentName);
+    void 0 !== argument.defaultValue && (internalArgument["default"] = argument.defaultValue);
+    goog.isDefAndNotNull(argument.optional) && (internalArgument.optional = argument.optional);
+    return internalArgument;
+  }, convertAlgorithm = function(algorithm) {
+    var internalAlgorithm = {};
+    internalAlgorithm.args = (algorithm.arguments || []).map(convertArgument);
+    internalAlgorithm.description = algorithm.description || "";
+    internalAlgorithm.returns = algorithm.returnType || "";
+    goog.isDefAndNotNull(algorithm.hidden) && (internalAlgorithm.hidden = algorithm.hidden);
+    algorithm.deprecated && (internalAlgorithm.deprecated = algorithm.deprecationReason);
+    return internalAlgorithm;
+  }, internalAlgorithms = {}, $jscomp$iter$4 = $jscomp.makeIterator(result.algorithms || []), $jscomp$key$algorithm = $jscomp$iter$4.next(); !$jscomp$key$algorithm.done; $jscomp$key$algorithm = $jscomp$iter$4.next()) {
+    var algorithm$jscomp$0 = $jscomp$key$algorithm.value, name = algorithm$jscomp$0.name.replace(/^algorithms\//, "");
+    internalAlgorithms[name] = convertAlgorithm(algorithm$jscomp$0);
+  }
+  return internalAlgorithms;
+};
+ee.rpc_convert.assetIdToAssetName = function(param) {
+  return /^projects\/[a-z][a-z0-9\-]{4,28}[a-z0-9]\/assets\/.*/.exec(param) ? param : /^(users|projects)\/.*/.exec(param) ? "projects/earthengine-legacy/assets/" + param : "projects/earthengine-public/assets/" + param;
+};
+ee.rpc_convert.assetTypeForCreate = function(param) {
+  switch(param) {
+    case "ImageCollection":
+      return "IMAGE_COLLECTION";
+    case "Folder":
+      return "FOLDER";
+    default:
+      return param;
+  }
+};
+ee.rpc_convert.getListToListAssets = function(param) {
+  var assetsRequest = {};
+  param.id && (assetsRequest.name = ee.rpc_convert.assetIdToAssetName(param.id));
+  param.num && (assetsRequest.pageSize = param.num);
+  for (var allKeys = ["id", "num"], $jscomp$iter$5 = $jscomp.makeIterator(Object.keys(param).filter(function(k) {
+    return !allKeys.includes(k);
+  })), $jscomp$key$key = $jscomp$iter$5.next(); !$jscomp$key$key.done; $jscomp$key$key = $jscomp$iter$5.next()) {
+    console.warn("Unrecognized key " + $jscomp$key$key.value + " ignored");
+  }
+  return assetsRequest;
+};
+ee.rpc_convert.listAssetsToGetList = function(result) {
+  return (result.assets || []).map(ee.rpc_convert.assetToGetListResult);
+};
+ee.rpc_convert.listImagesToGetList = function(result) {
+  return (result.assets || []).map(ee.rpc_convert.assetToGetListResult);
+};
+ee.rpc_convert.listBucketsToGetList = function(result) {
+  return (result.buckets || []).map(ee.rpc_convert.assetToGetListResult);
+};
+ee.rpc_convert.assetToGetListResult = function(result) {
+  var internalAsset = {type:function(type) {
+    switch(type) {
+      case "IMAGE":
+        return "Image";
+      case "IMAGE_COLLECTION":
+        return "ImageCollection";
+      case "FOLDER":
+        return "Folder";
+      case "TABLE":
+        return "Table";
+      default:
+        return "Unknown";
+    }
+  }[result.type]};
+  goog.isDefAndNotNull(result.path) && (internalAsset.id = result.path);
+  return internalAsset;
+};
+ee.rpc_convert.getListToListImages = function(param) {
+  var imagesRequest = {}, toTimestamp = function(msec) {
+    return (new Date(msec)).toISOString();
+  };
+  param.id && (imagesRequest.name = ee.rpc_convert.assetIdToAssetName(param.id));
+  param.num && (imagesRequest.pageSize = param.num);
+  param.starttime && (imagesRequest.startTime = toTimestamp(param.starttime));
+  param.endtime && (imagesRequest.endTime = toTimestamp(param.endtime));
+  param.bbox && (imagesRequest.region = ee.rpc_convert.boundingBoxToGeoJson(param.bbox));
+  param.region && (imagesRequest.region = param.region);
+  param.bbox && param.region && console.warn("Multiple request parameters converted to region");
+  for (var allKeys = "id num starttime endtime bbox region".split(" "), $jscomp$iter$6 = $jscomp.makeIterator(Object.keys(param).filter(function(k) {
+    return !allKeys.includes(k);
+  })), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$key$key = $jscomp$iter$6.next()) {
+    console.warn("Unrecognized key " + $jscomp$key$key.value + " ignored");
+  }
+  return imagesRequest;
+};
+ee.rpc_convert.boundingBoxToGeoJson = function(bbox) {
+  return '{"type":"Polygon","coordinates":[[[' + [[0, 1], [2, 1], [2, 3], [0, 3], [0, 1]].map(function(i) {
+    return bbox[i[0]] + "," + bbox[i[1]];
+  }).join("],[") + "]]]}";
+};
+ee.rpc_convert.iamPolicyToAcl = function(result) {
+  var bindingMap = {};
+  (result.bindings || []).forEach(function(binding) {
+    bindingMap[binding.role] = binding.members;
+  });
+  var toAcl = function(member) {
+    return member.replace(/^group:|^user:/, "");
+  }, readersWithAll = bindingMap["roles/viewer"] || [], readers = readersWithAll.filter(function(reader) {
+    return "allUsers" !== reader;
+  }), internalAcl = {owners:(bindingMap["roles/owner"] || []).map(toAcl), writers:(bindingMap["roles/editor"] || []).map(toAcl), readers:readers.map(toAcl)};
+  readersWithAll.length != readers.length && (internalAcl.all_users_can_read = !0);
+  return internalAcl;
+};
+ee.rpc_convert.aclToIamPolicy = function(param) {
+  return {bindings:[{role:"roles/owner", members:param.owners || []}, {role:"roles/viewer", members:(param.readers || []).concat(param.all_users_can_read ? ["allUsers"] : [])}, {role:"roles/editor", members:param.writers || []}].filter(function(binding) {
+    return binding.members.length;
+  }), etag:null};
+};
+ee.rpc_convert.taskIdToOperationName = function(param) {
+  return "operations/" + param;
+};
+ee.rpc_convert.operationNameToTaskId = function(result) {
+  return result.replace(/^operations\//, "");
+};
+ee.rpc_convert.operationToTask = function(result) {
+  var internalTask = {}, assignTimestamp = function(field, timestamp) {
+    goog.isDefAndNotNull(timestamp) && (internalTask[field] = Date.parse(timestamp));
+  }, convertState = function(state) {
+    switch(state) {
+      case "PENDING":
+        return "READY";
+      case "RUNNING":
+        return "RUNNING";
+      case "CANCELLING":
+        return "CANCEL_REQUESTED";
+      case "SUCCEEDED":
+        return "COMPLETED";
+      case "CANCELLED":
+        return "CANCELLED";
+      case "FAILED":
+        return "FAILED";
+      default:
+        return "UNKNOWN";
+    }
+  }, metadata = result.metadata;
+  goog.isDefAndNotNull(metadata.description) && (internalTask.description = metadata.description);
+  goog.isDefAndNotNull(metadata.state) && (internalTask.state = convertState(metadata.state));
+  assignTimestamp("creation_timestamp_ms", metadata.createTime);
+  assignTimestamp("update_timestamp_ms", metadata.updateTime);
+  assignTimestamp("start_timestamp_ms", metadata.startTime);
+  result.done && goog.isDefAndNotNull(result.error) && (internalTask.error_message = result.error.message);
+  goog.isDefAndNotNull(result.name) && (internalTask.id = ee.rpc_convert.operationNameToTaskId(result.name));
+  internalTask.task_type = "UNKNOWN";
+  return internalTask;
 };
 goog.crypt = {};
 goog.crypt.Hash = function() {
@@ -5221,7 +5460,7 @@ goog.json.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(
       var result = eval("(" + o + ")");
       error && goog.json.errorLogger_("Invalid JSON: " + o, error);
       return result;
-    } catch (ex$12) {
+    } catch (ex$15) {
     }
   }
   throw Error("Invalid JSON string: " + o);
@@ -5398,7 +5637,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
     if (!goog.isObject(object)) {
       return object;
     }
-    for (var ret = goog.isArray(object) ? [] : {}, $jscomp$iter$4 = $jscomp.makeIterator(Object.entries(object)), $jscomp$key$ = $jscomp$iter$4.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$4.next()) {
+    for (var ret = goog.isArray(object) ? [] : {}, $jscomp$iter$7 = $jscomp.makeIterator(Object.entries(object)), $jscomp$key$ = $jscomp$iter$7.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$7.next()) {
       var $jscomp$destructuring$var1 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var1.next().value, val = $jscomp$destructuring$var1.next().value;
       ret[key] = "functionDefinitionValue" === key && goog.isDefAndNotNull(val.body) ? {argumentNames:val.argumentNames, body:walkObject(values[val.body])} : "functionInvocationValue" === key && goog.isDefAndNotNull(val.functionReference) ? {arguments:val.arguments.map(walkObject), functionReference:walkObject(values[val.functionReference])} : "constantValue" === key ? val : walkObject(val);
     }
@@ -5493,7 +5732,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value) {
   }
   if (goog.isDefAndNotNull(value.valueReference)) {
     var val = this.values[value.valueReference];
-    return null === this.referenceCounts || 1 === this.referenceCounts[value.valueReference] ? this.optimizeValue(val) : ExpressionOptimizer.isLiftableConstant(val) ? val : ee.rpc_node.reference(this.optimizeReference(value.valueReference));
+    return null === this.referenceCounts || 1 === this.referenceCounts[value.valueReference] ? this.optimizeValue(val) : ExpressionOptimizer.isAlwaysLiftable(val) ? val : ee.rpc_node.reference(this.optimizeReference(value.valueReference));
   }
   if (goog.isDefAndNotNull(value.arrayValue)) {
     var arr = value.arrayValue.values.map(function(v) {
@@ -5504,7 +5743,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value) {
     })) : ee.rpc_node.array(arr);
   }
   if (goog.isDefAndNotNull(value.dictionaryValue)) {
-    for (var values = {}, constantValues = {}, $jscomp$iter$5 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$5.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$5.next()) {
+    for (var values = {}, constantValues = {}, $jscomp$iter$8 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$8.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$8.next()) {
       var $jscomp$destructuring$var3 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var3.next().value, v$jscomp$0 = $jscomp$destructuring$var3.next().value;
       values[k] = this.optimizeValue(v$jscomp$0);
       null !== constantValues && isConst(values[k]) ? constantValues[k] = values[k].constantValue : constantValues = null;
@@ -5516,17 +5755,17 @@ ExpressionOptimizer.prototype.optimizeValue = function(value) {
     return ee.rpc_node.functionDefinition(def.argumentNames || [], this.optimizeReference(def.body || ""));
   }
   if (goog.isDefAndNotNull(value.functionInvocationValue)) {
-    for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$6 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$6.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$6.next()) {
-      var k$13 = $jscomp$key$k.value;
-      args[k$13] = this.optimizeValue(inv.arguments[k$13]);
+    for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$9 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$9.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$9.next()) {
+      var k$16 = $jscomp$key$k.value;
+      args[k$16] = this.optimizeValue(inv.arguments[k$16]);
     }
     return inv.functionName ? ee.rpc_node.functionByName(inv.functionName, args) : ee.rpc_node.functionByReference(this.optimizeReference(inv.functionReference || ""), args);
   }
   throw Error("Can't optimize value: " + value);
 };
-ExpressionOptimizer.isLiftableConstant = function(value) {
-  var v = value.constantValue;
-  return void 0 !== v && (null === v || goog.isNumber(v) || goog.isBoolean(v));
+ExpressionOptimizer.isAlwaysLiftable = function(value) {
+  var constant = value.constantValue;
+  return void 0 !== constant ? null === constant || goog.isNumber(constant) || goog.isBoolean(constant) : goog.isDefAndNotNull(value.argumentReference);
 };
 ExpressionOptimizer.prototype.countReferences = function() {
   var $jscomp$this = this, counts = {}, visitReference = function(reference) {
@@ -8164,12 +8403,7 @@ jspb.Message.getField = function(msg, fieldNumber) {
   }
 };
 jspb.Message.getRepeatedField = function(msg, fieldNumber) {
-  if (fieldNumber < msg.pivot_) {
-    var index = jspb.Message.getIndex_(msg, fieldNumber), val = msg.array[index];
-    return val === jspb.Message.EMPTY_LIST_SENTINEL_ ? msg.array[index] = [] : val;
-  }
-  val = msg.extensionObject_[fieldNumber];
-  return val === jspb.Message.EMPTY_LIST_SENTINEL_ ? msg.extensionObject_[fieldNumber] = [] : val;
+  return jspb.Message.getField(msg, fieldNumber);
 };
 jspb.Message.getOptionalFloatingPointField = function(msg, fieldNumber) {
   var value = jspb.Message.getField(msg, fieldNumber);
@@ -8602,6 +8836,12 @@ jspb.Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Struct.prototype.toObj
   includeInstance && (obj.$jspbMessageInstance = msg);
   return obj;
 });
+jspb.Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Struct.ObjectFormat = function() {
+}, proto.google.protobuf.Struct.fromObject = function(obj) {
+  var msg = new proto.google.protobuf.Struct;
+  obj.fieldsMap && jspb.Message.setWrapperField(msg, 1, jspb.Map.fromObject(obj.fieldsMap, proto.google.protobuf.Value, proto.google.protobuf.Value.fromObject));
+  return msg;
+});
 proto.google.protobuf.Struct.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes), msg = new proto.google.protobuf.Struct;
   return proto.google.protobuf.Struct.deserializeBinaryFromReader(msg, reader);
@@ -8647,9 +8887,21 @@ proto.google.protobuf.Value.prototype.getKindCase = function() {
 jspb.Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Value.prototype.toObject = function(opt_includeInstance) {
   return proto.google.protobuf.Value.toObject(opt_includeInstance, this);
 }, proto.google.protobuf.Value.toObject = function(includeInstance, msg) {
-  var f, obj = {nullValue:jspb.Message.getFieldWithDefault(msg, 1, 0), numberValue:+jspb.Message.getFieldWithDefault(msg, 2, 0.0), stringValue:jspb.Message.getFieldWithDefault(msg, 3, ""), boolValue:jspb.Message.getFieldWithDefault(msg, 4, !1), structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && proto.google.protobuf.ListValue.toObject(includeInstance, f)};
+  var f, obj = {nullValue:null == (f = jspb.Message.getFieldWithDefault(msg, 1, 0)) ? void 0 : f, numberValue:null == (f = +jspb.Message.getFieldWithDefault(msg, 2, 0.0)) ? void 0 : f, stringValue:null == (f = jspb.Message.getFieldWithDefault(msg, 3, "")) ? void 0 : f, boolValue:null == (f = jspb.Message.getFieldWithDefault(msg, 4, !1)) ? void 0 : f, structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && proto.google.protobuf.ListValue.toObject(includeInstance, 
+  f)};
   includeInstance && (obj.$jspbMessageInstance = msg);
   return obj;
+});
+jspb.Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Value.ObjectFormat = function() {
+}, proto.google.protobuf.Value.fromObject = function(obj) {
+  var msg = new proto.google.protobuf.Value;
+  null != obj.nullValue && jspb.Message.setField(msg, 1, obj.nullValue);
+  null != obj.numberValue && jspb.Message.setField(msg, 2, obj.numberValue);
+  null != obj.stringValue && jspb.Message.setField(msg, 3, obj.stringValue);
+  null != obj.boolValue && jspb.Message.setField(msg, 4, obj.boolValue);
+  obj.structValue && jspb.Message.setWrapperField(msg, 5, proto.google.protobuf.Struct.fromObject(obj.structValue));
+  obj.listValue && jspb.Message.setWrapperField(msg, 6, proto.google.protobuf.ListValue.fromObject(obj.listValue));
+  return msg;
 });
 proto.google.protobuf.Value.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes), msg = new proto.google.protobuf.Value;
@@ -8792,6 +9044,12 @@ jspb.Message.GENERATE_TO_OBJECT && (proto.google.protobuf.ListValue.prototype.to
   var f, obj = {valuesList:jspb.Message.toObjectList(msg.getValuesList(), proto.google.protobuf.Value.toObject, includeInstance)};
   includeInstance && (obj.$jspbMessageInstance = msg);
   return obj;
+});
+jspb.Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.ListValue.ObjectFormat = function() {
+}, proto.google.protobuf.ListValue.fromObject = function(obj) {
+  var msg = new proto.google.protobuf.ListValue;
+  obj.valuesList && jspb.Message.setRepeatedWrapperField(msg, 1, obj.valuesList.map(proto.google.protobuf.Value.fromObject));
+  return msg;
 });
 proto.google.protobuf.ListValue.deserializeBinary = function(bytes) {
   var reader = new jspb.BinaryReader(bytes), msg = new proto.google.protobuf.ListValue;
@@ -10100,7 +10358,7 @@ goog.html.SafeUrl.unwrap = function(safeUrl) {
 goog.html.SafeUrl.fromConstant = function(url) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
 };
-goog.html.SAFE_MIME_TYPE_PATTERN_ = /^(?:audio\/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-wav|wav|webm)|image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp)|text\/csv|video\/(?:mpeg|mp4|ogg|webm|quicktime))$/i;
+goog.html.SAFE_MIME_TYPE_PATTERN_ = /^(?:audio\/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-wav|wav|webm)|image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon)|text\/csv|video\/(?:mpeg|mp4|ogg|webm|quicktime))$/i;
 goog.html.SafeUrl.fromBlob = function(blob) {
   var url = goog.html.SAFE_MIME_TYPE_PATTERN_.test(blob.type) ? goog.fs.url.createObjectUrl(blob) : goog.html.SafeUrl.INNOCUOUS_STRING;
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
@@ -10111,7 +10369,7 @@ goog.html.SafeUrl.fromDataUrl = function(dataUrl) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(valid ? filteredDataUrl : goog.html.SafeUrl.INNOCUOUS_STRING);
 };
 goog.html.SafeUrl.fromTelUrl = function(telUrl) {
-  goog.string.caseInsensitiveStartsWith(telUrl, "tel:") || (telUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
+  goog.string.internal.caseInsensitiveStartsWith(telUrl, "tel:") || (telUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(telUrl);
 };
 goog.html.SIP_URL_PATTERN_ = /^sip[s]?:[+a-z0-9_.!$%&'*\/=^`{|}~-]+@([a-z0-9-]+\.)+[a-z0-9]{2,63}$/i;
@@ -10120,11 +10378,11 @@ goog.html.SafeUrl.fromSipUrl = function(sipUrl) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(sipUrl);
 };
 goog.html.SafeUrl.fromFacebookMessengerUrl = function(facebookMessengerUrl) {
-  goog.string.caseInsensitiveStartsWith(facebookMessengerUrl, "fb-messenger://share") || (facebookMessengerUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
+  goog.string.internal.caseInsensitiveStartsWith(facebookMessengerUrl, "fb-messenger://share") || (facebookMessengerUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(facebookMessengerUrl);
 };
 goog.html.SafeUrl.fromSmsUrl = function(smsUrl) {
-  goog.string.caseInsensitiveStartsWith(smsUrl, "sms:") && goog.html.SafeUrl.isSmsUrlBodyValid_(smsUrl) || (smsUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
+  goog.string.internal.caseInsensitiveStartsWith(smsUrl, "sms:") && goog.html.SafeUrl.isSmsUrlBodyValid_(smsUrl) || (smsUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(smsUrl);
 };
 goog.html.SafeUrl.isSmsUrlBodyValid_ = function(smsUrl) {
@@ -10147,6 +10405,10 @@ goog.html.SafeUrl.isSmsUrlBodyValid_ = function(smsUrl) {
     return !1;
   }
   return /^(?:[a-z0-9\-_.~]|%[0-9a-f]{2})+$/i.test(bodyValue);
+};
+goog.html.SafeUrl.fromSshUrl = function(sshUrl) {
+  goog.string.internal.caseInsensitiveStartsWith(sshUrl, "ssh://") || (sshUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(sshUrl);
 };
 goog.html.SafeUrl.sanitizeChromeExtensionUrl = function(url, extensionId) {
   return goog.html.SafeUrl.sanitizeExtensionUrl_(/^chrome-extension:\/\/([^\/]+)\//, url, extensionId);
@@ -10182,11 +10444,17 @@ goog.html.SafeUrl.sanitize = function(url) {
   goog.html.SAFE_URL_PATTERN_.test(url) || (url = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
 };
-goog.html.SafeUrl.sanitizeAssertUnchanged = function(url) {
+goog.html.SafeUrl.sanitizeAssertUnchanged = function(url, opt_allowDataUrl) {
   if (url instanceof goog.html.SafeUrl) {
     return url;
   }
   url = "object" == typeof url && url.implementsGoogStringTypedString ? url.getTypedStringValue() : String(url);
+  if (opt_allowDataUrl && /^data:/i.test(url)) {
+    var safeUrl = goog.html.SafeUrl.fromDataUrl(url);
+    if (safeUrl.getTypedStringValue() == url) {
+      return safeUrl;
+    }
+  }
   goog.asserts.assert(goog.html.SAFE_URL_PATTERN_.test(url), "%s does not match the safe URL pattern", url) || (url = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
 };
@@ -10209,8 +10477,8 @@ goog.html.SafeStyle.fromConstant = function(style) {
     return goog.html.SafeStyle.EMPTY;
   }
   goog.html.SafeStyle.checkStyle_(styleString);
-  goog.asserts.assert(goog.string.endsWith(styleString, ";"), "Last character of style string is not ';': " + styleString);
-  goog.asserts.assert(goog.string.contains(styleString, ":"), "Style string must contain at least one ':', to specify a \"name: value\" pair: " + styleString);
+  goog.asserts.assert(goog.string.internal.endsWith(styleString, ";"), "Last character of style string is not ';': " + styleString);
+  goog.asserts.assert(goog.string.internal.contains(styleString, ":"), "Style string must contain at least one ':', to specify a \"name: value\" pair: " + styleString);
   return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(styleString);
 };
 goog.html.SafeStyle.checkStyle_ = function(style) {
@@ -10338,7 +10606,7 @@ goog.html.SafeStyleSheet = function() {
 goog.html.SafeStyleSheet.prototype.implementsGoogStringTypedString = !0;
 goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
 goog.html.SafeStyleSheet.createRule = function(selector, style) {
-  if (goog.string.contains(selector, "<")) {
+  if (goog.string.internal.contains(selector, "<")) {
     throw Error("Selector does not allow '<', got: " + selector);
   }
   var selectorToCheck = selector.replace(/('|")((?!\1)[^\r\n\f\\]|\\[\s\S])*\1/g, "");
@@ -10377,7 +10645,7 @@ goog.html.SafeStyleSheet.fromConstant = function(styleSheet) {
   if (0 === styleSheetString.length) {
     return goog.html.SafeStyleSheet.EMPTY;
   }
-  goog.asserts.assert(!goog.string.contains(styleSheetString, "<"), "Forbidden '<' character in style sheet string: " + styleSheetString);
+  goog.asserts.assert(!goog.string.internal.contains(styleSheetString, "<"), "Forbidden '<' character in style sheet string: " + styleSheetString);
   return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheetString);
 };
 goog.html.SafeStyleSheet.prototype.getTypedStringValue = function() {
@@ -10430,21 +10698,21 @@ goog.html.SafeHtml.htmlEscape = function(textOrHtml) {
   }
   var textIsObject = "object" == typeof textOrHtml, dir = null;
   textIsObject && textOrHtml.implementsGoogI18nBidiDirectionalString && (dir = textOrHtml.getDirection());
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.htmlEscape(textIsObject && textOrHtml.implementsGoogStringTypedString ? textOrHtml.getTypedStringValue() : String(textOrHtml)), dir);
+  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.htmlEscape(textIsObject && textOrHtml.implementsGoogStringTypedString ? textOrHtml.getTypedStringValue() : String(textOrHtml)), dir);
 };
 goog.html.SafeHtml.htmlEscapePreservingNewlines = function(textOrHtml) {
   if (textOrHtml instanceof goog.html.SafeHtml) {
     return textOrHtml;
   }
   var html = goog.html.SafeHtml.htmlEscape(textOrHtml);
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.newLineToBr(goog.html.SafeHtml.unwrap(html)), html.getDirection());
+  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.newLineToBr(goog.html.SafeHtml.unwrap(html)), html.getDirection());
 };
 goog.html.SafeHtml.htmlEscapePreservingNewlinesAndSpaces = function(textOrHtml) {
   if (textOrHtml instanceof goog.html.SafeHtml) {
     return textOrHtml;
   }
   var html = goog.html.SafeHtml.htmlEscape(textOrHtml);
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.whitespaceEscape(goog.html.SafeHtml.unwrap(html)), html.getDirection());
+  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.whitespaceEscape(goog.html.SafeHtml.unwrap(html)), html.getDirection());
 };
 goog.html.SafeHtml.from = goog.html.SafeHtml.htmlEscape;
 goog.html.SafeHtml.VALID_NAMES_IN_TAG_ = /^[a-zA-Z0-9-]+$/;
@@ -10515,7 +10783,7 @@ goog.html.SafeHtml.createStyle = function(styleSheet, opt_attributes) {
 };
 goog.html.SafeHtml.createMetaRefresh = function(url, opt_secs) {
   var unwrappedUrl = goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitize(url));
-  (goog.labs.userAgent.browser.isIE() || goog.labs.userAgent.browser.isEdge()) && goog.string.contains(unwrappedUrl, ";") && (unwrappedUrl = "'" + unwrappedUrl.replace(/'/g, "%27") + "'");
+  (goog.labs.userAgent.browser.isIE() || goog.labs.userAgent.browser.isEdge()) && goog.string.internal.contains(unwrappedUrl, ";") && (unwrappedUrl = "'" + unwrappedUrl.replace(/'/g, "%27") + "'");
   return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("meta", {"http-equiv":"refresh", content:(opt_secs || 0) + "; url=" + unwrappedUrl});
 };
 goog.html.SafeHtml.getAttrNameAndValue_ = function(tagName, name, value) {
@@ -10547,7 +10815,7 @@ goog.html.SafeHtml.getAttrNameAndValue_ = function(tagName, name, value) {
   }
   value.implementsGoogStringTypedString && (value = value.getTypedStringValue());
   goog.asserts.assert(goog.isString(value) || goog.isNumber(value), "String or number value expected, got " + typeof value + " with value: " + value);
-  return name + '="' + goog.string.htmlEscape(String(value)) + '"';
+  return name + '="' + goog.string.internal.htmlEscape(String(value)) + '"';
 };
 goog.html.SafeHtml.getStyleValue_ = function(value) {
   if (!goog.isObject(value)) {
@@ -10700,17 +10968,32 @@ goog.dom.safe.setAnchorHref = function(anchor, url) {
 };
 goog.dom.safe.setImageSrc = function(imageElement, url) {
   goog.dom.asserts.assertIsHTMLImageElement(imageElement);
-  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
+  if (url instanceof goog.html.SafeUrl) {
+    var safeUrl = url;
+  } else {
+    var allowDataUrl = /^data:image\//i.test(url);
+    safeUrl = goog.html.SafeUrl.sanitizeAssertUnchanged(url, allowDataUrl);
+  }
   imageElement.src = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setAudioSrc = function(audioElement, url) {
   goog.dom.asserts.assertIsHTMLAudioElement(audioElement);
-  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
+  if (url instanceof goog.html.SafeUrl) {
+    var safeUrl = url;
+  } else {
+    var allowDataUrl = /^data:audio\//i.test(url);
+    safeUrl = goog.html.SafeUrl.sanitizeAssertUnchanged(url, allowDataUrl);
+  }
   audioElement.src = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setVideoSrc = function(videoElement, url) {
   goog.dom.asserts.assertIsHTMLVideoElement(videoElement);
-  var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
+  if (url instanceof goog.html.SafeUrl) {
+    var safeUrl = url;
+  } else {
+    var allowDataUrl = /^data:video\//i.test(url);
+    safeUrl = goog.html.SafeUrl.sanitizeAssertUnchanged(url, allowDataUrl);
+  }
   videoElement.src = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setEmbedSrc = function(embed, url) {
@@ -10732,7 +11015,7 @@ goog.dom.safe.setIframeSrcdoc = function(iframe, html) {
 goog.dom.safe.setLinkHrefAndRel = function(link, url, rel) {
   goog.dom.asserts.assertIsHTMLLinkElement(link);
   link.rel = rel;
-  goog.string.caseInsensitiveContains(rel, "stylesheet") ? (goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"'), link.href = goog.html.TrustedResourceUrl.unwrap(url)) : link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrap(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrap(url) : goog.html.SafeUrl.sanitizeAssertUnchanged(url).getTypedStringValue();
+  goog.string.internal.caseInsensitiveContains(rel, "stylesheet") ? (goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"'), link.href = goog.html.TrustedResourceUrl.unwrap(url)) : link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrap(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrap(url) : goog.html.SafeUrl.sanitizeAssertUnchanged(url).getTypedStringValue();
 };
 goog.dom.safe.setObjectData = function(object, url) {
   goog.dom.asserts.assertIsHTMLObjectElement(object);
@@ -10770,7 +11053,10 @@ goog.dom.safe.openInWindow = function(url, opt_openerWin, opt_name, opt_specs, o
   return (opt_openerWin || window).open(goog.html.SafeUrl.unwrap(safeUrl), opt_name ? goog.string.Const.unwrap(opt_name) : "", opt_specs, opt_replace);
 };
 goog.dom.safe.parseFromStringHtml = function(parser, html) {
-  return parser.parseFromString(goog.html.SafeHtml.unwrap(html), "text/html");
+  return goog.dom.safe.parseFromString(parser, html, "text/html");
+};
+goog.dom.safe.parseFromString = function(parser, content, type) {
+  return parser.parseFromString(goog.html.SafeHtml.unwrap(content), type);
 };
 goog.dom.safe.createImageFromBlob = function(blob) {
   if (!/^image\/.*/g.test(blob.type)) {
@@ -10786,32 +11072,32 @@ goog.dom.safe.createImageFromBlob = function(blob) {
 goog.html.uncheckedconversions = {};
 goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract = function(justification, html, opt_dir) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
   return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(html, opt_dir || null);
 };
 goog.html.uncheckedconversions.safeScriptFromStringKnownToSatisfyTypeContract = function(justification, script) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
   return goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(script);
 };
 goog.html.uncheckedconversions.safeStyleFromStringKnownToSatisfyTypeContract = function(justification, style) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
   return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
 };
 goog.html.uncheckedconversions.safeStyleSheetFromStringKnownToSatisfyTypeContract = function(justification, styleSheet) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
   return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
 };
 goog.html.uncheckedconversions.safeUrlFromStringKnownToSatisfyTypeContract = function(justification, url) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
 };
 goog.html.uncheckedconversions.trustedResourceUrlFromStringKnownToSatisfyTypeContract = function(justification, url) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
   return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(url);
 };
 goog.math.Coordinate = function(opt_x, opt_y) {
@@ -11492,7 +11778,7 @@ goog.dom.isTabIndexFocusable_ = function(element) {
   return goog.isNumber(index) && 0 <= index && 32768 > index;
 };
 goog.dom.nativelySupportsFocus_ = function(element) {
-  return "A" == element.tagName || "INPUT" == element.tagName || "TEXTAREA" == element.tagName || "SELECT" == element.tagName || "BUTTON" == element.tagName;
+  return "A" == element.tagName && element.hasAttribute("href") || "INPUT" == element.tagName || "TEXTAREA" == element.tagName || "SELECT" == element.tagName || "BUTTON" == element.tagName;
 };
 goog.dom.hasNonZeroBoundingRect_ = function(element) {
   var rect = !goog.isFunction(element.getBoundingClientRect) || goog.userAgent.IE && null == element.parentElement ? {height:element.offsetHeight, width:element.offsetWidth} : element.getBoundingClientRect();
@@ -12868,8 +13154,8 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   try {
     this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (this.useXhr2Timeout_ = goog.net.XhrIo.shouldUseXhr2Timeout_(this.xhr_), goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete, xhr2 " + this.useXhr2Timeout_)), this.useXhr2Timeout_ ? (this.xhr_[goog.net.XhrIo.XHR2_TIMEOUT_] = this.timeoutInterval_, this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = goog.bind(this.timeout_, this)) : this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, 
     this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
-  } catch (err$14) {
-    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$14.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$14);
+  } catch (err$17) {
+    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$17.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$17);
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
@@ -13565,18 +13851,22 @@ ee.data.authenticateViaPrivateKey = function(privateKey, opt_success, opt_error,
   });
   ee.data.refreshAuthToken(opt_success, opt_error);
 };
+ee.data.cloudApiSymbols = [];
 ee.data.setApiKey = function(apiKey) {
   ee.data.cloudApiKey_ = apiKey;
 };
+ee.data.cloudApiSymbols.push("setApiKey");
 ee.data.setCloudApiEnabled = function(enable) {
   if (enable && !goog.getObjectByName("gapi")) {
     throw Error('Cloud API requires <script src="https://apis.google.com/js/api.js">');
   }
   ee.data.cloudApiEnabled_ = enable;
 };
+ee.data.cloudApiSymbols.push("setCloudApiEnabled");
 ee.data.getCloudApiEnabled = function() {
   return ee.data.cloudApiEnabled_;
 };
+ee.data.cloudApiSymbols.push("getCloudApiEnabled");
 ee.data.setAuthToken = function(clientId, tokenType, accessToken, expiresIn, opt_extraScopes, opt_callback, opt_updateAuthLibrary) {
   var scopes = [ee.data.AUTH_SCOPE_];
   opt_extraScopes && (goog.array.extend(scopes, opt_extraScopes), goog.array.removeDuplicates(scopes));
@@ -13639,13 +13929,13 @@ ee.data.reset = function() {
   goog.getObjectByName("gapi") && gapi.client && delete gapi.client.earthengine;
   ee.data.initialized_ = !1;
 };
-ee.data.sendCloudApiRequest_ = function(callApi, getResponse, opt_callback) {
+ee.data.sendCloudApiRequest_ = function(callApi, getResponse, opt_callback, opt_retries) {
   ee.data.initialize();
   if (opt_callback) {
     var handler = function(payload) {
       return ee.data.handleResponse_(payload.status, function(h) {
         return payload.headers[h.toLowerCase()];
-      }, payload.body, null, opt_callback, getResponse);
+      }, payload.body, null, opt_callback, getResponse || goog.functions.identity);
     };
     ee.data.cloudApiReadyPromise_.then(function() {
       callApi().then(handler, handler);
@@ -13655,20 +13945,20 @@ ee.data.sendCloudApiRequest_ = function(callApi, getResponse, opt_callback) {
   if (!ee.data.cloudApiReady_) {
     throw Error("Cloud API not ready");
   }
-  return ee.data.hijackXhr_(function(xhr) {
+  var xhr = ee.data.hijackXhr_(function() {
     callApi().then(function() {
       return null;
     }, function() {
       return null;
     });
-    return ee.data.handleResponse_(xhr().status, function(h) {
-      try {
-        return xhr().getResponseHeader(h);
-      } catch (e) {
-        return null;
-      }
-    }, xhr().responseText, null, void 0, getResponse);
   });
+  return ee.data.handleResponse_(xhr.status, function(h) {
+    try {
+      return xhr.getResponseHeader(h);
+    } catch (e) {
+      return null;
+    }
+  }, xhr.responseText, null, void 0, getResponse || goog.functions.identity);
 };
 ee.data.hijackXhr_ = function(action) {
   if (XMLHttpRequest.prototype.HijackedConstructor) {
@@ -13709,9 +13999,7 @@ ee.data.hijackXhr_ = function(action) {
   XhrHijack.prototype.HijackedConstructor = XMLHttpRequest;
   XMLHttpRequest = XhrHijack;
   try {
-    return action(function() {
-      return XMLHttpRequest.lastXhr;
-    });
+    return action(), XMLHttpRequest.lastXhr;
   } finally {
     XMLHttpRequest = XMLHttpRequest.prototype.HijackedConstructor;
   }
@@ -13733,6 +14021,11 @@ ee.data.getXsrfToken = function() {
   return ee.data.xsrfToken_;
 };
 ee.data.getAlgorithms = function(opt_callback) {
+  if (ee.data.cloudApiEnabled_) {
+    return ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.algorithms.list({prettyPrint:!1});
+    }, ee.rpc_convert.algorithms, opt_callback);
+  }
   var result = ee.data.send_("/algorithms", null, opt_callback, "GET");
   return opt_callback ? null : result;
 };
@@ -13840,6 +14133,18 @@ ee.data.withProfiling = function(hook, body, opt_this) {
 };
 goog.exportSymbol("ee.data.withProfiling", ee.data.withProfiling);
 ee.data.newTaskId = function(opt_count, opt_callback) {
+  if (ee.data.cloudApiEnabled_) {
+    var rand = function(n) {
+      return Math.floor(Math.random() * n);
+    }, hex = function(d) {
+      return rand(Math.pow(2, 4 * d)).toString(16).padStart(d, "0");
+    }, variantPart = function() {
+      return (8 + rand(4)).toString(16) + hex(3);
+    }, uuids = goog.array.range(opt_count || 1).map(function() {
+      return [hex(8), hex(4), "4" + hex(3), variantPart(), hex(12)].join("-");
+    });
+    return opt_callback ? opt_callback(uuids) : uuids;
+  }
   var params = {};
   goog.isNumber(opt_count) && (params.count = opt_count);
   return ee.data.send_("/newtaskid", ee.data.makeRequest_(params), opt_callback);
@@ -13852,6 +14157,25 @@ ee.data.getTaskStatus = function(taskId, opt_callback) {
     if (!goog.isArray(taskId)) {
       throw Error("Invalid taskId: expected a string or an array of strings.");
     }
+  }
+  if (ee.data.cloudApiEnabled_) {
+    var asName = function(id) {
+      return {name:ee.rpc_convert.taskIdToOperationName(id)};
+    };
+    return ee.data.sendCloudApiRequest_(function() {
+      if (1 === taskId.length) {
+        return gapi.client.earthengine.operations.get(asName(taskId[0]));
+      }
+      var batch = gapi.client.newBatch();
+      taskId.forEach(function(id) {
+        batch.add(gapi.client.earthengine.operations.get(asName(id)), {id:id});
+      });
+      return batch;
+    }, function(response) {
+      return 1 === taskId.length ? ee.rpc_convert.operationToTask(response) : taskId.map(function(id) {
+        return ee.rpc_convert.operationToTask(response[id]);
+      });
+    }, opt_callback);
   }
   var url = "/taskstatus?q=" + taskId.join();
   return ee.data.send_(url, null, opt_callback, "GET");
@@ -13874,6 +14198,14 @@ ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
       err ? callback(taskListResponse, err) : (goog.array.extend(taskListResponse.tasks, resp.tasks), !resp.next_page_token || opt_limit && taskListResponse.tasks.length >= opt_limit ? callback(taskListResponse) : inner(callback, resp.next_page_token));
     }, "GET");
   }
+  if (ee.data.cloudApiEnabled_) {
+    var convert = function(ops) {
+      return {tasks:ops.map(ee.rpc_convert.operationToTask)};
+    };
+    return opt_callback ? (ee.data.listOperations(opt_limit, function(v, e) {
+      return opt_callback(v ? convert(v) : null, e);
+    }), null) : convert(ee.data.listOperations(opt_limit));
+  }
   var taskListResponse = {tasks:[]};
   if (opt_callback) {
     return inner(opt_callback), null;
@@ -13889,6 +14221,21 @@ ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
   return taskListResponse;
 };
 goog.exportSymbol("ee.data.getTaskListWithLimit", ee.data.getTaskListWithLimit);
+ee.data.listOperations = function(opt_limit, opt_callback) {
+  var ops = [], truncatedOps = function() {
+    return opt_limit ? ops.slice(0, opt_limit) : ops;
+  }, request = {name:"operations", pageSize:ee.data.TASKLIST_PAGE_SIZE_, filter:null, pageToken:null}, callApi = function() {
+    return gapi.client.earthengine.operations.list(request);
+  }, noopCallback = opt_callback ? function() {
+    return 0;
+  } : void 0, getResponse = function(r) {
+    goog.array.extend(ops, r.operations || []);
+    !r.nextPageToken || opt_limit && ops.length >= opt_limit ? opt_callback && opt_callback(truncatedOps()) : (request.pageToken = r.nextPageToken, ee.data.sendCloudApiRequest_(callApi, getResponse, noopCallback));
+    return null;
+  };
+  ee.data.sendCloudApiRequest_(callApi, getResponse, noopCallback);
+  return opt_callback ? null : truncatedOps();
+};
 ee.data.cancelTask = function(taskId, opt_callback) {
   return ee.data.updateTask(taskId, ee.data.TaskUpdateActions.CANCEL, opt_callback);
 };
@@ -13904,6 +14251,21 @@ ee.data.updateTask = function(taskId, action, opt_callback) {
   if (!goog.object.containsValue(ee.data.TaskUpdateActions, action)) {
     throw Error("Invalid action: " + action);
   }
+  if (ee.data.cloudApiEnabled_) {
+    var asName = function(id) {
+      return {name:ee.rpc_convert.taskIdToOperationName(id)};
+    };
+    return ee.data.sendCloudApiRequest_(function() {
+      if (1 === taskId.length) {
+        return gapi.client.earthengine.operations.cancel(asName(taskId[0]));
+      }
+      var batch = gapi.client.newBatch();
+      taskId.forEach(function(id) {
+        batch.add(gapi.client.earthengine.operations.cancel(asName(id)), {id:id});
+      });
+      return batch;
+    }, null, opt_callback);
+  }
   return ee.data.send_("/updatetask", ee.data.makeRequest_({id:taskId, action:action}), opt_callback, "POST");
 };
 goog.exportSymbol("ee.data.updateTask", ee.data.updateTask);
@@ -13918,36 +14280,113 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
   return ee.data.send_("/ingestionrequest", ee.data.makeRequest_(params), opt_callback);
 };
 goog.exportSymbol("ee.data.startIngestion", ee.data.startIngestion);
+ee.data.ingestImage = function(taskId, imageManifest, callback) {
+  var body = {imageManifest:imageManifest, requestId:taskId, overwrite:!1, description:null};
+  ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.v1.ingestImage(body);
+  }, null, callback, taskId ? void 0 : 0);
+};
+ee.data.ingestTable = function(taskId, tableManifest, callback) {
+  var body = {tableManifest:tableManifest, requestId:taskId, overwrite:!1, description:null};
+  ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.v1.ingestTable(body);
+  }, null, callback, taskId ? void 0 : 0);
+};
 ee.data.startTableIngestion = function(taskId, request, opt_callback) {
   var params = {id:taskId, tableRequest:goog.json.serialize(request)};
   return ee.data.send_("/ingestionrequest", ee.data.makeRequest_(params), opt_callback);
 };
 goog.exportSymbol("ee.data.startTableIngestion", ee.data.startTableIngestion);
-ee.data.getInfo = function(id, opt_callback) {
+ee.data.getAsset = function(id, opt_callback) {
+  if (ee.data.cloudApiEnabled_) {
+    var body = {name:ee.rpc_convert.assetIdToAssetName(id), prettyPrint:!1};
+    return ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.assets.get(body);
+    }, null, opt_callback);
+  }
   return ee.data.send_("/info", (new goog.Uri.QueryData).add("id", id), opt_callback);
 };
+ee.data.cloudApiSymbols.push("getAsset");
+ee.data.getInfo = ee.data.getAsset;
 ee.data.getList = function(params, opt_callback) {
   if (ee.data.cloudApiEnabled_) {
-    var name = "projects/earthengine-legacy/assets/" + params.id;
+    if (Object.keys(params).every(function(k) {
+      return "id" === k || "num" === k;
+    })) {
+      var body = ee.rpc_convert.getListToListAssets(params);
+      return ee.data.sendCloudApiRequest_(function() {
+        return gapi.client.earthengine.assets.list(body);
+      }, ee.rpc_convert.listAssetsToGetList, opt_callback);
+    }
+    var body$18 = ee.rpc_convert.getListToListImages(params);
     return ee.data.sendCloudApiRequest_(function() {
-      return gapi.client.earthengine.assets.list({name:name});
-    }, function(x) {
-      return x.assets;
-    }, opt_callback);
+      return gapi.client.earthengine.assets.listImages({fields:"assets(type,path)"}, body$18);
+    }, ee.rpc_convert.listImagesToGetList, opt_callback);
   }
   var request = ee.data.makeRequest_(params);
   return ee.data.send_("/list", request, opt_callback);
 };
+ee.data.listAssets = function(body, opt_callback) {
+  return ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.assets.list(body);
+  }, null, opt_callback);
+};
+ee.data.cloudApiSymbols.push("listAssets");
+ee.data.listImages = function(body, opt_callback) {
+  return ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.assets.listImages(body);
+  }, null, opt_callback);
+};
+ee.data.cloudApiSymbols.push("listImages");
+ee.data.listBuckets = function(opt_callback) {
+  return ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.v1.listBuckets({});
+  }, null, opt_callback);
+};
+ee.data.cloudApiSymbols.push("listBuckets");
 ee.data.getAssetRoots = function(opt_callback) {
-  return ee.data.send_("/buckets", null, opt_callback, "GET");
+  return ee.data.cloudApiEnabled_ ? ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.v1.listBuckets({});
+  }, ee.rpc_convert.listBucketsToGetList, opt_callback) : ee.data.send_("/buckets", null, opt_callback, "GET");
 };
 goog.exportSymbol("ee.data.getAssetRoots", ee.data.getAssetRoots);
 ee.data.createAssetHome = function(requestedId, opt_callback) {
-  var request = ee.data.makeRequest_({id:requestedId});
-  ee.data.send_("/createbucket", request, opt_callback);
+  if (ee.data.cloudApiEnabled_) {
+    var body = {type:"Folder", name:ee.rpc_convert.assetIdToAssetName(requestedId)};
+    ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.assets.create(body);
+    }, null, opt_callback);
+  } else {
+    var request = ee.data.makeRequest_({id:requestedId});
+    ee.data.send_("/createbucket", request, opt_callback);
+  }
 };
 goog.exportSymbol("ee.data.createAssetHome", ee.data.createAssetHome);
 ee.data.createAsset = function(value, opt_path, opt_force, opt_properties, opt_callback) {
+  if (ee.data.cloudApiEnabled_) {
+    if (opt_force) {
+      throw Error("Asset overwrite not supported.");
+    }
+    if (goog.isString(value)) {
+      throw Error("Asset cannot be specified as string.");
+    }
+    var name = value.name || opt_path && ee.rpc_convert.assetIdToAssetName(opt_path);
+    if (!name) {
+      throw Error("Either asset name or opt_path must be specified.");
+    }
+    var split = name.indexOf("/assets/");
+    if (-1 === split) {
+      throw Error("Asset name must contain /assets/.");
+    }
+    var asset = Object.assign({}, value);
+    delete asset.name;
+    opt_properties && !asset.properties && (asset.properties = opt_properties);
+    asset.type = ee.rpc_convert.assetTypeForCreate(asset.type);
+    var body = {asset:asset, parent:name.slice(0, split), assetId:name.slice(split + 8), overwrite:opt_force || !1};
+    return ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.assets.create(body);
+    }, null, opt_callback);
+  }
   goog.isString(value) || (value = goog.json.serialize(value));
   var args = {value:value};
   void 0 !== opt_path && (args.id = opt_path);
@@ -13957,6 +14396,12 @@ ee.data.createAsset = function(value, opt_path, opt_force, opt_properties, opt_c
 };
 goog.exportSymbol("ee.data.createAsset", ee.data.createAsset);
 ee.data.createFolder = function(path, opt_force, opt_callback) {
+  if (ee.data.cloudApiEnabled_) {
+    var body = {type:"Folder", name:ee.rpc_convert.assetIdToAssetName(path)};
+    return ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.assets.create(body);
+    }, null, opt_callback);
+  }
   return ee.data.send_("/createfolder", ee.data.makeRequest_({id:path, force:opt_force || !1}), opt_callback);
 };
 goog.exportSymbol("ee.data.createFolder", ee.data.createFolder);
@@ -13964,32 +14409,101 @@ ee.data.search = function(query, opt_callback) {
   return ee.data.send_("/search", ee.data.makeRequest_({q:query}), opt_callback);
 };
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
-  ee.data.send_("/rename", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
+  if (ee.data.cloudApiEnabled_) {
+    var body = {sourceName:ee.rpc_convert.assetIdToAssetName(sourceId), destinationName:ee.rpc_convert.assetIdToAssetName(destinationId), sourcePath:null, destinationPath:null};
+    ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.assets.move(body);
+    }, null, opt_callback);
+  } else {
+    ee.data.send_("/rename", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
+  }
 };
 goog.exportSymbol("ee.data.renameAsset", ee.data.renameAsset);
 ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
-  ee.data.send_("/copy", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
+  if (ee.data.cloudApiEnabled_) {
+    var body = {sourceName:ee.rpc_convert.assetIdToAssetName(sourceId), destinationName:ee.rpc_convert.assetIdToAssetName(destinationId), overwrite:!1, sourcePath:null, destinationPath:null, bandIds:null};
+    ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.assets.copy(body);
+    }, null, opt_callback);
+  } else {
+    ee.data.send_("/copy", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
+  }
 };
 goog.exportSymbol("ee.data.copyAsset", ee.data.copyAsset);
 ee.data.deleteAsset = function(assetId, opt_callback) {
-  ee.data.send_("/delete", ee.data.makeRequest_({id:assetId}), opt_callback);
+  if (ee.data.cloudApiEnabled_) {
+    var body = {name:ee.rpc_convert.assetIdToAssetName(assetId)};
+    ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.assets["delete"](body);
+    }, null, opt_callback);
+  } else {
+    ee.data.send_("/delete", ee.data.makeRequest_({id:assetId}), opt_callback);
+  }
 };
 goog.exportSymbol("ee.data.deleteAsset", ee.data.deleteAsset);
 ee.data.getAssetAcl = function(assetId, opt_callback) {
+  if (ee.data.cloudApiEnabled_) {
+    var body = {resource:ee.rpc_convert.assetIdToAssetName(assetId), prettyPrint:!1};
+    return ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.projects.assets.getIamPolicy(body);
+    }, ee.rpc_convert.iamPolicyToAcl, opt_callback);
+  }
   return ee.data.send_("/getacl", ee.data.makeRequest_({id:assetId}), opt_callback, "GET");
 };
 goog.exportSymbol("ee.data.getAssetAcl", ee.data.getAssetAcl);
+ee.data.getIamPolicy = function(assetId, opt_callback) {
+  var body = {resource:ee.rpc_convert.assetIdToAssetName(assetId), prettyPrint:!1};
+  return ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.projects.assets.getIamPolicy(body);
+  }, null, opt_callback);
+};
+ee.data.setIamPolicy = function(assetId, policy, opt_callback) {
+  var body = {policy:policy, resource:ee.rpc_convert.assetIdToAssetName(assetId), prettyPrint:!1};
+  return ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.projects.assets.setIamPolicy(body);
+  }, null, opt_callback);
+};
 ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
-  var request = {id:assetId, value:goog.json.serialize(aclUpdate)};
-  ee.data.send_("/setacl", ee.data.makeRequest_(request), opt_callback);
+  if (ee.data.cloudApiEnabled_) {
+    var body = {resource:ee.rpc_convert.assetIdToAssetName(assetId), policy:ee.rpc_convert.aclToIamPolicy(aclUpdate), prettyPrint:!1};
+    ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.projects.assets.setIamPolicy(body);
+    }, null, opt_callback);
+  } else {
+    var request = {id:assetId, value:goog.json.serialize(aclUpdate)};
+    ee.data.send_("/setacl", ee.data.makeRequest_(request), opt_callback);
+  }
 };
 goog.exportSymbol("ee.data.setAssetAcl", ee.data.setAssetAcl);
 ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
-  var request = {id:assetId, properties:goog.json.serialize(properties)};
-  ee.data.send_("/setproperties", ee.data.makeRequest_(request), opt_callback);
+  if (ee.data.cloudApiEnabled_) {
+    var paths = Object.keys(properties).map(function(k) {
+      return "properties." + k;
+    }), body = {name:ee.rpc_convert.assetIdToAssetName(assetId), asset:{properties:properties}, updateMask:{paths:paths}};
+    ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.assets.patch(body);
+    }, null, opt_callback);
+  } else {
+    var request = {id:assetId, properties:goog.json.serialize(properties)};
+    ee.data.send_("/setproperties", ee.data.makeRequest_(request), opt_callback);
+  }
 };
 goog.exportSymbol("ee.data.setAssetProperties", ee.data.setAssetProperties);
 ee.data.getAssetRootQuota = function(rootId, opt_callback) {
+  if (ee.data.cloudApiEnabled_) {
+    var body = {name:ee.rpc_convert.assetIdToAssetName(rootId), prettyPrint:!1};
+    return ee.data.sendCloudApiRequest_(function() {
+      return gapi.client.earthengine.assets.get(body);
+    }, function(asset) {
+      if (!asset.quota) {
+        throw Error(rootId + " is not a root folder.");
+      }
+      var q = function(field) {
+        return Number(asset.quota[field] || 0);
+      };
+      return {assetCount:{usage:q("assetCount"), limit:q("maxAssetCount")}, assetSize:{usage:q("sizeBytes"), limit:q("maxSizeBytes")}};
+    }, opt_callback);
+  }
   return ee.data.send_("/quota", ee.data.makeRequest_({id:rootId}), opt_callback, "GET");
 };
 goog.exportSymbol("ee.data.getAssetRootQuota", ee.data.getAssetRootQuota);
@@ -14218,7 +14732,7 @@ ee.data.handleAuthResult_ = function(success, error, result) {
   }
 };
 ee.data.makeRequest_ = function(params) {
-  for (var request = new goog.Uri.QueryData, $jscomp$iter$7 = $jscomp.makeIterator(Object.entries(params)), $jscomp$key$ = $jscomp$iter$7.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$7.next()) {
+  for (var request = new goog.Uri.QueryData, $jscomp$iter$10 = $jscomp.makeIterator(Object.entries(params)), $jscomp$key$ = $jscomp$iter$10.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$10.next()) {
     var $jscomp$destructuring$var5 = $jscomp.makeIterator($jscomp$key$.value), name = $jscomp$destructuring$var5.next().value, item = $jscomp$destructuring$var5.next().value;
     request.set(name, item);
   }
@@ -15266,6 +15780,49 @@ ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
 ee.Feature.prototype.name = function() {
   return "Feature";
 };
+ee.data.images = {};
+ee.data.images.applySelectionAndScale = function(image, params, outParams) {
+  var clipParams = {};
+  goog.object.forEach(params, function(value, key) {
+    switch(key) {
+      case "dimensions":
+        var dims = goog.isString(value) ? value.split("x").map(Number) : goog.isArray(value) ? value : goog.isNumber(value) ? [value] : [];
+        if (1 === dims.length) {
+          clipParams.maxDimension = dims[0];
+        } else {
+          if (2 === dims.length) {
+            clipParams.width = dims[0], clipParams.height = dims[1];
+          } else {
+            throw Error("Invalid dimensions " + value);
+          }
+        }
+        break;
+      case "region":
+        var region = goog.isString(value) ? JSON.parse(value) : value;
+        clipParams.geometry = new ee.Geometry(region);
+        break;
+      case "scale":
+        clipParams.scale = value;
+      default:
+        outParams[key] = value;
+    }
+  });
+  goog.object.isEmpty(clipParams) || (clipParams.input = image, image = ee.ApiFunction._apply("Image.clipToBoundsAndScale", clipParams));
+  return image;
+};
+ee.data.images.applyVisualization = function(image, params) {
+  var request = {}, visParams = ee.data.images.extractVisParams(params, request);
+  goog.object.isEmpty(visParams) || (visParams.image = image, image = ee.ApiFunction._apply("Image.visualize", visParams));
+  request.image = image;
+  return request;
+};
+ee.data.images.extractVisParams = function(params, outParams) {
+  var keysToExtract = "bands gain bias min max gamma palette opacity forceRgbOutput".split(" "), visParams = {};
+  goog.object.forEach(params, function(value, key) {
+    goog.array.contains(keysToExtract, key) ? visParams[key] = value : outParams[key] = value;
+  });
+  return visParams;
+};
 ee.Image = function(opt_args) {
   if (!(this instanceof ee.Image)) {
     return ee.ComputedObject.construct(ee.Image, arguments);
@@ -15324,7 +15881,7 @@ ee.Image.prototype.getInfo = function(opt_callback) {
   return ee.Image.superClass_.getInfo.call(this, opt_callback);
 };
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
-  var $jscomp$this = this, args = ee.arguments.extractFromFunction(ee.Image.prototype.getMap, arguments), request = ee.Image.applyVisualization_(this, args.visParams);
+  var $jscomp$this = this, args = ee.arguments.extractFromFunction(ee.Image.prototype.getMap, arguments), request = ee.data.images.applyVisualization(this, args.visParams);
   if (args.callback) {
     var callback = args.callback;
     ee.data.getMapId(request, function(data, error) {
@@ -15336,44 +15893,6 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
     response.image = this;
     return response;
   }
-};
-ee.Image.applySelectionAndScale_ = function(image, params, outParams) {
-  var clipParams = {};
-  goog.object.forEach(params, function(value, key) {
-    switch(key) {
-      case "dimensions":
-        var dims = goog.isString(value) ? value.split("x").map(Number) : goog.isArray(value) ? value : goog.isNumber(value) ? [value] : [];
-        if (1 === dims.length) {
-          clipParams.maxDimension = dims[0];
-        } else {
-          if (2 === dims.length) {
-            clipParams.width = dims[0], clipParams.height = dims[1];
-          } else {
-            throw Error("Invalid dimensions " + value);
-          }
-        }
-        break;
-      case "region":
-        var region = goog.isString(value) ? JSON.parse(value) : value;
-        clipParams.geometry = new ee.Geometry(region);
-        break;
-      case "scale":
-        clipParams.scale = value;
-      default:
-        outParams[key] = value;
-    }
-  });
-  goog.object.isEmpty(clipParams) || (clipParams.input = image, image = ee.ApiFunction._apply("Image.clipToBoundsAndScale", clipParams));
-  return image;
-};
-ee.Image.applyVisualization_ = function(image, params) {
-  var keysToExtract = "bands gain bias min max gamma palette opacity forceRgbOutput".split(" "), request = {}, visParams = {};
-  goog.object.forEach(params, function(value, key) {
-    goog.array.contains(keysToExtract, key) ? visParams[key] = value : request[key] = value;
-  });
-  goog.object.isEmpty(visParams) || (visParams.image = image, image = ee.ApiFunction._apply("Image.visualize", visParams));
-  request.image = image;
-  return request;
 };
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.Image.prototype.getDownloadURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
@@ -15390,10 +15909,10 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.Image.prototype.getThumbURL, arguments);
   if (ee.data.getCloudApiEnabled()) {
-    var extra = {}, image = ee.Image.applySelectionAndScale_(this, args.params, extra);
-    var request = ee.Image.applyVisualization_(image, extra);
+    var extra = {}, image = ee.data.images.applySelectionAndScale(this, args.params, extra);
+    var request = ee.data.images.applyVisualization(image, extra);
   } else {
-    if (request = ee.Image.applyVisualization_(this, args.params), request.region) {
+    if (request = ee.data.images.applyVisualization(this, args.params), request.region) {
       if (goog.isArray(request.region) || ee.Types.isRegularObject(request.region)) {
         request.region = goog.json.serialize(request.region);
       } else {
@@ -15661,6 +16180,47 @@ ee.ImageCollection.reset = function() {
   ee.ApiFunction.clearApi(ee.ImageCollection);
   ee.ImageCollection.initialized_ = !1;
 };
+ee.ImageCollection.prototype.getTiledThumbURL = function(params, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getTiledThumbURL, arguments);
+  return ee.ImageCollection.prototype.getThumbURL_(this, args, ["png", "jpg", "jpeg"], opt_callback);
+};
+ee.ImageCollection.prototype.getAnimatedThumbURL = function(params, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getAnimatedThumbURL, arguments);
+  return ee.ImageCollection.prototype.getThumbURL_(this, args, ["gif"], opt_callback);
+};
+ee.ImageCollection.prototype.getThumbURL_ = function(collection, args, validFormats, opt_callback) {
+  var extraParams = {}, clippedCollection = collection.map(function(image) {
+    return ee.data.images.applySelectionAndScale(image, args.params, extraParams);
+  }), request = {}, visParams = ee.data.images.extractVisParams(extraParams, request), visColl = clippedCollection.map(function(image) {
+    visParams.image = image;
+    return ee.ApiFunction._apply("Image.visualize", visParams);
+  });
+  request.image = visColl.serialize();
+  if (request.format) {
+    if (!goog.array.some(validFormats, function(format) {
+      return goog.string.caseInsensitiveEquals(format, request.format);
+    })) {
+      throw Error("Invalid format specified.");
+    }
+  } else {
+    request.format = validFormats[0];
+  }
+  if (args.callback) {
+    ee.data.getThumbId(request, function(thumbId, opt_error) {
+      var thumbUrl = "";
+      if (!goog.isDef(opt_error)) {
+        try {
+          thumbUrl = ee.data.makeThumbUrl(thumbId);
+        } catch (e) {
+          opt_error = String(e.message);
+        }
+      }
+      args.callback(thumbUrl, opt_error);
+    });
+  } else {
+    return ee.data.makeThumbUrl(ee.data.getThumbId(request));
+  }
+};
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getMap, arguments), mosaic = ee.ApiFunction._call("ImageCollection.mosaic", this);
   if (args.callback) {
@@ -15694,14 +16254,8 @@ ee.batch.ExportTask = function(config) {
   this.config_ = config;
   this.id = null;
 };
-ee.batch.ExportTask.create = function(exportArgs, exportType) {
-  var ELEMENT_KEYS = ee.batch.Export.EE_ELEMENT_KEYS, isInArgs = function(key) {
-    return key in exportArgs;
-  }, eeElementKey = ELEMENT_KEYS.find(isInArgs);
-  goog.asserts.assert(1 === goog.array.count(ELEMENT_KEYS, isInArgs));
-  var eeElement = exportArgs[eeElementKey];
-  delete exportArgs[eeElementKey];
-  var config = {json:eeElement.serialize(), type:exportType};
+ee.batch.ExportTask.create = function(exportArgs) {
+  var config = {json:ee.batch.Export.extractElement(exportArgs).serialize()};
   Object.assign(config, exportArgs);
   config = goog.object.filter(config, goog.isDefAndNotNull);
   return new ee.batch.ExportTask(config);
@@ -15725,53 +16279,46 @@ ee.batch.ExportTask.prototype.start = function(opt_success, opt_error) {
   }
 };
 ee.batch.Export.image.toAsset = function(image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toAsset, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET);
-  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.IMAGE);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toAsset, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET, ee.data.ExportType.IMAGE);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.Export.image.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
-  serverConfig = ee.batch.Export.reconcileImageFormat(serverConfig);
-  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.IMAGE);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.IMAGE);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.Export.image.toDrive = function(image, opt_description, opt_folder, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
-  serverConfig = ee.batch.Export.reconcileImageFormat(serverConfig);
-  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.IMAGE);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.image.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE, ee.data.ExportType.IMAGE);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles, opt_mapsApiKey) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.map.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
-  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.MAP);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.map.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.MAP);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.Export.table.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat, opt_selectors) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.table.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.TABLE);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.table.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.TABLE);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.Export.table.toDrive = function(collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat, opt_selectors) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.table.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.TABLE);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.table.toDrive, arguments);
+  clientConfig.type = ee.data.ExportType.TABLE;
+  var serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE, ee.data.ExportType.TABLE);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.Export.table.toAsset = function(collection, opt_description, opt_assetId) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.table.toAsset, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.TABLE);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.table.toAsset, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET, ee.data.ExportType.TABLE);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.Export.video.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.video.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
-  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.VIDEO);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.video.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.VIDEO);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.Export.video.toDrive = function(collection, opt_description, opt_folder, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.video.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE);
-  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.VIDEO);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.video.toDrive, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE, ee.data.ExportType.VIDEO);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.Export.videoMap.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_writePublicTiles, opt_minZoom, opt_maxZoom, opt_scale, opt_region, opt_skipEmptyTiles) {
-  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.videoMap.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS);
-  serverConfig.region = ee.batch.Export.serializeRegion(serverConfig.region);
-  return ee.batch.ExportTask.create(serverConfig, ee.data.ExportType.VIDEO_MAP);
+  var clientConfig = ee.arguments.extractFromFunction(ee.batch.Export.videoMap.toCloudStorage, arguments), serverConfig = ee.batch.Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.VIDEO_MAP);
+  return ee.batch.ExportTask.create(serverConfig);
 };
 ee.batch.ServerTaskConfig = {};
 ee.batch.Export.serializeRegion = function(region) {
@@ -15815,69 +16362,161 @@ ee.batch.Export.resolveRegionParam = function(params) {
   params.region = ee.batch.Export.serializeRegion(region);
   return goog.Promise.resolve(params);
 };
-ee.batch.Export.convertToServerParams = function(originalArgs, destination) {
-  var args = {};
-  Object.assign(args, originalArgs);
-  goog.isDefAndNotNull(args.crsTransform) && (args[ee.batch.Export.CRS_TRANSFORM_KEY] = args.crsTransform, delete args.crsTransform);
-  "array" == goog.typeOf(args.fileDimensions) && (args.fileDimensions = args.fileDimensions.join());
-  "array" == goog.typeOf(args.selectors) && (args.selectors = args.selectors.join());
+ee.batch.Export.extractElement = function(exportArgs) {
+  var isInArgs = function(key) {
+    return key in exportArgs;
+  }, eeElementKey = ee.batch.Export.EE_ELEMENT_KEYS.find(isInArgs);
+  goog.asserts.assert(1 === goog.array.count(ee.batch.Export.EE_ELEMENT_KEYS, isInArgs), 'Expected a single "image" or "collection" key.');
+  var element = exportArgs[eeElementKey];
+  if (element instanceof ee.Image) {
+    var result = element;
+  } else {
+    if (element instanceof ee.FeatureCollection) {
+      result = element;
+    } else {
+      if (element instanceof ee.ImageCollection) {
+        result = element;
+      } else {
+        if (element instanceof ee.Element) {
+          result = element;
+        } else {
+          throw Error("Unknown element type provided: " + typeof element + ". Expected:  ee.Image, ee.ImageCollection, ee.FeatureCollection or ee.Element.");
+        }
+      }
+    }
+  }
+  delete exportArgs[eeElementKey];
+  return result;
+};
+ee.batch.Export.convertToServerParams = function(originalArgs, destination, exportType, serializeRegion) {
+  serializeRegion = void 0 === serializeRegion ? !0 : serializeRegion;
+  var taskConfig = {type:exportType};
+  Object.assign(taskConfig, originalArgs);
+  switch(exportType) {
+    case ee.data.ExportType.IMAGE:
+      taskConfig = ee.batch.Export.image.prepareTaskConfig_(taskConfig, destination);
+      break;
+    case ee.data.ExportType.MAP:
+      taskConfig = ee.batch.Export.map.prepareTaskConfig_(taskConfig, destination);
+      break;
+    case ee.data.ExportType.TABLE:
+      taskConfig = ee.batch.Export.table.prepareTaskConfig_(taskConfig, destination);
+      break;
+    case ee.data.ExportType.VIDEO:
+      taskConfig = ee.batch.Export.video.prepareTaskConfig_(taskConfig, destination);
+      break;
+    case ee.data.ExportType.VIDEO_MAP:
+      taskConfig = ee.batch.Export.videoMap.prepareTaskConfig_(taskConfig, destination);
+      break;
+    default:
+      throw Error("Unknown export type: " + taskConfig.type);
+  }
+  serializeRegion && goog.isDefAndNotNull(taskConfig.region) && (taskConfig.region = ee.batch.Export.serializeRegion(taskConfig.region));
+  return taskConfig;
+};
+ee.batch.Export.prepareDestination_ = function(taskConfig, destination) {
   switch(destination) {
     case ee.data.ExportDestination.GCS:
-      args.outputBucket = args.bucket || "";
-      args.outputPrefix = args.fileNamePrefix || args.path || "";
-      delete args.bucket;
-      delete args.fileNamePrefix;
+      taskConfig.outputBucket = taskConfig.bucket || "";
+      taskConfig.outputPrefix = taskConfig.fileNamePrefix || taskConfig.path || "";
+      delete taskConfig.fileNamePrefix;
+      delete taskConfig.path;
+      delete taskConfig.bucket;
       break;
     case ee.data.ExportDestination.ASSET:
-      args.assetId = args.assetId || "";
+      taskConfig.assetId = taskConfig.assetId || "";
       break;
-    case ee.data.ExportDestination.DRIVE:
-      var folderType = goog.typeOf(args.folder);
+    default:
+      var folderType = goog.typeOf(taskConfig.folder);
       if (!goog.array.contains(["string", "undefined"], folderType)) {
         throw Error('Error: toDrive "folder" parameter must be a string, but is of type ' + folderType + ".");
       }
-    default:
-      args.driveFolder = args.folder || "", args.driveFileNamePrefix = args.fileNamePrefix || "", delete args.folder, delete args.fileNamePrefix;
+      taskConfig.driveFolder = taskConfig.folder || "";
+      taskConfig.driveFileNamePrefix = taskConfig.fileNamePrefix || "";
+      delete taskConfig.folder;
+      delete taskConfig.fileNamePrefix;
   }
-  return args;
-};
-var PERMISSABLE_FORMAT_OPTIONS = "tiffCloudOptimized tiffFileDimensions tfrecordPatchDimensions tfrecordKernelSize tfrecordCompressed tfrecordMaxFileSize tfrecordDefaultValue tfrecordTensorDepths tfrecordSequenceData tfrecordCollapseBands tfrecordMaskedThreshold".split(" "), FORMAT_PREFIX_MAP = {GEOTIFF:"tiff", TFRECORD:"tfrecord"};
-ee.batch.Export.reconcileImageFormat = function(taskArgsUnformatted) {
-  var formatString = "GEOTIFF";
-  null != taskArgsUnformatted.fileFormat && (formatString = taskArgsUnformatted.fileFormat.toUpperCase());
-  if (!(formatString in FORMAT_PREFIX_MAP)) {
-    var supportedFormats = Object.keys(FORMAT_PREFIX_MAP).join(", ");
-    throw Error("Invalid file format. Supported formats are: " + supportedFormats + ".");
-  }
-  var taskConfig = taskArgsUnformatted;
-  if (null != taskArgsUnformatted.formatOptions && "object" == goog.typeOf(taskArgsUnformatted.formatOptions)) {
-    var formatOptions = taskArgsUnformatted.formatOptions;
-    delete taskArgsUnformatted.formatOptions;
-    taskConfig = ee.batch.Export.reconcilePrefixOptions_(taskArgsUnformatted, formatOptions, formatString);
-  }
-  return ee.batch.Export.convertArraysToStrings_(taskConfig);
-};
-ee.batch.Export.convertArraysToStrings_ = function(taskConfig) {
-  null != taskConfig.tiffFileDimensions && (taskConfig.tiffFileDimensions = taskConfig.tiffFileDimensions.join());
-  null != taskConfig.tfrecordPatchDimensions && (taskConfig.tfrecordPatchDimensions = taskConfig.tfrecordPatchDimensions.join());
-  null != taskConfig.tfrecordKernelSize && (taskConfig.tfrecordKernelSize = taskConfig.tfrecordKernelSize.join());
-  null != taskConfig.tfrecordTensorDepths && (taskConfig.tfrecordTensorDepths = taskConfig.tfrecordTensorDepths.join());
   return taskConfig;
 };
-ee.batch.Export.reconcilePrefixOptions_ = function(taskConfig, formatOptions, format) {
+ee.batch.Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
+  taskConfig = ee.batch.Export.reconcileImageFormat(taskConfig);
+  taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
+  goog.isDefAndNotNull(taskConfig.crsTransform) && (taskConfig[ee.batch.Export.CRS_TRANSFORM_KEY] = taskConfig.crsTransform, delete taskConfig.crsTransform);
+  return taskConfig;
+};
+ee.batch.Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
+  goog.isArray(taskConfig.selectors) && (taskConfig.selectors = taskConfig.selectors.join());
+  return taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
+};
+ee.batch.Export.map.prepareTaskConfig_ = function(taskConfig, destination) {
+  return taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
+};
+ee.batch.Export.video.prepareTaskConfig_ = function(taskConfig, destination) {
+  taskConfig = ee.batch.Export.reconcileVideoFormat_(taskConfig);
+  taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
+  goog.isDefAndNotNull(taskConfig.crsTransform) && (taskConfig[ee.batch.Export.CRS_TRANSFORM_KEY] = taskConfig.crsTransform, delete taskConfig.crsTransform);
+  return taskConfig;
+};
+ee.batch.Export.videoMap.prepareTaskConfig_ = function(taskConfig, destination) {
+  taskConfig = ee.batch.Export.reconcileVideoFormat_(taskConfig);
+  return taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
+};
+ee.batch.VideoFormat = {MP4:"MP4"};
+ee.batch.ImageFormat = {JPEG:"JPEG", PNG:"PNG", AUTO_PNG_JPEG:"AUTO_PNG_JPEG", NPY:"NPY", GEO_TIFF:"GEO_TIFF", TF_RECORD_IMAGE:"TF_RECORD_IMAGE"};
+var FORMAT_OPTIONS_MAP = {GEO_TIFF:["cloudOptimized", "fileDimensions"], TF_RECORD_IMAGE:"patchDimensions kernelSize compressed maxFileSize defaultValue tensorDepths sequenceData collapseBands maskedThreshold".split(" ")}, FORMAT_PREFIX_MAP = {GEO_TIFF:"tiff", TF_RECORD_IMAGE:"tfrecord"};
+ee.batch.Export.reconcileVideoFormat_ = function(taskConfig) {
+  taskConfig.videoOptions = taskConfig.framesPerSecond || 5.0;
+  taskConfig.maxFrames = taskConfig.maxFrames || 1000;
+  taskConfig.maxPixels = taskConfig.maxPixels || 1e8;
+  taskConfig.fileFormat = ee.batch.VideoFormat.MP4;
+  return taskConfig;
+};
+ee.batch.Export.reconcileImageFormat = function(taskConfig) {
+  var formatString = taskConfig.fileFormat;
+  goog.isDefAndNotNull(formatString) || (formatString = "GEO_TIFF");
+  formatString = formatString.toUpperCase();
+  switch(formatString) {
+    case "TIFF":
+    case "TIF":
+    case "GEO_TIFF":
+    case "GEOTIFF":
+      formatString = ee.batch.ImageFormat.GEO_TIFF;
+      break;
+    case "TF_RECORD":
+    case "TF_RECORD_IMAGE":
+    case "TFRECORD":
+      formatString = ee.batch.ImageFormat.TF_RECORD_IMAGE;
+      break;
+    default:
+      throw Error("Invalid file format " + formatString + ". Supported formats are: 'GEOTIFF', 'TFRECORD'.");
+  }
+  if (goog.isDefAndNotNull(taskConfig.formatOptions)) {
+    var formatOptions = ee.batch.Export.prefixImageFormatOptions_(taskConfig, formatString);
+    delete taskConfig.formatOptions;
+    Object.assign(taskConfig, formatOptions);
+  }
+  return taskConfig;
+};
+ee.batch.Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
+  var formatOptions = taskConfig.formatOptions;
+  if (!goog.isDefAndNotNull(formatOptions)) {
+    return {};
+  }
   if (Object.keys(taskConfig).some(function(key) {
-    return key in formatOptions;
+    return goog.object.containsKey(formatOptions, key);
   })) {
     throw Error("Parameter specified at least twice: once in config, and once in config format options.");
   }
-  for (var prefix = FORMAT_PREFIX_MAP[format], $jscomp$iter$8 = $jscomp.makeIterator(Object.entries(formatOptions)), $jscomp$key$ = $jscomp$iter$8.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$8.next()) {
-    var $jscomp$destructuring$var7 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var7.next().value, value = $jscomp$destructuring$var7.next().value, prefixedKey = prefix + key$jscomp$0[0].toUpperCase() + key$jscomp$0.slice(1);
-    if (!PERMISSABLE_FORMAT_OPTIONS.includes(prefixedKey)) {
-      throw Error("'" + key$jscomp$0 + "' is not a valid option for '" + format + "'.");
+  for (var prefix = FORMAT_PREFIX_MAP[imageFormat], validOptionKeys = FORMAT_OPTIONS_MAP[imageFormat], prefixedOptions = {}, $jscomp$iter$11 = $jscomp.makeIterator(Object.entries(formatOptions)), $jscomp$key$ = $jscomp$iter$11.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$11.next()) {
+    var $jscomp$destructuring$var7 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var7.next().value, value = $jscomp$destructuring$var7.next().value;
+    if (!goog.array.contains(validOptionKeys, key$jscomp$0)) {
+      var validKeysMsg = validOptionKeys.join(", ");
+      throw Error('"' + key$jscomp$0 + '" is not a valid option, the image format "' + imageFormat + '"' + ('"may have the following options: ' + validKeysMsg + '".'));
     }
-    taskConfig[prefixedKey] = value;
+    var prefixedKey = prefix + key$jscomp$0[0].toUpperCase() + key$jscomp$0.substring(1);
+    goog.isArray(value) ? prefixedOptions[prefixedKey] = value.join() : prefixedOptions[prefixedKey] = value;
   }
-  return taskConfig;
+  return prefixedOptions;
 };
 ee.batch.Export.CRS_TRANSFORM_KEY = "crs_transform";
 ee.batch.Export.EE_ELEMENT_KEYS = ["image", "collection"];
@@ -17561,8 +18200,8 @@ goog.style.parseStyleAttribute = function(value) {
   goog.array.forEach(value.split(/\s*;\s*/), function(pair) {
     var keyValue = pair.match(/\s*([\w-]+)\s*:(.+)/);
     if (keyValue) {
-      var styleValue = goog.string.trim(keyValue[2]);
-      result[goog.string.toCamelCase(keyValue[1].toLowerCase())] = styleValue;
+      var styleName = keyValue[1], styleValue = goog.string.trim(keyValue[2]);
+      result[goog.string.toCamelCase(styleName.toLowerCase())] = styleValue;
     }
   });
   return result;

@@ -30,7 +30,13 @@ def Deprecated(message):
           filename=func.__code__.co_filename,
           lineno=func.__code__.co_firstlineno + 1)
       return func(*args, **kwargs)
-    Wrapper.__doc__ += '\nDEPRECATED: ' + message
+    deprecation_message = '\nDEPRECATED: ' + message
+    try:
+      Wrapper.__doc__ += deprecation_message
+    # If there are non-ASCII characters in the docs, and we're in
+    # Python 2, use a hammer to force them into a str.
+    except UnicodeDecodeError:
+      Wrapper.__doc__ += deprecation_message.encode('utf8')
     return Wrapper
   return Decorator
 

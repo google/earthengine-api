@@ -14,6 +14,7 @@ goog.require('ee.Geometry');
 goog.require('ee.Types');
 goog.require('ee.arguments');
 goog.require('ee.data');
+goog.require('ee.data.images');
 goog.require('goog.array');
 goog.require('goog.json');
 goog.require('goog.object');
@@ -167,7 +168,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getMap, arguments);
 
-  var request = ee.Image.applyVisualization_(this, args['visParams']);
+  var request = ee.data.images.applyVisualization(this, args['visParams']);
 
   if (args['callback']) {
     const callback =
@@ -189,43 +190,6 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
     return response;
   }
 };
-
-
-/**
- * Wraps an image in a call to visualize() if any parameters used by
- * visualize() were provided.  Generates a request object containing
- * the serialized image and any remaining parameters (e.g.: fileFormat)
- *
- * @param {!ee.Image} image The image to include in the request.
- * @param {!ee.data.ImageVisualizationParameters} params The
- *    visualization parameters.
- * @return {!Object} A completed request object.
- * @private
- */
-ee.Image.applyVisualization_ = function(image, params) {
-  // Split the parameters into those handled handled by visualize()
-  // and those that aren't.
-  var keysToExtract = ["bands", "gain", "bias", "min", "max",
-      "gamma", "palette", "opacity", "forceRgbOutput"];
-  var request = {};
-  var visParams = {};
-  goog.object.forEach(params, function(value, key) {
-    if (goog.array.contains(keysToExtract, key)) {
-      visParams[key] = value;
-    } else {
-      request[key] = value;
-    }
-  });
-
-  if (!goog.object.isEmpty(visParams)) {
-    visParams['image'] = image;
-    image = /** @type {!ee.Image} */ (
-        ee.ApiFunction._apply('Image.visualize', visParams));
-  }
-  request.image = image;
-  return request;
-};
-
 
 /**
  * Get a Download URL
@@ -282,7 +246,8 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 
 /**
  * Get a thumbnail URL for this image.
- * @param {!Object} params Parameters identical to getMapId, plus, optionally:
+ * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
+ * optionally:
  *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
  *         dimensions of the thumbnail to render, in pixels. If only one
  *         number is passed, it is used as the maximum, and the other
@@ -300,7 +265,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getThumbURL, arguments);
   const
-  request = ee.Image.applyVisualization_(this, args['params']);
+  request = ee.data.images.applyVisualization(this, args['params']);
   if (request['region']) {
     if (goog.isArray(request['region']) ||
         ee.Types.isRegularObject(request['region'])) {

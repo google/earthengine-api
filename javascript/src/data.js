@@ -1,5 +1,5 @@
 /**
- * @fileoverview Singleton for all of the library's communcation
+ * @fileoverview Singleton for all of the library's communication
  * with the Earth Engine API.
  */
 
@@ -628,7 +628,6 @@ ee.data.makeMapId_ = function(mapid, token, path, suffix) {
 
 /**
  * Retrieve a processed value from the front end.
- * @deprecated Use ee.data.computeValue().
  * @param {Object} params The value to be evaluated, with the following
  *     possible values:
  *      - json (String) A JSON object to be evaluated.
@@ -699,7 +698,7 @@ ee.data.makeThumbUrl = function(id) {
 
 /**
  * Get a Download ID.
- * @param {Object} params An object containing download options with the
+ * @param {!Object} params An object containing download options with the
  *     following possible values:
  *   - id: The ID of the image to download.
  *   - name: a base name to use when constructing filenames.
@@ -724,7 +723,7 @@ ee.data.makeThumbUrl = function(id) {
  *         ignored if crs and crs_transform is specified.
  *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
- * @param {function(ee.data.DownloadId, string=)=} opt_callback An optional
+ * @param {function(?ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.DownloadId} A download id and token, or null if a callback
  *     is specified.
@@ -843,9 +842,9 @@ goog.exportSymbol('ee.data.newTaskId', ee.data.newTaskId);
  *
  * @param {string|!Array.<string>} taskId ID of the task or an array of
  *     multiple task IDs.
- * @param {function(Array.<ee.data.TaskStatus>, string=)=} opt_callback
+ * @param {function(?Array.<!ee.data.TaskStatus>, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?Array.<ee.data.TaskStatus>} Null if a callback isn't specified,
+ * @return {?Array.<!ee.data.TaskStatus>} Null if a callback isn't specified,
  *     otherwise an array containing one object for each queried task, in the
  *     same order as the input array.
  */
@@ -857,7 +856,7 @@ ee.data.getTaskStatus = function(taskId, opt_callback) {
         'an array of strings.');
   }
   var url = '/taskstatus?q=' + taskId.join();
-  return /** @type {?Array.<ee.data.TaskStatus>} */ (
+  return /** @type {?Array.<!ee.data.TaskStatus>} */ (
       ee.data.send_(url, null, opt_callback, 'GET'));
 };
 goog.exportSymbol('ee.data.getTaskStatus', ee.data.getTaskStatus);
@@ -873,7 +872,7 @@ ee.data.TASKLIST_PAGE_SIZE_ = 500;
 /**
  * Retrieve a list of the users tasks.
  *
- * @param {?function(!ee.data.TaskListResponse, string=)=} opt_callback
+ * @param {?function(?ee.data.TaskListResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is
  *     made synchronously.
  * @return {?ee.data.TaskListResponse} An array of existing tasks,
@@ -890,7 +889,7 @@ goog.exportSymbol('ee.data.getTaskList', ee.data.getTaskList);
  *
  * @param {number=} opt_limit An optional limit to the number of tasks returned.
  *     If not supplied, all tasks are returned.
- * @param {?function(!ee.data.TaskListResponse, string=)=} opt_callback
+ * @param {?function(?ee.data.TaskListResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is
  *     made synchronously.
  * @return {?ee.data.TaskListResponse} An array of existing tasks,
@@ -959,6 +958,7 @@ ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
 goog.exportSymbol('ee.data.getTaskListWithLimit', ee.data.getTaskListWithLimit);
 
 
+
 /**
  * Cancels the task provided.
  *
@@ -980,10 +980,10 @@ goog.exportSymbol('ee.data.cancelTask', ee.data.cancelTask);
  * may be updated: State (to CANCELLED)
  * @param {string|!Array.<string>} taskId ID of the task or an array of
  *     multiple task IDs.
- * @param {ee.data.TaskUpdateActions} action Action performed on tasks.
- * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
+ * @param {!ee.data.TaskUpdateActions} action Action performed on tasks.
+ * @param {function(?ee.data.ProcessingResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?Array.<ee.data.TaskStatus>} An array of updated tasks, or null
+ * @return {?Array.<!ee.data.TaskStatus>} An array of updated tasks, or null
  *     if a callback is specified.
  */
 ee.data.updateTask = function(taskId, action, opt_callback) {
@@ -1005,7 +1005,7 @@ ee.data.updateTask = function(taskId, action, opt_callback) {
     'action': action
   };
 
-  return /** @type {?Array.<ee.data.TaskStatus>} */ (
+  return /** @type {?Array.<!ee.data.TaskStatus>} */ (
       ee.data.send_(url, ee.data.makeRequest_(params), opt_callback, 'POST'));
 };
 goog.exportSymbol('ee.data.updateTask', ee.data.updateTask);
@@ -1039,9 +1039,9 @@ goog.exportSymbol('ee.data.startProcessing', ee.data.startProcessing);
  * Creates an image asset ingestion task.
  *
  * @param {string} taskId ID for the task (obtained using newTaskId).
- * @param {ee.data.IngestionRequest} request The object that describes the
+ * @param {!ee.data.IngestionRequest} request The object that describes the
  *     ingestion.
- * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
+ * @param {function(?ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
@@ -1067,16 +1067,28 @@ goog.exportSymbol('ee.data.startIngestion', ee.data.startIngestion);
  * Load info for an asset, given an asset id.
  *
  * @param {string} id The asset to be retrieved.
- * @param {function(Object, string=)=} opt_callback An optional callback.
+ * @param {function(!Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} The value call results, or null if a callback is specified.
  * @export
  */
-ee.data.getInfo = function(id, opt_callback) {
+ee.data.getAsset = function(id, opt_callback) {
   return ee.data.send_('/info',
                        new goog.Uri.QueryData().add('id', id),
                        opt_callback);
 };
+ee.data.cloudApiSymbols.push('getAsset');
+
+/**
+ * Load info for an asset, given an asset id.
+ *
+ * @param {string} id The asset to be retrieved.
+ * @param {function(!Object, string=)=} opt_callback An optional callback.
+ *     If not supplied, the call is made synchronously.
+ * @return {?Object} The value call results, or null if a callback is specified.
+ * @export
+ */
+ee.data.getInfo = ee.data.getAsset;
 
 
 /**
@@ -1088,10 +1100,9 @@ ee.data.getInfo = function(id, opt_callback) {
  *       - starttime (number) Start time, in msec since the epoch.
  *       - endtime (number) End time, in msec since the epoch.
  *       - fields (comma-separated strings) Field names to return.
- * @param {function(ee.data.AssetList, string=)=} opt_callback
+ * @param {function(?ee.data.AssetList, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?ee.data.AssetList} The list call results,
- *     or null if a callback
+ * @return {?ee.data.AssetList} The list call results, or null if a callback
  *     is specified.
  * @export
  */
@@ -1106,13 +1117,13 @@ ee.data.getList = function(params, opt_callback) {
  * Returns the list of the root folders the user owns. The "id" values for roots
  * are two levels deep, e.g. "users/johndoe" not "users/johndoe/notaroot".
  *
- * @param {function(!Array<ee.data.FolderDescription>, string=)=} opt_callback
+ * @param {function(?Array<!ee.data.FolderDescription>, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {Array<ee.data.FolderDescription>} The list of writable folders.
+ * @return {?Array<!ee.data.FolderDescription>} The list of writable folders.
  *     Null if a callback is specified.
  */
 ee.data.getAssetRoots = function(opt_callback) {
-  return /** @type {Array<ee.data.FolderDescription>} */ (ee.data.send_(
+  return /** @type {?Array<!ee.data.FolderDescription>} */ (ee.data.send_(
       '/buckets', null, opt_callback, 'GET'));
 };
 goog.exportSymbol('ee.data.getAssetRoots', ee.data.getAssetRoots);
@@ -1125,7 +1136,7 @@ goog.exportSymbol('ee.data.getAssetRoots', ee.data.getAssetRoots);
  *
  * @param {string} requestedId The requested ID of the home folder
  *     (e.g. "users/joe").
- * @param {function(!Array<ee.data.FolderDescription>, string=)=} opt_callback
+ * @param {function(?Array<!ee.data.FolderDescription>, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  */
 ee.data.createAssetHome = function(requestedId, opt_callback) {
@@ -1146,7 +1157,7 @@ goog.exportSymbol('ee.data.createAssetHome', ee.data.createAssetHome);
  * @param {boolean=} opt_force Force overwrite.
  * @param {!Object=} opt_properties The keys and values of the properties to set
        on the created asset.
- * @param {function(Object, string=)=} opt_callback An optional callback.
+ * @param {function(?Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the saved asset, including a generated
  *     ID, or null if a callback is specified.
@@ -1176,7 +1187,7 @@ goog.exportSymbol('ee.data.createAsset', ee.data.createAsset);
  *
  * @param {string} path The path of the folder to create.
  * @param {boolean=} opt_force Force overwrite.
- * @param {function(Object, string=)=} opt_callback An optional callback.
+ * @param {function(!Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the newly created folder.
  */
@@ -1198,11 +1209,11 @@ goog.exportSymbol('ee.data.createFolder', ee.data.createFolder);
  * @param {string} query Search query for assets.
  * @param {function(?Array, string=)=} opt_callback An optional
  *     callback. If not supplied, the callback is made synchronously.
- * @return {Array.<ee.data.AssetDescription>} An array of data set indices.
+ * @return {!Array.<!ee.data.AssetDescription>} An array of data set indices.
  */
 ee.data.search = function(query, opt_callback) {
   var params = {'q': query};
-  return /** @type {Array.<ee.data.AssetDescription>} */ (
+  return /** @type {!Array.<!ee.data.AssetDescription>} */ (
       ee.data.send_('/search', ee.data.makeRequest_(params), opt_callback));
 };
 
@@ -1212,7 +1223,7 @@ ee.data.search = function(query, opt_callback) {
  *
  * @param {string} sourceId The ID of the asset to rename.
  * @param {string} destinationId The new ID of the asset.
- * @param {function(Object, string=)=} opt_callback An optional callback.
+ * @param {function(!Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously. The callback is
  *     passed an empty object and an error message, if any.
  */
@@ -1228,7 +1239,7 @@ goog.exportSymbol('ee.data.renameAsset', ee.data.renameAsset);
  *
  * @param {string} sourceId The ID of the asset to copy.
  * @param {string} destinationId The ID of the new asset created by copying.
- * @param {function(Object, string=)=} opt_callback An optional callback.
+ * @param {function(?Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously. The callback is
  *     passed an empty object and an error message, if any.
  */
@@ -1243,7 +1254,7 @@ goog.exportSymbol('ee.data.copyAsset', ee.data.copyAsset);
  * Deletes the asset with the given id.
  *
  * @param {string} assetId The ID of the asset to delete.
- * @param {function(Object, string=)=} opt_callback An optional callback.
+ * @param {function(?Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously. The callback is
  *     passed an empty object and an error message, if any.
  */
@@ -1282,7 +1293,7 @@ goog.exportSymbol('ee.data.getAssetAcl', ee.data.getAssetAcl);
  *
  * @param {string} assetId The ID of the asset to set the ACL on.
  * @param {!ee.data.AssetAclUpdate} aclUpdate The updated ACL.
- * @param {function(Object, string=)=} opt_callback
+ * @param {function(?Object, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  *     The callback is passed an empty object.
  */
@@ -1303,7 +1314,7 @@ goog.exportSymbol('ee.data.setAssetAcl', ee.data.setAssetAcl);
  *
  * @param {string} assetId The ID of the asset to set the ACL on.
  * @param {!Object} properties The keys and values of the properties to update.
- * @param {function(Object, string=)=} opt_callback
+ * @param {function(?Object, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  *     The callback is passed an empty object.
  */
@@ -2999,7 +3010,7 @@ ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
  *     request was created.
  * @param {function(?,string=)=} opt_callback An optional callback to execute if
  *     the request is asynchronous.
- * @param {function(*):!Object=} opt_getData A function to extract the
+ * @param {function(!Object):!Object=} opt_getData A function to extract the
  *     data payload from the response.  Defaults to using the 'data' field.
  * @return {Object} The response data, if the request is synchronous, otherwise
  *     null, if the request is asynchronous.

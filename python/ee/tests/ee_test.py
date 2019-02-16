@@ -391,6 +391,13 @@ class EETestCase(apitestcase.ApiTestCase):
                 'description': '',
                 'returns': 'Object'
             },
+            'Image.oldBar': {
+                'type': 'Algorithm',
+                'args': [],
+                'description': foo,
+                'returns': 'Object',
+                'deprecated': 'Causes fire'
+            },
             'Image.baz': {
                 'type': 'Algorithm',
                 'args': [],
@@ -406,16 +413,21 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertTrue(callable(ee.Algorithms.Foo))
     self.assertTrue(callable(ee.Image.bar))
     self.assertTrue(callable(ee.Image.baz))
+    self.assertTrue(callable(ee.Image.baz))
 
     # In Python 2, the docstrings end up UTF-8 encoded. In Python 3, they remain
     # Unicode.
     if six.PY3:
       self.assertEqual(ee.Algorithms.Foo.__doc__, foo)
+      self.assertIn(foo, ee.Image.oldBar.__doc__)
+      self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
       self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
       self.assertEqual(ee.Image.baz.__doc__, baz)
     else:
       self.assertEqual(ee.Algorithms.Foo.__doc__,
                        '\xef\xac\x80\xc3\xb6\xc7\xab')
+      self.assertIn('\xef\xac\x80\xc3\xb6\xc7\xab', ee.Image.oldBar.__doc__)
+      self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
       self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: b\xc3\xa4r')
       self.assertEqual(ee.Image.baz.__doc__, 'b\xc3\xa2\xc3\x9f')
 

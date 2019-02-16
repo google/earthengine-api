@@ -593,6 +593,13 @@ ee.ImageCollection = function(args) {
 ee.ImageCollection.prototype.first = function() {
 };
 /**
+ * @param {!Object} params
+ * @param {function(string, string=): ?=} opt_callback
+ * @return {(string|undefined)}
+ */
+ee.ImageCollection.prototype.getAnimatedThumbURL = function(params, opt_callback) {
+};
+/**
  * @param {function(!ee.data.ImageCollectionDescription, string=): ?=} opt_callback
  * @return {!ee.data.ImageCollectionDescription}
  */
@@ -604,6 +611,13 @@ ee.ImageCollection.prototype.getInfo = function(opt_callback) {
  * @return {(ee.data.MapId|null|undefined)}
  */
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
+};
+/**
+ * @param {!Object} params
+ * @param {function(string, string=): ?=} opt_callback
+ * @return {(string|undefined)}
+ */
+ee.ImageCollection.prototype.getTiledThumbURL = function(params, opt_callback) {
 };
 /**
  * @param {!Array<(number|string)>} selectors
@@ -987,7 +1001,7 @@ ee.data.createAsset = function(value, opt_path, opt_force, opt_properties, opt_c
 };
 /**
  * @param {string} requestedId
- * @param {function(!Array<(ee.data.FolderDescription|null)>, string=): ?=} opt_callback
+ * @param {function((Array<ee.data.FolderDescription>|null), string=): ?=} opt_callback
  * @return {undefined}
  */
 ee.data.createAssetHome = function(requestedId, opt_callback) {
@@ -995,7 +1009,7 @@ ee.data.createAssetHome = function(requestedId, opt_callback) {
 /**
  * @param {string} path
  * @param {boolean=} opt_force
- * @param {function((Object|null), string=): ?=} opt_callback
+ * @param {function(!Object, string=): ?=} opt_callback
  * @return {(Object|null)}
  */
 ee.data.createFolder = function(path, opt_force, opt_callback) {
@@ -1012,6 +1026,7 @@ ee.data.deleteAsset = function(assetId, opt_callback) {
  */
 ee.data.getApiBaseUrl = function() {
 };
+ee.data.getAsset;
 /**
  * @param {string} assetId
  * @param {function(!ee.data.AssetAcl, string=): ?=} opt_callback
@@ -1027,8 +1042,8 @@ ee.data.getAssetAcl = function(assetId, opt_callback) {
 ee.data.getAssetRootQuota = function(rootId, opt_callback) {
 };
 /**
- * @param {function(!Array<(ee.data.FolderDescription|null)>, string=): ?=} opt_callback
- * @return {(Array<(ee.data.FolderDescription|null)>|null)}
+ * @param {function((Array<ee.data.FolderDescription>|null), string=): ?=} opt_callback
+ * @return {(Array<ee.data.FolderDescription>|null)}
  */
 ee.data.getAssetRoots = function(opt_callback) {
 };
@@ -1053,22 +1068,16 @@ ee.data.getAuthToken = function() {
 ee.data.getCloudApiEnabled = function() {
 };
 /**
- * @param {(Object|null)} params
+ * @param {!Object} params
  * @param {function((ee.data.DownloadId|null), string=): ?=} opt_callback
  * @return {(ee.data.DownloadId|null)}
  */
 ee.data.getDownloadId = function(params, opt_callback) {
 };
-/**
- * @param {string} id
- * @param {function((Object|null), string=): ?=} opt_callback
- * @return {(Object|null)}
- */
-ee.data.getInfo = function(id, opt_callback) {
-};
+ee.data.getInfo;
 /**
  * @param {!Object} params
- * @param {function(!Array<ee.data.ShortAssetDescription>, string=): ?=} opt_callback
+ * @param {function((Array<ee.data.ShortAssetDescription>|null), string=): ?=} opt_callback
  * @return {(Array<ee.data.ShortAssetDescription>|null)}
  */
 ee.data.getList = function(params, opt_callback) {
@@ -1088,22 +1097,22 @@ ee.data.getMapId = function(params, opt_callback) {
 ee.data.getTableDownloadId = function(params, opt_callback) {
 };
 /**
- * @param {(function(!ee.data.TaskListResponse, string=): ?|null)=} opt_callback
+ * @param {(function((ee.data.TaskListResponse|null), string=): ?|null)=} opt_callback
  * @return {(ee.data.TaskListResponse|null)}
  */
 ee.data.getTaskList = function(opt_callback) {
 };
 /**
  * @param {number=} opt_limit
- * @param {(function(!ee.data.TaskListResponse, string=): ?|null)=} opt_callback
+ * @param {(function((ee.data.TaskListResponse|null), string=): ?|null)=} opt_callback
  * @return {(ee.data.TaskListResponse|null)}
  */
 ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
 };
 /**
  * @param {(Array<string>|string)} taskId
- * @param {function((Array<(ee.data.TaskStatus|null)>|null), string=): ?=} opt_callback
- * @return {(Array<(ee.data.TaskStatus|null)>|null)}
+ * @param {function((Array<ee.data.TaskStatus>|null), string=): ?=} opt_callback
+ * @return {(Array<ee.data.TaskStatus>|null)}
  */
 ee.data.getTaskStatus = function(taskId, opt_callback) {
 };
@@ -1141,6 +1150,26 @@ ee.data.getValue = function(params, opt_callback) {
 ee.data.getXsrfToken = function() {
 };
 /**
+ * @param {!ee.rpc_proto.ListAssetsRequest} body
+ * @param {function({assets: (Array<{bands: (Array<{dataType: (null|{dimensionsCount: (null|number), precision: (null|string), range: (null|{max: (null|number), min: (null|number)})}), grid: (null|{affineTransform: (null|{scaleX: (null|number), scaleY: (null|number), shearX: (null|number), shearY: (null|number), translateX: (null|number), translateY: (null|number)}), crsCode: (null|string), crsWkt: (null|string), dimensions: (null|{height: (null|number), width: (null|number)})}), id: (null|string), missingData: (null|{values: (Array<number>|null)}), pyramidingPolicy: (null|string), tilesets: (Array<{fileIndexes: (Array<number>|null), firstTileIndex: (null|number), tilesPerFile: (null|number)}>|null)}>|null), endTime: (null|string), geometry: (Object<string,*>|null), id: (null|string), name: (null|string), path: (null|string), properties: (Object<string,*>|null), quota: (null|{assetCount: (null|string), maxAssetCount: (null|string), maxSizeBytes: (null|string), sizeBytes: (null|string)}), sizeBytes: (null|string), startTime: (null|string), tilestoreEntry: (null|{pathPrefix: (null|string), sources: (Array<{headerSizeBytes: (null|number), pathSuffix: (null|string)}>|null)}), time: (null|string), type: (null|string), updateTime: (null|string)}>|null), nextPageToken: (null|string)}, string=): ?=} opt_callback
+ * @return {(null|{assets: (Array<{bands: (Array<{dataType: (null|{dimensionsCount: (null|number), precision: (null|string), range: (null|{max: (null|number), min: (null|number)})}), grid: (null|{affineTransform: (null|{scaleX: (null|number), scaleY: (null|number), shearX: (null|number), shearY: (null|number), translateX: (null|number), translateY: (null|number)}), crsCode: (null|string), crsWkt: (null|string), dimensions: (null|{height: (null|number), width: (null|number)})}), id: (null|string), missingData: (null|{values: (Array<number>|null)}), pyramidingPolicy: (null|string), tilesets: (Array<{fileIndexes: (Array<number>|null), firstTileIndex: (null|number), tilesPerFile: (null|number)}>|null)}>|null), endTime: (null|string), geometry: (Object<string,*>|null), id: (null|string), name: (null|string), path: (null|string), properties: (Object<string,*>|null), quota: (null|{assetCount: (null|string), maxAssetCount: (null|string), maxSizeBytes: (null|string), sizeBytes: (null|string)}), sizeBytes: (null|string), startTime: (null|string), tilestoreEntry: (null|{pathPrefix: (null|string), sources: (Array<{headerSizeBytes: (null|number), pathSuffix: (null|string)}>|null)}), time: (null|string), type: (null|string), updateTime: (null|string)}>|null), nextPageToken: (null|string)})}
+ */
+ee.data.listAssets = function(body, opt_callback) {
+};
+/**
+ * @param {function({buckets: (Array<{bands: (Array<{dataType: (null|{dimensionsCount: (null|number), precision: (null|string), range: (null|{max: (null|number), min: (null|number)})}), grid: (null|{affineTransform: (null|{scaleX: (null|number), scaleY: (null|number), shearX: (null|number), shearY: (null|number), translateX: (null|number), translateY: (null|number)}), crsCode: (null|string), crsWkt: (null|string), dimensions: (null|{height: (null|number), width: (null|number)})}), id: (null|string), missingData: (null|{values: (Array<number>|null)}), pyramidingPolicy: (null|string), tilesets: (Array<{fileIndexes: (Array<number>|null), firstTileIndex: (null|number), tilesPerFile: (null|number)}>|null)}>|null), endTime: (null|string), geometry: (Object<string,*>|null), id: (null|string), name: (null|string), path: (null|string), properties: (Object<string,*>|null), quota: (null|{assetCount: (null|string), maxAssetCount: (null|string), maxSizeBytes: (null|string), sizeBytes: (null|string)}), sizeBytes: (null|string), startTime: (null|string), tilestoreEntry: (null|{pathPrefix: (null|string), sources: (Array<{headerSizeBytes: (null|number), pathSuffix: (null|string)}>|null)}), time: (null|string), type: (null|string), updateTime: (null|string)}>|null)}, string=): ?=} opt_callback
+ * @return {(null|{buckets: (Array<{bands: (Array<{dataType: (null|{dimensionsCount: (null|number), precision: (null|string), range: (null|{max: (null|number), min: (null|number)})}), grid: (null|{affineTransform: (null|{scaleX: (null|number), scaleY: (null|number), shearX: (null|number), shearY: (null|number), translateX: (null|number), translateY: (null|number)}), crsCode: (null|string), crsWkt: (null|string), dimensions: (null|{height: (null|number), width: (null|number)})}), id: (null|string), missingData: (null|{values: (Array<number>|null)}), pyramidingPolicy: (null|string), tilesets: (Array<{fileIndexes: (Array<number>|null), firstTileIndex: (null|number), tilesPerFile: (null|number)}>|null)}>|null), endTime: (null|string), geometry: (Object<string,*>|null), id: (null|string), name: (null|string), path: (null|string), properties: (Object<string,*>|null), quota: (null|{assetCount: (null|string), maxAssetCount: (null|string), maxSizeBytes: (null|string), sizeBytes: (null|string)}), sizeBytes: (null|string), startTime: (null|string), tilestoreEntry: (null|{pathPrefix: (null|string), sources: (Array<{headerSizeBytes: (null|number), pathSuffix: (null|string)}>|null)}), time: (null|string), type: (null|string), updateTime: (null|string)}>|null)})}
+ */
+ee.data.listBuckets = function(opt_callback) {
+};
+/**
+ * @param {!ee.rpc_proto.ListImagesRequest} body
+ * @param {function({assets: (Array<{bands: (Array<{dataType: (null|{dimensionsCount: (null|number), precision: (null|string), range: (null|{max: (null|number), min: (null|number)})}), grid: (null|{affineTransform: (null|{scaleX: (null|number), scaleY: (null|number), shearX: (null|number), shearY: (null|number), translateX: (null|number), translateY: (null|number)}), crsCode: (null|string), crsWkt: (null|string), dimensions: (null|{height: (null|number), width: (null|number)})}), id: (null|string), missingData: (null|{values: (Array<number>|null)}), pyramidingPolicy: (null|string), tilesets: (Array<{fileIndexes: (Array<number>|null), firstTileIndex: (null|number), tilesPerFile: (null|number)}>|null)}>|null), endTime: (null|string), geometry: (Object<string,*>|null), id: (null|string), name: (null|string), path: (null|string), properties: (Object<string,*>|null), quota: (null|{assetCount: (null|string), maxAssetCount: (null|string), maxSizeBytes: (null|string), sizeBytes: (null|string)}), sizeBytes: (null|string), startTime: (null|string), tilestoreEntry: (null|{pathPrefix: (null|string), sources: (Array<{headerSizeBytes: (null|number), pathSuffix: (null|string)}>|null)}), time: (null|string), type: (null|string), updateTime: (null|string)}>|null), nextPageToken: (null|string)}, string=): ?=} opt_callback
+ * @return {(null|{assets: (Array<{bands: (Array<{dataType: (null|{dimensionsCount: (null|number), precision: (null|string), range: (null|{max: (null|number), min: (null|number)})}), grid: (null|{affineTransform: (null|{scaleX: (null|number), scaleY: (null|number), shearX: (null|number), shearY: (null|number), translateX: (null|number), translateY: (null|number)}), crsCode: (null|string), crsWkt: (null|string), dimensions: (null|{height: (null|number), width: (null|number)})}), id: (null|string), missingData: (null|{values: (Array<number>|null)}), pyramidingPolicy: (null|string), tilesets: (Array<{fileIndexes: (Array<number>|null), firstTileIndex: (null|number), tilesPerFile: (null|number)}>|null)}>|null), endTime: (null|string), geometry: (Object<string,*>|null), id: (null|string), name: (null|string), path: (null|string), properties: (Object<string,*>|null), quota: (null|{assetCount: (null|string), maxAssetCount: (null|string), maxSizeBytes: (null|string), sizeBytes: (null|string)}), sizeBytes: (null|string), startTime: (null|string), tilestoreEntry: (null|{pathPrefix: (null|string), sources: (Array<{headerSizeBytes: (null|number), pathSuffix: (null|string)}>|null)}), time: (null|string), type: (null|string), updateTime: (null|string)}>|null), nextPageToken: (null|string)})}
+ */
+ee.data.listImages = function(body, opt_callback) {
+};
+/**
  * @param {!ee.data.DownloadId} id
  * @return {string}
  */
@@ -1168,7 +1197,7 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
 /**
  * @param {string} sourceId
  * @param {string} destinationId
- * @param {function((Object|null), string=): ?=} opt_callback
+ * @param {function(!Object, string=): ?=} opt_callback
  * @return {undefined}
  */
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
@@ -1233,7 +1262,7 @@ ee.data.setParamAugmenter = function(augmenter) {
 };
 /**
  * @param {string} taskId
- * @param {(ee.data.IngestionRequest|null)} request
+ * @param {!ee.data.IngestionRequest} request
  * @param {function((ee.data.ProcessingResponse|null), string=): ?=} opt_callback
  * @return {(ee.data.ProcessingResponse|null)}
  */
@@ -1259,7 +1288,7 @@ ee.data.startTableIngestion = function(taskId, request, opt_callback) {
  * @param {(Array<string>|string)} taskId
  * @param {string} action
  * @param {function((ee.data.ProcessingResponse|null), string=): ?=} opt_callback
- * @return {(Array<(ee.data.TaskStatus|null)>|null)}
+ * @return {(Array<ee.data.TaskStatus>|null)}
  */
 ee.data.updateTask = function(taskId, action, opt_callback) {
 };
