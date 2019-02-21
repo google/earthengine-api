@@ -116,7 +116,17 @@ ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
  */
 ee.Collection.prototype.sort = function(property, opt_ascending) {
 };
-ee.ComputedObject;
+/**
+ * @param {(ee.Function|null)} func
+ * @param {(Object|null)} args
+ * @param {(null|string)=} opt_varName
+ * @return {?}
+ * @extends {ee.Encodable}
+ * @constructor
+ * @template T
+ */
+ee.ComputedObject = function(func, args, opt_varName) {
+};
 /**
  * @param {(!Function|null)} func
  * @param {...*} var_args
@@ -693,7 +703,14 @@ ee.MapLayerOverlay.prototype.setOpacity = function(opacity) {
  */
 ee.MapTileManager = function() {
 };
-ee.Number;
+/**
+ * @param {(Object|number)} number
+ * @return {?}
+ * @extends {ee.ComputedObject}
+ * @constructor
+ */
+ee.Number = function(number) {
+};
 /**
  * @param {string} path
  * @param {{args: !Array<(ee.data.AlgorithmArgument|null)>, deprecated: (string|undefined), description: (string|undefined), name: string, returns: string}} signature
@@ -746,7 +763,14 @@ ee.Serializer.toReadableCloudApiJSON = function(obj) {
  */
 ee.Serializer.toReadableJSON = function(obj) {
 };
-ee.String;
+/**
+ * @param {(Object|string)} string
+ * @return {?}
+ * @extends {ee.ComputedObject}
+ * @constructor
+ */
+ee.String = function(string) {
+};
 ee.TILE_SIZE;
 /** @type {{}} */
 ee.Terrain = {};
@@ -1026,7 +1050,13 @@ ee.data.deleteAsset = function(assetId, opt_callback) {
  */
 ee.data.getApiBaseUrl = function() {
 };
-ee.data.getAsset;
+/**
+ * @param {string} id
+ * @param {function(!Object, string=): ?=} opt_callback
+ * @return {(Object|null)}
+ */
+ee.data.getAsset = function(id, opt_callback) {
+};
 /**
  * @param {string} assetId
  * @param {function(!ee.data.AssetAcl, string=): ?=} opt_callback

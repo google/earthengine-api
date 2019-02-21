@@ -67,8 +67,9 @@ goog.require('goog.net.jsloader');
 goog.require('goog.object');
 goog.require('goog.string');
 goog.require('goog.string.Const');
-
+goog.forwardDeclare('ee.Element');
 goog.forwardDeclare('ee.Image');
+
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1028,6 +1029,10 @@ goog.exportSymbol('ee.data.updateTask', ee.data.updateTask);
  */
 ee.data.startProcessing = function(taskId, params, opt_callback) {
   params = goog.object.clone(params);
+  if (goog.isDefAndNotNull(params['element'])) {
+    params['json'] = params['element'].serialize();
+    delete params['element'];
+  }
   params['id'] = taskId;
   return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
       '/processingrequest', ee.data.makeRequest_(params), opt_callback));
@@ -2245,7 +2250,7 @@ ee.data.MapZoomRange = {
  *   type: string,
  *   description: (undefined|string),
  *   sourceURL: (undefined|string),
- *   json: (undefined|string)
+ *   element: (undefined|!ee.Element)
  * }}
  */
 ee.data.AbstractTaskConfig;
@@ -2257,7 +2262,6 @@ ee.data.AbstractTaskConfig;
  * @typedef {{
  *   id: string,
  *   type: string,
- *   json: string,
  *   description: (undefined|string),
  *   sourceURL: (undefined|string),
  *   crs: (undefined|string),
@@ -2288,7 +2292,6 @@ ee.data.ImageTaskConfigUnformatted;
  * @typedef {{
  *   id: string,
  *   type: string,
- *   json: string,
  *   description: (undefined|string),
  *   sourceURL: (undefined|string),
  *   crs: (undefined|string),
@@ -2350,7 +2353,6 @@ ee.data.ImageExportFormatConfig;
  * @typedef {{
  *   id: string,
  *   type: string,
- *   json: string,
  *   sourceUrl: (undefined|string),
  *   description: (undefined|string),
  *   minZoom: (undefined|number),
@@ -2376,7 +2378,6 @@ ee.data.MapTaskConfig;
  * @typedef {{
  *   id: string,
  *   type: string,
- *   json: string,
  *   description: (undefined|string),
  *   fileFormat: (undefined|string),
  *   sourceUrl: (undefined|string),
@@ -2397,7 +2398,6 @@ ee.data.TableTaskConfig;
  * @typedef {{
  *   id: string,
  *   type: string,
- *   json: string,
  *   sourceUrl: (undefined|string),
  *   description: (undefined|string),
  *   framesPerSecond: (undefined|number),

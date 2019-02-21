@@ -63,7 +63,7 @@ ee.batch.ExportTask = class {
 
     const eeElement = ee.batch.Export.extractElement(exportArgs);
     // Construct a configuration object for the server.
-    let config = {'json': eeElement.serialize()};
+    let config = {'element': eeElement};
     Object.assign(config, exportArgs);
     // The config is some kind of task configuration.
     config = /** @type {!ee.data.AbstractTaskConfig} */ (
@@ -698,11 +698,11 @@ ee.batch.ImageFormat = {
 
 /** @type {!Object<string, !Array<string>>} */
 const FORMAT_OPTIONS_MAP = {
-  GEO_TIFF: [
+  'GEO_TIFF': [
     'cloudOptimized',
     'fileDimensions',
   ],
-  TF_RECORD_IMAGE: [
+  'TF_RECORD_IMAGE': [
     'patchDimensions',
     'kernelSize',
     'compressed',
@@ -718,8 +718,8 @@ const FORMAT_OPTIONS_MAP = {
 
 /** @type {!Object<string, string>} */
 const FORMAT_PREFIX_MAP = {
-  GEO_TIFF: 'tiff',
-  TF_RECORD_IMAGE: 'tfrecord'
+  'GEO_TIFF': 'tiff',
+  'TF_RECORD_IMAGE': 'tfrecord'
 };
 
 /**

@@ -895,7 +895,7 @@ def startIngestion(request_id, params, allow_overwrite=False):
     # idempotent.
     num_retries = MAX_RETRIES if request_id else 0
     operation = _execute_cloud_call(
-        _cloud_api_resource.v1().ingestImage(body=request),
+        _cloud_api_resource.image().ingest(body=request),
         num_retries=num_retries)
     return {
         'id':
@@ -948,7 +948,7 @@ def startTableIngestion(request_id, params, allow_overwrite=False):
     # idempotent.
     num_retries = MAX_RETRIES if request_id else 0
     operation = _execute_cloud_call(
-        _cloud_api_resource.v1().ingestTable(body=request),
+        _cloud_api_resource.table().ingest(body=request),
         num_retries=num_retries)
     return {
         'id':
