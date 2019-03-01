@@ -54,7 +54,6 @@ goog.provide('ee.data.TaskUpdateActions');
 goog.provide('ee.data.ThumbnailId');
 goog.provide('ee.data.Tileset');
 goog.provide('ee.data.VideoTaskConfig');
-
 goog.require('goog.Uri');
 goog.require('goog.array');
 goog.require('goog.async.Throttle');
@@ -478,11 +477,11 @@ ee.data.setDeadline = function(milliseconds) {
  *     augmenter A function used to transform request parameters right
  *     before they are sent to the server. Takes the URL of the request
  *     as the second argument.
+ * @export
  */
 ee.data.setParamAugmenter = function(augmenter) {
   ee.data.paramAugmenter_ = augmenter || goog.functions.identity;
 };
-goog.exportSymbol('ee.data.setParamAugmenter', ee.data.setParamAugmenter);
 
 
 /**
@@ -800,6 +799,7 @@ ee.data.makeTableDownloadUrl = function(id) {
  *     all API calls made by it.
  * @param {*=} opt_this
  * @return {*}
+ * @export
  */
 ee.data.withProfiling = function(hook, body, opt_this) {
   var saved = ee.data.profileHook_;
@@ -810,7 +810,6 @@ ee.data.withProfiling = function(hook, body, opt_this) {
     ee.data.profileHook_ = saved;
   }
 };
-goog.exportSymbol('ee.data.withProfiling', ee.data.withProfiling);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -826,6 +825,7 @@ goog.exportSymbol('ee.data.withProfiling', ee.data.withProfiling);
  *     callback. If not supplied, the call is made synchronously.
  * @return {?Array.<string>} An array containing generated ID strings, or null
  *     if a callback is specified.
+ * @export
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
@@ -835,7 +835,6 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
   return /** @type {?Array.<string>} */ (
       ee.data.send_('/newtaskid', ee.data.makeRequest_(params), opt_callback));
 };
-goog.exportSymbol('ee.data.newTaskId', ee.data.newTaskId);
 
 
 /**
@@ -848,19 +847,28 @@ goog.exportSymbol('ee.data.newTaskId', ee.data.newTaskId);
  * @return {?Array.<!ee.data.TaskStatus>} Null if a callback isn't specified,
  *     otherwise an array containing one object for each queried task, in the
  *     same order as the input array.
+ * @export
  */
 ee.data.getTaskStatus = function(taskId, opt_callback) {
-  if (goog.isString(taskId)) {
-    taskId = [taskId];
-  } else if (!goog.isArray(taskId)) {
-    throw new Error('Invalid taskId: expected a string or ' +
-        'an array of strings.');
-  }
-  var url = '/taskstatus?q=' + taskId.join();
+  var url = '/taskstatus?q=' + ee.data.makeStringArray_(taskId).join();
   return /** @type {?Array.<!ee.data.TaskStatus>} */ (
       ee.data.send_(url, null, opt_callback, 'GET'));
 };
-goog.exportSymbol('ee.data.getTaskStatus', ee.data.getTaskStatus);
+
+
+/**
+ * @param {string|!Array<string>} value
+ * @return {!Array<string>} Unchanged if already an array, else [value].
+ * @private
+ */
+ee.data.makeStringArray_ = function(value) {
+  if (goog.isString(value)) {
+    return [value];
+  } else if (goog.isArray(value)) {
+    return value;
+  }
+  throw new Error('Invalid value: expected a string or an array of strings.');
+};
 
 
 /**
@@ -878,11 +886,11 @@ ee.data.TASKLIST_PAGE_SIZE_ = 500;
  *     made synchronously.
  * @return {?ee.data.TaskListResponse} An array of existing tasks,
  *     or null if a callback is specified.
+ * @export
  */
 ee.data.getTaskList = function(opt_callback) {
   return ee.data.getTaskListWithLimit(undefined, opt_callback);
 };
-goog.exportSymbol('ee.data.getTaskList', ee.data.getTaskList);
 
 
 /**
@@ -895,6 +903,7 @@ goog.exportSymbol('ee.data.getTaskList', ee.data.getTaskList);
  *     made synchronously.
  * @return {?ee.data.TaskListResponse} An array of existing tasks,
  *     or null if a callback is specified.
+ * @export
  */
 ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
   var url = '/tasklist';
@@ -956,8 +965,6 @@ ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
   }
   return /** @type {?ee.data.TaskListResponse} */ (taskListResponse);
 };
-goog.exportSymbol('ee.data.getTaskListWithLimit', ee.data.getTaskListWithLimit);
-
 
 
 /**
@@ -968,12 +975,12 @@ goog.exportSymbol('ee.data.getTaskListWithLimit', ee.data.getTaskListWithLimit);
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?Array.<ee.data.TaskStatus>} An array of updated tasks, or null
  *     if a callback is specified.
+ * @export
  */
 ee.data.cancelTask = function(taskId, opt_callback) {
   return ee.data.updateTask(
       taskId, ee.data.TaskUpdateActions.CANCEL, opt_callback);
 };
-goog.exportSymbol('ee.data.cancelTask', ee.data.cancelTask);
 
 
 /**
@@ -986,19 +993,14 @@ goog.exportSymbol('ee.data.cancelTask', ee.data.cancelTask);
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?Array.<!ee.data.TaskStatus>} An array of updated tasks, or null
  *     if a callback is specified.
+ * @export
  */
 ee.data.updateTask = function(taskId, action, opt_callback) {
-  //also cancel
-  if (goog.isString(taskId)) {
-    taskId = [taskId];
-  } else if (!goog.isArray(taskId)) {
-    throw new Error('Invalid taskId: expected a string or ' +
-        'an array of strings.');
-  }
   if (!goog.object.containsValue(ee.data.TaskUpdateActions, action)) {
     var errorMessage = 'Invalid action: ' + action;
     throw new Error(errorMessage);
   }
+  taskId = ee.data.makeStringArray_(taskId);
 
   var url = '/updatetask';
   var params = {
@@ -1009,7 +1011,6 @@ ee.data.updateTask = function(taskId, action, opt_callback) {
   return /** @type {?Array.<!ee.data.TaskStatus>} */ (
       ee.data.send_(url, ee.data.makeRequest_(params), opt_callback, 'POST'));
 };
-goog.exportSymbol('ee.data.updateTask', ee.data.updateTask);
 
 
 /**
@@ -1026,6 +1027,7 @@ goog.exportSymbol('ee.data.updateTask', ee.data.updateTask);
  * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
  *     Null if a callback is specified.
+ * @export
  */
 ee.data.startProcessing = function(taskId, params, opt_callback) {
   params = goog.object.clone(params);
@@ -1037,7 +1039,6 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
   return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
       '/processingrequest', ee.data.makeRequest_(params), opt_callback));
 };
-goog.exportSymbol('ee.data.startProcessing', ee.data.startProcessing);
 
 
 /**
@@ -1051,6 +1052,7 @@ goog.exportSymbol('ee.data.startProcessing', ee.data.startProcessing);
  * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
  *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
  *     Null if a callback is specified.
+ * @export
  */
 ee.data.startIngestion = function(taskId, request, opt_callback) {
   var params = {
@@ -1060,7 +1062,6 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
   return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
       '/ingestionrequest', ee.data.makeRequest_(params), opt_callback));
 };
-goog.exportSymbol('ee.data.startIngestion', ee.data.startIngestion);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -1126,12 +1127,12 @@ ee.data.getList = function(params, opt_callback) {
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?Array<!ee.data.FolderDescription>} The list of writable folders.
  *     Null if a callback is specified.
+ * @export
  */
 ee.data.getAssetRoots = function(opt_callback) {
   return /** @type {?Array<!ee.data.FolderDescription>} */ (ee.data.send_(
       '/buckets', null, opt_callback, 'GET'));
 };
-goog.exportSymbol('ee.data.getAssetRoots', ee.data.getAssetRoots);
 
 
 /**
@@ -1143,12 +1144,12 @@ goog.exportSymbol('ee.data.getAssetRoots', ee.data.getAssetRoots);
  *     (e.g. "users/joe").
  * @param {function(?Array<!ee.data.FolderDescription>, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
+ * @export
  */
 ee.data.createAssetHome = function(requestedId, opt_callback) {
   var request = ee.data.makeRequest_({'id': requestedId});
   ee.data.send_('/createbucket', request, opt_callback);
 };
-goog.exportSymbol('ee.data.createAssetHome', ee.data.createAssetHome);
 
 
 /**
@@ -1166,6 +1167,7 @@ goog.exportSymbol('ee.data.createAssetHome', ee.data.createAssetHome);
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the saved asset, including a generated
  *     ID, or null if a callback is specified.
+ * @export
  */
 ee.data.createAsset = function(
     value, opt_path, opt_force, opt_properties, opt_callback) {
@@ -1184,7 +1186,6 @@ ee.data.createAsset = function(
                        ee.data.makeRequest_(args),
                        opt_callback);
 };
-goog.exportSymbol('ee.data.createAsset', ee.data.createAsset);
 
 
 /**
@@ -1195,6 +1196,7 @@ goog.exportSymbol('ee.data.createAsset', ee.data.createAsset);
  * @param {function(!Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
  * @return {?Object} A description of the newly created folder.
+ * @export
  */
 ee.data.createFolder = function(path, opt_force, opt_callback) {
   var args = {
@@ -1205,7 +1207,6 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
                        ee.data.makeRequest_(args),
                        opt_callback);
 };
-goog.exportSymbol('ee.data.createFolder', ee.data.createFolder);
 
 
 /**
@@ -1231,12 +1232,12 @@ ee.data.search = function(query, opt_callback) {
  * @param {function(!Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously. The callback is
  *     passed an empty object and an error message, if any.
+ * @export
  */
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
   var params = {'sourceId': sourceId, 'destinationId': destinationId};
   ee.data.send_('/rename', ee.data.makeRequest_(params), opt_callback);
 };
-goog.exportSymbol('ee.data.renameAsset', ee.data.renameAsset);
 
 
 /**
@@ -1247,12 +1248,12 @@ goog.exportSymbol('ee.data.renameAsset', ee.data.renameAsset);
  * @param {function(?Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously. The callback is
  *     passed an empty object and an error message, if any.
+ * @export
  */
 ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
   var params = {'sourceId': sourceId, 'destinationId': destinationId};
   ee.data.send_('/copy', ee.data.makeRequest_(params), opt_callback);
 };
-goog.exportSymbol('ee.data.copyAsset', ee.data.copyAsset);
 
 
 /**
@@ -1262,12 +1263,12 @@ goog.exportSymbol('ee.data.copyAsset', ee.data.copyAsset);
  * @param {function(?Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously. The callback is
  *     passed an empty object and an error message, if any.
+ * @export
  */
 ee.data.deleteAsset = function(assetId, opt_callback) {
   var params = {'id': assetId};
   ee.data.send_('/delete', ee.data.makeRequest_(params), opt_callback);
 };
-goog.exportSymbol('ee.data.deleteAsset', ee.data.deleteAsset);
 
 
 /**
@@ -1279,12 +1280,12 @@ goog.exportSymbol('ee.data.deleteAsset', ee.data.deleteAsset);
  * @param {function(!ee.data.AssetAcl, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AssetAcl} The asset's ACL. Null if a callback is specified.
+ * @export
  */
 ee.data.getAssetAcl = function(assetId, opt_callback) {
   return /** @type {?ee.data.AssetAcl} */ (ee.data.send_(
       '/getacl', ee.data.makeRequest_({'id': assetId}), opt_callback, 'GET'));
 };
-goog.exportSymbol('ee.data.getAssetAcl', ee.data.getAssetAcl);
 
 
 /**
@@ -1301,6 +1302,7 @@ goog.exportSymbol('ee.data.getAssetAcl', ee.data.getAssetAcl);
  * @param {function(?Object, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  *     The callback is passed an empty object.
+ * @export
  */
 ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
   var request = {
@@ -1309,7 +1311,6 @@ ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
   };
   ee.data.send_('/setacl', ee.data.makeRequest_(request), opt_callback);
 };
-goog.exportSymbol('ee.data.setAssetAcl', ee.data.setAssetAcl);
 
 
 /**
@@ -1317,11 +1318,12 @@ goog.exportSymbol('ee.data.setAssetAcl', ee.data.setAssetAcl);
  * To delete a property, set its value to null.
  * The authenticated user must be a writer or owner of the asset.
  *
- * @param {string} assetId The ID of the asset to set the ACL on.
+ * @param {string} assetId The ID of the asset to update.
  * @param {!Object} properties The keys and values of the properties to update.
  * @param {function(?Object, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  *     The callback is passed an empty object.
+ * @export
  */
 ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
   var request = {
@@ -1330,7 +1332,6 @@ ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
   };
   ee.data.send_('/setproperties', ee.data.makeRequest_(request), opt_callback);
 };
-goog.exportSymbol('ee.data.setAssetProperties', ee.data.setAssetProperties);
 
 
 /**
@@ -1346,6 +1347,7 @@ goog.exportSymbol('ee.data.setAssetProperties', ee.data.setAssetProperties);
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AssetQuotaDetails} The asset root's quota usage details.
  *     Null if a callback is specified.
+ * @export
  */
 ee.data.getAssetRootQuota = function(rootId, opt_callback) {
   return /** @type {?ee.data.AssetQuotaDetails} */ (ee.data.send_(
@@ -1354,7 +1356,6 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
       opt_callback,
       'GET'));
 };
-goog.exportSymbol('ee.data.getAssetRootQuota', ee.data.getAssetRootQuota);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -2264,6 +2265,7 @@ ee.data.AbstractTaskConfig;
  *   type: string,
  *   description: (undefined|string),
  *   sourceURL: (undefined|string),
+ *   element: (undefined|!ee.Element),
  *   crs: (undefined|string),
  *   crs_transform: (undefined|string),
  *   dimensions: (undefined|string),
@@ -2294,6 +2296,7 @@ ee.data.ImageTaskConfigUnformatted;
  *   type: string,
  *   description: (undefined|string),
  *   sourceURL: (undefined|string),
+ *   element: (undefined|!ee.Element),
  *   crs: (undefined|string),
  *   crs_transform: (undefined|string),
  *   dimensions: (undefined|string),
@@ -2337,7 +2340,7 @@ ee.data.ImageTaskConfig;
  *   compressed: (undefined|boolean),
  *   maxFileSize: (undefined|number),
  *   defaultValue: (undefined|number),
- *   tensorDepths: (undefined|!Array<number>),
+ *   tensorDepths: (undefined|!Array<number>|!Object),
  *   sequenceData: (undefined|boolean),
  *   collapseBands: (undefined|boolean),
  *   maskedThreshold: (undefined|number)
@@ -2355,6 +2358,7 @@ ee.data.ImageExportFormatConfig;
  *   type: string,
  *   sourceUrl: (undefined|string),
  *   description: (undefined|string),
+ *   element: (undefined|!ee.Element),
  *   minZoom: (undefined|number),
  *   maxZoom: (undefined|number),
  *   region: (undefined|string),
@@ -2379,6 +2383,7 @@ ee.data.MapTaskConfig;
  *   id: string,
  *   type: string,
  *   description: (undefined|string),
+ *   element: (undefined|!ee.Element),
  *   fileFormat: (undefined|string),
  *   sourceUrl: (undefined|string),
  *   driveFolder: (undefined|string),
@@ -2400,6 +2405,7 @@ ee.data.TableTaskConfig;
  *   type: string,
  *   sourceUrl: (undefined|string),
  *   description: (undefined|string),
+ *   element: (undefined|!ee.Element),
  *   framesPerSecond: (undefined|number),
  *   crs: (undefined|string),
  *   crs_transform: (undefined|string),
@@ -2503,6 +2509,11 @@ ee.data.ProcessingResponse = class {
      * @export {string|undefined}
      */
     this.note;
+    /**
+     * The task ID or missing.
+     * @export {string|undefined}
+     */
+    this.taskId;
   }
 };
 

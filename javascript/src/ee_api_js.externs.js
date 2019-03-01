@@ -814,7 +814,7 @@ ee.batch.Export.image.toAsset = function(image, opt_description, opt_assetId, op
  * @param {(Array<number>|null|number)=} opt_fileDimensions
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_fileFormat
- * @param {(null|{cloudOptimized: (boolean|undefined), collapseBands: (boolean|undefined), compressed: (boolean|undefined), defaultValue: (number|undefined), fileDimensions: (Array<number>|undefined), kernelSize: (Array<number>|undefined), maskedThreshold: (number|undefined), maxFileSize: (number|undefined), patchDimensions: (Array<number>|undefined), sequenceData: (boolean|undefined), tensorDepths: (Array<number>|undefined)})=} opt_formatOptions
+ * @param {(null|{cloudOptimized: (boolean|undefined), collapseBands: (boolean|undefined), compressed: (boolean|undefined), defaultValue: (number|undefined), fileDimensions: (Array<number>|undefined), kernelSize: (Array<number>|undefined), maskedThreshold: (number|undefined), maxFileSize: (number|undefined), patchDimensions: (Array<number>|undefined), sequenceData: (boolean|undefined), tensorDepths: (Object|undefined)})=} opt_formatOptions
  * @return {!ee.batch.ExportTask}
  */
 ee.batch.Export.image.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
@@ -834,7 +834,7 @@ ee.batch.Export.image.toCloudStorage = function(image, opt_description, opt_buck
  * @param {(Array<number>|null|number)=} opt_fileDimensions
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_fileFormat
- * @param {(null|{cloudOptimized: (boolean|undefined), collapseBands: (boolean|undefined), compressed: (boolean|undefined), defaultValue: (number|undefined), fileDimensions: (Array<number>|undefined), kernelSize: (Array<number>|undefined), maskedThreshold: (number|undefined), maxFileSize: (number|undefined), patchDimensions: (Array<number>|undefined), sequenceData: (boolean|undefined), tensorDepths: (Array<number>|undefined)})=} opt_formatOptions
+ * @param {(null|{cloudOptimized: (boolean|undefined), collapseBands: (boolean|undefined), compressed: (boolean|undefined), defaultValue: (number|undefined), fileDimensions: (Array<number>|undefined), kernelSize: (Array<number>|undefined), maskedThreshold: (number|undefined), maxFileSize: (number|undefined), patchDimensions: (Array<number>|undefined), sequenceData: (boolean|undefined), tensorDepths: (Object|undefined)})=} opt_formatOptions
  * @return {!ee.batch.ExportTask}
  */
 ee.batch.Export.image.toDrive = function(image, opt_description, opt_folder, opt_fileNamePrefix, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat, opt_formatOptions) {
@@ -994,6 +994,13 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
 ee.data.authenticateViaPrivateKey = function(privateKey, opt_success, opt_error, opt_extraScopes) {
 };
 /**
+ * @param {(Array<string>|string)} operationName
+ * @param {function(!Object, string=): ?=} opt_callback
+ * @return {undefined}
+ */
+ee.data.cancelOperation = function(operationName, opt_callback) {
+};
+/**
  * @param {string} taskId
  * @param {function((ee.data.ProcessingResponse|null), string=): ?=} opt_callback
  * @return {(Array<(ee.data.TaskStatus|null)>|null)}
@@ -1118,6 +1125,13 @@ ee.data.getList = function(params, opt_callback) {
  * @return {(ee.data.RawMapId|null)}
  */
 ee.data.getMapId = function(params, opt_callback) {
+};
+/**
+ * @param {(Array<string>|string)} operationName
+ * @param {function(!Object, string=): ?=} opt_callback
+ * @return {(Object<string,ee.rpc_proto.Operation>|ee.rpc_proto.Operation)}
+ */
+ee.data.getOperation = function(operationName, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
@@ -1315,6 +1329,15 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
 ee.data.startTableIngestion = function(taskId, request, opt_callback) {
 };
 /**
+ * @param {string} assetId
+ * @param {!Object} asset
+ * @param {(Array<string>|null)} updateMask
+ * @param {function((Object|null), string=): ?=} opt_callback
+ * @return {undefined}
+ */
+ee.data.updateAsset = function(assetId, asset, updateMask, opt_callback) {
+};
+/**
  * @param {(Array<string>|string)} taskId
  * @param {string} action
  * @param {function((ee.data.ProcessingResponse|null), string=): ?=} opt_callback
@@ -1414,4 +1437,35 @@ ee.layers.ImageOverlay = function(tileSource, opt_options) {
  * @return {undefined}
  */
 ee.reset = function() {
+};
+ee.rpc_convert_batch;
+/**
+ * @param {!Object} params
+ * @return {{assetExportOptions: (null|{destination: (null|{name: (null|string)}), pyramidingPolicy: (null|string), pyramidingPolicyOverrides: (Object<string,string>|null)}), description: (null|string), expression: (null|{result: (null|string), values: (Object<string,{argumentReference: (null|string), arrayValue: (null|{values: (Array<?>|null)}), bytesValue: (null|string), constantValue: *, dictionaryValue: (null|{values: (Object<string,?>|null)}), functionDefinitionValue: (null|{argumentNames: (Array<string>|null), body: (null|string)}), functionInvocationValue: (null|{arguments: (Object<string,?>|null), functionName: (null|string), functionReference: (null|string)}), integerValue: (null|string), valueReference: (null|string)}>|null)}), fileExportOptions: (null|{cloudStorageDestination: (null|{bucket: (null|string), bucketCorsUris: (Array<string>|null), filenamePrefix: (null|string), permissions: (null|string)}), driveDestination: (null|{filenamePrefix: (null|string), folder: (null|string)}), fileFormat: (null|string), geoTiffOptions: (null|{cloudOptimized: (boolean|null), skipEmptyFiles: (boolean|null), tileDimensions: (null|{height: (null|number), width: (null|number)})}), tfRecordOptions: (null|{collapseBands: (boolean|null), compress: (boolean|null), defaultValue: (null|number), marginDimensions: (null|{height: (null|number), width: (null|number)}), maxMaskedRatio: (null|number), maxSizeBytes: (null|string), sequenceData: (boolean|null), tensorDepths: (Object<string,number>|null), tileDimensions: (null|{height: (null|number), width: (null|number)})})}), grid: (null|{affineTransform: (null|{scaleX: (null|number), scaleY: (null|number), shearX: (null|number), shearY: (null|number), translateX: (null|number), translateY: (null|number)}), crsCode: (null|string), crsWkt: (null|string), dimensions: (null|{height: (null|number), width: (null|number)})}), maxPixels: (null|string), requestId: (null|string)}}
+ */
+ee.rpc_convert_batch.taskToExportImageRequest = function(params) {
+};
+/**
+ * @param {!Object} params
+ * @return {{description: (null|string), expression: (null|{result: (null|string), values: (Object<string,{argumentReference: (null|string), arrayValue: (null|{values: (Array<?>|null)}), bytesValue: (null|string), constantValue: *, dictionaryValue: (null|{values: (Object<string,?>|null)}), functionDefinitionValue: (null|{argumentNames: (Array<string>|null), body: (null|string)}), functionInvocationValue: (null|{arguments: (Object<string,?>|null), functionName: (null|string), functionReference: (null|string)}), integerValue: (null|string), valueReference: (null|string)}>|null)}), requestId: (null|string), tileExportOptions: (null|{cloudStorageDestination: (null|{bucket: (null|string), bucketCorsUris: (Array<string>|null), filenamePrefix: (null|string), permissions: (null|string)}), driveDestination: (null|{filenamePrefix: (null|string), folder: (null|string)}), fileFormat: (null|string), geoTiffOptions: (null|{cloudOptimized: (boolean|null), skipEmptyFiles: (boolean|null), tileDimensions: (null|{height: (null|number), width: (null|number)})}), tfRecordOptions: (null|{collapseBands: (boolean|null), compress: (boolean|null), defaultValue: (null|number), marginDimensions: (null|{height: (null|number), width: (null|number)}), maxMaskedRatio: (null|number), maxSizeBytes: (null|string), sequenceData: (boolean|null), tensorDepths: (Object<string,number>|null), tileDimensions: (null|{height: (null|number), width: (null|number)})})}), tileOptions: (null|{mapsApiKey: (null|string), maxZoom: (null|number), minZoom: (null|number), scale: (null|number), skipEmptyTiles: (boolean|null), tileDimensions: (null|{height: (null|number), width: (null|number)})})}}
+ */
+ee.rpc_convert_batch.taskToExportMapRequest = function(params) {
+};
+/**
+ * @param {!Object} params
+ * @return {{assetExportOptions: (null|{destination: (null|{name: (null|string)})}), description: (null|string), expression: (null|{result: (null|string), values: (Object<string,{argumentReference: (null|string), arrayValue: (null|{values: (Array<?>|null)}), bytesValue: (null|string), constantValue: *, dictionaryValue: (null|{values: (Object<string,?>|null)}), functionDefinitionValue: (null|{argumentNames: (Array<string>|null), body: (null|string)}), functionInvocationValue: (null|{arguments: (Object<string,?>|null), functionName: (null|string), functionReference: (null|string)}), integerValue: (null|string), valueReference: (null|string)}>|null)}), fileExportOptions: (null|{cloudStorageDestination: (null|{bucket: (null|string), bucketCorsUris: (Array<string>|null), filenamePrefix: (null|string), permissions: (null|string)}), driveDestination: (null|{filenamePrefix: (null|string), folder: (null|string)}), fileFormat: (null|string)}), requestId: (null|string), selectors: (Array<string>|null)}}
+ */
+ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
+};
+/**
+ * @param {!Object} params
+ * @return {{description: (null|string), expression: (null|{result: (null|string), values: (Object<string,{argumentReference: (null|string), arrayValue: (null|{values: (Array<?>|null)}), bytesValue: (null|string), constantValue: *, dictionaryValue: (null|{values: (Object<string,?>|null)}), functionDefinitionValue: (null|{argumentNames: (Array<string>|null), body: (null|string)}), functionInvocationValue: (null|{arguments: (Object<string,?>|null), functionName: (null|string), functionReference: (null|string)}), integerValue: (null|string), valueReference: (null|string)}>|null)}), requestId: (null|string), tileExportOptions: (null|{cloudStorageDestination: (null|{bucket: (null|string), bucketCorsUris: (Array<string>|null), filenamePrefix: (null|string), permissions: (null|string)}), driveDestination: (null|{filenamePrefix: (null|string), folder: (null|string)}), fileFormat: (null|string)}), tileOptions: (null|{mapsApiKey: (null|string), maxZoom: (null|number), minZoom: (null|number), scale: (null|number), skipEmptyTiles: (boolean|null), tileDimensions: (null|{height: (null|number), width: (null|number)})}), videoOptions: (null|{framesPerSecond: (null|number), maxFrames: (null|number), maxPixelsPerFrame: (null|string)})}}
+ */
+ee.rpc_convert_batch.taskToExportVideoMapRequest = function(params) {
+};
+/**
+ * @param {!Object} params
+ * @return {{description: (null|string), expression: (null|{result: (null|string), values: (Object<string,{argumentReference: (null|string), arrayValue: (null|{values: (Array<?>|null)}), bytesValue: (null|string), constantValue: *, dictionaryValue: (null|{values: (Object<string,?>|null)}), functionDefinitionValue: (null|{argumentNames: (Array<string>|null), body: (null|string)}), functionInvocationValue: (null|{arguments: (Object<string,?>|null), functionName: (null|string), functionReference: (null|string)}), integerValue: (null|string), valueReference: (null|string)}>|null)}), fileExportOptions: (null|{cloudStorageDestination: (null|{bucket: (null|string), bucketCorsUris: (Array<string>|null), filenamePrefix: (null|string), permissions: (null|string)}), driveDestination: (null|{filenamePrefix: (null|string), folder: (null|string)}), fileFormat: (null|string)}), requestId: (null|string), videoOptions: (null|{framesPerSecond: (null|number), maxFrames: (null|number), maxPixelsPerFrame: (null|string)})}}
+ */
+ee.rpc_convert_batch.taskToExportVideoRequest = function(params) {
 };

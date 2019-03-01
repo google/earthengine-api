@@ -57,6 +57,9 @@ _use_cloud_api = False
 # A resource object for making Cloud API calls.
 _cloud_api_resource = None
 
+# The default user project to use when making Cloud API calls.
+_cloud_api_user_project = None
+
 # Whether the module has been initialized.
 _initialized = False
 
@@ -108,6 +111,9 @@ DEFAULT_TILE_BASE_URL = 'https://earthengine.googleapis.com'
 # The default base URL for Cloud API calls.
 DEFAULT_CLOUD_API_BASE_URL = 'https://earthengine.googleapis.com'
 
+# The default project to use for Cloud API calls.
+DEFAULT_CLOUD_API_USER_PROJECT = 'earthengine-legacy'
+
 # Asset types recognized by create_assets().
 ASSET_TYPE_FOLDER = 'Folder'
 ASSET_TYPE_IMAGE_COLL = 'ImageCollection'
@@ -121,13 +127,13 @@ MAX_TYPE_LENGTH = len(ASSET_TYPE_IMAGE_COLL_CLOUD)
 _TASKLIST_PAGE_SIZE = 500
 
 
-def initialize(
-    credentials=None,
-    api_base_url=None,
-    tile_base_url=None,
-    use_cloud_api=None,
-    cloud_api_base_url=None,
-    cloud_api_key=None):
+def initialize(credentials=None,
+               api_base_url=None,
+               tile_base_url=None,
+               use_cloud_api=None,
+               cloud_api_base_url=None,
+               cloud_api_key=None,
+               project=None):
   """Initializes the data module, setting credentials and base URLs.
 
   If any of the arguments are unspecified, they will keep their old values;
@@ -145,10 +151,12 @@ def initialize(
       older REST API.
     cloud_api_base_url: The EarthEngine Cloud API endpoint.
     cloud_api_key: The API key to use with the Cloud API.
+    project: The default cloud project associated with the user.
   """
   global _api_base_url, _tile_base_url, _credentials, _initialized
   global _cloud_api_base_url, _use_cloud_api
   global _cloud_api_resource, _cloud_api_key
+  global _cloud_api_user_project
 
   # If already initialized, only replace the explicitly specified parts.
 
@@ -178,6 +186,11 @@ def initialize(
 
   if _cloud_api_resource is None:
     _install_cloud_api_resource()
+
+  if project is not None:
+    _cloud_api_user_project = project
+  else:
+    _cloud_api_user_project = DEFAULT_CLOUD_API_USER_PROJECT
 
   _initialized = True
 

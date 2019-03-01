@@ -460,6 +460,26 @@ ee.batch.Export.resolveRegionParam = function(params) {
   return GoogPromise.resolve(params);
 };
 
+
+/**
+ * Encodes region/scale/affine transform/clipping to the server task params.
+ *
+ * @param {!ee.batch.ServerTaskConfig} taskConfig Export parameters which may
+ *     contain
+ *    parameters which will be baked into a source image.
+ * @return {!ee.batch.ServerTaskConfig}
+ */
+ee.batch.Export.applyTransformsToImage = function(taskConfig) {
+  const resultParams = {};
+  let image =
+      ee.data.images.applyCrsAndTransform(taskConfig['image'], taskConfig);
+  image =
+      ee.data.images.applySelectionAndScale(image, taskConfig, resultParams);
+  resultParams['image'] = image;
+  return /** @type {!ee.batch.ServerTaskConfig} */ (resultParams);
+};
+
+
 /**
  * Extracts the EE element from a given task config.
  * @param {!Object} exportArgs
