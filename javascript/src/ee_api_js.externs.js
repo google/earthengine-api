@@ -1305,6 +1305,12 @@ ee.data.setDeadline = function(milliseconds) {
 ee.data.setParamAugmenter = function(augmenter) {
 };
 /**
+ * @param {string} project
+ * @return {undefined}
+ */
+ee.data.setProject = function(project) {
+};
+/**
  * @param {string} taskId
  * @param {!ee.data.IngestionRequest} request
  * @param {function((ee.data.ProcessingResponse|null), string=): ?=} opt_callback

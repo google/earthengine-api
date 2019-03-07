@@ -613,6 +613,10 @@ ee.batch.Export.prepareDestination_ = function(taskConfig, destination) {
  * @private
  */
 ee.batch.Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
+  // Set the file format to GeoTiff if not set.
+  if (!goog.isDefAndNotNull(taskConfig['fileFormat'])) {
+    taskConfig['fileFormat'] = 'GeoTIFF';
+  }
   // Handle format-specific options.
   taskConfig = ee.batch.Export.reconcileImageFormat(taskConfig);
   // Add top-level destination fields.

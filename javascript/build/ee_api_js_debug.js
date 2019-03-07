@@ -8463,7 +8463,7 @@ jspb.Message.initialize = function(msg, data, messageId, suggestedPivot, repeate
   msg.arrayIndexOffset_ = 0 === messageId ? -1 : 0;
   msg.array = data;
   jspb.Message.initPivotAndExtensionObject_(msg, suggestedPivot);
-  msg.convertedFloatingPointFields_ = {};
+  msg.convertedPrimitiveFields_ = {};
   jspb.Message.SERIALIZE_EMPTY_TRAILING_FIELDS || (msg.repeatedFields = repeatedFields);
   if (repeatedFields) {
     for (var i = 0; i < repeatedFields.length; i++) {
@@ -8614,14 +8614,29 @@ jspb.Message.getOptionalFloatingPointField = function(msg, fieldNumber) {
   var value = jspb.Message.getField(msg, fieldNumber);
   return null == value ? value : +value;
 };
+jspb.Message.getBooleanField = function(msg, fieldNumber) {
+  var value = jspb.Message.getField(msg, fieldNumber);
+  return null == value ? value : !!value;
+};
 jspb.Message.getRepeatedFloatingPointField = function(msg, fieldNumber) {
   var values = jspb.Message.getRepeatedField(msg, fieldNumber);
-  msg.convertedFloatingPointFields_ || (msg.convertedFloatingPointFields_ = {});
-  if (!msg.convertedFloatingPointFields_[fieldNumber]) {
+  msg.convertedPrimitiveFields_ || (msg.convertedPrimitiveFields_ = {});
+  if (!msg.convertedPrimitiveFields_[fieldNumber]) {
     for (var i = 0; i < values.length; i++) {
       values[i] = +values[i];
     }
-    msg.convertedFloatingPointFields_[fieldNumber] = !0;
+    msg.convertedPrimitiveFields_[fieldNumber] = !0;
+  }
+  return values;
+};
+jspb.Message.getRepeatedBooleanField = function(msg, fieldNumber) {
+  var values = jspb.Message.getRepeatedField(msg, fieldNumber);
+  msg.convertedPrimitiveFields_ || (msg.convertedPrimitiveFields_ = {});
+  if (!msg.convertedPrimitiveFields_[fieldNumber]) {
+    for (var i = 0; i < values.length; i++) {
+      values[i] = !!values[i];
+    }
+    msg.convertedPrimitiveFields_[fieldNumber] = !0;
   }
   return values;
 };
@@ -8663,6 +8678,14 @@ jspb.Message.assertConsistentTypes_ = function(array) {
 };
 jspb.Message.getFieldWithDefault = function(msg, fieldNumber, defaultValue) {
   var value = jspb.Message.getField(msg, fieldNumber);
+  return null == value ? defaultValue : value;
+};
+jspb.Message.getBooleanFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  var value = jspb.Message.getBooleanField(msg, fieldNumber);
+  return null == value ? defaultValue : value;
+};
+jspb.Message.getFloatingPointFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  var value = jspb.Message.getOptionalFloatingPointField(msg, fieldNumber);
   return null == value ? defaultValue : value;
 };
 jspb.Message.getFieldProto3 = jspb.Message.getFieldWithDefault;
@@ -9092,8 +9115,8 @@ proto.google.protobuf.Value.prototype.getKindCase = function() {
 jspb.Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Value.prototype.toObject = function(opt_includeInstance) {
   return proto.google.protobuf.Value.toObject(opt_includeInstance, this);
 }, proto.google.protobuf.Value.toObject = function(includeInstance, msg) {
-  var f, obj = {nullValue:null == (f = jspb.Message.getFieldWithDefault(msg, 1, 0)) ? void 0 : f, numberValue:null == (f = +jspb.Message.getFieldWithDefault(msg, 2, 0.0)) ? void 0 : f, stringValue:null == (f = jspb.Message.getFieldWithDefault(msg, 3, "")) ? void 0 : f, boolValue:null == (f = jspb.Message.getFieldWithDefault(msg, 4, !1)) ? void 0 : f, structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && proto.google.protobuf.ListValue.toObject(includeInstance, 
-  f)};
+  var f, obj = {nullValue:null == (f = jspb.Message.getFieldWithDefault(msg, 1, 0)) ? void 0 : f, numberValue:null == (f = jspb.Message.getFloatingPointFieldWithDefault(msg, 2, 0.0)) ? void 0 : f, stringValue:null == (f = jspb.Message.getFieldWithDefault(msg, 3, "")) ? void 0 : f, boolValue:null == (f = jspb.Message.getBooleanFieldWithDefault(msg, 4, !1)) ? void 0 : f, structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && 
+  proto.google.protobuf.ListValue.toObject(includeInstance, f)};
   includeInstance && (obj.$jspbMessageInstance = msg);
   return obj;
 });
@@ -9180,7 +9203,7 @@ proto.google.protobuf.Value.prototype.hasNullValue = function() {
   return null != jspb.Message.getField(this, 1);
 };
 proto.google.protobuf.Value.prototype.getNumberValue = function() {
-  return +jspb.Message.getFieldWithDefault(this, 2, 0.0);
+  return jspb.Message.getFloatingPointFieldWithDefault(this, 2, 0.0);
 };
 proto.google.protobuf.Value.prototype.setNumberValue = function(value) {
   jspb.Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], value);
@@ -9204,7 +9227,7 @@ proto.google.protobuf.Value.prototype.hasStringValue = function() {
   return null != jspb.Message.getField(this, 3);
 };
 proto.google.protobuf.Value.prototype.getBoolValue = function() {
-  return jspb.Message.getFieldWithDefault(this, 4, !1);
+  return jspb.Message.getBooleanFieldWithDefault(this, 4, !1);
 };
 proto.google.protobuf.Value.prototype.setBoolValue = function(value) {
   jspb.Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], value);
@@ -14055,6 +14078,15 @@ ee.data.setApiKey = function(apiKey) {
   ee.data.cloudApiKey_ = apiKey;
 };
 ee.data.cloudApiSymbols.push("setApiKey");
+ee.data.DEFAULT_PROJECT_ = "earthengine-legacy";
+ee.data.setProject = function(project) {
+  ee.data.project_ = project;
+};
+ee.data.cloudApiSymbols.push("setProject");
+ee.data.getProject = function() {
+  return ee.data.project_;
+};
+ee.data.cloudApiSymbols.push("getProject");
 ee.data.setCloudApiEnabled = function(enable) {
   if (enable && !goog.getObjectByName("gapi")) {
     throw Error('Cloud API requires <script src="https://apis.google.com/js/api.js">');
@@ -14116,7 +14148,7 @@ ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl, opt_xsrfToken) {
         resolve();
       });
     }, onerror:reject});
-  }));
+  }), ee.data.setProject(ee.data.DEFAULT_PROJECT_));
   ee.data.initialized_ = !0;
 };
 ee.data.reset = function() {
@@ -14235,9 +14267,9 @@ ee.data.getMapId = function(params, opt_callback) {
     if (goog.isDef(params.version)) {
       throw Error("Image version specification not supported.");
     }
-    var map = {name:null, expression:ee.Serializer.encodeCloudApi(params.image), fileFormat:ee.rpc_convert.fileFormat(params.format), bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params)}, fields = ["name"];
+    var map = {name:null, expression:ee.Serializer.encodeCloudApi(params.image), fileFormat:ee.rpc_convert.fileFormat(params.format), bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params)}, parent = "projects/" + ee.data.getProject(), fields = ["name"];
     return ee.data.sendCloudApiRequest_(function() {
-      return gapi.client.earthengine.maps.create({fields:fields}, map);
+      return gapi.client.earthengine.projects.maps.create({parent:parent, fields:fields}, map);
     }, function(response) {
       return ee.data.makeMapId_(response.name, "", "/v1/{}/tiles", ee.data.cloudApiKey_ ? "?key=" + ee.data.cloudApiKey_ : "");
     }, opt_callback);
@@ -14291,9 +14323,9 @@ ee.data.getThumbId = function(params, opt_callback) {
     if (goog.isDef(params.region)) {
       throw Error('"region" not supported in call to ee.data.getThumbId. Use ee.Image.getThumbURL.');
     }
-    var thumbnail = {name:null, expression:ee.Serializer.encodeCloudApi(params.image), fileFormat:ee.rpc_convert.fileFormat(params.format), bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params), grid:null}, fields = ["name"];
+    var thumbnail = {name:null, expression:ee.Serializer.encodeCloudApi(params.image), fileFormat:ee.rpc_convert.fileFormat(params.format), bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params), grid:null}, fields = ["name"], parent = "projects/" + ee.data.getProject();
     return ee.data.sendCloudApiRequest_(function() {
-      return gapi.client.earthengine.thumbnails.create({fields:fields}, thumbnail);
+      return gapi.client.earthengine.projects.thumbnails.create({parent:parent, fields:fields}, thumbnail);
     }, function(response) {
       return {thumbid:response.name, token:""};
     }, opt_callback);
@@ -16605,7 +16637,7 @@ ee.batch.Export.resolveRegionParam = function(params) {
   if (region instanceof ee.ComputedObject) {
     return region instanceof ee.Element && (region = region.geometry()), new goog.Promise(function(resolve, reject) {
       region.getInfo(function(regionInfo, error) {
-        error ? reject(error) : (params.region = ee.batch.Export.serializeRegion(regionInfo), ee.data.getCloudApiEnabled() && params.type === ee.data.ExportType.IMAGE && (params.region = new ee.Geometry(region), ee.batch.Export.applyTransformsToImage(params)), resolve(params));
+        error ? reject(error) : (params.region = ee.batch.Export.serializeRegion(regionInfo), ee.data.getCloudApiEnabled() && params.type === ee.data.ExportType.IMAGE && (params.region = new ee.Geometry(regionInfo), ee.batch.Export.applyTransformsToImage(params)), resolve(params));
       });
     });
   }
@@ -16695,6 +16727,7 @@ ee.batch.Export.prepareDestination_ = function(taskConfig, destination) {
   return taskConfig;
 };
 ee.batch.Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
+  goog.isDefAndNotNull(taskConfig.fileFormat) || (taskConfig.fileFormat = "GeoTIFF");
   taskConfig = ee.batch.Export.reconcileImageFormat(taskConfig);
   taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
   goog.isDefAndNotNull(taskConfig.crsTransform) && (taskConfig[ee.batch.Export.CRS_TRANSFORM_KEY] = taskConfig.crsTransform, delete taskConfig.crsTransform);
