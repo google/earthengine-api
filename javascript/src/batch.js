@@ -25,7 +25,6 @@ const ExportDestination = ee.data.ExportDestination;
 const ExportType = ee.data.ExportType;
 const GoogPromise = goog.Promise;
 const googArray = goog.array;
-const googAsserts = goog.asserts;
 const googObject = goog.object;
 const json = goog.json;
 
@@ -84,20 +83,20 @@ ee.batch.ExportTask = class {
    * @export
    */
   start(opt_success, opt_error) {
-    googAsserts.assert(
+    goog.asserts.assert(
         this.config_, 'Task config must be specified for tasks to be started.');
 
     // Synchronous task start.
     if (!opt_success) {
       this.id = this.id || ee.data.newTaskId(1)[0];
-      googAsserts.assertString(this.id, 'Failed to obtain task ID.');
+      goog.asserts.assertString(this.id, 'Failed to obtain task ID.');
       ee.data.startProcessing(this.id, this.config_);
       return;
     }
 
     // Asynchronous task start.
     const startProcessing = () => {
-      googAsserts.assertString(this.id);
+      goog.asserts.assertString(this.id);
       ee.data.startProcessing(this.id, this.config_, (_, error) => {
         if (error) {
           opt_error(error);
@@ -402,7 +401,7 @@ ee.batch.Export.serializeRegion = function(region) {
     region = region.toGeoJSON();
   } else if (goog.isString(region)) {
     try {
-      region = googAsserts.assertObject(JSON.parse(region));
+      region = goog.asserts.assertObject(JSON.parse(region));
     } catch (x) {
       throw Error(REGION_ERROR);
     }
@@ -462,11 +461,11 @@ ee.batch.Export.resolveRegionParam = function(params) {
 
 
 /**
- * Encodes region/scale/affine transform/clipping to the server task params.
+ * Encodes region, scale, affine transform, clipping, etc. to the server task
+ * config.
  *
- * @param {!ee.batch.ServerTaskConfig} taskConfig Export parameters which may
- *     contain
- *    parameters which will be baked into a source image.
+ * @param {!ee.batch.ServerTaskConfig} taskConfig Export parameters, some of
+ *     which may be baked into the source image.
  * @return {!ee.batch.ServerTaskConfig}
  */
 ee.batch.Export.applyTransformsToImage = function(taskConfig) {
@@ -490,7 +489,7 @@ ee.batch.Export.extractElement = function(exportArgs) {
   const isInArgs = (key) => key in exportArgs;
   const eeElementKey = ee.batch.Export.EE_ELEMENT_KEYS.find(isInArgs);
   // Sanity check that the Image/Collection/Table was provided.
-  googAsserts.assert(
+  goog.asserts.assert(
       googArray.count(ee.batch.Export.EE_ELEMENT_KEYS, isInArgs) === 1,
       'Expected a single "image" or "collection" key.');
   const element = exportArgs[eeElementKey];

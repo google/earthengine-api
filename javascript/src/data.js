@@ -218,9 +218,8 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
 ee.data.authenticateViaPrivateKey = function(
     privateKey, opt_success, opt_error, opt_extraScopes) {
 
-  // Verify that the Node.js global object exists, to ensure this process is not
-  // running in the browser.
-  if (typeof process === 'undefined') {
+  // Verify that the context is Node.js, not a web browser.
+  if ('window' in goog.global) {
     throw new Error(
         'Use of private key authentication in the browser is insecure. ' +
         'Consider using OAuth, instead.');

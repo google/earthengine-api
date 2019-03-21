@@ -5,8 +5,8 @@
  * Configure the imagery
  */
 
-// These Sentinel-1 images track the major flooding in Kerala during the 2018
-// monsoon season: https://en.wikipedia.org/wiki/2018_Kerala_floods
+// These Sentinel-1 images track the major flooding in Myanmar during the 2018
+// monsoon season: https://www.bbc.com/news/world-asia-44962585
 var images = {
   '2018-07-21': getWeeklySentinelComposite('2018-07-21'),
   '2018-07-28': getWeeklySentinelComposite('2018-07-28'),

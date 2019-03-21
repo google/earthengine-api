@@ -15,7 +15,7 @@ function maskL8sr(image) {
   var mask = qa.bitwiseAnd(cloudShadowBitMask).eq(0)
       .and(qa.bitwiseAnd(cloudsBitMask).eq(0));
 
-  // Return the masked image, scaled to TOA reflectance, without the QA bands.
+  // Return the masked image, scaled to reflectance, without the QA bands.
   return image.updateMask(mask).divide(10000)
       .select("B[0-9]*")
       .copyProperties(image, ["system:time_start"]);
