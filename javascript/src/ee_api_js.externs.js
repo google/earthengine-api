@@ -607,7 +607,7 @@ ee.ImageCollection.prototype.first = function() {
  * @param {function(string, string=): ?=} opt_callback
  * @return {(string|undefined)}
  */
-ee.ImageCollection.prototype.getAnimatedThumbURL = function(params, opt_callback) {
+ee.ImageCollection.prototype.getFilmstripThumbURL = function(params, opt_callback) {
 };
 /**
  * @param {function(!ee.data.ImageCollectionDescription, string=): ?=} opt_callback
@@ -627,7 +627,7 @@ ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
  * @param {function(string, string=): ?=} opt_callback
  * @return {(string|undefined)}
  */
-ee.ImageCollection.prototype.getTiledThumbURL = function(params, opt_callback) {
+ee.ImageCollection.prototype.getVideoThumbURL = function(params, opt_callback) {
 };
 /**
  * @param {!Array<(number|string)>} selectors

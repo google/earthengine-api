@@ -11076,19 +11076,22 @@ goog.html.SafeHtml.createWithDir = function(dir, tagName, opt_attributes, opt_co
   html.dir_ = dir;
   return html;
 };
-goog.html.SafeHtml.concat = function(var_args) {
-  var dir = goog.i18n.bidi.Dir.NEUTRAL, content = "", addArgument = function(argument) {
+goog.html.SafeHtml.join = function(separator, parts) {
+  var separatorHtml = goog.html.SafeHtml.htmlEscape(separator), dir = separatorHtml.getDirection(), content = [], addArgument = function(argument) {
     if (goog.isArray(argument)) {
       goog.array.forEach(argument, addArgument);
     } else {
       var html = goog.html.SafeHtml.htmlEscape(argument);
-      content += goog.html.SafeHtml.unwrap(html);
+      content.push(goog.html.SafeHtml.unwrap(html));
       var htmlDir = html.getDirection();
       dir == goog.i18n.bidi.Dir.NEUTRAL ? dir = htmlDir : htmlDir != goog.i18n.bidi.Dir.NEUTRAL && dir != htmlDir && (dir = null);
     }
   };
-  goog.array.forEach(arguments, addArgument);
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content, dir);
+  goog.array.forEach(parts, addArgument);
+  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content.join(goog.html.SafeHtml.unwrap(separatorHtml)), dir);
+};
+goog.html.SafeHtml.concat = function(var_args) {
+  return goog.html.SafeHtml.join(goog.html.SafeHtml.EMPTY, Array.prototype.slice.call(arguments));
 };
 goog.html.SafeHtml.concatWithDir = function(dir, var_args) {
   var html = goog.html.SafeHtml.concat(goog.array.slice(arguments, 1));
@@ -16542,18 +16545,21 @@ ee.ImageCollection.reset = function() {
   ee.ApiFunction.clearApi(ee.ImageCollection);
   ee.ImageCollection.initialized_ = !1;
 };
-ee.ImageCollection.prototype.getTiledThumbURL = function(params, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getTiledThumbURL, arguments);
+ee.ImageCollection.prototype.getFilmstripThumbURL = function(params, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getFilmstripThumbURL, arguments);
   return ee.ImageCollection.prototype.getThumbURL_(this, args, ["png", "jpg", "jpeg"], opt_callback);
 };
-ee.ImageCollection.prototype.getAnimatedThumbURL = function(params, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getAnimatedThumbURL, arguments);
+ee.ImageCollection.prototype.getVideoThumbURL = function(params, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getVideoThumbURL, arguments);
   return ee.ImageCollection.prototype.getThumbURL_(this, args, ["gif"], opt_callback);
 };
 ee.ImageCollection.prototype.getThumbURL_ = function(collection, args, validFormats, opt_callback) {
   var extraParams = {}, clippedCollection = collection.map(function(image) {
-    return ee.data.images.applySelectionAndScale(image, args.params, extraParams);
-  }), request = {}, visParams = ee.data.images.extractVisParams(extraParams, request), visColl = clippedCollection.map(function(image) {
+    var projected = ee.data.images.applyCrsAndTransform(image, args.params);
+    return ee.data.images.applySelectionAndScale(projected, args.params, extraParams);
+  }), request = {}, visParams = ee.data.images.extractVisParams(extraParams, request);
+  goog.isDefAndNotNull(args.params.dimensions) && (request.dimensions = args.params.dimensions);
+  var visColl = clippedCollection.map(function(image) {
     visParams.image = image;
     return ee.ApiFunction._apply("Image.visualize", visParams);
   });
