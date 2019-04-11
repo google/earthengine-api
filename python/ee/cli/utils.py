@@ -21,6 +21,13 @@ import oauth2client.client
 
 import ee
 
+try:                     # Python 3.x
+  import urllib.parse
+  urlencode = urllib.parse.urlencode
+except ImportError:      # Python 2.x
+  import urllib
+  urlencode = urllib.urlencode
+
 HOMEDIR = os.path.expanduser('~')
 EE_CONFIG_FILE = 'EE_CONFIG_FILE'
 DEFAULT_EE_CONFIG_FILE_RELATIVE = os.path.join(
@@ -247,7 +254,7 @@ def _gcs_ls(bucket, prefix=''):
       params['pageToken'] = next_page_token
     if prefix:
       params['prefix'] = prefix
-    payload = urllib.urlencode(params)
+    payload = urlencode(params)
 
     url = base_url + '?' + payload
     try:
