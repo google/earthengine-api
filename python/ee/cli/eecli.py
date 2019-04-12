@@ -22,22 +22,7 @@ from ee.cli import utils
 
 class CommandDispatcher(commands.Dispatcher):
   name = 'main'
-
-  COMMANDS = [
-      commands.AuthenticateCommand,
-      commands.AclCommand,
-      commands.AssetCommand,
-      commands.CopyCommand,
-      commands.CreateCommand,
-      commands.ListCommand,
-      commands.SizeCommand,
-      commands.MoveCommand,
-      commands.RmCommand,
-      commands.TaskCommand,
-      commands.UploadCommand,
-      commands.UploadImageManifestCommand,
-      commands.UploadTableManifestCommand,
-  ]
+  COMMANDS = commands.EXTERNAL_COMMANDS
 
 
 def main():

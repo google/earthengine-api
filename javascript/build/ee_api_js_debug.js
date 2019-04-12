@@ -482,7 +482,10 @@ $jscomp.polyfill("WeakMap", function(NativeWeakMap) {
   function WeakMapMembership() {
   }
   function insert(target) {
-    $jscomp.owns(target, prop) || $jscomp.defineProperty(target, prop, {value:new WeakMapMembership});
+    if (!$jscomp.owns(target, prop)) {
+      var obj = new WeakMapMembership;
+      $jscomp.defineProperty(target, prop, {value:obj});
+    }
   }
   function patch(name) {
     var prev = Object[name];
@@ -691,6 +694,7 @@ goog.define = function(name, defaultValue) {
   goog.exportPath_(name, defaultValue);
   return defaultValue;
 };
+goog.FEATURESET_YEAR = 2012;
 goog.DEBUG = !0;
 goog.LOCALE = "en";
 goog.TRUSTED_SITE = !0;
@@ -776,7 +780,6 @@ goog.declareModuleId = function(namespace) {
     goog.loadedModules_[namespace] = {exports:exports, type:goog.ModuleType.ES6, moduleId:namespace};
   }
 };
-goog.module.declareNamespace = goog.declareModuleId;
 goog.setTestOnly = function(opt_message) {
   if (goog.DISALLOW_TEST_ONLY_CODE) {
     throw opt_message = opt_message || "", Error("Importing test-only code into non-debug environment" + (opt_message ? ": " + opt_message : "."));
@@ -8460,6 +8463,8 @@ jspb.Message.prototype.getJsPbMessageId = function() {
 jspb.Message.getIndex_ = function(msg, fieldNumber) {
   return fieldNumber + msg.arrayIndexOffset_;
 };
+jspb.Message.hiddenES6Property_ = function() {
+};
 jspb.Message.getFieldNumber_ = function(msg, index) {
   return index - msg.arrayIndexOffset_;
 };
@@ -10609,6 +10614,9 @@ goog.html.SafeUrl.fromConstant = function(url) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
 };
 goog.html.SAFE_MIME_TYPE_PATTERN_ = /^(?:audio\/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-wav|wav|webm)|image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon)|text\/csv|video\/(?:mpeg|mp4|ogg|webm|quicktime))$/i;
+goog.html.SafeUrl.isSafeMimeType = function(mimeType) {
+  return goog.html.SAFE_MIME_TYPE_PATTERN_.test(mimeType);
+};
 goog.html.SafeUrl.fromBlob = function(blob) {
   var url = goog.html.SAFE_MIME_TYPE_PATTERN_.test(blob.type) ? goog.fs.url.createObjectUrl(blob) : goog.html.SafeUrl.INNOCUOUS_STRING;
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
@@ -14207,7 +14215,6 @@ ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl, opt_xsrfToken) {
       var discoveryDoc = Object.assign({}, googleapidiscovery.earthengine.v1.rest, {rootUrl:ee.data.apiBaseUrl_.replace(/\/api$/, "")});
       gapi.client.init({apiKey:ee.data.cloudApiKey_, discoveryDocs:[discoveryDoc]}).then(function() {
         ee.data.cloudApiReady_ = !0;
-        gapi.client.earthengine.v1 = gapi.client.earthengine;
         gapi.config.update("client/headers/request", [ee.data.PROFILE_REQUEST_HEADER]);
         resolve();
       });
@@ -14497,7 +14504,8 @@ ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
     return params;
   }
   function inner(callback, opt_pageToken) {
-    ee.data.send_("/tasklist", ee.data.makeRequest_(buildParams(opt_pageToken)), function(resp, err) {
+    var params = buildParams(opt_pageToken);
+    ee.data.send_("/tasklist", ee.data.makeRequest_(params), function(resp, err) {
       err ? callback(taskListResponse, err) : (goog.array.extend(taskListResponse.tasks, resp.tasks), !resp.next_page_token || opt_limit && taskListResponse.tasks.length >= opt_limit ? callback(taskListResponse) : inner(callback, resp.next_page_token));
     }, "GET");
   }
@@ -14514,7 +14522,7 @@ ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
     return inner(opt_callback), null;
   }
   for (var nextPageToken = "";;) {
-    var resp = ee.data.send_("/tasklist", ee.data.makeRequest_(buildParams(nextPageToken)), void 0, "GET");
+    var params$jscomp$0 = buildParams(nextPageToken), resp = ee.data.send_("/tasklist", ee.data.makeRequest_(params$jscomp$0), void 0, "GET");
     goog.array.extend(taskListResponse.tasks, resp.tasks);
     nextPageToken = resp.next_page_token;
     if (!resp.next_page_token || opt_limit && taskListResponse.tasks.length >= opt_limit) {
@@ -14588,31 +14596,31 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
       case ee.data.ExportType.IMAGE:
         var imageRequest = ee.rpc_convert_batch.taskToExportImageRequest(params);
         var callApi = function() {
-          return gapi.client.earthengine.v1.exportImage(imageRequest);
+          return gapi.client.earthengine.exportImage(imageRequest);
         };
         break;
       case ee.data.ExportType.TABLE:
         var tableRequest = ee.rpc_convert_batch.taskToExportTableRequest(params);
         callApi = function() {
-          return gapi.client.earthengine.v1.exportTable(tableRequest);
+          return gapi.client.earthengine.exportTable(tableRequest);
         };
         break;
       case ee.data.ExportType.VIDEO:
         var videoRequest = ee.rpc_convert_batch.taskToExportVideoRequest(params);
         callApi = function() {
-          return gapi.client.earthengine.v1.exportVideo(videoRequest);
+          return gapi.client.earthengine.exportVideo(videoRequest);
         };
         break;
       case ee.data.ExportType.MAP:
         var mapRequest = ee.rpc_convert_batch.taskToExportMapRequest(params);
         callApi = function() {
-          return gapi.client.earthengine.v1.exportMap(mapRequest);
+          return gapi.client.earthengine.exportMap(mapRequest);
         };
         break;
       case ee.data.ExportType.VIDEO_MAP:
         var videoMapRequest = ee.rpc_convert_batch.taskToExportVideoMapRequest(params);
         callApi = function() {
-          return gapi.client.earthengine.v1.exportVideoMap(videoMapRequest);
+          return gapi.client.earthengine.exportVideoMap(videoMapRequest);
         };
         break;
       default:
@@ -14690,13 +14698,13 @@ ee.data.listImages = function(body, opt_callback) {
 ee.data.cloudApiSymbols.push("listImages");
 ee.data.listBuckets = function(opt_callback) {
   return ee.data.sendCloudApiRequest_(function() {
-    return gapi.client.earthengine.v1.listBuckets({});
+    return gapi.client.earthengine.listBuckets({});
   }, null, opt_callback);
 };
 ee.data.cloudApiSymbols.push("listBuckets");
 ee.data.getAssetRoots = function(opt_callback) {
   return ee.data.cloudApiEnabled_ ? ee.data.sendCloudApiRequest_(function() {
-    return gapi.client.earthengine.v1.listBuckets({});
+    return gapi.client.earthengine.listBuckets({});
   }, ee.rpc_convert.listBucketsToGetList, opt_callback) : ee.data.send_("/buckets", null, opt_callback, "GET");
 };
 ee.data.createAssetHome = function(requestedId, opt_callback) {
@@ -17661,7 +17669,13 @@ goog.events.EventHandler.prototype.handleEvent = function(e) {
 goog.fs.DOMErrorLike = function() {
 };
 goog.fs.Error = function(error, action) {
-  goog.isDef(error.name) ? (this.name = error.name, this.code = goog.fs.Error.getCodeFromName_(error.name)) : (this.code = goog.asserts.assertNumber(error.code), this.name = goog.fs.Error.getNameFromCode_(error.code));
+  if (goog.isDef(error.name)) {
+    this.name = error.name, this.code = goog.fs.Error.getCodeFromName_(error.name);
+  } else {
+    var code = goog.asserts.assertNumber(error.code);
+    this.code = code;
+    this.name = goog.fs.Error.getNameFromCode_(code);
+  }
   goog.debug.Error.call(this, goog.string.subs("%s %s", this.name, action));
 };
 goog.inherits(goog.fs.Error, goog.debug.Error);

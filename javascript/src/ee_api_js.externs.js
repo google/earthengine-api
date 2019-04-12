@@ -3,8 +3,8 @@
  * @externs
  */
 /**
- @const
- @suppress {const,duplicate}
+ * @const
+ * @suppress {const,duplicate}
  */
 var ee = {};
 /**
@@ -1370,8 +1370,8 @@ ee.data.withProfiling = function(hook, body, opt_this) {
 ee.initialize = function(opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback, opt_xsrfToken) {
 };
 /**
- @const
- @suppress {const,duplicate}
+ * @const
+ * @suppress {const,duplicate}
  */
 ee.layers = {};
 /**

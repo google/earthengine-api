@@ -579,9 +579,7 @@ class CopyCommand(object):
         'source', help='Full path of the source asset.')
     parser.add_argument(
         'destination', help='Full path of the destination asset.')
-    parser.add_argument(
-        '--force', action='store_true', help=(
-            'Overwrite any existing version of the asset.'))
+    _add_overwrite_arg(parser)
 
   def run(self, args, config):
     """Runs the asset copy."""
@@ -1207,9 +1205,9 @@ class UploadTableCommand(object):
     _add_overwrite_arg(parser)
     parser.add_argument(
         'src_file',
-        help=('Cloud Storage URL of the .zip or .shp file '
-        'to upload. Must have the prefix \'gs://\'. For .shp '
-        'files, related .dbf, .shx, and .prj files must be '
+        help=('Cloud Storage URL of the .csv, .tfrecord, .shp, or '
+        '.zip file to upload. Must have the prefix \'gs://\'. For '
+        '.shp files, related .dbf, .shx, and .prj files must be '
         'present in the same location.'),
         nargs='*')
     parser.add_argument(
@@ -1290,7 +1288,9 @@ class UploadTableCommand(object):
     parser.add_argument(
         '--csv_qualifier',
         help='A character that surrounds column values (a.k.a. '
-             '\"quote character"). If unspecified, defaults to \'\"\'.')
+             '\'quote character\'). If unspecified, defaults to \'"\'. A '
+             'column value may include the qualifier as a literal character by '
+             'having 2 consecutive qualifier characters. For CSV only.')
     parser.add_argument(
         '--manifest',
         help='Local path to a JSON asset manifest file. No other flags are '
@@ -1432,3 +1432,19 @@ class UploadTableManifestCommand(_UploadManifestBase):
         args, config, ee.data.startTableIngestion)
 
 
+
+EXTERNAL_COMMANDS = [
+    AuthenticateCommand,
+    AclCommand,
+    AssetCommand,
+    CopyCommand,
+    CreateCommand,
+    ListCommand,
+    SizeCommand,
+    MoveCommand,
+    RmCommand,
+    TaskCommand,
+    UploadCommand,
+    UploadImageManifestCommand,
+    UploadTableManifestCommand,
+]
