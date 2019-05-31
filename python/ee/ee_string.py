@@ -69,3 +69,8 @@ class String(computedobject.ComputedObject):
     else:
       return self._string.encode(opt_encoder)
 
+  def encode_cloud_value(self, opt_encoder=None):
+    if isinstance(self._string, six.string_types):
+      return {'constantValue': self._string}
+    else:
+      return self._string.encode_cloud_value(opt_encoder)

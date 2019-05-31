@@ -3,27 +3,6 @@
  *   the Global Surface Water tutorial, page 2.
  */
 
-// [START initial_script]
-var gsw = ee.Image('JRC/GSW1_0/GlobalSurfaceWater');
-var occurrence = gsw.select('occurrence');
-Map.addLayer(occurrence);
-// [END initial_script]
-
-// [START addLayer_occurrence_v1]
-Map.addLayer({
-    eeObject: occurrence,
-    name: "Water Occurrence (1984-2015)"
-});
-// [END addLayer_occurrence_v1]
-
-// [START addLayer_watermask]
-Map.addLayer({
-  eeObject: water_mask,
-  visParams: VIS_WATER_MASK,
-  name: '90% occurrence water mask'
-});
-// [END addLayer_watermask]
-
 // [START final_script]
 //////////////////////////////////////////////////////////////
 // Asset List
@@ -95,3 +74,21 @@ Map.addLayer({
 });
 // [END addLayer_occurrence_v2]
 // [START final_script]
+
+// [START initial_script]
+var gsw = ee.Image('JRC/GSW1_0/GlobalSurfaceWater');
+var occurrence = gsw.select('occurrence');
+Map.addLayer(occurrence);
+// [END initial_script]
+
+// [START addLayer_occurrence_v1]
+Map.addLayer({eeObject: occurrence, name: 'Water Occurrence (1984-2015)'});
+// [END addLayer_occurrence_v1]
+
+// [START addLayer_watermask]
+Map.addLayer({
+  eeObject: water_mask,
+  visParams: VIS_WATER_MASK,
+  name: '90% occurrence water mask'
+});
+// [END addLayer_watermask]

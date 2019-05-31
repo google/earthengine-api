@@ -217,6 +217,31 @@ class Image(element.Element):
     request['image'] = self.serialize()
     return data.makeDownloadUrl(data.getDownloadId(request))
 
+  def getThumbId(self, params):
+    """Applies transformations and returns the thumbId.
+
+    Args:
+      params: Parameters identical to getMapId, plus, optionally:
+          dimensions - (a number or pair of numbers in format WIDTHxHEIGHT) Max
+            dimensions of the thumbnail to render, in pixels. If only one number
+            is passed, it is used as the maximum, and the other dimension is
+            computed by proportional scaling.
+          region - (E,S,W,N or GeoJSON) Geospatial region of the image
+            to render. By default, the whole image.
+          format - (string) Either 'png' or 'jpg'.
+
+    Returns:
+      A thumbId for the created thumbnail.
+
+    Raises:
+      EEException: If the region parameter is not an array or GeoJSON object.
+    """
+    image, params = self._apply_crs_and_affine(params)
+    image, params = image._apply_selection_and_scale(params)  # pylint: disable=protected-access
+    image, params = image._apply_visualization(params)  # pylint: disable=protected-access
+    params['image'] = image
+    return data.getThumbId(params)
+
   def getThumbURL(self, params=None):
     """Get a thumbnail URL for this image.
 
@@ -236,6 +261,11 @@ class Image(element.Element):
     Raises:
       EEException: If the region parameter is not an array or GeoJSON object.
     """
+    # If the Cloud API is enabled, we can do cleaner handling of the parameters.
+    # If it isn't enabled, we have to be bug-for-bug compatible with current
+    # behaviour.
+    if data._use_cloud_api:  # pylint: disable=protected-access
+      return data.makeThumbUrl(self.getThumbId(params))
     image, params = self._apply_visualization(params)
     params['image'] = image
     if 'region' in params:
@@ -400,6 +430,8 @@ class Image(element.Element):
       def encode_invocation(self, encoder):
         return body.encode(encoder)
 
+      def encode_cloud_invocation(self, encoder):
+        return {'functionReference': encoder(body)}
 
       def getSignature(self):
         return {
@@ -465,3 +497,15 @@ class Image(element.Element):
     return 'Image'
 
 
+def _parse_dimensions(dimensions):
+  """Parses a dimensions specification into a one or two element list."""
+  if ee_types.isNumber(dimensions):
+    return [dimensions]
+  elif isinstance(dimensions, six.string_types):
+    # Unpack WIDTHxHEIGHT
+    return [int(x) for x in dimensions.split('x')]
+  elif isinstance(dimensions, (list, tuple)) and 1 <= len(dimensions) <= 2:
+    return dimensions
+
+  raise ee_exception.EEException(
+      'Invalid dimensions {}.'.format(dimensions))

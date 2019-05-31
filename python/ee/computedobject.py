@@ -119,22 +119,43 @@ class ComputedObject(six.with_metaclass(
           key: func
       }
 
+  def encode_cloud_value(self, encoder):
+    if self.isVariable():
+      return {'argumentReference': self.varName}
+    else:
+      if isinstance(self.func, six.string_types):
+        invocation = {'functionName': self.func}
+      else:
+        invocation = self.func.encode_cloud_invocation(encoder)
+
+      # Encode all arguments recursively.
+      encoded_args = {}
+      for name in sorted(self.args):
+        value = self.args[name]
+        if value is not None:
+          encoded_args[name] = {'valueReference': encoder(value)}
+      invocation['arguments'] = encoded_args
+      return {'functionInvocationValue': invocation}
 
   def serialize(
       self,
-      opt_pretty=False
+      opt_pretty=False,
+      for_cloud_api=False
   ):
     """Serialize this object into a JSON string.
 
     Args:
       opt_pretty: A flag indicating whether to pretty-print the JSON.
+      for_cloud_api: Whether the encoding should be done for the Cloud API
+        or the legacy API.
 
     Returns:
       The serialized representation of this object.
     """
     return serializer.toJSON(
         self,
-        opt_pretty
+        opt_pretty,
+        for_cloud_api=for_cloud_api
     )
 
   def __str__(self):

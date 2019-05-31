@@ -2,7 +2,7 @@
 """The EE Python library."""
 
 
-__version__ = '0.1.175'
+__version__ = '0.1.178'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -76,7 +76,8 @@ def Initialize(
     credentials='persistent',
     opt_url=None,
     use_cloud_api=False,
-    cloud_api_key=None):
+    cloud_api_key=None,
+    http_transport=None):
   """Initialize the EE library.
 
   If this hasn't been called by the time any object constructor is used,
@@ -91,6 +92,7 @@ def Initialize(
     opt_url: The base url for the EarthEngine REST API to connect to.
     use_cloud_api: Whether the Cloud API should be used.
     cloud_api_key: An optional API key to use the Cloud API.
+    http_transport: The http transport method to use when making requests.
   """
   if credentials == 'persistent':
     credentials = _GetPersistentCredentials()
@@ -100,7 +102,8 @@ def Initialize(
       tile_base_url=opt_url,
       use_cloud_api=use_cloud_api,
       cloud_api_base_url=opt_url,
-      cloud_api_key=cloud_api_key)
+      cloud_api_key=cloud_api_key,
+      http_transport=http_transport)
   # Initialize the dynamically loaded functions on the objects that want them.
   ApiFunction.initialize()
   Element.initialize()

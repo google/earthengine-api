@@ -148,3 +148,26 @@ ee.Types.isRegularObject = function(obj) {
     return false;
   }
 };
+
+/**
+ * Assume keyword arguments if we get a single dictionary.
+ * @param {!Array<?>} args actual arguments to function call
+ * @param {!ee.Function.Signature} signature
+ * @param {boolean=} isInstance true if function is invoked on existing instance
+ * @return {boolean} true if the first element of args should be treated as a
+ *     dictionary of keyword arguments.
+ */
+ee.Types.useKeywordArgs = function(args, signature, isInstance = false) {
+  if (args.length === 1 && ee.Types.isRegularObject(args[0])) {
+    let formalArgs = signature['args'];
+    if (isInstance) {
+      formalArgs = formalArgs.slice(1);
+    }
+    if (formalArgs.length) {
+      const requiresOneArg =
+          formalArgs.length === 1 || formalArgs[1]['optional'];
+      return !requiresOneArg || formalArgs[0]['type'] !== 'Dictionary';
+    }
+  }
+  return false;
+};

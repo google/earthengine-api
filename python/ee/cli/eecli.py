@@ -36,9 +36,16 @@ def main():
       '--service_account_file', help='Path to a service account credentials'
       'file.  Overrides any ee_config if specified.')
   parser.add_argument(
-      '--use_cloud_api', help='Experimental: whether to use new EE Cloud API. '
-      'Not for broad use yet, as many calls have not been ported.',
-      action='store_true')
+      '--use_cloud_api',
+      help='Enables the new experimental EE Cloud API backend. (on by default)',
+      action='store_true',
+      dest='use_cloud_api')
+  parser.add_argument(
+      '--no-use_cloud_api',
+      help='Disables the new experimental EE Cloud API backend.',
+      action='store_false',
+      dest='use_cloud_api')
+  parser.set_defaults(use_cloud_api=True)
 
   dispatcher = CommandDispatcher(parser)
 
@@ -50,6 +57,12 @@ def main():
   args = parser.parse_args()
   config = utils.CommandLineConfig(
       args.ee_config, args.service_account_file, args.use_cloud_api)
+
+  # TODO(user): Remove this warning once things are officially launched
+  #  and the old API is removed.
+  if args.use_cloud_api:
+    print('Running command using Cloud API.  Set --no-use_cloud_api to '
+          'go back to using the API')
 
   # Catch EEException errors, which wrap server-side Earth Engine
   # errors, and print the error message without the irrelevant local

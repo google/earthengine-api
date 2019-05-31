@@ -82,12 +82,8 @@ ee.layers.CloudStorageTileSource.prototype.getUniqueId = function() {
  */
 ee.layers.CloudStorageTileSource.prototype.getTileUrl_ = function(coord, zoom) {
   var url = goog.string.path.join(
-      ee.layers.CloudStorageTileSource.BASE_URL_,
-      this.bucket_,
-      this.path_,
-      String(zoom),
-      String(coord.x),
-      String(coord.y));
+      ee.layers.CloudStorageTileSource.BASE_URL, this.bucket_, this.path_,
+      String(zoom), String(coord.x), String(coord.y));
   if (this.suffix_) {
     url += this.suffix_;
   }
@@ -130,8 +126,8 @@ ee.layers.CloudStorageTileSource.zoomTileRenderer_ = function(maxZoom, tile) {
 };
 
 
-/** @const @private {string} The Cloud Storage content base URL. */
-ee.layers.CloudStorageTileSource.BASE_URL_ = 'https://storage.googleapis.com';
+/** @const {string} The Cloud Storage content base URL. */
+ee.layers.CloudStorageTileSource.BASE_URL = 'https://storage.googleapis.com';
 
 
 /**

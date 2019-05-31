@@ -64,3 +64,8 @@ class List(computedobject.ComputedObject):
     else:
       return super(List, self).encode(opt_encoder)
 
+  def encode_cloud_value(self, opt_encoder=None):
+    if isinstance(self._list, (list, tuple)):
+      return {'valueReference': opt_encoder(self._list)}
+    else:
+      return super(List, self).encode_cloud_value(opt_encoder)

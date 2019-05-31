@@ -64,3 +64,8 @@ class Dictionary(computedobject.ComputedObject):
     else:
       return super(Dictionary, self).encode(opt_encoder)
 
+  def encode_cloud_value(self, opt_encoder=None):
+    if self._dictionary is not None:
+      return {'valueReference': opt_encoder(self._dictionary)}
+    else:
+      return super(Dictionary, self).encode_cloud_value(opt_encoder)

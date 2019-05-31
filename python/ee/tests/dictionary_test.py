@@ -20,6 +20,13 @@ class DictionaryTest(apitestcase.ApiTestCase):
         'value': src
     },
                      ee.Serializer(False)._encode(dictionary))
+    self.assertEqual({'constantValue': {
+        'a': 1,
+        'b': 2,
+        'c': 'three'
+    }},
+                     ee.Serializer(False,
+                                   for_cloud_api=True)._encode(dictionary))
 
     f = ee.Feature(None, {'properties': src})
     computed = ee.Dictionary(f.get('properties'))

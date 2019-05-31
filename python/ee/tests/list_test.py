@@ -43,6 +43,9 @@ class ListTest(apitestcase.ApiTestCase):
     expected_function = ee.CustomFunction(sig, body)
     self.assertEqual(expected_function.serialize(),
                      mapped.args['baseAlgorithm'].serialize())
+    self.assertEqual(
+        expected_function.serialize(for_cloud_api=True),
+        mapped.args['baseAlgorithm'].serialize(for_cloud_api=True))
 
   def testInternals(self):
     """Test eq(), ne() and hash()."""

@@ -75,6 +75,11 @@ class GeometryTest(apitestcase.ApiTestCase):
     })
     self.assertTrue(isinstance(geometry, ee.Geometry))
 
+  def testInvalid_Point(self):
+    """Verifies Point constructor behavior with invalid arguments."""
+    f = ee.Geometry.Point
+    self.assertInvalid(f, 'Invalid geometry', ['-78.204948', '40.966539'])
+
   def testInvalid_MultiPoint(self):
     """Verifies MultiPoint constructor behavior with invalid arguments."""
     f = ee.Geometry.MultiPoint

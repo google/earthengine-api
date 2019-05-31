@@ -147,6 +147,11 @@ def _timestamp_ms_for_datetime(datetime_obj):
       datetime_obj.microsecond / 1000)
 
 
+def _cloud_timestamp_for_timestamp_ms(timestamp_ms):
+  """Returns a Cloud-formatted date for the given millisecond timestamp."""
+  # Desired format is like '2003-09-07T19:30:12.345Z'
+  return datetime.datetime.utcfromtimestamp(
+      timestamp_ms / 1000.0).isoformat() + 'Z'
 
 
 def _decode_date(string):
@@ -552,6 +557,33 @@ class AssetSetCommand(object):
     properties = _decode_property_flags(args)
     if not properties and args.time_start is None and args.time_end is None:
       raise ee.EEException('No properties specified.')
+    if config.use_cloud_api:
+      update_mask = [
+          'properties.' + property_name for property_name in properties
+      ]
+      asset = {}
+      if properties:
+        asset['properties'] = {
+            k: v for k, v in six.iteritems(properties) if v is not None
+        }
+      # args.time_start and .time_end could have any of three falsy values, with
+      # different meanings:
+      # None: the --time_start flag was not provided at all
+      # '': the --time_start flag was explicitly set to the empty string
+      # 0: the --time_start flag was explicitly set to midnight 1 Jan 1970.
+      # pylint:disable=g-explicit-bool-comparison
+      if args.time_start is not None:
+        update_mask.append('start_time')
+        if args.time_start != '':
+          asset['start_time'] = _cloud_timestamp_for_timestamp_ms(
+              args.time_start)
+      if args.time_end is not None:
+        update_mask.append('end_time')
+        if args.time_end != '':
+          asset['end_time'] = _cloud_timestamp_for_timestamp_ms(args.time_end)
+      # pylint:enable=g-explicit-bool-comparison
+      ee.data.updateAsset(args.asset_id, asset, update_mask)
+      return
     properties.update(_decode_timestamp_flags(args))
     ee.data.setAssetProperties(args.asset_id, properties)
 
@@ -794,6 +826,8 @@ class SizeCommand(object):
   def _get_size_asset(self, asset):
     info = ee.data.getInfo(asset['id'])
 
+    if 'sizeBytes' in info:
+      return int(info['sizeBytes'])
     return info['properties']['system:asset_size']
 
   def _get_size_folder(self, asset):

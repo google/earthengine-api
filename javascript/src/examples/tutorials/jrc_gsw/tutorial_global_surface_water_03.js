@@ -3,17 +3,6 @@
  *   the Global Surface Water tutorial, page 3.
  */
 
-// [START histogram_reducer]
-// Calculate a change intensity for the region of interest.
-var histogram = change.reduceRegion({
-  reducer: ee.Reducer.histogram(),
-  geometry: roi,
-  scale: 30,
-  bestEffort: true,
-});
-print(histogram);
-// [END histogram_reducer]
-
 // [START 03_final_script]
 //////////////////////////////////////////////////////////////
 // Asset List
@@ -114,3 +103,14 @@ Map.addLayer({
 });
 // [END addLayer_change_intensity]
 // [END 03_final_script]
+
+// [START histogram_reducer]
+// Calculate a change intensity for the region of interest.
+var histogram = change.reduceRegion({
+  reducer: ee.Reducer.histogram(),
+  geometry: roi,
+  scale: 30,
+  bestEffort: true,
+});
+print(histogram);
+// [END histogram_reducer]

@@ -130,11 +130,12 @@ class CloudApiUtilsTest(unittest.TestCase):
   def test_convert_operation_name_to_task_id(self):
     self.assertEqual(
         'taskId',
-        _cloud_api_utils.convert_operation_name_to_task_id('operations/taskId'))
+        _cloud_api_utils.convert_operation_name_to_task_id(
+            'operations/taskId'))
 
   def test_convert_task_id_to_operation_name(self):
     self.assertEqual(
-        'operations/taskId',
+        'projects/earthengine-legacy/operations/taskId',
         _cloud_api_utils.convert_task_id_to_operation_name('taskId'))
 
   def test_encode_number_as_cloud_value(self):
@@ -224,9 +225,9 @@ class CloudApiUtilsTest(unittest.TestCase):
     }, result)
 
   def test_convert_to_image_file_format(self):
-    self.assertEqual('AUTO_PNG_JPEG',
+    self.assertEqual('AUTO_JPEG_PNG',
                      _cloud_api_utils.convert_to_image_file_format(None))
-    self.assertEqual('AUTO_PNG_JPEG',
+    self.assertEqual('AUTO_JPEG_PNG',
                      _cloud_api_utils.convert_to_image_file_format('auto'))
     self.assertEqual('JPEG',
                      _cloud_api_utils.convert_to_image_file_format('jpg'))

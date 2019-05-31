@@ -87,6 +87,9 @@ class Task(object):
     else:
       raise ee_exception.EEException(
           'Unknown Task type "{}"'.format(self.task_type))
+    if not self.id:
+      self.id = _cloud_api_utils.convert_operation_name_to_task_id(
+          result['name'])
 
   def status(self):
     """Fetches the current status of the task.
@@ -843,6 +846,55 @@ def _prepare_image_export_config(image, config, export_destination):
   _canonicalize_parameters(config, export_destination)
 
   image, config = image.prepare_for_export(config)
+  if data._use_cloud_api:  # pylint: disable=protected-access
+    # Build an ExportImageRequest. Delete values from "config" as we go so we
+    # can check at the end for any leftovers. Any computed objects will be
+    # serialised in data.py before the request is sent.
+    request = {}
+    request['expression'] = image
+    if 'description' in config:
+      request['description'] = config.pop('description')
+
+    if export_destination == Task.ExportDestination.ASSET:
+      asset_export_options = {}
+      asset_export_options[
+          'earthEngineDestination'] = _build_earth_engine_destination(config)
+      if 'pyramidingPolicy' in config:
+        pyramiding_policy = config.pop('pyramidingPolicy')
+        if '.default' in pyramiding_policy:
+          asset_export_options[
+              'pyramidingPolicy'] = pyramiding_policy.pop('.default').upper()
+        if pyramiding_policy:
+          asset_export_options['pyramidingPolicyOverrides'] = {
+              band: policy.upper()
+              for band, policy in six.iteritems(pyramiding_policy)
+          }
+      request['assetExportOptions'] = asset_export_options
+    else:
+      request['fileExportOptions'] = _build_image_file_export_options(
+          config, export_destination)
+
+    if 'maxPixels' in config:
+      # This field is an Int64Value, so it needs an inner "value" field, and
+      # the value itself is a string, not an integer, in the JSON encoding.
+      request['maxPixels'] = {'value': str(config.pop('maxPixels'))}
+
+    # Of the remaining fields in ExportImageRequest:
+    # - All the values that would go into the PixelGrid should have been folded
+    #   into the image's Expression.
+    # - The request ID will be populated when the Task is created.
+
+    if 'shardSize' in config:
+      raise ee_exception.EEException(
+          'shardSize is not supported with the Cloud API.')
+
+    # We've been deleting config parameters as we handle them. Anything left
+    # over is a problem.
+    if config:
+      raise ee_exception.EEException(
+          'Unknown configuration options: {}.'.format(config))
+
+    return request
   if export_destination != Task.ExportDestination.ASSET:
     ConvertFormatSpecificParams(config)
 
@@ -876,6 +928,22 @@ def _prepare_map_export_config(image, config):
   if 'writePublicTiles' not in config:
     config['writePublicTiles'] = True
 
+  if data._use_cloud_api:  # pylint: disable=protected-access
+    # Build an ExportMapRequest. Delete values from "config" as we go so we
+    # can check at the end for any leftovers. Any computed objects will be
+    # serialised in data.py before the request is sent.
+    request = {}
+    request['expression'] = image
+    if 'description' in config:
+      request['description'] = config.pop('description')
+
+    request['tileOptions'] = _build_tile_options(config)
+    request['tileExportOptions'] = _build_image_file_export_options(
+        config, Task.ExportDestination.GCS)
+    if config:
+      raise ee_exception.EEException(
+          'Unknown configuration options: {}.'.format(config))
+    return request
   config.update(_ConvertConfigParams(config))
   config['json'] = image.serialize()
 
@@ -899,6 +967,32 @@ def _prepare_table_export_config(collection, config, export_destination):
 
   _canonicalize_parameters(config, export_destination)
 
+  if data._use_cloud_api:  # pylint: disable=protected-access
+    # Build an ExportMapRequest. Delete values from "config" as we go so we
+    # can check at the end for any leftovers. Any computed objects will be
+    # serialised in data.py before the request is sent.
+    request = {}
+    request['expression'] = collection
+    if 'description' in config:
+      request['description'] = config.pop('description')
+
+    if export_destination == Task.ExportDestination.ASSET:
+      request['assetExportOptions'] = {
+          'earthEngineDestination': _build_earth_engine_destination(config)
+      }
+    else:
+      request['fileExportOptions'] = _build_table_file_export_options(
+          config, export_destination)
+
+    if 'selectors' in config:
+      # Strings have been turned into lists but we still might be holding a
+      # tuple or other non-list iterable.
+      request['selectors'] = list(config.pop('selectors'))
+
+    if config:
+      raise ee_exception.EEException(
+          'Unknown configuration options: {}.'.format(config))
+    return request
   config.update(_ConvertConfigParams(config))
   config['json'] = collection.serialize()
 
@@ -920,12 +1014,291 @@ def _prepare_video_export_config(collection, config, export_destination):
   if 'crs' not in config:
     config['crs'] = 'SR-ORG:6627'
   collection, config = collection.prepare_for_export(config)
+  if data._use_cloud_api:  # pylint: disable=protected-access
+    request = {}
+    request['expression'] = collection
+    if 'description' in config:
+      request['description'] = config.pop('description')
+
+    video_options = _build_video_options(config)
+    if video_options:
+      request['videoOptions'] = video_options
+
+    request['fileExportOptions'] = _build_video_file_export_options(
+        config, export_destination)
+
+    if config:
+      raise ee_exception.EEException(
+          'Unknown configuration options: {}.'.format(config))
+    return request
   config['json'] = collection.serialize()
   return config
 
 
 
 
+def _build_image_file_export_options(config, export_destination):
+  """Builds an ImageFileExportOptions from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the ImageFileExportOptions.
+    export_destination: One of the Task.ExportDestination values.
+
+  Returns:
+    An ImageFileExportOptions containing information extracted from config.
+  """
+  file_export_options = {}
+
+  file_format = _cloud_api_utils.convert_to_image_file_format(
+      config.pop('fileFormat'))
+  file_export_options['fileFormat'] = file_format
+
+  if export_destination == Task.ExportDestination.DRIVE:
+    file_export_options['driveDestination'] = _build_drive_destination(
+        config)
+  elif export_destination == Task.ExportDestination.GCS:
+    file_export_options[
+        'gcsDestination'] = _build_gcs_destination(
+            config)
+  else:
+    raise ee_exception.EEException(
+        '"{}" is not a valid export destination'.format(export_destination))
+
+  file_format_options = config.pop(IMAGE_FORMAT_OPTIONS_FIELD, {})
+
+  if file_format == 'GEO_TIFF':
+    geo_tiff_options = {}
+    if file_format_options.pop('cloudOptimized', False):
+      geo_tiff_options['cloudOptimized'] = True
+    file_dimensions = file_format_options.pop('fileDimensions', None)
+    if 'fileDimensions' in config:
+      if file_dimensions is not None:
+        raise ee_exception.EEException('File dimensions specified twice.')
+      file_dimensions = config.pop('fileDimensions')
+    if file_dimensions is not None:
+      if isinstance(file_dimensions, six.integer_types):
+        file_dimensions = (file_dimensions, file_dimensions)
+      geo_tiff_options['tileDimensions'] = {
+          'width': file_dimensions[0],
+          'height': file_dimensions[1]
+      }
+    if config.pop('skipEmptyTiles', False):
+      geo_tiff_options['skipEmptyFiles'] = True
+    if geo_tiff_options:
+      file_export_options['geoTiffOptions'] = geo_tiff_options
+  elif file_format == 'TF_RECORD_IMAGE':
+    tf_record_options = {}
+    if 'patchDimensions' in file_format_options:
+      tile_dimensions = file_format_options.pop('patchDimensions')
+      tf_record_options['tileDimensions'] = (
+          _cloud_api_utils.convert_to_grid_dimensions(tile_dimensions))
+    if 'kernelSize' in file_format_options:
+      margin_dimensions = file_format_options.pop('kernelSize')
+      tf_record_options['marginDimensions'] = (
+          _cloud_api_utils.convert_to_grid_dimensions(margin_dimensions))
+    if file_format_options.pop('compressed', False):
+      tf_record_options['compress'] = True
+    if 'maxFileSize' in file_format_options:
+      # This field is an Int64Value, so it needs an inner "value" field, and
+      # the value itself is a string, not an integer, in the JSON encoding.
+      tf_record_options['maxSizeBytes'] = {
+          'value': str(file_format_options.pop('maxFileSize'))
+      }
+    if 'defaultValue' in file_format_options:
+      tf_record_options['defaultValue'] = file_format_options.pop(
+          'defaultValue')
+    if 'tensorDepths' in file_format_options:
+      tensor_depths = file_format_options.pop('tensorDepths')
+      if not isinstance(tensor_depths, dict):
+        # This used to be a list of integers.
+        raise ee_exception.EEException(
+            'tensorDepths must be a map from band name to the depth '
+            'of the tensor for that band')
+      tf_record_options['tensorDepths'] = tensor_depths
+    if file_format_options.pop('sequenceData', False):
+      tf_record_options['sequenceData'] = True
+    if file_format_options.pop('collapseBands', False):
+      tf_record_options['collapseBands'] = True
+    if 'maskedThreshold' in file_format_options:
+      tf_record_options['maxMaskedRatio'] = {
+          'value': file_format_options.pop('maskedThreshold')
+      }
+    if tf_record_options:
+      file_format_options['tfRecordOptions'] = tf_record_options
+
+  if file_format_options:
+    raise ee_exception.EEException(
+        'Unknown file format options: {}.'.format(file_format_options))
+
+  return file_export_options
+
+
+def _build_table_file_export_options(config, export_destination):
+  """Builds a TableFileExportOptions from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the TableFileExportOptions.
+    export_destination: One of the Task.ExportDestination values.
+
+  Returns:
+    A TableFileExportOptions containing information extracted from config.
+  """
+  file_export_options = {}
+
+  file_format = _cloud_api_utils.convert_to_table_file_format(
+      config.pop('fileFormat'))
+  file_export_options['fileFormat'] = file_format
+  if export_destination == Task.ExportDestination.DRIVE:
+    file_export_options['driveDestination'] = _build_drive_destination(
+        config)
+  elif export_destination == Task.ExportDestination.GCS:
+    file_export_options[
+        'gcsDestination'] = _build_gcs_destination(
+            config)
+  else:
+    raise ee_exception.EEException(
+        '"{}" is not a valid export destination'.format(export_destination))
+  return file_export_options
+
+
+def _build_video_options(config):
+  """Builds a VideoOptions from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the VideoOptions.
+
+  Returns:
+    A VideoOptions containing information extracted from config.
+  """
+  video_options = {}
+
+  if 'framesPerSecond' in config:
+    video_options['framesPerSecond'] = config.pop('framesPerSecond')
+  if 'maxFrames' in config:
+    video_options['maxFrames'] = config.pop('maxFrames')
+  if 'maxPixels' in config:
+    video_options['maxPixelsPerFrame'] = {'value': str(config.pop('maxPixels'))}
+  return video_options
+
+
+def _build_video_file_export_options(config, export_destination):
+  """Builds a VideoFileExportOptions from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the VideoFileExportOptions.
+    export_destination: One of the Task.ExportDestination values.
+
+  Returns:
+    A VideoFileExportOptions containing information extracted from config.
+  """
+  file_export_options = {}
+
+  # There's only one file format currently.
+  file_export_options['fileFormat'] = 'MP4'
+
+  if export_destination == Task.ExportDestination.DRIVE:
+    file_export_options['driveDestination'] = _build_drive_destination(
+        config)
+  elif export_destination == Task.ExportDestination.GCS:
+    file_export_options[
+        'gcsDestination'] = _build_gcs_destination(
+            config)
+  else:
+    raise ee_exception.EEException(
+        '"{}" is not a valid export destination'.format(export_destination))
+  return file_export_options
+
+
+def _build_drive_destination(config):
+  """Builds a DriveDestination from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the DriveDestination.
+
+  Returns:
+    A DriveDestination containing information extracted from config.
+  """
+  drive_destination = {}
+  if 'driveFolder' in config:
+    drive_destination['folder'] = config.pop('driveFolder')
+  if 'driveFileNamePrefix' in config:
+    drive_destination['filenamePrefix'] = config.pop(
+        'driveFileNamePrefix')
+  return drive_destination
+
+
+def _build_gcs_destination(config):
+  """Builds a GcsDestination from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the GcsDestination.
+
+  Returns:
+    A GcsDestination containing information extracted from
+    config.
+  """
+  cloud_storage_export_destination = {'bucket': config.pop('outputBucket')}
+  if 'outputPrefix' in config:
+    cloud_storage_export_destination['filenamePrefix'] = config.pop(
+        'outputPrefix')
+  if config.pop('writePublicTiles', False):
+    cloud_storage_export_destination['permissions'] = 'PUBLIC'
+  return cloud_storage_export_destination
+
+
+def _build_tile_options(config):
+  """Builds a TileOptions from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the TileOptions.
+
+  Returns:
+    A TileOptions containing information extracted from config.
+  """
+  tile_options = {}
+
+  if 'maxZoom' in config:
+    if 'scale' in config:
+      raise ee_exception.EEException('Both maxZoom and scale are specified.')
+    tile_options['maxZoom'] = config.pop('maxZoom')
+
+  if 'scale' in config:
+    tile_options['scale'] = config.pop('scale')
+
+  if 'minZoom' in config:
+    tile_options['minZoom'] = config.pop('minZoom')
+
+  if config.pop('skipEmptyTiles', False):
+    tile_options['skipEmptyTiles'] = True
+
+  if 'mapsApiKey' in config:
+    tile_options['mapsApiKey'] = config.pop('mapsApiKey')
+
+  return tile_options
+
+
+def _build_earth_engine_destination(config):
+  """Builds an EarthEngineDestination from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the EarthEngineDestination.
+
+  Returns:
+    An EarthEngineDestination containing information extracted from
+    config.
+  """
+  return {
+      'name': _cloud_api_utils.convert_asset_id_to_asset_name(
+          config.pop('assetId'))
+  }
 
 
 def _create_export_task(config, task_type):
@@ -938,6 +1311,8 @@ def _create_export_task(config, task_type):
   Returns:
     An unstarted export Task.
   """
+  if data._use_cloud_api:  # pylint: disable=protected-access
+    return Task(None, task_type, Task.State.UNSUBMITTED, config)
   return Task(data.newTaskId()[0], task_type, Task.State.UNSUBMITTED, config)
 
 
@@ -1082,6 +1457,27 @@ def _canonicalize_region(region):
       'Invalid format for "region" property. '
       'See Export.image() documentation for more details.')
   # pylint: disable=bare-except
+  # The Cloud API can accept arbitrary Geometries, even computed ones.
+  # Thus, this function tries to turn its parameter into a Geometry.
+  if data._use_cloud_api:  # pylint: disable=protected-access
+    if isinstance(region, geometry.Geometry):
+      return region
+
+    if isinstance(region, six.string_types):
+      try:
+        region = json.loads(region)
+      except:
+        raise region_error
+    # It's probably a list of coordinates - attempt to parse as a LineString or
+    # Polygon.
+    try:
+      region = geometry.Geometry.LineString(region)
+    except:
+      try:
+        region = geometry.Geometry.Polygon(region)
+      except:
+        raise region_error
+    return region
   # If the GeoJSON blob we have parses as a LineString or Polygon, accept it,
   # and turn it into a string. Which it might have started out as.
   if isinstance(region, six.string_types):

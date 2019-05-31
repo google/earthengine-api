@@ -29,20 +29,18 @@ setup(
     download_url='',  # package download URL
     packages=['ee', 'ee.cli'],
     package_data={
-        'ee': [
-            'tests/*.py',
-        ],
+        'ee': ['tests/*.py',],
     },
     test_suite='ee/tests',
     install_requires=[
         'google-api-python-client',
-        'pyOpenSSL>=0.11',
-        'six'
+        'google-auth>=1.4.1',
+        'google-auth-httplib2>=0.0.3',
+        'httplib2>=0.9.2,<1dev',
+        'six',
     ],
     entry_points={
-        'console_scripts': [
-            'earthengine = ee.cli.eecli:main',
-        ],
+        'console_scripts': ['earthengine = ee.cli.eecli:main',],
     },
     classifiers=[
         # Get strings from

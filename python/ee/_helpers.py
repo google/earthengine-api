@@ -17,9 +17,10 @@ from . import oauth
 from .apifunction import ApiFunction
 from .ee_exception import EEException
 # pylint: enable=g-importing-member
-import oauth2client.client
-import oauth2client.service_account
 import six
+from google.auth import crypt
+from google.oauth2 import service_account
+from google.oauth2.credentials import Credentials
 
 
 def _GetPersistentCredentials():
@@ -33,9 +34,13 @@ def _GetPersistentCredentials():
   try:
     tokens = json.load(open(oauth.get_credentials_path()))
     refresh_token = tokens['refresh_token']
-    return oauth2client.client.OAuth2Credentials(
-        None, oauth.CLIENT_ID, oauth.CLIENT_SECRET, refresh_token,
-        None, 'https://accounts.google.com/o/oauth2/token', None)
+    return Credentials(
+        None,
+        refresh_token=refresh_token,
+        token_uri=oauth.TOKEN_URI,
+        client_id=oauth.CLIENT_ID,
+        client_secret=oauth.CLIENT_SECRET,
+        scopes=oauth.SCOPES)
   except IOError:
     raise EEException('Please authorize access to your Earth Engine account '
                       'by running\n\nearthengine authenticate\n\nin your '
@@ -47,37 +52,39 @@ def ServiceAccountCredentials(email, key_file=None, key_data=None):
 
   Args:
     email: The email address of the account for which to configure credentials.
+        Ignored if key_file or key_data represents a JSON service account key.
     key_file: The path to a file containing the private key associated with
-        the service account. PEM files are supported for oauth2client v1 and
-        JSON files are supported for oauth2client v2+.
+        the service account. Both JSON and PEM files are supported.
     key_data: Raw key data to use, if key_file is not specified.
 
   Returns:
     An OAuth2 credentials object.
-
-  Raises:
-    NotImplementedError: Occurs if using oauth2client v2+ and a PEM formatted
-        credentials key file.
   """
-  try:
-    # oauth2client v2+ and JSON key
-    sa_creds = oauth2client.service_account.ServiceAccountCredentials
-    credentials = sa_creds.from_json_keyfile_name(key_file, oauth.SCOPE)
-  except ValueError:
-    # oauth2client v2+ and PEM key
-    raise NotImplementedError(
-        'When using oauth2client version 2 or later, you must use a JSON '
-        'formatted key file (instead of a p12 or PEM formatted file). See the '
-        'following page for information on creating a JSON formatted file:\n'
-        'https://developers.google.com/api-client-library/python/auth/web-app')
-  except AttributeError:
-    # oauth2client v1 (i.e. does not have a ServiceAccountCredentials)
-    if key_file:
-      with open(key_file, 'rb') as key_file:
-        key_data = key_file.read()
-    credentials = oauth2client.client.SignedJwtAssertionCredentials(
-        email, key_data, oauth.SCOPE)
-  return credentials
+
+  # Assume anything that doesn't end in '.pem' is a JSON key.
+  if key_file and not key_file.endswith('.pem'):
+    return service_account.Credentials.from_service_account_file(
+        key_file, scopes=oauth.SCOPES)
+
+  # If 'key_data' can be decoded as JSON, it's probably a raw JSON key.
+  if key_data:
+    try:
+      key_data = json.loads(key_data)
+      return service_account.Credentials.from_service_account_info(
+          key_data, scopes=oauth.SCOPES)
+    except ValueError:
+      # It may actually be a raw PEM string, we'll try that below.
+      pass
+
+  # Probably a PEM key - just read the file into 'key_data'.
+  if key_file:
+    with open(key_file, 'r') as file_:
+      key_data = file_.read()
+
+  # Raw PEM key.
+  signer = crypt.RSASigner.from_string(key_data)
+  return service_account.Credentials(
+      signer, email, oauth.TOKEN_URI, scopes=oauth.SCOPES)
 
 
 def call(func, *args, **kwargs):

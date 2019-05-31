@@ -100,7 +100,7 @@ ee.Function.prototype.apply = function(namedArgs) {
  *
  * @param {*|undefined} thisValue The "this" value on which the function was
  *     called. If defined, interpreted as the first argument.
- * @param {Array<*>} args A list containing either positional args or a
+ * @param {!Array<*>} args A list containing either positional args or a
  *    keyword arg dictionary.
  * @return {!ee.ComputedObject} An object representing the called function.
  *     If the signature specifies a recognized return type, the returned
@@ -111,25 +111,9 @@ ee.Function.prototype.callOrApply = function(thisValue, args) {
   var isInstance = goog.isDef(thisValue);
   var signature = this.getSignature();
 
-  // Assume keyword arguments if we get a single dictionary.
-  var useKeywordArgs = false;
-  if (args.length == 1 && ee.Types.isRegularObject(args[0])) {
-    // Decide whether the algorithm expects a dictionary as an only arg.
-    var params = signature['args'];
-    if (isInstance) {
-      params = params.slice(1);
-    }
-    if (params.length) {
-      var requiresOneArg = (params.length == 1 || params[1]['optional']);
-      var aSingleDictionaryIsValid =
-          (requiresOneArg && params[0]['type'] == 'Dictionary');
-      useKeywordArgs = !aSingleDictionaryIsValid;
-    }
-  }
-
   // Convert positional to named args.
   var namedArgs;
-  if (useKeywordArgs) {
+  if (ee.Types.useKeywordArgs(args, signature, isInstance)) {
     namedArgs = goog.object.clone(/** @type {Object} */ (args[0]));
     if (isInstance) {
       var firstArgName = signature['args'][0]['name'];

@@ -53,10 +53,19 @@ class CustomFunction(function.Function, encodable.Encodable):
         'body': encoder(self._body)
     }
 
+  def encode_cloud_value(self, encoder):
+    return {
+        'functionDefinitionValue': {
+            'argumentNames': [x['name'] for x in self._signature['args']],
+            'body': encoder(self._body)
+        }
+    }
 
   def encode_invocation(self, encoder):
     return self.encode(encoder)
 
+  def encode_cloud_invocation(self, encoder):
+    return {'functionReference': encoder(self)}
 
   def getSignature(self):
     """Returns a description of the interface provided by this function."""

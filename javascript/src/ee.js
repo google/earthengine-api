@@ -630,17 +630,21 @@ ee.makeClass_ = function(name) {
       } else if (firstArgIsPrimitive) {
         // Can't cast a primitive.
         shouldUseConstructor = true;
-      } else if (args[0].func != ctor) {
-        // We haven't already called the constructor on this object.
+      } else if (!args[0].func ||
+          args[0].func.getSignature().returns != ctor.getSignature().returns) {
+        // We have a single ComputedObject argument. If it returns a different
+        // type, we need to call the constructor. Otherwise this is a copy
+        // constructor usage, and we can simply cast.
         shouldUseConstructor = true;
       }
     }
 
     // Apply our decision.
     if (shouldUseConstructor) {
+      const namedArgs = ee.Types.useKeywordArgs(args, ctor.getSignature())
+          ? args[0] : ctor.nameArgs(args);
       // Call manually to avoid having promote() called on the output.
-      target.base(this, 'constructor',
-          ctor, ctor.promoteArgs(ctor.nameArgs(args)));
+      target.base(this, 'constructor', ctor, ctor.promoteArgs(namedArgs));
     } else {
       // Just cast and hope for the best.
       if (!onlyOneArg) {

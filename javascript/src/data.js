@@ -3415,6 +3415,14 @@ ee.data.xsrfToken_ = null;
  */
 ee.data.paramAugmenter_ = goog.functions.identity;
 
+/**
+ * A function used to transform parameters right before they are sent to the
+ * server. Takes the URL of the request as the second argument.
+ * @private {function(?gapi.client.earthengine.Expression):
+ *     ?gapi.client.earthengine.Expression}
+ */
+ee.data.expressionAugmenter_ = goog.functions.identity;
+
 
 /**
  * An OAuth2 token to use for authenticating EE API calls.

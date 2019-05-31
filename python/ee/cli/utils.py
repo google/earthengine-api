@@ -17,8 +17,7 @@ import time
 import urllib
 import httplib2
 
-import oauth2client.client
-
+from google.oauth2.credentials import Credentials
 import ee
 
 HOMEDIR = os.path.expanduser('~')
@@ -83,10 +82,13 @@ class CommandLineConfig(object):
     elif self.account and self.private_key:
       credentials = ee.ServiceAccountCredentials(self.account, self.private_key)
     elif self.refresh_token:
-      credentials = oauth2client.client.OAuth2Credentials(
-          None, ee.oauth.CLIENT_ID, ee.oauth.CLIENT_SECRET,
-          self.refresh_token, None,
-          'https://accounts.google.com/o/oauth2/token', None)
+      credentials = Credentials(
+          None,
+          refresh_token=self.refresh_token,
+          token_uri=ee.oauth.TOKEN_URI,
+          client_id=ee.oauth.CLIENT_ID,
+          client_secret=ee.oauth.CLIENT_SECRET,
+          scopes=ee.oauth.SCOPES)
     else:
       credentials = 'persistent'
 

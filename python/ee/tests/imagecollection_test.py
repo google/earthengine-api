@@ -63,6 +63,33 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
     self.assertTrue(isinstance(first, ee.Image))
     self.assertEqual(ee.ApiFunction.lookup('Collection.first'), first.func)
 
+  def testPrepareForExport(self):
+    """Verifies proper handling of export-related parameters."""
+    with apitestcase.UsingCloudApi():
+      base_collection = ee.ImageCollection(ee.Image(1))
+
+      collection, params = base_collection.prepare_for_export(
+          {'something': 'else'})
+      self.assertEqual(base_collection, collection)
+      self.assertEqual({'something': 'else'}, params)
+
+      collection, params = base_collection.prepare_for_export({
+          'crs': 'ABCD',
+          'crs_transform': '1,2,3,4,5,6'
+      })
+
+      # Need to do a serialized comparison for the collection because
+      # custom functions don't implement equality comparison.
+      def expected_preparation_function(img):
+        return img.reproject(
+            crs='ABCD', crsTransform=[1.0, 2.0, 3.0, 4.0, 5.0, 6.0])
+
+      expected_collection = base_collection.map(expected_preparation_function)
+      self.assertEqual(
+          expected_collection.serialize(for_cloud_api=True),
+          collection.serialize(for_cloud_api=True))
+      self.assertEqual({}, params)
+
 
 if __name__ == '__main__':
   unittest.main()

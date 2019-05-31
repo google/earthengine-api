@@ -130,6 +130,112 @@ class ImageCollection(collection.Collection):
     return image.Image
 
 
+  def getFilmstripThumbURL(self, params=None):
+    """Get the URL for a "filmstrip" thumbnail of the given collection.
+
+    Args:
+      params: Parameters identical to getMapId, plus, optionally:
+      dimensions -
+        (a number or pair of numbers in format WIDTHxHEIGHT) Max dimensions of
+        the thumbnail to render, in pixels. If only one number is passed, it is
+        used as the maximum, and the other dimension is computed by proportional
+        scaling.
+      crs - a CRS string specifying the projection of the output.
+      crs_transform - the affine transform to use for the output pixel grid.
+      scale - a scale to determine the output pixel grid; ignored if both crs
+        and crs_transform are specified.
+      region - (E,S,W,N or GeoJSON) Geospatial region of the result. By default,
+        the whole image.
+      format - (string) The output format (e.g., "png", "jpg").
+
+    Returns:
+      A URL to download a thumbnail of the specified ImageCollection.
+
+    Raises:
+      EEException: If the region parameter is not an array or GeoJSON object.
+    """
+    return self._getThumbURL(['png', 'jpg'], params)
+
+  def _getThumbURL(self, valid_formats, params=None):
+    """Get the URL for a thumbnail of this collection.
+
+    Args:
+      valid_formats: A list of supported formats, the first of which is used as
+        a default if no format is supplied in 'params'.
+      params: Parameters identical to getMapId, plus, optionally:
+      dimensions -
+        (a number or pair of numbers in format WIDTHxHEIGHT) Max dimensions of
+        the thumbnail to render, in pixels. If only one number is passed, it is
+        used as the maximum, and the other dimension is computed by proportional
+        scaling.
+      crs - a CRS string specifying the projection of the output.
+      crs_transform - the affine transform to use for the output pixel grid.
+      scale - a scale to determine the output pixel grid; ignored if both crs
+        and crs_transform are specified.
+      region - (E,S,W,N or GeoJSON) Geospatial region of the result. By default,
+        the whole image.
+      format - (string) The output format
+
+    Returns:
+      A URL to download a thumbnail of the specified ImageCollection.
+
+    Raises:
+      EEException: If the region parameter is not an array or GeoJSON object.
+    """
+    def map_function(input_image, input_params):
+      output_image, request = input_image._apply_crs_and_affine(input_params)  # pylint: disable=protected-access
+      output_image, request = output_image._apply_selection_and_scale(request)  # pylint: disable=protected-access
+      output_image, request = output_image._apply_visualization(request)  # pylint: disable=protected-access
+      return output_image, request
+
+    clipped_collection, request = self._apply_preparation_function(
+        map_function, params)
+
+    request['format'] = params.get('format', valid_formats[0])
+    if request['format'] not in valid_formats:
+      raise ee_exception.EEException(
+          'Invalid format specified for thumbnail. ' + str(params['format']))
+
+    request['image'] = clipped_collection
+    if params and params.get('dimensions') is not None:
+      request['dimensions'] = params.get('dimensions')
+
+    return data.makeThumbUrl(data.getThumbId(request))
+
+  def _apply_preparation_function(self, preparation_function, params):
+    """Applies a preparation function to an ImageCollection.
+
+    Args:
+      preparation_function: The preparation function. Takes an image and a
+        parameter dict; returns the modified image and a subset of the
+        parameter dict, with the parameters it used removed.
+      params: The parameters to the preparation function.
+
+    Returns:
+      A tuple containing:
+      - an ImageCollection that has had many of the parameters applied
+        to it
+      - any remaining parameters.
+    """
+    # The preparation function operates only on a single image and returns a
+    # modified parameter set; we need to apply across all the images in this
+    # collection via self.map, and also return a modified parameter set, which
+    # we can't easily get out of self.map. So we invoke it in two ways: once on
+    # a dummy Image to get a modified parameter set, and once via self.map.
+    _, remaining_params = preparation_function(self.first(), params)
+
+    if remaining_params == params:
+      # Nothing in params affects us; omit the map.
+      return self, params
+
+    # Copy params defensively in case it's modified after we return but before
+    # the map operation is serialised.
+    params = params.copy()
+    def apply_params(img):
+      prepared_img, _ = preparation_function(img, params)
+      return prepared_img
+    return self.map(apply_params), remaining_params
+
   def prepare_for_export(self, params):
     """Applies all relevant export parameters to an ImageCollection.
 
@@ -142,4 +248,10 @@ class ImageCollection(collection.Collection):
         to it
       - any remaining parameters.
     """
+    # If the Cloud API is enabled, we can do cleaner handling of the parameters.
+    # If it isn't enabled, we have to be bug-for-bug compatible with current
+    # behaviour, so we do nothing.
+    if data._use_cloud_api:  # pylint: disable=protected-access
+      return self._apply_preparation_function(image.Image.prepare_for_export,
+                                              params)
     return self, params

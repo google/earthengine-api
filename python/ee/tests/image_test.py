@@ -148,6 +148,67 @@ class ImageTestCase(apitestcase.ApiTestCase):
         }
     }, dummy_encoder(expression_func))
 
+  def testExpressionInCloudAPI(self):
+    """Verifies the behavior of ee.Image.expression() in the Cloud API."""
+    image = ee.Image(1).expression('a', {'b': 'c'})
+
+    self.assertEqual({
+        'result': '0',
+        'values': {
+            '0': {
+                'functionInvocationValue': {
+                    'arguments': {
+                        'b': {
+                            'functionInvocationValue': {
+                                'arguments': {
+                                    'id': {
+                                        'constantValue': 'c'
+                                    }
+                                },
+                                'functionName': 'Image.load'
+                            }
+                        },
+                        'DEFAULT_EXPRESSION_IMAGE': {
+                            'functionInvocationValue': {
+                                'arguments': {
+                                    'value': {
+                                        'constantValue': 1
+                                    }
+                                },
+                                'functionName': 'Image.constant'
+                            }
+                        }
+                    },
+                    'functionReference': '1'
+                }
+            },
+            '1': {
+                'functionInvocationValue': {
+                    'arguments': {
+                        'expression': {
+                            'constantValue': 'a'
+                        },
+                        'argName': {
+                            'valueReference': '2'
+                        },
+                        'vars': {
+                            'arrayValue': {
+                                'values': [{
+                                    'valueReference': '2'
+                                }, {
+                                    'constantValue': 'b'
+                                }]
+                            }
+                        }
+                    },
+                    'functionName': 'Image.parseExpression'
+                }
+            },
+            '2': {
+                'constantValue': 'DEFAULT_EXPRESSION_IMAGE'
+            }
+        }
+    }, serializer.encode(image, for_cloud_api=True))
 
   def testDownload(self):
     """Verifies Download ID and URL generation."""
@@ -195,6 +256,165 @@ class ImageTestCase(apitestcase.ApiTestCase):
         ee.Image(1).visualize(min=0).serialize(),
         self.last_thumb_call['data']['image'])
 
+  def testThumbInCloudApi(self):
+    """Verifies Thumbnail ID and URL generation in the Cloud API."""
+    geo_json = {
+        'type':
+            'Polygon',
+        'coordinates': [[
+            [-112.587890625, 44.94924926661151],
+            [-114.873046875, 39.48708498168749],
+            [-103.623046875, 41.82045509614031],
+        ]],
+    }
+
+    cloud_api_resource = mock.MagicMock()
+    cloud_api_resource.projects().thumbnails().create().execute.return_value = {
+        'name': 'thumbName'
+    }
+
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      url = ee.Image(1).getThumbURL({
+          'dimensions': [13, 42],
+          'region': geo_json,
+          'crs': 'EPSG:4326',
+      })
+
+      self.assertEqual('/v1alpha/thumbName:getPixels', url)
+      _, kwargs = cloud_api_resource.projects().thumbnails().create.call_args
+      self.assertEqual(
+          kwargs['body']['expression'],
+          serializer.encode(
+              ee.Image(1).setDefaultProjection(
+                  crs='EPSG:4326',
+                  crsTransform=[1, 0, 0, 0, -1, 0]).clipToBoundsAndScale(
+                      geometry=geo_json,
+                      width=13,
+                      height=42),
+              for_cloud_api=True))
+      self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
+
+    # Try it with the region as a GeoJSON string.
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      url = ee.Image(1).getThumbURL({
+          'dimensions': [13, 42],
+          'region': json.dumps(geo_json),
+      })
+
+      _, kwargs = cloud_api_resource.projects().thumbnails().create.call_args
+      self.assertEqual(
+          kwargs['body']['expression'],
+          serializer.encode(
+              ee.Image(1).clipToBoundsAndScale(
+                  geometry=geo_json, width=13, height=42),
+              for_cloud_api=True))
+      self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
+
+    # Again with visualization parameters
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      url = ee.Image(1).getThumbURL({
+          'dimensions': [13, 42],
+          'region': geo_json,
+          'min': 0
+      })
+      _, kwargs = cloud_api_resource.projects().thumbnails().create.call_args
+      self.assertEqual(
+          kwargs['body']['expression'],
+          serializer.encode(
+              ee.Image(1).clipToBoundsAndScale(
+                  geometry=geo_json, width=13, height=42).visualize(min=0),
+              for_cloud_api=True))
+
+  def testPrepareForExport(self):
+    """Verifies proper handling of export-related parameters."""
+    with apitestcase.UsingCloudApi():
+      base_image = ee.Image(1)
+
+      image, params = base_image.prepare_for_export({'something': 'else'})
+      self.assertEqual(base_image, image)
+      self.assertEqual({'something': 'else'}, params)
+
+      image, params = base_image.prepare_for_export({
+          'crs': 'ABCD',
+          'crs_transform': '1,2,3,4,5,6'
+      })
+      self.assertEqual(
+          base_image.reproject(crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6]),
+          image)
+      self.assertEqual({}, params)
+
+      with self.assertRaises(ee_exception.EEException):
+        image, params = base_image.prepare_for_export(
+            {'crs_transform': '1,2,3,4,5,6'})
+      with self.assertRaises(ValueError):
+        image, params = base_image.prepare_for_export({
+            'crs': 'ABCD',
+            'crs_transform': 'x'
+        })
+
+      point = ee.Geometry.Point(9, 8)
+      image, params = base_image.prepare_for_export({
+          'dimensions': '3x2',
+          'region': point
+      })
+      self.assertEqual(
+          base_image.clipToBoundsAndScale(width=3, height=2, geometry=point),
+          image)
+      self.assertEqual({}, params)
+
+      image, params = base_image.prepare_for_export({
+          'scale': 8,
+          'region': point.toGeoJSONString(),
+          'something': 'else'
+      })
+      self.assertEqual(
+          base_image.clipToBoundsAndScale(scale=8, geometry=point), image)
+      self.assertEqual({'something': 'else'}, params)
+
+      image, params = base_image.prepare_for_export({
+          'crs': 'ABCD',
+          'crs_transform': '[1,2,3,4,5,6]',
+          'dimensions': [3, 2],
+          'region': point.toGeoJSONString(),
+          'something': 'else'
+      })
+      self.assertEqual(
+          base_image.reproject(
+              crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6]).clipToBoundsAndScale(
+                  width=3, height=2, geometry=point), image)
+      self.assertEqual({'something': 'else'}, params)
+
+      # Special case of crs+transform+two dimensions
+      image, params = base_image.prepare_for_export({
+          'crs': 'ABCD',
+          'crs_transform': [1, 2, 3, 4, 5, 6],
+          'dimensions': [3, 2],
+          'something': 'else'
+      })
+      reprojected_image = base_image.reproject(
+          crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6])
+      self.assertEqual(
+          reprojected_image.clipToBoundsAndScale(
+              geometry=ee.Geometry.Rectangle(
+                  coords=[0, 0, 3, 2],
+                  proj=reprojected_image.projection(),
+                  geodesic=False,
+                  evenOdd=True)), image)
+      self.assertEqual({'something': 'else'}, params)
+
+      # CRS with no crs_transform causes a "soft" reprojection. Make sure that
+      # the (crs, crsTransform, dimensions) special case doesn't trigger.
+      image, params = base_image.prepare_for_export({
+          'crs': 'ABCD',
+          'dimensions': [3, 2],
+          'something': 'else'
+      })
+      self.assertEqual(
+          base_image.setDefaultProjection(
+              crs='ABCD',
+              crsTransform=[1, 0, 0, 0, -1, 0]).clipToBoundsAndScale(
+                  width=3, height=2), image)
+      self.assertEqual({'something': 'else'}, params)
 
 
 if __name__ == '__main__':

@@ -119,6 +119,32 @@ class Geometry(computedobject.ComputedObject):
     if opt_evenOdd is None and 'evenOdd' in geo_json:
       self._evenOdd = bool(geo_json['evenOdd'])
 
+    # Build a proxy for this object that is an invocation of a server-side
+    # constructor. This is used during Cloud API encoding, but can't be
+    # constructed at that time: due to id()-based caching in Serializer,
+    # building transient objects during encoding isn't safe.
+    ctor_args = {}
+    if self._type == 'GeometryCollection':
+      ctor_name = 'MultiGeometry'
+      ctor_args['geometries'] = [Geometry(g) for g in self._geometries]
+    else:
+      ctor_name = self._type
+      ctor_args['coordinates'] = self._coordinates
+
+    if self._proj is not None:
+      if isinstance(self._proj, six.string_types):
+        ctor_args['crs'] = apifunction.ApiFunction.lookup('Projection').call(
+            self._proj)
+      else:
+        ctor_args['crs'] = self._proj
+
+    if self._geodesic is not None:
+      ctor_args['geodesic'] = self._geodesic
+
+    if self._evenOdd is not None:
+      ctor_args['evenOdd'] = self._evenOdd
+    self._computed_equivalent = apifunction.ApiFunction.lookup(
+        'GeometryConstructors.' + ctor_name).apply(ctor_args)
 
   @classmethod
   def initialize(cls):
@@ -464,6 +490,12 @@ class Geometry(computedobject.ComputedObject):
 
     return result
 
+  def encode_cloud_value(self, encoder):
+    """Returns a server-side invocation of the appropriate constructor."""
+    if not getattr(self, '_type', None):
+      return super(Geometry, self).encode_cloud_value(encoder)
+
+    return self._computed_equivalent.encode_cloud_value(encoder)
 
   def toGeoJSON(self):
     """Returns a GeoJSON representation of the geometry."""
@@ -537,7 +569,8 @@ class Geometry(computedobject.ComputedObject):
     if not isinstance(shape, collections.Iterable):
       return -1
 
-    if shape and isinstance(shape[0], collections.Iterable):
+    if shape and isinstance(shape[0], collections.Iterable) and not isinstance(
+        shape[0], six.string_types):
       count = Geometry._isValidCoordinates(shape[0])
       # If more than 1 ring or polygon, they should have the same nesting.
       for i in range(1, len(shape)):

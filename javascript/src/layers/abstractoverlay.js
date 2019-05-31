@@ -21,7 +21,6 @@ goog.require('goog.style');
 goog.forwardDeclare('ee.data.Profiler');
 
 
-
 /**
  * An abstract class for use with the Maps API for displaying image tiles.
  *
@@ -530,6 +529,7 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
   }, false, this);
   this.xhrIo_.listenOnce(
       goog.net.EventType.READY, goog.partial(goog.dispose, this.xhrIo_));
+
   this.xhrIo_.send(this.sourceUrl, 'GET');
 };
 

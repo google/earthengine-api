@@ -22,6 +22,18 @@ class Encodable(object):
     """
     raise NotImplementedError('Encodable classes must implement encode().')
 
+  def encode_cloud_value(self, encoder):
+    """Encodes the object as a ValueNode.
+
+    Args:
+      encoder: A function that can be called to encode the components of
+          an object.
+
+    Returns:
+      The encoded form of the object.
+    """
+    raise NotImplementedError(
+        'Encodable classes must implement encode_cloud_value().')
 
 
 class EncodableFunction(object):
@@ -40,3 +52,15 @@ class EncodableFunction(object):
     raise NotImplementedError(
         'EncodableFunction classes must implement encode_invocation().')
 
+  def encode_cloud_invocation(self, encoder):
+    """Encodes the function as a FunctionInvocation.
+
+    Args:
+      encoder: A function that can be called to encode the components of
+          an object. Returns a reference to the encoded value.
+
+    Returns:
+      The encoded form of the function.
+    """
+    raise NotImplementedError(
+        'EncodableFunction classes must implement encode_cloud_invocation().')

@@ -30,7 +30,7 @@ goog.require('goog.array');
  *         ee.Geometry|ee.Feature|ee.FeatureCollection} args
  *     The constructor arguments.
  * @param {string=} opt_column The name of the geometry column to use.  Only
- *     useful with constructor type 1.
+ *     useful when working with a named collection.
  * @constructor
  * @extends {ee.Collection}
  * @export

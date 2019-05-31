@@ -642,6 +642,7 @@ ee.MapTileManager.Request_.prototype.start_ = function() {
  * @extends {goog.Disposable}
  */
 ee.MapTileManager.Token_ = function() {
+  ee.MapTileManager.Token_.base(this, 'constructor');
 
   /**
    * Whether the current object is used by a request.

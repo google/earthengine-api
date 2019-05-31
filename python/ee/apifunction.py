@@ -97,6 +97,8 @@ class ApiFunction(function.Function):
   def encode_invocation(self, unused_encoder):
     return self._signature['name']
 
+  def encode_cloud_invocation(self, unused_encoder):
+    return {'functionName': self._signature['name']}
 
   def getSignature(self):
     """Returns a description of the interface provided by this function."""

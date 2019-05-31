@@ -12,12 +12,15 @@ from __future__ import print_function
 
 import calendar
 import datetime
+
 import re
 import warnings
 
 from . import ee_exception
 from apiclient import discovery
 from apiclient import http
+from apiclient import model
+from google_auth_httplib2 import AuthorizedHttp
 
 import httplib2
 import six
@@ -75,7 +78,9 @@ def build_cloud_resource(api_base_url,
                          credentials=None,
                          timeout=None,
                          headers_supplier=None,
-                         response_inspector=None):
+                         response_inspector=None,
+                         http_transport=None,
+                         raw=False):
   """Builds an Earth Engine Cloud API resource.
 
   Args:
@@ -87,6 +92,8 @@ def build_cloud_resource(api_base_url,
       to a request. Will be called once for each request.
     response_inspector: A callable that will be invoked with the raw
       httplib2.Response responses.
+    http_transport: An optional custom http_transport to use.
+    raw: Whether or not to return raw bytes when making method requests.
 
   Returns:
     A resource object to use to call the Cloud API.
@@ -94,17 +101,25 @@ def build_cloud_resource(api_base_url,
   discovery_service_url = (
       '{}/$discovery/rest?version=v1&prettyPrint=false'
       .format(api_base_url))
-  http_transport = httplib2.Http(timeout=timeout)
-  if credentials:
-    http_transport = credentials.authorize(http_transport)
+  if http_transport is None:
+    http_transport = httplib2.Http(timeout=timeout)
+  if credentials is not None:
+    http_transport = AuthorizedHttp(credentials, http=http_transport)
   request_builder = _wrap_request(headers_supplier, response_inspector)
-  return discovery.build(
+  # Discovery uses json by default.
+  if raw:
+    alt_model = model.RawModel()
+  else:
+    alt_model = None
+  resource = discovery.build(
       'earthengine',
-      'v1',
+      'v1alpha',
       discoveryServiceUrl=discovery_service_url,
       developerKey=api_key,
       http=http_transport,
-      requestBuilder=request_builder)
+      requestBuilder=request_builder,
+      model=alt_model)
+  return resource
 
 
 def build_cloud_resource_from_document(discovery_document,
@@ -133,7 +148,11 @@ def build_cloud_resource_from_document(discovery_document,
       requestBuilder=request_builder)
 
 
-def _convert_dict(to_convert, conversions, defaults=None, key_warnings=False):
+def _convert_dict(to_convert,
+                  conversions,
+                  defaults=None,
+                  key_warnings=False,
+                  retain_keys=False):
   """Applies a set of conversion rules to a dict.
 
   Args:
@@ -150,8 +169,8 @@ def _convert_dict(to_convert, conversions, defaults=None, key_warnings=False):
       - If "conversions" contains "k"->("X", f) then the result will contain
         "X"->f("v")
       - If "conversions" does not contain an entry for "k" then the result
-        will not contain an entry for "k"; if key_warnings is True then a
-        warning will be printed.
+        will not contain an entry for "k" unless retain_keys is true;
+        if key_warnings is True then a warning will be printed.
       - If two or more distinct input keys are converted to the same output key,
         one of the resulting values will appear in the result, the others
         will be dropped, and a warning will be printed.
@@ -159,6 +178,8 @@ def _convert_dict(to_convert, conversions, defaults=None, key_warnings=False):
       not contain these keys.
     key_warnings: Whether to print warnings for input keys that are not mapped
       to anything in the output.
+    retain_keys: Whether or not to retain the state of dict.  If false, any keys
+      that don't show up in the conversions dict will be dropped from result.
 
   Returns:
     The "to_convert" dict with keys renamed, values converted, and defaults
@@ -178,6 +199,8 @@ def _convert_dict(to_convert, conversions, defaults=None, key_warnings=False):
           warnings.warn(
               'Multiple request parameters converted to {}'.format(key))
         result[key] = value
+    elif retain_keys:
+      result[key] = value
     elif key_warnings:
       warnings.warn('Unrecognized key {} ignored'.format(key))
   if defaults:
@@ -253,7 +276,7 @@ def convert_get_list_params_to_list_assets_params(params):
   """Converts a getList params dict to something usable with listAssets."""
   return _convert_dict(
       params, {
-          'id': ('name', convert_asset_id_to_asset_name),
+          'id': ('parent', convert_asset_id_to_asset_name),
           'num': 'pageSize'
       }, key_warnings=True)
 
@@ -265,18 +288,11 @@ def convert_list_assets_result_to_get_list_result(result):
   return [_convert_asset_for_get_list_result(i) for i in result['assets']]
 
 
-def convert_list_buckets_result_to_get_list_result(result):
-  """Converts a listBuckets result to something getAssetRoots can return."""
-  if 'buckets' not in result:
-    return []
-  return [_convert_asset_for_get_list_result(i) for i in result['buckets']]
-
-
 def convert_get_list_params_to_list_images_params(params):
   """Converts a getList params dict to something usable with listImages."""
   params = _convert_dict(
       params, {
-          'id': ('name', convert_asset_id_to_asset_name),
+          'id': ('parent', convert_asset_id_to_asset_name),
           'num': 'pageSize',
           'starttime': ('startTime', _convert_msec_to_timestamp),
           'endtime': ('endTime', _convert_msec_to_timestamp),
@@ -286,24 +302,35 @@ def convert_get_list_params_to_list_images_params(params):
       key_warnings=True)
   # getList returns minimal information; we can filter unneeded stuff out
   # server-side.
-  params['fields'] = 'assets(type,path)'
+  params['fields'] = 'images(name)'
   return params
 
 
 def convert_list_images_result_to_get_list_result(result):
   """Converts a listImages result to something getList can return."""
-  # listImages and listAssets have basically identical result types.
-  return convert_list_assets_result_to_get_list_result(result)
+  if 'images' not in result:
+    return []
+  return [_convert_image_for_get_list_result(i) for i in result['images']]
 
 
 def _convert_asset_for_get_list_result(asset):
   """Converts an EarthEngineAsset to the format returned by getList."""
   result = _convert_dict(
       asset, {
-          'path': 'id',
+          'name': 'id',
           'type': ('type', _convert_asset_type_for_get_list_result)
       },
       defaults={'type': 'Unknown'})
+  return result
+
+
+def _convert_image_for_get_list_result(asset):
+  """Converts an Image to the format returned by getList."""
+  result = _convert_dict(
+      asset, {
+          'name': 'id',
+      },
+      defaults={'type': 'Image'})
   return result
 
 
@@ -368,7 +395,54 @@ def convert_operation_name_to_task_id(operation_name):
 
 def convert_task_id_to_operation_name(task_id):
   """Converts a task ID to an Operation name."""
-  return 'operations/' + task_id
+  return 'projects/earthengine-legacy/operations/' + task_id
+
+
+def convert_params_to_image_manifest(params):
+  """Converts params to an ImageManifest for ingestion."""
+  return _convert_dict(
+      params, {
+          'id': ('name', convert_asset_id_to_asset_name),
+          'tilesets': ('tilesets', convert_tilesets_to_one_platform_tilesets)
+      },
+      retain_keys=True)
+
+
+def convert_params_to_table_manifest(params):
+  """Converts params to a TableManifest for ingestion."""
+  return _convert_dict(
+      params, {
+          'id': ('name', convert_asset_id_to_asset_name),
+          'sources': ('sources', convert_sources_to_one_platform_sources),
+      },
+      retain_keys=True)
+
+
+def convert_tilesets_to_one_platform_tilesets(tilesets):
+  """Converts a tileset to a one platform representation of a tileset."""
+  converted_tilesets = []
+  for tileset in tilesets:
+    converted_tileset = _convert_dict(
+        tileset,
+        {'sources': ('sources', convert_sources_to_one_platform_sources)},
+        retain_keys=True)
+    converted_tilesets.append(converted_tileset)
+  return converted_tilesets
+
+
+def convert_sources_to_one_platform_sources(sources):
+  """Converts the sources to one platform representation of sources."""
+  converted_sources = []
+  for source in sources:
+    if 'primaryPath' in source:
+      converted_source = {'uris': [source['primaryPath']]}
+      if 'additionalPaths' in source:
+        for additional_path in source['additionalPaths']:
+          converted_source['uris'].append(additional_path)
+      converted_sources.append(converted_source)
+    else:
+      converted_sources.append(source)
+  return converted_sources
 
 
 def encode_number_as_cloud_value(number):
@@ -459,12 +533,12 @@ def convert_to_image_file_format(format_str):
     A best guess at the corresponding ImageFileFormat enum name.
   """
   if format_str is None:
-    return 'AUTO_PNG_JPEG'
+    return 'AUTO_JPEG_PNG'
   format_str = format_str.upper()
   if format_str == 'JPG':
     return 'JPEG'
   elif format_str == 'AUTO':
-    return 'AUTO_PNG_JPEG'
+    return 'AUTO_JPEG_PNG'
   elif format_str == 'GEOTIFF':
     return 'GEO_TIFF'
   elif format_str == 'TFRECORD':
