@@ -303,7 +303,8 @@ class CloudApiUtilsTest(unittest.TestCase):
         'creation_timestamp_ms': 1538676001749,
         'id': '7T42Q7FH4KSIXQKGT6MJFBPX',
         'update_timestamp_ms': 1538676053218,
-        'task_type': 'UNKNOWN'
+        'task_type': 'INGEST_IMAGE',
+        'destination_uris': ['https://test.com'],
     },
                      _cloud_api_utils.convert_operation_to_task({
                          'metadata': {
@@ -312,10 +313,12 @@ class CloudApiUtilsTest(unittest.TestCase):
                              'description': 'Ingest image: "an/image"',
                              'startTime': '2018-10-04T18:00:04Z',
                              'state': 'SUCCEEDED',
-                             'endTime': '2018-10-04T18:00:53.218488Z'
+                             'endTime': '2018-10-04T18:00:53.218488Z',
+                             'type': 'INGEST_IMAGE',
+                             'destinationUris': ['https://test.com'],
                          },
                          'done': True,
-                         'name': 'operations/7T42Q7FH4KSIXQKGT6MJFBPX'
+                         'name': 'operations/7T42Q7FH4KSIXQKGT6MJFBPX',
                      }))
 
   def test_convert_iam_policy_to_acl(self):

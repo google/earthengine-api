@@ -15,6 +15,7 @@ import math
 import numbers
 import six
 
+from . import _cloud_api_utils
 from . import ee_exception
 from . import encodable
 

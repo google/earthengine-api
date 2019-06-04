@@ -1342,6 +1342,7 @@ def startTableIngestion(request_id, params, allow_overwrite=False):
         'id':
             _cloud_api_utils.convert_operation_name_to_task_id(
                 operation['name']),
+        'name': operation['name'],
         'started': 'OK'
     }
   args = {

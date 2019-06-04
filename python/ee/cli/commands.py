@@ -58,6 +58,8 @@ TASK_TYPES = {
     'EXPORT_TILES': 'Export.map',
     'EXPORT_VIDEO': 'Export.video',
     'INGEST': 'Upload',
+    'INGEST_IMAGE': 'Upload',
+    'INGEST_TABLE': 'Upload',
 }
 
 
@@ -966,6 +968,8 @@ class TaskInfoCommand(object):
               % self._format_time(status['update_timestamp_ms']))
       if 'error_message' in status:
         print('  Error: %s' % status['error_message'])
+      if 'destination_uris' in status:
+        print('  Destination URIs: %s' % ', '.join(status['destination_uris']))
 
   def _format_time(self, millis):
     return datetime.datetime.fromtimestamp(millis / 1000)

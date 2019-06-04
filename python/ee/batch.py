@@ -12,6 +12,7 @@ The public function styling uses camelCase to match the JavaScript names.
 import json
 import six
 
+from . import _cloud_api_utils
 from . import data
 from . import ee_exception
 from . import geometry

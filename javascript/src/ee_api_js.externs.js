@@ -1025,10 +1025,11 @@ ee.data.clearAuthToken = function() {
 /**
  * @param {string} sourceId
  * @param {string} destinationId
+ * @param {boolean=} opt_overwrite
  * @param {function((Object|null), string=): ?=} opt_callback
  * @return {undefined}
  */
-ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
+ee.data.copyAsset = function(sourceId, destinationId, opt_overwrite, opt_callback) {
 };
 /**
  * @param {(Object|string)} value

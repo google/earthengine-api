@@ -336,7 +336,19 @@ ee.data.refreshAuthToken = function(
     if (result.error == 'immediate_failed' && opt_onImmediateFailed) {
       opt_onImmediateFailed();
     } else {
-      ee.data.handleAuthResult_(opt_success, opt_error, result);
+      try {
+        // Refresh the library auth token and handle error propagation.
+        ee.data.ensureAuthLibLoaded_(function() {
+          try {
+            goog.global['gapi']['auth']['setToken'](result);
+            ee.data.handleAuthResult_(opt_success, opt_error, result);
+          } catch (e) {
+            opt_error(e.toString());
+          }
+        });
+      } catch (e) {
+        opt_error(e.toString());
+      }
     }
   });
 };
@@ -1244,13 +1256,18 @@ ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
  *
  * @param {string} sourceId The ID of the asset to copy.
  * @param {string} destinationId The ID of the new asset created by copying.
+ * @param {boolean=} opt_overwrite Overwrite any existing destination asset ID.
  * @param {function(?Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously. The callback is
  *     passed an empty object and an error message, if any.
  * @export
  */
-ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
+ee.data.copyAsset = function(
+    sourceId, destinationId, opt_overwrite, opt_callback) {
   var params = {'sourceId': sourceId, 'destinationId': destinationId};
+  if (opt_overwrite) {
+    params['allowOverwrite'] = opt_overwrite;
+  }
   ee.data.send_('/copy', ee.data.makeRequest_(params), opt_callback);
 };
 
@@ -3013,17 +3030,17 @@ ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
 /**
  * Handles processing and dispatching a callback response.
  * @param {number} status The status code of the response.
- * @param {function(string):string?} getResponseHeader A function for getting
- *     the value of a response headers for a given header name.
+ * @param {function(string):string?} getResponseHeader A function for
+ *     getting the value of a response headers for a given header name.
  * @param {string} responseText The text of the response.
  * @param {?function(string)} profileHook The profile hook at the time the
  *     request was created.
- * @param {function(?,string=)=} opt_callback An optional callback to execute if
- *     the request is asynchronous.
+ * @param {function(?,string=)=} opt_callback An optional callback to
+ *     execute if the request is asynchronous.
  * @param {function(!Object):!Object=} opt_getData A function to extract the
  *     data payload from the response.  Defaults to using the 'data' field.
- * @return {Object} The response data, if the request is synchronous, otherwise
- *     null, if the request is asynchronous.
+ * @return {?Object} The response data, if the request is synchronous,
+ *     otherwise null, if the request is asynchronous.
  * @private
  */
 ee.data.handleResponse_ = function(

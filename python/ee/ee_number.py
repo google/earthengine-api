@@ -5,6 +5,7 @@
 
 import numbers
 
+from . import _cloud_api_utils
 from . import apifunction
 from . import computedobject
 from . import ee_exception

@@ -99,7 +99,7 @@ def build_cloud_resource(api_base_url,
     A resource object to use to call the Cloud API.
   """
   discovery_service_url = (
-      '{}/$discovery/rest?version=v1&prettyPrint=false'
+      '{}/$discovery/rest?version=v1alpha&prettyPrint=false'
       .format(api_base_url))
   if http_transport is None:
     http_transport = httplib2.Http(timeout=timeout)
@@ -668,13 +668,14 @@ def convert_operation_to_task(operation):
           'updateTime': ('update_timestamp_ms', _convert_timestamp_to_msec),
           'startTime': ('start_timestamp_ms', _convert_timestamp_to_msec),
           'state': ('state', _convert_operation_state_to_task_state),
-          'description': 'description'
+          'description': 'description',
+          'type': 'task_type',
+          'destinationUris': 'destination_uris',
           })
   if operation.get('done'):
     if 'error' in operation:
       result['error_message'] = operation['error']['message']
   result['id'] = convert_operation_name_to_task_id(operation['name'])
-  result['task_type'] = 'UNKNOWN'
   return result
 
 

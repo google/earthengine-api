@@ -547,6 +547,13 @@ $jscomp.polyfill("Set", function(NativeSet) {
   };
   return PolyfillSet;
 }, "es6", "es3");
+$jscomp.polyfill("Array.prototype.values", function(orig) {
+  return orig ? orig : function() {
+    return $jscomp.iteratorFromArray(this, function(k, v) {
+      return v;
+    });
+  };
+}, "es8", "es3");
 $jscomp.polyfill("Object.entries", function(orig) {
   return orig ? orig : function(obj) {
     var result = [], key;
@@ -554,13 +561,6 @@ $jscomp.polyfill("Object.entries", function(orig) {
       $jscomp.owns(obj, key) && result.push([key, obj[key]]);
     }
     return result;
-  };
-}, "es8", "es3");
-$jscomp.polyfill("Array.prototype.values", function(orig) {
-  return orig ? orig : function() {
-    return $jscomp.iteratorFromArray(this, function(k, v) {
-      return v;
-    });
   };
 }, "es8", "es3");
 $jscomp.polyfill("Object.values", function(orig) {
@@ -2370,11 +2370,14 @@ goog.labs.userAgent.browser.matchEdgeHtml_ = function() {
 goog.labs.userAgent.browser.matchEdgeChromium_ = function() {
   return goog.labs.userAgent.util.matchUserAgent("Edg/");
 };
+goog.labs.userAgent.browser.matchOperaChromium_ = function() {
+  return goog.labs.userAgent.util.matchUserAgent("OPR");
+};
 goog.labs.userAgent.browser.matchFirefox_ = function() {
   return goog.labs.userAgent.util.matchUserAgent("Firefox") || goog.labs.userAgent.util.matchUserAgent("FxiOS");
 };
 goog.labs.userAgent.browser.matchSafari_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Safari") && !(goog.labs.userAgent.browser.matchChrome_() || goog.labs.userAgent.browser.matchCoast_() || goog.labs.userAgent.browser.matchOpera_() || goog.labs.userAgent.browser.matchEdgeHtml_() || goog.labs.userAgent.browser.matchEdgeChromium_() || goog.labs.userAgent.browser.matchFirefox_() || goog.labs.userAgent.browser.isSilk() || goog.labs.userAgent.util.matchUserAgent("Android"));
+  return goog.labs.userAgent.util.matchUserAgent("Safari") && !(goog.labs.userAgent.browser.matchChrome_() || goog.labs.userAgent.browser.matchCoast_() || goog.labs.userAgent.browser.matchOpera_() || goog.labs.userAgent.browser.matchEdgeHtml_() || goog.labs.userAgent.browser.matchEdgeChromium_() || goog.labs.userAgent.browser.matchOperaChromium_() || goog.labs.userAgent.browser.matchFirefox_() || goog.labs.userAgent.browser.isSilk() || goog.labs.userAgent.util.matchUserAgent("Android"));
 };
 goog.labs.userAgent.browser.matchCoast_ = function() {
   return goog.labs.userAgent.util.matchUserAgent("Coast");
@@ -2392,6 +2395,7 @@ goog.labs.userAgent.browser.isOpera = goog.labs.userAgent.browser.matchOpera_;
 goog.labs.userAgent.browser.isIE = goog.labs.userAgent.browser.matchIE_;
 goog.labs.userAgent.browser.isEdge = goog.labs.userAgent.browser.matchEdgeHtml_;
 goog.labs.userAgent.browser.isEdgeChromium = goog.labs.userAgent.browser.matchEdgeChromium_;
+goog.labs.userAgent.browser.isOperaChromium = goog.labs.userAgent.browser.matchOperaChromium_;
 goog.labs.userAgent.browser.isFirefox = goog.labs.userAgent.browser.matchFirefox_;
 goog.labs.userAgent.browser.isSafari = goog.labs.userAgent.browser.matchSafari_;
 goog.labs.userAgent.browser.isCoast = goog.labs.userAgent.browser.matchCoast_;
@@ -6613,6 +6617,8 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
   result.startTime && (properties["system:time_start"] = Date.parse(result.startTime));
   result.endTime && (properties["system:time_end"] = Date.parse(result.endTime));
   result.geometry && (properties["system:footprint"] = result.geometry);
+  goog.isString(result.title) && (properties["system:title"] = result.title);
+  goog.isString(result.description) && (properties["system:description"] = result.description);
   result.updateTime && (asset.version = 1000 * Date.parse(result.updateTime));
   asset.properties = properties;
   result.bands && (asset.bands = result.bands.map(function(band) {
@@ -6633,6 +6639,8 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   extractValue("system:time_start") && (asset.startTime = toTimestamp(value));
   extractValue("system:time_end") && (asset.endTime = toTimestamp(value));
   extractValue("system:footprint") && (asset.geometry = value);
+  goog.isString(extractValue("system:title")) && (asset.title = value);
+  goog.isString(extractValue("system:description")) && (asset.description = value);
   asset.properties = properties;
   return asset;
 };
@@ -6697,7 +6705,7 @@ ee.rpc_convert.aclToIamPolicy = function(acls) {
   }), etag:null};
 };
 ee.rpc_convert.taskIdToOperationName = function(param) {
-  return "operations/" + param;
+  return "projects/earthengine-legacy/operations/" + param;
 };
 ee.rpc_convert.operationNameToTaskId = function(result) {
   return result.replace(/^operations\//, "");
@@ -6750,7 +6758,32 @@ ee.rpc_convert.toImageManifest = function(params) {
     var sources = (tileset.sources || []).map(ee.rpc_convert.toOnePlatformSource);
     return Object.assign({}, tileset, {sources:sources});
   });
+  manifest.bands = (params.bands || []).map(function(band) {
+    var missingData = ee.rpc_convert.toOnePlatformMissingData(band.missingData);
+    return Object.assign({}, band, {missingData:missingData});
+  });
+  manifest.missingData = ee.rpc_convert.toOnePlatformMissingData(params.missingData);
+  manifest.maskBands = goog.array.flatten((manifest.tilesets || []).map(ee.rpc_convert.toOnePlatformMaskBands));
+  manifest.pyramidingPolicy = params.pyramidingPolicy || null;
   return manifest;
+};
+ee.rpc_convert.toOnePlatformMaskBands = function(tileset) {
+  var maskBands = [];
+  if (!goog.isArray(tileset.fileBands)) {
+    return maskBands;
+  }
+  var convertMaskConfig = function(maskConfig) {
+    var bandIds = [];
+    goog.isDefAndNotNull(maskConfig) && goog.isArray(maskConfig.bandId) && (bandIds = maskConfig.bandId.map(function(bandId) {
+      return bandId || "";
+    }));
+    return {tilesetId:tileset.id || "", bandIds:bandIds};
+  };
+  tileset.fileBands.forEach(function(fileBand) {
+    fileBand.maskForAllBands ? maskBands.push(convertMaskConfig(null)) : goog.isDefAndNotNull(fileBand.maskForBands) && maskBands.push(convertMaskConfig(fileBand.maskForBands));
+  });
+  delete tileset.fileBands;
+  return maskBands;
 };
 ee.rpc_convert.toTableManifest = function(params) {
   var manifest = Object.assign({}, params);
@@ -6758,6 +6791,17 @@ ee.rpc_convert.toTableManifest = function(params) {
   manifest.name = ee.rpc_convert.assetIdToAssetName(params.id);
   manifest.sources = (params.sources || []).map(ee.rpc_convert.toOnePlatformSource);
   return manifest;
+};
+ee.rpc_convert.toOnePlatformMissingData = function(params) {
+  if (!goog.isDefAndNotNull(params)) {
+    return null;
+  }
+  var missingData = {values:[]};
+  goog.isDefAndNotNull(params.value) && goog.isNumber(params.value) && missingData.values.push(params.value);
+  goog.isArray(params.values) && params.values.map(function(value) {
+    goog.isNumber(value) && missingData.values.push(value);
+  });
+  return goog.array.isEmpty(missingData.values) ? null : missingData;
 };
 goog.crypt = {};
 goog.crypt.Hash = function() {
@@ -14379,7 +14423,21 @@ ee.data.refreshAuthToken = function(opt_success, opt_error, opt_onImmediateFaile
   if (ee.data.isAuthTokenRefreshingEnabled_()) {
     var authArgs = {client_id:String(ee.data.authClientId_), immediate:!0, scope:ee.data.authScopes_.join(" ")};
     ee.data.authTokenRefresher_(authArgs, function(result) {
-      "immediate_failed" == result.error && opt_onImmediateFailed ? opt_onImmediateFailed() : ee.data.handleAuthResult_(opt_success, opt_error, result);
+      if ("immediate_failed" == result.error && opt_onImmediateFailed) {
+        opt_onImmediateFailed();
+      } else {
+        try {
+          ee.data.ensureAuthLibLoaded_(function() {
+            try {
+              goog.global.gapi.auth.setToken(result), ee.data.handleAuthResult_(opt_success, opt_error, result);
+            } catch (e) {
+              opt_error(e.toString());
+            }
+          });
+        } catch (e) {
+          opt_error(e.toString());
+        }
+      }
     });
   }
 };
@@ -14410,6 +14468,7 @@ ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl, opt_xsrfToken) {
       gapi.client.init({apiKey:ee.data.cloudApiKey_, discoveryDocs:[discoveryDoc]}).then(function() {
         ee.data.cloudApiReady_ = !0;
         gapi.config.update("client/headers/request", [ee.data.PROFILE_REQUEST_HEADER]);
+        gapi.config.update("client/headers/response", [ee.data.PROFILE_HEADER]);
         resolve();
       });
     }, onerror:reject});
@@ -14427,39 +14486,52 @@ ee.data.reset = function() {
 };
 ee.data.sendCloudApiRequest_ = function(callApi, getResponse, opt_callback, opt_retries) {
   ee.data.initialize();
+  if (!goog.isDefAndNotNull(ee.data.getAuthToken()) && opt_callback && ee.data.isAuthTokenRefreshingEnabled_()) {
+    return ee.data.refreshAuthToken(function() {
+      ee.data.sendCloudApiRequest_(callApi, getResponse, opt_callback, opt_retries);
+    }), null;
+  }
   var callApiWithHeaders = ee.data.profileHook_ ? function() {
     var request = callApi();
     ee.data.getGapiHeaders_(request)[ee.data.PROFILE_REQUEST_HEADER] = "1";
     return request;
-  } : callApi;
+  } : callApi, profileHookAtCallTime = ee.data.profileHook_;
   if (opt_callback) {
     var handler = function(payload) {
-      return ee.data.handleResponse_(payload.status, function(h) {
-        return payload.headers[h.toLowerCase()];
-      }, payload.body, null, opt_callback, getResponse || goog.functions.identity);
+      return ee.data.handleResponse_(payload.status, function(headerKey) {
+        if (goog.isDefAndNotNull(payload) && goog.isDefAndNotNull(payload.headers)) {
+          return payload.headers[headerKey.toLowerCase()];
+        }
+      }, payload.body, profileHookAtCallTime, opt_callback, getResponse || goog.functions.identity);
     };
     ee.data.cloudApiReadyPromise_.then(function() {
-      callApiWithHeaders().then(handler, handler);
+      ee.data.requestWithRetries_(callApiWithHeaders, opt_retries)(handler, handler);
     });
     return null;
   }
   if (!ee.data.cloudApiReady_) {
     throw Error("Cloud API not ready");
   }
-  var xhr = ee.data.hijackXhr_(function() {
-    callApiWithHeaders().then(function() {
-      return null;
-    }, function() {
-      return null;
+  for (var retries = 0, xhr;;) {
+    xhr = ee.data.hijackXhr_(function() {
+      callApiWithHeaders().then(function() {
+        return null;
+      }, function() {
+        return null;
+      });
     });
-  });
+    if (429 != xhr.status || retries > ee.data.MAX_SYNC_RETRIES_) {
+      break;
+    }
+    ++retries;
+  }
   return ee.data.handleResponse_(xhr.status, function(h) {
     try {
       return xhr.getResponseHeader(h);
     } catch (e) {
       return null;
     }
-  }, xhr.responseText, null, void 0, getResponse || goog.functions.identity);
+  }, xhr.responseText, profileHookAtCallTime, void 0, getResponse || goog.functions.identity);
 };
 ee.data.getGapiHeaders_ = function(request) {
   var hasHeaders = function(value) {
@@ -14795,7 +14867,8 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
     var taskType = params.type, options = {project:ee.data.getProjectsPath_()};
     switch(taskType) {
       case ee.data.ExportType.IMAGE:
-        var imageRequest = ee.rpc_convert_batch.taskToExportImageRequest(params);
+        var imageTask = ee.data.images.applyTransformsToImage(params);
+        var imageRequest = ee.rpc_convert_batch.taskToExportImageRequest(imageTask);
         imageRequest.expression = ee.data.expressionAugmenter_(imageRequest.expression);
         var callApi = function() {
           return gapi.client.earthengine.projects.image["export"](options, imageRequest);
@@ -14854,13 +14927,13 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
   return ee.data.send_("/ingestionrequest", ee.data.makeRequest_(params), opt_callback);
 };
 ee.data.ingestImage = function(taskId, imageManifest, callback) {
-  var options = {project:ee.data.getProjectsPath_()}, body = {imageManifest:imageManifest, requestId:taskId, overwrite:!1, description:null};
+  var options = {project:ee.data.getProjectsPath_()}, body = {imageManifest:imageManifest, requestId:taskId, overwrite:null, description:null};
   return ee.data.sendCloudApiRequest_(function() {
     return gapi.client.earthengine.projects.image["import"](options, body);
   }, null, callback, taskId ? void 0 : 0);
 };
 ee.data.ingestTable = function(taskId, tableManifest, callback) {
-  var options = {project:ee.data.getProjectsPath_()}, body = {tableManifest:tableManifest, requestId:taskId, overwrite:!1, description:null};
+  var options = {project:ee.data.getProjectsPath_()}, body = {tableManifest:tableManifest, requestId:taskId, overwrite:null, description:null};
   return ee.data.sendCloudApiRequest_(function() {
     return gapi.client.earthengine.projects.table["import"](options, body);
   }, null, callback, taskId ? void 0 : 0);
@@ -14965,7 +15038,7 @@ ee.data.createAsset = function(value, opt_path, opt_force, opt_properties, opt_c
     delete asset.name;
     opt_properties && !asset.properties && (asset.properties = opt_properties);
     asset.type = ee.rpc_convert.assetTypeForCreate(asset.type);
-    var options = {parent:name.slice(0, split), assetId:name.slice(split + 8), overwrite:opt_force || !1};
+    var options = {parent:name.slice(0, split), assetId:name.slice(split + 8)};
     return ee.data.sendCloudApiRequest_(function() {
       return gapi.client.earthengine.projects.assets.create(options, asset);
     }, null, opt_callback);
@@ -14999,14 +15072,16 @@ ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
     ee.data.send_("/rename", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
   }
 };
-ee.data.copyAsset = function(sourceId, destinationId, opt_callback) {
+ee.data.copyAsset = function(sourceId, destinationId, opt_overwrite, opt_callback) {
   if (ee.data.cloudApiEnabled_) {
-    var body = {sourceName:ee.rpc_convert.assetIdToAssetName(sourceId), destinationName:ee.rpc_convert.assetIdToAssetName(destinationId), overwrite:!1, sourcePath:null, destinationPath:null, bandIds:null};
+    var body = {sourceName:ee.rpc_convert.assetIdToAssetName(sourceId), destinationName:ee.rpc_convert.assetIdToAssetName(destinationId), overwrite:goog.isDefAndNotNull(opt_overwrite) ? opt_overwrite : null, sourcePath:null, destinationPath:null, bandIds:null};
     ee.data.sendCloudApiRequest_(function() {
       return gapi.client.earthengine.projects.assets.copy(body);
     }, null, opt_callback);
   } else {
-    ee.data.send_("/copy", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
+    var params = {sourceId:sourceId, destinationId:destinationId};
+    opt_overwrite && (params.allowOverwrite = opt_overwrite);
+    ee.data.send_("/copy", ee.data.makeRequest_(params), opt_callback);
   }
 };
 ee.data.deleteAsset = function(assetId, opt_callback) {
@@ -15246,6 +15321,29 @@ ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
   };
   return request;
 };
+ee.data.throttledCloudRequestPromise_ = function() {
+  return new Promise(function(resolve) {
+    ee.data.cloudRequestQueue_.push(resolve);
+  });
+};
+ee.data.requestWithRetries_ = function(callApi, retries) {
+  var maxRetryCount = goog.isNumber(retries) ? retries : ee.data.MAX_ASYNC_RETRIES_, retryCount = 0, handleRetry = function(successHandler, failureHandler) {
+    return function(response) {
+      429 === response.status && retryCount++ < maxRetryCount ? setTimeout(function() {
+        ee.data.throttledCloudRequestPromise_().then(function() {
+          callApi().then(handleRetry(successHandler, failureHandler), failureHandler);
+        });
+        ee.data.CloudRequestThrottle_.fire();
+      }, ee.data.calculateRetryWait_(retryCount)) : successHandler(response);
+    };
+  };
+  return function(successHandler, failureHandler) {
+    ee.data.throttledCloudRequestPromise_().then(function() {
+      callApi().then(handleRetry(successHandler, failureHandler), failureHandler);
+    });
+    ee.data.CloudRequestThrottle_.fire();
+  };
+};
 ee.data.handleResponse_ = function(status, getResponseHeader, responseText, profileHook, opt_callback, opt_getData) {
   opt_getData = void 0 === opt_getData ? function(response) {
     return response.data;
@@ -15394,11 +15492,17 @@ ee.data.sleep_ = function(timeInMs) {
 ee.data.NetworkRequest_ = function() {
 };
 ee.data.requestQueue_ = [];
+ee.data.cloudRequestQueue_ = [];
 ee.data.REQUEST_THROTTLE_INTERVAL_MS_ = 350;
 ee.data.RequestThrottle_ = new goog.async.Throttle(function() {
   var request = ee.data.requestQueue_.shift();
   request && goog.net.XhrIo.send(request.url, request.callback, request.method, request.content, request.headers, ee.data.deadlineMs_);
   goog.array.isEmpty(ee.data.requestQueue_) || ee.data.RequestThrottle_.fire();
+}, ee.data.REQUEST_THROTTLE_INTERVAL_MS_);
+ee.data.CloudRequestThrottle_ = new goog.async.Throttle(function() {
+  var resolve = ee.data.cloudRequestQueue_.shift();
+  goog.isFunction(resolve) && resolve();
+  goog.array.isEmpty(ee.data.cloudRequestQueue_) || ee.data.CloudRequestThrottle_.fire();
 }, ee.data.REQUEST_THROTTLE_INTERVAL_MS_);
 ee.data.apiBaseUrl_ = null;
 ee.data.tileBaseUrl_ = null;
@@ -16377,6 +16481,12 @@ ee.Feature.prototype.name = function() {
   return "Feature";
 };
 ee.data.images = {};
+ee.data.images.applyTransformsToImage = function(taskConfig) {
+  var resultParams = {}, image = ee.data.images.applyCrsAndTransform(taskConfig.element, taskConfig);
+  image = ee.data.images.applySelectionAndScale(image, taskConfig, resultParams);
+  resultParams.element = image;
+  return resultParams;
+};
 ee.data.images.applySelectionAndScale = function(image, params, outParams) {
   var clipParams = {};
   goog.object.forEach(params, function(value, key) {
@@ -16398,7 +16508,8 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
         clipParams.geometry = new ee.Geometry(region);
         break;
       case "scale":
-        clipParams.scale = value;
+        clipParams.scale = Number(value);
+        break;
       default:
         outParams[key] = value;
     }
@@ -16975,18 +17086,12 @@ ee.batch.Export.resolveRegionParam = function(params) {
   if (region instanceof ee.ComputedObject) {
     return region instanceof ee.Element && (region = region.geometry()), new goog.Promise(function(resolve, reject) {
       region.getInfo(function(regionInfo, error) {
-        error ? reject(error) : (params.region = ee.batch.Export.serializeRegion(regionInfo), ee.data.getCloudApiEnabled() && params.type === ee.data.ExportType.IMAGE && (params.region = new ee.Geometry(regionInfo), ee.batch.Export.applyTransformsToImage(params)), resolve(params));
+        error ? reject(error) : (params.region = ee.data.getCloudApiEnabled() && params.type === ee.data.ExportType.IMAGE ? new ee.Geometry(regionInfo) : ee.batch.Export.serializeRegion(regionInfo), resolve(params));
       });
     });
   }
-  params.region = ee.batch.Export.serializeRegion(region);
+  params.region = ee.data.getCloudApiEnabled() && params.type === ee.data.ExportType.IMAGE ? new ee.Geometry(region) : ee.batch.Export.serializeRegion(region);
   return goog.Promise.resolve(params);
-};
-ee.batch.Export.applyTransformsToImage = function(taskConfig) {
-  var resultParams = {}, image = ee.data.images.applyCrsAndTransform(taskConfig.image, taskConfig);
-  image = ee.data.images.applySelectionAndScale(image, taskConfig, resultParams);
-  resultParams.image = image;
-  return resultParams;
 };
 ee.batch.Export.extractElement = function(exportArgs) {
   var isInArgs = function(key) {

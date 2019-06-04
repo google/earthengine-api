@@ -454,29 +454,10 @@ ee.batch.Export.resolveRegionParam = function(params) {
       });
     });
   }
-
   params['region'] = ee.batch.Export.serializeRegion(region);
   return GoogPromise.resolve(params);
 };
 
-
-/**
- * Encodes region, scale, affine transform, clipping, etc. to the server task
- * config.
- *
- * @param {!ee.batch.ServerTaskConfig} taskConfig Export parameters, some of
- *     which may be baked into the source image.
- * @return {!ee.batch.ServerTaskConfig}
- */
-ee.batch.Export.applyTransformsToImage = function(taskConfig) {
-  const resultParams = {};
-  let image =
-      ee.data.images.applyCrsAndTransform(taskConfig['image'], taskConfig);
-  image =
-      ee.data.images.applySelectionAndScale(image, taskConfig, resultParams);
-  resultParams['image'] = image;
-  return /** @type {!ee.batch.ServerTaskConfig} */ (resultParams);
-};
 
 
 /**

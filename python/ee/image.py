@@ -132,6 +132,134 @@ class Image(element.Element):
     response['image'] = self
     return response
 
+  def _apply_crs_and_affine(self, params):
+    """Applies any CRS and affine parameters to an image.
+
+    Wraps the image in a call to Reproject() if the request includes
+    specifying a CRS and affine transformation.
+
+    Args:
+      params: the request parameters.
+
+    Returns:
+      A tuple containing:
+      - the result of applying the projection parameters to this image
+      - any remaining parameters.
+    """
+    keys_to_extract = set(['crs', 'crs_transform', 'crsTransform'])
+    request = {}
+    reprojection_params = {}
+    if params:
+      for key in params:
+        if key in keys_to_extract:
+          reprojection_params[key] = params[key]
+        else:
+          request[key] = params[key]
+    image = self
+    if reprojection_params:
+      if 'crsTransform' in reprojection_params:
+        if 'crs_transform' in reprojection_params:
+          raise ee_exception.EEException(
+              'Both "crs_transform" and "crsTransform" are specified.')
+        reprojection_params['crs_transform'] = reprojection_params.pop(
+            'crsTransform')
+
+      if 'crs' not in reprojection_params:
+        raise ee_exception.EEException(
+            'Must specify "crs" if "crs_transform" is specified.')
+      crs = reprojection_params['crs']
+
+      if 'crs_transform' in reprojection_params:
+        crs_transform = reprojection_params['crs_transform']
+        # crs_transform can come in a bewildering variety of shapes: a list of
+        # numbers, an ee.List of possibly computed values, or even a
+        # comma-separated list of numbers, potentially wrapped in square
+        # brackets. Parameter coercion takes care of the first two, but we need
+        # to deal with the third.
+        if isinstance(crs_transform, six.string_types):
+          crs_transform = [
+              float(x) for x in crs_transform.lstrip('[').rstrip(']').split(',')
+          ]
+
+        image = image.reproject(crs, crsTransform=crs_transform)
+
+        # Special case here: If they specified "crs", "crs_transform", and a
+        # two-element "dimensions", but not a region or other parameters such
+        # as "scale", then the desired operation is to extract an exact
+        # rectangle in that exact projection, not what we'd otherwise
+        # interpret this as ("reproject to that projection, then resize to
+        # those dimensions"). Detect this and convert the dimensions to a
+        # Geometry: a Rectangle in that Projection.
+        if ('dimensions' in request and 'region' not in request and
+            'scale' not in request):
+          dimensions = _parse_dimensions(params['dimensions'])
+          if len(dimensions) == 2:
+            del request['dimensions']
+            desired_rectangle = geometry.Geometry.Rectangle(
+                [0, 0, dimensions[0], dimensions[1]],
+                proj=image.projection(),
+                evenOdd=True,
+                geodesic=False)
+            # This will take effect in _apply_selection_and_scale. The
+            # combination reprojection and clipping will result in the exact
+            # desired rectangle.
+            request['region'] = desired_rectangle
+      else:
+        # CRS but no CRS transform means that we reproject to that CRS using a
+        # default transform (with the Y coordinate flipped as we usually do) but
+        # don't resample after the reprojection, so that later operations can
+        # alter the image scale.
+        image = image.setDefaultProjection(
+            crs, crsTransform=[1, 0, 0, 0, -1, 0])
+
+    return image, request
+
+  def _apply_selection_and_scale(self, params):
+    """Applies region selection and scaling parameters to an image.
+
+    Wraps the image in a call to clipToBoundsAndScale() if there are any
+    recognized region selection and scale parameters present.
+
+    Args:
+      params: the request parameters.
+
+    Returns:
+      A tuple containing:
+      - the result of applying the selection and scale parameters to this
+        image
+      - any remaining (non-selection/scale) parameters.
+    """
+    keys_to_extract = set(['region', 'dimensions', 'scale'])
+    request = {}
+    selection_params = {}
+    if params:
+      for key in params:
+        if key not in keys_to_extract:
+          request[key] = params[key]
+        else:
+          if key == 'dimensions':
+            dimensions = _parse_dimensions(params['dimensions'])
+            if len(dimensions) == 1:
+              selection_params['maxDimension'] = dimensions[0]
+            elif len(dimensions) == 2:
+              selection_params['width'] = dimensions[0]
+              selection_params['height'] = dimensions[1]
+          elif key == 'region':
+            # Could be a Geometry, a GeoJSON struct, or a GeoJSON string.
+            # Geometry's constructor knows how to handle the first two.
+            region = params[key]
+            if isinstance(region, six.string_types):
+              region = json.loads(region)
+            selection_params['geometry'] = geometry.Geometry(region)
+          else:
+            selection_params[key] = params[key]
+
+    image = self
+    if selection_params:
+      selection_params['input'] = image
+      image = apifunction.ApiFunction.apply_('Image.clipToBoundsAndScale',
+                                             selection_params)
+    return image, request
 
   def _apply_visualization(self, params):
     """Applies visualization parameters to an image.
@@ -179,6 +307,12 @@ class Image(element.Element):
       - any remaining parameters.
     """
     image = self
+    # If the Cloud API is enabled, we can do cleaner handling of the parameters.
+    # If it isn't enabled, we have to be bug-for-bug compatible with current
+    # behaviour, so we do nothing.
+    if data._use_cloud_api:  # pylint: disable=protected-access
+      image, params = image._apply_crs_and_affine(params)  # pylint: disable=protected-access
+      image, params = image._apply_selection_and_scale(params)  # pylint: disable=protected-access
     return image, params
 
   def getDownloadURL(self, params=None):

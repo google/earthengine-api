@@ -3,6 +3,10 @@
 
 
 
+import contextlib
+import json
+import os
+from . import _cloud_api_utils
 
 import unittest
 
@@ -55,6 +59,30 @@ class ApiTestCase(unittest.TestCase):
       raise Exception('Unexpected API call to %s with %s' % (path, params))
 
 
+@contextlib.contextmanager
+def UsingCloudApi(cloud_api_resource=None, mock_http=None):
+  """Returns a context manager under which the Cloud API is enabled."""
+  old_use_cloud_api = ee.data._use_cloud_api
+  old_cloud_api_resource = ee.data._cloud_api_resource
+  try:
+    ee.data._use_cloud_api = True
+    if cloud_api_resource is None:
+      discovery_doc_path = os.path.join(
+         os.path.dirname(os.path.realpath(__file__)),
+         "tests/cloud_api_discovery_document.json")
+      with open(discovery_doc_path) as discovery_doc_file:
+        discovery_doc_str = discovery_doc_file.read()
+      cloud_api_resource = (
+          _cloud_api_utils.build_cloud_resource_from_document(
+              json.loads(discovery_doc_str),
+              http_transport=mock_http,
+              headers_supplier=ee.data._make_profiling_headers,
+              response_inspector=ee.data._handle_profiling_response))
+    ee.data._cloud_api_resource = cloud_api_resource
+    yield
+  finally:
+    ee.data._use_cloud_api = old_use_cloud_api
+    ee.data._cloud_api_resource = old_cloud_api_resource
 
 BUILTIN_FUNCTIONS = {
     'Image.constant': {
@@ -1927,3 +1955,132 @@ ENCODED_JSON_SAMPLE = {
     'value': {'type': 'ValueRef', 'value': '7'}
 }
 
+# A sample of encoded EE API JSON for the Cloud API, used by SerializerTest.
+ENCODED_CLOUD_API_JSON_SAMPLE = {
+    'values': {
+        '0': {
+            'arrayValue': {
+                'values': [
+                    {'constantValue': None},
+                    {'constantValue': True},
+                    {'constantValue': 5},
+                    {'constantValue': 7},
+                    {'constantValue': 3.4},
+                    {'integerValue': '112233445566778899'},
+                    {'constantValue': 'hello'},
+                    {'functionInvocationValue': {
+                        'functionName': 'Date',
+                        'arguments': {'value': {'constantValue': 1234567890000}}
+                    }},
+                    {'functionInvocationValue': {
+                        'functionName': 'GeometryConstructors.LineString',
+                        'arguments': {
+                            'crs': {'functionInvocationValue': {
+                                'functionName': 'Projection',
+                                'arguments': {
+                                    'crs': {'constantValue': 'SR-ORG:6974'}}
+                            }},
+                            'coordinates': {'arrayValue': {'values': [
+                                {'valueReference': '1'},
+                                {'constantValue': [3, 4]}
+                            ]}}
+                        }}},
+                    {'functionInvocationValue': {
+                        'functionName': 'GeometryConstructors.Polygon',
+                        'arguments': {
+                            'coordinates': {'arrayValue': {'values': [
+                                {'arrayValue': {'values': [
+                                    {'valueReference': '2'},
+                                    {'constantValue': [10, 0]},
+                                    {'constantValue': [10, 10]},
+                                    {'constantValue': [0, 10]},
+                                    {'valueReference': '2'}]}},
+                                {'constantValue':
+                                 [[5, 6], [7, 6], [7, 8], [5, 8]]},
+                                {'arrayValue': {'values': [
+                                    {'constantValue': [1, 1]},
+                                    {'constantValue': [2, 1]},
+                                    {'constantValue': [2, 2]},
+                                    {'valueReference': '1'}]}}
+                            ]}},
+                            'evenOdd': {'constantValue': True}}}},
+                    {'bytesValue': 'aGVsbG8='},
+                    {'dictionaryValue': {
+                        'values': {
+                            'baz': {'valueReference': '3'},
+                            'foo': {'constantValue': 'bar'},
+                        }
+                    }},
+                    {'valueReference': '3'},
+                    {'functionDefinitionValue': {
+                        'argumentNames': ['x', 'y'],
+                        'body': '4'}
+                    }
+                ]}},
+        '1': {'constantValue': [1, 2]},
+        '2': {'constantValue': [0, 0]},
+        '3': {'functionInvocationValue': {
+            'functionName': 'String.cat',
+            'arguments': {
+                'string1': {'constantValue': 'x'},
+                'string2': {'constantValue': 'y'}
+            }}},
+        '4': {'argumentReference': 'y'},
+    },
+    'result': '0'
+}
+ENCODED_CLOUD_API_JSON_SAMPLE_PRETTY = {
+    'arrayValue': {
+        'values': [
+            {'constantValue': None},
+            {'constantValue': True},
+            {'constantValue': 5},
+            {'constantValue': 7},
+            {'constantValue': 3.4},
+            {'integerValue': '112233445566778899'},
+            {'constantValue': 'hello'},
+            {'functionInvocationValue': {
+                'functionName': 'Date',
+                'arguments': {'value': {'constantValue': 1234567890000}}
+            }},
+            {'functionInvocationValue': {
+                'functionName': 'GeometryConstructors.LineString',
+                'arguments': {
+                    'crs': {'functionInvocationValue': {
+                        'functionName': 'Projection',
+                        'arguments': {
+                            'crs': {'constantValue': 'SR-ORG:6974'}}
+                    }},
+                    'coordinates': {'constantValue': [[1, 2], [3, 4]]}
+                }}},
+            {'functionInvocationValue': {
+                'functionName': 'GeometryConstructors.Polygon',
+                'arguments': {
+                    'coordinates': {
+                        'constantValue':
+                        [[[0, 0], [10, 0], [10, 10], [0, 10], [0, 0]],
+                         [[5, 6], [7, 6], [7, 8], [5, 8]],
+                         [[1, 1], [2, 1], [2, 2], [1, 2]]]},
+                    'evenOdd': {'constantValue': True}}}},
+            {'bytesValue': 'aGVsbG8='},
+            {'dictionaryValue': {
+                'values': {
+                    'baz': {'functionInvocationValue': {
+                        'functionName': 'String.cat',
+                        'arguments': {
+                            'string1': {'constantValue': 'x'},
+                            'string2': {'constantValue': 'y'}
+                        }}},
+                    'foo': {'constantValue': 'bar'},
+                }}},
+            {'functionInvocationValue': {
+                'functionName': 'String.cat',
+                'arguments': {
+                    'string1': {'constantValue': 'x'},
+                    'string2': {'constantValue': 'y'}
+                }}},
+            {'functionDefinitionValue': {
+                'argumentNames': ['x', 'y'],
+                'body': {'argumentReference': 'y'}}
+            }
+        ]}}
