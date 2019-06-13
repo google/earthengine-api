@@ -76,7 +76,7 @@ def UsingCloudApi(cloud_api_resource=None, mock_http=None):
           _cloud_api_utils.build_cloud_resource_from_document(
               json.loads(discovery_doc_str),
               http_transport=mock_http,
-              headers_supplier=ee.data._make_profiling_headers,
+              headers_supplier=ee.data._make_request_headers,
               response_inspector=ee.data._handle_profiling_response))
     ee.data._cloud_api_resource = cloud_api_resource
     yield

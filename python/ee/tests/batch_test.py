@@ -161,6 +161,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           geometry=ee.Geometry.LineString(region),
           scale=1000)
       self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
       self.assertEqual({
@@ -211,6 +212,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
               9.0, 8.0, 7.0, 6.0, 5.0, 4.0
           ]).clipToBoundsAndScale(geometry=region)
       self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
       self.assertEqual({
@@ -280,6 +282,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           assetId=config['assetId'],
           pyramidingPolicy=config['pyramidingPolicy'])
       self.assertIsNone(task_keyed.id)
+      self.assertIsNone(task_keyed.name)
       self.assertEqual('EXPORT_IMAGE', task_keyed.task_type)
       self.assertEqual('UNSUBMITTED', task_keyed.state)
       self.assertEqual({
@@ -349,6 +352,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       expected_expression = ee.Image(1).clipToBoundsAndScale(
           geometry=region)
       self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
       self.assertEqual({
@@ -493,6 +497,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           'foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0,
                                4.0]).clipToBoundsAndScale(geometry=region)
       self.assertIsNone(drive_task_by_keys.id)
+      self.assertIsNone(drive_task_by_keys.name)
       self.assertEqual('EXPORT_IMAGE', drive_task_by_keys.task_type)
       self.assertEqual('UNSUBMITTED', drive_task_by_keys.state)
       self.assertEqual({
@@ -515,6 +520,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           driveFileNamePrefix='fooExport', maxPixels=10**10,
           crs='foo', crs_transform='[9,8,7,6,5,4]')
       self.assertIsNone(drive_task_with_old_keys.id)
+      self.assertIsNone(drive_task_by_keys.name)
       self.assertEqual('EXPORT_IMAGE', drive_task_with_old_keys.task_type)
       self.assertEqual('UNSUBMITTED', drive_task_with_old_keys.state)
       self.assertEqual({
@@ -599,6 +605,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           maxZoom=config['maxZoom'], path=config['path'])
       expected_expression = ee.Image(1)
       self.assertIsNone(task_keyed.id)
+      self.assertIsNone(task_keyed.name)
       self.assertEqual('EXPORT_TILES', task_keyed.task_type)
       self.assertEqual('UNSUBMITTED', task_keyed.state)
       self.assertEqual({
@@ -628,6 +635,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           config['image'], 'TestDescription', config['bucket'], 'jpeg', None,
           False, None, 30, None, None, None, 'aFakeKey')
       self.assertIsNone(task_ordered.id)
+      self.assertIsNone(task_ordered.name)
       self.assertEqual('EXPORT_TILES', task_ordered.task_type)
       self.assertEqual('UNSUBMITTED', task_ordered.state)
       self.assertEqual({
@@ -664,6 +672,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     with apitestcase.UsingCloudApi():
       task = ee.batch.Export.table(ee.FeatureCollection('drive test FC'))
       self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
       self.assertEqual({
@@ -742,6 +751,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task = ee.batch.Export.table.toCloudStorage(
           collection=ee.FeatureCollection('foo'), outputBucket='test-bucket')
       self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
       self.assertEqual({
@@ -825,6 +835,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           test_collection, test_description,
           None, test_file_name_prefix, test_format)
       self.assertIsNone(task_ordered.id)
+      self.assertIsNone(task_ordered.name)
       self.assertEqual('EXPORT_FEATURES', task_ordered.task_type)
       self.assertEqual('UNSUBMITTED', task_ordered.state)
       self.assertEqual(expected_config, task_ordered.config)
@@ -871,6 +882,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       task = ee.batch.Export.table.toAsset(
           collection=ee.FeatureCollection('foo'), assetId='users/foo/bar')
       self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
       self.assertEqual({
@@ -929,6 +941,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       collection = ee.ImageCollection([ee.Image(1), ee.Image(2)])
       task = ee.batch.Export.video(collection, 'TestVideoName', config)
       self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
       self.assertEqual('EXPORT_VIDEO', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
       # Defaults the destination to Drive.
@@ -1065,6 +1078,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           crsTransform='[9,8,7,6,5,4]',
           crs='foo')
       self.assertIsNone(task_keyed.id)
+      self.assertIsNone(task_keyed.name)
       self.assertEqual('EXPORT_VIDEO', task_keyed.task_type)
       self.assertEqual('UNSUBMITTED', task_keyed.state)
       self.assertEqual(
@@ -1151,6 +1165,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           crsTransform='[9,8,7,6,5,4]',
           region=region['coordinates'])
       self.assertIsNone(task_keyed.id)
+      self.assertIsNone(task_keyed.name)
       self.assertEqual('EXPORT_VIDEO', task_keyed.task_type)
       self.assertEqual('UNSUBMITTED', task_keyed.state)
       self.assertEqual(

@@ -175,16 +175,6 @@ ee.CustomFunction = function(signature, body) {
 ee.Date = function(date, opt_tz) {
 };
 /**
- * @param {(ee.ComputedObject|number|string)} start
- * @param {(ee.ComputedObject|number|string)=} opt_end
- * @param {string=} opt_tz
- * @return {?}
- * @extends {ee.ComputedObject}
- * @constructor
- */
-ee.DateRange = function(start, opt_end, opt_tz) {
-};
-/**
  * @constructor
  */
 ee.Deserializer = function() {
@@ -1122,6 +1112,13 @@ ee.data.getCloudApiEnabled = function() {
  */
 ee.data.getDownloadId = function(params, opt_callback) {
 };
+/**
+ * @param {!ee.data.FilmstripThumbnailOptions} params
+ * @param {function(!ee.data.ThumbnailId, string=): ?=} opt_callback
+ * @return {(ee.data.ThumbnailId|null)}
+ */
+ee.data.getFilmstripThumbId = function(params, opt_callback) {
+};
 ee.data.getInfo;
 /**
  * @param {!Object} params
@@ -1198,6 +1195,13 @@ ee.data.getTileUrl = function(mapid, x, y, z) {
  * @return {?}
  */
 ee.data.getValue = function(params, opt_callback) {
+};
+/**
+ * @param {!ee.data.VideoThumbnailOptions} params
+ * @param {function(!ee.data.ThumbnailId, string=): ?=} opt_callback
+ * @return {(ee.data.ThumbnailId|null)}
+ */
+ee.data.getVideoThumbId = function(params, opt_callback) {
 };
 /**
  * @return {(null|string)}
@@ -1310,7 +1314,7 @@ ee.data.setCloudApiEnabled = function(enable) {
 ee.data.setDeadline = function(milliseconds) {
 };
 /**
- * @param {(function({result: (null|string), values: (Object<string,{argumentReference: (null|string), arrayValue: (null|{values: (Array<?>|null)}), bytesValue: (null|string), constantValue: *, dictionaryValue: (null|{values: (Object<string,?>|null)}), functionDefinitionValue: (null|{argumentNames: (Array<string>|null), body: (null|string)}), functionInvocationValue: (null|{arguments: (Object<string,?>|null), functionName: (null|string), functionReference: (null|string)}), integerValue: (null|string), valueReference: (null|string)}>|null)}): {result: (null|string), values: (Object<string,{argumentReference: (null|string), arrayValue: (null|{values: (Array<?>|null)}), bytesValue: (null|string), constantValue: *, dictionaryValue: (null|{values: (Object<string,?>|null)}), functionDefinitionValue: (null|{argumentNames: (Array<string>|null), body: (null|string)}), functionInvocationValue: (null|{arguments: (Object<string,?>|null), functionName: (null|string), functionReference: (null|string)}), integerValue: (null|string), valueReference: (null|string)}>|null)}|null)} augmenter
+ * @param {(function({result: (null|string), values: (Object<string,{argumentReference: (null|string), arrayValue: (null|{values: (Array<?>|null)}), bytesValue: (null|string), constantValue: *, dictionaryValue: (null|{values: (Object<string,?>|null)}), functionDefinitionValue: (null|{argumentNames: (Array<string>|null), body: (null|string)}), functionInvocationValue: (null|{arguments: (Object<string,?>|null), functionName: (null|string), functionReference: (null|string)}), integerValue: (null|string), valueReference: (null|string)}>|null)}, !Object=): {result: (null|string), values: (Object<string,{argumentReference: (null|string), arrayValue: (null|{values: (Array<?>|null)}), bytesValue: (null|string), constantValue: *, dictionaryValue: (null|{values: (Object<string,?>|null)}), functionDefinitionValue: (null|{argumentNames: (Array<string>|null), body: (null|string)}), functionInvocationValue: (null|{arguments: (Object<string,?>|null), functionName: (null|string), functionReference: (null|string)}), integerValue: (null|string), valueReference: (null|string)}>|null)}|null)} augmenter
  * @return {undefined}
  */
 ee.data.setExpressionAugmenter = function(augmenter) {

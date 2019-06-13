@@ -15,6 +15,10 @@ from ee import ee_exception
 
 class CloudApiUtilsTest(unittest.TestCase):
 
+  def setUp(self):
+    super(CloudApiUtilsTest, self).setUp()
+    _cloud_api_utils.set_cloud_api_user_project('earthengine-legacy')
+
   def test_convert_dict_simple(self):
     result = _cloud_api_utils._convert_dict({
         'x': 99,
@@ -132,6 +136,10 @@ class CloudApiUtilsTest(unittest.TestCase):
         'taskId',
         _cloud_api_utils.convert_operation_name_to_task_id(
             'operations/taskId'))
+    self.assertEqual(
+        'taskId',
+        _cloud_api_utils.convert_operation_name_to_task_id(
+            'projects/test/operations/taskId'))
 
   def test_convert_task_id_to_operation_name(self):
     self.assertEqual(
@@ -305,6 +313,7 @@ class CloudApiUtilsTest(unittest.TestCase):
         'update_timestamp_ms': 1538676053218,
         'task_type': 'INGEST_IMAGE',
         'destination_uris': ['https://test.com'],
+        'name': 'projects/test/operations/7T42Q7FH4KSIXQKGT6MJFBPX',
     },
                      _cloud_api_utils.convert_operation_to_task({
                          'metadata': {
@@ -318,7 +327,9 @@ class CloudApiUtilsTest(unittest.TestCase):
                              'destinationUris': ['https://test.com'],
                          },
                          'done': True,
-                         'name': 'operations/7T42Q7FH4KSIXQKGT6MJFBPX',
+                         'name':
+                             'projects/test/operations/'
+                             '7T42Q7FH4KSIXQKGT6MJFBPX',
                      }))
 
   def test_convert_iam_policy_to_acl(self):

@@ -3221,6 +3221,10 @@ goog.html.SafeUrl.fromFacebookMessengerUrl = function(facebookMessengerUrl) {
   goog.string.internal.caseInsensitiveStartsWith(facebookMessengerUrl, "fb-messenger://share") || (facebookMessengerUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(facebookMessengerUrl);
 };
+goog.html.SafeUrl.fromWhatsAppUrl = function(whatsAppUrl) {
+  goog.string.internal.caseInsensitiveStartsWith(whatsAppUrl, "whatsapp://send") || (whatsAppUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(whatsAppUrl);
+};
 goog.html.SafeUrl.fromSmsUrl = function(smsUrl) {
   goog.string.internal.caseInsensitiveStartsWith(smsUrl, "sms:") && goog.html.SafeUrl.isSmsUrlBodyValid_(smsUrl) || (smsUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(smsUrl);
@@ -4524,9 +4528,8 @@ goog.userAgent.isDocumentModeOrHigher = function(documentMode) {
 };
 goog.userAgent.isDocumentMode = goog.userAgent.isDocumentModeOrHigher;
 goog.userAgent.DOCUMENT_MODE = function() {
-  var doc = goog.global.document;
-  if (doc && goog.userAgent.IE) {
-    return goog.userAgent.getDocumentMode_() || ("CSS1Compat" == doc.compatMode ? parseInt(goog.userAgent.VERSION, 10) : 5);
+  if (goog.global.document && goog.userAgent.IE) {
+    return goog.userAgent.getDocumentMode_();
   }
 }();
 goog.debug.LOGGING_ENABLED = goog.DEBUG;
@@ -6471,6 +6474,16 @@ ee.rpc_convert.tableFileFormat = function(format) {
       return upper;
   }
 };
+ee.rpc_convert.orientation = function(orientation) {
+  if (!orientation) {
+    return "VERTICAL";
+  }
+  var upper = orientation.toUpperCase();
+  if ("HORIZONTAL" !== upper || "VERTICAL" !== upper) {
+    throw Error('Orientation must be "horizontal" or "vertical"');
+  }
+  return upper;
+};
 ee.rpc_convert.bandList = function(bands) {
   if (!bands) {
     return [];
@@ -6622,8 +6635,14 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
   result.updateTime && (asset.version = 1000 * Date.parse(result.updateTime));
   asset.properties = properties;
   result.bands && (asset.bands = result.bands.map(function(band) {
-    return {id:band.id, data_type:{precision:(band.dataType.precision || "").toLowerCase(), min:band.dataType.range.min || 0, max:band.dataType.range.max, type:"PixelType"}, dimensions:[band.grid.dimensions.width, band.grid.dimensions.height], crs:band.grid.crsCode, crs_transform:[band.grid.affineTransform.scaleX || 0, band.grid.affineTransform.shearX || 0, band.grid.affineTransform.translateX || 0, band.grid.affineTransform.shearY || 0, band.grid.affineTransform.scaleY || 0, band.grid.affineTransform.translateY || 
-    0]};
+    var legacyBand = {id:band.id, dimensions:[band.grid.dimensions.width, band.grid.dimensions.height], crs:band.grid.crsCode, crs_transform:[band.grid.affineTransform.scaleX || 0, band.grid.affineTransform.shearX || 0, band.grid.affineTransform.translateX || 0, band.grid.affineTransform.shearY || 0, band.grid.affineTransform.scaleY || 0, band.grid.affineTransform.translateY || 0]};
+    if (band.dataType) {
+      var dataType = {type:"PixelType"};
+      dataType.precision = (band.dataType.precision || "").toLowerCase();
+      band.dataType.range && (dataType.min = band.dataType.range.min || 0, dataType.max = band.dataType.range.max);
+      legacyBand.data_type = dataType;
+    }
+    return legacyBand;
   }));
   return asset;
 };
@@ -6738,7 +6757,9 @@ ee.rpc_convert.operationToTask = function(result) {
   assignTimestamp("start_timestamp_ms", metadata.startTime);
   result.done && goog.isDefAndNotNull(result.error) && (internalTask.error_message = result.error.message);
   goog.isDefAndNotNull(result.name) && (internalTask.id = ee.rpc_convert.operationNameToTaskId(result.name));
-  internalTask.task_type = "UNKNOWN";
+  internalTask.task_type = metadata.type || "UNKNOWN";
+  internalTask.output_url = metadata.destinationUris;
+  internalTask.source_url = metadata.scriptUri;
   return internalTask;
 };
 ee.rpc_convert.operationToProcessingResponse = function(operation) {
@@ -7722,9 +7743,9 @@ goog.crypt.base64.decodeStringToByteArray = function(input, opt_ignored) {
 };
 goog.crypt.base64.decodeStringToUint8Array = function(input) {
   goog.asserts.assert(!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10"), "Browser does not support typed arrays");
-  var len = input.length, placeholders = 0;
-  "=" === input[len - 2] ? placeholders = 2 : "=" === input[len - 1] && (placeholders = 1);
-  var output = new Uint8Array(Math.ceil(3 * len / 4) - placeholders), outLen = 0;
+  var len = input.length, approxByteLength = 3 * len / 4;
+  approxByteLength % 3 ? approxByteLength = Math.floor(approxByteLength) : "=" === input[len - 1] && (approxByteLength = "=" === input[len - 2] ? approxByteLength - 2 : approxByteLength - 1);
+  var output = new Uint8Array(approxByteLength), outLen = 0;
   goog.crypt.base64.decodeStringInternal_(input, function pushByte(b) {
     output[outLen++] = b;
   });
@@ -10236,11 +10257,15 @@ jspb.Message.getMapField = function(msg, fieldNumber, noLazyCreate, opt_valueCto
   if (fieldNumber in msg.wrappers_) {
     return msg.wrappers_[fieldNumber];
   }
-  if (!noLazyCreate) {
-    var arr = jspb.Message.getField(msg, fieldNumber);
-    arr || (arr = [], jspb.Message.setField(msg, fieldNumber, arr));
-    return msg.wrappers_[fieldNumber] = new jspb.Map(arr, opt_valueCtor);
+  var arr = jspb.Message.getField(msg, fieldNumber);
+  if (!arr) {
+    if (noLazyCreate) {
+      return;
+    }
+    arr = [];
+    jspb.Message.setField(msg, fieldNumber, arr);
   }
+  return msg.wrappers_[fieldNumber] = new jspb.Map(arr, opt_valueCtor);
 };
 jspb.Message.setField = function(msg, fieldNumber, value) {
   fieldNumber < msg.pivot_ ? msg.array[jspb.Message.getIndex_(msg, fieldNumber)] = value : (jspb.Message.maybeInitEmptyExtensionObject_(msg), msg.extensionObject_[fieldNumber] = value);
@@ -14426,16 +14451,20 @@ ee.data.refreshAuthToken = function(opt_success, opt_error, opt_onImmediateFaile
       if ("immediate_failed" == result.error && opt_onImmediateFailed) {
         opt_onImmediateFailed();
       } else {
-        try {
-          ee.data.ensureAuthLibLoaded_(function() {
-            try {
-              goog.global.gapi.auth.setToken(result), ee.data.handleAuthResult_(opt_success, opt_error, result);
-            } catch (e) {
-              opt_error(e.toString());
-            }
-          });
-        } catch (e) {
-          opt_error(e.toString());
+        if (ee.data.cloudApiEnabled_) {
+          try {
+            ee.data.ensureAuthLibLoaded_(function() {
+              try {
+                goog.global.gapi.auth.setToken(result), ee.data.handleAuthResult_(opt_success, opt_error, result);
+              } catch (e) {
+                opt_error(e.toString());
+              }
+            });
+          } catch (e) {
+            opt_error(e.toString());
+          }
+        } else {
+          ee.data.handleAuthResult_(opt_success, opt_error, result);
         }
       }
     });
@@ -14472,7 +14501,7 @@ ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl, opt_xsrfToken) {
         resolve();
       });
     }, onerror:reject});
-  }), ee.data.setProject(ee.data.DEFAULT_PROJECT_));
+  }), ee.data.setProject(ee.data.getProject() || ee.data.DEFAULT_PROJECT_));
   ee.data.initialized_ = !0;
 };
 ee.data.reset = function() {
@@ -14690,11 +14719,38 @@ ee.data.getThumbId = function(params, opt_callback) {
     }, opt_callback);
   }
   params = goog.object.clone(params);
-  goog.isString(params.image) || (params.image = params.image.serialize());
   goog.isArray(params.dimensions) && (params.dimensions = params.dimensions.join("x"));
+  var image = params.image || params.imageCollection;
+  goog.isString(image) || (image = image.serialize());
+  params.image = image;
+  delete params.imageCollection;
   var request = ee.data.makeRequest_(params).add("getid", "1");
   return ee.data.send_("/thumb", request, opt_callback);
 };
+ee.data.getVideoThumbId = function(params, opt_callback) {
+  if (!ee.data.cloudApiEnabled_) {
+    throw Error("getVideoThumbId is only supported in Cloud API mode.");
+  }
+  var videoOptions = {framesPerSecond:params.framesPerSecond || null, maxFrames:params.maxFrames || null, maxPixelsPerFrame:params.maxPixelsPerFrame || null}, request = {name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApi(params.imageCollection)), fileFormat:ee.rpc_convert.fileFormat(params.format), videoOptions:videoOptions, grid:null}, parent = ee.data.getProjectsPath_(), fields = ["name"];
+  return ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.projects.videoThumbnails.create({parent:parent, fields:fields}, request);
+  }, function(response) {
+    return {thumbid:response.name, token:""};
+  }, opt_callback);
+};
+ee.data.cloudApiSymbols.push("getVideoThumbId");
+ee.data.getFilmstripThumbId = function(params, opt_callback) {
+  if (!ee.data.cloudApiEnabled_) {
+    throw Error("getFilmstripThumbId is only supported in Cloud API mode.");
+  }
+  var request = {name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApi(params.imageCollection)), fileFormat:ee.rpc_convert.fileFormat(params.format), orientation:ee.rpc_convert.orientation(params.orientation), grid:null}, parent = ee.data.getProjectsPath_(), fields = ["name"];
+  return ee.data.sendCloudApiRequest_(function() {
+    return gapi.client.earthengine.projects.filmstripThumbnails.create({parent:parent, fields:fields}, request);
+  }, function(response) {
+    return {thumbid:response.name, token:""};
+  }, opt_callback);
+};
+ee.data.cloudApiSymbols.push("getFilmstripThumbId");
 ee.data.makeThumbUrl = function(id) {
   return ee.data.cloudApiEnabled_ ? ee.data.tileBaseUrl_ + "/v1alpha/" + id.thumbid + ":getPixels" + (ee.data.cloudApiKey_ ? "?key=" + ee.data.cloudApiKey_ : "") : ee.data.tileBaseUrl_ + "/api/thumb?thumbid=" + id.thumbid + "&token=" + id.token;
 };
@@ -14864,40 +14920,40 @@ ee.data.updateTask = function(taskId, action, opt_callback) {
 ee.data.startProcessing = function(taskId, params, opt_callback) {
   if (ee.data.cloudApiEnabled_) {
     params.id = taskId;
-    var taskType = params.type, options = {project:ee.data.getProjectsPath_()};
+    var taskType = params.type, options = {project:ee.data.getProjectsPath_()}, metadata = goog.isDefAndNotNull(params.sourceUrl) ? {__source_url__:params.sourceUrl} : {};
     switch(taskType) {
       case ee.data.ExportType.IMAGE:
         var imageTask = ee.data.images.applyTransformsToImage(params);
         var imageRequest = ee.rpc_convert_batch.taskToExportImageRequest(imageTask);
-        imageRequest.expression = ee.data.expressionAugmenter_(imageRequest.expression);
+        imageRequest.expression = ee.data.expressionAugmenter_(imageRequest.expression, metadata);
         var callApi = function() {
           return gapi.client.earthengine.projects.image["export"](options, imageRequest);
         };
         break;
       case ee.data.ExportType.TABLE:
         var tableRequest = ee.rpc_convert_batch.taskToExportTableRequest(params);
-        tableRequest.expression = ee.data.expressionAugmenter_(tableRequest.expression);
+        tableRequest.expression = ee.data.expressionAugmenter_(tableRequest.expression, metadata);
         callApi = function() {
           return gapi.client.earthengine.projects.table["export"](options, tableRequest);
         };
         break;
       case ee.data.ExportType.VIDEO:
         var videoRequest = ee.rpc_convert_batch.taskToExportVideoRequest(params);
-        videoRequest.expression = ee.data.expressionAugmenter_(videoRequest.expression);
+        videoRequest.expression = ee.data.expressionAugmenter_(videoRequest.expression, metadata);
         callApi = function() {
           return gapi.client.earthengine.projects.video["export"](options, videoRequest);
         };
         break;
       case ee.data.ExportType.MAP:
         var mapRequest = ee.rpc_convert_batch.taskToExportMapRequest(params);
-        mapRequest.expression = ee.data.expressionAugmenter_(mapRequest.expression);
+        mapRequest.expression = ee.data.expressionAugmenter_(mapRequest.expression, metadata);
         callApi = function() {
           return gapi.client.earthengine.projects.map["export"](options, mapRequest);
         };
         break;
       case ee.data.ExportType.VIDEO_MAP:
         var videoMapRequest = ee.rpc_convert_batch.taskToExportVideoMapRequest(params);
-        videoMapRequest.expression = ee.data.expressionAugmenter_(videoMapRequest.expression);
+        videoMapRequest.expression = ee.data.expressionAugmenter_(videoMapRequest.expression, metadata);
         callApi = function() {
           return gapi.client.earthengine.projects.videoMap["export"](options, videoMapRequest);
         };
@@ -15074,7 +15130,7 @@ ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
 };
 ee.data.copyAsset = function(sourceId, destinationId, opt_overwrite, opt_callback) {
   if (ee.data.cloudApiEnabled_) {
-    var body = {sourceName:ee.rpc_convert.assetIdToAssetName(sourceId), destinationName:ee.rpc_convert.assetIdToAssetName(destinationId), overwrite:goog.isDefAndNotNull(opt_overwrite) ? opt_overwrite : null, sourcePath:null, destinationPath:null, bandIds:null};
+    var body = {sourceName:ee.rpc_convert.assetIdToAssetName(sourceId), destinationName:ee.rpc_convert.assetIdToAssetName(destinationId), overwrite:goog.isDefAndNotNull(opt_overwrite) ? opt_overwrite : null, bandIds:null};
     ee.data.sendCloudApiRequest_(function() {
       return gapi.client.earthengine.projects.assets.copy(body);
     }, null, opt_callback);
@@ -15213,6 +15269,12 @@ ee.data.ImageVisualizationParameters = function() {
 ee.data.ThumbnailOptions = function() {
 };
 $jscomp.inherits(ee.data.ThumbnailOptions, ee.data.ImageVisualizationParameters);
+ee.data.VideoThumbnailOptions = function() {
+};
+$jscomp.inherits(ee.data.VideoThumbnailOptions, ee.data.ThumbnailOptions);
+ee.data.FilmstripThumbnailOptions = function() {
+};
+$jscomp.inherits(ee.data.FilmstripThumbnailOptions, ee.data.ThumbnailOptions);
 ee.data.BandDescription = function() {
 };
 ee.data.PixelTypeDescription = function() {
@@ -16910,23 +16972,23 @@ ee.ImageCollection.reset = function() {
 };
 ee.ImageCollection.prototype.getFilmstripThumbURL = function(params, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getFilmstripThumbURL, arguments);
-  return ee.ImageCollection.prototype.getThumbURL_(this, args, ["png", "jpg", "jpeg"], opt_callback);
+  return ee.ImageCollection.prototype.getThumbURL_(this, args, ["png", "jpg", "jpeg"], ee.ImageCollection.ThumbTypes.FILMSTRIP, opt_callback);
 };
 ee.ImageCollection.prototype.getVideoThumbURL = function(params, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getVideoThumbURL, arguments);
-  return ee.ImageCollection.prototype.getThumbURL_(this, args, ["gif"], opt_callback);
+  return ee.ImageCollection.prototype.getThumbURL_(this, args, ["gif"], ee.ImageCollection.ThumbTypes.VIDEO, opt_callback);
 };
-ee.ImageCollection.prototype.getThumbURL_ = function(collection, args, validFormats, opt_callback) {
+ee.ImageCollection.ThumbTypes = {FILMSTRIP:"filmstrip", VIDEO:"video", IMAGE:"image"};
+ee.ImageCollection.prototype.getThumbURL_ = function(collection, args, validFormats, opt_thumbType, opt_callback) {
   var extraParams = {}, clippedCollection = collection.map(function(image) {
     var projected = ee.data.images.applyCrsAndTransform(image, args.params);
     return ee.data.images.applySelectionAndScale(projected, args.params, extraParams);
   }), request = {}, visParams = ee.data.images.extractVisParams(extraParams, request);
-  goog.isDefAndNotNull(args.params.dimensions) && (request.dimensions = args.params.dimensions);
-  var visColl = clippedCollection.map(function(image) {
+  request.imageCollection = clippedCollection.map(function(image) {
     visParams.image = image;
     return ee.ApiFunction._apply("Image.visualize", visParams);
   });
-  request.image = visColl.serialize();
+  goog.isDefAndNotNull(args.params.dimensions) && (request.dimensions = args.params.dimensions);
   if (request.format) {
     if (!goog.array.some(validFormats, function(format) {
       return goog.string.caseInsensitiveEquals(format, request.format);
@@ -16936,8 +16998,18 @@ ee.ImageCollection.prototype.getThumbURL_ = function(collection, args, validForm
   } else {
     request.format = validFormats[0];
   }
+  var getThumbId = ee.data.getThumbId;
+  if (ee.data.getCloudApiEnabled && ee.data.getCloudApiEnabled()) {
+    switch(opt_thumbType) {
+      case ee.ImageCollection.ThumbTypes.VIDEO:
+        getThumbId = ee.data.getVideoThumbId;
+        break;
+      case ee.ImageCollection.ThumbTypes.FILMSTRIP:
+        getThumbId = ee.data.getFilmstripThumbId;
+    }
+  }
   if (args.callback) {
-    ee.data.getThumbId(request, function(thumbId, opt_error) {
+    getThumbId(request, function(thumbId, opt_error) {
       var thumbUrl = "";
       if (!goog.isDef(opt_error)) {
         try {
@@ -16949,7 +17021,7 @@ ee.ImageCollection.prototype.getThumbURL_ = function(collection, args, validForm
       args.callback(thumbUrl, opt_error);
     });
   } else {
-    return ee.data.makeThumbUrl(ee.data.getThumbId(request));
+    return ee.data.makeThumbUrl(getThumbId(request));
   }
 };
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
@@ -17460,29 +17532,6 @@ ee.Date.reset = function() {
 };
 ee.Date.prototype.name = function() {
   return "Date";
-};
-ee.DateRange = function(start, opt_end, opt_tz) {
-  if (!(this instanceof ee.DateRange)) {
-    return ee.ComputedObject.construct(ee.DateRange, arguments);
-  }
-  if (start instanceof ee.DateRange) {
-    return start;
-  }
-  ee.DateRange.initialize();
-  var jsArgs = ee.arguments.extractFromFunction(ee.DateRange, arguments), func = new ee.ApiFunction("DateRange");
-  ee.ComputedObject.call(this, func, jsArgs, null);
-};
-goog.inherits(ee.DateRange, ee.ComputedObject);
-ee.DateRange.initialized_ = !1;
-ee.DateRange.initialize = function() {
-  ee.DateRange.initialized_ || (ee.ApiFunction.importApi(ee.DateRange, "DateRange", "DateRange"), ee.DateRange.initialized_ = !0);
-};
-ee.DateRange.reset = function() {
-  ee.ApiFunction.clearApi(ee.DateRange);
-  ee.DateRange.initialized_ = !1;
-};
-ee.DateRange.prototype.name = function() {
-  return "DateRange";
 };
 ee.Deserializer = function() {
 };

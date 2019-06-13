@@ -92,6 +92,9 @@ _PROFILE_RESPONSE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
 # The HTTP header through which profiling is requested when using the Cloud API.
 _PROFILE_REQUEST_HEADER = 'X-Earth-Engine-Computation-Profiling'
 
+# The HTTP header through which a user project override is provided.
+_USER_PROJECT_OVERRIDE_HEADER = 'X-Goog-User-Project'
+
 # Maximum number of times to retry a rate-limited request.
 MAX_RETRIES = 5
 
@@ -193,8 +196,9 @@ def initialize(credentials=None,
 
   if project is not None:
     _cloud_api_user_project = project
+    _cloud_api_utils.set_cloud_api_user_project(project)
   else:
-    _cloud_api_user_project = DEFAULT_CLOUD_API_USER_PROJECT
+    _cloud_api_utils.set_cloud_api_user_project(DEFAULT_CLOUD_API_USER_PROJECT)
 
   _initialized = True
 
@@ -219,7 +223,10 @@ def reset():
 
 def _get_projects_path():
   """Returns the projects path to use for constructing a request."""
-  return 'projects/' + _cloud_api_user_project
+  if _cloud_api_user_project is not None:
+    return 'projects/' + _cloud_api_user_project
+  else:
+    return 'projects/' + DEFAULT_CLOUD_API_USER_PROJECT
 
 
 def _install_cloud_api_resource():
@@ -235,7 +242,7 @@ def _install_cloud_api_resource():
       credentials=_credentials,
       api_key=_cloud_api_key,
       timeout=timeout,
-      headers_supplier=_make_profiling_headers,
+      headers_supplier=_make_request_headers,
       response_inspector=_handle_profiling_response,
       http_transport=_http_transport)
 
@@ -244,18 +251,22 @@ def _install_cloud_api_resource():
       credentials=_credentials,
       api_key=_cloud_api_key,
       timeout=timeout,
-      headers_supplier=_make_profiling_headers,
+      headers_supplier=_make_request_headers,
       response_inspector=_handle_profiling_response,
       http_transport=_http_transport,
       raw=True)
 
 
-def _make_profiling_headers():
+def _make_request_headers():
   """Adds a header requesting profiling, if profiling is enabled."""
+  headers = {}
   if _thread_locals.profile_hook:
-    return {_PROFILE_REQUEST_HEADER: '1'}
-  else:
-    return None
+    headers[_PROFILE_REQUEST_HEADER] = '1'
+  if _cloud_api_user_project is not None:
+    headers[_USER_PROJECT_OVERRIDE_HEADER] = _cloud_api_user_project
+  if headers:
+    return headers
+  return None
 
 
 def _handle_profiling_response(response):
@@ -306,6 +317,12 @@ def setCloudApiKey(cloud_api_key):
   global _cloud_api_key
   _cloud_api_key = cloud_api_key
   _install_cloud_api_resource()
+
+
+def setCloudApiUserProject(cloud_api_user_project):
+  global _cloud_api_user_project
+  _cloud_api_user_project = cloud_api_user_project
+  _cloud_api_utils.set_cloud_api_user_project(_cloud_api_user_project)
 
 
 def setDeadline(milliseconds):
@@ -428,10 +445,11 @@ def listAssets(params):
       _cloud_api_resource.projects().assets().listAssets(**params))
 
 
-def listBuckets():
+def listBuckets(project=None):
+  if project is None:
+    project = _get_projects_path()
   return _execute_cloud_call(
-      _cloud_api_resource.projects().listAssets(
-          parent=_get_projects_path()))
+      _cloud_api_resource.projects().listAssets(parent=project))
 
 
 def getMapId(params):
@@ -992,17 +1010,22 @@ def getTaskList():
   return tasks
 
 
-def listOperations():
+def listOperations(project=None):
   """Retrieves a list of the user's tasks.
 
+  Args:
+    project: The project to list operations for, uses the default set project
+      if none is provided.
   Returns:
     A list of Operation status dictionaries, one for each task submitted to EE
     by the current user. These include currently running tasks as well as
     recently canceled or failed tasks.
   """
+  if project is None:
+    project = _get_projects_path()
   operations = []
   request = _cloud_api_resource.projects().operations().list(
-      pageSize=_TASKLIST_PAGE_SIZE, name=_get_projects_path())
+      pageSize=_TASKLIST_PAGE_SIZE, name=project)
   while request is not None:
     try:
       response = request.execute(num_retries=MAX_RETRIES)
@@ -1283,6 +1306,7 @@ def startIngestion(request_id, params, allow_overwrite=False):
         'id':
             _cloud_api_utils.convert_operation_name_to_task_id(
                 operation['name']),
+        'name': operation['name'],
         'started': 'OK',
     }
   args = {

@@ -68,6 +68,7 @@ goog.require('goog.string');
 goog.require('goog.string.Const');
 goog.forwardDeclare('ee.Element');
 goog.forwardDeclare('ee.Image');
+goog.forwardDeclare('ee.Collection');
 
 
 
@@ -336,19 +337,7 @@ ee.data.refreshAuthToken = function(
     if (result.error == 'immediate_failed' && opt_onImmediateFailed) {
       opt_onImmediateFailed();
     } else {
-      try {
-        // Refresh the library auth token and handle error propagation.
-        ee.data.ensureAuthLibLoaded_(function() {
-          try {
-            goog.global['gapi']['auth']['setToken'](result);
-            ee.data.handleAuthResult_(opt_success, opt_error, result);
-          } catch (e) {
-            opt_error(e.toString());
-          }
-        });
-      } catch (e) {
-        opt_error(e.toString());
-      }
+      ee.data.handleAuthResult_(opt_success, opt_error, result);
     }
   });
 };
@@ -683,12 +672,20 @@ ee.data.computeValue = function(obj, opt_callback) {
  */
 ee.data.getThumbId = function(params, opt_callback) {
   params = goog.object.clone(params);
-  if (!goog.isString(params['image'])) {
-    params['image'] = params['image'].serialize();
-  }
   if (goog.isArray(params['dimensions'])) {
     params['dimensions'] = params['dimensions'].join('x');
   }
+
+  // The request accepts both serialized ee.Image and ee.ImageCollections, so
+  // we remove the imageCollection field and insert it as the image instead,
+  // if it exists.
+  let image = params['image'] || params['imageCollection'];
+  if (!goog.isString(image)) {
+    image = image.serialize();
+  }
+  params['image'] = image;
+  delete params['imageCollection'];
+
   var request = ee.data.makeRequest_(params).add('getid', '1');
   return /** @type {?ee.data.ThumbnailId} */(
       ee.data.send_('/thumb', request, opt_callback));
@@ -1919,10 +1916,16 @@ ee.data.TableDownloadParameters = class {
 ee.data.ImageVisualizationParameters = class {
   constructor() {
     /**
-     * The image to render, represented as a JSON string.
+     * The image to render, represented as an ee.Image or JSON string.
      * @export {!ee.Image|string|undefined}
      */
     this.image;
+
+    /**
+     * The image collection to render.
+     * @export {!ee.Collection|undefined}
+     */
+    this.imageCollection;
 
     /**
      * Version number of image (or latest).
@@ -3433,9 +3436,10 @@ ee.data.xsrfToken_ = null;
 ee.data.paramAugmenter_ = goog.functions.identity;
 
 /**
- * A function used to transform parameters right before they are sent to the
- * server. Takes the URL of the request as the second argument.
- * @private {function(?gapi.client.earthengine.Expression):
+ * A function used to transform expression right before they are sent to the
+ * server. Takes in an expression to annotate and any extra metadata to attach
+ * to the expression.
+ * @private {function(?gapi.client.earthengine.Expression, !Object=):
  *     ?gapi.client.earthengine.Expression}
  */
 ee.data.expressionAugmenter_ = goog.functions.identity;

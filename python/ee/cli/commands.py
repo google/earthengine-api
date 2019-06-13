@@ -357,6 +357,46 @@ class AuthenticateCommand(object):
       write_token(auth_code)
 
 
+class SetProjectCommand(object):
+  """Sets the default user project to be used for all API calls."""
+
+  name = 'set_project'
+
+  def __init__(self, parser):
+    parser.add_argument('project', help='project id or number to use.')
+
+  def run(self, args, config):
+    """Saves the project to the config file."""
+
+    config_path = config.config_file
+    with open(config_path) as config_file_json:
+      config = json.load(config_file_json)
+
+    config['project'] = args.project
+    json.dump(config, open(config_path, 'w'))
+    print('Successfully saved project id')
+
+
+class UnSetProjectCommand(object):
+
+  name = 'unset_project'
+
+  def __init__(self, unused_parser):
+    pass
+
+  def run(self, unused_args, config):
+    """Saves the project to the config file."""
+
+    config_path = config.config_file
+    with open(config_path) as config_file_json:
+      config = json.load(config_file_json)
+
+    if 'project' in config:
+      del config['project']
+    json.dump(config, open(config_path, 'w'))
+    print('Successfully unset project id')
+
+
 class AclChCommand(object):
   """Changes the access control list for an asset.
 
@@ -1366,11 +1406,29 @@ class UploadTableCommand(object):
       if args.max_failed_features:
         raise ee.EEException(
             '--max_failed_features is not supported with the Cloud API')
+      if args.crs:
+        source['crs'] = args.crs
+      if args.geodesic:
+        source['geodesic'] = args.geodesic
+      if args.primary_geometry_column:
+        source['primary_geometry_column'] = args.primary_geometry_column
+      if args.x_column:
+        source['x_column'] = args.x_column
+      if args.y_column:
+        source['y_column'] = args.y_column
+      if args.date_format:
+        source['date_format'] = args.date_format
+      if args.csv_delimiter:
+        source['csv_delimiter'] = args.csv_delimiter
+      if args.csv_qualifier:
+        source['csv_qualifier'] = args.csv_qualifier
+
       manifest = {
           'name': args.asset_id,
           'sources': [source],
           'properties': properties
       }
+
       # pylint:disable=g-explicit-bool-comparison
       if args.time_start is not None and args.time_start != '':
         manifest['start_time'] = _cloud_timestamp_for_timestamp_ms(
@@ -1481,7 +1539,9 @@ EXTERNAL_COMMANDS = [
     SizeCommand,
     MoveCommand,
     RmCommand,
+    SetProjectCommand,
     TaskCommand,
+    UnSetProjectCommand,
     UploadCommand,
     UploadImageManifestCommand,
     UploadTableManifestCommand,

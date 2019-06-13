@@ -21,7 +21,7 @@ from . import geometry
 class Task(object):
   """A batch task that can be run on the EE batch processing system."""
 
-  def __init__(self, task_id, task_type, state, config=None):
+  def __init__(self, task_id, task_type, state, config=None, name=None):
     """Creates a Task with the given ID and configuration.
 
     The constructor is not for public use. Instances can be obtained by:
@@ -42,11 +42,13 @@ class Task(object):
           - description: The name of the task, a freeform string.
           - sourceURL: An optional URL for the script that generated the task.
           Specific task types have other custom config fields.
+      name: The name of the operation.  Only relevant when using the cloud api.
     """
     self.id = self._request_id = task_id
     self.config = config and config.copy()
     self.task_type = task_type
     self.state = state
+    self.name = name
 
   class Type(object):
     EXPORT_IMAGE = 'EXPORT_IMAGE'
@@ -91,6 +93,7 @@ class Task(object):
     if not self.id:
       self.id = _cloud_api_utils.convert_operation_name_to_task_id(
           result['name'])
+      self.name = result['name']
 
   def status(self):
     """Fetches the current status of the task.
@@ -139,7 +142,8 @@ class Task(object):
       tasks.append(Task(status['id'],
                         status.get('task_type'),
                         status.get('state'),
-                        {'description': status.get('description')}))
+                        {'description': status.get('description')},
+                        status.get('name')))
     return tasks
 
   def __repr__(self):

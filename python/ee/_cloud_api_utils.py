@@ -26,6 +26,10 @@ import httplib2
 import six
 
 
+# The default user project to use when making Cloud API calls.
+_cloud_api_user_project = None
+
+
 def _wrap_request(headers_supplier, response_inspector):
   """Builds a callable that wraps an API request.
 
@@ -71,6 +75,11 @@ def _wrap_request(headers_supplier, response_inspector):
     return request
 
   return builder
+
+
+def set_cloud_api_user_project(cloud_api_user_project):
+  global _cloud_api_user_project
+  _cloud_api_user_project = cloud_api_user_project
 
 
 def build_cloud_resource(api_base_url,
@@ -370,9 +379,9 @@ def convert_asset_id_to_asset_name(asset_id):
   if re.match(r'projects/[a-z][a-z0-9\-]{4,28}[a-z0-9]/assets/.*', asset_id):
     return asset_id
   elif asset_id.split('/')[0] in ['users', 'projects']:
-    return 'projects/earthengine-legacy/assets/' + asset_id
+    return 'projects/earthengine-legacy/assets/{}'.format(asset_id)
   else:
-    return 'projects/earthengine-public/assets/' + asset_id
+    return 'projects/earthengine-public/assets/{}'.format(asset_id)
 
 
 def split_asset_name(asset_name):
@@ -390,12 +399,12 @@ def split_asset_name(asset_name):
 
 def convert_operation_name_to_task_id(operation_name):
   """Converts an Operation name to a task ID."""
-  return re.match('operations/(.*)', operation_name).group(1)
+  return re.search('operations/(.*)', operation_name).group(1)
 
 
 def convert_task_id_to_operation_name(task_id):
   """Converts a task ID to an Operation name."""
-  return 'projects/earthengine-legacy/operations/' + task_id
+  return 'projects/{}/operations/{}'.format(_cloud_api_user_project, task_id)
 
 
 def convert_params_to_image_manifest(params):
@@ -676,6 +685,7 @@ def convert_operation_to_task(operation):
     if 'error' in operation:
       result['error_message'] = operation['error']['message']
   result['id'] = convert_operation_name_to_task_id(operation['name'])
+  result['name'] = operation['name']
   return result
 
 
