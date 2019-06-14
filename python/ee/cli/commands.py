@@ -378,6 +378,7 @@ class SetProjectCommand(object):
 
 
 class UnSetProjectCommand(object):
+  """UnSets the default user project to be used for all API calls."""
 
   name = 'unset_project'
 
