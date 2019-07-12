@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Destination data generators for the Global Forest Change Explorer."""
 
-
 import config
 import ee
 

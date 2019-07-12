@@ -293,9 +293,13 @@ class Dispatcher(object):
     subparsers = parser.add_subparsers(title='Commands', dest=self.dest)
     subparsers.required = True  # Needed for proper missing arg handling in 3.x
     for command in self.COMMANDS:
+      command_help = None
+      if command.__doc__ and command.__doc__.splitlines():
+        command_help = command.__doc__.splitlines()[0]
       subparser = subparsers.add_parser(
-          command.name, description=command.__doc__,
-          help=command.__doc__.splitlines()[0])
+          command.name,
+          description=command.__doc__,
+          help=command_help)
       self.command_dict[command.name] = command(subparser)
 
   def run(self, args, config):

@@ -3159,7 +3159,15 @@ ee.data.handleAuthResult_ = function(success, error, result) {
       // the token if needed. See ee.data.authenticate() docs for more info.
       // Note that we multiply by .9 *again* to prevent simultaneous
       // on-demand-refresh and timer-refresh.
-      setTimeout(ee.data.refreshAuthToken, expiresInMs * 0.9);
+      var timeout = setTimeout(ee.data.refreshAuthToken, expiresInMs * 0.9);
+
+      // In Node.js environments, we don't want these timeouts to keep a
+      // completed process from exiting. To avoid this, explicitly tell the
+      // process not to wait for this timeout.
+      // See: https://nodejs.org/api/timers.html#timers_class_timeout
+      if (timeout['unref'] !== undefined) {
+        timeout['unref']();
+      }
 
       ee.data.authTokenExpiration_ = goog.now() + expiresInMs;
     }

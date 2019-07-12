@@ -185,6 +185,7 @@ class DataTest(unittest.TestCase):
       mock_result = {'assets': [{'path': 'id1', 'type': 'type1'}]}
       cloud_api_resource.projects().assets().listAssets(
       ).execute.return_value = mock_result
+      cloud_api_resource.projects().assets().listAssets_next.return_value = None
       actual_result = ee.data.listAssets({'p': 'q'})
       cloud_api_resource.projects().assets().listAssets().\
         execute.assert_called_once()
@@ -193,9 +194,10 @@ class DataTest(unittest.TestCase):
   def testListImages(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
-      mock_result = {'assets': [{'path': 'id1', 'type': 'type1'}]}
+      mock_result = {'images': [{'path': 'id1', 'type': 'type1'}]}
       cloud_api_resource.projects().assets().listImages(
       ).execute.return_value = mock_result
+      cloud_api_resource.projects().assets().listImages_next.return_value = None
       actual_result = ee.data.listImages({'p': 'q'})
       cloud_api_resource.projects().assets().listImages(
       ).execute.assert_called_once()

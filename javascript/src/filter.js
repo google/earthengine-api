@@ -274,7 +274,7 @@ ee.Filter.or = function(var_args) {
 /**
  * Filter images by date. The start and end may be a Date, numbers
  * (interpreted as milliseconds since 1970-01-01T00:00:00Z), or strings (such
- * as '1996-01-01T08:00').
+ * as '1996-01-01T08:00'). Based on 'system:time_start'.
  *
  * @param {Date|string|number} start The inclusive start date.
  * @param {Date|string|number=} opt_end The optional exclusive end date. If not

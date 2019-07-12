@@ -765,6 +765,9 @@ ALLOWED_FORMAT_OPTIONS = {
 def _ConvertConfigParams(config):
   """Converts numeric sequences into comma-separated string representations."""
   updatedConfig = {}
+  # Non-Cloud API expects that pyramiding policy is a JSON string.
+  if 'pyramidingPolicy' in config:
+    updatedConfig['pyramidingPolicy'] = json.dumps(config['pyramidingPolicy'])
   for k, v in config.items():
     if v and isinstance(v, (list, tuple)):
       # Leave nested lists/tuples alone. We're only interested in converting

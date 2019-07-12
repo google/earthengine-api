@@ -212,7 +212,8 @@ class Filter(computedobject.ComputedObject):
     """Filter images by date.
 
     The start and end may be a Date, numbers (interpreted as milliseconds since
-    1970-01-01T00:00:00Z), or strings (such as '1996-01-01T08:00').
+    1970-01-01T00:00:00Z), or strings (such as '1996-01-01T08:00'). Based on
+    'system:time_start'.
 
     Args:
       start: The inclusive start date.

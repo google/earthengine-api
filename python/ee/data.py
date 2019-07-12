@@ -436,13 +436,37 @@ def getList(params):
 
 
 def listImages(params):
-  return _execute_cloud_call(
-      _cloud_api_resource.projects().assets().listImages(**params))
+  """Returns the images in an image collection or folder."""
+  images = {'images': []}
+  request = _cloud_api_resource.projects().assets().listImages(**params)
+  while request is not None:
+    response = _execute_cloud_call(request)
+    images['images'].extend(response.get('images', []))
+    request = _cloud_api_resource.projects().assets().listImages_next(
+        request, response)
+    # We currently treat pageSize as a cap on the results, if this param was
+    # provided we should break fast and not return more than the asked for
+    # amount.
+    if 'pageSize' in params:
+      break
+  return images
 
 
 def listAssets(params):
-  return _execute_cloud_call(
-      _cloud_api_resource.projects().assets().listAssets(**params))
+  """Returns the assets in a folder."""
+  assets = {'assets': []}
+  request = _cloud_api_resource.projects().assets().listAssets(**params)
+  while request is not None:
+    response = _execute_cloud_call(request)
+    assets['assets'].extend(response.get('assets', []))
+    request = _cloud_api_resource.projects().assets().listAssets_next(
+        request, response)
+    # We currently treat pageSize as a cap on the results, if this param was
+    # provided we should break fast and not return more than the asked for
+    # amount.
+    if 'pageSize' in params:
+      break
+  return assets
 
 
 def listBuckets(project=None):
@@ -859,7 +883,10 @@ def getAlgorithms():
   return send_('/algorithms', {}, 'GET')
 
 
-def createAsset(value, opt_path=None, opt_force=False, opt_properties=None):
+def createAsset(
+    value,
+    opt_path=None,
+    opt_properties=None):
   """Creates an asset from a JSON value.
 
   To create an empty image collection or folder, pass in a "value" object
@@ -870,7 +897,6 @@ def createAsset(value, opt_path=None, opt_force=False, opt_properties=None):
     value: An object describing the asset to create or a JSON string
         with the already-serialized value for the new asset.
     opt_path: An optional desired ID, including full path.
-    opt_force: True if asset overwrite is allowed
     opt_properties: The keys and values of the properties to set
         on the created asset.
 
@@ -895,14 +921,12 @@ def createAsset(value, opt_path=None, opt_force=False, opt_properties=None):
         parent=parent,
         assetId=asset_id,
         body=asset,
-        overwrite=opt_force,
         prettyPrint=False))
   if not isinstance(value, six.string_types):
     value = json.dumps(value)
   args = {'value': value, 'json_format': 'v2'}
   if opt_path is not None:
     args['id'] = opt_path
-  args['force'] = opt_force
   if opt_properties is not None:
     args['properties'] = json.dumps(opt_properties)
   return send_('/create', args)

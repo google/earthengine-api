@@ -56,10 +56,12 @@ class CommandLineConfig(object):
   """
 
   def __init__(
-      self, config_file=None, service_account_file=None, use_cloud_api=False):
+      self, config_file=None, service_account_file=None, use_cloud_api=False,
+      project_override=None):
     if not config_file:
       config_file = os.environ.get(EE_CONFIG_FILE, DEFAULT_EE_CONFIG_FILE)
     self.config_file = config_file
+    self.project_override = project_override
     config = {}
     if os.path.exists(config_file):
       with open(config_file) as config_file_json:
@@ -92,13 +94,17 @@ class CommandLineConfig(object):
           scopes=ee.oauth.SCOPES)
     else:
       credentials = 'persistent'
-
+    # If a --project flag is passed into a command, it supercedes the one set
+    # by calling the set_project command.
+    project = self.project
+    if self.project_override is not None:
+      project = self.project_override
     ee.Initialize(
         credentials=credentials,
         opt_url=self.url,
         use_cloud_api=self.use_cloud_api,
         cloud_api_key=self.cloud_api_key,
-        project=self.project)
+        project=project)
 
   def save(self):
     config = {}

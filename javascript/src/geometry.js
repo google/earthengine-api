@@ -595,7 +595,7 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
 ee.Geometry.prototype.toGeoJSON = function() {
   if (this.func) {
     throw new Error('Can\'t convert a computed Geometry to GeoJSON. ' +
-                    'Use getInfo() instead.');
+                    'Use evaluate() instead.');
   }
   return /** @type {!ee.data.GeoJSONGeometry} */ (this.encode());
 };
@@ -608,7 +608,7 @@ ee.Geometry.prototype.toGeoJSON = function() {
 ee.Geometry.prototype.toGeoJSONString = function() {
   if (this.func) {
     throw new Error('Can\'t convert a computed Geometry to GeoJSON. ' +
-                    'Use getInfo() instead.');
+                    'Use evaluate() instead.');
   }
   return (new goog.json.Serializer()).serialize(this.toGeoJSON());
 };

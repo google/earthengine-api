@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Test for the ee.batch module."""
 import copy
+import json
 
 import unittest
 
@@ -253,7 +254,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
         'json': config['image'].serialize(),
         'description': 'myExportImageTask',
         'assetId': config['assetId'],
-        'pyramidingPolicy': config['pyramidingPolicy']
+        'pyramidingPolicy': json.dumps(config['pyramidingPolicy'])
     }, task_keyed.config)
 
     task_ordered = ee.batch.Export.image.toAsset(

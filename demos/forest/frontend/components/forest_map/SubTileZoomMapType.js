@@ -56,17 +56,26 @@ forest.SubTileZoomMapType = function(options) {
 
   // Public options optional for the Maps API.
 
-  /** @const {number|undefined} The minimum permitted zoom level. */
+  /**
+   * @const {number|undefined} The minimum permitted zoom level.
+   * @suppress {checkTypes} overridden interface property is non-undefined.
+   */
   this.minZoom = options.minZoom;
 
-  /** @const {string|undefined} The name of the map type instance. */
+  /**
+   * @const {string|undefined} The name of the map type instance.
+   * @suppress {checkTypes} overridden interface property is non-undefined.
+   */
   this.name = options.name;
 
 
   // Public options required by the compiler but which we don't support.
 
+  /** @suppress {checkTypes} overridden interface property is non-undefined. */
   this.projection = undefined;
+  /** @suppress {checkTypes} overridden interface property is non-undefined. */
   this.radius = undefined;
+  /** @suppress {checkTypes} overridden interface property is non-undefined. */
   this.alt = undefined;
 
 

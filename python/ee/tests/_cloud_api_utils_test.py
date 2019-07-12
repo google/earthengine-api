@@ -140,6 +140,12 @@ class CloudApiUtilsTest(unittest.TestCase):
         'taskId',
         _cloud_api_utils.convert_operation_name_to_task_id(
             'projects/test/operations/taskId'))
+    self.assertEqual(
+        'taskId',
+        _cloud_api_utils.convert_operation_name_to_task_id(
+            'projects/operations/operations/taskId'))
+    self.assertEqual(
+        'taskId', _cloud_api_utils.convert_operation_name_to_task_id('taskId'))
 
   def test_convert_task_id_to_operation_name(self):
     self.assertEqual(

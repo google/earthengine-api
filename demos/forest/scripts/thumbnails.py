@@ -5,7 +5,6 @@ import os.path
 import posixpath
 import urllib
 
-
 from enum import Enum
 from PIL import Image
 

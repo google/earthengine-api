@@ -1,6 +1,7 @@
 goog.provide('ee.data.Profiler');
 
 goog.require('ee.ApiFunction');
+goog.require('goog.Timer');
 goog.require('goog.async.Delay');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
@@ -80,6 +81,7 @@ ee.data.Profiler = function(format) {
 
   /**
    * Helper to ensure we don't make too many profile requests.
+   * See DELAY_BEFORE_REFRESH_ for rationale.
    * @private {!goog.async.Delay}
    */
   this.throttledRefresh_ = new goog.async.Delay(
@@ -92,14 +94,23 @@ ee.data.Profiler = function(format) {
   this.profileData_ = ee.data.Profiler.getEmptyProfile_(format);
   // Note: the above initialization also causes the value of format to be
   // validated.
+
+  /**
+   * Maximum retry count when performing a profile refresh.
+   * @private @const {number}
+   */
+  this.MAX_RETRY_COUNT_ = 5;
 };
 goog.inherits(ee.data.Profiler, goog.events.EventTarget);
 
 
 /**
  * Time delay in milliseconds between receiving a new profile ID and actually
- * fetching data from the server, to avoid excessive queries.
- * @private {number}
+ * fetching data from the server. This delay is used to coalesce multiple
+ * updates (as from many map tiles loading quickly), both to limit server load
+ * and to not waste effort updating the UI faster than users can read the
+ * results.
+ * @private @const {number}
  */
 ee.data.Profiler.DELAY_BEFORE_REFRESH_ = 500;
 
@@ -238,23 +249,33 @@ ee.data.Profiler.prototype.removeProfile_ = function(profileId) {
 
 /**
  * Fetches a new combined profile asynchronously and fires events when done.
+ * @param {number=} retryAttempt current refresh attempt, if retryAttempt is
+ * less than MAX_RETRY_COUNT_ the profile refresh is retried.
  * @private
  */
-ee.data.Profiler.prototype.refresh_ = function() {
+ee.data.Profiler.prototype.refresh_ = function(retryAttempt = 0) {
   // Create a unique object identity for this request.
   var marker = {};
   this.lastRefreshToken_ = marker;
-
-  var handleResponse = goog.bind(function(result, error) {
+  /**
+   * @param{?Object|undefined} result Object obtained from getProfiles.
+   * @param{string=} error Error message returned on failure.
+   */
+  var handleResponse = (result, error) => {
     if (marker != this.lastRefreshToken_) return;  // Superseded.
-
-    this.profileError_ = error;
+    if (error && goog.isNumber(retryAttempt) && retryAttempt < this.MAX_RETRY_COUNT_) {
+      goog.Timer.callOnce(
+          goog.bind(this.refresh_, this, retryAttempt + 1),
+          2*ee.data.Profiler.DELAY_BEFORE_REFRESH_);
+      return;
+    }
+    this.profileError_ = error || null;
     this.profileData_ = error ?
         ee.data.Profiler.getEmptyProfile_(this.format_) : result;
     this.lastRefreshToken_ = null;
     this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED);
     this.dispatchEvent(ee.data.Profiler.EventType.DATA_CHANGED);
-  }, this);
+  };
 
   var ids = goog.object.getKeys(this.profileIds_);
   if (ids.length === 0) {

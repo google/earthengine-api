@@ -45,6 +45,10 @@ def main():
       help='Disables the new experimental EE Cloud API backend.',
       action='store_false',
       dest='use_cloud_api')
+  parser.add_argument(
+      '--project',
+      help='Specifies a Google Cloud Platform Project id to override the call.',
+      dest='project_override')
   parser.set_defaults(use_cloud_api=True)
 
   dispatcher = CommandDispatcher(parser)
@@ -56,7 +60,9 @@ def main():
 
   args = parser.parse_args()
   config = utils.CommandLineConfig(
-      args.ee_config, args.service_account_file, args.use_cloud_api)
+      args.ee_config, args.service_account_file, args.use_cloud_api,
+      args.project_override
+  )
 
   # TODO(user): Remove this warning once things are officially launched
   #  and the old API is removed.

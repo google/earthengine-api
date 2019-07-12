@@ -74,8 +74,11 @@ ee.layers.AbstractOverlay = function(tileSource, opt_options) {
 
   // MapType options required by the compiler but which we don't support.
 
+  /** @suppress {checkTypes} overridden interface property is non-undefined. */
   this.projection = undefined;
+  /** @suppress {checkTypes} overridden interface property is non-undefined. */
   this.radius = undefined;
+  /** @suppress {checkTypes} overridden interface property is non-undefined. */
   this.alt = undefined;
 };
 goog.inherits(ee.layers.AbstractOverlay, goog.events.EventTarget);

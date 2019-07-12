@@ -399,7 +399,8 @@ def split_asset_name(asset_name):
 
 def convert_operation_name_to_task_id(operation_name):
   """Converts an Operation name to a task ID."""
-  return re.search('operations/(.*)', operation_name).group(1)
+  found = re.search(r'^.*operations/(.*)$', operation_name)
+  return found.group(1) if found else operation_name
 
 
 def convert_task_id_to_operation_name(task_id):
