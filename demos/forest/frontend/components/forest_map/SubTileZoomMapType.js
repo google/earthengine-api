@@ -71,12 +71,9 @@ forest.SubTileZoomMapType = function(options) {
 
   // Public options required by the compiler but which we don't support.
 
-  /** @suppress {checkTypes} overridden interface property is non-undefined. */
-  this.projection = undefined;
-  /** @suppress {checkTypes} overridden interface property is non-undefined. */
-  this.radius = undefined;
-  /** @suppress {checkTypes} overridden interface property is non-undefined. */
-  this.alt = undefined;
+  this.projection = null;
+  this.radius = 0;
+  this.alt = null;
 
 
   // Private implementation details.

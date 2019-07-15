@@ -7703,30 +7703,35 @@ goog.userAgent.product.isSafariDesktop_ = function() {
 };
 goog.userAgent.product.SAFARI = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_SAFARI : goog.userAgent.product.isSafariDesktop_();
 goog.crypt.base64 = {};
-goog.crypt.base64.byteToCharMap_ = null;
+goog.crypt.base64.DEFAULT_ALPHABET_COMMON_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+goog.crypt.base64.ENCODED_VALS = goog.crypt.base64.DEFAULT_ALPHABET_COMMON_ + "+/=";
+goog.crypt.base64.ENCODED_VALS_WEBSAFE = goog.crypt.base64.DEFAULT_ALPHABET_COMMON_ + "-_.";
+goog.crypt.base64.Alphabet = {DEFAULT:0, NO_PADDING:1, WEBSAFE:2, WEBSAFE_DOT_PADDING:3, WEBSAFE_NO_PADDING:4};
+goog.crypt.base64.paddingChars_ = "=.";
+goog.crypt.base64.isPadding_ = function(char) {
+  return goog.string.contains(goog.crypt.base64.paddingChars_, char);
+};
+goog.crypt.base64.byteToCharMaps_ = {};
 goog.crypt.base64.charToByteMap_ = null;
-goog.crypt.base64.byteToCharMapWebSafe_ = null;
-goog.crypt.base64.ENCODED_VALS_BASE = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-goog.crypt.base64.ENCODED_VALS = goog.crypt.base64.ENCODED_VALS_BASE + "+/=";
-goog.crypt.base64.ENCODED_VALS_WEBSAFE = goog.crypt.base64.ENCODED_VALS_BASE + "-_.";
 goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ = goog.userAgent.GECKO || goog.userAgent.WEBKIT && !goog.userAgent.product.SAFARI || goog.userAgent.OPERA;
 goog.crypt.base64.HAS_NATIVE_ENCODE_ = goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ || "function" == typeof goog.global.btoa;
 goog.crypt.base64.HAS_NATIVE_DECODE_ = goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ || !goog.userAgent.product.SAFARI && !goog.userAgent.IE && "function" == typeof goog.global.atob;
-goog.crypt.base64.encodeByteArray = function(input, opt_webSafe) {
+goog.crypt.base64.encodeByteArray = function(input, alphabet) {
   goog.asserts.assert(goog.isArrayLike(input), "encodeByteArray takes an array as a parameter");
+  !1 === alphabet || void 0 === alphabet ? alphabet = goog.crypt.base64.Alphabet.DEFAULT : !0 === alphabet && (alphabet = goog.crypt.base64.Alphabet.WEBSAFE_DOT_PADDING);
   goog.crypt.base64.init_();
-  for (var byteToCharMap = opt_webSafe ? goog.crypt.base64.byteToCharMapWebSafe_ : goog.crypt.base64.byteToCharMap_, output = [], i = 0; i < input.length; i += 3) {
+  for (var byteToCharMap = goog.crypt.base64.byteToCharMaps_[alphabet], output = [], i = 0; i < input.length; i += 3) {
     var byte1 = input[i], haveByte2 = i + 1 < input.length, byte2 = haveByte2 ? input[i + 1] : 0, haveByte3 = i + 2 < input.length, byte3 = haveByte3 ? input[i + 2] : 0, outByte1 = byte1 >> 2, outByte2 = (byte1 & 3) << 4 | byte2 >> 4, outByte3 = (byte2 & 15) << 2 | byte3 >> 6, outByte4 = byte3 & 63;
     haveByte3 || (outByte4 = 64, haveByte2 || (outByte3 = 64));
-    output.push(byteToCharMap[outByte1], byteToCharMap[outByte2], byteToCharMap[outByte3], byteToCharMap[outByte4]);
+    output.push(byteToCharMap[outByte1], byteToCharMap[outByte2], byteToCharMap[outByte3] || "", byteToCharMap[outByte4] || "");
   }
   return output.join("");
 };
-goog.crypt.base64.encodeString = function(input, opt_webSafe) {
-  return goog.crypt.base64.HAS_NATIVE_ENCODE_ && !opt_webSafe ? goog.global.btoa(input) : goog.crypt.base64.encodeByteArray(goog.crypt.stringToByteArray(input), opt_webSafe);
+goog.crypt.base64.encodeString = function(input, alphabet) {
+  return goog.crypt.base64.HAS_NATIVE_ENCODE_ && !alphabet ? goog.global.btoa(input) : goog.crypt.base64.encodeByteArray(goog.crypt.stringToByteArray(input), alphabet);
 };
-goog.crypt.base64.decodeString = function(input, opt_webSafe) {
-  if (goog.crypt.base64.HAS_NATIVE_DECODE_ && !opt_webSafe) {
+goog.crypt.base64.decodeString = function(input, useCustomDecoder) {
+  if (goog.crypt.base64.HAS_NATIVE_DECODE_ && !useCustomDecoder) {
     return goog.global.atob(input);
   }
   var output = "";
@@ -7745,7 +7750,7 @@ goog.crypt.base64.decodeStringToByteArray = function(input, opt_ignored) {
 goog.crypt.base64.decodeStringToUint8Array = function(input) {
   goog.asserts.assert(!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10"), "Browser does not support typed arrays");
   var len = input.length, approxByteLength = 3 * len / 4;
-  approxByteLength % 3 ? approxByteLength = Math.floor(approxByteLength) : "=" === input[len - 1] && (approxByteLength = "=" === input[len - 2] ? approxByteLength - 2 : approxByteLength - 1);
+  approxByteLength % 3 ? approxByteLength = Math.floor(approxByteLength) : goog.crypt.base64.isPadding_(input[len - 1]) && (approxByteLength = goog.crypt.base64.isPadding_(input[len - 2]) ? approxByteLength - 2 : approxByteLength - 1);
   var output = new Uint8Array(approxByteLength), outLen = 0;
   goog.crypt.base64.decodeStringInternal_(input, function pushByte(b) {
     output[outLen++] = b;
@@ -7776,12 +7781,15 @@ goog.crypt.base64.decodeStringInternal_ = function(input, pushByte) {
   }
 };
 goog.crypt.base64.init_ = function() {
-  if (!goog.crypt.base64.byteToCharMap_) {
-    goog.crypt.base64.byteToCharMap_ = {};
+  if (!goog.crypt.base64.charToByteMap_) {
     goog.crypt.base64.charToByteMap_ = {};
-    goog.crypt.base64.byteToCharMapWebSafe_ = {};
-    for (var i = 0; i < goog.crypt.base64.ENCODED_VALS.length; i++) {
-      goog.crypt.base64.byteToCharMap_[i] = goog.crypt.base64.ENCODED_VALS.charAt(i), goog.crypt.base64.charToByteMap_[goog.crypt.base64.byteToCharMap_[i]] = i, goog.crypt.base64.byteToCharMapWebSafe_[i] = goog.crypt.base64.ENCODED_VALS_WEBSAFE.charAt(i), i >= goog.crypt.base64.ENCODED_VALS_BASE.length && (goog.crypt.base64.charToByteMap_[goog.crypt.base64.ENCODED_VALS_WEBSAFE.charAt(i)] = i);
+    for (var commonChars = goog.crypt.base64.DEFAULT_ALPHABET_COMMON_.split(""), specialChars = ["+/=", "+/", "-_=", "-_.", "-_"], i = 0; 5 > i; i++) {
+      var chars = commonChars.concat(specialChars[i].split(""));
+      goog.crypt.base64.byteToCharMaps_[i] = chars;
+      for (var j = 0; j < chars.length; j++) {
+        var char = chars[j], existingByte = goog.crypt.base64.charToByteMap_[char];
+        void 0 === existingByte ? goog.crypt.base64.charToByteMap_[char] = j : goog.asserts.assert(existingByte === j);
+      }
     }
   }
 };
@@ -7901,15 +7909,12 @@ jspb.utils.joinHash64 = function(bitsLow, bitsHigh) {
   return String.fromCharCode(bitsLow >>> 0 & 255, bitsLow >>> 8 & 255, bitsLow >>> 16 & 255, bitsLow >>> 24 & 255, bitsHigh >>> 0 & 255, bitsHigh >>> 8 & 255, bitsHigh >>> 16 & 255, bitsHigh >>> 24 & 255);
 };
 jspb.utils.DIGITS = "0123456789abcdef".split("");
+jspb.utils.ZERO_CHAR_CODE_ = 48;
+jspb.utils.A_CHAR_CODE_ = 97;
 jspb.utils.joinUnsignedDecimalString = function(bitsLow, bitsHigh) {
-  function emit(digit) {
-    for (var temp = 10000000, i = 0; 7 > i; i++) {
-      temp /= 10;
-      var decimalDigit = digit / temp % 10 >>> 0;
-      if (0 != decimalDigit || start) {
-        start = !0, result += table[decimalDigit];
-      }
-    }
+  function decimalFrom1e7(digit1e7, needLeadingZeros) {
+    var partial = digit1e7 ? String(digit1e7) : "";
+    return needLeadingZeros ? "0000000".slice(partial.length) + partial : partial;
   }
   if (2097151 >= bitsHigh) {
     return "" + (jspb.BinaryConstants.TWO_TO_32 * bitsHigh + bitsLow);
@@ -7917,11 +7922,7 @@ jspb.utils.joinUnsignedDecimalString = function(bitsLow, bitsHigh) {
   var mid = (bitsLow >>> 24 | bitsHigh << 8) >>> 0 & 16777215, high = bitsHigh >> 16 & 65535, digitA = (bitsLow & 16777215) + 6777216 * mid + 6710656 * high, digitB = mid + 8147497 * high, digitC = 2 * high;
   10000000 <= digitA && (digitB += Math.floor(digitA / 10000000), digitA %= 10000000);
   10000000 <= digitB && (digitC += Math.floor(digitB / 10000000), digitB %= 10000000);
-  var table = jspb.utils.DIGITS, start = !1, result = "";
-  (digitC || start) && emit(digitC);
-  (digitB || start) && emit(digitB);
-  (digitA || start) && emit(digitA);
-  return result;
+  return decimalFrom1e7(digitC, 0) + decimalFrom1e7(digitB, digitC) + decimalFrom1e7(digitA, 1);
 };
 jspb.utils.joinSignedDecimalString = function(bitsLow, bitsHigh) {
   var negative = bitsHigh & 2147483648;
@@ -7957,7 +7958,7 @@ jspb.utils.decimalStringToHash64 = function(dec) {
   var minus = !1;
   "-" === dec[0] && (minus = !0, dec = dec.slice(1));
   for (var resultBytes = [0, 0, 0, 0, 0, 0, 0, 0], i$jscomp$0 = 0; i$jscomp$0 < dec.length; i$jscomp$0++) {
-    muladd(10, jspb.utils.DIGITS.indexOf(dec[i$jscomp$0]));
+    muladd(10, dec.charCodeAt(i$jscomp$0) - jspb.utils.ZERO_CHAR_CODE_);
   }
   minus && (neg(), muladd(1, 1));
   return goog.crypt.byteArrayToString(resultBytes);
@@ -7965,14 +7966,20 @@ jspb.utils.decimalStringToHash64 = function(dec) {
 jspb.utils.splitDecimalString = function(value) {
   jspb.utils.splitHash64(jspb.utils.decimalStringToHash64(value));
 };
+jspb.utils.toHexDigit_ = function(nibble) {
+  return String.fromCharCode(10 > nibble ? jspb.utils.ZERO_CHAR_CODE_ + nibble : jspb.utils.A_CHAR_CODE_ - 10 + nibble);
+};
+jspb.utils.fromHexCharCode_ = function(hexCharCode) {
+  return hexCharCode >= jspb.utils.A_CHAR_CODE_ ? hexCharCode - jspb.utils.A_CHAR_CODE_ + 10 : hexCharCode - jspb.utils.ZERO_CHAR_CODE_;
+};
 jspb.utils.hash64ToHexString = function(hash) {
   var temp = Array(18);
   temp[0] = "0";
   temp[1] = "x";
   for (var i = 0; 8 > i; i++) {
     var c = hash.charCodeAt(7 - i);
-    temp[2 * i + 2] = jspb.utils.DIGITS[c >> 4];
-    temp[2 * i + 3] = jspb.utils.DIGITS[c & 15];
+    temp[2 * i + 2] = jspb.utils.toHexDigit_(c >> 4);
+    temp[2 * i + 3] = jspb.utils.toHexDigit_(c & 15);
   }
   return temp.join("");
 };
@@ -7982,8 +7989,7 @@ jspb.utils.hexStringToHash64 = function(hex) {
   goog.asserts.assert("0" == hex[0]);
   goog.asserts.assert("x" == hex[1]);
   for (var result = "", i = 0; 8 > i; i++) {
-    var hi = jspb.utils.DIGITS.indexOf(hex[2 * i + 2]), lo = jspb.utils.DIGITS.indexOf(hex[2 * i + 3]);
-    result = String.fromCharCode(16 * hi + lo) + result;
+    result = String.fromCharCode(16 * jspb.utils.fromHexCharCode_(hex.charCodeAt(2 * i + 2)) + jspb.utils.fromHexCharCode_(hex.charCodeAt(2 * i + 3))) + result;
   }
   return result;
 };
@@ -10681,6 +10687,7 @@ proto.google.protobuf.Struct.prototype.getFieldsMap = function(opt_noLazyCreate)
 };
 proto.google.protobuf.Struct.prototype.clearFieldsMap = function() {
   this.getFieldsMap().clear();
+  return this;
 };
 proto.google.protobuf.Struct.deserialize = function(data) {
   return jspb.Message.deserialize(proto.google.protobuf.Struct, data);
@@ -10771,10 +10778,10 @@ proto.google.protobuf.Value.prototype.getNullValue = function() {
   return jspb.Message.getFieldWithDefault(this, 1, 0);
 };
 proto.google.protobuf.Value.prototype.setNullValue = function(value) {
-  jspb.Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return jspb.Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearNullValue = function() {
-  jspb.Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return jspb.Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasNullValue = function() {
   return null != jspb.Message.getField(this, 1);
@@ -10783,10 +10790,10 @@ proto.google.protobuf.Value.prototype.getNumberValue = function() {
   return jspb.Message.getFloatingPointFieldWithDefault(this, 2, 0.0);
 };
 proto.google.protobuf.Value.prototype.setNumberValue = function(value) {
-  jspb.Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return jspb.Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearNumberValue = function() {
-  jspb.Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return jspb.Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasNumberValue = function() {
   return null != jspb.Message.getField(this, 2);
@@ -10795,10 +10802,10 @@ proto.google.protobuf.Value.prototype.getStringValue = function() {
   return jspb.Message.getFieldWithDefault(this, 3, "");
 };
 proto.google.protobuf.Value.prototype.setStringValue = function(value) {
-  jspb.Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return jspb.Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearStringValue = function() {
-  jspb.Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return jspb.Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasStringValue = function() {
   return null != jspb.Message.getField(this, 3);
@@ -10807,10 +10814,10 @@ proto.google.protobuf.Value.prototype.getBoolValue = function() {
   return jspb.Message.getBooleanFieldWithDefault(this, 4, !1);
 };
 proto.google.protobuf.Value.prototype.setBoolValue = function(value) {
-  jspb.Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return jspb.Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearBoolValue = function() {
-  jspb.Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return jspb.Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasBoolValue = function() {
   return null != jspb.Message.getField(this, 4);
@@ -10819,10 +10826,10 @@ proto.google.protobuf.Value.prototype.getStructValue = function() {
   return jspb.Message.getWrapperField(this, proto.google.protobuf.Struct, 5);
 };
 proto.google.protobuf.Value.prototype.setStructValue = function(value) {
-  jspb.Message.setOneofWrapperField(this, 5, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 5, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearStructValue = function() {
-  this.setStructValue(void 0);
+  return this.setStructValue(void 0);
 };
 proto.google.protobuf.Value.prototype.hasStructValue = function() {
   return null != jspb.Message.getField(this, 5);
@@ -10831,10 +10838,10 @@ proto.google.protobuf.Value.prototype.getListValue = function() {
   return jspb.Message.getWrapperField(this, proto.google.protobuf.ListValue, 6);
 };
 proto.google.protobuf.Value.prototype.setListValue = function(value) {
-  jspb.Message.setOneofWrapperField(this, 6, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return jspb.Message.setOneofWrapperField(this, 6, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearListValue = function() {
-  this.setListValue(void 0);
+  return this.setListValue(void 0);
 };
 proto.google.protobuf.Value.prototype.hasListValue = function() {
   return null != jspb.Message.getField(this, 6);
@@ -10888,13 +10895,13 @@ proto.google.protobuf.ListValue.prototype.getValuesList = function() {
   return jspb.Message.getRepeatedWrapperField(this, proto.google.protobuf.Value, 1);
 };
 proto.google.protobuf.ListValue.prototype.setValuesList = function(value) {
-  jspb.Message.setRepeatedWrapperField(this, 1, value);
+  return jspb.Message.setRepeatedWrapperField(this, 1, value);
 };
 proto.google.protobuf.ListValue.prototype.addValues = function(opt_value, opt_index) {
   return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.google.protobuf.Value, opt_index);
 };
 proto.google.protobuf.ListValue.prototype.clearValuesList = function() {
-  this.setValuesList([]);
+  return this.setValuesList([]);
 };
 proto.google.protobuf.ListValue.deserialize = function(data) {
   return jspb.Message.deserialize(proto.google.protobuf.ListValue, data);
@@ -19096,7 +19103,9 @@ ee.layers.AbstractOverlay = function(tileSource, opt_options) {
   this.tileCounter = 0;
   this.tileSource = tileSource;
   this.handler = new goog.events.EventHandler(this);
-  this.alt = this.radius = this.projection = void 0;
+  this.projection = null;
+  this.radius = 0;
+  this.alt = null;
 };
 goog.inherits(ee.layers.AbstractOverlay, goog.events.EventTarget);
 ee.layers.AbstractOverlay.EventType = {TILE_FAIL:"tile-fail", TILE_THROTTLE:"tile-throttle", TILE_LOAD:"tile-load"};

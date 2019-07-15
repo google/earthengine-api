@@ -271,7 +271,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
         ee.Types.isRegularObject(request['region'])) {
       request['region'] = goog.json.serialize(request['region']);
     } else if (!goog.isString(request['region'])) {
-      // TODO(user): Support ee.Geometry.
+      // TODO(b/137396864): Support ee.Geometry.
       throw Error('The region parameter must be an array or a GeoJSON object.');
     }
   }
