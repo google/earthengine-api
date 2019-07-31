@@ -415,15 +415,21 @@ class AclChCommand(object):
   name = 'ch'
 
   def __init__(self, parser):
-    parser.add_argument('-u', action='append', metavar='permission',
+    parser.add_argument('-u', action='append', metavar='user permission',
                         help='Add or modify a user\'s permission.')
-    parser.add_argument('-d', action='append', metavar='user',
+    parser.add_argument('-d', action='append', metavar='remove user',
+                        help='Remove all permissions for a user.')
+    parser.add_argument('-g', action='append', metavar='group permission',
+                        help='Add or modify a group\'s permission.')
+    parser.add_argument('-dg', action='append', metavar='remove group',
                         help='Remove all permissions for a user.')
     parser.add_argument('asset_id', help='ID of the asset.')
+    self._cloud_api_enabled = False
 
   def run(self, args, config):
     """Performs an ACL update."""
     config.ee_init()
+    self._cloud_api_enabled = config.use_cloud_api
     permissions = self._parse_permissions(args)
     acl = ee.data.getAssetAcl(args.asset_id)
     self._apply_permissions(acl, permissions)
@@ -434,26 +440,46 @@ class AclChCommand(object):
       del acl['owners']
     ee.data.setAssetAcl(args.asset_id, json.dumps(acl))
 
+  def _set_permission(self, permissions, grant, prefix):
+    """Sets the permission for a given user/group."""
+    parts = grant.rsplit(':', 1)
+    if len(parts) != 2 or parts[1] not in ['R', 'W']:
+      raise ee.EEException('Invalid permission "%s".' % grant)
+    user, role = parts
+    prefixed_user = user
+    if self._cloud_api_enabled:
+      prefixed_user = prefix + user
+    if prefixed_user in permissions:
+      raise ee.EEException('Multiple permission settings for "%s".' % user)
+    if self._is_all_users(user) and role == 'W':
+      raise ee.EEException('Cannot grant write permissions to all users.')
+    permissions[prefixed_user] = role
+
+  def _remove_permission(self, permissions, user, prefix):
+    """Removes permissions for a given user/group."""
+    prefixed_user = user
+    if self._cloud_api_enabled:
+      prefixed_user = prefix + user
+    if prefixed_user in permissions:
+      raise ee.EEException('Multiple permission settings for "%s".' % user)
+    permissions[prefixed_user] = 'D'
+
   def _parse_permissions(self, args):
     """Decodes and sanity-checks the permissions in the arguments."""
     # A dictionary mapping from user ids to one of 'R', 'W', or 'D'.
     permissions = {}
     if args.u:
       for grant in args.u:
-        parts = grant.rsplit(':', 1)
-        if len(parts) != 2 or parts[1] not in ['R', 'W']:
-          raise ee.EEException('Invalid permission "%s".' % grant)
-        user, role = parts
-        if user in permissions:
-          raise ee.EEException('Multiple permission settings for "%s".' % user)
-        if self._is_all_users(user) and role == 'W':
-          raise ee.EEException('Cannot grant write permissions to all users.')
-        permissions[user] = role
+        self._set_permission(permissions, grant, 'user:')
     if args.d:
       for user in args.d:
-        if user in permissions:
-          raise ee.EEException('Multiple permission settings for "%s".' % user)
-        permissions[user] = 'D'
+        self._remove_permission(permissions, user, 'user:')
+    if args.g:
+      for group in args.g:
+        self._set_permission(permissions, group, 'group:')
+    if args.dg:
+      for group in args.dg:
+        self._remove_permission(permissions, group, 'group:')
     return permissions
 
   def _apply_permissions(self, acl, permissions):
@@ -1533,6 +1559,21 @@ class UploadTableManifestCommand(_UploadManifestBase):
         args, config, ee.data.startTableIngestion)
 
 
+class LicensesCommand(object):
+  """Prints the name and license of all third party dependencies."""
+
+  name = 'licenses'
+
+  def __init__(self, unused_parser):
+    pass
+
+  def run(self, unused_args, unused_config):
+    print('The Earth Engine python client library uess the following opensource'
+          ' libraries.\n')
+    license_path = os.path.join(os.path.dirname(__file__), 'licenses.txt')
+    print(open(license_path).read())
+
+
 
 EXTERNAL_COMMANDS = [
     AuthenticateCommand,
@@ -1541,6 +1582,7 @@ EXTERNAL_COMMANDS = [
     CopyCommand,
     CreateCommand,
     ListCommand,
+    LicensesCommand,
     SizeCommand,
     MoveCommand,
     RmCommand,

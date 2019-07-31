@@ -56,7 +56,7 @@ function combine(a, b) {
 var thumbnail = ui.Thumbnail({
   params: combine(visParams, {
     dimensions: '256x256',
-    region: box.toGeoJSON(),
+    region: box,
   }),
   style: {height: '300px', width: '300px'},
   onClick: function(widget) {

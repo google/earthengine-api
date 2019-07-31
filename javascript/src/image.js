@@ -252,8 +252,9 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
  *         dimensions of the thumbnail to render, in pixels. If only one
  *         number is passed, it is used as the maximum, and the other
  *         dimension is computed by proportional scaling.
- *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
- *         to render. By default, the whole image.
+ *   - region Geospatial region of the image to render, it may be an ee.Geometry,
+ *         GeoJSON, or an array of lat/lon points (E,S,W,N). If not set the
+           default is the bounds image.
  *   - format (string) Either 'png' or 'jpg'.
  * @param {function(string, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
@@ -267,11 +268,13 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   const
   request = ee.data.images.applyVisualization(this, args['params']);
   if (request['region']) {
+    if (request['region'] instanceof ee.Geometry) {
+      request['region'] = request['region'].toGeoJSON();
+    }
     if (goog.isArray(request['region']) ||
         ee.Types.isRegularObject(request['region'])) {
       request['region'] = goog.json.serialize(request['region']);
     } else if (!goog.isString(request['region'])) {
-      // TODO(b/137396864): Support ee.Geometry.
       throw Error('The region parameter must be an array or a GeoJSON object.');
     }
   }

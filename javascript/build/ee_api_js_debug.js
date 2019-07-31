@@ -287,6 +287,10 @@ $jscomp.polyfill("WeakMap", function(NativeWeakMap) {
   }
   function WeakMapMembership() {
   }
+  function isValidKey(key) {
+    var type = typeof key;
+    return "object" === type && null !== key || "function" === type;
+  }
   function insert(target) {
     if (!$jscomp.owns(target, prop)) {
       var obj = new WeakMapMembership;
@@ -326,6 +330,9 @@ $jscomp.polyfill("WeakMap", function(NativeWeakMap) {
     }
   };
   PolyfillWeakMap.prototype.set = function(key, value) {
+    if (!isValidKey(key)) {
+      throw Error("Invalid WeakMap key");
+    }
     insert(key);
     if (!$jscomp.owns(key, prop)) {
       throw Error("WeakMap key fail: " + key);
@@ -334,13 +341,13 @@ $jscomp.polyfill("WeakMap", function(NativeWeakMap) {
     return this;
   };
   PolyfillWeakMap.prototype.get = function(key) {
-    return $jscomp.owns(key, prop) ? key[prop][this.id_] : void 0;
+    return isValidKey(key) && $jscomp.owns(key, prop) ? key[prop][this.id_] : void 0;
   };
   PolyfillWeakMap.prototype.has = function(key) {
-    return $jscomp.owns(key, prop) && $jscomp.owns(key[prop], this.id_);
+    return isValidKey(key) && $jscomp.owns(key, prop) && $jscomp.owns(key[prop], this.id_);
   };
   PolyfillWeakMap.prototype["delete"] = function(key) {
-    return $jscomp.owns(key, prop) && $jscomp.owns(key[prop], this.id_) ? delete key[prop][this.id_] : !1;
+    return isValidKey(key) && $jscomp.owns(key, prop) && $jscomp.owns(key[prop], this.id_) ? delete key[prop][this.id_] : !1;
   };
   return PolyfillWeakMap;
 }, "es6", "es3");
@@ -2264,8 +2271,8 @@ goog.object.equals = function(a, b) {
       return !1;
     }
   }
-  for (k in b) {
-    if (!(k in a)) {
+  for (var k$13 in b) {
+    if (!(k$13 in a)) {
       return !1;
     }
   }
@@ -2356,6 +2363,10 @@ goog.object.getAllPropertyNames = function(obj, opt_includeObjectPrototype, opt_
     proto = Object.getPrototypeOf(proto);
   }
   return goog.object.getKeys(visitedSet);
+};
+goog.object.getSuperClass = function(constructor) {
+  var proto = Object.getPrototypeOf(constructor.prototype);
+  return proto && proto.constructor;
 };
 goog.labs.userAgent.browser = {};
 goog.labs.userAgent.browser.matchOpera_ = function() {
@@ -4635,7 +4646,7 @@ goog.debug.normalizeErrorObject = function(err) {
   }
   try {
     var fileName = err.fileName || err.filename || err.sourceURL || goog.global.$googDebugFname || href;
-  } catch (e$13) {
+  } catch (e$14) {
     fileName = "Not available", threwError = !0;
   }
   if (!(!threwError && err.lineNumber && err.fileName && err.stack && err.message && err.name)) {
@@ -5594,9 +5605,9 @@ goog.iter.forEach = function(iterable, f, opt_obj) {
       for (;;) {
         f.call(opt_obj, iterable.next(), void 0, iterable);
       }
-    } catch (ex$14) {
-      if (ex$14 !== goog.iter.StopIteration) {
-        throw ex$14;
+    } catch (ex$15) {
+      if (ex$15 !== goog.iter.StopIteration) {
+        throw ex$15;
       }
     }
   }
@@ -6574,7 +6585,7 @@ ee.rpc_convert.algorithms = function(result) {
   return internalAlgorithms;
 };
 ee.rpc_convert.projectParentFromPath = function(path) {
-  var matches = /^(projects\/[a-z][a-z0-9\-]{4,28}[a-z0-9])\/.*/.exec(path);
+  var matches = /^(projects\/[a-z][a-z0-9\-]{4,28}[a-z0-9])\/.+/.exec(path);
   return matches ? matches[1] : "projects/earthengine-legacy";
 };
 ee.rpc_convert.assetIdToAssetName = function(param) {
@@ -6611,21 +6622,40 @@ ee.rpc_convert.listAssetsToGetList = function(result) {
 ee.rpc_convert.listImagesToGetList = function(result) {
   return (result.images || []).map(ee.rpc_convert.imageToLegacyResult);
 };
+ee.rpc_convert.assetTypeToLegacyAssetType = function(type) {
+  switch(type) {
+    case "ALGORITHM":
+      return "Algorithm";
+    case "FOLDER":
+      return "Folder";
+    case "IMAGE":
+      return "Image";
+    case "IMAGE_COLLECTION":
+      return "ImageCollection";
+    case "TABLE":
+      return "Table";
+    default:
+      return "Unknown";
+  }
+};
+ee.rpc_convert.legacyAssetTypeToAssetType = function(type) {
+  switch(type) {
+    case "Algorithm":
+      return "ALGORITHM";
+    case "Folder":
+      return "FOLDER";
+    case "Image":
+      return "IMAGE";
+    case "ImageCollection":
+      return "IMAGE_COLLECTION";
+    case "Table":
+      return "TABLE";
+    default:
+      return "UNKNOWN";
+  }
+};
 ee.rpc_convert.assetToLegacyResult = function(result) {
-  var asset = ee.rpc_convert.makeLegacyAsset_(function(type) {
-    switch(type) {
-      case "IMAGE":
-        return "Image";
-      case "IMAGE_COLLECTION":
-        return "ImageCollection";
-      case "FOLDER":
-        return "Folder";
-      case "TABLE":
-        return "Table";
-      default:
-        return "Unknown";
-    }
-  }(result.type), result.name), properties = Object.assign({}, result.properties || {});
+  var asset = ee.rpc_convert.makeLegacyAsset_(ee.rpc_convert.assetTypeToLegacyAssetType(result.type), result.name), properties = Object.assign({}, result.properties || {});
   result.sizeBytes && (properties["system:asset_size"] = Number(result.sizeBytes));
   result.startTime && (properties["system:time_start"] = Date.parse(result.startTime));
   result.endTime && (properties["system:time_end"] = Date.parse(result.endTime));
@@ -7062,7 +7092,7 @@ goog.json.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(
       var result = eval("(" + o + ")");
       error && goog.json.errorLogger_("Invalid JSON: " + o, error);
       return result;
-    } catch (ex$15) {
+    } catch (ex$16) {
     }
   }
   throw Error("Invalid JSON string: " + o);
@@ -7358,8 +7388,8 @@ ExpressionOptimizer.prototype.optimizeValue = function(value) {
   }
   if (goog.isDefAndNotNull(value.functionInvocationValue)) {
     for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$9 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$9.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$9.next()) {
-      var k$16 = $jscomp$key$k.value;
-      args[k$16] = this.optimizeValue(inv.arguments[k$16]);
+      var k$17 = $jscomp$key$k.value;
+      args[k$17] = this.optimizeValue(inv.arguments[k$17]);
     }
     return inv.functionName ? ee.rpc_node.functionByName(inv.functionName, args) : ee.rpc_node.functionByReference(this.optimizeReference(inv.functionReference || ""), args);
   }
@@ -7454,7 +7484,7 @@ ee.rpc_convert_batch.taskToExportVideoMapRequest = function(params) {
   if (!goog.isDefAndNotNull(params.element)) {
     throw Error('"element" not found in params ' + params);
   }
-  return {expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), videoOptions:ee.rpc_convert_batch.buildVideoOptions_(params), tileOptions:ee.rpc_convert_batch.buildTileOptions_(params), tileExportOptions:ee.rpc_convert_batch.buildVideoFileExportOptions_(params, ee.rpc_convert_batch.ExportDestination.GCS), requestId:stringOrNull_(params.id)};
+  return {expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), videoOptions:ee.rpc_convert_batch.buildVideoMapOptions_(params), tileOptions:ee.rpc_convert_batch.buildTileOptions_(params), tileExportOptions:ee.rpc_convert_batch.buildVideoFileExportOptions_(params, ee.rpc_convert_batch.ExportDestination.GCS), requestId:stringOrNull_(params.id)};
 };
 function stringOrNull_(value) {
   return goog.isDefAndNotNull(value) ? String(value) : null;
@@ -7523,6 +7553,9 @@ ee.rpc_convert_batch.buildVideoFileExportOptions_ = function(params, destination
 };
 ee.rpc_convert_batch.buildVideoOptions_ = function(params) {
   return {framesPerSecond:numberOrNull_(params.framesPerSecond), maxFrames:numberOrNull_(params.maxFrames), maxPixelsPerFrame:stringOrNull_(params.maxPixels)};
+};
+ee.rpc_convert_batch.buildVideoMapOptions_ = function(params) {
+  return {framesPerSecond:numberOrNull_(params.framesPerSecond), maxFrames:numberOrNull_(params.maxFrames), maxPixelsPerFrame:null};
 };
 ee.rpc_convert_batch.buildTileOptions_ = function(params) {
   return {maxZoom:numberOrNull_(params.maxZoom), scale:numberOrNull_(params.scale), minZoom:numberOrNull_(params.minZoom), skipEmptyTiles:!!params.skipEmptyTiles, mapsApiKey:stringOrNull_(params.mapsApiKey), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tileDimensions)};
@@ -7881,7 +7914,7 @@ jspb.utils.splitHash64 = function(hash) {
   jspb.utils.split64High = e + (f << 8) + (g << 16) + (h << 24) >>> 0;
 };
 jspb.utils.joinUint64 = function(bitsLow, bitsHigh) {
-  return bitsHigh * jspb.BinaryConstants.TWO_TO_32 + bitsLow;
+  return bitsHigh * jspb.BinaryConstants.TWO_TO_32 + (bitsLow >>> 0);
 };
 jspb.utils.joinInt64 = function(bitsLow, bitsHigh) {
   var sign = bitsHigh & 2147483648;
@@ -7889,13 +7922,16 @@ jspb.utils.joinInt64 = function(bitsLow, bitsHigh) {
   var result = jspb.utils.joinUint64(bitsLow, bitsHigh);
   return sign ? -result : result;
 };
+jspb.utils.toZigzag64 = function(bitsLow, bitsHigh, convert) {
+  var signFlipMask = bitsHigh >> 31;
+  return convert(bitsLow << 1 ^ signFlipMask, (bitsHigh << 1 | bitsLow >>> 31) ^ signFlipMask);
+};
 jspb.utils.joinZigzag64 = function(bitsLow, bitsHigh) {
-  var sign = bitsLow & 1;
-  bitsLow = (bitsLow >>> 1 | bitsHigh << 31) >>> 0;
-  bitsHigh >>>= 1;
-  sign && (bitsLow = bitsLow + 1 >>> 0, 0 == bitsLow && (bitsHigh = bitsHigh + 1 >>> 0));
-  var result = jspb.utils.joinUint64(bitsLow, bitsHigh);
-  return sign ? -result : result;
+  return jspb.utils.fromZigzag64(bitsLow, bitsHigh, jspb.utils.joinInt64);
+};
+jspb.utils.fromZigzag64 = function(bitsLow, bitsHigh, convert) {
+  var signFlipMask = -(bitsLow & 1);
+  return convert((bitsLow >>> 1 | bitsHigh << 31) ^ signFlipMask, bitsHigh >>> 1 ^ signFlipMask);
 };
 jspb.utils.joinFloat32 = function(bitsLow, bitsHigh) {
   var sign = 2 * (bitsLow >> 31) + 1, exp = bitsLow >>> 23 & 255, mant = bitsLow & 8388607;
@@ -8122,55 +8158,9 @@ jspb.utils.byteSourceToUint8Array = function(data) {
   goog.asserts.fail("Type not convertible to Uint8Array.");
   return new Uint8Array(0);
 };
-jspb.BinaryIterator = function(opt_decoder, opt_next, opt_elements) {
-  this.elements_ = this.nextMethod_ = this.decoder_ = null;
-  this.cursor_ = 0;
-  this.nextValue_ = null;
-  this.atEnd_ = !0;
-  this.init_(opt_decoder, opt_next, opt_elements);
-};
-jspb.BinaryIterator.prototype.init_ = function(opt_decoder, opt_next, opt_elements) {
-  opt_decoder && opt_next && (this.decoder_ = opt_decoder, this.nextMethod_ = opt_next);
-  this.elements_ = opt_elements || null;
-  this.cursor_ = 0;
-  this.nextValue_ = null;
-  this.atEnd_ = !this.decoder_ && !this.elements_;
-  this.next();
-};
-jspb.BinaryIterator.instanceCache_ = [];
-jspb.BinaryIterator.alloc = function(opt_decoder, opt_next, opt_elements) {
-  if (jspb.BinaryIterator.instanceCache_.length) {
-    var iterator = jspb.BinaryIterator.instanceCache_.pop();
-    iterator.init_(opt_decoder, opt_next, opt_elements);
-    return iterator;
-  }
-  return new jspb.BinaryIterator(opt_decoder, opt_next, opt_elements);
-};
-jspb.BinaryIterator.prototype.free = function() {
-  this.clear();
-  100 > jspb.BinaryIterator.instanceCache_.length && jspb.BinaryIterator.instanceCache_.push(this);
-};
-jspb.BinaryIterator.prototype.clear = function() {
-  this.decoder_ && this.decoder_.free();
-  this.elements_ = this.nextMethod_ = this.decoder_ = null;
-  this.cursor_ = 0;
-  this.nextValue_ = null;
-  this.atEnd_ = !0;
-};
-jspb.BinaryIterator.prototype.get = function() {
-  return this.nextValue_;
-};
-jspb.BinaryIterator.prototype.atEnd = function() {
-  return this.atEnd_;
-};
-jspb.BinaryIterator.prototype.next = function() {
-  var lastValue = this.nextValue_;
-  this.decoder_ ? this.decoder_.atEnd() ? (this.nextValue_ = null, this.atEnd_ = !0) : this.nextValue_ = this.nextMethod_.call(this.decoder_) : this.elements_ && (this.cursor_ == this.elements_.length ? (this.nextValue_ = null, this.atEnd_ = !0) : this.nextValue_ = this.elements_[this.cursor_++]);
-  return lastValue;
-};
 jspb.BinaryDecoder = function(opt_bytes, opt_start, opt_length) {
   this.bytes_ = null;
-  this.tempHigh_ = this.tempLow_ = this.cursor_ = this.end_ = this.start_ = 0;
+  this.cursor_ = this.end_ = this.start_ = 0;
   this.error_ = !1;
   opt_bytes && this.setBlock(opt_bytes, opt_start, opt_length);
 };
@@ -8232,30 +8222,34 @@ jspb.BinaryDecoder.prototype.pastEnd = function() {
 jspb.BinaryDecoder.prototype.getError = function() {
   return this.error_ || 0 > this.cursor_ || this.cursor_ > this.end_;
 };
-jspb.BinaryDecoder.prototype.readSplitVarint64_ = function() {
-  for (var temp, lowBits = 0, highBits, i = 0; 4 > i; i++) {
-    if (temp = this.bytes_[this.cursor_++], lowBits |= (temp & 127) << 7 * i, 128 > temp) {
-      this.tempLow_ = lowBits >>> 0;
-      this.tempHigh_ = 0;
-      return;
+jspb.BinaryDecoder.prototype.readSplitVarint64 = function(convert) {
+  for (var temp = 128, lowBits = 0, highBits = 0, i = 0; 4 > i && 128 <= temp; i++) {
+    temp = this.bytes_[this.cursor_++], lowBits |= (temp & 127) << 7 * i;
+  }
+  128 <= temp && (temp = this.bytes_[this.cursor_++], lowBits |= (temp & 127) << 28, highBits |= (temp & 127) >> 4);
+  if (128 <= temp) {
+    for (i = 0; 5 > i && 128 <= temp; i++) {
+      temp = this.bytes_[this.cursor_++], highBits |= (temp & 127) << 7 * i + 3;
     }
   }
-  temp = this.bytes_[this.cursor_++];
-  lowBits |= (temp & 127) << 28;
-  highBits = 0 | (temp & 127) >> 4;
   if (128 > temp) {
-    this.tempLow_ = lowBits >>> 0, this.tempHigh_ = highBits >>> 0;
-  } else {
-    for (i = 0; 5 > i; i++) {
-      if (temp = this.bytes_[this.cursor_++], highBits |= (temp & 127) << 7 * i + 3, 128 > temp) {
-        this.tempLow_ = lowBits >>> 0;
-        this.tempHigh_ = highBits >>> 0;
-        return;
-      }
-    }
-    goog.asserts.fail("Failed to read varint, encoding is invalid.");
-    this.error_ = !0;
+    return convert(lowBits >>> 0, highBits >>> 0);
   }
+  goog.asserts.fail("Failed to read varint, encoding is invalid.");
+  this.error_ = !0;
+};
+jspb.BinaryDecoder.prototype.readSplitZigzagVarint64 = function(convert) {
+  return this.readSplitVarint64(function(low, high) {
+    return jspb.utils.fromZigzag64(low, high, convert);
+  });
+};
+jspb.BinaryDecoder.prototype.readSplitFixed64 = function(convert) {
+  var bytes = this.bytes_, cursor = this.cursor_;
+  this.cursor_ += 8;
+  for (var lowBits = 0, highBits = 0, i = cursor + 7; i >= cursor; i--) {
+    lowBits = lowBits << 8 | bytes[i], highBits = highBits << 8 | bytes[i + 4];
+  }
+  return convert(lowBits, highBits);
 };
 jspb.BinaryDecoder.prototype.skipVarint = function() {
   for (; this.bytes_[this.cursor_] & 128;) {
@@ -8313,27 +8307,25 @@ jspb.BinaryDecoder.prototype.readZigzagVarint32 = function() {
   return result >>> 1 ^ -(result & 1);
 };
 jspb.BinaryDecoder.prototype.readUnsignedVarint64 = function() {
-  this.readSplitVarint64_();
-  return jspb.utils.joinUint64(this.tempLow_, this.tempHigh_);
+  return this.readSplitVarint64(jspb.utils.joinUint64);
 };
 jspb.BinaryDecoder.prototype.readUnsignedVarint64String = function() {
-  this.readSplitVarint64_();
-  return jspb.utils.joinUnsignedDecimalString(this.tempLow_, this.tempHigh_);
+  return this.readSplitVarint64(jspb.utils.joinUnsignedDecimalString);
 };
 jspb.BinaryDecoder.prototype.readSignedVarint64 = function() {
-  this.readSplitVarint64_();
-  return jspb.utils.joinInt64(this.tempLow_, this.tempHigh_);
+  return this.readSplitVarint64(jspb.utils.joinInt64);
 };
 jspb.BinaryDecoder.prototype.readSignedVarint64String = function() {
-  this.readSplitVarint64_();
-  return jspb.utils.joinSignedDecimalString(this.tempLow_, this.tempHigh_);
+  return this.readSplitVarint64(jspb.utils.joinSignedDecimalString);
 };
 jspb.BinaryDecoder.prototype.readZigzagVarint64 = function() {
-  this.readSplitVarint64_();
-  return jspb.utils.joinZigzag64(this.tempLow_, this.tempHigh_);
+  return this.readSplitVarint64(jspb.utils.joinZigzag64);
+};
+jspb.BinaryDecoder.prototype.readZigzagVarintHash64 = function() {
+  return this.readSplitZigzagVarint64(jspb.utils.joinHash64);
 };
 jspb.BinaryDecoder.prototype.readZigzagVarint64String = function() {
-  return this.readZigzagVarint64().toString();
+  return this.readSplitZigzagVarint64(jspb.utils.joinSignedDecimalString);
 };
 jspb.BinaryDecoder.prototype.readUint8 = function() {
   var a = this.bytes_[this.cursor_ + 0];
@@ -8450,8 +8442,7 @@ jspb.BinaryDecoder.prototype.readBytes = function(length) {
   return result;
 };
 jspb.BinaryDecoder.prototype.readVarintHash64 = function() {
-  this.readSplitVarint64_();
-  return jspb.utils.joinHash64(this.tempLow_, this.tempHigh_);
+  return this.readSplitVarint64(jspb.utils.joinHash64);
 };
 jspb.BinaryDecoder.prototype.readFixedHash64 = function() {
   var bytes = this.bytes_, cursor = this.cursor_, a = bytes[cursor + 0], b = bytes[cursor + 1], c = bytes[cursor + 2], d = bytes[cursor + 3], e = bytes[cursor + 4], f = bytes[cursor + 5], g = bytes[cursor + 6], h = bytes[cursor + 7];
@@ -8779,9 +8770,27 @@ jspb.BinaryReader.prototype.readVarintHash64 = function() {
   goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
   return this.decoder_.readVarintHash64();
 };
+jspb.BinaryReader.prototype.readSintHash64 = function() {
+  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+  return this.decoder_.readZigzagVarintHash64();
+};
+jspb.BinaryReader.prototype.readSplitVarint64 = function(convert) {
+  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+  return this.decoder_.readSplitVarint64(convert);
+};
+jspb.BinaryReader.prototype.readSplitZigzagVarint64 = function(convert) {
+  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+  return this.decoder_.readSplitVarint64(function(lowBits, highBits) {
+    return jspb.utils.fromZigzag64(lowBits, highBits, convert);
+  });
+};
 jspb.BinaryReader.prototype.readFixedHash64 = function() {
   goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
   return this.decoder_.readFixedHash64();
+};
+jspb.BinaryReader.prototype.readSplitFixed64 = function(convert) {
+  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
+  return this.decoder_.readSplitFixed64(convert);
 };
 jspb.BinaryReader.prototype.readPackedField_ = function(decodeMethod) {
   goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.DELIMITED);
@@ -9033,7 +9042,14 @@ jspb.BinaryEncoder.prototype.writeZigzagVarint64 = function(value) {
   this.writeSplitVarint64(jspb.utils.split64Low, jspb.utils.split64High);
 };
 jspb.BinaryEncoder.prototype.writeZigzagVarint64String = function(value) {
-  this.writeZigzagVarint64(parseInt(value, 10));
+  this.writeZigzagVarintHash64(jspb.utils.decimalStringToHash64(value));
+};
+jspb.BinaryEncoder.prototype.writeZigzagVarintHash64 = function(hash) {
+  var self = this;
+  jspb.utils.splitHash64(hash);
+  jspb.utils.toZigzag64(jspb.utils.split64Low, jspb.utils.split64High, function(lo, hi) {
+    self.writeSplitVarint64(lo >>> 0, hi >>> 0);
+  });
 };
 jspb.BinaryEncoder.prototype.writeUint8 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
@@ -9201,7 +9217,8 @@ jspb.BinaryWriter.prototype.getResultBuffer = function() {
   return flat;
 };
 jspb.BinaryWriter.prototype.getResultBase64String = function(opt_webSafe) {
-  return goog.crypt.base64.encodeByteArray(this.getResultBuffer(), opt_webSafe);
+  var alphabet = opt_webSafe ? goog.crypt.base64.Alphabet.WEBSAFE_DOT_PADDING : goog.crypt.base64.Alphabet.DEFAULT;
+  return goog.crypt.base64.encodeByteArray(this.getResultBuffer(), alphabet);
 };
 jspb.BinaryWriter.prototype.beginSubMessage = function(field) {
   this.bookmarks_.push(this.beginDelimited_(field));
@@ -9302,6 +9319,9 @@ jspb.BinaryWriter.prototype.writeZigzagVarint64_ = function(field, value) {
 jspb.BinaryWriter.prototype.writeZigzagVarint64String_ = function(field, value) {
   null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeZigzagVarint64String(value));
 };
+jspb.BinaryWriter.prototype.writeZigzagVarintHash64_ = function(field, value) {
+  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeZigzagVarintHash64(value));
+};
 jspb.BinaryWriter.prototype.writeInt32 = function(field, value) {
   null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31), this.writeSignedVarint32_(field, value));
 };
@@ -9348,8 +9368,11 @@ jspb.BinaryWriter.prototype.writeSint32 = function(field, value) {
 jspb.BinaryWriter.prototype.writeSint64 = function(field, value) {
   null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_63 && value < jspb.BinaryConstants.TWO_TO_63), this.writeZigzagVarint64_(field, value));
 };
+jspb.BinaryWriter.prototype.writeSintHash64 = function(field, value) {
+  null != value && this.writeZigzagVarintHash64_(field, value);
+};
 jspb.BinaryWriter.prototype.writeSint64String = function(field, value) {
-  null != value && (goog.asserts.assert(+value >= -jspb.BinaryConstants.TWO_TO_63 && +value < jspb.BinaryConstants.TWO_TO_63), this.writeZigzagVarint64String_(field, value));
+  null != value && this.writeZigzagVarint64String_(field, value);
 };
 jspb.BinaryWriter.prototype.writeFixed32 = function(field, value) {
   null != value && (goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_32), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED32), this.encoder_.writeUint32(value));
@@ -9431,6 +9454,21 @@ jspb.BinaryWriter.prototype.writeFixedHash64 = function(field, value) {
 jspb.BinaryWriter.prototype.writeVarintHash64 = function(field, value) {
   null != value && (goog.asserts.assert(8 == value.length), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeVarintHash64(value));
 };
+jspb.BinaryWriter.prototype.writeSplitFixed64 = function(field, lowBits, highBits) {
+  this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64);
+  this.encoder_.writeSplitFixed64(lowBits, highBits);
+};
+jspb.BinaryWriter.prototype.writeSplitVarint64 = function(field, lowBits, highBits) {
+  this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT);
+  this.encoder_.writeSplitVarint64(lowBits, highBits);
+};
+jspb.BinaryWriter.prototype.writeSplitZigzagVarint64 = function(field, lowBits$jscomp$0, highBits$jscomp$0) {
+  this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT);
+  var encoder = this.encoder_;
+  jspb.utils.toZigzag64(lowBits$jscomp$0, highBits$jscomp$0, function(lowBits, highBits) {
+    encoder.writeSplitVarint64(lowBits >>> 0, highBits >>> 0);
+  });
+};
 jspb.BinaryWriter.prototype.writeRepeatedInt32 = function(field, value) {
   if (null != value) {
     for (var i = 0; i < value.length; i++) {
@@ -9449,6 +9487,27 @@ jspb.BinaryWriter.prototype.writeRepeatedInt64 = function(field, value) {
   if (null != value) {
     for (var i = 0; i < value.length; i++) {
       this.writeSignedVarint64_(field, value[i]);
+    }
+  }
+};
+jspb.BinaryWriter.prototype.writeRepeatedSplitFixed64 = function(field, value, lo, hi) {
+  if (null != value) {
+    for (var i = 0; i < value.length; i++) {
+      this.writeSplitFixed64(field, lo(value[i]), hi(value[i]));
+    }
+  }
+};
+jspb.BinaryWriter.prototype.writeRepeatedSplitVarint64 = function(field, value, lo, hi) {
+  if (null != value) {
+    for (var i = 0; i < value.length; i++) {
+      this.writeSplitVarint64(field, lo(value[i]), hi(value[i]));
+    }
+  }
+};
+jspb.BinaryWriter.prototype.writeRepeatedSplitZigzagVarint64 = function(field, value, lo, hi) {
+  if (null != value) {
+    for (var i = 0; i < value.length; i++) {
+      this.writeSplitZigzagVarint64(field, lo(value[i]), hi(value[i]));
     }
   }
 };
@@ -9505,6 +9564,13 @@ jspb.BinaryWriter.prototype.writeRepeatedSint64String = function(field, value) {
   if (null != value) {
     for (var i = 0; i < value.length; i++) {
       this.writeZigzagVarint64String_(field, value[i]);
+    }
+  }
+};
+jspb.BinaryWriter.prototype.writeRepeatedSintHash64 = function(field, value) {
+  if (null != value) {
+    for (var i = 0; i < value.length; i++) {
+      this.writeZigzagVarintHash64_(field, value[i]);
     }
   }
 };
@@ -9646,6 +9712,32 @@ jspb.BinaryWriter.prototype.writePackedInt64 = function(field, value) {
     this.endDelimited_(bookmark);
   }
 };
+jspb.BinaryWriter.prototype.writePackedSplitFixed64 = function(field, value, lo, hi) {
+  if (null != value) {
+    for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
+      this.encoder_.writeSplitFixed64(lo(value[i]), hi(value[i]));
+    }
+    this.endDelimited_(bookmark);
+  }
+};
+jspb.BinaryWriter.prototype.writePackedSplitVarint64 = function(field, value, lo, hi) {
+  if (null != value) {
+    for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
+      this.encoder_.writeSplitVarint64(lo(value[i]), hi(value[i]));
+    }
+    this.endDelimited_(bookmark);
+  }
+};
+jspb.BinaryWriter.prototype.writePackedSplitZigzagVarint64 = function(field, value, lo, hi) {
+  if (null != value) {
+    for (var bookmark = this.beginDelimited_(field), encoder = this.encoder_, i = 0; i < value.length; i++) {
+      jspb.utils.toZigzag64(lo(value[i]), hi(value[i]), function(bitsLow, bitsHigh) {
+        encoder.writeSplitVarint64(bitsLow >>> 0, bitsHigh >>> 0);
+      });
+    }
+    this.endDelimited_(bookmark);
+  }
+};
 jspb.BinaryWriter.prototype.writePackedInt64String = function(field, value) {
   if (null != value && value.length) {
     for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
@@ -9707,7 +9799,15 @@ jspb.BinaryWriter.prototype.writePackedSint64 = function(field, value) {
 jspb.BinaryWriter.prototype.writePackedSint64String = function(field, value) {
   if (null != value && value.length) {
     for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
-      this.encoder_.writeZigzagVarint64(parseInt(value[i], 10));
+      this.encoder_.writeZigzagVarintHash64(jspb.utils.decimalStringToHash64(value[i]));
+    }
+    this.endDelimited_(bookmark);
+  }
+};
+jspb.BinaryWriter.prototype.writePackedSintHash64 = function(field, value) {
+  if (null != value && value.length) {
+    for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
+      this.encoder_.writeZigzagVarintHash64(value[i]);
     }
     this.endDelimited_(bookmark);
   }
@@ -10474,13 +10574,6 @@ jspb.Message.deserialize = function(ctor, data) {
   goog.asserts.assertInstanceof(msg, jspb.Message);
   return msg;
 };
-jspb.Message.buildMessageFromArray = function(data) {
-  var messageCtor = jspb.Message.registry_[data[0]];
-  if (!messageCtor) {
-    throw Error("Unknown JsPb message type: " + data[0]);
-  }
-  return new messageCtor(data);
-};
 jspb.Message.GENERATE_TO_STRING && (jspb.Message.prototype.toString = function() {
   this.syncMapFields_();
   return this.array.toString();
@@ -10621,10 +10714,8 @@ jspb.Message.clone_ = function(obj) {
   return clone;
 };
 jspb.Message.registerMessageType = function(id, constructor) {
-  jspb.Message.registry_[id] = constructor;
   constructor.messageId = id;
 };
-jspb.Message.registry_ = {};
 jspb.Message.messageSetExtensions = {};
 jspb.Message.messageSetExtensionsBinary = {};
 var proto = {google:{}};
@@ -11635,8 +11726,24 @@ goog.async.Throttle.prototype.doAction_ = function() {
   this.timer_ = goog.Timer.callOnce(this.callback_, this.interval_);
   this.listener_.apply(null, this.args_);
 };
-goog.dom.BrowserFeature = {CAN_ADD_NAME_OR_TYPE_ATTRIBUTES:!goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9), CAN_USE_CHILDREN_ATTRIBUTE:!goog.userAgent.GECKO && !goog.userAgent.IE || goog.userAgent.IE && goog.userAgent.isDocumentModeOrHigher(9) || goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher("1.9.1"), CAN_USE_INNER_TEXT:goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9"), CAN_USE_PARENT_ELEMENT_PROPERTY:goog.userAgent.IE || goog.userAgent.OPERA || goog.userAgent.WEBKIT, 
-INNER_HTML_NEEDS_SCOPED_ELEMENT:goog.userAgent.IE, LEGACY_IE_RANGES:goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(9)};
+goog.dom.BrowserFeature = {};
+goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS = !1;
+goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS = !1;
+goog.dom.BrowserFeature.detectOffscreenCanvas_ = function(contextName) {
+  try {
+    return !0;
+  } catch (ex) {
+  }
+  return !1;
+};
+goog.dom.BrowserFeature.OFFSCREEN_CANVAS_2D = !goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS && (goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS || goog.dom.BrowserFeature.detectOffscreenCanvas_("2d"));
+goog.dom.BrowserFeature.OFFSCREEN_CANVAS_WEBGL = !goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS && (goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS || goog.dom.BrowserFeature.detectOffscreenCanvas_("webgl"));
+goog.dom.BrowserFeature.CAN_ADD_NAME_OR_TYPE_ATTRIBUTES = !goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9);
+goog.dom.BrowserFeature.CAN_USE_CHILDREN_ATTRIBUTE = !goog.userAgent.GECKO && !goog.userAgent.IE || goog.userAgent.IE && goog.userAgent.isDocumentModeOrHigher(9) || goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher("1.9.1");
+goog.dom.BrowserFeature.CAN_USE_INNER_TEXT = goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9");
+goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY = goog.userAgent.IE || goog.userAgent.OPERA || goog.userAgent.WEBKIT;
+goog.dom.BrowserFeature.INNER_HTML_NEEDS_SCOPED_ELEMENT = goog.userAgent.IE;
+goog.dom.BrowserFeature.LEGACY_IE_RANGES = goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(9);
 goog.math.Coordinate = function(opt_x, opt_y) {
   this.x = goog.isDef(opt_x) ? opt_x : 0;
   this.y = goog.isDef(opt_y) ? opt_y : 0;
@@ -13725,8 +13832,8 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   try {
     this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (this.useXhr2Timeout_ = goog.net.XhrIo.shouldUseXhr2Timeout_(this.xhr_), goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete, xhr2 " + this.useXhr2Timeout_)), this.useXhr2Timeout_ ? (this.xhr_[goog.net.XhrIo.XHR2_TIMEOUT_] = this.timeoutInterval_, this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = goog.bind(this.timeout_, this)) : this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, 
     this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
-  } catch (err$17) {
-    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$17.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$17);
+  } catch (err$18) {
+    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$18.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$18);
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
@@ -14517,7 +14624,7 @@ ee.data.initialize = function(opt_apiBaseUrl, opt_tileBaseUrl, opt_xsrfToken) {
       var discoveryDoc = Object.assign({}, googleapidiscovery.earthengine.v1alpha.rest, {rootUrl:ee.data.apiBaseUrl_.replace(/\/api$/, "")});
       gapi.client.init({apiKey:ee.data.cloudApiKey_, discoveryDocs:[discoveryDoc]}).then(function() {
         ee.data.cloudApiReady_ = !0;
-        gapi.config.update("client/headers/request", [ee.data.PROFILE_REQUEST_HEADER]);
+        gapi.config.update("client/headers/request", [ee.data.PROFILE_REQUEST_HEADER, ee.data.USER_PROJECT_OVERRIDE_HEADER_]);
         gapi.config.update("client/headers/response", [ee.data.PROFILE_HEADER]);
         resolve();
       });
@@ -14541,11 +14648,12 @@ ee.data.sendCloudApiRequest_ = function(callApi, getResponse, opt_callback, opt_
       ee.data.sendCloudApiRequest_(callApi, getResponse, opt_callback, opt_retries);
     }), null;
   }
-  var callApiWithHeaders = ee.data.profileHook_ ? function() {
-    var request = callApi();
-    ee.data.getGapiHeaders_(request)[ee.data.PROFILE_REQUEST_HEADER] = "1";
+  var callApiWithHeaders = function() {
+    var request = callApi(), headers = ee.data.getGapiHeaders_(request);
+    ee.data.profileHook_ && (headers[ee.data.PROFILE_REQUEST_HEADER] = "1");
+    ee.data.getProject() && ee.data.getProject() !== ee.data.DEFAULT_PROJECT_ && (headers[ee.data.USER_PROJECT_OVERRIDE_HEADER_] = ee.data.getProject());
     return request;
-  } : callApi, profileHookAtCallTime = ee.data.profileHook_;
+  }, profileHookAtCallTime = ee.data.profileHook_;
   if (opt_callback) {
     var handler = function(payload) {
       return ee.data.handleResponse_(payload.status, function(headerKey) {
@@ -14988,6 +15096,7 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
   }
   params = goog.object.clone(params);
   goog.isDefAndNotNull(params.element) && (params.json = params.element.serialize(), delete params.element);
+  goog.isArray(params.crs_transform) && (params.crs_transform = params.crs_transform.toString());
   params.id = taskId;
   return ee.data.send_("/processingrequest", ee.data.makeRequest_(params), opt_callback);
 };
@@ -15048,9 +15157,9 @@ ee.data.getList = function(params, opt_callback) {
         return gapi.client.earthengine.projects.assets.listAssets(body);
       }, ee.rpc_convert.listAssetsToGetList, opt_callback);
     }
-    var body$18 = ee.rpc_convert.getListToListImages(params);
+    var body$19 = ee.rpc_convert.getListToListImages(params);
     return ee.data.sendCloudApiRequest_(function() {
-      return gapi.client.earthengine.projects.assets.listImages({fields:"assets(type,path)"}, body$18);
+      return gapi.client.earthengine.projects.assets.listImages({fields:"assets(type,path)"}, body$19);
     }, ee.rpc_convert.listImagesToGetList, opt_callback);
   }
   var request = ee.data.makeRequest_(params);
@@ -15086,7 +15195,9 @@ ee.data.getAssetRoots = function(opt_callback) {
 };
 ee.data.createAssetHome = function(requestedId, opt_callback) {
   if (ee.data.cloudApiEnabled_) {
-    var options = {parent:ee.rpc_convert.projectParentFromPath(requestedId), assetId:requestedId}, body = {type:"Folder"};
+    var parent = ee.rpc_convert.projectParentFromPath(requestedId);
+    var options = parent === "projects/" + ee.data.DEFAULT_PROJECT_ ? {parent:ee.rpc_convert.projectParentFromPath(requestedId), assetId:requestedId} : {parent:parent};
+    var body = {type:"Folder"};
     ee.data.sendCloudApiRequest_(function() {
       return gapi.client.earthengine.projects.assets.create(options, body);
     }, null, opt_callback);
@@ -15431,7 +15542,7 @@ ee.data.handleResponse_ = function(status, getResponseHeader, responseText, prof
   opt_getData = void 0 === opt_getData ? function(response) {
     return response.data;
   } : opt_getData;
-  var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
+  var profileId = profileHook ? getResponseHeader(ee.data.PROFILE_HEADER) : "";
   profileId && profileHook && profileHook(profileId);
   var contentType = getResponseHeader("Content-Type");
   contentType = contentType ? contentType.replace(/;.*/, "") : "application/json";
@@ -15613,7 +15724,8 @@ ee.data.MAX_RETRY_WAIT_ = 120000;
 ee.data.MAX_ASYNC_RETRIES_ = 10;
 ee.data.MAX_SYNC_RETRIES_ = 5;
 ee.data.PROFILE_HEADER = "X-Earth-Engine-Computation-Profile";
-ee.data.PROFILE_REQUEST_HEADER = "X-Earth-Engine-Computation-Profiling";
+ee.data.PROFILE_REQUEST_HEADER = "X-Earth-Engine-Computation-Profile";
+ee.data.USER_PROJECT_OVERRIDE_HEADER_ = "X-Goog-User-Project";
 ee.data.DEFAULT_API_BASE_URL_ = "https://earthengine.googleapis.com/api";
 ee.data.DEFAULT_TILE_BASE_URL_ = "https://earthengine.googleapis.com";
 ee.ComputedObject = function(func, args, opt_varName) {
@@ -16615,7 +16727,8 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
   return image;
 };
 ee.data.images.applyCrsAndTransform = function(image, params) {
-  var crs = params.crs || "", crsTransform = params.crsTransform || params.crs_transform || "";
+  var crs = params.crs || "", crsTransform = params.crsTransform || params.crs_transform;
+  goog.isDefAndNotNull(crsTransform) && (crsTransform = ee.data.images.maybeConvertCrsTransformToArray_(crsTransform));
   if (!crs && !crsTransform) {
     return image;
   }
@@ -16634,6 +16747,22 @@ ee.data.images.applyCrsAndTransform = function(image, params) {
     image = ee.ApiFunction._apply("Image.setDefaultProjection", {image:image, crs:crs, crsTransform:[1, 0, 0, 0, -1, 0]});
   }
   return image;
+};
+ee.data.images.maybeConvertCrsTransformToArray_ = function(crsTransform) {
+  var transformArray = crsTransform;
+  if (goog.isString(transformArray)) {
+    try {
+      transformArray = JSON.parse(transformArray);
+    } catch (e) {
+    }
+  }
+  if (goog.isArray(transformArray)) {
+    if (6 === transformArray.length && goog.array.every(transformArray, goog.isNumber)) {
+      return transformArray;
+    }
+    throw Error("Invalid argument, crs transform must be a list of 6 numbers.");
+  }
+  throw Error("Invalid argument, crs transform was not a string or array.");
 };
 ee.data.images.applyVisualization = function(image, params) {
   var request = {}, visParams = ee.data.images.extractVisParams(params, request);
@@ -16738,7 +16867,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
     var request = ee.data.images.applyVisualization(image, extra);
   } else {
     if (request = ee.data.images.applyVisualization(this, args.params), request.region) {
-      if (goog.isArray(request.region) || ee.Types.isRegularObject(request.region)) {
+      if (request.region instanceof ee.Geometry && (request.region = request.region.toGeoJSON()), goog.isArray(request.region) || ee.Types.isRegularObject(request.region)) {
         request.region = goog.json.serialize(request.region);
       } else {
         if (!goog.isString(request.region)) {

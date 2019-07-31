@@ -793,7 +793,7 @@ ee.batch.Export.image;
  * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {(Array<number>|string)=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @return {!ee.batch.ExportTask}
  */
@@ -808,7 +808,7 @@ ee.batch.Export.image.toAsset = function(image, opt_description, opt_assetId, op
  * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {(Array<number>|string)=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_shardSize
  * @param {(Array<number>|null|number)=} opt_fileDimensions
@@ -828,7 +828,7 @@ ee.batch.Export.image.toCloudStorage = function(image, opt_description, opt_buck
  * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {(Array<number>|string)=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_shardSize
  * @param {(Array<number>|null|number)=} opt_fileDimensions
@@ -899,7 +899,7 @@ ee.batch.Export.video;
  * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {(Array<number>|string)=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_maxFrames
  * @return {!ee.batch.ExportTask}
@@ -916,7 +916,7 @@ ee.batch.Export.video.toCloudStorage = function(collection, opt_description, opt
  * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {(Array<number>|string)=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_maxFrames
  * @return {!ee.batch.ExportTask}

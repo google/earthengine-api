@@ -68,7 +68,7 @@ def main():
   #  and the old API is removed.
   if args.use_cloud_api:
     print('Running command using Cloud API.  Set --no-use_cloud_api to '
-          'go back to using the API')
+          'go back to using the API\n')
 
   # Catch EEException errors, which wrap server-side Earth Engine
   # errors, and print the error message without the irrelevant local

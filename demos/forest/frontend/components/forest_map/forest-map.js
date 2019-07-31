@@ -71,6 +71,7 @@ forest.ForestMap = Polymer({
    * @param {string} placeId The Google Maps API Place ID to center on.
    */
   centerPlace: function(placeId) {
+    if (!this.gMap_) return;  // We're not fully loaded yet.
     var placesService = new google.maps.places.PlacesService(this.gMap_);
     var request = {'placeId': placeId};
     placesService.getDetails(request, goog.bind(function(result, status) {

@@ -30,6 +30,7 @@ setup(
     packages=['ee', 'ee.cli'],
     package_data={
         'ee': ['tests/*.py',],
+        'ee.cli': ['licenses.txt'],
     },
     test_suite='ee/tests',
     install_requires=[

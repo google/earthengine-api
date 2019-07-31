@@ -1043,6 +1043,9 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
     params['json'] = params['element'].serialize();
     delete params['element'];
   }
+  if (goog.isArray(params['crs_transform'])) {
+    params['crs_transform'] = params['crs_transform'].toString();
+  }
   params['id'] = taskId;
   return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
       '/processingrequest', ee.data.makeRequest_(params), opt_callback));
@@ -2286,7 +2289,7 @@ ee.data.AbstractTaskConfig;
  *   sourceURL: (undefined|string),
  *   element: (undefined|!ee.Element),
  *   crs: (undefined|string),
- *   crs_transform: (undefined|string),
+ *   crs_transform: (undefined|!Array<number>|string),
  *   dimensions: (undefined|string),
  *   scale: (undefined|number),
  *   region: (undefined|string),
@@ -2317,7 +2320,7 @@ ee.data.ImageTaskConfigUnformatted;
  *   sourceURL: (undefined|string),
  *   element: (undefined|!ee.Element),
  *   crs: (undefined|string),
- *   crs_transform: (undefined|string),
+ *   crs_transform: (undefined|!Array<number>|string),
  *   dimensions: (undefined|string),
  *   scale: (undefined|number),
  *   region: (undefined|string),
@@ -2427,7 +2430,7 @@ ee.data.TableTaskConfig;
  *   element: (undefined|!ee.Element),
  *   framesPerSecond: (undefined|number),
  *   crs: (undefined|string),
- *   crs_transform: (undefined|string),
+ *   crs_transform: (undefined|!Array<number>|string),
  *   dimensions: (undefined|number|string),
  *   region: (undefined|string),
  *   scale: (undefined|number),
@@ -3049,7 +3052,9 @@ ee.data.buildAsyncRequest_ = function(url, callback, method, content, headers) {
 ee.data.handleResponse_ = function(
     status, getResponseHeader, responseText, profileHook, opt_callback,
     opt_getData = (response) => response['data']) {
-  var profileId = getResponseHeader(ee.data.PROFILE_HEADER);
+  // Only attempt to get the profile response header if we have a hook.
+  const profileId =
+      profileHook ? getResponseHeader(ee.data.PROFILE_HEADER) : '';
   if (profileId && profileHook) {
     profileHook(profileId);
   }

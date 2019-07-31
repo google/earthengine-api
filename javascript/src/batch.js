@@ -141,7 +141,7 @@ ee.batch.ExportTask = class {
  * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @return {!ee.batch.ExportTask}
  * @export
@@ -166,7 +166,7 @@ ee.batch.Export.image.toAsset = function(
  * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_shardSize
  * @param {number|?Array<number>=} opt_fileDimensions
@@ -198,7 +198,7 @@ ee.batch.Export.image.toCloudStorage = function(
  * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_shardSize
  * @param {number|?Array<number>=} opt_fileDimensions
@@ -319,7 +319,7 @@ ee.batch.Export.table.toAsset = function(
  * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale Resolution
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_maxFrames
  * @return {!ee.batch.ExportTask}
@@ -347,7 +347,7 @@ ee.batch.Export.video.toCloudStorage = function(
  * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
- * @param {string=} opt_crsTransform
+ * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_maxFrames
  * @return {!ee.batch.ExportTask}
