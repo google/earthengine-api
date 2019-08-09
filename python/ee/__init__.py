@@ -1,7 +1,8 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.188'
+
+__version__ = '0.1.189'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -18,6 +19,7 @@ from . import batch
 from . import data
 from . import deserializer
 from . import ee_types as types
+from ._helpers import _GetPersistentCredentials
 
 # Public re-exports.
 from ._helpers import ServiceAccountCredentials
@@ -95,7 +97,7 @@ def Initialize(
     project: The project-id or number to use when making api calls.
   """
   if credentials == 'persistent':
-    credentials = data.get_persistent_credentials()
+    credentials = _GetPersistentCredentials()
   data.initialize(
       credentials=credentials,
       api_base_url=(opt_url + '/api' if opt_url else None),

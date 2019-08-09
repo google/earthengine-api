@@ -426,9 +426,6 @@ ee.Image.prototype.select = function(var_args) {
  * such as b(1, 'name', 3).  Calling b() with no arguments, or using a variable
  * by itself, returns all bands of the image.
  *
- * If the result of an expression is a single band, it can be assigned a name
- * using the '=' operator (e.g.: x = a + b).
- *
  * @param {string} expression The expression to evaluate.
  * @param {Object.<ee.Image>=} opt_map A map of input images available by name.
  * @return {!ee.Image} The image computed by the provided expression.

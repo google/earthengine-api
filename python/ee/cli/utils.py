@@ -11,14 +11,12 @@ from datetime import datetime
 import json
 import os
 import re
-import tempfile
 import threading
 import time
 
 import urllib
 import httplib2
 
-from google.cloud import storage
 from google.oauth2.credentials import Credentials
 import ee
 
@@ -79,15 +77,15 @@ class CommandLineConfig(object):
       for key, value in service.items():
         setattr(self, key, value)
 
-  def _get_credentials(self):
-    """Acquires credentials."""
+  def ee_init(self):
+    """Loads the EE credentials and initializes the EE client."""
     if self.service_account_file:
-      return ee.ServiceAccountCredentials(self.client_email,
-                                          self.service_account_file)
+      credentials = ee.ServiceAccountCredentials(
+          self.client_email, self.service_account_file)
     elif self.account and self.private_key:
-      return ee.ServiceAccountCredentials(self.account, self.private_key)
+      credentials = ee.ServiceAccountCredentials(self.account, self.private_key)
     elif self.refresh_token:
-      return Credentials(
+      credentials = Credentials(
           None,
           refresh_token=self.refresh_token,
           token_uri=ee.oauth.TOKEN_URI,
@@ -95,41 +93,18 @@ class CommandLineConfig(object):
           client_secret=ee.oauth.CLIENT_SECRET,
           scopes=ee.oauth.SCOPES)
     else:
-      return 'persistent'
-
-  # TODO(user): We now have two ways of accessing GCS. storage.Client is
-  #            preferred and we should eventually migrate to just use that
-  #            instead of sending raw HTTP requests.
-  def create_gcs_helper(self):
-    """Creates a GcsHelper using the same credentials EE authorizes with."""
-    project = self._get_project()
-    if project is None:
-      raise ValueError('A project is required to access Cloud Storage. It '
-                       'can be set per-call by passing the --project flag or '
-                       'by setting the \'project\' parameter in your Earth '
-                       'Engine config file.')
-    creds = self._get_credentials()
-    if creds == 'persistent':
-      creds = ee.data.get_persistent_credentials()
-    return GcsHelper(
-        storage.Client(project=project, credentials=creds))
-
-  def _get_project(self):
+      credentials = 'persistent'
     # If a --project flag is passed into a command, it supercedes the one set
     # by calling the set_project command.
-    if self.project_override:
-      return self.project_override
-    else:
-      return self.project
-
-  def ee_init(self):
-    """Loads the EE credentials and initializes the EE client."""
+    project = self.project
+    if self.project_override is not None:
+      project = self.project_override
     ee.Initialize(
-        credentials=self._get_credentials(),
+        credentials=credentials,
         opt_url=self.url,
         use_cloud_api=self.use_cloud_api,
         cloud_api_key=self.cloud_api_key,
-        project=self._get_project())
+        project=project)
 
   def save(self):
     config = {}
@@ -139,81 +114,6 @@ class CommandLineConfig(object):
         config[key] = value
     with open(self.config_file, 'w') as output_file:
       json.dump(config, output_file)
-
-
-class GcsHelper(object):
-  """A helper for manipulating files in GCS."""
-
-  def __init__(self, client):
-    self.client = client
-
-  @staticmethod
-  def _split_gcs_path(path):
-    m = re.search('gs://([a-z0-9-_.]*)/(.*)', path, re.IGNORECASE)
-    if not m:
-      raise ValueError('\'{}\' is not a valid GCS path'.format(path))
-
-    return m.groups()
-
-  @staticmethod
-  def _canonicalize_dir_path(path):
-    return path.strip().rstrip('/')
-
-  def _get_blobs_under_path(self, path):
-    bucket, prefix = GcsHelper._split_gcs_path(
-        GcsHelper._canonicalize_dir_path(path))
-    return self.client.get_bucket(bucket).list_blobs(prefix=prefix + '/')
-
-  def check_gcs_dir_within_size(self, path, max_bytes):
-    blobs = self._get_blobs_under_path(path)
-    total_bytes = 0
-    for blob in blobs:
-      total_bytes += blob.size
-      if total_bytes > max_bytes:
-        raise ValueError('Size of files in \'{}\' exceeds allowed size: '
-                         '{} > {}.'.format(path, total_bytes, max_bytes))
-    if total_bytes == 0:
-      raise ValueError('No files found at \'{}\'.'.format(path))
-
-  def download_dir_to_temp(self, path):
-    """Downloads recursively the contents at a GCS path to a temp directory."""
-    canonical_path = GcsHelper._canonicalize_dir_path(path)
-    blobs = self._get_blobs_under_path(canonical_path)
-    temp_dir = tempfile.mkdtemp()
-
-    _, prefix = GcsHelper._split_gcs_path(canonical_path)
-    for blob in blobs:
-      stripped_name = blob.name[len(prefix):]
-      if stripped_name == '/':
-        continue
-
-      output_path = temp_dir + stripped_name
-      if output_path[-1:] != '/':
-        blob.download_to_filename(output_path)
-      else:
-        os.mkdir(output_path[:-1])
-
-    return temp_dir
-
-  def upload_dir_to_bucket(self, source_path, dest_path):
-    """Uploads a directory to cloud storage."""
-    canonical_path = GcsHelper._canonicalize_dir_path(source_path)
-
-    files = list()
-    for dirpath, _, filenames in os.walk(canonical_path):
-      files += [os.path.join(dirpath, f) for f in filenames]
-
-    bucket, prefix = GcsHelper._split_gcs_path(
-        GcsHelper._canonicalize_dir_path(dest_path))
-    bucket_client = self.client.get_bucket(bucket)
-
-    for f in files:
-      relative_file = f[len(canonical_path):]
-      bucket_client.blob(prefix + relative_file).upload_from_filename(f)
-
-
-def is_gcs_path(path):
-  return path.strip().startswith('gs://')
 
 
 def query_yes_no(msg):

@@ -1,6 +1,6 @@
 {
   "name": "@google/earthengine",
-  "version": "0.1.188",
+  "version": "0.1.189",
   "description": "JavaScript client for Google Earth Engine API.",
   "author": "Google LLC",
   "license": "Apache-2.0",
@@ -21,7 +21,7 @@
     "test:browser": "karma start test/karma_config.js --single-run"
   },
   "dependencies": {
-    "googleapis": "^42.0.0",
+    "googleapis": "^41.0.1",
     "xmlhttprequest": "^1.8.0"
   },
   "devDependencies": {
