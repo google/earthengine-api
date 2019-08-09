@@ -259,10 +259,12 @@ def serve_wmts_get_tile():
   if dataset.get("table"):
     # Check if the table resource is available in Cloud Storage Layers
     if config.EE_CSL_ENABLED:
-      timestamp = ee.data.getInfo(wmts_layer).get("version")
+      timestamp = ee.data.getInfo(wmts_layer).get("updateTime")
+      if timestamp:
+        timestamp = timestamp.replace(":", "")
       tile_blob = config.CATALOG_BUCKET.get_blob(
           config.EE_CSL_TILEURL_TEMPLATE.format(
-              path="%s-%d" % (wmts_layer.replace("/", "-"), timestamp),
+              path="%s-%s" % (wmts_layer.replace("/", "-"), timestamp),
               x=wmts_tile_col,
               y=wmts_tile_row,
               z=wmts_tile_matrix,

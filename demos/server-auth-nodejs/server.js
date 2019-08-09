@@ -17,7 +17,7 @@ const app = express()
 
     const image = ee.Image('srtm90_v4');
     image.getMap({min: 0, max: 1000}, ({mapid, token}) => {
-      response.render('index', {mapid, token});
+      response.render('index', {layout: false, mapid, token});
     });
 
   });

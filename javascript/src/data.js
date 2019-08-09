@@ -235,7 +235,7 @@ ee.data.authenticateViaPrivateKey = function(
   ee.data.authScopes_ = scopes;
 
   // Initialize JWT client to authorize as service account.
-  var jwtClient = new googleapis.auth.JWT(
+  var jwtClient = new google.auth.JWT(
       privateKey.client_email, null, privateKey.private_key, scopes, null);
 
   // Configure authentication refresher to use JWT client.

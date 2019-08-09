@@ -1,24 +1,19 @@
+const EE_MAP_PATH = 'https://earthengine.googleapis.com/map';
+
 /**
  * Initialize the Google Map and add our custom layer overlay.
- * @param {string} mapId
+ * @param {string} mapid
  * @param {string} token
  */
-const initialize = (mapId, token) => {
-  // The Google Maps API calls getTileUrl() when it tries to display a map
-  // tile. This is a good place to swap in the MapID and token we got from
-  // the Node.js script. The other values describe other properties of the
-  // custom map type.
-  const eeMapOptions = {
-    getTileUrl: (tile, zoom) => {
-      const baseUrl = 'https://earthengine.googleapis.com/map';
-      const url = [baseUrl, mapId, zoom, tile.x, tile.y].join('/');
-      return `${url}?token=${token}`;
-    },
-    tileSize: new google.maps.Size(256, 256)
-  };
-
-  // Create the map type.
-  const mapType = new google.maps.ImageMapType(eeMapOptions);
+const initialize = (mapid, token) => {
+  // Create an ImageOverlay using the MapID and token we got from Node.js.
+  const tileSource = new ee.layers.EarthEngineTileSource({
+    mapid,
+    token,
+    formatTileUrl: (x, y, z) =>
+        `${EE_MAP_PATH}/${mapid}/${z}/${x}/${y}?token=${token}`
+  });
+  const layer = new ee.layers.ImageOverlay(tileSource);
 
   const myLatLng = new google.maps.LatLng(-34.397, 150.644);
   const mapOptions = {
@@ -32,5 +27,5 @@ const initialize = (mapId, token) => {
   const map = new google.maps.Map(document.getElementById('map'), mapOptions);
 
   // Add the EE layer to the map.
-  map.overlayMapTypes.push(mapType);
+  map.overlayMapTypes.push(layer);
 };

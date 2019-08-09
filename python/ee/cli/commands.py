@@ -470,7 +470,7 @@ class AclChCommand(object):
       raise ee.EEException('Invalid permission "%s".' % grant)
     user, role = parts
     prefixed_user = user
-    if self._cloud_api_enabled:
+    if self._cloud_api_enabled and not self._is_all_users(user):
       prefixed_user = prefix + user
     if prefixed_user in permissions:
       raise ee.EEException('Multiple permission settings for "%s".' % user)
@@ -481,7 +481,7 @@ class AclChCommand(object):
   def _remove_permission(self, permissions, user, prefix):
     """Removes permissions for a given user/group."""
     prefixed_user = user
-    if self._cloud_api_enabled:
+    if self._cloud_api_enabled and not self._is_all_users(user):
       prefixed_user = prefix + user
     if prefixed_user in permissions:
       raise ee.EEException('Multiple permission settings for "%s".' % user)
