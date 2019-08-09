@@ -1394,6 +1394,17 @@ ee.data.AssetType = {
 };
 
 
+/**
+ * The types of table asset upload formats.
+ * @enum {string}
+ */
+ee.data.TableType = {
+  CSV: 'CSV',
+  SHAPE: 'SHAPE',
+  TF_RECORD: 'TFRecord',
+};
+
+
 /** @enum {string} The types of export. */
 ee.data.ExportType = {
   IMAGE: 'EXPORT_IMAGE',

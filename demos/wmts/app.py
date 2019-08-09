@@ -112,23 +112,106 @@ def serve_wmts_get_capabilities():
   return flask.Response(ElementTree.tostring(xml), mimetype="text/xml")
 
 
-locks = collections.defaultdict(threading.Lock)
-ttl_cache = cachetools.TTLCache(128, ttl=86400)
+# The following functions {_get_map_id_threadsafe, _get_dd_json_threadsafe}
+# follow a similar locking control flow in order to perform caching operations
+# in a thread-safe manner.
+#
+# First, a lock needs to be acquired to access a dictionary of locks associated
+# with each item key. Then, a lock needs to be acquired for the particular cache
+# item that is to be checked. Upon acquiring this, the function then has to
+# acquire another lock, to access the normally thread-unsafe cachetools.TTLCache
+# structure. This locking is to ensure that more than one thread does not access
+# the cache and miss, causing the expensive server-side operation to be
+# performed more than once.
+#
+# Upon acquiring the TTLCache lock, the function then checks if the cache
+# contains a value associated with the key of interest.
+#
+# If there is a cache hit, then both locks are discarded and the value is
+# returned.
+#
+# If there is a cache miss, then the function discards the TTLCache lock and
+# computes the value in its own specific manner. The function then reacquires
+# the TTLCache lock and writes the value to the cache, then discards the lock
+# and returns the computed value.
+#
+# In summary the locking mechanism is as follows:
+#
+#   with {dictionary lock}:
+#     acquire item lock
+#
+#   with {item lock}:
+#     with {TTLCache lock}:
+#       (check TTLCache)
+#       if cache hit: return value
+#
+#     (compute value)
+#     with {TTLCache lock}:
+#       (write value to TTLCache)
+#
+#     return value
 
 
-def get_map_id_threadsafe(asset, vis_params):
+def _get_lock(lock_dict_lock, lock_dict, key):
+  """Acquires a lock from a lock dictionary."""
+  with lock_dict_lock:
+    return lock_dict[key]
+
+
+_map_id_lock_dict_lock = threading.Lock()
+_map_id_locks = collections.defaultdict(threading.Lock)
+_map_id_ttl_cache_lock = threading.Lock()
+_map_id_ttl_cache = cachetools.TTLCache(128, ttl=86400)
+
+
+def _get_map_id_threadsafe(asset, vis_params):
+  """Gets the map id associated with an EE asset and its vis params."""
   key = json.dumps({"asset": str(asset), "vis_params": vis_params})
-  if key in ttl_cache:
-    return ttl_cache[key]
-  with locks[key]:
+  with _get_lock(_map_id_lock_dict_lock, _map_id_locks, key):
+    with _map_id_ttl_cache_lock:
+      if key in _map_id_ttl_cache:
+        return _map_id_ttl_cache[key]
     mapid = asset.getMapId(vis_params=vis_params)
-    ttl_cache[key] = mapid
-    return mapid
+    with _map_id_ttl_cache_lock:
+      _map_id_ttl_cache[key] = mapid
+      return mapid
 
-# TODO(user): cache assets as well as map IDs.
+
+_dd_json_lock_dict_lock = threading.Lock()
+_dd_json_locks = collections.defaultdict(threading.Lock)
+_dd_json_ttl_cache_lock = threading.Lock()
+_dd_json_ttl_cache = cachetools.TTLCache(128, ttl=86400)
 
 
-def get_table_asset(dataset_name, vis_metadata):
+def _get_dd_json_threadsafe(blob_name):
+  """Gets the Earth Engine dataset metadata from cloud storage."""
+  key = blob_name
+  with _get_lock(_dd_json_lock_dict_lock, _dd_json_locks, key):
+    with _dd_json_ttl_cache_lock:
+      if key in _dd_json_ttl_cache:
+        return _dd_json_ttl_cache[key]
+    dataset_blob = config.CATALOG_BUCKET.get_blob(blob_name)
+    if not dataset_blob:
+      return None
+    blob_contents = json.loads(dataset_blob.download_as_string())
+    with _dd_json_ttl_cache_lock:
+      _dd_json_ttl_cache[key] = blob_contents
+    return blob_contents
+
+
+def _get_asset(dataset_name, dataset, vis_metadata):
+  """Gets the corresponding Earth Engine asset for a given dataset/params."""
+  if dataset.get("table"):
+    asset, vis_metadata = _get_table_asset(dataset_name, vis_metadata)
+  elif dataset.get("imageCollection") is not None:
+    asset = ee.ImageCollection(dataset_name).first()
+  else:
+    asset = ee.Image(dataset_name)
+
+  return (asset, vis_metadata)
+
+
+def _get_table_asset(dataset_name, vis_metadata):
   """Gets table visualization asset and visualization parameters."""
   polygon_vis = vis_metadata.get("polygonVisualization")
   table_vis = vis_metadata.get("tableVisualization")
@@ -161,35 +244,10 @@ def serve_wmts_get_tile():
     return flask.Response(
         "Need to specify a layer name for GetTile.", status=400)
 
-  try:
-    dataset_blob = config.CATALOG_BUCKET.get_blob(
-        wmts_layer.replace("/", "-") + ".json")
-    dd_json = dataset_blob.download_as_string()
-  except gcs.errors.NotFoundError:
+  dataset = _get_dd_json_threadsafe(wmts_layer.replace("/", "-") + ".json")
+  if not dataset:
     return flask.Response(
         "Resource {} not found.".format(wmts_layer), status=404)
-
-  dataset = json.loads(dd_json)
-
-  csl_info = dataset.get("cloudStorageLayer")
-  if csl_info:
-    gcs_client = storage.Client(credentials=app_engine.Credentials())
-    tile_gs_bucket = gcs_client.get_bucket(csl_info["bucket"])
-    tile_path = config.EE_CSL_TILEURL_TEMPLATE.format(
-        z=wmts_tile_matrix,
-        x=wmts_tile_col,
-        y=wmts_tile_row,
-        **csl_info)  # csl_info contains: path, suffix
-    tile_blob = tile_gs_bucket.get_blob(tile_path)
-    tile_content = tile_blob.download_as_string()
-
-    mimetype = None
-    if csl_info["suffix"] == ".png":
-      mimetype = "image/png"
-    elif csl_info["suffix"] == ".jpeg":
-      mimetype = "image/jpeg"
-
-    return flask.Response(tile_content, mimetype=mimetype)
 
   try:
     vis_params = dataset["dataset"]["visualizations"][0]
@@ -199,13 +257,22 @@ def serve_wmts_get_tile():
   vis_metadata = vis_params
 
   if dataset.get("table"):
-    asset, vis_metadata = get_table_asset(wmts_layer, vis_metadata)
-    mapid = get_map_id_threadsafe(asset, vis_metadata)
-  elif dataset.get("imageCollection") is not None:
-    mapid = get_map_id_threadsafe(
-        ee.ImageCollection(wmts_layer).first(), vis_params)
-  else:
-    mapid = get_map_id_threadsafe(ee.Image(wmts_layer), vis_params)
+    # Check if the table resource is available in Cloud Storage Layers
+    if config.EE_CSL_ENABLED:
+      timestamp = ee.data.getInfo(wmts_layer).get("version")
+      tile_blob = config.CATALOG_BUCKET.get_blob(
+          config.EE_CSL_TILEURL_TEMPLATE.format(
+              path="%s-%d" % (wmts_layer.replace("/", "-"), timestamp),
+              x=wmts_tile_col,
+              y=wmts_tile_row,
+              z=wmts_tile_matrix,
+              suffix=".png"))
+      if tile_blob:
+        tile_content = tile_blob.download_as_string()
+        return flask.Response(tile_content, mimetype="image/png")
+
+  asset, vis_metadata = _get_asset(wmts_layer, dataset, vis_metadata)
+  mapid = _get_map_id_threadsafe(asset, vis_metadata)
 
   tile_url = ee.data.getTileUrl(
       mapid,
