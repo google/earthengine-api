@@ -34,16 +34,11 @@ setup(
     },
     test_suite='ee/tests',
     install_requires=[
-        # Note we omit TensorFlow (used by the CLI) here on purpose to avoid
-        # an extra 0.5GiB of deps compared to our current 26MiB; Use of TF
-        # functionality requires a manual install of TensorFlow.
-        'absl-py',
-        'google-cloud-storage',
         'google-api-python-client',
         'google-auth>=1.4.1',
         'google-auth-httplib2>=0.0.3',
         'httplib2>=0.9.2,<1dev',
-        'six'
+        'six',
     ],
     entry_points={
         'console_scripts': ['earthengine = ee.cli.eecli:main',],

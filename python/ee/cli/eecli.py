@@ -15,8 +15,6 @@ from __future__ import print_function
 import argparse
 import sys
 
-import absl
-
 import ee
 from ee.cli import commands
 from ee.cli import utils
@@ -27,10 +25,7 @@ class CommandDispatcher(commands.Dispatcher):
   COMMANDS = commands.EXTERNAL_COMMANDS
 
 
-def _run_command(*argv):
-  """Runs an eecli command."""
-  _ = argv
-
+def main():
   # Set the program name to 'earthengine' for proper help text display.
   parser = argparse.ArgumentParser(
       prog='earthengine', description='Earth Engine Command Line Interface.')
@@ -84,14 +79,6 @@ def _run_command(*argv):
   except ee.EEException as e:
     print(e)
     sys.exit(1)
-
-
-def main():
-  # We need InitGoogle initialization since TensorFlow expects it, but don't
-  # want absl's help trying to parse flags... we just pass the program name arg
-  # in to fool it into thinking we didn't actually receive any flags.
-  absl.app.run(main=_run_command, argv=sys.argv[:1])
-
 
 if __name__ == '__main__':
   main()

@@ -15,9 +15,6 @@ EE_SA_CREDENTIALS_FILE = os.environ.get('EE_SA_CREDENTIALS_FILE')
 # Cloud storage path template for Cloud Storage Layers
 EE_CSL_TILEURL_TEMPLATE = '{path}/{z}/{x}/{y}{suffix}'
 
-# Set this to true to turn on Cloud Storage Layers for table assets.
-EE_CSL_ENABLED = False
-
 # This is will hold a Google Cloud Storage bucket client object.
 # The bucket will be initialized on application startup.
 CATALOG_BUCKET = None
