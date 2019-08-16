@@ -23,10 +23,13 @@ from six.moves.urllib import parse
 from . import _cloud_api_utils
 from . import deprecation
 from . import encodable
+from . import oauth
 from . import serializer
 import apiclient
 
 from . import ee_exception
+
+from google.oauth2.credentials import Credentials
 
 # OAuth2 credentials object.  This may be set by ee.Initialize().
 _credentials = None
@@ -201,6 +204,31 @@ def initialize(credentials=None,
     _cloud_api_utils.set_cloud_api_user_project(DEFAULT_CLOUD_API_USER_PROJECT)
 
   _initialized = True
+
+
+def get_persistent_credentials():
+  """Read persistent credentials from ~/.config/earthengine.
+
+  Raises EEException with helpful explanation if credentials don't exist.
+
+  Returns:
+    OAuth2Credentials built from persistently stored refresh_token
+  """
+  try:
+    tokens = json.load(open(oauth.get_credentials_path()))
+    refresh_token = tokens['refresh_token']
+    return Credentials(
+        None,
+        refresh_token=refresh_token,
+        token_uri=oauth.TOKEN_URI,
+        client_id=oauth.CLIENT_ID,
+        client_secret=oauth.CLIENT_SECRET,
+        scopes=oauth.SCOPES)
+  except IOError:
+    raise ee_exception.EEException(
+        'Please authorize access to your Earth Engine account by '
+        'running\n\nearthengine authenticate\n\nin your command line, and then '
+        'retry.')
 
 
 def reset():

@@ -29,7 +29,7 @@ const BROWSER_FOOTER = [
  * - XmlHttpRequest polyfill, for network requests.
  */
 const NODEJS_BANNER = [
-  'const googleapis = require(\'googleapis\');',
+  'const {google} = require(\'googleapis\');',
   'const XMLHttpRequest = require(\'xmlhttprequest\').XMLHttpRequest;',
 ].join('\n') + '\n';
 const NODEJS_FOOTER = [

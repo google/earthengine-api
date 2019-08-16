@@ -20,6 +20,13 @@ cd ./earthengine-api/demos/server-auth-python
 ```
 
 Then follow the instructions in the Developer Docs to
-[deploy an EE-based App Engine app](
-    https://developers.google.com/earth-engine/app_engine_intro#deploying-app-engine-apps-with-earth-engine).
-For the credentials section, you'll need a Service Account, not an OAuth2 Client ID.
+[deploy an EE-based App Engine app](https://developers.google.com/earth-engine/app_engine_intro#deploying-app-engine-apps-with-earth-engine).
+For the credentials section, you'll need a Service Account, not an OAuth2 Client
+ID. Next:
+
+1.  Move the Service Account private key (`privatekey.json`) into the
+    `demos/server-auth-python` folder.
+2.  [Create an API key](https://developers.google.com/maps/documentation/javascript/get-api-key)
+    and include it in `index.html` to load Google Maps API.
+3.  Copy `javascript/build/ee_api_js.js` into
+    `demos/server-auth-python/static/`.

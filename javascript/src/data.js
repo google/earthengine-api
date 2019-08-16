@@ -235,7 +235,7 @@ ee.data.authenticateViaPrivateKey = function(
   ee.data.authScopes_ = scopes;
 
   // Initialize JWT client to authorize as service account.
-  var jwtClient = new googleapis.auth.JWT(
+  var jwtClient = new google.auth.JWT(
       privateKey.client_email, null, privateKey.private_key, scopes, null);
 
   // Configure authentication refresher to use JWT client.
@@ -1391,6 +1391,17 @@ ee.data.AssetType = {
   IMAGE_COLLECTION: 'ImageCollection',
   TABLE: 'Table',
   UNKNOWN: 'Unknown'
+};
+
+
+/**
+ * The types of table asset upload formats.
+ * @enum {string}
+ */
+ee.data.TableType = {
+  CSV: 'CSV',
+  SHAPE: 'SHAPE',
+  TF_RECORD: 'TFRecord',
 };
 
 
