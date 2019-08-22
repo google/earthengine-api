@@ -148,8 +148,8 @@ ee.Filter.prototype.append_ = function(newFilter) {
 
 
 /**
- * Returns the opposite of this filter, i.e. a filter that will match iff
- * this filter doesn't.
+ * Returns the opposite of this filter, i.e. a filter that will match if and
+ * only if this filter doesn't.
  * @return {ee.Filter} The negated filter.
  * @export
  */
@@ -324,20 +324,21 @@ ee.Filter.inList = function(
 
 
 /**
- * Filter on bounds.
+ * Creates a filter that passes if the object's geometry intersects the
+ * given geometry.
  *
- * @param {ee.Geometry|ee.ComputedObject|ee.FeatureCollection} geometry
- *     The geometry, feature or collection to filter to.
- * @param {number|ee.ComputedObject=} opt_errorMargin An optional error margin.
+ * @param {!ee.Geometry|!ee.ComputedObject|!ee.FeatureCollection} geometry
+ *     The geometry, feature or collection to intersect with.
+ * @param {number|!ee.ComputedObject=} opt_errorMargin An optional error margin.
  *     If a number, interpreted as sphere surface meters.
- * @return {ee.Filter} The modified filter.
+ * @return {!ee.Filter} The constructed filter.
  * @export
  */
 ee.Filter.bounds = function(geometry, opt_errorMargin) {
   // Invoke geometry promotion then manually promote to a Feature.
   // TODO(user): Discuss whether filters should go back to working
   //              directly on geometries.
-  return /** @type {ee.Filter} */ (
+  return /** @type {!ee.Filter} */ (
       ee.ApiFunction._apply('Filter.intersects', {
         'leftField': '.all',
         'rightValue': ee.ApiFunction._call('Feature', geometry),

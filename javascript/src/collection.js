@@ -107,12 +107,12 @@ ee.Collection.prototype.filterMetadata = function(name, operator, value) {
 
 
 /**
- * Shortcut to filter a collection by geometry.  Items in the
- * collection with a footprint that fails to intersect the bounds
- * will be excluded when the collection is evaluated.
+ * Shortcut to filter a collection by intersection with geometry.  Items in the
+ * collection with a footprint that fails to intersect the given geometry
+ * will be excluded.
  *
  * This is equivalent to this.filter(ee.Filter.bounds(...)).
- * @param {ee.Feature|ee.Geometry} geometry The geometry to filter to.
+ * @param {!ee.Feature|!ee.Geometry} geometry The geometry to filter to.
  * @return {ee.Collection} The filtered collection.
  * @export
  */

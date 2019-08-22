@@ -378,6 +378,109 @@ class CloudApiUtilsTest(unittest.TestCase):
     self.assertEqual({'width': 123, 'height': 234},
                      _cloud_api_utils.convert_to_grid_dimensions((123, 234)))
 
+  def test_to_image_one_platform_source(self):
+    old_sources = [{
+        'primaryPath': 'path1',
+        'affineTransform': {
+            'scaleX': 1,
+            'shearX': 2,
+            'translateX': 3,
+            'shearY': 4,
+            'scaleY': 5,
+            'translateY': 6,
+        }
+    }]
+    expected = [{
+        'uris': ['path1'],
+        'affineTransform': {
+            'scaleX': 1,
+            'shearX': 2,
+            'translateX': 3,
+            'shearY': 4,
+            'scaleY': 5,
+            'translateY': 6,
+        }
+    }]
+    self.assertEqual(
+        expected,
+        _cloud_api_utils.convert_sources_to_one_platform_sources(old_sources))
+
+  def test_to_shape_one_platform_source(self):
+    old_sources = [{
+        'charset':
+            'UTF-8',
+        'maxError':
+            1,
+        'maxVertices':
+            100000,
+        'primaryPath':
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/test.shp',
+        'additionalPaths': [
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/test.dbf',
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/test.prj',
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/test.shx',
+        ],
+    }]
+    expected = [{
+        'charset':
+            'UTF-8',
+        'maxErrorMeters':
+            1,
+        'maxVertices':
+            100000,
+        'uris': [
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/test.shp',
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/test.dbf',
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/test.prj',
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/test.shx',
+        ],
+    }]
+    self.assertEqual(
+        expected,
+        _cloud_api_utils.convert_sources_to_one_platform_sources(old_sources))
+
+  def test_to_csv_one_platform_source(self):
+    old_sources = [{
+        'charset':
+            'UTF-8',
+        'maxError':
+            1,
+        'maxVertices':
+            1000000,
+        'geodesic':
+            True,
+        'primaryGeometryColumn':
+            'geometry0',
+        'xColumn':
+            'x',
+        'yColumn':
+            'y',
+        'primaryPath':
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/wildlife.csv',
+    }]
+    expected = [{
+        'charset':
+            'UTF-8',
+        'maxErrorMeters':
+            1,
+        'maxVertices':
+            1000000,
+        'geodesic':
+            True,
+        'primaryGeometryColumn':
+            'geometry0',
+        'xColumn':
+            'x',
+        'yColumn':
+            'y',
+        'uris': [
+            'gs://ee.google.com.a.appspot.com/qGc_ZVNWLKpokgLv/wildlife.csv',
+        ],
+    }]
+    self.assertEqual(
+        expected,
+        _cloud_api_utils.convert_sources_to_one_platform_sources(old_sources))
+
 
 if __name__ == '__main__':
   unittest.main()

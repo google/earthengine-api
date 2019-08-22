@@ -25,7 +25,10 @@ class CommandDispatcher(commands.Dispatcher):
   COMMANDS = commands.EXTERNAL_COMMANDS
 
 
-def main():
+def _run_command(*argv):
+  """Runs an eecli command."""
+  _ = argv
+
   # Set the program name to 'earthengine' for proper help text display.
   parser = argparse.ArgumentParser(
       prog='earthengine', description='Earth Engine Command Line Interface.')
@@ -79,6 +82,17 @@ def main():
   except ee.EEException as e:
     print(e)
     sys.exit(1)
+
+
+def main():
+  # pylint: disable=g-import-not-at-top
+  try:
+    # We need InitGoogle initialization since TensorFlow expects it.
+    import tensorflow as tf
+    tf.compat.v1.app.run(_run_command, argv=sys.argv[:1])
+  except ImportError:
+    _run_command()
+
 
 if __name__ == '__main__':
   main()

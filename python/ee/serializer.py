@@ -22,6 +22,11 @@ from . import encodable
 # The datetime for the beginning of the Unix epoch.
 _EPOCH_DATETIME = datetime.datetime.utcfromtimestamp(0)
 
+# Don't generate very deep expressions, as the backend rejects them.
+# The backend's limit is 100, and we want to stay well away from that
+# as a few extra levels of wrapping are always added.
+_DEPTH_LIMIT = 50
+
 
 def DatetimeToMicroseconds(date):
   """Convert a datetime to a timestamp, microseconds since the epoch."""
@@ -38,8 +43,8 @@ class Serializer(object):
 
     Args:
       is_compound: Whether the encoding should factor out shared subtrees.
-      for_cloud_api: Whether the encoding should be done for the Cloud API
-        or the legacy API.
+      for_cloud_api: Whether the encoding should be done for the Cloud API or
+        the legacy API.
     """
 
     # Whether the encoding should factor out shared subtrees.
@@ -273,8 +278,8 @@ def encode(obj, is_compound=True, for_cloud_api=False):
   Args:
     obj: The object to serialize.
     is_compound: Whether the encoding should factor out shared subtrees.
-    for_cloud_api: Whether the encoding should be done for the Cloud API
-      or the legacy API.
+    for_cloud_api: Whether the encoding should be done for the Cloud API or the
+      legacy API.
 
   Returns:
     A JSON-compatible structure representing the input.
@@ -289,8 +294,8 @@ def toJSON(obj, opt_pretty=False, for_cloud_api=False):
   Args:
     obj: The object to serialize.
     opt_pretty: True to pretty-print the object.
-    for_cloud_api: Whether the encoding should be done for the Cloud API
-      or the legacy API.
+    for_cloud_api: Whether the encoding should be done for the Cloud API or the
+      legacy API.
 
   Returns:
     A JSON string representing the input.
@@ -341,8 +346,8 @@ class _ExpressionOptimizer(object):
     """Builds an ExpressionOptimizer.
 
     Args:
-      result: The result to optimize, either as a key of "values", or
-        as a quasi-Expression.
+      result: The result to optimize, either as a key of "values", or as a
+        quasi-Expression.
       values: If provided (in compound mode), a set of named ValueNodes.
     """
     self._result = result
@@ -406,8 +411,8 @@ class _ExpressionOptimizer(object):
       quasi-ValueNode.
 
     Args:
-      reference_or_value: The name in _values of the value to optimise,
-        or the actual value itself.
+      reference_or_value: The name in _values of the value to optimise, or the
+        actual value itself.
 
     Returns:
       The name, in _optimized_values, of the optimised value, or the optimised
@@ -419,20 +424,21 @@ class _ExpressionOptimizer(object):
       mapped_reference = str(len(self._reference_map))
       self._reference_map[reference_or_value] = mapped_reference
       self._optimized_values[mapped_reference] = self._optimize_value(
-          self._values[reference_or_value])
+          self._values[reference_or_value], 0)
       return mapped_reference
     else:
-      return self._optimize_value(reference_or_value)
+      return self._optimize_value(reference_or_value, 0)
 
-  def _optimize_value(self, value):
+  def _optimize_value(self, value, depth):
     """Optimises a single value.
 
     Args:
       value: The ValueNode to optimise, in dict form.
+      depth: How deep in the encoded output this value will be placed.
 
     Returns:
       An optimised version of that value, created by lifting in all feasible
-      constants and references.
+      constants and references, subject (in compound mode) to a depth limit.
     """
     if any(
         x in value for x in
@@ -443,7 +449,7 @@ class _ExpressionOptimizer(object):
       # Optimise recursively, then turn an array of constants into a constant
       # array.
       optimized_array = [
-          self._optimize_value(array_value)
+          self._optimize_value(array_value, depth + 3)
           for array_value in value['arrayValue']['values']
       ]
       if all(self._is_constant_value(v) for v in optimized_array):
@@ -455,8 +461,8 @@ class _ExpressionOptimizer(object):
       # Optimise recursively, then turn a dict of constants into a constant
       # dict.
       optimized_dict = {
-          key: self._optimize_value(dict_value) for key, dict_value in
-          six.iteritems(value['dictionaryValue']['values'])
+          key: self._optimize_value(dict_value, depth + 3) for key, dict_value
+          in six.iteritems(value['dictionaryValue']['values'])
       }
       if all(
           self._is_constant_value(v) for v in six.itervalues(optimized_dict)):
@@ -486,7 +492,7 @@ class _ExpressionOptimizer(object):
             'functionReference'] = self._optimize_referred_value(
                 function_invocation['functionReference'])
       optimized_invocation['arguments'] = {
-          k: self._optimize_value(arguments[k])
+          k: self._optimize_value(arguments[k], depth + 3)
           for k, v in six.iteritems(arguments)
       }
       return {'functionInvocationValue': optimized_invocation}
@@ -494,11 +500,11 @@ class _ExpressionOptimizer(object):
       # Lift if possible: anything used only here, anything lightweight.
       reference = value['valueReference']
       if not self._is_compound():
-        return self._optimize_value(reference)
+        return self._optimize_value(reference, depth)
 
       referenced_value = self._values[reference]
-      if reference in self._single_uses:
-        return self._optimize_value(referenced_value)
+      if reference in self._single_uses and depth < _DEPTH_LIMIT:
+        return self._optimize_value(referenced_value, depth)
       else:
         if self._is_always_liftable(referenced_value):
           return referenced_value

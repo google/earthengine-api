@@ -11,6 +11,7 @@ from __future__ import division
 from __future__ import print_function
 
 import calendar
+import copy
 import datetime
 
 import re
@@ -444,14 +445,18 @@ def convert_sources_to_one_platform_sources(sources):
   """Converts the sources to one platform representation of sources."""
   converted_sources = []
   for source in sources:
-    if 'primaryPath' in source:
-      converted_source = {'uris': [source['primaryPath']]}
-      if 'additionalPaths' in source:
-        for additional_path in source['additionalPaths']:
-          converted_source['uris'].append(additional_path)
-      converted_sources.append(converted_source)
-    else:
-      converted_sources.append(source)
+    converted_source = copy.deepcopy(source)
+    if 'primaryPath' in converted_source:
+      file_sources = [converted_source['primaryPath']]
+      if 'additionalPaths' in converted_source:
+        file_sources += converted_source['additionalPaths']
+        del converted_source['additionalPaths']
+      del converted_source['primaryPath']
+      converted_source['uris'] = file_sources
+    if 'maxError' in converted_source:
+      converted_source['maxErrorMeters'] = converted_source['maxError']
+      del converted_source['maxError']
+    converted_sources.append(converted_source)
   return converted_sources
 
 

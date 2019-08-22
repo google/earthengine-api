@@ -4,12 +4,23 @@
 
 
 import json
+import six
 
 import unittest
 
 import ee
 from ee import apitestcase
 from ee import serializer
+
+
+def _max_depth(x):
+  """Computes the maximum nesting level of some dict/list."""
+  if isinstance(x, dict):
+    return 1 + max(_max_depth(v) for v in six.itervalues(x))
+  elif isinstance(x, list):
+    return 1 + max(_max_depth(v) for v in x)
+  else:
+    return 1
 
 
 class SerializerTest(apitestcase.ApiTestCase):
@@ -173,6 +184,29 @@ class SerializerTest(apitestcase.ApiTestCase):
     self.assertEqual(
         expected_cloud_pretty,
         serializer.encode(test1, is_compound=False, for_cloud_api=True))
+
+  def testDepthLimit_withAlgorithms(self):
+    x = ee.Number(0)
+    for i in range(100):
+      x = x.add(ee.Number(i))
+    encoded = serializer.encode(x, for_cloud_api=True)
+    # The default depth limit is 50, but there's some slop, so be a little loose
+    # on the test.
+    self.assertLess(_max_depth(encoded), 60)
+
+  def testDepthLimit_withLists(self):
+    x = ee.List([0])
+    for i in range(100):
+      x = ee.List([i, x])
+    encoded = serializer.encode(x, for_cloud_api=True)
+    self.assertLess(_max_depth(encoded), 60)
+
+  def testDepthLimit_withDictionaries(self):
+    x = ee.Dictionary({0: 0})
+    for i in range(100):
+      x = ee.Dictionary({i: x})
+    encoded = serializer.encode(x, for_cloud_api=True)
+    self.assertLess(_max_depth(encoded), 60)
 
 
 if __name__ == '__main__':

@@ -261,10 +261,10 @@ class Filter(computedobject.ComputedObject):
 
   @staticmethod
   def geometry(geometry, opt_errorMargin=None):
-    """Filter on bounds.
+    """Filter on intersection with geometry.
 
     Items in the collection with a footprint that fails to intersect
-    the bounds will be excluded when the collection is evaluated.
+    the given geometry will be excluded.
 
     Args:
       geometry: The geometry to filter to either as a GeoJSON geometry,
@@ -273,7 +273,7 @@ class Filter(computedobject.ComputedObject):
           sphere surface meters.
 
     Returns:
-      The modified filter.
+      The constructed filter.
     """
     # Invoke geometry promotion then manually promote to a Feature.
     args = {

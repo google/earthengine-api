@@ -1222,7 +1222,8 @@ goog.setCssNameMapping = function(mapping, opt_style) {
   goog.cssNameMapping_ = mapping;
   goog.cssNameMappingStyle_ = opt_style;
 };
-goog.getMsg = function(str, opt_values) {
+goog.getMsg = function(str, opt_values, opt_options) {
+  opt_options && opt_options.html && (str = str.replace(/</g, "&lt;"));
   opt_values && (str = str.replace(/\{\$([^}]+)}/g, function(match, key) {
     return null != opt_values && key in opt_values ? opt_values[key] : match;
   }));
@@ -1570,7 +1571,7 @@ goog.debug.entryPointRegistry.unmonitorAllIfPossible = function(monitor) {
 };
 goog.array = {};
 goog.NATIVE_ARRAY_PROTOTYPES = goog.TRUSTED_SITE;
-goog.array.ASSUME_NATIVE_FUNCTIONS = !1;
+goog.array.ASSUME_NATIVE_FUNCTIONS = 2012 < goog.FEATURESET_YEAR;
 goog.array.peek = function(array) {
   return array[array.length - 1];
 };
@@ -6377,23 +6378,24 @@ goog.inherits(ee.TileEvent, goog.events.Event);
 var googleapidiscovery = {earthengine:{}};
 googleapidiscovery.earthengine.v1alpha = {};
 googleapidiscovery.earthengine.v1alpha.rest = {kind:"discovery#restDescription", name:"earthengine", version:"v1alpha", rootUrl:"https://earthengine.googleapis.com/", servicePath:"", batchPath:"batch", id:"earthengine:v1alpha", parameters:{"$.xgafv":{location:"query", required:!1}, access_token:{location:"query", required:!1}, alt:{location:"query", required:!1}, callback:{location:"query", required:!1}, fields:{location:"query", required:!1}, key:{location:"query", required:!1}, oauth_token:{location:"query", 
-required:!1}, prettyPrint:{location:"query", required:!1}, quotaUser:{location:"query", required:!1}, uploadType:{location:"query", required:!1}, upload_protocol:{location:"query", required:!1}}, resources:{projects:{methods:{listAssets:{id:"earthengine.projects.listAssets", path:"v1alpha/{+parent}:listAssets", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}}, resources:{algorithms:{methods:{list:{id:"earthengine.projects.algorithms.list", 
-path:"v1alpha/{+project}/algorithms", httpMethod:"GET", parameters:{project:{location:"path", required:!0}}}}}, assets:{methods:{copy:{id:"earthengine.projects.assets.copy", path:"v1alpha/{+sourceName}:copy", httpMethod:"POST", request:{$ref:"CopyAssetRequest"}, parameters:{sourceName:{location:"path", required:!0}}}, create:{id:"earthengine.projects.assets.create", path:"v1alpha/{+parent}/assets", httpMethod:"POST", request:{$ref:"EarthEngineAsset"}, parameters:{parent:{location:"path", required:!0}, 
-assetId:{location:"query", required:!1}, overwrite:{location:"query", required:!1}}}, "delete":{id:"earthengine.projects.assets.delete", path:"v1alpha/{+name}", httpMethod:"DELETE", parameters:{name:{location:"path", required:!0}}}, get:{id:"earthengine.projects.assets.get", path:"v1alpha/{+name}", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}, getIamPolicy:{id:"earthengine.projects.assets.getIamPolicy", path:"v1alpha/{+resource}:getIamPolicy", httpMethod:"POST", request:{$ref:"GetIamPolicyRequest"}, 
-parameters:{resource:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.assets.getPixels", path:"v1alpha/{+name}:getPixels", httpMethod:"POST", request:{$ref:"GetPixelsRequest"}, parameters:{name:{location:"path", required:!0}}}, listAssets:{id:"earthengine.projects.assets.listAssets", path:"v1alpha/{+parent}:listAssets", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}, listFeatures:{id:"earthengine.projects.assets.listFeatures", 
-path:"v1alpha/{+parent}:listFeatures", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}, region:{location:"query", required:!1}, filter:{location:"query", required:!1}}}, listImages:{id:"earthengine.projects.assets.listImages", path:"v1alpha/{+parent}:listImages", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", 
-required:!1}, startTime:{location:"query", required:!1}, endTime:{location:"query", required:!1}, region:{location:"query", required:!1}, filter:{location:"query", required:!1}, view:{location:"query", required:!1}}}, move:{id:"earthengine.projects.assets.move", path:"v1alpha/{+sourceName}:move", httpMethod:"POST", request:{$ref:"MoveAssetRequest"}, parameters:{sourceName:{location:"path", required:!0}}}, patch:{id:"earthengine.projects.assets.patch", path:"v1alpha/{+name}", httpMethod:"PATCH", request:{$ref:"UpdateAssetRequest"}, 
-parameters:{name:{location:"path", required:!0}}}, setIamPolicy:{id:"earthengine.projects.assets.setIamPolicy", path:"v1alpha/{+resource}:setIamPolicy", httpMethod:"POST", request:{$ref:"SetIamPolicyRequest"}, parameters:{resource:{location:"path", required:!0}}}, testIamPermissions:{id:"earthengine.projects.assets.testIamPermissions", path:"v1alpha/{+resource}:testIamPermissions", httpMethod:"POST", request:{$ref:"TestIamPermissionsRequest"}, parameters:{resource:{location:"path", required:!0}}}}}, 
-filmstripThumbnails:{methods:{create:{id:"earthengine.projects.filmstripThumbnails.create", path:"v1alpha/{+parent}/filmstripThumbnails", httpMethod:"POST", request:{$ref:"FilmstripThumbnail"}, parameters:{parent:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.filmstripThumbnails.getPixels", path:"v1alpha/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}, image:{methods:{computePixels:{id:"earthengine.projects.image.computePixels", path:"v1alpha/{+project}/image:computePixels", 
-httpMethod:"POST", request:{$ref:"ComputePixelsRequest"}, parameters:{project:{location:"path", required:!0}}}, "export":{id:"earthengine.projects.image.export", path:"v1alpha/{+project}/image:export", httpMethod:"POST", request:{$ref:"ExportImageRequest"}, parameters:{project:{location:"path", required:!0}}}, "import":{id:"earthengine.projects.image.import", path:"v1alpha/{+project}/image:import", httpMethod:"POST", request:{$ref:"ImportImageRequest"}, parameters:{project:{location:"path", required:!0}}}}}, 
-imageCollection:{methods:{computeImages:{id:"earthengine.projects.imageCollection.computeImages", path:"v1alpha/{+project}/imageCollection:computeImages", httpMethod:"POST", request:{$ref:"ComputeImagesRequest"}, parameters:{project:{location:"path", required:!0}}}}}, map:{methods:{"export":{id:"earthengine.projects.map.export", path:"v1alpha/{+project}/map:export", httpMethod:"POST", request:{$ref:"ExportMapRequest"}, parameters:{project:{location:"path", required:!0}}}}}, maps:{methods:{create:{id:"earthengine.projects.maps.create", 
-path:"v1alpha/{+parent}/maps", httpMethod:"POST", request:{$ref:"EarthEngineMap"}, parameters:{parent:{location:"path", required:!0}}}}, resources:{tiles:{methods:{get:{id:"earthengine.projects.maps.tiles.get", path:"v1alpha/{+parent}/tiles/{zoom}/{x}/{y}", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, zoom:{location:"path", required:!0}, x:{location:"path", required:!0}, y:{location:"path", required:!0}}}}}}}, operations:{methods:{cancel:{id:"earthengine.projects.operations.cancel", 
-path:"v1alpha/{+name}:cancel", httpMethod:"POST", request:{$ref:"CancelOperationRequest"}, parameters:{name:{location:"path", required:!0}}}, "delete":{id:"earthengine.projects.operations.delete", path:"v1alpha/{+name}", httpMethod:"DELETE", parameters:{name:{location:"path", required:!0}}}, get:{id:"earthengine.projects.operations.get", path:"v1alpha/{+name}", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}, list:{id:"earthengine.projects.operations.list", path:"v1alpha/{+name}/operations", 
-httpMethod:"GET", parameters:{name:{location:"path", required:!0}, filter:{location:"query", required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}, wait:{id:"earthengine.projects.operations.wait", path:"v1alpha/{+name}:wait", httpMethod:"POST", request:{$ref:"WaitOperationRequest"}, parameters:{name:{location:"path", required:!0}}}}}, table:{methods:{computeFeatures:{id:"earthengine.projects.table.computeFeatures", path:"v1alpha/{+project}/table:computeFeatures", 
-httpMethod:"POST", request:{$ref:"ComputeFeaturesRequest"}, parameters:{project:{location:"path", required:!0}}}, "export":{id:"earthengine.projects.table.export", path:"v1alpha/{+project}/table:export", httpMethod:"POST", request:{$ref:"ExportTableRequest"}, parameters:{project:{location:"path", required:!0}}}, "import":{id:"earthengine.projects.table.import", path:"v1alpha/{+project}/table:import", httpMethod:"POST", request:{$ref:"ImportTableRequest"}, parameters:{project:{location:"path", required:!0}}}}}, 
-thumbnails:{methods:{create:{id:"earthengine.projects.thumbnails.create", path:"v1alpha/{+parent}/thumbnails", httpMethod:"POST", request:{$ref:"Thumbnail"}, parameters:{parent:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.thumbnails.getPixels", path:"v1alpha/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}, value:{methods:{compute:{id:"earthengine.projects.value.compute", path:"v1alpha/{+project}/value:compute", httpMethod:"POST", 
-request:{$ref:"ComputeValueRequest"}, parameters:{project:{location:"path", required:!0}}}}}, video:{methods:{"export":{id:"earthengine.projects.video.export", path:"v1alpha/{+project}/video:export", httpMethod:"POST", request:{$ref:"ExportVideoRequest"}, parameters:{project:{location:"path", required:!0}}}}}, videoMap:{methods:{"export":{id:"earthengine.projects.videoMap.export", path:"v1alpha/{+project}/videoMap:export", httpMethod:"POST", request:{$ref:"ExportVideoMapRequest"}, parameters:{project:{location:"path", 
-required:!0}}}}}, videoThumbnails:{methods:{create:{id:"earthengine.projects.videoThumbnails.create", path:"v1alpha/{+parent}/videoThumbnails", httpMethod:"POST", request:{$ref:"VideoThumbnail"}, parameters:{parent:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.videoThumbnails.getPixels", path:"v1alpha/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}}}}, methods:{}};
+required:!1}, prettyPrint:{location:"query", required:!1}, quotaUser:{location:"query", required:!1}, uploadType:{location:"query", required:!1}, upload_protocol:{location:"query", required:!1}}, resources:{projects:{methods:{getCapabilities:{id:"earthengine.projects.getCapabilities", path:"v1alpha/{+parent}/capabilities", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}}}, listAssets:{id:"earthengine.projects.listAssets", path:"v1alpha/{+parent}:listAssets", httpMethod:"GET", 
+parameters:{parent:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}}, resources:{algorithms:{methods:{list:{id:"earthengine.projects.algorithms.list", path:"v1alpha/{+project}/algorithms", httpMethod:"GET", parameters:{project:{location:"path", required:!0}}}}}, assets:{methods:{copy:{id:"earthengine.projects.assets.copy", path:"v1alpha/{+sourceName}:copy", httpMethod:"POST", request:{$ref:"CopyAssetRequest"}, parameters:{sourceName:{location:"path", 
+required:!0}}}, create:{id:"earthengine.projects.assets.create", path:"v1alpha/{+parent}/assets", httpMethod:"POST", request:{$ref:"EarthEngineAsset"}, parameters:{parent:{location:"path", required:!0}, assetId:{location:"query", required:!1}, overwrite:{location:"query", required:!1}}}, "delete":{id:"earthengine.projects.assets.delete", path:"v1alpha/{+name}", httpMethod:"DELETE", parameters:{name:{location:"path", required:!0}}}, get:{id:"earthengine.projects.assets.get", path:"v1alpha/{+name}", 
+httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}, getIamPolicy:{id:"earthengine.projects.assets.getIamPolicy", path:"v1alpha/{+resource}:getIamPolicy", httpMethod:"POST", request:{$ref:"GetIamPolicyRequest"}, parameters:{resource:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.assets.getPixels", path:"v1alpha/{+name}:getPixels", httpMethod:"POST", request:{$ref:"GetPixelsRequest"}, parameters:{name:{location:"path", required:!0}}}, listAssets:{id:"earthengine.projects.assets.listAssets", 
+path:"v1alpha/{+parent}:listAssets", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}, listFeatures:{id:"earthengine.projects.assets.listFeatures", path:"v1alpha/{+parent}:listFeatures", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}, region:{location:"query", required:!1}, filter:{location:"query", 
+required:!1}}}, listImages:{id:"earthengine.projects.assets.listImages", path:"v1alpha/{+parent}:listImages", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}, startTime:{location:"query", required:!1}, endTime:{location:"query", required:!1}, region:{location:"query", required:!1}, filter:{location:"query", required:!1}, view:{location:"query", required:!1}}}, move:{id:"earthengine.projects.assets.move", 
+path:"v1alpha/{+sourceName}:move", httpMethod:"POST", request:{$ref:"MoveAssetRequest"}, parameters:{sourceName:{location:"path", required:!0}}}, patch:{id:"earthengine.projects.assets.patch", path:"v1alpha/{+name}", httpMethod:"PATCH", request:{$ref:"UpdateAssetRequest"}, parameters:{name:{location:"path", required:!0}}}, search:{id:"earthengine.projects.assets.search", path:"v1alpha/{+project}/assets:search", httpMethod:"GET", parameters:{project:{location:"path", required:!0}, query:{location:"query", 
+required:!1}, pageSize:{location:"query", required:!1}, nextPageToken:{location:"query", required:!1}}}, setIamPolicy:{id:"earthengine.projects.assets.setIamPolicy", path:"v1alpha/{+resource}:setIamPolicy", httpMethod:"POST", request:{$ref:"SetIamPolicyRequest"}, parameters:{resource:{location:"path", required:!0}}}, testIamPermissions:{id:"earthengine.projects.assets.testIamPermissions", path:"v1alpha/{+resource}:testIamPermissions", httpMethod:"POST", request:{$ref:"TestIamPermissionsRequest"}, 
+parameters:{resource:{location:"path", required:!0}}}}}, filmstripThumbnails:{methods:{create:{id:"earthengine.projects.filmstripThumbnails.create", path:"v1alpha/{+parent}/filmstripThumbnails", httpMethod:"POST", request:{$ref:"FilmstripThumbnail"}, parameters:{parent:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.filmstripThumbnails.getPixels", path:"v1alpha/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}, image:{methods:{computePixels:{id:"earthengine.projects.image.computePixels", 
+path:"v1alpha/{+project}/image:computePixels", httpMethod:"POST", request:{$ref:"ComputePixelsRequest"}, parameters:{project:{location:"path", required:!0}}}, "export":{id:"earthengine.projects.image.export", path:"v1alpha/{+project}/image:export", httpMethod:"POST", request:{$ref:"ExportImageRequest"}, parameters:{project:{location:"path", required:!0}}}, "import":{id:"earthengine.projects.image.import", path:"v1alpha/{+project}/image:import", httpMethod:"POST", request:{$ref:"ImportImageRequest"}, 
+parameters:{project:{location:"path", required:!0}}}}}, imageCollection:{methods:{computeImages:{id:"earthengine.projects.imageCollection.computeImages", path:"v1alpha/{+project}/imageCollection:computeImages", httpMethod:"POST", request:{$ref:"ComputeImagesRequest"}, parameters:{project:{location:"path", required:!0}}}}}, map:{methods:{"export":{id:"earthengine.projects.map.export", path:"v1alpha/{+project}/map:export", httpMethod:"POST", request:{$ref:"ExportMapRequest"}, parameters:{project:{location:"path", 
+required:!0}}}}}, maps:{methods:{create:{id:"earthengine.projects.maps.create", path:"v1alpha/{+parent}/maps", httpMethod:"POST", request:{$ref:"EarthEngineMap"}, parameters:{parent:{location:"path", required:!0}}}}, resources:{tiles:{methods:{get:{id:"earthengine.projects.maps.tiles.get", path:"v1alpha/{+parent}/tiles/{zoom}/{x}/{y}", httpMethod:"GET", parameters:{parent:{location:"path", required:!0}, zoom:{location:"path", required:!0}, x:{location:"path", required:!0}, y:{location:"path", required:!0}}}}}}}, 
+operations:{methods:{cancel:{id:"earthengine.projects.operations.cancel", path:"v1alpha/{+name}:cancel", httpMethod:"POST", request:{$ref:"CancelOperationRequest"}, parameters:{name:{location:"path", required:!0}}}, "delete":{id:"earthengine.projects.operations.delete", path:"v1alpha/{+name}", httpMethod:"DELETE", parameters:{name:{location:"path", required:!0}}}, get:{id:"earthengine.projects.operations.get", path:"v1alpha/{+name}", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}, 
+list:{id:"earthengine.projects.operations.list", path:"v1alpha/{+name}/operations", httpMethod:"GET", parameters:{name:{location:"path", required:!0}, filter:{location:"query", required:!1}, pageSize:{location:"query", required:!1}, pageToken:{location:"query", required:!1}}}, wait:{id:"earthengine.projects.operations.wait", path:"v1alpha/{+name}:wait", httpMethod:"POST", request:{$ref:"WaitOperationRequest"}, parameters:{name:{location:"path", required:!0}}}}}, table:{methods:{computeFeatures:{id:"earthengine.projects.table.computeFeatures", 
+path:"v1alpha/{+project}/table:computeFeatures", httpMethod:"POST", request:{$ref:"ComputeFeaturesRequest"}, parameters:{project:{location:"path", required:!0}}}, "export":{id:"earthengine.projects.table.export", path:"v1alpha/{+project}/table:export", httpMethod:"POST", request:{$ref:"ExportTableRequest"}, parameters:{project:{location:"path", required:!0}}}, "import":{id:"earthengine.projects.table.import", path:"v1alpha/{+project}/table:import", httpMethod:"POST", request:{$ref:"ImportTableRequest"}, 
+parameters:{project:{location:"path", required:!0}}}}}, thumbnails:{methods:{create:{id:"earthengine.projects.thumbnails.create", path:"v1alpha/{+parent}/thumbnails", httpMethod:"POST", request:{$ref:"Thumbnail"}, parameters:{parent:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.thumbnails.getPixels", path:"v1alpha/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}, value:{methods:{compute:{id:"earthengine.projects.value.compute", path:"v1alpha/{+project}/value:compute", 
+httpMethod:"POST", request:{$ref:"ComputeValueRequest"}, parameters:{project:{location:"path", required:!0}}}}}, video:{methods:{"export":{id:"earthengine.projects.video.export", path:"v1alpha/{+project}/video:export", httpMethod:"POST", request:{$ref:"ExportVideoRequest"}, parameters:{project:{location:"path", required:!0}}}}}, videoMap:{methods:{"export":{id:"earthengine.projects.videoMap.export", path:"v1alpha/{+project}/videoMap:export", httpMethod:"POST", request:{$ref:"ExportVideoMapRequest"}, 
+parameters:{project:{location:"path", required:!0}}}}}, videoThumbnails:{methods:{create:{id:"earthengine.projects.videoThumbnails.create", path:"v1alpha/{+parent}/videoThumbnails", httpMethod:"POST", request:{$ref:"VideoThumbnail"}, parameters:{parent:{location:"path", required:!0}}}, getPixels:{id:"earthengine.projects.videoThumbnails.getPixels", path:"v1alpha/{+name}:getPixels", httpMethod:"GET", parameters:{name:{location:"path", required:!0}}}}}}}}, methods:{}};
 ee.rpc_proto = {};
 ee.Encodable = function() {
 };
@@ -6800,7 +6802,15 @@ ee.rpc_convert.operationToProcessingResponse = function(operation) {
   return result;
 };
 ee.rpc_convert.toOnePlatformSource = function(source) {
-  return source.primaryPath ? {uris:[source.primaryPath].concat($jscomp.arrayFromIterable(source.additionalPaths || []))} : source;
+  var convertedSource = Object.assign({}, source);
+  if (source.primaryPath) {
+    var fileSources = [source.primaryPath].concat($jscomp.arrayFromIterable(source.additionalPaths || []));
+    convertedSource.uris = fileSources;
+    delete convertedSource.primaryPath;
+    delete convertedSource.additionalPaths;
+  }
+  convertedSource.maxError && (convertedSource.maxErrorMeters = convertedSource.maxError, delete convertedSource.maxError);
+  return convertedSource;
 };
 ee.rpc_convert.toImageManifest = function(params) {
   var manifest = Object.assign({}, params);
@@ -7352,10 +7362,10 @@ ExpressionOptimizer.prototype.optimizeReference = function(ref) {
   }
   var mappedRef = String(this.nextMappedRef++);
   this.referenceMap[ref] = mappedRef;
-  this.optimizedValues[mappedRef] = this.optimizeValue(this.values[ref]);
+  this.optimizedValues[mappedRef] = this.optimizeValue(this.values[ref], 0);
   return mappedRef;
 };
-ExpressionOptimizer.prototype.optimizeValue = function(value) {
+ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   var $jscomp$this = this, isConst = function(v) {
     return void 0 !== v.constantValue;
   };
@@ -7364,11 +7374,11 @@ ExpressionOptimizer.prototype.optimizeValue = function(value) {
   }
   if (goog.isDefAndNotNull(value.valueReference)) {
     var val = this.values[value.valueReference];
-    return null === this.referenceCounts || 1 === this.referenceCounts[value.valueReference] ? this.optimizeValue(val) : ExpressionOptimizer.isAlwaysLiftable(val) ? val : ee.rpc_node.reference(this.optimizeReference(value.valueReference));
+    return null === this.referenceCounts || 50 > depth && 1 === this.referenceCounts[value.valueReference] ? this.optimizeValue(val, depth) : ExpressionOptimizer.isAlwaysLiftable(val) ? val : ee.rpc_node.reference(this.optimizeReference(value.valueReference));
   }
   if (goog.isDefAndNotNull(value.arrayValue)) {
     var arr = value.arrayValue.values.map(function(v) {
-      return $jscomp$this.optimizeValue(v);
+      return $jscomp$this.optimizeValue(v, depth + 3);
     });
     return arr.every(isConst) ? ee.rpc_node.constant(arr.map(function(v) {
       return v.constantValue;
@@ -7377,7 +7387,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value) {
   if (goog.isDefAndNotNull(value.dictionaryValue)) {
     for (var values = {}, constantValues = {}, $jscomp$iter$8 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$8.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$8.next()) {
       var $jscomp$destructuring$var3 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var3.next().value, v$jscomp$0 = $jscomp$destructuring$var3.next().value;
-      values[k] = this.optimizeValue(v$jscomp$0);
+      values[k] = this.optimizeValue(v$jscomp$0, depth + 3);
       null !== constantValues && isConst(values[k]) ? constantValues[k] = values[k].constantValue : constantValues = null;
     }
     return null !== constantValues ? ee.rpc_node.constant(constantValues) : ee.rpc_node.dictionary(values);
@@ -7389,7 +7399,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value) {
   if (goog.isDefAndNotNull(value.functionInvocationValue)) {
     for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$9 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$9.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$9.next()) {
       var k$17 = $jscomp$key$k.value;
-      args[k$17] = this.optimizeValue(inv.arguments[k$17]);
+      args[k$17] = this.optimizeValue(inv.arguments[k$17], depth + 3);
     }
     return inv.functionName ? ee.rpc_node.functionByName(inv.functionName, args) : ee.rpc_node.functionByReference(this.optimizeReference(inv.functionReference || ""), args);
   }
@@ -7504,7 +7514,7 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
   return {cloudOptimized:!!params.tiffCloudOptimized, skipEmptyFiles:!!params.tiffSkipEmptyFiles, tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tiffFileDimensions)};
 };
 ee.rpc_convert_batch.buildTfRecordFormatOptions_ = function(params) {
-  var tfRecordOptions = {compress:!!params.tfrecordCompressed, maxSizeBytes:stringOrNull_(params.tfrecordMaxFileSize), sequenceData:!!params.tfrecordSequenceData, collapseBands:!!params.tfrecordCollapseBands, maxMaskedRatio:numberOrNull_(params.tfrecordMaskedThreshold), defaultValue:numberOrNull_(params.tfrecordDefaultValue), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tfrecordFileDimensions), marginDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tfrecordKernelSize), 
+  var tfRecordOptions = {compress:!!params.tfrecordCompressed, maxSizeBytes:stringOrNull_(params.tfrecordMaxFileSize), sequenceData:!!params.tfrecordSequenceData, collapseBands:!!params.tfrecordCollapseBands, maxMaskedRatio:numberOrNull_(params.tfrecordMaskedThreshold), defaultValue:numberOrNull_(params.tfrecordDefaultValue), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tfrecordPatchDimensions), marginDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tfrecordKernelSize), 
   tensorDepths:null}, tensorDepths = params.tfrecordTensorDepths;
   if (goog.isDefAndNotNull(tensorDepths)) {
     if (goog.isObject(tensorDepths)) {
@@ -7565,7 +7575,7 @@ ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
     return null;
   }
   var result = {height:0, width:0};
-  goog.isString(dimensions) && (dimensions = dimensions.split("x").map(Number));
+  goog.isString(dimensions) && (-1 !== dimensions.indexOf("x") ? dimensions = dimensions.split("x").map(Number) : -1 !== dimensions.indexOf(",") && (dimensions = dimensions.split(",").map(Number)));
   if (goog.isArray(dimensions)) {
     if (2 === dimensions.length) {
       result.height = dimensions[0], result.width = dimensions[1];
@@ -7751,7 +7761,7 @@ goog.crypt.base64.HAS_NATIVE_ENCODE_ = goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ 
 goog.crypt.base64.HAS_NATIVE_DECODE_ = goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ || !goog.userAgent.product.SAFARI && !goog.userAgent.IE && "function" == typeof goog.global.atob;
 goog.crypt.base64.encodeByteArray = function(input, alphabet) {
   goog.asserts.assert(goog.isArrayLike(input), "encodeByteArray takes an array as a parameter");
-  !1 === alphabet || void 0 === alphabet ? alphabet = goog.crypt.base64.Alphabet.DEFAULT : !0 === alphabet && (alphabet = goog.crypt.base64.Alphabet.WEBSAFE_DOT_PADDING);
+  void 0 === alphabet && (alphabet = goog.crypt.base64.Alphabet.DEFAULT);
   goog.crypt.base64.init_();
   for (var byteToCharMap = goog.crypt.base64.byteToCharMaps_[alphabet], output = [], i = 0; i < input.length; i += 3) {
     var byte1 = input[i], haveByte2 = i + 1 < input.length, byte2 = haveByte2 ? input[i + 1] : 0, haveByte3 = i + 2 < input.length, byte3 = haveByte3 ? input[i + 2] : 0, outByte1 = byte1 >> 2, outByte2 = (byte1 & 3) << 4 | byte2 >> 4, outByte3 = (byte2 & 15) << 2 | byte3 >> 6, outByte4 = byte3 & 63;
@@ -9216,8 +9226,7 @@ jspb.BinaryWriter.prototype.getResultBuffer = function() {
   this.blocks_ = [flat];
   return flat;
 };
-jspb.BinaryWriter.prototype.getResultBase64String = function(opt_webSafe) {
-  var alphabet = opt_webSafe ? goog.crypt.base64.Alphabet.WEBSAFE_DOT_PADDING : goog.crypt.base64.Alphabet.DEFAULT;
+jspb.BinaryWriter.prototype.getResultBase64String = function(alphabet) {
   return goog.crypt.base64.encodeByteArray(this.getResultBuffer(), alphabet);
 };
 jspb.BinaryWriter.prototype.beginSubMessage = function(field) {
@@ -10068,10 +10077,10 @@ jspb.Map.prototype.serializeBinary = function(fieldNumber, writer, keyWriterFn, 
     writer.endSubMessage();
   }
 };
-jspb.Map.deserializeBinary = function(map, reader, keyReaderFn, valueReaderFn, opt_valueReaderCallback, opt_defaultKey) {
-  for (var key = opt_defaultKey, value = void 0; reader.nextField() && !reader.isEndGroup();) {
+jspb.Map.deserializeBinary = function(map, reader, keyReaderFn, valueReaderFn, opt_valueReaderCallback, opt_defaultKey, opt_defaultValue) {
+  for (var key = opt_defaultKey, value = opt_defaultValue; reader.nextField() && !reader.isEndGroup();) {
     var field = reader.getFieldNumber();
-    1 == field ? key = keyReaderFn.call(reader) : 2 == field && (map.valueCtor_ ? (goog.asserts.assert(opt_valueReaderCallback), value = new map.valueCtor_, valueReaderFn.call(reader, value, opt_valueReaderCallback)) : value = valueReaderFn.call(reader));
+    1 == field ? key = keyReaderFn.call(reader) : 2 == field && (map.valueCtor_ ? (goog.asserts.assert(opt_valueReaderCallback), value || (value = new map.valueCtor_), valueReaderFn.call(reader, value, opt_valueReaderCallback)) : value = valueReaderFn.call(reader));
   }
   goog.asserts.assert(void 0 != key);
   goog.asserts.assert(void 0 != value);
@@ -10755,7 +10764,7 @@ proto.google.protobuf.Struct.deserializeBinaryFromReader = function(msg, reader$
       case 1:
         var value = msg.getFieldsMap();
         reader$jscomp$0.readMessage(value, function(message, reader) {
-          jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.google.protobuf.Value.deserializeBinaryFromReader, "");
+          jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.google.protobuf.Value.deserializeBinaryFromReader, "", new proto.google.protobuf.Value);
         });
         break;
       default:
@@ -11731,13 +11740,12 @@ goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS = !1;
 goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS = !1;
 goog.dom.BrowserFeature.detectOffscreenCanvas_ = function(contextName) {
   try {
-    return !0;
+    return !!(new self.OffscreenCanvas(0, 0)).getContext(contextName);
   } catch (ex) {
   }
   return !1;
 };
 goog.dom.BrowserFeature.OFFSCREEN_CANVAS_2D = !goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS && (goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS || goog.dom.BrowserFeature.detectOffscreenCanvas_("2d"));
-goog.dom.BrowserFeature.OFFSCREEN_CANVAS_WEBGL = !goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS && (goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS || goog.dom.BrowserFeature.detectOffscreenCanvas_("webgl"));
 goog.dom.BrowserFeature.CAN_ADD_NAME_OR_TYPE_ATTRIBUTES = !goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9);
 goog.dom.BrowserFeature.CAN_USE_CHILDREN_ATTRIBUTE = !goog.userAgent.GECKO && !goog.userAgent.IE || goog.userAgent.IE && goog.userAgent.isDocumentModeOrHigher(9) || goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher("1.9.1");
 goog.dom.BrowserFeature.CAN_USE_INNER_TEXT = goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9");
@@ -14523,7 +14531,7 @@ ee.data.authenticateViaPrivateKey = function(privateKey, opt_success, opt_error,
   opt_extraScopes && (goog.array.extend(scopes, opt_extraScopes), goog.array.removeDuplicates(scopes));
   ee.data.authClientId_ = privateKey.client_email;
   ee.data.authScopes_ = scopes;
-  var jwtClient = new googleapis.auth.JWT(privateKey.client_email, null, privateKey.private_key, scopes, null);
+  var jwtClient = new google.auth.JWT(privateKey.client_email, null, privateKey.private_key, scopes, null);
   ee.data.setAuthTokenRefresher(function(authArgs, callback) {
     jwtClient.authorize(function(error, token) {
       error ? callback({error:error}) : callback({access_token:token.access_token, token_type:token.token_type, expires_in:(token.expiry_date - Date.now()) / 1000});
@@ -15067,7 +15075,8 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
         };
         break;
       case ee.data.ExportType.VIDEO:
-        var videoRequest = ee.rpc_convert_batch.taskToExportVideoRequest(params);
+        var videoTask = ee.data.images.applyTransformsToCollection(params);
+        var videoRequest = ee.rpc_convert_batch.taskToExportVideoRequest(videoTask);
         videoRequest.expression = ee.data.expressionAugmenter_(videoRequest.expression, metadata);
         callApi = function() {
           return gapi.client.earthengine.projects.video["export"](options, videoRequest);
@@ -15356,6 +15365,7 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
   return ee.data.send_("/quota", ee.data.makeRequest_({id:rootId}), opt_callback, "GET");
 };
 ee.data.AssetType = {ALGORITHM:"Algorithm", FOLDER:"Folder", IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", TABLE:"Table", UNKNOWN:"Unknown"};
+ee.data.TableType = {CSV:"CSV", SHAPE:"SHAPE", TF_RECORD:"TFRecord"};
 ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO", VIDEO_MAP:"EXPORT_VIDEO_MAP"};
 ee.data.ExportState = {UNSUBMITTED:"UNSUBMITTED", READY:"READY", RUNNING:"RUNNING", COMPLETED:"COMPLETED", FAILED:"FAILED", CANCEL_REQUESTED:"CANCEL_REQUESTED", CANCELLED:"CANCELLED"};
 ee.data.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET"};
@@ -15767,7 +15777,10 @@ ee.ComputedObject.prototype.encode = function(encoder) {
 };
 ee.ComputedObject.prototype.encodeCloudValue = function(encoder) {
   if (this.isVariable()) {
-    return ee.rpc_node.argumentReference(this.varName || "uninitializedVar");
+    if (null === this.varName) {
+      throw Error("Internal error: function argument not initialized.");
+    }
+    return ee.rpc_node.argumentReference(this.varName);
   }
   var encodedArgs = {}, name;
   for (name in this.args) {
@@ -16683,6 +16696,14 @@ ee.data.images.applyTransformsToImage = function(taskConfig) {
   resultParams.element = image;
   return resultParams;
 };
+ee.data.images.applyTransformsToCollection = function(taskConfig) {
+  var resultParams = {}, collection = taskConfig.element.map(function(image) {
+    var projected = ee.data.images.applyCrsAndTransform(image, taskConfig);
+    return ee.data.images.applySelectionAndScale(projected, taskConfig, resultParams);
+  });
+  resultParams.element = collection;
+  return resultParams;
+};
 ee.data.images.applySelectionAndScale = function(image, params, outParams) {
   var clipParams = {};
   goog.object.forEach(params, function(value, key) {
@@ -16738,10 +16759,12 @@ ee.data.images.applyCrsAndTransform = function(image, params) {
   if (crsTransform) {
     if (image = ee.ApiFunction._apply("Image.reproject", {image:image, crs:crs, crsTransform:crsTransform}), goog.isDefAndNotNull(params.dimensions) && !goog.isDefAndNotNull(params.scale) && !goog.isDefAndNotNull(params.region)) {
       var dimensions = params.dimensions;
-      delete params.dimensions;
       goog.isString(dimensions) && (dimensions = dimensions.split("x").map(Number));
-      var projection = ee.ApiFunction._apply("Image.projection", {image:image});
-      2 === dimensions.length && (params.region = new ee.Geometry.Rectangle([0, 0, dimensions[0], dimensions[1]], projection, !0));
+      if (2 === dimensions.length) {
+        delete params.dimensions;
+        var projection = (new ee.ApiFunction("Projection")).call(crs, crsTransform);
+        params.region = new ee.Geometry.Rectangle([0, 0, dimensions[0], dimensions[1]], projection, !0);
+      }
     }
   } else {
     image = ee.ApiFunction._apply("Image.setDefaultProjection", {image:image, crs:crs, crsTransform:[1, 0, 0, 0, -1, 0]});

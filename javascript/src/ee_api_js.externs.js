@@ -67,7 +67,7 @@ ee.Collection = function(func, args, opt_varName) {
 ee.Collection.prototype.filter = function(filter) {
 };
 /**
- * @param {(ee.Feature|ee.Geometry|null)} geometry
+ * @param {(ee.Feature|ee.Geometry)} geometry
  * @return {(ee.Collection|null)}
  */
 ee.Collection.prototype.filterBounds = function(geometry) {
@@ -290,9 +290,9 @@ ee.Filter = function(opt_filter) {
 ee.Filter.and = function(var_args) {
 };
 /**
- * @param {(ee.ComputedObject|null)} geometry
- * @param {(ee.ComputedObject|null|number)=} opt_errorMargin
- * @return {(ee.Filter|null)}
+ * @param {!ee.ComputedObject} geometry
+ * @param {(ee.ComputedObject|number)=} opt_errorMargin
+ * @return {!ee.Filter}
  */
 ee.Filter.bounds = function(geometry, opt_errorMargin) {
 };

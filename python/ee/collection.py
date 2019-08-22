@@ -81,7 +81,7 @@ class Collection(element.Element):
     """Shortcut to add a geometry filter to a collection.
 
     Items in the collection with a footprint that fails to intersect
-    the given geometry will be excluded when the collection is evaluated.
+    the given geometry will be excluded.
     This is equivalent to self.filter(Filter().geometry(...)).
 
     Args:
@@ -89,7 +89,7 @@ class Collection(element.Element):
           or a FeatureCollection, from which a geometry will be extracted.
 
     Returns:
-      The filter object.
+      The filtered collection.
     """
     return self.filter(filter.Filter.geometry(geometry))
 

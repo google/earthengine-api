@@ -15,36 +15,10 @@ import sys
 from . import data
 from . import oauth
 from .apifunction import ApiFunction
-from .ee_exception import EEException
 # pylint: enable=g-importing-member
 import six
 from google.auth import crypt
 from google.oauth2 import service_account
-from google.oauth2.credentials import Credentials
-
-
-def _GetPersistentCredentials():
-  """Read persistent credentials from ~/.config/earthengine.
-
-  Raises EEException with helpful explanation if credentials don't exist.
-
-  Returns:
-    OAuth2Credentials built from persistently stored refresh_token
-  """
-  try:
-    tokens = json.load(open(oauth.get_credentials_path()))
-    refresh_token = tokens['refresh_token']
-    return Credentials(
-        None,
-        refresh_token=refresh_token,
-        token_uri=oauth.TOKEN_URI,
-        client_id=oauth.CLIENT_ID,
-        client_secret=oauth.CLIENT_SECRET,
-        scopes=oauth.SCOPES)
-  except IOError:
-    raise EEException('Please authorize access to your Earth Engine account '
-                      'by running\n\nearthengine authenticate\n\nin your '
-                      'command line, and then retry.')
 
 
 def ServiceAccountCredentials(email, key_file=None, key_data=None):
