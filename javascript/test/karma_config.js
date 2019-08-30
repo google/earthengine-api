@@ -5,6 +5,9 @@ module.exports = function(config) {
     frameworks: ['jasmine', 'browserify'],
     plugins: ['karma-jasmine', 'karma-chrome-launcher', 'karma-browserify'],
     files: ['init_browser.js', '*_test.js'],
-    preprocessors: {'*.js': ['browserify']}
+    preprocessors: {'*.js': ['browserify']},
+    client: {
+      args: [process.env['EE_ACCESS_TOKEN']],
+    },
   });
 };

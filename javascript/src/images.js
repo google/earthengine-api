@@ -7,9 +7,9 @@ goog.provide('ee.data.images');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.Geometry');
-goog.require('ee.data');
 goog.require('goog.array');
 goog.require('goog.object');
+goog.requireType('ee.data');
 
 goog.forwardDeclare('ee.Image');
 

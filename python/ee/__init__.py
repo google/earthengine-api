@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.192'
+__version__ = '0.1.193'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -18,6 +18,7 @@ from . import batch
 from . import data
 from . import deserializer
 from . import ee_types as types
+from . import oauth
 
 # Public re-exports.
 from ._helpers import ServiceAccountCredentials
@@ -66,8 +67,21 @@ class _AlgorithmsContainer(dict):
   def __delattr__(self, name):
     del self[name]
 
+
 # A dictionary of algorithms that are not bound to a specific class.
 Algorithms = _AlgorithmsContainer()
+
+
+def Authenticate(
+    authorization_code=None,
+    quiet=None):
+  """Prompts the user to authorize access to Earth Engine via OAuth2.
+
+  Args:
+    authorization_code: An optional authorization code.
+    quiet: If true, do not require interactive prompts.
+  """
+  oauth.authenticate(authorization_code, quiet)
 
 
 def Initialize(
@@ -200,7 +214,7 @@ def _Promote(arg, klass):
       return Element(arg.func, arg.args, arg.varName)
     else:
       # No way to convert.
-      raise EEException('Cannot convert %s to Element.' % arg)
+      raise EEException('Cannot convert {0} to Element.'.format(arg))
   elif klass == 'Geometry':
     if isinstance(arg, Collection):
       return ApiFunction.call_('Collection.geometry', arg)
@@ -229,7 +243,7 @@ def _Promote(arg, klass):
       # Image.parseExpression().
       return arg
     else:
-      raise EEException('Argument is not a function: %s' % arg)
+      raise EEException('Argument is not a function: {0}'.format(arg))
   elif klass == 'Dictionary':
     if isinstance(arg, dict):
       return arg
@@ -261,7 +275,7 @@ def _Promote(arg, klass):
         # arg is the name of a method in klass.
         return getattr(cls, arg)()
       else:
-        raise EEException('Unknown algorithm: %s.%s' % (klass, arg))
+        raise EEException('Unknown algorithm: {0}.{1}'.format(klass, arg))
     else:
       # Client-side cast.
       return cls(arg)
@@ -375,12 +389,12 @@ def _MakeClass(name):
         if not onlyOneArg:
           # We don't know what to do with multiple args.
           raise EEException(
-              'Too many arguments for ee.%s(): %s' % (name, args))
+              'Too many arguments for ee.{0}(): {1}'.format(name, args))
         elif firstArgIsPrimitive:
           # Can't cast a primitive.
           raise EEException(
-              'Invalid argument for ee.%s(): %s.  Must be a ComputedObject.' %
-              (name, args))
+              'Invalid argument for ee.{0}(): {1}.  '
+              'Must be a ComputedObject.'.format(name, args))
         else:
           result = args[0]
         ComputedObject.__init__(self, result.func, result.args, result.varName)

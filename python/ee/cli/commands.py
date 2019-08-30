@@ -9,7 +9,6 @@ the actions to be taken when the command is executed.
 from __future__ import print_function
 
 # pylint: disable=g-bad-import-order
-from six.moves import input  # pylint: disable=redefined-builtin
 from six.moves import xrange
 import argparse
 import calendar
@@ -38,8 +37,6 @@ try:
   TENSORFLOW_INSTALLED = True
 except ImportError:
   TENSORFLOW_INSTALLED = False
-
-import webbrowser
 
 # pylint: disable=g-import-not-at-top
 try:
@@ -330,7 +327,14 @@ class Dispatcher(object):
 
 
 class AuthenticateCommand(object):
-  """Prompts the user to authorize access to Earth Engine via OAuth2."""
+  """Prompts the user to authorize access to Earth Engine via OAuth2.
+
+  Note that running this command in the default interactive mode within
+  JupyterLab with a bash magic command (i.e. "!earthengine authenticate") is
+  problematic (see https://github.com/ipython/ipython/issues/10499). To avoid
+  this issue, use the non-interactive mode
+  (i.e. "!earthengine authenticate --quiet").
+  """
 
   name = 'authenticate'
 
@@ -346,42 +350,9 @@ class AuthenticateCommand(object):
   def run(self, args, unused_config):
     """Prompts for an auth code, requests a token and saves it."""
 
-    def write_token(auth_code):
-      token = ee.oauth.request_token(auth_code)
-      ee.oauth.write_token(token)
-      print('\nSuccessfully saved authorization token.')
-
-    if args.authorization_code:
-      auth_code = args.authorization_code
-      write_token(auth_code)
-      return
-
-    auth_url = ee.oauth.get_authorization_url()
-    if args.quiet:
-      print('Paste the following address into a web browser:\n'
-            '\n'
-            '    %s\n'
-            '\n'
-            'On the web page, please authorize access to your '
-            'Earth Engine account and copy the authentication code. '
-            'Next authenticate with the following command:\n'
-            '\n'
-            '    earthengine authenticate '
-            '--authorization-code=PLACE_AUTH_CODE_HERE\n'
-            % auth_url)
-    else:
-      webbrowser.open_new(auth_url)
-      print('Opening the following address in a web browser:\n'
-            '\n'
-            '    %s\n'
-            '\n'
-            'Please authorize access to your Earth Engine account, and paste '
-            'the generated code below. If the web browser does not start, '
-            'please manually browse the URL above.\n'
-            % auth_url)
-
-      auth_code = input('Please enter authorization code: ').strip()
-      write_token(auth_code)
+    # Filter for arguments relevant for ee.Authenticate()
+    args_auth = {x: vars(args)[x] for x in ('authorization_code', 'quiet')}
+    ee.Authenticate(**args_auth)
 
 
 class SetProjectCommand(object):
