@@ -78,9 +78,8 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 
   var computed = geoJson instanceof ee.ComputedObject &&
                  !(geoJson instanceof ee.Geometry && geoJson.type_);
-  var options = (goog.isDefAndNotNull(opt_proj) ||
-                 goog.isDefAndNotNull(opt_geodesic) ||
-                 goog.isDefAndNotNull(opt_evenOdd));
+  var options =
+      (opt_proj != null || opt_geodesic != null || opt_evenOdd != null);
   if (computed) {
     if (options) {
       throw new Error(
@@ -116,8 +115,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
    * @type {Array?}
    * @private
    */
-  this.coordinates_ =
-      goog.isDefAndNotNull(geoJson['coordinates']) ?
+  this.coordinates_ = (geoJson['coordinates'] != null) ?
       goog.object.unsafeClone(geoJson['coordinates']) :
       null;
 
@@ -134,13 +132,12 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
    * @private
    */
   this.proj_;
-  if (goog.isDefAndNotNull(opt_proj)) {
+  if (opt_proj != null) {
     this.proj_ = opt_proj;
   } else if ('crs' in geoJson) {
-    if (goog.isObject(geoJson['crs']) &&
-        geoJson['crs']['type'] == 'name' &&
+    if (goog.isObject(geoJson['crs']) && geoJson['crs']['type'] == 'name' &&
         goog.isObject(geoJson['crs']['properties']) &&
-        goog.isString(geoJson['crs']['properties']['name'])) {
+        typeof geoJson['crs']['properties']['name'] === 'string') {
       this.proj_ = geoJson['crs']['properties']['name'];
     } else {
       throw Error('Invalid CRS declaration in GeoJSON: ' +
@@ -154,7 +151,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
    * @private
    */
   this.geodesic_ = opt_geodesic;
-  if (!goog.isDef(this.geodesic_) && 'geodesic' in geoJson) {
+  if (this.geodesic_ === undefined && 'geodesic' in geoJson) {
     this.geodesic_ = Boolean(geoJson['geodesic']);
   }
 
@@ -165,7 +162,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
    * @private
    */
   this.evenOdd_ = opt_evenOdd;
-  if (!goog.isDef(this.evenOdd_) && 'evenOdd' in geoJson) {
+  if (this.evenOdd_ === undefined && 'evenOdd' in geoJson) {
     this.evenOdd_ = Boolean(geoJson['evenOdd']);
   }
 };
@@ -567,7 +564,7 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
     result['coordinates'] = this.coordinates_;
   }
 
-  if (goog.isDefAndNotNull(this.proj_)) {
+  if (this.proj_ != null) {
     result['crs'] = {
       'type': 'name',
       'properties': {
@@ -576,11 +573,11 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
     };
   }
 
-  if (goog.isDefAndNotNull(this.geodesic_)) {
+  if (this.geodesic_ != null) {
     result['geodesic'] = this.geodesic_;
   }
 
-  if (goog.isDefAndNotNull(this.evenOdd_)) {
+  if (this.evenOdd_ != null) {
     result['evenOdd'] = this.evenOdd_;
   }
 
@@ -691,7 +688,7 @@ ee.Geometry.isValidCoordinates_ = function(shape) {
   } else {
     // Make sure the coordinates are all numbers.
     for (var i = 0; i < shape.length; i++) {
-      if (!goog.isNumber(shape[i])) {
+      if (typeof shape[i] !== 'number') {
         return -1;
       }
     }
@@ -709,7 +706,7 @@ ee.Geometry.isValidCoordinates_ = function(shape) {
  * @private
  */
 ee.Geometry.coordinatesToLine_ = function(coordinates) {
-  if (!goog.isNumber(coordinates[0])) {
+  if (typeof (coordinates[0]) !== 'number') {
     return /** @type {!Array<!Array<number>>} */ (coordinates);
   }
   if (coordinates.length == 2) {
@@ -748,8 +745,7 @@ ee.Geometry.construct_ = function(
   // Standardize the coordinates and test if they are simple enough for
   // client-side initialization.
   if (ee.Geometry.hasServerValue_(eeArgs['coordinates']) ||
-      goog.isDefAndNotNull(eeArgs['crs']) ||
-      goog.isDefAndNotNull(eeArgs['maxError'])) {
+      eeArgs['crs'] != null || eeArgs['maxError'] != null) {
     // Some arguments cannot be handled in the client, so make a server call.
     // Note we don't declare a default evenOdd value, so the server can infer
     // a default based on the projection.
@@ -766,7 +762,7 @@ ee.Geometry.construct_ = function(
             ['Polygon', 'Rectangle', 'MultiPolygon'],
             apiConstructorName);
 
-    if (isPolygon && !goog.isDefAndNotNull(geoJson['evenOdd'])) {
+    if (isPolygon && geoJson['evenOdd'] == null) {
       // Default to evenOdd=true for any kind of polygon.
       geoJson['evenOdd'] = true;
     }

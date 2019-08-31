@@ -207,17 +207,17 @@ apiclient.setAppIdToken = function(token) {
 apiclient.initialize = function(apiBaseUrl, tileBaseUrl, xsrfToken) {
   // If already initialized, only replace the explicitly specified parts.
 
-  if (goog.isDefAndNotNull(apiBaseUrl)) {
+  if (apiBaseUrl != null) {
     apiclient.apiBaseUrl_ = apiBaseUrl;
   } else if (!apiclient.initialized_) {
     apiclient.apiBaseUrl_ = apiclient.DEFAULT_API_BASE_URL_;
   }
-  if (goog.isDefAndNotNull(tileBaseUrl)) {
+  if (tileBaseUrl != null) {
     apiclient.tileBaseUrl_ = tileBaseUrl;
   } else if (!apiclient.initialized_) {
     apiclient.tileBaseUrl_ = apiclient.DEFAULT_TILE_BASE_URL_;
   }
-  if (goog.isDef(xsrfToken)) {  // Passing an explicit null clears it.
+  if (xsrfToken !== undefined) {  // Passing an explicit null clears it.
     apiclient.xsrfToken_ = xsrfToken;
   }
   apiclient.initialized_ = true;
@@ -341,7 +341,7 @@ apiclient.send = function(
 
   // Set up client-side authorization.
   const authToken = apiclient.getAuthToken();
-  if (goog.isDefAndNotNull(authToken)) {
+  if (authToken != null) {
     headers['Authorization'] = authToken;
   } else if (callback && apiclient.isAuthTokenRefreshingEnabled_()) {
     // If the authToken is null, the call is asynchronous, and token refreshing
@@ -363,24 +363,24 @@ apiclient.send = function(
   params = apiclient.paramAugmenter_(params, path);
 
   // XSRF protection for a server-side API proxy.
-  if (goog.isDefAndNotNull(apiclient.xsrfToken_)) {
+  if (apiclient.xsrfToken_ != null) {
     headers['X-XSRF-Token'] = apiclient.xsrfToken_;
   }
 
-  if (goog.isDefAndNotNull(apiclient.appIdToken_)) {
+  if (apiclient.appIdToken_ != null) {
     headers[apiclient.APP_ID_TOKEN_HEADER_] = apiclient.appIdToken_;
   }
 
-  // GET requests: add parameters to URL, clear requestData.
-  // POST form requests: no URL modifications, set requestData to form string.
-  // POST JSON requests: add parameters to url, set requestData to JSON string.
-  let requestData = params ? params.toString() : '';
-  if (method === 'GET' || body) {
-    if (!googString.isEmptyOrWhitespace(requestData)) {
-      path += googString.contains(path, '?') ? '&' : '?';
-      path += requestData;
-    }
-    requestData = method === 'POST' && body ? body : null;
+  // Encode the request params in the URL and set requestData to the body.
+  // In the special case of form mode, when no body is given, pass the params in
+  // requestData instead.
+  let requestData = body || null;
+  const paramString = params ? params.toString() : '';
+  if (method === 'POST' && body === undefined) {
+    requestData = paramString;
+  } else if (!googString.isEmptyOrWhitespace(paramString)) {
+    path += googString.contains(path, '?') ? '&' : '?';
+    path += paramString;
   }
 
   const url = path.startsWith('/') ? apiclient.apiBaseUrl_ + path : path;
@@ -411,8 +411,8 @@ apiclient.send = function(
     // Retry 429 responses with exponential backoff.
     let xmlHttp;
     let retryCount = 0;
-    const maxRetries = goog.isDefAndNotNull(retries) ? retries
-        : apiclient.MAX_SYNC_RETRIES_;
+    const maxRetries =
+        (retries != null) ? retries : apiclient.MAX_SYNC_RETRIES_;
     while (true) {
       xmlHttp = XmlHttp();
       xmlHttp.open(method, url, false);
@@ -465,8 +465,7 @@ apiclient.buildAsyncRequest_ = function(
     headers: headers
   };
   const profileHookAtCallTime = apiclient.profileHook_;
-  const maxRetries = goog.isDefAndNotNull(retries) ? retries
-      : apiclient.MAX_ASYNC_RETRIES_;
+  const maxRetries = (retries != null) ? retries : apiclient.MAX_ASYNC_RETRIES_;
   const wrappedCallback = function(e) {
     const xhrIo = e.target;
 
@@ -728,18 +727,19 @@ apiclient.setupMockSend = function(calls) {
     if (goog.isFunction(response)) {
       response = response(url, method, data);
     }
-    if (goog.isString(response)) {
+    if (typeof response === 'string') {
       response = {
         'text': response,
         'status': 200,
         'contentType': 'application/json; charset=utf-8'
       };
     }
-    if (!goog.isString(response.text)) {
+    if (typeof response.text !== 'string') {
       throw new Error(url + ' mock response missing/invalid text');
     }
 
-    if (!goog.isNumber(response.status) && !goog.isFunction(response.status)) {
+    if (typeof response.status !== 'number' &&
+        !goog.isFunction(response.status)) {
       throw new Error(url + ' mock response missing/invalid status');
     }
     return response;

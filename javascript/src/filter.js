@@ -67,7 +67,7 @@ ee.Filter = function(opt_filter) {
     // Actual filter object.
     ee.Filter.base(this, 'constructor', opt_filter.func, opt_filter.args, opt_filter.varName);
     this.filter_ = [opt_filter];
-  } else if (!goog.isDef(opt_filter)) {
+  } else if (opt_filter === undefined) {
     // A silly call with no arguments left for backward-compatibility.
     // Encoding such a filter is expected to fail, but it can be composed
     // by calling the various methods that end up in append_().

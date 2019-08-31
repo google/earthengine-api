@@ -86,7 +86,7 @@ ee.Serializer.hash_ = new goog.crypt.Md5();
  * @export
  */
 ee.Serializer.encode = function(obj, opt_isCompound) {
-  var compound = goog.isDef(opt_isCompound) ? opt_isCompound : true;
+  var compound = (opt_isCompound !== undefined) ? opt_isCompound : true;
   return new ee.Serializer(compound).encode_(obj);
 };
 
@@ -173,7 +173,7 @@ ee.Serializer.prototype.encode_ = function(object) {
  * @private
  */
 ee.Serializer.prototype.encodeValue_ = function(object) {
-  if (!goog.isDef(object)) {
+  if (object === undefined) {
     throw Error('Can\'t encode an undefined value.');
   }
 
@@ -188,10 +188,9 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
       'type': 'ValueRef',
       'value': this.encoded_[hash]
     };
-  } else if (object === null ||
-      goog.isBoolean(object) ||
-      goog.isNumber(object) ||
-      goog.isString(object)) {
+  } else if (
+      object === null || typeof object === 'boolean' ||
+      typeof object === 'number' || typeof object === 'string') {
     // Primitives are encoded as is and not saved in the scope.
     return object;
   } else if (goog.isDateLike(object)) {

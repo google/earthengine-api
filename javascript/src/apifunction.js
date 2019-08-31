@@ -31,7 +31,7 @@ goog.require('goog.object');
  * @extends {ee.Function}
  */
 ee.ApiFunction = function(name, opt_signature) {
-  if (!goog.isDef(opt_signature)) {
+  if (opt_signature === undefined) {
     return ee.ApiFunction.lookup(name);
   } else if (!(this instanceof ee.ApiFunction)) {
     return ee.ComputedObject.construct(ee.ApiFunction, arguments);

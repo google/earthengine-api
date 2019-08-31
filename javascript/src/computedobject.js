@@ -134,7 +134,7 @@ ee.ComputedObject.prototype.encode = function(encoder) {
   } else {
     var encodedArgs = {};
     for (var name in this.args) {
-      if (goog.isDef(this.args[name])) {
+      if (this.args[name] !== undefined) {
         encodedArgs[name] = encoder(this.args[name]);
       }
     }
@@ -143,7 +143,7 @@ ee.ComputedObject.prototype.encode = function(encoder) {
       'arguments': encodedArgs
     };
     var func = encoder(this.func);
-    result[goog.isString(func) ? 'functionName' : 'function'] = func;
+    result[typeof func === 'string' ? 'functionName' : 'function'] = func;
     return result;
   }
 };
@@ -175,7 +175,7 @@ goog.exportSymbol('ee.ComputedObject.prototype.toString',
 ee.ComputedObject.prototype.isVariable = function() {
   // We can't just check for varName != null, since we allow that
   // to remain null until for CustomFunction.resolveNamelessArgs_().
-  return goog.isNull(this.func) && goog.isNull(this.args);
+  return this.func === null && this.args === null;
 };
 
 

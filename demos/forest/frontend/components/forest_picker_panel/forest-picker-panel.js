@@ -215,8 +215,8 @@ forest.ForestPickerPanel = Polymer({
   autoScroll_: function(anchorDirection, opt_index) {
     if (this.classList.contains('loading')) return;
     var picker = this.$.destinationPicker;
-    var index = goog.isDef(opt_index) ?
-        opt_index : picker.indexOf(picker.selectedItem);
+    var index = (opt_index !== undefined) ? opt_index :
+                                            picker.indexOf(picker.selectedItem);
     var thumbWidth = this.hasAttribute('narrow-viewport') ? 114 : 116;
     var maxLeftOffset = index * thumbWidth;
     if (anchorDirection == forest.ForestPickerPanel.ScrollDirection_.LEFT) {

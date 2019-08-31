@@ -89,7 +89,7 @@ ee.Dictionary.reset = function() {
  * @override
  */
 ee.Dictionary.prototype.encode = function(encoder) {
-  if (!goog.isNull(this.dict_)) {
+  if (this.dict_ !== null) {
     return encoder(this.dict_);
   } else {
     return ee.Dictionary.base(this, 'encode', encoder);

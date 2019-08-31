@@ -36,7 +36,7 @@ ee.Number = function(number) {
    */
   this.number_;
 
-  if (goog.isNumber(number)) {
+  if (typeof number === 'number') {
     ee.Number.base(this, 'constructor', null, null);
     this.number_ = /** @type {number} */ (number);
   } else if (number instanceof ee.ComputedObject) {
@@ -77,7 +77,7 @@ ee.Number.reset = function() {
  * @override
  */
 ee.Number.prototype.encode = function(encoder) {
-  if (goog.isNumber(this.number_)) {
+  if (typeof this.number_ === 'number') {
     return this.number_;
   } else {
     return ee.Number.base(this, 'encode', encoder);

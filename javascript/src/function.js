@@ -108,7 +108,7 @@ ee.Function.prototype.apply = function(namedArgs) {
  * @package
  */
 ee.Function.prototype.callOrApply = function(thisValue, args) {
-  var isInstance = goog.isDef(thisValue);
+  var isInstance = (thisValue !== undefined);
   var signature = this.getSignature();
 
   // Convert positional to named args.
@@ -148,7 +148,7 @@ ee.Function.prototype.promoteArgs = function(args) {
   var known = {};
   for (var i = 0; i < specs.length; i++) {
     var name = specs[i]['name'];
-    if (name in args && goog.isDef(args[name])) {
+    if (name in args && args[name] !== undefined) {
       promotedArgs[name] = ee.Function.promoter_(args[name], specs[i]['type']);
     } else if (!specs[i]['optional']) {
       throw Error('Required argument (' + name + ') missing to function: ' +

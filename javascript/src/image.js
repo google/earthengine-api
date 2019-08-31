@@ -49,7 +49,7 @@ ee.Image = function(opt_args) {
   ee.Image.initialize();
 
   var argCount = arguments.length;
-  if (argCount == 0 || (argCount == 1 && !goog.isDef(opt_args))) {
+  if (argCount == 0 || (argCount == 1 && opt_args === undefined)) {
     ee.Image.base(this, 'constructor', new ee.ApiFunction('Image.mask'), {
       'image': new ee.Image(0),
       'mask': new ee.Image(0)
@@ -274,14 +274,14 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
     if (goog.isArray(request['region']) ||
         ee.Types.isRegularObject(request['region'])) {
       request['region'] = goog.json.serialize(request['region']);
-    } else if (!goog.isString(request['region'])) {
+    } else if (typeof request['region'] !== 'string') {
       throw Error('The region parameter must be an array or a GeoJSON object.');
     }
   }
   if (args['callback']) {
     const callbackWrapper = function(thumbId, opt_error) {
       let thumbUrl = '';
-      if (!goog.isDef(opt_error)) {
+      if (opt_error === undefined) {
         try {
           thumbUrl = ee.data.makeThumbUrl(thumbId);
         } catch (e) {

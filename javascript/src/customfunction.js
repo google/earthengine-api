@@ -43,7 +43,7 @@ ee.CustomFunction = function(signature, body) {
 
   // Check that the method returns something, before we try
   // encoding it in resolveNamelessArgs_().
-  if (!goog.isDef(body.apply(null, vars))) {
+  if (body.apply(null, vars) === undefined) {
     throw Error('User-defined methods must return a value.');
   }
 
@@ -139,7 +139,7 @@ ee.CustomFunction.variable = function(type, name) {
  */
 ee.CustomFunction.create = function(func, returnType, arg_types) {
   var stringifyType = function(type) {
-    if (goog.isString(type)) {
+    if (typeof type === 'string') {
       return type;
     } else {
       return ee.Types.classToName(type);
@@ -177,7 +177,7 @@ ee.CustomFunction.create = function(func, returnType, arg_types) {
 ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
   var namelessArgIndices = [];
   for (var i = 0; i < vars.length; i++) {
-    if (goog.isNull(vars[i].varName)) {
+    if (vars[i].varName === null) {
       namelessArgIndices.push(i);
     }
   }

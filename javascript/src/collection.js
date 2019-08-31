@@ -233,7 +233,7 @@ ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
  * @export
  */
 ee.Collection.prototype.iterate = function(algorithm, opt_first) {
-  var first = goog.isDef(opt_first) ? opt_first : null;
+  var first = (opt_first !== undefined) ? opt_first : null;
   var elementType = this.elementType();
   var withCast = function(e, p) { return algorithm(new elementType(e), p); };
   return ee.ApiFunction._call('Collection.iterate', this, withCast, first);

@@ -10,21 +10,13 @@ forest.ForestChart = Polymer({
 
   properties: {
     /** @type {string} */
-    type: {
-      type: String,
-      value: 'line',
-      notify: true
-    },
+    type: {type: String, value: 'line', notify: true},
 
     /** @type {Object|undefined} */
-    options: {
-      type: Object
-    },
+    options: {type: Object},
 
     /** @type {Object|undefined} */
-    data: {
-      type: Object
-    }
+    data: {type: Object}
   },
 
   /**
@@ -35,7 +27,7 @@ forest.ForestChart = Polymer({
    * @private
    */
   _computeChartOptions: function(options) {
-    if (goog.isDefAndNotNull(options)) {
+    if (options != null) {
       goog.object.extend(options, forest.ForestChart.DEFAULT_OPTIONS_);
       this.style.display = 'block';
     } else {

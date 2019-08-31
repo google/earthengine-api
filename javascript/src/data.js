@@ -119,7 +119,7 @@ ee.data.authenticateViaOauth = function(
   }
   ee.apiclient.setAuthClient(clientId, scopes);
 
-  if (goog.isNull(clientId)) {
+  if (clientId === null) {
     ee.apiclient.clearAuthToken();
     return;
   }
@@ -332,7 +332,7 @@ ee.data.getAlgorithms = function(opt_callback) {
 ee.data.getMapId = function(params, opt_callback) {
   params = /** @type {!ee.data.ImageVisualizationParameters} */ (
       goog.object.clone(params));
-  if (!goog.isString(params.image)) {
+  if (typeof params.image !== 'string') {
     params.image = params.image.serialize();
   }
   const makeMapId = (result) => ee.data.makeMapId_(
@@ -440,7 +440,7 @@ ee.data.getThumbId = function(params, opt_callback) {
   // we remove the imageCollection field and insert it as the image instead,
   // if it exists.
   let image = params['image'] || params['imageCollection'];
-  if (!goog.isString(image)) {
+  if (typeof image !== 'string') {
     image = image.serialize();
   }
   params['image'] = image;
@@ -572,7 +572,7 @@ ee.data.makeTableDownloadUrl = function(id) {
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
   var params = {};
-  if (goog.isNumber(opt_count)) {
+  if (typeof opt_count === 'number') {
     params['count'] = opt_count;
   }
   return /** @type {?Array.<string>} */ (
@@ -605,7 +605,7 @@ ee.data.getTaskStatus = function(taskId, opt_callback) {
  * @private
  */
 ee.data.makeStringArray_ = function(value) {
-  if (goog.isString(value)) {
+  if (typeof value === 'string') {
     return [value];
   } else if (goog.isArray(value)) {
     return value;
@@ -774,7 +774,7 @@ ee.data.updateTask = function(taskId, action, opt_callback) {
  */
 ee.data.startProcessing = function(taskId, params, opt_callback) {
   params = goog.object.clone(params);
-  if (goog.isDefAndNotNull(params['element'])) {
+  if (params['element'] != null) {
     params['json'] = params['element'].serialize();
     delete params['element'];
   }
@@ -916,7 +916,7 @@ ee.data.createAssetHome = function(requestedId, opt_callback) {
  */
 ee.data.createAsset = function(
     value, opt_path, opt_force, opt_properties, opt_callback) {
-  if (!goog.isString(value)) {
+  if (typeof value !== 'string') {
     value = goog.json.serialize(value);
   }
   var args = {'value': value};
@@ -960,11 +960,11 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
  * @param {string} query Search query for assets.
  * @param {function(?Array, string=)=} opt_callback An optional
  *     callback. If not supplied, the callback is made synchronously.
- * @return {!Array.<!ee.data.AssetDescription>} An array of data set indices.
+ * @return {?Array<!ee.data.AssetDescription>} An array of data set indices.
  */
 ee.data.search = function(query, opt_callback) {
   var params = {'q': query};
-  return /** @type {!Array.<!ee.data.AssetDescription>} */ (
+  return /** @type {?Array<!ee.data.AssetDescription>} */ (
       ee.data.send_('/search', ee.data.makeRequest_(params), opt_callback));
 };
 

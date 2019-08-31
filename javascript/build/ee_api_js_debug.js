@@ -3104,9 +3104,9 @@ goog.i18n.bidi.setElementDirByTextDirectionality = function(element, text) {
 };
 goog.i18n.bidi.DirectionalString = function() {
 };
-goog.html.TrustedResourceUrl = function() {
-  this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = "";
-  this.trustedURL_ = null;
+goog.html.TrustedResourceUrl = function(opt_token, opt_content, opt_trustedUrl) {
+  this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = opt_token === goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content || "";
+  this.trustedURL_ = opt_token === goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ && opt_trustedUrl || null;
   this.TRUSTED_RESOURCE_URL_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.TrustedResourceUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
 };
 goog.html.TrustedResourceUrl.prototype.implementsGoogStringTypedString = !0;
@@ -3168,10 +3168,8 @@ goog.html.TrustedResourceUrl.fromConstants = function(parts) {
 };
 goog.html.TrustedResourceUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
 goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse = function(url) {
-  var trustedResourceUrl = new goog.html.TrustedResourceUrl;
-  trustedResourceUrl.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY ? goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createScriptURL(url) : url;
-  goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY && (trustedResourceUrl.trustedURL_ = goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createURL(url));
-  return trustedResourceUrl;
+  var value = goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY ? goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createScriptURL(url) : url, trustedUrl = goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY ? goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createURL(url) : null;
+  return new goog.html.TrustedResourceUrl(goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_, value, trustedUrl);
 };
 goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, params) {
   if (null == params) {
@@ -3188,8 +3186,9 @@ goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, 
   }
   return currentString;
 };
-goog.html.SafeUrl = function() {
-  this.privateDoNotAccessOrElseSafeUrlWrappedValue_ = "";
+goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
+goog.html.SafeUrl = function(opt_token, opt_content) {
+  this.privateDoNotAccessOrElseSafeUrlWrappedValue_ = opt_token === goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content || "";
   this.SAFE_URL_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
 };
 goog.html.SafeUrl.INNOCUOUS_STRING = "about:invalid#zClosurez";
@@ -3326,11 +3325,10 @@ goog.html.SafeUrl.sanitizeAssertUnchanged = function(url, opt_allowDataUrl) {
 };
 goog.html.SafeUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
 goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse = function(url) {
-  var safeUrl = new goog.html.SafeUrl;
-  safeUrl.privateDoNotAccessOrElseSafeUrlWrappedValue_ = goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY ? goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createURL(url) : url;
-  return safeUrl;
+  return new goog.html.SafeUrl(goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_, goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY ? goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createURL(url) : url);
 };
 goog.html.SafeUrl.ABOUT_BLANK = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse("about:blank");
+goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
 goog.html.SafeStyle = function() {
   this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = "";
   this.SAFE_STYLE_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeStyle.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
@@ -7009,6 +7007,7 @@ module$contents$eeapiclient$request_params_HttpMethodEnum.PUT = "PUT";
 module$contents$eeapiclient$request_params_HttpMethodEnum.PATCH = "PATCH";
 module$contents$eeapiclient$request_params_HttpMethodEnum.DELETE = "DELETE";
 module$exports$eeapiclient$request_params.HttpMethodEnum = module$contents$eeapiclient$request_params_HttpMethodEnum;
+module$exports$eeapiclient$request_params.AuthType = {AUTO:"auto", NONE:"none", OAUTH2:"oauth2", FIRST_PARTY:"1p"};
 module$exports$eeapiclient$request_params.MakeRequestParams = function module$contents$eeapiclient$request_params_MakeRequestParams() {
 };
 function module$contents$eeapiclient$request_params_processParams(params) {
@@ -15149,7 +15148,7 @@ var module$contents$ee$apiclient_EERequestService = function(sync, retries) {
   sync = void 0 === sync ? !1 : sync;
   var $jscomp$super$this = module$contents$ee$apiclient_PromiseRequestService.call(this) || this;
   $jscomp$super$this.sync = sync;
-  $jscomp$super$this.retries = goog.isDefAndNotNull(retries) ? retries : sync ? module$contents$ee$apiclient_apiclient.MAX_SYNC_RETRIES_ : module$contents$ee$apiclient_apiclient.MAX_ASYNC_RETRIES_;
+  $jscomp$super$this.retries = null != retries ? retries : sync ? module$contents$ee$apiclient_apiclient.MAX_SYNC_RETRIES_ : module$contents$ee$apiclient_apiclient.MAX_ASYNC_RETRIES_;
   return $jscomp$super$this;
 };
 $jscomp.inherits(module$contents$ee$apiclient_EERequestService, module$contents$ee$apiclient_PromiseRequestService);
@@ -15188,7 +15187,7 @@ module$contents$ee$apiclient_BatchCall.prototype.send = function(parts, getRespo
     var result = {};
     parts.forEach(function($jscomp$destructuring$var88) {
       var $jscomp$destructuring$var89 = $jscomp.makeIterator($jscomp$destructuring$var88), id = $jscomp$destructuring$var89.next().value, $jscomp$destructuring$var90 = $jscomp.makeIterator($jscomp$destructuring$var89.next().value), partBody = $jscomp$destructuring$var90.next().value, ctor = $jscomp$destructuring$var90.next().value;
-      goog.isDefAndNotNull(response[id]) && (result[id] = module$contents$ee$apiclient_deserialize(ctor, response[id]));
+      null != response[id] && (result[id] = module$contents$ee$apiclient_deserialize(ctor, response[id]));
     });
     return getResponse ? getResponse(result) : result;
   };
@@ -15204,7 +15203,7 @@ module$contents$ee$apiclient_BatchRequestService.prototype.send = function(param
   var request = [params.httpMethod + " " + params.path + " HTTP/1.1"];
   request.push("Content-Type: application/json; charset=utf-8");
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
-  goog.isDefAndNotNull(authToken) && request.push("Authorization: " + authToken);
+  null != authToken && request.push("Authorization: " + authToken);
   var body = params.body ? JSON.stringify(params.body) : "";
   return [request.join("\r\n") + "\r\n\r\n" + body, responseCtor];
 };
@@ -15306,9 +15305,9 @@ module$contents$ee$apiclient_apiclient.setAppIdToken = function(token) {
   module$contents$ee$apiclient_apiclient.appIdToken_ = token;
 };
 module$contents$ee$apiclient_apiclient.initialize = function(apiBaseUrl, tileBaseUrl, xsrfToken) {
-  goog.isDefAndNotNull(apiBaseUrl) ? module$contents$ee$apiclient_apiclient.apiBaseUrl_ = apiBaseUrl : module$contents$ee$apiclient_apiclient.initialized_ || (module$contents$ee$apiclient_apiclient.apiBaseUrl_ = module$contents$ee$apiclient_apiclient.DEFAULT_API_BASE_URL_);
-  goog.isDefAndNotNull(tileBaseUrl) ? module$contents$ee$apiclient_apiclient.tileBaseUrl_ = tileBaseUrl : module$contents$ee$apiclient_apiclient.initialized_ || (module$contents$ee$apiclient_apiclient.tileBaseUrl_ = module$contents$ee$apiclient_apiclient.DEFAULT_TILE_BASE_URL_);
-  goog.isDef(xsrfToken) && (module$contents$ee$apiclient_apiclient.xsrfToken_ = xsrfToken);
+  null != apiBaseUrl ? module$contents$ee$apiclient_apiclient.apiBaseUrl_ = apiBaseUrl : module$contents$ee$apiclient_apiclient.initialized_ || (module$contents$ee$apiclient_apiclient.apiBaseUrl_ = module$contents$ee$apiclient_apiclient.DEFAULT_API_BASE_URL_);
+  null != tileBaseUrl ? module$contents$ee$apiclient_apiclient.tileBaseUrl_ = tileBaseUrl : module$contents$ee$apiclient_apiclient.initialized_ || (module$contents$ee$apiclient_apiclient.tileBaseUrl_ = module$contents$ee$apiclient_apiclient.DEFAULT_TILE_BASE_URL_);
+  void 0 !== xsrfToken && (module$contents$ee$apiclient_apiclient.xsrfToken_ = xsrfToken);
   module$contents$ee$apiclient_apiclient.cloudApiEnabled_ && module$contents$ee$apiclient_apiclient.setProject(module$contents$ee$apiclient_apiclient.getProject() || module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_);
   module$contents$ee$apiclient_apiclient.initialized_ = !0;
 };
@@ -15342,7 +15341,7 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
   var headers = {"Content-Type":contentType}, authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
-  if (goog.isDefAndNotNull(authToken)) {
+  if (null != authToken) {
     headers.Authorization = authToken;
   } else {
     if (callback && module$contents$ee$apiclient_apiclient.isAuthTokenRefreshingEnabled_()) {
@@ -15358,19 +15357,17 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   module$contents$ee$apiclient_apiclient.cloudApiEnabled_ ? (profileHookAtCallTime && (headers[module$contents$ee$apiclient_apiclient.PROFILE_REQUEST_HEADER] = "1"), module$contents$ee$apiclient_apiclient.getProject() && module$contents$ee$apiclient_apiclient.getProject() !== module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_ && (headers[module$contents$ee$apiclient_apiclient.USER_PROJECT_OVERRIDE_HEADER_] = module$contents$ee$apiclient_apiclient.getProject())) : profileHookAtCallTime && params.add("profiling", 
   "1");
   params = module$contents$ee$apiclient_apiclient.paramAugmenter_(params, path);
-  goog.isDefAndNotNull(module$contents$ee$apiclient_apiclient.xsrfToken_) && (headers["X-XSRF-Token"] = module$contents$ee$apiclient_apiclient.xsrfToken_);
-  goog.isDefAndNotNull(module$contents$ee$apiclient_apiclient.appIdToken_) && (headers[module$contents$ee$apiclient_apiclient.APP_ID_TOKEN_HEADER_] = module$contents$ee$apiclient_apiclient.appIdToken_);
-  var requestData = params ? params.toString() : "";
-  if ("GET" === method || body) {
-    goog.string.isEmptyOrWhitespace(requestData) || (path += goog.string.contains(path, "?") ? "&" : "?", path += requestData), requestData = "POST" === method && body ? body : null;
-  }
+  null != module$contents$ee$apiclient_apiclient.xsrfToken_ && (headers["X-XSRF-Token"] = module$contents$ee$apiclient_apiclient.xsrfToken_);
+  null != module$contents$ee$apiclient_apiclient.appIdToken_ && (headers[module$contents$ee$apiclient_apiclient.APP_ID_TOKEN_HEADER_] = module$contents$ee$apiclient_apiclient.appIdToken_);
+  var requestData = body || null, paramString = params ? params.toString() : "";
+  "POST" === method && void 0 === body ? requestData = paramString : goog.string.isEmptyOrWhitespace(paramString) || (path += goog.string.contains(path, "?") ? "&" : "?", path += paramString);
   var url = path.startsWith("/") ? module$contents$ee$apiclient_apiclient.apiBaseUrl_ + path : path;
   if (callback) {
     return module$contents$ee$apiclient_apiclient.requestQueue_.push(module$contents$ee$apiclient_apiclient.buildAsyncRequest_(url, callback, method, requestData, headers, retries)), module$contents$ee$apiclient_apiclient.RequestThrottle_.fire(), null;
   }
   for (var setRequestHeader = function(value, key) {
     this.setRequestHeader && this.setRequestHeader(key, value);
-  }, xmlHttp, retryCount = 0, maxRetries = goog.isDefAndNotNull(retries) ? retries : module$contents$ee$apiclient_apiclient.MAX_SYNC_RETRIES_;;) {
+  }, xmlHttp, retryCount = 0, maxRetries = null != retries ? retries : module$contents$ee$apiclient_apiclient.MAX_SYNC_RETRIES_;;) {
     xmlHttp = (0,goog.net.XmlHttp)();
     xmlHttp.open(method, url, !1);
     goog.object.forEach(headers, setRequestHeader, xmlHttp);
@@ -15389,7 +15386,7 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   }, xmlHttp.responseText, profileHookAtCallTime);
 };
 module$contents$ee$apiclient_apiclient.buildAsyncRequest_ = function(url, callback, method, content, headers, retries) {
-  var retryCount = 0, request = {url:url, method:method, content:content, headers:headers}, profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, maxRetries = goog.isDefAndNotNull(retries) ? retries : module$contents$ee$apiclient_apiclient.MAX_ASYNC_RETRIES_;
+  var retryCount = 0, request = {url:url, method:method, content:content, headers:headers}, profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, maxRetries = null != retries ? retries : module$contents$ee$apiclient_apiclient.MAX_ASYNC_RETRIES_;
   request.callback = function(e) {
     var xhrIo = e.target;
     return 429 == xhrIo.getStatus() && retryCount < maxRetries ? (retryCount++, setTimeout(function() {
@@ -15508,11 +15505,11 @@ module$contents$ee$apiclient_apiclient.setupMockSend = function(calls) {
       throw Error(url + " mock response not specified");
     }
     goog.isFunction(response) && (response = response(url, method, data));
-    goog.isString(response) && (response = {text:response, status:200, contentType:"application/json; charset=utf-8"});
-    if (!goog.isString(response.text)) {
+    "string" === typeof response && (response = {text:response, status:200, contentType:"application/json; charset=utf-8"});
+    if ("string" !== typeof response.text) {
       throw Error(url + " mock response missing/invalid text");
     }
-    if (!goog.isNumber(response.status) && !goog.isFunction(response.status)) {
+    if ("number" !== typeof response.status && !goog.isFunction(response.status)) {
       throw Error(url + " mock response missing/invalid status");
     }
     return response;
@@ -15740,7 +15737,7 @@ ee.rpc_convert.bandList = function(bands) {
   if (!bands) {
     return [];
   }
-  if (goog.isString(bands)) {
+  if ("string" === typeof bands) {
     return bands.split(",");
   }
   if (goog.isArray(bands)) {
@@ -15752,7 +15749,7 @@ ee.rpc_convert.visualizationOptions = function(params) {
   var result = new module$exports$eeapiclient$ee_api_client.VisualizationOptions, hasResult = !1;
   if ("palette" in params) {
     var pal = params.palette;
-    result.paletteColors = goog.isString(pal) ? pal.split(",") : pal;
+    result.paletteColors = "string" === typeof pal ? pal.split(",") : pal;
     hasResult = !0;
   }
   var ranges = [];
@@ -15810,16 +15807,16 @@ ee.rpc_convert.algorithms = function(result) {
     var internalArgument = {};
     internalArgument.description = argument.description || "";
     internalArgument.type = argument.type || "";
-    goog.isDefAndNotNull(argument.argumentName) && (internalArgument.name = argument.argumentName);
+    null != argument.argumentName && (internalArgument.name = argument.argumentName);
     void 0 !== argument.defaultValue && (internalArgument["default"] = argument.defaultValue);
-    goog.isDefAndNotNull(argument.optional) && (internalArgument.optional = argument.optional);
+    null != argument.optional && (internalArgument.optional = argument.optional);
     return internalArgument;
   }, convertAlgorithm = function(algorithm) {
     var internalAlgorithm = {};
     internalAlgorithm.args = (algorithm.arguments || []).map(convertArgument);
     internalAlgorithm.description = algorithm.description || "";
     internalAlgorithm.returns = algorithm.returnType || "";
-    goog.isDefAndNotNull(algorithm.hidden) && (internalAlgorithm.hidden = algorithm.hidden);
+    null != algorithm.hidden && (internalAlgorithm.hidden = algorithm.hidden);
     algorithm.deprecated && (internalAlgorithm.deprecated = algorithm.deprecationReason);
     return internalAlgorithm;
   }, internalAlgorithms = {}, $jscomp$iter$10 = $jscomp.makeIterator(result.algorithms || []), $jscomp$key$algorithm = $jscomp$iter$10.next(); !$jscomp$key$algorithm.done; $jscomp$key$algorithm = $jscomp$iter$10.next()) {
@@ -15893,8 +15890,8 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
   result.startTime && (properties["system:time_start"] = Date.parse(result.startTime));
   result.endTime && (properties["system:time_end"] = Date.parse(result.endTime));
   result.geometry && (properties["system:footprint"] = result.geometry);
-  goog.isString(result.title) && (properties["system:title"] = result.title);
-  goog.isString(result.description) && (properties["system:description"] = result.description);
+  "string" === typeof result.title && (properties["system:title"] = result.title);
+  "string" === typeof result.description && (properties["system:description"] = result.description);
   result.updateTime && (asset.version = 1000 * Date.parse(result.updateTime));
   asset.properties = properties;
   result.bands && (asset.bands = result.bands.map(function(band) {
@@ -15921,8 +15918,8 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   extractValue("system:time_start") && (asset.startTime = toTimestamp(value));
   extractValue("system:time_end") && (asset.endTime = toTimestamp(value));
   extractValue("system:footprint") && (asset.geometry = value);
-  goog.isString(extractValue("system:title")) && (asset.title = value);
-  goog.isString(extractValue("system:description")) && (asset.description = value);
+  "string" === typeof extractValue("system:title") && (asset.title = value);
+  "string" === typeof extractValue("system:description") && (asset.description = value);
   asset.properties = properties;
   return asset;
 };
@@ -15932,7 +15929,7 @@ ee.rpc_convert.imageToLegacyResult = function(result) {
 ee.rpc_convert.makeLegacyAsset_ = function(type, name) {
   var legacyAsset = {};
   legacyAsset.type = type;
-  goog.isDefAndNotNull(name) && (legacyAsset.id = ee.rpc_convert.assetNameToAssetId(name));
+  null != name && (legacyAsset.id = ee.rpc_convert.assetNameToAssetId(name));
   return legacyAsset;
 };
 ee.rpc_convert.getListToListImages = function(param) {
@@ -15997,7 +15994,7 @@ ee.rpc_convert.operationNameToTaskId = function(result) {
 };
 ee.rpc_convert.operationToTask = function(result) {
   var internalTask = {}, assignTimestamp = function(field, timestamp) {
-    goog.isDefAndNotNull(timestamp) && (internalTask[field] = Date.parse(timestamp));
+    null != timestamp && (internalTask[field] = Date.parse(timestamp));
   }, convertState = function(state) {
     switch(state) {
       case "PENDING":
@@ -16016,13 +16013,13 @@ ee.rpc_convert.operationToTask = function(result) {
         return "UNKNOWN";
     }
   }, metadata = new module$exports$eeapiclient$ee_api_client.OperationMetadata(result.metadata || {});
-  goog.isDefAndNotNull(metadata.description) && (internalTask.description = metadata.description);
-  goog.isDefAndNotNull(metadata.state) && (internalTask.state = convertState(metadata.state));
+  null != metadata.description && (internalTask.description = metadata.description);
+  null != metadata.state && (internalTask.state = convertState(metadata.state));
   assignTimestamp("creation_timestamp_ms", metadata.createTime);
   assignTimestamp("update_timestamp_ms", metadata.updateTime);
   assignTimestamp("start_timestamp_ms", metadata.startTime);
-  result.done && goog.isDefAndNotNull(result.error) && (internalTask.error_message = result.error.message);
-  goog.isDefAndNotNull(result.name) && (internalTask.id = ee.rpc_convert.operationNameToTaskId(result.name), internalTask.name = result.name);
+  result.done && null != result.error && (internalTask.error_message = result.error.message);
+  null != result.name && (internalTask.id = ee.rpc_convert.operationNameToTaskId(result.name), internalTask.name = result.name);
   internalTask.task_type = metadata.type || "UNKNOWN";
   internalTask.output_url = metadata.destinationUris;
   internalTask.source_url = metadata.scriptUri;
@@ -16039,10 +16036,8 @@ ee.rpc_convert.toOnePlatformSource = function(source) {
   if (source.primaryPath) {
     var fileSources = [source.primaryPath].concat($jscomp.arrayFromIterable(source.additionalPaths || []));
     convertedSource.uris = fileSources;
-    delete convertedSource.primaryPath;
-    delete convertedSource.additionalPaths;
   }
-  convertedSource.maxError && (convertedSource.maxErrorMeters = convertedSource.maxError, delete convertedSource.maxError);
+  source.maxError && (convertedSource.maxErrorMeters = source.maxError);
   convertedSource.affineTransform && (convertedSource.affineTransform = new module$exports$eeapiclient$ee_api_client.AffineTransform(convertedSource.affineTransform));
   return convertedSource;
 };
@@ -16071,13 +16066,13 @@ ee.rpc_convert.toOnePlatformMaskBands = function(tileset) {
   }
   var convertMaskConfig = function(maskConfig) {
     var bandIds = [];
-    goog.isDefAndNotNull(maskConfig) && goog.isArray(maskConfig.bandId) && (bandIds = maskConfig.bandId.map(function(bandId) {
+    null != maskConfig && goog.isArray(maskConfig.bandId) && (bandIds = maskConfig.bandId.map(function(bandId) {
       return bandId || "";
     }));
     return new module$exports$eeapiclient$ee_api_client.TilesetMaskBand({tilesetId:tileset.id || "", bandIds:bandIds});
   };
   tileset.fileBands.forEach(function(fileBand) {
-    fileBand.maskForAllBands ? maskBands.push(convertMaskConfig(null)) : goog.isDefAndNotNull(fileBand.maskForBands) && maskBands.push(convertMaskConfig(fileBand.maskForBands));
+    fileBand.maskForAllBands ? maskBands.push(convertMaskConfig(null)) : null != fileBand.maskForBands && maskBands.push(convertMaskConfig(fileBand.maskForBands));
   });
   delete tileset.fileBands;
   return maskBands;
@@ -16091,13 +16086,13 @@ ee.rpc_convert.toTableManifest = function(params$jscomp$0) {
   return manifest;
 };
 ee.rpc_convert.toOnePlatformMissingData = function(params) {
-  if (!goog.isDefAndNotNull(params)) {
+  if (null == params) {
     return null;
   }
   var missingData = new module$exports$eeapiclient$ee_api_client.MissingData({values:[]});
-  goog.isDefAndNotNull(params.value) && goog.isNumber(params.value) && missingData.values.push(params.value);
+  null != params.value && "number" === typeof params.value && missingData.values.push(params.value);
   goog.isArray(params.values) && params.values.map(function(value) {
-    goog.isNumber(value) && missingData.values.push(value);
+    "number" === typeof value && missingData.values.push(value);
   });
   return goog.array.isEmpty(missingData.values) ? null : missingData;
 };
@@ -16326,7 +16321,7 @@ goog.exportSymbol("ee.Serializer", ee.Serializer);
 ee.Serializer.jsonSerializer_ = new goog.json.Serializer;
 ee.Serializer.hash_ = new goog.crypt.Md5;
 ee.Serializer.encode = function(obj, opt_isCompound) {
-  return (new ee.Serializer(goog.isDef(opt_isCompound) ? opt_isCompound : !0)).encode_(obj);
+  return (new ee.Serializer(void 0 !== opt_isCompound ? opt_isCompound : !0)).encode_(obj);
 };
 ee.Serializer.toJSON = function(obj) {
   return ee.Serializer.jsonSerializer_.serialize(ee.Serializer.encode(obj));
@@ -16345,14 +16340,14 @@ ee.Serializer.prototype.encode_ = function(object) {
   return value;
 };
 ee.Serializer.prototype.encodeValue_ = function(object) {
-  if (!goog.isDef(object)) {
+  if (void 0 === object) {
     throw Error("Can't encode an undefined value.");
   }
   var hash = goog.isObject(object) ? object[this.HASH_KEY] : null;
   if (this.isCompound_ && null != hash && this.encoded_[hash]) {
     return {type:"ValueRef", value:this.encoded_[hash]};
   }
-  if (null === object || goog.isBoolean(object) || goog.isNumber(object) || goog.isString(object)) {
+  if (null === object || "boolean" === typeof object || "number" === typeof object || "string" === typeof object) {
     return object;
   }
   if (goog.isDateLike(object)) {
@@ -16410,7 +16405,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
     }
     for (var ret = goog.isArray(object) ? [] : {}, isNode = object instanceof Object.getPrototypeOf(module$exports$eeapiclient$ee_api_client.ValueNode), $jscomp$iter$12 = $jscomp.makeIterator(Object.entries(isNode ? object.Serializable$values : object)), $jscomp$key$ = $jscomp$iter$12.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$12.next()) {
       var $jscomp$destructuring$var94 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var94.next().value, val = $jscomp$destructuring$var94.next().value;
-      isNode ? null !== val && (ret[key] = "functionDefinitionValue" === key && goog.isDefAndNotNull(val.body) ? {argumentNames:val.argumentNames, body:walkObject(values[val.body])} : "functionInvocationValue" === key && goog.isDefAndNotNull(val.functionReference) ? {arguments:val.arguments.map(walkObject), functionReference:walkObject(values[val.functionReference])} : "constantValue" === key ? val === module$contents$ee$apiclient_NULL_VALUE ? null : val : walkObject(val)) : ret[key] = walkObject(val);
+      isNode ? null !== val && (ret[key] = "functionDefinitionValue" === key && null != val.body ? {argumentNames:val.argumentNames, body:walkObject(values[val.body])} : "functionInvocationValue" === key && null != val.functionReference ? {arguments:val.arguments.map(walkObject), functionReference:walkObject(values[val.functionReference])} : "constantValue" === key ? val === module$contents$ee$apiclient_NULL_VALUE ? null : val : walkObject(val)) : ret[key] = walkObject(val);
     }
     return ret;
   };
@@ -16442,7 +16437,7 @@ ee.Serializer.prototype.makeCloudApiReference_ = function(obj) {
   if (goog.isObject(obj) && this.encoded_[this.hashes_.get(obj)]) {
     return this.encoded_[this.hashes_.get(obj)];
   }
-  if (null === obj || goog.isBoolean(obj) || goog.isString(obj) || goog.isNumber(obj)) {
+  if (null === obj || "boolean" === typeof obj || "string" === typeof obj || "number" === typeof obj) {
     return makeRef(ee.rpc_node.constant(obj));
   }
   if (goog.isDateLike(obj)) {
@@ -16498,14 +16493,14 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   }, serializeConst = function(v) {
     return v === module$contents$ee$apiclient_NULL_VALUE ? null : v;
   };
-  if (isConst(value) || goog.isDefAndNotNull(value.integerValue) || goog.isDefAndNotNull(value.bytesValue) || goog.isDefAndNotNull(value.argumentReference)) {
+  if (isConst(value) || null != value.integerValue || null != value.bytesValue || null != value.argumentReference) {
     return value;
   }
-  if (goog.isDefAndNotNull(value.valueReference)) {
+  if (null != value.valueReference) {
     var val = this.values[value.valueReference];
     return null === this.referenceCounts || 50 > depth && 1 === this.referenceCounts[value.valueReference] ? this.optimizeValue(val, depth) : ExpressionOptimizer.isAlwaysLiftable(val) ? val : ee.rpc_node.reference(this.optimizeReference(value.valueReference));
   }
-  if (goog.isDefAndNotNull(value.arrayValue)) {
+  if (null != value.arrayValue) {
     var arr = value.arrayValue.values.map(function(v) {
       return $jscomp$this.optimizeValue(v, depth + 3);
     });
@@ -16513,7 +16508,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
       return serializeConst(v.constantValue);
     })) : ee.rpc_node.array(arr);
   }
-  if (goog.isDefAndNotNull(value.dictionaryValue)) {
+  if (null != value.dictionaryValue) {
     for (var values = {}, constantValues = {}, $jscomp$iter$13 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$13.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$13.next()) {
       var $jscomp$destructuring$var96 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var96.next().value, v$jscomp$0 = $jscomp$destructuring$var96.next().value;
       values[k] = this.optimizeValue(v$jscomp$0, depth + 3);
@@ -16521,11 +16516,11 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
     }
     return null !== constantValues ? ee.rpc_node.constant(constantValues) : ee.rpc_node.dictionary(values);
   }
-  if (goog.isDefAndNotNull(value.functionDefinitionValue)) {
+  if (null != value.functionDefinitionValue) {
     var def = value.functionDefinitionValue;
     return ee.rpc_node.functionDefinition(def.argumentNames || [], this.optimizeReference(def.body || ""));
   }
-  if (goog.isDefAndNotNull(value.functionInvocationValue)) {
+  if (null != value.functionInvocationValue) {
     for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$14 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$14.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$14.next()) {
       var k$24 = $jscomp$key$k.value;
       args[k$24] = this.optimizeValue(inv.arguments[k$24], depth + 3);
@@ -16536,27 +16531,27 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
 };
 ExpressionOptimizer.isAlwaysLiftable = function(value) {
   var constant = value.constantValue;
-  return null !== constant ? constant === module$contents$ee$apiclient_NULL_VALUE || goog.isNumber(constant) || goog.isBoolean(constant) : goog.isDefAndNotNull(value.argumentReference);
+  return null !== constant ? constant === module$contents$ee$apiclient_NULL_VALUE || "number" === typeof constant || "boolean" === typeof constant : null != value.argumentReference;
 };
 ExpressionOptimizer.prototype.countReferences = function() {
   var $jscomp$this = this, counts = {}, visitReference = function(reference) {
     counts[reference] ? counts[reference]++ : (counts[reference] = 1, visitValue($jscomp$this.values[reference]));
   }, visitValue = function(value) {
-    if (goog.isDefAndNotNull(value.arrayValue)) {
+    if (null != value.arrayValue) {
       value.arrayValue.values.forEach(visitValue);
     } else {
-      if (goog.isDefAndNotNull(value.dictionaryValue)) {
+      if (null != value.dictionaryValue) {
         Object.values(value.dictionaryValue.values).forEach(visitValue);
       } else {
-        if (goog.isDefAndNotNull(value.functionDefinitionValue)) {
+        if (null != value.functionDefinitionValue) {
           visitReference(value.functionDefinitionValue.body);
         } else {
-          if (goog.isDefAndNotNull(value.functionInvocationValue)) {
+          if (null != value.functionInvocationValue) {
             var inv = value.functionInvocationValue;
-            goog.isDefAndNotNull(inv.functionReference) && visitReference(inv.functionReference);
+            null != inv.functionReference && visitReference(inv.functionReference);
             Object.values(inv.arguments).forEach(visitValue);
           } else {
-            goog.isDefAndNotNull(value.valueReference) && visitReference(value.valueReference);
+            null != value.valueReference && visitReference(value.valueReference);
           }
         }
       }
@@ -16568,7 +16563,7 @@ ExpressionOptimizer.prototype.countReferences = function() {
 ee.rpc_convert_batch = {};
 ee.rpc_convert_batch.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET"};
 ee.rpc_convert_batch.taskToExportImageRequest = function(params) {
-  if (!goog.isDefAndNotNull(params.element)) {
+  if (null == params.element) {
     throw Error('"element" not found in params ' + params);
   }
   var result = new module$exports$eeapiclient$ee_api_client.ExportImageRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, grid:null, maxPixels:stringOrNull_(params.maxPixels), requestId:stringOrNull_(params.id)}), destination = ee.rpc_convert_batch.guessDestination_(params);
@@ -16586,11 +16581,11 @@ ee.rpc_convert_batch.taskToExportImageRequest = function(params) {
   return result;
 };
 ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
-  if (!goog.isDefAndNotNull(params.element)) {
+  if (null == params.element) {
     throw Error('"element" not found in params ' + params);
   }
   var selectors = params.selectors || null;
-  goog.isDefAndNotNull(selectors) && goog.isString(selectors) && (selectors = selectors.split(","));
+  null != selectors && "string" === typeof selectors && (selectors = selectors.split(","));
   var result = new module$exports$eeapiclient$ee_api_client.ExportTableRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, selectors:selectors, maxErrorMeters:numberOrNull_(params.maxErrorMeters), requestId:stringOrNull_(params.id)}), destination = ee.rpc_convert_batch.guessDestination_(params);
   switch(destination) {
     case ee.rpc_convert_batch.ExportDestination.GCS:
@@ -16606,7 +16601,7 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
   return result;
 };
 ee.rpc_convert_batch.taskToExportVideoRequest = function(params) {
-  if (!goog.isDefAndNotNull(params.element)) {
+  if (null == params.element) {
     throw Error('"element" not found in params ' + params);
   }
   var result = new module$exports$eeapiclient$ee_api_client.ExportVideoRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), videoOptions:ee.rpc_convert_batch.buildVideoOptions_(params), fileExportOptions:null, requestId:stringOrNull_(params.id)});
@@ -16614,29 +16609,29 @@ ee.rpc_convert_batch.taskToExportVideoRequest = function(params) {
   return result;
 };
 ee.rpc_convert_batch.taskToExportMapRequest = function(params) {
-  if (!goog.isDefAndNotNull(params.element)) {
+  if (null == params.element) {
     throw Error('"element" not found in params ' + params);
   }
   return new module$exports$eeapiclient$ee_api_client.ExportMapRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), tileOptions:ee.rpc_convert_batch.buildTileOptions_(params), tileExportOptions:ee.rpc_convert_batch.buildImageFileExportOptions_(params, ee.rpc_convert_batch.ExportDestination.GCS), requestId:stringOrNull_(params.id)});
 };
 ee.rpc_convert_batch.taskToExportVideoMapRequest = function(params) {
-  if (!goog.isDefAndNotNull(params.element)) {
+  if (null == params.element) {
     throw Error('"element" not found in params ' + params);
   }
   return new module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), videoOptions:ee.rpc_convert_batch.buildVideoMapOptions_(params), tileOptions:ee.rpc_convert_batch.buildTileOptions_(params), tileExportOptions:ee.rpc_convert_batch.buildVideoFileExportOptions_(params, ee.rpc_convert_batch.ExportDestination.GCS), requestId:stringOrNull_(params.id), version:stringOrNull_(params.version)});
 };
 function stringOrNull_(value) {
-  return goog.isDefAndNotNull(value) ? String(value) : null;
+  return null != value ? String(value) : null;
 }
 function numberOrNull_(value) {
-  return goog.isDefAndNotNull(value) ? Number(value) : null;
+  return null != value ? Number(value) : null;
 }
 ee.rpc_convert_batch.guessDestination_ = function(params) {
   var destination = ee.rpc_convert_batch.ExportDestination.DRIVE;
-  if (!goog.isDefAndNotNull(params)) {
+  if (null == params) {
     return destination;
   }
-  goog.isDefAndNotNull(params.outputBucket) || goog.isDefAndNotNull(params.outputPrefix) ? destination = ee.rpc_convert_batch.ExportDestination.GCS : goog.isDefAndNotNull(params.assetId) && (destination = ee.rpc_convert_batch.ExportDestination.ASSET);
+  null != params.outputBucket || null != params.outputPrefix ? destination = ee.rpc_convert_batch.ExportDestination.GCS : null != params.assetId && (destination = ee.rpc_convert_batch.ExportDestination.ASSET);
   return destination;
 };
 ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
@@ -16645,11 +16640,11 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
 ee.rpc_convert_batch.buildTfRecordFormatOptions_ = function(params) {
   var tfRecordOptions = new module$exports$eeapiclient$ee_api_client.TfRecordImageExportOptions({compress:!!params.tfrecordCompressed, maxSizeBytes:stringOrNull_(params.tfrecordMaxFileSize), sequenceData:!!params.tfrecordSequenceData, collapseBands:!!params.tfrecordCollapseBands, maxMaskedRatio:numberOrNull_(params.tfrecordMaskedThreshold), defaultValue:numberOrNull_(params.tfrecordDefaultValue), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tfrecordPatchDimensions), 
   marginDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tfrecordKernelSize), tensorDepths:null}), tensorDepths = params.tfrecordTensorDepths;
-  if (goog.isDefAndNotNull(tensorDepths)) {
+  if (null != tensorDepths) {
     if (goog.isObject(tensorDepths)) {
       var result = {};
       goog.object.forEach(tensorDepths, function(v, k) {
-        if (!goog.isString(k) || !goog.isNumber(v)) {
+        if ("string" !== typeof k || "number" !== typeof v) {
           throw Error('"tensorDepths" option must be an object of type Object<string, number>');
         }
         result[k] = v;
@@ -16674,7 +16669,7 @@ ee.rpc_convert_batch.buildImageAssetExportOptions_ = function(params) {
   } catch ($jscomp$unused$catch) {
   }
   var defaultPyramidingPolicy = "PYRAMIDING_POLICY_UNSPECIFIED";
-  goog.isString(allPolicies) ? (defaultPyramidingPolicy = allPolicies, allPolicies = {}) : allPolicies[".default"] && (defaultPyramidingPolicy = allPolicies[".default"], delete allPolicies[".default"]);
+  "string" === typeof allPolicies ? (defaultPyramidingPolicy = allPolicies, allPolicies = {}) : allPolicies[".default"] && (defaultPyramidingPolicy = allPolicies[".default"], delete allPolicies[".default"]);
   return new module$exports$eeapiclient$ee_api_client.ImageAssetExportOptions({earthEngineDestination:ee.rpc_convert_batch.buildEarthEngineDestination_(params), pyramidingPolicy:defaultPyramidingPolicy, pyramidingPolicyOverrides:goog.object.isEmpty(allPolicies) ? null : allPolicies});
 };
 ee.rpc_convert_batch.buildTableFileExportOptions_ = function(params, destination) {
@@ -16700,11 +16695,11 @@ ee.rpc_convert_batch.buildTileOptions_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.TileOptions({maxZoom:numberOrNull_(params.maxZoom), scale:numberOrNull_(params.scale), minZoom:numberOrNull_(params.minZoom), skipEmptyTiles:!!params.skipEmptyTiles, mapsApiKey:stringOrNull_(params.mapsApiKey), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tileDimensions), stride:numberOrNull_(params.stride)});
 };
 ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
-  if (!goog.isDefAndNotNull(dimensions)) {
+  if (null == dimensions) {
     return null;
   }
   var result = new module$exports$eeapiclient$ee_api_client.GridDimensions({height:0, width:0});
-  goog.isString(dimensions) && (-1 !== dimensions.indexOf("x") ? dimensions = dimensions.split("x").map(Number) : -1 !== dimensions.indexOf(",") && (dimensions = dimensions.split(",").map(Number)));
+  "string" === typeof dimensions && (-1 !== dimensions.indexOf("x") ? dimensions = dimensions.split("x").map(Number) : -1 !== dimensions.indexOf(",") && (dimensions = dimensions.split(",").map(Number)));
   if (goog.isArray(dimensions)) {
     if (2 === dimensions.length) {
       result.height = dimensions[0], result.width = dimensions[1];
@@ -16716,7 +16711,7 @@ ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
       }
     }
   } else {
-    if (goog.isObject(dimensions) && goog.isDefAndNotNull(dimensions.height) && goog.isDefAndNotNull(dimensions.width)) {
+    if (goog.isObject(dimensions) && null != dimensions.height && null != dimensions.width) {
       result.height = dimensions.height, result.width = dimensions.width;
     } else {
       throw Error("Unable to construct grid from dimensions: " + dimensions);
@@ -20221,7 +20216,7 @@ ee.data.authenticateViaOauth = function(clientId, success, opt_error, opt_extraS
   ee.data.getCloudApiEnabled() && scopes.push(ee.apiclient.CLOUD_PLATFORM_SCOPE);
   opt_extraScopes && (goog.array.extend(scopes, opt_extraScopes), goog.array.removeDuplicates(scopes));
   module$contents$ee$apiclient_apiclient.setAuthClient(clientId, scopes);
-  goog.isNull(clientId) ? module$contents$ee$apiclient_apiclient.clearAuthToken() : ee.apiclient.ensureAuthLibLoaded(function() {
+  null === clientId ? module$contents$ee$apiclient_apiclient.clearAuthToken() : ee.apiclient.ensureAuthLibLoaded(function() {
     var onImmediateFailed = opt_onImmediateFailed || goog.partial(ee.data.authenticateViaPopup, success, opt_error);
     ee.data.refreshAuthToken(success, opt_error, onImmediateFailed);
   });
@@ -20293,10 +20288,10 @@ ee.data.getAlgorithms = function(opt_callback) {
 };
 ee.data.getMapId = function(params, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
-    if (goog.isString(params.image)) {
+    if ("string" === typeof params.image) {
       throw Error("Image as JSON string not supported.");
     }
-    if (goog.isDef(params.version)) {
+    if (void 0 !== params.version) {
       throw Error("Image version specification not supported.");
     }
     var map = new module$exports$eeapiclient$ee_api_client.EarthEngineMap({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApi(params.image)), fileFormat:ee.rpc_convert.fileFormat(params.format), bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params)}), call = new module$contents$ee$apiclient_Call(opt_callback);
@@ -20306,7 +20301,7 @@ ee.data.getMapId = function(params, opt_callback) {
     }));
   }
   params = goog.object.clone(params);
-  goog.isString(params.image) || (params.image = params.image.serialize());
+  "string" !== typeof params.image && (params.image = params.image.serialize());
   var makeMapId = function(result) {
     return ee.data.makeMapId_(result.mapid, result.token, "/map/{}", "?token={}");
   };
@@ -20343,13 +20338,13 @@ ee.data.computeValue = function(obj, opt_callback) {
 };
 ee.data.getThumbId = function(params, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
-    if (goog.isString(params.image)) {
+    if ("string" === typeof params.image) {
       throw Error("Image as JSON string not supported.");
     }
-    if (goog.isDef(params.version)) {
+    if (void 0 !== params.version) {
       throw Error("Image version specification not supported.");
     }
-    if (goog.isDef(params.region)) {
+    if (void 0 !== params.region) {
       throw Error('"region" not supported in call to ee.data.getThumbId. Use ee.Image.getThumbURL.');
     }
     var thumbnail = new module$exports$eeapiclient$ee_api_client.Thumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApi(params.image)), fileFormat:ee.rpc_convert.fileFormat(params.format), bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params), grid:null}), call = new module$contents$ee$apiclient_Call(opt_callback);
@@ -20360,7 +20355,7 @@ ee.data.getThumbId = function(params, opt_callback) {
   params = goog.object.clone(params);
   goog.isArray(params.dimensions) && (params.dimensions = params.dimensions.join("x"));
   var image = params.image || params.imageCollection;
-  goog.isString(image) || (image = image.serialize());
+  "string" !== typeof image && (image = image.serialize());
   params.image = image;
   delete params.imageCollection;
   var request = ee.data.makeRequest_(params).add("getid", "1");
@@ -20422,7 +20417,7 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
     return opt_callback ? opt_callback(uuids) : uuids;
   }
   var params = {};
-  goog.isNumber(opt_count) && (params.count = opt_count);
+  "number" === typeof opt_count && (params.count = opt_count);
   return ee.data.send_("/newtaskid", ee.data.makeRequest_(params), opt_callback);
 };
 ee.data.getTaskStatus = function(taskId, opt_callback) {
@@ -20447,7 +20442,7 @@ ee.data.getTaskStatus = function(taskId, opt_callback) {
   return ee.data.send_(url, null, opt_callback, "GET");
 };
 ee.data.makeStringArray_ = function(value) {
-  if (goog.isString(value)) {
+  if ("string" === typeof value) {
     return [value];
   }
   if (goog.isArray(value)) {
@@ -20513,11 +20508,12 @@ ee.data.cancelOperation = function(operationName, opt_callback) {
   if (1 === opNames.length) {
     var call$27 = new module$contents$ee$apiclient_Call(opt_callback);
     call$27.handle(call$27.operations().cancel(opNames[0], request));
+  } else {
+    var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
+    call.send(opNames.map(function(op) {
+      return [op, operations.cancel(op, request)];
+    }));
   }
-  var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
-  call.send(opNames.map(function(op) {
-    return [op, operations.cancel(op, request)];
-  }));
 };
 ee.data.cloudApiSymbols.push("cancelOperation");
 ee.data.getOperation = function(operationName, opt_callback) {
@@ -20550,7 +20546,7 @@ ee.data.updateTask = function(taskId, action, opt_callback) {
 ee.data.startProcessing = function(taskId, params, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
     params.id = taskId;
-    var taskType = params.type, metadata = goog.isDefAndNotNull(params.sourceUrl) ? {__source_url__:params.sourceUrl} : {}, call = new module$contents$ee$apiclient_Call(opt_callback), handle = function(response) {
+    var taskType = params.type, metadata = null != params.sourceUrl ? {__source_url__:params.sourceUrl} : {}, call = new module$contents$ee$apiclient_Call(opt_callback), handle = function(response) {
       return call.handle(response.then(ee.rpc_convert.operationToProcessingResponse));
     };
     switch(taskType) {
@@ -20581,7 +20577,7 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
     }
   }
   params = goog.object.clone(params);
-  goog.isDefAndNotNull(params.element) && (params.json = params.element.serialize(), delete params.element);
+  null != params.element && (params.json = params.element.serialize(), delete params.element);
   goog.isArray(params.crs_transform) && (params.crs_transform = params.crs_transform.toString());
   params.id = taskId;
   return ee.data.send_("/processingrequest", ee.data.makeRequest_(params), opt_callback);
@@ -20670,16 +20666,17 @@ ee.data.createAssetHome = function(requestedId, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
     var parent = ee.rpc_convert.projectParentFromPath(requestedId), asset = new module$exports$eeapiclient$ee_api_client.EarthEngineAsset({assetId:parent === "projects/" + ee.apiclient.DEFAULT_PROJECT ? requestedId : void 0, type:"Folder"}), call = new module$contents$ee$apiclient_Call(opt_callback);
     call.handle(call.assets().create(parent, asset).then(ee.rpc_convert.assetToLegacyResult));
+  } else {
+    var request = ee.data.makeRequest_({id:requestedId});
+    ee.data.send_("/createbucket", request, opt_callback);
   }
-  var request = ee.data.makeRequest_({id:requestedId});
-  ee.data.send_("/createbucket", request, opt_callback);
 };
 ee.data.createAsset = function(value, opt_path, opt_force, opt_properties, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
     if (opt_force) {
       throw Error("Asset overwrite not supported.");
     }
-    if (goog.isString(value)) {
+    if ("string" === typeof value) {
       throw Error("Asset cannot be specified as string.");
     }
     var name = value.name || opt_path && ee.rpc_convert.assetIdToAssetName(opt_path);
@@ -20698,7 +20695,7 @@ ee.data.createAsset = function(value, opt_path, opt_force, opt_properties, opt_c
     var call = new module$contents$ee$apiclient_Call(opt_callback);
     return call.handle(call.assets().create(parent, asset).then(ee.rpc_convert.assetToLegacyResult));
   }
-  goog.isString(value) || (value = goog.json.serialize(value));
+  "string" !== typeof value && (value = goog.json.serialize(value));
   var args = {value:value};
   void 0 !== opt_path && (args.id = opt_path);
   args.force = opt_force || !1;
@@ -20713,30 +20710,36 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
   return ee.data.send_("/createfolder", ee.data.makeRequest_({id:path, force:opt_force || !1}), opt_callback);
 };
 ee.data.search = function(query, opt_callback) {
-  return ee.data.send_("/search", ee.data.makeRequest_({q:query}), opt_callback);
+  var params = {q:query};
+  return ee.data.getCloudApiEnabled() && opt_callback ? ee.data.send_("/search", ee.data.makeRequest_(params), function(result, error) {
+    return opt_callback(result ? result.data || [] : null, error);
+  }) : ee.data.send_("/search", ee.data.makeRequest_(params), opt_callback);
 };
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
     var sourceName = ee.rpc_convert.assetIdToAssetName(sourceId), request = new module$exports$eeapiclient$ee_api_client.MoveAssetRequest({destinationName:ee.rpc_convert.assetIdToAssetName(destinationId)}), call = new module$contents$ee$apiclient_Call(opt_callback);
     call.handle(call.assets().move(sourceName, request).then(ee.rpc_convert.assetToLegacyResult));
+  } else {
+    ee.data.send_("/rename", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
   }
-  ee.data.send_("/rename", ee.data.makeRequest_({sourceId:sourceId, destinationId:destinationId}), opt_callback);
 };
 ee.data.copyAsset = function(sourceId, destinationId, opt_overwrite, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
-    var sourceName = ee.rpc_convert.assetIdToAssetName(sourceId), request = new module$exports$eeapiclient$ee_api_client.CopyAssetRequest({destinationName:ee.rpc_convert.assetIdToAssetName(destinationId), overwrite:goog.isDefAndNotNull(opt_overwrite) ? opt_overwrite : null}), call = new module$contents$ee$apiclient_Call(opt_callback);
+    var sourceName = ee.rpc_convert.assetIdToAssetName(sourceId), request = new module$exports$eeapiclient$ee_api_client.CopyAssetRequest({destinationName:ee.rpc_convert.assetIdToAssetName(destinationId), overwrite:null != opt_overwrite ? opt_overwrite : null}), call = new module$contents$ee$apiclient_Call(opt_callback);
     call.handle(call.assets().copy(sourceName, request).then(ee.rpc_convert.assetToLegacyResult));
+  } else {
+    var params = {sourceId:sourceId, destinationId:destinationId};
+    opt_overwrite && (params.allowOverwrite = opt_overwrite);
+    ee.data.send_("/copy", ee.data.makeRequest_(params), opt_callback);
   }
-  var params = {sourceId:sourceId, destinationId:destinationId};
-  opt_overwrite && (params.allowOverwrite = opt_overwrite);
-  ee.data.send_("/copy", ee.data.makeRequest_(params), opt_callback);
 };
 ee.data.deleteAsset = function(assetId, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
     var call = new module$contents$ee$apiclient_Call(opt_callback);
     call.handle(call.assets()["delete"](ee.rpc_convert.assetIdToAssetName(assetId)));
+  } else {
+    ee.data.send_("/delete", ee.data.makeRequest_({id:assetId}), opt_callback);
   }
-  ee.data.send_("/delete", ee.data.makeRequest_({id:assetId}), opt_callback);
 };
 ee.data.getAssetAcl = function(assetId, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
@@ -20761,15 +20764,16 @@ ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
     var resource = ee.rpc_convert.assetIdToAssetName(assetId), policy = ee.rpc_convert.aclToIamPolicy(aclUpdate), request$30 = new module$exports$eeapiclient$ee_api_client.SetIamPolicyRequest({policy:policy}), call = new module$contents$ee$apiclient_Call(opt_callback);
     call.handle(call.assets().setIamPolicy(resource, request$30, {prettyPrint:!1}));
+  } else {
+    aclUpdate = {readers:aclUpdate.readers, writers:aclUpdate.writers, all_users_can_read:aclUpdate.all_users_can_read};
+    var request = {id:assetId, value:goog.json.serialize(aclUpdate)};
+    ee.data.send_("/setacl", ee.data.makeRequest_(request), opt_callback);
   }
-  aclUpdate = {readers:aclUpdate.readers, writers:aclUpdate.writers, all_users_can_read:aclUpdate.all_users_can_read};
-  var request = {id:assetId, value:goog.json.serialize(aclUpdate)};
-  ee.data.send_("/setacl", ee.data.makeRequest_(request), opt_callback);
 };
 ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
-    var asset = ee.rpc_convert.legacyPropertiesToAssetUpdate(properties), updateFields = Object.keys(asset).filter(function(k) {
-      return "properties" !== k;
+    var asset = ee.rpc_convert.legacyPropertiesToAssetUpdate(properties), updateFields = asset.getClassMetadata().keys.filter(function(k) {
+      return "properties" !== k && null !== asset[k];
     }).map(function(str) {
       return str.replace(/([A-Z])/g, function(all, cap) {
         return "_" + cap.toLowerCase();
@@ -20929,10 +20933,10 @@ ee.ComputedObject.prototype.encode = function(encoder) {
   }
   var encodedArgs = {}, name;
   for (name in this.args) {
-    goog.isDef(this.args[name]) && (encodedArgs[name] = encoder(this.args[name]));
+    void 0 !== this.args[name] && (encodedArgs[name] = encoder(this.args[name]));
   }
   var result = {type:"Invocation", arguments:encodedArgs}, func = encoder(this.func);
-  result[goog.isString(func) ? "functionName" : "function"] = func;
+  result["string" === typeof func ? "functionName" : "function"] = func;
   return result;
 };
 ee.ComputedObject.prototype.encodeCloudValue = function(encoder) {
@@ -20944,9 +20948,9 @@ ee.ComputedObject.prototype.encodeCloudValue = function(encoder) {
   }
   var encodedArgs = {}, name;
   for (name in this.args) {
-    goog.isDef(this.args[name]) && (encodedArgs[name] = ee.rpc_node.reference(encoder(this.args[name])));
+    void 0 !== this.args[name] && (encodedArgs[name] = ee.rpc_node.reference(encoder(this.args[name])));
   }
-  return goog.isString(this.func) ? ee.rpc_node.functionByName(String(this.func), encodedArgs) : this.func.encodeCloudInvocation(encoder, encodedArgs);
+  return "string" === typeof this.func ? ee.rpc_node.functionByName(String(this.func), encodedArgs) : this.func.encodeCloudInvocation(encoder, encodedArgs);
 };
 ee.ComputedObject.prototype.serialize = function() {
   return ee.Serializer.toJSON(this);
@@ -20956,7 +20960,7 @@ ee.ComputedObject.prototype.toString = function() {
 };
 goog.exportSymbol("ee.ComputedObject.prototype.toString", ee.ComputedObject.prototype.toString);
 ee.ComputedObject.prototype.isVariable = function() {
-  return goog.isNull(this.func) && goog.isNull(this.args);
+  return null === this.func && null === this.args;
 };
 ee.ComputedObject.prototype.name = function() {
   return "ComputedObject";
@@ -21015,10 +21019,10 @@ ee.Types.isSubtype = function(firstType, secondType) {
   }
 };
 ee.Types.isNumber = function(obj) {
-  return goog.isNumber(obj) || obj instanceof ee.ComputedObject && "Number" == obj.name();
+  return "number" === typeof obj || obj instanceof ee.ComputedObject && "Number" == obj.name();
 };
 ee.Types.isString = function(obj) {
-  return goog.isString(obj) || obj instanceof ee.ComputedObject && "String" == obj.name();
+  return "string" === typeof obj || obj instanceof ee.ComputedObject && "String" == obj.name();
 };
 ee.Types.isArray = function(obj) {
   return goog.isArray(obj) || obj instanceof ee.ComputedObject && "List" == obj.name();
@@ -21026,7 +21030,7 @@ ee.Types.isArray = function(obj) {
 ee.Types.isRegularObject = function(obj) {
   if (goog.isObject(obj) && !goog.isFunction(obj)) {
     var proto = Object.getPrototypeOf(obj);
-    return !goog.isNull(proto) && goog.isNull(Object.getPrototypeOf(proto));
+    return null !== proto && null === Object.getPrototypeOf(proto);
   }
   return !1;
 };
@@ -21060,7 +21064,7 @@ ee.Function.prototype.apply = function(namedArgs) {
   return ee.Function.promoter_(result, this.getReturnType());
 };
 ee.Function.prototype.callOrApply = function(thisValue, args) {
-  var isInstance = goog.isDef(thisValue), signature = this.getSignature();
+  var isInstance = void 0 !== thisValue, signature = this.getSignature();
   if (ee.Types.useKeywordArgs(args, signature, isInstance)) {
     var namedArgs = goog.object.clone(args[0]);
     if (isInstance) {
@@ -21078,7 +21082,7 @@ ee.Function.prototype.callOrApply = function(thisValue, args) {
 ee.Function.prototype.promoteArgs = function(args) {
   for (var specs = this.getSignature().args, promotedArgs = {}, known = {}, i = 0; i < specs.length; i++) {
     var name = specs[i].name;
-    if (name in args && goog.isDef(args[name])) {
+    if (name in args && void 0 !== args[name]) {
       promotedArgs[name] = ee.Function.promoter_(args[name], specs[i].type);
     } else {
       if (!specs[i].optional) {
@@ -21139,7 +21143,7 @@ ee.Function.prototype.serialize = function() {
   return ee.Serializer.toJSON(this);
 };
 ee.ApiFunction = function(name, opt_signature) {
-  if (!goog.isDef(opt_signature)) {
+  if (void 0 === opt_signature) {
     return ee.ApiFunction.lookup(name);
   }
   if (!(this instanceof ee.ApiFunction)) {
@@ -21365,7 +21369,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
     opt_evenOdd = args.evenOdd;
   }
   ee.Geometry.initialize();
-  var options = goog.isDefAndNotNull(opt_proj) || goog.isDefAndNotNull(opt_geodesic) || goog.isDefAndNotNull(opt_evenOdd);
+  var options = null != opt_proj || null != opt_geodesic || null != opt_evenOdd;
   if (geoJson instanceof ee.ComputedObject && !(geoJson instanceof ee.Geometry && geoJson.type_)) {
     if (options) {
       throw Error("Setting the CRS, geodesic, or evenOdd flag on a computed Geometry is not supported.  Use Geometry.transform().");
@@ -21378,13 +21382,13 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
     }
     ee.ComputedObject.call(this, null, null);
     this.type_ = geoJson.type;
-    this.coordinates_ = goog.isDefAndNotNull(geoJson.coordinates) ? goog.object.unsafeClone(geoJson.coordinates) : null;
+    this.coordinates_ = null != geoJson.coordinates ? goog.object.unsafeClone(geoJson.coordinates) : null;
     this.geometries_ = geoJson.geometries || null;
-    if (goog.isDefAndNotNull(opt_proj)) {
+    if (null != opt_proj) {
       this.proj_ = opt_proj;
     } else {
       if ("crs" in geoJson) {
-        if (goog.isObject(geoJson.crs) && "name" == geoJson.crs.type && goog.isObject(geoJson.crs.properties) && goog.isString(geoJson.crs.properties.name)) {
+        if (goog.isObject(geoJson.crs) && "name" == geoJson.crs.type && goog.isObject(geoJson.crs.properties) && "string" === typeof geoJson.crs.properties.name) {
           this.proj_ = geoJson.crs.properties.name;
         } else {
           throw Error("Invalid CRS declaration in GeoJSON: " + (new goog.json.Serializer).serialize(geoJson.crs));
@@ -21392,9 +21396,9 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
       }
     }
     this.geodesic_ = opt_geodesic;
-    !goog.isDef(this.geodesic_) && "geodesic" in geoJson && (this.geodesic_ = !!geoJson.geodesic);
+    void 0 === this.geodesic_ && "geodesic" in geoJson && (this.geodesic_ = !!geoJson.geodesic);
     this.evenOdd_ = opt_evenOdd;
-    !goog.isDef(this.evenOdd_) && "evenOdd" in geoJson && (this.evenOdd_ = !!geoJson.evenOdd);
+    void 0 === this.evenOdd_ && "evenOdd" in geoJson && (this.evenOdd_ = !!geoJson.evenOdd);
   }
 };
 goog.inherits(ee.Geometry, ee.ComputedObject);
@@ -21488,9 +21492,9 @@ ee.Geometry.prototype.encode = function(opt_encoder) {
   }
   var result = {type:this.type_};
   "GeometryCollection" == this.type_ ? result.geometries = this.geometries_ : result.coordinates = this.coordinates_;
-  goog.isDefAndNotNull(this.proj_) && (result.crs = {type:"name", properties:{name:this.proj_}});
-  goog.isDefAndNotNull(this.geodesic_) && (result.geodesic = this.geodesic_);
-  goog.isDefAndNotNull(this.evenOdd_) && (result.evenOdd = this.evenOdd_);
+  null != this.proj_ && (result.crs = {type:"name", properties:{name:this.proj_}});
+  null != this.geodesic_ && (result.geodesic = this.geodesic_);
+  null != this.evenOdd_ && (result.evenOdd = this.evenOdd_);
   return result;
 };
 ee.Geometry.prototype.toGeoJSON = function() {
@@ -21522,10 +21526,10 @@ ee.Geometry.prototype.encodeCloudValue = function(opt_encoder) {
   "GeometryCollection" === this.type_ ? (args.geometries = this.geometries_.map(function(geometry) {
     return new ee.Geometry(geometry);
   }), func = "GeometryConstructors.MultiGeometry") : (args.coordinates = this.coordinates_, func = "GeometryConstructors." + this.type_);
-  goog.isDefAndNotNull(this.proj_) && (args.crs = goog.isString(this.proj_) ? (new ee.ApiFunction("Projection")).call(this.proj_) : this.proj_);
+  null != this.proj_ && (args.crs = "string" === typeof this.proj_ ? (new ee.ApiFunction("Projection")).call(this.proj_) : this.proj_);
   var acceptsGeodesicArg = "Point" !== this.type_ && "MultiPoint" !== this.type_;
-  goog.isDefAndNotNull(this.geodesic_) && acceptsGeodesicArg && (args.geodesic = this.geodesic_);
-  goog.isDefAndNotNull(this.evenOdd_) && (args.evenOdd = this.evenOdd_);
+  null != this.geodesic_ && acceptsGeodesicArg && (args.geodesic = this.geodesic_);
+  null != this.evenOdd_ && (args.evenOdd = this.evenOdd_);
   return (new ee.ApiFunction(func)).apply(args).encodeCloudValue(opt_encoder);
 };
 ee.Geometry.isValidGeometry_ = function(geometry) {
@@ -21558,14 +21562,14 @@ ee.Geometry.isValidCoordinates_ = function(shape) {
     return count + 1;
   }
   for (i = 0; i < shape.length; i++) {
-    if (!goog.isNumber(shape[i])) {
+    if ("number" !== typeof shape[i]) {
       return -1;
     }
   }
   return 0 == shape.length % 2 ? 1 : -1;
 };
 ee.Geometry.coordinatesToLine_ = function(coordinates) {
-  if (!goog.isNumber(coordinates[0]) || 2 == coordinates.length) {
+  if ("number" !== typeof coordinates[0] || 2 == coordinates.length) {
     return coordinates;
   }
   if (0 != coordinates.length % 2) {
@@ -21578,13 +21582,13 @@ ee.Geometry.coordinatesToLine_ = function(coordinates) {
 };
 ee.Geometry.construct_ = function(jsConstructorFn, apiConstructorName, depth, originalArgs) {
   var eeArgs = ee.Geometry.getEeApiArgs_(jsConstructorFn, originalArgs);
-  if (ee.Geometry.hasServerValue_(eeArgs.coordinates) || goog.isDefAndNotNull(eeArgs.crs) || goog.isDefAndNotNull(eeArgs.maxError)) {
+  if (ee.Geometry.hasServerValue_(eeArgs.coordinates) || null != eeArgs.crs || null != eeArgs.maxError) {
     return (new ee.ApiFunction("GeometryConstructors." + apiConstructorName)).apply(eeArgs);
   }
   eeArgs.type = apiConstructorName;
   eeArgs.coordinates = ee.Geometry.fixDepth_(depth, eeArgs.coordinates);
   var isPolygon = goog.array.contains(["Polygon", "Rectangle", "MultiPolygon"], apiConstructorName);
-  isPolygon && !goog.isDefAndNotNull(eeArgs.evenOdd) && (eeArgs.evenOdd = !0);
+  isPolygon && null == eeArgs.evenOdd && (eeArgs.evenOdd = !0);
   if (isPolygon && !1 === eeArgs.geodesic && !1 === eeArgs.evenOdd) {
     throw Error("Planar interiors must be even/odd.");
   }
@@ -21654,11 +21658,11 @@ ee.Filter = function(opt_filter) {
     if (opt_filter instanceof ee.ComputedObject) {
       ee.ComputedObject.call(this, opt_filter.func, opt_filter.args, opt_filter.varName), this.filter_ = [opt_filter];
     } else {
-      if (goog.isDef(opt_filter)) {
+      if (void 0 === opt_filter) {
+        ee.ComputedObject.call(this, null, null), this.filter_ = [];
+      } else {
         throw Error("Invalid argument specified for ee.Filter(): " + opt_filter);
       }
-      ee.ComputedObject.call(this, null, null);
-      this.filter_ = [];
     }
   }
 };
@@ -21789,7 +21793,7 @@ ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
   }, opt_dropNulls));
 };
 ee.Collection.prototype.iterate = function(algorithm, opt_first) {
-  var first = goog.isDef(opt_first) ? opt_first : null, elementType = this.elementType();
+  var first = void 0 !== opt_first ? opt_first : null, elementType = this.elementType();
   return ee.ApiFunction._call("Collection.iterate", this, function(e, p) {
     return algorithm(new elementType(e), p);
   }, first);
@@ -21882,20 +21886,11 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
         break;
       case "bbox":
         goog.isDefAndNotNull(clipParams.geometry) && console.warn("Multiple request parameters converted to region.");
-        if (value instanceof ee.Geometry.Rectangle) {
-          clipParams.geometry = value;
-        } else {
-          var bboxRegion = goog.isString(value) ? JSON.parse(value) : value;
-          if (!goog.isArray(bboxRegion)) {
-            throw Error("Invalid bbox type, must be of type Array");
-          }
-          clipParams.geometry = new ee.Geometry.Rectangle(bboxRegion);
-        }
+        clipParams.geometry = ee.data.images.bboxToGeometry(value);
         break;
       case "region":
         goog.isDefAndNotNull(clipParams.geometry) && console.warn("Multiple request parameters converted to region.");
-        var region = goog.isString(value) ? JSON.parse(value) : value;
-        clipParams.geometry = new ee.Geometry(region);
+        clipParams.geometry = ee.data.images.regionToGeometry(value);
         break;
       case "scale":
         clipParams.scale = Number(value);
@@ -21906,6 +21901,43 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
   });
   goog.object.isEmpty(clipParams) || (clipParams.input = image, image = ee.ApiFunction._apply("Image.clipToBoundsAndScale", clipParams));
   return image;
+};
+ee.data.images.bboxToGeometry = function(bbox) {
+  if (bbox instanceof ee.Geometry.Rectangle) {
+    return bbox;
+  }
+  var bboxArray = bbox;
+  if (goog.isString(bbox)) {
+    try {
+      bboxArray = JSON.parse(bbox);
+    } catch ($jscomp$unused$catch) {
+      bboxArray = bbox.split(/\s*,\s*/).map(Number);
+    }
+  }
+  if (goog.isArray(bboxArray)) {
+    if (bboxArray.some(isNaN)) {
+      throw Error("Invalid bbox `{bboxArray}`, please specify a list of numbers.");
+    }
+    return new ee.Geometry.Rectangle(bboxArray, null, !1);
+  }
+  throw Error('Invalid bbox "{bbox}" type, must be of type Array<number>');
+};
+ee.data.images.regionToGeometry = function(region) {
+  if (region instanceof ee.Geometry) {
+    return region;
+  }
+  var regionObject = region;
+  if (goog.isString(region)) {
+    try {
+      regionObject = JSON.parse(region);
+    } catch (e) {
+      throw Error('Region string "' + region + '" is not valid GeoJSON.');
+    }
+  }
+  if (goog.isObject(regionObject)) {
+    return new ee.Geometry(regionObject, null, !1);
+  }
+  throw Error("Region {region} was not convertible to an ee.Geometry.");
 };
 ee.data.images.applyCrsAndTransform = function(image, params) {
   var crs = params.crs || "", crsTransform = params.crsTransform || params.crs_transform;
@@ -21923,7 +21955,7 @@ ee.data.images.applyCrsAndTransform = function(image, params) {
       if (2 === dimensions.length) {
         delete params.dimensions;
         var projection = (new ee.ApiFunction("Projection")).call(crs, crsTransform);
-        params.region = new ee.Geometry.Rectangle([0, 0, dimensions[0], dimensions[1]], projection, !0);
+        params.region = new ee.Geometry.Rectangle([0, 0, dimensions[0], dimensions[1]], projection, !1);
       }
     }
   } else {
@@ -21969,7 +22001,7 @@ ee.Image = function(opt_args) {
   }
   ee.Image.initialize();
   var argCount = arguments.length;
-  if (0 == argCount || 1 == argCount && !goog.isDef(opt_args)) {
+  if (0 == argCount || 1 == argCount && void 0 === opt_args) {
     ee.Element.call(this, new ee.ApiFunction("Image.mask"), {image:new ee.Image(0), mask:new ee.Image(0)});
   } else {
     if (1 == argCount) {
@@ -22053,7 +22085,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
       if (request.region instanceof ee.Geometry && (request.region = request.region.toGeoJSON()), goog.isArray(request.region) || ee.Types.isRegularObject(request.region)) {
         request.region = goog.json.serialize(request.region);
       } else {
-        if (!goog.isString(request.region)) {
+        if ("string" !== typeof request.region) {
           throw Error("The region parameter must be an array or a GeoJSON object.");
         }
       }
@@ -22062,7 +22094,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   if (args.callback) {
     ee.data.getThumbId(request, function(thumbId, opt_error) {
       var thumbUrl = "";
-      if (!goog.isDef(opt_error)) {
+      if (void 0 === opt_error) {
         try {
           thumbUrl = ee.data.makeThumbUrl(thumbId);
         } catch (e) {
@@ -22335,7 +22367,7 @@ ee.ImageCollection.prototype.getThumbURL_ = function(collection, args, validForm
     visParams.image = image;
     return ee.ApiFunction._apply("Image.visualize", visParams);
   });
-  goog.isDefAndNotNull(args.params.dimensions) && (request.dimensions = args.params.dimensions);
+  null != args.params.dimensions && (request.dimensions = args.params.dimensions);
   if (request.format) {
     if (!goog.array.some(validFormats, function(format) {
       return goog.string.caseInsensitiveEquals(format, request.format);
@@ -22358,7 +22390,7 @@ ee.ImageCollection.prototype.getThumbURL_ = function(collection, args, validForm
   if (args.callback) {
     getThumbId(request, function(thumbId, opt_error) {
       var thumbUrl = "";
-      if (!goog.isDef(opt_error)) {
+      if (void 0 === opt_error) {
         try {
           thumbUrl = ee.data.makeThumbUrl(thumbId);
         } catch (e) {
@@ -22475,7 +22507,7 @@ ee.batch.Export.serializeRegion = function(region) {
   if (region instanceof ee.Geometry) {
     region = region.toGeoJSON();
   } else {
-    if (goog.isString(region)) {
+    if ("string" === typeof region) {
       try {
         region = goog.asserts.assertObject(JSON.parse(region));
       } catch (x) {
@@ -22561,7 +22593,7 @@ ee.batch.Export.convertToServerParams = function(originalArgs, destination, expo
     default:
       throw Error("Unknown export type: " + taskConfig.type);
   }
-  serializeRegion && goog.isDefAndNotNull(taskConfig.region) && (taskConfig.region = ee.batch.Export.serializeRegion(taskConfig.region));
+  serializeRegion && null != taskConfig.region && (taskConfig.region = ee.batch.Export.serializeRegion(taskConfig.region));
   return taskConfig;
 };
 ee.batch.Export.prepareDestination_ = function(taskConfig, destination) {
@@ -22589,10 +22621,10 @@ ee.batch.Export.prepareDestination_ = function(taskConfig, destination) {
   return taskConfig;
 };
 ee.batch.Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
-  goog.isDefAndNotNull(taskConfig.fileFormat) || (taskConfig.fileFormat = "GeoTIFF");
+  null == taskConfig.fileFormat && (taskConfig.fileFormat = "GeoTIFF");
   taskConfig = ee.batch.Export.reconcileImageFormat(taskConfig);
   taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
-  goog.isDefAndNotNull(taskConfig.crsTransform) && (taskConfig[ee.batch.Export.CRS_TRANSFORM_KEY] = taskConfig.crsTransform, delete taskConfig.crsTransform);
+  null != taskConfig.crsTransform && (taskConfig[ee.batch.Export.CRS_TRANSFORM_KEY] = taskConfig.crsTransform, delete taskConfig.crsTransform);
   return taskConfig;
 };
 ee.batch.Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
@@ -22605,7 +22637,7 @@ ee.batch.Export.map.prepareTaskConfig_ = function(taskConfig, destination) {
 ee.batch.Export.video.prepareTaskConfig_ = function(taskConfig, destination) {
   taskConfig = ee.batch.Export.reconcileVideoFormat_(taskConfig);
   taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
-  goog.isDefAndNotNull(taskConfig.crsTransform) && (taskConfig[ee.batch.Export.CRS_TRANSFORM_KEY] = taskConfig.crsTransform, delete taskConfig.crsTransform);
+  null != taskConfig.crsTransform && (taskConfig[ee.batch.Export.CRS_TRANSFORM_KEY] = taskConfig.crsTransform, delete taskConfig.crsTransform);
   return taskConfig;
 };
 ee.batch.Export.videoMap.prepareTaskConfig_ = function(taskConfig, destination) {
@@ -22624,7 +22656,7 @@ ee.batch.Export.reconcileVideoFormat_ = function(taskConfig) {
 };
 ee.batch.Export.reconcileImageFormat = function(taskConfig) {
   var formatString = taskConfig.fileFormat;
-  goog.isDefAndNotNull(formatString) || (formatString = "GEO_TIFF");
+  null == formatString && (formatString = "GEO_TIFF");
   formatString = formatString.toUpperCase();
   switch(formatString) {
     case "TIFF":
@@ -22641,7 +22673,7 @@ ee.batch.Export.reconcileImageFormat = function(taskConfig) {
     default:
       throw Error("Invalid file format " + formatString + ". Supported formats are: 'GEOTIFF', 'TFRECORD'.");
   }
-  if (goog.isDefAndNotNull(taskConfig.formatOptions)) {
+  if (null != taskConfig.formatOptions) {
     var formatOptions = ee.batch.Export.prefixImageFormatOptions_(taskConfig, formatString);
     delete taskConfig.formatOptions;
     Object.assign(taskConfig, formatOptions);
@@ -22650,7 +22682,7 @@ ee.batch.Export.reconcileImageFormat = function(taskConfig) {
 };
 ee.batch.Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
   var formatOptions = taskConfig.formatOptions;
-  if (!goog.isDefAndNotNull(formatOptions)) {
+  if (null == formatOptions) {
     return {};
   }
   if (Object.keys(taskConfig).some(function(key) {
@@ -22679,7 +22711,7 @@ ee.Number = function(number) {
     return number;
   }
   ee.Number.initialize();
-  if (goog.isNumber(number)) {
+  if ("number" === typeof number) {
     ee.ComputedObject.call(this, null, null), this.number_ = number;
   } else {
     if (number instanceof ee.ComputedObject) {
@@ -22699,10 +22731,10 @@ ee.Number.reset = function() {
   ee.Number.initialized_ = !1;
 };
 ee.Number.prototype.encode = function(encoder) {
-  return goog.isNumber(this.number_) ? this.number_ : ee.Number.superClass_.encode.call(this, encoder);
+  return "number" === typeof this.number_ ? this.number_ : ee.Number.superClass_.encode.call(this, encoder);
 };
 ee.Number.prototype.encodeCloudValue = function(encoder) {
-  return goog.isNumber(this.number_) ? ee.rpc_node.reference(encoder(this.number_)) : ee.Number.superClass_.encodeCloudValue.call(this, encoder);
+  return "number" === typeof this.number_ ? ee.rpc_node.reference(encoder(this.number_)) : ee.Number.superClass_.encodeCloudValue.call(this, encoder);
 };
 ee.Number.prototype.name = function() {
   return "Number";
@@ -22715,7 +22747,7 @@ ee.String = function(string) {
     return string;
   }
   ee.String.initialize();
-  if (goog.isString(string)) {
+  if ("string" === typeof string) {
     ee.ComputedObject.call(this, null, null), this.string_ = string;
   } else {
     if (string instanceof ee.ComputedObject) {
@@ -22735,10 +22767,10 @@ ee.String.reset = function() {
   ee.String.initialized_ = !1;
 };
 ee.String.prototype.encode = function(encoder) {
-  return goog.isString(this.string_) ? this.string_ : ee.String.superClass_.encode.call(this, encoder);
+  return "string" === typeof this.string_ ? this.string_ : ee.String.superClass_.encode.call(this, encoder);
 };
 ee.String.prototype.encodeCloudValue = function(encoder) {
-  return goog.isString(this.string_) ? ee.rpc_node.reference(encoder(this.string_)) : ee.String.superClass_.encodeCloudValue.call(this, encoder);
+  return "string" === typeof this.string_ ? ee.rpc_node.reference(encoder(this.string_)) : ee.String.superClass_.encodeCloudValue.call(this, encoder);
 };
 ee.String.prototype.name = function() {
   return "String";
@@ -22751,7 +22783,7 @@ ee.CustomFunction = function(signature, body) {
     var arg = args[i];
     vars.push(ee.CustomFunction.variable(ee.Types.nameToClass(arg.type), arg.name));
   }
-  if (!goog.isDef(body.apply(null, vars))) {
+  if (void 0 === body.apply(null, vars)) {
     throw Error("User-defined methods must return a value.");
   }
   this.signature_ = ee.CustomFunction.resolveNamelessArgs_(signature, vars, body);
@@ -22805,7 +22837,7 @@ ee.CustomFunction.variable = function(type, name$jscomp$0) {
 };
 ee.CustomFunction.create = function(func, returnType, arg_types) {
   var stringifyType = function(type) {
-    return goog.isString(type) ? type : ee.Types.classToName(type);
+    return "string" === typeof type ? type : ee.Types.classToName(type);
   }, args = goog.array.map(arg_types, function(argType) {
     return {name:null, type:stringifyType(argType)};
   }), signature = {name:"", returns:stringifyType(returnType), args:args};
@@ -22813,7 +22845,7 @@ ee.CustomFunction.create = function(func, returnType, arg_types) {
 };
 ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
   for (var namelessArgIndices = [], i = 0; i < vars.length; i++) {
-    goog.isNull(vars[i].varName) && namelessArgIndices.push(i);
+    null === vars[i].varName && namelessArgIndices.push(i);
   }
   if (0 == namelessArgIndices.length) {
     return signature;
@@ -22901,7 +22933,7 @@ ee.Deserializer.decode = function(json) {
   return ee.Deserializer.decodeValue_(json, namedValues);
 };
 ee.Deserializer.decodeValue_ = function(json, namedValues) {
-  if (goog.isNull(json) || goog.isNumber(json) || goog.isBoolean(json) || goog.isString(json)) {
+  if (null === json || "number" === typeof json || "boolean" === typeof json || "string" === typeof json) {
     return json;
   }
   if (goog.isArray(json)) {
@@ -22921,13 +22953,13 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       throw Error("Unknown ValueRef: " + json);
     case "ArgumentRef":
       var varName = json.value;
-      if (!goog.isString(varName)) {
+      if ("string" !== typeof varName) {
         throw Error("Invalid variable name: " + varName);
       }
       return ee.CustomFunction.variable(Object, varName);
     case "Date":
       var microseconds = json.value;
-      if (!goog.isNumber(microseconds)) {
+      if ("number" !== typeof microseconds) {
         throw Error("Invalid date value: " + microseconds);
       }
       return new ee.Date(microseconds / 1000);
@@ -22995,10 +23027,10 @@ ee.Dictionary.reset = function() {
   ee.Dictionary.initialized_ = !1;
 };
 ee.Dictionary.prototype.encode = function(encoder) {
-  return goog.isNull(this.dict_) ? ee.Dictionary.superClass_.encode.call(this, encoder) : encoder(this.dict_);
+  return null !== this.dict_ ? encoder(this.dict_) : ee.Dictionary.superClass_.encode.call(this, encoder);
 };
 ee.Dictionary.prototype.encodeCloudValue = function(encoder) {
-  return goog.isNull(this.dict_) ? ee.Dictionary.superClass_.encodeCloudValue.call(this, encoder) : ee.rpc_node.reference(encoder(this.dict_));
+  return null !== this.dict_ ? ee.rpc_node.reference(encoder(this.dict_)) : ee.Dictionary.superClass_.encodeCloudValue.call(this, encoder);
 };
 ee.Dictionary.prototype.name = function() {
   return "Dictionary";
@@ -23014,7 +23046,7 @@ ee.Terrain.reset = function() {
 };
 ee.initialize = function(opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback, opt_xsrfToken) {
   if (ee.ready_ != ee.InitState.READY || opt_baseurl || opt_tileurl) {
-    var isAsynchronous = goog.isDefAndNotNull(opt_successCallback);
+    var isAsynchronous = null != opt_successCallback;
     if (opt_errorCallback) {
       if (isAsynchronous) {
         ee.errorCallbacks_.push(opt_errorCallback);
@@ -23074,12 +23106,12 @@ ee.ready = function() {
   return ee.ready_;
 };
 ee.call = function(func, var_args) {
-  goog.isString(func) && (func = new ee.ApiFunction(func));
+  "string" === typeof func && (func = new ee.ApiFunction(func));
   var args = Array.prototype.slice.call(arguments, 1);
   return ee.Function.prototype.call.apply(func, args);
 };
 ee.apply = function(func, namedArgs) {
-  goog.isString(func) && (func = new ee.ApiFunction(func));
+  "string" === typeof func && (func = new ee.ApiFunction(func));
   return func.apply(namedArgs);
 };
 ee.initializationSuccess_ = function() {
@@ -23104,10 +23136,10 @@ ee.initializationFailure_ = function(e) {
   }
 };
 ee.promote_ = function(arg, klass) {
-  if (goog.isNull(arg)) {
+  if (null === arg) {
     return null;
   }
-  if (goog.isDef(arg)) {
+  if (void 0 !== arg) {
     var exportedEE = goog.global.ee;
     switch(klass) {
       case "Image":
@@ -23135,7 +23167,7 @@ ee.promote_ = function(arg, klass) {
       case "Filter":
         return new ee.Filter(arg);
       case "Algorithm":
-        if (goog.isString(arg)) {
+        if ("string" === typeof arg) {
           return new ee.ApiFunction(arg);
         }
         if (goog.isFunction(arg)) {
@@ -23167,7 +23199,7 @@ ee.promote_ = function(arg, klass) {
           if (ctor) {
             return new exportedEE[klass](arg);
           }
-          if (goog.isString(arg)) {
+          if ("string" === typeof arg) {
             if (arg in exportedEE[klass]) {
               return exportedEE[klass][arg].call();
             }
@@ -25227,7 +25259,7 @@ ee.MapTileManager.prototype.send = function(id, url, opt_priority, opt_imageComp
   if (this.requests_.get(id)) {
     throw Error(ee.MapTileManager.ERROR_ID_IN_USE_);
   }
-  var request = new ee.MapTileManager.Request_(id, url, opt_imageCompletedCallback, goog.bind(this.releaseRequest_, this), goog.isDef(opt_maxRetries) ? opt_maxRetries : ee.MapTileManager.MAX_RETRIES);
+  var request = new ee.MapTileManager.Request_(id, url, opt_imageCompletedCallback, goog.bind(this.releaseRequest_, this), void 0 !== opt_maxRetries ? opt_maxRetries : ee.MapTileManager.MAX_RETRIES);
   this.requests_.set(id, request);
   var callback = goog.bind(this.handleAvailableToken_, this, request);
   this.tokenPool_.getObject(callback, opt_priority);
@@ -25272,7 +25304,7 @@ ee.MapTileManager.Request_ = function(id, url, opt_imageEventCallback, opt_reque
   goog.Disposable.call(this);
   this.id_ = id;
   this.url_ = url;
-  this.maxRetries_ = goog.isDef(opt_maxRetries) ? opt_maxRetries : ee.MapTileManager.MAX_RETRIES;
+  this.maxRetries_ = void 0 !== opt_maxRetries ? opt_maxRetries : ee.MapTileManager.MAX_RETRIES;
   this.imageEventCallback_ = opt_imageEventCallback;
   this.requestCompleteCallback_ = opt_requestCompleteCallback;
 };
@@ -25422,7 +25454,7 @@ ee.MapLayerOverlay = function(url, mapId, token, init, opt_profiler) {
     throw Error("Google Maps API hasn't been initialized.");
   }
   this.tileSize = init.tileSize || new google.maps.Size(256, 256);
-  this.isPng = goog.isDef(init.isPng) ? init.isPng : !0;
+  this.isPng = void 0 !== init.isPng ? init.isPng : !0;
   this.name = init.name;
   this.tiles_ = new goog.structs.Set;
   this.opacity_ = 1.0;
@@ -25488,7 +25520,7 @@ ee.MapLayerOverlay.prototype.handleImageCompleted_ = function(div, tileId, e, pr
     }
     this.dispatchTileEvent_();
   }
-  this.profiler_ && !goog.isNull(profileId) && this.profiler_.addTile(tileId, profileId);
+  this.profiler_ && null !== profileId && this.profiler_.addTile(tileId, profileId);
 };
 goog.exportProperty(ee.MapLayerOverlay.prototype, "getTile", ee.MapLayerOverlay.prototype.getTile);
 goog.exportProperty(ee.MapLayerOverlay.prototype, "setOpacity", ee.MapLayerOverlay.prototype.setOpacity);
@@ -25695,7 +25727,7 @@ ee.data.Profiler.prototype.isLoading = function() {
   return null !== this.lastRefreshToken_;
 };
 ee.data.Profiler.prototype.isError = function() {
-  return goog.isDefAndNotNull(this.profileError_);
+  return null != this.profileError_;
 };
 ee.data.Profiler.prototype.getStatusText = function() {
   if (this.profileError_) {
@@ -25736,7 +25768,7 @@ ee.data.Profiler.prototype.refresh_ = function(retryAttempt) {
   var marker = {};
   this.lastRefreshToken_ = marker;
   var handleResponse = function(result, error) {
-    marker == $jscomp$this.lastRefreshToken_ && (error && goog.isNumber(retryAttempt) && retryAttempt < $jscomp$this.MAX_RETRY_COUNT_ ? goog.Timer.callOnce(goog.bind($jscomp$this.refresh_, $jscomp$this, retryAttempt + 1), 2 * ee.data.Profiler.DELAY_BEFORE_REFRESH_) : ($jscomp$this.profileError_ = error || null, $jscomp$this.profileData_ = error ? ee.data.Profiler.getEmptyProfile_($jscomp$this.format_) : result, $jscomp$this.lastRefreshToken_ = null, $jscomp$this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED), 
+    marker == $jscomp$this.lastRefreshToken_ && (error && "number" === typeof retryAttempt && retryAttempt < $jscomp$this.MAX_RETRY_COUNT_ ? goog.Timer.callOnce(goog.bind($jscomp$this.refresh_, $jscomp$this, retryAttempt + 1), 2 * ee.data.Profiler.DELAY_BEFORE_REFRESH_) : ($jscomp$this.profileError_ = error || null, $jscomp$this.profileData_ = error ? ee.data.Profiler.getEmptyProfile_($jscomp$this.format_) : result, $jscomp$this.lastRefreshToken_ = null, $jscomp$this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED), 
     $jscomp$this.dispatchEvent(ee.data.Profiler.EventType.DATA_CHANGED)));
   }, ids = goog.object.getKeys(this.profileIds_);
   0 === ids.length ? handleResponse(ee.data.Profiler.getEmptyProfile_(this.format_), void 0) : (ee.ApiFunction._apply(this.showInternal_ ? "Profile.getProfilesInternal" : "Profile.getProfiles", {ids:ids, format:this.format_.toString()}).getInfo(handleResponse), this.dispatchEvent(ee.data.Profiler.EventType.STATE_CHANGED));

@@ -127,11 +127,10 @@ ee.MapTileManager.prototype.send = function(
   }
   // Make the Request object.
   var request = new ee.MapTileManager.Request_(
-      id, url,
-      opt_imageCompletedCallback,
+      id, url, opt_imageCompletedCallback,
       goog.bind(this.releaseRequest_, this),
-      goog.isDef(opt_maxRetries) ?
-          opt_maxRetries : ee.MapTileManager.MAX_RETRIES);
+      opt_maxRetries !== undefined ? opt_maxRetries :
+                                     ee.MapTileManager.MAX_RETRIES);
   this.requests_.set(id, request);
 
   // Setup the callback for the pool.
@@ -268,8 +267,9 @@ ee.MapTileManager.Request_ = function(
    * @type {number}
    * @private
    */
-  this.maxRetries_ = goog.isDef(opt_maxRetries) ?
-      opt_maxRetries : ee.MapTileManager.MAX_RETRIES;
+  this.maxRetries_ = (opt_maxRetries !== undefined) ?
+      opt_maxRetries :
+      ee.MapTileManager.MAX_RETRIES;
 
   /**
    * Callback attached to the events of the ImageLoader object.

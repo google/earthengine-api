@@ -78,10 +78,8 @@ ee.Deserializer.decode = function(json) {
  */
 ee.Deserializer.decodeValue_ = function(json, namedValues) {
   // Check for primitive values.
-  if (goog.isNull(json) ||
-      goog.isNumber(json) ||
-      goog.isBoolean(json) ||
-      goog.isString(json)) {
+  if (json === null || typeof json === 'number' || typeof json === 'boolean' ||
+      typeof json === 'string') {
     return json;
   }
 
@@ -108,13 +106,13 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       }
     case 'ArgumentRef':
       var varName = json['value'];
-      if (!goog.isString(varName)) {
+      if (typeof varName !== 'string') {
         throw Error('Invalid variable name: ' + varName);
       }
       return ee.CustomFunction.variable(Object, varName);
     case 'Date':
       var microseconds = json['value'];
-      if (!goog.isNumber(microseconds)) {
+      if (typeof microseconds !== 'number') {
         throw Error('Invalid date value: ' + microseconds);
       }
       return new ee.Date(microseconds / 1000);

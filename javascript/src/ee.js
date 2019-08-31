@@ -74,7 +74,7 @@ ee.initialize = function(
     return;
   }
 
-  var isAsynchronous = goog.isDefAndNotNull(opt_successCallback);
+  var isAsynchronous = (opt_successCallback != null);
 
   // Register the error callback.
   if (opt_errorCallback) {
@@ -234,7 +234,7 @@ ee.ready = function() {
  * @export
  */
 ee.call = function(func, var_args) {
-  if (goog.isString(func)) {
+  if (typeof func === 'string') {
     func = new ee.ApiFunction(func);
   }
   // Extract var_args.
@@ -256,7 +256,7 @@ ee.call = function(func, var_args) {
  * @export
  */
 ee.apply = function(func, namedArgs) {
-  if (goog.isString(func)) {
+  if (typeof func === 'string') {
     func = new ee.ApiFunction(func);
   }
   return func.apply(namedArgs);
@@ -355,9 +355,9 @@ ee.initializationFailure_ = function(e) {
  * @suppress {accessControls} We are calling functions with partial promotion.
  */
 ee.promote_ = function(arg, klass) {
-  if (goog.isNull(arg)) {
+  if (arg === null) {
     return null;
-  } else if (!goog.isDef(arg)) {
+  } else if (arg === undefined) {
     return undefined;
   }
 
@@ -408,7 +408,7 @@ ee.promote_ = function(arg, klass) {
     case 'Filter':
       return new ee.Filter(/** @type {Object} */ (arg));
     case 'Algorithm':
-      if (goog.isString(arg)) {
+      if (typeof arg === 'string') {
         // An API function name.
         return new ee.ApiFunction(arg);
       } else if (goog.isFunction(arg)) {
@@ -455,7 +455,7 @@ ee.promote_ = function(arg, klass) {
         } else if (ctor) {
           // The client-side constructor will call the server-side constructor.
           return new exportedEE[klass](arg);
-        } else if (goog.isString(arg)) {
+        } else if (typeof arg === 'string') {
           if (arg in exportedEE[klass]) {
             // arg is the name of a method on klass.
             return exportedEE[klass][arg].call();

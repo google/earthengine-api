@@ -106,8 +106,8 @@ ee.Types.isSubtype = function(firstType, secondType) {
  * @return {boolean} Whether the object is a number or number variable.
  */
 ee.Types.isNumber = function(obj) {
-  return goog.isNumber(obj) ||
-         (obj instanceof ee.ComputedObject && obj.name() == 'Number');
+  return typeof obj === 'number' ||
+      (obj instanceof ee.ComputedObject && obj.name() == 'Number');
 };
 
 
@@ -118,8 +118,8 @@ ee.Types.isNumber = function(obj) {
  * @return {boolean} Whether the object is a string or string variable.
  */
 ee.Types.isString = function(obj) {
-  return goog.isString(obj) ||
-         (obj instanceof ee.ComputedObject && obj.name() == 'String');
+  return typeof obj === 'string' ||
+      (obj instanceof ee.ComputedObject && obj.name() == 'String');
 };
 
 
@@ -143,7 +143,7 @@ ee.Types.isArray = function(obj) {
 ee.Types.isRegularObject = function(obj) {
   if (goog.isObject(obj) && !goog.isFunction(obj)) {
     var proto = Object.getPrototypeOf(obj);
-    return !goog.isNull(proto) && goog.isNull(Object.getPrototypeOf(proto));
+    return proto !== null && Object.getPrototypeOf(proto) === null;
   } else {
     return false;
   }

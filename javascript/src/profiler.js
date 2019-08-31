@@ -152,7 +152,7 @@ ee.data.Profiler.prototype.isLoading = function() {
  * @return {boolean}
  */
 ee.data.Profiler.prototype.isError = function() {
-  return goog.isDefAndNotNull(this.profileError_);
+  return this.profileError_ != null;
 };
 
 
@@ -263,7 +263,8 @@ ee.data.Profiler.prototype.refresh_ = function(retryAttempt = 0) {
    */
   var handleResponse = (result, error) => {
     if (marker != this.lastRefreshToken_) return;  // Superseded.
-    if (error && goog.isNumber(retryAttempt) && retryAttempt < this.MAX_RETRY_COUNT_) {
+    if (error && typeof retryAttempt === 'number' &&
+        retryAttempt < this.MAX_RETRY_COUNT_) {
       goog.Timer.callOnce(
           goog.bind(this.refresh_, this, retryAttempt + 1),
           2*ee.data.Profiler.DELAY_BEFORE_REFRESH_);

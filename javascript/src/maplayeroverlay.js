@@ -44,7 +44,7 @@ ee.MapLayerOverlay = class extends ee.AbstractOverlay {
       throw Error('Google Maps API hasn\'t been initialized.');
     }
     this.tileSize = init.tileSize || new google.maps.Size(256, 256);
-    this.isPng = goog.isDef(init.isPng) ? init.isPng : true;
+    this.isPng = (init.isPng !== undefined) ? init.isPng : true;
     this.name = init.name;
 
     /** @private {goog.structs.Set} The set of loaded tiles. */
@@ -218,7 +218,7 @@ ee.MapLayerOverlay = class extends ee.AbstractOverlay {
       this.dispatchTileEvent_();
     }
 
-    if (this.profiler_ && !goog.isNull(profileId)) {
+    if (this.profiler_ && profileId !== null) {
       this.profiler_.addTile(tileId, profileId);
     }
   }

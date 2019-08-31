@@ -36,7 +36,7 @@ forest.SubTileZoomMapType = function(options) {
       options.maxTileZoom || forest.SubTileZoomMapType.DEFAULT_MAX_ZOOM_;
 
   /** @private {number} The map type's opacity. */
-  this.opacity_ = goog.isDef(options.opacity) ?  options.opacity : 1;
+  this.opacity_ = (options.opacity !== undefined) ? options.opacity : 1;
 
   // Public options required by the Maps API.
 

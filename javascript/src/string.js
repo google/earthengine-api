@@ -36,7 +36,7 @@ ee.String = function(string) {
    */
   this.string_;
 
-  if (goog.isString(string)) {
+  if (typeof (string) === 'string') {
     ee.String.base(this, 'constructor', null, null);
     this.string_ = /** @type {string} */ (string);
   } else if (string instanceof ee.ComputedObject) {
@@ -80,7 +80,7 @@ ee.String.reset = function() {
 
 /** @override */
 ee.String.prototype.encode = function(encoder) {
-  if (goog.isString(this.string_)) {
+  if (typeof (this.string_) === 'string') {
     return this.string_;
   } else {
     return ee.String.base(this, 'encode', encoder);

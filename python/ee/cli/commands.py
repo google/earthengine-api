@@ -82,6 +82,9 @@ TASK_TYPES = {
 # download from GCS.
 SAVED_MODEL_MAX_SIZE = 400 * 1024 * 1024
 
+# Default path to SavedModel variables.
+DEFAULT_VARIABLES_PREFIX = '/variables/variables'
+
 
 def _add_wait_arg(parser):
   parser.add_argument(
@@ -1606,6 +1609,12 @@ class PrepareModelCommand(object):
         '--tag',
         help='An optional tag used to load a specific graph from the '
         'SavedModel. Defaults to \'serve\'.')
+    parser.add_argument(
+        '--variables',
+        help='An optional relative path from within the source directory to '
+        'the prefix of the model variables. (e.x: if the model variables are '
+        'stored under \'model_dir/variables/x.*\', set '
+        '--variables=/variables/x). Defaults to \'/variables/variables\'.')
 
   @staticmethod
   def _validate_and_extract_nodes(args):
@@ -1652,10 +1661,10 @@ class PrepareModelCommand(object):
         name=name)
 
   @staticmethod
-  def _decode_op(input_tensor, shape, dtype):
+  def _decode_op(input_tensor, dtype):
     mapped = tf.map_fn(lambda x: tf.parse_tensor(tf.io.decode_base64(x), dtype),
                        input_tensor, dtype)
-    return tf.reshape(mapped, shape)
+    return mapped
 
   @staticmethod
   def _shape_from_proto(shape_proto):
@@ -1671,7 +1680,7 @@ class PrepareModelCommand(object):
 
   @staticmethod
   def _get_input_tensor_spec(graph_def, input_names_set):
-    """Extracts shapes and types of the given node names from the GraphDef."""
+    """Extracts the types of the given node names from the GraphDef."""
 
     # Get the op names stripped of the input index e.g: "op:0" becomes "op"
     input_names_missing_index = {
@@ -1686,9 +1695,8 @@ class PrepareModelCommand(object):
               'Specified input op is not a valid graph input: \'{}\'.'.format(
                   cur_node.name))
 
-        spec[input_names_missing_index[cur_node.name]] = (
-            PrepareModelCommand._shape_from_proto(cur_node.attr['shape'].shape),
-            tf.dtypes.DType(cur_node.attr['dtype'].type))
+        spec[input_names_missing_index[cur_node.name]] = tf.dtypes.DType(
+            cur_node.attr['dtype'].type)
 
     if len(spec) != len(input_names_set):
       raise ValueError(
@@ -1697,14 +1705,16 @@ class PrepareModelCommand(object):
     return spec
 
   @staticmethod
-  def _make_rpc_friendly(model_dir, tag, in_map, out_map):
+  def _make_rpc_friendly(model_dir, tag, in_map, out_map, vars_path):
     """Wraps a SavedModel in EE RPC-friendly ops and saves a temporary copy."""
     out_dir = tempfile.mkdtemp()
     builder = tf.compat.v1.saved_model.Builder(out_dir)
 
     # Get a GraphDef from the saved model
     with tf.Session() as sesh:
-      graph_def = tf.saved_model.load(sesh, [tag], model_dir).graph_def
+      meta_graph = tf.saved_model.load(sesh, [tag], model_dir)
+
+    graph_def = meta_graph.graph_def
 
     # Purge the default graph immediately after: we want to remap parts of the
     # graph when we load it and we don't know what those parts are yet.
@@ -1714,7 +1724,7 @@ class PrepareModelCommand(object):
     input_new_keys = list(in_map.values())
 
     # Get the shape and type of the input tensors
-    in_op_spec = PrepareModelCommand._get_input_tensor_spec(
+    in_op_types = PrepareModelCommand._get_input_tensor_spec(
         graph_def, input_op_keys)
 
     # Create new input placeholders to receive RPC TensorProto payloads
@@ -1726,14 +1736,13 @@ class PrepareModelCommand(object):
 
     # Glue on decoding ops to remap to the imported graph.
     decoded_op_map = {
-        k: PrepareModelCommand._decode_op(in_op_map[in_map[k]],
-                                          in_op_spec[k][0], in_op_spec[k][1])
+        k: PrepareModelCommand._decode_op(in_op_map[in_map[k]], in_op_types[k])
         for k in input_op_keys
     }
 
     # Okay now we're ready to import the graph again but remapped.
-    tf.graph_util.import_graph_def(
-        graph_def=graph_def, input_map=decoded_op_map)
+    saver = tf.compat.v1.train.import_meta_graph(
+        meta_graph_or_file=meta_graph, input_map=decoded_op_map)
 
     # Boilerplate to build a signature def for our new graph
     sig_in = {
@@ -1745,7 +1754,7 @@ class PrepareModelCommand(object):
     for index, (k, v) in enumerate(out_map.items()):
       out_tensor = saved_model_utils.build_tensor_info(
           PrepareModelCommand._encode_op(
-              tf.get_default_graph().get_tensor_by_name('import/' + k),
+              tf.get_default_graph().get_tensor_by_name(k),
               name='earthengine_out_{}'.format(index)))
 
       sig_out[PrepareModelCommand._strip_index(v)] = out_tensor
@@ -1755,12 +1764,15 @@ class PrepareModelCommand(object):
 
     # Open a new session to load the variables and add them to the builder.
     with tf.Session() as sesh:
+      if saver:
+        saver.restore(sesh, model_dir + vars_path)
       builder.add_meta_graph_and_variables(
           sesh,
           tags=[tf.saved_model.tag_constants.SERVING],
           signature_def_map={
               signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: sig_def
-          })
+          },
+          saver=saver)
 
     builder.save()
     return out_dir
@@ -1782,12 +1794,13 @@ class PrepareModelCommand(object):
       local_model_dir = args.source_dir
 
     tag = args.tag if args.tag else tf.saved_model.tag_constants.SERVING
+    vars_path = args.variables if args.variables else DEFAULT_VARIABLES_PREFIX
     new_model_dir = PrepareModelCommand._make_rpc_friendly(
-        local_model_dir, tag, in_spec, out_spec)
+        local_model_dir, tag, in_spec, out_spec, vars_path)
 
     if utils.is_gcs_path(args.dest_dir):
       if not gcs_client:
-        gcs_client = config.get_gcs_helper()
+        gcs_client = config.create_gcs_helper()
       gcs_client.upload_dir_to_bucket(new_model_dir, args.dest_dir)
     else:
       shutil.move(new_model_dir, args.dest_dir)
