@@ -248,9 +248,16 @@ class Image(element.Element):
             # Could be a Geometry, a GeoJSON struct, or a GeoJSON string.
             # Geometry's constructor knows how to handle the first two.
             region = params[key]
+            # If given a Geometry object, just use the client's Geometry.
+            if isinstance(region, geometry.Geometry):
+              selection_params['geometry'] = region
+              continue
+            # Otherwise, we may be given a GeoJSON object or string.
             if isinstance(region, six.string_types):
               region = json.loads(region)
-            selection_params['geometry'] = geometry.Geometry(region)
+            # By default the Geometry should be planar.
+            selection_params['geometry'] = geometry.Geometry(
+                region, opt_geodesic=False)
           else:
             selection_params[key] = params[key]
 

@@ -676,6 +676,11 @@ ee.batch.Export.video.prepareTaskConfig_ = function(taskConfig, destination) {
 ee.batch.Export.videoMap.prepareTaskConfig_ = function(
     taskConfig, destination) {
   taskConfig = ee.batch.Export.reconcileVideoFormat_(taskConfig);
+  taskConfig['version'] = taskConfig['version'] || ee.batch.VideoMapVersion.V2;
+  taskConfig['stride'] = taskConfig['stride'] || 1;
+  const width = taskConfig['tileWidth'] || 1068,
+        height = taskConfig['tileHeight'] || 600;
+  taskConfig['tileDimensions'] = {width: width, height: height};
   taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
   return /** @type {!ee.data.MapTaskConfig} */ (taskConfig);
 };
@@ -699,6 +704,15 @@ ee.batch.ImageFormat = {
   GEO_TIFF: 'GEO_TIFF',
   TF_RECORD_IMAGE: 'TF_RECORD_IMAGE',
 };
+
+/**
+ * @enum {string} The valid versions supported by Export.VideoMap.
+ */
+ee.batch.VideoMapVersion = {
+  V1: 'V1',
+  V2: 'V2',
+};
+
 
 /** @type {!Object<string, !Array<string>>} */
 const FORMAT_OPTIONS_MAP = {

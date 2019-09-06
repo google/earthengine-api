@@ -936,9 +936,18 @@ ee.batch.Export.videoMap;
  * @param {number=} opt_scale
  * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
  * @param {boolean=} opt_skipEmptyTiles
+ * @param {number=} opt_minTimeMachineZoomSubset
+ * @param {number=} opt_maxTimeMachineZoomSubset
+ * @param {number=} opt_tileWidth
+ * @param {number=} opt_tileHeight
+ * @param {number=} opt_tileStride
+ * @param {string=} opt_videoFormat
+ * @param {string=} opt_version
+ * @param {string=} opt_mapsApiKey
+ * @param {(Array<string>|null)=} opt_bucketCorsUris
  * @return {!ee.batch.ExportTask}
  */
-ee.batch.Export.videoMap.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_writePublicTiles, opt_minZoom, opt_maxZoom, opt_scale, opt_region, opt_skipEmptyTiles) {
+ee.batch.Export.videoMap.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_writePublicTiles, opt_minZoom, opt_maxZoom, opt_scale, opt_region, opt_skipEmptyTiles, opt_minTimeMachineZoomSubset, opt_maxTimeMachineZoomSubset, opt_tileWidth, opt_tileHeight, opt_tileStride, opt_videoFormat, opt_version, opt_mapsApiKey, opt_bucketCorsUris) {
 };
 ee.batch.ExportTask;
 ee.batch.ExportTask.prototype.id;
