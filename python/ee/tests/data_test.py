@@ -179,6 +179,25 @@ class DataTest(unittest.TestCase):
     with DoProfileStubHttp(self, False):
       ee.data.send_('/foo', {})
 
+  def testSetAssetProperties(self):
+    mock_http = mock.MagicMock(httplib2.Http)
+    with apitestcase.UsingCloudApi(mock_http=mock_http), mock.patch.object(
+        ee.data, 'updateAsset', autospec=True) as mock_update_asset:
+      ee.data.setAssetProperties(
+          'foo', {'mYPropErTy': 'Value', 'system:time_start': 1})
+      asset_id = mock_update_asset.call_args[0][0]
+      self.assertEqual(asset_id, 'foo')
+      asset = mock_update_asset.call_args[0][1]
+      self.assertEqual(
+          asset['properties'],
+          {'mYPropErTy': 'Value', 'system:time_start': 1})
+      update_mask = mock_update_asset.call_args[0][2]
+      self.assertSetEqual(
+          set(update_mask), set([
+              'properties.\"mYPropErTy\"',
+              'properties.\"system:time_start\"'
+          ]))
+
   def testListAssets(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):

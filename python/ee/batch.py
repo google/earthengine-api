@@ -1454,7 +1454,8 @@ def _canonicalize_parameters(config, destination):
               collision_error.format(key, remapped_key))
         format_options[remapped_key] = value
         keys_to_delete.append(key)
-    config[IMAGE_FORMAT_OPTIONS_FIELD] = format_options
+    if format_options:
+      config[IMAGE_FORMAT_OPTIONS_FIELD] = format_options
     for key in keys_to_delete:
       del config[key]
 

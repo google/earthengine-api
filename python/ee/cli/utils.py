@@ -188,10 +188,12 @@ class GcsHelper(object):
         continue
 
       output_path = temp_dir + stripped_name
+      dir_path = os.path.dirname(output_path)
+      if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+
       if output_path[-1:] != '/':
         blob.download_to_filename(output_path)
-      else:
-        os.mkdir(output_path[:-1])
 
     return temp_dir
 

@@ -500,10 +500,11 @@ ee.data.makeThumbUrl = function(id) {
 ee.data.getDownloadId = function(params, opt_callback) {
   // TODO(user): Redirect to getImageDownloadId.
   params = goog.object.clone(params);
-  return /** @type {?ee.data.DownloadId} */ (ee.data.send_(
+  const id = /** @type {?ee.data.DownloadId} */ (ee.data.send_(
       '/download',
       ee.data.makeRequest_(params),
       opt_callback));
+  return id;
 };
 
 
@@ -536,10 +537,11 @@ ee.data.makeDownloadUrl = function(id) {
  */
 ee.data.getTableDownloadId = function(params, opt_callback) {
   params = goog.object.clone(params);
-  return /** @type {?ee.data.DownloadId} */ (ee.data.send_(
+  const id = /** @type {?ee.data.DownloadId} */ (ee.data.send_(
       '/table',
       ee.data.makeRequest_(params),
       opt_callback));
+  return id;
 };
 
 

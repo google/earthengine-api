@@ -78,6 +78,8 @@ TASK_TYPES = {
     'INGEST_TABLE': 'Upload',
 }
 
+TF_RECORD_EXTENSIONS = ['.tfrecord', 'tfrecord.gz']
+
 # Maximum size of objects in a SavedModel directory that we're willing to
 # download from GCS.
 SAVED_MODEL_MAX_SIZE = 400 * 1024 * 1024
@@ -1190,6 +1192,12 @@ class UploadImageCommand(object):
   def manifest_from_args(self, args, config):
     """Constructs an upload manifest from the command-line flags."""
 
+    def is_tf_record(path):
+      if any(path.lower().endswith(extension)
+             for extension in TF_RECORD_EXTENSIONS):
+        return True
+      return False
+
     if args.manifest:
       with open(args.manifest) as fh:
         return json.loads(fh.read())
@@ -1203,7 +1211,7 @@ class UploadImageCommand(object):
           'last_band_alpha and nodata_value are mutually exclusive.')
 
     properties = _decode_property_flags(args)
-    source_files = utils.expand_gcs_wildcards(args.src_files)
+    source_files = list(utils.expand_gcs_wildcards(args.src_files))
     if not source_files:
       raise ValueError('At least one file must be specified.')
 
@@ -1217,10 +1225,18 @@ class UploadImageCommand(object):
 
     if config.use_cloud_api:
       args.asset_id = ee.data.convert_asset_id_to_asset_name(args.asset_id)
-      tileset = {
-          'id': 'ts',
-          'sources': [{'uris': [source]} for source in source_files]
-      }
+      # If we are ingesting a tfrecord, we actually treat the inputs as one
+      # source and many uris.
+      if any(is_tf_record(source) for source in source_files):
+        tileset = {
+            'id': 'ts',
+            'sources': [{'uris': [source for source in source_files]}]
+        }
+      else:
+        tileset = {
+            'id': 'ts',
+            'sources': [{'uris': [source]} for source in source_files]
+        }
       manifest = {
           'name': args.asset_id,
           'properties': properties,

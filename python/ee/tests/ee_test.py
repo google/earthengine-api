@@ -33,14 +33,14 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertFalse(ee.Image._initialized)
 
     # Verify that ee.Initialize() sets the URL and initializes classes.
-    ee.Initialize(None, 'foo')
+    ee.Initialize(None, 'foo', use_cloud_api=False)
     self.assertTrue(ee.data._initialized)
     self.assertEqual(ee.data._api_base_url, 'foo/api')
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertTrue(ee.Image._initialized)
 
     # Verify that ee.Initialize(None) does not override custom URLs.
-    ee.Initialize(None)
+    ee.Initialize(None, use_cloud_api=False)
     self.assertTrue(ee.data._initialized)
     self.assertEqual(ee.data._api_base_url, 'foo/api')
 
@@ -72,7 +72,7 @@ class EETestCase(apitestcase.ApiTestCase):
         raise Exception('Unexpected API call to %s with %s' % (path, params))
     ee.data.send_ = MockSend
 
-    ee.Initialize(None)
+    ee.Initialize(None, use_cloud_api=False)
     image1 = ee.Image(1)
     image2 = ee.Image(2)
     expected = ee.Image(ee.ComputedObject(
@@ -175,7 +175,7 @@ class EETestCase(apitestcase.ApiTestCase):
         }
     ee.data.send_ = MockSend
 
-    ee.Initialize(None)
+    ee.Initialize(None, use_cloud_api=False)
 
     # Verify that the expected classes got generated.
     self.assertTrue(hasattr(ee, 'Array'))
@@ -248,7 +248,7 @@ class EETestCase(apitestcase.ApiTestCase):
         }
 
     ee.data.send_ = MockSend
-    ee.Initialize(None)
+    ee.Initialize(None, use_cloud_api=False)
 
     # Try to cast something that's already of the right class.
     x = ee.Foo('argument')
@@ -407,7 +407,7 @@ class EETestCase(apitestcase.ApiTestCase):
         }
     ee.data.send_ = MockSend
 
-    ee.Initialize(None)
+    ee.Initialize(None, use_cloud_api=False)
 
     # The initialisation shouldn't blow up.
     self.assertTrue(callable(ee.Algorithms.Foo))

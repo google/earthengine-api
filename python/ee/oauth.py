@@ -39,6 +39,7 @@ CLIENT_SECRET = 'RUP0RZ6e0pPhDzsqIJ7KlNd1'
 SCOPES = [
     'https://www.googleapis.com/auth/earthengine',
     'https://www.googleapis.com/auth/devstorage.full_control'
+    'https://www.googleapis.com/auth/drive'
 ]
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'  # Prompts user to copy-paste code
 TOKEN_URI = 'https://accounts.google.com/o/oauth2/token'

@@ -32,7 +32,11 @@ class ApiTestCase(unittest.TestCase):
     ee.data.send_ = self.MockSend
 
     ee.Reset()
-    ee.Initialize(None, '')
+    # Default the cloud api flag to false for tests since we have tests that
+    # set it to true using the UsingCloudApi entry function.  The old unit tests
+    # should eventually be migrated but this should not block flipping the flag
+    # to the cloud api.
+    ee.Initialize(None, '', use_cloud_api=False)
 
   def MockSend(self, path, params, unused_method=None, unused_raw=None):
     if path == '/algorithms':

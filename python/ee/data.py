@@ -694,7 +694,7 @@ def computeValue(obj):
 
 
 @deprecation.Deprecated('Use getThumbId and makeThumbUrl')
-def getThumbnail(params):
+def getThumbnail(params, thumbType=None):
   """Get a Thumbnail for a given asset.
 
   Args:
@@ -706,21 +706,36 @@ def getThumbnail(params):
         region - (E,S,W,N or GeoJSON) Geospatial region of the image
           to render. By default, the whole image.
         format - (string) Either 'png' (default) or 'jpg'.
-
+     thumbType: Thumbnail type to get. Only valid values are
+        'video' or 'filmstrip' otherwise the request is treated as a
+        regular thumbnail.
   Returns:
     A thumbnail image as raw PNG data.
   """
   if _use_cloud_api:
     thumbid = params['image'].getThumbId(params)['thumbid']
-    return _execute_cloud_call(
-        _cloud_api_resource_raw.projects().thumbnails().getPixels(
-            name=thumbid
-        ), num_retries=MAX_RETRIES
-    )
+    if thumbType == 'video':
+      return _execute_cloud_call(
+          _cloud_api_resource_raw.projects().videoThumbnails().getPixels(
+              name=thumbid
+          ), num_retries=MAX_RETRIES
+      )
+    elif thumbType == 'filmstrip':
+      return _execute_cloud_call(
+          _cloud_api_resource_raw.projects().filmstripThumbnails().getPixels(
+              name=thumbid
+          ), num_retries=MAX_RETRIES
+      )
+    else:
+      return _execute_cloud_call(
+          _cloud_api_resource_raw.projects().thumbnails().getPixels(
+              name=thumbid
+          ), num_retries=MAX_RETRIES
+      )
   return send_('/thumb', params, opt_method='GET', opt_raw=True)
 
 
-def getThumbId(params):
+def getThumbId(params, thumbType=None):
   """Get a Thumbnail ID for a given asset.
 
   Args:
@@ -732,6 +747,8 @@ def getThumbId(params):
         region - (E,S,W,N or GeoJSON) Geospatial region of the image
           to render. By default, the whole image.
         format - (string) Either 'png' (default) or 'jpg'.
+    thumbType: Type of thumbnail to create an ID for, the values
+        'video' or 'filmstrip' will create filmstrip/video ids.
 
   Returns:
     A dictionary containing "thumbid" and "token" strings, which identify the
@@ -757,8 +774,6 @@ def getThumbId(params):
             serializer.encode(params['image'], for_cloud_api=True),
         'fileFormat':
             _cloud_api_utils.convert_to_image_file_format(params.get('format')),
-        'bandIds':
-            _cloud_api_utils.convert_to_band_list(params.get('bands')),
     }
     # Only add visualizationOptions to the request if it's non-empty, as
     # specifying it affects server behaviour.
@@ -768,11 +783,28 @@ def getThumbId(params):
       request['visualizationOptions'] = visualizationOptions
     # Make it return only the name field, as otherwise it echoes the entire
     # request, which might be large.
-    result = _execute_cloud_call(
-        _cloud_api_resource.projects().thumbnails().create(
-            parent=_get_projects_path(),
-            fields='name',
-            body=request))
+    if thumbType == 'video':
+      result = _execute_cloud_call(
+          _cloud_api_resource.projects().videoThumbnails().create(
+              parent=_get_projects_path(),
+              fields='name',
+              body=request))
+    elif thumbType == 'filmstrip':
+      # Currently only 'VERTICAL' thumbnails are supported.
+      request['orientation'] = 'VERTICAL'
+      result = _execute_cloud_call(
+          _cloud_api_resource.projects().filmstripThumbnails().create(
+              parent=_get_projects_path(),
+              fields='name',
+              body=request))
+    else:
+      request['bandIds'] = _cloud_api_utils.convert_to_band_list(
+          params.get('bands'))
+      result = _execute_cloud_call(
+          _cloud_api_resource.projects().thumbnails().create(
+              parent=_get_projects_path(),
+              fields='name',
+              body=request))
     return {'thumbid': result['name'], 'token': ''}
   request = params.copy()
   request['getid'] = '1'
@@ -1580,13 +1612,14 @@ def setAssetProperties(assetId, properties):
     properties: A dictionary of keys and values for the properties to update.
   """
   if _use_cloud_api:
+    def FieldMaskPathForKey(key):
+      return 'properties.\"%s\"' % key
     # Specifying an update mask of 'properties' results in full replacement,
     # which isn't what we want. Instead, we name each property that we'll be
     # updating.
-    update_mask = [
-        'properties.' + property_name for property_name in properties
-    ]
+    update_mask = [FieldMaskPathForKey(key) for key in properties]
     updateAsset(assetId, {'properties': properties}, update_mask)
+    return
   send_('/setproperties', {'id': assetId, 'properties': json.dumps(properties)})
 
 

@@ -896,6 +896,48 @@ class BatchTestCase(apitestcase.ApiTestCase):
           }
       }, task.config)
 
+  def testExportTableWithFileFormat(self):
+    """Verifies the task created by Export.table() given a file format."""
+    task = ee.batch.Export.table.toCloudStorage(
+        collection=ee.FeatureCollection('foo'),
+        outputBucket='test-bucket',
+        fileFormat='tfRecord')
+    self.assertEqual('TESTTASKID', task.id)
+    self.assertEqual('EXPORT_FEATURES', task.task_type)
+    self.assertEqual('UNSUBMITTED', task.state)
+    self.assertEqual(
+        {
+            'json': ee.FeatureCollection('foo').serialize(),
+            'description': 'myExportTableTask',
+            'outputBucket': 'test-bucket',
+            'outputPrefix': 'myExportTableTask',
+            'fileFormat': 'tfRecord',
+        }, task.config)
+
+  def testExportTableWithFileFormatCloudApi(self):
+    """Verifies the task created by Export.table() given a file format."""
+    with apitestcase.UsingCloudApi():
+      task = ee.batch.Export.table.toCloudStorage(
+          collection=ee.FeatureCollection('foo'),
+          outputBucket='test-bucket',
+          fileFormat='tfRecord')
+      self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
+      self.assertEqual('EXPORT_FEATURES', task.task_type)
+      self.assertEqual('UNSUBMITTED', task.state)
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('foo'),
+              'description': 'myExportTableTask',
+              'fileExportOptions': {
+                  'fileFormat': 'TF_RECORD_TABLE',
+                  'gcsDestination': {
+                      'bucket': 'test-bucket',
+                      'filenamePrefix': 'myExportTableTask',
+                  }
+              }
+          }, task.config)
+
   def testExportVideo(self):
     """Verifies the task created by Export.video()."""
     region = ee.Geometry.Rectangle(1, 2, 3, 4)
