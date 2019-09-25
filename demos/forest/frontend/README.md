@@ -15,7 +15,7 @@ To run a local instance of the app:
     *   Should respond with "nvm"
 
     ```
-    $ nvm install 4
+    $ nvm install 6
     ```
 
 *   From your cloned repository, change to the `/demos/forest/frontend`
