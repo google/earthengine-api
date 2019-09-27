@@ -231,8 +231,8 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
 };
 /**
  * @param {(Object|null)=} opt_visParams
- * @param {function((Object|null), string=): ?=} opt_callback
- * @return {(ee.data.MapId|null|undefined)}
+ * @param {function(!Object, string=): ?=} opt_callback
+ * @return {(ee.data.MapId|undefined)}
  */
 ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
 };
@@ -262,8 +262,8 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 };
 /**
  * @param {(Object|null)=} opt_visParams
- * @param {function((Object|null), string=): ?=} opt_callback
- * @return {(ee.data.MapId|null|undefined)}
+ * @param {function(!Object, string=): ?=} opt_callback
+ * @return {(ee.data.MapId|undefined)}
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 };
@@ -617,8 +617,8 @@ ee.ImageCollection.prototype.getInfo = function(opt_callback) {
 };
 /**
  * @param {(Object|null)=} opt_visParams
- * @param {function((Object|null), string=): ?=} opt_callback
- * @return {(ee.data.MapId|null|undefined)}
+ * @param {function(!Object, string=): ?=} opt_callback
+ * @return {(ee.data.MapId|undefined)}
  */
 ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
 };

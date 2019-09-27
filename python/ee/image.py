@@ -118,13 +118,13 @@ class Image(element.Element):
     return super(Image, self).getInfo()
 
   def getMapId(self, vis_params=None):
-    """Fetch and return a map id and token, suitable for use in a Map overlay.
+    """Fetch and return a map ID dictionary, suitable for use in a Map overlay.
 
     Args:
       vis_params: The visualization parameters.  See ee.data.getMapId.
 
     Returns:
-      An object containing a mapid and access token, or an error message.
+      A map ID dictionary as described in ee.data.getMapId.
     """
     vis_image, request = self._apply_visualization(vis_params)
     request['image'] = vis_image

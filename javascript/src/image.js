@@ -152,16 +152,16 @@ ee.Image.prototype.getInfo = function(opt_callback) {
 
 
 /**
- * An imperative function that returns a map id and token, suitable for
+ * An imperative function that returns a map id and optional token, suitable for
  * generating a Map overlay.
  *
  * @param {!ee.data.ImageVisualizationParameters=} opt_visParams
  *     The visualization parameters.
  * @param {function(!ee.data.MapId, string=)=} opt_callback An async callback.
  *     If not supplied, the call is made synchronously.
- * @return {!ee.data.MapId|undefined} An object containing a mapid string, an
- *     access token plus this object, or an error message. Or undefined if a
- *     callback was specified.
+ * @return {!ee.data.MapId|undefined} An object which may be passed to
+ *     ee.data.getTileUrl or ui.Map.addLayer. Undefined if a callback was
+ *     specified.
  * @export
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {

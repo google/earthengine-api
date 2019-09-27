@@ -101,8 +101,9 @@ class FeatureCollection(collection.Collection):
           'color', containing a hex RGB color string is allowed.
 
     Returns:
-      An object containing a mapid string, an access token, plus a
-      Collection.draw image wrapping this collection.
+      A map ID dictionary as described in ee.data.getMapId, including an
+      additional 'image' field containing Collection.draw image wrapping a
+      FeatureCollection containing this feature.
     """
     painted = apifunction.ApiFunction.apply_('Collection.draw', {
         'collection': self,

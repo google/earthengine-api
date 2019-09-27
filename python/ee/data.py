@@ -533,8 +533,8 @@ def getMapId(params):
           or 'png' (supports transparency).
 
   Returns:
-    A dictionary containing:
-    - "mapid" and "token" strings: these identify the map.
+    A map ID dictionary containing:
+    - "mapid" and optional "token" strings: these identify the map.
     - "tile_fetcher": a TileFetcher which can be used to fetch the tile
       images, or to get a format for the tile URLs.
   """

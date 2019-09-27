@@ -307,7 +307,7 @@ ee.data.getAlgorithms = function(opt_callback) {
  *     For Images and ImageCollections:
  *       - image (JSON string) The image to render.
  *       - version (number) Version number of image (or latest).
- *       - bands (comma-seprated strings) Comma-delimited list of
+ *       - bands (comma-separated strings) Comma-delimited list of
  *             band names to be mapped to RGB.
  *       - min (comma-separated numbers) Value (or one per band)
  *             to map onto 00.
@@ -325,8 +325,8 @@ ee.data.getAlgorithms = function(opt_callback) {
  *       - format (string) Either "jpg" or "png".
  * @param {function(?ee.data.RawMapId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?ee.data.RawMapId} The mapId call results, or null if a callback
- *     is specified.
+ * @return {?ee.data.RawMapId} The mapId call results, which may be passed to
+ *     ee.data.getTileUrl or ui.Map.addLayer. Null if a callback is specified.
  * @export
  */
 ee.data.getMapId = function(params, opt_callback) {
@@ -426,7 +426,7 @@ ee.data.computeValue = function(obj, opt_callback) {
  *       - format (string) Either 'png' (default) or 'jpg'.
  * @param {function(?ee.data.ThumbnailId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?ee.data.ThumbnailId} The thumb ID and token, or null if a
+ * @return {?ee.data.ThumbnailId} The thumb ID and optional token, or null if a
  *     callback is specified.
  * @export
  */

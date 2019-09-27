@@ -99,9 +99,9 @@ class Feature(element.Element):
           'color', containing a hex RGB color string is allowed.
 
     Returns:
-      An object containing a mapid string, an access token, plus a
-      Collection.draw image wrapping a FeatureCollection containing
-      this feature.
+      A map ID dictionary as described in ee.data.getMapId, including an
+      additional 'image' field containing Collection.draw image wrapping a
+      FeatureCollection containing this feature.
     """
     # Create a collection containing this one feature and render it.
     collection = apifunction.ApiFunction.call_('Collection', [self])

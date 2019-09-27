@@ -116,10 +116,11 @@ ee.ImageCollection.reset = function() {
  * This mosaics the collection to a single image and return a mapid suitable
  * for building a Google Maps overlay.
  *
- * @param {Object?=} opt_visParams The visualization parameters.
- * @param {function(Object, string=)=} opt_callback An async callback.
+ * @param {?Object=} opt_visParams The visualization parameters.
+ * @param {function(!Object, string=)=} opt_callback An async callback.
  *     If not supplied, the call is made synchronously.
- * @return {ee.data.MapId|undefined} Returns a mapid and token, or undefined if
+ * @return {!ee.data.MapId|undefined} Returns a mapid and optional token, which
+ *     may be passed to ee.data.getTileUrl or ui.Map.addLayer. Undefined if
  *     a callback was specified.
  * @export
  */

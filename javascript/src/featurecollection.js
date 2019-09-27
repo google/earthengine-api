@@ -122,14 +122,15 @@ ee.FeatureCollection.reset = function() {
  * An imperative function that returns a map id and token, suitable for
  * generating a Map overlay.
  *
- * @param {Object?=} opt_visParams The visualization parameters. Currently only
+ * @param {?Object=} opt_visParams The visualization parameters. Currently only
  *     one parameter, 'color', containing an RGB color string is allowed.  If
  *     vis_params isn't specified, then the color #000000 is used.
- * @param {function(Object, string=)=} opt_callback An async callback.
+ * @param {function(!Object, string=)=} opt_callback An async callback.
  *     If not supplied, the call is made synchronously.
- * @return {ee.data.MapId|undefined} An object containing a mapid string, an
- *     acess token, plus a Collection.draw image wrapping this collection. Or
- *     undefined if a callback was specified.
+ * @return {!ee.data.MapId|undefined} An object which may be passed to
+ *     ee.data.getTileUrl or ui.Map.addLayer, including an additional 'image'
+ *     field, containing a Collection.draw image wrapping a FeatureCollection
+ *     containing this feature. Undefined if a callback was specified.
  * @export
  */
 ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {

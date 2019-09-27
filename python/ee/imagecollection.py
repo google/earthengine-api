@@ -83,16 +83,16 @@ class ImageCollection(collection.Collection):
     cls._initialized = False
 
   def getMapId(self, vis_params=None):
-    """Fetch and return a MapID.
+    """Fetch and return a Map ID.
 
-    This mosaics the collection to a single image and return a mapid suitable
+    This mosaics the collection to a single image and return a map ID suitable
     for building a Google Maps overlay.
 
     Args:
-       vis_params: The visualization parameters.
+      vis_params: The visualization parameters.
 
     Returns:
-       A mapid and token.
+      A map ID dictionary as described in ee.data.getMapId.
     """
     mosaic = apifunction.ApiFunction.call_('ImageCollection.mosaic', self)
     return mosaic.getMapId(vis_params)
