@@ -2,8 +2,8 @@
 // Show parks in San Francisco within 2 kilometers of a BART station.
 
 // Load fusion tables for BART station locations and local parks.
-var bart = ee.FeatureCollection('ft:1xCCZkVn8DIkB7i7RVkvsYWxAxsdsQZ6SbD9PCXw');
-var parks = ee.FeatureCollection('ft:10KC6VfBWMUvNcuxU7mbSEg__F_4UVe9uDkCldBw');
+var bart = ee.FeatureCollection('GOOGLE/EE/DEMOS/bart-locations');
+var parks = ee.FeatureCollection('GOOGLE/EE/DEMOS/sf-parks');
 
 // Create a filter to pass the left features within 2km of the right features.
 var joinFilter = ee.Filter.withinDistance({
@@ -12,7 +12,7 @@ var joinFilter = ee.Filter.withinDistance({
   rightField: '.geo'
 });
 
-// Apply the join.  The leftFeild corresponds to the primary collection
+// Apply the join.  The leftField corresponds to the primary collection
 // and the rightField corresponds to the secondary collection.  The
 // matching condition is specified by the filter.
 var closeParks = ee.Join.simple().apply({

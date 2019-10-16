@@ -194,6 +194,12 @@ class CloudApiUtilsTest(unittest.TestCase):
                 'hidden': True
             },
             {
+                'name': 'algorithms/algPreview',
+                'description': 'desc',
+                'returnType': 'ret',
+                'preview': True
+            },
+            {
                 'name': 'algorithms/algDeprecated',
                 'description': 'desc',
                 'returnType': 'ret',
@@ -229,6 +235,12 @@ class CloudApiUtilsTest(unittest.TestCase):
             'returns': 'ret',
             'args': [],
             'hidden': True
+        },
+        'algPreview': {
+            'description': 'desc',
+            'returns': 'ret',
+            'args': [],
+            'preview': True
         },
         'algDeprecated': {
             'description': 'desc',

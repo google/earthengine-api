@@ -224,6 +224,11 @@ class ApiFunction(function.Function):
           deprecated_decorator = deprecation.Deprecated(signature['deprecated'])
           bound_function = deprecated_decorator(bound_function)
 
+        # Mark as preview if needed.
+        if signature.get('preview'):
+          bound_function.__doc__ += (
+              '\nPREVIEW: This function is preview or internal only.')
+
         # Decide whether this is a static or an instance function.
         is_instance = (signature['args'] and
                        ee_types.isSubtype(signature['args'][0]['type'],

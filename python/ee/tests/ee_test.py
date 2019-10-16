@@ -403,6 +403,13 @@ class EETestCase(apitestcase.ApiTestCase):
                 'args': [],
                 'description': baz,
                 'returns': 'Object'
+            },
+            'Image.newBaz': {
+                'type': 'Algorithm',
+                'args': [],
+                'description': baz,
+                'returns': 'Object',
+                'preview': True
             }
         }
     ee.data.send_ = MockSend
@@ -421,6 +428,8 @@ class EETestCase(apitestcase.ApiTestCase):
       self.assertEqual(ee.Algorithms.Foo.__doc__, foo)
       self.assertIn(foo, ee.Image.oldBar.__doc__)
       self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
+      self.assertIn('PREVIEW: This function is preview or internal only.',
+                    ee.Image.newBaz.__doc__)
       self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
       self.assertEqual(ee.Image.baz.__doc__, baz)
     else:
@@ -428,6 +437,8 @@ class EETestCase(apitestcase.ApiTestCase):
                        '\xef\xac\x80\xc3\xb6\xc7\xab')
       self.assertIn('\xef\xac\x80\xc3\xb6\xc7\xab', ee.Image.oldBar.__doc__)
       self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
+      self.assertIn('PREVIEW: This function is preview or internal only.',
+                    ee.Image.newBaz.__doc__)
       self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: b\xc3\xa4r')
       self.assertEqual(ee.Image.baz.__doc__, 'b\xc3\xa2\xc3\x9f')
 

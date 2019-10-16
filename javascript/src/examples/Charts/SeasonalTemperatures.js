@@ -1,7 +1,7 @@
 // Plot average seasonal temperatures in U.S. cities.
 
 var seasonalTemps =
-    ee.FeatureCollection('ft:1G3RZbWoTiCiYv_LEwc7xKZq8aYoPZlL5_KuVhyDM');
+    ee.FeatureCollection('projects/google/ave-temp-us-cities');
 
 // Compute the annual temperature delta.
 seasonalTemps = seasonalTemps.map(function(city) {

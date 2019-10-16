@@ -378,7 +378,8 @@ ee.batch.Export.video.toDrive = function(
  * equivalent parameters, see the Public API section above.
  *
  * @typedef {!ee.data.ImageTaskConfig|!ee.data.MapTaskConfig|
- *     !ee.data.TableTaskConfig|!ee.data.VideoTaskConfig}
+ *     !ee.data.TableTaskConfig|!ee.data.VideoTaskConfig|
+ *     !ee.data.VideoMapTaskConfig}
  */
 ee.batch.ServerTaskConfig = {};
 
@@ -664,25 +665,25 @@ ee.batch.Export.video.prepareTaskConfig_ = function(taskConfig, destination) {
 };
 
 /**
- * Adapts a ServerTaskConfig into a MapTaskConfig normalizing any params
+ * Adapts a ServerTaskConfig into a VideoMapTaskConfig normalizing any params
  * for a video map task.
  *
  * @param {!ee.batch.ServerTaskConfig} taskConfig VideoMap export config to
  *     prepare.
  * @param {!ee.data.ExportDestination} destination Export destination.
- * @return {!ee.data.MapTaskConfig}
+ * @return {!ee.data.VideoMapTaskConfig}
  * @private
  */
 ee.batch.Export.videoMap.prepareTaskConfig_ = function(
     taskConfig, destination) {
   taskConfig = ee.batch.Export.reconcileVideoFormat_(taskConfig);
-  taskConfig['version'] = taskConfig['version'] || ee.batch.VideoMapVersion.V2;
+  taskConfig['version'] = taskConfig['version'] || ee.batch.VideoMapVersion.V1;
   taskConfig['stride'] = taskConfig['stride'] || 1;
-  const width = taskConfig['tileWidth'] || 1068,
-        height = taskConfig['tileHeight'] || 600;
+  const width = taskConfig['tileWidth'] || 256,
+        height = taskConfig['tileHeight'] || 256;
   taskConfig['tileDimensions'] = {width: width, height: height};
   taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
-  return /** @type {!ee.data.MapTaskConfig} */ (taskConfig);
+  return /** @type {!ee.data.VideoMapTaskConfig} */ (taskConfig);
 };
 
 

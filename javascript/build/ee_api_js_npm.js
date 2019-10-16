@@ -222,6 +222,23 @@ $jscomp.polyfill("Array.prototype.keys", function(orig) {
     });
   };
 }, "es6", "es3");
+$jscomp.owns = function(obj, prop) {
+  return Object.prototype.hasOwnProperty.call(obj, prop);
+};
+$jscomp.assign = "function" == typeof Object.assign ? Object.assign : function(target, var_args) {
+  for (var i = 1; i < arguments.length; i++) {
+    var source = arguments[i];
+    if (source) {
+      for (var key in source) {
+        $jscomp.owns(source, key) && (target[key] = source[key]);
+      }
+    }
+  }
+  return target;
+};
+$jscomp.polyfill("Object.assign", function(orig) {
+  return orig || $jscomp.assign;
+}, "es6", "es3");
 $jscomp.FORCE_POLYFILL_PROMISE = !1;
 $jscomp.polyfill("Promise", function(NativePromise) {
   function AsyncExecutor() {
@@ -422,9 +439,6 @@ $jscomp.polyfill("Array.prototype.values", function(orig) {
     });
   };
 }, "es8", "es3");
-$jscomp.owns = function(obj, prop) {
-  return Object.prototype.hasOwnProperty.call(obj, prop);
-};
 $jscomp.polyfill("Object.entries", function(orig) {
   return orig ? orig : function(obj) {
     var result = [], key;
@@ -434,20 +448,6 @@ $jscomp.polyfill("Object.entries", function(orig) {
     return result;
   };
 }, "es8", "es3");
-$jscomp.assign = "function" == typeof Object.assign ? Object.assign : function(target, var_args) {
-  for (var i = 1; i < arguments.length; i++) {
-    var source = arguments[i];
-    if (source) {
-      for (var key in source) {
-        $jscomp.owns(source, key) && (target[key] = source[key]);
-      }
-    }
-  }
-  return target;
-};
-$jscomp.polyfill("Object.assign", function(orig) {
-  return orig || $jscomp.assign;
-}, "es6", "es3");
 $jscomp.polyfill("Object.is", function(orig) {
   return orig ? orig : function(left, right) {
     return left === right ? 0 !== left || 1 / left === 1 / right : left !== left && right !== right;
@@ -1398,7 +1398,7 @@ goog.Disposable.prototype.registerDisposable = function(disposable) {
   this.addOnDisposeCallback(goog.partial(goog.dispose, disposable));
 };
 goog.Disposable.prototype.addOnDisposeCallback = function(callback, opt_scope) {
-  this.disposed_ ? goog.isDef(opt_scope) ? callback.call(opt_scope) : callback() : (this.onDisposeCallbacks_ || (this.onDisposeCallbacks_ = []), this.onDisposeCallbacks_.push(goog.isDef(opt_scope) ? goog.bind(callback, opt_scope) : callback));
+  this.disposed_ ? void 0 !== opt_scope ? callback.call(opt_scope) : callback() : (this.onDisposeCallbacks_ || (this.onDisposeCallbacks_ = []), this.onDisposeCallbacks_.push(void 0 !== opt_scope ? goog.bind(callback, opt_scope) : callback));
 };
 goog.Disposable.prototype.disposeInternal = function() {
   if (this.onDisposeCallbacks_) {
@@ -1504,11 +1504,11 @@ goog.asserts.fail = function(opt_message, var_args) {
   goog.asserts.ENABLE_ASSERTS && goog.asserts.errorHandler_(new goog.asserts.AssertionError("Failure" + (opt_message ? ": " + opt_message : ""), Array.prototype.slice.call(arguments, 1)));
 };
 goog.asserts.assertNumber = function(value, opt_message, var_args) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isNumber(value) && goog.asserts.doAssertFailure_("Expected number but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
+  goog.asserts.ENABLE_ASSERTS && "number" !== typeof value && goog.asserts.doAssertFailure_("Expected number but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
   return value;
 };
 goog.asserts.assertString = function(value, opt_message, var_args) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isString(value) && goog.asserts.doAssertFailure_("Expected string but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
+  goog.asserts.ENABLE_ASSERTS && "string" !== typeof value && goog.asserts.doAssertFailure_("Expected string but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
   return value;
 };
 goog.asserts.assertFunction = function(value, opt_message, var_args) {
@@ -1524,7 +1524,7 @@ goog.asserts.assertArray = function(value, opt_message, var_args) {
   return value;
 };
 goog.asserts.assertBoolean = function(value, opt_message, var_args) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isBoolean(value) && goog.asserts.doAssertFailure_("Expected boolean but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
+  goog.asserts.ENABLE_ASSERTS && "boolean" !== typeof value && goog.asserts.doAssertFailure_("Expected boolean but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
   return value;
 };
 goog.asserts.assertElement = function(value, opt_message, var_args) {
@@ -1588,8 +1588,8 @@ goog.array.indexOf = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_F
   return Array.prototype.indexOf.call(arr, obj, opt_fromIndex);
 } : function(arr, obj, opt_fromIndex) {
   var fromIndex = null == opt_fromIndex ? 0 : 0 > opt_fromIndex ? Math.max(0, arr.length + opt_fromIndex) : opt_fromIndex;
-  if (goog.isString(arr)) {
-    return goog.isString(obj) && 1 == obj.length ? arr.indexOf(obj, fromIndex) : -1;
+  if ("string" === typeof arr) {
+    return "string" !== typeof obj || 1 != obj.length ? -1 : arr.indexOf(obj, fromIndex);
   }
   for (var i = fromIndex; i < arr.length; i++) {
     if (i in arr && arr[i] === obj) {
@@ -1604,8 +1604,8 @@ goog.array.lastIndexOf = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATI
 } : function(arr, obj, opt_fromIndex) {
   var fromIndex = null == opt_fromIndex ? arr.length - 1 : opt_fromIndex;
   0 > fromIndex && (fromIndex = Math.max(0, arr.length + fromIndex));
-  if (goog.isString(arr)) {
-    return goog.isString(obj) && 1 == obj.length ? arr.lastIndexOf(obj, fromIndex) : -1;
+  if ("string" === typeof arr) {
+    return "string" !== typeof obj || 1 != obj.length ? -1 : arr.lastIndexOf(obj, fromIndex);
   }
   for (var i = fromIndex; 0 <= i; i--) {
     if (i in arr && arr[i] === obj) {
@@ -1618,12 +1618,12 @@ goog.array.forEach = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_F
   goog.asserts.assert(null != arr.length);
   Array.prototype.forEach.call(arr, f, opt_obj);
 } : function(arr, f, opt_obj) {
-  for (var l = arr.length, arr2 = goog.isString(arr) ? arr.split("") : arr, i = 0; i < l; i++) {
+  for (var l = arr.length, arr2 = "string" === typeof arr ? arr.split("") : arr, i = 0; i < l; i++) {
     i in arr2 && f.call(opt_obj, arr2[i], i, arr);
   }
 };
 goog.array.forEachRight = function(arr, f, opt_obj) {
-  for (var l = arr.length, arr2 = goog.isString(arr) ? arr.split("") : arr, i = l - 1; 0 <= i; --i) {
+  for (var l = arr.length, arr2 = "string" === typeof arr ? arr.split("") : arr, i = l - 1; 0 <= i; --i) {
     i in arr2 && f.call(opt_obj, arr2[i], i, arr);
   }
 };
@@ -1631,7 +1631,7 @@ goog.array.filter = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FU
   goog.asserts.assert(null != arr.length);
   return Array.prototype.filter.call(arr, f, opt_obj);
 } : function(arr, f, opt_obj) {
-  for (var l = arr.length, res = [], resLength = 0, arr2 = goog.isString(arr) ? arr.split("") : arr, i = 0; i < l; i++) {
+  for (var l = arr.length, res = [], resLength = 0, arr2 = "string" === typeof arr ? arr.split("") : arr, i = 0; i < l; i++) {
     if (i in arr2) {
       var val = arr2[i];
       f.call(opt_obj, val, i, arr) && (res[resLength++] = val);
@@ -1643,7 +1643,7 @@ goog.array.map = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNCT
   goog.asserts.assert(null != arr.length);
   return Array.prototype.map.call(arr, f, opt_obj);
 } : function(arr, f, opt_obj) {
-  for (var l = arr.length, res = Array(l), arr2 = goog.isString(arr) ? arr.split("") : arr, i = 0; i < l; i++) {
+  for (var l = arr.length, res = Array(l), arr2 = "string" === typeof arr ? arr.split("") : arr, i = 0; i < l; i++) {
     i in arr2 && (res[i] = f.call(opt_obj, arr2[i], i, arr));
   }
   return res;
@@ -1675,7 +1675,7 @@ goog.array.some = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUNC
   goog.asserts.assert(null != arr.length);
   return Array.prototype.some.call(arr, f, opt_obj);
 } : function(arr, f, opt_obj) {
-  for (var l = arr.length, arr2 = goog.isString(arr) ? arr.split("") : arr, i = 0; i < l; i++) {
+  for (var l = arr.length, arr2 = "string" === typeof arr ? arr.split("") : arr, i = 0; i < l; i++) {
     if (i in arr2 && f.call(opt_obj, arr2[i], i, arr)) {
       return !0;
     }
@@ -1686,7 +1686,7 @@ goog.array.every = goog.NATIVE_ARRAY_PROTOTYPES && (goog.array.ASSUME_NATIVE_FUN
   goog.asserts.assert(null != arr.length);
   return Array.prototype.every.call(arr, f, opt_obj);
 } : function(arr, f, opt_obj) {
-  for (var l = arr.length, arr2 = goog.isString(arr) ? arr.split("") : arr, i = 0; i < l; i++) {
+  for (var l = arr.length, arr2 = "string" === typeof arr ? arr.split("") : arr, i = 0; i < l; i++) {
     if (i in arr2 && !f.call(opt_obj, arr2[i], i, arr)) {
       return !1;
     }
@@ -1702,10 +1702,10 @@ goog.array.count = function(arr$jscomp$0, f, opt_obj) {
 };
 goog.array.find = function(arr, f, opt_obj) {
   var i = goog.array.findIndex(arr, f, opt_obj);
-  return 0 > i ? null : goog.isString(arr) ? arr.charAt(i) : arr[i];
+  return 0 > i ? null : "string" === typeof arr ? arr.charAt(i) : arr[i];
 };
 goog.array.findIndex = function(arr, f, opt_obj) {
-  for (var l = arr.length, arr2 = goog.isString(arr) ? arr.split("") : arr, i = 0; i < l; i++) {
+  for (var l = arr.length, arr2 = "string" === typeof arr ? arr.split("") : arr, i = 0; i < l; i++) {
     if (i in arr2 && f.call(opt_obj, arr2[i], i, arr)) {
       return i;
     }
@@ -1714,10 +1714,10 @@ goog.array.findIndex = function(arr, f, opt_obj) {
 };
 goog.array.findRight = function(arr, f, opt_obj) {
   var i = goog.array.findIndexRight(arr, f, opt_obj);
-  return 0 > i ? null : goog.isString(arr) ? arr.charAt(i) : arr[i];
+  return 0 > i ? null : "string" === typeof arr ? arr.charAt(i) : arr[i];
 };
 goog.array.findIndexRight = function(arr, f, opt_obj) {
-  for (var l = arr.length, arr2 = goog.isString(arr) ? arr.split("") : arr, i = l - 1; 0 <= i; i--) {
+  for (var l = arr.length, arr2 = "string" === typeof arr ? arr.split("") : arr, i = l - 1; 0 <= i; i--) {
     if (i in arr2 && f.call(opt_obj, arr2[i], i, arr)) {
       return i;
     }
@@ -1912,7 +1912,7 @@ goog.array.binaryRemove = function(array, value, opt_compareFn) {
 goog.array.bucket = function(array, sorter, opt_obj) {
   for (var buckets = {}, i = 0; i < array.length; i++) {
     var value = array[i], key = sorter.call(opt_obj, value, i, array);
-    goog.isDef(key) && (buckets[key] || (buckets[key] = [])).push(value);
+    void 0 !== key && (buckets[key] || (buckets[key] = [])).push(value);
   }
   return buckets;
 };
@@ -2966,7 +2966,7 @@ goog.fs.url.getUrlObject_ = function() {
   throw Error("This browser doesn't seem to support blob URLs");
 };
 goog.fs.url.findUrlObject_ = function() {
-  return goog.isDef(goog.global.URL) && goog.isDef(goog.global.URL.createObjectURL) ? goog.global.URL : goog.isDef(goog.global.webkitURL) && goog.isDef(goog.global.webkitURL.createObjectURL) ? goog.global.webkitURL : goog.isDef(goog.global.createObjectURL) ? goog.global : null;
+  return void 0 !== goog.global.URL && void 0 !== goog.global.URL.createObjectURL ? goog.global.URL : void 0 !== goog.global.webkitURL && void 0 !== goog.global.webkitURL.createObjectURL ? goog.global.webkitURL : void 0 !== goog.global.createObjectURL ? goog.global : null;
 };
 goog.fs.url.browserSupportsObjectUrls = function() {
   return null != goog.fs.url.findUrlObject_();
@@ -3101,9 +3101,8 @@ goog.i18n.bidi.setElementDirByTextDirectionality = function(element, text) {
 };
 goog.i18n.bidi.DirectionalString = function() {
 };
-goog.html.TrustedResourceUrl = function(opt_token, opt_content, opt_trustedUrl) {
+goog.html.TrustedResourceUrl = function(opt_token, opt_content) {
   this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = opt_token === goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content || "";
-  this.trustedURL_ = opt_token === goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ && opt_trustedUrl || null;
   this.TRUSTED_RESOURCE_URL_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.TrustedResourceUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
 };
 goog.html.TrustedResourceUrl.prototype.implementsGoogStringTypedString = !0;
@@ -3130,9 +3129,6 @@ goog.html.TrustedResourceUrl.unwrapTrustedScriptURL = function(trustedResourceUr
   }
   goog.asserts.fail("expected object of type TrustedResourceUrl, got '" + trustedResourceUrl + "' of type " + goog.typeOf(trustedResourceUrl));
   return "type_error:TrustedResourceUrl";
-};
-goog.html.TrustedResourceUrl.unwrapTrustedURL = function(trustedResourceUrl) {
-  return trustedResourceUrl.trustedURL_ ? trustedResourceUrl.trustedURL_ : goog.html.TrustedResourceUrl.unwrap(trustedResourceUrl);
 };
 goog.html.TrustedResourceUrl.format = function(format, args) {
   var formatStr = goog.string.Const.unwrap(format);
@@ -3165,14 +3161,14 @@ goog.html.TrustedResourceUrl.fromConstants = function(parts) {
 };
 goog.html.TrustedResourceUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
 goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse = function(url) {
-  var value = goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY ? goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createScriptURL(url) : url, trustedUrl = goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY ? goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createURL(url) : null;
-  return new goog.html.TrustedResourceUrl(goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_, value, trustedUrl);
+  var value = goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY ? goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createScriptURL(url) : url;
+  return new goog.html.TrustedResourceUrl(goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_, value);
 };
 goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, params) {
   if (null == params) {
     return currentString;
   }
-  if (goog.isString(params)) {
+  if ("string" === typeof params) {
     return params ? prefix + encodeURIComponent(params) : "";
   }
   for (var key in params) {
@@ -3201,9 +3197,6 @@ goog.DEBUG && (goog.html.SafeUrl.prototype.toString = function() {
   return "SafeUrl{" + this.privateDoNotAccessOrElseSafeUrlWrappedValue_ + "}";
 });
 goog.html.SafeUrl.unwrap = function(safeUrl) {
-  return goog.html.SafeUrl.unwrapTrustedURL(safeUrl).toString();
-};
-goog.html.SafeUrl.unwrapTrustedURL = function(safeUrl) {
   if (safeUrl instanceof goog.html.SafeUrl && safeUrl.constructor === goog.html.SafeUrl && safeUrl.SAFE_URL_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === goog.html.SafeUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_) {
     return safeUrl.privateDoNotAccessOrElseSafeUrlWrappedValue_;
   }
@@ -3322,7 +3315,7 @@ goog.html.SafeUrl.sanitizeAssertUnchanged = function(url, opt_allowDataUrl) {
 };
 goog.html.SafeUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
 goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse = function(url) {
-  return new goog.html.SafeUrl(goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_, goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY ? goog.html.trustedtypes.PRIVATE_DO_NOT_ACCESS_OR_ELSE_POLICY.createURL(url) : url);
+  return new goog.html.SafeUrl(goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_, url);
 };
 goog.html.SafeUrl.ABOUT_BLANK = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse("about:blank");
 goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
@@ -3434,7 +3427,8 @@ goog.html.SafeStyle.hasBalancedSquareBrackets_ = function(value) {
 goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ = "[-,.\"'%_!# a-zA-Z0-9\\[\\]]";
 goog.html.SafeStyle.VALUE_RE_ = new RegExp("^" + goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ + "+$");
 goog.html.SafeStyle.URL_RE_ = /\b(url\([ \t\n]*)('[ -&(-\[\]-~]*'|"[ !#-\[\]-~]*"|[!#-&*-\[\]-~]*)([ \t\n]*\))/g;
-goog.html.SafeStyle.FUNCTIONS_RE_ = /\b(hsl|hsla|rgb|rgba|matrix|calc|minmax|fit-content|repeat|(rotate|scale|translate)(X|Y|Z|3d)?)\([-+*/0-9a-z.%\[\], ]+\)/g;
+goog.html.SafeStyle.ALLOWED_FUNCTIONS_ = "calc cubic-bezier fit-content hsl hsla matrix minmax repeat rgb rgba (rotate|scale|translate)(X|Y|Z|3d)?".split(" ");
+goog.html.SafeStyle.FUNCTIONS_RE_ = new RegExp("\\b(" + goog.html.SafeStyle.ALLOWED_FUNCTIONS_.join("|") + ")\\([-+*/0-9a-z.%\\[\\], ]+\\)", "g");
 goog.html.SafeStyle.COMMENT_RE_ = /\/\*/;
 goog.html.SafeStyle.sanitizeUrl_ = function(value) {
   return value.replace(goog.html.SafeStyle.URL_RE_, function(match$jscomp$0, before, url, after) {
@@ -3667,7 +3661,7 @@ goog.html.SafeHtml.getAttrNameAndValue_ = function(tagName, name, value) {
           if (value instanceof goog.html.SafeUrl) {
             value = goog.html.SafeUrl.unwrap(value);
           } else {
-            if (goog.isString(value)) {
+            if ("string" === typeof value) {
               value = goog.html.SafeUrl.sanitize(value).getTypedStringValue();
             } else {
               throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'Attribute "' + name + '" on tag "' + tagName + '" requires goog.html.SafeUrl, goog.string.Const, or string, value "' + value + '" given.' : "");
@@ -3678,7 +3672,7 @@ goog.html.SafeHtml.getAttrNameAndValue_ = function(tagName, name, value) {
     }
   }
   value.implementsGoogStringTypedString && (value = value.getTypedStringValue());
-  goog.asserts.assert(goog.isString(value) || goog.isNumber(value), "String or number value expected, got " + typeof value + " with value: " + value);
+  goog.asserts.assert("string" === typeof value || "number" === typeof value, "String or number value expected, got " + typeof value + " with value: " + value);
   return name + '="' + goog.string.internal.htmlEscape(String(value)) + '"';
 };
 goog.html.SafeHtml.getStyleValue_ = function(value) {
@@ -3728,7 +3722,7 @@ goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse = function(
   var dir = null;
   var result = "<" + tagName + goog.html.SafeHtml.stringifyAttributes(tagName, opt_attributes);
   var content = opt_content;
-  goog.isDefAndNotNull(content) ? goog.isArray(content) || (content = [content]) : content = [];
+  null == content ? content = [] : goog.isArray(content) || (content = [content]);
   if (goog.dom.tags.isVoidTag(tagName.toLowerCase())) {
     goog.asserts.assert(!content.length, "Void tag <" + tagName + "> does not allow content."), result += ">";
   } else {
@@ -3748,7 +3742,7 @@ goog.html.SafeHtml.stringifyAttributes = function(tagName, opt_attributes) {
         throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'Invalid attribute name "' + name + '".' : "");
       }
       var value = opt_attributes[name];
-      goog.isDefAndNotNull(value) && (result += " " + goog.html.SafeHtml.getAttrNameAndValue_(tagName, name, value));
+      null != value && (result += " " + goog.html.SafeHtml.getAttrNameAndValue_(tagName, name, value));
     }
   }
   return result;
@@ -3846,15 +3840,15 @@ goog.dom.safe.setOuterHtml = function(elem, html) {
 };
 goog.dom.safe.setFormElementAction = function(form, url) {
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
-  goog.dom.asserts.assertIsHTMLFormElement(form).action = goog.html.SafeUrl.unwrapTrustedURL(safeUrl);
+  goog.dom.asserts.assertIsHTMLFormElement(form).action = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setButtonFormAction = function(button, url) {
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
-  goog.dom.asserts.assertIsHTMLButtonElement(button).formAction = goog.html.SafeUrl.unwrapTrustedURL(safeUrl);
+  goog.dom.asserts.assertIsHTMLButtonElement(button).formAction = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setInputFormAction = function(input, url) {
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
-  goog.dom.asserts.assertIsHTMLInputElement(input).formAction = goog.html.SafeUrl.unwrapTrustedURL(safeUrl);
+  goog.dom.asserts.assertIsHTMLInputElement(input).formAction = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setStyle = function(elem, style) {
   elem.style.cssText = goog.html.SafeStyle.unwrap(style);
@@ -3865,22 +3859,22 @@ goog.dom.safe.documentWrite = function(doc, html) {
 goog.dom.safe.setAnchorHref = function(anchor, url) {
   goog.dom.asserts.assertIsHTMLAnchorElement(anchor);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
-  anchor.href = goog.html.SafeUrl.unwrapTrustedURL(safeUrl);
+  anchor.href = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setImageSrc = function(imageElement, url) {
   goog.dom.asserts.assertIsHTMLImageElement(imageElement);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url, /^data:image\//i.test(url));
-  imageElement.src = goog.html.SafeUrl.unwrapTrustedURL(safeUrl);
+  imageElement.src = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setAudioSrc = function(audioElement, url) {
   goog.dom.asserts.assertIsHTMLAudioElement(audioElement);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url, /^data:audio\//i.test(url));
-  audioElement.src = goog.html.SafeUrl.unwrapTrustedURL(safeUrl);
+  audioElement.src = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setVideoSrc = function(videoElement, url) {
   goog.dom.asserts.assertIsHTMLVideoElement(videoElement);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url, /^data:video\//i.test(url));
-  videoElement.src = goog.html.SafeUrl.unwrapTrustedURL(safeUrl);
+  videoElement.src = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setEmbedSrc = function(embed, url) {
   goog.dom.asserts.assertIsHTMLEmbedElement(embed);
@@ -3888,11 +3882,11 @@ goog.dom.safe.setEmbedSrc = function(embed, url) {
 };
 goog.dom.safe.setFrameSrc = function(frame, url) {
   goog.dom.asserts.assertIsHTMLFrameElement(frame);
-  frame.src = goog.html.TrustedResourceUrl.unwrapTrustedURL(url);
+  frame.src = goog.html.TrustedResourceUrl.unwrap(url);
 };
 goog.dom.safe.setIframeSrc = function(iframe, url) {
   goog.dom.asserts.assertIsHTMLIFrameElement(iframe);
-  iframe.src = goog.html.TrustedResourceUrl.unwrapTrustedURL(url);
+  iframe.src = goog.html.TrustedResourceUrl.unwrap(url);
 };
 goog.dom.safe.setIframeSrcdoc = function(iframe, html) {
   goog.dom.asserts.assertIsHTMLIFrameElement(iframe);
@@ -3901,7 +3895,7 @@ goog.dom.safe.setIframeSrcdoc = function(iframe, html) {
 goog.dom.safe.setLinkHrefAndRel = function(link, url, rel) {
   goog.dom.asserts.assertIsHTMLLinkElement(link);
   link.rel = rel;
-  goog.string.internal.caseInsensitiveContains(rel, "stylesheet") ? (goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"'), link.href = goog.html.TrustedResourceUrl.unwrapTrustedURL(url)) : link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrapTrustedURL(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrapTrustedURL(url) : goog.html.SafeUrl.unwrapTrustedURL(goog.html.SafeUrl.sanitizeAssertUnchanged(url));
+  goog.string.internal.caseInsensitiveContains(rel, "stylesheet") ? (goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"'), link.href = goog.html.TrustedResourceUrl.unwrap(url)) : link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrap(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrap(url) : goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitizeAssertUnchanged(url));
 };
 goog.dom.safe.setObjectData = function(object, url) {
   goog.dom.asserts.assertIsHTMLObjectElement(object);
@@ -3922,21 +3916,21 @@ goog.dom.safe.setScriptContent = function(script, content) {
 goog.dom.safe.setLocationHref = function(loc, url) {
   goog.dom.asserts.assertIsLocation(loc);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
-  loc.href = goog.html.SafeUrl.unwrapTrustedURL(safeUrl);
+  loc.href = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.assignLocation = function(loc, url) {
   goog.dom.asserts.assertIsLocation(loc);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
-  loc.assign(goog.html.SafeUrl.unwrapTrustedURL(safeUrl));
+  loc.assign(goog.html.SafeUrl.unwrap(safeUrl));
 };
 goog.dom.safe.replaceLocation = function(loc, url) {
   goog.dom.asserts.assertIsLocation(loc);
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
-  loc.replace(goog.html.SafeUrl.unwrapTrustedURL(safeUrl));
+  loc.replace(goog.html.SafeUrl.unwrap(safeUrl));
 };
 goog.dom.safe.openInWindow = function(url, opt_openerWin, opt_name, opt_specs, opt_replace) {
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
-  return (opt_openerWin || goog.global).open(goog.html.SafeUrl.unwrapTrustedURL(safeUrl), opt_name ? goog.string.Const.unwrap(opt_name) : "", opt_specs, opt_replace);
+  return (opt_openerWin || goog.global).open(goog.html.SafeUrl.unwrap(safeUrl), opt_name ? goog.string.Const.unwrap(opt_name) : "", opt_specs, opt_replace);
 };
 goog.dom.safe.parseFromStringHtml = function(parser, html) {
   return goog.dom.safe.parseFromString(parser, html, "text/html");
@@ -4215,7 +4209,7 @@ goog.string.repeat = String.prototype.repeat ? function(string, length) {
   return Array(length + 1).join(string);
 };
 goog.string.padNumber = function(num, length, opt_precision) {
-  var s = goog.isDef(opt_precision) ? num.toFixed(opt_precision) : String(num), index = s.indexOf(".");
+  var s = void 0 !== opt_precision ? num.toFixed(opt_precision) : String(num), index = s.indexOf(".");
   -1 == index && (index = s.length);
   return goog.string.repeat("0", Math.max(0, length - index)) + s;
 };
@@ -4258,7 +4252,7 @@ goog.string.toSelectorCase = function(str) {
   return String(str).replace(/([A-Z])/g, "-$1").toLowerCase();
 };
 goog.string.toTitleCase = function(str, opt_delimiters) {
-  var delimiters = goog.isString(opt_delimiters) ? goog.string.regExpEscape(opt_delimiters) : "\\s";
+  var delimiters = "string" === typeof opt_delimiters ? goog.string.regExpEscape(opt_delimiters) : "\\s";
   return str.replace(new RegExp("(^" + (delimiters ? "|[" + delimiters + "]+" : "") + ")([a-z])", "g"), function(all, p1, p2) {
     return p1 + p2.toUpperCase();
   });
@@ -4268,7 +4262,7 @@ goog.string.capitalize = function(str) {
 };
 goog.string.parseInt = function(value) {
   isFinite(value) && (value = String(value));
-  return goog.isString(value) ? /^\s*-?0x/i.test(value) ? parseInt(value, 16) : parseInt(value, 10) : NaN;
+  return "string" === typeof value ? /^\s*-?0x/i.test(value) ? parseInt(value, 16) : parseInt(value, 10) : NaN;
 };
 goog.string.splitLimit = function(str, separator, limit) {
   for (var parts = str.split(separator), returnVal = []; 0 < limit && parts.length;) {
@@ -4595,11 +4589,13 @@ goog.debug.deepExpose = function(obj$jscomp$0, opt_showFn) {
       return str.replace(/\n/g, "\n" + space);
     };
     try {
-      if (goog.isDef(obj)) {
-        if (goog.isNull(obj)) {
+      if (void 0 === obj) {
+        str$jscomp$0.push("undefined");
+      } else {
+        if (null === obj) {
           str$jscomp$0.push("NULL");
         } else {
-          if (goog.isString(obj)) {
+          if ("string" === typeof obj) {
             str$jscomp$0.push('"' + indentMultiline(obj) + '"');
           } else {
             if (goog.isFunction(obj)) {
@@ -4627,8 +4623,6 @@ goog.debug.deepExpose = function(obj$jscomp$0, opt_showFn) {
             }
           }
         }
-      } else {
-        str$jscomp$0.push("undefined");
       }
     } catch (e) {
       str$jscomp$0.push("*** " + e + " ***");
@@ -4649,7 +4643,7 @@ goog.debug.exposeArray = function(arr) {
 goog.debug.normalizeErrorObject = function(err) {
   var href = goog.getObjectByName("window.location.href");
   null == err && (err = 'Unknown Error of type "null/undefined"');
-  if (goog.isString(err)) {
+  if ("string" === typeof err) {
     return {message:err, name:"Unknown error", lineNumber:"Not available", fileName:href, stack:"Not available"};
   }
   var threwError = !1;
@@ -4833,9 +4827,9 @@ goog.events.getVendorPrefixedName_ = function(eventName) {
 };
 goog.events.EventType = {CLICK:"click", RIGHTCLICK:"rightclick", DBLCLICK:"dblclick", AUXCLICK:"auxclick", MOUSEDOWN:"mousedown", MOUSEUP:"mouseup", MOUSEOVER:"mouseover", MOUSEOUT:"mouseout", MOUSEMOVE:"mousemove", MOUSEENTER:"mouseenter", MOUSELEAVE:"mouseleave", MOUSECANCEL:"mousecancel", SELECTIONCHANGE:"selectionchange", SELECTSTART:"selectstart", WHEEL:"wheel", KEYPRESS:"keypress", KEYDOWN:"keydown", KEYUP:"keyup", BLUR:"blur", FOCUS:"focus", DEACTIVATE:"deactivate", FOCUSIN:"focusin", FOCUSOUT:"focusout", 
 CHANGE:"change", RESET:"reset", SELECT:"select", SUBMIT:"submit", INPUT:"input", PROPERTYCHANGE:"propertychange", DRAGSTART:"dragstart", DRAG:"drag", DRAGENTER:"dragenter", DRAGOVER:"dragover", DRAGLEAVE:"dragleave", DROP:"drop", DRAGEND:"dragend", TOUCHSTART:"touchstart", TOUCHMOVE:"touchmove", TOUCHEND:"touchend", TOUCHCANCEL:"touchcancel", BEFOREUNLOAD:"beforeunload", CONSOLEMESSAGE:"consolemessage", CONTEXTMENU:"contextmenu", DEVICECHANGE:"devicechange", DEVICEMOTION:"devicemotion", DEVICEORIENTATION:"deviceorientation", 
-DOMCONTENTLOADED:"DOMContentLoaded", ERROR:"error", HELP:"help", LOAD:"load", LOSECAPTURE:"losecapture", ORIENTATIONCHANGE:"orientationchange", READYSTATECHANGE:"readystatechange", RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", CANPLAY:"canplay", CANPLAYTHROUGH:"canplaythrough", DURATIONCHANGE:"durationchange", EMPTIED:"emptied", ENDED:"ended", LOADEDDATA:"loadeddata", LOADEDMETADATA:"loadedmetadata", PAUSE:"pause", PLAY:"play", PLAYING:"playing", RATECHANGE:"ratechange", SEEKED:"seeked", SEEKING:"seeking", 
-STALLED:"stalled", SUSPEND:"suspend", TIMEUPDATE:"timeupdate", VOLUMECHANGE:"volumechange", WAITING:"waiting", SOURCEOPEN:"sourceopen", SOURCEENDED:"sourceended", SOURCECLOSED:"sourceclosed", ABORT:"abort", UPDATE:"update", UPDATESTART:"updatestart", UPDATEEND:"updateend", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", ONLINE:"online", OFFLINE:"offline", 
-MESSAGE:"message", CONNECT:"connect", INSTALL:"install", ACTIVATE:"activate", FETCH:"fetch", FOREIGNFETCH:"foreignfetch", MESSAGEERROR:"messageerror", STATECHANGE:"statechange", UPDATEFOUND:"updatefound", CONTROLLERCHANGE:"controllerchange", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), 
+DOMCONTENTLOADED:"DOMContentLoaded", ERROR:"error", HELP:"help", LOAD:"load", LOSECAPTURE:"losecapture", ORIENTATIONCHANGE:"orientationchange", READYSTATECHANGE:"readystatechange", RESIZE:"resize", SCROLL:"scroll", UNLOAD:"unload", CANPLAY:"canplay", CANPLAYTHROUGH:"canplaythrough", DURATIONCHANGE:"durationchange", EMPTIED:"emptied", ENDED:"ended", LOADEDDATA:"loadeddata", LOADEDMETADATA:"loadedmetadata", PAUSE:"pause", PLAY:"play", PLAYING:"playing", PROGRESS:"progress", RATECHANGE:"ratechange", 
+SEEKED:"seeked", SEEKING:"seeking", STALLED:"stalled", SUSPEND:"suspend", TIMEUPDATE:"timeupdate", VOLUMECHANGE:"volumechange", WAITING:"waiting", SOURCEOPEN:"sourceopen", SOURCEENDED:"sourceended", SOURCECLOSED:"sourceclosed", ABORT:"abort", UPDATE:"update", UPDATESTART:"updatestart", UPDATEEND:"updateend", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", 
+ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", INSTALL:"install", ACTIVATE:"activate", FETCH:"fetch", FOREIGNFETCH:"foreignfetch", MESSAGEERROR:"messageerror", STATECHANGE:"statechange", UPDATEFOUND:"updatefound", CONTROLLERCHANGE:"controllerchange", ANIMATIONSTART:goog.events.getVendorPrefixedName_("AnimationStart"), ANIMATIONEND:goog.events.getVendorPrefixedName_("AnimationEnd"), ANIMATIONITERATION:goog.events.getVendorPrefixedName_("AnimationIteration"), TRANSITIONEND:goog.events.getVendorPrefixedName_("TransitionEnd"), 
 POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", 
 MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXT:"text", TEXTINPUT:goog.userAgent.IE ? "textinput" : "textInput", COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", 
 BEFOREINPUT:"beforeinput", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage", DOMSUBTREEMODIFIED:"DOMSubtreeModified", DOMNODEINSERTED:"DOMNodeInserted", DOMNODEREMOVED:"DOMNodeRemoved", DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", 
@@ -4926,7 +4920,7 @@ goog.events.BrowserEvent.prototype.getBrowserEvent = function() {
   return this.event_;
 };
 goog.events.BrowserEvent.getPointerType_ = function(e) {
-  return goog.isString(e.pointerType) ? e.pointerType : goog.events.BrowserEvent.IE_POINTER_TYPE_MAP[e.pointerType] || "";
+  return "string" === typeof e.pointerType ? e.pointerType : goog.events.BrowserEvent.IE_POINTER_TYPE_MAP[e.pointerType] || "";
 };
 goog.events.Listenable = function() {
 };
@@ -5032,7 +5026,7 @@ goog.events.ListenerMap.prototype.getListener = function(type, listener, capture
   return -1 < i ? listenerArray[i] : null;
 };
 goog.events.ListenerMap.prototype.hasListener = function(opt_type, opt_capture) {
-  var hasType = goog.isDef(opt_type), typeStr = hasType ? opt_type.toString() : "", hasCapture = goog.isDef(opt_capture);
+  var hasType = void 0 !== opt_type, typeStr = hasType ? opt_type.toString() : "", hasCapture = void 0 !== opt_capture;
   return goog.object.some(this.listeners, function(listenerArray, type) {
     for (var i = 0; i < listenerArray.length; ++i) {
       if (!(hasType && listenerArray[i].type != typeStr || hasCapture && listenerArray[i].capture != opt_capture)) {
@@ -5158,7 +5152,7 @@ goog.events.unlisten = function(src, type, listener, opt_options, opt_handler) {
   return !1;
 };
 goog.events.unlistenByKey = function(key) {
-  if (goog.isNumber(key) || !key || key.removed) {
+  if ("number" === typeof key || !key || key.removed) {
     return !1;
   }
   var src = key.src;
@@ -5414,7 +5408,7 @@ goog.events.EventTarget.prototype.getListener = function(type, listener, capture
   return this.eventTargetListeners_.getListener(String(type), listener, capture, opt_listenerScope);
 };
 goog.events.EventTarget.prototype.hasListener = function(opt_type, opt_capture) {
-  return this.eventTargetListeners_.hasListener(goog.isDef(opt_type) ? String(opt_type) : void 0, opt_capture);
+  return this.eventTargetListeners_.hasListener(void 0 !== opt_type ? String(opt_type) : void 0, opt_capture);
 };
 goog.events.EventTarget.prototype.setTargetForTesting = function(target) {
   this.actualEventTarget_ = target;
@@ -5424,7 +5418,7 @@ goog.events.EventTarget.prototype.assertInitialized_ = function() {
 };
 goog.events.EventTarget.dispatchEventInternal_ = function(target, e, opt_ancestorsTree) {
   var type = e.type || e;
-  if (goog.isString(e)) {
+  if ("string" === typeof e) {
     e = new goog.events.Event(e, target);
   } else {
     if (e instanceof goog.events.Event) {
@@ -5563,11 +5557,11 @@ goog.math.log10Floor = function(num) {
   return 0 == num ? -Infinity : NaN;
 };
 goog.math.safeFloor = function(num, opt_epsilon) {
-  goog.asserts.assert(!goog.isDef(opt_epsilon) || 0 < opt_epsilon);
+  goog.asserts.assert(void 0 === opt_epsilon || 0 < opt_epsilon);
   return Math.floor(num + (opt_epsilon || 2e-15));
 };
 goog.math.safeCeil = function(num, opt_epsilon) {
-  goog.asserts.assert(!goog.isDef(opt_epsilon) || 0 < opt_epsilon);
+  goog.asserts.assert(void 0 === opt_epsilon || 0 < opt_epsilon);
   return Math.ceil(num - (opt_epsilon || 2e-15));
 };
 goog.iter = {};
@@ -5829,7 +5823,7 @@ goog.iter.cycle = function(iterable) {
   return iter;
 };
 goog.iter.count = function(opt_start, opt_step) {
-  var counter = opt_start || 0, step = goog.isDef(opt_step) ? opt_step : 1, iter = new goog.iter.Iterator;
+  var counter = opt_start || 0, step = void 0 !== opt_step ? opt_step : 1, iter = new goog.iter.Iterator;
   iter.next = function() {
     var returnValue = counter;
     counter += step;
@@ -5931,7 +5925,7 @@ goog.iter.starMap = function(iterable, f, opt_obj) {
   return iter;
 };
 goog.iter.tee = function(iterable, opt_num) {
-  var iterator = goog.iter.toIterator(iterable), num = goog.isNumber(opt_num) ? opt_num : 2, buffers = goog.array.map(goog.array.range(num), function() {
+  var iterator = goog.iter.toIterator(iterable), buffers = goog.array.map(goog.array.range("number" === typeof opt_num ? opt_num : 2), function() {
     return [];
   }), addNextIteratorValueToBuffers = function() {
     var val = iterator.next();
@@ -5973,7 +5967,7 @@ goog.iter.consume = function(iterable, count) {
 goog.iter.slice = function(iterable, start, opt_end) {
   goog.asserts.assert(goog.math.isInt(start) && 0 <= start);
   var iterator = goog.iter.consume(iterable, start);
-  goog.isNumber(opt_end) && (goog.asserts.assert(goog.math.isInt(opt_end) && opt_end >= start), iterator = goog.iter.limit(iterator, opt_end - start));
+  "number" === typeof opt_end && (goog.asserts.assert(goog.math.isInt(opt_end) && opt_end >= start), iterator = goog.iter.limit(iterator, opt_end - start));
   return iterator;
 };
 goog.iter.hasDuplicates_ = function(arr) {
@@ -5982,7 +5976,7 @@ goog.iter.hasDuplicates_ = function(arr) {
   return arr.length != deduped.length;
 };
 goog.iter.permutations = function(iterable, opt_length) {
-  var elements = goog.iter.toArray(iterable), length = goog.isNumber(opt_length) ? opt_length : elements.length, sets = goog.array.repeat(elements, length), product = goog.iter.product.apply(void 0, sets);
+  var elements = goog.iter.toArray(iterable), sets = goog.array.repeat(elements, "number" === typeof opt_length ? opt_length : elements.length), product = goog.iter.product.apply(void 0, sets);
   return goog.iter.filter(product, function(arr) {
     return !goog.iter.hasDuplicates_(arr);
   });
@@ -6166,13 +6160,13 @@ goog.structs.Map.hasKey_ = function(obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key);
 };
 goog.structs.getCount = function(col) {
-  return col.getCount && "function" == typeof col.getCount ? col.getCount() : goog.isArrayLike(col) || goog.isString(col) ? col.length : goog.object.getCount(col);
+  return col.getCount && "function" == typeof col.getCount ? col.getCount() : goog.isArrayLike(col) || "string" === typeof col ? col.length : goog.object.getCount(col);
 };
 goog.structs.getValues = function(col) {
   if (col.getValues && "function" == typeof col.getValues) {
     return col.getValues();
   }
-  if (goog.isString(col)) {
+  if ("string" === typeof col) {
     return col.split("");
   }
   if (goog.isArrayLike(col)) {
@@ -6188,7 +6182,7 @@ goog.structs.getKeys = function(col) {
     return col.getKeys();
   }
   if (!col.getValues || "function" != typeof col.getValues) {
-    if (goog.isArrayLike(col) || goog.isString(col)) {
+    if (goog.isArrayLike(col) || "string" === typeof col) {
       for (var rv = [], l = col.length, i = 0; i < l; i++) {
         rv.push(i);
       }
@@ -6198,10 +6192,10 @@ goog.structs.getKeys = function(col) {
   }
 };
 goog.structs.contains = function(col, val) {
-  return col.contains && "function" == typeof col.contains ? col.contains(val) : col.containsValue && "function" == typeof col.containsValue ? col.containsValue(val) : goog.isArrayLike(col) || goog.isString(col) ? goog.array.contains(col, val) : goog.object.containsValue(col, val);
+  return col.contains && "function" == typeof col.contains ? col.contains(val) : col.containsValue && "function" == typeof col.containsValue ? col.containsValue(val) : goog.isArrayLike(col) || "string" === typeof col ? goog.array.contains(col, val) : goog.object.containsValue(col, val);
 };
 goog.structs.isEmpty = function(col) {
-  return col.isEmpty && "function" == typeof col.isEmpty ? col.isEmpty() : goog.isArrayLike(col) || goog.isString(col) ? goog.array.isEmpty(col) : goog.object.isEmpty(col);
+  return col.isEmpty && "function" == typeof col.isEmpty ? col.isEmpty() : goog.isArrayLike(col) || "string" === typeof col ? goog.array.isEmpty(col) : goog.object.isEmpty(col);
 };
 goog.structs.clear = function(col) {
   col.clear && "function" == typeof col.clear ? col.clear() : goog.isArrayLike(col) ? goog.array.clear(col) : goog.object.clear(col);
@@ -6210,7 +6204,7 @@ goog.structs.forEach = function(col, f, opt_obj) {
   if (col.forEach && "function" == typeof col.forEach) {
     col.forEach(f, opt_obj);
   } else {
-    if (goog.isArrayLike(col) || goog.isString(col)) {
+    if (goog.isArrayLike(col) || "string" === typeof col) {
       goog.array.forEach(col, f, opt_obj);
     } else {
       for (var keys = goog.structs.getKeys(col), values = goog.structs.getValues(col), l = values.length, i = 0; i < l; i++) {
@@ -6223,7 +6217,7 @@ goog.structs.filter = function(col, f, opt_obj) {
   if ("function" == typeof col.filter) {
     return col.filter(f, opt_obj);
   }
-  if (goog.isArrayLike(col) || goog.isString(col)) {
+  if (goog.isArrayLike(col) || "string" === typeof col) {
     return goog.array.filter(col, f, opt_obj);
   }
   var keys = goog.structs.getKeys(col), values = goog.structs.getValues(col), l = values.length;
@@ -6243,7 +6237,7 @@ goog.structs.map = function(col, f, opt_obj) {
   if ("function" == typeof col.map) {
     return col.map(f, opt_obj);
   }
-  if (goog.isArrayLike(col) || goog.isString(col)) {
+  if (goog.isArrayLike(col) || "string" === typeof col) {
     return goog.array.map(col, f, opt_obj);
   }
   var keys = goog.structs.getKeys(col), values = goog.structs.getValues(col), l = values.length;
@@ -6263,7 +6257,7 @@ goog.structs.some = function(col, f, opt_obj) {
   if ("function" == typeof col.some) {
     return col.some(f, opt_obj);
   }
-  if (goog.isArrayLike(col) || goog.isString(col)) {
+  if (goog.isArrayLike(col) || "string" === typeof col) {
     return goog.array.some(col, f, opt_obj);
   }
   for (var keys = goog.structs.getKeys(col), values = goog.structs.getValues(col), l = values.length, i = 0; i < l; i++) {
@@ -6277,7 +6271,7 @@ goog.structs.every = function(col, f, opt_obj) {
   if ("function" == typeof col.every) {
     return col.every(f, opt_obj);
   }
-  if (goog.isArrayLike(col) || goog.isString(col)) {
+  if (goog.isArrayLike(col) || "string" === typeof col) {
     return goog.array.every(col, f, opt_obj);
   }
   for (var keys = goog.structs.getKeys(col), values = goog.structs.getValues(col), l = values.length, i = 0; i < l; i++) {
@@ -6396,13 +6390,7 @@ module$exports$eeapiclient$domain_object.NULL_VALUE = new module$contents$eeapic
 module$exports$eeapiclient$domain_object.ISerializable = function module$contents$eeapiclient$domain_object_ISerializable() {
 };
 function module$contents$eeapiclient$domain_object_buildClassMetadataFromPartial(partialClassMetadata) {
-  var classMetadata = {arrays:{}, descriptions:{}, keys:[], objectMaps:{}, objects:{}};
-  partialClassMetadata.arrays && (classMetadata.arrays = partialClassMetadata.arrays);
-  partialClassMetadata.descriptions && (classMetadata.descriptions = partialClassMetadata.descriptions);
-  partialClassMetadata.keys && (classMetadata.keys = partialClassMetadata.keys);
-  partialClassMetadata.objectMaps && (classMetadata.objectMaps = partialClassMetadata.objectMaps);
-  partialClassMetadata.objects && (classMetadata.objects = partialClassMetadata.objects);
-  return classMetadata;
+  return Object.assign({arrays:{}, descriptions:{}, keys:[], objectMaps:{}, objects:{}, enums:{}}, partialClassMetadata);
 }
 module$exports$eeapiclient$domain_object.buildClassMetadataFromPartial = module$contents$eeapiclient$domain_object_buildClassMetadataFromPartial;
 var module$contents$eeapiclient$domain_object_Serializable = function() {
@@ -6464,17 +6452,17 @@ function module$contents$eeapiclient$domain_object_deserializeInstanciator(ctor)
 }
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$31 = {}, $jscomp$iter$3 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$3.next(); !$jscomp$key$key.done; $jscomp$loop$31 = {$jscomp$loop$prop$mapMetadata$32:$jscomp$loop$31.$jscomp$loop$prop$mapMetadata$32}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$30 = {}, $jscomp$iter$3 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$3.next(); !$jscomp$key$key.done; $jscomp$loop$30 = {$jscomp$loop$prop$mapMetadata$31:$jscomp$loop$30.$jscomp$loop$prop$mapMetadata$31}, 
   $jscomp$key$key = $jscomp$iter$3.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
       var copy = void 0;
-      arrays.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !0, arrays[key]) : objects.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]) : objectMaps.hasOwnProperty(key) ? ($jscomp$loop$31.$jscomp$loop$prop$mapMetadata$32 = 
-      objectMaps[key], copy = $jscomp$loop$31.$jscomp$loop$prop$mapMetadata$32.isPropertyArray ? value.map(function($jscomp$loop$31) {
+      arrays.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !0, arrays[key]) : objects.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]) : objectMaps.hasOwnProperty(key) ? ($jscomp$loop$30.$jscomp$loop$prop$mapMetadata$31 = 
+      objectMaps[key], copy = $jscomp$loop$30.$jscomp$loop$prop$mapMetadata$31.isPropertyArray ? value.map(function($jscomp$loop$30) {
         return function(v) {
-          return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$31.$jscomp$loop$prop$mapMetadata$32, valueGetter, valueSetter, copyInstanciator);
+          return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$30.$jscomp$loop$prop$mapMetadata$31, valueGetter, valueSetter, copyInstanciator);
         };
-      }($jscomp$loop$31)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$31.$jscomp$loop$prop$mapMetadata$32, valueGetter, valueSetter, copyInstanciator)) : copy = Array.isArray(value) ? module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !1) : value instanceof module$contents$eeapiclient$domain_object_NullClass ? 
+      }($jscomp$loop$30)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$30.$jscomp$loop$prop$mapMetadata$31, valueGetter, valueSetter, copyInstanciator)) : copy = Array.isArray(value) ? module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !1) : value instanceof module$contents$eeapiclient$domain_object_NullClass ? 
       null : value;
       valueSetter(key, target, copy);
     }
@@ -6515,45 +6503,45 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$33 = {}, $jscomp$iter$5 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$5.next(); !$jscomp$key$key.done; $jscomp$loop$33 = {$jscomp$loop$prop$value2$34:$jscomp$loop$33.$jscomp$loop$prop$value2$34, $jscomp$loop$prop$mapMetadata$35:$jscomp$loop$33.$jscomp$loop$prop$mapMetadata$35}, $jscomp$key$key = $jscomp$iter$5.next()) {
+  for (var $jscomp$loop$32 = {}, $jscomp$iter$5 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$5.next(); !$jscomp$key$key.done; $jscomp$loop$32 = {$jscomp$loop$prop$value2$33:$jscomp$loop$32.$jscomp$loop$prop$value2$33, $jscomp$loop$prop$mapMetadata$34:$jscomp$loop$32.$jscomp$loop$prop$mapMetadata$34}, $jscomp$key$key = $jscomp$iter$5.next()) {
     var key = $jscomp$key$key.value;
     if (serializable1.Serializable$has(key) !== serializable2.Serializable$has(key)) {
       return !1;
     }
     if (serializable1.Serializable$has(key)) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$33.$jscomp$loop$prop$value2$34 = serializable2.Serializable$get(key);
+      $jscomp$loop$32.$jscomp$loop$prop$value2$33 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$33.$jscomp$loop$prop$value2$34, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$32.$jscomp$loop$prop$value2$33, !0, !0)) {
           return !1;
         }
       } else {
         if (objects1.hasOwnProperty(key)) {
-          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$33.$jscomp$loop$prop$value2$34, !1, !0)) {
+          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$32.$jscomp$loop$prop$value2$33, !1, !0)) {
             return !1;
           }
         } else {
           if (objectMaps1.hasOwnProperty(key)) {
-            if ($jscomp$loop$33.$jscomp$loop$prop$mapMetadata$35 = objectMaps1[key], $jscomp$loop$33.$jscomp$loop$prop$mapMetadata$35.isPropertyArray) {
-              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$33.$jscomp$loop$prop$value2$34) || value1.some(function($jscomp$loop$33) {
+            if ($jscomp$loop$32.$jscomp$loop$prop$mapMetadata$34 = objectMaps1[key], $jscomp$loop$32.$jscomp$loop$prop$mapMetadata$34.isPropertyArray) {
+              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$32.$jscomp$loop$prop$value2$33) || value1.some(function($jscomp$loop$32) {
                 return function(v1, i) {
-                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$33.$jscomp$loop$prop$value2$34[i], $jscomp$loop$33.$jscomp$loop$prop$mapMetadata$35);
+                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$32.$jscomp$loop$prop$value2$33[i], $jscomp$loop$32.$jscomp$loop$prop$mapMetadata$34);
                 };
-              }($jscomp$loop$33))) {
+              }($jscomp$loop$32))) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$33.$jscomp$loop$prop$value2$34, $jscomp$loop$33.$jscomp$loop$prop$mapMetadata$35)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$32.$jscomp$loop$prop$value2$33, $jscomp$loop$32.$jscomp$loop$prop$mapMetadata$34)) {
                 return !1;
               }
             }
           } else {
             if (Array.isArray(value1)) {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$33.$jscomp$loop$prop$value2$34, !0, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$32.$jscomp$loop$prop$value2$33, !0, !1)) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$33.$jscomp$loop$prop$value2$34, !1, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$32.$jscomp$loop$prop$value2$33, !1, !1)) {
                 return !1;
               }
             }
@@ -7413,7 +7401,7 @@ module$contents$eeapiclient$ee_api_client_AuditLogConfig.prototype.getConstructo
   return module$contents$eeapiclient$ee_api_client_AuditLogConfig;
 };
 module$contents$eeapiclient$ee_api_client_AuditLogConfig.prototype.getPartialClassMetadata = function() {
-  return {keys:["exemptedMembers", "ignoreChildExemptions", "logType"]};
+  return {enums:{logType:module$exports$eeapiclient$ee_api_client.AuditLogConfigLogTypeEnum}, keys:["exemptedMembers", "ignoreChildExemptions", "logType"]};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_AuditLogConfig.prototype, {exemptedMembers:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("exemptedMembers") ? this.Serializable$get("exemptedMembers") : null;
@@ -7444,7 +7432,7 @@ module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions.prototype.
   return module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions;
 };
 module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["permissionType"]};
+  return {enums:{permissionType:module$exports$eeapiclient$ee_api_client.AuthorizationLoggingOptionsPermissionTypeEnum}, keys:["permissionType"]};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions.prototype, {permissionType:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("permissionType") ? this.Serializable$get("permissionType") : null;
@@ -7511,7 +7499,7 @@ module$contents$eeapiclient$ee_api_client_Capabilities.prototype.getConstructor 
   return module$contents$eeapiclient$ee_api_client_Capabilities;
 };
 module$contents$eeapiclient$ee_api_client_Capabilities.prototype.getPartialClassMetadata = function() {
-  return {keys:["capabilities"]};
+  return {enums:{capabilities:module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum}, keys:["capabilities"]};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_Capabilities.prototype, {capabilities:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("capabilities") ? this.Serializable$get("capabilities") : null;
@@ -7535,7 +7523,7 @@ module$contents$eeapiclient$ee_api_client_CloudAuditOptions.prototype.getConstru
   return module$contents$eeapiclient$ee_api_client_CloudAuditOptions;
 };
 module$contents$eeapiclient$ee_api_client_CloudAuditOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["authorizationLoggingOptions", "logName"], objects:{authorizationLoggingOptions:module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions}};
+  return {enums:{logName:module$exports$eeapiclient$ee_api_client.CloudAuditOptionsLogNameEnum}, keys:["authorizationLoggingOptions", "logName"], objects:{authorizationLoggingOptions:module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_CloudAuditOptions.prototype, {authorizationLoggingOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("authorizationLoggingOptions") ? this.Serializable$get("authorizationLoggingOptions") : null;
@@ -7681,7 +7669,7 @@ module$contents$eeapiclient$ee_api_client_ComputePixelsRequest.prototype.getCons
   return module$contents$eeapiclient$ee_api_client_ComputePixelsRequest;
 };
 module$contents$eeapiclient$ee_api_client_ComputePixelsRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:["bandIds", "expression", "fileFormat", "grid", "visualizationOptions"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, grid:module$contents$eeapiclient$ee_api_client_PixelGrid, visualizationOptions:module$contents$eeapiclient$ee_api_client_VisualizationOptions}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.ComputePixelsRequestFileFormatEnum}, keys:["bandIds", "expression", "fileFormat", "grid", "visualizationOptions"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, grid:module$contents$eeapiclient$ee_api_client_PixelGrid, visualizationOptions:module$contents$eeapiclient$ee_api_client_VisualizationOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ComputePixelsRequest.prototype, {bandIds:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bandIds") ? this.Serializable$get("bandIds") : null;
@@ -7764,7 +7752,7 @@ module$contents$eeapiclient$ee_api_client_Condition.prototype.getConstructor = f
   return module$contents$eeapiclient$ee_api_client_Condition;
 };
 module$contents$eeapiclient$ee_api_client_Condition.prototype.getPartialClassMetadata = function() {
-  return {keys:["iam", "op", "svc", "sys", "values"]};
+  return {enums:{iam:module$exports$eeapiclient$ee_api_client.ConditionIamEnum, op:module$exports$eeapiclient$ee_api_client.ConditionOpEnum, sys:module$exports$eeapiclient$ee_api_client.ConditionSysEnum}, keys:["iam", "op", "svc", "sys", "values"]};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_Condition.prototype, {iam:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("iam") ? this.Serializable$get("iam") : null;
@@ -7892,7 +7880,7 @@ module$contents$eeapiclient$ee_api_client_DataAccessOptions.prototype.getConstru
   return module$contents$eeapiclient$ee_api_client_DataAccessOptions;
 };
 module$contents$eeapiclient$ee_api_client_DataAccessOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["logMode"]};
+  return {enums:{logMode:module$exports$eeapiclient$ee_api_client.DataAccessOptionsLogModeEnum}, keys:["logMode"]};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_DataAccessOptions.prototype, {logMode:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("logMode") ? this.Serializable$get("logMode") : null;
@@ -7999,8 +7987,8 @@ module$contents$eeapiclient$ee_api_client_EarthEngineAsset.prototype.getConstruc
   return module$contents$eeapiclient$ee_api_client_EarthEngineAsset;
 };
 module$contents$eeapiclient$ee_api_client_EarthEngineAsset.prototype.getPartialClassMetadata = function() {
-  return {arrays:{bands:module$contents$eeapiclient$ee_api_client_ImageBand}, keys:"bands description endTime expression geometry id name properties quota sizeBytes startTime tilestoreEntry title type updateTime".split(" "), objectMaps:{geometry:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}, properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, 
-  quota:module$contents$eeapiclient$ee_api_client_FolderQuota, tilestoreEntry:module$contents$eeapiclient$ee_api_client_TilestoreEntry}};
+  return {arrays:{bands:module$contents$eeapiclient$ee_api_client_ImageBand}, enums:{type:module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum}, keys:"bands description endTime expression geometry id name properties quota sizeBytes startTime tilestoreEntry title type updateTime".split(" "), objectMaps:{geometry:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}, properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, 
+  isValueArray:!1}}, objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, quota:module$contents$eeapiclient$ee_api_client_FolderQuota, tilestoreEntry:module$contents$eeapiclient$ee_api_client_TilestoreEntry}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_EarthEngineAsset.prototype, {bands:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bands") ? this.Serializable$get("bands") : null;
@@ -8103,7 +8091,7 @@ module$contents$eeapiclient$ee_api_client_EarthEngineMap.prototype.getConstructo
   return module$contents$eeapiclient$ee_api_client_EarthEngineMap;
 };
 module$contents$eeapiclient$ee_api_client_EarthEngineMap.prototype.getPartialClassMetadata = function() {
-  return {keys:["bandIds", "expression", "fileFormat", "name", "visualizationOptions"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, visualizationOptions:module$contents$eeapiclient$ee_api_client_VisualizationOptions}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.EarthEngineMapFileFormatEnum}, keys:["bandIds", "expression", "fileFormat", "name", "visualizationOptions"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, visualizationOptions:module$contents$eeapiclient$ee_api_client_VisualizationOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_EarthEngineMap.prototype, {bandIds:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bandIds") ? this.Serializable$get("bandIds") : null;
@@ -8302,7 +8290,8 @@ module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest.prototype.getCon
   return module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest;
 };
 module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"description expression requestId tileExportOptions tileOptions version videoOptions".split(" "), objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, tileExportOptions:module$contents$eeapiclient$ee_api_client_VideoFileExportOptions, tileOptions:module$contents$eeapiclient$ee_api_client_TileOptions, videoOptions:module$contents$eeapiclient$ee_api_client_VideoOptions}};
+  return {enums:{version:module$exports$eeapiclient$ee_api_client.ExportVideoMapRequestVersionEnum}, keys:"description expression requestId tileExportOptions tileOptions version videoOptions".split(" "), objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, tileExportOptions:module$contents$eeapiclient$ee_api_client_VideoFileExportOptions, tileOptions:module$contents$eeapiclient$ee_api_client_TileOptions, 
+  videoOptions:module$contents$eeapiclient$ee_api_client_VideoOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest.prototype, {description:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("description") ? this.Serializable$get("description") : null;
@@ -8483,7 +8472,7 @@ module$contents$eeapiclient$ee_api_client_FilmstripThumbnail.prototype.getConstr
   return module$contents$eeapiclient$ee_api_client_FilmstripThumbnail;
 };
 module$contents$eeapiclient$ee_api_client_FilmstripThumbnail.prototype.getPartialClassMetadata = function() {
-  return {keys:["expression", "fileFormat", "grid", "name", "orientation"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, grid:module$contents$eeapiclient$ee_api_client_PixelGrid}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.FilmstripThumbnailFileFormatEnum, orientation:module$exports$eeapiclient$ee_api_client.FilmstripThumbnailOrientationEnum}, keys:["expression", "fileFormat", "grid", "name", "orientation"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, grid:module$contents$eeapiclient$ee_api_client_PixelGrid}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_FilmstripThumbnail.prototype, {expression:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
@@ -8617,7 +8606,7 @@ module$contents$eeapiclient$ee_api_client_GcsDestination.prototype.getConstructo
   return module$contents$eeapiclient$ee_api_client_GcsDestination;
 };
 module$contents$eeapiclient$ee_api_client_GcsDestination.prototype.getPartialClassMetadata = function() {
-  return {keys:["bucket", "bucketCorsUris", "filenamePrefix", "permissions"]};
+  return {enums:{permissions:module$exports$eeapiclient$ee_api_client.GcsDestinationPermissionsEnum}, keys:["bucket", "bucketCorsUris", "filenamePrefix", "permissions"]};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_GcsDestination.prototype, {bucket:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bucket") ? this.Serializable$get("bucket") : null;
@@ -8706,7 +8695,7 @@ module$contents$eeapiclient$ee_api_client_GetPixelsRequest.prototype.getConstruc
   return module$contents$eeapiclient$ee_api_client_GetPixelsRequest;
 };
 module$contents$eeapiclient$ee_api_client_GetPixelsRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:["bandIds", "fileFormat", "grid", "region", "visualizationOptions"], objectMaps:{region:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{grid:module$contents$eeapiclient$ee_api_client_PixelGrid, visualizationOptions:module$contents$eeapiclient$ee_api_client_VisualizationOptions}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.GetPixelsRequestFileFormatEnum}, keys:["bandIds", "fileFormat", "grid", "region", "visualizationOptions"], objectMaps:{region:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{grid:module$contents$eeapiclient$ee_api_client_PixelGrid, visualizationOptions:module$contents$eeapiclient$ee_api_client_VisualizationOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_GetPixelsRequest.prototype, {bandIds:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bandIds") ? this.Serializable$get("bandIds") : null;
@@ -8917,7 +8906,7 @@ module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions.prototype.getC
   return module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions;
 };
 module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["earthEngineDestination", "pyramidingPolicy", "pyramidingPolicyOverrides"], objectMaps:{pyramidingPolicyOverrides:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{earthEngineDestination:module$contents$eeapiclient$ee_api_client_EarthEngineDestination}};
+  return {enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageAssetExportOptionsPyramidingPolicyEnum, pyramidingPolicyOverrides:module$exports$eeapiclient$ee_api_client.ImageAssetExportOptionsPyramidingPolicyOverridesEnum}, keys:["earthEngineDestination", "pyramidingPolicy", "pyramidingPolicyOverrides"], objectMaps:{pyramidingPolicyOverrides:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{earthEngineDestination:module$contents$eeapiclient$ee_api_client_EarthEngineDestination}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions.prototype, {earthEngineDestination:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("earthEngineDestination") ? this.Serializable$get("earthEngineDestination") : null;
@@ -8955,7 +8944,7 @@ module$contents$eeapiclient$ee_api_client_ImageBand.prototype.getConstructor = f
   return module$contents$eeapiclient$ee_api_client_ImageBand;
 };
 module$contents$eeapiclient$ee_api_client_ImageBand.prototype.getPartialClassMetadata = function() {
-  return {arrays:{tilesets:module$contents$eeapiclient$ee_api_client_TilestoreTileset}, keys:"dataType grid id missingData pyramidingPolicy tilesets".split(" "), objects:{dataType:module$contents$eeapiclient$ee_api_client_PixelDataType, grid:module$contents$eeapiclient$ee_api_client_PixelGrid, missingData:module$contents$eeapiclient$ee_api_client_MissingData}};
+  return {arrays:{tilesets:module$contents$eeapiclient$ee_api_client_TilestoreTileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageBandPyramidingPolicyEnum}, keys:"dataType grid id missingData pyramidingPolicy tilesets".split(" "), objects:{dataType:module$contents$eeapiclient$ee_api_client_PixelDataType, grid:module$contents$eeapiclient$ee_api_client_PixelGrid, missingData:module$contents$eeapiclient$ee_api_client_MissingData}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ImageBand.prototype, {dataType:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("dataType") ? this.Serializable$get("dataType") : null;
@@ -9002,7 +8991,8 @@ module$contents$eeapiclient$ee_api_client_ImageFileExportOptions.prototype.getCo
   return module$contents$eeapiclient$ee_api_client_ImageFileExportOptions;
 };
 module$contents$eeapiclient$ee_api_client_ImageFileExportOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["driveDestination", "fileFormat", "gcsDestination", "geoTiffOptions", "tfRecordOptions"], objects:{driveDestination:module$contents$eeapiclient$ee_api_client_DriveDestination, gcsDestination:module$contents$eeapiclient$ee_api_client_GcsDestination, geoTiffOptions:module$contents$eeapiclient$ee_api_client_GeoTiffImageExportOptions, tfRecordOptions:module$contents$eeapiclient$ee_api_client_TfRecordImageExportOptions}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.ImageFileExportOptionsFileFormatEnum}, keys:["driveDestination", "fileFormat", "gcsDestination", "geoTiffOptions", "tfRecordOptions"], objects:{driveDestination:module$contents$eeapiclient$ee_api_client_DriveDestination, gcsDestination:module$contents$eeapiclient$ee_api_client_GcsDestination, geoTiffOptions:module$contents$eeapiclient$ee_api_client_GeoTiffImageExportOptions, 
+  tfRecordOptions:module$contents$eeapiclient$ee_api_client_TfRecordImageExportOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ImageFileExportOptions.prototype, {driveDestination:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("driveDestination") ? this.Serializable$get("driveDestination") : null;
@@ -9051,8 +9041,8 @@ module$contents$eeapiclient$ee_api_client_ImageManifest.prototype.getConstructor
   return module$contents$eeapiclient$ee_api_client_ImageManifest;
 };
 module$contents$eeapiclient$ee_api_client_ImageManifest.prototype.getPartialClassMetadata = function() {
-  return {arrays:{bands:module$contents$eeapiclient$ee_api_client_TilesetBand, maskBands:module$contents$eeapiclient$ee_api_client_TilesetMaskBand, tilesets:module$contents$eeapiclient$ee_api_client_Tileset}, keys:"bands endTime footprint maskBands missingData name properties pyramidingPolicy startTime tilesets uriPrefix".split(" "), objectMaps:{properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, 
-  objects:{footprint:module$contents$eeapiclient$ee_api_client_PixelFootprint, missingData:module$contents$eeapiclient$ee_api_client_MissingData}};
+  return {arrays:{bands:module$contents$eeapiclient$ee_api_client_TilesetBand, maskBands:module$contents$eeapiclient$ee_api_client_TilesetMaskBand, tilesets:module$contents$eeapiclient$ee_api_client_Tileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum}, keys:"bands endTime footprint maskBands missingData name properties pyramidingPolicy startTime tilesets uriPrefix".split(" "), 
+  objectMaps:{properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{footprint:module$contents$eeapiclient$ee_api_client_PixelFootprint, missingData:module$contents$eeapiclient$ee_api_client_MissingData}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ImageManifest.prototype, {bands:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bands") ? this.Serializable$get("bands") : null;
@@ -9454,7 +9444,7 @@ module$contents$eeapiclient$ee_api_client_OperationMetadata.prototype.getConstru
   return module$contents$eeapiclient$ee_api_client_OperationMetadata;
 };
 module$contents$eeapiclient$ee_api_client_OperationMetadata.prototype.getPartialClassMetadata = function() {
-  return {keys:"createTime description destinationUris endTime priority scriptUri startTime state type updateTime".split(" ")};
+  return {enums:{state:module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum}, keys:"createTime description destinationUris endTime priority scriptUri startTime state type updateTime".split(" ")};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_OperationMetadata.prototype, {createTime:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("createTime") ? this.Serializable$get("createTime") : null;
@@ -9515,7 +9505,7 @@ module$contents$eeapiclient$ee_api_client_PixelDataType.prototype.getConstructor
   return module$contents$eeapiclient$ee_api_client_PixelDataType;
 };
 module$contents$eeapiclient$ee_api_client_PixelDataType.prototype.getPartialClassMetadata = function() {
-  return {keys:["dimensionsCount", "precision", "range"], objects:{range:module$contents$eeapiclient$ee_api_client_DoubleRange}};
+  return {enums:{precision:module$exports$eeapiclient$ee_api_client.PixelDataTypePrecisionEnum}, keys:["dimensionsCount", "precision", "range"], objects:{range:module$contents$eeapiclient$ee_api_client_DoubleRange}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_PixelDataType.prototype, {dimensionsCount:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("dimensionsCount") ? this.Serializable$get("dimensionsCount") : null;
@@ -9657,7 +9647,7 @@ module$contents$eeapiclient$ee_api_client_Rule.prototype.getConstructor = functi
   return module$contents$eeapiclient$ee_api_client_Rule;
 };
 module$contents$eeapiclient$ee_api_client_Rule.prototype.getPartialClassMetadata = function() {
-  return {arrays:{conditions:module$contents$eeapiclient$ee_api_client_Condition, logConfig:module$contents$eeapiclient$ee_api_client_LogConfig}, keys:"action conditions description in logConfig notIn permissions".split(" ")};
+  return {arrays:{conditions:module$contents$eeapiclient$ee_api_client_Condition, logConfig:module$contents$eeapiclient$ee_api_client_LogConfig}, enums:{action:module$exports$eeapiclient$ee_api_client.RuleActionEnum}, keys:"action conditions description in logConfig notIn permissions".split(" ")};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_Rule.prototype, {action:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("action") ? this.Serializable$get("action") : null;
@@ -9806,7 +9796,7 @@ module$contents$eeapiclient$ee_api_client_TableFileExportOptions.prototype.getCo
   return module$contents$eeapiclient$ee_api_client_TableFileExportOptions;
 };
 module$contents$eeapiclient$ee_api_client_TableFileExportOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["driveDestination", "fileFormat", "gcsDestination"], objects:{driveDestination:module$contents$eeapiclient$ee_api_client_DriveDestination, gcsDestination:module$contents$eeapiclient$ee_api_client_GcsDestination}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.TableFileExportOptionsFileFormatEnum}, keys:["driveDestination", "fileFormat", "gcsDestination"], objects:{driveDestination:module$contents$eeapiclient$ee_api_client_DriveDestination, gcsDestination:module$contents$eeapiclient$ee_api_client_GcsDestination}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_TableFileExportOptions.prototype, {driveDestination:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("driveDestination") ? this.Serializable$get("driveDestination") : null;
@@ -10062,7 +10052,7 @@ module$contents$eeapiclient$ee_api_client_Thumbnail.prototype.getConstructor = f
   return module$contents$eeapiclient$ee_api_client_Thumbnail;
 };
 module$contents$eeapiclient$ee_api_client_Thumbnail.prototype.getPartialClassMetadata = function() {
-  return {keys:"bandIds expression fileFormat grid name visualizationOptions".split(" "), objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, grid:module$contents$eeapiclient$ee_api_client_PixelGrid, visualizationOptions:module$contents$eeapiclient$ee_api_client_VisualizationOptions}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.ThumbnailFileFormatEnum}, keys:"bandIds expression fileFormat grid name visualizationOptions".split(" "), objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, grid:module$contents$eeapiclient$ee_api_client_PixelGrid, visualizationOptions:module$contents$eeapiclient$ee_api_client_VisualizationOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_Thumbnail.prototype, {bandIds:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bandIds") ? this.Serializable$get("bandIds") : null;
@@ -10165,7 +10155,7 @@ module$contents$eeapiclient$ee_api_client_Tileset.prototype.getConstructor = fun
   return module$contents$eeapiclient$ee_api_client_Tileset;
 };
 module$contents$eeapiclient$ee_api_client_Tileset.prototype.getPartialClassMetadata = function() {
-  return {arrays:{sources:module$contents$eeapiclient$ee_api_client_ImageSource}, keys:"crs dataType id sources subdatasetPrefix subdatasetSuffix".split(" ")};
+  return {arrays:{sources:module$contents$eeapiclient$ee_api_client_ImageSource}, enums:{dataType:module$exports$eeapiclient$ee_api_client.TilesetDataTypeEnum}, keys:"crs dataType id sources subdatasetPrefix subdatasetSuffix".split(" ")};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_Tileset.prototype, {crs:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("crs") ? this.Serializable$get("crs") : null;
@@ -10212,7 +10202,7 @@ module$contents$eeapiclient$ee_api_client_TilesetBand.prototype.getConstructor =
   return module$contents$eeapiclient$ee_api_client_TilesetBand;
 };
 module$contents$eeapiclient$ee_api_client_TilesetBand.prototype.getPartialClassMetadata = function() {
-  return {keys:["id", "missingData", "pyramidingPolicy", "tilesetBandIndex", "tilesetId"], objects:{missingData:module$contents$eeapiclient$ee_api_client_MissingData}};
+  return {enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.TilesetBandPyramidingPolicyEnum}, keys:["id", "missingData", "pyramidingPolicy", "tilesetBandIndex", "tilesetId"], objects:{missingData:module$contents$eeapiclient$ee_api_client_MissingData}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_TilesetBand.prototype, {id:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("id") ? this.Serializable$get("id") : null;
@@ -10443,7 +10433,7 @@ module$contents$eeapiclient$ee_api_client_VideoFileExportOptions.prototype.getCo
   return module$contents$eeapiclient$ee_api_client_VideoFileExportOptions;
 };
 module$contents$eeapiclient$ee_api_client_VideoFileExportOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["driveDestination", "fileFormat", "gcsDestination"], objects:{driveDestination:module$contents$eeapiclient$ee_api_client_DriveDestination, gcsDestination:module$contents$eeapiclient$ee_api_client_GcsDestination}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.VideoFileExportOptionsFileFormatEnum}, keys:["driveDestination", "fileFormat", "gcsDestination"], objects:{driveDestination:module$contents$eeapiclient$ee_api_client_DriveDestination, gcsDestination:module$contents$eeapiclient$ee_api_client_GcsDestination}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_VideoFileExportOptions.prototype, {driveDestination:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("driveDestination") ? this.Serializable$get("driveDestination") : null;
@@ -10508,7 +10498,7 @@ module$contents$eeapiclient$ee_api_client_VideoThumbnail.prototype.getConstructo
   return module$contents$eeapiclient$ee_api_client_VideoThumbnail;
 };
 module$contents$eeapiclient$ee_api_client_VideoThumbnail.prototype.getPartialClassMetadata = function() {
-  return {keys:["expression", "fileFormat", "grid", "name", "videoOptions"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, grid:module$contents$eeapiclient$ee_api_client_PixelGrid, videoOptions:module$contents$eeapiclient$ee_api_client_VideoOptions}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.VideoThumbnailFileFormatEnum}, keys:["expression", "fileFormat", "grid", "name", "videoOptions"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, grid:module$contents$eeapiclient$ee_api_client_PixelGrid, videoOptions:module$contents$eeapiclient$ee_api_client_VideoOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_VideoThumbnail.prototype, {expression:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
@@ -11399,8 +11389,8 @@ goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY = goog.userAgent.IE || g
 goog.dom.BrowserFeature.INNER_HTML_NEEDS_SCOPED_ELEMENT = goog.userAgent.IE;
 goog.dom.BrowserFeature.LEGACY_IE_RANGES = goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(9);
 goog.math.Coordinate = function(opt_x, opt_y) {
-  this.x = goog.isDef(opt_x) ? opt_x : 0;
-  this.y = goog.isDef(opt_y) ? opt_y : 0;
+  this.x = void 0 !== opt_x ? opt_x : 0;
+  this.y = void 0 !== opt_y ? opt_y : 0;
 };
 goog.math.Coordinate.prototype.clone = function() {
   return new goog.math.Coordinate(this.x, this.y);
@@ -11450,13 +11440,13 @@ goog.math.Coordinate.prototype.round = function() {
   return this;
 };
 goog.math.Coordinate.prototype.translate = function(tx, opt_ty) {
-  tx instanceof goog.math.Coordinate ? (this.x += tx.x, this.y += tx.y) : (this.x += Number(tx), goog.isNumber(opt_ty) && (this.y += opt_ty));
+  tx instanceof goog.math.Coordinate ? (this.x += tx.x, this.y += tx.y) : (this.x += Number(tx), "number" === typeof opt_ty && (this.y += opt_ty));
   return this;
 };
 goog.math.Coordinate.prototype.scale = function(sx, opt_sy) {
-  var sy = goog.isNumber(opt_sy) ? opt_sy : sx;
+  var sy;
   this.x *= sx;
-  this.y *= sy;
+  this.y *= "number" === typeof opt_sy ? opt_sy : sx;
   return this;
 };
 goog.math.Coordinate.prototype.rotateRadians = function(radians, opt_center) {
@@ -11517,9 +11507,9 @@ goog.math.Size.prototype.round = function() {
   return this;
 };
 goog.math.Size.prototype.scale = function(sx, opt_sy) {
-  var sy = goog.isNumber(opt_sy) ? opt_sy : sx;
+  var sy;
   this.width *= sx;
-  this.height *= sy;
+  this.height *= "number" === typeof opt_sy ? opt_sy : sx;
   return this;
 };
 goog.math.Size.prototype.scaleToCover = function(target) {
@@ -11543,7 +11533,7 @@ goog.dom.getElement = function(element) {
   return goog.dom.getElementHelper_(document, element);
 };
 goog.dom.getElementHelper_ = function(doc, element) {
-  return goog.isString(element) ? doc.getElementById(element) : element;
+  return "string" === typeof element ? doc.getElementById(element) : element;
 };
 goog.dom.getRequiredElement = function(id) {
   return goog.dom.getRequiredElementHelper_(document, id);
@@ -11690,13 +11680,13 @@ goog.dom.createDom_ = function(doc, args) {
     tagName = tagNameArr.join("");
   }
   var element = goog.dom.createElement_(doc, tagName);
-  attributes && (goog.isString(attributes) ? element.className = attributes : goog.isArray(attributes) ? element.className = attributes.join(" ") : goog.dom.setProperties(element, attributes));
+  attributes && ("string" === typeof attributes ? element.className = attributes : goog.isArray(attributes) ? element.className = attributes.join(" ") : goog.dom.setProperties(element, attributes));
   2 < args.length && goog.dom.append_(doc, element, args, 2);
   return element;
 };
 goog.dom.append_ = function(doc, parent, args, startIndex) {
   function childHandler(child) {
-    child && parent.appendChild(goog.isString(child) ? doc.createTextNode(child) : child);
+    child && parent.appendChild("string" === typeof child ? doc.createTextNode(child) : child);
   }
   for (var i = startIndex; i < args.length; i++) {
     var arg = args[i];
@@ -11840,16 +11830,16 @@ goog.dom.getChildren = function(element) {
   });
 };
 goog.dom.getFirstElementChild = function(node) {
-  return goog.isDef(node.firstElementChild) ? node.firstElementChild : goog.dom.getNextElementNode_(node.firstChild, !0);
+  return void 0 !== node.firstElementChild ? node.firstElementChild : goog.dom.getNextElementNode_(node.firstChild, !0);
 };
 goog.dom.getLastElementChild = function(node) {
-  return goog.isDef(node.lastElementChild) ? node.lastElementChild : goog.dom.getNextElementNode_(node.lastChild, !1);
+  return void 0 !== node.lastElementChild ? node.lastElementChild : goog.dom.getNextElementNode_(node.lastChild, !1);
 };
 goog.dom.getNextElementSibling = function(node) {
-  return goog.isDef(node.nextElementSibling) ? node.nextElementSibling : goog.dom.getNextElementNode_(node.nextSibling, !0);
+  return void 0 !== node.nextElementSibling ? node.nextElementSibling : goog.dom.getNextElementNode_(node.nextSibling, !0);
 };
 goog.dom.getPreviousElementSibling = function(node) {
-  return goog.isDef(node.previousElementSibling) ? node.previousElementSibling : goog.dom.getNextElementNode_(node.previousSibling, !1);
+  return void 0 !== node.previousElementSibling ? node.previousElementSibling : goog.dom.getNextElementNode_(node.previousSibling, !1);
 };
 goog.dom.getNextElementNode_ = function(node, forward) {
   for (; node && node.nodeType != goog.dom.NodeType.ELEMENT;) {
@@ -12103,20 +12093,20 @@ goog.dom.isFocusable = function(element) {
 goog.dom.hasSpecifiedTabIndex_ = function(element) {
   if (goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("9")) {
     var attrNode = element.getAttributeNode("tabindex");
-    return goog.isDefAndNotNull(attrNode) && attrNode.specified;
+    return null != attrNode && attrNode.specified;
   }
   return element.hasAttribute("tabindex");
 };
 goog.dom.isTabIndexFocusable_ = function(element) {
   var index = element.tabIndex;
-  return goog.isNumber(index) && 0 <= index && 32768 > index;
+  return "number" === typeof index && 0 <= index && 32768 > index;
 };
 goog.dom.nativelySupportsFocus_ = function(element) {
   return "A" == element.tagName && element.hasAttribute("href") || "INPUT" == element.tagName || "TEXTAREA" == element.tagName || "SELECT" == element.tagName || "BUTTON" == element.tagName;
 };
 goog.dom.hasNonZeroBoundingRect_ = function(element) {
   var rect = !goog.isFunction(element.getBoundingClientRect) || goog.userAgent.IE && null == element.parentElement ? {height:element.offsetHeight, width:element.offsetWidth} : element.getBoundingClientRect();
-  return goog.isDefAndNotNull(rect) && 0 < rect.height && 0 < rect.width;
+  return null != rect && 0 < rect.height && 0 < rect.width;
 };
 goog.dom.getTextContent = function(node) {
   if (goog.dom.BrowserFeature.CAN_USE_INNER_TEXT && null !== node && "innerText" in node) {
@@ -12201,7 +12191,7 @@ goog.dom.getAncestorByTagNameAndClass = function(element, opt_tag, opt_class, op
   }
   var tagName = opt_tag ? String(opt_tag).toUpperCase() : null;
   return goog.dom.getAncestor(element, function(node) {
-    return (!tagName || node.nodeName == tagName) && (!opt_class || goog.isString(node.className) && goog.array.contains(node.className.split(/\s+/), opt_class));
+    return (!tagName || node.nodeName == tagName) && (!opt_class || "string" === typeof node.className && goog.array.contains(node.className.split(/\s+/), opt_class));
   }, !0, opt_maxSearchSteps);
 };
 goog.dom.getAncestorByClass = function(element, className, opt_maxSearchSteps) {
@@ -12229,7 +12219,7 @@ goog.dom.getActiveElement = function(doc) {
 };
 goog.dom.getPixelRatio = function() {
   var win = goog.dom.getWindow();
-  return goog.isDef(win.devicePixelRatio) ? win.devicePixelRatio : win.matchMedia ? goog.dom.matchesPixelRatio_(3) || goog.dom.matchesPixelRatio_(2) || goog.dom.matchesPixelRatio_(1.5) || goog.dom.matchesPixelRatio_(1) || .75 : 1;
+  return void 0 !== win.devicePixelRatio ? win.devicePixelRatio : win.matchMedia ? goog.dom.matchesPixelRatio_(3) || goog.dom.matchesPixelRatio_(2) || goog.dom.matchesPixelRatio_(1.5) || goog.dom.matchesPixelRatio_(1) || .75 : 1;
 };
 goog.dom.matchesPixelRatio_ = function(pixelRatio) {
   return goog.dom.getWindow().matchMedia("(min-resolution: " + pixelRatio + "dppx),(min--moz-device-pixel-ratio: " + pixelRatio + "),(min-resolution: " + 96 * pixelRatio + "dpi)").matches ? pixelRatio : 0;
@@ -12393,7 +12383,7 @@ goog.async.nextTick.getSetImmediateEmulator_ = function() {
   if ("undefined" !== typeof Channel && !goog.labs.userAgent.browser.isIE()) {
     var channel = new Channel, head = {}, tail = head;
     channel.port1.onmessage = function() {
-      if (goog.isDef(head.next)) {
+      if (void 0 !== head.next) {
         head = head.next;
         var cb = head.cb;
         head.cb = null;
@@ -12724,7 +12714,7 @@ goog.Promise.prototype.addChildPromise_ = function(onFulfilled, onRejected, opt_
     callbackEntry.onRejected = onRejected ? function(reason) {
       try {
         var result = onRejected.call(opt_context, reason);
-        !goog.isDef(result) && reason instanceof goog.Promise.CancellationError ? reject(reason) : resolve(result);
+        void 0 === result && reason instanceof goog.Promise.CancellationError ? reject(reason) : resolve(result);
       } catch (err) {
         reject(err);
       }
@@ -12826,14 +12816,14 @@ goog.Promise.invokeCallback_ = function(callbackEntry, state, result) {
   state == goog.Promise.State_.FULFILLED ? callbackEntry.onFulfilled.call(callbackEntry.context, result) : callbackEntry.onRejected && callbackEntry.onRejected.call(callbackEntry.context, result);
 };
 goog.Promise.prototype.addStackTrace_ = function(err) {
-  if (goog.Promise.LONG_STACK_TRACES && goog.isString(err.stack)) {
+  if (goog.Promise.LONG_STACK_TRACES && "string" === typeof err.stack) {
     var trace = err.stack.split("\n", 4)[3], message = err.message;
     message += Array(11 - message.length).join(" ");
     this.stack_.push(message + trace);
   }
 };
 goog.Promise.prototype.appendLongStack_ = function(err) {
-  if (goog.Promise.LONG_STACK_TRACES && err && goog.isString(err.stack) && this.stack_.length) {
+  if (goog.Promise.LONG_STACK_TRACES && err && "string" === typeof err.stack && this.stack_.length) {
     for (var longTrace = ["Promise trace:"], promise = this; promise; promise = promise.parent_) {
       for (var i = this.currentStep_; 0 <= i; i--) {
         longTrace.push(promise.stack_[i]);
@@ -13244,7 +13234,7 @@ goog.net.jsloader.safeLoadMany = function(trustedUris, opt_options) {
   return goog.net.jsloader.scriptLoadingDeferred_;
 };
 goog.net.jsloader.safeLoad = function(trustedUri, opt_options) {
-  var options = opt_options || {}, doc = options.document || document, uri = goog.html.TrustedResourceUrl.unwrap(trustedUri), script = goog.dom.createElement("SCRIPT"), request = {script_:script, timeout_:void 0}, deferred = new goog.async.Deferred(goog.net.jsloader.cancel_, request), timeout = null, timeoutDuration = goog.isDefAndNotNull(options.timeout) ? options.timeout : goog.net.jsloader.DEFAULT_TIMEOUT;
+  var options = opt_options || {}, doc = options.document || document, uri = goog.html.TrustedResourceUrl.unwrap(trustedUri), script = goog.dom.createElement("SCRIPT"), request = {script_:script, timeout_:void 0}, deferred = new goog.async.Deferred(goog.net.jsloader.cancel_, request), timeout = null, timeoutDuration = null != options.timeout ? options.timeout : goog.net.jsloader.DEFAULT_TIMEOUT;
   0 < timeoutDuration && (timeout = window.setTimeout(function() {
     goog.net.jsloader.cleanup_(script, !0);
     deferred.errback(new goog.net.jsloader.Error(goog.net.jsloader.ErrorCode.TIMEOUT, "Timeout reached for loading script " + uri));
@@ -13266,16 +13256,16 @@ goog.net.jsloader.safeLoad = function(trustedUri, opt_options) {
 goog.net.jsloader.safeLoadAndVerify = function(trustedUri, verificationObjName, options) {
   goog.global[goog.net.jsloader.GLOBAL_VERIFY_OBJS_] || (goog.global[goog.net.jsloader.GLOBAL_VERIFY_OBJS_] = {});
   var verifyObjs = goog.global[goog.net.jsloader.GLOBAL_VERIFY_OBJS_], uri = goog.html.TrustedResourceUrl.unwrap(trustedUri);
-  if (goog.isDef(verifyObjs[verificationObjName])) {
+  if (void 0 !== verifyObjs[verificationObjName]) {
     return goog.async.Deferred.fail(new goog.net.jsloader.Error(goog.net.jsloader.ErrorCode.VERIFY_OBJECT_ALREADY_EXISTS, "Verification object " + verificationObjName + " already defined."));
   }
   var sendDeferred = goog.net.jsloader.safeLoad(trustedUri, options), deferred = new goog.async.Deferred(goog.bind(sendDeferred.cancel, sendDeferred));
   sendDeferred.addCallback(function() {
     var result = verifyObjs[verificationObjName];
-    goog.isDef(result) ? (deferred.callback(result), delete verifyObjs[verificationObjName]) : deferred.errback(new goog.net.jsloader.Error(goog.net.jsloader.ErrorCode.VERIFY_ERROR, "Script " + uri + " loaded, but verification object " + verificationObjName + " was not defined."));
+    void 0 !== result ? (deferred.callback(result), delete verifyObjs[verificationObjName]) : deferred.errback(new goog.net.jsloader.Error(goog.net.jsloader.ErrorCode.VERIFY_ERROR, "Script " + uri + " loaded, but verification object " + verificationObjName + " was not defined."));
   });
   sendDeferred.addErrback(function(error) {
-    goog.isDef(verifyObjs[verificationObjName]) && delete verifyObjs[verificationObjName];
+    void 0 !== verifyObjs[verificationObjName] && delete verifyObjs[verificationObjName];
     deferred.errback(error);
   });
   return deferred;
@@ -13291,7 +13281,7 @@ goog.net.jsloader.cancel_ = function() {
   }
 };
 goog.net.jsloader.cleanup_ = function(scriptNode, removeScriptNode, opt_timeout) {
-  goog.isDefAndNotNull(opt_timeout) && goog.global.clearTimeout(opt_timeout);
+  null != opt_timeout && goog.global.clearTimeout(opt_timeout);
   scriptNode.onload = goog.nullFunction;
   scriptNode.onerror = goog.nullFunction;
   scriptNode.onreadystatechange = goog.nullFunction;
@@ -14041,7 +14031,7 @@ goog.uri.utils.appendParamsFromMap = function(uri, map) {
   return goog.uri.utils.appendQueryDataToUri_(uri, queryData);
 };
 goog.uri.utils.appendParam = function(uri, key, opt_value) {
-  var value = goog.isDefAndNotNull(opt_value) ? "=" + goog.string.urlEncode(opt_value) : "";
+  var value = null != opt_value ? "=" + goog.string.urlEncode(opt_value) : "";
   return goog.uri.utils.appendQueryDataToUri_(uri, key + value);
 };
 goog.uri.utils.findParam_ = function(uri, startIndex, keyEncoded, hashOrEndIndex) {
@@ -14234,7 +14224,7 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
-  return goog.userAgent.IE && goog.userAgent.isVersionOrHigher(9) && goog.isNumber(xhr[goog.net.XhrIo.XHR2_TIMEOUT_]) && goog.isDef(xhr[goog.net.XhrIo.XHR2_ON_TIMEOUT_]);
+  return goog.userAgent.IE && goog.userAgent.isVersionOrHigher(9) && "number" === typeof xhr[goog.net.XhrIo.XHR2_TIMEOUT_] && void 0 !== xhr[goog.net.XhrIo.XHR2_ON_TIMEOUT_];
 };
 goog.net.XhrIo.isContentTypeHeader_ = function(header) {
   return goog.string.caseInsensitiveEquals(goog.net.XhrIo.CONTENT_TYPE_HEADER, header);
@@ -14412,7 +14402,7 @@ goog.net.XhrIo.prototype.getResponse = function() {
 goog.net.XhrIo.prototype.getResponseHeader = function(key) {
   if (this.xhr_ && this.isComplete()) {
     var value = this.xhr_.getResponseHeader(key);
-    return goog.isNull(value) ? void 0 : value;
+    return null === value ? void 0 : value;
   }
 };
 goog.net.XhrIo.prototype.getAllResponseHeaders = function() {
@@ -14422,7 +14412,7 @@ goog.net.XhrIo.prototype.getResponseHeaders = function() {
   for (var headersObject = {}, headersArray = this.getAllResponseHeaders().split("\r\n"), i = 0; i < headersArray.length; i++) {
     if (!goog.string.isEmptyOrWhitespace(headersArray[i])) {
       var keyValue = goog.string.splitLimit(headersArray[i], ":", 1), key = keyValue[0], value = keyValue[1];
-      if (goog.isString(value)) {
+      if ("string" === typeof value) {
         value = value.trim();
         var values$jscomp$0 = headersObject[key] || [];
         headersObject[key] = values$jscomp$0;
@@ -14444,7 +14434,7 @@ goog.net.XhrIo.prototype.getLastErrorCode = function() {
   return this.lastErrorCode_;
 };
 goog.net.XhrIo.prototype.getLastError = function() {
-  return goog.isString(this.lastError_) ? this.lastError_ : String(this.lastError_);
+  return "string" === typeof this.lastError_ ? this.lastError_ : String(this.lastError_);
 };
 goog.net.XhrIo.prototype.formatMsg_ = function(msg) {
   return msg + " [" + this.lastMethod_ + " " + this.lastUri_ + " " + this.getStatus() + "]";
@@ -14458,7 +14448,7 @@ goog.Uri = function(opt_uri, opt_ignoreCase) {
   this.fragment_ = this.path_ = "";
   this.ignoreCase_ = this.isReadOnly_ = !1;
   var m;
-  opt_uri instanceof goog.Uri ? (this.ignoreCase_ = goog.isDef(opt_ignoreCase) ? opt_ignoreCase : opt_uri.getIgnoreCase(), this.setScheme(opt_uri.getScheme()), this.setUserInfo(opt_uri.getUserInfo()), this.setDomain(opt_uri.getDomain()), this.setPort(opt_uri.getPort()), this.setPath(opt_uri.getPath()), this.setQueryData(opt_uri.getQueryData().clone()), this.setFragment(opt_uri.getFragment())) : opt_uri && (m = goog.uri.utils.split(String(opt_uri))) ? (this.ignoreCase_ = !!opt_ignoreCase, this.setScheme(m[goog.uri.utils.ComponentIndex.SCHEME] || 
+  opt_uri instanceof goog.Uri ? (this.ignoreCase_ = void 0 !== opt_ignoreCase ? opt_ignoreCase : opt_uri.getIgnoreCase(), this.setScheme(opt_uri.getScheme()), this.setUserInfo(opt_uri.getUserInfo()), this.setDomain(opt_uri.getDomain()), this.setPort(opt_uri.getPort()), this.setPath(opt_uri.getPath()), this.setQueryData(opt_uri.getQueryData().clone()), this.setFragment(opt_uri.getFragment())) : opt_uri && (m = goog.uri.utils.split(String(opt_uri))) ? (this.ignoreCase_ = !!opt_ignoreCase, this.setScheme(m[goog.uri.utils.ComponentIndex.SCHEME] || 
   "", !0), this.setUserInfo(m[goog.uri.utils.ComponentIndex.USER_INFO] || "", !0), this.setDomain(m[goog.uri.utils.ComponentIndex.DOMAIN] || "", !0), this.setPort(m[goog.uri.utils.ComponentIndex.PORT]), this.setPath(m[goog.uri.utils.ComponentIndex.PATH] || "", !0), this.setQueryData(m[goog.uri.utils.ComponentIndex.QUERY_DATA] || "", !0), this.setFragment(m[goog.uri.utils.ComponentIndex.FRAGMENT] || "", !0)) : (this.ignoreCase_ = !!opt_ignoreCase, this.queryData_ = new goog.Uri.QueryData(null, null, 
   this.ignoreCase_));
 };
@@ -14697,7 +14687,7 @@ goog.Uri.decodeOrEmpty_ = function(val, opt_preserveReserved) {
   return val ? opt_preserveReserved ? decodeURI(val.replace(/%25/g, "%2525")) : decodeURIComponent(val) : "";
 };
 goog.Uri.encodeSpecialChars_ = function(unescapedPart, extra, opt_removeDoubleEncoding) {
-  if (goog.isString(unescapedPart)) {
+  if ("string" === typeof unescapedPart) {
     var encoded = encodeURI(unescapedPart).replace(extra, goog.Uri.encodeChar_);
     opt_removeDoubleEncoding && (encoded = goog.Uri.removeDoubleEncoding_(encoded));
     return encoded;
@@ -14810,7 +14800,7 @@ goog.Uri.QueryData.prototype.getKeys = function() {
 goog.Uri.QueryData.prototype.getValues = function(opt_key) {
   this.ensureKeyMapInitialized_();
   var rv = [];
-  if (goog.isString(opt_key)) {
+  if ("string" === typeof opt_key) {
     this.containsKey(opt_key) && (rv = goog.array.concat(rv, this.keyMap_.get(this.getKeyName_(opt_key))));
   } else {
     for (var values = this.keyMap_.getValues(), i = 0; i < values.length; i++) {
@@ -15635,6 +15625,7 @@ ee.rpc_convert.algorithms = function(result) {
     internalAlgorithm.description = algorithm.description || "";
     internalAlgorithm.returns = algorithm.returnType || "";
     null != algorithm.hidden && (internalAlgorithm.hidden = algorithm.hidden);
+    algorithm.preview && (internalAlgorithm.preview = algorithm.preview);
     algorithm.deprecated && (internalAlgorithm.deprecated = algorithm.deprecationReason);
     return internalAlgorithm;
   }, internalAlgorithms = {}, $jscomp$iter$10 = $jscomp.makeIterator(result.algorithms || []), $jscomp$key$algorithm = $jscomp$iter$10.next(); !$jscomp$key$algorithm.done; $jscomp$key$algorithm = $jscomp$iter$10.next()) {
@@ -15644,8 +15635,10 @@ ee.rpc_convert.algorithms = function(result) {
   return internalAlgorithms;
 };
 ee.rpc_convert.DEFAULT_PROJECT = "earthengine-legacy";
+ee.rpc_convert.PUBLIC_PROJECT = "earthengine-public";
 ee.rpc_convert.PROJECT_ID_RE = /^projects\/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+:)?[a-z][a-z0-9\-]{4,28}[a-z0-9])\/.+/;
 ee.rpc_convert.CLOUD_ASSET_ID_RE = /^projects\/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+:)?[a-z][a-z0-9\-]{4,28}[a-z0-9])\/assets\/(.*)$/;
+ee.rpc_convert.CLOUD_ASSET_ROOT_RE = /^projects\/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+:)?[a-z][a-z0-9\-]{4,28}[a-z0-9])\/assets\/?$/;
 ee.rpc_convert.projectIdFromPath = function(path) {
   var matches = ee.rpc_convert.PROJECT_ID_RE.exec(path);
   return matches ? matches[1] : ee.rpc_convert.DEFAULT_PROJECT;
@@ -15654,11 +15647,13 @@ ee.rpc_convert.projectParentFromPath = function(path) {
   return "projects/" + ee.rpc_convert.projectIdFromPath(path);
 };
 ee.rpc_convert.assetIdToAssetName = function(param) {
-  return ee.rpc_convert.CLOUD_ASSET_ID_RE.exec(param) ? param : /^(users|projects)\/.*/.exec(param) ? "projects/" + ee.rpc_convert.DEFAULT_PROJECT + "/assets/" + param : "projects/earthengine-public/assets/" + param;
+  return ee.rpc_convert.CLOUD_ASSET_ID_RE.exec(param) ? param : /^(users|projects)\/.*/.exec(param) ? "projects/" + ee.rpc_convert.DEFAULT_PROJECT + "/assets/" + param : "projects/" + ee.rpc_convert.PUBLIC_PROJECT + "/assets/" + param;
 };
 ee.rpc_convert.assetNameToAssetId = function(name) {
-  var parts = name.split("/");
-  return "projects" === parts[0] && "assets" === parts[2] ? parts.slice(3).join("/") : name;
+  var parts = name.split("/"), isLegacyProject = function(id) {
+    return [ee.rpc_convert.DEFAULT_PROJECT, ee.rpc_convert.PUBLIC_PROJECT].includes(id);
+  };
+  return "projects" === parts[0] && "assets" === parts[2] && isLegacyProject(parts[1]) ? parts.slice(3).join("/") : name;
 };
 ee.rpc_convert.assetTypeForCreate = function(param) {
   switch(param) {
@@ -15675,6 +15670,9 @@ ee.rpc_convert.listAssetsToGetList = function(result) {
 };
 ee.rpc_convert.listImagesToGetList = function(result) {
   return (result.images || []).map(ee.rpc_convert.imageToLegacyResult);
+};
+ee.rpc_convert.assetListToDatasetResult = function(result) {
+  return (result.assets || []).map(ee.rpc_convert.assetToLegacyResult);
 };
 ee.rpc_convert.assetTypeToLegacyAssetType = function(type) {
   switch(type) {
@@ -15885,6 +15883,18 @@ ee.rpc_convert.toImageManifest = function(params) {
   manifest.missingData = ee.rpc_convert.toOnePlatformMissingData(params.missingData);
   manifest.maskBands = goog.array.flatten((params.tilesets || []).map(ee.rpc_convert.toOnePlatformMaskBands));
   manifest.pyramidingPolicy = params.pyramidingPolicy || null;
+  if (params.properties) {
+    var properties = Object.assign({}, params.properties), toTimestamp = function(msec) {
+      return (new Date(Number(msec))).toISOString();
+    }, value, extractValue = function(key) {
+      value = properties[key];
+      delete properties[key];
+      return value;
+    };
+    extractValue("system:time_start") && (manifest.startTime = toTimestamp(value));
+    extractValue("system:time_end") && (manifest.endTime = toTimestamp(value));
+    manifest.properties = properties;
+  }
   return manifest;
 };
 ee.rpc_convert.toOnePlatformMaskBands = function(tileset) {
@@ -15913,6 +15923,18 @@ ee.rpc_convert.toTableManifest = function(params) {
     source.maxError && (apiSource.maxErrorMeters = source.maxError);
     return apiSource;
   });
+  if (params.properties) {
+    var properties = Object.assign({}, params.properties), toTimestamp = function(msec) {
+      return (new Date(Number(msec))).toISOString();
+    }, value, extractValue = function(key) {
+      value = properties[key];
+      delete properties[key];
+      return value;
+    };
+    extractValue("system:time_start") && (manifest.startTime = toTimestamp(value));
+    extractValue("system:time_end") && (manifest.endTime = toTimestamp(value));
+    manifest.properties = properties;
+  }
   return manifest;
 };
 ee.rpc_convert.toOnePlatformMissingData = function(params) {
@@ -15949,7 +15971,7 @@ goog.crypt.Md5.prototype.reset = function() {
 goog.crypt.Md5.prototype.compress_ = function(buf, opt_offset) {
   opt_offset || (opt_offset = 0);
   var X = Array(16);
-  if (goog.isString(buf)) {
+  if ("string" === typeof buf) {
     for (var i = 0; 16 > i; ++i) {
       X[i] = buf.charCodeAt(opt_offset++) | buf.charCodeAt(opt_offset++) << 8 | buf.charCodeAt(opt_offset++) << 16 | buf.charCodeAt(opt_offset++) << 24;
     }
@@ -16092,14 +16114,14 @@ goog.crypt.Md5.prototype.compress_ = function(buf, opt_offset) {
   this.chain_[3] = this.chain_[3] + D & 4294967295;
 };
 goog.crypt.Md5.prototype.update = function(bytes, opt_length) {
-  goog.isDef(opt_length) || (opt_length = bytes.length);
+  void 0 === opt_length && (opt_length = bytes.length);
   for (var lengthMinusBlock = opt_length - this.blockSize, block = this.block_, blockLength = this.blockLength_, i = 0; i < opt_length;) {
     if (0 == blockLength) {
       for (; i <= lengthMinusBlock;) {
         this.compress_(bytes, i), i += this.blockSize;
       }
     }
-    if (goog.isString(bytes)) {
+    if ("string" === typeof bytes) {
       for (; i < opt_length;) {
         if (block[blockLength++] = bytes.charCodeAt(i++), blockLength == this.blockSize) {
           this.compress_(block);
@@ -16525,7 +16547,17 @@ ee.rpc_convert_batch.buildVideoMapOptions_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.VideoOptions({framesPerSecond:numberOrNull_(params.framesPerSecond), maxFrames:numberOrNull_(params.maxFrames), maxPixelsPerFrame:null});
 };
 ee.rpc_convert_batch.buildTileOptions_ = function(params) {
-  return new module$exports$eeapiclient$ee_api_client.TileOptions({maxZoom:numberOrNull_(params.maxZoom), scale:numberOrNull_(params.scale), minZoom:numberOrNull_(params.minZoom), skipEmptyTiles:!!params.skipEmptyTiles, mapsApiKey:stringOrNull_(params.mapsApiKey), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tileDimensions), stride:numberOrNull_(params.stride)});
+  return new module$exports$eeapiclient$ee_api_client.TileOptions({maxZoom:numberOrNull_(params.maxZoom), scale:numberOrNull_(params.scale), minZoom:numberOrNull_(params.minZoom), skipEmptyTiles:!!params.skipEmptyTiles, mapsApiKey:stringOrNull_(params.mapsApiKey), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tileDimensions), stride:numberOrNull_(params.stride), zoomSubset:ee.rpc_convert_batch.buildZoomSubset_(numberOrNull_(params.minTimeMachineZoomSubset), 
+  numberOrNull_(params.maxTimeMachineZoomSubset))});
+};
+ee.rpc_convert_batch.buildZoomSubset_ = function(min, max) {
+  if (null == min && null == max) {
+    return null;
+  }
+  var result = new module$exports$eeapiclient$ee_api_client.ZoomSubset({min:0, max:null});
+  null != min && (result.min = min);
+  result.max = max;
+  return result;
 };
 ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
   if (null == dimensions) {
@@ -16557,7 +16589,9 @@ ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
   return result;
 };
 ee.rpc_convert_batch.buildGcsDestination_ = function(params) {
-  return new module$exports$eeapiclient$ee_api_client.GcsDestination({bucket:stringOrNull_(params.outputBucket), filenamePrefix:stringOrNull_(params.outputPrefix), bucketCorsUris:null, permissions:null});
+  var permissions = null;
+  null != params.writePublicTiles && (permissions = params.writePublicTiles ? "PUBLIC" : "DEFAULT_OBJECT_ACL");
+  return new module$exports$eeapiclient$ee_api_client.GcsDestination({bucket:stringOrNull_(params.outputBucket), filenamePrefix:stringOrNull_(params.outputPrefix), bucketCorsUris:params.bucketCorsUris || null, permissions:permissions});
 };
 ee.rpc_convert_batch.buildDriveDestination_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.DriveDestination({folder:stringOrNull_(params.driveFolder), filenamePrefix:stringOrNull_(params.driveFileNamePrefix)});
@@ -19552,9 +19586,6 @@ jspb.Message.deserializeWithCtor = function(ctor, data) {
   goog.asserts.assertInstanceof(msg, jspb.Message);
   return msg;
 };
-jspb.Message.deserialize = function(ctor, data) {
-  return jspb.Message.deserializeWithCtor(ctor, data);
-};
 jspb.Message.GENERATE_TO_STRING && (jspb.Message.prototype.toString = function() {
   this.syncMapFields_();
   return this.array.toString();
@@ -20411,26 +20442,20 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
     };
     switch(taskType) {
       case ee.data.ExportType.IMAGE:
-        var imageTask = ee.data.images.applyTransformsToImage(params);
-        var imageRequest = ee.rpc_convert_batch.taskToExportImageRequest(imageTask);
-        imageRequest.expression = ee.data.expressionAugmenter_(imageRequest.expression, metadata);
+        var imageRequest = ee.data.prepareExportImageRequest_(params, metadata);
         return handle(call.image()["export"](call.projectsPath(), imageRequest));
       case ee.data.ExportType.TABLE:
         var tableRequest = ee.rpc_convert_batch.taskToExportTableRequest(params);
         tableRequest.expression = ee.data.expressionAugmenter_(tableRequest.expression, metadata);
         return handle(call.table()["export"](call.projectsPath(), tableRequest));
       case ee.data.ExportType.VIDEO:
-        var videoTask = ee.data.images.applyTransformsToCollection(params);
-        var videoRequest = ee.rpc_convert_batch.taskToExportVideoRequest(videoTask);
-        videoRequest.expression = ee.data.expressionAugmenter_(videoRequest.expression, metadata);
+        var videoRequest = ee.data.prepareExportVideoRequest_(params, metadata);
         return handle(call.video()["export"](call.projectsPath(), videoRequest));
       case ee.data.ExportType.MAP:
-        var mapRequest = ee.rpc_convert_batch.taskToExportMapRequest(params);
-        mapRequest.expression = ee.data.expressionAugmenter_(mapRequest.expression, metadata);
+        var mapRequest = ee.data.prepareExportMapRequest_(params, metadata);
         return handle(call.map()["export"](call.projectsPath(), mapRequest));
       case ee.data.ExportType.VIDEO_MAP:
-        var videoMapRequest = ee.rpc_convert_batch.taskToExportVideoMapRequest(params);
-        videoMapRequest.expression = ee.data.expressionAugmenter_(videoMapRequest.expression, metadata);
+        var videoMapRequest = ee.data.prepareExportVideoMapRequest_(params, metadata);
         return handle(call.videoMap()["export"](call.projectsPath(), videoMapRequest));
       default:
         throw Error("Unable to start processing for task of type " + taskType);
@@ -20441,6 +20466,34 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
   goog.isArray(params.crs_transform) && (params.crs_transform = params.crs_transform.toString());
   params.id = taskId;
   return ee.data.send_("/processingrequest", ee.data.makeRequest_(params), opt_callback);
+};
+ee.data.prepareExportImageRequest_ = function(taskConfig, metadata) {
+  var imageTask = ee.data.images.applyTransformsToImage(taskConfig), imageRequest = ee.rpc_convert_batch.taskToExportImageRequest(imageTask);
+  imageRequest.expression = ee.data.expressionAugmenter_(imageRequest.expression, metadata);
+  return imageRequest;
+};
+ee.data.prepareExportVideoRequest_ = function(taskConfig, metadata) {
+  var videoTask = ee.data.images.applyTransformsToCollection(taskConfig), videoRequest = ee.rpc_convert_batch.taskToExportVideoRequest(videoTask);
+  videoRequest.expression = ee.data.expressionAugmenter_(videoRequest.expression, metadata);
+  return videoRequest;
+};
+ee.data.prepareExportMapRequest_ = function(taskConfig, metadata) {
+  var scale = taskConfig.scale;
+  delete taskConfig.scale;
+  var mapTask = ee.data.images.applyTransformsToImage(taskConfig);
+  mapTask.scale = scale;
+  var mapRequest = ee.rpc_convert_batch.taskToExportMapRequest(mapTask);
+  mapRequest.expression = ee.data.expressionAugmenter_(mapRequest.expression, metadata);
+  return mapRequest;
+};
+ee.data.prepareExportVideoMapRequest_ = function(taskConfig, metadata) {
+  var scale = taskConfig.scale;
+  delete taskConfig.scale;
+  var videoMapTask = ee.data.images.applyTransformsToCollection(taskConfig);
+  videoMapTask.scale = scale;
+  var videoMapRequest = ee.rpc_convert_batch.taskToExportVideoMapRequest(videoMapTask);
+  videoMapRequest.expression = ee.data.expressionAugmenter_(videoMapRequest.expression);
+  return videoMapRequest;
 };
 ee.data.startIngestion = function(taskId, request, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
@@ -20485,23 +20538,27 @@ ee.data.cloudApiSymbols.push("getAsset");
 ee.data.getInfo = ee.data.getAsset;
 ee.data.getList = function(params, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
-    var parent = ee.rpc_convert.assetIdToAssetName(params.id);
+    var call = new module$contents$ee$apiclient_Call(opt_callback), methodRoot = call.assets(), parent = ee.rpc_convert.assetIdToAssetName(params.id), isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(params.id);
+    isProjectAssetRoot && (methodRoot = call.projects(), parent = ee.rpc_convert.projectParentFromPath(params.id));
     if (Object.keys(params).every(function(k) {
       return "id" === k || "num" === k;
     })) {
-      var call = new module$contents$ee$apiclient_Call(opt_callback);
-      return call.handle(call.assets().listAssets(parent, {pageSize:params.num}).then(ee.rpc_convert.listAssetsToGetList));
+      return call.handle(methodRoot.listAssets(parent, {pageSize:params.num}).then(ee.rpc_convert.listAssetsToGetList));
     }
-    var body = ee.rpc_convert.getListToListImages(params), call$29 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$29.handle(call$29.assets().listImages(parent, body).then(ee.rpc_convert.listImagesToGetList));
+    if (isProjectAssetRoot) {
+      throw Error("getList on a project does not support filtering options. Please provide a full asset path. Got: " + params.id);
+    }
+    var body = ee.rpc_convert.getListToListImages(params);
+    return call.handle(methodRoot.listImages(parent, body).then(ee.rpc_convert.listImagesToGetList));
   }
   var request = ee.data.makeRequest_(params);
   return ee.data.send_("/list", request, opt_callback);
 };
 ee.data.listAssets = function(parent, params, opt_callback) {
   params = void 0 === params ? {} : params;
-  var call = new module$contents$ee$apiclient_Call(opt_callback);
-  return call.handle(call.assets().listAssets(parent, params));
+  var isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(parent), call = new module$contents$ee$apiclient_Call(opt_callback), methodRoot = isProjectAssetRoot ? call.projects() : call.assets();
+  parent = isProjectAssetRoot ? ee.rpc_convert.projectParentFromPath(parent) : parent;
+  return call.handle(methodRoot.listAssets(parent, params));
 };
 ee.data.cloudApiSymbols.push("listAssets");
 ee.data.listImages = function(parent, params, opt_callback) {
@@ -20566,10 +20623,11 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
   return ee.data.getCloudApiEnabled() ? ee.data.createAsset({type:"Folder"}, path, opt_force, void 0, opt_callback) : ee.data.send_("/createfolder", ee.data.makeRequest_({id:path, force:opt_force || !1}), opt_callback);
 };
 ee.data.search = function(query, opt_callback) {
-  var params = {q:query};
-  return ee.data.getCloudApiEnabled() && opt_callback ? ee.data.send_("/search", ee.data.makeRequest_(params), function(result, error) {
-    return opt_callback(result ? result.data || [] : null, error);
-  }) : ee.data.send_("/search", ee.data.makeRequest_(params), opt_callback);
+  if (ee.data.getCloudApiEnabled()) {
+    var call = new module$contents$ee$apiclient_Call(opt_callback);
+    return call.handle(call.assets().search("projects/earthengine-public", query).then(ee.rpc_convert.assetListToDatasetResult));
+  }
+  return ee.data.send_("/search", ee.data.makeRequest_({q:query}), opt_callback);
 };
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
@@ -20618,8 +20676,8 @@ ee.data.updateAsset = function(assetId, asset, updateFields, opt_callback) {
 };
 ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
-    var resource = ee.rpc_convert.assetIdToAssetName(assetId), policy = ee.rpc_convert.aclToIamPolicy(aclUpdate), request$30 = new module$exports$eeapiclient$ee_api_client.SetIamPolicyRequest({policy:policy}), call = new module$contents$ee$apiclient_Call(opt_callback);
-    call.handle(call.assets().setIamPolicy(resource, request$30, {prettyPrint:!1}));
+    var resource = ee.rpc_convert.assetIdToAssetName(assetId), policy = ee.rpc_convert.aclToIamPolicy(aclUpdate), request$29 = new module$exports$eeapiclient$ee_api_client.SetIamPolicyRequest({policy:policy}), call = new module$contents$ee$apiclient_Call(opt_callback);
+    call.handle(call.assets().setIamPolicy(resource, request$29, {prettyPrint:!1}));
   } else {
     aclUpdate = {readers:aclUpdate.readers, writers:aclUpdate.writers, all_users_can_read:aclUpdate.all_users_can_read};
     var request = {id:assetId, value:goog.json.serialize(aclUpdate)};
@@ -22503,9 +22561,9 @@ ee.batch.Export.video.prepareTaskConfig_ = function(taskConfig, destination) {
 };
 ee.batch.Export.videoMap.prepareTaskConfig_ = function(taskConfig, destination) {
   taskConfig = ee.batch.Export.reconcileVideoFormat_(taskConfig);
-  taskConfig.version = taskConfig.version || ee.batch.VideoMapVersion.V2;
+  taskConfig.version = taskConfig.version || ee.batch.VideoMapVersion.V1;
   taskConfig.stride = taskConfig.stride || 1;
-  taskConfig.tileDimensions = {width:taskConfig.tileWidth || 1068, height:taskConfig.tileHeight || 600};
+  taskConfig.tileDimensions = {width:taskConfig.tileWidth || 256, height:taskConfig.tileHeight || 256};
   return taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
 };
 ee.batch.VideoFormat = {MP4:"MP4"};
@@ -23335,7 +23393,7 @@ goog.events.EventHandler.prototype.handleEvent = function(e) {
 goog.fs.DOMErrorLike = function() {
 };
 goog.fs.Error = function(error, action) {
-  if (goog.isDef(error.name)) {
+  if (void 0 !== error.name) {
     this.name = error.name, this.code = goog.fs.Error.getCodeFromName_(error.name);
   } else {
     var code = goog.asserts.assertNumber(error.code);
@@ -23351,7 +23409,7 @@ goog.fs.Error.getNameFromCode_ = function(code) {
   var name = goog.object.findKey(goog.fs.Error.NameToCodeMap_, function(c) {
     return code == c;
   });
-  if (!goog.isDef(name)) {
+  if (void 0 === name) {
     throw Error("Invalid code: " + code);
   }
   return name;
@@ -23467,7 +23525,7 @@ goog.dom.vendor.getPrefixedPropertyName = function(propertyName, opt_object) {
   if (prefix) {
     prefix = prefix.toLowerCase();
     var prefixedPropertyName = prefix + goog.string.toTitleCase(propertyName);
-    return !goog.isDef(opt_object) || prefixedPropertyName in opt_object ? prefixedPropertyName : null;
+    return void 0 === opt_object || prefixedPropertyName in opt_object ? prefixedPropertyName : null;
   }
   return null;
 };
@@ -23561,11 +23619,11 @@ goog.math.Box.prototype.round = function() {
   return this;
 };
 goog.math.Box.prototype.translate = function(tx, opt_ty) {
-  tx instanceof goog.math.Coordinate ? (this.left += tx.x, this.right += tx.x, this.top += tx.y, this.bottom += tx.y) : (goog.asserts.assertNumber(tx), this.left += tx, this.right += tx, goog.isNumber(opt_ty) && (this.top += opt_ty, this.bottom += opt_ty));
+  tx instanceof goog.math.Coordinate ? (this.left += tx.x, this.right += tx.x, this.top += tx.y, this.bottom += tx.y) : (goog.asserts.assertNumber(tx), this.left += tx, this.right += tx, "number" === typeof opt_ty && (this.top += opt_ty, this.bottom += opt_ty));
   return this;
 };
 goog.math.Box.prototype.scale = function(sx, opt_sy) {
-  var sy = goog.isNumber(opt_sy) ? opt_sy : sx;
+  var sy = "number" === typeof opt_sy ? opt_sy : sx;
   this.left *= sx;
   this.right *= sx;
   this.top *= sy;
@@ -23698,11 +23756,11 @@ goog.math.Rect.prototype.round = function() {
   return this;
 };
 goog.math.Rect.prototype.translate = function(tx, opt_ty) {
-  tx instanceof goog.math.Coordinate ? (this.left += tx.x, this.top += tx.y) : (this.left += goog.asserts.assertNumber(tx), goog.isNumber(opt_ty) && (this.top += opt_ty));
+  tx instanceof goog.math.Coordinate ? (this.left += tx.x, this.top += tx.y) : (this.left += goog.asserts.assertNumber(tx), "number" === typeof opt_ty && (this.top += opt_ty));
   return this;
 };
 goog.math.Rect.prototype.scale = function(sx, opt_sy) {
-  var sy = goog.isNumber(opt_sy) ? opt_sy : sx;
+  var sy = "number" === typeof opt_sy ? opt_sy : sx;
   this.left *= sx;
   this.width *= sx;
   this.top *= sy;
@@ -23711,7 +23769,7 @@ goog.math.Rect.prototype.scale = function(sx, opt_sy) {
 };
 goog.style = {};
 goog.style.setStyle = function(element, style, opt_value) {
-  if (goog.isString(style)) {
+  if ("string" === typeof style) {
     goog.style.setStyle_(element, opt_value, style);
   } else {
     for (var key in style) {
@@ -23984,7 +24042,7 @@ goog.style.evaluateWithTemporaryDisplay_ = function(fn, element) {
 };
 goog.style.getSizeWithDisplay_ = function(element) {
   var offsetWidth = element.offsetWidth, offsetHeight = element.offsetHeight, webkitOffsetsZero = goog.userAgent.WEBKIT && !offsetWidth && !offsetHeight;
-  if ((!goog.isDef(offsetWidth) || webkitOffsetsZero) && element.getBoundingClientRect) {
+  if ((void 0 === offsetWidth || webkitOffsetsZero) && element.getBoundingClientRect) {
     var clientRect = goog.style.getBoundingClientRect_(element);
     return new goog.math.Size(clientRect.right - clientRect.left, clientRect.bottom - clientRect.top);
   }
@@ -24069,7 +24127,7 @@ goog.style.uninstallStyles = function(styleSheet) {
 };
 goog.style.setSafeStyleSheet = function(element, safeStyleSheet) {
   var stylesString = goog.html.SafeStyleSheet.unwrap(safeStyleSheet);
-  goog.userAgent.IE && goog.isDef(element.cssText) ? element.cssText = stylesString : element.innerHTML = stylesString;
+  goog.userAgent.IE && void 0 !== element.cssText ? element.cssText = stylesString : element.innerHTML = stylesString;
 };
 goog.style.setPreWrap = function(el) {
   var style = el.style;
@@ -24563,8 +24621,8 @@ goog.inherits(goog.net.ImageLoader, goog.events.EventTarget);
 goog.net.ImageLoader.CorsRequestType = {ANONYMOUS:"anonymous", USE_CREDENTIALS:"use-credentials"};
 goog.net.ImageLoader.IMAGE_LOAD_EVENTS_ = [goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("11") ? goog.net.EventType.READY_STATE_CHANGE : goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR];
 goog.net.ImageLoader.prototype.addImage = function(id, image, opt_corsRequestType) {
-  var src = goog.isString(image) ? image : image.src;
-  src && (this.imageIdToRequestMap_[id] = {src:src, corsRequestType:goog.isDef(opt_corsRequestType) ? opt_corsRequestType : null});
+  var src = "string" === typeof image ? image : image.src;
+  src && (this.imageIdToRequestMap_[id] = {src:src, corsRequestType:void 0 !== opt_corsRequestType ? opt_corsRequestType : null});
 };
 goog.net.ImageLoader.prototype.removeImage = function(id) {
   delete this.imageIdToRequestMap_[id];
@@ -24820,7 +24878,7 @@ goog.structs.Pool.prototype.setDelay = function(delay) {
 };
 goog.structs.Pool.prototype.getObject = function() {
   var time = goog.now();
-  if (!(goog.isDefAndNotNull(this.lastAccess) && time - this.lastAccess < this.delay)) {
+  if (!(null != this.lastAccess && time - this.lastAccess < this.delay)) {
     var obj = this.removeFreeObject_();
     obj && (this.lastAccess = time, this.inUseSet_.add(obj));
     return obj;
@@ -25027,7 +25085,7 @@ goog.inherits(goog.structs.PriorityPool, goog.structs.Pool);
 goog.structs.PriorityPool.DEFAULT_PRIORITY_ = 100;
 goog.structs.PriorityPool.prototype.setDelay = function(delay) {
   goog.structs.PriorityPool.superClass_.setDelay.call(this, delay);
-  goog.isDefAndNotNull(this.lastAccess) && (goog.global.clearTimeout(this.delayTimeout_), this.delayTimeout_ = goog.global.setTimeout(goog.bind(this.handleQueueRequests_, this), this.delay + this.lastAccess - goog.now()), this.handleQueueRequests_());
+  null != this.lastAccess && (goog.global.clearTimeout(this.delayTimeout_), this.delayTimeout_ = goog.global.setTimeout(goog.bind(this.handleQueueRequests_, this), this.delay + this.lastAccess - goog.now()), this.handleQueueRequests_());
 };
 goog.structs.PriorityPool.prototype.getObject = function(opt_callback, opt_priority) {
   if (!opt_callback) {
@@ -25035,7 +25093,7 @@ goog.structs.PriorityPool.prototype.getObject = function(opt_callback, opt_prior
     result && this.delay && (this.delayTimeout_ = goog.global.setTimeout(goog.bind(this.handleQueueRequests_, this), this.delay));
     return result;
   }
-  this.requestQueue_.enqueue(goog.isDef(opt_priority) ? opt_priority : goog.structs.PriorityPool.DEFAULT_PRIORITY_, opt_callback);
+  this.requestQueue_.enqueue(void 0 !== opt_priority ? opt_priority : goog.structs.PriorityPool.DEFAULT_PRIORITY_, opt_callback);
   this.handleQueueRequests_();
 };
 goog.structs.PriorityPool.prototype.handleQueueRequests_ = function() {
@@ -25543,7 +25601,7 @@ goog.async.Delay.prototype.disposeInternal = function() {
 };
 goog.async.Delay.prototype.start = function(opt_interval) {
   this.stop();
-  this.id_ = goog.Timer.callOnce(this.callback_, goog.isDef(opt_interval) ? opt_interval : this.interval_);
+  this.id_ = goog.Timer.callOnce(this.callback_, void 0 !== opt_interval ? opt_interval : this.interval_);
 };
 goog.async.Delay.prototype.startIfNotActive = function(opt_interval) {
   this.isActive() || this.start(opt_interval);
@@ -25676,26 +25734,26 @@ ee.data.Profiler.Format.prototype.toString = function() {
 ee.data.Profiler.Format.TEXT = new ee.data.Profiler.Format("text");
 ee.data.Profiler.Format.JSON = new ee.data.Profiler.Format("json");
 (function() {
-  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction.lookup ee.ApiFunction._apply ee.ApiFunction._call ee.batch.Export.table.toDrive ee.batch.Export.video.toDrive ee.batch.Export.table.toAsset ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.image.toDrive ee.batch.Export.image.toCloudStorage ee.batch.Export.map.toCloudStorage ee.batch.Export.video.toCloudStorage ee.batch.Export.table.toCloudStorage ee.batch.Export.image.toAsset ee.Collection.prototype.filterDate ee.Collection.prototype.sort ee.Collection.prototype.map ee.Collection.prototype.filter ee.Collection.prototype.iterate ee.Collection.prototype.limit ee.Collection.prototype.filterBounds ee.Collection.prototype.filterMetadata ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.ComputedObject.prototype.getInfo ee.data.renameAsset ee.data.getTableDownloadId ee.data.listImages ee.data.getValue ee.data.makeTableDownloadUrl ee.data.listBuckets ee.data.copyAsset ee.data.newTaskId ee.data.getAssetRoots ee.data.deleteAsset ee.data.createAssetHome ee.data.getTaskStatus ee.data.getAssetAcl ee.data.authenticateViaOauth ee.data.createAsset ee.data.getTaskList ee.data.getTaskListWithLimit ee.data.updateAsset ee.data.createFolder ee.data.setAssetAcl ee.data.cancelOperation ee.data.setAssetProperties ee.data.getVideoThumbId ee.data.getOperation ee.data.getThumbId ee.data.authenticateViaPrivateKey ee.data.startTableIngestion ee.data.getAssetRootQuota ee.data.cancelTask ee.data.getAsset ee.data.getMapId ee.data.getFilmstripThumbId ee.data.getInfo ee.data.updateTask ee.data.getList ee.data.makeThumbUrl ee.data.getTileUrl ee.data.startProcessing ee.data.authenticate ee.data.startIngestion ee.data.listAssets ee.data.getDownloadId ee.data.authenticateViaPopup ee.data.makeDownloadUrl ee.Date ee.Deserializer.fromJSON ee.Deserializer.decode ee.Dictionary ee.initialize ee.reset ee.InitState ee.call ee.TILE_SIZE ee.apply ee.Algorithms ee.Element.prototype.set ee.Feature ee.Feature.prototype.getMap ee.Feature.prototype.getInfo ee.FeatureCollection.prototype.getInfo ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection.prototype.select ee.FeatureCollection ee.FeatureCollection.prototype.getMap ee.Filter.lte ee.Filter.lt ee.Filter.or ee.Filter.gt ee.Filter.prototype.not ee.Filter.eq ee.Filter.and ee.Filter.neq ee.Filter.bounds ee.Filter.gte ee.Filter.metadata ee.Filter ee.Filter.inList ee.Filter.date ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry.prototype.serialize ee.Geometry.LinearRing ee.Geometry.Rectangle ee.Geometry.MultiPolygon ee.Geometry.Point ee.Geometry.LineString ee.Geometry.MultiLineString ee.Geometry.prototype.toGeoJSON ee.Geometry.Polygon ee.Geometry.prototype.toGeoJSONString ee.Geometry ee.Geometry.MultiPoint ee.Image.prototype.getMap ee.Image.cat ee.Image.prototype.clip ee.Image.prototype.getInfo ee.Image.prototype.getDownloadURL ee.Image.rgb ee.Image.prototype.rename ee.Image.prototype.getThumbURL ee.Image.prototype.expression ee.Image ee.Image.prototype.select ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.first ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.select ee.List ee.Number ee.Serializer.toReadableJSON ee.Serializer.encodeCloudApi ee.Serializer.encode ee.Serializer.toJSON ee.Serializer.encodeCloudApiPretty ee.Serializer.toReadableCloudApiJSON ee.String ee.Terrain".split(" "), 
-  orderedParamLists = [["name"], ["name", "namedArgs"], ["name", "var_args"], "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), ["collection", "opt_description", "opt_assetId"], "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris".split(" "), 
+  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction._apply ee.ApiFunction._call ee.ApiFunction.lookup ee.batch.Export.table.toDrive ee.batch.Export.video.toDrive ee.batch.Export.table.toAsset ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.image.toDrive ee.batch.Export.image.toCloudStorage ee.batch.Export.map.toCloudStorage ee.batch.Export.video.toCloudStorage ee.batch.Export.table.toCloudStorage ee.batch.Export.image.toAsset ee.Collection.prototype.filterDate ee.Collection.prototype.sort ee.Collection.prototype.map ee.Collection.prototype.filter ee.Collection.prototype.iterate ee.Collection.prototype.limit ee.Collection.prototype.filterBounds ee.Collection.prototype.filterMetadata ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.ComputedObject.prototype.getInfo ee.data.createAsset ee.data.getList ee.data.createFolder ee.data.startIngestion ee.data.listAssets ee.data.getMapId ee.data.getTileUrl ee.data.listImages ee.data.renameAsset ee.data.copyAsset ee.data.listBuckets ee.data.authenticate ee.data.startTableIngestion ee.data.getAssetRoots ee.data.deleteAsset ee.data.authenticateViaPopup ee.data.getAsset ee.data.getInfo ee.data.createAssetHome ee.data.getAssetAcl ee.data.authenticateViaPrivateKey ee.data.getValue ee.data.cancelTask ee.data.getTableDownloadId ee.data.getOperation ee.data.getThumbId ee.data.newTaskId ee.data.makeTableDownloadUrl ee.data.makeDownloadUrl ee.data.updateAsset ee.data.getVideoThumbId ee.data.getTaskStatus ee.data.updateTask ee.data.getFilmstripThumbId ee.data.setAssetProperties ee.data.setAssetAcl ee.data.getDownloadId ee.data.makeThumbUrl ee.data.startProcessing ee.data.authenticateViaOauth ee.data.getTaskList ee.data.cancelOperation ee.data.getTaskListWithLimit ee.data.getAssetRootQuota ee.Date ee.Deserializer.decode ee.Deserializer.fromJSON ee.Dictionary ee.call ee.reset ee.apply ee.Algorithms ee.InitState ee.TILE_SIZE ee.initialize ee.Element.prototype.set ee.Feature ee.Feature.prototype.getMap ee.Feature.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection.prototype.getInfo ee.FeatureCollection.prototype.select ee.Filter.prototype.not ee.Filter.lt ee.Filter.lte ee.Filter.and ee.Filter.neq ee.Filter.bounds ee.Filter ee.Filter.gte ee.Filter.metadata ee.Filter.inList ee.Filter.date ee.Filter.or ee.Filter.gt ee.Filter.eq ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry.MultiLineString ee.Geometry.prototype.toGeoJSON ee.Geometry.Polygon ee.Geometry.prototype.toGeoJSONString ee.Geometry.Point ee.Geometry.LineString ee.Geometry ee.Geometry.MultiPoint ee.Geometry.LinearRing ee.Geometry.MultiPolygon ee.Geometry.Rectangle ee.Geometry.prototype.serialize ee.Image.prototype.rename ee.Image.prototype.getInfo ee.Image ee.Image.prototype.select ee.Image.prototype.expression ee.Image.prototype.getDownloadURL ee.Image.cat ee.Image.prototype.getMap ee.Image.rgb ee.Image.prototype.clip ee.Image.prototype.getThumbURL ee.ImageCollection.prototype.select ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.first ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection ee.List ee.Number ee.Serializer.encode ee.Serializer.toReadableCloudApiJSON ee.Serializer.encodeCloudApiPretty ee.Serializer.encodeCloudApi ee.Serializer.toReadableJSON ee.Serializer.toJSON ee.String ee.Terrain".split(" "), 
+  orderedParamLists = [["name", "namedArgs"], ["name", "var_args"], ["name"], "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), ["collection", "opt_description", "opt_assetId"], "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris".split(" "), 
   "image opt_description opt_folder opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), "image opt_description opt_bucket opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey".split(" "), 
   "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors".split(" "), "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels".split(" "), ["start", "opt_end"], ["property", "opt_ascending"], ["algorithm", "opt_dropNulls"], 
-  ["filter"], ["algorithm", "opt_first"], ["max", "opt_property", "opt_ascending"], ["geometry"], ["name", "operator", "value"], [], ["func", "var_args"], ["callback"], ["opt_callback"], ["sourceId", "destinationId", "opt_callback"], ["params", "opt_callback"], ["parent", "params", "opt_callback"], ["params", "opt_callback"], ["id"], ["project", "opt_callback"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["opt_count", "opt_callback"], ["opt_callback"], ["assetId", "opt_callback"], 
-  ["requestedId", "opt_callback"], ["taskId", "opt_callback"], ["assetId", "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["value", "opt_path", "opt_force", "opt_properties", "opt_callback"], ["opt_callback"], ["opt_limit", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["path", "opt_force", "opt_callback"], ["assetId", "aclUpdate", "opt_callback"], ["operationName", "opt_callback"], ["assetId", "properties", "opt_callback"], 
-  ["params", "opt_callback"], ["operationName", "opt_callback"], ["params", "opt_callback"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes"], ["taskId", "request", "opt_callback"], ["rootId", "opt_callback"], ["taskId", "opt_callback"], ["id", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["id", "opt_callback"], ["taskId", "action", "opt_callback"], ["params", "opt_callback"], ["id"], ["mapid", "x", "y", "z"], ["taskId", "params", "opt_callback"], ["clientId", 
-  "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["taskId", "request", "opt_callback"], ["parent", "params", "opt_callback"], ["params", "opt_callback"], ["opt_success", "opt_error"], ["id"], ["date", "opt_tz"], ["json"], ["json"], ["opt_dict"], ["opt_baseurl", "opt_tileurl", "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], [], [], ["func", "var_args"], [], ["func", "namedArgs"], [], ["var_args"], ["geometry", "opt_properties"], ["opt_visParams", "opt_callback"], 
-  ["opt_callback"], ["opt_callback"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["args", "opt_column"], ["opt_visParams", "opt_callback"], ["name", "value"], ["name", "value"], ["var_args"], ["name", "value"], [], ["name", "value"], ["var_args"], ["name", "value"], ["geometry", "opt_errorMargin"], ["name", "value"], ["name", "operator", "value"], ["opt_filter"], ["opt_leftField", "opt_rightValue", "opt_rightField", 
-  "opt_leftValue"], ["start", "opt_end"], ["namedArgs"], ["var_args"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], [], ["geoJson", "opt_proj", "opt_geodesic", 
-  "opt_evenOdd"], ["coords", "opt_proj"], ["opt_visParams", "opt_callback"], ["var_args"], ["geometry"], ["opt_callback"], ["params", "opt_callback"], ["r", "g", "b"], ["var_args"], ["params", "opt_callback"], ["expression", "opt_map"], ["opt_args"], ["var_args"], ["opt_visParams", "opt_callback"], [], ["params", "opt_callback"], ["params", "opt_callback"], ["args"], ["opt_callback"], ["selectors", "opt_names"], ["list"], ["number"], ["obj"], ["obj"], ["obj", "opt_isCompound"], ["obj"], ["obj"], 
+  ["filter"], ["algorithm", "opt_first"], ["max", "opt_property", "opt_ascending"], ["geometry"], ["name", "operator", "value"], [], ["func", "var_args"], ["callback"], ["opt_callback"], ["value", "opt_path", "opt_force", "opt_properties", "opt_callback"], ["params", "opt_callback"], ["path", "opt_force", "opt_callback"], ["taskId", "request", "opt_callback"], ["parent", "params", "opt_callback"], ["params", "opt_callback"], ["mapid", "x", "y", "z"], ["parent", "params", "opt_callback"], ["sourceId", 
+  "destinationId", "opt_callback"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["project", "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["taskId", "request", "opt_callback"], ["opt_callback"], ["assetId", "opt_callback"], ["opt_success", "opt_error"], ["id", "opt_callback"], ["id", "opt_callback"], ["requestedId", "opt_callback"], ["assetId", "opt_callback"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes"], ["params", 
+  "opt_callback"], ["taskId", "opt_callback"], ["params", "opt_callback"], ["operationName", "opt_callback"], ["params", "opt_callback"], ["opt_count", "opt_callback"], ["id"], ["id"], ["assetId", "asset", "updateFields", "opt_callback"], ["params", "opt_callback"], ["taskId", "opt_callback"], ["taskId", "action", "opt_callback"], ["params", "opt_callback"], ["assetId", "properties", "opt_callback"], ["assetId", "aclUpdate", "opt_callback"], ["params", "opt_callback"], ["id"], ["taskId", "params", 
+  "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["opt_callback"], ["operationName", "opt_callback"], ["opt_limit", "opt_callback"], ["rootId", "opt_callback"], ["date", "opt_tz"], ["json"], ["json"], ["opt_dict"], ["func", "var_args"], [], ["func", "namedArgs"], [], [], [], ["opt_baseurl", "opt_tileurl", "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], ["var_args"], ["geometry", "opt_properties"], ["opt_visParams", "opt_callback"], 
+  ["opt_callback"], ["args", "opt_column"], ["opt_visParams", "opt_callback"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], [], ["name", "value"], ["name", "value"], ["var_args"], ["name", "value"], ["geometry", "opt_errorMargin"], ["opt_filter"], ["name", "value"], ["name", "operator", "value"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], ["start", "opt_end"], ["var_args"], 
+  ["name", "value"], ["name", "value"], ["namedArgs"], ["var_args"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], [], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", 
+  "opt_proj", "opt_geodesic", "opt_evenOdd"], [], ["var_args"], ["opt_callback"], ["opt_args"], ["var_args"], ["expression", "opt_map"], ["params", "opt_callback"], ["var_args"], ["opt_visParams", "opt_callback"], ["r", "g", "b"], ["geometry"], ["params", "opt_callback"], ["selectors", "opt_names"], ["opt_visParams", "opt_callback"], ["opt_callback"], [], ["params", "opt_callback"], ["params", "opt_callback"], ["args"], ["list"], ["number"], ["obj", "opt_isCompound"], ["obj"], ["obj"], ["obj"], ["obj"], 
   ["obj"], ["string"], []];
-  [ee.ApiFunction.lookup, ee.ApiFunction._apply, ee.ApiFunction._call, ee.batch.Export.table.toDrive, ee.batch.Export.video.toDrive, ee.batch.Export.table.toAsset, ee.batch.Export.videoMap.toCloudStorage, ee.batch.Export.image.toDrive, ee.batch.Export.image.toCloudStorage, ee.batch.Export.map.toCloudStorage, ee.batch.Export.video.toCloudStorage, ee.batch.Export.table.toCloudStorage, ee.batch.Export.image.toAsset, ee.Collection.prototype.filterDate, ee.Collection.prototype.sort, ee.Collection.prototype.map, 
-  ee.Collection.prototype.filter, ee.Collection.prototype.iterate, ee.Collection.prototype.limit, ee.Collection.prototype.filterBounds, ee.Collection.prototype.filterMetadata, ee.ComputedObject.prototype.serialize, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.evaluate, ee.ComputedObject.prototype.getInfo, ee.data.renameAsset, ee.data.getTableDownloadId, ee.data.listImages, ee.data.getValue, ee.data.makeTableDownloadUrl, ee.data.listBuckets, ee.data.copyAsset, ee.data.newTaskId, 
-  ee.data.getAssetRoots, ee.data.deleteAsset, ee.data.createAssetHome, ee.data.getTaskStatus, ee.data.getAssetAcl, ee.data.authenticateViaOauth, ee.data.createAsset, ee.data.getTaskList, ee.data.getTaskListWithLimit, ee.data.updateAsset, ee.data.createFolder, ee.data.setAssetAcl, ee.data.cancelOperation, ee.data.setAssetProperties, ee.data.getVideoThumbId, ee.data.getOperation, ee.data.getThumbId, ee.data.authenticateViaPrivateKey, ee.data.startTableIngestion, ee.data.getAssetRootQuota, ee.data.cancelTask, 
-  ee.data.getAsset, ee.data.getMapId, ee.data.getFilmstripThumbId, ee.data.getInfo, ee.data.updateTask, ee.data.getList, ee.data.makeThumbUrl, ee.data.getTileUrl, ee.data.startProcessing, ee.data.authenticate, ee.data.startIngestion, ee.data.listAssets, ee.data.getDownloadId, ee.data.authenticateViaPopup, ee.data.makeDownloadUrl, ee.Date, ee.Deserializer.fromJSON, ee.Deserializer.decode, ee.Dictionary, ee.initialize, ee.reset, ee.InitState, ee.call, ee.TILE_SIZE, ee.apply, ee.Algorithms, ee.Element.prototype.set, 
-  ee.Feature, ee.Feature.prototype.getMap, ee.Feature.prototype.getInfo, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection.prototype.getDownloadURL, ee.FeatureCollection.prototype.select, ee.FeatureCollection, ee.FeatureCollection.prototype.getMap, ee.Filter.lte, ee.Filter.lt, ee.Filter.or, ee.Filter.gt, ee.Filter.prototype.not, ee.Filter.eq, ee.Filter.and, ee.Filter.neq, ee.Filter.bounds, ee.Filter.gte, ee.Filter.metadata, ee.Filter, ee.Filter.inList, ee.Filter.date, ee.Function.prototype.apply, 
-  ee.Function.prototype.call, ee.Geometry.prototype.serialize, ee.Geometry.LinearRing, ee.Geometry.Rectangle, ee.Geometry.MultiPolygon, ee.Geometry.Point, ee.Geometry.LineString, ee.Geometry.MultiLineString, ee.Geometry.prototype.toGeoJSON, ee.Geometry.Polygon, ee.Geometry.prototype.toGeoJSONString, ee.Geometry, ee.Geometry.MultiPoint, ee.Image.prototype.getMap, ee.Image.cat, ee.Image.prototype.clip, ee.Image.prototype.getInfo, ee.Image.prototype.getDownloadURL, ee.Image.rgb, ee.Image.prototype.rename, 
-  ee.Image.prototype.getThumbURL, ee.Image.prototype.expression, ee.Image, ee.Image.prototype.select, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.first, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.select, ee.List, ee.Number, ee.Serializer.toReadableJSON, ee.Serializer.encodeCloudApi, ee.Serializer.encode, ee.Serializer.toJSON, ee.Serializer.encodeCloudApiPretty, 
-  ee.Serializer.toReadableCloudApiJSON, ee.String, ee.Terrain].forEach(function(fn, i) {
+  [ee.ApiFunction._apply, ee.ApiFunction._call, ee.ApiFunction.lookup, ee.batch.Export.table.toDrive, ee.batch.Export.video.toDrive, ee.batch.Export.table.toAsset, ee.batch.Export.videoMap.toCloudStorage, ee.batch.Export.image.toDrive, ee.batch.Export.image.toCloudStorage, ee.batch.Export.map.toCloudStorage, ee.batch.Export.video.toCloudStorage, ee.batch.Export.table.toCloudStorage, ee.batch.Export.image.toAsset, ee.Collection.prototype.filterDate, ee.Collection.prototype.sort, ee.Collection.prototype.map, 
+  ee.Collection.prototype.filter, ee.Collection.prototype.iterate, ee.Collection.prototype.limit, ee.Collection.prototype.filterBounds, ee.Collection.prototype.filterMetadata, ee.ComputedObject.prototype.serialize, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.evaluate, ee.ComputedObject.prototype.getInfo, ee.data.createAsset, ee.data.getList, ee.data.createFolder, ee.data.startIngestion, ee.data.listAssets, ee.data.getMapId, ee.data.getTileUrl, ee.data.listImages, ee.data.renameAsset, 
+  ee.data.copyAsset, ee.data.listBuckets, ee.data.authenticate, ee.data.startTableIngestion, ee.data.getAssetRoots, ee.data.deleteAsset, ee.data.authenticateViaPopup, ee.data.getAsset, ee.data.getInfo, ee.data.createAssetHome, ee.data.getAssetAcl, ee.data.authenticateViaPrivateKey, ee.data.getValue, ee.data.cancelTask, ee.data.getTableDownloadId, ee.data.getOperation, ee.data.getThumbId, ee.data.newTaskId, ee.data.makeTableDownloadUrl, ee.data.makeDownloadUrl, ee.data.updateAsset, ee.data.getVideoThumbId, 
+  ee.data.getTaskStatus, ee.data.updateTask, ee.data.getFilmstripThumbId, ee.data.setAssetProperties, ee.data.setAssetAcl, ee.data.getDownloadId, ee.data.makeThumbUrl, ee.data.startProcessing, ee.data.authenticateViaOauth, ee.data.getTaskList, ee.data.cancelOperation, ee.data.getTaskListWithLimit, ee.data.getAssetRootQuota, ee.Date, ee.Deserializer.decode, ee.Deserializer.fromJSON, ee.Dictionary, ee.call, ee.reset, ee.apply, ee.Algorithms, ee.InitState, ee.TILE_SIZE, ee.initialize, ee.Element.prototype.set, 
+  ee.Feature, ee.Feature.prototype.getMap, ee.Feature.prototype.getInfo, ee.FeatureCollection, ee.FeatureCollection.prototype.getMap, ee.FeatureCollection.prototype.getDownloadURL, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection.prototype.select, ee.Filter.prototype.not, ee.Filter.lt, ee.Filter.lte, ee.Filter.and, ee.Filter.neq, ee.Filter.bounds, ee.Filter, ee.Filter.gte, ee.Filter.metadata, ee.Filter.inList, ee.Filter.date, ee.Filter.or, ee.Filter.gt, ee.Filter.eq, ee.Function.prototype.apply, 
+  ee.Function.prototype.call, ee.Geometry.MultiLineString, ee.Geometry.prototype.toGeoJSON, ee.Geometry.Polygon, ee.Geometry.prototype.toGeoJSONString, ee.Geometry.Point, ee.Geometry.LineString, ee.Geometry, ee.Geometry.MultiPoint, ee.Geometry.LinearRing, ee.Geometry.MultiPolygon, ee.Geometry.Rectangle, ee.Geometry.prototype.serialize, ee.Image.prototype.rename, ee.Image.prototype.getInfo, ee.Image, ee.Image.prototype.select, ee.Image.prototype.expression, ee.Image.prototype.getDownloadURL, ee.Image.cat, 
+  ee.Image.prototype.getMap, ee.Image.rgb, ee.Image.prototype.clip, ee.Image.prototype.getThumbURL, ee.ImageCollection.prototype.select, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.first, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection, ee.List, ee.Number, ee.Serializer.encode, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.encodeCloudApiPretty, ee.Serializer.encodeCloudApi, 
+  ee.Serializer.toReadableJSON, ee.Serializer.toJSON, ee.String, ee.Terrain].forEach(function(fn, i) {
     fn && (exportedFnInfo[fn.toString()] = {name:orderedFnNames[i], paramNames:orderedParamLists[i]});
   });
   goog.global.EXPORTED_FN_INFO = exportedFnInfo;

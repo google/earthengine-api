@@ -273,7 +273,8 @@ ee.Function.prototype.serialize = function() {
  *   args: !Array.<ee.data.AlgorithmArgument>,
  *   returns: string,
  *   description: (string|undefined),
- *   deprecated: (string|undefined)
+ *   deprecated: (string|undefined),
+ *   preview: (boolean|undefined)
  * }}
  */
 ee.Function.Signature;

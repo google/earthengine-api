@@ -296,7 +296,7 @@ class DataTest(unittest.TestCase):
     mock_http.request.return_value = (httplib2.Response({'status': 400}),
                                       b'{"error": {"message": "errorly"} }')
     with apitestcase.UsingCloudApi(mock_http=mock_http):
-      with self.assertRaisesRegexp(ee.ee_exception.EEException, '^errorly$'):
+      with self.assertRaisesRegex(ee.ee_exception.EEException, '^errorly$'):
         ee.data.listImages({'parent': 'projects/earthengine-public/assets/q'})
 
 

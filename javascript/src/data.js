@@ -789,6 +789,7 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
 };
 
 
+
 /**
  * Creates an image asset ingestion task.
  *
@@ -860,7 +861,7 @@ ee.data.getInfo = ee.data.getAsset;
  * @export
  */
 ee.data.getList = function(params, opt_callback) {
-  var request = ee.data.makeRequest_(params);
+  const request = ee.data.makeRequest_(params);
   return /** @type {?ee.data.AssetList} */ (
       ee.data.send_('/list', request, opt_callback));
 };
@@ -1884,6 +1885,11 @@ ee.data.AlgorithmSignature = class {
      * @export {string|undefined}
      */
     this.deprecated;
+
+    /**
+     * @export {boolean|undefined}
+     */
+    this.preview;
   }
 };
 
@@ -2120,7 +2126,7 @@ ee.data.ImageExportFormatConfig;
 
 /**
  * An object for specifying configuration of a task to export an image as
- * Maps Mercator map tiles or a VideoMap to Cloud Storage.
+ * Maps Mercator map tiles to Cloud Storage.
  *
  * @typedef {{
  *   id: string,
@@ -2142,6 +2148,38 @@ ee.data.ImageExportFormatConfig;
  * }}
  */
 ee.data.MapTaskConfig;
+
+/**
+ * An object for specifying configuration of a task to export an image
+ * collection as a pyramid of videos on Cloud Storage.
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: string,
+ *   sourceUrl: (undefined|string),
+ *   description: (undefined|string),
+ *   element: (undefined|!ee.Element),
+ *   minZoom: (undefined|number),
+ *   maxZoom: (undefined|number),
+ *   region: (undefined|string),
+ *   scale: (undefined|number),
+ *   crs: (undefined|string),
+ *   crs_transform: (undefined|!Array<number>|string),
+ *   tileWidth: (undefined|number),
+ *   tileHeight: (undefined|number),
+ *   stride: (undefined|number),
+ *   videoFormat: (undefined|string),
+ *   version: (undefined|string),
+ *   skipEmptyTiles: (undefined|boolean),
+ *   writePublicTiles: (undefined|boolean),
+ *   outputBucket: (undefined|string),
+ *   outputPrefix: (undefined|string),
+ *   mapsApiKey: (undefined|string),
+ *   minTimeMachineZoomSubset: (undefined|number),
+ *   maxTimeMachineZoomSubset: (undefined|number),
+ * }}
+ */
+ee.data.VideoMapTaskConfig;
 
 
 /**

@@ -1,7 +1,7 @@
 // Plot the most extreme recorded temperatures in U.S. states.
 
 var extremeTemps =
-    ee.FeatureCollection('ft:1dZ78QI6P_HrZ6oabSKitytOhWM__fI9O1ayP4AoI');
+    ee.FeatureCollection('projects/google/extreme-temp-us');
 var COLOR = {
   HIGH: 'ff0000',
   LOW: '0000ff'

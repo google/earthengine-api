@@ -4,7 +4,7 @@
 var maskL8 = function(image) {
   var qa = image.select('BQA');
   /// Check that the cloud bit is off.
-  // See https://landsat.usgs.gov/collectionqualityband
+  // See https://www.usgs.gov/land-resources/nli/landsat/landsat-collection-1-level-1-quality-assessment-band
   var mask = qa.bitwiseAnd(1 << 4).eq(0);
   return image.updateMask(mask);
 }

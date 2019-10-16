@@ -73,7 +73,7 @@ class GeometryTest(apitestcase.ApiTestCase):
         }],
         'coordinates': []
     })
-    self.assertTrue(isinstance(geometry, ee.Geometry))
+    self.assertIsInstance(geometry, ee.Geometry)
 
   def testInvalid_Point(self):
     """Verifies Point constructor behavior with invalid arguments."""
@@ -247,7 +247,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     line = ee.Geometry.LineString(1, 2, 3, 4)
     bounds = line.bounds()
 
-    self.assertTrue(isinstance(bounds, ee.Geometry))
+    self.assertIsInstance(bounds, ee.Geometry)
     self.assertEqual(ee.ApiFunction.lookup('Geometry.bounds'), bounds.func)
     self.assertEqual(line, bounds.args['geometry'])
     self.assertTrue(hasattr(bounds, 'bounds'))
@@ -257,7 +257,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     coords = [1, ee.Number(1).add(1)]
     p = ee.Geometry.Point(coords)
 
-    self.assertTrue(isinstance(p, ee.Geometry))
+    self.assertIsInstance(p, ee.Geometry)
     self.assertEqual(
         ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
     self.assertEqual({'coordinates': ee.List(coords)}, p.args)
@@ -267,7 +267,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     lst = ee.List([1, 2, 3, 4]).slice(0, 2)
     p = ee.Geometry.Point(lst)
 
-    self.assertTrue(isinstance(p, ee.Geometry))
+    self.assertIsInstance(p, ee.Geometry)
     self.assertEqual(
         ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
     self.assertEqual({'coordinates': lst}, p.args)
@@ -276,7 +276,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     """Verifies that a geometry with a projection can be constructed."""
     p = ee.Geometry.Point([1, 2], 'epsg:4326')
 
-    self.assertTrue(isinstance(p, ee.Geometry))
+    self.assertIsInstance(p, ee.Geometry)
     self.assertEqual(
         ee.ApiFunction.lookup('GeometryConstructors.Point'), p.func)
     expected_args = {
@@ -291,7 +291,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     p2 = ee.Geometry.Point([3, 4])
     line = ee.Geometry.LineString([p1, p2])
 
-    self.assertTrue(isinstance(line, ee.Geometry))
+    self.assertIsInstance(line, ee.Geometry)
     self.assertEqual(
         ee.ApiFunction.lookup('GeometryConstructors.LineString'), line.func)
     self.assertEqual({'coordinates': ee.List([p1, p2])}, line.args)
@@ -320,8 +320,8 @@ class GeometryTest(apitestcase.ApiTestCase):
     """
     # The constructor already does a validity check.
     geometry = ctor(*coords)
-    self.assertTrue(isinstance(geometry, ee.Geometry))
-    self.assertTrue(isinstance(geometry.toGeoJSON(), dict))
+    self.assertIsInstance(geometry, ee.Geometry)
+    self.assertIsInstance(geometry.toGeoJSON(), dict)
     final_coords = geometry.toGeoJSON()['coordinates']
     self.assertEqual(nesting, ee.Geometry._isValidCoordinates(final_coords))
 
@@ -336,7 +336,7 @@ class GeometryTest(apitestcase.ApiTestCase):
       msg: The expected error message in the thrown exception.
       *coords: The coordinates of the geometry.
     """
-    with self.assertRaisesRegexp(ee.EEException, msg):
+    with self.assertRaisesRegex(ee.EEException, msg):
       ctor(*coords)
 
   def testInternals(self):
