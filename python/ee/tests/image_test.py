@@ -326,6 +326,46 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
               for_cloud_api=True))
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
+  def testThumb_withDimensionsListCoords(self):
+    # Try it with the region as a list of coordinates.
+    with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
+      self.base_image.getThumbURL({
+          'dimensions': [13, 42],
+          'region': [[-180, -90], [-180, 90], [180, 90]],
+      })
+
+      _, kwargs = self.cloud_api_resource.projects().thumbnails(
+      ).create.call_args
+      expected_geometry = ee.Geometry.Polygon(
+          [[-180, -90], [-180, 90], [180, 90]], geodesic=False)
+      self.assertEqual(
+          kwargs['body']['expression'],
+          serializer.encode(
+              self.base_image.clipToBoundsAndScale(
+                  geometry=expected_geometry, width=13, height=42),
+              for_cloud_api=True))
+      self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
+
+  def testThumb_withDimensionsListMinMax(self):
+    # Try it with the region as a list of coordinates.
+    with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
+      self.base_image.getThumbURL({
+          'dimensions': [13, 42],
+          'region': [-180, -90, 180, 90],
+      })
+
+      _, kwargs = self.cloud_api_resource.projects().thumbnails(
+      ).create.call_args
+      expected_geometry = ee.Geometry.Rectangle(
+          [-180, -90, 180, 90], geodesic=False)
+      self.assertEqual(
+          kwargs['body']['expression'],
+          serializer.encode(
+              self.base_image.clipToBoundsAndScale(
+                  geometry=expected_geometry, width=13, height=42),
+              for_cloud_api=True))
+      self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
+
   def testThumb_withVisualizationParams(self):
     with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
       self.base_image.getThumbURL({

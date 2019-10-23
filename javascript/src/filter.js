@@ -148,8 +148,8 @@ ee.Filter.prototype.append_ = function(newFilter) {
 
 
 /**
- * Returns the opposite of this filter, i.e. a filter that will match if and
- * only if this filter doesn't.
+ * Returns the opposite of the input filter, i.e. the resulting filter will
+ * match if and only if the input filter doesn't match.
  * @return {ee.Filter} The negated filter.
  * @export
  */

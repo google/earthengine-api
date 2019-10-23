@@ -1,49 +1,59 @@
-// Plot average seasonal temperatures in U.S. cities.
+// Plot average seasonal temperatures in US States.
 
-var seasonalTemps =
-    ee.FeatureCollection('projects/google/ave-temp-us-cities');
+// Import US state boundaries.
+var states = ee.FeatureCollection('TIGER/2018/States');
 
-// Compute the annual temperature delta.
-seasonalTemps = seasonalTemps.map(function(city) {
-  var julyTemp = ee.Number(city.get('avg_temp_jul'));
-  var janTemp = ee.Number(city.get('avg_temp_jan'));
-  return city.set('seasonal_delta', julyTemp.subtract(janTemp));
+// Import temperature normals and convert month features to bands.
+var normClim = ee.ImageCollection('OREGONSTATE/PRISM/Norm81m')
+  .select(['tmean'])
+  .toBands();
+
+// Calculate mean monthly temperature per state.
+states = normClim.reduceRegions({
+  collection: states,
+  reducer: ee.Reducer.mean(),
+  scale: 5e4})
+  .filter(ee.Filter.notNull(['01_tmean']));
+
+// Calculate Jan to Jul temperature difference per state and set as a property.
+states = states.map(function(state) {
+  var julyTemp = ee.Number(state.get('06_tmean'));
+  var janTemp = ee.Number(state.get('01_tmean'));
+  return state.set('seasonal_delta', julyTemp.subtract(janTemp));
 });
 
-// Select the extreme cities.
-var extremeCities =
-    seasonalTemps.limit(1, 'avg_temp_jan')                 // Coldest.
-    .merge(seasonalTemps.limit(1, 'avg_temp_jul', false))  // Hottest.
-    .merge(seasonalTemps.limit(1, 'seasonal_delta'));      // Least variation.
+// Select the extreme states.
+var extremeStates =
+  states.limit(1, '01_tmean')                 // Coldest.
+  .merge(states.limit(1, '07_tmean', false))  // Hottest.
+  .merge(states.limit(1, 'seasonal_delta'));  // Least variation.
 
+// Define properties to chart.
 var months = {
-  avg_temp_jan: 1,
-  avg_temp_apr: 4,
-  avg_temp_jul: 7,
-  avg_temp_oct: 10
+  '01_tmean': 1,
+  '04_tmean': 4,
+  '07_tmean': 7,
+  '10_tmean': 10
 };
 
 // Prepare the chart.
-var extremeSeasonalTemps = ui.Chart.feature.byProperty(
-    extremeCities, months, 'city_name');
-extremeSeasonalTemps.setChartType('LineChart');
-extremeSeasonalTemps.setOptions({
-  title: 'Average Temperatures in U.S. Cities',
-  hAxis: {
-    title: 'Month',
-    ticks: [{v: months.avg_temp_jan, f: 'January'},
-            {v: months.avg_temp_apr, f: 'April'},
-            {v: months.avg_temp_jul, f: 'July'},
-            {v: months.avg_temp_oct, f: 'October'}]
-  },
-  vAxis: {
-    title: 'Temperature (Celsius)'
-  },
-  lineWidth: 1,
-  pointSize: 3
-});
+var extremeTempsChart =
+  ui.Chart.feature.byProperty(extremeStates, months, 'NAME')
+    .setChartType('LineChart')
+    .setOptions({
+      title: 'Average Temperatures in U.S. States',
+      hAxis: {
+        title: 'Month',
+        ticks: [{v: months['01_tmean'], f: 'January'},
+                {v: months['04_tmean'], f: 'April'},
+                {v: months['07_tmean'], f: 'July'},
+                {v: months['10_tmean'], f: 'October'}]
+      },
+      vAxis: {
+        title: 'Temperature (Celsius)'
+      },
+      lineWidth: 1,
+      pointSize: 3
+    });
 
-print(extremeSeasonalTemps);
-
-Map.addLayer(extremeCities);
-Map.setCenter(-98.5, 39.8, 4);
+print(extremeTempsChart);

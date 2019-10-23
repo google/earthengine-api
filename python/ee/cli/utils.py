@@ -346,7 +346,7 @@ def _gcs_ls(bucket, prefix=''):
       If there is an error in accessing the specified bucket
   """
 
-  base_url = 'https://www.googleapis.com/storage/v1/b/%s/o'%bucket
+  base_url = 'https://storage.googleapis.com/storage/v1/b/%s/o' % bucket
   method = 'GET'
   http = ee.data.authorizeHttp(httplib2.Http(0))
   next_page_token = None

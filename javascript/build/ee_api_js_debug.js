@@ -8900,13 +8900,14 @@ var module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions = function
   this.Serializable$set("earthEngineDestination", null == parameters.earthEngineDestination ? null : parameters.earthEngineDestination);
   this.Serializable$set("pyramidingPolicy", null == parameters.pyramidingPolicy ? null : parameters.pyramidingPolicy);
   this.Serializable$set("pyramidingPolicyOverrides", null == parameters.pyramidingPolicyOverrides ? null : parameters.pyramidingPolicyOverrides);
+  this.Serializable$set("tileSize", null == parameters.tileSize ? null : parameters.tileSize);
 };
 $jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions, module$contents$eeapiclient$domain_object_Serializable);
 module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions;
 };
 module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions.prototype.getPartialClassMetadata = function() {
-  return {enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageAssetExportOptionsPyramidingPolicyEnum, pyramidingPolicyOverrides:module$exports$eeapiclient$ee_api_client.ImageAssetExportOptionsPyramidingPolicyOverridesEnum}, keys:["earthEngineDestination", "pyramidingPolicy", "pyramidingPolicyOverrides"], objectMaps:{pyramidingPolicyOverrides:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{earthEngineDestination:module$contents$eeapiclient$ee_api_client_EarthEngineDestination}};
+  return {enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageAssetExportOptionsPyramidingPolicyEnum, pyramidingPolicyOverrides:module$exports$eeapiclient$ee_api_client.ImageAssetExportOptionsPyramidingPolicyOverridesEnum}, keys:["earthEngineDestination", "pyramidingPolicy", "pyramidingPolicyOverrides", "tileSize"], objectMaps:{pyramidingPolicyOverrides:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{earthEngineDestination:module$contents$eeapiclient$ee_api_client_EarthEngineDestination}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions.prototype, {earthEngineDestination:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("earthEngineDestination") ? this.Serializable$get("earthEngineDestination") : null;
@@ -8920,6 +8921,10 @@ $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client
   return this.Serializable$has("pyramidingPolicyOverrides") ? this.Serializable$get("pyramidingPolicyOverrides") : null;
 }, set:function(value) {
   this.Serializable$set("pyramidingPolicyOverrides", value);
+}}, tileSize:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("tileSize") ? this.Serializable$get("tileSize") : null;
+}, set:function(value) {
+  this.Serializable$set("tileSize", value);
 }}});
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions, {PyramidingPolicy:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.ImageAssetExportOptionsPyramidingPolicyEnum;
@@ -17143,7 +17148,7 @@ jspb.utils.debugBytesToTextFormat = function(byteSource) {
   return s + '"';
 };
 jspb.utils.debugScalarToTextFormat = function(scalar) {
-  return goog.isString(scalar) ? goog.string.quote(scalar) : scalar.toString();
+  return "string" === typeof scalar ? goog.string.quote(scalar) : scalar.toString();
 };
 jspb.utils.stringToByteArray = function(str) {
   for (var arr = new Uint8Array(str.length), i = 0; i < str.length; i++) {
@@ -17203,8 +17208,8 @@ jspb.BinaryDecoder.prototype.getBuffer = function() {
 };
 jspb.BinaryDecoder.prototype.setBlock = function(data, opt_start, opt_length) {
   this.bytes_ = jspb.utils.byteSourceToUint8Array(data);
-  this.start_ = goog.isDef(opt_start) ? opt_start : 0;
-  this.end_ = goog.isDef(opt_length) ? this.start_ + opt_length : this.bytes_.length;
+  this.start_ = void 0 !== opt_start ? opt_start : 0;
+  this.end_ = void 0 !== opt_length ? this.start_ + opt_length : this.bytes_.length;
   this.cursor_ = this.start_;
 };
 jspb.BinaryDecoder.prototype.getEnd = function() {
@@ -17602,12 +17607,12 @@ jspb.BinaryReader.prototype.skipField = function() {
   }
 };
 jspb.BinaryReader.prototype.registerReadCallback = function(callbackName, callback) {
-  goog.isNull(this.readCallbacks_) && (this.readCallbacks_ = {});
+  null === this.readCallbacks_ && (this.readCallbacks_ = {});
   goog.asserts.assert(!this.readCallbacks_[callbackName]);
   this.readCallbacks_[callbackName] = callback;
 };
 jspb.BinaryReader.prototype.runReadCallback = function(callbackName) {
-  goog.asserts.assert(!goog.isNull(this.readCallbacks_));
+  goog.asserts.assert(null !== this.readCallbacks_);
   var callback = this.readCallbacks_[callbackName];
   goog.asserts.assert(callback);
   return callback(this);
@@ -18133,7 +18138,7 @@ jspb.BinaryEncoder.prototype.writeDouble = function(value) {
   this.writeUint32(jspb.utils.split64High);
 };
 jspb.BinaryEncoder.prototype.writeBool = function(value) {
-  goog.asserts.assert(goog.isBoolean(value) || goog.isNumber(value));
+  goog.asserts.assert("boolean" === typeof value || "number" === typeof value);
   this.buffer_.push(value ? 1 : 0);
 };
 jspb.BinaryEncoder.prototype.writeEnum = function(value) {
@@ -18419,7 +18424,7 @@ jspb.BinaryWriter.prototype.writeDouble = function(field, value) {
   null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64), this.encoder_.writeDouble(value));
 };
 jspb.BinaryWriter.prototype.writeBool = function(field, value) {
-  null != value && (goog.asserts.assert(goog.isBoolean(value) || goog.isNumber(value)), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeBool(value));
+  null != value && (goog.asserts.assert("boolean" === typeof value || "number" === typeof value), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeBool(value));
 };
 jspb.BinaryWriter.prototype.writeEnum = function(field, value) {
   null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeSignedVarint32(value));
@@ -19323,7 +19328,7 @@ jspb.Message.getRepeatedBooleanField = function(msg, fieldNumber) {
   return values;
 };
 jspb.Message.bytesAsB64 = function(value) {
-  if (null == value || goog.isString(value)) {
+  if (null == value || "string" === typeof value) {
     return value;
   }
   if (jspb.Message.SUPPORTS_UINT8ARRAY_ && value instanceof Uint8Array) {
@@ -19336,7 +19341,7 @@ jspb.Message.bytesAsU8 = function(value) {
   if (null == value || value instanceof Uint8Array) {
     return value;
   }
-  if (goog.isString(value)) {
+  if ("string" === typeof value) {
     return goog.crypt.base64.decodeStringToUint8Array(value);
   }
   goog.asserts.fail("Cannot coerce to Uint8Array: " + goog.typeOf(value));
@@ -19344,7 +19349,7 @@ jspb.Message.bytesAsU8 = function(value) {
 };
 jspb.Message.bytesListAsB64 = function(value) {
   jspb.Message.assertConsistentTypes_(value);
-  return !value.length || goog.isString(value[0]) ? value : goog.array.map(value, jspb.Message.bytesAsB64);
+  return value.length && "string" !== typeof value[0] ? goog.array.map(value, jspb.Message.bytesAsB64) : value;
 };
 jspb.Message.bytesListAsU8 = function(value) {
   jspb.Message.assertConsistentTypes_(value);
@@ -19579,7 +19584,7 @@ jspb.Message.prepareExtensionForSerialize_ = function(extension, msg) {
   return null;
 };
 jspb.Message.serializeSpecialNumbers_ = function(key, value) {
-  return goog.isNumber(value) && (isNaN(value) || Infinity === value || -Infinity === value) ? String(value) : value;
+  return "number" !== typeof value || !isNaN(value) && Infinity !== value && -Infinity !== value ? value : String(value);
 };
 jspb.Message.deserializeWithCtor = function(ctor, data) {
   var msg = new ctor(data ? JSON.parse(data) : null);
@@ -19653,7 +19658,7 @@ jspb.Message.compareFields = function(field1, field2) {
     return !0;
   }
   if (!goog.isObject(field1) || !goog.isObject(field2)) {
-    return goog.isNumber(field1) && isNaN(field1) || goog.isNumber(field2) && isNaN(field2) ? String(field1) == String(field2) : !1;
+    return "number" === typeof field1 && isNaN(field1) || "number" === typeof field2 && isNaN(field2) ? String(field1) == String(field2) : !1;
   }
   if (field1.constructor != field2.constructor) {
     return !1;
@@ -21788,11 +21793,11 @@ ee.data.images.applyTransformsToCollection = function(taskConfig) {
   return resultParams;
 };
 ee.data.images.applySelectionAndScale = function(image, params, outParams) {
-  var clipParams = {};
+  var clipParams = {}, SCALING_KEYS = ["maxDimension", "width", "height", "scale"];
   goog.object.forEach(params, function(value, key) {
     switch(key) {
       case "dimensions":
-        var dims = goog.isString(value) ? value.split("x").map(Number) : goog.isArray(value) ? value : goog.isNumber(value) ? [value] : [];
+        var dims = "string" === typeof value ? value.split("x").map(Number) : goog.isArray(value) ? value : "number" === typeof value ? [value] : [];
         if (1 === dims.length) {
           clipParams.maxDimension = dims[0];
         } else {
@@ -21804,11 +21809,11 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
         }
         break;
       case "bbox":
-        goog.isDefAndNotNull(clipParams.geometry) && console.warn("Multiple request parameters converted to region.");
+        null != clipParams.geometry && console.warn("Multiple request parameters converted to region.");
         clipParams.geometry = ee.data.images.bboxToGeometry(value);
         break;
       case "region":
-        goog.isDefAndNotNull(clipParams.geometry) && console.warn("Multiple request parameters converted to region.");
+        null != clipParams.geometry && console.warn("Multiple request parameters converted to region.");
         clipParams.geometry = ee.data.images.regionToGeometry(value);
         break;
       case "scale":
@@ -21818,7 +21823,9 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
         outParams[key] = value;
     }
   });
-  goog.object.isEmpty(clipParams) || (clipParams.input = image, image = ee.ApiFunction._apply("Image.clipToBoundsAndScale", clipParams));
+  goog.object.isEmpty(clipParams) || (clipParams.input = image, image = SCALING_KEYS.some(function(key) {
+    return key in clipParams;
+  }) ? ee.ApiFunction._apply("Image.clipToBoundsAndScale", clipParams) : ee.ApiFunction._apply("Image.clip", clipParams));
   return image;
 };
 ee.data.images.bboxToGeometry = function(bbox) {
@@ -21826,7 +21833,7 @@ ee.data.images.bboxToGeometry = function(bbox) {
     return bbox;
   }
   var bboxArray = bbox;
-  if (goog.isString(bbox)) {
+  if ("string" === typeof bbox) {
     try {
       bboxArray = JSON.parse(bbox);
     } catch ($jscomp$unused$catch) {
@@ -21846,7 +21853,7 @@ ee.data.images.regionToGeometry = function(region) {
     return region;
   }
   var regionObject = region;
-  if (goog.isString(region)) {
+  if ("string" === typeof region) {
     try {
       regionObject = JSON.parse(region);
     } catch (e) {
@@ -21860,7 +21867,7 @@ ee.data.images.regionToGeometry = function(region) {
 };
 ee.data.images.applyCrsAndTransform = function(image, params) {
   var crs = params.crs || "", crsTransform = params.crsTransform || params.crs_transform;
-  goog.isDefAndNotNull(crsTransform) && (crsTransform = ee.data.images.maybeConvertCrsTransformToArray_(crsTransform));
+  null != crsTransform && (crsTransform = ee.data.images.maybeConvertCrsTransformToArray_(crsTransform));
   if (!crs && !crsTransform) {
     return image;
   }
@@ -21868,9 +21875,9 @@ ee.data.images.applyCrsAndTransform = function(image, params) {
     throw Error('Must specify "crs" if "crsTransform" is specified.');
   }
   if (crsTransform) {
-    if (image = ee.ApiFunction._apply("Image.reproject", {image:image, crs:crs, crsTransform:crsTransform}), goog.isDefAndNotNull(params.dimensions) && !goog.isDefAndNotNull(params.scale) && !goog.isDefAndNotNull(params.region)) {
+    if (image = ee.ApiFunction._apply("Image.reproject", {image:image, crs:crs, crsTransform:crsTransform}), null != params.dimensions && null == params.scale && null == params.region) {
       var dimensions = params.dimensions;
-      goog.isString(dimensions) && (dimensions = dimensions.split("x").map(Number));
+      "string" === typeof dimensions && (dimensions = dimensions.split("x").map(Number));
       if (2 === dimensions.length) {
         delete params.dimensions;
         var projection = (new ee.ApiFunction("Projection")).call(crs, crsTransform);
@@ -21884,7 +21891,7 @@ ee.data.images.applyCrsAndTransform = function(image, params) {
 };
 ee.data.images.maybeConvertCrsTransformToArray_ = function(crsTransform) {
   var transformArray = crsTransform;
-  if (goog.isString(transformArray)) {
+  if ("string" === typeof transformArray) {
     try {
       transformArray = JSON.parse(transformArray);
     } catch (e) {
