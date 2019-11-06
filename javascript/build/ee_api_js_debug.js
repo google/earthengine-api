@@ -6621,7 +6621,7 @@ function module$contents$eeapiclient$domain_object_sameKeys(a, b) {
   this._payloadPromise = this.build();
 };
 module$contents$eeapiclient$multipart_request_MultipartRequest.prototype.addMetadata = function(metadata) {
-  var json = metadata instanceof module$contents$eeapiclient$domain_object_Serializable ? module$contents$eeapiclient$domain_object_serialize(metadata) : metadata;
+  var json = metadata instanceof module$exports$eeapiclient$domain_object.Serializable ? module$exports$eeapiclient$domain_object.serialize(metadata) : metadata;
   this._metadataPayload += "Content-Type: application/json; charset=utf-8\r\n\r\n" + JSON.stringify(json) + ("\r\n--" + this._boundary + "\r\n");
 };
 module$contents$eeapiclient$multipart_request_MultipartRequest.prototype.build = function() {
@@ -6672,7 +6672,7 @@ module$contents$eeapiclient$api_client_ApiClient.prototype.$validateParameter = 
 };
 module$exports$eeapiclient$api_client.ApiClient = module$contents$eeapiclient$api_client_ApiClient;
 function module$contents$eeapiclient$api_client_toMakeRequestParams(requestParams) {
-  var body = requestParams.body instanceof module$contents$eeapiclient$domain_object_Serializable ? module$contents$eeapiclient$domain_object_serialize(requestParams.body) : requestParams.body;
+  var body = requestParams.body instanceof module$exports$eeapiclient$domain_object.Serializable ? module$exports$eeapiclient$domain_object.serialize(requestParams.body) : requestParams.body;
   return {path:requestParams.path, httpMethod:requestParams.httpMethod, methodId:requestParams.methodId, body:body, queryParams:requestParams.queryParams};
 }
 module$exports$eeapiclient$api_client.toMakeRequestParams = module$contents$eeapiclient$api_client_toMakeRequestParams;
@@ -6742,7 +6742,7 @@ module$exports$eeapiclient$request_params.HttpMethodEnum = module$contents$eeapi
 module$exports$eeapiclient$request_params.AuthType = {AUTO:"auto", NONE:"none", OAUTH2:"oauth2", FIRST_PARTY:"1p"};
 module$exports$eeapiclient$request_params.MakeRequestParams = function module$contents$eeapiclient$request_params_MakeRequestParams() {
 };
-function module$contents$eeapiclient$request_params_processParams(params) {
+module$exports$eeapiclient$request_params.processParams = function module$contents$eeapiclient$request_params_processParams(params) {
   if (null != params.queryParams) {
     var filteredQueryParams = {}, key;
     for (key in params.queryParams) {
@@ -6750,15 +6750,14 @@ function module$contents$eeapiclient$request_params_processParams(params) {
     }
     params.queryParams = filteredQueryParams;
   }
-}
-module$exports$eeapiclient$request_params.processParams = module$contents$eeapiclient$request_params_processParams;
+};
 var module$contents$eeapiclient$promise_request_service_module = module$contents$eeapiclient$promise_request_service_module || {id:"javascript/typescript/contrib/apiclient/request_service/promise_request_service.closure.js"}, module$exports$eeapiclient$promise_request_service = {}, module$contents$eeapiclient$promise_request_service_PromiseRequestService = 
 function() {
 };
 module$contents$eeapiclient$promise_request_service_PromiseRequestService.prototype.send = function(params, responseCtor) {
-  module$contents$eeapiclient$request_params_processParams(params);
+  module$exports$eeapiclient$request_params.processParams(params);
   return this.makeRequest(params).then(function(response) {
-    return responseCtor ? module$contents$eeapiclient$domain_object_deserialize(responseCtor, response) : response;
+    return responseCtor ? module$exports$eeapiclient$domain_object.deserialize(responseCtor, response) : response;
   });
 };
 module$exports$eeapiclient$promise_request_service.PromiseRequestService = module$contents$eeapiclient$promise_request_service_PromiseRequestService;
@@ -7201,7 +7200,7 @@ var module$contents$eeapiclient$ee_api_client_module = module$contents$eeapiclie
 }}, AffineTransformParameters:function module$contents$eeapiclient$ee_api_client_AffineTransformParameters() {
 }}, module$contents$eeapiclient$ee_api_client_AffineTransform = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("scaleX", null == parameters.scaleX ? null : parameters.scaleX);
   this.Serializable$set("shearX", null == parameters.shearX ? null : parameters.shearX);
   this.Serializable$set("translateX", null == parameters.translateX ? null : parameters.translateX);
@@ -7209,7 +7208,7 @@ var module$contents$eeapiclient$ee_api_client_module = module$contents$eeapiclie
   this.Serializable$set("scaleY", null == parameters.scaleY ? null : parameters.scaleY);
   this.Serializable$set("translateY", null == parameters.translateY ? null : parameters.translateY);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AffineTransform, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AffineTransform, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_AffineTransform.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_AffineTransform;
 };
@@ -7246,7 +7245,7 @@ module$exports$eeapiclient$ee_api_client.AlgorithmParameters = function module$c
 };
 var module$contents$eeapiclient$ee_api_client_Algorithm = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("returnType", null == parameters.returnType ? null : parameters.returnType);
@@ -7256,7 +7255,7 @@ var module$contents$eeapiclient$ee_api_client_Algorithm = function(parameters) {
   this.Serializable$set("hidden", null == parameters.hidden ? null : parameters.hidden);
   this.Serializable$set("preview", null == parameters.preview ? null : parameters.preview);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Algorithm, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Algorithm, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Algorithm.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Algorithm;
 };
@@ -7301,14 +7300,14 @@ module$exports$eeapiclient$ee_api_client.AlgorithmArgumentParameters = function 
 };
 var module$contents$eeapiclient$ee_api_client_AlgorithmArgument = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("argumentName", null == parameters.argumentName ? null : parameters.argumentName);
   this.Serializable$set("type", null == parameters.type ? null : parameters.type);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("optional", null == parameters.optional ? null : parameters.optional);
   this.Serializable$set("defaultValue", null == parameters.defaultValue ? null : parameters.defaultValue);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AlgorithmArgument, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AlgorithmArgument, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_AlgorithmArgument.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_AlgorithmArgument;
 };
@@ -7341,10 +7340,10 @@ module$exports$eeapiclient$ee_api_client.ArrayValueParameters = function module$
 };
 var module$contents$eeapiclient$ee_api_client_ArrayValue = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("values", null == parameters.values ? null : parameters.values);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ArrayValue, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ArrayValue, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ArrayValue.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ArrayValue;
 };
@@ -7361,12 +7360,12 @@ module$exports$eeapiclient$ee_api_client.AuditConfigParameters = function module
 };
 var module$contents$eeapiclient$ee_api_client_AuditConfig = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("service", null == parameters.service ? null : parameters.service);
   this.Serializable$set("exemptedMembers", null == parameters.exemptedMembers ? null : parameters.exemptedMembers);
   this.Serializable$set("auditLogConfigs", null == parameters.auditLogConfigs ? null : parameters.auditLogConfigs);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AuditConfig, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AuditConfig, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_AuditConfig.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_AuditConfig;
 };
@@ -7391,12 +7390,12 @@ module$exports$eeapiclient$ee_api_client.AuditLogConfigParameters = function mod
 };
 var module$contents$eeapiclient$ee_api_client_AuditLogConfig = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("logType", null == parameters.logType ? null : parameters.logType);
   this.Serializable$set("exemptedMembers", null == parameters.exemptedMembers ? null : parameters.exemptedMembers);
   this.Serializable$set("ignoreChildExemptions", null == parameters.ignoreChildExemptions ? null : parameters.ignoreChildExemptions);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AuditLogConfig, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AuditLogConfig, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_AuditLogConfig.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_AuditLogConfig;
 };
@@ -7424,10 +7423,10 @@ module$exports$eeapiclient$ee_api_client.AuthorizationLoggingOptionsParameters =
 };
 var module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("permissionType", null == parameters.permissionType ? null : parameters.permissionType);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_AuthorizationLoggingOptions;
 };
@@ -7447,12 +7446,12 @@ module$exports$eeapiclient$ee_api_client.BindingParameters = function module$con
 };
 var module$contents$eeapiclient$ee_api_client_Binding = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("role", null == parameters.role ? null : parameters.role);
   this.Serializable$set("members", null == parameters.members ? null : parameters.members);
   this.Serializable$set("condition", null == parameters.condition ? null : parameters.condition);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Binding, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Binding, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Binding.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Binding;
 };
@@ -7477,9 +7476,9 @@ module$exports$eeapiclient$ee_api_client.CancelOperationRequestParameters = func
 };
 var module$contents$eeapiclient$ee_api_client_CancelOperationRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CancelOperationRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CancelOperationRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_CancelOperationRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_CancelOperationRequest;
 };
@@ -7491,10 +7490,10 @@ module$exports$eeapiclient$ee_api_client.CapabilitiesParameters = function modul
 };
 var module$contents$eeapiclient$ee_api_client_Capabilities = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("capabilities", null == parameters.capabilities ? null : parameters.capabilities);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Capabilities, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Capabilities, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Capabilities.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Capabilities;
 };
@@ -7514,11 +7513,11 @@ module$exports$eeapiclient$ee_api_client.CloudAuditOptionsParameters = function 
 };
 var module$contents$eeapiclient$ee_api_client_CloudAuditOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("logName", null == parameters.logName ? null : parameters.logName);
   this.Serializable$set("authorizationLoggingOptions", null == parameters.authorizationLoggingOptions ? null : parameters.authorizationLoggingOptions);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CloudAuditOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CloudAuditOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_CloudAuditOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_CloudAuditOptions;
 };
@@ -7542,12 +7541,12 @@ module$exports$eeapiclient$ee_api_client.ComputeFeaturesRequestParameters = func
 };
 var module$contents$eeapiclient$ee_api_client_ComputeFeaturesRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("pageSize", null == parameters.pageSize ? null : parameters.pageSize);
   this.Serializable$set("pageToken", null == parameters.pageToken ? null : parameters.pageToken);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeFeaturesRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeFeaturesRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ComputeFeaturesRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ComputeFeaturesRequest;
 };
@@ -7572,12 +7571,12 @@ module$exports$eeapiclient$ee_api_client.ComputeFeaturesResponseParameters = fun
 };
 var module$contents$eeapiclient$ee_api_client_ComputeFeaturesResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("type", null == parameters.type ? null : parameters.type);
   this.Serializable$set("features", null == parameters.features ? null : parameters.features);
   this.Serializable$set("nextPageToken", null == parameters.nextPageToken ? null : parameters.nextPageToken);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeFeaturesResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeFeaturesResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ComputeFeaturesResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ComputeFeaturesResponse;
 };
@@ -7602,12 +7601,12 @@ module$exports$eeapiclient$ee_api_client.ComputeImagesRequestParameters = functi
 };
 var module$contents$eeapiclient$ee_api_client_ComputeImagesRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("pageSize", null == parameters.pageSize ? null : parameters.pageSize);
   this.Serializable$set("pageToken", null == parameters.pageToken ? null : parameters.pageToken);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeImagesRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeImagesRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ComputeImagesRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ComputeImagesRequest;
 };
@@ -7632,11 +7631,11 @@ module$exports$eeapiclient$ee_api_client.ComputeImagesResponseParameters = funct
 };
 var module$contents$eeapiclient$ee_api_client_ComputeImagesResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("images", null == parameters.images ? null : parameters.images);
   this.Serializable$set("nextPageToken", null == parameters.nextPageToken ? null : parameters.nextPageToken);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeImagesResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeImagesResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ComputeImagesResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ComputeImagesResponse;
 };
@@ -7657,14 +7656,14 @@ module$exports$eeapiclient$ee_api_client.ComputePixelsRequestParameters = functi
 };
 var module$contents$eeapiclient$ee_api_client_ComputePixelsRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
   this.Serializable$set("bandIds", null == parameters.bandIds ? null : parameters.bandIds);
   this.Serializable$set("visualizationOptions", null == parameters.visualizationOptions ? null : parameters.visualizationOptions);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputePixelsRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputePixelsRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ComputePixelsRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ComputePixelsRequest;
 };
@@ -7700,10 +7699,10 @@ module$exports$eeapiclient$ee_api_client.ComputeValueRequestParameters = functio
 };
 var module$contents$eeapiclient$ee_api_client_ComputeValueRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeValueRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeValueRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ComputeValueRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ComputeValueRequest;
 };
@@ -7720,10 +7719,10 @@ module$exports$eeapiclient$ee_api_client.ComputeValueResponseParameters = functi
 };
 var module$contents$eeapiclient$ee_api_client_ComputeValueResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("result", null == parameters.result ? null : parameters.result);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeValueResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ComputeValueResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ComputeValueResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ComputeValueResponse;
 };
@@ -7740,14 +7739,14 @@ module$exports$eeapiclient$ee_api_client.ConditionParameters = function module$c
 };
 var module$contents$eeapiclient$ee_api_client_Condition = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("iam", null == parameters.iam ? null : parameters.iam);
   this.Serializable$set("sys", null == parameters.sys ? null : parameters.sys);
   this.Serializable$set("svc", null == parameters.svc ? null : parameters.svc);
   this.Serializable$set("op", null == parameters.op ? null : parameters.op);
   this.Serializable$set("values", null == parameters.values ? null : parameters.values);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Condition, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Condition, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Condition.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Condition;
 };
@@ -7787,12 +7786,12 @@ module$exports$eeapiclient$ee_api_client.CopyAssetRequestParameters = function m
 };
 var module$contents$eeapiclient$ee_api_client_CopyAssetRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("destinationName", null == parameters.destinationName ? null : parameters.destinationName);
   this.Serializable$set("overwrite", null == parameters.overwrite ? null : parameters.overwrite);
   this.Serializable$set("bandIds", null == parameters.bandIds ? null : parameters.bandIds);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CopyAssetRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CopyAssetRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_CopyAssetRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_CopyAssetRequest;
 };
@@ -7817,12 +7816,12 @@ module$exports$eeapiclient$ee_api_client.CounterOptionsParameters = function mod
 };
 var module$contents$eeapiclient$ee_api_client_CounterOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("metric", null == parameters.metric ? null : parameters.metric);
   this.Serializable$set("field", null == parameters.field ? null : parameters.field);
   this.Serializable$set("customFields", null == parameters.customFields ? null : parameters.customFields);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CounterOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CounterOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_CounterOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_CounterOptions;
 };
@@ -7847,11 +7846,11 @@ module$exports$eeapiclient$ee_api_client.CustomFieldParameters = function module
 };
 var module$contents$eeapiclient$ee_api_client_CustomField = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("value", null == parameters.value ? null : parameters.value);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CustomField, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_CustomField, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_CustomField.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_CustomField;
 };
@@ -7872,10 +7871,10 @@ module$exports$eeapiclient$ee_api_client.DataAccessOptionsParameters = function 
 };
 var module$contents$eeapiclient$ee_api_client_DataAccessOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("logMode", null == parameters.logMode ? null : parameters.logMode);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_DataAccessOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_DataAccessOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_DataAccessOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_DataAccessOptions;
 };
@@ -7895,10 +7894,10 @@ module$exports$eeapiclient$ee_api_client.DictionaryValueParameters = function mo
 };
 var module$contents$eeapiclient$ee_api_client_DictionaryValue = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("values", null == parameters.values ? null : parameters.values);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_DictionaryValue, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_DictionaryValue, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_DictionaryValue.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_DictionaryValue;
 };
@@ -7915,11 +7914,11 @@ module$exports$eeapiclient$ee_api_client.DoubleRangeParameters = function module
 };
 var module$contents$eeapiclient$ee_api_client_DoubleRange = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("min", null == parameters.min ? null : parameters.min);
   this.Serializable$set("max", null == parameters.max ? null : parameters.max);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_DoubleRange, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_DoubleRange, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_DoubleRange.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_DoubleRange;
 };
@@ -7940,11 +7939,11 @@ module$exports$eeapiclient$ee_api_client.DriveDestinationParameters = function m
 };
 var module$contents$eeapiclient$ee_api_client_DriveDestination = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("folder", null == parameters.folder ? null : parameters.folder);
   this.Serializable$set("filenamePrefix", null == parameters.filenamePrefix ? null : parameters.filenamePrefix);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_DriveDestination, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_DriveDestination, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_DriveDestination.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_DriveDestination;
 };
@@ -7965,7 +7964,7 @@ module$exports$eeapiclient$ee_api_client.EarthEngineAssetParameters = function m
 };
 var module$contents$eeapiclient$ee_api_client_EarthEngineAsset = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("type", null == parameters.type ? null : parameters.type);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("id", null == parameters.id ? null : parameters.id);
@@ -7982,7 +7981,7 @@ var module$contents$eeapiclient$ee_api_client_EarthEngineAsset = function(parame
   this.Serializable$set("tilestoreEntry", null == parameters.tilestoreEntry ? null : parameters.tilestoreEntry);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_EarthEngineAsset, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_EarthEngineAsset, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_EarthEngineAsset.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_EarthEngineAsset;
 };
@@ -8059,10 +8058,10 @@ module$exports$eeapiclient$ee_api_client.EarthEngineDestinationParameters = func
 };
 var module$contents$eeapiclient$ee_api_client_EarthEngineDestination = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_EarthEngineDestination, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_EarthEngineDestination, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_EarthEngineDestination.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_EarthEngineDestination;
 };
@@ -8079,14 +8078,14 @@ module$exports$eeapiclient$ee_api_client.EarthEngineMapParameters = function mod
 };
 var module$contents$eeapiclient$ee_api_client_EarthEngineMap = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("bandIds", null == parameters.bandIds ? null : parameters.bandIds);
   this.Serializable$set("visualizationOptions", null == parameters.visualizationOptions ? null : parameters.visualizationOptions);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_EarthEngineMap, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_EarthEngineMap, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_EarthEngineMap.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_EarthEngineMap;
 };
@@ -8122,9 +8121,9 @@ module$exports$eeapiclient$ee_api_client.EmptyParameters = function module$conte
 };
 var module$contents$eeapiclient$ee_api_client_Empty = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Empty, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Empty, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Empty.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Empty;
 };
@@ -8136,7 +8135,7 @@ module$exports$eeapiclient$ee_api_client.ExportImageRequestParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_ExportImageRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("fileExportOptions", null == parameters.fileExportOptions ? null : parameters.fileExportOptions);
@@ -8144,13 +8143,14 @@ var module$contents$eeapiclient$ee_api_client_ExportImageRequest = function(para
   this.Serializable$set("maxPixels", null == parameters.maxPixels ? null : parameters.maxPixels);
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
+  this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportImageRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportImageRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ExportImageRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ExportImageRequest;
 };
 module$contents$eeapiclient$ee_api_client_ExportImageRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"assetExportOptions description expression fileExportOptions grid maxPixels requestId".split(" "), objects:{assetExportOptions:module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions, expression:module$contents$eeapiclient$ee_api_client_Expression, fileExportOptions:module$contents$eeapiclient$ee_api_client_ImageFileExportOptions, grid:module$contents$eeapiclient$ee_api_client_PixelGrid}};
+  return {keys:"assetExportOptions description expression fileExportOptions grid maxPixels maxWorkerCount requestId".split(" "), objects:{assetExportOptions:module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions, expression:module$contents$eeapiclient$ee_api_client_Expression, fileExportOptions:module$contents$eeapiclient$ee_api_client_ImageFileExportOptions, grid:module$contents$eeapiclient$ee_api_client_PixelGrid}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ExportImageRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("assetExportOptions") ? this.Serializable$get("assetExportOptions") : null;
@@ -8176,6 +8176,10 @@ $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client
   return this.Serializable$has("maxPixels") ? this.Serializable$get("maxPixels") : null;
 }, set:function(value) {
   this.Serializable$set("maxPixels", value);
+}}, maxWorkerCount:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("maxWorkerCount") ? this.Serializable$get("maxWorkerCount") : null;
+}, set:function(value) {
+  this.Serializable$set("maxWorkerCount", value);
 }}, requestId:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
 }, set:function(value) {
@@ -8186,19 +8190,20 @@ module$exports$eeapiclient$ee_api_client.ExportMapRequestParameters = function m
 };
 var module$contents$eeapiclient$ee_api_client_ExportMapRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("tileOptions", null == parameters.tileOptions ? null : parameters.tileOptions);
   this.Serializable$set("tileExportOptions", null == parameters.tileExportOptions ? null : parameters.tileExportOptions);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
+  this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportMapRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportMapRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ExportMapRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ExportMapRequest;
 };
 module$contents$eeapiclient$ee_api_client_ExportMapRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:["description", "expression", "requestId", "tileExportOptions", "tileOptions"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, tileExportOptions:module$contents$eeapiclient$ee_api_client_ImageFileExportOptions, tileOptions:module$contents$eeapiclient$ee_api_client_TileOptions}};
+  return {keys:"description expression maxWorkerCount requestId tileExportOptions tileOptions".split(" "), objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, tileExportOptions:module$contents$eeapiclient$ee_api_client_ImageFileExportOptions, tileOptions:module$contents$eeapiclient$ee_api_client_TileOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ExportMapRequest.prototype, {description:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("description") ? this.Serializable$get("description") : null;
@@ -8208,6 +8213,10 @@ $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client
   return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
 }, set:function(value) {
   this.Serializable$set("expression", value);
+}}, maxWorkerCount:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("maxWorkerCount") ? this.Serializable$get("maxWorkerCount") : null;
+}, set:function(value) {
+  this.Serializable$set("maxWorkerCount", value);
 }}, requestId:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
 }, set:function(value) {
@@ -8226,7 +8235,7 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequestParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_ExportTableRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("fileExportOptions", null == parameters.fileExportOptions ? null : parameters.fileExportOptions);
@@ -8234,13 +8243,14 @@ var module$contents$eeapiclient$ee_api_client_ExportTableRequest = function(para
   this.Serializable$set("selectors", null == parameters.selectors ? null : parameters.selectors);
   this.Serializable$set("maxErrorMeters", null == parameters.maxErrorMeters ? null : parameters.maxErrorMeters);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
+  this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportTableRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportTableRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ExportTableRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ExportTableRequest;
 };
 module$contents$eeapiclient$ee_api_client_ExportTableRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"assetExportOptions description expression fileExportOptions maxErrorMeters requestId selectors".split(" "), objects:{assetExportOptions:module$contents$eeapiclient$ee_api_client_TableAssetExportOptions, expression:module$contents$eeapiclient$ee_api_client_Expression, fileExportOptions:module$contents$eeapiclient$ee_api_client_TableFileExportOptions}};
+  return {keys:"assetExportOptions description expression fileExportOptions maxErrorMeters maxWorkerCount requestId selectors".split(" "), objects:{assetExportOptions:module$contents$eeapiclient$ee_api_client_TableAssetExportOptions, expression:module$contents$eeapiclient$ee_api_client_Expression, fileExportOptions:module$contents$eeapiclient$ee_api_client_TableFileExportOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ExportTableRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("assetExportOptions") ? this.Serializable$get("assetExportOptions") : null;
@@ -8262,6 +8272,10 @@ $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client
   return this.Serializable$has("maxErrorMeters") ? this.Serializable$get("maxErrorMeters") : null;
 }, set:function(value) {
   this.Serializable$set("maxErrorMeters", value);
+}}, maxWorkerCount:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("maxWorkerCount") ? this.Serializable$get("maxWorkerCount") : null;
+}, set:function(value) {
+  this.Serializable$set("maxWorkerCount", value);
 }}, requestId:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
 }, set:function(value) {
@@ -8276,7 +8290,7 @@ module$exports$eeapiclient$ee_api_client.ExportVideoMapRequestParameters = funct
 };
 var module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("videoOptions", null == parameters.videoOptions ? null : parameters.videoOptions);
@@ -8284,13 +8298,14 @@ var module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest = function(p
   this.Serializable$set("tileExportOptions", null == parameters.tileExportOptions ? null : parameters.tileExportOptions);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
   this.Serializable$set("version", null == parameters.version ? null : parameters.version);
+  this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest;
 };
 module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest.prototype.getPartialClassMetadata = function() {
-  return {enums:{version:module$exports$eeapiclient$ee_api_client.ExportVideoMapRequestVersionEnum}, keys:"description expression requestId tileExportOptions tileOptions version videoOptions".split(" "), objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, tileExportOptions:module$contents$eeapiclient$ee_api_client_VideoFileExportOptions, tileOptions:module$contents$eeapiclient$ee_api_client_TileOptions, 
+  return {enums:{version:module$exports$eeapiclient$ee_api_client.ExportVideoMapRequestVersionEnum}, keys:"description expression maxWorkerCount requestId tileExportOptions tileOptions version videoOptions".split(" "), objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, tileExportOptions:module$contents$eeapiclient$ee_api_client_VideoFileExportOptions, tileOptions:module$contents$eeapiclient$ee_api_client_TileOptions, 
   videoOptions:module$contents$eeapiclient$ee_api_client_VideoOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ExportVideoMapRequest.prototype, {description:{configurable:!0, enumerable:!0, get:function() {
@@ -8301,6 +8316,10 @@ $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client
   return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
 }, set:function(value) {
   this.Serializable$set("expression", value);
+}}, maxWorkerCount:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("maxWorkerCount") ? this.Serializable$get("maxWorkerCount") : null;
+}, set:function(value) {
+  this.Serializable$set("maxWorkerCount", value);
 }}, requestId:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
 }, set:function(value) {
@@ -8330,19 +8349,20 @@ module$exports$eeapiclient$ee_api_client.ExportVideoRequestParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_ExportVideoRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("videoOptions", null == parameters.videoOptions ? null : parameters.videoOptions);
   this.Serializable$set("fileExportOptions", null == parameters.fileExportOptions ? null : parameters.fileExportOptions);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
+  this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportVideoRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ExportVideoRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ExportVideoRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ExportVideoRequest;
 };
 module$contents$eeapiclient$ee_api_client_ExportVideoRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:["description", "expression", "fileExportOptions", "requestId", "videoOptions"], objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, fileExportOptions:module$contents$eeapiclient$ee_api_client_VideoFileExportOptions, videoOptions:module$contents$eeapiclient$ee_api_client_VideoOptions}};
+  return {keys:"description expression fileExportOptions maxWorkerCount requestId videoOptions".split(" "), objects:{expression:module$contents$eeapiclient$ee_api_client_Expression, fileExportOptions:module$contents$eeapiclient$ee_api_client_VideoFileExportOptions, videoOptions:module$contents$eeapiclient$ee_api_client_VideoOptions}};
 };
 $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client_ExportVideoRequest.prototype, {description:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("description") ? this.Serializable$get("description") : null;
@@ -8356,6 +8376,10 @@ $jscomp.global.Object.defineProperties(module$contents$eeapiclient$ee_api_client
   return this.Serializable$has("fileExportOptions") ? this.Serializable$get("fileExportOptions") : null;
 }, set:function(value) {
   this.Serializable$set("fileExportOptions", value);
+}}, maxWorkerCount:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("maxWorkerCount") ? this.Serializable$get("maxWorkerCount") : null;
+}, set:function(value) {
+  this.Serializable$set("maxWorkerCount", value);
 }}, requestId:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
 }, set:function(value) {
@@ -8370,13 +8394,13 @@ module$exports$eeapiclient$ee_api_client.ExprParameters = function module$conten
 };
 var module$contents$eeapiclient$ee_api_client_Expr = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("title", null == parameters.title ? null : parameters.title);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("location", null == parameters.location ? null : parameters.location);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Expr, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Expr, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Expr.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Expr;
 };
@@ -8405,11 +8429,11 @@ module$exports$eeapiclient$ee_api_client.ExpressionParameters = function module$
 };
 var module$contents$eeapiclient$ee_api_client_Expression = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("values", null == parameters.values ? null : parameters.values);
   this.Serializable$set("result", null == parameters.result ? null : parameters.result);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Expression, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Expression, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Expression.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Expression;
 };
@@ -8430,12 +8454,12 @@ module$exports$eeapiclient$ee_api_client.FeatureParameters = function module$con
 };
 var module$contents$eeapiclient$ee_api_client_Feature = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("type", null == parameters.type ? null : parameters.type);
   this.Serializable$set("geometry", null == parameters.geometry ? null : parameters.geometry);
   this.Serializable$set("properties", null == parameters.properties ? null : parameters.properties);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Feature, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Feature, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Feature.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Feature;
 };
@@ -8460,14 +8484,14 @@ module$exports$eeapiclient$ee_api_client.FilmstripThumbnailParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_FilmstripThumbnail = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("orientation", null == parameters.orientation ? null : parameters.orientation);
   this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_FilmstripThumbnail, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_FilmstripThumbnail, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_FilmstripThumbnail.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_FilmstripThumbnail;
 };
@@ -8505,13 +8529,13 @@ module$exports$eeapiclient$ee_api_client.FolderQuotaParameters = function module
 };
 var module$contents$eeapiclient$ee_api_client_FolderQuota = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("sizeBytes", null == parameters.sizeBytes ? null : parameters.sizeBytes);
   this.Serializable$set("maxSizeBytes", null == parameters.maxSizeBytes ? null : parameters.maxSizeBytes);
   this.Serializable$set("assetCount", null == parameters.assetCount ? null : parameters.assetCount);
   this.Serializable$set("maxAssetCount", null == parameters.maxAssetCount ? null : parameters.maxAssetCount);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_FolderQuota, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_FolderQuota, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_FolderQuota.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_FolderQuota;
 };
@@ -8540,11 +8564,11 @@ module$exports$eeapiclient$ee_api_client.FunctionDefinitionParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_FunctionDefinition = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("argumentNames", null == parameters.argumentNames ? null : parameters.argumentNames);
   this.Serializable$set("body", null == parameters.body ? null : parameters.body);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_FunctionDefinition, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_FunctionDefinition, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_FunctionDefinition.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_FunctionDefinition;
 };
@@ -8565,12 +8589,12 @@ module$exports$eeapiclient$ee_api_client.FunctionInvocationParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_FunctionInvocation = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("functionName", null == parameters.functionName ? null : parameters.functionName);
   this.Serializable$set("functionReference", null == parameters.functionReference ? null : parameters.functionReference);
   this.Serializable$set("arguments", null == parameters.arguments ? null : parameters.arguments);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_FunctionInvocation, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_FunctionInvocation, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_FunctionInvocation.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_FunctionInvocation;
 };
@@ -8595,13 +8619,13 @@ module$exports$eeapiclient$ee_api_client.GcsDestinationParameters = function mod
 };
 var module$contents$eeapiclient$ee_api_client_GcsDestination = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("bucket", null == parameters.bucket ? null : parameters.bucket);
   this.Serializable$set("filenamePrefix", null == parameters.filenamePrefix ? null : parameters.filenamePrefix);
   this.Serializable$set("permissions", null == parameters.permissions ? null : parameters.permissions);
   this.Serializable$set("bucketCorsUris", null == parameters.bucketCorsUris ? null : parameters.bucketCorsUris);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GcsDestination, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GcsDestination, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_GcsDestination.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_GcsDestination;
 };
@@ -8633,12 +8657,12 @@ module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptionsParameters = f
 };
 var module$contents$eeapiclient$ee_api_client_GeoTiffImageExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("cloudOptimized", null == parameters.cloudOptimized ? null : parameters.cloudOptimized);
   this.Serializable$set("tileDimensions", null == parameters.tileDimensions ? null : parameters.tileDimensions);
   this.Serializable$set("skipEmptyFiles", null == parameters.skipEmptyFiles ? null : parameters.skipEmptyFiles);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GeoTiffImageExportOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GeoTiffImageExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_GeoTiffImageExportOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_GeoTiffImageExportOptions;
 };
@@ -8663,10 +8687,10 @@ module$exports$eeapiclient$ee_api_client.GetIamPolicyRequestParameters = functio
 };
 var module$contents$eeapiclient$ee_api_client_GetIamPolicyRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("options", null == parameters.options ? null : parameters.options);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GetIamPolicyRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GetIamPolicyRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_GetIamPolicyRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_GetIamPolicyRequest;
 };
@@ -8683,14 +8707,14 @@ module$exports$eeapiclient$ee_api_client.GetPixelsRequestParameters = function m
 };
 var module$contents$eeapiclient$ee_api_client_GetPixelsRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
   this.Serializable$set("region", null == parameters.region ? null : parameters.region);
   this.Serializable$set("bandIds", null == parameters.bandIds ? null : parameters.bandIds);
   this.Serializable$set("visualizationOptions", null == parameters.visualizationOptions ? null : parameters.visualizationOptions);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GetPixelsRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GetPixelsRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_GetPixelsRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_GetPixelsRequest;
 };
@@ -8726,10 +8750,10 @@ module$exports$eeapiclient$ee_api_client.GetPolicyOptionsParameters = function m
 };
 var module$contents$eeapiclient$ee_api_client_GetPolicyOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("requestedPolicyVersion", null == parameters.requestedPolicyVersion ? null : parameters.requestedPolicyVersion);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GetPolicyOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GetPolicyOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_GetPolicyOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_GetPolicyOptions;
 };
@@ -8746,11 +8770,11 @@ module$exports$eeapiclient$ee_api_client.GridDimensionsParameters = function mod
 };
 var module$contents$eeapiclient$ee_api_client_GridDimensions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("width", null == parameters.width ? null : parameters.width);
   this.Serializable$set("height", null == parameters.height ? null : parameters.height);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GridDimensions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GridDimensions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_GridDimensions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_GridDimensions;
 };
@@ -8771,11 +8795,11 @@ module$exports$eeapiclient$ee_api_client.GridPointParameters = function module$c
 };
 var module$contents$eeapiclient$ee_api_client_GridPoint = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("x", null == parameters.x ? null : parameters.x);
   this.Serializable$set("y", null == parameters.y ? null : parameters.y);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GridPoint, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_GridPoint, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_GridPoint.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_GridPoint;
 };
@@ -8796,12 +8820,12 @@ module$exports$eeapiclient$ee_api_client.HttpBodyParameters = function module$co
 };
 var module$contents$eeapiclient$ee_api_client_HttpBody = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("contentType", null == parameters.contentType ? null : parameters.contentType);
   this.Serializable$set("data", null == parameters.data ? null : parameters.data);
   this.Serializable$set("extensions", null == parameters.extensions ? null : parameters.extensions);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_HttpBody, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_HttpBody, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_HttpBody.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_HttpBody;
 };
@@ -8826,7 +8850,7 @@ module$exports$eeapiclient$ee_api_client.ImageParameters = function module$conte
 };
 var module$contents$eeapiclient$ee_api_client_Image = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("id", null == parameters.id ? null : parameters.id);
   this.Serializable$set("updateTime", null == parameters.updateTime ? null : parameters.updateTime);
@@ -8839,7 +8863,7 @@ var module$contents$eeapiclient$ee_api_client_Image = function(parameters) {
   this.Serializable$set("bands", null == parameters.bands ? null : parameters.bands);
   this.Serializable$set("sizeBytes", null == parameters.sizeBytes ? null : parameters.sizeBytes);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Image, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Image, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Image.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Image;
 };
@@ -8896,13 +8920,13 @@ module$exports$eeapiclient$ee_api_client.ImageAssetExportOptionsParameters = fun
 };
 var module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("earthEngineDestination", null == parameters.earthEngineDestination ? null : parameters.earthEngineDestination);
   this.Serializable$set("pyramidingPolicy", null == parameters.pyramidingPolicy ? null : parameters.pyramidingPolicy);
   this.Serializable$set("pyramidingPolicyOverrides", null == parameters.pyramidingPolicyOverrides ? null : parameters.pyramidingPolicyOverrides);
   this.Serializable$set("tileSize", null == parameters.tileSize ? null : parameters.tileSize);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ImageAssetExportOptions;
 };
@@ -8936,7 +8960,7 @@ module$exports$eeapiclient$ee_api_client.ImageBandParameters = function module$c
 };
 var module$contents$eeapiclient$ee_api_client_ImageBand = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("id", null == parameters.id ? null : parameters.id);
   this.Serializable$set("dataType", null == parameters.dataType ? null : parameters.dataType);
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
@@ -8944,7 +8968,7 @@ var module$contents$eeapiclient$ee_api_client_ImageBand = function(parameters) {
   this.Serializable$set("tilesets", null == parameters.tilesets ? null : parameters.tilesets);
   this.Serializable$set("missingData", null == parameters.missingData ? null : parameters.missingData);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageBand, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageBand, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ImageBand.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ImageBand;
 };
@@ -8984,14 +9008,14 @@ module$exports$eeapiclient$ee_api_client.ImageFileExportOptionsParameters = func
 };
 var module$contents$eeapiclient$ee_api_client_ImageFileExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("driveDestination", null == parameters.driveDestination ? null : parameters.driveDestination);
   this.Serializable$set("gcsDestination", null == parameters.gcsDestination ? null : parameters.gcsDestination);
   this.Serializable$set("geoTiffOptions", null == parameters.geoTiffOptions ? null : parameters.geoTiffOptions);
   this.Serializable$set("tfRecordOptions", null == parameters.tfRecordOptions ? null : parameters.tfRecordOptions);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageFileExportOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageFileExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ImageFileExportOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ImageFileExportOptions;
 };
@@ -9028,7 +9052,7 @@ module$exports$eeapiclient$ee_api_client.ImageManifestParameters = function modu
 };
 var module$contents$eeapiclient$ee_api_client_ImageManifest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("properties", null == parameters.properties ? null : parameters.properties);
   this.Serializable$set("uriPrefix", null == parameters.uriPrefix ? null : parameters.uriPrefix);
@@ -9041,7 +9065,7 @@ var module$contents$eeapiclient$ee_api_client_ImageManifest = function(parameter
   this.Serializable$set("startTime", null == parameters.startTime ? null : parameters.startTime);
   this.Serializable$set("endTime", null == parameters.endTime ? null : parameters.endTime);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageManifest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageManifest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ImageManifest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ImageManifest;
 };
@@ -9102,11 +9126,11 @@ module$exports$eeapiclient$ee_api_client.ImageSourceParameters = function module
 };
 var module$contents$eeapiclient$ee_api_client_ImageSource = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("uris", null == parameters.uris ? null : parameters.uris);
   this.Serializable$set("affineTransform", null == parameters.affineTransform ? null : parameters.affineTransform);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageSource, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImageSource, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ImageSource.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ImageSource;
 };
@@ -9127,13 +9151,13 @@ module$exports$eeapiclient$ee_api_client.ImportImageRequestParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_ImportImageRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("imageManifest", null == parameters.imageManifest ? null : parameters.imageManifest);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("overwrite", null == parameters.overwrite ? null : parameters.overwrite);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImportImageRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImportImageRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ImportImageRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ImportImageRequest;
 };
@@ -9162,13 +9186,13 @@ module$exports$eeapiclient$ee_api_client.ImportTableRequestParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_ImportTableRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("tableManifest", null == parameters.tableManifest ? null : parameters.tableManifest);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("overwrite", null == parameters.overwrite ? null : parameters.overwrite);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImportTableRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ImportTableRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ImportTableRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ImportTableRequest;
 };
@@ -9197,10 +9221,10 @@ module$exports$eeapiclient$ee_api_client.ListAlgorithmsResponseParameters = func
 };
 var module$contents$eeapiclient$ee_api_client_ListAlgorithmsResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("algorithms", null == parameters.algorithms ? null : parameters.algorithms);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListAlgorithmsResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListAlgorithmsResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ListAlgorithmsResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ListAlgorithmsResponse;
 };
@@ -9217,11 +9241,11 @@ module$exports$eeapiclient$ee_api_client.ListAssetsResponseParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_ListAssetsResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("assets", null == parameters.assets ? null : parameters.assets);
   this.Serializable$set("nextPageToken", null == parameters.nextPageToken ? null : parameters.nextPageToken);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListAssetsResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListAssetsResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ListAssetsResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ListAssetsResponse;
 };
@@ -9242,12 +9266,12 @@ module$exports$eeapiclient$ee_api_client.ListFeaturesResponseParameters = functi
 };
 var module$contents$eeapiclient$ee_api_client_ListFeaturesResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("type", null == parameters.type ? null : parameters.type);
   this.Serializable$set("features", null == parameters.features ? null : parameters.features);
   this.Serializable$set("nextPageToken", null == parameters.nextPageToken ? null : parameters.nextPageToken);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListFeaturesResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListFeaturesResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ListFeaturesResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ListFeaturesResponse;
 };
@@ -9272,11 +9296,11 @@ module$exports$eeapiclient$ee_api_client.ListImagesResponseParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_ListImagesResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("images", null == parameters.images ? null : parameters.images);
   this.Serializable$set("nextPageToken", null == parameters.nextPageToken ? null : parameters.nextPageToken);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListImagesResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListImagesResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ListImagesResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ListImagesResponse;
 };
@@ -9297,11 +9321,11 @@ module$exports$eeapiclient$ee_api_client.ListOperationsResponseParameters = func
 };
 var module$contents$eeapiclient$ee_api_client_ListOperationsResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("operations", null == parameters.operations ? null : parameters.operations);
   this.Serializable$set("nextPageToken", null == parameters.nextPageToken ? null : parameters.nextPageToken);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListOperationsResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ListOperationsResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ListOperationsResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ListOperationsResponse;
 };
@@ -9322,12 +9346,12 @@ module$exports$eeapiclient$ee_api_client.LogConfigParameters = function module$c
 };
 var module$contents$eeapiclient$ee_api_client_LogConfig = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("counter", null == parameters.counter ? null : parameters.counter);
   this.Serializable$set("dataAccess", null == parameters.dataAccess ? null : parameters.dataAccess);
   this.Serializable$set("cloudAudit", null == parameters.cloudAudit ? null : parameters.cloudAudit);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_LogConfig, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_LogConfig, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_LogConfig.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_LogConfig;
 };
@@ -9352,10 +9376,10 @@ module$exports$eeapiclient$ee_api_client.MissingDataParameters = function module
 };
 var module$contents$eeapiclient$ee_api_client_MissingData = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("values", null == parameters.values ? null : parameters.values);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_MissingData, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_MissingData, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_MissingData.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_MissingData;
 };
@@ -9372,10 +9396,10 @@ module$exports$eeapiclient$ee_api_client.MoveAssetRequestParameters = function m
 };
 var module$contents$eeapiclient$ee_api_client_MoveAssetRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("destinationName", null == parameters.destinationName ? null : parameters.destinationName);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_MoveAssetRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_MoveAssetRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_MoveAssetRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_MoveAssetRequest;
 };
@@ -9392,14 +9416,14 @@ module$exports$eeapiclient$ee_api_client.OperationParameters = function module$c
 };
 var module$contents$eeapiclient$ee_api_client_Operation = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("metadata", null == parameters.metadata ? null : parameters.metadata);
   this.Serializable$set("done", null == parameters.done ? null : parameters.done);
   this.Serializable$set("error", null == parameters.error ? null : parameters.error);
   this.Serializable$set("response", null == parameters.response ? null : parameters.response);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Operation, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Operation, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Operation.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Operation;
 };
@@ -9432,7 +9456,7 @@ module$exports$eeapiclient$ee_api_client.OperationMetadataParameters = function 
 };
 var module$contents$eeapiclient$ee_api_client_OperationMetadata = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("state", null == parameters.state ? null : parameters.state);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("type", null == parameters.type ? null : parameters.type);
@@ -9444,7 +9468,7 @@ var module$contents$eeapiclient$ee_api_client_OperationMetadata = function(param
   this.Serializable$set("scriptUri", null == parameters.scriptUri ? null : parameters.scriptUri);
   this.Serializable$set("destinationUris", null == parameters.destinationUris ? null : parameters.destinationUris);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_OperationMetadata, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_OperationMetadata, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_OperationMetadata.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_OperationMetadata;
 };
@@ -9500,12 +9524,12 @@ module$exports$eeapiclient$ee_api_client.PixelDataTypeParameters = function modu
 };
 var module$contents$eeapiclient$ee_api_client_PixelDataType = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("precision", null == parameters.precision ? null : parameters.precision);
   this.Serializable$set("range", null == parameters.range ? null : parameters.range);
   this.Serializable$set("dimensionsCount", null == parameters.dimensionsCount ? null : parameters.dimensionsCount);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_PixelDataType, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_PixelDataType, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_PixelDataType.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_PixelDataType;
 };
@@ -9533,11 +9557,11 @@ module$exports$eeapiclient$ee_api_client.PixelFootprintParameters = function mod
 };
 var module$contents$eeapiclient$ee_api_client_PixelFootprint = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("points", null == parameters.points ? null : parameters.points);
   this.Serializable$set("bandId", null == parameters.bandId ? null : parameters.bandId);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_PixelFootprint, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_PixelFootprint, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_PixelFootprint.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_PixelFootprint;
 };
@@ -9558,13 +9582,13 @@ module$exports$eeapiclient$ee_api_client.PixelGridParameters = function module$c
 };
 var module$contents$eeapiclient$ee_api_client_PixelGrid = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("crsCode", null == parameters.crsCode ? null : parameters.crsCode);
   this.Serializable$set("crsWkt", null == parameters.crsWkt ? null : parameters.crsWkt);
   this.Serializable$set("dimensions", null == parameters.dimensions ? null : parameters.dimensions);
   this.Serializable$set("affineTransform", null == parameters.affineTransform ? null : parameters.affineTransform);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_PixelGrid, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_PixelGrid, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_PixelGrid.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_PixelGrid;
 };
@@ -9593,7 +9617,7 @@ module$exports$eeapiclient$ee_api_client.PolicyParameters = function module$cont
 };
 var module$contents$eeapiclient$ee_api_client_Policy = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("version", null == parameters.version ? null : parameters.version);
   this.Serializable$set("bindings", null == parameters.bindings ? null : parameters.bindings);
   this.Serializable$set("auditConfigs", null == parameters.auditConfigs ? null : parameters.auditConfigs);
@@ -9601,7 +9625,7 @@ var module$contents$eeapiclient$ee_api_client_Policy = function(parameters) {
   this.Serializable$set("etag", null == parameters.etag ? null : parameters.etag);
   this.Serializable$set("iamOwned", null == parameters.iamOwned ? null : parameters.iamOwned);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Policy, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Policy, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Policy.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Policy;
 };
@@ -9638,7 +9662,7 @@ module$exports$eeapiclient$ee_api_client.RuleParameters = function module$conten
 };
 var module$contents$eeapiclient$ee_api_client_Rule = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("permissions", null == parameters.permissions ? null : parameters.permissions);
   this.Serializable$set("action", null == parameters.action ? null : parameters.action);
@@ -9647,7 +9671,7 @@ var module$contents$eeapiclient$ee_api_client_Rule = function(parameters) {
   this.Serializable$set("conditions", null == parameters.conditions ? null : parameters.conditions);
   this.Serializable$set("logConfig", null == parameters.logConfig ? null : parameters.logConfig);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Rule, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Rule, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Rule.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Rule;
 };
@@ -9691,11 +9715,11 @@ module$exports$eeapiclient$ee_api_client.SearchAssetsResponseParameters = functi
 };
 var module$contents$eeapiclient$ee_api_client_SearchAssetsResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("assets", null == parameters.assets ? null : parameters.assets);
   this.Serializable$set("nextPageToken", null == parameters.nextPageToken ? null : parameters.nextPageToken);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_SearchAssetsResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_SearchAssetsResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_SearchAssetsResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_SearchAssetsResponse;
 };
@@ -9716,11 +9740,11 @@ module$exports$eeapiclient$ee_api_client.SetIamPolicyRequestParameters = functio
 };
 var module$contents$eeapiclient$ee_api_client_SetIamPolicyRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("policy", null == parameters.policy ? null : parameters.policy);
   this.Serializable$set("updateMask", null == parameters.updateMask ? null : parameters.updateMask);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_SetIamPolicyRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_SetIamPolicyRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_SetIamPolicyRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_SetIamPolicyRequest;
 };
@@ -9741,12 +9765,12 @@ module$exports$eeapiclient$ee_api_client.StatusParameters = function module$cont
 };
 var module$contents$eeapiclient$ee_api_client_Status = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("code", null == parameters.code ? null : parameters.code);
   this.Serializable$set("message", null == parameters.message ? null : parameters.message);
   this.Serializable$set("details", null == parameters.details ? null : parameters.details);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Status, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Status, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Status.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Status;
 };
@@ -9771,10 +9795,10 @@ module$exports$eeapiclient$ee_api_client.TableAssetExportOptionsParameters = fun
 };
 var module$contents$eeapiclient$ee_api_client_TableAssetExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("earthEngineDestination", null == parameters.earthEngineDestination ? null : parameters.earthEngineDestination);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TableAssetExportOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TableAssetExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TableAssetExportOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TableAssetExportOptions;
 };
@@ -9791,12 +9815,12 @@ module$exports$eeapiclient$ee_api_client.TableFileExportOptionsParameters = func
 };
 var module$contents$eeapiclient$ee_api_client_TableFileExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("driveDestination", null == parameters.driveDestination ? null : parameters.driveDestination);
   this.Serializable$set("gcsDestination", null == parameters.gcsDestination ? null : parameters.gcsDestination);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TableFileExportOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TableFileExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TableFileExportOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TableFileExportOptions;
 };
@@ -9824,7 +9848,7 @@ module$exports$eeapiclient$ee_api_client.TableManifestParameters = function modu
 };
 var module$contents$eeapiclient$ee_api_client_TableManifest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("properties", null == parameters.properties ? null : parameters.properties);
   this.Serializable$set("uriPrefix", null == parameters.uriPrefix ? null : parameters.uriPrefix);
@@ -9832,7 +9856,7 @@ var module$contents$eeapiclient$ee_api_client_TableManifest = function(parameter
   this.Serializable$set("startTime", null == parameters.startTime ? null : parameters.startTime);
   this.Serializable$set("endTime", null == parameters.endTime ? null : parameters.endTime);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TableManifest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TableManifest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TableManifest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TableManifest;
 };
@@ -9869,7 +9893,7 @@ module$exports$eeapiclient$ee_api_client.TableSourceParameters = function module
 };
 var module$contents$eeapiclient$ee_api_client_TableSource = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("uris", null == parameters.uris ? null : parameters.uris);
   this.Serializable$set("charset", null == parameters.charset ? null : parameters.charset);
   this.Serializable$set("maxErrorMeters", null == parameters.maxErrorMeters ? null : parameters.maxErrorMeters);
@@ -9883,7 +9907,7 @@ var module$contents$eeapiclient$ee_api_client_TableSource = function(parameters)
   this.Serializable$set("csvDelimiter", null == parameters.csvDelimiter ? null : parameters.csvDelimiter);
   this.Serializable$set("csvQualifier", null == parameters.csvQualifier ? null : parameters.csvQualifier);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TableSource, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TableSource, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TableSource.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TableSource;
 };
@@ -9944,10 +9968,10 @@ module$exports$eeapiclient$ee_api_client.TestIamPermissionsRequestParameters = f
 };
 var module$contents$eeapiclient$ee_api_client_TestIamPermissionsRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("permissions", null == parameters.permissions ? null : parameters.permissions);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TestIamPermissionsRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TestIamPermissionsRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TestIamPermissionsRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TestIamPermissionsRequest;
 };
@@ -9964,10 +9988,10 @@ module$exports$eeapiclient$ee_api_client.TestIamPermissionsResponseParameters = 
 };
 var module$contents$eeapiclient$ee_api_client_TestIamPermissionsResponse = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("permissions", null == parameters.permissions ? null : parameters.permissions);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TestIamPermissionsResponse, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TestIamPermissionsResponse, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TestIamPermissionsResponse.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TestIamPermissionsResponse;
 };
@@ -9984,7 +10008,7 @@ module$exports$eeapiclient$ee_api_client.TfRecordImageExportOptionsParameters = 
 };
 var module$contents$eeapiclient$ee_api_client_TfRecordImageExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("tileDimensions", null == parameters.tileDimensions ? null : parameters.tileDimensions);
   this.Serializable$set("marginDimensions", null == parameters.marginDimensions ? null : parameters.marginDimensions);
   this.Serializable$set("compress", null == parameters.compress ? null : parameters.compress);
@@ -9995,7 +10019,7 @@ var module$contents$eeapiclient$ee_api_client_TfRecordImageExportOptions = funct
   this.Serializable$set("collapseBands", null == parameters.collapseBands ? null : parameters.collapseBands);
   this.Serializable$set("maxMaskedRatio", null == parameters.maxMaskedRatio ? null : parameters.maxMaskedRatio);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TfRecordImageExportOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TfRecordImageExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TfRecordImageExportOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TfRecordImageExportOptions;
 };
@@ -10044,7 +10068,7 @@ module$exports$eeapiclient$ee_api_client.ThumbnailParameters = function module$c
 };
 var module$contents$eeapiclient$ee_api_client_Thumbnail = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
@@ -10052,7 +10076,7 @@ var module$contents$eeapiclient$ee_api_client_Thumbnail = function(parameters) {
   this.Serializable$set("visualizationOptions", null == parameters.visualizationOptions ? null : parameters.visualizationOptions);
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Thumbnail, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Thumbnail, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Thumbnail.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Thumbnail;
 };
@@ -10092,7 +10116,7 @@ module$exports$eeapiclient$ee_api_client.TileOptionsParameters = function module
 };
 var module$contents$eeapiclient$ee_api_client_TileOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("maxZoom", null == parameters.maxZoom ? null : parameters.maxZoom);
   this.Serializable$set("scale", null == parameters.scale ? null : parameters.scale);
   this.Serializable$set("minZoom", null == parameters.minZoom ? null : parameters.minZoom);
@@ -10102,7 +10126,7 @@ var module$contents$eeapiclient$ee_api_client_TileOptions = function(parameters)
   this.Serializable$set("stride", null == parameters.stride ? null : parameters.stride);
   this.Serializable$set("zoomSubset", null == parameters.zoomSubset ? null : parameters.zoomSubset);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TileOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TileOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TileOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TileOptions;
 };
@@ -10147,7 +10171,7 @@ module$exports$eeapiclient$ee_api_client.TilesetParameters = function module$con
 };
 var module$contents$eeapiclient$ee_api_client_Tileset = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("id", null == parameters.id ? null : parameters.id);
   this.Serializable$set("sources", null == parameters.sources ? null : parameters.sources);
   this.Serializable$set("dataType", null == parameters.dataType ? null : parameters.dataType);
@@ -10155,7 +10179,7 @@ var module$contents$eeapiclient$ee_api_client_Tileset = function(parameters) {
   this.Serializable$set("subdatasetPrefix", null == parameters.subdatasetPrefix ? null : parameters.subdatasetPrefix);
   this.Serializable$set("subdatasetSuffix", null == parameters.subdatasetSuffix ? null : parameters.subdatasetSuffix);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Tileset, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_Tileset, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_Tileset.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_Tileset;
 };
@@ -10195,14 +10219,14 @@ module$exports$eeapiclient$ee_api_client.TilesetBandParameters = function module
 };
 var module$contents$eeapiclient$ee_api_client_TilesetBand = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("id", null == parameters.id ? null : parameters.id);
   this.Serializable$set("tilesetId", null == parameters.tilesetId ? null : parameters.tilesetId);
   this.Serializable$set("tilesetBandIndex", null == parameters.tilesetBandIndex ? null : parameters.tilesetBandIndex);
   this.Serializable$set("missingData", null == parameters.missingData ? null : parameters.missingData);
   this.Serializable$set("pyramidingPolicy", null == parameters.pyramidingPolicy ? null : parameters.pyramidingPolicy);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilesetBand, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilesetBand, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TilesetBand.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TilesetBand;
 };
@@ -10238,11 +10262,11 @@ module$exports$eeapiclient$ee_api_client.TilesetMaskBandParameters = function mo
 };
 var module$contents$eeapiclient$ee_api_client_TilesetMaskBand = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("tilesetId", null == parameters.tilesetId ? null : parameters.tilesetId);
   this.Serializable$set("bandIds", null == parameters.bandIds ? null : parameters.bandIds);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilesetMaskBand, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilesetMaskBand, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TilesetMaskBand.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TilesetMaskBand;
 };
@@ -10263,11 +10287,11 @@ module$exports$eeapiclient$ee_api_client.TilestoreEntryParameters = function mod
 };
 var module$contents$eeapiclient$ee_api_client_TilestoreEntry = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("sources", null == parameters.sources ? null : parameters.sources);
   this.Serializable$set("pathPrefix", null == parameters.pathPrefix ? null : parameters.pathPrefix);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilestoreEntry, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilestoreEntry, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TilestoreEntry.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TilestoreEntry;
 };
@@ -10288,11 +10312,11 @@ module$exports$eeapiclient$ee_api_client.TilestoreSourceParameters = function mo
 };
 var module$contents$eeapiclient$ee_api_client_TilestoreSource = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("pathSuffix", null == parameters.pathSuffix ? null : parameters.pathSuffix);
   this.Serializable$set("headerSizeBytes", null == parameters.headerSizeBytes ? null : parameters.headerSizeBytes);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilestoreSource, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilestoreSource, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TilestoreSource.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TilestoreSource;
 };
@@ -10313,12 +10337,12 @@ module$exports$eeapiclient$ee_api_client.TilestoreTilesetParameters = function m
 };
 var module$contents$eeapiclient$ee_api_client_TilestoreTileset = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("fileIndexes", null == parameters.fileIndexes ? null : parameters.fileIndexes);
   this.Serializable$set("firstTileIndex", null == parameters.firstTileIndex ? null : parameters.firstTileIndex);
   this.Serializable$set("tilesPerFile", null == parameters.tilesPerFile ? null : parameters.tilesPerFile);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilestoreTileset, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_TilestoreTileset, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_TilestoreTileset.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_TilestoreTileset;
 };
@@ -10343,11 +10367,11 @@ module$exports$eeapiclient$ee_api_client.UpdateAssetRequestParameters = function
 };
 var module$contents$eeapiclient$ee_api_client_UpdateAssetRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("asset", null == parameters.asset ? null : parameters.asset);
   this.Serializable$set("updateMask", null == parameters.updateMask ? null : parameters.updateMask);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_UpdateAssetRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_UpdateAssetRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_UpdateAssetRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_UpdateAssetRequest;
 };
@@ -10368,7 +10392,7 @@ module$exports$eeapiclient$ee_api_client.ValueNodeParameters = function module$c
 };
 var module$contents$eeapiclient$ee_api_client_ValueNode = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("constantValue", null == parameters.constantValue ? null : parameters.constantValue);
   this.Serializable$set("integerValue", null == parameters.integerValue ? null : parameters.integerValue);
   this.Serializable$set("bytesValue", null == parameters.bytesValue ? null : parameters.bytesValue);
@@ -10379,7 +10403,7 @@ var module$contents$eeapiclient$ee_api_client_ValueNode = function(parameters) {
   this.Serializable$set("argumentReference", null == parameters.argumentReference ? null : parameters.argumentReference);
   this.Serializable$set("valueReference", null == parameters.valueReference ? null : parameters.valueReference);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ValueNode, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ValueNode, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ValueNode.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ValueNode;
 };
@@ -10428,12 +10452,12 @@ module$exports$eeapiclient$ee_api_client.VideoFileExportOptionsParameters = func
 };
 var module$contents$eeapiclient$ee_api_client_VideoFileExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("driveDestination", null == parameters.driveDestination ? null : parameters.driveDestination);
   this.Serializable$set("gcsDestination", null == parameters.gcsDestination ? null : parameters.gcsDestination);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_VideoFileExportOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_VideoFileExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_VideoFileExportOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_VideoFileExportOptions;
 };
@@ -10461,12 +10485,12 @@ module$exports$eeapiclient$ee_api_client.VideoOptionsParameters = function modul
 };
 var module$contents$eeapiclient$ee_api_client_VideoOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("framesPerSecond", null == parameters.framesPerSecond ? null : parameters.framesPerSecond);
   this.Serializable$set("maxFrames", null == parameters.maxFrames ? null : parameters.maxFrames);
   this.Serializable$set("maxPixelsPerFrame", null == parameters.maxPixelsPerFrame ? null : parameters.maxPixelsPerFrame);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_VideoOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_VideoOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_VideoOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_VideoOptions;
 };
@@ -10491,14 +10515,14 @@ module$exports$eeapiclient$ee_api_client.VideoThumbnailParameters = function mod
 };
 var module$contents$eeapiclient$ee_api_client_VideoThumbnail = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("videoOptions", null == parameters.videoOptions ? null : parameters.videoOptions);
   this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_VideoThumbnail, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_VideoThumbnail, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_VideoThumbnail.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_VideoThumbnail;
 };
@@ -10534,13 +10558,13 @@ module$exports$eeapiclient$ee_api_client.VisualizationOptionsParameters = functi
 };
 var module$contents$eeapiclient$ee_api_client_VisualizationOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("ranges", null == parameters.ranges ? null : parameters.ranges);
   this.Serializable$set("paletteColors", null == parameters.paletteColors ? null : parameters.paletteColors);
   this.Serializable$set("gamma", null == parameters.gamma ? null : parameters.gamma);
   this.Serializable$set("opacity", null == parameters.opacity ? null : parameters.opacity);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_VisualizationOptions, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_VisualizationOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_VisualizationOptions.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_VisualizationOptions;
 };
@@ -10569,10 +10593,10 @@ module$exports$eeapiclient$ee_api_client.WaitOperationRequestParameters = functi
 };
 var module$contents$eeapiclient$ee_api_client_WaitOperationRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("timeout", null == parameters.timeout ? null : parameters.timeout);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_WaitOperationRequest, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_WaitOperationRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_WaitOperationRequest.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_WaitOperationRequest;
 };
@@ -10589,11 +10613,11 @@ module$exports$eeapiclient$ee_api_client.ZoomSubsetParameters = function module$
 };
 var module$contents$eeapiclient$ee_api_client_ZoomSubset = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
-  module$contents$eeapiclient$domain_object_Serializable.call(this);
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("min", null == parameters.min ? null : parameters.min);
   this.Serializable$set("max", null == parameters.max ? null : parameters.max);
 };
-$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ZoomSubset, module$contents$eeapiclient$domain_object_Serializable);
+$jscomp.inherits(module$contents$eeapiclient$ee_api_client_ZoomSubset, module$exports$eeapiclient$domain_object.Serializable);
 module$contents$eeapiclient$ee_api_client_ZoomSubset.prototype.getConstructor = function() {
   return module$contents$eeapiclient$ee_api_client_ZoomSubset;
 };
@@ -10636,12 +10660,12 @@ var module$contents$eeapiclient$ee_api_client_ProjectsAlgorithmsApiClientImpl = 
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$contents$eeapiclient$promise_api_client_PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
 };
-module$contents$eeapiclient$ee_api_client_ProjectsAlgorithmsApiClientImpl.prototype.list = function(project, $jscomp$destructuring$var0) {
+module$contents$eeapiclient$ee_api_client_ProjectsAlgorithmsApiClientImpl.prototype.list = function(parent, $jscomp$destructuring$var0) {
   var $jscomp$destructuring$var1 = void 0 === $jscomp$destructuring$var0 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var0, $Xgafv = void 0 === $jscomp$destructuring$var1.$Xgafv ? void 0 : $jscomp$destructuring$var1.$Xgafv, access_token = void 0 === $jscomp$destructuring$var1.access_token ? void 0 : $jscomp$destructuring$var1.access_token, 
   alt = void 0 === $jscomp$destructuring$var1.alt ? void 0 : $jscomp$destructuring$var1.alt, callback = void 0 === $jscomp$destructuring$var1.callback ? void 0 : $jscomp$destructuring$var1.callback, fields = void 0 === $jscomp$destructuring$var1.fields ? void 0 : $jscomp$destructuring$var1.fields, key = void 0 === $jscomp$destructuring$var1.key ? void 0 : $jscomp$destructuring$var1.key, oauth_token = void 0 === $jscomp$destructuring$var1.oauth_token ? void 0 : $jscomp$destructuring$var1.oauth_token, 
   prettyPrint = void 0 === $jscomp$destructuring$var1.prettyPrint ? void 0 : $jscomp$destructuring$var1.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var1.quotaUser ? void 0 : $jscomp$destructuring$var1.quotaUser, uploadType = void 0 === $jscomp$destructuring$var1.uploadType ? void 0 : $jscomp$destructuring$var1.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var1.upload_protocol ? void 0 : $jscomp$destructuring$var1.upload_protocol;
-  this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
-  return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.algorithms.list", path:"/" + this.gapiVersion + "/" + project + "/algorithms", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$contents$eeapiclient$ee_api_client_ListAlgorithmsResponse});
+  this.$apiClient.$validateParameter(parent, /^projects\/[^/]+$/);
+  return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.algorithms.list", path:"/" + this.gapiVersion + "/" + parent + "/algorithms", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$contents$eeapiclient$ee_api_client_ListAlgorithmsResponse});
 };
 module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClientImpl = module$contents$eeapiclient$ee_api_client_ProjectsAlgorithmsApiClientImpl;
 module$exports$eeapiclient$ee_api_client.IProjectsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsApiClient$XgafvEnum() {
@@ -10806,13 +10830,13 @@ module$contents$eeapiclient$ee_api_client_ProjectsAssetsApiClientImpl.prototype.
   this.$apiClient.$validateParameter(name, /^projects\/[^/]+\/assets\/.+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"PATCH", methodId:"earthengine.projects.assets.patch", path:"/" + this.gapiVersion + "/" + name, queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$contents$eeapiclient$ee_api_client_EarthEngineAsset});
 };
-module$contents$eeapiclient$ee_api_client_ProjectsAssetsApiClientImpl.prototype.search = function(project, $jscomp$destructuring$var28) {
+module$contents$eeapiclient$ee_api_client_ProjectsAssetsApiClientImpl.prototype.search = function(parent, $jscomp$destructuring$var28) {
   var $jscomp$destructuring$var29 = void 0 === $jscomp$destructuring$var28 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, nextPageToken:void 0, oauth_token:void 0, pageSize:void 0, prettyPrint:void 0, query:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var28, $Xgafv = void 0 === $jscomp$destructuring$var29.$Xgafv ? void 0 : $jscomp$destructuring$var29.$Xgafv, access_token = void 0 === $jscomp$destructuring$var29.access_token ? 
   void 0 : $jscomp$destructuring$var29.access_token, alt = void 0 === $jscomp$destructuring$var29.alt ? void 0 : $jscomp$destructuring$var29.alt, callback = void 0 === $jscomp$destructuring$var29.callback ? void 0 : $jscomp$destructuring$var29.callback, fields = void 0 === $jscomp$destructuring$var29.fields ? void 0 : $jscomp$destructuring$var29.fields, key = void 0 === $jscomp$destructuring$var29.key ? void 0 : $jscomp$destructuring$var29.key, nextPageToken = void 0 === $jscomp$destructuring$var29.nextPageToken ? 
   void 0 : $jscomp$destructuring$var29.nextPageToken, oauth_token = void 0 === $jscomp$destructuring$var29.oauth_token ? void 0 : $jscomp$destructuring$var29.oauth_token, pageSize = void 0 === $jscomp$destructuring$var29.pageSize ? void 0 : $jscomp$destructuring$var29.pageSize, prettyPrint = void 0 === $jscomp$destructuring$var29.prettyPrint ? void 0 : $jscomp$destructuring$var29.prettyPrint, query = void 0 === $jscomp$destructuring$var29.query ? void 0 : $jscomp$destructuring$var29.query, quotaUser = 
   void 0 === $jscomp$destructuring$var29.quotaUser ? void 0 : $jscomp$destructuring$var29.quotaUser, uploadType = void 0 === $jscomp$destructuring$var29.uploadType ? void 0 : $jscomp$destructuring$var29.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var29.upload_protocol ? void 0 : $jscomp$destructuring$var29.upload_protocol;
-  this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
-  return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.assets.search", path:"/" + this.gapiVersion + "/" + project + "/assets:search", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, nextPageToken:nextPageToken, oauth_token:oauth_token, pageSize:pageSize, prettyPrint:prettyPrint, query:query, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$contents$eeapiclient$ee_api_client_SearchAssetsResponse});
+  this.$apiClient.$validateParameter(parent, /^projects\/[^/]+$/);
+  return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.assets.search", path:"/" + this.gapiVersion + "/" + parent + "/assets:search", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, nextPageToken:nextPageToken, oauth_token:oauth_token, pageSize:pageSize, prettyPrint:prettyPrint, query:query, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$contents$eeapiclient$ee_api_client_SearchAssetsResponse});
 };
 module$contents$eeapiclient$ee_api_client_ProjectsAssetsApiClientImpl.prototype.setIamPolicy = function(resource, $requestBody, $jscomp$destructuring$var30) {
   var $jscomp$destructuring$var31 = void 0 === $jscomp$destructuring$var30 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var30, $Xgafv = void 0 === $jscomp$destructuring$var31.$Xgafv ? void 0 : $jscomp$destructuring$var31.$Xgafv, access_token = void 0 === $jscomp$destructuring$var31.access_token ? void 0 : $jscomp$destructuring$var31.access_token, 
@@ -16423,7 +16447,7 @@ ee.rpc_convert_batch.taskToExportImageRequest = function(params) {
   if (null == params.element) {
     throw Error('"element" not found in params ' + params);
   }
-  var result = new module$exports$eeapiclient$ee_api_client.ExportImageRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, grid:null, maxPixels:stringOrNull_(params.maxPixels), requestId:stringOrNull_(params.id)}), destination = ee.rpc_convert_batch.guessDestination_(params);
+  var result = new module$exports$eeapiclient$ee_api_client.ExportImageRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, grid:null, maxPixels:stringOrNull_(params.maxPixels), requestId:stringOrNull_(params.id), maxWorkerCount:numberOrNull_(params.maxWorkers)}), destination = ee.rpc_convert_batch.guessDestination_(params);
   switch(destination) {
     case ee.rpc_convert_batch.ExportDestination.GCS:
     case ee.rpc_convert_batch.ExportDestination.DRIVE:
@@ -16443,7 +16467,7 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
   }
   var selectors = params.selectors || null;
   null != selectors && "string" === typeof selectors && (selectors = selectors.split(","));
-  var result = new module$exports$eeapiclient$ee_api_client.ExportTableRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, selectors:selectors, maxErrorMeters:numberOrNull_(params.maxErrorMeters), requestId:stringOrNull_(params.id)}), destination = ee.rpc_convert_batch.guessDestination_(params);
+  var result = new module$exports$eeapiclient$ee_api_client.ExportTableRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, selectors:selectors, maxErrorMeters:numberOrNull_(params.maxErrorMeters), requestId:stringOrNull_(params.id), maxWorkerCount:numberOrNull_(params.maxWorkers)}), destination = ee.rpc_convert_batch.guessDestination_(params);
   switch(destination) {
     case ee.rpc_convert_batch.ExportDestination.GCS:
     case ee.rpc_convert_batch.ExportDestination.DRIVE:
@@ -16461,7 +16485,7 @@ ee.rpc_convert_batch.taskToExportVideoRequest = function(params) {
   if (null == params.element) {
     throw Error('"element" not found in params ' + params);
   }
-  var result = new module$exports$eeapiclient$ee_api_client.ExportVideoRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), videoOptions:ee.rpc_convert_batch.buildVideoOptions_(params), fileExportOptions:null, requestId:stringOrNull_(params.id)});
+  var result = new module$exports$eeapiclient$ee_api_client.ExportVideoRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), videoOptions:ee.rpc_convert_batch.buildVideoOptions_(params), fileExportOptions:null, requestId:stringOrNull_(params.id), maxWorkerCount:numberOrNull_(params.maxWorkers)});
   result.fileExportOptions = ee.rpc_convert_batch.buildVideoFileExportOptions_(params, ee.rpc_convert_batch.guessDestination_(params));
   return result;
 };
@@ -16469,13 +16493,14 @@ ee.rpc_convert_batch.taskToExportMapRequest = function(params) {
   if (null == params.element) {
     throw Error('"element" not found in params ' + params);
   }
-  return new module$exports$eeapiclient$ee_api_client.ExportMapRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), tileOptions:ee.rpc_convert_batch.buildTileOptions_(params), tileExportOptions:ee.rpc_convert_batch.buildImageFileExportOptions_(params, ee.rpc_convert_batch.ExportDestination.GCS), requestId:stringOrNull_(params.id)});
+  return new module$exports$eeapiclient$ee_api_client.ExportMapRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), tileOptions:ee.rpc_convert_batch.buildTileOptions_(params), tileExportOptions:ee.rpc_convert_batch.buildImageFileExportOptions_(params, ee.rpc_convert_batch.ExportDestination.GCS), requestId:stringOrNull_(params.id), maxWorkerCount:numberOrNull_(params.maxWorkers)});
 };
 ee.rpc_convert_batch.taskToExportVideoMapRequest = function(params) {
   if (null == params.element) {
     throw Error('"element" not found in params ' + params);
   }
-  return new module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), videoOptions:ee.rpc_convert_batch.buildVideoMapOptions_(params), tileOptions:ee.rpc_convert_batch.buildTileOptions_(params), tileExportOptions:ee.rpc_convert_batch.buildVideoFileExportOptions_(params, ee.rpc_convert_batch.ExportDestination.GCS), requestId:stringOrNull_(params.id), version:stringOrNull_(params.version)});
+  return new module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest({expression:ee.Serializer.encodeCloudApi(params.element), description:stringOrNull_(params.description), videoOptions:ee.rpc_convert_batch.buildVideoMapOptions_(params), tileOptions:ee.rpc_convert_batch.buildTileOptions_(params), tileExportOptions:ee.rpc_convert_batch.buildVideoFileExportOptions_(params, ee.rpc_convert_batch.ExportDestination.GCS), requestId:stringOrNull_(params.id), version:stringOrNull_(params.version), 
+  maxWorkerCount:numberOrNull_(params.maxWorkers)});
 };
 function stringOrNull_(value) {
   return null != value ? String(value) : null;
@@ -20562,7 +20587,7 @@ ee.data.getList = function(params, opt_callback) {
 ee.data.listAssets = function(parent, params, opt_callback) {
   params = void 0 === params ? {} : params;
   var isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(parent), call = new module$contents$ee$apiclient_Call(opt_callback), methodRoot = isProjectAssetRoot ? call.projects() : call.assets();
-  parent = isProjectAssetRoot ? ee.rpc_convert.projectParentFromPath(parent) : parent;
+  parent = isProjectAssetRoot ? ee.rpc_convert.projectParentFromPath(parent) : ee.rpc_convert.assetIdToAssetName(parent);
   return call.handle(methodRoot.listAssets(parent, params));
 };
 ee.data.cloudApiSymbols.push("listAssets");
@@ -20727,7 +20752,6 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
   return ee.data.send_("/quota", ee.data.makeRequest_({id:rootId}), opt_callback, "GET");
 };
 ee.data.AssetType = {ALGORITHM:"Algorithm", FOLDER:"Folder", IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", TABLE:"Table", UNKNOWN:"Unknown"};
-ee.data.TableType = {CSV:"CSV", SHAPE:"SHAPE", TF_RECORD:"TFRecord"};
 ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO", VIDEO_MAP:"EXPORT_VIDEO_MAP"};
 ee.data.ExportState = {UNSUBMITTED:"UNSUBMITTED", READY:"READY", RUNNING:"RUNNING", COMPLETED:"COMPLETED", FAILED:"FAILED", CANCEL_REQUESTED:"CANCEL_REQUESTED", CANCELLED:"CANCELLED"};
 ee.data.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET"};

@@ -1131,17 +1131,6 @@ ee.data.AssetType = {
 };
 
 
-/**
- * The types of table asset upload formats.
- * @enum {string}
- */
-ee.data.TableType = {
-  CSV: 'CSV',
-  SHAPE: 'SHAPE',
-  TF_RECORD: 'TFRecord',
-};
-
-
 /** @enum {string} The types of export. */
 ee.data.ExportType = {
   IMAGE: 'EXPORT_IMAGE',
@@ -2078,6 +2067,7 @@ ee.data.ImageTaskConfigUnformatted;
  *   scale: (undefined|number),
  *   region: (undefined|string),
  *   maxPixels: (undefined|number),
+ *   maxWorkers: (undefined|number),
  *   shardSize: (undefined|number),
  *   fileDimensions: (undefined|string|number|Array<number>),
  *   skipEmptyTiles: (undefined|boolean),
@@ -2136,6 +2126,7 @@ ee.data.ImageExportFormatConfig;
  *   element: (undefined|!ee.Element),
  *   minZoom: (undefined|number),
  *   maxZoom: (undefined|number),
+ *   maxWorkers: (undefined|number),
  *   region: (undefined|string),
  *   scale: (undefined|number),
  *   fileFormat: (undefined|string),
@@ -2159,6 +2150,7 @@ ee.data.MapTaskConfig;
  *   sourceUrl: (undefined|string),
  *   description: (undefined|string),
  *   element: (undefined|!ee.Element),
+ *   maxWorkers: (undefined|number),
  *   minZoom: (undefined|number),
  *   maxZoom: (undefined|number),
  *   region: (undefined|string),
@@ -2197,7 +2189,8 @@ ee.data.VideoMapTaskConfig;
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
- *   assetId: (undefined|string)
+ *   assetId: (undefined|string),
+ *   maxWorkers: (undefined|number)
  * }}
  */
 ee.data.TableTaskConfig;
@@ -2221,6 +2214,7 @@ ee.data.TableTaskConfig;
  *   scale: (undefined|number),
  *   maxPixels: (undefined|number),
  *   maxFrames: (undefined|number),
+ *   maxWorkers: (undefined|number),
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),

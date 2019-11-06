@@ -211,7 +211,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       expected_expression = ee.Image(1).reproject(
           'foo', crsTransform=[
               9.0, 8.0, 7.0, 6.0, 5.0, 4.0
-          ]).clipToBoundsAndScale(geometry=region)
+          ]).clip(region)
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
@@ -350,8 +350,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           ee.Image(1), 'TestDescription', config['outputBucket'], None, None,
           config['region'], None, None, None, config['maxPixels'], None,
           [512, 2048], True)
-      expected_expression = ee.Image(1).clipToBoundsAndScale(
-          geometry=region)
+      expected_expression = ee.Image(1).clip(region)
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_IMAGE', task.task_type)
@@ -495,8 +494,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           image=ee.Image(1), region=region['coordinates'], folder='foo',
           maxPixels=10**10, crs='foo', crsTransform='[9,8,7,6,5,4]')
       expected_expression = ee.Image(1).reproject(
-          'foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0,
-                               4.0]).clipToBoundsAndScale(geometry=region)
+          'foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0]).clip(region)
       self.assertIsNone(drive_task_by_keys.id)
       self.assertIsNone(drive_task_by_keys.name)
       self.assertEqual('EXPORT_IMAGE', drive_task_by_keys.task_type)

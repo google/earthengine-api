@@ -471,8 +471,8 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6])
 
       self.assertEqual(
-          reprojected_image.clipToBoundsAndScale(
-              geometry=ee.Geometry.Rectangle(
+          reprojected_image.clip(
+              ee.Geometry.Rectangle(
                   coords=[0, 0, 3, 2],
                   proj=reprojected_image.projection(),
                   geodesic=False,

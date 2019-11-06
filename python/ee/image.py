@@ -230,6 +230,7 @@ class Image(element.Element):
       - any remaining (non-selection/scale) parameters.
     """
     keys_to_extract = set(['region', 'dimensions', 'scale'])
+    scale_keys = ['maxDimension', 'height', 'width', 'scale']
     request = {}
     selection_params = {}
     if params:
@@ -273,8 +274,15 @@ class Image(element.Element):
     image = self
     if selection_params:
       selection_params['input'] = image
-      image = apifunction.ApiFunction.apply_('Image.clipToBoundsAndScale',
-                                             selection_params)
+      if any(key in selection_params for key in scale_keys):
+        image = apifunction.ApiFunction.apply_(
+            'Image.clipToBoundsAndScale', selection_params)
+      else:
+        clip_params = {
+            'input': image,
+            'geometry': selection_params.get('geometry')
+        }
+        image = apifunction.ApiFunction.apply_('Image.clip', clip_params)
     return image, request
 
   def _apply_visualization(self, params):

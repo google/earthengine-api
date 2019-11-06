@@ -18,8 +18,8 @@ import json
 import os
 import sys
 import webbrowser
-import builtins
 import six
+from six.moves import builtins
 from six.moves.urllib import parse
 from six.moves.urllib import request
 from six.moves.urllib.error import HTTPError

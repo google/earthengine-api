@@ -146,10 +146,10 @@
               "httpMethod": "GET",
               "id": "earthengine.projects.algorithms.list",
               "parameterOrder": [
-                "project"
+                "parent"
               ],
               "parameters": {
-                "project": {
+                "parent": {
                   "description": "",
                   "location": "path",
                   "pattern": "^projects/[^/]+$",
@@ -157,7 +157,7 @@
                   "type": "string"
                 }
               },
-              "path": "v1alpha/{+project}/algorithms",
+              "path": "v1alpha/{+parent}/algorithms",
               "response": {
                 "properties": {
                   "nextPageToken": {

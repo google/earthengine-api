@@ -11,6 +11,7 @@ from __future__ import print_function
 # pylint: disable=g-bad-import-order
 import contextlib
 import json
+import re
 import threading
 import time
 import uuid
@@ -194,8 +195,7 @@ def initialize(credentials=None,
 
   _http_transport = http_transport
 
-  if _cloud_api_resource is None or _cloud_api_resource_raw is None:
-    _install_cloud_api_resource()
+  _install_cloud_api_resource()
 
   if project is not None:
     _cloud_api_user_project = project
@@ -483,12 +483,19 @@ def listImages(params):
 def listAssets(params):
   """Returns the assets in a folder."""
   assets = {'assets': []}
-  request = _cloud_api_resource.projects().assets().listAssets(**params)
+  if 'parent' in params and _cloud_api_utils.is_asset_root(params['parent']):
+    # If the asset name is 'projects/my-project/assets' we assume a user
+    # wants to list their cloud assets, to do this we call the alternative
+    # listAssets method and remove the trailing '/assets/?'
+    params['parent'] = re.sub('/assets/?$', '', params['parent'])
+    cloud_resource_root = _cloud_api_resource.projects()
+  else:
+    cloud_resource_root = _cloud_api_resource.projects().assets()
+  request = cloud_resource_root.listAssets(**params)
   while request is not None:
     response = _execute_cloud_call(request)
     assets['assets'].extend(response.get('assets', []))
-    request = _cloud_api_resource.projects().assets().listAssets_next(
-        request, response)
+    request = cloud_resource_root.listAssets_next(request, response)
     # We currently treat pageSize as a cap on the results, if this param was
     # provided we should break fast and not return more than the asked for
     # amount.
@@ -935,11 +942,13 @@ def getAlgorithms():
                 is not specified.
   """
   if _use_cloud_api:
-    return _cloud_api_utils.convert_algorithms(
-        _execute_cloud_call(
-            _cloud_api_resource.projects().algorithms().list(
-                project=_get_projects_path(),
-                prettyPrint=False)))
+    try:
+      call = _cloud_api_resource.projects().algorithms().list(
+          parent=_get_projects_path(), prettyPrint=False)
+    except TypeError:
+      call = _cloud_api_resource.projects().algorithms().list(
+          project=_get_projects_path(), prettyPrint=False)
+    return _cloud_api_utils.convert_algorithms(_execute_cloud_call(call))
   return send_('/algorithms', {}, 'GET')
 
 
