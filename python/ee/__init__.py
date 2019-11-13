@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.205'
+__version__ = '0.1.206'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -87,7 +87,7 @@ def Authenticate(
 def Initialize(
     credentials='persistent',
     opt_url=None,
-    use_cloud_api=False,
+    use_cloud_api=True,
     cloud_api_key=None,
     http_transport=None,
     project=None):

@@ -735,7 +735,7 @@ ee.Serializer.encode = function(obj, opt_isCompound) {
 };
 /**
  * @param {*} obj
- * @return {!ee.api.Expression}
+ * @return {!Object}
  */
 ee.Serializer.encodeCloudApi = function(obj) {
 };
@@ -1015,6 +1015,13 @@ ee.data.cancelOperation = function(operationName, opt_callback) {
  * @return {(Array<(ee.data.TaskStatus|null)>|null)}
  */
 ee.data.cancelTask = function(taskId, opt_callback) {
+};
+/**
+ * @param {*} obj
+ * @param {function(*): ?=} opt_callback
+ * @return {(Object|null)}
+ */
+ee.data.computeValue = function(obj, opt_callback) {
 };
 /**
  * @param {string} sourceId

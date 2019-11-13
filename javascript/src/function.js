@@ -280,3 +280,11 @@ ee.Function.prototype.serialize = function() {
 ee.Function.Signature;
 
 
+/**
+ * Encodes the function in a format compatible with ee.Serializer.
+ * @param {function(*):string} encoder A function that can be called to encode
+ *     the components of an object. Returns a reference stored the scope table.
+ * @param {!Object<string, !ee.api.ValueNode>} args
+ * @return {!ee.api.ValueNode} The encoded object.
+ */
+ee.Function.prototype.encodeCloudInvocation = goog.abstractMethod;

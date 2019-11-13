@@ -6,6 +6,7 @@ goog.provide('ee.List');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
+goog.require('ee.rpc_node');
 goog.require('goog.array');
 
 
@@ -86,6 +87,18 @@ ee.List.prototype.encode = function(encoder) {
     });
   } else {
     return ee.List.base(this, 'encode', encoder);
+  }
+};
+
+
+/**
+ * @override
+ */
+ee.List.prototype.encodeCloudValue = function(encoder) {
+  if (goog.isArray(this.list_)) {
+    return ee.rpc_node.reference(encoder(this.list_));
+  } else {
+    return ee.List.base(this, 'encodeCloudValue', encoder);
   }
 };
 

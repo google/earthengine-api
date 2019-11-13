@@ -10,6 +10,7 @@ goog.require('ee.ComputedObject');
 goog.require('ee.Image');
 goog.require('ee.List');
 goog.require('ee.Types');
+goog.require('ee.apiclient');
 goog.require('ee.arguments');
 goog.require('ee.data');
 goog.require('ee.data.images');
@@ -107,6 +108,152 @@ ee.ImageCollection.initialize = function() {
 ee.ImageCollection.reset = function() {
   ee.ApiFunction.clearApi(ee.ImageCollection);
   ee.ImageCollection.initialized_ = false;
+};
+
+
+/**
+ * Get the URL of a tiled thumbnail for this ImageCollection.
+ * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
+ * optionally:
+ *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
+ *         dimensions of each thumbnail frame to render, in pixels. If only one
+ *         number is passed, it is used as the maximum, and the other
+ *         dimension is computed by proportional scaling.
+ *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
+ *         to render. By default, the whole image.
+ *   - format (string) Encoding format. Only 'png' or 'jpg' are accepted.
+ * @param {function(string, string=)=} opt_callback An optional
+ *     callback which handles the resulting URL string. If not supplied, the
+ *     call is made synchronously.
+ * @return {string|undefined} A thumbnail URL, or undefined if a callback
+ *     was specified.
+ * @export
+ */
+ee.ImageCollection.prototype.getFilmstripThumbURL = function(params, opt_callback) {
+  const args = ee.arguments.extractFromFunction(
+      ee.ImageCollection.prototype.getFilmstripThumbURL, arguments);
+  return ee.ImageCollection.prototype.getThumbURL_(
+      this, args, ['png', 'jpg', 'jpeg'],
+      ee.ImageCollection.ThumbTypes.FILMSTRIP, opt_callback);
+};
+
+
+/**
+ * Get the URL of an animated thumbnail for this ImageCollection.
+ * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
+ * optionally:
+ *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
+ *         dimensions of the thumbnail to render, in pixels. If only one
+ *         number is passed, it is used as the maximum, and the other
+ *         dimension is computed by proportional scaling.
+ *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
+ *         to render. By default, the whole image.
+ *   - format (string) Encoding format. Only 'gif' is accepted.
+ *   - framesPerSecond (number) Animation speed.
+ * @param {function(string, string=)=} opt_callback An optional
+ *     callback which handles the resulting URL string. If not supplied, the
+ *     call is made synchronously.
+ * @return {string|undefined} A thumbnail URL, or undefined if a callback
+ *     was specified.
+ * @export
+ */
+ee.ImageCollection.prototype.getVideoThumbURL = function(params, opt_callback) {
+  const args = ee.arguments.extractFromFunction(
+      ee.ImageCollection.prototype.getVideoThumbURL, arguments);
+  return ee.ImageCollection.prototype.getThumbURL_(
+      this, args, ['gif'], ee.ImageCollection.ThumbTypes.VIDEO, opt_callback);
+};
+
+/**
+ * Valid thumbnail types.
+ * @enum {string}
+ */
+ee.ImageCollection.ThumbTypes = {
+  FILMSTRIP: 'filmstrip',
+  VIDEO: 'video',
+  IMAGE: 'image',
+};
+
+/**
+ * Get a thumbnail URL for this image.
+ * @param {!ee.ImageCollection} collection The collection to export.
+ * @param {!Object} args Visualization arguments.
+ * @param {!Array<string>} validFormats A nonempty list of valid formats.
+ * @param {!ee.ImageCollection.ThumbTypes=} opt_thumbType The type of
+ *     thumbnail.
+ * @param {function(string, string=)=} opt_callback An optional
+ *     callback which handles the resulting URL string. If not supplied, the
+ *     call is made synchronously.
+ * @return {string|undefined} A thumbnail URL, or undefined if a callback
+ *     was specified.
+ * @private
+ */
+ee.ImageCollection.prototype.getThumbURL_ = function(
+    collection, args, validFormats, opt_thumbType, opt_callback) {
+  const extraParams = {};
+  const clippedCollection = collection.map(
+      (image) => {
+        const projected = ee.data.images.applyCrsAndTransform(
+            /** @type {!ee.Image} */ (image), args['params']);
+        const scaled = ee.data.images.applySelectionAndScale(
+            projected, args['params'], extraParams);
+        return scaled;
+      });
+
+  /** @type {!ee.data.ThumbnailOptions} */
+  const request = {};
+  const visParams = ee.data.images.extractVisParams(extraParams, request);
+
+  request.imageCollection =
+      /** @type {!ee.ImageCollection} */ (clippedCollection.map((image) => {
+        visParams.image = /** @type {!ee.Image} */ (image);
+        return ee.ApiFunction._apply('Image.visualize', visParams);
+      }));
+  if (args['params']['dimensions'] != null) {
+    request.dimensions = args['params']['dimensions'];
+  }
+  // Only allow valid formats, using the first of `validFormats` as a default.
+  // The server may support other formats.
+  // TODO(user): remove this once separate backend endpoints do this check.
+  if (request.format) {
+    const matchesRequest = (format) => goog.string.caseInsensitiveEquals(
+        format, /** @type {string} */ (request.format));
+    if (!goog.array.some(validFormats, matchesRequest)) {
+      throw Error('Invalid format specified.');
+    }
+  } else {
+    request.format = validFormats[0];
+  }
+
+  let getThumbId = ee.data.getThumbId;
+  if (ee.apiclient.getCloudApiEnabled()) {
+    switch (opt_thumbType) {
+      case ee.ImageCollection.ThumbTypes.VIDEO:
+        getThumbId = ee.data.getVideoThumbId;
+        break;
+      case ee.ImageCollection.ThumbTypes.FILMSTRIP:
+        getThumbId = ee.data.getFilmstripThumbId;
+        break;
+    }
+  }
+
+  if (args['callback']) {
+    const callbackWrapper = function(thumbId, opt_error) {
+      let thumbUrl = '';
+      if (opt_error === undefined) {
+        try {
+          thumbUrl = ee.data.makeThumbUrl(thumbId);
+        } catch (e) {
+          opt_error = String(e.message);
+        }
+      }
+      args['callback'](thumbUrl, opt_error);
+    };
+    getThumbId(request, callbackWrapper);
+  } else {
+    return ee.data.makeThumbUrl(
+        /** @type {!ee.data.ThumbnailId} */ (getThumbId(request)));
+  }
 };
 
 

@@ -6,6 +6,9 @@
 goog.provide('ee.Serializer');
 
 goog.require('ee.Encodable');
+goog.require('ee.api');
+goog.require('ee.apiclient');
+goog.require('ee.rpc_node');
 goog.require('goog.array');
 goog.require('goog.crypt.Md5');
 goog.require('goog.json.Serializer');
@@ -58,6 +61,12 @@ ee.Serializer = function(opt_isCompound) {
    * @private
    */
   this.withHashes_ = [];
+
+  /**
+   * Hashes of all objects known by serialize.
+   * @private
+   */
+  this.hashes_ = new WeakMap();
 };
 // Exporting manually to avoid marking the class public in the docs.
 goog.exportSymbol('ee.Serializer', ee.Serializer);
@@ -265,3 +274,339 @@ ee.Serializer.computeHash = function(obj) {
   return ee.Serializer.hash_.digest().toString();
 };
 
+
+/**
+ * Serializes an object into the JSON-encodable form sent in Cloud API calls.
+ * @param {*} obj The object to Serialize.
+ * @return {!Object} The encoded object.
+ * @export
+ */
+ee.Serializer.encodeCloudApi = function(obj) {
+  return ee.apiclient.serialize(ee.Serializer.encodeCloudApiExpression(obj));
+};
+
+
+/**
+ * Serializes an object into an Expression for Cloud API calls.
+ * @param {*} obj The object to Serialize.
+ * @return {!ee.api.Expression} The encoded object.
+ */
+ee.Serializer.encodeCloudApiExpression = function(obj) {
+  return new ee.Serializer(true).encodeForCloudApi_(obj);
+};
+
+
+/**
+ * Serializes an object to a "pretty" JSON representation, in Cloud API format.
+ * @param {*} obj The object to Serialize.
+ * @return {*} A JSON-compatible structure representing the input.
+ * @export
+ */
+ee.Serializer.encodeCloudApiPretty = function(obj) {
+  const encoded = new ee.Serializer(false).encodeForCloudApi_(obj);
+  const values = encoded.values;
+  // The remaining references are the top-level result, and in function
+  // definitions and invocations.  These violate the Expression type, so we
+  // walk the tree as a raw object and return a raw object.
+  const walkObject = function(object) {
+    if (!goog.isObject(object)) return object;
+    const ret = goog.isArray(object) ? [] : {};
+    const isNode = object instanceof Object.getPrototypeOf(ee.api.ValueNode);
+    const valueTable = isNode ? object.Serializable$values : object;
+    for (const [key, val] of Object.entries(valueTable)) {
+      if (!isNode) {
+        ret[key] = walkObject(val);  // Always walk literal objects.
+      } else if (val === null) {
+        continue;  // Serializable always skips null values.
+      } else if (key === 'functionDefinitionValue' && val.body != null) {
+        ret[key] = {
+          'argumentNames': val.argumentNames,
+          'body': walkObject(values[val.body])
+        };
+      } else if (
+          key === 'functionInvocationValue' && val.functionReference != null) {
+        ret[key] = {
+          'arguments': goog.object.map(val.arguments, walkObject),
+          'functionReference': walkObject(values[val.functionReference])
+        };
+      } else if (key === 'constantValue') {
+        // Do not recurse into constants.
+        ret[key] = val === ee.apiclient.NULL_VALUE ? null : val;
+      } else {
+        ret[key] = walkObject(val);  // Walk other ValueNode subtrees.
+      }
+    }
+    return ret;
+  };
+  return encoded.result && walkObject(values[encoded.result]);
+};
+
+
+/**
+ * Serializes an object to a human-friendly JSON string (if possible), using
+ * the Cloud API representation.
+ * @param {*} obj The object to convert.
+ * @return {string} A human-friendly JSON representation of the input.
+ * @export
+ */
+ee.Serializer.toReadableCloudApiJSON = function(obj) {
+  return ee.Serializer.stringify(ee.Serializer.encodeCloudApiPretty(obj));
+};
+
+
+/**
+ * Encodes a top level object in the EE Cloud API format.
+ *
+ * @param {*} obj The object to encode.
+ * @return {!ee.api.Expression} The encoded object.
+ * @private
+ */
+ee.Serializer.prototype.encodeForCloudApi_ = function(obj) {
+  try {
+    // Encode the object tree, storing each node in the scope table.
+    const result = this.makeCloudApiReference_(obj);
+    // Lift constants, and expand references.
+    return new ExpressionOptimizer(result, this.scope_, this.isCompound_)
+               .optimize();
+  } finally {
+    // Clear state in case of future encoding.
+    this.hashes_ = new WeakMap();
+    this.encoded_ = {};
+    this.scope_ = [];
+  }
+};
+
+
+/**
+ * Encodes an object Cloud API format and returns a reference into this.scope_.
+ *
+ * @param {*} obj The object to encode.
+ * @return {string} A reference to the encoded object.
+ * @private
+ */
+ee.Serializer.prototype.makeCloudApiReference_ = function(obj) {
+  /**
+   * @param {!ee.api.ValueNode} result
+   * @return {string}
+   */
+  const makeRef = (result) => {
+    const hash = ee.Serializer.computeHash(result);
+    if (this.encoded_[hash]) {
+      return this.encoded_[hash];
+    }
+    // We haven't seen this object or one like it yet, so save it.
+    const name = String(this.scope_.length);
+    this.scope_.push([name, result]);
+    this.encoded_[hash] = name;
+    if (goog.isObject(obj)) {
+      this.hashes_.set(obj, hash);
+    }
+    return name;
+  };
+  if (goog.isObject(obj) && this.encoded_[this.hashes_.get(obj)]) {
+    return this.encoded_[this.hashes_.get(obj)];
+  } else if (
+      obj === null || typeof obj === 'boolean' || typeof obj === 'string' ||
+      typeof obj === 'number') {
+    // Do not use integerValue here: the type is inferred on the server. We only
+    // use integerValue when the number cannot be cast into a double, but
+    // JavaScript numbers always fit into doubles.
+    return makeRef(ee.rpc_node.constant(obj));
+  } else if (goog.isDateLike(obj)) {
+    // A raw date slipped through. Wrap it. Calling ee.Date from here would
+    // cause a circular dependency, so we encode it manually.
+    const millis = Math.floor(/** @type {!Date} */(obj).getTime());
+    return makeRef(ee.rpc_node.functionByName(
+        'Date', {'value': ee.rpc_node.constant(millis)}));
+  } else if (obj instanceof ee.Encodable) {
+    // Some objects know how to encode themselves.
+    return makeRef(obj.encodeCloudValue((x) => this.makeCloudApiReference_(x)));
+  } else if (goog.isArray(obj)) {
+    // Convince the type checker that the array is actually an array.
+    const asArray = /** @type {!Array} */(/** @type {*} */(obj));
+    return makeRef(ee.rpc_node.array(asArray.map(
+        (x) => ee.rpc_node.reference(this.makeCloudApiReference_(x)))));
+  } else if (goog.isObject(obj) && !goog.isFunction(obj)) {
+    const asObject = /** @type {!Object} */(/** @type {*} */(obj));
+    /** @type {!Object<string,!ee.api.ValueNode>} */
+    const values = {};
+    // Sort to make the ordering in the scope table deterministic.
+    Object.keys(asObject).sort().forEach((k) => {
+      values[k] = ee.rpc_node.reference(this.makeCloudApiReference_(obj[k]));
+    });
+    return makeRef(ee.rpc_node.dictionary(values));
+  }
+  throw Error('Can\'t encode object: ' + obj);
+};
+
+
+/**
+ * The optimizer walks an expression tree, and "lifts" constant values: for
+ * example, an array of constants becomes a constant array. By default, all
+ * references are expanded; in Compound mode, repeated references are kept as
+ * references.
+ * @private
+ */
+class ExpressionOptimizer {
+  /**
+   * @param {string} rootReference
+   * @param {!Array<!Array<string|!ee.api.ValueNode|?>>} values
+   * @param {boolean} isCompound If true, optimize shared references;
+   *     otherwise, expand all references.
+   */
+  constructor(rootReference, values, isCompound) {
+    /** @type {string} */
+    this.rootReference = rootReference;
+
+    /** @type {!Object<string, !ee.api.ValueNode>} */
+    this.values = {};
+    values.forEach((tuple) => this.values[tuple[0]] = tuple[1]);
+
+    /** @type {?Object<string, number>} */
+    this.referenceCounts = isCompound ? this.countReferences() : null;
+
+    /** @type {!Object<string, !ee.api.ValueNode>} */
+    this.optimizedValues = {};
+
+    /** @type {!Object<string, string>} */
+    this.referenceMap = {};
+
+    /** @type {number} */
+    this.nextMappedRef = 0;
+  }
+
+  /** @return {!ee.api.Expression} */
+  optimize() {
+    const result = this.optimizeReference(this.rootReference);
+    return new ee.api.Expression({
+      result,
+      values: this.optimizedValues,
+    });
+  }
+
+  /**
+   * @param {string} ref
+   * @return {string}
+   */
+  optimizeReference(ref) {
+    if (ref in this.referenceMap) {
+      return this.referenceMap[ref];
+    }
+    const mappedRef = String(this.nextMappedRef++);
+    this.referenceMap[ref] = mappedRef;
+    this.optimizedValues[mappedRef] = this.optimizeValue(this.values[ref], 0);
+    return mappedRef;
+  }
+
+  /**
+   * @param {!ee.api.ValueNode} value
+   * @param {number} depth
+   * @return {!ee.api.ValueNode}
+   */
+  optimizeValue(value, depth) {
+    // Don't generate very deep expressions, as the backend rejects them.
+    // The backend's limit is 100, and we want to stay well away from that
+    // as a few extra levels of wrapping are always added.
+    const DEPTH_LIMIT = 50;
+
+    const isConst = (v) => v.constantValue !== null;
+    const serializeConst = (v) => v === ee.apiclient.NULL_VALUE ? null : v;
+    if (isConst(value) || value.integerValue != null ||
+        value.bytesValue != null || value.argumentReference != null) {
+      return value;
+    } else if (value.valueReference != null) {
+      const val = this.values[value.valueReference];
+
+      if (this.referenceCounts === null || (depth < DEPTH_LIMIT &&
+          this.referenceCounts[value.valueReference] === 1)) {
+        return this.optimizeValue(val, depth);
+      } else if (ExpressionOptimizer.isAlwaysLiftable(val)) {
+        return val;
+      } else {
+        return ee.rpc_node.reference(
+            this.optimizeReference(value.valueReference));
+      }
+    } else if (value.arrayValue != null) {
+      const arr = value.arrayValue.values.map(
+          v => this.optimizeValue(v, depth + 3));
+      return arr.every(isConst)
+          ? ee.rpc_node.constant(arr.map(v => serializeConst(v.constantValue)))
+          : ee.rpc_node.array(arr);
+    } else if (value.dictionaryValue != null) {
+      const values = {};
+      let constantValues = {};
+      for (const [k, v] of Object.entries(value.dictionaryValue.values || {})) {
+        values[k] = this.optimizeValue(
+            /** @type {!ee.api.ValueNode} */(v), depth + 3);
+        if (constantValues !== null && isConst(values[k])) {
+          constantValues[k] = serializeConst(values[k].constantValue);
+        } else {
+          constantValues = null;
+        }
+      }
+      return constantValues !== null
+          ? ee.rpc_node.constant(constantValues)
+          : ee.rpc_node.dictionary(values);
+    } else if (value.functionDefinitionValue != null) {
+      const def = value.functionDefinitionValue;
+      return ee.rpc_node.functionDefinition(
+          def.argumentNames || [], this.optimizeReference(def.body || ''));
+    } else if (value.functionInvocationValue != null) {
+      const inv = value.functionInvocationValue;
+      const args = {};
+      for (const k of Object.keys(inv.arguments || {})) {
+        args[k] = this.optimizeValue(inv.arguments[k], depth + 3);
+      }
+      return inv.functionName
+          ? ee.rpc_node.functionByName(inv.functionName, args)
+          : ee.rpc_node.functionByReference(
+              this.optimizeReference(inv.functionReference || ''), args);
+    }
+    throw Error('Can\'t optimize value: ' + value);
+  }
+
+  /**
+   * @param {!ee.api.ValueNode} value
+   * @return {boolean}
+   */
+  static isAlwaysLiftable(value) {
+    const constant = value.constantValue;
+    if (constant !== null) {
+      return constant === ee.apiclient.NULL_VALUE ||
+          typeof constant === 'number' || typeof constant === 'boolean';
+    }
+    return value.argumentReference != null;
+  };
+
+  /** @return {!Object<string,number>} counts for each reference in the tree. */
+  countReferences() {
+    const counts = {};
+    const visitReference = (reference) => {
+      if (counts[reference]) {
+        counts[reference]++;
+      } else {
+        counts[reference] = 1;
+        visitValue(this.values[reference]);
+      }
+    };
+    const visitValue = (value) => {
+      if (value.arrayValue != null) {
+        value.arrayValue.values.forEach(visitValue);
+      } else if (value.dictionaryValue != null) {
+        Object.values(value.dictionaryValue.values).forEach(visitValue);
+      } else if (value.functionDefinitionValue != null) {
+        visitReference(value.functionDefinitionValue.body);
+      } else if (value.functionInvocationValue != null) {
+        const inv = value.functionInvocationValue;
+        if (inv.functionReference != null) {
+          visitReference(inv.functionReference);
+        }
+        Object.values(inv.arguments).forEach(visitValue);
+      } else if (value.valueReference != null) {
+        visitReference(value.valueReference);
+      }
+    };
+    visitReference(this.rootReference);
+    return counts;
+  }
+}

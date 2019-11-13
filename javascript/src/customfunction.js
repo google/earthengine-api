@@ -10,6 +10,7 @@ goog.require('ee.Number');
 goog.require('ee.Serializer');
 goog.require('ee.String');
 goog.require('ee.Types');
+goog.require('ee.rpc_node');
 goog.require('goog.array');
 goog.require('goog.object');
 
@@ -75,6 +76,19 @@ ee.CustomFunction.prototype.encode = function(encoder) {
         this.signature_['args'], function(arg) { return arg['name']; }),
     'body': encoder(this.body_)
   };
+};
+
+
+/** @override */
+ee.CustomFunction.prototype.encodeCloudValue = function(encoder) {
+  return ee.rpc_node.functionDefinition(
+      this.signature_['args'].map(arg => arg['name']), encoder(this.body_));
+};
+
+
+/** @override */
+ee.CustomFunction.prototype.encodeCloudInvocation = function(encoder, args) {
+  return ee.rpc_node.functionByReference(encoder(this), args);
 };
 
 

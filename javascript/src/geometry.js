@@ -626,6 +626,51 @@ ee.Geometry.prototype.toString = function() {
 };
 
 
+/** @override */
+ee.Geometry.prototype.encodeCloudValue = function(opt_encoder) {
+  if (!this.type_) {
+    // This is not a concrete Geometry.
+    if (!opt_encoder) {
+      throw Error('Must specify an encode function when encoding a ' +
+                  'computed geometry.');
+    }
+    return ee.ComputedObject.prototype.encodeCloudValue.call(this, opt_encoder);
+  }
+
+  const args = {};
+  let func = '';
+  if (this.type_ === 'GeometryCollection') {
+    // Since there is no GeometryCollection constructor API function, we use the
+    // MultiGeometry constructor instead. However, the geometries argument
+    // expects a list of ee.Geometry objects and not GeoJSON, hence the map.
+    args['geometries'] =
+        this.geometries_.map(geometry => new ee.Geometry(geometry));
+    func = 'GeometryConstructors.MultiGeometry';
+  } else {
+    args['coordinates'] = this.coordinates_;
+    func = 'GeometryConstructors.' + this.type_;
+  }
+
+  if (this.proj_ != null) {
+    args['crs'] = (typeof this.proj_ === 'string') ?
+        new ee.ApiFunction('Projection').call(this.proj_) :
+        this.proj_;
+  }
+
+  const acceptsGeodesicArg =
+      this.type_ !== 'Point' && this.type_ !== 'MultiPoint';
+
+  if (this.geodesic_ != null && acceptsGeodesicArg) {
+    args['geodesic'] = this.geodesic_;
+  }
+
+  if (this.evenOdd_ != null) {
+    args['evenOdd'] = this.evenOdd_;
+  }
+  return new ee.ApiFunction(func).apply(args).encodeCloudValue(opt_encoder);
+};
+
+
 ////////////////////////////////////////////////////////////////////////////////
 //                              Implementation.                               //
 ////////////////////////////////////////////////////////////////////////////////

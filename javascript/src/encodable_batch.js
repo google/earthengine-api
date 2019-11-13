@@ -1,0 +1,610 @@
+/**
+ * @fileoverview Helper functions for converting Legacy batch task objects into
+ * Cloud API objects.
+ */
+goog.provide('ee.rpc_convert_batch');
+
+goog.require('ee.Serializer');
+goog.require('ee.api');
+goog.require('ee.rpc_convert');
+goog.require('goog.object');
+
+
+/**
+ * Possible legacy export destinations.
+ * TODO(user): Remove duplicate the ExportDestination enum.
+ *
+ * @enum {string} The destination of the export.
+ */
+ee.rpc_convert_batch.ExportDestination = {
+  DRIVE: 'DRIVE',
+  GCS: 'GOOGLE_CLOUD_STORAGE',
+  ASSET: 'ASSET',
+};
+
+
+/**
+ * Converts a legacy ExportParameters into an Cloud API ExportImageRequest.
+ *
+ * @param {!Object} params A parameter list representing a ExportParameters
+ * taken from an export TaskConfig.
+ * @return {!ee.api.ExportImageRequest}
+ */
+ee.rpc_convert_batch.taskToExportImageRequest = function(params) {
+  if (params['element'] == null) {
+    throw new Error(`"element" not found in params ${params}`);
+  }
+  const result = new ee.api.ExportImageRequest({
+    expression: ee.Serializer.encodeCloudApiExpression(params['element']),
+    description: stringOrNull_(params['description']),
+    fileExportOptions: null,
+    assetExportOptions: null,
+    grid: null,
+    // Int64s are encoded as strings.
+    maxPixels: stringOrNull_(params['maxPixels']),
+    requestId: stringOrNull_(params['id']),
+  });
+
+  const destination = ee.rpc_convert_batch.guessDestination_(params);
+  switch (destination) {
+    case ee.rpc_convert_batch.ExportDestination.GCS:
+    case ee.rpc_convert_batch.ExportDestination.DRIVE:
+      result.fileExportOptions =
+          ee.rpc_convert_batch.buildImageFileExportOptions_(
+              params, destination);
+      break;
+    case ee.rpc_convert_batch.ExportDestination.ASSET:
+      result.assetExportOptions =
+          ee.rpc_convert_batch.buildImageAssetExportOptions_(params);
+      break;
+    default:
+      throw new Error(`Export destination "${destination}" unknown`);
+  }
+  return result;
+};
+
+
+/**
+ * Converts a legacy ExportParameters into an Cloud API ExportTableRequest.
+ *
+ * @param {!Object} params A parameter list representing a ExportParameters
+ *     taken from an export TaskConfig.
+ * @return {!ee.api.ExportTableRequest}
+ */
+ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
+  if (params['element'] == null) {
+    throw new Error(`"element" not found in params ${params}`);
+  }
+  let selectors = params['selectors'] || null;
+  if (selectors != null) {
+    if (typeof selectors === 'string') {
+      selectors = selectors.split(',');
+    }
+  }
+  const result = new ee.api.ExportTableRequest({
+    expression: ee.Serializer.encodeCloudApiExpression(params['element']),
+    description: stringOrNull_(params['description']),
+    fileExportOptions: null,
+    assetExportOptions: null,
+    selectors: /** @type {?Array<string>} */ (selectors),
+    maxErrorMeters: numberOrNull_(params['maxErrorMeters']),
+    requestId: stringOrNull_(params['id']),
+  });
+
+  const destination = ee.rpc_convert_batch.guessDestination_(params);
+  switch (destination) {
+    case ee.rpc_convert_batch.ExportDestination.GCS:
+    case ee.rpc_convert_batch.ExportDestination.DRIVE:
+      result.fileExportOptions =
+          ee.rpc_convert_batch.buildTableFileExportOptions_(
+              params, destination);
+      break;
+    case ee.rpc_convert_batch.ExportDestination.ASSET:
+      result.assetExportOptions =
+          ee.rpc_convert_batch.buildTableAssetExportOptions_(params);
+      break;
+    default:
+      throw new Error(`Export destination "${destination}" unknown`);
+  }
+  return result;
+};
+
+
+/**
+ * Converts a legacy ExportParameters into an Cloud API ExportVideoRequest.
+ *
+ * @param {!Object} params A parameter list representing a ExportParameters
+ * taken from an export TaskConfig.
+ * @return {!ee.api.ExportVideoRequest}
+ */
+ee.rpc_convert_batch.taskToExportVideoRequest = function(params) {
+  if (params['element'] == null) {
+    throw new Error(`"element" not found in params ${params}`);
+  }
+  const result = new ee.api.ExportVideoRequest({
+    expression: ee.Serializer.encodeCloudApiExpression(params['element']),
+    description: stringOrNull_(params['description']),
+    videoOptions: ee.rpc_convert_batch.buildVideoOptions_(params),
+    fileExportOptions: null,
+    requestId: stringOrNull_(params['id']),
+  });
+
+  const destination = ee.rpc_convert_batch.guessDestination_(params);
+  result.fileExportOptions =
+      ee.rpc_convert_batch.buildVideoFileExportOptions_(params, destination);
+  return result;
+};
+
+
+/**
+ * Converts a legacy ExportParameters into an Cloud API ExportMapRequest.
+ *
+ * @param {!Object} params A parameter list representing a ExportParameters
+ * taken from an export TaskConfig.
+ * @return {!ee.api.ExportMapRequest}
+ */
+ee.rpc_convert_batch.taskToExportMapRequest = function(params) {
+  if (params['element'] == null) {
+    throw new Error(`"element" not found in params ${params}`);
+  }
+  return new ee.api.ExportMapRequest({
+    expression: ee.Serializer.encodeCloudApiExpression(params['element']),
+    description: stringOrNull_(params['description']),
+    tileOptions: ee.rpc_convert_batch.buildTileOptions_(params),
+    tileExportOptions: ee.rpc_convert_batch.buildImageFileExportOptions_(
+        // Only Export to cloud storage is allow currently.
+        params, ee.rpc_convert_batch.ExportDestination.GCS),
+    requestId: stringOrNull_(params['id']),
+  });
+};
+
+
+/**
+ * Converts a legacy ExportParameters into an Cloud API ExportVideoMapRequest.
+ *
+ * @param {!Object} params A parameter list representing a ExportParameters
+ * taken from an export TaskConfig.
+ * @return {!ee.api.ExportVideoMapRequest}
+ */
+ee.rpc_convert_batch.taskToExportVideoMapRequest = function(params) {
+  if (params['element'] == null) {
+    throw new Error(`"element" not found in params ${params}`);
+  }
+  return new ee.api.ExportVideoMapRequest({
+    expression: ee.Serializer.encodeCloudApiExpression(params['element']),
+    description: stringOrNull_(params['description']),
+    videoOptions: ee.rpc_convert_batch.buildVideoMapOptions_(params),
+    tileOptions: ee.rpc_convert_batch.buildTileOptions_(params),
+    tileExportOptions: ee.rpc_convert_batch.buildVideoFileExportOptions_(
+        params, ee.rpc_convert_batch.ExportDestination.GCS),
+    requestId: stringOrNull_(params['id']),
+    version: stringOrNull_(params['version']),
+  });
+};
+
+
+/**
+ * @param {*} value
+ * @return {string|null}
+ * @private
+ */
+function stringOrNull_(value) {
+  if (value != null) {
+    return String(value);
+  }
+  return null;
+}
+
+
+/**
+ * @param {*} value
+ * @return {number|null}
+ * @private
+ */
+function numberOrNull_(value) {
+  if (value != null) {
+    return Number(value);
+  }
+  return null;
+}
+
+
+/**
+ * Guesses an export destination from the ExportParameters object.
+ * @param {?Object|undefined} params ExportParamaters
+ * ({@see earthengine.service.batch.batch_task_parameters.proto}).
+ * @return {string}
+ * @private
+ * #visibleForTesting
+ */
+ee.rpc_convert_batch.guessDestination_ = function(params) {
+  let destination = ee.rpc_convert_batch.ExportDestination.DRIVE;
+  // Default destination if no params are present.
+  if (params == null) {
+    return destination;
+  }
+  if ((params['outputBucket'] != null || params['outputPrefix'] != null)) {
+    destination = ee.rpc_convert_batch.ExportDestination.GCS;
+  } else if (params['assetId'] != null) {
+    destination = ee.rpc_convert_batch.ExportDestination.ASSET;
+  }
+  return destination;
+};
+
+
+/**
+ * @param {!Object} params An ExportParameters parameter list
+ *     which contains format-specific prefix options.
+ * @return {!ee.api.GeoTiffImageExportOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
+  if (params['fileDimensions'] && params['tiffFileDimensions']) {
+    throw new Error(
+        'Export cannot set both "fileDimensions" and "tiffFileDimensions".');
+  }
+  const fileDimensions =
+      params['fileDimensions'] || params['tiffFileDimensions'];
+  return new ee.api.GeoTiffImageExportOptions({
+    cloudOptimized: Boolean(params['tiffCloudOptimized']),
+    skipEmptyFiles: Boolean(params['tiffSkipEmptyFiles']),
+    tileDimensions: ee.rpc_convert_batch.buildGridDimensions_(fileDimensions),
+  });
+};
+
+
+/**
+ * @param {!Object} params An ExportParameters parameter list
+ *     which contains format-specific prefix options.
+ * @return {!ee.api.TfRecordImageExportOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildTfRecordFormatOptions_ = function(params) {
+  const tfRecordOptions = new ee.api.TfRecordImageExportOptions({
+    compress: Boolean(params['tfrecordCompressed']),
+    maxSizeBytes: stringOrNull_(params['tfrecordMaxFileSize']),
+    sequenceData: Boolean(params['tfrecordSequenceData']),
+    collapseBands: Boolean(params['tfrecordCollapseBands']),
+    maxMaskedRatio: numberOrNull_(params['tfrecordMaskedThreshold']),
+    defaultValue: numberOrNull_(params['tfrecordDefaultValue']),
+    tileDimensions: ee.rpc_convert_batch.buildGridDimensions_(
+        params['tfrecordPatchDimensions']),
+    marginDimensions:
+        ee.rpc_convert_batch.buildGridDimensions_(params['tfrecordKernelSize']),
+    tensorDepths: null,
+  });
+  /* Tensor depths is tricky since the old api supported a flat array
+   * whereas the new api expects a map.  Do a check at runtime to
+   * make sure that the map (or flat array) has numbers for all it's values.
+   */
+  const tensorDepths = params['tfrecordTensorDepths'];
+  if (tensorDepths != null) {
+    if (goog.isObject(tensorDepths)) {
+      const result = {};
+      const addTensorDepthsOption = (v, k) => {
+        if (typeof k !== 'string' || typeof v !== 'number') {
+          throw new Error(
+              '"tensorDepths" option must be an object of' +
+              ' type Object<string, number>');
+        }
+        result[k] = v;
+      };
+      goog.object.forEach(tensorDepths, addTensorDepthsOption);
+      tfRecordOptions.tensorDepths = result;
+    } else {
+      throw new Error(
+          '"tensorDepths" option needs to have the form' +
+          ' Object<string, number>.');
+    }
+  }
+  return tfRecordOptions;
+};
+
+
+/**
+ * Returns an ImageFileExportOptions built from ExportParameters.
+ *
+ * @param {!Object} params
+ * @param {string} destination
+ * @return {!ee.api.ImageFileExportOptions}
+ * @private
+ * #visibleForTesting
+ */
+ee.rpc_convert_batch.buildImageFileExportOptions_ = function(
+    params, destination) {
+  const result = new ee.api.ImageFileExportOptions({
+    gcsDestination: null,
+    driveDestination: null,
+    geoTiffOptions: null,
+    tfRecordOptions: null,
+    fileFormat: ee.rpc_convert.fileFormat(params['fileFormat']),
+  });
+
+  // If there are format-specific options pull them into the file options.
+  if (result.fileFormat === 'GEO_TIFF') {
+    result.geoTiffOptions =
+        ee.rpc_convert_batch.buildGeoTiffFormatOptions_(params);
+  } else if (result.fileFormat === 'TF_RECORD_IMAGE') {
+    result.tfRecordOptions =
+        ee.rpc_convert_batch.buildTfRecordFormatOptions_(params);
+  }
+
+  if (destination === ee.rpc_convert_batch.ExportDestination.GCS) {
+    result.gcsDestination =
+        ee.rpc_convert_batch.buildGcsDestination_(params);
+    // Drive is default.
+  } else {
+    result.driveDestination =
+        ee.rpc_convert_batch.buildDriveDestination_(params);
+  }
+  return result;
+};
+
+
+/**
+ * Returns a ImageAssetExportOptions built from the original task config.
+ *
+ * @param {!Object} params An ExportParameters parameter list
+ *     which contains format-specific prefix options.
+ * @return {!ee.api.ImageAssetExportOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildImageAssetExportOptions_ = function(params) {
+  let allPolicies = params['pyramidingPolicy'] || {};
+  try {
+    // The Code Editor passes a legacy JSON encoding.
+    allPolicies = /** @type {?} */ (JSON.parse(allPolicies));
+  } catch {}
+  let defaultPyramidingPolicy = 'PYRAMIDING_POLICY_UNSPECIFIED';
+  if (typeof allPolicies === 'string') {
+    defaultPyramidingPolicy = allPolicies;
+    allPolicies = {};
+  } else if (allPolicies['.default']) {
+    defaultPyramidingPolicy = allPolicies['.default'];
+    delete allPolicies['.default'];
+  }
+  return new ee.api.ImageAssetExportOptions({
+    earthEngineDestination:
+        ee.rpc_convert_batch.buildEarthEngineDestination_(params),
+    pyramidingPolicy: defaultPyramidingPolicy,
+    pyramidingPolicyOverrides:
+        goog.object.isEmpty(allPolicies) ? null : allPolicies,
+  });
+};
+
+
+/**
+ * Returns an TableFileExportOptions built from ExportParameters.
+ *
+ * @param {!Object} params
+ * @param {string} destination
+ * @return {!ee.api.TableFileExportOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildTableFileExportOptions_ = function(
+    params, destination) {
+  const result = new ee.api.TableFileExportOptions({
+    gcsDestination: null,
+    driveDestination: null,
+    fileFormat: ee.rpc_convert.tableFileFormat(params['fileFormat']),
+  });
+
+  if (destination === ee.rpc_convert_batch.ExportDestination.GCS) {
+    result.gcsDestination =
+        ee.rpc_convert_batch.buildGcsDestination_(params);
+    // Drive is default.
+  } else {
+    result.driveDestination =
+        ee.rpc_convert_batch.buildDriveDestination_(params);
+  }
+  return result;
+};
+
+
+/**
+ * Returns a TableAssetExportOptions built from the original task config.
+ *
+ * @param {!Object} params An ExportParameters parameter list
+ *     which contains format-specific prefix options.
+ * @return {!ee.api.TableAssetExportOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildTableAssetExportOptions_ = function(params) {
+  return new ee.api.TableAssetExportOptions({
+    earthEngineDestination:
+        ee.rpc_convert_batch.buildEarthEngineDestination_(params)
+  });
+};
+
+
+/**
+ * Returns a VideoFileExportOptions built from ExportParameters.
+ *
+ * @param {!Object} params
+ * @param {string} destination
+ * @return {!ee.api.VideoFileExportOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildVideoFileExportOptions_ = function(
+    params, destination) {
+  const result = new ee.api.VideoFileExportOptions({
+    gcsDestination: null,
+    driveDestination: null,
+    // Currently MP4 is the only supported video format.
+    fileFormat: 'MP4',
+  });
+
+  if (destination === ee.rpc_convert_batch.ExportDestination.GCS) {
+    result.gcsDestination =
+        ee.rpc_convert_batch.buildGcsDestination_(params);
+  } else {
+    result.driveDestination =
+        ee.rpc_convert_batch.buildDriveDestination_(params);
+  }
+  return result;
+};
+
+/**
+ * Returns a VideoOptions built from ExportParameters.
+ * @param {!Object} params
+ * @return {!ee.api.VideoOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildVideoOptions_ = function(params) {
+  return new ee.api.VideoOptions({
+    framesPerSecond: numberOrNull_(params['framesPerSecond']),
+    maxFrames: numberOrNull_(params['maxFrames']),
+    maxPixelsPerFrame: stringOrNull_(params['maxPixels']),
+  });
+};
+
+
+/**
+ * Returns a VideoOptions built from ExportParameters suitable for video map
+ * exports.
+ * @param {!Object} params
+ * @return {!ee.api.VideoOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildVideoMapOptions_ = function(params) {
+  return new ee.api.VideoOptions({
+    framesPerSecond: numberOrNull_(params['framesPerSecond']),
+    maxFrames: numberOrNull_(params['maxFrames']),
+    maxPixelsPerFrame: null,
+  });
+};
+
+
+/**
+ * Returns a TileOptions built from ExportParameters.
+ * @param {!Object} params
+ * @return {!ee.api.TileOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildTileOptions_ = function(params) {
+  return new ee.api.TileOptions({
+    maxZoom: numberOrNull_(params['maxZoom']),
+    scale: numberOrNull_(params['scale']),
+    minZoom: numberOrNull_(params['minZoom']),
+    skipEmptyTiles: Boolean(params['skipEmptyTiles']),
+    mapsApiKey: stringOrNull_(params['mapsApiKey']),
+    tileDimensions:
+        ee.rpc_convert_batch.buildGridDimensions_(params['tileDimensions']),
+    stride: numberOrNull_(params['stride']),
+    zoomSubset: ee.rpc_convert_batch.buildZoomSubset_(
+        numberOrNull_(params['minTimeMachineZoomSubset']),
+        numberOrNull_(params['maxTimeMachineZoomSubset'])),
+  });
+};
+
+
+/**
+ * Returns a ZoomSubset created from an object, or possibly null if no subset
+ * parameters are provided.
+ *
+ * @param {number|null} min
+ * @param {number|null} max
+ * @return {?ee.api.ZoomSubset}
+ * @private
+ */
+ee.rpc_convert_batch.buildZoomSubset_ = function(min, max) {
+  if (min == null && max == null) {
+    return null;
+  }
+  const result = new ee.api.ZoomSubset({min: 0, max: null});
+  if (min != null) {
+    result.min = min;
+  }
+  result.max = max;
+  return result;
+};
+
+
+/**
+ * Returns a GridDimensions created from an array, string or object, or possibly
+ * null if no dimensions are provided.
+ *
+ * @param {number|string|!Array<number>|!Object<string, number>|undefined}
+ *     dimensions
+ * @return {?ee.api.GridDimensions}
+ * @private
+ */
+ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
+  if (dimensions == null) {
+    return null;
+  }
+  const result = new ee.api.GridDimensions({height: 0, width: 0});
+  if (typeof dimensions === 'string') {
+    if (dimensions.indexOf('x') !== -1) {
+      dimensions = dimensions.split('x').map(Number);
+    } else if (dimensions.indexOf(',') !== -1) {
+      dimensions = dimensions.split(',').map(Number);
+    }
+  }
+  if (goog.isArray(dimensions)) {
+    if (dimensions.length === 2) {
+      result.height = dimensions[0];
+      result.width = dimensions[1];
+    } else if (dimensions.length === 1) {
+      result.height = dimensions[0];
+      result.width = dimensions[0];
+    } else {
+      throw new Error(
+          `Unable to construct grid from dimensions: ${dimensions}`);
+    }
+  } else if (goog.isNumber(dimensions) && !isNaN(dimensions)) {
+    result.height = dimensions;
+    result.width = dimensions;
+  } else if (
+      goog.isObject(dimensions) && dimensions['height'] != null &&
+      dimensions['width'] != null) {
+    result.height = dimensions['height'];
+    result.width = dimensions['width'];
+  } else {
+    throw new Error(`Unable to construct grid from dimensions: ${dimensions}`);
+  }
+  return result;
+};
+
+
+/**
+ * @param {!Object} params
+ * @return {!ee.api.GcsDestination}
+ * @private
+ */
+ee.rpc_convert_batch.buildGcsDestination_ = function(params) {
+  let permissions = null;
+  if (params['writePublicTiles'] != null) {
+    permissions = params['writePublicTiles'] ? 'PUBLIC' : 'DEFAULT_OBJECT_ACL';
+  }
+  return new ee.api.GcsDestination({
+    bucket: stringOrNull_(params['outputBucket']),
+    filenamePrefix: stringOrNull_(params['outputPrefix']),
+    bucketCorsUris: params['bucketCorsUris'] || null,
+    permissions: permissions,
+  });
+};
+
+
+/**
+ * @param {!Object} params An ExportParameters parameter list.
+ * @return {!ee.api.DriveDestination}
+ * @private
+ */
+ee.rpc_convert_batch.buildDriveDestination_ = function(params) {
+  return new ee.api.DriveDestination({
+    folder: stringOrNull_(params['driveFolder']),
+    filenamePrefix: stringOrNull_(params['driveFileNamePrefix']),
+  });
+};
+
+
+/**
+ * @param {!Object} params  An ExportParameters parameter list.
+ * @return {!ee.api.EarthEngineDestination}
+ * @private
+ */
+ee.rpc_convert_batch.buildEarthEngineDestination_ = function(params) {
+  return new ee.api.EarthEngineDestination(
+      {name: ee.rpc_convert.assetIdToAssetName(params['assetId'])});
+};

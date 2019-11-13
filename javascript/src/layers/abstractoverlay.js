@@ -19,6 +19,9 @@ goog.require('goog.structs.Map');
 goog.require('goog.style');
 
 goog.forwardDeclare('ee.data.Profiler');
+goog.forwardDeclare('ee.data.getCloudApiEnabled');
+goog.forwardDeclare('ee.data.PROFILE_REQUEST_HEADER');
+
 
 
 /**
@@ -530,6 +533,11 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
   this.xhrIo_.listenOnce(
       goog.net.EventType.READY, goog.partial(goog.dispose, this.xhrIo_));
 
+  if (this.sourceUrl && this.sourceUrl.endsWith('&profiling=1') &&
+      ee.data.getCloudApiEnabled()) {
+    this.sourceUrl = this.sourceUrl.replace('&profiling=1', '');
+    this.xhrIo_.headers.set(ee.data.PROFILE_REQUEST_HEADER, '1');
+  }
   this.xhrIo_.send(this.sourceUrl, 'GET');
 };
 

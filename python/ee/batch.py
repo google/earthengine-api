@@ -867,6 +867,10 @@ def _prepare_image_export_config(image, config, export_destination):
       asset_export_options = {}
       asset_export_options[
           'earthEngineDestination'] = _build_earth_engine_destination(config)
+      # This can only be set by internal users.
+      if 'tileSize' in config:
+        asset_export_options['tileSize'] = {
+            'value': int(config.pop('tileSize'))}
       if 'pyramidingPolicy' in config:
         pyramiding_policy = config.pop('pyramidingPolicy')
         if '.default' in pyramiding_policy:
@@ -886,6 +890,10 @@ def _prepare_image_export_config(image, config, export_destination):
       # This field is an Int64Value, so it needs an inner "value" field, and
       # the value itself is a string, not an integer, in the JSON encoding.
       request['maxPixels'] = {'value': str(config.pop('maxPixels'))}
+
+    # This can only be set by internal users.
+    if 'maxWorkers' in config:
+      request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
 
     # Of the remaining fields in ExportImageRequest:
     # - All the values that would go into the PixelGrid should have been folded

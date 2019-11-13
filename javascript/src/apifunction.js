@@ -18,6 +18,7 @@ goog.require('ee.ComputedObject');
 goog.require('ee.Function');
 goog.require('ee.Types');
 goog.require('ee.data');
+goog.require('ee.rpc_node');
 goog.require('goog.object');
 
 
@@ -85,6 +86,12 @@ ee.ApiFunction._apply = function(name, namedArgs) {
 /** @override */
 ee.ApiFunction.prototype.encode = function(encoder) {
   return this.signature_['name'];
+};
+
+
+/** @override */
+ee.ApiFunction.prototype.encodeCloudInvocation = function(encoder, args) {
+  return ee.rpc_node.functionByName(this.signature_['name'], args);
 };
 
 

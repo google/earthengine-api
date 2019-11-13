@@ -254,7 +254,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
         'json': config['image'].serialize(),
         'description': 'myExportImageTask',
         'assetId': config['assetId'],
-        'pyramidingPolicy': json.dumps(config['pyramidingPolicy'])
+        'pyramidingPolicy': json.dumps(config['pyramidingPolicy']),
     }, task_keyed.config)
 
     task_ordered = ee.batch.Export.image.toAsset(
@@ -300,7 +300,12 @@ class BatchTestCase(apitestcase.ApiTestCase):
       }, task_keyed.config)
 
       task_ordered = ee.batch.Export.image.toAsset(
-          config['image'], 'TestDescription', config['assetId'], maxPixels=1000)
+          config['image'],
+          'TestDescription',
+          config['assetId'],
+          maxPixels=1000,
+          maxWorkers=100,
+          tileSize=4)
       self.assertEqual('EXPORT_IMAGE', task_ordered.task_type)
       self.assertEqual('UNSUBMITTED', task_ordered.state)
       self.assertEqual({
@@ -309,10 +314,16 @@ class BatchTestCase(apitestcase.ApiTestCase):
           'assetExportOptions': {
               'earthEngineDestination': {
                   'name': 'projects/earthengine-legacy/assets/users/foo/bar'
+              },
+              'tileSize': {
+                  'value': 4
               }
           },
           'maxPixels': {
               'value': '1000'
+          },
+          'maxWorkerCount': {
+              'value': 100
           }
       }, task_ordered.config)
 

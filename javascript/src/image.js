@@ -15,6 +15,7 @@ goog.require('ee.Types');
 goog.require('ee.arguments');
 goog.require('ee.data');
 goog.require('ee.data.images');
+goog.require('ee.rpc_node');
 goog.require('goog.array');
 goog.require('goog.json');
 goog.require('goog.object');
@@ -265,17 +266,27 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getThumbURL, arguments);
-  const
-  request = ee.data.images.applyVisualization(this, args['params']);
-  if (request['region']) {
-    if (request['region'] instanceof ee.Geometry) {
-      request['region'] = request['region'].toGeoJSON();
-    }
-    if (goog.isArray(request['region']) ||
-        ee.Types.isRegularObject(request['region'])) {
-      request['region'] = goog.json.serialize(request['region']);
-    } else if (typeof request['region'] !== 'string') {
-      throw Error('The region parameter must be an array or a GeoJSON object.');
+  // If the Cloud API is enabled, we can do cleaner handling of the parameters.
+  // If it isn't, we have to be bug-for-bug compatible with current behaviour.
+  let request;
+  if (ee.data.getCloudApiEnabled()) {
+    const extra = {};
+    const image =
+        ee.data.images.applySelectionAndScale(this, args['params'], extra);
+    request = ee.data.images.applyVisualization(image, extra);
+  } else {
+    request = ee.data.images.applyVisualization(this, args['params']);
+    if (request['region']) {
+      if (request['region'] instanceof ee.Geometry) {
+        request['region'] = request['region'].toGeoJSON();
+      }
+      if (goog.isArray(request['region']) ||
+          ee.Types.isRegularObject(request['region'])) {
+        request['region'] = goog.json.serialize(request['region']);
+      } else if (typeof request['region'] !== 'string') {
+        throw Error(
+            'The region parameter must be an array or a GeoJSON object.');
+      }
     }
   }
   if (args['callback']) {
@@ -460,6 +471,11 @@ ee.Image.prototype.expression = function(expression, opt_map) {
   func.encode = function(encoder) {
     return body.encode(encoder);
   };
+
+  func.encodeCloudInvocation = function(encoder, args) {
+    return ee.rpc_node.functionByReference(encoder(body), args);
+  };
+
   /**
    * @this {ee.Function}
    * @return {ee.Function.Signature}

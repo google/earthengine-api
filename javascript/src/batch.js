@@ -10,6 +10,7 @@ goog.require('ee.FeatureCollection');
 goog.require('ee.Geometry');
 goog.require('ee.Image');
 goog.require('ee.ImageCollection');
+goog.require('ee.apiclient');
 goog.require('ee.arguments');
 goog.require('ee.data');
 goog.require('ee.data.ExportDestination');
@@ -365,8 +366,6 @@ ee.batch.Export.video.toDrive = function(
 };
 
 
-
-
 ////////////////////////////////////////////////////////////////////////////////
 //                          Internal validation.                              //
 ////////////////////////////////////////////////////////////////////////////////
@@ -449,13 +448,23 @@ ee.batch.Export.resolveRegionParam = function(params) {
         if (error) {
           reject(error);
         } else {
-          params['region'] = ee.batch.Export.serializeRegion(regionInfo);
+          if (ee.apiclient.getCloudApiEnabled() &&
+              params['type'] === ExportType.IMAGE) {
+            params['region'] = new ee.Geometry(regionInfo);
+          } else {
+            params['region'] = ee.batch.Export.serializeRegion(regionInfo);
+          }
           resolve(params);
         }
       });
     });
   }
-  params['region'] = ee.batch.Export.serializeRegion(region);
+  if (ee.apiclient.getCloudApiEnabled() &&
+      params['type'] === ExportType.IMAGE) {
+    params['region'] = new ee.Geometry(region);
+  } else {
+    params['region'] = ee.batch.Export.serializeRegion(region);
+  }
   return GoogPromise.resolve(params);
 };
 
@@ -704,14 +713,6 @@ ee.batch.ImageFormat = {
   NPY: 'NPY',
   GEO_TIFF: 'GEO_TIFF',
   TF_RECORD_IMAGE: 'TF_RECORD_IMAGE',
-};
-
-/**
- * @enum {string} The valid versions supported by Export.VideoMap.
- */
-ee.batch.VideoMapVersion = {
-  V1: 'V1',
-  V2: 'V2',
 };
 
 

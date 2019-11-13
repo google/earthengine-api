@@ -6,6 +6,7 @@ goog.provide('ee.Number');
 
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
+goog.require('ee.rpc_node');
 
 
 
@@ -81,6 +82,18 @@ ee.Number.prototype.encode = function(encoder) {
     return this.number_;
   } else {
     return ee.Number.base(this, 'encode', encoder);
+  }
+};
+
+
+/**
+ * @override
+ */
+ee.Number.prototype.encodeCloudValue = function(encoder) {
+  if (typeof this.number_ === 'number') {
+    return ee.rpc_node.reference(encoder(this.number_));
+  } else {
+    return ee.Number.base(this, 'encodeCloudValue', encoder);
   }
 };
 

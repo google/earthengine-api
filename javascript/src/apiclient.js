@@ -1,5 +1,5 @@
 /**
- * @fileoverview Wrapper for exports exposed from the TS API Client library.
+ * @fileoverview Client code to connect to the EE API endpoint.
  */
 goog.module('ee.apiclient');
 goog.module.declareLegacyNamespace();
@@ -13,14 +13,415 @@ const XhrLike = goog.requireType('goog.net.XhrLike');
 const XmlHttp = goog.require('goog.net.XmlHttp');
 const api = goog.require('ee.api');
 const array = goog.require('goog.array');
+const domainObjectModule = goog.require('eeapiclient.domain_object');
 const functions = goog.require('goog.functions');
 const googObject = goog.require('goog.object');
 const googString = goog.require('goog.string');
 const jsloader = goog.require('goog.net.jsloader');
-
+const requestParamsModule = goog.require('eeapiclient.request_params');
+const requestServiceModule = goog.require('eeapiclient.promise_request_service');
 
 /** @namespace */
 const apiclient = {};
+
+const {NULL_VALUE, deserialize, serialize, Serializable, SerializableCtor} =
+    domainObjectModule;
+const {MakeRequestParams, processParams} = requestParamsModule;
+const {PromiseRequestService} = requestServiceModule;
+
+const VERSION = 'v1alpha';
+
+exports.VERSION = VERSION;
+exports.NULL_VALUE = NULL_VALUE;
+exports.PromiseRequestService = PromiseRequestService;
+exports.MakeRequestParams = MakeRequestParams;
+exports.deserialize = deserialize;
+// Typecast to avoid a mismatch on the abstract getConstructor member.
+exports.serialize = /** @type {function(!Serializable):!Object} */(serialize);
+
+
+/**
+ * Request manager for API requests.
+ *
+ * Typical usage:
+ *   const call = apiclient.Call(optional_callback);
+ *   return call.handle(
+ *       call.algorithms().list(call.projectsPath(), {prettyPrint: false}));
+ */
+class Call {
+  /**
+   * Prepares a call which will call the given callback from the handle()
+   * method.
+   *
+   * @template T
+   * @param {function(?T, string=)=} callback Callback to call.  If empty, the
+   *     request will run in synchronous mode.
+   * @param {number=} retries Overrides the default number of retries.
+   */
+  constructor(callback, retries) {
+    apiclient.initialize();
+    this.callback = callback;
+    this.requestService = new EERequestService(!callback, retries);
+  }
+
+  /**
+   * Wraps a promise returned by an API call, to call the configured callback.
+   * Also handles the "fake promise" returned in synchronous mode.
+   *
+   * @template T
+   * @param {!Promise<T>} response
+   * @return {!T|!Promise<T>} Immediate value in sync mode (constructor called
+   *   without callback), and otherwise a promise which will resolve to the
+   *   value.
+   */
+  handle(response) {
+    if (response instanceof Promise) {
+      // Async mode: invoke the callback with the result of the promise.
+      if (this.callback) {
+        response.then((result) => this.callback(result)).catch(
+            // Any errors from the then clause will also be passed to the catch.
+            (error) => this.callback(undefined, /** @type {string} */(error)));
+      }
+      // We should not be running in async mode without a callback, but it is
+      // still useful to return the promise.
+    } else {
+      // Sync mode: convert the fake "instant" promise to actual result.
+      response.then((result) => { response = result; });
+    }
+    return response;
+  }
+
+  /**
+   * Gets the currently active projects path.  This is a method on Call, to
+   * ensure that initialize() has already been called.
+   * @return {string}
+   */
+  projectsPath() {
+    return 'projects/' + apiclient.getProject();
+  }
+
+  // Helper methods to construct the generated api client handlers.
+  algorithms() {
+    return new api.ProjectsAlgorithmsApiClientImpl(
+        VERSION, this.requestService);
+  }
+
+  projects() {
+    return new api.ProjectsApiClientImpl(
+        VERSION, this.requestService);
+  }
+
+  assets() {
+    return new api.ProjectsAssetsApiClientImpl(
+        VERSION, this.requestService);
+  }
+
+  operations() {
+    return new api.ProjectsOperationsApiClientImpl(
+        VERSION, this.requestService);
+  }
+
+  value() {
+    return new api.ProjectsValueApiClientImpl(VERSION, this.requestService);
+  }
+
+  maps() {
+    return new api.ProjectsMapsApiClientImpl(VERSION, this.requestService);
+  }
+
+  map() {
+    return new api.ProjectsMapApiClientImpl(VERSION, this.requestService);
+  }
+
+  image() {
+    return new api.ProjectsImageApiClientImpl(VERSION, this.requestService);
+  }
+
+  table() {
+    return new api.ProjectsTableApiClientImpl(VERSION, this.requestService);
+  }
+
+  video() {
+    return new api.ProjectsVideoApiClientImpl(VERSION, this.requestService);
+  }
+  thumbnails() {
+    return new api.ProjectsThumbnailsApiClientImpl(
+        VERSION, this.requestService);
+  }
+
+  videoThumbnails() {
+    return new api.ProjectsVideoThumbnailsApiClientImpl(
+        VERSION, this.requestService);
+  }
+
+  filmstripThumbnails() {
+    return new api.ProjectsFilmstripThumbnailsApiClientImpl(
+        VERSION, this.requestService);
+  }
+}
+
+
+/**
+ * A request service that delegates to apiclient.send().
+ *
+ * This implements the PromiseRequestService interface needed by the handlers
+ * for individual API calls.  The handlers themselves are auto-generated and
+ * imported in the ee.api module.
+ */
+class EERequestService extends PromiseRequestService {
+  /**
+   * @param {boolean=} sync Run XmlHttpRequests in sync mode.  This blocks the
+   *     main browser thread but is needed for legacy compatibility.
+   * @param {number=} retries Overrides the default max retries value.
+   */
+  constructor(sync = false, retries = undefined) {
+    super();
+    this.sync = sync;
+
+    if (retries != null) {
+      this.retries = retries;
+    } else if (sync) {
+      this.retries = apiclient.MAX_SYNC_RETRIES_;
+    } else {
+      this.retries = apiclient.MAX_ASYNC_RETRIES_;
+    }
+  }
+
+  /**
+   * Implements the JSON RPC using the logic in apiclient.send().
+   * Handles both sync and async cases.  In sync mode the returned promise will
+   * resolve immediately: this is unwrapped by Call.handle() above.
+   *
+   * @template T
+   * @param {!MakeRequestParams} params Provided by the autogenerated client.
+   * @param {!SerializableCtor<T>=} responseCtor Also provided by the generated
+   *     code.  Will be a constructor for one of the ee.api.* response objects,
+   *     which builds a Serializable type from a raw js object.
+   * @return {!Promise<T>}
+   * @override
+   */
+  send(params, responseCtor = undefined) {
+    // Standard TS API Client preprocessing to drop undefined queryParams.
+    processParams(params);
+
+    const path = params.path || '';
+    const url = apiclient.getSafeApiUrl() + path;
+    const args = apiclient.makeRequest_(params.queryParams || {});
+    const body = params.body ? JSON.stringify(params.body) : undefined;
+    if (this.sync) {
+      const raw = apiclient.send(
+          url, args, undefined, params.httpMethod, body, this.retries);
+      const value = responseCtor ? deserialize(responseCtor, raw) : raw;
+      // Converts a value into an "instant" promise, with a then method that
+      // immediately applies a function and builds a new thenable of the result.
+      // Any errors will be thrown back to the original caller synchronously.
+      const thenable = (v) => ({'then': (f) => thenable(f(v))});
+      return /** @type {!Promise<T>} */(thenable(value));
+    }
+    const value = new Promise((resolve, reject) => {
+      const resolveOrReject = (value, error = undefined) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(value);
+        }
+      };
+      apiclient.send(
+          url, args, resolveOrReject, params.httpMethod, body, this.retries);
+    });
+    return value.then(r => responseCtor ? deserialize(responseCtor, r) : r);
+  }
+
+  /** @override abstract method, not used */ makeRequest(params) {}
+}
+
+
+/**
+ * Request manager for batch requests.
+ *
+ * Typical usage:
+ *  const getResponse = (data) => ops.map((op) => operationToTask(data[op]));
+ *  const call = new ee.apiclient.BatchCall(optional_callback);
+ *  return call.send(
+ *      ops.map((op) => [op, call.operations().get(op)]), getResponse);
+ */
+class BatchCall extends Call {
+  /**
+   * Prepares a batch handler which will call the given callback when send()
+   * completes.
+   */
+  constructor(callback) {
+    super(callback);
+    this.requestService = new BatchRequestService();
+  }
+
+  /**
+   * Constructs a batch request from the part bodies, and calls getResponse
+   * on the final composite response, providing a dictionary keyed by
+   * part name.  An error will be thrown (or passed to the callback) if any part
+   * has an error; successful responses will still be passed to the callback
+   * even if there is an error.
+   *
+   * See https://www.w3.org/Protocols/rfc1341/7_2_Multipart.html
+   *
+   * @param {!Array<!Array<?>>} parts Array of [id, [body, ctor]] tuples. ID is
+   *    a caller-determined ID for each part, and [body, ctor] should be created
+   *    by calling BatchRequestService.send().
+   * @param {function(!Object):T=} getResponse Optional post-processing step to
+   *    transform the object of ID-keyed responses before calling the callback.
+   * @return {?T} payload or null if callback is given.
+   * @template T
+   */
+  send(parts, getResponse) {
+    const batchUrl = apiclient.getSafeApiUrl() + '/batch';
+    const boundary = 'batch_EARTHENGINE_batch';
+    const multipart = `multipart/mixed; boundary=${boundary}`;
+
+    const headers = 'Content-Type: application/http\r\n' +
+        'Content-Transfer-Encoding: binary\r\nMIME-Version: 1.0\r\n';
+    const build = ([id, [partBody, ctor]]) =>
+        `--${boundary}\r\n${headers}Content-ID: <${id}>\r\n\r\n${partBody}\r\n`;
+    const body = parts.map(build).join('') + `--${boundary}--\r\n`;
+
+    const deserializeResponses = (response) => {
+      const result = {};
+      parts.forEach(([id, [partBody, ctor]]) => {
+        if (response[id] != null) {
+          result[id] = deserialize(ctor, response[id]);
+        }
+      });
+      return getResponse ? getResponse(result) : result;
+    };
+
+    if (this.callback) {
+      const callback = (result, err = undefined) =>
+        this.callback(err ? result : deserializeResponses(result), err);
+      apiclient.send(batchUrl, null, callback, multipart, body);
+      return null;
+    }
+    return deserializeResponses(
+        apiclient.send(batchUrl, null, undefined, multipart, body));
+  }
+}
+
+
+class BatchRequestService extends PromiseRequestService {
+  /**
+   * Overrides the send method, but does not actually send a request.  Instead
+   * it returns a tuple of [message, responseCtor] fields, so that
+   * BatchCall.send can assemble the request and parse the replies.
+   *
+   * @param {!MakeRequestParams} params Provided by the autogenerated client.
+   * @param {!SerializableCtor<T>=} responseCtor Also provided by the generated
+   *     code.  Will be a constructor for one of the ee.api.* response objects,
+   *     which builds a Serializable type from a raw js object.
+   * @return {!Promise<!Object>} Declared as a promise to match the overridden
+   *     interface, but will actually be a tuple.
+   * @override
+   */
+  send(params, responseCtor = undefined) {
+    const request = [`${params.httpMethod} ${params.path} HTTP/1.1`];
+    request.push('Content-Type: application/json; charset=utf-8');
+    const authToken = apiclient.getAuthToken();
+    if (authToken != null) {
+      request.push('Authorization: ' + authToken);
+    }
+    const body = params.body ? JSON.stringify(params.body) : '';
+    const message = `${request.join('\r\n')}\r\n\r\n${body}`;
+    return /** @type {?} */([message, responseCtor]);
+  }
+
+  /** @override abstract method, not used */ makeRequest(params) {}
+}
+
+
+/**
+ * Processes a multipart reply by calling the handler with each part in turn.
+ * @param {string} contentType
+ * @param {string} responseText
+ * @param {function(string,number,string)} handle Arguments: id, status, text.
+ */
+apiclient.parseBatchReply = function(contentType, responseText, handle) {
+  const boundary = contentType.split('; boundary=')[1];
+  for (let part of responseText.split('--' + boundary)) {
+    const groups = part.split('\r\n\r\n');
+    if (groups.length < 3) {
+      continue;
+    }
+    const id = groups[0].match(/\r\nContent-ID: <response-([^>]*)>/)[1];
+    const status = Number(groups[1].match(/^HTTP\S*\s(\d+)\s/)[1]);
+    const text = groups.slice(2).join('\r\n\r\n');
+    handle(id, status, text);
+  }
+};
+
+
+/**
+ * Sets the Cloud API key used when making requests.
+ * @param {?string} apiKey The Google Cloud Platform API key to use for access
+ *     and quota for the Earth Engine API.
+ */
+apiclient.setApiKey = function(apiKey) {
+  apiclient.cloudApiKey_ = apiKey;
+};
+
+/**
+ * Returns the current Cloud API key.
+ * @return {?string}
+ */
+apiclient.getApiKey = function() {
+  return apiclient.cloudApiKey_;
+};
+
+/** @private @const {string} */
+apiclient.DEFAULT_PROJECT_ = 'earthengine-legacy';
+
+/**
+ * Sets the Cloud Project to use when making requests.
+ * @param {string} project the user project to set.
+ */
+apiclient.setProject = function(project) {
+  apiclient.project_ = project;
+};
+
+/**
+ * Returns the currently selected project.
+ * @return {string}
+ */
+apiclient.getProject = function() {
+  return apiclient.project_;
+};
+
+/**
+ * Enables use of the Cloud API when making requests.
+ * @param {boolean} enable
+ */
+apiclient.setCloudApiEnabled = function(enable) {
+  apiclient.cloudApiEnabled_ = enable;
+};
+
+/**
+ * @return {boolean} True if the Cloud API is enabled.
+ */
+apiclient.getCloudApiEnabled = function() {
+  return apiclient.cloudApiEnabled_;
+};
+
+
+/**
+ * Constructs a URL for API requests that is safe to use in both browser and
+ * server contexts.
+ * @return {string}
+ */
+apiclient.getSafeApiUrl = function() {
+  const url = apiclient.apiBaseUrl_.replace(/\/api$/, '');
+  if ('window' in goog.global && !url.match(/^https?:\/\/content-/)) {
+    // Prepend hostname with content- to ensure browser-safe responses.
+    return url.replace(/^(https?:\/\/)(.*\.googleapis\.com)$/, '$1content-$2');
+  }
+  return url;
+};
+
 
 /**
  * Configures client-side authentication of EE API calls by providing a
@@ -42,6 +443,9 @@ apiclient.setAuthToken = function(
     clientId, tokenType, accessToken, expiresIn, extraScopes, callback,
     updateAuthLibrary) {
   const scopes = [apiclient.AUTH_SCOPE_];
+  if (apiclient.cloudApiEnabled_) {
+    scopes.push(apiclient.CLOUD_PLATFORM_SCOPE_);
+  }
   if (extraScopes) {
     array.extend(scopes, extraScopes);
     array.removeDuplicates(scopes);
@@ -100,6 +504,22 @@ apiclient.refreshAuthToken = function(success, error, onImmediateFailed) {
     if (result.error == 'immediate_failed' && onImmediateFailed) {
       onImmediateFailed();
     } else {
+      if (apiclient.cloudApiEnabled_ && 'window' in goog.global) {
+        try {
+          // Refresh the library auth token and handle error propagation.
+          apiclient.ensureAuthLibLoaded_(function() {
+            try {
+              goog.global['gapi']['auth']['setToken'](result);
+              apiclient.handleAuthResult_(success, error, result);
+            } catch (e) {
+              error(e.toString());
+            }
+          });
+        } catch (e) {
+          error(e.toString());
+        }
+        return;
+      }
       apiclient.handleAuthResult_(success, error, result);
     }
   });
@@ -219,6 +639,9 @@ apiclient.initialize = function(apiBaseUrl, tileBaseUrl, xsrfToken) {
   }
   if (xsrfToken !== undefined) {  // Passing an explicit null clears it.
     apiclient.xsrfToken_ = xsrfToken;
+  }
+  if (apiclient.cloudApiEnabled_) {
+    apiclient.setProject(apiclient.getProject() || apiclient.DEFAULT_PROJECT_);
   }
   apiclient.initialized_ = true;
 };
@@ -356,6 +779,19 @@ apiclient.send = function(
 
   // Set up request parameters.
   params = params ? params.clone() : new Uri.QueryData();
+  if (apiclient.cloudApiKey_ != null) {
+    params.add('key', apiclient.cloudApiKey_);
+  }
+
+  if (apiclient.cloudApiEnabled_) {
+    if (profileHookAtCallTime) {
+      headers[apiclient.PROFILE_REQUEST_HEADER] = '1';
+    }
+    if (apiclient.getProject() &&
+        apiclient.getProject() !== apiclient.DEFAULT_PROJECT_) {
+      headers[apiclient.USER_PROJECT_OVERRIDE_HEADER_] = apiclient.getProject();
+    }
+  } else
   if (profileHookAtCallTime) {
     params.add('profiling', '1');  // Request profiling results.
   }
@@ -538,6 +974,9 @@ apiclient.handleResponse_ = function(
     profileHook(profileId);
   }
   const getData = (response) => {
+    if (apiclient.cloudApiEnabled_) {
+      return response;
+    }
     return response['data'];
   };
   const parseJson = (body) => {
@@ -574,6 +1013,22 @@ apiclient.handleResponse_ = function(
       }
     } else {
       errorMessage = response;
+    }
+  } else if (contentType === 'multipart/mixed') {
+    data = {};
+    const errors = [];
+    apiclient.parseBatchReply(typeHeader, responseText, (id, status, text) => {
+      const response = parseJson(text);
+      if (response.parsed) {
+        data[id] = getData(response.parsed);
+      }
+      const error = (response.parsed ? '' : response) || statusError(status);
+      if (error) {
+        errors.push(`${id}: ${error}`);
+      }
+    });
+    if (errors.length) {
+      errorMessage = errors.join('\n');
     }
   } else {
     typeError = 'Response was unexpectedly not JSON, but ' + contentType;
@@ -1019,6 +1474,21 @@ apiclient.STORAGE_SCOPE_ =
 
 
 /**
+ * The Google Cloud Platform API key optionally used for quota and API access.
+ * The Cloud Project associated with the API key must have the Earth Engine API
+ * enabled.
+ * @private {?string}
+ */
+apiclient.cloudApiKey_ = null;
+
+/**
+ * Enables the Cloud API library.
+ * @private {boolean}
+ */
+apiclient.cloudApiEnabled_ = false;
+
+
+/**
  * Whether the library has been initialized.
  * @private {boolean}
  */
@@ -1162,6 +1632,16 @@ apiclient.AuthResponse = class {
 //                                   Exports.                                 //
 ////////////////////////////////////////////////////////////////////////////////
 
+exports.Call = Call;
+exports.BatchCall = BatchCall;
+
+exports.setApiKey = apiclient.setApiKey;
+exports.getApiKey = apiclient.getApiKey;
+exports.setProject = apiclient.setProject;
+exports.getProject = apiclient.getProject;
+exports.setCloudApiEnabled = apiclient.setCloudApiEnabled;
+exports.getCloudApiEnabled = apiclient.getCloudApiEnabled;
+exports.DEFAULT_PROJECT = apiclient.DEFAULT_PROJECT_;
 exports.PROFILE_HEADER = apiclient.PROFILE_HEADER;
 exports.PROFILE_REQUEST_HEADER = apiclient.PROFILE_REQUEST_HEADER;
 exports.send = apiclient.send;

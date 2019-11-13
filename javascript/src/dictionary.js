@@ -7,6 +7,7 @@ goog.provide('ee.Dictionary');
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.Types');
+goog.require('ee.rpc_node');
 
 
 
@@ -93,6 +94,18 @@ ee.Dictionary.prototype.encode = function(encoder) {
     return encoder(this.dict_);
   } else {
     return ee.Dictionary.base(this, 'encode', encoder);
+  }
+};
+
+
+/**
+ * @override
+ */
+ee.Dictionary.prototype.encodeCloudValue = function(encoder) {
+  if (this.dict_ !== null) {
+    return ee.rpc_node.reference(encoder(this.dict_));
+  } else {
+    return ee.Dictionary.base(this, 'encodeCloudValue', encoder);
   }
 };
 

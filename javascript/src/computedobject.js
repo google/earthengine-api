@@ -5,12 +5,13 @@
 
 goog.provide('ee.ComputedObject');
 
+goog.forwardDeclare('ee.Function');
 goog.require('ee.Encodable');
 goog.require('ee.Serializer');
+goog.require('ee.api');
 goog.require('ee.data');
+goog.require('ee.rpc_node');
 goog.require('goog.array');
-
-goog.forwardDeclare('ee.Function');
 
 
 
@@ -145,6 +146,30 @@ ee.ComputedObject.prototype.encode = function(encoder) {
     var func = encoder(this.func);
     result[typeof func === 'string' ? 'functionName' : 'function'] = func;
     return result;
+  }
+};
+
+
+/** @override */
+ee.ComputedObject.prototype.encodeCloudValue = function(encoder) {
+  if (this.isVariable()) {
+    // Variable objects that are not yet inside a CustomFunction cannot be
+    // encoded.
+    if (this.varName === null) {
+      throw new Error('Internal error: function argument not initialized.');
+    }
+    return ee.rpc_node.argumentReference(this.varName);
+  } else {
+    /** @type {!Object<string,!ee.api.ValueNode>} */
+    const encodedArgs = {};
+    for (var name in this.args) {
+      if (this.args[name] !== undefined) {
+        encodedArgs[name] = ee.rpc_node.reference(encoder(this.args[name]));
+      }
+    }
+    return typeof this.func === 'string' ?
+        ee.rpc_node.functionByName(String(this.func), encodedArgs) :
+        this.func.encodeCloudInvocation(encoder, encodedArgs);
   }
 };
 
