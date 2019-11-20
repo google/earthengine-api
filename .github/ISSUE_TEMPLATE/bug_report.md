@@ -1,6 +1,6 @@
 ---
 name: Bug report
-about: 'NOTICE: We are transitioning from GitHub Issues to Google Issue Tracker'
+about: 'NOTICE: Transitioning from GitHub Issues to Google Issue Tracker'
 title: 'NOTICE: Do not create new issues here.'
 labels: ''
 assignees: ''
