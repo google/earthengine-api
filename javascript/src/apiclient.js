@@ -30,8 +30,10 @@ const {MakeRequestParams, processParams} = requestParamsModule;
 const {PromiseRequestService} = requestServiceModule;
 
 const VERSION = 'v1alpha';
+const API_CLIENT_VERSION = '0.1.207';
 
 exports.VERSION = VERSION;
+exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
 exports.NULL_VALUE = NULL_VALUE;
 exports.PromiseRequestService = PromiseRequestService;
 exports.MakeRequestParams = MakeRequestParams;
@@ -760,7 +762,14 @@ apiclient.send = function(
   // WARNING: The content-type header here must use this exact capitalization
   // to remain compatible with the Node.JS environment. See:
   // https://github.com/driverdan/node-XMLHttpRequest/issues/20
-  const headers = {'Content-Type': contentType};
+  const headers = {
+    'Content-Type': contentType,
+  };
+
+  if (API_CLIENT_VERSION && apiclient.getCloudApiEnabled()) {
+    let version = API_CLIENT_VERSION;
+    headers[apiclient.API_CLIENT_VERSION_HEADER] = 'ee-js/' + version;
+  }
 
   // Set up client-side authorization.
   const authToken = apiclient.getAuthToken();
@@ -1172,7 +1181,9 @@ apiclient.setupMockSend = function(calls) {
   // If it's an object it has fields specifying more details.
   // If there's nothing set for this url, throw.
   function getResponse(url, method, data) {
-    url = url.replace(apiBaseUrl, '');
+    url =
+        url.replace(apiBaseUrl, '')
+            .replace(`${VERSION}/projects/${apiclient.DEFAULT_PROJECT_}/`, '');
     let response;
     if (url in calls) {
       response = calls[url];
@@ -1485,7 +1496,7 @@ apiclient.cloudApiKey_ = null;
  * Enables the Cloud API library.
  * @private {boolean}
  */
-apiclient.cloudApiEnabled_ = false;
+apiclient.cloudApiEnabled_ = true;
 
 
 /**
@@ -1557,6 +1568,13 @@ apiclient.APP_ID_TOKEN_HEADER_ = 'X-Earth-Engine-App-ID-Token';
  * @const {string}
  */
 apiclient.PROFILE_HEADER = 'X-Earth-Engine-Computation-Profile';
+
+
+/**
+ * The HTTP header indicating what the client library version is.
+ * @const {string}
+ */
+apiclient.API_CLIENT_VERSION_HEADER = 'x-goog-api-client';
 
 
 /**
@@ -1644,6 +1662,7 @@ exports.getCloudApiEnabled = apiclient.getCloudApiEnabled;
 exports.DEFAULT_PROJECT = apiclient.DEFAULT_PROJECT_;
 exports.PROFILE_HEADER = apiclient.PROFILE_HEADER;
 exports.PROFILE_REQUEST_HEADER = apiclient.PROFILE_REQUEST_HEADER;
+exports.API_CLIENT_VERSION_HEADER = apiclient.API_CLIENT_VERSION_HEADER;
 exports.send = apiclient.send;
 
 exports.AUTH_SCOPE = apiclient.AUTH_SCOPE_;

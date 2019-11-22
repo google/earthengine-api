@@ -280,7 +280,7 @@ ee.data.images.maybeConvertCrsTransformToArray_ = function(crsTransform) {
   }
   if (goog.isArray(transformArray)) {
     if (transformArray.length === 6 &&
-        goog.array.every(transformArray, goog.isNumber)) {
+        goog.array.every(transformArray, x => typeof x === 'number')) {
       return transformArray;
     } else {
       throw new Error(

@@ -237,6 +237,68 @@ class BatchTestCase(apitestcase.ApiTestCase):
           },
       }, task.config)
 
+  def testExportImageWithTfRecordCloudApi(self):
+    """Verifies the task created by Export.image()."""
+    with apitestcase.UsingCloudApi():
+      region = ee.Geometry.Rectangle(1, 2, 3, 4)
+      config = dict(
+          region=region['coordinates'],
+          maxPixels=10**10,
+          crs='foo',
+          crs_transform='[9,8,7,6,5,4]',
+          fileFormat='TFRecord',
+          formatOptions={
+              'patchDimensions': [256, 256],
+              'kernelSize': [32, 32],
+              'compressed': True,
+              'maxFileSize': 1e9,
+              'defaultValue': -999,
+              'tensorDepths': {'b1': 1, 'b2': 2},
+              'sequenceData': True,
+              'collapseBands': True,
+              'maskedThreshold': .5,
+          },
+      )
+      task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)
+      expected_expression = ee.Image(1).reproject(
+          'foo', crsTransform=[
+              9.0, 8.0, 7.0, 6.0, 5.0, 4.0
+          ]).clip(region)
+      self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
+      self.assertEqual('EXPORT_IMAGE', task.task_type)
+      self.assertEqual('UNSUBMITTED', task.state)
+      self.assertEqual({
+          'expression': expected_expression,
+          'description': 'TestDescription',
+          'fileExportOptions': {
+              'fileFormat': 'TF_RECORD_IMAGE',
+              'driveDestination': {
+                  'filenamePrefix': 'TestDescription'
+              },
+              'tfRecordOptions': {
+                  'tileDimensions': {
+                      'width': 256,
+                      'height': 256
+                  },
+                  'marginDimensions': {
+                      'width': 32,
+                      'height': 32,
+                  },
+                  'compress': True,
+                  'maxSizeBytes': {'value': '1000000000'},
+                  'defaultValue': -999,
+                  'tensorDepths': {'b1': 1, 'b2': 2},
+                  'sequenceData': True,
+                  'collapseBands': True,
+                  'maxMaskedRatio': {'value': 0.5},
+              },
+          },
+          'maxPixels': {
+              'value': '10000000000'
+          },
+      }, task.config)
+
   def testExportImageToAsset(self):
     """Verifies the Asset export task created by Export.image.toAsset()."""
     config = dict(
@@ -607,12 +669,14 @@ class BatchTestCase(apitestcase.ApiTestCase):
           image=ee.Image(1),
           bucket='test-bucket',
           maxZoom=7,
-          path='foo/gcs/path')
+          path='foo/gcs/path',
+          maxWorkers=100)
 
       # Test keyed parameters.
       task_keyed = ee.batch.Export.map.toCloudStorage(
           image=config['image'], bucket=config['bucket'],
-          maxZoom=config['maxZoom'], path=config['path'])
+          maxZoom=config['maxZoom'], path=config['path'],
+          maxWorkers=config['maxWorkers'])
       expected_expression = ee.Image(1)
       self.assertIsNone(task_keyed.id)
       self.assertIsNone(task_keyed.name)
@@ -631,7 +695,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'filenamePrefix': config['path'],
                   'permissions': 'PUBLIC',
               },
-          }
+          },
+          'maxWorkerCount': {'value': 100}
       }, task_keyed.config)
 
       with self.assertRaisesRegex(ee.EEException,
@@ -643,7 +708,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
       # Test ordered parameters.
       task_ordered = ee.batch.Export.map.toCloudStorage(
           config['image'], 'TestDescription', config['bucket'], 'jpeg', None,
-          False, None, 30, None, None, None, 'aFakeKey')
+          False, None, 30, None, None, None, 'aFakeKey', maxWorkers=100)
       self.assertIsNone(task_ordered.id)
       self.assertIsNone(task_ordered.name)
       self.assertEqual('EXPORT_TILES', task_ordered.task_type)
@@ -661,7 +726,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'bucket': config['bucket'],
                   'filenamePrefix': 'TestDescription',
               },
-          }
+          },
+          'maxWorkerCount': {'value': 100}
       }, task_ordered.config)
 
   def testExportTable(self):
@@ -680,7 +746,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
   def testExportTableCloudApi(self):
     """Verifies the task created by Export.table()."""
     with apitestcase.UsingCloudApi():
-      task = ee.batch.Export.table(ee.FeatureCollection('drive test FC'))
+      task = ee.batch.Export.table(
+          ee.FeatureCollection('drive test FC'), config={'maxWorkers': 100})
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
@@ -693,7 +760,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'driveDestination': {
                   'filenamePrefix': 'myExportTableTask',
               }
-          }
+          },
+          'maxWorkerCount': {'value': 100},
       }, task.config)
 
   def testExportTableCloudApiBogusParameter(self):
@@ -989,7 +1057,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           dimensions=16,
           framesPerSecond=30,
           maxFrames=10000,
-          maxPixels=10000000)
+          maxPixels=10000000,
+          maxWorkers=100)
       collection = ee.ImageCollection([ee.Image(1), ee.Image(2)])
       task = ee.batch.Export.video(collection, 'TestVideoName', config)
       self.assertIsNone(task.id)
@@ -1025,6 +1094,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'filenamePrefix': 'TestVideoName',
               }
           },
+          'maxWorkerCount': {'value': 100}
       }, task.config)
 
       config['outputBucket'] = 'test-bucket'
@@ -1050,6 +1120,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'filenamePrefix': 'TestVideoName',
               }
           },
+          'maxWorkerCount': {'value': 100}
       }, gcs_task.config)
 
       with self.assertRaisesRegex(ee.EEException,

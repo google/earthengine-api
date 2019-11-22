@@ -21,6 +21,7 @@ import six
 from google_auth_httplib2 import AuthorizedHttp
 from six.moves.urllib import parse
 
+from . import __version__
 from . import _cloud_api_utils
 from . import deprecation
 from . import encodable
@@ -58,6 +59,9 @@ _cloud_api_resource_raw = None
 
 # The default user project to use when making Cloud API calls.
 _cloud_api_user_project = None
+
+# The API client version number to send when making requests.
+_cloud_api_client_version = None
 
 # The http_transport to use.
 _http_transport = None
@@ -98,6 +102,9 @@ _PROFILE_REQUEST_HEADER = 'X-Earth-Engine-Computation-Profile'
 
 # The HTTP header through which a user project override is provided.
 _USER_PROJECT_OVERRIDE_HEADER = 'X-Goog-User-Project'
+
+# The HTTP header used to indicate the version of the client library used.
+_API_CLIENT_VERSION_HEADER = 'X-Goog-Api-Client'
 
 # Maximum number of times to retry a rate-limited request.
 MAX_RETRIES = 5
@@ -166,6 +173,7 @@ def initialize(credentials=None,
   global _cloud_api_base_url, _use_cloud_api
   global _cloud_api_resource, _cloud_api_resource_raw, _cloud_api_key
   global _cloud_api_user_project, _http_transport
+  global _cloud_api_client_version
 
   # If already initialized, only replace the explicitly specified parts.
 
@@ -192,6 +200,10 @@ def initialize(credentials=None,
 
   if use_cloud_api is not None:
     _use_cloud_api = use_cloud_api
+
+  if __version__ is not None:
+    version = __version__
+    _cloud_api_client_version = version
 
   _http_transport = http_transport
 
@@ -286,8 +298,10 @@ def _install_cloud_api_resource():
 
 
 def _make_request_headers():
-  """Adds a header requesting profiling, if profiling is enabled."""
+  """Adds headers based on client context."""
   headers = {}
+  if _cloud_api_client_version is not None and _use_cloud_api:
+    headers[_API_CLIENT_VERSION_HEADER] = 'ee-py/' + _cloud_api_client_version
   if _thread_locals.profile_hook:
     headers[_PROFILE_REQUEST_HEADER] = '1'
   if _cloud_api_user_project is not None:
@@ -422,6 +436,7 @@ def getAsset(asset_id):
   Returns:
     The asset's information, as an EarthEngineAsset.
   """
+  _cloudApiOnly('getAsset')
   return _execute_cloud_call(_cloud_api_resource.projects().assets().get(
       name=_cloud_api_utils.convert_asset_id_to_asset_name(asset_id),
       prettyPrint=False))
@@ -465,6 +480,7 @@ def getList(params):
 
 def listImages(params):
   """Returns the images in an image collection or folder."""
+  _cloudApiOnly('listImages')
   images = {'images': []}
   request = _cloud_api_resource.projects().assets().listImages(**params)
   while request is not None:
@@ -482,6 +498,7 @@ def listImages(params):
 
 def listAssets(params):
   """Returns the assets in a folder."""
+  _cloudApiOnly('listAssets')
   assets = {'assets': []}
   if 'parent' in params and _cloud_api_utils.is_asset_root(params['parent']):
     # If the asset name is 'projects/my-project/assets' we assume a user
@@ -505,6 +522,7 @@ def listAssets(params):
 
 
 def listBuckets(project=None):
+  _cloudApiOnly('listBuckets')
   if project is None:
     project = _get_projects_path()
   return _execute_cloud_call(
@@ -1114,6 +1132,7 @@ def listOperations(project=None):
     by the current user. These include currently running tasks as well as
     recently canceled or failed tasks.
   """
+  _cloudApiOnly('listOperations')
   if project is None:
     project = _get_projects_path()
   operations = []
@@ -1178,6 +1197,7 @@ def getOperation(operation_name):
   Returns:
     An Operation status dictionary for the requested operation.
   """
+  _cloudApiOnly('getOperation')
   return _execute_cloud_call(
       _cloud_api_resource.projects().operations().get(name=operation_name))
 
@@ -1191,6 +1211,7 @@ def cancelTask(taskId):
 
 
 def cancelOperation(operation_name):
+  _cloudApiOnly('cancelOperation')
   _execute_cloud_call(_cloud_api_resource.projects().operations().cancel(
       name=operation_name, body={}))
 
@@ -1562,6 +1583,7 @@ def getIamPolicy(asset_id):
   Returns:
     The asset's ACL, as an IAM Policy.
   """
+  _cloudApiOnly('getIamPolicy')
   return _execute_cloud_call(
       _cloud_api_resource.projects().assets().getIamPolicy(
           resource=_cloud_api_utils.convert_asset_id_to_asset_name(asset_id),
@@ -1602,6 +1624,7 @@ def setIamPolicy(asset_id, policy):
   Returns:
     The new ACL, as an IAM Policy.
   """
+  _cloudApiOnly('setIamPolicy')
   return _execute_cloud_call(
       _cloud_api_resource.projects().assets().setIamPolicy(
           resource=_cloud_api_utils.convert_asset_id_to_asset_name(asset_id),
@@ -1648,6 +1671,7 @@ def updateAsset(asset_id, asset, update_mask):
       replaced, this should contain the string "properties". If this list is
       empty, all properties and both timestamps will be updated.
   """
+  _cloudApiOnly('updateAsset')
   name = _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
   _execute_cloud_call(_cloud_api_resource.projects().assets().patch(
       name=name, body={
@@ -1656,6 +1680,11 @@ def updateAsset(asset_id, asset, update_mask):
           },
           'asset': asset
       }))
+
+
+def _cloudApiOnly(func):
+  if not _use_cloud_api:
+    raise ee_exception.EEException('Enable the Cloud API to use %s.' % func)
 
 
 def createAssetHome(requestedId):

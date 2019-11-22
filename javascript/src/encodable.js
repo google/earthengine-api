@@ -725,7 +725,7 @@ ee.rpc_convert.iamPolicyToAcl = function(result) {
   });
   const groups = new Set();
   const toAcl = (member) => {
-    const email = member.replace(/^group:|^user:/, '');
+    const email = member.replace(/^group:|^user:|^serviceAccount:/, '');
     if (member.startsWith('group:')) {
       groups.add(email);
     }
@@ -754,9 +754,18 @@ ee.rpc_convert.iamPolicyToAcl = function(result) {
  */
 ee.rpc_convert.aclToIamPolicy = function(acls) {
   const isGroup = (email) => acls['groups'] && acls['groups'].has(email);
-  // Converts the list of emails to user:/group:<email> format for IamPolicy.
-  const asMembers = (aclName) => (acls[aclName] || []).map(
-      (email) => (isGroup(email) ? 'group:' : 'user:') + email);
+  const isServiceAccount = (email) =>
+      email.match(/[@|\.]gserviceaccount\.com$/);
+  // Converts the list of emails to <prefix>:<email> format for IamPolicy.
+  const asMembers = (aclName) => (acls[aclName] || []).map((email) => {
+    let prefix = 'user:';
+    if (isGroup(email)) {
+      prefix = 'group:';
+    } else if (isServiceAccount(email)) {
+      prefix = 'serviceAccount:';
+    }
+    return prefix + email;
+  });
   const all = acls['all_users_can_read'] ? ['allUsers'] : [];
   const bindings = [
     {role: 'roles/owner', members: asMembers('owners')},

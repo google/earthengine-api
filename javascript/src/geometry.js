@@ -846,7 +846,7 @@ ee.Geometry.getEeApiArgs_ = function(jsConstructorFn, originalArgs) {
     delete args['coords'];
     args['crs'] = args['proj'];
     delete args['proj'];
-    return goog.object.filter(args, goog.isDefAndNotNull);
+    return goog.object.filter(args, x => x != null);
   }
 };
 
@@ -886,7 +886,7 @@ ee.Geometry.fixDepth_ = function(depth, coords) {
   }
 
   // Handle a list of numbers.
-  if (goog.array.every(coords, goog.isNumber)) {
+  if (goog.array.every(coords, x => typeof x === 'number')) {
     coords = ee.Geometry.coordinatesToLine_(coords);
   }
 

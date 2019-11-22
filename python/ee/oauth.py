@@ -19,7 +19,7 @@ import os
 import sys
 import webbrowser
 import six
-from six.moves import builtins
+from six.moves import input
 from six.moves.urllib import parse
 from six.moves.urllib import request
 from six.moves.urllib.error import HTTPError
@@ -123,7 +123,7 @@ def _in_jupyter_shell():
 def _obtain_and_write_token(auth_code=None):
   """Obtains and writes credentials token based on a authorization code."""
   if not auth_code:
-    auth_code = builtins.input('Enter verification code: ')
+    auth_code = input('Enter verification code: ')
     assert isinstance(auth_code, six.string_types)
   token = request_token(auth_code)
   write_token(token)
@@ -205,6 +205,6 @@ def authenticate(
     _display_auth_instructions_with_print(auth_url)
   webbrowser.open_new(auth_url)
 
-  auth_code = builtins.input('Enter verification code: ')
+  auth_code = input('Enter verification code: ')
   assert isinstance(auth_code, six.string_types)
   _obtain_and_write_token(auth_code.strip())

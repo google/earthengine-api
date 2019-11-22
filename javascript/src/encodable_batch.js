@@ -552,7 +552,7 @@ ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
       throw new Error(
           `Unable to construct grid from dimensions: ${dimensions}`);
     }
-  } else if (goog.isNumber(dimensions) && !isNaN(dimensions)) {
+  } else if (typeof dimensions === 'number' && !isNaN(dimensions)) {
     result.height = dimensions;
     result.width = dimensions;
   } else if (

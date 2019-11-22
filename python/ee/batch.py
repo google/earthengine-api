@@ -956,6 +956,9 @@ def _prepare_map_export_config(image, config):
     request['tileOptions'] = _build_tile_options(config)
     request['tileExportOptions'] = _build_image_file_export_options(
         config, Task.ExportDestination.GCS)
+    # This can only be set by internal users.
+    if 'maxWorkers' in config:
+      request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
     if config:
       raise ee_exception.EEException(
           'Unknown configuration options: {}.'.format(config))
@@ -1005,6 +1008,10 @@ def _prepare_table_export_config(collection, config, export_destination):
       # tuple or other non-list iterable.
       request['selectors'] = list(config.pop('selectors'))
 
+    # This can only be set by internal users.
+    if 'maxWorkers' in config:
+      request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+
     if config:
       raise ee_exception.EEException(
           'Unknown configuration options: {}.'.format(config))
@@ -1042,6 +1049,9 @@ def _prepare_video_export_config(collection, config, export_destination):
 
     request['fileExportOptions'] = _build_video_file_export_options(
         config, export_destination)
+    # This can only be set by internal users.
+    if 'maxWorkers' in config:
+      request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
 
     if config:
       raise ee_exception.EEException(
@@ -1119,7 +1129,7 @@ def _build_image_file_export_options(config, export_destination):
       # This field is an Int64Value, so it needs an inner "value" field, and
       # the value itself is a string, not an integer, in the JSON encoding.
       tf_record_options['maxSizeBytes'] = {
-          'value': str(file_format_options.pop('maxFileSize'))
+          'value': str(int(file_format_options.pop('maxFileSize')))
       }
     if 'defaultValue' in file_format_options:
       tf_record_options['defaultValue'] = file_format_options.pop(
@@ -1141,7 +1151,7 @@ def _build_image_file_export_options(config, export_destination):
           'value': file_format_options.pop('maskedThreshold')
       }
     if tf_record_options:
-      file_format_options['tfRecordOptions'] = tf_record_options
+      file_export_options['tfRecordOptions'] = tf_record_options
 
   if file_format_options:
     raise ee_exception.EEException(

@@ -272,14 +272,14 @@ ee.Filter.or = function(var_args) {
 
 
 /**
- * Filter images by date. The start and end may be a Date, numbers
+ * Filter a collection by date range. The start and end may be Dates, numbers
  * (interpreted as milliseconds since 1970-01-01T00:00:00Z), or strings (such
- * as '1996-01-01T08:00'). Based on 'system:time_start'.
+ * as '1996-01-01T08:00'). Based on 'system:time_start' property.
  *
- * @param {Date|string|number} start The inclusive start date.
- * @param {Date|string|number=} opt_end The optional exclusive end date. If not
- *     specified, a 1-millisecond range starting at 'start' is created.
- * @return {ee.Filter} The constructed filter.
+ * @param {!Date|string|number} start The start date (inclusive).
+ * @param {?Date|string|number=} opt_end The end date (exclusive). Optional. If
+ *     not specified, a 1-millisecond range starting at 'start' is created.
+ * @return {?ee.Filter} The constructed filter.
  * @export
  */
 ee.Filter.date = function(start, opt_end) {

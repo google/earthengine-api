@@ -67,7 +67,7 @@ ee.batch.ExportTask = class {
     Object.assign(config, exportArgs);
     // The config is some kind of task configuration.
     config = /** @type {!ee.data.AbstractTaskConfig} */ (
-        googObject.filter(config, goog.isDefAndNotNull));
+        googObject.filter(config, x => x != null));
 
     return new ee.batch.ExportTask(config);
   }

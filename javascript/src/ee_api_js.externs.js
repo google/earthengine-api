@@ -73,7 +73,7 @@ ee.Collection.prototype.filter = function(filter) {
 ee.Collection.prototype.filterBounds = function(geometry) {
 };
 /**
- * @param {(Date|null|number|string)} start
+ * @param {(Date|number|string)} start
  * @param {(Date|null|number|string)=} opt_end
  * @return {(ee.Collection|null)}
  */
@@ -297,7 +297,7 @@ ee.Filter.and = function(var_args) {
 ee.Filter.bounds = function(geometry, opt_errorMargin) {
 };
 /**
- * @param {(Date|null|number|string)} start
+ * @param {(Date|number|string)} start
  * @param {(Date|null|number|string)=} opt_end
  * @return {(ee.Filter|null)}
  */

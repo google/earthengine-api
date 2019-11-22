@@ -9,65 +9,6 @@ $jscomp.arrayIteratorImpl = function(array) {
 $jscomp.arrayIterator = function(array) {
   return {next:$jscomp.arrayIteratorImpl(array)};
 };
-$jscomp.ASSUME_ES5 = !1;
-$jscomp.ASSUME_NO_NATIVE_MAP = !1;
-$jscomp.ASSUME_NO_NATIVE_SET = !1;
-$jscomp.SIMPLE_FROUND_POLYFILL = !1;
-$jscomp.defineProperty = $jscomp.ASSUME_ES5 || "function" == typeof Object.defineProperties ? Object.defineProperty : function(target, property, descriptor) {
-  target != Array.prototype && target != Object.prototype && (target[property] = descriptor.value);
-};
-$jscomp.getGlobal = function(maybeGlobal) {
-  return "undefined" != typeof window && window === maybeGlobal ? maybeGlobal : "undefined" != typeof global && null != global ? global : maybeGlobal;
-};
-$jscomp.global = $jscomp.getGlobal(this);
-$jscomp.SYMBOL_PREFIX = "jscomp_symbol_";
-$jscomp.initSymbol = function() {
-  $jscomp.initSymbol = function() {
-  };
-  $jscomp.global.Symbol || ($jscomp.global.Symbol = $jscomp.Symbol);
-};
-$jscomp.SymbolClass = function(id, opt_description) {
-  this.$jscomp$symbol$id_ = id;
-  $jscomp.defineProperty(this, "description", {configurable:!0, writable:!0, value:opt_description});
-};
-$jscomp.SymbolClass.prototype.toString = function() {
-  return this.$jscomp$symbol$id_;
-};
-$jscomp.Symbol = function() {
-  function Symbol(opt_description) {
-    if (this instanceof Symbol) {
-      throw new TypeError("Symbol is not a constructor");
-    }
-    return new $jscomp.SymbolClass($jscomp.SYMBOL_PREFIX + (opt_description || "") + "_" + counter++, opt_description);
-  }
-  var counter = 0;
-  return Symbol;
-}();
-$jscomp.initSymbolIterator = function() {
-  $jscomp.initSymbol();
-  var symbolIterator = $jscomp.global.Symbol.iterator;
-  symbolIterator || (symbolIterator = $jscomp.global.Symbol.iterator = $jscomp.global.Symbol("Symbol.iterator"));
-  "function" != typeof Array.prototype[symbolIterator] && $jscomp.defineProperty(Array.prototype, symbolIterator, {configurable:!0, writable:!0, value:function() {
-    return $jscomp.iteratorPrototype($jscomp.arrayIteratorImpl(this));
-  }});
-  $jscomp.initSymbolIterator = function() {
-  };
-};
-$jscomp.initSymbolAsyncIterator = function() {
-  $jscomp.initSymbol();
-  var symbolAsyncIterator = $jscomp.global.Symbol.asyncIterator;
-  symbolAsyncIterator || (symbolAsyncIterator = $jscomp.global.Symbol.asyncIterator = $jscomp.global.Symbol("Symbol.asyncIterator"));
-  $jscomp.initSymbolAsyncIterator = function() {
-  };
-};
-$jscomp.iteratorPrototype = function(next) {
-  $jscomp.initSymbolIterator();
-  var iterator = {next:next};
-  iterator[$jscomp.global.Symbol.iterator] = function() {
-    return this;
-  };
-  return iterator;
-};
 $jscomp.makeIterator = function(iterable) {
   var iteratorFunction = "undefined" != typeof Symbol && Symbol.iterator && iterable[Symbol.iterator];
   return iteratorFunction ? iteratorFunction.call(iterable) : $jscomp.arrayIterator(iterable);
@@ -81,6 +22,10 @@ $jscomp.arrayFromIterator = function(iterator) {
 $jscomp.arrayFromIterable = function(iterable) {
   return iterable instanceof Array ? iterable : $jscomp.arrayFromIterator($jscomp.makeIterator(iterable));
 };
+$jscomp.ASSUME_ES5 = !1;
+$jscomp.ASSUME_NO_NATIVE_MAP = !1;
+$jscomp.ASSUME_NO_NATIVE_SET = !1;
+$jscomp.SIMPLE_FROUND_POLYFILL = !1;
 $jscomp.objectCreate = $jscomp.ASSUME_ES5 || "function" == typeof Object.create ? Object.create : function(prototype) {
   var ctor = function() {
   };
@@ -122,6 +67,10 @@ $jscomp.inherits = function(childCtor, parentCtor) {
   }
   childCtor.superClass_ = parentCtor.prototype;
 };
+$jscomp.getGlobal = function(maybeGlobal) {
+  return "undefined" != typeof window && window === maybeGlobal ? maybeGlobal : "undefined" != typeof global && null != global ? global : maybeGlobal;
+};
+$jscomp.global = $jscomp.getGlobal(this);
 $jscomp.findInternal = function(array, callback, thisArg) {
   array instanceof String && (array = String(array));
   for (var len = array.length, i = 0; i < len; i++) {
@@ -131,6 +80,9 @@ $jscomp.findInternal = function(array, callback, thisArg) {
     }
   }
   return {i:-1, v:void 0};
+};
+$jscomp.defineProperty = $jscomp.ASSUME_ES5 || "function" == typeof Object.defineProperties ? Object.defineProperty : function(target, property, descriptor) {
+  target != Array.prototype && target != Object.prototype && (target[property] = descriptor.value);
 };
 $jscomp.polyfill = function(target, polyfill, fromLang, toLang) {
   if (polyfill) {
@@ -197,6 +149,54 @@ $jscomp.polyfill("String.prototype.repeat", function(orig) {
     return result;
   };
 }, "es6", "es3");
+$jscomp.SYMBOL_PREFIX = "jscomp_symbol_";
+$jscomp.initSymbol = function() {
+  $jscomp.initSymbol = function() {
+  };
+  $jscomp.global.Symbol || ($jscomp.global.Symbol = $jscomp.Symbol);
+};
+$jscomp.SymbolClass = function(id, opt_description) {
+  this.$jscomp$symbol$id_ = id;
+  $jscomp.defineProperty(this, "description", {configurable:!0, writable:!0, value:opt_description});
+};
+$jscomp.SymbolClass.prototype.toString = function() {
+  return this.$jscomp$symbol$id_;
+};
+$jscomp.Symbol = function() {
+  function Symbol(opt_description) {
+    if (this instanceof Symbol) {
+      throw new TypeError("Symbol is not a constructor");
+    }
+    return new $jscomp.SymbolClass($jscomp.SYMBOL_PREFIX + (opt_description || "") + "_" + counter++, opt_description);
+  }
+  var counter = 0;
+  return Symbol;
+}();
+$jscomp.initSymbolIterator = function() {
+  $jscomp.initSymbol();
+  var symbolIterator = $jscomp.global.Symbol.iterator;
+  symbolIterator || (symbolIterator = $jscomp.global.Symbol.iterator = $jscomp.global.Symbol("Symbol.iterator"));
+  "function" != typeof Array.prototype[symbolIterator] && $jscomp.defineProperty(Array.prototype, symbolIterator, {configurable:!0, writable:!0, value:function() {
+    return $jscomp.iteratorPrototype($jscomp.arrayIteratorImpl(this));
+  }});
+  $jscomp.initSymbolIterator = function() {
+  };
+};
+$jscomp.initSymbolAsyncIterator = function() {
+  $jscomp.initSymbol();
+  var symbolAsyncIterator = $jscomp.global.Symbol.asyncIterator;
+  symbolAsyncIterator || (symbolAsyncIterator = $jscomp.global.Symbol.asyncIterator = $jscomp.global.Symbol("Symbol.asyncIterator"));
+  $jscomp.initSymbolAsyncIterator = function() {
+  };
+};
+$jscomp.iteratorPrototype = function(next) {
+  $jscomp.initSymbolIterator();
+  var iterator = {next:next};
+  iterator[$jscomp.global.Symbol.iterator] = function() {
+    return this;
+  };
+  return iterator;
+};
 $jscomp.iteratorFromArray = function(array, transform) {
   $jscomp.initSymbolIterator();
   array instanceof String && (array += "");
@@ -14870,6 +14870,7 @@ var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_NU
 module$exports$eeapiclient$domain_object.Serializable, module$contents$ee$apiclient_SerializableCtor = module$exports$eeapiclient$domain_object.SerializableCtor, module$contents$ee$apiclient_MakeRequestParams = module$exports$eeapiclient$request_params.MakeRequestParams, module$contents$ee$apiclient_processParams = module$exports$eeapiclient$request_params.processParams, 
 module$contents$ee$apiclient_PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.VERSION = "v1alpha";
+ee.apiclient.API_CLIENT_VERSION = "0.1.207";
 ee.apiclient.NULL_VALUE = module$contents$ee$apiclient_NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$contents$ee$apiclient_PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$ee$apiclient_MakeRequestParams;
@@ -15132,7 +15133,13 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
+  var headers = {"Content-Type":contentType};
+  if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled()) {
+    var version = "0.1.207";
+    "0.1.207" === version && (version = "latest");
+    headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
+  }
+  var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
     headers.Authorization = authToken;
   } else {
@@ -15290,7 +15297,7 @@ module$contents$ee$apiclient_apiclient.makeRequest_ = function(params) {
 };
 module$contents$ee$apiclient_apiclient.setupMockSend = function(calls) {
   function getResponse(url, method, data) {
-    url = url.replace(apiBaseUrl, "");
+    url = url.replace(apiBaseUrl, "").replace("v1alpha/projects/" + module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_ + "/", "");
     if (url in calls) {
       var response = calls[url];
     } else {
@@ -15383,7 +15390,7 @@ module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_ = "https://www.goog
 module$contents$ee$apiclient_apiclient.AUTH_LIBRARY_URL_ = goog.string.Const.from("https://apis.google.com/js/client.js?onload=%{onload}");
 module$contents$ee$apiclient_apiclient.STORAGE_SCOPE_ = "https://www.googleapis.com/auth/devstorage.read_write";
 module$contents$ee$apiclient_apiclient.cloudApiKey_ = null;
-module$contents$ee$apiclient_apiclient.cloudApiEnabled_ = !1;
+module$contents$ee$apiclient_apiclient.cloudApiEnabled_ = !0;
 module$contents$ee$apiclient_apiclient.initialized_ = !1;
 module$contents$ee$apiclient_apiclient.deadlineMs_ = 0;
 module$contents$ee$apiclient_apiclient.profileHook_ = null;
@@ -15395,6 +15402,7 @@ module$contents$ee$apiclient_apiclient.APP_ID_TOKEN_HEADER_ = "X-Earth-Engine-Ap
 module$contents$ee$apiclient_apiclient.PROFILE_HEADER = "X-Earth-Engine-Computation-Profile";
 module$contents$ee$apiclient_apiclient.PROFILE_REQUEST_HEADER = "X-Earth-Engine-Computation-Profile";
 module$contents$ee$apiclient_apiclient.USER_PROJECT_OVERRIDE_HEADER_ = "X-Goog-User-Project";
+module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER = "x-goog-api-client";
 module$contents$ee$apiclient_apiclient.DEFAULT_API_BASE_URL_ = "https://earthengine.googleapis.com/api";
 module$contents$ee$apiclient_apiclient.DEFAULT_TILE_BASE_URL_ = "https://earthengine.googleapis.com";
 module$contents$ee$apiclient_apiclient.AuthArgs = function() {
@@ -15412,6 +15420,7 @@ ee.apiclient.getCloudApiEnabled = module$contents$ee$apiclient_apiclient.getClou
 ee.apiclient.DEFAULT_PROJECT = module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_;
 ee.apiclient.PROFILE_HEADER = module$contents$ee$apiclient_apiclient.PROFILE_HEADER;
 ee.apiclient.PROFILE_REQUEST_HEADER = module$contents$ee$apiclient_apiclient.PROFILE_REQUEST_HEADER;
+ee.apiclient.API_CLIENT_VERSION_HEADER = module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER;
 ee.apiclient.send = module$contents$ee$apiclient_apiclient.send;
 ee.apiclient.AUTH_SCOPE = module$contents$ee$apiclient_apiclient.AUTH_SCOPE_;
 ee.apiclient.CLOUD_PLATFORM_SCOPE = module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_;
@@ -15778,7 +15787,7 @@ ee.rpc_convert.iamPolicyToAcl = function(result) {
     bindingMap[binding.role] = binding.members;
   });
   var groups = new Set, toAcl = function(member) {
-    var email = member.replace(/^group:|^user:/, "");
+    var email = member.replace(/^group:|^user:|^serviceAccount:/, "");
     member.startsWith("group:") && groups.add(email);
     return email;
   }, readersWithAll = bindingMap["roles/viewer"] || [], readers = readersWithAll.filter(function(reader) {
@@ -15791,9 +15800,13 @@ ee.rpc_convert.iamPolicyToAcl = function(result) {
 ee.rpc_convert.aclToIamPolicy = function(acls) {
   var isGroup = function(email) {
     return acls.groups && acls.groups.has(email);
+  }, isServiceAccount = function(email) {
+    return email.match(/[@|\.]gserviceaccount\.com$/);
   }, asMembers = function(aclName) {
     return (acls[aclName] || []).map(function(email) {
-      return (isGroup(email) ? "group:" : "user:") + email;
+      var prefix = "user:";
+      isGroup(email) ? prefix = "group:" : isServiceAccount(email) && (prefix = "serviceAccount:");
+      return prefix + email;
     });
   }, all = acls.all_users_can_read ? ["allUsers"] : [], bindings = [{role:"roles/owner", members:asMembers("owners")}, {role:"roles/viewer", members:asMembers("readers").concat(all)}, {role:"roles/editor", members:asMembers("writers")}].map(function(params) {
     return new module$exports$eeapiclient$ee_api_client.Binding(params);
@@ -16568,14 +16581,14 @@ ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
       }
     }
   } else {
-    if (goog.isNumber(dimensions) && !isNaN(dimensions)) {
-      result.height = dimensions, result.width = dimensions;
-    } else {
+    if ("number" !== typeof dimensions || isNaN(dimensions)) {
       if (goog.isObject(dimensions) && null != dimensions.height && null != dimensions.width) {
         result.height = dimensions.height, result.width = dimensions.width;
       } else {
         throw Error("Unable to construct grid from dimensions: " + dimensions);
       }
+    } else {
+      result.height = dimensions, result.width = dimensions;
     }
   }
   return result;
@@ -18984,13 +18997,9 @@ jspb.Map.ArrayIteratorIterable_ = function(arr) {
 jspb.Map.ArrayIteratorIterable_.prototype.next = function() {
   return this.idx_ < this.arr_.length ? {done:!1, value:this.arr_[this.idx_++]} : {done:!0, value:void 0};
 };
-jspb.Map.hiddenES6Property = function() {
-};
-$jscomp.initSymbol();
-$jscomp.initSymbolIterator();
-jspb.Map.ArrayIteratorIterable_.prototype[Symbol.iterator] = function() {
+"undefined" != typeof Symbol && (jspb.Map.ArrayIteratorIterable_.prototype[Symbol.iterator] = function() {
   return this;
-};
+});
 jspb.Map.prototype.getLength = function() {
   return this.stringKeys_().length;
 };
@@ -20721,6 +20730,7 @@ ee.data.AssetType = {ALGORITHM:"Algorithm", FOLDER:"Folder", IMAGE:"Image", IMAG
 ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO", VIDEO_MAP:"EXPORT_VIDEO_MAP"};
 ee.data.ExportState = {UNSUBMITTED:"UNSUBMITTED", READY:"READY", RUNNING:"RUNNING", COMPLETED:"COMPLETED", FAILED:"FAILED", CANCEL_REQUESTED:"CANCEL_REQUESTED", CANCELLED:"CANCELLED"};
 ee.data.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET"};
+ee.data.SystemPropertyPrefix = "system:";
 ee.data.SystemTimeProperty = {START:"system:time_start", END:"system:time_end"};
 ee.data.SYSTEM_ASSET_SIZE_PROPERTY = "system:asset_size";
 ee.data.AssetDetailsProperty = {TITLE:"system:title", DESCRIPTION:"system:description", TAGS:"system:tags"};
@@ -21517,7 +21527,9 @@ ee.Geometry.getEeApiArgs_ = function(jsConstructorFn, originalArgs) {
   delete args.coords;
   args.crs = args.proj;
   delete args.proj;
-  return goog.object.filter(args, goog.isDefAndNotNull);
+  return goog.object.filter(args, function(x) {
+    return null != x;
+  });
 };
 ee.Geometry.hasServerValue_ = function(coordinates) {
   return goog.isArray(coordinates) ? goog.array.some(coordinates, ee.Geometry.hasServerValue_) : coordinates instanceof ee.ComputedObject;
@@ -21526,7 +21538,9 @@ ee.Geometry.fixDepth_ = function(depth, coords) {
   if (1 > depth || 4 < depth) {
     throw Error("Unexpected nesting level.");
   }
-  goog.array.every(coords, goog.isNumber) && (coords = ee.Geometry.coordinatesToLine_(coords));
+  goog.array.every(coords, function(x) {
+    return "number" === typeof x;
+  }) && (coords = ee.Geometry.coordinatesToLine_(coords));
   for (var item = coords, count = 0; goog.isArray(item);) {
     item = item[0], count++;
   }
@@ -21888,7 +21902,9 @@ ee.data.images.maybeConvertCrsTransformToArray_ = function(crsTransform) {
     }
   }
   if (goog.isArray(transformArray)) {
-    if (6 === transformArray.length && goog.array.every(transformArray, goog.isNumber)) {
+    if (6 === transformArray.length && goog.array.every(transformArray, function(x) {
+      return "number" === typeof x;
+    })) {
       return transformArray;
     }
     throw Error("Invalid argument, crs transform must be a list of 6 numbers.");
@@ -22355,7 +22371,9 @@ ee.batch.ExportTask = function(config) {
 ee.batch.ExportTask.create = function(exportArgs) {
   var config = {element:ee.batch.Export.extractElement(exportArgs)};
   Object.assign(config, exportArgs);
-  config = goog.object.filter(config, goog.isDefAndNotNull);
+  config = goog.object.filter(config, function(x) {
+    return null != x;
+  });
   return new ee.batch.ExportTask(config);
 };
 ee.batch.ExportTask.prototype.start = function(opt_success, opt_error) {
