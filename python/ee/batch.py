@@ -889,7 +889,7 @@ def _prepare_image_export_config(image, config, export_destination):
     if 'maxPixels' in config:
       # This field is an Int64Value, so it needs an inner "value" field, and
       # the value itself is a string, not an integer, in the JSON encoding.
-      request['maxPixels'] = {'value': str(config.pop('maxPixels'))}
+      request['maxPixels'] = {'value': str(int(config.pop('maxPixels')))}
 
     # This can only be set by internal users.
     if 'maxWorkers' in config:
@@ -1206,7 +1206,8 @@ def _build_video_options(config):
   if 'maxFrames' in config:
     video_options['maxFrames'] = config.pop('maxFrames')
   if 'maxPixels' in config:
-    video_options['maxPixelsPerFrame'] = {'value': str(config.pop('maxPixels'))}
+    video_options['maxPixelsPerFrame'] = {
+        'value': str(int(config.pop('maxPixels')))}
   return video_options
 
 

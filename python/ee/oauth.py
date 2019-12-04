@@ -96,7 +96,13 @@ def write_token(refresh_token):
     if e.errno != errno.EEXIST:
       raise Exception('Error creating directory %s: %s' % (dirname, e))
 
-  json.dump({'refresh_token': refresh_token}, open(credentials_path, 'w'))
+  file_content = json.dumps({'refresh_token': refresh_token})
+  if os.path.exists(credentials_path):
+    # Remove file because os.open will not change permissions of existing files
+    os.remove(credentials_path)
+  with os.fdopen(
+      os.open(credentials_path, os.O_WRONLY | os.O_CREAT, 0o600), 'w') as f:
+    f.write(file_content)
 
 
 def _in_colab_shell():

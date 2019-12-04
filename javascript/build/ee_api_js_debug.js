@@ -2950,27 +2950,6 @@ goog.html.SafeScript.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(
   return this;
 };
 goog.html.SafeScript.EMPTY = goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("");
-goog.fs = {};
-goog.fs.url = {};
-goog.fs.url.createObjectUrl = function(blob) {
-  return goog.fs.url.getUrlObject_().createObjectURL(blob);
-};
-goog.fs.url.revokeObjectUrl = function(url) {
-  goog.fs.url.getUrlObject_().revokeObjectURL(url);
-};
-goog.fs.url.getUrlObject_ = function() {
-  var urlObject = goog.fs.url.findUrlObject_();
-  if (null != urlObject) {
-    return urlObject;
-  }
-  throw Error("This browser doesn't seem to support blob URLs");
-};
-goog.fs.url.findUrlObject_ = function() {
-  return void 0 !== goog.global.URL && void 0 !== goog.global.URL.createObjectURL ? goog.global.URL : void 0 !== goog.global.webkitURL && void 0 !== goog.global.webkitURL.createObjectURL ? goog.global.webkitURL : void 0 !== goog.global.createObjectURL ? goog.global : null;
-};
-goog.fs.url.browserSupportsObjectUrls = function() {
-  return null != goog.fs.url.findUrlObject_();
-};
 goog.i18n = {};
 goog.i18n.bidi = {};
 goog.i18n.bidi.FORCE_RTL = !1;
@@ -3180,6 +3159,32 @@ goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, 
   return currentString;
 };
 goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
+/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
+goog.fs = {};
+goog.fs.url = {};
+goog.fs.url.createObjectUrl = function(blob) {
+  return goog.fs.url.getUrlObject_().createObjectURL(blob);
+};
+goog.fs.url.revokeObjectUrl = function(url) {
+  goog.fs.url.getUrlObject_().revokeObjectURL(url);
+};
+goog.fs.url.getUrlObject_ = function() {
+  var urlObject = goog.fs.url.findUrlObject_();
+  if (null != urlObject) {
+    return urlObject;
+  }
+  throw Error("This browser doesn't seem to support blob URLs");
+};
+goog.fs.url.findUrlObject_ = function() {
+  return void 0 !== goog.global.URL && void 0 !== goog.global.URL.createObjectURL ? goog.global.URL : void 0 !== goog.global.webkitURL && void 0 !== goog.global.webkitURL.createObjectURL ? goog.global.webkitURL : void 0 !== goog.global.createObjectURL ? goog.global : null;
+};
+goog.fs.url.browserSupportsObjectUrls = function() {
+  return null != goog.fs.url.findUrlObject_();
+};
 goog.html.SafeUrl = function(opt_token, opt_content) {
   this.privateDoNotAccessOrElseSafeUrlWrappedValue_ = opt_token === goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content || "";
   this.SAFE_URL_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
@@ -14870,7 +14875,7 @@ var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_NU
 module$exports$eeapiclient$domain_object.Serializable, module$contents$ee$apiclient_SerializableCtor = module$exports$eeapiclient$domain_object.SerializableCtor, module$contents$ee$apiclient_MakeRequestParams = module$exports$eeapiclient$request_params.MakeRequestParams, module$contents$ee$apiclient_processParams = module$exports$eeapiclient$request_params.processParams, 
 module$contents$ee$apiclient_PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.207";
+ee.apiclient.API_CLIENT_VERSION = "0.1.208";
 ee.apiclient.NULL_VALUE = module$contents$ee$apiclient_NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$contents$ee$apiclient_PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$ee$apiclient_MakeRequestParams;
@@ -15135,8 +15140,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType};
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled()) {
-    var version = "0.1.207";
-    "0.1.207" === version && (version = "latest");
+    var version = "0.1.208";
+    "0.1.208" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -17603,7 +17608,7 @@ jspb.BinaryReader.prototype.skipField = function() {
       this.skipGroup();
       break;
     default:
-      goog.asserts.fail("Invalid wire encoding for field.");
+      this.error_ = !0, goog.asserts.fail("Invalid wire encoding for field.");
   }
 };
 jspb.BinaryReader.prototype.registerReadCallback = function(callbackName, callback) {
@@ -23405,126 +23410,6 @@ goog.events.EventHandler.prototype.disposeInternal = function() {
 goog.events.EventHandler.prototype.handleEvent = function(e) {
   throw Error("EventHandler.handleEvent not implemented");
 };
-goog.fs.DOMErrorLike = function() {
-};
-goog.fs.Error = function(error, action) {
-  if (void 0 !== error.name) {
-    this.name = error.name, this.code = goog.fs.Error.getCodeFromName_(error.name);
-  } else {
-    var code = goog.asserts.assertNumber(error.code);
-    this.code = code;
-    this.name = goog.fs.Error.getNameFromCode_(code);
-  }
-  goog.debug.Error.call(this, goog.string.subs("%s %s", this.name, action));
-};
-goog.inherits(goog.fs.Error, goog.debug.Error);
-goog.fs.Error.ErrorName = {ABORT:"AbortError", ENCODING:"EncodingError", INVALID_MODIFICATION:"InvalidModificationError", INVALID_STATE:"InvalidStateError", NOT_FOUND:"NotFoundError", NOT_READABLE:"NotReadableError", NO_MODIFICATION_ALLOWED:"NoModificationAllowedError", PATH_EXISTS:"PathExistsError", QUOTA_EXCEEDED:"QuotaExceededError", SECURITY:"SecurityError", SYNTAX:"SyntaxError", TYPE_MISMATCH:"TypeMismatchError"};
-goog.fs.Error.ErrorCode = {NOT_FOUND:1, SECURITY:2, ABORT:3, NOT_READABLE:4, ENCODING:5, NO_MODIFICATION_ALLOWED:6, INVALID_STATE:7, SYNTAX:8, INVALID_MODIFICATION:9, QUOTA_EXCEEDED:10, TYPE_MISMATCH:11, PATH_EXISTS:12};
-goog.fs.Error.getNameFromCode_ = function(code) {
-  var name = goog.object.findKey(goog.fs.Error.NameToCodeMap_, function(c) {
-    return code == c;
-  });
-  if (void 0 === name) {
-    throw Error("Invalid code: " + code);
-  }
-  return name;
-};
-goog.fs.Error.getCodeFromName_ = function(name) {
-  return goog.fs.Error.NameToCodeMap_[name];
-};
-goog.fs.Error.NameToCodeMap_ = goog.object.create(goog.fs.Error.ErrorName.ABORT, goog.fs.Error.ErrorCode.ABORT, goog.fs.Error.ErrorName.ENCODING, goog.fs.Error.ErrorCode.ENCODING, goog.fs.Error.ErrorName.INVALID_MODIFICATION, goog.fs.Error.ErrorCode.INVALID_MODIFICATION, goog.fs.Error.ErrorName.INVALID_STATE, goog.fs.Error.ErrorCode.INVALID_STATE, goog.fs.Error.ErrorName.NOT_FOUND, goog.fs.Error.ErrorCode.NOT_FOUND, goog.fs.Error.ErrorName.NOT_READABLE, goog.fs.Error.ErrorCode.NOT_READABLE, goog.fs.Error.ErrorName.NO_MODIFICATION_ALLOWED, 
-goog.fs.Error.ErrorCode.NO_MODIFICATION_ALLOWED, goog.fs.Error.ErrorName.PATH_EXISTS, goog.fs.Error.ErrorCode.PATH_EXISTS, goog.fs.Error.ErrorName.QUOTA_EXCEEDED, goog.fs.Error.ErrorCode.QUOTA_EXCEEDED, goog.fs.Error.ErrorName.SECURITY, goog.fs.Error.ErrorCode.SECURITY, goog.fs.Error.ErrorName.SYNTAX, goog.fs.Error.ErrorCode.SYNTAX, goog.fs.Error.ErrorName.TYPE_MISMATCH, goog.fs.Error.ErrorCode.TYPE_MISMATCH);
-goog.fs.ProgressEvent = function(event, target) {
-  goog.events.Event.call(this, event.type, target);
-  this.event_ = event;
-};
-goog.inherits(goog.fs.ProgressEvent, goog.events.Event);
-goog.fs.ProgressEvent.prototype.isLengthComputable = function() {
-  return this.event_.lengthComputable;
-};
-goog.fs.ProgressEvent.prototype.getLoaded = function() {
-  return this.event_.loaded;
-};
-goog.fs.ProgressEvent.prototype.getTotal = function() {
-  return this.event_.total;
-};
-goog.fs.FileReader = function() {
-  goog.events.EventTarget.call(this);
-  this.reader_ = new FileReader;
-  this.reader_.onloadstart = goog.bind(this.dispatchProgressEvent_, this);
-  this.reader_.onprogress = goog.bind(this.dispatchProgressEvent_, this);
-  this.reader_.onload = goog.bind(this.dispatchProgressEvent_, this);
-  this.reader_.onabort = goog.bind(this.dispatchProgressEvent_, this);
-  this.reader_.onerror = goog.bind(this.dispatchProgressEvent_, this);
-  this.reader_.onloadend = goog.bind(this.dispatchProgressEvent_, this);
-};
-goog.inherits(goog.fs.FileReader, goog.events.EventTarget);
-goog.fs.FileReader.ReadyState = {INIT:0, LOADING:1, DONE:2};
-goog.fs.FileReader.EventType = {LOAD_START:"loadstart", PROGRESS:"progress", LOAD:"load", ABORT:"abort", ERROR:"error", LOAD_END:"loadend"};
-goog.fs.FileReader.prototype.abort = function() {
-  try {
-    this.reader_.abort();
-  } catch (e) {
-    throw new goog.fs.Error(e, "aborting read");
-  }
-};
-goog.fs.FileReader.prototype.getReadyState = function() {
-  return this.reader_.readyState;
-};
-goog.fs.FileReader.prototype.getResult = function() {
-  return this.reader_.result;
-};
-goog.fs.FileReader.prototype.getError = function() {
-  return this.reader_.error && new goog.fs.Error(this.reader_.error, "reading file");
-};
-goog.fs.FileReader.prototype.dispatchProgressEvent_ = function(event) {
-  this.dispatchEvent(new goog.fs.ProgressEvent(event, this));
-};
-goog.fs.FileReader.prototype.disposeInternal = function() {
-  goog.fs.FileReader.superClass_.disposeInternal.call(this);
-  delete this.reader_;
-};
-goog.fs.FileReader.prototype.readAsBinaryString = function(blob) {
-  this.reader_.readAsBinaryString(blob);
-};
-goog.fs.FileReader.readAsBinaryString = function(blob) {
-  var reader = new goog.fs.FileReader, d = goog.fs.FileReader.createDeferred_(reader);
-  reader.readAsBinaryString(blob);
-  return d;
-};
-goog.fs.FileReader.prototype.readAsArrayBuffer = function(blob) {
-  this.reader_.readAsArrayBuffer(blob);
-};
-goog.fs.FileReader.readAsArrayBuffer = function(blob) {
-  var reader = new goog.fs.FileReader, d = goog.fs.FileReader.createDeferred_(reader);
-  reader.readAsArrayBuffer(blob);
-  return d;
-};
-goog.fs.FileReader.prototype.readAsText = function(blob, opt_encoding) {
-  this.reader_.readAsText(blob, opt_encoding);
-};
-goog.fs.FileReader.readAsText = function(blob, opt_encoding) {
-  var reader = new goog.fs.FileReader, d = goog.fs.FileReader.createDeferred_(reader);
-  reader.readAsText(blob, opt_encoding);
-  return d;
-};
-goog.fs.FileReader.prototype.readAsDataUrl = function(blob) {
-  this.reader_.readAsDataURL(blob);
-};
-goog.fs.FileReader.readAsDataUrl = function(blob) {
-  var reader = new goog.fs.FileReader, d = goog.fs.FileReader.createDeferred_(reader);
-  reader.readAsDataUrl(blob);
-  return d;
-};
-goog.fs.FileReader.createDeferred_ = function(reader) {
-  var deferred = new goog.async.Deferred;
-  reader.listen(goog.fs.FileReader.EventType.LOAD_END, goog.partial(function(d, r, e) {
-    var result = r.getResult(), error = r.getError();
-    null == result || error ? d.errback(error) : d.callback(result);
-    r.dispose();
-  }, deferred, reader));
-  return deferred;
-};
 goog.dom.vendor = {};
 goog.dom.vendor.getVendorJsPrefix = function() {
   return goog.userAgent.WEBKIT ? "Webkit" : goog.userAgent.GECKO ? "Moz" : goog.userAgent.IE ? "ms" : goog.userAgent.OPERA ? "O" : null;
@@ -24367,6 +24252,126 @@ goog.style.getCssTranslation = function(element) {
   }
   var matches = transform.match(goog.style.MATRIX_TRANSLATION_REGEX_);
   return matches ? new goog.math.Coordinate(parseFloat(matches[1]), parseFloat(matches[2])) : new goog.math.Coordinate(0, 0);
+};
+goog.fs.DOMErrorLike = function() {
+};
+goog.fs.Error = function(error, action) {
+  if (void 0 !== error.name) {
+    this.name = error.name, this.code = goog.fs.Error.getCodeFromName_(error.name);
+  } else {
+    var code = goog.asserts.assertNumber(error.code);
+    this.code = code;
+    this.name = goog.fs.Error.getNameFromCode_(code);
+  }
+  goog.debug.Error.call(this, goog.string.subs("%s %s", this.name, action));
+};
+goog.inherits(goog.fs.Error, goog.debug.Error);
+goog.fs.Error.ErrorName = {ABORT:"AbortError", ENCODING:"EncodingError", INVALID_MODIFICATION:"InvalidModificationError", INVALID_STATE:"InvalidStateError", NOT_FOUND:"NotFoundError", NOT_READABLE:"NotReadableError", NO_MODIFICATION_ALLOWED:"NoModificationAllowedError", PATH_EXISTS:"PathExistsError", QUOTA_EXCEEDED:"QuotaExceededError", SECURITY:"SecurityError", SYNTAX:"SyntaxError", TYPE_MISMATCH:"TypeMismatchError"};
+goog.fs.Error.ErrorCode = {NOT_FOUND:1, SECURITY:2, ABORT:3, NOT_READABLE:4, ENCODING:5, NO_MODIFICATION_ALLOWED:6, INVALID_STATE:7, SYNTAX:8, INVALID_MODIFICATION:9, QUOTA_EXCEEDED:10, TYPE_MISMATCH:11, PATH_EXISTS:12};
+goog.fs.Error.getNameFromCode_ = function(code) {
+  var name = goog.object.findKey(goog.fs.Error.NameToCodeMap_, function(c) {
+    return code == c;
+  });
+  if (void 0 === name) {
+    throw Error("Invalid code: " + code);
+  }
+  return name;
+};
+goog.fs.Error.getCodeFromName_ = function(name) {
+  return goog.fs.Error.NameToCodeMap_[name];
+};
+goog.fs.Error.NameToCodeMap_ = goog.object.create(goog.fs.Error.ErrorName.ABORT, goog.fs.Error.ErrorCode.ABORT, goog.fs.Error.ErrorName.ENCODING, goog.fs.Error.ErrorCode.ENCODING, goog.fs.Error.ErrorName.INVALID_MODIFICATION, goog.fs.Error.ErrorCode.INVALID_MODIFICATION, goog.fs.Error.ErrorName.INVALID_STATE, goog.fs.Error.ErrorCode.INVALID_STATE, goog.fs.Error.ErrorName.NOT_FOUND, goog.fs.Error.ErrorCode.NOT_FOUND, goog.fs.Error.ErrorName.NOT_READABLE, goog.fs.Error.ErrorCode.NOT_READABLE, goog.fs.Error.ErrorName.NO_MODIFICATION_ALLOWED, 
+goog.fs.Error.ErrorCode.NO_MODIFICATION_ALLOWED, goog.fs.Error.ErrorName.PATH_EXISTS, goog.fs.Error.ErrorCode.PATH_EXISTS, goog.fs.Error.ErrorName.QUOTA_EXCEEDED, goog.fs.Error.ErrorCode.QUOTA_EXCEEDED, goog.fs.Error.ErrorName.SECURITY, goog.fs.Error.ErrorCode.SECURITY, goog.fs.Error.ErrorName.SYNTAX, goog.fs.Error.ErrorCode.SYNTAX, goog.fs.Error.ErrorName.TYPE_MISMATCH, goog.fs.Error.ErrorCode.TYPE_MISMATCH);
+goog.fs.ProgressEvent = function(event, target) {
+  goog.events.Event.call(this, event.type, target);
+  this.event_ = event;
+};
+goog.inherits(goog.fs.ProgressEvent, goog.events.Event);
+goog.fs.ProgressEvent.prototype.isLengthComputable = function() {
+  return this.event_.lengthComputable;
+};
+goog.fs.ProgressEvent.prototype.getLoaded = function() {
+  return this.event_.loaded;
+};
+goog.fs.ProgressEvent.prototype.getTotal = function() {
+  return this.event_.total;
+};
+goog.fs.FileReader = function() {
+  goog.events.EventTarget.call(this);
+  this.reader_ = new FileReader;
+  this.reader_.onloadstart = goog.bind(this.dispatchProgressEvent_, this);
+  this.reader_.onprogress = goog.bind(this.dispatchProgressEvent_, this);
+  this.reader_.onload = goog.bind(this.dispatchProgressEvent_, this);
+  this.reader_.onabort = goog.bind(this.dispatchProgressEvent_, this);
+  this.reader_.onerror = goog.bind(this.dispatchProgressEvent_, this);
+  this.reader_.onloadend = goog.bind(this.dispatchProgressEvent_, this);
+};
+goog.inherits(goog.fs.FileReader, goog.events.EventTarget);
+goog.fs.FileReader.ReadyState = {INIT:0, LOADING:1, DONE:2};
+goog.fs.FileReader.EventType = {LOAD_START:"loadstart", PROGRESS:"progress", LOAD:"load", ABORT:"abort", ERROR:"error", LOAD_END:"loadend"};
+goog.fs.FileReader.prototype.abort = function() {
+  try {
+    this.reader_.abort();
+  } catch (e) {
+    throw new goog.fs.Error(e, "aborting read");
+  }
+};
+goog.fs.FileReader.prototype.getReadyState = function() {
+  return this.reader_.readyState;
+};
+goog.fs.FileReader.prototype.getResult = function() {
+  return this.reader_.result;
+};
+goog.fs.FileReader.prototype.getError = function() {
+  return this.reader_.error && new goog.fs.Error(this.reader_.error, "reading file");
+};
+goog.fs.FileReader.prototype.dispatchProgressEvent_ = function(event) {
+  this.dispatchEvent(new goog.fs.ProgressEvent(event, this));
+};
+goog.fs.FileReader.prototype.disposeInternal = function() {
+  goog.fs.FileReader.superClass_.disposeInternal.call(this);
+  delete this.reader_;
+};
+goog.fs.FileReader.prototype.readAsBinaryString = function(blob) {
+  this.reader_.readAsBinaryString(blob);
+};
+goog.fs.FileReader.readAsBinaryString = function(blob) {
+  var reader = new goog.fs.FileReader, d = goog.fs.FileReader.createDeferred_(reader);
+  reader.readAsBinaryString(blob);
+  return d;
+};
+goog.fs.FileReader.prototype.readAsArrayBuffer = function(blob) {
+  this.reader_.readAsArrayBuffer(blob);
+};
+goog.fs.FileReader.readAsArrayBuffer = function(blob) {
+  var reader = new goog.fs.FileReader, d = goog.fs.FileReader.createDeferred_(reader);
+  reader.readAsArrayBuffer(blob);
+  return d;
+};
+goog.fs.FileReader.prototype.readAsText = function(blob, opt_encoding) {
+  this.reader_.readAsText(blob, opt_encoding);
+};
+goog.fs.FileReader.readAsText = function(blob, opt_encoding) {
+  var reader = new goog.fs.FileReader, d = goog.fs.FileReader.createDeferred_(reader);
+  reader.readAsText(blob, opt_encoding);
+  return d;
+};
+goog.fs.FileReader.prototype.readAsDataUrl = function(blob) {
+  this.reader_.readAsDataURL(blob);
+};
+goog.fs.FileReader.readAsDataUrl = function(blob) {
+  var reader = new goog.fs.FileReader, d = goog.fs.FileReader.createDeferred_(reader);
+  reader.readAsDataUrl(blob);
+  return d;
+};
+goog.fs.FileReader.createDeferred_ = function(reader) {
+  var deferred = new goog.async.Deferred;
+  reader.listen(goog.fs.FileReader.EventType.LOAD_END, goog.partial(function(d, r, e) {
+    var result = r.getResult(), error = r.getError();
+    null == result || error ? d.errback(error) : d.callback(result);
+    r.dispose();
+  }, deferred, reader));
+  return deferred;
 };
 ee.layers.AbstractOverlay = function(tileSource, opt_options) {
   goog.events.EventTarget.call(this);
