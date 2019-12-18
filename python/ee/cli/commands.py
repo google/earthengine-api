@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python2, python3
 """Commands supported by the Earth Engine command line interface.
 
 Each command is implemented by extending the Command class. Each class
@@ -6,10 +7,12 @@ defines the supported positional and optional arguments, as well as
 the actions to be taken when the command is executed.
 """
 
+from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function
 
 # pylint: disable=g-bad-import-order
-from six.moves import xrange
+from six.moves import range
 import argparse
 import calendar
 from collections import Counter
@@ -39,13 +42,6 @@ except ImportError:
   TENSORFLOW_INSTALLED = False
 
 # pylint: disable=g-import-not-at-top
-try:
-  # Python 2.x
-  import urlparse
-except ImportError:
-  # Python 3.x
-  from urllib.parse import urlparse
-
 import ee
 from ee.cli import utils
 
@@ -463,16 +459,27 @@ class AclChCommand(object):
       raise ee.EEException('Multiple permission settings for "%s".' % user)
     permissions[prefixed_user] = 'D'
 
+  def _user_account_type(self, user):
+    """Returns the appropriate account type for a user email."""
+
+    # Here 'user' ends with ':R', ':W', or ':D', so we extract
+    # just the username.
+    if user.split(':')[0].endswith('iam.gserviceaccount.com'):
+      return 'serviceAccount:'
+    else:
+      return 'user:'
+
   def _parse_permissions(self, args):
     """Decodes and sanity-checks the permissions in the arguments."""
     # A dictionary mapping from user ids to one of 'R', 'W', or 'D'.
     permissions = {}
     if args.u:
-      for grant in args.u:
-        self._set_permission(permissions, grant, 'user:')
+      for user in args.u:
+        self._set_permission(permissions, user, self._user_account_type(user))
     if args.d:
       for user in args.d:
-        self._remove_permission(permissions, user, 'user:')
+        self._remove_permission(
+            permissions, user, self._user_account_type(user))
     if args.g:
       for group in args.g:
         self._set_permission(permissions, group, 'group:')
@@ -559,7 +566,7 @@ class AclSetCommand(object):
   def run(self, args, config):
     """Sets asset ACL to a canned ACL or one provided in a JSON file."""
     config.ee_init()
-    if args.file_or_acl_name in self.CANNED_ACLS.keys():
+    if args.file_or_acl_name in list(self.CANNED_ACLS.keys()):
       acl = self.CANNED_ACLS[args.file_or_acl_name]
     else:
       acl = json.load(open(args.file_or_acl_name))
@@ -1188,7 +1195,7 @@ class UploadImageCommand(object):
             'Inconsistent number of bands in --{}: expected {} but found {}.'
             .format(flag_name, len(bands), num_bands))
     else:
-      bands = ['b%d' % (i + 1) for i in xrange(num_bands)]
+      bands = ['b%d' % (i + 1) for i in range(num_bands)]
     return bands
 
   def run(self, args, config):
@@ -1558,7 +1565,7 @@ class UploadImageManifestCommand(_UploadManifestBase):
 
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
-    print (
+    print(
         'This command is deprecated. '
         'Use "earthengine upload image --manifest".'
     )
@@ -1572,7 +1579,7 @@ class UploadTableManifestCommand(_UploadManifestBase):
   name = 'upload_table_manifest'
 
   def run(self, args, config):
-    print (
+    print(
         'This command is deprecated. '
         'Use "earthengine upload table --manifest".'
     )
@@ -1725,7 +1732,7 @@ class PrepareModelCommand(object):
     if len(spec) != len(input_names_set):
       raise ValueError(
           'Specified input ops were missing from graph: {}.'.format(
-              list(set(input_names_set).difference(spec.keys()))))
+              list(set(input_names_set).difference(list(spec.keys())))))
     return spec
 
   @staticmethod
@@ -1744,7 +1751,7 @@ class PrepareModelCommand(object):
     # graph when we load it and we don't know what those parts are yet.
     tf.reset_default_graph()
 
-    input_op_keys = in_map.keys()
+    input_op_keys = list(in_map.keys())
     input_new_keys = list(in_map.values())
 
     # Get the shape and type of the input tensors

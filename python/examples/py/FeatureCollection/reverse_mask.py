@@ -8,9 +8,9 @@ import ee
 import ee.mapclient
 
 ee.Initialize()
-ee.mapclient.centerMap(-100, 40, 4)
+ee.mapclient.centerMap(-115, 39, 5)
 
-fc = (ee.FeatureCollection('ft:1Ec8IWsP8asxN-ywSqgXWMuBaxI6pPaeh6hC64lA')
+fc = (ee.FeatureCollection('RESOLVE/ECOREGIONS/2017')
       .filter(ee.Filter().eq('ECO_NAME', 'Great Basin shrub steppe')))
 
 # Start with a black image.

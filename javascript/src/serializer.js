@@ -301,6 +301,7 @@ ee.Serializer.encodeCloudApiExpression = function(obj) {
  * @param {*} obj The object to Serialize.
  * @return {*} A JSON-compatible structure representing the input.
  * @export
+ * @suppress {missingProperties} object.Serializable$values
  */
 ee.Serializer.encodeCloudApiPretty = function(obj) {
   const encoded = new ee.Serializer(false).encodeForCloudApi_(obj);

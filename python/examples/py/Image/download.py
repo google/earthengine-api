@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 """Download example."""
 
+from __future__ import print_function
 import ee
 import ee.mapclient
 
@@ -13,4 +14,4 @@ path = image1.getDownloadUrl({
     'crs': 'EPSG:4326',
     'region': '[[-120, 35], [-119, 35], [-119, 34], [-120, 34]]'
 })
-print path
+print(path)

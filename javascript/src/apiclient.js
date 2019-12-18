@@ -30,7 +30,8 @@ const {MakeRequestParams, processParams} = requestParamsModule;
 const {PromiseRequestService} = requestServiceModule;
 
 const VERSION = 'v1alpha';
-const API_CLIENT_VERSION = '0.1.208';
+const API_CLIENT_VERSION = '0.1.209';
+const LEGACY_DOWNLOAD_REGEX = /^\/(download|table).*/;
 
 exports.VERSION = VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -765,8 +766,9 @@ apiclient.send = function(
   const headers = {
     'Content-Type': contentType,
   };
-
-  if (API_CLIENT_VERSION && apiclient.getCloudApiEnabled()) {
+  const forceLegacyApi = LEGACY_DOWNLOAD_REGEX.test(path);
+  if (API_CLIENT_VERSION && apiclient.getCloudApiEnabled() &&
+      !forceLegacyApi) {
     let version = API_CLIENT_VERSION;
     headers[apiclient.API_CLIENT_VERSION_HEADER] = 'ee-js/' + version;
   }
@@ -797,7 +799,8 @@ apiclient.send = function(
       headers[apiclient.PROFILE_REQUEST_HEADER] = '1';
     }
     if (apiclient.getProject() &&
-        apiclient.getProject() !== apiclient.DEFAULT_PROJECT_) {
+        apiclient.getProject() !== apiclient.DEFAULT_PROJECT_ &&
+        !forceLegacyApi) {
       headers[apiclient.USER_PROJECT_OVERRIDE_HEADER_] = apiclient.getProject();
     }
   } else

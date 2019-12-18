@@ -791,18 +791,6 @@ $jscomp.polyfill("String.prototype.padStart", function(orig) {
 }, "es8", "es3");
 var goog = goog || {};
 goog.global = this || self;
-goog.isDef = function(val) {
-  return void 0 !== val;
-};
-goog.isString = function(val) {
-  return "string" == typeof val;
-};
-goog.isBoolean = function(val) {
-  return "boolean" == typeof val;
-};
-goog.isNumber = function(val) {
-  return "number" == typeof val;
-};
 goog.exportPath_ = function(name, opt_object, opt_objectToExportTo) {
   var parts = name.split("."), cur = opt_objectToExportTo || goog.global;
   parts[0] in cur || "undefined" == typeof cur.execScript || cur.execScript("var " + parts[0]);
@@ -1078,12 +1066,6 @@ goog.typeOf = function(value) {
   }
   return s;
 };
-goog.isNull = function(val) {
-  return null === val;
-};
-goog.isDefAndNotNull = function(val) {
-  return null != val;
-};
 goog.isArray = function(val) {
   return "array" == goog.typeOf(val);
 };
@@ -1258,38 +1240,6 @@ goog.inherits = function(childCtor, parentCtor) {
     }
     return parentCtor.prototype[methodName].apply(me, args);
   };
-};
-goog.base = function(me, opt_methodName, var_args) {
-  var caller = arguments.callee.caller;
-  if (goog.STRICT_MODE_COMPATIBLE || goog.DEBUG && !caller) {
-    throw Error("arguments.caller not defined.  goog.base() cannot be used with strict mode code. See http://www.ecma-international.org/ecma-262/5.1/#sec-C");
-  }
-  if ("undefined" !== typeof caller.superClass_) {
-    for (var ctorArgs = Array(arguments.length - 1), i = 1; i < arguments.length; i++) {
-      ctorArgs[i - 1] = arguments[i];
-    }
-    return caller.superClass_.constructor.apply(me, ctorArgs);
-  }
-  if ("string" != typeof opt_methodName && "symbol" != typeof opt_methodName) {
-    throw Error("method names provided to goog.base must be a string or a symbol");
-  }
-  var args = Array(arguments.length - 2);
-  for (i = 2; i < arguments.length; i++) {
-    args[i - 2] = arguments[i];
-  }
-  for (var foundCaller = !1, proto = me.constructor.prototype; proto; proto = Object.getPrototypeOf(proto)) {
-    if (proto[opt_methodName] === caller) {
-      foundCaller = !0;
-    } else {
-      if (foundCaller) {
-        return proto[opt_methodName].apply(me, args);
-      }
-    }
-  }
-  if (me[opt_methodName] === caller) {
-    return me.constructor.prototype[opt_methodName].apply(me, args);
-  }
-  throw Error("goog.base called from a method of one name to a method of a different name");
 };
 goog.scope = function(fn) {
   if (goog.isInModuleLoader_()) {
@@ -10065,13 +10015,15 @@ module$exports$eeapiclient$ee_api_client.Thumbnail = function(parameters) {
   this.Serializable$set("bandIds", null == parameters.bandIds ? null : parameters.bandIds);
   this.Serializable$set("visualizationOptions", null == parameters.visualizationOptions ? null : parameters.visualizationOptions);
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
+  this.Serializable$set("thumbnailOptions", null == parameters.thumbnailOptions ? null : parameters.thumbnailOptions);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.Thumbnail, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.Thumbnail.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.Thumbnail;
 };
 module$exports$eeapiclient$ee_api_client.Thumbnail.prototype.getPartialClassMetadata = function() {
-  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.ThumbnailFileFormatEnum}, keys:"bandIds expression fileFormat grid name visualizationOptions".split(" "), objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, grid:module$exports$eeapiclient$ee_api_client.PixelGrid, visualizationOptions:module$exports$eeapiclient$ee_api_client.VisualizationOptions}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.ThumbnailFileFormatEnum}, keys:"bandIds expression fileFormat grid name thumbnailOptions visualizationOptions".split(" "), objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, grid:module$exports$eeapiclient$ee_api_client.PixelGrid, thumbnailOptions:module$exports$eeapiclient$ee_api_client.ThumbnailOptions, 
+  visualizationOptions:module$exports$eeapiclient$ee_api_client.VisualizationOptions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.Thumbnail.prototype, {bandIds:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bandIds") ? this.Serializable$get("bandIds") : null;
@@ -10093,6 +10045,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("name") ? this.Serializable$get("name") : null;
 }, set:function(value) {
   this.Serializable$set("name", value);
+}}, thumbnailOptions:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("thumbnailOptions") ? this.Serializable$get("thumbnailOptions") : null;
+}, set:function(value) {
+  this.Serializable$set("thumbnailOptions", value);
 }}, visualizationOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("visualizationOptions") ? this.Serializable$get("visualizationOptions") : null;
 }, set:function(value) {
@@ -10100,6 +10056,35 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }}});
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.Thumbnail, {FileFormat:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.ThumbnailFileFormatEnum;
+}}});
+module$exports$eeapiclient$ee_api_client.ThumbnailOptionsParameters = function module$contents$eeapiclient$ee_api_client_ThumbnailOptionsParameters() {
+};
+module$exports$eeapiclient$ee_api_client.ThumbnailOptions = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("name", null == parameters.name ? null : parameters.name);
+  this.Serializable$set("returnAsZip", null == parameters.returnAsZip ? null : parameters.returnAsZip);
+  this.Serializable$set("filePerBand", null == parameters.filePerBand ? null : parameters.filePerBand);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.ThumbnailOptions, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.ThumbnailOptions.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.ThumbnailOptions;
+};
+module$exports$eeapiclient$ee_api_client.ThumbnailOptions.prototype.getPartialClassMetadata = function() {
+  return {keys:["filePerBand", "name", "returnAsZip"]};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ThumbnailOptions.prototype, {filePerBand:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("filePerBand") ? this.Serializable$get("filePerBand") : null;
+}, set:function(value) {
+  this.Serializable$set("filePerBand", value);
+}}, name:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("name") ? this.Serializable$get("name") : null;
+}, set:function(value) {
+  this.Serializable$set("name", value);
+}}, returnAsZip:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("returnAsZip") ? this.Serializable$get("returnAsZip") : null;
+}, set:function(value) {
+  this.Serializable$set("returnAsZip", value);
 }}});
 module$exports$eeapiclient$ee_api_client.TileOptionsParameters = function module$contents$eeapiclient$ee_api_client_TileOptionsParameters() {
 };
@@ -14873,9 +14858,9 @@ goog.Uri.QueryData.prototype.extend = function(var_args) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE, module$contents$ee$apiclient_deserialize = module$exports$eeapiclient$domain_object.deserialize, module$contents$ee$apiclient_serialize = module$exports$eeapiclient$domain_object.serialize, module$contents$ee$apiclient_Serializable = 
 module$exports$eeapiclient$domain_object.Serializable, module$contents$ee$apiclient_SerializableCtor = module$exports$eeapiclient$domain_object.SerializableCtor, module$contents$ee$apiclient_MakeRequestParams = module$exports$eeapiclient$request_params.MakeRequestParams, module$contents$ee$apiclient_processParams = module$exports$eeapiclient$request_params.processParams, 
-module$contents$ee$apiclient_PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
+module$contents$ee$apiclient_PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(download|table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.208";
+ee.apiclient.API_CLIENT_VERSION = "0.1.209";
 ee.apiclient.NULL_VALUE = module$contents$ee$apiclient_NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$contents$ee$apiclient_PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$ee$apiclient_MakeRequestParams;
@@ -15138,10 +15123,10 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType};
-  if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled()) {
-    var version = "0.1.208";
-    "0.1.208" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
+  if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
+    var version = "0.1.209";
+    "0.1.209" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -15158,8 +15143,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   }
   params = params ? params.clone() : new goog.Uri.QueryData;
   null != module$contents$ee$apiclient_apiclient.cloudApiKey_ && params.add("key", module$contents$ee$apiclient_apiclient.cloudApiKey_);
-  module$contents$ee$apiclient_apiclient.cloudApiEnabled_ ? (profileHookAtCallTime && (headers[module$contents$ee$apiclient_apiclient.PROFILE_REQUEST_HEADER] = "1"), module$contents$ee$apiclient_apiclient.getProject() && module$contents$ee$apiclient_apiclient.getProject() !== module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_ && (headers[module$contents$ee$apiclient_apiclient.USER_PROJECT_OVERRIDE_HEADER_] = module$contents$ee$apiclient_apiclient.getProject())) : profileHookAtCallTime && params.add("profiling", 
-  "1");
+  module$contents$ee$apiclient_apiclient.cloudApiEnabled_ ? (profileHookAtCallTime && (headers[module$contents$ee$apiclient_apiclient.PROFILE_REQUEST_HEADER] = "1"), module$contents$ee$apiclient_apiclient.getProject() && module$contents$ee$apiclient_apiclient.getProject() !== module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_ && !forceLegacyApi && (headers[module$contents$ee$apiclient_apiclient.USER_PROJECT_OVERRIDE_HEADER_] = module$contents$ee$apiclient_apiclient.getProject())) : profileHookAtCallTime && 
+  params.add("profiling", "1");
   params = module$contents$ee$apiclient_apiclient.paramAugmenter_(params, path);
   null != module$contents$ee$apiclient_apiclient.xsrfToken_ && (headers["X-XSRF-Token"] = module$contents$ee$apiclient_apiclient.xsrfToken_);
   null != module$contents$ee$apiclient_apiclient.appIdToken_ && (headers[module$contents$ee$apiclient_apiclient.APP_ID_TOKEN_HEADER_] = module$contents$ee$apiclient_apiclient.appIdToken_);
@@ -22367,8 +22352,13 @@ ee.ImageCollection.prototype.elementType = function() {
   return ee.Image;
 };
 ee.batch = {};
+ee.batch.Export = {};
 var ComputedObject = ee.ComputedObject, ExportDestination = ee.data.ExportDestination, ExportType = ee.data.ExportType, GoogPromise = goog.Promise, googArray = goog.array, googObject = goog.object, json = goog.json;
-ee.batch.Export = {image:{}, map:{}, table:{}, video:{}, videoMap:{}};
+ee.batch.Export.image = {};
+ee.batch.Export.map = {};
+ee.batch.Export.table = {};
+ee.batch.Export.video = {};
+ee.batch.Export.videoMap = {};
 ee.batch.ExportTask = function(config) {
   this.config_ = config;
   this.id = null;

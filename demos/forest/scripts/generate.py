@@ -2,6 +2,7 @@
 """Generates data for the Global Forest Change Explorer web app.
 """
 
+from __future__ import print_function
 
 
 import analysis
@@ -15,18 +16,17 @@ def main():
   ee.Initialize()
   destinations = ingestion.LoadDestinations()
 
-  print 'Starting export of GlobalForestChangeExplorerGeometries.kml to Drive.'
+  print('Starting export of GlobalForestChangeExplorerGeometries.kml to Drive.')
   analysis.ExportGeometriesKml(destinations)
 
-  print 'Generating static/destinations/index.json.'
+  print('Generating static/destinations/index.json.')
   analysis.GenerateIndexJson(destinations)
 
-  print 'Generating static/destinations/details.json.'
+  print('Generating static/destinations/details.json.')
   analysis.GenerateDetailsJson(destinations)
 
-  print 'Generating static/thumbnails/*.'
+  print('Generating static/thumbnails/*.')
   thumbnails.GenerateThumbnails(destinations)
 
 if __name__ == '__main__':
   main()
-

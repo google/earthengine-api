@@ -1,10 +1,13 @@
 #!/usr/bin/env python
+# Lint as: python2, python3
 """Support utilities used by the Earth Engine command line interface.
 
 This module defines the Command class which is the base class of all
 the commands supported by the EE command line tool. It also defines
 the classes for configuration and runtime context management.
 """
+from __future__ import absolute_import
+from __future__ import division
 from __future__ import print_function
 import collections
 from datetime import datetime
@@ -15,8 +18,10 @@ import tempfile
 import threading
 import time
 
-import urllib
 import httplib2
+import six
+from six.moves import input
+from six.moves import urllib
 
 from google.cloud import storage
 from google.oauth2.credentials import Credentials
@@ -187,7 +192,7 @@ class GcsHelper(object):
       if stripped_name == '/':
         continue
 
-      output_path = temp_dir + stripped_name
+      output_path = temp_dir + six.ensure_str(stripped_name)
       dir_path = os.path.dirname(output_path)
       if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -215,13 +220,13 @@ class GcsHelper(object):
 
 
 def is_gcs_path(path):
-  return path.strip().startswith('gs://')
+  return six.ensure_str(path.strip()).startswith('gs://')
 
 
 def query_yes_no(msg):
   print('%s (y/n)' % msg)
   while True:
-    confirm = raw_input().lower()
+    confirm = input().lower()
     if confirm == 'y':
       return True
     elif confirm == 'n':
@@ -231,7 +236,10 @@ def query_yes_no(msg):
 
 
 def truncate(string, length):
-  return (string[:length] + '..') if len(string) > length else string
+  if len(string) > length:
+    return six.ensure_str(string[:length]) + '..'
+  else:
+    return string
 
 
 def wait_for_task(task_id, timeout, log_progress=True):
@@ -316,7 +324,7 @@ def expand_gcs_wildcards(source_files):
 
     # Capture the part of the path after gs:// and before the first /
     bucket_regex = 'gs://([a-z0-9_.-]+)(/.*)'
-    bucket_match = re.match(bucket_regex, source)
+    bucket_match = re.match(bucket_regex, six.ensure_str(source))
     if bucket_match:
       bucket, rest = bucket_match.group(1, 2)
     else:
@@ -327,7 +335,7 @@ def expand_gcs_wildcards(source_files):
     bucket_files = _gcs_ls(bucket, prefix)
 
     # Regex to match the source path with wildcards expanded
-    regex = re.escape(source).replace(r'\*', '[^/]*') + '$'
+    regex = six.ensure_str(re.escape(source)).replace(r'\*', '[^/]*') + '$'
     for gcs_path in bucket_files:
       if re.match(regex, gcs_path):
         yield gcs_path
@@ -359,14 +367,13 @@ def _gcs_ls(bucket, prefix=''):
       params['pageToken'] = next_page_token
     if prefix:
       params['prefix'] = prefix
-    payload = urllib.urlencode(params)
+    payload = urllib.parse.urlencode(params)
 
     url = base_url + '?' + payload
     try:
       response, content = http.request(url, method=method)
     except httplib2.HttpLib2Error as e:
-      raise ee.ee_exception.EEException(
-          'Unexpected HTTP error: %s' % e.message)
+      raise ee.ee_exception.EEException('Unexpected HTTP error: %s' % str(e))
 
     if response.status < 100 or response.status >= 300:
       raise ee.ee_exception.EEException(('Error retrieving bucket %s;'

@@ -29,13 +29,17 @@ const googArray = goog.array;
 const googObject = goog.object;
 const json = goog.json;
 
+/** @const */
+ee.batch.Export.image = {};
 
-ee.batch.Export = {
-  image: {},
-  map: {},
-  table: {},
-  video: {},
-};
+/** @const */
+ee.batch.Export.map = {};
+
+/** @const */
+ee.batch.Export.table = {};
+
+/** @const */
+ee.batch.Export.video = {};
 
 
 

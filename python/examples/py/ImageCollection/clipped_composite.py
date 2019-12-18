@@ -10,7 +10,7 @@ import ee
 import ee.mapclient
 
 ee.Initialize()
-ee.mapclient.centerMap(-110, 40, 5)
+ee.mapclient.centerMap(-120, 37, 6)
 
 # Create a Landsat 7, median-pixel composite for Spring of 2000.
 collection = (ee.ImageCollection('LANDSAT/LE07/C01/T1')
@@ -19,8 +19,8 @@ collection = (ee.ImageCollection('LANDSAT/LE07/C01/T1')
 image1 = collection.median()
 
 # Clip to the output image to the California state boundary.
-fc = (ee.FeatureCollection('ft:1fRY18cjsHzDgGiJiS2nnpUU3v9JPDc2HNaR7Xk8')
-      .filter(ee.Filter().eq('Name', 'California')))
+fc = (ee.FeatureCollection('TIGER/2018/States')
+      .filter(ee.Filter().eq('NAME', 'California')))
 image2 = image1.clipToCollection(fc)
 
 # Select the red, green and blue bands.

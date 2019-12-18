@@ -255,7 +255,7 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
  *         dimension is computed by proportional scaling.
  *   - region Geospatial region of the image to render, it may be an ee.Geometry,
  *         GeoJSON, or an array of lat/lon points (E,S,W,N). If not set the
-           default is the bounds image.
+ *         default is the bounds image.
  *   - format (string) Either 'png' or 'jpg'.
  * @param {function(string, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
