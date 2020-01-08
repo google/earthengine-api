@@ -1358,7 +1358,16 @@ def _prepare_and_run_export(request_id, params, export_endpoint):
     An Operation with information about the created task.
   """
   if request_id:
-    params['requestId'] = request_id
+    if isinstance(request_id, six.text_type):
+      params['requestId'] = request_id
+    # If someone passes request_id via newTaskId() (which returns a list)
+    # try to do the right thing and use the first entry as a request ID.
+    elif (isinstance(request_id, list)
+          and len(request_id) == 1
+          and isinstance(request_id[0], six.text_type)):
+      params['requestId'] = request_id[0]
+    else:
+      raise ValueError('"requestId" must be a string.')
   if isinstance(params['expression'], encodable.Encodable):
     params['expression'] = serializer.encode(
         params['expression'], for_cloud_api=True)
@@ -1843,17 +1852,17 @@ def create_assets(asset_ids, asset_type, mk_parents):
       continue
     if mk_parents:
       parts = asset_id.split('/')
-      # Don't check the top level - for some users, the 'users' meta-folder is
-      # invisible.
-      path = parts[0] + '/'
-      for part in parts[1:-1]:
-        path += part
-        if getInfo(path) is None:
-          if _use_cloud_api:
-            createAsset({'type': ASSET_TYPE_FOLDER_CLOUD}, path)
-          else:
-            createAsset({'type': ASSET_TYPE_FOLDER}, path)
-        path += '/'
+      # We don't need to create the namespace and the user's/project's folder.
+      if len(parts) > 2:
+        path = parts[0] + '/' + parts[1] + '/'
+        for part in parts[2:-1]:
+          path += part
+          if getInfo(path) is None:
+            if _use_cloud_api:
+              createAsset({'type': ASSET_TYPE_FOLDER_CLOUD}, path)
+            else:
+              createAsset({'type': ASSET_TYPE_FOLDER}, path)
+          path += '/'
     createAsset({'type': asset_type}, asset_id)
 
 

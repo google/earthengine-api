@@ -88,7 +88,7 @@ def main():
   # pylint: disable=g-import-not-at-top
   try:
     # We need InitGoogle initialization since TensorFlow expects it.
-    import tensorflow as tf
+    import tensorflow.compat.v1 as tf
     tf.compat.v1.app.run(_run_command, argv=sys.argv[:1])
   except ImportError:
     _run_command()

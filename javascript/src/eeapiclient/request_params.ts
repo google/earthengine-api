@@ -53,6 +53,8 @@ export interface MakeRequestParams {
   body?: {};
   headers?: {[key: string]: string};
   authType?: AuthType;
+  /** The ID of the API that the request belongs to. */
+  apiId?: string;
 }
 
 /**

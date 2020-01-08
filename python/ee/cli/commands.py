@@ -31,10 +31,10 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
 # pylint: disable=g-import-not-at-top
 try:
-  import tensorflow as tf
-  from tensorflow.saved_model import utils as saved_model_utils
-  from tensorflow.saved_model import signature_constants
-  from tensorflow.saved_model import signature_def_utils
+  import tensorflow.compat.v1 as tf
+  from tensorflow.compat.v1.saved_model import utils as saved_model_utils
+  from tensorflow.compat.v1.saved_model import signature_constants
+  from tensorflow.compat.v1.saved_model import signature_def_utils
   # Prevent TensorFlow from logging anything at the python level.
   tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
   TENSORFLOW_INSTALLED = True

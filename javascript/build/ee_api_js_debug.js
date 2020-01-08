@@ -1,3 +1,8 @@
+/*
+
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: Apache-2.0
+*/
 var $jscomp = $jscomp || {};
 $jscomp.scope = {};
 $jscomp.arrayIteratorImpl = function(array) {
@@ -3109,11 +3114,6 @@ goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, 
   return currentString;
 };
 goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
-/*
-
- Copyright The Closure Library Authors.
- SPDX-License-Identifier: Apache-2.0
-*/
 goog.fs = {};
 goog.fs.url = {};
 goog.fs.url.createObjectUrl = function(blob) {
@@ -6356,9 +6356,6 @@ module$exports$eeapiclient$domain_object.Serializable = function() {
 };
 module$exports$eeapiclient$domain_object.Serializable.prototype.getClassMetadata = function() {
   return module$contents$eeapiclient$domain_object_buildClassMetadataFromPartial(this.getPartialClassMetadata());
-};
-module$exports$eeapiclient$domain_object.Serializable.prototype.getPartialClassMetadata = function() {
-  return {};
 };
 module$exports$eeapiclient$domain_object.Serializable.prototype.Serializable$get = function(key) {
   return this.Serializable$values.hasOwnProperty(key) ? this.Serializable$values[key] : null;
@@ -14860,7 +14857,7 @@ var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_NU
 module$exports$eeapiclient$domain_object.Serializable, module$contents$ee$apiclient_SerializableCtor = module$exports$eeapiclient$domain_object.SerializableCtor, module$contents$ee$apiclient_MakeRequestParams = module$exports$eeapiclient$request_params.MakeRequestParams, module$contents$ee$apiclient_processParams = module$exports$eeapiclient$request_params.processParams, 
 module$contents$ee$apiclient_PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(download|table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.209";
+ee.apiclient.API_CLIENT_VERSION = "0.1.210";
 ee.apiclient.NULL_VALUE = module$contents$ee$apiclient_NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$contents$ee$apiclient_PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$ee$apiclient_MakeRequestParams;
@@ -15125,8 +15122,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType}, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.209";
-    "0.1.209" === version && (version = "latest");
+    var version = "0.1.210";
+    "0.1.210" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();

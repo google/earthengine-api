@@ -95,13 +95,9 @@ export abstract class Serializable implements ISerializable {
   }
   abstract getConstructor(): SerializableCtor<ISerializable>;
 
-  // The do not just directly implement getClassMetadata to reduce the size
-  // of generated classes when only some fields are populated.
-  // TODO(kloveless): Make this abstract once all users override this, rather
-  // than overriding getClassMetadata.
-  getPartialClassMetadata(): Partial<ClassMetadata> {
-    return {};
-  }
+  // Subclasses do not just directly implement getClassMetadata to reduce the
+  // size of generated classes when only some fields are populated.
+  abstract getPartialClassMetadata(): Partial<ClassMetadata>;
 
   /**
    * Gets a value by the metadata key.

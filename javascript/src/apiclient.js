@@ -30,7 +30,7 @@ const {MakeRequestParams, processParams} = requestParamsModule;
 const {PromiseRequestService} = requestServiceModule;
 
 const VERSION = 'v1alpha';
-const API_CLIENT_VERSION = '0.1.209';
+const API_CLIENT_VERSION = '0.1.210';
 const LEGACY_DOWNLOAD_REGEX = /^\/(download|table).*/;
 
 exports.VERSION = VERSION;
