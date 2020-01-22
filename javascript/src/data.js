@@ -1978,6 +1978,7 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
 ee.data.AssetType = {
   ALGORITHM: 'Algorithm',
   FOLDER: 'Folder',
+  FEATURE_COLLECTION: 'FeatureCollection',
   IMAGE: 'Image',
   IMAGE_COLLECTION: 'ImageCollection',
   TABLE: 'Table',
@@ -2452,7 +2453,7 @@ ee.data.ImageDescription = class {
 ee.data.TableDescription = class {
   constructor() {
     /**
-     * This field is always "Table."
+     * This field is always "Table".
      * @export {!ee.data.AssetType}
      */
     this.type;

@@ -3,6 +3,8 @@
 import copy
 import json
 
+import mock
+
 import unittest
 
 import ee
@@ -115,12 +117,47 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('TESTTASKID', self.start_call_params['id'])
     self.assertEqual('bar', self.start_call_params['description'])
 
+  def testTaskStartCloudApi(self):
+    """Verifies that Task.start() calls the server appropriately."""
+    mock_cloud_api_resource = mock.MagicMock()
+    mock_cloud_api_resource.projects().table().export().execute.return_value = {
+        'name': 'projects/earthengine-legacy/operations/foo',
+        'metadata': {},
+    }
+    with apitestcase.UsingCloudApi(cloud_api_resource=mock_cloud_api_resource):
+      task = ee.batch.Export.table(ee.FeatureCollection('foo'), 'bar')
+      task.start()
+      export_args = mock_cloud_api_resource.projects().table().export.call_args
+      self.assertEqual(task.id, 'foo')
+      self.assertTrue(export_args[1]['body']['requestId'])
+      self.assertEqual(export_args[1]['body']['description'], 'bar')
+
   def testTaskCancel(self):
     """Verifies that Task.cancel() calls the server appropriately."""
     task = ee.batch.Task.list()[0]
     task.cancel()
     self.assertEqual('TEST1', self.update_call_params['id'])
     self.assertEqual('CANCEL', self.update_call_params['action'])
+
+  def testTaskCancelCloudApi(self):
+    mock_cloud_api_resource = mock.MagicMock()
+    mock_cloud_api_resource.projects().operations().list(
+    ).execute.return_value = {
+        'operations': [{
+            'name': 'projects/earthengine-legacy/operations/TEST1',
+            'metadata': {},
+        }]
+    }
+    mock_cloud_api_resource.projects().operations(
+    ).list_next.return_value = None
+    with apitestcase.UsingCloudApi(cloud_api_resource=mock_cloud_api_resource):
+      task = ee.batch.Task.list()[0]
+      task.cancel()
+      cancel_args = mock_cloud_api_resource.projects().operations(
+      ).cancel.call_args
+      self.assertEqual(
+          cancel_args[1]['name'],
+          'projects/earthengine-legacy/operations/TEST1')
 
   def testStringRepresentation(self):
     """Verifies the string representation of tasks."""
@@ -944,13 +981,15 @@ class BatchTestCase(apitestcase.ApiTestCase):
   def testExportTableToAsset(self):
     """Verifies the export task created by Export.table.toAsset()."""
     task = ee.batch.Export.table.toAsset(
-        collection=ee.FeatureCollection('foo'), assetId='users/foo/bar')
+        collection=ee.FeatureCollection('foo'),
+        description='foo',
+        assetId='users/foo/bar')
     self.assertEqual('TESTTASKID', task.id)
     self.assertEqual('EXPORT_FEATURES', task.task_type)
     self.assertEqual('UNSUBMITTED', task.state)
     self.assertEqual({
         'json': ee.FeatureCollection('foo').serialize(),
-        'description': 'myExportTableTask',
+        'description': 'foo',
         'assetId': 'users/foo/bar'
     }, task.config)
 
@@ -958,14 +997,16 @@ class BatchTestCase(apitestcase.ApiTestCase):
     """Verifies the export task created by Export.table.toAsset()."""
     with apitestcase.UsingCloudApi():
       task = ee.batch.Export.table.toAsset(
-          collection=ee.FeatureCollection('foo'), assetId='users/foo/bar')
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          assetId='users/foo/bar')
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
       self.assertEqual({
           'expression': ee.FeatureCollection('foo'),
-          'description': 'myExportTableTask',
+          'description': 'foo',
           'assetExportOptions': {
               'earthEngineDestination': {
                   'name': 'projects/earthengine-legacy/assets/users/foo/bar'

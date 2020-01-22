@@ -1358,13 +1358,13 @@ def _prepare_and_run_export(request_id, params, export_endpoint):
     An Operation with information about the created task.
   """
   if request_id:
-    if isinstance(request_id, six.text_type):
+    if isinstance(request_id, six.string_types):
       params['requestId'] = request_id
     # If someone passes request_id via newTaskId() (which returns a list)
     # try to do the right thing and use the first entry as a request ID.
     elif (isinstance(request_id, list)
           and len(request_id) == 1
-          and isinstance(request_id[0], six.text_type)):
+          and isinstance(request_id[0], six.string_types)):
       params['requestId'] = request_id[0]
     else:
       raise ValueError('"requestId" must be a string.')

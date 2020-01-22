@@ -88,7 +88,8 @@ export function buildClassMetadataFromPartial(
  */
 export abstract class Serializable implements ISerializable {
   // NB: Serializable$ is a prefix to prevent internal mangling.
-  private Serializable$values: ObjectMap<{}> = {};
+  // tslint:disable-next-line:enforce-name-casing See above.
+  private readonly Serializable$values: ObjectMap<{}> = {};
 
   getClassMetadata(): ClassMetadata {
     return buildClassMetadataFromPartial(this.getPartialClassMetadata());

@@ -13,24 +13,20 @@ const XhrLike = goog.requireType('goog.net.XhrLike');
 const XmlHttp = goog.require('goog.net.XmlHttp');
 const api = goog.require('ee.api');
 const array = goog.require('goog.array');
-const domainObjectModule = goog.require('eeapiclient.domain_object');
 const functions = goog.require('goog.functions');
 const googObject = goog.require('goog.object');
 const googString = goog.require('goog.string');
 const jsloader = goog.require('goog.net.jsloader');
-const requestParamsModule = goog.require('eeapiclient.request_params');
-const requestServiceModule = goog.require('eeapiclient.promise_request_service');
+const {MakeRequestParams, processParams} = goog.require('eeapiclient.request_params');
+const {NULL_VALUE, Serializable, SerializableCtor, deserialize, serialize} = goog.require('eeapiclient.domain_object');
+const {PromiseRequestService} = goog.require('eeapiclient.promise_request_service');
 
 /** @namespace */
 const apiclient = {};
 
-const {NULL_VALUE, deserialize, serialize, Serializable, SerializableCtor} =
-    domainObjectModule;
-const {MakeRequestParams, processParams} = requestParamsModule;
-const {PromiseRequestService} = requestServiceModule;
 
 const VERSION = 'v1alpha';
-const API_CLIENT_VERSION = '0.1.210';
+const API_CLIENT_VERSION = '0.1.211';
 const LEGACY_DOWNLOAD_REGEX = /^\/(download|table).*/;
 
 exports.VERSION = VERSION;
