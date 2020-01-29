@@ -298,31 +298,44 @@ ee.data.expressionAugmenter_ = goog.functions.identity;
 //                  Re-exported imports from ee.apiclient                     //
 ////////////////////////////////////////////////////////////////////////////////
 
+// The following symbols are exported for the benefit of users who create tokens
+// server side but initialize the API client side.
 ee.data.setAuthToken = ee.apiclient.setAuthToken;
+goog.exportSymbol('ee.data.setAuthToken', ee.data.setAuthToken);
 ee.data.refreshAuthToken = ee.apiclient.refreshAuthToken;
+goog.exportSymbol('ee.data.refreshAuthToken', ee.data.refreshAuthToken);
 ee.data.setAuthTokenRefresher = ee.apiclient.setAuthTokenRefresher;
+goog.exportSymbol(
+    'ee.data.setAuthTokenRefresher', ee.data.setAuthTokenRefresher);
 ee.data.getAuthToken = ee.apiclient.getAuthToken;
+goog.exportSymbol('ee.data.getAuthToken', ee.data.getAuthToken);
 ee.data.clearAuthToken = ee.apiclient.clearAuthToken;
+goog.exportSymbol('ee.data.clearAuthToken', ee.data.clearAuthToken);
 ee.data.getAuthClientId = ee.apiclient.getAuthClientId;
+goog.exportSymbol('ee.data.getAuthClientId', ee.data.getAuthClientId);
 ee.data.getAuthScopes = ee.apiclient.getAuthScopes;
+goog.exportSymbol('ee.data.getAuthScopes', ee.data.getAuthScopes);
+ee.data.setDeadline = ee.apiclient.setDeadline;
+goog.exportSymbol('ee.data.setDeadline', ee.data.setDeadline);
 
+// The following symbol is exported because it is used in the Code Editor, much
+// like ee.data.setExpressionAugmenter above is.
+ee.data.setParamAugmenter = ee.apiclient.setParamAugmenter;
+goog.exportSymbol('ee.data.setParamAugmenter', ee.data.setParamAugmenter);
+
+// The following symbols are not exported because they are meant to be used via
+// the wrapper functions in ee.js.
 /** @type {function(?string=,?string=,?string=)} */
 ee.data.initialize = ee.apiclient.initialize;
 /** @type {function()} */
 ee.data.reset = ee.apiclient.reset;
 
-ee.data.setDeadline = ee.apiclient.setDeadline;
-goog.exportSymbol('ee.data.setDeadline', ee.data.setDeadline);
-
-ee.data.setParamAugmenter = ee.apiclient.setParamAugmenter;
-goog.exportSymbol('ee.data.setParamAugmenter', ee.data.setParamAugmenter);
-
+// The following symbols are not exported because they are meant for internal
+// use only.
 /** @const {string} */
 ee.data.PROFILE_HEADER = ee.apiclient.PROFILE_HEADER;
-
 ee.data.makeRequest_ = ee.apiclient.makeRequest;
 ee.data.send_ = ee.apiclient.send;
-
 ee.data.setupMockSend = ee.apiclient.setupMockSend;
 ee.data.withProfiling = ee.apiclient.withProfiling;
 
@@ -468,6 +481,8 @@ ee.data.makeMapId_ = function(mapid, token, path, suffix) {
 
 /**
  * Retrieve a processed value from the front end.
+ *
+ * @deprecated Use ee.data.computeValue().
  * @param {Object} params The value to be evaluated, with the following
  *     possible values:
  *      - json (String) A JSON object to be evaluated.
@@ -675,6 +690,7 @@ ee.data.makeThumbUrl = function(id) {
 
 /**
  * Get a Download ID.
+ *
  * @param {!Object} params An object containing download options with the
  *     following possible values:
  *   - id: The ID of the image to download.
@@ -719,12 +735,16 @@ ee.data.getDownloadId = function(params, opt_callback) {
       '/download',
       ee.data.makeRequest_(params),
       opt_callback));
+  if (ee.data.getCloudApiEnabled()) {
+    return unwrap(id);
+  }
   return id;
 };
 
 
 /**
  * Create a download URL from a docid and token.
+ *
  * @param {!ee.data.DownloadId} id A download id and token.
  * @return {string} The download URL.
  * @export
@@ -751,11 +771,20 @@ ee.data.makeDownloadUrl = function(id) {
  * @export
  */
 ee.data.getTableDownloadId = function(params, opt_callback) {
+  // In cloud mode, handleResponse does not unwrap the data payload.
+  const unwrap = (id) => (/** @type {!Object} */(id) || {})['data'] || id;
+  if (ee.data.getCloudApiEnabled() && opt_callback) {
+    const orig_callback = opt_callback;
+    opt_callback = (id, error = undefined) => orig_callback(unwrap(id), error);
+  }
   params = goog.object.clone(params);
   const id = /** @type {?ee.data.DownloadId} */ (ee.data.send_(
       '/table',
       ee.data.makeRequest_(params),
       opt_callback));
+  if (ee.data.getCloudApiEnabled()) {
+    return unwrap(id);
+  }
   return id;
 };
 
@@ -810,6 +839,7 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
 /**
  * Retrieve status of one or more long-running tasks.
  *
+ * @deprecated Use ee.data.getOperation().
  * @param {string|!Array.<string>} taskId ID of the task or an array of
  *     multiple task IDs.
  * @param {function(?Array.<!ee.data.TaskStatus>, string=)=} opt_callback
@@ -866,6 +896,7 @@ ee.data.TASKLIST_PAGE_SIZE_ = 500;
 /**
  * Retrieve a list of the users tasks.
  *
+ * @deprecated Use ee.data.listOperations().
  * @param {?function(?ee.data.TaskListResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is
  *     made synchronously.
@@ -881,6 +912,7 @@ ee.data.getTaskList = function(opt_callback) {
 /**
  * Retrieve a list of the users tasks.
  *
+ * @deprecated Use ee.data.listOperations().
  * @param {number=} opt_limit An optional limit to the number of tasks returned.
  *     If not supplied, all tasks are returned.
  * @param {?function(?ee.data.TaskListResponse, string=)=} opt_callback
@@ -967,6 +999,7 @@ ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
  * @param {number=} opt_limit Maximum number of results to return.
  * @param {function(?Array<!ee.api.Operation>=,string=)=} opt_callback
  * @return {?Array<!ee.api.Operation>}
+ * @export
  */
 ee.data.listOperations = function(opt_limit, opt_callback) {
   const ops = [];
@@ -1052,6 +1085,7 @@ ee.data.getOperation = function(operationName, opt_callback) {
 /**
  * Cancels the task provided.
  *
+ * @deprecated Use ee.data.cancelOperation().
  * @param {string} taskId ID of the task.
  * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
@@ -1365,9 +1399,11 @@ ee.data.getAsset = function(id, opt_callback) {
                        opt_callback);
 };
 
+
 /**
  * Load info for an asset, given an asset id.
  *
+ * @deprecated Use ee.data.getAsset().
  * @param {string} id The asset to be retrieved.
  * @param {function(?Object, string=)=} opt_callback An optional callback.
  *     If not supplied, the call is made synchronously.
@@ -1380,6 +1416,7 @@ ee.data.getInfo = ee.data.getAsset;
 /**
  * Returns a list of the contents in an asset collection or folder.
  *
+ * @deprecated Use ee.data.listAssets() or ee.data.listImages().
  * @param {!Object} params An object containing request parameters with
  *     the following possible values:
  *       - id (string) The asset id of the collection to list.
@@ -1731,6 +1768,7 @@ ee.data.deleteAsset = function(assetId, opt_callback) {
  *
  * The authenticated user must be a writer or owner of an asset to see its ACL.
  *
+ * @deprecated Use ee.data.getIamPolicy().
  * @param {string} assetId The ID of the asset to check.
  * @param {function(?ee.data.AssetAcl, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
@@ -1835,6 +1873,7 @@ ee.data.updateAsset = function(assetId, asset, updateFields, opt_callback) {
  *
  * The authenticated user must be a writer or owner of an asset to set its ACL.
  *
+ * @deprecated Use ee.data.setIamPolicy().
  * @param {string} assetId The ID of the asset to set the ACL on.
  * @param {!ee.data.AssetAclUpdate} aclUpdate The updated ACL.
  * @param {function(?Object, string=)=} opt_callback
@@ -1872,6 +1911,7 @@ ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
  * To delete a property, set its value to null.
  * The authenticated user must be a writer or owner of the asset.
  *
+ * @deprecated Use ee.data.updateAsset().
  * @param {string} assetId The ID of the asset to update.
  * @param {!Object} properties The keys and values of the properties to update.
  * @param {function(?Object, string=)=} opt_callback
@@ -2803,6 +2843,11 @@ ee.data.AlgorithmSignature = class {
      * @export {boolean|undefined}
      */
     this.preview;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.sourceCodeUri;
   }
 };
 

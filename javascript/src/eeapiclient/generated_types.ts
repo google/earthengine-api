@@ -27,6 +27,11 @@ export interface GeneratedRequestParams {
   };
   body?: Serializable|GeneratedInterface|MultipartRequest|null;
   responseCtor?: SerializableCtor<Serializable>;
+  /**
+   * Whether the end-point is a streaming end-point and its type e.g.
+   * 'SERVER_SIDE'.
+   */
+  streamingType?: string;
 }
 
 export interface ApiClientObjectMap<T> { [key: string]: T; }

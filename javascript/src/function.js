@@ -274,7 +274,8 @@ ee.Function.prototype.serialize = function() {
  *   returns: string,
  *   description: (string|undefined),
  *   deprecated: (string|undefined),
- *   preview: (boolean|undefined)
+ *   preview: (boolean|undefined),
+ *   sourceCodeUri: (string|undefined),
  * }}
  */
 ee.Function.Signature;

@@ -1,7 +1,7 @@
 import {Serializable, serialize} from './domain_object';
 import {GeneratedRequestParams} from './generated_types';
 import {MultipartRequest} from './multipart_request';
-import {MakeRequestParams} from './request_params';
+import {MakeRequestParams, StreamingType} from './request_params';
 
 export abstract class ApiClient {
   // tslint:disable-next-line:no-any
@@ -26,7 +26,9 @@ export function toMakeRequestParams(requestParams: GeneratedRequestParams):
     httpMethod: requestParams.httpMethod,
     methodId: requestParams.methodId,
     body: body as Serializable,
-    queryParams: requestParams.queryParams
+    queryParams: requestParams.queryParams,
+    streamingType: requestParams.streamingType &&
+        StreamingType[requestParams.streamingType as keyof typeof StreamingType]
   } as MakeRequestParams;
 }
 

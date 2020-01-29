@@ -149,9 +149,9 @@ export const CloudAuditOptionsLogNameEnum: ICloudAuditOptionsLogNameEnum = {
   }
 };
 
-export type ComputePixelsRequestFileFormat =
-    'IMAGE_FILE_FORMAT_UNSPECIFIED'|'JPEG'|'PNG'|'AUTO_JPEG_PNG'|'NPY'|
-    'GEO_TIFF'|'TF_RECORD_IMAGE'|'MULTI_BAND_IMAGE_TILE';
+export type ComputePixelsRequestFileFormat = 'IMAGE_FILE_FORMAT_UNSPECIFIED'|
+    'JPEG'|'PNG'|'AUTO_JPEG_PNG'|'NPY'|'GEO_TIFF'|'TF_RECORD_IMAGE'|
+    'MULTI_BAND_IMAGE_TILE'|'ZIPPED_GEO_TIFF'|'ZIPPED_GEO_TIFF_PER_BAND';
 
 export interface IComputePixelsRequestFileFormatEnum {
   IMAGE_FILE_FORMAT_UNSPECIFIED: ComputePixelsRequestFileFormat;
@@ -162,6 +162,8 @@ export interface IComputePixelsRequestFileFormatEnum {
   GEO_TIFF: ComputePixelsRequestFileFormat;
   TF_RECORD_IMAGE: ComputePixelsRequestFileFormat;
   MULTI_BAND_IMAGE_TILE: ComputePixelsRequestFileFormat;
+  ZIPPED_GEO_TIFF: ComputePixelsRequestFileFormat;
+  ZIPPED_GEO_TIFF_PER_BAND: ComputePixelsRequestFileFormat;
 
   values(): Array<ComputePixelsRequestFileFormat>;
 }
@@ -192,10 +194,17 @@ export const ComputePixelsRequestFileFormatEnum:
       get TF_RECORD_IMAGE(): ComputePixelsRequestFileFormat {
         return 'TF_RECORD_IMAGE';
       },
+      get ZIPPED_GEO_TIFF(): ComputePixelsRequestFileFormat {
+        return 'ZIPPED_GEO_TIFF';
+      },
+      get ZIPPED_GEO_TIFF_PER_BAND(): ComputePixelsRequestFileFormat {
+        return 'ZIPPED_GEO_TIFF_PER_BAND';
+      },
       values(): Array<ComputePixelsRequestFileFormat> {
         return [
           'IMAGE_FILE_FORMAT_UNSPECIFIED', 'JPEG', 'PNG', 'AUTO_JPEG_PNG',
-          'NPY', 'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE'
+          'NPY', 'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE',
+          'ZIPPED_GEO_TIFF', 'ZIPPED_GEO_TIFF_PER_BAND'
         ];
       }
     };
@@ -371,9 +380,9 @@ export const EarthEngineAssetTypeEnum: IEarthEngineAssetTypeEnum = {
   }
 };
 
-export type EarthEngineMapFileFormat =
-    'IMAGE_FILE_FORMAT_UNSPECIFIED'|'JPEG'|'PNG'|'AUTO_JPEG_PNG'|'NPY'|
-    'GEO_TIFF'|'TF_RECORD_IMAGE'|'MULTI_BAND_IMAGE_TILE';
+export type EarthEngineMapFileFormat = 'IMAGE_FILE_FORMAT_UNSPECIFIED'|'JPEG'|
+    'PNG'|'AUTO_JPEG_PNG'|'NPY'|'GEO_TIFF'|'TF_RECORD_IMAGE'|
+    'MULTI_BAND_IMAGE_TILE'|'ZIPPED_GEO_TIFF'|'ZIPPED_GEO_TIFF_PER_BAND';
 
 export interface IEarthEngineMapFileFormatEnum {
   IMAGE_FILE_FORMAT_UNSPECIFIED: EarthEngineMapFileFormat;
@@ -384,6 +393,8 @@ export interface IEarthEngineMapFileFormatEnum {
   GEO_TIFF: EarthEngineMapFileFormat;
   TF_RECORD_IMAGE: EarthEngineMapFileFormat;
   MULTI_BAND_IMAGE_TILE: EarthEngineMapFileFormat;
+  ZIPPED_GEO_TIFF: EarthEngineMapFileFormat;
+  ZIPPED_GEO_TIFF_PER_BAND: EarthEngineMapFileFormat;
 
   values(): Array<EarthEngineMapFileFormat>;
 }
@@ -413,10 +424,17 @@ export const EarthEngineMapFileFormatEnum: IEarthEngineMapFileFormatEnum = {
   get TF_RECORD_IMAGE(): EarthEngineMapFileFormat {
     return 'TF_RECORD_IMAGE';
   },
+  get ZIPPED_GEO_TIFF(): EarthEngineMapFileFormat {
+    return 'ZIPPED_GEO_TIFF';
+  },
+  get ZIPPED_GEO_TIFF_PER_BAND(): EarthEngineMapFileFormat {
+    return 'ZIPPED_GEO_TIFF_PER_BAND';
+  },
   values(): Array<EarthEngineMapFileFormat> {
     return [
       'IMAGE_FILE_FORMAT_UNSPECIFIED', 'JPEG', 'PNG', 'AUTO_JPEG_PNG', 'NPY',
-      'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE'
+      'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE', 'ZIPPED_GEO_TIFF',
+      'ZIPPED_GEO_TIFF_PER_BAND'
     ];
   }
 };
@@ -447,9 +465,9 @@ export const ExportVideoMapRequestVersionEnum:
       }
     };
 
-export type FilmstripThumbnailFileFormat =
-    'IMAGE_FILE_FORMAT_UNSPECIFIED'|'JPEG'|'PNG'|'AUTO_JPEG_PNG'|'NPY'|
-    'GEO_TIFF'|'TF_RECORD_IMAGE'|'MULTI_BAND_IMAGE_TILE';
+export type FilmstripThumbnailFileFormat = 'IMAGE_FILE_FORMAT_UNSPECIFIED'|
+    'JPEG'|'PNG'|'AUTO_JPEG_PNG'|'NPY'|'GEO_TIFF'|'TF_RECORD_IMAGE'|
+    'MULTI_BAND_IMAGE_TILE'|'ZIPPED_GEO_TIFF'|'ZIPPED_GEO_TIFF_PER_BAND';
 
 export interface IFilmstripThumbnailFileFormatEnum {
   IMAGE_FILE_FORMAT_UNSPECIFIED: FilmstripThumbnailFileFormat;
@@ -460,6 +478,8 @@ export interface IFilmstripThumbnailFileFormatEnum {
   GEO_TIFF: FilmstripThumbnailFileFormat;
   TF_RECORD_IMAGE: FilmstripThumbnailFileFormat;
   MULTI_BAND_IMAGE_TILE: FilmstripThumbnailFileFormat;
+  ZIPPED_GEO_TIFF: FilmstripThumbnailFileFormat;
+  ZIPPED_GEO_TIFF_PER_BAND: FilmstripThumbnailFileFormat;
 
   values(): Array<FilmstripThumbnailFileFormat>;
 }
@@ -490,10 +510,17 @@ export const FilmstripThumbnailFileFormatEnum:
       get TF_RECORD_IMAGE(): FilmstripThumbnailFileFormat {
         return 'TF_RECORD_IMAGE';
       },
+      get ZIPPED_GEO_TIFF(): FilmstripThumbnailFileFormat {
+        return 'ZIPPED_GEO_TIFF';
+      },
+      get ZIPPED_GEO_TIFF_PER_BAND(): FilmstripThumbnailFileFormat {
+        return 'ZIPPED_GEO_TIFF_PER_BAND';
+      },
       values(): Array<FilmstripThumbnailFileFormat> {
         return [
           'IMAGE_FILE_FORMAT_UNSPECIFIED', 'JPEG', 'PNG', 'AUTO_JPEG_PNG',
-          'NPY', 'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE'
+          'NPY', 'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE',
+          'ZIPPED_GEO_TIFF', 'ZIPPED_GEO_TIFF_PER_BAND'
         ];
       }
     };
@@ -551,9 +578,9 @@ export const GcsDestinationPermissionsEnum: IGcsDestinationPermissionsEnum = {
   }
 };
 
-export type GetPixelsRequestFileFormat =
-    'IMAGE_FILE_FORMAT_UNSPECIFIED'|'JPEG'|'PNG'|'AUTO_JPEG_PNG'|'NPY'|
-    'GEO_TIFF'|'TF_RECORD_IMAGE'|'MULTI_BAND_IMAGE_TILE';
+export type GetPixelsRequestFileFormat = 'IMAGE_FILE_FORMAT_UNSPECIFIED'|'JPEG'|
+    'PNG'|'AUTO_JPEG_PNG'|'NPY'|'GEO_TIFF'|'TF_RECORD_IMAGE'|
+    'MULTI_BAND_IMAGE_TILE'|'ZIPPED_GEO_TIFF'|'ZIPPED_GEO_TIFF_PER_BAND';
 
 export interface IGetPixelsRequestFileFormatEnum {
   IMAGE_FILE_FORMAT_UNSPECIFIED: GetPixelsRequestFileFormat;
@@ -564,6 +591,8 @@ export interface IGetPixelsRequestFileFormatEnum {
   GEO_TIFF: GetPixelsRequestFileFormat;
   TF_RECORD_IMAGE: GetPixelsRequestFileFormat;
   MULTI_BAND_IMAGE_TILE: GetPixelsRequestFileFormat;
+  ZIPPED_GEO_TIFF: GetPixelsRequestFileFormat;
+  ZIPPED_GEO_TIFF_PER_BAND: GetPixelsRequestFileFormat;
 
   values(): Array<GetPixelsRequestFileFormat>;
 }
@@ -593,10 +622,17 @@ export const GetPixelsRequestFileFormatEnum: IGetPixelsRequestFileFormatEnum = {
   get TF_RECORD_IMAGE(): GetPixelsRequestFileFormat {
     return 'TF_RECORD_IMAGE';
   },
+  get ZIPPED_GEO_TIFF(): GetPixelsRequestFileFormat {
+    return 'ZIPPED_GEO_TIFF';
+  },
+  get ZIPPED_GEO_TIFF_PER_BAND(): GetPixelsRequestFileFormat {
+    return 'ZIPPED_GEO_TIFF_PER_BAND';
+  },
   values(): Array<GetPixelsRequestFileFormat> {
     return [
       'IMAGE_FILE_FORMAT_UNSPECIFIED', 'JPEG', 'PNG', 'AUTO_JPEG_PNG', 'NPY',
-      'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE'
+      'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE', 'ZIPPED_GEO_TIFF',
+      'ZIPPED_GEO_TIFF_PER_BAND'
     ];
   }
 };
@@ -728,9 +764,9 @@ export const ImageBandPyramidingPolicyEnum: IImageBandPyramidingPolicyEnum = {
   }
 };
 
-export type ImageFileExportOptionsFileFormat =
-    'IMAGE_FILE_FORMAT_UNSPECIFIED'|'JPEG'|'PNG'|'AUTO_JPEG_PNG'|'NPY'|
-    'GEO_TIFF'|'TF_RECORD_IMAGE'|'MULTI_BAND_IMAGE_TILE';
+export type ImageFileExportOptionsFileFormat = 'IMAGE_FILE_FORMAT_UNSPECIFIED'|
+    'JPEG'|'PNG'|'AUTO_JPEG_PNG'|'NPY'|'GEO_TIFF'|'TF_RECORD_IMAGE'|
+    'MULTI_BAND_IMAGE_TILE'|'ZIPPED_GEO_TIFF'|'ZIPPED_GEO_TIFF_PER_BAND';
 
 export interface IImageFileExportOptionsFileFormatEnum {
   IMAGE_FILE_FORMAT_UNSPECIFIED: ImageFileExportOptionsFileFormat;
@@ -741,6 +777,8 @@ export interface IImageFileExportOptionsFileFormatEnum {
   GEO_TIFF: ImageFileExportOptionsFileFormat;
   TF_RECORD_IMAGE: ImageFileExportOptionsFileFormat;
   MULTI_BAND_IMAGE_TILE: ImageFileExportOptionsFileFormat;
+  ZIPPED_GEO_TIFF: ImageFileExportOptionsFileFormat;
+  ZIPPED_GEO_TIFF_PER_BAND: ImageFileExportOptionsFileFormat;
 
   values(): Array<ImageFileExportOptionsFileFormat>;
 }
@@ -771,10 +809,17 @@ export const ImageFileExportOptionsFileFormatEnum:
       get TF_RECORD_IMAGE(): ImageFileExportOptionsFileFormat {
         return 'TF_RECORD_IMAGE';
       },
+      get ZIPPED_GEO_TIFF(): ImageFileExportOptionsFileFormat {
+        return 'ZIPPED_GEO_TIFF';
+      },
+      get ZIPPED_GEO_TIFF_PER_BAND(): ImageFileExportOptionsFileFormat {
+        return 'ZIPPED_GEO_TIFF_PER_BAND';
+      },
       values(): Array<ImageFileExportOptionsFileFormat> {
         return [
           'IMAGE_FILE_FORMAT_UNSPECIFIED', 'JPEG', 'PNG', 'AUTO_JPEG_PNG',
-          'NPY', 'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE'
+          'NPY', 'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE',
+          'ZIPPED_GEO_TIFF', 'ZIPPED_GEO_TIFF_PER_BAND'
         ];
       }
     };
@@ -983,7 +1028,8 @@ export const TableFileExportOptionsFileFormatEnum:
     };
 
 export type ThumbnailFileFormat = 'IMAGE_FILE_FORMAT_UNSPECIFIED'|'JPEG'|'PNG'|
-    'AUTO_JPEG_PNG'|'NPY'|'GEO_TIFF'|'TF_RECORD_IMAGE'|'MULTI_BAND_IMAGE_TILE';
+    'AUTO_JPEG_PNG'|'NPY'|'GEO_TIFF'|'TF_RECORD_IMAGE'|'MULTI_BAND_IMAGE_TILE'|
+    'ZIPPED_GEO_TIFF'|'ZIPPED_GEO_TIFF_PER_BAND';
 
 export interface IThumbnailFileFormatEnum {
   IMAGE_FILE_FORMAT_UNSPECIFIED: ThumbnailFileFormat;
@@ -994,6 +1040,8 @@ export interface IThumbnailFileFormatEnum {
   GEO_TIFF: ThumbnailFileFormat;
   TF_RECORD_IMAGE: ThumbnailFileFormat;
   MULTI_BAND_IMAGE_TILE: ThumbnailFileFormat;
+  ZIPPED_GEO_TIFF: ThumbnailFileFormat;
+  ZIPPED_GEO_TIFF_PER_BAND: ThumbnailFileFormat;
 
   values(): Array<ThumbnailFileFormat>;
 }
@@ -1023,10 +1071,17 @@ export const ThumbnailFileFormatEnum: IThumbnailFileFormatEnum = {
   get TF_RECORD_IMAGE(): ThumbnailFileFormat {
     return 'TF_RECORD_IMAGE';
   },
+  get ZIPPED_GEO_TIFF(): ThumbnailFileFormat {
+    return 'ZIPPED_GEO_TIFF';
+  },
+  get ZIPPED_GEO_TIFF_PER_BAND(): ThumbnailFileFormat {
+    return 'ZIPPED_GEO_TIFF_PER_BAND';
+  },
   values(): Array<ThumbnailFileFormat> {
     return [
       'IMAGE_FILE_FORMAT_UNSPECIFIED', 'JPEG', 'PNG', 'AUTO_JPEG_PNG', 'NPY',
-      'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE'
+      'GEO_TIFF', 'TF_RECORD_IMAGE', 'MULTI_BAND_IMAGE_TILE', 'ZIPPED_GEO_TIFF',
+      'ZIPPED_GEO_TIFF_PER_BAND'
     ];
   }
 };
@@ -1314,6 +1369,7 @@ export interface AlgorithmParameters {
   deprecationReason?: string|null;
   hidden?: boolean|null;
   preview?: boolean|null;
+  sourceCodeUri?: string|null;
 }
 export class Algorithm extends Serializable {
   constructor(parameters: AlgorithmParameters = {}) {
@@ -1342,6 +1398,10 @@ export class Algorithm extends Serializable {
     this.Serializable$set(
         'preview',
         (parameters.preview == null) ? (null) : (parameters.preview));
+    this.Serializable$set(
+        'sourceCodeUri',
+        (parameters.sourceCodeUri == null) ? (null) :
+                                             (parameters.sourceCodeUri));
   }
 
   get arguments(): Array<AlgorithmArgument>|null {
@@ -1456,6 +1516,21 @@ export class Algorithm extends Serializable {
     this.Serializable$set('returnType', value);
   }
 
+  get sourceCodeUri(): string|null {
+    return (
+        (this.Serializable$has('sourceCodeUri')) ?
+            (this.Serializable$get('sourceCodeUri')) :
+            (null));
+  }
+
+  /**
+   * URI of a resource containing the source code of the algorithm. Empty if the
+   * user does not have permission or a specific URI could not be determined.
+   */
+  set sourceCodeUri(value: string|null) {
+    this.Serializable$set('sourceCodeUri', value);
+  }
+
   getConstructor(): SerializableCtor<Algorithm> {
     return Algorithm;
   }
@@ -1465,7 +1540,7 @@ export class Algorithm extends Serializable {
       arrays: {'arguments': AlgorithmArgument},
       keys: [
         'arguments', 'deprecated', 'deprecationReason', 'description', 'hidden',
-        'name', 'preview', 'returnType'
+        'name', 'preview', 'returnType', 'sourceCodeUri'
       ]
     };
   }
@@ -8989,7 +9064,7 @@ export interface ThumbnailParameters {
   bandIds?: Array<string>|null;
   visualizationOptions?: VisualizationOptions|null;
   grid?: PixelGrid|null;
-  thumbnailOptions?: ThumbnailOptions|null;
+  filenamePrefix?: string|null;
 }
 export class Thumbnail extends Serializable {
   constructor(parameters: ThumbnailParameters = {}) {
@@ -9013,9 +9088,9 @@ export class Thumbnail extends Serializable {
     this.Serializable$set(
         'grid', (parameters.grid == null) ? (null) : (parameters.grid));
     this.Serializable$set(
-        'thumbnailOptions',
-        (parameters.thumbnailOptions == null) ? (null) :
-                                                (parameters.thumbnailOptions));
+        'filenamePrefix',
+        (parameters.filenamePrefix == null) ? (null) :
+                                              (parameters.filenamePrefix));
   }
 
   static get FileFormat(): IThumbnailFileFormatEnum {
@@ -9066,6 +9141,20 @@ export class Thumbnail extends Serializable {
     this.Serializable$set('fileFormat', value);
   }
 
+  get filenamePrefix(): string|null {
+    return (
+        (this.Serializable$has('filenamePrefix')) ?
+            (this.Serializable$get('filenamePrefix')) :
+            (null));
+  }
+
+  /**
+   * Only used when file_format is ZIPPED_GEO_TIFF or ZIPPED_GEO_TIFF_PER_BAND.
+   */
+  set filenamePrefix(value: string|null) {
+    this.Serializable$set('filenamePrefix', value);
+  }
+
   get grid(): PixelGrid|null {
     return (
         (this.Serializable$has('grid')) ? (this.Serializable$get('grid')) :
@@ -9095,21 +9184,6 @@ export class Thumbnail extends Serializable {
     this.Serializable$set('name', value);
   }
 
-  get thumbnailOptions(): ThumbnailOptions|null {
-    return (
-        (this.Serializable$has('thumbnailOptions')) ?
-            (this.Serializable$get('thumbnailOptions')) :
-            (null));
-  }
-
-  /**
-   * If present, a set of options to define how to create and return the
-   * thumbnail.
-   */
-  set thumbnailOptions(value: ThumbnailOptions|null) {
-    this.Serializable$set('thumbnailOptions', value);
-  }
-
   get visualizationOptions(): VisualizationOptions|null {
     return (
         (this.Serializable$has('visualizationOptions')) ?
@@ -9133,87 +9207,15 @@ export class Thumbnail extends Serializable {
     return {
       enums: {'fileFormat': ThumbnailFileFormatEnum},
       keys: [
-        'bandIds', 'expression', 'fileFormat', 'grid', 'name',
-        'thumbnailOptions', 'visualizationOptions'
+        'bandIds', 'expression', 'fileFormat', 'filenamePrefix', 'grid', 'name',
+        'visualizationOptions'
       ],
       objects: {
         'expression': Expression,
         'grid': PixelGrid,
-        'thumbnailOptions': ThumbnailOptions,
         'visualizationOptions': VisualizationOptions
       }
     };
-  }
-}
-
-export interface ThumbnailOptionsParameters {
-  name?: string|null;
-  returnAsZip?: boolean|null;
-  filePerBand?: boolean|null;
-}
-export class ThumbnailOptions extends Serializable {
-  constructor(parameters: ThumbnailOptionsParameters = {}) {
-    super();
-    this.Serializable$set(
-        'name', (parameters.name == null) ? (null) : (parameters.name));
-    this.Serializable$set(
-        'returnAsZip',
-        (parameters.returnAsZip == null) ? (null) : (parameters.returnAsZip));
-    this.Serializable$set(
-        'filePerBand',
-        (parameters.filePerBand == null) ? (null) : (parameters.filePerBand));
-  }
-
-  get filePerBand(): boolean|null {
-    return (
-        (this.Serializable$has('filePerBand')) ?
-            (this.Serializable$get('filePerBand')) :
-            (null));
-  }
-
-  /**
-   * If true, return one thumbnail per band as a zip file when creating
-   * a thumbnail.  If this option is set, return_as_zip must also be set.
-   */
-  set filePerBand(value: boolean|null) {
-    this.Serializable$set('filePerBand', value);
-  }
-
-  get name(): string|null {
-    return (
-        (this.Serializable$has('name')) ? (this.Serializable$get('name')) :
-                                          (null));
-  }
-
-  /**
-   * Name of the downloaded image.  If none is set, we take the name from the
-   * image metadata and if that is not set, we use the default name 'download'.
-   * This only applies if return_as_zip is set.
-   */
-  set name(value: string|null) {
-    this.Serializable$set('name', value);
-  }
-
-  get returnAsZip(): boolean|null {
-    return (
-        (this.Serializable$has('returnAsZip')) ?
-            (this.Serializable$get('returnAsZip')) :
-            (null));
-  }
-
-  /**
-   * If true, return the thumbnail or thumbnails as a ZIP.
-   */
-  set returnAsZip(value: boolean|null) {
-    this.Serializable$set('returnAsZip', value);
-  }
-
-  getConstructor(): SerializableCtor<ThumbnailOptions> {
-    return ThumbnailOptions;
-  }
-
-  getPartialClassMetadata(): Partial<ClassMetadata> {
-    return {keys: ['filePerBand', 'name', 'returnAsZip']};
   }
 }
 

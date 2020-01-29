@@ -23,7 +23,7 @@ from apiclient import http
 from apiclient import model
 from google_auth_httplib2 import AuthorizedHttp
 
-import httplib2
+import httplib2shim
 import six
 
 
@@ -120,7 +120,7 @@ def build_cloud_resource(api_base_url,
       '{}/$discovery/rest?version=v1alpha&prettyPrint=false'
       .format(api_base_url))
   if http_transport is None:
-    http_transport = httplib2.Http(timeout=timeout)
+    http_transport = httplib2shim.Http(timeout=timeout)
   if credentials is not None:
     http_transport = AuthorizedHttp(credentials, http=http_transport)
   request_builder = _wrap_request(headers_supplier, response_inspector)

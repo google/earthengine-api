@@ -36,7 +36,7 @@ try:
   from tensorflow.compat.v1.saved_model import signature_constants
   from tensorflow.compat.v1.saved_model import signature_def_utils
   # Prevent TensorFlow from logging anything at the python level.
-  tf.compat.v1.logging.set_verbosity(tf.compat.v1.logging.ERROR)
+  tf.logging.set_verbosity(tf.logging.ERROR)
   TENSORFLOW_INSTALLED = True
 except ImportError:
   TENSORFLOW_INSTALLED = False
@@ -1739,7 +1739,7 @@ class PrepareModelCommand(object):
   def _make_rpc_friendly(model_dir, tag, in_map, out_map, vars_path):
     """Wraps a SavedModel in EE RPC-friendly ops and saves a temporary copy."""
     out_dir = tempfile.mkdtemp()
-    builder = tf.compat.v1.saved_model.Builder(out_dir)
+    builder = tf.saved_model.Builder(out_dir)
 
     # Get a GraphDef from the saved model
     with tf.Session() as sesh:
@@ -1772,7 +1772,7 @@ class PrepareModelCommand(object):
     }
 
     # Okay now we're ready to import the graph again but remapped.
-    saver = tf.compat.v1.train.import_meta_graph(
+    saver = tf.train.import_meta_graph(
         meta_graph_or_file=meta_graph, input_map=decoded_op_map)
 
     # Boilerplate to build a signature def for our new graph

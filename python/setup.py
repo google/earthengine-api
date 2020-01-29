@@ -43,6 +43,7 @@ setup(
         'google-auth>=1.4.1',
         'google-auth-httplib2>=0.0.3',
         'httplib2>=0.9.2,<1dev',
+        'httplib2shim',
         'six'
     ],
     entry_points={

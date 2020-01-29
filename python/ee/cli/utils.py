@@ -323,7 +323,7 @@ def expand_gcs_wildcards(source_files):
     # of items returned by that API call
 
     # Capture the part of the path after gs:// and before the first /
-    bucket_regex = 'gs://([a-z0-9_.-]+)(/.*)'
+    bucket_regex = 'gs://([a-z0-9_.-]+)/(.*)'
     bucket_match = re.match(bucket_regex, six.ensure_str(source))
     if bucket_match:
       bucket, rest = bucket_match.group(1, 2)

@@ -24,7 +24,7 @@ ee.AbstractOverlay = function(url, mapId, token, opt_init, opt_profiler) {
 ee.Algorithms = {};
 /**
  * @param {string} name
- * @param {(ee.data.AlgorithmSignature|{args: !Array<(ee.data.AlgorithmArgument|null)>, deprecated: (string|undefined), description: (string|undefined), name: string, preview: (boolean|undefined), returns: string})=} opt_signature
+ * @param {(ee.data.AlgorithmSignature|{args: !Array<(ee.data.AlgorithmArgument|null)>, deprecated: (string|undefined), description: (string|undefined), name: string, preview: (boolean|undefined), returns: string, sourceCodeUri: (string|undefined)})=} opt_signature
  * @return {?}
  * @extends {ee.Function}
  * @constructor
@@ -157,7 +157,7 @@ ee.ComputedObject.prototype.serialize = function() {
 ee.ComputedObject.prototype.toString = function() {
 };
 /**
- * @param {{args: !Array<(ee.data.AlgorithmArgument|null)>, deprecated: (string|undefined), description: (string|undefined), name: string, preview: (boolean|undefined), returns: string}} signature
+ * @param {{args: !Array<(ee.data.AlgorithmArgument|null)>, deprecated: (string|undefined), description: (string|undefined), name: string, preview: (boolean|undefined), returns: string, sourceCodeUri: (string|undefined)}} signature
  * @param {(!Function|null)} body
  * @return {?}
  * @extends {ee.Function}
@@ -713,7 +713,7 @@ ee.Number = function(number) {
 };
 /**
  * @param {string} path
- * @param {{args: !Array<(ee.data.AlgorithmArgument|null)>, deprecated: (string|undefined), description: (string|undefined), name: string, preview: (boolean|undefined), returns: string}} signature
+ * @param {{args: !Array<(ee.data.AlgorithmArgument|null)>, deprecated: (string|undefined), description: (string|undefined), name: string, preview: (boolean|undefined), returns: string, sourceCodeUri: (string|undefined)}} signature
  * @return {?}
  * @extends {ee.Function}
  * @constructor
@@ -1016,6 +1016,7 @@ ee.data.cancelOperation = function(operationName, opt_callback) {
  */
 ee.data.cancelTask = function(taskId, opt_callback) {
 };
+ee.data.clearAuthToken;
 /**
  * @param {*} obj
  * @param {function(*): ?=} opt_callback
@@ -1091,6 +1092,9 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
  */
 ee.data.getAssetRoots = function(opt_callback) {
 };
+ee.data.getAuthClientId;
+ee.data.getAuthScopes;
+ee.data.getAuthToken;
 /**
  * @param {!Object} params
  * @param {function((ee.data.DownloadId|null), string=): ?=} opt_callback
@@ -1208,6 +1212,13 @@ ee.data.listBuckets = function(project, opt_callback) {
 ee.data.listImages = function(parent, params, opt_callback) {
 };
 /**
+ * @param {number=} opt_limit
+ * @param {function((Array<ee.api.Operation>|null)=, string=): ?=} opt_callback
+ * @return {(Array<ee.api.Operation>|null)}
+ */
+ee.data.listOperations = function(opt_limit, opt_callback) {
+};
+/**
  * @param {!ee.data.DownloadId} id
  * @return {string}
  */
@@ -1232,6 +1243,7 @@ ee.data.makeThumbUrl = function(id) {
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
 };
+ee.data.refreshAuthToken;
 /**
  * @param {string} sourceId
  * @param {string} destinationId
@@ -1256,6 +1268,8 @@ ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
  */
 ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
 };
+ee.data.setAuthToken;
+ee.data.setAuthTokenRefresher;
 ee.data.setDeadline;
 /**
  * @param {(function(!ee.api.Expression, !Object=): !ee.api.Expression|null)} augmenter

@@ -371,6 +371,15 @@ class Image(element.Element):
     Returns:
       A URL to download the specified image.
     """
+    if data._use_cloud_api:  # pylint: disable=protected-access
+      # Only support downloading zipped geotiff.  Should use getThumbUrl
+      # otherwise.
+      if params.get('filePerBand', False):
+        params['format'] = 'ZIPPED_GEO_TIFF_PER_BAND'
+      else:
+        params['format'] = 'ZIPPED_GEO_TIFF'
+
+      return data.makeThumbUrl(self.getThumbId(params))
     request = params or {}
     request['image'] = self.serialize()
     return data.makeDownloadUrl(data.getDownloadId(request))

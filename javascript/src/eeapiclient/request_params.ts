@@ -38,6 +38,16 @@ export enum AuthType {
   FIRST_PARTY = '1p',
 }
 
+/**
+ * Type of the streaming RPC method.
+ */
+export enum StreamingType {
+  NONE,
+  CLIENT_SIDE,
+  SERVER_SIDE,
+  BIDIRECTONAL
+}
+
 export interface MakeRequestParams {
   path: string;
   /**
@@ -55,6 +65,7 @@ export interface MakeRequestParams {
   authType?: AuthType;
   /** The ID of the API that the request belongs to. */
   apiId?: string;
+  streamingType?: StreamingType;
 }
 
 /**

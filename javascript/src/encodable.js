@@ -343,6 +343,9 @@ ee.rpc_convert.algorithms = function(result) {
     if (algorithm.deprecated) {
       internalAlgorithm['deprecated'] = algorithm.deprecationReason;
     }
+    if (algorithm.sourceCodeUri) {
+      internalAlgorithm['sourceCodeUri'] = algorithm.sourceCodeUri;
+    }
     return internalAlgorithm;
   };
   const internalAlgorithms = {};

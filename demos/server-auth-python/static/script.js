@@ -1,4 +1,4 @@
-const EE_MAP_PATH = 'https://earthengine.googleapis.com/map';
+const EE_MAP_PATH = 'https://earthengine.googleapis.com/v1alpha';
 
 /**
  * Initialize the Google Map and add our custom layer overlay.
@@ -6,12 +6,12 @@ const EE_MAP_PATH = 'https://earthengine.googleapis.com/map';
  * @param {string} token
  */
 const initialize = (mapid, token) => {
-  // Create an ImageOverlay using the MapID and token we got from Node.js.
+  // Create an ImageOverlay using the MapID and token we got from App Engine.
   const tileSource = new ee.layers.EarthEngineTileSource({
     mapid,
     token,
     formatTileUrl: (x, y, z) =>
-        `${EE_MAP_PATH}/${mapid}/${z}/${x}/${y}?token=${token}`
+        `${EE_MAP_PATH}/${mapid}/tiles/${z}/${x}/${y}`
   });
   const layer = new ee.layers.ImageOverlay(tileSource);
 

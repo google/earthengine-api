@@ -799,6 +799,7 @@ def getThumbId(params, thumbType=None):
             serializer.encode(params['image'], for_cloud_api=True),
         'fileFormat':
             _cloud_api_utils.convert_to_image_file_format(params.get('format')),
+        'filenamePrefix': params.get('name'),
     }
     # Only add visualizationOptions to the request if it's non-empty, as
     # specifying it affects server behaviour.
