@@ -530,7 +530,9 @@ ee.data.computeValue = function(obj, opt_callback) {
  *             the other dimension is computed by proportional scaling.
  *       - region (E,S,W,N or GeoJSON) Geospatial region of the image
  *             to render. By default, the whole image.
- *       - format (string) Either 'png' (default) or 'jpg'.
+ *       - format (string) The file format
+ *             ("png", "jpg", "geotiff", "zipped_geotiff").
+ *       - name (string): The base name for zipped GeoTIFF.
  * @param {function(?ee.data.ThumbnailId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.ThumbnailId} The thumb ID and optional token, or null if a
@@ -556,6 +558,7 @@ ee.data.getThumbId = function(params, opt_callback) {
       expression: ee.data.expressionAugmenter_(
           ee.Serializer.encodeCloudApiExpression(params.image)),
       fileFormat: ee.rpc_convert.fileFormat(params.format),
+      filenamePrefix: params.name,
       bandIds: ee.rpc_convert.bandList(params.bands),
       visualizationOptions: ee.rpc_convert.visualizationOptions(params),
       grid: null,
@@ -571,20 +574,20 @@ ee.data.getThumbId = function(params, opt_callback) {
         call.thumbnails().create(call.projectsPath(), thumbnail, {fields})
         .then(getResponse));
   }
-  params = goog.object.clone(params);
-  if (goog.isArray(params['dimensions'])) {
-    params['dimensions'] = params['dimensions'].join('x');
+  params = /** @type {!ee.data.ThumbnailOptions} */ (goog.object.clone(params));
+  if (goog.isArray(params.dimensions)) {
+    params.dimensions = params.dimensions.join('x');
   }
 
   // The request accepts both serialized ee.Image and ee.ImageCollections, so
   // we remove the imageCollection field and insert it as the image instead,
   // if it exists.
-  let image = params['image'] || params['imageCollection'];
+  let image = params.image || params.imageCollection;
   if (typeof image !== 'string') {
     image = image.serialize();
   }
-  params['image'] = image;
-  delete params['imageCollection'];
+  params.image = image;
+  delete params.imageCollection;
 
   var request = ee.data.makeRequest_(params).add('getid', '1');
   return /** @type {?ee.data.ThumbnailId} */(
@@ -2282,6 +2285,11 @@ ee.data.FeatureCollectionDescription = class {
      * @export {!Object|undefined}
      */
     this.properties;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.version;
   }
 };
 
@@ -2652,7 +2660,7 @@ ee.data.ThumbnailOptions = class extends ee.data.ImageVisualizationParameters {
      * number is passed, it is used as the maximum, and the other dimension is
      * computed by proportional scaling. Otherwise, a pair of numbers in the
      * format [width, height].
-     * @export {number|!Array<number>|undefined}
+     * @export {number|string|!Array<number>|undefined}
      */
     this.dimensions;
 
@@ -2663,6 +2671,12 @@ ee.data.ThumbnailOptions = class extends ee.data.ImageVisualizationParameters {
      * @export {!Array<number>|!ee.data.GeoJSONGeometry|undefined}
      */
     this.region;
+
+    /**
+     * The base name of the thumbnail, only used for zipped GeoTIFF.
+     * @export {string|undefined}
+     */
+    this.name;
   }
 };
 

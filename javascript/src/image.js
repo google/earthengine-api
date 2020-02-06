@@ -193,7 +193,8 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 
 /**
- * Get a Download URL
+ * Get a Download URL for the image, which always downloads a zipped GeoTIFF.
+ * Use getThumbURL for other file formats like PNG, JPG, or raw GeoTIFF.
  * @param {Object} params An object containing download options with the
  *     following possible values:
  *   - name: a base name to use when constructing filenames.
@@ -218,6 +219,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *         ignored if crs and crs_transform is specified.
  *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
+ *   - filePerBand: Whether to produce a different GeoTIFF per band (boolean).
  * @param {function(string?, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {string|undefined} Returns a download URL, or undefined if a callback
@@ -225,13 +227,29 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  * @export
  */
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
-  var args = ee.arguments.extractFromFunction(
+  const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getDownloadURL, arguments);
-  var request = args['params'] ? goog.object.clone(args['params']) : {};
+  const request = args['params'] ? goog.object.clone(args['params']) : {};
+  if (ee.data.getCloudApiEnabled()) {
+    if (request['filePerBand']) {
+      // Only support downloading zipped geotiff.  Should use getThumbUrl
+      // otherwise.
+      request['format'] = 'ZIPPED_GEO_TIFF_PER_BAND';
+    } else {
+      request['format'] = 'ZIPPED_GEO_TIFF';
+    }
+    delete request['filePerBand'];
+    if (args['callback']) {
+      this.getThumbURL(request, args['callback']);
+      return;
+    } else {
+      return this.getThumbURL(request);
+    }
+  }
   request['image'] = this.serialize();
   if (args['callback']) {
-    var callback = args['callback'];
-    ee.data.getDownloadId(request, function(downloadId, error) {
+    const callback = args['callback'];
+    ee.data.getDownloadId(request, (downloadId, error) => {
       if (downloadId) {
         callback(ee.data.makeDownloadUrl(downloadId));
       } else {
@@ -241,6 +259,57 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   } else {
     return ee.data.makeDownloadUrl(
         /** @type {!ee.data.DownloadId} */ (ee.data.getDownloadId(request)));
+  }
+};
+
+
+/**
+ * Applies transformations and returns the thumbId.
+ * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
+ * optionally:
+ *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
+ *         dimensions of the thumbnail to render, in pixels. If only one
+ *         number is passed, it is used as the maximum, and the other
+ *         dimension is computed by proportional scaling.
+ *   - region Geospatial region of the image to render, it may be an ee.Geometry,
+ *         GeoJSON, or an array of lat/lon points (E,S,W,N). If not set the
+ *         default is the bounds image.
+ * @param {function(?ee.data.ThumbnailId, string=)=} opt_callback
+ *     An optional callback. If not supplied, the call is made synchronously.
+ * @return {?ee.data.ThumbnailId} The thumb ID and optional token, or null if a
+ *     callback is specified.
+ * @export
+ */
+ee.Image.prototype.getThumbId = function(params, opt_callback) {
+  const args = ee.arguments.extractFromFunction(
+      ee.Image.prototype.getDownloadURL, arguments);
+  let request = args['params'] ? goog.object.clone(args['params']) : {};
+  if (ee.data.getCloudApiEnabled()) {
+    const extra = {};
+    let image = ee.data.images.applyCrsAndTransform(this, request);
+    image =
+        ee.data.images.applySelectionAndScale(image, request, extra);
+    request = ee.data.images.applyVisualization(image, extra);
+  } else {
+    request = ee.data.images.applyVisualization(this, request);
+    if (request['region']) {
+      if (request['region'] instanceof ee.Geometry) {
+        request['region'] = request['region'].toGeoJSON();
+      }
+      if (goog.isArray(request['region']) ||
+          ee.Types.isRegularObject(request['region'])) {
+        request['region'] = goog.json.serialize(request['region']);
+      } else if (typeof request['region'] !== 'string') {
+        throw Error(
+            'The region parameter must be an array or a GeoJSON object.');
+      }
+    }
+  }
+  if (args['callback']) {
+    ee.data.getThumbId(request, args['callback']);
+    return null;
+  } else {
+    return ee.data.getThumbId(request);
   }
 };
 
@@ -268,29 +337,8 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
       ee.Image.prototype.getThumbURL, arguments);
   // If the Cloud API is enabled, we can do cleaner handling of the parameters.
   // If it isn't, we have to be bug-for-bug compatible with current behaviour.
-  let request;
-  if (ee.data.getCloudApiEnabled()) {
-    const extra = {};
-    const image =
-        ee.data.images.applySelectionAndScale(this, args['params'], extra);
-    request = ee.data.images.applyVisualization(image, extra);
-  } else {
-    request = ee.data.images.applyVisualization(this, args['params']);
-    if (request['region']) {
-      if (request['region'] instanceof ee.Geometry) {
-        request['region'] = request['region'].toGeoJSON();
-      }
-      if (goog.isArray(request['region']) ||
-          ee.Types.isRegularObject(request['region'])) {
-        request['region'] = goog.json.serialize(request['region']);
-      } else if (typeof request['region'] !== 'string') {
-        throw Error(
-            'The region parameter must be an array or a GeoJSON object.');
-      }
-    }
-  }
   if (args['callback']) {
-    const callbackWrapper = function(thumbId, opt_error) {
+    const callbackWrapper = (thumbId, opt_error) => {
       let thumbUrl = '';
       if (opt_error === undefined) {
         try {
@@ -301,10 +349,10 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
       }
       args['callback'](thumbUrl, opt_error);
     };
-    ee.data.getThumbId(request, callbackWrapper);
+    this.getThumbId(args['params'], callbackWrapper);
   } else {
     return ee.data.makeThumbUrl(
-        /** @type {!ee.data.ThumbnailId} */ (ee.data.getThumbId(request)));
+        /** @type {!ee.data.ThumbnailId} */ (this.getThumbId(args['params'])));
   }
 };
 

@@ -11,6 +11,11 @@ from ee import apitestcase
 
 class DataTest(unittest.TestCase):
 
+  def setUp(self):
+    super(DataTest, self).setUp()
+    # Default this to false.  Eventually this should default to true.
+    ee.data._use_cloud_api = False
+
   def testGetTaskList(self):
 
     def Request(unused_self, url, method, body, headers):

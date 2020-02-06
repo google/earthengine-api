@@ -564,6 +564,13 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 /**
  * @param {!Object} params
+ * @param {function((ee.data.ThumbnailId|null), string=): ?=} opt_callback
+ * @return {(ee.data.ThumbnailId|null)}
+ */
+ee.Image.prototype.getThumbId = function(params, opt_callback) {
+};
+/**
+ * @param {!Object} params
  * @param {function(string, string=): ?=} opt_callback
  * @return {(string|undefined)}
  */

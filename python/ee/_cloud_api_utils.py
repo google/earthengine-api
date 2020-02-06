@@ -23,8 +23,16 @@ from apiclient import http
 from apiclient import model
 from google_auth_httplib2 import AuthorizedHttp
 
-import httplib2shim
+# We use the urllib3-aware shim if it's available.
+# It is not available by default if the package is installed via the conda-forge
+# channel.
+# pylint: disable=g-bad-import-order,g-import-not-at-top
+try:
+  import httplib2shim as httplib2
+except ImportError:
+  import httplib2
 import six
+# pylint: enable=g-bad-import-order,g-import-not-at-top
 
 
 PROJECT_ID_PATTERN = (r'^(?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
@@ -120,7 +128,7 @@ def build_cloud_resource(api_base_url,
       '{}/$discovery/rest?version=v1alpha&prettyPrint=false'
       .format(api_base_url))
   if http_transport is None:
-    http_transport = httplib2shim.Http(timeout=timeout)
+    http_transport = httplib2.Http(timeout=timeout)
   if credentials is not None:
     http_transport = AuthorizedHttp(credentials, http=http_transport)
   request_builder = _wrap_request(headers_supplier, response_inspector)

@@ -49,7 +49,7 @@ _cloud_api_base_url = None
 _cloud_api_key = None
 
 # Whether to use Cloud API when possible.
-_use_cloud_api = False
+_use_cloud_api = True
 
 # A resource object for making Cloud API calls.
 _cloud_api_resource = None
@@ -253,7 +253,7 @@ def reset():
   _api_base_url = None
   _tile_base_url = None
   _cloud_api_base_url = None
-  _use_cloud_api = False
+  _use_cloud_api = True
   _cloud_api_key = None
   _cloud_api_resource = None
   _cloud_api_resource_raw = None

@@ -356,6 +356,7 @@ class EETestCase(apitestcase.ApiTestCase):
             }
         }
     ee.data.send_ = MockSend
+    ee.data._use_cloud_api = False
 
     ee.ApiFunction.importApi(lambda: None, 'Quux', 'Quux')
     ee._InitializeUnboundMethods()
