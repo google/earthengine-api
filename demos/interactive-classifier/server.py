@@ -139,9 +139,8 @@ class GetMapData(webapp2.RequestHandler):
     upsampled_visualization = upsampled.getMapId(
         modis_landcover_visualization_options)
     layers.append({
-        'mapid': upsampled_visualization['mapid'],
+        'urlFormat': upsampled_visualization['tile_fetcher'].url_format,
         'label': 'Upsampled landcover',
-        'token': upsampled_visualization['token']
     })
 
     self.response.out.write(json.dumps(layers))

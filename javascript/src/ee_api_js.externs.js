@@ -584,7 +584,7 @@ ee.Image.prototype.rename = function(var_args) {
 };
 /**
  * @param {...*} var_args
- * @return {(ee.Image|null)}
+ * @return {!ee.Image}
  */
 ee.Image.prototype.select = function(var_args) {
 };
@@ -1173,13 +1173,13 @@ ee.data.getTaskStatus = function(taskId, opt_callback) {
 ee.data.getThumbId = function(params, opt_callback) {
 };
 /**
- * @param {!ee.data.RawMapId} mapid
+ * @param {!ee.data.RawMapId} id
  * @param {number} x
  * @param {number} y
  * @param {number} z
  * @return {string}
  */
-ee.data.getTileUrl = function(mapid, x, y, z) {
+ee.data.getTileUrl = function(id, x, y, z) {
 };
 /**
  * @param {(Object|null)} params

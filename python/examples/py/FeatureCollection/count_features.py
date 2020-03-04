@@ -3,6 +3,7 @@
 
 Count Panoramio photos near SF that mention bridges.
 """
+from __future__ import print_function
 
 import ee
 import ee.mapclient
@@ -18,5 +19,5 @@ bridge_photos = photos_near_sf.filter(
 ee.mapclient.addToMap(photos_near_sf, {'color': '0040b0'})
 ee.mapclient.addToMap(bridge_photos, {'color': 'e02070'})
 
-print ('There are {} bridge photos around SF.'
-       .format(bridge_photos.size().getInfo()))
+print('There are {} bridge photos around SF.'
+      .format(bridge_photos.size().getInfo()))

@@ -64,9 +64,9 @@ goog.require('goog.array');
 goog.require('goog.json');
 goog.require('goog.object');
 
-goog.forwardDeclare('ee.Element');
-goog.forwardDeclare('ee.Image');
-goog.forwardDeclare('ee.Collection');
+goog.requireType('ee.Element');
+goog.requireType('ee.Image');
+goog.requireType('ee.Collection');
 goog.require('proto.google.protobuf.Value');
 goog.requireType('ee.data.images');
 goog.require('ee.api');
@@ -413,11 +413,7 @@ ee.data.getMapId = function(params, opt_callback) {
       visualizationOptions: ee.rpc_convert.visualizationOptions(params),
     });
     const fields = ['name'];
-    const getResponse = (response) => {
-      const apiKey = ee.apiclient.getApiKey();
-      const key = apiKey ? '?key=' + apiKey : '';
-      return ee.data.makeMapId_(response['name'], '', '/v1alpha/{}/tiles', key);
-    };
+    const getResponse = (response) => ee.data.makeMapId_(response['name'], '');
     const call = new ee.apiclient.Call(opt_callback);
     return call.handle(
         call.maps().create(call.projectsPath(), map, {fields})
@@ -429,7 +425,7 @@ ee.data.getMapId = function(params, opt_callback) {
     params.image = params.image.serialize();
   }
   const makeMapId = (result) => ee.data.makeMapId_(
-      result['mapid'], result['token'], '/map/{}', '?token={}');
+      result['mapid'], result['token']);
   if (opt_callback) {
     ee.data.send_('/mapid', ee.data.makeRequest_(params),
         (result, err) => opt_callback(result && makeMapId(result), err));
@@ -442,40 +438,59 @@ ee.data.getMapId = function(params, opt_callback) {
 
 /**
  * Generate a URL for map tiles from a Map ID and coordinates.
- * @param {!ee.data.RawMapId} mapid The mapid to generate tiles for.
+ * If formatTileUrl is not present, we generate it by using or guessing the
+ * urlFormat string, and add urlFormat and formatTileUrl to `id` for future use.
+ * @param {!ee.data.RawMapId} id The Map ID to generate tiles for.
  * @param {number} x The tile x coordinate.
  * @param {number} y The tile y coordinate.
  * @param {number} z The tile zoom level.
  * @return {string} The tile URL.
  * @export
  */
-ee.data.getTileUrl = function(mapid, x, y, z) {
-  return mapid.formatTileUrl(x, y, z);
+ee.data.getTileUrl = function(id, x, y, z) {
+  if (!id.formatTileUrl) {
+    // If formatTileUrl does not exist, the caller may have constructed mapid
+    // explicitly (such as from a JSON response). Look for a url format string,
+    // and finally fall back to setting the format string based on the current
+    // API version.
+    const newId = ee.data.makeMapId_(id.mapid, id.token, id.urlFormat);
+    id.urlFormat = newId.urlFormat;  // Set for reference.
+    id.formatTileUrl = newId.formatTileUrl;
+  }
+  return id.formatTileUrl(x, y, z);
 };
 
 
 /**
- * Constructs a RawMapId, with formatTileUrl configured by path and suffix.
+ * Constructs a RawMapId, generating formatTileUrl and urlFormat from mapid and
+ * token.
  * @param {string} mapid Map ID.
- * @param {string} token Token.
- * @param {string} path appended to tileBaseUrl. {} is replaced by mapid.
- * @param {string} suffix appended after tile coordinates. {} replaced by token.
+ * @param {string} token Token.  Will only be non-empty when using legacy API.
+ * @param {string=} opt_urlFormat Explicit URL format.  Overrides the format
+ *    inferred from mapid and token.
  * @return {!ee.data.RawMapId}
  * @private
  */
-ee.data.makeMapId_ = function(mapid, token, path, suffix) {
-  path = ee.apiclient.getTileBaseUrl() + path.replace('{}', mapid);
-  suffix = suffix.replace('{}', token);
-  // Builds a URL of the form {tileBaseUrl}{path}/{z}/{x}/{y}{suffix}
+ee.data.makeMapId_ = function(mapid, token, opt_urlFormat = '') {
+  let urlFormat = opt_urlFormat;
+  if (!urlFormat) {
+    ee.apiclient.initialize();
+    const base = ee.apiclient.getTileBaseUrl();
+    const args = '{z}/{x}/{y}';  // Named substitutions for Python API parity.
+    if (token) {
+      // Legacy form where token is populated.
+      urlFormat = `${base}/map/${mapid}/${args}?token=${token}`;
+    } else {
+      urlFormat = `${base}/${ee.apiclient.VERSION}/${mapid}/tiles/${args}`;
+    }
+  }
   const formatTileUrl = (x, y, z) => {
     const width = Math.pow(2, z);
     x = x % width;
-    if (x < 0) {
-      x += width;
-    }
-    return [path, z, x, y].join('/') + suffix;
+    x = String(x < 0 ? x + width : x);  // JSCompiler: replace() needs string.
+    return urlFormat.replace('{x}', x).replace('{y}', y).replace('{z}', z);
   };
-  return {mapid, token, formatTileUrl};
+  return {mapid, token, formatTileUrl, urlFormat};
 };
 
 
@@ -522,17 +537,14 @@ ee.data.computeValue = function(obj, opt_callback) {
 
 /**
  * Get a Thumbnail Id for a given asset.
- * @param {!ee.data.ThumbnailOptions} params Parameters identical to those for
- *     the visParams for getMapId with the following additions:
- *       - dimensions (a number or pair of numbers in format WIDTHxHEIGHT)
- *             Maximum dimensions of the thumbnail to render, in pixels. If
- *             only one number is passed, it is used as the maximum, and
- *             the other dimension is computed by proportional scaling.
- *       - region (E,S,W,N or GeoJSON) Geospatial region of the image
- *             to render. By default, the whole image.
- *       - format (string) The file format
- *             ("png", "jpg", "geotiff", "zipped_geotiff").
- *       - name (string): The base name for zipped GeoTIFF.
+ * @param {!ee.data.ThumbnailOptions} params An object containing thumbnail
+ *     options with the following possible values:
+ *       - image (ee.Image) The image to make a thumbnail.
+ *       - bands (array of strings) An array of band names.
+ *       - format (string) The file format ("png", "jpg", "geotiff").
+ *       - name (string): The base name.
+ *     Use ee.Image.getThumbURL for region, dimensions, and visualization
+ *     options support.
  * @param {function(?ee.data.ThumbnailId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.ThumbnailId} The thumb ID and optional token, or null if a
@@ -552,6 +564,10 @@ ee.data.getThumbId = function(params, opt_callback) {
     if (params.region !== undefined) {
       throw new Error('"region" not supported in call to ee.data.getThumbId. ' +
           'Use ee.Image.getThumbURL.');
+    }
+    if (params.dimensions !== undefined) {
+      throw new Error('"dimensions" is not supported in call to ' +
+          'ee.data.getThumbId. Use ee.Image.getThumbURL.');
     }
     const thumbnail = new ee.api.Thumbnail({
       name: null,
@@ -681,10 +697,8 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
  */
 ee.data.makeThumbUrl = function(id) {
   if (ee.data.getCloudApiEnabled()) {
-    const apiKey = ee.apiclient.getApiKey();
-    const keyParam = apiKey ? '?key=' + apiKey : '';
     const base = ee.apiclient.getTileBaseUrl();
-    return base + '/v1alpha/' + id.thumbid + ':getPixels' + keyParam;
+    return base + '/v1alpha/' + id.thumbid + ':getPixels';
   }
   return ee.apiclient.getTileBaseUrl() + '/api/thumb?thumbid=' + id.thumbid +
       '&token=' + id.token;
@@ -696,15 +710,15 @@ ee.data.makeThumbUrl = function(id) {
  *
  * @param {!Object} params An object containing download options with the
  *     following possible values:
- *   - id: The ID of the image to download.
+ *   - image: The image to download.
  *   - name: a base name to use when constructing filenames.
  *   - bands: a description of the bands to download. Must be an array of
  *         dictionaries, each with the following keys:
  *     + id: the name of the band, a string, required.
  *     + crs: an optional CRS string defining the band projection.
  *     + crs_transform: an optional array of 6 numbers specifying an affine
- *           transform from the specified CRS, in the order: xScale, xShearing,
- *           xTranslation, yShearing, yScale, and yTranslation.
+ *           transform from the specified CRS, in row-major order:
+ *           [xScale, xShearing, xTranslation, yShearing, yScale, yTranslation]
  *     + dimensions: an optional array of two integers defining the width and
  *           height to which the band is cropped.
  *     + scale: an optional number, specifying the scale in meters of the band;
@@ -716,9 +730,12 @@ ee.data.makeThumbUrl = function(id) {
  *   - dimensions: default image cropping dimensions to use for any bands that
  *         do not specify them.
  *   - scale: a default scale to use for any bands that do not specify one;
- *         ignored if crs and crs_transform is specified.
- *   - region: a polygon specifying a region to download; ignored if crs
- *         and crs_transform is specified.
+ *         ignored if dimensions is specified.
+ *   - region: a polygon specifying a region to download.
+ *   - filePerBand: Whether to produce a different GeoTIFF per band (boolean).
+ *         Defaults to true. If false, a single GeoTIFF is produced and all
+ *         band-level transformations will be ignored.
+ *   - id: deprecated, use image: ee.Image(id)
  * @param {function(?ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.DownloadId} A download id and token, or null if a callback
@@ -726,21 +743,91 @@ ee.data.makeThumbUrl = function(id) {
  * @export
  */
 ee.data.getDownloadId = function(params, opt_callback) {
-  // TODO(user): Redirect to getImageDownloadId.
-  // In cloud mode, handleResponse does not unwrap the data payload.
-  const unwrap = (id) => (/** @type {!Object} */(id) || {})['data'] || id;
-  if (ee.data.getCloudApiEnabled() && opt_callback) {
-    const orig_callback = opt_callback;
-    opt_callback = (id, error = undefined) => orig_callback(unwrap(id), error);
+  if (ee.data.getCloudApiEnabled()) {
+    params = Object.assign({}, params);
+    // Previously, the docs required an image ID parameter that was changed
+    // to image, so we cast the ID to an ee.Image.
+    if (params['id']) {
+      // This resolves the circular dependency between data.js and image.js.
+      const eeImage = goog.module.get('ee.Image');
+      params['image'] = new eeImage(params['id']);
+    }
+    if (typeof params['image'] === 'string') {
+      throw new Error('Image as serialized JSON string not supported.');
+    }
+    if (!params['image']) {
+      throw new Error('Missing ID or image parameter.');
+    }
+    // The default is a zipped GeoTIFF per band if no format or filePerBand
+    // parameter is specified.
+    params['filePerBand'] = params['filePerBand'] !== false;
+    params['format'] = params['format'] || (params['filePerBand'] ?
+        'ZIPPED_GEO_TIFF_PER_BAND' :
+        'ZIPPED_GEO_TIFF');
+    if (params['region'] != null &&
+        (params['scale'] != null || params['crs_transform'] != null) &&
+        params['dimensions'] != null) {
+      throw new Error(
+          'Cannot specify (bounding region, crs_transform/scale, dimensions) ' +
+          'simultaneously.');
+    }
+    if (typeof params['bands'] === 'string') {
+      // Bands may be a stringified JSON string or a comma-separated string.
+      try {
+        params['bands'] = JSON.parse(params['bands']);
+      } catch (e) {
+        params['bands'] = ee.rpc_convert.bandList(params['bands']);
+      }
+    }
+    if (params['bands'] && !Array.isArray(params['bands'])) {
+      throw new Error('Bands parameter must be an array.');
+    }
+    if (params['bands'] &&
+        params['bands'].every((band) => typeof band === 'string')) {
+      // Support expressing the bands list as a list of strings.
+      params['bands'] = params['bands'].map((band) => {
+        return {id: band};
+      });
+    }
+    if (params['bands'] && params['bands'].some(({id}) => id == null)) {
+      throw new Error('Each band dictionary must have an id.');
+    }
+    if (typeof params['region'] === 'string') {
+      params['region'] = JSON.parse(params['region']);
+    }
+    if (typeof params['crs_transform'] === 'string') {
+      try {
+        // Try parsing the list as a JSON.
+        params['crs_transform'] = JSON.parse(params['crs_transform']);
+      } catch (e) {} // Let the malformed string fall through.
+    }
+    const image = ee.data.images.buildDownloadIdImage(params['image'], params);
+    const thumbnail = new ee.api.Thumbnail({
+      name: null,
+      expression: ee.data.expressionAugmenter_(
+          ee.Serializer.encodeCloudApiExpression(image)),
+      fileFormat: ee.rpc_convert.fileFormat(params['format']),
+      filenamePrefix: params['name'],
+      bandIds: params['bands'] &&
+          ee.rpc_convert.bandList(params['bands'].map((band) => band.id)),
+      grid: null,
+    });
+    const fields = ['name'];
+    const getResponse = (response) => {
+      /** @type {!ee.data.DownloadId} */
+      const ret = {docid: response['name'], token: ''};
+      return ret;
+    };
+    const call = new ee.apiclient.Call(opt_callback);
+    return call.handle(call.thumbnails()
+                           .create(call.projectsPath(), thumbnail, {fields})
+                           .then(getResponse));
   }
   params = goog.object.clone(params);
   const id = /** @type {?ee.data.DownloadId} */ (ee.data.send_(
       '/download',
       ee.data.makeRequest_(params),
       opt_callback));
-  if (ee.data.getCloudApiEnabled()) {
-    return unwrap(id);
-  }
   return id;
 };
 
@@ -753,9 +840,11 @@ ee.data.getDownloadId = function(params, opt_callback) {
  * @export
  */
 ee.data.makeDownloadUrl = function(id) {
-  // TODO(user): Redirect to makeImageDownloadUrl.
-  return ee.apiclient.getTileBaseUrl() + '/api/download?docid=' + id.docid +
-      '&token=' + id.token;
+  ee.apiclient.initialize();
+  const base = ee.apiclient.getTileBaseUrl();
+  return ee.data.getCloudApiEnabled() ?
+      `${base}/${ee.apiclient.VERSION}/${id.docid}:getPixels` :
+      `${base}/api/download?docid=${id.docid}&token=${id.token}`;
 };
 
 
@@ -1771,7 +1860,6 @@ ee.data.deleteAsset = function(assetId, opt_callback) {
  *
  * The authenticated user must be a writer or owner of an asset to see its ACL.
  *
- * @deprecated Use ee.data.getIamPolicy().
  * @param {string} assetId The ID of the asset to check.
  * @param {function(?ee.data.AssetAcl, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
@@ -1876,7 +1964,6 @@ ee.data.updateAsset = function(assetId, asset, updateFields, opt_callback) {
  *
  * The authenticated user must be a writer or owner of an asset to set its ACL.
  *
- * @deprecated Use ee.data.setIamPolicy().
  * @param {string} assetId The ID of the asset to set the ACL on.
  * @param {!ee.data.AssetAclUpdate} aclUpdate The updated ACL.
  * @param {function(?Object, string=)=} opt_callback
@@ -2958,6 +3045,11 @@ ee.data.RawMapId = class {
      * @export {function(number,number,number):string}
      */
     this.formatTileUrl;
+
+    /**
+     * @export {string}
+     */
+    this.urlFormat;
   }
 };
 

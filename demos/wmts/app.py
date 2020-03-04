@@ -286,3 +286,9 @@ def serve_wmts_get_tile():
 
   return flask.Response(
       ee_tile_resp.content, mimetype=ee_tile_resp.headers["Content-Type"])
+
+
+def clear_cache():
+  """Clear saved cache."""
+  _dd_json_ttl_cache.clear()
+  _map_id_ttl_cache.clear()

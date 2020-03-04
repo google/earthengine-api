@@ -28,7 +28,7 @@ export function toMakeRequestParams(requestParams: GeneratedRequestParams):
     body: body as Serializable,
     queryParams: requestParams.queryParams,
     streamingType: requestParams.streamingType &&
-        StreamingType[requestParams.streamingType as keyof typeof StreamingType]
+        requestParams.streamingType as StreamingType
   } as MakeRequestParams;
 }
 

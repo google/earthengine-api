@@ -198,8 +198,8 @@ class Image(element.Element):
             desired_rectangle = geometry.Geometry.Rectangle(
                 [0, 0, dimensions[0], dimensions[1]],
                 proj=image.projection(),
-                evenOdd=True,
-                geodesic=False)
+                geodesic=False,
+                evenOdd=True)
             # This will take effect in _apply_selection_and_scale. The
             # combination reprojection and clipping will result in the exact
             # desired rectangle.
@@ -261,16 +261,15 @@ class Image(element.Element):
               if (len(region) == 2
                   or all(isinstance(e, (int, float)) for e in region)):
                 selection_params['geometry'] = geometry.Geometry.Rectangle(
-                    region, geodesic=False)
+                    region, None, geodesic=False)
               else:
                 selection_params['geometry'] = geometry.Geometry.Polygon(
-                    region, geodesic=False)
+                    region, None, geodesic=False)
               continue
             selection_params['geometry'] = geometry.Geometry(
-                region, opt_geodesic=False)
+                region, opt_proj=None, opt_geodesic=False)
           else:
             selection_params[key] = params[key]
-
     image = self
     if selection_params:
       selection_params['input'] = image
@@ -311,12 +310,74 @@ class Image(element.Element):
           vis_params[key] = params[key]
         else:
           request[key] = params[key]
-
     image = self
     if vis_params:
       vis_params['image'] = image
       image = apifunction.ApiFunction.apply_('Image.visualize', vis_params)
     return image, request
+
+  def _build_download_id_image(self, params):
+    """Processes the getDownloadId parameters and returns the built image.
+
+    Given transformation parameters (crs, crs_transform, dimensions, scale, and
+    region), constructs an image per band. Band level parameters override the
+    parameters specified in the top level. If dimensions and scale parameters
+    are both specifed, the scale parameter is ignored.
+
+    Image transformations will be applied on a per band basis if the
+    format parameter is ZIPPED_GEO_TIFF_PER_BAND and there are bands in the
+    bands list. Otherwise, the transformations will be applied on the entire
+    image.
+
+    Args:
+      params: The getDownloadId parameters.
+
+    Returns:
+      The image filtered to the given bands and the associated transformations
+      applied.
+    """
+    params = params.copy()
+
+    def _extract_and_validate_transforms(obj):
+      """Takes a parameter dictionary and extracts the transformation keys."""
+      extracted = {}
+      for key in ['crs', 'crs_transform', 'dimensions', 'region']:
+        if key in obj:
+          extracted[key] = obj[key]
+      # Since dimensions and scale are mutually exclusive, we ignore scale
+      # if dimensions are specified.
+      if 'scale' in obj and 'dimensions' not in obj:
+        extracted['scale'] = obj['scale']
+      return extracted
+
+    def _build_image_per_band(band_params):
+      """Takes a band dictionary and builds an image for it."""
+      if 'id' not in band_params:
+        raise ee_exception.EEException('Each band dictionary must have an id.')
+      band_id = band_params['id']
+      band_image = self.select(band_id)
+      # Override the existing top level params with the band level params.
+      copy_params = _extract_and_validate_transforms(params)
+      band_params = _extract_and_validate_transforms(band_params)
+      copy_params.update(band_params)
+      band_params = _extract_and_validate_transforms(copy_params)
+      # pylint: disable=protected-access
+      band_image, band_params = band_image._apply_crs_and_affine(band_params)
+      band_image, _ = band_image._apply_selection_and_scale(band_params)
+      # pylint: enable=protected-access
+      return band_image
+
+    if params['format'] == 'ZIPPED_GEO_TIFF_PER_BAND' and params.get(
+        'bands') and len(params.get('bands')):
+      # Build a new image based on the constituent band images.
+      image = Image.combine_(
+          [_build_image_per_band(band) for band in params['bands']])
+    else:
+      # Apply transformations directly onto the image, ignoring any band params.
+      copy_params = _extract_and_validate_transforms(params)
+      image, copy_params = self._apply_crs_and_affine(copy_params)  # pylint: disable=protected-access
+      image, _ = image._apply_selection_and_scale(copy_params)  # pylint: disable=protected-access
+    return image
 
   def prepare_for_export(self, params):
     """Applies all relevant export parameters to an image.
@@ -367,21 +428,14 @@ class Image(element.Element):
             ignored if crs and crs_transform is specified.
         region -  a polygon specifying a region to download; ignored if crs
             and crs_transform is specified.
-
+        filePerBand - whether to produce a different GeoTIFF per band (boolean).
+            Defaults to true. If false, a single GeoTIFF is produced and all
+            band-level transformations will be ignored.
     Returns:
       A URL to download the specified image.
     """
-    if data._use_cloud_api:  # pylint: disable=protected-access
-      # Only support downloading zipped geotiff.  Should use getThumbUrl
-      # otherwise.
-      if params.get('filePerBand', False):
-        params['format'] = 'ZIPPED_GEO_TIFF_PER_BAND'
-      else:
-        params['format'] = 'ZIPPED_GEO_TIFF'
-
-      return data.makeThumbUrl(self.getThumbId(params))
     request = params or {}
-    request['image'] = self.serialize()
+    request['image'] = self
     return data.makeDownloadUrl(data.getDownloadId(request))
 
   def getThumbId(self, params):

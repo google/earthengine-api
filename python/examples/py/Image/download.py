@@ -2,6 +2,7 @@
 """Download example."""
 
 from __future__ import print_function
+
 import ee
 import ee.mapclient
 

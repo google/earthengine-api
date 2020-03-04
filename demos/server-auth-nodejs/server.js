@@ -26,9 +26,26 @@ const app = express()
 const PRIVATE_KEY = require('./privatekey.json');
 const PORT = process.env.PORT || 3000;
 
-ee.data.authenticateViaPrivateKey(PRIVATE_KEY, () => {
-  ee.initialize(null, null, () => {
-    app.listen(PORT);
-    console.log(`Listening on port ${PORT}`);
-  });
-});
+console.log('Authenticating server-side EE API calls via private key...');
+
+ee.data.authenticateViaPrivateKey(
+    PRIVATE_KEY,
+    () => {
+      console.log('Authentication succeeded.');
+      ee.initialize(
+          null, null,
+          () => {
+            console.log('Successfully initialized the EE client library.');
+            app.listen(PORT);
+            console.log(`Listening on port ${PORT}`);
+          },
+          (err) => {
+            console.log(err);
+            console.log(
+                `Please make sure you have created a service account and have been approved.
+Visit https://developers.google.com/earth-engine/service_account#how-do-i-create-a-service-account to learn more.`);
+          });
+    },
+    (err) => {
+      console.log(err);
+    });

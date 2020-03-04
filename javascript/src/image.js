@@ -192,20 +192,21 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
   }
 };
 
+
 /**
  * Get a Download URL for the image, which always downloads a zipped GeoTIFF.
  * Use getThumbURL for other file formats like PNG, JPG, or raw GeoTIFF.
  * @param {Object} params An object containing download options with the
  *     following possible values:
  *   - name: a base name to use when constructing filenames.
- *   - bands: a description of the bands to download. Must be a list of
+ *   - bands: a description of the bands to download. Must be an array of
  *         dictionaries, each with the following keys:
  *     + id: the name of the band, a string, required.
  *     + crs: an optional CRS string defining the band projection.
- *     + crs_transform: an optional list of 6 numbers specifying an affine
+ *     + crs_transform: an optional array of 6 numbers specifying an affine
  *           transform from the specified CRS, in row-major order:
  *           [xScale, xShearing, xTranslation, yShearing, yScale, yTranslation]
- *     + dimensions: an optional list of two integers defining the width and
+ *     + dimensions: an optional array of two integers defining the width and
  *           height to which the band is cropped.
  *     + scale: an optional number, specifying the scale in meters of the band;
  *              ignored if crs and crs_transform is specified.
@@ -220,6 +221,8 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
  *   - filePerBand: Whether to produce a different GeoTIFF per band (boolean).
+ *         Defaults to true. If false, a single GeoTIFF is produced and all
+ *         band-level transformations will be ignored.
  * @param {function(string?, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {string|undefined} Returns a download URL, or undefined if a callback
@@ -230,23 +233,7 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getDownloadURL, arguments);
   const request = args['params'] ? goog.object.clone(args['params']) : {};
-  if (ee.data.getCloudApiEnabled()) {
-    if (request['filePerBand']) {
-      // Only support downloading zipped geotiff.  Should use getThumbUrl
-      // otherwise.
-      request['format'] = 'ZIPPED_GEO_TIFF_PER_BAND';
-    } else {
-      request['format'] = 'ZIPPED_GEO_TIFF';
-    }
-    delete request['filePerBand'];
-    if (args['callback']) {
-      this.getThumbURL(request, args['callback']);
-      return;
-    } else {
-      return this.getThumbURL(request);
-    }
-  }
-  request['image'] = this.serialize();
+  request['image'] = ee.data.getCloudApiEnabled() ? this : this.serialize();
   if (args['callback']) {
     const callback = args['callback'];
     ee.data.getDownloadId(request, (downloadId, error) => {
@@ -435,7 +422,7 @@ ee.Image.combine_ = function(images, opt_names) {
  *   the number of selected bands. E.g.
  *   selected = image.select(['a', 4], ['newA', 'newB']);
  *
- * @return {ee.Image} An image with the selected bands.
+ * @return {!ee.Image} An image with the selected bands.
  * @export
  */
 ee.Image.prototype.select = function(var_args) {
@@ -465,7 +452,7 @@ ee.Image.prototype.select = function(var_args) {
   } else if (args[1]) {
     algorithmArgs['newNames'] = args[1];
   }
-  return /** @type {ee.Image} */ (
+  return /** @type {!ee.Image} */ (
       ee.ApiFunction._apply('Image.select', algorithmArgs));
 };
 

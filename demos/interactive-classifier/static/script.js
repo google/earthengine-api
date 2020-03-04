@@ -57,7 +57,7 @@ $(function() {
             // provide a valid URL to an Earth Engine map tile based on the
             // mapid and token.
             var eeMapOptions = {
-              getTileUrl: buildGetTileUrl(layer.mapid, layer.token),
+              getTileUrl: buildGetTileUrl(layer),
               tileSize: new google.maps.Size(256, 256)
             };
 
@@ -109,12 +109,12 @@ $(function() {
 
   // Returns a function that builds a valid tile URL to Earth Engine based on
   // the mapid and token.
-  function buildGetTileUrl(mapid, token) {
+  function buildGetTileUrl(layer) {
     return function(tile, zoom) {
-      var baseUrl = 'https://earthengine.googleapis.com/map';
-      var url = [baseUrl, mapid, zoom, tile.x, tile.y].join('/');
-      url += '?token=' + token;
-      return url;
+      // We haven't loaded the ee client library, so we process the template
+      // explicitly instead of calling ee.data.getTileUrl(layer, x, y, zoom).
+      return layer.urlFormat.replace('{x}', tile.x).replace('{y}', tile.y)
+          .replace('{z}', zoom);
     };
   }
 });

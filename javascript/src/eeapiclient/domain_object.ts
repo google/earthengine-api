@@ -167,7 +167,7 @@ export function serialize(serializable: ISerializable): ObjectMap<any> {
       serializable, serializeGetter, serializeSetter, serializeInstanciator);
 }
 
-function serializeGetter(key: string, obj: {}) {
+function serializeGetter(key: string, obj: unknown) {
   return (obj as ISerializable).Serializable$get(key);
 }
 
@@ -181,11 +181,10 @@ function serializeInstanciator(ctor: CopyConstructor) {
 
 /**
  * Creates a new instance of the ISerializable and recursively copies
- * the the data from the raw input to the new class instances.
+ * the data from the raw input to the new class instances.
  */
 export function deserialize<T extends ISerializable>(
-    // tslint:disable-next-line:no-any
-    type: SerializableCtor<T>, raw?: any): T {
+    type: SerializableCtor<T>, raw?: unknown): T {
   const result = new type();
   if (raw == null) {
     return result;
@@ -195,7 +194,7 @@ export function deserialize<T extends ISerializable>(
              type) as T;
 }
 
-function deserializeGetter(key: string, obj: {}) {
+function deserializeGetter(key: string, obj: unknown) {
   return (obj as ObjectMap<{}>)[key];
 }
 
@@ -210,7 +209,7 @@ function deserializeInstanciator(ctor: CopyConstructor) {
   return new ctor();
 }
 
-type CopyValueGetter = (key: string, obj: {}) => {};
+type CopyValueGetter = (key: string, obj: unknown) => {};
 type CopyValueSetter = (key: string, obj: {}, value: {}) => void;
 type CopyConstructor = SerializableCtor<ISerializable>|null|undefined;
 type CopyInstanciator<T> = (ctor: CopyConstructor) => T;
@@ -228,7 +227,7 @@ type CopyInstanciator<T> = (ctor: CopyConstructor) => T;
  * @param targetConstructor Optional. The target's constructor function.
  */
 function deepCopy<T>(
-    source: {}, valueGetter: CopyValueGetter, valueSetter: CopyValueSetter,
+    source: unknown, valueGetter: CopyValueGetter, valueSetter: CopyValueSetter,
     copyInstanciator: CopyInstanciator<T>,
     targetConstructor?: CopyConstructor): T {
   const target = copyInstanciator(targetConstructor);
@@ -332,7 +331,9 @@ function deepCopyValue<T>(
     deserialized = null as unknown as {};
 
   } else if (typeof value === 'object') {
-    deserialized = JSON.parse(JSON.stringify(value));
+    // TODO(b/131926196): Assert as a type, declared interface, or `unknown`.
+    // tslint:disable-next-line:ban-types no-unnecessary-type-assertion
+    deserialized = JSON.parse(JSON.stringify(value)) as AnyDuringMigration;
 
   } else {
     deserialized = value;
@@ -340,7 +341,7 @@ function deepCopyValue<T>(
   return deserialized;
 }
 
-function deepCopyMetadata(source: {}, target: {}) {
+function deepCopyMetadata(source: unknown, target: {}) {
   let metadata;
   if (target instanceof Serializable) {
     metadata = target.getClassMetadata();

@@ -39,13 +39,14 @@ export enum AuthType {
 }
 
 /**
- * Type of the streaming RPC method.
+ * Type of the streaming RPC method. A string enum is used to make it easier
+ * to compare string values to the enum values.
  */
 export enum StreamingType {
-  NONE,
-  CLIENT_SIDE,
-  SERVER_SIDE,
-  BIDIRECTONAL
+  NONE = 'NONE',
+  CLIENT_SIDE = 'CLIENT_SIDE',
+  SERVER_SIDE = 'SERVER_SIDE',
+  BIDIRECTONAL = 'BIDIRECTONAL'
 }
 
 export interface MakeRequestParams {

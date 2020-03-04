@@ -17,7 +17,7 @@ goog.require('goog.array');
 goog.require('goog.string');
 
 
-goog.forwardDeclare('ee.FeatureCollection');
+goog.requireType('ee.FeatureCollection');
 
 /**
  * Constructs a new filter. This constructor accepts the following args:

@@ -151,6 +151,16 @@ ee.rpc_convert.fileFormat = function(format) {
       return 'TF_RECORD_IMAGE';
     case 'NUMPY':
       return 'NPY';
+    case 'ZIPPED_TIF':
+    case 'ZIPPED_TIFF':
+    case 'ZIPPED_GEOTIF':
+    case 'ZIPPED_GEOTIFF':
+      return 'ZIPPED_GEO_TIFF';
+    case 'ZIPPED_TIF_PER_BAND':
+    case 'ZIPPED_TIFF_PER_BAND':
+    case 'ZIPPED_GEOTIF_PER_BAND':
+    case 'ZIPPED_GEOTIFF_PER_BAND':
+      return 'ZIPPED_GEO_TIFF_PER_BAND';
     // It might be some other supported format. Let the server validate it.
     default: return upper;
   }

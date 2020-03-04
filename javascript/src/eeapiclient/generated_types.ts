@@ -23,7 +23,7 @@ export interface GeneratedRequestParams {
   /** The id of the called method, from discovery. */
   methodId?: string;
   queryParams?: {
-    [key: string]: number | string | boolean | undefined | string[] | number[]
+    [key: string]: number|number[]|string|string[]|boolean|boolean[]|undefined
   };
   body?: Serializable|GeneratedInterface|MultipartRequest|null;
   responseCtor?: SerializableCtor<Serializable>;

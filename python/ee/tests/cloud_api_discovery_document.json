@@ -146,10 +146,10 @@
               "httpMethod": "GET",
               "id": "earthengine.projects.algorithms.list",
               "parameterOrder": [
-                "parent"
+                "project"
               ],
               "parameters": {
-                "parent": {
+                "project": {
                   "description": "",
                   "location": "path",
                   "pattern": "^projects/[^/]+$",
@@ -157,7 +157,7 @@
                   "type": "string"
                 }
               },
-              "path": "v1alpha/{+parent}/algorithms",
+              "path": "v1alpha/{+project}/algorithms",
               "response": {
                 "properties": {
                   "nextPageToken": {
@@ -210,11 +210,6 @@
                   "description": "",
                   "location": "query",
                   "type": "string"
-                },
-                "overwrite": {
-                  "description": "",
-                  "location": "query",
-                  "type": "boolean"
                 },
                 "parent": {
                   "description": "",
@@ -531,6 +526,44 @@
               "request": {
                 "type": "any"
               },
+              "response": {
+                "type": "any"
+              }
+            },
+            "search": {
+              "description": "",
+              "flatPath": "v1alpha/projects/{projectsId}/assets:search",
+              "httpMethod": "GET",
+              "id": "earthengine.projects.assets.search",
+              "parameterOrder": [
+                "project"
+              ],
+              "parameters": {
+                "nextPageToken": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                },
+                "pageSize": {
+                  "description": "",
+                  "format": "int32",
+                  "location": "query",
+                  "type": "integer"
+                },
+                "project": {
+                  "description": "",
+                  "location": "path",
+                  "pattern": "^projects/[^/]+$",
+                  "required": true,
+                  "type": "string"
+                },
+                "query": {
+                  "description": "",
+                  "location": "query",
+                  "type": "string"
+                }
+              },
+              "path": "v1alpha/{+project}/assets:search",
               "response": {
                 "type": "any"
               }
@@ -1269,7 +1302,7 @@
       }
     }
   },
-  "revision": "20190510",
+  "revision": "20200203",
   "rootUrl": "https://earthengine.googleapis.com/",
   "schemas": {},
   "servicePath": "",

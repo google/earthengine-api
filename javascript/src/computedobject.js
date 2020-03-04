@@ -5,7 +5,7 @@
 
 goog.provide('ee.ComputedObject');
 
-goog.forwardDeclare('ee.Function');
+goog.requireType('ee.Function');
 goog.require('ee.Encodable');
 goog.require('ee.Serializer');
 goog.require('ee.api');

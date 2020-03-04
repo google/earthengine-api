@@ -1,7 +1,9 @@
 goog.provide('ee.layers.AbstractOverlay');
 goog.provide('ee.layers.AbstractTile');
+goog.provide('ee.layers.TileAbortEvent');
 goog.provide('ee.layers.TileFailEvent');
 goog.provide('ee.layers.TileLoadEvent');
+goog.provide('ee.layers.TileStartEvent');
 goog.provide('ee.layers.TileThrottleEvent');
 
 goog.require('ee.layers.AbstractOverlayStats');
@@ -91,8 +93,10 @@ goog.inherits(ee.layers.AbstractOverlay, goog.events.EventTarget);
 /** @enum {string} The event types dispatched by AbstractOverlay. */
 ee.layers.AbstractOverlay.EventType = {
   TILE_FAIL: 'tile-fail',
+  TILE_ABORT: 'tile-abort',
   TILE_THROTTLE: 'tile-throttle',
-  TILE_LOAD: 'tile-load'
+  TILE_LOAD: 'tile-load',
+  TILE_START: 'tile-start',
 };
 
 
@@ -194,8 +198,11 @@ ee.layers.AbstractOverlay.prototype.getTile = function(
   goog.style.setOpacity(tile.div, this.opacity);
   this.tilesById.set(uniqueId, tile);
 
-  // Notify listeners when the tile has loaded.
+  // Notify listeners when tile status changes.
   this.registerStatusChangeListener_(tile);
+
+  // Notify listeners that the tile has been created.
+  this.dispatchEvent(new ee.layers.TileStartEvent(this.getLoadingTilesCount()));
 
   // Use the current time in seconds as the priority for the tile
   // loading queue. Smaller priorities move to the front of the queue,
@@ -252,6 +259,10 @@ ee.layers.AbstractOverlay.prototype.registerStatusChangeListener_ =
             this.stats.incrementErrorCounter(tile.zoom);
             this.dispatchEvent(new ee.layers.TileFailEvent(
                 tile.sourceUrl, tile.errorMessage_));
+            break;
+          case Status.ABORTED:
+            this.dispatchEvent(
+                new ee.layers.TileAbortEvent(this.getLoadingTilesCount()));
             break;
         }
       });
@@ -336,6 +347,21 @@ goog.inherits(ee.layers.TileLoadEvent, goog.events.Event);
 
 
 /**
+ * An event dispatched when a tile is created.
+ * @param {number} loadingTileCount The number of outstanding tile requests.
+ * @constructor
+ * @extends {goog.events.Event}
+ */
+ee.layers.TileStartEvent = function(loadingTileCount) {
+  goog.events.Event.call(this, ee.layers.AbstractOverlay.EventType.TILE_START);
+
+  /** @const {number} The number of outstanding tile requests. */
+  this.loadingTileCount = loadingTileCount;
+};
+goog.inherits(ee.layers.TileStartEvent, goog.events.Event);
+
+
+/**
  * An event dispatched when a tile fails to load due to throttling.
  * @param {string} tileUrl The URL of the throttled tile.
  * @constructor
@@ -374,6 +400,22 @@ ee.layers.TileFailEvent = function(tileUrl, opt_errorMessage) {
 };
 goog.inherits(ee.layers.TileFailEvent, goog.events.Event);
 
+
+/**
+ * An event dispatched when a tile is aborted (because the layer is removed
+ * from the map or the tile is panned/zoomed out of view on the map) before it
+ * finished loading.
+ * @param {number} loadingTileCount The number of outstanding tile requests.
+ * @constructor
+ * @extends {goog.events.Event}
+ */
+ee.layers.TileAbortEvent = function(loadingTileCount) {
+  goog.events.Event.call(this, ee.layers.AbstractOverlay.EventType.TILE_ABORT);
+
+  /** @const {number} The number of outstanding tile requests. */
+  this.loadingTileCount = loadingTileCount;
+};
+goog.inherits(ee.layers.TileAbortEvent, goog.events.Event);
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -470,7 +512,8 @@ ee.layers.AbstractTile.EventType = {
  *     request limit has been exceeded.
  *   - LOADED once the source data has been received and tile's been rendered.
  *   - FAILED if the maximum retry limit is exceeded.
- *   - ABORTED if abort() is invoked.
+ *   - ABORTED if abort() is invoked before the tile finished loading.
+ *   - REMOVED if abort() is invoked after the tile loaded or failed to load.
  *
  * @package @enum {string}
  */
@@ -480,7 +523,8 @@ ee.layers.AbstractTile.Status = {
   THROTTLED: 'throttled',
   LOADED: 'loaded',
   FAILED: 'failed',
-  ABORTED: 'aborted'
+  ABORTED: 'aborted',
+  REMOVED: 'removed',
 };
 
 
@@ -601,16 +645,24 @@ ee.layers.AbstractTile.prototype.retryLoad = function(opt_errorMessage) {
 
 
 /**
- * Aborts the tile.
+ * Aborts the tile. Sets status to REMOVED if already done or ABORTED if not.
  * @package
  */
 ee.layers.AbstractTile.prototype.abort = function() {
   this.cancelLoad();
-  this.setStatus(ee.layers.AbstractTile.Status.ABORTED);
+  if (this.getStatus() != ee.layers.AbstractTile.Status.ABORTED &&
+      this.getStatus() != ee.layers.AbstractTile.Status.REMOVED) {
+    this.setStatus(
+      this.isDone() ? ee.layers.AbstractTile.Status.REMOVED :
+                      ee.layers.AbstractTile.Status.ABORTED);
+  }
 };
 
 
-/** @return {boolean} Whether the tile is done: failed, aborted, or loaded. */
+/**
+ * @return {boolean} Whether the tile is done: failed, aborted, loaded, or
+ * removed.
+ */
 ee.layers.AbstractTile.prototype.isDone = function() {
   return this.status_ in ee.layers.AbstractTile.DONE_STATUS_SET_;
 };
@@ -635,9 +687,9 @@ ee.layers.AbstractTile.prototype.setStatus = function(status) {
 
 /** @private @const {!Object<ee.layers.AbstractTile.Status>} */
 ee.layers.AbstractTile.DONE_STATUS_SET_ = goog.object.createSet(
-    ee.layers.AbstractTile.Status.ABORTED,
-    ee.layers.AbstractTile.Status.FAILED,
-    ee.layers.AbstractTile.Status.LOADED);
+    ee.layers.AbstractTile.Status.ABORTED, ee.layers.AbstractTile.Status.FAILED,
+    ee.layers.AbstractTile.Status.LOADED,
+    ee.layers.AbstractTile.Status.REMOVED);
 
 
 /** @override */

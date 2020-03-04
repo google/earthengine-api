@@ -799,7 +799,6 @@ def getThumbId(params, thumbType=None):
             serializer.encode(params['image'], for_cloud_api=True),
         'fileFormat':
             _cloud_api_utils.convert_to_image_file_format(params.get('format')),
-        'filenamePrefix': params.get('name'),
     }
     # Only add visualizationOptions to the request if it's non-empty, as
     # specifying it affects server behaviour.
@@ -824,6 +823,7 @@ def getThumbId(params, thumbType=None):
               fields='name',
               body=request))
     else:
+      request['filenamePrefix'] = params.get('name')
       request['bandIds'] = _cloud_api_utils.convert_to_band_list(
           params.get('bands'))
       result = _execute_cloud_call(
@@ -860,13 +860,13 @@ def makeThumbUrl(thumbId):
       _tile_base_url, thumbId['thumbid'], thumbId['token'])
 
 
-@deprecation.Deprecated('Use getThumbId')
 def getDownloadId(params):
   """Get a Download ID.
 
   Args:
     params: An object containing visualization options with the following
       possible values:
+        image - The image to download.
         name - a base name to use when constructing filenames.
         bands - a description of the bands to download. Must be an array of
             dictionaries, each with the following keys:
@@ -889,17 +889,75 @@ def getDownloadId(params):
             ignored if crs and crs_transform is specified.
         region - a polygon specifying a region to download; ignored if crs
             and crs_transform is specified.
+        filePerBand - whether to produce a different GeoTIFF per band (boolean).
+            Defaults to true. If false, a single GeoTIFF is produced and all
+            band-level transformations will be ignored.
 
   Returns:
     A dict containing a docid and token.
   """
+  if _use_cloud_api:
+    params = params.copy()
+    # Previously, the docs required an image ID parameter that was changed
+    # to image. Due to the circular dependency, we raise an error and ask the
+    # user to supply an ee.Image directly.
+    if 'id' in params:
+      raise ee_exception.EEException('Image ID string is not supported. '
+                                     'Construct an image with the ID '
+                                     '(e.g. ee.Image(id)) and use '
+                                     'ee.Image.getDownloadURL instead.')
+    if 'image' not in params:
+      raise ee_exception.EEException('Missing image parameter.')
+    if isinstance(params['image'], six.string_types):
+      raise ee_exception.EEException('Image as JSON string not supported.')
+    params.setdefault('filePerBand', True)
+    params.setdefault(
+        'format', 'ZIPPED_GEO_TIFF_PER_BAND'
+        if params['filePerBand'] else 'ZIPPED_GEO_TIFF')
+    if 'region' in params and ('scale' in params or 'crs_transform' in params
+                              ) and 'dimensions' in params:
+      raise ee_exception.EEException(
+          'Cannot specify (bounding region, crs_transform/scale, dimensions) '
+          'simultaneously.'
+      )
+    bands = None
+    if 'bands' in params:
+      bands = params['bands']
+      if isinstance(bands, six.string_types):
+        bands = _cloud_api_utils.convert_to_band_list(bands)
+      if not isinstance(bands, list):
+        raise ee_exception.EEException('Bands parameter must be a list.')
+      if all(isinstance(band, six.string_types) for band in bands):
+        # Support expressing the bands list as a list of strings.
+        bands = [{'id': band} for band in bands]
+      if not all('id' in band for band in bands):
+        raise ee_exception.EEException('Each band dictionary must have an id.')
+      params['bands'] = bands
+    request = {
+        'expression':
+            serializer.encode(
+                params['image']._build_download_id_image(params),  # pylint: disable=protected-access
+                for_cloud_api=True),
+        'fileFormat':
+            _cloud_api_utils.convert_to_image_file_format(params.get('format')),
+    }
+    request['filenamePrefix'] = params.get('name')
+    if bands:
+      request['bandIds'] = _cloud_api_utils.convert_to_band_list(
+          [band['id'] for band in bands])
+    result = _execute_cloud_call(
+        _cloud_api_resource.projects().thumbnails().create(
+            parent=_get_projects_path(), fields='name', body=request))
+    return {'docid': result['name'], 'token': ''}
+
   params['json_format'] = 'v2'
   if 'bands' in params and not isinstance(params['bands'], six.string_types):
     params['bands'] = json.dumps(params['bands'])
+  if 'image' in params and not isinstance(params['image'], six.string_types):
+    params['image'] = params['image'].serialize()
   return send_('/download', params)
 
 
-@deprecation.Deprecated('Use getThumbId and makeThumbUrl')
 def makeDownloadUrl(downloadId):
   """Create a download URL from the given docid and token.
 
@@ -909,8 +967,11 @@ def makeDownloadUrl(downloadId):
   Returns:
     A URL from which the download can be obtained.
   """
-  return '%s/api/download?docid=%s&token=%s' % (
-      _tile_base_url, downloadId['docid'], downloadId['token'])
+  if _use_cloud_api:
+    return '%s/v1alpha/%s:getPixels' % (_tile_base_url, downloadId['docid'])
+  else:
+    return '%s/api/download?docid=%s&token=%s' % (
+        _tile_base_url, downloadId['docid'], downloadId['token'])
 
 
 def getTableDownloadId(params):
@@ -1241,6 +1302,9 @@ def startProcessing(taskId, params):
 def exportImage(request_id, params):
   """Starts an image export task running.
 
+  This is a low-level method. The higher-level ee.batch.Export.image object
+  is generally preferred for initiating image exports.
+
   Args:
     request_id (string): A unique ID for the task, from newTaskId.
       If you are using the cloud API, this does not need to be from newTaskId,
@@ -1266,6 +1330,9 @@ def exportImage(request_id, params):
 
 def exportTable(request_id, params):
   """Starts a table export task running.
+
+  This is a low-level method. The higher-level ee.batch.Export.table object
+  is generally preferred for initiating table exports.
 
   Args:
     request_id (string): A unique ID for the task, from newTaskId.
@@ -1293,6 +1360,9 @@ def exportTable(request_id, params):
 def exportVideo(request_id, params):
   """Starts a video export task running.
 
+  This is a low-level method. The higher-level ee.batch.Export.video object
+  is generally preferred for initiating video exports.
+
   Args:
     request_id (string): A unique ID for the task, from newTaskId.
       If you are using the cloud API, this does not need to be from newTaskId,
@@ -1318,6 +1388,9 @@ def exportVideo(request_id, params):
 
 def exportMap(request_id, params):
   """Starts a map export task running.
+
+  This is a low-level method. The higher-level ee.batch.Export.map object
+  is generally preferred for initiating map tile exports.
 
   Args:
     request_id (string): A unique ID for the task, from newTaskId.
@@ -1455,12 +1528,10 @@ def startTableIngestion(request_id, params, allow_overwrite=False):
     params: The object that describes the import task, which can
         have these fields:
           id (string) The destination asset id (e.g. users/foo/bar).
-          sources (array) A list of CNS source file paths with optional
-            character encoding formatted like:
-            "sources": [{ "primaryPath": "states.shp", "charset": "UTF-8" }]
-            Where path values correspond to source files' CNS locations,
-            e.g. 'googlefile://namespace/foobar.shp', and 'charset' refers to
-            the character encoding of the source file.
+          sources (array) A list of GCS (Google Cloud Storage) file paths
+            with optional character encoding formatted like this:
+            "sources":[{"primaryPath":"gs://bucket/file.shp","charset":"UTF-8"}]
+            Here 'charset' refers to the character encoding of the source file.
         If you are using the Cloud API, this object must instead be a dict
         representation of a TableManifest.
     allow_overwrite: Whether the ingested image can overwrite an
@@ -1833,7 +1904,8 @@ def send_(path, params, opt_method='POST', opt_raw=False):
     # Note if the response is JSON and contains an error value, we raise that
     # error above rather than this generic one.
     raise ee_exception.EEException(
-        'Server returned HTTP code: %d' % response.status)
+        'Server returned HTTP code: %s. Reason: %s.' %
+        (response.status, response.reason))
 
   # Now known not to be an error response...
   if opt_raw:

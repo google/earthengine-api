@@ -2,7 +2,6 @@
 
 goog.provide('ee.arguments');
 
-goog.require('ee.ComputedObject');
 goog.require('goog.array');
 goog.require('goog.object');
 goog.require('goog.string');
@@ -171,9 +170,11 @@ ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
 
   var args = {};
   var firstArg = originalArgs[0];
+  // Check if firstArg is a fancy object and not just a dictionary by using
+  // Object.getPrototypeOf.
   var firstArgCouldBeDictionary = goog.isObject(firstArg) &&
       !goog.isFunction(firstArg) && !goog.isArray(firstArg) &&
-      !(firstArg instanceof ee.ComputedObject);
+      Object.getPrototypeOf(firstArg).constructor.name === 'Object';
 
   // Parse the arguments by inferring how they were passed in.
   if (originalArgs.length > 1 || !firstArgCouldBeDictionary) {

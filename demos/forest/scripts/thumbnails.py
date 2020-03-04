@@ -1,17 +1,20 @@
 #!/usr/bin/env python
 """Global Forest Change Explorer destination thumbnail generation logic."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import os.path
 import posixpath
-import urllib
 
 from enum import Enum
 from PIL import Image
-
-
+from six.moves import urllib
 
 import config
 import ee
+
 
 
 def GenerateThumbnails(destinations):
@@ -22,7 +25,7 @@ def GenerateThumbnails(destinations):
   """
   thumbnail_urls_by_id = _GetThumbnailUrlsByIdDict(destinations)
   _DownloadThumbnails(thumbnail_urls_by_id)
-  _PostProcessThumbnails(thumbnail_urls_by_id.keys())
+  _PostProcessThumbnails(list(thumbnail_urls_by_id.keys()))
 
 
 ###################
@@ -103,7 +106,8 @@ def _GetPrettyEarthImage():
   def Pansharpen(scene):
     """Pansharpens raw bands to create a single high-resolution color image."""
     cloud = ee.Algorithms.Landsat.simpleCloudScore(scene).select('cloud')
-    scene = scene.select(bands_in.values(bands_in.keys()), bands_in.keys())
+    scene = scene.select(
+        bands_in.values(list(bands_in.keys())), list(bands_in.keys()))
     native_mask = scene.mask().reduce(ee.Reducer.min()).multiply(cloud.lt(40))
     pan = scene.select(['pan'], ['value'])
     scene = scene.select(['red', 'green', 'blue']).add(pan.multiply(0.15))
@@ -141,7 +145,7 @@ def _FillTransparentPixels(image):
 
 def _CleanPrettyEarthImageFile(filepath):
   """Post-processes the pretty earth image file at the filepath."""
-  print 'Cleaning Pretty Earth file %s\n' % filepath
+  print('Cleaning Pretty Earth file %s\n' % filepath)
   image = Image.open(filepath).convert('RGBA')
   image = _CropImage(image)
   image = _FillTransparentPixels(image)
@@ -192,7 +196,7 @@ def _GetThumbnailUrlsByIdDict(destinations):
     # Skip destinations for which we already have thumbnails.
 
     if os.path.exists(_GetFilepath(destination_id)):
-      print 'Skipping %s (existing thumbnail).' % destination_id
+      print('Skipping %s (existing thumbnail).' % destination_id)
       continue
 
     geometry = (destinations
@@ -216,7 +220,7 @@ def _GetThumbnailUrlsByIdDict(destinations):
                      .clip(geometry)
                      .getThumbURL(vis_params))
     thumbnail_urls_by_id[destination_id] = thumbnail_url
-    print 'URL for destination %s:\n%s\n' % (destination_id, thumbnail_url)
+    print('URL for destination %s:\n%s\n' % (destination_id, thumbnail_url))
 
   return thumbnail_urls_by_id
 
@@ -227,10 +231,10 @@ def _DownloadThumbnails(thumbnail_urls_by_id):
   Args:
     thumbnail_urls_by_id: A dictionary mapping destination ID to thumbnail URL.
   """
-  retriever = urllib.URLopener()
+  retriever = urllib.request.URLopener()
   for destination_id, thumbnail_url in thumbnail_urls_by_id.items():
     filepath = _GetFilepath(destination_id)
-    print 'Downloading %s from URL:\n%s\n' % (filepath, thumbnail_url)
+    print('Downloading %s from URL:\n%s\n' % (filepath, thumbnail_url))
     retriever.retrieve(thumbnail_url, filepath)
 
 

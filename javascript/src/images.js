@@ -11,7 +11,7 @@ goog.require('goog.array');
 goog.require('goog.object');
 goog.requireType('ee.data');
 
-goog.forwardDeclare('ee.Image');
+goog.requireType('ee.Image');
 
 
 
@@ -304,9 +304,10 @@ ee.data.images.maybeConvertCrsTransformToArray_ = function(crsTransform) {
 ee.data.images.applyVisualization = function(image, params) {
   // Split the parameters into those handled handled by visualize()
   // and those that aren't.
-  var request = {};
-  var visParams = ee.data.images.extractVisParams(params, request);
-  if (!goog.object.isEmpty(visParams)) {
+  const request = {};
+  const visParams = ee.data.images.extractVisParams(params, request);
+  const shouldApplyVizParams = !goog.object.isEmpty(visParams);
+  if (shouldApplyVizParams) {
     visParams.image = image;
     image = /** @type {!ee.Image} */ (
         ee.ApiFunction._apply('Image.visualize', visParams));
@@ -336,4 +337,70 @@ ee.data.images.extractVisParams = function(params, outParams) {
     }
   });
   return visParams;
+};
+
+/**
+ * Processes the ee.data.getDownloadId parameters and returns the built image
+ * based on the given transformation parameters (crs, crs_transform, dimensions,
+ * scale, and region). Band level parameters override the parameters
+ * specified in the top level. If both dimensions and scale parameters are
+ * present, the scale parameter is always ignored.
+ *
+ * Image transformations will be applied on a per band basis if the
+ * format parameter is ZIPPED_GEO_TIFF_PER_BAND and there are bands in the bands
+ * list. Otherwise, the transformations will be applied on the entire image and
+ * the band transformation parameters will be ignored.
+ *
+ * @param {!ee.Image} image The image to include in the request.
+ * @param {!Object} params The getDownloadId parameters.
+ * @return {!ee.Image} The image filtered to the given bands and the associated
+ *     transformations applied.
+ */
+ee.data.images.buildDownloadIdImage = function(image, params) {
+  params = Object.assign({}, params);
+  const extractAndValidateTransforms = (obj) => {
+    const extracted = {};
+    ['crs', 'crs_transform', 'dimensions', 'region'].forEach((key) => {
+      if (key in obj) {
+        extracted[key] = obj[key];
+      }
+    });
+    // Since dimensions and scale are mutually exclusive, we ignore scale
+    // if dimensions are specified.
+    if (obj['scale'] != null && obj['dimensions'] == null) {
+      extracted['scale'] = obj['scale'];
+    }
+    return extracted;
+  };
+  const buildImagePerBand = (band) => {
+    const bandId = band.id;
+    if (bandId === undefined) {
+      throw new Error('Each band dictionary must have an id.');
+    }
+    let bandImage = image.select(bandId);
+    // Override the existing top level params with the band level params.
+    let copyParams = extractAndValidateTransforms(params);
+    let bandParams = extractAndValidateTransforms(band);
+    bandParams =
+        extractAndValidateTransforms(Object.assign(copyParams, bandParams));
+    bandImage = ee.data.images.applyCrsAndTransform(bandImage, bandParams);
+    bandImage =
+        ee.data.images.applySelectionAndScale(bandImage, bandParams, {});
+    return bandImage;
+  };
+  if (params['format'] === 'ZIPPED_GEO_TIFF_PER_BAND' && params['bands'] &&
+      params['bands'].length) {
+    // Build a new image based on the constituent band images.
+    const images = params['bands'].map(buildImagePerBand);
+    image = images.reduce(
+        (result, bandImage) => /** @type {!ee.Image} */ (ee.ApiFunction._call(
+            'Image.addBands', result, bandImage, null, true)),
+        images.shift());
+  } else {
+    // Apply transformations directly onto the image, ignoring any band params.
+    const copyParams = extractAndValidateTransforms(params);
+    image = ee.data.images.applyCrsAndTransform(image, copyParams);
+    image = ee.data.images.applySelectionAndScale(image, copyParams, {});
+  }
+  return image;
 };

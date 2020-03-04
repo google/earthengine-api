@@ -209,6 +209,52 @@ export const ComputePixelsRequestFileFormatEnum:
       }
     };
 
+export type ComputeTableRequestFileFormat = 'TABLE_FILE_FORMAT_UNSPECIFIED'|
+    'CSV'|'GEO_JSON'|'KML'|'KMZ'|'SHP'|'TF_RECORD_TABLE';
+
+export interface IComputeTableRequestFileFormatEnum {
+  TABLE_FILE_FORMAT_UNSPECIFIED: ComputeTableRequestFileFormat;
+  CSV: ComputeTableRequestFileFormat;
+  GEO_JSON: ComputeTableRequestFileFormat;
+  KML: ComputeTableRequestFileFormat;
+  KMZ: ComputeTableRequestFileFormat;
+  SHP: ComputeTableRequestFileFormat;
+  TF_RECORD_TABLE: ComputeTableRequestFileFormat;
+
+  values(): Array<ComputeTableRequestFileFormat>;
+}
+
+export const ComputeTableRequestFileFormatEnum:
+    IComputeTableRequestFileFormatEnum = {
+      get CSV(): ComputeTableRequestFileFormat {
+        return 'CSV';
+      },
+      get GEO_JSON(): ComputeTableRequestFileFormat {
+        return 'GEO_JSON';
+      },
+      get KML(): ComputeTableRequestFileFormat {
+        return 'KML';
+      },
+      get KMZ(): ComputeTableRequestFileFormat {
+        return 'KMZ';
+      },
+      get SHP(): ComputeTableRequestFileFormat {
+        return 'SHP';
+      },
+      get TABLE_FILE_FORMAT_UNSPECIFIED(): ComputeTableRequestFileFormat {
+        return 'TABLE_FILE_FORMAT_UNSPECIFIED';
+      },
+      get TF_RECORD_TABLE(): ComputeTableRequestFileFormat {
+        return 'TF_RECORD_TABLE';
+      },
+      values(): Array<ComputeTableRequestFileFormat> {
+        return [
+          'TABLE_FILE_FORMAT_UNSPECIFIED', 'CSV', 'GEO_JSON', 'KML', 'KMZ',
+          'SHP', 'TF_RECORD_TABLE'
+        ];
+      }
+    };
+
 export type ConditionIam = 'NO_ATTR'|'AUTHORITY'|'ATTRIBUTION'|'SECURITY_REALM'|
     'APPROVER'|'JUSTIFICATION_TYPE'|'CREDENTIALS_TYPE';
 
@@ -2529,6 +2575,66 @@ export class ComputePixelsRequest extends Serializable {
   }
 }
 
+export interface ComputeTableRequestParameters {
+  expression?: Expression|null;
+  fileFormat?: ComputeTableRequestFileFormat|null;
+}
+export class ComputeTableRequest extends Serializable {
+  constructor(parameters: ComputeTableRequestParameters = {}) {
+    super();
+    this.Serializable$set(
+        'expression',
+        (parameters.expression == null) ? (null) : (parameters.expression));
+    this.Serializable$set(
+        'fileFormat',
+        (parameters.fileFormat == null) ? (null) : (parameters.fileFormat));
+  }
+
+  static get FileFormat(): IComputeTableRequestFileFormatEnum {
+    return ComputeTableRequestFileFormatEnum;
+  }
+
+  get expression(): Expression|null {
+    return (
+        (this.Serializable$has('expression')) ?
+            (this.Serializable$get('expression')) :
+            (null));
+  }
+
+  /**
+   * The expression to compute.
+   */
+  set expression(value: Expression|null) {
+    this.Serializable$set('expression', value);
+  }
+
+  get fileFormat(): ComputeTableRequestFileFormat|null {
+    return (
+        (this.Serializable$has('fileFormat')) ?
+            (this.Serializable$get('fileFormat')) :
+            (null));
+  }
+
+  /**
+   * The output file format in which to return the table data.
+   */
+  set fileFormat(value: ComputeTableRequestFileFormat|null) {
+    this.Serializable$set('fileFormat', value);
+  }
+
+  getConstructor(): SerializableCtor<ComputeTableRequest> {
+    return ComputeTableRequest;
+  }
+
+  getPartialClassMetadata(): Partial<ClassMetadata> {
+    return {
+      enums: {'fileFormat': ComputeTableRequestFileFormatEnum},
+      keys: ['expression', 'fileFormat'],
+      objects: {'expression': Expression}
+    };
+  }
+}
+
 export interface ComputeValueRequestParameters {
   expression?: Expression|null;
 }
@@ -2931,7 +3037,8 @@ export class DataAccessOptions extends Serializable {
 
   /**
    * Whether Gin logging should happen in a fail-closed manner at the caller.
-   * This is relevant only in the LocalIAM implementation, for now.
+   * This is currently supported in the LocalIAM implementation, 
+   * and others. For Apps Framework, see go/af-audit-logging#failclosed.
    */
   set logMode(value: DataAccessOptionsLogMode|null) {
     this.Serializable$set('logMode', value);
@@ -3108,6 +3215,7 @@ export interface EarthEngineAssetParameters {
   sizeBytes?: string|null;
   quota?: FolderQuota|null;
   tilestoreEntry?: TilestoreEntry|null;
+  gcsLocation?: GcsLocation|null;
   expression?: Expression|null;
 }
 export class EarthEngineAsset extends Serializable {
@@ -3150,6 +3258,9 @@ export class EarthEngineAsset extends Serializable {
         'tilestoreEntry',
         (parameters.tilestoreEntry == null) ? (null) :
                                               (parameters.tilestoreEntry));
+    this.Serializable$set(
+        'gcsLocation',
+        (parameters.gcsLocation == null) ? (null) : (parameters.gcsLocation));
     this.Serializable$set(
         'expression',
         (parameters.expression == null) ? (null) : (parameters.expression));
@@ -3212,6 +3323,17 @@ export class EarthEngineAsset extends Serializable {
 
   set expression(value: Expression|null) {
     this.Serializable$set('expression', value);
+  }
+
+  get gcsLocation(): GcsLocation|null {
+    return (
+        (this.Serializable$has('gcsLocation')) ?
+            (this.Serializable$get('gcsLocation')) :
+            (null));
+  }
+
+  set gcsLocation(value: GcsLocation|null) {
+    this.Serializable$set('gcsLocation', value);
   }
 
   get geometry(): ApiClientObjectMap<any>|null {
@@ -3378,9 +3500,9 @@ export class EarthEngineAsset extends Serializable {
       arrays: {'bands': ImageBand},
       enums: {'type': EarthEngineAssetTypeEnum},
       keys: [
-        'bands', 'description', 'endTime', 'expression', 'geometry', 'id',
-        'name', 'properties', 'quota', 'sizeBytes', 'startTime',
-        'tilestoreEntry', 'title', 'type', 'updateTime'
+        'bands', 'description', 'endTime', 'expression', 'gcsLocation',
+        'geometry', 'id', 'name', 'properties', 'quota', 'sizeBytes',
+        'startTime', 'tilestoreEntry', 'title', 'type', 'updateTime'
       ],
       objectMaps: {
         'geometry': {
@@ -3398,6 +3520,7 @@ export class EarthEngineAsset extends Serializable {
       },
       objects: {
         'expression': Expression,
+        'gcsLocation': GcsLocation,
         'quota': FolderQuota,
         'tilestoreEntry': TilestoreEntry
       }
@@ -3910,9 +4033,10 @@ export interface ExportTableRequestParameters {
   fileExportOptions?: TableFileExportOptions|null;
   assetExportOptions?: TableAssetExportOptions|null;
   selectors?: Array<string>|null;
-  maxErrorMeters?: number|null;
   requestId?: string|null;
+  maxErrorMeters?: number|null;
   maxWorkerCount?: number|null;
+  maxVertices?: number|null;
 }
 export class ExportTableRequest extends Serializable {
   constructor(parameters: ExportTableRequestParameters = {}) {
@@ -3937,16 +4061,19 @@ export class ExportTableRequest extends Serializable {
         'selectors',
         (parameters.selectors == null) ? (null) : (parameters.selectors));
     this.Serializable$set(
+        'requestId',
+        (parameters.requestId == null) ? (null) : (parameters.requestId));
+    this.Serializable$set(
         'maxErrorMeters',
         (parameters.maxErrorMeters == null) ? (null) :
                                               (parameters.maxErrorMeters));
     this.Serializable$set(
-        'requestId',
-        (parameters.requestId == null) ? (null) : (parameters.requestId));
-    this.Serializable$set(
         'maxWorkerCount',
         (parameters.maxWorkerCount == null) ? (null) :
                                               (parameters.maxWorkerCount));
+    this.Serializable$set(
+        'maxVertices',
+        (parameters.maxVertices == null) ? (null) : (parameters.maxVertices));
   }
 
   get assetExportOptions(): TableAssetExportOptions|null {
@@ -4020,6 +4147,21 @@ export class ExportTableRequest extends Serializable {
     this.Serializable$set('maxErrorMeters', value);
   }
 
+  get maxVertices(): number|null {
+    return (
+        (this.Serializable$has('maxVertices')) ?
+            (this.Serializable$get('maxVertices')) :
+            (null));
+  }
+
+  /**
+   * Max number of uncut vertices per geometry; geometries with more vertices
+   * will be cut into pieces smaller than this size.
+   */
+  set maxVertices(value: number|null) {
+    this.Serializable$set('maxVertices', value);
+  }
+
   get maxWorkerCount(): number|null {
     return (
         (this.Serializable$has('maxWorkerCount')) ?
@@ -4074,7 +4216,8 @@ export class ExportTableRequest extends Serializable {
     return {
       keys: [
         'assetExportOptions', 'description', 'expression', 'fileExportOptions',
-        'maxErrorMeters', 'maxWorkerCount', 'requestId', 'selectors'
+        'maxErrorMeters', 'maxVertices', 'maxWorkerCount', 'requestId',
+        'selectors'
       ],
       objects: {
         'assetExportOptions': TableAssetExportOptions,
@@ -5081,6 +5224,41 @@ export class GcsDestination extends Serializable {
       enums: {'permissions': GcsDestinationPermissionsEnum},
       keys: ['bucket', 'bucketCorsUris', 'filenamePrefix', 'permissions']
     };
+  }
+}
+
+export interface GcsLocationParameters {
+  uris?: Array<string>|null;
+}
+export class GcsLocation extends Serializable {
+  constructor(parameters: GcsLocationParameters = {}) {
+    super();
+    this.Serializable$set(
+        'uris', (parameters.uris == null) ? (null) : (parameters.uris));
+  }
+
+  get uris(): Array<string>|null {
+    return (
+        (this.Serializable$has('uris')) ? (this.Serializable$get('uris')) :
+                                          (null));
+  }
+
+  /**
+   * The URIs of the data. Only Google Cloud Storage URIs are supported. Each
+   * URI must be specified in the following format:
+   * \"gs://bucket-id/object-id\". Only one URI is currently supported. If more
+   * than one URI is specified an `INALID_ARGUMENT` error is returned.
+   */
+  set uris(value: Array<string>|null) {
+    this.Serializable$set('uris', value);
+  }
+
+  getConstructor(): SerializableCtor<GcsLocation> {
+    return GcsLocation;
+  }
+
+  getPartialClassMetadata(): Partial<ClassMetadata> {
+    return {keys: ['uris']};
   }
 }
 
@@ -11337,7 +11515,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(
-        sourceName, new RegExp('^projects/[^/]+/assets/.+$'));
+        sourceName, new RegExp('^projects/[^/]+/assets/.*$'));
 
     return this.$apiClient.$request<EarthEngineAsset>({
       body: $requestBody,
@@ -11442,7 +11620,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<Empty> {
     this.$apiClient.$validateParameter(
-        name, new RegExp('^projects/[^/]+/assets/.+$'));
+        name, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
 
     return this.$apiClient.$request<Empty>({
@@ -11493,7 +11671,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(
-        name, new RegExp('^projects/[^/]+/assets/.+$'));
+        name, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
 
     return this.$apiClient.$request<EarthEngineAsset>({
@@ -11544,7 +11722,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<Policy> {
     this.$apiClient.$validateParameter(
-        resource, new RegExp('^projects/[^/]+/assets/.+$'));
+        resource, new RegExp('^projects/[^/]+/assets/.*$'));
 
     return this.$apiClient.$request<Policy>({
       body: $requestBody,
@@ -11594,7 +11772,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<HttpBody> {
     this.$apiClient.$validateParameter(
-        name, new RegExp('^projects/[^/]+/assets/.+$'));
+        name, new RegExp('^projects/[^/]+/assets/.*$'));
 
     return this.$apiClient.$request<HttpBody>({
       body: $requestBody,
@@ -11648,7 +11826,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<ListAssetsResponse> {
     this.$apiClient.$validateParameter(
-        parent, new RegExp('^projects/[^/]+/assets/.+$'));
+        parent, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
 
     return this.$apiClient.$request<ListAssetsResponse>({
@@ -11709,7 +11887,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<ListFeaturesResponse> {
     this.$apiClient.$validateParameter(
-        parent, new RegExp('^projects/[^/]+/assets/.+$'));
+        parent, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
 
     return this.$apiClient.$request<ListFeaturesResponse>({
@@ -11778,7 +11956,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     view: <ProjectsAssetsApiClientView|undefined>void 0
   }): Promise<ListImagesResponse> {
     this.$apiClient.$validateParameter(
-        parent, new RegExp('^projects/[^/]+/assets/.+$'));
+        parent, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
 
     return this.$apiClient.$request<ListImagesResponse>({
@@ -11836,7 +12014,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(
-        sourceName, new RegExp('^projects/[^/]+/assets/.+$'));
+        sourceName, new RegExp('^projects/[^/]+/assets/.*$'));
 
     return this.$apiClient.$request<EarthEngineAsset>({
       body: $requestBody,
@@ -11886,7 +12064,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(
-        name, new RegExp('^projects/[^/]+/assets/.+$'));
+        name, new RegExp('^projects/[^/]+/assets/.*$'));
 
     return this.$apiClient.$request<EarthEngineAsset>({
       body: $requestBody,
@@ -11995,7 +12173,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     upload_protocol: <string|undefined>void 0
   }): Promise<Policy> {
     this.$apiClient.$validateParameter(
-        resource, new RegExp('^projects/[^/]+/assets/.+$'));
+        resource, new RegExp('^projects/[^/]+/assets/.*$'));
 
     return this.$apiClient.$request<Policy>({
       body: $requestBody,
@@ -12046,7 +12224,7 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
         upload_protocol: <string|undefined>void 0
       }): Promise<TestIamPermissionsResponse> {
     this.$apiClient.$validateParameter(
-        resource, new RegExp('^projects/[^/]+/assets/.+$'));
+        resource, new RegExp('^projects/[^/]+/assets/.*$'));
 
     return this.$apiClient.$request<TestIamPermissionsResponse>({
       body: $requestBody,
@@ -13283,7 +13461,7 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
       upload_protocol: <string|undefined>void 0
     }): Promise<Empty> {
       this.$apiClient.$validateParameter(
-          name, new RegExp('^projects/[^/]+/operations/.+$'));
+          name, new RegExp('^projects/[^/]+/operations/.*$'));
 
       return this.$apiClient.$request<Empty>({
         body: $requestBody,
@@ -13333,7 +13511,7 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
       upload_protocol: <string|undefined>void 0
     }): Promise<Empty> {
       this.$apiClient.$validateParameter(
-          name, new RegExp('^projects/[^/]+/operations/.+$'));
+          name, new RegExp('^projects/[^/]+/operations/.*$'));
       let $requestBody = <Serializable|null>null;
 
       return this.$apiClient.$request<Empty>({
@@ -13384,7 +13562,7 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
       upload_protocol: <string|undefined>void 0
     }): Promise<Operation> {
       this.$apiClient.$validateParameter(
-          name, new RegExp('^projects/[^/]+/operations/.+$'));
+          name, new RegExp('^projects/[^/]+/operations/.*$'));
       let $requestBody = <Serializable|null>null;
 
       return this.$apiClient.$request<Operation>({
@@ -13494,7 +13672,7 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
       upload_protocol: <string|undefined>void 0
     }): Promise<Operation> {
       this.$apiClient.$validateParameter(
-          name, new RegExp('^projects/[^/]+/operations/.+$'));
+          name, new RegExp('^projects/[^/]+/operations/.*$'));
 
       return this.$apiClient.$request<Operation>({
         body: $requestBody,
@@ -13585,6 +13763,20 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     $Xgafv?: ProjectsTableApiClient$Xgafv;
   }
 
+  export declare interface ProjectsTableComputeNamedParameters {
+    access_token?: string;
+    alt?: ProjectsTableApiClientAlt;
+    callback?: string;
+    fields?: string;
+    key?: string;
+    oauth_token?: string;
+    prettyPrint?: boolean;
+    quotaUser?: string;
+    upload_protocol?: string;
+    uploadType?: string;
+    $Xgafv?: ProjectsTableApiClient$Xgafv;
+  }
+
   export declare interface ProjectsTableExportNamedParameters {
     access_token?: string;
     alt?: ProjectsTableApiClientAlt;
@@ -13616,6 +13808,11 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
   export abstract class ProjectsTableApiClient {
     constructor() {}
 
+    abstract compute(
+        project: string, $requestBody: ComputeTableRequest,
+        __namedParams__?: ProjectsTableComputeNamedParameters&
+        object): Promise<HttpBody>;
+
     abstract computeFeatures(
         project: string, $requestBody: ComputeFeaturesRequest,
         __namedParams__?: ProjectsTableComputeFeaturesNamedParameters&
@@ -13640,6 +13837,56 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         apiClientHookFactory: ApiClientHookFactory|null = null) {
       this.$apiClient =
           new PromiseApiClient(gapiRequestService, apiClientHookFactory);
+    }
+
+    compute(project: string, $requestBody: ComputeTableRequest, {
+      $Xgafv = void 0,
+      access_token = void 0,
+      alt = void 0,
+      callback = void 0,
+      fields = void 0,
+      key = void 0,
+      oauth_token = void 0,
+      prettyPrint = void 0,
+      quotaUser = void 0,
+      uploadType = void 0,
+      upload_protocol = void 0
+    }: ProjectsTableComputeNamedParameters&object = {
+      $Xgafv: <ProjectsTableApiClient$Xgafv|undefined>void 0,
+      access_token: <string|undefined>void 0,
+      alt: <ProjectsTableApiClientAlt|undefined>void 0,
+      callback: <string|undefined>void 0,
+      fields: <string|undefined>void 0,
+      key: <string|undefined>void 0,
+      oauth_token: <string|undefined>void 0,
+      prettyPrint: <boolean|undefined>void 0,
+      quotaUser: <string|undefined>void 0,
+      uploadType: <string|undefined>void 0,
+      upload_protocol: <string|undefined>void 0
+    }): Promise<HttpBody> {
+      this.$apiClient.$validateParameter(
+          project, new RegExp('^projects/[^/]+$'));
+
+      return this.$apiClient.$request<HttpBody>({
+        body: $requestBody,
+        httpMethod: 'POST',
+        methodId: 'earthengine.projects.table.compute',
+        path: `/${this.gapiVersion}/${project}/table:compute`,
+        queryParams: {
+          '$.xgafv': $Xgafv,
+          'access_token': access_token,
+          'alt': alt,
+          'callback': callback,
+          'fields': fields,
+          'key': key,
+          'oauth_token': oauth_token,
+          'prettyPrint': prettyPrint,
+          'quotaUser': quotaUser,
+          'uploadType': uploadType,
+          'upload_protocol': upload_protocol
+        },
+        responseCtor: HttpBody
+      });
     }
 
     computeFeatures(project: string, $requestBody: ComputeFeaturesRequest, {

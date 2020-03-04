@@ -1,17 +1,23 @@
 #!/usr/bin/env python
 """Destination details data generators for the Global Forest Change Explorer."""
 
+from __future__ import absolute_import
+from __future__ import division
+from __future__ import print_function
+
 import json
 import posixpath
 
-
+import six
+from six.moves import range
 
 import config
 import ee
 
 
+
 _MAX_DESTINATIONS = 500
-_YEARS = range(config.HANSEN_FIRST_YEAR, config.HANSEN_LAST_YEAR)
+_YEARS = list(range(config.HANSEN_FIRST_YEAR, config.HANSEN_LAST_YEAR))
 _BAND_NAMES = [str(year + 2000) for year in _YEARS]
 _OUTPUT_PATH = posixpath.join(config.FILEPATH_ROOT, 'static/destinations')
 _COMPACT_SEPARATORS = (',', ':')
@@ -117,7 +123,7 @@ def _ComputeDetails(destinations):
   details_by_id = dictionary.getInfo()
 
   # Refine and extend the details locally for use in the web app.
-  for _, details in details_by_id.iteritems():
+  for _, details in six.iteritems(details_by_id):
     details['geoQuery'] = {
         'select': config.FT_GEOMETRY_COLUMN,
         'from': config.GEOMETRY_TABLE_ID[3:],
@@ -176,8 +182,8 @@ def _GetForestLossData(destination):
   ).select(_BAND_NAMES[1:])  # 2000 is the baseline year; omit it.
 
   # Convert the square meters lost into integers.
-  int_values = loss_stats.values().map(lambda sum: ee.Number(sum).int64())
-  return ee.Dictionary.fromLists(loss_stats.keys(), int_values)
+  int_values = list(loss_stats.values()).map(lambda sum: ee.Number(sum).int64())
+  return ee.Dictionary.fromLists(list(loss_stats.keys()), int_values)
 
 
 def _CreateChartStats(loss_stats):

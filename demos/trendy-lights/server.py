@@ -81,9 +81,9 @@ class MainHandler(webapp2.RequestHandler):
   def get(self, path=''):
     """Returns the main web page, populated with EE map and polygon info."""
     mapid = GetTrendyMapId()
+    print('MapID', mapid)
     template_values = {
-        'eeMapId': mapid['mapid'],
-        'eeToken': mapid['token'],
+        'mapUrlFormat': mapid['tile_fetcher'].url_format,
         'serializedPolygonIds': json.dumps(POLYGON_IDS)
     }
     template = JINJA2_ENVIRONMENT.get_template('index.html')

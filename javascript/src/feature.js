@@ -11,7 +11,7 @@ goog.require('ee.Geometry');
 goog.require('ee.arguments');
 goog.require('goog.object');
 
-goog.forwardDeclare('ee.FeatureCollection');
+goog.requireType('ee.FeatureCollection');
 
 /**
  * Features can be constructed from one of the following arguments plus an

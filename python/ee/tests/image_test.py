@@ -266,6 +266,8 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
     ).execute.return_value = {
         'name': 'thumbName'
     }
+    self.cloud_api_resource.projects().algorithms().list(
+    ).execute.return_value = apitestcase.BUILTIN_FUNCTIONS
     self.base_image = ee.Image(1)
     self.geo_json = {
         'type':
@@ -337,7 +339,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       _, kwargs = self.cloud_api_resource.projects().thumbnails(
       ).create.call_args
       expected_geometry = ee.Geometry.Polygon(
-          [[-180, -90], [-180, 90], [180, 90]], geodesic=False)
+          [[-180, -90], [-180, 90], [180, 90]], proj=None, geodesic=False)
       self.assertEqual(
           kwargs['body']['expression'],
           serializer.encode(
@@ -357,7 +359,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       _, kwargs = self.cloud_api_resource.projects().thumbnails(
       ).create.call_args
       expected_geometry = ee.Geometry.Rectangle(
-          [-180, -90, 180, 90], geodesic=False)
+          [-180, -90, 180, 90], proj=None, geodesic=False)
       self.assertEqual(
           kwargs['body']['expression'],
           serializer.encode(
@@ -383,6 +385,202 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
                   geometry=self.expected_geometry, width=13,
                   height=42).visualize(min=0),
               for_cloud_api=True))
+
+  def testBuildDownloadIdImage_buildsImagePerBand(self):
+    test_image = ee.Image('foo')
+
+    # Format is file per band and bands specified: build image out of individual
+    # band images.
+    params = {
+        'format':
+            'ZIPPED_GEO_TIFF_PER_BAND',
+        'bands': [{
+            'id': 'B1',
+            'dimensions': 123,
+        }, {
+            'id': 'B2',
+            'dimensions': 456,
+        }, {
+            'id': 'B3',
+            'dimensions': 789,
+        }],
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(2, image_str.count('addBands'))
+    self.assertEqual(3, image_str.count('maxDimension'))
+    self.assertEqual(1, image_str.count('123'))
+    self.assertEqual(1, image_str.count('456'))
+    self.assertEqual(1, image_str.count('789'))
+
+    # Override the parameters supplied in the top level with the bands
+    # parameters
+    params = {
+        'format': 'ZIPPED_GEO_TIFF_PER_BAND',
+        'bands': [{
+            'id': 'B1',
+            'dimensions': 123,
+        }, {
+            'id': 'B2',
+            'dimensions': 456,
+        }, {
+            'id': 'B3',
+        }],
+        'dimensions': 999,
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(2, image_str.count('addBands'))
+    self.assertEqual(3, image_str.count('maxDimension'))
+    self.assertEqual(1, image_str.count('123'))
+    self.assertEqual(1, image_str.count('456'))
+    self.assertEqual(0, image_str.count('789'))
+    self.assertEqual(1, image_str.count('999'))
+
+  def testBuildDownloadIdImage_transformsGivenImage(self):
+    test_image = ee.Image('foo')
+
+    # Format is file per band and bands specified: build image out of individual
+    # band images.
+    params = {
+        'format': 'ZIPPED_GEO_TIFF_PER_BAND',
+        'bands': [],
+        'dimensions': 123,
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(0, image_str.count('addBands'))
+    self.assertEqual(1, image_str.count('maxDimension'))
+    self.assertEqual(1, image_str.count('123'))
+
+    # Format is file per band and no bands specified: apply transforms directly
+    # to image.
+    params = {
+        'format': 'ZIPPED_GEO_TIFF_PER_BAND',
+        'dimensions': 123,
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(0, image_str.count('addBands'))
+    self.assertEqual(1, image_str.count('maxDimension'))
+    self.assertEqual(1, image_str.count('123'))
+
+    # Format is a single tiff: apply transforms directly to image and ignore
+    # band transformation properties.
+    params = {
+        'format': 'ZIPPED_GEO_TIFF',
+        'bands': [{
+            'id': 'B1',
+            'dimensions': 123,
+        }, {
+            'id': 'B2',
+            'dimensions': 456,
+        }, {
+            'id': 'B3',
+            'dimensions': 789,
+        }],
+        'dimensions': 999,
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(0, image_str.count('addBands'))
+    self.assertEqual(1, image_str.count('maxDimension'))
+    self.assertEqual(0, image_str.count('123'))
+    self.assertEqual(0, image_str.count('456'))
+    self.assertEqual(0, image_str.count('789'))
+    self.assertEqual(1, image_str.count('999'))
+
+  def testBuildDownloadIdImage_handlesInvalidParameters(self):
+    # No band ID in band dictionary.
+    params = {
+        'format': 'ZIPPED_GEO_TIFF_PER_BAND',
+        'bands': [{
+            'id': 'B1',
+            'dimensions': 123,
+        }, {
+            'id': 'B2',
+            'dimensions': 456,
+        }, {
+            'dimensions': 789,
+        }],
+        'dimensions': 999,
+    }
+    with self.assertRaisesWithLiteralMatch(
+        ee_exception.EEException, 'Each band dictionary must have an id.'):
+      ee.Image('foo')._build_download_id_image(params)
+
+  def testBuildDownloadIdImage_handlesDimensionsAndScale(self):
+    test_image = ee.Image('foo')
+    dimensions = 123
+    scale = 456
+
+    # File per band: ignores scale parameter if dimensions specified.
+    params = {
+        'format': 'ZIPPED_GEO_TIFF_PER_BAND',
+        'dimensions': dimensions,
+        'scale': scale,
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(1, image_str.count(str(dimensions)))
+    self.assertEqual(0, image_str.count(str(scale)))
+
+    # File per band: ignores scale parameter if dimensions specified in band.
+    params = {
+        'format': 'ZIPPED_GEO_TIFF_PER_BAND',
+        'bands': [{
+            'id': 'B1',
+            'dimensions': dimensions
+        }],
+        'scale': scale,
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(1, image_str.count(str(dimensions)))
+    self.assertEqual(0, image_str.count(str(scale)))
+
+    # Single tiff: ignores scale parameter if dimensions specified.
+    params = {
+        'format': 'ZIPPED_GEO_TIFF',
+        'dimensions': dimensions,
+        'scale': scale,
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(1, image_str.count(str(dimensions)))
+    self.assertEqual(0, image_str.count(str(scale)))
+
+    # Single tiff: ignores all parameters in bands.
+    params = {
+        'format': 'ZIPPED_GEO_TIFF',
+        'bands': [{
+            'id': 'B1',
+            'dimensions': dimensions
+        }],
+        'scale': scale,
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(0, image_str.count(str(dimensions)))
+    self.assertEqual(1, image_str.count(str(scale)))
+
+    # Single tiff: ignores all parameters in bands.
+    params = {
+        'format': 'ZIPPED_GEO_TIFF',
+        'bands': [{
+            'id': 'B1',
+            'scale': scale
+        }],
+        'dimensions': dimensions,
+    }
+    image_str = test_image._build_download_id_image(params).serialize()
+    self.assertEqual(1, image_str.count(str(dimensions)))
+    self.assertEqual(0, image_str.count(str(scale)))
+
+  def testDownloadURL(self):
+    """Verifies that the getDownloadURL request is constructed correctly."""
+
+    with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
+      url = self.base_image.getDownloadURL()
+      _, kwargs = self.cloud_api_resource.projects().thumbnails(
+      ).create.call_args
+      self.assertEqual(
+          serializer.encode(self.base_image, for_cloud_api=True),
+          kwargs['body']['expression'])
+      self.assertEqual('ZIPPED_GEO_TIFF_PER_BAND', kwargs['body']['fileFormat'])
+      self.assertEqual('projects/earthengine-legacy', kwargs['parent'])
+      self.assertEqual('/v1alpha/thumbName:getPixels', url)
 
   def testPrepareForExport_simple(self):
     """Verifies proper handling of export-related parameters."""

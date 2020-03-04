@@ -292,8 +292,8 @@ exporter.App.prototype.setLayer = function(name, mapIdPath, addOnTop) {
 
   var onDone = (function(data) {
     // Create the layer.
-    var layer = new ee.MapLayerOverlay(
-        exporter.App.EE_URL + '/map', data.mapid, data.token, {name: name});
+   const tileSource = new ee.layers.EarthEngineTileSource(data);
+   const layer = new ee.layers.ImageOverlay(tileSource, {name: name});
 
     // Add the layer to the map.
     if (addOnTop) {
@@ -501,14 +501,6 @@ exporter.App.handleRequest = function(request, onDone, onError) {
   return request;
 };
 
-
-
-/** @type {string} The Earth Engine API URL. */
-exporter.App.EE_URL = 'https://earthengine.googleapis.com';
-
-
-/** @type {string} The map type ID. */
-exporter.App.EE_MAP_TYPE_ID = 'EE_MAP_TYPE';
 
 
 /** @type {number} The default zoom level for the map. */

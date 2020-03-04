@@ -12,8 +12,10 @@ Typical use-case consists of:
 from __future__ import print_function
 
 
+import base64
 import datetime
 import errno
+import hashlib
 import json
 import os
 import sys
@@ -49,7 +51,7 @@ def get_credentials_path():
   return cred_path
 
 
-def get_authorization_url():
+def get_authorization_url(code_challenge):
   """Returns a URL to generate an auth code."""
 
   return 'https://accounts.google.com/o/oauth2/auth?' + parse.urlencode({
@@ -57,10 +59,12 @@ def get_authorization_url():
       'scope': ' '.join(SCOPES),
       'redirect_uri': REDIRECT_URI,
       'response_type': 'code',
+      'code_challenge': code_challenge,
+      'code_challenge_method': 'S256',
   })
 
 
-def request_token(auth_code):
+def request_token(auth_code, code_verifier):
   """Uses authorization code to request tokens."""
 
   request_args = {
@@ -69,6 +73,7 @@ def request_token(auth_code):
       'client_secret': CLIENT_SECRET,
       'redirect_uri': REDIRECT_URI,
       'grant_type': 'authorization_code',
+      'code_verifier': code_verifier,
   }
 
   refresh_token = None
@@ -126,17 +131,17 @@ def _in_jupyter_shell():
     return False
 
 
-def _obtain_and_write_token(auth_code=None):
+def _obtain_and_write_token(auth_code=None, code_verifier=None):
   """Obtains and writes credentials token based on a authorization code."""
   if not auth_code:
     auth_code = input('Enter verification code: ')
-    assert isinstance(auth_code, six.string_types)
-  token = request_token(auth_code)
+  assert isinstance(auth_code, six.string_types)
+  token = request_token(auth_code.strip(), code_verifier)
   write_token(token)
   print('\nSuccessfully saved authorization token.')
 
 
-def _display_auth_instructions_for_noninteractive(auth_url):
+def _display_auth_instructions_for_noninteractive(auth_url, code_verifier):
   """Displays instructions for authenticating without blocking for user input."""
   print('Paste the following address into a web browser:\n'
         '\n'
@@ -146,8 +151,9 @@ def _display_auth_instructions_for_noninteractive(auth_url):
         'Earth Engine account and copy the authentication code. '
         'Next authenticate with the following command:\n'
         '\n'
-        '    earthengine authenticate '
-        '--authorization-code=PLACE_AUTH_CODE_HERE\n'.format(auth_url))
+        '    earthengine authenticate --code-verifier={1} '
+        '--authorization-code=PLACE_AUTH_CODE_HERE\n'.format(
+            auth_url, six.ensure_str(code_verifier)))
 
 
 def _display_auth_instructions_with_print(auth_url):
@@ -178,30 +184,43 @@ def _display_auth_instructions_with_html(auth_url):
     raise
 
 
+def _base64param(byte_string):
+  """Encodes bytes for use as a URL parameter."""
+  return base64.urlsafe_b64encode(byte_string).rstrip(b'=')
+
+
 def authenticate(
-    authorization_code=None,
-    quiet=False):
+    cli_authorization_code=None,
+    quiet=False,
+    cli_code_verifier=None):
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
-    authorization_code: An optional authorization code.
+    cli_authorization_code: An optional authorization code.  Supports CLI mode,
+        where the code is passed as an argument to `earthengine authenticate`.
     quiet: If true, do not require interactive prompts.
+    cli_code_verifier: PKCE verifier to prevent auth code stealing.  Must be
+        provided if cli_authorization_code is given.
   """
 
-  if authorization_code:
-    _obtain_and_write_token(authorization_code)
+  if cli_authorization_code:
+    _obtain_and_write_token(cli_authorization_code, cli_code_verifier)
     return
 
-  auth_url = get_authorization_url()
+  # PKCE.  Generates a challenge that the server will use to ensure that the
+  # auth_code only works with our verifier.  https://tools.ietf.org/html/rfc7636
+  code_verifier = _base64param(os.urandom(32))
+  code_challenge = _base64param(hashlib.sha256(code_verifier).digest())
+  auth_url = get_authorization_url(code_challenge)
 
   if quiet:
-    _display_auth_instructions_for_noninteractive(auth_url)
+    _display_auth_instructions_for_noninteractive(auth_url, code_verifier)
     webbrowser.open_new(auth_url)
     return
 
   if _in_colab_shell():
     if sys.version_info[0] == 2:  # Python 2
-      _display_auth_instructions_for_noninteractive(auth_url)
+      _display_auth_instructions_for_noninteractive(auth_url, code_verifier)
       return
     else:  # Python 3
       _display_auth_instructions_with_print(auth_url)
@@ -211,6 +230,4 @@ def authenticate(
     _display_auth_instructions_with_print(auth_url)
   webbrowser.open_new(auth_url)
 
-  auth_code = input('Enter verification code: ')
-  assert isinstance(auth_code, six.string_types)
-  _obtain_and_write_token(auth_code.strip())
+  _obtain_and_write_token(None, code_verifier)  # Will prompt for auth_code.

@@ -11,9 +11,8 @@
   var runAnalysis = function() {
     ee.initialize();
     var mapId = ee.Image('srtm90_v4').getMap({'min': 0, 'max': 1000});
-    var overlay = new ee.MapLayerOverlay(
-        'https://earthengine.googleapis.com/map',
-        mapId.mapid, mapId.token, {});
+    var eeTileSource = new ee.layers.EarthEngineTileSource(mapId);
+    var overlay = new ee.layers.ImageOverlay(eeTileSource);
 
     // Show a count of the number of map tiles remaining.
     overlay.addTileCallback(function(event) {

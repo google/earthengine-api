@@ -347,12 +347,16 @@ class AuthenticateCommand(object):
         '--quiet',
         action='store_true',
         help='Do not issue any interactive prompts.')
+    parser.add_argument(
+        '--code-verifier',
+        help='PKCE verifier to prevent auth code stealing.')
 
   def run(self, args, unused_config):
     """Prompts for an auth code, requests a token and saves it."""
 
     # Filter for arguments relevant for ee.Authenticate()
-    args_auth = {x: vars(args)[x] for x in ('authorization_code', 'quiet')}
+    args_auth = {x: vars(args)[x] for x in (
+        'authorization_code', 'quiet', 'code_verifier')}
     ee.Authenticate(**args_auth)
 
 
@@ -464,7 +468,7 @@ class AclChCommand(object):
 
     # Here 'user' ends with ':R', ':W', or ':D', so we extract
     # just the username.
-    if user.split(':')[0].endswith('iam.gserviceaccount.com'):
+    if user.split(':')[0].endswith('.gserviceaccount.com'):
       return 'serviceAccount:'
     else:
       return 'user:'

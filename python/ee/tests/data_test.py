@@ -3,10 +3,13 @@
 
 import httplib2
 import mock
+
+
 from six.moves import urllib
 import unittest
 import ee
 from ee import apitestcase
+import ee.image as image
 
 
 class DataTest(unittest.TestCase):
@@ -105,7 +108,8 @@ class DataTest(unittest.TestCase):
     with DoStubHttp(418, 'text/html', '<html>'):
       with self.assertRaises(ee.ee_exception.EEException) as cm:
         ee.data.send_('/foo', {})
-      self.assertEqual('Server returned HTTP code: 418', str(cm.exception))
+      self.assertEqual('Server returned HTTP code: 418. Reason: Ok.',
+                       str(cm.exception))
 
   def testJson200Error(self):
     with DoStubHttp(200, 'application/json',
@@ -145,7 +149,8 @@ class DataTest(unittest.TestCase):
                     '{"error": {"code": 400, "message": "bar"}}'):
       with self.assertRaises(ee.ee_exception.EEException) as cm:
         ee.data.send_('/foo', {}, opt_raw=True)
-      self.assertEqual(u'Server returned HTTP code: 400', str(cm.exception))
+      self.assertEqual(u'Server returned HTTP code: 400. Reason: Ok.',
+                       str(cm.exception))
 
   def testRaw200Error(self):
     """Raw shouldn't be parsed, so the error-in-200 shouldn't be noticed.
@@ -315,6 +320,67 @@ class DataTest(unittest.TestCase):
       cloud_api_resource.projects().assets().listImages.assert_called_with(
           **expected_params)
       self.assertEqual(expected_result, actual_result)
+
+  # The Cloud API context manager does not mock getAlgorithms, so it's done
+  # separately here.
+  @mock.patch.object(
+      ee.data,
+      'getAlgorithms',
+      return_value=apitestcase.BUILTIN_FUNCTIONS,
+      autospec=True)
+  def testGetDownloadId(self, _):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'name': 'projects/earthengine-legacy/thumbnails/DOCID'}
+      cloud_api_resource.projects().thumbnails().create(
+      ).execute.return_value = mock_result
+      actual_result = ee.data.getDownloadId({
+          'image': image.Image('my-image'),
+          'name': 'dummy'
+      })
+      cloud_api_resource.projects().thumbnails().create(
+      ).execute.assert_called_once()
+      self.assertEqual(
+          {
+              'docid': 'projects/earthengine-legacy/thumbnails/DOCID',
+              'token': ''
+          }, actual_result)
+
+  def testGetDownloadId_withBandList(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'name': 'projects/earthengine-legacy/thumbnails/DOCID'}
+      cloud_api_resource.projects().thumbnails().create(
+      ).execute.return_value = mock_result
+      actual_result = ee.data.getDownloadId({
+          'image': image.Image('my-image'),
+          'name': 'dummy',
+          'bands': ['B1', 'B2', 'B3']
+      })
+      cloud_api_resource.projects().thumbnails().create(
+      ).execute.assert_called_once()
+      self.assertEqual(
+          {
+              'docid': 'projects/earthengine-legacy/thumbnails/DOCID',
+              'token': ''
+          }, actual_result)
+
+  def testGetDownloadId_withImageID(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      with self.assertRaisesRegex(ee.ee_exception.EEException,
+                                  '^Image ID string is not supported.'):
+        ee.data.getDownloadId({'id': 'my-image', 'name': 'dummy'})
+
+  def testGetDownloadId_withSerializedImage(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      with self.assertRaisesRegex(ee.ee_exception.EEException,
+                                  '^Image as JSON string not supported.'):
+        ee.data.getDownloadId({
+            'image': image.Image('my-image').serialize(),
+            'name': 'dummy'
+        })
 
   def testCloudProfilingEnabled(self):
     seen = []

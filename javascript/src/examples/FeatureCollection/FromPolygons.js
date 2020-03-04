@@ -21,9 +21,10 @@ var fc = ee.FeatureCollection([
 ]);
 
 // Fill, then outline the polygons into a blank image.
-var image = ee.Image().toByte()
+var image = ee.Image()
     .paint(fc, 'fill') // Get color from property named 'fill'
-    .paint(fc, 3, 5); // Outline using color 3, width 5.
+    .paint(fc, 3, 5) // Outline using color 3, width 5.
+    .toByte();
 
 Map.addLayer(image, {
     palette: ['000000', 'FF0000', '00FF00', '0000FF'],

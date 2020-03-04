@@ -69,9 +69,7 @@
     ee.initialize();
     image = ee.Image('srtm90_v4');
     var eeMapConfig = image.getMap({'min': 0, 'max': 1000});
-    var eeTileSource = new ee.layers.EarthEngineTileSource(
-        'https://earthengine.googleapis.com/map',
-        eeMapConfig.mapid, eeMapConfig.token);
+    var eeTileSource = new ee.layers.EarthEngineTileSource(eeMapConfig);
     var overlay = new ee.layers.ImageOverlay(eeTileSource);
 
     // Show a count of the number of map tiles remaining.

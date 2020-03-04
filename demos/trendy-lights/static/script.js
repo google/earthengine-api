@@ -10,17 +10,16 @@ trendy = {};  // Our namespace.
 
 /**
  * Starts the Trendy Lights application. The main entry point for the app.
- * @param {string} eeMapId The Earth Engine map ID.
- * @param {string} eeToken The Earth Engine map token.
+ * @param {string} mapUrlFormat The Earth Engine map url template.
  * @param {string} serializedPolygonIds A serialized array of the IDs of the
  *     polygons to show on the map. For example: "['poland', 'moldova']".
  */
-trendy.boot = function(eeMapId, eeToken, serializedPolygonIds) {
+trendy.boot = function(mapUrlFormat, serializedPolygonIds) {
   // Create the Trendy Lights app.
   google.charts.load('current', {
     packages: ['corechart'],
     callback: function() {
-      var mapType = trendy.App.getEeMapType(eeMapId, eeToken);
+      var mapType = trendy.App.getEeMapType(mapUrlFormat);
       var app = new trendy.App(mapType, JSON.parse(serializedPolygonIds));
     }
   });
@@ -186,27 +185,22 @@ trendy.App.prototype.showChart = function(timeseries) {
 /**
  * Generates a Google Maps map type (or layer) for the passed-in EE map id. See:
  * https://developers.google.com/maps/documentation/javascript/maptypes#ImageMapTypes
- * @param {string} eeMapId The Earth Engine map ID.
- * @param {string} eeToken The Earth Engine map token.
+ * @param {string} mapUrlFormat The Earth Engine map url template.
  * @return {google.maps.ImageMapType} A Google Maps ImageMapType object for the
  *     EE map with the given ID and token.
  */
-trendy.App.getEeMapType = function(eeMapId, eeToken) {
+trendy.App.getEeMapType = function(mapUrlFormat) {
   var eeMapOptions = {
     getTileUrl: function(tile, zoom) {
-      var url = trendy.App.EE_URL + '/map/';
-      url += [eeMapId, zoom, tile.x, tile.y].join('/');
-      url += '?token=' + eeToken;
-      return url;
+      // We haven't loaded the ee client library, so we process the template
+      // explicitly instead of calling ee.data.getTileUrl(mapid, x, y, zoom).
+      return mapUrlFormat.replace('{x}', tile.x).replace('{y}', tile.y)
+          .replace('{z}', zoom);
     },
     tileSize: new google.maps.Size(256, 256)
   };
   return new google.maps.ImageMapType(eeMapOptions);
 };
-
-
-/** @type {string} The Earth Engine API URL. */
-trendy.App.EE_URL = 'https://earthengine.googleapis.com';
 
 
 /** @type {number} The default zoom level for the map. */

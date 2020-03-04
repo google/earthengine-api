@@ -20,11 +20,12 @@ fc = ee.FeatureCollection([
     ])
 
 # Fill, then outline the polygons into a blank image.
-image1 = ee.Image(0).mask(0).toByte()
+image1 = ee.Image(0).mask(0)
 image2 = image1.paint(fc, 'fill')  # Get color from property named 'fill'
 image3 = image2.paint(fc, 3, 5)    # Outline using color 3, width 5.
+image4 = image3.toByte()
 
-ee.mapclient.addToMap(image3, {
+ee.mapclient.addToMap(image4, {
     'palette': ['000000', 'FF0000', '00FF00', '0000FF'],
     'max': 3,
     'opacity': 0.5

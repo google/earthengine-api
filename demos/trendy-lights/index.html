@@ -79,8 +79,7 @@
     <!-- Boot our JavaScript once the body has loaded. -->
     <script>
       trendy.boot(
-          '{{ eeMapId | safe }}',
-          '{{ eeToken | safe }}',
+          '{{ mapUrlFormat | safe }}',
           '{{ serializedPolygonIds | safe }}');
     </script>
 

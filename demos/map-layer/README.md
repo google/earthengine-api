@@ -1,11 +1,11 @@
-ee.MapLayerOverlay Demo App
-===========================
+# Map Layer Demo App
 
 [Live Demo](https://map-layer-dot-ee-demos.appspot.com/)
 
-This example demonstrates how to use the `ee.MapLayerOverlay` class to render
-Earth Engine map tiles to a Google Map. `ee.MapLayerOverlay` implements the
-[google.maps.OverlayMapType](https://developers.google.com/maps/documentation/javascript/examples/maptype-overlay)
+This example demonstrates how to use the `ee.layers.ImageOverlay` class to
+render Earth Engine map tiles to a Google Map. `ee.layers.ImageOverlay`
+implements the
+[google.maps.MapType](https://developers.google.com/maps/documentation/javascript/examples/maptype-overlay)
 interface for map layers on top of a base Google Map. It offers two features
 beyond the basic overlay type:
 

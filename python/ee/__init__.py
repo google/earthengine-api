@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.213'
+__version__ = '0.1.214'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -74,14 +74,16 @@ Algorithms = _AlgorithmsContainer()
 
 def Authenticate(
     authorization_code=None,
-    quiet=None):
+    quiet=None,
+    code_verifier=None):
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
     authorization_code: An optional authorization code.
     quiet: If true, do not require interactive prompts.
+    code_verifier: PKCE verifier to prevent auth code stealing.
   """
-  oauth.authenticate(authorization_code, quiet)
+  oauth.authenticate(authorization_code, quiet, code_verifier)
 
 
 def Initialize(
