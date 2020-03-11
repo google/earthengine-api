@@ -1073,6 +1073,51 @@ export const TableFileExportOptionsFileFormatEnum:
       }
     };
 
+export type TableFileFormat = 'TABLE_FILE_FORMAT_UNSPECIFIED'|'CSV'|'GEO_JSON'|
+    'KML'|'KMZ'|'SHP'|'TF_RECORD_TABLE';
+
+export interface ITableFileFormatEnum {
+  TABLE_FILE_FORMAT_UNSPECIFIED: TableFileFormat;
+  CSV: TableFileFormat;
+  GEO_JSON: TableFileFormat;
+  KML: TableFileFormat;
+  KMZ: TableFileFormat;
+  SHP: TableFileFormat;
+  TF_RECORD_TABLE: TableFileFormat;
+
+  values(): Array<TableFileFormat>;
+}
+
+export const TableFileFormatEnum: ITableFileFormatEnum = {
+  get CSV(): TableFileFormat {
+    return 'CSV';
+  },
+  get GEO_JSON(): TableFileFormat {
+    return 'GEO_JSON';
+  },
+  get KML(): TableFileFormat {
+    return 'KML';
+  },
+  get KMZ(): TableFileFormat {
+    return 'KMZ';
+  },
+  get SHP(): TableFileFormat {
+    return 'SHP';
+  },
+  get TABLE_FILE_FORMAT_UNSPECIFIED(): TableFileFormat {
+    return 'TABLE_FILE_FORMAT_UNSPECIFIED';
+  },
+  get TF_RECORD_TABLE(): TableFileFormat {
+    return 'TF_RECORD_TABLE';
+  },
+  values(): Array<TableFileFormat> {
+    return [
+      'TABLE_FILE_FORMAT_UNSPECIFIED', 'CSV', 'GEO_JSON', 'KML', 'KMZ', 'SHP',
+      'TF_RECORD_TABLE'
+    ];
+  }
+};
+
 export type ThumbnailFileFormat = 'IMAGE_FILE_FORMAT_UNSPECIFIED'|'JPEG'|'PNG'|
     'AUTO_JPEG_PNG'|'NPY'|'GEO_TIFF'|'TF_RECORD_IMAGE'|'MULTI_BAND_IMAGE_TILE'|
     'ZIPPED_GEO_TIFF'|'ZIPPED_GEO_TIFF_PER_BAND';
@@ -6855,6 +6900,43 @@ export class ImportTableRequest extends Serializable {
   }
 }
 
+export interface LinkAssetRequestParameters {
+  destinationName?: string|null;
+}
+export class LinkAssetRequest extends Serializable {
+  constructor(parameters: LinkAssetRequestParameters = {}) {
+    super();
+    this.Serializable$set(
+        'destinationName',
+        (parameters.destinationName == null) ? (null) :
+                                               (parameters.destinationName));
+  }
+
+  get destinationName(): string|null {
+    return (
+        (this.Serializable$has('destinationName')) ?
+            (this.Serializable$get('destinationName')) :
+            (null));
+  }
+
+  /**
+   * The destination name to which we are linking the asset.
+   * `name` is of the format \"projects/*\"
+   * (e.g., \"projects/my-project\").
+   */
+  set destinationName(value: string|null) {
+    this.Serializable$set('destinationName', value);
+  }
+
+  getConstructor(): SerializableCtor<LinkAssetRequest> {
+    return LinkAssetRequest;
+  }
+
+  getPartialClassMetadata(): Partial<ClassMetadata> {
+    return {keys: ['destinationName']};
+  }
+}
+
 export interface ListAlgorithmsResponseParameters {
   algorithms?: Array<Algorithm>|null;
 }
@@ -8368,6 +8450,84 @@ export class Status extends Serializable {
           isValueArray: false
         }
       }
+    };
+  }
+}
+
+export interface TableParameters {
+  name?: string|null;
+  expression?: Expression|null;
+  fileFormat?: TableFileFormat|null;
+}
+export class Table extends Serializable {
+  constructor(parameters: TableParameters = {}) {
+    super();
+    this.Serializable$set(
+        'name', (parameters.name == null) ? (null) : (parameters.name));
+    this.Serializable$set(
+        'expression',
+        (parameters.expression == null) ? (null) : (parameters.expression));
+    this.Serializable$set(
+        'fileFormat',
+        (parameters.fileFormat == null) ? (null) : (parameters.fileFormat));
+  }
+
+  static get FileFormat(): ITableFileFormatEnum {
+    return TableFileFormatEnum;
+  }
+
+  get expression(): Expression|null {
+    return (
+        (this.Serializable$has('expression')) ?
+            (this.Serializable$get('expression')) :
+            (null));
+  }
+
+  /**
+   * The expression to compute. Must evaluate to a FeatureCollection.
+   */
+  set expression(value: Expression|null) {
+    this.Serializable$set('expression', value);
+  }
+
+  get fileFormat(): TableFileFormat|null {
+    return (
+        (this.Serializable$has('fileFormat')) ?
+            (this.Serializable$get('fileFormat')) :
+            (null));
+  }
+
+  /**
+   * The output encoding in which to generate the resulting table.
+   */
+  set fileFormat(value: TableFileFormat|null) {
+    this.Serializable$set('fileFormat', value);
+  }
+
+  get name(): string|null {
+    return (
+        (this.Serializable$has('name')) ? (this.Serializable$get('name')) :
+                                          (null));
+  }
+
+  /**
+   * The resource name representing the thumbnail, of the form
+   * \"projects/* /tables/**\"
+   * (e.g. \"projects/earthengine-legacy/tables/<THUMBNAIL-ID>\").
+   */
+  set name(value: string|null) {
+    this.Serializable$set('name', value);
+  }
+
+  getConstructor(): SerializableCtor<Table> {
+    return Table;
+  }
+
+  getPartialClassMetadata(): Partial<ClassMetadata> {
+    return {
+      enums: {'fileFormat': TableFileFormatEnum},
+      keys: ['expression', 'fileFormat', 'name'],
+      objects: {'expression': Expression}
     };
   }
 }
@@ -11278,6 +11438,20 @@ export declare interface ProjectsAssetsGetPixelsNamedParameters {
   $Xgafv?: ProjectsAssetsApiClient$Xgafv;
 }
 
+export declare interface ProjectsAssetsLinkNamedParameters {
+  access_token?: string;
+  alt?: ProjectsAssetsApiClientAlt;
+  callback?: string;
+  fields?: string;
+  key?: string;
+  oauth_token?: string;
+  prettyPrint?: boolean;
+  quotaUser?: string;
+  upload_protocol?: string;
+  uploadType?: string;
+  $Xgafv?: ProjectsAssetsApiClient$Xgafv;
+}
+
 export declare interface ProjectsAssetsListAssetsNamedParameters {
   access_token?: string;
   alt?: ProjectsAssetsApiClientAlt;
@@ -11437,6 +11611,11 @@ export abstract class ProjectsAssetsApiClient {
       name: string, $requestBody: GetPixelsRequest,
       __namedParams__?: ProjectsAssetsGetPixelsNamedParameters&
       object): Promise<HttpBody>;
+
+  abstract link(
+      sourceName: string, $requestBody: LinkAssetRequest,
+      __namedParams__?: ProjectsAssetsLinkNamedParameters&
+      object): Promise<EarthEngineAsset>;
 
   abstract listAssets(
       parent: string,
@@ -11793,6 +11972,56 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
         'upload_protocol': upload_protocol
       },
       responseCtor: HttpBody
+    });
+  }
+
+  link(sourceName: string, $requestBody: LinkAssetRequest, {
+    $Xgafv = void 0,
+    access_token = void 0,
+    alt = void 0,
+    callback = void 0,
+    fields = void 0,
+    key = void 0,
+    oauth_token = void 0,
+    prettyPrint = void 0,
+    quotaUser = void 0,
+    uploadType = void 0,
+    upload_protocol = void 0
+  }: ProjectsAssetsLinkNamedParameters&object = {
+    $Xgafv: <ProjectsAssetsApiClient$Xgafv|undefined>void 0,
+    access_token: <string|undefined>void 0,
+    alt: <ProjectsAssetsApiClientAlt|undefined>void 0,
+    callback: <string|undefined>void 0,
+    fields: <string|undefined>void 0,
+    key: <string|undefined>void 0,
+    oauth_token: <string|undefined>void 0,
+    prettyPrint: <boolean|undefined>void 0,
+    quotaUser: <string|undefined>void 0,
+    uploadType: <string|undefined>void 0,
+    upload_protocol: <string|undefined>void 0
+  }): Promise<EarthEngineAsset> {
+    this.$apiClient.$validateParameter(
+        sourceName, new RegExp('^projects/[^/]+/assets/.*$'));
+
+    return this.$apiClient.$request<EarthEngineAsset>({
+      body: $requestBody,
+      httpMethod: 'POST',
+      methodId: 'earthengine.projects.assets.link',
+      path: `/${this.gapiVersion}/${sourceName}:link`,
+      queryParams: {
+        '$.xgafv': $Xgafv,
+        'access_token': access_token,
+        'alt': alt,
+        'callback': callback,
+        'fields': fields,
+        'key': key,
+        'oauth_token': oauth_token,
+        'prettyPrint': prettyPrint,
+        'quotaUser': quotaUser,
+        'uploadType': uploadType,
+        'upload_protocol': upload_protocol
+      },
+      responseCtor: EarthEngineAsset
     });
   }
 
@@ -14042,7 +14271,214 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
   }
 }
 
-export type ProjectsThumbnailsApiClient$Xgafv = '1' | '2';
+export type ProjectsTablesApiClient$Xgafv = '1' | '2';
+
+  export interface IProjectsTablesApiClient$XgafvEnum {
+    1: ProjectsTablesApiClient$Xgafv;
+    2: ProjectsTablesApiClient$Xgafv;
+
+    values(): Array<ProjectsTablesApiClient$Xgafv>;
+  }
+
+  export const ProjectsTablesApiClient$XgafvEnum:
+      IProjectsTablesApiClient$XgafvEnum = {
+        get 1(): ProjectsTablesApiClient$Xgafv {
+          return '1';
+        },
+        get 2():
+            ProjectsTablesApiClient$Xgafv {
+              return '2';
+            },
+        values():
+            Array<ProjectsTablesApiClient$Xgafv> {
+              return ['1', '2'];
+            }
+      };
+
+  export type ProjectsTablesApiClientAlt = 'json'|'media'|'proto';
+
+  export interface IProjectsTablesApiClientAltEnum {
+    JSON: ProjectsTablesApiClientAlt;
+    MEDIA: ProjectsTablesApiClientAlt;
+    PROTO: ProjectsTablesApiClientAlt;
+
+    values(): Array<ProjectsTablesApiClientAlt>;
+  }
+
+  export const ProjectsTablesApiClientAltEnum:
+      IProjectsTablesApiClientAltEnum = {
+        get JSON(): ProjectsTablesApiClientAlt {
+          return 'json';
+        },
+        get MEDIA():
+            ProjectsTablesApiClientAlt {
+              return 'media';
+            },
+        get PROTO():
+            ProjectsTablesApiClientAlt {
+              return 'proto';
+            },
+        values():
+            Array<ProjectsTablesApiClientAlt> {
+              return ['json', 'media', 'proto'];
+            }
+      };
+
+  export declare interface ProjectsTablesCreateNamedParameters {
+    access_token?: string;
+    alt?: ProjectsTablesApiClientAlt;
+    callback?: string;
+    fields?: string;
+    key?: string;
+    oauth_token?: string;
+    prettyPrint?: boolean;
+    quotaUser?: string;
+    upload_protocol?: string;
+    uploadType?: string;
+    $Xgafv?: ProjectsTablesApiClient$Xgafv;
+  }
+
+  export declare interface ProjectsTablesGetFeaturesNamedParameters {
+    access_token?: string;
+    alt?: ProjectsTablesApiClientAlt;
+    callback?: string;
+    fields?: string;
+    key?: string;
+    oauth_token?: string;
+    prettyPrint?: boolean;
+    quotaUser?: string;
+    upload_protocol?: string;
+    uploadType?: string;
+    $Xgafv?: ProjectsTablesApiClient$Xgafv;
+  }
+
+  export abstract class ProjectsTablesApiClient {
+    constructor() {}
+
+    abstract create(
+        parent: string, $requestBody: Table,
+        __namedParams__?: ProjectsTablesCreateNamedParameters&
+        object): Promise<Table>;
+
+    abstract getFeatures(
+        name: string,
+        __namedParams__?: ProjectsTablesGetFeaturesNamedParameters&
+        object): Promise<HttpBody>;
+  }
+
+  export class ProjectsTablesApiClientImpl implements ProjectsTablesApiClient {
+    private $apiClient: PromiseApiClient;
+
+    constructor(
+        private gapiVersion: string, gapiRequestService: PromiseRequestService,
+        apiClientHookFactory: ApiClientHookFactory|null = null) {
+      this.$apiClient =
+          new PromiseApiClient(gapiRequestService, apiClientHookFactory);
+    }
+
+    create(parent: string, $requestBody: Table, {
+      $Xgafv = void 0,
+      access_token = void 0,
+      alt = void 0,
+      callback = void 0,
+      fields = void 0,
+      key = void 0,
+      oauth_token = void 0,
+      prettyPrint = void 0,
+      quotaUser = void 0,
+      uploadType = void 0,
+      upload_protocol = void 0
+    }: ProjectsTablesCreateNamedParameters&object = {
+      $Xgafv: <ProjectsTablesApiClient$Xgafv|undefined>void 0,
+      access_token: <string|undefined>void 0,
+      alt: <ProjectsTablesApiClientAlt|undefined>void 0,
+      callback: <string|undefined>void 0,
+      fields: <string|undefined>void 0,
+      key: <string|undefined>void 0,
+      oauth_token: <string|undefined>void 0,
+      prettyPrint: <boolean|undefined>void 0,
+      quotaUser: <string|undefined>void 0,
+      uploadType: <string|undefined>void 0,
+      upload_protocol: <string|undefined>void 0
+    }): Promise<Table> {
+      this.$apiClient.$validateParameter(
+          parent, new RegExp('^projects/[^/]+$'));
+
+      return this.$apiClient.$request<Table>({
+        body: $requestBody,
+        httpMethod: 'POST',
+        methodId: 'earthengine.projects.tables.create',
+        path: `/${this.gapiVersion}/${parent}/tables`,
+        queryParams: {
+          '$.xgafv': $Xgafv,
+          'access_token': access_token,
+          'alt': alt,
+          'callback': callback,
+          'fields': fields,
+          'key': key,
+          'oauth_token': oauth_token,
+          'prettyPrint': prettyPrint,
+          'quotaUser': quotaUser,
+          'uploadType': uploadType,
+          'upload_protocol': upload_protocol
+        },
+        responseCtor: Table
+      });
+    }
+
+    getFeatures(name: string, {
+      $Xgafv = void 0,
+      access_token = void 0,
+      alt = void 0,
+      callback = void 0,
+      fields = void 0,
+      key = void 0,
+      oauth_token = void 0,
+      prettyPrint = void 0,
+      quotaUser = void 0,
+      uploadType = void 0,
+      upload_protocol = void 0
+    }: ProjectsTablesGetFeaturesNamedParameters&object = {
+      $Xgafv: <ProjectsTablesApiClient$Xgafv|undefined>void 0,
+      access_token: <string|undefined>void 0,
+      alt: <ProjectsTablesApiClientAlt|undefined>void 0,
+      callback: <string|undefined>void 0,
+      fields: <string|undefined>void 0,
+      key: <string|undefined>void 0,
+      oauth_token: <string|undefined>void 0,
+      prettyPrint: <boolean|undefined>void 0,
+      quotaUser: <string|undefined>void 0,
+      uploadType: <string|undefined>void 0,
+      upload_protocol: <string|undefined>void 0
+    }): Promise<HttpBody> {
+      this.$apiClient.$validateParameter(
+          name, new RegExp('^projects/[^/]+/tables/[^/]+$'));
+      let $requestBody = <Serializable|null>null;
+
+      return this.$apiClient.$request<HttpBody>({
+        body: $requestBody,
+        httpMethod: 'GET',
+        methodId: 'earthengine.projects.tables.getFeatures',
+        path: `/${this.gapiVersion}/${name}:getFeatures`,
+        queryParams: {
+          '$.xgafv': $Xgafv,
+          'access_token': access_token,
+          'alt': alt,
+          'callback': callback,
+          'fields': fields,
+          'key': key,
+          'oauth_token': oauth_token,
+          'prettyPrint': prettyPrint,
+          'quotaUser': quotaUser,
+          'uploadType': uploadType,
+          'upload_protocol': upload_protocol
+        },
+        responseCtor: HttpBody
+      });
+    }
+  }
+
+  export type ProjectsThumbnailsApiClient$Xgafv = '1'|'2';
 
   export interface IProjectsThumbnailsApiClient$XgafvEnum {
     1: ProjectsThumbnailsApiClient$Xgafv;

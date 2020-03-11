@@ -502,7 +502,7 @@ var training = composite.select(bands).sampleRegions({
 });
 
 // Train a CART classifier.
-var classifier = ee.Classifier.cart().train({
+var classifier = ee.Classifier.smileCart().train({
   features: training,
   classProperty: classProperty,
 });
@@ -524,7 +524,7 @@ var trainingPartition = withRandom.filter(ee.Filter.lt('random', split));
 var testingPartition = withRandom.filter(ee.Filter.gte('random', split));
 
 // Trained with 70% of our data.
-var trainedClassifier = ee.Classifier.gmoMaxEnt().train({
+var trainedClassifier = ee.Classifier.smileRandomForest(5).train({
   features: trainingPartition,
   classProperty: classProperty,
   inputProperties: bands

@@ -1,37 +1,28 @@
 // Upsample MODIS landcover classification (250m) to Landsat
 // resolution (30m) using a supervised classifier.
 
-var geometry = /* color: #ffc82d */ee.FeatureCollection(
-        [ee.Feature(
-            ee.Geometry.Polygon(
-                [[[29.9761962890625, 31.592573630393357],
-                  [29.981689453125, 30.111869849235248],
-                  [32.574462890625, 30.116621582819374],
-                  [32.530517578125, 31.620643692450585]]]),
-            {
-              "system:index": "0"
-            })]);
+var geometry = ee.Geometry.Polygon(
+        [[[29.972731783841393, 31.609824974226175],
+          [29.972731783841393, 30.110383818311096],
+          [32.56550522134139, 30.110383818311096],
+          [32.56550522134139, 31.609824974226175]]], null, false);
 
 // Use the MCD12 land-cover as training data.
-var modisLandcover = ee.Image('MODIS/051/MCD12Q1/2001_01_01')
-  .select('Land_Cover_Type_1');
+var collection = ee.ImageCollection('MODIS/006/MCD12Q1');
+// See the collection docs to get details on classification system.
+var modisLandcover = collection
+    .filterDate('2001-01-01', '2001-12-31')
+    .first()
+    .select('LC_Type1')
+    // Quick hack to get the labels to start at zero.
+    .subtract(1);
 
-// A pallete to use for visualizing landcover images.
-var landcoverPalette = [
-    'aec3d4', // water
-    '152106', '225129', '369b47', '30eb5b', '387242', // forest
-    '6a2325', 'c3aa69', 'b76031', 'd9903d', '91af40',  // shrub, grass, savanah
-    '111149', // wetlands
-    '8dc33b', // croplands
-    'cc0013', // urban
-    '6ca80d', // crop mosaic
-    'd7cdcc', // snow and ice
-    'f7e084', // barren
-    '6f6f6f'  // tundra
-];
-
+// A pallete to use for visualizing landcover images.  You can get this
+// from the properties of the collection.
+var landcoverPalette = '05450a,086a10,54a708,78d203,009900,c6b044,dcd159,' +
+    'dade48,fbff13,b6ff05,27ff87,c24f44,a5a5a5,ff6d4c,69fff8,f9ffa4,1c0dff';
 // A set of visualization parameters using the landcover palette.
-var landcoverVisualization = {palette: landcoverPalette, min: 0, max: 17, format: 'png'};
+var landcoverVisualization = {palette: landcoverPalette, min: 0, max: 16, format: 'png'};
 // Center over our region of interest.
 Map.centerObject(geometry, 11);
 // Draw the MODIS landcover image.
@@ -57,9 +48,9 @@ var training = modisLandcover.addBands(landsatComposite).sample({
 });
 
 // Train a classifier using the training data.
-var classifier = ee.Classifier.cart().train({
+var classifier = ee.Classifier.smileCart().train({
   features: training,
-  classProperty: 'Land_Cover_Type_1',
+  classProperty: 'LC_Type1',
 });
 
 // Apply the classifier to the original composite.
@@ -69,4 +60,4 @@ var upsampled = landsatComposite.classify(classifier);
 Map.addLayer(upsampled, landcoverVisualization, 'Upsampled landcover');
 
 // Show the training area.
-Map.addLayer(ee.Image().paint(geometry, 1, 2), null, 'Training region');
+Map.addLayer(geometry, {}, 'Training region', false);
