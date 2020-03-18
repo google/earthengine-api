@@ -90,7 +90,7 @@ ee.Collection.prototype.filterMetadata = function(name, operator, value) {
 /**
  * @param {function((Object|null), (Object|null)): (Object|null)} algorithm
  * @param {*=} opt_first
- * @return {(ee.ComputedObject|null)}
+ * @return {!ee.ComputedObject}
  */
 ee.Collection.prototype.iterate = function(algorithm, opt_first) {
 };
@@ -130,7 +130,7 @@ ee.ComputedObject = function(func, args, opt_varName) {
 /**
  * @param {(!Function|null)} func
  * @param {...*} var_args
- * @return {(ee.ComputedObject|null)}
+ * @return {!ee.ComputedObject}
  */
 ee.ComputedObject.prototype.aside = function(func, var_args) {
 };
@@ -605,7 +605,7 @@ ee.Image.rgb = function(r, g, b) {
 ee.ImageCollection = function(args) {
 };
 /**
- * @return {(ee.Image|null)}
+ * @return {!ee.Image}
  */
 ee.ImageCollection.prototype.first = function() {
 };
@@ -784,7 +784,7 @@ ee.Terrain = {};
 /**
  * @param {(ee.Function|null|string)} func
  * @param {(Object|null)} namedArgs
- * @return {(ee.ComputedObject|null)}
+ * @return {!ee.ComputedObject}
  */
 ee.apply = function(func, namedArgs) {
 };
@@ -968,7 +968,7 @@ ee.batch.ExportTask.prototype.start = function(opt_success, opt_error) {
 /**
  * @param {(ee.Function|null|string)} func
  * @param {...*} var_args
- * @return {(ee.ComputedObject|null)}
+ * @return {!ee.ComputedObject}
  */
 ee.call = function(func, var_args) {
 };
@@ -1180,13 +1180,6 @@ ee.data.getThumbId = function(params, opt_callback) {
  * @return {string}
  */
 ee.data.getTileUrl = function(id, x, y, z) {
-};
-/**
- * @param {(Object|null)} params
- * @param {function(?, string=): ?=} opt_callback
- * @return {?}
- */
-ee.data.getValue = function(params, opt_callback) {
 };
 /**
  * @param {!ee.data.VideoThumbnailOptions} params

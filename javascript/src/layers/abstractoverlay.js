@@ -20,7 +20,7 @@ goog.require('goog.object');
 goog.require('goog.structs.Map');
 goog.require('goog.style');
 
-goog.forwardDeclare('ee.data.Profiler');
+goog.requireType('ee.data.Profiler');
 goog.forwardDeclare('ee.data.getCloudApiEnabled');
 goog.forwardDeclare('ee.data.PROFILE_REQUEST_HEADER');
 

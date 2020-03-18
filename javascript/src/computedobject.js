@@ -224,7 +224,7 @@ ee.ComputedObject.prototype.name = function() {
  *
  * @param {Function} func The function to call.
  * @param {...*} var_args Any extra arguments to pass to the function.
- * @return {ee.ComputedObject} The same object, for chaining.
+ * @return {!ee.ComputedObject} The same object, for chaining.
  * @export
  */
 ee.ComputedObject.prototype.aside = function(func, var_args) {
@@ -265,7 +265,7 @@ ee.ComputedObject.prototype.castInternal = function(obj) {
  *
  * @param {Function} constructor The constructor to construct.
  * @param {IArrayLike} argsArray The args array.
- * @return {Object} The newly constructed object.
+ * @return {!Object} The newly constructed object.
  */
 ee.ComputedObject.construct = function(constructor, argsArray) {
   /** @constructor */

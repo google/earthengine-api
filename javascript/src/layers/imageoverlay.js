@@ -9,7 +9,7 @@ goog.require('goog.html.SafeUrl');
 goog.require('goog.net.EventType');
 goog.require('goog.net.ImageLoader');
 
-goog.forwardDeclare('ee.data.Profiler');
+goog.requireType('ee.data.Profiler');
 
 
 /**

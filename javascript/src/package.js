@@ -97,7 +97,7 @@ ee.Package.importedPackages_ = {};
  * @param {string|ee.Function.Signature} signature The function's signature,
  *     or a C-style function declaration string, to construct a signature from.
  * @param {Function} body The function's body.
- * @return {Function} The newly added function.
+ * @return {!Function} The newly added function.
  */
 ee.Package.makeFunction = function(signature, body) {
   if (typeof(signature) == 'string') {
@@ -316,7 +316,7 @@ ee.Package.encodeDecl_ = function(signature, name) {
  * @param {string} path The path to the saved function's folder.
  * @param {string} name The name of the saved function.
  * @param {ee.Function.Signature} signature The function's signature,
- * @return {Function} A function making the SavedFunction callable.
+ * @return {!Function} A function making the SavedFunction callable.
  * @private
  */
 ee.Package.makeInvocation_ = function(path, name, signature) {

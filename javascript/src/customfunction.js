@@ -149,7 +149,7 @@ ee.CustomFunction.variable = function(type, name) {
  *     as a string or a constructor/class reference.
  * @param {Array.<string|Function>} arg_types The types of the arguments,
  *     either as strings or constructor/class references.
- * @return {ee.CustomFunction} The constructed CustomFunction.
+ * @return {!ee.CustomFunction} The constructed CustomFunction.
  */
 ee.CustomFunction.create = function(func, returnType, arg_types) {
   var stringifyType = function(type) {

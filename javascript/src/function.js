@@ -137,7 +137,7 @@ ee.Function.prototype.callOrApply = function(thisValue, args) {
  * are present.
  *
  * @param {Object} args Keyword arguments to the function.
- * @return {Object} The promoted arguments.
+ * @return {!Object} The promoted arguments.
  * @protected
  */
 ee.Function.prototype.promoteArgs = function(args) {
@@ -179,7 +179,7 @@ ee.Function.prototype.promoteArgs = function(args) {
  * the list contains enough arguments to satisfy the call.
  *
  * @param {Array} args Positional arguments to the function.
- * @return {Object} Keyword arguments to the function.
+ * @return {!Object} Keyword arguments to the function.
  * @protected
  */
 ee.Function.prototype.nameArgs = function(args) {

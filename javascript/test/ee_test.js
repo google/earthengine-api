@@ -61,8 +61,11 @@ describe('ee', function() {
                         .filterDate('2014-04-01', '2014-06-01')
                         .filterBounds(ee.Geometry.Point(-122.09, 37.42));
 
-    const fluxnet =
-        ee.FeatureCollection('ft:1f85fvccyKSlaZJiAta8ojlXGhgf-LPPNmICG9kQ');
+    const fluxnet = ee.FeatureCollection([
+      ee.Feature(ee.Geometry.Point([-122.15622670070512, 37.3953151576082])),
+      ee.Feature(ee.Geometry.Point([-122.0559764565645, 37.36039404616806])),
+      ee.Feature(ee.Geometry.Point([-122.06558949367387, 37.44984683541072]))
+    ]);
 
     const distFilter = ee.Filter.withinDistance({
       distance: 100000,
@@ -76,7 +79,8 @@ describe('ee', function() {
 
     const spatialJoined = distSaveAll.apply(primary, fluxnet, distFilter);
 
-    spatialJoined.evaluate((info) => {
+    spatialJoined.evaluate((info, err) => {
+      expect(err).toBe(undefined);
       expect(info.type).toBe('ImageCollection');
       expect(info.bands.length).toBeGreaterThan(0);
       expect(info.features.length).toBeGreaterThan(0);

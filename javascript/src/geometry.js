@@ -778,7 +778,7 @@ ee.Geometry.coordinatesToLine_ = function(coordinates) {
  * @param {number} depth The nesting depth at which points are found within
  *     the coordinates array.
  * @param {!Arguments} originalArgs The arguments to the JS constructor.
- * @return {!Object|ee.ComputedObject} If the arguments are simple,
+ * @return {!Object|!ee.ComputedObject} If the arguments are simple,
  *     a GeoJSON object describing the geometry. Otherwise a
  *     ComputedObject calling the appropriate server-side constructor.
  * @private

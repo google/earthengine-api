@@ -112,7 +112,7 @@ ee.MapTileManager.prototype.getOutstandingCount = function() {
  *     profile ID, if any.
  * @param {number=} opt_maxRetries The maximum number of times the request
  *     should be retried.
- * @return {ee.MapTileManager.Request_} The queued request object.
+ * @return {!ee.MapTileManager.Request_} The queued request object.
  */
 ee.MapTileManager.prototype.send = function(
     id,
@@ -689,7 +689,7 @@ goog.inherits(ee.MapTileManager.TokenPool_, goog.structs.PriorityPool);
 
 /**
  * Creates an instance of an ImageLoader object to use in the pool.
- * @return {ee.MapTileManager.Token_} The created object.
+ * @return {!ee.MapTileManager.Token_} The created object.
  * @override
  */
 ee.MapTileManager.TokenPool_.prototype.createObject = function() {

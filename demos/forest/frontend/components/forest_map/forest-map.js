@@ -202,7 +202,7 @@ forest.ForestMap.getPath_ = function(forestLayer) {
 /**
  * Returns a new image map type object for the provided valid GFC layer ID.
  * @param {forest.ForestLayerPanel.ForestLayer} forestLayer
- * @return {forest.SubTileZoomMapType}
+ * @return {!forest.SubTileZoomMapType}
  * @private
  */
 forest.ForestMap.getMapType_ = function(forestLayer) {

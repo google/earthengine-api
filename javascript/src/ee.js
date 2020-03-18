@@ -228,7 +228,7 @@ ee.ready = function() {
  * @param {ee.Function|string} func The function to call. Either an
  *     ee.Function object or the name of an API function.
  * @param {...*} var_args Positional arguments to pass to the function.
- * @return {ee.ComputedObject} An object representing the called function.
+ * @return {!ee.ComputedObject} An object representing the called function.
  *     If the signature specifies a recognized return type, the returned
  *     value will be cast to that type.
  * @export
@@ -250,7 +250,7 @@ ee.call = function(func, var_args) {
  * @param {ee.Function|string} func The function to call. Either an
  *     ee.Function object or the name of an API function.
  * @param {Object} namedArgs A dictionary of arguments to the function.
- * @return {ee.ComputedObject} An object representing the called function.
+ * @return {!ee.ComputedObject} An object representing the called function.
  *     If the signature specifies a recognized return type, the returned
  *     value will be cast to that type.
  * @export
@@ -583,7 +583,7 @@ ee.resetGeneratedClasses_ = function() {
  * Dynamically make an ee helper class.
  *
  * @param {string} name The name of the class to create.
- * @return {Function} The generated class.
+ * @return {!Function} The generated class.
  * @private
  * @suppress {accessControls}
  */

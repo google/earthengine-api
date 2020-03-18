@@ -135,7 +135,7 @@ ee.ApiFunction.allSignatures = function() {
 /**
  * Returns the functions that have not been bound using importApi() yet.
  *
- * @return {Object.<ee.ApiFunction>} A map from name to function.
+ * @return {!Object.<ee.ApiFunction>} A map from name to function.
  */
 ee.ApiFunction.unboundFunctions = function() {
   ee.ApiFunction.initialize();

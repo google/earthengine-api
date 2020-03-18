@@ -5,6 +5,13 @@
 */
 var $jscomp = $jscomp || {};
 $jscomp.scope = {};
+$jscomp.createTemplateTagFirstArg = function(arrayStrings) {
+  return arrayStrings.raw = arrayStrings;
+};
+$jscomp.createTemplateTagFirstArgWithRaw = function(arrayStrings, rawArrayStrings) {
+  arrayStrings.raw = rawArrayStrings;
+  return arrayStrings;
+};
 $jscomp.arrayIteratorImpl = function(array) {
   var index = 0;
   return function() {
@@ -3046,11 +3053,17 @@ goog.html.SafeScript.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(
 goog.html.SafeScript.EMPTY = goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("");
 goog.fs = {};
 goog.fs.url = {};
-goog.fs.url.createObjectUrl = function(blob) {
-  return goog.fs.url.getUrlObject_().createObjectURL(blob);
+goog.fs.url.createObjectUrl = function(obj) {
+  return goog.fs.url.getUrlObject_().createObjectURL(obj);
 };
 goog.fs.url.revokeObjectUrl = function(url) {
   goog.fs.url.getUrlObject_().revokeObjectURL(url);
+};
+goog.fs.url.UrlObject_ = function() {
+};
+goog.fs.url.UrlObject_.prototype.createObjectURL = function(arg) {
+};
+goog.fs.url.UrlObject_.prototype.revokeObjectURL = function(s) {
 };
 goog.fs.url.getUrlObject_ = function() {
   var urlObject = goog.fs.url.findUrlObject_();
@@ -3207,6 +3220,11 @@ goog.html.SafeUrl.isSafeMimeType = function(mimeType) {
 };
 goog.html.SafeUrl.fromBlob = function(blob) {
   var url = goog.html.SafeUrl.isSafeMimeType(blob.type) ? goog.fs.url.createObjectUrl(blob) : goog.html.SafeUrl.INNOCUOUS_STRING;
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
+};
+goog.html.SafeUrl.fromMediaSource = function(mediaSource) {
+  goog.asserts.assert("MediaSource" in goog.global, "No support for MediaSource");
+  var url = mediaSource instanceof MediaSource ? goog.fs.url.createObjectUrl(mediaSource) : goog.html.SafeUrl.INNOCUOUS_STRING;
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
 };
 goog.html.DATA_URL_PATTERN_ = /^data:([^,]*);base64,[a-z0-9+\/]+=*$/i;
@@ -3564,6 +3582,9 @@ goog.html.SafeHtml.htmlEscapePreservingNewlinesAndSpaces = function(textOrHtml) 
   return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.whitespaceEscape(goog.html.SafeHtml.unwrap(html)), html.getDirection());
 };
 goog.html.SafeHtml.from = goog.html.SafeHtml.htmlEscape;
+goog.html.SafeHtml.comment = function(text) {
+  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("\x3c!--" + goog.string.internal.htmlEscape(text) + "--\x3e", null);
+};
 goog.html.SafeHtml.VALID_NAMES_IN_TAG_ = /^[a-zA-Z0-9-]+$/;
 goog.html.SafeHtml.URL_ATTRIBUTES_ = {action:!0, cite:!0, data:!0, formaction:!0, href:!0, manifest:!0, poster:!0, src:!0};
 goog.html.SafeHtml.NOT_ALLOWED_TAG_NAMES_ = {APPLET:!0, BASE:!0, EMBED:!0, IFRAME:!0, LINK:!0, MATH:!0, META:!0, OBJECT:!0, SCRIPT:!0, STYLE:!0, SVG:!0, TEMPLATE:!0};
@@ -6808,25 +6829,6 @@ module$exports$eeapiclient$ee_api_client.ComputePixelsRequestFileFormatEnum = {g
 }, values:function() {
   return "IMAGE_FILE_FORMAT_UNSPECIFIED JPEG PNG AUTO_JPEG_PNG NPY GEO_TIFF TF_RECORD_IMAGE MULTI_BAND_IMAGE_TILE ZIPPED_GEO_TIFF ZIPPED_GEO_TIFF_PER_BAND".split(" ");
 }};
-module$exports$eeapiclient$ee_api_client.IComputeTableRequestFileFormatEnum = function module$contents$eeapiclient$ee_api_client_IComputeTableRequestFileFormatEnum() {
-};
-module$exports$eeapiclient$ee_api_client.ComputeTableRequestFileFormatEnum = {get CSV() {
-  return "CSV";
-}, get GEO_JSON() {
-  return "GEO_JSON";
-}, get KML() {
-  return "KML";
-}, get KMZ() {
-  return "KMZ";
-}, get SHP() {
-  return "SHP";
-}, get TABLE_FILE_FORMAT_UNSPECIFIED() {
-  return "TABLE_FILE_FORMAT_UNSPECIFIED";
-}, get TF_RECORD_TABLE() {
-  return "TF_RECORD_TABLE";
-}, values:function() {
-  return "TABLE_FILE_FORMAT_UNSPECIFIED CSV GEO_JSON KML KMZ SHP TF_RECORD_TABLE".split(" ");
-}};
 module$exports$eeapiclient$ee_api_client.IConditionIamEnum = function module$contents$eeapiclient$ee_api_client_IConditionIamEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ConditionIamEnum = {get APPROVER() {
@@ -7768,33 +7770,6 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }}});
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ComputePixelsRequest, {FileFormat:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.ComputePixelsRequestFileFormatEnum;
-}}});
-module$exports$eeapiclient$ee_api_client.ComputeTableRequestParameters = function module$contents$eeapiclient$ee_api_client_ComputeTableRequestParameters() {
-};
-module$exports$eeapiclient$ee_api_client.ComputeTableRequest = function(parameters) {
-  parameters = void 0 === parameters ? {} : parameters;
-  module$exports$eeapiclient$domain_object.Serializable.call(this);
-  this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
-  this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
-};
-$jscomp.inherits(module$exports$eeapiclient$ee_api_client.ComputeTableRequest, module$exports$eeapiclient$domain_object.Serializable);
-module$exports$eeapiclient$ee_api_client.ComputeTableRequest.prototype.getConstructor = function() {
-  return module$exports$eeapiclient$ee_api_client.ComputeTableRequest;
-};
-module$exports$eeapiclient$ee_api_client.ComputeTableRequest.prototype.getPartialClassMetadata = function() {
-  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.ComputeTableRequestFileFormatEnum}, keys:["expression", "fileFormat"], objects:{expression:module$exports$eeapiclient$ee_api_client.Expression}};
-};
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ComputeTableRequest.prototype, {expression:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
-}, set:function(value) {
-  this.Serializable$set("expression", value);
-}}, fileFormat:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("fileFormat") ? this.Serializable$get("fileFormat") : null;
-}, set:function(value) {
-  this.Serializable$set("fileFormat", value);
-}}});
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ComputeTableRequest, {FileFormat:{configurable:!0, enumerable:!0, get:function() {
-  return module$exports$eeapiclient$ee_api_client.ComputeTableRequestFileFormatEnum;
 }}});
 module$exports$eeapiclient$ee_api_client.ComputeValueRequestParameters = function module$contents$eeapiclient$ee_api_client_ComputeValueRequestParameters() {
 };
@@ -10757,8 +10732,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClientAltEnum = {g
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -10769,6 +10742,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClientImpl.prototy
   prettyPrint = void 0 === $jscomp$destructuring$var1.prettyPrint ? void 0 : $jscomp$destructuring$var1.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var1.quotaUser ? void 0 : $jscomp$destructuring$var1.quotaUser, uploadType = void 0 === $jscomp$destructuring$var1.uploadType ? void 0 : $jscomp$destructuring$var1.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var1.upload_protocol ? void 0 : $jscomp$destructuring$var1.upload_protocol;
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.algorithms.list", path:"/" + this.gapiVersion + "/" + project + "/algorithms", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.ListAlgorithmsResponse});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsApiClient$XgafvEnum() {
 };
@@ -10790,8 +10765,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsApiClientAltEnum = {get JSON() 
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -10810,6 +10783,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsApiClientImpl.prototype.listAss
   void 0 === $jscomp$destructuring$var5.uploadType ? void 0 : $jscomp$destructuring$var5.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var5.upload_protocol ? void 0 : $jscomp$destructuring$var5.upload_protocol;
   this.$apiClient.$validateParameter(parent, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.listAssets", path:"/" + this.gapiVersion + "/" + parent + ":listAssets", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, pageSize:pageSize, pageToken:pageToken, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.ListAssetsResponse});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsAssetsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsAssetsApiClient$XgafvEnum() {
 };
@@ -10842,8 +10817,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientViewEnum = {get 
 }, values:function() {
   return ["IMAGE_VIEW_UNSPECIFIED", "FULL", "BASIC"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -10960,6 +10933,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl.prototype.t
   this.$apiClient.$validateParameter(resource, /^projects\/[^/]+\/assets\/.*$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.assets.testIamPermissions", path:"/" + this.gapiVersion + "/" + resource + ":testIamPermissions", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.TestIamPermissionsResponse});
 };
+module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClient = function() {
+};
 module$exports$eeapiclient$ee_api_client.IProjectsFilmstripThumbnailsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsFilmstripThumbnailsApiClient$XgafvEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClient$XgafvEnum = {get 1() {
@@ -10980,8 +10955,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClientAlt
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -10999,6 +10972,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClientImp
   prettyPrint = void 0 === $jscomp$destructuring$var39.prettyPrint ? void 0 : $jscomp$destructuring$var39.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var39.quotaUser ? void 0 : $jscomp$destructuring$var39.quotaUser, uploadType = void 0 === $jscomp$destructuring$var39.uploadType ? void 0 : $jscomp$destructuring$var39.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var39.upload_protocol ? void 0 : $jscomp$destructuring$var39.upload_protocol;
   this.$apiClient.$validateParameter(name, /^projects\/[^/]+\/filmstripThumbnails\/[^/]+$/);
   return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.filmstripThumbnails.getPixels", path:"/" + this.gapiVersion + "/" + name + ":getPixels", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.HttpBody});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsImageApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsImageApiClient$XgafvEnum() {
 };
@@ -11020,8 +10995,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsImageApiClientAltEnum = {get JS
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsImageApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsImageApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -11047,6 +11020,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsImageApiClientImpl.prototype.im
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.image.import", path:"/" + this.gapiVersion + "/" + project + "/image:import", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Operation});
 };
+module$exports$eeapiclient$ee_api_client.ProjectsImageApiClient = function() {
+};
 module$exports$eeapiclient$ee_api_client.IProjectsImageCollectionApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsImageCollectionApiClient$XgafvEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ProjectsImageCollectionApiClient$XgafvEnum = {get 1() {
@@ -11067,8 +11042,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsImageCollectionApiClientAltEnum
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsImageCollectionApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsImageCollectionApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -11079,6 +11052,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsImageCollectionApiClientImpl.pr
   prettyPrint = void 0 === $jscomp$destructuring$var47.prettyPrint ? void 0 : $jscomp$destructuring$var47.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var47.quotaUser ? void 0 : $jscomp$destructuring$var47.quotaUser, uploadType = void 0 === $jscomp$destructuring$var47.uploadType ? void 0 : $jscomp$destructuring$var47.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var47.upload_protocol ? void 0 : $jscomp$destructuring$var47.upload_protocol;
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.imageCollection.computeImages", path:"/" + this.gapiVersion + "/" + project + "/imageCollection:computeImages", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.ComputeImagesResponse});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsImageCollectionApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsMapApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsMapApiClient$XgafvEnum() {
 };
@@ -11100,8 +11075,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsMapApiClientAltEnum = {get JSON
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsMapApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsMapApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -11112,6 +11085,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsMapApiClientImpl.prototype.expo
   prettyPrint = void 0 === $jscomp$destructuring$var49.prettyPrint ? void 0 : $jscomp$destructuring$var49.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var49.quotaUser ? void 0 : $jscomp$destructuring$var49.quotaUser, uploadType = void 0 === $jscomp$destructuring$var49.uploadType ? void 0 : $jscomp$destructuring$var49.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var49.upload_protocol ? void 0 : $jscomp$destructuring$var49.upload_protocol;
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.map.export", path:"/" + this.gapiVersion + "/" + project + "/map:export", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Operation});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsMapApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsMapsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsMapsApiClient$XgafvEnum() {
 };
@@ -11133,8 +11108,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsMapsApiClientAltEnum = {get JSO
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsMapsApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsMapsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -11145,6 +11118,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsMapsApiClientImpl.prototype.cre
   prettyPrint = void 0 === $jscomp$destructuring$var51.prettyPrint ? void 0 : $jscomp$destructuring$var51.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var51.quotaUser ? void 0 : $jscomp$destructuring$var51.quotaUser, uploadType = void 0 === $jscomp$destructuring$var51.uploadType ? void 0 : $jscomp$destructuring$var51.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var51.upload_protocol ? void 0 : $jscomp$destructuring$var51.upload_protocol;
   this.$apiClient.$validateParameter(parent, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.maps.create", path:"/" + this.gapiVersion + "/" + parent + "/maps", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.EarthEngineMap});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsMapsApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsMapsTilesApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsMapsTilesApiClient$XgafvEnum() {
 };
@@ -11166,8 +11141,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsMapsTilesApiClientAltEnum = {ge
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsMapsTilesApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsMapsTilesApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -11178,6 +11151,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsMapsTilesApiClientImpl.prototyp
   prettyPrint = void 0 === $jscomp$destructuring$var53.prettyPrint ? void 0 : $jscomp$destructuring$var53.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var53.quotaUser ? void 0 : $jscomp$destructuring$var53.quotaUser, uploadType = void 0 === $jscomp$destructuring$var53.uploadType ? void 0 : $jscomp$destructuring$var53.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var53.upload_protocol ? void 0 : $jscomp$destructuring$var53.upload_protocol;
   this.$apiClient.$validateParameter(parent, /^projects\/[^/]+\/maps\/[^/]+$/);
   return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.maps.tiles.get", path:"/" + this.gapiVersion + "/" + parent + "/tiles/" + zoom + "/" + x + "/" + y, queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.HttpBody});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsMapsTilesApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsOperationsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsOperationsApiClient$XgafvEnum() {
 };
@@ -11199,8 +11174,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsOperationsApiClientAltEnum = {g
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsOperationsApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsOperationsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
@@ -11241,6 +11214,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsOperationsApiClientImpl.prototy
   this.$apiClient.$validateParameter(name, /^projects\/[^/]+\/operations\/.*$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.operations.wait", path:"/" + this.gapiVersion + "/" + name + ":wait", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Operation});
 };
+module$exports$eeapiclient$ee_api_client.ProjectsOperationsApiClient = function() {
+};
 module$exports$eeapiclient$ee_api_client.IProjectsTableApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsTableApiClient$XgafvEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ProjectsTableApiClient$XgafvEnum = {get 1() {
@@ -11261,39 +11236,32 @@ module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientAltEnum = {get JS
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsTableApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
 };
-module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl.prototype.compute = function(project, $requestBody, $jscomp$destructuring$var64) {
+module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl.prototype.computeFeatures = function(project, $requestBody, $jscomp$destructuring$var64) {
   var $jscomp$destructuring$var65 = void 0 === $jscomp$destructuring$var64 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var64, $Xgafv = void 0 === $jscomp$destructuring$var65.$Xgafv ? void 0 : $jscomp$destructuring$var65.$Xgafv, access_token = void 0 === $jscomp$destructuring$var65.access_token ? void 0 : $jscomp$destructuring$var65.access_token, 
   alt = void 0 === $jscomp$destructuring$var65.alt ? void 0 : $jscomp$destructuring$var65.alt, callback = void 0 === $jscomp$destructuring$var65.callback ? void 0 : $jscomp$destructuring$var65.callback, fields = void 0 === $jscomp$destructuring$var65.fields ? void 0 : $jscomp$destructuring$var65.fields, key = void 0 === $jscomp$destructuring$var65.key ? void 0 : $jscomp$destructuring$var65.key, oauth_token = void 0 === $jscomp$destructuring$var65.oauth_token ? void 0 : $jscomp$destructuring$var65.oauth_token, 
   prettyPrint = void 0 === $jscomp$destructuring$var65.prettyPrint ? void 0 : $jscomp$destructuring$var65.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var65.quotaUser ? void 0 : $jscomp$destructuring$var65.quotaUser, uploadType = void 0 === $jscomp$destructuring$var65.uploadType ? void 0 : $jscomp$destructuring$var65.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var65.upload_protocol ? void 0 : $jscomp$destructuring$var65.upload_protocol;
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
-  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.table.compute", path:"/" + this.gapiVersion + "/" + project + "/table:compute", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.HttpBody});
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.table.computeFeatures", path:"/" + this.gapiVersion + "/" + project + "/table:computeFeatures", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.ComputeFeaturesResponse});
 };
-module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl.prototype.computeFeatures = function(project, $requestBody, $jscomp$destructuring$var66) {
+module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl.prototype.export = function(project, $requestBody, $jscomp$destructuring$var66) {
   var $jscomp$destructuring$var67 = void 0 === $jscomp$destructuring$var66 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var66, $Xgafv = void 0 === $jscomp$destructuring$var67.$Xgafv ? void 0 : $jscomp$destructuring$var67.$Xgafv, access_token = void 0 === $jscomp$destructuring$var67.access_token ? void 0 : $jscomp$destructuring$var67.access_token, 
   alt = void 0 === $jscomp$destructuring$var67.alt ? void 0 : $jscomp$destructuring$var67.alt, callback = void 0 === $jscomp$destructuring$var67.callback ? void 0 : $jscomp$destructuring$var67.callback, fields = void 0 === $jscomp$destructuring$var67.fields ? void 0 : $jscomp$destructuring$var67.fields, key = void 0 === $jscomp$destructuring$var67.key ? void 0 : $jscomp$destructuring$var67.key, oauth_token = void 0 === $jscomp$destructuring$var67.oauth_token ? void 0 : $jscomp$destructuring$var67.oauth_token, 
   prettyPrint = void 0 === $jscomp$destructuring$var67.prettyPrint ? void 0 : $jscomp$destructuring$var67.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var67.quotaUser ? void 0 : $jscomp$destructuring$var67.quotaUser, uploadType = void 0 === $jscomp$destructuring$var67.uploadType ? void 0 : $jscomp$destructuring$var67.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var67.upload_protocol ? void 0 : $jscomp$destructuring$var67.upload_protocol;
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
-  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.table.computeFeatures", path:"/" + this.gapiVersion + "/" + project + "/table:computeFeatures", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.ComputeFeaturesResponse});
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.table.export", path:"/" + this.gapiVersion + "/" + project + "/table:export", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Operation});
 };
-module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl.prototype.export = function(project, $requestBody, $jscomp$destructuring$var68) {
+module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl.prototype.import = function(project, $requestBody, $jscomp$destructuring$var68) {
   var $jscomp$destructuring$var69 = void 0 === $jscomp$destructuring$var68 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var68, $Xgafv = void 0 === $jscomp$destructuring$var69.$Xgafv ? void 0 : $jscomp$destructuring$var69.$Xgafv, access_token = void 0 === $jscomp$destructuring$var69.access_token ? void 0 : $jscomp$destructuring$var69.access_token, 
   alt = void 0 === $jscomp$destructuring$var69.alt ? void 0 : $jscomp$destructuring$var69.alt, callback = void 0 === $jscomp$destructuring$var69.callback ? void 0 : $jscomp$destructuring$var69.callback, fields = void 0 === $jscomp$destructuring$var69.fields ? void 0 : $jscomp$destructuring$var69.fields, key = void 0 === $jscomp$destructuring$var69.key ? void 0 : $jscomp$destructuring$var69.key, oauth_token = void 0 === $jscomp$destructuring$var69.oauth_token ? void 0 : $jscomp$destructuring$var69.oauth_token, 
   prettyPrint = void 0 === $jscomp$destructuring$var69.prettyPrint ? void 0 : $jscomp$destructuring$var69.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var69.quotaUser ? void 0 : $jscomp$destructuring$var69.quotaUser, uploadType = void 0 === $jscomp$destructuring$var69.uploadType ? void 0 : $jscomp$destructuring$var69.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var69.upload_protocol ? void 0 : $jscomp$destructuring$var69.upload_protocol;
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
-  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.table.export", path:"/" + this.gapiVersion + "/" + project + "/table:export", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Operation});
-};
-module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl.prototype.import = function(project, $requestBody, $jscomp$destructuring$var70) {
-  var $jscomp$destructuring$var71 = void 0 === $jscomp$destructuring$var70 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var70, $Xgafv = void 0 === $jscomp$destructuring$var71.$Xgafv ? void 0 : $jscomp$destructuring$var71.$Xgafv, access_token = void 0 === $jscomp$destructuring$var71.access_token ? void 0 : $jscomp$destructuring$var71.access_token, 
-  alt = void 0 === $jscomp$destructuring$var71.alt ? void 0 : $jscomp$destructuring$var71.alt, callback = void 0 === $jscomp$destructuring$var71.callback ? void 0 : $jscomp$destructuring$var71.callback, fields = void 0 === $jscomp$destructuring$var71.fields ? void 0 : $jscomp$destructuring$var71.fields, key = void 0 === $jscomp$destructuring$var71.key ? void 0 : $jscomp$destructuring$var71.key, oauth_token = void 0 === $jscomp$destructuring$var71.oauth_token ? void 0 : $jscomp$destructuring$var71.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var71.prettyPrint ? void 0 : $jscomp$destructuring$var71.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var71.quotaUser ? void 0 : $jscomp$destructuring$var71.quotaUser, uploadType = void 0 === $jscomp$destructuring$var71.uploadType ? void 0 : $jscomp$destructuring$var71.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var71.upload_protocol ? void 0 : $jscomp$destructuring$var71.upload_protocol;
-  this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.table.import", path:"/" + this.gapiVersion + "/" + project + "/table:import", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Operation});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsTableApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsTablesApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsTablesApiClient$XgafvEnum() {
 };
@@ -11315,25 +11283,25 @@ module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClientAltEnum = {get J
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
 };
-module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClientImpl.prototype.create = function(parent, $requestBody, $jscomp$destructuring$var72) {
-  var $jscomp$destructuring$var73 = void 0 === $jscomp$destructuring$var72 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var72, $Xgafv = void 0 === $jscomp$destructuring$var73.$Xgafv ? void 0 : $jscomp$destructuring$var73.$Xgafv, access_token = void 0 === $jscomp$destructuring$var73.access_token ? void 0 : $jscomp$destructuring$var73.access_token, 
-  alt = void 0 === $jscomp$destructuring$var73.alt ? void 0 : $jscomp$destructuring$var73.alt, callback = void 0 === $jscomp$destructuring$var73.callback ? void 0 : $jscomp$destructuring$var73.callback, fields = void 0 === $jscomp$destructuring$var73.fields ? void 0 : $jscomp$destructuring$var73.fields, key = void 0 === $jscomp$destructuring$var73.key ? void 0 : $jscomp$destructuring$var73.key, oauth_token = void 0 === $jscomp$destructuring$var73.oauth_token ? void 0 : $jscomp$destructuring$var73.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var73.prettyPrint ? void 0 : $jscomp$destructuring$var73.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var73.quotaUser ? void 0 : $jscomp$destructuring$var73.quotaUser, uploadType = void 0 === $jscomp$destructuring$var73.uploadType ? void 0 : $jscomp$destructuring$var73.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var73.upload_protocol ? void 0 : $jscomp$destructuring$var73.upload_protocol;
+module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClientImpl.prototype.create = function(parent, $requestBody, $jscomp$destructuring$var70) {
+  var $jscomp$destructuring$var71 = void 0 === $jscomp$destructuring$var70 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var70, $Xgafv = void 0 === $jscomp$destructuring$var71.$Xgafv ? void 0 : $jscomp$destructuring$var71.$Xgafv, access_token = void 0 === $jscomp$destructuring$var71.access_token ? void 0 : $jscomp$destructuring$var71.access_token, 
+  alt = void 0 === $jscomp$destructuring$var71.alt ? void 0 : $jscomp$destructuring$var71.alt, callback = void 0 === $jscomp$destructuring$var71.callback ? void 0 : $jscomp$destructuring$var71.callback, fields = void 0 === $jscomp$destructuring$var71.fields ? void 0 : $jscomp$destructuring$var71.fields, key = void 0 === $jscomp$destructuring$var71.key ? void 0 : $jscomp$destructuring$var71.key, oauth_token = void 0 === $jscomp$destructuring$var71.oauth_token ? void 0 : $jscomp$destructuring$var71.oauth_token, 
+  prettyPrint = void 0 === $jscomp$destructuring$var71.prettyPrint ? void 0 : $jscomp$destructuring$var71.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var71.quotaUser ? void 0 : $jscomp$destructuring$var71.quotaUser, uploadType = void 0 === $jscomp$destructuring$var71.uploadType ? void 0 : $jscomp$destructuring$var71.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var71.upload_protocol ? void 0 : $jscomp$destructuring$var71.upload_protocol;
   this.$apiClient.$validateParameter(parent, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.tables.create", path:"/" + this.gapiVersion + "/" + parent + "/tables", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Table});
 };
-module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClientImpl.prototype.getFeatures = function(name, $jscomp$destructuring$var74) {
-  var $jscomp$destructuring$var75 = void 0 === $jscomp$destructuring$var74 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var74, $Xgafv = void 0 === $jscomp$destructuring$var75.$Xgafv ? void 0 : $jscomp$destructuring$var75.$Xgafv, access_token = void 0 === $jscomp$destructuring$var75.access_token ? void 0 : $jscomp$destructuring$var75.access_token, 
-  alt = void 0 === $jscomp$destructuring$var75.alt ? void 0 : $jscomp$destructuring$var75.alt, callback = void 0 === $jscomp$destructuring$var75.callback ? void 0 : $jscomp$destructuring$var75.callback, fields = void 0 === $jscomp$destructuring$var75.fields ? void 0 : $jscomp$destructuring$var75.fields, key = void 0 === $jscomp$destructuring$var75.key ? void 0 : $jscomp$destructuring$var75.key, oauth_token = void 0 === $jscomp$destructuring$var75.oauth_token ? void 0 : $jscomp$destructuring$var75.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var75.prettyPrint ? void 0 : $jscomp$destructuring$var75.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var75.quotaUser ? void 0 : $jscomp$destructuring$var75.quotaUser, uploadType = void 0 === $jscomp$destructuring$var75.uploadType ? void 0 : $jscomp$destructuring$var75.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var75.upload_protocol ? void 0 : $jscomp$destructuring$var75.upload_protocol;
+module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClientImpl.prototype.getFeatures = function(name, $jscomp$destructuring$var72) {
+  var $jscomp$destructuring$var73 = void 0 === $jscomp$destructuring$var72 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var72, $Xgafv = void 0 === $jscomp$destructuring$var73.$Xgafv ? void 0 : $jscomp$destructuring$var73.$Xgafv, access_token = void 0 === $jscomp$destructuring$var73.access_token ? void 0 : $jscomp$destructuring$var73.access_token, 
+  alt = void 0 === $jscomp$destructuring$var73.alt ? void 0 : $jscomp$destructuring$var73.alt, callback = void 0 === $jscomp$destructuring$var73.callback ? void 0 : $jscomp$destructuring$var73.callback, fields = void 0 === $jscomp$destructuring$var73.fields ? void 0 : $jscomp$destructuring$var73.fields, key = void 0 === $jscomp$destructuring$var73.key ? void 0 : $jscomp$destructuring$var73.key, oauth_token = void 0 === $jscomp$destructuring$var73.oauth_token ? void 0 : $jscomp$destructuring$var73.oauth_token, 
+  prettyPrint = void 0 === $jscomp$destructuring$var73.prettyPrint ? void 0 : $jscomp$destructuring$var73.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var73.quotaUser ? void 0 : $jscomp$destructuring$var73.quotaUser, uploadType = void 0 === $jscomp$destructuring$var73.uploadType ? void 0 : $jscomp$destructuring$var73.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var73.upload_protocol ? void 0 : $jscomp$destructuring$var73.upload_protocol;
   this.$apiClient.$validateParameter(name, /^projects\/[^/]+\/tables\/[^/]+$/);
   return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.tables.getFeatures", path:"/" + this.gapiVersion + "/" + name + ":getFeatures", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.HttpBody});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsThumbnailsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsThumbnailsApiClient$XgafvEnum() {
 };
@@ -11355,25 +11323,25 @@ module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientAltEnum = {g
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
 };
-module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientImpl.prototype.create = function(parent, $requestBody, $jscomp$destructuring$var76) {
-  var $jscomp$destructuring$var77 = void 0 === $jscomp$destructuring$var76 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var76, $Xgafv = void 0 === $jscomp$destructuring$var77.$Xgafv ? void 0 : $jscomp$destructuring$var77.$Xgafv, access_token = void 0 === $jscomp$destructuring$var77.access_token ? void 0 : $jscomp$destructuring$var77.access_token, 
-  alt = void 0 === $jscomp$destructuring$var77.alt ? void 0 : $jscomp$destructuring$var77.alt, callback = void 0 === $jscomp$destructuring$var77.callback ? void 0 : $jscomp$destructuring$var77.callback, fields = void 0 === $jscomp$destructuring$var77.fields ? void 0 : $jscomp$destructuring$var77.fields, key = void 0 === $jscomp$destructuring$var77.key ? void 0 : $jscomp$destructuring$var77.key, oauth_token = void 0 === $jscomp$destructuring$var77.oauth_token ? void 0 : $jscomp$destructuring$var77.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var77.prettyPrint ? void 0 : $jscomp$destructuring$var77.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var77.quotaUser ? void 0 : $jscomp$destructuring$var77.quotaUser, uploadType = void 0 === $jscomp$destructuring$var77.uploadType ? void 0 : $jscomp$destructuring$var77.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var77.upload_protocol ? void 0 : $jscomp$destructuring$var77.upload_protocol;
+module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientImpl.prototype.create = function(parent, $requestBody, $jscomp$destructuring$var74) {
+  var $jscomp$destructuring$var75 = void 0 === $jscomp$destructuring$var74 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var74, $Xgafv = void 0 === $jscomp$destructuring$var75.$Xgafv ? void 0 : $jscomp$destructuring$var75.$Xgafv, access_token = void 0 === $jscomp$destructuring$var75.access_token ? void 0 : $jscomp$destructuring$var75.access_token, 
+  alt = void 0 === $jscomp$destructuring$var75.alt ? void 0 : $jscomp$destructuring$var75.alt, callback = void 0 === $jscomp$destructuring$var75.callback ? void 0 : $jscomp$destructuring$var75.callback, fields = void 0 === $jscomp$destructuring$var75.fields ? void 0 : $jscomp$destructuring$var75.fields, key = void 0 === $jscomp$destructuring$var75.key ? void 0 : $jscomp$destructuring$var75.key, oauth_token = void 0 === $jscomp$destructuring$var75.oauth_token ? void 0 : $jscomp$destructuring$var75.oauth_token, 
+  prettyPrint = void 0 === $jscomp$destructuring$var75.prettyPrint ? void 0 : $jscomp$destructuring$var75.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var75.quotaUser ? void 0 : $jscomp$destructuring$var75.quotaUser, uploadType = void 0 === $jscomp$destructuring$var75.uploadType ? void 0 : $jscomp$destructuring$var75.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var75.upload_protocol ? void 0 : $jscomp$destructuring$var75.upload_protocol;
   this.$apiClient.$validateParameter(parent, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.thumbnails.create", path:"/" + this.gapiVersion + "/" + parent + "/thumbnails", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Thumbnail});
 };
-module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientImpl.prototype.getPixels = function(name, $jscomp$destructuring$var78) {
-  var $jscomp$destructuring$var79 = void 0 === $jscomp$destructuring$var78 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var78, $Xgafv = void 0 === $jscomp$destructuring$var79.$Xgafv ? void 0 : $jscomp$destructuring$var79.$Xgafv, access_token = void 0 === $jscomp$destructuring$var79.access_token ? void 0 : $jscomp$destructuring$var79.access_token, 
-  alt = void 0 === $jscomp$destructuring$var79.alt ? void 0 : $jscomp$destructuring$var79.alt, callback = void 0 === $jscomp$destructuring$var79.callback ? void 0 : $jscomp$destructuring$var79.callback, fields = void 0 === $jscomp$destructuring$var79.fields ? void 0 : $jscomp$destructuring$var79.fields, key = void 0 === $jscomp$destructuring$var79.key ? void 0 : $jscomp$destructuring$var79.key, oauth_token = void 0 === $jscomp$destructuring$var79.oauth_token ? void 0 : $jscomp$destructuring$var79.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var79.prettyPrint ? void 0 : $jscomp$destructuring$var79.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var79.quotaUser ? void 0 : $jscomp$destructuring$var79.quotaUser, uploadType = void 0 === $jscomp$destructuring$var79.uploadType ? void 0 : $jscomp$destructuring$var79.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var79.upload_protocol ? void 0 : $jscomp$destructuring$var79.upload_protocol;
+module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientImpl.prototype.getPixels = function(name, $jscomp$destructuring$var76) {
+  var $jscomp$destructuring$var77 = void 0 === $jscomp$destructuring$var76 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var76, $Xgafv = void 0 === $jscomp$destructuring$var77.$Xgafv ? void 0 : $jscomp$destructuring$var77.$Xgafv, access_token = void 0 === $jscomp$destructuring$var77.access_token ? void 0 : $jscomp$destructuring$var77.access_token, 
+  alt = void 0 === $jscomp$destructuring$var77.alt ? void 0 : $jscomp$destructuring$var77.alt, callback = void 0 === $jscomp$destructuring$var77.callback ? void 0 : $jscomp$destructuring$var77.callback, fields = void 0 === $jscomp$destructuring$var77.fields ? void 0 : $jscomp$destructuring$var77.fields, key = void 0 === $jscomp$destructuring$var77.key ? void 0 : $jscomp$destructuring$var77.key, oauth_token = void 0 === $jscomp$destructuring$var77.oauth_token ? void 0 : $jscomp$destructuring$var77.oauth_token, 
+  prettyPrint = void 0 === $jscomp$destructuring$var77.prettyPrint ? void 0 : $jscomp$destructuring$var77.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var77.quotaUser ? void 0 : $jscomp$destructuring$var77.quotaUser, uploadType = void 0 === $jscomp$destructuring$var77.uploadType ? void 0 : $jscomp$destructuring$var77.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var77.upload_protocol ? void 0 : $jscomp$destructuring$var77.upload_protocol;
   this.$apiClient.$validateParameter(name, /^projects\/[^/]+\/thumbnails\/[^/]+$/);
   return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.thumbnails.getPixels", path:"/" + this.gapiVersion + "/" + name + ":getPixels", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.HttpBody});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsValueApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsValueApiClient$XgafvEnum() {
 };
@@ -11395,18 +11363,18 @@ module$exports$eeapiclient$ee_api_client.ProjectsValueApiClientAltEnum = {get JS
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsValueApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsValueApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
 };
-module$exports$eeapiclient$ee_api_client.ProjectsValueApiClientImpl.prototype.compute = function(project, $requestBody, $jscomp$destructuring$var80) {
-  var $jscomp$destructuring$var81 = void 0 === $jscomp$destructuring$var80 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var80, $Xgafv = void 0 === $jscomp$destructuring$var81.$Xgafv ? void 0 : $jscomp$destructuring$var81.$Xgafv, access_token = void 0 === $jscomp$destructuring$var81.access_token ? void 0 : $jscomp$destructuring$var81.access_token, 
-  alt = void 0 === $jscomp$destructuring$var81.alt ? void 0 : $jscomp$destructuring$var81.alt, callback = void 0 === $jscomp$destructuring$var81.callback ? void 0 : $jscomp$destructuring$var81.callback, fields = void 0 === $jscomp$destructuring$var81.fields ? void 0 : $jscomp$destructuring$var81.fields, key = void 0 === $jscomp$destructuring$var81.key ? void 0 : $jscomp$destructuring$var81.key, oauth_token = void 0 === $jscomp$destructuring$var81.oauth_token ? void 0 : $jscomp$destructuring$var81.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var81.prettyPrint ? void 0 : $jscomp$destructuring$var81.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var81.quotaUser ? void 0 : $jscomp$destructuring$var81.quotaUser, uploadType = void 0 === $jscomp$destructuring$var81.uploadType ? void 0 : $jscomp$destructuring$var81.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var81.upload_protocol ? void 0 : $jscomp$destructuring$var81.upload_protocol;
+module$exports$eeapiclient$ee_api_client.ProjectsValueApiClientImpl.prototype.compute = function(project, $requestBody, $jscomp$destructuring$var78) {
+  var $jscomp$destructuring$var79 = void 0 === $jscomp$destructuring$var78 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var78, $Xgafv = void 0 === $jscomp$destructuring$var79.$Xgafv ? void 0 : $jscomp$destructuring$var79.$Xgafv, access_token = void 0 === $jscomp$destructuring$var79.access_token ? void 0 : $jscomp$destructuring$var79.access_token, 
+  alt = void 0 === $jscomp$destructuring$var79.alt ? void 0 : $jscomp$destructuring$var79.alt, callback = void 0 === $jscomp$destructuring$var79.callback ? void 0 : $jscomp$destructuring$var79.callback, fields = void 0 === $jscomp$destructuring$var79.fields ? void 0 : $jscomp$destructuring$var79.fields, key = void 0 === $jscomp$destructuring$var79.key ? void 0 : $jscomp$destructuring$var79.key, oauth_token = void 0 === $jscomp$destructuring$var79.oauth_token ? void 0 : $jscomp$destructuring$var79.oauth_token, 
+  prettyPrint = void 0 === $jscomp$destructuring$var79.prettyPrint ? void 0 : $jscomp$destructuring$var79.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var79.quotaUser ? void 0 : $jscomp$destructuring$var79.quotaUser, uploadType = void 0 === $jscomp$destructuring$var79.uploadType ? void 0 : $jscomp$destructuring$var79.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var79.upload_protocol ? void 0 : $jscomp$destructuring$var79.upload_protocol;
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.value.compute", path:"/" + this.gapiVersion + "/" + project + "/value:compute", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.ComputeValueResponse});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsValueApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsVideoApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsVideoApiClient$XgafvEnum() {
 };
@@ -11428,18 +11396,18 @@ module$exports$eeapiclient$ee_api_client.ProjectsVideoApiClientAltEnum = {get JS
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsVideoApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsVideoApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
 };
-module$exports$eeapiclient$ee_api_client.ProjectsVideoApiClientImpl.prototype.export = function(project, $requestBody, $jscomp$destructuring$var82) {
-  var $jscomp$destructuring$var83 = void 0 === $jscomp$destructuring$var82 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var82, $Xgafv = void 0 === $jscomp$destructuring$var83.$Xgafv ? void 0 : $jscomp$destructuring$var83.$Xgafv, access_token = void 0 === $jscomp$destructuring$var83.access_token ? void 0 : $jscomp$destructuring$var83.access_token, 
-  alt = void 0 === $jscomp$destructuring$var83.alt ? void 0 : $jscomp$destructuring$var83.alt, callback = void 0 === $jscomp$destructuring$var83.callback ? void 0 : $jscomp$destructuring$var83.callback, fields = void 0 === $jscomp$destructuring$var83.fields ? void 0 : $jscomp$destructuring$var83.fields, key = void 0 === $jscomp$destructuring$var83.key ? void 0 : $jscomp$destructuring$var83.key, oauth_token = void 0 === $jscomp$destructuring$var83.oauth_token ? void 0 : $jscomp$destructuring$var83.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var83.prettyPrint ? void 0 : $jscomp$destructuring$var83.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var83.quotaUser ? void 0 : $jscomp$destructuring$var83.quotaUser, uploadType = void 0 === $jscomp$destructuring$var83.uploadType ? void 0 : $jscomp$destructuring$var83.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var83.upload_protocol ? void 0 : $jscomp$destructuring$var83.upload_protocol;
+module$exports$eeapiclient$ee_api_client.ProjectsVideoApiClientImpl.prototype.export = function(project, $requestBody, $jscomp$destructuring$var80) {
+  var $jscomp$destructuring$var81 = void 0 === $jscomp$destructuring$var80 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var80, $Xgafv = void 0 === $jscomp$destructuring$var81.$Xgafv ? void 0 : $jscomp$destructuring$var81.$Xgafv, access_token = void 0 === $jscomp$destructuring$var81.access_token ? void 0 : $jscomp$destructuring$var81.access_token, 
+  alt = void 0 === $jscomp$destructuring$var81.alt ? void 0 : $jscomp$destructuring$var81.alt, callback = void 0 === $jscomp$destructuring$var81.callback ? void 0 : $jscomp$destructuring$var81.callback, fields = void 0 === $jscomp$destructuring$var81.fields ? void 0 : $jscomp$destructuring$var81.fields, key = void 0 === $jscomp$destructuring$var81.key ? void 0 : $jscomp$destructuring$var81.key, oauth_token = void 0 === $jscomp$destructuring$var81.oauth_token ? void 0 : $jscomp$destructuring$var81.oauth_token, 
+  prettyPrint = void 0 === $jscomp$destructuring$var81.prettyPrint ? void 0 : $jscomp$destructuring$var81.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var81.quotaUser ? void 0 : $jscomp$destructuring$var81.quotaUser, uploadType = void 0 === $jscomp$destructuring$var81.uploadType ? void 0 : $jscomp$destructuring$var81.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var81.upload_protocol ? void 0 : $jscomp$destructuring$var81.upload_protocol;
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.video.export", path:"/" + this.gapiVersion + "/" + project + "/video:export", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Operation});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsVideoApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsVideoMapApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsVideoMapApiClient$XgafvEnum() {
 };
@@ -11461,18 +11429,18 @@ module$exports$eeapiclient$ee_api_client.ProjectsVideoMapApiClientAltEnum = {get
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsVideoMapApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsVideoMapApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
 };
-module$exports$eeapiclient$ee_api_client.ProjectsVideoMapApiClientImpl.prototype.export = function(project, $requestBody, $jscomp$destructuring$var84) {
-  var $jscomp$destructuring$var85 = void 0 === $jscomp$destructuring$var84 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var84, $Xgafv = void 0 === $jscomp$destructuring$var85.$Xgafv ? void 0 : $jscomp$destructuring$var85.$Xgafv, access_token = void 0 === $jscomp$destructuring$var85.access_token ? void 0 : $jscomp$destructuring$var85.access_token, 
-  alt = void 0 === $jscomp$destructuring$var85.alt ? void 0 : $jscomp$destructuring$var85.alt, callback = void 0 === $jscomp$destructuring$var85.callback ? void 0 : $jscomp$destructuring$var85.callback, fields = void 0 === $jscomp$destructuring$var85.fields ? void 0 : $jscomp$destructuring$var85.fields, key = void 0 === $jscomp$destructuring$var85.key ? void 0 : $jscomp$destructuring$var85.key, oauth_token = void 0 === $jscomp$destructuring$var85.oauth_token ? void 0 : $jscomp$destructuring$var85.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var85.prettyPrint ? void 0 : $jscomp$destructuring$var85.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var85.quotaUser ? void 0 : $jscomp$destructuring$var85.quotaUser, uploadType = void 0 === $jscomp$destructuring$var85.uploadType ? void 0 : $jscomp$destructuring$var85.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var85.upload_protocol ? void 0 : $jscomp$destructuring$var85.upload_protocol;
+module$exports$eeapiclient$ee_api_client.ProjectsVideoMapApiClientImpl.prototype.export = function(project, $requestBody, $jscomp$destructuring$var82) {
+  var $jscomp$destructuring$var83 = void 0 === $jscomp$destructuring$var82 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var82, $Xgafv = void 0 === $jscomp$destructuring$var83.$Xgafv ? void 0 : $jscomp$destructuring$var83.$Xgafv, access_token = void 0 === $jscomp$destructuring$var83.access_token ? void 0 : $jscomp$destructuring$var83.access_token, 
+  alt = void 0 === $jscomp$destructuring$var83.alt ? void 0 : $jscomp$destructuring$var83.alt, callback = void 0 === $jscomp$destructuring$var83.callback ? void 0 : $jscomp$destructuring$var83.callback, fields = void 0 === $jscomp$destructuring$var83.fields ? void 0 : $jscomp$destructuring$var83.fields, key = void 0 === $jscomp$destructuring$var83.key ? void 0 : $jscomp$destructuring$var83.key, oauth_token = void 0 === $jscomp$destructuring$var83.oauth_token ? void 0 : $jscomp$destructuring$var83.oauth_token, 
+  prettyPrint = void 0 === $jscomp$destructuring$var83.prettyPrint ? void 0 : $jscomp$destructuring$var83.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var83.quotaUser ? void 0 : $jscomp$destructuring$var83.quotaUser, uploadType = void 0 === $jscomp$destructuring$var83.uploadType ? void 0 : $jscomp$destructuring$var83.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var83.upload_protocol ? void 0 : $jscomp$destructuring$var83.upload_protocol;
   this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.videoMap.export", path:"/" + this.gapiVersion + "/" + project + "/videoMap:export", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.Operation});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsVideoMapApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsVideoThumbnailsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsVideoThumbnailsApiClient$XgafvEnum() {
 };
@@ -11494,25 +11462,25 @@ module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientAltEnum
 }, values:function() {
   return ["json", "media", "proto"];
 }};
-module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClient = function() {
-};
 module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
   this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
 };
-module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl.prototype.create = function(parent, $requestBody, $jscomp$destructuring$var86) {
-  var $jscomp$destructuring$var87 = void 0 === $jscomp$destructuring$var86 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var86, $Xgafv = void 0 === $jscomp$destructuring$var87.$Xgafv ? void 0 : $jscomp$destructuring$var87.$Xgafv, access_token = void 0 === $jscomp$destructuring$var87.access_token ? void 0 : $jscomp$destructuring$var87.access_token, 
-  alt = void 0 === $jscomp$destructuring$var87.alt ? void 0 : $jscomp$destructuring$var87.alt, callback = void 0 === $jscomp$destructuring$var87.callback ? void 0 : $jscomp$destructuring$var87.callback, fields = void 0 === $jscomp$destructuring$var87.fields ? void 0 : $jscomp$destructuring$var87.fields, key = void 0 === $jscomp$destructuring$var87.key ? void 0 : $jscomp$destructuring$var87.key, oauth_token = void 0 === $jscomp$destructuring$var87.oauth_token ? void 0 : $jscomp$destructuring$var87.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var87.prettyPrint ? void 0 : $jscomp$destructuring$var87.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var87.quotaUser ? void 0 : $jscomp$destructuring$var87.quotaUser, uploadType = void 0 === $jscomp$destructuring$var87.uploadType ? void 0 : $jscomp$destructuring$var87.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var87.upload_protocol ? void 0 : $jscomp$destructuring$var87.upload_protocol;
+module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl.prototype.create = function(parent, $requestBody, $jscomp$destructuring$var84) {
+  var $jscomp$destructuring$var85 = void 0 === $jscomp$destructuring$var84 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var84, $Xgafv = void 0 === $jscomp$destructuring$var85.$Xgafv ? void 0 : $jscomp$destructuring$var85.$Xgafv, access_token = void 0 === $jscomp$destructuring$var85.access_token ? void 0 : $jscomp$destructuring$var85.access_token, 
+  alt = void 0 === $jscomp$destructuring$var85.alt ? void 0 : $jscomp$destructuring$var85.alt, callback = void 0 === $jscomp$destructuring$var85.callback ? void 0 : $jscomp$destructuring$var85.callback, fields = void 0 === $jscomp$destructuring$var85.fields ? void 0 : $jscomp$destructuring$var85.fields, key = void 0 === $jscomp$destructuring$var85.key ? void 0 : $jscomp$destructuring$var85.key, oauth_token = void 0 === $jscomp$destructuring$var85.oauth_token ? void 0 : $jscomp$destructuring$var85.oauth_token, 
+  prettyPrint = void 0 === $jscomp$destructuring$var85.prettyPrint ? void 0 : $jscomp$destructuring$var85.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var85.quotaUser ? void 0 : $jscomp$destructuring$var85.quotaUser, uploadType = void 0 === $jscomp$destructuring$var85.uploadType ? void 0 : $jscomp$destructuring$var85.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var85.upload_protocol ? void 0 : $jscomp$destructuring$var85.upload_protocol;
   this.$apiClient.$validateParameter(parent, /^projects\/[^/]+$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.videoThumbnails.create", path:"/" + this.gapiVersion + "/" + parent + "/videoThumbnails", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.VideoThumbnail});
 };
-module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl.prototype.getPixels = function(name, $jscomp$destructuring$var88) {
-  var $jscomp$destructuring$var89 = void 0 === $jscomp$destructuring$var88 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var88, $Xgafv = void 0 === $jscomp$destructuring$var89.$Xgafv ? void 0 : $jscomp$destructuring$var89.$Xgafv, access_token = void 0 === $jscomp$destructuring$var89.access_token ? void 0 : $jscomp$destructuring$var89.access_token, 
-  alt = void 0 === $jscomp$destructuring$var89.alt ? void 0 : $jscomp$destructuring$var89.alt, callback = void 0 === $jscomp$destructuring$var89.callback ? void 0 : $jscomp$destructuring$var89.callback, fields = void 0 === $jscomp$destructuring$var89.fields ? void 0 : $jscomp$destructuring$var89.fields, key = void 0 === $jscomp$destructuring$var89.key ? void 0 : $jscomp$destructuring$var89.key, oauth_token = void 0 === $jscomp$destructuring$var89.oauth_token ? void 0 : $jscomp$destructuring$var89.oauth_token, 
-  prettyPrint = void 0 === $jscomp$destructuring$var89.prettyPrint ? void 0 : $jscomp$destructuring$var89.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var89.quotaUser ? void 0 : $jscomp$destructuring$var89.quotaUser, uploadType = void 0 === $jscomp$destructuring$var89.uploadType ? void 0 : $jscomp$destructuring$var89.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var89.upload_protocol ? void 0 : $jscomp$destructuring$var89.upload_protocol;
+module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl.prototype.getPixels = function(name, $jscomp$destructuring$var86) {
+  var $jscomp$destructuring$var87 = void 0 === $jscomp$destructuring$var86 ? {$Xgafv:void 0, access_token:void 0, alt:void 0, callback:void 0, fields:void 0, key:void 0, oauth_token:void 0, prettyPrint:void 0, quotaUser:void 0, uploadType:void 0, upload_protocol:void 0} : $jscomp$destructuring$var86, $Xgafv = void 0 === $jscomp$destructuring$var87.$Xgafv ? void 0 : $jscomp$destructuring$var87.$Xgafv, access_token = void 0 === $jscomp$destructuring$var87.access_token ? void 0 : $jscomp$destructuring$var87.access_token, 
+  alt = void 0 === $jscomp$destructuring$var87.alt ? void 0 : $jscomp$destructuring$var87.alt, callback = void 0 === $jscomp$destructuring$var87.callback ? void 0 : $jscomp$destructuring$var87.callback, fields = void 0 === $jscomp$destructuring$var87.fields ? void 0 : $jscomp$destructuring$var87.fields, key = void 0 === $jscomp$destructuring$var87.key ? void 0 : $jscomp$destructuring$var87.key, oauth_token = void 0 === $jscomp$destructuring$var87.oauth_token ? void 0 : $jscomp$destructuring$var87.oauth_token, 
+  prettyPrint = void 0 === $jscomp$destructuring$var87.prettyPrint ? void 0 : $jscomp$destructuring$var87.prettyPrint, quotaUser = void 0 === $jscomp$destructuring$var87.quotaUser ? void 0 : $jscomp$destructuring$var87.quotaUser, uploadType = void 0 === $jscomp$destructuring$var87.uploadType ? void 0 : $jscomp$destructuring$var87.uploadType, upload_protocol = void 0 === $jscomp$destructuring$var87.upload_protocol ? void 0 : $jscomp$destructuring$var87.upload_protocol;
   this.$apiClient.$validateParameter(name, /^projects\/[^/]+\/videoThumbnails\/[^/]+$/);
   return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.videoThumbnails.getPixels", path:"/" + this.gapiVersion + "/" + name + ":getPixels", queryParams:{"$.xgafv":$Xgafv, access_token:access_token, alt:alt, callback:callback, fields:fields, key:key, oauth_token:oauth_token, prettyPrint:prettyPrint, quotaUser:quotaUser, uploadType:uploadType, upload_protocol:upload_protocol}, responseCtor:module$exports$eeapiclient$ee_api_client.HttpBody});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClient = function() {
 };
 ee.api = module$exports$eeapiclient$ee_api_client;
 goog.dom.BrowserFeature = {};
@@ -14005,7 +13973,7 @@ goog.uri.utils.buildFromEncodedParts = function(opt_scheme, opt_userInfo, opt_do
   opt_fragment && (out += "#" + opt_fragment);
   return out;
 };
-goog.uri.utils.splitRe_ = /^(?:([^:/?#.]+):)?(?:\/\/(?:([^/?#]*)@)?([^/#?]*?)(?::([0-9]+))?(?=[/\\#?]|$))?([^?#]+)?(?:\?([^#]*))?(?:#([\s\S]*))?$/;
+goog.uri.utils.splitRe_ = /^(?:([^:/?#.]+):)?(?:\/\/(?:([^\\/?#]*)@)?([^\\/?#]*?)(?::([0-9]+))?(?=[\\/?#]|$))?([^?#]+)?(?:\?([^#]*))?(?:#([\s\S]*))?$/;
 goog.uri.utils.ComponentIndex = {SCHEME:1, USER_INFO:2, DOMAIN:3, PORT:4, PATH:5, QUERY_DATA:6, FRAGMENT:7};
 goog.uri.utils.split = function(uri) {
   return uri.match(goog.uri.utils.splitRe_);
@@ -15081,7 +15049,7 @@ goog.Uri.QueryData.prototype.extend = function(var_args) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.215";
+ee.apiclient.API_CLIENT_VERSION = "0.1.216";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15181,13 +15149,13 @@ var module$contents$ee$apiclient_BatchCall = function(callback) {
 };
 $jscomp.inherits(module$contents$ee$apiclient_BatchCall, module$contents$ee$apiclient_Call);
 module$contents$ee$apiclient_BatchCall.prototype.send = function(parts, getResponse) {
-  var $jscomp$this = this, batchUrl = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + "/batch", body = parts.map(function($jscomp$destructuring$var90) {
-    var $jscomp$destructuring$var91 = $jscomp.makeIterator($jscomp$destructuring$var90), id = $jscomp$destructuring$var91.next().value, $jscomp$destructuring$var92 = $jscomp.makeIterator($jscomp$destructuring$var91.next().value), partBody = $jscomp$destructuring$var92.next().value, ctor = $jscomp$destructuring$var92.next().value;
+  var $jscomp$this = this, batchUrl = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + "/batch", body = parts.map(function($jscomp$destructuring$var88) {
+    var $jscomp$destructuring$var89 = $jscomp.makeIterator($jscomp$destructuring$var88), id = $jscomp$destructuring$var89.next().value, $jscomp$destructuring$var90 = $jscomp.makeIterator($jscomp$destructuring$var89.next().value), partBody = $jscomp$destructuring$var90.next().value, ctor = $jscomp$destructuring$var90.next().value;
     return "--batch_EARTHENGINE_batch\r\nContent-Type: application/http\r\nContent-Transfer-Encoding: binary\r\nMIME-Version: 1.0\r\nContent-ID: <" + id + ">\r\n\r\n" + partBody + "\r\n";
   }).join("") + "--batch_EARTHENGINE_batch--\r\n", deserializeResponses = function(response) {
     var result = {};
-    parts.forEach(function($jscomp$destructuring$var93) {
-      var $jscomp$destructuring$var94 = $jscomp.makeIterator($jscomp$destructuring$var93), id = $jscomp$destructuring$var94.next().value, $jscomp$destructuring$var95 = $jscomp.makeIterator($jscomp$destructuring$var94.next().value), partBody = $jscomp$destructuring$var95.next().value, ctor = $jscomp$destructuring$var95.next().value;
+    parts.forEach(function($jscomp$destructuring$var91) {
+      var $jscomp$destructuring$var92 = $jscomp.makeIterator($jscomp$destructuring$var91), id = $jscomp$destructuring$var92.next().value, $jscomp$destructuring$var93 = $jscomp.makeIterator($jscomp$destructuring$var92.next().value), partBody = $jscomp$destructuring$var93.next().value, ctor = $jscomp$destructuring$var93.next().value;
       null != response[id] && (result[id] = module$contents$eeapiclient$domain_object_deserialize(ctor, response[id]));
     });
     return getResponse ? getResponse(result) : result;
@@ -15342,8 +15310,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType}, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.215";
-    "0.1.215" === version && (version = "latest");
+    var version = "0.1.216";
+    "0.1.216" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -15497,7 +15465,7 @@ module$contents$ee$apiclient_apiclient.handleAuthResult_ = function(success, err
 };
 module$contents$ee$apiclient_apiclient.makeRequest_ = function(params) {
   for (var request = new goog.Uri.QueryData, $jscomp$iter$9 = $jscomp.makeIterator(Object.entries(params)), $jscomp$key$ = $jscomp$iter$9.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$9.next()) {
-    var $jscomp$destructuring$var97 = $jscomp.makeIterator($jscomp$key$.value), name = $jscomp$destructuring$var97.next().value, item = $jscomp$destructuring$var97.next().value;
+    var $jscomp$destructuring$var95 = $jscomp.makeIterator($jscomp$key$.value), name = $jscomp$destructuring$var95.next().value, item = $jscomp$destructuring$var95.next().value;
     request.set(name, item);
   }
   return request;
@@ -16478,7 +16446,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
       return object;
     }
     for (var ret = goog.isArray(object) ? [] : {}, isNode = object instanceof Object.getPrototypeOf(module$exports$eeapiclient$ee_api_client.ValueNode), $jscomp$iter$12 = $jscomp.makeIterator(Object.entries(isNode ? object.Serializable$values : object)), $jscomp$key$ = $jscomp$iter$12.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$12.next()) {
-      var $jscomp$destructuring$var99 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var99.next().value, val = $jscomp$destructuring$var99.next().value;
+      var $jscomp$destructuring$var97 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var97.next().value, val = $jscomp$destructuring$var97.next().value;
       isNode ? null !== val && (ret[key] = "functionDefinitionValue" === key && null != val.body ? {argumentNames:val.argumentNames, body:walkObject(values[val.body])} : "functionInvocationValue" === key && null != val.functionReference ? {arguments:goog.object.map(val.arguments, walkObject), functionReference:walkObject(values[val.functionReference])} : "constantValue" === key ? val === module$exports$eeapiclient$domain_object.NULL_VALUE ? null : val : walkObject(val)) : 
       ret[key] = walkObject(val);
     }
@@ -16585,7 +16553,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   }
   if (null != value.dictionaryValue) {
     for (var values = {}, constantValues = {}, $jscomp$iter$13 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$13.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$13.next()) {
-      var $jscomp$destructuring$var101 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var101.next().value, v$jscomp$0 = $jscomp$destructuring$var101.next().value;
+      var $jscomp$destructuring$var99 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var99.next().value, v$jscomp$0 = $jscomp$destructuring$var99.next().value;
       values[k] = this.optimizeValue(v$jscomp$0, depth + 3);
       null !== constantValues && isConst(values[k]) ? constantValues[k] = serializeConst(values[k].constantValue) : constantValues = null;
     }
@@ -20429,10 +20397,6 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat) {
     return urlFormat.replace("{x}", x).replace("{y}", y).replace("{z}", z);
   }, urlFormat:urlFormat};
 };
-ee.data.getValue = function(params, opt_callback) {
-  params = goog.object.clone(params);
-  return ee.data.send_("/value", ee.data.makeRequest_(params), opt_callback);
-};
 ee.data.computeValue = function(obj, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
     var expression = ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(obj)), call = new module$contents$ee$apiclient_Call(opt_callback);
@@ -20525,8 +20489,8 @@ ee.data.getDownloadId = function(params, opt_callback) {
     }) && (params.bands = params.bands.map(function(band) {
       return {id:band};
     }));
-    if (params.bands && params.bands.some(function($jscomp$destructuring$var102) {
-      return null == $jscomp$destructuring$var102.id;
+    if (params.bands && params.bands.some(function($jscomp$destructuring$var100) {
+      return null == $jscomp$destructuring$var100.id;
     })) {
       throw Error("Each band dictionary must have an id.");
     }
@@ -22940,7 +22904,7 @@ ee.batch.Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
     throw Error("Parameter specified at least twice: once in config, and once in config format options.");
   }
   for (var prefix = FORMAT_PREFIX_MAP[imageFormat], validOptionKeys = FORMAT_OPTIONS_MAP[imageFormat], prefixedOptions = {}, $jscomp$iter$15 = $jscomp.makeIterator(Object.entries(formatOptions)), $jscomp$key$ = $jscomp$iter$15.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$15.next()) {
-    var $jscomp$destructuring$var105 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var105.next().value, value = $jscomp$destructuring$var105.next().value;
+    var $jscomp$destructuring$var103 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var103.next().value, value = $jscomp$destructuring$var103.next().value;
     if (!goog.array.contains(validOptionKeys, key$jscomp$0)) {
       var validKeysMsg = validOptionKeys.join(", ");
       throw Error('"' + key$jscomp$0 + '" is not a valid option, the image format "' + imageFormat + '""may have the following options: ' + (validKeysMsg + '".'));

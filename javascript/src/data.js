@@ -493,25 +493,6 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat = '') {
   return {mapid, token, formatTileUrl, urlFormat};
 };
 
-
-/**
- * Retrieve a processed value from the front end.
- *
- * @deprecated Use ee.data.computeValue().
- * @param {Object} params The value to be evaluated, with the following
- *     possible values:
- *      - json (String) A JSON object to be evaluated.
- * @param {function(?, string=)=} opt_callback An optional callback.
- *     If not supplied, the call is made synchronously.
- * @return {?} The value call results, or null if a callback is specified.
- * @export
- */
-ee.data.getValue = function(params, opt_callback) {
-  params = goog.object.clone(params);
-  return ee.data.send_('/value', ee.data.makeRequest_(params), opt_callback);
-};
-
-
 /**
  * Sends a request to compute a value.
  * @param {*} obj

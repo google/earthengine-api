@@ -130,7 +130,7 @@ ee.Filter.functionNames_ = {
  *     - another fully constructed ee.Filter,
  *     - a ComputedObject producing a filter,
  *     - a list of 1 or 2.
- * @return {ee.Filter} A new filter that is the combination of both.
+ * @return {!ee.Filter} A new filter that is the combination of both.
  * @private
  */
 ee.Filter.prototype.append_ = function(newFilter) {

@@ -5,7 +5,7 @@ goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
 goog.require('goog.structs.Set');
 
-goog.forwardDeclare('ee.data.Profiler');
+goog.requireType('ee.data.Profiler');
 
 
 

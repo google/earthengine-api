@@ -172,7 +172,7 @@ forest.SubTileZoomMapType.prototype.releaseTile = function(tileDiv) {
  * Generates a pixel-zoomed canvas tile.
  * @param {google.maps.Point} coord The tile coordinates.
  * @param {number} zoom The zoom level.
- * @return {Element} The div for the tile.
+ * @return {!Element} The div for the tile.
  * @private
  */
 forest.SubTileZoomMapType.prototype.getSubTileZoomDiv_ = function(coord, zoom) {

@@ -17,7 +17,7 @@ forest.ForestApp = Polymer({
       observer: 'updateRoute_'
     },
 
-    /** @private {Object} The route URL component for the app. */
+    /** @private {!Object} The route URL component for the app. */
     route_: {
       type: Object,
       value: function() { return {}; }

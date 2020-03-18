@@ -686,21 +686,6 @@ class TileFetcher(object):
         self.format_tile_url(x, y, z), {}, opt_method='GET', opt_raw=True)
 
 
-@deprecation.Deprecated('Use computeValue')
-def getValue(params):
-  """Retrieve a processed value from the front end.
-
-  Args:
-    params: A dictionary containing:
-        json - (String) A JSON object to be evaluated.
-
-  Returns:
-    The value call results.
-  """
-  params['json_format'] = 'v2'
-  return send_('/value', params)
-
-
 def computeValue(obj):
   """Sends a request to compute a value.
 

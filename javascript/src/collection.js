@@ -228,7 +228,7 @@ ee.Collection.prototype.map = function(algorithm, opt_dropNulls) {
  *     to each element. Must take two arguments: an element of the collection
  *     and the value from the previous iteration.
  * @param {*=} opt_first The initial state.
- * @return {ee.ComputedObject} The result of the Collection.iterate() call.
+ * @return {!ee.ComputedObject} The result of the Collection.iterate() call.
  * @export
  */
 ee.Collection.prototype.iterate = function(algorithm, opt_first) {
