@@ -590,7 +590,8 @@ def getMapId(params):
         fields='name',
         body=request))
     map_name = result['name']
-    url_format = '%s/v1alpha/%s/tiles/{z}/{x}/{y}' % (_tile_base_url, map_name)
+    url_format = '%s/%s/%s/tiles/{z}/{x}/{y}' % (
+        _tile_base_url, _cloud_api_utils.VERSION, map_name)
     if _cloud_api_key:
       url_format += '?key=%s' % _cloud_api_key
 
@@ -837,7 +838,8 @@ def makeThumbUrl(thumbId):
     A URL from which the thumbnail can be obtained.
   """
   if _use_cloud_api:
-    url = '%s/v1alpha/%s:getPixels' % (_tile_base_url, thumbId['thumbid'])
+    url = '%s/%s/%s:getPixels' % (_tile_base_url, _cloud_api_utils.VERSION,
+                                  thumbId['thumbid'])
     if _cloud_api_key:
       url += '?key=%s' % _cloud_api_key
     return url
@@ -953,7 +955,8 @@ def makeDownloadUrl(downloadId):
     A URL from which the download can be obtained.
   """
   if _use_cloud_api:
-    return '%s/v1alpha/%s:getPixels' % (_tile_base_url, downloadId['docid'])
+    return '%s/%s/%s:getPixels' % (_tile_base_url, _cloud_api_utils.VERSION,
+                                   downloadId['docid'])
   else:
     return '%s/api/download?docid=%s&token=%s' % (
         _tile_base_url, downloadId['docid'], downloadId['token'])

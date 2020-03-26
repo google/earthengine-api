@@ -679,10 +679,10 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
 ee.data.makeThumbUrl = function(id) {
   if (ee.data.getCloudApiEnabled()) {
     const base = ee.apiclient.getTileBaseUrl();
-    return base + '/v1alpha/' + id.thumbid + ':getPixels';
+    return `${base}/${ee.apiclient.VERSION}/${id.thumbid}:getPixels`;
   }
-  return ee.apiclient.getTileBaseUrl() + '/api/thumb?thumbid=' + id.thumbid +
-      '&token=' + id.token;
+  return `${ee.apiclient.getTileBaseUrl()}/api/thumb?thumbid=${id.thumbid}` +
+      `&token=${id.token}`;
 };
 
 

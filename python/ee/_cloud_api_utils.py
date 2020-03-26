@@ -34,6 +34,8 @@ except ImportError:
 import six
 # pylint: enable=g-bad-import-order,g-import-not-at-top
 
+# The Cloud API version.
+VERSION = 'v1alpha'
 
 PROJECT_ID_PATTERN = (r'^(?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
                       r'[a-z][-a-z0-9]{4,28}[a-z0-9]$')
@@ -125,8 +127,8 @@ def build_cloud_resource(api_base_url,
     A resource object to use to call the Cloud API.
   """
   discovery_service_url = (
-      '{}/$discovery/rest?version=v1alpha&prettyPrint=false'
-      .format(api_base_url))
+      '{}/$discovery/rest?version={}&prettyPrint=false'
+      .format(api_base_url, VERSION))
   if http_transport is None:
     http_transport = httplib2.Http(timeout=timeout)
   if credentials is not None:
@@ -139,7 +141,7 @@ def build_cloud_resource(api_base_url,
     alt_model = None
   resource = discovery.build(
       'earthengine',
-      'v1alpha',
+      VERSION,
       discoveryServiceUrl=discovery_service_url,
       developerKey=api_key,
       http=http_transport,

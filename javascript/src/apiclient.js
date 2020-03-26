@@ -26,7 +26,7 @@ const apiclient = {};
 
 
 const VERSION = 'v1alpha';
-const API_CLIENT_VERSION = '0.1.216';
+const API_CLIENT_VERSION = '0.1.217';
 const LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 
 exports.VERSION = VERSION;
@@ -869,8 +869,7 @@ apiclient.send = function(
     }
 
     return apiclient.handleResponse_(
-        xmlHttp.status,
-        function getResponseHeaderSafe(header) {
+        xmlHttp.status, function getResponseHeaderSafe(header) {
           try {
             return xmlHttp.getResponseHeader(header);
           } catch (e) {
@@ -878,9 +877,7 @@ apiclient.send = function(
             // implement getResponseHeader when synchronous.
             return null;
           }
-        },
-        xmlHttp.responseText,
-        profileHookAtCallTime);
+        }, xmlHttp.responseText, profileHookAtCallTime, undefined, url, method);
   }
 };
 
@@ -923,11 +920,8 @@ apiclient.buildAsyncRequest_ = function(
     }
 
     return apiclient.handleResponse_(
-        xhrIo.getStatus(),
-        goog.bind(xhrIo.getResponseHeader, xhrIo),
-        xhrIo.getResponseText(),
-        profileHookAtCallTime,
-        callback);
+        xhrIo.getStatus(), goog.bind(xhrIo.getResponseHeader, xhrIo),
+        xhrIo.getResponseText(), profileHookAtCallTime, callback, url, method);
   };
   request.callback = wrappedCallback;
 
@@ -969,12 +963,15 @@ apiclient.withProfiling = function(hook, body, thisObject) {
  *     request was created.
  * @param {function(?,string=)=} callback An optional callback to
  *     execute if the request is asynchronous.
+ * @param {string=} url The request's URL.
+ * @param {string=} method The request's HTTP method.
  * @return {?Object} The response data, if the request is synchronous,
  *     otherwise null, if the request is asynchronous.
  * @private
  */
 apiclient.handleResponse_ = function(
-    status, getResponseHeader, responseText, profileHook, callback) {
+    status, getResponseHeader, responseText, profileHook, callback, url,
+    method) {
   // Only attempt to get the profile response header if we have a hook.
   const profileId =
       profileHook ? getResponseHeader(apiclient.PROFILE_HEADER) : '';
@@ -1043,6 +1040,9 @@ apiclient.handleResponse_ = function(
   }
 
   errorMessage = errorMessage || statusError(status) || typeError;
+  if (errorMessage && method && url) {
+    errorMessage += ' for ' + method + ' ' + url;
+  }
 
   if (callback) {
     callback(data, errorMessage);

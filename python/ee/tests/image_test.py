@@ -9,6 +9,7 @@ import mock
 import unittest
 
 import ee
+from ee import _cloud_api_utils
 from ee import apitestcase
 from ee import ee_exception
 from ee import serializer
@@ -295,7 +296,8 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           'crs': 'EPSG:4326',
       })
 
-      self.assertEqual('/v1alpha/thumbName:getPixels', url)
+      self.assertEqual('/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
+                       url)
       _, kwargs = self.cloud_api_resource.projects().thumbnails(
       ).create.call_args
       self.assertEqual(
@@ -580,7 +582,8 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           kwargs['body']['expression'])
       self.assertEqual('ZIPPED_GEO_TIFF_PER_BAND', kwargs['body']['fileFormat'])
       self.assertEqual('projects/earthengine-legacy', kwargs['parent'])
-      self.assertEqual('/v1alpha/thumbName:getPixels', url)
+      self.assertEqual('/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
+                       url)
 
   def testPrepareForExport_simple(self):
     """Verifies proper handling of export-related parameters."""

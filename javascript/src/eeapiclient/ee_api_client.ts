@@ -6815,8 +6815,8 @@ export class LinkAssetRequest extends Serializable {
 
   /**
    * The destination name to which we are linking the asset.
-   * `name` is of the format \"projects/*\"
-   * (e.g., \"projects/my-project\").
+   * `name` is of the format \"projects/* /assets\"
+   * (e.g., \"projects/my-project/assets\").
    */
   set destinationName(value: string|null) {
     this.Serializable$set('destinationName', value);
