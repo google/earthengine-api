@@ -17,23 +17,25 @@ Here's an example screenshot and the corresponding Code Editor JavaScript code:
 
 ![Trendy Lights Image](https://raw.github.com/google/earthengine-api/master/trendy-lights.png)
 
-    // Compute the trend of night-time lights.
+```javascript
+// Compute the trend of night-time lights.
 
-    // Adds a band containing image date as years since 1991.
-    function createTimeBand(img) {
-      var year = ee.Date(img.get('system:time_start')).get('year').subtract(1991);
-      return ee.Image(year).byte().addBands(img);
-    }
+// Adds a band containing image date as years since 1991.
+function createTimeBand(img) {
+  var year = ee.Date(img.get('system:time_start')).get('year').subtract(1991);
+  return ee.Image(year).byte().addBands(img);
+}
 
-    // Map the time band creation helper over the night-time lights collection.
-    // https://developers.google.com/earth-engine/datasets/catalog/NOAA_DMSP-OLS_NIGHTTIME_LIGHTS
-    var collection = ee.ImageCollection('NOAA/DMSP-OLS/NIGHTTIME_LIGHTS')
-        .select('stable_lights')
-        .map(createTimeBand);
+// Map the time band creation helper over the night-time lights collection.
+// https://developers.google.com/earth-engine/datasets/catalog/NOAA_DMSP-OLS_NIGHTTIME_LIGHTS
+var collection = ee.ImageCollection('NOAA/DMSP-OLS/NIGHTTIME_LIGHTS')
+    .select('stable_lights')
+    .map(createTimeBand);
 
-    // Compute a linear fit over the series of values at each pixel, visualizing
-    // the y-intercept in green, and positive/negative slopes as red/blue.
-    Map.addLayer(
-        collection.reduce(ee.Reducer.linearFit()),
-        {min: 0, max: [0.18, 20, -0.18], bands: ['scale', 'offset', 'scale']},
-        'stable lights trend');
+// Compute a linear fit over the series of values at each pixel, visualizing
+// the y-intercept in green, and positive/negative slopes as red/blue.
+Map.addLayer(
+    collection.reduce(ee.Reducer.linearFit()),
+    {min: 0, max: [0.18, 20, -0.18], bands: ['scale', 'offset', 'scale']},
+    'stable lights trend');
+```
