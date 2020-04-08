@@ -37,6 +37,10 @@ try:
   from tensorflow.compat.v1.saved_model import signature_def_utils
   # Prevent TensorFlow from logging anything at the python level.
   tf.logging.set_verbosity(tf.logging.ERROR)
+
+  # if running TF2.0 disable eager execution for model prep
+  tf.disable_eager_execution()
+
   TENSORFLOW_INSTALLED = True
 except ImportError:
   TENSORFLOW_INSTALLED = False
