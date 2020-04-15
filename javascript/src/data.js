@@ -833,31 +833,41 @@ ee.data.makeDownloadUrl = function(id) {
  * Get a download ID.
  * @param {Object} params An object containing table download options with the
  *     following possible values:
- *   - format: The download format, CSV or JSON.
+ *   - table: The feature collection to download.
+ *   - format: The download format, CSV, JSON, KML, KMZ or TF_RECORD.
  *   - selectors: Comma separated string of selectors that can be used to
  *          determine which attributes will be downloaded.
  *   - filename: The name of the file that will be downloaded.
- * @param {function(!ee.data.DownloadId, string=)=} opt_callback An optional
+ * @param {function(?ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.DownloadId} A download id and token, or null if a
  *     callback is specified.
  * @export
  */
 ee.data.getTableDownloadId = function(params, opt_callback) {
-  // In cloud mode, handleResponse does not unwrap the data payload.
-  const unwrap = (id) => (/** @type {!Object} */(id) || {})['data'] || id;
-  if (ee.data.getCloudApiEnabled() && opt_callback) {
-    const orig_callback = opt_callback;
-    opt_callback = (id, error = undefined) => orig_callback(unwrap(id), error);
+  if (ee.data.getCloudApiEnabled()) {
+    const call = new ee.apiclient.Call(opt_callback);
+    const fileFormat = ee.rpc_convert.tableFileFormat(params['format']);
+    const expression = ee.data.expressionAugmenter_(
+        ee.Serializer.encodeCloudApiExpression(params['table']));
+    const table = new ee.api.Table({name: null, expression, fileFormat});
+    const fields = ['name'];
+    /** @type {function(!ee.api.Table): !ee.data.DownloadId} */
+    const getResponse = (res) => {
+      /** @type {!ee.data.DownloadId} */
+      const ret = {docid: res.name || '', token: ''};
+      return ret;
+    };
+    return call.handle(call.tables()
+                           .create(call.projectsPath(), table, {fields})
+                           .then(getResponse));
   }
   params = goog.object.clone(params);
   const id = /** @type {?ee.data.DownloadId} */ (ee.data.send_(
       '/table',
       ee.data.makeRequest_(params),
       opt_callback));
-  if (ee.data.getCloudApiEnabled()) {
-    return unwrap(id);
-  }
+
   return id;
 };
 
@@ -869,6 +879,10 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
  * @export
  */
 ee.data.makeTableDownloadUrl = function(id) {
+  if (ee.data.getCloudApiEnabled()) {
+    const base = ee.apiclient.getTileBaseUrl();
+    return base + '/v1alpha/' + id.docid + ':getFeatures';
+  }
   return ee.apiclient.getTileBaseUrl() + '/api/table?docid=' + id.docid +
       '&token=' + id.token;
 };

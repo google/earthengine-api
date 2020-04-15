@@ -30,7 +30,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
 
     f = ee.Feature(None, {'properties': src})
     computed = ee.Dictionary(f.get('properties'))
-    self.assertTrue(isinstance(computed, ee.Dictionary))
+    self.assertIsInstance(computed, ee.Dictionary)
 
     # The 4 types of arguments we expect
     cons = (ee.Dictionary(src),
@@ -39,7 +39,7 @@ class DictionaryTest(apitestcase.ApiTestCase):
             ee.Dictionary(('one', 1)))
 
     for d in cons:
-      self.assertTrue(isinstance(d, ee.ComputedObject))
+      self.assertIsInstance(d, ee.ComputedObject)
 
   def testInternals(self):
     """Test eq(), ne() and hash()."""

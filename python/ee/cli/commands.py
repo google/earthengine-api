@@ -778,6 +778,9 @@ class ListCommand(object):
         '-r',
         action='store_true',
         help='List folders recursively.')
+    parser.add_argument(
+        '--filter', '-f', default='', type=str,
+        help='Filter string to pass to ee.ImageCollection.filter().')
 
   def run(self, args, config):
     config.ee_init()
@@ -791,8 +794,9 @@ class ListCommand(object):
     for asset in assets:
       if count > 0:
         print()
-      self._list_asset_content(asset, args.max_items,
-                               len(assets), args.long_format, args.recursive)
+      self._list_asset_content(
+          asset, args.max_items, len(assets), args.long_format,
+          args.recursive, args.filter)
       count += 1
 
   def _print_assets(self, assets, max_items, indent, long_format, recursive):
@@ -824,11 +828,13 @@ class ListCommand(object):
         self._print_assets(children, max_items, indent, long_format, recursive)
 
   def _list_asset_content(self, asset, max_items, total_assets, long_format,
-                          recursive):
+                          recursive, filter_string):
     try:
       list_req = {'id': asset}
       if max_items >= 0:
         list_req['num'] = max_items
+      if filter_string:
+        list_req['filter'] = filter_string
       children = ee.data.getList(list_req)
       indent = ''
       if total_assets > 1:

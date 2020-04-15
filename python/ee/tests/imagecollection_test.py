@@ -50,7 +50,7 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
     collection = ee.ImageCollection(ee.Image(1))
     noop_filter = ee.Filter()
     filtered = collection.filter(noop_filter)
-    self.assertTrue(isinstance(filtered, ee.ImageCollection))
+    self.assertIsInstance(filtered, ee.ImageCollection)
     self.assertEqual(ee.ApiFunction.lookup('Collection.filter'), filtered.func)
     self.assertEqual({
         'collection': collection,
@@ -60,7 +60,7 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
   def testFirst(self):
     """Verifies that first gets promoted properly."""
     first = ee.ImageCollection(ee.Image(1)).first()
-    self.assertTrue(isinstance(first, ee.Image))
+    self.assertIsInstance(first, ee.Image)
     self.assertEqual(ee.ApiFunction.lookup('Collection.first'), first.func)
 
   def testPrepareForExport(self):

@@ -61,7 +61,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEqual({'id': 'abcd', 'version': 123}, from_id_and_version.args)
 
     from_variable = ee.Image(ee.CustomFunction.variable(None, 'foo'))
-    self.assertTrue(isinstance(from_variable, ee.Image))
+    self.assertIsInstance(from_variable, ee.Image)
     self.assertEqual({
         'type': 'ArgumentRef',
         'value': 'foo'

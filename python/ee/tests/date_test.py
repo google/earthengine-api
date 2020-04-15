@@ -24,7 +24,7 @@ class DateTest(apitestcase.ApiTestCase):
     dates = [d1, d2, d3, d4]
 
     for d in dates:
-      self.assertTrue(isinstance(d, ee.Date))
+      self.assertIsInstance(d, ee.Date)
       self.assertEqual(datefunc, d.func)
 
     self.assertEqual(d1.args, {'value': '2000-01-01'})
@@ -32,14 +32,14 @@ class DateTest(apitestcase.ApiTestCase):
       self.assertEqual(d.args['value'], 946684800000)
 
     d5 = ee.Date(ee.CustomFunction.variable('Date', 'foo'))
-    self.assertTrue(isinstance(d5, ee.Date))
+    self.assertIsInstance(d5, ee.Date)
     self.assertTrue(d5.isVariable())
     self.assertEqual('foo', d5.varName)
 
     # A non-date variable.
     v = ee.CustomFunction.variable('Number', 'bar')
     d6 = ee.Date(v)
-    self.assertTrue(isinstance(d6, ee.Date))
+    self.assertIsInstance(d6, ee.Date)
     self.assertFalse(d6.isVariable())
     self.assertEqual(datefunc, d6.func)
     self.assertEqual({'value': v}, d6.args)
@@ -47,7 +47,7 @@ class DateTest(apitestcase.ApiTestCase):
     # A non-date ComputedObject, promotion and casting.
     obj = ee.ApiFunction.call_('DateRange', 1, 2)
     d7 = ee.Date(obj)
-    self.assertTrue(isinstance(d7, ee.Date))
+    self.assertIsInstance(d7, ee.Date)
     self.assertEqual(datefunc, d7.func)
     self.assertEqual({'value': obj}, d7.args)
 

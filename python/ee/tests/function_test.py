@@ -96,7 +96,7 @@ class FunctionTest(unittest.TestCase):
     try:
       func(*args)
     except ee.EEException as e:
-      self.assertTrue(msg in str(e))
+      self.assertIn(msg, str(e))
     else:
       self.fail('Expected an exception.')
 

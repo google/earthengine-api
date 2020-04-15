@@ -26,7 +26,7 @@ const apiclient = {};
 
 
 const VERSION = 'v1alpha';
-const API_CLIENT_VERSION = '0.1.217';
+const API_CLIENT_VERSION = '0.1.218';
 const LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 
 exports.VERSION = VERSION;
@@ -138,6 +138,10 @@ class Call {
 
   table() {
     return new api.ProjectsTableApiClientImpl(VERSION, this.requestService);
+  }
+
+  tables() {
+    return new api.ProjectsTablesApiClientImpl(VERSION, this.requestService);
   }
 
   video() {
@@ -1002,7 +1006,8 @@ apiclient.handleResponse_ = function(
       return 'Failed to contact Earth Engine servers. Please check ' +
           'your connection, firewall, or browser extension settings.';
     } else if (status < 200 || status >= 300) {
-      return 'Server returned HTTP code: ' + status;
+      return 'Server returned HTTP code: ' + status + ' for ' + method + ' ' +
+          url;
     }
   };
 
@@ -1040,9 +1045,6 @@ apiclient.handleResponse_ = function(
   }
 
   errorMessage = errorMessage || statusError(status) || typeError;
-  if (errorMessage && method && url) {
-    errorMessage += ' for ' + method + ' ' + url;
-  }
 
   if (callback) {
     callback(data, errorMessage);

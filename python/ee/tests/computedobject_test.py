@@ -16,7 +16,7 @@ class ComputedObjectTest(apitestcase.ApiTestCase):
     """Verifies that untyped calls wrap the result in a ComputedObject."""
 
     result = ee.ApiFunction.call_('DateRange', 1, 2)
-    self.assertTrue(isinstance(result.serialize(), six.string_types))
+    self.assertIsInstance(result.serialize(), six.string_types)
     self.assertEqual({'value': 'fakeValue'}, result.getInfo())
 
   def testInternals(self):

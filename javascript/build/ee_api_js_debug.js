@@ -22,7 +22,7 @@ $jscomp.defineProperty = $jscomp.ASSUME_ES5 || "function" == typeof Object.defin
   target != Array.prototype && target != Object.prototype && (target[property] = descriptor.value);
 };
 $jscomp.getGlobal = function(passedInThis) {
-  for (var possibleGlobals = ["object" == typeof window && window, "object" == typeof self && self, "object" == typeof global && global, passedInThis], i = 0; i < possibleGlobals.length; ++i) {
+  for (var possibleGlobals = ["object" == typeof globalThis && globalThis, "object" == typeof window && window, "object" == typeof self && self, "object" == typeof global && global, passedInThis], i = 0; i < possibleGlobals.length; ++i) {
     var maybeGlobal = possibleGlobals[i];
     if (maybeGlobal && maybeGlobal.Math == Math) {
       return maybeGlobal;
@@ -3217,7 +3217,7 @@ goog.html.SafeUrl.unwrap = function(safeUrl) {
 goog.html.SafeUrl.fromConstant = function(url) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
 };
-goog.html.SAFE_MIME_TYPE_PATTERN_ = /^(?:audio\/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)|image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon)|text\/csv|video\/(?:mpeg|mp4|ogg|webm|quicktime|x-matroska))(?:;\w+=(?:\w+|"[\w;,= ]+"))*$/i;
+goog.html.SAFE_MIME_TYPE_PATTERN_ = /^(?:audio\/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)|font\/\w+|image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon)|text\/csv|video\/(?:mpeg|mp4|ogg|webm|quicktime|x-matroska))(?:;\w+=(?:\w+|"[\w;,= ]+"))*$/i;
 goog.html.SafeUrl.isSafeMimeType = function(mimeType) {
   return goog.html.SAFE_MIME_TYPE_PATTERN_.test(mimeType);
 };
@@ -6699,6 +6699,19 @@ module$exports$tslib.__asyncValues = function(o) {
 module$exports$tslib.__makeTemplateObject = function(cooked, raw) {
   Object.defineProperty ? Object.defineProperty(cooked, "raw", {value:raw}) : cooked.raw = raw;
   return cooked;
+};
+module$exports$tslib.__classPrivateFieldGet = function(receiver, privateMap) {
+  if (!privateMap.has(receiver)) {
+    throw new TypeError("attempted to get private field on non-instance");
+  }
+  return privateMap.get(receiver);
+};
+module$exports$tslib.__classPrivateFieldSet = function(receiver, privateMap, value) {
+  if (!privateMap.has(receiver)) {
+    throw new TypeError("attempted to set private field on non-instance");
+  }
+  privateMap.set(receiver, value);
+  return value;
 };
 var module$exports$eeapiclient$domain_object = {}, module$contents$eeapiclient$domain_object_module = module$contents$eeapiclient$domain_object_module || {id:"javascript/typescript/contrib/apiclient/core/domain_object.closure.js"};
 module$exports$eeapiclient$domain_object.ObjectMapMetadata = function module$contents$eeapiclient$domain_object_ObjectMapMetadata() {
@@ -14919,8 +14932,7 @@ goog.Uri = function(opt_uri, opt_ignoreCase) {
   this.ignoreCase_ = this.isReadOnly_ = !1;
   var m;
   opt_uri instanceof goog.Uri ? (this.ignoreCase_ = void 0 !== opt_ignoreCase ? opt_ignoreCase : opt_uri.getIgnoreCase(), this.setScheme(opt_uri.getScheme()), this.setUserInfo(opt_uri.getUserInfo()), this.setDomain(opt_uri.getDomain()), this.setPort(opt_uri.getPort()), this.setPath(opt_uri.getPath()), this.setQueryData(opt_uri.getQueryData().clone()), this.setFragment(opt_uri.getFragment())) : opt_uri && (m = goog.uri.utils.split(String(opt_uri))) ? (this.ignoreCase_ = !!opt_ignoreCase, this.setScheme(m[goog.uri.utils.ComponentIndex.SCHEME] || 
-  "", !0), this.setUserInfo(m[goog.uri.utils.ComponentIndex.USER_INFO] || "", !0), this.setDomain(m[goog.uri.utils.ComponentIndex.DOMAIN] || "", !0), this.setPort(m[goog.uri.utils.ComponentIndex.PORT]), this.setPath(m[goog.uri.utils.ComponentIndex.PATH] || "", !0), this.setQueryData(m[goog.uri.utils.ComponentIndex.QUERY_DATA] || "", !0), this.setFragment(m[goog.uri.utils.ComponentIndex.FRAGMENT] || "", !0)) : (this.ignoreCase_ = !!opt_ignoreCase, this.queryData_ = new goog.Uri.QueryData(null, null, 
-  this.ignoreCase_));
+  "", !0), this.setUserInfo(m[goog.uri.utils.ComponentIndex.USER_INFO] || "", !0), this.setDomain(m[goog.uri.utils.ComponentIndex.DOMAIN] || "", !0), this.setPort(m[goog.uri.utils.ComponentIndex.PORT]), this.setPath(m[goog.uri.utils.ComponentIndex.PATH] || "", !0), this.setQueryData(m[goog.uri.utils.ComponentIndex.QUERY_DATA] || "", !0), this.setFragment(m[goog.uri.utils.ComponentIndex.FRAGMENT] || "", !0)) : (this.ignoreCase_ = !!opt_ignoreCase, this.queryData_ = new goog.Uri.QueryData(null, this.ignoreCase_));
 };
 goog.Uri.RANDOM_PARAM = goog.uri.utils.StandardQueryParam.RANDOM;
 goog.Uri.prototype.toString = function() {
@@ -15042,7 +15054,7 @@ goog.Uri.prototype.hasQuery = function() {
 };
 goog.Uri.prototype.setQueryData = function(queryData, opt_decode) {
   this.enforceReadOnly();
-  queryData instanceof goog.Uri.QueryData ? (this.queryData_ = queryData, this.queryData_.setIgnoreCase(this.ignoreCase_)) : (opt_decode || (queryData = goog.Uri.encodeSpecialChars_(queryData, goog.Uri.reDisallowedInQuery_)), this.queryData_ = new goog.Uri.QueryData(queryData, null, this.ignoreCase_));
+  queryData instanceof goog.Uri.QueryData ? (this.queryData_ = queryData, this.queryData_.setIgnoreCase(this.ignoreCase_)) : (opt_decode || (queryData = goog.Uri.encodeSpecialChars_(queryData, goog.Uri.reDisallowedInQuery_)), this.queryData_ = new goog.Uri.QueryData(queryData, this.ignoreCase_));
   return this;
 };
 goog.Uri.prototype.setQuery = function(newQuery, opt_decode) {
@@ -15180,7 +15192,7 @@ goog.Uri.haveSameDomain = function(uri1String, uri2String) {
   var pieces1 = goog.uri.utils.split(uri1String), pieces2 = goog.uri.utils.split(uri2String);
   return pieces1[goog.uri.utils.ComponentIndex.DOMAIN] == pieces2[goog.uri.utils.ComponentIndex.DOMAIN] && pieces1[goog.uri.utils.ComponentIndex.PORT] == pieces2[goog.uri.utils.ComponentIndex.PORT];
 };
-goog.Uri.QueryData = function(opt_query, opt_uri, opt_ignoreCase) {
+goog.Uri.QueryData = function(opt_query, opt_ignoreCase) {
   this.count_ = this.keyMap_ = null;
   this.encodedQuery_ = opt_query || null;
   this.ignoreCase_ = !!opt_ignoreCase;
@@ -15193,22 +15205,22 @@ goog.Uri.QueryData.prototype.ensureKeyMapInitialized_ = function() {
     });
   }
 };
-goog.Uri.QueryData.createFromMap = function(map, opt_uri, opt_ignoreCase) {
+goog.Uri.QueryData.createFromMap = function(map, opt_ignoreCase) {
   var keys = goog.structs.getKeys(map);
   if ("undefined" == typeof keys) {
     throw Error("Keys are undefined");
   }
-  for (var queryData = new goog.Uri.QueryData(null, null, opt_ignoreCase), values = goog.structs.getValues(map), i = 0; i < keys.length; i++) {
+  for (var queryData = new goog.Uri.QueryData(null, opt_ignoreCase), values = goog.structs.getValues(map), i = 0; i < keys.length; i++) {
     var key = keys[i], value = values[i];
     Array.isArray(value) ? queryData.setValues(key, value) : queryData.add(key, value);
   }
   return queryData;
 };
-goog.Uri.QueryData.createFromKeysValues = function(keys, values, opt_uri, opt_ignoreCase) {
+goog.Uri.QueryData.createFromKeysValues = function(keys, values, opt_ignoreCase) {
   if (keys.length != values.length) {
     throw Error("Mismatched lengths for keys/values");
   }
-  for (var queryData = new goog.Uri.QueryData(null, null, opt_ignoreCase), i = 0; i < keys.length; i++) {
+  for (var queryData = new goog.Uri.QueryData(null, opt_ignoreCase), i = 0; i < keys.length; i++) {
     queryData.add(keys[i], values[i]);
   }
   return queryData;
@@ -15356,7 +15368,7 @@ goog.Uri.QueryData.prototype.extend = function(var_args) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.217";
+ee.apiclient.API_CLIENT_VERSION = "0.1.218";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15407,6 +15419,9 @@ module$contents$ee$apiclient_Call.prototype.image = function() {
 };
 module$contents$ee$apiclient_Call.prototype.table = function() {
   return new module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl("v1alpha", this.requestService);
+};
+module$contents$ee$apiclient_Call.prototype.tables = function() {
+  return new module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClientImpl("v1alpha", this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.video = function() {
   return new module$exports$eeapiclient$ee_api_client.ProjectsVideoApiClientImpl("v1alpha", this.requestService);
@@ -15617,8 +15632,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType}, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.217";
-    "0.1.217" === version && (version = "latest");
+    var version = "0.1.218";
+    "0.1.218" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -15702,7 +15717,7 @@ module$contents$ee$apiclient_apiclient.handleResponse_ = function(status$jscomp$
       return "Failed to contact Earth Engine servers. Please check your connection, firewall, or browser extension settings.";
     }
     if (200 > status || 300 <= status) {
-      return "Server returned HTTP code: " + status;
+      return "Server returned HTTP code: " + status + " for " + method + " " + url;
     }
   }, errorMessage, typeHeader = getResponseHeader("Content-Type") || "application/json", contentType = typeHeader.replace(/;.*/, "");
   if ("application/json" === contentType || "text/json" === contentType) {
@@ -15728,7 +15743,7 @@ module$contents$ee$apiclient_apiclient.handleResponse_ = function(status$jscomp$
       var typeError = "Response was unexpectedly not JSON, but " + contentType;
     }
   }
-  (errorMessage = errorMessage || statusError(status$jscomp$0) || typeError) && method && url && (errorMessage += " for " + method + " " + url);
+  errorMessage = errorMessage || statusError(status$jscomp$0) || typeError;
   if (callback) {
     return callback(data, errorMessage), null;
   }
@@ -17101,7 +17116,7 @@ ee.rpc_convert_batch.buildEarthEngineDestination_ = function(params) {
 var jspb = {BinaryConstants:{}, ConstBinaryMessage:function() {
 }, BinaryMessage:function() {
 }};
-jspb.BinaryConstants.FieldType = {INVALID:-1, DOUBLE:1, FLOAT:2, INT64:3, UINT64:4, INT32:5, FIXED64:6, FIXED32:7, BOOL:8, STRING:9, GROUP:10, MESSAGE:11, BYTES:12, UINT32:13, ENUM:14, SFIXED32:15, SFIXED64:16, SINT32:17, SINT64:18, FHASH64:30, VHASH64:31};
+jspb.BinaryConstants.FieldType = {INVALID:-1, DOUBLE:1, FLOAT:2, INT64:3, UINT64:4, INT32:5, FIXED64:6, FIXED32:7, BOOL:8, STRING:9, GROUP:10, MESSAGE:11, BYTES:12, UINT32:13, ENUM:14, SFIXED32:15, SFIXED64:16, SINT32:17, SINT64:18};
 jspb.BinaryConstants.WireType = {INVALID:-1, VARINT:0, FIXED64:1, DELIMITED:2, START_GROUP:3, END_GROUP:4, FIXED32:5};
 jspb.BinaryConstants.FieldTypeToWireType = function(fieldType) {
   var fieldTypes = jspb.BinaryConstants.FieldType, wireTypes = jspb.BinaryConstants.WireType;
@@ -17114,12 +17129,10 @@ jspb.BinaryConstants.FieldTypeToWireType = function(fieldType) {
     case fieldTypes.SINT64:
     case fieldTypes.BOOL:
     case fieldTypes.ENUM:
-    case fieldTypes.VHASH64:
       return wireTypes.VARINT;
     case fieldTypes.DOUBLE:
     case fieldTypes.FIXED64:
     case fieldTypes.SFIXED64:
-    case fieldTypes.FHASH64:
       return wireTypes.FIXED64;
     case fieldTypes.STRING:
     case fieldTypes.MESSAGE:
@@ -17833,9 +17846,6 @@ jspb.BinaryDecoder.prototype.readSignedVarint64String = function() {
 jspb.BinaryDecoder.prototype.readZigzagVarint64 = function() {
   return this.readSplitVarint64(jspb.utils.joinZigzag64);
 };
-jspb.BinaryDecoder.prototype.readZigzagVarintHash64 = function() {
-  return this.readSplitZigzagVarint64(jspb.utils.joinHash64);
-};
 jspb.BinaryDecoder.prototype.readZigzagVarint64String = function() {
   return this.readSplitZigzagVarint64(jspb.utils.joinSignedDecimalString);
 };
@@ -17952,14 +17962,6 @@ jspb.BinaryDecoder.prototype.readBytes = function(length) {
   this.cursor_ += length;
   goog.asserts.assert(this.cursor_ <= this.end_);
   return result;
-};
-jspb.BinaryDecoder.prototype.readVarintHash64 = function() {
-  return this.readSplitVarint64(jspb.utils.joinHash64);
-};
-jspb.BinaryDecoder.prototype.readFixedHash64 = function() {
-  var bytes = this.bytes_, cursor = this.cursor_, a = bytes[cursor + 0], b = bytes[cursor + 1], c = bytes[cursor + 2], d = bytes[cursor + 3], e = bytes[cursor + 4], f = bytes[cursor + 5], g = bytes[cursor + 6], h = bytes[cursor + 7];
-  this.cursor_ += 8;
-  return String.fromCharCode(a, b, c, d, e, f, g, h);
 };
 jspb.BinaryReader = function(opt_bytes, opt_start, opt_length) {
   this.decoder_ = jspb.BinaryDecoder.alloc(opt_bytes, opt_start, opt_length);
@@ -18151,10 +18153,6 @@ jspb.BinaryReader.prototype.readAny = function(fieldType) {
       return this.readSint32();
     case fieldTypes.SINT64:
       return this.readSint64();
-    case fieldTypes.FHASH64:
-      return this.readFixedHash64();
-    case fieldTypes.VHASH64:
-      return this.readVarintHash64();
     default:
       goog.asserts.fail("Invalid field type in readAny()");
   }
@@ -18278,14 +18276,6 @@ jspb.BinaryReader.prototype.readBytes = function() {
   var length = this.decoder_.readUnsignedVarint32();
   return this.decoder_.readBytes(length);
 };
-jspb.BinaryReader.prototype.readVarintHash64 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
-  return this.decoder_.readVarintHash64();
-};
-jspb.BinaryReader.prototype.readSintHash64 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
-  return this.decoder_.readZigzagVarintHash64();
-};
 jspb.BinaryReader.prototype.readSplitVarint64 = function(convert) {
   goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
   return this.decoder_.readSplitVarint64(convert);
@@ -18295,10 +18285,6 @@ jspb.BinaryReader.prototype.readSplitZigzagVarint64 = function(convert) {
   return this.decoder_.readSplitVarint64(function(lowBits, highBits) {
     return jspb.utils.fromZigzag64(lowBits, highBits, convert);
   });
-};
-jspb.BinaryReader.prototype.readFixedHash64 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
-  return this.decoder_.readFixedHash64();
 };
 jspb.BinaryReader.prototype.readSplitFixed64 = function(convert) {
   goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
@@ -18373,12 +18359,6 @@ jspb.BinaryReader.prototype.readPackedBool = function() {
 };
 jspb.BinaryReader.prototype.readPackedEnum = function() {
   return this.readPackedField_(this.decoder_.readEnum);
-};
-jspb.BinaryReader.prototype.readPackedVarintHash64 = function() {
-  return this.readPackedField_(this.decoder_.readVarintHash64);
-};
-jspb.BinaryReader.prototype.readPackedFixedHash64 = function() {
-  return this.readPackedField_(this.decoder_.readFixedHash64);
 };
 jspb.arith = {};
 jspb.arith.UInt64 = function(lo, hi) {
@@ -18511,6 +18491,12 @@ jspb.BinaryEncoder.prototype.writeSplitFixed64 = function(lowBits, highBits) {
   this.writeUint32(lowBits);
   this.writeUint32(highBits);
 };
+jspb.BinaryEncoder.prototype.writeSplitZigzagVarint64 = function(lowBits, highBits) {
+  var self = this;
+  jspb.utils.toZigzag64(lowBits, highBits, function(lo, hi) {
+    self.writeSplitVarint64(lo >>> 0, hi >>> 0);
+  });
+};
 jspb.BinaryEncoder.prototype.writeUnsignedVarint32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   for (goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_32); 127 < value;) {
@@ -18554,11 +18540,8 @@ jspb.BinaryEncoder.prototype.writeZigzagVarint64 = function(value) {
   this.writeSplitVarint64(jspb.utils.split64Low, jspb.utils.split64High);
 };
 jspb.BinaryEncoder.prototype.writeZigzagVarint64String = function(value) {
-  this.writeZigzagVarintHash64(jspb.utils.decimalStringToHash64(value));
-};
-jspb.BinaryEncoder.prototype.writeZigzagVarintHash64 = function(hash) {
   var self = this;
-  jspb.utils.splitHash64(hash);
+  jspb.utils.splitDecimalString(value);
   jspb.utils.toZigzag64(jspb.utils.split64Low, jspb.utils.split64High, function(lo, hi) {
     self.writeSplitVarint64(lo >>> 0, hi >>> 0);
   });
@@ -18617,7 +18600,7 @@ jspb.BinaryEncoder.prototype.writeInt64 = function(value) {
 jspb.BinaryEncoder.prototype.writeInt64String = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(+value >= -jspb.BinaryConstants.TWO_TO_63 && +value < jspb.BinaryConstants.TWO_TO_63);
-  jspb.utils.splitHash64(jspb.utils.decimalStringToHash64(value));
+  jspb.utils.splitDecimalString(value);
   this.writeSplitFixed64(jspb.utils.split64Low, jspb.utils.split64High);
 };
 jspb.BinaryEncoder.prototype.writeFloat = function(value) {
@@ -18642,15 +18625,6 @@ jspb.BinaryEncoder.prototype.writeEnum = function(value) {
 };
 jspb.BinaryEncoder.prototype.writeBytes = function(bytes) {
   this.buffer_.push.apply(this.buffer_, bytes);
-};
-jspb.BinaryEncoder.prototype.writeVarintHash64 = function(hash) {
-  jspb.utils.splitHash64(hash);
-  this.writeSplitVarint64(jspb.utils.split64Low, jspb.utils.split64High);
-};
-jspb.BinaryEncoder.prototype.writeFixedHash64 = function(hash) {
-  jspb.utils.splitHash64(hash);
-  this.writeUint32(jspb.utils.split64Low);
-  this.writeUint32(jspb.utils.split64High);
 };
 jspb.BinaryEncoder.prototype.writeString = function(value) {
   for (var oldLength = this.buffer_.length, i = 0; i < value.length; i++) {
@@ -18799,12 +18773,6 @@ jspb.BinaryWriter.prototype.writeAny = function(fieldType, field, value) {
     case fieldTypes.SINT64:
       this.writeSint64(field, value);
       break;
-    case fieldTypes.FHASH64:
-      this.writeFixedHash64(field, value);
-      break;
-    case fieldTypes.VHASH64:
-      this.writeVarintHash64(field, value);
-      break;
     default:
       goog.asserts.fail("Invalid field type in writeAny()");
   }
@@ -18829,9 +18797,6 @@ jspb.BinaryWriter.prototype.writeZigzagVarint64_ = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writeZigzagVarint64String_ = function(field, value) {
   null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeZigzagVarint64String(value));
-};
-jspb.BinaryWriter.prototype.writeZigzagVarintHash64_ = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeZigzagVarintHash64(value));
 };
 jspb.BinaryWriter.prototype.writeInt32 = function(field, value) {
   null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31), this.writeSignedVarint32_(field, value));
@@ -18878,9 +18843,6 @@ jspb.BinaryWriter.prototype.writeSint32 = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writeSint64 = function(field, value) {
   null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_63 && value < jspb.BinaryConstants.TWO_TO_63), this.writeZigzagVarint64_(field, value));
-};
-jspb.BinaryWriter.prototype.writeSintHash64 = function(field, value) {
-  null != value && this.writeZigzagVarintHash64_(field, value);
 };
 jspb.BinaryWriter.prototype.writeSint64String = function(field, value) {
   null != value && this.writeZigzagVarint64String_(field, value);
@@ -18959,12 +18921,6 @@ jspb.BinaryWriter.prototype.writeMessageSet = function(field, value, writerCallb
 jspb.BinaryWriter.prototype.writeGroup = function(field, value, writerCallback) {
   null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.START_GROUP), writerCallback(value, this), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.END_GROUP));
 };
-jspb.BinaryWriter.prototype.writeFixedHash64 = function(field, value) {
-  null != value && (goog.asserts.assert(8 == value.length), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64), this.encoder_.writeFixedHash64(value));
-};
-jspb.BinaryWriter.prototype.writeVarintHash64 = function(field, value) {
-  null != value && (goog.asserts.assert(8 == value.length), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeVarintHash64(value));
-};
 jspb.BinaryWriter.prototype.writeSplitFixed64 = function(field, lowBits, highBits) {
   this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64);
   this.encoder_.writeSplitFixed64(lowBits, highBits);
@@ -18973,12 +18929,9 @@ jspb.BinaryWriter.prototype.writeSplitVarint64 = function(field, lowBits, highBi
   this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT);
   this.encoder_.writeSplitVarint64(lowBits, highBits);
 };
-jspb.BinaryWriter.prototype.writeSplitZigzagVarint64 = function(field, lowBits$jscomp$0, highBits$jscomp$0) {
+jspb.BinaryWriter.prototype.writeSplitZigzagVarint64 = function(field, lowBits, highBits) {
   this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT);
-  var encoder = this.encoder_;
-  jspb.utils.toZigzag64(lowBits$jscomp$0, highBits$jscomp$0, function(lowBits, highBits) {
-    encoder.writeSplitVarint64(lowBits >>> 0, highBits >>> 0);
-  });
+  this.encoder_.writeSplitZigzagVarint64(lowBits >>> 0, highBits >>> 0);
 };
 jspb.BinaryWriter.prototype.writeRepeatedInt32 = function(field, value) {
   if (null != value) {
@@ -19075,13 +19028,6 @@ jspb.BinaryWriter.prototype.writeRepeatedSint64String = function(field, value) {
   if (null != value) {
     for (var i = 0; i < value.length; i++) {
       this.writeZigzagVarint64String_(field, value[i]);
-    }
-  }
-};
-jspb.BinaryWriter.prototype.writeRepeatedSintHash64 = function(field, value) {
-  if (null != value) {
-    for (var i = 0; i < value.length; i++) {
-      this.writeZigzagVarintHash64_(field, value[i]);
     }
   }
 };
@@ -19185,20 +19131,6 @@ jspb.BinaryWriter.prototype.writeRepeatedGroup = function(field, value, writerCa
     }
   }
 };
-jspb.BinaryWriter.prototype.writeRepeatedFixedHash64 = function(field, value) {
-  if (null != value) {
-    for (var i = 0; i < value.length; i++) {
-      this.writeFixedHash64(field, value[i]);
-    }
-  }
-};
-jspb.BinaryWriter.prototype.writeRepeatedVarintHash64 = function(field, value) {
-  if (null != value) {
-    for (var i = 0; i < value.length; i++) {
-      this.writeVarintHash64(field, value[i]);
-    }
-  }
-};
 jspb.BinaryWriter.prototype.writePackedInt32 = function(field, value) {
   if (null != value && value.length) {
     for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
@@ -19242,9 +19174,7 @@ jspb.BinaryWriter.prototype.writePackedSplitVarint64 = function(field, value, lo
 jspb.BinaryWriter.prototype.writePackedSplitZigzagVarint64 = function(field, value, lo, hi) {
   if (null != value) {
     for (var bookmark = this.beginDelimited_(field), encoder = this.encoder_, i = 0; i < value.length; i++) {
-      jspb.utils.toZigzag64(lo(value[i]), hi(value[i]), function(bitsLow, bitsHigh) {
-        encoder.writeSplitVarint64(bitsLow >>> 0, bitsHigh >>> 0);
-      });
+      encoder.writeSplitZigzagVarint64(lo(value[i]), hi(value[i]));
     }
     this.endDelimited_(bookmark);
   }
@@ -19310,15 +19240,7 @@ jspb.BinaryWriter.prototype.writePackedSint64 = function(field, value) {
 jspb.BinaryWriter.prototype.writePackedSint64String = function(field, value) {
   if (null != value && value.length) {
     for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
-      this.encoder_.writeZigzagVarintHash64(jspb.utils.decimalStringToHash64(value[i]));
-    }
-    this.endDelimited_(bookmark);
-  }
-};
-jspb.BinaryWriter.prototype.writePackedSintHash64 = function(field, value) {
-  if (null != value && value.length) {
-    for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
-      this.encoder_.writeZigzagVarintHash64(value[i]);
+      this.encoder_.writeZigzagVarint64String(value[i]);
     }
     this.endDelimited_(bookmark);
   }
@@ -19409,23 +19331,6 @@ jspb.BinaryWriter.prototype.writePackedEnum = function(field, value) {
   if (null != value && value.length) {
     for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
       this.encoder_.writeEnum(value[i]);
-    }
-    this.endDelimited_(bookmark);
-  }
-};
-jspb.BinaryWriter.prototype.writePackedFixedHash64 = function(field, value) {
-  if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
-    this.encoder_.writeUnsignedVarint32(8 * value.length);
-    for (var i = 0; i < value.length; i++) {
-      this.encoder_.writeFixedHash64(value[i]);
-    }
-  }
-};
-jspb.BinaryWriter.prototype.writePackedVarintHash64 = function(field, value) {
-  if (null != value && value.length) {
-    for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
-      this.encoder_.writeVarintHash64(value[i]);
     }
     this.endDelimited_(bookmark);
   }
@@ -20824,21 +20729,17 @@ ee.data.makeDownloadUrl = function(id) {
   return ee.data.getCloudApiEnabled() ? base + "/v1alpha/" + id.docid + ":getPixels" : base + "/api/download?docid=" + id.docid + "&token=" + id.token;
 };
 ee.data.getTableDownloadId = function(params, opt_callback) {
-  var unwrap = function(id) {
-    return (id || {}).data || id;
-  };
-  if (ee.data.getCloudApiEnabled() && opt_callback) {
-    var orig_callback = opt_callback;
-    opt_callback = function(id, error) {
-      return orig_callback(unwrap(id), error);
-    };
+  if (ee.data.getCloudApiEnabled()) {
+    var call = new module$contents$ee$apiclient_Call(opt_callback), fileFormat = ee.rpc_convert.tableFileFormat(params.format), expression = ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.table)), table = new module$exports$eeapiclient$ee_api_client.Table({name:null, expression:expression, fileFormat:fileFormat});
+    return call.handle(call.tables().create(call.projectsPath(), table, {fields:["name"]}).then(function(res) {
+      return {docid:res.name || "", token:""};
+    }));
   }
   params = goog.object.clone(params);
-  var id$jscomp$0 = ee.data.send_("/table", ee.data.makeRequest_(params), opt_callback);
-  return ee.data.getCloudApiEnabled() ? unwrap(id$jscomp$0) : id$jscomp$0;
+  return ee.data.send_("/table", ee.data.makeRequest_(params), opt_callback);
 };
 ee.data.makeTableDownloadUrl = function(id) {
-  return module$contents$ee$apiclient_apiclient.getTileBaseUrl() + "/api/table?docid=" + id.docid + "&token=" + id.token;
+  return ee.data.getCloudApiEnabled() ? module$contents$ee$apiclient_apiclient.getTileBaseUrl() + "/v1alpha/" + id.docid + ":getFeatures" : module$contents$ee$apiclient_apiclient.getTileBaseUrl() + "/api/table?docid=" + id.docid + "&token=" + id.token;
 };
 ee.data.newTaskId = function(opt_count, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
@@ -22783,13 +22684,12 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
 };
 ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selectors, opt_filename, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getDownloadURL, arguments), request = {};
-  request.table = this.serialize();
+  request.table = ee.data.getCloudApiEnabled() ? this : this.serialize();
   args.format && (request.format = args.format.toUpperCase());
-  args.filename && (request.filename = args.filename);
+  args.filename && !ee.data.getCloudApiEnabled() && (request.filename = args.filename);
   if (args.selectors) {
     var selectors = args.selectors;
-    goog.isArrayLike(selectors) && (selectors = selectors.join(","));
-    request.selectors = selectors;
+    ee.data.getCloudApiEnabled() ? ("string" === typeof selectors && (selectors = selectors.split(",")), goog.isArrayLike(selectors) && (request.table = this.select(selectors))) : (goog.isArrayLike(selectors) && (selectors = selectors.join(",")), request.selectors = selectors);
   }
   if (args.callback) {
     ee.data.getTableDownloadId(request, function(downloadId, error) {

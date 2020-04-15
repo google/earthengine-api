@@ -17,7 +17,7 @@ class StringTest(apitestcase.ApiTestCase):
     self.assertEqual('foo', bare_string.encode())
 
     computed = ee.String('foo').cat('bar')
-    self.assertTrue(isinstance(computed, ee.String))
+    self.assertIsInstance(computed, ee.String)
     self.assertEqual(ee.ApiFunction.lookup('String.cat'), computed.func)
     self.assertEqual({
         'string1': ee.String('foo'),
@@ -27,7 +27,7 @@ class StringTest(apitestcase.ApiTestCase):
     # Casting a non-string ComputedObject.
     obj = ee.Number(1).add(1)
     s = ee.String(obj)
-    self.assertTrue(isinstance(s, ee.String))
+    self.assertIsInstance(s, ee.String)
     self.assertEqual(ee.ApiFunction.lookup('String'), s.func)
     self.assertEqual({'input': obj}, s.args)
 

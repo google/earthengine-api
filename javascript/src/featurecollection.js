@@ -191,20 +191,34 @@ ee.FeatureCollection.prototype.getDownloadURL = function(
   var args = ee.arguments.extractFromFunction(
       ee.FeatureCollection.prototype.getDownloadURL, arguments);
   var request = {};
-  request['table'] = this.serialize();
+  if (ee.data.getCloudApiEnabled()) {
+    request['table'] = this;
+  } else {
+    request['table'] = this.serialize();
+  }
   if (args['format']) {
     request['format'] = args['format'].toUpperCase();
   }
-  if (args['filename']) {
+  if (args['filename'] && !ee.data.getCloudApiEnabled()) {
     request['filename'] = args['filename'];
   }
   if (args['selectors']) {
-    var selectors = args['selectors'];
-    if (goog.isArrayLike(selectors)) {
-      selectors = selectors.join(',');
+    let selectors = args['selectors'];
+    if (ee.data.getCloudApiEnabled()) {
+      if (typeof selectors === 'string') {
+        selectors = selectors.split(',');
+      }
+      if (goog.isArrayLike(selectors)) {
+        request['table'] = this.select(selectors);
+      }
+    } else {
+      if (goog.isArrayLike(selectors)) {
+        selectors = selectors.join(',');
+      }
+      request['selectors'] = selectors;
     }
-    request['selectors'] = selectors;
   }
+
 
   if (args['callback']) {
     ee.data.getTableDownloadId(request, function(downloadId, error) {

@@ -53,7 +53,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
         'collection': collection,
         'filter': ee.Filter.eq('foo', 1)
     }, filtered.args)
-    self.assertTrue(isinstance(filtered, ee.Collection))
+    self.assertIsInstance(filtered, ee.Collection)
 
   def testFilterShortcuts(self):
     """Verifies the behavior of the various filtering shortcut methods."""
@@ -80,7 +80,7 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     algorithm = lambda img: img.select('bar')
     mapped = collection.map(algorithm)
 
-    self.assertTrue(isinstance(mapped, ee.ImageCollection))
+    self.assertIsInstance(mapped, ee.ImageCollection)
     self.assertEqual(ee.ApiFunction.lookup('Collection.map'), mapped.func)
     self.assertEqual(collection, mapped.args['collection'])
 

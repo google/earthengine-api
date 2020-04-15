@@ -26,7 +26,7 @@ class DeserializerTest(apitestcase.ApiTestCase):
     """Verifies that decoding casts the result to the right class."""
     input_image = ee.Image(13).addBands(42)
     output = deserializer.fromJSON(serializer.toJSON(input_image))
-    self.assertTrue(isinstance(output, ee.Image))
+    self.assertIsInstance(output, ee.Image)
 
   def testReuse(self):
     """Verifies that decoding results can be used and re-encoded."""

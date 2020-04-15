@@ -48,13 +48,13 @@ class CloudApiUtilsTest(unittest.TestCase):
           'x': 'flan',
           'y': 'flan'
       })
-      self.assertEqual(1, len(w))
+      self.assertLen(w, 1)
       self.assertEqual('Multiple request parameters converted to flan',
                        str(w[0].message))
     with warnings.catch_warnings(record=True) as w:
       result = _cloud_api_utils._convert_dict({'x': 1, 'y': 2}, {'x': 'flan'})
       self.assertEqual({'flan': 1}, result)
-      self.assertEqual(0, len(w))
+      self.assertEmpty(w)
     with warnings.catch_warnings(record=True) as w:
       result = _cloud_api_utils._convert_dict(
           {
@@ -62,7 +62,7 @@ class CloudApiUtilsTest(unittest.TestCase):
               'y': 2
           }, {'x': 'flan'}, key_warnings=True)
       self.assertEqual({'flan': 1}, result)
-      self.assertEqual(1, len(w))
+      self.assertLen(w, 1)
       self.assertEqual('Unrecognized key y ignored', str(w[0].message))
 
   def test_convert_value(self):

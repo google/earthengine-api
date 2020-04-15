@@ -325,12 +325,13 @@ def convert_get_list_params_to_list_images_params(params):
           'starttime': ('startTime', _convert_msec_to_timestamp),
           'endtime': ('endTime', _convert_msec_to_timestamp),
           'bbox': ('region', _convert_bounding_box_to_geo_json),
-          'region': 'region'
+          'region': 'region',
+          'filter': 'filter'
       },
       key_warnings=True)
   # getList returns minimal information; we can filter unneeded stuff out
   # server-side.
-  params['fields'] = 'images(name)'
+  params['view'] = 'BASIC'
   return params
 
 

@@ -1140,7 +1140,7 @@ ee.data.getOperation = function(operationName, opt_callback) {
 };
 /**
  * @param {(Object|null)} params
- * @param {function(!ee.data.DownloadId, string=): ?=} opt_callback
+ * @param {function((ee.data.DownloadId|null), string=): ?=} opt_callback
  * @return {(ee.data.DownloadId|null)}
  */
 ee.data.getTableDownloadId = function(params, opt_callback) {

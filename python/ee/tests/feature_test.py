@@ -43,7 +43,7 @@ class FeatureTest(apitestcase.ApiTestCase):
     }, from_computed_both.args)
 
     from_variable = ee.Feature(ee.CustomFunction.variable(None, 'foo'))
-    self.assertTrue(isinstance(from_variable, ee.Feature))
+    self.assertIsInstance(from_variable, ee.Feature)
     self.assertEqual({
         'type': 'ArgumentRef',
         'value': 'foo'

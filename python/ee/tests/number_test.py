@@ -17,7 +17,7 @@ class NumberTest(apitestcase.ApiTestCase):
     self.assertEqual(1, num.encode())
 
     computed = ee.Number(1).add(2)
-    self.assertTrue(isinstance(computed, ee.Number))
+    self.assertIsInstance(computed, ee.Number)
     self.assertEqual(ee.ApiFunction.lookup('Number.add'), computed.func)
     self.assertEqual({
         'left': ee.Number(1),

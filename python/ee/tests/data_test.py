@@ -308,13 +308,15 @@ class DataTest(unittest.TestCase):
       actual_result = ee.data.getList({
           'id': 'glam',
           'num': 3,
-          'starttime': 3612345
+          'starttime': 3612345,
+          'filter': 'foo'
       })
       expected_params = {
           'parent': 'projects/earthengine-public/assets/glam',
           'pageSize': 3,
           'startTime': '1970-01-01T01:00:12.345000Z',
-          'fields': 'images(name)'
+          'view': 'BASIC',
+          'filter': 'foo'
       }
       expected_result = [{'id': 'id1', 'type': 'Image'}]
       cloud_api_resource.projects().assets().listImages.assert_called_with(

@@ -2974,11 +2974,6 @@ export class DataAccessOptions extends Serializable {
             (null));
   }
 
-  /**
-   * Whether Gin logging should happen in a fail-closed manner at the caller.
-   * This is currently supported in the LocalIAM implementation, 
-   * and others. For Apps Framework, see go/af-audit-logging#failclosed.
-   */
   set logMode(value: DataAccessOptionsLogMode|null) {
     this.Serializable$set('logMode', value);
   }

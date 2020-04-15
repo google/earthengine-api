@@ -968,14 +968,35 @@ def getTableDownloadId(params):
   Args:
     params: An object containing table download options with the following
       possible values:
-        format - The download format, CSV or JSON.
+        table - The feature collection to download.
+        format - The download format, CSV, JSON, KML, KMZ, or TF_RECORD.
         selectors - Comma separated string of selectors that can be used to
             determine which attributes will be downloaded.
         filename - The name of the file that will be downloaded.
-
   Returns:
     A dict containing a docid and token.
+  Raises:
+    KeyError: if "table" is not specified.
   """
+  if _use_cloud_api:
+    if 'table' not in params:
+      raise KeyError('"table" must be specified.')
+    table = params['table']
+    if 'selectors' in params:
+      selectors = params['selectors']
+      if isinstance(selectors, six.string_types):
+        selectors = selectors.split(',')
+      table = table.select(params['selectors'])
+    request = {
+        'expression': serializer.encode(table, for_cloud_api=True),
+        'fileFormat':
+            _cloud_api_utils.convert_to_table_file_format(params.get('format'))
+    }
+    result = _execute_cloud_call(_cloud_api_resource.projects().tables().create(
+        parent=_get_projects_path(),
+        fields='name',
+        body=request))
+    return {'docid': result['name'], 'token': ''}
   params['json_format'] = 'v2'
   return send_('/table', params)
 
@@ -989,6 +1010,9 @@ def makeTableDownloadUrl(downloadId):
   Returns:
     A Url from which the download can be obtained.
   """
+  if _use_cloud_api:
+    return '%s/%s/%s:getFeatures' % (
+        _tile_base_url, _cloud_api_utils.VERSION, downloadId['docid'])
   return '%s/api/table?docid=%s&token=%s' % (
       _tile_base_url, downloadId['docid'], downloadId['token'])
 
