@@ -29,17 +29,32 @@ import tempfile
 # pylint: disable=g-import-not-at-top
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+TENSORFLOW_INSTALLED = False
 # pylint: disable=g-import-not-at-top
 try:
   import tensorflow.compat.v1 as tf
   from tensorflow.compat.v1.saved_model import utils as saved_model_utils
   from tensorflow.compat.v1.saved_model import signature_constants
   from tensorflow.compat.v1.saved_model import signature_def_utils
+  tf.disable_v2_behavior()
   # Prevent TensorFlow from logging anything at the python level.
   tf.logging.set_verbosity(tf.logging.ERROR)
   TENSORFLOW_INSTALLED = True
 except ImportError:
-  TENSORFLOW_INSTALLED = False
+  pass
+
+TENSORFLOW_ADDONS_INSTALLED = False
+# pylint: disable=g-import-not-at-top
+if TENSORFLOW_INSTALLED:
+  try:
+    if sys.version_info[0] >= 3:
+      # This import is enough to register TFA ops though isn't directly used
+      # (for now).
+      # pylint: disable=unused-import
+      import tensorflow_addons as tfa
+      TENSORFLOW_ADDONS_INSTALLED = True
+  except ImportError:
+    pass
 
 # pylint: disable=g-import-not-at-top
 import ee
@@ -1860,6 +1875,7 @@ class ModelCommand(Dispatcher):
 
   @staticmethod
   def check_tensorflow_installed():
+    """Checks the status of TensorFlow installations."""
     if not TENSORFLOW_INSTALLED:
       raise ImportError(
           'By default, TensorFlow is not installed with Earth Engine client '
@@ -1867,6 +1883,16 @@ class ModelCommand(Dispatcher):
           '1.14 is installed; you can do this by executing \'pip install '
           'tensorflow\' in your shell.'
       )
+    else:
+      if not TENSORFLOW_ADDONS_INSTALLED:
+        if sys.version_info[0] < 3:
+          print(
+              'Warning: Python 3 required for TensorFlow Addons. Models that '
+              'use non-standard ops may not work.')
+        else:
+          print(
+              'Warning: TensorFlow Addons not found. Models that use '
+              'non-standard ops may not work.')
 
 
 

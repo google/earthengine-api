@@ -17,14 +17,18 @@ import {MultipartRequest} from './multipart_request';
  */
 export interface GeneratedInterface {}
 
+/** Type for the optional queryParams map: string-indexed primitive values. */
+export interface GeneratedQueryParams {
+  [key: string]: number|ReadonlyArray<number>|string|ReadonlyArray<string>|
+      boolean|ReadonlyArray<boolean>|undefined;
+}
+
 export interface GeneratedRequestParams {
   path: string;
   httpMethod: string;
   /** The id of the called method, from discovery. */
   methodId?: string;
-  queryParams?: {
-    [key: string]: number|number[]|string|string[]|boolean|boolean[]|undefined
-  };
+  queryParams?: GeneratedQueryParams;
   body?: Serializable|GeneratedInterface|MultipartRequest|null;
   responseCtor?: SerializableCtor<Serializable>;
   /**

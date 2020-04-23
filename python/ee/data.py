@@ -27,7 +27,7 @@ from . import deprecation
 from . import encodable
 from . import oauth
 from . import serializer
-import apiclient
+import googleapiclient
 
 from . import ee_exception
 
@@ -336,7 +336,7 @@ def _execute_cloud_call(call, num_retries=MAX_RETRIES):
   """
   try:
     return call.execute(num_retries=num_retries)
-  except apiclient.errors.HttpError as e:
+  except googleapiclient.errors.HttpError as e:
     raise _translate_cloud_exception(e)
 
 
@@ -344,7 +344,7 @@ def _translate_cloud_exception(http_error):
   """Translates a Cloud API exception into an EEException.
 
   Args:
-    http_error: An apiclient.errors.HttpError.
+    http_error: A googleapiclient.errors.HttpError.
 
   Returns:
     An EEException bearing the error message from http_error.
@@ -419,7 +419,7 @@ def getInfo(asset_id):
       return _cloud_api_resource.projects().assets().get(
           name=_cloud_api_utils.convert_asset_id_to_asset_name(asset_id),
           prettyPrint=False).execute(num_retries=MAX_RETRIES)
-    except apiclient.errors.HttpError as e:
+    except googleapiclient.errors.HttpError as e:
       if e.resp.status == 404:
         return None
       else:
@@ -1218,7 +1218,7 @@ def listOperations(project=None):
       operations += response.get('operations', [])
       request = _cloud_api_resource.projects().operations().list_next(
           request, response)
-    except apiclient.errors.HttpError as e:
+    except googleapiclient.errors.HttpError as e:
       raise _translate_cloud_exception(e)
   return operations
 
@@ -1251,7 +1251,7 @@ def getTaskStatus(taskId):
             name=_cloud_api_utils.convert_task_id_to_operation_name(
                 one_id)).execute(num_retries=MAX_RETRIES)
         result.append(_cloud_api_utils.convert_operation_to_task(operation))
-      except apiclient.errors.HttpError as e:
+      except googleapiclient.errors.HttpError as e:
         if e.resp.status == 404:
           result.append({'id': one_id, 'state': 'UNKNOWN'})
         else:

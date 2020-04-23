@@ -1,3 +1,5 @@
+import {GeneratedQueryParams} from './generated_types';
+
 export type HttpMethod = 'GET'|'POST'|'PUT'|'PATCH'|'DELETE';
 
 /**
@@ -83,4 +85,25 @@ export function processParams(params: MakeRequestParams) {
     }
     params.queryParams = filteredQueryParams;
   }
+}
+
+/**
+ * Given a parameters map (possibly an empty object, but never undefined)
+ * and a ParameterSet (= Record<jsName: string, paramName: string>) this builds
+ * the query params object by populating it with all the parameters which are
+ * not undefined in params.
+ *
+ * Note that the types were checked at the call to the specific API method;
+ * therefore this function can be loose about type-checking the fields.
+ */
+export function buildQueryParams(
+    params: {}, mapping: Record<string, string>): GeneratedQueryParams {
+  const paramsMap = params as unknown as GeneratedQueryParams;
+  const urlQueryParams: GeneratedQueryParams = {};
+  for (const [jsName, urlQueryParamName] of Object.entries(mapping)) {
+    if (paramsMap.hasOwnProperty(jsName)) {
+      urlQueryParams[urlQueryParamName] = paramsMap[jsName];
+    }
+  }
+  return urlQueryParams;
 }

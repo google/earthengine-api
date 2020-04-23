@@ -18,10 +18,10 @@ import re
 import warnings
 
 from . import ee_exception
-from apiclient import discovery
-from apiclient import http
-from apiclient import model
 from google_auth_httplib2 import AuthorizedHttp
+from googleapiclient import discovery
+from googleapiclient import http
+from googleapiclient import model
 
 # We use the urllib3-aware shim if it's available.
 # It is not available by default if the package is installed via the conda-forge
