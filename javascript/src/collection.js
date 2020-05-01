@@ -112,7 +112,7 @@ ee.Collection.prototype.filterMetadata = function(name, operator, value) {
  * will be excluded.
  *
  * This is equivalent to this.filter(ee.Filter.bounds(...)).
- * @param {!ee.Feature|!ee.Geometry} geometry The geometry to filter to.
+ * @param {!ee.Geometry} geometry The geometry to filter to.
  * @return {ee.Collection} The filtered collection.
  * @export
  */

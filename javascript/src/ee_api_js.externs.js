@@ -67,7 +67,7 @@ ee.Collection = function(func, args, opt_varName) {
 ee.Collection.prototype.filter = function(filter) {
 };
 /**
- * @param {(ee.Feature|ee.Geometry)} geometry
+ * @param {!ee.Geometry} geometry
  * @return {(ee.Collection|null)}
  */
 ee.Collection.prototype.filterBounds = function(geometry) {

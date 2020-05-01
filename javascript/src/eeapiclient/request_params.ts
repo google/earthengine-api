@@ -101,7 +101,7 @@ export function buildQueryParams(
   const paramsMap = params as unknown as GeneratedQueryParams;
   const urlQueryParams: GeneratedQueryParams = {};
   for (const [jsName, urlQueryParamName] of Object.entries(mapping)) {
-    if (paramsMap.hasOwnProperty(jsName)) {
+    if (jsName in paramsMap) {
       urlQueryParams[urlQueryParamName] = paramsMap[jsName];
     }
   }

@@ -1724,9 +1724,17 @@ export class Binding extends Serializable {
 
   /**
    * The condition that is associated with this binding.
-   * NOTE: An unsatisfied condition will not allow user access via current
-   * binding. Different bindings, including their conditions, are examined
-   * independently.
+   *
+   * If the condition evaluates to `true`, then this binding applies to the
+   * current request.
+   *
+   * If the condition evaluates to `false`, then this binding does not apply to
+   * the current request. However, a different role binding might grant the same
+   * role to one or more of the members in this binding.
+   *
+   * To learn which resources support conditions in their IAM policies, see the
+   * [IAM
+   * documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
    */
   set condition(value: Expr|null) {
     this.Serializable$set('condition', value);
@@ -5239,6 +5247,10 @@ export class GetPolicyOptions extends Serializable {
    * Requests for policies with any conditional bindings must specify version 3.
    * Policies without any conditional bindings may specify any valid value or
    * leave the field unset.
+   *
+   * To learn which resources support conditions in their IAM policies, see the
+   * [IAM
+   * documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
    */
   set requestedPolicyVersion(value: number|null) {
     this.Serializable$set('requestedPolicyVersion', value);
@@ -7747,6 +7759,10 @@ export class Policy extends Serializable {
    *
    * If a policy does not include any conditions, operations on that policy may
    * specify any valid version or leave the field unset.
+   *
+   * To learn which resources support conditions in their IAM policies, see the
+   * [IAM
+   * documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
    */
   set version(value: number|null) {
     this.Serializable$set('version', value);
