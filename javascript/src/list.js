@@ -40,7 +40,7 @@ ee.List = function(list) {
    */
   this.list_;
 
-  if (goog.isArray(list)) {
+  if (Array.isArray(list)) {
     ee.List.base(this, 'constructor', null, null);
     this.list_ = /** @type {IArrayLike} */ (list);
   } else if (list instanceof ee.ComputedObject) {
@@ -81,7 +81,7 @@ ee.List.reset = function() {
  * @override
  */
 ee.List.prototype.encode = function(encoder) {
-  if (goog.isArray(this.list_)) {
+  if (Array.isArray(this.list_)) {
     return goog.array.map(this.list_, function(elem) {
       return encoder(elem);
     });
@@ -95,7 +95,7 @@ ee.List.prototype.encode = function(encoder) {
  * @override
  */
 ee.List.prototype.encodeCloudValue = function(encoder) {
-  if (goog.isArray(this.list_)) {
+  if (Array.isArray(this.list_)) {
     return ee.rpc_node.reference(encoder(this.list_));
   } else {
     return ee.List.base(this, 'encodeCloudValue', encoder);

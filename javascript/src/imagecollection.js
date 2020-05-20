@@ -57,7 +57,7 @@ ee.ImageCollection = function(args) {
     ee.ImageCollection.base(this, 'constructor', new ee.ApiFunction('ImageCollection.load'), {
       'id': args
     });
-  } else if (goog.isArray(args)) {
+  } else if (Array.isArray(args)) {
     // A list of images.
     ee.ImageCollection.base(this, 'constructor', new ee.ApiFunction('ImageCollection.fromImages'), {
       'images': goog.array.map(args, function(elem) {

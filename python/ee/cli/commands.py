@@ -52,9 +52,16 @@ if TENSORFLOW_INSTALLED:
       # (for now).
       # pylint: disable=unused-import
       import tensorflow_addons as tfa
+      tfa.register_all(custom_kernels=False)
       TENSORFLOW_ADDONS_INSTALLED = True
   except ImportError:
     pass
+  except AttributeError:
+    # This can be thrown by "tfa.register_all()" which means the
+    # tensorflow_addons version is registering ops the old way, i.e.
+    # automatically at import time. If this is the case, we've actually
+    # successfully registered TFA.
+    TENSORFLOW_ADDONS_INSTALLED = True
 
 # pylint: disable=g-import-not-at-top
 import ee

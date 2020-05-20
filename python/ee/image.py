@@ -40,7 +40,7 @@ class Image(element.Element):
           - A string - an EarthEngine asset id,
           - A string and a number - an EarthEngine asset id and version,
           - A number - creates a constant image,
-          - An EEArray - creates a constant array image,
+          - An ee.Array - creates a constant array image,
           - A list - creates an image out of each element of the array and
             combines them into a single image,
           - An ee.Image - returns the argument,
@@ -322,7 +322,7 @@ class Image(element.Element):
     Given transformation parameters (crs, crs_transform, dimensions, scale, and
     region), constructs an image per band. Band level parameters override the
     parameters specified in the top level. If dimensions and scale parameters
-    are both specifed, the scale parameter is ignored.
+    are both specified, the scale parameter is ignored.
 
     Image transformations will be applied on a per band basis if the
     format parameter is ZIPPED_GEO_TIFF_PER_BAND and there are bands in the

@@ -26,7 +26,7 @@ const apiclient = {};
 
 
 const VERSION = 'v1alpha';
-const API_CLIENT_VERSION = '0.1.221';
+const API_CLIENT_VERSION = '0.1.222';
 const LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 
 exports.VERSION = VERSION;
@@ -1702,3 +1702,11 @@ exports.calculateRetryWait = apiclient.calculateRetryWait_;
 exports.MAX_ASYNC_RETRIES = apiclient.MAX_ASYNC_RETRIES_;
 exports.REQUEST_THROTTLE_INTERVAL_MS = apiclient.REQUEST_THROTTLE_INTERVAL_MS_;
 exports.isAuthTokenRefreshingEnabled = apiclient.isAuthTokenRefreshingEnabled_;
+
+// Expose Earth Engine API data types that are returned by the client
+// library methods visible to user code.
+goog.exportSymbol('ee.api.ListAssetsResponse', api.ListAssetsResponse);
+goog.exportSymbol('ee.api.EarthEngineAsset', api.EarthEngineAsset);
+goog.exportSymbol('ee.api.ListImagesResponse', api.ListImagesResponse);
+goog.exportSymbol('ee.api.Image', api.Image);
+goog.exportSymbol('ee.api.Operation', api.Operation);

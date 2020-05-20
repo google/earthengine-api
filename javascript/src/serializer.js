@@ -213,13 +213,13 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
   } else if (object instanceof ee.Encodable) {
     // Some objects know how to encode themselves.
     result = object.encode(goog.bind(this.encodeValue_, this));
-    if (!goog.isArray(result) &&
+    if (!Array.isArray(result) &&
         (!goog.isObject(result) || result['type'] == 'ArgumentRef')) {
       // Optimization: simple enough that adding it to the scope is probably
       // not worth it.
       return result;
     }
-  } else if (goog.isArray(object)) {
+  } else if (Array.isArray(object)) {
     // Arrays are encoded recursively.
     result = goog.array.map(object, function(element) {
       return this.encodeValue_(element);
@@ -311,7 +311,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
   // walk the tree as a raw object and return a raw object.
   const walkObject = function(object) {
     if (!goog.isObject(object)) return object;
-    const ret = goog.isArray(object) ? [] : {};
+    const ret = Array.isArray(object) ? [] : {};
     const isNode = object instanceof Object.getPrototypeOf(ee.api.ValueNode);
     const valueTable = isNode ? object.Serializable$values : object;
     for (const [key, val] of Object.entries(valueTable)) {
@@ -422,7 +422,7 @@ ee.Serializer.prototype.makeCloudApiReference_ = function(obj) {
   } else if (obj instanceof ee.Encodable) {
     // Some objects know how to encode themselves.
     return makeRef(obj.encodeCloudValue((x) => this.makeCloudApiReference_(x)));
-  } else if (goog.isArray(obj)) {
+  } else if (Array.isArray(obj)) {
     // Convince the type checker that the array is actually an array.
     const asArray = /** @type {!Array} */(/** @type {*} */(obj));
     return makeRef(ee.rpc_node.array(asArray.map(

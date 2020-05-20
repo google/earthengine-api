@@ -51,7 +51,7 @@ ee.Filter = function(opt_filter) {
    */
   this.filter_;
 
-  if (goog.isArray(opt_filter)) {
+  if (Array.isArray(opt_filter)) {
     if (opt_filter.length == 0) {
       throw Error('Empty list specified for ee.Filter().');
     } else if (opt_filter.length == 1) {

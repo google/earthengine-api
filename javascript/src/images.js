@@ -64,7 +64,7 @@ ee.data.images.applyTransformsToCollection = function(taskConfig) {
  * outParams to the remaining parameters.
  *
  * @param {!ee.Image} image The image to include in the request.
- * @param {!ee.data.ImageVisualizationParameters} params The
+ * @param {!ee.data.ThumbnailOptions} params The
  *    visualization parameters.
  * @param {!ee.data.ImageVisualizationParameters} outParams Will hold remaining
  *    visualization parameters not processed here.
@@ -78,8 +78,8 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
       case 'dimensions':
         const dims = (typeof value === 'string') ?
             value.split('x').map(Number) :
-            goog.isArray(value) ? value :
-                                  typeof value === 'number' ? [value] : [];
+            Array.isArray(value) ? value :
+                                   typeof value === 'number' ? [value] : [];
         if (dims.length === 1) {
           clipParams['maxDimension'] = dims[0];
         } else if (dims.length === 2) {
@@ -101,7 +101,8 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
         if (clipParams['geometry'] != null) {
           console.warn('Multiple request parameters converted to region.');
         }
-        // Could be a Geometry, a GeoJSON struct, or a GeoJSON string.
+        // Could be a Geometry, a GeoJSON struct, a GeoJSON string, or a list of
+        // coordinates.
         clipParams['geometry'] = ee.data.images.regionToGeometry(value);
         break;
       case 'scale':
@@ -146,7 +147,7 @@ ee.data.images.bboxToGeometry = function(bbox) {
       bboxArray = bbox.split(/\s*,\s*/).map(Number);
     }
   }
-  if (goog.isArray(bboxArray)) {
+  if (Array.isArray(bboxArray)) {
     if (bboxArray.some(isNaN)) {
       throw new Error(
           'Invalid bbox `{bboxArray}`, please specify a list of numbers.');
@@ -160,7 +161,7 @@ ee.data.images.bboxToGeometry = function(bbox) {
 /**
  * Converts a given region parameter into a Geometry object.
  *
- * @param {!ee.Geometry|!Object|string|undefined} region to convert.
+ * @param {!ee.Geometry|!Object|!Array|string|undefined} region to convert.
  * @return {!ee.Geometry} the resulting parsed object.
  */
 ee.data.images.regionToGeometry = function(region) {
@@ -179,7 +180,11 @@ ee.data.images.regionToGeometry = function(region) {
     }
   }
   // At this point we will construct a planar object from the region.
-  if (goog.isObject(regionObject)) {
+  if (Array.isArray(regionObject)) {
+    // Could be an array of points.
+    return new ee.Geometry.Polygon(
+        regionObject, /* crs= */ null, /* geodesic= */ false);
+  } else if (goog.isObject(regionObject)) {
     return new ee.Geometry(
         regionObject, /* crs= */ null, /* geodesic= */ false);
   } else {
@@ -278,7 +283,7 @@ ee.data.images.maybeConvertCrsTransformToArray_ = function(crsTransform) {
       // Do nothing since it means that the given crs transform wasn't parsable.
     }
   }
-  if (goog.isArray(transformArray)) {
+  if (Array.isArray(transformArray)) {
     if (transformArray.length === 6 &&
         goog.array.every(transformArray, x => typeof x === 'number')) {
       return transformArray;

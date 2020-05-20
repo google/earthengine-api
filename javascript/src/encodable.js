@@ -217,7 +217,7 @@ ee.rpc_convert.bandList = function(bands) {
   if (typeof bands === 'string') {
     return bands.split(',');
   }
-  if (goog.isArray(bands)) {
+  if (Array.isArray(bands)) {
     return bands;
   }
   throw new Error('Invalid band list ' + bands);
@@ -954,7 +954,7 @@ ee.rpc_convert.toImageManifest = function(params) {
  */
 ee.rpc_convert.toOnePlatformMaskBands = function(tileset) {
   const maskBands = [];
-  if (!goog.isArray(tileset['fileBands'])) {
+  if (!Array.isArray(tileset['fileBands'])) {
     return maskBands;
   }
 
@@ -968,7 +968,7 @@ ee.rpc_convert.toOnePlatformMaskBands = function(tileset) {
    */
   const convertMaskConfig = (maskConfig) => {
     let bandIds = [];
-    if (maskConfig != null && goog.isArray(maskConfig['bandId'])) {
+    if (maskConfig != null && Array.isArray(maskConfig['bandId'])) {
       bandIds = maskConfig['bandId'].map((bandId) => bandId || '');
     }
     // TODO(user): Tileset ID is always set to the default of the empty
@@ -1042,7 +1042,7 @@ ee.rpc_convert.toOnePlatformMissingData = function(params) {
   if (params['value'] != null && typeof params['value'] === 'number') {
     missingData.values.push(params['value']);
   }
-  if (goog.isArray(params['values'])) {
+  if (Array.isArray(params['values'])) {
     params['values'].map(value => {
       if (typeof value === 'number') {
         missingData.values.push(value);

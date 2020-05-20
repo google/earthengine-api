@@ -541,7 +541,7 @@ ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
       dimensions = dimensions.split(',').map(Number);
     }
   }
-  if (goog.isArray(dimensions)) {
+  if (Array.isArray(dimensions)) {
     if (dimensions.length === 2) {
       result.height = dimensions[0];
       result.width = dimensions[1];

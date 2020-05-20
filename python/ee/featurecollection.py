@@ -124,7 +124,10 @@ class FeatureCollection(collection.Collection):
       A URL to download the specified feature collection.
     """
     request = {}
-    request['table'] = self.serialize()
+    if data._use_cloud_api:  # pylint: disable=protected-access
+      request['table'] = self
+    else:
+      request['table'] = self.serialize()
     if filetype is not None:
       request['format'] = filetype.upper()
     if filename is not None:

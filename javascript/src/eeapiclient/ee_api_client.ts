@@ -3047,6 +3047,9 @@ export class EarthEngineAsset extends Serializable {
             (null));
   }
 
+  /**
+   * The location of this asset on Cloud Storage.
+   */
   set gcsLocation(value: GcsLocation|null) {
     this.Serializable$set('gcsLocation', value);
   }
@@ -8136,6 +8139,8 @@ export interface TableParameters {
   name?: string|null;
   expression?: Expression|null;
   fileFormat?: TableFileFormat|null;
+  selectors?: Array<string>|null;
+  filename?: string|null;
 }
 export class Table extends Serializable {
   constructor(parameters: TableParameters = {}) {
@@ -8148,6 +8153,12 @@ export class Table extends Serializable {
     this.Serializable$set(
         'fileFormat',
         (parameters.fileFormat == null) ? (null) : (parameters.fileFormat));
+    this.Serializable$set(
+        'selectors',
+        (parameters.selectors == null) ? (null) : (parameters.selectors));
+    this.Serializable$set(
+        'filename',
+        (parameters.filename == null) ? (null) : (parameters.filename));
   }
 
   static get FileFormat(): ITableFileFormatEnum {
@@ -8182,6 +8193,20 @@ export class Table extends Serializable {
     this.Serializable$set('fileFormat', value);
   }
 
+  get filename(): string|null {
+    return (
+        (this.Serializable$has('filename')) ?
+            (this.Serializable$get('filename')) :
+            (null));
+  }
+
+  /**
+   * Optional filename of the resulting table.
+   */
+  set filename(value: string|null) {
+    this.Serializable$set('filename', value);
+  }
+
   get name(): string|null {
     return (
         (this.Serializable$has('name')) ? (this.Serializable$get('name')) :
@@ -8197,6 +8222,20 @@ export class Table extends Serializable {
     this.Serializable$set('name', value);
   }
 
+  get selectors(): Array<string>|null {
+    return (
+        (this.Serializable$has('selectors')) ?
+            (this.Serializable$get('selectors')) :
+            (null));
+  }
+
+  /**
+   * Optional property fields to select from the specified table.
+   */
+  set selectors(value: Array<string>|null) {
+    this.Serializable$set('selectors', value);
+  }
+
   getConstructor(): SerializableCtor<Table> {
     return Table;
   }
@@ -8204,7 +8243,7 @@ export class Table extends Serializable {
   getPartialClassMetadata(): Partial<ClassMetadata> {
     return {
       enums: {'fileFormat': TableFileFormatEnum},
-      keys: ['expression', 'fileFormat', 'name'],
+      keys: ['expression', 'fileFormat', 'filename', 'name', 'selectors'],
       objects: {'expression': Expression}
     };
   }

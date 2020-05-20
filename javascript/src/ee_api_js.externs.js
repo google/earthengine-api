@@ -781,6 +781,12 @@ ee.String = function(string) {
 ee.TILE_SIZE;
 /** @type {{}} */
 ee.Terrain = {};
+ee.api;
+ee.api.EarthEngineAsset;
+ee.api.Image;
+ee.api.ListAssetsResponse;
+ee.api.ListImagesResponse;
+ee.api.Operation;
 /**
  * @param {(ee.Function|null|string)} func
  * @param {(Object|null)} namedArgs

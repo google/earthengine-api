@@ -84,7 +84,7 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
   }
 
   // Check for array values.
-  if (goog.isArray(json)) {
+  if (Array.isArray(json)) {
     return goog.array.map(json, function(element) {
       return ee.Deserializer.decodeValue_(element, namedValues);
     });

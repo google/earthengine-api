@@ -572,7 +572,7 @@ ee.data.getThumbId = function(params, opt_callback) {
         .then(getResponse));
   }
   params = /** @type {!ee.data.ThumbnailOptions} */ (goog.object.clone(params));
-  if (goog.isArray(params.dimensions)) {
+  if (Array.isArray(params.dimensions)) {
     params.dimensions = params.dimensions.join('x');
   }
 
@@ -966,7 +966,7 @@ ee.data.getTaskStatus = function(taskId, opt_callback) {
 ee.data.makeStringArray_ = function(value) {
   if (typeof value === 'string') {
     return [value];
-  } else if (goog.isArray(value)) {
+  } else if (Array.isArray(value)) {
     return value;
   }
   throw new Error('Invalid value: expected a string or an array of strings.');
@@ -1159,7 +1159,7 @@ ee.data.cancelOperation = function(operationName, opt_callback) {
 ee.data.getOperation = function(operationName, opt_callback) {
   const opNames = ee.data.makeStringArray_(operationName).map(
       ee.rpc_convert.taskIdToOperationName);
-  if (!goog.isArray(operationName)) {
+  if (!Array.isArray(operationName)) {
     const call = new ee.apiclient.Call(opt_callback);
     return call.handle(call.operations().get(opNames[0]));
   }
@@ -1274,7 +1274,7 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
     params['json'] = params['element'].serialize();
     delete params['element'];
   }
-  if (goog.isArray(params['crs_transform'])) {
+  if (Array.isArray(params['crs_transform'])) {
     params['crs_transform'] = params['crs_transform'].toString();
   }
   params['id'] = taskId;

@@ -130,8 +130,8 @@ ee.Types.isString = function(obj) {
  * @return {boolean} Whether the object is an array or array variable.
  */
 ee.Types.isArray = function(obj) {
-  return goog.isArray(obj) ||
-         (obj instanceof ee.ComputedObject && obj.name() == 'List');
+  return Array.isArray(obj) ||
+      (obj instanceof ee.ComputedObject && obj.name() == 'List');
 };
 
 

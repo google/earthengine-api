@@ -635,7 +635,7 @@ ee.batch.Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
  */
 ee.batch.Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
   // Convert array-valued selectors to a comma-separated string.
-  if (goog.isArray(taskConfig['selectors'])) {
+  if (Array.isArray(taskConfig['selectors'])) {
     taskConfig['selectors'] = taskConfig['selectors'].join();
   }
   taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
@@ -842,7 +842,7 @@ ee.batch.Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
           `"may have the following options: ${validKeysMsg}".`);
     }
     const prefixedKey = prefix + key[0].toUpperCase() + key.substring(1);
-    if (goog.isArray(value)) {
+    if (Array.isArray(value)) {
       // Legacy format options are comma delimited strings.
       prefixedOptions[prefixedKey] = value.join();
     } else {

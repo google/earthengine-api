@@ -68,7 +68,7 @@ ee.FeatureCollection = function(args, opt_column) {
       actualArgs['geometryColumn'] = opt_column;
     }
     ee.FeatureCollection.base(this, 'constructor', new ee.ApiFunction('Collection.loadTable'), actualArgs);
-  } else if (goog.isArray(args)) {
+  } else if (Array.isArray(args)) {
     // A list of features.
     ee.FeatureCollection.base(this, 'constructor', new ee.ApiFunction('Collection'), {
       'features': goog.array.map(args, function(elem) {

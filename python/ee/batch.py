@@ -529,7 +529,7 @@ class Export(object):
     def toDrive(collection, description='myExportTableTask',
                 folder=None, fileNamePrefix=None, fileFormat=None,
                 selectors=None, **kwargs):
-      """Creates a task to export a FeatureCollection to Google Cloud Storage.
+      """Creates a task to export a FeatureCollection to Drive.
 
       Args:
         collection: The feature collection to be exported.

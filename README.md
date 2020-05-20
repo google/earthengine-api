@@ -17,6 +17,7 @@ Here's an example screenshot and the corresponding Code Editor JavaScript code:
 
 ![Trendy Lights Image](https://raw.github.com/google/earthengine-api/master/trendy-lights.png)
 
+    ```javascript
     // Compute the trend of night-time lights.
 
     // Adds a band containing image date as years since 1991.
@@ -37,3 +38,4 @@ Here's an example screenshot and the corresponding Code Editor JavaScript code:
         collection.reduce(ee.Reducer.linearFit()),
         {min: 0, max: [0.18, 20, -0.18], bands: ['scale', 'offset', 'scale']},
         'stable lights trend');
+    ```

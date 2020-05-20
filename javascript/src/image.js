@@ -26,8 +26,8 @@ goog.require('goog.object');
  * An object to represent an Earth Engine image. This constructor accepts a
  * variety of arguments:
  *   - A string: an EarthEngine asset id,
- *   - A string and a number - an EarthEngine asset id and version,
- *   - A number or EEArray: creates a constant image,
+ *   - A string and a number: an EarthEngine asset id and version,
+ *   - A number or ee.Array: creates a constant image,
  *   - A list: creates an image out of each list element and combines them
  *     into a single image,
  *   - An ee.Image: returns the argument,
@@ -63,7 +63,7 @@ ee.Image = function(opt_args) {
     } else if (ee.Types.isString(opt_args)) {
       // An ID.
       ee.Image.base(this, 'constructor', new ee.ApiFunction('Image.load'), {'id': opt_args});
-    } else if (goog.isArray(opt_args)) {
+    } else if (Array.isArray(opt_args)) {
       // Make an image out of each element.
       return ee.Image.combine_(goog.array.map(
           /** @type {Array.<*>} */ (opt_args),
@@ -283,7 +283,7 @@ ee.Image.prototype.getThumbId = function(params, opt_callback) {
       if (request['region'] instanceof ee.Geometry) {
         request['region'] = request['region'].toGeoJSON();
       }
-      if (goog.isArray(request['region']) ||
+      if (Array.isArray(request['region']) ||
           ee.Types.isRegularObject(request['region'])) {
         request['region'] = goog.json.serialize(request['region']);
       } else if (typeof request['region'] !== 'string') {

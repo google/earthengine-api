@@ -225,7 +225,7 @@ ee.Geometry.Point = function(coords, opt_proj) {
   var init = ee.Geometry.construct_(ee.Geometry.Point, 'Point', 1, arguments);
   if (!(init instanceof ee.ComputedObject)) {
     var xy = init['coordinates'];
-    if (!goog.isArray(xy) || xy.length != 2) {
+    if (!Array.isArray(xy) || xy.length != 2) {
       throw Error('The Geometry.Point constructor requires 2 coordinates.');
     }
   }
@@ -688,7 +688,7 @@ ee.Geometry.isValidGeometry_ = function(geometry) {
   var type = geometry['type'];
   if (type == 'GeometryCollection') {
     var geometries = geometry['geometries'];
-    if (!goog.isArray(geometries)) {
+    if (!Array.isArray(geometries)) {
       return false;
     }
     for (var i = 0; i < geometries.length; i++) {
@@ -718,10 +718,10 @@ ee.Geometry.isValidGeometry_ = function(geometry) {
  * @private
  */
 ee.Geometry.isValidCoordinates_ = function(shape) {
-  if (!goog.isArray(shape)) {
+  if (!Array.isArray(shape)) {
     return -1;
   }
-  if (goog.isArray(shape[0])) {
+  if (Array.isArray(shape[0])) {
     var count = ee.Geometry.isValidCoordinates_(shape[0]);
     // If more than 1 ring or polygon, they should have the same nesting.
     for (var i = 1; i < shape.length; i++) {
@@ -862,7 +862,7 @@ ee.Geometry.getEeApiArgs_ = function(jsConstructorFn, originalArgs) {
  * @private
  */
 ee.Geometry.hasServerValue_ = function(coordinates) {
-  if (goog.isArray(coordinates)) {
+  if (Array.isArray(coordinates)) {
     return goog.array.some(coordinates, ee.Geometry.hasServerValue_);
   } else {
     return coordinates instanceof ee.ComputedObject;
@@ -893,7 +893,7 @@ ee.Geometry.fixDepth_ = function(depth, coords) {
   // Make sure the number of nesting levels is correct.
   var item = coords;
   var count = 0;
-  while (goog.isArray(item)) {
+  while (Array.isArray(item)) {
     item = item[0];
     count++;
   }
@@ -908,10 +908,10 @@ ee.Geometry.fixDepth_ = function(depth, coords) {
 
   // Empty arrays should not be wrapped.
   item = coords;
-  while (goog.isArray(item) && item.length == 1) {
+  while (Array.isArray(item) && item.length == 1) {
     item = item[0];
   }
-  if (goog.isArray(item) && item.length == 0) {
+  if (Array.isArray(item) && item.length == 0) {
     return [];
   }
 
