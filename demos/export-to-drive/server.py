@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Web server for the export-to-Google-Drive EE demo application.
 
 The code in this file runs on App Engine. It's called when the user loads the

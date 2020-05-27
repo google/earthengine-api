@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python3
 """App Engine config file, used for dependency management for the proxy."""
 # appengine_config.py
 from google.appengine.ext import vendor

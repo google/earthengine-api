@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Loads third-party Python libraries.
 
 `appengine_config.py` is automatically loaded when Google App Engine

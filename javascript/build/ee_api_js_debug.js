@@ -5,13 +5,6 @@
 */
 var $jscomp = $jscomp || {};
 $jscomp.scope = {};
-$jscomp.createTemplateTagFirstArg = function(arrayStrings) {
-  return arrayStrings.raw = arrayStrings;
-};
-$jscomp.createTemplateTagFirstArgWithRaw = function(arrayStrings, rawArrayStrings) {
-  arrayStrings.raw = rawArrayStrings;
-  return arrayStrings;
-};
 $jscomp.arrayIteratorImpl = function(array) {
   var index = 0;
   return function() {
@@ -21,64 +14,17 @@ $jscomp.arrayIteratorImpl = function(array) {
 $jscomp.arrayIterator = function(array) {
   return {next:$jscomp.arrayIteratorImpl(array)};
 };
-$jscomp.makeIterator = function(iterable) {
-  var iteratorFunction = "undefined" != typeof Symbol && Symbol.iterator && iterable[Symbol.iterator];
-  return iteratorFunction ? iteratorFunction.call(iterable) : $jscomp.arrayIterator(iterable);
-};
-$jscomp.arrayFromIterator = function(iterator) {
-  for (var i, arr = []; !(i = iterator.next()).done;) {
-    arr.push(i.value);
-  }
-  return arr;
-};
-$jscomp.arrayFromIterable = function(iterable) {
-  return iterable instanceof Array ? iterable : $jscomp.arrayFromIterator($jscomp.makeIterator(iterable));
-};
 $jscomp.ASSUME_ES5 = !1;
 $jscomp.ASSUME_NO_NATIVE_MAP = !1;
 $jscomp.ASSUME_NO_NATIVE_SET = !1;
 $jscomp.SIMPLE_FROUND_POLYFILL = !1;
 $jscomp.ISOLATE_POLYFILLS = !1;
-$jscomp.objectCreate = $jscomp.ASSUME_ES5 || "function" == typeof Object.create ? Object.create : function(prototype) {
-  var ctor = function() {
-  };
-  ctor.prototype = prototype;
-  return new ctor;
-};
-$jscomp.underscoreProtoCanBeSet = function() {
-  var x = {a:!0}, y = {};
-  try {
-    return y.__proto__ = x, y.a;
-  } catch (e) {
+$jscomp.defineProperty = $jscomp.ASSUME_ES5 || "function" == typeof Object.defineProperties ? Object.defineProperty : function(target, property, descriptor) {
+  if (target == Array.prototype || target == Object.prototype) {
+    return target;
   }
-  return !1;
-};
-$jscomp.setPrototypeOf = "function" == typeof Object.setPrototypeOf ? Object.setPrototypeOf : $jscomp.underscoreProtoCanBeSet() ? function(target, proto) {
-  target.__proto__ = proto;
-  if (target.__proto__ !== proto) {
-    throw new TypeError(target + " is not extensible");
-  }
+  target[property] = descriptor.value;
   return target;
-} : null;
-$jscomp.inherits = function(childCtor, parentCtor) {
-  childCtor.prototype = $jscomp.objectCreate(parentCtor.prototype);
-  childCtor.prototype.constructor = childCtor;
-  if ($jscomp.setPrototypeOf) {
-    var setPrototypeOf = $jscomp.setPrototypeOf;
-    setPrototypeOf(childCtor, parentCtor);
-  } else {
-    for (var p in parentCtor) {
-      if ("prototype" != p) {
-        if (Object.defineProperties) {
-          var descriptor = Object.getOwnPropertyDescriptor(parentCtor, p);
-          descriptor && Object.defineProperty(childCtor, p, descriptor);
-        } else {
-          childCtor[p] = parentCtor[p];
-        }
-      }
-    }
-  }
-  childCtor.superClass_ = parentCtor.prototype;
 };
 $jscomp.getGlobal = function(passedInThis) {
   for (var possibleGlobals = ["object" == typeof globalThis && globalThis, passedInThis, "object" == typeof window && window, "object" == typeof self && self, "object" == typeof global && global, ], i = 0; i < possibleGlobals.length; ++i) {
@@ -92,27 +38,11 @@ $jscomp.getGlobal = function(passedInThis) {
   }();
 };
 $jscomp.global = $jscomp.getGlobal(this);
-$jscomp.findInternal = function(array, callback, thisArg) {
-  array instanceof String && (array = String(array));
-  for (var len = array.length, i = 0; i < len; i++) {
-    var value = array[i];
-    if (callback.call(thisArg, value, i, array)) {
-      return {i:i, v:value};
-    }
-  }
-  return {i:-1, v:void 0};
-};
-$jscomp.defineProperty = $jscomp.ASSUME_ES5 || "function" == typeof Object.defineProperties ? Object.defineProperty : function(target, property, descriptor) {
-  if (target == Array.prototype || target == Object.prototype) {
-    return target;
-  }
-  target[property] = descriptor.value;
-  return target;
-};
+$jscomp.IS_SYMBOL_NATIVE = "function" === typeof Symbol && "symbol" === typeof Symbol("x");
+$jscomp.TRUST_ES6_POLYFILLS = !$jscomp.ISOLATE_POLYFILLS || $jscomp.IS_SYMBOL_NATIVE;
 $jscomp.polyfills = {};
 $jscomp.propertyToPolyfillSymbol = {};
 $jscomp.POLYFILL_PREFIX = "$jscp$";
-$jscomp.IS_SYMBOL_NATIVE = "function" === typeof Symbol && "symbol" === typeof Symbol("x");
 var $jscomp$lookupPolyfilledValue = function(target, key) {
   var polyfilledKey = $jscomp.propertyToPolyfillSymbol[key];
   if (null == polyfilledKey) {
@@ -143,6 +73,121 @@ $jscomp.polyfillIsolated = function(target, polyfill, fromLang, toLang) {
   }
   var property = split[split.length - 1], nativeImpl = $jscomp.IS_SYMBOL_NATIVE && "es6" === fromLang ? obj[property] : null, impl = polyfill(nativeImpl);
   null != impl && (isNativeClass ? $jscomp.defineProperty($jscomp.polyfills, property, {configurable:!0, writable:!0, value:impl}) : impl !== nativeImpl && ($jscomp.propertyToPolyfillSymbol[property] = $jscomp.IS_SYMBOL_NATIVE ? $jscomp.global.Symbol(property) : $jscomp.POLYFILL_PREFIX + property, property = $jscomp.propertyToPolyfillSymbol[property], $jscomp.defineProperty(obj, property, {configurable:!0, writable:!0, value:impl})));
+};
+$jscomp.initSymbol = function() {
+};
+$jscomp.polyfill("Symbol", function(orig) {
+  if (orig) {
+    return orig;
+  }
+  var SymbolClass = function(id, opt_description) {
+    this.$jscomp$symbol$id_ = id;
+    $jscomp.defineProperty(this, "description", {configurable:!0, writable:!0, value:opt_description});
+  };
+  SymbolClass.prototype.toString = function() {
+    return this.$jscomp$symbol$id_;
+  };
+  var counter = 0, symbolPolyfill = function(opt_description) {
+    if (this instanceof symbolPolyfill) {
+      throw new TypeError("Symbol is not a constructor");
+    }
+    return new SymbolClass("jscomp_symbol_" + (opt_description || "") + "_" + counter++, opt_description);
+  };
+  return symbolPolyfill;
+}, "es6", "es3");
+$jscomp.initSymbolIterator = function() {
+};
+$jscomp.polyfill("Symbol.iterator", function(orig) {
+  if (orig) {
+    return orig;
+  }
+  for (var symbolIterator = Symbol("Symbol.iterator"), arrayLikes = "Array Int8Array Uint8Array Uint8ClampedArray Int16Array Uint16Array Int32Array Uint32Array Float32Array Float64Array".split(" "), i = 0; i < arrayLikes.length; i++) {
+    var ArrayLikeCtor = $jscomp.global[arrayLikes[i]];
+    "function" === typeof ArrayLikeCtor && "function" != typeof ArrayLikeCtor.prototype[symbolIterator] && $jscomp.defineProperty(ArrayLikeCtor.prototype, symbolIterator, {configurable:!0, writable:!0, value:function() {
+      return $jscomp.iteratorPrototype($jscomp.arrayIteratorImpl(this));
+    }});
+  }
+  return symbolIterator;
+}, "es6", "es3");
+$jscomp.initSymbolAsyncIterator = function() {
+};
+$jscomp.iteratorPrototype = function(next) {
+  var iterator = {next:next};
+  iterator[Symbol.iterator] = function() {
+    return this;
+  };
+  return iterator;
+};
+$jscomp.createTemplateTagFirstArg = function(arrayStrings) {
+  return arrayStrings.raw = arrayStrings;
+};
+$jscomp.createTemplateTagFirstArgWithRaw = function(arrayStrings, rawArrayStrings) {
+  arrayStrings.raw = rawArrayStrings;
+  return arrayStrings;
+};
+$jscomp.makeIterator = function(iterable) {
+  var iteratorFunction = "undefined" != typeof Symbol && Symbol.iterator && iterable[Symbol.iterator];
+  return iteratorFunction ? iteratorFunction.call(iterable) : $jscomp.arrayIterator(iterable);
+};
+$jscomp.arrayFromIterator = function(iterator) {
+  for (var i, arr = []; !(i = iterator.next()).done;) {
+    arr.push(i.value);
+  }
+  return arr;
+};
+$jscomp.arrayFromIterable = function(iterable) {
+  return iterable instanceof Array ? iterable : $jscomp.arrayFromIterator($jscomp.makeIterator(iterable));
+};
+$jscomp.objectCreate = $jscomp.ASSUME_ES5 || "function" == typeof Object.create ? Object.create : function(prototype) {
+  var ctor = function() {
+  };
+  ctor.prototype = prototype;
+  return new ctor;
+};
+$jscomp.underscoreProtoCanBeSet = function() {
+  var x = {a:!0}, y = {};
+  try {
+    return y.__proto__ = x, y.a;
+  } catch (e) {
+  }
+  return !1;
+};
+$jscomp.setPrototypeOf = $jscomp.TRUST_ES6_POLYFILLS && "function" == typeof Object.setPrototypeOf ? Object.setPrototypeOf : $jscomp.underscoreProtoCanBeSet() ? function(target, proto) {
+  target.__proto__ = proto;
+  if (target.__proto__ !== proto) {
+    throw new TypeError(target + " is not extensible");
+  }
+  return target;
+} : null;
+$jscomp.inherits = function(childCtor, parentCtor) {
+  childCtor.prototype = $jscomp.objectCreate(parentCtor.prototype);
+  childCtor.prototype.constructor = childCtor;
+  if ($jscomp.setPrototypeOf) {
+    var setPrototypeOf = $jscomp.setPrototypeOf;
+    setPrototypeOf(childCtor, parentCtor);
+  } else {
+    for (var p in parentCtor) {
+      if ("prototype" != p) {
+        if (Object.defineProperties) {
+          var descriptor = Object.getOwnPropertyDescriptor(parentCtor, p);
+          descriptor && Object.defineProperty(childCtor, p, descriptor);
+        } else {
+          childCtor[p] = parentCtor[p];
+        }
+      }
+    }
+  }
+  childCtor.superClass_ = parentCtor.prototype;
+};
+$jscomp.findInternal = function(array, callback, thisArg) {
+  array instanceof String && (array = String(array));
+  for (var len = array.length, i = 0; i < len; i++) {
+    var value = array[i];
+    if (callback.call(thisArg, value, i, array)) {
+      return {i:i, v:value};
+    }
+  }
+  return {i:-1, v:void 0};
 };
 $jscomp.polyfill("Array.prototype.find", function(orig) {
   return orig ? orig : function(callback, opt_thisArg) {
@@ -204,7 +249,7 @@ $jscomp.polyfill("Object.setPrototypeOf", function(orig) {
 $jscomp.owns = function(obj, prop) {
   return Object.prototype.hasOwnProperty.call(obj, prop);
 };
-$jscomp.assign = "function" == typeof Object.assign ? Object.assign : function(target, var_args) {
+$jscomp.assign = $jscomp.TRUST_ES6_POLYFILLS && "function" == typeof Object.assign ? Object.assign : function(target, var_args) {
   for (var i = 1; i < arguments.length; i++) {
     var source = arguments[i];
     if (source) {
@@ -411,51 +456,7 @@ $jscomp.polyfill("Promise", function(NativePromise) {
   };
   return PolyfillPromise;
 }, "es6", "es3");
-$jscomp.initSymbol = function() {
-};
-$jscomp.polyfill("Symbol", function(orig) {
-  if (orig) {
-    return orig;
-  }
-  var SymbolClass = function(id, opt_description) {
-    this.$jscomp$symbol$id_ = id;
-    $jscomp.defineProperty(this, "description", {configurable:!0, writable:!0, value:opt_description});
-  };
-  SymbolClass.prototype.toString = function() {
-    return this.$jscomp$symbol$id_;
-  };
-  var counter = 0, symbolPolyfill = function(opt_description) {
-    if (this instanceof symbolPolyfill) {
-      throw new TypeError("Symbol is not a constructor");
-    }
-    return new SymbolClass("jscomp_symbol_" + (opt_description || "") + "_" + counter++, opt_description);
-  };
-  return symbolPolyfill;
-}, "es6", "es3");
-$jscomp.initSymbolIterator = function() {
-  $jscomp.initSymbolIterator = function() {
-  };
-  var symbolIterator = Symbol.iterator;
-  symbolIterator || (symbolIterator = Symbol.iterator = Symbol("Symbol.iterator"));
-  "function" != typeof Array.prototype[symbolIterator] && $jscomp.defineProperty(Array.prototype, symbolIterator, {configurable:!0, writable:!0, value:function() {
-    return $jscomp.iteratorPrototype($jscomp.arrayIteratorImpl(this));
-  }});
-};
-$jscomp.initSymbolAsyncIterator = function() {
-  $jscomp.initSymbolAsyncIterator = function() {
-  };
-  Symbol.asyncIterator || (Symbol.asyncIterator = Symbol("Symbol.asyncIterator"));
-};
-$jscomp.iteratorPrototype = function(next) {
-  $jscomp.initSymbolIterator();
-  var iterator = {next:next};
-  iterator[Symbol.iterator] = function() {
-    return this;
-  };
-  return iterator;
-};
 $jscomp.iteratorFromArray = function(array, transform) {
-  $jscomp.initSymbolIterator();
   array instanceof String && (array += "");
   var i = 0, iter = {next:function() {
     if (i < array.length) {
@@ -645,7 +646,6 @@ $jscomp.polyfill("Map", function(NativeMap) {
       return NativeMap;
     }
   }
-  $jscomp.initSymbolIterator();
   var idMap = new WeakMap, PolyfillMap = function(opt_iterable) {
     this.data_ = {};
     this.head_ = createHead();
@@ -773,7 +773,6 @@ $jscomp.polyfill("Set", function(NativeSet) {
       return NativeSet;
     }
   }
-  $jscomp.initSymbolIterator();
   var PolyfillSet = function(opt_iterable) {
     this.map_ = new Map;
     if (opt_iterable) {
@@ -14815,7 +14814,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.222";
+ee.apiclient.API_CLIENT_VERSION = "0.1.223";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15079,8 +15078,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.222";
-    "0.1.222" === version && (version = "latest");
+    var version = "0.1.223";
+    "0.1.223" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -18787,21 +18786,21 @@ jspb.BinaryWriter.prototype.writePackedEnum = function(field, value) {
     this.endDelimited_(bookmark);
   }
 };
-jspb.Map = function(arr, opt_valueCtor) {
+var module$contents$jspb$Map_Map = function(arr, valueCtor) {
   this.arr_ = arr;
-  this.valueCtor_ = opt_valueCtor;
+  this.valueCtor_ = valueCtor;
   this.map_ = {};
   this.arrClean = !0;
   0 < this.arr_.length && this.loadFromArray_();
 };
-jspb.Map.prototype.loadFromArray_ = function() {
+module$contents$jspb$Map_Map.prototype.loadFromArray_ = function() {
   for (var i = 0; i < this.arr_.length; i++) {
     var record = this.arr_[i], key = record[0];
-    this.map_[key.toString()] = new jspb.Map.Entry_(key, record[1]);
+    this.map_[key.toString()] = new module$contents$jspb$Map_Entry_(key, record[1]);
   }
   this.arrClean = !0;
 };
-jspb.Map.prototype.toArray = function() {
+module$contents$jspb$Map_Map.prototype.toArray = function() {
   if (this.arrClean) {
     if (this.valueCtor_) {
       var m = this.map_, p;
@@ -18825,7 +18824,7 @@ jspb.Map.prototype.toArray = function() {
   }
   return this.arr_;
 };
-jspb.Map.prototype.toObject = function(includeInstance, valueToObject) {
+module$contents$jspb$Map_Map.prototype.toObject = function(includeInstance, valueToObject) {
   for (var rawArray = this.toArray(), entries = [], i = 0; i < rawArray.length; i++) {
     var entry = this.map_[rawArray[i][0].toString()];
     this.wrapEntry_(entry);
@@ -18834,37 +18833,27 @@ jspb.Map.prototype.toObject = function(includeInstance, valueToObject) {
   }
   return entries;
 };
-jspb.Map.fromObject = function(entries, valueCtor, valueFromObject) {
-  for (var result = new jspb.Map([], valueCtor), i = 0; i < entries.length; i++) {
+module$contents$jspb$Map_Map.fromObject = function(entries, valueCtor, valueFromObject) {
+  for (var result = new module$contents$jspb$Map_Map([], valueCtor), i = 0; i < entries.length; i++) {
     var key = entries[i][0], value = valueFromObject(entries[i][1]);
     result.set(key, value);
   }
   return result;
 };
-jspb.Map.ArrayIteratorIterable_ = function(arr) {
-  this.idx_ = 0;
-  this.arr_ = arr;
-};
-jspb.Map.ArrayIteratorIterable_.prototype.next = function() {
-  return this.idx_ < this.arr_.length ? {done:!1, value:this.arr_[this.idx_++]} : {done:!0, value:void 0};
-};
-"undefined" != typeof Symbol && (jspb.Map.ArrayIteratorIterable_.prototype[Symbol.iterator] = function() {
-  return this;
-});
-jspb.Map.prototype.getLength = function() {
+module$contents$jspb$Map_Map.prototype.getLength = function() {
   return this.stringKeys_().length;
 };
-jspb.Map.prototype.clear = function() {
+module$contents$jspb$Map_Map.prototype.clear = function() {
   this.map_ = {};
   this.arrClean = !1;
 };
-jspb.Map.prototype.del = function(key) {
+module$contents$jspb$Map_Map.prototype.del = function(key) {
   var keyValue = key.toString(), hadKey = this.map_.hasOwnProperty(keyValue);
   delete this.map_[keyValue];
   this.arrClean = !1;
   return hadKey;
 };
-jspb.Map.prototype.getEntryList = function() {
+module$contents$jspb$Map_Map.prototype.getEntryList = function() {
   var entries = [], strKeys = this.stringKeys_();
   strKeys.sort();
   for (var i = 0; i < strKeys.length; i++) {
@@ -18873,90 +18862,100 @@ jspb.Map.prototype.getEntryList = function() {
   }
   return entries;
 };
-jspb.Map.prototype.entries = function() {
+module$contents$jspb$Map_Map.prototype.entries = function() {
   var entries = [], strKeys = this.stringKeys_();
   strKeys.sort();
   for (var i = 0; i < strKeys.length; i++) {
     var entry = this.map_[strKeys[i]];
     entries.push([entry.key, this.wrapEntry_(entry)]);
   }
-  return new jspb.Map.ArrayIteratorIterable_(entries);
+  return new module$contents$jspb$Map_ArrayIteratorIterable(entries);
 };
-jspb.Map.prototype.keys = function() {
+module$contents$jspb$Map_Map.prototype.keys = function() {
   var keys = [], strKeys = this.stringKeys_();
   strKeys.sort();
   for (var i = 0; i < strKeys.length; i++) {
     keys.push(this.map_[strKeys[i]].key);
   }
-  return new jspb.Map.ArrayIteratorIterable_(keys);
+  return new module$contents$jspb$Map_ArrayIteratorIterable(keys);
 };
-jspb.Map.prototype.values = function() {
+module$contents$jspb$Map_Map.prototype.values = function() {
   var values = [], strKeys = this.stringKeys_();
   strKeys.sort();
   for (var i = 0; i < strKeys.length; i++) {
     values.push(this.wrapEntry_(this.map_[strKeys[i]]));
   }
-  return new jspb.Map.ArrayIteratorIterable_(values);
+  return new module$contents$jspb$Map_ArrayIteratorIterable(values);
 };
-jspb.Map.prototype.forEach = function(cb, opt_thisArg) {
+module$contents$jspb$Map_Map.prototype.forEach = function(cb, thisArg) {
   var strKeys = this.stringKeys_();
   strKeys.sort();
   for (var i = 0; i < strKeys.length; i++) {
     var entry = this.map_[strKeys[i]];
-    cb.call(opt_thisArg, this.wrapEntry_(entry), entry.key, this);
+    cb.call(thisArg, this.wrapEntry_(entry), entry.key, this);
   }
 };
-jspb.Map.prototype.set = function(key, value) {
-  var entry = new jspb.Map.Entry_(key);
+module$contents$jspb$Map_Map.prototype.set = function(key, value) {
+  var entry = new module$contents$jspb$Map_Entry_(key);
   this.valueCtor_ ? (entry.valueWrapper = value, entry.value = value.toArray()) : entry.value = value;
   this.map_[key.toString()] = entry;
   this.arrClean = !1;
   return this;
 };
-jspb.Map.prototype.wrapEntry_ = function(entry) {
+module$contents$jspb$Map_Map.prototype.wrapEntry_ = function(entry) {
   return this.valueCtor_ ? (entry.valueWrapper || (entry.valueWrapper = new this.valueCtor_(entry.value)), entry.valueWrapper) : entry.value;
 };
-jspb.Map.prototype.get = function(key) {
+module$contents$jspb$Map_Map.prototype.get = function(key) {
   var entry = this.map_[key.toString()];
   if (entry) {
     return this.wrapEntry_(entry);
   }
 };
-jspb.Map.prototype.has = function(key) {
+module$contents$jspb$Map_Map.prototype.has = function(key) {
   return key.toString() in this.map_;
 };
-jspb.Map.prototype.serializeBinary = function(fieldNumber, writer, keyWriterFn, valueWriterFn, opt_valueWriterCallback) {
+module$contents$jspb$Map_Map.prototype.serializeBinary = function(fieldNumber, writer, keyWriterFn, valueWriterFn, valueWriterCallback) {
   var strKeys = this.stringKeys_();
   strKeys.sort();
   for (var i = 0; i < strKeys.length; i++) {
     var entry = this.map_[strKeys[i]];
     writer.beginSubMessage(fieldNumber);
     keyWriterFn.call(writer, 1, entry.key);
-    this.valueCtor_ ? valueWriterFn.call(writer, 2, this.wrapEntry_(entry), opt_valueWriterCallback) : valueWriterFn.call(writer, 2, entry.value);
+    this.valueCtor_ ? valueWriterFn.call(writer, 2, this.wrapEntry_(entry), valueWriterCallback) : valueWriterFn.call(writer, 2, entry.value);
     writer.endSubMessage();
   }
 };
-jspb.Map.deserializeBinary = function(map, reader, keyReaderFn, valueReaderFn, opt_valueReaderCallback, opt_defaultKey, opt_defaultValue) {
-  for (var key = opt_defaultKey, value = opt_defaultValue; reader.nextField() && !reader.isEndGroup();) {
+module$contents$jspb$Map_Map.deserializeBinary = function(map, reader, keyReaderFn, valueReaderFn, valueReaderCallback, defaultKey, defaultValue) {
+  for (var key = defaultKey, value = defaultValue; reader.nextField() && !reader.isEndGroup();) {
     var field = reader.getFieldNumber();
-    1 == field ? key = keyReaderFn.call(reader) : 2 == field && (map.valueCtor_ ? (goog.asserts.assert(opt_valueReaderCallback), value || (value = new map.valueCtor_), valueReaderFn.call(reader, value, opt_valueReaderCallback)) : value = valueReaderFn.call(reader));
+    1 == field ? key = keyReaderFn.call(reader) : 2 == field && (map.valueCtor_ ? (goog.asserts.assert(valueReaderCallback), value || (value = new map.valueCtor_), valueReaderFn.call(reader, value, valueReaderCallback)) : value = valueReaderFn.call(reader));
   }
   goog.asserts.assert(void 0 != key);
   goog.asserts.assert(void 0 != value);
   map.set(key, value);
 };
-jspb.Map.prototype.stringKeys_ = function() {
+module$contents$jspb$Map_Map.prototype.stringKeys_ = function() {
   var m = this.map_, ret = [], p;
   for (p in m) {
     Object.prototype.hasOwnProperty.call(m, p) && ret.push(p);
   }
   return ret;
 };
-jspb.Map.Entry_ = function(key, opt_value) {
+var module$contents$jspb$Map_Entry_ = function(key, value) {
   this.key = key;
-  this.value = opt_value;
+  this.value = value;
   this.valueWrapper = void 0;
+}, module$contents$jspb$Map_ArrayIteratorIterable = function(arr) {
+  this.idx_ = 0;
+  this.arr_ = arr;
 };
+module$contents$jspb$Map_ArrayIteratorIterable.prototype.next = function() {
+  return this.idx_ < this.arr_.length ? {done:!1, value:this.arr_[this.idx_++]} : {done:!0, value:void 0};
+};
+"undefined" != typeof Symbol && "undefined" != typeof Symbol.iterator && (module$contents$jspb$Map_ArrayIteratorIterable.prototype[Symbol.iterator] = function() {
+  return this;
+});
+jspb.Map = module$contents$jspb$Map_Map;
 var module$contents$jspb$ExtensionFieldInfo_ExtensionFieldInfo = function(fieldNumber, fieldName, ctor, toObjectFn, isRepeated) {
   this.fieldIndex = fieldNumber;
   this.fieldName = fieldName;
@@ -19237,7 +19236,7 @@ jspb.Message.getMapField = function(msg, fieldNumber, noLazyCreate, opt_valueCto
     arr = [];
     jspb.Message.setField(msg, fieldNumber, arr);
   }
-  return msg.wrappers_[fieldNumber] = new jspb.Map(arr, opt_valueCtor);
+  return msg.wrappers_[fieldNumber] = new module$contents$jspb$Map_Map(arr, opt_valueCtor);
 };
 jspb.Message.setField = function(msg, fieldNumber, value) {
   goog.asserts.assertInstanceof(msg, jspb.Message);
@@ -19597,7 +19596,7 @@ jspb.Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Struct.prototype.toObj
 jspb.Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Struct.ObjectFormat = function() {
 }, proto.google.protobuf.Struct.fromObject = function(obj) {
   var msg = new proto.google.protobuf.Struct;
-  obj.fieldsMap && jspb.Message.setWrapperField(msg, 1, jspb.Map.fromObject(obj.fieldsMap, proto.google.protobuf.Value, proto.google.protobuf.Value.fromObject));
+  obj.fieldsMap && jspb.Message.setWrapperField(msg, 1, module$contents$jspb$Map_Map.fromObject(obj.fieldsMap, proto.google.protobuf.Value, proto.google.protobuf.Value.fromObject));
   return msg;
 });
 proto.google.protobuf.Struct.deserializeBinary = function(bytes) {
@@ -19610,7 +19609,7 @@ proto.google.protobuf.Struct.deserializeBinaryFromReader = function(msg, reader$
       case 1:
         var value = msg.getFieldsMap();
         reader$jscomp$0.readMessage(value, function(message, reader) {
-          jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.google.protobuf.Value.deserializeBinaryFromReader, "", new proto.google.protobuf.Value);
+          module$contents$jspb$Map_Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.google.protobuf.Value.deserializeBinaryFromReader, "", new proto.google.protobuf.Value);
         });
         break;
       default:

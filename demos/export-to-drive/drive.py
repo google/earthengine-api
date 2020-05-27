@@ -1,11 +1,12 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Helpers for interfacing with Google Drive."""
 
 import googleapiclient.discovery
 import httplib2
 
 
-class DriveHelper(object):
+class DriveHelper:
   """A helper class for interfacing with Google Drive."""
 
   def __init__(self, credentials):

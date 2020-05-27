@@ -1,6 +1,6 @@
 #!/usr/bin/env python
+# Lint as: python3
 """A simple example of connecting to Earth Engine using App Engine."""
-
 
 
 # Works in the local development environment and when deployed.

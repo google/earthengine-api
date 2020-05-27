@@ -22,8 +22,8 @@ Here's an example screenshot and the corresponding Code Editor JavaScript code:
 
 // Adds a band containing image date as years since 1991.
 function createTimeBand(img) {
-    var year = ee.Date(img.get('system:time_start')).get('year').subtract(1991);
-    return ee.Image(year).byte().addBands(img);
+  var year = ee.Date(img.get('system:time_start')).get('year').subtract(1991);
+  return ee.Image(year).byte().addBands(img);
 }
 
 // Map the time band creation helper over the night-time lights collection.

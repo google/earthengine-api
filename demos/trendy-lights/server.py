@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Web server for the Trendy Lights application.
 
 The overall architecture looks like:
@@ -59,6 +60,7 @@ requests more quickly.
 
 """
 
+from __future__ import print_function
 import json
 import os
 
@@ -81,7 +83,7 @@ class MainHandler(webapp2.RequestHandler):
   def get(self, path=''):
     """Returns the main web page, populated with EE map and polygon info."""
     mapid = GetTrendyMapId()
-    print('MapID', mapid)
+    print(('MapID', mapid))
     template_values = {
         'mapUrlFormat': mapid['tile_fetcher'].url_format,
         'serializedPolygonIds': json.dumps(POLYGON_IDS)
