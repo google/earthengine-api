@@ -485,21 +485,6 @@ ee.rpc_convert.listImagesToGetList = function(result) {
 };
 
 /**
- * @param {!ee.api.SearchAssetsResponse} result
- * @return {!Object}
- */
-ee.rpc_convert.assetListToDatasetResult = function(result) {
-  return (result.assets || [])
-      .map(ee.rpc_convert.assetToLegacyResult)
-      .map((result) => {
-        // Flatten properties child object into result parent object.
-        const properties = result['properties'];
-        delete result['properties'];
-        return Object.assign({}, result, properties);
-      });
-};
-
-/**
  * @param {?string} type The cloud asset type.
  * @return {string} The equivalent legacy asset type.
  */

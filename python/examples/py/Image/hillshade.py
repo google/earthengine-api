@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Compute hillshade from elevation."""
 
 import math

@@ -1,8 +1,8 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Download example."""
 
 from __future__ import print_function
-
 import ee
 import ee.mapclient
 

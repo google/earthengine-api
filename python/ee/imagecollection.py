@@ -150,6 +150,7 @@ class ImageCollection(collection.Collection):
       region - (E,S,W,N or GeoJSON) Geospatial region of the result. By default,
         the whole image.
       format - (string) The output format (only 'gif' is currently supported).
+      framesPerSecond - Animation speed.
       Visualization parameters - ['bands', 'gain', 'bias', 'min', 'max',
         'gamma', 'palette', 'opacity', 'forceRgbOutput'] see Earth Engine
          API for ee.Image.visualize for more information.
@@ -230,6 +231,8 @@ class ImageCollection(collection.Collection):
       raise ee_exception.EEException(
           'Invalid format specified for thumbnail. ' + str(params['format']))
 
+    if params and 'framesPerSecond' in params:
+      request['framesPerSecond'] = params.get('framesPerSecond')
     request['image'] = clipped_collection
     if params and params.get('dimensions') is not None:
       request['dimensions'] = params.get('dimensions')

@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Buffer Example.
 
 Display the area within 2 kilometers of any San Francisco BART station.

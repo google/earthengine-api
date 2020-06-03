@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Create and render a feature collection from polygons."""
 
 import ee

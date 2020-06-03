@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Configuration constants."""
 
 import os

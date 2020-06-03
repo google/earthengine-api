@@ -1751,27 +1751,6 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
 
 
 /**
- * Retrieves a list of public assets matching a query.
- *
- * @param {string} query Search query for assets.
- * @param {function(?Array, string=)=} opt_callback An optional
- *     callback. If not supplied, the callback is made synchronously.
- * @return {?Array<!ee.data.AssetDescription>} An array of data set indices.
- */
-ee.data.search = function(query, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const call = new ee.apiclient.Call(opt_callback);
-    return call.handle(
-        call.assets().search('projects/earthengine-public', query)
-        .then(ee.rpc_convert.assetListToDatasetResult));
-  }
-  var params = {'q': query};
-  return /** @type {?Array<!ee.data.AssetDescription>} */ (
-      ee.data.send_('/search', ee.data.makeRequest_(params), opt_callback));
-};
-
-
-/**
  * Renames the asset from sourceId to destinationId.
  *
  * @param {string} sourceId The ID of the asset to rename.

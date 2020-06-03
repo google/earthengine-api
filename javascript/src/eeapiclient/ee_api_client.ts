@@ -7937,66 +7937,6 @@ export class Rule extends Serializable {
   }
 }
 
-export interface SearchAssetsResponseParameters {
-  assets?: Array<EarthEngineAsset>|null;
-  nextPageToken?: string|null;
-}
-export class SearchAssetsResponse extends Serializable {
-  constructor(parameters: SearchAssetsResponseParameters = {}) {
-    super();
-    this.Serializable$set(
-        'assets', (parameters.assets == null) ? (null) : (parameters.assets));
-    this.Serializable$set(
-        'nextPageToken',
-        (parameters.nextPageToken == null) ? (null) :
-                                             (parameters.nextPageToken));
-  }
-
-  get assets(): Array<EarthEngineAsset>|null {
-    return (
-        (this.Serializable$has('assets')) ? (this.Serializable$get('assets')) :
-                                            (null));
-  }
-
-  /**
-   * The assets that match the request query.
-   * By default only metadata fields are populated.  Use
-   * SearchAssetsRequest.field_mask
-   * to request a specific selection of properties.
-   */
-  set assets(value: Array<EarthEngineAsset>|null) {
-    this.Serializable$set('assets', value);
-  }
-
-  get nextPageToken(): string|null {
-    return (
-        (this.Serializable$has('nextPageToken')) ?
-            (this.Serializable$get('nextPageToken')) :
-            (null));
-  }
-
-  /**
-   * A token to retrieve the next page of results. Pass this value in the
-   * SearchAssetsRequest.page_token
-   * field in the subsequent call to the `SearchAssets` method to
-   * retrieve the next page of results.
-   */
-  set nextPageToken(value: string|null) {
-    this.Serializable$set('nextPageToken', value);
-  }
-
-  getConstructor(): SerializableCtor<SearchAssetsResponse> {
-    return SearchAssetsResponse;
-  }
-
-  getPartialClassMetadata(): Partial<ClassMetadata> {
-    return {
-      arrays: {'assets': EarthEngineAsset},
-      keys: ['assets', 'nextPageToken']
-    };
-  }
-}
-
 export interface SetIamPolicyRequestParameters {
   policy?: Policy|null;
   updateMask?: string|null;
@@ -10665,13 +10605,11 @@ const PARAM_MAP_0 = {
   fields: 'fields',
   filter: 'filter',
   key: 'key',
-  nextPageToken: 'nextPageToken',
   oauth_token: 'oauth_token',
   overwrite: 'overwrite',
   pageSize: 'pageSize',
   pageToken: 'pageToken',
   prettyPrint: 'prettyPrint',
-  query: 'query',
   quotaUser: 'quotaUser',
   region: 'region',
   startTime: 'startTime',
@@ -11157,23 +11095,6 @@ export declare interface ProjectsAssetsPatchNamedParameters {
   $Xgafv?: ProjectsAssetsApiClient$Xgafv;
 }
 
-export declare interface ProjectsAssetsSearchNamedParameters {
-  access_token?: string;
-  alt?: ProjectsAssetsApiClientAlt;
-  callback?: string;
-  fields?: string;
-  key?: string;
-  oauth_token?: string;
-  prettyPrint?: boolean;
-  quotaUser?: string;
-  upload_protocol?: string;
-  uploadType?: string;
-  $Xgafv?: ProjectsAssetsApiClient$Xgafv;
-  query?: string;
-  pageSize?: number;
-  nextPageToken?: string;
-}
-
 export declare interface ProjectsAssetsSetIamPolicyNamedParameters {
   access_token?: string;
   alt?: ProjectsAssetsApiClientAlt;
@@ -11419,23 +11340,6 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
     });
   }
 
-  search(
-      project: string,
-      namedParameters: ProjectsAssetsSearchNamedParameters&
-      object = {}): Promise<SearchAssetsResponse> {
-    this.$apiClient.$validateParameter(project, new RegExp('^projects/[^/]+$'));
-    let $requestBody = <Serializable|null>null;
-
-    return this.$apiClient.$request<SearchAssetsResponse>({
-      body: $requestBody,
-      httpMethod: 'GET',
-      methodId: 'earthengine.projects.assets.search',
-      path: `/${this.gapiVersion}/${project}/assets:search`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
-      responseCtor: SearchAssetsResponse
-    });
-  }
-
   setIamPolicy(
       resource: string, $requestBody: SetIamPolicyRequest,
       namedParameters: ProjectsAssetsSetIamPolicyNamedParameters&
@@ -11532,11 +11436,6 @@ export abstract class ProjectsAssetsApiClient {
       name: string, $requestBody: UpdateAssetRequest,
       namedParameters?: ProjectsAssetsPatchNamedParameters&
       object): Promise<EarthEngineAsset>;
-
-  abstract search(
-      project: string,
-      namedParameters?: ProjectsAssetsSearchNamedParameters&
-      object): Promise<SearchAssetsResponse>;
 
   abstract setIamPolicy(
       resource: string, $requestBody: SetIamPolicyRequest,

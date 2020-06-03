@@ -795,6 +795,10 @@ def getThumbId(params, thumbType=None):
     # Make it return only the name field, as otherwise it echoes the entire
     # request, which might be large.
     if thumbType == 'video':
+      if 'framesPerSecond' in params:
+        request['videoOptions'] = {
+            'framesPerSecond': params.get('framesPerSecond')
+        }
       result = _execute_cloud_call(
           _cloud_api_resource.projects().videoThumbnails().create(
               parent=_get_projects_path(),

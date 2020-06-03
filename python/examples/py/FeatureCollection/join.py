@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# Lint as: python3
 """FeatureCollection Join example.
 
 Show parks in San Francisco within 2 kilometers of a BART station.

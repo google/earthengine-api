@@ -1,28 +1,29 @@
 #!/usr/bin/env python
+# Lint as: python3
 """Handle the routing for the application."""
 
 
 import cachetools
 import collections
-import httplib
 import json
 import os
+import threading
+from xml.etree import ElementTree
+
 from absl import logging
 import cloudstorage as gcs
-import threading
-import requests
 import flask
 from flask import request
 from flask_wtf import csrf
-from xml.etree import ElementTree
+import httplib
+import requests
 
 from google.appengine.api import app_identity
 from google.appengine.api import urlfetch
-from google.cloud import storage
 from google.auth import app_engine
-
-import config
+from google.cloud import storage
 import ee
+import config
 
 # Initialization of Flask application.
 server = flask.Flask(__name__)

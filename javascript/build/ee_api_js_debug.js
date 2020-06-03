@@ -852,7 +852,6 @@ goog.FEATURESET_YEAR = 2012;
 goog.DEBUG = !0;
 goog.LOCALE = "en";
 goog.TRUSTED_SITE = !0;
-goog.STRICT_MODE_COMPATIBLE = !1;
 goog.DISALLOW_TEST_ONLY_CODE = !goog.DEBUG;
 goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING = !1;
 goog.provide = function(name) {
@@ -1084,33 +1083,7 @@ goog.transpile_ = function(code$jscomp$0, path$jscomp$0, target) {
 };
 goog.typeOf = function(value) {
   var s = typeof value;
-  if ("object" == s) {
-    if (value) {
-      if (value instanceof Array) {
-        return "array";
-      }
-      if (value instanceof Object) {
-        return s;
-      }
-      var className = Object.prototype.toString.call(value);
-      if ("[object Window]" == className) {
-        return "object";
-      }
-      if ("[object Array]" == className || "number" == typeof value.length && "undefined" != typeof value.splice && "undefined" != typeof value.propertyIsEnumerable && !value.propertyIsEnumerable("splice")) {
-        return "array";
-      }
-      if ("[object Function]" == className || "undefined" != typeof value.call && "undefined" != typeof value.propertyIsEnumerable && !value.propertyIsEnumerable("call")) {
-        return "function";
-      }
-    } else {
-      return "null";
-    }
-  } else {
-    if ("function" == s && "undefined" == typeof value.call) {
-      return "object";
-    }
-  }
-  return s;
+  return "object" != s ? s : value ? Array.isArray(value) ? "array" : s : "null";
 };
 goog.isArray = function(val) {
   return Array.isArray(val);
@@ -1144,8 +1117,6 @@ goog.removeUid = function(obj) {
 };
 goog.UID_PROPERTY_ = "closure_uid_" + (1e9 * Math.random() >>> 0);
 goog.uidCounter_ = 0;
-goog.getHashCode = goog.getUid;
-goog.removeHashCode = goog.removeUid;
 goog.cloneObject = function(obj) {
   var type = goog.typeOf(obj);
   if ("object" == type || "array" == type) {
@@ -2852,31 +2823,14 @@ goog.dom.tags.VOID_TAGS_ = {area:!0, base:!0, br:!0, col:!0, command:!0, embed:!
 goog.dom.tags.isVoidTag = function(tagName) {
   return !0 === goog.dom.tags.VOID_TAGS_[tagName];
 };
-goog.memoize = function(f, opt_serializer) {
-  var serializer = opt_serializer || goog.memoize.simpleSerializer;
-  return function() {
-    if (goog.memoize.ENABLE_MEMOIZE) {
-      var thisOrGlobal = this || goog.global, cache = thisOrGlobal[goog.memoize.CACHE_PROPERTY_] || (thisOrGlobal[goog.memoize.CACHE_PROPERTY_] = {}), key = serializer(goog.getUid(f), arguments);
-      return cache.hasOwnProperty(key) ? cache[key] : cache[key] = f.apply(this, arguments);
-    }
-    return f.apply(this, arguments);
-  };
-};
-goog.memoize.ENABLE_MEMOIZE = !0;
-goog.memoize.clearCache = function(cacheOwner) {
-  cacheOwner[goog.memoize.CACHE_PROPERTY_] = {};
-};
-goog.memoize.CACHE_PROPERTY_ = "closure_memoize_cache_";
-goog.memoize.simpleSerializer = function(functionUid, args) {
-  for (var context = [functionUid], i = args.length - 1; 0 <= i; --i) {
-    context.push(typeof args[i], args[i]);
-  }
-  return context.join("\x0B");
-};
 goog.html = {};
 goog.html.trustedtypes = {};
 goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse = function() {
-  return goog.TRUSTED_TYPES_POLICY_NAME ? goog.memoize(goog.createTrustedTypesPolicy)(goog.TRUSTED_TYPES_POLICY_NAME + "#html") : null;
+  if (!goog.TRUSTED_TYPES_POLICY_NAME) {
+    return null;
+  }
+  void 0 === goog.html.trustedtypes.cachedPolicy_ && (goog.html.trustedtypes.cachedPolicy_ = goog.createTrustedTypesPolicy(goog.TRUSTED_TYPES_POLICY_NAME + "#html"));
+  return goog.html.trustedtypes.cachedPolicy_;
 };
 goog.string.TypedString = function() {
 };
@@ -3126,10 +3080,10 @@ goog.i18n.bidi.setElementDirAndAlign = function(element, dir) {
 goog.i18n.bidi.setElementDirByTextDirectionality = function(element, text) {
   switch(goog.i18n.bidi.estimateDirection(text)) {
     case goog.i18n.bidi.Dir.LTR:
-      element.dir = "ltr";
+      "ltr" !== element.dir && (element.dir = "ltr");
       break;
     case goog.i18n.bidi.Dir.RTL:
-      element.dir = "rtl";
+      "rtl" !== element.dir && (element.dir = "rtl");
       break;
     default:
       element.removeAttribute("dir");
@@ -4957,7 +4911,7 @@ goog.events.BrowserEvent.prototype.isButton = function(button) {
   return goog.events.BrowserFeature.HAS_W3C_BUTTON ? this.event_.button == button : "click" == this.type ? button == goog.events.BrowserEvent.MouseButton.LEFT : !!(this.event_.button & goog.events.BrowserEvent.IE_BUTTON_MAP[button]);
 };
 goog.events.BrowserEvent.prototype.isMouseActionButton = function() {
-  return this.isButton(goog.events.BrowserEvent.MouseButton.LEFT) && !(goog.userAgent.WEBKIT && goog.userAgent.MAC && this.ctrlKey);
+  return this.isButton(goog.events.BrowserEvent.MouseButton.LEFT) && !(goog.userAgent.MAC && this.ctrlKey);
 };
 goog.events.BrowserEvent.prototype.stopPropagation = function() {
   goog.events.BrowserEvent.superClass_.stopPropagation.call(this);
@@ -10508,30 +10462,6 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.Rule, {Action:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.RuleActionEnum;
 }}});
-module$exports$eeapiclient$ee_api_client.SearchAssetsResponseParameters = function module$contents$eeapiclient$ee_api_client_SearchAssetsResponseParameters() {
-};
-module$exports$eeapiclient$ee_api_client.SearchAssetsResponse = function(parameters) {
-  parameters = void 0 === parameters ? {} : parameters;
-  module$exports$eeapiclient$domain_object.Serializable.call(this);
-  this.Serializable$set("assets", null == parameters.assets ? null : parameters.assets);
-  this.Serializable$set("nextPageToken", null == parameters.nextPageToken ? null : parameters.nextPageToken);
-};
-$jscomp.inherits(module$exports$eeapiclient$ee_api_client.SearchAssetsResponse, module$exports$eeapiclient$domain_object.Serializable);
-module$exports$eeapiclient$ee_api_client.SearchAssetsResponse.prototype.getConstructor = function() {
-  return module$exports$eeapiclient$ee_api_client.SearchAssetsResponse;
-};
-module$exports$eeapiclient$ee_api_client.SearchAssetsResponse.prototype.getPartialClassMetadata = function() {
-  return {arrays:{assets:module$exports$eeapiclient$ee_api_client.EarthEngineAsset}, keys:["assets", "nextPageToken"]};
-};
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.SearchAssetsResponse.prototype, {assets:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("assets") ? this.Serializable$get("assets") : null;
-}, set:function(value) {
-  this.Serializable$set("assets", value);
-}}, nextPageToken:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("nextPageToken") ? this.Serializable$get("nextPageToken") : null;
-}, set:function(value) {
-  this.Serializable$set("nextPageToken", value);
-}}});
 module$exports$eeapiclient$ee_api_client.SetIamPolicyRequestParameters = function module$contents$eeapiclient$ee_api_client_SetIamPolicyRequestParameters() {
 };
 module$exports$eeapiclient$ee_api_client.SetIamPolicyRequest = function(parameters) {
@@ -11452,8 +11382,7 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }, set:function(value) {
   this.Serializable$set("min", value);
 }}});
-var module$contents$eeapiclient$ee_api_client_PARAM_MAP_0 = {$Xgafv:"$.xgafv", access_token:"access_token", alt:"alt", assetId:"assetId", callback:"callback", endTime:"endTime", fields:"fields", filter:"filter", key:"key", nextPageToken:"nextPageToken", oauth_token:"oauth_token", overwrite:"overwrite", pageSize:"pageSize", pageToken:"pageToken", prettyPrint:"prettyPrint", query:"query", quotaUser:"quotaUser", region:"region", startTime:"startTime", uploadType:"uploadType", 
-upload_protocol:"upload_protocol", view:"view"};
+var module$contents$eeapiclient$ee_api_client_PARAM_MAP_0 = {$Xgafv:"$.xgafv", access_token:"access_token", alt:"alt", assetId:"assetId", callback:"callback", endTime:"endTime", fields:"fields", filter:"filter", key:"key", oauth_token:"oauth_token", overwrite:"overwrite", pageSize:"pageSize", pageToken:"pageToken", prettyPrint:"prettyPrint", quotaUser:"quotaUser", region:"region", startTime:"startTime", uploadType:"uploadType", upload_protocol:"upload_protocol", view:"view"};
 module$exports$eeapiclient$ee_api_client.IProjectsAlgorithmsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsAlgorithmsApiClient$XgafvEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
@@ -11579,11 +11508,6 @@ module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl.prototype.p
   namedParameters = void 0 === namedParameters ? {} : namedParameters;
   this.$apiClient.$validateParameter(name, /^projects\/[^/]+\/assets\/.*$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"PATCH", methodId:"earthengine.projects.assets.patch", path:"/" + this.gapiVersion + "/" + name, queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0), responseCtor:module$exports$eeapiclient$ee_api_client.EarthEngineAsset});
-};
-module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl.prototype.search = function(project, namedParameters) {
-  namedParameters = void 0 === namedParameters ? {} : namedParameters;
-  this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
-  return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.assets.search", path:"/" + this.gapiVersion + "/" + project + "/assets:search", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0), responseCtor:module$exports$eeapiclient$ee_api_client.SearchAssetsResponse});
 };
 module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl.prototype.setIamPolicy = function(resource, $requestBody, namedParameters) {
   namedParameters = void 0 === namedParameters ? {} : namedParameters;
@@ -13548,7 +13472,7 @@ goog.async.Throttle = function(listener, interval, opt_handler) {
   this.listener_ = null != opt_handler ? goog.bind(listener, opt_handler) : listener;
   this.interval_ = interval;
   this.callback_ = goog.bind(this.onTimer_, this);
-  this.args_ = [];
+  this.args_ = null;
 };
 goog.inherits(goog.async.Throttle, goog.Disposable);
 goog.Throttle = goog.async.Throttle;
@@ -13560,7 +13484,7 @@ goog.async.Throttle.prototype.fire = function(var_args) {
   this.timer_ || this.pauseCount_ ? this.shouldFire_ = !0 : this.doAction_();
 };
 goog.async.Throttle.prototype.stop = function() {
-  this.timer_ && (goog.Timer.clear(this.timer_), this.timer_ = null, this.shouldFire_ = !1, this.args_ = []);
+  this.timer_ && (goog.Timer.clear(this.timer_), this.timer_ = null, this.shouldFire_ = !1, this.args_ = null);
 };
 goog.async.Throttle.prototype.pause = function() {
   this.pauseCount_++;
@@ -13579,7 +13503,9 @@ goog.async.Throttle.prototype.onTimer_ = function() {
 };
 goog.async.Throttle.prototype.doAction_ = function() {
   this.timer_ = goog.Timer.callOnce(this.callback_, this.interval_);
-  this.listener_.apply(null, this.args_);
+  var args = this.args_;
+  this.args_ = null;
+  this.listener_.apply(null, args);
 };
 /*
  Portions of this code are from MochiKit, received by
@@ -14814,7 +14740,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.223";
+ee.apiclient.API_CLIENT_VERSION = "0.1.224";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15078,8 +15004,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.223";
-    "0.1.223" === version && (version = "latest");
+    var version = "0.1.224";
+    "0.1.224" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -15622,13 +15548,6 @@ ee.rpc_convert.listAssetsToGetList = function(result) {
 };
 ee.rpc_convert.listImagesToGetList = function(result) {
   return (result.images || []).map(ee.rpc_convert.imageToLegacyResult);
-};
-ee.rpc_convert.assetListToDatasetResult = function(result$jscomp$0) {
-  return (result$jscomp$0.assets || []).map(ee.rpc_convert.assetToLegacyResult).map(function(result) {
-    var properties = result.properties;
-    delete result.properties;
-    return Object.assign({}, result, properties);
-  });
 };
 ee.rpc_convert.assetTypeToLegacyAssetType = function(type) {
   switch(type) {
@@ -16564,46 +16483,56 @@ ee.rpc_convert_batch.buildDriveDestination_ = function(params) {
 ee.rpc_convert_batch.buildEarthEngineDestination_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.EarthEngineDestination({name:ee.rpc_convert.assetIdToAssetName(params.assetId)});
 };
-var jspb = {BinaryConstants:{}, ConstBinaryMessage:function() {
-}, BinaryMessage:function() {
-}};
-jspb.BinaryConstants.FieldType = {INVALID:-1, DOUBLE:1, FLOAT:2, INT64:3, UINT64:4, INT32:5, FIXED64:6, FIXED32:7, BOOL:8, STRING:9, GROUP:10, MESSAGE:11, BYTES:12, UINT32:13, ENUM:14, SFIXED32:15, SFIXED64:16, SINT32:17, SINT64:18, };
-jspb.BinaryConstants.WireType = {INVALID:-1, VARINT:0, FIXED64:1, DELIMITED:2, START_GROUP:3, END_GROUP:4, FIXED32:5};
-jspb.BinaryConstants.FieldTypeToWireType = function(fieldType) {
-  var fieldTypes = jspb.BinaryConstants.FieldType, wireTypes = jspb.BinaryConstants.WireType;
-  switch(fieldType) {
-    case fieldTypes.INT32:
-    case fieldTypes.INT64:
-    case fieldTypes.UINT32:
-    case fieldTypes.UINT64:
-    case fieldTypes.SINT32:
-    case fieldTypes.SINT64:
-    case fieldTypes.BOOL:
-    case fieldTypes.ENUM:
-      return wireTypes.VARINT;
-    case fieldTypes.DOUBLE:
-    case fieldTypes.FIXED64:
-    case fieldTypes.SFIXED64:
-      return wireTypes.FIXED64;
-    case fieldTypes.STRING:
-    case fieldTypes.MESSAGE:
-    case fieldTypes.BYTES:
-      return wireTypes.DELIMITED;
-    case fieldTypes.FLOAT:
-    case fieldTypes.FIXED32:
-    case fieldTypes.SFIXED32:
-      return wireTypes.FIXED32;
-    default:
-      return wireTypes.INVALID;
-  }
+var jspb = {}, module$contents$jspb$ConstBinaryMessage_ConstBinaryMessage = function() {
 };
-jspb.BinaryConstants.INVALID_FIELD_NUMBER = -1;
+module$contents$jspb$ConstBinaryMessage_ConstBinaryMessage.prototype.toDebugString = function() {
+};
+module$contents$jspb$ConstBinaryMessage_ConstBinaryMessage.prototype.toDebugStringInternal = function(indentLevel) {
+};
+jspb.ConstBinaryMessage = module$contents$jspb$ConstBinaryMessage_ConstBinaryMessage;
+jspb.BinaryMessage = function() {
+};
+jspb.ScalarFieldType = void 0;
+jspb.RepeatedFieldType = void 0;
+jspb.AnyFieldType = void 0;
+jspb.BinaryConstants = {};
+var module$contents$jspb$BinaryConstants_FieldType = {INVALID:-1, DOUBLE:1, FLOAT:2, INT64:3, UINT64:4, INT32:5, FIXED64:6, FIXED32:7, BOOL:8, STRING:9, GROUP:10, MESSAGE:11, BYTES:12, UINT32:13, ENUM:14, SFIXED32:15, SFIXED64:16, SINT32:17, SINT64:18, }, module$contents$jspb$BinaryConstants_WireType = {INVALID:-1, VARINT:0, FIXED64:1, DELIMITED:2, START_GROUP:3, END_GROUP:4, FIXED32:5};
+function module$contents$jspb$BinaryConstants_FieldTypeToWireType(fieldType) {
+  switch(fieldType) {
+    case module$contents$jspb$BinaryConstants_FieldType.INT32:
+    case module$contents$jspb$BinaryConstants_FieldType.INT64:
+    case module$contents$jspb$BinaryConstants_FieldType.UINT32:
+    case module$contents$jspb$BinaryConstants_FieldType.UINT64:
+    case module$contents$jspb$BinaryConstants_FieldType.SINT32:
+    case module$contents$jspb$BinaryConstants_FieldType.SINT64:
+    case module$contents$jspb$BinaryConstants_FieldType.BOOL:
+    case module$contents$jspb$BinaryConstants_FieldType.ENUM:
+      return module$contents$jspb$BinaryConstants_WireType.VARINT;
+    case module$contents$jspb$BinaryConstants_FieldType.DOUBLE:
+    case module$contents$jspb$BinaryConstants_FieldType.FIXED64:
+    case module$contents$jspb$BinaryConstants_FieldType.SFIXED64:
+      return module$contents$jspb$BinaryConstants_WireType.FIXED64;
+    case module$contents$jspb$BinaryConstants_FieldType.STRING:
+    case module$contents$jspb$BinaryConstants_FieldType.MESSAGE:
+    case module$contents$jspb$BinaryConstants_FieldType.BYTES:
+      return module$contents$jspb$BinaryConstants_WireType.DELIMITED;
+    case module$contents$jspb$BinaryConstants_FieldType.FLOAT:
+    case module$contents$jspb$BinaryConstants_FieldType.FIXED32:
+    case module$contents$jspb$BinaryConstants_FieldType.SFIXED32:
+      return module$contents$jspb$BinaryConstants_WireType.FIXED32;
+    default:
+      return module$contents$jspb$BinaryConstants_WireType.INVALID;
+  }
+}
+jspb.BinaryConstants.FieldType = module$contents$jspb$BinaryConstants_FieldType;
+jspb.BinaryConstants.FieldTypeToWireType = module$contents$jspb$BinaryConstants_FieldTypeToWireType;
 jspb.BinaryConstants.FLOAT32_EPS = 1.401298464324817e-45;
 jspb.BinaryConstants.FLOAT32_MIN = 1.1754943508222875e-38;
 jspb.BinaryConstants.FLOAT32_MAX = 3.4028234663852886e+38;
 jspb.BinaryConstants.FLOAT64_EPS = 5e-324;
 jspb.BinaryConstants.FLOAT64_MIN = 2.2250738585072014e-308;
 jspb.BinaryConstants.FLOAT64_MAX = 1.7976931348623157e+308;
+jspb.BinaryConstants.INVALID_FIELD_NUMBER = -1;
 jspb.BinaryConstants.TWO_TO_20 = 1048576;
 jspb.BinaryConstants.TWO_TO_23 = 8388608;
 jspb.BinaryConstants.TWO_TO_31 = 2147483648;
@@ -16611,7 +16540,9 @@ jspb.BinaryConstants.TWO_TO_32 = 4294967296;
 jspb.BinaryConstants.TWO_TO_52 = 4503599627370496;
 jspb.BinaryConstants.TWO_TO_63 = 9223372036854775808;
 jspb.BinaryConstants.TWO_TO_64 = 18446744073709551616;
+jspb.BinaryConstants.WireType = module$contents$jspb$BinaryConstants_WireType;
 jspb.BinaryConstants.ZERO_HASH = "\x00\x00\x00\x00\x00\x00\x00\x00";
+jspb.ByteSource = void 0;
 goog.crypt.stringToByteArray = function(str) {
   for (var output = [], p = 0, i = 0; i < str.length; i++) {
     var c = str.charCodeAt(i);
@@ -16680,189 +16611,74 @@ goog.crypt.xorByteArray = function(bytes1, bytes2) {
   }
   return result;
 };
-goog.userAgent.product = {};
-goog.userAgent.product.ASSUME_FIREFOX = !1;
-goog.userAgent.product.ASSUME_IPHONE = !1;
-goog.userAgent.product.ASSUME_IPAD = !1;
-goog.userAgent.product.ASSUME_ANDROID = !1;
-goog.userAgent.product.ASSUME_CHROME = !1;
-goog.userAgent.product.ASSUME_SAFARI = !1;
-goog.userAgent.product.PRODUCT_KNOWN_ = goog.userAgent.ASSUME_IE || goog.userAgent.ASSUME_EDGE || goog.userAgent.ASSUME_OPERA || goog.userAgent.product.ASSUME_FIREFOX || goog.userAgent.product.ASSUME_IPHONE || goog.userAgent.product.ASSUME_IPAD || goog.userAgent.product.ASSUME_ANDROID || goog.userAgent.product.ASSUME_CHROME || goog.userAgent.product.ASSUME_SAFARI;
-goog.userAgent.product.OPERA = goog.userAgent.OPERA;
-goog.userAgent.product.IE = goog.userAgent.IE;
-goog.userAgent.product.EDGE = goog.userAgent.EDGE;
-goog.userAgent.product.FIREFOX = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_FIREFOX : goog.labs.userAgent.browser.isFirefox();
-goog.userAgent.product.isIphoneOrIpod_ = function() {
-  return goog.labs.userAgent.platform.isIphone() || goog.labs.userAgent.platform.isIpod();
-};
-goog.userAgent.product.IPHONE = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_IPHONE : goog.userAgent.product.isIphoneOrIpod_();
-goog.userAgent.product.IPAD = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_IPAD : goog.labs.userAgent.platform.isIpad();
-goog.userAgent.product.ANDROID = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_ANDROID : goog.labs.userAgent.browser.isAndroidBrowser();
-goog.userAgent.product.CHROME = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_CHROME : goog.labs.userAgent.browser.isChrome();
-goog.userAgent.product.isSafariDesktop_ = function() {
-  return goog.labs.userAgent.browser.isSafari() && !goog.labs.userAgent.platform.isIos();
-};
-goog.userAgent.product.SAFARI = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_SAFARI : goog.userAgent.product.isSafariDesktop_();
-goog.crypt.base64 = {};
-goog.crypt.base64.DEFAULT_ALPHABET_COMMON_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-goog.crypt.base64.ENCODED_VALS = goog.crypt.base64.DEFAULT_ALPHABET_COMMON_ + "+/=";
-goog.crypt.base64.ENCODED_VALS_WEBSAFE = goog.crypt.base64.DEFAULT_ALPHABET_COMMON_ + "-_.";
-goog.crypt.base64.Alphabet = {DEFAULT:0, NO_PADDING:1, WEBSAFE:2, WEBSAFE_DOT_PADDING:3, WEBSAFE_NO_PADDING:4, };
-goog.crypt.base64.paddingChars_ = "=.";
-goog.crypt.base64.isPadding_ = function(char) {
-  return goog.string.contains(goog.crypt.base64.paddingChars_, char);
-};
-goog.crypt.base64.byteToCharMaps_ = {};
-goog.crypt.base64.charToByteMap_ = null;
-goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ = goog.userAgent.GECKO || goog.userAgent.WEBKIT && !goog.userAgent.product.SAFARI || goog.userAgent.OPERA;
-goog.crypt.base64.HAS_NATIVE_ENCODE_ = goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ || "function" == typeof goog.global.btoa;
-goog.crypt.base64.HAS_NATIVE_DECODE_ = goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ || !goog.userAgent.product.SAFARI && !goog.userAgent.IE && "function" == typeof goog.global.atob;
-goog.crypt.base64.encodeByteArray = function(input, alphabet) {
-  goog.asserts.assert(goog.isArrayLike(input), "encodeByteArray takes an array as a parameter");
-  void 0 === alphabet && (alphabet = goog.crypt.base64.Alphabet.DEFAULT);
-  goog.crypt.base64.init_();
-  for (var byteToCharMap = goog.crypt.base64.byteToCharMaps_[alphabet], output = [], i = 0; i < input.length; i += 3) {
-    var byte1 = input[i], haveByte2 = i + 1 < input.length, byte2 = haveByte2 ? input[i + 1] : 0, haveByte3 = i + 2 < input.length, byte3 = haveByte3 ? input[i + 2] : 0, outByte1 = byte1 >> 2, outByte2 = (byte1 & 3) << 4 | byte2 >> 4, outByte3 = (byte2 & 15) << 2 | byte3 >> 6, outByte4 = byte3 & 63;
-    haveByte3 || (outByte4 = 64, haveByte2 || (outByte3 = 64));
-    output.push(byteToCharMap[outByte1], byteToCharMap[outByte2], byteToCharMap[outByte3] || "", byteToCharMap[outByte4] || "");
-  }
-  return output.join("");
-};
-goog.crypt.base64.encodeString = function(input, alphabet) {
-  return goog.crypt.base64.HAS_NATIVE_ENCODE_ && !alphabet ? goog.global.btoa(input) : goog.crypt.base64.encodeByteArray(goog.crypt.stringToByteArray(input), alphabet);
-};
-goog.crypt.base64.decodeString = function(input, useCustomDecoder) {
-  if (goog.crypt.base64.HAS_NATIVE_DECODE_ && !useCustomDecoder) {
-    return goog.global.atob(input);
-  }
-  var output = "";
-  goog.crypt.base64.decodeStringInternal_(input, function pushByte(b) {
-    output += String.fromCharCode(b);
-  });
-  return output;
-};
-goog.crypt.base64.decodeStringToByteArray = function(input, opt_ignored) {
-  var output = [];
-  goog.crypt.base64.decodeStringInternal_(input, function pushByte(b) {
-    output.push(b);
-  });
-  return output;
-};
-goog.crypt.base64.decodeStringToUint8Array = function(input) {
-  goog.asserts.assert(!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10"), "Browser does not support typed arrays");
-  var len = input.length, approxByteLength = 3 * len / 4;
-  approxByteLength % 3 ? approxByteLength = Math.floor(approxByteLength) : goog.crypt.base64.isPadding_(input[len - 1]) && (approxByteLength = goog.crypt.base64.isPadding_(input[len - 2]) ? approxByteLength - 2 : approxByteLength - 1);
-  var output = new Uint8Array(approxByteLength), outLen = 0;
-  goog.crypt.base64.decodeStringInternal_(input, function pushByte(b) {
-    output[outLen++] = b;
-  });
-  return output.subarray(0, outLen);
-};
-goog.crypt.base64.decodeStringInternal_ = function(input, pushByte) {
-  function getByte(default_val) {
-    for (; nextCharIndex < input.length;) {
-      var ch = input.charAt(nextCharIndex++), b = goog.crypt.base64.charToByteMap_[ch];
-      if (null != b) {
-        return b;
-      }
-      if (!goog.string.isEmptyOrWhitespace(ch)) {
-        throw Error("Unknown base64 encoding at char: " + ch);
-      }
-    }
-    return default_val;
-  }
-  goog.crypt.base64.init_();
-  for (var nextCharIndex = 0;;) {
-    var byte1 = getByte(-1), byte2 = getByte(0), byte3 = getByte(64), byte4 = getByte(64);
-    if (64 === byte4 && -1 === byte1) {
-      break;
-    }
-    pushByte(byte1 << 2 | byte2 >> 4);
-    64 != byte3 && (pushByte(byte2 << 4 & 240 | byte3 >> 2), 64 != byte4 && pushByte(byte3 << 6 & 192 | byte4));
-  }
-};
-goog.crypt.base64.init_ = function() {
-  if (!goog.crypt.base64.charToByteMap_) {
-    goog.crypt.base64.charToByteMap_ = {};
-    for (var commonChars = goog.crypt.base64.DEFAULT_ALPHABET_COMMON_.split(""), specialChars = ["+/=", "+/", "-_=", "-_.", "-_", ], i = 0; 5 > i; i++) {
-      var chars = commonChars.concat(specialChars[i].split(""));
-      goog.crypt.base64.byteToCharMaps_[i] = chars;
-      for (var j = 0; j < chars.length; j++) {
-        var char = chars[j], existingByte = goog.crypt.base64.charToByteMap_[char];
-        void 0 === existingByte ? goog.crypt.base64.charToByteMap_[char] = j : goog.asserts.assert(existingByte === j);
-      }
-    }
-  }
-};
 jspb.utils = {};
-jspb.utils.split64Low = 0;
-jspb.utils.split64High = 0;
-jspb.utils.splitUint64 = function(value) {
-  var lowBits = value >>> 0, highBits = Math.floor((value - lowBits) / jspb.BinaryConstants.TWO_TO_32) >>> 0;
-  jspb.utils.split64Low = lowBits;
-  jspb.utils.split64High = highBits;
-};
-jspb.utils.splitInt64 = function(value) {
+var module$contents$jspb$utils_split64Low = 0, module$contents$jspb$utils_split64High = 0;
+function module$contents$jspb$utils_splitUint64(value) {
+  var lowBits = value >>> 0, highBits = Math.floor((value - lowBits) / 4294967296) >>> 0;
+  module$contents$jspb$utils_split64Low = lowBits;
+  module$contents$jspb$utils_split64High = highBits;
+}
+function module$contents$jspb$utils_splitInt64(value) {
   var sign = 0 > value;
   value = Math.abs(value);
-  var lowBits = value >>> 0, highBits = Math.floor((value - lowBits) / jspb.BinaryConstants.TWO_TO_32);
+  var lowBits = value >>> 0, highBits = Math.floor((value - lowBits) / 4294967296);
   highBits >>>= 0;
   sign && (highBits = ~highBits >>> 0, lowBits = (~lowBits >>> 0) + 1, 4294967295 < lowBits && (lowBits = 0, highBits++, 4294967295 < highBits && (highBits = 0)));
-  jspb.utils.split64Low = lowBits;
-  jspb.utils.split64High = highBits;
-};
-jspb.utils.splitZigzag64 = function(value) {
+  module$contents$jspb$utils_split64Low = lowBits;
+  module$contents$jspb$utils_split64High = highBits;
+}
+function module$contents$jspb$utils_splitZigzag64(value) {
   var sign = 0 > value;
   value = 2 * Math.abs(value);
-  jspb.utils.splitUint64(value);
-  var lowBits = jspb.utils.split64Low, highBits = jspb.utils.split64High;
+  module$contents$jspb$utils_splitUint64(value);
+  var lowBits = module$contents$jspb$utils_split64Low, highBits = module$contents$jspb$utils_split64High;
   sign && (0 == lowBits ? 0 == highBits ? highBits = lowBits = 4294967295 : (highBits--, lowBits = 4294967295) : lowBits--);
-  jspb.utils.split64Low = lowBits;
-  jspb.utils.split64High = highBits;
-};
-jspb.utils.splitFloat32 = function(value) {
+  module$contents$jspb$utils_split64Low = lowBits;
+  module$contents$jspb$utils_split64High = highBits;
+}
+function module$contents$jspb$utils_splitFloat32(value) {
   var sign = 0 > value ? 1 : 0;
   value = sign ? -value : value;
   if (0 === value) {
-    0 < 1 / value ? (jspb.utils.split64High = 0, jspb.utils.split64Low = 0) : (jspb.utils.split64High = 0, jspb.utils.split64Low = 2147483648);
+    0 < 1 / value ? module$contents$jspb$utils_split64Low = module$contents$jspb$utils_split64High = 0 : (module$contents$jspb$utils_split64High = 0, module$contents$jspb$utils_split64Low = 2147483648);
   } else {
     if (isNaN(value)) {
-      jspb.utils.split64High = 0, jspb.utils.split64Low = 2147483647;
+      module$contents$jspb$utils_split64High = 0, module$contents$jspb$utils_split64Low = 2147483647;
     } else {
-      if (value > jspb.BinaryConstants.FLOAT32_MAX) {
-        jspb.utils.split64High = 0, jspb.utils.split64Low = (sign << 31 | 2139095040) >>> 0;
+      if (3.4028234663852886e+38 < value) {
+        module$contents$jspb$utils_split64High = 0, module$contents$jspb$utils_split64Low = (sign << 31 | 2139095040) >>> 0;
       } else {
-        if (value < jspb.BinaryConstants.FLOAT32_MIN) {
+        if (1.1754943508222875e-38 > value) {
           var mant = Math.round(value / Math.pow(2, -149));
-          jspb.utils.split64High = 0;
-          jspb.utils.split64Low = (sign << 31 | mant) >>> 0;
+          module$contents$jspb$utils_split64High = 0;
+          module$contents$jspb$utils_split64Low = (sign << 31 | mant) >>> 0;
         } else {
           var exp = Math.floor(Math.log(value) / Math.LN2);
           mant = value * Math.pow(2, -exp);
-          mant = Math.round(mant * jspb.BinaryConstants.TWO_TO_23) & 8388607;
-          jspb.utils.split64High = 0;
-          jspb.utils.split64Low = (sign << 31 | exp + 127 << 23 | mant) >>> 0;
+          mant = Math.round(8388608 * mant) & 8388607;
+          module$contents$jspb$utils_split64High = 0;
+          module$contents$jspb$utils_split64Low = (sign << 31 | exp + 127 << 23 | mant) >>> 0;
         }
       }
     }
   }
-};
-jspb.utils.splitFloat64 = function(value) {
+}
+function module$contents$jspb$utils_splitFloat64(value) {
   var sign = 0 > value ? 1 : 0;
   value = sign ? -value : value;
   if (0 === value) {
-    jspb.utils.split64High = 0 < 1 / value ? 0 : 2147483648, jspb.utils.split64Low = 0;
+    module$contents$jspb$utils_split64High = 0 < 1 / value ? 0 : 2147483648, module$contents$jspb$utils_split64Low = 0;
   } else {
     if (isNaN(value)) {
-      jspb.utils.split64High = 2147483647, jspb.utils.split64Low = 4294967295;
+      module$contents$jspb$utils_split64High = 2147483647, module$contents$jspb$utils_split64Low = 4294967295;
     } else {
-      if (value > jspb.BinaryConstants.FLOAT64_MAX) {
-        jspb.utils.split64High = (sign << 31 | 2146435072) >>> 0, jspb.utils.split64Low = 0;
+      if (1.7976931348623157e+308 < value) {
+        module$contents$jspb$utils_split64High = (sign << 31 | 2146435072) >>> 0, module$contents$jspb$utils_split64Low = 0;
       } else {
-        if (value < jspb.BinaryConstants.FLOAT64_MIN) {
-          var mant = value / Math.pow(2, -1074), mantHigh = mant / jspb.BinaryConstants.TWO_TO_32;
-          jspb.utils.split64High = (sign << 31 | mantHigh) >>> 0;
-          jspb.utils.split64Low = mant >>> 0;
+        if (2.2250738585072014e-308 > value) {
+          var mant = value / Math.pow(2, -1074), mantHigh;
+          module$contents$jspb$utils_split64High = (sign << 31 | mant / 4294967296) >>> 0;
+          module$contents$jspb$utils_split64Low = mant >>> 0;
         } else {
           var x = value, exp = 0;
           if (2 <= x) {
@@ -16875,85 +16691,75 @@ jspb.utils.splitFloat64 = function(value) {
             }
           }
           mant = value * Math.pow(2, -exp);
-          mantHigh = mant * jspb.BinaryConstants.TWO_TO_20 & 1048575;
-          var mantLow = mant * jspb.BinaryConstants.TWO_TO_52 >>> 0;
-          jspb.utils.split64High = (sign << 31 | exp + 1023 << 20 | mantHigh) >>> 0;
-          jspb.utils.split64Low = mantLow;
+          var mantLow;
+          module$contents$jspb$utils_split64High = (sign << 31 | exp + 1023 << 20 | 1048576 * mant & 1048575) >>> 0;
+          module$contents$jspb$utils_split64Low = 4503599627370496 * mant >>> 0;
         }
       }
     }
   }
-};
-jspb.utils.splitHash64 = function(hash) {
+}
+function module$contents$jspb$utils_splitHash64(hash) {
   var e = hash.charCodeAt(4), f = hash.charCodeAt(5), g = hash.charCodeAt(6), h = hash.charCodeAt(7);
-  jspb.utils.split64Low = hash.charCodeAt(0) + (hash.charCodeAt(1) << 8) + (hash.charCodeAt(2) << 16) + (hash.charCodeAt(3) << 24) >>> 0;
-  jspb.utils.split64High = e + (f << 8) + (g << 16) + (h << 24) >>> 0;
-};
-jspb.utils.joinUint64 = function(bitsLow, bitsHigh) {
-  return bitsHigh * jspb.BinaryConstants.TWO_TO_32 + (bitsLow >>> 0);
-};
-jspb.utils.joinInt64 = function(bitsLow, bitsHigh) {
+  module$contents$jspb$utils_split64Low = hash.charCodeAt(0) + (hash.charCodeAt(1) << 8) + (hash.charCodeAt(2) << 16) + (hash.charCodeAt(3) << 24) >>> 0;
+  module$contents$jspb$utils_split64High = e + (f << 8) + (g << 16) + (h << 24) >>> 0;
+}
+function module$contents$jspb$utils_joinUint64(bitsLow, bitsHigh) {
+  return 4294967296 * bitsHigh + (bitsLow >>> 0);
+}
+function module$contents$jspb$utils_joinInt64(bitsLow, bitsHigh) {
   var sign = bitsHigh & 2147483648;
   sign && (bitsLow = ~bitsLow + 1 >>> 0, bitsHigh = ~bitsHigh >>> 0, 0 == bitsLow && (bitsHigh = bitsHigh + 1 >>> 0));
-  var result = jspb.utils.joinUint64(bitsLow, bitsHigh);
+  var result = module$contents$jspb$utils_joinUint64(bitsLow, bitsHigh);
   return sign ? -result : result;
-};
-jspb.utils.toZigzag64 = function(bitsLow, bitsHigh, convert) {
+}
+function module$contents$jspb$utils_toZigzag64(bitsLow, bitsHigh, convert) {
   var signFlipMask = bitsHigh >> 31;
   return convert(bitsLow << 1 ^ signFlipMask, (bitsHigh << 1 | bitsLow >>> 31) ^ signFlipMask);
-};
-jspb.utils.joinZigzag64 = function(bitsLow, bitsHigh) {
-  return jspb.utils.fromZigzag64(bitsLow, bitsHigh, jspb.utils.joinInt64);
-};
-jspb.utils.fromZigzag64 = function(bitsLow, bitsHigh, convert) {
+}
+function module$contents$jspb$utils_joinZigzag64(bitsLow, bitsHigh) {
+  return module$contents$jspb$utils_fromZigzag64(bitsLow, bitsHigh, module$contents$jspb$utils_joinInt64);
+}
+function module$contents$jspb$utils_fromZigzag64(bitsLow, bitsHigh, convert) {
   var signFlipMask = -(bitsLow & 1);
   return convert((bitsLow >>> 1 | bitsHigh << 31) ^ signFlipMask, bitsHigh >>> 1 ^ signFlipMask);
-};
-jspb.utils.joinFloat32 = function(bitsLow, bitsHigh) {
+}
+function module$contents$jspb$utils_joinFloat32(bitsLow, bitsHigh) {
   var sign = 2 * (bitsLow >> 31) + 1, exp = bitsLow >>> 23 & 255, mant = bitsLow & 8388607;
   return 255 == exp ? mant ? NaN : Infinity * sign : 0 == exp ? sign * Math.pow(2, -149) * mant : sign * Math.pow(2, exp - 150) * (mant + Math.pow(2, 23));
-};
-jspb.utils.joinFloat64 = function(bitsLow, bitsHigh) {
-  var sign = 2 * (bitsHigh >> 31) + 1, exp = bitsHigh >>> 20 & 2047, mant = jspb.BinaryConstants.TWO_TO_32 * (bitsHigh & 1048575) + bitsLow;
-  return 2047 == exp ? mant ? NaN : Infinity * sign : 0 == exp ? sign * Math.pow(2, -1074) * mant : sign * Math.pow(2, exp - 1075) * (mant + jspb.BinaryConstants.TWO_TO_52);
-};
-jspb.utils.joinHash64 = function(bitsLow, bitsHigh) {
+}
+function module$contents$jspb$utils_joinFloat64(bitsLow, bitsHigh) {
+  var sign = 2 * (bitsHigh >> 31) + 1, exp = bitsHigh >>> 20 & 2047, mant = 4294967296 * (bitsHigh & 1048575) + bitsLow;
+  return 2047 == exp ? mant ? NaN : Infinity * sign : 0 == exp ? sign * Math.pow(2, -1074) * mant : sign * Math.pow(2, exp - 1075) * (mant + 4503599627370496);
+}
+function module$contents$jspb$utils_joinHash64(bitsLow, bitsHigh) {
   return String.fromCharCode(bitsLow >>> 0 & 255, bitsLow >>> 8 & 255, bitsLow >>> 16 & 255, bitsLow >>> 24 & 255, bitsHigh >>> 0 & 255, bitsHigh >>> 8 & 255, bitsHigh >>> 16 & 255, bitsHigh >>> 24 & 255);
-};
-jspb.utils.DIGITS = "0123456789abcdef".split("");
-jspb.utils.ZERO_CHAR_CODE_ = 48;
-jspb.utils.A_CHAR_CODE_ = 97;
-jspb.utils.joinUnsignedDecimalString = function(bitsLow, bitsHigh) {
+}
+function module$contents$jspb$utils_joinUnsignedDecimalString(bitsLow, bitsHigh) {
   function decimalFrom1e7(digit1e7, needLeadingZeros) {
     var partial = digit1e7 ? String(digit1e7) : "";
     return needLeadingZeros ? "0000000".slice(partial.length) + partial : partial;
   }
   if (2097151 >= bitsHigh) {
-    return "" + (jspb.BinaryConstants.TWO_TO_32 * bitsHigh + bitsLow);
+    return "" + (4294967296 * bitsHigh + bitsLow);
   }
   var mid = (bitsLow >>> 24 | bitsHigh << 8) >>> 0 & 16777215, high = bitsHigh >> 16 & 65535, digitA = (bitsLow & 16777215) + 6777216 * mid + 6710656 * high, digitB = mid + 8147497 * high, digitC = 2 * high;
   10000000 <= digitA && (digitB += Math.floor(digitA / 10000000), digitA %= 10000000);
   10000000 <= digitB && (digitC += Math.floor(digitB / 10000000), digitB %= 10000000);
   return decimalFrom1e7(digitC, 0) + decimalFrom1e7(digitB, digitC) + decimalFrom1e7(digitA, 1);
-};
-jspb.utils.joinSignedDecimalString = function(bitsLow, bitsHigh) {
+}
+function module$contents$jspb$utils_joinSignedDecimalString(bitsLow, bitsHigh) {
   var negative = bitsHigh & 2147483648;
   negative && (bitsLow = ~bitsLow + 1 >>> 0, bitsHigh = ~bitsHigh + (0 == bitsLow ? 1 : 0) >>> 0);
-  var result = jspb.utils.joinUnsignedDecimalString(bitsLow, bitsHigh);
+  var result = module$contents$jspb$utils_joinUnsignedDecimalString(bitsLow, bitsHigh);
   return negative ? "-" + result : result;
-};
-jspb.utils.hash64ToDecimalString = function(hash, signed) {
-  jspb.utils.splitHash64(hash);
-  var bitsLow = jspb.utils.split64Low, bitsHigh = jspb.utils.split64High;
-  return signed ? jspb.utils.joinSignedDecimalString(bitsLow, bitsHigh) : jspb.utils.joinUnsignedDecimalString(bitsLow, bitsHigh);
-};
-jspb.utils.hash64ArrayToDecimalStrings = function(hashes, signed) {
-  for (var result = Array(hashes.length), i = 0; i < hashes.length; i++) {
-    result[i] = jspb.utils.hash64ToDecimalString(hashes[i], signed);
-  }
-  return result;
-};
-jspb.utils.decimalStringToHash64 = function(dec) {
+}
+function module$contents$jspb$utils_hash64ToDecimalString(hash, signed) {
+  module$contents$jspb$utils_splitHash64(hash);
+  var bitsLow = module$contents$jspb$utils_split64Low, bitsHigh = module$contents$jspb$utils_split64High;
+  return signed ? module$contents$jspb$utils_joinSignedDecimalString(bitsLow, bitsHigh) : module$contents$jspb$utils_joinUnsignedDecimalString(bitsLow, bitsHigh);
+}
+function module$contents$jspb$utils_decimalStringToHash64(dec) {
   function muladd(m, c) {
     for (var i = 0; 8 > i && (1 !== m || 0 < c); i++) {
       var r = m * resultBytes[i] + c;
@@ -16966,62 +16772,96 @@ jspb.utils.decimalStringToHash64 = function(dec) {
       resultBytes[i] = ~resultBytes[i] & 255;
     }
   }
-  goog.asserts.assert(0 < dec.length);
+  (0,goog.asserts.assert)(0 < dec.length);
   var minus = !1;
   "-" === dec[0] && (minus = !0, dec = dec.slice(1));
   for (var resultBytes = [0, 0, 0, 0, 0, 0, 0, 0], i$jscomp$0 = 0; i$jscomp$0 < dec.length; i$jscomp$0++) {
-    muladd(10, dec.charCodeAt(i$jscomp$0) - jspb.utils.ZERO_CHAR_CODE_);
+    muladd(10, dec.charCodeAt(i$jscomp$0) - 48);
   }
   minus && (neg(), muladd(1, 1));
   return goog.crypt.byteArrayToString(resultBytes);
-};
-jspb.utils.splitDecimalString = function(value) {
-  jspb.utils.splitHash64(jspb.utils.decimalStringToHash64(value));
-};
-jspb.utils.toHexDigit_ = function(nibble) {
-  return String.fromCharCode(10 > nibble ? jspb.utils.ZERO_CHAR_CODE_ + nibble : jspb.utils.A_CHAR_CODE_ - 10 + nibble);
-};
-jspb.utils.fromHexCharCode_ = function(hexCharCode) {
-  return hexCharCode >= jspb.utils.A_CHAR_CODE_ ? hexCharCode - jspb.utils.A_CHAR_CODE_ + 10 : hexCharCode - jspb.utils.ZERO_CHAR_CODE_;
-};
-jspb.utils.hash64ToHexString = function(hash) {
-  var temp = Array(18);
-  temp[0] = "0";
-  temp[1] = "x";
-  for (var i = 0; 8 > i; i++) {
-    var c = hash.charCodeAt(7 - i);
-    temp[2 * i + 2] = jspb.utils.toHexDigit_(c >> 4);
-    temp[2 * i + 3] = jspb.utils.toHexDigit_(c & 15);
+}
+function module$contents$jspb$utils_splitDecimalString(value) {
+  module$contents$jspb$utils_splitHash64(module$contents$jspb$utils_decimalStringToHash64(value));
+}
+function module$contents$jspb$utils_toHexDigit_(nibble) {
+  return String.fromCharCode(10 > nibble ? 48 + nibble : 87 + nibble);
+}
+function module$contents$jspb$utils_fromHexCharCode_(hexCharCode) {
+  return 97 <= hexCharCode ? hexCharCode - 97 + 10 : hexCharCode - 48;
+}
+function module$contents$jspb$utils_countFixedFields_(buffer, start, end, tag, stride) {
+  var count = 0, cursor = start;
+  if (128 > tag) {
+    for (; cursor < end && buffer[cursor++] == tag;) {
+      count++, cursor += stride;
+    }
+  } else {
+    for (; cursor < end;) {
+      for (var temp = tag; 128 < temp;) {
+        if (buffer[cursor++] != (temp & 127 | 128)) {
+          return count;
+        }
+        temp >>= 7;
+      }
+      if (buffer[cursor++] != temp) {
+        break;
+      }
+      count++;
+      cursor += stride;
+    }
   }
-  return temp.join("");
-};
-jspb.utils.hexStringToHash64 = function(hex) {
-  hex = hex.toLowerCase();
-  goog.asserts.assert(18 == hex.length);
-  goog.asserts.assert("0" == hex[0]);
-  goog.asserts.assert("x" == hex[1]);
-  for (var result = "", i = 0; 8 > i; i++) {
-    result = String.fromCharCode(16 * jspb.utils.fromHexCharCode_(hex.charCodeAt(2 * i + 2)) + jspb.utils.fromHexCharCode_(hex.charCodeAt(2 * i + 3))) + result;
+  return count;
+}
+function module$contents$jspb$utils_byteSourceToUint8Array(data) {
+  if (data.constructor === Uint8Array) {
+    return data;
   }
-  return result;
-};
-jspb.utils.hash64ToNumber = function(hash, signed) {
-  jspb.utils.splitHash64(hash);
-  var bitsLow = jspb.utils.split64Low, bitsHigh = jspb.utils.split64High;
-  return signed ? jspb.utils.joinInt64(bitsLow, bitsHigh) : jspb.utils.joinUint64(bitsLow, bitsHigh);
-};
-jspb.utils.numberToHash64 = function(value) {
-  jspb.utils.splitInt64(value);
-  return jspb.utils.joinHash64(jspb.utils.split64Low, jspb.utils.split64High);
-};
-jspb.utils.countVarints = function(buffer, start, end) {
-  for (var count = 0, i = start; i < end; i++) {
-    count += buffer[i] >> 7;
+  if (data.constructor === ArrayBuffer) {
+    return new Uint8Array(data);
   }
-  return end - start - count;
+  if (data.constructor === Array) {
+    return new Uint8Array(data);
+  }
+  if (data.constructor === String) {
+    return goog.crypt.base64.decodeStringToUint8Array(data);
+  }
+  (0,goog.asserts.fail)("Type not convertible to Uint8Array.");
+  return new Uint8Array(0);
+}
+function module$contents$jspb$utils_getSplit64Low() {
+  return module$contents$jspb$utils_split64Low;
+}
+function module$contents$jspb$utils_getSplit64High() {
+  return module$contents$jspb$utils_split64High;
+}
+jspb.utils.byteSourceToUint8Array = module$contents$jspb$utils_byteSourceToUint8Array;
+jspb.utils.countDelimitedFields = function module$contents$jspb$utils_countDelimitedFields(buffer, start, end, field) {
+  for (var count = 0, cursor = start, tag = 8 * field + module$contents$jspb$BinaryConstants_WireType.DELIMITED; cursor < end;) {
+    for (var temp = tag; 128 < temp;) {
+      if (buffer[cursor++] != (temp & 127 | 128)) {
+        return count;
+      }
+      temp >>= 7;
+    }
+    if (buffer[cursor++] != temp) {
+      break;
+    }
+    count++;
+    for (var length = 0, shift = 1; temp = buffer[cursor++], length += (temp & 127) * shift, shift *= 128, 0 != (temp & 128);) {
+    }
+    cursor += length;
+  }
+  return count;
 };
-jspb.utils.countVarintFields = function(buffer, start, end, field) {
-  var count = 0, cursor = start, tag = 8 * field + jspb.BinaryConstants.WireType.VARINT;
+jspb.utils.countFixed32Fields = function module$contents$jspb$utils_countFixed32Fields(buffer, start, end, field) {
+  return module$contents$jspb$utils_countFixedFields_(buffer, start, end, 8 * field + module$contents$jspb$BinaryConstants_WireType.FIXED32, 4);
+};
+jspb.utils.countFixed64Fields = function module$contents$jspb$utils_countFixed64Fields(buffer, start, end, field) {
+  return module$contents$jspb$utils_countFixedFields_(buffer, start, end, 8 * field + module$contents$jspb$BinaryConstants_WireType.FIXED64, 8);
+};
+jspb.utils.countVarintFields = function module$contents$jspb$utils_countVarintFields(buffer, start, end, field) {
+  var count = 0, cursor = start, tag = 8 * field + module$contents$jspb$BinaryConstants_WireType.VARINT;
   if (128 > tag) {
     for (; cursor < end && buffer[cursor++] == tag;) {
       for (count++;;) {
@@ -17049,66 +16889,82 @@ jspb.utils.countVarintFields = function(buffer, start, end, field) {
   }
   return count;
 };
-jspb.utils.countFixedFields_ = function(buffer, start, end, tag, stride) {
-  var count = 0, cursor = start;
-  if (128 > tag) {
-    for (; cursor < end && buffer[cursor++] == tag;) {
-      count++, cursor += stride;
-    }
-  } else {
-    for (; cursor < end;) {
-      for (var temp = tag; 128 < temp;) {
-        if (buffer[cursor++] != (temp & 127 | 128)) {
-          return count;
-        }
-        temp >>= 7;
-      }
-      if (buffer[cursor++] != temp) {
-        break;
-      }
-      count++;
-      cursor += stride;
-    }
+jspb.utils.countVarints = function module$contents$jspb$utils_countVarints(buffer, start, end) {
+  for (var count = 0, i = start; i < end; i++) {
+    count += buffer[i] >> 7;
   }
-  return count;
+  return end - start - count;
 };
-jspb.utils.countFixed32Fields = function(buffer, start, end, field) {
-  return jspb.utils.countFixedFields_(buffer, start, end, 8 * field + jspb.BinaryConstants.WireType.FIXED32, 4);
-};
-jspb.utils.countFixed64Fields = function(buffer, start, end, field) {
-  return jspb.utils.countFixedFields_(buffer, start, end, 8 * field + jspb.BinaryConstants.WireType.FIXED64, 8);
-};
-jspb.utils.countDelimitedFields = function(buffer, start, end, field) {
-  for (var count = 0, cursor = start, tag = 8 * field + jspb.BinaryConstants.WireType.DELIMITED; cursor < end;) {
-    for (var temp = tag; 128 < temp;) {
-      if (buffer[cursor++] != (temp & 127 | 128)) {
-        return count;
-      }
-      temp >>= 7;
-    }
-    if (buffer[cursor++] != temp) {
-      break;
-    }
-    count++;
-    for (var length = 0, shift = 1; temp = buffer[cursor++], length += (temp & 127) * shift, shift *= 128, 0 != (temp & 128);) {
-    }
-    cursor += length;
-  }
-  return count;
-};
-jspb.utils.debugBytesToTextFormat = function(byteSource) {
+jspb.utils.debugBytesToTextFormat = function module$contents$jspb$utils_debugBytesToTextFormat(byteSource) {
   var s = '"';
   if (byteSource) {
-    for (var bytes = jspb.utils.byteSourceToUint8Array(byteSource), i = 0; i < bytes.length; i++) {
+    for (var bytes = module$contents$jspb$utils_byteSourceToUint8Array(byteSource), i = 0; i < bytes.length; i++) {
       s += "\\x", 16 > bytes[i] && (s += "0"), s += bytes[i].toString(16);
     }
   }
   return s + '"';
 };
-jspb.utils.debugScalarToTextFormat = function(scalar) {
+jspb.utils.debugScalarToTextFormat = function module$contents$jspb$utils_debugScalarToTextFormat(scalar) {
   return "string" === typeof scalar ? goog.string.quote(scalar) : scalar.toString();
 };
-jspb.utils.stringToByteArray = function(str) {
+jspb.utils.decimalStringToHash64 = module$contents$jspb$utils_decimalStringToHash64;
+jspb.utils.DIGITS = "0123456789abcdef".split("");
+jspb.utils.fromZigzag64 = module$contents$jspb$utils_fromZigzag64;
+jspb.utils.hash64ArrayToDecimalStrings = function module$contents$jspb$utils_hash64ArrayToDecimalStrings(hashes, signed) {
+  for (var result = Array(hashes.length), i = 0; i < hashes.length; i++) {
+    result[i] = module$contents$jspb$utils_hash64ToDecimalString(hashes[i], signed);
+  }
+  return result;
+};
+jspb.utils.hash64ToDecimalString = module$contents$jspb$utils_hash64ToDecimalString;
+jspb.utils.hash64ToHexString = function module$contents$jspb$utils_hash64ToHexString(hash) {
+  var temp = Array(18);
+  temp[0] = "0";
+  temp[1] = "x";
+  for (var i = 0; 8 > i; i++) {
+    var c = hash.charCodeAt(7 - i);
+    temp[2 * i + 2] = module$contents$jspb$utils_toHexDigit_(c >> 4);
+    temp[2 * i + 3] = module$contents$jspb$utils_toHexDigit_(c & 15);
+  }
+  return temp.join("");
+};
+jspb.utils.hash64ToNumber = function module$contents$jspb$utils_hash64ToNumber(hash, signed) {
+  module$contents$jspb$utils_splitHash64(hash);
+  var bitsLow = module$contents$jspb$utils_split64Low, bitsHigh = module$contents$jspb$utils_split64High;
+  return signed ? module$contents$jspb$utils_joinInt64(bitsLow, bitsHigh) : module$contents$jspb$utils_joinUint64(bitsLow, bitsHigh);
+};
+jspb.utils.hexStringToHash64 = function module$contents$jspb$utils_hexStringToHash64(hex) {
+  hex = hex.toLowerCase();
+  (0,goog.asserts.assert)(18 == hex.length);
+  (0,goog.asserts.assert)("0" == hex[0]);
+  (0,goog.asserts.assert)("x" == hex[1]);
+  for (var result = "", i = 0; 8 > i; i++) {
+    result = String.fromCharCode(16 * module$contents$jspb$utils_fromHexCharCode_(hex.charCodeAt(2 * i + 2)) + module$contents$jspb$utils_fromHexCharCode_(hex.charCodeAt(2 * i + 3))) + result;
+  }
+  return result;
+};
+jspb.utils.joinFloat64 = module$contents$jspb$utils_joinFloat64;
+jspb.utils.joinFloat32 = module$contents$jspb$utils_joinFloat32;
+jspb.utils.joinHash64 = module$contents$jspb$utils_joinHash64;
+jspb.utils.joinInt64 = module$contents$jspb$utils_joinInt64;
+jspb.utils.joinSignedDecimalString = module$contents$jspb$utils_joinSignedDecimalString;
+jspb.utils.joinUint64 = module$contents$jspb$utils_joinUint64;
+jspb.utils.joinUnsignedDecimalString = module$contents$jspb$utils_joinUnsignedDecimalString;
+jspb.utils.joinZigzag64 = module$contents$jspb$utils_joinZigzag64;
+jspb.utils.numberToHash64 = function module$contents$jspb$utils_numberToHash64(value) {
+  module$contents$jspb$utils_splitInt64(value);
+  return module$contents$jspb$utils_joinHash64(module$contents$jspb$utils_split64Low, module$contents$jspb$utils_split64High);
+};
+jspb.utils.splitDecimalString = module$contents$jspb$utils_splitDecimalString;
+jspb.utils.splitHash64 = module$contents$jspb$utils_splitHash64;
+jspb.utils.splitFloat64 = module$contents$jspb$utils_splitFloat64;
+jspb.utils.splitFloat32 = module$contents$jspb$utils_splitFloat32;
+jspb.utils.splitZigzag64 = module$contents$jspb$utils_splitZigzag64;
+jspb.utils.splitInt64 = module$contents$jspb$utils_splitInt64;
+jspb.utils.splitUint64 = module$contents$jspb$utils_splitUint64;
+jspb.utils.getSplit64Low = module$contents$jspb$utils_getSplit64Low;
+jspb.utils.getSplit64High = module$contents$jspb$utils_getSplit64High;
+jspb.utils.stringToByteArray = function module$contents$jspb$utils_stringToByteArray(str) {
   for (var arr = new Uint8Array(str.length), i = 0; i < str.length; i++) {
     var codepoint = str.charCodeAt(i);
     if (255 < codepoint) {
@@ -17118,87 +16974,71 @@ jspb.utils.stringToByteArray = function(str) {
   }
   return arr;
 };
-jspb.utils.byteSourceToUint8Array = function(data) {
-  if (data.constructor === Uint8Array) {
-    return data;
-  }
-  if (data.constructor === ArrayBuffer) {
-    return new Uint8Array(data);
-  }
-  if (data.constructor === Array) {
-    return new Uint8Array(data);
-  }
-  if (data.constructor === String) {
-    return goog.crypt.base64.decodeStringToUint8Array(data);
-  }
-  goog.asserts.fail("Type not convertible to Uint8Array.");
-  return new Uint8Array(0);
-};
-jspb.BinaryDecoder = function(opt_bytes, opt_start, opt_length) {
+jspb.utils.toZigzag64 = module$contents$jspb$utils_toZigzag64;
+var module$contents$jspb$BinaryDecoder_BinaryDecoder = function(bytes, start, length) {
   this.bytes_ = null;
   this.cursor_ = this.end_ = this.start_ = 0;
   this.error_ = !1;
-  opt_bytes && this.setBlock(opt_bytes, opt_start, opt_length);
+  bytes && this.setBlock(bytes, start, length);
 };
-jspb.BinaryDecoder.instanceCache_ = [];
-jspb.BinaryDecoder.alloc = function(opt_bytes, opt_start, opt_length) {
-  if (jspb.BinaryDecoder.instanceCache_.length) {
-    var newDecoder = jspb.BinaryDecoder.instanceCache_.pop();
-    opt_bytes && newDecoder.setBlock(opt_bytes, opt_start, opt_length);
+module$contents$jspb$BinaryDecoder_BinaryDecoder.alloc = function(bytes, start, length) {
+  if (module$contents$jspb$BinaryDecoder_BinaryDecoder.instanceCache_.length) {
+    var newDecoder = module$contents$jspb$BinaryDecoder_BinaryDecoder.instanceCache_.pop();
+    bytes && newDecoder.setBlock(bytes, start, length);
     return newDecoder;
   }
-  return new jspb.BinaryDecoder(opt_bytes, opt_start, opt_length);
+  return new module$contents$jspb$BinaryDecoder_BinaryDecoder(bytes, start, length);
 };
-jspb.BinaryDecoder.prototype.free = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.free = function() {
   this.clear();
-  100 > jspb.BinaryDecoder.instanceCache_.length && jspb.BinaryDecoder.instanceCache_.push(this);
+  100 > module$contents$jspb$BinaryDecoder_BinaryDecoder.instanceCache_.length && module$contents$jspb$BinaryDecoder_BinaryDecoder.instanceCache_.push(this);
 };
-jspb.BinaryDecoder.prototype.clone = function() {
-  return jspb.BinaryDecoder.alloc(this.bytes_, this.start_, this.end_ - this.start_);
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.clone = function() {
+  return module$contents$jspb$BinaryDecoder_BinaryDecoder.alloc(this.bytes_, this.start_, this.end_ - this.start_);
 };
-jspb.BinaryDecoder.prototype.clear = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.clear = function() {
   this.bytes_ = null;
   this.cursor_ = this.end_ = this.start_ = 0;
   this.error_ = !1;
 };
-jspb.BinaryDecoder.prototype.getBuffer = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.getBuffer = function() {
   return this.bytes_;
 };
-jspb.BinaryDecoder.prototype.setBlock = function(data, opt_start, opt_length) {
-  this.bytes_ = jspb.utils.byteSourceToUint8Array(data);
-  this.start_ = void 0 !== opt_start ? opt_start : 0;
-  this.end_ = void 0 !== opt_length ? this.start_ + opt_length : this.bytes_.length;
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.setBlock = function(data, start, length) {
+  this.bytes_ = module$contents$jspb$utils_byteSourceToUint8Array(data);
+  this.start_ = void 0 !== start ? start : 0;
+  this.end_ = void 0 !== length ? this.start_ + length : this.bytes_.length;
   this.cursor_ = this.start_;
 };
-jspb.BinaryDecoder.prototype.getEnd = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.getEnd = function() {
   return this.end_;
 };
-jspb.BinaryDecoder.prototype.setEnd = function(end) {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.setEnd = function(end) {
   this.end_ = end;
 };
-jspb.BinaryDecoder.prototype.reset = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.reset = function() {
   this.cursor_ = this.start_;
 };
-jspb.BinaryDecoder.prototype.getCursor = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.getCursor = function() {
   return this.cursor_;
 };
-jspb.BinaryDecoder.prototype.setCursor = function(cursor) {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.setCursor = function(cursor) {
   this.cursor_ = cursor;
 };
-jspb.BinaryDecoder.prototype.advance = function(count) {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.advance = function(count) {
   this.cursor_ += count;
   goog.asserts.assert(this.cursor_ <= this.end_);
 };
-jspb.BinaryDecoder.prototype.atEnd = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.atEnd = function() {
   return this.cursor_ == this.end_;
 };
-jspb.BinaryDecoder.prototype.pastEnd = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.pastEnd = function() {
   return this.cursor_ > this.end_;
 };
-jspb.BinaryDecoder.prototype.getError = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.getError = function() {
   return this.error_ || 0 > this.cursor_ || this.cursor_ > this.end_;
 };
-jspb.BinaryDecoder.prototype.readSplitVarint64 = function(convert) {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readSplitVarint64 = function(convert) {
   for (var temp = 128, lowBits = 0, highBits = 0, i = 0; 4 > i && 128 <= temp; i++) {
     temp = this.bytes_[this.cursor_++], lowBits |= (temp & 127) << 7 * i;
   }
@@ -17214,12 +17054,12 @@ jspb.BinaryDecoder.prototype.readSplitVarint64 = function(convert) {
   goog.asserts.fail("Failed to read varint, encoding is invalid.");
   this.error_ = !0;
 };
-jspb.BinaryDecoder.prototype.readSplitZigzagVarint64 = function(convert) {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readSplitZigzagVarint64 = function(convert) {
   return this.readSplitVarint64(function(low, high) {
-    return jspb.utils.fromZigzag64(low, high, convert);
+    return module$contents$jspb$utils_fromZigzag64(low, high, convert);
   });
 };
-jspb.BinaryDecoder.prototype.readSplitFixed64 = function(convert) {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readSplitFixed64 = function(convert) {
   var bytes = this.bytes_, cursor = this.cursor_;
   this.cursor_ += 8;
   for (var lowBits = 0, highBits = 0, i = cursor + 7; i >= cursor; i--) {
@@ -17227,19 +17067,19 @@ jspb.BinaryDecoder.prototype.readSplitFixed64 = function(convert) {
   }
   return convert(lowBits, highBits);
 };
-jspb.BinaryDecoder.prototype.skipVarint = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.skipVarint = function() {
   for (; this.bytes_[this.cursor_] & 128;) {
     this.cursor_++;
   }
   this.cursor_++;
 };
-jspb.BinaryDecoder.prototype.unskipVarint = function(value) {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.unskipVarint = function(value) {
   for (; 128 < value;) {
     this.cursor_--, value >>>= 7;
   }
   this.cursor_--;
 };
-jspb.BinaryDecoder.prototype.readUnsignedVarint32 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readUnsignedVarint32 = function() {
   var bytes = this.bytes_;
   var temp = bytes[this.cursor_ + 0];
   var x = temp & 127;
@@ -17271,102 +17111,104 @@ jspb.BinaryDecoder.prototype.readUnsignedVarint32 = function() {
   goog.asserts.assert(this.cursor_ <= this.end_);
   return x;
 };
-jspb.BinaryDecoder.prototype.readSignedVarint32 = jspb.BinaryDecoder.prototype.readUnsignedVarint32;
-jspb.BinaryDecoder.prototype.readUnsignedVarint32String = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readSignedVarint32 = function() {
+  return this.readUnsignedVarint32();
+};
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readUnsignedVarint32String = function() {
   return this.readUnsignedVarint32().toString();
 };
-jspb.BinaryDecoder.prototype.readSignedVarint32String = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readSignedVarint32String = function() {
   return this.readSignedVarint32().toString();
 };
-jspb.BinaryDecoder.prototype.readZigzagVarint32 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readZigzagVarint32 = function() {
   var result = this.readUnsignedVarint32();
   return result >>> 1 ^ -(result & 1);
 };
-jspb.BinaryDecoder.prototype.readUnsignedVarint64 = function() {
-  return this.readSplitVarint64(jspb.utils.joinUint64);
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readUnsignedVarint64 = function() {
+  return this.readSplitVarint64(module$contents$jspb$utils_joinUint64);
 };
-jspb.BinaryDecoder.prototype.readUnsignedVarint64String = function() {
-  return this.readSplitVarint64(jspb.utils.joinUnsignedDecimalString);
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readUnsignedVarint64String = function() {
+  return this.readSplitVarint64(module$contents$jspb$utils_joinUnsignedDecimalString);
 };
-jspb.BinaryDecoder.prototype.readSignedVarint64 = function() {
-  return this.readSplitVarint64(jspb.utils.joinInt64);
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readSignedVarint64 = function() {
+  return this.readSplitVarint64(module$contents$jspb$utils_joinInt64);
 };
-jspb.BinaryDecoder.prototype.readSignedVarint64String = function() {
-  return this.readSplitVarint64(jspb.utils.joinSignedDecimalString);
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readSignedVarint64String = function() {
+  return this.readSplitVarint64(module$contents$jspb$utils_joinSignedDecimalString);
 };
-jspb.BinaryDecoder.prototype.readZigzagVarint64 = function() {
-  return this.readSplitVarint64(jspb.utils.joinZigzag64);
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readZigzagVarint64 = function() {
+  return this.readSplitVarint64(module$contents$jspb$utils_joinZigzag64);
 };
-jspb.BinaryDecoder.prototype.readZigzagVarint64String = function() {
-  return this.readSplitZigzagVarint64(jspb.utils.joinSignedDecimalString);
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readZigzagVarint64String = function() {
+  return this.readSplitZigzagVarint64(module$contents$jspb$utils_joinSignedDecimalString);
 };
-jspb.BinaryDecoder.prototype.readUint8 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readUint8 = function() {
   var a = this.bytes_[this.cursor_ + 0];
   this.cursor_ += 1;
   goog.asserts.assert(this.cursor_ <= this.end_);
   return a;
 };
-jspb.BinaryDecoder.prototype.readUint16 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readUint16 = function() {
   var a = this.bytes_[this.cursor_ + 0], b = this.bytes_[this.cursor_ + 1];
   this.cursor_ += 2;
   goog.asserts.assert(this.cursor_ <= this.end_);
   return a << 0 | b << 8;
 };
-jspb.BinaryDecoder.prototype.readUint32 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readUint32 = function() {
   var a = this.bytes_[this.cursor_ + 0], b = this.bytes_[this.cursor_ + 1], c = this.bytes_[this.cursor_ + 2], d = this.bytes_[this.cursor_ + 3];
   this.cursor_ += 4;
   goog.asserts.assert(this.cursor_ <= this.end_);
   return (a << 0 | b << 8 | c << 16 | d << 24) >>> 0;
 };
-jspb.BinaryDecoder.prototype.readUint64 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readUint64 = function() {
   var bitsLow = this.readUint32(), bitsHigh = this.readUint32();
-  return jspb.utils.joinUint64(bitsLow, bitsHigh);
+  return module$contents$jspb$utils_joinUint64(bitsLow, bitsHigh);
 };
-jspb.BinaryDecoder.prototype.readUint64String = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readUint64String = function() {
   var bitsLow = this.readUint32(), bitsHigh = this.readUint32();
-  return jspb.utils.joinUnsignedDecimalString(bitsLow, bitsHigh);
+  return module$contents$jspb$utils_joinUnsignedDecimalString(bitsLow, bitsHigh);
 };
-jspb.BinaryDecoder.prototype.readInt8 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readInt8 = function() {
   var a = this.bytes_[this.cursor_ + 0];
   this.cursor_ += 1;
   goog.asserts.assert(this.cursor_ <= this.end_);
   return a << 24 >> 24;
 };
-jspb.BinaryDecoder.prototype.readInt16 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readInt16 = function() {
   var a = this.bytes_[this.cursor_ + 0], b = this.bytes_[this.cursor_ + 1];
   this.cursor_ += 2;
   goog.asserts.assert(this.cursor_ <= this.end_);
   return (a << 0 | b << 8) << 16 >> 16;
 };
-jspb.BinaryDecoder.prototype.readInt32 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readInt32 = function() {
   var a = this.bytes_[this.cursor_ + 0], b = this.bytes_[this.cursor_ + 1], c = this.bytes_[this.cursor_ + 2], d = this.bytes_[this.cursor_ + 3];
   this.cursor_ += 4;
   goog.asserts.assert(this.cursor_ <= this.end_);
   return a << 0 | b << 8 | c << 16 | d << 24;
 };
-jspb.BinaryDecoder.prototype.readInt64 = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readInt64 = function() {
   var bitsLow = this.readUint32(), bitsHigh = this.readUint32();
-  return jspb.utils.joinInt64(bitsLow, bitsHigh);
+  return module$contents$jspb$utils_joinInt64(bitsLow, bitsHigh);
 };
-jspb.BinaryDecoder.prototype.readInt64String = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readInt64String = function() {
   var bitsLow = this.readUint32(), bitsHigh = this.readUint32();
-  return jspb.utils.joinSignedDecimalString(bitsLow, bitsHigh);
+  return module$contents$jspb$utils_joinSignedDecimalString(bitsLow, bitsHigh);
 };
-jspb.BinaryDecoder.prototype.readFloat = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readFloat = function() {
   var bitsLow = this.readUint32();
-  return jspb.utils.joinFloat32(bitsLow, 0);
+  return module$contents$jspb$utils_joinFloat32(bitsLow, 0);
 };
-jspb.BinaryDecoder.prototype.readDouble = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readDouble = function() {
   var bitsLow = this.readUint32(), bitsHigh = this.readUint32();
-  return jspb.utils.joinFloat64(bitsLow, bitsHigh);
+  return module$contents$jspb$utils_joinFloat64(bitsLow, bitsHigh);
 };
-jspb.BinaryDecoder.prototype.readBool = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readBool = function() {
   return !!this.bytes_[this.cursor_++];
 };
-jspb.BinaryDecoder.prototype.readEnum = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readEnum = function() {
   return this.readSignedVarint32();
 };
-jspb.BinaryDecoder.prototype.readString = function(length) {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readString = function(length) {
   for (var bytes = this.bytes_, cursor = this.cursor_, end = cursor + length, codeUnits = [], result = ""; cursor < end;) {
     var c = bytes[cursor++];
     if (128 > c) {
@@ -17401,11 +17243,11 @@ jspb.BinaryDecoder.prototype.readString = function(length) {
   this.cursor_ = cursor;
   return result;
 };
-jspb.BinaryDecoder.prototype.readStringWithLength = function() {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readStringWithLength = function() {
   var length = this.readUnsignedVarint32();
   return this.readString(length);
 };
-jspb.BinaryDecoder.prototype.readBytes = function(length) {
+module$contents$jspb$BinaryDecoder_BinaryDecoder.prototype.readBytes = function(length) {
   if (0 > length || this.cursor_ + length > this.bytes_.length) {
     return this.error_ = !0, goog.asserts.fail("Invalid byte length!"), new Uint8Array(0);
   }
@@ -17414,67 +17256,73 @@ jspb.BinaryDecoder.prototype.readBytes = function(length) {
   goog.asserts.assert(this.cursor_ <= this.end_);
   return result;
 };
-jspb.BinaryReader = function(opt_bytes, opt_start, opt_length) {
-  this.decoder_ = jspb.BinaryDecoder.alloc(opt_bytes, opt_start, opt_length);
+module$contents$jspb$BinaryDecoder_BinaryDecoder.resetInstanceCache = function() {
+  module$contents$jspb$BinaryDecoder_BinaryDecoder.instanceCache_ = [];
+};
+module$contents$jspb$BinaryDecoder_BinaryDecoder.getInstanceCache = function() {
+  return module$contents$jspb$BinaryDecoder_BinaryDecoder.instanceCache_;
+};
+module$contents$jspb$BinaryDecoder_BinaryDecoder.instanceCache_ = [];
+jspb.BinaryDecoder = module$contents$jspb$BinaryDecoder_BinaryDecoder;
+var module$contents$jspb$BinaryReader_BinaryReader = function(bytes, start, length) {
+  this.decoder_ = module$contents$jspb$BinaryDecoder_BinaryDecoder.alloc(bytes, start, length);
   this.fieldCursor_ = this.decoder_.getCursor();
-  this.nextField_ = jspb.BinaryConstants.INVALID_FIELD_NUMBER;
-  this.nextWireType_ = jspb.BinaryConstants.WireType.INVALID;
+  this.nextField_ = -1;
+  this.nextWireType_ = module$contents$jspb$BinaryConstants_WireType.INVALID;
   this.error_ = !1;
   this.readCallbacks_ = null;
 };
-jspb.BinaryReader.instanceCache_ = [];
-jspb.BinaryReader.alloc = function(opt_bytes, opt_start, opt_length) {
-  if (jspb.BinaryReader.instanceCache_.length) {
-    var newReader = jspb.BinaryReader.instanceCache_.pop();
-    opt_bytes && newReader.decoder_.setBlock(opt_bytes, opt_start, opt_length);
+module$contents$jspb$BinaryReader_BinaryReader.alloc = function(bytes, start, length) {
+  if (module$contents$jspb$BinaryReader_BinaryReader.instanceCache_.length) {
+    var newReader = module$contents$jspb$BinaryReader_BinaryReader.instanceCache_.pop();
+    bytes && newReader.decoder_.setBlock(bytes, start, length);
     return newReader;
   }
-  return new jspb.BinaryReader(opt_bytes, opt_start, opt_length);
+  return new module$contents$jspb$BinaryReader_BinaryReader(bytes, start, length);
 };
-jspb.BinaryReader.prototype.alloc = jspb.BinaryReader.alloc;
-jspb.BinaryReader.prototype.free = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.free = function() {
   this.decoder_.clear();
-  this.nextField_ = jspb.BinaryConstants.INVALID_FIELD_NUMBER;
-  this.nextWireType_ = jspb.BinaryConstants.WireType.INVALID;
+  this.nextField_ = -1;
+  this.nextWireType_ = module$contents$jspb$BinaryConstants_WireType.INVALID;
   this.error_ = !1;
   this.readCallbacks_ = null;
-  100 > jspb.BinaryReader.instanceCache_.length && jspb.BinaryReader.instanceCache_.push(this);
+  100 > module$contents$jspb$BinaryReader_BinaryReader.instanceCache_.length && module$contents$jspb$BinaryReader_BinaryReader.instanceCache_.push(this);
 };
-jspb.BinaryReader.prototype.getFieldCursor = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.getFieldCursor = function() {
   return this.fieldCursor_;
 };
-jspb.BinaryReader.prototype.getCursor = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.getCursor = function() {
   return this.decoder_.getCursor();
 };
-jspb.BinaryReader.prototype.getBuffer = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.getBuffer = function() {
   return this.decoder_.getBuffer();
 };
-jspb.BinaryReader.prototype.getFieldNumber = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.getFieldNumber = function() {
   return this.nextField_;
 };
-jspb.BinaryReader.prototype.getWireType = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.getWireType = function() {
   return this.nextWireType_;
 };
-jspb.BinaryReader.prototype.isEndGroup = function() {
-  return this.nextWireType_ == jspb.BinaryConstants.WireType.END_GROUP;
+module$contents$jspb$BinaryReader_BinaryReader.prototype.isEndGroup = function() {
+  return this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.END_GROUP;
 };
-jspb.BinaryReader.prototype.getError = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.getError = function() {
   return this.error_ || this.decoder_.getError();
 };
-jspb.BinaryReader.prototype.setBlock = function(bytes, start, length) {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.setBlock = function(bytes, start, length) {
   this.decoder_.setBlock(bytes, start, length);
-  this.nextField_ = jspb.BinaryConstants.INVALID_FIELD_NUMBER;
-  this.nextWireType_ = jspb.BinaryConstants.WireType.INVALID;
+  this.nextField_ = -1;
+  this.nextWireType_ = module$contents$jspb$BinaryConstants_WireType.INVALID;
 };
-jspb.BinaryReader.prototype.reset = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.reset = function() {
   this.decoder_.reset();
-  this.nextField_ = jspb.BinaryConstants.INVALID_FIELD_NUMBER;
-  this.nextWireType_ = jspb.BinaryConstants.WireType.INVALID;
+  this.nextField_ = -1;
+  this.nextWireType_ = module$contents$jspb$BinaryConstants_WireType.INVALID;
 };
-jspb.BinaryReader.prototype.advance = function(count) {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.advance = function(count) {
   this.decoder_.advance(count);
 };
-jspb.BinaryReader.prototype.nextField = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.nextField = function() {
   if (this.decoder_.atEnd()) {
     return !1;
   }
@@ -17483,41 +17331,41 @@ jspb.BinaryReader.prototype.nextField = function() {
   }
   this.fieldCursor_ = this.decoder_.getCursor();
   var header = this.decoder_.readUnsignedVarint32(), nextField = header >>> 3, nextWireType = header & 7;
-  if (nextWireType != jspb.BinaryConstants.WireType.VARINT && nextWireType != jspb.BinaryConstants.WireType.FIXED32 && nextWireType != jspb.BinaryConstants.WireType.FIXED64 && nextWireType != jspb.BinaryConstants.WireType.DELIMITED && nextWireType != jspb.BinaryConstants.WireType.START_GROUP && nextWireType != jspb.BinaryConstants.WireType.END_GROUP) {
+  if (nextWireType != module$contents$jspb$BinaryConstants_WireType.VARINT && nextWireType != module$contents$jspb$BinaryConstants_WireType.FIXED32 && nextWireType != module$contents$jspb$BinaryConstants_WireType.FIXED64 && nextWireType != module$contents$jspb$BinaryConstants_WireType.DELIMITED && nextWireType != module$contents$jspb$BinaryConstants_WireType.START_GROUP && nextWireType != module$contents$jspb$BinaryConstants_WireType.END_GROUP) {
     return goog.asserts.fail("Invalid wire type: %s (at position %s)", nextWireType, this.fieldCursor_), this.error_ = !0, !1;
   }
   this.nextField_ = nextField;
   this.nextWireType_ = nextWireType;
   return !0;
 };
-jspb.BinaryReader.prototype.unskipHeader = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.unskipHeader = function() {
   this.decoder_.unskipVarint(this.nextField_ << 3 | this.nextWireType_);
 };
-jspb.BinaryReader.prototype.skipMatchingFields = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.skipMatchingFields = function() {
   var field = this.nextField_;
   for (this.unskipHeader(); this.nextField() && this.getFieldNumber() == field;) {
     this.skipField();
   }
   this.decoder_.atEnd() || this.unskipHeader();
 };
-jspb.BinaryReader.prototype.skipVarintField = function() {
-  this.nextWireType_ != jspb.BinaryConstants.WireType.VARINT ? (goog.asserts.fail("Invalid wire type for skipVarintField"), this.skipField()) : this.decoder_.skipVarint();
+module$contents$jspb$BinaryReader_BinaryReader.prototype.skipVarintField = function() {
+  this.nextWireType_ != module$contents$jspb$BinaryConstants_WireType.VARINT ? (goog.asserts.fail("Invalid wire type for skipVarintField"), this.skipField()) : this.decoder_.skipVarint();
 };
-jspb.BinaryReader.prototype.skipDelimitedField = function() {
-  if (this.nextWireType_ != jspb.BinaryConstants.WireType.DELIMITED) {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.skipDelimitedField = function() {
+  if (this.nextWireType_ != module$contents$jspb$BinaryConstants_WireType.DELIMITED) {
     goog.asserts.fail("Invalid wire type for skipDelimitedField"), this.skipField();
   } else {
     var length = this.decoder_.readUnsignedVarint32();
     this.decoder_.advance(length);
   }
 };
-jspb.BinaryReader.prototype.skipFixed32Field = function() {
-  this.nextWireType_ != jspb.BinaryConstants.WireType.FIXED32 ? (goog.asserts.fail("Invalid wire type for skipFixed32Field"), this.skipField()) : this.decoder_.advance(4);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.skipFixed32Field = function() {
+  this.nextWireType_ != module$contents$jspb$BinaryConstants_WireType.FIXED32 ? (goog.asserts.fail("Invalid wire type for skipFixed32Field"), this.skipField()) : this.decoder_.advance(4);
 };
-jspb.BinaryReader.prototype.skipFixed64Field = function() {
-  this.nextWireType_ != jspb.BinaryConstants.WireType.FIXED64 ? (goog.asserts.fail("Invalid wire type for skipFixed64Field"), this.skipField()) : this.decoder_.advance(8);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.skipFixed64Field = function() {
+  this.nextWireType_ != module$contents$jspb$BinaryConstants_WireType.FIXED64 ? (goog.asserts.fail("Invalid wire type for skipFixed64Field"), this.skipField()) : this.decoder_.advance(8);
 };
-jspb.BinaryReader.prototype.skipGroup = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.skipGroup = function() {
   var previousField = this.nextField_;
   do {
     if (!this.nextField()) {
@@ -17525,292 +17373,299 @@ jspb.BinaryReader.prototype.skipGroup = function() {
       this.error_ = !0;
       break;
     }
-    if (this.nextWireType_ == jspb.BinaryConstants.WireType.END_GROUP) {
+    if (this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.END_GROUP) {
       this.nextField_ != previousField && (goog.asserts.fail("Unmatched end-group tag"), this.error_ = !0);
       break;
     }
     this.skipField();
   } while (1);
 };
-jspb.BinaryReader.prototype.skipField = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.skipField = function() {
   switch(this.nextWireType_) {
-    case jspb.BinaryConstants.WireType.VARINT:
+    case module$contents$jspb$BinaryConstants_WireType.VARINT:
       this.skipVarintField();
       break;
-    case jspb.BinaryConstants.WireType.FIXED64:
+    case module$contents$jspb$BinaryConstants_WireType.FIXED64:
       this.skipFixed64Field();
       break;
-    case jspb.BinaryConstants.WireType.DELIMITED:
+    case module$contents$jspb$BinaryConstants_WireType.DELIMITED:
       this.skipDelimitedField();
       break;
-    case jspb.BinaryConstants.WireType.FIXED32:
+    case module$contents$jspb$BinaryConstants_WireType.FIXED32:
       this.skipFixed32Field();
       break;
-    case jspb.BinaryConstants.WireType.START_GROUP:
+    case module$contents$jspb$BinaryConstants_WireType.START_GROUP:
       this.skipGroup();
       break;
     default:
       this.error_ = !0, goog.asserts.fail("Invalid wire encoding for field.");
   }
 };
-jspb.BinaryReader.prototype.registerReadCallback = function(callbackName, callback) {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.registerReadCallback = function(callbackName, callback) {
   null === this.readCallbacks_ && (this.readCallbacks_ = {});
   goog.asserts.assert(!this.readCallbacks_[callbackName]);
   this.readCallbacks_[callbackName] = callback;
 };
-jspb.BinaryReader.prototype.runReadCallback = function(callbackName) {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.runReadCallback = function(callbackName) {
   goog.asserts.assert(null !== this.readCallbacks_);
   var callback = this.readCallbacks_[callbackName];
   goog.asserts.assert(callback);
   return callback(this);
 };
-jspb.BinaryReader.prototype.readAny = function(fieldType) {
-  this.nextWireType_ = jspb.BinaryConstants.FieldTypeToWireType(fieldType);
-  var fieldTypes = jspb.BinaryConstants.FieldType;
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readAny = function(fieldType) {
+  this.nextWireType_ = module$contents$jspb$BinaryConstants_FieldTypeToWireType(fieldType);
   switch(fieldType) {
-    case fieldTypes.DOUBLE:
+    case module$contents$jspb$BinaryConstants_FieldType.DOUBLE:
       return this.readDouble();
-    case fieldTypes.FLOAT:
+    case module$contents$jspb$BinaryConstants_FieldType.FLOAT:
       return this.readFloat();
-    case fieldTypes.INT64:
+    case module$contents$jspb$BinaryConstants_FieldType.INT64:
       return this.readInt64();
-    case fieldTypes.UINT64:
+    case module$contents$jspb$BinaryConstants_FieldType.UINT64:
       return this.readUint64();
-    case fieldTypes.INT32:
+    case module$contents$jspb$BinaryConstants_FieldType.INT32:
       return this.readInt32();
-    case fieldTypes.FIXED64:
+    case module$contents$jspb$BinaryConstants_FieldType.FIXED64:
       return this.readFixed64();
-    case fieldTypes.FIXED32:
+    case module$contents$jspb$BinaryConstants_FieldType.FIXED32:
       return this.readFixed32();
-    case fieldTypes.BOOL:
+    case module$contents$jspb$BinaryConstants_FieldType.BOOL:
       return this.readBool();
-    case fieldTypes.STRING:
+    case module$contents$jspb$BinaryConstants_FieldType.STRING:
       return this.readString();
-    case fieldTypes.GROUP:
+    case module$contents$jspb$BinaryConstants_FieldType.GROUP:
       goog.asserts.fail("Group field type not supported in readAny()");
-    case fieldTypes.MESSAGE:
+    case module$contents$jspb$BinaryConstants_FieldType.MESSAGE:
       goog.asserts.fail("Message field type not supported in readAny()");
-    case fieldTypes.BYTES:
+    case module$contents$jspb$BinaryConstants_FieldType.BYTES:
       return this.readBytes();
-    case fieldTypes.UINT32:
+    case module$contents$jspb$BinaryConstants_FieldType.UINT32:
       return this.readUint32();
-    case fieldTypes.ENUM:
+    case module$contents$jspb$BinaryConstants_FieldType.ENUM:
       return this.readEnum();
-    case fieldTypes.SFIXED32:
+    case module$contents$jspb$BinaryConstants_FieldType.SFIXED32:
       return this.readSfixed32();
-    case fieldTypes.SFIXED64:
+    case module$contents$jspb$BinaryConstants_FieldType.SFIXED64:
       return this.readSfixed64();
-    case fieldTypes.SINT32:
+    case module$contents$jspb$BinaryConstants_FieldType.SINT32:
       return this.readSint32();
-    case fieldTypes.SINT64:
+    case module$contents$jspb$BinaryConstants_FieldType.SINT64:
       return this.readSint64();
     default:
       goog.asserts.fail("Invalid field type in readAny()");
   }
   return 0;
 };
-jspb.BinaryReader.prototype.readMessage = function(message, reader) {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.DELIMITED);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readMessage = function(message, reader) {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.DELIMITED);
   var oldEnd = this.decoder_.getEnd(), length = this.decoder_.readUnsignedVarint32(), newEnd = this.decoder_.getCursor() + length;
   this.decoder_.setEnd(newEnd);
   reader(message, this);
   this.decoder_.setCursor(newEnd);
   this.decoder_.setEnd(oldEnd);
 };
-jspb.BinaryReader.prototype.readGroup = function(field, message, reader) {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.START_GROUP);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readGroup = function(field, message, reader) {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.START_GROUP);
   goog.asserts.assert(this.nextField_ == field);
   reader(message, this);
-  this.error_ || this.nextWireType_ == jspb.BinaryConstants.WireType.END_GROUP || (goog.asserts.fail("Group submessage did not end with an END_GROUP tag"), this.error_ = !0);
+  this.error_ || this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.END_GROUP || (goog.asserts.fail("Group submessage did not end with an END_GROUP tag"), this.error_ = !0);
 };
-jspb.BinaryReader.prototype.getFieldDecoder = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.DELIMITED);
-  var length = this.decoder_.readUnsignedVarint32(), start = this.decoder_.getCursor(), end = start + length, innerDecoder = jspb.BinaryDecoder.alloc(this.decoder_.getBuffer(), start, length);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.getFieldDecoder = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.DELIMITED);
+  var length = this.decoder_.readUnsignedVarint32(), start = this.decoder_.getCursor(), end = start + length, innerDecoder = module$contents$jspb$BinaryDecoder_BinaryDecoder.alloc(this.decoder_.getBuffer(), start, length);
   this.decoder_.setCursor(end);
   return innerDecoder;
 };
-jspb.BinaryReader.prototype.readInt32 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readInt32 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readSignedVarint32();
 };
-jspb.BinaryReader.prototype.readInt32String = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readInt32String = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readSignedVarint32String();
 };
-jspb.BinaryReader.prototype.readInt64 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readInt64 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readSignedVarint64();
 };
-jspb.BinaryReader.prototype.readInt64String = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readInt64String = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readSignedVarint64String();
 };
-jspb.BinaryReader.prototype.readUint32 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readUint32 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readUnsignedVarint32();
 };
-jspb.BinaryReader.prototype.readUint32String = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readUint32String = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readUnsignedVarint32String();
 };
-jspb.BinaryReader.prototype.readUint64 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readUint64 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readUnsignedVarint64();
 };
-jspb.BinaryReader.prototype.readUint64String = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readUint64String = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readUnsignedVarint64String();
 };
-jspb.BinaryReader.prototype.readSint32 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSint32 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readZigzagVarint32();
 };
-jspb.BinaryReader.prototype.readSint64 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSint64 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readZigzagVarint64();
 };
-jspb.BinaryReader.prototype.readSint64String = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSint64String = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readZigzagVarint64String();
 };
-jspb.BinaryReader.prototype.readFixed32 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED32);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readFixed32 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED32);
   return this.decoder_.readUint32();
 };
-jspb.BinaryReader.prototype.readFixed64 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readFixed64 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED64);
   return this.decoder_.readUint64();
 };
-jspb.BinaryReader.prototype.readFixed64String = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readFixed64String = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED64);
   return this.decoder_.readUint64String();
 };
-jspb.BinaryReader.prototype.readSfixed32 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED32);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSfixed32 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED32);
   return this.decoder_.readInt32();
 };
-jspb.BinaryReader.prototype.readSfixed32String = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED32);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSfixed32String = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED32);
   return this.decoder_.readInt32().toString();
 };
-jspb.BinaryReader.prototype.readSfixed64 = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSfixed64 = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED64);
   return this.decoder_.readInt64();
 };
-jspb.BinaryReader.prototype.readSfixed64String = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSfixed64String = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED64);
   return this.decoder_.readInt64String();
 };
-jspb.BinaryReader.prototype.readFloat = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED32);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readFloat = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED32);
   return this.decoder_.readFloat();
 };
-jspb.BinaryReader.prototype.readDouble = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readDouble = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED64);
   return this.decoder_.readDouble();
 };
-jspb.BinaryReader.prototype.readBool = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readBool = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return !!this.decoder_.readUnsignedVarint32();
 };
-jspb.BinaryReader.prototype.readEnum = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readEnum = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readSignedVarint64();
 };
-jspb.BinaryReader.prototype.readString = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.DELIMITED);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readString = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.DELIMITED);
   var length = this.decoder_.readUnsignedVarint32();
   return this.decoder_.readString(length);
 };
-jspb.BinaryReader.prototype.readBytes = function() {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.DELIMITED);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readBytes = function() {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.DELIMITED);
   var length = this.decoder_.readUnsignedVarint32();
   return this.decoder_.readBytes(length);
 };
-jspb.BinaryReader.prototype.readSplitVarint64 = function(convert) {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSplitVarint64 = function(convert) {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readSplitVarint64(convert);
 };
-jspb.BinaryReader.prototype.readSplitZigzagVarint64 = function(convert) {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.VARINT);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSplitZigzagVarint64 = function(convert) {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.VARINT);
   return this.decoder_.readSplitVarint64(function(lowBits, highBits) {
-    return jspb.utils.fromZigzag64(lowBits, highBits, convert);
+    return module$contents$jspb$utils_fromZigzag64(lowBits, highBits, convert);
   });
 };
-jspb.BinaryReader.prototype.readSplitFixed64 = function(convert) {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.FIXED64);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readSplitFixed64 = function(convert) {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.FIXED64);
   return this.decoder_.readSplitFixed64(convert);
 };
-jspb.BinaryReader.prototype.readPackedField_ = function(decodeMethod) {
-  goog.asserts.assert(this.nextWireType_ == jspb.BinaryConstants.WireType.DELIMITED);
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedField_ = function(decodeMethod) {
+  goog.asserts.assert(this.nextWireType_ == module$contents$jspb$BinaryConstants_WireType.DELIMITED);
   for (var length = this.decoder_.readUnsignedVarint32(), end = this.decoder_.getCursor() + length, result = []; this.decoder_.getCursor() < end;) {
     result.push(decodeMethod.call(this.decoder_));
   }
   return result;
 };
-jspb.BinaryReader.prototype.readPackedInt32 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedInt32 = function() {
   return this.readPackedField_(this.decoder_.readSignedVarint32);
 };
-jspb.BinaryReader.prototype.readPackedInt32String = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedInt32String = function() {
   return this.readPackedField_(this.decoder_.readSignedVarint32String);
 };
-jspb.BinaryReader.prototype.readPackedInt64 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedInt64 = function() {
   return this.readPackedField_(this.decoder_.readSignedVarint64);
 };
-jspb.BinaryReader.prototype.readPackedInt64String = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedInt64String = function() {
   return this.readPackedField_(this.decoder_.readSignedVarint64String);
 };
-jspb.BinaryReader.prototype.readPackedUint32 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedUint32 = function() {
   return this.readPackedField_(this.decoder_.readUnsignedVarint32);
 };
-jspb.BinaryReader.prototype.readPackedUint32String = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedUint32String = function() {
   return this.readPackedField_(this.decoder_.readUnsignedVarint32String);
 };
-jspb.BinaryReader.prototype.readPackedUint64 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedUint64 = function() {
   return this.readPackedField_(this.decoder_.readUnsignedVarint64);
 };
-jspb.BinaryReader.prototype.readPackedUint64String = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedUint64String = function() {
   return this.readPackedField_(this.decoder_.readUnsignedVarint64String);
 };
-jspb.BinaryReader.prototype.readPackedSint32 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedSint32 = function() {
   return this.readPackedField_(this.decoder_.readZigzagVarint32);
 };
-jspb.BinaryReader.prototype.readPackedSint64 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedSint64 = function() {
   return this.readPackedField_(this.decoder_.readZigzagVarint64);
 };
-jspb.BinaryReader.prototype.readPackedSint64String = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedSint64String = function() {
   return this.readPackedField_(this.decoder_.readZigzagVarint64String);
 };
-jspb.BinaryReader.prototype.readPackedFixed32 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedFixed32 = function() {
   return this.readPackedField_(this.decoder_.readUint32);
 };
-jspb.BinaryReader.prototype.readPackedFixed64 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedFixed64 = function() {
   return this.readPackedField_(this.decoder_.readUint64);
 };
-jspb.BinaryReader.prototype.readPackedFixed64String = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedFixed64String = function() {
   return this.readPackedField_(this.decoder_.readUint64String);
 };
-jspb.BinaryReader.prototype.readPackedSfixed32 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedSfixed32 = function() {
   return this.readPackedField_(this.decoder_.readInt32);
 };
-jspb.BinaryReader.prototype.readPackedSfixed64 = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedSfixed64 = function() {
   return this.readPackedField_(this.decoder_.readInt64);
 };
-jspb.BinaryReader.prototype.readPackedSfixed64String = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedSfixed64String = function() {
   return this.readPackedField_(this.decoder_.readInt64String);
 };
-jspb.BinaryReader.prototype.readPackedFloat = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedFloat = function() {
   return this.readPackedField_(this.decoder_.readFloat);
 };
-jspb.BinaryReader.prototype.readPackedDouble = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedDouble = function() {
   return this.readPackedField_(this.decoder_.readDouble);
 };
-jspb.BinaryReader.prototype.readPackedBool = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedBool = function() {
   return this.readPackedField_(this.decoder_.readBool);
 };
-jspb.BinaryReader.prototype.readPackedEnum = function() {
+module$contents$jspb$BinaryReader_BinaryReader.prototype.readPackedEnum = function() {
   return this.readPackedField_(this.decoder_.readEnum);
 };
+module$contents$jspb$BinaryReader_BinaryReader.resetInstanceCache = function() {
+  module$contents$jspb$BinaryReader_BinaryReader.instanceCache_ = [];
+};
+module$contents$jspb$BinaryReader_BinaryReader.getInstanceCache = function() {
+  return module$contents$jspb$BinaryReader_BinaryReader.instanceCache_;
+};
+module$contents$jspb$BinaryReader_BinaryReader.instanceCache_ = [];
+jspb.BinaryReader = module$contents$jspb$BinaryReader_BinaryReader;
 jspb.arith = {};
 jspb.arith.UInt64 = function(lo, hi) {
   this.lo = lo;
@@ -17928,8 +17783,8 @@ jspb.BinaryEncoder.prototype.end = function() {
 jspb.BinaryEncoder.prototype.writeSplitVarint64 = function(lowBits, highBits) {
   goog.asserts.assert(lowBits == Math.floor(lowBits));
   goog.asserts.assert(highBits == Math.floor(highBits));
-  goog.asserts.assert(0 <= lowBits && lowBits < jspb.BinaryConstants.TWO_TO_32);
-  for (goog.asserts.assert(0 <= highBits && highBits < jspb.BinaryConstants.TWO_TO_32); 0 < highBits || 127 < lowBits;) {
+  goog.asserts.assert(0 <= lowBits && 4294967296 > lowBits);
+  for (goog.asserts.assert(0 <= highBits && 4294967296 > highBits); 0 < highBits || 127 < lowBits;) {
     this.buffer_.push(lowBits & 127 | 128), lowBits = (lowBits >>> 7 | highBits << 25) >>> 0, highBits >>>= 7;
   }
   this.buffer_.push(lowBits);
@@ -17937,27 +17792,27 @@ jspb.BinaryEncoder.prototype.writeSplitVarint64 = function(lowBits, highBits) {
 jspb.BinaryEncoder.prototype.writeSplitFixed64 = function(lowBits, highBits) {
   goog.asserts.assert(lowBits == Math.floor(lowBits));
   goog.asserts.assert(highBits == Math.floor(highBits));
-  goog.asserts.assert(0 <= lowBits && lowBits < jspb.BinaryConstants.TWO_TO_32);
-  goog.asserts.assert(0 <= highBits && highBits < jspb.BinaryConstants.TWO_TO_32);
+  goog.asserts.assert(0 <= lowBits && 4294967296 > lowBits);
+  goog.asserts.assert(0 <= highBits && 4294967296 > highBits);
   this.writeUint32(lowBits);
   this.writeUint32(highBits);
 };
 jspb.BinaryEncoder.prototype.writeSplitZigzagVarint64 = function(lowBits, highBits) {
   var self = this;
-  jspb.utils.toZigzag64(lowBits, highBits, function(lo, hi) {
+  module$contents$jspb$utils_toZigzag64(lowBits, highBits, function(lo, hi) {
     self.writeSplitVarint64(lo >>> 0, hi >>> 0);
   });
 };
 jspb.BinaryEncoder.prototype.writeUnsignedVarint32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  for (goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_32); 127 < value;) {
+  for (goog.asserts.assert(0 <= value && 4294967296 > value); 127 < value;) {
     this.buffer_.push(value & 127 | 128), value >>>= 7;
   }
   this.buffer_.push(value);
 };
 jspb.BinaryEncoder.prototype.writeSignedVarint32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31);
+  goog.asserts.assert(-2147483648 <= value && 2147483648 > value);
   if (0 <= value) {
     this.writeUnsignedVarint32(value);
   } else {
@@ -17969,31 +17824,31 @@ jspb.BinaryEncoder.prototype.writeSignedVarint32 = function(value) {
 };
 jspb.BinaryEncoder.prototype.writeUnsignedVarint64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_64);
-  jspb.utils.splitInt64(value);
-  this.writeSplitVarint64(jspb.utils.split64Low, jspb.utils.split64High);
+  goog.asserts.assert(0 <= value && 18446744073709551616 > value);
+  module$contents$jspb$utils_splitInt64(value);
+  this.writeSplitVarint64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
 jspb.BinaryEncoder.prototype.writeSignedVarint64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_63 && value < jspb.BinaryConstants.TWO_TO_63);
-  jspb.utils.splitInt64(value);
-  this.writeSplitVarint64(jspb.utils.split64Low, jspb.utils.split64High);
+  goog.asserts.assert(-9223372036854775808 <= value && 9223372036854775808 > value);
+  module$contents$jspb$utils_splitInt64(value);
+  this.writeSplitVarint64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
 jspb.BinaryEncoder.prototype.writeZigzagVarint32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31);
+  goog.asserts.assert(-2147483648 <= value && 2147483648 > value);
   this.writeUnsignedVarint32((value << 1 ^ value >> 31) >>> 0);
 };
 jspb.BinaryEncoder.prototype.writeZigzagVarint64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_63 && value < jspb.BinaryConstants.TWO_TO_63);
-  jspb.utils.splitZigzag64(value);
-  this.writeSplitVarint64(jspb.utils.split64Low, jspb.utils.split64High);
+  goog.asserts.assert(-9223372036854775808 <= value && 9223372036854775808 > value);
+  module$contents$jspb$utils_splitZigzag64(value);
+  this.writeSplitVarint64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
 jspb.BinaryEncoder.prototype.writeZigzagVarint64String = function(value) {
   var self = this;
-  jspb.utils.splitDecimalString(value);
-  jspb.utils.toZigzag64(jspb.utils.split64Low, jspb.utils.split64High, function(lo, hi) {
+  module$contents$jspb$utils_splitDecimalString(value);
+  module$contents$jspb$utils_toZigzag64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High(), function(lo, hi) {
     self.writeSplitVarint64(lo >>> 0, hi >>> 0);
   });
 };
@@ -18010,7 +17865,7 @@ jspb.BinaryEncoder.prototype.writeUint16 = function(value) {
 };
 jspb.BinaryEncoder.prototype.writeUint32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_32);
+  goog.asserts.assert(0 <= value && 4294967296 > value);
   this.buffer_.push(value >>> 0 & 255);
   this.buffer_.push(value >>> 8 & 255);
   this.buffer_.push(value >>> 16 & 255);
@@ -18018,10 +17873,10 @@ jspb.BinaryEncoder.prototype.writeUint32 = function(value) {
 };
 jspb.BinaryEncoder.prototype.writeUint64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_64);
-  jspb.utils.splitUint64(value);
-  this.writeUint32(jspb.utils.split64Low);
-  this.writeUint32(jspb.utils.split64High);
+  goog.asserts.assert(0 <= value && 18446744073709551616 > value);
+  module$contents$jspb$utils_splitUint64(value);
+  this.writeUint32(module$contents$jspb$utils_getSplit64Low());
+  this.writeUint32(module$contents$jspb$utils_getSplit64High());
 };
 jspb.BinaryEncoder.prototype.writeInt8 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
@@ -18036,7 +17891,7 @@ jspb.BinaryEncoder.prototype.writeInt16 = function(value) {
 };
 jspb.BinaryEncoder.prototype.writeInt32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31);
+  goog.asserts.assert(-2147483648 <= value && 2147483648 > value);
   this.buffer_.push(value >>> 0 & 255);
   this.buffer_.push(value >>> 8 & 255);
   this.buffer_.push(value >>> 16 & 255);
@@ -18044,26 +17899,26 @@ jspb.BinaryEncoder.prototype.writeInt32 = function(value) {
 };
 jspb.BinaryEncoder.prototype.writeInt64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_63 && value < jspb.BinaryConstants.TWO_TO_63);
-  jspb.utils.splitInt64(value);
-  this.writeSplitFixed64(jspb.utils.split64Low, jspb.utils.split64High);
+  goog.asserts.assert(-9223372036854775808 <= value && 9223372036854775808 > value);
+  module$contents$jspb$utils_splitInt64(value);
+  this.writeSplitFixed64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
 jspb.BinaryEncoder.prototype.writeInt64String = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(+value >= -jspb.BinaryConstants.TWO_TO_63 && +value < jspb.BinaryConstants.TWO_TO_63);
-  jspb.utils.splitDecimalString(value);
-  this.writeSplitFixed64(jspb.utils.split64Low, jspb.utils.split64High);
+  goog.asserts.assert(-9223372036854775808 <= +value && 9223372036854775808 > +value);
+  module$contents$jspb$utils_splitDecimalString(value);
+  this.writeSplitFixed64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
 jspb.BinaryEncoder.prototype.writeFloat = function(value) {
-  goog.asserts.assert(Infinity === value || -Infinity === value || isNaN(value) || value >= -jspb.BinaryConstants.FLOAT32_MAX && value <= jspb.BinaryConstants.FLOAT32_MAX);
-  jspb.utils.splitFloat32(value);
-  this.writeUint32(jspb.utils.split64Low);
+  goog.asserts.assert(Infinity === value || -Infinity === value || isNaN(value) || -3.4028234663852886E38 <= value && 3.4028234663852886e+38 >= value);
+  module$contents$jspb$utils_splitFloat32(value);
+  this.writeUint32(module$contents$jspb$utils_getSplit64Low());
 };
 jspb.BinaryEncoder.prototype.writeDouble = function(value) {
-  goog.asserts.assert(Infinity === value || -Infinity === value || isNaN(value) || value >= -jspb.BinaryConstants.FLOAT64_MAX && value <= jspb.BinaryConstants.FLOAT64_MAX);
-  jspb.utils.splitFloat64(value);
-  this.writeUint32(jspb.utils.split64Low);
-  this.writeUint32(jspb.utils.split64High);
+  goog.asserts.assert(Infinity === value || -Infinity === value || isNaN(value) || -1.7976931348623157E308 <= value && 1.7976931348623157e+308 >= value);
+  module$contents$jspb$utils_splitFloat64(value);
+  this.writeUint32(module$contents$jspb$utils_getSplit64Low());
+  this.writeUint32(module$contents$jspb$utils_getSplit64High());
 };
 jspb.BinaryEncoder.prototype.writeBool = function(value) {
   goog.asserts.assert("boolean" === typeof value || "number" === typeof value);
@@ -18071,7 +17926,7 @@ jspb.BinaryEncoder.prototype.writeBool = function(value) {
 };
 jspb.BinaryEncoder.prototype.writeEnum = function(value) {
   goog.asserts.assert(value == Math.floor(value));
-  goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31);
+  goog.asserts.assert(-2147483648 <= value && 2147483648 > value);
   this.writeSignedVarint32(value);
 };
 jspb.BinaryEncoder.prototype.writeBytes = function(bytes) {
@@ -18099,6 +17954,120 @@ jspb.BinaryEncoder.prototype.writeString = function(value) {
   }
   return this.buffer_.length - oldLength;
 };
+goog.userAgent.product = {};
+goog.userAgent.product.ASSUME_FIREFOX = !1;
+goog.userAgent.product.ASSUME_IPHONE = !1;
+goog.userAgent.product.ASSUME_IPAD = !1;
+goog.userAgent.product.ASSUME_ANDROID = !1;
+goog.userAgent.product.ASSUME_CHROME = !1;
+goog.userAgent.product.ASSUME_SAFARI = !1;
+goog.userAgent.product.PRODUCT_KNOWN_ = goog.userAgent.ASSUME_IE || goog.userAgent.ASSUME_EDGE || goog.userAgent.ASSUME_OPERA || goog.userAgent.product.ASSUME_FIREFOX || goog.userAgent.product.ASSUME_IPHONE || goog.userAgent.product.ASSUME_IPAD || goog.userAgent.product.ASSUME_ANDROID || goog.userAgent.product.ASSUME_CHROME || goog.userAgent.product.ASSUME_SAFARI;
+goog.userAgent.product.OPERA = goog.userAgent.OPERA;
+goog.userAgent.product.IE = goog.userAgent.IE;
+goog.userAgent.product.EDGE = goog.userAgent.EDGE;
+goog.userAgent.product.FIREFOX = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_FIREFOX : goog.labs.userAgent.browser.isFirefox();
+goog.userAgent.product.isIphoneOrIpod_ = function() {
+  return goog.labs.userAgent.platform.isIphone() || goog.labs.userAgent.platform.isIpod();
+};
+goog.userAgent.product.IPHONE = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_IPHONE : goog.userAgent.product.isIphoneOrIpod_();
+goog.userAgent.product.IPAD = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_IPAD : goog.labs.userAgent.platform.isIpad();
+goog.userAgent.product.ANDROID = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_ANDROID : goog.labs.userAgent.browser.isAndroidBrowser();
+goog.userAgent.product.CHROME = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_CHROME : goog.labs.userAgent.browser.isChrome();
+goog.userAgent.product.isSafariDesktop_ = function() {
+  return goog.labs.userAgent.browser.isSafari() && !goog.labs.userAgent.platform.isIos();
+};
+goog.userAgent.product.SAFARI = goog.userAgent.product.PRODUCT_KNOWN_ ? goog.userAgent.product.ASSUME_SAFARI : goog.userAgent.product.isSafariDesktop_();
+goog.crypt.base64 = {};
+goog.crypt.base64.DEFAULT_ALPHABET_COMMON_ = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+goog.crypt.base64.ENCODED_VALS = goog.crypt.base64.DEFAULT_ALPHABET_COMMON_ + "+/=";
+goog.crypt.base64.ENCODED_VALS_WEBSAFE = goog.crypt.base64.DEFAULT_ALPHABET_COMMON_ + "-_.";
+goog.crypt.base64.Alphabet = {DEFAULT:0, NO_PADDING:1, WEBSAFE:2, WEBSAFE_DOT_PADDING:3, WEBSAFE_NO_PADDING:4, };
+goog.crypt.base64.paddingChars_ = "=.";
+goog.crypt.base64.isPadding_ = function(char) {
+  return goog.string.contains(goog.crypt.base64.paddingChars_, char);
+};
+goog.crypt.base64.byteToCharMaps_ = {};
+goog.crypt.base64.charToByteMap_ = null;
+goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ = goog.userAgent.GECKO || goog.userAgent.WEBKIT && !goog.userAgent.product.SAFARI || goog.userAgent.OPERA;
+goog.crypt.base64.HAS_NATIVE_ENCODE_ = goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ || "function" == typeof goog.global.btoa;
+goog.crypt.base64.HAS_NATIVE_DECODE_ = goog.crypt.base64.ASSUME_NATIVE_SUPPORT_ || !goog.userAgent.product.SAFARI && !goog.userAgent.IE && "function" == typeof goog.global.atob;
+goog.crypt.base64.encodeByteArray = function(input, alphabet) {
+  goog.asserts.assert(goog.isArrayLike(input), "encodeByteArray takes an array as a parameter");
+  void 0 === alphabet && (alphabet = goog.crypt.base64.Alphabet.DEFAULT);
+  goog.crypt.base64.init_();
+  for (var byteToCharMap = goog.crypt.base64.byteToCharMaps_[alphabet], output = [], i = 0; i < input.length; i += 3) {
+    var byte1 = input[i], haveByte2 = i + 1 < input.length, byte2 = haveByte2 ? input[i + 1] : 0, haveByte3 = i + 2 < input.length, byte3 = haveByte3 ? input[i + 2] : 0, outByte1 = byte1 >> 2, outByte2 = (byte1 & 3) << 4 | byte2 >> 4, outByte3 = (byte2 & 15) << 2 | byte3 >> 6, outByte4 = byte3 & 63;
+    haveByte3 || (outByte4 = 64, haveByte2 || (outByte3 = 64));
+    output.push(byteToCharMap[outByte1], byteToCharMap[outByte2], byteToCharMap[outByte3] || "", byteToCharMap[outByte4] || "");
+  }
+  return output.join("");
+};
+goog.crypt.base64.encodeString = function(input, alphabet) {
+  return goog.crypt.base64.HAS_NATIVE_ENCODE_ && !alphabet ? goog.global.btoa(input) : goog.crypt.base64.encodeByteArray(goog.crypt.stringToByteArray(input), alphabet);
+};
+goog.crypt.base64.decodeString = function(input, useCustomDecoder) {
+  if (goog.crypt.base64.HAS_NATIVE_DECODE_ && !useCustomDecoder) {
+    return goog.global.atob(input);
+  }
+  var output = "";
+  goog.crypt.base64.decodeStringInternal_(input, function pushByte(b) {
+    output += String.fromCharCode(b);
+  });
+  return output;
+};
+goog.crypt.base64.decodeStringToByteArray = function(input, opt_ignored) {
+  var output = [];
+  goog.crypt.base64.decodeStringInternal_(input, function pushByte(b) {
+    output.push(b);
+  });
+  return output;
+};
+goog.crypt.base64.decodeStringToUint8Array = function(input) {
+  goog.asserts.assert(!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10"), "Browser does not support typed arrays");
+  var len = input.length, approxByteLength = 3 * len / 4;
+  approxByteLength % 3 ? approxByteLength = Math.floor(approxByteLength) : goog.crypt.base64.isPadding_(input[len - 1]) && (approxByteLength = goog.crypt.base64.isPadding_(input[len - 2]) ? approxByteLength - 2 : approxByteLength - 1);
+  var output = new Uint8Array(approxByteLength), outLen = 0;
+  goog.crypt.base64.decodeStringInternal_(input, function pushByte(b) {
+    output[outLen++] = b;
+  });
+  return output.subarray(0, outLen);
+};
+goog.crypt.base64.decodeStringInternal_ = function(input, pushByte) {
+  function getByte(default_val) {
+    for (; nextCharIndex < input.length;) {
+      var ch = input.charAt(nextCharIndex++), b = goog.crypt.base64.charToByteMap_[ch];
+      if (null != b) {
+        return b;
+      }
+      if (!goog.string.isEmptyOrWhitespace(ch)) {
+        throw Error("Unknown base64 encoding at char: " + ch);
+      }
+    }
+    return default_val;
+  }
+  goog.crypt.base64.init_();
+  for (var nextCharIndex = 0;;) {
+    var byte1 = getByte(-1), byte2 = getByte(0), byte3 = getByte(64), byte4 = getByte(64);
+    if (64 === byte4 && -1 === byte1) {
+      break;
+    }
+    pushByte(byte1 << 2 | byte2 >> 4);
+    64 != byte3 && (pushByte(byte2 << 4 & 240 | byte3 >> 2), 64 != byte4 && pushByte(byte3 << 6 & 192 | byte4));
+  }
+};
+goog.crypt.base64.init_ = function() {
+  if (!goog.crypt.base64.charToByteMap_) {
+    goog.crypt.base64.charToByteMap_ = {};
+    for (var commonChars = goog.crypt.base64.DEFAULT_ALPHABET_COMMON_.split(""), specialChars = ["+/=", "+/", "-_=", "-_.", "-_", ], i = 0; 5 > i; i++) {
+      var chars = commonChars.concat(specialChars[i].split(""));
+      goog.crypt.base64.byteToCharMaps_[i] = chars;
+      for (var j = 0; j < chars.length; j++) {
+        var char = chars[j], existingByte = goog.crypt.base64.charToByteMap_[char];
+        void 0 === existingByte ? goog.crypt.base64.charToByteMap_[char] = j : goog.asserts.assert(existingByte === j);
+      }
+    }
+  }
+};
 jspb.BinaryWriter = function() {
   this.blocks_ = [];
   this.totalLength_ = 0;
@@ -18112,7 +18081,7 @@ jspb.BinaryWriter.prototype.appendUint8Array_ = function(arr) {
   this.totalLength_ += temp.length + arr.length;
 };
 jspb.BinaryWriter.prototype.beginDelimited_ = function(field) {
-  this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+  this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
   var bookmark = this.encoder_.end();
   this.blocks_.push(bookmark);
   this.totalLength_ += bookmark.length;
@@ -18168,60 +18137,59 @@ jspb.BinaryWriter.prototype.writeFieldHeader_ = function(field, wireType) {
   this.encoder_.writeUnsignedVarint32(8 * field + wireType);
 };
 jspb.BinaryWriter.prototype.writeAny = function(fieldType, field, value) {
-  var fieldTypes = jspb.BinaryConstants.FieldType;
   switch(fieldType) {
-    case fieldTypes.DOUBLE:
+    case module$contents$jspb$BinaryConstants_FieldType.DOUBLE:
       this.writeDouble(field, value);
       break;
-    case fieldTypes.FLOAT:
+    case module$contents$jspb$BinaryConstants_FieldType.FLOAT:
       this.writeFloat(field, value);
       break;
-    case fieldTypes.INT64:
+    case module$contents$jspb$BinaryConstants_FieldType.INT64:
       this.writeInt64(field, value);
       break;
-    case fieldTypes.UINT64:
+    case module$contents$jspb$BinaryConstants_FieldType.UINT64:
       this.writeUint64(field, value);
       break;
-    case fieldTypes.INT32:
+    case module$contents$jspb$BinaryConstants_FieldType.INT32:
       this.writeInt32(field, value);
       break;
-    case fieldTypes.FIXED64:
+    case module$contents$jspb$BinaryConstants_FieldType.FIXED64:
       this.writeFixed64(field, value);
       break;
-    case fieldTypes.FIXED32:
+    case module$contents$jspb$BinaryConstants_FieldType.FIXED32:
       this.writeFixed32(field, value);
       break;
-    case fieldTypes.BOOL:
+    case module$contents$jspb$BinaryConstants_FieldType.BOOL:
       this.writeBool(field, value);
       break;
-    case fieldTypes.STRING:
+    case module$contents$jspb$BinaryConstants_FieldType.STRING:
       this.writeString(field, value);
       break;
-    case fieldTypes.GROUP:
+    case module$contents$jspb$BinaryConstants_FieldType.GROUP:
       goog.asserts.fail("Group field type not supported in writeAny()");
       break;
-    case fieldTypes.MESSAGE:
+    case module$contents$jspb$BinaryConstants_FieldType.MESSAGE:
       goog.asserts.fail("Message field type not supported in writeAny()");
       break;
-    case fieldTypes.BYTES:
+    case module$contents$jspb$BinaryConstants_FieldType.BYTES:
       this.writeBytes(field, value);
       break;
-    case fieldTypes.UINT32:
+    case module$contents$jspb$BinaryConstants_FieldType.UINT32:
       this.writeUint32(field, value);
       break;
-    case fieldTypes.ENUM:
+    case module$contents$jspb$BinaryConstants_FieldType.ENUM:
       this.writeEnum(field, value);
       break;
-    case fieldTypes.SFIXED32:
+    case module$contents$jspb$BinaryConstants_FieldType.SFIXED32:
       this.writeSfixed32(field, value);
       break;
-    case fieldTypes.SFIXED64:
+    case module$contents$jspb$BinaryConstants_FieldType.SFIXED64:
       this.writeSfixed64(field, value);
       break;
-    case fieldTypes.SINT32:
+    case module$contents$jspb$BinaryConstants_FieldType.SINT32:
       this.writeSint32(field, value);
       break;
-    case fieldTypes.SINT64:
+    case module$contents$jspb$BinaryConstants_FieldType.SINT64:
       this.writeSint64(field, value);
       break;
     default:
@@ -18229,112 +18197,112 @@ jspb.BinaryWriter.prototype.writeAny = function(fieldType, field, value) {
   }
 };
 jspb.BinaryWriter.prototype.writeUnsignedVarint32_ = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeUnsignedVarint32(value));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeUnsignedVarint32(value));
 };
 jspb.BinaryWriter.prototype.writeSignedVarint32_ = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeSignedVarint32(value));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeSignedVarint32(value));
 };
 jspb.BinaryWriter.prototype.writeUnsignedVarint64_ = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeUnsignedVarint64(value));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeUnsignedVarint64(value));
 };
 jspb.BinaryWriter.prototype.writeSignedVarint64_ = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeSignedVarint64(value));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeSignedVarint64(value));
 };
 jspb.BinaryWriter.prototype.writeZigzagVarint32_ = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeZigzagVarint32(value));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeZigzagVarint32(value));
 };
 jspb.BinaryWriter.prototype.writeZigzagVarint64_ = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeZigzagVarint64(value));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeZigzagVarint64(value));
 };
 jspb.BinaryWriter.prototype.writeZigzagVarint64String_ = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeZigzagVarint64String(value));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeZigzagVarint64String(value));
 };
 jspb.BinaryWriter.prototype.writeInt32 = function(field, value) {
-  null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31), this.writeSignedVarint32_(field, value));
+  null != value && (goog.asserts.assert(-2147483648 <= value && 2147483648 > value), this.writeSignedVarint32_(field, value));
 };
 jspb.BinaryWriter.prototype.writeInt32String = function(field, value) {
   if (null != value) {
     var intValue = parseInt(value, 10);
-    goog.asserts.assert(intValue >= -jspb.BinaryConstants.TWO_TO_31 && intValue < jspb.BinaryConstants.TWO_TO_31);
+    goog.asserts.assert(-2147483648 <= intValue && 2147483648 > intValue);
     this.writeSignedVarint32_(field, intValue);
   }
 };
 jspb.BinaryWriter.prototype.writeInt64 = function(field, value) {
-  null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_63 && value < jspb.BinaryConstants.TWO_TO_63), this.writeSignedVarint64_(field, value));
+  null != value && (goog.asserts.assert(-9223372036854775808 <= value && 9223372036854775808 > value), this.writeSignedVarint64_(field, value));
 };
 jspb.BinaryWriter.prototype.writeInt64String = function(field, value) {
   if (null != value) {
     var num = jspb.arith.Int64.fromString(value);
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT);
     this.encoder_.writeSplitVarint64(num.lo, num.hi);
   }
 };
 jspb.BinaryWriter.prototype.writeUint32 = function(field, value) {
-  null != value && (goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_32), this.writeUnsignedVarint32_(field, value));
+  null != value && (goog.asserts.assert(0 <= value && 4294967296 > value), this.writeUnsignedVarint32_(field, value));
 };
 jspb.BinaryWriter.prototype.writeUint32String = function(field, value) {
   if (null != value) {
     var intValue = parseInt(value, 10);
-    goog.asserts.assert(0 <= intValue && intValue < jspb.BinaryConstants.TWO_TO_32);
+    goog.asserts.assert(0 <= intValue && 4294967296 > intValue);
     this.writeUnsignedVarint32_(field, intValue);
   }
 };
 jspb.BinaryWriter.prototype.writeUint64 = function(field, value) {
-  null != value && (goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_64), this.writeUnsignedVarint64_(field, value));
+  null != value && (goog.asserts.assert(0 <= value && 18446744073709551616 > value), this.writeUnsignedVarint64_(field, value));
 };
 jspb.BinaryWriter.prototype.writeUint64String = function(field, value) {
   if (null != value) {
     var num = jspb.arith.UInt64.fromString(value);
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT);
     this.encoder_.writeSplitVarint64(num.lo, num.hi);
   }
 };
 jspb.BinaryWriter.prototype.writeSint32 = function(field, value) {
-  null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31), this.writeZigzagVarint32_(field, value));
+  null != value && (goog.asserts.assert(-2147483648 <= value && 2147483648 > value), this.writeZigzagVarint32_(field, value));
 };
 jspb.BinaryWriter.prototype.writeSint64 = function(field, value) {
-  null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_63 && value < jspb.BinaryConstants.TWO_TO_63), this.writeZigzagVarint64_(field, value));
+  null != value && (goog.asserts.assert(-9223372036854775808 <= value && 9223372036854775808 > value), this.writeZigzagVarint64_(field, value));
 };
 jspb.BinaryWriter.prototype.writeSint64String = function(field, value) {
   null != value && this.writeZigzagVarint64String_(field, value);
 };
 jspb.BinaryWriter.prototype.writeFixed32 = function(field, value) {
-  null != value && (goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_32), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED32), this.encoder_.writeUint32(value));
+  null != value && (goog.asserts.assert(0 <= value && 4294967296 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED32), this.encoder_.writeUint32(value));
 };
 jspb.BinaryWriter.prototype.writeFixed64 = function(field, value) {
-  null != value && (goog.asserts.assert(0 <= value && value < jspb.BinaryConstants.TWO_TO_64), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64), this.encoder_.writeUint64(value));
+  null != value && (goog.asserts.assert(0 <= value && 18446744073709551616 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64), this.encoder_.writeUint64(value));
 };
 jspb.BinaryWriter.prototype.writeFixed64String = function(field, value) {
   if (null != value) {
     var num = jspb.arith.UInt64.fromString(value);
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64);
     this.encoder_.writeSplitFixed64(num.lo, num.hi);
   }
 };
 jspb.BinaryWriter.prototype.writeSfixed32 = function(field, value) {
-  null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED32), this.encoder_.writeInt32(value));
+  null != value && (goog.asserts.assert(-2147483648 <= value && 2147483648 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED32), this.encoder_.writeInt32(value));
 };
 jspb.BinaryWriter.prototype.writeSfixed64 = function(field, value) {
-  null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_63 && value < jspb.BinaryConstants.TWO_TO_63), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64), this.encoder_.writeInt64(value));
+  null != value && (goog.asserts.assert(-9223372036854775808 <= value && 9223372036854775808 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64), this.encoder_.writeInt64(value));
 };
 jspb.BinaryWriter.prototype.writeSfixed64String = function(field, value) {
   if (null != value) {
     var num = jspb.arith.Int64.fromString(value);
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64);
     this.encoder_.writeSplitFixed64(num.lo, num.hi);
   }
 };
 jspb.BinaryWriter.prototype.writeFloat = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED32), this.encoder_.writeFloat(value));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED32), this.encoder_.writeFloat(value));
 };
 jspb.BinaryWriter.prototype.writeDouble = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64), this.encoder_.writeDouble(value));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64), this.encoder_.writeDouble(value));
 };
 jspb.BinaryWriter.prototype.writeBool = function(field, value) {
-  null != value && (goog.asserts.assert("boolean" === typeof value || "number" === typeof value), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeBool(value));
+  null != value && (goog.asserts.assert("boolean" === typeof value || "number" === typeof value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeBool(value));
 };
 jspb.BinaryWriter.prototype.writeEnum = function(field, value) {
-  null != value && (goog.asserts.assert(value >= -jspb.BinaryConstants.TWO_TO_31 && value < jspb.BinaryConstants.TWO_TO_31), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT), this.encoder_.writeSignedVarint32(value));
+  null != value && (goog.asserts.assert(-2147483648 <= value && 2147483648 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeSignedVarint32(value));
 };
 jspb.BinaryWriter.prototype.writeString = function(field, value) {
   if (null != value) {
@@ -18345,8 +18313,8 @@ jspb.BinaryWriter.prototype.writeString = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writeBytes = function(field, value) {
   if (null != value) {
-    var bytes = jspb.utils.byteSourceToUint8Array(value);
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    var bytes = module$contents$jspb$utils_byteSourceToUint8Array(value);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(bytes.length);
     this.appendUint8Array_(bytes);
   }
@@ -18360,28 +18328,28 @@ jspb.BinaryWriter.prototype.writeMessage = function(field, value, writerCallback
 };
 jspb.BinaryWriter.prototype.writeMessageSet = function(field, value, writerCallback) {
   if (null != value) {
-    this.writeFieldHeader_(1, jspb.BinaryConstants.WireType.START_GROUP);
-    this.writeFieldHeader_(2, jspb.BinaryConstants.WireType.VARINT);
+    this.writeFieldHeader_(1, module$contents$jspb$BinaryConstants_WireType.START_GROUP);
+    this.writeFieldHeader_(2, module$contents$jspb$BinaryConstants_WireType.VARINT);
     this.encoder_.writeSignedVarint32(field);
     var bookmark = this.beginDelimited_(3);
     writerCallback(value, this);
     this.endDelimited_(bookmark);
-    this.writeFieldHeader_(1, jspb.BinaryConstants.WireType.END_GROUP);
+    this.writeFieldHeader_(1, module$contents$jspb$BinaryConstants_WireType.END_GROUP);
   }
 };
 jspb.BinaryWriter.prototype.writeGroup = function(field, value, writerCallback) {
-  null != value && (this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.START_GROUP), writerCallback(value, this), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.END_GROUP));
+  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.START_GROUP), writerCallback(value, this), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.END_GROUP));
 };
 jspb.BinaryWriter.prototype.writeSplitFixed64 = function(field, lowBits, highBits) {
-  this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.FIXED64);
+  this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64);
   this.encoder_.writeSplitFixed64(lowBits, highBits);
 };
 jspb.BinaryWriter.prototype.writeSplitVarint64 = function(field, lowBits, highBits) {
-  this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT);
+  this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT);
   this.encoder_.writeSplitVarint64(lowBits, highBits);
 };
 jspb.BinaryWriter.prototype.writeSplitZigzagVarint64 = function(field, lowBits, highBits) {
-  this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.VARINT);
+  this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT);
   this.encoder_.writeSplitZigzagVarint64(lowBits >>> 0, highBits >>> 0);
 };
 jspb.BinaryWriter.prototype.writeRepeatedInt32 = function(field, value) {
@@ -18578,7 +18546,7 @@ jspb.BinaryWriter.prototype.writeRepeatedMessage = function(field, value, writer
 jspb.BinaryWriter.prototype.writeRepeatedGroup = function(field, value, writerCallback) {
   if (null != value) {
     for (var i = 0; i < value.length; i++) {
-      this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.START_GROUP), writerCallback(value[i], this), this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.END_GROUP);
+      this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.START_GROUP), writerCallback(value[i], this), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.END_GROUP);
     }
   }
 };
@@ -18698,7 +18666,7 @@ jspb.BinaryWriter.prototype.writePackedSint64String = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writePackedFixed32 = function(field, value) {
   if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(4 * value.length);
     for (var i = 0; i < value.length; i++) {
       this.encoder_.writeUint32(value[i]);
@@ -18707,7 +18675,7 @@ jspb.BinaryWriter.prototype.writePackedFixed32 = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writePackedFixed64 = function(field, value) {
   if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(8 * value.length);
     for (var i = 0; i < value.length; i++) {
       this.encoder_.writeUint64(value[i]);
@@ -18716,7 +18684,7 @@ jspb.BinaryWriter.prototype.writePackedFixed64 = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writePackedFixed64String = function(field, value) {
   if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(8 * value.length);
     for (var i = 0; i < value.length; i++) {
       var num = jspb.arith.UInt64.fromString(value[i]);
@@ -18726,7 +18694,7 @@ jspb.BinaryWriter.prototype.writePackedFixed64String = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writePackedSfixed32 = function(field, value) {
   if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(4 * value.length);
     for (var i = 0; i < value.length; i++) {
       this.encoder_.writeInt32(value[i]);
@@ -18735,7 +18703,7 @@ jspb.BinaryWriter.prototype.writePackedSfixed32 = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writePackedSfixed64 = function(field, value) {
   if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(8 * value.length);
     for (var i = 0; i < value.length; i++) {
       this.encoder_.writeInt64(value[i]);
@@ -18744,7 +18712,7 @@ jspb.BinaryWriter.prototype.writePackedSfixed64 = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writePackedSfixed64String = function(field, value) {
   if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(8 * value.length);
     for (var i = 0; i < value.length; i++) {
       this.encoder_.writeInt64String(value[i]);
@@ -18753,7 +18721,7 @@ jspb.BinaryWriter.prototype.writePackedSfixed64String = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writePackedFloat = function(field, value) {
   if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(4 * value.length);
     for (var i = 0; i < value.length; i++) {
       this.encoder_.writeFloat(value[i]);
@@ -18762,7 +18730,7 @@ jspb.BinaryWriter.prototype.writePackedFloat = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writePackedDouble = function(field, value) {
   if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(8 * value.length);
     for (var i = 0; i < value.length; i++) {
       this.encoder_.writeDouble(value[i]);
@@ -18771,7 +18739,7 @@ jspb.BinaryWriter.prototype.writePackedDouble = function(field, value) {
 };
 jspb.BinaryWriter.prototype.writePackedBool = function(field, value) {
   if (null != value && value.length) {
-    this.writeFieldHeader_(field, jspb.BinaryConstants.WireType.DELIMITED);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.DELIMITED);
     this.encoder_.writeUnsignedVarint32(value.length);
     for (var i = 0; i < value.length; i++) {
       this.encoder_.writeBool(value[i]);
@@ -18975,78 +18943,85 @@ jspb.ExtensionFieldBinaryInfo = function(fieldInfo, binaryReaderFn, binaryWriter
   this.binaryMessageDeserializeFn = binaryMessageDeserializeFn;
   this.isPacked = isPacked || !1;
 };
-jspb.Message = function() {
+var module$contents$jspb$Message_Message = function() {
 };
-jspb.Message.GENERATE_TO_OBJECT = !0;
-jspb.Message.GENERATE_FROM_OBJECT = !goog.DISALLOW_TEST_ONLY_CODE;
-jspb.Message.GENERATE_TO_STRING = !0;
-jspb.Message.SERIALIZE_EMPTY_TRAILING_FIELDS = !0;
-jspb.Message.SUPPORTS_UINT8ARRAY_ = "function" == typeof Uint8Array;
-jspb.Message.prototype.getJsPbMessageId = function() {
+module$contents$jspb$Message_Message.GENERATE_TO_OBJECT = !0;
+module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT = !goog.DISALLOW_TEST_ONLY_CODE;
+module$contents$jspb$Message_Message.GENERATE_TO_STRING = !0;
+module$contents$jspb$Message_Message.SERIALIZE_EMPTY_TRAILING_FIELDS = !0;
+module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ = "function" == typeof Uint8Array;
+module$contents$jspb$Message_Message.prototype.getJsPbMessageId = function() {
   return this.messageId_;
 };
-jspb.Message.getIndex_ = function(msg, fieldNumber) {
+module$contents$jspb$Message_Message.getIndex_ = function(msg, fieldNumber) {
   return fieldNumber + msg.arrayIndexOffset_;
 };
-jspb.Message.hiddenES6Property_ = function() {
+module$contents$jspb$Message_Message.hiddenES6Property_ = function() {
 };
-jspb.Message.getFieldNumber_ = function(msg, index) {
+module$contents$jspb$Message_Message.getFieldNumber_ = function(msg, index) {
   return index - msg.arrayIndexOffset_;
 };
-jspb.Message.initialize = function(msg, data, messageId, suggestedPivot, repeatedFields, opt_oneofFields) {
+module$contents$jspb$Message_Message.initialize = function(msg, data, messageId, suggestedPivot, repeatedFields, opt_oneofFields) {
   msg.wrappers_ = null;
   data || (data = messageId ? [messageId] : []);
   msg.messageId_ = messageId ? String(messageId) : void 0;
   msg.arrayIndexOffset_ = 0 === messageId ? -1 : 0;
   msg.array = data;
-  jspb.Message.initPivotAndExtensionObject_(msg, suggestedPivot);
+  module$contents$jspb$Message_Message.initPivotAndExtensionObject_(msg, suggestedPivot);
   msg.convertedPrimitiveFields_ = {};
-  jspb.Message.SERIALIZE_EMPTY_TRAILING_FIELDS || (msg.repeatedFields = repeatedFields);
+  module$contents$jspb$Message_Message.SERIALIZE_EMPTY_TRAILING_FIELDS || (msg.repeatedFields = repeatedFields);
   if (repeatedFields) {
     for (var i = 0; i < repeatedFields.length; i++) {
       var fieldNumber = repeatedFields[i];
       if (fieldNumber < msg.pivot_) {
-        var index = jspb.Message.getIndex_(msg, fieldNumber);
-        msg.array[index] = msg.array[index] || jspb.Message.EMPTY_LIST_SENTINEL_;
+        var index = module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber);
+        if (goog.DEBUG) {
+          try {
+            msg.array[index] = msg.array[index] || module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_;
+          } catch (e) {
+          }
+        } else {
+          msg.array[index] = msg.array[index] || module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_;
+        }
       } else {
-        jspb.Message.maybeInitEmptyExtensionObject_(msg), msg.extensionObject_[fieldNumber] = msg.extensionObject_[fieldNumber] || jspb.Message.EMPTY_LIST_SENTINEL_;
+        module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(msg), msg.extensionObject_[fieldNumber] = msg.extensionObject_[fieldNumber] || module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_;
       }
     }
   }
   if (opt_oneofFields && opt_oneofFields.length) {
     for (i = 0; i < opt_oneofFields.length; i++) {
-      jspb.Message.computeOneofCase(msg, opt_oneofFields[i]);
+      module$contents$jspb$Message_Message.computeOneofCase(msg, opt_oneofFields[i]);
     }
   }
 };
-jspb.Message.EMPTY_LIST_SENTINEL_ = goog.DEBUG && Object.freeze ? Object.freeze([]) : [];
-jspb.Message.isExtensionObject_ = function(o) {
-  return null !== o && "object" == typeof o && !Array.isArray(o) && !(jspb.Message.SUPPORTS_UINT8ARRAY_ && o instanceof Uint8Array);
+module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_ = goog.DEBUG && Object.freeze ? Object.freeze([]) : [];
+module$contents$jspb$Message_Message.isExtensionObject_ = function(o) {
+  return null !== o && "object" == typeof o && !Array.isArray(o) && !(module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ && o instanceof Uint8Array);
 };
-jspb.Message.initPivotAndExtensionObject_ = function(msg, suggestedPivot) {
+module$contents$jspb$Message_Message.initPivotAndExtensionObject_ = function(msg, suggestedPivot) {
   var msgLength = msg.array.length, lastIndex = -1;
   if (msgLength) {
     lastIndex = msgLength - 1;
     var obj = msg.array[lastIndex];
-    if (jspb.Message.isExtensionObject_(obj)) {
-      msg.pivot_ = jspb.Message.getFieldNumber_(msg, lastIndex);
+    if (module$contents$jspb$Message_Message.isExtensionObject_(obj)) {
+      msg.pivot_ = module$contents$jspb$Message_Message.getFieldNumber_(msg, lastIndex);
       msg.extensionObject_ = obj;
       return;
     }
   }
-  -1 < suggestedPivot ? (msg.pivot_ = Math.max(suggestedPivot, jspb.Message.getFieldNumber_(msg, lastIndex + 1)), msg.extensionObject_ = null) : msg.pivot_ = Number.MAX_VALUE;
+  -1 < suggestedPivot ? (msg.pivot_ = Math.max(suggestedPivot, module$contents$jspb$Message_Message.getFieldNumber_(msg, lastIndex + 1)), msg.extensionObject_ = null) : msg.pivot_ = Number.MAX_VALUE;
 };
-jspb.Message.maybeInitEmptyExtensionObject_ = function(msg) {
-  var pivotIndex = jspb.Message.getIndex_(msg, msg.pivot_);
+module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_ = function(msg) {
+  var pivotIndex = module$contents$jspb$Message_Message.getIndex_(msg, msg.pivot_);
   msg.array[pivotIndex] || (msg.extensionObject_ = msg.array[pivotIndex] = {});
 };
-jspb.Message.toObjectList = function(field, toObjectFn, opt_includeInstance) {
+module$contents$jspb$Message_Message.toObjectList = function(field, toObjectFn, opt_includeInstance) {
   for (var result = [], i = 0; i < field.length; i++) {
     result[i] = toObjectFn.call(field[i], opt_includeInstance, field[i]);
   }
   return result;
 };
-jspb.Message.toObjectExtension = function(proto, obj, extensions, getExtensionFn, opt_includeInstance) {
+module$contents$jspb$Message_Message.toObjectExtension = function(proto, obj, extensions, getExtensionFn, opt_includeInstance) {
   for (var fieldNumber in extensions) {
     var fieldInfo = extensions[fieldNumber], value = getExtensionFn.call(proto, fieldInfo);
     if (null != value) {
@@ -19055,11 +19030,11 @@ jspb.Message.toObjectExtension = function(proto, obj, extensions, getExtensionFn
           break;
         }
       }
-      obj[name] = fieldInfo.toObjectFn ? fieldInfo.isRepeated ? jspb.Message.toObjectList(value, fieldInfo.toObjectFn, opt_includeInstance) : fieldInfo.toObjectFn(opt_includeInstance, value) : value;
+      obj[name] = fieldInfo.toObjectFn ? fieldInfo.isRepeated ? module$contents$jspb$Message_Message.toObjectList(value, fieldInfo.toObjectFn, opt_includeInstance) : fieldInfo.toObjectFn(opt_includeInstance, value) : value;
     }
   }
 };
-jspb.Message.serializeBinaryExtensions = function(proto, writer, extensions, getExtensionFn) {
+module$contents$jspb$Message_Message.serializeBinaryExtensions = function(proto, writer, extensions, getExtensionFn) {
   for (var fieldNumber in extensions) {
     var binaryFieldInfo = extensions[fieldNumber], fieldInfo = binaryFieldInfo.fieldInfo;
     if (!binaryFieldInfo.binaryWriterFn) {
@@ -19079,16 +19054,16 @@ jspb.Message.serializeBinaryExtensions = function(proto, writer, extensions, get
     }
   }
 };
-jspb.Message.readBinaryExtensionMessageSet = function(msg, reader, extensions, getExtensionFn, setExtensionFn) {
-  if (1 == reader.getFieldNumber() && reader.getWireType() == jspb.BinaryConstants.WireType.START_GROUP) {
+module$contents$jspb$Message_Message.readBinaryExtensionMessageSet = function(msg, reader, extensions, getExtensionFn, setExtensionFn) {
+  if (1 == reader.getFieldNumber() && reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.START_GROUP) {
     for (var fieldNumber = 0, rawBytes = null; reader.nextField() && (0 != reader.getWireType() || 0 != reader.getFieldNumber());) {
-      if (reader.getWireType() == jspb.BinaryConstants.WireType.VARINT && 2 == reader.getFieldNumber()) {
+      if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.VARINT && 2 == reader.getFieldNumber()) {
         fieldNumber = reader.readUint32();
       } else {
-        if (reader.getWireType() == jspb.BinaryConstants.WireType.DELIMITED && 3 == reader.getFieldNumber()) {
+        if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.DELIMITED && 3 == reader.getFieldNumber()) {
           rawBytes = reader.readBytes();
         } else {
-          if (reader.getWireType() == jspb.BinaryConstants.WireType.END_GROUP) {
+          if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.END_GROUP) {
             break;
           } else {
             reader.skipField();
@@ -19096,20 +19071,20 @@ jspb.Message.readBinaryExtensionMessageSet = function(msg, reader, extensions, g
         }
       }
     }
-    if (1 != reader.getFieldNumber() || reader.getWireType() != jspb.BinaryConstants.WireType.END_GROUP || null == rawBytes || 0 == fieldNumber) {
+    if (1 != reader.getFieldNumber() || reader.getWireType() != module$contents$jspb$BinaryConstants_WireType.END_GROUP || null == rawBytes || 0 == fieldNumber) {
       throw Error("Malformed binary bytes for message set");
     }
     var binaryFieldInfo = extensions[fieldNumber];
     if (binaryFieldInfo) {
       var fieldInfo = binaryFieldInfo.fieldInfo, newValue = new fieldInfo.ctor;
-      binaryFieldInfo.binaryMessageDeserializeFn.call(newValue, newValue, new jspb.BinaryReader(rawBytes));
+      binaryFieldInfo.binaryMessageDeserializeFn.call(newValue, newValue, new module$contents$jspb$BinaryReader_BinaryReader(rawBytes));
       setExtensionFn.call(msg, fieldInfo, newValue);
     }
   } else {
     reader.skipField();
   }
 };
-jspb.Message.readBinaryExtension = function(msg, reader, extensions, getExtensionFn, setExtensionFn) {
+module$contents$jspb$Message_Message.readBinaryExtension = function(msg, reader, extensions, getExtensionFn, setExtensionFn) {
   var binaryFieldInfo = extensions[reader.getFieldNumber()];
   if (binaryFieldInfo) {
     var fieldInfo = binaryFieldInfo.fieldInfo;
@@ -19132,28 +19107,28 @@ jspb.Message.readBinaryExtension = function(msg, reader, extensions, getExtensio
     reader.skipField();
   }
 };
-jspb.Message.getField = function(msg, fieldNumber) {
+module$contents$jspb$Message_Message.getField = function(msg, fieldNumber) {
   if (fieldNumber < msg.pivot_) {
-    var index = jspb.Message.getIndex_(msg, fieldNumber), val = msg.array[index];
-    return val === jspb.Message.EMPTY_LIST_SENTINEL_ ? msg.array[index] = [] : val;
+    var index = module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber), val = msg.array[index];
+    return val === module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_ ? msg.array[index] = [] : val;
   }
   if (msg.extensionObject_) {
-    return val = msg.extensionObject_[fieldNumber], val === jspb.Message.EMPTY_LIST_SENTINEL_ ? msg.extensionObject_[fieldNumber] = [] : val;
+    return val = msg.extensionObject_[fieldNumber], val === module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_ ? msg.extensionObject_[fieldNumber] = [] : val;
   }
 };
-jspb.Message.getRepeatedField = function(msg, fieldNumber) {
-  return jspb.Message.getField(msg, fieldNumber);
+module$contents$jspb$Message_Message.getRepeatedField = function(msg, fieldNumber) {
+  return module$contents$jspb$Message_Message.getField(msg, fieldNumber);
 };
-jspb.Message.getOptionalFloatingPointField = function(msg, fieldNumber) {
-  var value = jspb.Message.getField(msg, fieldNumber);
+module$contents$jspb$Message_Message.getOptionalFloatingPointField = function(msg, fieldNumber) {
+  var value = module$contents$jspb$Message_Message.getField(msg, fieldNumber);
   return null == value ? value : +value;
 };
-jspb.Message.getBooleanField = function(msg, fieldNumber) {
-  var value = jspb.Message.getField(msg, fieldNumber);
+module$contents$jspb$Message_Message.getBooleanField = function(msg, fieldNumber) {
+  var value = module$contents$jspb$Message_Message.getField(msg, fieldNumber);
   return null == value ? value : !!value;
 };
-jspb.Message.getRepeatedFloatingPointField = function(msg, fieldNumber) {
-  var values = jspb.Message.getRepeatedField(msg, fieldNumber);
+module$contents$jspb$Message_Message.getRepeatedFloatingPointField = function(msg, fieldNumber) {
+  var values = module$contents$jspb$Message_Message.getRepeatedField(msg, fieldNumber);
   msg.convertedPrimitiveFields_ || (msg.convertedPrimitiveFields_ = {});
   if (!msg.convertedPrimitiveFields_[fieldNumber]) {
     for (var i = 0; i < values.length; i++) {
@@ -19163,8 +19138,8 @@ jspb.Message.getRepeatedFloatingPointField = function(msg, fieldNumber) {
   }
   return values;
 };
-jspb.Message.getRepeatedBooleanField = function(msg, fieldNumber) {
-  var values = jspb.Message.getRepeatedField(msg, fieldNumber);
+module$contents$jspb$Message_Message.getRepeatedBooleanField = function(msg, fieldNumber) {
+  var values = module$contents$jspb$Message_Message.getRepeatedField(msg, fieldNumber);
   msg.convertedPrimitiveFields_ || (msg.convertedPrimitiveFields_ = {});
   if (!msg.convertedPrimitiveFields_[fieldNumber]) {
     for (var i = 0; i < values.length; i++) {
@@ -19174,17 +19149,17 @@ jspb.Message.getRepeatedBooleanField = function(msg, fieldNumber) {
   }
   return values;
 };
-jspb.Message.bytesAsB64 = function(value) {
+module$contents$jspb$Message_Message.bytesAsB64 = function(value) {
   if (null == value || "string" === typeof value) {
     return value;
   }
-  if (jspb.Message.SUPPORTS_UINT8ARRAY_ && value instanceof Uint8Array) {
+  if (module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ && value instanceof Uint8Array) {
     return goog.crypt.base64.encodeByteArray(value);
   }
   goog.asserts.fail("Cannot coerce to b64 string: " + goog.typeOf(value));
   return null;
 };
-jspb.Message.bytesAsU8 = function(value) {
+module$contents$jspb$Message_Message.bytesAsU8 = function(value) {
   if (null == value || value instanceof Uint8Array) {
     return value;
   }
@@ -19194,15 +19169,15 @@ jspb.Message.bytesAsU8 = function(value) {
   goog.asserts.fail("Cannot coerce to Uint8Array: " + goog.typeOf(value));
   return null;
 };
-jspb.Message.bytesListAsB64 = function(value) {
-  jspb.Message.assertConsistentTypes_(value);
-  return value.length && "string" !== typeof value[0] ? goog.array.map(value, jspb.Message.bytesAsB64) : value;
+module$contents$jspb$Message_Message.bytesListAsB64 = function(value) {
+  module$contents$jspb$Message_Message.assertConsistentTypes_(value);
+  return value.length && "string" !== typeof value[0] ? goog.array.map(value, module$contents$jspb$Message_Message.bytesAsB64) : value;
 };
-jspb.Message.bytesListAsU8 = function(value) {
-  jspb.Message.assertConsistentTypes_(value);
-  return !value.length || value[0] instanceof Uint8Array ? value : goog.array.map(value, jspb.Message.bytesAsU8);
+module$contents$jspb$Message_Message.bytesListAsU8 = function(value) {
+  module$contents$jspb$Message_Message.assertConsistentTypes_(value);
+  return !value.length || value[0] instanceof Uint8Array ? value : goog.array.map(value, module$contents$jspb$Message_Message.bytesAsU8);
 };
-jspb.Message.assertConsistentTypes_ = function(array) {
+module$contents$jspb$Message_Message.assertConsistentTypes_ = function(array) {
   if (goog.DEBUG && array && 1 < array.length) {
     var expected = goog.typeOf(array[0]);
     goog.array.forEach(array, function(e) {
@@ -19210,148 +19185,148 @@ jspb.Message.assertConsistentTypes_ = function(array) {
     });
   }
 };
-jspb.Message.getFieldWithDefault = function(msg, fieldNumber, defaultValue) {
-  var value = jspb.Message.getField(msg, fieldNumber);
+module$contents$jspb$Message_Message.getFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  var value = module$contents$jspb$Message_Message.getField(msg, fieldNumber);
   return null == value ? defaultValue : value;
 };
-jspb.Message.getBooleanFieldWithDefault = function(msg, fieldNumber, defaultValue) {
-  var value = jspb.Message.getBooleanField(msg, fieldNumber);
+module$contents$jspb$Message_Message.getBooleanFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  var value = module$contents$jspb$Message_Message.getBooleanField(msg, fieldNumber);
   return null == value ? defaultValue : value;
 };
-jspb.Message.getFloatingPointFieldWithDefault = function(msg, fieldNumber, defaultValue) {
-  var value = jspb.Message.getOptionalFloatingPointField(msg, fieldNumber);
+module$contents$jspb$Message_Message.getFloatingPointFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  var value = module$contents$jspb$Message_Message.getOptionalFloatingPointField(msg, fieldNumber);
   return null == value ? defaultValue : value;
 };
-jspb.Message.getFieldProto3 = jspb.Message.getFieldWithDefault;
-jspb.Message.getMapField = function(msg, fieldNumber, noLazyCreate, opt_valueCtor) {
+module$contents$jspb$Message_Message.getFieldProto3 = module$contents$jspb$Message_Message.getFieldWithDefault;
+module$contents$jspb$Message_Message.getMapField = function(msg, fieldNumber, noLazyCreate, opt_valueCtor) {
   msg.wrappers_ || (msg.wrappers_ = {});
   if (fieldNumber in msg.wrappers_) {
     return msg.wrappers_[fieldNumber];
   }
-  var arr = jspb.Message.getField(msg, fieldNumber);
+  var arr = module$contents$jspb$Message_Message.getField(msg, fieldNumber);
   if (!arr) {
     if (noLazyCreate) {
       return;
     }
     arr = [];
-    jspb.Message.setField(msg, fieldNumber, arr);
+    module$contents$jspb$Message_Message.setField(msg, fieldNumber, arr);
   }
   return msg.wrappers_[fieldNumber] = new module$contents$jspb$Map_Map(arr, opt_valueCtor);
 };
-jspb.Message.setField = function(msg, fieldNumber, value) {
-  goog.asserts.assertInstanceof(msg, jspb.Message);
-  fieldNumber < msg.pivot_ ? msg.array[jspb.Message.getIndex_(msg, fieldNumber)] = value : (jspb.Message.maybeInitEmptyExtensionObject_(msg), msg.extensionObject_[fieldNumber] = value);
+module$contents$jspb$Message_Message.setField = function(msg, fieldNumber, value) {
+  goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
+  fieldNumber < msg.pivot_ ? msg.array[module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber)] = value : (module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(msg), msg.extensionObject_[fieldNumber] = value);
   return msg;
 };
-jspb.Message.setProto3IntField = function(msg, fieldNumber, value) {
-  return jspb.Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0);
+module$contents$jspb$Message_Message.setProto3IntField = function(msg, fieldNumber, value) {
+  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0);
 };
-jspb.Message.setProto3FloatField = function(msg, fieldNumber, value) {
-  return jspb.Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0.0);
+module$contents$jspb$Message_Message.setProto3FloatField = function(msg, fieldNumber, value) {
+  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0.0);
 };
-jspb.Message.setProto3BooleanField = function(msg, fieldNumber, value) {
-  return jspb.Message.setFieldIgnoringDefault_(msg, fieldNumber, value, !1);
+module$contents$jspb$Message_Message.setProto3BooleanField = function(msg, fieldNumber, value) {
+  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, !1);
 };
-jspb.Message.setProto3StringField = function(msg, fieldNumber, value) {
-  return jspb.Message.setFieldIgnoringDefault_(msg, fieldNumber, value, "");
+module$contents$jspb$Message_Message.setProto3StringField = function(msg, fieldNumber, value) {
+  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, "");
 };
-jspb.Message.setProto3BytesField = function(msg, fieldNumber, value) {
-  return jspb.Message.setFieldIgnoringDefault_(msg, fieldNumber, value, "");
+module$contents$jspb$Message_Message.setProto3BytesField = function(msg, fieldNumber, value) {
+  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, "");
 };
-jspb.Message.setProto3EnumField = function(msg, fieldNumber, value) {
-  return jspb.Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0);
+module$contents$jspb$Message_Message.setProto3EnumField = function(msg, fieldNumber, value) {
+  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0);
 };
-jspb.Message.setProto3StringIntField = function(msg, fieldNumber, value) {
-  return jspb.Message.setFieldIgnoringDefault_(msg, fieldNumber, value, "0");
+module$contents$jspb$Message_Message.setProto3StringIntField = function(msg, fieldNumber, value) {
+  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, "0");
 };
-jspb.Message.setFieldIgnoringDefault_ = function(msg, fieldNumber, value, defaultValue) {
-  goog.asserts.assertInstanceof(msg, jspb.Message);
-  value !== defaultValue ? jspb.Message.setField(msg, fieldNumber, value) : fieldNumber < msg.pivot_ ? msg.array[jspb.Message.getIndex_(msg, fieldNumber)] = null : (jspb.Message.maybeInitEmptyExtensionObject_(msg), delete msg.extensionObject_[fieldNumber]);
+module$contents$jspb$Message_Message.setFieldIgnoringDefault_ = function(msg, fieldNumber, value, defaultValue) {
+  goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
+  value !== defaultValue ? module$contents$jspb$Message_Message.setField(msg, fieldNumber, value) : fieldNumber < msg.pivot_ ? msg.array[module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber)] = null : (module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(msg), delete msg.extensionObject_[fieldNumber]);
   return msg;
 };
-jspb.Message.addToRepeatedField = function(msg, fieldNumber, value, opt_index) {
-  goog.asserts.assertInstanceof(msg, jspb.Message);
-  var arr = jspb.Message.getRepeatedField(msg, fieldNumber);
+module$contents$jspb$Message_Message.addToRepeatedField = function(msg, fieldNumber, value, opt_index) {
+  goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
+  var arr = module$contents$jspb$Message_Message.getRepeatedField(msg, fieldNumber);
   void 0 != opt_index ? arr.splice(opt_index, 0, value) : arr.push(value);
   return msg;
 };
-jspb.Message.setOneofField = function(msg, fieldNumber, oneof, value) {
-  goog.asserts.assertInstanceof(msg, jspb.Message);
-  var currentCase = jspb.Message.computeOneofCase(msg, oneof);
-  currentCase && currentCase !== fieldNumber && void 0 !== value && (msg.wrappers_ && currentCase in msg.wrappers_ && (msg.wrappers_[currentCase] = void 0), jspb.Message.setField(msg, currentCase, void 0));
-  return jspb.Message.setField(msg, fieldNumber, value);
+module$contents$jspb$Message_Message.setOneofField = function(msg, fieldNumber, oneof, value) {
+  goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
+  var currentCase = module$contents$jspb$Message_Message.computeOneofCase(msg, oneof);
+  currentCase && currentCase !== fieldNumber && void 0 !== value && (msg.wrappers_ && currentCase in msg.wrappers_ && (msg.wrappers_[currentCase] = void 0), module$contents$jspb$Message_Message.setField(msg, currentCase, void 0));
+  return module$contents$jspb$Message_Message.setField(msg, fieldNumber, value);
 };
-jspb.Message.computeOneofCase = function(msg, oneof) {
+module$contents$jspb$Message_Message.computeOneofCase = function(msg, oneof) {
   for (var oneofField, oneofValue, i = 0; i < oneof.length; i++) {
-    var fieldNumber = oneof[i], value = jspb.Message.getField(msg, fieldNumber);
-    null != value && (oneofField = fieldNumber, oneofValue = value, jspb.Message.setField(msg, fieldNumber, void 0));
+    var fieldNumber = oneof[i], value = module$contents$jspb$Message_Message.getField(msg, fieldNumber);
+    null != value && (oneofField = fieldNumber, oneofValue = value, module$contents$jspb$Message_Message.setField(msg, fieldNumber, void 0));
   }
-  return oneofField ? (jspb.Message.setField(msg, oneofField, oneofValue), oneofField) : 0;
+  return oneofField ? (module$contents$jspb$Message_Message.setField(msg, oneofField, oneofValue), oneofField) : 0;
 };
-jspb.Message.getWrapperField = function(msg, ctor, fieldNumber, opt_required) {
+module$contents$jspb$Message_Message.getWrapperField = function(msg, ctor, fieldNumber, opt_required) {
   msg.wrappers_ || (msg.wrappers_ = {});
   if (!msg.wrappers_[fieldNumber]) {
-    var data = jspb.Message.getField(msg, fieldNumber);
+    var data = module$contents$jspb$Message_Message.getField(msg, fieldNumber);
     if (opt_required || data) {
       msg.wrappers_[fieldNumber] = new ctor(data);
     }
   }
   return msg.wrappers_[fieldNumber];
 };
-jspb.Message.getRepeatedWrapperField = function(msg, ctor, fieldNumber) {
-  jspb.Message.wrapRepeatedField_(msg, ctor, fieldNumber);
+module$contents$jspb$Message_Message.getRepeatedWrapperField = function(msg, ctor, fieldNumber) {
+  module$contents$jspb$Message_Message.wrapRepeatedField_(msg, ctor, fieldNumber);
   var val = msg.wrappers_[fieldNumber];
-  val == jspb.Message.EMPTY_LIST_SENTINEL_ && (val = msg.wrappers_[fieldNumber] = []);
+  val == module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_ && (val = msg.wrappers_[fieldNumber] = []);
   return val;
 };
-jspb.Message.wrapRepeatedField_ = function(msg, ctor, fieldNumber) {
+module$contents$jspb$Message_Message.wrapRepeatedField_ = function(msg, ctor, fieldNumber) {
   msg.wrappers_ || (msg.wrappers_ = {});
   if (!msg.wrappers_[fieldNumber]) {
-    for (var data = jspb.Message.getRepeatedField(msg, fieldNumber), wrappers = [], i = 0; i < data.length; i++) {
+    for (var data = module$contents$jspb$Message_Message.getRepeatedField(msg, fieldNumber), wrappers = [], i = 0; i < data.length; i++) {
       wrappers[i] = new ctor(data[i]);
     }
     msg.wrappers_[fieldNumber] = wrappers;
   }
 };
-jspb.Message.setWrapperField = function(msg, fieldNumber, value) {
-  goog.asserts.assertInstanceof(msg, jspb.Message);
+module$contents$jspb$Message_Message.setWrapperField = function(msg, fieldNumber, value) {
+  goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
   msg.wrappers_ || (msg.wrappers_ = {});
   var data = value ? value.toArray() : value;
   msg.wrappers_[fieldNumber] = value;
-  return jspb.Message.setField(msg, fieldNumber, data);
+  return module$contents$jspb$Message_Message.setField(msg, fieldNumber, data);
 };
-jspb.Message.setOneofWrapperField = function(msg, fieldNumber, oneof, value) {
-  goog.asserts.assertInstanceof(msg, jspb.Message);
+module$contents$jspb$Message_Message.setOneofWrapperField = function(msg, fieldNumber, oneof, value) {
+  goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
   msg.wrappers_ || (msg.wrappers_ = {});
   var data = value ? value.toArray() : value;
   msg.wrappers_[fieldNumber] = value;
-  return jspb.Message.setOneofField(msg, fieldNumber, oneof, data);
+  return module$contents$jspb$Message_Message.setOneofField(msg, fieldNumber, oneof, data);
 };
-jspb.Message.setRepeatedWrapperField = function(msg, fieldNumber, value) {
-  goog.asserts.assertInstanceof(msg, jspb.Message);
+module$contents$jspb$Message_Message.setRepeatedWrapperField = function(msg, fieldNumber, value) {
+  goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
   msg.wrappers_ || (msg.wrappers_ = {});
   value = value || [];
   for (var data = [], i = 0; i < value.length; i++) {
     data[i] = value[i].toArray();
   }
   msg.wrappers_[fieldNumber] = value;
-  return jspb.Message.setField(msg, fieldNumber, data);
+  return module$contents$jspb$Message_Message.setField(msg, fieldNumber, data);
 };
-jspb.Message.addToRepeatedWrapperField = function(msg, fieldNumber, value, ctor, index) {
-  jspb.Message.wrapRepeatedField_(msg, ctor, fieldNumber);
+module$contents$jspb$Message_Message.addToRepeatedWrapperField = function(msg, fieldNumber, value, ctor, index) {
+  module$contents$jspb$Message_Message.wrapRepeatedField_(msg, ctor, fieldNumber);
   var wrapperArray = msg.wrappers_[fieldNumber];
   wrapperArray || (wrapperArray = msg.wrappers_[fieldNumber] = []);
-  var insertedValue = value ? value : new ctor, array = jspb.Message.getRepeatedField(msg, fieldNumber);
+  var insertedValue = value ? value : new ctor, array = module$contents$jspb$Message_Message.getRepeatedField(msg, fieldNumber);
   void 0 != index ? (wrapperArray.splice(index, 0, insertedValue), array.splice(index, 0, insertedValue.toArray())) : (wrapperArray.push(insertedValue), array.push(insertedValue.toArray()));
   return insertedValue;
 };
-jspb.Message.toMap = function(field, mapKeyGetterFn, opt_toObjectFn, opt_includeInstance) {
+module$contents$jspb$Message_Message.toMap = function(field, mapKeyGetterFn, opt_toObjectFn, opt_includeInstance) {
   for (var result = {}, i = 0; i < field.length; i++) {
     result[mapKeyGetterFn.call(field[i])] = opt_toObjectFn ? opt_toObjectFn.call(field[i], opt_includeInstance, field[i]) : field[i];
   }
   return result;
 };
-jspb.Message.prototype.syncMapFields_ = function() {
+module$contents$jspb$Message_Message.prototype.syncMapFields_ = function() {
   if (this.wrappers_) {
     for (var fieldNumber in this.wrappers_) {
       var val = this.wrappers_[fieldNumber];
@@ -19365,37 +19340,37 @@ jspb.Message.prototype.syncMapFields_ = function() {
     }
   }
 };
-jspb.Message.prototype.toArray = function() {
+module$contents$jspb$Message_Message.prototype.toArray = function() {
   this.syncMapFields_();
   return this.array;
 };
-jspb.Message.prototype.serialize = jspb.Message.SUPPORTS_UINT8ARRAY_ ? function() {
+module$contents$jspb$Message_Message.prototype.serialize = module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ ? function() {
   var old_toJSON = Uint8Array.prototype.toJSON;
   Uint8Array.prototype.toJSON = function() {
     return goog.crypt.base64.encodeByteArray(this);
   };
   try {
-    return JSON.stringify(this.array && jspb.Message.prepareForSerialize_(this.toArray(), this), jspb.Message.serializeSpecialNumbers_);
+    return JSON.stringify(this.array && module$contents$jspb$Message_Message.prepareForSerialize_(this.toArray(), this), module$contents$jspb$Message_Message.serializeSpecialNumbers_);
   } finally {
     Uint8Array.prototype.toJSON = old_toJSON;
   }
 } : function() {
-  return JSON.stringify(this.array && jspb.Message.prepareForSerialize_(this.toArray(), this), jspb.Message.serializeSpecialNumbers_);
+  return JSON.stringify(this.array && module$contents$jspb$Message_Message.prepareForSerialize_(this.toArray(), this), module$contents$jspb$Message_Message.serializeSpecialNumbers_);
 };
-jspb.Message.prepareForSerialize_ = function(array, msg) {
-  if (jspb.Message.SERIALIZE_EMPTY_TRAILING_FIELDS) {
+module$contents$jspb$Message_Message.prepareForSerialize_ = function(array, msg) {
+  if (module$contents$jspb$Message_Message.SERIALIZE_EMPTY_TRAILING_FIELDS) {
     return array;
   }
   for (var result, length = array.length, needsCopy = !1, extension, i = array.length; i--;) {
     var value = array[i];
     if (Array.isArray(value)) {
-      var nestedMsg = Array.isArray(msg) ? msg[i] : msg && msg.wrappers_ ? msg.wrappers_[jspb.Message.getFieldNumber_(msg, i)] : void 0;
-      value = jspb.Message.prepareForSerialize_(value, nestedMsg);
-      !value.length && msg && (Array.isArray(msg) || msg.repeatedFields && -1 != msg.repeatedFields.indexOf(jspb.Message.getFieldNumber_(msg, i)) && (value = null));
+      var nestedMsg = Array.isArray(msg) ? msg[i] : msg && msg.wrappers_ ? msg.wrappers_[module$contents$jspb$Message_Message.getFieldNumber_(msg, i)] : void 0;
+      value = module$contents$jspb$Message_Message.prepareForSerialize_(value, nestedMsg);
+      !value.length && msg && (Array.isArray(msg) || msg.repeatedFields && -1 != msg.repeatedFields.indexOf(module$contents$jspb$Message_Message.getFieldNumber_(msg, i)) && (value = null));
       value != array[i] && (needsCopy = !0);
     } else {
-      if (jspb.Message.isExtensionObject_(value)) {
-        extension = jspb.Message.prepareExtensionForSerialize_(value, msg && goog.asserts.assertInstanceof(msg, jspb.Message));
+      if (module$contents$jspb$Message_Message.isExtensionObject_(value)) {
+        extension = module$contents$jspb$Message_Message.prepareExtensionForSerialize_(value, msg && goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message));
         extension != value && (needsCopy = !0);
         length--;
         continue;
@@ -19410,12 +19385,12 @@ jspb.Message.prepareForSerialize_ = function(array, msg) {
   extension && result.push(extension);
   return result;
 };
-jspb.Message.prepareExtensionForSerialize_ = function(extension, msg) {
+module$contents$jspb$Message_Message.prepareExtensionForSerialize_ = function(extension, msg) {
   var result = {}, changed = !1, key;
   for (key in extension) {
     var value = extension[key];
     if (Array.isArray(value)) {
-      var prepared = jspb.Message.prepareForSerialize_(value, msg && msg.wrappers_ && msg.wrappers_[key]);
+      var prepared = module$contents$jspb$Message_Message.prepareForSerialize_(value, msg && msg.wrappers_ && msg.wrappers_[key]);
       !prepared.length && msg && msg.repeatedFields && -1 != msg.repeatedFields.indexOf(+key) || (result[key] = prepared);
       result[key] != value && (changed = !0);
     } else {
@@ -19430,50 +19405,50 @@ jspb.Message.prepareExtensionForSerialize_ = function(extension, msg) {
   }
   return null;
 };
-jspb.Message.serializeSpecialNumbers_ = function(key, value) {
+module$contents$jspb$Message_Message.serializeSpecialNumbers_ = function(key, value) {
   return "number" !== typeof value || !isNaN(value) && Infinity !== value && -Infinity !== value ? value : String(value);
 };
-jspb.Message.deserializeWithCtor = function(ctor, data) {
+module$contents$jspb$Message_Message.deserializeWithCtor = function(ctor, data) {
   var msg = new ctor(data ? JSON.parse(data) : null);
-  goog.asserts.assertInstanceof(msg, jspb.Message);
+  goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
   return msg;
 };
-jspb.Message.GENERATE_TO_STRING && (jspb.Message.prototype.toString = function() {
+module$contents$jspb$Message_Message.GENERATE_TO_STRING && (module$contents$jspb$Message_Message.prototype.toString = function() {
   this.syncMapFields_();
   return this.array.toString();
 });
-jspb.Message.prototype.getExtension = function(fieldInfo) {
-  jspb.Message.maybeInitEmptyExtensionObject_(this);
+module$contents$jspb$Message_Message.prototype.getExtension = function(fieldInfo) {
+  module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(this);
   this.wrappers_ || (this.wrappers_ = {});
   var fieldNumber = fieldInfo.fieldIndex;
   return fieldInfo.isRepeated ? fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] || (this.wrappers_[fieldNumber] = goog.array.map(this.extensionObject_[fieldNumber] || [], function(arr) {
     return new fieldInfo.ctor(arr);
   })), this.wrappers_[fieldNumber]) : this.extensionObject_[fieldNumber] = this.extensionObject_[fieldNumber] || [] : fieldInfo.isMessageType() ? (!this.wrappers_[fieldNumber] && this.extensionObject_[fieldNumber] && (this.wrappers_[fieldNumber] = new fieldInfo.ctor(this.extensionObject_[fieldNumber])), this.wrappers_[fieldNumber]) : this.extensionObject_[fieldNumber];
 };
-jspb.Message.prototype.setExtension = function(fieldInfo, value) {
+module$contents$jspb$Message_Message.prototype.setExtension = function(fieldInfo, value) {
   this.wrappers_ || (this.wrappers_ = {});
-  jspb.Message.maybeInitEmptyExtensionObject_(this);
+  module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(this);
   var fieldNumber = fieldInfo.fieldIndex;
   fieldInfo.isRepeated ? (value = value || [], fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] = value, this.extensionObject_[fieldNumber] = goog.array.map(value, function(msg) {
     return msg.toArray();
   })) : this.extensionObject_[fieldNumber] = value) : fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] = value, this.extensionObject_[fieldNumber] = value ? value.toArray() : value) : this.extensionObject_[fieldNumber] = value;
   return this;
 };
-jspb.Message.difference = function(m1, m2) {
+module$contents$jspb$Message_Message.difference = function(m1, m2) {
   if (!(m1 instanceof m2.constructor)) {
     throw Error("Messages have different types.");
   }
   var arr1 = m1.toArray(), arr2 = m2.toArray(), res = [], start = 0, length = arr1.length > arr2.length ? arr1.length : arr2.length;
   m1.getJsPbMessageId() && (res[0] = m1.getJsPbMessageId(), start = 1);
   for (var i = start; i < length; i++) {
-    jspb.Message.compareFields(arr1[i], arr2[i]) || (res[i] = arr2[i]);
+    module$contents$jspb$Message_Message.compareFields(arr1[i], arr2[i]) || (res[i] = arr2[i]);
   }
   return new m1.constructor(res);
 };
-jspb.Message.equals = function(m1, m2) {
-  return m1 == m2 || !(!m1 || !m2) && m1 instanceof m2.constructor && jspb.Message.compareFields(m1.toArray(), m2.toArray());
+module$contents$jspb$Message_Message.equals = function(m1, m2) {
+  return m1 == m2 || !(!m1 || !m2) && m1 instanceof m2.constructor && module$contents$jspb$Message_Message.compareFields(m1.toArray(), m2.toArray());
 };
-jspb.Message.compareExtensions = function(extension1, extension2) {
+module$contents$jspb$Message_Message.compareExtensions = function(extension1, extension2) {
   extension1 = extension1 || {};
   extension2 = extension2 || {};
   var keys = {}, name;
@@ -19484,13 +19459,13 @@ jspb.Message.compareExtensions = function(extension1, extension2) {
     keys[name] = 0;
   }
   for (name in keys) {
-    if (!jspb.Message.compareFields(extension1[name], extension2[name])) {
+    if (!module$contents$jspb$Message_Message.compareFields(extension1[name], extension2[name])) {
       return !1;
     }
   }
   return !0;
 };
-jspb.Message.compareFields = function(field1, field2) {
+module$contents$jspb$Message_Message.compareFields = function(field1, field2) {
   if (field1 == field2) {
     return !0;
   }
@@ -19500,7 +19475,7 @@ jspb.Message.compareFields = function(field1, field2) {
   if (field1.constructor != field2.constructor) {
     return !1;
   }
-  if (jspb.Message.SUPPORTS_UINT8ARRAY_ && field1.constructor === Uint8Array) {
+  if (module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ && field1.constructor === Uint8Array) {
     if (field1.length != field2.length) {
       return !1;
     }
@@ -19517,90 +19492,91 @@ jspb.Message.compareFields = function(field1, field2) {
       var val1 = field1[i], val2 = field2[i];
       val1 && val1.constructor == Object && (goog.asserts.assert(void 0 === extension1), goog.asserts.assert(i === field1.length - 1), extension1 = val1, val1 = void 0);
       val2 && val2.constructor == Object && (goog.asserts.assert(void 0 === extension2), goog.asserts.assert(i === field2.length - 1), extension2 = val2, val2 = void 0);
-      if (!jspb.Message.compareFields(val1, val2)) {
+      if (!module$contents$jspb$Message_Message.compareFields(val1, val2)) {
         return !1;
       }
     }
-    return extension1 || extension2 ? (extension1 = extension1 || {}, extension2 = extension2 || {}, jspb.Message.compareExtensions(extension1, extension2)) : !0;
+    return extension1 || extension2 ? (extension1 = extension1 || {}, extension2 = extension2 || {}, module$contents$jspb$Message_Message.compareExtensions(extension1, extension2)) : !0;
   }
   if (field1.constructor === Object) {
-    return jspb.Message.compareExtensions(field1, field2);
+    return module$contents$jspb$Message_Message.compareExtensions(field1, field2);
   }
   throw Error("Invalid type in JSPB array");
 };
-jspb.Message.prototype.cloneMessage = function() {
-  return jspb.Message.cloneMessage(this);
+module$contents$jspb$Message_Message.prototype.cloneMessage = function() {
+  return module$contents$jspb$Message_Message.cloneMessage(this);
 };
-jspb.Message.prototype.clone = function() {
-  return jspb.Message.cloneMessage(this);
+module$contents$jspb$Message_Message.prototype.clone = function() {
+  return module$contents$jspb$Message_Message.cloneMessage(this);
 };
-jspb.Message.clone = function(msg) {
-  return jspb.Message.cloneMessage(msg);
+module$contents$jspb$Message_Message.clone = function(msg) {
+  return module$contents$jspb$Message_Message.cloneMessage(msg);
 };
-jspb.Message.cloneMessage = function(msg) {
-  return new msg.constructor(jspb.Message.clone_(msg.toArray()));
+module$contents$jspb$Message_Message.cloneMessage = function(msg) {
+  return new msg.constructor(module$contents$jspb$Message_Message.clone_(msg.toArray()));
 };
-jspb.Message.copyInto = function(fromMessage, toMessage) {
-  goog.asserts.assertInstanceof(fromMessage, jspb.Message);
-  goog.asserts.assertInstanceof(toMessage, jspb.Message);
+module$contents$jspb$Message_Message.copyInto = function(fromMessage, toMessage) {
+  goog.asserts.assertInstanceof(fromMessage, module$contents$jspb$Message_Message);
+  goog.asserts.assertInstanceof(toMessage, module$contents$jspb$Message_Message);
   goog.asserts.assert(fromMessage.constructor == toMessage.constructor, "Copy source and target message should have the same type.");
-  for (var copyOfFrom = jspb.Message.clone(fromMessage), to = toMessage.toArray(), from = copyOfFrom.toArray(), i = to.length = 0; i < from.length; i++) {
+  for (var copyOfFrom = module$contents$jspb$Message_Message.clone(fromMessage), to = toMessage.toArray(), from = copyOfFrom.toArray(), i = to.length = 0; i < from.length; i++) {
     to[i] = from[i];
   }
   toMessage.wrappers_ = copyOfFrom.wrappers_;
   toMessage.extensionObject_ = copyOfFrom.extensionObject_;
 };
-jspb.Message.clone_ = function(obj) {
+module$contents$jspb$Message_Message.clone_ = function(obj) {
   if (Array.isArray(obj)) {
     for (var clonedArray = Array(obj.length), i = 0; i < obj.length; i++) {
       var o = obj[i];
-      null != o && (clonedArray[i] = "object" == typeof o ? jspb.Message.clone_(goog.asserts.assert(o)) : o);
+      null != o && (clonedArray[i] = "object" == typeof o ? module$contents$jspb$Message_Message.clone_(goog.asserts.assert(o)) : o);
     }
     return clonedArray;
   }
-  if (jspb.Message.SUPPORTS_UINT8ARRAY_ && obj instanceof Uint8Array) {
+  if (module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ && obj instanceof Uint8Array) {
     return new Uint8Array(obj);
   }
   var clone = {}, key;
   for (key in obj) {
-    o = obj[key], null != o && (clone[key] = "object" == typeof o ? jspb.Message.clone_(goog.asserts.assert(o)) : o);
+    o = obj[key], null != o && (clone[key] = "object" == typeof o ? module$contents$jspb$Message_Message.clone_(goog.asserts.assert(o)) : o);
   }
   return clone;
 };
-jspb.Message.registerMessageType = function(id, constructor) {
+module$contents$jspb$Message_Message.registerMessageType = function(id, constructor) {
   constructor.messageId = id;
 };
-jspb.Message.messageSetExtensions = {};
-jspb.Message.messageSetExtensionsBinary = {};
+module$contents$jspb$Message_Message.messageSetExtensions = {};
+module$contents$jspb$Message_Message.messageSetExtensionsBinary = {};
+jspb.Message = module$contents$jspb$Message_Message;
 var proto = {google:{}};
 proto.google.protobuf = {};
 proto.google.protobuf.Struct = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, null);
+  module$contents$jspb$Message_Message.initialize(this, opt_data, 0, -1, null, null);
 };
-goog.inherits(proto.google.protobuf.Struct, jspb.Message);
+goog.inherits(proto.google.protobuf.Struct, module$contents$jspb$Message_Message);
 proto.google.protobuf.Value = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, null, proto.google.protobuf.Value.oneofGroups_);
+  module$contents$jspb$Message_Message.initialize(this, opt_data, 0, -1, null, proto.google.protobuf.Value.oneofGroups_);
 };
-goog.inherits(proto.google.protobuf.Value, jspb.Message);
+goog.inherits(proto.google.protobuf.Value, module$contents$jspb$Message_Message);
 proto.google.protobuf.ListValue = function(opt_data) {
-  jspb.Message.initialize(this, opt_data, 0, -1, proto.google.protobuf.ListValue.repeatedFields_, null);
+  module$contents$jspb$Message_Message.initialize(this, opt_data, 0, -1, proto.google.protobuf.ListValue.repeatedFields_, null);
 };
-goog.inherits(proto.google.protobuf.ListValue, jspb.Message);
-jspb.Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Struct.prototype.toObject = function(opt_includeInstance) {
+goog.inherits(proto.google.protobuf.ListValue, module$contents$jspb$Message_Message);
+module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Struct.prototype.toObject = function(opt_includeInstance) {
   return proto.google.protobuf.Struct.toObject(opt_includeInstance, this);
 }, proto.google.protobuf.Struct.toObject = function(includeInstance, msg) {
   var f, obj = {fieldsMap:(f = msg.getFieldsMap()) ? f.toObject(includeInstance, proto.google.protobuf.Value.toObject) : []};
   includeInstance && (obj.$jspbMessageInstance = msg);
   return obj;
 });
-jspb.Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Struct.ObjectFormat = function() {
+module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Struct.ObjectFormat = function() {
 }, proto.google.protobuf.Struct.fromObject = function(obj) {
   var msg = new proto.google.protobuf.Struct;
-  obj.fieldsMap && jspb.Message.setWrapperField(msg, 1, module$contents$jspb$Map_Map.fromObject(obj.fieldsMap, proto.google.protobuf.Value, proto.google.protobuf.Value.fromObject));
+  obj.fieldsMap && module$contents$jspb$Message_Message.setWrapperField(msg, 1, module$contents$jspb$Map_Map.fromObject(obj.fieldsMap, proto.google.protobuf.Value, proto.google.protobuf.Value.fromObject));
   return msg;
 });
 proto.google.protobuf.Struct.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes), msg = new proto.google.protobuf.Struct;
+  var reader = new module$contents$jspb$BinaryReader_BinaryReader(bytes), msg = new proto.google.protobuf.Struct;
   return proto.google.protobuf.Struct.deserializeBinaryFromReader(msg, reader);
 };
 proto.google.protobuf.Struct.deserializeBinaryFromReader = function(msg, reader$jscomp$0) {
@@ -19609,7 +19585,7 @@ proto.google.protobuf.Struct.deserializeBinaryFromReader = function(msg, reader$
       case 1:
         var value = msg.getFieldsMap();
         reader$jscomp$0.readMessage(value, function(message, reader) {
-          module$contents$jspb$Map_Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readMessage, proto.google.protobuf.Value.deserializeBinaryFromReader, "", new proto.google.protobuf.Value);
+          module$contents$jspb$Map_Map.deserializeBinary(message, reader, module$contents$jspb$BinaryReader_BinaryReader.prototype.readString, module$contents$jspb$BinaryReader_BinaryReader.prototype.readMessage, proto.google.protobuf.Value.deserializeBinaryFromReader, "", new proto.google.protobuf.Value);
         });
         break;
       default:
@@ -19628,40 +19604,41 @@ proto.google.protobuf.Struct.serializeBinaryToWriter = function(message, writer)
   (f = message.getFieldsMap(!0)) && 0 < f.getLength() && f.serializeBinary(1, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeMessage, proto.google.protobuf.Value.serializeBinaryToWriter);
 };
 proto.google.protobuf.Struct.prototype.getFieldsMap = function(opt_noLazyCreate) {
-  return jspb.Message.getMapField(this, 1, opt_noLazyCreate, proto.google.protobuf.Value);
+  return module$contents$jspb$Message_Message.getMapField(this, 1, opt_noLazyCreate, proto.google.protobuf.Value);
 };
 proto.google.protobuf.Struct.prototype.clearFieldsMap = function() {
   this.getFieldsMap().clear();
   return this;
 };
 proto.google.protobuf.Struct.deserialize = function(data) {
-  return jspb.Message.deserializeWithCtor(proto.google.protobuf.Struct, data);
+  return module$contents$jspb$Message_Message.deserializeWithCtor(proto.google.protobuf.Struct, data);
 };
 proto.google.protobuf.Value.oneofGroups_ = [[1, 2, 3, 4, 5, 6]];
 proto.google.protobuf.Value.KindCase = {KIND_NOT_SET:0, NULL_VALUE:1, NUMBER_VALUE:2, STRING_VALUE:3, BOOL_VALUE:4, STRUCT_VALUE:5, LIST_VALUE:6};
 proto.google.protobuf.Value.prototype.getKindCase = function() {
-  return jspb.Message.computeOneofCase(this, proto.google.protobuf.Value.oneofGroups_[0]);
+  return module$contents$jspb$Message_Message.computeOneofCase(this, proto.google.protobuf.Value.oneofGroups_[0]);
 };
-jspb.Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Value.prototype.toObject = function(opt_includeInstance) {
+module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Value.prototype.toObject = function(opt_includeInstance) {
   return proto.google.protobuf.Value.toObject(opt_includeInstance, this);
 }, proto.google.protobuf.Value.toObject = function(includeInstance, msg) {
-  var f, obj = {nullValue:jspb.Message.getFieldWithDefault(msg, 1, 0), numberValue:jspb.Message.getFloatingPointFieldWithDefault(msg, 2, 0.0), stringValue:jspb.Message.getFieldWithDefault(msg, 3, ""), boolValue:jspb.Message.getBooleanFieldWithDefault(msg, 4, !1), structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && proto.google.protobuf.ListValue.toObject(includeInstance, f)};
+  var f, obj = {nullValue:module$contents$jspb$Message_Message.getFieldWithDefault(msg, 1, 0), numberValue:module$contents$jspb$Message_Message.getFloatingPointFieldWithDefault(msg, 2, 0.0), stringValue:module$contents$jspb$Message_Message.getFieldWithDefault(msg, 3, ""), boolValue:module$contents$jspb$Message_Message.getBooleanFieldWithDefault(msg, 4, !1), structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && proto.google.protobuf.ListValue.toObject(includeInstance, 
+  f)};
   includeInstance && (obj.$jspbMessageInstance = msg);
   return obj;
 });
-jspb.Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Value.ObjectFormat = function() {
+module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Value.ObjectFormat = function() {
 }, proto.google.protobuf.Value.fromObject = function(obj) {
   var msg = new proto.google.protobuf.Value;
-  null != obj.nullValue && jspb.Message.setField(msg, 1, obj.nullValue);
-  null != obj.numberValue && jspb.Message.setField(msg, 2, obj.numberValue);
-  null != obj.stringValue && jspb.Message.setField(msg, 3, obj.stringValue);
-  null != obj.boolValue && jspb.Message.setField(msg, 4, obj.boolValue);
-  obj.structValue && jspb.Message.setWrapperField(msg, 5, proto.google.protobuf.Struct.fromObject(obj.structValue));
-  obj.listValue && jspb.Message.setWrapperField(msg, 6, proto.google.protobuf.ListValue.fromObject(obj.listValue));
+  null != obj.nullValue && module$contents$jspb$Message_Message.setField(msg, 1, obj.nullValue);
+  null != obj.numberValue && module$contents$jspb$Message_Message.setField(msg, 2, obj.numberValue);
+  null != obj.stringValue && module$contents$jspb$Message_Message.setField(msg, 3, obj.stringValue);
+  null != obj.boolValue && module$contents$jspb$Message_Message.setField(msg, 4, obj.boolValue);
+  obj.structValue && module$contents$jspb$Message_Message.setWrapperField(msg, 5, proto.google.protobuf.Struct.fromObject(obj.structValue));
+  obj.listValue && module$contents$jspb$Message_Message.setWrapperField(msg, 6, proto.google.protobuf.ListValue.fromObject(obj.listValue));
   return msg;
 });
 proto.google.protobuf.Value.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes), msg = new proto.google.protobuf.Value;
+  var reader = new module$contents$jspb$BinaryReader_BinaryReader(bytes), msg = new proto.google.protobuf.Value;
   return proto.google.protobuf.Value.deserializeBinaryFromReader(msg, reader);
 };
 proto.google.protobuf.Value.deserializeBinaryFromReader = function(msg, reader) {
@@ -19706,13 +19683,13 @@ proto.google.protobuf.Value.prototype.serializeBinary = function() {
 };
 proto.google.protobuf.Value.serializeBinaryToWriter = function(message, writer) {
   var f = void 0;
-  f = jspb.Message.getField(message, 1);
+  f = module$contents$jspb$Message_Message.getField(message, 1);
   null != f && writer.writeEnum(1, f);
-  f = jspb.Message.getField(message, 2);
+  f = module$contents$jspb$Message_Message.getField(message, 2);
   null != f && writer.writeDouble(2, f);
-  f = jspb.Message.getField(message, 3);
+  f = module$contents$jspb$Message_Message.getField(message, 3);
   null != f && writer.writeString(3, f);
-  f = jspb.Message.getField(message, 4);
+  f = module$contents$jspb$Message_Message.getField(message, 4);
   null != f && writer.writeBool(4, f);
   f = message.getStructValue();
   null != f && writer.writeMessage(5, f, proto.google.protobuf.Struct.serializeBinaryToWriter);
@@ -19720,96 +19697,96 @@ proto.google.protobuf.Value.serializeBinaryToWriter = function(message, writer) 
   null != f && writer.writeMessage(6, f, proto.google.protobuf.ListValue.serializeBinaryToWriter);
 };
 proto.google.protobuf.Value.prototype.getNullValue = function() {
-  return jspb.Message.getFieldWithDefault(this, 1, 0);
+  return module$contents$jspb$Message_Message.getFieldWithDefault(this, 1, 0);
 };
 proto.google.protobuf.Value.prototype.setNullValue = function(value) {
-  return jspb.Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return module$contents$jspb$Message_Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearNullValue = function() {
-  return jspb.Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return module$contents$jspb$Message_Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasNullValue = function() {
-  return null != jspb.Message.getField(this, 1);
+  return null != module$contents$jspb$Message_Message.getField(this, 1);
 };
 proto.google.protobuf.Value.prototype.getNumberValue = function() {
-  return jspb.Message.getFloatingPointFieldWithDefault(this, 2, 0.0);
+  return module$contents$jspb$Message_Message.getFloatingPointFieldWithDefault(this, 2, 0.0);
 };
 proto.google.protobuf.Value.prototype.setNumberValue = function(value) {
-  return jspb.Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return module$contents$jspb$Message_Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearNumberValue = function() {
-  return jspb.Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return module$contents$jspb$Message_Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasNumberValue = function() {
-  return null != jspb.Message.getField(this, 2);
+  return null != module$contents$jspb$Message_Message.getField(this, 2);
 };
 proto.google.protobuf.Value.prototype.getStringValue = function() {
-  return jspb.Message.getFieldWithDefault(this, 3, "");
+  return module$contents$jspb$Message_Message.getFieldWithDefault(this, 3, "");
 };
 proto.google.protobuf.Value.prototype.setStringValue = function(value) {
-  return jspb.Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return module$contents$jspb$Message_Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearStringValue = function() {
-  return jspb.Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return module$contents$jspb$Message_Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasStringValue = function() {
-  return null != jspb.Message.getField(this, 3);
+  return null != module$contents$jspb$Message_Message.getField(this, 3);
 };
 proto.google.protobuf.Value.prototype.getBoolValue = function() {
-  return jspb.Message.getBooleanFieldWithDefault(this, 4, !1);
+  return module$contents$jspb$Message_Message.getBooleanFieldWithDefault(this, 4, !1);
 };
 proto.google.protobuf.Value.prototype.setBoolValue = function(value) {
-  return jspb.Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return module$contents$jspb$Message_Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearBoolValue = function() {
-  return jspb.Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return module$contents$jspb$Message_Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasBoolValue = function() {
-  return null != jspb.Message.getField(this, 4);
+  return null != module$contents$jspb$Message_Message.getField(this, 4);
 };
 proto.google.protobuf.Value.prototype.getStructValue = function() {
-  return jspb.Message.getWrapperField(this, proto.google.protobuf.Struct, 5);
+  return module$contents$jspb$Message_Message.getWrapperField(this, proto.google.protobuf.Struct, 5);
 };
 proto.google.protobuf.Value.prototype.setStructValue = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 5, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return module$contents$jspb$Message_Message.setOneofWrapperField(this, 5, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearStructValue = function() {
   return this.setStructValue(void 0);
 };
 proto.google.protobuf.Value.prototype.hasStructValue = function() {
-  return null != jspb.Message.getField(this, 5);
+  return null != module$contents$jspb$Message_Message.getField(this, 5);
 };
 proto.google.protobuf.Value.prototype.getListValue = function() {
-  return jspb.Message.getWrapperField(this, proto.google.protobuf.ListValue, 6);
+  return module$contents$jspb$Message_Message.getWrapperField(this, proto.google.protobuf.ListValue, 6);
 };
 proto.google.protobuf.Value.prototype.setListValue = function(value) {
-  return jspb.Message.setOneofWrapperField(this, 6, proto.google.protobuf.Value.oneofGroups_[0], value);
+  return module$contents$jspb$Message_Message.setOneofWrapperField(this, 6, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearListValue = function() {
   return this.setListValue(void 0);
 };
 proto.google.protobuf.Value.prototype.hasListValue = function() {
-  return null != jspb.Message.getField(this, 6);
+  return null != module$contents$jspb$Message_Message.getField(this, 6);
 };
 proto.google.protobuf.Value.deserialize = function(data) {
-  return jspb.Message.deserializeWithCtor(proto.google.protobuf.Value, data);
+  return module$contents$jspb$Message_Message.deserializeWithCtor(proto.google.protobuf.Value, data);
 };
 proto.google.protobuf.ListValue.repeatedFields_ = [1];
-jspb.Message.GENERATE_TO_OBJECT && (proto.google.protobuf.ListValue.prototype.toObject = function(opt_includeInstance) {
+module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.ListValue.prototype.toObject = function(opt_includeInstance) {
   return proto.google.protobuf.ListValue.toObject(opt_includeInstance, this);
 }, proto.google.protobuf.ListValue.toObject = function(includeInstance, msg) {
-  var f, obj = {valuesList:jspb.Message.toObjectList(msg.getValuesList(), proto.google.protobuf.Value.toObject, includeInstance)};
+  var f, obj = {valuesList:module$contents$jspb$Message_Message.toObjectList(msg.getValuesList(), proto.google.protobuf.Value.toObject, includeInstance)};
   includeInstance && (obj.$jspbMessageInstance = msg);
   return obj;
 });
-jspb.Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.ListValue.ObjectFormat = function() {
+module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.ListValue.ObjectFormat = function() {
 }, proto.google.protobuf.ListValue.fromObject = function(obj) {
   var msg = new proto.google.protobuf.ListValue;
-  obj.valuesList && jspb.Message.setRepeatedWrapperField(msg, 1, obj.valuesList.map(proto.google.protobuf.Value.fromObject));
+  obj.valuesList && module$contents$jspb$Message_Message.setRepeatedWrapperField(msg, 1, obj.valuesList.map(proto.google.protobuf.Value.fromObject));
   return msg;
 });
 proto.google.protobuf.ListValue.deserializeBinary = function(bytes) {
-  var reader = new jspb.BinaryReader(bytes), msg = new proto.google.protobuf.ListValue;
+  var reader = new module$contents$jspb$BinaryReader_BinaryReader(bytes), msg = new proto.google.protobuf.ListValue;
   return proto.google.protobuf.ListValue.deserializeBinaryFromReader(msg, reader);
 };
 proto.google.protobuf.ListValue.deserializeBinaryFromReader = function(msg, reader) {
@@ -19837,19 +19814,19 @@ proto.google.protobuf.ListValue.serializeBinaryToWriter = function(message, writ
   0 < f.length && writer.writeRepeatedMessage(1, f, proto.google.protobuf.Value.serializeBinaryToWriter);
 };
 proto.google.protobuf.ListValue.prototype.getValuesList = function() {
-  return jspb.Message.getRepeatedWrapperField(this, proto.google.protobuf.Value, 1);
+  return module$contents$jspb$Message_Message.getRepeatedWrapperField(this, proto.google.protobuf.Value, 1);
 };
 proto.google.protobuf.ListValue.prototype.setValuesList = function(value) {
-  return jspb.Message.setRepeatedWrapperField(this, 1, value);
+  return module$contents$jspb$Message_Message.setRepeatedWrapperField(this, 1, value);
 };
 proto.google.protobuf.ListValue.prototype.addValues = function(opt_value, opt_index) {
-  return jspb.Message.addToRepeatedWrapperField(this, 1, opt_value, proto.google.protobuf.Value, opt_index);
+  return module$contents$jspb$Message_Message.addToRepeatedWrapperField(this, 1, opt_value, proto.google.protobuf.Value, opt_index);
 };
 proto.google.protobuf.ListValue.prototype.clearValuesList = function() {
   return this.setValuesList([]);
 };
 proto.google.protobuf.ListValue.deserialize = function(data) {
-  return jspb.Message.deserializeWithCtor(proto.google.protobuf.ListValue, data);
+  return module$contents$jspb$Message_Message.deserializeWithCtor(proto.google.protobuf.ListValue, data);
 };
 proto.google.protobuf.NullValue = {NULL_VALUE:0};
 proto.google.protobuf.Value.prototype.toJavaScript = function() {
@@ -20509,13 +20486,6 @@ ee.data.createAsset = function(value, opt_path, opt_force, opt_properties, opt_c
 };
 ee.data.createFolder = function(path, opt_force, opt_callback) {
   return ee.data.getCloudApiEnabled() ? ee.data.createAsset({type:"Folder"}, path, opt_force, void 0, opt_callback) : ee.data.send_("/createfolder", ee.data.makeRequest_({id:path, force:opt_force || !1}), opt_callback);
-};
-ee.data.search = function(query, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    var call = new module$contents$ee$apiclient_Call(opt_callback);
-    return call.handle(call.assets().search("projects/earthengine-public", query).then(ee.rpc_convert.assetListToDatasetResult));
-  }
-  return ee.data.send_("/search", ee.data.makeRequest_({q:query}), opt_callback);
 };
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
@@ -24525,8 +24495,6 @@ ee.layers.BinaryOverlay = function(tileSource, opt_options) {
   this.divsByCoord_ = new goog.structs.Map;
 };
 $jscomp.inherits(ee.layers.BinaryOverlay, ee.layers.AbstractOverlay);
-ee.layers.BinaryOverlay.DEFAULT_TILE_EDGE_LENGTH = ee.layers.AbstractOverlay.DEFAULT_TILE_EDGE_LENGTH;
-ee.layers.BinaryOverlay.EventType = ee.layers.AbstractOverlay.EventType;
 ee.layers.BinaryOverlay.prototype.createTile = function(coord, zoom, ownerDocument, uniqueId) {
   var tile = new ee.layers.BinaryTile(coord, zoom, ownerDocument, uniqueId);
   this.handler.listen(tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
@@ -24548,10 +24516,6 @@ ee.layers.BinaryTile = function(coord, zoom, ownerDocument, uniqueId) {
   ee.layers.AbstractTile.call(this, coord, zoom, ownerDocument, uniqueId);
 };
 $jscomp.inherits(ee.layers.BinaryTile, ee.layers.AbstractTile);
-ee.layers.BinaryTile.DEFAULT_MAX_LOAD_RETRIES_ = ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_;
-ee.layers.BinaryTile.DONE_STATUS_SET_ = ee.layers.AbstractTile.DONE_STATUS_SET_;
-ee.layers.BinaryTile.Status = ee.layers.AbstractTile.Status;
-ee.layers.BinaryTile.EventType = ee.layers.AbstractTile.EventType;
 ee.layers.BinaryTile.prototype.finishLoad = function() {
   var reader = new goog.fs.FileReader;
   reader.listen(goog.fs.FileReader.EventType.LOAD_END, function() {
@@ -24621,8 +24585,6 @@ ee.layers.ImageOverlay = function(tileSource, opt_options) {
   ee.layers.AbstractOverlay.call(this, tileSource, opt_options);
 };
 $jscomp.inherits(ee.layers.ImageOverlay, ee.layers.AbstractOverlay);
-ee.layers.ImageOverlay.DEFAULT_TILE_EDGE_LENGTH = ee.layers.AbstractOverlay.DEFAULT_TILE_EDGE_LENGTH;
-ee.layers.ImageOverlay.EventType = ee.layers.AbstractOverlay.EventType;
 ee.layers.ImageOverlay.prototype.createTile = function(coord, zoom, ownerDocument, uniqueId) {
   return new ee.layers.ImageTile(coord, zoom, ownerDocument, uniqueId);
 };
@@ -24633,10 +24595,6 @@ ee.layers.ImageTile = function(coord, zoom, ownerDocument, uniqueId) {
   this.objectUrl_ = "";
 };
 $jscomp.inherits(ee.layers.ImageTile, ee.layers.AbstractTile);
-ee.layers.ImageTile.DEFAULT_MAX_LOAD_RETRIES_ = ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_;
-ee.layers.ImageTile.DONE_STATUS_SET_ = ee.layers.AbstractTile.DONE_STATUS_SET_;
-ee.layers.ImageTile.Status = ee.layers.AbstractTile.Status;
-ee.layers.ImageTile.EventType = ee.layers.AbstractTile.EventType;
 ee.layers.ImageTile.prototype.finishLoad = function() {
   try {
     var safeUrl = goog.html.SafeUrl.fromBlob(this.sourceData);
