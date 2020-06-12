@@ -173,7 +173,7 @@ ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
   // Check if firstArg is a fancy object and not just a dictionary by using
   // Object.getPrototypeOf.
   var firstArgCouldBeDictionary = goog.isObject(firstArg) &&
-      !goog.isFunction(firstArg) && !Array.isArray(firstArg) &&
+      typeof firstArg !== 'function' && !Array.isArray(firstArg) &&
       Object.getPrototypeOf(firstArg).constructor.name === 'Object';
 
   // Parse the arguments by inferring how they were passed in.

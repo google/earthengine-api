@@ -141,7 +141,7 @@ ee.Types.isArray = function(obj) {
  *     non-function Object.
  */
 ee.Types.isRegularObject = function(obj) {
-  if (goog.isObject(obj) && !goog.isFunction(obj)) {
+  if (goog.isObject(obj) && typeof obj !== 'function') {
     var proto = Object.getPrototypeOf(obj);
     return proto !== null && Object.getPrototypeOf(proto) === null;
   } else {

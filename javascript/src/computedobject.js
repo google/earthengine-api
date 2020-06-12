@@ -98,7 +98,7 @@ goog.exportSymbol('ee.ComputedObject', ee.ComputedObject);
  * @export
  */
 ee.ComputedObject.prototype.evaluate = function(callback) {
-  if (!callback || !goog.isFunction(callback)) {
+  if (!callback || typeof callback !== 'function') {
     throw Error('evaluate() requires a callback function.');
   }
   ee.data.computeValue(this, callback);

@@ -295,7 +295,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
 ee.ApiFunction.clearApi = function(target) {
   var clear = function(target) {
     for (var name in target) {
-      if (goog.isFunction(target[name]) && target[name]['signature']) {
+      if (typeof target[name] === 'function' && target[name]['signature']) {
         delete target[name];
       }
     }

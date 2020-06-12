@@ -26,7 +26,7 @@ const apiclient = {};
 
 
 const VERSION = 'v1alpha';
-const API_CLIENT_VERSION = '0.1.224';
+const API_CLIENT_VERSION = '0.1.225';
 const LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 
 exports.VERSION = VERSION;
@@ -1074,7 +1074,7 @@ apiclient.ensureAuthLibLoaded_ = function(callback) {
   };
   if (goog.isObject(goog.global['gapi']) &&
       goog.isObject(goog.global['gapi']['auth']) &&
-      goog.isFunction(goog.global['gapi']['auth']['authorize'])) {
+      typeof goog.global['gapi']['auth']['authorize'] === 'function') {
     done();
   } else {
     // The library is not loaded; load it now.
@@ -1191,7 +1191,7 @@ apiclient.setupMockSend = function(calls) {
     } else {
       throw new Error(url + ' mock response not specified');
     }
-    if (goog.isFunction(response)) {
+    if (typeof response === 'function') {
       response = response(url, method, data);
     }
     if (typeof response === 'string') {
@@ -1206,7 +1206,7 @@ apiclient.setupMockSend = function(calls) {
     }
 
     if (typeof response.status !== 'number' &&
-        !goog.isFunction(response.status)) {
+        typeof response.status !== 'function') {
       throw new Error(url + ' mock response missing/invalid status');
     }
     return response;
@@ -1225,7 +1225,7 @@ apiclient.setupMockSend = function(calls) {
     e.target.getResponseText = function() {
       return responseData.text;
     };
-    e.target.getStatus = goog.isFunction(responseData.status) ?
+    e.target.getStatus = typeof responseData.status === 'function' ?
         responseData.status :
         function() {
           return responseData.status;
@@ -1267,8 +1267,9 @@ apiclient.setupMockSend = function(calls) {
   fakeXmlHttp.prototype.send = function(data) {
     const responseData = getResponse(this.url, this.method, data);
     this.responseText = responseData.text;
-    this.status = goog.isFunction(responseData.status) ?
-        responseData.status() : responseData.status;
+    this.status = typeof responseData.status === 'function' ?
+        responseData.status() :
+        responseData.status;
     this.contentType_ = responseData.contentType;
   };
   XmlHttp.setGlobalFactory(/** @type {?} */({

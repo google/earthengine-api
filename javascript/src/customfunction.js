@@ -205,7 +205,7 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
   // within the body.
   var countFunctions = function(expression) {
     var count = 0;
-    if (goog.isObject(expression) && !goog.isFunction(expression)) {
+    if (goog.isObject(expression) && typeof expression !== 'function') {
       if (expression['type'] == 'Function') {
         // Technically this allows false positives if one of the user
         // dictionaries contains type=Function, but that does not matter

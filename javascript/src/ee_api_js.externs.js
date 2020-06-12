@@ -756,6 +756,12 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
  * @param {*} obj
  * @return {string}
  */
+ee.Serializer.toCloudApiJSON = function(obj) {
+};
+/**
+ * @param {*} obj
+ * @return {string}
+ */
 ee.Serializer.toJSON = function(obj) {
 };
 /**

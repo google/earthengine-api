@@ -1387,7 +1387,7 @@ class UploadTableCommand(object):
         '--max_error',
         help='Max allowed error in meters when transforming geometry '
              'between coordinate systems.',
-        type=int, nargs='?')
+        type=float, nargs='?')
     parser.add_argument(
         '--max_vertices',
         help='Max number of vertices per geometry. If set, geometry will be '

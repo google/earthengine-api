@@ -1,6 +1,6 @@
 {
   "name": "@google/earthengine",
-  "version": "0.1.224",
+  "version": "0.1.225",
   "description": "JavaScript client for Google Earth Engine API.",
   "author": "Google LLC",
   "license": "Apache-2.0",

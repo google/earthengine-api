@@ -411,7 +411,7 @@ ee.promote_ = function(arg, klass) {
       if (typeof arg === 'string') {
         // An API function name.
         return new ee.ApiFunction(arg);
-      } else if (goog.isFunction(arg)) {
+      } else if (typeof arg === 'function') {
         // A native function that needs to be wrapped.
         return ee.CustomFunction.create(
             arg, 'Object', goog.array.repeat('Object', arg.length));

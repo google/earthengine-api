@@ -224,10 +224,10 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     result = goog.array.map(object, function(element) {
       return this.encodeValue_(element);
     }, this);
-  } else if (goog.isObject(object) && !goog.isFunction(object)) {
+  } else if (goog.isObject(object) && typeof object !== 'function') {
     // Regular objects are encoded recursively and wrapped in a type specifier.
     var encodedObject = goog.object.map(object, function(element) {
-      if (!goog.isFunction(element)) {
+      if (typeof element !== 'function') {
         return this.encodeValue_(element);
       }
     }, this);
@@ -344,6 +344,18 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
 
 
 /**
+ * Serializes an object to a JSON string appropriate for Cloud API calls.
+ * @param {*} obj The object to Serialize.
+ * @return {string} A JSON representation of the input.
+ * @export
+ */
+ee.Serializer.toCloudApiJSON = function(obj) {
+  return ee.Serializer.jsonSerializer_.serialize(
+      ee.Serializer.encodeCloudApi(obj));
+};
+
+
+/**
  * Serializes an object to a human-friendly JSON string (if possible), using
  * the Cloud API representation.
  * @param {*} obj The object to convert.
@@ -427,7 +439,7 @@ ee.Serializer.prototype.makeCloudApiReference_ = function(obj) {
     const asArray = /** @type {!Array} */(/** @type {*} */(obj));
     return makeRef(ee.rpc_node.array(asArray.map(
         (x) => ee.rpc_node.reference(this.makeCloudApiReference_(x)))));
-  } else if (goog.isObject(obj) && !goog.isFunction(obj)) {
+  } else if (goog.isObject(obj) && typeof obj !== 'function') {
     const asObject = /** @type {!Object} */(/** @type {*} */(obj));
     /** @type {!Object<string,!ee.api.ValueNode>} */
     const values = {};

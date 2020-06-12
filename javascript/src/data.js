@@ -835,7 +835,7 @@ ee.data.makeDownloadUrl = function(id) {
  *     following possible values:
  *   - table: The feature collection to download.
  *   - format: The download format, CSV, JSON, KML, KMZ or TF_RECORD.
- *   - selectors: Comma separated string of selectors that can be used to
+ *   - selectors: List of strings of selectors that can be used to
  *          determine which attributes will be downloaded.
  *   - filename: The name of the file that will be downloaded.
  * @param {function(?ee.data.DownloadId, string=)=} opt_callback An optional
@@ -850,7 +850,29 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
     const fileFormat = ee.rpc_convert.tableFileFormat(params['format']);
     const expression = ee.data.expressionAugmenter_(
         ee.Serializer.encodeCloudApiExpression(params['table']));
-    const table = new ee.api.Table({name: null, expression, fileFormat});
+
+    // Maybe convert selectors to an Array of strings.
+    // Previously a string with commas delimiting each selector was supported.
+    let selectors = null;
+    if (params['selectors'] != null) {
+      if (typeof params['selectors'] === 'string') {
+        selectors = params['selectors'].split(',');
+      } else if (
+          Array.isArray(params['selectors']) &&
+          params['selectors'].every((x) => typeof x === 'string')) {
+        selectors = params['selectors'];
+      } else {
+        throw new Error('\'selectors\' parameter must be an array of strings.');
+      }
+    }
+    const filename = params['filename'] || null;
+    const table = new ee.api.Table({
+      name: null,
+      expression,
+      fileFormat,
+      selectors,
+      filename,
+    });
     const fields = ['name'];
     /** @type {function(!ee.api.Table): !ee.data.DownloadId} */
     const getResponse = (res) => {

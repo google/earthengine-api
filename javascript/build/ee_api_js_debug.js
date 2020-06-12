@@ -144,6 +144,33 @@ $jscomp.objectCreate = $jscomp.ASSUME_ES5 || "function" == typeof Object.create 
   ctor.prototype = prototype;
   return new ctor;
 };
+$jscomp.getConstructImplementation = function() {
+  function reflectConstructWorks() {
+    function Base() {
+    }
+    new Base;
+    Reflect.construct(Base, [], function Derived() {
+    });
+    return new Base instanceof Base;
+  }
+  if ($jscomp.TRUST_ES6_POLYFILLS && "undefined" != typeof Reflect && Reflect.construct) {
+    if (reflectConstructWorks()) {
+      return Reflect.construct;
+    }
+    var brokenConstruct = Reflect.construct;
+    return function(target, argList, opt_newTarget) {
+      var out = brokenConstruct(target, argList);
+      opt_newTarget && Reflect.setPrototypeOf(out, opt_newTarget.prototype);
+      return out;
+    };
+  }
+  return function construct(target, argList, opt_newTarget) {
+    void 0 === opt_newTarget && (opt_newTarget = target);
+    var obj = $jscomp.objectCreate(opt_newTarget.prototype || Object.prototype);
+    return Function.prototype.apply.call(target, obj, argList) || obj;
+  };
+};
+$jscomp.construct = {valueOf:$jscomp.getConstructImplementation}.valueOf();
 $jscomp.underscoreProtoCanBeSet = function() {
   var x = {a:!0}, y = {};
   try {
@@ -179,6 +206,25 @@ $jscomp.inherits = function(childCtor, parentCtor) {
   }
   childCtor.superClass_ = parentCtor.prototype;
 };
+$jscomp.polyfill("Reflect.construct", function(orig) {
+  return $jscomp.construct;
+}, "es6", "es3");
+$jscomp.polyfill("Reflect.setPrototypeOf", function(orig) {
+  if (orig) {
+    return orig;
+  }
+  if ($jscomp.setPrototypeOf) {
+    var setPrototypeOf = $jscomp.setPrototypeOf;
+    return function(target, proto) {
+      try {
+        return setPrototypeOf(target, proto), !0;
+      } catch (e) {
+        return !1;
+      }
+    };
+  }
+  return null;
+}, "es6", "es5");
 $jscomp.findInternal = function(array, callback, thisArg) {
   array instanceof String && (array = String(array));
   for (var len = array.length, i = 0; i < len; i++) {
@@ -562,14 +608,16 @@ $jscomp.polyfill("WeakMap", function(NativeWeakMap) {
     }
   }
   function patch(name) {
-    var prev = Object[name];
-    prev && (Object[name] = function(target) {
-      if (target instanceof WeakMapMembership) {
-        return target;
-      }
-      insert(target);
-      return prev(target);
-    });
+    if (!$jscomp.ISOLATE_POLYFILLS) {
+      var prev = Object[name];
+      prev && (Object[name] = function(target) {
+        if (target instanceof WeakMapMembership) {
+          return target;
+        }
+        Object.isExtensible(target) && insert(target);
+        return prev(target);
+      });
+    }
   }
   if ($jscomp.USE_PROXY_FOR_ES6_CONFORMANCE_CHECKS) {
     if (NativeWeakMap && $jscomp.ES6_CONFORMANCE) {
@@ -948,12 +996,6 @@ goog.getObjectByName = function(name, opt_obj) {
   }
   return cur;
 };
-goog.globalize = function(obj, opt_global) {
-  var global = opt_global || goog.global, x;
-  for (x in obj) {
-    global[x] = obj[x];
-  }
-};
 goog.addDependency = function(relPath, provides, requires, opt_loadFlags) {
 };
 goog.useStrictRequires = !1;
@@ -1171,33 +1213,8 @@ goog.now = goog.TRUSTED_SITE && Date.now || function() {
   return +new Date;
 };
 goog.globalEval = function(script) {
-  if (goog.global.execScript) {
-    goog.global.execScript(script, "JavaScript");
-  } else {
-    if (goog.global.eval) {
-      if (null == goog.evalWorks_) {
-        try {
-          goog.global.eval(""), goog.evalWorks_ = !0;
-        } catch (ignore) {
-          goog.evalWorks_ = !1;
-        }
-      }
-      if (goog.evalWorks_) {
-        goog.global.eval(script);
-      } else {
-        var doc = goog.global.document, scriptElt = doc.createElement("script");
-        scriptElt.type = "text/javascript";
-        scriptElt.defer = !1;
-        scriptElt.appendChild(doc.createTextNode(script));
-        doc.head.appendChild(scriptElt);
-        doc.head.removeChild(scriptElt);
-      }
-    } else {
-      throw Error("goog.globalEval not available");
-    }
-  }
+  (0,eval)(script);
 };
-goog.evalWorks_ = null;
 goog.getCssName = function(className, opt_modifier) {
   if ("." == String(className).charAt(0)) {
     throw Error('className passed in goog.getCssName must not start with ".". You passed: ' + className);
@@ -1286,7 +1303,7 @@ goog.defineClass.applyProperties_ = function(target, source) {
     key = goog.defineClass.OBJECT_PROTOTYPE_FIELDS_[i], Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
   }
 };
-goog.TRUSTED_TYPES_POLICY_NAME = "";
+goog.TRUSTED_TYPES_POLICY_NAME = "goog";
 goog.identity_ = function(s) {
   return s;
 };
@@ -3854,6 +3871,9 @@ goog.dom.safe.setInnerHtml = function(elem, html) {
   }
   goog.dom.safe.unsafeSetInnerHtmlDoNotUseOrElse(elem, html);
 };
+goog.dom.safe.setInnerHtmlFromConstant = function(element, constHtml) {
+  goog.dom.safe.setInnerHtml(element, goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract(goog.string.Const.from("Constant HTML to be immediatelly used."), goog.string.Const.unwrap(constHtml)));
+};
 goog.dom.safe.setOuterHtml = function(elem, html) {
   elem.outerHTML = goog.html.SafeHtml.unwrapTrustedHTML(html);
 };
@@ -3927,7 +3947,7 @@ goog.dom.safe.setScriptSrc = function(script, url) {
 };
 goog.dom.safe.setScriptContent = function(script, content) {
   goog.dom.asserts.assertIsHTMLScriptElement(script);
-  script.text = goog.html.SafeScript.unwrapTrustedScript(content);
+  script.textContent = goog.html.SafeScript.unwrapTrustedScript(content);
   goog.dom.safe.setNonceForScriptElement_(script);
 };
 goog.dom.safe.setNonceForScriptElement_ = function(script) {
@@ -13467,46 +13487,48 @@ goog.Timer.promise = function(delay, opt_result) {
     throw error;
   });
 };
-goog.async.Throttle = function(listener, interval, opt_handler) {
+var module$contents$goog$async$Throttle_Throttle = function(listener, interval, handler) {
   goog.Disposable.call(this);
-  this.listener_ = null != opt_handler ? goog.bind(listener, opt_handler) : listener;
+  this.listener_ = null != handler ? listener.bind(handler) : listener;
   this.interval_ = interval;
-  this.callback_ = goog.bind(this.onTimer_, this);
   this.args_ = null;
+  this.shouldFire_ = !1;
+  this.pauseCount_ = 0;
+  this.timer_ = null;
 };
-goog.inherits(goog.async.Throttle, goog.Disposable);
-goog.Throttle = goog.async.Throttle;
-goog.async.Throttle.prototype.shouldFire_ = !1;
-goog.async.Throttle.prototype.pauseCount_ = 0;
-goog.async.Throttle.prototype.timer_ = null;
-goog.async.Throttle.prototype.fire = function(var_args) {
+$jscomp.inherits(module$contents$goog$async$Throttle_Throttle, goog.Disposable);
+module$contents$goog$async$Throttle_Throttle.prototype.fire = function(var_args) {
   this.args_ = arguments;
   this.timer_ || this.pauseCount_ ? this.shouldFire_ = !0 : this.doAction_();
 };
-goog.async.Throttle.prototype.stop = function() {
+module$contents$goog$async$Throttle_Throttle.prototype.stop = function() {
   this.timer_ && (goog.Timer.clear(this.timer_), this.timer_ = null, this.shouldFire_ = !1, this.args_ = null);
 };
-goog.async.Throttle.prototype.pause = function() {
+module$contents$goog$async$Throttle_Throttle.prototype.pause = function() {
   this.pauseCount_++;
 };
-goog.async.Throttle.prototype.resume = function() {
+module$contents$goog$async$Throttle_Throttle.prototype.resume = function() {
   this.pauseCount_--;
   this.pauseCount_ || !this.shouldFire_ || this.timer_ || (this.shouldFire_ = !1, this.doAction_());
 };
-goog.async.Throttle.prototype.disposeInternal = function() {
-  goog.async.Throttle.superClass_.disposeInternal.call(this);
+module$contents$goog$async$Throttle_Throttle.prototype.disposeInternal = function() {
+  goog.Disposable.prototype.disposeInternal.call(this);
   this.stop();
 };
-goog.async.Throttle.prototype.onTimer_ = function() {
+module$contents$goog$async$Throttle_Throttle.prototype.onTimer_ = function() {
   this.timer_ = null;
   this.shouldFire_ && !this.pauseCount_ && (this.shouldFire_ = !1, this.doAction_());
 };
-goog.async.Throttle.prototype.doAction_ = function() {
-  this.timer_ = goog.Timer.callOnce(this.callback_, this.interval_);
+module$contents$goog$async$Throttle_Throttle.prototype.doAction_ = function() {
+  var $jscomp$this = this;
+  this.timer_ = goog.Timer.callOnce(function() {
+    return $jscomp$this.onTimer_();
+  }, this.interval_);
   var args = this.args_;
   this.args_ = null;
   this.listener_.apply(null, args);
 };
+goog.async.Throttle = module$contents$goog$async$Throttle_Throttle;
 /*
  Portions of this code are from MochiKit, received by
  The Closure Authors under the MIT license. All other code is Copyright
@@ -14740,7 +14762,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.224";
+ee.apiclient.API_CLIENT_VERSION = "0.1.225";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15004,8 +15026,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.224";
-    "0.1.224" === version && (version = "latest");
+    var version = "0.1.225";
+    "0.1.225" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -15130,7 +15152,7 @@ module$contents$ee$apiclient_apiclient.ensureAuthLibLoaded_ = function(callback)
     module$contents$ee$apiclient_apiclient.authTokenRefresher_ || module$contents$ee$apiclient_apiclient.setAuthTokenRefresher(goog.global.gapi.auth.authorize);
     callback();
   };
-  if (goog.isObject(goog.global.gapi) && goog.isObject(goog.global.gapi.auth) && goog.isFunction(goog.global.gapi.auth.authorize)) {
+  if (goog.isObject(goog.global.gapi) && goog.isObject(goog.global.gapi.auth) && "function" === typeof goog.global.gapi.auth.authorize) {
     done();
   } else {
     for (var callbackName = goog.now().toString(36); callbackName in goog.global;) {
@@ -15172,12 +15194,12 @@ module$contents$ee$apiclient_apiclient.setupMockSend = function(calls) {
     } else {
       throw Error(url + " mock response not specified");
     }
-    goog.isFunction(response) && (response = response(url, method, data));
+    "function" === typeof response && (response = response(url, method, data));
     "string" === typeof response && (response = {text:response, status:200, contentType:"application/json; charset=utf-8"});
     if ("string" !== typeof response.text) {
       throw Error(url + " mock response missing/invalid text");
     }
-    if ("number" !== typeof response.status && !goog.isFunction(response.status)) {
+    if ("number" !== typeof response.status && "function" !== typeof response.status) {
       throw Error(url + " mock response missing/invalid status");
     }
     return response;
@@ -15192,7 +15214,7 @@ module$contents$ee$apiclient_apiclient.setupMockSend = function(calls) {
     e.target.getResponseText = function() {
       return responseData.text;
     };
-    e.target.getStatus = goog.isFunction(responseData.status) ? responseData.status : function() {
+    e.target.getStatus = "function" === typeof responseData.status ? responseData.status : function() {
       return responseData.status;
     };
     e.target.getResponseHeader = function(header) {
@@ -15216,7 +15238,7 @@ module$contents$ee$apiclient_apiclient.setupMockSend = function(calls) {
   fakeXmlHttp.prototype.send = function(data) {
     var responseData = getResponse(this.url, this.method, data);
     this.responseText = responseData.text;
-    this.status = goog.isFunction(responseData.status) ? responseData.status() : responseData.status;
+    this.status = "function" === typeof responseData.status ? responseData.status() : responseData.status;
     this.contentType_ = responseData.contentType;
   };
   goog.net.XmlHttp.setGlobalFactory({createInstance:function() {
@@ -15239,7 +15261,7 @@ module$contents$ee$apiclient_apiclient.NetworkRequest_ = function() {
 };
 module$contents$ee$apiclient_apiclient.requestQueue_ = [];
 module$contents$ee$apiclient_apiclient.REQUEST_THROTTLE_INTERVAL_MS_ = 350;
-module$contents$ee$apiclient_apiclient.RequestThrottle_ = new goog.async.Throttle(function() {
+module$contents$ee$apiclient_apiclient.RequestThrottle_ = new module$contents$goog$async$Throttle_Throttle(function() {
   var request = module$contents$ee$apiclient_apiclient.requestQueue_.shift();
   request && goog.net.XhrIo.send(request.url, request.callback, request.method, request.content, request.headers, module$contents$ee$apiclient_apiclient.deadlineMs_);
   goog.array.isEmpty(module$contents$ee$apiclient_apiclient.requestQueue_) || module$contents$ee$apiclient_apiclient.RequestThrottle_.fire();
@@ -16095,9 +16117,9 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
         return this.encodeValue_(element);
       }, this);
     } else {
-      if (goog.isObject(object) && !goog.isFunction(object)) {
+      if (goog.isObject(object) && "function" !== typeof object) {
         var encodedObject = goog.object.map(object, function(element) {
-          if (!goog.isFunction(element)) {
+          if ("function" !== typeof element) {
             return this.encodeValue_(element);
           }
         }, this);
@@ -16146,6 +16168,9 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
   };
   return encoded.result && walkObject(values[encoded.result]);
 };
+ee.Serializer.toCloudApiJSON = function(obj) {
+  return ee.Serializer.jsonSerializer_.serialize(ee.Serializer.encodeCloudApi(obj));
+};
 ee.Serializer.toReadableCloudApiJSON = function(obj) {
   return ee.Serializer.stringify(ee.Serializer.encodeCloudApiPretty(obj));
 };
@@ -16188,7 +16213,7 @@ ee.Serializer.prototype.makeCloudApiReference_ = function(obj) {
       return ee.rpc_node.reference($jscomp$this.makeCloudApiReference_(x));
     })));
   }
-  if (goog.isObject(obj) && !goog.isFunction(obj)) {
+  if (goog.isObject(obj) && "function" !== typeof obj) {
     var values = {};
     Object.keys(obj).sort().forEach(function(k) {
       values[k] = ee.rpc_node.reference($jscomp$this.makeCloudApiReference_(obj[k]));
@@ -18975,14 +19000,7 @@ module$contents$jspb$Message_Message.initialize = function(msg, data, messageId,
       var fieldNumber = repeatedFields[i];
       if (fieldNumber < msg.pivot_) {
         var index = module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber);
-        if (goog.DEBUG) {
-          try {
-            msg.array[index] = msg.array[index] || module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_;
-          } catch (e) {
-          }
-        } else {
-          msg.array[index] = msg.array[index] || module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_;
-        }
+        msg.array[index] = msg.array[index] || module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_;
       } else {
         module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(msg), msg.extensionObject_[fieldNumber] = msg.extensionObject_[fieldNumber] || module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_;
       }
@@ -20148,7 +20166,21 @@ ee.data.makeDownloadUrl = function(id) {
 };
 ee.data.getTableDownloadId = function(params, opt_callback) {
   if (ee.data.getCloudApiEnabled()) {
-    var call = new module$contents$ee$apiclient_Call(opt_callback), fileFormat = ee.rpc_convert.tableFileFormat(params.format), expression = ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.table)), table = new module$exports$eeapiclient$ee_api_client.Table({name:null, expression:expression, fileFormat:fileFormat});
+    var call = new module$contents$ee$apiclient_Call(opt_callback), fileFormat = ee.rpc_convert.tableFileFormat(params.format), expression = ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.table)), selectors = null;
+    if (null != params.selectors) {
+      if ("string" === typeof params.selectors) {
+        selectors = params.selectors.split(",");
+      } else {
+        if (Array.isArray(params.selectors) && params.selectors.every(function(x) {
+          return "string" === typeof x;
+        })) {
+          selectors = params.selectors;
+        } else {
+          throw Error("'selectors' parameter must be an array of strings.");
+        }
+      }
+    }
+    var table = new module$exports$eeapiclient$ee_api_client.Table({name:null, expression:expression, fileFormat:fileFormat, selectors:selectors, filename:params.filename || null, });
     return call.handle(call.tables().create(call.projectsPath(), table, {fields:["name"]}).then(function(res) {
       return {docid:res.name || "", token:""};
     }));
@@ -20696,7 +20728,7 @@ ee.ComputedObject = function(func, args, opt_varName) {
 goog.inherits(ee.ComputedObject, ee.Encodable);
 goog.exportSymbol("ee.ComputedObject", ee.ComputedObject);
 ee.ComputedObject.prototype.evaluate = function(callback) {
-  if (!callback || !goog.isFunction(callback)) {
+  if (!callback || "function" !== typeof callback) {
     throw Error("evaluate() requires a callback function.");
   }
   ee.data.computeValue(this, callback);
@@ -20805,17 +20837,16 @@ ee.Types.isArray = function(obj) {
   return Array.isArray(obj) || obj instanceof ee.ComputedObject && "List" == obj.name();
 };
 ee.Types.isRegularObject = function(obj) {
-  if (goog.isObject(obj) && !goog.isFunction(obj)) {
+  if (goog.isObject(obj) && "function" !== typeof obj) {
     var proto = Object.getPrototypeOf(obj);
     return null !== proto && null === Object.getPrototypeOf(proto);
   }
   return !1;
 };
 ee.Types.useKeywordArgs = function(args, signature, isInstance) {
-  isInstance = void 0 === isInstance ? !1 : isInstance;
   if (1 === args.length && ee.Types.isRegularObject(args[0])) {
     var formalArgs = signature.args;
-    isInstance && (formalArgs = formalArgs.slice(1));
+    (void 0 === isInstance ? 0 : isInstance) && (formalArgs = formalArgs.slice(1));
     if (formalArgs.length) {
       return !(1 === formalArgs.length || formalArgs[1].optional) || "Dictionary" !== formalArgs[0].type;
     }
@@ -21014,7 +21045,7 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
 ee.ApiFunction.clearApi = function(target$jscomp$0) {
   var clear = function(target) {
     for (var name in target) {
-      goog.isFunction(target[name]) && target[name].signature && delete target[name];
+      "function" === typeof target[name] && target[name].signature && delete target[name];
     }
   };
   clear(target$jscomp$0);
@@ -21034,7 +21065,7 @@ ee.arguments.extract = ee.arguments.extractFromFunction;
 ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
   var paramNamesWithOptPrefix = ee.arguments.getParamNames_(fn, parameterMatcher), paramNames = goog.array.map(paramNamesWithOptPrefix, function(param) {
     return param.replace(/^opt_/, "");
-  }), fnName = ee.arguments.getFnName_(fn), fnNameSnippet = fnName ? " to function " + fnName : "", args = {}, firstArg = originalArgs[0], firstArgCouldBeDictionary = goog.isObject(firstArg) && !goog.isFunction(firstArg) && !Array.isArray(firstArg) && "Object" === Object.getPrototypeOf(firstArg).constructor.name;
+  }), fnName = ee.arguments.getFnName_(fn), fnNameSnippet = fnName ? " to function " + fnName : "", args = {}, firstArg = originalArgs[0], firstArgCouldBeDictionary = goog.isObject(firstArg) && "function" !== typeof firstArg && !Array.isArray(firstArg) && "Object" === Object.getPrototypeOf(firstArg).constructor.name;
   if (1 < originalArgs.length || !firstArgCouldBeDictionary) {
     if (originalArgs.length > paramNames.length) {
       throw Error("Received too many arguments" + fnNameSnippet + ". Expected at most " + paramNames.length + " but got " + originalArgs.length + ".");
@@ -22100,11 +22131,8 @@ ee.FeatureCollection.prototype.getDownloadURL = function(opt_format, opt_selecto
   var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getDownloadURL, arguments), request = {};
   request.table = ee.data.getCloudApiEnabled() ? this : this.serialize();
   args.format && (request.format = args.format.toUpperCase());
-  args.filename && !ee.data.getCloudApiEnabled() && (request.filename = args.filename);
-  if (args.selectors) {
-    var selectors = args.selectors;
-    ee.data.getCloudApiEnabled() ? ("string" === typeof selectors && (selectors = selectors.split(",")), goog.isArrayLike(selectors) && (request.table = this.select(selectors))) : (goog.isArrayLike(selectors) && (selectors = selectors.join(",")), request.selectors = selectors);
-  }
+  args.filename && (request.filename = args.filename);
+  args.selectors && (request.selectors = args.selectors);
   if (args.callback) {
     ee.data.getTableDownloadId(request, function(downloadId, error) {
       downloadId ? args.callback(ee.data.makeTableDownloadUrl(downloadId)) : args.callback(null, error);
@@ -22686,7 +22714,7 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
   }
   var countFunctions = function(expression) {
     var count = 0;
-    goog.isObject(expression) && !goog.isFunction(expression) && ("Function" == expression.type && count++, goog.object.forEach(expression, function(subExpression) {
+    goog.isObject(expression) && "function" !== typeof expression && ("Function" == expression.type && count++, goog.object.forEach(expression, function(subExpression) {
       count += countFunctions(subExpression);
     }));
     return count;
@@ -22775,7 +22803,7 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       return ee.Deserializer.decodeValue_(element, namedValues);
     });
   }
-  if (!goog.isObject(json) || goog.isFunction(json)) {
+  if (!goog.isObject(json) || "function" === typeof json) {
     throw Error("Cannot decode object: " + json);
   }
   var typeName = json.type;
@@ -23004,7 +23032,7 @@ ee.promote_ = function(arg, klass) {
         if ("string" === typeof arg) {
           return new ee.ApiFunction(arg);
         }
-        if (goog.isFunction(arg)) {
+        if ("function" === typeof arg) {
           return ee.CustomFunction.create(arg, "Object", goog.array.repeat("Object", arg.length));
         }
         if (arg instanceof ee.Encodable) {
@@ -24667,7 +24695,7 @@ ee.layers.CloudStorageTileSource = function(bucket, path, maxZoom, opt_suffix) {
   this.suffix_ = opt_suffix || "";
   this.maxZoom_ = maxZoom;
 };
-goog.inherits(ee.layers.CloudStorageTileSource, ee.layers.AbstractTileSource);
+$jscomp.inherits(ee.layers.CloudStorageTileSource, ee.layers.AbstractTileSource);
 ee.layers.CloudStorageTileSource.prototype.loadTile = function(tile, opt_priority) {
   if (tile.zoom <= this.maxZoom_) {
     tile.sourceUrl = this.getTileUrl_(tile.coord, tile.zoom);
@@ -25033,7 +25061,7 @@ ee.layers.EarthEngineTileSource = function(mapId, opt_profiler) {
   this.mapId_ = mapId;
   this.profiler_ = opt_profiler || null;
 };
-goog.inherits(ee.layers.EarthEngineTileSource, ee.layers.AbstractTileSource);
+$jscomp.inherits(ee.layers.EarthEngineTileSource, ee.layers.AbstractTileSource);
 ee.layers.EarthEngineTileSource.prototype.loadTile = function(tile, opt_priority) {
   var ProfilerHeader = ee.data.PROFILE_HEADER.toLowerCase(), key = goog.events.listen(tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
     switch(tile.getStatus()) {

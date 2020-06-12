@@ -91,7 +91,7 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
   }
 
   // Ensure that we've got a proper object at this point.
-  if (!goog.isObject(json) || goog.isFunction(json)) {
+  if (!goog.isObject(json) || typeof json === 'function') {
     throw Error('Cannot decode object: ' + json);
   }
 
