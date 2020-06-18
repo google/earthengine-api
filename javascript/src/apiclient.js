@@ -26,7 +26,7 @@ const apiclient = {};
 
 
 const VERSION = 'v1alpha';
-const API_CLIENT_VERSION = '0.1.225';
+const API_CLIENT_VERSION = '0.1.226';
 const LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 
 exports.VERSION = VERSION;
