@@ -181,7 +181,7 @@ export const ComputePixelsRequestFileFormatEnum:
     };
 
 export type ConditionIam = 'NO_ATTR'|'AUTHORITY'|'ATTRIBUTION'|'SECURITY_REALM'|
-    'APPROVER'|'JUSTIFICATION_TYPE'|'CREDENTIALS_TYPE';
+    'APPROVER'|'JUSTIFICATION_TYPE'|'CREDENTIALS_TYPE'|'CREDS_ASSERTION';
 
 export interface IConditionIamEnum {
   readonly NO_ATTR: ConditionIam;
@@ -191,6 +191,7 @@ export interface IConditionIamEnum {
   readonly APPROVER: ConditionIam;
   readonly JUSTIFICATION_TYPE: ConditionIam;
   readonly CREDENTIALS_TYPE: ConditionIam;
+  readonly CREDS_ASSERTION: ConditionIam;
 
   values(): Array<ConditionIam>;
 }
@@ -200,6 +201,7 @@ export const ConditionIamEnum: IConditionIamEnum = {
   ATTRIBUTION: <ConditionIam>'ATTRIBUTION',
   AUTHORITY: <ConditionIam>'AUTHORITY',
   CREDENTIALS_TYPE: <ConditionIam>'CREDENTIALS_TYPE',
+  CREDS_ASSERTION: <ConditionIam>'CREDS_ASSERTION',
   JUSTIFICATION_TYPE: <ConditionIam>'JUSTIFICATION_TYPE',
   NO_ATTR: <ConditionIam>'NO_ATTR',
   SECURITY_REALM: <ConditionIam>'SECURITY_REALM',
@@ -208,7 +210,7 @@ export const ConditionIamEnum: IConditionIamEnum = {
       ConditionIamEnum.NO_ATTR, ConditionIamEnum.AUTHORITY,
       ConditionIamEnum.ATTRIBUTION, ConditionIamEnum.SECURITY_REALM,
       ConditionIamEnum.APPROVER, ConditionIamEnum.JUSTIFICATION_TYPE,
-      ConditionIamEnum.CREDENTIALS_TYPE
+      ConditionIamEnum.CREDENTIALS_TYPE, ConditionIamEnum.CREDS_ASSERTION
     ];
   }
 };

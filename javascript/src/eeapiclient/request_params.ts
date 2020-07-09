@@ -53,6 +53,10 @@ export enum StreamingType {
   BIDIRECTONAL = 'BIDIRECTONAL'
 }
 
+/**
+ * Request parameters as described by the Discovery doc. Will need to be
+ * translated to the appropriate type for any specific transport.
+ */
 export interface MakeRequestParams {
   path: string;
   /**

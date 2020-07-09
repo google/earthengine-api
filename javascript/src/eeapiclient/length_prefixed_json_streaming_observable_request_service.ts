@@ -49,10 +49,6 @@ export class LengthPrefixedJsonStreamingObservableRequestService extends
       const headers = this.mergeHeaders(params.headers, config.headers);
       const xhr = this.xhrFactory.build();
 
-      for (const key of headers.keys()) {
-        xhr.setRequestHeader(key, headers.get(key) || '');
-      }
-
       if (!!config.withCredentials) {
         xhr.withCredentials = true;
       }
@@ -177,6 +173,9 @@ export class LengthPrefixedJsonStreamingObservableRequestService extends
       };
 
       xhr.open(params.httpMethod, concatUrl(config.gapiUrl, params.path));
+      for (const key of headers.keys()) {
+        xhr.setRequestHeader(key, headers.get(key) || '');
+      }
       xhr.send(JSON.stringify(params.body || null));
     });
   }

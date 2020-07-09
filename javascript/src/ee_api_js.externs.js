@@ -290,7 +290,7 @@ ee.Filter = function(opt_filter) {
 ee.Filter.and = function(var_args) {
 };
 /**
- * @param {!ee.ComputedObject} geometry
+ * @param {(ee.ComputedObject)} geometry
  * @param {(ee.ComputedObject|number)=} opt_errorMargin
  * @return {!ee.Filter}
  */

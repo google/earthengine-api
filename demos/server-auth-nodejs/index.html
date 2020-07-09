@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<!--
+  Copyright 2020 Google LLC
+
+  Licensed under the Apache License, Version 2.0 (the "License");
+  you may not use this file except in compliance with the License.
+  You may obtain a copy of the License at
+
+      https://www.apache.org/licenses/LICENSE-2.0
+
+  Unless required by applicable law or agreed to in writing, software
+  distributed under the License is distributed on an "AS IS" BASIS,
+  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  See the License for the specific language governing permissions and
+  limitations under the License.
+-->
+<html>
+  <head>
+    <style>
+      /* Set the size of the div element that contains the map. */
+      #map-container {
+        height: 400px;
+        width: 100%;
+        background-color: #eee;
+      }
+    </style>
+  </head>
+  <body>
+    <!-- Load Maps JavaScript API. For production apps, append your own Maps API key. -->
+    <script src="https://maps.googleapis.com/maps/api/js?key="></script>
+    <!--
+      Load Earth Engine JavaScript API, required to add a custom tile source to the map which
+      pulls map tiles from Earth Engine.
+    -->
+    <script src="https://ajax.googleapis.com/ajax/libs/earthengine/0.1.226/earthengine-api.min.js"></script>
+
+    <!-- Element where the map will be added. -->
+    <div id="map-container"></div>
+
+    <script>
+      // Initializes Maps JavaScript API and adds an Earth Engine tile source to the map.
+      const initialize = (mapid) => {
+        // Get a reference to the placeholder DOM element to contain the map.
+        const mapContainerEl = document.getElementById("map-container");
+
+        // Create an interactive map inside the placeholder DOM element.
+        const embeddedMap = new google.maps.Map(mapContainerEl, {
+          // Pan and zoom initial map viewport to Grand Canyon.
+          center: { lng: -112.8598, lat: 36.2841 },
+          zoom: 9,
+        });
+
+        // Create a new tile source to fetch visible tiles on demand and displays them on the map.
+        const tileSource = new ee.layers.EarthEngineTileSource({
+          mapid,
+        });
+        const overlay = new ee.layers.ImageOverlay(tileSource);
+        embeddedMap.overlayMapTypes.push(overlay);
+      };
+
+      // Fetch a valid mapid from the remote web service defined in server.js.
+      fetch("/mapid")
+        .then((response) => response.text())
+        .then((mapid) => initialize(mapid));
+    </script>
+  </body>
+</html>

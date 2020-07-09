@@ -4,14 +4,12 @@
   "description": "Server-side authentication example in Node.js",
   "main": "server.js",
   "dependencies": {
-    "@google/earthengine": "^0.1.x",
-    "express": "^4.16.4",
-    "express-handlebars": "^3.0.0"
+    "@google/earthengine": "^0.1",
+    "express": "^4.17"
   },
   "devDependencies": {},
   "scripts": {
-    "start": "node server.js",
-    "deploy": "gcloud app deploy --project ee-demos --version server-auth-nodejs --no-promote"
+    "start": "node server.js"
   },
   "author": "Google LLC",
   "license": "Apache-2.0"
