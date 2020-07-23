@@ -1,5 +1,6 @@
 /**
  * @fileoverview A set of utilities to work with EE types.
+ * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.Types');

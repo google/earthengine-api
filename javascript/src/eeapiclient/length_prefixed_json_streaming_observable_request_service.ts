@@ -7,11 +7,9 @@ import {from as observableFrom, Observable, Observer} from 'rxjs';
 import {map, switchMap} from 'rxjs/operators';
 
 /**
- * Error response header key for internal errors that might occure during
- * parsing the streaming response.
+ * Error response header key for internal errors at Google.
  */
-export const APICLIENT_STREAMING_INTERNAL_ERROR =
-    'apiclient-streaming-internal-error';
+export const GOOGLE_STATUS_ERROR = 'google-status-error-message';
 
 /**
  *  Executes HTTP requests for streaming based endpoints that use length
@@ -105,7 +103,7 @@ export class LengthPrefixedJsonStreamingObservableRequestService extends
                 // and a specific header, use that as well for client-side
                 // parsing errors.
                 observer.error(this.buildHttpErrorResponse({
-                  [APICLIENT_STREAMING_INTERNAL_ERROR]:
+                  [GOOGLE_STATUS_ERROR]:
                       'Length in length prefixed encoding not specified'
                 }));
                 return;
@@ -136,6 +134,18 @@ export class LengthPrefixedJsonStreamingObservableRequestService extends
               // Switch back to a string representation that JSON parsing
               // requires.
               const stringMessage = decoder.decode(byteMessage);
+              if (stringMessage.startsWith('ERROR=')) {
+                // Used to signify errors in the application, without needing
+                // to have errors as a field in the proto response.
+                observer.error(this.buildHttpErrorResponse({
+                  [GOOGLE_STATUS_ERROR]:
+                      // Take the part after 'ERROR='.
+                      stringMessage.substr(6)
+                }));
+                // Assumes that if we have hit an error at this layer, then
+                // nothing more is to be handled.
+                return;
+              }
 
               let nextObject = {};
               try {
@@ -143,7 +153,7 @@ export class LengthPrefixedJsonStreamingObservableRequestService extends
               } catch (exception) {
                 const message: string = exception.message;
                 observer.error(this.buildHttpErrorResponse({
-                  [APICLIENT_STREAMING_INTERNAL_ERROR]:
+                  [GOOGLE_STATUS_ERROR]:
                       'Failed to parse JSON stream: ' + message
                 }));
                 return;

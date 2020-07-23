@@ -1,5 +1,6 @@
 /**
  * @fileoverview A base class for EE Functions.
+ * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.Function');

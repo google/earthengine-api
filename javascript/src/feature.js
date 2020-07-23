@@ -1,5 +1,6 @@
 /**
  * @fileoverview An object representing EE Features.
+ * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.Feature');

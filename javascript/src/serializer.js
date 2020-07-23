@@ -38,26 +38,26 @@ ee.Serializer = function(opt_isCompound) {
   this.isCompound_ = opt_isCompound !== false;
 
   /**
-   * A list of shared subtrees as [name, value] pairs.
+   * A list of shared subtrees as [reference name, encoded value] pairs.
    *
-   * @type {!Array}
+   * @type {!Array<?>}
    * @private
    */
   this.scope_ = [];
 
   /**
-   * A lookup table from object hashes to {name, object} pairs, where
-   * the name comes from the subtree stored in this.scope_.
+   * A lookup table from object hashes to reference names. The name is paired
+   * with an encoded value subtree in this.scope_.
    *
-   * @type {!Object.<string, string>}
+   * @type {!Object<string, string>}
    * @private
    */
-  this.encoded_ = /** @type {!Object.<string, string>} */ ({});
+  this.encoded_ = /** @type {!Object<string, string>} */ ({});
 
   /**
    * A list of objects that have to be cleared of hashes.
    *
-   * @type {!Array}
+   * @type {!Array<!Object>}
    * @private
    */
   this.withHashes_ = [];
@@ -167,7 +167,7 @@ ee.Serializer.prototype.encode_ = function(object) {
       delete obj[this.HASH_KEY];
     }, this));
     this.withHashes_ = [];
-    this.encoded_ = /** @type {!Object.<string, string>} */ ({});
+    this.encoded_ = /** @type {!Object<string, string>} */ ({});
   }
   return value;
 };
@@ -404,6 +404,10 @@ ee.Serializer.prototype.makeCloudApiReference_ = function(obj) {
    */
   const makeRef = (result) => {
     const hash = ee.Serializer.computeHash(result);
+    // Set first: we may have named this hash already, but not seen this obj.
+    if (goog.isObject(obj)) {
+      this.hashes_.set(obj, hash);
+    }
     if (this.encoded_[hash]) {
       return this.encoded_[hash];
     }
@@ -411,9 +415,6 @@ ee.Serializer.prototype.makeCloudApiReference_ = function(obj) {
     const name = String(this.scope_.length);
     this.scope_.push([name, result]);
     this.encoded_[hash] = name;
-    if (goog.isObject(obj)) {
-      this.hashes_.set(obj, hash);
-    }
     return name;
   };
   if (goog.isObject(obj) && this.encoded_[this.hashes_.get(obj)]) {

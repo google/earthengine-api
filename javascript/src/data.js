@@ -1,6 +1,7 @@
 /**
  * @fileoverview Singleton for all of the library's communication
  * with the Earth Engine API.
+ * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.data');
