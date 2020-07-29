@@ -84,13 +84,21 @@ def _run_command(*argv):
     sys.exit(1)
 
 
-def main():
-  # pylint: disable=g-import-not-at-top
+def _get_tensorflow():
   try:
-    # We need InitGoogle initialization since TensorFlow expects it.
+    # pylint: disable=g-import-not-at-top
     import tensorflow.compat.v1 as tf
-    tf.app.run(_run_command, argv=sys.argv[:1])
+    return tf
   except ImportError:
+    return None
+
+
+def main():
+  tf_module = _get_tensorflow()
+  if tf_module:
+    # We need InitGoogle initialization since TensorFlow expects it.
+    tf_module.app.run(_run_command, argv=sys.argv[:1])
+  else:
     _run_command()
 
 
