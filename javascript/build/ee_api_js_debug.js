@@ -2897,55 +2897,50 @@ goog.string.Const.from = function(s) {
 goog.string.Const.TYPE_MARKER_ = {};
 goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ = {};
 goog.string.Const.EMPTY = goog.string.Const.from("");
-goog.html.SafeScript = function() {
-  this.privateDoNotAccessOrElseSafeScriptWrappedValue_ = "";
-  this.SAFE_SCRIPT_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeScript.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
+var module$contents$goog$html$SafeScript_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeScript_SafeScript = function(value, token) {
+  this.privateDoNotAccessOrElseSafeScriptWrappedValue_ = token === module$contents$goog$html$SafeScript_CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
+  this.implementsGoogStringTypedString = !0;
 };
-goog.html.SafeScript.prototype.implementsGoogStringTypedString = !0;
-goog.html.SafeScript.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
-goog.html.SafeScript.fromConstant = function(script) {
+module$contents$goog$html$SafeScript_SafeScript.fromConstant = function(script) {
   var scriptString = goog.string.Const.unwrap(script);
-  return 0 === scriptString.length ? goog.html.SafeScript.EMPTY : goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(scriptString);
+  return 0 === scriptString.length ? module$contents$goog$html$SafeScript_SafeScript.EMPTY : module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(scriptString);
 };
-goog.html.SafeScript.fromConstantAndArgs = function(code, var_args) {
+module$contents$goog$html$SafeScript_SafeScript.fromConstantAndArgs = function(code, var_args) {
   for (var args = [], i = 1; i < arguments.length; i++) {
-    args.push(goog.html.SafeScript.stringify_(arguments[i]));
+    args.push(module$contents$goog$html$SafeScript_SafeScript.stringify_(arguments[i]));
   }
-  return goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("(" + goog.string.Const.unwrap(code) + ")(" + args.join(", ") + ");");
+  return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("(" + goog.string.Const.unwrap(code) + ")(" + args.join(", ") + ");");
 };
-goog.html.SafeScript.fromJson = function(val) {
-  return goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(goog.html.SafeScript.stringify_(val));
+module$contents$goog$html$SafeScript_SafeScript.fromJson = function(val) {
+  return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(module$contents$goog$html$SafeScript_SafeScript.stringify_(val));
 };
-goog.html.SafeScript.prototype.getTypedStringValue = function() {
+module$contents$goog$html$SafeScript_SafeScript.prototype.getTypedStringValue = function() {
   return this.privateDoNotAccessOrElseSafeScriptWrappedValue_.toString();
 };
-goog.DEBUG && (goog.html.SafeScript.prototype.toString = function() {
-  return "SafeScript{" + this.privateDoNotAccessOrElseSafeScriptWrappedValue_ + "}";
-});
-goog.html.SafeScript.unwrap = function(safeScript) {
-  return goog.html.SafeScript.unwrapTrustedScript(safeScript).toString();
+module$contents$goog$html$SafeScript_SafeScript.unwrap = function(safeScript) {
+  return module$contents$goog$html$SafeScript_SafeScript.unwrapTrustedScript(safeScript).toString();
 };
-goog.html.SafeScript.unwrapTrustedScript = function(safeScript) {
-  if (safeScript instanceof goog.html.SafeScript && safeScript.constructor === goog.html.SafeScript && safeScript.SAFE_SCRIPT_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === goog.html.SafeScript.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_) {
+module$contents$goog$html$SafeScript_SafeScript.unwrapTrustedScript = function(safeScript) {
+  if (safeScript instanceof module$contents$goog$html$SafeScript_SafeScript && safeScript.constructor === module$contents$goog$html$SafeScript_SafeScript) {
     return safeScript.privateDoNotAccessOrElseSafeScriptWrappedValue_;
   }
-  goog.asserts.fail("expected object of type SafeScript, got '" + safeScript + "' of type " + goog.typeOf(safeScript));
+  (0,goog.asserts.fail)("expected object of type SafeScript, got '" + safeScript + "' of type " + goog.typeOf(safeScript));
   return "type_error:SafeScript";
 };
-goog.html.SafeScript.stringify_ = function(val) {
+module$contents$goog$html$SafeScript_SafeScript.stringify_ = function(val) {
   return JSON.stringify(val).replace(/</g, "\\x3c");
 };
-goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse = function(script) {
-  return (new goog.html.SafeScript).initSecurityPrivateDoNotAccessOrElse_(script);
+module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse = function(script) {
+  var policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), trustedScript = policy ? policy.createScript(script) : script;
+  return new module$contents$goog$html$SafeScript_SafeScript(trustedScript, module$contents$goog$html$SafeScript_CONSTRUCTOR_TOKEN_PRIVATE);
 };
-goog.html.SafeScript.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(script) {
-  var policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse();
-  this.privateDoNotAccessOrElseSafeScriptWrappedValue_ = policy ? policy.createScript(script) : script;
-  return this;
-};
-goog.html.SafeScript.EMPTY = function() {
-  return goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("");
+goog.DEBUG && (module$contents$goog$html$SafeScript_SafeScript.prototype.toString = function() {
+  return "SafeScript{" + this.privateDoNotAccessOrElseSafeScriptWrappedValue_ + "}";
+});
+module$contents$goog$html$SafeScript_SafeScript.EMPTY = function() {
+  return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("");
 }();
+goog.html.SafeScript = module$contents$goog$html$SafeScript_SafeScript;
 goog.fs = {};
 goog.fs.url = {};
 goog.fs.url.createObjectUrl = function(obj) {
@@ -3189,7 +3184,7 @@ goog.html.TrustedResourceUrl.fromConstants = function(parts) {
   return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(unwrapped);
 };
 goog.html.TrustedResourceUrl.fromSafeScript = function(safeScript) {
-  var blob = goog.fs.blob.getBlobWithProperties([goog.html.SafeScript.unwrap(safeScript)], "text/javascript"), url = goog.fs.url.createObjectUrl(blob);
+  var blob = goog.fs.blob.getBlobWithProperties([module$contents$goog$html$SafeScript_SafeScript.unwrap(safeScript)], "text/javascript"), url = goog.fs.url.createObjectUrl(blob);
   return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(url);
 };
 goog.html.TrustedResourceUrl.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
@@ -3344,7 +3339,7 @@ goog.html.SafeUrl.trySanitize = function(url) {
     return url;
   }
   url = "object" == typeof url && url.implementsGoogStringTypedString ? url.getTypedStringValue() : String(url);
-  return goog.html.SAFE_URL_PATTERN_.test(url) ? goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url) : null;
+  return goog.html.SAFE_URL_PATTERN_.test(url) ? goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url) : goog.html.SafeUrl.tryFromDataUrl(url);
 };
 goog.html.SafeUrl.sanitize = function(url) {
   return goog.html.SafeUrl.trySanitize(url) || goog.html.SafeUrl.INNOCUOUS_URL;
@@ -3501,28 +3496,27 @@ goog.html.SafeStyle.concat = function(var_args) {
   goog.array.forEach(arguments, addArgument);
   return style ? goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style) : goog.html.SafeStyle.EMPTY;
 };
-goog.html.SafeStyleSheet = function() {
+var module$contents$goog$html$SafeStyleSheet_SafeStyleSheet = function() {
   this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = "";
-  this.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
+  this.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = module$contents$goog$html$SafeStyleSheet_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE;
+  this.implementsGoogStringTypedString = !0;
 };
-goog.html.SafeStyleSheet.prototype.implementsGoogStringTypedString = !0;
-goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = {};
-goog.html.SafeStyleSheet.createRule = function(selector, style) {
-  if (goog.string.internal.contains(selector, "<")) {
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createRule = function(selector, style) {
+  if ((0,goog.string.internal.contains)(selector, "<")) {
     throw Error("Selector does not allow '<', got: " + selector);
   }
   var selectorToCheck = selector.replace(/('|")((?!\1)[^\r\n\f\\]|\\[\s\S])*\1/g, "");
   if (!/^[-_a-zA-Z0-9#.:* ,>+~[\]()=^$|]+$/.test(selectorToCheck)) {
     throw Error("Selector allows only [-_a-zA-Z0-9#.:* ,>+~[\\]()=^$|] and strings, got: " + selector);
   }
-  if (!goog.html.SafeStyleSheet.hasBalancedBrackets_(selectorToCheck)) {
+  if (!module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.hasBalancedBrackets_(selectorToCheck)) {
     throw Error("() and [] in selector must be balanced, got: " + selector);
   }
   style instanceof goog.html.SafeStyle || (style = goog.html.SafeStyle.create(style));
   var styleSheet = selector + "{" + goog.html.SafeStyle.unwrap(style).replace(/</g, "\\3C ") + "}";
-  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
+  return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
 };
-goog.html.SafeStyleSheet.hasBalancedBrackets_ = function(s) {
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.hasBalancedBrackets_ = function(s) {
   for (var brackets = {"(":")", "[":"]"}, expectedBrackets = [], i = 0; i < s.length; i++) {
     var ch = s[i];
     if (brackets[ch]) {
@@ -3535,42 +3529,44 @@ goog.html.SafeStyleSheet.hasBalancedBrackets_ = function(s) {
   }
   return 0 == expectedBrackets.length;
 };
-goog.html.SafeStyleSheet.concat = function(var_args) {
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.concat = function(var_args) {
   var result = "", addArgument = function(argument) {
-    Array.isArray(argument) ? goog.array.forEach(argument, addArgument) : result += goog.html.SafeStyleSheet.unwrap(argument);
+    Array.isArray(argument) ? goog.array.forEach(argument, addArgument) : result += module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap(argument);
   };
   goog.array.forEach(arguments, addArgument);
-  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(result);
+  return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(result);
 };
-goog.html.SafeStyleSheet.fromConstant = function(styleSheet) {
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.fromConstant = function(styleSheet) {
   var styleSheetString = goog.string.Const.unwrap(styleSheet);
   if (0 === styleSheetString.length) {
-    return goog.html.SafeStyleSheet.EMPTY;
+    return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.EMPTY;
   }
-  goog.asserts.assert(!goog.string.internal.contains(styleSheetString, "<"), "Forbidden '<' character in style sheet string: " + styleSheetString);
-  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheetString);
+  (0,goog.asserts.assert)(!(0,goog.string.internal.contains)(styleSheetString, "<"), "Forbidden '<' character in style sheet string: " + styleSheetString);
+  return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheetString);
 };
-goog.html.SafeStyleSheet.prototype.getTypedStringValue = function() {
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.prototype.getTypedStringValue = function() {
   return this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;
 };
-goog.DEBUG && (goog.html.SafeStyleSheet.prototype.toString = function() {
-  return "SafeStyleSheet{" + this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ + "}";
-});
-goog.html.SafeStyleSheet.unwrap = function(safeStyleSheet) {
-  if (safeStyleSheet instanceof goog.html.SafeStyleSheet && safeStyleSheet.constructor === goog.html.SafeStyleSheet && safeStyleSheet.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === goog.html.SafeStyleSheet.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_) {
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap = function(safeStyleSheet) {
+  if (safeStyleSheet instanceof module$contents$goog$html$SafeStyleSheet_SafeStyleSheet && safeStyleSheet.constructor === module$contents$goog$html$SafeStyleSheet_SafeStyleSheet && safeStyleSheet.SAFE_STYLE_SHEET_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ === module$contents$goog$html$SafeStyleSheet_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE) {
     return safeStyleSheet.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_;
   }
-  goog.asserts.fail("expected object of type SafeStyleSheet, got '" + safeStyleSheet + "' of type " + goog.typeOf(safeStyleSheet));
+  (0,goog.asserts.fail)("expected object of type SafeStyleSheet, got '" + safeStyleSheet + "' of type " + goog.typeOf(safeStyleSheet));
   return "type_error:SafeStyleSheet";
 };
-goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse = function(styleSheet) {
-  return (new goog.html.SafeStyleSheet).initSecurityPrivateDoNotAccessOrElse_(styleSheet);
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse = function(styleSheet) {
+  return (new module$contents$goog$html$SafeStyleSheet_SafeStyleSheet).initSecurityPrivateDoNotAccessOrElse_(styleSheet);
 };
-goog.html.SafeStyleSheet.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(styleSheet) {
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.prototype.initSecurityPrivateDoNotAccessOrElse_ = function(styleSheet) {
   this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = styleSheet;
   return this;
 };
-goog.html.SafeStyleSheet.EMPTY = goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse("");
+goog.DEBUG && (module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.prototype.toString = function() {
+  return "SafeStyleSheet{" + this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ + "}";
+});
+var module$contents$goog$html$SafeStyleSheet_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE = {};
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.EMPTY = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse("");
+goog.html.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
 goog.html.SafeHtml = function() {
   this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = "";
   this.SAFE_HTML_TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_ = goog.html.SafeHtml.TYPE_MARKER_GOOG_HTML_SECURITY_PRIVATE_;
@@ -3679,7 +3675,7 @@ goog.html.SafeHtml.createScript = function(script, opt_attributes) {
   var content = "";
   script = goog.array.concat(script);
   for (var i = 0; i < script.length; i++) {
-    content += goog.html.SafeScript.unwrap(script[i]);
+    content += module$contents$goog$html$SafeScript_SafeScript.unwrap(script[i]);
   }
   var htmlContent = goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content, goog.i18n.bidi.Dir.NEUTRAL);
   return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("script", opt_attributes, htmlContent);
@@ -3688,7 +3684,7 @@ goog.html.SafeHtml.createStyle = function(styleSheet, opt_attributes) {
   var attributes = goog.html.SafeHtml.combineAttributes({type:"text/css"}, {}, opt_attributes), content = "";
   styleSheet = goog.array.concat(styleSheet);
   for (var i = 0; i < styleSheet.length; i++) {
-    content += goog.html.SafeStyleSheet.unwrap(styleSheet[i]);
+    content += module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap(styleSheet[i]);
   }
   var htmlContent = goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content, goog.i18n.bidi.Dir.NEUTRAL);
   return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("style", attributes, htmlContent);
@@ -3854,7 +3850,7 @@ goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract = fu
 goog.html.uncheckedconversions.safeScriptFromStringKnownToSatisfyTypeContract = function(justification, script) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
   goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return goog.html.SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(script);
+  return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(script);
 };
 goog.html.uncheckedconversions.safeStyleFromStringKnownToSatisfyTypeContract = function(justification, style) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
@@ -3864,7 +3860,7 @@ goog.html.uncheckedconversions.safeStyleFromStringKnownToSatisfyTypeContract = f
 goog.html.uncheckedconversions.safeStyleSheetFromStringKnownToSatisfyTypeContract = function(justification, styleSheet) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
   goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return goog.html.SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
+  return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
 };
 goog.html.uncheckedconversions.safeUrlFromStringKnownToSatisfyTypeContract = function(justification, url) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
@@ -3986,7 +3982,7 @@ goog.dom.safe.setScriptSrc = function(script, url) {
 };
 goog.dom.safe.setScriptContent = function(script, content) {
   goog.dom.asserts.assertIsHTMLScriptElement(script);
-  script.textContent = goog.html.SafeScript.unwrapTrustedScript(content);
+  script.textContent = module$contents$goog$html$SafeScript_SafeScript.unwrapTrustedScript(content);
   goog.dom.safe.setNonceForScriptElement_(script);
 };
 goog.dom.safe.setNonceForScriptElement_ = function(script) {
@@ -11529,8 +11525,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientAltEnum = {JSON:
 }};
 module$exports$eeapiclient$ee_api_client.IProjectsAssetsApiClientViewEnum = function module$contents$eeapiclient$ee_api_client_IProjectsAssetsApiClientViewEnum() {
 };
-module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientViewEnum = {BASIC:"BASIC", FULL:"FULL", IMAGE_VIEW_UNSPECIFIED:"IMAGE_VIEW_UNSPECIFIED", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientViewEnum.IMAGE_VIEW_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientViewEnum.FULL, module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientViewEnum.BASIC];
+module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientViewEnum = {BASIC:"BASIC", EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED:"EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED", FULL:"FULL", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientViewEnum.EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientViewEnum.FULL, module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientViewEnum.BASIC];
 }};
 module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
   this.gapiVersion = gapiVersion;
@@ -13673,6 +13669,12 @@ goog.async.Deferred.prototype.errback = function(opt_result) {
   this.makeStackTraceLong_(opt_result);
   this.updateResult_(!1, opt_result);
 };
+goog.async.Deferred.unhandledErrorHandler_ = function(e) {
+  throw e;
+};
+goog.async.Deferred.setUnhandledErrorHandler = function(handler) {
+  goog.async.Deferred.unhandledErrorHandler_ = handler;
+};
 goog.async.Deferred.prototype.makeStackTraceLong_ = function(error) {
   goog.async.Deferred.LONG_STACK_TRACES && this.constructorStack_ && goog.isObject(error) && error.stack && /^[^\n]+(\n   [^\n]+)+/.test(error.stack) && (error.stack = error.stack + "\nDEFERRED OPERATION:\n" + this.constructorStack_);
 };
@@ -13817,7 +13819,7 @@ goog.async.Deferred.Error_ = function(error) {
 goog.async.Deferred.Error_.prototype.throwError = function() {
   goog.asserts.assert(goog.async.Deferred.errorMap_[this.id_], "Cannot throw an error that is not scheduled.");
   delete goog.async.Deferred.errorMap_[this.id_];
-  throw this.error_;
+  goog.async.Deferred.unhandledErrorHandler_(this.error_);
 };
 goog.async.Deferred.Error_.prototype.resetTimer = function() {
   goog.global.clearTimeout(this.id_);
@@ -14856,7 +14858,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.229";
+ee.apiclient.API_CLIENT_VERSION = "0.1.230";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15120,8 +15122,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.229";
-    "0.1.229" === version && (version = "latest");
+    var version = "0.1.230";
+    "0.1.230" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -18318,7 +18320,7 @@ module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeUnsignedVarint32_ 
   null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeUnsignedVarint32(value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeSignedVarint32_ = function(field, value) {
-  null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeSignedVarint32(value));
+  null != value && (module$contents$jspb$BinaryWriter_assertSignedInteger(field, value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeSignedVarint32(value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeUnsignedVarint64_ = function(field, value) {
   null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeUnsignedVarint64(value));
@@ -18336,17 +18338,17 @@ module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeZigzagVarint64Stri
   null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeZigzagVarint64String(value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeInt32 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(-2147483648 <= value && 2147483648 > value), this.writeSignedVarint32_(field, value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, -2147483648 <= value && 2147483648 > value), this.writeSignedVarint32_(field, value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeInt32String = function(field, value) {
   if (null != value) {
     var intValue = parseInt(value, 10);
-    (0,goog.asserts.assert)(-2147483648 <= intValue && 2147483648 > intValue);
+    module$contents$jspb$BinaryWriter_assertThat(field, intValue, -2147483648 <= intValue && 2147483648 > intValue);
     this.writeSignedVarint32_(field, intValue);
   }
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeInt64 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(-9223372036854775808 <= value && 9223372036854775808 > value), this.writeSignedVarint64_(field, value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, -9223372036854775808 <= value && 9223372036854775808 > value), this.writeSignedVarint64_(field, value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeInt64String = function(field, value) {
   if (null != value) {
@@ -18356,17 +18358,17 @@ module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeInt64String = func
   }
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeUint32 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(0 <= value && 4294967296 > value), this.writeUnsignedVarint32_(field, value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, 0 <= value && 4294967296 > value), this.writeUnsignedVarint32_(field, value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeUint32String = function(field, value) {
   if (null != value) {
     var intValue = parseInt(value, 10);
-    (0,goog.asserts.assert)(0 <= intValue && 4294967296 > intValue);
+    module$contents$jspb$BinaryWriter_assertThat(field, value, 0 <= intValue && 4294967296 > intValue);
     this.writeUnsignedVarint32_(field, intValue);
   }
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeUint64 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(0 <= value && 18446744073709551616 > value), this.writeUnsignedVarint64_(field, value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, 0 <= value && 18446744073709551616 > value), this.writeUnsignedVarint64_(field, value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeUint64String = function(field, value) {
   if (null != value) {
@@ -18376,19 +18378,19 @@ module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeUint64String = fun
   }
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeSint32 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(-2147483648 <= value && 2147483648 > value), this.writeZigzagVarint32_(field, value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, -2147483648 <= value && 2147483648 > value), this.writeZigzagVarint32_(field, value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeSint64 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(-9223372036854775808 <= value && 9223372036854775808 > value), this.writeZigzagVarint64_(field, value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, -9223372036854775808 <= value && 9223372036854775808 > value), this.writeZigzagVarint64_(field, value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeSint64String = function(field, value) {
   null != value && this.writeZigzagVarint64String_(field, value);
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeFixed32 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(0 <= value && 4294967296 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED32), this.encoder_.writeUint32(value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, 0 <= value && 4294967296 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED32), this.encoder_.writeUint32(value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeFixed64 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(0 <= value && 18446744073709551616 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64), this.encoder_.writeUint64(value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, 0 <= value && 18446744073709551616 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64), this.encoder_.writeUint64(value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeFixed64String = function(field, value) {
   if (null != value) {
@@ -18398,10 +18400,10 @@ module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeFixed64String = fu
   }
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeSfixed32 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(-2147483648 <= value && 2147483648 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED32), this.encoder_.writeInt32(value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, -2147483648 <= value && 2147483648 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED32), this.encoder_.writeInt32(value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeSfixed64 = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(-9223372036854775808 <= value && 9223372036854775808 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64), this.encoder_.writeInt64(value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, -9223372036854775808 <= value && 9223372036854775808 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64), this.encoder_.writeInt64(value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeSfixed64String = function(field, value) {
   if (null != value) {
@@ -18417,10 +18419,15 @@ module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeDouble = function(
   null != value && (this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.FIXED64), this.encoder_.writeDouble(value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeBool = function(field, value) {
-  null != value && ((0,goog.asserts.assert)("boolean" === typeof value || "number" === typeof value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeBool(value));
+  null != value && (module$contents$jspb$BinaryWriter_assertThat(field, value, "boolean" === typeof value || "number" === typeof value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeBool(value));
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeEnum = function(field, value) {
-  null != value && ((0,goog.asserts.assert)(-2147483648 <= value && 2147483648 > value), this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT), this.encoder_.writeSignedVarint32(value));
+  if (null != value) {
+    var intValue = parseInt(value, 10);
+    module$contents$jspb$BinaryWriter_assertSignedInteger(field, intValue);
+    this.writeFieldHeader_(field, module$contents$jspb$BinaryConstants_WireType.VARINT);
+    this.encoder_.writeSignedVarint32(intValue);
+  }
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeString = function(field, value) {
   if (null != value) {
@@ -18671,7 +18678,7 @@ module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeRepeatedGroup = fu
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writePackedInt32 = function(field, value) {
   if (null != value && value.length) {
     for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
-      this.encoder_.writeSignedVarint32(value[i]);
+      module$contents$jspb$BinaryWriter_assertSignedInteger(field, value[i]), this.encoder_.writeSignedVarint32(value[i]);
     }
     this.endDelimited_(bookmark);
   }
@@ -18679,7 +18686,9 @@ module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writePackedInt32 = func
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writePackedInt32String = function(field, value) {
   if (null != value && value.length) {
     for (var bookmark = this.beginDelimited_(field), i = 0; i < value.length; i++) {
-      this.encoder_.writeSignedVarint32(parseInt(value[i], 10));
+      var intValue = parseInt(value[i], 10);
+      module$contents$jspb$BinaryWriter_assertSignedInteger(field, intValue);
+      this.encoder_.writeSignedVarint32(intValue);
     }
     this.endDelimited_(bookmark);
   }
@@ -18872,6 +18881,13 @@ module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writePackedEnum = funct
     this.endDelimited_(bookmark);
   }
 };
+function module$contents$jspb$BinaryWriter_assertSignedInteger(field, value) {
+  module$contents$jspb$BinaryWriter_assertThat(field, value, value === Math.floor(value));
+  module$contents$jspb$BinaryWriter_assertThat(field, value, -2147483648 <= value && 2147483648 > value);
+}
+function module$contents$jspb$BinaryWriter_assertThat(field, value, condition) {
+  condition || (0,goog.asserts.fail)("for [" + value + "] at [" + field + "]");
+}
 jspb.BinaryWriter = module$contents$jspb$BinaryWriter_BinaryWriter;
 var module$contents$jspb$Map_Map = function(arr, valueCtor) {
   this.arr_ = arr;
@@ -20109,7 +20125,7 @@ ee.data.getMapId = function(params, opt_callback) {
     }));
   }
   params = goog.object.clone(params);
-  "string" !== typeof params.image && (params.image = params.image.serialize());
+  "string" !== typeof params.image && (params.image = params.image.serialize(!0));
   var makeMapId = function(result) {
     return ee.data.makeMapId_(result.mapid, result.token);
   };
@@ -20171,7 +20187,7 @@ ee.data.getThumbId = function(params, opt_callback) {
   params = goog.object.clone(params);
   Array.isArray(params.dimensions) && (params.dimensions = params.dimensions.join("x"));
   var image = params.image || params.imageCollection;
-  "string" !== typeof image && (image = image.serialize());
+  "string" !== typeof image && (image = image.serialize(!0));
   params.image = image;
   delete params.imageCollection;
   var request = ee.data.makeRequest_(params).add("getid", "1");
@@ -20453,7 +20469,7 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
     }
   }
   params = goog.object.clone(params);
-  null != params.element && (params.json = params.element.serialize(), delete params.element);
+  null != params.element && (params.json = params.element.serialize(!0), delete params.element);
   Array.isArray(params.crs_transform) && (params.crs_transform = params.crs_transform.toString());
   params.id = taskId;
   return ee.data.send_("/processingrequest", ee.data.makeRequest_(params), opt_callback);
@@ -20855,8 +20871,8 @@ ee.ComputedObject.prototype.encodeCloudValue = function(encoder) {
   }
   return "string" === typeof this.func ? ee.rpc_node.functionByName(String(this.func), encodedArgs) : this.func.encodeCloudInvocation(encoder, encodedArgs);
 };
-ee.ComputedObject.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this);
+ee.ComputedObject.prototype.serialize = function(legacy) {
+  return (void 0 === legacy ? 0 : legacy) ? ee.Serializer.toJSON(this) : ee.Serializer.toCloudApiJSON(this);
 };
 ee.ComputedObject.prototype.toString = function() {
   return "ee." + this.name() + "(" + ee.Serializer.toReadableJSON(this) + ")";
@@ -21041,8 +21057,8 @@ ee.Function.prototype.toString = function(opt_name, opt_isInstance) {
   }
   return buffer.join("");
 };
-ee.Function.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this);
+ee.Function.prototype.serialize = function(legacy) {
+  return (void 0 === legacy ? 0 : legacy) ? ee.Serializer.toJSON(this) : ee.Serializer.toCloudApiJSON(this);
 };
 ee.ApiFunction = function(name, opt_signature) {
   if (void 0 === opt_signature) {
@@ -21411,8 +21427,8 @@ ee.Geometry.prototype.toGeoJSONString = function() {
   }
   return (new goog.json.Serializer).serialize(this.toGeoJSON());
 };
-ee.Geometry.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this);
+ee.Geometry.prototype.serialize = function(legacy) {
+  return (void 0 === legacy ? 0 : legacy) ? ee.Serializer.toJSON(this) : ee.Serializer.toCloudApiJSON(this);
 };
 ee.Geometry.prototype.toString = function() {
   return "ee.Geometry(" + this.toGeoJSONString() + ")";
@@ -22009,7 +22025,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 };
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.Image.prototype.getDownloadURL, arguments), request = args.params ? goog.object.clone(args.params) : {};
-  request.image = ee.data.getCloudApiEnabled() ? this : this.serialize();
+  request.image = ee.data.getCloudApiEnabled() ? this : this.serialize(!0);
   if (args.callback) {
     var callback = args.callback;
     ee.data.getDownloadId(request, function(downloadId, error) {
@@ -22875,8 +22891,11 @@ ee.Deserializer.fromJSON = function(json) {
   return ee.Deserializer.decode(JSON.parse(json));
 };
 ee.Deserializer.decode = function(json) {
+  if ("result" in json && "values" in json) {
+    return ee.Deserializer.decodeCloudApi(json);
+  }
   var namedValues = {};
-  if (goog.isObject(json) && "CompoundValue" == json.type) {
+  if (goog.isObject(json) && "CompoundValue" === json.type) {
     for (var scopes = json.scope, i = 0; i < scopes.length; i++) {
       var key = scopes[i][0], value = scopes[i][1];
       if (key in namedValues) {
@@ -22920,23 +22939,13 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
       }
       return new ee.Date(microseconds / 1000);
     case "Bytes":
-      var result = new ee.Encodable;
-      result.encode = function(encoder) {
-        return json;
-      };
-      return result;
+      return ee.Deserializer.roundTrip_(new module$exports$eeapiclient$ee_api_client.ValueNode({bytesValue:json}), json);
     case "Invocation":
       var func = "functionName" in json ? ee.ApiFunction.lookup(json.functionName) : ee.Deserializer.decodeValue_(json["function"], namedValues);
       var args = goog.object.map(json.arguments, function(element) {
         return ee.Deserializer.decodeValue_(element, namedValues);
       });
-      if (func instanceof ee.Function) {
-        return func.apply(args);
-      }
-      if (func instanceof ee.ComputedObject) {
-        return new ee.ComputedObject(func, args);
-      }
-      throw Error("Invalid function value: " + json["function"]);
+      return ee.Deserializer.invocation_(func, args);
     case "Dictionary":
       return goog.object.map(json.value, function(element) {
         return ee.Deserializer.decodeValue_(element, namedValues);
@@ -22962,6 +22971,65 @@ ee.Deserializer.decodeValue_ = function(json, namedValues) {
     default:
       throw Error("Unknown encoded object type: " + typeName);
   }
+};
+ee.Deserializer.roundTrip_ = function(node, value) {
+  var Reencoder = function() {
+  };
+  $jscomp.inherits(Reencoder, ee.Encodable);
+  Reencoder.prototype.encode = function(encoder) {
+    return value;
+  };
+  Reencoder.prototype.encodeCloudValue = function(encoder) {
+    return node;
+  };
+  return new Reencoder;
+};
+ee.Deserializer.invocation_ = function(func, args$jscomp$0) {
+  if (func instanceof ee.Function) {
+    return func.apply(args$jscomp$0);
+  }
+  if (func instanceof ee.ComputedObject) {
+    var ComputedFunction = function() {
+      return ee.Function.apply(this, arguments) || this;
+    };
+    $jscomp.inherits(ComputedFunction, ee.Function);
+    ComputedFunction.prototype.encode = function(encoder) {
+      return func.encode(encoder);
+    };
+    ComputedFunction.prototype.encodeCloudInvocation = function(encoder, args) {
+      return ee.rpc_node.functionByReference(encoder(func), args);
+    };
+    return new ee.ComputedObject(new ComputedFunction, args$jscomp$0);
+  }
+  throw Error("Invalid function value");
+};
+ee.Deserializer.fromCloudApiJSON = function(json) {
+  return ee.Deserializer.decodeCloudApi(JSON.parse(json));
+};
+ee.Deserializer.decodeCloudApi = function(json) {
+  var expression = module$contents$eeapiclient$domain_object_deserialize(module$exports$eeapiclient$ee_api_client.Expression, json), decoded = {}, lookup = function(reference, kind) {
+    if (!(reference in decoded)) {
+      if (!(reference in expression.values)) {
+        throw Error("Cannot find " + kind + " " + reference);
+      }
+      decoded[reference] = decode(expression.values[reference]);
+    }
+    return decoded[reference];
+  }, decode = function(node) {
+    return null !== node.constantValue ? node.constantValue : null !== node.arrayValue ? node.arrayValue.values.map(decode) : null !== node.dictionaryValue ? goog.object.map(node.dictionaryValue.values, decode) : null !== node.argumentReference ? ee.CustomFunction.variable(Object, node.argumentReference) : null !== node.functionDefinitionValue ? decodeFunctionDefinition(node.functionDefinitionValue) : null !== node.functionInvocationValue ? decodeFunctionInvocation(node.functionInvocationValue) : 
+    null !== node.bytesValue ? ee.Deserializer.roundTrip_(new module$exports$eeapiclient$ee_api_client.ValueNode({bytesValue:node.bytesValue}), node.bytesValue) : null !== node.integerValue ? ee.Deserializer.roundTrip_(new module$exports$eeapiclient$ee_api_client.ValueNode({integerValue:node.integerValue}), node.integerValue) : null !== node.valueReference ? lookup(node.valueReference, "reference") : null;
+  }, decodeFunctionDefinition = function(defined) {
+    var body = lookup(defined.body, "function body"), signature = {args:defined.argumentNames.map(function(name) {
+      return {name:name, type:"Object", optional:!1};
+    }), name:"", returns:"Object"};
+    return new ee.CustomFunction(signature, function() {
+      return body;
+    });
+  }, decodeFunctionInvocation = function(invoked) {
+    var func = invoked.functionReference ? lookup(invoked.functionReference, "function") : ee.ApiFunction.lookup(invoked.functionName), args = goog.object.map(invoked.arguments, decode);
+    return ee.Deserializer.invocation_(func, args);
+  };
+  return lookup(expression.result, "result value");
 };
 ee.Dictionary = function(opt_dict) {
   if (!(this instanceof ee.Dictionary)) {
@@ -24153,7 +24221,7 @@ goog.style.uninstallStyles = function(styleSheet) {
   goog.dom.removeNode(styleSheet.ownerNode || styleSheet.owningElement || styleSheet);
 };
 goog.style.setSafeStyleSheet = function(element, safeStyleSheet) {
-  var stylesString = goog.html.SafeStyleSheet.unwrap(safeStyleSheet);
+  var stylesString = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap(safeStyleSheet);
   goog.userAgent.IE && void 0 !== element.cssText ? element.cssText = stylesString : goog.global.trustedTypes ? goog.dom.setTextContent(element, stylesString) : element.innerHTML = stylesString;
 };
 goog.style.setPreWrap = function(el) {
@@ -24401,9 +24469,7 @@ ee.layers.AbstractOverlay = function(tileSource, opt_options) {
   this.radius = 0;
   this.alt = null;
 };
-goog.inherits(ee.layers.AbstractOverlay, goog.events.EventTarget);
-ee.layers.AbstractOverlay.EventType = {TILE_FAIL:"tile-fail", TILE_ABORT:"tile-abort", TILE_THROTTLE:"tile-throttle", TILE_LOAD:"tile-load", TILE_START:"tile-start", };
-ee.layers.AbstractOverlay.DEFAULT_TILE_EDGE_LENGTH = 256;
+$jscomp.inherits(ee.layers.AbstractOverlay, goog.events.EventTarget);
 ee.layers.AbstractOverlay.prototype.addTileCallback = function(callback) {
   return goog.events.listen(this, ee.layers.AbstractOverlay.EventType.TILE_LOAD, callback);
 };
@@ -24475,7 +24541,7 @@ ee.layers.AbstractOverlay.prototype.getUniqueTileId_ = function(coord, z) {
   return [tileId, sourceId].join("-");
 };
 ee.layers.AbstractOverlay.prototype.disposeInternal = function() {
-  ee.layers.AbstractOverlay.superClass_.disposeInternal.call(this);
+  goog.events.EventTarget.prototype.disposeInternal.call(this);
   this.tilesById.forEach(goog.dispose);
   this.tilesById.clear();
   this.tilesById = null;
@@ -24487,32 +24553,34 @@ ee.layers.AbstractOverlay.prototype.getTileCountForStatus_ = function(status) {
     return tile.getStatus() == status;
   });
 };
+ee.layers.AbstractOverlay.EventType = {TILE_FAIL:"tile-fail", TILE_ABORT:"tile-abort", TILE_THROTTLE:"tile-throttle", TILE_LOAD:"tile-load", TILE_START:"tile-start", };
+ee.layers.AbstractOverlay.DEFAULT_TILE_EDGE_LENGTH = 256;
 ee.layers.TileLoadEvent = function(loadingTileCount) {
   goog.events.Event.call(this, ee.layers.AbstractOverlay.EventType.TILE_LOAD);
   this.loadingTileCount = loadingTileCount;
 };
-goog.inherits(ee.layers.TileLoadEvent, goog.events.Event);
+$jscomp.inherits(ee.layers.TileLoadEvent, goog.events.Event);
 ee.layers.TileStartEvent = function(loadingTileCount) {
   goog.events.Event.call(this, ee.layers.AbstractOverlay.EventType.TILE_START);
   this.loadingTileCount = loadingTileCount;
 };
-goog.inherits(ee.layers.TileStartEvent, goog.events.Event);
+$jscomp.inherits(ee.layers.TileStartEvent, goog.events.Event);
 ee.layers.TileThrottleEvent = function(tileUrl) {
   goog.events.Event.call(this, ee.layers.AbstractOverlay.EventType.TILE_THROTTLE);
   this.tileUrl = tileUrl;
 };
-goog.inherits(ee.layers.TileThrottleEvent, goog.events.Event);
+$jscomp.inherits(ee.layers.TileThrottleEvent, goog.events.Event);
 ee.layers.TileFailEvent = function(tileUrl, opt_errorMessage) {
   goog.events.Event.call(this, ee.layers.AbstractOverlay.EventType.TILE_FAIL);
   this.tileUrl = tileUrl;
   this.errorMessage = opt_errorMessage;
 };
-goog.inherits(ee.layers.TileFailEvent, goog.events.Event);
+$jscomp.inherits(ee.layers.TileFailEvent, goog.events.Event);
 ee.layers.TileAbortEvent = function(loadingTileCount) {
   goog.events.Event.call(this, ee.layers.AbstractOverlay.EventType.TILE_ABORT);
   this.loadingTileCount = loadingTileCount;
 };
-goog.inherits(ee.layers.TileAbortEvent, goog.events.Event);
+$jscomp.inherits(ee.layers.TileAbortEvent, goog.events.Event);
 ee.layers.AbstractTile = function(coord, zoom, ownerDocument, uniqueId) {
   goog.events.EventTarget.call(this);
   this.coord = coord;
@@ -24526,9 +24594,7 @@ ee.layers.AbstractTile = function(coord, zoom, ownerDocument, uniqueId) {
   this.retryAttemptCount_ = 0;
   this.isRetrying_ = !1;
 };
-goog.inherits(ee.layers.AbstractTile, goog.events.EventTarget);
-ee.layers.AbstractTile.EventType = {STATUS_CHANGED:"status-changed"};
-ee.layers.AbstractTile.Status = {NEW:"new", LOADING:"loading", THROTTLED:"throttled", LOADED:"loaded", FAILED:"failed", ABORTED:"aborted", REMOVED:"removed", };
+$jscomp.inherits(ee.layers.AbstractTile, goog.events.EventTarget);
 ee.layers.AbstractTile.prototype.startLoad = function() {
   if (!this.isRetrying_ && this.getStatus() == ee.layers.AbstractTile.Status.LOADING) {
     throw Error("startLoad() can only be invoked once. Use retryLoad() after the first attempt.");
@@ -24599,18 +24665,20 @@ ee.layers.AbstractTile.prototype.setStatus = function(status) {
   this.status_ = status;
   this.dispatchEvent(ee.layers.AbstractTile.EventType.STATUS_CHANGED);
 };
-ee.layers.AbstractTile.DONE_STATUS_SET_ = goog.object.createSet(ee.layers.AbstractTile.Status.ABORTED, ee.layers.AbstractTile.Status.FAILED, ee.layers.AbstractTile.Status.LOADED, ee.layers.AbstractTile.Status.REMOVED);
 ee.layers.AbstractTile.prototype.disposeInternal = function() {
-  ee.layers.AbstractTile.superClass_.disposeInternal.call(this);
+  goog.events.EventTarget.prototype.disposeInternal.call(this);
   this.cancelLoad();
   this.div.remove();
   this.renderer = null;
 };
+ee.layers.AbstractTile.EventType = {STATUS_CHANGED:"status-changed"};
+ee.layers.AbstractTile.Status = {NEW:"new", LOADING:"loading", THROTTLED:"throttled", LOADED:"loaded", FAILED:"failed", ABORTED:"aborted", REMOVED:"removed", };
+ee.layers.AbstractTile.DONE_STATUS_SET_ = goog.object.createSet(ee.layers.AbstractTile.Status.ABORTED, ee.layers.AbstractTile.Status.FAILED, ee.layers.AbstractTile.Status.LOADED, ee.layers.AbstractTile.Status.REMOVED);
 ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_ = 5;
 ee.layers.AbstractTileSource = function() {
   goog.Disposable.call(this);
 };
-goog.inherits(ee.layers.AbstractTileSource, goog.Disposable);
+$jscomp.inherits(ee.layers.AbstractTileSource, goog.Disposable);
 ee.layers.BinaryOverlay = function(tileSource, opt_options) {
   ee.layers.AbstractOverlay.call(this, tileSource, opt_options);
   this.buffersByCoord_ = new goog.structs.Map;
@@ -25567,7 +25635,7 @@ ee.Package.save = function(pkg, path) {
     }
     for (var index = 0; index < custom.length; index++) {
       var name = custom[index].name;
-      var algorithm = custom[index].algorithm.serialize();
+      var algorithm = custom[index].algorithm.serialize(!0);
       ee.data.createAsset(algorithm, path + "/" + name);
     }
   }

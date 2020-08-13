@@ -176,10 +176,12 @@ ee.ComputedObject.prototype.encodeCloudValue = function(encoder) {
 
 /**
  * @return {string} The serialized representation of this object.
+ * @param {boolean=} legacy Enables legacy format.
  * @export
  */
-ee.ComputedObject.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this);
+ee.ComputedObject.prototype.serialize = function(legacy = false) {
+  return legacy ? ee.Serializer.toJSON(this) :
+                  ee.Serializer.toCloudApiJSON(this);
 };
 
 

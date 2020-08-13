@@ -613,11 +613,14 @@ ee.Geometry.prototype.toGeoJSONString = function() {
 
 
 /**
+ * @param {boolean=} legacy Enables legacy format.
  * @return {string} The serialized representation of this object.
+ * @override
  * @export
  */
-ee.Geometry.prototype.serialize = function() {
-  return ee.Serializer.toJSON(this);
+ee.Geometry.prototype.serialize = function(legacy = false) {
+  return legacy ? ee.Serializer.toJSON(this) :
+                  ee.Serializer.toCloudApiJSON(this);
 };
 
 

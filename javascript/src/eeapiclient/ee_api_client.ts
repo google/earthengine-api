@@ -1287,8 +1287,8 @@ export class Algorithm extends Serializable {
   }
 
   /**
-   * Whether this algorithm should be hidden in client applications
-   * and not shown by default.
+   * Whether this algorithm should be hidden in client applications and not
+   * shown by default.
    */
   set hidden(value: boolean|null) {
     this.Serializable$set('hidden', value);
@@ -1315,8 +1315,8 @@ export class Algorithm extends Serializable {
   }
 
   /**
-   * Whether this algorithm is a preview feature and not yet widely
-   * available for a general audience.
+   * Whether this algorithm is a preview feature and not yet widely available
+   * for a general audience.
    */
   set preview(value: boolean|null) {
     this.Serializable$set('preview', value);
@@ -1558,9 +1558,9 @@ export class AuditConfig extends Serializable {
   }
 
   /**
-   * Specifies a service that will be enabled for audit logging.
-   * For example, `storage.googleapis.com`, `cloudsql.googleapis.com`.
-   * `allServices` is a special value that covers all services.
+   * Specifies a service that will be enabled for audit logging. For example,
+   * `storage.googleapis.com`, `cloudsql.googleapis.com`. `allServices` is a
+   * special value that covers all services.
    */
   set service(value: string|null) {
     this.Serializable$set('service', value);
@@ -1613,8 +1613,7 @@ export class AuditLogConfig extends Serializable {
 
   /**
    * Specifies the identities that do not cause logging for this type of
-   * permission.
-   * Follows the same format of Binding.members.
+   * permission. Follows the same format of Binding.members.
    */
   set exemptedMembers(value: Array<string>|null) {
     this.Serializable$set('exemptedMembers', value);
@@ -1725,17 +1724,12 @@ export class Binding extends Serializable {
   }
 
   /**
-   * The condition that is associated with this binding.
-   *
-   * If the condition evaluates to `true`, then this binding applies to the
-   * current request.
-   *
-   * If the condition evaluates to `false`, then this binding does not apply to
-   * the current request. However, a different role binding might grant the same
-   * role to one or more of the members in this binding.
-   *
-   * To learn which resources support conditions in their IAM policies, see the
-   * [IAM
+   * The condition that is associated with this binding. If the condition
+   * evaluates to `true`, then this binding applies to the current request. If
+   * the condition evaluates to `false`, then this binding does not apply to the
+   * current request. However, a different role binding might grant the same
+   * role to one or more of the members in this binding. To learn which
+   * resources support conditions in their IAM policies, see the [IAM
    * documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
    */
   set condition(value: Expr|null) {
@@ -1751,49 +1745,34 @@ export class Binding extends Serializable {
 
   /**
    * Specifies the identities requesting access for a Cloud Platform resource.
-   * `members` can have the following values:
-   *
-   * * `allUsers`: A special identifier that represents anyone who is
-   *    on the internet; with or without a Google account.
-   *
-   * * `allAuthenticatedUsers`: A special identifier that represents anyone
-   *    who is authenticated with a Google account or a service account.
-   *
-   * * `user:{emailid}`: An email address that represents a specific Google
-   *    account. For example, `alice@example.com` .
-   *
-   *
-   * * `serviceAccount:{emailid}`: An email address that represents a service
-   *    account. For example, `my-other-app@appspot.gserviceaccount.com`.
-   *
-   * * `group:{emailid}`: An email address that represents a Google group.
-   *    For example, `admins@example.com`.
-   *
+   * `members` can have the following values: * `allUsers`: A special identifier
+   * that represents anyone who is on the internet; with or without a Google
+   * account. * `allAuthenticatedUsers`: A special identifier that represents
+   * anyone who is authenticated with a Google account or a service account. *
+   * `user:{emailid}`: An email address that represents a specific Google
+   * account. For example, `alice@example.com` . * `serviceAccount:{emailid}`:
+   * An email address that represents a service account. For example,
+   * `my-other-app@appspot.gserviceaccount.com`. * `group:{emailid}`: An email
+   * address that represents a Google group. For example, `admins@example.com`.
    * * `deleted:user:{emailid}?uid={uniqueid}`: An email address (plus unique
-   *    identifier) representing a user that has been recently deleted. For
-   *    example, `alice@example.com?uid=123456789012345678901`. If the user is
-   *    recovered, this value reverts to `user:{emailid}` and the recovered user
-   *    retains the role in the binding.
-   *
-   * * `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address (plus
-   *    unique identifier) representing a service account that has been recently
-   *    deleted. For example,
-   *    `my-other-app@appspot.gserviceaccount.com?uid=123456789012345678901`.
-   *    If the service account is undeleted, this value reverts to
-   *    `serviceAccount:{emailid}` and the undeleted service account retains the
-   *    role in the binding.
-   *
-   * * `deleted:group:{emailid}?uid={uniqueid}`: An email address (plus unique
-   *    identifier) representing a Google group that has been recently
-   *    deleted. For example, `admins@example.com?uid=123456789012345678901`. If
-   *    the group is recovered, this value reverts to `group:{emailid}` and the
-   *    recovered group retains the role in the binding.
-   *
-   *
-   * * `domain:{domain}`: The G Suite domain (primary) that represents all the
-   *    users of that domain. For example, `google.com` or `example.com`.
-   *
-   *
+   * identifier) representing a user that has been recently deleted. For
+   * example, `alice@example.com?uid=123456789012345678901`. If the user is
+   * recovered, this value reverts to `user:{emailid}` and the recovered user
+   * retains the role in the binding. *
+   * `deleted:serviceAccount:{emailid}?uid={uniqueid}`: An email address (plus
+   * unique identifier) representing a service account that has been recently
+   * deleted. For example,
+   * `my-other-app@appspot.gserviceaccount.com?uid=123456789012345678901`. If
+   * the service account is undeleted, this value reverts to
+   * `serviceAccount:{emailid}` and the undeleted service account retains the
+   * role in the binding. * `deleted:group:{emailid}?uid={uniqueid}`: An email
+   * address (plus unique identifier) representing a Google group that has been
+   * recently deleted. For example,
+   * `admins@example.com?uid=123456789012345678901`. If the group is recovered,
+   * this value reverts to `group:{emailid}` and the recovered group retains the
+   * role in the binding. * `domain:{domain}`: The G Suite domain (primary) that
+   * represents all the users of that domain. For example, `google.com` or
+   * `example.com`.
    */
   set members(value: Array<string>|null) {
     this.Serializable$set('members', value);
@@ -1806,8 +1785,8 @@ export class Binding extends Serializable {
   }
 
   /**
-   * Role that is assigned to `members`.
-   * For example, `roles/viewer`, `roles/editor`, or `roles/owner`.
+   * Role that is assigned to `members`. For example, `roles/viewer`,
+   * `roles/editor`, or `roles/owner`.
    */
   set role(value: string|null) {
     this.Serializable$set('role', value);
@@ -1985,8 +1964,8 @@ export class ComputeFeaturesRequest extends Serializable {
 
   /**
    * An optional maximum number of results per page. The server may return fewer
-   * features than requested. If unspecified, server will pick an appropriate
-   * default.
+   * features than requested. If unspecified, the page size default is 1000
+   * reesults per page.
    */
   set pageSize(value: number|null) {
     this.Serializable$set('pageSize', value);
@@ -2001,8 +1980,7 @@ export class ComputeFeaturesRequest extends Serializable {
 
   /**
    * An optional token identifying a page of results the server should return.
-   * Typically, this is the value of
-   * ComputeFeaturesResponse.next_page_token
+   * Typically, this is the value of ComputeFeaturesResponse.next_page_token
    * returned from the previous call to the `ComputeFeatures` method.
    */
   set pageToken(value: string|null) {
@@ -2048,10 +2026,10 @@ export class ComputeFeaturesResponse extends Serializable {
   }
 
   /**
-   * The list of features matching the query, as a list of GeoJSON
-   * feature objects (see RFC 7946) containing the string \"Feature\" in
-   * a field named \"type\", the geometry in a field named \"geometry\",
-   * and key/value properties in a field named \"properties\".
+   * The list of features matching the query, as a list of GeoJSON feature
+   * objects (see RFC 7946) containing the string \"Feature\" in a field named
+   * \"type\", the geometry in a field named \"geometry\", and key/value
+   * properties in a field named \"properties\".
    */
   set features(value: Array<Feature>|null) {
     this.Serializable$set('features', value);
@@ -2066,9 +2044,8 @@ export class ComputeFeaturesResponse extends Serializable {
 
   /**
    * A token to retrieve the next page of results. Pass this value in the
-   * ComputeFeaturesRequest.page_token
-   * field in the subsequent call to the `ComputeFeatures` method
-   * to retrieve the next page of results.
+   * ComputeFeaturesRequest.page_token field in the subsequent call to the
+   * `ComputeFeatures` method to retrieve the next page of results.
    */
   set nextPageToken(value: string|null) {
     this.Serializable$set('nextPageToken', value);
@@ -2081,8 +2058,8 @@ export class ComputeFeaturesResponse extends Serializable {
   }
 
   /**
-   * Always contains the constant string \"FeatureCollection\", marking
-   * this as a GeoJSON FeatureCollection object.
+   * Always contains the constant string \"FeatureCollection\", marking this as
+   * a GeoJSON FeatureCollection object.
    */
   set type(value: string|null) {
     this.Serializable$set('type', value);
@@ -2142,8 +2119,8 @@ export class ComputeImagesRequest extends Serializable {
 
   /**
    * An optional maximum number of results per page. The server may return fewer
-   * images than requested. If unspecified, server will pick an appropriate
-   * default.
+   * images than requested If unspecified, the page size default is 1000
+   * reesults per page.
    */
   set pageSize(value: number|null) {
     this.Serializable$set('pageSize', value);
@@ -2158,8 +2135,7 @@ export class ComputeImagesRequest extends Serializable {
 
   /**
    * An optional token identifying a page of results the server should return.
-   * Typically, this is the value of
-   * ComputeImagesResponse.next_page_token
+   * Typically, this is the value of ComputeImagesResponse.next_page_token
    * returned from the previous call to the `ComputeImages` method.
    */
   set pageToken(value: string|null) {
@@ -2215,9 +2191,8 @@ export class ComputeImagesResponse extends Serializable {
 
   /**
    * A token to retrieve the next page of results. Pass this value in the
-   * ComputeImagesRequest.page_token
-   * field in the subsequent call to the `ComputeImages` method
-   * to retrieve the next page of results.
+   * ComputeImagesRequest.page_token field in the subsequent call to the
+   * `ComputeImages` method to retrieve the next page of results.
    */
   set nextPageToken(value: string|null) {
     this.Serializable$set('nextPageToken', value);
@@ -2272,9 +2247,9 @@ export class ComputePixelsRequest extends Serializable {
   }
 
   /**
-   * If present, specifies a specific set of bands that will be
-   * selected from the result of evaluating `expression`. If not
-   * present, all bands resulting from `expression` will be selected.
+   * If present, specifies a specific set of bands that will be selected from
+   * the result of evaluating `expression`. If not present, all bands resulting
+   * from `expression` will be selected.
    */
   set bandIds(value: Array<string>|null) {
     this.Serializable$set('bandIds', value);
@@ -2315,9 +2290,9 @@ export class ComputePixelsRequest extends Serializable {
   }
 
   /**
-   * Optional parameters describing how the image computed by
-   * `expression` should be reprojected and clipped. If not present, the
-   * full computed image is returned in its native projection.
+   * Optional parameters describing how the image computed by `expression`
+   * should be reprojected and clipped. If not present, the full computed image
+   * is returned in its native projection.
    */
   set grid(value: PixelGrid|null) {
     this.Serializable$set('grid', value);
@@ -2331,8 +2306,8 @@ export class ComputePixelsRequest extends Serializable {
   }
 
   /**
-   * If present, a set of visualization options to apply to produce an
-   * 8-bit RGB visualization of the data.
+   * If present, a set of visualization options to apply to produce an 8-bit RGB
+   * visualization of the data.
    */
   set visualizationOptions(value: VisualizationOptions|null) {
     this.Serializable$set('visualizationOptions', value);
@@ -2502,8 +2477,8 @@ export class Condition extends Serializable {
   }
 
   /**
-   * Trusted attributes supplied by any service that owns resources and uses
-   * the IAM system for access control.
+   * Trusted attributes supplied by any service that owns resources and uses the
+   * IAM system for access control.
    */
   set sys(value: ConditionSys|null) {
     this.Serializable$set('sys', value);
@@ -2566,8 +2541,8 @@ export class CopyAssetRequest extends Serializable {
   }
 
   /**
-   * A list of bands to include in the copy. If omitted, all bands
-   * will be copied.
+   * A list of bands to include in the copy. If omitted, all bands will be
+   * copied.
    */
   set bandIds(value: Array<string>|null) {
     this.Serializable$set('bandIds', value);
@@ -2581,13 +2556,13 @@ export class CopyAssetRequest extends Serializable {
   }
 
   /**
-   * The destination name to which to copy the asset.
-   * `name` is of the format \"projects/* /assets/**\"
-   * (e.g., \"projects/earthengine-legacy/assets/users/[USER]/[ASSET]\").
-   * All user-owned assets are under the project \"earthengine-legacy\"
-   * (e.g., \"projects/earthengine-legacy/assets/users/foo/bar\").
-   * All other assets are under the project \"earthengine-public\"
-   * (e.g., \"projects/earthengine-public/assets/LANDSAT\").
+   * The destination name to which to copy the asset. `name` is of the format
+   * \"projects/* /assets/**\" (e.g.,
+   * \"projects/earthengine-legacy/assets/users/[USER]/[ASSET]\"). All
+   * user-owned assets are under the project \"earthengine-legacy\" (e.g.,
+   * \"projects/earthengine-legacy/assets/users/foo/bar\"). All other assets are
+   * under the project \"earthengine-public\" (e.g.,
+   * \"projects/earthengine-public/assets/LANDSAT\").
    */
   set destinationName(value: string|null) {
     this.Serializable$set('destinationName', value);
@@ -2719,8 +2694,8 @@ export class CustomField extends Serializable {
 
   /**
    * Value is the field value. It is important that in contrast to the
-   * CounterOptions.field, the value here is a constant that is not
-   * derived from the IAMContext.
+   * CounterOptions.field, the value here is a constant that is not derived from
+   * the IAMContext.
    */
   set value(value: string|null) {
     this.Serializable$set('value', value);
@@ -2887,9 +2862,9 @@ export class DriveDestination extends Serializable {
 
   /**
    * The string used as the prefix for each output filename. The filenames of
-   * the exported files will be constructed from this prefix, the coordinates
-   * of each file in a mosaic (if any), and a file extension corresponding to
-   * the file format.
+   * the exported files will be constructed from this prefix, the coordinates of
+   * each file in a mosaic (if any), and a file extension corresponding to the
+   * file format.
    */
   set filenamePrefix(value: string|null) {
     this.Serializable$set('filenamePrefix', value);
@@ -2994,8 +2969,8 @@ export class EarthEngineAsset extends Serializable {
   }
 
   /**
-   * Information about the data bands of the image asset. Omitted for
-   * non-image assets.
+   * Information about the data bands of the image asset. Omitted for non-image
+   * assets.
    */
   set bands(value: Array<ImageBand>|null) {
     this.Serializable$set('bands', value);
@@ -3078,9 +3053,9 @@ export class EarthEngineAsset extends Serializable {
 
   /**
    * The ID of the asset. Equivalent to `name` without the \"projects/*
-   * /assets/\" prefix (e.g. \"users/<USER>/<ASSET>\"). Note that this is
-   * intended for display purposes only. It should not be used as an input to
-   * another operation. Use `name` instead.
+   * /assets/\" prefix (e.g. \"users//\"). Note that this is intended for
+   * display purposes only. It should not be used as an input to another
+   * operation. Use `name` instead.
    */
   set id(value: string|null) {
     this.Serializable$set('id', value);
@@ -3094,7 +3069,7 @@ export class EarthEngineAsset extends Serializable {
 
   /**
    * The name of the asset. `name` is of the format \"projects/* /assets/**\"
-   * (e.g. \"projects/earthengine-legacy/assets/users/<USER>/<ASSET>\").
+   * (e.g. \"projects/earthengine-legacy/assets/users//\").
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -3265,9 +3240,8 @@ export class EarthEngineDestination extends Serializable {
   }
 
   /**
-   * The name of the asset to be created.
-   * `name` is of the format \"projects/* /assets/**\"
-   * (e.g. \"projects/earthengine-legacy/assets/users/<USER>/<ASSET>\").
+   * The name of the asset to be created. `name` is of the format \"projects/*
+   * /assets/**\" (e.g. \"projects/earthengine-legacy/assets/users//\").
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -3365,8 +3339,8 @@ export class EarthEngineMap extends Serializable {
   }
 
   /**
-   * The resource name representing the map, of the form  \"projects/*
-   * /maps/**\" (e.g. \"projects/earthengine-legacy/maps/<MAP-ID>\").
+   * The resource name representing the map, of the form \"projects/* /maps/**\"
+   * (e.g. \"projects/earthengine-legacy/maps/\").
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -3380,8 +3354,8 @@ export class EarthEngineMap extends Serializable {
   }
 
   /**
-   * If present, a set of visualization options to apply to produce an
-   * 8-bit RGB visualization of the data.
+   * If present, a set of visualization options to apply to produce an 8-bit RGB
+   * visualization of the data.
    */
   set visualizationOptions(value: VisualizationOptions|null) {
     this.Serializable$set('visualizationOptions', value);
@@ -3526,9 +3500,9 @@ export class ExportImageRequest extends Serializable {
   }
 
   /**
-   * Optional parameters describing how the image computed by
-   * `expression` should be reprojected and clipped. If not present, the
-   * full computed image is returned in its native projection.
+   * Optional parameters describing how the image computed by `expression`
+   * should be reprojected and clipped. If not present, the full computed image
+   * is returned in its native projection.
    */
   set grid(value: PixelGrid|null) {
     this.Serializable$set('grid', value);
@@ -3574,8 +3548,8 @@ export class ExportImageRequest extends Serializable {
 
   /**
    * A unique string used to detect duplicated requests. If more than one
-   * request is made by the same user with the same non-empty `request_id`,
-   * only one of those requests may successfully start a long-running operation.
+   * request is made by the same user with the same non-empty `request_id`, only
+   * one of those requests may successfully start a long-running operation.
    * `request_id` may contain the characters a..z, A..Z, 0-9, or '-'.
    * `request_id` may be at most 60 characters long.
    */
@@ -3659,9 +3633,9 @@ export class ExportMapRequest extends Serializable {
   }
 
   /**
-   * An expression that evaluates to the image to compute and export. The
-   * bounds of the image will be used to determine the set of map tiles to
-   * render. To control the exported region, clip the image prior to exporting.
+   * An expression that evaluates to the image to compute and export. The bounds
+   * of the image will be used to determine the set of map tiles to render. To
+   * control the exported region, clip the image prior to exporting.
    */
   set expression(value: Expression|null) {
     this.Serializable$set('expression', value);
@@ -3690,8 +3664,8 @@ export class ExportMapRequest extends Serializable {
 
   /**
    * A unique string used to detect duplicated requests. If more than one
-   * request is made by the same user with the same non-empty `request_id`,
-   * only one of those requests may successfully start a long-running operation.
+   * request is made by the same user with the same non-empty `request_id`, only
+   * one of those requests may successfully start a long-running operation.
    * `request_id` may contain the characters a..z, A..Z, 0-9, or '-'.
    * `request_id` may be at most 60 characters long.
    */
@@ -3905,8 +3879,8 @@ export class ExportTableRequest extends Serializable {
 
   /**
    * A unique string used to detect duplicated requests. If more than one
-   * request is made by the same user with the same non-empty `request_id`,
-   * only one of those requests may successfully start a long-running operation.
+   * request is made by the same user with the same non-empty `request_id`, only
+   * one of those requests may successfully start a long-running operation.
    * `request_id` may contain the characters a..z, A..Z, 0-9, or '-'.
    * `request_id` may be at most 60 characters long.
    */
@@ -4017,8 +3991,8 @@ export class ExportVideoMapRequest extends Serializable {
 
   /**
    * An expression that evaluates to the image collection to compute and export
-   * as a video. The bounds of the first image will be used to determine the
-   * set of video map tiles to render. To control the exported region, clip the
+   * as a video. The bounds of the first image will be used to determine the set
+   * of video map tiles to render. To control the exported region, clip the
    * images prior to exporting.
    */
   set expression(value: Expression|null) {
@@ -4048,8 +4022,8 @@ export class ExportVideoMapRequest extends Serializable {
 
   /**
    * A unique string used to detect duplicated requests. If more than one
-   * request is made by the same user with the same non-empty `request_id`,
-   * only one of those requests may successfully start a long-running operation.
+   * request is made by the same user with the same non-empty `request_id`, only
+   * one of those requests may successfully start a long-running operation.
    * `request_id` may contain the characters a..z, A..Z, 0-9, or '-'.
    * `request_id` may be at most 60 characters long.
    */
@@ -4065,8 +4039,8 @@ export class ExportVideoMapRequest extends Serializable {
   }
 
   /**
-   * Options for where and in what form to export the video tiles. Cloud
-   * Storage is currently the only supported destination for video map exports.
+   * Options for where and in what form to export the video tiles. Cloud Storage
+   * is currently the only supported destination for video map exports.
    */
   set tileExportOptions(value: VideoFileExportOptions|null) {
     this.Serializable$set('tileExportOptions', value);
@@ -4235,8 +4209,8 @@ export class ExportVideoRequest extends Serializable {
 
   /**
    * A unique string used to detect duplicated requests. If more than one
-   * request is made by the same user with the same non-empty `request_id`,
-   * only one of those requests may successfully start a long-running operation.
+   * request is made by the same user with the same non-empty `request_id`, only
+   * one of those requests may successfully start a long-running operation.
    * `request_id` may contain the characters a..z, A..Z, 0-9, or '-'.
    * `request_id` may be at most 60 characters long.
    */
@@ -4351,9 +4325,8 @@ export class Expr extends Serializable {
   }
 
   /**
-   * Optional. Title for the expression, i.e. a short string describing
-   * its purpose. This can be used e.g. in UIs which allow to enter the
-   * expression.
+   * Optional. Title for the expression, i.e. a short string describing its
+   * purpose. This can be used e.g. in UIs which allow to enter the expression.
    */
   set title(value: string|null) {
     this.Serializable$set('title', value);
@@ -4454,9 +4427,9 @@ export class Feature extends Serializable {
   }
 
   /**
-   * The geometry of the feature.
-   * This will contain a `google.protobuf.Struct` if geometry is present for
-   * this feature. Otherwise, it will hold a `google.protobuf.NullValue`.
+   * The geometry of the feature. This will contain a `google.protobuf.Struct`
+   * if geometry is present for this feature. Otherwise, it will hold a
+   * `google.protobuf.NullValue`.
    */
   set geometry(value: any|null) {
     this.Serializable$set('geometry', value);
@@ -4470,9 +4443,9 @@ export class Feature extends Serializable {
   }
 
   /**
-   * The properties of the feature.
-   * This will contain a `google.protobuf.Struct` if properties are present for
-   * this feature. Otherwise, it will hold a `google.protobuf.NullValue`.
+   * The properties of the feature. This will contain a `google.protobuf.Struct`
+   * if properties are present for this feature. Otherwise, it will hold a
+   * `google.protobuf.NullValue`.
    */
   set properties(value: any|null) {
     this.Serializable$set('properties', value);
@@ -4568,8 +4541,8 @@ export class FilmstripThumbnail extends Serializable {
   }
 
   /**
-   * An optional pixel grid describing how the images computed by
-   * `expression` are reprojected and clipped.
+   * An optional pixel grid describing how the images computed by `expression`
+   * are reprojected and clipped.
    */
   set grid(value: PixelGrid|null) {
     this.Serializable$set('grid', value);
@@ -4583,8 +4556,8 @@ export class FilmstripThumbnail extends Serializable {
 
   /**
    * The resource name representing the filmstrip thumbnail, of the form
-   * \"projects/* /filmstripThumbnails/**\"
-   * (e.g. \"projects/earthengine-legacy/filmstripThumbnails/<FILMSTRIP-ID>\").
+   * \"projects/* /filmstripThumbnails/**\" (e.g.
+   * \"projects/earthengine-legacy/filmstripThumbnails/\").
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -4746,8 +4719,8 @@ export class FunctionDefinition extends Serializable {
   }
 
   /**
-   * The function body itself, as a reference to one of the ValueNodes in
-   * the enclosing Expression.
+   * The function body itself, as a reference to one of the ValueNodes in the
+   * enclosing Expression.
    */
   set body(value: string|null) {
     this.Serializable$set('body', value);
@@ -4819,10 +4792,10 @@ export class FunctionInvocation extends Serializable {
   }
 
   /**
-   * A reference to a function-valued value. This is usually a direct
-   * reference to a FunctionDefinition value, but need not be: it could be a
-   * reference to a FunctionInvocation whose result is a function, or to a
-   * function-valued argument value.
+   * A reference to a function-valued value. This is usually a direct reference
+   * to a FunctionDefinition value, but need not be: it could be a reference to
+   * a FunctionInvocation whose result is a function, or to a function-valued
+   * argument value.
    */
   set functionReference(value: string|null) {
     this.Serializable$set('functionReference', value);
@@ -4913,8 +4886,8 @@ export class GcsDestination extends Serializable {
   /**
    * The string used as the prefix for each output file. A trailing \"/\"
    * indicates a path. The filenames of the exported files will be constructed
-   * from this prefix, the coordinates of each file in a mosaic (if any), and
-   * a file extension corresponding to the file format.
+   * from this prefix, the coordinates of each file in a mosaic (if any), and a
+   * file extension corresponding to the file format.
    */
   set filenamePrefix(value: string|null) {
     this.Serializable$set('filenamePrefix', value);
@@ -5135,8 +5108,8 @@ export class GetPixelsRequest extends Serializable {
 
   /**
    * If present, specifies a specific set of bands from which to get pixels.
-   * Bands are identified by id, as indicated by the `id` field of an
-   * ImageBand proto.
+   * Bands are identified by id, as indicated by the `id` field of an ImageBand
+   * proto.
    */
   set bandIds(value: Array<string>|null) {
     this.Serializable$set('bandIds', value);
@@ -5178,10 +5151,10 @@ export class GetPixelsRequest extends Serializable {
 
   /**
    * If present, the region of data to return, specified as a GeoJSON geometry
-   * object (see RFC 7946). Since the returned image is always rectangular,
-   * the bounding box of the given geometry in the output coordinate system
-   * will actually be used.  If `grid.dimensions` is also specified then the
-   * grid will finally be rescaled to the requested size.
+   * object (see RFC 7946). Since the returned image is always rectangular, the
+   * bounding box of the given geometry in the output coordinate system will
+   * actually be used. If `grid.dimensions` is also specified then the grid will
+   * finally be rescaled to the requested size.
    */
   set region(value: ApiClientObjectMap<any>|null) {
     this.Serializable$set('region', value);
@@ -5195,8 +5168,8 @@ export class GetPixelsRequest extends Serializable {
   }
 
   /**
-   * If present, a set of visualization options to apply to produce an
-   * 8-bit RGB visualization of the data, rather than returning the raw data.
+   * If present, a set of visualization options to apply to produce an 8-bit RGB
+   * visualization of the data, rather than returning the raw data.
    */
   set visualizationOptions(value: VisualizationOptions|null) {
     this.Serializable$set('visualizationOptions', value);
@@ -5244,17 +5217,12 @@ export class GetPolicyOptions extends Serializable {
   }
 
   /**
-   * Optional. The policy format version to be returned.
-   *
-   * Valid values are 0, 1, and 3. Requests specifying an invalid value will be
-   * rejected.
-   *
-   * Requests for policies with any conditional bindings must specify version 3.
-   * Policies without any conditional bindings may specify any valid value or
-   * leave the field unset.
-   *
-   * To learn which resources support conditions in their IAM policies, see the
-   * [IAM
+   * Optional. The policy format version to be returned. Valid values are 0, 1,
+   * and 3. Requests specifying an invalid value will be rejected. Requests for
+   * policies with any conditional bindings must specify version 3. Policies
+   * without any conditional bindings may specify any valid value or leave the
+   * field unset. To learn which resources support conditions in their IAM
+   * policies, see the [IAM
    * documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
    */
   set requestedPolicyVersion(value: number|null) {
@@ -5555,9 +5523,8 @@ export class Image extends Serializable {
 
   /**
    * The ID of the image, if present. Equivalent to `name` without the
-   * \"projects/* /assets/\" prefix (e.g. \"users/<USER>/<ASSET>\").
-   * This should typically be present for stored images, but will be the empty
-   * string for computed ones.
+   * \"projects/* /assets/\" prefix (e.g. \"users//\"). This should typically be
+   * present for stored images, but will be the empty string for computed ones.
    */
   set id(value: string|null) {
     this.Serializable$set('id', value);
@@ -5570,11 +5537,10 @@ export class Image extends Serializable {
   }
 
   /**
-   * The name of the image, if present. `name` is of the format
-   * \"projects/* /assets/**\"
-   * (e.g. \"projects/earthengine-legacy/assets/users/<USER>/<ASSET>\").
-   * This should typically be present for stored images, but will be the empty
-   * string for computed ones.
+   * The name of the image, if present. `name` is of the format \"projects/*
+   * /assets/**\" (e.g. \"projects/earthengine-legacy/assets/users//\"). This
+   * should typically be present for stored images, but will be the empty string
+   * for computed ones.
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -5602,9 +5568,8 @@ export class Image extends Serializable {
   }
 
   /**
-   * The size of a leaf asset (e.g. an image) in bytes.
-   * This should typically be non-zero for stored images, and zero for computed
-   * ones.
+   * The size of a leaf asset (e.g. an image) in bytes. This should typically be
+   * non-zero for stored images, and zero for computed ones.
    */
   set sizeBytes(value: string|null) {
     this.Serializable$set('sizeBytes', value);
@@ -5776,9 +5741,9 @@ export class ImageAssetExportOptions extends Serializable {
   }
 
   /**
-   * Tile size in the generated raster files.  The default (256) is appropriate
+   * Tile size in the generated raster files. The default (256) is appropriate
    * for scalar bands, but may need to be reduced for assets with array-valued
-   * pixels.  Note that a single value is used for all bands.
+   * pixels. Note that a single value is used for all bands.
    */
   set tileSize(value: number|null) {
     this.Serializable$set('tileSize', value);
@@ -6164,9 +6129,9 @@ export class ImageManifest extends Serializable {
   }
 
   /**
-   * The footprint in pixel coordinates (not in lat/lng coordinates).
-   * If empty, the footprint is by default the entire image.
-   * See `PixelGrid` for a more detailed description of pixel coordinates.
+   * The footprint in pixel coordinates (not in lat/lng coordinates). If empty,
+   * the footprint is by default the entire image. See `PixelGrid` for a more
+   * detailed description of pixel coordinates.
    */
   set footprint(value: PixelFootprint|null) {
     this.Serializable$set('footprint', value);
@@ -6208,13 +6173,12 @@ export class ImageManifest extends Serializable {
   }
 
   /**
-   * The name of the asset to be created.
-   * `name` is of the format \"projects/* /assets/**\"
-   * (e.g. \"projects/earthengine-legacy/assets/users/<USER>/<ASSET>\").
-   * All user-owned assets are under the project \"earthengine-legacy\"
-   * (e.g. \"projects/earthengine-legacy/assets/users/foo/bar\").
-   * All other assets are under the project \"earthengine-public\"
-   * (e.g. \"projects/earthengine-public/assets/LANDSAT\").
+   * The name of the asset to be created. `name` is of the format \"projects/*
+   * /assets/**\" (e.g. \"projects/earthengine-legacy/assets/users//\"). All
+   * user-owned assets are under the project \"earthengine-legacy\" (e.g.
+   * \"projects/earthengine-legacy/assets/users/foo/bar\"). All other assets are
+   * under the project \"earthengine-public\" (e.g.
+   * \"projects/earthengine-public/assets/LANDSAT\").
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -6291,8 +6255,7 @@ export class ImageManifest extends Serializable {
   }
 
   /**
-   * The optional prefix prepended to all `uri`s defined in this
-   * manifest.
+   * The optional prefix prepended to all `uri`s defined in this manifest.
    */
   set uriPrefix(value: string|null) {
     this.Serializable$set('uriPrefix', value);
@@ -6366,10 +6329,9 @@ export class ImageSource extends Serializable {
   /**
    * The URIs of the data to import. Currently, only Google Cloud Storage URIs
    * are supported. Each URI must be specified in the following format:
-   * \"gs://bucket-id/object-id\".
-   * The primary object should be the first element of the list, and sidecars
-   * listed afterwards. Each URI is prefixed with
-   * `ImageManifest.uri_prefix` if set.
+   * \"gs://bucket-id/object-id\". The primary object should be the first
+   * element of the list, and sidecars listed afterwards. Each URI is prefixed
+   * with `ImageManifest.uri_prefix` if set.
    */
   set uris(value: Array<string>|null) {
     this.Serializable$set('uris', value);
@@ -6462,8 +6424,8 @@ export class ImportImageRequest extends Serializable {
 
   /**
    * A unique string used to detect duplicated requests. If more than one
-   * request is made by the same user with the same non-empty `request_id`,
-   * only one of those requests may successfully start a long-running operation.
+   * request is made by the same user with the same non-empty `request_id`, only
+   * one of those requests may successfully start a long-running operation.
    * `request_id` may contain the characters a..z, A..Z, 0-9, or '-'.
    * `request_id` may be at most 60 characters long.
    */
@@ -6544,8 +6506,8 @@ export class ImportTableRequest extends Serializable {
 
   /**
    * A unique string used to detect duplicated requests. If more than one
-   * request is made by the same user with the same non-empty `request_id`,
-   * only one of those requests may successfully start a long-running operation.
+   * request is made by the same user with the same non-empty `request_id`, only
+   * one of those requests may successfully start a long-running operation.
    * `request_id` may contain the characters a..z, A..Z, 0-9, or '-'.
    * `request_id` may be at most 60 characters long.
    */
@@ -6599,9 +6561,8 @@ export class LinkAssetRequest extends Serializable {
   }
 
   /**
-   * The destination name to which we are linking the asset.
-   * `name` is of the format \"projects/* /assets\"
-   * (e.g., \"projects/my-project/assets\").
+   * The destination name to which we are linking the asset. `name` is of the
+   * format \"projects/* /assets\" (e.g., \"projects/my-project/assets\").
    */
   set destinationName(value: string|null) {
     this.Serializable$set('destinationName', value);
@@ -6688,9 +6649,8 @@ export class ListAssetsResponse extends Serializable {
 
   /**
    * A token to retrieve the next page of results. Pass this value in the
-   * ListAssetsRequest.page_token
-   * field in the subsequent call to the `ListAssets` method to
-   * retrieve the next page of results.
+   * ListAssetsRequest.page_token field in the subsequent call to the
+   * `ListAssets` method to retrieve the next page of results.
    */
   set nextPageToken(value: string|null) {
     this.Serializable$set('nextPageToken', value);
@@ -6735,10 +6695,10 @@ export class ListFeaturesResponse extends Serializable {
   }
 
   /**
-   * The list of features matching the query, as a list of GeoJSON
-   * feature objects (see RFC 7946) containing the string \"Feature\" in
-   * a field named \"type\", the geometry in a field named \"geometry\",
-   * and key/value properties in a field named \"properties\".
+   * The list of features matching the query, as a list of GeoJSON feature
+   * objects (see RFC 7946) containing the string \"Feature\" in a field named
+   * \"type\", the geometry in a field named \"geometry\", and key/value
+   * properties in a field named \"properties\".
    */
   set features(value: Array<Feature>|null) {
     this.Serializable$set('features', value);
@@ -6753,9 +6713,8 @@ export class ListFeaturesResponse extends Serializable {
 
   /**
    * A token to retrieve the next page of results. Pass this value in the
-   * ListFeaturesRequest.page_token
-   * field in the subsequent call to the `ListFeatures` method
-   * to retrieve the next page of results.
+   * ListFeaturesRequest.page_token field in the subsequent call to the
+   * `ListFeatures` method to retrieve the next page of results.
    */
   set nextPageToken(value: string|null) {
     this.Serializable$set('nextPageToken', value);
@@ -6768,8 +6727,8 @@ export class ListFeaturesResponse extends Serializable {
   }
 
   /**
-   * Always contains the constant string \"FeatureCollection\", marking
-   * this as a GeoJSON FeatureCollection object.
+   * Always contains the constant string \"FeatureCollection\", marking this as
+   * a GeoJSON FeatureCollection object.
    */
   set type(value: string|null) {
     this.Serializable$set('type', value);
@@ -6824,9 +6783,8 @@ export class ListImagesResponse extends Serializable {
 
   /**
    * A token to retrieve the next page of results. Pass this value in the
-   * ListImagesRequest.page_token
-   * field in the subsequent call to the `ListImages` method to retrieve the
-   * next page of results.
+   * ListImagesRequest.page_token field in the subsequent call to the
+   * `ListImages` method to retrieve the next page of results.
    */
   set nextPageToken(value: string|null) {
     this.Serializable$set('nextPageToken', value);
@@ -7026,13 +6984,13 @@ export class MoveAssetRequest extends Serializable {
   }
 
   /**
-   * The destination name to which to move the asset.
-   * `name` is of the format \"projects/* /assets/**\"
-   * (e.g., \"projects/earthengine-legacy/assets/users/[USER]/[ASSET]\").
-   * All user-owned assets are under the project \"earthengine-legacy\"
-   * (e.g., \"projects/earthengine-legacy/assets/users/foo/bar\").
-   * All other assets are under the project \"earthengine-public\"
-   * (e.g., \"projects/earthengine-public/assets/LANDSAT\").
+   * The destination name to which to move the asset. `name` is of the format
+   * \"projects/* /assets/**\" (e.g.,
+   * \"projects/earthengine-legacy/assets/users/[USER]/[ASSET]\"). All
+   * user-owned assets are under the project \"earthengine-legacy\" (e.g.,
+   * \"projects/earthengine-legacy/assets/users/foo/bar\"). All other assets are
+   * under the project \"earthengine-public\" (e.g.,
+   * \"projects/earthengine-public/assets/LANDSAT\").
    */
   set destinationName(value: string|null) {
     this.Serializable$set('destinationName', value);
@@ -7078,8 +7036,8 @@ export class Operation extends Serializable {
   }
 
   /**
-   * If the value is `false`, it means the operation is still in progress.
-   * If `true`, the operation is completed, and either `error` or `response` is
+   * If the value is `false`, it means the operation is still in progress. If
+   * `true`, the operation is completed, and either `error` or `response` is
    * available.
    */
   set done(value: boolean|null) {
@@ -7107,9 +7065,9 @@ export class Operation extends Serializable {
   }
 
   /**
-   * Service-specific metadata associated with the operation.  It typically
-   * contains progress information and common metadata such as create time.
-   * Some services might not provide such metadata.  Any method that returns a
+   * Service-specific metadata associated with the operation. It typically
+   * contains progress information and common metadata such as create time. Some
+   * services might not provide such metadata. Any method that returns a
    * long-running operation should document the metadata type, if any.
    */
   set metadata(value: ApiClientObjectMap<any>|null) {
@@ -7124,8 +7082,8 @@ export class Operation extends Serializable {
 
   /**
    * The server-assigned name, which is only unique within the same service that
-   * originally returns it. If you use the default HTTP mapping, the
-   * `name` should be a resource name ending with `operations/{unique_id}`.
+   * originally returns it. If you use the default HTTP mapping, the `name`
+   * should be a resource name ending with `operations/{unique_id}`.
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -7139,14 +7097,13 @@ export class Operation extends Serializable {
   }
 
   /**
-   * The normal response of the operation in case of success.  If the original
+   * The normal response of the operation in case of success. If the original
    * method returns no data on success, such as `Delete`, the response is
-   * `google.protobuf.Empty`.  If the original method is standard
-   * `Get`/`Create`/`Update`, the response should be the resource.  For other
-   * methods, the response should have the type `XxxResponse`, where `Xxx`
-   * is the original method name.  For example, if the original method name
-   * is `TakeSnapshot()`, the inferred response type is
-   * `TakeSnapshotResponse`.
+   * `google.protobuf.Empty`. If the original method is standard
+   * `Get`/`Create`/`Update`, the response should be the resource. For other
+   * methods, the response should have the type `XxxResponse`, where `Xxx` is
+   * the original method name. For example, if the original method name is
+   * `TakeSnapshot()`, the inferred response type is `TakeSnapshotResponse`.
    */
   set response(value: ApiClientObjectMap<any>|null) {
     this.Serializable$set('response', value);
@@ -7482,8 +7439,8 @@ export class PixelFootprint extends Serializable {
   }
 
   /**
-   * The ID of the band whose CRS defines the coordinates of the footprint.
-   * If empty, the first band is used.
+   * The ID of the band whose CRS defines the coordinates of the footprint. If
+   * empty, the first band is used.
    */
   set bandId(value: string|null) {
     this.Serializable$set('bandId', value);
@@ -7499,22 +7456,17 @@ export class PixelFootprint extends Serializable {
    * A ring which forms the exterior of a simple polygon that must contain the
    * centers of all valid pixels of the image. This must be a linear ring: the
    * last point must be equal to the first. Coordinates are in the projection of
-   * the band specified by `band_id`.
-   *
-   * Note: Use non-integer coordinates such as the center of each pixel because
-   * footprint is taken to include a pixel iff the pixel (a 1x1 rectangle)
-   * intersects the footprint. To avoid accidentally selecting neighboring
-   * pixels, don't use integer-valued coordinates, because those are the
-   * boundaries between pixels. Drawing the footprint along the pixel centers
-   * prevents including unintended pixels, which can cause errors when
-   * intended pixels are abutting a map boundary such as the antimeridian
-   * or a pole.
-   *
-   * For example, for a 2x2 image with all 4 valid pixels the following is one
-   * possible ring:
-   * [{\"x\": 0.5, \"y\": 0.5}, {\"x\": 0.5, \"y\": 1.5}, {\"x\": 1.5,
-   * \"y\": 1.5},
-   *  {\"x\": 1.5, \"y\": 0.5}, {\"x\": 0.5, \"y\": 0.5}]
+   * the band specified by `band_id`. Note: Use non-integer coordinates such as
+   * the center of each pixel because footprint is taken to include a pixel iff
+   * the pixel (a 1x1 rectangle) intersects the footprint. To avoid accidentally
+   * selecting neighboring pixels, don't use integer-valued coordinates, because
+   * those are the boundaries between pixels. Drawing the footprint along the
+   * pixel centers prevents including unintended pixels, which can cause errors
+   * when intended pixels are abutting a map boundary such as the antimeridian
+   * or a pole. For example, for a 2x2 image with all 4 valid pixels the
+   * following is one possible ring: [{\"x\": 0.5, \"y\": 0.5}, {\"x\": 0.5,
+   * \"y\": 1.5}, {\"x\": 1.5, \"y\": 1.5}, {\"x\": 1.5, \"y\": 0.5}, {\"x\":
+   * 0.5, \"y\": 0.5}]
    */
   set points(value: Array<GridPoint>|null) {
     this.Serializable$set('points', value);
@@ -7686,14 +7638,13 @@ export class Policy extends Serializable {
   }
 
   /**
-   * `etag` is used for optimistic concurrency control as a way to help
-   * prevent simultaneous updates of a policy from overwriting each other.
-   * It is strongly suggested that systems make use of the `etag` in the
+   * `etag` is used for optimistic concurrency control as a way to help prevent
+   * simultaneous updates of a policy from overwriting each other. It is
+   * strongly suggested that systems make use of the `etag` in the
    * read-modify-write cycle to perform policy updates in order to avoid race
    * conditions: An `etag` is returned in the response to `getIamPolicy`, and
    * systems are expected to put that etag in the request to `setIamPolicy` to
    * ensure that their change will be applied to the same version of the policy.
-   *
    * **Important:** If you use IAM Conditions, you must include the `etag` field
    * whenever you call `setIamPolicy`. If you omit this field, then IAM allows
    * you to overwrite a version `3` policy with a version `1` policy, and all of
@@ -7722,14 +7673,12 @@ export class Policy extends Serializable {
 
   /**
    * If more than one rule is specified, the rules are applied in the following
-   * manner:
-   * - All matching LOG rules are always applied.
-   * - If any DENY/DENY_WITH_LOG rule matches, permission is denied.
-   *   Logging will be applied if one or more matching rule requires logging.
-   * - Otherwise, if any ALLOW/ALLOW_WITH_LOG rule matches, permission is
-   *   granted.
-   *   Logging will be applied if one or more matching rule requires logging.
-   * - Otherwise, if no rule applies, permission is denied.
+   * manner: - All matching LOG rules are always applied. - If any
+   * DENY/DENY_WITH_LOG rule matches, permission is denied. Logging will be
+   * applied if one or more matching rule requires logging. - Otherwise, if any
+   * ALLOW/ALLOW_WITH_LOG rule matches, permission is granted. Logging will be
+   * applied if one or more matching rule requires logging. - Otherwise, if no
+   * rule applies, permission is denied.
    */
   set rules(value: Array<Rule>|null) {
     this.Serializable$set('rules', value);
@@ -7743,30 +7692,20 @@ export class Policy extends Serializable {
   }
 
   /**
-   * Specifies the format of the policy.
-   *
-   * Valid values are `0`, `1`, and `3`. Requests that specify an invalid value
-   * are rejected.
-   *
-   * Any operation that affects conditional role bindings must specify version
-   * `3`. This requirement applies to the following operations:
-   *
-   * * Getting a policy that includes a conditional role binding
-   * * Adding a conditional role binding to a policy
-   * * Changing a conditional role binding in a policy
-   * * Removing any role binding, with or without a condition, from a policy
-   *   that includes conditions
-   *
-   * **Important:** If you use IAM Conditions, you must include the `etag` field
-   * whenever you call `setIamPolicy`. If you omit this field, then IAM allows
-   * you to overwrite a version `3` policy with a version `1` policy, and all of
-   * the conditions in the version `3` policy are lost.
-   *
-   * If a policy does not include any conditions, operations on that policy may
-   * specify any valid version or leave the field unset.
-   *
-   * To learn which resources support conditions in their IAM policies, see the
-   * [IAM
+   * Specifies the format of the policy. Valid values are `0`, `1`, and `3`.
+   * Requests that specify an invalid value are rejected. Any operation that
+   * affects conditional role bindings must specify version `3`. This
+   * requirement applies to the following operations: * Getting a policy that
+   * includes a conditional role binding * Adding a conditional role binding to
+   * a policy * Changing a conditional role binding in a policy * Removing any
+   * role binding, with or without a condition, from a policy that includes
+   * conditions **Important:** If you use IAM Conditions, you must include the
+   * `etag` field whenever you call `setIamPolicy`. If you omit this field, then
+   * IAM allows you to overwrite a version `3` policy with a version `1` policy,
+   * and all of the conditions in the version `3` policy are lost. If a policy
+   * does not include any conditions, operations on that policy may specify any
+   * valid version or leave the field unset. To learn which resources support
+   * conditions in their IAM policies, see the [IAM
    * documentation](https://cloud.google.com/iam/help/conditions/resource-policies).
    */
   set version(value: number|null) {
@@ -7869,8 +7808,8 @@ export class Rule extends Serializable {
   }
 
   /**
-   * If one or more 'in' clauses are specified, the rule matches if
-   * the PRINCIPAL/AUTHORITY_SELECTOR is in at least one of these entries.
+   * If one or more 'in' clauses are specified, the rule matches if the
+   * PRINCIPAL/AUTHORITY_SELECTOR is in at least one of these entries.
    */
   set in(value: Array<string>|null) {
     this.Serializable$set('in', value);
@@ -7898,10 +7837,10 @@ export class Rule extends Serializable {
   }
 
   /**
-   * If one or more 'not_in' clauses are specified, the rule matches
-   * if the PRINCIPAL/AUTHORITY_SELECTOR is in none of the entries.
-   * The format for in and not_in entries can be found at in the Local IAM
-   * documentation (see go/local-iam#features).
+   * If one or more 'not_in' clauses are specified, the rule matches if the
+   * PRINCIPAL/AUTHORITY_SELECTOR is in none of the entries. The format for in
+   * and not_in entries can be found at in the Local IAM documentation (see
+   * go/local-iam#features).
    */
   set notIn(value: Array<string>|null) {
     this.Serializable$set('notIn', value);
@@ -7915,9 +7854,9 @@ export class Rule extends Serializable {
   }
 
   /**
-   * A permission is a string of form '<service>.<resource type>.<verb>'
-   * (e.g., 'storage.buckets.list'). A value of '*' matches all permissions,
-   * and a verb part of '*' (e.g., 'storage.buckets.*') matches all verbs.
+   * A permission is a string of form '..' (e.g., 'storage.buckets.list'). A
+   * value of '*' matches all permissions, and a verb part of '*' (e.g.,
+   * 'storage.buckets.*') matches all verbs.
    */
   set permissions(value: Array<string>|null) {
     this.Serializable$set('permissions', value);
@@ -7961,9 +7900,8 @@ export class SetIamPolicyRequest extends Serializable {
 
   /**
    * REQUIRED: The complete policy to be applied to the `resource`. The size of
-   * the policy is limited to a few 10s of KB. An empty policy is a
-   * valid policy but certain Cloud Platform services (such as Projects)
-   * might reject them.
+   * the policy is limited to a few 10s of KB. An empty policy is a valid policy
+   * but certain Cloud Platform services (such as Projects) might reject them.
    */
   set policy(value: Policy|null) {
     this.Serializable$set('policy', value);
@@ -7979,9 +7917,7 @@ export class SetIamPolicyRequest extends Serializable {
   /**
    * OPTIONAL: A FieldMask specifying which fields of the policy to modify. Only
    * the fields in the mask will be modified. If no mask is provided, the
-   * following default mask is used:
-   *
-   * `paths: \"bindings, etag\"`
+   * following default mask is used: `paths: \"bindings, etag\"`
    */
   set updateMask(value: string|null) {
     this.Serializable$set('updateMask', value);
@@ -8035,7 +7971,7 @@ export class Status extends Serializable {
   }
 
   /**
-   * A list of messages that carry the error details.  There is a common set of
+   * A list of messages that carry the error details. There is a common set of
    * message types for APIs to use.
    */
   set details(value: Array<ApiClientObjectMap<any>>|null) {
@@ -8156,9 +8092,8 @@ export class Table extends Serializable {
   }
 
   /**
-   * The resource name representing the thumbnail, of the form
-   * \"projects/* /tables/**\"
-   * (e.g. \"projects/earthengine-legacy/tables/<THUMBNAIL-ID>\").
+   * The resource name representing the thumbnail, of the form \"projects/*
+   * /tables/**\" (e.g. \"projects/earthengine-legacy/tables/\").
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -8366,13 +8301,12 @@ export class TableManifest extends Serializable {
   }
 
   /**
-   * The name of the asset to be created.
-   * `name` is of the format \"projects/* /assets/**\"
-   * (e.g. \"projects/earthengine-legacy/assets/users/<USER>/<ASSET>\").
-   * All user-owned assets are under the project \"earthengine-legacy\"
-   * (e.g. \"projects/earthengine-legacy/assets/users/foo/bar\").
-   * All other assets are under the project \"earthengine-public\"
-   * (e.g. \"projects/earthengine-public/assets/LANDSAT\").
+   * The name of the asset to be created. `name` is of the format \"projects/*
+   * /assets/**\" (e.g. \"projects/earthengine-legacy/assets/users//\"). All
+   * user-owned assets are under the project \"earthengine-legacy\" (e.g.
+   * \"projects/earthengine-legacy/assets/users/foo/bar\"). All other assets are
+   * under the project \"earthengine-public\" (e.g.
+   * \"projects/earthengine-public/assets/LANDSAT\").
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -8433,8 +8367,7 @@ export class TableManifest extends Serializable {
   }
 
   /**
-   * The optional prefix prepended to all `uri`s defined in this
-   * manifest.
+   * The optional prefix prepended to all `uri`s defined in this manifest.
    */
   set uriPrefix(value: string|null) {
     this.Serializable$set('uriPrefix', value);
@@ -8526,8 +8459,8 @@ export class TableSource extends Serializable {
   }
 
   /**
-   * The name of the default charset to use for decoding strings. If empty,
-   * the charset \"utf-8\" is assumed by default.
+   * The name of the default charset to use for decoding strings. If empty, the
+   * charset \"utf-8\" is assumed by default.
    */
   set charset(value: string|null) {
     this.Serializable$set('charset', value);
@@ -8575,19 +8508,11 @@ export class TableSource extends Serializable {
   /**
    * When ingesting CSV files, a character that surrounds column values (a.k.a.
    * \"quote character\"). If left blank, defaults to '\"'. For CSV sources
-   * only.
-   *
-   * If a column value is not surrounded by qualifiers, leading and tailing
-   * whitespace is trimmed.
-   * For example:
-   *    ..., test,...            <== this value is not qualified
-   * becomes the string value:
-   *    \"test\"                   <== whitespace is stripped
-   *
-   * where:
-   *    ...,\" test\",...          <== this value IS qualified with quotes
-   * becomes the string value:
-   *    \" test\"                  <== whitespace remains!
+   * only. If a column value is not surrounded by qualifiers, leading and
+   * tailing whitespace is trimmed. For example: ..., test,... <== this value is
+   * not qualified becomes the string value: \"test\" <== whitespace is stripped
+   * where: ...,\" test\",... <== this value IS qualified with quotes becomes
+   * the string value: \" test\" <== whitespace remains!
    */
   set csvQualifier(value: string|null) {
     this.Serializable$set('csvQualifier', value);
@@ -8668,10 +8593,9 @@ export class TableSource extends Serializable {
 
   /**
    * The geometry column to use as a row's primary geometry when there is more
-   * than one geometry column.
-   *
-   * If left blank and more than one geometry column exists, the first geometry
-   * column encountered is used. For CSV/TFRecord sources only.
+   * than one geometry column. If left blank and more than one geometry column
+   * exists, the first geometry column encountered is used. For CSV/TFRecord
+   * sources only.
    */
   set primaryGeometryColumn(value: string|null) {
     this.Serializable$set('primaryGeometryColumn', value);
@@ -8686,11 +8610,10 @@ export class TableSource extends Serializable {
   /**
    * The URIs of the data to import. Currently only Google Cloud Storage URIs
    * are supported. Each URI must be specified in the following format:
-   * \"gs://bucket-id/object-id\".
-   * The primary object should be the first element of the list, sidecar files
-   * are inferred from the filepath of the primary object. Only one URI is
-   * currently supported. If more than one URI is specified an
-   * `INALID_ARGUMENT` error is returned.
+   * \"gs://bucket-id/object-id\". The primary object should be the first
+   * element of the list, sidecar files are inferred from the filepath of the
+   * primary object. Only one URI is currently supported. If more than one URI
+   * is specified an `INALID_ARGUMENT` error is returned.
    */
   set uris(value: Array<string>|null) {
     this.Serializable$set('uris', value);
@@ -8710,10 +8633,9 @@ export class TableSource extends Serializable {
    * coordinate system given in 'crs'. If left blank and 'crs' does _not_
    * specify a projected coordinate system, defaults to \"longitude\". If left
    * blank and 'crs' _does_ specify a projected coordinate system, defaults to
-   * \"\" and no point geometry is generated.
-   *
-   * A generated point geometry column will be named {x_column}_{y_column}_N
-   * where N is appended such that {x_column}_{y_column}_N is unique if a column
+   * \"\" and no point geometry is generated. A generated point geometry column
+   * will be named {x_column}_{y_column}_N where N is appended such
+   * that {x_column}_{y_column}_N is unique if a column
    * named {x_column}_{y_column} already exists. For CSV/TFRecord sources only.
    */
   set xColumn(value: string|null) {
@@ -8734,10 +8656,9 @@ export class TableSource extends Serializable {
    * coordinate system given in 'crs'. If left blank and 'crs' does _not_
    * specify a projected coordinate system, defaults to \"latitude\". If left
    * blank and 'crs' _does_ specify a projected coordinate system, defaults to
-   * \"\" and no point geometry is generated.
-   *
-   * A generated point geometry column will be named {x_column}_{y_column}_N
-   * where N is appended such that {x_column}_{y_column}_N is unique if a column
+   * \"\" and no point geometry is generated. A generated point geometry column
+   * will be named {x_column}_{y_column}_N where N is appended such
+   * that {x_column}_{y_column}_N is unique if a column
    * named {x_column}_{y_column} already exists. For CSV/TFRecord sources only.
    */
   set yColumn(value: string|null) {
@@ -8780,8 +8701,8 @@ export class TestIamPermissionsRequest extends Serializable {
   /**
    * The set of permissions to check for the `resource`. Permissions with
    * wildcards (such as '*' or 'storage.*') are not allowed. For more
-   * information see
-   * [IAM Overview](https://cloud.google.com/iam/docs/overview#permissions).
+   * information see [IAM
+   * Overview](https://cloud.google.com/iam/docs/overview#permissions).
    */
   set permissions(value: Array<string>|null) {
     this.Serializable$set('permissions', value);
@@ -9102,9 +9023,9 @@ export class Thumbnail extends Serializable {
   }
 
   /**
-   * If present, specifies a specific set of bands that will be
-   * selected from the result of evaluating `expression`. If not
-   * present, all bands resulting from `expression` will be selected.
+   * If present, specifies a specific set of bands that will be selected from
+   * the result of evaluating `expression`. If not present, all bands resulting
+   * from `expression` will be selected.
    */
   set bandIds(value: Array<string>|null) {
     this.Serializable$set('bandIds', value);
@@ -9159,8 +9080,8 @@ export class Thumbnail extends Serializable {
   }
 
   /**
-   * An optional pixel grid describing how the image computed by
-   * `expression` is reprojected and clipped.
+   * An optional pixel grid describing how the image computed by `expression` is
+   * reprojected and clipped.
    */
   set grid(value: PixelGrid|null) {
     this.Serializable$set('grid', value);
@@ -9173,9 +9094,8 @@ export class Thumbnail extends Serializable {
   }
 
   /**
-   * The resource name representing the thumbnail, of the form
-   * \"projects/* /thumbnails/**\"
-   * (e.g. \"projects/earthengine-legacy/thumbnails/<THUMBNAIL-ID>\").
+   * The resource name representing the thumbnail, of the form \"projects/*
+   * /thumbnails/**\" (e.g. \"projects/earthengine-legacy/thumbnails/\").
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -9189,8 +9109,8 @@ export class Thumbnail extends Serializable {
   }
 
   /**
-   * If present, a set of visualization options to apply to produce an
-   * 8-bit RGB visualization of the data.
+   * If present, a set of visualization options to apply to produce an 8-bit RGB
+   * visualization of the data.
    */
   set visualizationOptions(value: VisualizationOptions|null) {
     this.Serializable$set('visualizationOptions', value);
@@ -9277,7 +9197,7 @@ export class TileOptions extends Serializable {
   }
 
   /**
-   * The maximum zoom level of the map tiles to export.
+   * The zoom level to stop generating map tiles for.
    */
   set maxZoom(value: number|null) {
     this.Serializable$set('maxZoom', value);
@@ -9291,7 +9211,7 @@ export class TileOptions extends Serializable {
   }
 
   /**
-   * The minimum zoom level of the map tiles to export. Defaults to zero.
+   * The zoom level to start generating map tiles for export. Defaults to zero.
    */
   set minZoom(value: number|null) {
     this.Serializable$set('minZoom', value);
@@ -9332,9 +9252,8 @@ export class TileOptions extends Serializable {
   }
 
   /**
-   * Tile row and column stride. (ExportVideoMap)
-   * Set to 4 for sparse tiles (WebGL-only) or 1 (default) for maximum
-   * compatibility.
+   * Tile row and column stride. (ExportVideoMap) Set to 4 for sparse tiles
+   * (WebGL-only) or 1 (default) for maximum compatibility.
    */
   set stride(value: number|null) {
     this.Serializable$set('stride', value);
@@ -9427,8 +9346,9 @@ export class Tileset extends Serializable {
   }
 
   /**
-   * The coordinate reference system of the pixel grid, specified as a
-   * standard code where possible, and in WKT format otherwise.
+   * The coordinate reference system of the pixel grid, specified as a standard
+   * code where possible, and in WKT format otherwise. If unspecified it will be
+   * be read from the source uris.
    */
   set crs(value: string|null) {
     this.Serializable$set('crs', value);
@@ -9442,10 +9362,10 @@ export class Tileset extends Serializable {
   }
 
   /**
-   * An optional data type for the band. If specified, no check is done
-   * to verify that the type of every input file matches.
-   * `data_type` must match the type of every input file, except for cases
-   * where the input type is ambiguous (e.g. `Byte` can be `INT8` or `UINT8`).
+   * An optional data type for the band. If specified, no check is done to
+   * verify that the type of every input file matches. `data_type` must match
+   * the type of every input file, except for cases where the input type is
+   * ambiguous (e.g. `Byte` can be `INT8` or `UINT8`).
    */
   set dataType(value: TilesetDataType|null) {
     this.Serializable$set('dataType', value);
@@ -9458,8 +9378,8 @@ export class Tileset extends Serializable {
 
   /**
    * The ID of the tileset. Must be unique among tilesets specified in the
-   * ImageManifest. This ID is discarded during the processing step; it is
-   * only used to link a Tileset to a band. The empty string is a valid ID.
+   * ImageManifest. This ID is discarded during the processing step; it is only
+   * used to link a Tileset to a band. The empty string is a valid ID.
    */
   set id(value: string|null) {
     this.Serializable$set('id', value);
@@ -9663,8 +9583,8 @@ export class TilesetMaskBand extends Serializable {
   }
 
   /**
-   * The IDs of bands that the mask band applies to. If empty, the mask band
-   * is applied to all bands in the asset. Each band may only have one
+   * The IDs of bands that the mask band applies to. If empty, the mask band is
+   * applied to all bands in the asset. Each band may only have one
    * corresponding mask band.
    */
   set bandIds(value: Array<string>|null) {
@@ -9718,8 +9638,8 @@ export class TilestoreEntry extends Serializable {
   }
 
   /**
-   * Prepend this to each of path in tilestore_files to get a file path
-   * relative to the tilestore root. Must end with a slash.
+   * Prepend this to each of path in tilestore_files to get a file path relative
+   * to the tilestore root. Must end with a slash.
    */
   set pathPrefix(value: string|null) {
     this.Serializable$set('pathPrefix', value);
@@ -9988,9 +9908,8 @@ export class ValueNode extends Serializable {
   }
 
   /**
-   * A reference to an argument of some enclosing FunctionDefinition. Only
-   * valid inside the subgraph rooted at the \"body\" field of a
-   * FunctionDefinition.
+   * A reference to an argument of some enclosing FunctionDefinition. Only valid
+   * inside the subgraph rooted at the \"body\" field of a FunctionDefinition.
    */
   set argumentReference(value: string|null) {
     this.Serializable$set('argumentReference', value);
@@ -10032,8 +9951,8 @@ export class ValueNode extends Serializable {
   }
 
   /**
-   * A constant value. This is allowed to be of arbitrary complexity
-   * (i.e., may contain Structs and ListValues).
+   * A constant value. This is allowed to be of arbitrary complexity (i.e., may
+   * contain Structs and ListValues).
    */
   set constantValue(value: any|null) {
     this.Serializable$set('constantValue', value);
@@ -10103,8 +10022,8 @@ export class ValueNode extends Serializable {
   }
 
   /**
-   * A reference to a named ValueNode, defined in the enclosing
-   * Expression's \"values\" field.
+   * A reference to a named ValueNode, defined in the enclosing Expression's
+   * \"values\" field.
    */
   set valueReference(value: string|null) {
     this.Serializable$set('valueReference', value);
@@ -10178,8 +10097,8 @@ export class VideoFileExportOptions extends Serializable {
   }
 
   /**
-   * The file format in which to export the video(s). Currently only
-   * MP4 is supported.
+   * The file format in which to export the video(s). Currently only MP4 is
+   * supported.
    */
   set fileFormat(value: VideoFileExportOptionsFileFormat|null) {
     this.Serializable$set('fileFormat', value);
@@ -10346,8 +10265,8 @@ export class VideoThumbnail extends Serializable {
   }
 
   /**
-   * The output encoding in which to generate the resulting video
-   * thumbnail. Currently only GIF is supported.
+   * The output encoding in which to generate the resulting video thumbnail.
+   * Currently only GIF is supported.
    */
   set fileFormat(value: VideoThumbnailFileFormat|null) {
     this.Serializable$set('fileFormat', value);
@@ -10360,8 +10279,8 @@ export class VideoThumbnail extends Serializable {
   }
 
   /**
-   * An optional pixel grid describing how the images computed by
-   * `expression` are reprojected and clipped.
+   * An optional pixel grid describing how the images computed by `expression`
+   * are reprojected and clipped.
    */
   set grid(value: PixelGrid|null) {
     this.Serializable$set('grid', value);
@@ -10375,8 +10294,8 @@ export class VideoThumbnail extends Serializable {
 
   /**
    * The resource name representing the video thumbnail, of the form
-   * \"projects/* /videoThumbnails/**\"
-   * (e.g. \"projects/earthengine-legacy/videoThumbnails/<THUMBNAIL-ID>\").
+   * \"projects/* /videoThumbnails/**\" (e.g.
+   * \"projects/earthengine-legacy/videoThumbnails/\").
    */
   set name(value: string|null) {
     this.Serializable$set('name', value);
@@ -10488,7 +10407,7 @@ export class VisualizationOptions extends Serializable {
   /**
    * If present, specifies the range of data values to visualize. This range of
    * values will be mapped to 0-255 (black to white) in the resulting image, and
-   * values outside this range will be clamped.  May specify as one range for
+   * values outside this range will be clamped. May specify as one range for
    * each band being visualized or else a single range to be applied to all
    * bands.
    */
@@ -10528,8 +10447,8 @@ export class WaitOperationRequest extends Serializable {
 
   /**
    * The maximum duration to wait before timing out. If left blank, the wait
-   * will be at most the time permitted by the underlying HTTP/RPC protocol.
-   * If RPC context deadline is also specified, the shorter one will be used.
+   * will be at most the time permitted by the underlying HTTP/RPC protocol. If
+   * RPC context deadline is also specified, the shorter one will be used.
    */
   set timeout(value: string|null) {
     this.Serializable$set('timeout', value);
@@ -10889,10 +10808,10 @@ export const ProjectsAssetsApiClientAltEnum: IProjectsAssetsApiClientAltEnum = {
 };
 
 export type ProjectsAssetsApiClientView =
-    'IMAGE_VIEW_UNSPECIFIED'|'FULL'|'BASIC';
+    'EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED'|'FULL'|'BASIC';
 
 export interface IProjectsAssetsApiClientViewEnum {
-  readonly IMAGE_VIEW_UNSPECIFIED: ProjectsAssetsApiClientView;
+  readonly EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED: ProjectsAssetsApiClientView;
   readonly FULL: ProjectsAssetsApiClientView;
   readonly BASIC: ProjectsAssetsApiClientView;
 
@@ -10902,12 +10821,12 @@ export interface IProjectsAssetsApiClientViewEnum {
 export const ProjectsAssetsApiClientViewEnum:
     IProjectsAssetsApiClientViewEnum = {
       BASIC: <ProjectsAssetsApiClientView>'BASIC',
+      EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED:
+          <ProjectsAssetsApiClientView>'EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED',
       FULL: <ProjectsAssetsApiClientView>'FULL',
-      IMAGE_VIEW_UNSPECIFIED:
-          <ProjectsAssetsApiClientView>'IMAGE_VIEW_UNSPECIFIED',
       values(): Array<ProjectsAssetsApiClientView> {
         return [
-          ProjectsAssetsApiClientViewEnum.IMAGE_VIEW_UNSPECIFIED,
+          ProjectsAssetsApiClientViewEnum.EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED,
           ProjectsAssetsApiClientViewEnum.FULL,
           ProjectsAssetsApiClientViewEnum.BASIC
         ];

@@ -423,7 +423,7 @@ ee.data.getMapId = function(params, opt_callback) {
   params = /** @type {!ee.data.ImageVisualizationParameters} */ (
       goog.object.clone(params));
   if (typeof params.image !== 'string') {
-    params.image = params.image.serialize();
+    params.image = params.image.serialize(/* legacy = */ true);
   }
   const makeMapId = (result) => ee.data.makeMapId_(
       result['mapid'], result['token']);
@@ -582,7 +582,7 @@ ee.data.getThumbId = function(params, opt_callback) {
   // if it exists.
   let image = params.image || params.imageCollection;
   if (typeof image !== 'string') {
-    image = image.serialize();
+    image = image.serialize(/* legacy = */ true);
   }
   params.image = image;
   delete params.imageCollection;
@@ -1294,7 +1294,7 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
   }
   params = goog.object.clone(params);
   if (params['element'] != null) {
-    params['json'] = params['element'].serialize();
+    params['json'] = params['element'].serialize(/* legacy = */ true);
     delete params['element'];
   }
   if (Array.isArray(params['crs_transform'])) {

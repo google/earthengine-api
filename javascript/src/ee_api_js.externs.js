@@ -147,9 +147,10 @@ ee.ComputedObject.prototype.evaluate = function(callback) {
 ee.ComputedObject.prototype.getInfo = function(opt_callback) {
 };
 /**
+ * @param {boolean=} legacy
  * @return {string}
  */
-ee.ComputedObject.prototype.serialize = function() {
+ee.ComputedObject.prototype.serialize = function(legacy) {
 };
 /**
  * @return {string}
@@ -184,6 +185,18 @@ ee.Deserializer = function() {
  * @return {*}
  */
 ee.Deserializer.decode = function(json) {
+};
+/**
+ * @param {*} json
+ * @return {*}
+ */
+ee.Deserializer.decodeCloudApi = function(json) {
+};
+/**
+ * @param {string} json
+ * @return {*}
+ */
+ee.Deserializer.fromCloudApiJSON = function(json) {
 };
 /**
  * @param {string} json
@@ -501,9 +514,10 @@ ee.Geometry.Polygon = function(coords, opt_proj, opt_geodesic, opt_maxError, opt
 ee.Geometry.Rectangle = function(coords, opt_proj, opt_geodesic, opt_evenOdd) {
 };
 /**
+ * @param {boolean=} legacy
  * @return {string}
  */
-ee.Geometry.prototype.serialize = function() {
+ee.Geometry.prototype.serialize = function(legacy) {
 };
 /**
  * @return {!ee.data.GeoJSONGeometry}

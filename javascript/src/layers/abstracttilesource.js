@@ -7,16 +7,16 @@ goog.require('goog.Disposable');
 
 /**
  * An abstract class for a layer tile source.
- *
- * @constructor
- * @extends {goog.Disposable}
  * @package
  * @ignore
+ * @unrestricted
  */
-ee.layers.AbstractTileSource = function() {
-  ee.layers.AbstractTileSource.base(this, 'constructor');
+ee.layers.AbstractTileSource = class extends goog.Disposable {
+  constructor() {
+    super();
+  }
 };
-goog.inherits(ee.layers.AbstractTileSource, goog.Disposable);
+
 
 
 /**

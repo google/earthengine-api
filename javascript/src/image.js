@@ -233,7 +233,8 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getDownloadURL, arguments);
   const request = args['params'] ? goog.object.clone(args['params']) : {};
-  request['image'] = ee.data.getCloudApiEnabled() ? this : this.serialize();
+  request['image'] =
+      ee.data.getCloudApiEnabled() ? this : this.serialize(/* legacy = */ true);
   if (args['callback']) {
     const callback = args['callback'];
     ee.data.getDownloadId(request, (downloadId, error) => {
