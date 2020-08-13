@@ -33,7 +33,8 @@ class FeatureCollection(collection.Collection):
           2) A geometry.
           3) A feature.
           4) An array of features.
-          5) A computed object - reinterpreted as a collection.
+          5) A GeoJSON FeatureCollection.
+          6) A computed object - reinterpreted as a collection.
       opt_column: The name of the geometry column to use. Only useful with the
           string constructor.
 
@@ -69,6 +70,12 @@ class FeatureCollection(collection.Collection):
           apifunction.ApiFunction.lookup('Collection'), {
               'features': args
           })
+    elif isinstance(args, dict) and args.get('type') == 'FeatureCollection':
+      # A GeoJSON FeatureCollection
+      super(FeatureCollection, self).__init__(
+        apifunction.ApiFunction.lookup('Collection'), {
+          'features': [feature.Feature(i) for i in args.get('features')]
+        })
     elif isinstance(args, computedobject.ComputedObject):
       # A custom object to reinterpret as a FeatureCollection.
       super(FeatureCollection, self).__init__(
