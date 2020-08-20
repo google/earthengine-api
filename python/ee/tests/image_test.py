@@ -85,7 +85,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
     image.getMapId({'min': 0})
 
     self.assertEqual(
-        ee.Image(1).visualize(min=0).serialize(),
+        ee.Image(1).visualize(min=0).serialize(for_cloud_api=False),
         self.last_mapid_call['data']['image'])
 
   def testCombine(self):
@@ -217,7 +217,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
 
     self.assertEqual('/download', self.last_download_call['url'])
     self.assertEqual({
-        'image': ee.Image(1).serialize(),
+        'image': ee.Image(1).serialize(for_cloud_api=False),
         'json_format': 'v2'
     }, self.last_download_call['data'])
     self.assertEqual('/api/download?docid=1&token=2', url)
@@ -239,7 +239,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
 
     self.assertEqual('/thumb', self.last_thumb_call['url'])
     self.assertEqual({
-        'image': ee.Image(1).serialize(),
+        'image': ee.Image(1).serialize(for_cloud_api=False),
         'json_format': 'v2',
         'size': '13x42',
         'getid': '1',
@@ -254,7 +254,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
         'min': 0
     })
     self.assertEqual(
-        ee.Image(1).visualize(min=0).serialize(),
+        ee.Image(1).visualize(min=0).serialize(for_cloud_api=False),
         self.last_thumb_call['data']['image'])
 
 

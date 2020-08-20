@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 """Test for the ee.geometry module."""
 
 
@@ -309,6 +310,146 @@ class GeometryTest(apitestcase.ApiTestCase):
     self.assertEqual(
         ee.Geometry.Rectangle(1, 2, 3, 4),
         ee.Geometry.Rectangle(1, 2, xhi=3, yhi=4))
+
+  def wgs84_rectangle(self, west, south, east, north):
+    # If we call ee.Geometry.Rectangle with geodesic=False we would get a
+    # computed call.
+    return ee.Geometry({
+        'coordinates': [[[west, north],
+                         [west, south],
+                         [east, south],
+                         [east, north]]],
+        'type': 'Polygon',
+        'geodesic': False,
+    })
+
+  def testBBox_simple(self):
+    self.assertEqual(self.wgs84_rectangle(-10, -20, 10, 20),
+                     ee.Geometry.BBox(-10, -20, 10, 20))
+
+  def testBBox_computed(self):
+    ten = ee.Number(5).add(5)
+    box = ee.Geometry.BBox(-10, -20, ten, 20)
+
+    self.assertIsInstance(box, ee.Geometry)
+    self.assertEqual(
+        ee.ApiFunction.lookup('GeometryConstructors.BBox'), box.func)
+    expected_args = {
+        'west': ee.Number(-10),
+        'south': ee.Number(-20),
+        'east': ten,
+        'north': ee.Number(20),
+    }
+    self.assertEqual(expected_args, box.args)
+
+  def testBBox_latitude_widerThanPolesIsClamped(self):
+    self.assertEqual(
+        self.wgs84_rectangle(-10, -90, 10, 73),
+        ee.Geometry.BBox(-10, -1000, 10, 73))
+    self.assertEqual(
+        self.wgs84_rectangle(-10, -34, 10, 90),
+        ee.Geometry.BBox(-10, -34, 10, 10000))
+
+  def testBBox_latitude_notBeyondPoles(self):
+    # Reject cases which, if we clamped them instead, would move a box whose
+    # bounds lie past a pole to being a point at the pole.
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry\.BBox: north must be at least -90°, but was -95°',
+        -10, -100, 10, -95)
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry\.BBox: south must be at most \+90°, but was 95°',
+        -10, 95, 10, 100)
+
+  def testBBox_latitude_zeroSpan(self):
+    self.assertEqual(
+        self.wgs84_rectangle(-10, 20, 10, 20),
+        ee.Geometry.BBox(-10, 20, 10, 20))
+
+  def testBBox_longitude_crossingMeridianWithOppositeSigns(self):
+    self.assertEqual(
+        self.wgs84_rectangle(170, -20, 190, 20),
+        ee.Geometry.BBox(170, -20, -170, 20))
+
+  def testBBox_longitude_crossingMeridianWithNegativeSigns(self):
+    self.assertEqual(
+        self.wgs84_rectangle(170, -20, 190, 20),
+        ee.Geometry.BBox(-190, -20, -170, 20))
+
+  def testBBox_longitude_crossingMeridianWithPositiveSigns(self):
+    self.assertEqual(
+        self.wgs84_rectangle(170, -20, 190, 20),
+        ee.Geometry.BBox(170, -20, 190, 20))
+
+  def testBBox_longitude_exactlyGlobal(self):
+    self.assertEqual(
+        self.wgs84_rectangle(-180, -20, 180, 20),
+        ee.Geometry.BBox(-180, -20, 180, 20))
+
+  def testBBox_longitude_excessOfGlobalIsClamped(self):
+    epsilon = 1e-5
+    self.assertEqual(
+        self.wgs84_rectangle(-180, -20, 180, 20),
+        ee.Geometry.BBox(-180 - epsilon, -20, 180 + epsilon, 20))
+
+  def testBBox_longitude_zeroSpan(self):
+    self.assertEqual(
+        self.wgs84_rectangle(10, -20, 10, 20),
+        ee.Geometry.BBox(10, -20, 10, 20))
+
+  def testBBox_NaN_isRejected(self):
+    nan = float('nan')
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry\.BBox: west must not be nan',
+        nan, -20, 10, 20)
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry\.BBox: south must be at most \+90°, but was nan°',
+        -10, nan, 10, 20)
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry\.BBox: east must not be nan',
+        -10, -20, nan, 20)
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry.BBox: north must be at least -90°, but was nan°',
+        -10, -20, 10, nan)
+
+  def testBBox_infinities_invalidDirection_isRejected(self):
+    inf = float('inf')
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry\.BBox: west must not be inf',
+        inf, -20, 10, 20)
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry\.BBox: east must not be -inf',
+        -10, -20, -inf, 20)
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry\.BBox: south must be at most \+90°, but was inf°',
+        -10, inf, 10, 20)
+    self.assertInvalid(
+        ee.Geometry.BBox,
+        r'Geometry\.BBox: north must be at least -90°, but was -inf°',
+        -10, -20, 10, -inf)
+
+  def testBBox_infinities_validDirection_isClamped(self):
+    inf = float('inf')
+    self.assertEqual(
+        ee.Geometry.BBox(-180, -20, 180, 20),
+        ee.Geometry.BBox(-10, -20, inf, 20))
+    self.assertEqual(
+        ee.Geometry.BBox(-180, -20, 180, 20),
+        ee.Geometry.BBox(-inf, -20, 10, 20))
+    self.assertEqual(
+        ee.Geometry.BBox(-10, -20, 10, 90),
+        ee.Geometry.BBox(-10, -20, 10, inf))
+    self.assertEqual(
+        ee.Geometry.BBox(-10, -90, 10, 20),
+        ee.Geometry.BBox(-10, -inf, 10, 20))
 
   def assertValid(self, nesting, ctor, *coords):
     """Checks that geometry is valid and has the expected nesting level.

@@ -140,7 +140,7 @@ class ComputedObject(six.with_metaclass(
   def serialize(
       self,
       opt_pretty=False,
-      for_cloud_api=False
+      for_cloud_api=True
   ):
     """Serialize this object into a JSON string.
 

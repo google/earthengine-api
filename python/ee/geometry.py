@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# coding=utf-8
 """An object representing EE Geometries."""
 
 
@@ -270,6 +271,95 @@ class Geometry(computedobject.ComputedObject):
       init['type'] = 'Polygon'
     return Geometry(init)
 
+  @staticmethod
+  def BBox(west, south, east, north):
+    """Constructs a rectangle ee.Geometry from lines of latitude and longitude.
+
+    If (east - west) ≥ 360° then the longitude range will be normalized to -180°
+    to +180°; otherwise they will be treated as designating points on a circle
+    (e.g. east may be numerically less than west).
+
+    Args:
+      west: The westernmost enclosed longitude. Will be adjusted to lie in the
+        range -180° to 180°.
+      south: The southernmost enclosed latitude. If less than -90° (south pole),
+        will be treated as -90°.
+      east: The easternmost enclosed longitude.
+      north: The northernmost enclosed longitude. If greater than +90° (north
+        pole), will be treated as +90°.
+
+    Returns:
+      An ee.Geometry describing a planar WGS84 rectangle.
+    """
+    # Not using Geometry._parseArgs because that assumes the args should go
+    # directly into a coordinates field.
+
+    if Geometry._hasServerValue((west, south, east, north)):
+      # Some arguments cannot be handled in the client, so make a server call.
+      return (apifunction.ApiFunction.lookup('GeometryConstructors.BBox')
+              .apply(dict(west=west, south=south, east=east, north=north)))
+    # Else proceed with client-side implementation.
+
+    # Reject NaN and positive (west) or negative (east) infinities before they
+    # become bad JSON. The other two infinities are acceptable because we
+    # support the general idea of a around-the-globe latitude band. By writing
+    # them negated, we also reject NaN.
+    if not west < float('inf'):
+      raise ee_exception.EEException(
+          'Geometry.BBox: west must not be {}'.format(west))
+    if not east > float('-inf'):
+      raise ee_exception.EEException(
+          'Geometry.BBox: east must not be {}'.format(east))
+    # Reject cases which, if we clamped them instead, would move a box whose
+    # bounds lie entirely "past" a pole to being at the pole. By writing them
+    # negated, we also reject NaN.
+    if not south <= 90:
+      raise ee_exception.EEException(
+          'Geometry.BBox: south must be at most +90°, but was {}°'.format(
+              south))
+    if not north >= -90:
+      raise ee_exception.EEException(
+          'Geometry.BBox: north must be at least -90°, but was {}°'.format(
+              north))
+    # On the other hand, allow a box whose extent lies past the pole, but
+    # canonicalize it to being exactly the pole.
+    south = max(south, -90)
+    north = min(north, 90)
+
+    if east - west >= 360:
+      # We conclude from seeing more than 360 degrees that the user intends to
+      # specify the entire globe (or a band of latitudes, at least).
+      # Canonicalize to standard global form.
+      west = -180
+      east = 180
+    else:
+      # Not the entire globe. Canonicalize coordinate ranges.
+      west = Geometry._canonicalize_longitude(west)
+      east = Geometry._canonicalize_longitude(east)
+      if east < west:
+        east += 360
+
+    # GeoJSON does not have a Rectangle type, so expand to a Polygon.
+    return Geometry(
+        geo_json={
+            'coordinates': [[[west, north],
+                             [west, south],
+                             [east, south],
+                             [east, north]]],
+            'type': 'Polygon',
+        },
+        opt_geodesic=False)
+
+  @staticmethod
+  def _canonicalize_longitude(longitude):
+    # Note that Python specifies "The modulo operator always yields a result
+    # with the same sign as its second operand"; therefore no special handling
+    # of negative arguments is needed.
+    longitude = longitude % 360
+    if longitude > 180:
+      longitude -= 360
+    return longitude
+
   # pylint: disable=keyword-arg-before-vararg
   @staticmethod
   def LineString(coords=_UNSPECIFIED,
@@ -514,12 +604,15 @@ class Geometry(computedobject.ComputedObject):
           'Use getInfo() instead.')
     return json.dumps(self.toGeoJSON())
 
-  def serialize(self):
+  def serialize(self, for_cloud_api=True):
     """Returns the serialized representation of this object."""
-    return serializer.toJSON(self)
+    return serializer.toJSON(self, for_cloud_api=for_cloud_api)
 
   def __str__(self):
     return 'ee.Geometry(%s)' % serializer.toReadableJSON(self)
+
+  def __repr__(self):
+    return self.__str__()
 
   @staticmethod
   def _isValidGeometry(geometry):

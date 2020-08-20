@@ -153,12 +153,8 @@ ee.ComputedObject.prototype.encode = function(encoder) {
 /** @override */
 ee.ComputedObject.prototype.encodeCloudValue = function(encoder) {
   if (this.isVariable()) {
-    // Variable objects that are not yet inside a CustomFunction cannot be
-    // encoded.
-    if (this.varName === null) {
-      throw new Error('Internal error: function argument not initialized.');
-    }
-    return ee.rpc_node.argumentReference(this.varName);
+    // varName may be null for unbound variables; server will report the error.
+    return ee.rpc_node.argumentReference(this.varName || '');
   } else {
     /** @type {!Object<string,!ee.api.ValueNode>} */
     const encodedArgs = {};

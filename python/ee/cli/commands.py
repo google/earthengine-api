@@ -199,6 +199,10 @@ def _cloud_timestamp_for_timestamp_ms(timestamp_ms):
       timestamp_ms / 1000.0).isoformat() + 'Z'
 
 
+def _parse_millis(millis):
+  return datetime.datetime.fromtimestamp(millis / 1000)
+
+
 def _decode_date(string):
   """Decodes a date from a command line argument, returning msec since epoch".
 
@@ -1068,20 +1072,15 @@ class TaskInfoCommand(object):
         continue
       print('  Type: %s' % TASK_TYPES.get(status.get('task_type'), 'Unknown'))
       print('  Description: %s' % status.get('description'))
-      print('  Created: %s'
-            % self._format_time(status['creation_timestamp_ms']))
+      print('  Created: %s' % _parse_millis(status['creation_timestamp_ms']))
       if 'start_timestamp_ms' in status:
-        print('  Started: %s' % self._format_time(status['start_timestamp_ms']))
+        print('  Started: %s' % _parse_millis(status['start_timestamp_ms']))
       if 'update_timestamp_ms' in status:
-        print('  Updated: %s'
-              % self._format_time(status['update_timestamp_ms']))
+        print('  Updated: %s' % _parse_millis(status['update_timestamp_ms']))
       if 'error_message' in status:
         print('  Error: %s' % status['error_message'])
       if 'destination_uris' in status:
         print('  Destination URIs: %s' % ', '.join(status['destination_uris']))
-
-  def _format_time(self, millis):
-    return datetime.datetime.fromtimestamp(millis / 1000)
 
 
 class TaskListCommand(object):
@@ -1095,6 +1094,11 @@ class TaskListCommand(object):
         choices=['READY', 'RUNNING', 'COMPLETED', 'FAILED',
                  'CANCELLED', 'UNKNOWN'],
         help=('List tasks only with a given status'))
+    parser.add_argument(
+        '--long_format',
+        '-l',
+        action='store_true',
+        help='Print output in long format.')
 
   def run(self, args, config):
     """Lists tasks present for a user, maybe filtering by state."""
@@ -1109,9 +1113,17 @@ class TaskListCommand(object):
         continue
       truncated_desc = utils.truncate(task.get('description', ''), 40)
       task_type = TASK_TYPES.get(task['task_type'], 'Unknown')
+      extra = ''
+      if args.long_format:
+        show_date = lambda ms: _parse_millis(ms).strftime('%Y-%m-%d %H:%M:%S')
+        extra = ' {:20s} {:20s} {:20s} {}'.format(
+            show_date(task['creation_timestamp_ms']),
+            show_date(task['start_timestamp_ms']),
+            show_date(task['update_timestamp_ms']),
+            ' '.join(task.get('destination_uris', [])))
       print(format_str.format(
           task['id'], task_type, truncated_desc,
-          task['state'], task.get('error_message', '---')))
+          task['state'], task.get('error_message', '---')) + extra)
 
 
 class TaskWaitCommand(object):

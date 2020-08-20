@@ -604,7 +604,7 @@ def getMapId(params):
     return {'mapid': map_name, 'token': '',
             'tile_fetcher': TileFetcher(url_format, map_name=map_name)}
   if not isinstance(params['image'], six.string_types):
-    params['image'] = params['image'].serialize()
+    params['image'] = params['image'].serialize(for_cloud_api=False)
   params['json_format'] = 'v2'
   result = send_('/mapid', params)
   url_format = '%s/map/%s/{z}/{x}/{y}?token=%s' % (
@@ -708,7 +708,10 @@ def computeValue(obj):
             body={'expression': serializer.encode(obj, for_cloud_api=True)},
             project=_get_projects_path(),
             prettyPrint=False))['result']
-  return send_('/value', ({'json': obj.serialize(), 'json_format': 'v2'}))
+  return send_('/value', {
+      'json': obj.serialize(for_cloud_api=False),
+      'json_format': 'v2'
+  })
 
 
 @deprecation.Deprecated('Use getThumbId and makeThumbUrl')
@@ -827,7 +830,7 @@ def getThumbId(params, thumbType=None):
   request['getid'] = '1'
   request['json_format'] = 'v2'
   if not isinstance(request['image'], six.string_types):
-    request['image'] = request['image'].serialize()
+    request['image'] = request['image'].serialize(for_cloud_api=False)
   if 'size' in request and isinstance(request['size'], (list, tuple)):
     request['size'] = 'x'.join(map(str, request['size']))
   return send_('/thumb', request)
@@ -946,7 +949,7 @@ def getDownloadId(params):
   if 'bands' in params and not isinstance(params['bands'], six.string_types):
     params['bands'] = json.dumps(params['bands'])
   if 'image' in params and not isinstance(params['image'], six.string_types):
-    params['image'] = params['image'].serialize()
+    params['image'] = params['image'].serialize(for_cloud_api=False)
   return send_('/download', params)
 
 
@@ -1292,6 +1295,7 @@ def cancelTask(taskId):
   """Cancels a batch task."""
   if _use_cloud_api:
     cancelOperation(_cloud_api_utils.convert_task_id_to_operation_name(taskId))
+    return
   send_('/updatetask', {'id': taskId, 'action': 'CANCEL'})
 
 
@@ -1808,6 +1812,7 @@ def createAssetHome(requestedId):
         'name': _cloud_api_utils.convert_asset_id_to_asset_name(requestedId),
         'type': 'FOLDER'
     })
+    return
   send_('/createbucket', {'id': requestedId})
 
 

@@ -24,6 +24,7 @@ goog.require('goog.array');
  *   - A single geometry.
  *   - A single feature.
  *   - A list of features.
+ *   - A GeoJSON FeatureCollection
  *   - A computed object: reinterpreted as a collection.
  *
  * @param {string|number|Array.<*>|ee.ComputedObject|
@@ -77,7 +78,13 @@ ee.FeatureCollection = function(args, opt_column) {
     });
   } else if (args instanceof ee.List) {
     // A computed list of features.  This can't get the extra ee.Feature()
-    ee.FeatureCollection.base(this, 'constructor', new ee.ApiFunction('Collection'), { 'features': args });
+    ee.FeatureCollection.base(
+        this, 'constructor', new ee.ApiFunction('Collection'),
+        {'features': args});
+  } else if (args instanceof Object && args['type'] === 'FeatureCollection') {
+    ee.FeatureCollection.base(
+        this, 'constructor', new ee.ApiFunction('Collection'),
+        {'features': args['features'].map(f => new ee.Feature(f))});
   } else if (args instanceof ee.ComputedObject) {
     // A custom object to reinterpret as a FeatureCollection.
     ee.FeatureCollection.base(this, 'constructor', args.func, args.args, args.varName);

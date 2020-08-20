@@ -77,8 +77,9 @@ class SerializerTest(apitestcase.ApiTestCase):
         custom_function
     ]
 
-    self.assertEqual(apitestcase.ENCODED_JSON_SAMPLE,
-                     json.loads(serializer.toJSON(to_encode)))
+    self.assertEqual(
+        apitestcase.ENCODED_JSON_SAMPLE,
+        json.loads(serializer.toJSON(to_encode, for_cloud_api=False)))
     encoded = serializer.encode(to_encode, for_cloud_api=True)
     self.assertEqual(apitestcase.ENCODED_CLOUD_API_JSON_SAMPLE, encoded)
     pretty_encoded = serializer.encode(
@@ -123,7 +124,8 @@ class SerializerTest(apitestcase.ApiTestCase):
             'value': '1'
         }
     }
-    self.assertEqual(expected1, json.loads(serializer.toJSON(test1)))
+    self.assertEqual(expected1,
+                     json.loads(serializer.toJSON(test1, for_cloud_api=False)))
     expected_cloud = {
         'values': {
             '0': {

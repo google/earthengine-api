@@ -9,7 +9,7 @@
     "dev": "budo client.js:bundle.js -d static --live --port 3000",
     "build": "browserify client.js -o static/bundle.js",
     "predeploy:function": "npm test",
-    "deploy:function": "gcloud beta functions deploy hexPopHttp --trigger-http --project ee-demos --stage-bucket ee-demos"
+    "deploy:function": "gcloud functions deploy hexPopHttp --runtime nodejs12 --trigger-http --project ee-demos --stage-bucket ee-demos"
   },
   "author": "Google LLC",
   "license": "Apache-2.0",

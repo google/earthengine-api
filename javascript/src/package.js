@@ -35,6 +35,7 @@ goog.require('ee.CustomFunction');
 goog.require('ee.SavedFunction');
 goog.require('ee.arguments');
 goog.require('ee.data');
+goog.requireType('ee.Function.Signature');
 
 
 

@@ -158,7 +158,7 @@ class Function(encodable.EncodableFunction):
   def getReturnType(self):
     return self.getSignature()['returns']
 
-  def serialize(self, for_cloud_api=False):
+  def serialize(self, for_cloud_api=True):
     return serializer.toJSON(
         self, for_cloud_api=for_cloud_api
     )

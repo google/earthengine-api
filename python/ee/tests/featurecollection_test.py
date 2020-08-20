@@ -31,13 +31,16 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
 
     geometry = ee.Geometry.Point(1, 2)
     feature = ee.Feature(geometry)
+    geo_json = {'type': 'FeatureCollection', 'features': [geometry.toGeoJSON()]}
     from_geometries = ee.FeatureCollection([geometry])
     from_single_geometry = ee.FeatureCollection(geometry)
     from_features = ee.FeatureCollection([feature])
     from_single_feature = ee.FeatureCollection(feature)
+    from_geo_json = ee.FeatureCollection(geo_json)
     self.assertEqual(from_geometries, from_single_geometry)
     self.assertEqual(from_geometries, from_features)
     self.assertEqual(from_geometries, from_single_feature)
+    self.assertEqual(from_geometries, from_geo_json)
     self.assertEqual(ee.ApiFunction.lookup('Collection'), from_geometries.func)
     self.assertEqual({'features': [feature]}, from_geometries.args)
 

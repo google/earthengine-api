@@ -272,7 +272,7 @@ class Serializer(object):
       return result
 
 
-def encode(obj, is_compound=True, for_cloud_api=False):
+def encode(obj, is_compound=True, for_cloud_api=True):
   """Serialize an object to a JSON-compatible structure for API calls.
 
   Args:
@@ -288,7 +288,7 @@ def encode(obj, is_compound=True, for_cloud_api=False):
   return serializer._encode(obj)  # pylint: disable=protected-access
 
 
-def toJSON(obj, opt_pretty=False, for_cloud_api=False):
+def toJSON(obj, opt_pretty=False, for_cloud_api=True):
   """Serialize an object to a JSON string appropriate for API calls.
 
   Args:
@@ -305,9 +305,9 @@ def toJSON(obj, opt_pretty=False, for_cloud_api=False):
   return json.dumps(encoded, indent=2 if opt_pretty else None)
 
 
-def toReadableJSON(obj):
+def toReadableJSON(obj, for_cloud_api=True):
   """Convert an object to readable JSON."""
-  return toJSON(obj, True)
+  return toJSON(obj, True, for_cloud_api=for_cloud_api)
 
 
 class _ExpressionOptimizer(object):

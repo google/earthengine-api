@@ -39,7 +39,7 @@ CONFIG_PARAMS = {
     'account': None,
     'private_key': None,
     'refresh_token': None,
-    'use_cloud_api': False,
+    'use_cloud_api': True,
     'cloud_api_key': None,
     'project': None,
 }
@@ -63,12 +63,13 @@ class CommandLineConfig(object):
   """
 
   def __init__(
-      self, config_file=None, service_account_file=None, use_cloud_api=False,
+      self, config_file=None, service_account_file=None, use_cloud_api=True,
       project_override=None):
     if not config_file:
       config_file = os.environ.get(EE_CONFIG_FILE, DEFAULT_EE_CONFIG_FILE)
     self.config_file = config_file
     self.project_override = project_override
+    self._robot_account = robot_account
     config = {}
     if os.path.exists(config_file):
       with open(config_file) as config_file_json:

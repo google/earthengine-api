@@ -2155,7 +2155,7 @@ export class ComputeImagesRequest extends Serializable {
 }
 
 export interface ComputeImagesResponseParameters {
-  images?: Array<Image>|null;
+  images?: Array<EarthEngineAsset>|null;
   nextPageToken?: string|null;
 }
 export class ComputeImagesResponse extends Serializable {
@@ -2169,7 +2169,7 @@ export class ComputeImagesResponse extends Serializable {
                                              (parameters.nextPageToken));
   }
 
-  get images(): Array<Image>|null {
+  get images(): Array<EarthEngineAsset>|null {
     return (
         (this.Serializable$has('images')) ? (this.Serializable$get('images')) :
                                             (null));
@@ -2178,7 +2178,7 @@ export class ComputeImagesResponse extends Serializable {
   /**
    * The list of images matching the query.
    */
-  set images(value: Array<Image>|null) {
+  set images(value: Array<EarthEngineAsset>|null) {
     this.Serializable$set('images', value);
   }
 
@@ -2203,7 +2203,10 @@ export class ComputeImagesResponse extends Serializable {
   }
 
   getPartialClassMetadata(): Partial<ClassMetadata> {
-    return {arrays: {'images': Image}, keys: ['images', 'nextPageToken']};
+    return {
+      arrays: {'images': EarthEngineAsset},
+      keys: ['images', 'nextPageToken']
+    };
   }
 }
 
@@ -7144,6 +7147,7 @@ export interface OperationMetadataParameters {
   updateTime?: string|null;
   startTime?: string|null;
   endTime?: string|null;
+  attempt?: number|null;
   scriptUri?: string|null;
   destinationUris?: Array<string>|null;
 }
@@ -7173,6 +7177,9 @@ export class OperationMetadata extends Serializable {
         'endTime',
         (parameters.endTime == null) ? (null) : (parameters.endTime));
     this.Serializable$set(
+        'attempt',
+        (parameters.attempt == null) ? (null) : (parameters.attempt));
+    this.Serializable$set(
         'scriptUri',
         (parameters.scriptUri == null) ? (null) : (parameters.scriptUri));
     this.Serializable$set(
@@ -7183,6 +7190,24 @@ export class OperationMetadata extends Serializable {
 
   static get State(): IOperationMetadataStateEnum {
     return OperationMetadataStateEnum;
+  }
+
+  get attempt(): number|null {
+    return (
+        (this.Serializable$has('attempt')) ?
+            (this.Serializable$get('attempt')) :
+            (null));
+  }
+
+  /**
+   * Current attempt number. If an operation is retried the attempt number will
+   * increase which can happen in the following siutations: - If an operation
+   * failed due to the memory limit (likely will cause all following attempts to
+   * fail and be permanent), - If resources had to be reallocated for other
+   * jobs. (likely to be transient)
+   */
+  set attempt(value: number|null) {
+    this.Serializable$set('attempt', value);
   }
 
   get createTime(): string|null {
@@ -7333,8 +7358,8 @@ export class OperationMetadata extends Serializable {
     return {
       enums: {'state': OperationMetadataStateEnum},
       keys: [
-        'createTime', 'description', 'destinationUris', 'endTime', 'priority',
-        'scriptUri', 'startTime', 'state', 'type', 'updateTime'
+        'attempt', 'createTime', 'description', 'destinationUris', 'endTime',
+        'priority', 'scriptUri', 'startTime', 'state', 'type', 'updateTime'
       ]
     };
   }
@@ -10675,6 +10700,30 @@ export const ProjectsApiClientAltEnum: IProjectsApiClientAltEnum = {
   }
 };
 
+export type ProjectsApiClientView =
+    'EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED'|'FULL'|'BASIC';
+
+export interface IProjectsApiClientViewEnum {
+  readonly EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED: ProjectsApiClientView;
+  readonly FULL: ProjectsApiClientView;
+  readonly BASIC: ProjectsApiClientView;
+
+  values(): Array<ProjectsApiClientView>;
+}
+
+export const ProjectsApiClientViewEnum: IProjectsApiClientViewEnum = {
+  BASIC: <ProjectsApiClientView>'BASIC',
+  EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED:
+      <ProjectsApiClientView>'EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED',
+  FULL: <ProjectsApiClientView>'FULL',
+  values(): Array<ProjectsApiClientView> {
+    return [
+      ProjectsApiClientViewEnum.EARTH_ENGINE_ASSET_VIEW_UNSPECIFIED,
+      ProjectsApiClientViewEnum.FULL, ProjectsApiClientViewEnum.BASIC
+    ];
+  }
+};
+
 export declare interface ProjectsGetCapabilitiesNamedParameters {
   access_token?: string;
   alt?: ProjectsApiClientAlt;
@@ -10703,6 +10752,8 @@ export declare interface ProjectsListAssetsNamedParameters {
   $Xgafv?: ProjectsApiClient$Xgafv;
   pageSize?: number;
   pageToken?: string;
+  filter?: string;
+  view?: ProjectsApiClientView;
 }
 
 export class ProjectsApiClientImpl implements ProjectsApiClient {
@@ -10947,6 +10998,8 @@ export declare interface ProjectsAssetsListAssetsNamedParameters {
   $Xgafv?: ProjectsAssetsApiClient$Xgafv;
   pageSize?: number;
   pageToken?: string;
+  filter?: string;
+  view?: ProjectsAssetsApiClientView;
 }
 
 export declare interface ProjectsAssetsListFeaturesNamedParameters {

@@ -19,7 +19,7 @@ class DeserializerTest(apitestcase.ApiTestCase):
     """Verifies a round trip of a comprehensive serialization case."""
     encoded = apitestcase.ENCODED_JSON_SAMPLE
     decoded = deserializer.decode(encoded)
-    re_encoded = json.loads(serializer.toJSON(decoded))
+    re_encoded = json.loads(serializer.toJSON(decoded, for_cloud_api=False))
     self.assertEqual(encoded, re_encoded)
     # Round-trip the decoded object through the Cloud API
     cloud_encoded = json.loads(serializer.toJSON(decoded, for_cloud_api=True))
@@ -36,9 +36,9 @@ class DeserializerTest(apitestcase.ApiTestCase):
         serializer.toJSON(cloud_decoded, for_cloud_api=True))
     self.assertEqual(cloud_encoded, cloud_re_encoded)
     # Round-trip the decoded object through the legacy API
-    encoded = json.loads(serializer.toJSON(cloud_decoded))
+    encoded = json.loads(serializer.toJSON(cloud_decoded, for_cloud_api=False))
     decoded = deserializer.decode(encoded)
-    re_encoded = json.loads(serializer.toJSON(decoded))
+    re_encoded = json.loads(serializer.toJSON(decoded, for_cloud_api=False))
     self.assertEqual(encoded, re_encoded)
 
   def testCast(self):

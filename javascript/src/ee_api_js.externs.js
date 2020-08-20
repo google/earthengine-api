@@ -428,6 +428,17 @@ ee.Function.prototype.call = function(var_args) {
 ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 };
 /**
+ * @param {number} west
+ * @param {number} south
+ * @param {number} east
+ * @param {number} north
+ * @return {?}
+ * @extends {ee.Geometry.Rectangle}
+ * @constructor
+ */
+ee.Geometry.BBox = function(west, south, east, north) {
+};
+/**
  * @param {(Array<?>|null)} coords
  * @param {(ee.Projection|null)=} opt_proj
  * @param {boolean=} opt_geodesic
