@@ -14843,7 +14843,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.231";
+ee.apiclient.API_CLIENT_VERSION = "0.1.232";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15107,8 +15107,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.231";
-    "0.1.231" === version && (version = "latest");
+    var version = "0.1.232";
+    "0.1.232" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -25729,7 +25729,6 @@ goog.async.Delay = function(listener, opt_interval, opt_handler) {
   this.callback_ = goog.bind(this.doAction_, this);
 };
 goog.inherits(goog.async.Delay, goog.Disposable);
-goog.Delay = goog.async.Delay;
 goog.async.Delay.prototype.id_ = 0;
 goog.async.Delay.prototype.disposeInternal = function() {
   goog.async.Delay.superClass_.disposeInternal.call(this);
