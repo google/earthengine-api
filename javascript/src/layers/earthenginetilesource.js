@@ -4,6 +4,7 @@ goog.require('ee.layers.AbstractTile');
 goog.require('ee.layers.AbstractTileSource');
 goog.require('goog.events');
 goog.require('goog.structs.PriorityPool');
+goog.requireType('ee.data.Profiler');
 
 
 /**

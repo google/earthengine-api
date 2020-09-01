@@ -628,11 +628,17 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   if (extractValue('system:footprint')) {
     asset.geometry = value;
   }
-  if (typeof extractValue('system:title') === 'string') {
-    asset.title = value;
+  // Extract `system:title` and set it in `properties` unless `title` is present
+  // in `properties`, which takes precedence.
+  if (typeof extractValue('system:title') === 'string' &&
+      properties['title'] == null) {
+    properties['title'] = value;
   }
-  if (typeof extractValue('system:description') === 'string') {
-    asset.description = value;
+  // Extract `system:description` and set it in `properties` unless
+  // `description` is present in `properties`, which takes precedence.
+  if (typeof extractValue('system:description') === 'string' &&
+      properties['description'] == null) {
+    properties['description'] = value;
   }
   // update_time cannot be set directly.
   asset.properties = properties;

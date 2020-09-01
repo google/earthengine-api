@@ -130,6 +130,33 @@ export const CloudAuditOptionsLogNameEnum: ICloudAuditOptionsLogNameEnum = {
   }
 };
 
+export type CloudStorageDestinationPermissions =
+    'TILE_PERMISSIONS_UNSPECIFIED'|'PUBLIC'|'DEFAULT_OBJECT_ACL';
+
+export interface ICloudStorageDestinationPermissionsEnum {
+  readonly TILE_PERMISSIONS_UNSPECIFIED: CloudStorageDestinationPermissions;
+  readonly PUBLIC: CloudStorageDestinationPermissions;
+  readonly DEFAULT_OBJECT_ACL: CloudStorageDestinationPermissions;
+
+  values(): Array<CloudStorageDestinationPermissions>;
+}
+
+export const CloudStorageDestinationPermissionsEnum:
+    ICloudStorageDestinationPermissionsEnum = {
+      DEFAULT_OBJECT_ACL:
+          <CloudStorageDestinationPermissions>'DEFAULT_OBJECT_ACL',
+      PUBLIC: <CloudStorageDestinationPermissions>'PUBLIC',
+      TILE_PERMISSIONS_UNSPECIFIED:
+          <CloudStorageDestinationPermissions>'TILE_PERMISSIONS_UNSPECIFIED',
+      values(): Array<CloudStorageDestinationPermissions> {
+        return [
+          CloudStorageDestinationPermissionsEnum.TILE_PERMISSIONS_UNSPECIFIED,
+          CloudStorageDestinationPermissionsEnum.PUBLIC,
+          CloudStorageDestinationPermissionsEnum.DEFAULT_OBJECT_ACL
+        ];
+      }
+    };
+
 export type ComputePixelsRequestFileFormat = 'IMAGE_FILE_FORMAT_UNSPECIFIED'|
     'JPEG'|'PNG'|'AUTO_JPEG_PNG'|'NPY'|'GEO_TIFF'|'TF_RECORD_IMAGE'|
     'MULTI_BAND_IMAGE_TILE'|'ZIPPED_GEO_TIFF'|'ZIPPED_GEO_TIFF_PER_BAND';
@@ -1702,6 +1729,7 @@ export interface BindingParameters {
   role?: string|null;
   members?: Array<string>|null;
   condition?: Expr|null;
+  bindingId?: string|null;
 }
 export class Binding extends Serializable {
   constructor(parameters: BindingParameters = {}) {
@@ -1714,6 +1742,24 @@ export class Binding extends Serializable {
     this.Serializable$set(
         'condition',
         (parameters.condition == null) ? (null) : (parameters.condition));
+    this.Serializable$set(
+        'bindingId',
+        (parameters.bindingId == null) ? (null) : (parameters.bindingId));
+  }
+
+  get bindingId(): string|null {
+    return (
+        (this.Serializable$has('bindingId')) ?
+            (this.Serializable$get('bindingId')) :
+            (null));
+  }
+
+  /**
+   * A client-specified ID for this binding. Expected to be globally unique to
+   * support the internal bindings-by-ID API.
+   */
+  set bindingId(value: string|null) {
+    this.Serializable$set('bindingId', value);
   }
 
   get condition(): Expr|null {
@@ -1798,7 +1844,7 @@ export class Binding extends Serializable {
 
   getPartialClassMetadata(): Partial<ClassMetadata> {
     return {
-      keys: ['condition', 'members', 'role'],
+      keys: ['bindingId', 'condition', 'members', 'role'],
       objects: {'condition': Expr}
     };
   }
@@ -1919,6 +1965,141 @@ export class CloudAuditOptions extends Serializable {
       keys: ['authorizationLoggingOptions', 'logName'],
       objects: {'authorizationLoggingOptions': AuthorizationLoggingOptions}
     };
+  }
+}
+
+export interface CloudStorageDestinationParameters {
+  bucket?: string|null;
+  filenamePrefix?: string|null;
+  permissions?: CloudStorageDestinationPermissions|null;
+  bucketCorsUris?: Array<string>|null;
+}
+export class CloudStorageDestination extends Serializable {
+  constructor(parameters: CloudStorageDestinationParameters = {}) {
+    super();
+    this.Serializable$set(
+        'bucket', (parameters.bucket == null) ? (null) : (parameters.bucket));
+    this.Serializable$set(
+        'filenamePrefix',
+        (parameters.filenamePrefix == null) ? (null) :
+                                              (parameters.filenamePrefix));
+    this.Serializable$set(
+        'permissions',
+        (parameters.permissions == null) ? (null) : (parameters.permissions));
+    this.Serializable$set(
+        'bucketCorsUris',
+        (parameters.bucketCorsUris == null) ? (null) :
+                                              (parameters.bucketCorsUris));
+  }
+
+  static get Permissions(): ICloudStorageDestinationPermissionsEnum {
+    return CloudStorageDestinationPermissionsEnum;
+  }
+
+  get bucket(): string|null {
+    return (
+        (this.Serializable$has('bucket')) ? (this.Serializable$get('bucket')) :
+                                            (null));
+  }
+
+  /**
+   * The Google Cloud Storage destination bucket.
+   */
+  set bucket(value: string|null) {
+    this.Serializable$set('bucket', value);
+  }
+
+  get bucketCorsUris(): Array<string>|null {
+    return (
+        (this.Serializable$has('bucketCorsUris')) ?
+            (this.Serializable$get('bucketCorsUris')) :
+            (null));
+  }
+
+  /**
+   * Optional list of URIs to whitelist for the CORS settings on the bucket.
+   * Used to enable websites to access exported files via JavaScript.
+   */
+  set bucketCorsUris(value: Array<string>|null) {
+    this.Serializable$set('bucketCorsUris', value);
+  }
+
+  get filenamePrefix(): string|null {
+    return (
+        (this.Serializable$has('filenamePrefix')) ?
+            (this.Serializable$get('filenamePrefix')) :
+            (null));
+  }
+
+  /**
+   * The string used as the prefix for each output file. A trailing \"/\"
+   * indicates a path. The filenames of the exported files will be constructed
+   * from this prefix, the coordinates of each file in a mosaic (if any), and a
+   * file extension corresponding to the file format.
+   */
+  set filenamePrefix(value: string|null) {
+    this.Serializable$set('filenamePrefix', value);
+  }
+
+  get permissions(): CloudStorageDestinationPermissions|null {
+    return (
+        (this.Serializable$has('permissions')) ?
+            (this.Serializable$get('permissions')) :
+            (null));
+  }
+
+  /**
+   * Specifies the permissions to set on the exported tiles. If unspecified,
+   * defaults to DEFAULT_OBJECT_ACL.
+   */
+  set permissions(value: CloudStorageDestinationPermissions|null) {
+    this.Serializable$set('permissions', value);
+  }
+
+  getConstructor(): SerializableCtor<CloudStorageDestination> {
+    return CloudStorageDestination;
+  }
+
+  getPartialClassMetadata(): Partial<ClassMetadata> {
+    return {
+      enums: {'permissions': CloudStorageDestinationPermissionsEnum},
+      keys: ['bucket', 'bucketCorsUris', 'filenamePrefix', 'permissions']
+    };
+  }
+}
+
+export interface CloudStorageLocationParameters {
+  uris?: Array<string>|null;
+}
+export class CloudStorageLocation extends Serializable {
+  constructor(parameters: CloudStorageLocationParameters = {}) {
+    super();
+    this.Serializable$set(
+        'uris', (parameters.uris == null) ? (null) : (parameters.uris));
+  }
+
+  get uris(): Array<string>|null {
+    return (
+        (this.Serializable$has('uris')) ? (this.Serializable$get('uris')) :
+                                          (null));
+  }
+
+  /**
+   * The URIs of the data. Only Google Cloud Storage URIs are supported. Each
+   * URI must be specified in the following format:
+   * \"gs://bucket-id/object-id\". Only one URI is currently supported. If more
+   * than one URI is specified an `INALID_ARGUMENT` error is returned.
+   */
+  set uris(value: Array<string>|null) {
+    this.Serializable$set('uris', value);
+  }
+
+  getConstructor(): SerializableCtor<CloudStorageLocation> {
+    return CloudStorageLocation;
+  }
+
+  getPartialClassMetadata(): Partial<ClassMetadata> {
+    return {keys: ['uris']};
   }
 }
 
@@ -2119,7 +2300,7 @@ export class ComputeImagesRequest extends Serializable {
 
   /**
    * An optional maximum number of results per page. The server may return fewer
-   * images than requested If unspecified, the page size default is 1000
+   * images than requested. If unspecified, the page size default is 1000
    * reesults per page.
    */
   set pageSize(value: number|null) {
@@ -2909,6 +3090,8 @@ export interface EarthEngineAssetParameters {
   bands?: Array<ImageBand>|null;
   sizeBytes?: string|null;
   quota?: FolderQuota|null;
+  tilestoreLocation?: TilestoreLocation|null;
+  cloudStorageLocation?: CloudStorageLocation|null;
   tilestoreEntry?: TilestoreEntry|null;
   gcsLocation?: GcsLocation|null;
   expression?: Expression|null;
@@ -2950,6 +3133,16 @@ export class EarthEngineAsset extends Serializable {
     this.Serializable$set(
         'quota', (parameters.quota == null) ? (null) : (parameters.quota));
     this.Serializable$set(
+        'tilestoreLocation',
+        (parameters.tilestoreLocation == null) ?
+            (null) :
+            (parameters.tilestoreLocation));
+    this.Serializable$set(
+        'cloudStorageLocation',
+        (parameters.cloudStorageLocation == null) ?
+            (null) :
+            (parameters.cloudStorageLocation));
+    this.Serializable$set(
         'tilestoreEntry',
         (parameters.tilestoreEntry == null) ? (null) :
                                               (parameters.tilestoreEntry));
@@ -2977,6 +3170,20 @@ export class EarthEngineAsset extends Serializable {
    */
   set bands(value: Array<ImageBand>|null) {
     this.Serializable$set('bands', value);
+  }
+
+  get cloudStorageLocation(): CloudStorageLocation|null {
+    return (
+        (this.Serializable$has('cloudStorageLocation')) ?
+            (this.Serializable$get('cloudStorageLocation')) :
+            (null));
+  }
+
+  /**
+   * The location of this asset on Cloud Storage.
+   */
+  set cloudStorageLocation(value: CloudStorageLocation|null) {
+    this.Serializable$set('cloudStorageLocation', value);
   }
 
   get description(): string|null {
@@ -3149,6 +3356,17 @@ export class EarthEngineAsset extends Serializable {
     this.Serializable$set('tilestoreEntry', value);
   }
 
+  get tilestoreLocation(): TilestoreLocation|null {
+    return (
+        (this.Serializable$has('tilestoreLocation')) ?
+            (this.Serializable$get('tilestoreLocation')) :
+            (null));
+  }
+
+  set tilestoreLocation(value: TilestoreLocation|null) {
+    this.Serializable$set('tilestoreLocation', value);
+  }
+
   get title(): string|null {
     return (
         (this.Serializable$has('title')) ? (this.Serializable$get('title')) :
@@ -3198,9 +3416,10 @@ export class EarthEngineAsset extends Serializable {
       arrays: {'bands': ImageBand},
       enums: {'type': EarthEngineAssetTypeEnum},
       keys: [
-        'bands', 'description', 'endTime', 'expression', 'gcsLocation',
-        'geometry', 'id', 'name', 'properties', 'quota', 'sizeBytes',
-        'startTime', 'tilestoreEntry', 'title', 'type', 'updateTime'
+        'bands', 'cloudStorageLocation', 'description', 'endTime', 'expression',
+        'gcsLocation', 'geometry', 'id', 'name', 'properties', 'quota',
+        'sizeBytes', 'startTime', 'tilestoreEntry', 'tilestoreLocation',
+        'title', 'type', 'updateTime'
       ],
       objectMaps: {
         'geometry': {
@@ -3217,10 +3436,12 @@ export class EarthEngineAsset extends Serializable {
         }
       },
       objects: {
+        'cloudStorageLocation': CloudStorageLocation,
         'expression': Expression,
         'gcsLocation': GcsLocation,
         'quota': FolderQuota,
-        'tilestoreEntry': TilestoreEntry
+        'tilestoreEntry': TilestoreEntry,
+        'tilestoreLocation': TilestoreLocation
       }
     };
   }
@@ -3405,6 +3626,7 @@ export interface ExportImageRequestParameters {
   maxPixels?: string|null;
   grid?: PixelGrid|null;
   requestId?: string|null;
+  maxWorkers?: number|null;
   maxWorkerCount?: number|null;
 }
 export class ExportImageRequest extends Serializable {
@@ -3434,6 +3656,9 @@ export class ExportImageRequest extends Serializable {
     this.Serializable$set(
         'requestId',
         (parameters.requestId == null) ? (null) : (parameters.requestId));
+    this.Serializable$set(
+        'maxWorkers',
+        (parameters.maxWorkers == null) ? (null) : (parameters.maxWorkers));
     this.Serializable$set(
         'maxWorkerCount',
         (parameters.maxWorkerCount == null) ? (null) :
@@ -3542,6 +3767,20 @@ export class ExportImageRequest extends Serializable {
     this.Serializable$set('maxWorkerCount', value);
   }
 
+  get maxWorkers(): number|null {
+    return (
+        (this.Serializable$has('maxWorkers')) ?
+            (this.Serializable$get('maxWorkers')) :
+            (null));
+  }
+
+  /**
+   * Optional parameter setting the maximum amount of workers to use.
+   */
+  set maxWorkers(value: number|null) {
+    this.Serializable$set('maxWorkers', value);
+  }
+
   get requestId(): string|null {
     return (
         (this.Serializable$has('requestId')) ?
@@ -3568,7 +3807,7 @@ export class ExportImageRequest extends Serializable {
     return {
       keys: [
         'assetExportOptions', 'description', 'expression', 'fileExportOptions',
-        'grid', 'maxPixels', 'maxWorkerCount', 'requestId'
+        'grid', 'maxPixels', 'maxWorkerCount', 'maxWorkers', 'requestId'
       ],
       objects: {
         'assetExportOptions': ImageAssetExportOptions,
@@ -3586,6 +3825,7 @@ export interface ExportMapRequestParameters {
   tileOptions?: TileOptions|null;
   tileExportOptions?: ImageFileExportOptions|null;
   requestId?: string|null;
+  maxWorkers?: number|null;
   maxWorkerCount?: number|null;
 }
 export class ExportMapRequest extends Serializable {
@@ -3608,6 +3848,9 @@ export class ExportMapRequest extends Serializable {
     this.Serializable$set(
         'requestId',
         (parameters.requestId == null) ? (null) : (parameters.requestId));
+    this.Serializable$set(
+        'maxWorkers',
+        (parameters.maxWorkers == null) ? (null) : (parameters.maxWorkers));
     this.Serializable$set(
         'maxWorkerCount',
         (parameters.maxWorkerCount == null) ? (null) :
@@ -3656,6 +3899,20 @@ export class ExportMapRequest extends Serializable {
    */
   set maxWorkerCount(value: number|null) {
     this.Serializable$set('maxWorkerCount', value);
+  }
+
+  get maxWorkers(): number|null {
+    return (
+        (this.Serializable$has('maxWorkers')) ?
+            (this.Serializable$get('maxWorkers')) :
+            (null));
+  }
+
+  /**
+   * Optional parameter setting the maximum amount of workers to use.
+   */
+  set maxWorkers(value: number|null) {
+    this.Serializable$set('maxWorkers', value);
   }
 
   get requestId(): string|null {
@@ -3712,8 +3969,8 @@ export class ExportMapRequest extends Serializable {
   getPartialClassMetadata(): Partial<ClassMetadata> {
     return {
       keys: [
-        'description', 'expression', 'maxWorkerCount', 'requestId',
-        'tileExportOptions', 'tileOptions'
+        'description', 'expression', 'maxWorkerCount', 'maxWorkers',
+        'requestId', 'tileExportOptions', 'tileOptions'
       ],
       objects: {
         'expression': Expression,
@@ -3732,6 +3989,7 @@ export interface ExportTableRequestParameters {
   selectors?: Array<string>|null;
   requestId?: string|null;
   maxErrorMeters?: number|null;
+  maxWorkers?: number|null;
   maxWorkerCount?: number|null;
   maxVertices?: number|null;
 }
@@ -3764,6 +4022,9 @@ export class ExportTableRequest extends Serializable {
         'maxErrorMeters',
         (parameters.maxErrorMeters == null) ? (null) :
                                               (parameters.maxErrorMeters));
+    this.Serializable$set(
+        'maxWorkers',
+        (parameters.maxWorkers == null) ? (null) : (parameters.maxWorkers));
     this.Serializable$set(
         'maxWorkerCount',
         (parameters.maxWorkerCount == null) ? (null) :
@@ -3873,6 +4134,20 @@ export class ExportTableRequest extends Serializable {
     this.Serializable$set('maxWorkerCount', value);
   }
 
+  get maxWorkers(): number|null {
+    return (
+        (this.Serializable$has('maxWorkers')) ?
+            (this.Serializable$get('maxWorkers')) :
+            (null));
+  }
+
+  /**
+   * Optional parameter setting the maximum amount of workers to use.
+   */
+  set maxWorkers(value: number|null) {
+    this.Serializable$set('maxWorkers', value);
+  }
+
   get requestId(): string|null {
     return (
         (this.Serializable$has('requestId')) ?
@@ -3913,8 +4188,8 @@ export class ExportTableRequest extends Serializable {
     return {
       keys: [
         'assetExportOptions', 'description', 'expression', 'fileExportOptions',
-        'maxErrorMeters', 'maxVertices', 'maxWorkerCount', 'requestId',
-        'selectors'
+        'maxErrorMeters', 'maxVertices', 'maxWorkerCount', 'maxWorkers',
+        'requestId', 'selectors'
       ],
       objects: {
         'assetExportOptions': TableAssetExportOptions,
@@ -3933,6 +4208,7 @@ export interface ExportVideoMapRequestParameters {
   tileExportOptions?: VideoFileExportOptions|null;
   requestId?: string|null;
   version?: ExportVideoMapRequestVersion|null;
+  maxWorkers?: number|null;
   maxWorkerCount?: number|null;
 }
 export class ExportVideoMapRequest extends Serializable {
@@ -3961,6 +4237,9 @@ export class ExportVideoMapRequest extends Serializable {
     this.Serializable$set(
         'version',
         (parameters.version == null) ? (null) : (parameters.version));
+    this.Serializable$set(
+        'maxWorkers',
+        (parameters.maxWorkers == null) ? (null) : (parameters.maxWorkers));
     this.Serializable$set(
         'maxWorkerCount',
         (parameters.maxWorkerCount == null) ? (null) :
@@ -4014,6 +4293,20 @@ export class ExportVideoMapRequest extends Serializable {
    */
   set maxWorkerCount(value: number|null) {
     this.Serializable$set('maxWorkerCount', value);
+  }
+
+  get maxWorkers(): number|null {
+    return (
+        (this.Serializable$has('maxWorkers')) ?
+            (this.Serializable$get('maxWorkers')) :
+            (null));
+  }
+
+  /**
+   * Optional parameter setting the maximum amount of workers to use.
+   */
+  set maxWorkers(value: number|null) {
+    this.Serializable$set('maxWorkers', value);
   }
 
   get requestId(): string|null {
@@ -4099,8 +4392,9 @@ export class ExportVideoMapRequest extends Serializable {
     return {
       enums: {'version': ExportVideoMapRequestVersionEnum},
       keys: [
-        'description', 'expression', 'maxWorkerCount', 'requestId',
-        'tileExportOptions', 'tileOptions', 'version', 'videoOptions'
+        'description', 'expression', 'maxWorkerCount', 'maxWorkers',
+        'requestId', 'tileExportOptions', 'tileOptions', 'version',
+        'videoOptions'
       ],
       objects: {
         'expression': Expression,
@@ -4118,6 +4412,7 @@ export interface ExportVideoRequestParameters {
   videoOptions?: VideoOptions|null;
   fileExportOptions?: VideoFileExportOptions|null;
   requestId?: string|null;
+  maxWorkers?: number|null;
   maxWorkerCount?: number|null;
 }
 export class ExportVideoRequest extends Serializable {
@@ -4140,6 +4435,9 @@ export class ExportVideoRequest extends Serializable {
     this.Serializable$set(
         'requestId',
         (parameters.requestId == null) ? (null) : (parameters.requestId));
+    this.Serializable$set(
+        'maxWorkers',
+        (parameters.maxWorkers == null) ? (null) : (parameters.maxWorkers));
     this.Serializable$set(
         'maxWorkerCount',
         (parameters.maxWorkerCount == null) ? (null) :
@@ -4203,6 +4501,20 @@ export class ExportVideoRequest extends Serializable {
     this.Serializable$set('maxWorkerCount', value);
   }
 
+  get maxWorkers(): number|null {
+    return (
+        (this.Serializable$has('maxWorkers')) ?
+            (this.Serializable$get('maxWorkers')) :
+            (null));
+  }
+
+  /**
+   * Optional parameter setting the maximum amount of workers to use.
+   */
+  set maxWorkers(value: number|null) {
+    this.Serializable$set('maxWorkers', value);
+  }
+
   get requestId(): string|null {
     return (
         (this.Serializable$has('requestId')) ?
@@ -4243,7 +4555,7 @@ export class ExportVideoRequest extends Serializable {
     return {
       keys: [
         'description', 'expression', 'fileExportOptions', 'maxWorkerCount',
-        'requestId', 'videoOptions'
+        'maxWorkers', 'requestId', 'videoOptions'
       ],
       objects: {
         'expression': Expression,
@@ -4600,6 +4912,7 @@ export interface FolderQuotaParameters {
   sizeBytes?: string|null;
   maxSizeBytes?: string|null;
   assetCount?: string|null;
+  maxAssets?: string|null;
   maxAssetCount?: string|null;
 }
 export class FolderQuota extends Serializable {
@@ -4614,6 +4927,9 @@ export class FolderQuota extends Serializable {
     this.Serializable$set(
         'assetCount',
         (parameters.assetCount == null) ? (null) : (parameters.assetCount));
+    this.Serializable$set(
+        'maxAssets',
+        (parameters.maxAssets == null) ? (null) : (parameters.maxAssets));
     this.Serializable$set(
         'maxAssetCount',
         (parameters.maxAssetCount == null) ? (null) :
@@ -4646,6 +4962,20 @@ export class FolderQuota extends Serializable {
    */
   set maxAssetCount(value: string|null) {
     this.Serializable$set('maxAssetCount', value);
+  }
+
+  get maxAssets(): string|null {
+    return (
+        (this.Serializable$has('maxAssets')) ?
+            (this.Serializable$get('maxAssets')) :
+            (null));
+  }
+
+  /**
+   * The maximum number of assets that can be stored in the folder.
+   */
+  set maxAssets(value: string|null) {
+    this.Serializable$set('maxAssets', value);
   }
 
   get maxSizeBytes(): string|null {
@@ -4681,7 +5011,11 @@ export class FolderQuota extends Serializable {
   }
 
   getPartialClassMetadata(): Partial<ClassMetadata> {
-    return {keys: ['assetCount', 'maxAssetCount', 'maxSizeBytes', 'sizeBytes']};
+    return {
+      keys: [
+        'assetCount', 'maxAssetCount', 'maxAssets', 'maxSizeBytes', 'sizeBytes'
+      ]
+    };
   }
 }
 
@@ -5139,8 +5473,8 @@ export class GetPixelsRequest extends Serializable {
   }
 
   /**
-   * Parameters describing the pixel grid in which to fetch data. Defaults to
-   * the native pixel grid of the data.
+   * Optional parameters describing the pixel grid in which to fetch data.
+   * Defaults to the native pixel grid of the data.
    */
   set grid(value: PixelGrid|null) {
     this.Serializable$set('grid', value);
@@ -5918,6 +6252,7 @@ export class ImageBand extends Serializable {
 export interface ImageFileExportOptionsParameters {
   fileFormat?: ImageFileExportOptionsFileFormat|null;
   driveDestination?: DriveDestination|null;
+  cloudStorageDestination?: CloudStorageDestination|null;
   gcsDestination?: GcsDestination|null;
   geoTiffOptions?: GeoTiffImageExportOptions|null;
   tfRecordOptions?: TfRecordImageExportOptions|null;
@@ -5932,6 +6267,11 @@ export class ImageFileExportOptions extends Serializable {
         'driveDestination',
         (parameters.driveDestination == null) ? (null) :
                                                 (parameters.driveDestination));
+    this.Serializable$set(
+        'cloudStorageDestination',
+        (parameters.cloudStorageDestination == null) ?
+            (null) :
+            (parameters.cloudStorageDestination));
     this.Serializable$set(
         'gcsDestination',
         (parameters.gcsDestination == null) ? (null) :
@@ -5948,6 +6288,20 @@ export class ImageFileExportOptions extends Serializable {
 
   static get FileFormat(): IImageFileExportOptionsFileFormatEnum {
     return ImageFileExportOptionsFileFormatEnum;
+  }
+
+  get cloudStorageDestination(): CloudStorageDestination|null {
+    return (
+        (this.Serializable$has('cloudStorageDestination')) ?
+            (this.Serializable$get('cloudStorageDestination')) :
+            (null));
+  }
+
+  /**
+   * If specified, configures export to Google Cloud Storage.
+   */
+  set cloudStorageDestination(value: CloudStorageDestination|null) {
+    this.Serializable$set('cloudStorageDestination', value);
   }
 
   get driveDestination(): DriveDestination|null {
@@ -6028,10 +6382,11 @@ export class ImageFileExportOptions extends Serializable {
     return {
       enums: {'fileFormat': ImageFileExportOptionsFileFormatEnum},
       keys: [
-        'driveDestination', 'fileFormat', 'gcsDestination', 'geoTiffOptions',
-        'tfRecordOptions'
+        'cloudStorageDestination', 'driveDestination', 'fileFormat',
+        'gcsDestination', 'geoTiffOptions', 'tfRecordOptions'
       ],
       objects: {
+        'cloudStorageDestination': CloudStorageDestination,
         'driveDestination': DriveDestination,
         'gcsDestination': GcsDestination,
         'geoTiffOptions': GeoTiffImageExportOptions,
@@ -8193,6 +8548,7 @@ export class TableAssetExportOptions extends Serializable {
 export interface TableFileExportOptionsParameters {
   fileFormat?: TableFileExportOptionsFileFormat|null;
   driveDestination?: DriveDestination|null;
+  cloudStorageDestination?: CloudStorageDestination|null;
   gcsDestination?: GcsDestination|null;
 }
 export class TableFileExportOptions extends Serializable {
@@ -8206,6 +8562,11 @@ export class TableFileExportOptions extends Serializable {
         (parameters.driveDestination == null) ? (null) :
                                                 (parameters.driveDestination));
     this.Serializable$set(
+        'cloudStorageDestination',
+        (parameters.cloudStorageDestination == null) ?
+            (null) :
+            (parameters.cloudStorageDestination));
+    this.Serializable$set(
         'gcsDestination',
         (parameters.gcsDestination == null) ? (null) :
                                               (parameters.gcsDestination));
@@ -8213,6 +8574,20 @@ export class TableFileExportOptions extends Serializable {
 
   static get FileFormat(): ITableFileExportOptionsFileFormatEnum {
     return TableFileExportOptionsFileFormatEnum;
+  }
+
+  get cloudStorageDestination(): CloudStorageDestination|null {
+    return (
+        (this.Serializable$has('cloudStorageDestination')) ?
+            (this.Serializable$get('cloudStorageDestination')) :
+            (null));
+  }
+
+  /**
+   * If specified, configures export to Google Cloud Storage.
+   */
+  set cloudStorageDestination(value: CloudStorageDestination|null) {
+    this.Serializable$set('cloudStorageDestination', value);
   }
 
   get driveDestination(): DriveDestination|null {
@@ -8264,8 +8639,12 @@ export class TableFileExportOptions extends Serializable {
   getPartialClassMetadata(): Partial<ClassMetadata> {
     return {
       enums: {'fileFormat': TableFileExportOptionsFileFormatEnum},
-      keys: ['driveDestination', 'fileFormat', 'gcsDestination'],
+      keys: [
+        'cloudStorageDestination', 'driveDestination', 'fileFormat',
+        'gcsDestination'
+      ],
       objects: {
+        'cloudStorageDestination': CloudStorageDestination,
         'driveDestination': DriveDestination,
         'gcsDestination': GcsDestination
       }
@@ -9162,11 +9541,15 @@ export class Thumbnail extends Serializable {
 }
 
 export interface TileOptionsParameters {
+  endZoom?: number|null;
   maxZoom?: number|null;
   scale?: number|null;
+  startZoom?: number|null;
   minZoom?: number|null;
+  skipEmpty?: boolean|null;
   skipEmptyTiles?: boolean|null;
   mapsApiKey?: string|null;
+  dimensions?: GridDimensions|null;
   tileDimensions?: GridDimensions|null;
   stride?: number|null;
   zoomSubset?: ZoomSubset|null;
@@ -9175,13 +9558,22 @@ export class TileOptions extends Serializable {
   constructor(parameters: TileOptionsParameters = {}) {
     super();
     this.Serializable$set(
+        'endZoom',
+        (parameters.endZoom == null) ? (null) : (parameters.endZoom));
+    this.Serializable$set(
         'maxZoom',
         (parameters.maxZoom == null) ? (null) : (parameters.maxZoom));
     this.Serializable$set(
         'scale', (parameters.scale == null) ? (null) : (parameters.scale));
     this.Serializable$set(
+        'startZoom',
+        (parameters.startZoom == null) ? (null) : (parameters.startZoom));
+    this.Serializable$set(
         'minZoom',
         (parameters.minZoom == null) ? (null) : (parameters.minZoom));
+    this.Serializable$set(
+        'skipEmpty',
+        (parameters.skipEmpty == null) ? (null) : (parameters.skipEmpty));
     this.Serializable$set(
         'skipEmptyTiles',
         (parameters.skipEmptyTiles == null) ? (null) :
@@ -9189,6 +9581,9 @@ export class TileOptions extends Serializable {
     this.Serializable$set(
         'mapsApiKey',
         (parameters.mapsApiKey == null) ? (null) : (parameters.mapsApiKey));
+    this.Serializable$set(
+        'dimensions',
+        (parameters.dimensions == null) ? (null) : (parameters.dimensions));
     this.Serializable$set(
         'tileDimensions',
         (parameters.tileDimensions == null) ? (null) :
@@ -9198,6 +9593,35 @@ export class TileOptions extends Serializable {
     this.Serializable$set(
         'zoomSubset',
         (parameters.zoomSubset == null) ? (null) : (parameters.zoomSubset));
+  }
+
+  get dimensions(): GridDimensions|null {
+    return (
+        (this.Serializable$has('dimensions')) ?
+            (this.Serializable$get('dimensions')) :
+            (null));
+  }
+
+  /**
+   * The width and height of output video tiles, used only for exporting tiled
+   * video pyramids (ExportVideoMap).
+   */
+  set dimensions(value: GridDimensions|null) {
+    this.Serializable$set('dimensions', value);
+  }
+
+  get endZoom(): number|null {
+    return (
+        (this.Serializable$has('endZoom')) ?
+            (this.Serializable$get('endZoom')) :
+            (null));
+  }
+
+  /**
+   * The zoom level to stop generating map tiles for.
+   */
+  set endZoom(value: number|null) {
+    this.Serializable$set('endZoom', value);
   }
 
   get mapsApiKey(): string|null {
@@ -9256,6 +9680,20 @@ export class TileOptions extends Serializable {
     this.Serializable$set('scale', value);
   }
 
+  get skipEmpty(): boolean|null {
+    return (
+        (this.Serializable$has('skipEmpty')) ?
+            (this.Serializable$get('skipEmpty')) :
+            (null));
+  }
+
+  /**
+   * If true, skip writing empty (i.e. fully-transparent) map tiles.
+   */
+  set skipEmpty(value: boolean|null) {
+    this.Serializable$set('skipEmpty', value);
+  }
+
   get skipEmptyTiles(): boolean|null {
     return (
         (this.Serializable$has('skipEmptyTiles')) ?
@@ -9268,6 +9706,20 @@ export class TileOptions extends Serializable {
    */
   set skipEmptyTiles(value: boolean|null) {
     this.Serializable$set('skipEmptyTiles', value);
+  }
+
+  get startZoom(): number|null {
+    return (
+        (this.Serializable$has('startZoom')) ?
+            (this.Serializable$get('startZoom')) :
+            (null));
+  }
+
+  /**
+   * The zoom level to start generating map tiles for export. Defaults to zero.
+   */
+  set startZoom(value: number|null) {
+    this.Serializable$set('startZoom', value);
   }
 
   get stride(): number|null {
@@ -9321,10 +9773,15 @@ export class TileOptions extends Serializable {
   getPartialClassMetadata(): Partial<ClassMetadata> {
     return {
       keys: [
-        'mapsApiKey', 'maxZoom', 'minZoom', 'scale', 'skipEmptyTiles', 'stride',
-        'tileDimensions', 'zoomSubset'
+        'dimensions', 'endZoom', 'mapsApiKey', 'maxZoom', 'minZoom', 'scale',
+        'skipEmpty', 'skipEmptyTiles', 'startZoom', 'stride', 'tileDimensions',
+        'zoomSubset'
       ],
-      objects: {'tileDimensions': GridDimensions, 'zoomSubset': ZoomSubset}
+      objects: {
+        'dimensions': GridDimensions,
+        'tileDimensions': GridDimensions,
+        'zoomSubset': ZoomSubset
+      }
     };
   }
 }
@@ -9372,8 +9829,7 @@ export class Tileset extends Serializable {
 
   /**
    * The coordinate reference system of the pixel grid, specified as a standard
-   * code where possible, and in WKT format otherwise. If unspecified it will be
-   * be read from the source uris.
+   * code where possible, and in WKT format otherwise.
    */
   set crs(value: string|null) {
     this.Serializable$set('crs', value);
@@ -9696,6 +10152,62 @@ export class TilestoreEntry extends Serializable {
   }
 }
 
+export interface TilestoreLocationParameters {
+  sources?: Array<TilestoreSource>|null;
+  pathPrefix?: string|null;
+}
+export class TilestoreLocation extends Serializable {
+  constructor(parameters: TilestoreLocationParameters = {}) {
+    super();
+    this.Serializable$set(
+        'sources',
+        (parameters.sources == null) ? (null) : (parameters.sources));
+    this.Serializable$set(
+        'pathPrefix',
+        (parameters.pathPrefix == null) ? (null) : (parameters.pathPrefix));
+  }
+
+  get pathPrefix(): string|null {
+    return (
+        (this.Serializable$has('pathPrefix')) ?
+            (this.Serializable$get('pathPrefix')) :
+            (null));
+  }
+
+  /**
+   * Prepend this to each of path in tilestore_files to get a file path relative
+   * to the tilestore root. Must end with a slash.
+   */
+  set pathPrefix(value: string|null) {
+    this.Serializable$set('pathPrefix', value);
+  }
+
+  get sources(): Array<TilestoreSource>|null {
+    return (
+        (this.Serializable$has('sources')) ?
+            (this.Serializable$get('sources')) :
+            (null));
+  }
+
+  /**
+   * Container for all EER tile information.
+   */
+  set sources(value: Array<TilestoreSource>|null) {
+    this.Serializable$set('sources', value);
+  }
+
+  getConstructor(): SerializableCtor<TilestoreLocation> {
+    return TilestoreLocation;
+  }
+
+  getPartialClassMetadata(): Partial<ClassMetadata> {
+    return {
+      arrays: {'sources': TilestoreSource},
+      keys: ['pathPrefix', 'sources']
+    };
+  }
+}
+
 export interface TilestoreSourceParameters {
   pathSuffix?: string|null;
   headerSizeBytes?: number|null;
@@ -9777,7 +10289,7 @@ export class TilestoreTileset extends Serializable {
   }
 
   /**
-   * Indexes into TilestoreEntry's raster_files array.
+   * Indexes into TilestoreLocation's raster_files array.
    */
   set fileIndexes(value: Array<number>|null) {
     this.Serializable$set('fileIndexes', value);
@@ -10078,6 +10590,7 @@ export class ValueNode extends Serializable {
 export interface VideoFileExportOptionsParameters {
   fileFormat?: VideoFileExportOptionsFileFormat|null;
   driveDestination?: DriveDestination|null;
+  cloudStorageDestination?: CloudStorageDestination|null;
   gcsDestination?: GcsDestination|null;
 }
 export class VideoFileExportOptions extends Serializable {
@@ -10091,6 +10604,11 @@ export class VideoFileExportOptions extends Serializable {
         (parameters.driveDestination == null) ? (null) :
                                                 (parameters.driveDestination));
     this.Serializable$set(
+        'cloudStorageDestination',
+        (parameters.cloudStorageDestination == null) ?
+            (null) :
+            (parameters.cloudStorageDestination));
+    this.Serializable$set(
         'gcsDestination',
         (parameters.gcsDestination == null) ? (null) :
                                               (parameters.gcsDestination));
@@ -10098,6 +10616,20 @@ export class VideoFileExportOptions extends Serializable {
 
   static get FileFormat(): IVideoFileExportOptionsFileFormatEnum {
     return VideoFileExportOptionsFileFormatEnum;
+  }
+
+  get cloudStorageDestination(): CloudStorageDestination|null {
+    return (
+        (this.Serializable$has('cloudStorageDestination')) ?
+            (this.Serializable$get('cloudStorageDestination')) :
+            (null));
+  }
+
+  /**
+   * If specified, configures export to Google Cloud Storage.
+   */
+  set cloudStorageDestination(value: CloudStorageDestination|null) {
+    this.Serializable$set('cloudStorageDestination', value);
   }
 
   get driveDestination(): DriveDestination|null {
@@ -10150,8 +10682,12 @@ export class VideoFileExportOptions extends Serializable {
   getPartialClassMetadata(): Partial<ClassMetadata> {
     return {
       enums: {'fileFormat': VideoFileExportOptionsFileFormatEnum},
-      keys: ['driveDestination', 'fileFormat', 'gcsDestination'],
+      keys: [
+        'cloudStorageDestination', 'driveDestination', 'fileFormat',
+        'gcsDestination'
+      ],
       objects: {
+        'cloudStorageDestination': CloudStorageDestination,
         'driveDestination': DriveDestination,
         'gcsDestination': GcsDestination
       }
@@ -10489,6 +11025,8 @@ export class WaitOperationRequest extends Serializable {
 }
 
 export interface ZoomSubsetParameters {
+  start?: number|null;
+  end?: number|null;
   min?: number|null;
   max?: number|null;
 }
@@ -10496,9 +11034,29 @@ export class ZoomSubset extends Serializable {
   constructor(parameters: ZoomSubsetParameters = {}) {
     super();
     this.Serializable$set(
+        'start', (parameters.start == null) ? (null) : (parameters.start));
+    this.Serializable$set(
+        'end', (parameters.end == null) ? (null) : (parameters.end));
+    this.Serializable$set(
         'min', (parameters.min == null) ? (null) : (parameters.min));
     this.Serializable$set(
         'max', (parameters.max == null) ? (null) : (parameters.max));
+  }
+
+  get end(): number|null {
+    return (
+        (this.Serializable$has('end')) ? (this.Serializable$get('end')) :
+                                         (null));
+  }
+
+  /**
+   * Ending zoom level subset for which to generate tiles (ExportVideoMap),
+   * allowing you to render a zoom level incrementally, up to but not including
+   * the maximum subset (if provided) in some unspecified but deterministic
+   * order.
+   */
+  set end(value: number|null) {
+    this.Serializable$set('end', value);
   }
 
   get max(): number|null {
@@ -10508,7 +11066,7 @@ export class ZoomSubset extends Serializable {
   }
 
   /**
-   * Maximum zoom level subset for which to generate tiles (ExportVideoMap),
+   * Ending zoom level subset for which to generate tiles (ExportVideoMap),
    * allowing you to render a zoom level incrementally, up to but not including
    * the maximum subset (if provided) in some unspecified but deterministic
    * order.
@@ -10524,7 +11082,7 @@ export class ZoomSubset extends Serializable {
   }
 
   /**
-   * Minimum zoom level subset for which to generate tiles (ExportVideoMap)
+   * Starting zoom level subset for which to generate tiles (ExportVideoMap)
    * Here, subset is a double precision value, allowing you to render a zoom
    * level incrementally, so 12.1 for example is the first 10% of the tiles in
    * zoom 12 in some unspecified but deterministic order.
@@ -10533,12 +11091,28 @@ export class ZoomSubset extends Serializable {
     this.Serializable$set('min', value);
   }
 
+  get start(): number|null {
+    return (
+        (this.Serializable$has('start')) ? (this.Serializable$get('start')) :
+                                           (null));
+  }
+
+  /**
+   * Starting zoom level subset for which to generate tiles (ExportVideoMap)
+   * Here, subset is a double precision value, allowing you to render a zoom
+   * level incrementally, so 12.1 for example is the first 10% of the tiles in
+   * zoom 12 in some unspecified but deterministic order.
+   */
+  set start(value: number|null) {
+    this.Serializable$set('start', value);
+  }
+
   getConstructor(): SerializableCtor<ZoomSubset> {
     return ZoomSubset;
   }
 
   getPartialClassMetadata(): Partial<ClassMetadata> {
-    return {keys: ['max', 'min']};
+    return {keys: ['end', 'max', 'min', 'start']};
   }
 }
 const PARAM_MAP_0 = {
@@ -10635,17 +11209,17 @@ export class ProjectsAlgorithmsApiClientImpl implements
   }
 
   list(
-      project: string,
+      parent: string,
       namedParameters: ProjectsAlgorithmsListNamedParameters&
       object = {}): Promise<ListAlgorithmsResponse> {
-    this.$apiClient.$validateParameter(project, new RegExp('^projects/[^/]+$'));
+    this.$apiClient.$validateParameter(parent, new RegExp('^projects/[^/]+$'));
     let $requestBody = <Serializable|null>null;
 
     return this.$apiClient.$request<ListAlgorithmsResponse>({
       body: $requestBody,
       httpMethod: 'GET',
       methodId: 'earthengine.projects.algorithms.list',
-      path: `/${this.gapiVersion}/${project}/algorithms`,
+      path: `/${this.gapiVersion}/${parent}/algorithms`,
       queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
       responseCtor: ListAlgorithmsResponse
     });
@@ -10656,7 +11230,7 @@ export abstract class ProjectsAlgorithmsApiClient {
   constructor() {}
 
   abstract list(
-      project: string,
+      parent: string,
       namedParameters?: ProjectsAlgorithmsListNamedParameters&
       object): Promise<ListAlgorithmsResponse>;
 }

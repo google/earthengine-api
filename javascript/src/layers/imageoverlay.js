@@ -3,13 +3,14 @@ goog.provide('ee.layers.ImageTile');
 
 goog.require('ee.layers.AbstractOverlay');
 goog.require('ee.layers.AbstractTile');
+goog.require('goog.dispose');
 goog.require('goog.events');
 goog.require('goog.events.EventType');
 goog.require('goog.html.SafeUrl');
 goog.require('goog.net.EventType');
 goog.require('goog.net.ImageLoader');
 
-goog.requireType('ee.data.Profiler');
+
 
 
 /**

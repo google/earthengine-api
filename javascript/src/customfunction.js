@@ -227,7 +227,8 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
     return countNode(expression.values[expression.result]);
   };
 
-  const serializedBody = ee.Serializer.encodeCloudApi(body.apply(null, vars));
+  const serializedBody =
+      ee.Serializer.encodeCloudApiExpression(body.apply(null, vars));
   const baseName = `_MAPPING_VAR_${countFunctions(serializedBody)}_`;
 
   // Update the vars and signature by the name.

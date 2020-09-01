@@ -12,8 +12,8 @@ goog.require('goog.iter');
 goog.require('goog.net.EventType');
 goog.require('goog.structs.Set');
 goog.require('goog.style');
-
 goog.requireType('ee.data.Profiler');
+goog.requireType('goog.events.Event');
 
 
 /**

@@ -184,7 +184,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual({
         'assetId': 'users/foo/bar',
         'description': 'myExportImageTask',
-        'json': ee.Image(42).serialize(),
+        'json': ee.Image(42).serialize(for_cloud_api=False),
         'region': '[0, 0, 1, 0, 1, 1]',
         'scale': 1000,
     }, task.config)
@@ -223,7 +223,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('UNSUBMITTED', task.state)
     self.assertEqual({
         'fileFormat': 'GeoTIFF',
-        'json': ee.Image(1).serialize(),
+        'json': ee.Image(1).serialize(for_cloud_api=False),
         'description': 'TestDescription',
         'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
         'driveFileNamePrefix': 'TestDescription',
@@ -350,7 +350,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('EXPORT_IMAGE', task_keyed.task_type)
     self.assertEqual('UNSUBMITTED', task_keyed.state)
     self.assertEqual({
-        'json': config['image'].serialize(),
+        'json': config['image'].serialize(for_cloud_api=False),
         'description': 'myExportImageTask',
         'assetId': config['assetId'],
         'pyramidingPolicy': json.dumps(config['pyramidingPolicy']),
@@ -361,7 +361,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('EXPORT_IMAGE', task_ordered.task_type)
     self.assertEqual('UNSUBMITTED', task_ordered.state)
     self.assertEqual({
-        'json': config['image'].serialize(),
+        'json': config['image'].serialize(for_cloud_api=False),
         'description': 'TestDescription',
         'assetId': config['assetId'],
         'maxPixels': 1000
@@ -440,7 +440,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('UNSUBMITTED', task.state)
     self.assertEqual({
         'fileFormat': 'GeoTIFF',
-        'json': ee.Image(1).serialize(),
+        'json': ee.Image(1).serialize(for_cloud_api=False),
         'description': 'TestDescription',
         'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
         'outputBucket': 'test-bucket',
@@ -565,7 +565,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual(
         {
             'fileFormat': 'GeoTIFF',
-            'json': ee.Image(1).serialize(),
+            'json': ee.Image(1).serialize(for_cloud_api=False),
             'description': 'myExportImageTask',
             'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
             'driveFileNamePrefix': 'myExportImageTask',
@@ -585,7 +585,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual(
         {
             'fileFormat': 'GeoTIFF',
-            'json': ee.Image(1).serialize(),
+            'json': ee.Image(1).serialize(for_cloud_api=False),
             'description': 'myExportImageTask',
             'region': '[[[1, 4], [1, 2], [3, 2], [3, 4]]]',
             'driveFileNamePrefix': 'fooExport',
@@ -674,7 +674,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('EXPORT_TILES', task_keyed.task_type)
     self.assertEqual('UNSUBMITTED', task_keyed.state)
     self.assertEqual({
-        'json': config['image'].serialize(),
+        'json': config['image'].serialize(for_cloud_api=False),
         'description': 'myExportMapTask',
         'outputBucket': config['bucket'],
         'maxZoom': config['maxZoom'],
@@ -690,7 +690,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('EXPORT_TILES', task_ordered.task_type)
     self.assertEqual('UNSUBMITTED', task_ordered.state)
     self.assertEqual({
-        'json': config['image'].serialize(),
+        'json': config['image'].serialize(for_cloud_api=False),
         'description': 'TestDescription',
         'outputBucket': config['bucket'],
         'outputPrefix': 'TestDescription',
@@ -773,8 +773,9 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('TESTTASKID', task.id)
     self.assertEqual('EXPORT_FEATURES', task.task_type)
     self.assertEqual('UNSUBMITTED', task.state)
+    expected_fc = ee.FeatureCollection('drive test FC')
     self.assertEqual({
-        'json': ee.FeatureCollection('drive test FC').serialize(),
+        'json': expected_fc.serialize(for_cloud_api=False),
         'description': 'myExportTableTask',
         'driveFileNamePrefix': 'myExportTableTask',
         'fileFormat': 'CSV',
@@ -853,7 +854,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('EXPORT_FEATURES', task.task_type)
     self.assertEqual('UNSUBMITTED', task.state)
     self.assertEqual({
-        'json': ee.FeatureCollection('foo').serialize(),
+        'json': ee.FeatureCollection('foo').serialize(for_cloud_api=False),
         'description': 'myExportTableTask',
         'outputBucket': 'test-bucket',
         'outputPrefix': 'myExportTableTask',
@@ -888,7 +889,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     test_file_name_prefix = 'fooDriveFileNamePrefix'
     test_format = 'KML'
     expected_config = {
-        'json': test_collection.serialize(),
+        'json': test_collection.serialize(for_cloud_api=False),
         'description': test_description,
         'driveFileNamePrefix': test_file_name_prefix,
         'fileFormat': test_format,
@@ -988,7 +989,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('EXPORT_FEATURES', task.task_type)
     self.assertEqual('UNSUBMITTED', task.state)
     self.assertEqual({
-        'json': ee.FeatureCollection('foo').serialize(),
+        'json': ee.FeatureCollection('foo').serialize(for_cloud_api=False),
         'description': 'foo',
         'assetId': 'users/foo/bar'
     }, task.config)
@@ -1025,7 +1026,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('UNSUBMITTED', task.state)
     self.assertEqual(
         {
-            'json': ee.FeatureCollection('foo').serialize(),
+            'json': ee.FeatureCollection('foo').serialize(for_cloud_api=False),
             'description': 'myExportTableTask',
             'outputBucket': 'test-bucket',
             'outputPrefix': 'myExportTableTask',
@@ -1067,7 +1068,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('UNSUBMITTED', task.state)
     # Defaults the destination to Drive.
     self.assertEqual({
-        'json': collection.serialize(),
+        'json': collection.serialize(for_cloud_api=False),
         'description': 'TestVideoName',
         'crs': 'SR-ORG:6627',
         'driveFileNamePrefix': 'TestVideoName',
@@ -1080,7 +1081,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     self.assertEqual('EXPORT_VIDEO', gcs_task.task_type)
     self.assertEqual('UNSUBMITTED', gcs_task.state)
     self.assertEqual({
-        'json': collection.serialize(),
+        'json': collection.serialize(for_cloud_api=False),
         'description': 'TestVideoName',
         'crs': 'SR-ORG:6627',
         'outputBucket': 'test-bucket',
@@ -1176,7 +1177,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     region = ee.Geometry.Rectangle(1, 2, 3, 4)
     collection = ee.ImageCollection([ee.Image(1), ee.Image(2)])
     expected_config = {
-        'json': collection.serialize(),
+        'json': collection.serialize(for_cloud_api=False),
         'description': 'TestVideoName',
         'outputBucket': 'test-bucket',
         'outputPrefix': 'TestVideoName',
@@ -1266,7 +1267,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
     region = ee.Geometry.Rectangle(1, 2, 3, 4)
     collection = ee.ImageCollection([ee.Image(1), ee.Image(2)])
     expected_config = {
-        'json': collection.serialize(),
+        'json': collection.serialize(for_cloud_api=False),
         'description': 'TestVideoName',
         'crs': 'SR-ORG:6627',
         'driveFolder': 'test-folder',

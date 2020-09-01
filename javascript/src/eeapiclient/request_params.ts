@@ -2,28 +2,21 @@ import * as httpCors from 'goog:goog.net.rpc.HttpCors';  // from //javascript/cl
 
 import {GeneratedQueryParams} from './generated_types';
 
+/** Available HTTP methods supported by Google APIs */
 export type HttpMethod = 'GET'|'POST'|'PUT'|'PATCH'|'DELETE';
 
 /**
  * {@link HttpMethod} come directly from the discovery file as strings. The code
- * generator passes them along as such. This static class is to help
+ * generator passes them along as such. This enum is to help
  * {@link PromiseRequestService} implementers check the type of
  * {@link MakeRequestParams#httpMethod}.
  */
-// tslint:disable-next-line:class-as-namespace
-export class HttpMethodEnum {
-  static readonly GET: HttpMethod = 'GET';
-  static readonly POST: HttpMethod = 'POST';
-  static readonly PUT: HttpMethod = 'PUT';
-  static readonly PATCH: HttpMethod = 'PATCH';
-  static readonly DELETE: HttpMethod = 'DELETE';
-
-  /** Returns true if the httpMethod is of type {@link HttpMethod}. */
-  static isHttpMethod(method: HttpMethod|string) {
-    return method === HttpMethodEnum.GET || method === HttpMethodEnum.POST ||
-        method === HttpMethodEnum.PUT || method === HttpMethodEnum.PATCH ||
-        method === HttpMethodEnum.DELETE;
-  }
+export enum HttpMethodEnum {
+  GET = 'GET',
+  POST = 'POST',
+  PUT = 'PUT',
+  PATCH = 'PATCH',
+  DELETE = 'DELETE',
 }
 
 /**

@@ -1000,11 +1000,11 @@ class RmCommand(object):
 
   def _delete_asset(self, asset_id, recursive, verbose, dry_run):
     """Attempts to delete the specified asset or asset collection."""
-    info = ee.data.getInfo(asset_id)
-    if info is None:
-      print('Asset does not exist or is not accessible: %s' % asset_id)
-      return
     if recursive:
+      info = ee.data.getInfo(asset_id)
+      if info is None:
+        print('Asset does not exist or is not accessible: %s' % asset_id)
+        return
       if info['type'] in (ee.data.ASSET_TYPE_FOLDER,
                           ee.data.ASSET_TYPE_IMAGE_COLL,
                           ee.data.ASSET_TYPE_FOLDER_CLOUD,
