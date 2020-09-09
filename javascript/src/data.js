@@ -1411,7 +1411,8 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
  *
  * @param {string} taskId ID for the task (obtained using newTaskId).
  * @param {!ee.api.ImageManifest} imageManifest The object that
- *     describes the ingestion.
+ *     describes the ingestion.  See
+ *     https://developers.google.com/s/results/earth-engine?q="ImageManifest"
  * @param {function(?ee.api.Operation, string=)} callback
  * @return {?ee.api.Operation}
  */
@@ -1433,7 +1434,8 @@ ee.data.ingestImage = function(taskId, imageManifest, callback) {
  *
  * @param {string} taskId ID for the task (obtained using newTaskId).
  * @param {!ee.api.TableManifest} tableManifest The object that
- *     describes the ingestion.
+ *     describes the ingestion. See
+ *     https://developers.google.com/s/results/earth-engine?q="TableManifest"
  * @param {function(?ee.api.Operation, string=)} callback
  * @return {?ee.api.Operation}
  */
@@ -1580,11 +1582,14 @@ ee.data.getList = function(params, opt_callback) {
  * Returns a list of the contents in an asset collection or folder.
  *
  * @param {string} parent
- * @param {!ee.api.ProjectsAssetsListAssetsNamedParameters=} params
+ * @param {!ee.api.ProjectsAssetsListAssetsNamedParameters=} params Options:
+ *     pageSize (defaults to 1000), pageToken, filter (see
+ *     https://google.aip.dev/160), view (default is 'FULL', may be 'BASIC').
  * @param {function(?ee.api.ListAssetsResponse, string=)=}
  *     opt_callback  If not supplied, the call is made synchronously.
  * @return {?ee.api.ListAssetsResponse}
- *     Results, or null if a callback is specified.
+ *     Results, or null if a callback is specified. Will include an `assets`
+ *     array and an optional `nextPageToken`.
  * @export
  */
 ee.data.listAssets = function(parent, params = {}, opt_callback = undefined) {
@@ -1602,11 +1607,14 @@ ee.data.listAssets = function(parent, params = {}, opt_callback = undefined) {
  * Returns a list of the contents in an asset collection or folder.
  *
  * @param {string} parent
- * @param {!ee.api.ProjectsAssetsListImagesNamedParameters=} params
+ * @param {!ee.api.ProjectsAssetsListImagesNamedParameters=} params Options:
+ *     pageSize (defaults to 1000), pageToken, filter (see
+ *     https://google.aip.dev/160), view (default is 'FULL', may be 'BASIC').
  * @param {function(?ee.api.ListImagesResponse, string=)=}
  *     opt_callback  If not supplied, the call is made synchronously.
  * @return {?ee.api.ListImagesResponse}
- *     Results, or null if a callback is specified.
+ *     Results, or null if a callback is specified. Will include an `images`
+ *     array and an optional `nextPageToken`.
  * @export
  */
 ee.data.listImages = function(parent, params = {}, opt_callback = undefined) {
@@ -1906,7 +1914,8 @@ ee.data.getIamPolicy = function(assetId, opt_callback) {
  * The authenticated user must be a writer or owner of an asset to set its ACL.
  *
  * @param {string} assetId The ID of the asset to check.
- * @param {!ee.api.Policy} policy actually google.iam.v1.Policy
+ * @param {!ee.api.Policy} policy See
+ *  https://cloud.google.com/resource-manager/reference/rest/Shared.Types/Policy
  * @param {function(?Object, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.api.Policy} the policy

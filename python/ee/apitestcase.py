@@ -997,6 +997,23 @@ BUILTIN_FUNCTIONS = {
         'type': 'Algorithm',
         'description': '',
     },
+    'Dictionary.map': {
+        'returns': 'Dictionary<Object>',
+        'args': [
+            {
+                'type': 'Dictionary<Object>',
+                'description': '',
+                'name': 'dictionary'
+                },
+            {
+                'type': 'Algorithm',
+                'description': '',
+                'name': 'baseAlgorithm'
+                }
+            ],
+        'type': 'Algorithm',
+        'description': '',
+    },
     'Image.reduceRegion': {
         'returns': 'Dictionary<Object>',
         'hidden': False,

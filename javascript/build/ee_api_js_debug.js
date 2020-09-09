@@ -1494,7 +1494,7 @@ goog.asserts.assertString = function(value, opt_message, var_args) {
   return value;
 };
 goog.asserts.assertFunction = function(value, opt_message, var_args) {
-  goog.asserts.ENABLE_ASSERTS && !goog.isFunction(value) && goog.asserts.doAssertFailure_("Expected function but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
+  goog.asserts.ENABLE_ASSERTS && "function" !== typeof value && goog.asserts.doAssertFailure_("Expected function but got %s: %s.", [goog.typeOf(value), value], opt_message, Array.prototype.slice.call(arguments, 2));
   return value;
 };
 goog.asserts.assertObject = function(value, opt_message, var_args) {
@@ -4632,7 +4632,7 @@ goog.debug.expose = function(obj, opt_showFn) {
   }
   var str = [], x;
   for (x in obj) {
-    if (opt_showFn || !goog.isFunction(obj[x])) {
+    if (opt_showFn || "function" !== typeof obj[x]) {
       var s = x + " = ";
       try {
         s += obj[x];
@@ -4659,7 +4659,7 @@ goog.debug.deepExpose = function(obj$jscomp$0, opt_showFn) {
           if ("string" === typeof obj) {
             str$jscomp$0.push('"' + indentMultiline(obj) + '"');
           } else {
-            if (goog.isFunction(obj)) {
+            if ("function" === typeof obj) {
               str$jscomp$0.push(indentMultiline(String(obj)));
             } else {
               if (goog.isObject(obj)) {
@@ -4671,7 +4671,7 @@ goog.debug.deepExpose = function(obj$jscomp$0, opt_showFn) {
                   ancestorUids[uid] = !0;
                   str$jscomp$0.push("{");
                   for (var x in obj) {
-                    if (opt_showFn || !goog.isFunction(obj[x])) {
+                    if (opt_showFn || "function" !== typeof obj[x]) {
                       str$jscomp$0.push("\n"), str$jscomp$0.push(nestspace), str$jscomp$0.push(x + " = "), helper(obj[x], nestspace);
                     }
                   }
@@ -5408,7 +5408,7 @@ goog.events.getListenerMap_ = function(src) {
 goog.events.LISTENER_WRAPPER_PROP_ = "__closure_events_fn_" + (1e9 * Math.random() >>> 0);
 goog.events.wrapListener = function(listener) {
   goog.asserts.assert(listener, "Listener can not be null.");
-  if (goog.isFunction(listener)) {
+  if ("function" === typeof listener) {
     return listener;
   }
   goog.asserts.assert(listener.handleEvent, "An object listener must have handleEvent method.");
@@ -8843,6 +8843,10 @@ module$exports$eeapiclient$ee_api_client.EarthEngineAssetParameters = function m
 module$exports$eeapiclient$ee_api_client.EarthEngineAsset = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("tilestoreLocation", null == parameters.tilestoreLocation ? null : parameters.tilestoreLocation);
+  this.Serializable$set("cloudStorageLocation", null == parameters.cloudStorageLocation ? null : parameters.cloudStorageLocation);
+  this.Serializable$set("tilestoreEntry", null == parameters.tilestoreEntry ? null : parameters.tilestoreEntry);
+  this.Serializable$set("gcsLocation", null == parameters.gcsLocation ? null : parameters.gcsLocation);
   this.Serializable$set("type", null == parameters.type ? null : parameters.type);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("id", null == parameters.id ? null : parameters.id);
@@ -8856,10 +8860,6 @@ module$exports$eeapiclient$ee_api_client.EarthEngineAsset = function(parameters)
   this.Serializable$set("bands", null == parameters.bands ? null : parameters.bands);
   this.Serializable$set("sizeBytes", null == parameters.sizeBytes ? null : parameters.sizeBytes);
   this.Serializable$set("quota", null == parameters.quota ? null : parameters.quota);
-  this.Serializable$set("tilestoreLocation", null == parameters.tilestoreLocation ? null : parameters.tilestoreLocation);
-  this.Serializable$set("cloudStorageLocation", null == parameters.cloudStorageLocation ? null : parameters.cloudStorageLocation);
-  this.Serializable$set("tilestoreEntry", null == parameters.tilestoreEntry ? null : parameters.tilestoreEntry);
-  this.Serializable$set("gcsLocation", null == parameters.gcsLocation ? null : parameters.gcsLocation);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.EarthEngineAsset, module$exports$eeapiclient$domain_object.Serializable);
@@ -9026,10 +9026,10 @@ module$exports$eeapiclient$ee_api_client.ExportImageRequestParameters = function
 module$exports$eeapiclient$ee_api_client.ExportImageRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
-  this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
-  this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("fileExportOptions", null == parameters.fileExportOptions ? null : parameters.fileExportOptions);
   this.Serializable$set("assetExportOptions", null == parameters.assetExportOptions ? null : parameters.assetExportOptions);
+  this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
+  this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("maxPixels", null == parameters.maxPixels ? null : parameters.maxPixels);
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
@@ -9134,10 +9134,10 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequestParameters = function
 module$exports$eeapiclient$ee_api_client.ExportTableRequest = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
-  this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
-  this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("fileExportOptions", null == parameters.fileExportOptions ? null : parameters.fileExportOptions);
   this.Serializable$set("assetExportOptions", null == parameters.assetExportOptions ? null : parameters.assetExportOptions);
+  this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
+  this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("selectors", null == parameters.selectors ? null : parameters.selectors);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
   this.Serializable$set("maxErrorMeters", null == parameters.maxErrorMeters ? null : parameters.maxErrorMeters);
@@ -9930,12 +9930,12 @@ module$exports$eeapiclient$ee_api_client.ImageFileExportOptionsParameters = func
 module$exports$eeapiclient$ee_api_client.ImageFileExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
-  this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("driveDestination", null == parameters.driveDestination ? null : parameters.driveDestination);
   this.Serializable$set("cloudStorageDestination", null == parameters.cloudStorageDestination ? null : parameters.cloudStorageDestination);
   this.Serializable$set("gcsDestination", null == parameters.gcsDestination ? null : parameters.gcsDestination);
   this.Serializable$set("geoTiffOptions", null == parameters.geoTiffOptions ? null : parameters.geoTiffOptions);
   this.Serializable$set("tfRecordOptions", null == parameters.tfRecordOptions ? null : parameters.tfRecordOptions);
+  this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ImageFileExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ImageFileExportOptions.prototype.getConstructor = function() {
@@ -10760,10 +10760,10 @@ module$exports$eeapiclient$ee_api_client.TableFileExportOptionsParameters = func
 module$exports$eeapiclient$ee_api_client.TableFileExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
-  this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("driveDestination", null == parameters.driveDestination ? null : parameters.driveDestination);
   this.Serializable$set("cloudStorageDestination", null == parameters.cloudStorageDestination ? null : parameters.cloudStorageDestination);
   this.Serializable$set("gcsDestination", null == parameters.gcsDestination ? null : parameters.gcsDestination);
+  this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.TableFileExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.TableFileExportOptions.prototype.getConstructor = function() {
@@ -11435,10 +11435,10 @@ module$exports$eeapiclient$ee_api_client.VideoFileExportOptionsParameters = func
 module$exports$eeapiclient$ee_api_client.VideoFileExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
-  this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
   this.Serializable$set("driveDestination", null == parameters.driveDestination ? null : parameters.driveDestination);
   this.Serializable$set("cloudStorageDestination", null == parameters.cloudStorageDestination ? null : parameters.cloudStorageDestination);
   this.Serializable$set("gcsDestination", null == parameters.gcsDestination ? null : parameters.gcsDestination);
+  this.Serializable$set("fileFormat", null == parameters.fileFormat ? null : parameters.fileFormat);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.VideoFileExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.VideoFileExportOptions.prototype.getConstructor = function() {
@@ -12900,7 +12900,7 @@ goog.dom.nativelySupportsFocus_ = function(element) {
   return element.tagName == goog.dom.TagName.A && element.hasAttribute("href") || element.tagName == goog.dom.TagName.INPUT || element.tagName == goog.dom.TagName.TEXTAREA || element.tagName == goog.dom.TagName.SELECT || element.tagName == goog.dom.TagName.BUTTON;
 };
 goog.dom.hasNonZeroBoundingRect_ = function(element) {
-  var rect = !goog.isFunction(element.getBoundingClientRect) || goog.userAgent.IE && null == element.parentElement ? {height:element.offsetHeight, width:element.offsetWidth} : element.getBoundingClientRect();
+  var rect = "function" !== typeof element.getBoundingClientRect || goog.userAgent.IE && null == element.parentElement ? {height:element.offsetHeight, width:element.offsetWidth} : element.getBoundingClientRect();
   return null != rect && 0 < rect.height && 0 < rect.width;
 };
 goog.dom.getTextContent = function(node) {
@@ -12974,7 +12974,7 @@ goog.dom.isNodeList = function(val) {
     if (goog.isObject(val)) {
       return "function" == typeof val.item || "string" == typeof val.item;
     }
-    if (goog.isFunction(val)) {
+    if ("function" === typeof val) {
       return "function" == typeof val.item;
     }
   }
@@ -13149,7 +13149,7 @@ goog.async.nextTick = function(callback, opt_context, opt_useSetImmediate) {
   var cb = callback;
   opt_context && (cb = goog.bind(callback, opt_context));
   cb = goog.async.nextTick.wrapCallback_(cb);
-  goog.isFunction(goog.global.setImmediate) && (opt_useSetImmediate || goog.async.nextTick.useSetImmediate_()) ? goog.global.setImmediate(cb) : (goog.async.nextTick.setImmediate_ || (goog.async.nextTick.setImmediate_ = goog.async.nextTick.getSetImmediateEmulator_()), goog.async.nextTick.setImmediate_(cb));
+  "function" === typeof goog.global.setImmediate && (opt_useSetImmediate || goog.async.nextTick.useSetImmediate_()) ? goog.global.setImmediate(cb) : (goog.async.nextTick.setImmediate_ || (goog.async.nextTick.setImmediate_ = goog.async.nextTick.getSetImmediateEmulator_()), goog.async.nextTick.setImmediate_(cb));
 };
 goog.async.nextTick.useSetImmediate_ = function() {
   return goog.global.Window && goog.global.Window.prototype && !goog.labs.userAgent.browser.isEdge() && goog.global.Window.prototype.setImmediate == goog.global.setImmediate ? !1 : !0;
@@ -13441,7 +13441,7 @@ goog.Promise.prototype.then = function(opt_onFulfilled, opt_onRejected, opt_cont
   null != opt_onFulfilled && goog.asserts.assertFunction(opt_onFulfilled, "opt_onFulfilled should be a function.");
   null != opt_onRejected && goog.asserts.assertFunction(opt_onRejected, "opt_onRejected should be a function. Did you pass opt_context as the second argument instead of the third?");
   goog.Promise.LONG_STACK_TRACES && this.addStackTrace_(Error("then"));
-  return this.addChildPromise_(goog.isFunction(opt_onFulfilled) ? opt_onFulfilled : null, goog.isFunction(opt_onRejected) ? opt_onRejected : null, opt_context);
+  return this.addChildPromise_("function" === typeof opt_onFulfilled ? opt_onFulfilled : null, "function" === typeof opt_onRejected ? opt_onRejected : null, opt_context);
 };
 goog.Thenable.addImplementation(goog.Promise);
 goog.Promise.prototype.thenVoid = function(opt_onFulfilled, opt_onRejected, opt_context) {
@@ -13532,7 +13532,7 @@ goog.Promise.maybeThen_ = function(value, onFulfilled, onRejected, context) {
   if (goog.isObject(value)) {
     try {
       var then = value.then;
-      if (goog.isFunction(then)) {
+      if ("function" === typeof then) {
         return goog.Promise.tryThen_(value, then, onFulfilled, onRejected, context), !0;
       }
     } catch (e) {
@@ -13697,7 +13697,7 @@ goog.Timer.prototype.disposeInternal = function() {
 };
 goog.Timer.TICK = "tick";
 goog.Timer.callOnce = function(listener, opt_delay, opt_handler) {
-  if (goog.isFunction(listener)) {
+  if ("function" === typeof listener) {
     opt_handler && (listener = goog.bind(listener, opt_handler));
   } else {
     if (listener && "function" == typeof listener.handleEvent) {
@@ -13904,7 +13904,7 @@ goog.async.Deferred.prototype.isError = function(res) {
 };
 goog.async.Deferred.prototype.hasErrback_ = function() {
   return goog.array.some(this.sequence_, function(sequenceRow) {
-    return goog.isFunction(sequenceRow[1]);
+    return "function" === typeof sequenceRow[1];
   });
 };
 goog.async.Deferred.prototype.getLastValueForMigration = function() {
@@ -14421,7 +14421,7 @@ goog.debug.Logger.prototype.isLoggable = function(level) {
   return goog.debug.LOGGING_ENABLED && level.value >= this.getEffectiveLevel().value;
 };
 goog.debug.Logger.prototype.log = function(level, msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.isLoggable(level) && (goog.isFunction(msg) && (msg = msg()), this.doLogRecord_(this.getLogRecord(level, msg, opt_exception)));
+  goog.debug.LOGGING_ENABLED && this.isLoggable(level) && ("function" === typeof msg && (msg = msg()), this.doLogRecord_(this.getLogRecord(level, msg, opt_exception)));
 };
 goog.debug.Logger.prototype.getLogRecord = function(level, msg, opt_exception) {
   var logRecord = goog.debug.LogBuffer.isBufferingEnabled() ? goog.debug.LogBuffer.getInstance().addRecord(level, msg, this.name_) : new goog.debug.LogRecord(level, String(msg), this.name_);
@@ -15026,7 +15026,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.233";
+ee.apiclient.API_CLIENT_VERSION = "0.1.234";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15290,8 +15290,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.233";
-    "0.1.233" === version && (version = "latest");
+    var version = "0.1.234";
+    "0.1.234" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -23030,26 +23030,9 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
         return a + b;
       }, 0);
     }, countNode = function(node) {
-      if (node.functionDefinitionValue) {
-        return 1;
-      }
-      if (node.arrayValue) {
-        return countNodes(node.arrayValue.values);
-      }
-      if (node.dictionaryValue) {
-        return countNodes(Object.values(node.dictionaryValue.values));
-      }
-      if (null != node.valueReference) {
-        return countNode(expression.values[node.valueReference]);
-      }
-      if (node.functionInvocationValue) {
-        var fn = node.functionInvocationValue, count = countNodes(Object.values(fn.arguments));
-        null != fn.functionReference && (count += countNode(expression.values[fn.functionReference]));
-        return count;
-      }
-      return 0;
+      return node.functionDefinitionValue ? 1 : node.arrayValue ? countNodes(node.arrayValue.values) : node.dictionaryValue ? countNodes(Object.values(node.dictionaryValue.values)) : node.functionInvocationValue ? countNodes(Object.values(node.functionInvocationValue.arguments)) : 0;
     };
-    return countNode(expression.values[expression.result]);
+    return countNodes(Object.values(expression.values));
   }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars))) + "_", i$34 = 0; i$34 < namelessArgIndices.length; i$34++) {
     var index = namelessArgIndices[i$34], name = baseName + i$34;
     vars[index].varName = name;

@@ -42,47 +42,6 @@ var options = {
   pointSize: 4
 };
 
-var chartScenario = function(scenario, name) {
-  var chart = Chart.image.series({
-    imageCollection: scenario,
-    region: roi,
-    reducer: ee.Reducer.mean(),
-    scale: 200,
-    xProperty: 'system:time_start'
-  }).setChartType('LineChart')
-    .setOptions({
-      title: 'tasmax median value over time (scenario ' + name + ')',
-      vAxis: {
-        title: 'tasmax value'
-      },
-      intervals: {'style': 'area'},
-      lineWidth: 1,
-      curveType:'function',
-      legend: {position: 'none'}
-  }).transform(function(chartArgs) {
-    var newChartArgs = JSON.parse(JSON.stringify(chartArgs));
-    newChartArgs.dataTable.cols[1] = {
-      type: 'number',
-      id: 'tasmax_median',
-      label: 'tasmax_median'
-    };
-    newChartArgs.dataTable.cols[2] = {
-      type: 'number',
-      id: 'tasmax_quartile25',
-      label: 'tasmax_quartile25',
-      role: 'interval'
-    };
-    newChartArgs.dataTable.cols[3] = {
-      type: 'number',
-      id: 'tasmax_quartile75',
-      label: 'tasmax_quartile75',
-      role: 'interval'
-    };
-    return newChartArgs;
-  });
-  print(chart);
-};
-
 var labelBands = function(collection, scenario) {
   return collection.select(
     ['tasmax_median', 'tasmax_quartile25', 'tasmax_quartile75'],
@@ -93,7 +52,7 @@ var labelBands = function(collection, scenario) {
 
 var combined = labelBands(rcp26, '26').merge(labelBands(rcp85, '85'));
 
-var chart = Chart.image.series({
+var chart = ui.Chart.image.series({
   imageCollection: combined,
   region: roi,
   reducer: ee.Reducer.mean(),
@@ -112,31 +71,6 @@ var chart = Chart.image.series({
   lineWidth: 1,
   curveType:'function',
   interpolateNulls: true
-}).transform(function(chartArgs) {
-  var newChartArgs = JSON.parse(JSON.stringify(chartArgs));
-  print(newChartArgs);
-  var i = 1;
-  var scenarios = ['rcp26', 'rcp85'];
-  scenarios.forEach(function(scenario) {
-    newChartArgs.dataTable.cols[i++] = {
-      type: 'number',
-      id: scenario + '_tasmax_median',
-      label: scenario + '_tasmax_median'
-
-    };
-    newChartArgs.dataTable.cols[i++] = {
-      type: 'number',
-      id: scenario + '_tasmax_quartile',
-      label: scenario + 'tasmax_quartile',
-      role: 'interval'};
-    newChartArgs.dataTable.cols[i++] = {
-      type: 'number',
-      id: scenario + '_tasmax_quartile',
-      label: scenario + 'tasmax_quartile',
-      role: 'interval'
-    };
-  });
-  return newChartArgs;
 });
 chart = chart.setSeriesNames('RPC2.6', 0);
 chart = chart.setSeriesNames('RPC8.5', 3);

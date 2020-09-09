@@ -898,7 +898,11 @@ class SizeCommand(object):
     # If args.summarize is True, list size+name for every leaf child asset,
     # and show totals for non-leaf children.
     # If args.summarize is False, print sizes of all children.
-    for asset in assets:
+    for index, asset in enumerate(assets):
+      if args.asset_id and not asset:
+        asset_id = args.asset_id[index]
+        print('Asset does not exist or is not accessible: %s' % asset_id)
+        continue
       is_parent = asset['type'] in (
           ee.data.ASSET_TYPE_FOLDER,
           ee.data.ASSET_TYPE_IMAGE_COLL,

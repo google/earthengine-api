@@ -3077,6 +3077,10 @@ export class DriveDestination extends Serializable {
 }
 
 export interface EarthEngineAssetParameters {
+  tilestoreLocation?: TilestoreLocation|null;
+  cloudStorageLocation?: CloudStorageLocation|null;
+  tilestoreEntry?: TilestoreEntry|null;
+  gcsLocation?: GcsLocation|null;
   type?: EarthEngineAssetType|null;
   name?: string|null;
   id?: string|null;
@@ -3090,15 +3094,28 @@ export interface EarthEngineAssetParameters {
   bands?: Array<ImageBand>|null;
   sizeBytes?: string|null;
   quota?: FolderQuota|null;
-  tilestoreLocation?: TilestoreLocation|null;
-  cloudStorageLocation?: CloudStorageLocation|null;
-  tilestoreEntry?: TilestoreEntry|null;
-  gcsLocation?: GcsLocation|null;
   expression?: Expression|null;
 }
 export class EarthEngineAsset extends Serializable {
   constructor(parameters: EarthEngineAssetParameters = {}) {
     super();
+    this.Serializable$set(
+        'tilestoreLocation',
+        (parameters.tilestoreLocation == null) ?
+            (null) :
+            (parameters.tilestoreLocation));
+    this.Serializable$set(
+        'cloudStorageLocation',
+        (parameters.cloudStorageLocation == null) ?
+            (null) :
+            (parameters.cloudStorageLocation));
+    this.Serializable$set(
+        'tilestoreEntry',
+        (parameters.tilestoreEntry == null) ? (null) :
+                                              (parameters.tilestoreEntry));
+    this.Serializable$set(
+        'gcsLocation',
+        (parameters.gcsLocation == null) ? (null) : (parameters.gcsLocation));
     this.Serializable$set(
         'type', (parameters.type == null) ? (null) : (parameters.type));
     this.Serializable$set(
@@ -3132,23 +3149,6 @@ export class EarthEngineAsset extends Serializable {
         (parameters.sizeBytes == null) ? (null) : (parameters.sizeBytes));
     this.Serializable$set(
         'quota', (parameters.quota == null) ? (null) : (parameters.quota));
-    this.Serializable$set(
-        'tilestoreLocation',
-        (parameters.tilestoreLocation == null) ?
-            (null) :
-            (parameters.tilestoreLocation));
-    this.Serializable$set(
-        'cloudStorageLocation',
-        (parameters.cloudStorageLocation == null) ?
-            (null) :
-            (parameters.cloudStorageLocation));
-    this.Serializable$set(
-        'tilestoreEntry',
-        (parameters.tilestoreEntry == null) ? (null) :
-                                              (parameters.tilestoreEntry));
-    this.Serializable$set(
-        'gcsLocation',
-        (parameters.gcsLocation == null) ? (null) : (parameters.gcsLocation));
     this.Serializable$set(
         'expression',
         (parameters.expression == null) ? (null) : (parameters.expression));
@@ -3619,10 +3619,10 @@ export class Empty extends Serializable {
 }
 
 export interface ExportImageRequestParameters {
-  expression?: Expression|null;
-  description?: string|null;
   fileExportOptions?: ImageFileExportOptions|null;
   assetExportOptions?: ImageAssetExportOptions|null;
+  expression?: Expression|null;
+  description?: string|null;
   maxPixels?: string|null;
   grid?: PixelGrid|null;
   requestId?: string|null;
@@ -3633,12 +3633,6 @@ export class ExportImageRequest extends Serializable {
   constructor(parameters: ExportImageRequestParameters = {}) {
     super();
     this.Serializable$set(
-        'expression',
-        (parameters.expression == null) ? (null) : (parameters.expression));
-    this.Serializable$set(
-        'description',
-        (parameters.description == null) ? (null) : (parameters.description));
-    this.Serializable$set(
         'fileExportOptions',
         (parameters.fileExportOptions == null) ?
             (null) :
@@ -3648,6 +3642,12 @@ export class ExportImageRequest extends Serializable {
         (parameters.assetExportOptions == null) ?
             (null) :
             (parameters.assetExportOptions));
+    this.Serializable$set(
+        'expression',
+        (parameters.expression == null) ? (null) : (parameters.expression));
+    this.Serializable$set(
+        'description',
+        (parameters.description == null) ? (null) : (parameters.description));
     this.Serializable$set(
         'maxPixels',
         (parameters.maxPixels == null) ? (null) : (parameters.maxPixels));
@@ -3982,10 +3982,10 @@ export class ExportMapRequest extends Serializable {
 }
 
 export interface ExportTableRequestParameters {
-  expression?: Expression|null;
-  description?: string|null;
   fileExportOptions?: TableFileExportOptions|null;
   assetExportOptions?: TableAssetExportOptions|null;
+  expression?: Expression|null;
+  description?: string|null;
   selectors?: Array<string>|null;
   requestId?: string|null;
   maxErrorMeters?: number|null;
@@ -3997,12 +3997,6 @@ export class ExportTableRequest extends Serializable {
   constructor(parameters: ExportTableRequestParameters = {}) {
     super();
     this.Serializable$set(
-        'expression',
-        (parameters.expression == null) ? (null) : (parameters.expression));
-    this.Serializable$set(
-        'description',
-        (parameters.description == null) ? (null) : (parameters.description));
-    this.Serializable$set(
         'fileExportOptions',
         (parameters.fileExportOptions == null) ?
             (null) :
@@ -4012,6 +4006,12 @@ export class ExportTableRequest extends Serializable {
         (parameters.assetExportOptions == null) ?
             (null) :
             (parameters.assetExportOptions));
+    this.Serializable$set(
+        'expression',
+        (parameters.expression == null) ? (null) : (parameters.expression));
+    this.Serializable$set(
+        'description',
+        (parameters.description == null) ? (null) : (parameters.description));
     this.Serializable$set(
         'selectors',
         (parameters.selectors == null) ? (null) : (parameters.selectors));
@@ -6250,19 +6250,16 @@ export class ImageBand extends Serializable {
 }
 
 export interface ImageFileExportOptionsParameters {
-  fileFormat?: ImageFileExportOptionsFileFormat|null;
   driveDestination?: DriveDestination|null;
   cloudStorageDestination?: CloudStorageDestination|null;
   gcsDestination?: GcsDestination|null;
   geoTiffOptions?: GeoTiffImageExportOptions|null;
   tfRecordOptions?: TfRecordImageExportOptions|null;
+  fileFormat?: ImageFileExportOptionsFileFormat|null;
 }
 export class ImageFileExportOptions extends Serializable {
   constructor(parameters: ImageFileExportOptionsParameters = {}) {
     super();
-    this.Serializable$set(
-        'fileFormat',
-        (parameters.fileFormat == null) ? (null) : (parameters.fileFormat));
     this.Serializable$set(
         'driveDestination',
         (parameters.driveDestination == null) ? (null) :
@@ -6284,6 +6281,9 @@ export class ImageFileExportOptions extends Serializable {
         'tfRecordOptions',
         (parameters.tfRecordOptions == null) ? (null) :
                                                (parameters.tfRecordOptions));
+    this.Serializable$set(
+        'fileFormat',
+        (parameters.fileFormat == null) ? (null) : (parameters.fileFormat));
   }
 
   static get FileFormat(): IImageFileExportOptionsFileFormatEnum {
@@ -8546,17 +8546,14 @@ export class TableAssetExportOptions extends Serializable {
 }
 
 export interface TableFileExportOptionsParameters {
-  fileFormat?: TableFileExportOptionsFileFormat|null;
   driveDestination?: DriveDestination|null;
   cloudStorageDestination?: CloudStorageDestination|null;
   gcsDestination?: GcsDestination|null;
+  fileFormat?: TableFileExportOptionsFileFormat|null;
 }
 export class TableFileExportOptions extends Serializable {
   constructor(parameters: TableFileExportOptionsParameters = {}) {
     super();
-    this.Serializable$set(
-        'fileFormat',
-        (parameters.fileFormat == null) ? (null) : (parameters.fileFormat));
     this.Serializable$set(
         'driveDestination',
         (parameters.driveDestination == null) ? (null) :
@@ -8570,6 +8567,9 @@ export class TableFileExportOptions extends Serializable {
         'gcsDestination',
         (parameters.gcsDestination == null) ? (null) :
                                               (parameters.gcsDestination));
+    this.Serializable$set(
+        'fileFormat',
+        (parameters.fileFormat == null) ? (null) : (parameters.fileFormat));
   }
 
   static get FileFormat(): ITableFileExportOptionsFileFormatEnum {
@@ -8931,10 +8931,9 @@ export class TableSource extends Serializable {
 
   /**
    * A format with which to parse fields encoding dates. The format pattern must
-   * be as described at
-   * http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html.
-   * If left blank, dates will be imported as strings. For CSV/TFRecord sources
-   * only.
+   * be as described at http: //joda-time.sourceforge.net/apidocs/org/ //
+   * joda/time/format/DateTimeFormat.html. If left blank, dates will be imported
+   * as strings. For CSV/TFRecord sources only.
    */
   set dateFormat(value: string|null) {
     this.Serializable$set('dateFormat', value);
@@ -10588,17 +10587,14 @@ export class ValueNode extends Serializable {
 }
 
 export interface VideoFileExportOptionsParameters {
-  fileFormat?: VideoFileExportOptionsFileFormat|null;
   driveDestination?: DriveDestination|null;
   cloudStorageDestination?: CloudStorageDestination|null;
   gcsDestination?: GcsDestination|null;
+  fileFormat?: VideoFileExportOptionsFileFormat|null;
 }
 export class VideoFileExportOptions extends Serializable {
   constructor(parameters: VideoFileExportOptionsParameters = {}) {
     super();
-    this.Serializable$set(
-        'fileFormat',
-        (parameters.fileFormat == null) ? (null) : (parameters.fileFormat));
     this.Serializable$set(
         'driveDestination',
         (parameters.driveDestination == null) ? (null) :
@@ -10612,6 +10608,9 @@ export class VideoFileExportOptions extends Serializable {
         'gcsDestination',
         (parameters.gcsDestination == null) ? (null) :
                                               (parameters.gcsDestination));
+    this.Serializable$set(
+        'fileFormat',
+        (parameters.fileFormat == null) ? (null) : (parameters.fileFormat));
   }
 
   static get FileFormat(): IVideoFileExportOptionsFileFormatEnum {

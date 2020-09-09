@@ -157,16 +157,11 @@ class CustomFunction(function.Function, encodable.Encodable):
           return CountNodes(node['arrayValue']['values'])
         elif 'dictionaryValue' in node:
           return CountNodes(six.itervalues(node['dictionaryValue']['values']))
-        elif 'valueReference' in node:
-          return CountNode(expression['values'][node['valueReference']])
         elif 'functionInvocationValue' in node:
           fn = node['functionInvocationValue']
-          count = CountNodes(six.itervalues(fn['arguments']))
-          if 'functionReference' in fn:
-            count += CountNode(expression['values'][fn['functionReference']])
-          return count
+          return CountNodes(six.itervalues(fn['arguments']))
         return 0
-      return CountNode(expression['values'][expression['result']])
+      return CountNodes(six.itervalues(expression['values']))
 
     serialized_body = serializer.encode(body(*variables), for_cloud_api=True)
     base_name = '_MAPPING_VAR_%d_' % CountFunctions(serialized_body)

@@ -4,6 +4,7 @@
 
 
 import datetime
+import re
 
 import unittest
 
@@ -138,6 +139,25 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     expected_function = ee.CustomFunction(sig, algorithm)
     self.assertEqual(expected_function.serialize(),
                      result.args['function'].serialize())
+
+  def testNestedFunctions(self):
+    """Verifies that nested function calls produce distinct variables."""
+    fc = ee.FeatureCollection('fc')
+    def f0(feat):
+      return ee.Dictionary(feat.get('get')).map(f1)
+    def f1(k1, v1):
+      def f2(k2, v2):
+        def f3(k3, v3):
+          def f4(k4):
+            return (ee.Number(1).add(ee.Number(k1)).add(ee.Number(k2))
+                    .add(ee.Number(k3)).add(ee.Number(k4)))
+          return ee.Dictionary(v3).map(f4)
+        return ee.Dictionary(v2).map(f3)
+      return ee.Dictionary(v1).map(f2)
+    mapped_vars = re.findall(r'\d_\d', fc.map(f0).serialize())
+    self.assertEqual(
+        '0_0, 1_0, 1_1, 2_0, 2_1, 3_0, 3_1, 4_0',
+        ', '.join(sorted(set(mapped_vars))))
 
 
 if __name__ == '__main__':

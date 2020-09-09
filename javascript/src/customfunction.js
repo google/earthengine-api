@@ -212,19 +212,13 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
         return countNodes(node.arrayValue.values);
       } else if (node.dictionaryValue) {
         return countNodes(Object.values(node.dictionaryValue.values));
-      } else if (node.valueReference != null) {
-        return countNode(expression.values[node.valueReference]);
       } else if (node.functionInvocationValue) {
         const fn = node.functionInvocationValue;
-        let count = countNodes(Object.values(fn.arguments));
-        if (fn.functionReference != null) {
-          count += countNode(expression.values[fn.functionReference]);
-        }
-        return count;
+        return countNodes(Object.values(fn.arguments));
       }
       return 0;
     };
-    return countNode(expression.values[expression.result]);
+    return countNodes(Object.values(expression.values));
   };
 
   const serializedBody =
