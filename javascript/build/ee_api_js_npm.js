@@ -1228,7 +1228,9 @@ goog.mixin = function(target, source) {
     target[x] = source[x];
   }
 };
-goog.now = Date.now;
+goog.now = function() {
+  return Date.now();
+};
 goog.globalEval = function(script) {
   (0,eval)(script);
 };
@@ -1428,27 +1430,28 @@ goog.events.Event.preventDefault = function(e) {
   e.preventDefault();
 };
 goog.debug = {};
-goog.debug.Error = function(opt_msg) {
+function module$contents$goog$debug$Error_DebugError(opt_msg) {
   if (Error.captureStackTrace) {
-    Error.captureStackTrace(this, goog.debug.Error);
+    Error.captureStackTrace(this, module$contents$goog$debug$Error_DebugError);
   } else {
     var stack = Error().stack;
     stack && (this.stack = stack);
   }
   opt_msg && (this.message = String(opt_msg));
   this.reportErrorToServer = !0;
-};
-goog.inherits(goog.debug.Error, Error);
-goog.debug.Error.prototype.name = "CustomError";
+}
+goog.inherits(module$contents$goog$debug$Error_DebugError, Error);
+module$contents$goog$debug$Error_DebugError.prototype.name = "CustomError";
+goog.debug.Error = module$contents$goog$debug$Error_DebugError;
 goog.dom = {};
 goog.dom.NodeType = {ELEMENT:1, ATTRIBUTE:2, TEXT:3, CDATA_SECTION:4, ENTITY_REFERENCE:5, ENTITY:6, PROCESSING_INSTRUCTION:7, COMMENT:8, DOCUMENT:9, DOCUMENT_TYPE:10, DOCUMENT_FRAGMENT:11, NOTATION:12};
 goog.asserts = {};
 goog.asserts.ENABLE_ASSERTS = goog.DEBUG;
 goog.asserts.AssertionError = function(messagePattern, messageArgs) {
-  goog.debug.Error.call(this, goog.asserts.subs_(messagePattern, messageArgs));
+  module$contents$goog$debug$Error_DebugError.call(this, goog.asserts.subs_(messagePattern, messageArgs));
   this.messagePattern = messagePattern;
 };
-goog.inherits(goog.asserts.AssertionError, goog.debug.Error);
+goog.inherits(goog.asserts.AssertionError, module$contents$goog$debug$Error_DebugError);
 goog.asserts.AssertionError.prototype.name = "AssertionError";
 goog.asserts.DEFAULT_ERROR_HANDLER = function(e) {
   throw e;
@@ -11847,6 +11850,132 @@ module$exports$eeapiclient$ee_api_client.ProjectsImageCollectionApiClientImpl.pr
 };
 module$exports$eeapiclient$ee_api_client.ProjectsImageCollectionApiClient = function() {
 };
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsAssetsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsAssetsApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsAssetsApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsAssetsApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClientImpl.prototype.create = function(parent, $requestBody, namedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  this.$apiClient.$validateParameter(parent, /^projects\/[^/]+\/locations\/[^/]+$/);
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.locations.assets.create", path:"/" + this.gapiVersion + "/" + parent + "/assets", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0), responseCtor:module$exports$eeapiclient$ee_api_client.EarthEngineAsset});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsAssetsApiClient = function() {
+};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsFilmstripThumbnailsApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsFilmstripThumbnailsApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClientImpl.prototype.create = function(parent, $requestBody, namedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  this.$apiClient.$validateParameter(parent, /^projects\/[^/]+\/locations\/[^/]+$/);
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.locations.filmstripThumbnails.create", path:"/" + this.gapiVersion + "/" + parent + "/filmstripThumbnails", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0), responseCtor:module$exports$eeapiclient$ee_api_client.FilmstripThumbnail});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsFilmstripThumbnailsApiClient = function() {
+};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsMapsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsMapsApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsMapsApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsMapsApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClientImpl.prototype.create = function(parent, $requestBody, namedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  this.$apiClient.$validateParameter(parent, /^projects\/[^/]+\/locations\/[^/]+$/);
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.locations.maps.create", path:"/" + this.gapiVersion + "/" + parent + "/maps", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0), responseCtor:module$exports$eeapiclient$ee_api_client.EarthEngineMap});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsMapsApiClient = function() {
+};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsTablesApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsTablesApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsTablesApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsTablesApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClientImpl.prototype.create = function(parent, $requestBody, namedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  this.$apiClient.$validateParameter(parent, /^projects\/[^/]+\/locations\/[^/]+$/);
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.locations.tables.create", path:"/" + this.gapiVersion + "/" + parent + "/tables", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0), responseCtor:module$exports$eeapiclient$ee_api_client.Table});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsTablesApiClient = function() {
+};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsThumbnailsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsThumbnailsApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsThumbnailsApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsThumbnailsApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClientImpl.prototype.create = function(parent, $requestBody, namedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  this.$apiClient.$validateParameter(parent, /^projects\/[^/]+\/locations\/[^/]+$/);
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.locations.thumbnails.create", path:"/" + this.gapiVersion + "/" + parent + "/thumbnails", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0), responseCtor:module$exports$eeapiclient$ee_api_client.Thumbnail});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsThumbnailsApiClient = function() {
+};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsVideoThumbnailsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsVideoThumbnailsApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IProjectsLocationsVideoThumbnailsApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IProjectsLocationsVideoThumbnailsApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClientImpl.prototype.create = function(parent, $requestBody, namedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  this.$apiClient.$validateParameter(parent, /^projects\/[^/]+\/locations\/[^/]+$/);
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.locations.videoThumbnails.create", path:"/" + this.gapiVersion + "/" + parent + "/videoThumbnails", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0), responseCtor:module$exports$eeapiclient$ee_api_client.VideoThumbnail});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsLocationsVideoThumbnailsApiClient = function() {
+};
 module$exports$eeapiclient$ee_api_client.IProjectsMapApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsMapApiClient$XgafvEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ProjectsMapApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
@@ -13643,9 +13772,9 @@ goog.Promise.setUnhandledRejectionHandler = function(handler) {
   goog.Promise.handleRejection_ = handler;
 };
 goog.Promise.CancellationError = function(opt_message) {
-  goog.debug.Error.call(this, opt_message);
+  module$contents$goog$debug$Error_DebugError.call(this, opt_message);
 };
-goog.inherits(goog.Promise.CancellationError, goog.debug.Error);
+goog.inherits(goog.Promise.CancellationError, module$contents$goog$debug$Error_DebugError);
 goog.Promise.CancellationError.prototype.name = "cancel";
 goog.Promise.Resolver_ = function(promise, resolve, reject) {
   this.promise = promise;
@@ -13964,17 +14093,17 @@ goog.async.Deferred.when = function(value, callback, opt_scope) {
   return value instanceof goog.async.Deferred ? value.branch(!0).addCallback(callback, opt_scope) : goog.async.Deferred.succeed(value).addCallback(callback, opt_scope);
 };
 goog.async.Deferred.AlreadyCalledError = function(deferred) {
-  goog.debug.Error.call(this);
+  module$contents$goog$debug$Error_DebugError.call(this);
   this.deferred = deferred;
 };
-goog.inherits(goog.async.Deferred.AlreadyCalledError, goog.debug.Error);
+goog.inherits(goog.async.Deferred.AlreadyCalledError, module$contents$goog$debug$Error_DebugError);
 goog.async.Deferred.AlreadyCalledError.prototype.message = "Deferred has already fired";
 goog.async.Deferred.AlreadyCalledError.prototype.name = "AlreadyCalledError";
 goog.async.Deferred.CanceledError = function(deferred) {
-  goog.debug.Error.call(this);
+  module$contents$goog$debug$Error_DebugError.call(this);
   this.deferred = deferred;
 };
-goog.inherits(goog.async.Deferred.CanceledError, goog.debug.Error);
+goog.inherits(goog.async.Deferred.CanceledError, module$contents$goog$debug$Error_DebugError);
 goog.async.Deferred.CanceledError.prototype.message = "Deferred was canceled";
 goog.async.Deferred.CanceledError.prototype.name = "CanceledError";
 goog.async.Deferred.Error_ = function(error) {
@@ -14090,10 +14219,10 @@ goog.net.jsloader.ErrorCode = {LOAD_ERROR:0, TIMEOUT:1, VERIFY_ERROR:2, VERIFY_O
 goog.net.jsloader.Error = function(code, opt_message) {
   var msg = "Jsloader error (code #" + code + ")";
   opt_message && (msg += ": " + opt_message);
-  goog.debug.Error.call(this, msg);
+  module$contents$goog$debug$Error_DebugError.call(this, msg);
   this.code = code;
 };
-goog.inherits(goog.net.jsloader.Error, goog.debug.Error);
+goog.inherits(goog.net.jsloader.Error, module$contents$goog$debug$Error_DebugError);
 goog.json = {};
 goog.json.USE_NATIVE_JSON = !1;
 goog.json.TRY_NATIVE_JSON = !1;
@@ -15026,7 +15155,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.234";
+ee.apiclient.API_CLIENT_VERSION = "0.1.235";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15290,8 +15419,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.234";
-    "0.1.234" === version && (version = "latest");
+    var version = "0.1.235";
+    "0.1.235" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -23705,9 +23834,9 @@ goog.fs.Error = function(error, action) {
     this.code = code;
     this.name = goog.fs.Error.getNameFromCode_(code);
   }
-  goog.debug.Error.call(this, goog.string.subs("%s %s", this.name, action));
+  module$contents$goog$debug$Error_DebugError.call(this, goog.string.subs("%s %s", this.name, action));
 };
-goog.inherits(goog.fs.Error, goog.debug.Error);
+goog.inherits(goog.fs.Error, module$contents$goog$debug$Error_DebugError);
 goog.fs.Error.ErrorName = {ABORT:"AbortError", ENCODING:"EncodingError", INVALID_MODIFICATION:"InvalidModificationError", INVALID_STATE:"InvalidStateError", NOT_FOUND:"NotFoundError", NOT_READABLE:"NotReadableError", NO_MODIFICATION_ALLOWED:"NoModificationAllowedError", PATH_EXISTS:"PathExistsError", QUOTA_EXCEEDED:"QuotaExceededError", SECURITY:"SecurityError", SYNTAX:"SyntaxError", TYPE_MISMATCH:"TypeMismatchError"};
 goog.fs.Error.ErrorCode = {NOT_FOUND:1, SECURITY:2, ABORT:3, NOT_READABLE:4, ENCODING:5, NO_MODIFICATION_ALLOWED:6, INVALID_STATE:7, SYNTAX:8, INVALID_MODIFICATION:9, QUOTA_EXCEEDED:10, TYPE_MISMATCH:11, PATH_EXISTS:12};
 goog.fs.Error.getNameFromCode_ = function(code) {
@@ -24416,7 +24545,8 @@ goog.style.installSafeStyleSheet = function(safeStyleSheet, opt_node) {
     head = dh.createDom(goog.dom.TagName.HEAD);
     body.parentNode.insertBefore(head, body);
   }
-  var el = dh.createDom(goog.dom.TagName.STYLE);
+  var el = dh.createDom(goog.dom.TagName.STYLE), nonce = goog.getScriptNonce();
+  nonce && el.setAttribute("nonce", nonce);
   goog.style.setSafeStyleSheet(el, safeStyleSheet);
   dh.appendChild(head, el);
   return el;
@@ -26040,26 +26170,26 @@ ee.data.Profiler.Format.prototype.toString = function() {
 ee.data.Profiler.Format.TEXT = new ee.data.Profiler.Format("text");
 ee.data.Profiler.Format.JSON = new ee.data.Profiler.Format("json");
 (function() {
-  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction._call ee.ApiFunction.lookup ee.ApiFunction._apply ee.batch.Export.map.toCloudStorage ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.video.toCloudStorage ee.batch.Export.image.toAsset ee.batch.Export.image.toDrive ee.batch.Export.video.toDrive ee.batch.Export.image.toCloudStorage ee.batch.Export.table.toAsset ee.batch.Export.table.toDrive ee.batch.Export.table.toCloudStorage ee.Collection.prototype.map ee.Collection.prototype.filterBounds ee.Collection.prototype.iterate ee.Collection.prototype.filterDate ee.Collection.prototype.limit ee.Collection.prototype.filter ee.Collection.prototype.filterMetadata ee.Collection.prototype.sort ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.data.copyAsset ee.data.getDownloadId ee.data.listBuckets ee.data.deleteAsset ee.data.startTableIngestion ee.data.makeDownloadUrl ee.data.getAssetRoots ee.data.authenticateViaPopup ee.data.getAssetAcl ee.data.getAsset ee.data.createAssetHome ee.data.getTableDownloadId ee.data.authenticateViaPrivateKey ee.data.makeTableDownloadUrl ee.data.getInfo ee.data.createAsset ee.data.newTaskId ee.data.renameAsset ee.data.getTileUrl ee.data.getList ee.data.authenticate ee.data.listImages ee.data.updateAsset ee.data.createFolder ee.data.setAssetAcl ee.data.getMapId ee.data.getTaskStatus ee.data.listAssets ee.data.authenticateViaOauth ee.data.setAssetProperties ee.data.getTaskList ee.data.startProcessing ee.data.getAssetRootQuota ee.data.getTaskListWithLimit ee.data.listOperations ee.data.computeValue ee.data.cancelOperation ee.data.getVideoThumbId ee.data.getThumbId ee.data.getOperation ee.data.getFilmstripThumbId ee.data.cancelTask ee.data.startIngestion ee.data.makeThumbUrl ee.data.updateTask ee.Date ee.Deserializer.decode ee.Deserializer.fromJSON ee.Deserializer.fromCloudApiJSON ee.Deserializer.decodeCloudApi ee.Dictionary ee.call ee.reset ee.apply ee.TILE_SIZE ee.Algorithms ee.initialize ee.InitState ee.Element.prototype.set ee.Feature ee.Feature.prototype.getMap ee.Feature.prototype.getInfo ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.getDownloadURL ee.Filter.gt ee.Filter.eq ee.Filter.bounds ee.Filter.neq ee.Filter.metadata ee.Filter ee.Filter.lt ee.Filter.gte ee.Filter.or ee.Filter.lte ee.Filter.and ee.Filter.date ee.Filter.inList ee.Filter.prototype.not ee.Function.prototype.call ee.Function.prototype.apply ee.Geometry.Point ee.Geometry.LinearRing ee.Geometry.MultiLineString ee.Geometry ee.Geometry.MultiPoint ee.Geometry.prototype.toGeoJSON ee.Geometry.LineString ee.Geometry.MultiPolygon ee.Geometry.Rectangle ee.Geometry.prototype.toGeoJSONString ee.Geometry.BBox ee.Geometry.Polygon ee.Geometry.prototype.serialize ee.Image.prototype.select ee.Image.cat ee.Image.prototype.rename ee.Image.prototype.getDownloadURL ee.Image.rgb ee.Image.prototype.getThumbId ee.Image.prototype.clip ee.Image ee.Image.prototype.getMap ee.Image.prototype.expression ee.Image.prototype.getInfo ee.Image.prototype.getThumbURL ee.ImageCollection.prototype.select ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.first ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection ee.List ee.Number ee.Serializer.encode ee.Serializer.toReadableCloudApiJSON ee.Serializer.toCloudApiJSON ee.Serializer.encodeCloudApiPretty ee.Serializer.toReadableJSON ee.Serializer.encodeCloudApi ee.Serializer.toJSON ee.String ee.Terrain".split(" "), 
-  orderedParamLists = [["name", "var_args"], ["name"], ["name", "namedArgs"], "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris".split(" "), 
-  "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels".split(" "), "image opt_description opt_folder opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), 
-  "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), "image opt_description opt_bucket opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), ["collection", "opt_description", "opt_assetId"], "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors".split(" "), 
-  "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors".split(" "), ["algorithm", "opt_dropNulls"], ["geometry"], ["algorithm", "opt_first"], ["start", "opt_end"], ["max", "opt_property", "opt_ascending"], ["filter"], ["name", "operator", "value"], ["property", "opt_ascending"], ["opt_callback"], ["legacy"], ["func", "var_args"], ["callback"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["params", "opt_callback"], ["project", "opt_callback"], 
-  ["assetId", "opt_callback"], ["taskId", "request", "opt_callback"], ["id"], ["opt_callback"], ["opt_success", "opt_error"], ["assetId", "opt_callback"], ["id", "opt_callback"], ["requestedId", "opt_callback"], ["params", "opt_callback"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes"], ["id"], ["id", "opt_callback"], ["value", "opt_path", "opt_force", "opt_properties", "opt_callback"], ["opt_count", "opt_callback"], ["sourceId", "destinationId", "opt_callback"], ["id", "x", "y", "z"], 
-  ["params", "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["parent", "params", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["path", "opt_force", "opt_callback"], ["assetId", "aclUpdate", "opt_callback"], ["params", "opt_callback"], ["taskId", "opt_callback"], ["parent", "params", "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["assetId", "properties", "opt_callback"], 
-  ["opt_callback"], ["taskId", "params", "opt_callback"], ["rootId", "opt_callback"], ["opt_limit", "opt_callback"], ["opt_limit", "opt_callback"], ["obj", "opt_callback"], ["operationName", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["operationName", "opt_callback"], ["params", "opt_callback"], ["taskId", "opt_callback"], ["taskId", "request", "opt_callback"], ["id"], ["taskId", "action", "opt_callback"], ["date", "opt_tz"], ["json"], ["json"], ["json"], ["json"], ["opt_dict"], 
-  ["func", "var_args"], [], ["func", "namedArgs"], [], [], ["opt_baseurl", "opt_tileurl", "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], [], ["var_args"], ["geometry", "opt_properties"], ["opt_visParams", "opt_callback"], ["opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["opt_callback"], ["args", "opt_column"], ["opt_visParams", "opt_callback"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["name", "value"], ["name", "value"], 
-  ["geometry", "opt_errorMargin"], ["name", "value"], ["name", "operator", "value"], ["opt_filter"], ["name", "value"], ["name", "value"], ["var_args"], ["name", "value"], ["var_args"], ["start", "opt_end"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], [], ["var_args"], ["namedArgs"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], 
-  ["coords", "opt_proj"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], [], ["west", "south", "east", "north"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["legacy"], ["var_args"], ["var_args"], ["var_args"], ["params", "opt_callback"], ["r", "g", "b"], ["params", "opt_callback"], ["geometry"], ["opt_args"], ["opt_visParams", "opt_callback"], 
-  ["expression", "opt_map"], ["opt_callback"], ["params", "opt_callback"], ["selectors", "opt_names"], ["opt_visParams", "opt_callback"], [], ["opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["args"], ["list"], ["number"], ["obj", "opt_isCompound"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["string"], []];
-  [ee.ApiFunction._call, ee.ApiFunction.lookup, ee.ApiFunction._apply, ee.batch.Export.map.toCloudStorage, ee.batch.Export.videoMap.toCloudStorage, ee.batch.Export.video.toCloudStorage, ee.batch.Export.image.toAsset, ee.batch.Export.image.toDrive, ee.batch.Export.video.toDrive, ee.batch.Export.image.toCloudStorage, ee.batch.Export.table.toAsset, ee.batch.Export.table.toDrive, ee.batch.Export.table.toCloudStorage, ee.Collection.prototype.map, ee.Collection.prototype.filterBounds, ee.Collection.prototype.iterate, 
-  ee.Collection.prototype.filterDate, ee.Collection.prototype.limit, ee.Collection.prototype.filter, ee.Collection.prototype.filterMetadata, ee.Collection.prototype.sort, ee.ComputedObject.prototype.getInfo, ee.ComputedObject.prototype.serialize, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.evaluate, ee.data.copyAsset, ee.data.getDownloadId, ee.data.listBuckets, ee.data.deleteAsset, ee.data.startTableIngestion, ee.data.makeDownloadUrl, ee.data.getAssetRoots, ee.data.authenticateViaPopup, 
-  ee.data.getAssetAcl, ee.data.getAsset, ee.data.createAssetHome, ee.data.getTableDownloadId, ee.data.authenticateViaPrivateKey, ee.data.makeTableDownloadUrl, ee.data.getInfo, ee.data.createAsset, ee.data.newTaskId, ee.data.renameAsset, ee.data.getTileUrl, ee.data.getList, ee.data.authenticate, ee.data.listImages, ee.data.updateAsset, ee.data.createFolder, ee.data.setAssetAcl, ee.data.getMapId, ee.data.getTaskStatus, ee.data.listAssets, ee.data.authenticateViaOauth, ee.data.setAssetProperties, ee.data.getTaskList, 
-  ee.data.startProcessing, ee.data.getAssetRootQuota, ee.data.getTaskListWithLimit, ee.data.listOperations, ee.data.computeValue, ee.data.cancelOperation, ee.data.getVideoThumbId, ee.data.getThumbId, ee.data.getOperation, ee.data.getFilmstripThumbId, ee.data.cancelTask, ee.data.startIngestion, ee.data.makeThumbUrl, ee.data.updateTask, ee.Date, ee.Deserializer.decode, ee.Deserializer.fromJSON, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.decodeCloudApi, ee.Dictionary, ee.call, ee.reset, ee.apply, 
-  ee.TILE_SIZE, ee.Algorithms, ee.initialize, ee.InitState, ee.Element.prototype.set, ee.Feature, ee.Feature.prototype.getMap, ee.Feature.prototype.getInfo, ee.FeatureCollection.prototype.select, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection, ee.FeatureCollection.prototype.getMap, ee.FeatureCollection.prototype.getDownloadURL, ee.Filter.gt, ee.Filter.eq, ee.Filter.bounds, ee.Filter.neq, ee.Filter.metadata, ee.Filter, ee.Filter.lt, ee.Filter.gte, ee.Filter.or, ee.Filter.lte, ee.Filter.and, 
-  ee.Filter.date, ee.Filter.inList, ee.Filter.prototype.not, ee.Function.prototype.call, ee.Function.prototype.apply, ee.Geometry.Point, ee.Geometry.LinearRing, ee.Geometry.MultiLineString, ee.Geometry, ee.Geometry.MultiPoint, ee.Geometry.prototype.toGeoJSON, ee.Geometry.LineString, ee.Geometry.MultiPolygon, ee.Geometry.Rectangle, ee.Geometry.prototype.toGeoJSONString, ee.Geometry.BBox, ee.Geometry.Polygon, ee.Geometry.prototype.serialize, ee.Image.prototype.select, ee.Image.cat, ee.Image.prototype.rename, 
-  ee.Image.prototype.getDownloadURL, ee.Image.rgb, ee.Image.prototype.getThumbId, ee.Image.prototype.clip, ee.Image, ee.Image.prototype.getMap, ee.Image.prototype.expression, ee.Image.prototype.getInfo, ee.Image.prototype.getThumbURL, ee.ImageCollection.prototype.select, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.first, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection, 
-  ee.List, ee.Number, ee.Serializer.encode, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.toCloudApiJSON, ee.Serializer.encodeCloudApiPretty, ee.Serializer.toReadableJSON, ee.Serializer.encodeCloudApi, ee.Serializer.toJSON, ee.String, ee.Terrain].forEach(function(fn, i) {
+  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction._apply ee.ApiFunction._call ee.ApiFunction.lookup ee.batch.Export.table.toAsset ee.batch.Export.map.toCloudStorage ee.batch.Export.image.toCloudStorage ee.batch.Export.video.toCloudStorage ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.image.toAsset ee.batch.Export.image.toDrive ee.batch.Export.table.toDrive ee.batch.Export.video.toDrive ee.batch.Export.table.toCloudStorage ee.Collection.prototype.sort ee.Collection.prototype.map ee.Collection.prototype.filterBounds ee.Collection.prototype.iterate ee.Collection.prototype.filterMetadata ee.Collection.prototype.filterDate ee.Collection.prototype.limit ee.Collection.prototype.filter ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.data.getDownloadId ee.data.authenticate ee.data.setAssetProperties ee.data.startProcessing ee.data.getAssetRootQuota ee.data.makeDownloadUrl ee.data.getTableDownloadId ee.data.authenticateViaPopup ee.data.makeTableDownloadUrl ee.data.authenticateViaPrivateKey ee.data.newTaskId ee.data.startIngestion ee.data.getMapId ee.data.getTaskStatus ee.data.listImages ee.data.getTileUrl ee.data.copyAsset ee.data.authenticateViaOauth ee.data.getTaskList ee.data.listBuckets ee.data.startTableIngestion ee.data.deleteAsset ee.data.getTaskListWithLimit ee.data.getAssetAcl ee.data.getAssetRoots ee.data.listOperations ee.data.getOperation ee.data.getAsset ee.data.computeValue ee.data.createAssetHome ee.data.getThumbId ee.data.cancelOperation ee.data.createAsset ee.data.getInfo ee.data.updateAsset ee.data.getVideoThumbId ee.data.createFolder ee.data.getFilmstripThumbId ee.data.cancelTask ee.data.makeThumbUrl ee.data.getList ee.data.renameAsset ee.data.setAssetAcl ee.data.listAssets ee.data.updateTask ee.Date ee.Deserializer.fromCloudApiJSON ee.Deserializer.decodeCloudApi ee.Deserializer.decode ee.Deserializer.fromJSON ee.Dictionary ee.reset ee.InitState ee.Algorithms ee.initialize ee.call ee.TILE_SIZE ee.apply ee.Element.prototype.set ee.Feature.prototype.getInfo ee.Feature ee.Feature.prototype.getMap ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.getDownloadURL ee.Filter.lt ee.Filter.or ee.Filter.gt ee.Filter.eq ee.Filter.gte ee.Filter.neq ee.Filter.lte ee.Filter.and ee.Filter.bounds ee.Filter ee.Filter.metadata ee.Filter.inList ee.Filter.date ee.Filter.prototype.not ee.Function.prototype.call ee.Function.prototype.apply ee.Geometry.prototype.serialize ee.Geometry.Point ee.Geometry.LinearRing ee.Geometry ee.Geometry.MultiPoint ee.Geometry.MultiPolygon ee.Geometry.MultiLineString ee.Geometry.prototype.toGeoJSON ee.Geometry.LineString ee.Geometry.Rectangle ee.Geometry.prototype.toGeoJSONString ee.Geometry.BBox ee.Geometry.Polygon ee.Image.prototype.getThumbURL ee.Image.prototype.getMap ee.Image.prototype.select ee.Image.cat ee.Image.prototype.rename ee.Image.prototype.getDownloadURL ee.Image.rgb ee.Image.prototype.getThumbId ee.Image.prototype.clip ee.Image.prototype.getInfo ee.Image ee.Image.prototype.expression ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection ee.ImageCollection.prototype.first ee.ImageCollection.prototype.select ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getInfo ee.List ee.Number ee.Serializer.toJSON ee.Serializer.encode ee.Serializer.toReadableCloudApiJSON ee.Serializer.toCloudApiJSON ee.Serializer.encodeCloudApiPretty ee.Serializer.toReadableJSON ee.Serializer.encodeCloudApi ee.String ee.Terrain".split(" "), 
+  orderedParamLists = [["name", "namedArgs"], ["name", "var_args"], ["name"], ["collection", "opt_description", "opt_assetId"], "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey".split(" "), "image opt_description opt_bucket opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), 
+  "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris".split(" "), 
+  "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels".split(" "), "image opt_description opt_folder opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), 
+  "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors".split(" "), ["property", "opt_ascending"], ["algorithm", "opt_dropNulls"], ["geometry"], ["algorithm", "opt_first"], ["name", "operator", "value"], ["start", "opt_end"], ["max", "opt_property", "opt_ascending"], ["filter"], ["opt_callback"], ["legacy"], ["func", "var_args"], ["callback"], ["params", "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["assetId", 
+  "properties", "opt_callback"], ["taskId", "params", "opt_callback"], ["rootId", "opt_callback"], ["id"], ["params", "opt_callback"], ["opt_success", "opt_error"], ["id"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes"], ["opt_count", "opt_callback"], ["taskId", "request", "opt_callback"], ["params", "opt_callback"], ["taskId", "opt_callback"], ["parent", "params", "opt_callback"], ["id", "x", "y", "z"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["clientId", "success", 
+  "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["opt_callback"], ["project", "opt_callback"], ["taskId", "request", "opt_callback"], ["assetId", "opt_callback"], ["opt_limit", "opt_callback"], ["assetId", "opt_callback"], ["opt_callback"], ["opt_limit", "opt_callback"], ["operationName", "opt_callback"], ["id", "opt_callback"], ["obj", "opt_callback"], ["requestedId", "opt_callback"], ["params", "opt_callback"], ["operationName", "opt_callback"], ["value", "opt_path", "opt_force", "opt_properties", 
+  "opt_callback"], ["id", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["params", "opt_callback"], ["path", "opt_force", "opt_callback"], ["params", "opt_callback"], ["taskId", "opt_callback"], ["id"], ["params", "opt_callback"], ["sourceId", "destinationId", "opt_callback"], ["assetId", "aclUpdate", "opt_callback"], ["parent", "params", "opt_callback"], ["taskId", "action", "opt_callback"], ["date", "opt_tz"], ["json"], ["json"], ["json"], ["json"], ["opt_dict"], [], [], 
+  [], ["opt_baseurl", "opt_tileurl", "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], ["func", "var_args"], [], ["func", "namedArgs"], ["var_args"], ["opt_callback"], ["geometry", "opt_properties"], ["opt_visParams", "opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["opt_callback"], ["args", "opt_column"], ["opt_visParams", "opt_callback"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["name", "value"], ["var_args"], ["name", "value"], 
+  ["name", "value"], ["name", "value"], ["name", "value"], ["name", "value"], ["var_args"], ["geometry", "opt_errorMargin"], ["opt_filter"], ["name", "operator", "value"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], ["start", "opt_end"], [], ["var_args"], ["namedArgs"], ["legacy"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", 
+  "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], [], ["west", "south", "east", "north"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["params", "opt_callback"], ["opt_visParams", "opt_callback"], ["var_args"], ["var_args"], ["var_args"], ["params", "opt_callback"], ["r", "g", "b"], ["params", "opt_callback"], ["geometry"], 
+  ["opt_callback"], ["opt_args"], ["expression", "opt_map"], ["params", "opt_callback"], ["args"], [], ["selectors", "opt_names"], ["opt_visParams", "opt_callback"], ["params", "opt_callback"], ["opt_callback"], ["list"], ["number"], ["obj"], ["obj", "opt_isCompound"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["string"], []];
+  [ee.ApiFunction._apply, ee.ApiFunction._call, ee.ApiFunction.lookup, ee.batch.Export.table.toAsset, ee.batch.Export.map.toCloudStorage, ee.batch.Export.image.toCloudStorage, ee.batch.Export.video.toCloudStorage, ee.batch.Export.videoMap.toCloudStorage, ee.batch.Export.image.toAsset, ee.batch.Export.image.toDrive, ee.batch.Export.table.toDrive, ee.batch.Export.video.toDrive, ee.batch.Export.table.toCloudStorage, ee.Collection.prototype.sort, ee.Collection.prototype.map, ee.Collection.prototype.filterBounds, 
+  ee.Collection.prototype.iterate, ee.Collection.prototype.filterMetadata, ee.Collection.prototype.filterDate, ee.Collection.prototype.limit, ee.Collection.prototype.filter, ee.ComputedObject.prototype.getInfo, ee.ComputedObject.prototype.serialize, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.evaluate, ee.data.getDownloadId, ee.data.authenticate, ee.data.setAssetProperties, ee.data.startProcessing, ee.data.getAssetRootQuota, ee.data.makeDownloadUrl, ee.data.getTableDownloadId, 
+  ee.data.authenticateViaPopup, ee.data.makeTableDownloadUrl, ee.data.authenticateViaPrivateKey, ee.data.newTaskId, ee.data.startIngestion, ee.data.getMapId, ee.data.getTaskStatus, ee.data.listImages, ee.data.getTileUrl, ee.data.copyAsset, ee.data.authenticateViaOauth, ee.data.getTaskList, ee.data.listBuckets, ee.data.startTableIngestion, ee.data.deleteAsset, ee.data.getTaskListWithLimit, ee.data.getAssetAcl, ee.data.getAssetRoots, ee.data.listOperations, ee.data.getOperation, ee.data.getAsset, ee.data.computeValue, 
+  ee.data.createAssetHome, ee.data.getThumbId, ee.data.cancelOperation, ee.data.createAsset, ee.data.getInfo, ee.data.updateAsset, ee.data.getVideoThumbId, ee.data.createFolder, ee.data.getFilmstripThumbId, ee.data.cancelTask, ee.data.makeThumbUrl, ee.data.getList, ee.data.renameAsset, ee.data.setAssetAcl, ee.data.listAssets, ee.data.updateTask, ee.Date, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.decodeCloudApi, ee.Deserializer.decode, ee.Deserializer.fromJSON, ee.Dictionary, ee.reset, ee.InitState, 
+  ee.Algorithms, ee.initialize, ee.call, ee.TILE_SIZE, ee.apply, ee.Element.prototype.set, ee.Feature.prototype.getInfo, ee.Feature, ee.Feature.prototype.getMap, ee.FeatureCollection.prototype.select, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection, ee.FeatureCollection.prototype.getMap, ee.FeatureCollection.prototype.getDownloadURL, ee.Filter.lt, ee.Filter.or, ee.Filter.gt, ee.Filter.eq, ee.Filter.gte, ee.Filter.neq, ee.Filter.lte, ee.Filter.and, ee.Filter.bounds, ee.Filter, ee.Filter.metadata, 
+  ee.Filter.inList, ee.Filter.date, ee.Filter.prototype.not, ee.Function.prototype.call, ee.Function.prototype.apply, ee.Geometry.prototype.serialize, ee.Geometry.Point, ee.Geometry.LinearRing, ee.Geometry, ee.Geometry.MultiPoint, ee.Geometry.MultiPolygon, ee.Geometry.MultiLineString, ee.Geometry.prototype.toGeoJSON, ee.Geometry.LineString, ee.Geometry.Rectangle, ee.Geometry.prototype.toGeoJSONString, ee.Geometry.BBox, ee.Geometry.Polygon, ee.Image.prototype.getThumbURL, ee.Image.prototype.getMap, 
+  ee.Image.prototype.select, ee.Image.cat, ee.Image.prototype.rename, ee.Image.prototype.getDownloadURL, ee.Image.rgb, ee.Image.prototype.getThumbId, ee.Image.prototype.clip, ee.Image.prototype.getInfo, ee.Image, ee.Image.prototype.expression, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection, ee.ImageCollection.prototype.first, ee.ImageCollection.prototype.select, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getInfo, 
+  ee.List, ee.Number, ee.Serializer.toJSON, ee.Serializer.encode, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.toCloudApiJSON, ee.Serializer.encodeCloudApiPretty, ee.Serializer.toReadableJSON, ee.Serializer.encodeCloudApi, ee.String, ee.Terrain].forEach(function(fn, i) {
     fn && (exportedFnInfo[fn.toString()] = {name:orderedFnNames[i], paramNames:orderedParamLists[i]});
   });
   goog.global.EXPORTED_FN_INFO = exportedFnInfo;

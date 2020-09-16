@@ -12391,6 +12391,606 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         object): Promise<ComputeImagesResponse>;
   }
 
+  export type ProjectsLocationsAssetsApiClient$Xgafv = '1'|'2';
+
+  export interface IProjectsLocationsAssetsApiClient$XgafvEnum {
+    readonly 1: ProjectsLocationsAssetsApiClient$Xgafv;
+    readonly 2: ProjectsLocationsAssetsApiClient$Xgafv;
+
+    values(): Array<ProjectsLocationsAssetsApiClient$Xgafv>;
+  }
+
+  export const ProjectsLocationsAssetsApiClient$XgafvEnum:
+      IProjectsLocationsAssetsApiClient$XgafvEnum = {
+        1: <ProjectsLocationsAssetsApiClient$Xgafv>'1',
+        2: <ProjectsLocationsAssetsApiClient$Xgafv>'2',
+        values():
+            Array<ProjectsLocationsAssetsApiClient$Xgafv> {
+              return [
+                ProjectsLocationsAssetsApiClient$XgafvEnum[1],
+                ProjectsLocationsAssetsApiClient$XgafvEnum[2]
+              ];
+            }
+      };
+
+  export type ProjectsLocationsAssetsApiClientAlt = 'json'|'media'|'proto';
+
+  export interface IProjectsLocationsAssetsApiClientAltEnum {
+    readonly JSON: ProjectsLocationsAssetsApiClientAlt;
+    readonly MEDIA: ProjectsLocationsAssetsApiClientAlt;
+    readonly PROTO: ProjectsLocationsAssetsApiClientAlt;
+
+    values(): Array<ProjectsLocationsAssetsApiClientAlt>;
+  }
+
+  export const ProjectsLocationsAssetsApiClientAltEnum:
+      IProjectsLocationsAssetsApiClientAltEnum = {
+        JSON: <ProjectsLocationsAssetsApiClientAlt>'json',
+        MEDIA: <ProjectsLocationsAssetsApiClientAlt>'media',
+        PROTO: <ProjectsLocationsAssetsApiClientAlt>'proto',
+        values():
+            Array<ProjectsLocationsAssetsApiClientAlt> {
+              return [
+                ProjectsLocationsAssetsApiClientAltEnum.JSON,
+                ProjectsLocationsAssetsApiClientAltEnum.MEDIA,
+                ProjectsLocationsAssetsApiClientAltEnum.PROTO
+              ];
+            }
+      };
+
+  export declare interface ProjectsLocationsAssetsCreateNamedParameters {
+    access_token?: string;
+    alt?: ProjectsLocationsAssetsApiClientAlt;
+    callback?: string;
+    fields?: string;
+    key?: string;
+    oauth_token?: string;
+    prettyPrint?: boolean;
+    quotaUser?: string;
+    upload_protocol?: string;
+    uploadType?: string;
+    $Xgafv?: ProjectsLocationsAssetsApiClient$Xgafv;
+    assetId?: string;
+    overwrite?: boolean;
+  }
+
+  export class ProjectsLocationsAssetsApiClientImpl implements
+      ProjectsLocationsAssetsApiClient {
+    private $apiClient: PromiseApiClient;
+
+    constructor(
+        private gapiVersion: string, gapiRequestService: PromiseRequestService,
+        apiClientHookFactory: ApiClientHookFactory|null = null) {
+      this.$apiClient =
+          new PromiseApiClient(gapiRequestService, apiClientHookFactory);
+    }
+
+    create(
+        parent: string, $requestBody: EarthEngineAsset,
+        namedParameters: ProjectsLocationsAssetsCreateNamedParameters&
+        object = {}): Promise<EarthEngineAsset> {
+      this.$apiClient.$validateParameter(
+          parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
+
+      return this.$apiClient.$request<EarthEngineAsset>({
+        body: $requestBody,
+        httpMethod: 'POST',
+        methodId: 'earthengine.projects.locations.assets.create',
+        path: `/${this.gapiVersion}/${parent}/assets`,
+        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        responseCtor: EarthEngineAsset
+      });
+    }
+  }
+
+  export abstract class ProjectsLocationsAssetsApiClient {
+    constructor() {}
+
+    abstract create(
+        parent: string, $requestBody: EarthEngineAsset,
+        namedParameters?: ProjectsLocationsAssetsCreateNamedParameters&
+        object): Promise<EarthEngineAsset>;
+  }
+
+  export type ProjectsLocationsFilmstripThumbnailsApiClient$Xgafv = '1'|'2';
+
+  export interface IProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum {
+    readonly 1: ProjectsLocationsFilmstripThumbnailsApiClient$Xgafv;
+    readonly 2: ProjectsLocationsFilmstripThumbnailsApiClient$Xgafv;
+
+    values(): Array<ProjectsLocationsFilmstripThumbnailsApiClient$Xgafv>;
+  }
+
+  export const ProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum:
+      IProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum = {
+        1: <ProjectsLocationsFilmstripThumbnailsApiClient$Xgafv>'1',
+        2: <ProjectsLocationsFilmstripThumbnailsApiClient$Xgafv>'2',
+        values():
+            Array<ProjectsLocationsFilmstripThumbnailsApiClient$Xgafv> {
+              return [
+                ProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum[1],
+                ProjectsLocationsFilmstripThumbnailsApiClient$XgafvEnum[2]
+              ];
+            }
+      };
+
+  export type ProjectsLocationsFilmstripThumbnailsApiClientAlt =
+      'json'|'media'|'proto';
+
+  export interface IProjectsLocationsFilmstripThumbnailsApiClientAltEnum {
+    readonly JSON: ProjectsLocationsFilmstripThumbnailsApiClientAlt;
+    readonly MEDIA: ProjectsLocationsFilmstripThumbnailsApiClientAlt;
+    readonly PROTO: ProjectsLocationsFilmstripThumbnailsApiClientAlt;
+
+    values(): Array<ProjectsLocationsFilmstripThumbnailsApiClientAlt>;
+  }
+
+  export const ProjectsLocationsFilmstripThumbnailsApiClientAltEnum:
+      IProjectsLocationsFilmstripThumbnailsApiClientAltEnum = {
+        JSON: <ProjectsLocationsFilmstripThumbnailsApiClientAlt>'json',
+        MEDIA: <ProjectsLocationsFilmstripThumbnailsApiClientAlt>'media',
+        PROTO: <ProjectsLocationsFilmstripThumbnailsApiClientAlt>'proto',
+        values():
+            Array<ProjectsLocationsFilmstripThumbnailsApiClientAlt> {
+              return [
+                ProjectsLocationsFilmstripThumbnailsApiClientAltEnum.JSON,
+                ProjectsLocationsFilmstripThumbnailsApiClientAltEnum.MEDIA,
+                ProjectsLocationsFilmstripThumbnailsApiClientAltEnum.PROTO
+              ];
+            }
+      };
+
+  export declare interface ProjectsLocationsFilmstripThumbnailsCreateNamedParameters {
+    access_token?: string;
+    alt?: ProjectsLocationsFilmstripThumbnailsApiClientAlt;
+    callback?: string;
+    fields?: string;
+    key?: string;
+    oauth_token?: string;
+    prettyPrint?: boolean;
+    quotaUser?: string;
+    upload_protocol?: string;
+    uploadType?: string;
+    $Xgafv?: ProjectsLocationsFilmstripThumbnailsApiClient$Xgafv;
+  }
+
+  export class ProjectsLocationsFilmstripThumbnailsApiClientImpl implements
+      ProjectsLocationsFilmstripThumbnailsApiClient {
+    private $apiClient: PromiseApiClient;
+
+    constructor(
+        private gapiVersion: string, gapiRequestService: PromiseRequestService,
+        apiClientHookFactory: ApiClientHookFactory|null = null) {
+      this.$apiClient =
+          new PromiseApiClient(gapiRequestService, apiClientHookFactory);
+    }
+
+    create(
+        parent: string, $requestBody: FilmstripThumbnail,
+        namedParameters:
+            ProjectsLocationsFilmstripThumbnailsCreateNamedParameters&
+        object = {}): Promise<FilmstripThumbnail> {
+      this.$apiClient.$validateParameter(
+          parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
+
+      return this.$apiClient.$request<FilmstripThumbnail>({
+        body: $requestBody,
+        httpMethod: 'POST',
+        methodId: 'earthengine.projects.locations.filmstripThumbnails.create',
+        path: `/${this.gapiVersion}/${parent}/filmstripThumbnails`,
+        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        responseCtor: FilmstripThumbnail
+      });
+    }
+  }
+
+  export abstract class ProjectsLocationsFilmstripThumbnailsApiClient {
+    constructor() {}
+
+    abstract create(
+        parent: string, $requestBody: FilmstripThumbnail,
+        namedParameters?:
+            ProjectsLocationsFilmstripThumbnailsCreateNamedParameters&
+        object): Promise<FilmstripThumbnail>;
+  }
+
+  export type ProjectsLocationsMapsApiClient$Xgafv = '1'|'2';
+
+  export interface IProjectsLocationsMapsApiClient$XgafvEnum {
+    readonly 1: ProjectsLocationsMapsApiClient$Xgafv;
+    readonly 2: ProjectsLocationsMapsApiClient$Xgafv;
+
+    values(): Array<ProjectsLocationsMapsApiClient$Xgafv>;
+  }
+
+  export const ProjectsLocationsMapsApiClient$XgafvEnum:
+      IProjectsLocationsMapsApiClient$XgafvEnum = {
+        1: <ProjectsLocationsMapsApiClient$Xgafv>'1',
+        2: <ProjectsLocationsMapsApiClient$Xgafv>'2',
+        values():
+            Array<ProjectsLocationsMapsApiClient$Xgafv> {
+              return [
+                ProjectsLocationsMapsApiClient$XgafvEnum[1],
+                ProjectsLocationsMapsApiClient$XgafvEnum[2]
+              ];
+            }
+      };
+
+  export type ProjectsLocationsMapsApiClientAlt = 'json'|'media'|'proto';
+
+  export interface IProjectsLocationsMapsApiClientAltEnum {
+    readonly JSON: ProjectsLocationsMapsApiClientAlt;
+    readonly MEDIA: ProjectsLocationsMapsApiClientAlt;
+    readonly PROTO: ProjectsLocationsMapsApiClientAlt;
+
+    values(): Array<ProjectsLocationsMapsApiClientAlt>;
+  }
+
+  export const ProjectsLocationsMapsApiClientAltEnum:
+      IProjectsLocationsMapsApiClientAltEnum = {
+        JSON: <ProjectsLocationsMapsApiClientAlt>'json',
+        MEDIA: <ProjectsLocationsMapsApiClientAlt>'media',
+        PROTO: <ProjectsLocationsMapsApiClientAlt>'proto',
+        values():
+            Array<ProjectsLocationsMapsApiClientAlt> {
+              return [
+                ProjectsLocationsMapsApiClientAltEnum.JSON,
+                ProjectsLocationsMapsApiClientAltEnum.MEDIA,
+                ProjectsLocationsMapsApiClientAltEnum.PROTO
+              ];
+            }
+      };
+
+  export declare interface ProjectsLocationsMapsCreateNamedParameters {
+    access_token?: string;
+    alt?: ProjectsLocationsMapsApiClientAlt;
+    callback?: string;
+    fields?: string;
+    key?: string;
+    oauth_token?: string;
+    prettyPrint?: boolean;
+    quotaUser?: string;
+    upload_protocol?: string;
+    uploadType?: string;
+    $Xgafv?: ProjectsLocationsMapsApiClient$Xgafv;
+  }
+
+  export class ProjectsLocationsMapsApiClientImpl implements
+      ProjectsLocationsMapsApiClient {
+    private $apiClient: PromiseApiClient;
+
+    constructor(
+        private gapiVersion: string, gapiRequestService: PromiseRequestService,
+        apiClientHookFactory: ApiClientHookFactory|null = null) {
+      this.$apiClient =
+          new PromiseApiClient(gapiRequestService, apiClientHookFactory);
+    }
+
+    create(
+        parent: string, $requestBody: EarthEngineMap,
+        namedParameters: ProjectsLocationsMapsCreateNamedParameters&
+        object = {}): Promise<EarthEngineMap> {
+      this.$apiClient.$validateParameter(
+          parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
+
+      return this.$apiClient.$request<EarthEngineMap>({
+        body: $requestBody,
+        httpMethod: 'POST',
+        methodId: 'earthengine.projects.locations.maps.create',
+        path: `/${this.gapiVersion}/${parent}/maps`,
+        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        responseCtor: EarthEngineMap
+      });
+    }
+  }
+
+  export abstract class ProjectsLocationsMapsApiClient {
+    constructor() {}
+
+    abstract create(
+        parent: string, $requestBody: EarthEngineMap,
+        namedParameters?: ProjectsLocationsMapsCreateNamedParameters&
+        object): Promise<EarthEngineMap>;
+  }
+
+  export type ProjectsLocationsTablesApiClient$Xgafv = '1'|'2';
+
+  export interface IProjectsLocationsTablesApiClient$XgafvEnum {
+    readonly 1: ProjectsLocationsTablesApiClient$Xgafv;
+    readonly 2: ProjectsLocationsTablesApiClient$Xgafv;
+
+    values(): Array<ProjectsLocationsTablesApiClient$Xgafv>;
+  }
+
+  export const ProjectsLocationsTablesApiClient$XgafvEnum:
+      IProjectsLocationsTablesApiClient$XgafvEnum = {
+        1: <ProjectsLocationsTablesApiClient$Xgafv>'1',
+        2: <ProjectsLocationsTablesApiClient$Xgafv>'2',
+        values():
+            Array<ProjectsLocationsTablesApiClient$Xgafv> {
+              return [
+                ProjectsLocationsTablesApiClient$XgafvEnum[1],
+                ProjectsLocationsTablesApiClient$XgafvEnum[2]
+              ];
+            }
+      };
+
+  export type ProjectsLocationsTablesApiClientAlt = 'json'|'media'|'proto';
+
+  export interface IProjectsLocationsTablesApiClientAltEnum {
+    readonly JSON: ProjectsLocationsTablesApiClientAlt;
+    readonly MEDIA: ProjectsLocationsTablesApiClientAlt;
+    readonly PROTO: ProjectsLocationsTablesApiClientAlt;
+
+    values(): Array<ProjectsLocationsTablesApiClientAlt>;
+  }
+
+  export const ProjectsLocationsTablesApiClientAltEnum:
+      IProjectsLocationsTablesApiClientAltEnum = {
+        JSON: <ProjectsLocationsTablesApiClientAlt>'json',
+        MEDIA: <ProjectsLocationsTablesApiClientAlt>'media',
+        PROTO: <ProjectsLocationsTablesApiClientAlt>'proto',
+        values():
+            Array<ProjectsLocationsTablesApiClientAlt> {
+              return [
+                ProjectsLocationsTablesApiClientAltEnum.JSON,
+                ProjectsLocationsTablesApiClientAltEnum.MEDIA,
+                ProjectsLocationsTablesApiClientAltEnum.PROTO
+              ];
+            }
+      };
+
+  export declare interface ProjectsLocationsTablesCreateNamedParameters {
+    access_token?: string;
+    alt?: ProjectsLocationsTablesApiClientAlt;
+    callback?: string;
+    fields?: string;
+    key?: string;
+    oauth_token?: string;
+    prettyPrint?: boolean;
+    quotaUser?: string;
+    upload_protocol?: string;
+    uploadType?: string;
+    $Xgafv?: ProjectsLocationsTablesApiClient$Xgafv;
+  }
+
+  export class ProjectsLocationsTablesApiClientImpl implements
+      ProjectsLocationsTablesApiClient {
+    private $apiClient: PromiseApiClient;
+
+    constructor(
+        private gapiVersion: string, gapiRequestService: PromiseRequestService,
+        apiClientHookFactory: ApiClientHookFactory|null = null) {
+      this.$apiClient =
+          new PromiseApiClient(gapiRequestService, apiClientHookFactory);
+    }
+
+    create(
+        parent: string, $requestBody: Table,
+        namedParameters: ProjectsLocationsTablesCreateNamedParameters&
+        object = {}): Promise<Table> {
+      this.$apiClient.$validateParameter(
+          parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
+
+      return this.$apiClient.$request<Table>({
+        body: $requestBody,
+        httpMethod: 'POST',
+        methodId: 'earthengine.projects.locations.tables.create',
+        path: `/${this.gapiVersion}/${parent}/tables`,
+        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        responseCtor: Table
+      });
+    }
+  }
+
+  export abstract class ProjectsLocationsTablesApiClient {
+    constructor() {}
+
+    abstract create(
+        parent: string, $requestBody: Table,
+        namedParameters?: ProjectsLocationsTablesCreateNamedParameters&
+        object): Promise<Table>;
+  }
+
+  export type ProjectsLocationsThumbnailsApiClient$Xgafv = '1'|'2';
+
+  export interface IProjectsLocationsThumbnailsApiClient$XgafvEnum {
+    readonly 1: ProjectsLocationsThumbnailsApiClient$Xgafv;
+    readonly 2: ProjectsLocationsThumbnailsApiClient$Xgafv;
+
+    values(): Array<ProjectsLocationsThumbnailsApiClient$Xgafv>;
+  }
+
+  export const ProjectsLocationsThumbnailsApiClient$XgafvEnum:
+      IProjectsLocationsThumbnailsApiClient$XgafvEnum = {
+        1: <ProjectsLocationsThumbnailsApiClient$Xgafv>'1',
+        2: <ProjectsLocationsThumbnailsApiClient$Xgafv>'2',
+        values():
+            Array<ProjectsLocationsThumbnailsApiClient$Xgafv> {
+              return [
+                ProjectsLocationsThumbnailsApiClient$XgafvEnum[1],
+                ProjectsLocationsThumbnailsApiClient$XgafvEnum[2]
+              ];
+            }
+      };
+
+  export type ProjectsLocationsThumbnailsApiClientAlt = 'json'|'media'|'proto';
+
+  export interface IProjectsLocationsThumbnailsApiClientAltEnum {
+    readonly JSON: ProjectsLocationsThumbnailsApiClientAlt;
+    readonly MEDIA: ProjectsLocationsThumbnailsApiClientAlt;
+    readonly PROTO: ProjectsLocationsThumbnailsApiClientAlt;
+
+    values(): Array<ProjectsLocationsThumbnailsApiClientAlt>;
+  }
+
+  export const ProjectsLocationsThumbnailsApiClientAltEnum:
+      IProjectsLocationsThumbnailsApiClientAltEnum = {
+        JSON: <ProjectsLocationsThumbnailsApiClientAlt>'json',
+        MEDIA: <ProjectsLocationsThumbnailsApiClientAlt>'media',
+        PROTO: <ProjectsLocationsThumbnailsApiClientAlt>'proto',
+        values():
+            Array<ProjectsLocationsThumbnailsApiClientAlt> {
+              return [
+                ProjectsLocationsThumbnailsApiClientAltEnum.JSON,
+                ProjectsLocationsThumbnailsApiClientAltEnum.MEDIA,
+                ProjectsLocationsThumbnailsApiClientAltEnum.PROTO
+              ];
+            }
+      };
+
+  export declare interface ProjectsLocationsThumbnailsCreateNamedParameters {
+    access_token?: string;
+    alt?: ProjectsLocationsThumbnailsApiClientAlt;
+    callback?: string;
+    fields?: string;
+    key?: string;
+    oauth_token?: string;
+    prettyPrint?: boolean;
+    quotaUser?: string;
+    upload_protocol?: string;
+    uploadType?: string;
+    $Xgafv?: ProjectsLocationsThumbnailsApiClient$Xgafv;
+  }
+
+  export class ProjectsLocationsThumbnailsApiClientImpl implements
+      ProjectsLocationsThumbnailsApiClient {
+    private $apiClient: PromiseApiClient;
+
+    constructor(
+        private gapiVersion: string, gapiRequestService: PromiseRequestService,
+        apiClientHookFactory: ApiClientHookFactory|null = null) {
+      this.$apiClient =
+          new PromiseApiClient(gapiRequestService, apiClientHookFactory);
+    }
+
+    create(
+        parent: string, $requestBody: Thumbnail,
+        namedParameters: ProjectsLocationsThumbnailsCreateNamedParameters&
+        object = {}): Promise<Thumbnail> {
+      this.$apiClient.$validateParameter(
+          parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
+
+      return this.$apiClient.$request<Thumbnail>({
+        body: $requestBody,
+        httpMethod: 'POST',
+        methodId: 'earthengine.projects.locations.thumbnails.create',
+        path: `/${this.gapiVersion}/${parent}/thumbnails`,
+        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        responseCtor: Thumbnail
+      });
+    }
+  }
+
+  export abstract class ProjectsLocationsThumbnailsApiClient {
+    constructor() {}
+
+    abstract create(
+        parent: string, $requestBody: Thumbnail,
+        namedParameters?: ProjectsLocationsThumbnailsCreateNamedParameters&
+        object): Promise<Thumbnail>;
+  }
+
+  export type ProjectsLocationsVideoThumbnailsApiClient$Xgafv = '1'|'2';
+
+  export interface IProjectsLocationsVideoThumbnailsApiClient$XgafvEnum {
+    readonly 1: ProjectsLocationsVideoThumbnailsApiClient$Xgafv;
+    readonly 2: ProjectsLocationsVideoThumbnailsApiClient$Xgafv;
+
+    values(): Array<ProjectsLocationsVideoThumbnailsApiClient$Xgafv>;
+  }
+
+  export const ProjectsLocationsVideoThumbnailsApiClient$XgafvEnum:
+      IProjectsLocationsVideoThumbnailsApiClient$XgafvEnum = {
+        1: <ProjectsLocationsVideoThumbnailsApiClient$Xgafv>'1',
+        2: <ProjectsLocationsVideoThumbnailsApiClient$Xgafv>'2',
+        values():
+            Array<ProjectsLocationsVideoThumbnailsApiClient$Xgafv> {
+              return [
+                ProjectsLocationsVideoThumbnailsApiClient$XgafvEnum[1],
+                ProjectsLocationsVideoThumbnailsApiClient$XgafvEnum[2]
+              ];
+            }
+      };
+
+  export type ProjectsLocationsVideoThumbnailsApiClientAlt =
+      'json'|'media'|'proto';
+
+  export interface IProjectsLocationsVideoThumbnailsApiClientAltEnum {
+    readonly JSON: ProjectsLocationsVideoThumbnailsApiClientAlt;
+    readonly MEDIA: ProjectsLocationsVideoThumbnailsApiClientAlt;
+    readonly PROTO: ProjectsLocationsVideoThumbnailsApiClientAlt;
+
+    values(): Array<ProjectsLocationsVideoThumbnailsApiClientAlt>;
+  }
+
+  export const ProjectsLocationsVideoThumbnailsApiClientAltEnum:
+      IProjectsLocationsVideoThumbnailsApiClientAltEnum = {
+        JSON: <ProjectsLocationsVideoThumbnailsApiClientAlt>'json',
+        MEDIA: <ProjectsLocationsVideoThumbnailsApiClientAlt>'media',
+        PROTO: <ProjectsLocationsVideoThumbnailsApiClientAlt>'proto',
+        values():
+            Array<ProjectsLocationsVideoThumbnailsApiClientAlt> {
+              return [
+                ProjectsLocationsVideoThumbnailsApiClientAltEnum.JSON,
+                ProjectsLocationsVideoThumbnailsApiClientAltEnum.MEDIA,
+                ProjectsLocationsVideoThumbnailsApiClientAltEnum.PROTO
+              ];
+            }
+      };
+
+  export declare interface ProjectsLocationsVideoThumbnailsCreateNamedParameters {
+    access_token?: string;
+    alt?: ProjectsLocationsVideoThumbnailsApiClientAlt;
+    callback?: string;
+    fields?: string;
+    key?: string;
+    oauth_token?: string;
+    prettyPrint?: boolean;
+    quotaUser?: string;
+    upload_protocol?: string;
+    uploadType?: string;
+    $Xgafv?: ProjectsLocationsVideoThumbnailsApiClient$Xgafv;
+  }
+
+  export class ProjectsLocationsVideoThumbnailsApiClientImpl implements
+      ProjectsLocationsVideoThumbnailsApiClient {
+    private $apiClient: PromiseApiClient;
+
+    constructor(
+        private gapiVersion: string, gapiRequestService: PromiseRequestService,
+        apiClientHookFactory: ApiClientHookFactory|null = null) {
+      this.$apiClient =
+          new PromiseApiClient(gapiRequestService, apiClientHookFactory);
+    }
+
+    create(
+        parent: string, $requestBody: VideoThumbnail,
+        namedParameters: ProjectsLocationsVideoThumbnailsCreateNamedParameters&
+        object = {}): Promise<VideoThumbnail> {
+      this.$apiClient.$validateParameter(
+          parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
+
+      return this.$apiClient.$request<VideoThumbnail>({
+        body: $requestBody,
+        httpMethod: 'POST',
+        methodId: 'earthengine.projects.locations.videoThumbnails.create',
+        path: `/${this.gapiVersion}/${parent}/videoThumbnails`,
+        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        responseCtor: VideoThumbnail
+      });
+    }
+  }
+
+  export abstract class ProjectsLocationsVideoThumbnailsApiClient {
+    constructor() {}
+
+    abstract create(
+        parent: string, $requestBody: VideoThumbnail,
+        namedParameters?: ProjectsLocationsVideoThumbnailsCreateNamedParameters&
+        object): Promise<VideoThumbnail>;
+  }
+
   export type ProjectsMapApiClient$Xgafv = '1'|'2';
 
   export interface IProjectsMapApiClient$XgafvEnum {
