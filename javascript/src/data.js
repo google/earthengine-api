@@ -3300,6 +3300,11 @@ ee.data.TaskStatus = class {
     this.update_timestamp_ms;
 
     /**
+     * @export {number|undefined}
+     */
+    this.attempt;
+
+    /**
      * @export {string|undefined}
      */
     this.description;

@@ -708,6 +708,7 @@ def convert_operation_to_task(operation):
           'createTime': ('creation_timestamp_ms', _convert_timestamp_to_msec),
           'updateTime': ('update_timestamp_ms', _convert_timestamp_to_msec),
           'startTime': ('start_timestamp_ms', _convert_timestamp_to_msec),
+          'attempt': 'attempt',
           'state': ('state', _convert_operation_state_to_task_state),
           'description': 'description',
           'type': 'task_type',

@@ -19,6 +19,8 @@ $jscomp.ASSUME_NO_NATIVE_MAP = !1;
 $jscomp.ASSUME_NO_NATIVE_SET = !1;
 $jscomp.SIMPLE_FROUND_POLYFILL = !1;
 $jscomp.ISOLATE_POLYFILLS = !1;
+$jscomp.FORCE_POLYFILL_PROMISE = !1;
+$jscomp.ENABLE_UNHANDLED_REJECTION_POLYFILL = !0;
 $jscomp.defineProperty = $jscomp.ASSUME_ES5 || "function" == typeof Object.defineProperties ? Object.defineProperty : function(target, property, descriptor) {
   if (target == Array.prototype || target == Object.prototype) {
     return target;
@@ -316,7 +318,6 @@ $jscomp.assign = $jscomp.TRUST_ES6_POLYFILLS && "function" == typeof Object.assi
 $jscomp.polyfill("Object.assign", function(orig) {
   return orig || $jscomp.assign;
 }, "es6", "es3");
-$jscomp.FORCE_POLYFILL_PROMISE = !1;
 $jscomp.polyfill("Promise", function(NativePromise) {
   function AsyncExecutor() {
     this.batch_ = null;
@@ -378,6 +379,7 @@ $jscomp.polyfill("Promise", function(NativePromise) {
     this.state_ = PromiseState.PENDING;
     this.result_ = void 0;
     this.onSettledCallbacks_ = [];
+    this.isRejectionHandled_ = !1;
     var resolveAndReject = this.createResolveAndReject_();
     try {
       executor(resolveAndReject.resolve, resolveAndReject.reject);
@@ -419,7 +421,34 @@ $jscomp.polyfill("Promise", function(NativePromise) {
     }
     this.state_ = settledState;
     this.result_ = valueOrReason;
+    this.state_ === PromiseState.REJECTED && $jscomp.ENABLE_UNHANDLED_REJECTION_POLYFILL && this.scheduleUnhandledRejectionCheck_();
     this.executeOnSettledCallbacks_();
+  };
+  PolyfillPromise.prototype.scheduleUnhandledRejectionCheck_ = function() {
+    var self = this;
+    nativeSetTimeout(function() {
+      if (self.notifyUnhandledRejection_()) {
+        var nativeConsole = $jscomp.global.console;
+        "undefined" !== typeof nativeConsole && nativeConsole.error(self.result_);
+      }
+    }, 1);
+  };
+  PolyfillPromise.prototype.notifyUnhandledRejection_ = function() {
+    if (this.isRejectionHandled_) {
+      return !1;
+    }
+    var NativeCustomEvent = $jscomp.global.CustomEvent, NativeEvent = $jscomp.global.Event, nativeDispatchEvent = $jscomp.global.dispatchEvent;
+    if ("undefined" === typeof nativeDispatchEvent) {
+      return !0;
+    }
+    if ("function" === typeof NativeCustomEvent) {
+      var event = new NativeCustomEvent("unhandledrejection", {cancelable:!0});
+    } else {
+      "function" === typeof NativeEvent ? event = new NativeEvent("unhandledrejection", {cancelable:!0}) : (event = $jscomp.global.document.createEvent("CustomEvent"), event.initCustomEvent("unhandledrejection", !1, !0, event));
+    }
+    event.promise = this;
+    event.reason = this.result_;
+    return nativeDispatchEvent(event);
   };
   PolyfillPromise.prototype.executeOnSettledCallbacks_ = function() {
     if (null != this.onSettledCallbacks_) {
@@ -477,6 +506,7 @@ $jscomp.polyfill("Promise", function(NativePromise) {
     }
     var thisPromise = this;
     null == this.onSettledCallbacks_ ? asyncExecutor.asyncExecute(callback) : this.onSettledCallbacks_.push(callback);
+    this.isRejectionHandled_ = !0;
   };
   PolyfillPromise.resolve = resolvingPromise;
   PolyfillPromise.reject = function(opt_reason) {
@@ -1075,7 +1105,7 @@ goog.loadModule = function(moduleDef) {
   try {
     goog.moduleLoaderState_ = {moduleName:"", declareLegacyNamespace:!1, type:goog.ModuleType.GOOG};
     var origExports = {}, exports = origExports;
-    if (goog.isFunction(moduleDef)) {
+    if ("function" === typeof moduleDef) {
       exports = moduleDef.call(void 0, exports);
     } else {
       if ("string" === typeof moduleDef) {
@@ -1155,9 +1185,6 @@ goog.isArrayLike = function(val) {
 };
 goog.isDateLike = function(val) {
   return goog.isObject(val) && "function" == typeof val.getFullYear;
-};
-goog.isFunction = function(val) {
-  return "function" == goog.typeOf(val);
 };
 goog.isObject = function(val) {
   var type = typeof val;
@@ -1258,6 +1285,7 @@ goog.setCssNameMapping = function(mapping, opt_style) {
 };
 goog.getMsg = function(str, opt_values, opt_options) {
   opt_options && opt_options.html && (str = str.replace(/</g, "&lt;"));
+  opt_options && opt_options.unescapeHtmlEntities && (str = str.replace(/&lt;/g, "<").replace(/&gt;/g, ">").replace(/&apos;/g, "'").replace(/&quot;/g, '"').replace(/&amp;/g, "&"));
   opt_values && (str = str.replace(/\{\$([^}]+)}/g, function(match, key) {
     return null != opt_values && key in opt_values ? opt_values[key] : match;
   }));
@@ -2615,9 +2643,11 @@ goog.functions.nth = function(n) {
 goog.functions.partialRight = function(fn, var_args) {
   var rightArgs = Array.prototype.slice.call(arguments, 1);
   return function() {
+    var self = this;
+    self === goog.global && (self = void 0);
     var newArgs = Array.prototype.slice.call(arguments);
     newArgs.push.apply(newArgs, rightArgs);
-    return fn.apply(this, newArgs);
+    return fn.apply(self, newArgs);
   };
 };
 goog.functions.withReturnValue = function(f, retValue) {
@@ -3253,7 +3283,7 @@ goog.html.SafeUrl.unwrap = function(safeUrl) {
 goog.html.SafeUrl.fromConstant = function(url) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
 };
-goog.html.SAFE_MIME_TYPE_PATTERN_ = /^(?:audio\/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)|font\/\w+|image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon)|text\/csv|video\/(?:mpeg|mp4|ogg|webm|quicktime|x-matroska))(?:;\w+=(?:\w+|"[\w;,= ]+"))*$/i;
+goog.html.SAFE_MIME_TYPE_PATTERN_ = /^(?:audio\/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)|font\/\w+|image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon)|video\/(?:mpeg|mp4|ogg|webm|quicktime|x-matroska))(?:;\w+=(?:\w+|"[\w;,= ]+"))*$/i;
 goog.html.SafeUrl.isSafeMimeType = function(mimeType) {
   return goog.html.SAFE_MIME_TYPE_PATTERN_.test(mimeType);
 };
@@ -15155,7 +15185,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.235";
+ee.apiclient.API_CLIENT_VERSION = "0.1.236";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15419,8 +15449,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.235";
-    "0.1.235" === version && (version = "latest");
+    var version = "0.1.236";
+    "0.1.236" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -16141,6 +16171,7 @@ ee.rpc_convert.operationToTask = function(result) {
   assignTimestamp("creation_timestamp_ms", metadata.createTime);
   assignTimestamp("update_timestamp_ms", metadata.updateTime);
   assignTimestamp("start_timestamp_ms", metadata.startTime);
+  internalTask.attempt = metadata.attempt;
   result.done && null != result.error && (internalTask.error_message = result.error.message);
   null != result.name && (internalTask.id = ee.rpc_convert.operationNameToTaskId(result.name), internalTask.name = result.name);
   internalTask.task_type = metadata.type || "UNKNOWN";

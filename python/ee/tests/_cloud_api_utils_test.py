@@ -322,33 +322,34 @@ class CloudApiUtilsTest(unittest.TestCase):
                      }))
 
   def test_convert_operation_to_task(self):
-    self.assertEqual({
-        'start_timestamp_ms': 1538676004000,
-        'state': 'COMPLETED',
-        'description': 'Ingest image: "an/image"',
-        'creation_timestamp_ms': 1538676001749,
-        'id': '7T42Q7FH4KSIXQKGT6MJFBPX',
-        'update_timestamp_ms': 1538676053218,
-        'task_type': 'INGEST_IMAGE',
-        'destination_uris': ['https://test.com'],
-        'name': 'projects/test/operations/7T42Q7FH4KSIXQKGT6MJFBPX',
-    },
-                     _cloud_api_utils.convert_operation_to_task({
-                         'metadata': {
-                             'createTime': '2018-10-04T18:00:01.749999Z',
-                             'updateTime': '2018-10-04T18:00:53.218488Z',
-                             'description': 'Ingest image: "an/image"',
-                             'startTime': '2018-10-04T18:00:04Z',
-                             'state': 'SUCCEEDED',
-                             'endTime': '2018-10-04T18:00:53.218488Z',
-                             'type': 'INGEST_IMAGE',
-                             'destinationUris': ['https://test.com'],
-                         },
-                         'done': True,
-                         'name':
-                             'projects/test/operations/'
-                             '7T42Q7FH4KSIXQKGT6MJFBPX',
-                     }))
+    self.assertEqual(
+        {
+            'start_timestamp_ms': 1538676004000,
+            'state': 'COMPLETED',
+            'description': 'Ingest image: "an/image"',
+            'creation_timestamp_ms': 1538676001749,
+            'id': '7T42Q7FH4KSIXQKGT6MJFBPX',
+            'update_timestamp_ms': 1538676053218,
+            'task_type': 'INGEST_IMAGE',
+            'destination_uris': ['https://test.com'],
+            'name': 'projects/test/operations/7T42Q7FH4KSIXQKGT6MJFBPX',
+            'attempt': 42,
+        },
+        _cloud_api_utils.convert_operation_to_task({
+            'metadata': {
+                'createTime': '2018-10-04T18:00:01.749999Z',
+                'updateTime': '2018-10-04T18:00:53.218488Z',
+                'description': 'Ingest image: "an/image"',
+                'startTime': '2018-10-04T18:00:04Z',
+                'state': 'SUCCEEDED',
+                'endTime': '2018-10-04T18:00:53.218488Z',
+                'type': 'INGEST_IMAGE',
+                'destinationUris': ['https://test.com'],
+                'attempt': 42,
+            },
+            'done': True,
+            'name': 'projects/test/operations/7T42Q7FH4KSIXQKGT6MJFBPX',
+        }))
 
   def test_convert_iam_policy_to_acl(self):
     self.assertEqual({

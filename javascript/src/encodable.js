@@ -835,6 +835,7 @@ ee.rpc_convert.operationToTask = function(result) {
   assignTimestamp('creation_timestamp_ms', metadata.createTime);
   assignTimestamp('update_timestamp_ms', metadata.updateTime);
   assignTimestamp('start_timestamp_ms', metadata.startTime);
+  internalTask['attempt'] = metadata.attempt;
   if (result.done && result.error != null) {
     internalTask['error_message'] = result.error.message;
   }
