@@ -9,10 +9,10 @@ goog.require('ee.ComputedObject');
 
 
 /**
- * A dictionary of the ee classes.
- * Not technically needed in the JavaScript library, but it matches what
- * we have to do in the Python library.
- * The keys are the names of the ee classes.  The values the class objects.
+ * A dictionary of the ee classes. Not technically needed in the JavaScript
+ *   library, but it matches what we have to do in the Python library. The keys
+ *   are the names of the ee classes. The values the class objects.
+ *
  * @type {Object}
  * @private
  */
@@ -21,6 +21,7 @@ ee.Types.registeredClasses_ = {};
 
 /**
  * Register the classes available in the ee object for lookup.
+ *
  * @param {Object} classes The classes available in the ee object for lookup.
  */
 ee.Types.registerClasses = function(classes) {
@@ -32,20 +33,21 @@ ee.Types.registerClasses = function(classes) {
  * Converts a type name to a class constructor.
  *
  * @param {string} name The class name.
- * @return {Function} The constructor for the named class or null if it's not an
- *     ee class.
+ * @return {Function|null} The constructor for the named class or null if it's
+ *   not an ee class.
  */
 ee.Types.nameToClass = function(name) {
   if (name in ee.Types.registeredClasses_) {
     return ee.Types.registeredClasses_[name];
-  } else {
-    return null;
   }
+
+  return null;
 };
 
 
 /**
  * Converts a class constructor to the API-friendly type name.
+ *
  * @param {Function} klass The class constructor.
  * @return {string} The name of the class, or "Object" if not recognized.
  */
@@ -53,17 +55,13 @@ ee.Types.classToName = function(klass) {
   if (klass.prototype instanceof ee.ComputedObject) {
     // Assume that name() does not care about the instance.
     return klass.prototype.name.call(null);
-  } else if (klass == Number) {
-    return 'Number';
-  } else if (klass == String) {
-    return 'String';
-  } else if (klass == Array) {
-    return 'Array';
-  } else if (klass == Date) {
-    return 'Date';
-  } else {
-    return 'Object';
   }
+
+  if ([Number, String, Array, Date].includes(klass)) {
+    return klass.name
+  }
+
+  return 'Object';
 };
 
 
@@ -75,25 +73,32 @@ ee.Types.classToName = function(klass) {
  * @return {boolean} Whether secondType is a subtype of firstType.
  */
 ee.Types.isSubtype = function(firstType, secondType) {
-  if (secondType == firstType) {
+  if (secondType === firstType) {
     return true;
   }
 
   switch (firstType) {
     case 'Element':
-      return secondType == 'Element' ||
-             secondType == 'Image' ||
-             secondType == 'Feature' ||
-             secondType == 'Collection' ||
-             secondType == 'ImageCollection' ||
-             secondType == 'FeatureCollection';
-    case 'FeatureCollection':
+      return [
+        'Element',
+        'Image',
+        'Feature',
+        'Collection',
+        'ImageCollection',
+        'FeatureCollection'
+      ].includes(secondType);
+
     case 'Collection':
-      return secondType == 'Collection' ||
-             secondType == 'ImageCollection' ||
-             secondType == 'FeatureCollection';
+    case 'FeatureCollection':
+      return [
+        'Collection',
+        'ImageCollection',
+        'FeatureCollection'
+      ].includes(secondType);
+
     case 'Object':
       return true;
+
     default:
       return false;
   }
@@ -108,7 +113,7 @@ ee.Types.isSubtype = function(firstType, secondType) {
  */
 ee.Types.isNumber = function(obj) {
   return typeof obj === 'number' ||
-      (obj instanceof ee.ComputedObject && obj.name() == 'Number');
+    (obj instanceof ee.ComputedObject && obj.name() === 'Number');
 };
 
 
@@ -120,7 +125,7 @@ ee.Types.isNumber = function(obj) {
  */
 ee.Types.isString = function(obj) {
   return typeof obj === 'string' ||
-      (obj instanceof ee.ComputedObject && obj.name() == 'String');
+    (obj instanceof ee.ComputedObject && obj.name() === 'String');
 };
 
 
@@ -132,43 +137,47 @@ ee.Types.isString = function(obj) {
  */
 ee.Types.isArray = function(obj) {
   return Array.isArray(obj) ||
-      (obj instanceof ee.ComputedObject && obj.name() == 'List');
+    (obj instanceof ee.ComputedObject && obj.name() === 'List');
 };
 
 
 /**
+ * Returns true if this the object is a regular, non-prototyped, non-function
+ *   Object.
+ *
  * @param {*} obj The object to check.
  * @return {boolean} Whether the object is a regular, non-prototyped,
- *     non-function Object.
+ *   non-function Object.
  */
 ee.Types.isRegularObject = function(obj) {
   if (goog.isObject(obj) && typeof obj !== 'function') {
-    var proto = Object.getPrototypeOf(obj);
+    const proto = Object.getPrototypeOf(obj);
+
     return proto !== null && Object.getPrototypeOf(proto) === null;
-  } else {
-    return false;
   }
+
+  return false;
 };
 
 /**
  * Assume keyword arguments if we get a single dictionary.
- * @param {!Array<?>} args actual arguments to function call
- * @param {!ee.Function.Signature} signature
- * @param {boolean=} isInstance true if function is invoked on existing instance
+ *
+ * @param {!Array<?>} args actual arguments to function call.
+ * @param {!ee.Function.Signature} signature.
+ * @param {boolean=} isInstance true if function is invoked on existing instance.
  * @return {boolean} true if the first element of args should be treated as a
- *     dictionary of keyword arguments.
+ *   dictionary of keyword arguments.
  */
 ee.Types.useKeywordArgs = function(args, signature, isInstance = false) {
   if (args.length === 1 && ee.Types.isRegularObject(args[0])) {
-    let formalArgs = signature['args'];
-    if (isInstance) {
-      formalArgs = formalArgs.slice(1);
-    }
+    const formalArgs = isInstance ? formalArgs.slice(1) : signature.args;
+
     if (formalArgs.length) {
-      const requiresOneArg =
-          formalArgs.length === 1 || formalArgs[1]['optional'];
-      return !requiresOneArg || formalArgs[0]['type'] !== 'Dictionary';
+      return formalArgs.length === 1
+        ? formalArgs[0].type !== 'Dictionary'
+        : formalArgs[1].optional
     }
   }
+
   return false;
 };
