@@ -12,6 +12,7 @@ const XhrIo = goog.require('goog.net.XhrIo');
 const XhrLike = goog.requireType('goog.net.XhrLike');
 const XmlHttp = goog.require('goog.net.XmlHttp');
 const api = goog.require('ee.api');
+const apiVersion = goog.require('ee.apiVersion');
 const array = goog.require('goog.array');
 const functions = goog.require('goog.functions');
 const googObject = goog.require('goog.object');
@@ -25,11 +26,10 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 const apiclient = {};
 
 
-const VERSION = 'v1alpha';
-const API_CLIENT_VERSION = '0.1.236';
+const API_CLIENT_VERSION = '0.1.237';
 const LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 
-exports.VERSION = VERSION;
+exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
 exports.NULL_VALUE = NULL_VALUE;
 exports.PromiseRequestService = PromiseRequestService;
@@ -102,64 +102,71 @@ class Call {
   // Helper methods to construct the generated api client handlers.
   algorithms() {
     return new api.ProjectsAlgorithmsApiClientImpl(
-        VERSION, this.requestService);
+        apiVersion.VERSION, this.requestService);
   }
 
   projects() {
     return new api.ProjectsApiClientImpl(
-        VERSION, this.requestService);
+        apiVersion.VERSION, this.requestService);
   }
 
   assets() {
     return new api.ProjectsAssetsApiClientImpl(
-        VERSION, this.requestService);
+        apiVersion.VERSION, this.requestService);
   }
 
   operations() {
     return new api.ProjectsOperationsApiClientImpl(
-        VERSION, this.requestService);
+        apiVersion.VERSION, this.requestService);
   }
 
   value() {
-    return new api.ProjectsValueApiClientImpl(VERSION, this.requestService);
+    return new api.ProjectsValueApiClientImpl(
+        apiVersion.VERSION, this.requestService);
   }
 
   maps() {
-    return new api.ProjectsMapsApiClientImpl(VERSION, this.requestService);
+    return new api.ProjectsMapsApiClientImpl(
+        apiVersion.VERSION, this.requestService);
   }
 
   map() {
-    return new api.ProjectsMapApiClientImpl(VERSION, this.requestService);
+    return new api.ProjectsMapApiClientImpl(
+        apiVersion.VERSION, this.requestService);
   }
 
   image() {
-    return new api.ProjectsImageApiClientImpl(VERSION, this.requestService);
+    return new api.ProjectsImageApiClientImpl(
+        apiVersion.VERSION, this.requestService);
   }
 
   table() {
-    return new api.ProjectsTableApiClientImpl(VERSION, this.requestService);
+    return new api.ProjectsTableApiClientImpl(
+        apiVersion.VERSION, this.requestService);
   }
 
   tables() {
-    return new api.ProjectsTablesApiClientImpl(VERSION, this.requestService);
+    return new api.ProjectsTablesApiClientImpl(
+        apiVersion.VERSION, this.requestService);
   }
 
   video() {
-    return new api.ProjectsVideoApiClientImpl(VERSION, this.requestService);
+    return new api.ProjectsVideoApiClientImpl(
+        apiVersion.VERSION, this.requestService);
   }
   thumbnails() {
     return new api.ProjectsThumbnailsApiClientImpl(
-        VERSION, this.requestService);
+        apiVersion.VERSION, this.requestService);
   }
 
   videoThumbnails() {
     return new api.ProjectsVideoThumbnailsApiClientImpl(
-        VERSION, this.requestService);
+        apiVersion.VERSION, this.requestService);
   }
 
   filmstripThumbnails() {
     return new api.ProjectsFilmstripThumbnailsApiClientImpl(
-        VERSION, this.requestService);
+        apiVersion.VERSION, this.requestService);
   }
 }
 
@@ -1184,7 +1191,9 @@ apiclient.setupMockSend = function(calls) {
   function getResponse(url, method, data) {
     url =
         url.replace(apiBaseUrl, '')
-            .replace(`${VERSION}/projects/${apiclient.DEFAULT_PROJECT_}/`, '');
+            .replace(
+                `${apiVersion.VERSION}/projects/${apiclient.DEFAULT_PROJECT_}/`,
+                '');
     let response;
     if (url in calls) {
       response = calls[url];

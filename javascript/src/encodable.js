@@ -1043,3 +1043,21 @@ ee.rpc_convert.toOnePlatformMissingData = function(params) {
   }
   return (goog.array.isEmpty(missingData.values)) ? null : missingData;
 };
+
+/**
+ * @param {!ee.api.FolderQuota} quota
+ * @return {!Object}
+ */
+ee.rpc_convert.folderQuotaToAssetQuotaDetails = function(quota) {
+  const toNumber = (field) => Number(field || 0);
+  return {
+    asset_count: {
+      usage: toNumber(quota.assetCount),
+      limit: toNumber(quota.maxAssetCount),
+    },
+    asset_size: {
+      usage: toNumber(quota.sizeBytes),
+      limit: toNumber(quota.maxSizeBytes),
+    }
+  };
+};

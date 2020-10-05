@@ -263,7 +263,6 @@ ee.data.authenticateViaPrivateKey = function(
   ee.data.refreshAuthToken(opt_success, opt_error);
 };
 
-
 ee.data.setApiKey = ee.apiclient.setApiKey;
 ee.data.setProject = ee.apiclient.setProject;
 ee.data.getProject = ee.apiclient.getProject;
@@ -902,12 +901,11 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
  * @export
  */
 ee.data.makeTableDownloadUrl = function(id) {
+  const base = ee.apiclient.getTileBaseUrl();
   if (ee.data.getCloudApiEnabled()) {
-    const base = ee.apiclient.getTileBaseUrl();
-    return base + '/v1alpha/' + id.docid + ':getFeatures';
+    return `${base}/${ee.apiclient.VERSION}/${id.docid}:getFeatures`;
   }
-  return ee.apiclient.getTileBaseUrl() + '/api/table?docid=' + id.docid +
-      '&token=' + id.token;
+  return `${base}/api/table?docid=${id.docid}&token=${id.token}`;
 };
 
 
@@ -2066,17 +2064,8 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
       }
       /** @type {!ee.api.FolderQuota} */
       const quota = asset.quota;
-      const toNumber = (field) => Number(field || 0);
-      return {
-        asset_count: {
-          usage: toNumber(quota.assetCount),
-          limit: toNumber(quota.maxAssetCount),
-        },
-        asset_size: {
-          usage: toNumber(quota.sizeBytes),
-          limit: toNumber(quota.maxSizeBytes),
-        }
-      };
+      return /** @type {!ee.data.AssetQuotaDetails} */ (
+          ee.rpc_convert.folderQuotaToAssetQuotaDetails(quota));
     };
     const call = new ee.apiclient.Call(opt_callback);
     // TODO(b/141623314): Undo this when the getAssets call accepts /assets/,

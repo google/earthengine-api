@@ -11818,18 +11818,18 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
   }
 
   listFeatures(
-      parent: string,
+      asset: string,
       namedParameters: ProjectsAssetsListFeaturesNamedParameters&
       object = {}): Promise<ListFeaturesResponse> {
     this.$apiClient.$validateParameter(
-        parent, new RegExp('^projects/[^/]+/assets/.*$'));
+        asset, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
 
     return this.$apiClient.$request<ListFeaturesResponse>({
       body: $requestBody,
       httpMethod: 'GET',
       methodId: 'earthengine.projects.assets.listFeatures',
-      path: `/${this.gapiVersion}/${parent}:listFeatures`,
+      path: `/${this.gapiVersion}/${asset}:listFeatures`,
       queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
       responseCtor: ListFeaturesResponse
     });
@@ -11965,7 +11965,7 @@ export abstract class ProjectsAssetsApiClient {
       object): Promise<ListAssetsResponse>;
 
   abstract listFeatures(
-      parent: string,
+      asset: string,
       namedParameters?: ProjectsAssetsListFeaturesNamedParameters&
       object): Promise<ListFeaturesResponse>;
 

@@ -19,6 +19,7 @@ import warnings
 
 from . import ee_exception
 from google_auth_httplib2 import AuthorizedHttp
+from google_auth_httplib2 import Request
 from googleapiclient import discovery
 from googleapiclient import http
 from googleapiclient import model
