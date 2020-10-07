@@ -20,6 +20,7 @@ $jscomp.ASSUME_NO_NATIVE_SET = !1;
 $jscomp.SIMPLE_FROUND_POLYFILL = !1;
 $jscomp.ISOLATE_POLYFILLS = !1;
 $jscomp.FORCE_POLYFILL_PROMISE = !1;
+$jscomp.FORCE_POLYFILL_PROMISE_WHEN_NO_UNHANDLED_REJECTION = !1;
 $jscomp.defineProperty = $jscomp.ASSUME_ES5 || "function" == typeof Object.defineProperties ? Object.defineProperty : function(target, property, descriptor) {
   if (target == Array.prototype || target == Object.prototype) {
     return target;
@@ -318,6 +319,9 @@ $jscomp.polyfill("Object.assign", function(orig) {
   return orig || $jscomp.assign;
 }, "es6", "es3");
 $jscomp.polyfill("Promise", function(NativePromise) {
+  function shouldForcePolyfillPromise() {
+    return $jscomp.FORCE_POLYFILL_PROMISE || $jscomp.FORCE_POLYFILL_PROMISE_WHEN_NO_UNHANDLED_REJECTION && "undefined" === typeof $jscomp.global.PromiseRejectionEvent;
+  }
   function AsyncExecutor() {
     this.batch_ = null;
   }
@@ -336,7 +340,7 @@ $jscomp.polyfill("Promise", function(NativePromise) {
       resolve(opt_value);
     });
   }
-  if (NativePromise && !$jscomp.FORCE_POLYFILL_PROMISE) {
+  if (NativePromise && !shouldForcePolyfillPromise()) {
     return NativePromise;
   }
   AsyncExecutor.prototype.asyncExecute = function(f) {
@@ -15196,7 +15200,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.237";
+ee.apiclient.API_CLIENT_VERSION = "0.1.238";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15460,8 +15464,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.237";
-    "0.1.237" === version && (version = "latest");
+    var version = "0.1.238";
+    "0.1.238" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();

@@ -147,7 +147,9 @@ def build_cloud_resource(api_base_url,
       developerKey=api_key,
       http=http_transport,
       requestBuilder=request_builder,
-      model=alt_model)
+      model=alt_model,
+      cache_discovery=False)
+
   return resource
 
 
