@@ -1,8 +1,6 @@
 Earth Engine Demo: Trendy Lights
 ================================
 
-[Live Demo](https://trendy-lights-dot-ee-demos.appspot.com)
-
 This is an example [Google App Engine](https://cloud.google.com/appengine/docs)
 web app that communicates with [Google Earth Engine](https://earthengine.google.org).
 It uses memcache to cache results and avoid exceeding request quotas.

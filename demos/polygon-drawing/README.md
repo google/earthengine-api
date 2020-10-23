@@ -1,8 +1,6 @@
 Earth Engine Demo: Polygon Drawing
 ==================================
 
-[Live Demo](https://polygon-drawing-dot-ee-demos.appspot.com/)
-
 This example demonstrates how to use polygons drawn on a Google Map with
 the Earth Engine JavaScript client library.
 

@@ -1,7 +1,5 @@
 # Map Layer Demo App
 
-[Live Demo](https://map-layer-dot-ee-demos.appspot.com/)
-
 This example demonstrates how to use the `ee.layers.ImageOverlay` class to
 render Earth Engine map tiles to a Google Map. `ee.layers.ImageOverlay`
 implements the

@@ -1,8 +1,6 @@
 Earth Engine Demo: Export to Drive
 ==================================
 
-[Live Demo](https://export-to-drive-dot-ee-demos.appspot.com)
-
 This is an example [Google App Engine](https://cloud.google.com/appengine/docs)
 web app that communicates with [Google Earth Engine](https://earthengine.google.org).
 It allows users to view night-time lights for different years and export drawn regions

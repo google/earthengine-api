@@ -1,8 +1,6 @@
 Earth Engine Demo: Client-Side Authentication
 =============================================
 
-[Live Demo](https://client-auth-dot-ee-demos.appspot.com/)
-
 This example demonstrates basic web authentication using the Earth Engine
 JavaScript client library. To set up, follow the instructions in the
 Developer Docs to [deploy an EE-based App Engine app](

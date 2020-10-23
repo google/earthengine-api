@@ -1,7 +1,5 @@
 # Earth Engine Demo: Server-Side Authentication in Python
 
-[Live Demo](https://server-auth-python-dot-ee-demos.appspot.com/)
-
 This example shows how to build a simple Google App Engine web application that
 communicates with Google Earth Engine.  Upon successful deployment, you will see
 a webpage with a Google map showing the SRTM DEM zoomed into the east coast of

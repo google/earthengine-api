@@ -6991,8 +6991,7 @@ export class ListAssetsResponse extends Serializable {
   }
 
   /**
-   * The list of assets. Only the `id`, `name`, and `type` fields of each asset
-   * will be populated.
+   * The list of assets.
    */
   set assets(value: Array<EarthEngineAsset>|null) {
     this.Serializable$set('assets', value);

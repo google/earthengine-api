@@ -1,55 +1,48 @@
 /** @fileoverview An interface to the Earth Engine batch processing system. */
 
-goog.provide('ee.batch');
-goog.provide('ee.batch.Export');
-goog.provide('ee.batch.ExportTask');
+goog.module('ee.batch');
+goog.module.declareLegacyNamespace();
 
-goog.require('ee.ComputedObject');
-goog.require('ee.Element');
-goog.require('ee.FeatureCollection');
-goog.require('ee.Geometry');
-goog.require('ee.Image');
-goog.require('ee.ImageCollection');
-goog.require('ee.apiclient');
-goog.require('ee.arguments');
-goog.require('ee.data');
-goog.require('ee.data.ExportDestination');
-goog.require('ee.data.ExportType');
-goog.require('goog.Promise');
-goog.require('goog.array');
-goog.require('goog.asserts');
-goog.require('goog.json');
-goog.require('goog.object');
+const ComputedObject = goog.require('ee.ComputedObject');
+const Element = goog.require('ee.Element');
+const ExportDestination = goog.require('ee.data.ExportDestination');
+const ExportType = goog.require('ee.data.ExportType');
+const FeatureCollection = goog.require('ee.FeatureCollection');
+const Geometry = goog.require('ee.Geometry');
+const GoogPromise = goog.require('goog.Promise');
+const Image = goog.require('ee.Image');
+const ImageCollection = goog.require('ee.ImageCollection');
+const apiclient = goog.require('ee.apiclient');
+const data = goog.require('ee.data');
+const eeArguments = goog.require('ee.arguments');
+const googArray = goog.require('goog.array');
+const googAsserts = goog.require('goog.asserts');
+const googObject = goog.require('goog.object');
 
-const ComputedObject = ee.ComputedObject;
-const ExportDestination = ee.data.ExportDestination;
-const ExportType = ee.data.ExportType;
-const GoogPromise = goog.Promise;
-const googArray = goog.array;
-const googObject = goog.object;
-const json = goog.json;
+/** @namespace */
+const Export = {};
 
 /** @const */
-ee.batch.Export.image = {};
+Export.image = {};
 
 /** @const */
-ee.batch.Export.map = {};
+Export.map = {};
 
 /** @const */
-ee.batch.Export.table = {};
+Export.table = {};
 
 /** @const */
-ee.batch.Export.video = {};
+Export.video = {};
 
 
 
 /**
  * ExportTask
  */
-ee.batch.ExportTask = class {
-  /** @param {!ee.data.AbstractTaskConfig} config */
+class ExportTask {
+  /** @param {!data.AbstractTaskConfig} config */
   constructor(config) {
-    /** @const @private {!ee.data.AbstractTaskConfig} */
+    /** @const @private {!data.AbstractTaskConfig} */
     this.config_ = config;
     /** @export {?string} Task ID, initialized after task starts. */
     this.id = null;
@@ -59,21 +52,21 @@ ee.batch.ExportTask = class {
    * Creates a task.
    *
    * @param {!Object} exportArgs The export task arguments.
-   * @return {!ee.batch.ExportTask}
+   * @return {!ExportTask}
    * @package
    */
   static create(exportArgs) {
     // Extract the EE element from the exportArgs.
 
-    const eeElement = ee.batch.Export.extractElement(exportArgs);
+    const eeElement = Export.extractElement(exportArgs);
     // Construct a configuration object for the server.
     let config = {'element': eeElement};
     Object.assign(config, exportArgs);
     // The config is some kind of task configuration.
-    config = /** @type {!ee.data.AbstractTaskConfig} */ (
+    config = /** @type {!data.AbstractTaskConfig} */ (
         googObject.filter(config, x => x != null));
 
-    return new ee.batch.ExportTask(config);
+    return new ExportTask(config);
   }
 
   /**
@@ -88,21 +81,21 @@ ee.batch.ExportTask = class {
    * @export
    */
   start(opt_success, opt_error) {
-    goog.asserts.assert(
+    googAsserts.assert(
         this.config_, 'Task config must be specified for tasks to be started.');
 
     // Synchronous task start.
     if (!opt_success) {
-      this.id = this.id || ee.data.newTaskId(1)[0];
-      goog.asserts.assertString(this.id, 'Failed to obtain task ID.');
-      ee.data.startProcessing(this.id, this.config_);
+      this.id = this.id || data.newTaskId(1)[0];
+      googAsserts.assertString(this.id, 'Failed to obtain task ID.');
+      data.startProcessing(this.id, this.config_);
       return;
     }
 
     // Asynchronous task start.
     const startProcessing = () => {
-      goog.asserts.assertString(this.id);
-      ee.data.startProcessing(this.id, this.config_, (_, error) => {
+      googAsserts.assertString(this.id);
+      data.startProcessing(this.id, this.config_, (_, error) => {
         if (error) {
           opt_error(error);
         } else {
@@ -116,7 +109,7 @@ ee.batch.ExportTask = class {
       return;
     }
 
-    ee.data.newTaskId(1, (ids) => {
+    data.newTaskId(1, (ids) => {
       const id = ids && ids[0];
       if (id) {
         this.id = id;
@@ -126,7 +119,7 @@ ee.batch.ExportTask = class {
       }
     });
   }
-};
+}
 
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -138,37 +131,37 @@ ee.batch.ExportTask = class {
 
 
 /**
- * @param {!ee.Image} image
+ * @param {!Image} image
  * @param {string=} opt_description
  * @param {string=} opt_assetId
  * @param {?Object=} opt_pyramidingPolicy
  * @param {number|string=} opt_dimensions
- * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
+ * @param {?Geometry.LinearRing|?Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
  * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
- * @return {!ee.batch.ExportTask}
+ * @return {!ExportTask}
  * @export
  */
-ee.batch.Export.image.toAsset = function(
+Export.image.toAsset = function(
     image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels) {
-  const clientConfig = ee.arguments.extractFromFunction(
-      ee.batch.Export.image.toAsset, arguments);
-  const serverConfig = ee.batch.Export.convertToServerParams(
+  const clientConfig = eeArguments.extractFromFunction(
+      Export.image.toAsset, arguments);
+  const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.ASSET, ExportType.IMAGE);
-  return ee.batch.ExportTask.create(serverConfig);
+  return ExportTask.create(serverConfig);
 };
 
 
 /**
- * @param {!ee.Image} image
+ * @param {!Image} image
  * @param {string=} opt_description
  * @param {string=} opt_bucket
  * @param {string=} opt_fileNamePrefix
  * @param {number|string=} opt_dimensions
- * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
+ * @param {?Geometry.LinearRing|?Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
  * @param {!Array<number>|string=} opt_crsTransform
@@ -177,30 +170,30 @@ ee.batch.Export.image.toAsset = function(
  * @param {number|?Array<number>=} opt_fileDimensions
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_fileFormat
- * @param {?ee.data.ImageExportFormatConfig=} opt_formatOptions
- * @return {!ee.batch.ExportTask}
+ * @param {?data.ImageExportFormatConfig=} opt_formatOptions
+ * @return {!ExportTask}
  * @export
  */
-ee.batch.Export.image.toCloudStorage = function(
+Export.image.toCloudStorage = function(
     image, opt_description, opt_bucket, opt_fileNamePrefix, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
     opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat,
     opt_formatOptions) {
-  const clientConfig = ee.arguments.extractFromFunction(
-      ee.batch.Export.image.toCloudStorage, arguments);
-  const serverConfig = ee.batch.Export.convertToServerParams(
+  const clientConfig = eeArguments.extractFromFunction(
+      Export.image.toCloudStorage, arguments);
+  const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.GCS, ExportType.IMAGE);
-  return ee.batch.ExportTask.create(serverConfig);
+  return ExportTask.create(serverConfig);
 };
 
 
 /**
- * @param {!ee.Image} image
+ * @param {!Image} image
  * @param {string=} opt_description
  * @param {string=} opt_folder
  * @param {string=} opt_fileNamePrefix
  * @param {number|string=} opt_dimensions
- * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
+ * @param {?Geometry.LinearRing|?Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
  * @param {!Array<number>|string=} opt_crsTransform
@@ -209,25 +202,25 @@ ee.batch.Export.image.toCloudStorage = function(
  * @param {number|?Array<number>=} opt_fileDimensions
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_fileFormat
- * @param {?ee.data.ImageExportFormatConfig=} opt_formatOptions
- * @return {!ee.batch.ExportTask}
+ * @param {?data.ImageExportFormatConfig=} opt_formatOptions
+ * @return {!ExportTask}
  * @export
  */
-ee.batch.Export.image.toDrive = function(
+Export.image.toDrive = function(
     image, opt_description, opt_folder, opt_fileNamePrefix, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
     opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat,
     opt_formatOptions) {
-  const clientConfig = ee.arguments.extractFromFunction(
-      ee.batch.Export.image.toDrive, arguments);
-  const serverConfig = ee.batch.Export.convertToServerParams(
+  const clientConfig = eeArguments.extractFromFunction(
+      Export.image.toDrive, arguments);
+  const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.DRIVE, ExportType.IMAGE);
-  return ee.batch.ExportTask.create(serverConfig);
+  return ExportTask.create(serverConfig);
 };
 
 
 /**
- * @param {!ee.Image} image
+ * @param {!Image} image
  * @param {string=} opt_description
  * @param {string=} opt_bucket
  * @param {string=} opt_fileFormat
@@ -236,137 +229,137 @@ ee.batch.Export.image.toDrive = function(
  * @param {number=} opt_scale
  * @param {number=} opt_maxZoom
  * @param {number=} opt_minZoom
- * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
+ * @param {?Geometry.LinearRing|?Geometry.Polygon|string=} opt_region
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_mapsApiKey
- * @return {!ee.batch.ExportTask}
+ * @return {!ExportTask}
  * @export
  */
-ee.batch.Export.map.toCloudStorage = function(
+Export.map.toCloudStorage = function(
     image, opt_description, opt_bucket, opt_fileFormat, opt_path,
     opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region,
     opt_skipEmptyTiles, opt_mapsApiKey) {
-  const clientConfig = ee.arguments.extractFromFunction(
-      ee.batch.Export.map.toCloudStorage, arguments);
-  const serverConfig = ee.batch.Export.convertToServerParams(
+  const clientConfig = eeArguments.extractFromFunction(
+      Export.map.toCloudStorage, arguments);
+  const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.GCS, ExportType.MAP);
-  return ee.batch.ExportTask.create(serverConfig);
+  return ExportTask.create(serverConfig);
 };
 
 
 /**
- * @param {!ee.FeatureCollection} collection
+ * @param {!FeatureCollection} collection
  * @param {string=} opt_description
  * @param {string=} opt_bucket
  * @param {string=} opt_fileNamePrefix
  * @param {string=} opt_fileFormat
  * @param {string|!Array<string>=} opt_selectors
- * @return {!ee.batch.ExportTask}
+ * @return {!ExportTask}
  * @export
  */
-ee.batch.Export.table.toCloudStorage = function(
+Export.table.toCloudStorage = function(
     collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat,
     opt_selectors) {
-  const clientConfig = ee.arguments.extractFromFunction(
-      ee.batch.Export.table.toCloudStorage, arguments);
-  const serverConfig = ee.batch.Export.convertToServerParams(
+  const clientConfig = eeArguments.extractFromFunction(
+      Export.table.toCloudStorage, arguments);
+  const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.GCS, ExportType.TABLE);
-  return ee.batch.ExportTask.create(serverConfig);
+  return ExportTask.create(serverConfig);
 };
 
 
 /**
- * @param {!ee.FeatureCollection} collection
+ * @param {!FeatureCollection} collection
  * @param {string=} opt_description
  * @param {string=} opt_folder
  * @param {string=} opt_fileNamePrefix
  * @param {string=} opt_fileFormat
  * @param {string|!Array<string>=} opt_selectors
- * @return {!ee.batch.ExportTask}
+ * @return {!ExportTask}
  * @export
  */
-ee.batch.Export.table.toDrive = function(
+Export.table.toDrive = function(
     collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat,
     opt_selectors) {
-  const clientConfig = ee.arguments.extractFromFunction(
-      ee.batch.Export.table.toDrive, arguments);
+  const clientConfig = eeArguments.extractFromFunction(
+      Export.table.toDrive, arguments);
   clientConfig['type'] = ExportType.TABLE;
-  const serverConfig = ee.batch.Export.convertToServerParams(
+  const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.DRIVE, ExportType.TABLE);
-  return ee.batch.ExportTask.create(serverConfig);
+  return ExportTask.create(serverConfig);
 };
 
 
 /**
- * @param {!ee.FeatureCollection} collection
+ * @param {!FeatureCollection} collection
  * @param {string=} opt_description
  * @param {string=} opt_assetId
- * @return {!ee.batch.ExportTask}
+ * @return {!ExportTask}
  * @export
  */
-ee.batch.Export.table.toAsset = function(
+Export.table.toAsset = function(
     collection, opt_description, opt_assetId) {
-  const clientConfig = ee.arguments.extractFromFunction(
-      ee.batch.Export.table.toAsset, arguments);
-  const serverConfig = ee.batch.Export.convertToServerParams(
+  const clientConfig = eeArguments.extractFromFunction(
+      Export.table.toAsset, arguments);
+  const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.ASSET, ExportType.TABLE);
-  return ee.batch.ExportTask.create(serverConfig);
+  return ExportTask.create(serverConfig);
 };
 
 
 /**
- * @param {!ee.ImageCollection} collection
+ * @param {!ImageCollection} collection
  * @param {string=} opt_description
  * @param {string=} opt_bucket
  * @param {string=} opt_fileNamePrefix
  * @param {number=} opt_framesPerSecond
  * @param {number|string=} opt_dimensions
- * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
+ * @param {?Geometry.LinearRing|?Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale Resolution
  * @param {string=} opt_crs
  * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_maxFrames
- * @return {!ee.batch.ExportTask}
+ * @return {!ExportTask}
  * @export
  */
-ee.batch.Export.video.toCloudStorage = function(
+Export.video.toCloudStorage = function(
     collection, opt_description, opt_bucket, opt_fileNamePrefix,
     opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs,
     opt_crsTransform, opt_maxPixels, opt_maxFrames) {
-  const clientConfig = ee.arguments.extractFromFunction(
-      ee.batch.Export.video.toCloudStorage, arguments);
-  const serverConfig = ee.batch.Export.convertToServerParams(
+  const clientConfig = eeArguments.extractFromFunction(
+      Export.video.toCloudStorage, arguments);
+  const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.GCS, ExportType.VIDEO);
-  return ee.batch.ExportTask.create(serverConfig);
+  return ExportTask.create(serverConfig);
 };
 
 
 /**
- * @param {!ee.ImageCollection} collection
+ * @param {!ImageCollection} collection
  * @param {string=} opt_description
  * @param {string=} opt_folder
  * @param {string=} opt_fileNamePrefix
  * @param {number=} opt_framesPerSecond
  * @param {number|string=} opt_dimensions
- * @param {?ee.Geometry.LinearRing|?ee.Geometry.Polygon|string=} opt_region
+ * @param {?Geometry.LinearRing|?Geometry.Polygon|string=} opt_region
  * @param {number=} opt_scale
  * @param {string=} opt_crs
  * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
  * @param {number=} opt_maxFrames
- * @return {!ee.batch.ExportTask}
+ * @return {!ExportTask}
  * @export
  */
-ee.batch.Export.video.toDrive = function(
+Export.video.toDrive = function(
     collection, opt_description, opt_folder, opt_fileNamePrefix,
     opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs,
     opt_crsTransform, opt_maxPixels, opt_maxFrames) {
-  const clientConfig = ee.arguments.extractFromFunction(
-      ee.batch.Export.video.toDrive, arguments);
-  const serverConfig = ee.batch.Export.convertToServerParams(
+  const clientConfig = eeArguments.extractFromFunction(
+      Export.video.toDrive, arguments);
+  const serverConfig = Export.convertToServerParams(
       clientConfig, ExportDestination.DRIVE, ExportType.VIDEO);
-  return ee.batch.ExportTask.create(serverConfig);
+  return ExportTask.create(serverConfig);
 };
 
 
@@ -380,11 +373,11 @@ ee.batch.Export.video.toDrive = function(
  * syntax to a server-compatible representation. For the user-facing
  * equivalent parameters, see the Public API section above.
  *
- * @typedef {!ee.data.ImageTaskConfig|!ee.data.MapTaskConfig|
- *     !ee.data.TableTaskConfig|!ee.data.VideoTaskConfig|
- *     !ee.data.VideoMapTaskConfig}
+ * @typedef {!data.ImageTaskConfig|!data.MapTaskConfig|
+ *     !data.TableTaskConfig|!data.VideoTaskConfig|
+ *     !data.VideoMapTaskConfig}
  */
-ee.batch.ServerTaskConfig = {};
+const ServerTaskConfig = {};
 
 const REGION_ERROR = 'Invalid format for region property. Region must be ' +
     'GeoJSON LinearRing or Polygon specified as actual coordinates or ' +
@@ -395,17 +388,17 @@ const REGION_ERROR = 'Invalid format for region property. Region must be ' +
  * GeoJSON object. Only client-side validation is applied; this method does not
  * support computed objects.
  *
- * @param {!ee.Geometry|!Object|string} region
+ * @param {!Geometry|!Object|string} region
  * @return {string}
  * #visibleForTesting
  */
-ee.batch.Export.serializeRegion = function(region) {
+Export.serializeRegion = function(region) {
   // Convert region to a GeoJSON object.
-  if (region instanceof ee.Geometry) {
+  if (region instanceof Geometry) {
     region = region.toGeoJSON();
   } else if (typeof region === 'string') {
     try {
-      region = goog.asserts.assertObject(JSON.parse(region));
+      region = googAsserts.assertObject(JSON.parse(region));
     } catch (x) {
       throw Error(REGION_ERROR);
     }
@@ -414,17 +407,17 @@ ee.batch.Export.serializeRegion = function(region) {
   // Ensure locally that the region is a valid LineString or Polygon geometry.
   if (!goog.isObject(region) || !('type' in region)) {
     try {
-      new ee.Geometry.LineString(/** @type {?} */ (region));
+      new Geometry.LineString(/** @type {?} */ (region));
     } catch (e) {
       try {
-        new ee.Geometry.Polygon(/** @type {?} */ (region));
+        new Geometry.Polygon(/** @type {?} */ (region));
       } catch (e2) {
         throw Error(REGION_ERROR);
       }
     }
   }
 
-  return json.serialize(region);
+  return JSON.stringify(region);
 };
 
 /**
@@ -436,7 +429,7 @@ ee.batch.Export.serializeRegion = function(region) {
  * @return {!GoogPromise<!Object>} A promise that resolves to a copy of the
  *     parameters with a known-to-be valid region.
  */
-ee.batch.Export.resolveRegionParam = function(params) {
+Export.resolveRegionParam = function(params) {
   params = googObject.clone(params);
 
   if (!params['region']) return GoogPromise.resolve(params);
@@ -444,7 +437,7 @@ ee.batch.Export.resolveRegionParam = function(params) {
   let region = params['region'];
 
   if (region instanceof ComputedObject) {
-    if (region instanceof ee.Element) {
+    if (region instanceof Element) {
       region = region['geometry']();
     }
     return new GoogPromise(function(resolve, reject) {
@@ -452,22 +445,22 @@ ee.batch.Export.resolveRegionParam = function(params) {
         if (error) {
           reject(error);
         } else {
-          if (ee.apiclient.getCloudApiEnabled() &&
+          if (apiclient.getCloudApiEnabled() &&
               params['type'] === ExportType.IMAGE) {
-            params['region'] = new ee.Geometry(regionInfo);
+            params['region'] = new Geometry(regionInfo);
           } else {
-            params['region'] = ee.batch.Export.serializeRegion(regionInfo);
+            params['region'] = Export.serializeRegion(regionInfo);
           }
           resolve(params);
         }
       });
     });
   }
-  if (ee.apiclient.getCloudApiEnabled() &&
+  if (apiclient.getCloudApiEnabled() &&
       params['type'] === ExportType.IMAGE) {
-    params['region'] = new ee.Geometry(region);
+    params['region'] = new Geometry(region);
   } else {
-    params['region'] = ee.batch.Export.serializeRegion(region);
+    params['region'] = Export.serializeRegion(region);
   }
   return GoogPromise.resolve(params);
 };
@@ -477,26 +470,26 @@ ee.batch.Export.resolveRegionParam = function(params) {
 /**
  * Extracts the EE element from a given task config.
  * @param {!Object} exportArgs
- * @return {!ee.Image|!ee.FeatureCollection|!ee.ImageCollection|!ee.Element}
+ * @return {!Image|!FeatureCollection|!ImageCollection|!Element}
  */
-ee.batch.Export.extractElement = function(exportArgs) {
+Export.extractElement = function(exportArgs) {
   // Extract the EE element from the exportArgs.
   const isInArgs = (key) => key in exportArgs;
-  const eeElementKey = ee.batch.Export.EE_ELEMENT_KEYS.find(isInArgs);
+  const eeElementKey = Export.EE_ELEMENT_KEYS.find(isInArgs);
   // Sanity check that the Image/Collection/Table was provided.
-  goog.asserts.assert(
-      googArray.count(ee.batch.Export.EE_ELEMENT_KEYS, isInArgs) === 1,
+  googAsserts.assert(
+      googArray.count(Export.EE_ELEMENT_KEYS, isInArgs) === 1,
       'Expected a single "image" or "collection" key.');
   const element = exportArgs[eeElementKey];
   let result;
-  if (element instanceof ee.Image) {
-    result = /** @type {!ee.Image} */ (element);
-  } else if (element instanceof ee.FeatureCollection) {
-    result = /** @type {!ee.FeatureCollection} */ (element);
-  } else if (element instanceof ee.ImageCollection) {
-    result = /** @type {!ee.ImageCollection} */ (element);
-  } else if (element instanceof ee.Element) {
-    result = /** @type {!ee.Element} */ (element);
+  if (element instanceof Image) {
+    result = /** @type {!Image} */ (element);
+  } else if (element instanceof FeatureCollection) {
+    result = /** @type {!FeatureCollection} */ (element);
+  } else if (element instanceof ImageCollection) {
+    result = /** @type {!ImageCollection} */ (element);
+  } else if (element instanceof Element) {
+    result = /** @type {!Element} */ (element);
   } else {
     throw new Error(
         'Unknown element type provided: ' + typeof (element) + '. Expected: ' +
@@ -512,58 +505,58 @@ ee.batch.Export.extractElement = function(exportArgs) {
  * Sets corresponding destination configuration values to empty strings.
  *
  * @param {!Object} originalArgs The original arguments to the function.
- * @param {!ee.data.ExportDestination} destination Destination of the export.
- * @param {!ee.data.ExportType} exportType The type of the export.
+ * @param {!data.ExportDestination} destination Destination of the export.
+ * @param {!data.ExportType} exportType The type of the export.
  * @param {boolean=} serializeRegion enables serializing the region param.
- * @return {!ee.batch.ServerTaskConfig} A server-friendly task configuration.
+ * @return {!ServerTaskConfig} A server-friendly task configuration.
  */
-ee.batch.Export.convertToServerParams = function(
+Export.convertToServerParams = function(
     originalArgs, destination, exportType, serializeRegion = true) {
   let taskConfig =
-      /** @type {!ee.batch.ServerTaskConfig} */ ({type: exportType});
+      /** @type {!ServerTaskConfig} */ ({type: exportType});
   Object.assign(taskConfig, originalArgs);
 
   switch (exportType) {
     case ExportType.IMAGE:
       taskConfig =
-          ee.batch.Export.image.prepareTaskConfig_(taskConfig, destination);
+          Export.image.prepareTaskConfig_(taskConfig, destination);
       break;
     case ExportType.MAP:
       taskConfig =
-          ee.batch.Export.map.prepareTaskConfig_(taskConfig, destination);
+          Export.map.prepareTaskConfig_(taskConfig, destination);
       break;
     case ExportType.TABLE:
       taskConfig =
-          ee.batch.Export.table.prepareTaskConfig_(taskConfig, destination);
+          Export.table.prepareTaskConfig_(taskConfig, destination);
       break;
     case ExportType.VIDEO:
       taskConfig =
-          ee.batch.Export.video.prepareTaskConfig_(taskConfig, destination);
+          Export.video.prepareTaskConfig_(taskConfig, destination);
       break;
     case ExportType.VIDEO_MAP:
       taskConfig =
-          ee.batch.Export.videoMap.prepareTaskConfig_(taskConfig, destination);
+          Export.videoMap.prepareTaskConfig_(taskConfig, destination);
       break;
     default:
       throw Error('Unknown export type: ' + taskConfig['type']);
   }
   if (serializeRegion && taskConfig['region'] != null) {
     taskConfig['region'] =
-        ee.batch.Export.serializeRegion(taskConfig['region']);
+        Export.serializeRegion(taskConfig['region']);
   }
-  return /** {!ee.batch.ServerTaskConfig} */ (taskConfig);
+  return /** {!ServerTaskConfig} */ (taskConfig);
 };
 
 /**
  * Consolidates various options into a standard representation for the
  * top-level ServerTaskConfig.
  *
- * @param {!ee.batch.ServerTaskConfig} taskConfig Task config to prepare.
- * @param {!ee.data.ExportDestination} destination Export destination.
- * @return {!ee.batch.ServerTaskConfig}
+ * @param {!ServerTaskConfig} taskConfig Task config to prepare.
+ * @param {!data.ExportDestination} destination Export destination.
+ * @return {!ServerTaskConfig}
  * @private
  */
-ee.batch.Export.prepareDestination_ = function(taskConfig, destination) {
+Export.prepareDestination_ = function(taskConfig, destination) {
   // Convert to deprecated backend keys or fill with empty strings.
   switch (destination) {
     case ExportDestination.GCS:
@@ -600,123 +593,147 @@ ee.batch.Export.prepareDestination_ = function(taskConfig, destination) {
 /**
  * Adapts a ServerTaskConfig into a ImageTaskConfig normalizing any parameters.
  *
- * @param {!ee.batch.ServerTaskConfig} taskConfig Image export config to
+ * @param {!ServerTaskConfig} taskConfig Image export config to
  *     prepare.
- * @param {!ee.data.ExportDestination} destination Export destination.
- * @return {!ee.data.ImageTaskConfig}
+ * @param {!data.ExportDestination} destination Export destination.
+ * @return {!data.ImageTaskConfig}
  * @private
  */
-ee.batch.Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
+Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
   // Set the file format to GeoTiff if not set.
   if (taskConfig['fileFormat'] == null) {
     taskConfig['fileFormat'] = 'GeoTIFF';
   }
   // Handle format-specific options.
-  taskConfig = ee.batch.Export.reconcileImageFormat(taskConfig);
+  taskConfig = Export.reconcileImageFormat(taskConfig);
   // Add top-level destination fields.
-  taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
+  taskConfig = Export.prepareDestination_(taskConfig, destination);
   // Fix the CRS transform key.
   if (taskConfig['crsTransform'] != null) {
-    taskConfig[ee.batch.Export.CRS_TRANSFORM_KEY] = taskConfig['crsTransform'];
+    taskConfig[Export.CRS_TRANSFORM_KEY] = taskConfig['crsTransform'];
     delete taskConfig['crsTransform'];
   }
-  return /** @type {!ee.data.ImageTaskConfig} */ (taskConfig);
+  return /** @type {!data.ImageTaskConfig} */ (taskConfig);
 };
 
 
 /**
  * Adapts a ServerTaskConfig into a TableTaskConfig normalizing any parameters.
  *
- * @param {!ee.batch.ServerTaskConfig} taskConfig Table export config to
+ * @param {!ServerTaskConfig} taskConfig Table export config to
  *     prepare.
- * @param {!ee.data.ExportDestination} destination Export destination.
- * @return {!ee.data.TableTaskConfig}
+ * @param {!data.ExportDestination} destination Export destination.
+ * @return {!data.TableTaskConfig}
  * @private
  */
-ee.batch.Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
+Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
   // Convert array-valued selectors to a comma-separated string.
   if (Array.isArray(taskConfig['selectors'])) {
     taskConfig['selectors'] = taskConfig['selectors'].join();
   }
-  taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
-  return /** @type {!ee.data.TableTaskConfig} */ (taskConfig);
+  // Handle format-specific options.
+  taskConfig = Export.reconcileTableFormat(taskConfig);
+  // Add top-level destination fields.
+  taskConfig = Export.prepareDestination_(taskConfig, destination);
+  return /** @type {!data.TableTaskConfig} */ (taskConfig);
 };
 
 
 /**
  * Adapts a ServerTaskConfig into a MapTaskConfig normalizing any parameters.
  *
- * @param {!ee.batch.ServerTaskConfig} taskConfig Map export config to
+ * @param {!ServerTaskConfig} taskConfig Map export config to
  *     prepare.
- * @param {!ee.data.ExportDestination} destination Export destination.
- * @return {!ee.data.MapTaskConfig}
+ * @param {!data.ExportDestination} destination Export destination.
+ * @return {!data.MapTaskConfig}
  * @private
  */
-ee.batch.Export.map.prepareTaskConfig_ = function(taskConfig, destination) {
-  taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
-  return /** @type {!ee.data.MapTaskConfig} */ (taskConfig);
+Export.map.prepareTaskConfig_ = function(taskConfig, destination) {
+  taskConfig = Export.prepareDestination_(taskConfig, destination);
+  // Handle format-specific options.
+  taskConfig = Export.reconcileMapFormat(taskConfig);
+  return /** @type {!data.MapTaskConfig} */ (taskConfig);
 };
 
 
 /**
  * Adapts a ServerTaskConfig into a VideoTaskConfig normalizing any params.
  *
- * @param {!ee.batch.ServerTaskConfig} taskConfig Video export config to
+ * @param {!ServerTaskConfig} taskConfig Video export config to
  *     prepare.
- * @param {!ee.data.ExportDestination} destination Export destination.
- * @return {!ee.data.VideoTaskConfig}
+ * @param {!data.ExportDestination} destination Export destination.
+ * @return {!data.VideoTaskConfig}
  * @private
  */
-ee.batch.Export.video.prepareTaskConfig_ = function(taskConfig, destination) {
-  taskConfig = ee.batch.Export.reconcileVideoFormat_(taskConfig);
-  taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
+Export.video.prepareTaskConfig_ = function(taskConfig, destination) {
+  taskConfig = Export.reconcileVideoFormat_(taskConfig);
+  taskConfig = Export.prepareDestination_(taskConfig, destination);
   if (taskConfig['crsTransform'] != null) {
-    taskConfig[ee.batch.Export.CRS_TRANSFORM_KEY] = taskConfig['crsTransform'];
+    taskConfig[Export.CRS_TRANSFORM_KEY] = taskConfig['crsTransform'];
     delete taskConfig['crsTransform'];
   }
-  return /** @type {!ee.data.VideoTaskConfig} */ (taskConfig);
+  return /** @type {!data.VideoTaskConfig} */ (taskConfig);
 };
 
 /**
  * Adapts a ServerTaskConfig into a VideoMapTaskConfig normalizing any params
  * for a video map task.
  *
- * @param {!ee.batch.ServerTaskConfig} taskConfig VideoMap export config to
+ * @param {!ServerTaskConfig} taskConfig VideoMap export config to
  *     prepare.
- * @param {!ee.data.ExportDestination} destination Export destination.
- * @return {!ee.data.VideoMapTaskConfig}
+ * @param {!data.ExportDestination} destination Export destination.
+ * @return {!data.VideoMapTaskConfig}
  * @private
  */
-ee.batch.Export.videoMap.prepareTaskConfig_ = function(
+Export.videoMap.prepareTaskConfig_ = function(
     taskConfig, destination) {
-  taskConfig = ee.batch.Export.reconcileVideoFormat_(taskConfig);
-  taskConfig['version'] = taskConfig['version'] || ee.batch.VideoMapVersion.V1;
+  taskConfig = Export.reconcileVideoFormat_(taskConfig);
+  taskConfig['version'] = taskConfig['version'] || VideoMapVersion.V1;
   taskConfig['stride'] = taskConfig['stride'] || 1;
   const width = taskConfig['tileWidth'] || 256,
         height = taskConfig['tileHeight'] || 256;
   taskConfig['tileDimensions'] = {width: width, height: height};
-  taskConfig = ee.batch.Export.prepareDestination_(taskConfig, destination);
-  return /** @type {!ee.data.VideoMapTaskConfig} */ (taskConfig);
+  taskConfig = Export.prepareDestination_(taskConfig, destination);
+  return /** @type {!data.VideoMapTaskConfig} */ (taskConfig);
 };
 
 
 /**
- * @enum {string} The valid image formats supported by export.
+ * @enum {string} The valid video formats supported by export.
  */
-ee.batch.VideoFormat = {
-  MP4: 'MP4',
+const VideoFormat = {
+  MP4: 'MP4',  // Default.
+  GIF: 'GIF',
+  VP9: 'VP9',
 };
 
 /**
- * @enum {string} The valid image formats supported by export.
+ * @enum {string} The valid map formats supported by export.
  */
-ee.batch.ImageFormat = {
+const MapFormat = {
+  AUTO_JPEG_PNG: 'AUTO_JPEG_PNG',  // Default.
   JPEG: 'JPEG',
   PNG: 'PNG',
-  AUTO_PNG_JPEG: 'AUTO_PNG_JPEG',
-  NPY: 'NPY',
-  GEO_TIFF: 'GEO_TIFF',
+};
+
+/**
+ * @enum {string} The valid image formats supported by export.
+ */
+const ImageFormat = {
+  GEO_TIFF: 'GEO_TIFF',  // Default.
   TF_RECORD_IMAGE: 'TF_RECORD_IMAGE',
+};
+
+/**
+ * @enum {string} The valid table formats supported by export.
+ */
+const TableFormat = {
+  CSV: 'CSV',  // Default.
+  GEO_JSON: 'GEO_JSON',
+  KML: 'KML',
+  KMZ: 'KMZ',
+  SHP: 'SHP',
+  TF_RECORD_TABLE: 'TF_RECORD_TABLE',
 };
 
 
@@ -749,32 +766,55 @@ const FORMAT_PREFIX_MAP = {
 /**
  * Parses video specific config options.
  *
- * @param {!ee.batch.ServerTaskConfig} taskConfig
- * @return {!ee.batch.ServerTaskConfig} parsedConfig with video options set.
+ * @param {!ServerTaskConfig} taskConfig
+ * @return {!ServerTaskConfig} parsedConfig with video options set.
  * @private
  **/
-ee.batch.Export.reconcileVideoFormat_ = function(taskConfig) {
+Export.reconcileVideoFormat_ = function(taskConfig) {
   taskConfig['videoOptions'] = taskConfig['framesPerSecond'] || 5.0;
   taskConfig['maxFrames'] = taskConfig['maxFrames'] || 1000;
   taskConfig['maxPixels'] = taskConfig['maxPixels'] || 1e8;
-  // Only one file format currently supported.
-  taskConfig['fileFormat'] = ee.batch.VideoFormat.MP4;
+  // Parse the video file format from the given task config.
+  let formatString = taskConfig['fileFormat'];
+  // If not specified assume the format is MP4.
+  if (formatString == null) {
+    formatString = VideoFormat.MP4;
+  }
+  formatString = formatString.toUpperCase();
+  switch (formatString) {
+    case 'MP4':
+      formatString = VideoFormat.MP4;
+      break;
+    case 'GIF':
+    case 'JIF':
+      formatString = VideoFormat.GIF;
+      break;
+    case 'VP9':
+    case 'WEBM':
+      formatString = VideoFormat.VP9;
+      break;
+    default:
+      throw new Error(
+          `Invalid file format ${formatString}. ` +
+          `Supported formats are: 'MP4', 'GIF', and 'WEBM'.`);
+  }
+  taskConfig['fileFormat'] = formatString;
   return taskConfig;
 };
 
 /**
  * Validates any format specific options, and converts said options to a
  * backend friendly format.
- * @param {!ee.batch.ServerTaskConfig} taskConfig Arguments
- *     passed to an image export to drive or cloud storage
- * @return {!ee.batch.ServerTaskConfig}
+ * @param {!ServerTaskConfig} taskConfig Arguments
+ *     passed to an image export "toDrive" or "toCloudStorage" request.
+ * @return {!ServerTaskConfig}
  */
-ee.batch.Export.reconcileImageFormat = function(taskConfig) {
-  // Parse the image format key from the given fileFormat.
+Export.reconcileImageFormat = function(taskConfig) {
+  // Parse the image file format from the given task config.
   let formatString = taskConfig['fileFormat'];
   // If not specified assume the format is geotiff.
   if (formatString == null) {
-    formatString = 'GEO_TIFF';
+    formatString = ImageFormat.GEO_TIFF;
   }
   formatString = formatString.toUpperCase();
   switch (formatString) {
@@ -782,23 +822,24 @@ ee.batch.Export.reconcileImageFormat = function(taskConfig) {
     case 'TIF':
     case 'GEO_TIFF':
     case 'GEOTIFF':
-      formatString = ee.batch.ImageFormat.GEO_TIFF;
+      formatString = ImageFormat.GEO_TIFF;
       break;
     case 'TF_RECORD':
     case 'TF_RECORD_IMAGE':
     case 'TFRECORD':
-      formatString = ee.batch.ImageFormat.TF_RECORD_IMAGE;
+      formatString = ImageFormat.TF_RECORD_IMAGE;
       break;
     default:
       throw new Error(
           `Invalid file format ${formatString}. ` +
           `Supported formats are: 'GEOTIFF', 'TFRECORD'.`);
   }
+  taskConfig['fileFormat'] = formatString;
 
   if (taskConfig['formatOptions'] != null) {
     // Add the prefix to the format-specific options.
     const formatOptions =
-        ee.batch.Export.prefixImageFormatOptions_(taskConfig, formatString);
+        Export.prefixImageFormatOptions_(taskConfig, formatString);
     delete taskConfig['formatOptions'];
     // Assign the format options into the top-level request.
     Object.assign(taskConfig, formatOptions);
@@ -808,16 +849,104 @@ ee.batch.Export.reconcileImageFormat = function(taskConfig) {
 
 
 /**
- * Ensures the provided arguments and format options can be sucessfully
+ * Validates any format specific options, and converts said options to a
+ * backend friendly format.
+ * @param {!ServerTaskConfig} taskConfig Arguments
+ *     passed to an map export "toCloudStorage" request.
+ * @return {!ServerTaskConfig}
+ */
+Export.reconcileMapFormat = function(taskConfig) {
+  // Parse the image file format from the given task config.
+  let formatString = taskConfig['fileFormat'];
+  // If not specified assume the format is auto.
+  if (formatString == null) {
+    formatString = MapFormat.AUTO_JPEG_PNG;
+  }
+  formatString = formatString.toUpperCase();
+  switch (formatString) {
+    case 'AUTO':
+    case 'AUTO_JPEG_PNG':
+    case 'AUTO_JPG_PNG':
+      formatString = MapFormat.AUTO_JPEG_PNG;
+      break;
+    case 'JPG':
+    case 'JPEG':
+      formatString = MapFormat.JPEG;
+      break;
+    case 'PNG':
+      formatString = MapFormat.PNG;
+      break;
+    default:
+      throw new Error(
+          `Invalid file format ${formatString}. ` +
+          `Supported formats are: 'AUTO', 'PNG', and 'JPEG'.`);
+  }
+  taskConfig['fileFormat'] = formatString;
+
+  return taskConfig;
+};
+
+
+/**
+ * Validates any format specific options, and converts said options to a
+ * backend friendly format.
+ * @param {!ServerTaskConfig} taskConfig Arguments
+ *     passed to a table export "toDrive" or "toCloudStorage" request.
+ * @return {!ServerTaskConfig}
+ */
+Export.reconcileTableFormat = function(taskConfig) {
+  // Parse the image file format from the given task config.
+  let formatString = taskConfig['fileFormat'];
+  // If not specified assume the format is CSV.
+  if (formatString == null) {
+    formatString = TableFormat.CSV;
+  }
+  formatString = formatString.toUpperCase();
+  switch (formatString) {
+    case 'CSV':
+      formatString = TableFormat.CSV;
+      break;
+    case 'JSON':
+    case 'GEOJSON':
+    case 'GEO_JSON':
+      formatString = TableFormat.GEO_JSON;
+      break;
+    case 'KML':
+      formatString = TableFormat.KML;
+      break;
+    case 'KMZ':
+      formatString = TableFormat.KMZ;
+      break;
+    case 'SHP':
+      formatString = TableFormat.SHP;
+      break;
+    case 'TF_RECORD':
+    case 'TF_RECORD_TABLE':
+    case 'TFRECORD':
+      formatString = TableFormat.TF_RECORD_TABLE;
+      break;
+    default:
+      throw new Error(
+          `Invalid file format ${formatString}. ` +
+          `Supported formats are: 'CSV', 'GeoJSON', 'KML', ` +
+          `'KMZ', 'SHP', and 'TFRecord'.`);
+  }
+  taskConfig['fileFormat'] = formatString;
+  return taskConfig;
+};
+
+
+/**
+ * Ensures the provided arguments and format options can be successfully
  * combined into top level parameters passed to the server, and returns a task
  * configuration with such a combination.
- * @param {!ee.batch.ServerTaskConfig} taskConfig Config
- * @param {!ee.batch.ImageFormat} imageFormat Well known image format.
+ * @param {!ServerTaskConfig} taskConfig Config
+ * @param {!ImageFormat} imageFormat Well known image format.
  * @return {!Object} A potentially only partially correct task config that may
  *     need field type conversion to be conformant with ImageTaskConfig.
  * @private
  */
-ee.batch.Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
+Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
   let formatOptions = taskConfig['formatOptions'];
   // No-op if no format options are provided.
   if (formatOptions == null) {
@@ -857,11 +986,19 @@ ee.batch.Export.prefixImageFormatOptions_ = function(taskConfig, imageFormat) {
  * The server-side key for configuring a CRS transform.
  * @const {string}
  */
-ee.batch.Export.CRS_TRANSFORM_KEY = 'crs_transform';
+Export.CRS_TRANSFORM_KEY = 'crs_transform';
 
 
 /**
  * The keys in user argument dictionaries of EE elements to export.
  * @const {!Array<string>}
  */
-ee.batch.Export.EE_ELEMENT_KEYS = ['image', 'collection'];
+Export.EE_ELEMENT_KEYS = ['image', 'collection'];
+
+exports.Export = Export;
+exports.ExportTask = ExportTask;
+exports.ImageFormat = ImageFormat;
+exports.MapFormat = MapFormat;
+exports.ServerTaskConfig = ServerTaskConfig;
+exports.TableFormat = TableFormat;
+exports.VideoFormat = VideoFormat;

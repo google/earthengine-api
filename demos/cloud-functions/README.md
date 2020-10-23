@@ -1,8 +1,5 @@
 # Cloud Functions and Hex Binning
 
-[Live
-Demo](https://storage.googleapis.com/ee-demos/cloudfunctions-demo/index.html)
-
 This demo shows how to integrate the Earth Engine JavaScript client library with
 several other open-source tools:
 
