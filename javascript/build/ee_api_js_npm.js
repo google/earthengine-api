@@ -101,8 +101,6 @@ $jscomp.polyfill("Symbol", function(orig) {
   };
   return symbolPolyfill;
 }, "es6", "es3");
-$jscomp.initSymbolIterator = function() {
-};
 $jscomp.polyfill("Symbol.iterator", function(orig) {
   if (orig) {
     return orig;
@@ -115,8 +113,6 @@ $jscomp.polyfill("Symbol.iterator", function(orig) {
   }
   return symbolIterator;
 }, "es6", "es3");
-$jscomp.initSymbolAsyncIterator = function() {
-};
 $jscomp.iteratorPrototype = function(next) {
   var iterator = {next:next};
   iterator[Symbol.iterator] = function() {
@@ -319,8 +315,14 @@ $jscomp.polyfill("Object.assign", function(orig) {
   return orig || $jscomp.assign;
 }, "es6", "es3");
 $jscomp.polyfill("Promise", function(NativePromise) {
+  function platformSupportsPromiseRejectionEvents() {
+    return "undefined" !== typeof $jscomp.global.PromiseRejectionEvent;
+  }
+  function globalPromiseIsNative() {
+    return $jscomp.global.Promise && -1 !== $jscomp.global.Promise.toString().indexOf("[native code]");
+  }
   function shouldForcePolyfillPromise() {
-    return $jscomp.FORCE_POLYFILL_PROMISE || $jscomp.FORCE_POLYFILL_PROMISE_WHEN_NO_UNHANDLED_REJECTION && "undefined" === typeof $jscomp.global.PromiseRejectionEvent;
+    return ($jscomp.FORCE_POLYFILL_PROMISE || $jscomp.FORCE_POLYFILL_PROMISE_WHEN_NO_UNHANDLED_REJECTION && !platformSupportsPromiseRejectionEvents()) && globalPromiseIsNative();
   }
   function AsyncExecutor() {
     this.batch_ = null;
@@ -610,6 +612,13 @@ $jscomp.polyfill("String.prototype.trimLeft", function(orig) {
   }
   return orig || polyfill;
 }, "es_2019", "es3");
+$jscomp.polyfill("Array.prototype.entries", function(orig) {
+  return orig ? orig : function() {
+    return $jscomp.iteratorFromArray(this, function(i, v) {
+      return [i, v];
+    });
+  };
+}, "es6", "es3");
 $jscomp.checkEs6ConformanceViaProxy = function() {
   try {
     var proxied = {}, proxy = Object.create(new $jscomp.global.Proxy(proxied, {get:function(target, key, receiver) {
@@ -5070,6 +5079,28 @@ goog.events.Listenable.addImplementation = function(cls) {
 };
 goog.events.Listenable.isImplementedBy = function(obj) {
   return !(!obj || !obj[goog.events.Listenable.IMPLEMENTED_BY_PROP]);
+};
+goog.events.Listenable.prototype.listen = function(type, listener, opt_useCapture, opt_listenerScope) {
+};
+goog.events.Listenable.prototype.listenOnce = function(type, listener, opt_useCapture, opt_listenerScope) {
+};
+goog.events.Listenable.prototype.unlisten = function(type, listener, opt_useCapture, opt_listenerScope) {
+};
+goog.events.Listenable.prototype.unlistenByKey = function(key) {
+};
+goog.events.Listenable.prototype.dispatchEvent = function(e) {
+};
+goog.events.Listenable.prototype.removeAllListeners = function(opt_type) {
+};
+goog.events.Listenable.prototype.getParentEventTarget = function() {
+};
+goog.events.Listenable.prototype.fireListeners = function(type, capture, eventObject) {
+};
+goog.events.Listenable.prototype.getListeners = function(type, capture) {
+};
+goog.events.Listenable.prototype.getListener = function(type, listener, capture, opt_listenerScope) {
+};
+goog.events.Listenable.prototype.hasListener = function(opt_type, opt_capture) {
 };
 goog.events.ListenableKey = function() {
 };
@@ -10455,6 +10486,8 @@ module$exports$eeapiclient$ee_api_client.OperationMetadata = function(parameters
   this.Serializable$set("updateTime", null == parameters.updateTime ? null : parameters.updateTime);
   this.Serializable$set("startTime", null == parameters.startTime ? null : parameters.startTime);
   this.Serializable$set("endTime", null == parameters.endTime ? null : parameters.endTime);
+  this.Serializable$set("progress", null == parameters.progress ? null : parameters.progress);
+  this.Serializable$set("stages", null == parameters.stages ? null : parameters.stages);
   this.Serializable$set("attempt", null == parameters.attempt ? null : parameters.attempt);
   this.Serializable$set("scriptUri", null == parameters.scriptUri ? null : parameters.scriptUri);
   this.Serializable$set("destinationUris", null == parameters.destinationUris ? null : parameters.destinationUris);
@@ -10464,7 +10497,7 @@ module$exports$eeapiclient$ee_api_client.OperationMetadata.prototype.getConstruc
   return module$exports$eeapiclient$ee_api_client.OperationMetadata;
 };
 module$exports$eeapiclient$ee_api_client.OperationMetadata.prototype.getPartialClassMetadata = function() {
-  return {enums:{state:module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum}, keys:"attempt createTime description destinationUris endTime priority scriptUri startTime state type updateTime".split(" ")};
+  return {arrays:{stages:module$exports$eeapiclient$ee_api_client.OperationStage}, enums:{state:module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum}, keys:"attempt createTime description destinationUris endTime priority progress scriptUri stages startTime state type updateTime".split(" ")};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.OperationMetadata.prototype, {attempt:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("attempt") ? this.Serializable$get("attempt") : null;
@@ -10490,10 +10523,18 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("priority") ? this.Serializable$get("priority") : null;
 }, set:function(value) {
   this.Serializable$set("priority", value);
+}}, progress:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("progress") ? this.Serializable$get("progress") : null;
+}, set:function(value) {
+  this.Serializable$set("progress", value);
 }}, scriptUri:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("scriptUri") ? this.Serializable$get("scriptUri") : null;
 }, set:function(value) {
   this.Serializable$set("scriptUri", value);
+}}, stages:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("stages") ? this.Serializable$get("stages") : null;
+}, set:function(value) {
+  this.Serializable$set("stages", value);
 }}, startTime:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("startTime") ? this.Serializable$get("startTime") : null;
 }, set:function(value) {
@@ -10513,6 +10554,40 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }}});
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.OperationMetadata, {State:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum;
+}}});
+module$exports$eeapiclient$ee_api_client.OperationStageParameters = function module$contents$eeapiclient$ee_api_client_OperationStageParameters() {
+};
+module$exports$eeapiclient$ee_api_client.OperationStage = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("displayName", null == parameters.displayName ? null : parameters.displayName);
+  this.Serializable$set("completeWorkUnits", null == parameters.completeWorkUnits ? null : parameters.completeWorkUnits);
+  this.Serializable$set("totalWorkUnits", null == parameters.totalWorkUnits ? null : parameters.totalWorkUnits);
+  this.Serializable$set("description", null == parameters.description ? null : parameters.description);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.OperationStage, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.OperationStage.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.OperationStage;
+};
+module$exports$eeapiclient$ee_api_client.OperationStage.prototype.getPartialClassMetadata = function() {
+  return {keys:["completeWorkUnits", "description", "displayName", "totalWorkUnits"]};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.OperationStage.prototype, {completeWorkUnits:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("completeWorkUnits") ? this.Serializable$get("completeWorkUnits") : null;
+}, set:function(value) {
+  this.Serializable$set("completeWorkUnits", value);
+}}, description:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("description") ? this.Serializable$get("description") : null;
+}, set:function(value) {
+  this.Serializable$set("description", value);
+}}, displayName:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("displayName") ? this.Serializable$get("displayName") : null;
+}, set:function(value) {
+  this.Serializable$set("displayName", value);
+}}, totalWorkUnits:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("totalWorkUnits") ? this.Serializable$get("totalWorkUnits") : null;
+}, set:function(value) {
+  this.Serializable$set("totalWorkUnits", value);
 }}});
 module$exports$eeapiclient$ee_api_client.PixelDataTypeParameters = function module$contents$eeapiclient$ee_api_client_PixelDataTypeParameters() {
 };
@@ -14416,347 +14491,260 @@ goog.json.hybrid.parse_ = function(jsonString, fallbackParser) {
 goog.json.hybrid.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(jsonString) {
   return goog.json.hybrid.parse_(jsonString, goog.json.parse);
 };
-goog.debug.LogRecord = function(level, msg, loggerName, opt_time, opt_sequenceNumber) {
-  this.reset(level, msg, loggerName, opt_time, opt_sequenceNumber);
-};
-goog.debug.LogRecord.prototype.sequenceNumber_ = 0;
-goog.debug.LogRecord.prototype.exception_ = null;
-goog.debug.LogRecord.ENABLE_SEQUENCE_NUMBERS = !0;
-goog.debug.LogRecord.nextSequenceNumber_ = 0;
-goog.debug.LogRecord.prototype.reset = function(level, msg, loggerName, opt_time, opt_sequenceNumber) {
-  goog.debug.LogRecord.ENABLE_SEQUENCE_NUMBERS && (this.sequenceNumber_ = "number" == typeof opt_sequenceNumber ? opt_sequenceNumber : goog.debug.LogRecord.nextSequenceNumber_++);
-  this.time_ = opt_time || goog.now();
-  this.level_ = level;
-  this.msg_ = msg;
-  this.loggerName_ = loggerName;
-  delete this.exception_;
-};
-goog.debug.LogRecord.prototype.getLoggerName = function() {
-  return this.loggerName_;
-};
-goog.debug.LogRecord.prototype.getException = function() {
-  return this.exception_;
-};
-goog.debug.LogRecord.prototype.setException = function(exception) {
-  this.exception_ = exception;
-};
-goog.debug.LogRecord.prototype.setLoggerName = function(loggerName) {
-  this.loggerName_ = loggerName;
-};
-goog.debug.LogRecord.prototype.getLevel = function() {
-  return this.level_;
-};
-goog.debug.LogRecord.prototype.setLevel = function(level) {
-  this.level_ = level;
-};
-goog.debug.LogRecord.prototype.getMessage = function() {
-  return this.msg_;
-};
-goog.debug.LogRecord.prototype.setMessage = function(msg) {
-  this.msg_ = msg;
-};
-goog.debug.LogRecord.prototype.getMillis = function() {
-  return this.time_;
-};
-goog.debug.LogRecord.prototype.setMillis = function(time) {
-  this.time_ = time;
-};
-goog.debug.LogRecord.prototype.getSequenceNumber = function() {
-  return this.sequenceNumber_;
-};
-goog.debug.LogBuffer = function() {
-  goog.asserts.assert(goog.debug.LogBuffer.isBufferingEnabled(), "Cannot use goog.debug.LogBuffer without defining goog.debug.LogBuffer.CAPACITY.");
-  this.clear();
-};
-goog.debug.LogBuffer.getInstance = function() {
-  goog.debug.LogBuffer.instance_ || (goog.debug.LogBuffer.instance_ = new goog.debug.LogBuffer);
-  return goog.debug.LogBuffer.instance_;
-};
-goog.debug.LogBuffer.CAPACITY = 0;
-goog.debug.LogBuffer.prototype.addRecord = function(level, msg, loggerName) {
-  var curIndex = (this.curIndex_ + 1) % goog.debug.LogBuffer.CAPACITY;
-  this.curIndex_ = curIndex;
-  if (this.isFull_) {
-    var ret = this.buffer_[curIndex];
-    ret.reset(level, msg, loggerName);
-    return ret;
-  }
-  this.isFull_ = curIndex == goog.debug.LogBuffer.CAPACITY - 1;
-  return this.buffer_[curIndex] = new goog.debug.LogRecord(level, msg, loggerName);
-};
-goog.debug.LogBuffer.isBufferingEnabled = function() {
-  return 0 < goog.debug.LogBuffer.CAPACITY;
-};
-goog.debug.LogBuffer.prototype.clear = function() {
-  this.buffer_ = Array(goog.debug.LogBuffer.CAPACITY);
-  this.curIndex_ = -1;
-  this.isFull_ = !1;
-};
-goog.debug.LogBuffer.prototype.forEachRecord = function(func) {
-  var buffer = this.buffer_;
-  if (buffer[0]) {
-    var curIndex = this.curIndex_, i = this.isFull_ ? curIndex : -1;
-    do {
-      i = (i + 1) % goog.debug.LogBuffer.CAPACITY, func(buffer[i]);
-    } while (i != curIndex);
-  }
-};
-goog.debug.Logger = function(name) {
-  this.name_ = name;
-  this.handlers_ = this.children_ = this.level_ = this.parent_ = null;
-};
-goog.debug.Logger.ROOT_LOGGER_NAME = "";
-goog.debug.Logger.ENABLE_HIERARCHY = !0;
-goog.debug.Logger.ENABLE_PROFILER_LOGGING = !1;
-goog.debug.Logger.ENABLE_HIERARCHY || (goog.debug.Logger.rootHandlers_ = []);
-goog.debug.Logger.Level = function(name, value) {
+goog.log = {};
+goog.log.ENABLED = goog.debug.LOGGING_ENABLED;
+goog.log.ROOT_LOGGER_NAME = "";
+var third_party$javascript$closure$log$log$classdecl$var0 = function(name, value) {
   this.name = name;
   this.value = value;
 };
-goog.debug.Logger.Level.prototype.toString = function() {
+third_party$javascript$closure$log$log$classdecl$var0.prototype.toString = function() {
   return this.name;
 };
-goog.debug.Logger.Level.OFF = new goog.debug.Logger.Level("OFF", Infinity);
-goog.debug.Logger.Level.SHOUT = new goog.debug.Logger.Level("SHOUT", 1200);
-goog.debug.Logger.Level.SEVERE = new goog.debug.Logger.Level("SEVERE", 1000);
-goog.debug.Logger.Level.WARNING = new goog.debug.Logger.Level("WARNING", 900);
-goog.debug.Logger.Level.INFO = new goog.debug.Logger.Level("INFO", 800);
-goog.debug.Logger.Level.CONFIG = new goog.debug.Logger.Level("CONFIG", 700);
-goog.debug.Logger.Level.FINE = new goog.debug.Logger.Level("FINE", 500);
-goog.debug.Logger.Level.FINER = new goog.debug.Logger.Level("FINER", 400);
-goog.debug.Logger.Level.FINEST = new goog.debug.Logger.Level("FINEST", 300);
-goog.debug.Logger.Level.ALL = new goog.debug.Logger.Level("ALL", 0);
-goog.debug.Logger.Level.PREDEFINED_LEVELS = [goog.debug.Logger.Level.OFF, goog.debug.Logger.Level.SHOUT, goog.debug.Logger.Level.SEVERE, goog.debug.Logger.Level.WARNING, goog.debug.Logger.Level.INFO, goog.debug.Logger.Level.CONFIG, goog.debug.Logger.Level.FINE, goog.debug.Logger.Level.FINER, goog.debug.Logger.Level.FINEST, goog.debug.Logger.Level.ALL];
-goog.debug.Logger.Level.predefinedLevelsCache_ = null;
-goog.debug.Logger.Level.createPredefinedLevelsCache_ = function() {
-  goog.debug.Logger.Level.predefinedLevelsCache_ = {};
-  for (var i = 0, level; level = goog.debug.Logger.Level.PREDEFINED_LEVELS[i]; i++) {
-    goog.debug.Logger.Level.predefinedLevelsCache_[level.value] = level, goog.debug.Logger.Level.predefinedLevelsCache_[level.name] = level;
+goog.log.Level = third_party$javascript$closure$log$log$classdecl$var0;
+goog.log.Level.OFF = new goog.log.Level("OFF", Infinity);
+goog.log.Level.SHOUT = new goog.log.Level("SHOUT", 1200);
+goog.log.Level.SEVERE = new goog.log.Level("SEVERE", 1000);
+goog.log.Level.WARNING = new goog.log.Level("WARNING", 900);
+goog.log.Level.INFO = new goog.log.Level("INFO", 800);
+goog.log.Level.CONFIG = new goog.log.Level("CONFIG", 700);
+goog.log.Level.FINE = new goog.log.Level("FINE", 500);
+goog.log.Level.FINER = new goog.log.Level("FINER", 400);
+goog.log.Level.FINEST = new goog.log.Level("FINEST", 300);
+goog.log.Level.ALL = new goog.log.Level("ALL", 0);
+goog.log.Level.PREDEFINED_LEVELS = [goog.log.Level.OFF, goog.log.Level.SHOUT, goog.log.Level.SEVERE, goog.log.Level.WARNING, goog.log.Level.INFO, goog.log.Level.CONFIG, goog.log.Level.FINE, goog.log.Level.FINER, goog.log.Level.FINEST, goog.log.Level.ALL];
+goog.log.Level.predefinedLevelsCache_ = null;
+goog.log.Level.createPredefinedLevelsCache_ = function() {
+  goog.log.Level.predefinedLevelsCache_ = {};
+  for (var i = 0, level = void 0; level = goog.log.Level.PREDEFINED_LEVELS[i]; i++) {
+    goog.log.Level.predefinedLevelsCache_[level.value] = level, goog.log.Level.predefinedLevelsCache_[level.name] = level;
   }
 };
-goog.debug.Logger.Level.getPredefinedLevel = function(name) {
-  goog.debug.Logger.Level.predefinedLevelsCache_ || goog.debug.Logger.Level.createPredefinedLevelsCache_();
-  return goog.debug.Logger.Level.predefinedLevelsCache_[name] || null;
+goog.log.Level.getPredefinedLevel = function(name) {
+  goog.log.Level.predefinedLevelsCache_ || goog.log.Level.createPredefinedLevelsCache_();
+  return goog.log.Level.predefinedLevelsCache_[name] || null;
 };
-goog.debug.Logger.Level.getPredefinedLevelByValue = function(value) {
-  goog.debug.Logger.Level.predefinedLevelsCache_ || goog.debug.Logger.Level.createPredefinedLevelsCache_();
-  if (value in goog.debug.Logger.Level.predefinedLevelsCache_) {
-    return goog.debug.Logger.Level.predefinedLevelsCache_[value];
+goog.log.Level.getPredefinedLevelByValue = function(value) {
+  goog.log.Level.predefinedLevelsCache_ || goog.log.Level.createPredefinedLevelsCache_();
+  if (value in goog.log.Level.predefinedLevelsCache_) {
+    return goog.log.Level.predefinedLevelsCache_[value];
   }
-  for (var i = 0; i < goog.debug.Logger.Level.PREDEFINED_LEVELS.length; ++i) {
-    var level = goog.debug.Logger.Level.PREDEFINED_LEVELS[i];
+  for (var i = 0; i < goog.log.Level.PREDEFINED_LEVELS.length; ++i) {
+    var level = goog.log.Level.PREDEFINED_LEVELS[i];
     if (level.value <= value) {
       return level;
     }
   }
   return null;
 };
-goog.debug.Logger.getLogger = function(name) {
-  return goog.debug.LogManager.getLogger(name);
+var third_party$javascript$closure$log$log$classdecl$var1 = function() {
 };
-goog.debug.Logger.logToProfilers = function(msg) {
-  if (goog.debug.Logger.ENABLE_PROFILER_LOGGING) {
-    var msWriteProfilerMark = goog.global.msWriteProfilerMark;
-    if (msWriteProfilerMark) {
-      msWriteProfilerMark(msg);
-    } else {
-      var console = goog.global.console;
-      console && console.timeStamp && console.timeStamp(msg);
-    }
+third_party$javascript$closure$log$log$classdecl$var1.prototype.getName = function() {
+};
+goog.log.Logger = third_party$javascript$closure$log$log$classdecl$var1;
+goog.log.Logger.Level = goog.log.Level;
+var third_party$javascript$closure$log$log$classdecl$var2 = function(capacity) {
+  this.capacity_ = "number" === typeof capacity ? capacity : goog.log.LogBuffer.CAPACITY;
+  this.clear();
+};
+third_party$javascript$closure$log$log$classdecl$var2.prototype.addRecord = function(level, msg, loggerName) {
+  if (!this.isBufferingEnabled()) {
+    return new goog.log.LogRecord(level, msg, loggerName);
+  }
+  var curIndex = (this.curIndex_ + 1) % this.capacity_;
+  this.curIndex_ = curIndex;
+  if (this.isFull_) {
+    var ret = this.buffer_[curIndex];
+    ret.reset(level, msg, loggerName);
+    return ret;
+  }
+  this.isFull_ = curIndex == this.capacity_ - 1;
+  return this.buffer_[curIndex] = new goog.log.LogRecord(level, msg, loggerName);
+};
+third_party$javascript$closure$log$log$classdecl$var2.prototype.forEachRecord = function(func) {
+  var buffer = this.buffer_;
+  if (buffer[0]) {
+    var curIndex = this.curIndex_, i = this.isFull_ ? curIndex : -1;
+    do {
+      i = (i + 1) % this.capacity_, func(buffer[i]);
+    } while (i !== curIndex);
   }
 };
-goog.debug.Logger.prototype.getName = function() {
-  return this.name_;
+third_party$javascript$closure$log$log$classdecl$var2.prototype.isBufferingEnabled = function() {
+  return 0 < this.capacity_;
 };
-goog.debug.Logger.prototype.addHandler = function(handler) {
-  goog.debug.LOGGING_ENABLED && (goog.debug.Logger.ENABLE_HIERARCHY ? (this.handlers_ || (this.handlers_ = []), this.handlers_.push(handler)) : (goog.asserts.assert(!this.name_, "Cannot call addHandler on a non-root logger when goog.debug.Logger.ENABLE_HIERARCHY is false."), goog.debug.Logger.rootHandlers_.push(handler)));
+third_party$javascript$closure$log$log$classdecl$var2.prototype.isFull = function() {
+  return this.isFull_;
 };
-goog.debug.Logger.prototype.removeHandler = function(handler) {
-  if (goog.debug.LOGGING_ENABLED) {
-    var handlers = goog.debug.Logger.ENABLE_HIERARCHY ? this.handlers_ : goog.debug.Logger.rootHandlers_;
-    return !!handlers && module$contents$goog$array_remove(handlers, handler);
+third_party$javascript$closure$log$log$classdecl$var2.prototype.clear = function() {
+  this.buffer_ = Array(this.capacity_);
+  this.curIndex_ = -1;
+  this.isFull_ = !1;
+};
+goog.log.LogBuffer = third_party$javascript$closure$log$log$classdecl$var2;
+goog.log.LogBuffer.CAPACITY = 0;
+goog.log.LogBuffer.getInstance = function() {
+  goog.log.LogBuffer.instance_ || (goog.log.LogBuffer.instance_ = new goog.log.LogBuffer(goog.log.LogBuffer.CAPACITY));
+  return goog.log.LogBuffer.instance_;
+};
+goog.log.LogBuffer.isBufferingEnabled = function() {
+  return goog.log.LogBuffer.getInstance().isBufferingEnabled();
+};
+var third_party$javascript$closure$log$log$classdecl$var3 = function(level, msg, loggerName, time, sequenceNumber) {
+  this.exception_ = null;
+  this.reset(level || goog.log.Level.OFF, msg, loggerName, time, sequenceNumber);
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.reset = function(level, msg, loggerName, time, sequenceNumber) {
+  this.time_ = time || goog.now();
+  this.level_ = level;
+  this.msg_ = msg;
+  this.loggerName_ = loggerName;
+  this.exception_ = null;
+  this.sequenceNumber_ = "number" === typeof sequenceNumber ? sequenceNumber : goog.log.LogRecord.nextSequenceNumber_;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.getLoggerName = function() {
+  return this.loggerName_;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.setLoggerName = function(name) {
+  this.loggerName_ = name;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.getException = function() {
+  return this.exception_;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.setException = function(exception) {
+  this.exception_ = exception;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.getLevel = function() {
+  return this.level_;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.setLevel = function(level) {
+  this.level_ = level;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.getMessage = function() {
+  return this.msg_;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.setMessage = function(msg) {
+  this.msg_ = msg;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.getMillis = function() {
+  return this.time_;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.setMillis = function(time) {
+  this.time_ = time;
+};
+third_party$javascript$closure$log$log$classdecl$var3.prototype.getSequenceNumber = function() {
+  return this.sequenceNumber_;
+};
+goog.log.LogRecord = third_party$javascript$closure$log$log$classdecl$var3;
+goog.log.LogRecord.nextSequenceNumber_ = 0;
+var third_party$javascript$closure$log$log$classdecl$var4 = function(name, parent) {
+  this.level = null;
+  this.handlers = [];
+  this.parent = (void 0 === parent ? null : parent) || null;
+  this.children = [];
+  this.logger = {getName:function() {
+    return name;
+  }};
+};
+third_party$javascript$closure$log$log$classdecl$var4.prototype.getEffectiveLevel = function() {
+  if (this.level) {
+    return this.level;
+  }
+  if (this.parent) {
+    return this.parent.getEffectiveLevel();
+  }
+  goog.asserts.fail("Root logger has no level set.");
+  return goog.log.Level.OFF;
+};
+third_party$javascript$closure$log$log$classdecl$var4.prototype.publish = function(logRecord) {
+  for (var target = this; target;) {
+    target.handlers.forEach(function(handler) {
+      handler(logRecord);
+    }), target = target.parent;
+  }
+};
+goog.log.LogRegistryEntry = third_party$javascript$closure$log$log$classdecl$var4;
+var third_party$javascript$closure$log$log$classdecl$var5 = function() {
+  this.entries = {};
+  var rootLogRegistryEntry = new goog.log.LogRegistryEntry(goog.log.ROOT_LOGGER_NAME);
+  rootLogRegistryEntry.level = goog.log.Level.CONFIG;
+  this.entries[goog.log.ROOT_LOGGER_NAME] = rootLogRegistryEntry;
+};
+third_party$javascript$closure$log$log$classdecl$var5.prototype.getLogRegistryEntry = function(name, level) {
+  var entry = this.entries[name];
+  if (entry) {
+    return void 0 !== level && (entry.level = level), entry;
+  }
+  var lastDotIndex = name.lastIndexOf("."), parentLogRegistryEntry = this.getLogRegistryEntry(name.substr(0, lastDotIndex)), logRegistryEntry = new goog.log.LogRegistryEntry(name, parentLogRegistryEntry);
+  this.entries[name] = logRegistryEntry;
+  parentLogRegistryEntry.children.push(logRegistryEntry);
+  void 0 !== level && (logRegistryEntry.level = level);
+  return logRegistryEntry;
+};
+goog.log.LogRegistry = third_party$javascript$closure$log$log$classdecl$var5;
+goog.log.LogRegistry.getInstance = function() {
+  goog.log.LogRegistry.instance_ || (goog.log.LogRegistry.instance_ = new goog.log.LogRegistry);
+  return goog.log.LogRegistry.instance_;
+};
+goog.log.getLogger = function(name, level) {
+  return goog.log.ENABLED ? goog.log.LogRegistry.getInstance().getLogRegistryEntry(name, level).logger : null;
+};
+goog.log.getRootLogger = function() {
+  return goog.log.ENABLED ? goog.log.LogRegistry.getInstance().getLogRegistryEntry(goog.log.ROOT_LOGGER_NAME).logger : null;
+};
+goog.log.addHandler = function(logger, handler) {
+  goog.log.ENABLED && logger && goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).handlers.push(handler);
+};
+goog.log.removeHandler = function(logger, handler) {
+  if (goog.log.ENABLED && logger) {
+    var loggerEntry = goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()), indexOfHandler = loggerEntry.handlers.indexOf(handler);
+    if (-1 !== indexOfHandler) {
+      return loggerEntry.handlers.splice(indexOfHandler, 1), !0;
+    }
   }
   return !1;
 };
-goog.debug.Logger.prototype.getParent = function() {
-  return this.parent_;
-};
-goog.debug.Logger.prototype.getChildren = function() {
-  this.children_ || (this.children_ = {});
-  return this.children_;
-};
-goog.debug.Logger.prototype.setLevel = function(level) {
-  goog.debug.LOGGING_ENABLED && (goog.debug.Logger.ENABLE_HIERARCHY ? this.level_ = level : (goog.asserts.assert(!this.name_, "Cannot call setLevel() on a non-root logger when goog.debug.Logger.ENABLE_HIERARCHY is false."), goog.debug.Logger.rootLevel_ = level));
-};
-goog.debug.Logger.prototype.getLevel = function() {
-  return goog.debug.LOGGING_ENABLED ? this.level_ : goog.debug.Logger.Level.OFF;
-};
-goog.debug.Logger.prototype.getEffectiveLevel = function() {
-  if (!goog.debug.LOGGING_ENABLED) {
-    return goog.debug.Logger.Level.OFF;
-  }
-  if (!goog.debug.Logger.ENABLE_HIERARCHY) {
-    return goog.debug.Logger.rootLevel_;
-  }
-  if (this.level_) {
-    return this.level_;
-  }
-  if (this.parent_) {
-    return this.parent_.getEffectiveLevel();
-  }
-  goog.asserts.fail("Root logger has no level set.");
-  return null;
-};
-goog.debug.Logger.prototype.isLoggable = function(level) {
-  return goog.debug.LOGGING_ENABLED && level.value >= this.getEffectiveLevel().value;
-};
-goog.debug.Logger.prototype.log = function(level, msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.isLoggable(level) && ("function" === typeof msg && (msg = msg()), this.doLogRecord_(this.getLogRecord(level, msg, opt_exception)));
-};
-goog.debug.Logger.prototype.getLogRecord = function(level, msg, opt_exception) {
-  var logRecord = goog.debug.LogBuffer.isBufferingEnabled() ? goog.debug.LogBuffer.getInstance().addRecord(level, msg, this.name_) : new goog.debug.LogRecord(level, String(msg), this.name_);
-  opt_exception && logRecord.setException(opt_exception);
-  return logRecord;
-};
-goog.debug.Logger.prototype.shout = function(msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.log(goog.debug.Logger.Level.SHOUT, msg, opt_exception);
-};
-goog.debug.Logger.prototype.severe = function(msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.log(goog.debug.Logger.Level.SEVERE, msg, opt_exception);
-};
-goog.debug.Logger.prototype.warning = function(msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.log(goog.debug.Logger.Level.WARNING, msg, opt_exception);
-};
-goog.debug.Logger.prototype.info = function(msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.log(goog.debug.Logger.Level.INFO, msg, opt_exception);
-};
-goog.debug.Logger.prototype.config = function(msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.log(goog.debug.Logger.Level.CONFIG, msg, opt_exception);
-};
-goog.debug.Logger.prototype.fine = function(msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.log(goog.debug.Logger.Level.FINE, msg, opt_exception);
-};
-goog.debug.Logger.prototype.finer = function(msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.log(goog.debug.Logger.Level.FINER, msg, opt_exception);
-};
-goog.debug.Logger.prototype.finest = function(msg, opt_exception) {
-  goog.debug.LOGGING_ENABLED && this.log(goog.debug.Logger.Level.FINEST, msg, opt_exception);
-};
-goog.debug.Logger.prototype.logRecord = function(logRecord) {
-  goog.debug.LOGGING_ENABLED && this.isLoggable(logRecord.getLevel()) && this.doLogRecord_(logRecord);
-};
-goog.debug.Logger.prototype.doLogRecord_ = function(logRecord) {
-  goog.debug.Logger.ENABLE_PROFILER_LOGGING && goog.debug.Logger.logToProfilers("log:" + logRecord.getMessage());
-  if (goog.debug.Logger.ENABLE_HIERARCHY) {
-    for (var target = this; target;) {
-      target.callPublish_(logRecord), target = target.getParent();
-    }
-  } else {
-    for (var i = 0, handler; handler = goog.debug.Logger.rootHandlers_[i++];) {
-      handler(logRecord);
-    }
-  }
-};
-goog.debug.Logger.prototype.callPublish_ = function(logRecord) {
-  if (this.handlers_) {
-    for (var i = 0, handler; handler = this.handlers_[i]; i++) {
-      handler(logRecord);
-    }
-  }
-};
-goog.debug.Logger.prototype.setParent_ = function(parent) {
-  this.parent_ = parent;
-};
-goog.debug.Logger.prototype.addChild_ = function(name, logger) {
-  this.getChildren()[name] = logger;
-};
-goog.debug.LogManager = {};
-goog.debug.LogManager.loggers_ = {};
-goog.debug.LogManager.rootLogger_ = null;
-goog.debug.LogManager.initialize = function() {
-  goog.debug.LogManager.rootLogger_ || (goog.debug.LogManager.rootLogger_ = new goog.debug.Logger(goog.debug.Logger.ROOT_LOGGER_NAME), goog.debug.LogManager.loggers_[goog.debug.Logger.ROOT_LOGGER_NAME] = goog.debug.LogManager.rootLogger_, goog.debug.LogManager.rootLogger_.setLevel(goog.debug.Logger.Level.CONFIG));
-};
-goog.debug.LogManager.getLoggers = function() {
-  return goog.debug.LogManager.loggers_;
-};
-goog.debug.LogManager.getRoot = function() {
-  goog.debug.LogManager.initialize();
-  return goog.debug.LogManager.rootLogger_;
-};
-goog.debug.LogManager.getLogger = function(name) {
-  goog.debug.LogManager.initialize();
-  return goog.debug.LogManager.loggers_[name] || goog.debug.LogManager.createLogger_(name);
-};
-goog.debug.LogManager.createFunctionForCatchErrors = function(opt_logger) {
-  return function(info) {
-    (opt_logger || goog.debug.LogManager.getRoot()).severe("Error: " + info.message + " (" + info.fileName + " @ Line: " + info.line + ")");
-  };
-};
-goog.debug.LogManager.createLogger_ = function(name) {
-  var logger = new goog.debug.Logger(name);
-  if (goog.debug.Logger.ENABLE_HIERARCHY) {
-    var lastDotIndex = name.lastIndexOf("."), leafName = name.substr(lastDotIndex + 1), parentLogger = goog.debug.LogManager.getLogger(name.substr(0, lastDotIndex));
-    parentLogger.addChild_(leafName, logger);
-    logger.setParent_(parentLogger);
-  }
-  return goog.debug.LogManager.loggers_[name] = logger;
-};
-goog.log = {};
-goog.log.ENABLED = goog.debug.LOGGING_ENABLED;
-goog.log.ROOT_LOGGER_NAME = goog.debug.Logger.ROOT_LOGGER_NAME;
-goog.log.Logger = goog.debug.Logger;
-goog.log.Level = goog.debug.Logger.Level;
-goog.log.LogRecord = goog.debug.LogRecord;
-goog.log.LogBuffer = goog.debug.LogBuffer;
-goog.log.getLogger = function(name, opt_level) {
-  if (goog.log.ENABLED) {
-    var logger = goog.debug.LogManager.getLogger(name);
-    opt_level && logger && logger.setLevel(opt_level);
-    return logger;
-  }
-  return null;
-};
-goog.log.getRootLogger = function() {
-  return goog.log.getLogger(goog.log.ROOT_LOGGER_NAME);
-};
-goog.log.addHandler = function(logger, handler) {
-  goog.log.ENABLED && logger && logger.addHandler(handler);
-};
-goog.log.removeHandler = function(logger, handler) {
-  return goog.log.ENABLED && logger ? logger.removeHandler(handler) : !1;
-};
 goog.log.setLevel = function(logger, level) {
-  goog.log.ENABLED && logger && logger.setLevel(level);
+  goog.log.ENABLED && logger && (goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).level = level);
 };
 goog.log.getLevel = function(logger) {
-  return goog.log.ENABLED && logger ? logger.getLevel() : null;
+  return goog.log.ENABLED && logger ? goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).level : null;
 };
 goog.log.getEffectiveLevel = function(logger) {
-  return goog.log.ENABLED && logger ? logger.getEffectiveLevel() : null;
+  return goog.log.ENABLED && logger ? goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).getEffectiveLevel() : goog.log.Level.OFF;
 };
 goog.log.isLoggable = function(logger, level) {
-  return goog.log.ENABLED && logger ? logger.isLoggable(level) : !1;
+  return goog.log.ENABLED && logger && level ? level.value >= goog.log.getEffectiveLevel(logger).value : !1;
 };
-goog.log.getLogRecord = function(logger, level, msg, opt_exception) {
-  return goog.log.ENABLED && logger ? logger.getLogRecord(level, msg, opt_exception) : null;
+goog.log.getLogRecord = function(logger, level, msg, exception) {
+  var logRecord = goog.log.LogBuffer.getInstance().addRecord(level || goog.log.Level.OFF, msg, logger.getName());
+  exception && logRecord.setException(exception);
+  return logRecord;
 };
 goog.log.publishLogRecord = function(logger, logRecord) {
-  goog.log.ENABLED && logger && logger.logRecord(logRecord);
+  goog.log.ENABLED && logger && goog.log.isLoggable(logger, logRecord.getLevel()) && goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).publish(logRecord);
 };
-goog.log.log = function(logger, level, msg, opt_exception) {
-  goog.log.ENABLED && logger && logger.log(level, msg, opt_exception);
+goog.log.log = function(logger, level, msg, exception) {
+  if (goog.log.ENABLED && logger && goog.log.isLoggable(logger, level)) {
+    level = level || goog.log.Level.OFF;
+    var loggerEntry = goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName());
+    "function" === typeof msg && (msg = msg());
+    var logRecord = goog.log.LogBuffer.getInstance().addRecord(level, msg, logger.getName());
+    exception && logRecord.setException(exception);
+    loggerEntry.publish(logRecord);
+  }
 };
-goog.log.error = function(logger, msg, opt_exception) {
-  goog.log.ENABLED && logger && logger.severe(msg, opt_exception);
+goog.log.error = function(logger, msg, exception) {
+  goog.log.ENABLED && logger && goog.log.log(logger, goog.log.Level.SEVERE, msg, exception);
 };
-goog.log.warning = function(logger, msg, opt_exception) {
-  goog.log.ENABLED && logger && logger.warning(msg, opt_exception);
+goog.log.warning = function(logger, msg, exception) {
+  goog.log.ENABLED && logger && goog.log.log(logger, goog.log.Level.WARNING, msg, exception);
 };
-goog.log.info = function(logger, msg, opt_exception) {
-  goog.log.ENABLED && logger && logger.info(msg, opt_exception);
+goog.log.info = function(logger, msg, exception) {
+  goog.log.ENABLED && logger && goog.log.log(logger, goog.log.Level.INFO, msg, exception);
 };
-goog.log.fine = function(logger, msg, opt_exception) {
-  goog.log.ENABLED && logger && logger.fine(msg, opt_exception);
+goog.log.fine = function(logger, msg, exception) {
+  goog.log.ENABLED && logger && goog.log.log(logger, goog.log.Level.FINE, msg, exception);
 };
 goog.net.ErrorCode = {NO_ERROR:0, ACCESS_DENIED:1, FILE_NOT_FOUND:2, FF_SILENT_ERROR:3, CUSTOM_ERROR:4, EXCEPTION:5, HTTP_ERROR:6, ABORT:7, TIMEOUT:8, OFFLINE:9, };
 goog.net.ErrorCode.getDebugMessage = function(errorCode) {
@@ -15216,7 +15204,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.239";
+ee.apiclient.API_CLIENT_VERSION = "0.1.240";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15480,8 +15468,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.239";
-    "0.1.239" === version && (version = "latest");
+    var version = "0.1.240";
+    "0.1.240" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -16859,7 +16847,7 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
   if (params.fileDimensions && params.tiffFileDimensions) {
     throw Error('Export cannot set both "fileDimensions" and "tiffFileDimensions".');
   }
-  return new module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions({cloudOptimized:!!params.tiffCloudOptimized, skipEmptyFiles:!!params.tiffSkipEmptyFiles, tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.fileDimensions || params.tiffFileDimensions), });
+  return new module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions({cloudOptimized:!!params.tiffCloudOptimized, skipEmptyFiles:!(!params.skipEmptyTiles && !params.tiffSkipEmptyFiles), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.fileDimensions || params.tiffFileDimensions), });
 };
 ee.rpc_convert_batch.buildTfRecordFormatOptions_ = function(params) {
   var tfRecordOptions = new module$exports$eeapiclient$ee_api_client.TfRecordImageExportOptions({compress:!!params.tfrecordCompressed, maxSizeBytes:stringOrNull_(params.tfrecordMaxFileSize), sequenceData:!!params.tfrecordSequenceData, collapseBands:!!params.tfrecordCollapseBands, maxMaskedRatio:numberOrNull_(params.tfrecordMaskedThreshold), defaultValue:numberOrNull_(params.tfrecordDefaultValue), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tfrecordPatchDimensions), 
@@ -26298,21 +26286,21 @@ ee.data.Profiler.Format.prototype.toString = function() {
 ee.data.Profiler.Format.TEXT = new ee.data.Profiler.Format("text");
 ee.data.Profiler.Format.JSON = new ee.data.Profiler.Format("json");
 (function() {
-  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction._call ee.ApiFunction.lookup ee.ApiFunction._apply ee.Collection.prototype.sort ee.Collection.prototype.filterBounds ee.Collection.prototype.filterMetadata ee.Collection.prototype.map ee.Collection.prototype.iterate ee.Collection.prototype.filterDate ee.Collection.prototype.limit ee.Collection.prototype.filter ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.data.renameAsset ee.data.listImages ee.data.copyAsset ee.data.listBuckets ee.data.deleteAsset ee.data.getTaskStatus ee.data.startTableIngestion ee.data.getAssetRoots ee.data.getAssetAcl ee.data.getAsset ee.data.createAssetHome ee.data.getInfo ee.data.getList ee.data.createAsset ee.data.updateAsset ee.data.listAssets ee.data.createFolder ee.data.authenticateViaOauth ee.data.setAssetAcl ee.data.getMapId ee.data.updateTask ee.data.setAssetProperties ee.data.getTaskList ee.data.getDownloadId ee.data.getTileUrl ee.data.startProcessing ee.data.getAssetRootQuota ee.data.makeDownloadUrl ee.data.authenticate ee.data.getTaskListWithLimit ee.data.listOperations ee.data.authenticateViaPopup ee.data.getTableDownloadId ee.data.computeValue ee.data.makeTableDownloadUrl ee.data.cancelOperation ee.data.authenticateViaPrivateKey ee.data.makeThumbUrl ee.data.getThumbId ee.data.getVideoThumbId ee.data.getOperation ee.data.newTaskId ee.data.getFilmstripThumbId ee.data.startIngestion ee.data.cancelTask ee.Date ee.Deserializer.decode ee.Deserializer.fromJSON ee.Deserializer.fromCloudApiJSON ee.Deserializer.decodeCloudApi ee.Dictionary ee.initialize ee.call ee.reset ee.apply ee.InitState ee.Algorithms ee.TILE_SIZE ee.Element.prototype.set ee.Feature.prototype.getMap ee.Feature.prototype.getInfo ee.Feature ee.FeatureCollection.prototype.getInfo ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection ee.FeatureCollection.prototype.getMap ee.Filter ee.Filter.gte ee.Filter.lte ee.Filter.inList ee.Filter.date ee.Filter.metadata ee.Filter.lt ee.Filter.or ee.Filter.gt ee.Filter.and ee.Filter.prototype.not ee.Filter.eq ee.Filter.bounds ee.Filter.neq ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry.prototype.toGeoJSONString ee.Geometry.LineString ee.Geometry.Point ee.Geometry.prototype.serialize ee.Geometry.LinearRing ee.Geometry.BBox ee.Geometry ee.Geometry.MultiPoint ee.Geometry.MultiPolygon ee.Geometry.Rectangle ee.Geometry.MultiLineString ee.Geometry.Polygon ee.Geometry.prototype.toGeoJSON ee.Image ee.Image.prototype.expression ee.Image.prototype.getThumbURL ee.Image.prototype.getInfo ee.Image.prototype.getMap ee.Image.prototype.select ee.Image.prototype.rename ee.Image.prototype.getDownloadURL ee.Image.rgb ee.Image.prototype.getThumbId ee.Image.prototype.clip ee.Image.cat ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.first ee.ImageCollection ee.ImageCollection.prototype.select ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection.prototype.getMap ee.List ee.Number ee.Serializer.encodeCloudApi ee.Serializer.toReadableJSON ee.Serializer.toReadableCloudApiJSON ee.Serializer.toJSON ee.Serializer.toCloudApiJSON ee.Serializer.encode ee.Serializer.encodeCloudApiPretty ee.String ee.Terrain".split(" "), 
-  orderedParamLists = [["name", "var_args"], ["name"], ["name", "namedArgs"], ["property", "opt_ascending"], ["geometry"], ["name", "operator", "value"], ["algorithm", "opt_dropNulls"], ["algorithm", "opt_first"], ["start", "opt_end"], ["max", "opt_property", "opt_ascending"], ["filter"], ["opt_callback"], ["legacy"], ["func", "var_args"], ["callback"], ["sourceId", "destinationId", "opt_callback"], ["parent", "params", "opt_callback"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], 
-  ["project", "opt_callback"], ["assetId", "opt_callback"], ["taskId", "opt_callback"], ["taskId", "request", "opt_callback"], ["opt_callback"], ["assetId", "opt_callback"], ["id", "opt_callback"], ["requestedId", "opt_callback"], ["id", "opt_callback"], ["params", "opt_callback"], ["value", "opt_path", "opt_force", "opt_properties", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["parent", "params", "opt_callback"], ["path", "opt_force", "opt_callback"], ["clientId", "success", 
-  "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["assetId", "aclUpdate", "opt_callback"], ["params", "opt_callback"], ["taskId", "action", "opt_callback"], ["assetId", "properties", "opt_callback"], ["opt_callback"], ["params", "opt_callback"], ["id", "x", "y", "z"], ["taskId", "params", "opt_callback"], ["rootId", "opt_callback"], ["id"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["opt_limit", "opt_callback"], ["opt_limit", "opt_callback"], ["opt_success", 
-  "opt_error"], ["params", "opt_callback"], ["obj", "opt_callback"], ["id"], ["operationName", "opt_callback"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes"], ["id"], ["params", "opt_callback"], ["params", "opt_callback"], ["operationName", "opt_callback"], ["opt_count", "opt_callback"], ["params", "opt_callback"], ["taskId", "request", "opt_callback"], ["taskId", "opt_callback"], ["date", "opt_tz"], ["json"], ["json"], ["json"], ["json"], ["opt_dict"], ["opt_baseurl", "opt_tileurl", 
-  "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], ["func", "var_args"], [], ["func", "namedArgs"], [], [], [], ["var_args"], ["opt_visParams", "opt_callback"], ["opt_callback"], ["geometry", "opt_properties"], ["opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["args", "opt_column"], ["opt_visParams", "opt_callback"], ["opt_filter"], ["name", "value"], ["name", "value"], ["opt_leftField", 
-  "opt_rightValue", "opt_rightField", "opt_leftValue"], ["start", "opt_end"], ["name", "operator", "value"], ["name", "value"], ["var_args"], ["name", "value"], ["var_args"], [], ["name", "value"], ["geometry", "opt_errorMargin"], ["name", "value"], ["namedArgs"], ["var_args"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj"], ["legacy"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["west", "south", "east", "north"], ["geoJson", "opt_proj", "opt_geodesic", 
-  "opt_evenOdd"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], [], ["opt_args"], ["expression", "opt_map"], ["params", "opt_callback"], ["opt_callback"], ["opt_visParams", "opt_callback"], ["var_args"], ["var_args"], ["params", "opt_callback"], ["r", "g", "b"], ["params", 
-  "opt_callback"], ["geometry"], ["var_args"], ["params", "opt_callback"], ["opt_callback"], [], ["args"], ["selectors", "opt_names"], ["params", "opt_callback"], ["opt_visParams", "opt_callback"], ["list"], ["number"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj", "opt_isCompound"], ["obj"], ["string"], []];
-  [ee.ApiFunction._call, ee.ApiFunction.lookup, ee.ApiFunction._apply, ee.Collection.prototype.sort, ee.Collection.prototype.filterBounds, ee.Collection.prototype.filterMetadata, ee.Collection.prototype.map, ee.Collection.prototype.iterate, ee.Collection.prototype.filterDate, ee.Collection.prototype.limit, ee.Collection.prototype.filter, ee.ComputedObject.prototype.getInfo, ee.ComputedObject.prototype.serialize, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.evaluate, ee.data.renameAsset, 
-  ee.data.listImages, ee.data.copyAsset, ee.data.listBuckets, ee.data.deleteAsset, ee.data.getTaskStatus, ee.data.startTableIngestion, ee.data.getAssetRoots, ee.data.getAssetAcl, ee.data.getAsset, ee.data.createAssetHome, ee.data.getInfo, ee.data.getList, ee.data.createAsset, ee.data.updateAsset, ee.data.listAssets, ee.data.createFolder, ee.data.authenticateViaOauth, ee.data.setAssetAcl, ee.data.getMapId, ee.data.updateTask, ee.data.setAssetProperties, ee.data.getTaskList, ee.data.getDownloadId, 
-  ee.data.getTileUrl, ee.data.startProcessing, ee.data.getAssetRootQuota, ee.data.makeDownloadUrl, ee.data.authenticate, ee.data.getTaskListWithLimit, ee.data.listOperations, ee.data.authenticateViaPopup, ee.data.getTableDownloadId, ee.data.computeValue, ee.data.makeTableDownloadUrl, ee.data.cancelOperation, ee.data.authenticateViaPrivateKey, ee.data.makeThumbUrl, ee.data.getThumbId, ee.data.getVideoThumbId, ee.data.getOperation, ee.data.newTaskId, ee.data.getFilmstripThumbId, ee.data.startIngestion, 
-  ee.data.cancelTask, ee.Date, ee.Deserializer.decode, ee.Deserializer.fromJSON, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.decodeCloudApi, ee.Dictionary, ee.initialize, ee.call, ee.reset, ee.apply, ee.InitState, ee.Algorithms, ee.TILE_SIZE, ee.Element.prototype.set, ee.Feature.prototype.getMap, ee.Feature.prototype.getInfo, ee.Feature, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection.prototype.select, ee.FeatureCollection.prototype.getDownloadURL, ee.FeatureCollection, ee.FeatureCollection.prototype.getMap, 
-  ee.Filter, ee.Filter.gte, ee.Filter.lte, ee.Filter.inList, ee.Filter.date, ee.Filter.metadata, ee.Filter.lt, ee.Filter.or, ee.Filter.gt, ee.Filter.and, ee.Filter.prototype.not, ee.Filter.eq, ee.Filter.bounds, ee.Filter.neq, ee.Function.prototype.apply, ee.Function.prototype.call, ee.Geometry.prototype.toGeoJSONString, ee.Geometry.LineString, ee.Geometry.Point, ee.Geometry.prototype.serialize, ee.Geometry.LinearRing, ee.Geometry.BBox, ee.Geometry, ee.Geometry.MultiPoint, ee.Geometry.MultiPolygon, 
-  ee.Geometry.Rectangle, ee.Geometry.MultiLineString, ee.Geometry.Polygon, ee.Geometry.prototype.toGeoJSON, ee.Image, ee.Image.prototype.expression, ee.Image.prototype.getThumbURL, ee.Image.prototype.getInfo, ee.Image.prototype.getMap, ee.Image.prototype.select, ee.Image.prototype.rename, ee.Image.prototype.getDownloadURL, ee.Image.rgb, ee.Image.prototype.getThumbId, ee.Image.prototype.clip, ee.Image.cat, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.first, 
+  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction._call ee.ApiFunction.lookup ee.ApiFunction._apply ee.Collection.prototype.sort ee.Collection.prototype.filterBounds ee.Collection.prototype.filterMetadata ee.Collection.prototype.map ee.Collection.prototype.iterate ee.Collection.prototype.filterDate ee.Collection.prototype.limit ee.Collection.prototype.filter ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.data.authenticateViaOauth ee.data.getMapId ee.data.listImages ee.data.getTileUrl ee.data.listBuckets ee.data.authenticate ee.data.getAssetRoots ee.data.authenticateViaPopup ee.data.createAssetHome ee.data.computeValue ee.data.authenticateViaPrivateKey ee.data.makeThumbUrl ee.data.createAsset ee.data.getThumbId ee.data.getVideoThumbId ee.data.createFolder ee.data.getFilmstripThumbId ee.data.renameAsset ee.data.setAssetAcl ee.data.updateTask ee.data.setAssetProperties ee.data.copyAsset ee.data.getTaskList ee.data.getDownloadId ee.data.startProcessing ee.data.deleteAsset ee.data.getAssetRootQuota ee.data.makeDownloadUrl ee.data.startTableIngestion ee.data.getTaskListWithLimit ee.data.listOperations ee.data.getAssetAcl ee.data.getTableDownloadId ee.data.getAsset ee.data.makeTableDownloadUrl ee.data.cancelOperation ee.data.getInfo ee.data.getList ee.data.updateAsset ee.data.getOperation ee.data.newTaskId ee.data.listAssets ee.data.startIngestion ee.data.cancelTask ee.data.getTaskStatus ee.Date ee.Deserializer.decode ee.Deserializer.fromJSON ee.Deserializer.fromCloudApiJSON ee.Deserializer.decodeCloudApi ee.Dictionary ee.call ee.reset ee.apply ee.InitState ee.Algorithms ee.TILE_SIZE ee.initialize ee.Element.prototype.set ee.Feature.prototype.getMap ee.Feature.prototype.getInfo ee.Feature ee.FeatureCollection.prototype.getInfo ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection ee.FeatureCollection.prototype.getMap ee.Filter ee.Filter.gte ee.Filter.lte ee.Filter.inList ee.Filter.date ee.Filter.metadata ee.Filter.lt ee.Filter.or ee.Filter.gt ee.Filter.and ee.Filter.prototype.not ee.Filter.eq ee.Filter.bounds ee.Filter.neq ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry.prototype.toGeoJSON ee.Geometry.prototype.toGeoJSONString ee.Geometry ee.Geometry.MultiPolygon ee.Geometry.prototype.serialize ee.Geometry.Point ee.Geometry.LinearRing ee.Geometry.BBox ee.Geometry.MultiLineString ee.Geometry.MultiPoint ee.Geometry.LineString ee.Geometry.Rectangle ee.Geometry.Polygon ee.Image ee.Image.prototype.expression ee.Image.prototype.getThumbURL ee.Image.prototype.getInfo ee.Image.prototype.getMap ee.Image.prototype.select ee.Image.prototype.getDownloadURL ee.Image.rgb ee.Image.prototype.getThumbId ee.Image.prototype.clip ee.Image.prototype.rename ee.Image.cat ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.first ee.ImageCollection ee.ImageCollection.prototype.select ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection.prototype.getMap ee.List ee.Number ee.Serializer.encodeCloudApi ee.Serializer.toReadableJSON ee.Serializer.toReadableCloudApiJSON ee.Serializer.toJSON ee.Serializer.toCloudApiJSON ee.Serializer.encode ee.Serializer.encodeCloudApiPretty ee.String ee.Terrain".split(" "), 
+  orderedParamLists = [["name", "var_args"], ["name"], ["name", "namedArgs"], ["property", "opt_ascending"], ["geometry"], ["name", "operator", "value"], ["algorithm", "opt_dropNulls"], ["algorithm", "opt_first"], ["start", "opt_end"], ["max", "opt_property", "opt_ascending"], ["filter"], ["opt_callback"], ["legacy"], ["func", "var_args"], ["callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["params", "opt_callback"], ["parent", "params", "opt_callback"], 
+  ["id", "x", "y", "z"], ["project", "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["opt_callback"], ["opt_success", "opt_error"], ["requestedId", "opt_callback"], ["obj", "opt_callback"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes"], ["id"], ["value", "opt_path", "opt_force", "opt_properties", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["path", "opt_force", "opt_callback"], ["params", "opt_callback"], 
+  ["sourceId", "destinationId", "opt_callback"], ["assetId", "aclUpdate", "opt_callback"], ["taskId", "action", "opt_callback"], ["assetId", "properties", "opt_callback"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["opt_callback"], ["params", "opt_callback"], ["taskId", "params", "opt_callback"], ["assetId", "opt_callback"], ["rootId", "opt_callback"], ["id"], ["taskId", "request", "opt_callback"], ["opt_limit", "opt_callback"], ["opt_limit", "opt_callback"], ["assetId", "opt_callback"], 
+  ["params", "opt_callback"], ["id", "opt_callback"], ["id"], ["operationName", "opt_callback"], ["id", "opt_callback"], ["params", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["operationName", "opt_callback"], ["opt_count", "opt_callback"], ["parent", "params", "opt_callback"], ["taskId", "request", "opt_callback"], ["taskId", "opt_callback"], ["taskId", "opt_callback"], ["date", "opt_tz"], ["json"], ["json"], ["json"], ["json"], ["opt_dict"], ["func", "var_args"], [], 
+  ["func", "namedArgs"], [], [], [], ["opt_baseurl", "opt_tileurl", "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], ["var_args"], ["opt_visParams", "opt_callback"], ["opt_callback"], ["geometry", "opt_properties"], ["opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["args", "opt_column"], ["opt_visParams", "opt_callback"], ["opt_filter"], ["name", "value"], ["name", "value"], ["opt_leftField", 
+  "opt_rightValue", "opt_rightField", "opt_leftValue"], ["start", "opt_end"], ["name", "operator", "value"], ["name", "value"], ["var_args"], ["name", "value"], ["var_args"], [], ["name", "value"], ["geometry", "opt_errorMargin"], ["name", "value"], ["namedArgs"], ["var_args"], [], [], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["legacy"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], 
+  ["west", "south", "east", "north"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["opt_args"], ["expression", "opt_map"], ["params", "opt_callback"], ["opt_callback"], ["opt_visParams", "opt_callback"], ["var_args"], ["params", "opt_callback"], ["r", "g", "b"], ["params", "opt_callback"], 
+  ["geometry"], ["var_args"], ["var_args"], ["params", "opt_callback"], ["opt_callback"], [], ["args"], ["selectors", "opt_names"], ["params", "opt_callback"], ["opt_visParams", "opt_callback"], ["list"], ["number"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj", "opt_isCompound"], ["obj"], ["string"], []];
+  [ee.ApiFunction._call, ee.ApiFunction.lookup, ee.ApiFunction._apply, ee.Collection.prototype.sort, ee.Collection.prototype.filterBounds, ee.Collection.prototype.filterMetadata, ee.Collection.prototype.map, ee.Collection.prototype.iterate, ee.Collection.prototype.filterDate, ee.Collection.prototype.limit, ee.Collection.prototype.filter, ee.ComputedObject.prototype.getInfo, ee.ComputedObject.prototype.serialize, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.evaluate, ee.data.authenticateViaOauth, 
+  ee.data.getMapId, ee.data.listImages, ee.data.getTileUrl, ee.data.listBuckets, ee.data.authenticate, ee.data.getAssetRoots, ee.data.authenticateViaPopup, ee.data.createAssetHome, ee.data.computeValue, ee.data.authenticateViaPrivateKey, ee.data.makeThumbUrl, ee.data.createAsset, ee.data.getThumbId, ee.data.getVideoThumbId, ee.data.createFolder, ee.data.getFilmstripThumbId, ee.data.renameAsset, ee.data.setAssetAcl, ee.data.updateTask, ee.data.setAssetProperties, ee.data.copyAsset, ee.data.getTaskList, 
+  ee.data.getDownloadId, ee.data.startProcessing, ee.data.deleteAsset, ee.data.getAssetRootQuota, ee.data.makeDownloadUrl, ee.data.startTableIngestion, ee.data.getTaskListWithLimit, ee.data.listOperations, ee.data.getAssetAcl, ee.data.getTableDownloadId, ee.data.getAsset, ee.data.makeTableDownloadUrl, ee.data.cancelOperation, ee.data.getInfo, ee.data.getList, ee.data.updateAsset, ee.data.getOperation, ee.data.newTaskId, ee.data.listAssets, ee.data.startIngestion, ee.data.cancelTask, ee.data.getTaskStatus, 
+  ee.Date, ee.Deserializer.decode, ee.Deserializer.fromJSON, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.decodeCloudApi, ee.Dictionary, ee.call, ee.reset, ee.apply, ee.InitState, ee.Algorithms, ee.TILE_SIZE, ee.initialize, ee.Element.prototype.set, ee.Feature.prototype.getMap, ee.Feature.prototype.getInfo, ee.Feature, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection.prototype.select, ee.FeatureCollection.prototype.getDownloadURL, ee.FeatureCollection, ee.FeatureCollection.prototype.getMap, 
+  ee.Filter, ee.Filter.gte, ee.Filter.lte, ee.Filter.inList, ee.Filter.date, ee.Filter.metadata, ee.Filter.lt, ee.Filter.or, ee.Filter.gt, ee.Filter.and, ee.Filter.prototype.not, ee.Filter.eq, ee.Filter.bounds, ee.Filter.neq, ee.Function.prototype.apply, ee.Function.prototype.call, ee.Geometry.prototype.toGeoJSON, ee.Geometry.prototype.toGeoJSONString, ee.Geometry, ee.Geometry.MultiPolygon, ee.Geometry.prototype.serialize, ee.Geometry.Point, ee.Geometry.LinearRing, ee.Geometry.BBox, ee.Geometry.MultiLineString, 
+  ee.Geometry.MultiPoint, ee.Geometry.LineString, ee.Geometry.Rectangle, ee.Geometry.Polygon, ee.Image, ee.Image.prototype.expression, ee.Image.prototype.getThumbURL, ee.Image.prototype.getInfo, ee.Image.prototype.getMap, ee.Image.prototype.select, ee.Image.prototype.getDownloadURL, ee.Image.rgb, ee.Image.prototype.getThumbId, ee.Image.prototype.clip, ee.Image.prototype.rename, ee.Image.cat, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.first, 
   ee.ImageCollection, ee.ImageCollection.prototype.select, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection.prototype.getMap, ee.List, ee.Number, ee.Serializer.encodeCloudApi, ee.Serializer.toReadableJSON, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.toJSON, ee.Serializer.toCloudApiJSON, ee.Serializer.encode, ee.Serializer.encodeCloudApiPretty, ee.String, ee.Terrain].forEach(function(fn, i) {
     fn && (exportedFnInfo[fn.toString()] = {name:orderedFnNames[i], paramNames:orderedParamLists[i]});
   });

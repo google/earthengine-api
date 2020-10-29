@@ -247,7 +247,11 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
       params['fileDimensions'] || params['tiffFileDimensions'];
   return new ee.api.GeoTiffImageExportOptions({
     cloudOptimized: Boolean(params['tiffCloudOptimized']),
-    skipEmptyFiles: Boolean(params['tiffSkipEmptyFiles']),
+    // The ee.data.ImageTaskConfig has the top-level option
+    // "skipEmptyTiles" when it really should be "tiffSkipEmptyFiles".
+    // Let's just accept both until the param in Export.image is renamed.
+    skipEmptyFiles:
+        Boolean(params['skipEmptyTiles'] || params['tiffSkipEmptyFiles']),
     tileDimensions: ee.rpc_convert_batch.buildGridDimensions_(fileDimensions),
   });
 };

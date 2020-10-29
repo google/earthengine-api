@@ -162,12 +162,13 @@ class BatchTestCase(apitestcase.ApiTestCase):
   def testStringRepresentation(self):
     """Verifies the string representation of tasks."""
     tasks = ee.batch.Task.list()
-    self.assertEqual('<Task EXPORT_IMAGE: FirstTestTask (RUNNING)>',
+    self.assertEqual('<Task TEST1 EXPORT_IMAGE: FirstTestTask (RUNNING)>',
                      str(tasks[0]))
-    self.assertEqual('<Task EXPORT_FEATURES: SecondTestTask (FAILED)>',
+    self.assertEqual('<Task TEST2 EXPORT_FEATURES: SecondTestTask (FAILED)>',
                      str(tasks[1]))
     new_task = ee.batch.Export.table(ee.FeatureCollection('foo'), 'bar')
-    self.assertEqual('<Task EXPORT_FEATURES: bar (UNSUBMITTED)>', str(new_task))
+    self.assertEqual('<Task TESTTASKID EXPORT_FEATURES: bar (UNSUBMITTED)>',
+                     str(new_task))
     self.assertEqual(
         '<Task "foo">', str(ee.batch.Task('foo', None, None, None)))
 

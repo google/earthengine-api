@@ -148,7 +148,10 @@ class Task(object):
 
   def __repr__(self):
     """Returns a string representation of the task."""
-    if self.config:
+    if self.config and self.id:
+      return '<Task %s %s: %s (%s)>' % (self.id, self.task_type,
+                                        self.config['description'], self.state)
+    elif self.config:
       return '<Task %s: %s (%s)>' % (self.task_type, self.config['description'],
                                      self.state)
     else:

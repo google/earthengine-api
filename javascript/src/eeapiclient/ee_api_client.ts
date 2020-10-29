@@ -1754,10 +1754,6 @@ export class Binding extends Serializable {
             (null));
   }
 
-  /**
-   * A client-specified ID for this binding. Expected to be globally unique to
-   * support the internal bindings-by-ID API.
-   */
   set bindingId(value: string|null) {
     this.Serializable$set('bindingId', value);
   }
@@ -7501,6 +7497,8 @@ export interface OperationMetadataParameters {
   updateTime?: string|null;
   startTime?: string|null;
   endTime?: string|null;
+  progress?: number|null;
+  stages?: Array<OperationStage>|null;
   attempt?: number|null;
   scriptUri?: string|null;
   destinationUris?: Array<string>|null;
@@ -7530,6 +7528,11 @@ export class OperationMetadata extends Serializable {
     this.Serializable$set(
         'endTime',
         (parameters.endTime == null) ? (null) : (parameters.endTime));
+    this.Serializable$set(
+        'progress',
+        (parameters.progress == null) ? (null) : (parameters.progress));
+    this.Serializable$set(
+        'stages', (parameters.stages == null) ? (null) : (parameters.stages));
     this.Serializable$set(
         'attempt',
         (parameters.attempt == null) ? (null) : (parameters.attempt));
@@ -7635,6 +7638,20 @@ export class OperationMetadata extends Serializable {
     this.Serializable$set('priority', value);
   }
 
+  get progress(): number|null {
+    return (
+        (this.Serializable$has('progress')) ?
+            (this.Serializable$get('progress')) :
+            (null));
+  }
+
+  /**
+   * Operation progress, in [0, 1] interval.
+   */
+  set progress(value: number|null) {
+    this.Serializable$set('progress', value);
+  }
+
   get scriptUri(): string|null {
     return (
         (this.Serializable$has('scriptUri')) ?
@@ -7648,6 +7665,21 @@ export class OperationMetadata extends Serializable {
    */
   set scriptUri(value: string|null) {
     this.Serializable$set('scriptUri', value);
+  }
+
+  get stages(): Array<OperationStage>|null {
+    return (
+        (this.Serializable$has('stages')) ? (this.Serializable$get('stages')) :
+                                            (null));
+  }
+
+  /**
+   * Progress information of the discrete stages for the given operation.
+   * Stages, if present, are only for the most recent attempt. If an operation
+   * is retried the previous stage information is lost.
+   */
+  set stages(value: Array<OperationStage>|null) {
+    this.Serializable$set('stages', value);
   }
 
   get startTime(): string|null {
@@ -7710,11 +7742,108 @@ export class OperationMetadata extends Serializable {
 
   getPartialClassMetadata(): Partial<ClassMetadata> {
     return {
+      arrays: {'stages': OperationStage},
       enums: {'state': OperationMetadataStateEnum},
       keys: [
         'attempt', 'createTime', 'description', 'destinationUris', 'endTime',
-        'priority', 'scriptUri', 'startTime', 'state', 'type', 'updateTime'
+        'priority', 'progress', 'scriptUri', 'stages', 'startTime', 'state',
+        'type', 'updateTime'
       ]
+    };
+  }
+}
+
+export interface OperationStageParameters {
+  displayName?: string|null;
+  completeWorkUnits?: number|null;
+  totalWorkUnits?: string|null;
+  description?: string|null;
+}
+export class OperationStage extends Serializable {
+  constructor(parameters: OperationStageParameters = {}) {
+    super();
+    this.Serializable$set(
+        'displayName',
+        (parameters.displayName == null) ? (null) : (parameters.displayName));
+    this.Serializable$set(
+        'completeWorkUnits',
+        (parameters.completeWorkUnits == null) ?
+            (null) :
+            (parameters.completeWorkUnits));
+    this.Serializable$set(
+        'totalWorkUnits',
+        (parameters.totalWorkUnits == null) ? (null) :
+                                              (parameters.totalWorkUnits));
+    this.Serializable$set(
+        'description',
+        (parameters.description == null) ? (null) : (parameters.description));
+  }
+
+  get completeWorkUnits(): number|null {
+    return (
+        (this.Serializable$has('completeWorkUnits')) ?
+            (this.Serializable$get('completeWorkUnits')) :
+            (null));
+  }
+
+  /**
+   * Work currently completed by this stage. Values may be [0, N] where N is
+   * equal to `total_work_units`.
+   */
+  set completeWorkUnits(value: number|null) {
+    this.Serializable$set('completeWorkUnits', value);
+  }
+
+  get description(): string|null {
+    return (
+        (this.Serializable$has('description')) ?
+            (this.Serializable$get('description')) :
+            (null));
+  }
+
+  /**
+   * Description details of the stage.
+   */
+  set description(value: string|null) {
+    this.Serializable$set('description', value);
+  }
+
+  get displayName(): string|null {
+    return (
+        (this.Serializable$has('displayName')) ?
+            (this.Serializable$get('displayName')) :
+            (null));
+  }
+
+  /**
+   * Name of the stage of the operation.
+   */
+  set displayName(value: string|null) {
+    this.Serializable$set('displayName', value);
+  }
+
+  get totalWorkUnits(): string|null {
+    return (
+        (this.Serializable$has('totalWorkUnits')) ?
+            (this.Serializable$get('totalWorkUnits')) :
+            (null));
+  }
+
+  /**
+   * Total work to be done by this stage.
+   */
+  set totalWorkUnits(value: string|null) {
+    this.Serializable$set('totalWorkUnits', value);
+  }
+
+  getConstructor(): SerializableCtor<OperationStage> {
+    return OperationStage;
+  }
+
+  getPartialClassMetadata(): Partial<ClassMetadata> {
+    return {
+      keys:
+          ['completeWorkUnits', 'description', 'displayName', 'totalWorkUnits']
     };
   }
 }
