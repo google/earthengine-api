@@ -96,9 +96,11 @@ export function processParams(params: MakeRequestParams) {
  * therefore this function can be loose about type-checking the fields.
  */
 export function buildQueryParams(
-    params: {}, mapping: Record<string, string>): GeneratedQueryParams {
+    params: {}, mapping: Record<string, string>,
+    passthroughParams: Record<string, string> = {}): GeneratedQueryParams {
   const paramsMap = params as unknown as GeneratedQueryParams;
-  const urlQueryParams: GeneratedQueryParams = {};
+
+  const urlQueryParams: GeneratedQueryParams = passthroughParams;
   for (const [jsName, urlQueryParamName] of Object.entries(mapping)) {
     if (jsName in paramsMap) {
       urlQueryParams[urlQueryParamName] = paramsMap[jsName];

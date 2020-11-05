@@ -6,8 +6,12 @@ goog.provide('ee.layers.TileLoadEvent');
 goog.provide('ee.layers.TileStartEvent');
 goog.provide('ee.layers.TileThrottleEvent');
 
+goog.forwardDeclare('ee.data.PROFILE_REQUEST_HEADER');
+goog.forwardDeclare('ee.data.getCloudApiEnabled');
+goog.require('ee.data');
 goog.require('ee.layers.AbstractOverlayStats');
 goog.require('goog.array');
+goog.require('goog.dispose');
 goog.require('goog.events');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventHandler');
@@ -19,10 +23,7 @@ goog.require('goog.net.XhrIo');
 goog.require('goog.object');
 goog.require('goog.structs.Map');
 goog.require('goog.style');
-
 goog.requireType('ee.data.Profiler');
-goog.forwardDeclare('ee.data.getCloudApiEnabled');
-goog.forwardDeclare('ee.data.PROFILE_REQUEST_HEADER');
 
 
 

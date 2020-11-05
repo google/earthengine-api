@@ -11337,8 +11337,9 @@ export class ProjectsAlgorithmsApiClientImpl implements
 
   list(
       parent: string,
-      namedParameters: ProjectsAlgorithmsListNamedParameters&
-      object = {}): Promise<ListAlgorithmsResponse> {
+      namedParameters: ProjectsAlgorithmsListNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<ListAlgorithmsResponse> {
     this.$apiClient.$validateParameter(parent, new RegExp('^projects/[^/]+$'));
     let $requestBody = <Serializable|null>null;
 
@@ -11347,7 +11348,8 @@ export class ProjectsAlgorithmsApiClientImpl implements
       httpMethod: 'GET',
       methodId: 'earthengine.projects.algorithms.list',
       path: `/${this.gapiVersion}/${parent}/algorithms`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: ListAlgorithmsResponse
     });
   }
@@ -11358,8 +11360,9 @@ export abstract class ProjectsAlgorithmsApiClient {
 
   abstract list(
       parent: string,
-      namedParameters?: ProjectsAlgorithmsListNamedParameters&
-      object): Promise<ListAlgorithmsResponse>;
+      namedParameters?: ProjectsAlgorithmsListNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<ListAlgorithmsResponse>;
 }
 
 export type ProjectsApiClient$Xgafv = '1'|'2';
@@ -11469,8 +11472,9 @@ export class ProjectsApiClientImpl implements ProjectsApiClient {
 
   getCapabilities(
       parent: string,
-      namedParameters: ProjectsGetCapabilitiesNamedParameters&
-      object = {}): Promise<Capabilities> {
+      namedParameters: ProjectsGetCapabilitiesNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<Capabilities> {
     this.$apiClient.$validateParameter(parent, new RegExp('^projects/[^/]+$'));
     let $requestBody = <Serializable|null>null;
 
@@ -11479,15 +11483,17 @@ export class ProjectsApiClientImpl implements ProjectsApiClient {
       httpMethod: 'GET',
       methodId: 'earthengine.projects.getCapabilities',
       path: `/${this.gapiVersion}/${parent}/capabilities`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: Capabilities
     });
   }
 
   listAssets(
       parent: string,
-      namedParameters: ProjectsListAssetsNamedParameters&
-      object = {}): Promise<ListAssetsResponse> {
+      namedParameters: ProjectsListAssetsNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<ListAssetsResponse> {
     this.$apiClient.$validateParameter(parent, new RegExp('^projects/[^/]+$'));
     let $requestBody = <Serializable|null>null;
 
@@ -11496,7 +11502,8 @@ export class ProjectsApiClientImpl implements ProjectsApiClient {
       httpMethod: 'GET',
       methodId: 'earthengine.projects.listAssets',
       path: `/${this.gapiVersion}/${parent}:listAssets`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: ListAssetsResponse
     });
   }
@@ -11507,13 +11514,15 @@ export abstract class ProjectsApiClient {
 
   abstract getCapabilities(
       parent: string,
-      namedParameters?: ProjectsGetCapabilitiesNamedParameters&
-      object): Promise<Capabilities>;
+      namedParameters?: ProjectsGetCapabilitiesNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<Capabilities>;
 
   abstract listAssets(
       parent: string,
-      namedParameters?: ProjectsListAssetsNamedParameters&
-      object): Promise<ListAssetsResponse>;
+      namedParameters?: ProjectsListAssetsNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<ListAssetsResponse>;
 }
 
 export type ProjectsAssetsApiClient$Xgafv = '1'|'2';
@@ -11810,8 +11819,9 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
 
   copy(
       sourceName: string, $requestBody: CopyAssetRequest,
-      namedParameters: ProjectsAssetsCopyNamedParameters&
-      object = {}): Promise<EarthEngineAsset> {
+      namedParameters: ProjectsAssetsCopyNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(
         sourceName, new RegExp('^projects/[^/]+/assets/.*$'));
 
@@ -11820,15 +11830,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.assets.copy',
       path: `/${this.gapiVersion}/${sourceName}:copy`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: EarthEngineAsset
     });
   }
 
   create(
       parent: string, $requestBody: EarthEngineAsset,
-      namedParameters: ProjectsAssetsCreateNamedParameters&
-      object = {}): Promise<EarthEngineAsset> {
+      namedParameters: ProjectsAssetsCreateNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(parent, new RegExp('^projects/[^/]+$'));
 
     return this.$apiClient.$request<EarthEngineAsset>({
@@ -11836,15 +11848,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.assets.create',
       path: `/${this.gapiVersion}/${parent}/assets`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: EarthEngineAsset
     });
   }
 
   delete(
       name: string,
-      namedParameters: ProjectsAssetsDeleteNamedParameters&
-      object = {}): Promise<Empty> {
+      namedParameters: ProjectsAssetsDeleteNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<Empty> {
     this.$apiClient.$validateParameter(
         name, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
@@ -11854,14 +11868,16 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'DELETE',
       methodId: 'earthengine.projects.assets.delete',
       path: `/${this.gapiVersion}/${name}`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: Empty
     });
   }
 
   get(name: string,
-      namedParameters: ProjectsAssetsGetNamedParameters&
-      object = {}): Promise<EarthEngineAsset> {
+      namedParameters: ProjectsAssetsGetNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(
         name, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
@@ -11871,15 +11887,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'GET',
       methodId: 'earthengine.projects.assets.get',
       path: `/${this.gapiVersion}/${name}`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: EarthEngineAsset
     });
   }
 
   getIamPolicy(
       resource: string, $requestBody: GetIamPolicyRequest,
-      namedParameters: ProjectsAssetsGetIamPolicyNamedParameters&
-      object = {}): Promise<Policy> {
+      namedParameters: ProjectsAssetsGetIamPolicyNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<Policy> {
     this.$apiClient.$validateParameter(
         resource, new RegExp('^projects/[^/]+/assets/.*$'));
 
@@ -11888,15 +11906,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.assets.getIamPolicy',
       path: `/${this.gapiVersion}/${resource}:getIamPolicy`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: Policy
     });
   }
 
   getPixels(
       name: string, $requestBody: GetPixelsRequest,
-      namedParameters: ProjectsAssetsGetPixelsNamedParameters&
-      object = {}): Promise<HttpBody> {
+      namedParameters: ProjectsAssetsGetPixelsNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<HttpBody> {
     this.$apiClient.$validateParameter(
         name, new RegExp('^projects/[^/]+/assets/.*$'));
 
@@ -11905,15 +11925,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.assets.getPixels',
       path: `/${this.gapiVersion}/${name}:getPixels`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: HttpBody
     });
   }
 
   link(
       sourceName: string, $requestBody: LinkAssetRequest,
-      namedParameters: ProjectsAssetsLinkNamedParameters&
-      object = {}): Promise<EarthEngineAsset> {
+      namedParameters: ProjectsAssetsLinkNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(
         sourceName, new RegExp('^projects/[^/]+/assets/.*$'));
 
@@ -11922,15 +11944,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.assets.link',
       path: `/${this.gapiVersion}/${sourceName}:link`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: EarthEngineAsset
     });
   }
 
   listAssets(
       parent: string,
-      namedParameters: ProjectsAssetsListAssetsNamedParameters&
-      object = {}): Promise<ListAssetsResponse> {
+      namedParameters: ProjectsAssetsListAssetsNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<ListAssetsResponse> {
     this.$apiClient.$validateParameter(
         parent, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
@@ -11940,15 +11964,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'GET',
       methodId: 'earthengine.projects.assets.listAssets',
       path: `/${this.gapiVersion}/${parent}:listAssets`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: ListAssetsResponse
     });
   }
 
   listFeatures(
       asset: string,
-      namedParameters: ProjectsAssetsListFeaturesNamedParameters&
-      object = {}): Promise<ListFeaturesResponse> {
+      namedParameters: ProjectsAssetsListFeaturesNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<ListFeaturesResponse> {
     this.$apiClient.$validateParameter(
         asset, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
@@ -11958,15 +11984,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'GET',
       methodId: 'earthengine.projects.assets.listFeatures',
       path: `/${this.gapiVersion}/${asset}:listFeatures`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: ListFeaturesResponse
     });
   }
 
   listImages(
       parent: string,
-      namedParameters: ProjectsAssetsListImagesNamedParameters&
-      object = {}): Promise<ListImagesResponse> {
+      namedParameters: ProjectsAssetsListImagesNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<ListImagesResponse> {
     this.$apiClient.$validateParameter(
         parent, new RegExp('^projects/[^/]+/assets/.*$'));
     let $requestBody = <Serializable|null>null;
@@ -11976,15 +12004,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'GET',
       methodId: 'earthengine.projects.assets.listImages',
       path: `/${this.gapiVersion}/${parent}:listImages`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: ListImagesResponse
     });
   }
 
   move(
       sourceName: string, $requestBody: MoveAssetRequest,
-      namedParameters: ProjectsAssetsMoveNamedParameters&
-      object = {}): Promise<EarthEngineAsset> {
+      namedParameters: ProjectsAssetsMoveNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(
         sourceName, new RegExp('^projects/[^/]+/assets/.*$'));
 
@@ -11993,15 +12023,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.assets.move',
       path: `/${this.gapiVersion}/${sourceName}:move`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: EarthEngineAsset
     });
   }
 
   patch(
       name: string, $requestBody: UpdateAssetRequest,
-      namedParameters: ProjectsAssetsPatchNamedParameters&
-      object = {}): Promise<EarthEngineAsset> {
+      namedParameters: ProjectsAssetsPatchNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<EarthEngineAsset> {
     this.$apiClient.$validateParameter(
         name, new RegExp('^projects/[^/]+/assets/.*$'));
 
@@ -12010,15 +12042,17 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'PATCH',
       methodId: 'earthengine.projects.assets.patch',
       path: `/${this.gapiVersion}/${name}`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: EarthEngineAsset
     });
   }
 
   setIamPolicy(
       resource: string, $requestBody: SetIamPolicyRequest,
-      namedParameters: ProjectsAssetsSetIamPolicyNamedParameters&
-      object = {}): Promise<Policy> {
+      namedParameters: ProjectsAssetsSetIamPolicyNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<Policy> {
     this.$apiClient.$validateParameter(
         resource, new RegExp('^projects/[^/]+/assets/.*$'));
 
@@ -12027,7 +12061,8 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.assets.setIamPolicy',
       path: `/${this.gapiVersion}/${resource}:setIamPolicy`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: Policy
     });
   }
@@ -12035,7 +12070,9 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
   testIamPermissions(
       resource: string, $requestBody: TestIamPermissionsRequest,
       namedParameters: ProjectsAssetsTestIamPermissionsNamedParameters&
-      object = {}): Promise<TestIamPermissionsResponse> {
+      object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<TestIamPermissionsResponse> {
     this.$apiClient.$validateParameter(
         resource, new RegExp('^projects/[^/]+/assets/.*$'));
 
@@ -12044,7 +12081,8 @@ export class ProjectsAssetsApiClientImpl implements ProjectsAssetsApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.assets.testIamPermissions',
       path: `/${this.gapiVersion}/${resource}:testIamPermissions`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: TestIamPermissionsResponse
     });
   }
@@ -12055,72 +12093,86 @@ export abstract class ProjectsAssetsApiClient {
 
   abstract copy(
       sourceName: string, $requestBody: CopyAssetRequest,
-      namedParameters?: ProjectsAssetsCopyNamedParameters&
-      object): Promise<EarthEngineAsset>;
+      namedParameters?: ProjectsAssetsCopyNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<EarthEngineAsset>;
 
   abstract create(
       parent: string, $requestBody: EarthEngineAsset,
-      namedParameters?: ProjectsAssetsCreateNamedParameters&
-      object): Promise<EarthEngineAsset>;
+      namedParameters?: ProjectsAssetsCreateNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<EarthEngineAsset>;
 
   abstract delete(
       name: string,
-      namedParameters?: ProjectsAssetsDeleteNamedParameters&
-      object): Promise<Empty>;
+      namedParameters?: ProjectsAssetsDeleteNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<Empty>;
 
   abstract get(
-      name: string, namedParameters?: ProjectsAssetsGetNamedParameters&object):
+      name: string, namedParameters?: ProjectsAssetsGetNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
       Promise<EarthEngineAsset>;
 
   abstract getIamPolicy(
       resource: string, $requestBody: GetIamPolicyRequest,
-      namedParameters?: ProjectsAssetsGetIamPolicyNamedParameters&
-      object): Promise<Policy>;
+      namedParameters?: ProjectsAssetsGetIamPolicyNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<Policy>;
 
   abstract getPixels(
       name: string, $requestBody: GetPixelsRequest,
-      namedParameters?: ProjectsAssetsGetPixelsNamedParameters&
-      object): Promise<HttpBody>;
+      namedParameters?: ProjectsAssetsGetPixelsNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<HttpBody>;
 
   abstract link(
       sourceName: string, $requestBody: LinkAssetRequest,
-      namedParameters?: ProjectsAssetsLinkNamedParameters&
-      object): Promise<EarthEngineAsset>;
+      namedParameters?: ProjectsAssetsLinkNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<EarthEngineAsset>;
 
   abstract listAssets(
       parent: string,
-      namedParameters?: ProjectsAssetsListAssetsNamedParameters&
-      object): Promise<ListAssetsResponse>;
+      namedParameters?: ProjectsAssetsListAssetsNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<ListAssetsResponse>;
 
   abstract listFeatures(
       asset: string,
-      namedParameters?: ProjectsAssetsListFeaturesNamedParameters&
-      object): Promise<ListFeaturesResponse>;
+      namedParameters?: ProjectsAssetsListFeaturesNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<ListFeaturesResponse>;
 
   abstract listImages(
       parent: string,
-      namedParameters?: ProjectsAssetsListImagesNamedParameters&
-      object): Promise<ListImagesResponse>;
+      namedParameters?: ProjectsAssetsListImagesNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<ListImagesResponse>;
 
   abstract move(
       sourceName: string, $requestBody: MoveAssetRequest,
-      namedParameters?: ProjectsAssetsMoveNamedParameters&
-      object): Promise<EarthEngineAsset>;
+      namedParameters?: ProjectsAssetsMoveNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<EarthEngineAsset>;
 
   abstract patch(
       name: string, $requestBody: UpdateAssetRequest,
-      namedParameters?: ProjectsAssetsPatchNamedParameters&
-      object): Promise<EarthEngineAsset>;
+      namedParameters?: ProjectsAssetsPatchNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<EarthEngineAsset>;
 
   abstract setIamPolicy(
       resource: string, $requestBody: SetIamPolicyRequest,
-      namedParameters?: ProjectsAssetsSetIamPolicyNamedParameters&
-      object): Promise<Policy>;
+      namedParameters?: ProjectsAssetsSetIamPolicyNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<Policy>;
 
   abstract testIamPermissions(
       resource: string, $requestBody: TestIamPermissionsRequest,
-      namedParameters?: ProjectsAssetsTestIamPermissionsNamedParameters&
-      object): Promise<TestIamPermissionsResponse>;
+      namedParameters?: ProjectsAssetsTestIamPermissionsNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<TestIamPermissionsResponse>;
 }
 
 export type ProjectsFilmstripThumbnailsApiClient$Xgafv = '1'|'2';
@@ -12210,7 +12262,9 @@ export class ProjectsFilmstripThumbnailsApiClientImpl implements
   create(
       parent: string, $requestBody: FilmstripThumbnail,
       namedParameters: ProjectsFilmstripThumbnailsCreateNamedParameters&
-      object = {}): Promise<FilmstripThumbnail> {
+      object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<FilmstripThumbnail> {
     this.$apiClient.$validateParameter(parent, new RegExp('^projects/[^/]+$'));
 
     return this.$apiClient.$request<FilmstripThumbnail>({
@@ -12218,7 +12272,8 @@ export class ProjectsFilmstripThumbnailsApiClientImpl implements
       httpMethod: 'POST',
       methodId: 'earthengine.projects.filmstripThumbnails.create',
       path: `/${this.gapiVersion}/${parent}/filmstripThumbnails`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: FilmstripThumbnail
     });
   }
@@ -12226,7 +12281,9 @@ export class ProjectsFilmstripThumbnailsApiClientImpl implements
   getPixels(
       name: string,
       namedParameters: ProjectsFilmstripThumbnailsGetPixelsNamedParameters&
-      object = {}): Promise<HttpBody> {
+      object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<HttpBody> {
     this.$apiClient.$validateParameter(
         name, new RegExp('^projects/[^/]+/filmstripThumbnails/[^/]+$'));
     let $requestBody = <Serializable|null>null;
@@ -12236,7 +12293,8 @@ export class ProjectsFilmstripThumbnailsApiClientImpl implements
       httpMethod: 'GET',
       methodId: 'earthengine.projects.filmstripThumbnails.getPixels',
       path: `/${this.gapiVersion}/${name}:getPixels`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: HttpBody
     });
   }
@@ -12247,13 +12305,16 @@ export abstract class ProjectsFilmstripThumbnailsApiClient {
 
   abstract create(
       parent: string, $requestBody: FilmstripThumbnail,
-      namedParameters?: ProjectsFilmstripThumbnailsCreateNamedParameters&
-      object): Promise<FilmstripThumbnail>;
+      namedParameters?: ProjectsFilmstripThumbnailsCreateNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<FilmstripThumbnail>;
 
   abstract getPixels(
       name: string,
       namedParameters?: ProjectsFilmstripThumbnailsGetPixelsNamedParameters&
-      object): Promise<HttpBody>;
+      object,
+      passthroughNamedParameters?: globalThis.Record<string, string>):
+      Promise<HttpBody>;
 }
 
 export type ProjectsImageApiClient$Xgafv = '1'|'2';
@@ -12353,8 +12414,9 @@ export class ProjectsImageApiClientImpl implements ProjectsImageApiClient {
 
   computePixels(
       project: string, $requestBody: ComputePixelsRequest,
-      namedParameters: ProjectsImageComputePixelsNamedParameters&
-      object = {}): Promise<HttpBody> {
+      namedParameters: ProjectsImageComputePixelsNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<HttpBody> {
     this.$apiClient.$validateParameter(project, new RegExp('^projects/[^/]+$'));
 
     return this.$apiClient.$request<HttpBody>({
@@ -12362,15 +12424,17 @@ export class ProjectsImageApiClientImpl implements ProjectsImageApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.image.computePixels',
       path: `/${this.gapiVersion}/${project}/image:computePixels`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: HttpBody
     });
   }
 
   export(
       project: string, $requestBody: ExportImageRequest,
-      namedParameters: ProjectsImageExportNamedParameters&
-      object = {}): Promise<Operation> {
+      namedParameters: ProjectsImageExportNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}):
+      Promise<Operation> {
     this.$apiClient.$validateParameter(project, new RegExp('^projects/[^/]+$'));
 
     return this.$apiClient.$request<Operation>({
@@ -12378,7 +12442,8 @@ export class ProjectsImageApiClientImpl implements ProjectsImageApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.image.export',
       path: `/${this.gapiVersion}/${project}/image:export`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(
+          namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: Operation
     });
   }
@@ -12386,7 +12451,8 @@ export class ProjectsImageApiClientImpl implements ProjectsImageApiClient {
   import(
       project: string,
       $requestBody: ImportImageRequest,
-      namedParameters: ProjectsImageImportNamedParameters&object = {}): Promise<Operation> {
+      namedParameters: ProjectsImageImportNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}): Promise<Operation> {
     this.$apiClient.$validateParameter(project, new RegExp('^projects/[^/]+$'));
 
     return this.$apiClient.$request<Operation>({
@@ -12394,7 +12460,7 @@ export class ProjectsImageApiClientImpl implements ProjectsImageApiClient {
       httpMethod: 'POST',
       methodId: 'earthengine.projects.image.import',
       path: `/${this.gapiVersion}/${project}/image:import`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: Operation
     });
   }
@@ -12407,17 +12473,20 @@ export abstract class ProjectsImageApiClient {
   abstract computePixels(
       project: string,
       $requestBody: ComputePixelsRequest,
-      namedParameters?: ProjectsImageComputePixelsNamedParameters&object): Promise<HttpBody>;
+      namedParameters?: ProjectsImageComputePixelsNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>): Promise<HttpBody>;
 
   abstract export(
       project: string,
       $requestBody: ExportImageRequest,
-      namedParameters?: ProjectsImageExportNamedParameters&object): Promise<Operation>;
+      namedParameters?: ProjectsImageExportNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>): Promise<Operation>;
 
   abstract import(
       project: string,
       $requestBody: ImportImageRequest,
-      namedParameters?: ProjectsImageImportNamedParameters&object): Promise<Operation>;
+      namedParameters?: ProjectsImageImportNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>): Promise<Operation>;
 }
 
 export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
@@ -12495,7 +12564,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     computeImages(
         project: string, $requestBody: ComputeImagesRequest,
         namedParameters: ProjectsImageCollectionComputeImagesNamedParameters&
-        object = {}): Promise<ComputeImagesResponse> {
+        object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<ComputeImagesResponse> {
       this.$apiClient.$validateParameter(
           project, new RegExp('^projects/[^/]+$'));
 
@@ -12504,7 +12575,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.imageCollection.computeImages',
         path: `/${this.gapiVersion}/${project}/imageCollection:computeImages`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: ComputeImagesResponse
       });
     }
@@ -12516,7 +12588,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     abstract computeImages(
         project: string, $requestBody: ComputeImagesRequest,
         namedParameters?: ProjectsImageCollectionComputeImagesNamedParameters&
-        object): Promise<ComputeImagesResponse>;
+        object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<ComputeImagesResponse>;
   }
 
   export type ProjectsLocationsAssetsApiClient$Xgafv = '1'|'2';
@@ -12596,7 +12670,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     create(
         parent: string, $requestBody: EarthEngineAsset,
         namedParameters: ProjectsLocationsAssetsCreateNamedParameters&
-        object = {}): Promise<EarthEngineAsset> {
+        object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<EarthEngineAsset> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
 
@@ -12605,7 +12681,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.locations.assets.create',
         path: `/${this.gapiVersion}/${parent}/assets`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: EarthEngineAsset
       });
     }
@@ -12616,8 +12693,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     abstract create(
         parent: string, $requestBody: EarthEngineAsset,
-        namedParameters?: ProjectsLocationsAssetsCreateNamedParameters&
-        object): Promise<EarthEngineAsset>;
+        namedParameters?: ProjectsLocationsAssetsCreateNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<EarthEngineAsset>;
   }
 
   export type ProjectsLocationsFilmstripThumbnailsApiClient$Xgafv = '1'|'2';
@@ -12697,7 +12775,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         parent: string, $requestBody: FilmstripThumbnail,
         namedParameters:
             ProjectsLocationsFilmstripThumbnailsCreateNamedParameters&
-        object = {}): Promise<FilmstripThumbnail> {
+        object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<FilmstripThumbnail> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
 
@@ -12706,7 +12786,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.locations.filmstripThumbnails.create',
         path: `/${this.gapiVersion}/${parent}/filmstripThumbnails`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: FilmstripThumbnail
       });
     }
@@ -12718,8 +12799,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     abstract create(
         parent: string, $requestBody: FilmstripThumbnail,
         namedParameters?:
-            ProjectsLocationsFilmstripThumbnailsCreateNamedParameters&
-        object): Promise<FilmstripThumbnail>;
+            ProjectsLocationsFilmstripThumbnailsCreateNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<FilmstripThumbnail>;
   }
 
   export type ProjectsLocationsMapsApiClient$Xgafv = '1'|'2';
@@ -12796,8 +12878,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     create(
         parent: string, $requestBody: EarthEngineMap,
-        namedParameters: ProjectsLocationsMapsCreateNamedParameters&
-        object = {}): Promise<EarthEngineMap> {
+        namedParameters: ProjectsLocationsMapsCreateNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<EarthEngineMap> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
 
@@ -12806,7 +12889,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.locations.maps.create',
         path: `/${this.gapiVersion}/${parent}/maps`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: EarthEngineMap
       });
     }
@@ -12817,8 +12901,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     abstract create(
         parent: string, $requestBody: EarthEngineMap,
-        namedParameters?: ProjectsLocationsMapsCreateNamedParameters&
-        object): Promise<EarthEngineMap>;
+        namedParameters?: ProjectsLocationsMapsCreateNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<EarthEngineMap>;
   }
 
   export type ProjectsLocationsTablesApiClient$Xgafv = '1'|'2';
@@ -12896,7 +12981,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     create(
         parent: string, $requestBody: Table,
         namedParameters: ProjectsLocationsTablesCreateNamedParameters&
-        object = {}): Promise<Table> {
+        object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Table> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
 
@@ -12905,7 +12992,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.locations.tables.create',
         path: `/${this.gapiVersion}/${parent}/tables`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Table
       });
     }
@@ -12916,8 +13004,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     abstract create(
         parent: string, $requestBody: Table,
-        namedParameters?: ProjectsLocationsTablesCreateNamedParameters&
-        object): Promise<Table>;
+        namedParameters?: ProjectsLocationsTablesCreateNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Table>;
   }
 
   export type ProjectsLocationsThumbnailsApiClient$Xgafv = '1'|'2';
@@ -12995,7 +13084,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     create(
         parent: string, $requestBody: Thumbnail,
         namedParameters: ProjectsLocationsThumbnailsCreateNamedParameters&
-        object = {}): Promise<Thumbnail> {
+        object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Thumbnail> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
 
@@ -13004,7 +13095,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.locations.thumbnails.create',
         path: `/${this.gapiVersion}/${parent}/thumbnails`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Thumbnail
       });
     }
@@ -13016,7 +13108,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     abstract create(
         parent: string, $requestBody: Thumbnail,
         namedParameters?: ProjectsLocationsThumbnailsCreateNamedParameters&
-        object): Promise<Thumbnail>;
+        object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Thumbnail>;
   }
 
   export type ProjectsLocationsVideoThumbnailsApiClient$Xgafv = '1'|'2';
@@ -13095,7 +13189,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     create(
         parent: string, $requestBody: VideoThumbnail,
         namedParameters: ProjectsLocationsVideoThumbnailsCreateNamedParameters&
-        object = {}): Promise<VideoThumbnail> {
+        object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<VideoThumbnail> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+/locations/[^/]+$'));
 
@@ -13104,7 +13200,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.locations.videoThumbnails.create',
         path: `/${this.gapiVersion}/${parent}/videoThumbnails`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: VideoThumbnail
       });
     }
@@ -13116,7 +13213,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     abstract create(
         parent: string, $requestBody: VideoThumbnail,
         namedParameters?: ProjectsLocationsVideoThumbnailsCreateNamedParameters&
-        object): Promise<VideoThumbnail>;
+        object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<VideoThumbnail>;
   }
 
   export type ProjectsMapApiClient$Xgafv = '1'|'2';
@@ -13190,8 +13289,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     export(
         project: string, $requestBody: ExportMapRequest,
-        namedParameters: ProjectsMapExportNamedParameters&
-        object = {}): Promise<Operation> {
+        namedParameters: ProjectsMapExportNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Operation> {
       this.$apiClient.$validateParameter(
           project, new RegExp('^projects/[^/]+$'));
 
@@ -13200,7 +13300,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.map.export',
         path: `/${this.gapiVersion}/${project}/map:export`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Operation
       });
     }
@@ -13211,8 +13312,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     abstract export(
         project: string, $requestBody: ExportMapRequest,
-        namedParameters?: ProjectsMapExportNamedParameters&
-        object): Promise<Operation>;
+        namedParameters?: ProjectsMapExportNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Operation>;
   }
 
   export type ProjectsMapsApiClient$Xgafv = '1'|'2';
@@ -13287,8 +13389,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     create(
         parent: string, $requestBody: EarthEngineMap,
-        namedParameters: ProjectsMapsCreateNamedParameters&
-        object = {}): Promise<EarthEngineMap> {
+        namedParameters: ProjectsMapsCreateNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<EarthEngineMap> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+$'));
 
@@ -13297,7 +13400,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.maps.create',
         path: `/${this.gapiVersion}/${parent}/maps`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: EarthEngineMap
       });
     }
@@ -13308,8 +13412,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     abstract create(
         parent: string, $requestBody: EarthEngineMap,
-        namedParameters?: ProjectsMapsCreateNamedParameters&
-        object): Promise<EarthEngineMap>;
+        namedParameters?: ProjectsMapsCreateNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<EarthEngineMap>;
   }
 
   export type ProjectsMapsTilesApiClient$Xgafv = '1'|'2';
@@ -13385,8 +13490,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     }
 
     get(parent: string, zoom: number, x: number, y: number,
-        namedParameters: ProjectsMapsTilesGetNamedParameters&
-        object = {}): Promise<HttpBody> {
+        namedParameters: ProjectsMapsTilesGetNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<HttpBody> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+/maps/[^/]+$'));
       let $requestBody = <Serializable|null>null;
@@ -13396,7 +13502,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'GET',
         methodId: 'earthengine.projects.maps.tiles.get',
         path: `/${this.gapiVersion}/${parent}/tiles/${zoom}/${x}/${y}`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: HttpBody
       });
     }
@@ -13407,8 +13514,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     abstract get(
         parent: string, zoom: number, x: number, y: number,
-        namedParameters?: ProjectsMapsTilesGetNamedParameters&
-        object): Promise<HttpBody>;
+        namedParameters?: ProjectsMapsTilesGetNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<HttpBody>;
   }
 
   export type ProjectsOperationsApiClient$Xgafv = '1'|'2';
@@ -13544,8 +13652,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     cancel(
         name: string, $requestBody: CancelOperationRequest,
-        namedParameters: ProjectsOperationsCancelNamedParameters&
-        object = {}): Promise<Empty> {
+        namedParameters: ProjectsOperationsCancelNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Empty> {
       this.$apiClient.$validateParameter(
           name, new RegExp('^projects/[^/]+/operations/.*$'));
 
@@ -13554,15 +13663,17 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.operations.cancel',
         path: `/${this.gapiVersion}/${name}:cancel`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Empty
       });
     }
 
     delete(
         name: string,
-        namedParameters: ProjectsOperationsDeleteNamedParameters&
-        object = {}): Promise<Empty> {
+        namedParameters: ProjectsOperationsDeleteNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Empty> {
       this.$apiClient.$validateParameter(
           name, new RegExp('^projects/[^/]+/operations/.*$'));
       let $requestBody = <Serializable|null>null;
@@ -13572,14 +13683,16 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'DELETE',
         methodId: 'earthengine.projects.operations.delete',
         path: `/${this.gapiVersion}/${name}`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Empty
       });
     }
 
     get(name: string,
-        namedParameters: ProjectsOperationsGetNamedParameters&
-        object = {}): Promise<Operation> {
+        namedParameters: ProjectsOperationsGetNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Operation> {
       this.$apiClient.$validateParameter(
           name, new RegExp('^projects/[^/]+/operations/.*$'));
       let $requestBody = <Serializable|null>null;
@@ -13589,15 +13702,17 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'GET',
         methodId: 'earthengine.projects.operations.get',
         path: `/${this.gapiVersion}/${name}`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Operation
       });
     }
 
     list(
         name: string,
-        namedParameters: ProjectsOperationsListNamedParameters&
-        object = {}): Promise<ListOperationsResponse> {
+        namedParameters: ProjectsOperationsListNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<ListOperationsResponse> {
       this.$apiClient.$validateParameter(name, new RegExp('^projects/[^/]+$'));
       let $requestBody = <Serializable|null>null;
 
@@ -13606,15 +13721,17 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'GET',
         methodId: 'earthengine.projects.operations.list',
         path: `/${this.gapiVersion}/${name}/operations`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: ListOperationsResponse
       });
     }
 
     wait(
         name: string, $requestBody: WaitOperationRequest,
-        namedParameters: ProjectsOperationsWaitNamedParameters&
-        object = {}): Promise<Operation> {
+        namedParameters: ProjectsOperationsWaitNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Operation> {
       this.$apiClient.$validateParameter(
           name, new RegExp('^projects/[^/]+/operations/.*$'));
 
@@ -13623,7 +13740,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.operations.wait',
         path: `/${this.gapiVersion}/${name}:wait`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Operation
       });
     }
@@ -13634,28 +13752,33 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
 
     abstract cancel(
         name: string, $requestBody: CancelOperationRequest,
-        namedParameters?: ProjectsOperationsCancelNamedParameters&
-        object): Promise<Empty>;
+        namedParameters?: ProjectsOperationsCancelNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Empty>;
 
     abstract delete(
         name: string,
-        namedParameters?: ProjectsOperationsDeleteNamedParameters&
-        object): Promise<Empty>;
+        namedParameters?: ProjectsOperationsDeleteNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Empty>;
 
     abstract get(
         name: string,
-        namedParameters?: ProjectsOperationsGetNamedParameters&
-        object): Promise<Operation>;
+        namedParameters?: ProjectsOperationsGetNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Operation>;
 
     abstract list(
         name: string,
-        namedParameters?: ProjectsOperationsListNamedParameters&
-        object): Promise<ListOperationsResponse>;
+        namedParameters?: ProjectsOperationsListNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<ListOperationsResponse>;
 
     abstract wait(
         name: string, $requestBody: WaitOperationRequest,
-        namedParameters?: ProjectsOperationsWaitNamedParameters&
-        object): Promise<Operation>;
+        namedParameters?: ProjectsOperationsWaitNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Operation>;
   }
 
   export type ProjectsTableApiClient$Xgafv = '1'|'2';
@@ -13759,7 +13882,9 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
     computeFeatures(
         project: string, $requestBody: ComputeFeaturesRequest,
         namedParameters: ProjectsTableComputeFeaturesNamedParameters&
-        object = {}): Promise<ComputeFeaturesResponse> {
+        object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<ComputeFeaturesResponse> {
       this.$apiClient.$validateParameter(
           project, new RegExp('^projects/[^/]+$'));
 
@@ -13768,15 +13893,17 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.table.computeFeatures',
         path: `/${this.gapiVersion}/${project}/table:computeFeatures`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: ComputeFeaturesResponse
       });
     }
 
     export(
         project: string, $requestBody: ExportTableRequest,
-        namedParameters: ProjectsTableExportNamedParameters&
-        object = {}): Promise<Operation> {
+        namedParameters: ProjectsTableExportNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Operation> {
       this.$apiClient.$validateParameter(
           project, new RegExp('^projects/[^/]+$'));
 
@@ -13785,7 +13912,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.table.export',
         path: `/${this.gapiVersion}/${project}/table:export`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Operation
       });
     }
@@ -13793,7 +13921,8 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
   import(
       project: string,
       $requestBody: ImportTableRequest,
-      namedParameters: ProjectsTableImportNamedParameters&object = {}): Promise<Operation> {
+      namedParameters: ProjectsTableImportNamedParameters&object = {},
+      passthroughNamedParameters: globalThis.Record<string, string> = {}): Promise<Operation> {
     this.$apiClient.$validateParameter(project, new RegExp('^projects/[^/]+$'));
 
     return this.$apiClient.$request<Operation>({
@@ -13801,7 +13930,7 @@ export type ProjectsImageCollectionApiClient$Xgafv = '1' | '2';
       httpMethod: 'POST',
       methodId: 'earthengine.projects.table.import',
       path: `/${this.gapiVersion}/${project}/table:import`,
-      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+      queryParams: buildQueryParams(namedParameters, PARAM_MAP_0, passthroughNamedParameters),
       responseCtor: Operation
     });
   }
@@ -13814,17 +13943,20 @@ export abstract class ProjectsTableApiClient {
   abstract computeFeatures(
       project: string,
       $requestBody: ComputeFeaturesRequest,
-      namedParameters?: ProjectsTableComputeFeaturesNamedParameters&object): Promise<ComputeFeaturesResponse>;
+      namedParameters?: ProjectsTableComputeFeaturesNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>): Promise<ComputeFeaturesResponse>;
 
   abstract export(
       project: string,
       $requestBody: ExportTableRequest,
-      namedParameters?: ProjectsTableExportNamedParameters&object): Promise<Operation>;
+      namedParameters?: ProjectsTableExportNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>): Promise<Operation>;
 
   abstract import(
       project: string,
       $requestBody: ImportTableRequest,
-      namedParameters?: ProjectsTableImportNamedParameters&object): Promise<Operation>;
+      namedParameters?: ProjectsTableImportNamedParameters&object,
+      passthroughNamedParameters?: globalThis.Record<string, string>): Promise<Operation>;
 }
 
 export type ProjectsTablesApiClient$Xgafv = '1' | '2';
@@ -13914,8 +14046,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     create(
         parent: string, $requestBody: Table,
-        namedParameters: ProjectsTablesCreateNamedParameters&
-        object = {}): Promise<Table> {
+        namedParameters: ProjectsTablesCreateNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Table> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+$'));
 
@@ -13924,15 +14057,17 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.tables.create',
         path: `/${this.gapiVersion}/${parent}/tables`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Table
       });
     }
 
     getFeatures(
         name: string,
-        namedParameters: ProjectsTablesGetFeaturesNamedParameters&
-        object = {}): Promise<HttpBody> {
+        namedParameters: ProjectsTablesGetFeaturesNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<HttpBody> {
       this.$apiClient.$validateParameter(
           name, new RegExp('^projects/[^/]+/tables/[^/]+$'));
       let $requestBody = <Serializable|null>null;
@@ -13942,7 +14077,8 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
         httpMethod: 'GET',
         methodId: 'earthengine.projects.tables.getFeatures',
         path: `/${this.gapiVersion}/${name}:getFeatures`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: HttpBody
       });
     }
@@ -13953,13 +14089,15 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     abstract create(
         parent: string, $requestBody: Table,
-        namedParameters?: ProjectsTablesCreateNamedParameters&
-        object): Promise<Table>;
+        namedParameters?: ProjectsTablesCreateNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Table>;
 
     abstract getFeatures(
         name: string,
-        namedParameters?: ProjectsTablesGetFeaturesNamedParameters&
-        object): Promise<HttpBody>;
+        namedParameters?: ProjectsTablesGetFeaturesNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<HttpBody>;
   }
 
   export type ProjectsThumbnailsApiClient$Xgafv = '1'|'2';
@@ -14050,8 +14188,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     create(
         parent: string, $requestBody: Thumbnail,
-        namedParameters: ProjectsThumbnailsCreateNamedParameters&
-        object = {}): Promise<Thumbnail> {
+        namedParameters: ProjectsThumbnailsCreateNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Thumbnail> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+$'));
 
@@ -14060,15 +14199,17 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.thumbnails.create',
         path: `/${this.gapiVersion}/${parent}/thumbnails`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Thumbnail
       });
     }
 
     getPixels(
         name: string,
-        namedParameters: ProjectsThumbnailsGetPixelsNamedParameters&
-        object = {}): Promise<HttpBody> {
+        namedParameters: ProjectsThumbnailsGetPixelsNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<HttpBody> {
       this.$apiClient.$validateParameter(
           name, new RegExp('^projects/[^/]+/thumbnails/[^/]+$'));
       let $requestBody = <Serializable|null>null;
@@ -14078,7 +14219,8 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
         httpMethod: 'GET',
         methodId: 'earthengine.projects.thumbnails.getPixels',
         path: `/${this.gapiVersion}/${name}:getPixels`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: HttpBody
       });
     }
@@ -14089,13 +14231,15 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     abstract create(
         parent: string, $requestBody: Thumbnail,
-        namedParameters?: ProjectsThumbnailsCreateNamedParameters&
-        object): Promise<Thumbnail>;
+        namedParameters?: ProjectsThumbnailsCreateNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Thumbnail>;
 
     abstract getPixels(
         name: string,
-        namedParameters?: ProjectsThumbnailsGetPixelsNamedParameters&
-        object): Promise<HttpBody>;
+        namedParameters?: ProjectsThumbnailsGetPixelsNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<HttpBody>;
   }
 
   export type ProjectsValueApiClient$Xgafv = '1'|'2';
@@ -14170,8 +14314,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     compute(
         project: string, $requestBody: ComputeValueRequest,
-        namedParameters: ProjectsValueComputeNamedParameters&
-        object = {}): Promise<ComputeValueResponse> {
+        namedParameters: ProjectsValueComputeNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<ComputeValueResponse> {
       this.$apiClient.$validateParameter(
           project, new RegExp('^projects/[^/]+$'));
 
@@ -14180,7 +14325,8 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.value.compute',
         path: `/${this.gapiVersion}/${project}/value:compute`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: ComputeValueResponse
       });
     }
@@ -14191,8 +14337,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     abstract compute(
         project: string, $requestBody: ComputeValueRequest,
-        namedParameters?: ProjectsValueComputeNamedParameters&
-        object): Promise<ComputeValueResponse>;
+        namedParameters?: ProjectsValueComputeNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<ComputeValueResponse>;
   }
 
   export type ProjectsVideoApiClient$Xgafv = '1'|'2';
@@ -14267,8 +14414,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     export(
         project: string, $requestBody: ExportVideoRequest,
-        namedParameters: ProjectsVideoExportNamedParameters&
-        object = {}): Promise<Operation> {
+        namedParameters: ProjectsVideoExportNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Operation> {
       this.$apiClient.$validateParameter(
           project, new RegExp('^projects/[^/]+$'));
 
@@ -14277,7 +14425,8 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.video.export',
         path: `/${this.gapiVersion}/${project}/video:export`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Operation
       });
     }
@@ -14288,8 +14437,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     abstract export(
         project: string, $requestBody: ExportVideoRequest,
-        namedParameters?: ProjectsVideoExportNamedParameters&
-        object): Promise<Operation>;
+        namedParameters?: ProjectsVideoExportNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Operation>;
   }
 
   export type ProjectsVideoMapApiClient$Xgafv = '1'|'2';
@@ -14366,8 +14516,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     export(
         project: string, $requestBody: ExportVideoMapRequest,
-        namedParameters: ProjectsVideoMapExportNamedParameters&
-        object = {}): Promise<Operation> {
+        namedParameters: ProjectsVideoMapExportNamedParameters&object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<Operation> {
       this.$apiClient.$validateParameter(
           project, new RegExp('^projects/[^/]+$'));
 
@@ -14376,7 +14527,8 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.videoMap.export',
         path: `/${this.gapiVersion}/${project}/videoMap:export`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: Operation
       });
     }
@@ -14387,8 +14539,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     abstract export(
         project: string, $requestBody: ExportVideoMapRequest,
-        namedParameters?: ProjectsVideoMapExportNamedParameters&
-        object): Promise<Operation>;
+        namedParameters?: ProjectsVideoMapExportNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<Operation>;
   }
 
   export type ProjectsVideoThumbnailsApiClient$Xgafv = '1'|'2';
@@ -14480,7 +14633,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
     create(
         parent: string, $requestBody: VideoThumbnail,
         namedParameters: ProjectsVideoThumbnailsCreateNamedParameters&
-        object = {}): Promise<VideoThumbnail> {
+        object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<VideoThumbnail> {
       this.$apiClient.$validateParameter(
           parent, new RegExp('^projects/[^/]+$'));
 
@@ -14489,7 +14644,8 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
         httpMethod: 'POST',
         methodId: 'earthengine.projects.videoThumbnails.create',
         path: `/${this.gapiVersion}/${parent}/videoThumbnails`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: VideoThumbnail
       });
     }
@@ -14497,7 +14653,9 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
     getPixels(
         name: string,
         namedParameters: ProjectsVideoThumbnailsGetPixelsNamedParameters&
-        object = {}): Promise<HttpBody> {
+        object = {},
+        passthroughNamedParameters: globalThis.Record<string, string> = {}):
+        Promise<HttpBody> {
       this.$apiClient.$validateParameter(
           name, new RegExp('^projects/[^/]+/videoThumbnails/[^/]+$'));
       let $requestBody = <Serializable|null>null;
@@ -14507,7 +14665,8 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
         httpMethod: 'GET',
         methodId: 'earthengine.projects.videoThumbnails.getPixels',
         path: `/${this.gapiVersion}/${name}:getPixels`,
-        queryParams: buildQueryParams(namedParameters, PARAM_MAP_0),
+        queryParams: buildQueryParams(
+            namedParameters, PARAM_MAP_0, passthroughNamedParameters),
         responseCtor: HttpBody
       });
     }
@@ -14518,11 +14677,14 @@ export type ProjectsTablesApiClient$Xgafv = '1' | '2';
 
     abstract create(
         parent: string, $requestBody: VideoThumbnail,
-        namedParameters?: ProjectsVideoThumbnailsCreateNamedParameters&
-        object): Promise<VideoThumbnail>;
+        namedParameters?: ProjectsVideoThumbnailsCreateNamedParameters&object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<VideoThumbnail>;
 
     abstract getPixels(
         name: string,
         namedParameters?: ProjectsVideoThumbnailsGetPixelsNamedParameters&
-        object): Promise<HttpBody>;
+        object,
+        passthroughNamedParameters?: globalThis.Record<string, string>):
+        Promise<HttpBody>;
   }
