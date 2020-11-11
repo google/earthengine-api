@@ -51,7 +51,7 @@ def setup_ee():
     extracted_key_data = keyfile.read()
     credentials = ee.ServiceAccountCredentials(config.EE_SERVICE_ACCOUNT,
                                                key_data=extracted_key_data)
-  ee.Initialize(credentials, use_cloud_api=True)
+  ee.Initialize(credentials)
 
 
 @server.after_request

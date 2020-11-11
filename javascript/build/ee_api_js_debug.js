@@ -4041,7 +4041,7 @@ goog.dom.safe.replaceLocation = function(loc, url) {
 goog.dom.safe.openInWindow = function(url, opt_openerWin, opt_name, opt_specs, opt_replace) {
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
   var win = opt_openerWin || goog.global, name = opt_name instanceof goog.string.Const ? goog.string.Const.unwrap(opt_name) : opt_name || "";
-  return win.open(goog.html.SafeUrl.unwrap(safeUrl), name, opt_specs, opt_replace);
+  return void 0 !== opt_specs || void 0 !== opt_replace ? win.open(goog.html.SafeUrl.unwrap(safeUrl), name, opt_specs, opt_replace) : win.open(goog.html.SafeUrl.unwrap(safeUrl), name);
 };
 goog.dom.safe.parseFromStringHtml = function(parser, html) {
   return goog.dom.safe.parseFromString(parser, html, "text/html");
@@ -15252,7 +15252,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {}, module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.241";
+ee.apiclient.API_CLIENT_VERSION = "0.1.242";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15516,8 +15516,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   method = method || "POST";
   var headers = {"Content-Type":contentType, }, forceLegacyApi = module$contents$ee$apiclient_LEGACY_DOWNLOAD_REGEX.test(path);
   if (module$contents$ee$apiclient_apiclient.getCloudApiEnabled() && !forceLegacyApi) {
-    var version = "0.1.241";
-    "0.1.241" === version && (version = "latest");
+    var version = "0.1.242";
+    "0.1.242" === version && (version = "latest");
     headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   }
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
@@ -19648,6 +19648,9 @@ module$contents$jspb$Message_Message.getField = function(msg, fieldNumber) {
     return val = msg.extensionObject_[fieldNumber], val === module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_ ? msg.extensionObject_[fieldNumber] = [] : val;
   }
 };
+module$contents$jspb$Message_Message.hasField = function(msg, fieldNumber) {
+  return null != module$contents$jspb$Message_Message.getField(msg, fieldNumber);
+};
 module$contents$jspb$Message_Message.getRepeatedField = function(msg, fieldNumber) {
   return module$contents$jspb$Message_Message.getField(msg, fieldNumber);
 };
@@ -20238,7 +20241,7 @@ proto.google.protobuf.Value.prototype.clearNullValue = function() {
   return module$contents$jspb$Message_Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasNullValue = function() {
-  return null != module$contents$jspb$Message_Message.getField(this, 1);
+  return module$contents$jspb$Message_Message.hasField(this, 1);
 };
 proto.google.protobuf.Value.prototype.getNumberValue = function() {
   return module$contents$jspb$Message_Message.getFloatingPointFieldWithDefault(this, 2, 0.0);
@@ -20250,7 +20253,7 @@ proto.google.protobuf.Value.prototype.clearNumberValue = function() {
   return module$contents$jspb$Message_Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasNumberValue = function() {
-  return null != module$contents$jspb$Message_Message.getField(this, 2);
+  return module$contents$jspb$Message_Message.hasField(this, 2);
 };
 proto.google.protobuf.Value.prototype.getStringValue = function() {
   return module$contents$jspb$Message_Message.getFieldWithDefault(this, 3, "");
@@ -20262,7 +20265,7 @@ proto.google.protobuf.Value.prototype.clearStringValue = function() {
   return module$contents$jspb$Message_Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasStringValue = function() {
-  return null != module$contents$jspb$Message_Message.getField(this, 3);
+  return module$contents$jspb$Message_Message.hasField(this, 3);
 };
 proto.google.protobuf.Value.prototype.getBoolValue = function() {
   return module$contents$jspb$Message_Message.getBooleanFieldWithDefault(this, 4, !1);
@@ -20274,7 +20277,7 @@ proto.google.protobuf.Value.prototype.clearBoolValue = function() {
   return module$contents$jspb$Message_Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], void 0);
 };
 proto.google.protobuf.Value.prototype.hasBoolValue = function() {
-  return null != module$contents$jspb$Message_Message.getField(this, 4);
+  return module$contents$jspb$Message_Message.hasField(this, 4);
 };
 proto.google.protobuf.Value.prototype.getStructValue = function() {
   return module$contents$jspb$Message_Message.getWrapperField(this, proto.google.protobuf.Struct, 5);
@@ -20286,7 +20289,7 @@ proto.google.protobuf.Value.prototype.clearStructValue = function() {
   return this.setStructValue(void 0);
 };
 proto.google.protobuf.Value.prototype.hasStructValue = function() {
-  return null != module$contents$jspb$Message_Message.getField(this, 5);
+  return module$contents$jspb$Message_Message.hasField(this, 5);
 };
 proto.google.protobuf.Value.prototype.getListValue = function() {
   return module$contents$jspb$Message_Message.getWrapperField(this, proto.google.protobuf.ListValue, 6);
@@ -20298,7 +20301,7 @@ proto.google.protobuf.Value.prototype.clearListValue = function() {
   return this.setListValue(void 0);
 };
 proto.google.protobuf.Value.prototype.hasListValue = function() {
-  return null != module$contents$jspb$Message_Message.getField(this, 6);
+  return module$contents$jspb$Message_Message.hasField(this, 6);
 };
 proto.google.protobuf.Value.deserialize = function(data) {
   return module$contents$jspb$Message_Message.deserializeWithCtor(proto.google.protobuf.Value, data);

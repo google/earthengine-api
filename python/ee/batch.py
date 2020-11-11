@@ -857,70 +857,62 @@ def _prepare_image_export_config(image, config, export_destination):
   _canonicalize_parameters(config, export_destination)
 
   image, config = image.prepare_for_export(config)
-  if data._use_cloud_api:  # pylint: disable=protected-access
-    # Build an ExportImageRequest. Delete values from "config" as we go so we
-    # can check at the end for any leftovers. Any computed objects will be
-    # serialised in data.py before the request is sent.
-    request = {}
-    request['expression'] = image
-    if 'description' in config:
-      request['description'] = config.pop('description')
+  # Build an ExportImageRequest. Delete values from "config" as we go so we
+  # can check at the end for any leftovers. Any computed objects will be
+  # serialised in data.py before the request is sent.
+  request = {}
+  request['expression'] = image
+  if 'description' in config:
+    request['description'] = config.pop('description')
 
-    if export_destination == Task.ExportDestination.ASSET:
-      asset_export_options = {}
-      asset_export_options[
-          'earthEngineDestination'] = _build_earth_engine_destination(config)
-      # This can only be set by internal users.
-      if 'tileSize' in config:
-        asset_export_options['tileSize'] = {
-            'value': int(config.pop('tileSize'))}
-      if 'pyramidingPolicy' in config:
-        pyramiding_policy = config.pop('pyramidingPolicy')
-        if '.default' in pyramiding_policy:
-          asset_export_options[
-              'pyramidingPolicy'] = pyramiding_policy.pop('.default').upper()
-        if pyramiding_policy:
-          asset_export_options['pyramidingPolicyOverrides'] = {
-              band: policy.upper()
-              for band, policy in six.iteritems(pyramiding_policy)
-          }
-      request['assetExportOptions'] = asset_export_options
-    else:
-      request['fileExportOptions'] = _build_image_file_export_options(
-          config, export_destination)
-
-    if 'maxPixels' in config:
-      # This field is an Int64Value, so it needs an inner "value" field, and
-      # the value itself is a string, not an integer, in the JSON encoding.
-      request['maxPixels'] = {'value': str(int(config.pop('maxPixels')))}
-
+  if export_destination == Task.ExportDestination.ASSET:
+    asset_export_options = {}
+    asset_export_options[
+        'earthEngineDestination'] = _build_earth_engine_destination(config)
     # This can only be set by internal users.
-    if 'maxWorkers' in config:
-      request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+    if 'tileSize' in config:
+      asset_export_options['tileSize'] = {
+          'value': int(config.pop('tileSize'))}
+    if 'pyramidingPolicy' in config:
+      pyramiding_policy = config.pop('pyramidingPolicy')
+      if '.default' in pyramiding_policy:
+        asset_export_options[
+            'pyramidingPolicy'] = pyramiding_policy.pop('.default').upper()
+      if pyramiding_policy:
+        asset_export_options['pyramidingPolicyOverrides'] = {
+            band: policy.upper()
+            for band, policy in six.iteritems(pyramiding_policy)
+        }
+    request['assetExportOptions'] = asset_export_options
+  else:
+    request['fileExportOptions'] = _build_image_file_export_options(
+        config, export_destination)
 
-    # Of the remaining fields in ExportImageRequest:
-    # - All the values that would go into the PixelGrid should have been folded
-    #   into the image's Expression.
-    # - The request ID will be populated when the Task is created.
+  if 'maxPixels' in config:
+    # This field is an Int64Value, so it needs an inner "value" field, and
+    # the value itself is a string, not an integer, in the JSON encoding.
+    request['maxPixels'] = {'value': str(int(config.pop('maxPixels')))}
 
-    if 'shardSize' in config:
-      raise ee_exception.EEException(
-          'shardSize is not supported with the Cloud API.')
+  # This can only be set by internal users.
+  if 'maxWorkers' in config:
+    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
 
-    # We've been deleting config parameters as we handle them. Anything left
-    # over is a problem.
-    if config:
-      raise ee_exception.EEException(
-          'Unknown configuration options: {}.'.format(config))
+  # Of the remaining fields in ExportImageRequest:
+  # - All the values that would go into the PixelGrid should have been folded
+  #   into the image's Expression.
+  # - The request ID will be populated when the Task is created.
 
-    return request
-  if export_destination != Task.ExportDestination.ASSET:
-    ConvertFormatSpecificParams(config)
+  if 'shardSize' in config:
+    raise ee_exception.EEException(
+        'shardSize is not supported with the Cloud API.')
 
-  config.update(_ConvertConfigParams(config))
-  config['json'] = image.serialize(for_cloud_api=False)
+  # We've been deleting config parameters as we handle them. Anything left
+  # over is a problem.
+  if config:
+    raise ee_exception.EEException(
+        'Unknown configuration options: {}.'.format(config))
 
-  return config
+  return request
 
 
 def _prepare_map_export_config(image, config):
@@ -947,29 +939,21 @@ def _prepare_map_export_config(image, config):
   if 'writePublicTiles' not in config:
     config['writePublicTiles'] = True
 
-  if data._use_cloud_api:  # pylint: disable=protected-access
-    # Build an ExportMapRequest. Delete values from "config" as we go so we
-    # can check at the end for any leftovers. Any computed objects will be
-    # serialised in data.py before the request is sent.
-    request = {}
-    request['expression'] = image
-    if 'description' in config:
-      request['description'] = config.pop('description')
+  request = {}
+  request['expression'] = image
+  if 'description' in config:
+    request['description'] = config.pop('description')
 
-    request['tileOptions'] = _build_tile_options(config)
-    request['tileExportOptions'] = _build_image_file_export_options(
-        config, Task.ExportDestination.GCS)
-    # This can only be set by internal users.
-    if 'maxWorkers' in config:
-      request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
-    if config:
-      raise ee_exception.EEException(
-          'Unknown configuration options: {}.'.format(config))
-    return request
-  config.update(_ConvertConfigParams(config))
-  config['json'] = image.serialize(for_cloud_api=False)
-
-  return config
+  request['tileOptions'] = _build_tile_options(config)
+  request['tileExportOptions'] = _build_image_file_export_options(
+      config, Task.ExportDestination.GCS)
+  # This can only be set by internal users.
+  if 'maxWorkers' in config:
+    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+  if config:
+    raise ee_exception.EEException(
+        'Unknown configuration options: {}.'.format(config))
+  return request
 
 
 def _prepare_table_export_config(collection, config, export_destination):
@@ -989,40 +973,35 @@ def _prepare_table_export_config(collection, config, export_destination):
 
   _canonicalize_parameters(config, export_destination)
 
-  if data._use_cloud_api:  # pylint: disable=protected-access
-    # Build an ExportMapRequest. Delete values from "config" as we go so we
-    # can check at the end for any leftovers. Any computed objects will be
-    # serialised in data.py before the request is sent.
-    request = {}
-    request['expression'] = collection
-    if 'description' in config:
-      request['description'] = config.pop('description')
+  # Build an ExportMapRequest. Delete values from "config" as we go so we
+  # can check at the end for any leftovers. Any computed objects will be
+  # serialised in data.py before the request is sent.
+  request = {}
+  request['expression'] = collection
+  if 'description' in config:
+    request['description'] = config.pop('description')
 
-    if export_destination == Task.ExportDestination.ASSET:
-      request['assetExportOptions'] = {
-          'earthEngineDestination': _build_earth_engine_destination(config)
-      }
-    else:
-      request['fileExportOptions'] = _build_table_file_export_options(
-          config, export_destination)
+  if export_destination == Task.ExportDestination.ASSET:
+    request['assetExportOptions'] = {
+        'earthEngineDestination': _build_earth_engine_destination(config)
+    }
+  else:
+    request['fileExportOptions'] = _build_table_file_export_options(
+        config, export_destination)
 
-    if 'selectors' in config:
-      # Strings have been turned into lists but we still might be holding a
-      # tuple or other non-list iterable.
-      request['selectors'] = list(config.pop('selectors'))
+  if 'selectors' in config:
+    # Strings have been turned into lists but we still might be holding a
+    # tuple or other non-list iterable.
+    request['selectors'] = list(config.pop('selectors'))
 
-    # This can only be set by internal users.
-    if 'maxWorkers' in config:
-      request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+  # This can only be set by internal users.
+  if 'maxWorkers' in config:
+    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
 
-    if config:
-      raise ee_exception.EEException(
-          'Unknown configuration options: {}.'.format(config))
-    return request
-  config.update(_ConvertConfigParams(config))
-  config['json'] = collection.serialize(for_cloud_api=False)
-
-  return config
+  if config:
+    raise ee_exception.EEException(
+        'Unknown configuration options: {}.'.format(config))
+  return request
 
 
 def _prepare_video_export_config(collection, config, export_destination):
@@ -1040,28 +1019,25 @@ def _prepare_video_export_config(collection, config, export_destination):
   if 'crs' not in config:
     config['crs'] = 'SR-ORG:6627'
   collection, config = collection.prepare_for_export(config)
-  if data._use_cloud_api:  # pylint: disable=protected-access
-    request = {}
-    request['expression'] = collection
-    if 'description' in config:
-      request['description'] = config.pop('description')
+  request = {}
+  request['expression'] = collection
+  if 'description' in config:
+    request['description'] = config.pop('description')
 
-    video_options = _build_video_options(config)
-    if video_options:
-      request['videoOptions'] = video_options
+  video_options = _build_video_options(config)
+  if video_options:
+    request['videoOptions'] = video_options
 
-    request['fileExportOptions'] = _build_video_file_export_options(
-        config, export_destination)
-    # This can only be set by internal users.
-    if 'maxWorkers' in config:
-      request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+  request['fileExportOptions'] = _build_video_file_export_options(
+      config, export_destination)
+  # This can only be set by internal users.
+  if 'maxWorkers' in config:
+    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
 
-    if config:
-      raise ee_exception.EEException(
-          'Unknown configuration options: {}.'.format(config))
-    return request
-  config['json'] = collection.serialize(for_cloud_api=False)
-  return config
+  if config:
+    raise ee_exception.EEException(
+        'Unknown configuration options: {}.'.format(config))
+  return request
 
 
 
@@ -1341,9 +1317,7 @@ def _create_export_task(config, task_type):
   Returns:
     An unstarted export Task.
   """
-  if data._use_cloud_api:  # pylint: disable=protected-access
-    return Task(None, task_type, Task.State.UNSUBMITTED, config)
-  return Task(data.newTaskId()[0], task_type, Task.State.UNSUBMITTED, config)
+  return Task(None, task_type, Task.State.UNSUBMITTED, config)
 
 
 def _capture_parameters(all_locals, parameters_to_exclude):
@@ -1468,38 +1442,21 @@ def _canonicalize_region(region):
   # pylint: disable=bare-except
   # The Cloud API can accept arbitrary Geometries, even computed ones.
   # Thus, this function tries to turn its parameter into a Geometry.
-  if data._use_cloud_api:  # pylint: disable=protected-access
-    if isinstance(region, geometry.Geometry):
-      return region
-
-    if isinstance(region, six.string_types):
-      try:
-        region = json.loads(region)
-      except:
-        raise region_error
-    # It's probably a list of coordinates - attempt to parse as a LineString or
-    # Polygon.
-    try:
-      region = geometry.Geometry.LineString(region)
-    except:
-      try:
-        region = geometry.Geometry.Polygon(region)
-      except:
-        raise region_error
+  if isinstance(region, geometry.Geometry):
     return region
-  # If the GeoJSON blob we have parses as a LineString or Polygon, accept it,
-  # and turn it into a string. Which it might have started out as.
+
   if isinstance(region, six.string_types):
     try:
       region = json.loads(region)
     except:
       raise region_error
+  # It's probably a list of coordinates - attempt to parse as a LineString or
+  # Polygon.
   try:
-    geometry.Geometry.LineString(region)
+    region = geometry.Geometry.LineString(region)
   except:
     try:
-      geometry.Geometry.Polygon(region)
+      region = geometry.Geometry.Polygon(region)
     except:
       raise region_error
-  return json.dumps(region)
-  # pylint: enable=bare-except
+  return region

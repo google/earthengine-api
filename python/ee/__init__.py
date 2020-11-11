@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.241'
+__version__ = '0.1.242'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -89,7 +89,6 @@ def Authenticate(
 def Initialize(
     credentials='persistent',
     opt_url=None,
-    use_cloud_api=True,
     cloud_api_key=None,
     http_transport=None,
     project=None):
@@ -105,7 +104,6 @@ def Initialize(
         credentials already stored in the filesystem, or raise an explanatory
         exception guiding the user to create those credentials.
     opt_url: The base url for the EarthEngine REST API to connect to.
-    use_cloud_api: Whether the Cloud API should be used.
     cloud_api_key: An optional API key to use the Cloud API.
     http_transport: The http transport method to use when making requests.
     project: The project-id or number to use when making api calls.
@@ -116,7 +114,6 @@ def Initialize(
       credentials=credentials,
       api_base_url=(opt_url + '/api' if opt_url else None),
       tile_base_url=opt_url,
-      use_cloud_api=use_cloud_api,
       cloud_api_base_url=opt_url,
       cloud_api_key=cloud_api_key,
       project=project,

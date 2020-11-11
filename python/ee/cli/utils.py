@@ -39,7 +39,6 @@ CONFIG_PARAMS = {
     'account': None,
     'private_key': None,
     'refresh_token': None,
-    'use_cloud_api': True,
     'cloud_api_key': None,
     'project': None,
 }
@@ -63,7 +62,7 @@ class CommandLineConfig(object):
   """
 
   def __init__(
-      self, config_file=None, service_account_file=None, use_cloud_api=True,
+      self, config_file=None, service_account_file=None,
       project_override=None):
     if not config_file:
       config_file = os.environ.get(EE_CONFIG_FILE, DEFAULT_EE_CONFIG_FILE)
@@ -73,7 +72,6 @@ class CommandLineConfig(object):
     if os.path.exists(config_file):
       with open(config_file) as config_file_json:
         config = json.load(config_file_json)
-    CONFIG_PARAMS['use_cloud_api'] = use_cloud_api
     for key, default_value in CONFIG_PARAMS.items():
       setattr(self, key, config.get(key, default_value))
     self.service_account_file = service_account_file
@@ -132,7 +130,6 @@ class CommandLineConfig(object):
     ee.Initialize(
         credentials=self._get_credentials(),
         opt_url=self.url,
-        use_cloud_api=self.use_cloud_api,
         cloud_api_key=self.cloud_api_key,
         project=self._get_project())
 

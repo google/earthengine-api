@@ -85,8 +85,8 @@ class ImageTestCase(apitestcase.ApiTestCase):
     image.getMapId({'min': 0})
 
     self.assertEqual(
-        ee.Image(1).visualize(min=0).serialize(for_cloud_api=False),
-        self.last_mapid_call['data']['image'])
+        ee.Image(1).visualize(min=0).serialize(),
+        self.last_mapid_call['data']['image'].serialize())
 
   def testCombine(self):
     """Verifies the behavior of ee.Image.combine_()."""
@@ -213,55 +213,18 @@ class ImageTestCase(apitestcase.ApiTestCase):
 
   def testDownload(self):
     """Verifies Download ID and URL generation."""
-    url = ee.Image(1).getDownloadURL()
+    ee.Image(1).getDownloadURL()
 
     self.assertEqual('/download', self.last_download_call['url'])
-    self.assertEqual({
-        'image': ee.Image(1).serialize(for_cloud_api=False),
-        'json_format': 'v2'
-    }, self.last_download_call['data'])
-    self.assertEqual('/api/download?docid=1&token=2', url)
-
-  def testThumb(self):
-    """Verifies Thumbnail ID and URL generation."""
-    geo_json = {
-        'type': 'Polygon',
-        'coordinates': [[
-            [-112.587890625, 44.94924926661151],
-            [-114.873046875, 39.48708498168749],
-            [-103.623046875, 41.82045509614031],
-        ]],
-    }
-    url = ee.Image(1).getThumbURL({
-        'size': [13, 42],
-        'region': geo_json,
-    })
-
-    self.assertEqual('/thumb', self.last_thumb_call['url'])
-    self.assertEqual({
-        'image': ee.Image(1).serialize(for_cloud_api=False),
-        'json_format': 'v2',
-        'size': '13x42',
-        'getid': '1',
-        'region': json.dumps(geo_json),
-    }, self.last_thumb_call['data'])
-    self.assertEqual('/api/thumb?thumbid=3&token=4', url)
-
-    # Again with visualization parameters
-    url = ee.Image(1).getThumbURL({
-        'size': [13, 42],
-        'region': geo_json,
-        'min': 0
-    })
     self.assertEqual(
-        ee.Image(1).visualize(min=0).serialize(for_cloud_api=False),
-        self.last_thumb_call['data']['image'])
+        ee.Image(1).serialize(),
+        self.last_download_call['data']['image'].serialize())
 
 
 class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
 
-  def setUp(self):
-    super(CloudThumbnailAndExportImageTests, self).setUp()
+  def setUp(self):  # pylint: disable=g-missing-super-call
+    self.InitializeApi(should_mock=False)
     self.cloud_api_resource = mock.MagicMock()
     self.cloud_api_resource.projects().thumbnails().create(
     ).execute.return_value = {
@@ -283,8 +246,8 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
 
   def assertImageEqual(self, expected, actual):
     self.assertDictEqual(
-        serializer.encode(expected, for_cloud_api=ee.data._use_cloud_api),
-        serializer.encode(actual, for_cloud_api=ee.data._use_cloud_api))
+        serializer.encode(expected),
+        serializer.encode(actual))
 
   def testThumb_withDimensionsRegionCrs(self):
     """Verifies Thumbnail ID and URL generation in the Cloud API."""
@@ -296,7 +259,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           'crs': 'EPSG:4326',
       })
 
-      self.assertEqual('/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
+      self.assertEqual('None/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
                        url)
       _, kwargs = self.cloud_api_resource.projects().thumbnails(
       ).create.call_args
@@ -308,8 +271,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
                   crsTransform=[1, 0, 0, 0, -1, 0]).clipToBoundsAndScale(
                       geometry=ee.Geometry(self.geo_json, opt_geodesic=False),
                       width=13,
-                      height=42),
-              for_cloud_api=True))
+                      height=42)))
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
   def testThumb_withDimensionsRegionJson(self):
@@ -326,8 +288,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           kwargs['body']['expression'],
           serializer.encode(
               self.base_image.clipToBoundsAndScale(
-                  geometry=self.expected_geometry, width=13, height=42),
-              for_cloud_api=True))
+                  geometry=self.expected_geometry, width=13, height=42)))
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
   def testThumb_withDimensionsListCoords(self):
@@ -346,8 +307,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           kwargs['body']['expression'],
           serializer.encode(
               self.base_image.clipToBoundsAndScale(
-                  geometry=expected_geometry, width=13, height=42),
-              for_cloud_api=True))
+                  geometry=expected_geometry, width=13, height=42)))
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
   def testThumb_withDimensionsListMinMax(self):
@@ -366,8 +326,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           kwargs['body']['expression'],
           serializer.encode(
               self.base_image.clipToBoundsAndScale(
-                  geometry=expected_geometry, width=13, height=42),
-              for_cloud_api=True))
+                  geometry=expected_geometry, width=13, height=42)))
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
   def testThumb_withVisualizationParams(self):
@@ -385,8 +344,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           serializer.encode(
               self.base_image.clipToBoundsAndScale(
                   geometry=self.expected_geometry, width=13,
-                  height=42).visualize(min=0),
-              for_cloud_api=True))
+                  height=42).visualize(min=0)))
 
   def testBuildDownloadIdImage_buildsImagePerBand(self):
     test_image = ee.Image('foo')
@@ -582,7 +540,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           kwargs['body']['expression'])
       self.assertEqual('ZIPPED_GEO_TIFF_PER_BAND', kwargs['body']['fileFormat'])
       self.assertEqual('projects/earthengine-legacy', kwargs['parent'])
-      self.assertEqual('/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
+      self.assertEqual('None/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
                        url)
 
   def testPrepareForExport_simple(self):

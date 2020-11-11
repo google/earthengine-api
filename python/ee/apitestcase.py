@@ -18,58 +18,60 @@ class ApiTestCase(unittest.TestCase):
   def setUp(self):
     self.InitializeApi()
 
-  def InitializeApi(self):
+  def InitializeApi(self, algorithms=None, should_mock=True):
     """Initializes the library with standard API methods.
 
     This is normally invoked during setUp(), but subclasses may invoke
     it manually instead if they prefer.
+
+    Args:
+      algorithms: A set of algorithms to set on the initialize
+      should_mock: Whether or not to mock the various functions.
     """
     self.last_download_call = None
     self.last_thumb_call = None
     self.last_table_call = None
     self.last_mapid_call = None
 
-    ee.data.send_ = self.MockSend
-
     ee.Reset()
-    # Default the cloud api flag to false for tests since we have tests that
-    # set it to true using the UsingCloudApi entry function.  The old unit tests
-    # should eventually be migrated but this should not block flipping the flag
-    # to the cloud api.
-    ee.Initialize(None, '', use_cloud_api=False)
 
-  def MockSend(self, path, params, unused_method=None, unused_raw=None):
-    if path == '/algorithms':
-      return BUILTIN_FUNCTIONS
-    elif path == '/value':
-      return {'value': 'fakeValue'}
-    elif path == '/mapid':
-      # Hang on to the call arguments.
-      self.last_mapid_call = {'url': path, 'data': params}
-      return {'mapid': 'fakeMapId', 'token': 'fakeToken'}
-    elif path == '/download':
-      # Hang on to the call arguments.
-      self.last_download_call = {'url': path, 'data': params}
-      return {'docid': '1', 'token': '2'}
-    elif path == '/thumb':
-      # Hang on to the call arguments.
-      self.last_thumb_call = {'url': path, 'data': params}
-      return {'thumbid': '3', 'token': '4'}
-    elif path == '/table':
-      # Hang on to the call arguments.
-      self.last_table_call = {'url': path, 'data': params}
-      return {'docid': '5', 'token': '6'}
-    else:
-      raise Exception('Unexpected API call to %s with %s' % (path, params))
+    if algorithms is None:
+      algorithms = BUILTIN_FUNCTIONS
+
+    ee.data._install_cloud_api_resource = lambda: None
+    ee.data.getAlgorithms = lambda: algorithms
+    if should_mock:
+      ee.data.computeValue = lambda x: {'value': 'fakeValue'}
+      ee.data.getMapId = self._MockMapId
+      ee.data.getDownloadId = self._MockDownloadUrl
+      ee.data.getThumbId = self._MockThumbUrl
+      ee.data.getTableDownloadId = self._MockTableDownload
+      ee.Initialize(None, '')
+
+  # We are mocking the url here so the unit tests are happy.
+  def _MockMapId(self, params):
+    self.last_mapid_call = {'url': '/mapid', 'data': params}
+    return {'mapid': 'fakeMapId', 'token': 'fakeToken'}
+
+  def _MockDownloadUrl(self, params):
+    self.last_download_call = {'url': '/download', 'data': params}
+    return {'docid': '1', 'token': '2'}
+
+  def _MockThumbUrl(self, params, thumbType=None):  # pylint: disable=invalid-name,unused-argument
+    # Hang on to the call arguments.
+    self.last_thumb_call = {'url': '/thumb', 'data': params}
+    return {'thumbid': '3', 'token': '4'}
+
+  def _MockTableDownload(self, params):
+    self.last_table_call = {'url': '/table', 'data': params}
+    return {'docid': '5', 'token': '6'}
 
 
 @contextlib.contextmanager
 def UsingCloudApi(cloud_api_resource=None, mock_http=None):
   """Returns a context manager under which the Cloud API is enabled."""
-  old_use_cloud_api = ee.data._use_cloud_api
   old_cloud_api_resource = ee.data._cloud_api_resource
   try:
-    ee.data._use_cloud_api = True
     if cloud_api_resource is None:
       discovery_doc_path = os.path.join(
          os.path.dirname(os.path.realpath(__file__)),
@@ -85,7 +87,6 @@ def UsingCloudApi(cloud_api_resource=None, mock_http=None):
     ee.data._cloud_api_resource = cloud_api_resource
     yield
   finally:
-    ee.data._use_cloud_api = old_use_cloud_api
     ee.data._cloud_api_resource = old_cloud_api_resource
 
 BUILTIN_FUNCTIONS = {

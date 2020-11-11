@@ -449,20 +449,13 @@ class AclChCommand(object):
     parser.add_argument('-dg', action='append', metavar='remove group',
                         help='Remove all permissions for a user.')
     parser.add_argument('asset_id', help='ID of the asset.')
-    self._cloud_api_enabled = False
 
   def run(self, args, config):
     """Performs an ACL update."""
     config.ee_init()
-    self._cloud_api_enabled = config.use_cloud_api
     permissions = self._parse_permissions(args)
     acl = ee.data.getAssetAcl(args.asset_id)
     self._apply_permissions(acl, permissions)
-    if not config.use_cloud_api:
-      # The original permissions will contain an 'owners' stanza, but the
-      # non-Cloud EE API does not allow setting the owner ACL so we have to
-      # remove it even though it has not changed.
-      del acl['owners']
     ee.data.setAssetAcl(args.asset_id, json.dumps(acl))
 
   def _set_permission(self, permissions, grant, prefix):
@@ -472,7 +465,7 @@ class AclChCommand(object):
       raise ee.EEException('Invalid permission "%s".' % grant)
     user, role = parts
     prefixed_user = user
-    if self._cloud_api_enabled and not self._is_all_users(user):
+    if not self._is_all_users(user):
       prefixed_user = prefix + user
     if prefixed_user in permissions:
       raise ee.EEException('Multiple permission settings for "%s".' % user)
@@ -483,7 +476,7 @@ class AclChCommand(object):
   def _remove_permission(self, permissions, user, prefix):
     """Removes permissions for a given user/group."""
     prefixed_user = user
-    if self._cloud_api_enabled and not self._is_all_users(user):
+    if not self._is_all_users(user):
       prefixed_user = prefix + user
     if prefixed_user in permissions:
       raise ee.EEException('Multiple permission settings for "%s".' % user)
@@ -600,13 +593,6 @@ class AclSetCommand(object):
       acl = self.CANNED_ACLS[args.file_or_acl_name]
     else:
       acl = json.load(open(args.file_or_acl_name))
-      # In the expected usage the ACL file will have come from a previous
-      # invocation of 'acl get', which means it will include an 'owners' stanza,
-      # but the non-Cloud EE API does not allow setting the owner ACL, so we
-      # have to remove it.
-      if 'owners' in acl and not config.use_cloud_api:
-        print('Warning: Not updating the owner ACL.')
-        del acl['owners']
     ee.data.setAssetAcl(args.asset_id, json.dumps(acl))
 
 
@@ -666,35 +652,32 @@ class AssetSetCommand(object):
     properties = _decode_property_flags(args)
     if not properties and args.time_start is None and args.time_end is None:
       raise ee.EEException('No properties specified.')
-    if config.use_cloud_api:
-      update_mask = [
-          'properties.' + property_name for property_name in properties
-      ]
-      asset = {}
-      if properties:
-        asset['properties'] = {
-            k: v for k, v in six.iteritems(properties) if v is not None
-        }
-      # args.time_start and .time_end could have any of three falsy values, with
-      # different meanings:
-      # None: the --time_start flag was not provided at all
-      # '': the --time_start flag was explicitly set to the empty string
-      # 0: the --time_start flag was explicitly set to midnight 1 Jan 1970.
-      # pylint:disable=g-explicit-bool-comparison
-      if args.time_start is not None:
-        update_mask.append('start_time')
-        if args.time_start != '':
-          asset['start_time'] = _cloud_timestamp_for_timestamp_ms(
-              args.time_start)
-      if args.time_end is not None:
-        update_mask.append('end_time')
-        if args.time_end != '':
-          asset['end_time'] = _cloud_timestamp_for_timestamp_ms(args.time_end)
-      # pylint:enable=g-explicit-bool-comparison
-      ee.data.updateAsset(args.asset_id, asset, update_mask)
-      return
-    properties.update(_decode_timestamp_flags(args))
-    ee.data.setAssetProperties(args.asset_id, properties)
+    update_mask = [
+        'properties.' + property_name for property_name in properties
+    ]
+    asset = {}
+    if properties:
+      asset['properties'] = {
+          k: v for k, v in six.iteritems(properties) if v is not None
+      }
+    # args.time_start and .time_end could have any of three falsy values, with
+    # different meanings:
+    # None: the --time_start flag was not provided at all
+    # '': the --time_start flag was explicitly set to the empty string
+    # 0: the --time_start flag was explicitly set to midnight 1 Jan 1970.
+    # pylint:disable=g-explicit-bool-comparison
+    if args.time_start is not None:
+      update_mask.append('start_time')
+      if args.time_start != '':
+        asset['start_time'] = _cloud_timestamp_for_timestamp_ms(
+            args.time_start)
+    if args.time_end is not None:
+      update_mask.append('end_time')
+      if args.time_end != '':
+        asset['end_time'] = _cloud_timestamp_for_timestamp_ms(args.time_end)
+    # pylint:enable=g-explicit-bool-comparison
+    ee.data.updateAsset(args.asset_id, asset, update_mask)
+    return
 
 
 class AssetCommand(Dispatcher):
@@ -1249,10 +1232,10 @@ class UploadImageCommand(object):
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
     config.ee_init()
-    manifest = self.manifest_from_args(args, config)
+    manifest = self.manifest_from_args(args)
     _upload(args, manifest, ee.data.startIngestion)
 
-  def manifest_from_args(self, args, config):
+  def manifest_from_args(self, args):
     """Constructs an upload manifest from the command-line flags."""
 
     def is_tf_record(path):
@@ -1286,94 +1269,58 @@ class UploadImageCommand(object):
       bands = self._check_num_bands(bands, len(args.nodata_value),
                                     'nodata_value')
 
-    if config.use_cloud_api:
-      args.asset_id = ee.data.convert_asset_id_to_asset_name(args.asset_id)
-      # If we are ingesting a tfrecord, we actually treat the inputs as one
-      # source and many uris.
-      if any(is_tf_record(source) for source in source_files):
-        tileset = {
-            'id': 'ts',
-            'sources': [{'uris': [source for source in source_files]}]
-        }
-      else:
-        tileset = {
-            'id': 'ts',
-            'sources': [{'uris': [source]} for source in source_files]
-        }
-      manifest = {
-          'name': args.asset_id,
-          'properties': properties,
-          'tilesets': [tileset]
+    args.asset_id = ee.data.convert_asset_id_to_asset_name(args.asset_id)
+    # If we are ingesting a tfrecord, we actually treat the inputs as one
+    # source and many uris.
+    if any(is_tf_record(source) for source in source_files):
+      tileset = {
+          'id': 'ts',
+          'sources': [{'uris': [source for source in source_files]}]
       }
-      # pylint:disable=g-explicit-bool-comparison
-      if args.time_start is not None and args.time_start != '':
-        manifest['start_time'] = _cloud_timestamp_for_timestamp_ms(
-            args.time_start)
-      if args.time_end is not None and args.time_end != '':
-        manifest['end_time'] = _cloud_timestamp_for_timestamp_ms(args.time_end)
-      # pylint:enable=g-explicit-bool-comparison
-
-      if bands:
-        file_bands = []
-        for i, band in enumerate(bands):
-          file_bands.append({
-              'id': band,
-              'tilesetId': tileset['id'],
-              'tilesetBandIndex': i
-          })
-        manifest['bands'] = file_bands
-
-      if args.pyramiding_policy:
-        if len(args.pyramiding_policy) == 1:
-          manifest['pyramidingPolicy'] = args.pyramiding_policy[0]
-        else:
-          for index, policy in enumerate(args.pyramiding_policy):
-            file_bands[index]['pyramidingPolicy'] = policy
-
-      if args.nodata_value:
-        if len(args.nodata_value) == 1:
-          manifest['missingData'] = {'values': [args.nodata_value[0]]}
-        else:
-          for index, value in enumerate(args.nodata_value):
-            file_bands[index]['missingData'] = {'values': [value]}
-
-      if args.last_band_alpha:
-        manifest['maskBands'] = {'tilesetId': tileset['id']}
-
-      return manifest
-
-    # non-cloud API section
-    properties.update(_decode_timestamp_flags(args))
+    else:
+      tileset = {
+          'id': 'ts',
+          'sources': [{'uris': [source]} for source in source_files]
+      }
     manifest = {
-        'id': args.asset_id,
-        'properties': properties
+        'name': args.asset_id,
+        'properties': properties,
+        'tilesets': [tileset]
     }
-
-    sources = [{'primaryPath': source} for source in source_files]
-    tileset = {'sources': sources}
-    if args.last_band_alpha:
-      tileset['fileBands'] = [{'fileBandIndex': -1, 'maskForAllBands': True}]
-    manifest['tilesets'] = [tileset]
+    # pylint:disable=g-explicit-bool-comparison
+    if args.time_start is not None and args.time_start != '':
+      manifest['start_time'] = _cloud_timestamp_for_timestamp_ms(
+          args.time_start)
+    if args.time_end is not None and args.time_end != '':
+      manifest['end_time'] = _cloud_timestamp_for_timestamp_ms(args.time_end)
+    # pylint:enable=g-explicit-bool-comparison
 
     if bands:
-      manifest['bands'] = [{'id': name} for name in bands]
+      file_bands = []
+      for i, band in enumerate(bands):
+        file_bands.append({
+            'id': band,
+            'tilesetId': tileset['id'],
+            'tilesetBandIndex': i
+        })
+      manifest['bands'] = file_bands
 
     if args.pyramiding_policy:
       if len(args.pyramiding_policy) == 1:
         manifest['pyramidingPolicy'] = args.pyramiding_policy[0]
       else:
         for index, policy in enumerate(args.pyramiding_policy):
-          manifest['bands'][index]['pyramidingPolicy'] = policy
+          file_bands[index]['pyramidingPolicy'] = policy
 
     if args.nodata_value:
       if len(args.nodata_value) == 1:
-        manifest['missingData'] = {'value': args.nodata_value[0]}
+        manifest['missingData'] = {'values': [args.nodata_value[0]]}
       else:
-        for index, nodata in enumerate(args.nodata_value):
-          manifest['bands'][index]['missingData'] = {'value': nodata}
+        for index, value in enumerate(args.nodata_value):
+          file_bands[index]['missingData'] = {'values': [value]}
 
-    if args.crs:
-      manifest['crs'] = args.crs
+    if args.last_band_alpha:
+      manifest['maskBands'] = {'tilesetId': tileset['id']}
 
     return manifest
 
@@ -1484,10 +1431,10 @@ class UploadTableCommand(object):
   def run(self, args, config):
     """Starts the upload task, and waits for completion if requested."""
     config.ee_init()
-    manifest = self.manifest_from_args(args, config)
+    manifest = self.manifest_from_args(args)
     _upload(args, manifest, ee.data.startTableIngestion)
 
-  def manifest_from_args(self, args, config):
+  def manifest_from_args(self, args):
     """Constructs an upload manifest from the command-line flags."""
 
     if args.manifest:
@@ -1502,57 +1449,16 @@ class UploadTableCommand(object):
     if len(source_files) != 1:
       raise ValueError('Exactly one file must be specified.')
 
-    if config.use_cloud_api:
-      properties = _decode_property_flags(args)
-      args.asset_id = ee.data.convert_asset_id_to_asset_name(args.asset_id)
-      source = {'uris': source_files}
-      if args.max_error:
-        source['maxErrorMeters'] = args.max_error
-      if args.max_vertices:
-        source['maxVertices'] = args.max_vertices
-      if args.max_failed_features:
-        raise ee.EEException(
-            '--max_failed_features is not supported with the Cloud API')
-      if args.crs:
-        source['crs'] = args.crs
-      if args.geodesic:
-        source['geodesic'] = args.geodesic
-      if args.primary_geometry_column:
-        source['primary_geometry_column'] = args.primary_geometry_column
-      if args.x_column:
-        source['x_column'] = args.x_column
-      if args.y_column:
-        source['y_column'] = args.y_column
-      if args.date_format:
-        source['date_format'] = args.date_format
-      if args.csv_delimiter:
-        source['csv_delimiter'] = args.csv_delimiter
-      if args.csv_qualifier:
-        source['csv_qualifier'] = args.csv_qualifier
-
-      manifest = {
-          'name': args.asset_id,
-          'sources': [source],
-          'properties': properties
-      }
-
-      # pylint:disable=g-explicit-bool-comparison
-      if args.time_start is not None and args.time_start != '':
-        manifest['start_time'] = _cloud_timestamp_for_timestamp_ms(
-            args.time_start)
-      if args.time_end is not None and args.time_end != '':
-        manifest['end_time'] = _cloud_timestamp_for_timestamp_ms(args.time_end)
-      # pylint:enable=g-explicit-bool-comparison
-      return manifest
-
-    # non-cloud API section
-    source = {'primaryPath': source_files[0]}
+    properties = _decode_property_flags(args)
+    args.asset_id = ee.data.convert_asset_id_to_asset_name(args.asset_id)
+    source = {'uris': source_files}
     if args.max_error:
-      source['max_error'] = args.max_error
+      source['maxErrorMeters'] = args.max_error
     if args.max_vertices:
-      source['max_vertices'] = args.max_vertices
+      source['maxVertices'] = args.max_vertices
     if args.max_failed_features:
-      source['max_failed_features'] = args.max_failed_features
+      raise ee.EEException(
+          '--max_failed_features is not supported with the Cloud API')
     if args.crs:
       source['crs'] = args.crs
     if args.geodesic:
@@ -1570,10 +1476,20 @@ class UploadTableCommand(object):
     if args.csv_qualifier:
       source['csv_qualifier'] = args.csv_qualifier
 
-    return {
-        'id': args.asset_id,
-        'sources': [source]
+    manifest = {
+        'name': args.asset_id,
+        'sources': [source],
+        'properties': properties
     }
+
+    # pylint:disable=g-explicit-bool-comparison
+    if args.time_start is not None and args.time_start != '':
+      manifest['start_time'] = _cloud_timestamp_for_timestamp_ms(
+          args.time_start)
+    if args.time_end is not None and args.time_end != '':
+      manifest['end_time'] = _cloud_timestamp_for_timestamp_ms(args.time_end)
+    # pylint:enable=g-explicit-bool-comparison
+    return manifest
 
 
 class UploadCommand(Dispatcher):

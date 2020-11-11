@@ -392,12 +392,8 @@ class Image(element.Element):
       - any remaining parameters.
     """
     image = self
-    # If the Cloud API is enabled, we can do cleaner handling of the parameters.
-    # If it isn't enabled, we have to be bug-for-bug compatible with current
-    # behaviour, so we do nothing.
-    if data._use_cloud_api:  # pylint: disable=protected-access
-      image, params = image._apply_crs_and_affine(params)  # pylint: disable=protected-access
-      image, params = image._apply_selection_and_scale(params)  # pylint: disable=protected-access
+    image, params = image._apply_crs_and_affine(params)  # pylint: disable=protected-access
+    image, params = image._apply_selection_and_scale(params)  # pylint: disable=protected-access
     return image, params
 
   def getDownloadURL(self, params=None):
@@ -488,17 +484,7 @@ class Image(element.Element):
     # If the Cloud API is enabled, we can do cleaner handling of the parameters.
     # If it isn't enabled, we have to be bug-for-bug compatible with current
     # behaviour.
-    if data._use_cloud_api:  # pylint: disable=protected-access
-      return data.makeThumbUrl(self.getThumbId(params))
-    image, params = self._apply_visualization(params)
-    params['image'] = image
-    if 'region' in params:
-      if isinstance(params['region'], (dict, list)):
-        params['region'] = json.dumps(params['region'])
-      elif not isinstance(params['region'], str):
-        raise ee_exception.EEException(
-            'The region parameter must be an array or a GeoJSON object.')
-    return data.makeThumbUrl(data.getThumbId(params))
+    return data.makeThumbUrl(self.getThumbId(params))
 
   # Deprecated spellings to match the JS library.
   getDownloadUrl = deprecation.Deprecated('Use getDownloadURL().')(

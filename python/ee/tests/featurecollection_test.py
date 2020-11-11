@@ -64,26 +64,20 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
 
   def testDownload(self):
     """Verifies that Download ID and URL generation."""
-    csv_url = ee.FeatureCollection('test7').getDownloadURL('csv')
+    ee.FeatureCollection('test7').getDownloadURL('csv')
 
     self.assertEqual('/table', self.last_table_call['url'])
-    self.assertEqual({
-        'table': ee.FeatureCollection('test7').serialize(),
-        'json_format': 'v2',
-        'format': 'CSV'
-    }, self.last_table_call['data'])
-    self.assertEqual('/api/table?docid=5&token=6', csv_url)
+    self.assertEqual(ee.FeatureCollection('test7').serialize(),
+                     self.last_table_call['data']['table'].serialize())
 
-    everything_url = ee.FeatureCollection('test8').getDownloadURL(
+    ee.FeatureCollection('test8').getDownloadURL(
         'json', 'bar, baz', 'qux')
-    self.assertEqual({
-        'table': ee.FeatureCollection('test8').serialize(),
-        'json_format': 'v2',
-        'format': 'JSON',
-        'selectors': 'bar, baz',
-        'filename': 'qux'
-    }, self.last_table_call['data'])
-    self.assertEqual('/api/table?docid=5&token=6', everything_url)
+    self.assertEqual(
+        ee.FeatureCollection('test8').serialize(),
+        self.last_table_call['data']['table'].serialize())
+    self.assertEqual('JSON', self.last_table_call['data']['format'])
+    self.assertEqual('bar, baz', self.last_table_call['data']['selectors'])
+    self.assertEqual('qux', self.last_table_call['data']['filename'])
 
     self.assertEqual(
         ee.FeatureCollection('test7').getDownloadUrl('csv'),
@@ -101,8 +95,8 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
       })
       url = ee.data.makeTableDownloadUrl(result)
 
-      self.assertDictEqual(result, {'docid': 'table_name', 'token': ''})
-      self.assertEqual(url, '/v1alpha/table_name:getFeatures')
+      self.assertDictEqual(result, {'docid': '5', 'token': '6'})
+      self.assertEqual(url, '/v1alpha/5:getFeatures')
 
   def testSelect(self):
     def equals(c1, c2):

@@ -292,7 +292,5 @@ class ImageCollection(collection.Collection):
     # If the Cloud API is enabled, we can do cleaner handling of the parameters.
     # If it isn't enabled, we have to be bug-for-bug compatible with current
     # behaviour, so we do nothing.
-    if data._use_cloud_api:  # pylint: disable=protected-access
-      return self._apply_preparation_function(image.Image.prepare_for_export,
-                                              params)
-    return self, params
+    return self._apply_preparation_function(image.Image.prepare_for_export,
+                                            params)

@@ -15,16 +15,14 @@ class EETestCase(apitestcase.ApiTestCase):
 
   def setUp(self):
     ee.Reset()
+    ee.data._install_cloud_api_resource = lambda: None
 
   def testInitialization(self):
     """Verifies library initialization."""
 
-    def MockSend(path, params, unused_method=None, unused_raw=None):
-      if path == '/algorithms':
-        return {}
-      else:
-        raise Exception('Unexpected API call to %s with %s' % (path, params))
-    ee.data.send_ = MockSend
+    def MockAlgorithms():
+      return {}
+    ee.data.getAlgorithms = MockAlgorithms
 
     # Verify that the base state is uninitialized.
     self.assertFalse(ee.data._initialized)
@@ -33,14 +31,14 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertFalse(ee.Image._initialized)
 
     # Verify that ee.Initialize() sets the URL and initializes classes.
-    ee.Initialize(None, 'foo', use_cloud_api=False)
+    ee.Initialize(None, 'foo')
     self.assertTrue(ee.data._initialized)
     self.assertEqual(ee.data._api_base_url, 'foo/api')
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertTrue(ee.Image._initialized)
 
     # Verify that ee.Initialize(None) does not override custom URLs.
-    ee.Initialize(None, use_cloud_api=False)
+    ee.Initialize(None)
     self.assertTrue(ee.data._initialized)
     self.assertEqual(ee.data._api_base_url, 'foo/api')
 
@@ -55,24 +53,21 @@ class EETestCase(apitestcase.ApiTestCase):
     """Verifies library initialization."""
 
     # Use a custom set of known functions.
-    def MockSend(path, params, unused_method=None, unused_raw=None):
-      if path == '/algorithms':
-        return {
-            'fakeFunction': {
-                'type': 'Algorithm',
-                'args': [
-                    {'name': 'image1', 'type': 'Image'},
-                    {'name': 'image2', 'type': 'Image'}
-                ],
-                'returns': 'Image'
-            },
-            'Image.constant': apitestcase.BUILTIN_FUNCTIONS['Image.constant']
-        }
-      else:
-        raise Exception('Unexpected API call to %s with %s' % (path, params))
-    ee.data.send_ = MockSend
+    def MockAlgorithms():
+      return {
+          'fakeFunction': {
+              'type': 'Algorithm',
+              'args': [
+                  {'name': 'image1', 'type': 'Image'},
+                  {'name': 'image2', 'type': 'Image'}
+              ],
+              'returns': 'Image'
+          },
+          'Image.constant': apitestcase.BUILTIN_FUNCTIONS['Image.constant']
+      }
+    ee.data.getAlgorithms = MockAlgorithms
 
-    ee.Initialize(None, use_cloud_api=False)
+    ee.Initialize(None)
     image1 = ee.Image(1)
     image2 = ee.Image(2)
     expected = ee.Image(ee.ComputedObject(
@@ -105,77 +100,76 @@ class EETestCase(apitestcase.ApiTestCase):
     """Verifies dynamic class initialization."""
 
     # Use a custom set of known functions.
-    def MockSend(path, unused_params, unused_method=None, unused_raw=None):
-      if path == '/algorithms':
-        return {
-            'Array': {
-                'type': 'Algorithm',
-                'args': [
-                    {
-                        'name': 'values',
-                        'type': 'Serializable',
-                        'description': ''
-                    }
-                ],
-                'description': '',
-                'returns': 'Array'
-            },
-            'Array.cos': {
-                'type': 'Algorithm',
-                'args': [
-                    {
-                        'type': 'Array',
-                        'description': '',
-                        'name': 'input'
-                    }
-                ],
-                'description': '',
-                'returns': 'Array'
-            },
-            'Kernel.circle': {
-                'returns': 'Kernel',
-                'args': [
-                    {
-                        'type': 'float',
-                        'description': '',
-                        'name': 'radius',
-                    },
-                    {
-                        'default': 1.0,
-                        'type': 'float',
-                        'optional': True,
-                        'description': '',
-                        'name': 'scale'
-                    },
-                    {
-                        'default': True,
-                        'type': 'boolean',
-                        'optional': True,
-                        'description': '',
-                        'name': 'normalize'
-                        }
-                    ],
-                'type': 'Algorithm',
-                'description': ''
-            },
-            'Reducer.mean': {
-                'returns': 'Reducer',
-                'args': []
-            },
-            'fakeFunction': {
-                'returns': 'Array',
-                'args': [
-                    {
-                        'type': 'Reducer',
-                        'description': '',
-                        'name': 'kernel',
-                    }
-                ]
-            }
-        }
-    ee.data.send_ = MockSend
+    def MockAlgorithms():
+      return {
+          'Array': {
+              'type': 'Algorithm',
+              'args': [
+                  {
+                      'name': 'values',
+                      'type': 'Serializable',
+                      'description': ''
+                  }
+              ],
+              'description': '',
+              'returns': 'Array'
+          },
+          'Array.cos': {
+              'type': 'Algorithm',
+              'args': [
+                  {
+                      'type': 'Array',
+                      'description': '',
+                      'name': 'input'
+                  }
+              ],
+              'description': '',
+              'returns': 'Array'
+          },
+          'Kernel.circle': {
+              'returns': 'Kernel',
+              'args': [
+                  {
+                      'type': 'float',
+                      'description': '',
+                      'name': 'radius',
+                  },
+                  {
+                      'default': 1.0,
+                      'type': 'float',
+                      'optional': True,
+                      'description': '',
+                      'name': 'scale'
+                  },
+                  {
+                      'default': True,
+                      'type': 'boolean',
+                      'optional': True,
+                      'description': '',
+                      'name': 'normalize'
+                      }
+                  ],
+              'type': 'Algorithm',
+              'description': ''
+          },
+          'Reducer.mean': {
+              'returns': 'Reducer',
+              'args': []
+          },
+          'fakeFunction': {
+              'returns': 'Array',
+              'args': [
+                  {
+                      'type': 'Reducer',
+                      'description': '',
+                      'name': 'kernel',
+                  }
+              ]
+          }
+      }
+    ee.data.getAlgorithms = MockAlgorithms
 
-    ee.Initialize(None, use_cloud_api=False)
+    ee.Initialize(None)
 
     # Verify that the expected classes got generated.
     self.assertTrue(hasattr(ee, 'Array'))
@@ -220,35 +214,34 @@ class EETestCase(apitestcase.ApiTestCase):
     # Bar Foo.makeBar()
     # Bar Foo.takeBar(Bar bar)
     # Baz Foo.baz()
-    def MockSend(path, unused_params, unused_method=None, unused_raw=None):
-      if path == '/algorithms':
-        return {
-            'Foo': {
-                'returns': 'Foo',
-                'args': [
-                    {'name': 'arg1', 'type': 'Object'},
-                    {'name': 'arg2', 'type': 'Object', 'optional': True}
-                ]
-            },
-            'Foo.makeBar': {
-                'returns': 'Bar',
-                'args': [{'name': 'foo', 'type': 'Foo'}]
-            },
-            'Foo.takeBar': {
-                'returns': 'Bar',
-                'args': [
-                    {'name': 'foo', 'type': 'Foo'},
-                    {'name': 'bar', 'type': 'Bar'}
-                ]
-            },
-            'Bar.baz': {
-                'returns': 'Baz',
-                'args': [{'name': 'bar', 'type': 'Bar'}]
-            }
-        }
+    def MockAlgorithms():
+      return {
+          'Foo': {
+              'returns': 'Foo',
+              'args': [
+                  {'name': 'arg1', 'type': 'Object'},
+                  {'name': 'arg2', 'type': 'Object', 'optional': True}
+              ]
+          },
+          'Foo.makeBar': {
+              'returns': 'Bar',
+              'args': [{'name': 'foo', 'type': 'Foo'}]
+          },
+          'Foo.takeBar': {
+              'returns': 'Bar',
+              'args': [
+                  {'name': 'foo', 'type': 'Foo'},
+                  {'name': 'bar', 'type': 'Bar'}
+              ]
+          },
+          'Bar.baz': {
+              'returns': 'Baz',
+              'args': [{'name': 'bar', 'type': 'Bar'}]
+          }
+      }
 
-    ee.data.send_ = MockSend
-    ee.Initialize(None, use_cloud_api=False)
+    ee.data.getAlgorithms = MockAlgorithms
+    ee.Initialize(None)
 
     # Try to cast something that's already of the right class.
     x = ee.Foo('argument')
@@ -327,36 +320,34 @@ class EETestCase(apitestcase.ApiTestCase):
     """Verifies unbound method attachment to ee.Algorithms."""
 
     # Use a custom set of known functions.
-    def MockSend(path, unused_params, unused_method=None, unused_raw=None):
-      if path == '/algorithms':
-        return {
-            'Foo': {
-                'type': 'Algorithm',
-                'args': [],
-                'description': '',
-                'returns': 'Object'
-            },
-            'Foo.bar': {
-                'type': 'Algorithm',
-                'args': [],
-                'description': '',
-                'returns': 'Object'
-            },
-            'Quux.baz': {
-                'type': 'Algorithm',
-                'args': [],
-                'description': '',
-                'returns': 'Object'
-            },
-            'last': {
-                'type': 'Algorithm',
-                'args': [],
-                'description': '',
-                'returns': 'Object'
-            }
-        }
-    ee.data.send_ = MockSend
-    ee.data._use_cloud_api = False
+    def MockAlgorithms():
+      return {
+          'Foo': {
+              'type': 'Algorithm',
+              'args': [],
+              'description': '',
+              'returns': 'Object'
+          },
+          'Foo.bar': {
+              'type': 'Algorithm',
+              'args': [],
+              'description': '',
+              'returns': 'Object'
+          },
+          'Quux.baz': {
+              'type': 'Algorithm',
+              'args': [],
+              'description': '',
+              'returns': 'Object'
+          },
+          'last': {
+              'type': 'Algorithm',
+              'args': [],
+              'description': '',
+              'returns': 'Object'
+          }
+      }
+    ee.data.getAlgorithms = MockAlgorithms
 
     ee.ApiFunction.importApi(lambda: None, 'Quux', 'Quux')
     ee._InitializeUnboundMethods()
@@ -373,49 +364,48 @@ class EETestCase(apitestcase.ApiTestCase):
     bar = u'b\u00E4r'
     baz = u'b\u00E2\u00DF'
 
-    def MockSend(path, unused_params, unused_method=None, unused_raw=None):
-      if path == '/algorithms':
-        return {
-            'Foo': {
-                'type': 'Algorithm',
-                'args': [],
-                'description': foo,
-                'returns': 'Object'
-            },
-            'Image.bar': {
-                'type': 'Algorithm',
-                'args': [{
-                    'name': 'bar',
-                    'type': 'Bar',
-                    'description': bar
-                }],
-                'description': '',
-                'returns': 'Object'
-            },
-            'Image.oldBar': {
-                'type': 'Algorithm',
-                'args': [],
-                'description': foo,
-                'returns': 'Object',
-                'deprecated': 'Causes fire'
-            },
-            'Image.baz': {
-                'type': 'Algorithm',
-                'args': [],
-                'description': baz,
-                'returns': 'Object'
-            },
-            'Image.newBaz': {
-                'type': 'Algorithm',
-                'args': [],
-                'description': baz,
-                'returns': 'Object',
-                'preview': True
-            }
-        }
-    ee.data.send_ = MockSend
+    def MockAlgorithms():
+      return {
+          'Foo': {
+              'type': 'Algorithm',
+              'args': [],
+              'description': foo,
+              'returns': 'Object'
+          },
+          'Image.bar': {
+              'type': 'Algorithm',
+              'args': [{
+                  'name': 'bar',
+                  'type': 'Bar',
+                  'description': bar
+              }],
+              'description': '',
+              'returns': 'Object'
+          },
+          'Image.oldBar': {
+              'type': 'Algorithm',
+              'args': [],
+              'description': foo,
+              'returns': 'Object',
+              'deprecated': 'Causes fire'
+          },
+          'Image.baz': {
+              'type': 'Algorithm',
+              'args': [],
+              'description': baz,
+              'returns': 'Object'
+          },
+          'Image.newBaz': {
+              'type': 'Algorithm',
+              'args': [],
+              'description': baz,
+              'returns': 'Object',
+              'preview': True
+          }
+      }
+    ee.data.getAlgorithms = MockAlgorithms
 
-    ee.Initialize(None, use_cloud_api=False)
+    ee.Initialize(None)
 
     # The initialisation shouldn't blow up.
     self.assertTrue(callable(ee.Algorithms.Foo))
