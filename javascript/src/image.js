@@ -17,7 +17,6 @@ goog.require('ee.data');
 goog.require('ee.data.images');
 goog.require('ee.rpc_node');
 goog.require('goog.array');
-goog.require('goog.json');
 goog.require('goog.object');
 
 
@@ -233,8 +232,7 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getDownloadURL, arguments);
   const request = args['params'] ? goog.object.clone(args['params']) : {};
-  request['image'] =
-      ee.data.getCloudApiEnabled() ? this : this.serialize(/* legacy = */ true);
+  request['image'] = this;
   if (args['callback']) {
     const callback = args['callback'];
     ee.data.getDownloadId(request, (downloadId, error) => {
@@ -272,27 +270,10 @@ ee.Image.prototype.getThumbId = function(params, opt_callback) {
   const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getDownloadURL, arguments);
   let request = args['params'] ? goog.object.clone(args['params']) : {};
-  if (ee.data.getCloudApiEnabled()) {
-    const extra = {};
-    let image = ee.data.images.applyCrsAndTransform(this, request);
-    image =
-        ee.data.images.applySelectionAndScale(image, request, extra);
-    request = ee.data.images.applyVisualization(image, extra);
-  } else {
-    request = ee.data.images.applyVisualization(this, request);
-    if (request['region']) {
-      if (request['region'] instanceof ee.Geometry) {
-        request['region'] = request['region'].toGeoJSON();
-      }
-      if (Array.isArray(request['region']) ||
-          ee.Types.isRegularObject(request['region'])) {
-        request['region'] = goog.json.serialize(request['region']);
-      } else if (typeof request['region'] !== 'string') {
-        throw Error(
-            'The region parameter must be an array or a GeoJSON object.');
-      }
-    }
-  }
+  const extra = {};
+  let image = ee.data.images.applyCrsAndTransform(this, request);
+  image = ee.data.images.applySelectionAndScale(image, request, extra);
+  request = ee.data.images.applyVisualization(image, extra);
   if (args['callback']) {
     ee.data.getThumbId(request, args['callback']);
     return null;
@@ -323,8 +304,6 @@ ee.Image.prototype.getThumbId = function(params, opt_callback) {
 ee.Image.prototype.getThumbURL = function(params, opt_callback) {
   const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getThumbURL, arguments);
-  // If the Cloud API is enabled, we can do cleaner handling of the parameters.
-  // If it isn't, we have to be bug-for-bug compatible with current behaviour.
   if (args['callback']) {
     const callbackWrapper = (thumbId, opt_error) => {
       let thumbUrl = '';

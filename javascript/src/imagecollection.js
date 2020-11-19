@@ -10,7 +10,6 @@ goog.require('ee.ComputedObject');
 goog.require('ee.Image');
 goog.require('ee.List');
 goog.require('ee.Types');
-goog.require('ee.apiclient');
 goog.require('ee.arguments');
 goog.require('ee.data');
 goog.require('ee.data.images');
@@ -226,15 +225,13 @@ ee.ImageCollection.prototype.getThumbURL_ = function(
   }
 
   let getThumbId = ee.data.getThumbId;
-  if (ee.apiclient.getCloudApiEnabled()) {
-    switch (opt_thumbType) {
-      case ee.ImageCollection.ThumbTypes.VIDEO:
-        getThumbId = ee.data.getVideoThumbId;
-        break;
-      case ee.ImageCollection.ThumbTypes.FILMSTRIP:
-        getThumbId = ee.data.getFilmstripThumbId;
-        break;
-    }
+  switch (opt_thumbType) {
+    case ee.ImageCollection.ThumbTypes.VIDEO:
+      getThumbId = ee.data.getVideoThumbId;
+      break;
+    case ee.ImageCollection.ThumbTypes.FILMSTRIP:
+      getThumbId = ee.data.getFilmstripThumbId;
+      break;
   }
 
   if (args['callback']) {

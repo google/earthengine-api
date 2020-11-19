@@ -2,6 +2,7 @@
  * @fileoverview Singleton for all of the library's communication
  * with the Earth Engine API.
  * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
+ * @suppress {useOfGoogProvide} TODO(b/80481479): Convert to goog.module.
  */
 
 goog.provide('ee.data');
@@ -58,20 +59,17 @@ goog.provide('ee.data.ThumbnailId');
 goog.provide('ee.data.Tileset');
 goog.provide('ee.data.VideoTaskConfig');
 goog.require('ee.Serializer');
-goog.require('ee.rpc_convert');
-goog.require('ee.rpc_convert_batch');
-goog.require('goog.Uri');
-goog.require('goog.array');
-goog.require('goog.json');
-goog.require('goog.object');
-
-goog.requireType('ee.Element');
-goog.requireType('ee.Image');
-goog.requireType('ee.Collection');
-goog.require('proto.google.protobuf.Value');
-goog.requireType('ee.data.images');
 goog.require('ee.api');
 goog.require('ee.apiclient');
+goog.require('ee.rpc_convert');
+goog.require('ee.rpc_convert_batch');
+goog.require('goog.array');
+goog.require('goog.object');
+goog.require('proto.google.protobuf.Value');
+goog.requireType('ee.Collection');
+goog.requireType('ee.Element');
+goog.requireType('ee.Image');
+goog.requireType('ee.data.images');
 
 
 
@@ -124,10 +122,7 @@ goog.require('ee.apiclient');
 ee.data.authenticateViaOauth = function(
     clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
   // Remember the auth options.
-  var scopes = [ee.apiclient.AUTH_SCOPE];
-  if (ee.data.getCloudApiEnabled()) {
-    scopes.push(ee.apiclient.CLOUD_PLATFORM_SCOPE);
-  }
+  const scopes = [ee.apiclient.AUTH_SCOPE, ee.apiclient.CLOUD_PLATFORM_SCOPE];
   if (opt_extraScopes) {
     goog.array.extend(scopes, opt_extraScopes);
     goog.array.removeDuplicates(scopes);
@@ -231,10 +226,10 @@ ee.data.authenticateViaPrivateKey = function(
         'Consider using OAuth, instead.');
   }
 
-  var scopes = [ee.apiclient.AUTH_SCOPE, ee.apiclient.STORAGE_SCOPE];
-  if (ee.data.getCloudApiEnabled()) {
-    scopes.push(ee.apiclient.CLOUD_PLATFORM_SCOPE);
-  }
+  const scopes = [
+    ee.apiclient.AUTH_SCOPE, ee.apiclient.STORAGE_SCOPE,
+    ee.apiclient.CLOUD_PLATFORM_SCOPE
+  ];
   if (opt_extraScopes) {
     goog.array.extend(scopes, opt_extraScopes);
     goog.array.removeDuplicates(scopes);
@@ -242,7 +237,7 @@ ee.data.authenticateViaPrivateKey = function(
   ee.apiclient.setAuthClient(privateKey.client_email, scopes);
 
   // Initialize JWT client to authorize as service account.
-  var jwtClient = new google.auth.JWT(
+  const jwtClient = new google.auth.JWT(
       privateKey.client_email, null, privateKey.private_key, scopes, null);
 
   // Configure authentication refresher to use JWT client.
@@ -266,8 +261,6 @@ ee.data.authenticateViaPrivateKey = function(
 ee.data.setApiKey = ee.apiclient.setApiKey;
 ee.data.setProject = ee.apiclient.setProject;
 ee.data.getProject = ee.apiclient.getProject;
-ee.data.setCloudApiEnabled = ee.apiclient.setCloudApiEnabled;
-ee.data.getCloudApiEnabled = ee.apiclient.getCloudApiEnabled;
 
 
 /** @const {string} */
@@ -352,18 +345,10 @@ ee.data.withProfiling = ee.apiclient.withProfiling;
  *     signatures, or null if a callback is specified.
  */
 ee.data.getAlgorithms = function(opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const call = new ee.apiclient.Call(opt_callback);
-    return call.handle(
-        call.algorithms().list(call.projectsPath(), {prettyPrint: false})
-        .then(ee.rpc_convert.algorithms));
-  }
-  const result = ee.data.send_('/algorithms', null, opt_callback, 'GET');
-  if (!opt_callback) {
-    return /** @type {!ee.data.AlgorithmsRegistry} */ (result);
-  }
-
-  return null;
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(call.algorithms()
+                         .list(call.projectsPath(), {prettyPrint: false})
+                         .then(ee.rpc_convert.algorithms));
 };
 
 
@@ -397,42 +382,25 @@ ee.data.getAlgorithms = function(opt_callback) {
  * @export
  */
 ee.data.getMapId = function(params, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    if (typeof params.image === 'string') {
-      throw new Error('Image as JSON string not supported.');
-    }
-    if (params.version !== undefined) {
-      throw new Error('Image version specification not supported.');
-    }
-    const map = new ee.api.EarthEngineMap({
-      name: null,
-      expression: ee.data.expressionAugmenter_(
-          ee.Serializer.encodeCloudApiExpression(params.image)),
-      fileFormat: ee.rpc_convert.fileFormat(params.format),
-      bandIds: ee.rpc_convert.bandList(params.bands),
-      visualizationOptions: ee.rpc_convert.visualizationOptions(params),
-    });
-    const fields = ['name'];
-    const getResponse = (response) => ee.data.makeMapId_(response['name'], '');
-    const call = new ee.apiclient.Call(opt_callback);
-    return call.handle(
-        call.maps().create(call.projectsPath(), map, {fields})
-        .then(getResponse));
+  if (typeof params.image === 'string') {
+    throw new Error('Image as JSON string not supported.');
   }
-  params = /** @type {!ee.data.ImageVisualizationParameters} */ (
-      goog.object.clone(params));
-  if (typeof params.image !== 'string') {
-    params.image = params.image.serialize(/* legacy = */ true);
+  if (params.version !== undefined) {
+    throw new Error('Image version specification not supported.');
   }
-  const makeMapId = (result) => ee.data.makeMapId_(
-      result['mapid'], result['token']);
-  if (opt_callback) {
-    ee.data.send_('/mapid', ee.data.makeRequest_(params),
-        (result, err) => opt_callback(result && makeMapId(result), err));
-    return null;
-  } else {
-    return makeMapId(ee.data.send_('/mapid', ee.data.makeRequest_(params)));
-  }
+  const map = new ee.api.EarthEngineMap({
+    name: null,
+    expression: ee.data.expressionAugmenter_(
+        ee.Serializer.encodeCloudApiExpression(params.image)),
+    fileFormat: ee.rpc_convert.fileFormat(params.format),
+    bandIds: ee.rpc_convert.bandList(params.bands),
+    visualizationOptions: ee.rpc_convert.visualizationOptions(params),
+  });
+  const fields = ['name'];
+  const getResponse = (response) => ee.data.makeMapId_(response['name'], '');
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(
+      call.maps().create(call.projectsPath(), map, {fields}).then(getResponse));
 };
 
 
@@ -501,18 +469,14 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat = '') {
  * @export
  */
 ee.data.computeValue = function(obj, opt_callback) {
-  // TODO(user,user): Use Promises instead of callbacks.
-  if (ee.data.getCloudApiEnabled()) {
-    const expression = ee.data.expressionAugmenter_(
-        ee.Serializer.encodeCloudApiExpression(obj));
-    const call = new ee.apiclient.Call(opt_callback);
-    return call.handle(
-        call.value().compute(call.projectsPath(),
-            new ee.api.ComputeValueRequest({expression}))
-        .then(x => x['result']));
-  }
-  const params = {'json': ee.Serializer.toJSON(obj)};
-  return ee.data.send_('/value', ee.data.makeRequest_(params), opt_callback);
+  const expression =
+      ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(obj));
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(
+      call.value()
+          .compute(
+              call.projectsPath(), new ee.api.ComputeValueRequest({expression}))
+          .then(x => x['result']));
 };
 
 
@@ -533,62 +497,44 @@ ee.data.computeValue = function(obj, opt_callback) {
  * @export
  */
 ee.data.getThumbId = function(params, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    // We only really support accessing this method via ee.Image.getThumbURL,
-    // which folds almost all the parameters into the Image itself.
-    if (typeof params.image === 'string') {
-      throw new Error('Image as JSON string not supported.');
-    }
-    if (params.version !== undefined) {
-      throw new Error('Image version specification not supported.');
-    }
-    if (params.region !== undefined) {
-      throw new Error('"region" not supported in call to ee.data.getThumbId. ' +
-          'Use ee.Image.getThumbURL.');
-    }
-    if (params.dimensions !== undefined) {
-      throw new Error('"dimensions" is not supported in call to ' +
-          'ee.data.getThumbId. Use ee.Image.getThumbURL.');
-    }
-    const thumbnail = new ee.api.Thumbnail({
-      name: null,
-      expression: ee.data.expressionAugmenter_(
-          ee.Serializer.encodeCloudApiExpression(params.image)),
-      fileFormat: ee.rpc_convert.fileFormat(params.format),
-      filenamePrefix: params.name,
-      bandIds: ee.rpc_convert.bandList(params.bands),
-      visualizationOptions: ee.rpc_convert.visualizationOptions(params),
-      grid: null,
-    });
-    const fields = ['name'];
-    const getResponse = (response) => {
-      /** @type {!ee.data.ThumbnailId} */
-      const ret = {thumbid: response['name'], token: ''};
-      return ret;
-    };
-    const call = new ee.apiclient.Call(opt_callback);
-    return call.handle(
-        call.thumbnails().create(call.projectsPath(), thumbnail, {fields})
-        .then(getResponse));
+  // We only really support accessing this method via ee.Image.getThumbURL,
+  // which folds almost all the parameters into the Image itself.
+  if (typeof params.image === 'string') {
+    throw new Error('Image as JSON string not supported.');
   }
-  params = /** @type {!ee.data.ThumbnailOptions} */ (goog.object.clone(params));
-  if (Array.isArray(params.dimensions)) {
-    params.dimensions = params.dimensions.join('x');
+  if (params.version !== undefined) {
+    throw new Error('Image version specification not supported.');
   }
-
-  // The request accepts both serialized ee.Image and ee.ImageCollections, so
-  // we remove the imageCollection field and insert it as the image instead,
-  // if it exists.
-  let image = params.image || params.imageCollection;
-  if (typeof image !== 'string') {
-    image = image.serialize(/* legacy = */ true);
+  if (params.region !== undefined) {
+    throw new Error(
+        '"region" not supported in call to ee.data.getThumbId. ' +
+        'Use ee.Image.getThumbURL.');
   }
-  params.image = image;
-  delete params.imageCollection;
-
-  var request = ee.data.makeRequest_(params).add('getid', '1');
-  return /** @type {?ee.data.ThumbnailId} */(
-      ee.data.send_('/thumb', request, opt_callback));
+  if (params.dimensions !== undefined) {
+    throw new Error(
+        '"dimensions" is not supported in call to ' +
+        'ee.data.getThumbId. Use ee.Image.getThumbURL.');
+  }
+  const thumbnail = new ee.api.Thumbnail({
+    name: null,
+    expression: ee.data.expressionAugmenter_(
+        ee.Serializer.encodeCloudApiExpression(params.image)),
+    fileFormat: ee.rpc_convert.fileFormat(params.format),
+    filenamePrefix: params.name,
+    bandIds: ee.rpc_convert.bandList(params.bands),
+    visualizationOptions: ee.rpc_convert.visualizationOptions(params),
+    grid: null,
+  });
+  const fields = ['name'];
+  const getResponse = (response) => {
+    /** @type {!ee.data.ThumbnailId} */
+    const ret = {thumbid: response['name'], token: ''};
+    return ret;
+  };
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(call.thumbnails()
+                         .create(call.projectsPath(), thumbnail, {fields})
+                         .then(getResponse));
 };
 
 
@@ -603,10 +549,6 @@ ee.data.getThumbId = function(params, opt_callback) {
  * @export
  */
 ee.data.getVideoThumbId = function(params, opt_callback) {
-  if (!ee.data.getCloudApiEnabled()) {
-    throw new Error('getVideoThumbId is only supported in Cloud API mode.');
-  }
-
   const videoOptions = new ee.api.VideoOptions({
     framesPerSecond: params.framesPerSecond || null,
     maxFrames: params.maxFrames || null,
@@ -645,10 +587,6 @@ ee.data.getVideoThumbId = function(params, opt_callback) {
  * @export
  */
 ee.data.getFilmstripThumbId = function(params, opt_callback) {
-  if (!ee.data.getCloudApiEnabled()) {
-    throw new Error('getFilmstripThumbId is only supported in Cloud API mode.');
-  }
-
   const request = new ee.api.FilmstripThumbnail({
     name: null,
     expression: ee.data.expressionAugmenter_(
@@ -677,12 +615,8 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
  * @export
  */
 ee.data.makeThumbUrl = function(id) {
-  if (ee.data.getCloudApiEnabled()) {
-    const base = ee.apiclient.getTileBaseUrl();
-    return `${base}/${ee.apiclient.VERSION}/${id.thumbid}:getPixels`;
-  }
-  return `${ee.apiclient.getTileBaseUrl()}/api/thumb?thumbid=${id.thumbid}` +
-      `&token=${id.token}`;
+  const base = ee.apiclient.getTileBaseUrl();
+  return `${base}/${ee.apiclient.VERSION}/${id.thumbid}:getPixels`;
 };
 
 
@@ -724,92 +658,84 @@ ee.data.makeThumbUrl = function(id) {
  * @export
  */
 ee.data.getDownloadId = function(params, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    params = Object.assign({}, params);
-    // Previously, the docs required an image ID parameter that was changed
-    // to image, so we cast the ID to an ee.Image.
-    if (params['id']) {
-      // This resolves the circular dependency between data.js and image.js.
-      const eeImage = goog.module.get('ee.Image');
-      params['image'] = new eeImage(params['id']);
-    }
-    if (typeof params['image'] === 'string') {
-      throw new Error('Image as serialized JSON string not supported.');
-    }
-    if (!params['image']) {
-      throw new Error('Missing ID or image parameter.');
-    }
-    // The default is a zipped GeoTIFF per band if no format or filePerBand
-    // parameter is specified.
-    params['filePerBand'] = params['filePerBand'] !== false;
-    params['format'] = params['format'] || (params['filePerBand'] ?
-        'ZIPPED_GEO_TIFF_PER_BAND' :
-        'ZIPPED_GEO_TIFF');
-    if (params['region'] != null &&
-        (params['scale'] != null || params['crs_transform'] != null) &&
-        params['dimensions'] != null) {
-      throw new Error(
-          'Cannot specify (bounding region, crs_transform/scale, dimensions) ' +
-          'simultaneously.');
-    }
-    if (typeof params['bands'] === 'string') {
-      // Bands may be a stringified JSON string or a comma-separated string.
-      try {
-        params['bands'] = JSON.parse(params['bands']);
-      } catch (e) {
-        params['bands'] = ee.rpc_convert.bandList(params['bands']);
-      }
-    }
-    if (params['bands'] && !Array.isArray(params['bands'])) {
-      throw new Error('Bands parameter must be an array.');
-    }
-    if (params['bands'] &&
-        params['bands'].every((band) => typeof band === 'string')) {
-      // Support expressing the bands list as a list of strings.
-      params['bands'] = params['bands'].map((band) => {
-        return {id: band};
-      });
-    }
-    if (params['bands'] && params['bands'].some(({id}) => id == null)) {
-      throw new Error('Each band dictionary must have an id.');
-    }
-    if (typeof params['region'] === 'string') {
-      params['region'] = JSON.parse(params['region']);
-    }
-    if (typeof params['crs_transform'] === 'string') {
-      try {
-        // Try parsing the list as a JSON.
-        params['crs_transform'] = JSON.parse(params['crs_transform']);
-      } catch (e) {} // Let the malformed string fall through.
-    }
-    const image = ee.data.images.buildDownloadIdImage(params['image'], params);
-    const thumbnail = new ee.api.Thumbnail({
-      name: null,
-      expression: ee.data.expressionAugmenter_(
-          ee.Serializer.encodeCloudApiExpression(image)),
-      fileFormat: ee.rpc_convert.fileFormat(params['format']),
-      filenamePrefix: params['name'],
-      bandIds: params['bands'] &&
-          ee.rpc_convert.bandList(params['bands'].map((band) => band.id)),
-      grid: null,
-    });
-    const fields = ['name'];
-    const getResponse = (response) => {
-      /** @type {!ee.data.DownloadId} */
-      const ret = {docid: response['name'], token: ''};
-      return ret;
-    };
-    const call = new ee.apiclient.Call(opt_callback);
-    return call.handle(call.thumbnails()
-                           .create(call.projectsPath(), thumbnail, {fields})
-                           .then(getResponse));
+  params = Object.assign({}, params);
+  // Previously, the docs required an image ID parameter that was changed
+  // to image, so we cast the ID to an ee.Image.
+  if (params['id']) {
+    // This resolves the circular dependency between data.js and image.js.
+    const eeImage = goog.module.get('ee.Image');
+    params['image'] = new eeImage(params['id']);
   }
-  params = goog.object.clone(params);
-  const id = /** @type {?ee.data.DownloadId} */ (ee.data.send_(
-      '/download',
-      ee.data.makeRequest_(params),
-      opt_callback));
-  return id;
+  if (typeof params['image'] === 'string') {
+    throw new Error('Image as serialized JSON string not supported.');
+  }
+  if (!params['image']) {
+    throw new Error('Missing ID or image parameter.');
+  }
+  // The default is a zipped GeoTIFF per band if no format or filePerBand
+  // parameter is specified.
+  params['filePerBand'] = params['filePerBand'] !== false;
+  params['format'] = params['format'] ||
+      (params['filePerBand'] ? 'ZIPPED_GEO_TIFF_PER_BAND' : 'ZIPPED_GEO_TIFF');
+  if (params['region'] != null &&
+      (params['scale'] != null || params['crs_transform'] != null) &&
+      params['dimensions'] != null) {
+    throw new Error(
+        'Cannot specify (bounding region, crs_transform/scale, dimensions) ' +
+        'simultaneously.');
+  }
+  if (typeof params['bands'] === 'string') {
+    // Bands may be a stringified JSON string or a comma-separated string.
+    try {
+      params['bands'] = JSON.parse(params['bands']);
+    } catch (e) {
+      params['bands'] = ee.rpc_convert.bandList(params['bands']);
+    }
+  }
+  if (params['bands'] && !Array.isArray(params['bands'])) {
+    throw new Error('Bands parameter must be an array.');
+  }
+  if (params['bands'] &&
+      params['bands'].every((band) => typeof band === 'string')) {
+    // Support expressing the bands list as a list of strings.
+    params['bands'] = params['bands'].map((band) => {
+      return {id: band};
+    });
+  }
+  if (params['bands'] && params['bands'].some(({id}) => id == null)) {
+    throw new Error('Each band dictionary must have an id.');
+  }
+  if (typeof params['region'] === 'string') {
+    params['region'] = JSON.parse(params['region']);
+  }
+  if (typeof params['crs_transform'] === 'string') {
+    try {
+      // Try parsing the list as a JSON.
+      params['crs_transform'] = JSON.parse(params['crs_transform']);
+    } catch (e) {
+    }  // Let the malformed string fall through.
+  }
+  const image = ee.data.images.buildDownloadIdImage(params['image'], params);
+  const thumbnail = new ee.api.Thumbnail({
+    name: null,
+    expression: ee.data.expressionAugmenter_(
+        ee.Serializer.encodeCloudApiExpression(image)),
+    fileFormat: ee.rpc_convert.fileFormat(params['format']),
+    filenamePrefix: params['name'],
+    bandIds: params['bands'] &&
+        ee.rpc_convert.bandList(params['bands'].map((band) => band.id)),
+    grid: null,
+  });
+  const fields = ['name'];
+  const getResponse = (response) => {
+    /** @type {!ee.data.DownloadId} */
+    const ret = {docid: response['name'], token: ''};
+    return ret;
+  };
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(call.thumbnails()
+                         .create(call.projectsPath(), thumbnail, {fields})
+                         .then(getResponse));
 };
 
 
@@ -823,9 +749,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
 ee.data.makeDownloadUrl = function(id) {
   ee.apiclient.initialize();
   const base = ee.apiclient.getTileBaseUrl();
-  return ee.data.getCloudApiEnabled() ?
-      `${base}/${ee.apiclient.VERSION}/${id.docid}:getPixels` :
-      `${base}/api/download?docid=${id.docid}&token=${id.token}`;
+  return `${base}/${ee.apiclient.VERSION}/${id.docid}:getPixels`;
 };
 
 
@@ -845,52 +769,43 @@ ee.data.makeDownloadUrl = function(id) {
  * @export
  */
 ee.data.getTableDownloadId = function(params, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const call = new ee.apiclient.Call(opt_callback);
-    const fileFormat = ee.rpc_convert.tableFileFormat(params['format']);
-    const expression = ee.data.expressionAugmenter_(
-        ee.Serializer.encodeCloudApiExpression(params['table']));
+  const call = new ee.apiclient.Call(opt_callback);
+  const fileFormat = ee.rpc_convert.tableFileFormat(params['format']);
+  const expression = ee.data.expressionAugmenter_(
+      ee.Serializer.encodeCloudApiExpression(params['table']));
 
-    // Maybe convert selectors to an Array of strings.
-    // Previously a string with commas delimiting each selector was supported.
-    let selectors = null;
-    if (params['selectors'] != null) {
-      if (typeof params['selectors'] === 'string') {
-        selectors = params['selectors'].split(',');
-      } else if (
-          Array.isArray(params['selectors']) &&
-          params['selectors'].every((x) => typeof x === 'string')) {
-        selectors = params['selectors'];
-      } else {
-        throw new Error('\'selectors\' parameter must be an array of strings.');
-      }
+  // Maybe convert selectors to an Array of strings.
+  // Previously a string with commas delimiting each selector was supported.
+  let selectors = null;
+  if (params['selectors'] != null) {
+    if (typeof params['selectors'] === 'string') {
+      selectors = params['selectors'].split(',');
+    } else if (
+        Array.isArray(params['selectors']) &&
+        params['selectors'].every((x) => typeof x === 'string')) {
+      selectors = params['selectors'];
+    } else {
+      throw new Error('\'selectors\' parameter must be an array of strings.');
     }
-    const filename = params['filename'] || null;
-    const table = new ee.api.Table({
-      name: null,
-      expression,
-      fileFormat,
-      selectors,
-      filename,
-    });
-    const fields = ['name'];
-    /** @type {function(!ee.api.Table): !ee.data.DownloadId} */
-    const getResponse = (res) => {
-      /** @type {!ee.data.DownloadId} */
-      const ret = {docid: res.name || '', token: ''};
-      return ret;
-    };
-    return call.handle(call.tables()
-                           .create(call.projectsPath(), table, {fields})
-                           .then(getResponse));
   }
-  params = goog.object.clone(params);
-  const id = /** @type {?ee.data.DownloadId} */ (ee.data.send_(
-      '/table',
-      ee.data.makeRequest_(params),
-      opt_callback));
-
-  return id;
+  const filename = params['filename'] || null;
+  const table = new ee.api.Table({
+    name: null,
+    expression,
+    fileFormat,
+    selectors,
+    filename,
+  });
+  const fields = ['name'];
+  /** @type {function(!ee.api.Table): !ee.data.DownloadId} */
+  const getResponse = (res) => {
+    /** @type {!ee.data.DownloadId} */
+    const ret = {docid: res.name || '', token: ''};
+    return ret;
+  };
+  return call.handle(call.tables()
+                         .create(call.projectsPath(), table, {fields})
+                         .then(getResponse));
 };
 
 
@@ -902,10 +817,7 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
  */
 ee.data.makeTableDownloadUrl = function(id) {
   const base = ee.apiclient.getTileBaseUrl();
-  if (ee.data.getCloudApiEnabled()) {
-    return `${base}/${ee.apiclient.VERSION}/${id.docid}:getFeatures`;
-  }
-  return `${base}/api/table?docid=${id.docid}&token=${id.token}`;
+  return `${base}/${ee.apiclient.VERSION}/${id.docid}:getFeatures`;
 };
 
 
@@ -925,22 +837,14 @@ ee.data.makeTableDownloadUrl = function(id) {
  * @export
  */
 ee.data.newTaskId = function(opt_count, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    // From https://en.wikipedia.org/wiki/UUID#Version_4_(random)
-    const rand = (n) => Math.floor(Math.random() * n);
-    const hex = (d) => rand(Math.pow(2, d*4)).toString(16).padStart(d, '0');
-    const variantPart = () => (8 + rand(4)).toString(16) + hex(3);
-    const generateUUID =
-        () => [hex(8), hex(4), '4' + hex(3), variantPart(), hex(12)].join('-');
-    const uuids = goog.array.range(opt_count || 1).map(generateUUID);
-    return opt_callback ? opt_callback(uuids) : uuids;
-  }
-  var params = {};
-  if (typeof opt_count === 'number') {
-    params['count'] = opt_count;
-  }
-  return /** @type {?Array.<string>} */ (
-      ee.data.send_('/newtaskid', ee.data.makeRequest_(params), opt_callback));
+  // From https://en.wikipedia.org/wiki/UUID#Version_4_(random)
+  const rand = (n) => Math.floor(Math.random() * n);
+  const hex = (d) => rand(Math.pow(2, d * 4)).toString(16).padStart(d, '0');
+  const variantPart = () => (8 + rand(4)).toString(16) + hex(3);
+  const generateUUID =
+      () => [hex(8), hex(4), '4' + hex(3), variantPart(), hex(12)].join('-');
+  const uuids = goog.array.range(opt_count || 1).map(generateUUID);
+  return opt_callback ? opt_callback(uuids) : uuids;
 };
 
 
@@ -958,24 +862,19 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
  * @export
  */
 ee.data.getTaskStatus = function(taskId, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const opNames = ee.data.makeStringArray_(taskId).map(
-        ee.rpc_convert.taskIdToOperationName);
-    if (opNames.length === 1) {
-      const getResponse = (op) => [ee.rpc_convert.operationToTask(op)];
-      const call = new ee.apiclient.Call(opt_callback);
-      return call.handle(call.operations().get(opNames[0]).then(getResponse));
-    }
-    const getResponse =
-        (data) => opNames.map(id => ee.rpc_convert.operationToTask(data[id]));
-
-    const call = new ee.apiclient.BatchCall(opt_callback);
-    const operations = call.operations();
-    return call.send(opNames.map(op => [op, operations.get(op)]), getResponse);
+  const opNames = ee.data.makeStringArray_(taskId).map(
+      ee.rpc_convert.taskIdToOperationName);
+  if (opNames.length === 1) {
+    const getResponse = (op) => [ee.rpc_convert.operationToTask(op)];
+    const call = new ee.apiclient.Call(opt_callback);
+    return call.handle(call.operations().get(opNames[0]).then(getResponse));
   }
-  var url = '/taskstatus?q=' + ee.data.makeStringArray_(taskId).join();
-  return /** @type {?Array.<!ee.data.TaskStatus>} */ (
-      ee.data.send_(url, null, opt_callback, 'GET'));
+  const getResponse = (data) =>
+      opNames.map(id => ee.rpc_convert.operationToTask(data[id]));
+
+  const call = new ee.apiclient.BatchCall(opt_callback);
+  const operations = call.operations();
+  return call.send(opNames.map(op => [op, operations.get(op)]), getResponse);
 };
 
 
@@ -1031,75 +930,15 @@ ee.data.getTaskList = function(opt_callback) {
  * @export
  */
 ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    /** @type {function(?Array<!ee.api.Operation>):!ee.data.TaskListResponse} */
-    const convert = (ops) => ({tasks: ops.map(ee.rpc_convert.operationToTask)});
-    if (opt_callback) {
-      /** @type {function(?Array<?>=,string=)} */
-      const callback = (v, e) => opt_callback(v ? convert(v) : null, e);
-      ee.data.listOperations(opt_limit, callback);
-      return null;
-    }
-    return convert(ee.data.listOperations(opt_limit));
-  }
-  var url = '/tasklist';
-  var taskListResponse = {'tasks': []};
-
-  // buildParams returns a configured params object.
-  function buildParams(pageToken) {
-    const params = {'pagesize': ee.data.TASKLIST_PAGE_SIZE_};
-    if (opt_limit) {
-      // pagesize is the lesser of TASKLIST_PAGE_SIZE_ and the number of
-      // remaining tasks to retrieve.
-      params['pagesize'] = Math.min(
-          params['pagesize'], opt_limit - taskListResponse.tasks.length);
-    }
-    if (pageToken) {
-      params['pagetoken'] = pageToken;
-    }
-    return params;
-  }
-
-  // inner retrieves the task list asynchronously and calls callback with a
-  // response/error when done.
-  function inner(callback, opt_pageToken) {
-    const params = buildParams(opt_pageToken);
-    ee.data.send_(url, ee.data.makeRequest_(params), function(resp, err) {
-      if (err) {
-        callback(taskListResponse, err);
-        return;
-      }
-      goog.array.extend(taskListResponse.tasks, resp.tasks);
-      if (!resp.next_page_token ||
-          (opt_limit && taskListResponse.tasks.length >= opt_limit)) {
-        callback(taskListResponse);
-      } else {
-        inner(callback, resp.next_page_token);
-      }
-    }, 'GET');
-  }
-
+  /** @type {function(?Array<!ee.api.Operation>):!ee.data.TaskListResponse} */
+  const convert = (ops) => ({tasks: ops.map(ee.rpc_convert.operationToTask)});
   if (opt_callback) {
-    // Handle the asynchronous case.
-    inner(opt_callback);
+    /** @type {function(?Array<?>=,string=)} */
+    const callback = (v, e) => opt_callback(v ? convert(v) : null, e);
+    ee.data.listOperations(opt_limit, callback);
     return null;
-  } else {
-    // Handle the synchronous case.
-    let nextPageToken = '';
-    while (true) {
-      const params = buildParams(nextPageToken);
-      const resp = /** @type {?ee.data.TaskListResponse} */ (
-          ee.data.send_(url, ee.data.makeRequest_(params), undefined, 'GET'));
-      goog.array.extend(taskListResponse.tasks, resp.tasks);
-      nextPageToken = resp.next_page_token;
-
-      if (!resp.next_page_token ||
-          (opt_limit && taskListResponse.tasks.length >= opt_limit)) {
-        break;
-      }
-    }
   }
-  return /** @type {?ee.data.TaskListResponse} */ (taskListResponse);
+  return convert(ee.data.listOperations(opt_limit));
 };
 
 
@@ -1221,24 +1060,13 @@ ee.data.cancelTask = function(taskId, opt_callback) {
  */
 ee.data.updateTask = function(taskId, action, opt_callback) {
   if (!goog.object.containsValue(ee.data.TaskUpdateActions, action)) {
-    var errorMessage = 'Invalid action: ' + action;
+    const errorMessage = 'Invalid action: ' + action;
     throw new Error(errorMessage);
   }
   taskId = ee.data.makeStringArray_(taskId);
-  if (ee.data.getCloudApiEnabled()) {
-    const operations = taskId.map(ee.rpc_convert.taskIdToOperationName);
-    ee.data.cancelOperation(operations, /** @type {?} */ (opt_callback));
-    return null;
-  }
-
-  var url = '/updatetask';
-  var params = {
-    'id': taskId,
-    'action': action
-  };
-
-  return /** @type {?Array.<!ee.data.TaskStatus>} */ (
-      ee.data.send_(url, ee.data.makeRequest_(params), opt_callback, 'POST'));
+  const operations = taskId.map(ee.rpc_convert.taskIdToOperationName);
+  ee.data.cancelOperation(operations, /** @type {?} */ (opt_callback));
+  return null;
 };
 
 
@@ -1258,49 +1086,34 @@ ee.data.updateTask = function(taskId, action, opt_callback) {
  * @export
  */
 ee.data.startProcessing = function(taskId, params, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    params['id'] = taskId;
-    const taskType = params['type'];
-    const metadata = (params['sourceUrl'] != null) ?
-        {'__source_url__': params['sourceUrl']} :
-        {};
-    const call = new ee.apiclient.Call(opt_callback);
-    const handle = (response) => call.handle(
-        response.then(ee.rpc_convert.operationToProcessingResponse));
-    switch (taskType) {
-      case ee.data.ExportType.IMAGE:
-        const imageRequest =
-            ee.data.prepareExportImageRequest_(params, metadata);
-        return handle(call.image().export(call.projectsPath(), imageRequest));
-      case ee.data.ExportType.TABLE:
-        const tableRequest =
-            ee.rpc_convert_batch.taskToExportTableRequest(params);
-        tableRequest.expression =
-            ee.data.expressionAugmenter_(tableRequest.expression, metadata);
-        return handle(call.table().export(call.projectsPath(), tableRequest));
-      case ee.data.ExportType.VIDEO:
-        const videoRequest =
-            ee.data.prepareExportVideoRequest_(params, metadata);
-        return handle(call.video().export(call.projectsPath(), videoRequest));
-      case ee.data.ExportType.MAP:
-        const mapRequest = ee.data.prepareExportMapRequest_(params, metadata);
-        return handle(call.map().export(call.projectsPath(), mapRequest));
-      default:
-        throw new Error(
-            `Unable to start processing for task of type ${taskType}`);
-    }
-  }
-  params = goog.object.clone(params);
-  if (params['element'] != null) {
-    params['json'] = params['element'].serialize(/* legacy = */ true);
-    delete params['element'];
-  }
-  if (Array.isArray(params['crs_transform'])) {
-    params['crs_transform'] = params['crs_transform'].toString();
-  }
   params['id'] = taskId;
-  return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
-      '/processingrequest', ee.data.makeRequest_(params), opt_callback));
+  const taskType = params['type'];
+  const metadata = (params['sourceUrl'] != null) ?
+      {'__source_url__': params['sourceUrl']} :
+      {};
+  const call = new ee.apiclient.Call(opt_callback);
+  const handle = (response) =>
+      call.handle(response.then(ee.rpc_convert.operationToProcessingResponse));
+  switch (taskType) {
+    case ee.data.ExportType.IMAGE:
+      const imageRequest = ee.data.prepareExportImageRequest_(params, metadata);
+      return handle(call.image().export(call.projectsPath(), imageRequest));
+    case ee.data.ExportType.TABLE:
+      const tableRequest =
+          ee.rpc_convert_batch.taskToExportTableRequest(params);
+      tableRequest.expression =
+          ee.data.expressionAugmenter_(tableRequest.expression, metadata);
+      return handle(call.table().export(call.projectsPath(), tableRequest));
+    case ee.data.ExportType.VIDEO:
+      const videoRequest = ee.data.prepareExportVideoRequest_(params, metadata);
+      return handle(call.video().export(call.projectsPath(), videoRequest));
+    case ee.data.ExportType.MAP:
+      const mapRequest = ee.data.prepareExportMapRequest_(params, metadata);
+      return handle(call.map().export(call.projectsPath(), mapRequest));
+    default:
+      throw new Error(
+          `Unable to start processing for task of type ${taskType}`);
+  }
 };
 
 /**
@@ -1386,21 +1199,13 @@ ee.data.prepareExportMapRequest_ = function(taskConfig, metadata) {
  * @export
  */
 ee.data.startIngestion = function(taskId, request, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const manifest = ee.rpc_convert.toImageManifest(request);
-    const convert = (arg) => /** @type {?ee.data.ProcessingResponse} */ (
-        arg ? ee.rpc_convert.operationToProcessingResponse(arg) : null);
-    const wrappedCallback = /** @type {?} */ (
-        opt_callback && ((arg, err) => opt_callback(convert(arg), err)));
-    // Convert return value in sync mode and callback argument in async mode.
-    return convert(ee.data.ingestImage(taskId, manifest, wrappedCallback));
-  }
-  var params = {
-    'id': taskId,
-    'request': goog.json.serialize(request)
-  };
-  return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
-      '/ingestionrequest', ee.data.makeRequest_(params), opt_callback));
+  const manifest = ee.rpc_convert.toImageManifest(request);
+  const convert = (arg) => /** @type {?ee.data.ProcessingResponse} */ (
+      arg ? ee.rpc_convert.operationToProcessingResponse(arg) : null);
+  const wrappedCallback = /** @type {?} */ (
+      opt_callback && ((arg, err) => opt_callback(convert(arg), err)));
+  // Convert return value in sync mode and callback argument in async mode.
+  return convert(ee.data.ingestImage(taskId, manifest, wrappedCallback));
 };
 
 
@@ -1464,21 +1269,13 @@ ee.data.ingestTable = function(taskId, tableManifest, callback) {
  * @export
  */
 ee.data.startTableIngestion = function(taskId, request, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const manifest = ee.rpc_convert.toTableManifest(request);
-    const convert = (arg) => /** @type {?ee.data.ProcessingResponse} */ (
-        arg ? ee.rpc_convert.operationToProcessingResponse(arg) : null);
-    const wrappedCallback = /** @type {?} */ (
-        opt_callback && ((arg, err) => opt_callback(convert(arg), err)));
-    // Convert return value in sync mode and callback argument in async mode.
-    return convert(ee.data.ingestTable(taskId, manifest, wrappedCallback));
-  }
-  var params = {
-    'id': taskId,
-    'tableRequest': goog.json.serialize(request)
-  };
-  return /** @type {?ee.data.ProcessingResponse} */ (ee.data.send_(
-      '/ingestionrequest', ee.data.makeRequest_(params), opt_callback));
+  const manifest = ee.rpc_convert.toTableManifest(request);
+  const convert = (arg) => /** @type {?ee.data.ProcessingResponse} */ (
+      arg ? ee.rpc_convert.operationToProcessingResponse(arg) : null);
+  const wrappedCallback = /** @type {?} */ (
+      opt_callback && ((arg, err) => opt_callback(convert(arg), err)));
+  // Convert return value in sync mode and callback argument in async mode.
+  return convert(ee.data.ingestTable(taskId, manifest, wrappedCallback));
 };
 
 
@@ -1497,16 +1294,11 @@ ee.data.startTableIngestion = function(taskId, request, opt_callback) {
  * @export
  */
 ee.data.getAsset = function(id, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const call = new ee.apiclient.Call(opt_callback);
-    const name = ee.rpc_convert.assetIdToAssetName(id);
-    return call.handle(
-        call.assets().get(name, {prettyPrint: false})
-        .then(ee.rpc_convert.assetToLegacyResult));
-  }
-  return ee.data.send_('/info',
-                       new goog.Uri.QueryData().add('id', id),
-                       opt_callback);
+  const call = new ee.apiclient.Call(opt_callback);
+  const name = ee.rpc_convert.assetIdToAssetName(id);
+  return call.handle(call.assets()
+                         .get(name, {prettyPrint: false})
+                         .then(ee.rpc_convert.assetToLegacyResult));
 };
 
 
@@ -1540,39 +1332,33 @@ ee.data.getInfo = ee.data.getAsset;
  * @export
  */
 ee.data.getList = function(params, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const call = new ee.apiclient.Call(opt_callback);
-    let methodRoot = call.assets();
-    let parent = ee.rpc_convert.assetIdToAssetName(params['id']);
-    const isProjectAssetRoot =
-        ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(params['id']);
-    if (isProjectAssetRoot) {
-      // Use call.projects() for project asset root calls instead of
-      // call.assets().
-      methodRoot = call.projects();
-      parent = ee.rpc_convert.projectParentFromPath(params['id']);
-    }
-    // If the parameters don't specify anything other than the ID and "num",
-    // then assets.listImages will be called instead of assets.listAssets.
-    // TODO(user): Add support for page tokens for listImages and listAssets.
-    if (Object.keys(params).every(k => k === 'id' || k === 'num')) {
-      return call.handle(
-          methodRoot.listAssets(parent, {pageSize: params['num']})
-          .then(ee.rpc_convert.listAssetsToGetList));
-    } else {
-      if (isProjectAssetRoot) {
-        throw new Error(
-            'getList on a project does not support filtering options. Please ' +
-            'provide a full asset path. Got: ' + params['id']);
-      }
-      const body = ee.rpc_convert.getListToListImages(params);
-      return call.handle(methodRoot.listImages(parent, body)
-                             .then(ee.rpc_convert.listImagesToGetList));
-    }
+  const call = new ee.apiclient.Call(opt_callback);
+  let methodRoot = call.assets();
+  let parent = ee.rpc_convert.assetIdToAssetName(params['id']);
+  const isProjectAssetRoot =
+      ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(params['id']);
+  if (isProjectAssetRoot) {
+    // Use call.projects() for project asset root calls instead of
+    // call.assets().
+    methodRoot = call.projects();
+    parent = ee.rpc_convert.projectParentFromPath(params['id']);
   }
-  const request = ee.data.makeRequest_(params);
-  return /** @type {?ee.data.AssetList} */ (
-      ee.data.send_('/list', request, opt_callback));
+  // If the parameters don't specify anything other than the ID and "num",
+  // then assets.listImages will be called instead of assets.listAssets.
+  // TODO(user): Add support for page tokens for listImages and listAssets.
+  if (Object.keys(params).every(k => k === 'id' || k === 'num')) {
+    return call.handle(methodRoot.listAssets(parent, {pageSize: params['num']})
+                           .then(ee.rpc_convert.listAssetsToGetList));
+  } else {
+    if (isProjectAssetRoot) {
+      throw new Error(
+          'getList on a project does not support filtering options. Please ' +
+          'provide a full asset path. Got: ' + params['id']);
+    }
+    const body = ee.rpc_convert.getListToListImages(params);
+    return call.handle(methodRoot.listImages(parent, body)
+                           .then(ee.rpc_convert.listImagesToGetList));
+  }
 };
 
 
@@ -1649,14 +1435,10 @@ ee.data.listBuckets = function(project, opt_callback) {
  * @export
  */
 ee.data.getAssetRoots = function(opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const call = new ee.apiclient.Call(opt_callback);
-    return call.handle(
-        call.projects().listAssets(call.projectsPath())
-        .then(ee.rpc_convert.listAssetsToGetList));
-  }
-  return /** @type {?Array<!ee.data.FolderDescription>} */ (ee.data.send_(
-      '/buckets', null, opt_callback, 'GET'));
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(call.projects()
+                         .listAssets(call.projectsPath())
+                         .then(ee.rpc_convert.listAssetsToGetList));
 };
 
 
@@ -1672,19 +1454,15 @@ ee.data.getAssetRoots = function(opt_callback) {
  * @export
  */
 ee.data.createAssetHome = function(requestedId, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const parent = ee.rpc_convert.projectParentFromPath(requestedId);
-    const assetId = (parent === 'projects/' + ee.apiclient.DEFAULT_PROJECT)
-        ? requestedId : undefined;
-    const asset = new ee.api.EarthEngineAsset({type: 'Folder'});
-    const call = new ee.apiclient.Call(opt_callback);
-    call.handle(
-        call.assets().create(parent, asset, {assetId})
-        .then(ee.rpc_convert.assetToLegacyResult));
-    return;
-  }
-  var request = ee.data.makeRequest_({'id': requestedId});
-  ee.data.send_('/createbucket', request, opt_callback);
+  const parent = ee.rpc_convert.projectParentFromPath(requestedId);
+  const assetId = (parent === 'projects/' + ee.apiclient.DEFAULT_PROJECT) ?
+      requestedId :
+      undefined;
+  const asset = new ee.api.EarthEngineAsset({type: 'Folder'});
+  const call = new ee.apiclient.Call(opt_callback);
+  call.handle(call.assets()
+                  .create(parent, asset, {assetId})
+                  .then(ee.rpc_convert.assetToLegacyResult));
 };
 
 
@@ -1707,50 +1485,34 @@ ee.data.createAssetHome = function(requestedId, opt_callback) {
  */
 ee.data.createAsset = function(
     value, opt_path, opt_force, opt_properties, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    if (opt_force) {
-      throw new Error('Asset overwrite not supported.');
-    }
-    if (typeof value === 'string') {
-      throw new Error('Asset cannot be specified as string.');
-    }
-    const name = value['name'] || (
-        opt_path && ee.rpc_convert.assetIdToAssetName(opt_path));
-    if (!name) {
-      throw new Error('Either asset name or opt_path must be specified.');
-    }
-    const split = name.indexOf('/assets/');
-    if (split === -1) {
-      throw new Error('Asset name must contain /assets/.');
-    }
-    const asset = new ee.api.EarthEngineAsset(value);
-    const parent = name.slice(0, split);
-    const assetId = name.slice(split + 8);
-    asset.id = null;
-    asset.name = null;
-    if (opt_properties && !asset.properties) {
-      asset.properties = opt_properties;
-    }
-    asset.type = ee.rpc_convert.assetTypeForCreate(asset.type);
-    const call = new ee.apiclient.Call(opt_callback);
-    return call.handle(
-        call.assets().create(parent, asset, {assetId})
-        .then(ee.rpc_convert.assetToLegacyResult));
+  if (opt_force) {
+    throw new Error('Asset overwrite not supported.');
   }
-  if (typeof value !== 'string') {
-    value = goog.json.serialize(value);
+  if (typeof value === 'string') {
+    throw new Error('Asset cannot be specified as string.');
   }
-  var args = {'value': value};
-  if (opt_path !== undefined) {
-    args['id'] = opt_path;
+  const name = value['name'] ||
+      (opt_path && ee.rpc_convert.assetIdToAssetName(opt_path));
+  if (!name) {
+    throw new Error('Either asset name or opt_path must be specified.');
   }
-  args['force'] = opt_force || false;
-  if (opt_properties != undefined) {
-    args['properties'] = goog.json.serialize(opt_properties);
+  const split = name.indexOf('/assets/');
+  if (split === -1) {
+    throw new Error('Asset name must contain /assets/.');
   }
-  return ee.data.send_('/create',
-                       ee.data.makeRequest_(args),
-                       opt_callback);
+  const asset = new ee.api.EarthEngineAsset(value);
+  const parent = name.slice(0, split);
+  const assetId = name.slice(split + 8);
+  asset.id = null;
+  asset.name = null;
+  if (opt_properties && !asset.properties) {
+    asset.properties = opt_properties;
+  }
+  asset.type = ee.rpc_convert.assetTypeForCreate(asset.type);
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(call.assets()
+                         .create(parent, asset, {assetId})
+                         .then(ee.rpc_convert.assetToLegacyResult));
 };
 
 
@@ -1765,17 +1527,8 @@ ee.data.createAsset = function(
  * @export
  */
 ee.data.createFolder = function(path, opt_force, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    return ee.data.createAsset(
-        {type: 'Folder'}, path, opt_force, undefined, opt_callback);
-  }
-  var args = {
-    'id': path,
-    'force': opt_force || false
-  };
-  return ee.data.send_('/createfolder',
-                       ee.data.makeRequest_(args),
-                       opt_callback);
+  return ee.data.createAsset(
+      {type: 'Folder'}, path, opt_force, undefined, opt_callback);
 };
 
 
@@ -1790,18 +1543,13 @@ ee.data.createFolder = function(path, opt_force, opt_callback) {
  * @export
  */
 ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const sourceName = ee.rpc_convert.assetIdToAssetName(sourceId);
-    const destinationName = ee.rpc_convert.assetIdToAssetName(destinationId);
-    const request = new ee.api.MoveAssetRequest({destinationName});
-    const call = new ee.apiclient.Call(opt_callback);
-    call.handle(
-        call.assets().move(sourceName, request)
-        .then(ee.rpc_convert.assetToLegacyResult));
-    return;
-  }
-  var params = {'sourceId': sourceId, 'destinationId': destinationId};
-  ee.data.send_('/rename', ee.data.makeRequest_(params), opt_callback);
+  const sourceName = ee.rpc_convert.assetIdToAssetName(sourceId);
+  const destinationName = ee.rpc_convert.assetIdToAssetName(destinationId);
+  const request = new ee.api.MoveAssetRequest({destinationName});
+  const call = new ee.apiclient.Call(opt_callback);
+  call.handle(call.assets()
+                  .move(sourceName, request)
+                  .then(ee.rpc_convert.assetToLegacyResult));
 };
 
 
@@ -1818,22 +1566,14 @@ ee.data.renameAsset = function(sourceId, destinationId, opt_callback) {
  */
 ee.data.copyAsset = function(
     sourceId, destinationId, opt_overwrite, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const sourceName = ee.rpc_convert.assetIdToAssetName(sourceId);
-    const destinationName = ee.rpc_convert.assetIdToAssetName(destinationId);
-    const overwrite = (opt_overwrite != null) ? opt_overwrite : null;
-    const request = new ee.api.CopyAssetRequest({destinationName, overwrite});
-    const call = new ee.apiclient.Call(opt_callback);
-    call.handle(
-        call.assets().copy(sourceName, request)
-        .then(ee.rpc_convert.assetToLegacyResult));
-    return;
-  }
-  var params = {'sourceId': sourceId, 'destinationId': destinationId};
-  if (opt_overwrite) {
-    params['allowOverwrite'] = opt_overwrite;
-  }
-  ee.data.send_('/copy', ee.data.makeRequest_(params), opt_callback);
+  const sourceName = ee.rpc_convert.assetIdToAssetName(sourceId);
+  const destinationName = ee.rpc_convert.assetIdToAssetName(destinationId);
+  const overwrite = (opt_overwrite != null) ? opt_overwrite : null;
+  const request = new ee.api.CopyAssetRequest({destinationName, overwrite});
+  const call = new ee.apiclient.Call(opt_callback);
+  call.handle(call.assets()
+                  .copy(sourceName, request)
+                  .then(ee.rpc_convert.assetToLegacyResult));
 };
 
 
@@ -1847,14 +1587,8 @@ ee.data.copyAsset = function(
  * @export
  */
 ee.data.deleteAsset = function(assetId, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const call = new ee.apiclient.Call(opt_callback);
-    call.handle(
-        call.assets().delete(ee.rpc_convert.assetIdToAssetName(assetId)));
-    return;
-  }
-  var params = {'id': assetId};
-  ee.data.send_('/delete', ee.data.makeRequest_(params), opt_callback);
+  const call = new ee.apiclient.Call(opt_callback);
+  call.handle(call.assets().delete(ee.rpc_convert.assetIdToAssetName(assetId)));
 };
 
 
@@ -1870,16 +1604,12 @@ ee.data.deleteAsset = function(assetId, opt_callback) {
  * @export
  */
 ee.data.getAssetAcl = function(assetId, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const resource = ee.rpc_convert.assetIdToAssetName(assetId);
-    const request = new ee.api.GetIamPolicyRequest();
-    const call = new ee.apiclient.Call(opt_callback);
-    return call.handle(
-        call.assets().getIamPolicy(resource, request, {prettyPrint: false})
-        .then(ee.rpc_convert.iamPolicyToAcl));
-  }
-  return /** @type {?ee.data.AssetAcl} */ (ee.data.send_(
-      '/getacl', ee.data.makeRequest_({'id': assetId}), opt_callback, 'GET'));
+  const resource = ee.rpc_convert.assetIdToAssetName(assetId);
+  const request = new ee.api.GetIamPolicyRequest();
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(call.assets()
+                         .getIamPolicy(resource, request, {prettyPrint: false})
+                         .then(ee.rpc_convert.iamPolicyToAcl));
 };
 
 
@@ -1976,27 +1706,12 @@ ee.data.updateAsset = function(assetId, asset, updateFields, opt_callback) {
  * @export
  */
 ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const resource = ee.rpc_convert.assetIdToAssetName(assetId);
-    const policy = ee.rpc_convert.aclToIamPolicy(aclUpdate);
-    const request = new ee.api.SetIamPolicyRequest({policy});
-    const call = new ee.apiclient.Call(opt_callback);
-    call.handle(
-        call.assets().setIamPolicy(resource, request, {prettyPrint: false}));
-    return;
-  }
-  // Delete the groups field, as it is only needed for conversion from ACLs to
-  // IamPolicy.
-  aclUpdate = {
-    readers: aclUpdate.readers,
-    writers: aclUpdate.writers,
-    all_users_can_read: aclUpdate.all_users_can_read,
-  };
-  var request = {
-    'id': assetId,
-    'value': goog.json.serialize(aclUpdate)
-  };
-  ee.data.send_('/setacl', ee.data.makeRequest_(request), opt_callback);
+  const resource = ee.rpc_convert.assetIdToAssetName(assetId);
+  const policy = ee.rpc_convert.aclToIamPolicy(aclUpdate);
+  const request = new ee.api.SetIamPolicyRequest({policy});
+  const call = new ee.apiclient.Call(opt_callback);
+  call.handle(
+      call.assets().setIamPolicy(resource, request, {prettyPrint: false}));
 };
 
 
@@ -2014,12 +1729,12 @@ ee.data.setAssetAcl = function(assetId, aclUpdate, opt_callback) {
  * @export
  */
 ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const asset = ee.rpc_convert.legacyPropertiesToAssetUpdate(properties);
-    const camelToSnake = (str) =>
-        str.replace(/([A-Z])/g, (all, cap) => '_' + cap.toLowerCase());
-    const updateFields =
-          asset.getClassMetadata().keys
+  const asset = ee.rpc_convert.legacyPropertiesToAssetUpdate(properties);
+  const camelToSnake = (str) =>
+      str.replace(/([A-Z])/g, (all, cap) => '_' + cap.toLowerCase());
+  const updateFields =
+      asset.getClassMetadata()
+          .keys
           // First filter on top-level properties and convert the keys.
           .filter((k) => k !== 'properties' && asset.Serializable$has(k))
           // Update masks use snake case for declared fields.
@@ -2027,15 +1742,8 @@ ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
           // then append the other asset properties escaping the keys
           // so we update them as-is.
           .concat(Object.keys(asset.properties || {})
-                        .map((k) => `properties."${k}"`));
-    ee.data.updateAsset(assetId, asset, updateFields, opt_callback);
-    return;
-  }
-  var request = {
-    'id': assetId,
-    'properties': goog.json.serialize(properties)
-  };
-  ee.data.send_('/setproperties', ee.data.makeRequest_(request), opt_callback);
+                      .map((k) => `properties."${k}"`));
+  ee.data.updateAsset(assetId, asset, updateFields, opt_callback);
 };
 
 
@@ -2055,38 +1763,31 @@ ee.data.setAssetProperties = function(assetId, properties, opt_callback) {
  * @export
  */
 ee.data.getAssetRootQuota = function(rootId, opt_callback) {
-  if (ee.data.getCloudApiEnabled()) {
-    const name = ee.rpc_convert.assetIdToAssetName(rootId);
-    /** @type {function(!Object):!ee.data.AssetQuotaDetails} */
-    const getResponse = (asset) => {
-      if (!(asset instanceof ee.api.EarthEngineAsset) || !asset.quota) {
-        throw new Error(rootId + ' is not a root folder.');
-      }
-      /** @type {!ee.api.FolderQuota} */
-      const quota = asset.quota;
-      return /** @type {!ee.data.AssetQuotaDetails} */ (
-          ee.rpc_convert.folderQuotaToAssetQuotaDetails(quota));
-    };
-    const call = new ee.apiclient.Call(opt_callback);
-    // TODO(b/141623314): Undo this when the getAssets call accepts /assets/,
-    // as currently, the request must have a full asset path, e.g. /assets/foo.
-    const assetsCall = call.assets();
-    const validateParams = assetsCall.$apiClient.$validateParameter;
-    assetsCall.$apiClient.$validateParameter = (param, pattern) => {
-      if (pattern.source === '^projects\\/[^/]+\\/assets\\/.+$') {
-        // Allow the regex to accept an empty string after the last slash.
-        pattern = new RegExp('^projects\/[^/]+\/assets\/.*$');
-      }
-      return validateParams(param, pattern);
-    };
-    const getAssetRequest = assetsCall.get(name, {prettyPrint: false});
-    return call.handle(getAssetRequest.then(getResponse));
-  }
-  return /** @type {?ee.data.AssetQuotaDetails} */ (ee.data.send_(
-      '/quota',
-      ee.data.makeRequest_({'id': rootId}),
-      opt_callback,
-      'GET'));
+  const name = ee.rpc_convert.assetIdToAssetName(rootId);
+  /** @type {function(!Object):!ee.data.AssetQuotaDetails} */
+  const getResponse = (asset) => {
+    if (!(asset instanceof ee.api.EarthEngineAsset) || !asset.quota) {
+      throw new Error(rootId + ' is not a root folder.');
+    }
+    /** @type {!ee.api.FolderQuota} */
+    const quota = asset.quota;
+    return /** @type {!ee.data.AssetQuotaDetails} */ (
+        ee.rpc_convert.folderQuotaToAssetQuotaDetails(quota));
+  };
+  const call = new ee.apiclient.Call(opt_callback);
+  // TODO(b/141623314): Undo this when the getAssets call accepts /assets/,
+  // as currently, the request must have a full asset path, e.g. /assets/foo.
+  const assetsCall = call.assets();
+  const validateParams = assetsCall.$apiClient.$validateParameter;
+  assetsCall.$apiClient.$validateParameter = (param, pattern) => {
+    if (pattern.source === '^projects\\/[^/]+\\/assets\\/.+$') {
+      // Allow the regex to accept an empty string after the last slash.
+      pattern = new RegExp('^projects\/[^/]+\/assets\/.*$');
+    }
+    return validateParams(param, pattern);
+  };
+  const getAssetRequest = assetsCall.get(name, {prettyPrint: false});
+  return call.handle(getAssetRequest.then(getResponse));
 };
 
 
@@ -3204,6 +2905,7 @@ ee.data.ImageExportFormatConfig;
  *   writePublicTiles: (undefined|boolean),
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
+ *   bucketCorsUris: (undefined|!Array<string>),
  *   mapsApiKey: (undefined|string),
  *   generateEarthHtml: (undefined|boolean)
  * }}

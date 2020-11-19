@@ -12,7 +12,6 @@ const Geometry = goog.require('ee.Geometry');
 const GoogPromise = goog.require('goog.Promise');
 const Image = goog.require('ee.Image');
 const ImageCollection = goog.require('ee.ImageCollection');
-const apiclient = goog.require('ee.apiclient');
 const data = goog.require('ee.data');
 const eeArguments = goog.require('ee.arguments');
 const googArray = goog.require('goog.array');
@@ -445,8 +444,7 @@ Export.resolveRegionParam = function(params) {
         if (error) {
           reject(error);
         } else {
-          if (apiclient.getCloudApiEnabled() &&
-              params['type'] === ExportType.IMAGE) {
+          if (params['type'] === ExportType.IMAGE) {
             params['region'] = new Geometry(regionInfo);
           } else {
             params['region'] = Export.serializeRegion(regionInfo);
@@ -456,8 +454,7 @@ Export.resolveRegionParam = function(params) {
       });
     });
   }
-  if (apiclient.getCloudApiEnabled() &&
-      params['type'] === ExportType.IMAGE) {
+  if (params['type'] === ExportType.IMAGE) {
     params['region'] = new Geometry(region);
   } else {
     params['region'] = Export.serializeRegion(region);

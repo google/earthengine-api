@@ -24,7 +24,7 @@ ee.rpc_convert_batch.ExportDestination = {
 
 
 /**
- * Converts a legacy ExportParameters into an Cloud API ExportImageRequest.
+ * Converts a legacy ExportParameters into a Cloud API ExportImageRequest.
  *
  * @param {!Object} params A parameter list representing a ExportParameters
  * taken from an export TaskConfig.
@@ -65,7 +65,7 @@ ee.rpc_convert_batch.taskToExportImageRequest = function(params) {
 
 
 /**
- * Converts a legacy ExportParameters into an Cloud API ExportTableRequest.
+ * Converts a legacy ExportParameters into a Cloud API ExportTableRequest.
  *
  * @param {!Object} params A parameter list representing a ExportParameters
  *     taken from an export TaskConfig.
@@ -111,7 +111,7 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
 
 
 /**
- * Converts a legacy ExportParameters into an Cloud API ExportVideoRequest.
+ * Converts a legacy ExportParameters into a Cloud API ExportVideoRequest.
  *
  * @param {!Object} params A parameter list representing a ExportParameters
  * taken from an export TaskConfig.
@@ -137,7 +137,7 @@ ee.rpc_convert_batch.taskToExportVideoRequest = function(params) {
 
 
 /**
- * Converts a legacy ExportParameters into an Cloud API ExportMapRequest.
+ * Converts a legacy ExportParameters into a Cloud API ExportMapRequest.
  *
  * @param {!Object} params A parameter list representing a ExportParameters
  * taken from an export TaskConfig.
@@ -160,7 +160,7 @@ ee.rpc_convert_batch.taskToExportMapRequest = function(params) {
 
 
 /**
- * Converts a legacy ExportParameters into an Cloud API ExportVideoMapRequest.
+ * Converts a legacy ExportParameters into a Cloud API ExportVideoMapRequest.
  *
  * @param {!Object} params A parameter list representing a ExportParameters
  * taken from an export TaskConfig.

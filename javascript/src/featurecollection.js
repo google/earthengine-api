@@ -195,14 +195,10 @@ ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
  */
 ee.FeatureCollection.prototype.getDownloadURL = function(
     opt_format, opt_selectors, opt_filename, opt_callback) {
-  var args = ee.arguments.extractFromFunction(
+  const args = ee.arguments.extractFromFunction(
       ee.FeatureCollection.prototype.getDownloadURL, arguments);
-  var request = {};
-  if (ee.data.getCloudApiEnabled()) {
-    request['table'] = this;
-  } else {
-    request['table'] = this.serialize();
-  }
+  const request = {};
+  request['table'] = this;
   if (args['format']) {
     request['format'] = args['format'].toUpperCase();
   }

@@ -7,7 +7,6 @@ goog.provide('ee.layers.TileStartEvent');
 goog.provide('ee.layers.TileThrottleEvent');
 
 goog.forwardDeclare('ee.data.PROFILE_REQUEST_HEADER');
-goog.forwardDeclare('ee.data.getCloudApiEnabled');
 goog.require('ee.data');
 goog.require('ee.layers.AbstractOverlayStats');
 goog.require('goog.array');
@@ -522,10 +521,10 @@ ee.layers.AbstractTile = class extends goog.events.EventTarget {
 
     this.xhrIo_ = new goog.net.XhrIo();
     this.xhrIo_.setResponseType(goog.net.XhrIo.ResponseType.BLOB);
-    this.xhrIo_.listen(goog.net.EventType.COMPLETE, function(event) {
-      var blob = /** @type {!Blob} */ (this.xhrIo_.getResponse());
-      var status = this.xhrIo_.getStatus();
-      var HttpStatus = goog.net.HttpStatus;
+    this.xhrIo_.listen(goog.net.EventType.COMPLETE, (event) => {
+      const blob = /** @type {!Blob} */ (this.xhrIo_.getResponse());
+      const status = this.xhrIo_.getStatus();
+      const HttpStatus = goog.net.HttpStatus;
       if (status == HttpStatus.TOO_MANY_REQUESTS) {
         this.setStatus(ee.layers.AbstractTile.Status.THROTTLED);
       }
@@ -533,29 +532,27 @@ ee.layers.AbstractTile = class extends goog.events.EventTarget {
       if (HttpStatus.isSuccess(status)) {
         // Normalize case in headers so lookups can be naïve — XhrIo does not.
         const sourceResponseHeaders = {};
-        goog.object.forEach(
-            this.xhrIo_.getResponseHeaders(), function(value, name) {
-              sourceResponseHeaders[name.toLowerCase()] = value;
-            });
+        goog.object.forEach(this.xhrIo_.getResponseHeaders(), (value, name) => {
+          sourceResponseHeaders[name.toLowerCase()] = value;
+        });
         this.sourceResponseHeaders = sourceResponseHeaders;
 
         this.sourceData = blob;
         this.finishLoad();
       } else if (blob) {
-        var reader = new goog.fs.FileReader();
-        reader.listen(goog.fs.FileReader.EventType.LOAD_END, function() {
+        const reader = new goog.fs.FileReader();
+        reader.listen(goog.fs.FileReader.EventType.LOAD_END, () => {
           this.retryLoad(/** @type {string} */ (reader.getResult()));
-        }, undefined, this);
+        }, undefined);
         reader.readAsText(blob);
       } else {
         this.retryLoad('Failed to load tile.');
       }
-    }, false, this);
+    }, false);
     this.xhrIo_.listenOnce(
         goog.net.EventType.READY, goog.partial(goog.dispose, this.xhrIo_));
 
-    if (this.sourceUrl && this.sourceUrl.endsWith('&profiling=1') &&
-        ee.data.getCloudApiEnabled()) {
+    if (this.sourceUrl && this.sourceUrl.endsWith('&profiling=1')) {
       this.sourceUrl = this.sourceUrl.replace('&profiling=1', '');
       this.xhrIo_.headers.set(ee.data.PROFILE_REQUEST_HEADER, '1');
     }

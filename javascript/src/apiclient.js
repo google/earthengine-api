@@ -26,8 +26,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 const apiclient = {};
 
 
-const API_CLIENT_VERSION = '0.1.242';
-const LEGACY_DOWNLOAD_REGEX = /^\/(table).*/;
+const API_CLIENT_VERSION = '0.1.243';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -402,21 +401,6 @@ apiclient.getProject = function() {
   return apiclient.project_;
 };
 
-/**
- * Enables use of the Cloud API when making requests.
- * @param {boolean} enable
- */
-apiclient.setCloudApiEnabled = function(enable) {
-  apiclient.cloudApiEnabled_ = enable;
-};
-
-/**
- * @return {boolean} True if the Cloud API is enabled.
- */
-apiclient.getCloudApiEnabled = function() {
-  return apiclient.cloudApiEnabled_;
-};
-
 
 /**
  * Constructs a URL for API requests that is safe to use in both browser and
@@ -452,10 +436,7 @@ apiclient.getSafeApiUrl = function() {
 apiclient.setAuthToken = function(
     clientId, tokenType, accessToken, expiresIn, extraScopes, callback,
     updateAuthLibrary) {
-  const scopes = [apiclient.AUTH_SCOPE_];
-  if (apiclient.cloudApiEnabled_) {
-    scopes.push(apiclient.CLOUD_PLATFORM_SCOPE_);
-  }
+  const scopes = [apiclient.AUTH_SCOPE_, apiclient.CLOUD_PLATFORM_SCOPE_];
   if (extraScopes) {
     array.extend(scopes, extraScopes);
     array.removeDuplicates(scopes);
@@ -514,7 +495,7 @@ apiclient.refreshAuthToken = function(success, error, onImmediateFailed) {
     if (result.error == 'immediate_failed' && onImmediateFailed) {
       onImmediateFailed();
     } else {
-      if (apiclient.cloudApiEnabled_ && 'window' in goog.global) {
+      if ('window' in goog.global) {
         try {
           // Refresh the library auth token and handle error propagation.
           apiclient.ensureAuthLibLoaded_(function() {
@@ -650,9 +631,7 @@ apiclient.initialize = function(apiBaseUrl, tileBaseUrl, xsrfToken) {
   if (xsrfToken !== undefined) {  // Passing an explicit null clears it.
     apiclient.xsrfToken_ = xsrfToken;
   }
-  if (apiclient.cloudApiEnabled_) {
-    apiclient.setProject(apiclient.getProject() || apiclient.DEFAULT_PROJECT_);
-  }
+  apiclient.setProject(apiclient.getProject() || apiclient.DEFAULT_PROJECT_);
   apiclient.initialized_ = true;
 };
 
@@ -773,9 +752,7 @@ apiclient.send = function(
   const headers = {
     'Content-Type': contentType,
   };
-  const forceLegacyApi = LEGACY_DOWNLOAD_REGEX.test(path);
-  if (API_CLIENT_VERSION && apiclient.getCloudApiEnabled() &&
-      !forceLegacyApi) {
+  if (API_CLIENT_VERSION) {
     let version = API_CLIENT_VERSION;
     headers[apiclient.API_CLIENT_VERSION_HEADER] = 'ee-js/' + version;
   }
@@ -801,18 +778,12 @@ apiclient.send = function(
     params.add('key', apiclient.cloudApiKey_);
   }
 
-  if (apiclient.cloudApiEnabled_) {
-    if (profileHookAtCallTime) {
-      headers[apiclient.PROFILE_REQUEST_HEADER] = '1';
-    }
-    if (apiclient.getProject() &&
-        apiclient.getProject() !== apiclient.DEFAULT_PROJECT_ &&
-        !forceLegacyApi) {
-      headers[apiclient.USER_PROJECT_OVERRIDE_HEADER_] = apiclient.getProject();
-    }
-  } else
   if (profileHookAtCallTime) {
-    params.add('profiling', '1');  // Request profiling results.
+    headers[apiclient.PROFILE_REQUEST_HEADER] = '1';
+  }
+  if (apiclient.getProject() &&
+      apiclient.getProject() !== apiclient.DEFAULT_PROJECT_) {
+    headers[apiclient.USER_PROJECT_OVERRIDE_HEADER_] = apiclient.getProject();
   }
 
   params = apiclient.paramAugmenter_(params, path);
@@ -989,12 +960,6 @@ apiclient.handleResponse_ = function(
   if (profileId && profileHook) {
     profileHook(profileId);
   }
-  const getData = (response) => {
-    if (apiclient.cloudApiEnabled_) {
-      return response;
-    }
-    return response['data'];
-  };
   const parseJson = (body) => {
     try {
       const response = JSON.parse(body);
@@ -1024,7 +989,7 @@ apiclient.handleResponse_ = function(
   if (contentType === 'application/json' || contentType === 'text/json') {
     const response = parseJson(responseText);
     if (response.parsed) {
-      data = getData(response.parsed);
+      data = response.parsed;
       if (data === undefined) {
         errorMessage = 'Malformed response: ' + responseText;
       }
@@ -1037,7 +1002,7 @@ apiclient.handleResponse_ = function(
     apiclient.parseBatchReply(typeHeader, responseText, (id, status, text) => {
       const response = parseJson(text);
       if (response.parsed) {
-        data[id] = getData(response.parsed);
+        data[id] = response.parsed;
       }
       const error = (response.parsed ? '' : response) || statusError(status);
       if (error) {
@@ -1503,12 +1468,6 @@ apiclient.STORAGE_SCOPE_ =
  */
 apiclient.cloudApiKey_ = null;
 
-/**
- * Enables the Cloud API library.
- * @private {boolean}
- */
-apiclient.cloudApiEnabled_ = true;
-
 
 /**
  * Whether the library has been initialized.
@@ -1668,8 +1627,6 @@ exports.setApiKey = apiclient.setApiKey;
 exports.getApiKey = apiclient.getApiKey;
 exports.setProject = apiclient.setProject;
 exports.getProject = apiclient.getProject;
-exports.setCloudApiEnabled = apiclient.setCloudApiEnabled;
-exports.getCloudApiEnabled = apiclient.getCloudApiEnabled;
 exports.DEFAULT_PROJECT = apiclient.DEFAULT_PROJECT_;
 exports.PROFILE_HEADER = apiclient.PROFILE_HEADER;
 exports.PROFILE_REQUEST_HEADER = apiclient.PROFILE_REQUEST_HEADER;
