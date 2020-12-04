@@ -73,7 +73,10 @@ ee.data.images.applyTransformsToCollection = function(taskConfig) {
 ee.data.images.applySelectionAndScale = function(image, params, outParams) {
   const clipParams = {};
   const SCALING_KEYS = ['maxDimension', 'width', 'height', 'scale'];
-  goog.object.forEach(params, function(value, key) {
+  goog.object.forEach(params, (value, key) => {
+    if (value == null) {
+      return;
+    }
     switch (key) {
       case 'dimensions':
         const dims = (typeof value === 'string') ?

@@ -2,8 +2,6 @@
 # Lint as: python3
 """Handle the routing for the application."""
 
-
-import cachetools
 import collections
 import json
 import os
@@ -11,11 +9,11 @@ import threading
 from xml.etree import ElementTree
 
 from absl import logging
+import cachetools
 import cloudstorage as gcs
 import flask
 from flask import request
 from flask_wtf import csrf
-import httplib
 import requests
 
 from google.appengine.api import app_identity
@@ -64,14 +62,14 @@ def restrict_frames(response):
 def csrf_error():
   return flask.make_response(
       flask.jsonify(error="CSRF token is expired; please refresh the page."),
-      httplib.BAD_REQUEST)
+      400)
 
 
-@server.errorhandler(httplib.BAD_REQUEST)
+@server.errorhandler(400)
 def bad_request(error):
   return flask.make_response(
       flask.jsonify(error=error.description),
-      httplib.BAD_REQUEST)
+      400)
 
 
 def _getint(d, key, default=None):

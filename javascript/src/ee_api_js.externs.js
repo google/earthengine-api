@@ -1195,7 +1195,7 @@ ee.initialize = function(opt_baseurl, opt_tileurl, opt_successCallback, opt_erro
  */
 ee.layers = {};
 /**
- * @param {!ee.layers.AbstractTileSource} tileSource
+ * @param {!module$contents$ee$layers$AbstractTileSource_AbstractTileSource} tileSource
  * @param {(Object|null)=} opt_options
  * @extends {goog.events.EventTarget}
  * @implements {goog.disposable.IDisposable}
@@ -1218,7 +1218,7 @@ ee.layers.AbstractOverlay.prototype.addTileCallback = function(callback) {
 ee.layers.AbstractOverlay.prototype.removeTileCallback = function(callbackId) {
 };
 /**
- * @param {!ee.layers.AbstractTileSource} tileSource
+ * @param {!module$contents$ee$layers$AbstractTileSource_AbstractTileSource} tileSource
  * @param {(Object|null)=} opt_options
  * @extends {ee.layers.AbstractOverlay}
  * @implements {goog.disposable.IDisposable}
@@ -1233,7 +1233,7 @@ ee.layers.BinaryOverlay = function(tileSource, opt_options) {
  * @param {string} path
  * @param {number} maxZoom
  * @param {string=} opt_suffix
- * @extends {ee.layers.AbstractTileSource}
+ * @extends {module$contents$ee$layers$AbstractTileSource_AbstractTileSource}
  * @implements {goog.disposable.IDisposable}
  * @constructor
  */
@@ -1242,14 +1242,14 @@ ee.layers.CloudStorageTileSource = function(bucket, path, maxZoom, opt_suffix) {
 /**
  * @param {!ee.data.RawMapId} mapId
  * @param {(ee.data.Profiler|null)=} opt_profiler
- * @extends {ee.layers.AbstractTileSource}
+ * @extends {module$contents$ee$layers$AbstractTileSource_AbstractTileSource}
  * @implements {goog.disposable.IDisposable}
  * @constructor
  */
 ee.layers.EarthEngineTileSource = function(mapId, opt_profiler) {
 };
 /**
- * @param {!ee.layers.AbstractTileSource} tileSource
+ * @param {!module$contents$ee$layers$AbstractTileSource_AbstractTileSource} tileSource
  * @param {(Object|null)=} opt_options
  * @extends {ee.layers.AbstractOverlay}
  * @implements {goog.disposable.IDisposable}

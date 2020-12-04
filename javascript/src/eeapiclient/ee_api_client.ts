@@ -5292,6 +5292,7 @@ export interface GeoTiffImageExportOptionsParameters {
   cloudOptimized?: boolean|null;
   tileDimensions?: GridDimensions|null;
   skipEmptyFiles?: boolean|null;
+  tileSize?: number|null;
 }
 export class GeoTiffImageExportOptions extends Serializable {
   constructor(parameters: GeoTiffImageExportOptionsParameters = {}) {
@@ -5308,6 +5309,9 @@ export class GeoTiffImageExportOptions extends Serializable {
         'skipEmptyFiles',
         (parameters.skipEmptyFiles == null) ? (null) :
                                               (parameters.skipEmptyFiles));
+    this.Serializable$set(
+        'tileSize',
+        (parameters.tileSize == null) ? (null) : (parameters.tileSize));
   }
 
   get cloudOptimized(): boolean|null {
@@ -5348,10 +5352,27 @@ export class GeoTiffImageExportOptions extends Serializable {
 
   /**
    * Optional explicit dimensions in pixels into which to split the image if it
-   * is too large to fit in a single file.
+   * is too large to fit in a single file. This must be set to a multiple of the
+   * tile size, by default is 256.
    */
   set tileDimensions(value: GridDimensions|null) {
     this.Serializable$set('tileDimensions', value);
+  }
+
+  get tileSize(): number|null {
+    return (
+        (this.Serializable$has('tileSize')) ?
+            (this.Serializable$get('tileSize')) :
+            (null));
+  }
+
+  /**
+   * Optional. Optional parameter setting the output tile size. This parameter
+   * is the side dimension in pixels of intermediate output tiles. The default
+   * tile size is 256, which corresponds to a 256x256 tile.
+   */
+  set tileSize(value: number|null) {
+    this.Serializable$set('tileSize', value);
   }
 
   getConstructor(): SerializableCtor<GeoTiffImageExportOptions> {
@@ -5360,7 +5381,7 @@ export class GeoTiffImageExportOptions extends Serializable {
 
   getPartialClassMetadata(): Partial<ClassMetadata> {
     return {
-      keys: ['cloudOptimized', 'skipEmptyFiles', 'tileDimensions'],
+      keys: ['cloudOptimized', 'skipEmptyFiles', 'tileDimensions', 'tileSize'],
       objects: {'tileDimensions': GridDimensions}
     };
   }

@@ -11,6 +11,7 @@ from __future__ import print_function
 # pylint: disable=g-bad-import-order
 import contextlib
 import json
+import platform
 import re
 import threading
 import uuid
@@ -292,8 +293,11 @@ def _get_cloud_api_resource():
 def _make_request_headers():
   """Adds headers based on client context."""
   headers = {}
+  client_version_header_values = []
   if _cloud_api_client_version is not None:
-    headers[_API_CLIENT_VERSION_HEADER] = 'ee-py/' + _cloud_api_client_version
+    client_version_header_values.append('ee-py/' + _cloud_api_client_version)
+  client_version_header_values.append('python/' + platform.python_version())
+  headers[_API_CLIENT_VERSION_HEADER] = ' '.join(client_version_header_values)
   if _thread_locals.profile_hook:
     headers[_PROFILE_REQUEST_HEADER] = '1'
   if _cloud_api_user_project is not None:
@@ -1537,7 +1541,7 @@ def setAssetAcl(assetId, aclUpdate):
     aclUpdate: The updated ACL for the asset. Must be formatted like the
         value returned by getAssetAcl but without "owners".
   """
-    # The ACL may be a string by the time it gets to us. Sigh.
+  # The ACL may be a string by the time it gets to us. Sigh.
   if isinstance(aclUpdate, six.string_types):
     aclUpdate = json.loads(aclUpdate)
   setIamPolicy(assetId, _cloud_api_utils.convert_acl_to_iam_policy(aclUpdate))

@@ -3,7 +3,7 @@
  Copyright The Closure Library Authors.
  SPDX-License-Identifier: Apache-2.0
 */
-var isNotChrome87, $jscomp = $jscomp || {};
+var isChrome87, $jscomp = $jscomp || {};
 $jscomp.scope = {};
 $jscomp.arrayIteratorImpl = function(array) {
   var index = 0;
@@ -9672,13 +9672,14 @@ module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions = function(pa
   this.Serializable$set("cloudOptimized", null == parameters.cloudOptimized ? null : parameters.cloudOptimized);
   this.Serializable$set("tileDimensions", null == parameters.tileDimensions ? null : parameters.tileDimensions);
   this.Serializable$set("skipEmptyFiles", null == parameters.skipEmptyFiles ? null : parameters.skipEmptyFiles);
+  this.Serializable$set("tileSize", null == parameters.tileSize ? null : parameters.tileSize);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions;
 };
 module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["cloudOptimized", "skipEmptyFiles", "tileDimensions"], objects:{tileDimensions:module$exports$eeapiclient$ee_api_client.GridDimensions}};
+  return {keys:["cloudOptimized", "skipEmptyFiles", "tileDimensions", "tileSize"], objects:{tileDimensions:module$exports$eeapiclient$ee_api_client.GridDimensions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions.prototype, {cloudOptimized:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("cloudOptimized") ? this.Serializable$get("cloudOptimized") : null;
@@ -9692,6 +9693,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("tileDimensions") ? this.Serializable$get("tileDimensions") : null;
 }, set:function(value) {
   this.Serializable$set("tileDimensions", value);
+}}, tileSize:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("tileSize") ? this.Serializable$get("tileSize") : null;
+}, set:function(value) {
+  this.Serializable$set("tileSize", value);
 }}});
 module$exports$eeapiclient$ee_api_client.GetIamPolicyRequestParameters = function module$contents$eeapiclient$ee_api_client_GetIamPolicyRequestParameters() {
 };
@@ -14726,7 +14731,7 @@ third_party$javascript$closure$log$log$classdecl$var5.prototype.getLogRegistryEn
 third_party$javascript$closure$log$log$classdecl$var5.prototype.getAllLoggers = function() {
   var $jscomp$this = this;
   return Object.keys(this.entries).map(function(loggerName) {
-    return $jscomp$this.entries[loggerName];
+    return $jscomp$this.entries[loggerName].logger;
   });
 };
 goog.log.LogRegistry = third_party$javascript$closure$log$log$classdecl$var5;
@@ -15255,7 +15260,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.243";
+ee.apiclient.API_CLIENT_VERSION = "0.1.244";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15510,8 +15515,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.243";
-  "0.1.243" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.244";
+  "0.1.244" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -18281,18 +18286,18 @@ jspb.arith.Int64.fromString = function(s) {
   hasNegative && (num = (new jspb.arith.UInt64(0, 0)).sub(num));
   return new jspb.arith.Int64(num.lo, num.hi);
 };
-jspb.BinaryEncoder = function() {
+var module$contents$jspb$BinaryEncoder_BinaryEncoder = function() {
   this.buffer_ = [];
 };
-jspb.BinaryEncoder.prototype.length = function() {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.length = function() {
   return this.buffer_.length;
 };
-jspb.BinaryEncoder.prototype.end = function() {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.end = function() {
   var buffer = this.buffer_;
   this.buffer_ = [];
   return buffer;
 };
-jspb.BinaryEncoder.prototype.writeSplitVarint64 = function(lowBits, highBits) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeSplitVarint64 = function(lowBits, highBits) {
   goog.asserts.assert(lowBits == Math.floor(lowBits));
   goog.asserts.assert(highBits == Math.floor(highBits));
   goog.asserts.assert(0 <= lowBits && 4294967296 > lowBits);
@@ -18301,7 +18306,7 @@ jspb.BinaryEncoder.prototype.writeSplitVarint64 = function(lowBits, highBits) {
   }
   this.buffer_.push(lowBits);
 };
-jspb.BinaryEncoder.prototype.writeSplitFixed64 = function(lowBits, highBits) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeSplitFixed64 = function(lowBits, highBits) {
   goog.asserts.assert(lowBits == Math.floor(lowBits));
   goog.asserts.assert(highBits == Math.floor(highBits));
   goog.asserts.assert(0 <= lowBits && 4294967296 > lowBits);
@@ -18309,20 +18314,20 @@ jspb.BinaryEncoder.prototype.writeSplitFixed64 = function(lowBits, highBits) {
   this.writeUint32(lowBits);
   this.writeUint32(highBits);
 };
-jspb.BinaryEncoder.prototype.writeSplitZigzagVarint64 = function(lowBits, highBits) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeSplitZigzagVarint64 = function(lowBits, highBits) {
   var self = this;
   module$contents$jspb$utils_toZigzag64(lowBits, highBits, function(lo, hi) {
     self.writeSplitVarint64(lo >>> 0, hi >>> 0);
   });
 };
-jspb.BinaryEncoder.prototype.writeUnsignedVarint32 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeUnsignedVarint32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   for (goog.asserts.assert(0 <= value && 4294967296 > value); 127 < value;) {
     this.buffer_.push(value & 127 | 128), value >>>= 7;
   }
   this.buffer_.push(value);
 };
-jspb.BinaryEncoder.prototype.writeSignedVarint32 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeSignedVarint32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-2147483648 <= value && 2147483648 > value);
   if (0 <= value) {
@@ -18334,48 +18339,48 @@ jspb.BinaryEncoder.prototype.writeSignedVarint32 = function(value) {
     this.buffer_.push(1);
   }
 };
-jspb.BinaryEncoder.prototype.writeUnsignedVarint64 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeUnsignedVarint64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(0 <= value && 18446744073709551616 > value);
   module$contents$jspb$utils_splitInt64(value);
   this.writeSplitVarint64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
-jspb.BinaryEncoder.prototype.writeSignedVarint64 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeSignedVarint64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-9223372036854775808 <= value && 9223372036854775808 > value);
   module$contents$jspb$utils_splitInt64(value);
   this.writeSplitVarint64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
-jspb.BinaryEncoder.prototype.writeZigzagVarint32 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeZigzagVarint32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-2147483648 <= value && 2147483648 > value);
   this.writeUnsignedVarint32((value << 1 ^ value >> 31) >>> 0);
 };
-jspb.BinaryEncoder.prototype.writeZigzagVarint64 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeZigzagVarint64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-9223372036854775808 <= value && 9223372036854775808 > value);
   module$contents$jspb$utils_splitZigzag64(value);
   this.writeSplitVarint64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
-jspb.BinaryEncoder.prototype.writeZigzagVarint64String = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeZigzagVarint64String = function(value) {
   var self = this;
   module$contents$jspb$utils_splitDecimalString(value);
   module$contents$jspb$utils_toZigzag64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High(), function(lo, hi) {
     self.writeSplitVarint64(lo >>> 0, hi >>> 0);
   });
 };
-jspb.BinaryEncoder.prototype.writeUint8 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeUint8 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(0 <= value && 256 > value);
   this.buffer_.push(value >>> 0 & 255);
 };
-jspb.BinaryEncoder.prototype.writeUint16 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeUint16 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(0 <= value && 65536 > value);
   this.buffer_.push(value >>> 0 & 255);
   this.buffer_.push(value >>> 8 & 255);
 };
-jspb.BinaryEncoder.prototype.writeUint32 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeUint32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(0 <= value && 4294967296 > value);
   this.buffer_.push(value >>> 0 & 255);
@@ -18383,25 +18388,25 @@ jspb.BinaryEncoder.prototype.writeUint32 = function(value) {
   this.buffer_.push(value >>> 16 & 255);
   this.buffer_.push(value >>> 24 & 255);
 };
-jspb.BinaryEncoder.prototype.writeUint64 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeUint64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(0 <= value && 18446744073709551616 > value);
   module$contents$jspb$utils_splitUint64(value);
   this.writeUint32(module$contents$jspb$utils_getSplit64Low());
   this.writeUint32(module$contents$jspb$utils_getSplit64High());
 };
-jspb.BinaryEncoder.prototype.writeInt8 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeInt8 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-128 <= value && 128 > value);
   this.buffer_.push(value >>> 0 & 255);
 };
-jspb.BinaryEncoder.prototype.writeInt16 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeInt16 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-32768 <= value && 32768 > value);
   this.buffer_.push(value >>> 0 & 255);
   this.buffer_.push(value >>> 8 & 255);
 };
-jspb.BinaryEncoder.prototype.writeInt32 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeInt32 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-2147483648 <= value && 2147483648 > value);
   this.buffer_.push(value >>> 0 & 255);
@@ -18409,42 +18414,42 @@ jspb.BinaryEncoder.prototype.writeInt32 = function(value) {
   this.buffer_.push(value >>> 16 & 255);
   this.buffer_.push(value >>> 24 & 255);
 };
-jspb.BinaryEncoder.prototype.writeInt64 = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeInt64 = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-9223372036854775808 <= value && 9223372036854775808 > value);
   module$contents$jspb$utils_splitInt64(value);
   this.writeSplitFixed64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
-jspb.BinaryEncoder.prototype.writeInt64String = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeInt64String = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-9223372036854775808 <= +value && 9223372036854775808 > +value);
   module$contents$jspb$utils_splitDecimalString(value);
   this.writeSplitFixed64(module$contents$jspb$utils_getSplit64Low(), module$contents$jspb$utils_getSplit64High());
 };
-jspb.BinaryEncoder.prototype.writeFloat = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeFloat = function(value) {
   goog.asserts.assert(Infinity === value || -Infinity === value || isNaN(value) || -3.4028234663852886E38 <= value && 3.4028234663852886e+38 >= value);
   module$contents$jspb$utils_splitFloat32(value);
   this.writeUint32(module$contents$jspb$utils_getSplit64Low());
 };
-jspb.BinaryEncoder.prototype.writeDouble = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeDouble = function(value) {
   goog.asserts.assert(Infinity === value || -Infinity === value || isNaN(value) || -1.7976931348623157E308 <= value && 1.7976931348623157e+308 >= value);
   module$contents$jspb$utils_splitFloat64(value);
   this.writeUint32(module$contents$jspb$utils_getSplit64Low());
   this.writeUint32(module$contents$jspb$utils_getSplit64High());
 };
-jspb.BinaryEncoder.prototype.writeBool = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeBool = function(value) {
   goog.asserts.assert("boolean" === typeof value || "number" === typeof value);
   this.buffer_.push(value ? 1 : 0);
 };
-jspb.BinaryEncoder.prototype.writeEnum = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeEnum = function(value) {
   goog.asserts.assert(value == Math.floor(value));
   goog.asserts.assert(-2147483648 <= value && 2147483648 > value);
   this.writeSignedVarint32(value);
 };
-jspb.BinaryEncoder.prototype.writeBytes = function(bytes) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeBytes = function(bytes) {
   this.buffer_.push.apply(this.buffer_, bytes);
 };
-jspb.BinaryEncoder.prototype.writeString = function(value) {
+module$contents$jspb$BinaryEncoder_BinaryEncoder.prototype.writeString = function(value) {
   for (var oldLength = this.buffer_.length, i = 0; i < value.length; i++) {
     var c = value.charCodeAt(i);
     if (128 > c) {
@@ -18466,6 +18471,7 @@ jspb.BinaryEncoder.prototype.writeString = function(value) {
   }
   return this.buffer_.length - oldLength;
 };
+jspb.BinaryEncoder = module$contents$jspb$BinaryEncoder_BinaryEncoder;
 goog.userAgent.product = {};
 goog.userAgent.product.ASSUME_FIREFOX = !1;
 goog.userAgent.product.ASSUME_IPHONE = !1;
@@ -18583,7 +18589,7 @@ goog.crypt.base64.init_ = function() {
 var module$contents$jspb$BinaryWriter_BinaryWriter = function() {
   this.blocks_ = [];
   this.totalLength_ = 0;
-  this.encoder_ = new jspb.BinaryEncoder;
+  this.encoder_ = new module$contents$jspb$BinaryEncoder_BinaryEncoder;
   this.bookmarks_ = [];
 };
 module$contents$jspb$BinaryWriter_BinaryWriter.prototype.appendUint8Array_ = function(arr) {
@@ -19747,11 +19753,22 @@ module$contents$jspb$Message_Message.getFieldWithDefault = function(msg, fieldNu
   var value = module$contents$jspb$Message_Message.getField(msg, fieldNumber);
   return null == value ? defaultValue : value;
 };
+module$contents$jspb$Message_Message.getIntegerFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  return module$contents$jspb$Message_Message.getFieldWithDefault(msg, fieldNumber, void 0 === defaultValue ? 0 : defaultValue);
+};
+module$contents$jspb$Message_Message.getStringFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  return module$contents$jspb$Message_Message.getFieldWithDefault(msg, fieldNumber, void 0 === defaultValue ? "" : defaultValue);
+};
+module$contents$jspb$Message_Message.getIntegerInStringFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  return module$contents$jspb$Message_Message.getFieldWithDefault(msg, fieldNumber, void 0 === defaultValue ? "0" : defaultValue);
+};
 module$contents$jspb$Message_Message.getBooleanFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  defaultValue = void 0 === defaultValue ? !1 : defaultValue;
   var value = module$contents$jspb$Message_Message.getBooleanField(msg, fieldNumber);
   return null == value ? defaultValue : value;
 };
 module$contents$jspb$Message_Message.getFloatingPointFieldWithDefault = function(msg, fieldNumber, defaultValue) {
+  defaultValue = void 0 === defaultValue ? 0.0 : defaultValue;
   var value = module$contents$jspb$Message_Message.getOptionalFloatingPointField(msg, fieldNumber);
   return null == value ? defaultValue : value;
 };
@@ -19778,6 +19795,24 @@ module$contents$jspb$Message_Message.setField = function(msg, fieldNumber, value
   module$contents$jspb$Message_Message.checkNotFrozen_(msg);
   fieldNumber < msg.pivot_ ? msg.array[module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber)] = value : (module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(msg), msg.extensionObject_[fieldNumber] = value);
   return msg;
+};
+module$contents$jspb$Message_Message.clearField = function(msg, fieldNumber) {
+  return module$contents$jspb$Message_Message.setField(msg, fieldNumber, void 0);
+};
+module$contents$jspb$Message_Message.clearRepeatedField = function(msg, fieldNumber) {
+  return module$contents$jspb$Message_Message.setField(msg, fieldNumber, []);
+};
+module$contents$jspb$Message_Message.clearWrapperField = function(msg, fieldNumber) {
+  return module$contents$jspb$Message_Message.setWrapperField(msg, fieldNumber, void 0);
+};
+module$contents$jspb$Message_Message.clearRepeatedWrapperField = function(msg, fieldNumber) {
+  return module$contents$jspb$Message_Message.setRepeatedWrapperField(msg, fieldNumber, []);
+};
+module$contents$jspb$Message_Message.clearOneofField = function(msg, fieldNumber, oneof) {
+  return module$contents$jspb$Message_Message.setOneofField(msg, fieldNumber, oneof, void 0);
+};
+module$contents$jspb$Message_Message.clearOneofWrapperField = function(msg, fieldNumber, oneof) {
+  return module$contents$jspb$Message_Message.setOneofWrapperField(msg, fieldNumber, oneof, void 0);
 };
 module$contents$jspb$Message_Message.setProto3IntField = function(msg, fieldNumber, value) {
   return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0);
@@ -20224,7 +20259,7 @@ proto.google.protobuf.Value.prototype.getKindCase = function() {
 module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Value.prototype.toObject = function(opt_includeInstance) {
   return proto.google.protobuf.Value.toObject(opt_includeInstance, this);
 }, proto.google.protobuf.Value.toObject = function(includeInstance, msg) {
-  var f, obj = {nullValue:module$contents$jspb$Message_Message.getFieldWithDefault(msg, 1, 0), numberValue:module$contents$jspb$Message_Message.getFloatingPointFieldWithDefault(msg, 2, 0.0), stringValue:module$contents$jspb$Message_Message.getFieldWithDefault(msg, 3, ""), boolValue:module$contents$jspb$Message_Message.getBooleanFieldWithDefault(msg, 4, !1), structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && proto.google.protobuf.ListValue.toObject(includeInstance, 
+  var f, obj = {nullValue:module$contents$jspb$Message_Message.getFieldWithDefault(msg, 1, 0), numberValue:module$contents$jspb$Message_Message.getFloatingPointFieldWithDefault(msg, 2), stringValue:module$contents$jspb$Message_Message.getStringFieldWithDefault(msg, 3), boolValue:module$contents$jspb$Message_Message.getBooleanFieldWithDefault(msg, 4), structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && proto.google.protobuf.ListValue.toObject(includeInstance, 
   f)};
   includeInstance && (obj.$jspbMessageInstance = msg);
   return obj;
@@ -20306,43 +20341,43 @@ proto.google.protobuf.Value.prototype.setNullValue = function(value) {
   return module$contents$jspb$Message_Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearNullValue = function() {
-  return module$contents$jspb$Message_Message.setOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return module$contents$jspb$Message_Message.clearOneofField(this, 1, proto.google.protobuf.Value.oneofGroups_[0]);
 };
 proto.google.protobuf.Value.prototype.hasNullValue = function() {
   return module$contents$jspb$Message_Message.hasField(this, 1);
 };
 proto.google.protobuf.Value.prototype.getNumberValue = function() {
-  return module$contents$jspb$Message_Message.getFloatingPointFieldWithDefault(this, 2, 0.0);
+  return module$contents$jspb$Message_Message.getFloatingPointFieldWithDefault(this, 2);
 };
 proto.google.protobuf.Value.prototype.setNumberValue = function(value) {
   return module$contents$jspb$Message_Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearNumberValue = function() {
-  return module$contents$jspb$Message_Message.setOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return module$contents$jspb$Message_Message.clearOneofField(this, 2, proto.google.protobuf.Value.oneofGroups_[0]);
 };
 proto.google.protobuf.Value.prototype.hasNumberValue = function() {
   return module$contents$jspb$Message_Message.hasField(this, 2);
 };
 proto.google.protobuf.Value.prototype.getStringValue = function() {
-  return module$contents$jspb$Message_Message.getFieldWithDefault(this, 3, "");
+  return module$contents$jspb$Message_Message.getStringFieldWithDefault(this, 3);
 };
 proto.google.protobuf.Value.prototype.setStringValue = function(value) {
   return module$contents$jspb$Message_Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearStringValue = function() {
-  return module$contents$jspb$Message_Message.setOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return module$contents$jspb$Message_Message.clearOneofField(this, 3, proto.google.protobuf.Value.oneofGroups_[0]);
 };
 proto.google.protobuf.Value.prototype.hasStringValue = function() {
   return module$contents$jspb$Message_Message.hasField(this, 3);
 };
 proto.google.protobuf.Value.prototype.getBoolValue = function() {
-  return module$contents$jspb$Message_Message.getBooleanFieldWithDefault(this, 4, !1);
+  return module$contents$jspb$Message_Message.getBooleanFieldWithDefault(this, 4);
 };
 proto.google.protobuf.Value.prototype.setBoolValue = function(value) {
   return module$contents$jspb$Message_Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearBoolValue = function() {
-  return module$contents$jspb$Message_Message.setOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0], void 0);
+  return module$contents$jspb$Message_Message.clearOneofField(this, 4, proto.google.protobuf.Value.oneofGroups_[0]);
 };
 proto.google.protobuf.Value.prototype.hasBoolValue = function() {
   return module$contents$jspb$Message_Message.hasField(this, 4);
@@ -20354,7 +20389,7 @@ proto.google.protobuf.Value.prototype.setStructValue = function(value) {
   return module$contents$jspb$Message_Message.setOneofWrapperField(this, 5, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearStructValue = function() {
-  return this.setStructValue(void 0);
+  return module$contents$jspb$Message_Message.clearOneofWrapperField(this, 5, proto.google.protobuf.Value.oneofGroups_[0]);
 };
 proto.google.protobuf.Value.prototype.hasStructValue = function() {
   return module$contents$jspb$Message_Message.hasField(this, 5);
@@ -20366,7 +20401,7 @@ proto.google.protobuf.Value.prototype.setListValue = function(value) {
   return module$contents$jspb$Message_Message.setOneofWrapperField(this, 6, proto.google.protobuf.Value.oneofGroups_[0], value);
 };
 proto.google.protobuf.Value.prototype.clearListValue = function() {
-  return this.setListValue(void 0);
+  return module$contents$jspb$Message_Message.clearOneofWrapperField(this, 6, proto.google.protobuf.Value.oneofGroups_[0]);
 };
 proto.google.protobuf.Value.prototype.hasListValue = function() {
   return module$contents$jspb$Message_Message.hasField(this, 6);
@@ -20426,7 +20461,7 @@ proto.google.protobuf.ListValue.prototype.addValues = function(opt_value, opt_in
   return module$contents$jspb$Message_Message.addToRepeatedWrapperField(this, 1, opt_value, proto.google.protobuf.Value, opt_index);
 };
 proto.google.protobuf.ListValue.prototype.clearValuesList = function() {
-  return this.setValuesList([]);
+  return module$contents$jspb$Message_Message.clearRepeatedWrapperField(this, 1);
 };
 proto.google.protobuf.ListValue.deserialize = function(data) {
   return module$contents$jspb$Message_Message.deserializeWithCtor(proto.google.protobuf.ListValue, data);
@@ -22123,32 +22158,34 @@ ee.data.images.applyTransformsToCollection = function(taskConfig) {
 ee.data.images.applySelectionAndScale = function(image, params, outParams) {
   var clipParams = {}, SCALING_KEYS = ["maxDimension", "width", "height", "scale"];
   goog.object.forEach(params, function(value, key) {
-    switch(key) {
-      case "dimensions":
-        var dims = "string" === typeof value ? value.split("x").map(Number) : Array.isArray(value) ? value : "number" === typeof value ? [value] : [];
-        if (1 === dims.length) {
-          clipParams.maxDimension = dims[0];
-        } else {
-          if (2 === dims.length) {
-            clipParams.width = dims[0], clipParams.height = dims[1];
+    if (null != value) {
+      switch(key) {
+        case "dimensions":
+          var dims = "string" === typeof value ? value.split("x").map(Number) : Array.isArray(value) ? value : "number" === typeof value ? [value] : [];
+          if (1 === dims.length) {
+            clipParams.maxDimension = dims[0];
           } else {
-            throw Error("Invalid dimensions " + value);
+            if (2 === dims.length) {
+              clipParams.width = dims[0], clipParams.height = dims[1];
+            } else {
+              throw Error("Invalid dimensions " + value);
+            }
           }
-        }
-        break;
-      case "bbox":
-        null != clipParams.geometry && console.warn("Multiple request parameters converted to region.");
-        clipParams.geometry = ee.data.images.bboxToGeometry(value);
-        break;
-      case "region":
-        null != clipParams.geometry && console.warn("Multiple request parameters converted to region.");
-        clipParams.geometry = ee.data.images.regionToGeometry(value);
-        break;
-      case "scale":
-        clipParams.scale = Number(value);
-        break;
-      default:
-        outParams[key] = value;
+          break;
+        case "bbox":
+          null != clipParams.geometry && console.warn("Multiple request parameters converted to region.");
+          clipParams.geometry = ee.data.images.bboxToGeometry(value);
+          break;
+        case "region":
+          null != clipParams.geometry && console.warn("Multiple request parameters converted to region.");
+          clipParams.geometry = ee.data.images.regionToGeometry(value);
+          break;
+        case "scale":
+          clipParams.scale = Number(value);
+          break;
+        default:
+          outParams[key] = value;
+      }
     }
   });
   goog.object.isEmpty(clipParams) || (clipParams.input = image, image = SCALING_KEYS.some(function(key) {
@@ -25073,10 +25110,11 @@ ee.layers.AbstractTile.EventType = {STATUS_CHANGED:"status-changed"};
 ee.layers.AbstractTile.Status = {NEW:"new", LOADING:"loading", THROTTLED:"throttled", LOADED:"loaded", FAILED:"failed", ABORTED:"aborted", REMOVED:"removed", };
 ee.layers.AbstractTile.DONE_STATUS_SET_ = goog.object.createSet(ee.layers.AbstractTile.Status.ABORTED, ee.layers.AbstractTile.Status.FAILED, ee.layers.AbstractTile.Status.LOADED, ee.layers.AbstractTile.Status.REMOVED);
 ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_ = 5;
-ee.layers.AbstractTileSource = function() {
+var module$contents$ee$layers$AbstractTileSource_AbstractTileSource = function() {
   goog.Disposable.call(this);
 };
-$jscomp.inherits(ee.layers.AbstractTileSource, goog.Disposable);
+$jscomp.inherits(module$contents$ee$layers$AbstractTileSource_AbstractTileSource, goog.Disposable);
+ee.layers.AbstractTileSource = module$contents$ee$layers$AbstractTileSource_AbstractTileSource;
 ee.layers.BinaryOverlay = function(tileSource, opt_options) {
   ee.layers.AbstractOverlay.call(this, tileSource, opt_options);
   this.buffersByCoord_ = new goog.structs.Map;
@@ -25254,13 +25292,13 @@ goog.string.path.split = function(path) {
   return [head, tail];
 };
 ee.layers.CloudStorageTileSource = function(bucket, path, maxZoom, opt_suffix) {
-  ee.layers.AbstractTileSource.call(this);
+  module$contents$ee$layers$AbstractTileSource_AbstractTileSource.call(this);
   this.bucket_ = bucket;
   this.path_ = path;
   this.suffix_ = opt_suffix || "";
   this.maxZoom_ = maxZoom;
 };
-$jscomp.inherits(ee.layers.CloudStorageTileSource, ee.layers.AbstractTileSource);
+$jscomp.inherits(ee.layers.CloudStorageTileSource, module$contents$ee$layers$AbstractTileSource_AbstractTileSource);
 ee.layers.CloudStorageTileSource.prototype.loadTile = function(tile, opt_priority) {
   if (tile.zoom <= this.maxZoom_) {
     tile.sourceUrl = this.getTileUrl_(tile.coord, tile.zoom);
@@ -25622,11 +25660,11 @@ goog.structs.PriorityPool.prototype.disposeInternal = function() {
   this.requestQueue_ = null;
 };
 ee.layers.EarthEngineTileSource = function(mapId, opt_profiler) {
-  ee.layers.AbstractTileSource.call(this);
+  module$contents$ee$layers$AbstractTileSource_AbstractTileSource.call(this);
   this.mapId_ = mapId;
   this.profiler_ = opt_profiler || null;
 };
-$jscomp.inherits(ee.layers.EarthEngineTileSource, ee.layers.AbstractTileSource);
+$jscomp.inherits(ee.layers.EarthEngineTileSource, module$contents$ee$layers$AbstractTileSource_AbstractTileSource);
 ee.layers.EarthEngineTileSource.prototype.loadTile = function(tile, opt_priority) {
   var ProfilerHeader = ee.data.PROFILE_HEADER.toLowerCase(), key = goog.events.listen(tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
     switch(tile.getStatus()) {
