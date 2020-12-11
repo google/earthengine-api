@@ -68,10 +68,14 @@ ee.FeatureCollection = function(args, opt_column) {
     if (opt_column) {
       actualArgs['geometryColumn'] = opt_column;
     }
-    ee.FeatureCollection.base(this, 'constructor', new ee.ApiFunction('Collection.loadTable'), actualArgs);
+    ee.FeatureCollection.base(
+        this, 
+        'constructor', 
+        new ee.ApiFunction('Collection.loadTable'), actualArgs);
   } else if (Array.isArray(args)) {
     // A list of features.
-    ee.FeatureCollection.base(this, 'constructor', new ee.ApiFunction('Collection'), {
+    ee.FeatureCollection.base(
+        this, 'constructor', new ee.ApiFunction('Collection'), {
       'features': goog.array.map(args, function(elem) {
         return new ee.Feature(elem);
       })
@@ -81,13 +85,15 @@ ee.FeatureCollection = function(args, opt_column) {
     ee.FeatureCollection.base(
         this, 'constructor', new ee.ApiFunction('Collection'),
         {'features': args});
-  } else if (args instanceof Object && args['type'] === 'FeatureCollection') {
+  } else if (args && typeof args === 'object'
+      && args['type'] === 'FeatureCollection') {
     ee.FeatureCollection.base(
         this, 'constructor', new ee.ApiFunction('Collection'),
         {'features': args['features'].map(f => new ee.Feature(f))});
   } else if (args instanceof ee.ComputedObject) {
     // A custom object to reinterpret as a FeatureCollection.
-    ee.FeatureCollection.base(this, 'constructor', args.func, args.args, args.varName);
+    ee.FeatureCollection.base(
+        this, 'constructor', args.func, args.args, args.varName);
   } else {
     throw Error('Unrecognized argument type to convert to a ' +
                 'FeatureCollection: ' + args);

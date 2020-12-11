@@ -26,7 +26,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 const apiclient = {};
 
 
-const API_CLIENT_VERSION = '0.1.244';
+const API_CLIENT_VERSION = '0.1.245';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -541,7 +541,7 @@ apiclient.setAuthTokenRefresher = function(refresher) {
  */
 apiclient.getAuthToken = function() {
   const isExpired = apiclient.authTokenExpiration_ &&
-                  (goog.now() - apiclient.authTokenExpiration_) >= 0;
+                  (Date.now() - apiclient.authTokenExpiration_) >= 0;
   if (isExpired) {
     apiclient.clearAuthToken();
   }
@@ -1050,7 +1050,7 @@ apiclient.ensureAuthLibLoaded_ = function(callback) {
     done();
   } else {
     // The library is not loaded; load it now.
-    let callbackName = goog.now().toString(36);
+    let callbackName = Date.now().toString(36);
     while (callbackName in goog.global) {
       callbackName += '_';
     }
@@ -1103,7 +1103,7 @@ apiclient.handleAuthResult_ = function(success, error, result) {
         timeout['unref']();
       }
 
-      apiclient.authTokenExpiration_ = goog.now() + expiresInMs;
+      apiclient.authTokenExpiration_ = Date.now() + expiresInMs;
     }
     apiclient.authToken_ = token;
     if (success) {

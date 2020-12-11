@@ -9080,9 +9080,10 @@ export class TableSource extends Serializable {
 
   /**
    * A format with which to parse fields encoding dates. The format pattern must
-   * be as described at http: //joda-time.sourceforge.net/apidocs/org/ //
-   * joda/time/format/DateTimeFormat.html. If left blank, dates will be imported
-   * as strings. For CSV/TFRecord sources only.
+   * be as described at
+   * http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html.
+   * If left blank, dates will be imported as strings. For CSV/TFRecord sources
+   * only.
    */
   set dateFormat(value: string|null) {
     this.Serializable$set('dateFormat', value);

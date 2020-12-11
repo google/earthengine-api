@@ -15260,7 +15260,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.244";
+ee.apiclient.API_CLIENT_VERSION = "0.1.245";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15459,7 +15459,7 @@ module$contents$ee$apiclient_apiclient.setAuthTokenRefresher = function(refreshe
   module$contents$ee$apiclient_apiclient.authTokenRefresher_ = refresher;
 };
 module$contents$ee$apiclient_apiclient.getAuthToken = function() {
-  module$contents$ee$apiclient_apiclient.authTokenExpiration_ && 0 <= goog.now() - module$contents$ee$apiclient_apiclient.authTokenExpiration_ && module$contents$ee$apiclient_apiclient.clearAuthToken();
+  module$contents$ee$apiclient_apiclient.authTokenExpiration_ && 0 <= Date.now() - module$contents$ee$apiclient_apiclient.authTokenExpiration_ && module$contents$ee$apiclient_apiclient.clearAuthToken();
   return module$contents$ee$apiclient_apiclient.authToken_;
 };
 module$contents$ee$apiclient_apiclient.clearAuthToken = function() {
@@ -15515,8 +15515,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.244";
-  "0.1.244" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.245";
+  "0.1.245" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -15641,7 +15641,7 @@ module$contents$ee$apiclient_apiclient.ensureAuthLibLoaded_ = function(callback)
   if (goog.isObject(goog.global.gapi) && goog.isObject(goog.global.gapi.auth) && "function" === typeof goog.global.gapi.auth.authorize) {
     done();
   } else {
-    for (var callbackName = goog.now().toString(36); callbackName in goog.global;) {
+    for (var callbackName = Date.now().toString(36); callbackName in goog.global;) {
       callbackName += "_";
     }
     goog.global[callbackName] = function() {
@@ -15657,7 +15657,7 @@ module$contents$ee$apiclient_apiclient.handleAuthResult_ = function(success, err
     if (result.expires_in || 0 === result.expires_in) {
       var expiresInMs = 900 * result.expires_in, timeout = setTimeout(module$contents$ee$apiclient_apiclient.refreshAuthToken, 0.9 * expiresInMs);
       void 0 !== timeout.unref && timeout.unref();
-      module$contents$ee$apiclient_apiclient.authTokenExpiration_ = goog.now() + expiresInMs;
+      module$contents$ee$apiclient_apiclient.authTokenExpiration_ = Date.now() + expiresInMs;
     }
     module$contents$ee$apiclient_apiclient.authToken_ = token;
     success && success();
@@ -22562,7 +22562,7 @@ ee.FeatureCollection = function(args, opt_column) {
       if (args instanceof ee.List) {
         ee.Collection.call(this, new ee.ApiFunction("Collection"), {features:args});
       } else {
-        if (args instanceof Object && "FeatureCollection" === args.type) {
+        if (args && "object" === typeof args && "FeatureCollection" === args.type) {
           ee.Collection.call(this, new ee.ApiFunction("Collection"), {features:args.features.map(function(f) {
             return new ee.Feature(f);
           })});
