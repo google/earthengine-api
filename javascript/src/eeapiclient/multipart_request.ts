@@ -13,15 +13,15 @@ export class MultipartRequest {
     this._payloadPromise = this.build();
   }
 
-  get boundary(): string {
+  boundary(): string {
     return this._boundary;
   }
 
-  get metadata(): {}|undefined|null {
+  metadata(): {}|undefined|null {
     return this._metadata;
   }
 
-  get payloadPromise(): Promise<string> {
+  payloadPromise(): Promise<string> {
     return this._payloadPromise;
   }
 
@@ -34,7 +34,7 @@ export class MultipartRequest {
   }
 
   private build(): Promise<string> {
-    let payload = `--${this.boundary}\r\n`;
+    let payload = `--${this._boundary}\r\n`;
     payload += this._metadataPayload;
     return Promise.all(this.files.map(f => this.encodeFile(f)))
         .then(filePayloads => {

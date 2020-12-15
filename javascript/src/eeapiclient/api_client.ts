@@ -39,7 +39,7 @@ export function toMultipartMakeRequestParams(
   }
 
   const multipartRequest = requestParams.body;
-  return multipartRequest.payloadPromise.then(body => {
+  return multipartRequest.payloadPromise().then(body => {
     return {
       path: requestParams.path,
       httpMethod: requestParams.httpMethod,
@@ -48,7 +48,7 @@ export function toMultipartMakeRequestParams(
       headers: {
         'X-Goog-Upload-Protocol': 'multipart',
         'Content-Type':
-            `multipart/related; boundary=${multipartRequest.boundary}`
+            `multipart/related; boundary=${multipartRequest.boundary()}`
       },
       body,
     };

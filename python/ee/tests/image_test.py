@@ -630,12 +630,24 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6])
 
       self.assertEqual(
-          reprojected_image.clip(
-              ee.Geometry.Rectangle(
+          reprojected_image.clipToBoundsAndScale(
+              geometry=ee.Geometry.Rectangle(
                   coords=[0, 0, 3, 2],
                   proj=reprojected_image.projection(),
                   geodesic=False,
                   evenOdd=True)), image)
+      self.assertEqual({'something': 'else'}, params)
+
+  def testPrepareForExport_withOnlyRegion(self):
+    with apitestcase.UsingCloudApi():
+      polygon = ee.Geometry.Polygon(9, 8, 7, 6, 3, 2)
+      image, params = self.base_image.prepare_for_export({
+          'region': polygon,
+          'something': 'else'
+      })
+
+      self.assertEqual(
+          self.base_image.clip(polygon), image)
       self.assertEqual({'something': 'else'}, params)
 
   def testPrepareForExport_withCrsNoTransform(self):

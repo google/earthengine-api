@@ -7818,12 +7818,21 @@ module$exports$eeapiclient$multipart_request.MultipartRequest = function(files, 
   _metadata && this.addMetadata(_metadata);
   this._payloadPromise = this.build();
 };
+module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.boundary = function() {
+  return this._boundary;
+};
+module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.metadata = function() {
+  return this._metadata;
+};
+module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.payloadPromise = function() {
+  return this._payloadPromise;
+};
 module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.addMetadata = function(metadata) {
   var json = metadata instanceof module$exports$eeapiclient$domain_object.Serializable ? module$contents$eeapiclient$domain_object_serialize(metadata) : metadata;
   this._metadataPayload += "Content-Type: application/json; charset=utf-8\r\n\r\n" + JSON.stringify(json) + ("\r\n--" + this._boundary + "\r\n");
 };
 module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.build = function() {
-  var $jscomp$this = this, payload = "--" + this.boundary + "\r\n";
+  var $jscomp$this = this, payload = "--" + this._boundary + "\r\n";
   payload += this._metadataPayload;
   return Promise.all(this.files.map(function(f) {
     return $jscomp$this.encodeFile(f);
@@ -7853,13 +7862,6 @@ module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.base64En
     reader.readAsDataURL(file);
   });
 };
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$multipart_request.MultipartRequest.prototype, {boundary:{configurable:!0, enumerable:!0, get:function() {
-  return this._boundary;
-}}, metadata:{configurable:!0, enumerable:!0, get:function() {
-  return this._metadata;
-}}, payloadPromise:{configurable:!0, enumerable:!0, get:function() {
-  return this._payloadPromise;
-}}});
 var module$exports$eeapiclient$api_client = {}, module$contents$eeapiclient$api_client_module = module$contents$eeapiclient$api_client_module || {id:"javascript/typescript/contrib/apiclient/core/api_client.closure.js"};
 module$exports$eeapiclient$api_client.ApiClient = function() {
 };
@@ -7879,8 +7881,8 @@ function module$contents$eeapiclient$api_client_toMultipartMakeRequestParams(req
     throw Error(requestParams.path + " request must be a MultipartRequest");
   }
   var multipartRequest = requestParams.body;
-  return multipartRequest.payloadPromise.then(function(body) {
-    return {path:requestParams.path, httpMethod:requestParams.httpMethod, methodId:requestParams.methodId, queryParams:{uploadType:"multipart"}, headers:{"X-Goog-Upload-Protocol":"multipart", "Content-Type":"multipart/related; boundary=" + multipartRequest.boundary}, body:body, };
+  return multipartRequest.payloadPromise().then(function(body) {
+    return {path:requestParams.path, httpMethod:requestParams.httpMethod, methodId:requestParams.methodId, queryParams:{uploadType:"multipart"}, headers:{"X-Goog-Upload-Protocol":"multipart", "Content-Type":"multipart/related; boundary=" + multipartRequest.boundary()}, body:body, };
   });
 }
 module$exports$eeapiclient$api_client.toMultipartMakeRequestParams = module$contents$eeapiclient$api_client_toMultipartMakeRequestParams;
@@ -13509,43 +13511,44 @@ goog.async.nextTick.wrapCallback_ = goog.functions.identity;
 goog.debug.entryPointRegistry.register(function(transformer) {
   goog.async.nextTick.wrapCallback_ = transformer;
 });
-goog.async.WorkQueue = function() {
+var module$contents$goog$async$WorkQueue_WorkQueue = function() {
   this.workTail_ = this.workHead_ = null;
 };
-goog.async.WorkQueue.DEFAULT_MAX_UNUSED = 100;
-goog.async.WorkQueue.freelist_ = new goog.async.FreeList(function() {
-  return new goog.async.WorkItem;
-}, function(item) {
-  item.reset();
-}, goog.async.WorkQueue.DEFAULT_MAX_UNUSED);
-goog.async.WorkQueue.prototype.add = function(fn, scope) {
+module$contents$goog$async$WorkQueue_WorkQueue.prototype.add = function(fn, scope) {
   var item = this.getUnusedItem_();
   item.set(fn, scope);
-  this.workTail_ ? this.workTail_.next = item : (goog.asserts.assert(!this.workHead_), this.workHead_ = item);
+  this.workTail_ ? this.workTail_.next = item : ((0,goog.asserts.assert)(!this.workHead_), this.workHead_ = item);
   this.workTail_ = item;
 };
-goog.async.WorkQueue.prototype.remove = function() {
+module$contents$goog$async$WorkQueue_WorkQueue.prototype.remove = function() {
   var item = null;
   this.workHead_ && (item = this.workHead_, this.workHead_ = this.workHead_.next, this.workHead_ || (this.workTail_ = null), item.next = null);
   return item;
 };
-goog.async.WorkQueue.prototype.returnUnused = function(item) {
-  goog.async.WorkQueue.freelist_.put(item);
+module$contents$goog$async$WorkQueue_WorkQueue.prototype.returnUnused = function(item) {
+  module$contents$goog$async$WorkQueue_WorkQueue.freelist_.put(item);
 };
-goog.async.WorkQueue.prototype.getUnusedItem_ = function() {
-  return goog.async.WorkQueue.freelist_.get();
+module$contents$goog$async$WorkQueue_WorkQueue.prototype.getUnusedItem_ = function() {
+  return module$contents$goog$async$WorkQueue_WorkQueue.freelist_.get();
 };
-goog.async.WorkItem = function() {
+module$contents$goog$async$WorkQueue_WorkQueue.DEFAULT_MAX_UNUSED = 100;
+module$contents$goog$async$WorkQueue_WorkQueue.freelist_ = new goog.async.FreeList(function() {
+  return new module$contents$goog$async$WorkQueue_WorkItem;
+}, function(item) {
+  return item.reset();
+}, module$contents$goog$async$WorkQueue_WorkQueue.DEFAULT_MAX_UNUSED);
+var module$contents$goog$async$WorkQueue_WorkItem = function() {
   this.next = this.scope = this.fn = null;
 };
-goog.async.WorkItem.prototype.set = function(fn, scope) {
+module$contents$goog$async$WorkQueue_WorkItem.prototype.set = function(fn, scope) {
   this.fn = fn;
   this.scope = scope;
   this.next = null;
 };
-goog.async.WorkItem.prototype.reset = function() {
+module$contents$goog$async$WorkQueue_WorkItem.prototype.reset = function() {
   this.next = this.scope = this.fn = null;
 };
+goog.async.WorkQueue = module$contents$goog$async$WorkQueue_WorkQueue;
 goog.ASSUME_NATIVE_PROMISE = !1;
 goog.async.run = function(callback, opt_context) {
   goog.async.run.schedule_ || goog.async.run.initializeRunner_();
@@ -13571,10 +13574,10 @@ goog.async.run.forceNextTick = function(opt_realSetTimeout) {
   };
 };
 goog.async.run.workQueueScheduled_ = !1;
-goog.async.run.workQueue_ = new goog.async.WorkQueue;
+goog.async.run.workQueue_ = new module$contents$goog$async$WorkQueue_WorkQueue;
 goog.DEBUG && (goog.async.run.resetQueue = function() {
   goog.async.run.workQueueScheduled_ = !1;
-  goog.async.run.workQueue_ = new goog.async.WorkQueue;
+  goog.async.run.workQueue_ = new module$contents$goog$async$WorkQueue_WorkQueue;
 });
 goog.async.run.processWorkQueue = function() {
   for (var item = null; item = goog.async.run.workQueue_.remove();) {
@@ -15260,7 +15263,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.245";
+ee.apiclient.API_CLIENT_VERSION = "0.1.246";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15515,8 +15518,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.245";
-  "0.1.245" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.246";
+  "0.1.246" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -22156,7 +22159,7 @@ ee.data.images.applyTransformsToCollection = function(taskConfig) {
   return resultParams;
 };
 ee.data.images.applySelectionAndScale = function(image, params, outParams) {
-  var clipParams = {}, SCALING_KEYS = ["maxDimension", "width", "height", "scale"];
+  var clipParams = {}, dimensions_consumed = !1, SCALING_KEYS = ["maxDimension", "width", "height", "scale"];
   goog.object.forEach(params, function(value, key) {
     if (null != value) {
       switch(key) {
@@ -22171,6 +22174,9 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
               throw Error("Invalid dimensions " + value);
             }
           }
+          break;
+        case "dimensions_consumed":
+          dimensions_consumed = !0;
           break;
         case "bbox":
           null != clipParams.geometry && console.warn("Multiple request parameters converted to region.");
@@ -22190,7 +22196,7 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
   });
   goog.object.isEmpty(clipParams) || (clipParams.input = image, image = SCALING_KEYS.some(function(key) {
     return key in clipParams;
-  }) ? ee.ApiFunction._apply("Image.clipToBoundsAndScale", clipParams) : ee.ApiFunction._apply("Image.clip", clipParams));
+  }) || dimensions_consumed ? ee.ApiFunction._apply("Image.clipToBoundsAndScale", clipParams) : ee.ApiFunction._apply("Image.clip", clipParams));
   return image;
 };
 ee.data.images.bboxToGeometry = function(bbox) {
@@ -22248,6 +22254,7 @@ ee.data.images.applyCrsAndTransform = function(image, params) {
       "string" === typeof dimensions && (dimensions = dimensions.split("x").map(Number));
       if (2 === dimensions.length) {
         delete params.dimensions;
+        params.dimensions_consumed = !0;
         var projection = (new ee.ApiFunction("Projection")).call(crs, crsTransform);
         params.region = new ee.Geometry.Rectangle([0, 0, dimensions[0], dimensions[1]], projection, !1);
       }

@@ -72,6 +72,7 @@ ee.data.images.applyTransformsToCollection = function(taskConfig) {
  */
 ee.data.images.applySelectionAndScale = function(image, params, outParams) {
   const clipParams = {};
+  let dimensions_consumed = false;
   const SCALING_KEYS = ['maxDimension', 'width', 'height', 'scale'];
   goog.object.forEach(params, (value, key) => {
     if (value == null) {
@@ -91,6 +92,13 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
         } else {
           throw new Error('Invalid dimensions ' + value);
         }
+        break;
+      // parameter that is added from applyCrsAndTransform to indicate
+      // that we used the dimensions parameter previously and want to
+      // use clipToBoundsAndScale to prevent off-by-one pixel errors as
+      // seen in b/169860472 and b/141672871
+      case 'dimensions_consumed':
+        dimensions_consumed = true;
         break;
       // bbox is a undocumented param but is used sometimes for
       // thumbnail examples...
@@ -118,7 +126,7 @@ ee.data.images.applySelectionAndScale = function(image, params, outParams) {
 
   if (!goog.object.isEmpty(clipParams)) {
     clipParams['input'] = image;
-    if (SCALING_KEYS.some(key => key in clipParams)) {
+    if (SCALING_KEYS.some(key => key in clipParams) || dimensions_consumed) {
       image = /** @type {!ee.Image} */ (
           ee.ApiFunction._apply('Image.clipToBoundsAndScale', clipParams));
     } else {
@@ -246,6 +254,8 @@ ee.data.images.applyCrsAndTransform = function(image, params) {
       }
       if (dimensions.length === 2) {
         delete params['dimensions'];
+        // Parameter to be consumed by "applySelectionAndScale"
+        params['dimensions_consumed'] = true;
         /** @type {!ee.Projection} */
         const projection =
             new ee.ApiFunction('Projection').call(crs, crsTransform);

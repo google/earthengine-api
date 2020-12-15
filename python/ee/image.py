@@ -145,10 +145,13 @@ class Image(element.Element):
       A tuple containing:
       - the result of applying the projection parameters to this image
       - any remaining parameters.
+      - whether dimensions had originally been specified, but were merged
+        into the image.
     """
     keys_to_extract = set(['crs', 'crs_transform', 'crsTransform'])
     request = {}
     reprojection_params = {}
+    dimensions_consumed = False
     if params:
       for key in params:
         if key in keys_to_extract:
@@ -195,6 +198,7 @@ class Image(element.Element):
           dimensions = _parse_dimensions(params['dimensions'])
           if len(dimensions) == 2:
             del request['dimensions']
+            dimensions_consumed = True
             desired_rectangle = geometry.Geometry.Rectangle(
                 [0, 0, dimensions[0], dimensions[1]],
                 proj=image.projection(),
@@ -212,9 +216,9 @@ class Image(element.Element):
         image = image.setDefaultProjection(
             crs, crsTransform=[1, 0, 0, 0, -1, 0])
 
-    return image, request
+    return image, request, dimensions_consumed
 
-  def _apply_selection_and_scale(self, params):
+  def _apply_selection_and_scale(self, params, dimensions_consumed):
     """Applies region selection and scaling parameters to an image.
 
     Wraps the image in a call to clipToBoundsAndScale() if there are any
@@ -222,6 +226,8 @@ class Image(element.Element):
 
     Args:
       params: the request parameters.
+      dimensions_consumed: Whether the image had previously had "dimensions"
+        specified, and those were consumed in an earlier stage of processing.
 
     Returns:
       A tuple containing:
@@ -273,7 +279,8 @@ class Image(element.Element):
     image = self
     if selection_params:
       selection_params['input'] = image
-      if any(key in selection_params for key in scale_keys):
+      if dimensions_consumed or any(
+          key in selection_params for key in scale_keys):
         image = apifunction.ApiFunction.apply_(
             'Image.clipToBoundsAndScale', selection_params)
       else:
@@ -283,6 +290,21 @@ class Image(element.Element):
         }
         image = apifunction.ApiFunction.apply_('Image.clip', clip_params)
     return image, request
+
+  def _apply_spatial_transformations(self, params):
+    """Applies spatial transformation and clipping.
+
+    Args:
+      params: the request parameters.
+
+    Returns:
+      A tuple containing:
+      - the result of applying the projection, scaling, and selection
+        parameters to this image.
+      - any remaining parameters.
+    """
+    image, params, dimensions_consumed = self._apply_crs_and_affine(params)
+    return image._apply_selection_and_scale(params, dimensions_consumed)  # pylint: disable=protected-access
 
   def _apply_visualization(self, params):
     """Applies visualization parameters to an image.
@@ -362,8 +384,7 @@ class Image(element.Element):
       copy_params.update(band_params)
       band_params = _extract_and_validate_transforms(copy_params)
       # pylint: disable=protected-access
-      band_image, band_params = band_image._apply_crs_and_affine(band_params)
-      band_image, _ = band_image._apply_selection_and_scale(band_params)
+      band_image, _ = band_image._apply_spatial_transformations(band_params)
       # pylint: enable=protected-access
       return band_image
 
@@ -375,8 +396,7 @@ class Image(element.Element):
     else:
       # Apply transformations directly onto the image, ignoring any band params.
       copy_params = _extract_and_validate_transforms(params)
-      image, copy_params = self._apply_crs_and_affine(copy_params)  # pylint: disable=protected-access
-      image, _ = image._apply_selection_and_scale(copy_params)  # pylint: disable=protected-access
+      image, copy_params = self._apply_spatial_transformations(copy_params)
     return image
 
   def prepare_for_export(self, params):
@@ -391,10 +411,7 @@ class Image(element.Element):
         to it
       - any remaining parameters.
     """
-    image = self
-    image, params = image._apply_crs_and_affine(params)  # pylint: disable=protected-access
-    image, params = image._apply_selection_and_scale(params)  # pylint: disable=protected-access
-    return image, params
+    return self._apply_spatial_transformations(params)
 
   def getDownloadURL(self, params=None):
     """Get a download URL for this image.
@@ -453,8 +470,7 @@ class Image(element.Element):
     Raises:
       EEException: If the region parameter is not an array or GeoJSON object.
     """
-    image, params = self._apply_crs_and_affine(params)
-    image, params = image._apply_selection_and_scale(params)  # pylint: disable=protected-access
+    image, params = self._apply_spatial_transformations(params)
     image, params = image._apply_visualization(params)  # pylint: disable=protected-access
     params['image'] = image
     return data.getThumbId(params)

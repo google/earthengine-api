@@ -218,9 +218,11 @@ class ImageCollection(collection.Collection):
       EEException: If the region parameter is not an array or GeoJSON object.
     """
     def map_function(input_image, input_params):
-      output_image, request = input_image._apply_crs_and_affine(input_params)  # pylint: disable=protected-access
-      output_image, request = output_image._apply_selection_and_scale(request)  # pylint: disable=protected-access
-      output_image, request = output_image._apply_visualization(request)  # pylint: disable=protected-access
+      # pylint: disable=protected-access
+      output_image, request = input_image._apply_spatial_transformations(
+          input_params)
+      output_image, request = output_image._apply_visualization(request)
+      # pylint: enable=protected-access
       return output_image, request
 
     clipped_collection, request = self._apply_preparation_function(
