@@ -1,19 +1,19 @@
-goog.provide('ee.layers.CloudStorageTileSource');
+goog.module('ee.layers.CloudStorageTileSource');
+goog.module.declareLegacyNamespace();
 
-goog.require('ee.layers.AbstractTile');
-goog.require('ee.layers.AbstractTileSource');
-goog.require('ee.layers.ImageTile');
-goog.require('goog.string');
-goog.require('goog.string.path');
-
+const AbstractTile = goog.require('ee.layers.AbstractTile');
+const AbstractTileSource = goog.require('ee.layers.AbstractTileSource');
+const ImageTile = goog.require('ee.layers.ImageTile');
+const googString = goog.require('goog.string');
+const stringPath = goog.require('goog.string.path');
 
 /**
  * A layer tile source for tiles served by Google Cloud Storage.
- * @export
+ *
  * @ignore
  * @unrestricted
  */
-ee.layers.CloudStorageTileSource = class extends ee.layers.AbstractTileSource {
+const CloudStorageTileSource = class extends AbstractTileSource {
   /**
    * @param {string} bucket The bucket that contains the tiles.
    * @param {string} path The path within the bucket to the tiles.
@@ -43,9 +43,8 @@ ee.layers.CloudStorageTileSource = class extends ee.layers.AbstractTileSource {
           Math.floor(tile.coord.y / zoomFactor));
       tile.sourceUrl = this.getTileUrl_(upperCoord, tile.zoom - zoomSteps);
       tile.renderer =
-          /** @type {function(!ee.layers.AbstractTile)} */ (goog.partial(
-              ee.layers.CloudStorageTileSource.zoomTileRenderer_,
-              this.maxZoom_));
+          /** @type {function(!AbstractTile)} */ (goog.partial(
+              CloudStorageTileSource.zoomTileRenderer_, this.maxZoom_));
     }
 
     // If the tile is missing, just show an empty DIV.
@@ -53,10 +52,10 @@ ee.layers.CloudStorageTileSource = class extends ee.layers.AbstractTileSource {
     tile.retryLoad = goog.bind(function(opt_errorMessage) {
       if (opt_errorMessage &&
           (opt_errorMessage.includes(
-               ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_) ||
+               CloudStorageTileSource.MISSING_TILE_ERROR_) ||
            opt_errorMessage.includes(
-               ee.layers.CloudStorageTileSource.ACCESS_DENIED_ERROR_))) {
-        tile.setStatus(ee.layers.AbstractTile.Status.LOADED);
+               CloudStorageTileSource.ACCESS_DENIED_ERROR_))) {
+        tile.setStatus(AbstractTile.Status.LOADED);
       } else {
         originalRetryLoad(opt_errorMessage);
       }
@@ -79,9 +78,9 @@ ee.layers.CloudStorageTileSource = class extends ee.layers.AbstractTileSource {
    * @private
    */
   getTileUrl_(coord, zoom) {
-    var url = goog.string.path.join(
-        ee.layers.CloudStorageTileSource.BASE_URL, this.bucket_, this.path_,
-        String(zoom), String(coord.x), String(coord.y));
+    var url = stringPath.join(
+        CloudStorageTileSource.BASE_URL, this.bucket_, this.path_, String(zoom),
+        String(coord.x), String(coord.y));
     if (this.suffix_) {
       url += this.suffix_;
     }
@@ -93,7 +92,7 @@ ee.layers.CloudStorageTileSource = class extends ee.layers.AbstractTileSource {
    * which full-size tile images are available.
    * @param {number} maxZoom The maximum zoom level at which tiles are
    *     available.
-   * @param {!ee.layers.ImageTile} tile The tile to render.
+   * @param {!ImageTile} tile The tile to render.
    * @private
    */
   static zoomTileRenderer_(maxZoom, tile) {
@@ -123,18 +122,17 @@ ee.layers.CloudStorageTileSource = class extends ee.layers.AbstractTileSource {
         tile.imageEl, srcX, srcY, srcW, srcH, 0, 0, sideLength, sideLength);
   }
 };
-
+goog.exportSymbol('ee.layers.CloudStorageTileSource', CloudStorageTileSource);
 
 /** @const {string} The Cloud Storage content base URL. */
-ee.layers.CloudStorageTileSource.BASE_URL = 'https://storage.googleapis.com';
-
+CloudStorageTileSource.BASE_URL = 'https://storage.googleapis.com';
 
 /**
  * @const @private {string} The error message when a tile is missing and the
  * cloud bucket is world readable. Corresponds to a 404 error.
  * https://cloud.google.com/iam/docs/overview#allusers
  */
-ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_ =
+CloudStorageTileSource.MISSING_TILE_ERROR_ =
     'The specified key does not exist.';
 
 /**
@@ -142,4 +140,6 @@ ee.layers.CloudStorageTileSource.MISSING_TILE_ERROR_ =
  * cloud bucket is readable only to "authenticated users." This corresponds to a
  * 403 error. https://cloud.google.com/iam/docs/overview#allauthenticatedusers.
  */
-ee.layers.CloudStorageTileSource.ACCESS_DENIED_ERROR_ = 'AccessDenied';
+CloudStorageTileSource.ACCESS_DENIED_ERROR_ = 'AccessDenied';
+
+exports = CloudStorageTileSource;

@@ -1,18 +1,18 @@
-goog.provide('ee.layers.AbstractOverlayStats');
+goog.module('ee.layers.AbstractOverlayStats');
+goog.module.declareLegacyNamespace();
 
 /**
  * A class for tracking per-overlay statistics about individual tile loads. Used
  * for performance monitoring.
  */
-ee.layers.AbstractOverlayStats = class {
-
+const AbstractOverlayStats = class {
   /**
    * @param{string} uniqueId An id unique to this map overlay.
    */
   constructor(uniqueId) {
     /**
      * @private @const
-     * {!Map<number, ee.layers.AbstractOverlayStats.LayerStatsForZoomLevel>}
+     * {!Map<number, AbstractOverlayStats.LayerStatsForZoomLevel>}
      * Statistics for tiles at each zoom level.
      */
     this.statsByZoom_ = new Map();
@@ -58,7 +58,7 @@ ee.layers.AbstractOverlayStats = class {
   /**
    * Returns a list for stats for this overlay. Each entry in the list contains
    * tile data for tiles of the same zoom level.
-   * @return {!Array<ee.layers.AbstractOverlayStats.Summary>} current stats
+   * @return {!Array<AbstractOverlayStats.Summary>} current stats
    */
   getSummaryList() {
     let summaryList = [];
@@ -75,7 +75,7 @@ ee.layers.AbstractOverlayStats = class {
   /**
    * Layer stats for tiles at a given zoom.
    * @param {number} zoom The zoom level.
-   * @return {ee.layers.AbstractOverlayStats.LayerStatsForZoomLevel}
+   * @return {AbstractOverlayStats.LayerStatsForZoomLevel}
    * @private
    */
   getStatsForZoom_(zoom) {
@@ -94,7 +94,7 @@ ee.layers.AbstractOverlayStats = class {
  * An object for determining the configuration of map control visibility.
  * @record @struct
  */
-ee.layers.AbstractOverlayStats.LayerStatsForZoomLevel = class {
+AbstractOverlayStats.LayerStatsForZoomLevel = class {
   constructor() {
     /** @export {number} */
     this.throttleCount;
@@ -111,7 +111,7 @@ ee.layers.AbstractOverlayStats.LayerStatsForZoomLevel = class {
  * Data structure containing statistics for an AbstractOverlay
  * @record @struct
  */
-ee.layers.AbstractOverlayStats.Summary = class {
+AbstractOverlayStats.Summary = class {
   constructor() {
 
     /** @export {string} */
@@ -126,3 +126,5 @@ ee.layers.AbstractOverlayStats.Summary = class {
     this.tileLatencies;
   }
 };
+
+exports = AbstractOverlayStats;
