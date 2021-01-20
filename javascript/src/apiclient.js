@@ -26,7 +26,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 const apiclient = {};
 
 
-const API_CLIENT_VERSION = '0.1.247';
+const API_CLIENT_VERSION = '0.1.248';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -76,9 +76,16 @@ class Call {
     if (response instanceof Promise) {
       // Async mode: invoke the callback with the result of the promise.
       if (this.callback) {
-        response.then((result) => this.callback(result)).catch(
-            // Any errors from the then clause will also be passed to the catch.
-            (error) => this.callback(undefined, /** @type {string} */(error)));
+        const callback = (result, error=undefined) => {
+          try {
+            return this.callback(result, /** @type {string} */ (error));
+          } catch (callbackError) {
+            setTimeout(() => {  // Do the throw outside the Promise handlers.
+              throw callbackError;
+            }, 0);
+          }
+        };
+        response.then(callback, (error) => callback(undefined, error));
       }
       // We should not be running in async mode without a callback, but it is
       // still useful to return the promise.

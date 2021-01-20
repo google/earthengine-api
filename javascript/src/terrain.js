@@ -1,6 +1,7 @@
 /**
  * @fileoverview A class to generate the ee.Terrain namespace.
  *
+ * @suppress {useOfGoogProvide}
  */
 
 goog.provide('ee.Terrain');

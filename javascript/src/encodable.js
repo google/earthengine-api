@@ -782,13 +782,14 @@ ee.rpc_convert.aclToIamPolicy = function(acls) {
   });
 };
 
-
 /**
- * @param {string} param
+ * @param {string} operationNameOrTaskId
  * @return {string}
  */
-ee.rpc_convert.taskIdToOperationName = function(param) {
-  return 'projects/' + ee.rpc_convert.DEFAULT_PROJECT + '/operations/' + param;
+ee.rpc_convert.taskIdToOperationName = function(operationNameOrTaskId) {
+  const taskId = ee.rpc_convert.operationNameToTaskId(operationNameOrTaskId);
+  const project = ee.rpc_convert.operationNameToProject(operationNameOrTaskId);
+  return `projects/${project}/operations/${taskId}`;
 };
 
 
@@ -799,6 +800,16 @@ ee.rpc_convert.taskIdToOperationName = function(param) {
 ee.rpc_convert.operationNameToTaskId = function(result) {
   const found = /^.*operations\/(.*)$/.exec(result);
   return found ? found[1] : result;
+};
+
+
+/**
+ * @param {string} operationNameOrTaskId
+ * @return {string}
+ */
+ee.rpc_convert.operationNameToProject = function(operationNameOrTaskId) {
+  const found = /^projects\/(.+)\/operations\/.+$/.exec(operationNameOrTaskId);
+  return found ? found[1] : ee.rpc_convert.DEFAULT_PROJECT;
 };
 
 

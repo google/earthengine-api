@@ -1364,6 +1364,17 @@ goog.createTrustedTypesPolicy = function(name) {
   }
   return policy;
 };
+function module$contents$goog$dispose_dispose(obj) {
+  obj && "function" == typeof obj.dispose && obj.dispose();
+}
+goog.dispose = module$contents$goog$dispose_dispose;
+function module$contents$goog$disposeAll_disposeAll(var_args) {
+  for (var i = 0, len = arguments.length; i < len; ++i) {
+    var disposable = arguments[i];
+    goog.isArrayLike(disposable) ? module$contents$goog$disposeAll_disposeAll.apply(null, disposable) : module$contents$goog$dispose_dispose(disposable);
+  }
+}
+goog.disposeAll = module$contents$goog$disposeAll_disposeAll;
 goog.disposable = {};
 goog.disposable.IDisposable = function() {
 };
@@ -1404,7 +1415,7 @@ goog.Disposable.prototype.dispose = function() {
   }
 };
 goog.Disposable.prototype.registerDisposable = function(disposable) {
-  this.addOnDisposeCallback(goog.partial(goog.dispose, disposable));
+  this.addOnDisposeCallback(goog.partial(module$contents$goog$dispose_dispose, disposable));
 };
 goog.Disposable.prototype.addOnDisposeCallback = function(callback, opt_scope) {
   this.disposed_ ? void 0 !== opt_scope ? callback.call(opt_scope) : callback() : (this.onDisposeCallbacks_ || (this.onDisposeCallbacks_ = []), this.onDisposeCallbacks_.push(void 0 !== opt_scope ? goog.bind(callback, opt_scope) : callback));
@@ -1418,15 +1429,6 @@ goog.Disposable.prototype.disposeInternal = function() {
 };
 goog.Disposable.isDisposed = function(obj) {
   return obj && "function" == typeof obj.isDisposed ? obj.isDisposed() : !1;
-};
-goog.dispose = function(obj) {
-  obj && "function" == typeof obj.dispose && obj.dispose();
-};
-goog.disposeAll = function(var_args) {
-  for (var i = 0, len = arguments.length; i < len; ++i) {
-    var disposable = arguments[i];
-    goog.isArrayLike(disposable) ? goog.disposeAll.apply(null, disposable) : goog.dispose(disposable);
-  }
 };
 goog.events = {};
 goog.events.EventId = function(eventId) {
@@ -3001,9 +3003,9 @@ module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateD
   var policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), trustedScript = policy ? policy.createScript(script) : script;
   return new module$contents$goog$html$SafeScript_SafeScript(trustedScript, module$contents$goog$html$SafeScript_CONSTRUCTOR_TOKEN_PRIVATE);
 };
-goog.DEBUG && (module$contents$goog$html$SafeScript_SafeScript.prototype.toString = function() {
+module$contents$goog$html$SafeScript_SafeScript.prototype.toString = function() {
   return this.privateDoNotAccessOrElseSafeScriptWrappedValue_.toString();
-});
+};
 module$contents$goog$html$SafeScript_SafeScript.EMPTY = function() {
   return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("");
 }();
@@ -3207,9 +3209,9 @@ goog.html.TrustedResourceUrl.prototype.cloneWithParams = function(searchParams, 
   var url = goog.html.TrustedResourceUrl.unwrap(this), parts = goog.html.TrustedResourceUrl.URL_PARAM_PARSER_.exec(url), urlHash = parts[3] || "";
   return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(parts[1] + goog.html.TrustedResourceUrl.stringifyParams_("?", parts[2] || "", searchParams) + goog.html.TrustedResourceUrl.stringifyParams_("#", urlHash, opt_hashParams));
 };
-goog.DEBUG && (goog.html.TrustedResourceUrl.prototype.toString = function() {
-  return this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_.toString();
-});
+goog.html.TrustedResourceUrl.prototype.toString = function() {
+  return this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ + "";
+};
 goog.html.TrustedResourceUrl.unwrap = function(trustedResourceUrl) {
   return goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(trustedResourceUrl).toString();
 };
@@ -3287,9 +3289,9 @@ goog.html.SafeUrl.prototype.implementsGoogI18nBidiDirectionalString = !0;
 goog.html.SafeUrl.prototype.getDirection = function() {
   return goog.i18n.bidi.Dir.LTR;
 };
-goog.DEBUG && (goog.html.SafeUrl.prototype.toString = function() {
+goog.html.SafeUrl.prototype.toString = function() {
   return this.privateDoNotAccessOrElseSafeUrlWrappedValue_.toString();
-});
+};
 goog.html.SafeUrl.unwrap = function(safeUrl) {
   if (safeUrl instanceof goog.html.SafeUrl && safeUrl.constructor === goog.html.SafeUrl) {
     return safeUrl.privateDoNotAccessOrElseSafeUrlWrappedValue_;
@@ -3444,9 +3446,9 @@ goog.html.SafeStyle.fromConstant = function(style) {
 goog.html.SafeStyle.prototype.getTypedStringValue = function() {
   return this.privateDoNotAccessOrElseSafeStyleWrappedValue_;
 };
-goog.DEBUG && (goog.html.SafeStyle.prototype.toString = function() {
+goog.html.SafeStyle.prototype.toString = function() {
   return this.privateDoNotAccessOrElseSafeStyleWrappedValue_.toString();
-});
+};
 goog.html.SafeStyle.unwrap = function(safeStyle) {
   if (safeStyle instanceof goog.html.SafeStyle && safeStyle.constructor === goog.html.SafeStyle) {
     return safeStyle.privateDoNotAccessOrElseSafeStyleWrappedValue_;
@@ -3614,9 +3616,9 @@ module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap = function(safeSt
 module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse = function(styleSheet) {
   return new module$contents$goog$html$SafeStyleSheet_SafeStyleSheet(styleSheet, module$contents$goog$html$SafeStyleSheet_CONSTRUCTOR_TOKEN_PRIVATE);
 };
-goog.DEBUG && (module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.prototype.toString = function() {
+module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.prototype.toString = function() {
   return this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_.toString();
-});
+};
 module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.EMPTY = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse("");
 goog.html.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
 goog.html.SafeHtml = function(value, dir, token) {
@@ -3633,9 +3635,9 @@ goog.html.SafeHtml.prototype.implementsGoogStringTypedString = !0;
 goog.html.SafeHtml.prototype.getTypedStringValue = function() {
   return this.privateDoNotAccessOrElseSafeHtmlWrappedValue_.toString();
 };
-goog.DEBUG && (goog.html.SafeHtml.prototype.toString = function() {
-  return "SafeHtml{" + this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ + "}";
-});
+goog.html.SafeHtml.prototype.toString = function() {
+  return this.privateDoNotAccessOrElseSafeHtmlWrappedValue_.toString();
+};
 goog.html.SafeHtml.unwrap = function(safeHtml) {
   return goog.html.SafeHtml.unwrapTrustedHTML(safeHtml).toString();
 };
@@ -15265,7 +15267,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.247";
+ee.apiclient.API_CLIENT_VERSION = "0.1.248";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15278,13 +15280,26 @@ var module$contents$ee$apiclient_Call = function(callback, retries) {
 };
 module$contents$ee$apiclient_Call.prototype.handle = function(response) {
   var $jscomp$this = this;
-  response instanceof Promise ? this.callback && response.then(function(result) {
-    return $jscomp$this.callback(result);
-  }).catch(function(error) {
-    return $jscomp$this.callback(void 0, error);
-  }) : response.then(function(result) {
-    response = result;
-  });
+  if (response instanceof Promise) {
+    if (this.callback) {
+      var callback = function(result, error) {
+        try {
+          return $jscomp$this.callback(result, error);
+        } catch (callbackError) {
+          setTimeout(function() {
+            throw callbackError;
+          }, 0);
+        }
+      };
+      response.then(callback, function(error) {
+        return callback(void 0, error);
+      });
+    }
+  } else {
+    response.then(function(result) {
+      response = result;
+    });
+  }
   return response;
 };
 module$contents$ee$apiclient_Call.prototype.projectsPath = function() {
@@ -15520,8 +15535,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.247";
-  "0.1.247" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.248";
+  "0.1.248" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -16203,12 +16218,16 @@ ee.rpc_convert.aclToIamPolicy = function(acls) {
     return binding.members.length;
   }), etag:null, });
 };
-ee.rpc_convert.taskIdToOperationName = function(param) {
-  return "projects/" + ee.rpc_convert.DEFAULT_PROJECT + "/operations/" + param;
+ee.rpc_convert.taskIdToOperationName = function(operationNameOrTaskId) {
+  return "projects/" + ee.rpc_convert.operationNameToProject(operationNameOrTaskId) + "/operations/" + ee.rpc_convert.operationNameToTaskId(operationNameOrTaskId);
 };
 ee.rpc_convert.operationNameToTaskId = function(result) {
   var found = /^.*operations\/(.*)$/.exec(result);
   return found ? found[1] : result;
+};
+ee.rpc_convert.operationNameToProject = function(operationNameOrTaskId) {
+  var found = /^projects\/(.+)\/operations\/.+$/.exec(operationNameOrTaskId);
+  return found ? found[1] : ee.rpc_convert.DEFAULT_PROJECT;
 };
 ee.rpc_convert.operationToTask = function(result) {
   var internalTask = {}, assignTimestamp = function(field, timestamp) {
@@ -22928,7 +22947,7 @@ module$contents$ee$batch_Export.image.toDrive = function(image, opt_description,
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
 goog.exportSymbol("module$contents$ee$batch_Export.image.toDrive", module$contents$ee$batch_Export.image.toDrive);
-module$contents$ee$batch_Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles, opt_mapsApiKey) {
+module$contents$ee$batch_Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles, opt_mapsApiKey, opt_bucketCorsUris) {
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.map.toCloudStorage, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.MAP);
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
@@ -25110,7 +25129,7 @@ ee.layers.AbstractOverlay.prototype.getTile = function(coord, zoom, ownerDocumen
 ee.layers.AbstractOverlay.prototype.releaseTile = function(tileDiv) {
   var tile = this.tilesById.get(tileDiv.id);
   this.tilesById.remove(tileDiv.id);
-  tile && (tile.abort(), goog.dispose(tile));
+  tile && (tile.abort(), module$contents$goog$dispose_dispose(tile));
 };
 ee.layers.AbstractOverlay.prototype.registerStatusChangeListener_ = function(tile) {
   this.handler.listen(tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
@@ -25139,10 +25158,10 @@ ee.layers.AbstractOverlay.prototype.getUniqueTileId_ = function(coord, z) {
 };
 ee.layers.AbstractOverlay.prototype.disposeInternal = function() {
   goog.events.EventTarget.prototype.disposeInternal.call(this);
-  this.tilesById.forEach(goog.dispose);
+  this.tilesById.forEach(module$contents$goog$dispose_dispose);
   this.tilesById.clear();
   this.tilesById = null;
-  goog.dispose(this.handler);
+  module$contents$goog$dispose_dispose(this.handler);
   this.tileSource = this.handler = null;
 };
 ee.layers.AbstractOverlay.prototype.getTileCountForStatus_ = function(status) {
@@ -25227,7 +25246,7 @@ ee.layers.AbstractTile.prototype.startLoad = function() {
       }
     }
   }, !1);
-  this.xhrIo_.listenOnce(goog.net.EventType.READY, goog.partial(goog.dispose, this.xhrIo_));
+  this.xhrIo_.listenOnce(goog.net.EventType.READY, goog.partial(module$contents$goog$dispose_dispose, this.xhrIo_));
   this.sourceUrl && this.sourceUrl.endsWith("&profiling=1") && (this.sourceUrl = this.sourceUrl.replace("&profiling=1", ""), this.xhrIo_.headers.set(ee.data.PROFILE_REQUEST_HEADER, "1"));
   this.xhrIo_.send(this.sourceUrl, "GET");
 };
@@ -25236,7 +25255,7 @@ ee.layers.AbstractTile.prototype.finishLoad = function() {
   this.setStatus(ee.layers.AbstractTile.Status.LOADED);
 };
 ee.layers.AbstractTile.prototype.cancelLoad = function() {
-  goog.dispose(this.xhrIo_);
+  module$contents$goog$dispose_dispose(this.xhrIo_);
 };
 ee.layers.AbstractTile.prototype.retryLoad = function(opt_errorMessage) {
   var parseError = function(error) {
@@ -25376,7 +25395,7 @@ goog.net.ImageLoader.prototype.maybeFireCompletionEvent_ = function() {
 goog.net.ImageLoader.prototype.disposeInternal = function() {
   delete this.imageIdToRequestMap_;
   delete this.imageIdToImageMap_;
-  goog.dispose(this.handler_);
+  module$contents$goog$dispose_dispose(this.handler_);
   goog.net.ImageLoader.superClass_.disposeInternal.call(this);
 };
 ee.layers.ImageOverlay = function(tileSource, opt_options) {
@@ -25411,7 +25430,7 @@ ee.layers.ImageTile.prototype.finishLoad = function() {
 };
 ee.layers.ImageTile.prototype.cancelLoad = function() {
   ee.layers.AbstractTile.prototype.cancelLoad.call(this);
-  this.imageLoader_ && (goog.events.unlistenByKey(this.imageLoaderListenerKey_), goog.dispose(this.imageLoader_));
+  this.imageLoader_ && (goog.events.unlistenByKey(this.imageLoaderListenerKey_), module$contents$goog$dispose_dispose(this.imageLoader_));
 };
 ee.layers.ImageTile.prototype.disposeInternal = function() {
   ee.layers.AbstractTile.prototype.disposeInternal.call(this);

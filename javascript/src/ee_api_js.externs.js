@@ -1335,9 +1335,10 @@ module$contents$ee$batch_Export.map;
  * @param {(ee.Geometry.LinearRing|ee.Geometry.Polygon|null|string)=} opt_region
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_mapsApiKey
+ * @param {(Array<string>|null)=} opt_bucketCorsUris
  * @return {!module$contents$ee$batch_ExportTask}
  */
-module$contents$ee$batch_Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles, opt_mapsApiKey) {
+module$contents$ee$batch_Export.map.toCloudStorage = function(image, opt_description, opt_bucket, opt_fileFormat, opt_path, opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region, opt_skipEmptyTiles, opt_mapsApiKey, opt_bucketCorsUris) {
 };
 module$contents$ee$batch_Export.table;
 /**

@@ -231,13 +231,14 @@ Export.image.toDrive = function(
  * @param {?Geometry.LinearRing|?Geometry.Polygon|string=} opt_region
  * @param {boolean=} opt_skipEmptyTiles
  * @param {string=} opt_mapsApiKey
+ * @param {?Array<string>=} opt_bucketCorsUris
  * @return {!ExportTask}
  * @export
  */
 Export.map.toCloudStorage = function(
     image, opt_description, opt_bucket, opt_fileFormat, opt_path,
     opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region,
-    opt_skipEmptyTiles, opt_mapsApiKey) {
+    opt_skipEmptyTiles, opt_mapsApiKey, opt_bucketCorsUris) {
   const clientConfig = eeArguments.extractFromFunction(
       Export.map.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
