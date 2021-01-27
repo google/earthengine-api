@@ -5031,7 +5031,7 @@ goog.events.BrowserEvent.prototype.init = function(e, opt_currentTarget) {
   this.pointerType = goog.events.BrowserEvent.getPointerType_(e);
   this.state = e.state;
   this.event_ = e;
-  e.defaultPrevented && this.preventDefault();
+  e.defaultPrevented && goog.events.BrowserEvent.superClass_.preventDefault.call(this);
 };
 goog.events.BrowserEvent.prototype.isButton = function(button) {
   return goog.events.BrowserFeature.HAS_W3C_BUTTON ? this.event_.button == button : "click" == this.type ? button == goog.events.BrowserEvent.MouseButton.LEFT : !!(this.event_.button & goog.events.BrowserEvent.IE_BUTTON_MAP[button]);
@@ -6748,6 +6748,24 @@ module$exports$tslib.__spread = function() {
     ar = ar.concat(module$exports$tslib.__read(arguments[i]));
   }
   return ar;
+};
+module$exports$tslib.__spreadArrays = function() {
+  for (var s = 0, i = 0, il = arguments.length; i < il; i++) {
+    s += arguments[i].length;
+  }
+  var r = Array(s), k = 0;
+  for (i = 0; i < il; i++) {
+    for (var a = arguments[i], j = 0, jl = a.length; j < jl; j++, k++) {
+      r[k] = a[j];
+    }
+  }
+  return r;
+};
+module$exports$tslib.__spreadArray = function(to, from) {
+  for (var i = 0, il = from.length, j = to.length; i < il; i++, j++) {
+    to[j] = from[i];
+  }
+  return to;
 };
 module$exports$tslib.__await = function(v) {
   return this instanceof module$exports$tslib.__await ? (this.v = v, this) : new module$exports$tslib.__await(v);
@@ -15267,7 +15285,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.248";
+ee.apiclient.API_CLIENT_VERSION = "0.1.249";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15535,8 +15553,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.248";
-  "0.1.248" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.249";
+  "0.1.249" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -19611,33 +19629,37 @@ module$contents$jspb$Message_Message.toObjectList = function(field, toObjectFn, 
 };
 module$contents$jspb$Message_Message.toObjectExtension = function(proto, obj, extensions, getExtensionFn, opt_includeInstance) {
   for (var fieldNumber in extensions) {
-    var fieldInfo = extensions[fieldNumber], value = getExtensionFn.call(proto, fieldInfo);
-    if (null != value) {
-      for (var name in fieldInfo.fieldName) {
-        if (fieldInfo.fieldName.hasOwnProperty(name)) {
-          break;
+    if (module$contents$jspb$Message_hasOwnProperty(extensions, fieldNumber)) {
+      var fieldInfo = extensions[fieldNumber], value = getExtensionFn.call(proto, fieldInfo);
+      if (null != value) {
+        for (var name in fieldInfo.fieldName) {
+          if (fieldInfo.fieldName.hasOwnProperty(name)) {
+            break;
+          }
         }
+        obj[name] = fieldInfo.toObjectFn ? fieldInfo.isRepeated ? module$contents$jspb$Message_Message.toObjectList(value, fieldInfo.toObjectFn, opt_includeInstance) : fieldInfo.toObjectFn(opt_includeInstance, value) : value;
       }
-      obj[name] = fieldInfo.toObjectFn ? fieldInfo.isRepeated ? module$contents$jspb$Message_Message.toObjectList(value, fieldInfo.toObjectFn, opt_includeInstance) : fieldInfo.toObjectFn(opt_includeInstance, value) : value;
     }
   }
 };
 module$contents$jspb$Message_Message.serializeBinaryExtensions = function(proto, writer, extensions, getExtensionFn) {
   for (var fieldNumber in extensions) {
-    var binaryFieldInfo = extensions[fieldNumber], fieldInfo = binaryFieldInfo.fieldInfo;
-    if (!binaryFieldInfo.binaryWriterFn) {
-      throw Error("Message extension present that was generated without binary serialization support");
-    }
-    var value = getExtensionFn.call(proto, fieldInfo);
-    if (null != value) {
-      if (fieldInfo.isMessageType()) {
-        if (binaryFieldInfo.binaryMessageSerializeFn) {
-          binaryFieldInfo.binaryWriterFn.call(writer, fieldInfo.fieldIndex, value, binaryFieldInfo.binaryMessageSerializeFn);
+    if (module$contents$jspb$Message_hasOwnProperty(extensions, fieldNumber)) {
+      var binaryFieldInfo = extensions[fieldNumber], fieldInfo = binaryFieldInfo.fieldInfo;
+      if (!binaryFieldInfo.binaryWriterFn) {
+        throw Error("Message extension present that was generated without binary serialization support");
+      }
+      var value = getExtensionFn.call(proto, fieldInfo);
+      if (null != value) {
+        if (fieldInfo.isMessageType()) {
+          if (binaryFieldInfo.binaryMessageSerializeFn) {
+            binaryFieldInfo.binaryWriterFn.call(writer, fieldInfo.fieldIndex, value, binaryFieldInfo.binaryMessageSerializeFn);
+          } else {
+            throw Error("Message extension present holding submessage without binary support enabled, and message is being serialized to binary format");
+          }
         } else {
-          throw Error("Message extension present holding submessage without binary support enabled, and message is being serialized to binary format");
+          binaryFieldInfo.binaryWriterFn.call(writer, fieldInfo.fieldIndex, value);
         }
-      } else {
-        binaryFieldInfo.binaryWriterFn.call(writer, fieldInfo.fieldIndex, value);
       }
     }
   }
@@ -19961,13 +19983,15 @@ module$contents$jspb$Message_Message.toMap = function(field, mapKeyGetterFn, opt
 module$contents$jspb$Message_Message.prototype.syncMapFields_ = function(internalCall) {
   if (this.wrappers_) {
     for (var fieldNumber in this.wrappers_) {
-      var val = this.wrappers_[fieldNumber];
-      if (Array.isArray(val)) {
-        for (var i = 0; i < val.length; i++) {
-          val[i] && module$contents$jspb$Message_Message.toArrayHelper_(val[i], internalCall);
+      if (module$contents$jspb$Message_hasOwnProperty(this.wrappers_, fieldNumber)) {
+        var val = this.wrappers_[fieldNumber];
+        if (Array.isArray(val)) {
+          for (var i = 0; i < val.length; i++) {
+            val[i] && module$contents$jspb$Message_Message.toArrayHelper_(val[i], internalCall);
+          }
+        } else {
+          val && module$contents$jspb$Message_Message.toArrayHelper_(val, internalCall);
         }
-      } else {
-        val && module$contents$jspb$Message_Message.toArrayHelper_(val, internalCall);
       }
     }
   }
@@ -20028,13 +20052,15 @@ module$contents$jspb$Message_Message.prepareForSerialize_ = function(array, msg)
 module$contents$jspb$Message_Message.prepareExtensionForSerialize_ = function(extension, msg) {
   var result = {}, changed = !1, key;
   for (key in extension) {
-    var value = extension[key];
-    if (Array.isArray(value)) {
-      var prepared = module$contents$jspb$Message_Message.prepareForSerialize_(value, msg && msg.wrappers_ && msg.wrappers_[key]);
-      !prepared.length && msg && msg.repeatedFields && -1 != msg.repeatedFields.indexOf(+key) || (result[key] = prepared);
-      result[key] != value && (changed = !0);
-    } else {
-      null != value ? result[key] = value : changed = !0;
+    if (module$contents$jspb$Message_hasOwnProperty(extension, key)) {
+      var value = extension[key];
+      if (Array.isArray(value)) {
+        var prepared = module$contents$jspb$Message_Message.prepareForSerialize_(value, msg && msg.wrappers_ && msg.wrappers_[key]);
+        !prepared.length && msg && msg.repeatedFields && -1 != msg.repeatedFields.indexOf(+key) || (result[key] = prepared);
+        result[key] != value && (changed = !0);
+      } else {
+        null != value ? result[key] = value : changed = !0;
+      }
     }
   }
   if (!changed) {
@@ -20106,13 +20132,13 @@ module$contents$jspb$Message_Message.compareExtensions = function(extension1, ex
   extension2 = extension2 || {};
   var keys = {}, name;
   for (name in extension1) {
-    keys[name] = 0;
+    module$contents$jspb$Message_hasOwnProperty(extension1, name) && (keys[name] = 0);
   }
   for (name in extension2) {
-    keys[name] = 0;
+    module$contents$jspb$Message_hasOwnProperty(extension2, name) && (keys[name] = 0);
   }
   for (name in keys) {
-    if (!module$contents$jspb$Message_Message.compareFields(extension1[name], extension2[name])) {
+    if (module$contents$jspb$Message_hasOwnProperty(keys, name) && !module$contents$jspb$Message_Message.compareFields(extension1[name], extension2[name])) {
       return !1;
     }
   }
@@ -20191,7 +20217,7 @@ module$contents$jspb$Message_Message.clone_ = function(obj) {
   }
   var clone = {}, key;
   for (key in obj) {
-    o = obj[key], null != o && (clone[key] = "object" == typeof o ? module$contents$jspb$Message_Message.clone_(goog.asserts.assert(o)) : o);
+    module$contents$jspb$Message_hasOwnProperty(obj, key) && (o = obj[key], null != o && (clone[key] = "object" == typeof o ? module$contents$jspb$Message_Message.clone_(goog.asserts.assert(o)) : o));
   }
   return clone;
 };
@@ -20216,6 +20242,9 @@ module$contents$jspb$Message_Message.checkNotFrozen_ = function(msg) {
     throw Error("Cannot mutate a frozen Message");
   }
 };
+function module$contents$jspb$Message_hasOwnProperty(obj, property) {
+  return goog.TRUSTED_SITE || Object.prototype.hasOwnProperty.call(obj, property);
+}
 jspb.Message = module$contents$jspb$Message_Message;
 var proto = {google:{}};
 proto.google.protobuf = {};
@@ -20245,14 +20274,14 @@ module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.proto
   return msg;
 });
 proto.google.protobuf.Struct.deserializeBinary = function(bytes) {
-  var reader = new module$contents$jspb$BinaryReader_BinaryReader(bytes), msg = new proto.google.protobuf.Struct;
-  return proto.google.protobuf.Struct.deserializeBinaryFromReader(msg, reader);
+  return proto.google.protobuf.Struct.deserializeBinaryFromReader(new proto.google.protobuf.Struct, new module$contents$jspb$BinaryReader_BinaryReader(bytes));
 };
 proto.google.protobuf.Struct.deserializeBinaryFromReader = function(msg, reader$jscomp$0) {
   for (; reader$jscomp$0.nextField() && !reader$jscomp$0.isEndGroup();) {
+    var value = void 0;
     switch(reader$jscomp$0.getFieldNumber()) {
       case 1:
-        var value = msg.getFieldsMap();
+        value = msg.getFieldsMap();
         reader$jscomp$0.readMessage(value, function(message, reader) {
           module$contents$jspb$Map_Map.deserializeBinary(message, reader, module$contents$jspb$BinaryReader_BinaryReader.prototype.readString, module$contents$jspb$BinaryReader_BinaryReader.prototype.readMessage, proto.google.protobuf.Value.deserializeBinaryFromReader, "", new proto.google.protobuf.Value);
         });
@@ -20269,7 +20298,7 @@ proto.google.protobuf.Struct.prototype.serializeBinary = function() {
   return writer.getResultBuffer();
 };
 proto.google.protobuf.Struct.serializeBinaryToWriter = function(message, writer) {
-  var f = void 0;
+  var f;
   (f = message.getFieldsMap(!0)) && 0 < f.getLength() && f.serializeBinary(1, writer, module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeString, module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeMessage, proto.google.protobuf.Value.serializeBinaryToWriter);
 };
 proto.google.protobuf.Struct.prototype.getFieldsMap = function(opt_noLazyCreate) {
@@ -20307,14 +20336,14 @@ module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.proto
   return msg;
 });
 proto.google.protobuf.Value.deserializeBinary = function(bytes) {
-  var reader = new module$contents$jspb$BinaryReader_BinaryReader(bytes), msg = new proto.google.protobuf.Value;
-  return proto.google.protobuf.Value.deserializeBinaryFromReader(msg, reader);
+  return proto.google.protobuf.Value.deserializeBinaryFromReader(new proto.google.protobuf.Value, new module$contents$jspb$BinaryReader_BinaryReader(bytes));
 };
 proto.google.protobuf.Value.deserializeBinaryFromReader = function(msg, reader) {
   for (; reader.nextField() && !reader.isEndGroup();) {
+    var value = void 0;
     switch(reader.getFieldNumber()) {
       case 1:
-        var value = reader.readEnum();
+        value = reader.readEnum();
         msg.setNullValue(value);
         break;
       case 2:
@@ -20351,8 +20380,7 @@ proto.google.protobuf.Value.prototype.serializeBinary = function() {
   return writer.getResultBuffer();
 };
 proto.google.protobuf.Value.serializeBinaryToWriter = function(message, writer) {
-  var f = void 0;
-  f = module$contents$jspb$Message_Message.getField(message, 1);
+  var f = module$contents$jspb$Message_Message.getField(message, 1);
   null != f && writer.writeEnum(1, f);
   f = module$contents$jspb$Message_Message.getField(message, 2);
   null != f && writer.writeDouble(2, f);
@@ -20455,14 +20483,14 @@ module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.proto
   return msg;
 });
 proto.google.protobuf.ListValue.deserializeBinary = function(bytes) {
-  var reader = new module$contents$jspb$BinaryReader_BinaryReader(bytes), msg = new proto.google.protobuf.ListValue;
-  return proto.google.protobuf.ListValue.deserializeBinaryFromReader(msg, reader);
+  return proto.google.protobuf.ListValue.deserializeBinaryFromReader(new proto.google.protobuf.ListValue, new module$contents$jspb$BinaryReader_BinaryReader(bytes));
 };
 proto.google.protobuf.ListValue.deserializeBinaryFromReader = function(msg, reader) {
   for (; reader.nextField() && !reader.isEndGroup();) {
+    var value = void 0;
     switch(reader.getFieldNumber()) {
       case 1:
-        var value = new proto.google.protobuf.Value;
+        value = new proto.google.protobuf.Value;
         reader.readMessage(value, proto.google.protobuf.Value.deserializeBinaryFromReader);
         msg.addValues(value);
         break;
@@ -20478,8 +20506,7 @@ proto.google.protobuf.ListValue.prototype.serializeBinary = function() {
   return writer.getResultBuffer();
 };
 proto.google.protobuf.ListValue.serializeBinaryToWriter = function(message, writer) {
-  var f = void 0;
-  f = message.getValuesList();
+  var f = message.getValuesList();
   0 < f.length && writer.writeRepeatedMessage(1, f, proto.google.protobuf.Value.serializeBinaryToWriter);
 };
 proto.google.protobuf.ListValue.prototype.getValuesList = function() {
