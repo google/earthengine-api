@@ -47,7 +47,9 @@ TOKEN_URI = 'https://accounts.google.com/o/oauth2/token'
 
 
 def get_credentials_path():
-  cred_path = os.path.expanduser('~/.config/earthengine/credentials')
+  cred_path = os.path.expanduser(
+      '~/.config/earthengine/credentials',
+  )
   return cred_path
 
 

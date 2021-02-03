@@ -1282,6 +1282,8 @@ class UploadImageCommand(object):
           'id': 'ts',
           'sources': [{'uris': [source]} for source in source_files]
       }
+    if args.crs:
+      tileset['crs'] = args.crs
     manifest = {
         'name': args.asset_id,
         'properties': properties,

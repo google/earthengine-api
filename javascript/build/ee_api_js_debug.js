@@ -45,13 +45,13 @@ $jscomp.TRUST_ES6_POLYFILLS = !$jscomp.ISOLATE_POLYFILLS || $jscomp.IS_SYMBOL_NA
 $jscomp.polyfills = {};
 $jscomp.propertyToPolyfillSymbol = {};
 $jscomp.POLYFILL_PREFIX = "$jscp$";
-var $jscomp$lookupPolyfilledValue = function(target, key) {
-  var polyfilledKey = $jscomp.propertyToPolyfillSymbol[key];
-  if (null == polyfilledKey) {
-    return target[key];
+var $jscomp$lookupPolyfilledValue = function(target, property) {
+  var obfuscatedName = $jscomp.propertyToPolyfillSymbol[property];
+  if (null == obfuscatedName) {
+    return target[property];
   }
-  var polyfill = target[polyfilledKey];
-  return void 0 !== polyfill ? polyfill : target[key];
+  var polyfill = target[obfuscatedName];
+  return void 0 !== polyfill ? polyfill : target[property];
 };
 $jscomp.polyfill = function(target, polyfill, fromLang, toLang) {
   polyfill && ($jscomp.ISOLATE_POLYFILLS ? $jscomp.polyfillIsolated(target, polyfill, fromLang, toLang) : $jscomp.polyfillUnisolated(target, polyfill, fromLang, toLang));
@@ -78,7 +78,7 @@ $jscomp.polyfillIsolated = function(target, polyfill, fromLang, toLang) {
     ownerObject = ownerObject[key];
   }
   var property = split[split.length - 1], nativeImpl = $jscomp.IS_SYMBOL_NATIVE && "es6" === fromLang ? ownerObject[property] : null, impl = polyfill(nativeImpl);
-  null != impl && (isSimpleName ? $jscomp.defineProperty($jscomp.polyfills, property, {configurable:!0, writable:!0, value:impl}) : impl !== nativeImpl && (void 0 === $jscomp.propertyToPolyfillSymbol[property] && ($jscomp.propertyToPolyfillSymbol[property] = $jscomp.IS_SYMBOL_NATIVE ? $jscomp.global.Symbol(property) : $jscomp.POLYFILL_PREFIX + property), property = $jscomp.propertyToPolyfillSymbol[property], $jscomp.defineProperty(ownerObject, property, {configurable:!0, writable:!0, value:impl})));
+  null != impl && (isSimpleName ? $jscomp.defineProperty($jscomp.polyfills, property, {configurable:!0, writable:!0, value:impl}) : impl !== nativeImpl && (void 0 === $jscomp.propertyToPolyfillSymbol[property] && ($jscomp.propertyToPolyfillSymbol[property] = $jscomp.IS_SYMBOL_NATIVE ? $jscomp.global.Symbol(property) : $jscomp.POLYFILL_PREFIX + property), $jscomp.defineProperty(ownerObject, $jscomp.propertyToPolyfillSymbol[property], {configurable:!0, writable:!0, value:impl})));
 };
 $jscomp.initSymbol = function() {
 };
@@ -2764,15 +2764,17 @@ goog.functions.debounce = function(f, interval, opt_scope) {
   };
 };
 goog.functions.throttle = function(f, interval, opt_scope) {
-  var timeout = 0, shouldFire = !1, args = [], handleTimeout = function() {
+  var timeout = 0, shouldFire = !1, storedArgs = [], handleTimeout = function() {
     timeout = 0;
     shouldFire && (shouldFire = !1, fire());
   }, fire = function() {
     timeout = goog.global.setTimeout(handleTimeout, interval);
+    var args = storedArgs;
+    storedArgs = [];
     f.apply(opt_scope, args);
   };
   return function(var_args) {
-    args = arguments;
+    storedArgs = arguments;
     timeout ? shouldFire = !0 : fire();
   };
 };
@@ -15285,7 +15287,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.249";
+ee.apiclient.API_CLIENT_VERSION = "0.1.250";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15553,8 +15555,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.249";
-  "0.1.249" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.250";
+  "0.1.250" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

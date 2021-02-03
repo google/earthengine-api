@@ -30,7 +30,10 @@ import ee
 HOMEDIR = os.path.expanduser('~')
 EE_CONFIG_FILE = 'EE_CONFIG_FILE'
 DEFAULT_EE_CONFIG_FILE_RELATIVE = os.path.join(
-    '.config', 'earthengine', 'credentials')
+    '.config',
+    'earthengine',
+    'credentials',
+)
 DEFAULT_EE_CONFIG_FILE = os.path.join(
     HOMEDIR, DEFAULT_EE_CONFIG_FILE_RELATIVE)
 
