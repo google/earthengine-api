@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Tests for the ee.apifunction module."""
+"""Test for the ee.apifunction module."""
 
 
 

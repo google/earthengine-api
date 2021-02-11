@@ -53,6 +53,9 @@ class ComputedObject(six.with_metaclass(
      mapping calls do not use the same variable name.
   """
 
+  # Tell pytype not to worry about dynamic attributes.
+  _HAS_DYNAMIC_ATTRIBUTES = True
+
   def __init__(self, func, args, opt_varName=None):
     """Creates a computed object.
 

@@ -24,10 +24,6 @@ Layers are taken from a central Google Cloud Storage bucket
 
 To run this app, first create an App Engine application as per the Developer
 Docs instructions for [deploying an EE-based App Engine app][1].
-Note that the service account created in the "Set up credentials" step needs to
-be registered with Earth Engine; one can only do this currently by emailing
-`earthengine@google.com` for it to be added to the whitelist; in the future (Q1
-2020), this validation process will be more streamlined.
 
 ## Deploying
 

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Tests for the ee.serializer module."""
+"""Test for the ee.serializer module."""
 
 
 

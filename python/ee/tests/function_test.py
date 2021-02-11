@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Tests for the ee.function module."""
+"""Test for the ee.function module."""
 
 
 

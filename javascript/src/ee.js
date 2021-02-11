@@ -495,7 +495,7 @@ ee.initializeUnboundMethods_ = function() {
     while (nameParts.length > 1) {
       var first = nameParts[0];
       if (!(first in target)) {
-        // We must add a signature property so the playground docbox recognizes
+        // We must add a signature property so the Code Editor docbox recognizes
         // these objects as parts of the API.
         target[first] = {'signature': {}};
       }

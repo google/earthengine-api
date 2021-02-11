@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-
 """Wrapper module for running eecli.main() from the command line."""
 
 import os

@@ -1,5 +1,10 @@
 #!/usr/bin/env python
+"""Test for ee._helpers.
 
+When the function in question is defined in ee/_helpers.py but exported for
+public use by ee/__init__.py, the test is located here but uses the ee.-prefixed
+name since that is the name we want to ensure works.
+"""
 
 import six
 

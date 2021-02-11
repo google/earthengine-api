@@ -1591,7 +1591,6 @@ ee.data.deleteAsset = function(assetId, opt_callback) {
   call.handle(call.assets().delete(ee.rpc_convert.assetIdToAssetName(assetId)));
 };
 
-
 /**
  * Returns the access control list of the asset with the given ID.
  *
@@ -3287,7 +3286,7 @@ ee.data.FileBand = class {
  *
  * For requests sent directly through the API, paths should be Google Cloud
  * Storage object names (e.g. 'gs://bucketname/filename'). In manifests uploaded
- * through the Playground IDE, paths should be relative file names (e.g.
+ * through the Code Editor IDE, paths should be relative file names (e.g.
  * 'file1.tif').
  * @record @struct
  */

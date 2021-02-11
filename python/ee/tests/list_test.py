@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Test for the ee.lber module."""
+"""Test for the ee.list module."""
 
 
 

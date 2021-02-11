@@ -7,6 +7,96 @@ goog.require('goog.object');
 goog.require('goog.string');
 goog.require('goog.structs.Set');
 
+/**
+ * Extracts arguments for the passed-in function (has to be defined with the
+ * 'function' keyword) from originalArgs, which could either be an array of
+ * many sequenced arguments OR contain a single argument dictionary. See
+ * extractFromClassConstructor() and extractFromClassMethod() for other cases.
+ *
+ * This helper allows users to call JS functions with argument
+ * dictionaries, for example:
+ *
+ *     ee.data.getAssetAcl({assetId: 'users/foo/bar'});
+ *
+ * EXAMPLE USAGE:
+ *
+ *   ee.exampleFn = function(param1, opt_param2) {
+ *     args = ee.arguments.extractFromFunction(ee.exampleFn, arguments);
+ *     doSomethingWith(args['param1'], args['param2']);
+ *   }
+ *
+ * Note: args only contains parameters that are provided.
+ *
+ * The following discussions also apply to extractFromClassConstructor() and
+ * extractFromClassMethod().
+ *
+ * USAGE WARNING:
+ *
+ *   This helper is safe to use only in functions that meet at least one
+ *   of the following conditions:
+ *
+ *      A) The function requires two or more arguments.
+ *      B) The function takes only an ee.ComputedObject as its first argument.
+ *      C) The function does not accept a "normal" object (i.e. a JavaScript
+ *         Object that's not an Array or Function) as its first argument.
+ *      D) The function accepts a "normal" object as its first argument, and
+ *             i)  this object can only contain a limited set of possible keys
+ *         AND ii) the intersection between possible keys and the function's
+ *                 expected params names is empty.
+ *         A visParam object is an example.
+ *
+ *   This helper may not work with complex default parameter values that include
+ *   parentheses or commas:
+ *
+ *      function(param1, param2 = {name: 'Chewbacca', age: 200}) {...}
+ *   or function(param1, param2 = function() {...}) {...}
+ *
+ * USAGE WARNING EXPLANATION:
+ *
+ *   If these constraints are unmet, this helper cannot always tell whether
+ *   the user intended to:
+ *
+ *      1) Pass a dictionary of keyed arguments
+ *         e.g. ee.Dictionary({dict: {myKey: 'myValue'}});
+ *   or 2) Just pass a single object as a normal argument in sequence
+ *         e.g. ee.Dictionary({myKey: 'myValue'});
+ *
+ *   To try to differentiate the two, we test whether all of the keys in the
+ *   first argument match the expected parameter names. This is guaranteed to
+ *   work for case (D) above. In other cases, there MAY be mistakes,
+ *   for example if the user wanted "myKey" above to have the value "dict",
+ *   we might mistakenly think the user intended #1 when in fact they wanted #2.
+ *
+ *   Another case is when a user passes in an empty object {} to represent that
+ *   no arguments are provided, we would mistakenly treat the empty object {} as
+ *   the first argument. So in such cases, just do not pass any thing in the
+ *   function call.
+ *
+ * COMPILATION WARNING:
+ *
+ *   This helper relies on the function prototype's toString() method to
+ *   extract expected parameter names. When the client library is compiled
+ *   with variable name obfuscation enabled, parameter names may not match the
+ *   keys given in named argument dictionaries, and this function will not
+ *   work UNLESS a goog.global['EXPORTED_FN_INFO'] map is available. Within this
+ *   map, the value of goog.global['EXPORTED_FN_INFO'][fn.toString()] should be
+ *   an object containing two unobfuscated keys:
+ *
+ *     - 'name': The original unobfuscated name of fn.
+ *     - 'paramNames': A list of unobfuscated parameter names expected by fn,
+ *                     with optional parameters prefixed by "opt_".
+ *
+ *   The map should contain an entry for each that uses this helper.
+ *   Typically that means public, exported, non-deprecated functions.
+ *
+ * @param {!Function} fn The function for which to extract arguments.
+ * @param {!Arguments} originalArgs The original arguments to the function.
+ * @return {!Object} A mapping from parameter names to defined argument values,
+ *     if any. The keys are unobfuscated.
+ * @throws {!Error} If a required parameter is not specified, an unexpected
+ *     parameter is provided, too many arguments are provided in sequence, or
+ *     fails to extract parameter names.
+ */
 ee.arguments.extractFromFunction = function(fn, originalArgs) {
   return ee.arguments.extractImpl_(
       fn, originalArgs, ee.arguments.JS_PARAM_DECL_MATCHER_FUNCTION_);
@@ -45,7 +135,7 @@ ee.arguments.extractFromFunction = function(fn, originalArgs) {
  *   shall coorespond to that function instead of the class constructor. For
  *   example:
  *
-*      class Animation {
+ *     class Animation {
  *       // This is fine.
  *       oneconstructor(param1, param2) {...}
  *       // This is also fine.
@@ -250,7 +340,7 @@ ee.arguments.getParamNames_ = function(fn, parameterMatcher) {
     }
   } else {
     // For un-compiled code, infer parameter names directly from the function
-    // body. Inspired by Angular's inferInjectionArgs():
+    // body. Inspired by Angular's inferInjectionArgs().
     var fnStr = fn.toString().replace(ee.arguments.JS_COMMENT_MATCHER_, '');
     const fnMatchResult = fnStr.match(parameterMatcher);
     if (fnMatchResult === null) {

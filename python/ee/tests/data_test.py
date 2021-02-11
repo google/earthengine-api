@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-
+"""Test for the ee.data module."""
 
 import httplib2
 import mock

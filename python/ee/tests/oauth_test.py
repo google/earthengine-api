@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-"""Test class for oauth."""
+"""Test for the ee.oauth module."""
 
 
 import json
