@@ -40,7 +40,7 @@ class Task(object):
       config: The task configuration dictionary. Only necessary if start()
           will be called. Fields shared by all tasks are:
           - description: The name of the task, a freeform string.
-          - sourceURL: An optional URL for the script that generated the task.
+          - sourceUrl: An optional URL for the script that generated the task.
           Specific task types have other custom config fields.
       name: The name of the operation.  Only relevant when using the cloud api.
     """

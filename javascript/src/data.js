@@ -2784,7 +2784,7 @@ ee.data.MapZoomRange = {
  *   id: (undefined|string),
  *   type: string,
  *   description: (undefined|string),
- *   sourceURL: (undefined|string),
+ *   sourceUrl: (undefined|string),
  *   element: (undefined|!ee.Element)
  * }}
  */
@@ -2798,7 +2798,7 @@ ee.data.AbstractTaskConfig;
  *   id: string,
  *   type: string,
  *   description: (undefined|string),
- *   sourceURL: (undefined|string),
+ *   sourceUrl: (undefined|string),
  *   element: (undefined|!ee.Element),
  *   crs: (undefined|string),
  *   crs_transform: (undefined|!Array<number>|string),
@@ -2829,7 +2829,7 @@ ee.data.ImageTaskConfigUnformatted;
  *   id: string,
  *   type: string,
  *   description: (undefined|string),
- *   sourceURL: (undefined|string),
+ *   sourceUrl: (undefined|string),
  *   element: (undefined|!ee.Element),
  *   crs: (undefined|string),
  *   crs_transform: (undefined|!Array<number>|string),

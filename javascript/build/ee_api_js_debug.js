@@ -1552,11 +1552,6 @@ goog.asserts.assertFinite = function(value, opt_message, var_args) {
   !goog.asserts.ENABLE_ASSERTS || "number" == typeof value && isFinite(value) || goog.asserts.doAssertFailure_("Expected %s to be a finite number but it is not.", [value], opt_message, Array.prototype.slice.call(arguments, 2));
   return value;
 };
-goog.asserts.assertObjectPrototypeIsIntact = function() {
-  for (var key in Object.prototype) {
-    goog.asserts.fail(key + " should not be enumerable in Object.prototype.");
-  }
-};
 goog.asserts.getType_ = function(value) {
   return value instanceof Function ? value.displayName || value.name || "unknown type name" : value instanceof Object ? value.constructor.displayName || value.constructor.name || Object.prototype.toString.call(value) : null === value ? "null" : typeof value;
 };
@@ -6846,6 +6841,7 @@ module$exports$tslib.__classPrivateFieldSet = function(receiver, privateMap, val
 var module$exports$eeapiclient$domain_object = {}, module$contents$eeapiclient$domain_object_module = module$contents$eeapiclient$domain_object_module || {id:"javascript/typescript/contrib/apiclient/core/domain_object.closure.js"};
 module$exports$eeapiclient$domain_object.ObjectMapMetadata = function module$contents$eeapiclient$domain_object_ObjectMapMetadata() {
 };
+var module$contents$eeapiclient$domain_object_Primitive;
 module$exports$eeapiclient$domain_object.ClassMetadata = function module$contents$eeapiclient$domain_object_ClassMetadata() {
 };
 var module$contents$eeapiclient$domain_object_NullClass = function() {
@@ -6910,19 +6906,22 @@ function module$contents$eeapiclient$domain_object_deserializeInstanciator(ctor)
   }
   return new ctor;
 }
+module$exports$eeapiclient$domain_object.strictDeserialize = function module$contents$eeapiclient$domain_object_strictDeserialize(type, raw) {
+  return module$contents$eeapiclient$domain_object_deserialize(type, raw);
+};
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$38 = {}, $jscomp$iter$4 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$4.next(); !$jscomp$key$key.done; $jscomp$loop$38 = {$jscomp$loop$prop$mapMetadata$39:$jscomp$loop$38.$jscomp$loop$prop$mapMetadata$39}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$39 = {}, $jscomp$iter$4 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$4.next(); !$jscomp$key$key.done; $jscomp$loop$39 = {$jscomp$loop$prop$mapMetadata$40:$jscomp$loop$39.$jscomp$loop$prop$mapMetadata$40}, 
   $jscomp$key$key = $jscomp$iter$4.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
       var copy = void 0;
-      arrays.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !0, arrays[key]) : objects.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]) : objectMaps.hasOwnProperty(key) ? ($jscomp$loop$38.$jscomp$loop$prop$mapMetadata$39 = 
-      objectMaps[key], copy = $jscomp$loop$38.$jscomp$loop$prop$mapMetadata$39.isPropertyArray ? value.map(function($jscomp$loop$38) {
+      arrays.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !0, arrays[key]) : objects.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]) : objectMaps.hasOwnProperty(key) ? ($jscomp$loop$39.$jscomp$loop$prop$mapMetadata$40 = 
+      objectMaps[key], copy = $jscomp$loop$39.$jscomp$loop$prop$mapMetadata$40.isPropertyArray ? value.map(function($jscomp$loop$39) {
         return function(v) {
-          return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$38.$jscomp$loop$prop$mapMetadata$39, valueGetter, valueSetter, copyInstanciator);
+          return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$39.$jscomp$loop$prop$mapMetadata$40, valueGetter, valueSetter, copyInstanciator);
         };
-      }($jscomp$loop$38)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$38.$jscomp$loop$prop$mapMetadata$39, valueGetter, valueSetter, copyInstanciator)) : copy = Array.isArray(value) ? module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !1) : value instanceof module$contents$eeapiclient$domain_object_NullClass ? 
+      }($jscomp$loop$39)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$39.$jscomp$loop$prop$mapMetadata$40, valueGetter, valueSetter, copyInstanciator)) : copy = Array.isArray(value) ? module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !1) : value instanceof module$contents$eeapiclient$domain_object_NullClass ? 
       null : value;
       valueSetter(key, target, copy);
     }
@@ -6963,45 +6962,45 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$40 = {}, $jscomp$iter$6 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$40 = {$jscomp$loop$prop$value2$41:$jscomp$loop$40.$jscomp$loop$prop$value2$41, $jscomp$loop$prop$mapMetadata$42:$jscomp$loop$40.$jscomp$loop$prop$mapMetadata$42}, $jscomp$key$key = $jscomp$iter$6.next()) {
+  for (var $jscomp$loop$41 = {}, $jscomp$iter$6 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$41 = {$jscomp$loop$prop$value2$42:$jscomp$loop$41.$jscomp$loop$prop$value2$42, $jscomp$loop$prop$mapMetadata$43:$jscomp$loop$41.$jscomp$loop$prop$mapMetadata$43}, $jscomp$key$key = $jscomp$iter$6.next()) {
     var key = $jscomp$key$key.value;
     if (serializable1.Serializable$has(key) !== serializable2.Serializable$has(key)) {
       return !1;
     }
     if (serializable1.Serializable$has(key)) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$40.$jscomp$loop$prop$value2$41 = serializable2.Serializable$get(key);
+      $jscomp$loop$41.$jscomp$loop$prop$value2$42 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$40.$jscomp$loop$prop$value2$41, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$41.$jscomp$loop$prop$value2$42, !0, !0)) {
           return !1;
         }
       } else {
         if (objects1.hasOwnProperty(key)) {
-          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$40.$jscomp$loop$prop$value2$41, !1, !0)) {
+          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$41.$jscomp$loop$prop$value2$42, !1, !0)) {
             return !1;
           }
         } else {
           if (objectMaps1.hasOwnProperty(key)) {
-            if ($jscomp$loop$40.$jscomp$loop$prop$mapMetadata$42 = objectMaps1[key], $jscomp$loop$40.$jscomp$loop$prop$mapMetadata$42.isPropertyArray) {
-              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$40.$jscomp$loop$prop$value2$41) || value1.some(function($jscomp$loop$40) {
+            if ($jscomp$loop$41.$jscomp$loop$prop$mapMetadata$43 = objectMaps1[key], $jscomp$loop$41.$jscomp$loop$prop$mapMetadata$43.isPropertyArray) {
+              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$41.$jscomp$loop$prop$value2$42) || value1.some(function($jscomp$loop$41) {
                 return function(v1, i) {
-                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$40.$jscomp$loop$prop$value2$41[i], $jscomp$loop$40.$jscomp$loop$prop$mapMetadata$42);
+                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$41.$jscomp$loop$prop$value2$42[i], $jscomp$loop$41.$jscomp$loop$prop$mapMetadata$43);
                 };
-              }($jscomp$loop$40))) {
+              }($jscomp$loop$41))) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$40.$jscomp$loop$prop$value2$41, $jscomp$loop$40.$jscomp$loop$prop$mapMetadata$42)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$41.$jscomp$loop$prop$value2$42, $jscomp$loop$41.$jscomp$loop$prop$mapMetadata$43)) {
                 return !1;
               }
             }
           } else {
             if (Array.isArray(value1)) {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$40.$jscomp$loop$prop$value2$41, !0, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$41.$jscomp$loop$prop$value2$42, !0, !1)) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$40.$jscomp$loop$prop$value2$41, !1, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$41.$jscomp$loop$prop$value2$42, !1, !1)) {
                 return !1;
               }
             }
@@ -14887,6 +14886,8 @@ goog.net.XhrLike.prototype.getResponseHeader = function(header) {
 };
 goog.net.XhrLike.prototype.getAllResponseHeaders = function() {
 };
+goog.net.XhrLike.prototype.setTrustToken = function(trustTokenAttribute) {
+};
 goog.net.XmlHttpFactory = function() {
 };
 goog.net.XmlHttpFactory.prototype.cachedOptions_ = null;
@@ -14964,6 +14965,7 @@ goog.net.XhrIo = function(opt_xmlHttpFactory) {
   this.timeoutId_ = null;
   this.responseType_ = goog.net.XhrIo.ResponseType.DEFAULT;
   this.useXhr2Timeout_ = this.progressEventsEnabled_ = this.withCredentials_ = !1;
+  this.trustToken_ = null;
 };
 goog.inherits(goog.net.XhrIo, goog.events.EventTarget);
 goog.net.XhrIo.ResponseType = {DEFAULT:"", TEXT:"text", DOCUMENT:"document", BLOB:"blob", ARRAY_BUFFER:"arraybuffer", };
@@ -15022,6 +15024,9 @@ goog.net.XhrIo.prototype.setProgressEventsEnabled = function(enabled) {
 goog.net.XhrIo.prototype.getProgressEventsEnabled = function() {
   return this.progressEventsEnabled_;
 };
+goog.net.XhrIo.prototype.setTrustToken = function(trustToken) {
+  this.trustToken_ = trustToken;
+};
 goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_headers) {
   if (this.xhr_) {
     throw Error("[goog.net.XhrIo] Object is active with another request=" + this.lastUri_ + "; newUri=" + url);
@@ -15057,11 +15062,18 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   }, this);
   this.responseType_ && (this.xhr_.responseType = this.responseType_);
   "withCredentials" in this.xhr_ && this.xhr_.withCredentials !== this.withCredentials_ && (this.xhr_.withCredentials = this.withCredentials_);
+  if ("setTrustToken" in this.xhr_ && this.trustToken_) {
+    try {
+      this.xhr_.setTrustToken(this.trustToken_);
+    } catch (err$29) {
+      goog.log.fine(this.logger_, this.formatMsg_("Error SetTrustToken: " + err$29.message));
+    }
+  }
   try {
     this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (this.useXhr2Timeout_ = goog.net.XhrIo.shouldUseXhr2Timeout_(this.xhr_), goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete, xhr2 " + this.useXhr2Timeout_)), this.useXhr2Timeout_ ? (this.xhr_[goog.net.XhrIo.XHR2_TIMEOUT_] = this.timeoutInterval_, this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = goog.bind(this.timeout_, this)) : this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, 
     this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
-  } catch (err$29) {
-    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$29.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$29);
+  } catch (err$30) {
+    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$30.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$30);
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
@@ -15286,7 +15298,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.251";
+ee.apiclient.API_CLIENT_VERSION = "0.1.252";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15379,12 +15391,12 @@ module$contents$ee$apiclient_EERequestService.prototype.send = function(params, 
   module$contents$eeapiclient$request_params_processParams(params);
   var path = params.path || "", url = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + path, args = module$contents$ee$apiclient_apiclient.makeRequest_(params.queryParams || {}), body = params.body ? JSON.stringify(params.body) : void 0;
   if (this.sync) {
-    var raw = module$contents$ee$apiclient_apiclient.send(url, args, void 0, params.httpMethod, body, this.retries), value$30 = responseCtor ? module$contents$eeapiclient$domain_object_deserialize(responseCtor, raw) : raw, thenable = function(v) {
+    var raw = module$contents$ee$apiclient_apiclient.send(url, args, void 0, params.httpMethod, body, this.retries), value$31 = responseCtor ? module$contents$eeapiclient$domain_object_deserialize(responseCtor, raw) : raw, thenable = function(v) {
       return {then:function(f) {
         return thenable(f(v));
       }};
     };
-    return thenable(value$30);
+    return thenable(value$31);
   }
   return (new Promise(function(resolve, reject) {
     module$contents$ee$apiclient_apiclient.send(url, args, function(value, error) {
@@ -15554,8 +15566,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.251";
-  "0.1.251" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.252";
+  "0.1.252" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -16685,7 +16697,7 @@ ee.Serializer.computeHash = function(obj) {
   return ee.Serializer.hash_.digest().toString();
 };
 ee.Serializer.encodeCloudApi = function(obj) {
-  return ee.apiclient.serialize(ee.Serializer.encodeCloudApiExpression(obj));
+  return module$contents$eeapiclient$domain_object_serialize(ee.Serializer.encodeCloudApiExpression(obj));
 };
 goog.exportSymbol("ee.Serializer.encodeCloudApi", ee.Serializer.encodeCloudApi);
 ee.Serializer.encodeCloudApiExpression = function(obj) {
@@ -16821,8 +16833,8 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   }
   if (null != value.functionInvocationValue) {
     for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$17 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$17.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$17.next()) {
-      var k$31 = $jscomp$key$k.value;
-      args[k$31] = this.optimizeValue(inv.arguments[k$31], depth + 3);
+      var k$32 = $jscomp$key$k.value;
+      args[k$32] = this.optimizeValue(inv.arguments[k$32], depth + 3);
     }
     return inv.functionName ? ee.rpc_node.functionByName(inv.functionName, args) : ee.rpc_node.functionByReference(this.optimizeReference(inv.functionReference || ""), args);
   }
@@ -20789,7 +20801,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
   if ("string" === typeof params.crs_transform) {
     try {
       params.crs_transform = JSON.parse(params.crs_transform);
-    } catch (e$32) {
+    } catch (e$33) {
     }
   }
   var image = ee.data.images.buildDownloadIdImage(params.image, params), thumbnail = new module$exports$eeapiclient$ee_api_client.Thumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(image)), fileFormat:ee.rpc_convert.fileFormat(params.format), filenamePrefix:params.name, bandIds:params.bands && ee.rpc_convert.bandList(params.bands.map(function(band) {
@@ -20846,8 +20858,8 @@ goog.exportSymbol("ee.data.newTaskId", ee.data.newTaskId);
 ee.data.getTaskStatus = function(taskId, opt_callback) {
   var opNames = ee.data.makeStringArray_(taskId).map(ee.rpc_convert.taskIdToOperationName);
   if (1 === opNames.length) {
-    var call$34 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$34.handle(call$34.operations().get(opNames[0]).then(function(op) {
+    var call$35 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$35.handle(call$35.operations().get(opNames[0]).then(function(op) {
       return [ee.rpc_convert.operationToTask(op)];
     }));
   }
@@ -20901,8 +20913,8 @@ goog.exportSymbol("ee.data.listOperations", ee.data.listOperations);
 ee.data.cancelOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName), request = new module$exports$eeapiclient$ee_api_client.CancelOperationRequest;
   if (1 === opNames.length) {
-    var call$35 = new module$contents$ee$apiclient_Call(opt_callback);
-    call$35.handle(call$35.operations().cancel(opNames[0], request));
+    var call$36 = new module$contents$ee$apiclient_Call(opt_callback);
+    call$36.handle(call$36.operations().cancel(opNames[0], request));
   } else {
     var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
     call.send(opNames.map(function(op) {
@@ -20914,8 +20926,8 @@ goog.exportSymbol("ee.data.cancelOperation", ee.data.cancelOperation);
 ee.data.getOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName).map(ee.rpc_convert.taskIdToOperationName);
   if (!Array.isArray(operationName)) {
-    var call$36 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$36.handle(call$36.operations().get(opNames[0]));
+    var call$37 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$37.handle(call$37.operations().get(opNames[0]));
   }
   var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
   return call.send(opNames.map(function(op) {
@@ -23456,8 +23468,8 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
       return node.functionDefinitionValue ? 1 : node.arrayValue ? countNodes(node.arrayValue.values) : node.dictionaryValue ? countNodes(Object.values(node.dictionaryValue.values)) : node.functionInvocationValue ? countNodes(Object.values(node.functionInvocationValue.arguments)) : 0;
     };
     return countNodes(Object.values(expression.values));
-  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars))) + "_", i$37 = 0; i$37 < namelessArgIndices.length; i$37++) {
-    var index = namelessArgIndices[i$37], name = baseName + i$37;
+  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars))) + "_", i$38 = 0; i$38 < namelessArgIndices.length; i$38++) {
+    var index = namelessArgIndices[i$38], name = baseName + i$38;
     vars[index].varName = name;
     signature.args[index].name = name;
   }

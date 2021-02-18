@@ -14,6 +14,23 @@ export interface ObjectMapMetadata {
   ctor: SerializableCtor<ISerializable>|null;
 }
 
+/** Primitive types used in ISerializable fields. */
+type Primitive = string|number|boolean|null|undefined;
+
+/**
+ * Mapped type that annotates all nested fields on an object as optional,
+ * while stripping unwanted ISerializable-related fields from the type.
+ *
+ * i.e., {a: {b: {c: boolean}}} gets transformed into {a?: {b?: {c?: boolean}}}
+ */
+export type DeepPartialISerializable<T> =
+    T extends Primitive ? Partial<T>: T extends object ?
+    Omit<
+        {[K in keyof T]?: DeepPartialISerializable<T[K]>},
+        'Serializable$get'|'Serializable$has'|'Serializable$set'|
+        'getClassMetadata'|'getConstructor'|'getPartialClassMetadata'>:
+    unknown;
+
 /**
  * Description of the properties in a Serializable class.
  */
@@ -207,6 +224,16 @@ function deserializeInstanciator(ctor: CopyConstructor) {
     throw new Error('Cannot deserialize, target constructor was null.');
   }
   return new ctor();
+}
+
+/**
+ * A strict version of the deserialize function that restricts the type of the
+ * serialized object to be an optional subset of the specified ISerializable
+ * class.
+ */
+export function strictDeserialize<T extends ISerializable>(
+    type: SerializableCtor<T>, raw: DeepPartialISerializable<T>) {
+  return deserialize(type, raw);
 }
 
 type CopyValueGetter = (key: string, obj: unknown) => {};
