@@ -2971,12 +2971,6 @@ module$contents$goog$html$SafeScript_SafeScript.fromConstant = function(script) 
   var scriptString = goog.string.Const.unwrap(script);
   return 0 === scriptString.length ? module$contents$goog$html$SafeScript_SafeScript.EMPTY : module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(scriptString);
 };
-module$contents$goog$html$SafeScript_SafeScript.fromConstantAndArgs = function(code, var_args) {
-  for (var args = [], i = 1; i < arguments.length; i++) {
-    args.push(module$contents$goog$html$SafeScript_SafeScript.stringify_(arguments[i]));
-  }
-  return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse("(" + goog.string.Const.unwrap(code) + ")(" + args.join(", ") + ");");
-};
 module$contents$goog$html$SafeScript_SafeScript.fromJson = function(val) {
   return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(module$contents$goog$html$SafeScript_SafeScript.stringify_(val));
 };
@@ -15298,7 +15292,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = ee.apiVersion.VERSION;
-ee.apiclient.API_CLIENT_VERSION = "0.1.252";
+ee.apiclient.API_CLIENT_VERSION = "0.1.253";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15566,8 +15560,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.252";
-  "0.1.252" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.253";
+  "0.1.253" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -20611,10 +20605,10 @@ proto.google.protobuf.Struct.fromJavaScript = function(obj) {
 };
 ee.data = {};
 ee.data.authenticateViaOauth = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
-  var scopes = [ee.apiclient.AUTH_SCOPE, ee.apiclient.CLOUD_PLATFORM_SCOPE];
+  var scopes = [module$contents$ee$apiclient_apiclient.AUTH_SCOPE_, module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_];
   opt_extraScopes && (module$contents$goog$array_extend(scopes, opt_extraScopes), module$contents$goog$array_removeDuplicates(scopes));
   module$contents$ee$apiclient_apiclient.setAuthClient(clientId, scopes);
-  null === clientId ? module$contents$ee$apiclient_apiclient.clearAuthToken() : ee.apiclient.ensureAuthLibLoaded(function() {
+  null === clientId ? module$contents$ee$apiclient_apiclient.clearAuthToken() : module$contents$ee$apiclient_apiclient.ensureAuthLibLoaded_(function() {
     var onImmediateFailed = opt_onImmediateFailed || goog.partial(ee.data.authenticateViaPopup, success, opt_error);
     ee.data.refreshAuthToken(success, opt_error, onImmediateFailed);
   });
@@ -20625,14 +20619,14 @@ ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, o
 };
 goog.exportSymbol("ee.data.authenticate", ee.data.authenticate);
 ee.data.authenticateViaPopup = function(opt_success, opt_error) {
-  goog.global.gapi.auth.authorize({client_id:module$contents$ee$apiclient_apiclient.getAuthClientId(), immediate:!1, scope:module$contents$ee$apiclient_apiclient.getAuthScopes().join(" ")}, goog.partial(ee.apiclient.handleAuthResult, opt_success, opt_error));
+  goog.global.gapi.auth.authorize({client_id:module$contents$ee$apiclient_apiclient.getAuthClientId(), immediate:!1, scope:module$contents$ee$apiclient_apiclient.getAuthScopes().join(" ")}, goog.partial(module$contents$ee$apiclient_apiclient.handleAuthResult_, opt_success, opt_error));
 };
 goog.exportSymbol("ee.data.authenticateViaPopup", ee.data.authenticateViaPopup);
 ee.data.authenticateViaPrivateKey = function(privateKey, opt_success, opt_error, opt_extraScopes) {
   if ("window" in goog.global) {
     throw Error("Use of private key authentication in the browser is insecure. Consider using OAuth, instead.");
   }
-  var scopes = [ee.apiclient.AUTH_SCOPE, ee.apiclient.STORAGE_SCOPE, ee.apiclient.CLOUD_PLATFORM_SCOPE];
+  var scopes = [module$contents$ee$apiclient_apiclient.AUTH_SCOPE_, module$contents$ee$apiclient_apiclient.STORAGE_SCOPE_, module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_];
   opt_extraScopes && (module$contents$goog$array_extend(scopes, opt_extraScopes), module$contents$goog$array_removeDuplicates(scopes));
   module$contents$ee$apiclient_apiclient.setAuthClient(privateKey.client_email, scopes);
   var jwtClient = new google.auth.JWT(privateKey.client_email, null, privateKey.private_key, scopes, null);
@@ -20674,7 +20668,7 @@ goog.exportSymbol("ee.data.setParamAugmenter", ee.data.setParamAugmenter);
 ee.data.initialize = module$contents$ee$apiclient_apiclient.initialize;
 ee.data.reset = module$contents$ee$apiclient_apiclient.reset;
 ee.data.PROFILE_HEADER = module$contents$ee$apiclient_apiclient.PROFILE_HEADER;
-ee.data.makeRequest_ = ee.apiclient.makeRequest;
+ee.data.makeRequest_ = module$contents$ee$apiclient_apiclient.makeRequest_;
 ee.data.send_ = module$contents$ee$apiclient_apiclient.send;
 ee.data.setupMockSend = module$contents$ee$apiclient_apiclient.setupMockSend;
 ee.data.withProfiling = module$contents$ee$apiclient_apiclient.withProfiling;
@@ -21076,7 +21070,7 @@ ee.data.getAssetRoots = function(opt_callback) {
 };
 goog.exportSymbol("ee.data.getAssetRoots", ee.data.getAssetRoots);
 ee.data.createAssetHome = function(requestedId, opt_callback) {
-  var parent = ee.rpc_convert.projectParentFromPath(requestedId), assetId = parent === "projects/" + ee.apiclient.DEFAULT_PROJECT ? requestedId : void 0, asset = new module$exports$eeapiclient$ee_api_client.EarthEngineAsset({type:"Folder"}), call = new module$contents$ee$apiclient_Call(opt_callback);
+  var parent = ee.rpc_convert.projectParentFromPath(requestedId), assetId = parent === "projects/" + module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_ ? requestedId : void 0, asset = new module$exports$eeapiclient$ee_api_client.EarthEngineAsset({type:"Folder"}), call = new module$contents$ee$apiclient_Call(opt_callback);
   call.handle(call.assets().create(parent, asset, {assetId:assetId}).then(ee.rpc_convert.assetToLegacyResult));
 };
 goog.exportSymbol("ee.data.createAssetHome", ee.data.createAssetHome);
