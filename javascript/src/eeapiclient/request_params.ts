@@ -1,4 +1,4 @@
-import * as httpCors from 'goog:goog.net.rpc.HttpCors';  // from //third_party/javascript/closure/net/rpc:httpcors
+import * as httpCors from 'goog:goog.net.rpc.HttpCors';
 
 import {GeneratedQueryParams} from './generated_types';
 

@@ -149,7 +149,7 @@ def build_cloud_resource(api_base_url,
       requestBuilder=request_builder,
       model=alt_model,
       cache_discovery=False)
-
+  resource._baseUrl = api_base_url
   return resource
 
 

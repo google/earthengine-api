@@ -226,7 +226,7 @@ class Geometry(computedobject.ComputedObject):
     Args:
       coords: The minimum and maximum corners of the rectangle, as a list of
           two points each in the format of GeoJSON 'Point' coordinates, or a
-          list of two ee.Geometry describing a point, or a list of four
+          list of two ee.Geometry objects describing a point, or a list of four
           numbers in the order xMin, yMin, xMax, yMax.
       proj: The projection of this geometry. If unspecified, the default is the
           projection of the input ee.Geometry, or EPSG:4326 if there are no
@@ -372,8 +372,8 @@ class Geometry(computedobject.ComputedObject):
     Args:
       coords: A list of at least two points.  May be a list of coordinates in
           the GeoJSON 'LineString' format, a list of at least two ee.Geometry
-          describing a point, or a list of at least four numbers defining the
-          [x,y] coordinates of at least two points.
+          objects describing a point, or a list of at least four numbers
+          defining the [x,y] coordinates of at least two points.
       proj: The projection of this geometry. If unspecified, the default is the
           projection of the input ee.Geometry, or EPSG:4326 if there are no
           ee.Geometry inputs.
@@ -410,8 +410,8 @@ class Geometry(computedobject.ComputedObject):
     Args:
       coords: A list of points in the ring. May be a list of coordinates in
           the GeoJSON 'LinearRing' format, a list of at least three ee.Geometry
-          describing a point, or a list of at least six numbers defining the
-          [x,y] coordinates of at least three points.
+          objects describing a point, or a list of at least six numbers defining
+          the [x,y] coordinates of at least three points.
       proj: The projection of this geometry. If unspecified, the default is the
           projection of the input ee.Geometry, or EPSG:4326 if there are no
           ee.Geometry inputs.
@@ -449,8 +449,8 @@ class Geometry(computedobject.ComputedObject):
     Args:
       coords: A list of linestrings. May be a list of coordinates in the
           GeoJSON 'MultiLineString' format, a list of at least two ee.Geometry
-          describing a LineString, or a list of number defining a single
-          linestring.
+          objects describing a LineString, or a list of numbers defining a
+          single linestring.
       proj: The projection of this geometry. If unspecified, the default is the
           projection of the input ee.Geometry, or EPSG:4326 if there are no
           ee.Geometry inputs.
@@ -485,7 +485,7 @@ class Geometry(computedobject.ComputedObject):
     Args:
       coords: A list of rings defining the boundaries of the polygon. May be a
           list of coordinates in the GeoJSON 'Polygon' format, a list of
-          ee.Geometry describing a LinearRing, or a list of number defining a
+          ee.Geometry describing a LinearRing, or a list of numbers defining a
           single polygon boundary.
       proj: The projection of this geometry. If unspecified, the default is the
           projection of the input ee.Geometry, or EPSG:4326 if there are no
@@ -528,8 +528,8 @@ class Geometry(computedobject.ComputedObject):
 
     Args:
       coords: A list of polygons. May be a list of coordinates in the GeoJSON
-          'MultiPolygon' format, a list of ee.Geometry describing a Polygon,
-          or a list of number defining a single polygon boundary.
+          'MultiPolygon' format, a list of ee.Geometry objects describing a
+          Polygon, or a list of numbers defining a single polygon boundary.
       proj: The projection of this geometry. If unspecified, the default is the
           projection of the input ee.Geometry, or EPSG:4326 if there are no
           ee.Geometry inputs.
