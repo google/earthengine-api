@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.254'
+__version__ = '0.1.255'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -238,7 +238,10 @@ def _Promote(arg, klass):
       return ApiFunction.lookup(arg)
     elif callable(arg):
       # A native function that needs to be wrapped.
-      args_count = len(inspect.getargspec(arg).args)
+      if six.PY2:
+        args_count = len(inspect.getargspec(arg).args)
+      else:
+        args_count = len(inspect.getfullargspec(arg).args)
       return CustomFunction.create(arg, 'Object', ['Object'] * args_count)
     elif isinstance(arg, Encodable):
       # An ee.Function or a computed function like the return value of

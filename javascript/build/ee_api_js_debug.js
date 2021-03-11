@@ -1556,8 +1556,9 @@ goog.asserts.getType_ = function(value) {
   return value instanceof Function ? value.displayName || value.name || "unknown type name" : value instanceof Object ? value.constructor.displayName || value.constructor.name || Object.prototype.toString.call(value) : null === value ? "null" : typeof value;
 };
 goog.debug.entryPointRegistry = {};
-goog.debug.EntryPointMonitor = function() {
+goog.debug.entryPointRegistry.EntryPointMonitor = function() {
 };
+goog.debug.EntryPointMonitor = goog.debug.entryPointRegistry.EntryPointMonitor;
 goog.debug.entryPointRegistry.refList_ = [];
 goog.debug.entryPointRegistry.monitors_ = [];
 goog.debug.entryPointRegistry.monitorsMayExist_ = !1;
@@ -15292,7 +15293,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.254";
+ee.apiclient.API_CLIENT_VERSION = "0.1.255";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15560,8 +15561,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.254";
-  "0.1.254" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.255";
+  "0.1.255" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
