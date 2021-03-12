@@ -140,12 +140,14 @@ class ExportTask {
  * @param {string=} opt_crs
  * @param {!Array<number>|string=} opt_crsTransform
  * @param {number=} opt_maxPixels
+ * @param {number=} opt_shardSize
  * @return {!ExportTask}
  * @export
  */
 Export.image.toAsset = function(
     image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions,
-    opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels) {
+    opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
+    opt_shardSize) {
   const clientConfig = eeArguments.extractFromFunction(
       Export.image.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -740,6 +742,7 @@ const FORMAT_OPTIONS_MAP = {
   'GEO_TIFF': [
     'cloudOptimized',
     'fileDimensions',
+    'shardSize',
   ],
   'TF_RECORD_IMAGE': [
     'patchDimensions',

@@ -275,12 +275,21 @@ class Export(object):
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toCloudStorage(image, description='myExportImageTask',
-                       bucket=None, fileNamePrefix=None,
-                       dimensions=None, region=None, scale=None,
-                       crs=None, crsTransform=None, maxPixels=None,
-                       shardSize=None, fileDimensions=None,
-                       skipEmptyTiles=None, fileFormat=None, formatOptions=None,
+    def toCloudStorage(image,
+                       description='myExportImageTask',
+                       bucket=None,
+                       fileNamePrefix=None,
+                       dimensions=None,
+                       region=None,
+                       scale=None,
+                       crs=None,
+                       crsTransform=None,
+                       maxPixels=None,
+                       shardSize=None,
+                       fileDimensions=None,
+                       skipEmptyTiles=None,
+                       fileFormat=None,
+                       formatOptions=None,
                        **kwargs):
       """Creates a task to export an EE Image to Google Cloud Storage.
 
@@ -310,7 +319,7 @@ class Export(object):
         maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more
             pixels in the specified projection. Defaults to 100,000,000.
-        shardSize: Size in pixels of the shards in which this image will be
+        shardSize: Size in pixels of the tiles in which this image will be
             computed. Defaults to 256.
         fileDimensions: The dimensions in pixels of each image file, if the
             image is too large to fit in a single file. May specify a
@@ -336,11 +345,21 @@ class Export(object):
       return _create_export_task(config, Task.Type.EXPORT_IMAGE)
 
     @staticmethod
-    def toDrive(image, description='myExportImageTask', folder=None,
-                fileNamePrefix=None, dimensions=None, region=None,
-                scale=None, crs=None, crsTransform=None,
-                maxPixels=None, shardSize=None, fileDimensions=None,
-                skipEmptyTiles=None, fileFormat=None, formatOptions=None,
+    def toDrive(image,
+                description='myExportImageTask',
+                folder=None,
+                fileNamePrefix=None,
+                dimensions=None,
+                region=None,
+                scale=None,
+                crs=None,
+                crsTransform=None,
+                maxPixels=None,
+                shardSize=None,
+                fileDimensions=None,
+                skipEmptyTiles=None,
+                fileFormat=None,
+                formatOptions=None,
                 **kwargs):
       """Creates a task to export an EE Image to Drive.
 
@@ -371,7 +390,7 @@ class Export(object):
         maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more
             pixels in the specified projection. Defaults to 100,000,000.
-        shardSize: Size in pixels of the shards in which this image will be
+        shardSize: Size in pixels of the tiles in which this image will be
             computed. Defaults to 256.
         fileDimensions: The dimensions in pixels of each image file, if the
             image is too large to fit in a single file. May specify a
@@ -870,9 +889,15 @@ def _prepare_image_export_config(image, config, export_destination):
     asset_export_options[
         'earthEngineDestination'] = _build_earth_engine_destination(config)
     # This can only be set by internal users.
+    if 'tileSize' in config and 'shardSize' in config:
+      raise ee_exception.EEException(
+          'Both "shardSize" and "tileSize" cannot be set.')
     if 'tileSize' in config:
       asset_export_options['tileSize'] = {
           'value': int(config.pop('tileSize'))}
+    # "shardSize" is the old name for "tileSize".
+    if 'shardSize' in config:
+      asset_export_options['tileSize'] = {'value': int(config.pop('shardSize'))}
     if 'pyramidingPolicy' in config:
       pyramiding_policy = config.pop('pyramidingPolicy')
       if '.default' in pyramiding_policy:
@@ -901,11 +926,6 @@ def _prepare_image_export_config(image, config, export_destination):
   # - All the values that would go into the PixelGrid should have been folded
   #   into the image's Expression.
   # - The request ID will be populated when the Task is created.
-
-  if 'shardSize' in config:
-    raise ee_exception.EEException(
-        'shardSize is not supported with the Cloud API.')
-
   # We've been deleting config parameters as we handle them. Anything left
   # over is a problem.
   if config:
@@ -1090,6 +1110,8 @@ def _build_image_file_export_options(config, export_destination):
       }
     if config.pop('skipEmptyTiles', False):
       geo_tiff_options['skipEmptyFiles'] = True
+    if config.get('shardSize', None):
+      geo_tiff_options['tileSize'] = {'value': config.pop('shardSize')}
     if geo_tiff_options:
       file_export_options['geoTiffOptions'] = geo_tiff_options
   elif file_format == 'TF_RECORD_IMAGE':

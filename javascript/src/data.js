@@ -2844,6 +2844,7 @@ ee.data.ImageTaskConfigUnformatted;
  *   fileFormat: (undefined|string),
  *   tiffCloudOptimized: (undefined|boolean),
  *   tiffFileDimensions: (undefined|string),
+ *   tiffShardSize: (undefined|number),
  *   tfrecordPatchDimensions: (undefined|string),
  *   tfrecordKernelSize: (undefined|string),
  *   tfrecordCompressed: (undefined|boolean),
@@ -2878,7 +2879,8 @@ ee.data.ImageTaskConfig;
  *   tensorDepths: (undefined|!Array<number>|!Object),
  *   sequenceData: (undefined|boolean),
  *   collapseBands: (undefined|boolean),
- *   maskedThreshold: (undefined|number)
+ *   maskedThreshold: (undefined|number),
+ *   shardSize: (undefined|number)
  * }}
  */
 ee.data.ImageExportFormatConfig;

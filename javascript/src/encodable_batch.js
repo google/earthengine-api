@@ -245,6 +245,7 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
   }
   const fileDimensions =
       params['fileDimensions'] || params['tiffFileDimensions'];
+  const tileSize = params['tiffShardSize'] || params['shardSize'];
   return new ee.api.GeoTiffImageExportOptions({
     cloudOptimized: Boolean(params['tiffCloudOptimized']),
     // The ee.data.ImageTaskConfig has the top-level option
@@ -253,6 +254,7 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
     skipEmptyFiles:
         Boolean(params['skipEmptyTiles'] || params['tiffSkipEmptyFiles']),
     tileDimensions: ee.rpc_convert_batch.buildGridDimensions_(fileDimensions),
+    tileSize: numberOrNull_(tileSize),
   });
 };
 
@@ -371,8 +373,9 @@ ee.rpc_convert_batch.buildImageAssetExportOptions_ = function(params) {
     earthEngineDestination:
         ee.rpc_convert_batch.buildEarthEngineDestination_(params),
     pyramidingPolicy: defaultPyramidingPolicy,
-    pyramidingPolicyOverrides:
-        goog.object.isEmpty(allPolicies) ? null : allPolicies,
+    pyramidingPolicyOverrides: goog.object.isEmpty(allPolicies) ? null :
+                                                                  allPolicies,
+    tileSize: numberOrNull_(params['shardSize']),
   });
 };
 

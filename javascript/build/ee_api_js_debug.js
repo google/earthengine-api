@@ -1097,6 +1097,7 @@ goog.TRANSPILE = "detect";
 goog.ASSUME_ES_MODULES_TRANSPILED = !1;
 goog.TRANSPILE_TO_LANGUAGE = "";
 goog.TRANSPILER = "transpile.js";
+goog.TRUSTED_TYPES_POLICY_NAME = "goog";
 goog.hasBadLetScoping = null;
 goog.loadModule = function(moduleDef) {
   var previousState = goog.moduleLoaderState_;
@@ -1348,7 +1349,6 @@ goog.defineClass.applyProperties_ = function(target, source) {
     key = goog.defineClass.OBJECT_PROTOTYPE_FIELDS_[i], Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
   }
 };
-goog.TRUSTED_TYPES_POLICY_NAME = "goog";
 goog.identity_ = function(s) {
   return s;
 };
@@ -14730,10 +14730,10 @@ third_party$javascript$closure$log$log$classdecl$var4.prototype.publish = functi
     }), target = target.parent;
   }
 };
-goog.log.LogRegistryEntry = third_party$javascript$closure$log$log$classdecl$var4;
+goog.log.LogRegistryEntry_ = third_party$javascript$closure$log$log$classdecl$var4;
 var third_party$javascript$closure$log$log$classdecl$var5 = function() {
   this.entries = {};
-  var rootLogRegistryEntry = new goog.log.LogRegistryEntry(goog.log.ROOT_LOGGER_NAME);
+  var rootLogRegistryEntry = new goog.log.LogRegistryEntry_(goog.log.ROOT_LOGGER_NAME);
   rootLogRegistryEntry.level = goog.log.Level.CONFIG;
   this.entries[goog.log.ROOT_LOGGER_NAME] = rootLogRegistryEntry;
 };
@@ -14742,7 +14742,7 @@ third_party$javascript$closure$log$log$classdecl$var5.prototype.getLogRegistryEn
   if (entry) {
     return void 0 !== level && (entry.level = level), entry;
   }
-  var lastDotIndex = name.lastIndexOf("."), parentLogRegistryEntry = this.getLogRegistryEntry(name.substr(0, lastDotIndex)), logRegistryEntry = new goog.log.LogRegistryEntry(name, parentLogRegistryEntry);
+  var lastDotIndex = name.lastIndexOf("."), parentLogRegistryEntry = this.getLogRegistryEntry(name.substr(0, lastDotIndex)), logRegistryEntry = new goog.log.LogRegistryEntry_(name, parentLogRegistryEntry);
   this.entries[name] = logRegistryEntry;
   parentLogRegistryEntry.children.push(logRegistryEntry);
   void 0 !== level && (logRegistryEntry.level = level);
@@ -14754,23 +14754,23 @@ third_party$javascript$closure$log$log$classdecl$var5.prototype.getAllLoggers = 
     return $jscomp$this.entries[loggerName].logger;
   });
 };
-goog.log.LogRegistry = third_party$javascript$closure$log$log$classdecl$var5;
-goog.log.LogRegistry.getInstance = function() {
-  goog.log.LogRegistry.instance_ || (goog.log.LogRegistry.instance_ = new goog.log.LogRegistry);
-  return goog.log.LogRegistry.instance_;
+goog.log.LogRegistry_ = third_party$javascript$closure$log$log$classdecl$var5;
+goog.log.LogRegistry_.getInstance = function() {
+  goog.log.LogRegistry_.instance_ || (goog.log.LogRegistry_.instance_ = new goog.log.LogRegistry_);
+  return goog.log.LogRegistry_.instance_;
 };
 goog.log.getLogger = function(name, level) {
-  return goog.log.ENABLED ? goog.log.LogRegistry.getInstance().getLogRegistryEntry(name, level).logger : null;
+  return goog.log.ENABLED ? goog.log.LogRegistry_.getInstance().getLogRegistryEntry(name, level).logger : null;
 };
 goog.log.getRootLogger = function() {
-  return goog.log.ENABLED ? goog.log.LogRegistry.getInstance().getLogRegistryEntry(goog.log.ROOT_LOGGER_NAME).logger : null;
+  return goog.log.ENABLED ? goog.log.LogRegistry_.getInstance().getLogRegistryEntry(goog.log.ROOT_LOGGER_NAME).logger : null;
 };
 goog.log.addHandler = function(logger, handler) {
-  goog.log.ENABLED && logger && goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).handlers.push(handler);
+  goog.log.ENABLED && logger && goog.log.LogRegistry_.getInstance().getLogRegistryEntry(logger.getName()).handlers.push(handler);
 };
 goog.log.removeHandler = function(logger, handler) {
   if (goog.log.ENABLED && logger) {
-    var loggerEntry = goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()), indexOfHandler = loggerEntry.handlers.indexOf(handler);
+    var loggerEntry = goog.log.LogRegistry_.getInstance().getLogRegistryEntry(logger.getName()), indexOfHandler = loggerEntry.handlers.indexOf(handler);
     if (-1 !== indexOfHandler) {
       return loggerEntry.handlers.splice(indexOfHandler, 1), !0;
     }
@@ -14778,19 +14778,19 @@ goog.log.removeHandler = function(logger, handler) {
   return !1;
 };
 goog.log.setLevel = function(logger, level) {
-  goog.log.ENABLED && logger && (goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).level = level);
+  goog.log.ENABLED && logger && (goog.log.LogRegistry_.getInstance().getLogRegistryEntry(logger.getName()).level = level);
 };
 goog.log.getLevel = function(logger) {
-  return goog.log.ENABLED && logger ? goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).level : null;
+  return goog.log.ENABLED && logger ? goog.log.LogRegistry_.getInstance().getLogRegistryEntry(logger.getName()).level : null;
 };
 goog.log.getEffectiveLevel = function(logger) {
-  return goog.log.ENABLED && logger ? goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).getEffectiveLevel() : goog.log.Level.OFF;
+  return goog.log.ENABLED && logger ? goog.log.LogRegistry_.getInstance().getLogRegistryEntry(logger.getName()).getEffectiveLevel() : goog.log.Level.OFF;
 };
 goog.log.isLoggable = function(logger, level) {
   return goog.log.ENABLED && logger && level ? level.value >= goog.log.getEffectiveLevel(logger).value : !1;
 };
 goog.log.getAllLoggers = function() {
-  return goog.log.ENABLED ? goog.log.LogRegistry.getInstance().getAllLoggers() : [];
+  return goog.log.ENABLED ? goog.log.LogRegistry_.getInstance().getAllLoggers() : [];
 };
 goog.log.getLogRecord = function(logger, level, msg, exception) {
   var logRecord = goog.log.LogBuffer.getInstance().addRecord(level || goog.log.Level.OFF, msg, logger.getName());
@@ -14798,12 +14798,12 @@ goog.log.getLogRecord = function(logger, level, msg, exception) {
   return logRecord;
 };
 goog.log.publishLogRecord = function(logger, logRecord) {
-  goog.log.ENABLED && logger && goog.log.isLoggable(logger, logRecord.getLevel()) && goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName()).publish(logRecord);
+  goog.log.ENABLED && logger && goog.log.isLoggable(logger, logRecord.getLevel()) && goog.log.LogRegistry_.getInstance().getLogRegistryEntry(logger.getName()).publish(logRecord);
 };
 goog.log.log = function(logger, level, msg, exception) {
   if (goog.log.ENABLED && logger && goog.log.isLoggable(logger, level)) {
     level = level || goog.log.Level.OFF;
-    var loggerEntry = goog.log.LogRegistry.getInstance().getLogRegistryEntry(logger.getName());
+    var loggerEntry = goog.log.LogRegistry_.getInstance().getLogRegistryEntry(logger.getName());
     "function" === typeof msg && (msg = msg());
     var logRecord = goog.log.LogBuffer.getInstance().addRecord(level, msg, logger.getName());
     exception && logRecord.setException(exception);
@@ -15293,7 +15293,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.255";
+ee.apiclient.API_CLIENT_VERSION = "0.1.256";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15561,8 +15561,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.255";
-  "0.1.255" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.256";
+  "0.1.256" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -16945,7 +16945,8 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
   if (params.fileDimensions && params.tiffFileDimensions) {
     throw Error('Export cannot set both "fileDimensions" and "tiffFileDimensions".');
   }
-  return new module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions({cloudOptimized:!!params.tiffCloudOptimized, skipEmptyFiles:!(!params.skipEmptyTiles && !params.tiffSkipEmptyFiles), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.fileDimensions || params.tiffFileDimensions), });
+  var tileSize = params.tiffShardSize || params.shardSize;
+  return new module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions({cloudOptimized:!!params.tiffCloudOptimized, skipEmptyFiles:!(!params.skipEmptyTiles && !params.tiffSkipEmptyFiles), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.fileDimensions || params.tiffFileDimensions), tileSize:numberOrNull_(tileSize), });
 };
 ee.rpc_convert_batch.buildTfRecordFormatOptions_ = function(params) {
   var tfRecordOptions = new module$exports$eeapiclient$ee_api_client.TfRecordImageExportOptions({compress:!!params.tfrecordCompressed, maxSizeBytes:stringOrNull_(params.tfrecordMaxFileSize), sequenceData:!!params.tfrecordSequenceData, collapseBands:!!params.tfrecordCollapseBands, maxMaskedRatio:numberOrNull_(params.tfrecordMaskedThreshold), defaultValue:numberOrNull_(params.tfrecordDefaultValue), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tfrecordPatchDimensions), 
@@ -16980,7 +16981,7 @@ ee.rpc_convert_batch.buildImageAssetExportOptions_ = function(params) {
   }
   var defaultPyramidingPolicy = "PYRAMIDING_POLICY_UNSPECIFIED";
   "string" === typeof allPolicies ? (defaultPyramidingPolicy = allPolicies, allPolicies = {}) : allPolicies[".default"] && (defaultPyramidingPolicy = allPolicies[".default"], delete allPolicies[".default"]);
-  return new module$exports$eeapiclient$ee_api_client.ImageAssetExportOptions({earthEngineDestination:ee.rpc_convert_batch.buildEarthEngineDestination_(params), pyramidingPolicy:defaultPyramidingPolicy, pyramidingPolicyOverrides:goog.object.isEmpty(allPolicies) ? null : allPolicies, });
+  return new module$exports$eeapiclient$ee_api_client.ImageAssetExportOptions({earthEngineDestination:ee.rpc_convert_batch.buildEarthEngineDestination_(params), pyramidingPolicy:defaultPyramidingPolicy, pyramidingPolicyOverrides:goog.object.isEmpty(allPolicies) ? null : allPolicies, tileSize:numberOrNull_(params.shardSize), });
 };
 ee.rpc_convert_batch.buildTableFileExportOptions_ = function(params, destination) {
   var result = new module$exports$eeapiclient$ee_api_client.TableFileExportOptions({gcsDestination:null, driveDestination:null, fileFormat:ee.rpc_convert.tableFileFormat(params.fileFormat), });
@@ -17396,6 +17397,9 @@ function module$contents$jspb$utils_byteSourceToUint8Array(data) {
   }
   if (data.constructor === String) {
     return goog.crypt.base64.decodeStringToUint8Array(data);
+  }
+  if (data instanceof Uint8Array) {
+    return new Uint8Array(data.buffer, data.byteOffset, data.byteLength);
   }
   (0,goog.asserts.fail)("Type not convertible to Uint8Array.");
   return new Uint8Array(0);
@@ -22974,7 +22978,7 @@ module$contents$ee$batch_ExportTask.prototype.start = function(opt_success, opt_
   }
 };
 goog.exportProperty(module$contents$ee$batch_ExportTask.prototype, "start", module$contents$ee$batch_ExportTask.prototype.start);
-module$contents$ee$batch_Export.image.toAsset = function(image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels) {
+module$contents$ee$batch_Export.image.toAsset = function(image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_shardSize) {
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.image.toAsset, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET, ee.data.ExportType.IMAGE);
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
@@ -23173,7 +23177,7 @@ module$contents$ee$batch_Export.videoMap.prepareTaskConfig_ = function(taskConfi
   return taskConfig = module$contents$ee$batch_Export.prepareDestination_(taskConfig, destination);
 };
 var module$contents$ee$batch_VideoFormat = {MP4:"MP4", GIF:"GIF", VP9:"VP9", }, module$contents$ee$batch_MapFormat = {AUTO_JPEG_PNG:"AUTO_JPEG_PNG", JPEG:"JPEG", PNG:"PNG", }, module$contents$ee$batch_ImageFormat = {GEO_TIFF:"GEO_TIFF", TF_RECORD_IMAGE:"TF_RECORD_IMAGE", }, module$contents$ee$batch_TableFormat = {CSV:"CSV", GEO_JSON:"GEO_JSON", KML:"KML", KMZ:"KMZ", SHP:"SHP", TF_RECORD_TABLE:"TF_RECORD_TABLE", }, module$contents$ee$batch_VideoMapVersion = {V1:"V1", V2:"V2", }, module$contents$ee$batch_FORMAT_OPTIONS_MAP = 
-{GEO_TIFF:["cloudOptimized", "fileDimensions", ], TF_RECORD_IMAGE:"patchDimensions kernelSize compressed maxFileSize defaultValue tensorDepths sequenceData collapseBands maskedThreshold".split(" ")}, module$contents$ee$batch_FORMAT_PREFIX_MAP = {GEO_TIFF:"tiff", TF_RECORD_IMAGE:"tfrecord"};
+{GEO_TIFF:["cloudOptimized", "fileDimensions", "shardSize", ], TF_RECORD_IMAGE:"patchDimensions kernelSize compressed maxFileSize defaultValue tensorDepths sequenceData collapseBands maskedThreshold".split(" ")}, module$contents$ee$batch_FORMAT_PREFIX_MAP = {GEO_TIFF:"tiff", TF_RECORD_IMAGE:"tfrecord"};
 module$contents$ee$batch_Export.reconcileVideoFormat_ = function(taskConfig) {
   taskConfig.videoOptions = taskConfig.framesPerSecond || 5.0;
   taskConfig.maxFrames = taskConfig.maxFrames || 1000;
@@ -25647,7 +25651,7 @@ goog.structs.Pool.prototype.setDelay = function(delay) {
   this.delay = delay;
 };
 goog.structs.Pool.prototype.getObject = function() {
-  var time = goog.now();
+  var time = Date.now();
   if (!(null != this.lastAccess && time - this.lastAccess < this.delay)) {
     var obj = this.removeFreeObject_();
     obj && (this.lastAccess = time, this.inUseSet_.add(obj));
@@ -25855,7 +25859,7 @@ goog.inherits(goog.structs.PriorityPool, goog.structs.Pool);
 goog.structs.PriorityPool.DEFAULT_PRIORITY_ = 100;
 goog.structs.PriorityPool.prototype.setDelay = function(delay) {
   goog.structs.PriorityPool.superClass_.setDelay.call(this, delay);
-  null != this.lastAccess && (goog.global.clearTimeout(this.delayTimeout_), this.delayTimeout_ = goog.global.setTimeout(goog.bind(this.handleQueueRequests_, this), this.delay + this.lastAccess - goog.now()), this.handleQueueRequests_());
+  null != this.lastAccess && (goog.global.clearTimeout(this.delayTimeout_), this.delayTimeout_ = goog.global.setTimeout(goog.bind(this.handleQueueRequests_, this), this.delay + this.lastAccess - Date.now()), this.handleQueueRequests_());
 };
 goog.structs.PriorityPool.prototype.getObject = function(opt_callback, opt_priority) {
   if (!opt_callback) {
