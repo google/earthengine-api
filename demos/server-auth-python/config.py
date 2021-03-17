@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """An example config.py file."""
 
 import ee

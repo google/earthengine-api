@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """Map an expression.
 
 Computes the mean NDVI and SAVI by mapping an expression over a collection

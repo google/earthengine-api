@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """Computed area filter example.
 
 Find US counties smaller than 3k square kilometers in area.

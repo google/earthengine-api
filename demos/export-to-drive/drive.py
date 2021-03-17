@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """Helpers for interfacing with Google Drive."""
 
 import googleapiclient.discovery

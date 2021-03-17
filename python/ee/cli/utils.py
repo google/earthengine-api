@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python2, python3
 """Support utilities used by the Earth Engine command line interface.
 
 This module defines the Command class which is the base class of all

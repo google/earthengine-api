@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """HSV-based Pan-Sharpening example."""
 
 import ee

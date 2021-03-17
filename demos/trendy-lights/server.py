@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """Web server for the Trendy Lights application.
 
 The overall architecture looks like:

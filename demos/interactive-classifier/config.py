@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """Handles Earth Engine service account configuration."""
 
 import ee

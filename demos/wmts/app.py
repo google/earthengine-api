@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """Handle the routing for the application."""
 
 import collections

@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """Display an image given its ID."""
 
 import ee

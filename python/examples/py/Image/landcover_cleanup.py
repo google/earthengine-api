@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """Landcover cleanup.
 
 Display the MODIS land cover classification image with appropriate colors.

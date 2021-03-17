@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 """Where operator example.
 
 Select the forest classes from the MODIS land cover image and intersect them

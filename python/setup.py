@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-# Lint as: python3
 #
 # Copyright 2012 Google Inc. All Rights Reserved.
 
@@ -34,6 +33,9 @@ setup(
         'ee.cli': ['licenses.txt'],
     },
     test_suite='ee/tests',
+    # Note: When updating these, update the conda-forge recipe too before
+    # pushing a new API version.
+    # https://github.com/conda-forge/earthengine-api-feedstock/blob/master/recipe/meta.yaml
     install_requires=[
         # Note we omit TensorFlow (used by the CLI) here on purpose to avoid
         # an extra 0.5GiB of deps compared to our current 26MiB; Use of TF
