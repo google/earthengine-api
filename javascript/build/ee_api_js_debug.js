@@ -4786,7 +4786,7 @@ goog.debug.normalizeErrorObject = function(err) {
     return {message:message, name:err.name || "UnknownError", lineNumber:lineNumber, fileName:fileName, stack:stack || "Not available"};
   }
   err.stack = stack;
-  return err;
+  return {message:err.message, name:err.name, lineNumber:err.lineNumber, fileName:err.fileName, stack:err.stack};
 };
 goog.debug.serializeErrorStack_ = function(e, seen) {
   seen || (seen = {});
@@ -15293,7 +15293,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.257";
+ee.apiclient.API_CLIENT_VERSION = "0.1.258";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15561,8 +15561,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.257";
-  "0.1.257" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.258";
+  "0.1.258" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -16164,17 +16164,25 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
 ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   var asset = new module$exports$eeapiclient$ee_api_client.EarthEngineAsset, toTimestamp = function(msec) {
     return (new Date(Number(msec))).toISOString();
-  }, properties = Object.assign({}, legacyProperties), value, extractValue = function(key) {
-    value = properties[key];
+  }, asNull = function(value) {
+    return null === value ? module$exports$eeapiclient$domain_object.NULL_VALUE : void 0;
+  }, properties = Object.assign({}, legacyProperties), value$jscomp$0, extractValue = function(key) {
+    value$jscomp$0 = properties[key];
     delete properties[key];
-    return value;
+    return value$jscomp$0;
   };
-  extractValue("system:asset_size") && (asset.sizeBytes = String(value));
-  extractValue("system:time_start") && (asset.startTime = toTimestamp(value));
-  extractValue("system:time_end") && (asset.endTime = toTimestamp(value));
-  extractValue("system:footprint") && (asset.geometry = value);
-  "string" === typeof extractValue("system:title") && null == properties.title && (properties.title = value);
-  "string" === typeof extractValue("system:description") && null == properties.description && (properties.description = value);
+  void 0 !== extractValue("system:asset_size") && (asset.sizeBytes = asNull(value$jscomp$0) || String(value$jscomp$0));
+  void 0 !== extractValue("system:time_start") && (asset.startTime = asNull(value$jscomp$0) || toTimestamp(value$jscomp$0));
+  void 0 !== extractValue("system:time_end") && (asset.endTime = asNull(value$jscomp$0) || toTimestamp(value$jscomp$0));
+  void 0 !== extractValue("system:footprint") && (asset.geometry = asNull(value$jscomp$0) || value$jscomp$0);
+  extractValue("system:title");
+  "string" !== typeof value$jscomp$0 && null !== value$jscomp$0 || null != properties.title || (properties.title = asNull(value$jscomp$0) || value$jscomp$0);
+  extractValue("system:description");
+  "string" !== typeof value$jscomp$0 && null !== value$jscomp$0 || null != properties.description || (properties.description = asNull(value$jscomp$0) || value$jscomp$0);
+  Object.entries(properties).forEach(function($jscomp$destructuring$var12) {
+    var $jscomp$destructuring$var13 = $jscomp.makeIterator($jscomp$destructuring$var12), key = $jscomp$destructuring$var13.next().value, value = $jscomp$destructuring$var13.next().value;
+    properties[key] = asNull(value) || value;
+  });
   asset.properties = properties;
   return asset;
 };
@@ -16704,7 +16712,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
       return object;
     }
     for (var ret = Array.isArray(object) ? [] : {}, isNode = object instanceof Object.getPrototypeOf(module$exports$eeapiclient$ee_api_client.ValueNode), $jscomp$iter$15 = $jscomp.makeIterator(Object.entries(isNode ? object.Serializable$values : object)), $jscomp$key$ = $jscomp$iter$15.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$15.next()) {
-      var $jscomp$destructuring$var13 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var13.next().value, val = $jscomp$destructuring$var13.next().value;
+      var $jscomp$destructuring$var15 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var15.next().value, val = $jscomp$destructuring$var15.next().value;
       isNode ? null !== val && (ret[key] = "functionDefinitionValue" === key && null != val.body ? {argumentNames:val.argumentNames, body:walkObject(values[val.body])} : "functionInvocationValue" === key && null != val.functionReference ? {arguments:goog.object.map(val.arguments, walkObject), functionReference:walkObject(values[val.functionReference])} : "constantValue" === key ? val === module$exports$eeapiclient$domain_object.NULL_VALUE ? null : val : walkObject(val)) : 
       ret[key] = walkObject(val);
     }
@@ -16816,7 +16824,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   }
   if (null != value.dictionaryValue) {
     for (var values = {}, constantValues = {}, $jscomp$iter$16 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$16.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$16.next()) {
-      var $jscomp$destructuring$var15 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var15.next().value, v$jscomp$0 = $jscomp$destructuring$var15.next().value;
+      var $jscomp$destructuring$var17 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var17.next().value, v$jscomp$0 = $jscomp$destructuring$var17.next().value;
       values[k] = this.optimizeValue(v$jscomp$0, depth + 3);
       null !== constantValues && isConst(values[k]) ? constantValues[k] = serializeConst(values[k].constantValue) : constantValues = null;
     }
@@ -20240,9 +20248,6 @@ module$contents$jspb$Message_Message.clone_ = function(obj) {
   }
   return clone;
 };
-module$contents$jspb$Message_Message.registerMessageType = function(id, constructor) {
-  constructor.messageId = id;
-};
 module$contents$jspb$Message_Message.messageSetExtensions = {};
 module$contents$jspb$Message_Message.messageSetExtensionsBinary = {};
 module$contents$jspb$Message_Message.isFrozen = function(msg) {
@@ -20798,8 +20803,8 @@ ee.data.getDownloadId = function(params, opt_callback) {
   }) && (params.bands = params.bands.map(function(band) {
     return {id:band};
   }));
-  if (params.bands && params.bands.some(function($jscomp$destructuring$var16) {
-    return null == $jscomp$destructuring$var16.id;
+  if (params.bands && params.bands.some(function($jscomp$destructuring$var18) {
+    return null == $jscomp$destructuring$var18.id;
   })) {
     throw Error("Each band dictionary must have an id.");
   }
@@ -23297,7 +23302,7 @@ module$contents$ee$batch_Export.prefixImageFormatOptions_ = function(taskConfig,
     throw Error("Parameter specified at least twice: once in config, and once in config format options.");
   }
   for (var prefix = module$contents$ee$batch_FORMAT_PREFIX_MAP[imageFormat], validOptionKeys = module$contents$ee$batch_FORMAT_OPTIONS_MAP[imageFormat], prefixedOptions = {}, $jscomp$iter$18 = $jscomp.makeIterator(Object.entries(formatOptions)), $jscomp$key$ = $jscomp$iter$18.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$18.next()) {
-    var $jscomp$destructuring$var19 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var19.next().value, value = $jscomp$destructuring$var19.next().value;
+    var $jscomp$destructuring$var21 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var21.next().value, value = $jscomp$destructuring$var21.next().value;
     if (!module$contents$goog$array_contains(validOptionKeys, key$jscomp$0)) {
       var validKeysMsg = validOptionKeys.join(", ");
       throw Error('"' + key$jscomp$0 + '" is not a valid option, the image format "' + imageFormat + '""may have the following options: ' + (validKeysMsg + '".'));

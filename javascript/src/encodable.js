@@ -609,6 +609,8 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
 ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   const asset = new ee.api.EarthEngineAsset();
   const toTimestamp = (msec) => new Date(Number(msec)).toISOString();
+  const asNull = (value) =>
+      value === null ? /** type {?} */ (ee.apiclient.NULL_VALUE) : undefined;
   const properties = Object.assign({}, legacyProperties);
   let value;
   const extractValue = (key) => {
@@ -616,31 +618,39 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
     delete properties[key];
     return value;
   };
-  if (extractValue('system:asset_size')) {
-    asset.sizeBytes = String(value);
+  // Extract the legacy properties from the properties object. May be set to
+  // null for deletion, but we use NULL_VALUE so that Serializable$has returns
+  // true.
+  if (extractValue('system:asset_size') !== undefined) {
+    asset.sizeBytes = asNull(value) || String(value);
   }
-  if (extractValue('system:time_start')) {
-    asset.startTime = toTimestamp(value);
+  if (extractValue('system:time_start') !== undefined) {
+    asset.startTime = asNull(value) || toTimestamp(value);
   }
-  if (extractValue('system:time_end')) {
-    asset.endTime = toTimestamp(value);
+  if (extractValue('system:time_end') !== undefined) {
+    asset.endTime = asNull(value) || toTimestamp(value);
   }
-  if (extractValue('system:footprint')) {
-    asset.geometry = value;
+  if (extractValue('system:footprint') !== undefined) {
+    asset.geometry = asNull(value) || value;
   }
   // Extract `system:title` and set it in `properties` unless `title` is present
   // in `properties`, which takes precedence.
-  if (typeof extractValue('system:title') === 'string' &&
+  extractValue('system:title');
+  if ((typeof value === 'string' || value === null) &&
       properties['title'] == null) {
-    properties['title'] = value;
+    properties['title'] = asNull(value) || value;
   }
   // Extract `system:description` and set it in `properties` unless
   // `description` is present in `properties`, which takes precedence.
-  if (typeof extractValue('system:description') === 'string' &&
+  extractValue('system:description');
+  if ((typeof value === 'string' || value === null) &&
       properties['description'] == null) {
-    properties['description'] = value;
+    properties['description'] = asNull(value) || value;
   }
   // update_time cannot be set directly.
+  Object.entries(properties).forEach(([key, value]) => {
+    properties[key] = asNull(value) || value;
+  });
   asset.properties = properties;
   return asset;
 };

@@ -4,7 +4,6 @@
 
 import json
 import mock
-
 from six.moves.urllib import parse
 
 import tempfile
