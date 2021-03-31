@@ -1,7 +1,7 @@
 // Simple Join example.
 // Show parks in San Francisco within 2 kilometers of a BART station.
 
-// Load fusion tables for BART station locations and local parks.
+// Load tables for BART station locations and local parks.
 var bart = ee.FeatureCollection('GOOGLE/EE/DEMOS/bart-locations');
 var parks = ee.FeatureCollection('GOOGLE/EE/DEMOS/sf-parks');
 

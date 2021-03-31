@@ -4940,8 +4940,8 @@ goog.debug.freeze = function(arg) {
     return goog.debug.freezeInternal_(arg);
   }();
 };
-goog.events.BrowserFeature = {HAS_W3C_BUTTON:!0, HAS_W3C_EVENT_SUPPORT:!0, SET_KEY_CODE_TO_PREVENT_DEFAULT:!1, HAS_NAVIGATOR_ONLINE_PROPERTY:!0, HAS_HTML5_NETWORK_EVENT_SUPPORT:goog.userAgent.GECKO && goog.userAgent.isVersionOrHigher("1.9b") || goog.userAgent.IE && goog.userAgent.isVersionOrHigher("8") || goog.userAgent.OPERA && goog.userAgent.isVersionOrHigher("9.5") || goog.userAgent.WEBKIT && goog.userAgent.isVersionOrHigher("528"), HTML5_NETWORK_EVENTS_FIRE_ON_BODY:!1, TOUCH_ENABLED:"ontouchstart" in 
-goog.global || !!(goog.global.document && document.documentElement && "ontouchstart" in document.documentElement) || !(!goog.global.navigator || !goog.global.navigator.maxTouchPoints && !goog.global.navigator.msMaxTouchPoints), POINTER_EVENTS:"PointerEvent" in goog.global, MSPOINTER_EVENTS:"MSPointerEvent" in goog.global && !(!goog.global.navigator || !goog.global.navigator.msPointerEnabled), PASSIVE_EVENTS:function(fn) {
+goog.events.BrowserFeature = {HAS_W3C_BUTTON:!0, HAS_W3C_EVENT_SUPPORT:!0, SET_KEY_CODE_TO_PREVENT_DEFAULT:!1, HAS_NAVIGATOR_ONLINE_PROPERTY:!0, HAS_HTML5_NETWORK_EVENT_SUPPORT:!0, HTML5_NETWORK_EVENTS_FIRE_ON_BODY:!1, TOUCH_ENABLED:"ontouchstart" in goog.global || !!(goog.global.document && document.documentElement && "ontouchstart" in document.documentElement) || !(!goog.global.navigator || !goog.global.navigator.maxTouchPoints && !goog.global.navigator.msMaxTouchPoints), POINTER_EVENTS:"PointerEvent" in 
+goog.global, MSPOINTER_EVENTS:"MSPointerEvent" in goog.global && !(!goog.global.navigator || !goog.global.navigator.msPointerEnabled), PASSIVE_EVENTS:function(fn) {
   return {valueOf:fn}.valueOf();
 }(function() {
   if (!goog.global.addEventListener || !Object.defineProperty) {
@@ -6753,6 +6753,9 @@ module$exports$tslib.__spreadArrays = function() {
   return r;
 };
 module$exports$tslib.__spreadArray = function(to, from) {
+  if (!Array.isArray(from)) {
+    throw new TypeError("Expected an Array: " + String(from));
+  }
   for (var i = 0, il = from.length, j = to.length; i < il; i++, j++) {
     to[j] = from[i];
   }
@@ -8445,6 +8448,25 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.Capabilities, {Capabilities:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum;
 }}});
+module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptionsParameters = function module$contents$eeapiclient$ee_api_client_ClassifierAssetExportOptionsParameters() {
+};
+module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptions = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("earthEngineDestination", null == parameters.earthEngineDestination ? null : parameters.earthEngineDestination);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptions, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptions.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptions;
+};
+module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptions.prototype.getPartialClassMetadata = function() {
+  return {keys:["earthEngineDestination"], objects:{earthEngineDestination:module$exports$eeapiclient$ee_api_client.EarthEngineDestination}};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptions.prototype, {earthEngineDestination:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("earthEngineDestination") ? this.Serializable$get("earthEngineDestination") : null;
+}, set:function(value) {
+  this.Serializable$set("earthEngineDestination", value);
+}}});
 module$exports$eeapiclient$ee_api_client.CloudAuditOptionsParameters = function module$contents$eeapiclient$ee_api_client_CloudAuditOptionsParameters() {
 };
 module$exports$eeapiclient$ee_api_client.CloudAuditOptions = function(parameters) {
@@ -9119,6 +9141,50 @@ module$exports$eeapiclient$ee_api_client.Empty.prototype.getConstructor = functi
 module$exports$eeapiclient$ee_api_client.Empty.prototype.getPartialClassMetadata = function() {
   return {keys:[]};
 };
+module$exports$eeapiclient$ee_api_client.ExportClassifierRequestParameters = function module$contents$eeapiclient$ee_api_client_ExportClassifierRequestParameters() {
+};
+module$exports$eeapiclient$ee_api_client.ExportClassifierRequest = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
+  this.Serializable$set("description", null == parameters.description ? null : parameters.description);
+  this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
+  this.Serializable$set("assetExportOptions", null == parameters.assetExportOptions ? null : parameters.assetExportOptions);
+  this.Serializable$set("maxWorkers", null == parameters.maxWorkers ? null : parameters.maxWorkers);
+  this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.ExportClassifierRequest, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.ExportClassifierRequest.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.ExportClassifierRequest;
+};
+module$exports$eeapiclient$ee_api_client.ExportClassifierRequest.prototype.getPartialClassMetadata = function() {
+  return {keys:"assetExportOptions description expression maxWorkerCount maxWorkers requestId".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression}};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportClassifierRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("assetExportOptions") ? this.Serializable$get("assetExportOptions") : null;
+}, set:function(value) {
+  this.Serializable$set("assetExportOptions", value);
+}}, description:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("description") ? this.Serializable$get("description") : null;
+}, set:function(value) {
+  this.Serializable$set("description", value);
+}}, expression:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
+}, set:function(value) {
+  this.Serializable$set("expression", value);
+}}, maxWorkerCount:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("maxWorkerCount") ? this.Serializable$get("maxWorkerCount") : null;
+}, set:function(value) {
+  this.Serializable$set("maxWorkerCount", value);
+}}, maxWorkers:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("maxWorkers") ? this.Serializable$get("maxWorkers") : null;
+}, set:function(value) {
+  this.Serializable$set("maxWorkers", value);
+}}, requestId:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
+}, set:function(value) {
+  this.Serializable$set("requestId", value);
+}}});
 module$exports$eeapiclient$ee_api_client.ExportImageRequestParameters = function module$contents$eeapiclient$ee_api_client_ExportImageRequestParameters() {
 };
 module$exports$eeapiclient$ee_api_client.ExportImageRequest = function(parameters) {
@@ -11936,6 +12002,28 @@ module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl.prototype.t
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.assets.testIamPermissions", path:"/" + this.gapiVersion + "/" + resource + ":testIamPermissions", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.TestIamPermissionsResponse});
 };
 module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClient = function() {
+};
+module$exports$eeapiclient$ee_api_client.IProjectsClassifierApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsClassifierApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IProjectsClassifierApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IProjectsClassifierApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientImpl.prototype.export = function(project, $requestBody, namedParameters, passthroughNamedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  passthroughNamedParameters = void 0 === passthroughNamedParameters ? {} : passthroughNamedParameters;
+  this.$apiClient.$validateParameter(project, /^projects\/[^/]+$/);
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.classifier.export", path:"/" + this.gapiVersion + "/" + project + "/classifier:export", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.Operation});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsFilmstripThumbnailsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsFilmstripThumbnailsApiClient$XgafvEnum() {
 };
@@ -15293,7 +15381,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.258";
+ee.apiclient.API_CLIENT_VERSION = "0.1.259";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15561,8 +15649,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.258";
-  "0.1.258" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.259";
+  "0.1.259" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

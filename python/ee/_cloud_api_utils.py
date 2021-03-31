@@ -140,15 +140,26 @@ def build_cloud_resource(api_base_url,
     alt_model = model.RawModel()
   else:
     alt_model = None
-  resource = discovery.build(
-      'earthengine',
-      VERSION,
-      discoveryServiceUrl=discovery_service_url,
-      developerKey=api_key,
-      http=http_transport,
-      requestBuilder=request_builder,
-      model=alt_model,
-      cache_discovery=False)
+
+  def build(**kwargs):
+    return discovery.build(
+        'earthengine',
+        VERSION,
+        discoveryServiceUrl=discovery_service_url,
+        developerKey=api_key,
+        http=http_transport,
+        requestBuilder=request_builder,
+        model=alt_model,
+        cache_discovery=False,
+        **kwargs)  # pytype: disable=wrong-keyword-args
+
+  try:
+    # google-api-python-client made static_discovery the default in version 2,
+    # but it's not backward-compatible. There's no reliable way to check the
+    # package version, either.
+    resource = build(static_discovery=False)
+  except TypeError:
+    resource = build()
   resource._baseUrl = api_base_url
   return resource
 
