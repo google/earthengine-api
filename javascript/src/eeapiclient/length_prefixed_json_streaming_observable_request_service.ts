@@ -1,4 +1,5 @@
-import {HttpErrorResponse, HttpHeaders, XhrFactory} from '@angular/common/http';
+import {XhrFactory} from '@angular/common';
+import {HttpErrorResponse, HttpHeaders} from '@angular/common/http';
 import {MakeRequestParams} from './request_params';
 import {Config} from './angular_2_http_client_request_service';
 import {ObservableRequestService} from './observable_request_service';
