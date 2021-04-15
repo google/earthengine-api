@@ -109,7 +109,7 @@ trendy.App = class {
     this.clear();
     var feature = event.feature;
 
-    // Instantly higlight the polygon and show the title of the polygon.
+    // Instantly highlight the polygon and show the title of the polygon.
     this.map.data.overrideStyle(feature, {strokeWeight: 8});
     var title = feature.getProperty('title');
     $('.panel').show();

@@ -75,7 +75,7 @@ function addZeroAndWaterMask(visualized, original) {
   // Places where there is nodata or water are drawn in gray.
   var water =
       hansen.select('datamask').neq(1).selfMask().visualize({palette: 'gray'});
-  // Places were the underyling value is zero are drawn in black.
+  // Places where the underlying value is zero are drawn in black.
   var zero = original.eq(0).selfMask().visualize({palette: 'black'});
   // Stack the images, with the gray on top, black next, and the original below.
   return ee.ImageCollection([visualized, zero, water]).mosaic();

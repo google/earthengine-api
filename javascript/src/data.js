@@ -117,16 +117,19 @@ goog.requireType('ee.data.images');
  * @param {function()=} opt_onImmediateFailed The function to call if
  *     automatic behind-the-scenes authentication fails. Defaults to
  *     ee.data.authenticateViaPopup(), bound to the passed callbacks.
+ * @param {boolean=} opt_suppressDefaultScopes When true, only scopes
+ *     specified in opt_extraScopes are requested; the default scopes are not
+ *     requested unless explicitly specified in opt_extraScopes.
  * @export
  */
 ee.data.authenticateViaOauth = function(
-    clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
+    clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed,
+    opt_suppressDefaultScopes) {
+  const scopes = ee.apiclient.mergeAuthScopes(
+    /* includeDefaultScopes= */ !opt_suppressDefaultScopes,
+    /* includeStorageScope= */ false,
+    opt_extraScopes || []);
   // Remember the auth options.
-  const scopes = [ee.apiclient.AUTH_SCOPE, ee.apiclient.CLOUD_PLATFORM_SCOPE];
-  if (opt_extraScopes) {
-    goog.array.extend(scopes, opt_extraScopes);
-    goog.array.removeDuplicates(scopes);
-  }
   ee.apiclient.setAuthClient(clientId, scopes);
 
   if (clientId === null) {
@@ -214,26 +217,24 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
  * @param {function(string)=} opt_error The function to call if authentication
  *     failed, passed the error message.
  * @param {!Array<string>=} opt_extraScopes Extra OAuth scopes to request.
+ * @param {boolean=} opt_suppressDefaultScopes When true, only scopes
+ *     specified in opt_extraScopes are requested; the default scopes are not
+ *     not requested unless explicitly specified in opt_extraScopes.
  * @export
  */
 ee.data.authenticateViaPrivateKey = function(
-    privateKey, opt_success, opt_error, opt_extraScopes) {
-
+    privateKey, opt_success, opt_error, opt_extraScopes,
+    opt_suppressDefaultScopes) {
   // Verify that the context is Node.js, not a web browser.
   if ('window' in goog.global) {
     throw new Error(
         'Use of private key authentication in the browser is insecure. ' +
         'Consider using OAuth, instead.');
   }
-
-  const scopes = [
-    ee.apiclient.AUTH_SCOPE, ee.apiclient.STORAGE_SCOPE,
-    ee.apiclient.CLOUD_PLATFORM_SCOPE
-  ];
-  if (opt_extraScopes) {
-    goog.array.extend(scopes, opt_extraScopes);
-    goog.array.removeDuplicates(scopes);
-  }
+  const scopes = ee.apiclient.mergeAuthScopes(
+      /* includeDefaultScopes= */ !opt_suppressDefaultScopes,
+      /* includeStorageScope= */ !opt_suppressDefaultScopes,
+      opt_extraScopes || []);
   ee.apiclient.setAuthClient(privateKey.client_email, scopes);
 
   // Initialize JWT client to authorize as service account.

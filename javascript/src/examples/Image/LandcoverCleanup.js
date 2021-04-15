@@ -24,7 +24,7 @@ var image5 = image4.focal_max(3).focal_min(5).focal_max(3);
 // Reproject to force the operations to be performed at SCALE.
 var image6 = image5.reproject('EPSG:4326', null, SCALE);
 
-// Define display paramaters with appropriate colors for the MODIS
+// Define display parameters with appropriate colors for the MODIS
 // land cover classification image.
 var PALETTE = [
     'aec3d4', // water

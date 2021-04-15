@@ -4002,7 +4002,14 @@ goog.dom.safe.setIframeSrcdoc = function(iframe, html) {
 goog.dom.safe.setLinkHrefAndRel = function(link, url, rel) {
   goog.dom.asserts.assertIsHTMLLinkElement(link);
   link.rel = rel;
-  goog.string.internal.caseInsensitiveContains(rel, "stylesheet") ? (goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"'), link.href = goog.html.TrustedResourceUrl.unwrap(url)) : link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrap(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrap(url) : goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitizeAssertUnchanged(url));
+  if (goog.string.internal.caseInsensitiveContains(rel, "stylesheet")) {
+    goog.asserts.assert(url instanceof goog.html.TrustedResourceUrl, 'URL must be TrustedResourceUrl because "rel" contains "stylesheet"');
+    link.href = goog.html.TrustedResourceUrl.unwrap(url);
+    var nonce = goog.dom.safe.getStyleNonce(link.ownerDocument && link.ownerDocument.defaultView);
+    nonce && link.setAttribute("nonce", nonce);
+  } else {
+    link.href = url instanceof goog.html.TrustedResourceUrl ? goog.html.TrustedResourceUrl.unwrap(url) : url instanceof goog.html.SafeUrl ? goog.html.SafeUrl.unwrap(url) : goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitizeAssertUnchanged(url));
+  }
 };
 goog.dom.safe.setObjectData = function(object, url) {
   goog.dom.asserts.assertIsHTMLObjectElement(object);
@@ -6777,8 +6784,8 @@ module$exports$tslib.__spreadArrays = function() {
   return r;
 };
 module$exports$tslib.__spreadArray = function(to, from) {
-  if (!Array.isArray(from)) {
-    throw new TypeError("Expected an Array: " + String(from));
+  if (!(Array.isArray(from) || from instanceof NodeList)) {
+    throw new TypeError("Expected an Array or NodeList: " + String(from));
   }
   for (var i = 0, il = from.length, j = to.length; i < il; i++, j++) {
     to[j] = from[i];
@@ -6933,17 +6940,17 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function module$con
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$44 = {}, $jscomp$iter$4 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$4.next(); !$jscomp$key$key.done; $jscomp$loop$44 = {$jscomp$loop$prop$mapMetadata$45:$jscomp$loop$44.$jscomp$loop$prop$mapMetadata$45}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$47 = {}, $jscomp$iter$4 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$4.next(); !$jscomp$key$key.done; $jscomp$loop$47 = {$jscomp$loop$prop$mapMetadata$48:$jscomp$loop$47.$jscomp$loop$prop$mapMetadata$48}, 
   $jscomp$key$key = $jscomp$iter$4.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
       var copy = void 0;
-      arrays.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !0, arrays[key]) : objects.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]) : objectMaps.hasOwnProperty(key) ? ($jscomp$loop$44.$jscomp$loop$prop$mapMetadata$45 = 
-      objectMaps[key], copy = $jscomp$loop$44.$jscomp$loop$prop$mapMetadata$45.isPropertyArray ? value.map(function($jscomp$loop$44) {
+      arrays.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !0, arrays[key]) : objects.hasOwnProperty(key) ? copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]) : objectMaps.hasOwnProperty(key) ? ($jscomp$loop$47.$jscomp$loop$prop$mapMetadata$48 = 
+      objectMaps[key], copy = $jscomp$loop$47.$jscomp$loop$prop$mapMetadata$48.isPropertyArray ? value.map(function($jscomp$loop$47) {
         return function(v) {
-          return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$44.$jscomp$loop$prop$mapMetadata$45, valueGetter, valueSetter, copyInstanciator);
+          return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$47.$jscomp$loop$prop$mapMetadata$48, valueGetter, valueSetter, copyInstanciator);
         };
-      }($jscomp$loop$44)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$44.$jscomp$loop$prop$mapMetadata$45, valueGetter, valueSetter, copyInstanciator)) : copy = Array.isArray(value) ? module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !1) : value instanceof module$contents$eeapiclient$domain_object_NullClass ? 
+      }($jscomp$loop$47)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$47.$jscomp$loop$prop$mapMetadata$48, valueGetter, valueSetter, copyInstanciator)) : copy = Array.isArray(value) ? module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !0, !1) : value instanceof module$contents$eeapiclient$domain_object_NullClass ? 
       null : value;
       valueSetter(key, target, copy);
     }
@@ -6984,45 +6991,45 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$46 = {}, $jscomp$iter$6 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$46 = {$jscomp$loop$prop$value2$47:$jscomp$loop$46.$jscomp$loop$prop$value2$47, $jscomp$loop$prop$mapMetadata$48:$jscomp$loop$46.$jscomp$loop$prop$mapMetadata$48}, $jscomp$key$key = $jscomp$iter$6.next()) {
+  for (var $jscomp$loop$49 = {}, $jscomp$iter$6 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$49 = {$jscomp$loop$prop$value2$50:$jscomp$loop$49.$jscomp$loop$prop$value2$50, $jscomp$loop$prop$mapMetadata$51:$jscomp$loop$49.$jscomp$loop$prop$mapMetadata$51}, $jscomp$key$key = $jscomp$iter$6.next()) {
     var key = $jscomp$key$key.value;
     if (serializable1.Serializable$has(key) !== serializable2.Serializable$has(key)) {
       return !1;
     }
     if (serializable1.Serializable$has(key)) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$46.$jscomp$loop$prop$value2$47 = serializable2.Serializable$get(key);
+      $jscomp$loop$49.$jscomp$loop$prop$value2$50 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$46.$jscomp$loop$prop$value2$47, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$49.$jscomp$loop$prop$value2$50, !0, !0)) {
           return !1;
         }
       } else {
         if (objects1.hasOwnProperty(key)) {
-          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$46.$jscomp$loop$prop$value2$47, !1, !0)) {
+          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$49.$jscomp$loop$prop$value2$50, !1, !0)) {
             return !1;
           }
         } else {
           if (objectMaps1.hasOwnProperty(key)) {
-            if ($jscomp$loop$46.$jscomp$loop$prop$mapMetadata$48 = objectMaps1[key], $jscomp$loop$46.$jscomp$loop$prop$mapMetadata$48.isPropertyArray) {
-              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$46.$jscomp$loop$prop$value2$47) || value1.some(function($jscomp$loop$46) {
+            if ($jscomp$loop$49.$jscomp$loop$prop$mapMetadata$51 = objectMaps1[key], $jscomp$loop$49.$jscomp$loop$prop$mapMetadata$51.isPropertyArray) {
+              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$49.$jscomp$loop$prop$value2$50) || value1.some(function($jscomp$loop$49) {
                 return function(v1, i) {
-                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$46.$jscomp$loop$prop$value2$47[i], $jscomp$loop$46.$jscomp$loop$prop$mapMetadata$48);
+                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$49.$jscomp$loop$prop$value2$50[i], $jscomp$loop$49.$jscomp$loop$prop$mapMetadata$51);
                 };
-              }($jscomp$loop$46))) {
+              }($jscomp$loop$49))) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$46.$jscomp$loop$prop$value2$47, $jscomp$loop$46.$jscomp$loop$prop$mapMetadata$48)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$49.$jscomp$loop$prop$value2$50, $jscomp$loop$49.$jscomp$loop$prop$mapMetadata$51)) {
                 return !1;
               }
             }
           } else {
             if (Array.isArray(value1)) {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$46.$jscomp$loop$prop$value2$47, !0, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$49.$jscomp$loop$prop$value2$50, !0, !1)) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$46.$jscomp$loop$prop$value2$47, !1, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$49.$jscomp$loop$prop$value2$50, !1, !1)) {
                 return !1;
               }
             }
@@ -8034,8 +8041,9 @@ module$exports$eeapiclient$ee_api_client.DataAccessOptionsLogModeEnum = {LOG_FAI
 }};
 module$exports$eeapiclient$ee_api_client.IEarthEngineAssetTypeEnum = function module$contents$eeapiclient$ee_api_client_IEarthEngineAssetTypeEnum() {
 };
-module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum = {FOLDER:"FOLDER", IMAGE:"IMAGE", IMAGE_COLLECTION:"IMAGE_COLLECTION", TABLE:"TABLE", TYPE_UNSPECIFIED:"TYPE_UNSPECIFIED", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.IMAGE, module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.IMAGE_COLLECTION, module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.TABLE, module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.FOLDER];
+module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum = {CLASSIFIER:"CLASSIFIER", FOLDER:"FOLDER", IMAGE:"IMAGE", IMAGE_COLLECTION:"IMAGE_COLLECTION", TABLE:"TABLE", TYPE_UNSPECIFIED:"TYPE_UNSPECIFIED", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.IMAGE, module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.IMAGE_COLLECTION, module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.TABLE, module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.FOLDER, 
+  module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum.CLASSIFIER];
 }};
 module$exports$eeapiclient$ee_api_client.IEarthEngineMapFileFormatEnum = function module$contents$eeapiclient$ee_api_client_IEarthEngineMapFileFormatEnum() {
 };
@@ -9825,6 +9833,19 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }, set:function(value) {
   this.Serializable$set("options", value);
 }}});
+module$exports$eeapiclient$ee_api_client.GetLinkedAssetRequestParameters = function module$contents$eeapiclient$ee_api_client_GetLinkedAssetRequestParameters() {
+};
+module$exports$eeapiclient$ee_api_client.GetLinkedAssetRequest = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.GetLinkedAssetRequest, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.GetLinkedAssetRequest.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.GetLinkedAssetRequest;
+};
+module$exports$eeapiclient$ee_api_client.GetLinkedAssetRequest.prototype.getPartialClassMetadata = function() {
+  return {keys:[]};
+};
 module$exports$eeapiclient$ee_api_client.GetPixelsRequestParameters = function module$contents$eeapiclient$ee_api_client_GetPixelsRequestParameters() {
 };
 module$exports$eeapiclient$ee_api_client.GetPixelsRequest = function(parameters) {
@@ -11970,6 +11991,12 @@ module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl.prototype.g
   passthroughNamedParameters = void 0 === passthroughNamedParameters ? {} : passthroughNamedParameters;
   this.$apiClient.$validateParameter(resource, /^projects\/[^/]+\/assets\/.*$/);
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.assets.getIamPolicy", path:"/" + this.gapiVersion + "/" + resource + ":getIamPolicy", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.Policy});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl.prototype.getLinked = function(name, $requestBody, namedParameters, passthroughNamedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  passthroughNamedParameters = void 0 === passthroughNamedParameters ? {} : passthroughNamedParameters;
+  this.$apiClient.$validateParameter(name, /^projects\/[^/]+\/assets\/.*$/);
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.assets.getLinked", path:"/" + this.gapiVersion + "/" + name + ":getLinked", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.EarthEngineAsset});
 };
 module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl.prototype.getPixels = function(name, $requestBody, namedParameters, passthroughNamedParameters) {
   namedParameters = void 0 === namedParameters ? {} : namedParameters;
@@ -15405,7 +15432,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.260";
+ee.apiclient.API_CLIENT_VERSION = "0.1.261";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15575,9 +15602,16 @@ module$contents$ee$apiclient_apiclient.getSafeApiUrl = function() {
   var url = module$contents$ee$apiclient_apiclient.apiBaseUrl_.replace(/\/api$/, "");
   return "window" in goog.global && !url.match(/^https?:\/\/content-/) ? url.replace(/^(https?:\/\/)(.*\.googleapis\.com)$/, "$1content-$2") : url;
 };
-module$contents$ee$apiclient_apiclient.setAuthToken = function(clientId, tokenType, accessToken, expiresIn, extraScopes, callback, updateAuthLibrary) {
-  var scopes = [module$contents$ee$apiclient_apiclient.AUTH_SCOPE_, module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_];
-  extraScopes && (module$contents$goog$array_extend(scopes, extraScopes), module$contents$goog$array_removeDuplicates(scopes));
+module$contents$ee$apiclient_apiclient.mergeAuthScopes_ = function(includeDefaultScopes, includeStorageScope, extraScopes) {
+  var scopes = [];
+  includeDefaultScopes && (scopes = scopes.concat(module$contents$ee$apiclient_apiclient.DEFAULT_AUTH_SCOPES_));
+  includeStorageScope && scopes.push(module$contents$ee$apiclient_apiclient.STORAGE_SCOPE_);
+  scopes = scopes.concat(extraScopes);
+  module$contents$goog$array_removeDuplicates(scopes);
+  return scopes;
+};
+module$contents$ee$apiclient_apiclient.setAuthToken = function(clientId, tokenType, accessToken, expiresIn, extraScopes, callback, updateAuthLibrary, suppressDefaultScopes) {
+  var scopes = module$contents$ee$apiclient_apiclient.mergeAuthScopes_(!suppressDefaultScopes, !1, extraScopes || []);
   module$contents$ee$apiclient_apiclient.authClientId_ = clientId;
   module$contents$ee$apiclient_apiclient.authScopes_ = scopes;
   var tokenObject = {token_type:tokenType, access_token:accessToken, state:scopes.join(" "), expires_in:expiresIn};
@@ -15673,8 +15707,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.260";
-  "0.1.260" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.261";
+  "0.1.261" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -15921,6 +15955,8 @@ module$contents$ee$apiclient_apiclient.authClientId_ = null;
 module$contents$ee$apiclient_apiclient.authScopes_ = [];
 module$contents$ee$apiclient_apiclient.authTokenRefresher_ = null;
 module$contents$ee$apiclient_apiclient.AUTH_SCOPE_ = "https://www.googleapis.com/auth/earthengine";
+module$contents$ee$apiclient_apiclient.READ_ONLY_AUTH_SCOPE_ = "https://www.googleapis.com/auth/earthengine.readonly";
+module$contents$ee$apiclient_apiclient.DEFAULT_AUTH_SCOPES_ = [module$contents$ee$apiclient_apiclient.AUTH_SCOPE_, module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_];
 module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_ = "https://www.googleapis.com/auth/cloud-platform";
 module$contents$ee$apiclient_apiclient.AUTH_LIBRARY_URL_ = goog.string.Const.from("https://apis.google.com/js/client.js?onload=%{onload}");
 module$contents$ee$apiclient_apiclient.STORAGE_SCOPE_ = "https://www.googleapis.com/auth/devstorage.read_write";
@@ -15955,8 +15991,10 @@ ee.apiclient.PROFILE_REQUEST_HEADER = module$contents$ee$apiclient_apiclient.PRO
 ee.apiclient.API_CLIENT_VERSION_HEADER = module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER;
 ee.apiclient.send = module$contents$ee$apiclient_apiclient.send;
 ee.apiclient.AUTH_SCOPE = module$contents$ee$apiclient_apiclient.AUTH_SCOPE_;
+ee.apiclient.READ_ONLY_AUTH_SCOPE = module$contents$ee$apiclient_apiclient.READ_ONLY_AUTH_SCOPE_;
 ee.apiclient.CLOUD_PLATFORM_SCOPE = module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_;
 ee.apiclient.STORAGE_SCOPE = module$contents$ee$apiclient_apiclient.STORAGE_SCOPE_;
+ee.apiclient.DEFAULT_AUTH_SCOPES = module$contents$ee$apiclient_apiclient.DEFAULT_AUTH_SCOPES_;
 ee.apiclient.makeRequest = module$contents$ee$apiclient_apiclient.makeRequest_;
 ee.apiclient.reset = module$contents$ee$apiclient_apiclient.reset;
 ee.apiclient.initialize = module$contents$ee$apiclient_apiclient.initialize;
@@ -15973,6 +16011,7 @@ ee.apiclient.setAuthToken = module$contents$ee$apiclient_apiclient.setAuthToken;
 ee.apiclient.clearAuthToken = module$contents$ee$apiclient_apiclient.clearAuthToken;
 ee.apiclient.setAuthTokenRefresher = module$contents$ee$apiclient_apiclient.setAuthTokenRefresher;
 ee.apiclient.setAppIdToken = module$contents$ee$apiclient_apiclient.setAppIdToken;
+ee.apiclient.mergeAuthScopes = module$contents$ee$apiclient_apiclient.mergeAuthScopes_;
 ee.apiclient.setupMockSend = module$contents$ee$apiclient_apiclient.setupMockSend;
 ee.apiclient.setParamAugmenter = module$contents$ee$apiclient_apiclient.setParamAugmenter;
 ee.apiclient.withProfiling = module$contents$ee$apiclient_apiclient.withProfiling;
@@ -19531,12 +19570,10 @@ module$contents$jspb$Map_Map.prototype.syncInternalArray_ = function(internalCal
   return this.arr_;
 };
 module$contents$jspb$Map_Map.prototype.toObject = function(includeInstance, valueToObject) {
-  for (var rawArray = this.toArrayInternal(), entries = [], i = 0; i < rawArray.length; i++) {
-    var entry = this.map[rawArray[i][0].toString()];
-    this.wrapEntry_(entry);
-    var valueWrapper = entry.valueWrapper;
-    valueWrapper ? (goog.asserts.assert(valueToObject), entries.push([entry.key, valueToObject(includeInstance, valueWrapper)])) : entries.push([entry.key, entry.value]);
-  }
+  var entries = [];
+  this.forEach(function(v, k) {
+    entries.push([k, valueToObject ? valueToObject(includeInstance, v) : v]);
+  });
   return entries;
 };
 module$contents$jspb$Map_Map.fromObject = function(entries, valueCtor, valueFromObject) {
@@ -19698,7 +19735,7 @@ module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ = "function" == typeof
 module$contents$jspb$Message_Message.prototype.getJsPbMessageId = function() {
   return this.messageId_;
 };
-module$contents$jspb$Message_Message.getIndex_ = function(msg, fieldNumber) {
+var module$contents$jspb$Message_getIndex = function(msg, fieldNumber) {
   return fieldNumber + msg.arrayIndexOffset_;
 };
 module$contents$jspb$Message_Message.hiddenES6Property_ = function() {
@@ -19712,31 +19749,31 @@ module$contents$jspb$Message_Message.initialize = function(msg, data, messageId,
   msg.messageId_ = messageId ? String(messageId) : void 0;
   msg.arrayIndexOffset_ = 0 === messageId ? -1 : 0;
   msg.array = data;
-  module$contents$jspb$Message_Message.initPivotAndExtensionObject_(msg, suggestedPivot);
+  module$contents$jspb$Message_initPivotAndExtensionObject(msg, suggestedPivot);
   msg.convertedPrimitiveFields_ = {};
   module$contents$jspb$Message_Message.SERIALIZE_EMPTY_TRAILING_FIELDS || (msg.repeatedFields = repeatedFields);
   if (repeatedFields) {
     for (var i = 0; i < repeatedFields.length; i++) {
       var fieldNumber = repeatedFields[i];
       if (fieldNumber < msg.pivot_) {
-        var index = module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber);
-        msg.array[index] = msg.array[index] || module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_;
+        var index = module$contents$jspb$Message_getIndex(msg, fieldNumber);
+        msg.array[index] = msg.array[index] || module$contents$jspb$Message_EMPTY_LIST_SENTINEL;
       } else {
-        module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(msg), msg.extensionObject_[fieldNumber] = msg.extensionObject_[fieldNumber] || module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_;
+        module$contents$jspb$Message_maybeInitEmptyExtensionObject(msg), msg.extensionObject_[fieldNumber] = msg.extensionObject_[fieldNumber] || module$contents$jspb$Message_EMPTY_LIST_SENTINEL;
       }
     }
   }
   if (opt_oneofFields && opt_oneofFields.length) {
-    for (i = 0; i < opt_oneofFields.length; i++) {
-      module$contents$jspb$Message_Message.computeOneofCase(msg, opt_oneofFields[i]);
+    for (var i$38 = 0; i$38 < opt_oneofFields.length; i$38++) {
+      module$contents$jspb$Message_Message.computeOneofCase(msg, opt_oneofFields[i$38]);
     }
   }
 };
-module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_ = goog.DEBUG && Object.freeze ? Object.freeze([]) : [];
+var module$contents$jspb$Message_EMPTY_LIST_SENTINEL = goog.DEBUG && Object.freeze ? Object.freeze([]) : [];
 module$contents$jspb$Message_Message.isExtensionObject = function(o) {
   return null !== o && "object" == typeof o && !Array.isArray(o) && !(module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ && o instanceof Uint8Array);
 };
-module$contents$jspb$Message_Message.initPivotAndExtensionObject_ = function(msg, suggestedPivot) {
+var module$contents$jspb$Message_initPivotAndExtensionObject = function(msg, suggestedPivot) {
   var msgLength = msg.array.length, lastIndex = -1;
   if (msgLength) {
     lastIndex = msgLength - 1;
@@ -19748,40 +19785,41 @@ module$contents$jspb$Message_Message.initPivotAndExtensionObject_ = function(msg
     }
   }
   -1 < suggestedPivot ? (msg.pivot_ = Math.max(suggestedPivot, module$contents$jspb$Message_Message.getFieldNumber(msg, lastIndex + 1)), msg.extensionObject_ = null) : msg.pivot_ = Number.MAX_VALUE;
-};
-module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_ = function(msg) {
-  var pivotIndex = module$contents$jspb$Message_Message.getIndex_(msg, msg.pivot_);
+}, module$contents$jspb$Message_maybeInitEmptyExtensionObject = function(msg) {
+  var pivotIndex = module$contents$jspb$Message_getIndex(msg, msg.pivot_);
   msg.array[pivotIndex] || (module$contents$jspb$Message_Message.isFrozen(msg) ? (msg.extensionObject_ = {}, Object.freeze(msg.extensionObject_)) : msg.extensionObject_ = msg.array[pivotIndex] = {});
 };
-module$contents$jspb$Message_Message.toObjectList = function(field, toObjectFn, opt_includeInstance) {
+module$contents$jspb$Message_Message.toObjectList = function(field, toObjectFn, includeInstance) {
   for (var result = [], i = 0; i < field.length; i++) {
-    result[i] = toObjectFn.call(field[i], opt_includeInstance, field[i]);
+    result.push(toObjectFn.call(field[i], includeInstance, field[i]));
   }
   return result;
 };
-module$contents$jspb$Message_Message.toObjectExtension = function(proto, obj, extensions, getExtensionFn, opt_includeInstance) {
+module$contents$jspb$Message_Message.toObjectExtension = function(proto, obj, extensions, includeInstance) {
   for (var fieldNumber in extensions) {
     if (module$contents$jspb$Message_hasOwnProperty(extensions, fieldNumber)) {
-      var fieldInfo = extensions[fieldNumber], value = getExtensionFn.call(proto, fieldInfo);
+      var fieldInfo = extensions[fieldNumber], value = proto.getExtension(fieldInfo);
       if (null != value) {
-        for (var name in fieldInfo.fieldName) {
+        var name = void 0;
+        for (name in fieldInfo.fieldName) {
           if (fieldInfo.fieldName.hasOwnProperty(name)) {
             break;
           }
         }
-        obj[name] = fieldInfo.toObjectFn ? fieldInfo.isRepeated ? module$contents$jspb$Message_Message.toObjectList(value, fieldInfo.toObjectFn, opt_includeInstance) : fieldInfo.toObjectFn(opt_includeInstance, value) : value;
+        var toObjectFn = fieldInfo.toObjectFn;
+        obj[name] = toObjectFn ? fieldInfo.isRepeated ? module$contents$jspb$Message_Message.toObjectList(value, toObjectFn, includeInstance) : toObjectFn(includeInstance, value) : value;
       }
     }
   }
 };
-module$contents$jspb$Message_Message.serializeBinaryExtensions = function(proto, writer, extensions, getExtensionFn) {
+module$contents$jspb$Message_Message.serializeBinaryExtensions = function(proto, writer, extensions) {
   for (var fieldNumber in extensions) {
     if (module$contents$jspb$Message_hasOwnProperty(extensions, fieldNumber)) {
       var binaryFieldInfo = extensions[fieldNumber], fieldInfo = binaryFieldInfo.fieldInfo;
       if (!binaryFieldInfo.binaryWriterFn) {
         throw Error("Message extension present that was generated without binary serialization support");
       }
-      var value = getExtensionFn.call(proto, fieldInfo);
+      var value = proto.getExtension(fieldInfo);
       if (null != value) {
         if (fieldInfo.isMessageType()) {
           if (binaryFieldInfo.binaryMessageSerializeFn) {
@@ -19796,7 +19834,7 @@ module$contents$jspb$Message_Message.serializeBinaryExtensions = function(proto,
     }
   }
 };
-module$contents$jspb$Message_Message.readBinaryExtensionMessageSet = function(msg, reader, extensions, getExtensionFn, setExtensionFn) {
+module$contents$jspb$Message_Message.readBinaryExtensionMessageSet = function(msg, reader, extensions) {
   if (1 == reader.getFieldNumber() && reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.START_GROUP) {
     for (var fieldNumber = 0, rawBytes = null; reader.nextField() && (0 != reader.getWireType() || 0 != reader.getFieldNumber());) {
       if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.VARINT && 2 == reader.getFieldNumber()) {
@@ -19820,13 +19858,13 @@ module$contents$jspb$Message_Message.readBinaryExtensionMessageSet = function(ms
     if (binaryFieldInfo) {
       var fieldInfo = binaryFieldInfo.fieldInfo, newValue = new fieldInfo.ctor;
       binaryFieldInfo.binaryMessageDeserializeFn.call(newValue, newValue, new module$contents$jspb$BinaryReader_BinaryReader(rawBytes));
-      setExtensionFn.call(msg, fieldInfo, newValue);
+      msg.setExtension(fieldInfo, newValue);
     }
   } else {
     reader.skipField();
   }
 };
-module$contents$jspb$Message_Message.readBinaryExtension = function(msg, reader, extensions, getExtensionFn, setExtensionFn) {
+module$contents$jspb$Message_Message.readBinaryExtension = function(msg, reader, extensions) {
   var binaryFieldInfo = extensions[reader.getFieldNumber()];
   if (binaryFieldInfo) {
     var fieldInfo = binaryFieldInfo.fieldInfo;
@@ -19840,10 +19878,10 @@ module$contents$jspb$Message_Message.readBinaryExtension = function(msg, reader,
       value = binaryFieldInfo.binaryReaderFn.call(reader);
     }
     if (fieldInfo.isRepeated && !binaryFieldInfo.isPacked) {
-      var currentList = getExtensionFn.call(msg, fieldInfo);
-      currentList ? currentList.push(value) : setExtensionFn.call(msg, fieldInfo, [value]);
+      var currentList = msg.getExtension(fieldInfo);
+      currentList ? currentList.push(value) : msg.setExtension(fieldInfo, [value]);
     } else {
-      setExtensionFn.call(msg, fieldInfo, value);
+      msg.setExtension(fieldInfo, value);
     }
   } else {
     reader.skipField();
@@ -19851,11 +19889,12 @@ module$contents$jspb$Message_Message.readBinaryExtension = function(msg, reader,
 };
 module$contents$jspb$Message_Message.getField = function(msg, fieldNumber) {
   if (fieldNumber < msg.pivot_) {
-    var index = module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber), val = msg.array[index];
-    return val !== module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_ || module$contents$jspb$Message_Message.isFrozen(msg) ? val : msg.array[index] = [];
+    var index = module$contents$jspb$Message_getIndex(msg, fieldNumber), val = msg.array[index];
+    return val !== module$contents$jspb$Message_EMPTY_LIST_SENTINEL || module$contents$jspb$Message_Message.isFrozen(msg) ? val : msg.array[index] = [];
   }
   if (msg.extensionObject_) {
-    return val = msg.extensionObject_[fieldNumber], val === module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_ ? msg.extensionObject_[fieldNumber] = [] : val;
+    var val$39 = msg.extensionObject_[fieldNumber];
+    return val$39 === module$contents$jspb$Message_EMPTY_LIST_SENTINEL ? msg.extensionObject_[fieldNumber] = [] : val$39;
   }
 };
 module$contents$jspb$Message_Message.hasField = function(msg, fieldNumber) {
@@ -19919,14 +19958,14 @@ module$contents$jspb$Message_Message.bytesAsU8 = function(value) {
   return null;
 };
 module$contents$jspb$Message_Message.bytesListAsB64 = function(value) {
-  module$contents$jspb$Message_Message.assertConsistentTypes_(value);
+  module$contents$jspb$Message_assertConsistentTypes(value);
   return value.length && "string" !== typeof value[0] ? module$contents$goog$array_map(value, module$contents$jspb$Message_Message.bytesAsB64) : value;
 };
 module$contents$jspb$Message_Message.bytesListAsU8 = function(value) {
-  module$contents$jspb$Message_Message.assertConsistentTypes_(value);
+  module$contents$jspb$Message_assertConsistentTypes(value);
   return !value.length || value[0] instanceof Uint8Array ? value : module$contents$goog$array_map(value, module$contents$jspb$Message_Message.bytesAsU8);
 };
-module$contents$jspb$Message_Message.assertConsistentTypes_ = function(array) {
+var module$contents$jspb$Message_assertConsistentTypes = function(array) {
   if (goog.DEBUG && array && 1 < array.length) {
     var expected = goog.typeOf(array[0]);
     module$contents$goog$array_forEach(array, function(e) {
@@ -19977,8 +20016,8 @@ module$contents$jspb$Message_Message.getMapField = function(msg, fieldNumber, no
 };
 module$contents$jspb$Message_Message.setField = function(msg, fieldNumber, value) {
   goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
-  module$contents$jspb$Message_Message.checkNotFrozen_(msg);
-  fieldNumber < msg.pivot_ ? msg.array[module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber)] = value : (module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(msg), msg.extensionObject_[fieldNumber] = value);
+  module$contents$jspb$Message_checkNotFrozen(msg);
+  fieldNumber < msg.pivot_ ? msg.array[module$contents$jspb$Message_getIndex(msg, fieldNumber)] = value : (module$contents$jspb$Message_maybeInitEmptyExtensionObject(msg), msg.extensionObject_[fieldNumber] = value);
   return msg;
 };
 module$contents$jspb$Message_Message.clearField = function(msg, fieldNumber) {
@@ -20000,42 +20039,42 @@ module$contents$jspb$Message_Message.clearOneofWrapperField = function(msg, fiel
   return module$contents$jspb$Message_Message.setOneofWrapperField(msg, fieldNumber, oneof, void 0);
 };
 module$contents$jspb$Message_Message.setProto3IntField = function(msg, fieldNumber, value) {
-  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0);
+  return module$contents$jspb$Message_setFieldIgnoringDefault(msg, fieldNumber, value, 0);
 };
 module$contents$jspb$Message_Message.setProto3FloatField = function(msg, fieldNumber, value) {
-  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0.0);
+  return module$contents$jspb$Message_setFieldIgnoringDefault(msg, fieldNumber, value, 0.0);
 };
 module$contents$jspb$Message_Message.setProto3BooleanField = function(msg, fieldNumber, value) {
-  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, !1);
+  return module$contents$jspb$Message_setFieldIgnoringDefault(msg, fieldNumber, value, !1);
 };
 module$contents$jspb$Message_Message.setProto3StringField = function(msg, fieldNumber, value) {
-  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, "");
+  return module$contents$jspb$Message_setFieldIgnoringDefault(msg, fieldNumber, value, "");
 };
 module$contents$jspb$Message_Message.setProto3BytesField = function(msg, fieldNumber, value) {
-  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, "");
+  return module$contents$jspb$Message_setFieldIgnoringDefault(msg, fieldNumber, value, "");
 };
 module$contents$jspb$Message_Message.setProto3EnumField = function(msg, fieldNumber, value) {
-  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, 0);
+  return module$contents$jspb$Message_setFieldIgnoringDefault(msg, fieldNumber, value, 0);
 };
 module$contents$jspb$Message_Message.setProto3StringIntField = function(msg, fieldNumber, value) {
-  return module$contents$jspb$Message_Message.setFieldIgnoringDefault_(msg, fieldNumber, value, "0");
+  return module$contents$jspb$Message_setFieldIgnoringDefault(msg, fieldNumber, value, "0");
 };
-module$contents$jspb$Message_Message.setFieldIgnoringDefault_ = function(msg, fieldNumber, value, defaultValue) {
+var module$contents$jspb$Message_setFieldIgnoringDefault = function(msg, fieldNumber, value, defaultValue) {
   goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
-  module$contents$jspb$Message_Message.checkNotFrozen_(msg);
-  value !== defaultValue ? module$contents$jspb$Message_Message.setField(msg, fieldNumber, value) : fieldNumber < msg.pivot_ ? msg.array[module$contents$jspb$Message_Message.getIndex_(msg, fieldNumber)] = null : (module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(msg), delete msg.extensionObject_[fieldNumber]);
+  module$contents$jspb$Message_checkNotFrozen(msg);
+  value !== defaultValue ? module$contents$jspb$Message_Message.setField(msg, fieldNumber, value) : fieldNumber < msg.pivot_ ? msg.array[module$contents$jspb$Message_getIndex(msg, fieldNumber)] = null : (module$contents$jspb$Message_maybeInitEmptyExtensionObject(msg), delete msg.extensionObject_[fieldNumber]);
   return msg;
 };
 module$contents$jspb$Message_Message.addToRepeatedField = function(msg, fieldNumber, value, opt_index) {
   goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
-  module$contents$jspb$Message_Message.checkNotFrozen_(msg);
+  module$contents$jspb$Message_checkNotFrozen(msg);
   var arr = module$contents$jspb$Message_Message.getRepeatedField(msg, fieldNumber);
   void 0 != opt_index ? arr.splice(opt_index, 0, value) : arr.push(value);
   return msg;
 };
 module$contents$jspb$Message_Message.setOneofField = function(msg, fieldNumber, oneof, value) {
   goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
-  module$contents$jspb$Message_Message.checkNotFrozen_(msg);
+  module$contents$jspb$Message_checkNotFrozen(msg);
   var currentCase = module$contents$jspb$Message_Message.computeOneofCase(msg, oneof);
   currentCase && currentCase !== fieldNumber && void 0 !== value && (msg.wrappers_ && currentCase in msg.wrappers_ && (msg.wrappers_[currentCase] = void 0), module$contents$jspb$Message_Message.setField(msg, currentCase, void 0));
   return module$contents$jspb$Message_Message.setField(msg, fieldNumber, value);
@@ -20058,12 +20097,12 @@ module$contents$jspb$Message_Message.getWrapperField = function(msg, ctor, field
   return msg.wrappers_[fieldNumber];
 };
 module$contents$jspb$Message_Message.getRepeatedWrapperField = function(msg, ctor, fieldNumber) {
-  module$contents$jspb$Message_Message.wrapRepeatedField_(msg, ctor, fieldNumber);
+  module$contents$jspb$Message_wrapRepeatedField(msg, ctor, fieldNumber);
   var val = msg.wrappers_[fieldNumber];
-  val == module$contents$jspb$Message_Message.EMPTY_LIST_SENTINEL_ && (val = msg.wrappers_[fieldNumber] = []);
+  val == module$contents$jspb$Message_EMPTY_LIST_SENTINEL && (val = msg.wrappers_[fieldNumber] = []);
   return val;
 };
-module$contents$jspb$Message_Message.wrapRepeatedField_ = function(msg, ctor, fieldNumber) {
+var module$contents$jspb$Message_wrapRepeatedField = function(msg, ctor, fieldNumber) {
   msg.wrappers_ || (msg.wrappers_ = {});
   if (!msg.wrappers_[fieldNumber]) {
     for (var data = module$contents$jspb$Message_Message.getRepeatedField(msg, fieldNumber), wrappers = [], i = 0; i < data.length; i++) {
@@ -20075,35 +20114,35 @@ module$contents$jspb$Message_Message.wrapRepeatedField_ = function(msg, ctor, fi
 };
 module$contents$jspb$Message_Message.setWrapperField = function(msg, fieldNumber, value) {
   goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
-  module$contents$jspb$Message_Message.checkNotFrozen_(msg);
+  module$contents$jspb$Message_checkNotFrozen(msg);
   msg.wrappers_ || (msg.wrappers_ = {});
-  var data = value ? module$contents$jspb$Message_Message.toArrayHelper_(value, !0) : value;
+  var data = value ? module$contents$jspb$Message_toArrayHelper(value, !0) : value;
   msg.wrappers_[fieldNumber] = value;
   return module$contents$jspb$Message_Message.setField(msg, fieldNumber, data);
 };
 module$contents$jspb$Message_Message.setOneofWrapperField = function(msg, fieldNumber, oneof, value) {
   goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
-  module$contents$jspb$Message_Message.checkNotFrozen_(msg);
+  module$contents$jspb$Message_checkNotFrozen(msg);
   msg.wrappers_ || (msg.wrappers_ = {});
-  var data = value ? module$contents$jspb$Message_Message.toArrayHelper_(value, !0) : value;
+  var data = value ? module$contents$jspb$Message_toArrayHelper(value, !0) : value;
   msg.wrappers_[fieldNumber] = value;
   return module$contents$jspb$Message_Message.setOneofField(msg, fieldNumber, oneof, data);
 };
 module$contents$jspb$Message_Message.setRepeatedWrapperField = function(msg, fieldNumber, value) {
   goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
-  module$contents$jspb$Message_Message.checkNotFrozen_(msg);
+  module$contents$jspb$Message_checkNotFrozen(msg);
   msg.wrappers_ || (msg.wrappers_ = {});
   value = value || [];
   for (var data = [], i = 0; i < value.length; i++) {
-    data[i] = module$contents$jspb$Message_Message.toArrayHelper_(value[i], !0);
+    data[i] = module$contents$jspb$Message_toArrayHelper(value[i], !0);
   }
   msg.wrappers_[fieldNumber] = value;
   return module$contents$jspb$Message_Message.setField(msg, fieldNumber, data);
 };
 module$contents$jspb$Message_Message.addToRepeatedWrapperField = function(msg, fieldNumber, value, ctor, index) {
-  module$contents$jspb$Message_Message.checkNotFrozen_(msg);
+  module$contents$jspb$Message_checkNotFrozen(msg);
   var wrapperArray = module$contents$jspb$Message_Message.getRepeatedWrapperField(msg, ctor, fieldNumber), insertedValue = value ? value : new ctor, array = module$contents$jspb$Message_Message.getRepeatedField(msg, fieldNumber);
-  void 0 != index ? (wrapperArray.splice(index, 0, insertedValue), array.splice(index, 0, module$contents$jspb$Message_Message.toArrayHelper_(insertedValue, !0))) : (wrapperArray.push(insertedValue), array.push(module$contents$jspb$Message_Message.toArrayHelper_(insertedValue, !0)));
+  void 0 != index ? (wrapperArray.splice(index, 0, insertedValue), array.splice(index, 0, module$contents$jspb$Message_toArrayHelper(insertedValue, !0))) : (wrapperArray.push(insertedValue), array.push(module$contents$jspb$Message_toArrayHelper(insertedValue, !0)));
   return insertedValue;
 };
 module$contents$jspb$Message_Message.toMap = function(field, mapKeyGetterFn, opt_toObjectFn, opt_includeInstance) {
@@ -20119,20 +20158,20 @@ module$contents$jspb$Message_Message.prototype.syncMapFields_ = function(interna
         var val = this.wrappers_[fieldNumber];
         if (Array.isArray(val)) {
           for (var i = 0; i < val.length; i++) {
-            val[i] && module$contents$jspb$Message_Message.toArrayHelper_(val[i], internalCall);
+            val[i] && module$contents$jspb$Message_toArrayHelper(val[i], internalCall);
           }
         } else {
-          val && module$contents$jspb$Message_Message.toArrayHelper_(val, internalCall);
+          val && module$contents$jspb$Message_toArrayHelper(val, internalCall);
         }
       }
     }
   }
 };
-module$contents$jspb$Message_Message.toArrayHelper_ = function(msg, internalCall) {
+var module$contents$jspb$Message_toArrayHelper = function(msg, internalCall) {
   return module$exports$jspb$Freezer$Loading$Info.isFreezerLoaded && internalCall ? msg.toArrayInternal() : msg.toArray();
 };
 module$contents$jspb$Message_Message.prototype.toArray = function() {
-  module$contents$jspb$Message_Message.checkNotFrozen_(this);
+  module$contents$jspb$Message_checkNotFrozen(this);
   this.syncMapFields_(!1);
   return this.array;
 };
@@ -20146,14 +20185,14 @@ module$contents$jspb$Message_Message.prototype.serialize = module$contents$jspb$
     return goog.crypt.base64.encodeByteArray(this);
   };
   try {
-    return JSON.stringify(this.array && module$contents$jspb$Message_Message.prepareForSerialize_(module$contents$jspb$Message_Message.toArrayHelper_(this, !0), this), module$contents$jspb$Message_Message.serializeSpecialNumbers_);
+    return JSON.stringify(this.array && module$contents$jspb$Message_prepareForSerialize(module$contents$jspb$Message_toArrayHelper(this, !0), this), module$contents$jspb$Message_serializeSpecialNumbers);
   } finally {
     Uint8Array.prototype.toJSON = old_toJSON;
   }
 } : function() {
-  return JSON.stringify(this.array && module$contents$jspb$Message_Message.prepareForSerialize_(module$contents$jspb$Message_Message.toArrayHelper_(this, !0), this), module$contents$jspb$Message_Message.serializeSpecialNumbers_);
+  return JSON.stringify(this.array && module$contents$jspb$Message_prepareForSerialize(module$contents$jspb$Message_toArrayHelper(this, !0), this), module$contents$jspb$Message_serializeSpecialNumbers);
 };
-module$contents$jspb$Message_Message.prepareForSerialize_ = function(array, msg) {
+var module$contents$jspb$Message_prepareForSerialize = function(array, msg) {
   if (module$contents$jspb$Message_Message.SERIALIZE_EMPTY_TRAILING_FIELDS) {
     return array;
   }
@@ -20161,12 +20200,12 @@ module$contents$jspb$Message_Message.prepareForSerialize_ = function(array, msg)
     var value = array[i];
     if (Array.isArray(value)) {
       var nestedMsg = Array.isArray(msg) ? msg[i] : msg && msg.wrappers_ ? msg.wrappers_[module$contents$jspb$Message_Message.getFieldNumber(msg, i)] : void 0;
-      value = module$contents$jspb$Message_Message.prepareForSerialize_(value, nestedMsg);
+      value = module$contents$jspb$Message_prepareForSerialize(value, nestedMsg);
       !value.length && msg && (Array.isArray(msg) || msg.repeatedFields && -1 != msg.repeatedFields.indexOf(module$contents$jspb$Message_Message.getFieldNumber(msg, i)) && (value = null));
       value != array[i] && (needsCopy = !0);
     } else {
       if (module$contents$jspb$Message_Message.isExtensionObject(value)) {
-        extension = module$contents$jspb$Message_Message.prepareExtensionForSerialize_(value, msg && goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message));
+        extension = module$contents$jspb$Message_prepareExtensionForSerialize(value, msg && goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message));
         extension != value && (needsCopy = !0);
         length--;
         continue;
@@ -20180,14 +20219,13 @@ module$contents$jspb$Message_Message.prepareForSerialize_ = function(array, msg)
   result || (result = array.slice(0, length));
   extension && result.push(extension);
   return result;
-};
-module$contents$jspb$Message_Message.prepareExtensionForSerialize_ = function(extension, msg) {
+}, module$contents$jspb$Message_prepareExtensionForSerialize = function(extension, msg) {
   var result = {}, changed = !1, key;
   for (key in extension) {
     if (module$contents$jspb$Message_hasOwnProperty(extension, key)) {
       var value = extension[key];
       if (Array.isArray(value)) {
-        var prepared = module$contents$jspb$Message_Message.prepareForSerialize_(value, msg && msg.wrappers_ && msg.wrappers_[key]);
+        var prepared = module$contents$jspb$Message_prepareForSerialize(value, msg && msg.wrappers_ && msg.wrappers_[key]);
         !prepared.length && msg && msg.repeatedFields && -1 != msg.repeatedFields.indexOf(+key) || (result[key] = prepared);
         result[key] != value && (changed = !0);
       } else {
@@ -20198,12 +20236,11 @@ module$contents$jspb$Message_Message.prepareExtensionForSerialize_ = function(ex
   if (!changed) {
     return extension;
   }
-  for (key in result) {
+  for (var key$40 in result) {
     return result;
   }
   return null;
-};
-module$contents$jspb$Message_Message.serializeSpecialNumbers_ = function(key, value) {
+}, module$contents$jspb$Message_serializeSpecialNumbers = function(key, value) {
   return "number" !== typeof value || !isNaN(value) && Infinity !== value && -Infinity !== value ? value : String(value);
 };
 module$contents$jspb$Message_Message.deserializeWithCtor = function(ctor, data) {
@@ -20212,10 +20249,10 @@ module$contents$jspb$Message_Message.deserializeWithCtor = function(ctor, data) 
   return msg;
 };
 module$contents$jspb$Message_Message.GENERATE_TO_STRING && (module$contents$jspb$Message_Message.prototype.toString = function() {
-  return module$contents$jspb$Message_Message.toArrayHelper_(this, !0).toString();
+  return module$contents$jspb$Message_toArrayHelper(this, !0).toString();
 });
 module$contents$jspb$Message_Message.prototype.getExtension = function(fieldInfo) {
-  module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(this);
+  module$contents$jspb$Message_maybeInitEmptyExtensionObject(this);
   this.wrappers_ || (this.wrappers_ = {});
   var isFrozen = module$contents$jspb$Message_Message.isFrozen(this), fieldNumber = fieldInfo.fieldIndex;
   if (fieldInfo.isRepeated) {
@@ -20236,20 +20273,20 @@ module$contents$jspb$Message_Message.prototype.getExtension = function(fieldInfo
   return fieldInfo.isMessageType() ? (!this.wrappers_[fieldNumber] && this.extensionObject_[fieldNumber] && (this.wrappers_[fieldNumber] = new fieldInfo.ctor(this.extensionObject_[fieldNumber]), isFrozen && module$contents$jspb$Message_Message.internalMarkFrozen(this.wrappers_[fieldNumber])), this.wrappers_[fieldNumber]) : this.extensionObject_[fieldNumber];
 };
 module$contents$jspb$Message_Message.prototype.setExtension = function(fieldInfo, value) {
-  module$contents$jspb$Message_Message.checkNotFrozen_(this);
+  module$contents$jspb$Message_checkNotFrozen(this);
   this.wrappers_ || (this.wrappers_ = {});
-  module$contents$jspb$Message_Message.maybeInitEmptyExtensionObject_(this);
+  module$contents$jspb$Message_maybeInitEmptyExtensionObject(this);
   var fieldNumber = fieldInfo.fieldIndex;
   fieldInfo.isRepeated ? (value = value || [], fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] = value, this.extensionObject_[fieldNumber] = module$contents$goog$array_map(value, function(msg) {
-    return module$contents$jspb$Message_Message.toArrayHelper_(msg, !0);
-  })) : this.extensionObject_[fieldNumber] = value) : fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] = value, this.extensionObject_[fieldNumber] = value ? module$contents$jspb$Message_Message.toArrayHelper_(value, !0) : value) : this.extensionObject_[fieldNumber] = value;
+    return module$contents$jspb$Message_toArrayHelper(msg, !0);
+  })) : this.extensionObject_[fieldNumber] = value) : fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] = value, this.extensionObject_[fieldNumber] = value ? module$contents$jspb$Message_toArrayHelper(value, !0) : value) : this.extensionObject_[fieldNumber] = value;
   return this;
 };
 module$contents$jspb$Message_Message.difference = function(m1, m2) {
   if (!(m1 instanceof m2.constructor)) {
     throw Error("Messages have different types.");
   }
-  var arr1 = module$contents$jspb$Message_Message.toArrayHelper_(m1, !0), arr2 = module$contents$jspb$Message_Message.toArrayHelper_(m2, !0), res = [], start = 0, length = arr1.length > arr2.length ? arr1.length : arr2.length;
+  var arr1 = module$contents$jspb$Message_toArrayHelper(m1, !0), arr2 = module$contents$jspb$Message_toArrayHelper(m2, !0), res = [], start = 0, length = arr1.length > arr2.length ? arr1.length : arr2.length;
   m1.getJsPbMessageId() && (res[0] = m1.getJsPbMessageId(), start = 1);
   for (var i = start; i < length; i++) {
     module$contents$jspb$Message_Message.compareFields(arr1[i], arr2[i]) || (res[i] = arr2[i]);
@@ -20257,7 +20294,7 @@ module$contents$jspb$Message_Message.difference = function(m1, m2) {
   return new m1.constructor(res);
 };
 module$contents$jspb$Message_Message.equals = function(m1, m2) {
-  return m1 == m2 || !(!m1 || !m2) && m1 instanceof m2.constructor && module$contents$jspb$Message_Message.compareFields(module$contents$jspb$Message_Message.toArrayHelper_(m1, !0), module$contents$jspb$Message_Message.toArrayHelper_(m2, !0));
+  return m1 == m2 || !(!m1 || !m2) && m1 instanceof m2.constructor && module$contents$jspb$Message_Message.compareFields(module$contents$jspb$Message_toArrayHelper(m1, !0), module$contents$jspb$Message_toArrayHelper(m2, !0));
 };
 module$contents$jspb$Message_Message.compareExtensions = function(extension1, extension2) {
   extension1 = extension1 || {};
@@ -20324,7 +20361,7 @@ module$contents$jspb$Message_Message.clone = function(msg) {
   return module$contents$jspb$Message_Message.cloneMessage(msg);
 };
 module$contents$jspb$Message_Message.cloneMessage = function(msg) {
-  var clonedData = module$contents$jspb$Message_Message.clone_(module$contents$jspb$Message_Message.toArrayHelper_(msg, !0)), oldInitialize = module$contents$jspb$Message_Message.initialize;
+  var clonedData = module$contents$jspb$Message_Message.clone_(module$contents$jspb$Message_toArrayHelper(msg, !0)), oldInitialize = module$contents$jspb$Message_Message.initialize;
   module$contents$jspb$Message_Message.initialize = function(message, ignoredData, messageId, pivot, repeated, oneof) {
     oldInitialize(message, clonedData, messageId, pivot, repeated, oneof);
     module$contents$jspb$Message_Message.initialize = oldInitialize;
@@ -20337,7 +20374,7 @@ module$contents$jspb$Message_Message.copyInto = function(fromMessage, toMessage)
   goog.asserts.assertInstanceof(fromMessage, module$contents$jspb$Message_Message);
   goog.asserts.assertInstanceof(toMessage, module$contents$jspb$Message_Message);
   goog.asserts.assert(fromMessage.constructor == toMessage.constructor, "Copy source and target message should have the same type.");
-  for (var copyOfFrom = module$contents$jspb$Message_Message.clone(fromMessage), to = module$contents$jspb$Message_Message.toArrayHelper_(toMessage, !0), from = module$contents$jspb$Message_Message.toArrayHelper_(copyOfFrom, !0), i = to.length = 0; i < from.length; i++) {
+  for (var copyOfFrom = module$contents$jspb$Message_Message.clone(fromMessage), to = module$contents$jspb$Message_toArrayHelper(toMessage, !0), from = module$contents$jspb$Message_toArrayHelper(copyOfFrom, !0), i = to.length = 0; i < from.length; i++) {
     to[i] = from[i];
   }
   toMessage.wrappers_ = copyOfFrom.wrappers_;
@@ -20373,7 +20410,7 @@ module$contents$jspb$Message_Message.internalMarkFrozen = function(value) {
   goog.asserts.assert(module$exports$jspb$Freezer$Loading$Info.isFreezerLoaded);
   Array.isArray(value) ? Object.freeze(value) : (Object.freeze(value.array), value.extensionObject_ && Object.freeze(value.extensionObject_));
 };
-module$contents$jspb$Message_Message.checkNotFrozen_ = function(msg) {
+var module$contents$jspb$Message_checkNotFrozen = function(msg) {
   if (module$exports$jspb$Freezer$Loading$Info.isFreezerLoaded && module$contents$jspb$Message_Message.isFrozen(msg)) {
     throw Error("Cannot mutate a frozen Message");
   }
@@ -20733,9 +20770,8 @@ proto.google.protobuf.Struct.fromJavaScript = function(obj) {
   return ret;
 };
 ee.data = {};
-ee.data.authenticateViaOauth = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed) {
-  var scopes = [module$contents$ee$apiclient_apiclient.AUTH_SCOPE_, module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_];
-  opt_extraScopes && (module$contents$goog$array_extend(scopes, opt_extraScopes), module$contents$goog$array_removeDuplicates(scopes));
+ee.data.authenticateViaOauth = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed, opt_suppressDefaultScopes) {
+  var scopes = module$contents$ee$apiclient_apiclient.mergeAuthScopes_(!opt_suppressDefaultScopes, !1, opt_extraScopes || []);
   module$contents$ee$apiclient_apiclient.setAuthClient(clientId, scopes);
   null === clientId ? module$contents$ee$apiclient_apiclient.clearAuthToken() : module$contents$ee$apiclient_apiclient.ensureAuthLibLoaded_(function() {
     var onImmediateFailed = opt_onImmediateFailed || goog.partial(ee.data.authenticateViaPopup, success, opt_error);
@@ -20751,12 +20787,11 @@ ee.data.authenticateViaPopup = function(opt_success, opt_error) {
   goog.global.gapi.auth.authorize({client_id:module$contents$ee$apiclient_apiclient.getAuthClientId(), immediate:!1, scope:module$contents$ee$apiclient_apiclient.getAuthScopes().join(" ")}, goog.partial(module$contents$ee$apiclient_apiclient.handleAuthResult_, opt_success, opt_error));
 };
 goog.exportSymbol("ee.data.authenticateViaPopup", ee.data.authenticateViaPopup);
-ee.data.authenticateViaPrivateKey = function(privateKey, opt_success, opt_error, opt_extraScopes) {
+ee.data.authenticateViaPrivateKey = function(privateKey, opt_success, opt_error, opt_extraScopes, opt_suppressDefaultScopes) {
   if ("window" in goog.global) {
     throw Error("Use of private key authentication in the browser is insecure. Consider using OAuth, instead.");
   }
-  var scopes = [module$contents$ee$apiclient_apiclient.AUTH_SCOPE_, module$contents$ee$apiclient_apiclient.STORAGE_SCOPE_, module$contents$ee$apiclient_apiclient.CLOUD_PLATFORM_SCOPE_];
-  opt_extraScopes && (module$contents$goog$array_extend(scopes, opt_extraScopes), module$contents$goog$array_removeDuplicates(scopes));
+  var scopes = module$contents$ee$apiclient_apiclient.mergeAuthScopes_(!opt_suppressDefaultScopes, !opt_suppressDefaultScopes, opt_extraScopes || []);
   module$contents$ee$apiclient_apiclient.setAuthClient(privateKey.client_email, scopes);
   var jwtClient = new google.auth.JWT(privateKey.client_email, null, privateKey.private_key, scopes, null);
   ee.data.setAuthTokenRefresher(function(authArgs, callback) {
@@ -20924,7 +20959,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
   if ("string" === typeof params.crs_transform) {
     try {
       params.crs_transform = JSON.parse(params.crs_transform);
-    } catch (e$38) {
+    } catch (e$41) {
     }
   }
   var image = ee.data.images.buildDownloadIdImage(params.image, params), thumbnail = new module$exports$eeapiclient$ee_api_client.Thumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(image)), fileFormat:ee.rpc_convert.fileFormat(params.format), filenamePrefix:params.name, bandIds:params.bands && ee.rpc_convert.bandList(params.bands.map(function(band) {
@@ -20981,8 +21016,8 @@ goog.exportSymbol("ee.data.newTaskId", ee.data.newTaskId);
 ee.data.getTaskStatus = function(taskId, opt_callback) {
   var opNames = ee.data.makeStringArray_(taskId).map(ee.rpc_convert.taskIdToOperationName);
   if (1 === opNames.length) {
-    var call$40 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$40.handle(call$40.operations().get(opNames[0]).then(function(op) {
+    var call$43 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$43.handle(call$43.operations().get(opNames[0]).then(function(op) {
       return [ee.rpc_convert.operationToTask(op)];
     }));
   }
@@ -21036,8 +21071,8 @@ goog.exportSymbol("ee.data.listOperations", ee.data.listOperations);
 ee.data.cancelOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName), request = new module$exports$eeapiclient$ee_api_client.CancelOperationRequest;
   if (1 === opNames.length) {
-    var call$41 = new module$contents$ee$apiclient_Call(opt_callback);
-    call$41.handle(call$41.operations().cancel(opNames[0], request));
+    var call$44 = new module$contents$ee$apiclient_Call(opt_callback);
+    call$44.handle(call$44.operations().cancel(opNames[0], request));
   } else {
     var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
     call.send(opNames.map(function(op) {
@@ -21049,8 +21084,8 @@ goog.exportSymbol("ee.data.cancelOperation", ee.data.cancelOperation);
 ee.data.getOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName).map(ee.rpc_convert.taskIdToOperationName);
   if (!Array.isArray(operationName)) {
-    var call$42 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$42.handle(call$42.operations().get(opNames[0]));
+    var call$45 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$45.handle(call$45.operations().get(opNames[0]));
   }
   var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
   return call.send(opNames.map(function(op) {
@@ -23591,8 +23626,8 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
       return node.functionDefinitionValue ? 1 : node.arrayValue ? countNodes(node.arrayValue.values) : node.dictionaryValue ? countNodes(Object.values(node.dictionaryValue.values)) : node.functionInvocationValue ? countNodes(Object.values(node.functionInvocationValue.arguments)) : 0;
     };
     return countNodes(Object.values(expression.values));
-  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars))) + "_", i$43 = 0; i$43 < namelessArgIndices.length; i$43++) {
-    var index = namelessArgIndices[i$43], name = baseName + i$43;
+  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars))) + "_", i$46 = 0; i$46 < namelessArgIndices.length; i$46++) {
+    var index = namelessArgIndices[i$46], name = baseName + i$46;
     vars[index].varName = name;
     signature.args[index].name = name;
   }
@@ -24990,7 +25025,7 @@ goog.style.installSafeStyleSheet = function(safeStyleSheet, opt_node) {
     head = dh.createDom(goog.dom.TagName.HEAD);
     body.parentNode.insertBefore(head, body);
   }
-  var el = dh.createDom(goog.dom.TagName.STYLE), nonce = goog.getScriptNonce();
+  var el = dh.createDom(goog.dom.TagName.STYLE), nonce = goog.dom.safe.getStyleNonce();
   nonce && el.setAttribute("nonce", nonce);
   goog.style.setSafeStyleSheet(el, safeStyleSheet);
   dh.appendChild(head, el);

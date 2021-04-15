@@ -132,7 +132,7 @@ ee.arguments.extractFromFunction = function(fn, originalArgs) {
  *   'constructor' inside class definition, then extracts the parameters for
  *   that function. If there is a function whose name is also 'constructor'
  *   defined or called before the constructor, then the parameter list returned
- *   shall coorespond to that function instead of the class constructor. For
+ *   shall correspond to that function instead of the class constructor. For
  *   example:
  *
  *     class Animation {
@@ -399,7 +399,7 @@ ee.arguments.JS_COMMENT_MATCHER_ = /((\/\/.*$)|(\/\*[\s\S]*?\*\/)|(\s))/mg;
  * keyword. For example:
  *     setColor = function(color1, color2, color3) {...};
  * or: function setColor(color1, color2, color3) {...}
- * See below for the regular expression thats works for other cases. Note: the
+ * See below for the regular expression that works for other cases. Note: the
  * original version includes whitespaces but they should already be removed by
  * replace(JS_COMMENT_MATCHER_), so \s is not needed here and therefore removed.
  * Original version, for your reference: /^function\s*[^\(]*\(\s*([^\)]*)\)/m
@@ -419,7 +419,7 @@ ee.arguments.JS_PARAM_DECL_MATCHER_FUNCTION_ = /^function[^\(]*\(([^\)]*)\)/m;
  * 'constructor' inside class definition, then extracts the parameters for that
  * function. If there is a function whose name is also 'constructor' defined or
  * called before the constructor, then the parameter list returned shall
- * coorespond to that function instead of the class constructor. For
+ * correspond to that function instead of the class constructor. For
  * example:
  *     class Animation {
  *       // This is fine.

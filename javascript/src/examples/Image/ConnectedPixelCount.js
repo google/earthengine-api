@@ -11,7 +11,7 @@ var img = ee.Image('MODIS/006/MOD09GA/2012_03_09')
 var bright = img.gt(0.3);
 
 // Compute connected pixel counts; stop searching for connected pixels
-// once the size of the connected neightborhood reaches 30 pixels, and
+// once the size of the connected neighborhood reaches 30 pixels, and
 // use 8-connected rules.
 var conn = bright.connectedPixelCount({
   maxSize: 30,

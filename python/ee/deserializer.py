@@ -25,7 +25,7 @@ def fromJSON(json_obj):
   """Deserialize an object from a JSON string appropriate for API calls.
 
   Args:
-    json_obj: The JSON represenation of the input.
+    json_obj: The JSON representation of the input.
 
   Returns:
     The deserialized object.

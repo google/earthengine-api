@@ -36,7 +36,7 @@ class Date(computedobject.ComputedObject):
 
     Args:
       date: The date to wrap.
-      opt_tz: An optional timezone, only useable with a string date.
+      opt_tz: An optional timezone, only usable with a string date.
     """
     self.initialize()
 

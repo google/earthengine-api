@@ -31,7 +31,7 @@ goog.exportSymbol('ee.Deserializer', ee.Deserializer);
 
 /**
  * Deserialize an object from a JSON string appropriate for API calls.
- * @param {string} json The JSON represenation of the input.
+ * @param {string} json The JSON representation of the input.
  * @return {*} The deserialized object.
  * @export
  */

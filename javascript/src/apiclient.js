@@ -26,7 +26,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 const apiclient = {};
 
 
-const API_CLIENT_VERSION = '0.1.260';
+const API_CLIENT_VERSION = '0.1.261';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -425,6 +425,33 @@ apiclient.getSafeApiUrl = function() {
 
 
 /**
+ * Merges default, storage, and additional auth scopes into a single list,
+ * removing duplicates.
+ * @param {boolean} includeDefaultScopes Whether to include the default set of
+ *   API scopes normally requested during sign in.
+ * @param {boolean} includeStorageScope Whether to include the Cloud Storage
+ *   scope.
+ * @param {!Array<string>} extraScopes A list of additional scopes to be
+ *   included in the final list.
+ * @return {!Array<string>} The resulting list of unique auth scopes.
+ * @private
+ */
+apiclient.mergeAuthScopes_ = function(
+    includeDefaultScopes, includeStorageScope, extraScopes) {
+  let scopes = [];
+  if (includeDefaultScopes) {
+    scopes = scopes.concat(apiclient.DEFAULT_AUTH_SCOPES_);
+  }
+  if (includeStorageScope) {
+    scopes.push(apiclient.STORAGE_SCOPE_);
+  }
+  scopes = scopes.concat(extraScopes);
+  array.removeDuplicates(scopes);
+  return scopes;
+};
+
+
+/**
  * Configures client-side authentication of EE API calls by providing a
  * current OAuth2 token to use. This is a replacement for expected
  * ee.data.authenticate() when a token is already available.
@@ -439,15 +466,17 @@ apiclient.getSafeApiUrl = function() {
  * @param {function()=} callback A function to call when the token is set.
  * @param {boolean=} updateAuthLibrary Whether to also update the token
  *     set in the Google API Client Library for JavaScript. Defaults to true.
+ * @param {boolean=} suppressDefaultScopes When true, only scopes in extraScopes
+ *     are requested. Default scopes are not requested unless explicitly
+ *     specified in extraScopes.
  */
 apiclient.setAuthToken = function(
     clientId, tokenType, accessToken, expiresIn, extraScopes, callback,
-    updateAuthLibrary) {
-  const scopes = [apiclient.AUTH_SCOPE_, apiclient.CLOUD_PLATFORM_SCOPE_];
-  if (extraScopes) {
-    array.extend(scopes, extraScopes);
-    array.removeDuplicates(scopes);
-  }
+    updateAuthLibrary, suppressDefaultScopes) {
+  const scopes = apiclient.mergeAuthScopes_(
+      /* includeDefaultScopes= */ !suppressDefaultScopes,
+      /* includeStorageScope= */ false,
+      extraScopes || []);
   apiclient.authClientId_ = clientId;
   apiclient.authScopes_ = scopes;
 
@@ -567,7 +596,7 @@ apiclient.clearAuthToken = function() {
 
 /**
  * Returns the current OAuth client ID; null unless apiclient.setAuthToken() or
- * ee.data.authenticate() previously suceeded.
+ * ee.data.authenticate() previously succeeded.
  *
  * @return {?string} The OAuth2 client ID for client-side authentication.
  */
@@ -578,7 +607,7 @@ apiclient.getAuthClientId = function() {
 
 /**
  * Returns the current OAuth scopes; empty unless apiclient.setAuthToken() or
- * ee.data.authenticate() previously suceeded.
+ * ee.data.authenticate() previously succeeded.
  *
  * @return {!Array<string>} The OAuth2 scopes for client-side authentication.
  */
@@ -829,7 +858,7 @@ apiclient.send = function(
   } else {
     // Send a synchronous request.
     /**
-     * Wrapper around xmlHttp.setRequestHeader to be useable with parameter
+     * Wrapper around xmlHttp.setRequestHeader to be usable with parameter
      * order of goog.object.forEach
      * @this {!XhrLike.OrNative}
      * @param {string} value The value of the header.
@@ -1442,6 +1471,20 @@ apiclient.authTokenRefresher_ = null;
  */
 apiclient.AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine';
 
+/**
+ * The OAuth scope used to perform computation without writing user assets or
+ * other resources.
+ * @private @const {string}
+ */
+apiclient.READ_ONLY_AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine.readonly';
+
+/**
+ * The OAuth scopes automatically requested unless explicitly suppressed via the
+ * relevant API auth call.
+ * @private @const {!Array<string>}
+ */
+apiclient.DEFAULT_AUTH_SCOPES_ =
+    [apiclient.AUTH_SCOPE_, apiclient.CLOUD_PLATFORM_SCOPE_];
 
 /**
  * The OAuth scope for Cloud Platform.
@@ -1533,7 +1576,7 @@ apiclient.MAX_SYNC_RETRIES_ = 5;
 
 
 /**
- * The HTTP header through which te app ID token is provided.
+ * The HTTP header through which the app ID token is provided.
  * @const {string}
  * @private
  */
@@ -1641,8 +1684,10 @@ exports.API_CLIENT_VERSION_HEADER = apiclient.API_CLIENT_VERSION_HEADER;
 exports.send = apiclient.send;
 
 exports.AUTH_SCOPE = apiclient.AUTH_SCOPE_;
+exports.READ_ONLY_AUTH_SCOPE = apiclient.READ_ONLY_AUTH_SCOPE_;
 exports.CLOUD_PLATFORM_SCOPE = apiclient.CLOUD_PLATFORM_SCOPE_;
 exports.STORAGE_SCOPE = apiclient.STORAGE_SCOPE_;
+exports.DEFAULT_AUTH_SCOPES = apiclient.DEFAULT_AUTH_SCOPES_;
 
 exports.makeRequest = apiclient.makeRequest_;
 exports.reset = apiclient.reset;
@@ -1661,6 +1706,7 @@ exports.setAuthToken = apiclient.setAuthToken;
 exports.clearAuthToken = apiclient.clearAuthToken;
 exports.setAuthTokenRefresher = apiclient.setAuthTokenRefresher;
 exports.setAppIdToken = apiclient.setAppIdToken;
+exports.mergeAuthScopes = apiclient.mergeAuthScopes_;
 
 exports.setupMockSend = apiclient.setupMockSend;
 exports.setParamAugmenter = apiclient.setParamAugmenter;

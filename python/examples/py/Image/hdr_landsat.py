@@ -3,7 +3,7 @@
 
 Display portions of an image with different dynamic ranges.
 The land areas are displayed normally, but the water areas
-are streched to show more details.
+are stretched to show more details.
 """
 
 import datetime

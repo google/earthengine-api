@@ -228,8 +228,8 @@ def get_persistent_credentials():
   except IOError:
     raise ee_exception.EEException(
         'Please authorize access to your Earth Engine account by '
-        'running\n\nearthengine authenticate\n\nin your command line, and then '
-        'retry.')
+        'running\n\nearthengine authenticate\n\n'
+        'in your command line, and then retry.')
 
 
 def reset():

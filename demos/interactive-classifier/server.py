@@ -61,7 +61,7 @@ class GetMapData(webapp2.RequestHandler):
     modis_landcover = ee.Image(
         'MCD12Q1/MCD12Q1_005_2001_01_01').select('Land_Cover_Type_1')
 
-    # A pallete to use for visualizing landcover images.
+    # A palette to use for visualizing landcover images.
     modis_landcover_palette = ','.join([
         'aec3d4',  # water
         '152106', '225129', '369b47', '30eb5b', '387242',  # forest
