@@ -26,7 +26,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 const apiclient = {};
 
 
-const API_CLIENT_VERSION = '0.1.261';
+const API_CLIENT_VERSION = '0.1.262';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -1479,20 +1479,19 @@ apiclient.AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine';
 apiclient.READ_ONLY_AUTH_SCOPE_ = 'https://www.googleapis.com/auth/earthengine.readonly';
 
 /**
- * The OAuth scopes automatically requested unless explicitly suppressed via the
- * relevant API auth call.
- * @private @const {!Array<string>}
- */
-apiclient.DEFAULT_AUTH_SCOPES_ =
-    [apiclient.AUTH_SCOPE_, apiclient.CLOUD_PLATFORM_SCOPE_];
-
-/**
  * The OAuth scope for Cloud Platform.
  * @private @const {string}
  */
 apiclient.CLOUD_PLATFORM_SCOPE_ =
     'https://www.googleapis.com/auth/cloud-platform';
 
+/**
+ * The OAuth scopes automatically requested unless explicitly suppressed via the
+ * relevant API auth call.
+ * @private @const {!Array<string>}
+ */
+apiclient.DEFAULT_AUTH_SCOPES_ =
+    [apiclient.AUTH_SCOPE_, apiclient.CLOUD_PLATFORM_SCOPE_];
 
 /**
  * The URL of the Google APIs Client Library.

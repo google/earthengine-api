@@ -265,7 +265,7 @@ class Export(object):
             such as 'crs_transform'.
 
       Returns:
-        An unstarted Task that exports the image to Drive.
+        An unstarted Task that exports the image to an Earth Engine asset.
       """
       config = _capture_parameters(locals(), ['image'])
       config = _prepare_image_export_config(image, config,
@@ -540,7 +540,7 @@ class Export(object):
             such as 'outputBucket'.
 
       Returns:
-        An unstarted Task that exports the table.
+        An unstarted Task that exports the table to Google Cloud Storage.
       """
       config = _capture_parameters(locals(), ['collection'])
       config = _prepare_table_export_config(collection, config,

@@ -10,12 +10,10 @@ try:
   # if setuptools is available, use it to take advantage of its dependency
   # handling
   from setuptools import setup                          # pylint: disable=g-import-not-at-top
-  print('got setup from setuptools')
 except ImportError:
   # if setuptools is not available, use distutils (standard library). Users
   # will receive errors for missing packages
   from distutils.core import setup                      # pylint: disable=g-import-not-at-top
-  print('got setup from distutils')
 
 
 def GetVersion():
