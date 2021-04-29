@@ -256,12 +256,13 @@ Export.map.toCloudStorage = function(
  * @param {string=} opt_fileNamePrefix
  * @param {string=} opt_fileFormat
  * @param {string|!Array<string>=} opt_selectors
+ * @param {number=} opt_maxVertices
  * @return {!ExportTask}
  * @export
  */
 Export.table.toCloudStorage = function(
     collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat,
-    opt_selectors) {
+    opt_selectors, opt_maxVertices) {
   const clientConfig = eeArguments.extractFromFunction(
       Export.table.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -277,12 +278,13 @@ Export.table.toCloudStorage = function(
  * @param {string=} opt_fileNamePrefix
  * @param {string=} opt_fileFormat
  * @param {string|!Array<string>=} opt_selectors
+ * @param {number=} opt_maxVertices
  * @return {!ExportTask}
  * @export
  */
 Export.table.toDrive = function(
     collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat,
-    opt_selectors) {
+    opt_selectors, opt_maxVertices) {
   const clientConfig = eeArguments.extractFromFunction(
       Export.table.toDrive, arguments);
   clientConfig['type'] = ExportType.TABLE;
@@ -296,11 +298,12 @@ Export.table.toDrive = function(
  * @param {!FeatureCollection} collection
  * @param {string=} opt_description
  * @param {string=} opt_assetId
+ * @param {number=} opt_maxVertices
  * @return {!ExportTask}
  * @export
  */
 Export.table.toAsset = function(
-    collection, opt_description, opt_assetId) {
+    collection, opt_description, opt_assetId, opt_maxVertices) {
   const clientConfig = eeArguments.extractFromFunction(
       Export.table.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(

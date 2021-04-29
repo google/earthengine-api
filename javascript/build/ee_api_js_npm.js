@@ -15440,7 +15440,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.262";
+ee.apiclient.API_CLIENT_VERSION = "0.1.263";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15715,8 +15715,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.262";
-  "0.1.262" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.263";
+  "0.1.263" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17059,7 +17059,7 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
   }
   var selectors = params.selectors || null;
   null != selectors && "string" === typeof selectors && (selectors = selectors.split(","));
-  var result = new module$exports$eeapiclient$ee_api_client.ExportTableRequest({expression:ee.Serializer.encodeCloudApiExpression(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, selectors:selectors, maxErrorMeters:numberOrNull_(params.maxErrorMeters), requestId:stringOrNull_(params.id), maxWorkerCount:numberOrNull_(params.maxWorkers)}), destination = ee.rpc_convert_batch.guessDestination_(params);
+  var result = new module$exports$eeapiclient$ee_api_client.ExportTableRequest({expression:ee.Serializer.encodeCloudApiExpression(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, selectors:selectors, maxErrorMeters:numberOrNull_(params.maxErrorMeters), requestId:stringOrNull_(params.id), maxVertices:numberOrNull_(params.maxVertices), maxWorkerCount:numberOrNull_(params.maxWorkers)}), destination = ee.rpc_convert_batch.guessDestination_(params);
   switch(destination) {
     case ee.rpc_convert_batch.ExportDestination.GCS:
     case ee.rpc_convert_batch.ExportDestination.DRIVE:
@@ -19518,6 +19518,199 @@ function module$contents$jspb$BinaryWriter_assertThat(field, value, condition) {
 }
 jspb.BinaryWriter = module$contents$jspb$BinaryWriter_BinaryWriter;
 var module$exports$jspb$Freezer$Loading$Info = {isFreezerLoaded:!1};
+var module$exports$jspb$internal = {InternalMessage:function() {
+}};
+function module$contents$jspb$internal_indexFromFieldNumber(msg, fieldNumber) {
+  return fieldNumber + msg.arrayIndexOffset;
+}
+function module$contents$jspb$internal_fieldNumberFromIndex(msg, index) {
+  return index - msg.arrayIndexOffset;
+}
+function module$contents$jspb$internal_isFrozen(msg) {
+  return module$exports$jspb$Freezer$Loading$Info.isFreezerLoaded ? Object.isFrozen(msg.array) : !1;
+}
+function module$contents$jspb$internal_internalMarkFrozen(value) {
+  (0,goog.asserts.assert)(module$exports$jspb$Freezer$Loading$Info.isFreezerLoaded);
+  Array.isArray(value) ? Object.freeze(value) : (Object.freeze(value.array), value.extensionObject && Object.freeze(value.extensionObject));
+}
+module$exports$jspb$internal.SUPPORTS_UINT8ARRAY = "function" === typeof Uint8Array;
+function module$contents$jspb$internal_isExtensionObject(o) {
+  return null !== o && "object" == typeof o && !Array.isArray(o) && !(module$exports$jspb$internal.SUPPORTS_UINT8ARRAY && o instanceof Uint8Array);
+}
+function module$contents$jspb$internal_hasOwnPropertyIfNotTrusted(obj, property) {
+  return goog.TRUSTED_SITE || Object.prototype.hasOwnProperty.call(obj, property);
+}
+function module$contents$jspb$internal_cloneJspb(obj) {
+  if (Array.isArray(obj)) {
+    for (var clonedArray = Array(obj.length), i = 0; i < obj.length; i++) {
+      var o = obj[i];
+      null != o && (clonedArray[i] = "object" == typeof o ? module$contents$jspb$internal_cloneJspb((0,goog.asserts.assert)(o)) : o);
+    }
+    return clonedArray;
+  }
+  if (module$exports$jspb$internal.SUPPORTS_UINT8ARRAY && obj instanceof Uint8Array) {
+    return new Uint8Array(obj);
+  }
+  var clone = {}, key;
+  for (key in obj) {
+    module$contents$jspb$internal_hasOwnPropertyIfNotTrusted(obj, key) && (o = obj[key], null != o && (clone[key] = "object" == typeof o ? module$contents$jspb$internal_cloneJspb((0,goog.asserts.assert)(o)) : o));
+  }
+  return clone;
+}
+module$exports$jspb$internal.cloneJspb = module$contents$jspb$internal_cloneJspb;
+module$exports$jspb$internal.fieldNumberFromIndex = module$contents$jspb$internal_fieldNumberFromIndex;
+module$exports$jspb$internal.hasOwnPropertyIfNotTrusted = module$contents$jspb$internal_hasOwnPropertyIfNotTrusted;
+module$exports$jspb$internal.indexFromFieldNumber = module$contents$jspb$internal_indexFromFieldNumber;
+module$exports$jspb$internal.isExtensionObject = module$contents$jspb$internal_isExtensionObject;
+module$exports$jspb$internal.internalMarkFrozen = module$contents$jspb$internal_internalMarkFrozen;
+module$exports$jspb$internal.isFrozen = module$contents$jspb$internal_isFrozen;
+jspb.internal = {};
+jspb.internal.public_for_gencode = {};
+function module$contents$jspb$internal$public_for_gencode_toObjectList(field, toObjectFn, includeInstance) {
+  for (var result = [], i = 0; i < field.length; i++) {
+    result.push(toObjectFn.call(field[i], includeInstance, field[i]));
+  }
+  return result;
+}
+function module$contents$jspb$internal$public_for_gencode_toObjectExtension(proto, obj, extensions, includeInstance) {
+  for (var fieldNumber in extensions) {
+    if (module$contents$jspb$internal_hasOwnPropertyIfNotTrusted(extensions, fieldNumber)) {
+      var fieldInfo = extensions[fieldNumber], value = proto.getExtension(fieldInfo);
+      if (null != value) {
+        var name = void 0;
+        for (name in fieldInfo.fieldName) {
+          if (fieldInfo.fieldName.hasOwnProperty(name)) {
+            break;
+          }
+        }
+        var toObjectFn = fieldInfo.toObjectFn;
+        obj[name] = toObjectFn ? fieldInfo.isRepeated ? module$contents$jspb$internal$public_for_gencode_toObjectList(value, toObjectFn, includeInstance) : toObjectFn(includeInstance, value) : value;
+      }
+    }
+  }
+}
+function module$contents$jspb$internal$public_for_gencode_serializeBinaryExtensions(proto, writer, extensions) {
+  for (var fieldNumber in extensions) {
+    if (module$contents$jspb$internal_hasOwnPropertyIfNotTrusted(extensions, fieldNumber)) {
+      var binaryFieldInfo = extensions[fieldNumber], fieldInfo = binaryFieldInfo.fieldInfo;
+      if (!binaryFieldInfo.binaryWriterFn) {
+        throw Error("Message extension present that was generated without binary serialization support");
+      }
+      var value = proto.getExtension(fieldInfo);
+      if (null != value) {
+        if (fieldInfo.isMessageType()) {
+          if (binaryFieldInfo.binaryMessageSerializeFn) {
+            binaryFieldInfo.binaryWriterFn.call(writer, fieldInfo.fieldIndex, value, binaryFieldInfo.binaryMessageSerializeFn);
+          } else {
+            throw Error("Message extension present holding submessage without binary support enabled, and message is being serialized to binary format");
+          }
+        } else {
+          binaryFieldInfo.binaryWriterFn.call(writer, fieldInfo.fieldIndex, value);
+        }
+      }
+    }
+  }
+}
+function module$contents$jspb$internal$public_for_gencode_readBinaryExtensionMessageSet(msg, reader, extensions) {
+  if (1 == reader.getFieldNumber() && reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.START_GROUP) {
+    for (var fieldNumber = 0, rawBytes = null; reader.nextField() && (0 != reader.getWireType() || 0 != reader.getFieldNumber());) {
+      if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.VARINT && 2 == reader.getFieldNumber()) {
+        fieldNumber = reader.readUint32();
+      } else {
+        if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.DELIMITED && 3 == reader.getFieldNumber()) {
+          rawBytes = reader.readBytes();
+        } else {
+          if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.END_GROUP) {
+            break;
+          } else {
+            reader.skipField();
+          }
+        }
+      }
+    }
+    if (1 != reader.getFieldNumber() || reader.getWireType() != module$contents$jspb$BinaryConstants_WireType.END_GROUP || null == rawBytes || 0 == fieldNumber) {
+      throw Error("Malformed binary bytes for message set");
+    }
+    var binaryFieldInfo = extensions[fieldNumber];
+    if (binaryFieldInfo) {
+      var fieldInfo = binaryFieldInfo.fieldInfo, newValue = new fieldInfo.ctor;
+      binaryFieldInfo.binaryMessageDeserializeFn.call(newValue, newValue, new module$contents$jspb$BinaryReader_BinaryReader(rawBytes));
+      msg.setExtension(fieldInfo, newValue);
+    }
+  } else {
+    reader.skipField();
+  }
+}
+function module$contents$jspb$internal$public_for_gencode_readBinaryExtension(msg, reader, extensions) {
+  var binaryFieldInfo = extensions[reader.getFieldNumber()];
+  if (binaryFieldInfo) {
+    var fieldInfo = binaryFieldInfo.fieldInfo;
+    if (!binaryFieldInfo.binaryReaderFn) {
+      throw Error("Deserializing extension whose generated code does not support binary format");
+    }
+    var value = fieldInfo.isMessageType() ? binaryFieldInfo.binaryReaderFn.call(reader, new fieldInfo.ctor, binaryFieldInfo.binaryMessageDeserializeFn) : binaryFieldInfo.binaryReaderFn.call(reader);
+    if (fieldInfo.isRepeated && !binaryFieldInfo.isPacked) {
+      var currentList = msg.getExtension(fieldInfo);
+      currentList ? currentList.push(value) : msg.setExtension(fieldInfo, [value]);
+    } else {
+      msg.setExtension(fieldInfo, value);
+    }
+  } else {
+    reader.skipField();
+  }
+}
+function module$contents$jspb$internal$public_for_gencode_bytesAsB64(value) {
+  if (null == value || "string" === typeof value) {
+    return value;
+  }
+  if (module$exports$jspb$internal.SUPPORTS_UINT8ARRAY && value instanceof Uint8Array) {
+    return goog.crypt.base64.encodeByteArray(value);
+  }
+  goog.asserts.fail("Cannot coerce to b64 string: " + goog.typeOf(value));
+  return null;
+}
+function module$contents$jspb$internal$public_for_gencode_bytesAsU8(value) {
+  if (null == value || value instanceof Uint8Array) {
+    return value;
+  }
+  if ("string" === typeof value) {
+    return goog.crypt.base64.decodeStringToUint8Array(value);
+  }
+  goog.asserts.fail("Cannot coerce to Uint8Array: " + goog.typeOf(value));
+  return null;
+}
+function module$contents$jspb$internal$public_for_gencode_bytesListAsB64(value) {
+  module$contents$jspb$internal$public_for_gencode_assertConsistentTypes(value);
+  return value.length && "string" !== typeof value[0] ? module$contents$goog$array_map(value, module$contents$jspb$internal$public_for_gencode_bytesAsB64) : value;
+}
+function module$contents$jspb$internal$public_for_gencode_bytesListAsU8(value) {
+  module$contents$jspb$internal$public_for_gencode_assertConsistentTypes(value);
+  return !value.length || value[0] instanceof Uint8Array ? value : module$contents$goog$array_map(value, module$contents$jspb$internal$public_for_gencode_bytesAsU8);
+}
+function module$contents$jspb$internal$public_for_gencode_assertConsistentTypes(array) {
+  if (goog.DEBUG && array && 1 < array.length) {
+    var expected = goog.typeOf(array[0]);
+    module$contents$goog$array_forEach(array, function(e) {
+      goog.typeOf(e) != expected && goog.asserts.fail("Inconsistent type in JSPB repeated field array. Got " + goog.typeOf(e) + " expected " + expected);
+    });
+  }
+}
+function module$contents$jspb$internal$public_for_gencode_toMap(field, mapKeyGetterFn, toObjectFn, includeInstance) {
+  for (var result = {}, i = 0; i < field.length; i++) {
+    result[mapKeyGetterFn.call(field[i])] = toObjectFn ? toObjectFn.call(field[i], includeInstance, field[i]) : field[i];
+  }
+  return result;
+}
+jspb.internal.public_for_gencode.bytesAsB64 = module$contents$jspb$internal$public_for_gencode_bytesAsB64;
+jspb.internal.public_for_gencode.bytesAsU8 = module$contents$jspb$internal$public_for_gencode_bytesAsU8;
+jspb.internal.public_for_gencode.bytesListAsB64 = module$contents$jspb$internal$public_for_gencode_bytesListAsB64;
+jspb.internal.public_for_gencode.bytesListAsU8 = module$contents$jspb$internal$public_for_gencode_bytesListAsU8;
+jspb.internal.public_for_gencode.readBinaryExtension = module$contents$jspb$internal$public_for_gencode_readBinaryExtension;
+jspb.internal.public_for_gencode.readBinaryExtensionMessageSet = module$contents$jspb$internal$public_for_gencode_readBinaryExtensionMessageSet;
+jspb.internal.public_for_gencode.serializeBinaryExtensions = module$contents$jspb$internal$public_for_gencode_serializeBinaryExtensions;
+jspb.internal.public_for_gencode.toMap = module$contents$jspb$internal$public_for_gencode_toMap;
+jspb.internal.public_for_gencode.toObjectExtension = module$contents$jspb$internal$public_for_gencode_toObjectExtension;
+jspb.internal.public_for_gencode.toObjectList = module$contents$jspb$internal$public_for_gencode_toObjectList;
 var module$contents$jspb$Map_Map = function(arr, valueCtor) {
   this.arr_ = arr;
   this.valueCtor = valueCtor;
@@ -19720,37 +19913,25 @@ var module$contents$jspb$Message_Message = function() {
 };
 module$contents$jspb$Message_Message.GENERATE_TO_OBJECT = !0;
 module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT = !goog.DISALLOW_TEST_ONLY_CODE;
-module$contents$jspb$Message_Message.GENERATE_TO_STRING = !0;
-module$contents$jspb$Message_Message.SERIALIZE_EMPTY_TRAILING_FIELDS = !0;
-module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ = "function" == typeof Uint8Array;
 module$contents$jspb$Message_Message.prototype.getJsPbMessageId = function() {
   return this.messageId_;
-};
-var module$contents$jspb$Message_getIndex = function(msg, fieldNumber) {
-  return fieldNumber + msg.arrayIndexOffset_;
-};
-module$contents$jspb$Message_Message.hiddenES6Property_ = function() {
-};
-module$contents$jspb$Message_Message.getFieldNumber = function(msg, index) {
-  return index - msg.arrayIndexOffset_;
 };
 module$contents$jspb$Message_Message.initialize = function(msg, data, messageId, suggestedPivot, repeatedFields, opt_oneofFields) {
   msg.wrappers_ = null;
   data || (data = messageId ? [messageId] : []);
   msg.messageId_ = messageId ? String(messageId) : void 0;
-  msg.arrayIndexOffset_ = 0 === messageId ? -1 : 0;
+  msg.arrayIndexOffset = 0 === messageId ? -1 : 0;
   msg.array = data;
   module$contents$jspb$Message_initPivotAndExtensionObject(msg, suggestedPivot);
   msg.convertedPrimitiveFields_ = {};
-  module$contents$jspb$Message_Message.SERIALIZE_EMPTY_TRAILING_FIELDS || (msg.repeatedFields = repeatedFields);
   if (repeatedFields) {
     for (var i = 0; i < repeatedFields.length; i++) {
       var fieldNumber = repeatedFields[i];
       if (fieldNumber < msg.pivot_) {
-        var index = module$contents$jspb$Message_getIndex(msg, fieldNumber);
+        var index = module$contents$jspb$internal_indexFromFieldNumber(msg, fieldNumber);
         msg.array[index] = msg.array[index] || module$contents$jspb$Message_EMPTY_LIST_SENTINEL;
       } else {
-        module$contents$jspb$Message_maybeInitEmptyExtensionObject(msg), msg.extensionObject_[fieldNumber] = msg.extensionObject_[fieldNumber] || module$contents$jspb$Message_EMPTY_LIST_SENTINEL;
+        module$contents$jspb$Message_maybeInitEmptyExtensionObject(msg), msg.extensionObject[fieldNumber] = msg.extensionObject[fieldNumber] || module$contents$jspb$Message_EMPTY_LIST_SENTINEL;
       }
     }
   }
@@ -19760,142 +19941,44 @@ module$contents$jspb$Message_Message.initialize = function(msg, data, messageId,
     }
   }
 };
-var module$contents$jspb$Message_EMPTY_LIST_SENTINEL = goog.DEBUG && Object.freeze ? Object.freeze([]) : [];
-module$contents$jspb$Message_Message.isExtensionObject = function(o) {
-  return null !== o && "object" == typeof o && !Array.isArray(o) && !(module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ && o instanceof Uint8Array);
-};
-var module$contents$jspb$Message_initPivotAndExtensionObject = function(msg, suggestedPivot) {
+var module$contents$jspb$Message_EMPTY_LIST_SENTINEL = goog.DEBUG && Object.freeze ? Object.freeze([]) : [], module$contents$jspb$Message_initPivotAndExtensionObject = function(msg, suggestedPivot) {
   var msgLength = msg.array.length, lastIndex = -1;
   if (msgLength) {
     lastIndex = msgLength - 1;
     var obj = msg.array[lastIndex];
-    if (module$contents$jspb$Message_Message.isExtensionObject(obj)) {
-      msg.pivot_ = module$contents$jspb$Message_Message.getFieldNumber(msg, lastIndex);
-      msg.extensionObject_ = obj;
+    if (module$contents$jspb$internal_isExtensionObject(obj)) {
+      msg.pivot_ = module$contents$jspb$internal_fieldNumberFromIndex(msg, lastIndex);
+      msg.extensionObject = obj;
       return;
     }
   }
-  -1 < suggestedPivot ? (msg.pivot_ = Math.max(suggestedPivot, module$contents$jspb$Message_Message.getFieldNumber(msg, lastIndex + 1)), msg.extensionObject_ = null) : msg.pivot_ = Number.MAX_VALUE;
+  -1 < suggestedPivot ? (msg.pivot_ = Math.max(suggestedPivot, module$contents$jspb$internal_fieldNumberFromIndex(msg, lastIndex + 1)), msg.extensionObject = null) : msg.pivot_ = Number.MAX_VALUE;
 }, module$contents$jspb$Message_maybeInitEmptyExtensionObject = function(msg) {
-  var pivotIndex = module$contents$jspb$Message_getIndex(msg, msg.pivot_);
-  msg.array[pivotIndex] || (module$contents$jspb$Message_Message.isFrozen(msg) ? (msg.extensionObject_ = {}, Object.freeze(msg.extensionObject_)) : msg.extensionObject_ = msg.array[pivotIndex] = {});
+  var pivotIndex = module$contents$jspb$internal_indexFromFieldNumber(msg, msg.pivot_);
+  msg.array[pivotIndex] || (module$contents$jspb$internal_isFrozen(msg) ? (msg.extensionObject = {}, Object.freeze(msg.extensionObject)) : msg.extensionObject = msg.array[pivotIndex] = {});
 };
-module$contents$jspb$Message_Message.toObjectList = function(field, toObjectFn, includeInstance) {
-  for (var result = [], i = 0; i < field.length; i++) {
-    result.push(toObjectFn.call(field[i], includeInstance, field[i]));
-  }
-  return result;
-};
-module$contents$jspb$Message_Message.toObjectExtension = function(proto, obj, extensions, includeInstance) {
-  for (var fieldNumber in extensions) {
-    if (module$contents$jspb$Message_hasOwnProperty(extensions, fieldNumber)) {
-      var fieldInfo = extensions[fieldNumber], value = proto.getExtension(fieldInfo);
-      if (null != value) {
-        var name = void 0;
-        for (name in fieldInfo.fieldName) {
-          if (fieldInfo.fieldName.hasOwnProperty(name)) {
-            break;
-          }
-        }
-        var toObjectFn = fieldInfo.toObjectFn;
-        obj[name] = toObjectFn ? fieldInfo.isRepeated ? module$contents$jspb$Message_Message.toObjectList(value, toObjectFn, includeInstance) : toObjectFn(includeInstance, value) : value;
-      }
-    }
-  }
-};
-module$contents$jspb$Message_Message.serializeBinaryExtensions = function(proto, writer, extensions) {
-  for (var fieldNumber in extensions) {
-    if (module$contents$jspb$Message_hasOwnProperty(extensions, fieldNumber)) {
-      var binaryFieldInfo = extensions[fieldNumber], fieldInfo = binaryFieldInfo.fieldInfo;
-      if (!binaryFieldInfo.binaryWriterFn) {
-        throw Error("Message extension present that was generated without binary serialization support");
-      }
-      var value = proto.getExtension(fieldInfo);
-      if (null != value) {
-        if (fieldInfo.isMessageType()) {
-          if (binaryFieldInfo.binaryMessageSerializeFn) {
-            binaryFieldInfo.binaryWriterFn.call(writer, fieldInfo.fieldIndex, value, binaryFieldInfo.binaryMessageSerializeFn);
-          } else {
-            throw Error("Message extension present holding submessage without binary support enabled, and message is being serialized to binary format");
-          }
-        } else {
-          binaryFieldInfo.binaryWriterFn.call(writer, fieldInfo.fieldIndex, value);
-        }
-      }
-    }
-  }
-};
-module$contents$jspb$Message_Message.readBinaryExtensionMessageSet = function(msg, reader, extensions) {
-  if (1 == reader.getFieldNumber() && reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.START_GROUP) {
-    for (var fieldNumber = 0, rawBytes = null; reader.nextField() && (0 != reader.getWireType() || 0 != reader.getFieldNumber());) {
-      if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.VARINT && 2 == reader.getFieldNumber()) {
-        fieldNumber = reader.readUint32();
-      } else {
-        if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.DELIMITED && 3 == reader.getFieldNumber()) {
-          rawBytes = reader.readBytes();
-        } else {
-          if (reader.getWireType() == module$contents$jspb$BinaryConstants_WireType.END_GROUP) {
-            break;
-          } else {
-            reader.skipField();
-          }
-        }
-      }
-    }
-    if (1 != reader.getFieldNumber() || reader.getWireType() != module$contents$jspb$BinaryConstants_WireType.END_GROUP || null == rawBytes || 0 == fieldNumber) {
-      throw Error("Malformed binary bytes for message set");
-    }
-    var binaryFieldInfo = extensions[fieldNumber];
-    if (binaryFieldInfo) {
-      var fieldInfo = binaryFieldInfo.fieldInfo, newValue = new fieldInfo.ctor;
-      binaryFieldInfo.binaryMessageDeserializeFn.call(newValue, newValue, new module$contents$jspb$BinaryReader_BinaryReader(rawBytes));
-      msg.setExtension(fieldInfo, newValue);
-    }
-  } else {
-    reader.skipField();
-  }
-};
-module$contents$jspb$Message_Message.readBinaryExtension = function(msg, reader, extensions) {
-  var binaryFieldInfo = extensions[reader.getFieldNumber()];
-  if (binaryFieldInfo) {
-    var fieldInfo = binaryFieldInfo.fieldInfo;
-    if (!binaryFieldInfo.binaryReaderFn) {
-      throw Error("Deserializing extension whose generated code does not support binary format");
-    }
-    var value = fieldInfo.isMessageType() ? binaryFieldInfo.binaryReaderFn.call(reader, new fieldInfo.ctor, binaryFieldInfo.binaryMessageDeserializeFn) : binaryFieldInfo.binaryReaderFn.call(reader);
-    if (fieldInfo.isRepeated && !binaryFieldInfo.isPacked) {
-      var currentList = msg.getExtension(fieldInfo);
-      currentList ? currentList.push(value) : msg.setExtension(fieldInfo, [value]);
-    } else {
-      msg.setExtension(fieldInfo, value);
-    }
-  } else {
-    reader.skipField();
-  }
-};
+module$contents$jspb$Message_Message.toObjectList = module$contents$jspb$internal$public_for_gencode_toObjectList;
+module$contents$jspb$Message_Message.toObjectExtension = module$contents$jspb$internal$public_for_gencode_toObjectExtension;
+module$contents$jspb$Message_Message.serializeBinaryExtensions = module$contents$jspb$internal$public_for_gencode_serializeBinaryExtensions;
+module$contents$jspb$Message_Message.readBinaryExtensionMessageSet = module$contents$jspb$internal$public_for_gencode_readBinaryExtensionMessageSet;
+module$contents$jspb$Message_Message.readBinaryExtension = module$contents$jspb$internal$public_for_gencode_readBinaryExtension;
 module$contents$jspb$Message_Message.prototype.internal_getField = function(fieldNumber) {
   if (fieldNumber < this.pivot_) {
-    var index = module$contents$jspb$Message_getIndex(this, fieldNumber), val = this.array[index];
-    return val !== module$contents$jspb$Message_EMPTY_LIST_SENTINEL || module$contents$jspb$Message_Message.isFrozen(this) ? val : this.array[index] = [];
+    var index = module$contents$jspb$internal_indexFromFieldNumber(this, fieldNumber), val = this.array[index];
+    return val !== module$contents$jspb$Message_EMPTY_LIST_SENTINEL || module$contents$jspb$internal_isFrozen(this) ? val : this.array[index] = [];
   }
-  if (this.extensionObject_) {
-    var val$39 = this.extensionObject_[fieldNumber];
-    return val$39 === module$contents$jspb$Message_EMPTY_LIST_SENTINEL ? this.extensionObject_[fieldNumber] = [] : val$39;
+  if (this.extensionObject) {
+    var val$39 = this.extensionObject[fieldNumber];
+    return val$39 === module$contents$jspb$Message_EMPTY_LIST_SENTINEL ? this.extensionObject[fieldNumber] = [] : val$39;
   }
-};
-module$contents$jspb$Message_Message.getField = function(msg, fieldNumber) {
-  return msg.internal_getField(fieldNumber);
 };
 module$contents$jspb$Message_Message.prototype.internal_hasField = function(fieldNumber) {
   return null != this.internal_getField(fieldNumber);
 };
 module$contents$jspb$Message_Message.prototype.internal_getRepeatedField = function(fieldNumber) {
   var values = this.internal_getField(fieldNumber);
-  module$contents$jspb$Message_Message.isFrozen(this) && module$contents$jspb$Message_Message.internalMarkFrozen(values);
+  module$contents$jspb$internal_isFrozen(this) && module$contents$jspb$internal_internalMarkFrozen(values);
   return values;
-};
-module$contents$jspb$Message_Message.getRepeatedField = function(msg, fieldNumber) {
-  return msg.internal_getRepeatedField(fieldNumber);
 };
 module$contents$jspb$Message_Message.prototype.internal_getOptionalFloatingPointField = function(fieldNumber) {
   var value = this.internal_getField(fieldNumber);
@@ -19914,7 +19997,7 @@ module$contents$jspb$Message_Message.prototype.internal_getRepeatedFloatingPoint
     }
     this.convertedPrimitiveFields_[fieldNumber] = !0;
   }
-  module$contents$jspb$Message_Message.isFrozen(this) && module$contents$jspb$Message_Message.internalMarkFrozen(values);
+  module$contents$jspb$internal_isFrozen(this) && module$contents$jspb$internal_internalMarkFrozen(values);
   return values;
 };
 module$contents$jspb$Message_Message.prototype.internal_getRepeatedBooleanField = function(fieldNumber) {
@@ -19926,45 +20009,13 @@ module$contents$jspb$Message_Message.prototype.internal_getRepeatedBooleanField 
     }
     this.convertedPrimitiveFields_[fieldNumber] = !0;
   }
-  module$contents$jspb$Message_Message.isFrozen(this) && module$contents$jspb$Message_Message.internalMarkFrozen(values);
+  module$contents$jspb$internal_isFrozen(this) && module$contents$jspb$internal_internalMarkFrozen(values);
   return values;
 };
-module$contents$jspb$Message_Message.bytesAsB64 = function(value) {
-  if (null == value || "string" === typeof value) {
-    return value;
-  }
-  if (module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ && value instanceof Uint8Array) {
-    return goog.crypt.base64.encodeByteArray(value);
-  }
-  goog.asserts.fail("Cannot coerce to b64 string: " + goog.typeOf(value));
-  return null;
-};
-module$contents$jspb$Message_Message.bytesAsU8 = function(value) {
-  if (null == value || value instanceof Uint8Array) {
-    return value;
-  }
-  if ("string" === typeof value) {
-    return goog.crypt.base64.decodeStringToUint8Array(value);
-  }
-  goog.asserts.fail("Cannot coerce to Uint8Array: " + goog.typeOf(value));
-  return null;
-};
-module$contents$jspb$Message_Message.bytesListAsB64 = function(value) {
-  module$contents$jspb$Message_assertConsistentTypes(value);
-  return value.length && "string" !== typeof value[0] ? module$contents$goog$array_map(value, module$contents$jspb$Message_Message.bytesAsB64) : value;
-};
-module$contents$jspb$Message_Message.bytesListAsU8 = function(value) {
-  module$contents$jspb$Message_assertConsistentTypes(value);
-  return !value.length || value[0] instanceof Uint8Array ? value : module$contents$goog$array_map(value, module$contents$jspb$Message_Message.bytesAsU8);
-};
-var module$contents$jspb$Message_assertConsistentTypes = function(array) {
-  if (goog.DEBUG && array && 1 < array.length) {
-    var expected = goog.typeOf(array[0]);
-    module$contents$goog$array_forEach(array, function(e) {
-      goog.typeOf(e) != expected && goog.asserts.fail("Inconsistent type in JSPB repeated field array. Got " + goog.typeOf(e) + " expected " + expected);
-    });
-  }
-};
+module$contents$jspb$Message_Message.bytesAsB64 = module$contents$jspb$internal$public_for_gencode_bytesAsB64;
+module$contents$jspb$Message_Message.bytesAsU8 = module$contents$jspb$internal$public_for_gencode_bytesAsU8;
+module$contents$jspb$Message_Message.bytesListAsB64 = module$contents$jspb$internal$public_for_gencode_bytesListAsB64;
+module$contents$jspb$Message_Message.bytesListAsU8 = module$contents$jspb$internal$public_for_gencode_bytesListAsU8;
 module$contents$jspb$Message_Message.prototype.internal_getFieldWithDefault = function(fieldNumber, defaultValue) {
   var value = this.internal_getField(fieldNumber);
   return null == value ? defaultValue : value;
@@ -20000,19 +20051,16 @@ module$contents$jspb$Message_Message.prototype.internal_getMapField = function(f
       return;
     }
     arr = [];
-    module$contents$jspb$Message_Message.isFrozen(this) || this.internal_setField(fieldNumber, arr);
+    module$contents$jspb$internal_isFrozen(this) || this.internal_setField(fieldNumber, arr);
   }
   var jspbMap = new module$contents$jspb$Map_Map(arr, opt_valueCtor);
-  module$contents$jspb$Message_Message.isFrozen(this) && jspbMap.internalMarkFrozen(module$contents$jspb$Message_Message.internalMarkFrozen);
+  module$contents$jspb$internal_isFrozen(this) && jspbMap.internalMarkFrozen(module$contents$jspb$internal_internalMarkFrozen);
   return this.wrappers_[fieldNumber] = jspbMap;
 };
 module$contents$jspb$Message_Message.prototype.internal_setField = function(fieldNumber, value) {
   module$contents$jspb$Message_checkNotFrozen(this);
-  fieldNumber < this.pivot_ ? this.array[module$contents$jspb$Message_getIndex(this, fieldNumber)] = value : (module$contents$jspb$Message_maybeInitEmptyExtensionObject(this), this.extensionObject_[fieldNumber] = value);
+  fieldNumber < this.pivot_ ? this.array[module$contents$jspb$internal_indexFromFieldNumber(this, fieldNumber)] = value : (module$contents$jspb$Message_maybeInitEmptyExtensionObject(this), this.extensionObject[fieldNumber] = value);
   return this;
-};
-module$contents$jspb$Message_Message.setField = function(msg, fieldNumber, value) {
-  return msg.internal_setField(fieldNumber, value);
 };
 module$contents$jspb$Message_Message.prototype.internal_clearField = function(fieldNumber) {
   return this.internal_setField(fieldNumber, void 0);
@@ -20056,7 +20104,7 @@ module$contents$jspb$Message_Message.prototype.internal_setProto3StringIntField 
 var module$contents$jspb$Message_setFieldIgnoringDefault = function(msg, fieldNumber, value, defaultValue) {
   goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
   module$contents$jspb$Message_checkNotFrozen(msg);
-  value !== defaultValue ? msg.internal_setField(fieldNumber, value) : fieldNumber < msg.pivot_ ? msg.array[module$contents$jspb$Message_getIndex(msg, fieldNumber)] = null : (module$contents$jspb$Message_maybeInitEmptyExtensionObject(msg), delete msg.extensionObject_[fieldNumber]);
+  value !== defaultValue ? msg.internal_setField(fieldNumber, value) : fieldNumber < msg.pivot_ ? msg.array[module$contents$jspb$internal_indexFromFieldNumber(msg, fieldNumber)] = null : (module$contents$jspb$Message_maybeInitEmptyExtensionObject(msg), delete msg.extensionObject[fieldNumber]);
   return msg;
 };
 module$contents$jspb$Message_Message.prototype.internal_addToRepeatedField = function(fieldNumber, value, opt_index) {
@@ -20065,37 +20113,28 @@ module$contents$jspb$Message_Message.prototype.internal_addToRepeatedField = fun
   void 0 != opt_index ? arr.splice(opt_index, 0, value) : arr.push(value);
   return this;
 };
-module$contents$jspb$Message_Message.addToRepeatedField = function(msg, fieldNumber, value, opt_index) {
-  return msg.internal_addToRepeatedField(fieldNumber, value, opt_index);
-};
 module$contents$jspb$Message_Message.prototype.internal_setOneofField = function(fieldNumber, oneof, value) {
   module$contents$jspb$Message_checkNotFrozen(this);
   var currentCase = this.internal_computeOneofCase(oneof);
   currentCase && currentCase !== fieldNumber && void 0 !== value && (this.wrappers_ && currentCase in this.wrappers_ && (this.wrappers_[currentCase] = void 0), this.internal_setField(currentCase, void 0));
   return this.internal_setField(fieldNumber, value);
 };
-module$contents$jspb$Message_Message.setOneofField = function(msg, fieldNumber, oneof, value) {
-  return msg.internal_setOneofField(fieldNumber, oneof, value);
-};
 module$contents$jspb$Message_Message.prototype.internal_computeOneofCase = function(oneof) {
-  for (var oneofField, oneofValue, isFrozen = module$contents$jspb$Message_Message.isFrozen(this), i = 0; i < oneof.length; i++) {
+  for (var oneofField, oneofValue, amIFrozen = module$contents$jspb$internal_isFrozen(this), i = 0; i < oneof.length; i++) {
     var fieldNumber = oneof[i], value = this.internal_getField(fieldNumber);
-    null != value && (oneofField = fieldNumber, oneofValue = value, isFrozen || this.internal_setField(fieldNumber, void 0));
+    null != value && (oneofField = fieldNumber, oneofValue = value, amIFrozen || this.internal_setField(fieldNumber, void 0));
   }
-  return oneofField ? (isFrozen || this.internal_setField(oneofField, oneofValue), oneofField) : 0;
+  return oneofField ? (amIFrozen || this.internal_setField(oneofField, oneofValue), oneofField) : 0;
 };
 module$contents$jspb$Message_Message.prototype.internal_getWrapperField = function(ctor, fieldNumber, opt_required) {
   this.wrappers_ || (this.wrappers_ = {});
   if (!this.wrappers_[fieldNumber]) {
     var data = this.internal_getField(fieldNumber);
     if (opt_required || data) {
-      this.wrappers_[fieldNumber] = new ctor(data), module$contents$jspb$Message_Message.isFrozen(this) && module$contents$jspb$Message_Message.internalMarkFrozen(this.wrappers_[fieldNumber]);
+      this.wrappers_[fieldNumber] = new ctor(data), module$contents$jspb$internal_isFrozen(this) && module$contents$jspb$internal_internalMarkFrozen(this.wrappers_[fieldNumber]);
     }
   }
   return this.wrappers_[fieldNumber];
-};
-module$contents$jspb$Message_Message.getWrapperField = function(msg, ctor, fieldNumber, opt_required) {
-  return msg.internal_getWrapperField(ctor, fieldNumber, opt_required);
 };
 module$contents$jspb$Message_Message.prototype.internal_getRepeatedWrapperField = function(ctor, fieldNumber) {
   module$contents$jspb$Message_wrapRepeatedField(this, ctor, fieldNumber);
@@ -20103,16 +20142,13 @@ module$contents$jspb$Message_Message.prototype.internal_getRepeatedWrapperField 
   val == module$contents$jspb$Message_EMPTY_LIST_SENTINEL && (val = this.wrappers_[fieldNumber] = []);
   return val;
 };
-module$contents$jspb$Message_Message.getRepeatedWrapperField = function(msg, ctor, fieldNumber) {
-  return msg.internal_getRepeatedWrapperField(ctor, fieldNumber);
-};
 var module$contents$jspb$Message_wrapRepeatedField = function(msg, ctor, fieldNumber) {
   msg.wrappers_ || (msg.wrappers_ = {});
   if (!msg.wrappers_[fieldNumber]) {
     for (var data = msg.internal_getRepeatedField(fieldNumber), wrappers = [], i = 0; i < data.length; i++) {
-      wrappers[i] = new ctor(data[i]), module$contents$jspb$Message_Message.isFrozen(msg) && module$contents$jspb$Message_Message.internalMarkFrozen(wrappers[i]);
+      wrappers[i] = new ctor(data[i]), module$contents$jspb$internal_isFrozen(msg) && module$contents$jspb$internal_internalMarkFrozen(wrappers[i]);
     }
-    module$contents$jspb$Message_Message.isFrozen(msg) && module$contents$jspb$Message_Message.internalMarkFrozen(wrappers);
+    module$contents$jspb$internal_isFrozen(msg) && module$contents$jspb$internal_internalMarkFrozen(wrappers);
     msg.wrappers_[fieldNumber] = wrappers;
   }
 };
@@ -20123,18 +20159,12 @@ module$contents$jspb$Message_Message.prototype.internal_setWrapperField = functi
   this.wrappers_[fieldNumber] = value;
   return this.internal_setField(fieldNumber, data);
 };
-module$contents$jspb$Message_Message.setWrapperField = function(msg, fieldNumber, value) {
-  return msg.internal_setWrapperField(fieldNumber, value);
-};
 module$contents$jspb$Message_Message.prototype.internal_setOneofWrapperField = function(fieldNumber, oneof, value) {
   module$contents$jspb$Message_checkNotFrozen(this);
   this.wrappers_ || (this.wrappers_ = {});
   var data = value ? module$contents$jspb$Message_toArrayHelper(value, !0) : value;
   this.wrappers_[fieldNumber] = value;
   return this.internal_setOneofField(fieldNumber, oneof, data);
-};
-module$contents$jspb$Message_Message.setOneofWrapperField = function(msg, fieldNumber, oneof, value) {
-  return msg.internal_setOneofWrapperField(fieldNumber, oneof, value);
 };
 module$contents$jspb$Message_Message.prototype.internal_setRepeatedWrapperField = function(fieldNumber, value) {
   module$contents$jspb$Message_checkNotFrozen(this);
@@ -20146,28 +20176,17 @@ module$contents$jspb$Message_Message.prototype.internal_setRepeatedWrapperField 
   this.wrappers_[fieldNumber] = value;
   return this.internal_setField(fieldNumber, data);
 };
-module$contents$jspb$Message_Message.setRepeatedWrapperField = function(msg, fieldNumber, value) {
-  return msg.internal_setRepeatedWrapperField(fieldNumber, value);
-};
 module$contents$jspb$Message_Message.prototype.internal_addToRepeatedWrapperField = function(fieldNumber, value, ctor, index) {
   module$contents$jspb$Message_checkNotFrozen(this);
   var wrapperArray = this.internal_getRepeatedWrapperField(ctor, fieldNumber), insertedValue = value ? value : new ctor, array = this.internal_getRepeatedField(fieldNumber);
   void 0 != index ? (wrapperArray.splice(index, 0, insertedValue), array.splice(index, 0, module$contents$jspb$Message_toArrayHelper(insertedValue, !0))) : (wrapperArray.push(insertedValue), array.push(module$contents$jspb$Message_toArrayHelper(insertedValue, !0)));
   return insertedValue;
 };
-module$contents$jspb$Message_Message.addToRepeatedWrapperField = function(msg, fieldNumber, value, ctor, index) {
-  return msg.internal_addToRepeatedWrapperField(fieldNumber, value, ctor, index);
-};
-module$contents$jspb$Message_Message.toMap = function(field, mapKeyGetterFn, opt_toObjectFn, opt_includeInstance) {
-  for (var result = {}, i = 0; i < field.length; i++) {
-    result[mapKeyGetterFn.call(field[i])] = opt_toObjectFn ? opt_toObjectFn.call(field[i], opt_includeInstance, field[i]) : field[i];
-  }
-  return result;
-};
+module$contents$jspb$Message_Message.toMap = module$contents$jspb$internal$public_for_gencode_toMap;
 module$contents$jspb$Message_Message.prototype.syncMapFields_ = function(internalCall) {
   if (this.wrappers_) {
     for (var fieldNumber in this.wrappers_) {
-      if (module$contents$jspb$Message_hasOwnProperty(this.wrappers_, fieldNumber)) {
+      if (module$contents$jspb$internal_hasOwnPropertyIfNotTrusted(this.wrappers_, fieldNumber)) {
         var val = this.wrappers_[fieldNumber];
         if (Array.isArray(val)) {
           for (var i = 0; i < val.length; i++) {
@@ -20192,7 +20211,7 @@ module$contents$jspb$Message_Message.prototype.toArrayInternal = function() {
   this.syncMapFields_(!0);
   return this.array;
 };
-module$contents$jspb$Message_Message.prototype.serialize = module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ ? function() {
+module$contents$jspb$Message_Message.prototype.serialize = module$exports$jspb$internal.SUPPORTS_UINT8ARRAY ? function() {
   var old_toJSON = Uint8Array.prototype.toJSON;
   Uint8Array.prototype.toJSON = function() {
     return goog.crypt.base64.encodeByteArray(this);
@@ -20206,18 +20225,16 @@ module$contents$jspb$Message_Message.prototype.serialize = module$contents$jspb$
   return JSON.stringify(this.array && module$contents$jspb$Message_prepareForSerialize(module$contents$jspb$Message_toArrayHelper(this, !0), this), module$contents$jspb$Message_serializeSpecialNumbers);
 };
 var module$contents$jspb$Message_prepareForSerialize = function(array, msg) {
-  if (module$contents$jspb$Message_Message.SERIALIZE_EMPTY_TRAILING_FIELDS) {
-    return array;
-  }
+  return array;
   for (var result, length = array.length, needsCopy = !1, extension, i = array.length; i--;) {
     var value = array[i];
     if (Array.isArray(value)) {
-      var nestedMsg = Array.isArray(msg) ? msg[i] : msg && msg.wrappers_ ? msg.wrappers_[module$contents$jspb$Message_Message.getFieldNumber(msg, i)] : void 0;
+      var nestedMsg = Array.isArray(msg) ? msg[i] : msg && msg.wrappers_ ? msg.wrappers_[module$contents$jspb$internal_fieldNumberFromIndex(msg, i)] : void 0;
       value = module$contents$jspb$Message_prepareForSerialize(value, nestedMsg);
-      !value.length && msg && (Array.isArray(msg) || msg.repeatedFields && -1 != msg.repeatedFields.indexOf(module$contents$jspb$Message_Message.getFieldNumber(msg, i)) && (value = null));
+      !value.length && msg && (Array.isArray(msg) || msg.repeatedFields && -1 != msg.repeatedFields.indexOf(module$contents$jspb$internal_fieldNumberFromIndex(msg, i)) && (value = null));
       value != array[i] && (needsCopy = !0);
     } else {
-      if (module$contents$jspb$Message_Message.isExtensionObject(value)) {
+      if (module$contents$jspb$internal_isExtensionObject(value)) {
         extension = module$contents$jspb$Message_prepareExtensionForSerialize(value, msg && goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message));
         extension != value && (needsCopy = !0);
         length--;
@@ -20235,7 +20252,7 @@ var module$contents$jspb$Message_prepareForSerialize = function(array, msg) {
 }, module$contents$jspb$Message_prepareExtensionForSerialize = function(extension, msg) {
   var result = {}, changed = !1, key;
   for (key in extension) {
-    if (module$contents$jspb$Message_hasOwnProperty(extension, key)) {
+    if (module$contents$jspb$internal_hasOwnPropertyIfNotTrusted(extension, key)) {
       var value = extension[key];
       if (Array.isArray(value)) {
         var prepared = module$contents$jspb$Message_prepareForSerialize(value, msg && msg.wrappers_ && msg.wrappers_[key]);
@@ -20261,38 +20278,38 @@ module$contents$jspb$Message_Message.deserializeWithCtor = function(ctor, data) 
   goog.asserts.assertInstanceof(msg, module$contents$jspb$Message_Message);
   return msg;
 };
-module$contents$jspb$Message_Message.GENERATE_TO_STRING && (module$contents$jspb$Message_Message.prototype.toString = function() {
+module$contents$jspb$Message_Message.prototype.toString = function() {
   return module$contents$jspb$Message_toArrayHelper(this, !0).toString();
-});
+};
 module$contents$jspb$Message_Message.prototype.getExtension = function(fieldInfo) {
   module$contents$jspb$Message_maybeInitEmptyExtensionObject(this);
   this.wrappers_ || (this.wrappers_ = {});
-  var isFrozen = module$contents$jspb$Message_Message.isFrozen(this), fieldNumber = fieldInfo.fieldIndex;
+  var amIFrozen = module$contents$jspb$internal_isFrozen(this), fieldNumber = fieldInfo.fieldIndex;
   if (fieldInfo.isRepeated) {
     if (fieldInfo.isMessageType()) {
-      return this.wrappers_[fieldNumber] || (this.wrappers_[fieldNumber] = module$contents$goog$array_map(this.extensionObject_[fieldNumber] || [], function(arr) {
+      return this.wrappers_[fieldNumber] || (this.wrappers_[fieldNumber] = module$contents$goog$array_map(this.extensionObject[fieldNumber] || [], function(arr) {
         var msg = new fieldInfo.ctor(arr);
-        isFrozen && module$contents$jspb$Message_Message.internalMarkFrozen(msg);
+        amIFrozen && module$contents$jspb$internal_internalMarkFrozen(msg);
         return msg;
-      })), isFrozen && module$contents$jspb$Message_Message.internalMarkFrozen(this.wrappers_[fieldNumber]), this.wrappers_[fieldNumber];
+      })), amIFrozen && module$contents$jspb$internal_internalMarkFrozen(this.wrappers_[fieldNumber]), this.wrappers_[fieldNumber];
     }
-    if (isFrozen) {
-      var res = this.extensionObject_[fieldNumber];
-      res || (res = [], module$contents$jspb$Message_Message.internalMarkFrozen(res));
+    if (amIFrozen) {
+      var res = this.extensionObject[fieldNumber];
+      res || (res = [], module$contents$jspb$internal_internalMarkFrozen(res));
       return res;
     }
-    return this.extensionObject_[fieldNumber] = this.extensionObject_[fieldNumber] || [];
+    return this.extensionObject[fieldNumber] = this.extensionObject[fieldNumber] || [];
   }
-  return fieldInfo.isMessageType() ? (!this.wrappers_[fieldNumber] && this.extensionObject_[fieldNumber] && (this.wrappers_[fieldNumber] = new fieldInfo.ctor(this.extensionObject_[fieldNumber]), isFrozen && module$contents$jspb$Message_Message.internalMarkFrozen(this.wrappers_[fieldNumber])), this.wrappers_[fieldNumber]) : this.extensionObject_[fieldNumber];
+  return fieldInfo.isMessageType() ? (!this.wrappers_[fieldNumber] && this.extensionObject[fieldNumber] && (this.wrappers_[fieldNumber] = new fieldInfo.ctor(this.extensionObject[fieldNumber]), amIFrozen && module$contents$jspb$internal_internalMarkFrozen(this.wrappers_[fieldNumber])), this.wrappers_[fieldNumber]) : this.extensionObject[fieldNumber];
 };
 module$contents$jspb$Message_Message.prototype.setExtension = function(fieldInfo, value) {
   module$contents$jspb$Message_checkNotFrozen(this);
   this.wrappers_ || (this.wrappers_ = {});
   module$contents$jspb$Message_maybeInitEmptyExtensionObject(this);
   var fieldNumber = fieldInfo.fieldIndex;
-  fieldInfo.isRepeated ? (value = value || [], fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] = value, this.extensionObject_[fieldNumber] = module$contents$goog$array_map(value, function(msg) {
+  fieldInfo.isRepeated ? (value = value || [], fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] = value, this.extensionObject[fieldNumber] = module$contents$goog$array_map(value, function(msg) {
     return module$contents$jspb$Message_toArrayHelper(msg, !0);
-  })) : this.extensionObject_[fieldNumber] = value) : fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] = value, this.extensionObject_[fieldNumber] = value ? module$contents$jspb$Message_toArrayHelper(value, !0) : value) : this.extensionObject_[fieldNumber] = value;
+  })) : this.extensionObject[fieldNumber] = value) : fieldInfo.isMessageType() ? (this.wrappers_[fieldNumber] = value, this.extensionObject[fieldNumber] = value ? module$contents$jspb$Message_toArrayHelper(value, !0) : value) : this.extensionObject[fieldNumber] = value;
   return this;
 };
 module$contents$jspb$Message_Message.difference = function(m1, m2) {
@@ -20309,18 +20326,18 @@ module$contents$jspb$Message_Message.difference = function(m1, m2) {
 module$contents$jspb$Message_Message.equals = function(m1, m2) {
   return m1 == m2 || !(!m1 || !m2) && m1 instanceof m2.constructor && module$contents$jspb$Message_Message.compareFields(module$contents$jspb$Message_toArrayHelper(m1, !0), module$contents$jspb$Message_toArrayHelper(m2, !0));
 };
-module$contents$jspb$Message_Message.compareExtensions = function(extension1, extension2) {
+var module$contents$jspb$Message_compareExtensions = function(extension1, extension2) {
   extension1 = extension1 || {};
   extension2 = extension2 || {};
   var keys = {}, name;
   for (name in extension1) {
-    module$contents$jspb$Message_hasOwnProperty(extension1, name) && (keys[name] = 0);
+    module$contents$jspb$internal_hasOwnPropertyIfNotTrusted(extension1, name) && (keys[name] = 0);
   }
   for (name in extension2) {
-    module$contents$jspb$Message_hasOwnProperty(extension2, name) && (keys[name] = 0);
+    module$contents$jspb$internal_hasOwnPropertyIfNotTrusted(extension2, name) && (keys[name] = 0);
   }
   for (name in keys) {
-    if (module$contents$jspb$Message_hasOwnProperty(keys, name) && !module$contents$jspb$Message_Message.compareFields(extension1[name], extension2[name])) {
+    if (module$contents$jspb$internal_hasOwnPropertyIfNotTrusted(keys, name) && !module$contents$jspb$Message_Message.compareFields(extension1[name], extension2[name])) {
       return !1;
     }
   }
@@ -20336,7 +20353,7 @@ module$contents$jspb$Message_Message.compareFields = function(field1, field2) {
   if (field1.constructor != field2.constructor) {
     return !1;
   }
-  if (module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ && field1.constructor === Uint8Array) {
+  if (module$exports$jspb$internal.SUPPORTS_UINT8ARRAY && field1.constructor === Uint8Array) {
     if (field1.length != field2.length) {
       return !1;
     }
@@ -20357,24 +20374,24 @@ module$contents$jspb$Message_Message.compareFields = function(field1, field2) {
         return !1;
       }
     }
-    return extension1 || extension2 ? (extension1 = extension1 || {}, extension2 = extension2 || {}, module$contents$jspb$Message_Message.compareExtensions(extension1, extension2)) : !0;
+    return extension1 || extension2 ? (extension1 = extension1 || {}, extension2 = extension2 || {}, module$contents$jspb$Message_compareExtensions(extension1, extension2)) : !0;
   }
   if (field1.constructor === Object) {
-    return module$contents$jspb$Message_Message.compareExtensions(field1, field2);
+    return module$contents$jspb$Message_compareExtensions(field1, field2);
   }
   throw Error("Invalid type in JSPB array");
 };
 module$contents$jspb$Message_Message.prototype.cloneMessage = function() {
-  return module$contents$jspb$Message_Message.cloneMessage(this);
+  return module$contents$jspb$Message_cloneMessage(this);
 };
 module$contents$jspb$Message_Message.prototype.clone = function() {
-  return module$contents$jspb$Message_Message.cloneMessage(this);
+  return module$contents$jspb$Message_cloneMessage(this);
 };
 module$contents$jspb$Message_Message.clone = function(msg) {
-  return module$contents$jspb$Message_Message.cloneMessage(msg);
+  return module$contents$jspb$Message_cloneMessage(msg);
 };
-module$contents$jspb$Message_Message.cloneMessage = function(msg) {
-  var clonedData = module$contents$jspb$Message_Message.clone_(module$contents$jspb$Message_toArrayHelper(msg, !0)), oldInitialize = module$contents$jspb$Message_Message.initialize;
+function module$contents$jspb$Message_cloneMessage(msg) {
+  var clonedData = module$contents$jspb$internal_cloneJspb(module$contents$jspb$Message_toArrayHelper(msg, !0)), oldInitialize = module$contents$jspb$Message_Message.initialize;
   module$contents$jspb$Message_Message.initialize = function(message, ignoredData, messageId, pivot, repeated, oneof) {
     oldInitialize(message, clonedData, messageId, pivot, repeated, oneof);
     module$contents$jspb$Message_Message.initialize = oldInitialize;
@@ -20382,7 +20399,7 @@ module$contents$jspb$Message_Message.cloneMessage = function(msg) {
   var newInstance = new msg.constructor(clonedData);
   module$contents$jspb$Message_Message.initialize !== oldInitialize && (module$contents$jspb$Message_Message.initialize = oldInitialize);
   return newInstance;
-};
+}
 module$contents$jspb$Message_Message.copyInto = function(fromMessage, toMessage) {
   goog.asserts.assertInstanceof(fromMessage, module$contents$jspb$Message_Message);
   goog.asserts.assertInstanceof(toMessage, module$contents$jspb$Message_Message);
@@ -20391,72 +20408,36 @@ module$contents$jspb$Message_Message.copyInto = function(fromMessage, toMessage)
     to[i] = from[i];
   }
   toMessage.wrappers_ = copyOfFrom.wrappers_;
-  toMessage.extensionObject_ = copyOfFrom.extensionObject_;
-};
-module$contents$jspb$Message_Message.clone_ = function(obj) {
-  if (Array.isArray(obj)) {
-    for (var clonedArray = Array(obj.length), i = 0; i < obj.length; i++) {
-      var o = obj[i];
-      null != o && (clonedArray[i] = "object" == typeof o ? module$contents$jspb$Message_Message.clone_(goog.asserts.assert(o)) : o);
-    }
-    return clonedArray;
-  }
-  if (module$contents$jspb$Message_Message.SUPPORTS_UINT8ARRAY_ && obj instanceof Uint8Array) {
-    return new Uint8Array(obj);
-  }
-  var clone = {}, key;
-  for (key in obj) {
-    module$contents$jspb$Message_hasOwnProperty(obj, key) && (o = obj[key], null != o && (clone[key] = "object" == typeof o ? module$contents$jspb$Message_Message.clone_(goog.asserts.assert(o)) : o));
-  }
-  return clone;
-};
-module$contents$jspb$Message_Message.isFrozen = function(msg) {
-  if (module$exports$jspb$Freezer$Loading$Info.isFreezerLoaded) {
-    var extensionObject = !msg.extensionObject_ || Object.isFrozen(msg.extensionObject_);
-    return Object.isFrozen(msg.array) && extensionObject;
-  }
-  return !1;
-};
-module$contents$jspb$Message_Message.internalMarkFrozen = function(value) {
-  goog.asserts.assert(module$exports$jspb$Freezer$Loading$Info.isFreezerLoaded);
-  Array.isArray(value) ? Object.freeze(value) : (Object.freeze(value.array), value.extensionObject_ && Object.freeze(value.extensionObject_));
+  toMessage.extensionObject = copyOfFrom.extensionObject;
 };
 var module$contents$jspb$Message_checkNotFrozen = function(msg) {
-  if (module$exports$jspb$Freezer$Loading$Info.isFreezerLoaded && module$contents$jspb$Message_Message.isFrozen(msg)) {
+  if (module$exports$jspb$Freezer$Loading$Info.isFreezerLoaded && module$contents$jspb$internal_isFrozen(msg)) {
     throw Error("Cannot mutate a frozen Message");
   }
 };
-function module$contents$jspb$Message_hasOwnProperty(obj, property) {
-  return goog.TRUSTED_SITE || Object.prototype.hasOwnProperty.call(obj, property);
-}
 jspb.Message = module$contents$jspb$Message_Message;
 var proto = {google:{}};
 proto.google.protobuf = {};
 proto.google.protobuf.Struct = function(data) {
   module$contents$jspb$Message_Message.initialize(this, data, 0, -1, null, null);
 };
-goog.inherits(proto.google.protobuf.Struct, module$contents$jspb$Message_Message);
-proto.google.protobuf.Value = function(data) {
-  module$contents$jspb$Message_Message.initialize(this, data, 0, -1, null, proto.google.protobuf.Value.oneofGroups_);
+$jscomp.inherits(proto.google.protobuf.Struct, module$contents$jspb$Message_Message);
+proto.google.protobuf.Struct.prototype.getFieldsMap = function(noLazyCreate) {
+  return this.internal_getMapField(1, noLazyCreate, proto.google.protobuf.Value);
 };
-goog.inherits(proto.google.protobuf.Value, module$contents$jspb$Message_Message);
-proto.google.protobuf.ListValue = function(data) {
-  module$contents$jspb$Message_Message.initialize(this, data, 0, -1, proto.google.protobuf.ListValue.repeatedFields_, null);
+proto.google.protobuf.Struct.prototype.clearFieldsMap = function() {
+  this.getFieldsMap().clear();
+  return this;
 };
-goog.inherits(proto.google.protobuf.ListValue, module$contents$jspb$Message_Message);
-module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Struct.prototype.toObject = function(includeInstance) {
-  return proto.google.protobuf.Struct.toObject(includeInstance, this);
-}, proto.google.protobuf.Struct.toObject = function(includeInstance, msg) {
-  var f, obj = {fieldsMap:(f = msg.getFieldsMap()) ? f.toObject(includeInstance, proto.google.protobuf.Value.toObject) : []};
-  includeInstance && (obj.$jspbMessageInstance = msg);
-  return obj;
-});
-module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Struct.ObjectFormat = function() {
-}, proto.google.protobuf.Struct.fromObject = function(obj) {
-  var msg = new proto.google.protobuf.Struct;
-  obj.fieldsMap && msg.internal_setWrapperField(1, module$contents$jspb$Map_Map.fromObject(obj.fieldsMap, proto.google.protobuf.Value, proto.google.protobuf.Value.fromObject));
-  return msg;
-});
+proto.google.protobuf.Struct.prototype.serializeBinary = function() {
+  var writer = new module$contents$jspb$BinaryWriter_BinaryWriter;
+  proto.google.protobuf.Struct.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+proto.google.protobuf.Struct.serializeBinaryToWriter = function(message, writer) {
+  var f;
+  (f = message.getFieldsMap(!0)) && 0 < f.getLength() && f.serializeBinary(1, writer, module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeString, module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeMessage, proto.google.protobuf.Value.serializeBinaryToWriter);
+};
 proto.google.protobuf.Struct.deserializeBinary = function(bytes) {
   return proto.google.protobuf.Struct.deserializeBinaryFromReader(new proto.google.protobuf.Struct, new module$contents$jspb$BinaryReader_BinaryReader(bytes));
 };
@@ -20476,105 +20457,15 @@ proto.google.protobuf.Struct.deserializeBinaryFromReader = function(msg, reader$
   }
   return msg;
 };
-proto.google.protobuf.Struct.prototype.serializeBinary = function() {
-  var writer = new module$contents$jspb$BinaryWriter_BinaryWriter;
-  proto.google.protobuf.Struct.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-proto.google.protobuf.Struct.serializeBinaryToWriter = function(message, writer) {
-  var f;
-  (f = message.getFieldsMap(!0)) && 0 < f.getLength() && f.serializeBinary(1, writer, module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeString, module$contents$jspb$BinaryWriter_BinaryWriter.prototype.writeMessage, proto.google.protobuf.Value.serializeBinaryToWriter);
-};
-proto.google.protobuf.Struct.prototype.getFieldsMap = function(noLazyCreate) {
-  return this.internal_getMapField(1, noLazyCreate, proto.google.protobuf.Value);
-};
-proto.google.protobuf.Struct.prototype.clearFieldsMap = function() {
-  this.getFieldsMap().clear();
-  return this;
-};
 proto.google.protobuf.Struct.deserialize = function(data) {
   return module$contents$jspb$Message_Message.deserializeWithCtor(proto.google.protobuf.Struct, data);
 };
-proto.google.protobuf.Value.oneofGroups_ = [[1, 2, 3, 4, 5, 6]];
-proto.google.protobuf.Value.KindCase = {KIND_NOT_SET:0, NULL_VALUE:1, NUMBER_VALUE:2, STRING_VALUE:3, BOOL_VALUE:4, STRUCT_VALUE:5, LIST_VALUE:6};
+proto.google.protobuf.Value = function(data) {
+  module$contents$jspb$Message_Message.initialize(this, data, 0, -1, null, proto.google.protobuf.Value.oneofGroups_);
+};
+$jscomp.inherits(proto.google.protobuf.Value, module$contents$jspb$Message_Message);
 proto.google.protobuf.Value.prototype.getKindCase = function() {
   return this.internal_computeOneofCase(proto.google.protobuf.Value.oneofGroups_[0]);
-};
-module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Value.prototype.toObject = function(includeInstance) {
-  return proto.google.protobuf.Value.toObject(includeInstance, this);
-}, proto.google.protobuf.Value.toObject = function(includeInstance, msg) {
-  var f, obj = {nullValue:null == (f = msg.internal_getField(1)) ? void 0 : f, numberValue:null == (f = msg.internal_getOptionalFloatingPointField(2)) ? void 0 : f, stringValue:null == (f = msg.internal_getField(3)) ? void 0 : f, boolValue:null == (f = msg.internal_getBooleanField(4)) ? void 0 : f, structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && proto.google.protobuf.ListValue.toObject(includeInstance, f)};
-  includeInstance && (obj.$jspbMessageInstance = msg);
-  return obj;
-});
-module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Value.ObjectFormat = function() {
-}, proto.google.protobuf.Value.fromObject = function(obj) {
-  var msg = new proto.google.protobuf.Value;
-  null != obj.nullValue && msg.internal_setOneofField(1, proto.google.protobuf.Value.oneofGroups_[0], obj.nullValue);
-  null != obj.numberValue && msg.internal_setOneofField(2, proto.google.protobuf.Value.oneofGroups_[0], obj.numberValue);
-  null != obj.stringValue && msg.internal_setOneofField(3, proto.google.protobuf.Value.oneofGroups_[0], obj.stringValue);
-  null != obj.boolValue && msg.internal_setOneofField(4, proto.google.protobuf.Value.oneofGroups_[0], obj.boolValue);
-  obj.structValue && msg.internal_setOneofWrapperField(5, proto.google.protobuf.Value.oneofGroups_[0], proto.google.protobuf.Struct.fromObject(obj.structValue));
-  obj.listValue && msg.internal_setOneofWrapperField(6, proto.google.protobuf.Value.oneofGroups_[0], proto.google.protobuf.ListValue.fromObject(obj.listValue));
-  return msg;
-});
-proto.google.protobuf.Value.deserializeBinary = function(bytes) {
-  return proto.google.protobuf.Value.deserializeBinaryFromReader(new proto.google.protobuf.Value, new module$contents$jspb$BinaryReader_BinaryReader(bytes));
-};
-proto.google.protobuf.Value.deserializeBinaryFromReader = function(msg, reader) {
-  for (; reader.nextField() && !reader.isEndGroup();) {
-    var value = void 0;
-    switch(reader.getFieldNumber()) {
-      case 1:
-        value = reader.readEnum();
-        msg.setNullValue(value);
-        break;
-      case 2:
-        value = reader.readDouble();
-        msg.setNumberValue(value);
-        break;
-      case 3:
-        value = reader.readString();
-        msg.setStringValue(value);
-        break;
-      case 4:
-        value = reader.readBool();
-        msg.setBoolValue(value);
-        break;
-      case 5:
-        value = new proto.google.protobuf.Struct;
-        reader.readMessage(value, proto.google.protobuf.Struct.deserializeBinaryFromReader);
-        msg.setStructValue(value);
-        break;
-      case 6:
-        value = new proto.google.protobuf.ListValue;
-        reader.readMessage(value, proto.google.protobuf.ListValue.deserializeBinaryFromReader);
-        msg.setListValue(value);
-        break;
-      default:
-        reader.skipField();
-    }
-  }
-  return msg;
-};
-proto.google.protobuf.Value.prototype.serializeBinary = function() {
-  var writer = new module$contents$jspb$BinaryWriter_BinaryWriter;
-  proto.google.protobuf.Value.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-proto.google.protobuf.Value.serializeBinaryToWriter = function(message, writer) {
-  var f = message.internal_getField(1);
-  null != f && writer.writeEnum(1, f);
-  f = message.internal_getField(2);
-  null != f && writer.writeDouble(2, f);
-  f = message.internal_getField(3);
-  null != f && writer.writeString(3, f);
-  f = message.internal_getField(4);
-  null != f && writer.writeBool(4, f);
-  f = message.getStructValue();
-  null != f && writer.writeMessage(5, f, proto.google.protobuf.Struct.serializeBinaryToWriter);
-  f = message.getListValue();
-  null != f && writer.writeMessage(6, f, proto.google.protobuf.ListValue.serializeBinaryToWriter);
 };
 proto.google.protobuf.Value.prototype.getNullValue = function() {
   return this.internal_getFieldWithDefault(1, 0);
@@ -20648,23 +20539,92 @@ proto.google.protobuf.Value.prototype.clearListValue = function() {
 proto.google.protobuf.Value.prototype.hasListValue = function() {
   return this.internal_hasField(6);
 };
+proto.google.protobuf.Value.prototype.serializeBinary = function() {
+  var writer = new module$contents$jspb$BinaryWriter_BinaryWriter;
+  proto.google.protobuf.Value.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+proto.google.protobuf.Value.serializeBinaryToWriter = function(message, writer) {
+  var f = message.internal_getField(1);
+  null != f && writer.writeEnum(1, f);
+  f = message.internal_getField(2);
+  null != f && writer.writeDouble(2, f);
+  f = message.internal_getField(3);
+  null != f && writer.writeString(3, f);
+  f = message.internal_getField(4);
+  null != f && writer.writeBool(4, f);
+  f = message.getStructValue();
+  null != f && writer.writeMessage(5, f, proto.google.protobuf.Struct.serializeBinaryToWriter);
+  f = message.getListValue();
+  null != f && writer.writeMessage(6, f, proto.google.protobuf.ListValue.serializeBinaryToWriter);
+};
+proto.google.protobuf.Value.deserializeBinary = function(bytes) {
+  return proto.google.protobuf.Value.deserializeBinaryFromReader(new proto.google.protobuf.Value, new module$contents$jspb$BinaryReader_BinaryReader(bytes));
+};
+proto.google.protobuf.Value.deserializeBinaryFromReader = function(msg, reader) {
+  for (; reader.nextField() && !reader.isEndGroup();) {
+    var value = void 0;
+    switch(reader.getFieldNumber()) {
+      case 1:
+        value = reader.readEnum();
+        msg.setNullValue(value);
+        break;
+      case 2:
+        value = reader.readDouble();
+        msg.setNumberValue(value);
+        break;
+      case 3:
+        value = reader.readString();
+        msg.setStringValue(value);
+        break;
+      case 4:
+        value = reader.readBool();
+        msg.setBoolValue(value);
+        break;
+      case 5:
+        value = new proto.google.protobuf.Struct;
+        reader.readMessage(value, proto.google.protobuf.Struct.deserializeBinaryFromReader);
+        msg.setStructValue(value);
+        break;
+      case 6:
+        value = new proto.google.protobuf.ListValue;
+        reader.readMessage(value, proto.google.protobuf.ListValue.deserializeBinaryFromReader);
+        msg.setListValue(value);
+        break;
+      default:
+        reader.skipField();
+    }
+  }
+  return msg;
+};
 proto.google.protobuf.Value.deserialize = function(data) {
   return module$contents$jspb$Message_Message.deserializeWithCtor(proto.google.protobuf.Value, data);
 };
-proto.google.protobuf.ListValue.repeatedFields_ = [1];
-module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.ListValue.prototype.toObject = function(includeInstance) {
-  return proto.google.protobuf.ListValue.toObject(includeInstance, this);
-}, proto.google.protobuf.ListValue.toObject = function(includeInstance, msg) {
-  var f, obj = {valuesList:module$contents$jspb$Message_Message.toObjectList(msg.getValuesList(), proto.google.protobuf.Value.toObject, includeInstance)};
-  includeInstance && (obj.$jspbMessageInstance = msg);
-  return obj;
-});
-module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.ListValue.ObjectFormat = function() {
-}, proto.google.protobuf.ListValue.fromObject = function(obj) {
-  var msg = new proto.google.protobuf.ListValue;
-  obj.valuesList && msg.internal_setRepeatedWrapperField(1, obj.valuesList.map(proto.google.protobuf.Value.fromObject));
-  return msg;
-});
+proto.google.protobuf.ListValue = function(data) {
+  module$contents$jspb$Message_Message.initialize(this, data, 0, -1, proto.google.protobuf.ListValue.repeatedFields_, null);
+};
+$jscomp.inherits(proto.google.protobuf.ListValue, module$contents$jspb$Message_Message);
+proto.google.protobuf.ListValue.prototype.getValuesList = function() {
+  return this.internal_getRepeatedWrapperField(proto.google.protobuf.Value, 1);
+};
+proto.google.protobuf.ListValue.prototype.setValuesList = function(value) {
+  return this.internal_setRepeatedWrapperField(1, value);
+};
+proto.google.protobuf.ListValue.prototype.addValues = function(value, index) {
+  return this.internal_addToRepeatedWrapperField(1, value, proto.google.protobuf.Value, index);
+};
+proto.google.protobuf.ListValue.prototype.clearValuesList = function() {
+  return this.internal_clearRepeatedWrapperField(1);
+};
+proto.google.protobuf.ListValue.prototype.serializeBinary = function() {
+  var writer = new module$contents$jspb$BinaryWriter_BinaryWriter;
+  proto.google.protobuf.ListValue.serializeBinaryToWriter(this, writer);
+  return writer.getResultBuffer();
+};
+proto.google.protobuf.ListValue.serializeBinaryToWriter = function(message, writer) {
+  var f = message.getValuesList();
+  0 < f.length && writer.writeRepeatedMessage(1, f, proto.google.protobuf.Value.serializeBinaryToWriter);
+};
 proto.google.protobuf.ListValue.deserializeBinary = function(bytes) {
   return proto.google.protobuf.ListValue.deserializeBinaryFromReader(new proto.google.protobuf.ListValue, new module$contents$jspb$BinaryReader_BinaryReader(bytes));
 };
@@ -20683,30 +20643,56 @@ proto.google.protobuf.ListValue.deserializeBinaryFromReader = function(msg, read
   }
   return msg;
 };
-proto.google.protobuf.ListValue.prototype.serializeBinary = function() {
-  var writer = new module$contents$jspb$BinaryWriter_BinaryWriter;
-  proto.google.protobuf.ListValue.serializeBinaryToWriter(this, writer);
-  return writer.getResultBuffer();
-};
-proto.google.protobuf.ListValue.serializeBinaryToWriter = function(message, writer) {
-  var f = message.getValuesList();
-  0 < f.length && writer.writeRepeatedMessage(1, f, proto.google.protobuf.Value.serializeBinaryToWriter);
-};
-proto.google.protobuf.ListValue.prototype.getValuesList = function() {
-  return this.internal_getRepeatedWrapperField(proto.google.protobuf.Value, 1);
-};
-proto.google.protobuf.ListValue.prototype.setValuesList = function(value) {
-  return this.internal_setRepeatedWrapperField(1, value);
-};
-proto.google.protobuf.ListValue.prototype.addValues = function(value, index) {
-  return this.internal_addToRepeatedWrapperField(1, value, proto.google.protobuf.Value, index);
-};
-proto.google.protobuf.ListValue.prototype.clearValuesList = function() {
-  return this.internal_clearRepeatedWrapperField(1);
-};
 proto.google.protobuf.ListValue.deserialize = function(data) {
   return module$contents$jspb$Message_Message.deserializeWithCtor(proto.google.protobuf.ListValue, data);
 };
+module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Struct.ObjectFormat = function() {
+}, proto.google.protobuf.Struct.fromObject = function(obj) {
+  var msg = new proto.google.protobuf.Struct;
+  obj.fieldsMap && msg.internal_setWrapperField(1, module$contents$jspb$Map_Map.fromObject(obj.fieldsMap, proto.google.protobuf.Value, proto.google.protobuf.Value.fromObject));
+  return msg;
+});
+module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Struct.prototype.toObject = function(includeInstance) {
+  return proto.google.protobuf.Struct.toObject(includeInstance, this);
+}, proto.google.protobuf.Struct.toObject = function(includeInstance, msg) {
+  var f, obj = {fieldsMap:(f = msg.getFieldsMap()) ? f.toObject(includeInstance, proto.google.protobuf.Value.toObject) : []};
+  includeInstance && (obj.$jspbMessageInstance = msg);
+  return obj;
+});
+proto.google.protobuf.Value.oneofGroups_ = [[1, 2, 3, 4, 5, 6]];
+proto.google.protobuf.Value.KindCase = {KIND_NOT_SET:0, NULL_VALUE:1, NUMBER_VALUE:2, STRING_VALUE:3, BOOL_VALUE:4, STRUCT_VALUE:5, LIST_VALUE:6};
+module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.Value.ObjectFormat = function() {
+}, proto.google.protobuf.Value.fromObject = function(obj) {
+  var msg = new proto.google.protobuf.Value;
+  null != obj.nullValue && msg.internal_setOneofField(1, proto.google.protobuf.Value.oneofGroups_[0], obj.nullValue);
+  null != obj.numberValue && msg.internal_setOneofField(2, proto.google.protobuf.Value.oneofGroups_[0], obj.numberValue);
+  null != obj.stringValue && msg.internal_setOneofField(3, proto.google.protobuf.Value.oneofGroups_[0], obj.stringValue);
+  null != obj.boolValue && msg.internal_setOneofField(4, proto.google.protobuf.Value.oneofGroups_[0], obj.boolValue);
+  obj.structValue && msg.internal_setOneofWrapperField(5, proto.google.protobuf.Value.oneofGroups_[0], proto.google.protobuf.Struct.fromObject(obj.structValue));
+  obj.listValue && msg.internal_setOneofWrapperField(6, proto.google.protobuf.Value.oneofGroups_[0], proto.google.protobuf.ListValue.fromObject(obj.listValue));
+  return msg;
+});
+module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.Value.prototype.toObject = function(includeInstance) {
+  return proto.google.protobuf.Value.toObject(includeInstance, this);
+}, proto.google.protobuf.Value.toObject = function(includeInstance, msg) {
+  var f, obj = {nullValue:null == (f = msg.internal_getField(1)) ? void 0 : f, numberValue:null == (f = msg.internal_getOptionalFloatingPointField(2)) ? void 0 : f, stringValue:null == (f = msg.internal_getField(3)) ? void 0 : f, boolValue:null == (f = msg.internal_getBooleanField(4)) ? void 0 : f, structValue:(f = msg.getStructValue()) && proto.google.protobuf.Struct.toObject(includeInstance, f), listValue:(f = msg.getListValue()) && proto.google.protobuf.ListValue.toObject(includeInstance, f)};
+  includeInstance && (obj.$jspbMessageInstance = msg);
+  return obj;
+});
+proto.google.protobuf.ListValue.repeatedFields_ = [1];
+module$contents$jspb$Message_Message.GENERATE_FROM_OBJECT && (proto.google.protobuf.ListValue.ObjectFormat = function() {
+}, proto.google.protobuf.ListValue.fromObject = function(obj) {
+  var msg = new proto.google.protobuf.ListValue;
+  obj.valuesList && msg.internal_setRepeatedWrapperField(1, obj.valuesList.map(proto.google.protobuf.Value.fromObject));
+  return msg;
+});
+module$contents$jspb$Message_Message.GENERATE_TO_OBJECT && (proto.google.protobuf.ListValue.prototype.toObject = function(includeInstance) {
+  return proto.google.protobuf.ListValue.toObject(includeInstance, this);
+}, proto.google.protobuf.ListValue.toObject = function(includeInstance, msg) {
+  var f, obj = {valuesList:module$contents$jspb$internal$public_for_gencode_toObjectList(msg.getValuesList(), proto.google.protobuf.Value.toObject, includeInstance)};
+  includeInstance && (obj.$jspbMessageInstance = msg);
+  return obj;
+});
 proto.google.protobuf.NullValue = {NULL_VALUE:0};
 proto.google.protobuf.Value.prototype.toJavaScript = function() {
   var kindCase = proto.google.protobuf.Value.KindCase;
@@ -23160,19 +23146,19 @@ module$contents$ee$batch_Export.map.toCloudStorage = function(image, opt_descrip
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
 goog.exportSymbol("module$contents$ee$batch_Export.map.toCloudStorage", module$contents$ee$batch_Export.map.toCloudStorage);
-module$contents$ee$batch_Export.table.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat, opt_selectors) {
+module$contents$ee$batch_Export.table.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat, opt_selectors, opt_maxVertices) {
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.table.toCloudStorage, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.TABLE);
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
 goog.exportSymbol("module$contents$ee$batch_Export.table.toCloudStorage", module$contents$ee$batch_Export.table.toCloudStorage);
-module$contents$ee$batch_Export.table.toDrive = function(collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat, opt_selectors) {
+module$contents$ee$batch_Export.table.toDrive = function(collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat, opt_selectors, opt_maxVertices) {
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.table.toDrive, arguments);
   clientConfig.type = ee.data.ExportType.TABLE;
   var serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DRIVE, ee.data.ExportType.TABLE);
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
 goog.exportSymbol("module$contents$ee$batch_Export.table.toDrive", module$contents$ee$batch_Export.table.toDrive);
-module$contents$ee$batch_Export.table.toAsset = function(collection, opt_description, opt_assetId) {
+module$contents$ee$batch_Export.table.toAsset = function(collection, opt_description, opt_assetId, opt_maxVertices) {
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.table.toAsset, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.ASSET, ee.data.ExportType.TABLE);
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
@@ -26555,26 +26541,26 @@ ee.SavedFunction.prototype.getSignature = function() {
   return this.signature_;
 };
 (function() {
-  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction._apply ee.ApiFunction.lookup ee.ApiFunction._call ee.batch.Export.image.toDrive ee.batch.Export.map.toCloudStorage ee.batch.Export.video.toDrive ee.batch.Export.image.toCloudStorage ee.batch.Export.image.toAsset ee.batch.Export.video.toCloudStorage ee.batch.Export.table.toDrive ee.batch.Export.table.toCloudStorage ee.batch.Export.table.toAsset ee.batch.Export.videoMap.toCloudStorage ee.Collection.prototype.sort ee.Collection.prototype.map ee.Collection.prototype.filterMetadata ee.Collection.prototype.iterate ee.Collection.prototype.filterBounds ee.Collection.prototype.filterDate ee.Collection.prototype.limit ee.Collection.prototype.filter ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.evaluate ee.ComputedObject.prototype.getInfo ee.data.deleteAsset ee.data.getAssetRootQuota ee.data.startTableIngestion ee.data.authenticateViaPopup ee.data.getAssetAcl ee.data.getAsset ee.data.getTableDownloadId ee.data.authenticateViaPrivateKey ee.data.makeTableDownloadUrl ee.data.getInfo ee.data.newTaskId ee.data.getList ee.data.updateAsset ee.data.getTaskStatus ee.data.authenticate ee.data.authenticateViaOauth ee.data.listAssets ee.data.getTaskList ee.data.setAssetAcl ee.data.getTileUrl ee.data.setAssetProperties ee.data.makeThumbUrl ee.data.getMapId ee.data.listBuckets ee.data.listImages ee.data.getTaskListWithLimit ee.data.listOperations ee.data.getAssetRoots ee.data.createAssetHome ee.data.computeValue ee.data.cancelOperation ee.data.getVideoThumbId ee.data.createAsset ee.data.getThumbId ee.data.getOperation ee.data.getFilmstripThumbId ee.data.createFolder ee.data.cancelTask ee.data.startIngestion ee.data.makeDownloadUrl ee.data.renameAsset ee.data.getDownloadId ee.data.updateTask ee.data.copyAsset ee.data.startProcessing ee.Date ee.Deserializer.decodeCloudApi ee.Deserializer.fromJSON ee.Deserializer.fromCloudApiJSON ee.Deserializer.decode ee.Dictionary ee.Algorithms ee.apply ee.initialize ee.InitState ee.reset ee.call ee.TILE_SIZE ee.Element.prototype.set ee.Feature ee.Feature.prototype.getMap ee.Feature.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getInfo ee.Filter.eq ee.Filter.neq ee.Filter.bounds ee.Filter ee.Filter.gte ee.Filter.or ee.Filter.date ee.Filter.inList ee.Filter.metadata ee.Filter.lte ee.Filter.lt ee.Filter.gt ee.Filter.and ee.Filter.prototype.not ee.Function.prototype.call ee.Function.prototype.apply ee.Geometry.LinearRing ee.Geometry.Point ee.Geometry ee.Geometry.MultiPoint ee.Geometry.MultiLineString ee.Geometry.prototype.toGeoJSON ee.Geometry.Polygon ee.Geometry.LineString ee.Geometry.Rectangle ee.Geometry.prototype.toGeoJSONString ee.Geometry.BBox ee.Geometry.prototype.serialize ee.Geometry.MultiPolygon ee.Image.prototype.expression ee.Image.prototype.select ee.Image ee.Image.prototype.getThumbURL ee.Image.prototype.rename ee.Image.prototype.clip ee.Image.prototype.getInfo ee.Image.cat ee.Image.prototype.getDownloadURL ee.Image.prototype.getMap ee.Image.rgb ee.Image.prototype.getThumbId ee.ImageCollection ee.ImageCollection.prototype.select ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.first ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection.prototype.getInfo ee.List ee.Number ee.Serializer.toReadableCloudApiJSON ee.Serializer.toJSON ee.Serializer.toCloudApiJSON ee.Serializer.encode ee.Serializer.encodeCloudApi ee.Serializer.encodeCloudApiPretty ee.Serializer.toReadableJSON ee.String ee.Terrain".split(" "), 
-  orderedParamLists = [["name", "namedArgs"], ["name"], ["name", "var_args"], "image opt_description opt_folder opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey opt_bucketCorsUris".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), 
-  "image opt_description opt_bucket opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), 
-  "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors".split(" "), ["collection", "opt_description", "opt_assetId"], "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris".split(" "), 
-  ["property", "opt_ascending"], ["algorithm", "opt_dropNulls"], ["name", "operator", "value"], ["algorithm", "opt_first"], ["geometry"], ["start", "opt_end"], ["max", "opt_property", "opt_ascending"], ["filter"], ["func", "var_args"], ["legacy"], ["callback"], ["opt_callback"], ["assetId", "opt_callback"], ["rootId", "opt_callback"], ["taskId", "request", "opt_callback"], ["opt_success", "opt_error"], ["assetId", "opt_callback"], ["id", "opt_callback"], ["params", "opt_callback"], ["privateKey", 
-  "opt_success", "opt_error", "opt_extraScopes", "opt_suppressDefaultScopes"], ["id"], ["id", "opt_callback"], ["opt_count", "opt_callback"], ["params", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["taskId", "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], "clientId success opt_error opt_extraScopes opt_onImmediateFailed opt_suppressDefaultScopes".split(" "), ["parent", "params", "opt_callback"], ["opt_callback"], ["assetId", 
-  "aclUpdate", "opt_callback"], ["id", "x", "y", "z"], ["assetId", "properties", "opt_callback"], ["id"], ["params", "opt_callback"], ["project", "opt_callback"], ["parent", "params", "opt_callback"], ["opt_limit", "opt_callback"], ["opt_limit", "opt_callback"], ["opt_callback"], ["requestedId", "opt_callback"], ["obj", "opt_callback"], ["operationName", "opt_callback"], ["params", "opt_callback"], ["value", "opt_path", "opt_force", "opt_properties", "opt_callback"], ["params", "opt_callback"], ["operationName", 
-  "opt_callback"], ["params", "opt_callback"], ["path", "opt_force", "opt_callback"], ["taskId", "opt_callback"], ["taskId", "request", "opt_callback"], ["id"], ["sourceId", "destinationId", "opt_callback"], ["params", "opt_callback"], ["taskId", "action", "opt_callback"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["taskId", "params", "opt_callback"], ["date", "opt_tz"], ["json"], ["json"], ["json"], ["json"], ["opt_dict"], [], ["func", "namedArgs"], ["opt_baseurl", "opt_tileurl", 
-  "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], [], [], ["func", "var_args"], [], ["var_args"], ["geometry", "opt_properties"], ["opt_visParams", "opt_callback"], ["opt_callback"], ["args", "opt_column"], ["opt_visParams", "opt_callback"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["opt_callback"], ["name", "value"], ["name", "value"], ["geometry", "opt_errorMargin"], ["opt_filter"], ["name", 
-  "value"], ["var_args"], ["start", "opt_end"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], ["name", "operator", "value"], ["name", "value"], ["name", "value"], ["name", "value"], ["var_args"], [], ["var_args"], ["namedArgs"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], ["coords", "opt_proj", "opt_geodesic", 
-  "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], [], ["west", "south", "east", "north"], ["legacy"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["expression", "opt_map"], ["var_args"], ["opt_args"], ["params", "opt_callback"], ["var_args"], ["geometry"], ["opt_callback"], ["var_args"], ["params", "opt_callback"], ["opt_visParams", "opt_callback"], ["r", "g", "b"], ["params", 
-  "opt_callback"], ["args"], ["selectors", "opt_names"], ["opt_visParams", "opt_callback"], [], ["params", "opt_callback"], ["params", "opt_callback"], ["opt_callback"], ["list"], ["number"], ["obj"], ["obj"], ["obj"], ["obj", "opt_isCompound"], ["obj"], ["obj"], ["obj"], ["string"], []];
-  [ee.ApiFunction._apply, ee.ApiFunction.lookup, ee.ApiFunction._call, module$contents$ee$batch_Export.image.toDrive, module$contents$ee$batch_Export.map.toCloudStorage, module$contents$ee$batch_Export.video.toDrive, module$contents$ee$batch_Export.image.toCloudStorage, module$contents$ee$batch_Export.image.toAsset, module$contents$ee$batch_Export.video.toCloudStorage, module$contents$ee$batch_Export.table.toDrive, module$contents$ee$batch_Export.table.toCloudStorage, module$contents$ee$batch_Export.table.toAsset, 
-  module$contents$ee$batch_Export.videoMap.toCloudStorage, ee.Collection.prototype.sort, ee.Collection.prototype.map, ee.Collection.prototype.filterMetadata, ee.Collection.prototype.iterate, ee.Collection.prototype.filterBounds, ee.Collection.prototype.filterDate, ee.Collection.prototype.limit, ee.Collection.prototype.filter, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.serialize, ee.ComputedObject.prototype.evaluate, ee.ComputedObject.prototype.getInfo, ee.data.deleteAsset, ee.data.getAssetRootQuota, 
-  ee.data.startTableIngestion, ee.data.authenticateViaPopup, ee.data.getAssetAcl, ee.data.getAsset, ee.data.getTableDownloadId, ee.data.authenticateViaPrivateKey, ee.data.makeTableDownloadUrl, ee.data.getInfo, ee.data.newTaskId, ee.data.getList, ee.data.updateAsset, ee.data.getTaskStatus, ee.data.authenticate, ee.data.authenticateViaOauth, ee.data.listAssets, ee.data.getTaskList, ee.data.setAssetAcl, ee.data.getTileUrl, ee.data.setAssetProperties, ee.data.makeThumbUrl, ee.data.getMapId, ee.data.listBuckets, 
-  ee.data.listImages, ee.data.getTaskListWithLimit, ee.data.listOperations, ee.data.getAssetRoots, ee.data.createAssetHome, ee.data.computeValue, ee.data.cancelOperation, ee.data.getVideoThumbId, ee.data.createAsset, ee.data.getThumbId, ee.data.getOperation, ee.data.getFilmstripThumbId, ee.data.createFolder, ee.data.cancelTask, ee.data.startIngestion, ee.data.makeDownloadUrl, ee.data.renameAsset, ee.data.getDownloadId, ee.data.updateTask, ee.data.copyAsset, ee.data.startProcessing, ee.Date, ee.Deserializer.decodeCloudApi, 
-  ee.Deserializer.fromJSON, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.decode, ee.Dictionary, ee.Algorithms, ee.apply, ee.initialize, ee.InitState, ee.reset, ee.call, ee.TILE_SIZE, ee.Element.prototype.set, ee.Feature, ee.Feature.prototype.getMap, ee.Feature.prototype.getInfo, ee.FeatureCollection, ee.FeatureCollection.prototype.getMap, ee.FeatureCollection.prototype.getDownloadURL, ee.FeatureCollection.prototype.select, ee.FeatureCollection.prototype.getInfo, ee.Filter.eq, ee.Filter.neq, 
-  ee.Filter.bounds, ee.Filter, ee.Filter.gte, ee.Filter.or, ee.Filter.date, ee.Filter.inList, ee.Filter.metadata, ee.Filter.lte, ee.Filter.lt, ee.Filter.gt, ee.Filter.and, ee.Filter.prototype.not, ee.Function.prototype.call, ee.Function.prototype.apply, ee.Geometry.LinearRing, ee.Geometry.Point, ee.Geometry, ee.Geometry.MultiPoint, ee.Geometry.MultiLineString, ee.Geometry.prototype.toGeoJSON, ee.Geometry.Polygon, ee.Geometry.LineString, ee.Geometry.Rectangle, ee.Geometry.prototype.toGeoJSONString, 
-  ee.Geometry.BBox, ee.Geometry.prototype.serialize, ee.Geometry.MultiPolygon, ee.Image.prototype.expression, ee.Image.prototype.select, ee.Image, ee.Image.prototype.getThumbURL, ee.Image.prototype.rename, ee.Image.prototype.clip, ee.Image.prototype.getInfo, ee.Image.cat, ee.Image.prototype.getDownloadURL, ee.Image.prototype.getMap, ee.Image.rgb, ee.Image.prototype.getThumbId, ee.ImageCollection, ee.ImageCollection.prototype.select, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.first, 
-  ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection.prototype.getInfo, ee.List, ee.Number, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.toJSON, ee.Serializer.toCloudApiJSON, ee.Serializer.encode, ee.Serializer.encodeCloudApi, ee.Serializer.encodeCloudApiPretty, ee.Serializer.toReadableJSON, ee.String, ee.Terrain].forEach(function(fn, i) {
+  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction.lookup ee.ApiFunction._apply ee.ApiFunction._call ee.batch.Export.map.toCloudStorage ee.batch.Export.table.toAsset ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.image.toCloudStorage ee.batch.Export.image.toAsset ee.batch.Export.video.toDrive ee.batch.Export.video.toCloudStorage ee.batch.Export.table.toDrive ee.batch.Export.table.toCloudStorage ee.batch.Export.image.toDrive ee.Collection.prototype.iterate ee.Collection.prototype.filterDate ee.Collection.prototype.filterBounds ee.Collection.prototype.limit ee.Collection.prototype.filter ee.Collection.prototype.sort ee.Collection.prototype.map ee.Collection.prototype.filterMetadata ee.ComputedObject.prototype.evaluate ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.aside ee.data.getTaskList ee.data.deleteAsset ee.data.startTableIngestion ee.data.getAssetAcl ee.data.startProcessing ee.data.getAsset ee.data.updateTask ee.data.getInfo ee.data.getList ee.data.updateAsset ee.data.listAssets ee.data.listImages ee.data.setAssetAcl ee.data.setAssetProperties ee.data.listBuckets ee.data.getAssetRootQuota ee.data.listOperations ee.data.getTaskListWithLimit ee.data.makeDownloadUrl ee.data.getAssetRoots ee.data.authenticateViaPopup ee.data.createAssetHome ee.data.getTableDownloadId ee.data.computeValue ee.data.getVideoThumbId ee.data.authenticateViaPrivateKey ee.data.cancelOperation ee.data.makeTableDownloadUrl ee.data.createAsset ee.data.getThumbId ee.data.getOperation ee.data.newTaskId ee.data.createFolder ee.data.cancelTask ee.data.startIngestion ee.data.getMapId ee.data.getTaskStatus ee.data.makeThumbUrl ee.data.authenticate ee.data.getFilmstripThumbId ee.data.authenticateViaOauth ee.data.getDownloadId ee.data.getTileUrl ee.data.renameAsset ee.data.copyAsset ee.Date ee.Deserializer.fromCloudApiJSON ee.Deserializer.fromJSON ee.Deserializer.decode ee.Deserializer.decodeCloudApi ee.Dictionary ee.call ee.reset ee.apply ee.TILE_SIZE ee.initialize ee.Algorithms ee.InitState ee.Element.prototype.set ee.Feature.prototype.getInfo ee.Feature ee.Feature.prototype.getMap ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.getDownloadURL ee.Filter.date ee.Filter.lte ee.Filter.lt ee.Filter.metadata ee.Filter.or ee.Filter.gt ee.Filter.eq ee.Filter.bounds ee.Filter.neq ee.Filter.prototype.not ee.Filter ee.Filter.and ee.Filter.gte ee.Filter.inList ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry.prototype.serialize ee.Geometry.LinearRing ee.Geometry.Point ee.Geometry ee.Geometry.MultiPoint ee.Geometry.MultiPolygon ee.Geometry.MultiLineString ee.Geometry.prototype.toGeoJSON ee.Geometry.Polygon ee.Geometry.LineString ee.Geometry.prototype.toGeoJSONString ee.Geometry.Rectangle ee.Geometry.BBox ee.Image.prototype.expression ee.Image ee.Image.prototype.getThumbURL ee.Image.prototype.getMap ee.Image.prototype.getInfo ee.Image.cat ee.Image.prototype.getDownloadURL ee.Image.rgb ee.Image.prototype.getThumbId ee.Image.prototype.select ee.Image.prototype.clip ee.Image.prototype.rename ee.ImageCollection.prototype.first ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection ee.ImageCollection.prototype.select ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.getVideoThumbURL ee.List ee.Number ee.Serializer.encodeCloudApiPretty ee.Serializer.toCloudApiJSON ee.Serializer.encodeCloudApi ee.Serializer.toReadableJSON ee.Serializer.toReadableCloudApiJSON ee.Serializer.toJSON ee.Serializer.encode ee.String ee.Terrain".split(" "), 
+  orderedParamLists = [["name"], ["name", "namedArgs"], ["name", "var_args"], "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey opt_bucketCorsUris".split(" "), ["collection", "opt_description", "opt_assetId", "opt_maxVertices"], "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris".split(" "), 
+  "image opt_description opt_bucket opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), 
+  "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices".split(" "), "image opt_description opt_folder opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), 
+  ["algorithm", "opt_first"], ["start", "opt_end"], ["geometry"], ["max", "opt_property", "opt_ascending"], ["filter"], ["property", "opt_ascending"], ["algorithm", "opt_dropNulls"], ["name", "operator", "value"], ["callback"], ["legacy"], ["opt_callback"], ["func", "var_args"], ["opt_callback"], ["assetId", "opt_callback"], ["taskId", "request", "opt_callback"], ["assetId", "opt_callback"], ["taskId", "params", "opt_callback"], ["id", "opt_callback"], ["taskId", "action", "opt_callback"], ["id", 
+  "opt_callback"], ["params", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["parent", "params", "opt_callback"], ["parent", "params", "opt_callback"], ["assetId", "aclUpdate", "opt_callback"], ["assetId", "properties", "opt_callback"], ["project", "opt_callback"], ["rootId", "opt_callback"], ["opt_limit", "opt_callback"], ["opt_limit", "opt_callback"], ["id"], ["opt_callback"], ["opt_success", "opt_error"], ["requestedId", "opt_callback"], ["params", "opt_callback"], ["obj", 
+  "opt_callback"], ["params", "opt_callback"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes", "opt_suppressDefaultScopes"], ["operationName", "opt_callback"], ["id"], ["value", "opt_path", "opt_force", "opt_properties", "opt_callback"], ["params", "opt_callback"], ["operationName", "opt_callback"], ["opt_count", "opt_callback"], ["path", "opt_force", "opt_callback"], ["taskId", "opt_callback"], ["taskId", "request", "opt_callback"], ["params", "opt_callback"], ["taskId", "opt_callback"], 
+  ["id"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["params", "opt_callback"], "clientId success opt_error opt_extraScopes opt_onImmediateFailed opt_suppressDefaultScopes".split(" "), ["params", "opt_callback"], ["id", "x", "y", "z"], ["sourceId", "destinationId", "opt_callback"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["date", "opt_tz"], ["json"], ["json"], ["json"], ["json"], ["opt_dict"], ["func", "var_args"], [], ["func", "namedArgs"], 
+  [], ["opt_baseurl", "opt_tileurl", "opt_successCallback", "opt_errorCallback", "opt_xsrfToken"], [], [], ["var_args"], ["opt_callback"], ["geometry", "opt_properties"], ["opt_visParams", "opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["opt_callback"], ["args", "opt_column"], ["opt_visParams", "opt_callback"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["start", "opt_end"], ["name", "value"], ["name", "value"], ["name", "operator", "value"], 
+  ["var_args"], ["name", "value"], ["name", "value"], ["geometry", "opt_errorMargin"], ["name", "value"], [], ["opt_filter"], ["var_args"], ["name", "value"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], ["namedArgs"], ["var_args"], ["legacy"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], 
+  ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["west", "south", "east", "north"], ["expression", "opt_map"], ["opt_args"], ["params", "opt_callback"], ["opt_visParams", "opt_callback"], ["opt_callback"], ["var_args"], ["params", "opt_callback"], ["r", "g", "b"], ["params", "opt_callback"], ["var_args"], 
+  ["geometry"], ["var_args"], [], ["opt_callback"], ["params", "opt_callback"], ["args"], ["selectors", "opt_names"], ["opt_visParams", "opt_callback"], ["params", "opt_callback"], ["list"], ["number"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj", "opt_isCompound"], ["string"], []];
+  [ee.ApiFunction.lookup, ee.ApiFunction._apply, ee.ApiFunction._call, module$contents$ee$batch_Export.map.toCloudStorage, module$contents$ee$batch_Export.table.toAsset, module$contents$ee$batch_Export.videoMap.toCloudStorage, module$contents$ee$batch_Export.image.toCloudStorage, module$contents$ee$batch_Export.image.toAsset, module$contents$ee$batch_Export.video.toDrive, module$contents$ee$batch_Export.video.toCloudStorage, module$contents$ee$batch_Export.table.toDrive, module$contents$ee$batch_Export.table.toCloudStorage, 
+  module$contents$ee$batch_Export.image.toDrive, ee.Collection.prototype.iterate, ee.Collection.prototype.filterDate, ee.Collection.prototype.filterBounds, ee.Collection.prototype.limit, ee.Collection.prototype.filter, ee.Collection.prototype.sort, ee.Collection.prototype.map, ee.Collection.prototype.filterMetadata, ee.ComputedObject.prototype.evaluate, ee.ComputedObject.prototype.serialize, ee.ComputedObject.prototype.getInfo, ee.ComputedObject.prototype.aside, ee.data.getTaskList, ee.data.deleteAsset, 
+  ee.data.startTableIngestion, ee.data.getAssetAcl, ee.data.startProcessing, ee.data.getAsset, ee.data.updateTask, ee.data.getInfo, ee.data.getList, ee.data.updateAsset, ee.data.listAssets, ee.data.listImages, ee.data.setAssetAcl, ee.data.setAssetProperties, ee.data.listBuckets, ee.data.getAssetRootQuota, ee.data.listOperations, ee.data.getTaskListWithLimit, ee.data.makeDownloadUrl, ee.data.getAssetRoots, ee.data.authenticateViaPopup, ee.data.createAssetHome, ee.data.getTableDownloadId, ee.data.computeValue, 
+  ee.data.getVideoThumbId, ee.data.authenticateViaPrivateKey, ee.data.cancelOperation, ee.data.makeTableDownloadUrl, ee.data.createAsset, ee.data.getThumbId, ee.data.getOperation, ee.data.newTaskId, ee.data.createFolder, ee.data.cancelTask, ee.data.startIngestion, ee.data.getMapId, ee.data.getTaskStatus, ee.data.makeThumbUrl, ee.data.authenticate, ee.data.getFilmstripThumbId, ee.data.authenticateViaOauth, ee.data.getDownloadId, ee.data.getTileUrl, ee.data.renameAsset, ee.data.copyAsset, ee.Date, 
+  ee.Deserializer.fromCloudApiJSON, ee.Deserializer.fromJSON, ee.Deserializer.decode, ee.Deserializer.decodeCloudApi, ee.Dictionary, ee.call, ee.reset, ee.apply, ee.TILE_SIZE, ee.initialize, ee.Algorithms, ee.InitState, ee.Element.prototype.set, ee.Feature.prototype.getInfo, ee.Feature, ee.Feature.prototype.getMap, ee.FeatureCollection.prototype.select, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection, ee.FeatureCollection.prototype.getMap, ee.FeatureCollection.prototype.getDownloadURL, 
+  ee.Filter.date, ee.Filter.lte, ee.Filter.lt, ee.Filter.metadata, ee.Filter.or, ee.Filter.gt, ee.Filter.eq, ee.Filter.bounds, ee.Filter.neq, ee.Filter.prototype.not, ee.Filter, ee.Filter.and, ee.Filter.gte, ee.Filter.inList, ee.Function.prototype.apply, ee.Function.prototype.call, ee.Geometry.prototype.serialize, ee.Geometry.LinearRing, ee.Geometry.Point, ee.Geometry, ee.Geometry.MultiPoint, ee.Geometry.MultiPolygon, ee.Geometry.MultiLineString, ee.Geometry.prototype.toGeoJSON, ee.Geometry.Polygon, 
+  ee.Geometry.LineString, ee.Geometry.prototype.toGeoJSONString, ee.Geometry.Rectangle, ee.Geometry.BBox, ee.Image.prototype.expression, ee.Image, ee.Image.prototype.getThumbURL, ee.Image.prototype.getMap, ee.Image.prototype.getInfo, ee.Image.cat, ee.Image.prototype.getDownloadURL, ee.Image.rgb, ee.Image.prototype.getThumbId, ee.Image.prototype.select, ee.Image.prototype.clip, ee.Image.prototype.rename, ee.ImageCollection.prototype.first, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.getFilmstripThumbURL, 
+  ee.ImageCollection, ee.ImageCollection.prototype.select, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.getVideoThumbURL, ee.List, ee.Number, ee.Serializer.encodeCloudApiPretty, ee.Serializer.toCloudApiJSON, ee.Serializer.encodeCloudApi, ee.Serializer.toReadableJSON, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.toJSON, ee.Serializer.encode, ee.String, ee.Terrain].forEach(function(fn, i) {
     fn && (exportedFnInfo[fn.toString()] = {name:orderedFnNames[i], paramNames:orderedParamLists[i]});
   });
   goog.global.EXPORTED_FN_INFO = exportedFnInfo;

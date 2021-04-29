@@ -2931,7 +2931,8 @@ ee.data.MapTaskConfig;
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
  *   assetId: (undefined|string),
- *   maxWorkers: (undefined|number)
+ *   maxWorkers: (undefined|number),
+ *   maxVertices: (undefined|number)
  * }}
  */
 ee.data.TableTaskConfig;

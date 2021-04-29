@@ -595,22 +595,28 @@ class BatchTestCase(apitestcase.ApiTestCase):
     """Verifies the Cloud Storage task created by Export.table()."""
     with apitestcase.UsingCloudApi():
       task = ee.batch.Export.table.toCloudStorage(
-          collection=ee.FeatureCollection('foo'), outputBucket='test-bucket')
+          collection=ee.FeatureCollection('foo'),
+          outputBucket='test-bucket',
+          maxVertices=1e6)
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
       self.assertEqual('EXPORT_FEATURES', task.task_type)
       self.assertEqual('UNSUBMITTED', task.state)
-      self.assertEqual({
-          'expression': ee.FeatureCollection('foo'),
-          'description': 'myExportTableTask',
-          'fileExportOptions': {
-              'fileFormat': 'CSV',
-              'gcsDestination': {
-                  'bucket': 'test-bucket',
-                  'filenamePrefix': 'myExportTableTask',
-              }
-          }
-      }, task.config)
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('foo'),
+              'description': 'myExportTableTask',
+              'fileExportOptions': {
+                  'fileFormat': 'CSV',
+                  'gcsDestination': {
+                      'bucket': 'test-bucket',
+                      'filenamePrefix': 'myExportTableTask',
+                  },
+              },
+              'maxVertices': {
+                  'value': int(1e6)
+              },
+          }, task.config)
 
   def testExportTableToGoogleDriveCloudApi(self):
     """Verifies the Drive destined task created by Export.table.toDrive()."""
@@ -627,13 +633,20 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'driveDestination': {
                   'filenamePrefix': test_file_name_prefix,
               }
+          },
+          'maxVertices': {
+              'value': 0
           }
       }
 
       # Ordered parameters
       task_ordered = ee.batch.Export.table.toDrive(
-          test_collection, test_description,
-          None, test_file_name_prefix, test_format)
+          test_collection,
+          test_description,
+          None,
+          test_file_name_prefix,
+          test_format,
+          maxVertices=0)
       self.assertIsNone(task_ordered.id)
       self.assertIsNone(task_ordered.name)
       self.assertEqual('EXPORT_FEATURES', task_ordered.task_type)
@@ -649,16 +662,20 @@ class BatchTestCase(apitestcase.ApiTestCase):
       # Test that deprecated parameters (driveFolder and driveFileNamePrefix)
       # still work.
       task_old_keys = ee.batch.Export.table.toDrive(
-          collection=test_collection, driveFolder='fooFolder',
-          driveFileNamePrefix='fooDriveFileNamePrefix')
+          collection=test_collection,
+          driveFolder='fooFolder',
+          driveFileNamePrefix='fooDriveFileNamePrefix',
+          maxVertices=0)
       self.assertEqual('EXPORT_FEATURES', task_old_keys.task_type)
       self.assertEqual('UNSUBMITTED', task_old_keys.state)
       self.assertEqual(expected_config, task_old_keys.config)
 
       # Test that new parameters work
       task_new_keys = ee.batch.Export.table.toDrive(
-          collection=test_collection, folder='fooFolder',
-          fileNamePrefix='fooDriveFileNamePrefix')
+          collection=test_collection,
+          folder='fooFolder',
+          fileNamePrefix='fooDriveFileNamePrefix',
+          maxVertices=0)
       self.assertEqual('EXPORT_FEATURES', task_new_keys.task_type)
       self.assertEqual('UNSUBMITTED', task_new_keys.state)
       self.assertEqual(expected_config, task_new_keys.config)

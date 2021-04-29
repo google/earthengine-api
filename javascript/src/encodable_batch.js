@@ -89,6 +89,7 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
     selectors: /** @type {?Array<string>} */ (selectors),
     maxErrorMeters: numberOrNull_(params['maxErrorMeters']),
     requestId: stringOrNull_(params['id']),
+    maxVertices: numberOrNull_(params['maxVertices']),
   });
 
   const destination = ee.rpc_convert_batch.guessDestination_(params);

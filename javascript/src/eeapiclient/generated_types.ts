@@ -1,8 +1,3 @@
-// TODO(b/70239858): force load module only used in types. Drop when
-// goog.requireType is around.
-import './domain_object';
-import './multipart_request';
-
 import {Serializable, SerializableCtor} from './domain_object';
 import {MultipartRequest} from './multipart_request';
 
