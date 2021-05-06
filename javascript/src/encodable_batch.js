@@ -183,6 +183,32 @@ ee.rpc_convert_batch.taskToExportVideoMapRequest = function(params) {
   });
 };
 
+/**
+ * Converts a legacy ExportParameters into a Cloud API ExportClassifierRequest.
+ *
+ * @param {!Object} params A parameter list representing a ExportParameters
+ * taken from an export TaskConfig.
+ * @return {!ee.api.ExportClassifierRequest}
+ */
+ee.rpc_convert_batch.taskToExportClassifierRequest = function(params) {
+  if (params['element'] == null) {
+    throw new Error(`"element" not found in params ${params}`);
+  }
+  const destination = ee.rpc_convert_batch.guessDestination_(params);
+  if (destination != ee.rpc_convert_batch.ExportDestination.ASSET) {
+    throw new Error(`Export destination "${destination}" unknown`);
+  }
+  return new ee.api.ExportClassifierRequest({
+    expression: ee.Serializer.encodeCloudApiExpression(params['element']),
+    description: stringOrNull_(params['description']),
+    requestId: stringOrNull_(params['id']),
+    assetExportOptions: new ee.api.ClassifierAssetExportOptions({
+      earthEngineDestination:
+          ee.rpc_convert_batch.buildEarthEngineDestination_(params)
+    }),
+  });
+};
+
 
 /**
  * @param {*} value

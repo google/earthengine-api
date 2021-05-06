@@ -380,7 +380,7 @@ Export.video.toDrive = function(
  *
  * @typedef {!data.ImageTaskConfig|!data.MapTaskConfig|
  *     !data.TableTaskConfig|!data.VideoTaskConfig|
- *     !data.VideoMapTaskConfig}
+ *     !data.VideoMapTaskConfig|!data.ClassifierTaskConfig}
  */
 const ServerTaskConfig = {};
 
@@ -473,7 +473,7 @@ Export.resolveRegionParam = function(params) {
 /**
  * Extracts the EE element from a given task config.
  * @param {!Object} exportArgs
- * @return {!Image|!FeatureCollection|!ImageCollection|!Element}
+ * @return {!Image|!FeatureCollection|!ImageCollection|!Element|!ComputedObject}
  */
 Export.extractElement = function(exportArgs) {
   // Extract the EE element from the exportArgs.
@@ -482,7 +482,7 @@ Export.extractElement = function(exportArgs) {
   // Sanity check that the Image/Collection/Table was provided.
   googAsserts.assert(
       googArray.count(Export.EE_ELEMENT_KEYS, isInArgs) === 1,
-      'Expected a single "image" or "collection" key.');
+      'Expected a single "image", "collection" or "classifier" key.');
   const element = exportArgs[eeElementKey];
   let result;
   if (element instanceof Image) {
@@ -493,10 +493,13 @@ Export.extractElement = function(exportArgs) {
     result = /** @type {!ImageCollection} */ (element);
   } else if (element instanceof Element) {
     result = /** @type {!Element} */ (element);
+  } else if (element instanceof ComputedObject) {
+    result = /** @type {!ComputedObject} */ (element);
   } else {
     throw new Error(
         'Unknown element type provided: ' + typeof (element) + '. Expected: ' +
-        ' ee.Image, ee.ImageCollection, ee.FeatureCollection or ee.Element.');
+        ' ee.Image, ee.ImageCollection, ee.FeatureCollection,  ee.Element' +
+        ' or ee.ComputedObject.');
   }
   delete exportArgs[eeElementKey];
   return result;
@@ -539,6 +542,10 @@ Export.convertToServerParams = function(
     case ExportType.VIDEO_MAP:
       taskConfig =
           Export.videoMap.prepareTaskConfig_(taskConfig, destination);
+      break;
+    case ExportType.CLASSIFIER:
+      taskConfig =
+          Export.classifier.prepareTaskConfig_(taskConfig, destination);
       break;
     default:
       throw Error('Unknown export type: ' + taskConfig['type']);
@@ -698,6 +705,21 @@ Export.videoMap.prepareTaskConfig_ = function(
   taskConfig['tileDimensions'] = {width: width, height: height};
   taskConfig = Export.prepareDestination_(taskConfig, destination);
   return /** @type {!data.VideoMapTaskConfig} */ (taskConfig);
+};
+
+/**
+ * Adapts a ServerTaskConfig into a ClassifierTaskConfig normalizing any params
+ * for a classifier task.
+ *
+ * @param {!ServerTaskConfig} taskConfig VideoMap export config to
+ *     prepare.
+ * @param {!data.ExportDestination} destination Export destination.
+ * @return {!data.ClassifierTaskConfig}
+ * @private
+ */
+Export.classifier.prepareTaskConfig_ = function(taskConfig, destination) {
+  taskConfig = Export.prepareDestination_(taskConfig, destination);
+  return /** @type {!data.ClassifierTaskConfig} */ (taskConfig);
 };
 
 
@@ -997,7 +1019,7 @@ Export.CRS_TRANSFORM_KEY = 'crs_transform';
  * The keys in user argument dictionaries of EE elements to export.
  * @const {!Array<string>}
  */
-Export.EE_ELEMENT_KEYS = ['image', 'collection'];
+Export.EE_ELEMENT_KEYS = ['image', 'collection', 'classifier'];
 
 exports.Export = Export;
 exports.ExportTask = ExportTask;

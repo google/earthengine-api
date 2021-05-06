@@ -67,6 +67,7 @@ goog.require('goog.array');
 goog.require('goog.object');
 goog.require('proto.google.protobuf.Value');
 goog.requireType('ee.Collection');
+goog.requireType('ee.ComputedObject');
 goog.requireType('ee.Element');
 goog.requireType('ee.Image');
 goog.requireType('ee.data.images');
@@ -2786,7 +2787,7 @@ ee.data.MapZoomRange = {
  *   type: string,
  *   description: (undefined|string),
  *   sourceUrl: (undefined|string),
- *   element: (undefined|!ee.Element)
+ *   element: (undefined|!ee.Element|!ee.ComputedObject)
  * }}
  */
 ee.data.AbstractTaskConfig;
