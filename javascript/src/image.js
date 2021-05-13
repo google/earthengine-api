@@ -556,7 +556,7 @@ ee.Image.prototype.rename = function(var_args) {
     names = arguments[0];
   } else {
     // Varargs list of strings.
-    names = goog.array.clone(arguments);
+    names = Array.from(arguments);
   }
   return /** @type {ee.Image} */(
       ee.ApiFunction._call('Image.rename', this, names));

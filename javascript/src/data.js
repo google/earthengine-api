@@ -65,12 +65,12 @@ goog.require('ee.rpc_convert');
 goog.require('ee.rpc_convert_batch');
 goog.require('goog.array');
 goog.require('goog.object');
-goog.require('proto.google.protobuf.Value');
 goog.requireType('ee.Collection');
 goog.requireType('ee.ComputedObject');
 goog.requireType('ee.Element');
 goog.requireType('ee.Image');
 goog.requireType('ee.data.images');
+goog.requireType('proto.google.protobuf.Value');
 
 
 

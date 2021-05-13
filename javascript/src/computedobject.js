@@ -11,7 +11,6 @@ goog.require('ee.Serializer');
 goog.require('ee.api');
 goog.require('ee.data');
 goog.require('ee.rpc_node');
-goog.require('goog.array');
 
 
 
@@ -226,7 +225,7 @@ ee.ComputedObject.prototype.name = function() {
  * @export
  */
 ee.ComputedObject.prototype.aside = function(func, var_args) {
-  var args = goog.array.clone(arguments);
+  var args = Array.from(arguments);
   args[0] = this;
   func.apply(goog.global, args);
   return this;
