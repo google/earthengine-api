@@ -20,7 +20,10 @@ class CollectionTestCase(apitestcase.ApiTestCase):
 
     limited = collection.limit(10)
     self.assertEqual(ee.ApiFunction.lookup('Collection.limit'), limited.func)
-    self.assertEqual({'collection': collection, 'limit': 10}, limited.args)
+    self.assertEqual({
+        'collection': collection,
+        'limit': ee.Number(10)
+    }, limited.args)
 
     sorted_collection = collection.sort('bar', True)
     self.assertEqual(

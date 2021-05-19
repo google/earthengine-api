@@ -1006,17 +1006,9 @@ goog.constructNamespace_ = function(name, object, overwriteImplicit) {
   var namespace;
   goog.exportPath_(name, object, overwriteImplicit);
 };
-goog.getScriptNonce_ = function(opt_window) {
-  if (opt_window && opt_window != goog.global) {
-    return goog.getScriptNonceFromDocument_(opt_window.document);
-  }
-  null === goog.cspNonce_ && (goog.cspNonce_ = goog.getScriptNonceFromDocument_(goog.global.document));
-  return goog.cspNonce_;
-};
 goog.NONCE_PATTERN_ = /^[\w+/_-]+[=]{0,2}$/;
-goog.cspNonce_ = null;
-goog.getScriptNonceFromDocument_ = function(doc) {
-  var script = doc.querySelector && doc.querySelector("script[nonce]");
+goog.getScriptNonce_ = function(opt_window) {
+  var doc = (opt_window || goog.global).document, script = doc.querySelector && doc.querySelector("script[nonce]");
   if (script) {
     var nonce = script.nonce || script.getAttribute("nonce");
     if (nonce && goog.NONCE_PATTERN_.test(nonce)) {
@@ -4138,28 +4130,18 @@ goog.dom.safe.createContextualFragment = function(range, html) {
   return range.createContextualFragment(goog.html.SafeHtml.unwrapTrustedHTML(html));
 };
 goog.dom.safe.getScriptNonce = function(opt_window) {
-  if (opt_window && opt_window != goog.global) {
-    return goog.dom.safe.getNonce_(opt_window.document, "script");
-  }
-  null === goog.dom.safe.cspNonce_ && (goog.dom.safe.cspNonce_ = goog.dom.safe.getNonce_(goog.global.document, "script"));
-  return goog.dom.safe.cspNonce_;
+  return goog.dom.safe.getNonce_("script[nonce]", opt_window);
 };
-goog.dom.safe.cspNonce_ = null;
 goog.dom.safe.getStyleNonce = function(opt_window) {
-  if (opt_window && opt_window != goog.global) {
-    return goog.dom.safe.getNonce_(opt_window.document, "style");
-  }
-  null === goog.dom.safe.cspStyleNonce_ && (goog.dom.safe.cspStyleNonce_ = goog.dom.safe.getNonce_(goog.global.document, "style"));
-  return goog.dom.safe.cspStyleNonce_;
+  return goog.dom.safe.getNonce_('style[nonce],link[rel="stylesheet"][nonce]', opt_window);
 };
-goog.dom.safe.cspStyleNonce_ = null;
 goog.dom.safe.NONCE_PATTERN_ = /^[\w+/_-]+[=]{0,2}$/;
-goog.dom.safe.getNonce_ = function(doc, tag) {
+goog.dom.safe.getNonce_ = function(selector, win) {
+  var doc = (win || goog.global).document;
   if (!doc.querySelector) {
     return "";
   }
-  var el = doc.querySelector(tag + "[nonce]");
-  el || "style" != tag || (el = doc.querySelector('link[rel="stylesheet"][nonce]'));
+  var el = doc.querySelector(selector);
   if (el) {
     var nonce = el.nonce || el.getAttribute("nonce");
     if (nonce && goog.dom.safe.NONCE_PATTERN_.test(nonce)) {
@@ -15547,7 +15529,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.265";
+ee.apiclient.API_CLIENT_VERSION = "0.1.266";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15822,8 +15804,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.265";
-  "0.1.265" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.266";
+  "0.1.266" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

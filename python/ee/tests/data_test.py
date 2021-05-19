@@ -182,7 +182,7 @@ class DataTest(unittest.TestCase):
   @mock.patch.object(
       ee.data,
       'getAlgorithms',
-      return_value=apitestcase.BUILTIN_FUNCTIONS,
+      return_value=apitestcase.GetAlgorithms(),
       autospec=True)
   def testGetDownloadId(self, _):
     cloud_api_resource = mock.MagicMock()

@@ -230,8 +230,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
     ).execute.return_value = {
         'name': 'thumbName'
     }
-    self.cloud_api_resource.projects().algorithms().list(
-    ).execute.return_value = apitestcase.BUILTIN_FUNCTIONS
+
     self.base_image = ee.Image(1)
     self.geo_json = {
         'type':
