@@ -500,6 +500,8 @@ ee.rpc_convert.assetTypeToLegacyAssetType = function(type) {
       return 'ImageCollection';
     case 'TABLE':
       return 'Table';
+    case 'CLASSIFIER':
+      return 'Classifier';
     default:
       return 'Unknown';
   }

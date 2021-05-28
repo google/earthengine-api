@@ -535,6 +535,28 @@ $jscomp.polyfill("String.prototype.repeat", function(orig) {
     return result;
   };
 }, "es6", "es3");
+$jscomp.iteratorFromArray = function(array, transform) {
+  array instanceof String && (array += "");
+  var i = 0, done = !1, iter = {next:function() {
+    if (!done && i < array.length) {
+      var index = i++;
+      return {value:transform(index, array[index]), done:!1};
+    }
+    done = !0;
+    return {done:!0, value:void 0};
+  }};
+  iter[Symbol.iterator] = function() {
+    return iter;
+  };
+  return iter;
+};
+$jscomp.polyfill("Array.prototype.keys", function(orig) {
+  return orig ? orig : function() {
+    return $jscomp.iteratorFromArray(this, function(i) {
+      return i;
+    });
+  };
+}, "es6", "es3");
 $jscomp.polyfill("Object.setPrototypeOf", function(orig) {
   return orig || $jscomp.setPrototypeOf;
 }, "es6", "es5");
@@ -782,28 +804,6 @@ $jscomp.polyfill("Promise", function(NativePromise) {
   };
   return PolyfillPromise;
 }, "es6", "es3");
-$jscomp.iteratorFromArray = function(array, transform) {
-  array instanceof String && (array += "");
-  var i = 0, done = !1, iter = {next:function() {
-    if (!done && i < array.length) {
-      var index = i++;
-      return {value:transform(index, array[index]), done:!1};
-    }
-    done = !0;
-    return {done:!0, value:void 0};
-  }};
-  iter[Symbol.iterator] = function() {
-    return iter;
-  };
-  return iter;
-};
-$jscomp.polyfill("Array.prototype.keys", function(orig) {
-  return orig ? orig : function() {
-    return $jscomp.iteratorFromArray(this, function(i) {
-      return i;
-    });
-  };
-}, "es6", "es3");
 $jscomp.polyfill("Object.entries", function(orig) {
   return orig ? orig : function(obj) {
     var result = [], key;
@@ -993,6 +993,9 @@ goog.define = function(name, defaultValue) {
 goog.FEATURESET_YEAR = 2012;
 goog.DEBUG = !0;
 goog.LOCALE = "en";
+goog.getLocale = function() {
+  return goog.LOCALE;
+};
 goog.TRUSTED_SITE = !0;
 goog.DISALLOW_TEST_ONLY_CODE = !goog.DEBUG;
 goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING = !1;
@@ -1232,6 +1235,12 @@ goog.cloneObject = function(obj) {
   if ("object" == type || "array" == type) {
     if ("function" === typeof obj.clone) {
       return obj.clone();
+    }
+    if ("undefined" !== typeof Map && obj instanceof Map) {
+      return new Map(obj);
+    }
+    if ("undefined" !== typeof Set && obj instanceof Set) {
+      return new Set(obj);
     }
     var clone = "array" == type ? [] : {}, key;
     for (key in obj) {
@@ -1689,7 +1698,7 @@ var module$contents$goog$array_map = goog.NATIVE_ARRAY_PROTOTYPES && (module$con
   return res;
 };
 goog.array.map = module$contents$goog$array_map;
-var module$contents$goog$array_reduce = goog.NATIVE_ARRAY_PROTOTYPES && (module$contents$goog$array_ASSUME_NATIVE_FUNCTIONS || Array.prototype.reduce) ? function(arr, f, val, opt_obj) {
+goog.array.reduce = goog.NATIVE_ARRAY_PROTOTYPES && (module$contents$goog$array_ASSUME_NATIVE_FUNCTIONS || Array.prototype.reduce) ? function(arr, f, val, opt_obj) {
   goog.asserts.assert(null != arr.length);
   opt_obj && (f = goog.bind(f, opt_obj));
   return Array.prototype.reduce.call(arr, f, val);
@@ -1700,7 +1709,6 @@ var module$contents$goog$array_reduce = goog.NATIVE_ARRAY_PROTOTYPES && (module$
   });
   return rval;
 };
-goog.array.reduce = module$contents$goog$array_reduce;
 goog.array.reduceRight = goog.NATIVE_ARRAY_PROTOTYPES && (module$contents$goog$array_ASSUME_NATIVE_FUNCTIONS || Array.prototype.reduceRight) ? function(arr, f, val, opt_obj) {
   goog.asserts.assert(null != arr.length);
   goog.asserts.assert(null != f);
@@ -1911,8 +1919,8 @@ goog.array.stableSort = function module$contents$goog$array_stableSort(arr, opt_
   module$contents$goog$array_sort(compArr, function stableCompareFn(obj1, obj2) {
     return valueCompareFn(obj1.value, obj2.value) || obj1.index - obj2.index;
   });
-  for (var i$20 = 0; i$20 < arr.length; i$20++) {
-    arr[i$20] = compArr[i$20].value;
+  for (var i$21 = 0; i$21 < arr.length; i$21++) {
+    arr[i$21] = compArr[i$21].value;
   }
 };
 function module$contents$goog$array_sortByKey(arr, keyFn, opt_compareFn) {
@@ -2020,8 +2028,8 @@ function module$contents$goog$array_range(startOrEnd, opt_end, opt_step) {
       array.push(i);
     }
   } else {
-    for (var i$21 = start; i$21 > end; i$21 += step) {
-      array.push(i$21);
+    for (var i$22 = start; i$22 > end; i$22 += step) {
+      array.push(i$22);
     }
   }
   return array;
@@ -2068,9 +2076,9 @@ goog.array.zip = function module$contents$goog$array_zip(var_args) {
   for (var result = [], minLen = arguments[0].length, i = 1; i < arguments.length; i++) {
     arguments[i].length < minLen && (minLen = arguments[i].length);
   }
-  for (var i$22 = 0; i$22 < minLen; i$22++) {
+  for (var i$23 = 0; i$23 < minLen; i$23++) {
     for (var value = [], j = 0; j < arguments.length; j++) {
-      value.push(arguments[j][i$22]);
+      value.push(arguments[j][i$23]);
     }
     result.push(value);
   }
@@ -2323,6 +2331,12 @@ function module$contents$goog$object_unsafeClone(obj) {
   if ("function" === typeof obj.clone) {
     return obj.clone();
   }
+  if ("undefined" !== typeof Map && obj instanceof Map) {
+    return new Map(obj);
+  }
+  if ("undefined" !== typeof Set && obj instanceof Set) {
+    return new Set(obj);
+  }
   var clone = Array.isArray(obj) ? [] : "function" !== typeof ArrayBuffer || "function" !== typeof ArrayBuffer.isView || !ArrayBuffer.isView(obj) || obj instanceof DataView ? {} : new obj.constructor(obj.length), key;
   for (key in obj) {
     clone[key] = module$contents$goog$object_unsafeClone(obj[key]);
@@ -2388,8 +2402,8 @@ goog.object.equals = function module$contents$goog$object_equals(a, b) {
       return !1;
     }
   }
-  for (var k$23 in b) {
-    if (!(k$23 in a)) {
+  for (var k$24 in b) {
+    if (!(k$24 in a)) {
       return !1;
     }
   }
@@ -3100,7 +3114,7 @@ goog.fs.blob.getBlob = function(var_args) {
     }
     return bb.getBlob();
   }
-  return goog.fs.blob.getBlobWithProperties(module$contents$goog$array_toArray(arguments));
+  return goog.fs.blob.getBlobWithProperties(Array.prototype.slice.call(arguments));
 };
 goog.fs.blob.getBlobWithProperties = function(parts, opt_type, opt_endings) {
   var BlobBuilder = goog.global.BlobBuilder || goog.global.WebKitBlobBuilder;
@@ -3607,7 +3621,7 @@ goog.html.SafeStyle.concat = function(var_args) {
   var style = "", addArgument = function(argument) {
     Array.isArray(argument) ? module$contents$goog$array_forEach(argument, addArgument) : style += goog.html.SafeStyle.unwrap(argument);
   };
-  module$contents$goog$array_forEach(arguments, addArgument);
+  Array.prototype.forEach.call(arguments, addArgument);
   return style ? goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style) : goog.html.SafeStyle.EMPTY;
 };
 var module$contents$goog$html$SafeStyleSheet_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeStyleSheet_SafeStyleSheet = function(value, token) {
@@ -3646,7 +3660,7 @@ module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.concat = function(var_ar
   var result = "", addArgument = function(argument) {
     Array.isArray(argument) ? module$contents$goog$array_forEach(argument, addArgument) : result += module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap(argument);
   };
-  module$contents$goog$array_forEach(arguments, addArgument);
+  Array.prototype.forEach.call(arguments, addArgument);
   return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(result);
 };
 module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.fromConstant = function(styleSheet) {
@@ -3866,7 +3880,7 @@ goog.html.SafeHtml.concat = function(var_args) {
   return goog.html.SafeHtml.join(goog.html.SafeHtml.EMPTY, Array.prototype.slice.call(arguments));
 };
 goog.html.SafeHtml.concatWithDir = function(dir, var_args) {
-  var html = goog.html.SafeHtml.concat(module$contents$goog$array_slice(arguments, 1));
+  var html = goog.html.SafeHtml.concat(Array.prototype.slice.call(arguments, 1));
   html.dir_ = dir;
   return html;
 };
@@ -4497,13 +4511,13 @@ goog.string.editDistance = function(a, b) {
   for (var i = 0; i < b.length + 1; i++) {
     v0[i] = i;
   }
-  for (var i$24 = 0; i$24 < a.length; i$24++) {
-    v1[0] = i$24 + 1;
+  for (var i$25 = 0; i$25 < a.length; i$25++) {
+    v1[0] = i$25 + 1;
     for (var j = 0; j < b.length; j++) {
-      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + Number(a[i$24] != b[j]));
+      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + Number(a[i$25] != b[j]));
     }
-    for (var j$25 = 0; j$25 < v0.length; j$25++) {
-      v0[j$25] = v1[j$25];
+    for (var j$26 = 0; j$26 < v0.length; j$26++) {
+      v0[j$26] = v1[j$26];
     }
   }
   return v1[b.length];
@@ -4737,7 +4751,6 @@ goog.userAgent.isVersionOrHigher = function(version) {
     return 0 <= goog.string.compareVersions(goog.userAgent.VERSION, version);
   });
 };
-goog.userAgent.isVersion = goog.userAgent.isVersionOrHigher;
 goog.userAgent.isDocumentModeOrHigher = function(documentMode) {
   return Number(goog.userAgent.DOCUMENT_MODE) >= documentMode;
 };
@@ -4852,7 +4865,7 @@ goog.debug.normalizeErrorObject = function(err) {
   }
   try {
     var fileName = err.fileName || err.filename || err.sourceURL || goog.global.$googDebugFname || href;
-  } catch (e$26) {
+  } catch (e$27) {
     fileName = "Not available", threwError = !0;
   }
   var stack = goog.debug.serializeErrorStack_(err);
@@ -4865,7 +4878,7 @@ goog.debug.normalizeErrorObject = function(err) {
         if (goog.debug.CHECK_FOR_THROWN_EVENT && "Event" == ctorName) {
           try {
             message = message + ' with Event.type "' + (err.type || "") + '"';
-          } catch (e$27) {
+          } catch (e$28) {
           }
         }
       } else {
@@ -5693,6 +5706,77 @@ goog.events.EventTarget.dispatchEventInternal_ = function(target, e, opt_ancesto
 goog.structs = {};
 goog.structs.Collection = function() {
 };
+goog.collections = {};
+goog.collections.iters = {};
+function module$contents$goog$collections$iters_getIterator(iterable) {
+  return iterable[goog.global.Symbol.iterator]();
+}
+goog.collections.iters.getIterator = module$contents$goog$collections$iters_getIterator;
+goog.collections.iters.forEach = function(iterable, f) {
+  for (var $jscomp$iter$5 = $jscomp.makeIterator(iterable), $jscomp$key$elem = $jscomp$iter$5.next(); !$jscomp$key$elem.done; $jscomp$key$elem = $jscomp$iter$5.next()) {
+    f($jscomp$key$elem.value);
+  }
+};
+var module$contents$goog$collections$iters_MapIterator = function(childIter, mapFn) {
+  this.childIterator_ = module$contents$goog$collections$iters_getIterator(childIter);
+  this.mapFn_ = mapFn;
+  this.nextIndex_ = 0;
+};
+module$contents$goog$collections$iters_MapIterator.prototype[Symbol.iterator] = function() {
+  return this;
+};
+module$contents$goog$collections$iters_MapIterator.prototype.next = function() {
+  var childResult = this.childIterator_.next();
+  return {value:childResult.done ? void 0 : this.mapFn_.call(void 0, childResult.value, this.nextIndex_++), done:childResult.done, };
+};
+goog.collections.iters.map = function(iterable, f) {
+  return new module$contents$goog$collections$iters_MapIterator(iterable, f);
+};
+var module$contents$goog$collections$iters_FilterIterator = function(childIter, filterFn) {
+  this.childIter_ = module$contents$goog$collections$iters_getIterator(childIter);
+  this.filterFn_ = filterFn;
+  this.nextIndex_ = 0;
+};
+module$contents$goog$collections$iters_FilterIterator.prototype[Symbol.iterator] = function() {
+  return this;
+};
+module$contents$goog$collections$iters_FilterIterator.prototype.next = function() {
+  for (;;) {
+    var childResult = this.childIter_.next();
+    if (childResult.done) {
+      return {done:!0, value:void 0};
+    }
+    if (this.filterFn_.call(void 0, childResult.value, this.nextIndex_++)) {
+      return childResult;
+    }
+  }
+};
+goog.collections.iters.filter = function(iterable, f) {
+  return new module$contents$goog$collections$iters_FilterIterator(iterable, f);
+};
+var module$contents$goog$collections$iters_ConcatIterator = function(iterators) {
+  this.iterators_ = iterators;
+  this.iterIndex_ = 0;
+};
+module$contents$goog$collections$iters_ConcatIterator.prototype[Symbol.iterator] = function() {
+  return this;
+};
+module$contents$goog$collections$iters_ConcatIterator.prototype.next = function() {
+  for (; this.iterIndex_ < this.iterators_.length;) {
+    var result = this.iterators_[this.iterIndex_].next();
+    if (!result.done) {
+      return result;
+    }
+    this.iterIndex_++;
+  }
+  return {done:!0};
+};
+goog.collections.iters.concat = function(iterables) {
+  for (var $jscomp$restParams = [], $jscomp$restIndex = 0; $jscomp$restIndex < arguments.length; ++$jscomp$restIndex) {
+    $jscomp$restParams[$jscomp$restIndex - 0] = arguments[$jscomp$restIndex];
+  }
+  return new module$contents$goog$collections$iters_ConcatIterator($jscomp$restParams.map(module$contents$goog$collections$iters_getIterator));
+};
 goog.math = {};
 goog.math.randomInt = function(a) {
   return Math.floor(Math.random() * a);
@@ -5766,7 +5850,7 @@ goog.math.longestCommonSubsequence = function(array1, array2, opt_compareFn, opt
   return result;
 };
 goog.math.sum = function(var_args) {
-  return module$contents$goog$array_reduce(arguments, function(sum, value) {
+  return Array.prototype.reduce.call(arguments, function(sum, value) {
     return sum + value;
   }, 0);
 };
@@ -5779,7 +5863,7 @@ goog.math.sampleVariance = function(var_args) {
     return 0;
   }
   var mean = goog.math.average.apply(null, arguments);
-  return goog.math.sum.apply(null, module$contents$goog$array_map(arguments, function(val) {
+  return goog.math.sum.apply(null, Array.prototype.map.call(arguments, function(val) {
     return Math.pow(val - mean, 2);
   })) / (sampleSize - 1);
 };
@@ -5862,9 +5946,9 @@ goog.iter.forEach = function(iterable, f, opt_obj) {
       for (;;) {
         f.call(opt_obj, iterable.next(), void 0, iterable);
       }
-    } catch (ex$28) {
-      if (ex$28 !== goog.iter.StopIteration) {
-        throw ex$28;
+    } catch (ex$30) {
+      if (ex$30 !== goog.iter.StopIteration) {
+        throw ex$30;
       }
     }
   }
@@ -6023,7 +6107,7 @@ goog.iter.nextOrValue = function(iterable, defaultValue) {
   }
 };
 goog.iter.product = function(var_args) {
-  if (module$contents$goog$array_some(arguments, function(arr) {
+  if (Array.prototype.some.call(arguments, function(arr) {
     return !arr.length;
   }) || !arguments.length) {
     return new goog.iter.Iterator;
@@ -6105,7 +6189,7 @@ goog.iter.zip = function(var_args) {
   return iter;
 };
 goog.iter.zipLongest = function(fillValue, var_args) {
-  var args = module$contents$goog$array_slice(arguments, 1), iter = new goog.iter.Iterator;
+  var args = Array.prototype.slice.call(arguments, 1), iter = new goog.iter.Iterator;
   if (0 < args.length) {
     var iterators = module$contents$goog$array_map(args, goog.iter.toIterator);
     iter.next = function() {
@@ -6254,10 +6338,108 @@ goog.iter.combinationsWithReplacement = function(iterable, length) {
   };
   return iter;
 };
+goog.iter.es6 = {};
+var module$contents$goog$iter$es6_ShimIterable = function() {
+};
+module$contents$goog$iter$es6_ShimIterable.prototype.__iterator__ = function() {
+};
+module$contents$goog$iter$es6_ShimIterable.prototype.toGoog = function() {
+};
+module$contents$goog$iter$es6_ShimIterable.prototype.toEs6 = function() {
+};
+module$contents$goog$iter$es6_ShimIterable.of = function(iter) {
+  if (iter instanceof module$contents$goog$iter$es6_ShimIterableImpl || iter instanceof module$contents$goog$iter$es6_ShimGoogIterator || iter instanceof module$contents$goog$iter$es6_ShimEs6Iterator) {
+    return iter;
+  }
+  if ("function" == typeof iter.next) {
+    return new module$contents$goog$iter$es6_ShimIterableImpl(function() {
+      return module$contents$goog$iter$es6_wrapGoog(iter);
+    });
+  }
+  if ("function" == typeof iter[Symbol.iterator]) {
+    return new module$contents$goog$iter$es6_ShimIterableImpl(function() {
+      return iter[Symbol.iterator]();
+    });
+  }
+  if ("function" == typeof iter.__iterator__) {
+    return new module$contents$goog$iter$es6_ShimIterableImpl(function() {
+      return module$contents$goog$iter$es6_wrapGoog(iter.__iterator__());
+    });
+  }
+  throw Error("Not an iterator or iterable.");
+};
+var module$contents$goog$iter$es6_wrapGoog = function(iter) {
+  if (!(iter instanceof goog.iter.Iterator)) {
+    return iter;
+  }
+  var done = !1;
+  return {next:function() {
+    for (var value; !done;) {
+      try {
+        value = iter.next();
+        break;
+      } catch (err$31) {
+        if (err$31 !== goog.iter.StopIteration) {
+          throw err$31;
+        }
+        done = !0;
+      }
+    }
+    return {value:value, done:done};
+  }, };
+}, module$contents$goog$iter$es6_ShimIterableImpl = function(func) {
+  this.func_ = func;
+};
+module$contents$goog$iter$es6_ShimIterableImpl.prototype.__iterator__ = function() {
+  return new module$contents$goog$iter$es6_ShimGoogIterator(this.func_());
+};
+module$contents$goog$iter$es6_ShimIterableImpl.prototype.toGoog = function() {
+  return new module$contents$goog$iter$es6_ShimGoogIterator(this.func_());
+};
+module$contents$goog$iter$es6_ShimIterableImpl.prototype[Symbol.iterator] = function() {
+  return new module$contents$goog$iter$es6_ShimEs6Iterator(this.func_());
+};
+module$contents$goog$iter$es6_ShimIterableImpl.prototype.toEs6 = function() {
+  return new module$contents$goog$iter$es6_ShimEs6Iterator(this.func_());
+};
+var module$contents$goog$iter$es6_ShimGoogIterator = function(iter) {
+  goog.iter.Iterator.call(this);
+  this.iter_ = iter;
+};
+$jscomp.inherits(module$contents$goog$iter$es6_ShimGoogIterator, goog.iter.Iterator);
+module$contents$goog$iter$es6_ShimGoogIterator.prototype.next = function() {
+  var result = this.iter_.next();
+  if (result.done) {
+    throw goog.iter.StopIteration;
+  }
+  return result.value;
+};
+module$contents$goog$iter$es6_ShimGoogIterator.prototype.toGoog = function() {
+  return this;
+};
+module$contents$goog$iter$es6_ShimGoogIterator.prototype[Symbol.iterator] = function() {
+  return new module$contents$goog$iter$es6_ShimEs6Iterator(this.iter_);
+};
+module$contents$goog$iter$es6_ShimGoogIterator.prototype.toEs6 = function() {
+  return new module$contents$goog$iter$es6_ShimEs6Iterator(this.iter_);
+};
+var module$contents$goog$iter$es6_ShimEs6Iterator = function(iter) {
+  module$contents$goog$iter$es6_ShimIterableImpl.call(this, function() {
+    return iter;
+  });
+  this.iter_ = iter;
+};
+$jscomp.inherits(module$contents$goog$iter$es6_ShimEs6Iterator, module$contents$goog$iter$es6_ShimIterableImpl);
+module$contents$goog$iter$es6_ShimEs6Iterator.prototype.next = function() {
+  return this.iter_.next();
+};
+goog.iter.es6.ShimIterable = module$contents$goog$iter$es6_ShimIterable;
+goog.iter.es6.ShimEs6Iterator = module$contents$goog$iter$es6_ShimEs6Iterator;
+goog.iter.es6.ShimGoogIterator = module$contents$goog$iter$es6_ShimGoogIterator;
 goog.structs.Map = function(opt_map, var_args) {
   this.map_ = {};
   this.keys_ = [];
-  this.version_ = this.count_ = 0;
+  this.version_ = this.size = 0;
   var argLength = arguments.length;
   if (1 < argLength) {
     if (argLength % 2) {
@@ -6271,7 +6453,7 @@ goog.structs.Map = function(opt_map, var_args) {
   }
 };
 goog.structs.Map.prototype.getCount = function() {
-  return this.count_;
+  return this.size;
 };
 goog.structs.Map.prototype.getValues = function() {
   this.cleanupKeysArray_();
@@ -6285,6 +6467,9 @@ goog.structs.Map.prototype.getKeys = function() {
   return this.keys_.concat();
 };
 goog.structs.Map.prototype.containsKey = function(key) {
+  return this.has(key);
+};
+goog.structs.Map.prototype.has = function(key) {
   return goog.structs.Map.hasKey_(this.map_, key);
 };
 goog.structs.Map.prototype.containsValue = function(val) {
@@ -6300,7 +6485,7 @@ goog.structs.Map.prototype.equals = function(otherMap, opt_equalityFn) {
   if (this === otherMap) {
     return !0;
   }
-  if (this.count_ != otherMap.getCount()) {
+  if (this.size != otherMap.getCount()) {
     return !1;
   }
   var equalityFn = opt_equalityFn || goog.structs.Map.defaultEquals;
@@ -6316,17 +6501,22 @@ goog.structs.Map.defaultEquals = function(a, b) {
   return a === b;
 };
 goog.structs.Map.prototype.isEmpty = function() {
-  return 0 == this.count_;
+  return 0 == this.size;
 };
 goog.structs.Map.prototype.clear = function() {
   this.map_ = {};
-  this.version_ = this.count_ = this.keys_.length = 0;
+  this.keys_.length = 0;
+  this.setSizeInternal_(0);
+  this.version_ = 0;
 };
 goog.structs.Map.prototype.remove = function(key) {
-  return goog.structs.Map.hasKey_(this.map_, key) ? (delete this.map_[key], this.count_--, this.version_++, this.keys_.length > 2 * this.count_ && this.cleanupKeysArray_(), !0) : !1;
+  return this.delete(key);
+};
+goog.structs.Map.prototype.delete = function(key) {
+  return goog.structs.Map.hasKey_(this.map_, key) ? (delete this.map_[key], this.setSizeInternal_(this.size - 1), this.version_++, this.keys_.length > 2 * this.size && this.cleanupKeysArray_(), !0) : !1;
 };
 goog.structs.Map.prototype.cleanupKeysArray_ = function() {
-  if (this.count_ != this.keys_.length) {
+  if (this.size != this.keys_.length) {
     for (var srcIndex = 0, destIndex = 0; srcIndex < this.keys_.length;) {
       var key = this.keys_[srcIndex];
       goog.structs.Map.hasKey_(this.map_, key) && (this.keys_[destIndex++] = key);
@@ -6334,7 +6524,7 @@ goog.structs.Map.prototype.cleanupKeysArray_ = function() {
     }
     this.keys_.length = destIndex;
   }
-  if (this.count_ != this.keys_.length) {
+  if (this.size != this.keys_.length) {
     var seen = {};
     for (destIndex = srcIndex = 0; srcIndex < this.keys_.length;) {
       key = this.keys_[srcIndex], goog.structs.Map.hasKey_(seen, key) || (this.keys_[destIndex++] = key, seen[key] = 1), srcIndex++;
@@ -6346,7 +6536,7 @@ goog.structs.Map.prototype.get = function(key, opt_val) {
   return goog.structs.Map.hasKey_(this.map_, key) ? this.map_[key] : opt_val;
 };
 goog.structs.Map.prototype.set = function(key, value) {
-  goog.structs.Map.hasKey_(this.map_, key) || (this.count_++, this.keys_.push(key), this.version_++);
+  goog.structs.Map.hasKey_(this.map_, key) || (this.setSizeInternal_(this.size + 1), this.keys_.push(key), this.version_++);
   this.map_[key] = value;
 };
 goog.structs.Map.prototype.addAll = function(map) {
@@ -6387,8 +6577,20 @@ goog.structs.Map.prototype.toObject = function() {
 goog.structs.Map.prototype.getKeyIterator = function() {
   return this.__iterator__(!0);
 };
+goog.structs.Map.prototype.keys = function() {
+  return module$contents$goog$iter$es6_ShimIterable.of(this.getKeyIterator()).toEs6();
+};
 goog.structs.Map.prototype.getValueIterator = function() {
   return this.__iterator__(!1);
+};
+goog.structs.Map.prototype.values = function() {
+  return module$contents$goog$iter$es6_ShimIterable.of(this.getValueIterator()).toEs6();
+};
+goog.structs.Map.prototype.entries = function() {
+  var self = this;
+  return goog.collections.iters.map(this.keys(), function(key) {
+    return [key, self.get(key)];
+  });
 };
 goog.structs.Map.prototype.__iterator__ = function(opt_keys) {
   this.cleanupKeysArray_();
@@ -6404,6 +6606,9 @@ goog.structs.Map.prototype.__iterator__ = function(opt_keys) {
     return opt_keys ? key : selfObj.map_[key];
   };
   return newIter;
+};
+goog.structs.Map.prototype.setSizeInternal_ = function(newSize) {
+  this.size = newSize;
 };
 goog.structs.Map.hasKey_ = function(obj, key) {
   return Object.prototype.hasOwnProperty.call(obj, key);
@@ -7002,8 +7207,8 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function module$con
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$49 = {}, $jscomp$iter$5 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$5.next(); !$jscomp$key$key.done; $jscomp$loop$49 = {$jscomp$loop$prop$mapMetadata$50:$jscomp$loop$49.$jscomp$loop$prop$mapMetadata$50}, 
-  $jscomp$key$key = $jscomp$iter$5.next()) {
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$52 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$52 = {$jscomp$loop$prop$mapMetadata$53:$jscomp$loop$52.$jscomp$loop$prop$mapMetadata$53}, 
+  $jscomp$key$key = $jscomp$iter$6.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
       var copy = void 0;
@@ -7017,11 +7222,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
           copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
         } else {
           if (objectMaps.hasOwnProperty(key)) {
-            $jscomp$loop$49.$jscomp$loop$prop$mapMetadata$50 = objectMaps[key], copy = $jscomp$loop$49.$jscomp$loop$prop$mapMetadata$50.isPropertyArray ? value.map(function($jscomp$loop$49) {
+            $jscomp$loop$52.$jscomp$loop$prop$mapMetadata$53 = objectMaps[key], copy = $jscomp$loop$52.$jscomp$loop$prop$mapMetadata$53.isPropertyArray ? value.map(function($jscomp$loop$52) {
               return function(v) {
-                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$49.$jscomp$loop$prop$mapMetadata$50, valueGetter, valueSetter, copyInstanciator);
+                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$52.$jscomp$loop$prop$mapMetadata$53, valueGetter, valueSetter, copyInstanciator);
               };
-            }($jscomp$loop$49)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$49.$jscomp$loop$prop$mapMetadata$50, valueGetter, valueSetter, copyInstanciator);
+            }($jscomp$loop$52)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$52.$jscomp$loop$prop$mapMetadata$53, valueGetter, valueSetter, copyInstanciator);
           } else {
             if (Array.isArray(value)) {
               if (metadata.emptyArrayIsUnset && 0 === value.length) {
@@ -7040,7 +7245,7 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
   return target;
 }
 function module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, mapMetadata, valueGetter, valueSetter, copyInstanciator) {
-  for (var objMap = {}, $jscomp$iter$6 = $jscomp.makeIterator(Object.keys(value)), $jscomp$key$mapKey = $jscomp$iter$6.next(); !$jscomp$key$mapKey.done; $jscomp$key$mapKey = $jscomp$iter$6.next()) {
+  for (var objMap = {}, $jscomp$iter$7 = $jscomp.makeIterator(Object.keys(value)), $jscomp$key$mapKey = $jscomp$iter$7.next(); !$jscomp$key$mapKey.done; $jscomp$key$mapKey = $jscomp$iter$7.next()) {
     var mapKey = $jscomp$key$mapKey.value, mapValue = value[mapKey];
     null != mapValue && (objMap[mapKey] = module$contents$eeapiclient$domain_object_deepCopyValue(mapValue, valueGetter, valueSetter, copyInstanciator, mapMetadata.isValueArray, mapMetadata.isSerializable, mapMetadata.ctor));
   }
@@ -7073,45 +7278,45 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$51 = {}, $jscomp$iter$7 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$7.next(); !$jscomp$key$key.done; $jscomp$loop$51 = {$jscomp$loop$prop$value2$52:$jscomp$loop$51.$jscomp$loop$prop$value2$52, $jscomp$loop$prop$mapMetadata$53:$jscomp$loop$51.$jscomp$loop$prop$mapMetadata$53}, $jscomp$key$key = $jscomp$iter$7.next()) {
+  for (var $jscomp$loop$54 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$54 = {$jscomp$loop$prop$value2$55:$jscomp$loop$54.$jscomp$loop$prop$value2$55, $jscomp$loop$prop$mapMetadata$56:$jscomp$loop$54.$jscomp$loop$prop$mapMetadata$56}, $jscomp$key$key = $jscomp$iter$8.next()) {
     var key = $jscomp$key$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$51.$jscomp$loop$prop$value2$52 = serializable2.Serializable$get(key);
+      $jscomp$loop$54.$jscomp$loop$prop$value2$55 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$51.$jscomp$loop$prop$value2$52, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$54.$jscomp$loop$prop$value2$55, !0, !0)) {
           return !1;
         }
       } else {
         if (objects1.hasOwnProperty(key)) {
-          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$51.$jscomp$loop$prop$value2$52, !1, !0)) {
+          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$54.$jscomp$loop$prop$value2$55, !1, !0)) {
             return !1;
           }
         } else {
           if (objectMaps1.hasOwnProperty(key)) {
-            if ($jscomp$loop$51.$jscomp$loop$prop$mapMetadata$53 = objectMaps1[key], $jscomp$loop$51.$jscomp$loop$prop$mapMetadata$53.isPropertyArray) {
-              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$51.$jscomp$loop$prop$value2$52) || value1.some(function($jscomp$loop$51) {
+            if ($jscomp$loop$54.$jscomp$loop$prop$mapMetadata$56 = objectMaps1[key], $jscomp$loop$54.$jscomp$loop$prop$mapMetadata$56.isPropertyArray) {
+              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$54.$jscomp$loop$prop$value2$55) || value1.some(function($jscomp$loop$54) {
                 return function(v1, i) {
-                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$51.$jscomp$loop$prop$value2$52[i], $jscomp$loop$51.$jscomp$loop$prop$mapMetadata$53);
+                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$54.$jscomp$loop$prop$value2$55[i], $jscomp$loop$54.$jscomp$loop$prop$mapMetadata$56);
                 };
-              }($jscomp$loop$51))) {
+              }($jscomp$loop$54))) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$51.$jscomp$loop$prop$value2$52, $jscomp$loop$51.$jscomp$loop$prop$mapMetadata$53)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$54.$jscomp$loop$prop$value2$55, $jscomp$loop$54.$jscomp$loop$prop$mapMetadata$56)) {
                 return !1;
               }
             }
           } else {
             if (Array.isArray(value1)) {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$51.$jscomp$loop$prop$value2$52, !0, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$54.$jscomp$loop$prop$value2$55, !0, !1)) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$51.$jscomp$loop$prop$value2$52, !1, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$54.$jscomp$loop$prop$value2$55, !1, !1)) {
                 return !1;
               }
             }
@@ -7137,7 +7342,7 @@ function module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, v
   if (!module$contents$eeapiclient$domain_object_sameKeys(value1, value2)) {
     return !1;
   }
-  for (var $jscomp$iter$8 = $jscomp.makeIterator(Object.keys(value1)), $jscomp$key$mapKey = $jscomp$iter$8.next(); !$jscomp$key$mapKey.done; $jscomp$key$mapKey = $jscomp$iter$8.next()) {
+  for (var $jscomp$iter$9 = $jscomp.makeIterator(Object.keys(value1)), $jscomp$key$mapKey = $jscomp$iter$9.next(); !$jscomp$key$mapKey.done; $jscomp$key$mapKey = $jscomp$iter$9.next()) {
     var mapKey = $jscomp$key$mapKey.value;
     if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1[mapKey], value2[mapKey], mapMetadata.isValueArray, mapMetadata.isSerializable)) {
       return !1;
@@ -7921,7 +8126,7 @@ function module$contents$eeapiclient$request_params_processParams(params) {
 }
 module$exports$eeapiclient$request_params.processParams = module$contents$eeapiclient$request_params_processParams;
 function module$contents$eeapiclient$request_params_buildQueryParams(params, mapping, passthroughParams) {
-  for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$9 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$ = $jscomp$iter$9.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$9.next()) {
+  for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$10 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$ = $jscomp$iter$10.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$10.next()) {
     var $jscomp$destructuring$var1 = $jscomp.makeIterator($jscomp$key$.value), jsName = $jscomp$destructuring$var1.next().value, urlQueryParamName = $jscomp$destructuring$var1.next().value;
     jsName in params && (urlQueryParams[urlQueryParamName] = params[jsName]);
   }
@@ -7933,7 +8138,7 @@ module$exports$eeapiclient$request_params.bypassCorsPreflight = function module$
   var safeHeaders = {}, unsafeHeaders = {}, hasUnsafeHeaders = !1, hasSafeHeaders = !1, hasContentType = !1;
   if (params.headers) {
     hasContentType = null != params.headers["Content-Type"];
-    for (var $jscomp$iter$10 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$ = $jscomp$iter$10.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$10.next()) {
+    for (var $jscomp$iter$11 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$ = $jscomp$iter$11.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$11.next()) {
       var $jscomp$destructuring$var3 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var3.next().value, value = $jscomp$destructuring$var3.next().value;
       module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders.includes(key) ? (safeHeaders[key] = value, hasSafeHeaders = !0) : (unsafeHeaders[key] = value, hasUnsafeHeaders = !0);
     }
@@ -7984,7 +8189,7 @@ module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.build = 
   return Promise.all(this.files.map(function(f) {
     return $jscomp$this.encodeFile(f);
   })).then(function(filePayloads) {
-    for (var $jscomp$iter$11 = $jscomp.makeIterator(filePayloads), $jscomp$key$filePayload = $jscomp$iter$11.next(); !$jscomp$key$filePayload.done; $jscomp$key$filePayload = $jscomp$iter$11.next()) {
+    for (var $jscomp$iter$12 = $jscomp.makeIterator(filePayloads), $jscomp$key$filePayload = $jscomp$iter$12.next(); !$jscomp$key$filePayload.done; $jscomp$key$filePayload = $jscomp$iter$12.next()) {
       payload += $jscomp$key$filePayload.value;
     }
     return payload += "\r\n--" + $jscomp$this._boundary + "--";
@@ -8000,7 +8205,7 @@ module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.base64En
     var reader = new FileReader;
     reader.onload = function(ev) {
       try {
-        var file$29 = ev.target.result, toResolve = file$29.substr(file$29.indexOf(",") + 1);
+        var file$32 = ev.target.result, toResolve = file$32.substr(file$32.indexOf(",") + 1);
         resolve(toResolve);
       } catch (e) {
         reject(e);
@@ -13073,7 +13278,7 @@ goog.dom.createTable_ = function(doc, rows, columns, fillWithNbsp) {
   return table;
 };
 goog.dom.constHtmlToNode = function(var_args) {
-  var stringArray = module$contents$goog$array_map(arguments, goog.string.Const.unwrap), safeHtml = goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract(goog.string.Const.from("Constant HTML string, that gets turned into a Node later, so it will be automatically balanced."), stringArray.join(""));
+  var stringArray = Array.prototype.map.call(arguments, goog.string.Const.unwrap), safeHtml = goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract(goog.string.Const.from("Constant HTML string, that gets turned into a Node later, so it will be automatically balanced."), stringArray.join(""));
   return goog.dom.safeHtmlToNode(safeHtml);
 };
 goog.dom.safeHtmlToNode = function(html) {
@@ -14058,16 +14263,16 @@ goog.Promise.prototype.addChildPromise_ = function(onFulfilled, onRejected, opt_
       try {
         var result = onFulfilled.call(opt_context, value);
         resolve(result);
-      } catch (err$30) {
-        reject(err$30);
+      } catch (err$33) {
+        reject(err$33);
       }
     } : resolve;
     callbackEntry.onRejected = onRejected ? function(reason) {
       try {
         var result = onRejected.call(opt_context, reason);
         void 0 === result && reason instanceof goog.Promise.CancellationError ? reject(reason) : resolve(result);
-      } catch (err$31) {
-        reject(err$31);
+      } catch (err$34) {
+        reject(err$34);
       }
     } : reject;
   });
@@ -14157,8 +14362,8 @@ goog.Promise.prototype.executeCallback_ = function(callbackEntry, state, result)
   } else {
     try {
       callbackEntry.always ? callbackEntry.onFulfilled.call(callbackEntry.context) : goog.Promise.invokeCallback_(callbackEntry, state, result);
-    } catch (err$32) {
-      goog.Promise.handleRejection_.call(null, err$32);
+    } catch (err$35) {
+      goog.Promise.handleRejection_.call(null, err$35);
     }
   }
   goog.Promise.returnEntry_(callbackEntry);
@@ -14686,7 +14891,7 @@ goog.json.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(
       var result = eval("(" + o + ")");
       error && goog.json.errorLogger_("Invalid JSON: " + o, error);
       return result;
-    } catch (ex$33) {
+    } catch (ex$36) {
     }
   }
   throw Error("Invalid JSON string: " + o);
@@ -15277,9 +15482,9 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   }, this), this.xhr_.upload && (this.xhr_.upload.onprogress = goog.bind(this.onProgressHandler_, this)));
   try {
     goog.log.fine(this.logger_, this.formatMsg_("Opening Xhr")), this.inOpen_ = !0, this.xhr_.open(method, String(url), !0), this.inOpen_ = !1;
-  } catch (err$34) {
-    goog.log.fine(this.logger_, this.formatMsg_("Error opening Xhr: " + err$34.message));
-    this.error_(goog.net.ErrorCode.EXCEPTION, err$34);
+  } catch (err$37) {
+    goog.log.fine(this.logger_, this.formatMsg_("Error opening Xhr: " + err$37.message));
+    this.error_(goog.net.ErrorCode.EXCEPTION, err$37);
     return;
   }
   var content = opt_content || "", headers = this.headers.clone();
@@ -15296,15 +15501,15 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   if ("setTrustToken" in this.xhr_ && this.trustToken_) {
     try {
       this.xhr_.setTrustToken(this.trustToken_);
-    } catch (err$35) {
-      goog.log.fine(this.logger_, this.formatMsg_("Error SetTrustToken: " + err$35.message));
+    } catch (err$38) {
+      goog.log.fine(this.logger_, this.formatMsg_("Error SetTrustToken: " + err$38.message));
     }
   }
   try {
     this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (this.useXhr2Timeout_ = goog.net.XhrIo.shouldUseXhr2Timeout_(this.xhr_), goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete, xhr2 " + this.useXhr2Timeout_)), this.useXhr2Timeout_ ? (this.xhr_[goog.net.XhrIo.XHR2_TIMEOUT_] = this.timeoutInterval_, this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = goog.bind(this.timeout_, this)) : this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, 
     this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
-  } catch (err$36) {
-    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$36.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$36);
+  } catch (err$39) {
+    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$39.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$39);
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
@@ -15529,7 +15734,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.266";
+ee.apiclient.API_CLIENT_VERSION = "0.1.267";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15603,6 +15808,9 @@ module$contents$ee$apiclient_Call.prototype.video = function() {
 module$contents$ee$apiclient_Call.prototype.videoMap = function() {
   return new module$exports$eeapiclient$ee_api_client.ProjectsVideoMapApiClientImpl("v1alpha", this.requestService);
 };
+module$contents$ee$apiclient_Call.prototype.classifier = function() {
+  return new module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientImpl("v1alpha", this.requestService);
+};
 module$contents$ee$apiclient_Call.prototype.thumbnails = function() {
   return new module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientImpl("v1alpha", this.requestService);
 };
@@ -15622,12 +15830,12 @@ module$contents$ee$apiclient_EERequestService.prototype.send = function(params, 
   module$contents$eeapiclient$request_params_processParams(params);
   var path = params.path || "", url = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + path, args = module$contents$ee$apiclient_apiclient.makeRequest_(params.queryParams || {}), body = params.body ? JSON.stringify(params.body) : void 0;
   if (this.sync) {
-    var raw = module$contents$ee$apiclient_apiclient.send(url, args, void 0, params.httpMethod, body, this.retries), value$37 = responseCtor ? module$contents$eeapiclient$domain_object_deserialize(responseCtor, raw) : raw, thenable = function(v) {
+    var raw = module$contents$ee$apiclient_apiclient.send(url, args, void 0, params.httpMethod, body, this.retries), value$40 = responseCtor ? module$contents$eeapiclient$domain_object_deserialize(responseCtor, raw) : raw, thenable = function(v) {
       return {then:function(f) {
         return thenable(f(v));
       }};
     };
-    return thenable(value$37);
+    return thenable(value$40);
   }
   return (new Promise(function(resolve, reject) {
     module$contents$ee$apiclient_apiclient.send(url, args, function(value, error) {
@@ -15674,7 +15882,7 @@ module$contents$ee$apiclient_BatchRequestService.prototype.send = function(param
 module$contents$ee$apiclient_BatchRequestService.prototype.makeRequest = function(params) {
 };
 module$contents$ee$apiclient_apiclient.parseBatchReply = function(contentType, responseText, handle) {
-  for (var boundary = contentType.split("; boundary=")[1], $jscomp$iter$12 = $jscomp.makeIterator(responseText.split("--" + boundary)), $jscomp$key$part = $jscomp$iter$12.next(); !$jscomp$key$part.done; $jscomp$key$part = $jscomp$iter$12.next()) {
+  for (var boundary = contentType.split("; boundary=")[1], $jscomp$iter$13 = $jscomp.makeIterator(responseText.split("--" + boundary)), $jscomp$key$part = $jscomp$iter$13.next(); !$jscomp$key$part.done; $jscomp$key$part = $jscomp$iter$13.next()) {
     var groups = $jscomp$key$part.value.split("\r\n\r\n");
     if (!(3 > groups.length)) {
       var id = groups[0].match(/\r\nContent-ID: <response-([^>]*)>/)[1], status = Number(groups[1].match(/^HTTP\S*\s(\d+)\s/)[1]), text = groups.slice(2).join("\r\n\r\n");
@@ -15804,8 +16012,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.266";
-  "0.1.266" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.267";
+  "0.1.267" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -15955,7 +16163,7 @@ module$contents$ee$apiclient_apiclient.handleAuthResult_ = function(success, err
   }
 };
 module$contents$ee$apiclient_apiclient.makeRequest_ = function(params) {
-  for (var request = new goog.Uri.QueryData, $jscomp$iter$13 = $jscomp.makeIterator(Object.entries(params)), $jscomp$key$ = $jscomp$iter$13.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$13.next()) {
+  for (var request = new goog.Uri.QueryData, $jscomp$iter$14 = $jscomp.makeIterator(Object.entries(params)), $jscomp$key$ = $jscomp$iter$14.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$14.next()) {
     var $jscomp$destructuring$var11 = $jscomp.makeIterator($jscomp$key$.value), name = $jscomp$destructuring$var11.next().value, item = $jscomp$destructuring$var11.next().value;
     request.set(name, item);
   }
@@ -16305,7 +16513,7 @@ ee.rpc_convert.algorithms = function(result) {
     algorithm.deprecated && (internalAlgorithm.deprecated = algorithm.deprecationReason);
     algorithm.sourceCodeUri && (internalAlgorithm.sourceCodeUri = algorithm.sourceCodeUri);
     return internalAlgorithm;
-  }, internalAlgorithms = {}, $jscomp$iter$14 = $jscomp.makeIterator(result.algorithms || []), $jscomp$key$algorithm = $jscomp$iter$14.next(); !$jscomp$key$algorithm.done; $jscomp$key$algorithm = $jscomp$iter$14.next()) {
+  }, internalAlgorithms = {}, $jscomp$iter$15 = $jscomp.makeIterator(result.algorithms || []), $jscomp$key$algorithm = $jscomp$iter$15.next(); !$jscomp$key$algorithm.done; $jscomp$key$algorithm = $jscomp$iter$15.next()) {
     var algorithm$jscomp$0 = $jscomp$key$algorithm.value, name = algorithm$jscomp$0.name.replace(/^algorithms\//, "");
     internalAlgorithms[name] = convertAlgorithm(algorithm$jscomp$0);
   }
@@ -16360,6 +16568,8 @@ ee.rpc_convert.assetTypeToLegacyAssetType = function(type) {
       return "ImageCollection";
     case "TABLE":
       return "Table";
+    case "CLASSIFIER":
+      return "Classifier";
     default:
       return "Unknown";
   }
@@ -16453,9 +16663,9 @@ ee.rpc_convert.getListToListImages = function(param) {
   param.bbox && (imagesRequest.region = ee.rpc_convert.boundingBoxToGeoJson(param.bbox));
   param.region && (imagesRequest.region = param.region);
   param.bbox && param.region && console.warn("Multiple request parameters converted to region");
-  for (var allKeys = "id num starttime endtime bbox region".split(" "), $jscomp$iter$15 = $jscomp.makeIterator(Object.keys(param).filter(function(k) {
+  for (var allKeys = "id num starttime endtime bbox region".split(" "), $jscomp$iter$16 = $jscomp.makeIterator(Object.keys(param).filter(function(k) {
     return !allKeys.includes(k);
-  })), $jscomp$key$key = $jscomp$iter$15.next(); !$jscomp$key$key.done; $jscomp$key$key = $jscomp$iter$15.next()) {
+  })), $jscomp$key$key = $jscomp$iter$16.next(); !$jscomp$key$key.done; $jscomp$key$key = $jscomp$iter$16.next()) {
     console.warn("Unrecognized key " + $jscomp$key$key.value + " ignored");
   }
   imagesRequest.fields = "assets(type,path)";
@@ -16959,7 +17169,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
     if (!goog.isObject(object)) {
       return object;
     }
-    for (var ret = Array.isArray(object) ? [] : {}, isNode = object instanceof Object.getPrototypeOf(module$exports$eeapiclient$ee_api_client.ValueNode), $jscomp$iter$16 = $jscomp.makeIterator(Object.entries(isNode ? object.Serializable$values : object)), $jscomp$key$ = $jscomp$iter$16.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$16.next()) {
+    for (var ret = Array.isArray(object) ? [] : {}, isNode = object instanceof Object.getPrototypeOf(module$exports$eeapiclient$ee_api_client.ValueNode), $jscomp$iter$17 = $jscomp.makeIterator(Object.entries(isNode ? object.Serializable$values : object)), $jscomp$key$ = $jscomp$iter$17.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$17.next()) {
       var $jscomp$destructuring$var15 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var15.next().value, val = $jscomp$destructuring$var15.next().value;
       isNode ? null !== val && (ret[key] = "functionDefinitionValue" === key && null != val.body ? {argumentNames:val.argumentNames, body:walkObject(values[val.body])} : "functionInvocationValue" === key && null != val.functionReference ? {arguments:module$contents$goog$object_map(val.arguments, walkObject), functionReference:walkObject(values[val.functionReference])} : "constantValue" === key ? val === module$exports$eeapiclient$domain_object.NULL_VALUE ? 
       null : val : walkObject(val)) : ret[key] = walkObject(val);
@@ -17071,7 +17281,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
     })) : ee.rpc_node.array(arr);
   }
   if (null != value.dictionaryValue) {
-    for (var values = {}, constantValues = {}, $jscomp$iter$17 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$17.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$17.next()) {
+    for (var values = {}, constantValues = {}, $jscomp$iter$18 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$18.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$18.next()) {
       var $jscomp$destructuring$var17 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var17.next().value, v$jscomp$0 = $jscomp$destructuring$var17.next().value;
       values[k] = this.optimizeValue(v$jscomp$0, depth + 3);
       null !== constantValues && isConst(values[k]) ? constantValues[k] = serializeConst(values[k].constantValue) : constantValues = null;
@@ -17083,9 +17293,9 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
     return ee.rpc_node.functionDefinition(def.argumentNames || [], this.optimizeReference(def.body || ""));
   }
   if (null != value.functionInvocationValue) {
-    for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$18 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$18.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$18.next()) {
-      var k$38 = $jscomp$key$k.value;
-      args[k$38] = this.optimizeValue(inv.arguments[k$38], depth + 3);
+    for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$19 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$19.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$19.next()) {
+      var k$41 = $jscomp$key$k.value;
+      args[k$41] = this.optimizeValue(inv.arguments[k$41], depth + 3);
     }
     return inv.functionName ? ee.rpc_node.functionByName(inv.functionName, args) : ee.rpc_node.functionByReference(this.optimizeReference(inv.functionReference || ""), args);
   }
@@ -17512,7 +17722,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
   if ("string" === typeof params.crs_transform) {
     try {
       params.crs_transform = JSON.parse(params.crs_transform);
-    } catch (e$39) {
+    } catch (e$42) {
     }
   }
   var image = ee.data.images.buildDownloadIdImage(params.image, params), thumbnail = new module$exports$eeapiclient$ee_api_client.Thumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(image)), fileFormat:ee.rpc_convert.fileFormat(params.format), filenamePrefix:params.name, bandIds:params.bands && ee.rpc_convert.bandList(params.bands.map(function(band) {
@@ -17569,8 +17779,8 @@ goog.exportSymbol("ee.data.newTaskId", ee.data.newTaskId);
 ee.data.getTaskStatus = function(taskId, opt_callback) {
   var opNames = ee.data.makeStringArray_(taskId).map(ee.rpc_convert.taskIdToOperationName);
   if (1 === opNames.length) {
-    var call$41 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$41.handle(call$41.operations().get(opNames[0]).then(function(op) {
+    var call$44 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$44.handle(call$44.operations().get(opNames[0]).then(function(op) {
       return [ee.rpc_convert.operationToTask(op)];
     }));
   }
@@ -17624,8 +17834,8 @@ goog.exportSymbol("ee.data.listOperations", ee.data.listOperations);
 ee.data.cancelOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName), request = new module$exports$eeapiclient$ee_api_client.CancelOperationRequest;
   if (1 === opNames.length) {
-    var call$42 = new module$contents$ee$apiclient_Call(opt_callback);
-    call$42.handle(call$42.operations().cancel(opNames[0], request));
+    var call$45 = new module$contents$ee$apiclient_Call(opt_callback);
+    call$45.handle(call$45.operations().cancel(opNames[0], request));
   } else {
     var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
     call.send(opNames.map(function(op) {
@@ -17637,8 +17847,8 @@ goog.exportSymbol("ee.data.cancelOperation", ee.data.cancelOperation);
 ee.data.getOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName).map(ee.rpc_convert.taskIdToOperationName);
   if (!Array.isArray(operationName)) {
-    var call$43 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$43.handle(call$43.operations().get(opNames[0]));
+    var call$46 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$46.handle(call$46.operations().get(opNames[0]));
   }
   var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
   return call.send(opNames.map(function(op) {
@@ -17684,7 +17894,7 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
       return handle(call.videoMap().export(call.projectsPath(), videoMapRequest));
     case ee.data.ExportType.CLASSIFIER:
       var classifierRequest = ee.data.prepareExportClassifierRequest_(params, metadata);
-      return handle(call.map().export(call.projectsPath(), classifierRequest));
+      return handle(call.classifier().export(call.projectsPath(), classifierRequest));
     default:
       throw Error("Unable to start processing for task of type " + taskType);
   }
@@ -17893,7 +18103,7 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
   }));
 };
 goog.exportSymbol("ee.data.getAssetRootQuota", ee.data.getAssetRootQuota);
-ee.data.AssetType = {ALGORITHM:"Algorithm", FOLDER:"Folder", FEATURE_COLLECTION:"FeatureCollection", IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", TABLE:"Table", UNKNOWN:"Unknown"};
+ee.data.AssetType = {ALGORITHM:"Algorithm", CLASSIFIER:"Classifier", FOLDER:"Folder", FEATURE_COLLECTION:"FeatureCollection", IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", TABLE:"Table", UNKNOWN:"Unknown"};
 ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO", VIDEO_MAP:"EXPORT_VIDEO_MAP", CLASSIFIER:"EXPORT_CLASSIFIER"};
 ee.data.ExportState = {UNSUBMITTED:"UNSUBMITTED", READY:"READY", RUNNING:"RUNNING", COMPLETED:"COMPLETED", FAILED:"FAILED", CANCEL_REQUESTED:"CANCEL_REQUESTED", CANCELLED:"CANCELLED", };
 ee.data.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET", };
@@ -20024,7 +20234,7 @@ module$contents$ee$batch_Export.prefixImageFormatOptions_ = function(taskConfig,
   })) {
     throw Error("Parameter specified at least twice: once in config, and once in config format options.");
   }
-  for (var prefix = module$contents$ee$batch_FORMAT_PREFIX_MAP[imageFormat], validOptionKeys = module$contents$ee$batch_FORMAT_OPTIONS_MAP[imageFormat], prefixedOptions = {}, $jscomp$iter$19 = $jscomp.makeIterator(Object.entries(formatOptions)), $jscomp$key$ = $jscomp$iter$19.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$19.next()) {
+  for (var prefix = module$contents$ee$batch_FORMAT_PREFIX_MAP[imageFormat], validOptionKeys = module$contents$ee$batch_FORMAT_OPTIONS_MAP[imageFormat], prefixedOptions = {}, $jscomp$iter$20 = $jscomp.makeIterator(Object.entries(formatOptions)), $jscomp$key$ = $jscomp$iter$20.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$20.next()) {
     var $jscomp$destructuring$var21 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var21.next().value, value = $jscomp$destructuring$var21.next().value;
     if (!module$contents$goog$array_contains(validOptionKeys, key$jscomp$0)) {
       var validKeysMsg = validOptionKeys.join(", ");
@@ -20202,8 +20412,8 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
       return node.functionDefinitionValue ? 1 : node.arrayValue ? countNodes(node.arrayValue.values) : node.dictionaryValue ? countNodes(Object.values(node.dictionaryValue.values)) : node.functionInvocationValue ? countNodes(Object.values(node.functionInvocationValue.arguments)) : 0;
     };
     return countNodes(Object.values(expression.values));
-  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars))) + "_", i$44 = 0; i$44 < namelessArgIndices.length; i$44++) {
-    var index = namelessArgIndices[i$44], name = baseName + i$44;
+  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars))) + "_", i$47 = 0; i$47 < namelessArgIndices.length; i$47++) {
+    var index = namelessArgIndices[i$47], name = baseName + i$47;
     vars[index].varName = name;
     signature.args[index].name = name;
   }
