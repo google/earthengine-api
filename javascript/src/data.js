@@ -64,6 +64,7 @@ goog.require('ee.apiclient');
 goog.require('ee.rpc_convert');
 goog.require('ee.rpc_convert_batch');
 goog.require('goog.array');
+goog.require('goog.functions');
 goog.require('goog.object');
 goog.requireType('ee.Collection');
 goog.requireType('ee.ComputedObject');

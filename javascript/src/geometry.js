@@ -1,6 +1,5 @@
 /**
  * @fileoverview An object representing EE Geometries.
- * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.Geometry');
@@ -21,6 +20,8 @@ goog.require('ee.arguments');
 goog.require('goog.array');
 goog.require('goog.json.Serializer');
 goog.require('goog.object');
+
+goog.requireType('ee.data');
 
 
 

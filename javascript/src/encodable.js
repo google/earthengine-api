@@ -318,6 +318,7 @@ ee.rpc_convert.pairedValues = function(obj, a, b) {
  * - hidden: bool (optional)
  * - preview: bool (optional)
  * - deprecated: string containing deprecation reason (optional)
+ * - sourceCodeUri: string (optional)
  *
  * @param {!ee.api.ListAlgorithmsResponse} result
  * @return {!Object}

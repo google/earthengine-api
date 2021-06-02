@@ -1,6 +1,5 @@
 /**
  * @fileoverview A base class for EE Functions.
- * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.Function');
@@ -14,6 +13,7 @@ goog.require('goog.array');
 goog.require('goog.functions');
 goog.require('goog.object');
 
+goog.requireType('ee.data');
 
 
 /**

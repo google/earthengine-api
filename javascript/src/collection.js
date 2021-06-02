@@ -1,7 +1,6 @@
 /**
  * @fileoverview Base class for ImageCollection and FeatureCollection.
  * This class is never intended to be instantiated by the user.
- * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.Collection');
@@ -11,6 +10,9 @@ goog.require('ee.Element');
 goog.require('ee.Filter');
 goog.require('ee.arguments');
 
+goog.requireType('ee.ComputedObject');
+goog.requireType('ee.Function');
+goog.requireType('ee.Geometry');
 
 
 /**
