@@ -2,8 +2,6 @@
  * @fileoverview Exports the current version of the API.
  */
 goog.module('ee.apiVersion');
-goog.module.declareLegacyNamespace();
-
 const V1ALPHA = 'v1alpha';
 
 /** @const {string} */

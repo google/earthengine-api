@@ -7237,7 +7237,7 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function module$con
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$57 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$57 = {$jscomp$loop$prop$mapMetadata$58:$jscomp$loop$57.$jscomp$loop$prop$mapMetadata$58}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$59 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$59 = {$jscomp$loop$prop$mapMetadata$60:$jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60}, 
   $jscomp$key$key = $jscomp$iter$6.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
@@ -7252,11 +7252,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
           copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
         } else {
           if (objectMaps.hasOwnProperty(key)) {
-            $jscomp$loop$57.$jscomp$loop$prop$mapMetadata$58 = objectMaps[key], copy = $jscomp$loop$57.$jscomp$loop$prop$mapMetadata$58.isPropertyArray ? value.map(function($jscomp$loop$57) {
+            $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60 = objectMaps[key], copy = $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60.isPropertyArray ? value.map(function($jscomp$loop$59) {
               return function(v) {
-                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$57.$jscomp$loop$prop$mapMetadata$58, valueGetter, valueSetter, copyInstanciator);
+                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60, valueGetter, valueSetter, copyInstanciator);
               };
-            }($jscomp$loop$57)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$57.$jscomp$loop$prop$mapMetadata$58, valueGetter, valueSetter, copyInstanciator);
+            }($jscomp$loop$59)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60, valueGetter, valueSetter, copyInstanciator);
           } else {
             if (Array.isArray(value)) {
               if (metadata.emptyArrayIsUnset && 0 === value.length) {
@@ -7308,45 +7308,45 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$59 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$59 = {$jscomp$loop$prop$value2$60:$jscomp$loop$59.$jscomp$loop$prop$value2$60, $jscomp$loop$prop$mapMetadata$61:$jscomp$loop$59.$jscomp$loop$prop$mapMetadata$61}, $jscomp$key$key = $jscomp$iter$8.next()) {
+  for (var $jscomp$loop$61 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$61 = {$jscomp$loop$prop$value2$62:$jscomp$loop$61.$jscomp$loop$prop$value2$62, $jscomp$loop$prop$mapMetadata$63:$jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63}, $jscomp$key$key = $jscomp$iter$8.next()) {
     var key = $jscomp$key$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$59.$jscomp$loop$prop$value2$60 = serializable2.Serializable$get(key);
+      $jscomp$loop$61.$jscomp$loop$prop$value2$62 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$59.$jscomp$loop$prop$value2$60, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, !0, !0)) {
           return !1;
         }
       } else {
         if (objects1.hasOwnProperty(key)) {
-          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$59.$jscomp$loop$prop$value2$60, !1, !0)) {
+          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, !1, !0)) {
             return !1;
           }
         } else {
           if (objectMaps1.hasOwnProperty(key)) {
-            if ($jscomp$loop$59.$jscomp$loop$prop$mapMetadata$61 = objectMaps1[key], $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$61.isPropertyArray) {
-              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$59.$jscomp$loop$prop$value2$60) || value1.some(function($jscomp$loop$59) {
+            if ($jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63 = objectMaps1[key], $jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63.isPropertyArray) {
+              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62) || value1.some(function($jscomp$loop$61) {
                 return function(v1, i) {
-                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$59.$jscomp$loop$prop$value2$60[i], $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$61);
+                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$61.$jscomp$loop$prop$value2$62[i], $jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63);
                 };
-              }($jscomp$loop$59))) {
+              }($jscomp$loop$61))) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$59.$jscomp$loop$prop$value2$60, $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$61)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, $jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63)) {
                 return !1;
               }
             }
           } else {
             if (Array.isArray(value1)) {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$59.$jscomp$loop$prop$value2$60, !0, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, !0, !1)) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$59.$jscomp$loop$prop$value2$60, !1, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, !1, !1)) {
                 return !1;
               }
             }
@@ -12921,9 +12921,8 @@ module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl.pr
 module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClient = function() {
 };
 ee.api = module$exports$eeapiclient$ee_api_client;
-ee.apiVersion = {};
-ee.apiVersion.V1ALPHA = "v1alpha";
-ee.apiVersion.VERSION = "v1alpha";
+var module$exports$ee$apiVersion = {V1ALPHA:"v1alpha"};
+module$exports$ee$apiVersion.VERSION = module$exports$ee$apiVersion.V1ALPHA;
 var module$exports$eeapiclient$promise_request_service = {}, module$contents$eeapiclient$promise_request_service_module = module$contents$eeapiclient$promise_request_service_module || {id:"javascript/typescript/contrib/apiclient/request_service/promise_request_service.closure.js"};
 module$exports$eeapiclient$promise_request_service.PromiseRequestService = function() {
 };
@@ -15763,8 +15762,8 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 });
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
-ee.apiclient.VERSION = "v1alpha";
-ee.apiclient.API_CLIENT_VERSION = "0.1.269";
+ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
+ee.apiclient.API_CLIENT_VERSION = "0.1.270";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15803,52 +15802,52 @@ module$contents$ee$apiclient_Call.prototype.projectsPath = function() {
   return "projects/" + module$contents$ee$apiclient_apiclient.getProject();
 };
 module$contents$ee$apiclient_Call.prototype.algorithms = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.projects = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.assets = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsAssetsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.operations = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsOperationsApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsOperationsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.value = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsValueApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsValueApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.maps = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsMapsApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsMapsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.map = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsMapApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsMapApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.image = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsImageApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsImageApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.table = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsTableApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.tables = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsTablesApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.video = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsVideoApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsVideoApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.videoMap = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsVideoMapApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsVideoMapApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.classifier = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.thumbnails = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.videoThumbnails = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.filmstripThumbnails = function() {
-  return new module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClientImpl("v1alpha", this.requestService);
+  return new module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 var module$contents$ee$apiclient_EERequestService = function(sync, retries) {
   this.sync = sync = void 0 === sync ? !1 : sync;
@@ -16042,8 +16041,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.269";
-  "0.1.269" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.270";
+  "0.1.270" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -16201,7 +16200,7 @@ module$contents$ee$apiclient_apiclient.makeRequest_ = function(params) {
 };
 module$contents$ee$apiclient_apiclient.setupMockSend = function(calls) {
   function getResponse(url, method, data) {
-    url = url.replace(apiBaseUrl, "").replace("v1alpha/projects/" + module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_ + "/", "");
+    url = url.replace(apiBaseUrl, "").replace(module$exports$ee$apiVersion.V1ALPHA + "/projects/" + module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_ + "/", "");
     if (url in calls) {
       var response = calls[url];
     } else {
@@ -17660,7 +17659,7 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat) {
   if (!urlFormat) {
     module$contents$ee$apiclient_apiclient.initialize();
     var base = module$contents$ee$apiclient_apiclient.getTileBaseUrl();
-    urlFormat = token ? base + "/map/" + mapid + "/{z}/{x}/{y}?token=" + token : base + "/v1alpha/" + mapid + "/tiles/{z}/{x}/{y}";
+    urlFormat = token ? base + "/map/" + mapid + "/{z}/{x}/{y}?token=" + token : base + "/" + module$exports$ee$apiVersion.V1ALPHA + "/" + mapid + "/tiles/{z}/{x}/{y}";
   }
   return {mapid:mapid, token:token, formatTileUrl:function(x, y, z) {
     var width = Math.pow(2, z);
@@ -17711,7 +17710,7 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
 };
 goog.exportSymbol("ee.data.getFilmstripThumbId", ee.data.getFilmstripThumbId);
 ee.data.makeThumbUrl = function(id) {
-  return module$contents$ee$apiclient_apiclient.getTileBaseUrl() + "/v1alpha/" + id.thumbid + ":getPixels";
+  return module$contents$ee$apiclient_apiclient.getTileBaseUrl() + "/" + module$exports$ee$apiVersion.V1ALPHA + "/" + id.thumbid + ":getPixels";
 };
 goog.exportSymbol("ee.data.makeThumbUrl", ee.data.makeThumbUrl);
 ee.data.getDownloadId = function(params, opt_callback) {
@@ -17765,7 +17764,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
 goog.exportSymbol("ee.data.getDownloadId", ee.data.getDownloadId);
 ee.data.makeDownloadUrl = function(id) {
   module$contents$ee$apiclient_apiclient.initialize();
-  return module$contents$ee$apiclient_apiclient.getTileBaseUrl() + "/v1alpha/" + id.docid + ":getPixels";
+  return module$contents$ee$apiclient_apiclient.getTileBaseUrl() + "/" + module$exports$ee$apiVersion.V1ALPHA + "/" + id.docid + ":getPixels";
 };
 goog.exportSymbol("ee.data.makeDownloadUrl", ee.data.makeDownloadUrl);
 ee.data.getTableDownloadId = function(params, opt_callback) {
@@ -17790,7 +17789,7 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
 };
 goog.exportSymbol("ee.data.getTableDownloadId", ee.data.getTableDownloadId);
 ee.data.makeTableDownloadUrl = function(id) {
-  return module$contents$ee$apiclient_apiclient.getTileBaseUrl() + "/v1alpha/" + id.docid + ":getFeatures";
+  return module$contents$ee$apiclient_apiclient.getTileBaseUrl() + "/" + module$exports$ee$apiVersion.V1ALPHA + "/" + id.docid + ":getFeatures";
 };
 goog.exportSymbol("ee.data.makeTableDownloadUrl", ee.data.makeTableDownloadUrl);
 ee.data.newTaskId = function(opt_count, opt_callback) {
@@ -22311,11 +22310,10 @@ ee.layers.AbstractTile.EventType = {STATUS_CHANGED:"status-changed"};
 ee.layers.AbstractTile.Status = {NEW:"new", LOADING:"loading", THROTTLED:"throttled", LOADED:"loaded", FAILED:"failed", ABORTED:"aborted", REMOVED:"removed", };
 ee.layers.AbstractTile.DONE_STATUS_SET_ = module$contents$goog$object_createSet(ee.layers.AbstractTile.Status.ABORTED, ee.layers.AbstractTile.Status.FAILED, ee.layers.AbstractTile.Status.LOADED, ee.layers.AbstractTile.Status.REMOVED);
 ee.layers.AbstractTile.DEFAULT_MAX_LOAD_RETRIES_ = 5;
-var module$contents$ee$layers$AbstractTileSource_AbstractTileSource = function() {
+var module$exports$ee$layers$AbstractTileSource = function() {
   goog.Disposable.call(this);
 };
-$jscomp.inherits(module$contents$ee$layers$AbstractTileSource_AbstractTileSource, goog.Disposable);
-ee.layers.AbstractTileSource = module$contents$ee$layers$AbstractTileSource_AbstractTileSource;
+$jscomp.inherits(module$exports$ee$layers$AbstractTileSource, goog.Disposable);
 ee.layers.BinaryOverlay = function(tileSource, opt_options) {
   ee.layers.AbstractOverlay.call(this, tileSource, opt_options);
   this.buffersByCoord_ = new goog.structs.Map;
@@ -22495,13 +22493,13 @@ goog.string.path.split = function(path) {
   return [head, tail];
 };
 var module$contents$ee$layers$CloudStorageTileSource_CloudStorageTileSource = function(bucket, path, maxZoom, opt_suffix) {
-  module$contents$ee$layers$AbstractTileSource_AbstractTileSource.call(this);
+  module$exports$ee$layers$AbstractTileSource.call(this);
   this.bucket_ = bucket;
   this.path_ = path;
   this.suffix_ = opt_suffix || "";
   this.maxZoom_ = maxZoom;
 };
-$jscomp.inherits(module$contents$ee$layers$CloudStorageTileSource_CloudStorageTileSource, module$contents$ee$layers$AbstractTileSource_AbstractTileSource);
+$jscomp.inherits(module$contents$ee$layers$CloudStorageTileSource_CloudStorageTileSource, module$exports$ee$layers$AbstractTileSource);
 module$contents$ee$layers$CloudStorageTileSource_CloudStorageTileSource.prototype.loadTile = function(tile, opt_priority) {
   if (tile.zoom <= this.maxZoom_) {
     tile.sourceUrl = this.getTileUrl_(tile.coord, tile.zoom);
@@ -22865,11 +22863,11 @@ goog.structs.PriorityPool.prototype.disposeInternal = function() {
   this.requestQueue_ = null;
 };
 var module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource = function(mapId, opt_profiler) {
-  module$contents$ee$layers$AbstractTileSource_AbstractTileSource.call(this);
+  module$exports$ee$layers$AbstractTileSource.call(this);
   this.mapId_ = mapId;
   this.profiler_ = opt_profiler || null;
 };
-$jscomp.inherits(module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource, module$contents$ee$layers$AbstractTileSource_AbstractTileSource);
+$jscomp.inherits(module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource, module$exports$ee$layers$AbstractTileSource);
 module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.prototype.loadTile = function(tile, opt_priority) {
   var ProfilerHeader = module$contents$ee$apiclient_apiclient.PROFILE_HEADER.toLowerCase(), key = goog.events.listen(tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
     switch(tile.getStatus()) {

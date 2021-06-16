@@ -1,6 +1,4 @@
 goog.module('ee.layers.AbstractTileSource');
-goog.module.declareLegacyNamespace();
-
 const AbstractTile = goog.require('ee.layers.AbstractTile');
 const Disposable = goog.require('goog.Disposable');
 
