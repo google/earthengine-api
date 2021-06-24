@@ -6,7 +6,7 @@ goog.provide('ee.Types');
 
 goog.require('ee.ComputedObject');
 
-goog.requireType('ee.Function.Signature');
+goog.requireType('ee.Function');
 
 
 /**

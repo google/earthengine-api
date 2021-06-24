@@ -1345,19 +1345,19 @@ def startIngestion(request_id, params, allow_overwrite=False):
       fail as it cannot be safely retried.
     params: The object that describes the import task, which can
         have these fields:
-          id (string) The destination asset id (e.g. users/foo/bar).
+          name (string) The destination asset id (e.g.,
+             "projects/earthengine-legacy/assets/users/foo/bar").
           tilesets (array) A list of Google Cloud Storage source file paths
             formatted like:
               [{'sources': [
-                  {'primaryPath': 'foo.tif', 'additionalPaths': ['foo.prj']},
-                  {'primaryPath': 'bar.tif', 'additionalPaths': ['bar.prj'},
+                  {'uris': ['foo.tif', 'foo.prj']},
+                  {'uris': ['bar.tif', 'bar.prj']},
               ]}]
             Where path values correspond to source files' Google Cloud Storage
             object names, e.g. 'gs://bucketname/filename.tif'
           bands (array) An optional list of band names formatted like:
             [{'id': 'R'}, {'id': 'G'}, {'id': 'B'}]
-        If you are using the Cloud API, this object must instead be a dict
-        representation of an ImageManifest.
+        In general, this is a dict representation of an ImageManifest.
     allow_overwrite: Whether the ingested image can overwrite an
         existing version.
 
@@ -1400,13 +1400,13 @@ def startTableIngestion(request_id, params, allow_overwrite=False):
       fail as it cannot be safely retried.
     params: The object that describes the import task, which can
         have these fields:
-          id (string) The destination asset id (e.g. users/foo/bar).
+          name (string) The destination asset id (e.g.,
+             "projects/earthengine-legacy/assets/users/foo/bar").
           sources (array) A list of GCS (Google Cloud Storage) file paths
             with optional character encoding formatted like this:
-            "sources":[{"primaryPath":"gs://bucket/file.shp","charset":"UTF-8"}]
+            "sources":[{"uris":["gs://bucket/file.shp"],"charset":"UTF-8"}]
             Here 'charset' refers to the character encoding of the source file.
-        If you are using the Cloud API, this object must instead be a dict
-        representation of a TableManifest.
+        In general, this is a dict representation of a TableManifest.
     allow_overwrite: Whether the ingested image can overwrite an
         existing version.
   Returns:
