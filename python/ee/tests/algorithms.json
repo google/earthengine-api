@@ -14601,6 +14601,12 @@
       "description": "A map from output property names to a dictionary of output property info. Valid property info fields are \u0027type\u0027 and \u0027dimensions\u0027. \u0027type\u0027 should be a ee.PixelType describing the output property, and \u0027dimensions\u0027 is an optional integer with the number of dimensions for that property if it is an array e.g.: \"outputBands: {\u0027p\u0027: {\u0027type\u0027: ee.PixelType.int8(), \u0027dimensions\u0027: 1}}\". Required for predictions from FeatureCollections.",
       "optional": true,
       "defaultValue": null
+    }, {
+      "argumentName": "outputMultiplier",
+      "type": "Float",
+      "description": "An approximation to the increase in data volume for the model outputs over the model inputs. If specified this must be \u003e\u003d 1. This is only needed if the model produces more data than it consumes, e.g. a model that takes 5 bands and produces 10 outputs per pixel.",
+      "optional": true,
+      "defaultValue": null
     }]
   }, {
     "name": "algorithms/Model.predictImage",

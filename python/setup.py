@@ -29,7 +29,7 @@ setup(
     download_url='',  # package download URL
     packages=['ee', 'ee.cli'],
     package_data={
-        'ee': ['tests/*.py',],
+        'ee': ['tests/*.py', 'tests/*.json',],
         'ee.cli': ['licenses.txt'],
     },
     test_suite='ee/tests',

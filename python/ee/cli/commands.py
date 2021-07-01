@@ -169,7 +169,7 @@ def _comma_separated_pyramiding_policies(string):
   redvalues = []
   for value in values:
     value = value.upper()
-    if value not in {'MEAN', 'SAMPLE', 'MIN', 'MAX', 'MODE'}:
+    if value not in {'MEAN', 'SAMPLE', 'MIN', 'MAX', 'MODE', 'MEDIAN'}:
       raise argparse.ArgumentTypeError(error_msg.format(string))
     redvalues.append(value)
   return redvalues
