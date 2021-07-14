@@ -1498,7 +1498,7 @@ function module$contents$goog$debug$Error_DebugError(msg, cause) {
     stack && (this.stack = stack);
   }
   msg && (this.message = String(msg));
-  cause && (this.cause = cause);
+  void 0 !== cause && (this.cause = cause);
   this.reportErrorToServer = !0;
 }
 goog.inherits(module$contents$goog$debug$Error_DebugError, Error);
@@ -3498,39 +3498,36 @@ goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse = function(url) 
 };
 goog.html.SafeUrl.INNOCUOUS_URL = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.html.SafeUrl.INNOCUOUS_STRING);
 goog.html.SafeUrl.ABOUT_BLANK = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse("about:blank");
-goog.html.SafeStyle = function(value, token) {
-  this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = token === goog.html.SafeStyle.CONSTRUCTOR_TOKEN_PRIVATE_ ? value : "";
+var module$contents$goog$html$SafeStyle_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeStyle_SafeStyle = function(value, token) {
+  this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = token === module$contents$goog$html$SafeStyle_CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
+  this.implementsGoogStringTypedString = !0;
 };
-goog.html.SafeStyle.prototype.implementsGoogStringTypedString = !0;
-goog.html.SafeStyle.fromConstant = function(style) {
+module$contents$goog$html$SafeStyle_SafeStyle.fromConstant = function(style) {
   var styleString = goog.string.Const.unwrap(style);
   if (0 === styleString.length) {
-    return goog.html.SafeStyle.EMPTY;
+    return module$contents$goog$html$SafeStyle_SafeStyle.EMPTY;
   }
-  goog.asserts.assert(goog.string.internal.endsWith(styleString, ";"), "Last character of style string is not ';': " + styleString);
-  goog.asserts.assert(goog.string.internal.contains(styleString, ":"), "Style string must contain at least one ':', to specify a \"name: value\" pair: " + styleString);
-  return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(styleString);
+  (0,goog.asserts.assert)((0,goog.string.internal.endsWith)(styleString, ";"), "Last character of style string is not ';': " + styleString);
+  (0,goog.asserts.assert)((0,goog.string.internal.contains)(styleString, ":"), "Style string must contain at least one ':', to specify a \"name: value\" pair: " + styleString);
+  return module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(styleString);
 };
-goog.html.SafeStyle.prototype.getTypedStringValue = function() {
+module$contents$goog$html$SafeStyle_SafeStyle.prototype.getTypedStringValue = function() {
   return this.privateDoNotAccessOrElseSafeStyleWrappedValue_;
 };
-goog.html.SafeStyle.prototype.toString = function() {
+module$contents$goog$html$SafeStyle_SafeStyle.prototype.toString = function() {
   return this.privateDoNotAccessOrElseSafeStyleWrappedValue_.toString();
 };
-goog.html.SafeStyle.unwrap = function(safeStyle) {
-  if (safeStyle instanceof goog.html.SafeStyle && safeStyle.constructor === goog.html.SafeStyle) {
+module$contents$goog$html$SafeStyle_SafeStyle.unwrap = function(safeStyle) {
+  if (safeStyle instanceof module$contents$goog$html$SafeStyle_SafeStyle && safeStyle.constructor === module$contents$goog$html$SafeStyle_SafeStyle) {
     return safeStyle.privateDoNotAccessOrElseSafeStyleWrappedValue_;
   }
-  goog.asserts.fail("expected object of type SafeStyle, got '" + safeStyle + "' of type " + goog.typeOf(safeStyle));
+  (0,goog.asserts.fail)("expected object of type SafeStyle, got '" + safeStyle + "' of type " + goog.typeOf(safeStyle));
   return "type_error:SafeStyle";
 };
-goog.html.SafeStyle.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
-goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse = function(style) {
-  return new goog.html.SafeStyle(style, goog.html.SafeStyle.CONSTRUCTOR_TOKEN_PRIVATE_);
+module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse = function(style) {
+  return new module$contents$goog$html$SafeStyle_SafeStyle(style, module$contents$goog$html$SafeStyle_CONSTRUCTOR_TOKEN_PRIVATE);
 };
-goog.html.SafeStyle.EMPTY = goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse("");
-goog.html.SafeStyle.INNOCUOUS_STRING = "zClosurez";
-goog.html.SafeStyle.create = function(map) {
+module$contents$goog$html$SafeStyle_SafeStyle.create = function(map) {
   var style = "", name;
   for (name in map) {
     if (Object.prototype.hasOwnProperty.call(map, name)) {
@@ -3538,46 +3535,55 @@ goog.html.SafeStyle.create = function(map) {
         throw Error("Name allows only [-_a-zA-Z0-9], got: " + name);
       }
       var value = map[name];
-      null != value && (value = Array.isArray(value) ? value.map(goog.html.SafeStyle.sanitizePropertyValue_).join(" ") : goog.html.SafeStyle.sanitizePropertyValue_(value), style += name + ":" + value + ";");
+      null != value && (value = Array.isArray(value) ? value.map(module$contents$goog$html$SafeStyle_sanitizePropertyValue).join(" ") : module$contents$goog$html$SafeStyle_sanitizePropertyValue(value), style += name + ":" + value + ";");
     }
   }
-  return style ? goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style) : goog.html.SafeStyle.EMPTY;
+  return style ? module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style) : module$contents$goog$html$SafeStyle_SafeStyle.EMPTY;
 };
-goog.html.SafeStyle.sanitizePropertyValue_ = function(value) {
+module$contents$goog$html$SafeStyle_SafeStyle.concat = function(var_args) {
+  var style = "", addArgument = function(argument) {
+    Array.isArray(argument) ? argument.forEach(addArgument) : style += module$contents$goog$html$SafeStyle_SafeStyle.unwrap(argument);
+  };
+  Array.prototype.forEach.call(arguments, addArgument);
+  return style ? module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style) : module$contents$goog$html$SafeStyle_SafeStyle.EMPTY;
+};
+module$contents$goog$html$SafeStyle_SafeStyle.EMPTY = module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse("");
+module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING = "zClosurez";
+function module$contents$goog$html$SafeStyle_sanitizePropertyValue(value) {
   if (value instanceof goog.html.SafeUrl) {
     return 'url("' + goog.html.SafeUrl.unwrap(value).replace(/</g, "%3c").replace(/[\\"]/g, "\\$&") + '")';
   }
-  var result = value instanceof goog.string.Const ? goog.string.Const.unwrap(value) : goog.html.SafeStyle.sanitizePropertyValueString_(String(value));
+  var result = value instanceof goog.string.Const ? goog.string.Const.unwrap(value) : module$contents$goog$html$SafeStyle_sanitizePropertyValueString(String(value));
   if (/[{;}]/.test(result)) {
     throw new goog.asserts.AssertionError("Value does not allow [{;}], got: %s.", [result]);
   }
   return result;
-};
-goog.html.SafeStyle.sanitizePropertyValueString_ = function(value) {
-  var valueWithoutFunctions = value.replace(goog.html.SafeStyle.FUNCTIONS_RE_, "$1").replace(goog.html.SafeStyle.FUNCTIONS_RE_, "$1").replace(goog.html.SafeStyle.URL_RE_, "url");
-  if (goog.html.SafeStyle.VALUE_RE_.test(valueWithoutFunctions)) {
-    if (goog.html.SafeStyle.COMMENT_RE_.test(value)) {
-      return goog.asserts.fail("String value disallows comments, got: " + value), goog.html.SafeStyle.INNOCUOUS_STRING;
+}
+function module$contents$goog$html$SafeStyle_sanitizePropertyValueString(value) {
+  var valueWithoutFunctions = value.replace(module$contents$goog$html$SafeStyle_FUNCTIONS_RE, "$1").replace(module$contents$goog$html$SafeStyle_FUNCTIONS_RE, "$1").replace(module$contents$goog$html$SafeStyle_URL_RE, "url");
+  if (module$contents$goog$html$SafeStyle_VALUE_RE.test(valueWithoutFunctions)) {
+    if (module$contents$goog$html$SafeStyle_COMMENT_RE.test(value)) {
+      return (0,goog.asserts.fail)("String value disallows comments, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
     }
-    if (!goog.html.SafeStyle.hasBalancedQuotes_(value)) {
-      return goog.asserts.fail("String value requires balanced quotes, got: " + value), goog.html.SafeStyle.INNOCUOUS_STRING;
+    if (!module$contents$goog$html$SafeStyle_hasBalancedQuotes(value)) {
+      return (0,goog.asserts.fail)("String value requires balanced quotes, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
     }
-    if (!goog.html.SafeStyle.hasBalancedSquareBrackets_(value)) {
-      return goog.asserts.fail("String value requires balanced square brackets and one identifier per pair of brackets, got: " + value), goog.html.SafeStyle.INNOCUOUS_STRING;
+    if (!module$contents$goog$html$SafeStyle_hasBalancedSquareBrackets(value)) {
+      return (0,goog.asserts.fail)("String value requires balanced square brackets and one identifier per pair of brackets, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
     }
   } else {
-    return goog.asserts.fail("String value allows only " + goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ + " and simple functions, got: " + value), goog.html.SafeStyle.INNOCUOUS_STRING;
+    return (0,goog.asserts.fail)("String value allows only [-,.\"'%_!# a-zA-Z0-9\\[\\]] and simple functions, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
   }
-  return goog.html.SafeStyle.sanitizeUrl_(value);
-};
-goog.html.SafeStyle.hasBalancedQuotes_ = function(value) {
+  return module$contents$goog$html$SafeStyle_sanitizeUrl(value);
+}
+function module$contents$goog$html$SafeStyle_hasBalancedQuotes(value) {
   for (var outsideSingle = !0, outsideDouble = !0, i = 0; i < value.length; i++) {
     var c = value.charAt(i);
     "'" == c && outsideDouble ? outsideSingle = !outsideSingle : '"' == c && outsideSingle && (outsideDouble = !outsideDouble);
   }
   return outsideSingle && outsideDouble;
-};
-goog.html.SafeStyle.hasBalancedSquareBrackets_ = function(value) {
+}
+function module$contents$goog$html$SafeStyle_hasBalancedSquareBrackets(value) {
   for (var outside = !0, tokenRe = /^[-_a-zA-Z0-9]$/, i = 0; i < value.length; i++) {
     var c = value.charAt(i);
     if ("]" == c) {
@@ -3599,15 +3605,10 @@ goog.html.SafeStyle.hasBalancedSquareBrackets_ = function(value) {
     }
   }
   return outside;
-};
-goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ = "[-,.\"'%_!# a-zA-Z0-9\\[\\]]";
-goog.html.SafeStyle.VALUE_RE_ = new RegExp("^" + goog.html.SafeStyle.VALUE_ALLOWED_CHARS_ + "+$");
-goog.html.SafeStyle.URL_RE_ = /\b(url\([ \t\n]*)('[ -&(-\[\]-~]*'|"[ !#-\[\]-~]*"|[!#-&*-\[\]-~]*)([ \t\n]*\))/g;
-goog.html.SafeStyle.ALLOWED_FUNCTIONS_ = "calc cubic-bezier fit-content hsl hsla linear-gradient matrix minmax repeat rgb rgba (rotate|scale|translate)(X|Y|Z|3d)?".split(" ");
-goog.html.SafeStyle.FUNCTIONS_RE_ = new RegExp("\\b(" + goog.html.SafeStyle.ALLOWED_FUNCTIONS_.join("|") + ")\\([-+*/0-9a-z.%\\[\\], ]+\\)", "g");
-goog.html.SafeStyle.COMMENT_RE_ = /\/\*/;
-goog.html.SafeStyle.sanitizeUrl_ = function(value) {
-  return value.replace(goog.html.SafeStyle.URL_RE_, function(match$jscomp$0, before, url, after) {
+}
+var module$contents$goog$html$SafeStyle_VALUE_RE = /^[-,."'%_!# a-zA-Z0-9\[\]]+$/, module$contents$goog$html$SafeStyle_URL_RE = /\b(url\([ \t\n]*)('[ -&(-\[\]-~]*'|"[ !#-\[\]-~]*"|[!#-&*-\[\]-~]*)([ \t\n]*\))/g, module$contents$goog$html$SafeStyle_FUNCTIONS_RE = /\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?)\([-+*/0-9a-z.%\[\], ]+\)/g, module$contents$goog$html$SafeStyle_COMMENT_RE = /\/\*/;
+function module$contents$goog$html$SafeStyle_sanitizeUrl(value) {
+  return value.replace(module$contents$goog$html$SafeStyle_URL_RE, function(match$jscomp$0, before, url, after) {
     var quote = "";
     url = url.replace(/^(['"])(.*)\1$/, function(match, start, inside) {
       quote = start;
@@ -3616,14 +3617,8 @@ goog.html.SafeStyle.sanitizeUrl_ = function(value) {
     var sanitized = goog.html.SafeUrl.sanitize(url).getTypedStringValue();
     return before + quote + sanitized + quote + after;
   });
-};
-goog.html.SafeStyle.concat = function(var_args) {
-  var style = "", addArgument = function(argument) {
-    Array.isArray(argument) ? argument.forEach(addArgument) : style += goog.html.SafeStyle.unwrap(argument);
-  };
-  Array.prototype.forEach.call(arguments, addArgument);
-  return style ? goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style) : goog.html.SafeStyle.EMPTY;
-};
+}
+goog.html.SafeStyle = module$contents$goog$html$SafeStyle_SafeStyle;
 var module$contents$goog$html$SafeStyleSheet_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeStyleSheet_SafeStyleSheet = function(value, token) {
   this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = token === module$contents$goog$html$SafeStyleSheet_CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
   this.implementsGoogStringTypedString = !0;
@@ -3639,8 +3634,8 @@ module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createRule = function(se
   if (!module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.hasBalancedBrackets_(selectorToCheck)) {
     throw Error("() and [] in selector must be balanced, got: " + selector);
   }
-  style instanceof goog.html.SafeStyle || (style = goog.html.SafeStyle.create(style));
-  var styleSheet = selector + "{" + goog.html.SafeStyle.unwrap(style).replace(/</g, "\\3C ") + "}";
+  style instanceof module$contents$goog$html$SafeStyle_SafeStyle || (style = module$contents$goog$html$SafeStyle_SafeStyle.create(style));
+  var styleSheet = selector + "{" + module$contents$goog$html$SafeStyle_SafeStyle.unwrap(style).replace(/</g, "\\3C ") + "}";
   return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
 };
 module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.hasBalancedBrackets_ = function(s) {
@@ -3854,8 +3849,8 @@ goog.html.SafeHtml.getStyleValue_ = function(value) {
   if (!goog.isObject(value)) {
     throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'The "style" attribute requires goog.html.SafeStyle or map of style properties, ' + typeof value + " given: " + value : "");
   }
-  value instanceof goog.html.SafeStyle || (value = goog.html.SafeStyle.create(value));
-  return goog.html.SafeStyle.unwrap(value);
+  value instanceof module$contents$goog$html$SafeStyle_SafeStyle || (value = module$contents$goog$html$SafeStyle_SafeStyle.create(value));
+  return module$contents$goog$html$SafeStyle_SafeStyle.unwrap(value);
 };
 goog.html.SafeHtml.createWithDir = function(dir, tagName, opt_attributes, opt_content) {
   var html = goog.html.SafeHtml.create(tagName, opt_attributes, opt_content);
@@ -3963,7 +3958,7 @@ goog.html.uncheckedconversions.safeScriptFromStringKnownToSatisfyTypeContract = 
 goog.html.uncheckedconversions.safeStyleFromStringKnownToSatisfyTypeContract = function(justification, style) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
   goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return goog.html.SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
+  return module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
 };
 goog.html.uncheckedconversions.safeStyleSheetFromStringKnownToSatisfyTypeContract = function(justification, styleSheet) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
@@ -4033,7 +4028,7 @@ goog.dom.safe.setInputFormAction = function(input, url) {
   goog.dom.asserts.assertIsHTMLInputElement(input).formAction = goog.html.SafeUrl.unwrap(safeUrl);
 };
 goog.dom.safe.setStyle = function(elem, style) {
-  elem.style.cssText = goog.html.SafeStyle.unwrap(style);
+  elem.style.cssText = module$contents$goog$html$SafeStyle_SafeStyle.unwrap(style);
 };
 goog.dom.safe.documentWrite = function(doc, html) {
   doc.write(goog.html.SafeHtml.unwrapTrustedHTML(html));
@@ -7261,7 +7256,7 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function module$con
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$59 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$59 = {$jscomp$loop$prop$mapMetadata$60:$jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$66 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$66 = {$jscomp$loop$prop$mapMetadata$67:$jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67}, 
   $jscomp$key$key = $jscomp$iter$6.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
@@ -7276,11 +7271,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
           copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
         } else {
           if (objectMaps.hasOwnProperty(key)) {
-            $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60 = objectMaps[key], copy = $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60.isPropertyArray ? value.map(function($jscomp$loop$59) {
+            $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67 = objectMaps[key], copy = $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67.isPropertyArray ? value.map(function($jscomp$loop$66) {
               return function(v) {
-                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60, valueGetter, valueSetter, copyInstanciator);
+                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67, valueGetter, valueSetter, copyInstanciator);
               };
-            }($jscomp$loop$59)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$59.$jscomp$loop$prop$mapMetadata$60, valueGetter, valueSetter, copyInstanciator);
+            }($jscomp$loop$66)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67, valueGetter, valueSetter, copyInstanciator);
           } else {
             if (Array.isArray(value)) {
               if (metadata.emptyArrayIsUnset && 0 === value.length) {
@@ -7332,45 +7327,45 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$61 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$61 = {$jscomp$loop$prop$value2$62:$jscomp$loop$61.$jscomp$loop$prop$value2$62, $jscomp$loop$prop$mapMetadata$63:$jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63}, $jscomp$key$key = $jscomp$iter$8.next()) {
+  for (var $jscomp$loop$68 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$68 = {$jscomp$loop$prop$value2$69:$jscomp$loop$68.$jscomp$loop$prop$value2$69, $jscomp$loop$prop$mapMetadata$70:$jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70}, $jscomp$key$key = $jscomp$iter$8.next()) {
     var key = $jscomp$key$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$61.$jscomp$loop$prop$value2$62 = serializable2.Serializable$get(key);
+      $jscomp$loop$68.$jscomp$loop$prop$value2$69 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, !0, !0)) {
           return !1;
         }
       } else {
         if (objects1.hasOwnProperty(key)) {
-          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, !1, !0)) {
+          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, !1, !0)) {
             return !1;
           }
         } else {
           if (objectMaps1.hasOwnProperty(key)) {
-            if ($jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63 = objectMaps1[key], $jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63.isPropertyArray) {
-              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62) || value1.some(function($jscomp$loop$61) {
+            if ($jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70 = objectMaps1[key], $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70.isPropertyArray) {
+              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69) || value1.some(function($jscomp$loop$68) {
                 return function(v1, i) {
-                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$61.$jscomp$loop$prop$value2$62[i], $jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63);
+                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$68.$jscomp$loop$prop$value2$69[i], $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70);
                 };
-              }($jscomp$loop$61))) {
+              }($jscomp$loop$68))) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, $jscomp$loop$61.$jscomp$loop$prop$mapMetadata$63)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70)) {
                 return !1;
               }
             }
           } else {
             if (Array.isArray(value1)) {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, !0, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, !0, !1)) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$61.$jscomp$loop$prop$value2$62, !1, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, !1, !1)) {
                 return !1;
               }
             }
@@ -8181,7 +8176,7 @@ function module$contents$eeapiclient$request_params_processParams(params) {
 module$exports$eeapiclient$request_params.processParams = module$contents$eeapiclient$request_params_processParams;
 function module$contents$eeapiclient$request_params_buildQueryParams(params, mapping, passthroughParams) {
   for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$10 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$ = $jscomp$iter$10.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$10.next()) {
-    var $jscomp$destructuring$var1 = $jscomp.makeIterator($jscomp$key$.value), jsName = $jscomp$destructuring$var1.next().value, urlQueryParamName = $jscomp$destructuring$var1.next().value;
+    var $jscomp$destructuring$var1 = $jscomp.makeIterator($jscomp$key$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var1.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var1.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
     jsName in params && (urlQueryParams[urlQueryParamName] = params[jsName]);
   }
   return urlQueryParams;
@@ -8193,7 +8188,7 @@ module$exports$eeapiclient$request_params.bypassCorsPreflight = function module$
   if (params.headers) {
     hasContentType = null != params.headers["Content-Type"];
     for (var $jscomp$iter$11 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$ = $jscomp$iter$11.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$11.next()) {
-      var $jscomp$destructuring$var3 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var3.next().value, value = $jscomp$destructuring$var3.next().value;
+      var $jscomp$destructuring$var3 = $jscomp.makeIterator($jscomp$key$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var3.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var3.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
       module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders.includes(key) ? (safeHeaders[key] = value, hasSafeHeaders = !0) : (unsafeHeaders[key] = value, hasUnsafeHeaders = !0);
     }
   }
@@ -10561,13 +10556,14 @@ module$exports$eeapiclient$ee_api_client.ImageManifest = function(parameters) {
   this.Serializable$set("pyramidingPolicy", null == parameters.pyramidingPolicy ? null : parameters.pyramidingPolicy);
   this.Serializable$set("startTime", null == parameters.startTime ? null : parameters.startTime);
   this.Serializable$set("endTime", null == parameters.endTime ? null : parameters.endTime);
+  this.Serializable$set("minTileAreaRatio", null == parameters.minTileAreaRatio ? null : parameters.minTileAreaRatio);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ImageManifest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ImageManifest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ImageManifest;
 };
 module$exports$eeapiclient$ee_api_client.ImageManifest.prototype.getPartialClassMetadata = function() {
-  return {arrays:{bands:module$exports$eeapiclient$ee_api_client.TilesetBand, maskBands:module$exports$eeapiclient$ee_api_client.TilesetMaskBand, tilesets:module$exports$eeapiclient$ee_api_client.Tileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum}, keys:"bands endTime footprint maskBands missingData name properties pyramidingPolicy startTime tilesets uriPrefix".split(" "), 
+  return {arrays:{bands:module$exports$eeapiclient$ee_api_client.TilesetBand, maskBands:module$exports$eeapiclient$ee_api_client.TilesetMaskBand, tilesets:module$exports$eeapiclient$ee_api_client.Tileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum}, keys:"bands endTime footprint maskBands minTileAreaRatio missingData name properties pyramidingPolicy startTime tilesets uriPrefix".split(" "), 
   objectMaps:{properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{footprint:module$exports$eeapiclient$ee_api_client.PixelFootprint, missingData:module$exports$eeapiclient$ee_api_client.MissingData}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ImageManifest.prototype, {bands:{configurable:!0, enumerable:!0, get:function() {
@@ -10586,6 +10582,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("maskBands") ? this.Serializable$get("maskBands") : null;
 }, set:function(value) {
   this.Serializable$set("maskBands", value);
+}}, minTileAreaRatio:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("minTileAreaRatio") ? this.Serializable$get("minTileAreaRatio") : null;
+}, set:function(value) {
+  this.Serializable$set("minTileAreaRatio", value);
 }}, missingData:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("missingData") ? this.Serializable$get("missingData") : null;
 }, set:function(value) {
@@ -15786,7 +15786,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.272";
+ee.apiclient.API_CLIENT_VERSION = "0.1.273";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -16064,8 +16064,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.272";
-  "0.1.272" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.273";
+  "0.1.273" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -22933,6 +22933,19 @@ goog.exportSymbol("ee.layers.EarthEngineTileSource", module$contents$ee$layers$E
 module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_POOL_ = null;
 module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_COUNT_ = 4;
 ee.layers.EarthEngineTileSource = module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource;
+goog.singleton = {};
+var module$contents$goog$singleton_instantiatedSingletons = [], module$contents$goog$singleton_Singleton = function() {
+};
+goog.singleton.getInstance = function(ctor) {
+  (0,goog.asserts.assert)(!Object.isSealed(ctor), "Cannot use getInstance() with a sealed constructor.");
+  if (ctor.instance_ && ctor.hasOwnProperty("instance_")) {
+    return ctor.instance_;
+  }
+  goog.DEBUG && module$contents$goog$singleton_instantiatedSingletons.push(ctor);
+  var instance = new ctor;
+  return ctor.instance_ = instance;
+};
+goog.singleton.instantiatedSingletons = module$contents$goog$singleton_instantiatedSingletons;
 ee.MapTileManager = function() {
   goog.events.EventTarget.call(this);
   this.tokenPool_ = new ee.MapTileManager.TokenPool_(0, 60);
@@ -22987,8 +23000,10 @@ ee.MapTileManager.prototype.disposeInternal = function() {
   requests.clear();
   this.requests_ = null;
 };
+ee.MapTileManager.getInstance = function() {
+  return goog.singleton.getInstance(ee.MapTileManager);
+};
 goog.exportSymbol("ee.MapTileManager", ee.MapTileManager);
-goog.addSingletonGetter(ee.MapTileManager);
 ee.MapTileManager.MAX_RETRIES = 1;
 ee.MapTileManager.ERROR_ID_IN_USE_ = "[ee.MapTileManager] ID in use";
 ee.MapTileManager.Request_ = function(id, url, opt_imageEventCallback, opt_requestCompleteCallback, opt_maxRetries) {

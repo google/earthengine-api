@@ -10320,7 +10320,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.getRegion",
-    "description": "Output an array of values for each [pixel, band, image] tuple in an ImageCollection.  The output contains rows of id, lon, lat, time, and all bands for each image that intersects each pixel in the given region.",
+    "description": "Output an array of values for each [pixel, band, image] tuple in an ImageCollection.  The output contains rows of id, lon, lat, time, and all bands for each image that intersects each pixel in the given region. Attempting to extract more than 1048576 values will result in an error.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "collection",

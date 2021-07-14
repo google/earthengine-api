@@ -3,7 +3,6 @@
  */
 
 goog.provide('ee.Function');
-goog.provide('ee.Function.Signature');
 
 goog.require('ee.ComputedObject');
 goog.require('ee.Encodable');

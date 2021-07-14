@@ -97,6 +97,12 @@ class FilterTest(apitestcase.ApiTestCase):
         ee.ApiFunction.call_('Filter.intersects', '.all', feature),
         ee.Filter.geometry(collection))
 
+    # Check the bounds() alias.
+    self.assertEqual(
+        ee.ApiFunction.call_('Filter.intersects', '.all',
+                             ee.ApiFunction.call_('Feature', polygon)),
+        ee.Filter.bounds(polygon))
+
   def testInList(self):
     """Verifies that list membership filters work."""
     self.assertEqual(

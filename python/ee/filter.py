@@ -285,5 +285,23 @@ class Filter(computedobject.ComputedObject):
     return apifunction.ApiFunction.apply_('Filter.intersects', args)
 
   @staticmethod
+  def bounds(geometry, opt_errorMargin=None):
+    """Filter on intersection with geometry.
+
+    Items in the collection with a footprint that fails to intersect
+    the given geometry will be excluded.  This is an alias for geometry().
+
+    Args:
+      geometry: The geometry to filter to either as a GeoJSON geometry,
+          or a FeatureCollection, from which a geometry will be extracted.
+      opt_errorMargin: An optional error margin. If a number, interpreted as
+          sphere surface meters.
+
+    Returns:
+      The constructed filter.
+    """
+    return Filter.geometry(geometry, opt_errorMargin)
+
+  @staticmethod
   def name():
     return 'Filter'

@@ -41,10 +41,9 @@ goog.require('goog.html.SafeUrl');
 goog.require('goog.net.EventType');
 goog.require('goog.net.ImageLoader');
 goog.require('goog.net.XhrIo');
+goog.require('goog.singleton');
 goog.require('goog.structs.Map');
 goog.require('goog.structs.PriorityPool');
-
-
 
 /**
  * A manager of a TokenPool.
@@ -196,9 +195,15 @@ ee.MapTileManager = class extends goog.events.EventTarget {
     requests.clear();
     this.requests_ = null;
   }
-};
 
-goog.addSingletonGetter(ee.MapTileManager);
+  /**
+   * @return {!ee.MapTileManager}
+   * @nocollapse
+   */
+  static getInstance() {
+    return goog.singleton.getInstance(ee.MapTileManager);
+  }
+};
 
 
 /**
@@ -559,7 +564,7 @@ ee.MapTileManager.Request_.prototype.aborted_ = false;
 /**
  * The ImageLoader instance handling this request.
  * Set in handleAvailableImageLoader.
- * @type {goog.net.ImageLoader}
+ * @type {?goog.net.ImageLoader}
  * @private
  */
 ee.MapTileManager.Request_.prototype.imageLoader_ = null;
@@ -567,7 +572,7 @@ ee.MapTileManager.Request_.prototype.imageLoader_ = null;
 
 /**
  * The token that should be released when the request has finished.
- * @type {ee.MapTileManager.Token_}
+ * @type {?ee.MapTileManager.Token_}
  * @private
  */
 ee.MapTileManager.Request_.prototype.token_ = null;
@@ -575,7 +580,7 @@ ee.MapTileManager.Request_.prototype.token_ = null;
 
 /**
  * An event that will be sent to the listeners.
- * @type {goog.events.Event}
+ * @type {?goog.events.Event}
  * @private
  */
 ee.MapTileManager.Request_.prototype.event_ = null;
