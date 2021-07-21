@@ -134,7 +134,7 @@ def _in_jupyter_shell():
 
 
 def _obtain_and_write_token(auth_code=None, code_verifier=None):
-  """Obtains and writes credentials token based on a authorization code."""
+  """Obtains and writes credentials token based on an authorization code."""
   if not auth_code:
     auth_code = input('Enter verification code: ')
   assert isinstance(auth_code, six.string_types)

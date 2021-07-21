@@ -3606,7 +3606,7 @@ function module$contents$goog$html$SafeStyle_hasBalancedSquareBrackets(value) {
   }
   return outside;
 }
-var module$contents$goog$html$SafeStyle_VALUE_RE = /^[-,."'%_!# a-zA-Z0-9\[\]]+$/, module$contents$goog$html$SafeStyle_URL_RE = /\b(url\([ \t\n]*)('[ -&(-\[\]-~]*'|"[ !#-\[\]-~]*"|[!#-&*-\[\]-~]*)([ \t\n]*\))/g, module$contents$goog$html$SafeStyle_FUNCTIONS_RE = /\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?)\([-+*/0-9a-z.%\[\], ]+\)/g, module$contents$goog$html$SafeStyle_COMMENT_RE = /\/\*/;
+var module$contents$goog$html$SafeStyle_VALUE_RE = /^[-,."'%_!# a-zA-Z0-9\[\]]+$/, module$contents$goog$html$SafeStyle_URL_RE = /\b(url\([ \t\n]*)('[ -&(-\[\]-~]*'|"[ !#-\[\]-~]*"|[!#-&*-\[\]-~]*)([ \t\n]*\))/g, module$contents$goog$html$SafeStyle_FUNCTIONS_RE = /\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|var)\([-+*/0-9a-z.%\[\], ]+\)/g, module$contents$goog$html$SafeStyle_COMMENT_RE = /\/\*/;
 function module$contents$goog$html$SafeStyle_sanitizeUrl(value) {
   return value.replace(module$contents$goog$html$SafeStyle_URL_RE, function(match$jscomp$0, before, url, after) {
     var quote = "";
@@ -3684,107 +3684,100 @@ module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.prototype.toString = fun
 };
 module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.EMPTY = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse("");
 goog.html.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
-goog.html.SafeHtml = function(value, dir, token) {
-  this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = token === goog.html.SafeHtml.CONSTRUCTOR_TOKEN_PRIVATE_ ? value : "";
+var module$contents$goog$html$SafeHtml_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeHtml_SafeHtml = function(value, dir, token) {
+  this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = token === module$contents$goog$html$SafeHtml_CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
   this.dir_ = dir;
+  this.implementsGoogStringTypedString = this.implementsGoogI18nBidiDirectionalString = !0;
 };
-goog.html.SafeHtml.ENABLE_ERROR_MESSAGES = goog.DEBUG;
-goog.html.SafeHtml.SUPPORT_STYLE_ATTRIBUTE = !0;
-goog.html.SafeHtml.prototype.implementsGoogI18nBidiDirectionalString = !0;
-goog.html.SafeHtml.prototype.getDirection = function() {
+module$contents$goog$html$SafeHtml_SafeHtml.prototype.getDirection = function() {
   return this.dir_;
 };
-goog.html.SafeHtml.prototype.implementsGoogStringTypedString = !0;
-goog.html.SafeHtml.prototype.getTypedStringValue = function() {
+module$contents$goog$html$SafeHtml_SafeHtml.prototype.getTypedStringValue = function() {
   return this.privateDoNotAccessOrElseSafeHtmlWrappedValue_.toString();
 };
-goog.html.SafeHtml.prototype.toString = function() {
+module$contents$goog$html$SafeHtml_SafeHtml.prototype.toString = function() {
   return this.privateDoNotAccessOrElseSafeHtmlWrappedValue_.toString();
 };
-goog.html.SafeHtml.unwrap = function(safeHtml) {
-  return goog.html.SafeHtml.unwrapTrustedHTML(safeHtml).toString();
+module$contents$goog$html$SafeHtml_SafeHtml.unwrap = function(safeHtml) {
+  return module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(safeHtml).toString();
 };
-goog.html.SafeHtml.unwrapTrustedHTML = function(safeHtml) {
-  if (safeHtml instanceof goog.html.SafeHtml && safeHtml.constructor === goog.html.SafeHtml) {
+module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML = function(safeHtml) {
+  if (safeHtml instanceof module$contents$goog$html$SafeHtml_SafeHtml && safeHtml.constructor === module$contents$goog$html$SafeHtml_SafeHtml) {
     return safeHtml.privateDoNotAccessOrElseSafeHtmlWrappedValue_;
   }
   goog.asserts.fail("expected object of type SafeHtml, got '" + safeHtml + "' of type " + goog.typeOf(safeHtml));
   return "type_error:SafeHtml";
 };
-goog.html.SafeHtml.htmlEscape = function(textOrHtml) {
-  if (textOrHtml instanceof goog.html.SafeHtml) {
+module$contents$goog$html$SafeHtml_SafeHtml.htmlEscape = function(textOrHtml) {
+  if (textOrHtml instanceof module$contents$goog$html$SafeHtml_SafeHtml) {
     return textOrHtml;
   }
   var textIsObject = "object" == typeof textOrHtml, dir = null;
   textIsObject && textOrHtml.implementsGoogI18nBidiDirectionalString && (dir = textOrHtml.getDirection());
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.htmlEscape(textIsObject && textOrHtml.implementsGoogStringTypedString ? textOrHtml.getTypedStringValue() : String(textOrHtml)), dir);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.htmlEscape(textIsObject && textOrHtml.implementsGoogStringTypedString ? textOrHtml.getTypedStringValue() : String(textOrHtml)), dir);
 };
-goog.html.SafeHtml.htmlEscapePreservingNewlines = function(textOrHtml) {
-  if (textOrHtml instanceof goog.html.SafeHtml) {
+module$contents$goog$html$SafeHtml_SafeHtml.htmlEscapePreservingNewlines = function(textOrHtml) {
+  if (textOrHtml instanceof module$contents$goog$html$SafeHtml_SafeHtml) {
     return textOrHtml;
   }
-  var html = goog.html.SafeHtml.htmlEscape(textOrHtml);
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.newLineToBr(goog.html.SafeHtml.unwrap(html)), html.getDirection());
+  var html = module$contents$goog$html$SafeHtml_SafeHtml.htmlEscape(textOrHtml);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.newLineToBr(module$contents$goog$html$SafeHtml_SafeHtml.unwrap(html)), html.getDirection());
 };
-goog.html.SafeHtml.htmlEscapePreservingNewlinesAndSpaces = function(textOrHtml) {
-  if (textOrHtml instanceof goog.html.SafeHtml) {
+module$contents$goog$html$SafeHtml_SafeHtml.htmlEscapePreservingNewlinesAndSpaces = function(textOrHtml) {
+  if (textOrHtml instanceof module$contents$goog$html$SafeHtml_SafeHtml) {
     return textOrHtml;
   }
-  var html = goog.html.SafeHtml.htmlEscape(textOrHtml);
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.whitespaceEscape(goog.html.SafeHtml.unwrap(html)), html.getDirection());
+  var html = module$contents$goog$html$SafeHtml_SafeHtml.htmlEscape(textOrHtml);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(goog.string.internal.whitespaceEscape(module$contents$goog$html$SafeHtml_SafeHtml.unwrap(html)), html.getDirection());
 };
-goog.html.SafeHtml.from = goog.html.SafeHtml.htmlEscape;
-goog.html.SafeHtml.comment = function(text) {
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("\x3c!--" + goog.string.internal.htmlEscape(text) + "--\x3e", null);
+module$contents$goog$html$SafeHtml_SafeHtml.comment = function(text) {
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("\x3c!--" + goog.string.internal.htmlEscape(text) + "--\x3e", null);
 };
-goog.html.SafeHtml.VALID_NAMES_IN_TAG_ = /^[a-zA-Z0-9-]+$/;
-goog.html.SafeHtml.URL_ATTRIBUTES_ = {action:!0, cite:!0, data:!0, formaction:!0, href:!0, manifest:!0, poster:!0, src:!0};
-goog.html.SafeHtml.NOT_ALLOWED_TAG_NAMES_ = module$contents$goog$object_createSet(goog.dom.TagName.APPLET, goog.dom.TagName.BASE, goog.dom.TagName.EMBED, goog.dom.TagName.IFRAME, goog.dom.TagName.LINK, goog.dom.TagName.MATH, goog.dom.TagName.META, goog.dom.TagName.OBJECT, goog.dom.TagName.SCRIPT, goog.dom.TagName.STYLE, goog.dom.TagName.SVG, goog.dom.TagName.TEMPLATE);
-goog.html.SafeHtml.create = function(tagName, opt_attributes, opt_content) {
-  goog.html.SafeHtml.verifyTagName(String(tagName));
-  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(String(tagName), opt_attributes, opt_content);
+module$contents$goog$html$SafeHtml_SafeHtml.create = function(tagName, attributes, content) {
+  module$contents$goog$html$SafeHtml_SafeHtml.verifyTagName(String(tagName));
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse(String(tagName), attributes, content);
 };
-goog.html.SafeHtml.verifyTagName = function(tagName) {
-  if (!goog.html.SafeHtml.VALID_NAMES_IN_TAG_.test(tagName)) {
-    throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? "Invalid tag name <" + tagName + ">." : "");
+module$contents$goog$html$SafeHtml_SafeHtml.verifyTagName = function(tagName) {
+  if (!module$contents$goog$html$SafeHtml_VALID_NAMES_IN_TAG.test(tagName)) {
+    throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? "Invalid tag name <" + tagName + ">." : "");
   }
-  if (tagName.toUpperCase() in goog.html.SafeHtml.NOT_ALLOWED_TAG_NAMES_) {
-    throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? "Tag name <" + tagName + "> is not allowed for SafeHtml." : "");
+  if (tagName.toUpperCase() in module$contents$goog$html$SafeHtml_NOT_ALLOWED_TAG_NAMES) {
+    throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? "Tag name <" + tagName + "> is not allowed for SafeHtml." : "");
   }
 };
-goog.html.SafeHtml.createIframe = function(opt_src, opt_srcdoc, opt_attributes, opt_content) {
-  opt_src && goog.html.TrustedResourceUrl.unwrap(opt_src);
+module$contents$goog$html$SafeHtml_SafeHtml.createIframe = function(src, srcdoc, attributes, content) {
+  src && goog.html.TrustedResourceUrl.unwrap(src);
   var fixedAttributes = {};
-  fixedAttributes.src = opt_src || null;
-  fixedAttributes.srcdoc = opt_srcdoc && goog.html.SafeHtml.unwrap(opt_srcdoc);
-  var attributes = goog.html.SafeHtml.combineAttributes(fixedAttributes, {sandbox:""}, opt_attributes);
-  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("iframe", attributes, opt_content);
+  fixedAttributes.src = src || null;
+  fixedAttributes.srcdoc = srcdoc && module$contents$goog$html$SafeHtml_SafeHtml.unwrap(srcdoc);
+  var combinedAttrs = module$contents$goog$html$SafeHtml_SafeHtml.combineAttributes(fixedAttributes, {sandbox:""}, attributes);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("iframe", combinedAttrs, content);
 };
-goog.html.SafeHtml.createSandboxIframe = function(opt_src, opt_srcdoc, opt_attributes, opt_content) {
-  if (!goog.html.SafeHtml.canUseSandboxIframe()) {
-    throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? "The browser does not support sandboxed iframes." : "");
+module$contents$goog$html$SafeHtml_SafeHtml.createSandboxIframe = function(src, srcdoc, attributes, content) {
+  if (!module$contents$goog$html$SafeHtml_SafeHtml.canUseSandboxIframe()) {
+    throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? "The browser does not support sandboxed iframes." : "");
   }
   var fixedAttributes = {};
-  fixedAttributes.src = opt_src ? goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitize(opt_src)) : null;
-  fixedAttributes.srcdoc = opt_srcdoc || null;
+  fixedAttributes.src = src ? goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitize(src)) : null;
+  fixedAttributes.srcdoc = srcdoc || null;
   fixedAttributes.sandbox = "";
-  var attributes = goog.html.SafeHtml.combineAttributes(fixedAttributes, {}, opt_attributes);
-  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("iframe", attributes, opt_content);
+  var combinedAttrs = module$contents$goog$html$SafeHtml_SafeHtml.combineAttributes(fixedAttributes, {}, attributes);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("iframe", combinedAttrs, content);
 };
-goog.html.SafeHtml.canUseSandboxIframe = function() {
+module$contents$goog$html$SafeHtml_SafeHtml.canUseSandboxIframe = function() {
   return goog.global.HTMLIFrameElement && "sandbox" in goog.global.HTMLIFrameElement.prototype;
 };
-goog.html.SafeHtml.createScriptSrc = function(src, opt_attributes) {
+module$contents$goog$html$SafeHtml_SafeHtml.createScriptSrc = function(src, attributes) {
   goog.html.TrustedResourceUrl.unwrap(src);
-  var attributes = goog.html.SafeHtml.combineAttributes({src:src}, {}, opt_attributes);
-  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("script", attributes);
+  var combinedAttrs = module$contents$goog$html$SafeHtml_SafeHtml.combineAttributes({src:src}, {}, attributes);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("script", combinedAttrs);
 };
-goog.html.SafeHtml.createScript = function(script, opt_attributes) {
-  for (var attr in opt_attributes) {
-    if (Object.prototype.hasOwnProperty.call(opt_attributes, attr)) {
+module$contents$goog$html$SafeHtml_SafeHtml.createScript = function(script, attributes) {
+  for (var attr in attributes) {
+    if (Object.prototype.hasOwnProperty.call(attributes, attr)) {
       var attrLower = attr.toLowerCase();
       if ("language" == attrLower || "src" == attrLower || "text" == attrLower || "type" == attrLower) {
-        throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'Cannot set "' + attrLower + '" attribute' : "");
+        throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'Cannot set "' + attrLower + '" attribute' : "");
       }
     }
   }
@@ -3793,38 +3786,126 @@ goog.html.SafeHtml.createScript = function(script, opt_attributes) {
   for (var i = 0; i < script.length; i++) {
     content += module$contents$goog$html$SafeScript_SafeScript.unwrap(script[i]);
   }
-  var htmlContent = goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content, goog.i18n.bidi.Dir.NEUTRAL);
-  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("script", opt_attributes, htmlContent);
+  var htmlContent = module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content, goog.i18n.bidi.Dir.NEUTRAL);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("script", attributes, htmlContent);
 };
-goog.html.SafeHtml.createStyle = function(styleSheet, opt_attributes) {
-  var attributes = goog.html.SafeHtml.combineAttributes({type:"text/css"}, {}, opt_attributes), content = "";
+module$contents$goog$html$SafeHtml_SafeHtml.createStyle = function(styleSheet, attributes) {
+  var combinedAttrs = module$contents$goog$html$SafeHtml_SafeHtml.combineAttributes({type:"text/css"}, {}, attributes), content = "";
   styleSheet = module$contents$goog$array_concat(styleSheet);
   for (var i = 0; i < styleSheet.length; i++) {
     content += module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap(styleSheet[i]);
   }
-  var htmlContent = goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content, goog.i18n.bidi.Dir.NEUTRAL);
-  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("style", attributes, htmlContent);
+  var htmlContent = module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content, goog.i18n.bidi.Dir.NEUTRAL);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("style", combinedAttrs, htmlContent);
 };
-goog.html.SafeHtml.createMetaRefresh = function(url, opt_secs) {
+module$contents$goog$html$SafeHtml_SafeHtml.createMetaRefresh = function(url, secs) {
   var unwrappedUrl = goog.html.SafeUrl.unwrap(goog.html.SafeUrl.sanitize(url));
   (goog.labs.userAgent.browser.isIE() || goog.labs.userAgent.browser.isEdge()) && goog.string.internal.contains(unwrappedUrl, ";") && (unwrappedUrl = "'" + unwrappedUrl.replace(/'/g, "%27") + "'");
-  return goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("meta", {"http-equiv":"refresh", content:(opt_secs || 0) + "; url=" + unwrappedUrl});
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("meta", {"http-equiv":"refresh", content:(secs || 0) + "; url=" + unwrappedUrl, });
 };
-goog.html.SafeHtml.getAttrNameAndValue_ = function(tagName, name, value) {
+module$contents$goog$html$SafeHtml_SafeHtml.createWithDir = function(dir, tagName, attributes, content) {
+  var html = module$contents$goog$html$SafeHtml_SafeHtml.create(tagName, attributes, content);
+  html.dir_ = dir;
+  return html;
+};
+module$contents$goog$html$SafeHtml_SafeHtml.join = function(separator, parts) {
+  var separatorHtml = module$contents$goog$html$SafeHtml_SafeHtml.htmlEscape(separator), dir = separatorHtml.getDirection(), content = [], addArgument = function(argument) {
+    if (Array.isArray(argument)) {
+      argument.forEach(addArgument);
+    } else {
+      var html = module$contents$goog$html$SafeHtml_SafeHtml.htmlEscape(argument);
+      content.push(module$contents$goog$html$SafeHtml_SafeHtml.unwrap(html));
+      var htmlDir = html.getDirection();
+      dir == goog.i18n.bidi.Dir.NEUTRAL ? dir = htmlDir : htmlDir != goog.i18n.bidi.Dir.NEUTRAL && dir != htmlDir && (dir = null);
+    }
+  };
+  parts.forEach(addArgument);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content.join(module$contents$goog$html$SafeHtml_SafeHtml.unwrap(separatorHtml)), dir);
+};
+module$contents$goog$html$SafeHtml_SafeHtml.concat = function(var_args) {
+  return module$contents$goog$html$SafeHtml_SafeHtml.join(module$contents$goog$html$SafeHtml_SafeHtml.EMPTY, Array.prototype.slice.call(arguments));
+};
+module$contents$goog$html$SafeHtml_SafeHtml.concatWithDir = function(dir, var_args) {
+  var html = module$contents$goog$html$SafeHtml_SafeHtml.concat(Array.prototype.slice.call(arguments, 1));
+  html.dir_ = dir;
+  return html;
+};
+module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse = function(html, dir) {
+  var policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), trustedHtml = policy ? policy.createHTML(html) : html;
+  return new module$contents$goog$html$SafeHtml_SafeHtml(trustedHtml, dir, module$contents$goog$html$SafeHtml_CONSTRUCTOR_TOKEN_PRIVATE);
+};
+module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse = function(tagName, attributes, content) {
+  var dir = null;
+  var result = "<" + tagName + module$contents$goog$html$SafeHtml_SafeHtml.stringifyAttributes(tagName, attributes);
+  null == content ? content = [] : Array.isArray(content) || (content = [content]);
+  if (goog.dom.tags.isVoidTag(tagName.toLowerCase())) {
+    goog.asserts.assert(!content.length, "Void tag <" + tagName + "> does not allow content."), result += ">";
+  } else {
+    var html = module$contents$goog$html$SafeHtml_SafeHtml.concat(content);
+    result += ">" + module$contents$goog$html$SafeHtml_SafeHtml.unwrap(html) + "</" + tagName + ">";
+    dir = html.getDirection();
+  }
+  var dirAttribute = attributes && attributes.dir;
+  dirAttribute && (dir = /^(ltr|rtl|auto)$/i.test(dirAttribute) ? goog.i18n.bidi.Dir.NEUTRAL : null);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(result, dir);
+};
+module$contents$goog$html$SafeHtml_SafeHtml.stringifyAttributes = function(tagName, attributes) {
+  var result = "";
+  if (attributes) {
+    for (var name in attributes) {
+      if (Object.prototype.hasOwnProperty.call(attributes, name)) {
+        if (!module$contents$goog$html$SafeHtml_VALID_NAMES_IN_TAG.test(name)) {
+          throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'Invalid attribute name "' + name + '".' : "");
+        }
+        var value = attributes[name];
+        null != value && (result += " " + module$contents$goog$html$SafeHtml_getAttrNameAndValue(tagName, name, value));
+      }
+    }
+  }
+  return result;
+};
+module$contents$goog$html$SafeHtml_SafeHtml.combineAttributes = function(fixedAttributes, defaultAttributes, attributes) {
+  var combinedAttributes = {}, name;
+  for (name in fixedAttributes) {
+    Object.prototype.hasOwnProperty.call(fixedAttributes, name) && (goog.asserts.assert(name.toLowerCase() == name, "Must be lower case"), combinedAttributes[name] = fixedAttributes[name]);
+  }
+  for (var name$25 in defaultAttributes) {
+    Object.prototype.hasOwnProperty.call(defaultAttributes, name$25) && (goog.asserts.assert(name$25.toLowerCase() == name$25, "Must be lower case"), combinedAttributes[name$25] = defaultAttributes[name$25]);
+  }
+  if (attributes) {
+    for (var name$26 in attributes) {
+      if (Object.prototype.hasOwnProperty.call(attributes, name$26)) {
+        var nameLower = name$26.toLowerCase();
+        if (nameLower in fixedAttributes) {
+          throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'Cannot override "' + nameLower + '" attribute, got "' + name$26 + '" with value "' + attributes[name$26] + '"' : "");
+        }
+        nameLower in defaultAttributes && delete combinedAttributes[nameLower];
+        combinedAttributes[name$26] = attributes[name$26];
+      }
+    }
+  }
+  return combinedAttributes;
+};
+module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES = goog.DEBUG;
+module$contents$goog$html$SafeHtml_SafeHtml.SUPPORT_STYLE_ATTRIBUTE = !0;
+module$contents$goog$html$SafeHtml_SafeHtml.from = module$contents$goog$html$SafeHtml_SafeHtml.htmlEscape;
+var module$contents$goog$html$SafeHtml_VALID_NAMES_IN_TAG = /^[a-zA-Z0-9-]+$/, module$contents$goog$html$SafeHtml_URL_ATTRIBUTES = {action:!0, cite:!0, data:!0, formaction:!0, href:!0, manifest:!0, poster:!0, src:!0}, module$contents$goog$html$SafeHtml_NOT_ALLOWED_TAG_NAMES = module$contents$goog$object_createSet(goog.dom.TagName.APPLET, goog.dom.TagName.BASE, goog.dom.TagName.EMBED, goog.dom.TagName.IFRAME, goog.dom.TagName.LINK, goog.dom.TagName.MATH, goog.dom.TagName.META, goog.dom.TagName.OBJECT, 
+goog.dom.TagName.SCRIPT, goog.dom.TagName.STYLE, goog.dom.TagName.SVG, goog.dom.TagName.TEMPLATE);
+function module$contents$goog$html$SafeHtml_getAttrNameAndValue(tagName, name, value) {
   if (value instanceof goog.string.Const) {
     value = goog.string.Const.unwrap(value);
   } else {
     if ("style" == name.toLowerCase()) {
-      if (goog.html.SafeHtml.SUPPORT_STYLE_ATTRIBUTE) {
-        value = goog.html.SafeHtml.getStyleValue_(value);
+      if (module$contents$goog$html$SafeHtml_SafeHtml.SUPPORT_STYLE_ATTRIBUTE) {
+        value = module$contents$goog$html$SafeHtml_getStyleValue(value);
       } else {
-        throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'Attribute "style" not supported.' : "");
+        throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'Attribute "style" not supported.' : "");
       }
     } else {
       if (/^on/i.test(name)) {
-        throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'Attribute "' + name + '" requires goog.string.Const value, "' + value + '" given.' : "");
+        throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'Attribute "' + name + '" requires goog.string.Const value, "' + value + '" given.' : "");
       }
-      if (name.toLowerCase() in goog.html.SafeHtml.URL_ATTRIBUTES_) {
+      if (name.toLowerCase() in module$contents$goog$html$SafeHtml_URL_ATTRIBUTES) {
         if (value instanceof goog.html.TrustedResourceUrl) {
           value = goog.html.TrustedResourceUrl.unwrap(value);
         } else {
@@ -3834,7 +3915,7 @@ goog.html.SafeHtml.getAttrNameAndValue_ = function(tagName, name, value) {
             if ("string" === typeof value) {
               value = goog.html.SafeUrl.sanitize(value).getTypedStringValue();
             } else {
-              throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'Attribute "' + name + '" on tag "' + tagName + '" requires goog.html.SafeUrl, goog.string.Const, or string, value "' + value + '" given.' : "");
+              throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'Attribute "' + name + '" on tag "' + tagName + '" requires goog.html.SafeUrl, goog.string.Const, or string, value "' + value + '" given.' : "");
             }
           }
         }
@@ -3844,111 +3925,27 @@ goog.html.SafeHtml.getAttrNameAndValue_ = function(tagName, name, value) {
   value.implementsGoogStringTypedString && (value = value.getTypedStringValue());
   goog.asserts.assert("string" === typeof value || "number" === typeof value, "String or number value expected, got " + typeof value + " with value: " + value);
   return name + '="' + goog.string.internal.htmlEscape(String(value)) + '"';
-};
-goog.html.SafeHtml.getStyleValue_ = function(value) {
+}
+function module$contents$goog$html$SafeHtml_getStyleValue(value) {
   if (!goog.isObject(value)) {
-    throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'The "style" attribute requires goog.html.SafeStyle or map of style properties, ' + typeof value + " given: " + value : "");
+    throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'The "style" attribute requires goog.html.SafeStyle or map of style properties, ' + typeof value + " given: " + value : "");
   }
   value instanceof module$contents$goog$html$SafeStyle_SafeStyle || (value = module$contents$goog$html$SafeStyle_SafeStyle.create(value));
   return module$contents$goog$html$SafeStyle_SafeStyle.unwrap(value);
-};
-goog.html.SafeHtml.createWithDir = function(dir, tagName, opt_attributes, opt_content) {
-  var html = goog.html.SafeHtml.create(tagName, opt_attributes, opt_content);
-  html.dir_ = dir;
-  return html;
-};
-goog.html.SafeHtml.join = function(separator, parts) {
-  var separatorHtml = goog.html.SafeHtml.htmlEscape(separator), dir = separatorHtml.getDirection(), content = [], addArgument = function(argument) {
-    if (Array.isArray(argument)) {
-      argument.forEach(addArgument);
-    } else {
-      var html = goog.html.SafeHtml.htmlEscape(argument);
-      content.push(goog.html.SafeHtml.unwrap(html));
-      var htmlDir = html.getDirection();
-      dir == goog.i18n.bidi.Dir.NEUTRAL ? dir = htmlDir : htmlDir != goog.i18n.bidi.Dir.NEUTRAL && dir != htmlDir && (dir = null);
-    }
-  };
-  parts.forEach(addArgument);
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(content.join(goog.html.SafeHtml.unwrap(separatorHtml)), dir);
-};
-goog.html.SafeHtml.concat = function(var_args) {
-  return goog.html.SafeHtml.join(goog.html.SafeHtml.EMPTY, Array.prototype.slice.call(arguments));
-};
-goog.html.SafeHtml.concatWithDir = function(dir, var_args) {
-  var html = goog.html.SafeHtml.concat(Array.prototype.slice.call(arguments, 1));
-  html.dir_ = dir;
-  return html;
-};
-goog.html.SafeHtml.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
-goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse = function(html, dir) {
-  var policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), trustedHtml = policy ? policy.createHTML(html) : html;
-  return new goog.html.SafeHtml(trustedHtml, dir, goog.html.SafeHtml.CONSTRUCTOR_TOKEN_PRIVATE_);
-};
-goog.html.SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse = function(tagName, opt_attributes, opt_content) {
-  var dir = null;
-  var result = "<" + tagName + goog.html.SafeHtml.stringifyAttributes(tagName, opt_attributes);
-  var content = opt_content;
-  null == content ? content = [] : Array.isArray(content) || (content = [content]);
-  if (goog.dom.tags.isVoidTag(tagName.toLowerCase())) {
-    goog.asserts.assert(!content.length, "Void tag <" + tagName + "> does not allow content."), result += ">";
-  } else {
-    var html = goog.html.SafeHtml.concat(content);
-    result += ">" + goog.html.SafeHtml.unwrap(html) + "</" + tagName + ">";
-    dir = html.getDirection();
-  }
-  var dirAttribute = opt_attributes && opt_attributes.dir;
-  dirAttribute && (dir = /^(ltr|rtl|auto)$/i.test(dirAttribute) ? goog.i18n.bidi.Dir.NEUTRAL : null);
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(result, dir);
-};
-goog.html.SafeHtml.stringifyAttributes = function(tagName, opt_attributes) {
-  var result = "";
-  if (opt_attributes) {
-    for (var name in opt_attributes) {
-      if (Object.prototype.hasOwnProperty.call(opt_attributes, name)) {
-        if (!goog.html.SafeHtml.VALID_NAMES_IN_TAG_.test(name)) {
-          throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'Invalid attribute name "' + name + '".' : "");
-        }
-        var value = opt_attributes[name];
-        null != value && (result += " " + goog.html.SafeHtml.getAttrNameAndValue_(tagName, name, value));
-      }
-    }
-  }
-  return result;
-};
-goog.html.SafeHtml.combineAttributes = function(fixedAttributes, defaultAttributes, opt_attributes) {
-  var combinedAttributes = {}, name;
-  for (name in fixedAttributes) {
-    Object.prototype.hasOwnProperty.call(fixedAttributes, name) && (goog.asserts.assert(name.toLowerCase() == name, "Must be lower case"), combinedAttributes[name] = fixedAttributes[name]);
-  }
-  for (name in defaultAttributes) {
-    Object.prototype.hasOwnProperty.call(defaultAttributes, name) && (goog.asserts.assert(name.toLowerCase() == name, "Must be lower case"), combinedAttributes[name] = defaultAttributes[name]);
-  }
-  if (opt_attributes) {
-    for (name in opt_attributes) {
-      if (Object.prototype.hasOwnProperty.call(opt_attributes, name)) {
-        var nameLower = name.toLowerCase();
-        if (nameLower in fixedAttributes) {
-          throw Error(goog.html.SafeHtml.ENABLE_ERROR_MESSAGES ? 'Cannot override "' + nameLower + '" attribute, got "' + name + '" with value "' + opt_attributes[name] + '"' : "");
-        }
-        nameLower in defaultAttributes && delete combinedAttributes[nameLower];
-        combinedAttributes[name] = opt_attributes[name];
-      }
-    }
-  }
-  return combinedAttributes;
-};
-goog.html.SafeHtml.DOCTYPE_HTML = function() {
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("<!DOCTYPE html>", goog.i18n.bidi.Dir.NEUTRAL);
+}
+module$contents$goog$html$SafeHtml_SafeHtml.DOCTYPE_HTML = function() {
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("<!DOCTYPE html>", goog.i18n.bidi.Dir.NEUTRAL);
 }();
-goog.html.SafeHtml.EMPTY = new goog.html.SafeHtml(goog.global.trustedTypes && goog.global.trustedTypes.emptyHTML || "", goog.i18n.bidi.Dir.NEUTRAL, goog.html.SafeHtml.CONSTRUCTOR_TOKEN_PRIVATE_);
-goog.html.SafeHtml.BR = function() {
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("<br>", goog.i18n.bidi.Dir.NEUTRAL);
+module$contents$goog$html$SafeHtml_SafeHtml.EMPTY = new module$contents$goog$html$SafeHtml_SafeHtml(goog.global.trustedTypes && goog.global.trustedTypes.emptyHTML || "", goog.i18n.bidi.Dir.NEUTRAL, module$contents$goog$html$SafeHtml_CONSTRUCTOR_TOKEN_PRIVATE);
+module$contents$goog$html$SafeHtml_SafeHtml.BR = function() {
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("<br>", goog.i18n.bidi.Dir.NEUTRAL);
 }();
+goog.html.SafeHtml = module$contents$goog$html$SafeHtml_SafeHtml;
 goog.html.uncheckedconversions = {};
 goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract = function(justification, html, opt_dir) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
   goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return goog.html.SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(html, opt_dir || null);
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(html, opt_dir || null);
 };
 goog.html.uncheckedconversions.safeScriptFromStringKnownToSatisfyTypeContract = function(justification, script) {
   goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
@@ -3978,7 +3975,7 @@ goog.html.uncheckedconversions.trustedResourceUrlFromStringKnownToSatisfyTypeCon
 goog.dom.safe = {};
 goog.dom.safe.InsertAdjacentHtmlPosition = {AFTERBEGIN:"afterbegin", AFTEREND:"afterend", BEFOREBEGIN:"beforebegin", BEFOREEND:"beforeend"};
 goog.dom.safe.insertAdjacentHtml = function(node, position, html) {
-  node.insertAdjacentHTML(position, goog.html.SafeHtml.unwrapTrustedHTML(html));
+  node.insertAdjacentHTML(position, module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(html));
 };
 goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_ = {MATH:!0, SCRIPT:!0, STYLE:!0, SVG:!0, TEMPLATE:!0};
 goog.dom.safe.isInnerHtmlCleanupRecursive_ = goog.functions.cacheReturnValue(function() {
@@ -3992,7 +3989,7 @@ goog.dom.safe.isInnerHtmlCleanupRecursive_ = goog.functions.cacheReturnValue(fun
     return !1;
   }
   var innerChild = div.firstChild.firstChild;
-  div.innerHTML = goog.html.SafeHtml.unwrapTrustedHTML(goog.html.SafeHtml.EMPTY);
+  div.innerHTML = module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(module$contents$goog$html$SafeHtml_SafeHtml.EMPTY);
   return !innerChild.parentElement;
 });
 goog.dom.safe.unsafeSetInnerHtmlDoNotUseOrElse = function(elem, html) {
@@ -4001,7 +3998,7 @@ goog.dom.safe.unsafeSetInnerHtmlDoNotUseOrElse = function(elem, html) {
       elem.removeChild(elem.lastChild);
     }
   }
-  elem.innerHTML = goog.html.SafeHtml.unwrapTrustedHTML(html);
+  elem.innerHTML = module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(html);
 };
 goog.dom.safe.setInnerHtml = function(elem, html) {
   if (goog.asserts.ENABLE_ASSERTS && elem.tagName && goog.dom.safe.SET_INNER_HTML_DISALLOWED_TAGS_[elem.tagName.toUpperCase()]) {
@@ -4013,7 +4010,7 @@ goog.dom.safe.setInnerHtmlFromConstant = function(element, constHtml) {
   goog.dom.safe.setInnerHtml(element, goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract(goog.string.Const.from("Constant HTML to be immediatelly used."), goog.string.Const.unwrap(constHtml)));
 };
 goog.dom.safe.setOuterHtml = function(elem, html) {
-  elem.outerHTML = goog.html.SafeHtml.unwrapTrustedHTML(html);
+  elem.outerHTML = module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(html);
 };
 goog.dom.safe.setFormElementAction = function(form, url) {
   var safeUrl = url instanceof goog.html.SafeUrl ? url : goog.html.SafeUrl.sanitizeAssertUnchanged(url);
@@ -4031,7 +4028,7 @@ goog.dom.safe.setStyle = function(elem, style) {
   elem.style.cssText = module$contents$goog$html$SafeStyle_SafeStyle.unwrap(style);
 };
 goog.dom.safe.documentWrite = function(doc, html) {
-  doc.write(goog.html.SafeHtml.unwrapTrustedHTML(html));
+  doc.write(module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(html));
 };
 goog.dom.safe.setAnchorHref = function(anchor, url) {
   goog.dom.asserts.assertIsHTMLAnchorElement(anchor);
@@ -4067,7 +4064,7 @@ goog.dom.safe.setIframeSrc = function(iframe, url) {
 };
 goog.dom.safe.setIframeSrcdoc = function(iframe, html) {
   goog.dom.asserts.assertIsHTMLIFrameElement(iframe);
-  iframe.srcdoc = goog.html.SafeHtml.unwrapTrustedHTML(html);
+  iframe.srcdoc = module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(html);
 };
 goog.dom.safe.setLinkHrefAndRel = function(link, url, rel) {
   goog.dom.asserts.assertIsHTMLLinkElement(link);
@@ -4122,7 +4119,7 @@ goog.dom.safe.parseFromStringHtml = function(parser, html) {
   return goog.dom.safe.parseFromString(parser, html, "text/html");
 };
 goog.dom.safe.parseFromString = function(parser, content, type) {
-  return parser.parseFromString(goog.html.SafeHtml.unwrapTrustedHTML(content), type);
+  return parser.parseFromString(module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(content), type);
 };
 goog.dom.safe.createImageFromBlob = function(blob) {
   if (!/^image\/.*/g.test(blob.type)) {
@@ -4136,7 +4133,7 @@ goog.dom.safe.createImageFromBlob = function(blob) {
   return image;
 };
 goog.dom.safe.createContextualFragment = function(range, html) {
-  return range.createContextualFragment(goog.html.SafeHtml.unwrapTrustedHTML(html));
+  return range.createContextualFragment(module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(html));
 };
 goog.dom.safe.getScriptNonce = function(opt_window) {
   return goog.dom.safe.getNonce_("script[nonce]", opt_window);
@@ -4506,13 +4503,13 @@ goog.string.editDistance = function(a, b) {
   for (var i = 0; i < b.length + 1; i++) {
     v0[i] = i;
   }
-  for (var i$25 = 0; i$25 < a.length; i$25++) {
-    v1[0] = i$25 + 1;
+  for (var i$27 = 0; i$27 < a.length; i$27++) {
+    v1[0] = i$27 + 1;
     for (var j = 0; j < b.length; j++) {
-      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + Number(a[i$25] != b[j]));
+      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + Number(a[i$27] != b[j]));
     }
-    for (var j$26 = 0; j$26 < v0.length; j$26++) {
-      v0[j$26] = v1[j$26];
+    for (var j$28 = 0; j$28 < v0.length; j$28++) {
+      v0[j$28] = v1[j$28];
     }
   }
   return v1[b.length];
@@ -4860,7 +4857,7 @@ goog.debug.normalizeErrorObject = function(err) {
   }
   try {
     var fileName = err.fileName || err.filename || err.sourceURL || goog.global.$googDebugFname || href;
-  } catch (e$27) {
+  } catch (e$29) {
     fileName = "Not available", threwError = !0;
   }
   var stack = goog.debug.serializeErrorStack_(err);
@@ -4873,7 +4870,7 @@ goog.debug.normalizeErrorObject = function(err) {
         if (goog.debug.CHECK_FOR_THROWN_EVENT && "Event" == ctorName) {
           try {
             message = message + ' with Event.type "' + (err.type || "") + '"';
-          } catch (e$28) {
+          } catch (e$30) {
           }
         }
       } else {
@@ -5942,9 +5939,9 @@ goog.iter.forEach = function(iterable, f, opt_obj) {
       for (;;) {
         f.call(opt_obj, iterable.next(), void 0, iterable);
       }
-    } catch (ex$30) {
-      if (ex$30 !== goog.iter.StopIteration) {
-        throw ex$30;
+    } catch (ex$32) {
+      if (ex$32 !== goog.iter.StopIteration) {
+        throw ex$32;
       }
     }
   }
@@ -6393,9 +6390,9 @@ var module$contents$goog$iter$es6_wrapGoog = function(iter) {
       try {
         value = iter.next();
         break;
-      } catch (err$31) {
-        if (err$31 !== goog.iter.StopIteration) {
-          throw err$31;
+      } catch (err$33) {
+        if (err$33 !== goog.iter.StopIteration) {
+          throw err$33;
         }
         done = !0;
       }
@@ -7256,7 +7253,7 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function module$con
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$66 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$66 = {$jscomp$loop$prop$mapMetadata$67:$jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$68 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$68 = {$jscomp$loop$prop$mapMetadata$69:$jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69}, 
   $jscomp$key$key = $jscomp$iter$6.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
@@ -7271,11 +7268,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
           copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
         } else {
           if (objectMaps.hasOwnProperty(key)) {
-            $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67 = objectMaps[key], copy = $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67.isPropertyArray ? value.map(function($jscomp$loop$66) {
+            $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69 = objectMaps[key], copy = $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69.isPropertyArray ? value.map(function($jscomp$loop$68) {
               return function(v) {
-                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67, valueGetter, valueSetter, copyInstanciator);
+                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69, valueGetter, valueSetter, copyInstanciator);
               };
-            }($jscomp$loop$66)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$67, valueGetter, valueSetter, copyInstanciator);
+            }($jscomp$loop$68)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69, valueGetter, valueSetter, copyInstanciator);
           } else {
             if (Array.isArray(value)) {
               if (metadata.emptyArrayIsUnset && 0 === value.length) {
@@ -7327,45 +7324,45 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$68 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$68 = {$jscomp$loop$prop$value2$69:$jscomp$loop$68.$jscomp$loop$prop$value2$69, $jscomp$loop$prop$mapMetadata$70:$jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70}, $jscomp$key$key = $jscomp$iter$8.next()) {
+  for (var $jscomp$loop$70 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$70 = {$jscomp$loop$prop$value2$71:$jscomp$loop$70.$jscomp$loop$prop$value2$71, $jscomp$loop$prop$mapMetadata$72:$jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72}, $jscomp$key$key = $jscomp$iter$8.next()) {
     var key = $jscomp$key$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$68.$jscomp$loop$prop$value2$69 = serializable2.Serializable$get(key);
+      $jscomp$loop$70.$jscomp$loop$prop$value2$71 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, !0, !0)) {
           return !1;
         }
       } else {
         if (objects1.hasOwnProperty(key)) {
-          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, !1, !0)) {
+          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, !1, !0)) {
             return !1;
           }
         } else {
           if (objectMaps1.hasOwnProperty(key)) {
-            if ($jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70 = objectMaps1[key], $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70.isPropertyArray) {
-              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69) || value1.some(function($jscomp$loop$68) {
+            if ($jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72 = objectMaps1[key], $jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72.isPropertyArray) {
+              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71) || value1.some(function($jscomp$loop$70) {
                 return function(v1, i) {
-                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$68.$jscomp$loop$prop$value2$69[i], $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70);
+                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$70.$jscomp$loop$prop$value2$71[i], $jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72);
                 };
-              }($jscomp$loop$68))) {
+              }($jscomp$loop$70))) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$70)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, $jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72)) {
                 return !1;
               }
             }
           } else {
             if (Array.isArray(value1)) {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, !0, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, !0, !1)) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$68.$jscomp$loop$prop$value2$69, !1, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, !1, !1)) {
                 return !1;
               }
             }
@@ -8254,7 +8251,7 @@ module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.base64En
     var reader = new FileReader;
     reader.onload = function(ev) {
       try {
-        var file$32 = ev.target.result, toResolve = file$32.substr(file$32.indexOf(",") + 1);
+        var file$34 = ev.target.result, toResolve = file$34.substr(file$34.indexOf(",") + 1);
         resolve(toResolve);
       } catch (e) {
         reject(e);
@@ -9251,6 +9248,35 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("value") ? this.Serializable$get("value") : null;
 }, set:function(value) {
   this.Serializable$set("value", value);
+}}});
+module$exports$eeapiclient$ee_api_client.DMSMapParameters = function module$contents$eeapiclient$ee_api_client_DMSMapParameters() {
+};
+module$exports$eeapiclient$ee_api_client.DMSMap = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("asset", null == parameters.asset ? null : parameters.asset);
+  this.Serializable$set("dmsName", null == parameters.dmsName ? null : parameters.dmsName);
+  this.Serializable$set("name", null == parameters.name ? null : parameters.name);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.DMSMap, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.DMSMap.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.DMSMap;
+};
+module$exports$eeapiclient$ee_api_client.DMSMap.prototype.getPartialClassMetadata = function() {
+  return {keys:["asset", "dmsName", "name"]};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.DMSMap.prototype, {asset:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("asset") ? this.Serializable$get("asset") : null;
+}, set:function(value) {
+  this.Serializable$set("asset", value);
+}}, dmsName:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("dmsName") ? this.Serializable$get("dmsName") : null;
+}, set:function(value) {
+  this.Serializable$set("dmsName", value);
+}}, name:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("name") ? this.Serializable$get("name") : null;
+}, set:function(value) {
+  this.Serializable$set("name", value);
 }}});
 module$exports$eeapiclient$ee_api_client.DataAccessOptionsParameters = function module$contents$eeapiclient$ee_api_client_DataAccessOptionsParameters() {
 };
@@ -12432,6 +12458,28 @@ module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientImpl.prototy
 };
 module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClient = function() {
 };
+module$exports$eeapiclient$ee_api_client.IProjectsDmsMapsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsDmsMapsApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IProjectsDmsMapsApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IProjectsDmsMapsApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClientImpl.prototype.create = function(parent, $requestBody, namedParameters, passthroughNamedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  passthroughNamedParameters = void 0 === passthroughNamedParameters ? {} : passthroughNamedParameters;
+  this.$apiClient.$validateParameter(parent, /^projects\/[^/]+$/);
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.projects.dmsMaps.create", path:"/" + this.gapiVersion + "/" + parent + "/dmsMaps", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.DMSMap});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClient = function() {
+};
 module$exports$eeapiclient$ee_api_client.IProjectsFilmstripThumbnailsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsFilmstripThumbnailsApiClient$XgafvEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
@@ -13339,7 +13387,7 @@ goog.dom.safeHtmlToNode = function(html) {
 };
 goog.dom.safeHtmlToNode_ = function(doc, html) {
   var tempDiv = goog.dom.createElement_(doc, goog.dom.TagName.DIV);
-  goog.userAgent.IE ? (goog.dom.safe.setInnerHtml(tempDiv, goog.html.SafeHtml.concat(goog.html.SafeHtml.BR, html)), tempDiv.removeChild(goog.asserts.assert(tempDiv.firstChild))) : goog.dom.safe.setInnerHtml(tempDiv, html);
+  goog.userAgent.IE ? (goog.dom.safe.setInnerHtml(tempDiv, module$contents$goog$html$SafeHtml_SafeHtml.concat(module$contents$goog$html$SafeHtml_SafeHtml.BR, html)), tempDiv.removeChild(goog.asserts.assert(tempDiv.firstChild))) : goog.dom.safe.setInnerHtml(tempDiv, html);
   return goog.dom.childrenToNode_(doc, tempDiv);
 };
 goog.dom.childrenToNode_ = function(doc, tempDiv) {
@@ -14316,16 +14364,16 @@ goog.Promise.prototype.addChildPromise_ = function(onFulfilled, onRejected, opt_
       try {
         var result = onFulfilled.call(opt_context, value);
         resolve(result);
-      } catch (err$33) {
-        reject(err$33);
+      } catch (err$35) {
+        reject(err$35);
       }
     } : resolve;
     callbackEntry.onRejected = onRejected ? function(reason) {
       try {
         var result = onRejected.call(opt_context, reason);
         void 0 === result && reason instanceof goog.Promise.CancellationError ? reject(reason) : resolve(result);
-      } catch (err$34) {
-        reject(err$34);
+      } catch (err$36) {
+        reject(err$36);
       }
     } : reject;
   });
@@ -14415,8 +14463,8 @@ goog.Promise.prototype.executeCallback_ = function(callbackEntry, state, result)
   } else {
     try {
       callbackEntry.always ? callbackEntry.onFulfilled.call(callbackEntry.context) : goog.Promise.invokeCallback_(callbackEntry, state, result);
-    } catch (err$35) {
-      goog.Promise.handleRejection_.call(null, err$35);
+    } catch (err$37) {
+      goog.Promise.handleRejection_.call(null, err$37);
     }
   }
   goog.Promise.returnEntry_(callbackEntry);
@@ -14944,7 +14992,7 @@ goog.json.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(
       var result = eval("(" + o + ")");
       error && goog.json.errorLogger_("Invalid JSON: " + o, error);
       return result;
-    } catch (ex$36) {
+    } catch (ex$38) {
     }
   }
   throw Error("Invalid JSON string: " + o);
@@ -15535,9 +15583,9 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   }, this), this.xhr_.upload && (this.xhr_.upload.onprogress = goog.bind(this.onProgressHandler_, this)));
   try {
     goog.log.fine(this.logger_, this.formatMsg_("Opening Xhr")), this.inOpen_ = !0, this.xhr_.open(method, String(url), !0), this.inOpen_ = !1;
-  } catch (err$37) {
-    goog.log.fine(this.logger_, this.formatMsg_("Error opening Xhr: " + err$37.message));
-    this.error_(goog.net.ErrorCode.EXCEPTION, err$37);
+  } catch (err$39) {
+    goog.log.fine(this.logger_, this.formatMsg_("Error opening Xhr: " + err$39.message));
+    this.error_(goog.net.ErrorCode.EXCEPTION, err$39);
     return;
   }
   var content = opt_content || "", headers = this.headers.clone();
@@ -15556,15 +15604,15 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   if ("setTrustToken" in this.xhr_ && this.trustToken_) {
     try {
       this.xhr_.setTrustToken(this.trustToken_);
-    } catch (err$38) {
-      goog.log.fine(this.logger_, this.formatMsg_("Error SetTrustToken: " + err$38.message));
+    } catch (err$40) {
+      goog.log.fine(this.logger_, this.formatMsg_("Error SetTrustToken: " + err$40.message));
     }
   }
   try {
     this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (this.useXhr2Timeout_ = goog.net.XhrIo.shouldUseXhr2Timeout_(this.xhr_), goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete, xhr2 " + this.useXhr2Timeout_)), this.useXhr2Timeout_ ? (this.xhr_[goog.net.XhrIo.XHR2_TIMEOUT_] = this.timeoutInterval_, this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = goog.bind(this.timeout_, this)) : this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, 
     this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
-  } catch (err$39) {
-    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$39.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$39);
+  } catch (err$41) {
+    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$41.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$41);
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
@@ -15786,7 +15834,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.273";
+ee.apiclient.API_CLIENT_VERSION = "0.1.274";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15882,12 +15930,12 @@ module$contents$ee$apiclient_EERequestService.prototype.send = function(params, 
   module$contents$eeapiclient$request_params_processParams(params);
   var path = params.path || "", url = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + path, args = module$contents$ee$apiclient_apiclient.makeRequest_(params.queryParams || {}), body = params.body ? JSON.stringify(params.body) : void 0;
   if (this.sync) {
-    var raw = module$contents$ee$apiclient_apiclient.send(url, args, void 0, params.httpMethod, body, this.retries), value$40 = responseCtor ? module$contents$eeapiclient$domain_object_deserialize(responseCtor, raw) : raw, thenable = function(v) {
+    var raw = module$contents$ee$apiclient_apiclient.send(url, args, void 0, params.httpMethod, body, this.retries), value$42 = responseCtor ? module$contents$eeapiclient$domain_object_deserialize(responseCtor, raw) : raw, thenable = function(v) {
       return {then:function(f) {
         return thenable(f(v));
       }};
     };
-    return thenable(value$40);
+    return thenable(value$42);
   }
   return (new Promise(function(resolve, reject) {
     module$contents$ee$apiclient_apiclient.send(url, args, function(value, error) {
@@ -16064,8 +16112,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.273";
-  "0.1.273" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.274";
+  "0.1.274" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17346,8 +17394,8 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   }
   if (null != value.functionInvocationValue) {
     for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$19 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$19.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$19.next()) {
-      var k$41 = $jscomp$key$k.value;
-      args[k$41] = this.optimizeValue(inv.arguments[k$41], depth + 3);
+      var k$43 = $jscomp$key$k.value;
+      args[k$43] = this.optimizeValue(inv.arguments[k$43], depth + 3);
     }
     return inv.functionName ? ee.rpc_node.functionByName(inv.functionName, args) : ee.rpc_node.functionByReference(this.optimizeReference(inv.functionReference || ""), args);
   }
@@ -17774,7 +17822,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
   if ("string" === typeof params.crs_transform) {
     try {
       params.crs_transform = JSON.parse(params.crs_transform);
-    } catch (e$42) {
+    } catch (e$44) {
     }
   }
   var image = ee.data.images.buildDownloadIdImage(params.image, params), thumbnail = new module$exports$eeapiclient$ee_api_client.Thumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(image)), fileFormat:ee.rpc_convert.fileFormat(params.format), filenamePrefix:params.name, bandIds:params.bands && ee.rpc_convert.bandList(params.bands.map(function(band) {
@@ -17831,8 +17879,8 @@ goog.exportSymbol("ee.data.newTaskId", ee.data.newTaskId);
 ee.data.getTaskStatus = function(taskId, opt_callback) {
   var opNames = ee.data.makeStringArray_(taskId).map(ee.rpc_convert.taskIdToOperationName);
   if (1 === opNames.length) {
-    var call$44 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$44.handle(call$44.operations().get(opNames[0]).then(function(op) {
+    var call$46 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$46.handle(call$46.operations().get(opNames[0]).then(function(op) {
       return [ee.rpc_convert.operationToTask(op)];
     }));
   }
@@ -17886,8 +17934,8 @@ goog.exportSymbol("ee.data.listOperations", ee.data.listOperations);
 ee.data.cancelOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName), request = new module$exports$eeapiclient$ee_api_client.CancelOperationRequest;
   if (1 === opNames.length) {
-    var call$45 = new module$contents$ee$apiclient_Call(opt_callback);
-    call$45.handle(call$45.operations().cancel(opNames[0], request));
+    var call$47 = new module$contents$ee$apiclient_Call(opt_callback);
+    call$47.handle(call$47.operations().cancel(opNames[0], request));
   } else {
     var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
     call.send(opNames.map(function(op) {
@@ -17899,8 +17947,8 @@ goog.exportSymbol("ee.data.cancelOperation", ee.data.cancelOperation);
 ee.data.getOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName).map(ee.rpc_convert.taskIdToOperationName);
   if (!Array.isArray(operationName)) {
-    var call$46 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$46.handle(call$46.operations().get(opNames[0]));
+    var call$48 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$48.handle(call$48.operations().get(opNames[0]));
   }
   var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
   return call.send(opNames.map(function(op) {
@@ -20464,8 +20512,8 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
       return node.functionDefinitionValue ? 1 : node.arrayValue ? countNodes(node.arrayValue.values) : node.dictionaryValue ? countNodes(Object.values(node.dictionaryValue.values)) : node.functionInvocationValue ? countNodes(Object.values(node.functionInvocationValue.arguments)) : 0;
     };
     return countNodes(Object.values(expression.values));
-  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars))) + "_", i$47 = 0; i$47 < namelessArgIndices.length; i$47++) {
-    var index = namelessArgIndices[i$47], name = baseName + i$47;
+  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars))) + "_", i$49 = 0; i$49 < namelessArgIndices.length; i$49++) {
+    var index = namelessArgIndices[i$49], name = baseName + i$49;
     vars[index].varName = name;
     signature.args[index].name = name;
   }
