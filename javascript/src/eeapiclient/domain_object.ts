@@ -150,7 +150,9 @@ export abstract class Serializable implements ISerializable {
   }
 }
 
-export interface SerializableCtor<T extends ISerializable> { new(): T; }
+export interface SerializableCtor<T extends ISerializable> {
+  new(): T;
+}
 
 /**
  * Makes a deep copy of the ISerializable instance.
@@ -366,7 +368,7 @@ function deepCopyValue<T>(
     deserialized = null as unknown as {};
 
   } else if (typeof value === 'object') {
-    // TODO(b/131926196): Assert as a type, declared interface, or `unknown`.
+    // TODO(user): Assert as a type, declared interface, or `unknown`.
     // tslint:disable-next-line:ban-types no-unnecessary-type-assertion
     deserialized = JSON.parse(JSON.stringify(value)) as AnyDuringMigration;
 

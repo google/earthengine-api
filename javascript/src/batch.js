@@ -33,8 +33,6 @@ Export.table = {};
 /** @const */
 Export.video = {};
 
-
-
 /**
  * ExportTask
  */
@@ -126,7 +124,6 @@ class ExportTask {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Public API for exports in the JS client library.
-//
 
 
 /**
@@ -367,11 +364,9 @@ Export.video.toDrive = function(
   return ExportTask.create(serverConfig);
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                          Internal validation.                              //
 ////////////////////////////////////////////////////////////////////////////////
-
 
 /**
  * A task descriptor whose parameters have been converted from the user-facing
@@ -760,7 +755,6 @@ const TableFormat = {
   SHP: 'SHP',
   TF_RECORD_TABLE: 'TF_RECORD_TABLE',
 };
-
 
 /** @type {!Object<string, !Array<string>>} */
 const FORMAT_OPTIONS_MAP = {

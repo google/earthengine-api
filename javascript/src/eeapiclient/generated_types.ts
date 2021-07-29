@@ -8,7 +8,7 @@ import {MultipartRequest} from './multipart_request';
  * Because of structural typing this has no real effect, but it hopefully
  * clarifies method signatures.
  *
- * TODO(b/31583417): Figure out ways to enforce stronger typing.
+ * TODO(user): Figure out ways to enforce stronger typing.
  */
 export interface GeneratedInterface {}
 
@@ -33,4 +33,6 @@ export interface GeneratedRequestParams {
   streamingType?: string;
 }
 
-export interface ApiClientObjectMap<T> { [key: string]: T; }
+export interface ApiClientObjectMap<T> {
+  [key: string]: T;
+}

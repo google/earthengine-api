@@ -23,8 +23,6 @@ goog.require('goog.object');
 
 goog.requireType('ee.data');
 
-
-
 /**
  * Creates a geometry.
  * @param {Object} geoJson The GeoJSON object describing the geometry or

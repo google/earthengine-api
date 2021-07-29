@@ -138,7 +138,7 @@ const simpleCorsAllowedMethods: string[] = ['GET', 'HEAD', 'POST'];
  * a 'Content-Type' of 'text/plain;charset=UTF-8' will be automatically added
  * by the browser.
  */
-// TODO(mingzhilin): Return a changed copy of params.
+// TODO(user): Return a changed copy of params.
 export function bypassCorsPreflight(params: MakeRequestParams) {
   const safeHeaders: {[key: string]: string} = {};
   const unsafeHeaders: {[key: string]: string} = {};

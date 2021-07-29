@@ -8,10 +8,8 @@ export abstract class ApiClient {
   $validateParameter(param: any, pattern: RegExp): void {
     const paramStr = String(param);
     if (!pattern.test(paramStr)) {
-      throw new Error(
-          `parameter [${paramStr}] does not match pattern [${
-                                                             pattern.toString()
-                                                           }]`);
+      throw new Error(`parameter [${paramStr}] does not match pattern [${
+          pattern.toString()}]`);
     }
   }
 }

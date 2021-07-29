@@ -56,7 +56,7 @@
     }, {
       "argumentName": "gridSize",
       "type": "Integer",
-      "description": "Grid size.",
+      "description": "The size of the grid over which to perform the computation.",
       "optional": true,
       "defaultValue": 256.0
     }, {
@@ -7341,7 +7341,8 @@
       "argumentName": "image2",
       "type": "Image\u003cunknown bands\u003e",
       "description": "The image from which the right operand bands are taken."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Image.mod",
     "description": "Calculates the remainder of the first value divided by the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
@@ -7523,7 +7524,8 @@
       "argumentName": "image2",
       "type": "Image\u003cunknown bands\u003e",
       "description": "The image from which the right operand bands are taken."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Image.bitwiseOr",
     "description": "Calculates the bitwise OR of the input values for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
@@ -7549,7 +7551,8 @@
       "argumentName": "image2",
       "type": "Image\u003cunknown bands\u003e",
       "description": "The image from which the right operand bands are taken."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Image.bitwiseXor",
     "description": "Calculates the bitwise XOR of the input values for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
@@ -7575,7 +7578,8 @@
       "argumentName": "image2",
       "type": "Image\u003cunknown bands\u003e",
       "description": "The image from which the right operand bands are taken."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Image.leftShift",
     "description": "Calculates the left shift of v1 by v2 bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
@@ -7601,7 +7605,8 @@
       "argumentName": "image2",
       "type": "Image\u003cunknown bands\u003e",
       "description": "The image from which the right operand bands are taken."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Image.rightShift",
     "description": "Calculates the signed right shift of v1 by v2 bits for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
@@ -7627,7 +7632,8 @@
       "argumentName": "image2",
       "type": "Image\u003cunknown bands\u003e",
       "description": "The image from which the right operand bands are taken."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Image.gammainc",
     "description": "Calculates the regularized lower incomplete Gamma function γ(x,a) for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is float.",
@@ -7658,7 +7664,8 @@
       "argumentName": "value",
       "type": "Image\u003cunknown bands\u003e",
       "description": "The image to which the operation is applied."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Image.bitCount",
     "description": "Calculates the number of one-bits in the 64-bit two\u0027s complement binary representation of the input.",
@@ -11558,7 +11565,8 @@
       "argumentName": "right",
       "type": "Number",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Number.mod",
     "description": "Calculates the remainder of the first value divided by the second.",
@@ -11740,7 +11748,8 @@
       "argumentName": "right",
       "type": "Number",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Number.bitwiseOr",
     "description": "Calculates the bitwise OR of the input values.",
@@ -11766,7 +11775,8 @@
       "argumentName": "right",
       "type": "Number",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Number.bitwiseXor",
     "description": "Calculates the bitwise XOR of the input values.",
@@ -11792,7 +11802,8 @@
       "argumentName": "right",
       "type": "Number",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Number.leftShift",
     "description": "Calculates the left shift of v1 by v2 bits.",
@@ -11818,7 +11829,8 @@
       "argumentName": "right",
       "type": "Number",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Number.rightShift",
     "description": "Calculates the signed right shift of v1 by v2 bits.",
@@ -11844,7 +11856,8 @@
       "argumentName": "right",
       "type": "Number",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Number.gammainc",
     "description": "Calculates the regularized lower incomplete Gamma function γ(x,a).",
@@ -11875,7 +11888,8 @@
       "argumentName": "input",
       "type": "Number",
       "description": "The input value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Number.bitCount",
     "description": "Calculates the number of one-bits in the 64-bit two\u0027s complement binary representation of the input.",
@@ -13331,7 +13345,8 @@
       "argumentName": "input",
       "type": "Array",
       "description": "The input array."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Array.bitCount",
     "description": "On an element-wise basis, calculates the number of one-bits in the 64-bit two\u0027s complement binary representation of the input.",
@@ -14006,7 +14021,8 @@
       "argumentName": "right",
       "type": "Array",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Array.mod",
     "description": "On an element-wise basis, calculates the remainder of the first value divided by the second.",
@@ -14188,7 +14204,8 @@
       "argumentName": "right",
       "type": "Array",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Array.bitwiseOr",
     "description": "On an element-wise basis, calculates the bitwise OR of the input values.",
@@ -14214,7 +14231,8 @@
       "argumentName": "right",
       "type": "Array",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Array.bitwiseXor",
     "description": "On an element-wise basis, calculates the bitwise XOR of the input values.",
@@ -14240,7 +14258,8 @@
       "argumentName": "right",
       "type": "Array",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Array.leftShift",
     "description": "On an element-wise basis, calculates the left shift of v1 by v2 bits.",
@@ -14266,7 +14285,8 @@
       "argumentName": "right",
       "type": "Array",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Array.rightShift",
     "description": "On an element-wise basis, calculates the signed right shift of v1 by v2 bits.",
@@ -14292,7 +14312,8 @@
       "argumentName": "right",
       "type": "Array",
       "description": "The right-hand value."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Array.gammainc",
     "description": "On an element-wise basis, calculates the regularized lower incomplete Gamma function γ(x,a).",

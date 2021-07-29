@@ -930,7 +930,7 @@ ee.rpc_convert.toImageManifest = function(params) {
   };
   // Retain existing keys
   const manifest = ee.apiclient.deserialize(ee.api.ImageManifest, params);
-  // TODO(b/131773013): Transform keys as done in ee/cli/commands.py
+  // TODO(user): Transform keys as done in ee/cli/commands.py
   manifest.name = ee.rpc_convert.assetIdToAssetName(params['id']);
   manifest.tilesets = (params['tilesets'] || []).map(convertTileset);
   manifest.bands = (params['bands'] || []).map(convertBands);
@@ -1021,7 +1021,7 @@ ee.rpc_convert.toTableManifest = function(params) {
   };
   // Retain existing keys
   const manifest = ee.apiclient.deserialize(ee.api.TableManifest, params);
-  // TODO(b/131773013): Transform keys as done in ee/cli/commands.py
+  // TODO(user): Transform keys as done in ee/cli/commands.py
   manifest.name = ee.rpc_convert.assetIdToAssetName(params['id']);
   manifest.sources = (params['sources'] || []).map(convertTableSource);
 

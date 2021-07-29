@@ -780,7 +780,6 @@ class Export(object):
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
 
 
-
 def _CheckConfigDisallowedPrefixes(config, prefix):
   for key in config:
     if key.startswith(prefix):
@@ -1083,8 +1082,6 @@ def _prepare_video_export_config(collection, config, export_destination):
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
   return request
-
-
 
 
 def _build_image_file_export_options(config, export_destination):

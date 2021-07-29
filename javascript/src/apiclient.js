@@ -25,8 +25,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 /** @namespace */
 const apiclient = {};
 
-
-const API_CLIENT_VERSION = '0.1.275';
+const API_CLIENT_VERSION = '0.1.276';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -1587,7 +1586,6 @@ apiclient.APP_ID_TOKEN_HEADER_ = 'X-Earth-Engine-App-ID-Token';
  * @const {string}
  */
 apiclient.PROFILE_HEADER = 'X-Earth-Engine-Computation-Profile';
-
 
 /**
  * The HTTP header indicating what the client library version is.

@@ -1,8 +1,8 @@
 /**
  * @fileoverview Singleton for all of the library's communication
  * with the Earth Engine API.
- * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
- * @suppress {useOfGoogProvide} TODO(b/80481479): Convert to goog.module.
+ * @suppress {missingRequire} TODO(user): this shouldn't be needed
+ * @suppress {useOfGoogProvide} TODO(user): Convert to goog.module.
  */
 
 goog.provide('ee.data');
@@ -463,7 +463,6 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat = '') {
   };
   return {mapid, token, formatTileUrl, urlFormat};
 };
-
 
 /**
  * Sends a request to compute a value.
@@ -1188,7 +1187,6 @@ ee.data.prepareExportMapRequest_ = function(taskConfig, metadata) {
   return mapRequest;
 };
 
-
 /**
  * Creates an image asset ingestion task.
  *
@@ -1778,7 +1776,7 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
         ee.rpc_convert.folderQuotaToAssetQuotaDetails(quota));
   };
   const call = new ee.apiclient.Call(opt_callback);
-  // TODO(b/141623314): Undo this when the getAssets call accepts /assets/,
+  // TODO(user): Undo this when the getAssets call accepts /assets/,
   // as currently, the request must have a full asset path, e.g. /assets/foo.
   const assetsCall = call.assets();
   const validateParams = assetsCall.$apiClient.$validateParameter;
@@ -1840,7 +1838,6 @@ ee.data.ExportDestination = {
   GCS: 'GOOGLE_CLOUD_STORAGE',
   ASSET: 'ASSET',
 };
-
 
 /** @enum {string} The names of the EE system time asset properties. */
 ee.data.SystemTimeProperty = {
@@ -2429,7 +2426,6 @@ ee.data.ImageVisualizationParameters = class {
   }
 };
 
-
 /**
  * An object describing the parameters for generating a thumbnail image.
  * Consists of all parameters of ee.data.ImageVisualizationParameters as well as
@@ -2768,7 +2764,6 @@ ee.data.MapId = class extends ee.data.RawMapId {
   }
 };
 
-
 /**
  * The range of zoom levels for our map tiles.
  * @enum {number}
@@ -2916,7 +2911,6 @@ ee.data.ImageExportFormatConfig;
  * }}
  */
 ee.data.MapTaskConfig;
-
 
 /**
  * An object for specifying configuration of a task to export feature

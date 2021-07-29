@@ -396,8 +396,6 @@ def profiling(hook):
     _thread_locals.profile_hook = saved_hook
 
 
-
-
 @deprecation.Deprecated('Use getAsset')
 def getInfo(asset_id):
   """Load info for an asset, given an asset id.
@@ -1296,8 +1294,6 @@ def exportMap(request_id, params):
   return _prepare_and_run_export(
       request_id, params,
       _get_cloud_api_resource().projects().map().export)
-
-
 
 
 def _prepare_and_run_export(request_id, params, export_endpoint):
