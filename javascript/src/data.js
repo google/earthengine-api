@@ -464,6 +464,7 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat = '') {
   return {mapid, token, formatTileUrl, urlFormat};
 };
 
+
 /**
  * Sends a request to compute a value.
  * @param {*} obj

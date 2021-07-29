@@ -5051,6 +5051,7 @@ goog.global, MSPOINTER_EVENTS:"MSPointerEvent" in goog.global && !(!goog.global.
   }
   return passive;
 })};
+goog.events.MouseEvents = {};
 goog.events.getVendorPrefixedName_ = function(eventName) {
   return goog.userAgent.WEBKIT ? "webkit" + eventName : goog.userAgent.OPERA ? "o" + eventName.toLowerCase() : eventName.toLowerCase();
 };
@@ -5296,6 +5297,8 @@ goog.events.ListenerMap.findListenerIndex_ = function(listenerArray, listener, o
   }
   return -1;
 };
+goog.events.Key = {};
+goog.events.ListenableType = {};
 goog.events.LISTENER_MAP_PROP_ = "closure_lm_" + (1e6 * Math.random() | 0);
 goog.events.onString_ = "on";
 goog.events.onStringMap_ = {};
@@ -5887,6 +5890,7 @@ goog.math.safeCeil = function(num, opt_epsilon) {
   return Math.ceil(num - (opt_epsilon || 2e-15));
 };
 goog.iter = {};
+goog.iter.Iterable = {};
 goog.iter.StopIteration = "StopIteration" in goog.global ? goog.global.StopIteration : {message:"StopIteration", stack:""};
 goog.iter.Iterator = function() {
 };
@@ -7253,7 +7257,7 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function module$con
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$68 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$68 = {$jscomp$loop$prop$mapMetadata$69:$jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$71 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$71 = {$jscomp$loop$prop$mapMetadata$72:$jscomp$loop$71.$jscomp$loop$prop$mapMetadata$72}, 
   $jscomp$key$key = $jscomp$iter$6.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
@@ -7268,11 +7272,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
           copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
         } else {
           if (objectMaps.hasOwnProperty(key)) {
-            $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69 = objectMaps[key], copy = $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69.isPropertyArray ? value.map(function($jscomp$loop$68) {
+            $jscomp$loop$71.$jscomp$loop$prop$mapMetadata$72 = objectMaps[key], copy = $jscomp$loop$71.$jscomp$loop$prop$mapMetadata$72.isPropertyArray ? value.map(function($jscomp$loop$71) {
               return function(v) {
-                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69, valueGetter, valueSetter, copyInstanciator);
+                return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$71.$jscomp$loop$prop$mapMetadata$72, valueGetter, valueSetter, copyInstanciator);
               };
-            }($jscomp$loop$68)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$68.$jscomp$loop$prop$mapMetadata$69, valueGetter, valueSetter, copyInstanciator);
+            }($jscomp$loop$71)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$71.$jscomp$loop$prop$mapMetadata$72, valueGetter, valueSetter, copyInstanciator);
           } else {
             if (Array.isArray(value)) {
               if (metadata.emptyArrayIsUnset && 0 === value.length) {
@@ -7324,45 +7328,45 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$70 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$70 = {$jscomp$loop$prop$value2$71:$jscomp$loop$70.$jscomp$loop$prop$value2$71, $jscomp$loop$prop$mapMetadata$72:$jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72}, $jscomp$key$key = $jscomp$iter$8.next()) {
+  for (var $jscomp$loop$73 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$73 = {$jscomp$loop$prop$value2$74:$jscomp$loop$73.$jscomp$loop$prop$value2$74, $jscomp$loop$prop$mapMetadata$75:$jscomp$loop$73.$jscomp$loop$prop$mapMetadata$75}, $jscomp$key$key = $jscomp$iter$8.next()) {
     var key = $jscomp$key$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$70.$jscomp$loop$prop$value2$71 = serializable2.Serializable$get(key);
+      $jscomp$loop$73.$jscomp$loop$prop$value2$74 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$73.$jscomp$loop$prop$value2$74, !0, !0)) {
           return !1;
         }
       } else {
         if (objects1.hasOwnProperty(key)) {
-          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, !1, !0)) {
+          if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$73.$jscomp$loop$prop$value2$74, !1, !0)) {
             return !1;
           }
         } else {
           if (objectMaps1.hasOwnProperty(key)) {
-            if ($jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72 = objectMaps1[key], $jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72.isPropertyArray) {
-              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71) || value1.some(function($jscomp$loop$70) {
+            if ($jscomp$loop$73.$jscomp$loop$prop$mapMetadata$75 = objectMaps1[key], $jscomp$loop$73.$jscomp$loop$prop$mapMetadata$75.isPropertyArray) {
+              if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$73.$jscomp$loop$prop$value2$74) || value1.some(function($jscomp$loop$73) {
                 return function(v1, i) {
-                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$70.$jscomp$loop$prop$value2$71[i], $jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72);
+                  return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$73.$jscomp$loop$prop$value2$74[i], $jscomp$loop$73.$jscomp$loop$prop$mapMetadata$75);
                 };
-              }($jscomp$loop$70))) {
+              }($jscomp$loop$73))) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, $jscomp$loop$70.$jscomp$loop$prop$mapMetadata$72)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$73.$jscomp$loop$prop$value2$74, $jscomp$loop$73.$jscomp$loop$prop$mapMetadata$75)) {
                 return !1;
               }
             }
           } else {
             if (Array.isArray(value1)) {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, !0, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$73.$jscomp$loop$prop$value2$74, !0, !1)) {
                 return !1;
               }
             } else {
-              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$70.$jscomp$loop$prop$value2$71, !1, !1)) {
+              if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$73.$jscomp$loop$prop$value2$74, !1, !1)) {
                 return !1;
               }
             }
@@ -7450,6 +7454,8 @@ module$exports$eeapiclient$domain_object.serializableEqualityTester = function m
 };
 goog.uri = {};
 goog.uri.utils = {};
+goog.uri.utils.QueryArray = {};
+goog.uri.utils.QueryValue = {};
 goog.uri.utils.CharCode_ = {AMPERSAND:38, EQUAL:61, HASH:35, QUESTION:63};
 goog.uri.utils.buildFromEncodedParts = function(opt_scheme, opt_userInfo, opt_domain, opt_port, opt_path, opt_queryData, opt_fragment) {
   var out = "";
@@ -9257,13 +9263,14 @@ module$exports$eeapiclient$ee_api_client.DMSMap = function(parameters) {
   this.Serializable$set("asset", null == parameters.asset ? null : parameters.asset);
   this.Serializable$set("dmsName", null == parameters.dmsName ? null : parameters.dmsName);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
+  this.Serializable$set("visualizationOptions", null == parameters.visualizationOptions ? null : parameters.visualizationOptions);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.DMSMap, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.DMSMap.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.DMSMap;
 };
 module$exports$eeapiclient$ee_api_client.DMSMap.prototype.getPartialClassMetadata = function() {
-  return {keys:["asset", "dmsName", "name"]};
+  return {keys:["asset", "dmsName", "name", "visualizationOptions"]};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.DMSMap.prototype, {asset:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("asset") ? this.Serializable$get("asset") : null;
@@ -9277,6 +9284,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("name") ? this.Serializable$get("name") : null;
 }, set:function(value) {
   this.Serializable$set("name", value);
+}}, visualizationOptions:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("visualizationOptions") ? this.Serializable$get("visualizationOptions") : null;
+}, set:function(value) {
+  this.Serializable$set("visualizationOptions", value);
 }}});
 module$exports$eeapiclient$ee_api_client.DataAccessOptionsParameters = function module$contents$eeapiclient$ee_api_client_DataAccessOptionsParameters() {
 };
@@ -13179,6 +13190,7 @@ goog.math.Size.prototype.scaleToFit = function(target) {
   var s = this.aspectRatio() > target.aspectRatio() ? target.width / this.width : target.height / this.height;
   return this.scale(s);
 };
+goog.dom.Appendable = {};
 goog.dom.ASSUME_QUIRKS_MODE = !1;
 goog.dom.ASSUME_STANDARDS_MODE = !1;
 goog.dom.COMPAT_MODE_KNOWN_ = goog.dom.ASSUME_QUIRKS_MODE || goog.dom.ASSUME_STANDARDS_MODE;
@@ -14883,6 +14895,7 @@ goog.async.Deferred.assertNoErrors = function() {
 };
 goog.net = {};
 goog.net.jsloader = {};
+goog.net.jsloader.Options = {};
 goog.net.jsloader.GLOBAL_VERIFY_OBJS_ = "closure_verification";
 goog.net.jsloader.DEFAULT_TIMEOUT = 5000;
 goog.net.jsloader.scriptsToLoad_ = [];
@@ -14969,6 +14982,8 @@ goog.net.jsloader.Error = function(code, opt_message) {
 };
 goog.inherits(goog.net.jsloader.Error, module$contents$goog$debug$Error_DebugError);
 goog.json = {};
+goog.json.Replacer = {};
+goog.json.Reviver = {};
 goog.json.USE_NATIVE_JSON = !1;
 goog.json.TRY_NATIVE_JSON = !0;
 goog.json.isValid = function(s) {
@@ -15834,7 +15849,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.274";
+ee.apiclient.API_CLIENT_VERSION = "0.1.275";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15910,6 +15925,9 @@ module$contents$ee$apiclient_Call.prototype.videoMap = function() {
 };
 module$contents$ee$apiclient_Call.prototype.classifier = function() {
   return new module$exports$eeapiclient$ee_api_client.ProjectsClassifierApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
+};
+module$contents$ee$apiclient_Call.prototype.dmsMaps = function() {
+  return new module$exports$eeapiclient$ee_api_client.ProjectsDmsMapsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
 };
 module$contents$ee$apiclient_Call.prototype.thumbnails = function() {
   return new module$exports$eeapiclient$ee_api_client.ProjectsThumbnailsApiClientImpl(module$exports$ee$apiVersion.V1ALPHA, this.requestService);
@@ -16112,8 +16130,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.274";
-  "0.1.274" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.275";
+  "0.1.275" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -16375,7 +16393,7 @@ module$contents$ee$apiclient_apiclient.MAX_ASYNC_RETRIES_ = 10;
 module$contents$ee$apiclient_apiclient.MAX_SYNC_RETRIES_ = 5;
 module$contents$ee$apiclient_apiclient.APP_ID_TOKEN_HEADER_ = "X-Earth-Engine-App-ID-Token";
 module$contents$ee$apiclient_apiclient.PROFILE_HEADER = "X-Earth-Engine-Computation-Profile";
-module$contents$ee$apiclient_apiclient.PROFILE_REQUEST_HEADER = "X-Earth-Engine-Computation-Profile";
+module$contents$ee$apiclient_apiclient.PROFILE_REQUEST_HEADER = "X-Earth-Engine-Computation-Profiling";
 module$contents$ee$apiclient_apiclient.USER_PROJECT_OVERRIDE_HEADER_ = "X-Goog-User-Project";
 module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER = "x-goog-api-client";
 module$contents$ee$apiclient_apiclient.DEFAULT_API_BASE_URL_ = "https://earthengine.googleapis.com/api";
@@ -17633,6 +17651,15 @@ ee.rpc_convert_batch.buildEarthEngineDestination_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.EarthEngineDestination({name:ee.rpc_convert.assetIdToAssetName(params.assetId)});
 };
 ee.data = {};
+ee.data.AbstractTaskConfig = {};
+ee.data.AlgorithmsRegistry = {};
+ee.data.AssetList = {};
+ee.data.ClassifierTaskConfig = {};
+ee.data.ImageTaskConfig = {};
+ee.data.MapTaskConfig = {};
+ee.data.TableTaskConfig = {};
+ee.data.VideoMapTaskConfig = {};
+ee.data.VideoTaskConfig = {};
 ee.data.authenticateViaOauth = function(clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed, opt_suppressDefaultScopes) {
   var scopes = module$contents$ee$apiclient_apiclient.mergeAuthScopes_(!opt_suppressDefaultScopes, !1, opt_extraScopes || []);
   module$contents$ee$apiclient_apiclient.setAuthClient(clientId, scopes);
@@ -17739,6 +17766,13 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat) {
     return urlFormat.replace("{x}", x).replace("{y}", y).replace("{z}", z);
   }, urlFormat:urlFormat};
 };
+ee.data.getDmsTilesKey = function(params, opt_callback) {
+  var map = new module$exports$eeapiclient$ee_api_client.DMSMap({name:null, asset:params.assetName, dmsName:params.mapName, }), call = new module$contents$ee$apiclient_Call(opt_callback);
+  return call.handle(call.dmsMaps().create(call.projectsPath(), map, {fields:["name"]}).then(function(response) {
+    return {token:response.name};
+  }));
+};
+goog.exportSymbol("ee.data.getDmsTilesKey", ee.data.getDmsTilesKey);
 ee.data.computeValue = function(obj, opt_callback) {
   var expression = ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(obj)), call = new module$contents$ee$apiclient_Call(opt_callback);
   return call.handle(call.value().compute(call.projectsPath(), new module$exports$eeapiclient$ee_api_client.ComputeValueRequest({expression:expression})).then(function(x) {
@@ -18247,6 +18281,8 @@ ee.data.TableDownloadParameters = function() {
 };
 ee.data.ImageVisualizationParameters = function() {
 };
+ee.data.DmsMapVisualizationParameters = function() {
+};
 ee.data.ThumbnailOptions = function() {
 };
 $jscomp.inherits(ee.data.ThumbnailOptions, ee.data.ImageVisualizationParameters);
@@ -18273,6 +18309,8 @@ ee.data.RawMapId = function() {
 ee.data.MapId = function() {
 };
 $jscomp.inherits(ee.data.MapId, ee.data.RawMapId);
+ee.data.DmsTilesKey = function() {
+};
 ee.data.MapZoomRange = {MIN:0, MAX:24};
 ee.data.TaskStatus = function() {
 };

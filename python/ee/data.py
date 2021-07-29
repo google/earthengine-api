@@ -93,7 +93,7 @@ _thread_locals = _ThreadLocals()
 _PROFILE_RESPONSE_HEADER_LOWERCASE = 'x-earth-engine-computation-profile'
 
 # The HTTP header through which profiling is requested when using the Cloud API.
-_PROFILE_REQUEST_HEADER = 'X-Earth-Engine-Computation-Profile'
+_PROFILE_REQUEST_HEADER = 'X-Earth-Engine-Computation-Profiling'
 
 # The HTTP header through which a user project override is provided.
 _USER_PROJECT_OVERRIDE_HEADER = 'X-Goog-User-Project'
