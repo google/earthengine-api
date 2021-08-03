@@ -150,6 +150,7 @@ export abstract class Serializable implements ISerializable {
   }
 }
 
+/** Constructs an ISerializable instance. */
 export interface SerializableCtor<T extends ISerializable> {
   new(): T;
 }

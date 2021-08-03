@@ -33,6 +33,7 @@ export interface GeneratedRequestParams {
   streamingType?: string;
 }
 
+/** Type for a generic string-keyed object. */
 export interface ApiClientObjectMap<T> {
   [key: string]: T;
 }

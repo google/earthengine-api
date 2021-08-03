@@ -14647,9 +14647,10 @@ module$contents$goog$async$Throttle_Throttle.prototype.doAction_ = function() {
 };
 goog.async.Throttle = module$contents$goog$async$Throttle_Throttle;
 /*
- Portions of this code are from MochiKit, received by
- The Closure Authors under the MIT license. All other code is Copyright
- 2005-2009 The Closure Authors. All Rights Reserved.
+
+ Copyright 2005, 2007 Bob Ippolito. All Rights Reserved.
+ Copyright The Closure Library Authors.
+ SPDX-License-Identifier: MIT
 */
 goog.async.Deferred = function(opt_onCancelFunction, opt_defaultScope) {
   this.sequence_ = [];
@@ -15844,7 +15845,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.276";
+ee.apiclient.API_CLIENT_VERSION = "0.1.277";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -16125,8 +16126,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType, }, version = "0.1.276";
-  "0.1.276" === version && (version = "latest");
+  var headers = {"Content-Type":contentType, }, version = "0.1.277";
+  "0.1.277" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17762,7 +17763,7 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat) {
   }, urlFormat:urlFormat};
 };
 ee.data.getDmsTilesKey = function(params, opt_callback) {
-  var map = new module$exports$eeapiclient$ee_api_client.DMSMap({name:null, asset:params.assetName, dmsName:params.mapName, }), call = new module$contents$ee$apiclient_Call(opt_callback);
+  var visualizationOptions = params.visParams ? JSON.stringify(params.visParams) : null, map = new module$exports$eeapiclient$ee_api_client.DMSMap({name:null, asset:params.assetName, dmsName:params.mapName, visualizationOptions:visualizationOptions, }), call = new module$contents$ee$apiclient_Call(opt_callback);
   return call.handle(call.dmsMaps().create(call.projectsPath(), map, {fields:["name"]}).then(function(response) {
     return {token:response.name};
   }));
@@ -21918,7 +21919,9 @@ goog.style.setOpacity = function(el, alpha) {
 };
 goog.style.setTransparentBackgroundImage = function(el, src) {
   var style = el.style;
-  goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("8") ? style.filter = 'progid:DXImageTransform.Microsoft.AlphaImageLoader(src="' + src + '", sizingMethod="crop")' : (style.backgroundImage = "url(" + src + ")", style.backgroundPosition = "top left", style.backgroundRepeat = "no-repeat");
+  style.backgroundImage = "url(" + src + ")";
+  style.backgroundPosition = "top left";
+  style.backgroundRepeat = "no-repeat";
 };
 goog.style.clearTransparentBackgroundImage = function(el) {
   var style = el.style;
@@ -21960,13 +21963,12 @@ goog.style.setSafeStyleSheet = function(element, safeStyleSheet) {
   goog.userAgent.IE && void 0 !== element.cssText ? element.cssText = stylesString : goog.global.trustedTypes ? goog.dom.setTextContent(element, stylesString) : element.innerHTML = stylesString;
 };
 goog.style.setPreWrap = function(el) {
-  var style = el.style;
-  goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("8") ? (style.whiteSpace = "pre", style.wordWrap = "break-word") : style.whiteSpace = goog.userAgent.GECKO ? "-moz-pre-wrap" : "pre-wrap";
+  el.style.whiteSpace = goog.userAgent.GECKO ? "-moz-pre-wrap" : "pre-wrap";
 };
 goog.style.setInlineBlock = function(el) {
   var style = el.style;
   style.position = "relative";
-  goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("8") ? (style.zoom = "1", style.display = "inline") : style.display = "inline-block";
+  style.display = "inline-block";
 };
 goog.style.isRightToLeft = function(el) {
   return "rtl" == goog.style.getStyle_(el, "direction");
@@ -22000,7 +22002,7 @@ goog.style.getBorderBoxSize = function(element) {
 };
 goog.style.setBorderBoxSize = function(element, size) {
   var doc = goog.dom.getOwnerDocument(element), isCss1CompatMode = goog.dom.getDomHelper(doc).isCss1CompatMode();
-  if (!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10") || isCss1CompatMode && goog.userAgent.isVersionOrHigher("8")) {
+  if (!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10") || isCss1CompatMode) {
     goog.style.setBoxSizingSize_(element, size, "border-box");
   } else {
     var style = element.style;
@@ -22024,7 +22026,7 @@ goog.style.getContentBoxSize = function(element) {
 };
 goog.style.setContentBoxSize = function(element, size) {
   var doc = goog.dom.getOwnerDocument(element), isCss1CompatMode = goog.dom.getDomHelper(doc).isCss1CompatMode();
-  if (!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10") || isCss1CompatMode && goog.userAgent.isVersionOrHigher("8")) {
+  if (!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10") || isCss1CompatMode) {
     goog.style.setBoxSizingSize_(element, size, "content-box");
   } else {
     var style = element.style;
