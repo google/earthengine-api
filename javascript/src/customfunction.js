@@ -12,6 +12,8 @@ goog.require('ee.String');
 goog.require('ee.Types');
 goog.require('ee.rpc_node');
 goog.require('goog.array');
+goog.requireType('ee.Encodable');
+goog.requireType('ee.api');
 
 
 
@@ -78,16 +80,19 @@ ee.CustomFunction.prototype.encode = function(encoder) {
 };
 
 
-/** @override */
-ee.CustomFunction.prototype.encodeCloudValue = function(encoder) {
+/** @override @return {!ee.api.ValueNode} */
+ee.CustomFunction.prototype.encodeCloudValue = function(
+    /** !ee.Encodable.Serializer */ serializer) {
   return ee.rpc_node.functionDefinition(
-      this.signature_['args'].map(arg => arg['name']), encoder(this.body_));
+      this.signature_['args'].map(arg => arg['name']),
+      serializer.makeReference(this.body_));
 };
 
 
-/** @override */
-ee.CustomFunction.prototype.encodeCloudInvocation = function(encoder, args) {
-  return ee.rpc_node.functionByReference(encoder(this), args);
+/** @override @return {!ee.api.ValueNode} */
+ee.CustomFunction.prototype.encodeCloudInvocation = function(
+    /** !ee.Encodable.Serializer */ serializer, /** ? */ args) {
+  return ee.rpc_node.functionByReference(serializer.makeReference(this), args);
 };
 
 
@@ -110,7 +115,7 @@ ee.CustomFunction.prototype.getSignature = function() {
 ee.CustomFunction.variable = function(type, name) {
   type = type || Object;
   if (!(type.prototype instanceof ee.ComputedObject)) {
-    // Try co convert to an EE type.
+    // Try to convert to an EE type.
     if (!type || type == Object) {
       type = ee.ComputedObject;
     } else if (type == String) {
@@ -221,8 +226,24 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
     return countNodes(Object.values(expression.values));
   };
 
-  const serializedBody =
-      ee.Serializer.encodeCloudApiExpression(body.apply(null, vars));
+  // There are three function building phases, which each call body.apply:
+  // 1 - Check Return.  The constructor verifies that body.apply returns a
+  // result, but does not try to serialize the result. If the function tries to
+  // use unbound variables (eg, using .getInfo() or print()), ComputedObject
+  // will throw an exception when these calls try to serialize themselves, so
+  // that unbound variables are not passed in server calls.
+  // 2 - Count Functions.  We serialize the result here. At this point all
+  // variables must have names for serialization to succeed, but we don't yet
+  // know the correct function depth. So we serialize with unboundName set to
+  // '<unbound>', which should silently succeed. If this does end up in server
+  // calls, the function is very unusual: the first call doesn't use unbound
+  // variables but the second call does. In this rare case we will return server
+  // errors complaining about <unbound>.
+  // 3 - Final Serialize.  Finally, the constructor calls body.apply with the
+  // correct, depth-dependent names, which are used when the CustomFunction
+  // is serialized and sent to the server.
+  const serializedBody = ee.Serializer.encodeCloudApiExpression(
+      body.apply(null, vars), '<unbound>');
   const baseName = `_MAPPING_VAR_${countFunctions(serializedBody)}_`;
 
   // Update the vars and signature by the name.

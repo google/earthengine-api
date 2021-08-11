@@ -7,6 +7,8 @@ goog.provide('ee.String');
 goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.rpc_node');
+goog.requireType('ee.Encodable');
+goog.requireType('ee.api');
 
 
 
@@ -89,12 +91,13 @@ ee.String.prototype.encode = function(encoder) {
 };
 
 
-/** @override */
-ee.String.prototype.encodeCloudValue = function(encoder) {
+/** @override @return {!ee.api.ValueNode} */
+ee.String.prototype.encodeCloudValue = function(
+    /** !ee.Encodable.Serializer */ serializer) {
   if (typeof (this.string_) === 'string') {
-    return ee.rpc_node.reference(encoder(this.string_));
+    return ee.rpc_node.reference(serializer.makeReference(this.string_));
   } else {
-    return ee.String.base(this, 'encodeCloudValue', encoder);
+    return ee.String.base(this, 'encodeCloudValue', serializer);
   }
 };
 

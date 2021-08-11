@@ -208,11 +208,15 @@ ee.Deserializer.invocation_ = function(func, args) {
     // return a function, e.g. Image.parseExpression().
     const funcComputed = /** @type {!ee.ComputedObject} */(func);
     class ComputedFunction extends ee.Function {
-      /** @override */ encode(encoder) {
+      /** @override @return {*} */
+      encode(/** function(*):* */ encoder) {
         return funcComputed.encode(encoder);
       }
-      /** @override */ encodeCloudInvocation(encoder, args) {
-        return ee.rpc_node.functionByReference(encoder(funcComputed), args);
+      /** @override @return {!ee.api.ValueNode} */
+      encodeCloudInvocation(
+          /** !ee.Encodable.Serializer */ serializer, /** ? */ args) {
+        return ee.rpc_node.functionByReference(
+            serializer.makeReference(funcComputed), args);
       }
     }
     // Don't need to set function signature, since we don't have to re-promote.

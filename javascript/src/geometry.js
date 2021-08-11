@@ -20,7 +20,8 @@ goog.require('ee.arguments');
 goog.require('goog.array');
 goog.require('goog.json.Serializer');
 goog.require('goog.object');
-
+goog.requireType('ee.Encodable');
+goog.requireType('ee.api');
 goog.requireType('ee.data');
 
 /**
@@ -742,15 +743,16 @@ ee.Geometry.prototype.toString = function() {
 };
 
 
-/** @override */
-ee.Geometry.prototype.encodeCloudValue = function(opt_encoder) {
+/** @override @return {!ee.api.ValueNode} */
+ee.Geometry.prototype.encodeCloudValue = function(
+    /** !ee.Encodable.Serializer */ serializer) {
   if (!this.type_) {
     // This is not a concrete Geometry.
-    if (!opt_encoder) {
-      throw Error('Must specify an encode function when encoding a ' +
-                  'computed geometry.');
+    if (!serializer) {
+      throw Error(
+          'Must specify a serializer when encoding a computed geometry.');
     }
-    return ee.ComputedObject.prototype.encodeCloudValue.call(this, opt_encoder);
+    return ee.ComputedObject.prototype.encodeCloudValue.call(this, serializer);
   }
 
   const args = {};
@@ -783,7 +785,7 @@ ee.Geometry.prototype.encodeCloudValue = function(opt_encoder) {
   if (this.evenOdd_ != null) {
     args['evenOdd'] = this.evenOdd_;
   }
-  return new ee.ApiFunction(func).apply(args).encodeCloudValue(opt_encoder);
+  return new ee.ApiFunction(func).apply(args).encodeCloudValue(serializer);
 };
 
 

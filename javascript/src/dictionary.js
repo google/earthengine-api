@@ -8,7 +8,8 @@ goog.require('ee.ApiFunction');
 goog.require('ee.ComputedObject');
 goog.require('ee.Types');
 goog.require('ee.rpc_node');
-
+goog.requireType('ee.Encodable');
+goog.requireType('ee.api');
 
 
 /**
@@ -98,14 +99,13 @@ ee.Dictionary.prototype.encode = function(encoder) {
 };
 
 
-/**
- * @override
- */
-ee.Dictionary.prototype.encodeCloudValue = function(encoder) {
+/** @override @return {!ee.api.ValueNode} */
+ee.Dictionary.prototype.encodeCloudValue = function(
+    /** !ee.Encodable.Serializer */ serializer) {
   if (this.dict_ !== null) {
-    return ee.rpc_node.reference(encoder(this.dict_));
+    return ee.rpc_node.reference(serializer.makeReference(this.dict_));
   } else {
-    return ee.Dictionary.base(this, 'encodeCloudValue', encoder);
+    return ee.Dictionary.base(this, 'encodeCloudValue', serializer);
   }
 };
 

@@ -20,6 +20,8 @@ goog.require('ee.Types');
 goog.require('ee.data');
 goog.require('ee.rpc_node');
 goog.require('goog.object');
+goog.requireType('ee.Encodable');
+goog.requireType('ee.api');
 
 
 
@@ -89,8 +91,9 @@ ee.ApiFunction.prototype.encode = function(encoder) {
 };
 
 
-/** @override */
-ee.ApiFunction.prototype.encodeCloudInvocation = function(encoder, args) {
+/** @override @return {!ee.api.ValueNode} */
+ee.ApiFunction.prototype.encodeCloudInvocation = function(
+    /** !ee.Encodable.Serializer */ serializer, /** ? */ args) {
   return ee.rpc_node.functionByName(this.signature_['name'], args);
 };
 

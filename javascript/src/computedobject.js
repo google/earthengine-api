@@ -149,22 +149,35 @@ ee.ComputedObject.prototype.encode = function(encoder) {
 };
 
 
-/** @override */
-ee.ComputedObject.prototype.encodeCloudValue = function(encoder) {
+/**
+ * @override @type {function(this:ee.ComputedObject,!ee.Encodable.Serializer)}
+ */
+ee.ComputedObject.prototype.encodeCloudValue = function(serializer) {
   if (this.isVariable()) {
-    // varName may be null for unbound variables; server will report the error.
-    return ee.rpc_node.argumentReference(this.varName || '');
+    const name = this.varName || serializer.unboundName;
+    if (!name) {
+      // We are trying to call getInfo() or make some other server call inside a
+      // function passed to collection.map() or .iterate(), and the call uses
+      // one of the function arguments. The argument will be unbound outside of
+      // the map operation and cannot be evaluated. See the Count Functions case
+      // in customfunction.js for details on the unboundName mechanism.
+      // TODO(user): Report the name of the offending argument.
+      throw new Error(
+          'A mapped function\'s arguments cannot be used in client-side operations');
+    }
+    return ee.rpc_node.argumentReference(name);
   } else {
     /** @type {!Object<string,!ee.api.ValueNode>} */
     const encodedArgs = {};
-    for (var name in this.args) {
+    for (const name in this.args) {
       if (this.args[name] !== undefined) {
-        encodedArgs[name] = ee.rpc_node.reference(encoder(this.args[name]));
+        encodedArgs[name] =
+            ee.rpc_node.reference(serializer.makeReference(this.args[name]));
       }
     }
     return typeof this.func === 'string' ?
         ee.rpc_node.functionByName(String(this.func), encodedArgs) :
-        this.func.encodeCloudInvocation(encoder, encodedArgs);
+        this.func.encodeCloudInvocation(serializer, encodedArgs);
   }
 };
 

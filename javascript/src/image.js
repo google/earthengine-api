@@ -487,8 +487,9 @@ ee.Image.prototype.expression = function(expression, opt_map) {
     return body.encode(encoder);
   };
 
-  func.encodeCloudInvocation = function(encoder, args) {
-    return ee.rpc_node.functionByReference(encoder(body), args);
+  func.encodeCloudInvocation = function(serializer, args) {
+    return ee.rpc_node.functionByReference(
+        serializer.makeReference(body), args);
   };
 
   /**

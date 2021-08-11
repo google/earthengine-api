@@ -28,11 +28,17 @@ ee.Encodable = function() {};
  */
 ee.Encodable.prototype.encode = goog.abstractMethod;
 
+/**
+ * Defines the serializer behavior needed by encodeCloudValue.
+ * @typedef {{
+ *     makeReference: function(*):string, unboundName:(string|undefined)}}
+ */
+ee.Encodable.Serializer;
 
 /**
  * Encodes an object in a format compatible with ee.Serializer.encodeCloudApi().
- * @param {function(*): string} encoder A
- *    function that can be called to encode the components of an object.
+ * @param {!ee.Encodable.Serializer}
+ *    serializer An object that can be used to encode a serializable object.
  * @return {!ee.api.ValueNode} The encoded object.
  */
 ee.Encodable.prototype.encodeCloudValue = goog.abstractMethod;

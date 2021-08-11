@@ -162,6 +162,17 @@ class CollectionTestCase(apitestcase.ApiTestCase):
         '0_0, 1_0, 1_1, 2_0, 2_1, 3_0, 3_1, 4_0',
         ', '.join(sorted(set(mapped_vars))))
 
+  def testUnboundArguments(self):
+    fc = ee.FeatureCollection('fc')
+    with self.assertRaisesRegex(
+        Exception, 'User-defined methods must return a value'):
+      fc.map(lambda x: None)
+
+    with self.assertRaisesRegex(
+        Exception,
+        'A mapped function\'s arguments cannot be used in client-side operations'
+    ):
+      fc.map(lambda x: x.serialize())
 
 if __name__ == '__main__':
   unittest.main()
