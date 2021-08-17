@@ -394,9 +394,9 @@
     }, {
       "argumentName": "bestModelProportion",
       "type": "Float",
-      "description": "Takes the model with most vertices that has a p-value that is at most this proportion away from the model with lowest p-value.",
+      "description": "Allows models with more vertices to be chosen if their p-value is no more than (2 - bestModelProportion) times the p-value of the best model.",
       "optional": true,
-      "defaultValue": 1.25
+      "defaultValue": 0.75
     }, {
       "argumentName": "minObservationsNeeded",
       "type": "Integer",
@@ -7031,7 +7031,7 @@
       "description": "The join condition used to select the matches from the two collections."
     }]
   }, {
-    "name": "algorithms/Window.min",
+    "name": "algorithms/Image.focalMin",
     "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
@@ -7069,6 +7069,165 @@
       "optional": true,
       "defaultValue": null
     }]
+  }, {
+    "name": "algorithms/Image.focal_min",
+    "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Window.min",
+    "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Image.focalMax",
+    "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
+    }]
+  }, {
+    "name": "algorithms/Image.focal_max",
+    "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Window.max",
     "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
@@ -7107,7 +7266,87 @@
       "description": "A custom kernel. If used, kernelType and radius are ignored.",
       "optional": true,
       "defaultValue": null
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Image.focalMedian",
+    "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
     }]
+  }, {
+    "name": "algorithms/Image.focal_median",
+    "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Window.median",
     "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
@@ -7146,9 +7385,10 @@
       "description": "A custom kernel. If used, kernelType and radius are ignored.",
       "optional": true,
       "defaultValue": null
-    }]
+    }],
+    "hidden": true
   }, {
-    "name": "algorithms/Window.mode",
+    "name": "algorithms/Image.focalMode",
     "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
@@ -7187,7 +7427,87 @@
       "defaultValue": null
     }]
   }, {
-    "name": "algorithms/Window.mean",
+    "name": "algorithms/Image.focal_mode",
+    "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Window.mode",
+    "description": "Applies a morphological reducer() filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Image.focalMean",
     "description": "Applies a morphological mean filter to each band of an image using a named or custom kernel.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
@@ -7225,6 +7545,86 @@
       "optional": true,
       "defaultValue": null
     }]
+  }, {
+    "name": "algorithms/Image.focal_mean",
+    "description": "Applies a morphological mean filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
+    }],
+    "hidden": true
+  }, {
+    "name": "algorithms/Window.mean",
+    "description": "Applies a morphological mean filter to each band of an image using a named or custom kernel.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "image",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The image to which to apply the operations."
+    }, {
+      "argumentName": "radius",
+      "type": "Float",
+      "description": "The radius of the kernel to use.",
+      "optional": true,
+      "defaultValue": 1.5
+    }, {
+      "argumentName": "kernelType",
+      "type": "String",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "optional": true,
+      "defaultValue": "circle"
+    }, {
+      "argumentName": "units",
+      "type": "String",
+      "description": "If a kernel is not specified, this determines whether the kernel is in meters or pixels.",
+      "optional": true,
+      "defaultValue": "pixels"
+    }, {
+      "argumentName": "iterations",
+      "type": "Integer",
+      "description": "The number of times to apply the given kernel.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "kernel",
+      "type": "Kernel",
+      "description": "A custom kernel. If used, kernelType and radius are ignored.",
+      "optional": true,
+      "defaultValue": null
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Image.add",
     "description": "Adds the first value to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
