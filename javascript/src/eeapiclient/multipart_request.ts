@@ -49,6 +49,8 @@ export class MultipartRequest {
   private encodeFile(file: File): Promise<string> {
     return this.base64EncodeFile(file).then(
         base64Str => `Content-Type: ${file.type}\r\n` +
+            `Content-Disposition: form-data; name="file"; filename="${
+                         encodeURIComponent(file.name)}"\r\n` +
             'Content-Transfer-Encoding: base64\r\n\r\n' + base64Str);
   }
 

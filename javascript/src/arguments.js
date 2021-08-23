@@ -286,10 +286,10 @@ ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
     if (anyExpected) {
       // Case #1 above.
       var unexpected = seen.difference(expected);
-      if (!unexpected.isEmpty()) {
+      if (!(unexpected.size === 0)) {
         throw new Error(
             'Unexpected arguments' + fnNameSnippet + ': ' +
-            unexpected.getValues().join(', '));
+            Array.from(unexpected.values()).join(', '));
       }
       args = goog.object.clone(firstArg);
     } else {
@@ -305,10 +305,10 @@ ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
         return !goog.string.startsWith(param, 'opt_');
       }));
   var missing = required.difference(provided);
-  if (!missing.isEmpty()) {
+  if (!(missing.size === 0)) {
     throw new Error(
         'Missing required arguments' + fnNameSnippet + ': ' +
-        missing.getValues().join(', '));
+        Array.from(missing.values()).join(', '));
   }
 
   return args;
