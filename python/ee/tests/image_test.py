@@ -664,6 +664,9 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       self.assertEqual(projected.clipToBoundsAndScale(width=3, height=2), image)
       self.assertEqual({'something': 'else'}, params)
 
+  def testMorphologicalOperators(self):
+    """Verifies the focal operators are installed with aliases."""
+    ee.Image(0).focal_min().focalMin()
 
 if __name__ == '__main__':
   unittest.main()

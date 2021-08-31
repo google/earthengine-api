@@ -98,7 +98,6 @@ class Image(element.Element):
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Image', 'Image')
-      apifunction.ApiFunction.importApi(cls, 'Window', 'Image', 'focal_')
       cls._initialized = True
 
   @classmethod

@@ -15138,6 +15138,18 @@
     "description": "Returns a Reducer that returns the last of its non-null inputs.",
     "returnType": "Reducer"
   }, {
+    "name": "algorithms/Reducer.circularMean",
+    "description": "Returns a Reducer that computes the (weighted) circular mean of its inputs, which are expected to be in radians.  Output will be in the range (-π to π).",
+    "returnType": "Reducer"
+  }, {
+    "name": "algorithms/Reducer.circularVariance",
+    "description": "Returns a Reducer that computes the (weighted) circular variance of its inputs, which are expected to be in radians.",
+    "returnType": "Reducer"
+  }, {
+    "name": "algorithms/Reducer.circularStddev",
+    "description": "Returns a Reducer that computes the (weighted) circular standard deviation of its inputs, which are expected to be in radians, using the sqrt(-2 * ln(R)) formula.",
+    "returnType": "Reducer"
+  }, {
     "name": "algorithms/Reducer.frequencyHistogram",
     "description": "Returns a Reducer that returns a (weighted) frequency table of its inputs.",
     "returnType": "Reducer"

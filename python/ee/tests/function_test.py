@@ -42,7 +42,8 @@ class FunctionTest(unittest.TestCase):
     self.assertEqual({'a': 42, 'b': 13}, TEST_FUNC.nameArgs([42, 13]))
     self.assertEqual({'a': 3, 'b': 5}, TEST_FUNC.nameArgs([3], {'b': 5}))
 
-    self.assertRaisesWithRegexpMatch('Too many', TEST_FUNC.nameArgs, [1, 2, 3])
+    self.assertRaisesRegex(ee.EEException, 'Too many', TEST_FUNC.nameArgs,
+                           [1, 2, 3])
 
   def testPromoteArgs(self):
     """Verifies that Functions can promote and verify their arguments."""
@@ -62,12 +63,15 @@ class FunctionTest(unittest.TestCase):
     self.assertEqual({'a': ['Image', 42]}, TEST_FUNC.promoteArgs({'a': 42}))
 
     # Disallow unknown arguments.
-    self.assertRaisesWithRegexpMatch(
-        'Required argument', TEST_FUNC.promoteArgs, {})
+    self.assertRaisesRegex(ee.EEException, 'Required argument',
+                           TEST_FUNC.promoteArgs, {})
 
     # Disallow unknown arguments.
-    self.assertRaisesWithRegexpMatch(
-        'Unrecognized', TEST_FUNC.promoteArgs, {'a': 42, 'c': 13})
+    self.assertRaisesRegex(ee.EEException, 'Unrecognized',
+                           TEST_FUNC.promoteArgs, {
+                               'a': 42,
+                               'c': 13
+                           })
 
     # Clean up.
     ee.Function._registerPromoter(old_promoter)
@@ -91,14 +95,6 @@ class FunctionTest(unittest.TestCase):
   def testToString(self):
     """Verifies function docstring generation."""
     self.assertEqual(EXPECTED_DOC, str(TEST_FUNC))
-
-  def assertRaisesWithRegexpMatch(self, msg, func, *args):
-    try:
-      func(*args)
-    except ee.EEException as e:
-      self.assertIn(msg, str(e))
-    else:
-      self.fail('Expected an exception.')
 
 
 if __name__ == '__main__':

@@ -128,9 +128,8 @@ ee.data.authenticateViaOauth = function(
     clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed,
     opt_suppressDefaultScopes) {
   const scopes = ee.apiclient.mergeAuthScopes(
-    /* includeDefaultScopes= */ !opt_suppressDefaultScopes,
-    /* includeStorageScope= */ false,
-    opt_extraScopes || []);
+      /* includeDefaultScopes= */ !opt_suppressDefaultScopes,
+      /* includeStorageScope= */ false, opt_extraScopes || []);
   // Remember the auth options.
   ee.apiclient.setAuthClient(clientId, scopes);
 
@@ -141,8 +140,8 @@ ee.data.authenticateViaOauth = function(
 
   // Start the authentication flow as soon as we have the auth library.
   ee.apiclient.ensureAuthLibLoaded(function() {
-    var onImmediateFailed = opt_onImmediateFailed || goog.partial(
-        ee.data.authenticateViaPopup, success, opt_error);
+    const onImmediateFailed = opt_onImmediateFailed ||
+        goog.partial(ee.data.authenticateViaPopup, success, opt_error);
     ee.data.refreshAuthToken(success, opt_error, onImmediateFailed);
   });
 };
@@ -188,11 +187,13 @@ ee.data.authenticate = function(
  * @export
  */
 ee.data.authenticateViaPopup = function(opt_success, opt_error) {
-  goog.global['gapi']['auth']['authorize']({
-    'client_id': ee.apiclient.getAuthClientId(),
-    'immediate': false,
-    'scope': ee.apiclient.getAuthScopes().join(' ')
-  }, goog.partial(ee.apiclient.handleAuthResult, opt_success, opt_error));
+  goog.global['gapi']['auth']['authorize'](
+      {
+        'client_id': ee.apiclient.getAuthClientId(),
+        'immediate': false,
+        'scope': ee.apiclient.getAuthScopes().join(' ')
+      },
+      goog.partial(ee.apiclient.handleAuthResult, opt_success, opt_error));
 };
 
 
@@ -280,7 +281,8 @@ ee.data.PROFILE_REQUEST_HEADER = ee.apiclient.PROFILE_REQUEST_HEADER;
 ee.data.setExpressionAugmenter = function(augmenter) {
   ee.data.expressionAugmenter_ = augmenter || goog.functions.identity;
 };
-goog.exportSymbol('ee.data.setExpressionAugmenter', ee.data.setExpressionAugmenter);
+goog.exportSymbol(
+    'ee.data.setExpressionAugmenter', ee.data.setExpressionAugmenter);
 
 /**
  * A function used to transform expression right before they are sent to the
@@ -321,7 +323,7 @@ goog.exportSymbol('ee.data.setParamAugmenter', ee.data.setParamAugmenter);
 
 // The following symbols are not exported because they are meant to be used via
 // the wrapper functions in ee.js.
-/** @type {function(?string=,?string=,?string=)} */
+/** @type {function(?string=,?string=,?string=,?string=)} */
 ee.data.initialize = ee.apiclient.initialize;
 /** @type {function()} */
 ee.data.reset = ee.apiclient.reset;
@@ -573,9 +575,9 @@ ee.data.getVideoThumbId = function(params, opt_callback) {
     return ret;
   };
   const call = new ee.apiclient.Call(opt_callback);
-  return call.handle(
-      call.videoThumbnails().create(call.projectsPath(), request, {fields})
-      .then(getResponse));
+  return call.handle(call.videoThumbnails()
+                         .create(call.projectsPath(), request, {fields})
+                         .then(getResponse));
 };
 
 
@@ -605,9 +607,9 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
     return ret;
   };
   const call = new ee.apiclient.Call(opt_callback);
-  return call.handle(
-      call.filmstripThumbnails().create(call.projectsPath(), request, {fields})
-      .then(getResponse));
+  return call.handle(call.filmstripThumbnails()
+                         .create(call.projectsPath(), request, {fields})
+                         .then(getResponse));
 };
 
 
@@ -966,16 +968,16 @@ ee.data.listOperations = function(opt_limit, opt_callback) {
       }
     } else {
       params.pageToken = response.nextPageToken;
-      call.handle(operations.list(call.projectsPath(), params)
-          .then(getResponse));
+      call.handle(
+          operations.list(call.projectsPath(), params).then(getResponse));
     }
     return null;
   };
   // Provide an optional callback to enable async mode: it ignores the output
   // because getResponse will handle it, but handles errors.
-  const errorCallback = opt_callback
-      ? (value, err = undefined) => err && opt_callback(value, err)
-      : undefined;
+  const errorCallback = opt_callback ?
+      (value, err = undefined) => err && opt_callback(value, err) :
+      undefined;
 
   const call = new ee.apiclient.Call(errorCallback);
   const operations = call.operations();
@@ -1020,8 +1022,8 @@ ee.data.cancelOperation = function(operationName, opt_callback) {
  * @export
  */
 ee.data.getOperation = function(operationName, opt_callback) {
-  const opNames = ee.data.makeStringArray_(operationName).map(
-      ee.rpc_convert.taskIdToOperationName);
+  const opNames = ee.data.makeStringArray_(operationName)
+                      .map(ee.rpc_convert.taskIdToOperationName);
   if (!Array.isArray(operationName)) {
     const call = new ee.apiclient.Call(opt_callback);
     return call.handle(call.operations().get(opNames[0]));
@@ -1681,12 +1683,13 @@ ee.data.setIamPolicy = function(assetId, policy, opt_callback) {
  * @export
  */
 ee.data.updateAsset = function(assetId, asset, updateFields, opt_callback) {
-  const updateMask = (updateFields || []).join(",");
+  const updateMask = (updateFields || []).join(',');
   const request = new ee.api.UpdateAssetRequest({asset, updateMask});
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(
-      call.assets().patch(ee.rpc_convert.assetIdToAssetName(assetId), request)
-      .then(ee.rpc_convert.assetToLegacyResult));
+      call.assets()
+          .patch(ee.rpc_convert.assetIdToAssetName(assetId), request)
+          .then(ee.rpc_convert.assetToLegacyResult));
 };
 
 
@@ -2934,7 +2937,6 @@ ee.data.MapTaskConfig;
  */
 ee.data.TableTaskConfig;
 
-
 /**
  * An object for specifying configuration of a task to export image
  * collections as video.
@@ -3360,7 +3362,6 @@ ee.data.TableSource = class extends ee.data.FileSource {
      * @export {number|undefined}
      */
     this.maxVertices;
-
   }
 };
 

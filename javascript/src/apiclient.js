@@ -25,7 +25,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.280';
+const API_CLIENT_VERSION = '0.1.281';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -649,8 +649,10 @@ apiclient.setAppIdToken = function(token) {
  *     endpoint.
  * @param {?string=} xsrfToken A string to pass in the X-XSRF-Token header
  *     of XHRs.
+ * @param {?string=} project Optional Google Cloud project ID or number
+ *     to use when making API calls.
  */
-apiclient.initialize = function(apiBaseUrl, tileBaseUrl, xsrfToken) {
+apiclient.initialize = function(apiBaseUrl, tileBaseUrl, xsrfToken, project) {
   // If already initialized, only replace the explicitly specified parts.
 
   if (apiBaseUrl != null) {
@@ -666,7 +668,11 @@ apiclient.initialize = function(apiBaseUrl, tileBaseUrl, xsrfToken) {
   if (xsrfToken !== undefined) {  // Passing an explicit null clears it.
     apiclient.xsrfToken_ = xsrfToken;
   }
-  apiclient.setProject(apiclient.getProject() || apiclient.DEFAULT_PROJECT_);
+  if (project != null) {
+    apiclient.setProject(project);
+  } else {
+    apiclient.setProject(apiclient.getProject() || apiclient.DEFAULT_PROJECT_);
+  }
   apiclient.initialized_ = true;
 };
 

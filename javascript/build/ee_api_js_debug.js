@@ -1087,7 +1087,6 @@ goog.getObjectByName = function(name, opt_obj) {
 };
 goog.addDependency = function(relPath, provides, requires, opt_loadFlags) {
 };
-goog.useStrictRequires = !1;
 goog.ENABLE_DEBUG_LOADER = !0;
 goog.logToConsole_ = function(msg) {
   goog.global.console && goog.global.console.error(msg);
@@ -2493,6 +2492,8 @@ goog.string.internal.compareElements_ = function(left, right) {
 goog.labs = {};
 goog.labs.userAgent = {};
 goog.labs.userAgent.util = {};
+goog.labs.userAgent.ASSUME_CLIENT_HINTS_SUPPORT = !1;
+goog.labs.userAgent.USE_CLIENT_HINTS = !1;
 goog.labs.userAgent.util.getNativeUserAgentString_ = function() {
   var navigator = goog.labs.userAgent.util.getNavigator_();
   if (navigator) {
@@ -2503,6 +2504,10 @@ goog.labs.userAgent.util.getNativeUserAgentString_ = function() {
   }
   return "";
 };
+goog.labs.userAgent.util.getNativeUserAgentData_ = function() {
+  var navigator = goog.labs.userAgent.util.getNavigator_();
+  return navigator ? navigator.userAgentData || null : null;
+};
 goog.labs.userAgent.util.getNavigator_ = function() {
   return goog.global.navigator;
 };
@@ -2512,6 +2517,16 @@ goog.labs.userAgent.util.setUserAgent = function(opt_userAgent) {
 };
 goog.labs.userAgent.util.getUserAgent = function() {
   return goog.labs.userAgent.util.userAgent_;
+};
+goog.labs.userAgent.util.getUserAgentData = function() {
+  return goog.labs.userAgent.USE_CLIENT_HINTS ? goog.labs.userAgent.util.getNativeUserAgentData_() : null;
+};
+goog.labs.userAgent.util.matchUserAgentDataBrand = function(str) {
+  var data = goog.labs.userAgent.util.getUserAgentData();
+  return data ? data.brands.some(function($jscomp$destructuring$var0) {
+    var brand = $jscomp$destructuring$var0.brand;
+    return brand && goog.string.internal.contains(brand, str);
+  }) : !1;
 };
 goog.labs.userAgent.util.matchUserAgent = function(str) {
   return goog.string.internal.contains(goog.labs.userAgent.util.getUserAgent(), str);
@@ -2793,35 +2808,40 @@ goog.object.transpose = function module$contents$goog$object_transpose(obj) {
 };
 goog.object.unsafeClone = module$contents$goog$object_unsafeClone;
 goog.labs.userAgent.browser = {};
+goog.labs.userAgent.browser.useUserAgentBrand_ = function() {
+  var userAgentData = goog.labs.userAgent.util.getUserAgentData();
+  return !!userAgentData && 0 < userAgentData.brands.length;
+};
 goog.labs.userAgent.browser.matchOpera_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Opera");
+  return goog.labs.userAgent.ASSUME_CLIENT_HINTS_SUPPORT || goog.labs.userAgent.util.getUserAgentData() ? !1 : goog.labs.userAgent.util.matchUserAgent("Opera");
 };
 goog.labs.userAgent.browser.matchIE_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Trident") || goog.labs.userAgent.util.matchUserAgent("MSIE");
+  return goog.labs.userAgent.ASSUME_CLIENT_HINTS_SUPPORT || goog.labs.userAgent.util.getUserAgentData() ? !1 : goog.labs.userAgent.util.matchUserAgent("Trident") || goog.labs.userAgent.util.matchUserAgent("MSIE");
 };
 goog.labs.userAgent.browser.matchEdgeHtml_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Edge");
+  return goog.labs.userAgent.ASSUME_CLIENT_HINTS_SUPPORT || goog.labs.userAgent.util.getUserAgentData() ? !1 : goog.labs.userAgent.util.matchUserAgent("Edge");
 };
 goog.labs.userAgent.browser.matchEdgeChromium_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Edg/");
+  return goog.labs.userAgent.browser.useUserAgentBrand_() ? goog.labs.userAgent.util.matchUserAgentDataBrand("Edge") : goog.labs.userAgent.util.matchUserAgent("Edg/");
 };
 goog.labs.userAgent.browser.matchOperaChromium_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("OPR");
+  return goog.labs.userAgent.browser.useUserAgentBrand_() ? goog.labs.userAgent.util.matchUserAgentDataBrand("Opera") : goog.labs.userAgent.util.matchUserAgent("OPR");
 };
 goog.labs.userAgent.browser.matchFirefox_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Firefox") || goog.labs.userAgent.util.matchUserAgent("FxiOS");
+  return goog.labs.userAgent.browser.useUserAgentBrand_() ? goog.labs.userAgent.util.matchUserAgentDataBrand("Firefox") : goog.labs.userAgent.util.matchUserAgent("Firefox") || goog.labs.userAgent.util.matchUserAgent("FxiOS");
 };
 goog.labs.userAgent.browser.matchSafari_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Safari") && !(goog.labs.userAgent.browser.matchChrome_() || goog.labs.userAgent.browser.matchCoast_() || goog.labs.userAgent.browser.matchOpera_() || goog.labs.userAgent.browser.matchEdgeHtml_() || goog.labs.userAgent.browser.matchEdgeChromium_() || goog.labs.userAgent.browser.matchOperaChromium_() || goog.labs.userAgent.browser.matchFirefox_() || goog.labs.userAgent.browser.isSilk() || goog.labs.userAgent.util.matchUserAgent("Android"));
+  return goog.labs.userAgent.browser.useUserAgentBrand_() ? goog.labs.userAgent.util.matchUserAgentDataBrand("Safari") : goog.labs.userAgent.util.matchUserAgent("Safari") && !(goog.labs.userAgent.browser.matchChrome_() || goog.labs.userAgent.browser.matchCoast_() || goog.labs.userAgent.browser.matchOpera_() || goog.labs.userAgent.browser.matchEdgeHtml_() || goog.labs.userAgent.browser.matchEdgeChromium_() || goog.labs.userAgent.browser.matchOperaChromium_() || goog.labs.userAgent.browser.matchFirefox_() || 
+  goog.labs.userAgent.browser.isSilk() || goog.labs.userAgent.util.matchUserAgent("Android"));
 };
 goog.labs.userAgent.browser.matchCoast_ = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Coast");
+  return goog.labs.userAgent.ASSUME_CLIENT_HINTS_SUPPORT || goog.labs.userAgent.util.getUserAgentData() ? !1 : goog.labs.userAgent.util.matchUserAgent("Coast");
 };
 goog.labs.userAgent.browser.matchIosWebview_ = function() {
   return (goog.labs.userAgent.util.matchUserAgent("iPad") || goog.labs.userAgent.util.matchUserAgent("iPhone")) && !goog.labs.userAgent.browser.matchSafari_() && !goog.labs.userAgent.browser.matchChrome_() && !goog.labs.userAgent.browser.matchCoast_() && !goog.labs.userAgent.browser.matchFirefox_() && goog.labs.userAgent.util.matchUserAgent("AppleWebKit");
 };
 goog.labs.userAgent.browser.matchChrome_ = function() {
-  return (goog.labs.userAgent.util.matchUserAgent("Chrome") || goog.labs.userAgent.util.matchUserAgent("CriOS")) && !goog.labs.userAgent.browser.matchEdgeHtml_();
+  return goog.labs.userAgent.browser.useUserAgentBrand_() ? goog.labs.userAgent.util.matchUserAgentDataBrand("Chromium") : (goog.labs.userAgent.util.matchUserAgent("Chrome") || goog.labs.userAgent.util.matchUserAgent("CriOS")) && !goog.labs.userAgent.browser.matchEdgeHtml_();
 };
 goog.labs.userAgent.browser.matchAndroidBrowser_ = function() {
   return goog.labs.userAgent.util.matchUserAgent("Android") && !(goog.labs.userAgent.browser.isChrome() || goog.labs.userAgent.browser.isFirefox() || goog.labs.userAgent.browser.isOpera() || goog.labs.userAgent.browser.isSilk());
@@ -2838,7 +2858,7 @@ goog.labs.userAgent.browser.isIosWebview = goog.labs.userAgent.browser.matchIosW
 goog.labs.userAgent.browser.isChrome = goog.labs.userAgent.browser.matchChrome_;
 goog.labs.userAgent.browser.isAndroidBrowser = goog.labs.userAgent.browser.matchAndroidBrowser_;
 goog.labs.userAgent.browser.isSilk = function() {
-  return goog.labs.userAgent.util.matchUserAgent("Silk");
+  return goog.labs.userAgent.browser.useUserAgentBrand_() ? goog.labs.userAgent.util.matchUserAgentDataBrand("Silk") : goog.labs.userAgent.util.matchUserAgent("Silk");
 };
 goog.labs.userAgent.browser.getVersion = function() {
   function lookUpValueWithKeys(keys) {
@@ -8129,7 +8149,7 @@ function module$contents$eeapiclient$request_params_processParams(params) {
 module$exports$eeapiclient$request_params.processParams = module$contents$eeapiclient$request_params_processParams;
 function module$contents$eeapiclient$request_params_buildQueryParams(params, mapping, passthroughParams) {
   for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$10 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$ = $jscomp$iter$10.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$10.next()) {
-    var $jscomp$destructuring$var1 = $jscomp.makeIterator($jscomp$key$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var1.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var1.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
+    var $jscomp$destructuring$var3 = $jscomp.makeIterator($jscomp$key$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var3.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var3.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
     jsName in params && (urlQueryParams[urlQueryParamName] = params[jsName]);
   }
   return urlQueryParams;
@@ -8141,7 +8161,7 @@ module$exports$eeapiclient$request_params.bypassCorsPreflight = function module$
   if (params.headers) {
     hasContentType = null != params.headers["Content-Type"];
     for (var $jscomp$iter$11 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$ = $jscomp$iter$11.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$11.next()) {
-      var $jscomp$destructuring$var3 = $jscomp.makeIterator($jscomp$key$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var3.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var3.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
+      var $jscomp$destructuring$var5 = $jscomp.makeIterator($jscomp$key$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var5.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var5.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
       module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders.includes(key) ? (safeHeaders[key] = value, hasSafeHeaders = !0) : (unsafeHeaders[key] = value, hasUnsafeHeaders = !0);
     }
   }
@@ -9281,6 +9301,49 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }, set:function(value) {
   this.Serializable$set("values", value);
 }}});
+module$exports$eeapiclient$ee_api_client.DmsAssetExportOptionsParameters = function module$contents$eeapiclient$ee_api_client_DmsAssetExportOptionsParameters() {
+};
+module$exports$eeapiclient$ee_api_client.DmsAssetExportOptions = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("dmsDestination", null == parameters.dmsDestination ? null : parameters.dmsDestination);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.DmsAssetExportOptions, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.DmsAssetExportOptions.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.DmsAssetExportOptions;
+};
+module$exports$eeapiclient$ee_api_client.DmsAssetExportOptions.prototype.getPartialClassMetadata = function() {
+  return {keys:["dmsDestination"], objects:{dmsDestination:module$exports$eeapiclient$ee_api_client.DmsDestination}};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.DmsAssetExportOptions.prototype, {dmsDestination:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("dmsDestination") ? this.Serializable$get("dmsDestination") : null;
+}, set:function(value) {
+  this.Serializable$set("dmsDestination", value);
+}}});
+module$exports$eeapiclient$ee_api_client.DmsDestinationParameters = function module$contents$eeapiclient$ee_api_client_DmsDestinationParameters() {
+};
+module$exports$eeapiclient$ee_api_client.DmsDestination = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("dmsName", null == parameters.dmsName ? null : parameters.dmsName);
+  this.Serializable$set("assetVersion", null == parameters.assetVersion ? null : parameters.assetVersion);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.DmsDestination, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.DmsDestination.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.DmsDestination;
+};
+module$exports$eeapiclient$ee_api_client.DmsDestination.prototype.getPartialClassMetadata = function() {
+  return {keys:["assetVersion", "dmsName"]};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.DmsDestination.prototype, {assetVersion:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("assetVersion") ? this.Serializable$get("assetVersion") : null;
+}, set:function(value) {
+  this.Serializable$set("assetVersion", value);
+}}, dmsName:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("dmsName") ? this.Serializable$get("dmsName") : null;
+}, set:function(value) {
+  this.Serializable$set("dmsName", value);
+}}});
 module$exports$eeapiclient$ee_api_client.DoubleRangeParameters = function module$contents$eeapiclient$ee_api_client_DoubleRangeParameters() {
 };
 module$exports$eeapiclient$ee_api_client.DoubleRange = function(parameters) {
@@ -9671,6 +9734,7 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequest = function(parameter
   module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("fileExportOptions", null == parameters.fileExportOptions ? null : parameters.fileExportOptions);
   this.Serializable$set("assetExportOptions", null == parameters.assetExportOptions ? null : parameters.assetExportOptions);
+  this.Serializable$set("dmsExportOptions", null == parameters.dmsExportOptions ? null : parameters.dmsExportOptions);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("selectors", null == parameters.selectors ? null : parameters.selectors);
@@ -9685,7 +9749,8 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getConstru
   return module$exports$eeapiclient$ee_api_client.ExportTableRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"assetExportOptions description expression fileExportOptions maxErrorMeters maxVertices maxWorkerCount maxWorkers requestId selectors".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, fileExportOptions:module$exports$eeapiclient$ee_api_client.TableFileExportOptions}};
+  return {keys:"assetExportOptions description dmsExportOptions expression fileExportOptions maxErrorMeters maxVertices maxWorkerCount maxWorkers requestId selectors".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, dmsExportOptions:module$exports$eeapiclient$ee_api_client.DmsAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, 
+  fileExportOptions:module$exports$eeapiclient$ee_api_client.TableFileExportOptions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("assetExportOptions") ? this.Serializable$get("assetExportOptions") : null;
@@ -9695,6 +9760,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("description") ? this.Serializable$get("description") : null;
 }, set:function(value) {
   this.Serializable$set("description", value);
+}}, dmsExportOptions:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("dmsExportOptions") ? this.Serializable$get("dmsExportOptions") : null;
+}, set:function(value) {
+  this.Serializable$set("dmsExportOptions", value);
 }}, expression:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
 }, set:function(value) {
@@ -15337,8 +15406,8 @@ goog.net.ErrorCode.getDebugMessage = function(errorCode) {
 };
 goog.net.EventType = {COMPLETE:"complete", SUCCESS:"success", ERROR:"error", ABORT:"abort", READY:"ready", READY_STATE_CHANGE:"readystatechange", TIMEOUT:"timeout", INCREMENTAL_DATA:"incrementaldata", PROGRESS:"progress", DOWNLOAD_PROGRESS:"downloadprogress", UPLOAD_PROGRESS:"uploadprogress",};
 goog.net.HttpStatus = {CONTINUE:100, SWITCHING_PROTOCOLS:101, OK:200, CREATED:201, ACCEPTED:202, NON_AUTHORITATIVE_INFORMATION:203, NO_CONTENT:204, RESET_CONTENT:205, PARTIAL_CONTENT:206, MULTI_STATUS:207, MULTIPLE_CHOICES:300, MOVED_PERMANENTLY:301, FOUND:302, SEE_OTHER:303, NOT_MODIFIED:304, USE_PROXY:305, TEMPORARY_REDIRECT:307, PERMANENT_REDIRECT:308, BAD_REQUEST:400, UNAUTHORIZED:401, PAYMENT_REQUIRED:402, FORBIDDEN:403, NOT_FOUND:404, METHOD_NOT_ALLOWED:405, NOT_ACCEPTABLE:406, PROXY_AUTHENTICATION_REQUIRED:407, 
-REQUEST_TIMEOUT:408, CONFLICT:409, GONE:410, LENGTH_REQUIRED:411, PRECONDITION_FAILED:412, REQUEST_ENTITY_TOO_LARGE:413, REQUEST_URI_TOO_LONG:414, UNSUPPORTED_MEDIA_TYPE:415, REQUEST_RANGE_NOT_SATISFIABLE:416, EXPECTATION_FAILED:417, UNPROCESSABLE_ENTITY:422, LOCKED:423, FAILED_DEPENDENCY:424, PRECONDITION_REQUIRED:428, TOO_MANY_REQUESTS:429, REQUEST_HEADER_FIELDS_TOO_LARGE:431, INTERNAL_SERVER_ERROR:500, NOT_IMPLEMENTED:501, BAD_GATEWAY:502, SERVICE_UNAVAILABLE:503, GATEWAY_TIMEOUT:504, HTTP_VERSION_NOT_SUPPORTED:505, 
-INSUFFICIENT_STORAGE:507, NETWORK_AUTHENTICATION_REQUIRED:511, QUIRK_IE_NO_CONTENT:1223,};
+REQUEST_TIMEOUT:408, CONFLICT:409, GONE:410, LENGTH_REQUIRED:411, PRECONDITION_FAILED:412, REQUEST_ENTITY_TOO_LARGE:413, REQUEST_URI_TOO_LONG:414, UNSUPPORTED_MEDIA_TYPE:415, REQUEST_RANGE_NOT_SATISFIABLE:416, EXPECTATION_FAILED:417, UNPROCESSABLE_ENTITY:422, LOCKED:423, FAILED_DEPENDENCY:424, PRECONDITION_REQUIRED:428, TOO_MANY_REQUESTS:429, REQUEST_HEADER_FIELDS_TOO_LARGE:431, CLIENT_CLOSED_REQUEST:499, INTERNAL_SERVER_ERROR:500, NOT_IMPLEMENTED:501, BAD_GATEWAY:502, SERVICE_UNAVAILABLE:503, GATEWAY_TIMEOUT:504, 
+HTTP_VERSION_NOT_SUPPORTED:505, INSUFFICIENT_STORAGE:507, NETWORK_AUTHENTICATION_REQUIRED:511, QUIRK_IE_NO_CONTENT:1223,};
 goog.net.HttpStatus.isSuccess = function(status) {
   switch(status) {
     case goog.net.HttpStatus.OK:
@@ -15778,7 +15847,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.280";
+ee.apiclient.API_CLIENT_VERSION = "0.1.281";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -15900,13 +15969,13 @@ var module$contents$ee$apiclient_BatchCall = function(callback) {
 };
 $jscomp.inherits(module$contents$ee$apiclient_BatchCall, module$contents$ee$apiclient_Call);
 module$contents$ee$apiclient_BatchCall.prototype.send = function(parts, getResponse) {
-  var $jscomp$this = this, batchUrl = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + "/batch", body = parts.map(function($jscomp$destructuring$var4) {
-    var $jscomp$destructuring$var5 = $jscomp.makeIterator($jscomp$destructuring$var4), id = $jscomp$destructuring$var5.next().value, $jscomp$destructuring$var6 = $jscomp.makeIterator($jscomp$destructuring$var5.next().value), partBody = $jscomp$destructuring$var6.next().value, ctor = $jscomp$destructuring$var6.next().value;
+  var $jscomp$this = this, batchUrl = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + "/batch", body = parts.map(function($jscomp$destructuring$var6) {
+    var $jscomp$destructuring$var7 = $jscomp.makeIterator($jscomp$destructuring$var6), id = $jscomp$destructuring$var7.next().value, $jscomp$destructuring$var8 = $jscomp.makeIterator($jscomp$destructuring$var7.next().value), partBody = $jscomp$destructuring$var8.next().value, ctor = $jscomp$destructuring$var8.next().value;
     return "--batch_EARTHENGINE_batch\r\nContent-Type: application/http\r\nContent-Transfer-Encoding: binary\r\nMIME-Version: 1.0\r\nContent-ID: <" + id + ">\r\n\r\n" + partBody + "\r\n";
   }).join("") + "--batch_EARTHENGINE_batch--\r\n", deserializeResponses = function(response) {
     var result = {};
-    parts.forEach(function($jscomp$destructuring$var7) {
-      var $jscomp$destructuring$var8 = $jscomp.makeIterator($jscomp$destructuring$var7), id = $jscomp$destructuring$var8.next().value, $jscomp$destructuring$var9 = $jscomp.makeIterator($jscomp$destructuring$var8.next().value), partBody = $jscomp$destructuring$var9.next().value, ctor = $jscomp$destructuring$var9.next().value;
+    parts.forEach(function($jscomp$destructuring$var9) {
+      var $jscomp$destructuring$var10 = $jscomp.makeIterator($jscomp$destructuring$var9), id = $jscomp$destructuring$var10.next().value, $jscomp$destructuring$var11 = $jscomp.makeIterator($jscomp$destructuring$var10.next().value), partBody = $jscomp$destructuring$var11.next().value, ctor = $jscomp$destructuring$var11.next().value;
       null != response[id] && (result[id] = module$contents$eeapiclient$domain_object_deserialize(ctor, response[id]));
     });
     return getResponse ? getResponse(result) : result;
@@ -16023,11 +16092,11 @@ module$contents$ee$apiclient_apiclient.setAuthClient = function(clientId, scopes
 module$contents$ee$apiclient_apiclient.setAppIdToken = function(token) {
   module$contents$ee$apiclient_apiclient.appIdToken_ = token;
 };
-module$contents$ee$apiclient_apiclient.initialize = function(apiBaseUrl, tileBaseUrl, xsrfToken) {
+module$contents$ee$apiclient_apiclient.initialize = function(apiBaseUrl, tileBaseUrl, xsrfToken, project) {
   null != apiBaseUrl ? module$contents$ee$apiclient_apiclient.apiBaseUrl_ = apiBaseUrl : module$contents$ee$apiclient_apiclient.initialized_ || (module$contents$ee$apiclient_apiclient.apiBaseUrl_ = module$contents$ee$apiclient_apiclient.DEFAULT_API_BASE_URL_);
   null != tileBaseUrl ? module$contents$ee$apiclient_apiclient.tileBaseUrl_ = tileBaseUrl : module$contents$ee$apiclient_apiclient.initialized_ || (module$contents$ee$apiclient_apiclient.tileBaseUrl_ = module$contents$ee$apiclient_apiclient.DEFAULT_TILE_BASE_URL_);
   void 0 !== xsrfToken && (module$contents$ee$apiclient_apiclient.xsrfToken_ = xsrfToken);
-  module$contents$ee$apiclient_apiclient.setProject(module$contents$ee$apiclient_apiclient.getProject() || module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_);
+  null != project ? module$contents$ee$apiclient_apiclient.setProject(project) : module$contents$ee$apiclient_apiclient.setProject(module$contents$ee$apiclient_apiclient.getProject() || module$contents$ee$apiclient_apiclient.DEFAULT_PROJECT_);
   module$contents$ee$apiclient_apiclient.initialized_ = !0;
 };
 module$contents$ee$apiclient_apiclient.reset = function() {
@@ -16059,8 +16128,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.280";
-  "0.1.280" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.281";
+  "0.1.281" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -16211,7 +16280,7 @@ module$contents$ee$apiclient_apiclient.handleAuthResult_ = function(success, err
 };
 module$contents$ee$apiclient_apiclient.makeRequest_ = function(params) {
   for (var request = new goog.Uri.QueryData(), $jscomp$iter$14 = $jscomp.makeIterator(Object.entries(params)), $jscomp$key$ = $jscomp$iter$14.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$14.next()) {
-    var $jscomp$destructuring$var11 = $jscomp.makeIterator($jscomp$key$.value), name = $jscomp$destructuring$var11.next().value, item = $jscomp$destructuring$var11.next().value;
+    var $jscomp$destructuring$var13 = $jscomp.makeIterator($jscomp$key$.value), name = $jscomp$destructuring$var13.next().value, item = $jscomp$destructuring$var13.next().value;
     request.set(name, item);
   }
   return request;
@@ -16684,8 +16753,8 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   "string" !== typeof value$jscomp$0 && null !== value$jscomp$0 || null != properties.title || (properties.title = asNull(value$jscomp$0) || value$jscomp$0);
   extractValue("system:description");
   "string" !== typeof value$jscomp$0 && null !== value$jscomp$0 || null != properties.description || (properties.description = asNull(value$jscomp$0) || value$jscomp$0);
-  Object.entries(properties).forEach(function($jscomp$destructuring$var12) {
-    var $jscomp$destructuring$var13 = $jscomp.makeIterator($jscomp$destructuring$var12), key = $jscomp$destructuring$var13.next().value, value = $jscomp$destructuring$var13.next().value;
+  Object.entries(properties).forEach(function($jscomp$destructuring$var14) {
+    var $jscomp$destructuring$var15 = $jscomp.makeIterator($jscomp$destructuring$var14), key = $jscomp$destructuring$var15.next().value, value = $jscomp$destructuring$var15.next().value;
     properties[key] = asNull(value) || value;
   });
   asset.properties = properties;
@@ -17220,7 +17289,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
       return object;
     }
     for (var ret = Array.isArray(object) ? [] : {}, isNode = object instanceof Object.getPrototypeOf(module$exports$eeapiclient$ee_api_client.ValueNode), $jscomp$iter$17 = $jscomp.makeIterator(Object.entries(isNode ? object.Serializable$values : object)), $jscomp$key$ = $jscomp$iter$17.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$17.next()) {
-      var $jscomp$destructuring$var15 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var15.next().value, val = $jscomp$destructuring$var15.next().value;
+      var $jscomp$destructuring$var17 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var17.next().value, val = $jscomp$destructuring$var17.next().value;
       isNode ? null !== val && (ret[key] = "functionDefinitionValue" === key && null != val.body ? {argumentNames:val.argumentNames, body:walkObject(values[val.body])} : "functionInvocationValue" === key && null != val.functionReference ? {arguments:module$contents$goog$object_map(val.arguments, walkObject), functionReference:walkObject(values[val.functionReference])} : "constantValue" === key ? val === module$exports$eeapiclient$domain_object.NULL_VALUE ? 
       null : val : walkObject(val)) : ret[key] = walkObject(val);
     }
@@ -17330,7 +17399,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   }
   if (null != value.dictionaryValue) {
     for (var values = {}, constantValues = {}, $jscomp$iter$18 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$18.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$18.next()) {
-      var $jscomp$destructuring$var17 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var17.next().value, v$jscomp$0 = $jscomp$destructuring$var17.next().value;
+      var $jscomp$destructuring$var19 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var19.next().value, v$jscomp$0 = $jscomp$destructuring$var19.next().value;
       values[k] = this.optimizeValue(v$jscomp$0, depth + 3);
       null !== constantValues && isConst(values[k]) ? constantValues[k] = serializeConst(values[k].constantValue) : constantValues = null;
     }
@@ -17381,7 +17450,7 @@ ExpressionOptimizer.prototype.countReferences = function() {
   return counts;
 };
 ee.rpc_convert_batch = {};
-ee.rpc_convert_batch.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET",};
+ee.rpc_convert_batch.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET", DMS:"DMS",};
 ee.rpc_convert_batch.taskToExportImageRequest = function(params) {
   if (null == params.element) {
     throw Error('"element" not found in params ' + params);
@@ -17406,7 +17475,8 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
   }
   var selectors = params.selectors || null;
   null != selectors && "string" === typeof selectors && (selectors = selectors.split(","));
-  var result = new module$exports$eeapiclient$ee_api_client.ExportTableRequest({expression:ee.Serializer.encodeCloudApiExpression(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, selectors:selectors, maxErrorMeters:numberOrNull_(params.maxErrorMeters), requestId:stringOrNull_(params.id), maxVertices:numberOrNull_(params.maxVertices), maxWorkerCount:numberOrNull_(params.maxWorkers)}), destination = ee.rpc_convert_batch.guessDestination_(params);
+  var result = new module$exports$eeapiclient$ee_api_client.ExportTableRequest({expression:ee.Serializer.encodeCloudApiExpression(params.element), description:stringOrNull_(params.description), fileExportOptions:null, assetExportOptions:null, dmsExportOptions:null, selectors:selectors, maxErrorMeters:numberOrNull_(params.maxErrorMeters), requestId:stringOrNull_(params.id), maxVertices:numberOrNull_(params.maxVertices), maxWorkerCount:numberOrNull_(params.maxWorkers)}), 
+  destination = ee.rpc_convert_batch.guessDestination_(params);
   switch(destination) {
     case ee.rpc_convert_batch.ExportDestination.GCS:
     case ee.rpc_convert_batch.ExportDestination.DRIVE:
@@ -17414,6 +17484,9 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
       break;
     case ee.rpc_convert_batch.ExportDestination.ASSET:
       result.assetExportOptions = ee.rpc_convert_batch.buildTableAssetExportOptions_(params);
+      break;
+    case ee.rpc_convert_batch.ExportDestination.DMS:
+      result.dmsExportOptions = ee.rpc_convert_batch.buildDmsAssetExportOptions_(params);
       break;
     default:
       throw Error('Export destination "' + destination + '" unknown');
@@ -17463,7 +17536,7 @@ ee.rpc_convert_batch.guessDestination_ = function(params) {
   if (null == params) {
     return destination;
   }
-  null != params.outputBucket || null != params.outputPrefix ? destination = ee.rpc_convert_batch.ExportDestination.GCS : null != params.assetId && (destination = ee.rpc_convert_batch.ExportDestination.ASSET);
+  null != params.outputBucket || null != params.outputPrefix ? destination = ee.rpc_convert_batch.ExportDestination.GCS : null != params.assetId ? destination = ee.rpc_convert_batch.ExportDestination.ASSET : null != params.dmsName && (destination = ee.rpc_convert_batch.ExportDestination.DMS);
   return destination;
 };
 ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
@@ -17515,6 +17588,9 @@ ee.rpc_convert_batch.buildTableFileExportOptions_ = function(params, destination
 };
 ee.rpc_convert_batch.buildTableAssetExportOptions_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.TableAssetExportOptions({earthEngineDestination:ee.rpc_convert_batch.buildEarthEngineDestination_(params)});
+};
+ee.rpc_convert_batch.buildDmsAssetExportOptions_ = function(params) {
+  return new module$exports$eeapiclient$ee_api_client.DmsAssetExportOptions({dmsDestination:ee.rpc_convert_batch.buildDmsDestination_(params),});
 };
 ee.rpc_convert_batch.buildVideoFileExportOptions_ = function(params, destination) {
   var result = new module$exports$eeapiclient$ee_api_client.VideoFileExportOptions({gcsDestination:null, driveDestination:null, fileFormat:"MP4",});
@@ -17580,6 +17656,9 @@ ee.rpc_convert_batch.buildDriveDestination_ = function(params) {
 ee.rpc_convert_batch.buildEarthEngineDestination_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.EarthEngineDestination({name:ee.rpc_convert.assetIdToAssetName(params.assetId)});
 };
+ee.rpc_convert_batch.buildDmsDestination_ = function(params) {
+  return new module$exports$eeapiclient$ee_api_client.DmsDestination({dmsName:stringOrNull_(params.dmsName)});
+};
 ee.data = {};
 ee.data.AbstractTaskConfig = {};
 ee.data.AlgorithmsRegistry = {};
@@ -17587,6 +17666,7 @@ ee.data.AssetList = {};
 ee.data.ClassifierTaskConfig = {};
 ee.data.ImageTaskConfig = {};
 ee.data.MapTaskConfig = {};
+ee.data.TableDmsTaskConfig = {};
 ee.data.TableTaskConfig = {};
 ee.data.VideoMapTaskConfig = {};
 ee.data.VideoTaskConfig = {};
@@ -17777,8 +17857,8 @@ ee.data.getDownloadId = function(params, opt_callback) {
   }) && (params.bands = params.bands.map(function(band) {
     return {id:band};
   }));
-  if (params.bands && params.bands.some(function($jscomp$destructuring$var18) {
-    return null == $jscomp$destructuring$var18.id;
+  if (params.bands && params.bands.some(function($jscomp$destructuring$var20) {
+    return null == $jscomp$destructuring$var20.id;
   })) {
     throw Error("Each band dictionary must have an id.");
   }
@@ -18170,7 +18250,7 @@ goog.exportSymbol("ee.data.getAssetRootQuota", ee.data.getAssetRootQuota);
 ee.data.AssetType = {ALGORITHM:"Algorithm", CLASSIFIER:"Classifier", FOLDER:"Folder", FEATURE_COLLECTION:"FeatureCollection", IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", TABLE:"Table", UNKNOWN:"Unknown"};
 ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO", VIDEO_MAP:"EXPORT_VIDEO_MAP", CLASSIFIER:"EXPORT_CLASSIFIER"};
 ee.data.ExportState = {UNSUBMITTED:"UNSUBMITTED", READY:"READY", RUNNING:"RUNNING", COMPLETED:"COMPLETED", FAILED:"FAILED", CANCEL_REQUESTED:"CANCEL_REQUESTED", CANCELLED:"CANCELLED",};
-ee.data.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET",};
+ee.data.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET", DMS:"DMS",};
 ee.data.SystemPropertyPrefix = "system:";
 ee.data.SystemTimeProperty = {START:"system:time_start", END:"system:time_end"};
 ee.data.SYSTEM_ASSET_SIZE_PROPERTY = "system:asset_size";
@@ -19537,7 +19617,7 @@ goog.inherits(ee.Image, ee.Element);
 goog.exportSymbol("ee.Image", ee.Image);
 ee.Image.initialized_ = !1;
 ee.Image.initialize = function() {
-  ee.Image.initialized_ || (ee.ApiFunction.importApi(ee.Image, "Image", "Image"), ee.ApiFunction.importApi(ee.Image, "Window", "Image", "focal_"), ee.Image.initialized_ = !0);
+  ee.Image.initialized_ || (ee.ApiFunction.importApi(ee.Image, "Image", "Image"), ee.Image.initialized_ = !0);
 };
 ee.Image.reset = function() {
   ee.ApiFunction.clearApi(ee.Image);
@@ -20010,6 +20090,11 @@ module$contents$ee$batch_Export.table.toAsset = function(collection, opt_descrip
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
 goog.exportSymbol("module$contents$ee$batch_Export.table.toAsset", module$contents$ee$batch_Export.table.toAsset);
+module$contents$ee$batch_Export.table.toDmsLayer = function(collection, opt_description, opt_assetId, opt_maxVertices) {
+  var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.table.toDmsLayer, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.DMS, ee.data.ExportType.TABLE);
+  return module$contents$ee$batch_ExportTask.create(serverConfig);
+};
+goog.exportSymbol("module$contents$ee$batch_Export.table.toDmsLayer", module$contents$ee$batch_Export.table.toDmsLayer);
 module$contents$ee$batch_Export.video.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.video.toCloudStorage, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.VIDEO);
   return module$contents$ee$batch_ExportTask.create(serverConfig);
@@ -20307,7 +20392,7 @@ module$contents$ee$batch_Export.prefixImageFormatOptions_ = function(taskConfig,
     throw Error("Parameter specified at least twice: once in config, and once in config format options.");
   }
   for (var prefix = module$contents$ee$batch_FORMAT_PREFIX_MAP[imageFormat], validOptionKeys = module$contents$ee$batch_FORMAT_OPTIONS_MAP[imageFormat], prefixedOptions = {}, $jscomp$iter$20 = $jscomp.makeIterator(Object.entries(formatOptions)), $jscomp$key$ = $jscomp$iter$20.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$20.next()) {
-    var $jscomp$destructuring$var21 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var21.next().value, value = $jscomp$destructuring$var21.next().value;
+    var $jscomp$destructuring$var23 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var23.next().value, value = $jscomp$destructuring$var23.next().value;
     if (!module$contents$goog$array_contains(validOptionKeys, key$jscomp$0)) {
       var validKeysMsg = validOptionKeys.join(", ");
       throw Error('"' + key$jscomp$0 + '" is not a valid option, the image format "' + imageFormat + '""may have the following options: ' + (validKeysMsg + '".'));
@@ -20730,7 +20815,7 @@ ee.Terrain.reset = function() {
   ee.ApiFunction.clearApi(ee.Terrain);
   ee.Terrain.initialized_ = !1;
 };
-ee.initialize = function(opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback, opt_xsrfToken) {
+ee.initialize = function(opt_baseurl, opt_tileurl, opt_successCallback, opt_errorCallback, opt_xsrfToken, opt_project) {
   if (ee.ready_ != ee.InitState.READY || opt_baseurl || opt_tileurl) {
     var isAsynchronous = null != opt_successCallback;
     if (opt_errorCallback) {
@@ -20743,7 +20828,7 @@ ee.initialize = function(opt_baseurl, opt_tileurl, opt_successCallback, opt_erro
     if (ee.ready_ == ee.InitState.LOADING && isAsynchronous) {
       ee.successCallbacks_.push(opt_successCallback);
     } else {
-      if (ee.ready_ = ee.InitState.LOADING, ee.data.initialize(opt_baseurl, opt_tileurl, opt_xsrfToken), isAsynchronous) {
+      if (ee.ready_ = ee.InitState.LOADING, ee.data.initialize(opt_baseurl, opt_tileurl, opt_xsrfToken, opt_project), isAsynchronous) {
         ee.successCallbacks_.push(opt_successCallback), ee.ApiFunction.initialize(ee.initializationSuccess_, ee.initializationFailure_);
       } else {
         try {
