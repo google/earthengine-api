@@ -203,8 +203,14 @@ class Export(object):
             - skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
               image tiles. Defaults to false.
             If exporting to Google Drive (default):
-            - driveFolder: The name of a unique folder in your Drive account to
-              export into. Defaults to the root of the drive.
+            - driveFolder: The Google Drive Folder that the export will reside
+              in. Note: (a) if the folder name exists at any level, the output
+              is written to it, (b) if duplicate folder names exist, output is
+              written to the most recently modified folder, (c) if the folder
+              name does not exist, a new folder will be created at the root,
+              and (d) folder names with separators (e.g. 'path/to/file') are
+              interpreted as literal strings, not system paths. Defaults to
+              Drive root.
             - driveFileNamePrefix: The Google Drive filename for the export.
               Defaults to the name of the task.
             If exporting to Google Cloud Storage:
@@ -497,8 +503,14 @@ class Export(object):
             - fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
               "KMZ", or "SHP".
             If exporting to Google Drive (default):
-            - driveFolder: The name of a unique folder in your Drive
-              account to export into. Defaults to the root of the drive.
+            - driveFolder: The Google Drive Folder that the export will reside
+              in. Note: (a) if the folder name exists at any level, the output
+              is written to it, (b) if duplicate folder names exist, output is
+              written to the most recently modified folder, (c) if the folder
+              name does not exist, a new folder will be created at the root,
+              and (d) folder names with separators (e.g. 'path/to/file') are
+              interpreted as literal strings, not system paths. Defaults to
+              Drive root.
             - driveFileNamePrefix: The Google Drive filename for the export.
               Defaults to the name of the task.
             If exporting to Google Cloud Storage:
@@ -658,8 +670,14 @@ class Export(object):
               Defaults to 1000 frames. By setting this explicitly, you may
               raise or lower the limit.
             If exporting to Google Drive (default):
-            - driveFolder: The name of a unique folder in your Drive account to
-              export into. Defaults to the root of the drive.
+            - driveFolder: The Google Drive Folder that the export will reside
+              in. Note: (a) if the folder name exists at any level, the output
+              is written to it, (b) if duplicate folder names exist, output is
+              written to the most recently modified folder, (c) if the folder
+              name does not exist, a new folder will be created at the root,
+              and (d) folder names with separators (e.g. 'path/to/file') are
+              interpreted as literal strings, not system paths. Defaults to
+              Drive root.
             - driveFileNamePrefix: The Google Drive filename for the export.
               Defaults to the name of the task.
             If exporting to Google Cloud Storage:
@@ -778,7 +796,6 @@ class Export(object):
       config = _prepare_video_export_config(collection, config,
                                             Task.ExportDestination.DRIVE)
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
-
 
 
 def _CheckConfigDisallowedPrefixes(config, prefix):
@@ -1083,8 +1100,6 @@ def _prepare_video_export_config(collection, config, export_destination):
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
   return request
-
-
 
 
 def _build_image_file_export_options(config, export_destination):

@@ -363,8 +363,7 @@ ee.rpc_convert_batch.buildImageFileExportOptions_ = function(
   }
 
   if (destination === ee.rpc_convert_batch.ExportDestination.GCS) {
-    result.gcsDestination =
-        ee.rpc_convert_batch.buildGcsDestination_(params);
+    result.gcsDestination = ee.rpc_convert_batch.buildGcsDestination_(params);
     // Drive is default.
   } else {
     result.driveDestination =
@@ -387,7 +386,8 @@ ee.rpc_convert_batch.buildImageAssetExportOptions_ = function(params) {
   try {
     // The Code Editor passes a legacy JSON encoding.
     allPolicies = /** @type {?} */ (JSON.parse(allPolicies));
-  } catch {}
+  } catch {
+  }
   let defaultPyramidingPolicy = 'PYRAMIDING_POLICY_UNSPECIFIED';
   if (typeof allPolicies === 'string') {
     defaultPyramidingPolicy = allPolicies;
@@ -424,8 +424,7 @@ ee.rpc_convert_batch.buildTableFileExportOptions_ = function(
   });
 
   if (destination === ee.rpc_convert_batch.ExportDestination.GCS) {
-    result.gcsDestination =
-        ee.rpc_convert_batch.buildGcsDestination_(params);
+    result.gcsDestination = ee.rpc_convert_batch.buildGcsDestination_(params);
     // Drive is default.
   } else {
     result.driveDestination =
@@ -450,7 +449,6 @@ ee.rpc_convert_batch.buildTableAssetExportOptions_ = function(params) {
   });
 };
 
-
 /**
  * Returns a VideoFileExportOptions built from ExportParameters.
  *
@@ -469,8 +467,7 @@ ee.rpc_convert_batch.buildVideoFileExportOptions_ = function(
   });
 
   if (destination === ee.rpc_convert_batch.ExportDestination.GCS) {
-    result.gcsDestination =
-        ee.rpc_convert_batch.buildGcsDestination_(params);
+    result.gcsDestination = ee.rpc_convert_batch.buildGcsDestination_(params);
   } else {
     result.driveDestination =
         ee.rpc_convert_batch.buildDriveDestination_(params);

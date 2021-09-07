@@ -9,9 +9,9 @@ goog.require('ee.ApiFunction');
 goog.require('ee.Geometry');
 goog.require('goog.array');
 goog.require('goog.object');
-goog.requireType('ee.data');
 
 goog.requireType('ee.Image');
+goog.requireType('ee.data');
 
 
 

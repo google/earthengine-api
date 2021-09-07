@@ -1,19 +1,19 @@
 /**
  * @fileoverview A base class for EE Functions.
- * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.Function');
-goog.provide('ee.Function.Signature');
 
 goog.require('ee.ComputedObject');
 goog.require('ee.Encodable');
 goog.require('ee.Serializer');
 goog.require('ee.Types');
+goog.require('ee.api');
 goog.require('goog.array');
 goog.require('goog.functions');
 goog.require('goog.object');
 
+goog.requireType('ee.data');
 
 
 /**
@@ -286,8 +286,8 @@ ee.Function.Signature;
 
 /**
  * Encodes the function in a format compatible with ee.Serializer.
- * @param {function(*):string} encoder A function that can be called to encode
- *     the components of an object. Returns a reference stored the scope table.
+ * @param {!ee.Encodable.Serializer}
+ *    serializer An object that can be used to encode a serializable object.
  * @param {!Object<string, !ee.api.ValueNode>} args
  * @return {!ee.api.ValueNode} The encoded object.
  */

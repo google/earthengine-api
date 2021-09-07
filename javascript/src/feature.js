@@ -1,6 +1,5 @@
 /**
  * @fileoverview An object representing EE Features.
- * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.Feature');
@@ -13,6 +12,7 @@ goog.require('ee.arguments');
 goog.require('goog.object');
 
 goog.requireType('ee.FeatureCollection');
+goog.requireType('ee.data');
 
 /**
  * Features can be constructed from one of the following arguments plus an

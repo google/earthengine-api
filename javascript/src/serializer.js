@@ -67,6 +67,14 @@ ee.Serializer = function(opt_isCompound) {
    * @private
    */
   this.hashes_ = new WeakMap();
+
+  /**
+   * Provides a name for unbound variables in objects.  Unbound variables are
+   * otherwise disallowed.  See Count Functions usage in customfunction.js.
+   *
+   * @type {string|undefined}
+   */
+  this.unboundName = undefined;
 };
 // Exporting manually to avoid marking the class public in the docs.
 goog.exportSymbol('ee.Serializer', ee.Serializer);
@@ -289,10 +297,14 @@ ee.Serializer.encodeCloudApi = function(obj) {
 /**
  * Serializes an object into an Expression for Cloud API calls.
  * @param {*} obj The object to Serialize.
+ * @param {string=} unboundName Name for unbound variables in computed objects.
  * @return {!ee.api.Expression} The encoded object.
  */
-ee.Serializer.encodeCloudApiExpression = function(obj) {
-  return new ee.Serializer(true).encodeForCloudApi_(obj);
+ee.Serializer.encodeCloudApiExpression = function(
+    obj, unboundName = undefined) {
+  const serializer = new ee.Serializer(true);
+  serializer.unboundName = unboundName;
+  return serializer.encodeForCloudApi_(obj);
 };
 
 
@@ -377,7 +389,7 @@ ee.Serializer.toReadableCloudApiJSON = function(obj) {
 ee.Serializer.prototype.encodeForCloudApi_ = function(obj) {
   try {
     // Encode the object tree, storing each node in the scope table.
-    const result = this.makeCloudApiReference_(obj);
+    const result = this.makeReference(obj);
     // Lift constants, and expand references.
     return new ExpressionOptimizer(result, this.scope_, this.isCompound_)
                .optimize();
@@ -395,9 +407,8 @@ ee.Serializer.prototype.encodeForCloudApi_ = function(obj) {
  *
  * @param {*} obj The object to encode.
  * @return {string} A reference to the encoded object.
- * @private
  */
-ee.Serializer.prototype.makeCloudApiReference_ = function(obj) {
+ee.Serializer.prototype.makeReference = function(obj) {
   /**
    * @param {!ee.api.ValueNode} result
    * @return {string}
@@ -434,19 +445,19 @@ ee.Serializer.prototype.makeCloudApiReference_ = function(obj) {
         'Date', {'value': ee.rpc_node.constant(millis)}));
   } else if (obj instanceof ee.Encodable) {
     // Some objects know how to encode themselves.
-    return makeRef(obj.encodeCloudValue((x) => this.makeCloudApiReference_(x)));
+    return makeRef(obj.encodeCloudValue(this));
   } else if (Array.isArray(obj)) {
     // Convince the type checker that the array is actually an array.
     const asArray = /** @type {!Array} */(/** @type {*} */(obj));
     return makeRef(ee.rpc_node.array(asArray.map(
-        (x) => ee.rpc_node.reference(this.makeCloudApiReference_(x)))));
+        (x) => ee.rpc_node.reference(this.makeReference(x)))));
   } else if (goog.isObject(obj) && typeof obj !== 'function') {
     const asObject = /** @type {!Object} */(/** @type {*} */(obj));
     /** @type {!Object<string,!ee.api.ValueNode>} */
     const values = {};
     // Sort to make the ordering in the scope table deterministic.
     Object.keys(asObject).sort().forEach((k) => {
-      values[k] = ee.rpc_node.reference(this.makeCloudApiReference_(obj[k]));
+      values[k] = ee.rpc_node.reference(this.makeReference(obj[k]));
     });
     return makeRef(ee.rpc_node.dictionary(values));
   }

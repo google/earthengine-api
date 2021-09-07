@@ -302,7 +302,7 @@ class Geometry(computedobject.ComputedObject):
 
     # Reject NaN and positive (west) or negative (east) infinities before they
     # become bad JSON. The other two infinities are acceptable because we
-    # support the general idea of a around-the-globe latitude band. By writing
+    # support the general idea of an around-the-globe latitude band. By writing
     # them negated, we also reject NaN.
     if not west < float('inf'):
       raise ee_exception.EEException(

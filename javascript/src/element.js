@@ -1,7 +1,6 @@
 /**
  * @fileoverview Base class for Image, Feature and Collection.
  * This class is never intended to be instantiated by the user.
- * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
  */
 
 goog.provide('ee.Element');
@@ -12,6 +11,7 @@ goog.require('ee.Types');
 goog.require('goog.array');
 goog.require('goog.object');
 
+goog.requireType('ee.Function');
 
 
 /**

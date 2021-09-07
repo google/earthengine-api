@@ -90,6 +90,5 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
           collection.serialize(for_cloud_api=True))
       self.assertEqual({}, params)
 
-
 if __name__ == '__main__':
   unittest.main()

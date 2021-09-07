@@ -117,7 +117,6 @@ ee.Image.initialized_ = false;
 ee.Image.initialize = function() {
   if (!ee.Image.initialized_) {
     ee.ApiFunction.importApi(ee.Image, 'Image', 'Image');
-    ee.ApiFunction.importApi(ee.Image, 'Window', 'Image', 'focal_');
     ee.Image.initialized_ = true;
   }
 };
@@ -487,8 +486,9 @@ ee.Image.prototype.expression = function(expression, opt_map) {
     return body.encode(encoder);
   };
 
-  func.encodeCloudInvocation = function(encoder, args) {
-    return ee.rpc_node.functionByReference(encoder(body), args);
+  func.encodeCloudInvocation = function(serializer, args) {
+    return ee.rpc_node.functionByReference(
+        serializer.makeReference(body), args);
   };
 
   /**
@@ -556,7 +556,7 @@ ee.Image.prototype.rename = function(var_args) {
     names = arguments[0];
   } else {
     // Varargs list of strings.
-    names = goog.array.clone(arguments);
+    names = Array.from(arguments);
   }
   return /** @type {ee.Image} */(
       ee.ApiFunction._call('Image.rename', this, names));

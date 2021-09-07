@@ -124,7 +124,20 @@ class ComputedObject(six.with_metaclass(
 
   def encode_cloud_value(self, encoder):
     if self.isVariable():
-      return {'argumentReference': self.varName}
+      ref = self.varName
+      if ref is None and isinstance(
+          getattr(encoder, '__self__'), serializer.Serializer):
+        ref = encoder.__self__.unbound_name
+      if ref is None:
+        # We are trying to call getInfo() or make some other server call inside
+        # a function passed to collection.map() or .iterate(), and the call uses
+        # one of the function arguments. The argument will be unbound outside of
+        # the map operation and cannot be evaluated. See the Count Functions
+        # case in customfunction.py for details on the unbound_name mechanism.
+        raise ee_exception.EEException(
+            'A mapped function\'s arguments cannot be used in client-side operations'
+        )
+      return {'argumentReference': ref}
     else:
       if isinstance(self.func, six.string_types):
         invocation = {'functionName': self.func}

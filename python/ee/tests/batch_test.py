@@ -911,6 +911,5 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual(expected_config, task_ordered.config)
 
 
-
 if __name__ == '__main__':
   unittest.main()

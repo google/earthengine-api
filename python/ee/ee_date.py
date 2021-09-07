@@ -31,7 +31,7 @@ class Date(computedobject.ComputedObject):
     This constructor accepts the following args:
       1) A bare date.
       2) An ISO string
-      3) A integer number of milliseconds since the epoch.
+      3) An integer number of milliseconds since the epoch.
       4) A ComputedObject.
 
     Args:

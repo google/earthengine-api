@@ -63,7 +63,7 @@ class EETestCase(apitestcase.ApiTestCase):
               ],
               'returns': 'Image'
           },
-          'Image.constant': apitestcase.BUILTIN_FUNCTIONS['Image.constant']
+          'Image.constant': apitestcase.GetAlgorithms()['Image.constant']
       }
     ee.data.getAlgorithms = MockAlgorithms
 
@@ -432,17 +432,6 @@ class EETestCase(apitestcase.ApiTestCase):
                     ee.Image.newBaz.__doc__)
       self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: b\xc3\xa4r')
       self.assertEqual(ee.Image.baz.__doc__, 'b\xc3\xa2\xc3\x9f')
-
-  def testDatePromtion(self):
-    # Make a feature, put a time in it, and get it out as a date.
-    self.InitializeApi()
-    point = ee.Geometry.Point(1, 2)
-    feature = ee.Feature(point, {'x': 1, 'y': 2})
-    date_range = ee.call('DateRange', feature.get('x'), feature.get('y'))
-
-    # Check that the start and end args are wrapped in a call to Date.
-    self.assertEqual(date_range.args['start'].func._signature['name'], 'Date')
-    self.assertEqual(date_range.args['end'].func._signature['name'], 'Date')
 
 
 if __name__ == '__main__':

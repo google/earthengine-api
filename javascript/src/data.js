@@ -1,8 +1,8 @@
 /**
  * @fileoverview Singleton for all of the library's communication
  * with the Earth Engine API.
- * @suppress {missingRequire} TODO(b/152540451): this shouldn't be needed
- * @suppress {useOfGoogProvide} TODO(b/80481479): Convert to goog.module.
+ * @suppress {missingRequire} TODO(user): this shouldn't be needed
+ * @suppress {useOfGoogProvide} TODO(user): Convert to goog.module.
  */
 
 goog.provide('ee.data');
@@ -64,13 +64,14 @@ goog.require('ee.apiclient');
 goog.require('ee.rpc_convert');
 goog.require('ee.rpc_convert_batch');
 goog.require('goog.array');
+goog.require('goog.functions');
 goog.require('goog.object');
-goog.require('proto.google.protobuf.Value');
 goog.requireType('ee.Collection');
 goog.requireType('ee.ComputedObject');
 goog.requireType('ee.Element');
 goog.requireType('ee.Image');
 goog.requireType('ee.data.images');
+goog.requireType('proto.google.protobuf.Value');
 
 
 
@@ -127,9 +128,8 @@ ee.data.authenticateViaOauth = function(
     clientId, success, opt_error, opt_extraScopes, opt_onImmediateFailed,
     opt_suppressDefaultScopes) {
   const scopes = ee.apiclient.mergeAuthScopes(
-    /* includeDefaultScopes= */ !opt_suppressDefaultScopes,
-    /* includeStorageScope= */ false,
-    opt_extraScopes || []);
+      /* includeDefaultScopes= */ !opt_suppressDefaultScopes,
+      /* includeStorageScope= */ false, opt_extraScopes || []);
   // Remember the auth options.
   ee.apiclient.setAuthClient(clientId, scopes);
 
@@ -140,8 +140,8 @@ ee.data.authenticateViaOauth = function(
 
   // Start the authentication flow as soon as we have the auth library.
   ee.apiclient.ensureAuthLibLoaded(function() {
-    var onImmediateFailed = opt_onImmediateFailed || goog.partial(
-        ee.data.authenticateViaPopup, success, opt_error);
+    const onImmediateFailed = opt_onImmediateFailed ||
+        goog.partial(ee.data.authenticateViaPopup, success, opt_error);
     ee.data.refreshAuthToken(success, opt_error, onImmediateFailed);
   });
 };
@@ -187,11 +187,13 @@ ee.data.authenticate = function(
  * @export
  */
 ee.data.authenticateViaPopup = function(opt_success, opt_error) {
-  goog.global['gapi']['auth']['authorize']({
-    'client_id': ee.apiclient.getAuthClientId(),
-    'immediate': false,
-    'scope': ee.apiclient.getAuthScopes().join(' ')
-  }, goog.partial(ee.apiclient.handleAuthResult, opt_success, opt_error));
+  goog.global['gapi']['auth']['authorize'](
+      {
+        'client_id': ee.apiclient.getAuthClientId(),
+        'immediate': false,
+        'scope': ee.apiclient.getAuthScopes().join(' ')
+      },
+      goog.partial(ee.apiclient.handleAuthResult, opt_success, opt_error));
 };
 
 
@@ -279,7 +281,8 @@ ee.data.PROFILE_REQUEST_HEADER = ee.apiclient.PROFILE_REQUEST_HEADER;
 ee.data.setExpressionAugmenter = function(augmenter) {
   ee.data.expressionAugmenter_ = augmenter || goog.functions.identity;
 };
-goog.exportSymbol('ee.data.setExpressionAugmenter', ee.data.setExpressionAugmenter);
+goog.exportSymbol(
+    'ee.data.setExpressionAugmenter', ee.data.setExpressionAugmenter);
 
 /**
  * A function used to transform expression right before they are sent to the
@@ -320,7 +323,7 @@ goog.exportSymbol('ee.data.setParamAugmenter', ee.data.setParamAugmenter);
 
 // The following symbols are not exported because they are meant to be used via
 // the wrapper functions in ee.js.
-/** @type {function(?string=,?string=,?string=)} */
+/** @type {function(?string=,?string=,?string=,?string=)} */
 ee.data.initialize = ee.apiclient.initialize;
 /** @type {function()} */
 ee.data.reset = ee.apiclient.reset;
@@ -572,9 +575,9 @@ ee.data.getVideoThumbId = function(params, opt_callback) {
     return ret;
   };
   const call = new ee.apiclient.Call(opt_callback);
-  return call.handle(
-      call.videoThumbnails().create(call.projectsPath(), request, {fields})
-      .then(getResponse));
+  return call.handle(call.videoThumbnails()
+                         .create(call.projectsPath(), request, {fields})
+                         .then(getResponse));
 };
 
 
@@ -604,9 +607,9 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
     return ret;
   };
   const call = new ee.apiclient.Call(opt_callback);
-  return call.handle(
-      call.filmstripThumbnails().create(call.projectsPath(), request, {fields})
-      .then(getResponse));
+  return call.handle(call.filmstripThumbnails()
+                         .create(call.projectsPath(), request, {fields})
+                         .then(getResponse));
 };
 
 
@@ -965,16 +968,16 @@ ee.data.listOperations = function(opt_limit, opt_callback) {
       }
     } else {
       params.pageToken = response.nextPageToken;
-      call.handle(operations.list(call.projectsPath(), params)
-          .then(getResponse));
+      call.handle(
+          operations.list(call.projectsPath(), params).then(getResponse));
     }
     return null;
   };
   // Provide an optional callback to enable async mode: it ignores the output
   // because getResponse will handle it, but handles errors.
-  const errorCallback = opt_callback
-      ? (value, err = undefined) => err && opt_callback(value, err)
-      : undefined;
+  const errorCallback = opt_callback ?
+      (value, err = undefined) => err && opt_callback(value, err) :
+      undefined;
 
   const call = new ee.apiclient.Call(errorCallback);
   const operations = call.operations();
@@ -1019,8 +1022,8 @@ ee.data.cancelOperation = function(operationName, opt_callback) {
  * @export
  */
 ee.data.getOperation = function(operationName, opt_callback) {
-  const opNames = ee.data.makeStringArray_(operationName).map(
-      ee.rpc_convert.taskIdToOperationName);
+  const opNames = ee.data.makeStringArray_(operationName)
+                      .map(ee.rpc_convert.taskIdToOperationName);
   if (!Array.isArray(operationName)) {
     const call = new ee.apiclient.Call(opt_callback);
     return call.handle(call.operations().get(opNames[0]));
@@ -1185,7 +1188,6 @@ ee.data.prepareExportMapRequest_ = function(taskConfig, metadata) {
       ee.data.expressionAugmenter_(mapRequest.expression, metadata);
   return mapRequest;
 };
-
 
 /**
  * Creates an image asset ingestion task.
@@ -1681,12 +1683,13 @@ ee.data.setIamPolicy = function(assetId, policy, opt_callback) {
  * @export
  */
 ee.data.updateAsset = function(assetId, asset, updateFields, opt_callback) {
-  const updateMask = (updateFields || []).join(",");
+  const updateMask = (updateFields || []).join(',');
   const request = new ee.api.UpdateAssetRequest({asset, updateMask});
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(
-      call.assets().patch(ee.rpc_convert.assetIdToAssetName(assetId), request)
-      .then(ee.rpc_convert.assetToLegacyResult));
+      call.assets()
+          .patch(ee.rpc_convert.assetIdToAssetName(assetId), request)
+          .then(ee.rpc_convert.assetToLegacyResult));
 };
 
 
@@ -1776,7 +1779,7 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
         ee.rpc_convert.folderQuotaToAssetQuotaDetails(quota));
   };
   const call = new ee.apiclient.Call(opt_callback);
-  // TODO(b/141623314): Undo this when the getAssets call accepts /assets/,
+  // TODO(user): Undo this when the getAssets call accepts /assets/,
   // as currently, the request must have a full asset path, e.g. /assets/foo.
   const assetsCall = call.assets();
   const validateParams = assetsCall.$apiClient.$validateParameter;
@@ -1838,7 +1841,6 @@ ee.data.ExportDestination = {
   GCS: 'GOOGLE_CLOUD_STORAGE',
   ASSET: 'ASSET',
 };
-
 
 /** @enum {string} The names of the EE system time asset properties. */
 ee.data.SystemTimeProperty = {
@@ -2427,7 +2429,6 @@ ee.data.ImageVisualizationParameters = class {
   }
 };
 
-
 /**
  * An object describing the parameters for generating a thumbnail image.
  * Consists of all parameters of ee.data.ImageVisualizationParameters as well as
@@ -2766,7 +2767,6 @@ ee.data.MapId = class extends ee.data.RawMapId {
   }
 };
 
-
 /**
  * The range of zoom levels for our map tiles.
  * @enum {number}
@@ -2915,7 +2915,6 @@ ee.data.ImageExportFormatConfig;
  */
 ee.data.MapTaskConfig;
 
-
 /**
  * An object for specifying configuration of a task to export feature
  * collections.
@@ -2937,7 +2936,6 @@ ee.data.MapTaskConfig;
  * }}
  */
 ee.data.TableTaskConfig;
-
 
 /**
  * An object for specifying configuration of a task to export image
@@ -3364,7 +3362,6 @@ ee.data.TableSource = class extends ee.data.FileSource {
      * @export {number|undefined}
      */
     this.maxVertices;
-
   }
 };
 

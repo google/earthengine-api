@@ -10,6 +10,7 @@
 import six
 
 from . import computedobject
+from . import ee_exception
 from . import ee_types
 from . import encodable
 from . import function
@@ -38,6 +39,9 @@ class CustomFunction(function.Function, encodable.Encodable):
     """
     variables = [CustomFunction.variable(arg['type'], arg['name'])
                  for arg in signature['args']]
+
+    if body(*variables) is None:
+      raise ee_exception.EEException('User-defined methods must return a value')
 
     # The signature of the function.
     self._signature = CustomFunction._resolveNamelessArgs(
@@ -163,7 +167,24 @@ class CustomFunction(function.Function, encodable.Encodable):
         return 0
       return CountNodes(six.itervalues(expression['values']))
 
-    serialized_body = serializer.encode(body(*variables), for_cloud_api=True)
+    # There are three function building phases, which each call body():
+    # 1 - Check Return.  The constructor verifies that body() returns a result,
+    # but does not try to serialize the result. If the function tries to use
+    # unbound variables (eg, using .getInfo() or print()), ComputedObject will
+    # throw an exception when these calls try to serialize themselves, so that
+    # unbound variables are not passed in server calls.
+    # 2 - Count Functions.  We serialize the result here. At this point all
+    # variables must have names for serialization to succeed, but we don't yet
+    # know the correct function depth. So we serialize with unbound_name set to
+    # '<unbound>', which should silently succeed. If this does end up in server
+    # calls, the function is very unusual: the first call doesn't use unbound
+    # variables but the second call does. In this rare case we will return
+    # server errors complaining about <unbound>.
+    # 3 - Final Serialize.  Finally, the constructor calls body() with the
+    # correct, depth-dependent names, which are used when the CustomFunction
+    # is serialized and sent to the server.
+    serialized_body = serializer.encode(
+        body(*variables), for_cloud_api=True, unbound_name='<unbound>')
     base_name = '_MAPPING_VAR_%d_' % CountFunctions(serialized_body)
 
     # Update the vars and signature by the name.

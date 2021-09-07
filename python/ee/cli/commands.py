@@ -169,7 +169,7 @@ def _comma_separated_pyramiding_policies(string):
   redvalues = []
   for value in values:
     value = value.upper()
-    if value not in {'MEAN', 'SAMPLE', 'MIN', 'MAX', 'MODE'}:
+    if value not in {'MEAN', 'SAMPLE', 'MIN', 'MAX', 'MODE', 'MEDIAN'}:
       raise argparse.ArgumentTypeError(error_msg.format(string))
     redvalues.append(value)
   return redvalues
@@ -690,8 +690,6 @@ class AssetCommand(Dispatcher):
   ]
 
 
-
-
 class CopyCommand(object):
   """Creates a new Earth Engine asset as a copy of another asset."""
 
@@ -760,8 +758,6 @@ class CreateCommand(Dispatcher):
       CreateCollectionCommand,
       CreateFolderCommand,
   ]
-
-
 
 
 class ListCommand(object):
@@ -1833,8 +1829,6 @@ class ModelCommand(Dispatcher):
           print(
               'Warning: TensorFlow Addons not found. Models that use '
               'non-standard ops may not work.')
-
-
 
 EXTERNAL_COMMANDS = [
     AuthenticateCommand,

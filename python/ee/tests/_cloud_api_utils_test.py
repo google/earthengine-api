@@ -391,9 +391,39 @@ class CloudApiUtilsTest(unittest.TestCase):
     self.assertEqual({'width': 123, 'height': 234},
                      _cloud_api_utils.convert_to_grid_dimensions((123, 234)))
 
-  def test_to_image_one_platform_source(self):
+  def test_to_image_old_source(self):
+    """Converts legacy keys in the source object."""
     old_sources = [{
         'primaryPath': 'path1',
+        'additionalPaths': ['path2'],
+        'affineTransform': {
+            'scaleX': 1,
+            'shearX': 2,
+            'translateX': 3,
+            'shearY': 4,
+            'scaleY': 5,
+            'translateY': 6,
+        }
+    }]
+    expected = [{
+        'uris': ['path1', 'path2'],
+        'affineTransform': {
+            'scaleX': 1,
+            'shearX': 2,
+            'translateX': 3,
+            'shearY': 4,
+            'scaleY': 5,
+            'translateY': 6,
+        }
+    }]
+    self.assertEqual(
+        expected,
+        _cloud_api_utils.convert_sources_to_one_platform_sources(old_sources))
+
+  def test_to_image_one_platform_source(self):
+    """Leaves new keys in the source object unchanged."""
+    old_sources = [{
+        'uris': ['path1'],
         'affineTransform': {
             'scaleX': 1,
             'shearX': 2,

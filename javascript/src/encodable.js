@@ -28,11 +28,17 @@ ee.Encodable = function() {};
  */
 ee.Encodable.prototype.encode = goog.abstractMethod;
 
+/**
+ * Defines the serializer behavior needed by encodeCloudValue.
+ * @typedef {{
+ *     makeReference: function(*):string, unboundName:(string|undefined)}}
+ */
+ee.Encodable.Serializer;
 
 /**
  * Encodes an object in a format compatible with ee.Serializer.encodeCloudApi().
- * @param {function(*): string} encoder A
- *    function that can be called to encode the components of an object.
+ * @param {!ee.Encodable.Serializer}
+ *    serializer An object that can be used to encode a serializable object.
  * @return {!ee.api.ValueNode} The encoded object.
  */
 ee.Encodable.prototype.encodeCloudValue = goog.abstractMethod;
@@ -318,6 +324,7 @@ ee.rpc_convert.pairedValues = function(obj, a, b) {
  * - hidden: bool (optional)
  * - preview: bool (optional)
  * - deprecated: string containing deprecation reason (optional)
+ * - sourceCodeUri: string (optional)
  *
  * @param {!ee.api.ListAlgorithmsResponse} result
  * @return {!Object}
@@ -500,6 +507,8 @@ ee.rpc_convert.assetTypeToLegacyAssetType = function(type) {
       return 'ImageCollection';
     case 'TABLE':
       return 'Table';
+    case 'CLASSIFIER':
+      return 'Classifier';
     default:
       return 'Unknown';
   }
@@ -927,7 +936,7 @@ ee.rpc_convert.toImageManifest = function(params) {
   };
   // Retain existing keys
   const manifest = ee.apiclient.deserialize(ee.api.ImageManifest, params);
-  // TODO(b/131773013): Transform keys as done in ee/cli/commands.py
+  // TODO(user): Transform keys as done in ee/cli/commands.py
   manifest.name = ee.rpc_convert.assetIdToAssetName(params['id']);
   manifest.tilesets = (params['tilesets'] || []).map(convertTileset);
   manifest.bands = (params['bands'] || []).map(convertBands);
@@ -1018,7 +1027,7 @@ ee.rpc_convert.toTableManifest = function(params) {
   };
   // Retain existing keys
   const manifest = ee.apiclient.deserialize(ee.api.TableManifest, params);
-  // TODO(b/131773013): Transform keys as done in ee/cli/commands.py
+  // TODO(user): Transform keys as done in ee/cli/commands.py
   manifest.name = ee.rpc_convert.assetIdToAssetName(params['id']);
   manifest.sources = (params['sources'] || []).map(convertTableSource);
 
