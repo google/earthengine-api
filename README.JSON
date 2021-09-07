@@ -1,0 +1,46 @@
+# earthengine-api
+**Python-godbot**: www.vrdesktop.net/.JSON and JavaScript bindings for calling the Earth Engine API.
+
+# Function: [ master ]
+eform: ["./path to the .shp file. The related .dbf, .shx, and .prj files"]
+**developerPayload**: $("85e51874135d880d1cd71b348b990088")
+# Package: [ master ]
+<!-- Developer.JSON payload --!>
+
+Here is the content of a JSON payload:
+
+Attribute Name	Format	Required/Optional	Description	OrderId	String	Required	The unique order identifier assigned by your game.	0bckmoqhel5yd13f
+
+status	String	Required	Indicates the status of the order.	SUCCESS
+
+amount	String	Required	Specifies the amount of money that the order cost.	1.01
+
+productId	String	Required	Specifies the unique identifiers of the products that belong to the order.	com.mystudio.mygame.product-id_1
+
+paidTime	ISO8601 yyyy-MM-ddThh:mm:ssZ, UTC timezone	Optional	The time when the order was paid. This is also returned in sandbox mode, even though no actual payment is made in the sandbox environment.	2018-09-28T06:43:20Z
+
+country	ISO 3166-2	Required	The country where the order was paid. United States
+
+currency	ISO 4217 or cryptocurrency type	Required	The currency of the country where the order was placed.	CNY
+
+quantity	Integer	Required	The number of products in the order.	1
+
+clientId	String	Required	The unique client identifier that is returned after your game generates a client in Unity IAP.	Q_sX9CXfn-rTcWmpP9VEfw
+
+extension	String	Optional	The developer payload which is used to contain reference information for developers.	"{"0bckmoqhel5yd13f":"Q_sX9CXfn-rTcWmpP9VEfw"}"
+
+##[[Microsoft.CrmSdk.CoreAssemblies]]==>/approval for game development( "HolygHost" )
+
+git cli.one in the works or aka development : Oculus quest2(( 'https://earthengine.vr.standalone-source.com/super-admin-user/dirtyarteaga/Owner/author/publisher/writer/editor/constructor/virtual evolvement/builder/web.bin/tri-fecta-vextro/
+
+codeql database create --language=python <output-folder>/python-database
+
+"python.autoComplete.extraPaths": [
+
+    "C:/Program Files (x86)/Google/google_appengine",
+
+    "C:/Program Files (x86)/Google/google_appengine/lib/flask-0.12"]
+    
+
+[git-my-main-tree]
+//gist https://earthengine.googlesource.com/users/dirtyarteaga/Owner
