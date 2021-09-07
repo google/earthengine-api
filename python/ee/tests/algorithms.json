@@ -4971,7 +4971,8 @@
       "argumentName": "properties",
       "type": "Dictionary\u003cObject\u003e",
       "description": "The property values to override."
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Element.get",
     "description": "Extract a property from a feature.",

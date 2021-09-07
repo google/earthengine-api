@@ -8464,6 +8464,11 @@ module$exports$eeapiclient$ee_api_client.TableFileFormatEnum = {CSV:"CSV", GEO_J
   return [module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.TABLE_FILE_FORMAT_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.CSV, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.GEO_JSON, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.KML, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.KMZ, 
   module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.SHP, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.TF_RECORD_TABLE];
 }};
+module$exports$eeapiclient$ee_api_client.ITableSourceCsvColumnDataTypeOverridesEnum = function module$contents$eeapiclient$ee_api_client_ITableSourceCsvColumnDataTypeOverridesEnum() {
+};
+module$exports$eeapiclient$ee_api_client.TableSourceCsvColumnDataTypeOverridesEnum = {CSV_COLUMN_DATA_TYPE_STRING:"CSV_COLUMN_DATA_TYPE_STRING", CSV_COLUMN_DATA_TYPE_UNSPECIFIED:"CSV_COLUMN_DATA_TYPE_UNSPECIFIED", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.TableSourceCsvColumnDataTypeOverridesEnum.CSV_COLUMN_DATA_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TableSourceCsvColumnDataTypeOverridesEnum.CSV_COLUMN_DATA_TYPE_STRING];
+}};
 module$exports$eeapiclient$ee_api_client.IThumbnailFileFormatEnum = function module$contents$eeapiclient$ee_api_client_IThumbnailFileFormatEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ThumbnailFileFormatEnum = {AUTO_JPEG_PNG:"AUTO_JPEG_PNG", GEO_TIFF:"GEO_TIFF", IMAGE_FILE_FORMAT_UNSPECIFIED:"IMAGE_FILE_FORMAT_UNSPECIFIED", JPEG:"JPEG", MULTI_BAND_IMAGE_TILE:"MULTI_BAND_IMAGE_TILE", NPY:"NPY", PNG:"PNG", TF_RECORD_IMAGE:"TF_RECORD_IMAGE", ZIPPED_GEO_TIFF:"ZIPPED_GEO_TIFF", ZIPPED_GEO_TIFF_PER_BAND:"ZIPPED_GEO_TIFF_PER_BAND", values:function() {
@@ -11526,13 +11531,14 @@ module$exports$eeapiclient$ee_api_client.TableSource = function(parameters) {
   this.Serializable$set("dateFormat", null == parameters.dateFormat ? null : parameters.dateFormat);
   this.Serializable$set("csvDelimiter", null == parameters.csvDelimiter ? null : parameters.csvDelimiter);
   this.Serializable$set("csvQualifier", null == parameters.csvQualifier ? null : parameters.csvQualifier);
+  this.Serializable$set("csvColumnDataTypeOverrides", null == parameters.csvColumnDataTypeOverrides ? null : parameters.csvColumnDataTypeOverrides);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.TableSource, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.TableSource.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.TableSource;
 };
 module$exports$eeapiclient$ee_api_client.TableSource.prototype.getPartialClassMetadata = function() {
-  return {keys:"charset crs csvDelimiter csvQualifier dateFormat geodesic maxErrorMeters maxVertices primaryGeometryColumn uris xColumn yColumn".split(" ")};
+  return {enums:{csvColumnDataTypeOverrides:module$exports$eeapiclient$ee_api_client.TableSourceCsvColumnDataTypeOverridesEnum}, keys:"charset crs csvColumnDataTypeOverrides csvDelimiter csvQualifier dateFormat geodesic maxErrorMeters maxVertices primaryGeometryColumn uris xColumn yColumn".split(" "), objectMaps:{csvColumnDataTypeOverrides:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TableSource.prototype, {charset:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("charset") ? this.Serializable$get("charset") : null;
@@ -11542,6 +11548,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("crs") ? this.Serializable$get("crs") : null;
 }, set:function(value) {
   this.Serializable$set("crs", value);
+}}, csvColumnDataTypeOverrides:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("csvColumnDataTypeOverrides") ? this.Serializable$get("csvColumnDataTypeOverrides") : null;
+}, set:function(value) {
+  this.Serializable$set("csvColumnDataTypeOverrides", value);
 }}, csvDelimiter:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("csvDelimiter") ? this.Serializable$get("csvDelimiter") : null;
 }, set:function(value) {
@@ -11582,6 +11592,9 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("yColumn") ? this.Serializable$get("yColumn") : null;
 }, set:function(value) {
   this.Serializable$set("yColumn", value);
+}}});
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TableSource, {CsvColumnDataTypeOverrides:{configurable:!0, enumerable:!0, get:function() {
+  return module$exports$eeapiclient$ee_api_client.TableSourceCsvColumnDataTypeOverridesEnum;
 }}});
 module$exports$eeapiclient$ee_api_client.TestIamPermissionsRequestParameters = function module$contents$eeapiclient$ee_api_client_TestIamPermissionsRequestParameters() {
 };
@@ -15213,7 +15226,7 @@ goog.log.LogBuffer.isBufferingEnabled = function() {
   return goog.log.LogBuffer.getInstance().isBufferingEnabled();
 };
 var third_party$javascript$closure$log$log$classdecl$var3 = function(level, msg, loggerName, time, sequenceNumber) {
-  this.exception_ = null;
+  this.exception_ = void 0;
   this.reset(level || goog.log.Level.OFF, msg, loggerName, time, sequenceNumber);
 };
 third_party$javascript$closure$log$log$classdecl$var3.prototype.reset = function(level, msg, loggerName, time, sequenceNumber) {
@@ -15221,7 +15234,7 @@ third_party$javascript$closure$log$log$classdecl$var3.prototype.reset = function
   this.level_ = level;
   this.msg_ = msg;
   this.loggerName_ = loggerName;
-  this.exception_ = null;
+  this.exception_ = void 0;
   this.sequenceNumber_ = "number" === typeof sequenceNumber ? sequenceNumber : goog.log.LogRecord.nextSequenceNumber_;
 };
 third_party$javascript$closure$log$log$classdecl$var3.prototype.getLoggerName = function() {
@@ -15349,7 +15362,7 @@ goog.log.getAllLoggers = function() {
 };
 goog.log.getLogRecord = function(logger, level, msg, exception) {
   var logRecord = goog.log.LogBuffer.getInstance().addRecord(level || goog.log.Level.OFF, msg, logger.getName());
-  exception && logRecord.setException(exception);
+  logRecord.setException(exception);
   return logRecord;
 };
 goog.log.publishLogRecord = function(logger, logRecord) {
@@ -15361,7 +15374,7 @@ goog.log.log = function(logger, level, msg, exception) {
     var loggerEntry = goog.log.LogRegistry_.getInstance().getLogRegistryEntry(logger.getName());
     "function" === typeof msg && (msg = msg());
     var logRecord = goog.log.LogBuffer.getInstance().addRecord(level, msg, logger.getName());
-    exception && logRecord.setException(exception);
+    logRecord.setException(exception);
     loggerEntry.publish(logRecord);
   }
 };
@@ -15847,7 +15860,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.281";
+ee.apiclient.API_CLIENT_VERSION = "0.1.282";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -16128,8 +16141,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.281";
-  "0.1.281" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.282";
+  "0.1.282" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
