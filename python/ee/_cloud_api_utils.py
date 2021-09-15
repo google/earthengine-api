@@ -614,6 +614,8 @@ def convert_to_table_file_format(format_str):
   Returns:
     A best guess at the corresponding TableFileFormat enum name.
   """
+  if format_str is None:
+    return 'CSV'
   format_str = format_str.upper()
   if format_str == 'GEOJSON':
     return 'GEO_JSON'

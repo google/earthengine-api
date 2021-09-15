@@ -64,7 +64,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
 
   def testDownload(self):
     """Verifies that Download ID and URL generation."""
-    ee.FeatureCollection('test7').getDownloadURL('csv')
+    ee.FeatureCollection('test7').getDownloadURL()
 
     self.assertEqual('/table', self.last_table_call['url'])
     self.assertEqual(ee.FeatureCollection('test7').serialize(),

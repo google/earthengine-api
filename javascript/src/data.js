@@ -2020,7 +2020,6 @@ ee.data.AssetQuotaDetails = class {
   }
 };
 
-
 /**
  * A description of a folder. The type value is always ee.data.AssetType.FOLDER.
  * @record @struct

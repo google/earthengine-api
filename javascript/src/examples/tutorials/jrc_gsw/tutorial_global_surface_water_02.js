@@ -17,8 +17,8 @@ var occurrence = gsw.select('occurrence');
 
 // [START occurrence_visualization]
 var VIS_OCCURRENCE = {
-  min:0,
-  max:100,
+  min: 0,
+  max: 100,
   palette: ['red', 'blue']
 };
 // [END occurrence_visualization]
@@ -69,11 +69,11 @@ Map.addLayer({
 // [START addLayer_occurrence_v2]
 Map.addLayer({
   eeObject: occurrence.updateMask(occurrence.divide(100)),
-  name: "Water Occurrence (1984-2015)",
+  name: 'Water Occurrence (1984-2015)',
   visParams: VIS_OCCURRENCE
 });
 // [END addLayer_occurrence_v2]
-// [START final_script]
+// [END final_script]
 
 // [START initial_script]
 var gsw = ee.Image('JRC/GSW1_0/GlobalSurfaceWater');
