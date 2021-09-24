@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """Test for the ee.batch module."""
 import copy
-
-import mock
+from unittest import mock
 
 import unittest
 

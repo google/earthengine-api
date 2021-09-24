@@ -814,6 +814,9 @@
     "arguments": [{
       "argumentName": "classifier",
       "type": "Classifier"
+    }, {
+      "argumentName": "isCached",
+      "type": "Boolean"
     }],
     "hidden": true
   }, {
@@ -5948,7 +5951,7 @@
     }, {
       "argumentName": "range",
       "type": "Float",
-      "description": "Semivariogram range."
+      "description": "Semivariogram range, in meters."
     }, {
       "argumentName": "sill",
       "type": "Float",
@@ -5960,7 +5963,7 @@
     }, {
       "argumentName": "maxDistance",
       "type": "Float",
-      "description": "Radius which determines which features are included in each pixel\u0027s computation. Defaults to the semivariogram\u0027s range.",
+      "description": "Radius which determines which features are included in each pixel\u0027s computation, in meters. Defaults to the semivariogram\u0027s range.",
       "optional": true,
       "defaultValue": null
     }, {

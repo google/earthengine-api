@@ -3,6 +3,10 @@
 // ee.Algorithms.Sentinel2.CDI() method for computing a
 // cloud displacement index and directionalDistanceTransform()
 // for computing cloud shadows.
+//
+// See a similar script for the Python API here:
+// https://developers.google.com/earth-engine/tutorials/community/sentinel-2-s2cloudless
+
 
 // Sentinel-2 Level 1C data.  Bands B7, B8, B8A and B10 from this
 // dataset are needed as input to CDI and the cloud mask function.

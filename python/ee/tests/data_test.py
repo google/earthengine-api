@@ -1,8 +1,9 @@
 #!/usr/bin/env python
 """Test for the ee.data module."""
 
+from unittest import mock
+
 import httplib2
-import mock
 
 
 import unittest

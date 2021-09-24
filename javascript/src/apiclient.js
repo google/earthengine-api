@@ -25,7 +25,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.283';
+const API_CLIENT_VERSION = '0.1.284';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -50,8 +50,7 @@ class Call {
    * Prepares a call which will call the given callback from the handle()
    * method.
    *
-   * @template T
-   * @param {function(?T, string=)=} callback Callback to call.  If empty, the
+   * @param {function(?, string=)=} callback Callback to call.  If empty, the
    *     request will run in synchronous mode.
    * @param {number=} retries Overrides the default number of retries.
    */
