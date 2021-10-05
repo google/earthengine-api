@@ -8,10 +8,10 @@
 # pylint: disable=g-bad-name
 
 # pylint: disable=g-bad-import-order
-import collections
 import json
 import numbers
 import six
+from six.moves import collections_abc
 
 from . import apifunction
 from . import computedobject
@@ -659,11 +659,11 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       The number of nested arrays or -1 on error.
     """
-    if not isinstance(shape, collections.Iterable):
+    if not isinstance(shape, collections_abc.Iterable):
       return -1
 
-    if shape and isinstance(shape[0], collections.Iterable) and not isinstance(
-        shape[0], six.string_types):
+    if (shape and isinstance(shape[0], collections_abc.Iterable) and
+        not isinstance(shape[0], six.string_types)):
       count = Geometry._isValidCoordinates(shape[0])
       # If more than 1 ring or polygon, they should have the same nesting.
       for i in range(1, len(shape)):

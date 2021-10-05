@@ -3173,7 +3173,7 @@
     }]
   }, {
     "name": "algorithms/ConfusionMatrix",
-    "description": "Creates a confusion matrix. Axis 1 (the rows) of the matrix correspond to the actual values, and Axis 0 (the columns) to the predicted values.",
+    "description": "Creates a confusion matrix. Axis 0 (the rows) of the matrix correspond to the actual values, and Axis 1 (the columns) to the predicted values.",
     "returnType": "ConfusionMatrix",
     "arguments": [{
       "argumentName": "array",
@@ -8848,6 +8848,12 @@
       "description": "The interpolation mode to use.  One of \u0027nearest_neighbor\u0027, \u0027bilinear\u0027 or \u0027bicubic\u0027.)",
       "optional": true,
       "defaultValue": "bicubic"
+    }, {
+      "argumentName": "maxOffset",
+      "type": "Float",
+      "description": "The maximum absolute offset in the displacement image. Providing this may improve processing performance.",
+      "optional": true,
+      "defaultValue": null
     }]
   }, {
     "name": "algorithms/Image.displacement",
