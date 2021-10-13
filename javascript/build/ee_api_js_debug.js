@@ -4199,6 +4199,25 @@ goog.iter.Iterator = function() {
 goog.iter.Iterator.prototype.nextValueOrThrow = function() {
   throw goog.iter.StopIteration;
 };
+goog.iter.Iterator.prototype.next = function() {
+  return goog.iter.ES6_ITERATOR_DONE;
+};
+goog.iter.ES6_ITERATOR_DONE = goog.debug.freeze({done:!0, value:void 0});
+goog.iter.createEs6IteratorYield = function(value) {
+  return {value:value, done:!1};
+};
+goog.iter.toEs4IteratorNext = function(es6NextValue) {
+  if (es6NextValue.done) {
+    throw goog.iter.StopIteration;
+  }
+  return es6NextValue.value;
+};
+goog.iter.checkNoImplicitStopIterationInEs6 = function(ex) {
+  if (ex === goog.iter.StopIteration) {
+    throw Error("ES6 Iteration protocol does NOT adjust control flow when StopIteration is thrown from callback helper functions. If your code relies on this behavior, consider throwing a different error and catching it to terminate iteration.");
+  }
+  throw ex;
+};
 goog.iter.Iterator.prototype.__iterator__ = function(opt_keys) {
   return this;
 };
@@ -7366,8 +7385,10 @@ goog.string.repeat = String.prototype.repeat ? function(string, length) {
 };
 goog.string.padNumber = function(num, length, opt_precision) {
   var s = void 0 !== opt_precision ? num.toFixed(opt_precision) : String(num), index = s.indexOf(".");
-  -1 == index && (index = s.length);
-  return goog.string.repeat("0", Math.max(0, length - index)) + s;
+  -1 === index && (index = s.length);
+  var sign = "-" === s[0] ? "-" : "";
+  sign && (s = s.substring(1));
+  return sign + goog.string.repeat("0", Math.max(0, length - index)) + s;
 };
 goog.string.makeSafe = function(obj) {
   return null == obj ? "" : String(obj);
@@ -13618,11 +13639,18 @@ goog.dom.getDocument = function() {
 goog.dom.getElement = function(element) {
   return goog.dom.getElementHelper_(document, element);
 };
+goog.dom.getHTMLElement = function(id) {
+  var element = goog.dom.getElement(id);
+  return element ? goog.asserts.assertInstanceof(element, HTMLElement) : null;
+};
 goog.dom.getElementHelper_ = function(doc, element) {
   return "string" === typeof element ? doc.getElementById(element) : element;
 };
 goog.dom.getRequiredElement = function(id) {
   return goog.dom.getRequiredElementHelper_(document, id);
+};
+goog.dom.getRequiredHTMLElement = function(id) {
+  return goog.asserts.assertInstanceof(goog.dom.getRequiredElementHelper_(document, id), HTMLElement);
 };
 goog.dom.getRequiredElementHelper_ = function(doc, id) {
   goog.asserts.assertString(id);
@@ -13647,9 +13675,17 @@ goog.dom.getElementByClass = function(className, opt_el) {
   var parent = opt_el || document, retVal = null;
   return (retVal = parent.getElementsByClassName ? parent.getElementsByClassName(className)[0] : goog.dom.getElementByTagNameAndClass_(document, "*", className, opt_el)) || null;
 };
+goog.dom.getHTMLElementByClass = function(className, opt_parent) {
+  var element = goog.dom.getElementByClass(className, opt_parent);
+  return element ? goog.asserts.assertInstanceof(element, HTMLElement) : null;
+};
 goog.dom.getRequiredElementByClass = function(className, opt_root) {
   var retValue = goog.dom.getElementByClass(className, opt_root);
   return goog.asserts.assert(retValue, "No element found with className: " + className);
+};
+goog.dom.getRequiredHTMLElementByClass = function(className, opt_parent) {
+  var retValue = goog.dom.getElementByClass(className, opt_parent);
+  return goog.asserts.assertInstanceof(retValue, HTMLElement, "No HTMLElement found with className: " + className);
 };
 goog.dom.canUseQuerySelector_ = function(parent) {
   return !(!parent.querySelectorAll || !parent.querySelector);
@@ -16259,7 +16295,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.285";
+ee.apiclient.API_CLIENT_VERSION = "0.1.286";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -16540,8 +16576,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.285";
-  "0.1.285" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.286";
+  "0.1.286" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17147,7 +17183,7 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
     }
     return legacyBand;
   }));
-  result.dmsAssetLocation && (properties["system:dmsAssetLocation"] = result.dmsAssetLocation.location);
+  result.dmsAssetLocation && (asset.dmsAssetLocation = result.dmsAssetLocation);
   return asset;
 };
 ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
