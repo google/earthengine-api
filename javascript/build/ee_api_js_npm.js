@@ -220,6 +220,227 @@ $jscomp.inherits = function(childCtor, parentCtor) {
   }
   childCtor.superClass_ = parentCtor.prototype;
 };
+$jscomp.generator = {};
+$jscomp.generator.ensureIteratorResultIsObject_ = function(result) {
+  if (!(result instanceof Object)) {
+    throw new TypeError("Iterator result " + result + " is not an object");
+  }
+};
+$jscomp.generator.Context = function() {
+  this.isRunning_ = !1;
+  this.yieldAllIterator_ = null;
+  this.yieldResult = void 0;
+  this.nextAddress = 1;
+  this.finallyAddress_ = this.catchAddress_ = 0;
+  this.finallyContexts_ = this.abruptCompletion_ = null;
+};
+$jscomp.generator.Context.prototype.start_ = function() {
+  if (this.isRunning_) {
+    throw new TypeError("Generator is already running");
+  }
+  this.isRunning_ = !0;
+};
+$jscomp.generator.Context.prototype.stop_ = function() {
+  this.isRunning_ = !1;
+};
+$jscomp.generator.Context.prototype.jumpToErrorHandler_ = function() {
+  this.nextAddress = this.catchAddress_ || this.finallyAddress_;
+};
+$jscomp.generator.Context.prototype.next_ = function(value) {
+  this.yieldResult = value;
+};
+$jscomp.generator.Context.prototype.throw_ = function(e) {
+  this.abruptCompletion_ = {exception:e, isException:!0};
+  this.jumpToErrorHandler_();
+};
+$jscomp.generator.Context.prototype.return = function(value) {
+  this.abruptCompletion_ = {return:value};
+  this.nextAddress = this.finallyAddress_;
+};
+$jscomp.generator.Context.prototype.jumpThroughFinallyBlocks = function(nextAddress) {
+  this.abruptCompletion_ = {jumpTo:nextAddress};
+  this.nextAddress = this.finallyAddress_;
+};
+$jscomp.generator.Context.prototype.yield = function(value, resumeAddress) {
+  this.nextAddress = resumeAddress;
+  return {value:value};
+};
+$jscomp.generator.Context.prototype.yieldAll = function(iterable, resumeAddress) {
+  var iterator = $jscomp.makeIterator(iterable), result = iterator.next();
+  $jscomp.generator.ensureIteratorResultIsObject_(result);
+  if (result.done) {
+    this.yieldResult = result.value, this.nextAddress = resumeAddress;
+  } else {
+    return this.yieldAllIterator_ = iterator, this.yield(result.value, resumeAddress);
+  }
+};
+$jscomp.generator.Context.prototype.jumpTo = function(nextAddress) {
+  this.nextAddress = nextAddress;
+};
+$jscomp.generator.Context.prototype.jumpToEnd = function() {
+  this.nextAddress = 0;
+};
+$jscomp.generator.Context.prototype.setCatchFinallyBlocks = function(catchAddress, finallyAddress) {
+  this.catchAddress_ = catchAddress;
+  void 0 != finallyAddress && (this.finallyAddress_ = finallyAddress);
+};
+$jscomp.generator.Context.prototype.setFinallyBlock = function(finallyAddress) {
+  this.catchAddress_ = 0;
+  this.finallyAddress_ = finallyAddress || 0;
+};
+$jscomp.generator.Context.prototype.leaveTryBlock = function(nextAddress, catchAddress) {
+  this.nextAddress = nextAddress;
+  this.catchAddress_ = catchAddress || 0;
+};
+$jscomp.generator.Context.prototype.enterCatchBlock = function(nextCatchBlockAddress) {
+  this.catchAddress_ = nextCatchBlockAddress || 0;
+  var exception = this.abruptCompletion_.exception;
+  this.abruptCompletion_ = null;
+  return exception;
+};
+$jscomp.generator.Context.prototype.enterFinallyBlock = function(nextCatchAddress, nextFinallyAddress, finallyDepth) {
+  finallyDepth ? this.finallyContexts_[finallyDepth] = this.abruptCompletion_ : this.finallyContexts_ = [this.abruptCompletion_];
+  this.catchAddress_ = nextCatchAddress || 0;
+  this.finallyAddress_ = nextFinallyAddress || 0;
+};
+$jscomp.generator.Context.prototype.leaveFinallyBlock = function(nextAddress, finallyDepth) {
+  var preservedContext = this.finallyContexts_.splice(finallyDepth || 0)[0], abruptCompletion = this.abruptCompletion_ = this.abruptCompletion_ || preservedContext;
+  if (abruptCompletion) {
+    if (abruptCompletion.isException) {
+      return this.jumpToErrorHandler_();
+    }
+    void 0 != abruptCompletion.jumpTo && this.finallyAddress_ < abruptCompletion.jumpTo ? (this.nextAddress = abruptCompletion.jumpTo, this.abruptCompletion_ = null) : this.nextAddress = this.finallyAddress_;
+  } else {
+    this.nextAddress = nextAddress;
+  }
+};
+$jscomp.generator.Context.prototype.forIn = function(object) {
+  return new $jscomp.generator.Context.PropertyIterator(object);
+};
+$jscomp.generator.Context.PropertyIterator = function(object) {
+  this.object_ = object;
+  this.properties_ = [];
+  for (var property in object) {
+    this.properties_.push(property);
+  }
+  this.properties_.reverse();
+};
+$jscomp.generator.Context.PropertyIterator.prototype.getNext = function() {
+  for (; 0 < this.properties_.length;) {
+    var property = this.properties_.pop();
+    if (property in this.object_) {
+      return property;
+    }
+  }
+  return null;
+};
+$jscomp.generator.Engine_ = function(program) {
+  this.context_ = new $jscomp.generator.Context();
+  this.program_ = program;
+};
+$jscomp.generator.Engine_.prototype.next_ = function(value) {
+  this.context_.start_();
+  if (this.context_.yieldAllIterator_) {
+    return this.yieldAllStep_(this.context_.yieldAllIterator_.next, value, this.context_.next_);
+  }
+  this.context_.next_(value);
+  return this.nextStep_();
+};
+$jscomp.generator.Engine_.prototype.return_ = function(value) {
+  this.context_.start_();
+  var yieldAllIterator = this.context_.yieldAllIterator_;
+  if (yieldAllIterator) {
+    return this.yieldAllStep_("return" in yieldAllIterator ? yieldAllIterator["return"] : function(v) {
+      return {value:v, done:!0};
+    }, value, this.context_.return);
+  }
+  this.context_.return(value);
+  return this.nextStep_();
+};
+$jscomp.generator.Engine_.prototype.throw_ = function(exception) {
+  this.context_.start_();
+  if (this.context_.yieldAllIterator_) {
+    return this.yieldAllStep_(this.context_.yieldAllIterator_["throw"], exception, this.context_.next_);
+  }
+  this.context_.throw_(exception);
+  return this.nextStep_();
+};
+$jscomp.generator.Engine_.prototype.yieldAllStep_ = function(action, value, nextAction) {
+  try {
+    var result = action.call(this.context_.yieldAllIterator_, value);
+    $jscomp.generator.ensureIteratorResultIsObject_(result);
+    if (!result.done) {
+      return this.context_.stop_(), result;
+    }
+    var resultValue = result.value;
+  } catch (e) {
+    return this.context_.yieldAllIterator_ = null, this.context_.throw_(e), this.nextStep_();
+  }
+  this.context_.yieldAllIterator_ = null;
+  nextAction.call(this.context_, resultValue);
+  return this.nextStep_();
+};
+$jscomp.generator.Engine_.prototype.nextStep_ = function() {
+  for (; this.context_.nextAddress;) {
+    try {
+      var yieldValue = this.program_(this.context_);
+      if (yieldValue) {
+        return this.context_.stop_(), {value:yieldValue.value, done:!1};
+      }
+    } catch (e) {
+      this.context_.yieldResult = void 0, this.context_.throw_(e);
+    }
+  }
+  this.context_.stop_();
+  if (this.context_.abruptCompletion_) {
+    var abruptCompletion = this.context_.abruptCompletion_;
+    this.context_.abruptCompletion_ = null;
+    if (abruptCompletion.isException) {
+      throw abruptCompletion.exception;
+    }
+    return {value:abruptCompletion.return, done:!0};
+  }
+  return {value:void 0, done:!0};
+};
+$jscomp.generator.Generator_ = function(engine) {
+  this.next = function(opt_value) {
+    return engine.next_(opt_value);
+  };
+  this.throw = function(exception) {
+    return engine.throw_(exception);
+  };
+  this.return = function(value) {
+    return engine.return_(value);
+  };
+  this[Symbol.iterator] = function() {
+    return this;
+  };
+};
+$jscomp.generator.createGenerator = function(generator, program) {
+  var result = new $jscomp.generator.Generator_(new $jscomp.generator.Engine_(program));
+  $jscomp.setPrototypeOf && generator.prototype && $jscomp.setPrototypeOf(result, generator.prototype);
+  return result;
+};
+$jscomp.asyncExecutePromiseGenerator = function(generator) {
+  function passValueToGenerator(value) {
+    return generator.next(value);
+  }
+  function passErrorToGenerator(error) {
+    return generator.throw(error);
+  }
+  return new Promise(function(resolve, reject) {
+    function handleGeneratorRecord(genRec) {
+      genRec.done ? resolve(genRec.value) : Promise.resolve(genRec.value).then(passValueToGenerator, passErrorToGenerator).then(handleGeneratorRecord, reject);
+    }
+    handleGeneratorRecord(generator.next());
+  });
+};
+$jscomp.asyncExecutePromiseGeneratorFunction = function(generatorFunction) {
+  return $jscomp.asyncExecutePromiseGenerator(generatorFunction());
+};
+$jscomp.asyncExecutePromiseGeneratorProgram = function(program) {
+  return $jscomp.asyncExecutePromiseGenerator(new $jscomp.generator.Generator_(new $jscomp.generator.Engine_(program)));
+};
 $jscomp.polyfill("Reflect", function(orig) {
   return orig ? orig : {};
 }, "es6", "es3");
@@ -242,6 +463,236 @@ $jscomp.polyfill("Reflect.setPrototypeOf", function(orig) {
   }
   return null;
 }, "es6", "es5");
+$jscomp.polyfill("Promise", function(NativePromise) {
+  function platformSupportsPromiseRejectionEvents() {
+    return "undefined" !== typeof $jscomp.global.PromiseRejectionEvent;
+  }
+  function globalPromiseIsNative() {
+    return $jscomp.global.Promise && -1 !== $jscomp.global.Promise.toString().indexOf("[native code]");
+  }
+  function shouldForcePolyfillPromise() {
+    return ($jscomp.FORCE_POLYFILL_PROMISE || $jscomp.FORCE_POLYFILL_PROMISE_WHEN_NO_UNHANDLED_REJECTION && !platformSupportsPromiseRejectionEvents()) && globalPromiseIsNative();
+  }
+  function AsyncExecutor() {
+    this.batch_ = null;
+  }
+  function isObject(value) {
+    switch(typeof value) {
+      case "object":
+        return null != value;
+      case "function":
+        return !0;
+      default:
+        return !1;
+    }
+  }
+  function resolvingPromise(opt_value) {
+    return opt_value instanceof PolyfillPromise ? opt_value : new PolyfillPromise(function(resolve, reject) {
+      resolve(opt_value);
+    });
+  }
+  if (NativePromise && !shouldForcePolyfillPromise()) {
+    return NativePromise;
+  }
+  AsyncExecutor.prototype.asyncExecute = function(f) {
+    if (null == this.batch_) {
+      this.batch_ = [];
+      var self = this;
+      this.asyncExecuteFunction(function() {
+        self.executeBatch_();
+      });
+    }
+    this.batch_.push(f);
+  };
+  var nativeSetTimeout = $jscomp.global.setTimeout;
+  AsyncExecutor.prototype.asyncExecuteFunction = function(f) {
+    nativeSetTimeout(f, 0);
+  };
+  AsyncExecutor.prototype.executeBatch_ = function() {
+    for (; this.batch_ && this.batch_.length;) {
+      var executingBatch = this.batch_;
+      this.batch_ = [];
+      for (var i = 0; i < executingBatch.length; ++i) {
+        var f = executingBatch[i];
+        executingBatch[i] = null;
+        try {
+          f();
+        } catch (error) {
+          this.asyncThrow_(error);
+        }
+      }
+    }
+    this.batch_ = null;
+  };
+  AsyncExecutor.prototype.asyncThrow_ = function(exception) {
+    this.asyncExecuteFunction(function() {
+      throw exception;
+    });
+  };
+  var PromiseState = {PENDING:0, FULFILLED:1, REJECTED:2}, PolyfillPromise = function(executor) {
+    this.state_ = PromiseState.PENDING;
+    this.result_ = void 0;
+    this.onSettledCallbacks_ = [];
+    this.isRejectionHandled_ = !1;
+    var resolveAndReject = this.createResolveAndReject_();
+    try {
+      executor(resolveAndReject.resolve, resolveAndReject.reject);
+    } catch (e) {
+      resolveAndReject.reject(e);
+    }
+  };
+  PolyfillPromise.prototype.createResolveAndReject_ = function() {
+    function firstCallWins(method) {
+      return function(x) {
+        alreadyCalled || (alreadyCalled = !0, method.call(thisPromise, x));
+      };
+    }
+    var thisPromise = this, alreadyCalled = !1;
+    return {resolve:firstCallWins(this.resolveTo_), reject:firstCallWins(this.reject_)};
+  };
+  PolyfillPromise.prototype.resolveTo_ = function(value) {
+    value === this ? this.reject_(new TypeError("A Promise cannot resolve to itself")) : value instanceof PolyfillPromise ? this.settleSameAsPromise_(value) : isObject(value) ? this.resolveToNonPromiseObj_(value) : this.fulfill_(value);
+  };
+  PolyfillPromise.prototype.resolveToNonPromiseObj_ = function(obj) {
+    var thenMethod = void 0;
+    try {
+      thenMethod = obj.then;
+    } catch (error) {
+      this.reject_(error);
+      return;
+    }
+    "function" == typeof thenMethod ? this.settleSameAsThenable_(thenMethod, obj) : this.fulfill_(obj);
+  };
+  PolyfillPromise.prototype.reject_ = function(reason) {
+    this.settle_(PromiseState.REJECTED, reason);
+  };
+  PolyfillPromise.prototype.fulfill_ = function(value) {
+    this.settle_(PromiseState.FULFILLED, value);
+  };
+  PolyfillPromise.prototype.settle_ = function(settledState, valueOrReason) {
+    if (this.state_ != PromiseState.PENDING) {
+      throw Error("Cannot settle(" + settledState + ", " + valueOrReason + "): Promise already settled in state" + this.state_);
+    }
+    this.state_ = settledState;
+    this.result_ = valueOrReason;
+    this.state_ === PromiseState.REJECTED && this.scheduleUnhandledRejectionCheck_();
+    this.executeOnSettledCallbacks_();
+  };
+  PolyfillPromise.prototype.scheduleUnhandledRejectionCheck_ = function() {
+    var self = this;
+    nativeSetTimeout(function() {
+      if (self.notifyUnhandledRejection_()) {
+        var nativeConsole = $jscomp.global.console;
+        "undefined" !== typeof nativeConsole && nativeConsole.error(self.result_);
+      }
+    }, 1);
+  };
+  PolyfillPromise.prototype.notifyUnhandledRejection_ = function() {
+    if (this.isRejectionHandled_) {
+      return !1;
+    }
+    var NativeCustomEvent = $jscomp.global.CustomEvent, NativeEvent = $jscomp.global.Event, nativeDispatchEvent = $jscomp.global.dispatchEvent;
+    if ("undefined" === typeof nativeDispatchEvent) {
+      return !0;
+    }
+    if ("function" === typeof NativeCustomEvent) {
+      var event = new NativeCustomEvent("unhandledrejection", {cancelable:!0});
+    } else {
+      "function" === typeof NativeEvent ? event = new NativeEvent("unhandledrejection", {cancelable:!0}) : (event = $jscomp.global.document.createEvent("CustomEvent"), event.initCustomEvent("unhandledrejection", !1, !0, event));
+    }
+    event.promise = this;
+    event.reason = this.result_;
+    return nativeDispatchEvent(event);
+  };
+  PolyfillPromise.prototype.executeOnSettledCallbacks_ = function() {
+    if (null != this.onSettledCallbacks_) {
+      for (var i = 0; i < this.onSettledCallbacks_.length; ++i) {
+        asyncExecutor.asyncExecute(this.onSettledCallbacks_[i]);
+      }
+      this.onSettledCallbacks_ = null;
+    }
+  };
+  var asyncExecutor = new AsyncExecutor();
+  PolyfillPromise.prototype.settleSameAsPromise_ = function(promise) {
+    var methods = this.createResolveAndReject_();
+    promise.callWhenSettled_(methods.resolve, methods.reject);
+  };
+  PolyfillPromise.prototype.settleSameAsThenable_ = function(thenMethod, thenable) {
+    var methods = this.createResolveAndReject_();
+    try {
+      thenMethod.call(thenable, methods.resolve, methods.reject);
+    } catch (error) {
+      methods.reject(error);
+    }
+  };
+  PolyfillPromise.prototype.then = function(onFulfilled, onRejected) {
+    function createCallback(paramF, defaultF) {
+      return "function" == typeof paramF ? function(x) {
+        try {
+          resolveChild(paramF(x));
+        } catch (error) {
+          rejectChild(error);
+        }
+      } : defaultF;
+    }
+    var resolveChild, rejectChild, childPromise = new PolyfillPromise(function(resolve, reject) {
+      resolveChild = resolve;
+      rejectChild = reject;
+    });
+    this.callWhenSettled_(createCallback(onFulfilled, resolveChild), createCallback(onRejected, rejectChild));
+    return childPromise;
+  };
+  PolyfillPromise.prototype.catch = function(onRejected) {
+    return this.then(void 0, onRejected);
+  };
+  PolyfillPromise.prototype.callWhenSettled_ = function(onFulfilled, onRejected) {
+    function callback() {
+      switch(thisPromise.state_) {
+        case PromiseState.FULFILLED:
+          onFulfilled(thisPromise.result_);
+          break;
+        case PromiseState.REJECTED:
+          onRejected(thisPromise.result_);
+          break;
+        default:
+          throw Error("Unexpected state: " + thisPromise.state_);
+      }
+    }
+    var thisPromise = this;
+    null == this.onSettledCallbacks_ ? asyncExecutor.asyncExecute(callback) : this.onSettledCallbacks_.push(callback);
+    this.isRejectionHandled_ = !0;
+  };
+  PolyfillPromise.resolve = resolvingPromise;
+  PolyfillPromise.reject = function(opt_reason) {
+    return new PolyfillPromise(function(resolve, reject) {
+      reject(opt_reason);
+    });
+  };
+  PolyfillPromise.race = function(thenablesOrValues) {
+    return new PolyfillPromise(function(resolve, reject) {
+      for (var iterator = $jscomp.makeIterator(thenablesOrValues), iterRec = iterator.next(); !iterRec.done; iterRec = iterator.next()) {
+        resolvingPromise(iterRec.value).callWhenSettled_(resolve, reject);
+      }
+    });
+  };
+  PolyfillPromise.all = function(thenablesOrValues) {
+    var iterator = $jscomp.makeIterator(thenablesOrValues), iterRec = iterator.next();
+    return iterRec.done ? resolvingPromise([]) : new PolyfillPromise(function(resolveAll, rejectAll) {
+      function onFulfilled(i) {
+        return function(ithResult) {
+          resultsArray[i] = ithResult;
+          unresolvedCount--;
+          0 == unresolvedCount && resolveAll(resultsArray);
+        };
+      }
+      var resultsArray = [], unresolvedCount = 0;
+      do {
+        resultsArray.push(void 0), unresolvedCount++, resolvingPromise(iterRec.value).callWhenSettled_(onFulfilled(resultsArray.length - 1), rejectAll), iterRec = iterator.next();
+      } while (!iterRec.done);
+    });
+  };
+  return PolyfillPromise;
+}, "es6", "es3");
 $jscomp.checkEs6ConformanceViaProxy = function() {
   try {
     var proxied = {}, proxy = Object.create(new $jscomp.global.Proxy(proxied, {get:function(target, key, receiver) {
@@ -574,236 +1025,6 @@ $jscomp.assign = $jscomp.TRUST_ES6_POLYFILLS && "function" == typeof Object.assi
 };
 $jscomp.polyfill("Object.assign", function(orig) {
   return orig || $jscomp.assign;
-}, "es6", "es3");
-$jscomp.polyfill("Promise", function(NativePromise) {
-  function platformSupportsPromiseRejectionEvents() {
-    return "undefined" !== typeof $jscomp.global.PromiseRejectionEvent;
-  }
-  function globalPromiseIsNative() {
-    return $jscomp.global.Promise && -1 !== $jscomp.global.Promise.toString().indexOf("[native code]");
-  }
-  function shouldForcePolyfillPromise() {
-    return ($jscomp.FORCE_POLYFILL_PROMISE || $jscomp.FORCE_POLYFILL_PROMISE_WHEN_NO_UNHANDLED_REJECTION && !platformSupportsPromiseRejectionEvents()) && globalPromiseIsNative();
-  }
-  function AsyncExecutor() {
-    this.batch_ = null;
-  }
-  function isObject(value) {
-    switch(typeof value) {
-      case "object":
-        return null != value;
-      case "function":
-        return !0;
-      default:
-        return !1;
-    }
-  }
-  function resolvingPromise(opt_value) {
-    return opt_value instanceof PolyfillPromise ? opt_value : new PolyfillPromise(function(resolve, reject) {
-      resolve(opt_value);
-    });
-  }
-  if (NativePromise && !shouldForcePolyfillPromise()) {
-    return NativePromise;
-  }
-  AsyncExecutor.prototype.asyncExecute = function(f) {
-    if (null == this.batch_) {
-      this.batch_ = [];
-      var self = this;
-      this.asyncExecuteFunction(function() {
-        self.executeBatch_();
-      });
-    }
-    this.batch_.push(f);
-  };
-  var nativeSetTimeout = $jscomp.global.setTimeout;
-  AsyncExecutor.prototype.asyncExecuteFunction = function(f) {
-    nativeSetTimeout(f, 0);
-  };
-  AsyncExecutor.prototype.executeBatch_ = function() {
-    for (; this.batch_ && this.batch_.length;) {
-      var executingBatch = this.batch_;
-      this.batch_ = [];
-      for (var i = 0; i < executingBatch.length; ++i) {
-        var f = executingBatch[i];
-        executingBatch[i] = null;
-        try {
-          f();
-        } catch (error) {
-          this.asyncThrow_(error);
-        }
-      }
-    }
-    this.batch_ = null;
-  };
-  AsyncExecutor.prototype.asyncThrow_ = function(exception) {
-    this.asyncExecuteFunction(function() {
-      throw exception;
-    });
-  };
-  var PromiseState = {PENDING:0, FULFILLED:1, REJECTED:2}, PolyfillPromise = function(executor) {
-    this.state_ = PromiseState.PENDING;
-    this.result_ = void 0;
-    this.onSettledCallbacks_ = [];
-    this.isRejectionHandled_ = !1;
-    var resolveAndReject = this.createResolveAndReject_();
-    try {
-      executor(resolveAndReject.resolve, resolveAndReject.reject);
-    } catch (e) {
-      resolveAndReject.reject(e);
-    }
-  };
-  PolyfillPromise.prototype.createResolveAndReject_ = function() {
-    function firstCallWins(method) {
-      return function(x) {
-        alreadyCalled || (alreadyCalled = !0, method.call(thisPromise, x));
-      };
-    }
-    var thisPromise = this, alreadyCalled = !1;
-    return {resolve:firstCallWins(this.resolveTo_), reject:firstCallWins(this.reject_)};
-  };
-  PolyfillPromise.prototype.resolveTo_ = function(value) {
-    value === this ? this.reject_(new TypeError("A Promise cannot resolve to itself")) : value instanceof PolyfillPromise ? this.settleSameAsPromise_(value) : isObject(value) ? this.resolveToNonPromiseObj_(value) : this.fulfill_(value);
-  };
-  PolyfillPromise.prototype.resolveToNonPromiseObj_ = function(obj) {
-    var thenMethod = void 0;
-    try {
-      thenMethod = obj.then;
-    } catch (error) {
-      this.reject_(error);
-      return;
-    }
-    "function" == typeof thenMethod ? this.settleSameAsThenable_(thenMethod, obj) : this.fulfill_(obj);
-  };
-  PolyfillPromise.prototype.reject_ = function(reason) {
-    this.settle_(PromiseState.REJECTED, reason);
-  };
-  PolyfillPromise.prototype.fulfill_ = function(value) {
-    this.settle_(PromiseState.FULFILLED, value);
-  };
-  PolyfillPromise.prototype.settle_ = function(settledState, valueOrReason) {
-    if (this.state_ != PromiseState.PENDING) {
-      throw Error("Cannot settle(" + settledState + ", " + valueOrReason + "): Promise already settled in state" + this.state_);
-    }
-    this.state_ = settledState;
-    this.result_ = valueOrReason;
-    this.state_ === PromiseState.REJECTED && this.scheduleUnhandledRejectionCheck_();
-    this.executeOnSettledCallbacks_();
-  };
-  PolyfillPromise.prototype.scheduleUnhandledRejectionCheck_ = function() {
-    var self = this;
-    nativeSetTimeout(function() {
-      if (self.notifyUnhandledRejection_()) {
-        var nativeConsole = $jscomp.global.console;
-        "undefined" !== typeof nativeConsole && nativeConsole.error(self.result_);
-      }
-    }, 1);
-  };
-  PolyfillPromise.prototype.notifyUnhandledRejection_ = function() {
-    if (this.isRejectionHandled_) {
-      return !1;
-    }
-    var NativeCustomEvent = $jscomp.global.CustomEvent, NativeEvent = $jscomp.global.Event, nativeDispatchEvent = $jscomp.global.dispatchEvent;
-    if ("undefined" === typeof nativeDispatchEvent) {
-      return !0;
-    }
-    if ("function" === typeof NativeCustomEvent) {
-      var event = new NativeCustomEvent("unhandledrejection", {cancelable:!0});
-    } else {
-      "function" === typeof NativeEvent ? event = new NativeEvent("unhandledrejection", {cancelable:!0}) : (event = $jscomp.global.document.createEvent("CustomEvent"), event.initCustomEvent("unhandledrejection", !1, !0, event));
-    }
-    event.promise = this;
-    event.reason = this.result_;
-    return nativeDispatchEvent(event);
-  };
-  PolyfillPromise.prototype.executeOnSettledCallbacks_ = function() {
-    if (null != this.onSettledCallbacks_) {
-      for (var i = 0; i < this.onSettledCallbacks_.length; ++i) {
-        asyncExecutor.asyncExecute(this.onSettledCallbacks_[i]);
-      }
-      this.onSettledCallbacks_ = null;
-    }
-  };
-  var asyncExecutor = new AsyncExecutor();
-  PolyfillPromise.prototype.settleSameAsPromise_ = function(promise) {
-    var methods = this.createResolveAndReject_();
-    promise.callWhenSettled_(methods.resolve, methods.reject);
-  };
-  PolyfillPromise.prototype.settleSameAsThenable_ = function(thenMethod, thenable) {
-    var methods = this.createResolveAndReject_();
-    try {
-      thenMethod.call(thenable, methods.resolve, methods.reject);
-    } catch (error) {
-      methods.reject(error);
-    }
-  };
-  PolyfillPromise.prototype.then = function(onFulfilled, onRejected) {
-    function createCallback(paramF, defaultF) {
-      return "function" == typeof paramF ? function(x) {
-        try {
-          resolveChild(paramF(x));
-        } catch (error) {
-          rejectChild(error);
-        }
-      } : defaultF;
-    }
-    var resolveChild, rejectChild, childPromise = new PolyfillPromise(function(resolve, reject) {
-      resolveChild = resolve;
-      rejectChild = reject;
-    });
-    this.callWhenSettled_(createCallback(onFulfilled, resolveChild), createCallback(onRejected, rejectChild));
-    return childPromise;
-  };
-  PolyfillPromise.prototype.catch = function(onRejected) {
-    return this.then(void 0, onRejected);
-  };
-  PolyfillPromise.prototype.callWhenSettled_ = function(onFulfilled, onRejected) {
-    function callback() {
-      switch(thisPromise.state_) {
-        case PromiseState.FULFILLED:
-          onFulfilled(thisPromise.result_);
-          break;
-        case PromiseState.REJECTED:
-          onRejected(thisPromise.result_);
-          break;
-        default:
-          throw Error("Unexpected state: " + thisPromise.state_);
-      }
-    }
-    var thisPromise = this;
-    null == this.onSettledCallbacks_ ? asyncExecutor.asyncExecute(callback) : this.onSettledCallbacks_.push(callback);
-    this.isRejectionHandled_ = !0;
-  };
-  PolyfillPromise.resolve = resolvingPromise;
-  PolyfillPromise.reject = function(opt_reason) {
-    return new PolyfillPromise(function(resolve, reject) {
-      reject(opt_reason);
-    });
-  };
-  PolyfillPromise.race = function(thenablesOrValues) {
-    return new PolyfillPromise(function(resolve, reject) {
-      for (var iterator = $jscomp.makeIterator(thenablesOrValues), iterRec = iterator.next(); !iterRec.done; iterRec = iterator.next()) {
-        resolvingPromise(iterRec.value).callWhenSettled_(resolve, reject);
-      }
-    });
-  };
-  PolyfillPromise.all = function(thenablesOrValues) {
-    var iterator = $jscomp.makeIterator(thenablesOrValues), iterRec = iterator.next();
-    return iterRec.done ? resolvingPromise([]) : new PolyfillPromise(function(resolveAll, rejectAll) {
-      function onFulfilled(i) {
-        return function(ithResult) {
-          resultsArray[i] = ithResult;
-          unresolvedCount--;
-          0 == unresolvedCount && resolveAll(resultsArray);
-        };
-      }
-      var resultsArray = [], unresolvedCount = 0;
-      do {
-        resultsArray.push(void 0), unresolvedCount++, resolvingPromise(iterRec.value).callWhenSettled_(onFulfilled(resultsArray.length - 1), rejectAll), iterRec = iterator.next();
-      } while (!iterRec.done);
-    });
-  };
-  return PolyfillPromise;
 }, "es6", "es3");
 $jscomp.polyfill("String.prototype.endsWith", function(orig) {
   return orig ? orig : function(searchString, opt_position) {
@@ -2559,274 +2780,75 @@ goog.labs.userAgent.util.setUserAgent = function module$contents$goog$labs$userA
 goog.labs.userAgent.util.setUserAgentData = function module$contents$goog$labs$userAgent$util_setUserAgentData(userAgentData) {
   module$contents$goog$labs$userAgent$util_userAgentDataInternal = userAgentData;
 };
-goog.object = {};
-function module$contents$goog$object_forEach(obj, f, opt_obj) {
-  for (var key in obj) {
-    f.call(opt_obj, obj[key], key, obj);
+var module$exports$goog$labs$userAgent$highEntropy$highEntropyValue = {AsyncValue:function() {
+}};
+module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.AsyncValue.prototype.getIfLoaded = function() {
+};
+module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.AsyncValue.prototype.load = function() {
+};
+module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue = function(key) {
+  this.key_ = key;
+  this.promise_ = this.value_ = void 0;
+  this.pending_ = !1;
+};
+module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue.prototype.getIfLoaded = function() {
+  if (module$contents$goog$labs$userAgent$util_getUserAgentData()) {
+    return this.value_;
   }
-}
-function module$contents$goog$object_filter(obj, f, opt_obj) {
-  var res = {}, key;
-  for (key in obj) {
-    f.call(opt_obj, obj[key], key, obj) && (res[key] = obj[key]);
-  }
-  return res;
-}
-function module$contents$goog$object_map(obj, f, opt_obj) {
-  var res = {}, key;
-  for (key in obj) {
-    res[key] = f.call(opt_obj, obj[key], key, obj);
-  }
-  return res;
-}
-function module$contents$goog$object_some(obj, f, opt_obj) {
-  for (var key in obj) {
-    if (f.call(opt_obj, obj[key], key, obj)) {
-      return !0;
+};
+module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue.prototype.load = function() {
+  var $jscomp$async$this = this, userAgentData;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context) {
+    if (1 == $jscomp$generator$context.nextAddress) {
+      userAgentData = module$contents$goog$labs$userAgent$util_getUserAgentData();
+      if (!userAgentData) {
+        return $jscomp$generator$context.return(void 0);
+      }
+      $jscomp$async$this.promise_ || ($jscomp$async$this.pending_ = !0, $jscomp$async$this.promise_ = function() {
+        var dataValues;
+        return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1) {
+          if (1 == $jscomp$generator$context$1.nextAddress) {
+            return $jscomp$generator$context$1.setFinallyBlock(2), $jscomp$generator$context$1.yield(userAgentData.getHighEntropyValues([$jscomp$async$this.key_]), 4);
+          }
+          if (2 != $jscomp$generator$context$1.nextAddress) {
+            return dataValues = $jscomp$generator$context$1.yieldResult, $jscomp$async$this.value_ = dataValues[$jscomp$async$this.key_], $jscomp$generator$context$1.return($jscomp$async$this.value_);
+          }
+          $jscomp$generator$context$1.enterFinallyBlock();
+          $jscomp$async$this.pending_ = !1;
+          return $jscomp$generator$context$1.leaveFinallyBlock(0);
+        });
+      }());
+      return $jscomp$generator$context.yield($jscomp$async$this.promise_, 2);
     }
-  }
-  return !1;
-}
-function module$contents$goog$object_getCount(obj) {
-  var rv = 0, key;
-  for (key in obj) {
-    rv++;
-  }
-  return rv;
-}
-function module$contents$goog$object_contains(obj, val) {
-  return module$contents$goog$object_containsValue(obj, val);
-}
-function module$contents$goog$object_getValues(obj) {
-  var res = [], i = 0, key;
-  for (key in obj) {
-    res[i++] = obj[key];
-  }
-  return res;
-}
-function module$contents$goog$object_getKeys(obj) {
-  var res = [], i = 0, key;
-  for (key in obj) {
-    res[i++] = key;
-  }
-  return res;
-}
-function module$contents$goog$object_containsKey(obj, key) {
-  return null !== obj && key in obj;
-}
-function module$contents$goog$object_containsValue(obj, val) {
-  for (var key in obj) {
-    if (obj[key] == val) {
-      return !0;
-    }
-  }
-  return !1;
-}
-function module$contents$goog$object_findKey(obj, f, thisObj) {
-  for (var key in obj) {
-    if (f.call(thisObj, obj[key], key, obj)) {
-      return key;
-    }
-  }
-}
-function module$contents$goog$object_isEmpty(obj) {
-  for (var key in obj) {
-    return !1;
-  }
-  return !0;
-}
-function module$contents$goog$object_clear(obj) {
-  for (var i in obj) {
-    delete obj[i];
-  }
-}
-function module$contents$goog$object_remove(obj, key) {
-  var rv;
-  (rv = key in obj) && delete obj[key];
-  return rv;
-}
-function module$contents$goog$object_set(obj, key, value) {
-  obj[key] = value;
-}
-function module$contents$goog$object_clone(obj) {
-  var res = {}, key;
-  for (key in obj) {
-    res[key] = obj[key];
-  }
-  return res;
-}
-function module$contents$goog$object_unsafeClone(obj) {
-  if (!obj || "object" !== typeof obj) {
-    return obj;
-  }
-  if ("function" === typeof obj.clone) {
-    return obj.clone();
-  }
-  if ("undefined" !== typeof Map && obj instanceof Map) {
-    return new Map(obj);
-  }
-  if ("undefined" !== typeof Set && obj instanceof Set) {
-    return new Set(obj);
-  }
-  var clone = Array.isArray(obj) ? [] : "function" !== typeof ArrayBuffer || "function" !== typeof ArrayBuffer.isView || !ArrayBuffer.isView(obj) || obj instanceof DataView ? {} : new obj.constructor(obj.length), key;
-  for (key in obj) {
-    clone[key] = module$contents$goog$object_unsafeClone(obj[key]);
-  }
-  return clone;
-}
-var module$contents$goog$object_PROTOTYPE_FIELDS = "constructor hasOwnProperty isPrototypeOf propertyIsEnumerable toLocaleString toString valueOf".split(" ");
-function module$contents$goog$object_extend(target, var_args) {
-  for (var key, source, i = 1; i < arguments.length; i++) {
-    source = arguments[i];
-    for (key in source) {
-      target[key] = source[key];
-    }
-    for (var j = 0; j < module$contents$goog$object_PROTOTYPE_FIELDS.length; j++) {
-      key = module$contents$goog$object_PROTOTYPE_FIELDS[j], Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
-    }
-  }
-}
-function module$contents$goog$object_create(var_args) {
-  var argLength = arguments.length;
-  if (1 == argLength && Array.isArray(arguments[0])) {
-    return module$contents$goog$object_create.apply(null, arguments[0]);
-  }
-  if (argLength % 2) {
-    throw Error("Uneven number of arguments");
-  }
-  for (var rv = {}, i = 0; i < argLength; i += 2) {
-    rv[arguments[i]] = arguments[i + 1];
-  }
-  return rv;
-}
-function module$contents$goog$object_createSet(var_args) {
-  var argLength = arguments.length;
-  if (1 == argLength && Array.isArray(arguments[0])) {
-    return module$contents$goog$object_createSet.apply(null, arguments[0]);
-  }
-  for (var rv = {}, i = 0; i < argLength; i++) {
-    rv[arguments[i]] = !0;
-  }
-  return rv;
-}
-goog.object.add = function module$contents$goog$object_add(obj, key, val) {
-  if (null !== obj && key in obj) {
-    throw Error('The object already contains the key "' + key + '"');
-  }
-  module$contents$goog$object_set(obj, key, val);
+    return $jscomp$generator$context.return($jscomp$generator$context.yieldResult);
+  });
 };
-goog.object.clear = module$contents$goog$object_clear;
-goog.object.clone = module$contents$goog$object_clone;
-goog.object.contains = module$contents$goog$object_contains;
-goog.object.containsKey = module$contents$goog$object_containsKey;
-goog.object.containsValue = module$contents$goog$object_containsValue;
-goog.object.create = module$contents$goog$object_create;
-goog.object.createImmutableView = function module$contents$goog$object_createImmutableView(obj) {
-  var result = obj;
-  Object.isFrozen && !Object.isFrozen(obj) && (result = Object.create(obj), Object.freeze(result));
-  return result;
-};
-goog.object.createSet = module$contents$goog$object_createSet;
-goog.object.equals = function module$contents$goog$object_equals(a, b) {
-  for (var k in a) {
-    if (!(k in b) || a[k] !== b[k]) {
-      return !1;
-    }
+module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue.prototype.resetForTesting = function() {
+  if (this.pending_) {
+    throw Error("Unsafe call to resetForTesting");
   }
-  for (var k$33 in b) {
-    if (!(k$33 in a)) {
-      return !1;
-    }
-  }
-  return !0;
+  this.value_ = this.promise_ = void 0;
+  this.pending_ = !1;
 };
-goog.object.every = function module$contents$goog$object_every(obj, f, opt_obj) {
-  for (var key in obj) {
-    if (!f.call(opt_obj, obj[key], key, obj)) {
-      return !1;
-    }
-  }
-  return !0;
+module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version = function(versionString) {
+  this.versionString_ = versionString;
 };
-goog.object.extend = module$contents$goog$object_extend;
-goog.object.filter = module$contents$goog$object_filter;
-goog.object.findKey = module$contents$goog$object_findKey;
-goog.object.findValue = function module$contents$goog$object_findValue(obj, f, thisObj) {
-  var key = module$contents$goog$object_findKey(obj, f, thisObj);
-  return key && obj[key];
+module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version.prototype.toVersionStringForLogging = function() {
+  return this.versionString_;
 };
-goog.object.forEach = module$contents$goog$object_forEach;
-goog.object.get = function module$contents$goog$object_get(obj, key, val) {
-  return null !== obj && key in obj ? obj[key] : val;
+module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version.prototype.isAtLeast = function(version) {
+  return 0 <= (0,goog.string.internal.compareVersions)(this.versionString_, version);
 };
-goog.object.getAllPropertyNames = function module$contents$goog$object_getAllPropertyNames(obj, includeObjectPrototype, includeFunctionPrototype) {
-  if (!obj) {
-    return [];
-  }
-  if (!Object.getOwnPropertyNames || !Object.getPrototypeOf) {
-    return module$contents$goog$object_getKeys(obj);
-  }
-  for (var visitedSet = {}, proto = obj; proto && (proto !== Object.prototype || includeObjectPrototype) && (proto !== Function.prototype || includeFunctionPrototype);) {
-    for (var names = Object.getOwnPropertyNames(proto), i = 0; i < names.length; i++) {
-      visitedSet[names[i]] = !0;
-    }
-    proto = Object.getPrototypeOf(proto);
-  }
-  return module$contents$goog$object_getKeys(visitedSet);
+var module$exports$goog$labs$userAgent$highEntropy$highEntropyData = {};
+module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList = new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue("fullVersionList");
+module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion = new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue("platformVersion");
+module$exports$goog$labs$userAgent$highEntropy$highEntropyData.resetAllForTesting = function module$contents$goog$labs$userAgent$highEntropy$highEntropyData_resetAllForTesting() {
+  module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.resetForTesting();
+  module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion.resetForTesting();
 };
-goog.object.getAnyKey = function module$contents$goog$object_getAnyKey(obj) {
-  for (var key in obj) {
-    return key;
-  }
-};
-goog.object.getAnyValue = function module$contents$goog$object_getAnyValue(obj) {
-  for (var key in obj) {
-    return obj[key];
-  }
-};
-goog.object.getCount = module$contents$goog$object_getCount;
-goog.object.getKeys = module$contents$goog$object_getKeys;
-goog.object.getSuperClass = function module$contents$goog$object_getSuperClass(constructor) {
-  var proto = Object.getPrototypeOf(constructor.prototype);
-  return proto && proto.constructor;
-};
-goog.object.getValueByKeys = function module$contents$goog$object_getValueByKeys(obj, var_args) {
-  for (var isArrayLike = goog.isArrayLike(var_args), keys = isArrayLike ? var_args : arguments, i = isArrayLike ? 0 : 1; i < keys.length; i++) {
-    if (null == obj) {
-      return;
-    }
-    obj = obj[keys[i]];
-  }
-  return obj;
-};
-goog.object.getValues = module$contents$goog$object_getValues;
-goog.object.isEmpty = module$contents$goog$object_isEmpty;
-goog.object.isImmutableView = function module$contents$goog$object_isImmutableView(obj) {
-  return !!Object.isFrozen && Object.isFrozen(obj);
-};
-goog.object.map = module$contents$goog$object_map;
-goog.object.remove = module$contents$goog$object_remove;
-goog.object.set = module$contents$goog$object_set;
-goog.object.setIfUndefined = function module$contents$goog$object_setIfUndefined(obj, key, value) {
-  return key in obj ? obj[key] : obj[key] = value;
-};
-goog.object.setWithReturnValueIfNotSet = function module$contents$goog$object_setWithReturnValueIfNotSet(obj, key, f) {
-  if (key in obj) {
-    return obj[key];
-  }
-  var val = f();
-  return obj[key] = val;
-};
-goog.object.some = module$contents$goog$object_some;
-goog.object.transpose = function module$contents$goog$object_transpose(obj) {
-  var transposed = {}, key;
-  for (key in obj) {
-    transposed[obj[key]] = key;
-  }
-  return transposed;
-};
-goog.object.unsafeClone = module$contents$goog$object_unsafeClone;
 goog.labs.userAgent.browser = {};
+var module$contents$goog$labs$userAgent$browser_Brand = {ANDROID_BROWSER:"Android Browser", CHROMIUM:"Chromium", EDGE:"Microsoft Edge", FIREFOX:"Firefox", IE:"Internet Explorer", OPERA:"Opera", SAFARI:"Safari", SILK:"Silk",};
+goog.labs.userAgent.browser.Brand = module$contents$goog$labs$userAgent$browser_Brand;
 function module$contents$goog$labs$userAgent$browser_useUserAgentBrand() {
   var userAgentData = module$contents$goog$labs$userAgent$util_getUserAgentData();
   return !!userAgentData && 0 < userAgentData.brands.length;
@@ -2841,50 +2863,73 @@ function module$contents$goog$labs$userAgent$browser_matchEdgeHtml() {
   return module$contents$goog$labs$userAgent$util_getUserAgentData() ? !1 : module$contents$goog$labs$userAgent$util_matchUserAgent("Edge");
 }
 function module$contents$goog$labs$userAgent$browser_matchEdgeChromium() {
-  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand("Edge") : module$contents$goog$labs$userAgent$util_matchUserAgent("Edg/");
+  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand(module$contents$goog$labs$userAgent$browser_Brand.EDGE) : module$contents$goog$labs$userAgent$util_matchUserAgent("Edg/");
 }
 function module$contents$goog$labs$userAgent$browser_matchOperaChromium() {
-  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand("Opera") : module$contents$goog$labs$userAgent$util_matchUserAgent("OPR");
+  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand(module$contents$goog$labs$userAgent$browser_Brand.OPERA) : module$contents$goog$labs$userAgent$util_matchUserAgent("OPR");
 }
 function module$contents$goog$labs$userAgent$browser_matchFirefox() {
-  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand("Firefox") : module$contents$goog$labs$userAgent$util_matchUserAgent("Firefox") || module$contents$goog$labs$userAgent$util_matchUserAgent("FxiOS");
+  return module$contents$goog$labs$userAgent$util_getUserAgentData() ? !1 : module$contents$goog$labs$userAgent$util_matchUserAgent("Firefox") || module$contents$goog$labs$userAgent$util_matchUserAgent("FxiOS");
 }
 function module$contents$goog$labs$userAgent$browser_matchSafari() {
-  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand("Safari") : module$contents$goog$labs$userAgent$util_matchUserAgent("Safari") && !(module$contents$goog$labs$userAgent$browser_matchChrome() || module$contents$goog$labs$userAgent$browser_matchCoast() || module$contents$goog$labs$userAgent$browser_matchOpera() || module$contents$goog$labs$userAgent$browser_matchEdgeHtml() || module$contents$goog$labs$userAgent$browser_matchEdgeChromium() || 
-  module$contents$goog$labs$userAgent$browser_matchOperaChromium() || module$contents$goog$labs$userAgent$browser_matchFirefox() || module$contents$goog$labs$userAgent$browser_isSilk() || module$contents$goog$labs$userAgent$util_matchUserAgent("Android"));
+  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? !1 : module$contents$goog$labs$userAgent$util_matchUserAgent("Safari") && !(module$contents$goog$labs$userAgent$browser_matchChrome() || module$contents$goog$labs$userAgent$browser_matchCoast() || module$contents$goog$labs$userAgent$browser_matchOpera() || module$contents$goog$labs$userAgent$browser_matchEdgeHtml() || module$contents$goog$labs$userAgent$browser_matchEdgeChromium() || module$contents$goog$labs$userAgent$browser_matchOperaChromium() || 
+  module$contents$goog$labs$userAgent$browser_matchFirefox() || module$contents$goog$labs$userAgent$browser_isSilk() || module$contents$goog$labs$userAgent$util_matchUserAgent("Android"));
 }
 function module$contents$goog$labs$userAgent$browser_matchCoast() {
   return module$contents$goog$labs$userAgent$util_getUserAgentData() ? !1 : module$contents$goog$labs$userAgent$util_matchUserAgent("Coast");
 }
 function module$contents$goog$labs$userAgent$browser_matchIosWebview() {
-  return (module$contents$goog$labs$userAgent$util_matchUserAgent("iPad") || module$contents$goog$labs$userAgent$util_matchUserAgent("iPhone")) && !module$contents$goog$labs$userAgent$browser_matchSafari() && !module$contents$goog$labs$userAgent$browser_matchChrome() && !module$contents$goog$labs$userAgent$browser_matchCoast() && !module$contents$goog$labs$userAgent$browser_matchFirefox() && module$contents$goog$labs$userAgent$util_matchUserAgent("AppleWebKit");
+  return module$contents$goog$labs$userAgent$util_getUserAgentData() ? !1 : (module$contents$goog$labs$userAgent$util_matchUserAgent("iPad") || module$contents$goog$labs$userAgent$util_matchUserAgent("iPhone")) && !module$contents$goog$labs$userAgent$browser_matchSafari() && !module$contents$goog$labs$userAgent$browser_matchChrome() && !module$contents$goog$labs$userAgent$browser_matchCoast() && !module$contents$goog$labs$userAgent$browser_matchFirefox() && module$contents$goog$labs$userAgent$util_matchUserAgent("AppleWebKit");
 }
 function module$contents$goog$labs$userAgent$browser_matchChrome() {
-  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand("Chromium") : (module$contents$goog$labs$userAgent$util_matchUserAgent("Chrome") || module$contents$goog$labs$userAgent$util_matchUserAgent("CriOS")) && !module$contents$goog$labs$userAgent$browser_matchEdgeHtml();
+  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand(module$contents$goog$labs$userAgent$browser_Brand.CHROMIUM) : (module$contents$goog$labs$userAgent$util_matchUserAgent("Chrome") || module$contents$goog$labs$userAgent$util_matchUserAgent("CriOS")) && !module$contents$goog$labs$userAgent$browser_matchEdgeHtml();
 }
 function module$contents$goog$labs$userAgent$browser_matchAndroidBrowser() {
   return module$contents$goog$labs$userAgent$util_matchUserAgent("Android") && !(module$contents$goog$labs$userAgent$browser_matchChrome() || module$contents$goog$labs$userAgent$browser_matchFirefox() || module$contents$goog$labs$userAgent$browser_matchOpera() || module$contents$goog$labs$userAgent$browser_isSilk());
 }
-var module$contents$goog$labs$userAgent$browser_isOpera = module$contents$goog$labs$userAgent$browser_matchOpera, module$contents$goog$labs$userAgent$browser_isIE = module$contents$goog$labs$userAgent$browser_matchIE, module$contents$goog$labs$userAgent$browser_isEdge = module$contents$goog$labs$userAgent$browser_matchEdgeHtml, module$contents$goog$labs$userAgent$browser_isEdgeChromium = module$contents$goog$labs$userAgent$browser_matchEdgeChromium, module$contents$goog$labs$userAgent$browser_isOperaChromium = 
-module$contents$goog$labs$userAgent$browser_matchOperaChromium, module$contents$goog$labs$userAgent$browser_isFirefox = module$contents$goog$labs$userAgent$browser_matchFirefox, module$contents$goog$labs$userAgent$browser_isSafari = module$contents$goog$labs$userAgent$browser_matchSafari, module$contents$goog$labs$userAgent$browser_isCoast = module$contents$goog$labs$userAgent$browser_matchCoast, module$contents$goog$labs$userAgent$browser_isIosWebview = module$contents$goog$labs$userAgent$browser_matchIosWebview, 
-module$contents$goog$labs$userAgent$browser_isChrome = module$contents$goog$labs$userAgent$browser_matchChrome, module$contents$goog$labs$userAgent$browser_isAndroidBrowser = module$contents$goog$labs$userAgent$browser_matchAndroidBrowser;
+var module$contents$goog$labs$userAgent$browser_isOpera = module$contents$goog$labs$userAgent$browser_matchOpera;
+goog.labs.userAgent.browser.isOpera = module$contents$goog$labs$userAgent$browser_matchOpera;
+var module$contents$goog$labs$userAgent$browser_isIE = module$contents$goog$labs$userAgent$browser_matchIE;
+goog.labs.userAgent.browser.isIE = module$contents$goog$labs$userAgent$browser_matchIE;
+var module$contents$goog$labs$userAgent$browser_isEdge = module$contents$goog$labs$userAgent$browser_matchEdgeHtml;
+goog.labs.userAgent.browser.isEdge = module$contents$goog$labs$userAgent$browser_matchEdgeHtml;
+var module$contents$goog$labs$userAgent$browser_isEdgeChromium = module$contents$goog$labs$userAgent$browser_matchEdgeChromium;
+goog.labs.userAgent.browser.isEdgeChromium = module$contents$goog$labs$userAgent$browser_matchEdgeChromium;
+var module$contents$goog$labs$userAgent$browser_isOperaChromium = module$contents$goog$labs$userAgent$browser_matchOperaChromium;
+goog.labs.userAgent.browser.isOperaChromium = module$contents$goog$labs$userAgent$browser_matchOperaChromium;
+var module$contents$goog$labs$userAgent$browser_isFirefox = module$contents$goog$labs$userAgent$browser_matchFirefox;
+goog.labs.userAgent.browser.isFirefox = module$contents$goog$labs$userAgent$browser_matchFirefox;
+var module$contents$goog$labs$userAgent$browser_isSafari = module$contents$goog$labs$userAgent$browser_matchSafari;
+goog.labs.userAgent.browser.isSafari = module$contents$goog$labs$userAgent$browser_matchSafari;
+var module$contents$goog$labs$userAgent$browser_isCoast = module$contents$goog$labs$userAgent$browser_matchCoast;
+goog.labs.userAgent.browser.isCoast = module$contents$goog$labs$userAgent$browser_matchCoast;
+var module$contents$goog$labs$userAgent$browser_isIosWebview = module$contents$goog$labs$userAgent$browser_matchIosWebview;
+goog.labs.userAgent.browser.isIosWebview = module$contents$goog$labs$userAgent$browser_matchIosWebview;
+var module$contents$goog$labs$userAgent$browser_isChrome = module$contents$goog$labs$userAgent$browser_matchChrome;
+goog.labs.userAgent.browser.isChrome = module$contents$goog$labs$userAgent$browser_matchChrome;
+var module$contents$goog$labs$userAgent$browser_isAndroidBrowser = module$contents$goog$labs$userAgent$browser_matchAndroidBrowser;
+goog.labs.userAgent.browser.isAndroidBrowser = module$contents$goog$labs$userAgent$browser_matchAndroidBrowser;
 function module$contents$goog$labs$userAgent$browser_isSilk() {
-  return module$contents$goog$labs$userAgent$browser_useUserAgentBrand() ? module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand("Silk") : module$contents$goog$labs$userAgent$util_matchUserAgent("Silk");
+  return module$contents$goog$labs$userAgent$util_matchUserAgent("Silk");
+}
+goog.labs.userAgent.browser.isSilk = module$contents$goog$labs$userAgent$browser_isSilk;
+function module$contents$goog$labs$userAgent$browser_createVersionMap(versionTuples) {
+  var versionMap = {};
+  versionTuples.forEach(function(tuple) {
+    versionMap[tuple[0]] = tuple[1];
+  });
+  return function(keys) {
+    return versionMap[keys.find(function(key) {
+      return key in versionMap;
+    })] || "";
+  };
 }
 function module$contents$goog$labs$userAgent$browser_getVersion() {
-  function lookUpValueWithKeys(keys) {
-    var key = module$contents$goog$array_find(keys, versionMapHasKey);
-    return versionMap[key] || "";
-  }
   var userAgentString = module$contents$goog$labs$userAgent$util_getUserAgent();
   if (module$contents$goog$labs$userAgent$browser_matchIE()) {
     return module$contents$goog$labs$userAgent$browser_getIEVersion(userAgentString);
   }
-  var versionTuples = module$contents$goog$labs$userAgent$util_extractVersionTuples(userAgentString), versionMap = {};
-  versionTuples.forEach(function(tuple) {
-    versionMap[tuple[0]] = tuple[1];
-  });
-  var versionMapHasKey = goog.partial(module$contents$goog$object_containsKey, versionMap);
+  var versionTuples = module$contents$goog$labs$userAgent$util_extractVersionTuples(userAgentString), lookUpValueWithKeys = module$contents$goog$labs$userAgent$browser_createVersionMap(versionTuples);
   if (module$contents$goog$labs$userAgent$browser_matchOpera()) {
     return lookUpValueWithKeys(["Version", "Opera"]);
   }
@@ -2900,6 +2945,10 @@ function module$contents$goog$labs$userAgent$browser_getVersion() {
   var tuple = versionTuples[2];
   return tuple && tuple[1] || "";
 }
+goog.labs.userAgent.browser.getVersion = module$contents$goog$labs$userAgent$browser_getVersion;
+goog.labs.userAgent.browser.isVersionOrHigher = function module$contents$goog$labs$userAgent$browser_isVersionOrHigher(version) {
+  return 0 <= (0,goog.string.internal.compareVersions)(module$contents$goog$labs$userAgent$browser_getVersion(), version);
+};
 function module$contents$goog$labs$userAgent$browser_getIEVersion(userAgent) {
   var rv = /rv: *([\d\.]*)/.exec(userAgent);
   if (rv && rv[1]) {
@@ -2932,21 +2981,125 @@ function module$contents$goog$labs$userAgent$browser_getIEVersion(userAgent) {
   }
   return version;
 }
-goog.labs.userAgent.browser.getVersion = module$contents$goog$labs$userAgent$browser_getVersion;
-goog.labs.userAgent.browser.isAndroidBrowser = module$contents$goog$labs$userAgent$browser_matchAndroidBrowser;
-goog.labs.userAgent.browser.isChrome = module$contents$goog$labs$userAgent$browser_matchChrome;
-goog.labs.userAgent.browser.isCoast = module$contents$goog$labs$userAgent$browser_matchCoast;
-goog.labs.userAgent.browser.isEdge = module$contents$goog$labs$userAgent$browser_matchEdgeHtml;
-goog.labs.userAgent.browser.isEdgeChromium = module$contents$goog$labs$userAgent$browser_matchEdgeChromium;
-goog.labs.userAgent.browser.isFirefox = module$contents$goog$labs$userAgent$browser_matchFirefox;
-goog.labs.userAgent.browser.isIE = module$contents$goog$labs$userAgent$browser_matchIE;
-goog.labs.userAgent.browser.isIosWebview = module$contents$goog$labs$userAgent$browser_matchIosWebview;
-goog.labs.userAgent.browser.isOpera = module$contents$goog$labs$userAgent$browser_matchOpera;
-goog.labs.userAgent.browser.isOperaChromium = module$contents$goog$labs$userAgent$browser_matchOperaChromium;
-goog.labs.userAgent.browser.isSafari = module$contents$goog$labs$userAgent$browser_matchSafari;
-goog.labs.userAgent.browser.isSilk = module$contents$goog$labs$userAgent$browser_isSilk;
-goog.labs.userAgent.browser.isVersionOrHigher = function module$contents$goog$labs$userAgent$browser_isVersionOrHigher(version) {
-  return 0 <= (0,goog.string.internal.compareVersions)(module$contents$goog$labs$userAgent$browser_getVersion(), version);
+function module$contents$goog$labs$userAgent$browser_getFullVersionFromUserAgentString(browser) {
+  var userAgentString = module$contents$goog$labs$userAgent$util_getUserAgent();
+  if (browser === module$contents$goog$labs$userAgent$browser_Brand.IE) {
+    return module$contents$goog$labs$userAgent$browser_matchIE() ? module$contents$goog$labs$userAgent$browser_getIEVersion(userAgentString) : "";
+  }
+  var versionTuples = module$contents$goog$labs$userAgent$util_extractVersionTuples(userAgentString), lookUpValueWithKeys = module$contents$goog$labs$userAgent$browser_createVersionMap(versionTuples);
+  switch(browser) {
+    case module$contents$goog$labs$userAgent$browser_Brand.OPERA:
+      if (module$contents$goog$labs$userAgent$browser_matchOpera()) {
+        return lookUpValueWithKeys(["Version", "Opera"]);
+      }
+      if (module$contents$goog$labs$userAgent$browser_matchOperaChromium()) {
+        return lookUpValueWithKeys(["OPR"]);
+      }
+      break;
+    case module$contents$goog$labs$userAgent$browser_Brand.EDGE:
+      if (module$contents$goog$labs$userAgent$browser_matchEdgeHtml()) {
+        return lookUpValueWithKeys(["Edge"]);
+      }
+      if (module$contents$goog$labs$userAgent$browser_matchEdgeChromium()) {
+        return lookUpValueWithKeys(["Edg"]);
+      }
+      break;
+    case module$contents$goog$labs$userAgent$browser_Brand.CHROMIUM:
+      if (module$contents$goog$labs$userAgent$browser_matchChrome()) {
+        return lookUpValueWithKeys(["Chrome", "CriOS", "HeadlessChrome"]);
+      }
+  }
+  if (browser === module$contents$goog$labs$userAgent$browser_Brand.FIREFOX && module$contents$goog$labs$userAgent$browser_matchFirefox() || browser === module$contents$goog$labs$userAgent$browser_Brand.SAFARI && module$contents$goog$labs$userAgent$browser_matchSafari() || browser === module$contents$goog$labs$userAgent$browser_Brand.ANDROID_BROWSER && module$contents$goog$labs$userAgent$browser_matchAndroidBrowser()) {
+    var tuple = versionTuples[2];
+    return tuple && tuple[1] || "";
+  }
+  return "";
+}
+function module$contents$goog$labs$userAgent$browser_versionOf(browser) {
+  if (module$contents$goog$labs$userAgent$browser_useUserAgentBrand()) {
+    var matchingBrand = module$contents$goog$labs$userAgent$util_getUserAgentData().brands.find(function($jscomp$destructuring$var2) {
+      return $jscomp$destructuring$var2.brand === browser;
+    });
+    if (!matchingBrand || !matchingBrand.version) {
+      return NaN;
+    }
+    var versionParts = matchingBrand.version.split(".");
+  } else {
+    var fullVersion = module$contents$goog$labs$userAgent$browser_getFullVersionFromUserAgentString(browser);
+    if ("" === fullVersion) {
+      return NaN;
+    }
+    versionParts = fullVersion.split(".");
+  }
+  return 0 === versionParts.length ? NaN : Number(versionParts[0]);
+}
+goog.labs.userAgent.browser.versionOf = module$contents$goog$labs$userAgent$browser_versionOf;
+var module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion = function(brand) {
+  this.brand_ = brand;
+};
+module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion.prototype.getIfLoaded = function() {
+  var $jscomp$this = this, loadedVersionList = module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.getIfLoaded();
+  if (void 0 !== loadedVersionList) {
+    var matchingBrand = loadedVersionList.find(function($jscomp$destructuring$var4) {
+      return $jscomp$this.brand_ === $jscomp$destructuring$var4.brand;
+    });
+    goog.asserts.assertExists(matchingBrand);
+    return new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(matchingBrand.version);
+  }
+};
+module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion.prototype.load = function() {
+  var $jscomp$async$this = this, loadedVersionList, matchingBrand;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context) {
+    if (1 == $jscomp$generator$context.nextAddress) {
+      return $jscomp$generator$context.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 2);
+    }
+    loadedVersionList = $jscomp$generator$context.yieldResult;
+    matchingBrand = loadedVersionList.find(function($jscomp$destructuring$var6) {
+      return $jscomp$async$this.brand_ === $jscomp$destructuring$var6.brand;
+    });
+    goog.asserts.assertExists(matchingBrand);
+    return $jscomp$generator$context.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(matchingBrand.version));
+  });
+};
+var module$contents$goog$labs$userAgent$browser_UserAgentStringFallbackBrandVersion = function(versionString) {
+  this.version_ = new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(versionString);
+};
+module$contents$goog$labs$userAgent$browser_UserAgentStringFallbackBrandVersion.prototype.getIfLoaded = function() {
+  return this.version_;
+};
+module$contents$goog$labs$userAgent$browser_UserAgentStringFallbackBrandVersion.prototype.load = function() {
+  var $jscomp$async$this = this;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context) {
+    return $jscomp$generator$context.return($jscomp$async$this.version_);
+  });
+};
+function module$contents$goog$labs$userAgent$browser_fullVersionOf(browser) {
+  if (!module$contents$goog$labs$userAgent$browser_useUserAgentBrand() || 101 > module$contents$goog$labs$userAgent$browser_versionOf(module$contents$goog$labs$userAgent$browser_Brand.CHROMIUM)) {
+    var fullVersionFromUserAgentString = module$contents$goog$labs$userAgent$browser_getFullVersionFromUserAgentString(browser);
+    return "" === fullVersionFromUserAgentString ? void 0 : new module$contents$goog$labs$userAgent$browser_UserAgentStringFallbackBrandVersion(fullVersionFromUserAgentString);
+  }
+  return module$contents$goog$labs$userAgent$util_getUserAgentData().brands.find(function($jscomp$destructuring$var8) {
+    return $jscomp$destructuring$var8.brand === browser;
+  }) ? new module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion(browser) : void 0;
+}
+goog.labs.userAgent.browser.fullVersionOf = module$contents$goog$labs$userAgent$browser_fullVersionOf;
+goog.labs.userAgent.browser.getVersionStringForLogging = function module$contents$goog$labs$userAgent$browser_getVersionStringForLogging(browser) {
+  if (module$contents$goog$labs$userAgent$browser_useUserAgentBrand()) {
+    var fullVersionObj = module$contents$goog$labs$userAgent$browser_fullVersionOf(browser);
+    if (fullVersionObj) {
+      var fullVersion = fullVersionObj.getIfLoaded();
+      if (fullVersion) {
+        return fullVersion.toVersionStringForLogging();
+      }
+      var matchingBrand = module$contents$goog$labs$userAgent$util_getUserAgentData().brands.find(function($jscomp$destructuring$var10) {
+        return $jscomp$destructuring$var10.brand === browser;
+      });
+      goog.asserts.assertExists(matchingBrand);
+      return matchingBrand.version;
+    }
+    return "";
+  }
+  return module$contents$goog$labs$userAgent$browser_getFullVersionFromUserAgentString(browser);
 };
 goog.labs.userAgent.engine = {};
 function module$contents$goog$labs$userAgent$engine_isPresto() {
@@ -3047,28 +3200,28 @@ function module$contents$goog$labs$userAgent$platform_getVersion() {
   } else {
     if (module$contents$goog$labs$userAgent$platform_isIos()) {
       re = /(?:iPhone|iPod|iPad|CPU)\s+OS\s+(\S+)/;
-      var match$34 = re.exec(userAgentString);
-      version = match$34 && match$34[1].replace(/_/g, ".");
+      var match$33 = re.exec(userAgentString);
+      version = match$33 && match$33[1].replace(/_/g, ".");
     } else {
       if (module$contents$goog$labs$userAgent$platform_isMacintosh()) {
         re = /Mac OS X ([0-9_.]+)/;
-        var match$35 = re.exec(userAgentString);
-        version = match$35 ? match$35[1].replace(/_/g, ".") : "10";
+        var match$34 = re.exec(userAgentString);
+        version = match$34 ? match$34[1].replace(/_/g, ".") : "10";
       } else {
         if (module$contents$goog$labs$userAgent$platform_isKaiOS()) {
           re = /(?:KaiOS)\/(\S+)/i;
-          var match$36 = re.exec(userAgentString);
-          version = match$36 && match$36[1];
+          var match$35 = re.exec(userAgentString);
+          version = match$35 && match$35[1];
         } else {
           if (module$contents$goog$labs$userAgent$platform_isAndroid()) {
             re = /Android\s+([^\);]+)(\)|;)/;
-            var match$37 = re.exec(userAgentString);
-            version = match$37 && match$37[1];
+            var match$36 = re.exec(userAgentString);
+            version = match$36 && match$36[1];
           } else {
             if (module$contents$goog$labs$userAgent$platform_isChromeOS()) {
               re = /(?:CrOS\s+(?:i686|x86_64)\s+([0-9.]+))/;
-              var match$38 = re.exec(userAgentString);
-              version = match$38 && match$38[1];
+              var match$37 = re.exec(userAgentString);
+              version = match$37 && match$37[1];
             }
           }
         }
@@ -3077,6 +3230,33 @@ function module$contents$goog$labs$userAgent$platform_getVersion() {
   }
   return version || "";
 }
+var module$contents$goog$labs$userAgent$platform_PlatformVersion = function() {
+};
+module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.getIfLoaded = function() {
+  if (module$contents$goog$labs$userAgent$util_getUserAgentData()) {
+    var loadedPlatformVersion = module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion.getIfLoaded();
+    if (void 0 !== loadedPlatformVersion) {
+      return new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(loadedPlatformVersion);
+    }
+  } else {
+    return new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(module$contents$goog$labs$userAgent$platform_getVersion());
+  }
+};
+module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.load = function() {
+  var JSCompiler_temp_const;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context) {
+    if (1 == $jscomp$generator$context.nextAddress) {
+      if (!module$contents$goog$labs$userAgent$util_getUserAgentData()) {
+        return $jscomp$generator$context.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(module$contents$goog$labs$userAgent$platform_getVersion()));
+        return $jscomp$generator$context.jumpTo(0);
+      }
+      JSCompiler_temp_const = module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version;
+      return $jscomp$generator$context.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion.load(), 3);
+    }
+    return $jscomp$generator$context.return(new JSCompiler_temp_const($jscomp$generator$context.yieldResult));
+  });
+};
+var module$contents$goog$labs$userAgent$platform_version = new module$contents$goog$labs$userAgent$platform_PlatformVersion();
 goog.labs.userAgent.platform.getVersion = module$contents$goog$labs$userAgent$platform_getVersion;
 goog.labs.userAgent.platform.isAndroid = module$contents$goog$labs$userAgent$platform_isAndroid;
 goog.labs.userAgent.platform.isChromeOS = module$contents$goog$labs$userAgent$platform_isChromeOS;
@@ -3094,6 +3274,7 @@ goog.labs.userAgent.platform.isVersionOrHigher = function module$contents$goog$l
   return 0 <= goog.string.internal.compareVersions(module$contents$goog$labs$userAgent$platform_getVersion(), version);
 };
 goog.labs.userAgent.platform.isWindows = module$contents$goog$labs$userAgent$platform_isWindows;
+goog.labs.userAgent.platform.version = module$contents$goog$labs$userAgent$platform_version;
 goog.reflect = {};
 goog.reflect.object = function(type, object) {
   return object;
@@ -3374,6 +3555,273 @@ goog.events.Listener.prototype.markAsRemoved = function() {
   this.removed = !0;
   this.handler = this.src = this.proxy = this.listener = null;
 };
+goog.object = {};
+function module$contents$goog$object_forEach(obj, f, opt_obj) {
+  for (var key in obj) {
+    f.call(opt_obj, obj[key], key, obj);
+  }
+}
+function module$contents$goog$object_filter(obj, f, opt_obj) {
+  var res = {}, key;
+  for (key in obj) {
+    f.call(opt_obj, obj[key], key, obj) && (res[key] = obj[key]);
+  }
+  return res;
+}
+function module$contents$goog$object_map(obj, f, opt_obj) {
+  var res = {}, key;
+  for (key in obj) {
+    res[key] = f.call(opt_obj, obj[key], key, obj);
+  }
+  return res;
+}
+function module$contents$goog$object_some(obj, f, opt_obj) {
+  for (var key in obj) {
+    if (f.call(opt_obj, obj[key], key, obj)) {
+      return !0;
+    }
+  }
+  return !1;
+}
+function module$contents$goog$object_getCount(obj) {
+  var rv = 0, key;
+  for (key in obj) {
+    rv++;
+  }
+  return rv;
+}
+function module$contents$goog$object_contains(obj, val) {
+  return module$contents$goog$object_containsValue(obj, val);
+}
+function module$contents$goog$object_getValues(obj) {
+  var res = [], i = 0, key;
+  for (key in obj) {
+    res[i++] = obj[key];
+  }
+  return res;
+}
+function module$contents$goog$object_getKeys(obj) {
+  var res = [], i = 0, key;
+  for (key in obj) {
+    res[i++] = key;
+  }
+  return res;
+}
+function module$contents$goog$object_containsKey(obj, key) {
+  return null !== obj && key in obj;
+}
+function module$contents$goog$object_containsValue(obj, val) {
+  for (var key in obj) {
+    if (obj[key] == val) {
+      return !0;
+    }
+  }
+  return !1;
+}
+function module$contents$goog$object_findKey(obj, f, thisObj) {
+  for (var key in obj) {
+    if (f.call(thisObj, obj[key], key, obj)) {
+      return key;
+    }
+  }
+}
+function module$contents$goog$object_isEmpty(obj) {
+  for (var key in obj) {
+    return !1;
+  }
+  return !0;
+}
+function module$contents$goog$object_clear(obj) {
+  for (var i in obj) {
+    delete obj[i];
+  }
+}
+function module$contents$goog$object_remove(obj, key) {
+  var rv;
+  (rv = key in obj) && delete obj[key];
+  return rv;
+}
+function module$contents$goog$object_set(obj, key, value) {
+  obj[key] = value;
+}
+function module$contents$goog$object_clone(obj) {
+  var res = {}, key;
+  for (key in obj) {
+    res[key] = obj[key];
+  }
+  return res;
+}
+function module$contents$goog$object_unsafeClone(obj) {
+  if (!obj || "object" !== typeof obj) {
+    return obj;
+  }
+  if ("function" === typeof obj.clone) {
+    return obj.clone();
+  }
+  if ("undefined" !== typeof Map && obj instanceof Map) {
+    return new Map(obj);
+  }
+  if ("undefined" !== typeof Set && obj instanceof Set) {
+    return new Set(obj);
+  }
+  var clone = Array.isArray(obj) ? [] : "function" !== typeof ArrayBuffer || "function" !== typeof ArrayBuffer.isView || !ArrayBuffer.isView(obj) || obj instanceof DataView ? {} : new obj.constructor(obj.length), key;
+  for (key in obj) {
+    clone[key] = module$contents$goog$object_unsafeClone(obj[key]);
+  }
+  return clone;
+}
+var module$contents$goog$object_PROTOTYPE_FIELDS = "constructor hasOwnProperty isPrototypeOf propertyIsEnumerable toLocaleString toString valueOf".split(" ");
+function module$contents$goog$object_extend(target, var_args) {
+  for (var key, source, i = 1; i < arguments.length; i++) {
+    source = arguments[i];
+    for (key in source) {
+      target[key] = source[key];
+    }
+    for (var j = 0; j < module$contents$goog$object_PROTOTYPE_FIELDS.length; j++) {
+      key = module$contents$goog$object_PROTOTYPE_FIELDS[j], Object.prototype.hasOwnProperty.call(source, key) && (target[key] = source[key]);
+    }
+  }
+}
+function module$contents$goog$object_create(var_args) {
+  var argLength = arguments.length;
+  if (1 == argLength && Array.isArray(arguments[0])) {
+    return module$contents$goog$object_create.apply(null, arguments[0]);
+  }
+  if (argLength % 2) {
+    throw Error("Uneven number of arguments");
+  }
+  for (var rv = {}, i = 0; i < argLength; i += 2) {
+    rv[arguments[i]] = arguments[i + 1];
+  }
+  return rv;
+}
+function module$contents$goog$object_createSet(var_args) {
+  var argLength = arguments.length;
+  if (1 == argLength && Array.isArray(arguments[0])) {
+    return module$contents$goog$object_createSet.apply(null, arguments[0]);
+  }
+  for (var rv = {}, i = 0; i < argLength; i++) {
+    rv[arguments[i]] = !0;
+  }
+  return rv;
+}
+goog.object.add = function module$contents$goog$object_add(obj, key, val) {
+  if (null !== obj && key in obj) {
+    throw Error('The object already contains the key "' + key + '"');
+  }
+  module$contents$goog$object_set(obj, key, val);
+};
+goog.object.clear = module$contents$goog$object_clear;
+goog.object.clone = module$contents$goog$object_clone;
+goog.object.contains = module$contents$goog$object_contains;
+goog.object.containsKey = module$contents$goog$object_containsKey;
+goog.object.containsValue = module$contents$goog$object_containsValue;
+goog.object.create = module$contents$goog$object_create;
+goog.object.createImmutableView = function module$contents$goog$object_createImmutableView(obj) {
+  var result = obj;
+  Object.isFrozen && !Object.isFrozen(obj) && (result = Object.create(obj), Object.freeze(result));
+  return result;
+};
+goog.object.createSet = module$contents$goog$object_createSet;
+goog.object.equals = function module$contents$goog$object_equals(a, b) {
+  for (var k in a) {
+    if (!(k in b) || a[k] !== b[k]) {
+      return !1;
+    }
+  }
+  for (var k$38 in b) {
+    if (!(k$38 in a)) {
+      return !1;
+    }
+  }
+  return !0;
+};
+goog.object.every = function module$contents$goog$object_every(obj, f, opt_obj) {
+  for (var key in obj) {
+    if (!f.call(opt_obj, obj[key], key, obj)) {
+      return !1;
+    }
+  }
+  return !0;
+};
+goog.object.extend = module$contents$goog$object_extend;
+goog.object.filter = module$contents$goog$object_filter;
+goog.object.findKey = module$contents$goog$object_findKey;
+goog.object.findValue = function module$contents$goog$object_findValue(obj, f, thisObj) {
+  var key = module$contents$goog$object_findKey(obj, f, thisObj);
+  return key && obj[key];
+};
+goog.object.forEach = module$contents$goog$object_forEach;
+goog.object.get = function module$contents$goog$object_get(obj, key, val) {
+  return null !== obj && key in obj ? obj[key] : val;
+};
+goog.object.getAllPropertyNames = function module$contents$goog$object_getAllPropertyNames(obj, includeObjectPrototype, includeFunctionPrototype) {
+  if (!obj) {
+    return [];
+  }
+  if (!Object.getOwnPropertyNames || !Object.getPrototypeOf) {
+    return module$contents$goog$object_getKeys(obj);
+  }
+  for (var visitedSet = {}, proto = obj; proto && (proto !== Object.prototype || includeObjectPrototype) && (proto !== Function.prototype || includeFunctionPrototype);) {
+    for (var names = Object.getOwnPropertyNames(proto), i = 0; i < names.length; i++) {
+      visitedSet[names[i]] = !0;
+    }
+    proto = Object.getPrototypeOf(proto);
+  }
+  return module$contents$goog$object_getKeys(visitedSet);
+};
+goog.object.getAnyKey = function module$contents$goog$object_getAnyKey(obj) {
+  for (var key in obj) {
+    return key;
+  }
+};
+goog.object.getAnyValue = function module$contents$goog$object_getAnyValue(obj) {
+  for (var key in obj) {
+    return obj[key];
+  }
+};
+goog.object.getCount = module$contents$goog$object_getCount;
+goog.object.getKeys = module$contents$goog$object_getKeys;
+goog.object.getSuperClass = function module$contents$goog$object_getSuperClass(constructor) {
+  var proto = Object.getPrototypeOf(constructor.prototype);
+  return proto && proto.constructor;
+};
+goog.object.getValueByKeys = function module$contents$goog$object_getValueByKeys(obj, var_args) {
+  for (var isArrayLike = goog.isArrayLike(var_args), keys = isArrayLike ? var_args : arguments, i = isArrayLike ? 0 : 1; i < keys.length; i++) {
+    if (null == obj) {
+      return;
+    }
+    obj = obj[keys[i]];
+  }
+  return obj;
+};
+goog.object.getValues = module$contents$goog$object_getValues;
+goog.object.isEmpty = module$contents$goog$object_isEmpty;
+goog.object.isImmutableView = function module$contents$goog$object_isImmutableView(obj) {
+  return !!Object.isFrozen && Object.isFrozen(obj);
+};
+goog.object.map = module$contents$goog$object_map;
+goog.object.remove = module$contents$goog$object_remove;
+goog.object.set = module$contents$goog$object_set;
+goog.object.setIfUndefined = function module$contents$goog$object_setIfUndefined(obj, key, value) {
+  return key in obj ? obj[key] : obj[key] = value;
+};
+goog.object.setWithReturnValueIfNotSet = function module$contents$goog$object_setWithReturnValueIfNotSet(obj, key, f) {
+  if (key in obj) {
+    return obj[key];
+  }
+  var val = f();
+  return obj[key] = val;
+};
+goog.object.some = module$contents$goog$object_some;
+goog.object.transpose = function module$contents$goog$object_transpose(obj) {
+  var transposed = {}, key;
+  for (key in obj) {
+    transposed[obj[key]] = key;
+  }
+  return transposed;
+};
+goog.object.unsafeClone = module$contents$goog$object_unsafeClone;
 goog.events.ListenerMap = function(src) {
   this.src = src;
   this.listeners = {};
@@ -6573,7 +7021,7 @@ function module$contents$goog$html$SafeStyle_hasBalancedSquareBrackets(value) {
   }
   return outside;
 }
-var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-,.\"'%_!# a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|var)\\([-+*/0-9a-z.%\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
+var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-,.\"'%_!# a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|var)\\([-+*/0-9a-z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
 /\/\*/;
 function module$contents$goog$html$SafeStyle_sanitizeUrl(value) {
   return value.replace(module$contents$goog$html$SafeStyle_URL_RE, function(match$jscomp$0, before, url, after) {
@@ -7501,7 +7949,7 @@ goog.collections.maps.MapLike = module$contents$goog$collections$maps_MapLike;
 goog.collections.maps.setAll = function module$contents$goog$collections$maps_setAll(map, entries) {
   if (entries) {
     for (var $jscomp$iter$10 = $jscomp.makeIterator(entries), $jscomp$key$ = $jscomp$iter$10.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$10.next()) {
-      var $jscomp$destructuring$var3 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var3.next().value, v = $jscomp$destructuring$var3.next().value;
+      var $jscomp$destructuring$var13 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var13.next().value, v = $jscomp$destructuring$var13.next().value;
       map.set(k, v);
     }
   }
@@ -8275,7 +8723,7 @@ function module$contents$eeapiclient$request_params_processParams(params) {
 module$exports$eeapiclient$request_params.processParams = module$contents$eeapiclient$request_params_processParams;
 function module$contents$eeapiclient$request_params_buildQueryParams(params, mapping, passthroughParams) {
   for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$15 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$ = $jscomp$iter$15.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$15.next()) {
-    var $jscomp$destructuring$var5 = $jscomp.makeIterator($jscomp$key$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var5.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var5.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
+    var $jscomp$destructuring$var15 = $jscomp.makeIterator($jscomp$key$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var15.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var15.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
     jsName in params && (urlQueryParams[urlQueryParamName] = params[jsName]);
   }
   return urlQueryParams;
@@ -8287,7 +8735,7 @@ module$exports$eeapiclient$request_params.bypassCorsPreflight = function module$
   if (params.headers) {
     hasContentType = null != params.headers["Content-Type"];
     for (var $jscomp$iter$16 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$ = $jscomp$iter$16.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$16.next()) {
-      var $jscomp$destructuring$var7 = $jscomp.makeIterator($jscomp$key$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var7.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var7.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
+      var $jscomp$destructuring$var17 = $jscomp.makeIterator($jscomp$key$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var17.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var17.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
       module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders.includes(key) ? (safeHeaders[key] = value, hasSafeHeaders = !0) : (unsafeHeaders[key] = value, hasUnsafeHeaders = !0);
     }
   }
@@ -16057,7 +16505,7 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   }), contentIsFormData = goog.global.FormData && content instanceof goog.global.FormData;
   !module$contents$goog$array_contains(goog.net.XhrIo.METHODS_WITH_FORM_DATA, method) || contentTypeKey || contentIsFormData || headers.set(goog.net.XhrIo.CONTENT_TYPE_HEADER, goog.net.XhrIo.FORM_CONTENT_TYPE);
   for (var $jscomp$iter$19 = $jscomp.makeIterator(headers), $jscomp$key$ = $jscomp$iter$19.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$19.next()) {
-    var $jscomp$destructuring$var9 = $jscomp.makeIterator($jscomp$key$.value), key$53 = $jscomp$destructuring$var9.next().value, value = $jscomp$destructuring$var9.next().value;
+    var $jscomp$destructuring$var19 = $jscomp.makeIterator($jscomp$key$.value), key$53 = $jscomp$destructuring$var19.next().value, value = $jscomp$destructuring$var19.next().value;
     this.xhr_.setRequestHeader(key$53, value);
   }
   this.responseType_ && (this.xhr_.responseType = this.responseType_);
@@ -16295,7 +16743,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.286";
+ee.apiclient.API_CLIENT_VERSION = "0.1.287";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -16417,13 +16865,13 @@ var module$contents$ee$apiclient_BatchCall = function(callback) {
 };
 $jscomp.inherits(module$contents$ee$apiclient_BatchCall, module$contents$ee$apiclient_Call);
 module$contents$ee$apiclient_BatchCall.prototype.send = function(parts, getResponse) {
-  var $jscomp$this = this, batchUrl = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + "/batch", body = parts.map(function($jscomp$destructuring$var10) {
-    var $jscomp$destructuring$var11 = $jscomp.makeIterator($jscomp$destructuring$var10), id = $jscomp$destructuring$var11.next().value, $jscomp$destructuring$var12 = $jscomp.makeIterator($jscomp$destructuring$var11.next().value), partBody = $jscomp$destructuring$var12.next().value, ctor = $jscomp$destructuring$var12.next().value;
+  var $jscomp$this = this, batchUrl = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + "/batch", body = parts.map(function($jscomp$destructuring$var20) {
+    var $jscomp$destructuring$var21 = $jscomp.makeIterator($jscomp$destructuring$var20), id = $jscomp$destructuring$var21.next().value, $jscomp$destructuring$var22 = $jscomp.makeIterator($jscomp$destructuring$var21.next().value), partBody = $jscomp$destructuring$var22.next().value, ctor = $jscomp$destructuring$var22.next().value;
     return "--batch_EARTHENGINE_batch\r\nContent-Type: application/http\r\nContent-Transfer-Encoding: binary\r\nMIME-Version: 1.0\r\nContent-ID: <" + id + ">\r\n\r\n" + partBody + "\r\n";
   }).join("") + "--batch_EARTHENGINE_batch--\r\n", deserializeResponses = function(response) {
     var result = {};
-    parts.forEach(function($jscomp$destructuring$var13) {
-      var $jscomp$destructuring$var14 = $jscomp.makeIterator($jscomp$destructuring$var13), id = $jscomp$destructuring$var14.next().value, $jscomp$destructuring$var15 = $jscomp.makeIterator($jscomp$destructuring$var14.next().value), partBody = $jscomp$destructuring$var15.next().value, ctor = $jscomp$destructuring$var15.next().value;
+    parts.forEach(function($jscomp$destructuring$var23) {
+      var $jscomp$destructuring$var24 = $jscomp.makeIterator($jscomp$destructuring$var23), id = $jscomp$destructuring$var24.next().value, $jscomp$destructuring$var25 = $jscomp.makeIterator($jscomp$destructuring$var24.next().value), partBody = $jscomp$destructuring$var25.next().value, ctor = $jscomp$destructuring$var25.next().value;
       null != response[id] && (result[id] = module$contents$eeapiclient$domain_object_deserialize(ctor, response[id]));
     });
     return getResponse ? getResponse(result) : result;
@@ -16576,8 +17024,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.286";
-  "0.1.286" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.287";
+  "0.1.287" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -16728,7 +17176,7 @@ module$contents$ee$apiclient_apiclient.handleAuthResult_ = function(success, err
 };
 module$contents$ee$apiclient_apiclient.makeRequest_ = function(params) {
   for (var request = new goog.Uri.QueryData(), $jscomp$iter$21 = $jscomp.makeIterator(Object.entries(params)), $jscomp$key$ = $jscomp$iter$21.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$21.next()) {
-    var $jscomp$destructuring$var17 = $jscomp.makeIterator($jscomp$key$.value), name = $jscomp$destructuring$var17.next().value, item = $jscomp$destructuring$var17.next().value;
+    var $jscomp$destructuring$var27 = $jscomp.makeIterator($jscomp$key$.value), name = $jscomp$destructuring$var27.next().value, item = $jscomp$destructuring$var27.next().value;
     request.set(name, item);
   }
   return request;
@@ -17204,8 +17652,8 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   "string" !== typeof value$jscomp$0 && null !== value$jscomp$0 || null != properties.title || (properties.title = asNull(value$jscomp$0) || value$jscomp$0);
   extractValue("system:description");
   "string" !== typeof value$jscomp$0 && null !== value$jscomp$0 || null != properties.description || (properties.description = asNull(value$jscomp$0) || value$jscomp$0);
-  Object.entries(properties).forEach(function($jscomp$destructuring$var18) {
-    var $jscomp$destructuring$var19 = $jscomp.makeIterator($jscomp$destructuring$var18), key = $jscomp$destructuring$var19.next().value, value = $jscomp$destructuring$var19.next().value;
+  Object.entries(properties).forEach(function($jscomp$destructuring$var28) {
+    var $jscomp$destructuring$var29 = $jscomp.makeIterator($jscomp$destructuring$var28), key = $jscomp$destructuring$var29.next().value, value = $jscomp$destructuring$var29.next().value;
     properties[key] = asNull(value) || value;
   });
   asset.properties = properties;
@@ -17740,7 +18188,7 @@ ee.Serializer.encodeCloudApiPretty = function(obj) {
       return object;
     }
     for (var ret = Array.isArray(object) ? [] : {}, isNode = object instanceof Object.getPrototypeOf(module$exports$eeapiclient$ee_api_client.ValueNode), $jscomp$iter$24 = $jscomp.makeIterator(Object.entries(isNode ? object.Serializable$values : object)), $jscomp$key$ = $jscomp$iter$24.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$24.next()) {
-      var $jscomp$destructuring$var21 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var21.next().value, val = $jscomp$destructuring$var21.next().value;
+      var $jscomp$destructuring$var31 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var31.next().value, val = $jscomp$destructuring$var31.next().value;
       isNode ? null !== val && (ret[key] = "functionDefinitionValue" === key && null != val.body ? {argumentNames:val.argumentNames, body:walkObject(values[val.body])} : "functionInvocationValue" === key && null != val.functionReference ? {arguments:module$contents$goog$object_map(val.arguments, walkObject), functionReference:walkObject(values[val.functionReference])} : "constantValue" === key ? val === module$exports$eeapiclient$domain_object.NULL_VALUE ? 
       null : val : walkObject(val)) : ret[key] = walkObject(val);
     }
@@ -17850,7 +18298,7 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   }
   if (null != value.dictionaryValue) {
     for (var values = {}, constantValues = {}, $jscomp$iter$25 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$25.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$25.next()) {
-      var $jscomp$destructuring$var23 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var23.next().value, v$jscomp$0 = $jscomp$destructuring$var23.next().value;
+      var $jscomp$destructuring$var33 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var33.next().value, v$jscomp$0 = $jscomp$destructuring$var33.next().value;
       values[k] = this.optimizeValue(v$jscomp$0, depth + 3);
       null !== constantValues && isConst(values[k]) ? constantValues[k] = serializeConst(values[k].constantValue) : constantValues = null;
     }
@@ -18335,8 +18783,8 @@ ee.data.getDownloadId = function(params, opt_callback) {
   }) && (params.bands = params.bands.map(function(band) {
     return {id:band};
   }));
-  if (params.bands && params.bands.some(function($jscomp$destructuring$var24) {
-    return null == $jscomp$destructuring$var24.id;
+  if (params.bands && params.bands.some(function($jscomp$destructuring$var34) {
+    return null == $jscomp$destructuring$var34.id;
   })) {
     throw Error("Each band dictionary must have an id.");
   }
@@ -20878,7 +21326,7 @@ module$contents$ee$batch_Export.prefixImageFormatOptions_ = function(taskConfig,
     throw Error("Parameter specified at least twice: once in config, and once in config format options.");
   }
   for (var prefix = module$contents$ee$batch_FORMAT_PREFIX_MAP[imageFormat], validOptionKeys = module$contents$ee$batch_FORMAT_OPTIONS_MAP[imageFormat], prefixedOptions = {}, $jscomp$iter$27 = $jscomp.makeIterator(Object.entries(formatOptions)), $jscomp$key$ = $jscomp$iter$27.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$27.next()) {
-    var $jscomp$destructuring$var27 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var27.next().value, value = $jscomp$destructuring$var27.next().value;
+    var $jscomp$destructuring$var37 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var37.next().value, value = $jscomp$destructuring$var37.next().value;
     if (!module$contents$goog$array_contains(validOptionKeys, key$jscomp$0)) {
       var validKeysMsg = validOptionKeys.join(", ");
       throw Error('"' + key$jscomp$0 + '" is not a valid option, the image format "' + imageFormat + '""may have the following options: ' + (validKeysMsg + '".'));
@@ -23976,27 +24424,28 @@ ee.data.Profiler.Format.prototype.toString = function() {
 ee.data.Profiler.Format.TEXT = new ee.data.Profiler.Format("text");
 ee.data.Profiler.Format.JSON = new ee.data.Profiler.Format("json");
 (function() {
-  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction._apply ee.ApiFunction.lookup ee.ApiFunction._call ee.batch.Export.table.toDrive ee.batch.Export.table.toCloudStorage ee.batch.Export.table.toDmsLayer ee.batch.Export.image.toAsset ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.video.toCloudStorage ee.batch.Export.classifier.toAsset ee.batch.Export.image.toCloudStorage ee.batch.Export.video.toDrive ee.batch.Export.image.toDrive ee.batch.Export.table.toAsset ee.batch.Export.map.toCloudStorage ee.Collection.prototype.limit ee.Collection.prototype.map ee.Collection.prototype.filterMetadata ee.Collection.prototype.sort ee.Collection.prototype.filterDate ee.Collection.prototype.filterBounds ee.Collection.prototype.iterate ee.Collection.prototype.filter ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.serialize ee.data.setAssetProperties ee.data.deleteAsset ee.data.createAssetHome ee.data.getTileUrl ee.data.getAssetRootQuota ee.data.getVideoThumbId ee.data.getList ee.data.getFilmstripThumbId ee.data.cancelOperation ee.data.createAsset ee.data.getThumbId ee.data.getTableDownloadId ee.data.listAssets ee.data.makeThumbUrl ee.data.getOperation ee.data.getAssetRoots ee.data.updateTask ee.data.createFolder ee.data.getDownloadId ee.data.getAssetAcl ee.data.listImages ee.data.cancelTask ee.data.getDmsTilesKey ee.data.renameAsset ee.data.setAssetAcl ee.data.makeDownloadUrl ee.data.startProcessing ee.data.updateAsset ee.data.computeValue ee.data.copyAsset ee.data.makeTableDownloadUrl ee.data.listBuckets ee.data.startIngestion ee.data.newTaskId ee.data.authenticateViaOauth ee.data.authenticateViaPrivateKey ee.data.authenticateViaPopup ee.data.authenticate ee.data.getTaskStatus ee.data.startTableIngestion ee.data.getMapId ee.data.listOperations ee.data.getInfo ee.data.getAsset ee.data.getTaskListWithLimit ee.data.getTaskList ee.Date ee.Deserializer.fromCloudApiJSON ee.Deserializer.decode ee.Deserializer.fromJSON ee.Deserializer.decodeCloudApi ee.Dictionary ee.call ee.reset ee.initialize ee.TILE_SIZE ee.InitState ee.apply ee.Algorithms ee.Element.prototype.set ee.Feature ee.Feature.prototype.getInfo ee.Feature.prototype.getMap ee.FeatureCollection.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.getDownloadURL ee.Filter.or ee.Filter.prototype.not ee.Filter.lt ee.Filter.date ee.Filter.bounds ee.Filter.eq ee.Filter.gte ee.Filter.lte ee.Filter.and ee.Filter.metadata ee.Filter ee.Filter.inList ee.Filter.neq ee.Filter.gt ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry.MultiLineString ee.Geometry.prototype.toGeoJSON ee.Geometry.BBox ee.Geometry ee.Geometry.prototype.toGeoJSONString ee.Geometry.Polygon ee.Geometry.MultiPolygon ee.Geometry.Point ee.Geometry.prototype.serialize ee.Geometry.Rectangle ee.Geometry.LinearRing ee.Geometry.MultiPoint ee.Geometry.LineString ee.Image.prototype.rename ee.Image.prototype.getDownloadURL ee.Image.prototype.select ee.Image.prototype.clip ee.Image.prototype.getMap ee.Image.cat ee.Image.prototype.getThumbId ee.Image.prototype.expression ee.Image ee.Image.rgb ee.Image.prototype.getThumbURL ee.Image.prototype.getInfo ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection ee.ImageCollection.prototype.first ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.select ee.List ee.Number ee.Serializer.encodeCloudApiPretty ee.Serializer.toReadableCloudApiJSON ee.Serializer.toCloudApiJSON ee.Serializer.encode ee.Serializer.toJSON ee.Serializer.encodeCloudApi ee.Serializer.toReadableJSON ee.String ee.Terrain".split(" "), 
-  orderedParamLists = [["name", "namedArgs"], ["name"], ["name", "var_args"], "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices".split(" "), ["collection", "opt_description", "opt_assetId", "opt_maxVertices"], "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize".split(" "), 
-  "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), 
-  ["classifier", "opt_description", "opt_assetId"], "image opt_description opt_bucket opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), "image opt_description opt_folder opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), 
-  ["collection", "opt_description", "opt_assetId", "opt_maxVertices"], "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey opt_bucketCorsUris".split(" "), ["max", "opt_property", "opt_ascending"], ["algorithm", "opt_dropNulls"], ["name", "operator", "value"], ["property", "opt_ascending"], ["start", "opt_end"], ["geometry"], ["algorithm", "opt_first"], ["filter"], ["func", "var_args"], ["callback"], 
-  ["opt_callback"], ["legacy"], ["assetId", "properties", "opt_callback"], ["assetId", "opt_callback"], ["requestedId", "opt_callback"], ["id", "x", "y", "z"], ["rootId", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["operationName", "opt_callback"], ["value", "opt_path", "opt_force", "opt_properties", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["parent", "params", "opt_callback"], ["id"], ["operationName", "opt_callback"], 
-  ["opt_callback"], ["taskId", "action", "opt_callback"], ["path", "opt_force", "opt_callback"], ["params", "opt_callback"], ["assetId", "opt_callback"], ["parent", "params", "opt_callback"], ["taskId", "opt_callback"], ["params", "opt_callback"], ["sourceId", "destinationId", "opt_callback"], ["assetId", "aclUpdate", "opt_callback"], ["id"], ["taskId", "params", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["obj", "opt_callback"], ["sourceId", "destinationId", "opt_overwrite", 
-  "opt_callback"], ["id"], ["project", "opt_callback"], ["taskId", "request", "opt_callback"], ["opt_count", "opt_callback"], "clientId success opt_error opt_extraScopes opt_onImmediateFailed opt_suppressDefaultScopes".split(" "), ["privateKey", "opt_success", "opt_error", "opt_extraScopes", "opt_suppressDefaultScopes"], ["opt_success", "opt_error"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["taskId", "opt_callback"], ["taskId", "request", "opt_callback"], 
-  ["params", "opt_callback"], ["opt_limit", "opt_callback"], ["id", "opt_callback"], ["id", "opt_callback"], ["opt_limit", "opt_callback"], ["opt_callback"], ["date", "opt_tz"], ["json"], ["json"], ["json"], ["json"], ["opt_dict"], ["func", "var_args"], [], "opt_baseurl opt_tileurl opt_successCallback opt_errorCallback opt_xsrfToken opt_project".split(" "), [], [], ["func", "namedArgs"], [], ["var_args"], ["geometry", "opt_properties"], ["opt_callback"], ["opt_visParams", "opt_callback"], ["opt_callback"], 
-  ["args", "opt_column"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["opt_visParams", "opt_callback"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["var_args"], [], ["name", "value"], ["start", "opt_end"], ["geometry", "opt_errorMargin"], ["name", "value"], ["name", "value"], ["name", "value"], ["var_args"], ["name", "operator", "value"], ["opt_filter"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], ["name", "value"], ["name", 
-  "value"], ["namedArgs"], ["var_args"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], ["west", "south", "east", "north"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj"], ["legacy"], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj"], 
-  ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["var_args"], ["params", "opt_callback"], ["var_args"], ["geometry"], ["opt_visParams", "opt_callback"], ["var_args"], ["params", "opt_callback"], ["expression", "opt_map"], ["opt_args"], ["r", "g", "b"], ["params", "opt_callback"], ["opt_callback"], ["params", "opt_callback"], ["opt_callback"], ["params", "opt_callback"], ["args"], [], ["opt_visParams", "opt_callback"], ["selectors", "opt_names"], ["list"], ["number"], ["obj"], ["obj"], ["obj"], 
-  ["obj", "opt_isCompound"], ["obj"], ["obj"], ["obj"], ["string"], []];
-  [ee.ApiFunction._apply, ee.ApiFunction.lookup, ee.ApiFunction._call, module$contents$ee$batch_Export.table.toDrive, module$contents$ee$batch_Export.table.toCloudStorage, module$contents$ee$batch_Export.table.toDmsLayer, module$contents$ee$batch_Export.image.toAsset, module$contents$ee$batch_Export.videoMap.toCloudStorage, module$contents$ee$batch_Export.video.toCloudStorage, module$contents$ee$batch_Export.classifier.toAsset, module$contents$ee$batch_Export.image.toCloudStorage, module$contents$ee$batch_Export.video.toDrive, 
-  module$contents$ee$batch_Export.image.toDrive, module$contents$ee$batch_Export.table.toAsset, module$contents$ee$batch_Export.map.toCloudStorage, ee.Collection.prototype.limit, ee.Collection.prototype.map, ee.Collection.prototype.filterMetadata, ee.Collection.prototype.sort, ee.Collection.prototype.filterDate, ee.Collection.prototype.filterBounds, ee.Collection.prototype.iterate, ee.Collection.prototype.filter, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.evaluate, ee.ComputedObject.prototype.getInfo, 
-  ee.ComputedObject.prototype.serialize, ee.data.setAssetProperties, ee.data.deleteAsset, ee.data.createAssetHome, ee.data.getTileUrl, ee.data.getAssetRootQuota, ee.data.getVideoThumbId, ee.data.getList, ee.data.getFilmstripThumbId, ee.data.cancelOperation, ee.data.createAsset, ee.data.getThumbId, ee.data.getTableDownloadId, ee.data.listAssets, ee.data.makeThumbUrl, ee.data.getOperation, ee.data.getAssetRoots, ee.data.updateTask, ee.data.createFolder, ee.data.getDownloadId, ee.data.getAssetAcl, ee.data.listImages, 
-  ee.data.cancelTask, ee.data.getDmsTilesKey, ee.data.renameAsset, ee.data.setAssetAcl, ee.data.makeDownloadUrl, ee.data.startProcessing, ee.data.updateAsset, ee.data.computeValue, ee.data.copyAsset, ee.data.makeTableDownloadUrl, ee.data.listBuckets, ee.data.startIngestion, ee.data.newTaskId, ee.data.authenticateViaOauth, ee.data.authenticateViaPrivateKey, ee.data.authenticateViaPopup, ee.data.authenticate, ee.data.getTaskStatus, ee.data.startTableIngestion, ee.data.getMapId, ee.data.listOperations, 
-  ee.data.getInfo, ee.data.getAsset, ee.data.getTaskListWithLimit, ee.data.getTaskList, ee.Date, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.decode, ee.Deserializer.fromJSON, ee.Deserializer.decodeCloudApi, ee.Dictionary, ee.call, ee.reset, ee.initialize, ee.TILE_SIZE, ee.InitState, ee.apply, ee.Algorithms, ee.Element.prototype.set, ee.Feature, ee.Feature.prototype.getInfo, ee.Feature.prototype.getMap, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection, ee.FeatureCollection.prototype.select, 
-  ee.FeatureCollection.prototype.getMap, ee.FeatureCollection.prototype.getDownloadURL, ee.Filter.or, ee.Filter.prototype.not, ee.Filter.lt, ee.Filter.date, ee.Filter.bounds, ee.Filter.eq, ee.Filter.gte, ee.Filter.lte, ee.Filter.and, ee.Filter.metadata, ee.Filter, ee.Filter.inList, ee.Filter.neq, ee.Filter.gt, ee.Function.prototype.apply, ee.Function.prototype.call, ee.Geometry.MultiLineString, ee.Geometry.prototype.toGeoJSON, ee.Geometry.BBox, ee.Geometry, ee.Geometry.prototype.toGeoJSONString, 
-  ee.Geometry.Polygon, ee.Geometry.MultiPolygon, ee.Geometry.Point, ee.Geometry.prototype.serialize, ee.Geometry.Rectangle, ee.Geometry.LinearRing, ee.Geometry.MultiPoint, ee.Geometry.LineString, ee.Image.prototype.rename, ee.Image.prototype.getDownloadURL, ee.Image.prototype.select, ee.Image.prototype.clip, ee.Image.prototype.getMap, ee.Image.cat, ee.Image.prototype.getThumbId, ee.Image.prototype.expression, ee.Image, ee.Image.rgb, ee.Image.prototype.getThumbURL, ee.Image.prototype.getInfo, ee.ImageCollection.prototype.getFilmstripThumbURL, 
-  ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection, ee.ImageCollection.prototype.first, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.select, ee.List, ee.Number, ee.Serializer.encodeCloudApiPretty, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.toCloudApiJSON, ee.Serializer.encode, ee.Serializer.toJSON, ee.Serializer.encodeCloudApi, ee.Serializer.toReadableJSON, ee.String, ee.Terrain].forEach(function(fn, i) {
+  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction._call ee.ApiFunction._apply ee.ApiFunction.lookup ee.batch.Export.table.toDmsLayer ee.batch.Export.image.toAsset ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.table.toAsset ee.batch.Export.video.toCloudStorage ee.batch.Export.image.toCloudStorage ee.batch.Export.classifier.toAsset ee.batch.Export.image.toDrive ee.batch.Export.video.toDrive ee.batch.Export.map.toCloudStorage ee.batch.Export.table.toCloudStorage ee.batch.Export.table.toDrive ee.Collection.prototype.filter ee.Collection.prototype.filterBounds ee.Collection.prototype.limit ee.Collection.prototype.map ee.Collection.prototype.iterate ee.Collection.prototype.filterMetadata ee.Collection.prototype.sort ee.Collection.prototype.filterDate ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.evaluate ee.data.setAssetProperties ee.data.getAssetRootQuota ee.data.getVideoThumbId ee.data.authenticateViaPrivateKey ee.data.getFilmstripThumbId ee.data.getTileUrl ee.data.copyAsset ee.data.makeThumbUrl ee.data.getMapId ee.data.getThumbId ee.data.getAssetAcl ee.data.getDownloadId ee.data.getTableDownloadId ee.data.getDmsTilesKey ee.data.makeTableDownloadUrl ee.data.makeDownloadUrl ee.data.computeValue ee.data.deleteAsset ee.data.createAssetHome ee.data.startIngestion ee.data.newTaskId ee.data.getList ee.data.authenticateViaOauth ee.data.authenticate ee.data.cancelOperation ee.data.authenticateViaPopup ee.data.createAsset ee.data.getTaskStatus ee.data.listAssets ee.data.getOperation ee.data.getInfo ee.data.getAssetRoots ee.data.startTableIngestion ee.data.createFolder ee.data.updateTask ee.data.setAssetAcl ee.data.listOperations ee.data.listImages ee.data.getTaskList ee.data.cancelTask ee.data.listBuckets ee.data.renameAsset ee.data.startProcessing ee.data.updateAsset ee.data.getAsset ee.data.getTaskListWithLimit ee.Date ee.Deserializer.fromCloudApiJSON ee.Deserializer.decode ee.Deserializer.decodeCloudApi ee.Deserializer.fromJSON ee.Dictionary ee.reset ee.call ee.initialize ee.TILE_SIZE ee.InitState ee.apply ee.Algorithms ee.Element.prototype.set ee.Feature ee.Feature.prototype.getMap ee.Feature.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.getInfo ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getMap ee.Filter.neq ee.Filter.or ee.Filter.lt ee.Filter.date ee.Filter.prototype.not ee.Filter.lte ee.Filter.eq ee.Filter.gte ee.Filter.gt ee.Filter.and ee.Filter.metadata ee.Filter ee.Filter.inList ee.Filter.bounds ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry ee.Geometry.prototype.toGeoJSON ee.Geometry.MultiPolygon ee.Geometry.LinearRing ee.Geometry.BBox ee.Geometry.prototype.toGeoJSONString ee.Geometry.Polygon ee.Geometry.MultiPoint ee.Geometry.prototype.serialize ee.Geometry.MultiLineString ee.Geometry.LineString ee.Geometry.Point ee.Geometry.Rectangle ee.Image.prototype.getInfo ee.Image ee.Image.prototype.rename ee.Image.cat ee.Image.prototype.getDownloadURL ee.Image.prototype.getMap ee.Image.prototype.select ee.Image.prototype.getThumbURL ee.Image.prototype.expression ee.Image.prototype.getThumbId ee.Image.prototype.clip ee.Image.rgb ee.ImageCollection.prototype.first ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.select ee.ImageCollection ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection.prototype.getVideoThumbURL ee.List ee.Number ee.Serializer.encodeCloudApi ee.Serializer.encodeCloudApiPretty ee.Serializer.toReadableCloudApiJSON ee.Serializer.toCloudApiJSON ee.Serializer.toJSON ee.Serializer.encode ee.Serializer.toReadableJSON ee.String ee.Terrain".split(" "), 
+  orderedParamLists = [["name", "var_args"], ["name", "namedArgs"], ["name"], ["collection", "opt_description", "opt_assetId", "opt_maxVertices"], "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris".split(" "), 
+  ["collection", "opt_description", "opt_assetId", "opt_maxVertices"], "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), "image opt_description opt_bucket opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), ["classifier", "opt_description", 
+  "opt_assetId"], "image opt_description opt_folder opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey opt_bucketCorsUris".split(" "), 
+  "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices".split(" "), ["filter"], ["geometry"], ["max", "opt_property", "opt_ascending"], ["algorithm", "opt_dropNulls"], ["algorithm", "opt_first"], ["name", "operator", "value"], ["property", "opt_ascending"], ["start", "opt_end"], ["opt_callback"], ["func", "var_args"], ["legacy"], ["callback"], 
+  ["assetId", "properties", "opt_callback"], ["rootId", "opt_callback"], ["params", "opt_callback"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes", "opt_suppressDefaultScopes"], ["params", "opt_callback"], ["id", "x", "y", "z"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["id"], ["params", "opt_callback"], ["params", "opt_callback"], ["assetId", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["id"], ["id"], 
+  ["obj", "opt_callback"], ["assetId", "opt_callback"], ["requestedId", "opt_callback"], ["taskId", "request", "opt_callback"], ["opt_count", "opt_callback"], ["params", "opt_callback"], "clientId success opt_error opt_extraScopes opt_onImmediateFailed opt_suppressDefaultScopes".split(" "), ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["operationName", "opt_callback"], ["opt_success", "opt_error"], ["value", "opt_path", "opt_force", "opt_properties", "opt_callback"], 
+  ["taskId", "opt_callback"], ["parent", "params", "opt_callback"], ["operationName", "opt_callback"], ["id", "opt_callback"], ["opt_callback"], ["taskId", "request", "opt_callback"], ["path", "opt_force", "opt_callback"], ["taskId", "action", "opt_callback"], ["assetId", "aclUpdate", "opt_callback"], ["opt_limit", "opt_callback"], ["parent", "params", "opt_callback"], ["opt_callback"], ["taskId", "opt_callback"], ["project", "opt_callback"], ["sourceId", "destinationId", "opt_callback"], ["taskId", 
+  "params", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["id", "opt_callback"], ["opt_limit", "opt_callback"], ["date", "opt_tz"], ["json"], ["json"], ["json"], ["json"], ["opt_dict"], [], ["func", "var_args"], "opt_baseurl opt_tileurl opt_successCallback opt_errorCallback opt_xsrfToken opt_project".split(" "), [], [], ["func", "namedArgs"], [], ["var_args"], ["geometry", "opt_properties"], ["opt_visParams", "opt_callback"], ["opt_callback"], ["args", "opt_column"], ["opt_callback"], 
+  ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["opt_visParams", "opt_callback"], ["name", "value"], ["var_args"], ["name", "value"], ["start", "opt_end"], [], ["name", "value"], ["name", "value"], ["name", "value"], ["name", "value"], ["var_args"], ["name", "operator", "value"], ["opt_filter"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], ["geometry", "opt_errorMargin"], ["namedArgs"], 
+  ["var_args"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["west", "south", "east", "north"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj"], ["legacy"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj"], ["coords", "opt_proj", 
+  "opt_geodesic", "opt_evenOdd"], ["opt_callback"], ["opt_args"], ["var_args"], ["var_args"], ["params", "opt_callback"], ["opt_visParams", "opt_callback"], ["var_args"], ["params", "opt_callback"], ["expression", "opt_map"], ["params", "opt_callback"], ["geometry"], ["r", "g", "b"], [], ["opt_visParams", "opt_callback"], ["selectors", "opt_names"], ["args"], ["opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["list"], ["number"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], 
+  ["obj", "opt_isCompound"], ["obj"], ["string"], []];
+  [ee.ApiFunction._call, ee.ApiFunction._apply, ee.ApiFunction.lookup, module$contents$ee$batch_Export.table.toDmsLayer, module$contents$ee$batch_Export.image.toAsset, module$contents$ee$batch_Export.videoMap.toCloudStorage, module$contents$ee$batch_Export.table.toAsset, module$contents$ee$batch_Export.video.toCloudStorage, module$contents$ee$batch_Export.image.toCloudStorage, module$contents$ee$batch_Export.classifier.toAsset, module$contents$ee$batch_Export.image.toDrive, module$contents$ee$batch_Export.video.toDrive, 
+  module$contents$ee$batch_Export.map.toCloudStorage, module$contents$ee$batch_Export.table.toCloudStorage, module$contents$ee$batch_Export.table.toDrive, ee.Collection.prototype.filter, ee.Collection.prototype.filterBounds, ee.Collection.prototype.limit, ee.Collection.prototype.map, ee.Collection.prototype.iterate, ee.Collection.prototype.filterMetadata, ee.Collection.prototype.sort, ee.Collection.prototype.filterDate, ee.ComputedObject.prototype.getInfo, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.serialize, 
+  ee.ComputedObject.prototype.evaluate, ee.data.setAssetProperties, ee.data.getAssetRootQuota, ee.data.getVideoThumbId, ee.data.authenticateViaPrivateKey, ee.data.getFilmstripThumbId, ee.data.getTileUrl, ee.data.copyAsset, ee.data.makeThumbUrl, ee.data.getMapId, ee.data.getThumbId, ee.data.getAssetAcl, ee.data.getDownloadId, ee.data.getTableDownloadId, ee.data.getDmsTilesKey, ee.data.makeTableDownloadUrl, ee.data.makeDownloadUrl, ee.data.computeValue, ee.data.deleteAsset, ee.data.createAssetHome, 
+  ee.data.startIngestion, ee.data.newTaskId, ee.data.getList, ee.data.authenticateViaOauth, ee.data.authenticate, ee.data.cancelOperation, ee.data.authenticateViaPopup, ee.data.createAsset, ee.data.getTaskStatus, ee.data.listAssets, ee.data.getOperation, ee.data.getInfo, ee.data.getAssetRoots, ee.data.startTableIngestion, ee.data.createFolder, ee.data.updateTask, ee.data.setAssetAcl, ee.data.listOperations, ee.data.listImages, ee.data.getTaskList, ee.data.cancelTask, ee.data.listBuckets, ee.data.renameAsset, 
+  ee.data.startProcessing, ee.data.updateAsset, ee.data.getAsset, ee.data.getTaskListWithLimit, ee.Date, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.decode, ee.Deserializer.decodeCloudApi, ee.Deserializer.fromJSON, ee.Dictionary, ee.reset, ee.call, ee.initialize, ee.TILE_SIZE, ee.InitState, ee.apply, ee.Algorithms, ee.Element.prototype.set, ee.Feature, ee.Feature.prototype.getMap, ee.Feature.prototype.getInfo, ee.FeatureCollection, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection.prototype.getDownloadURL, 
+  ee.FeatureCollection.prototype.select, ee.FeatureCollection.prototype.getMap, ee.Filter.neq, ee.Filter.or, ee.Filter.lt, ee.Filter.date, ee.Filter.prototype.not, ee.Filter.lte, ee.Filter.eq, ee.Filter.gte, ee.Filter.gt, ee.Filter.and, ee.Filter.metadata, ee.Filter, ee.Filter.inList, ee.Filter.bounds, ee.Function.prototype.apply, ee.Function.prototype.call, ee.Geometry, ee.Geometry.prototype.toGeoJSON, ee.Geometry.MultiPolygon, ee.Geometry.LinearRing, ee.Geometry.BBox, ee.Geometry.prototype.toGeoJSONString, 
+  ee.Geometry.Polygon, ee.Geometry.MultiPoint, ee.Geometry.prototype.serialize, ee.Geometry.MultiLineString, ee.Geometry.LineString, ee.Geometry.Point, ee.Geometry.Rectangle, ee.Image.prototype.getInfo, ee.Image, ee.Image.prototype.rename, ee.Image.cat, ee.Image.prototype.getDownloadURL, ee.Image.prototype.getMap, ee.Image.prototype.select, ee.Image.prototype.getThumbURL, ee.Image.prototype.expression, ee.Image.prototype.getThumbId, ee.Image.prototype.clip, ee.Image.rgb, ee.ImageCollection.prototype.first, 
+  ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.select, ee.ImageCollection, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection.prototype.getVideoThumbURL, ee.List, ee.Number, ee.Serializer.encodeCloudApi, ee.Serializer.encodeCloudApiPretty, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.toCloudApiJSON, ee.Serializer.toJSON, ee.Serializer.encode, ee.Serializer.toReadableJSON, ee.String, ee.Terrain].forEach(function(fn, 
+  i) {
     fn && (exportedFnInfo[fn.toString()] = {name:orderedFnNames[i], paramNames:orderedParamLists[i]});
   });
   goog.global.EXPORTED_FN_INFO = exportedFnInfo;

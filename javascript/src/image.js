@@ -192,13 +192,22 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
 
 
 /**
- * Get a Download URL for the image, which always downloads a zipped GeoTIFF.
- * Use getThumbURL for other file formats like PNG, JPG, or raw GeoTIFF.
+ * Get a download URL for small chunks of image data in GeoTIFF or NumPy
+ * format. Maximum request size is 32 MB, maximum grid dimension is
+ * 10000.
+ *
+ * Use getThumbURL for RGB visualization formats PNG and JPG.
  * @param {Object} params An object containing download options with the
  *     following possible values:
- *   - name: a base name to use when constructing filenames.
- *   - bands: a description of the bands to download. Must be an array of
- *         dictionaries, each with the following keys:
+ *   - name: a base name to use when constructing filenames. Only applicable
+ *         when format is zipped_geotiff (default) or filePerBand is true.
+ *         Defaults to the image id (or "download" for computed images) when
+ *         format is zipped_geotiff or filePerBand is true, otherwise a random
+ *         character string is generated. Band names are appended when
+ *         filePerBand is true.
+ *   - bands: a description of the bands to download. Must be an array of band
+ *         names or an array of dictionaries, each with the following keys
+ *         (optional parameters apply only when filePerBand is true):
  *     + id: the name of the band, a string, required.
  *     + crs: an optional CRS string defining the band projection.
  *     + crs_transform: an optional array of 6 numbers specifying an affine
@@ -218,9 +227,13 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *         ignored if crs and crs_transform is specified.
  *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
- *   - filePerBand: Whether to produce a different GeoTIFF per band (boolean).
+ *   - filePerBand: Whether to produce a separate GeoTIFF per band (boolean).
  *         Defaults to true. If false, a single GeoTIFF is produced and all
  *         band-level transformations will be ignored.
+ *   - format: the download format. One of: "ZIPPED_GEO_TIFF" (GeoTIFF file(s)
+ *         wrapped in a zip file, default), "GEO_TIFF" (GeoTIFF file),
+ *         "NPY" (NumPy structured array). If "GEO_TIFF" or "NPY", filePerBand
+ *         and all band-level transformations will be ignored.
  * @param {function(string?, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {string|undefined} Returns a download URL, or undefined if a callback
