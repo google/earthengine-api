@@ -17,6 +17,7 @@ import calendar
 from collections import Counter
 import datetime
 import json
+import logging
 import os
 import re
 import six
@@ -31,16 +32,23 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 TENSORFLOW_INSTALLED = False
 # pylint: disable=g-import-not-at-top
 try:
+  # Suppress non-error logs while TF initializes
+  old_level = logging.getLogger().level
+  logging.getLogger().setLevel(logging.ERROR)
   import tensorflow.compat.v1 as tf
   from tensorflow.compat.v1.saved_model import utils as saved_model_utils
   from tensorflow.compat.v1.saved_model import signature_constants
   from tensorflow.compat.v1.saved_model import signature_def_utils
+  # This triggers a warning about disable_resource_variables
   tf.disable_v2_behavior()
   # Prevent TensorFlow from logging anything at the python level.
   tf.logging.set_verbosity(tf.logging.ERROR)
+
   TENSORFLOW_INSTALLED = True
 except ImportError:
   pass
+finally:
+  logging.getLogger().setLevel(old_level)
 
 TENSORFLOW_ADDONS_INSTALLED = False
 # pylint: disable=g-import-not-at-top

@@ -289,7 +289,10 @@ class Filter(computedobject.ComputedObject):
     """Filter on intersection with geometry.
 
     Items in the collection with a footprint that fails to intersect
-    the given geometry will be excluded.  This is an alias for geometry().
+    the given geometry will be excluded. This is an alias for geometry().
+
+    Caution: collating the geometries of complex FeatureCollection inputs can be
+    slow and memory intensive.
 
     Args:
       geometry: The geometry to filter to either as a GeoJSON geometry,

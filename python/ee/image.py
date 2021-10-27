@@ -671,7 +671,7 @@ class Image(element.Element):
   def clip(self, clip_geometry):
     """Clips an image to a Geometry or Feature.
 
-    The output bands correspond exactly the input bands, except data not
+    The output bands correspond exactly to the input bands, except data not
     covered by the geometry is masked. The output image retains the
     metadata of the input image.
 

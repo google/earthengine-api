@@ -84,6 +84,9 @@ class Collection(element.Element):
     the given geometry will be excluded.
     This is equivalent to self.filter(Filter().geometry(...)).
 
+    Caution: collating the geometries of complex FeatureCollection inputs can be
+    slow and memory intensive.
+
     Args:
       geometry: The boundary to filter to either as a GeoJSON geometry,
           or a FeatureCollection, from which a geometry will be extracted.

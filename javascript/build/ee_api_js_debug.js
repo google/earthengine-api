@@ -6987,7 +6987,7 @@ function module$contents$goog$html$SafeStyle_sanitizePropertyValueString(value) 
       return (0,goog.asserts.fail)("String value requires balanced square brackets and one identifier per pair of brackets, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
     }
   } else {
-    return (0,goog.asserts.fail)("String value allows only [-,.\"'%_!# a-zA-Z0-9\\[\\]] and simple functions, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
+    return (0,goog.asserts.fail)("String value allows only [-,.\"'%_!#/ a-zA-Z0-9\\[\\]] and simple functions, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
   }
   return module$contents$goog$html$SafeStyle_sanitizeUrl(value);
 }
@@ -7021,7 +7021,7 @@ function module$contents$goog$html$SafeStyle_hasBalancedSquareBrackets(value) {
   }
   return outside;
 }
-var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-,.\"'%_!# a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|var)\\([-+*/0-9a-z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
+var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-,.\"'%_!#/ a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|var)\\([-+*/0-9a-z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
 /\/\*/;
 function module$contents$goog$html$SafeStyle_sanitizeUrl(value) {
   return value.replace(module$contents$goog$html$SafeStyle_URL_RE, function(match$jscomp$0, before, url, after) {
@@ -11904,14 +11904,13 @@ module$exports$eeapiclient$ee_api_client.Policy = function(parameters) {
   this.Serializable$set("auditConfigs", null == parameters.auditConfigs ? null : parameters.auditConfigs);
   this.Serializable$set("rules", null == parameters.rules ? null : parameters.rules);
   this.Serializable$set("etag", null == parameters.etag ? null : parameters.etag);
-  this.Serializable$set("iamOwned", null == parameters.iamOwned ? null : parameters.iamOwned);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.Policy, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.Policy.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.Policy;
 };
 module$exports$eeapiclient$ee_api_client.Policy.prototype.getPartialClassMetadata = function() {
-  return {arrays:{auditConfigs:module$exports$eeapiclient$ee_api_client.AuditConfig, bindings:module$exports$eeapiclient$ee_api_client.Binding, rules:module$exports$eeapiclient$ee_api_client.Rule}, keys:"auditConfigs bindings etag iamOwned rules version".split(" ")};
+  return {arrays:{auditConfigs:module$exports$eeapiclient$ee_api_client.AuditConfig, bindings:module$exports$eeapiclient$ee_api_client.Binding, rules:module$exports$eeapiclient$ee_api_client.Rule}, keys:["auditConfigs", "bindings", "etag", "rules", "version"]};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.Policy.prototype, {auditConfigs:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("auditConfigs") ? this.Serializable$get("auditConfigs") : null;
@@ -11925,10 +11924,6 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("etag") ? this.Serializable$get("etag") : null;
 }, set:function(value) {
   this.Serializable$set("etag", value);
-}}, iamOwned:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("iamOwned") ? this.Serializable$get("iamOwned") : null;
-}, set:function(value) {
-  this.Serializable$set("iamOwned", value);
 }}, rules:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("rules") ? this.Serializable$get("rules") : null;
 }, set:function(value) {
@@ -12520,23 +12515,18 @@ module$exports$eeapiclient$ee_api_client.ThinningOptions = function(parameters) 
   module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("maxFeaturesPerTile", null == parameters.maxFeaturesPerTile ? null : parameters.maxFeaturesPerTile);
   this.Serializable$set("thinningStrategy", null == parameters.thinningStrategy ? null : parameters.thinningStrategy);
-  this.Serializable$set("quadsetPartitionLod", null == parameters.quadsetPartitionLod ? null : parameters.quadsetPartitionLod);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ThinningOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ThinningOptions.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ThinningOptions;
 };
 module$exports$eeapiclient$ee_api_client.ThinningOptions.prototype.getPartialClassMetadata = function() {
-  return {enums:{thinningStrategy:module$exports$eeapiclient$ee_api_client.ThinningOptionsThinningStrategyEnum}, keys:["maxFeaturesPerTile", "quadsetPartitionLod", "thinningStrategy"]};
+  return {enums:{thinningStrategy:module$exports$eeapiclient$ee_api_client.ThinningOptionsThinningStrategyEnum}, keys:["maxFeaturesPerTile", "thinningStrategy"]};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ThinningOptions.prototype, {maxFeaturesPerTile:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("maxFeaturesPerTile") ? this.Serializable$get("maxFeaturesPerTile") : null;
 }, set:function(value) {
   this.Serializable$set("maxFeaturesPerTile", value);
-}}, quadsetPartitionLod:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("quadsetPartitionLod") ? this.Serializable$get("quadsetPartitionLod") : null;
-}, set:function(value) {
-  this.Serializable$set("quadsetPartitionLod", value);
 }}, thinningStrategy:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("thinningStrategy") ? this.Serializable$get("thinningStrategy") : null;
 }, set:function(value) {
@@ -16743,7 +16733,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.287";
+ee.apiclient.API_CLIENT_VERSION = "0.1.288";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17024,8 +17014,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.287";
-  "0.1.287" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.288";
+  "0.1.288" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -18562,7 +18552,7 @@ ee.rpc_convert_batch.buildDmsIngestionTimeParameters_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.DmsIngestionTimeParameters({thinningOptions:ee.rpc_convert_batch.buildThinningOptions_(params.thinningOptions), rankingOptions:ee.rpc_convert_batch.buildRankingOptions_(params.rankingOptions)});
 };
 ee.rpc_convert_batch.buildThinningOptions_ = function(params) {
-  return null == params ? null : new module$exports$eeapiclient$ee_api_client.ThinningOptions({maxFeaturesPerTile:numberOrNull_(params.maxFeaturesPerTile), thinningStrategy:params.thinningStrategy, quadsetPartitionLod:params.quadsetPartitionLod});
+  return null == params ? null : new module$exports$eeapiclient$ee_api_client.ThinningOptions({maxFeaturesPerTile:numberOrNull_(params.maxFeaturesPerTile), thinningStrategy:params.thinningStrategy});
 };
 ee.rpc_convert_batch.buildRankingOptions_ = function(params) {
   return null == params ? null : new module$exports$eeapiclient$ee_api_client.RankingOptions({zOrderRankingRule:ee.rpc_convert_batch.buildRankingRule_(params.zOrderRankingRule), thinningRankingRule:ee.rpc_convert_batch.buildRankingRule_(params.thinningRankingRule),});

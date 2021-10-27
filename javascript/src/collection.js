@@ -11,6 +11,7 @@ goog.require('ee.Filter');
 goog.require('ee.arguments');
 
 goog.requireType('ee.ComputedObject');
+goog.requireType('ee.FeatureCollection');
 goog.requireType('ee.Function');
 goog.requireType('ee.Geometry');
 
@@ -97,8 +98,7 @@ ee.Collection.prototype.filter = function(filter) {
  * @param {*} value - The value to compare against.
  * @return {ee.Collection} The filtered collection.
  * @export
- * @suppress {deprecated} We get to use this for now.
- * TODO(user): Decide whether to deprecate this.
+ * @deprecated Use filter() with ee.Filter.eq(), ee.Filter.gte(), etc.
  */
 ee.Collection.prototype.filterMetadata = function(name, operator, value) {
   var args = ee.arguments.extractFromFunction(
@@ -109,12 +109,16 @@ ee.Collection.prototype.filterMetadata = function(name, operator, value) {
 
 
 /**
- * Shortcut to filter a collection by intersection with geometry.  Items in the
+ * Shortcut to filter a collection by intersection with geometry. Items in the
  * collection with a footprint that fails to intersect the given geometry
  * will be excluded.
  *
  * This is equivalent to this.filter(ee.Filter.bounds(...)).
- * @param {!ee.Geometry} geometry The geometry to filter to.
+ *
+ * Caution: collating the geometries of complex FeatureCollection inputs can be
+ * slow and memory intensive.
+ * @param {!ee.Geometry|!ee.ComputedObject|!ee.FeatureCollection} geometry
+ *     The geometry, feature or collection to intersect with.
  * @return {ee.Collection} The filtered collection.
  * @export
  */
