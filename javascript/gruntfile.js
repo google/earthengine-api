@@ -29,7 +29,7 @@ const BROWSER_FOOTER = [
 const WORKER_BANNER = "";
 const WORKER_FOOTER = [
   'goog.Timer.defaultTimerObject = self;',
-  'module.exports = ee;'
+  'module.exports = goog.global.ee = ee;'
 ].join('\n') + '\n';
 
 /**
