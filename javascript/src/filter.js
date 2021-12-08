@@ -327,8 +327,10 @@ ee.Filter.inList = function(
  * Creates a filter that passes if the object's geometry intersects the
  * given geometry.
  *
- * Caution: collating the geometries of complex FeatureCollection inputs can be
- * slow and memory intensive.
+ * Caution: providing a large or complex collection as input can result in poor
+ * performance. Collating the geometry of collections does not scale well, use
+ * the smallest collection (or geometry) that is required to achieve the desired
+ * outcome.
  * @param {!ee.Geometry|!ee.ComputedObject|!ee.FeatureCollection} geometry
  *     The geometry, feature or collection to intersect with.
  * @param {number|!ee.ComputedObject=} opt_errorMargin An optional error margin.

@@ -614,6 +614,45 @@
       "defaultValue": 25000.0
     }]
   }, {
+    "name": "algorithms/TemporalSegmentation.StructuralChangeBreakpoints",
+    "description": "Runs breakpoint detection, similar to R\u0027s strucchange::breakpoints function.\nEach pixel is fit by a piecewise linear/harmonic model, of the form\nY \u003d A + B*t + C*cos(2*pi*season(t)) + D*sin(2*pi*season(t)) + E*cos(4*pi*season(t)) + F*sin(4*pi*season(t)) + ...\nIn this equation, \u0027t\u0027 is the start time of the image in the format specified by \u0027dateFormat\u0027, and \u0027season(t)\u0027 is the fractional year of that start time (see the description of dateFormat for details). The maximum order of the harmonic terms is determined by \u0027seasonalModelOrder\u0027.\nThe result is an image containing two bands, plus two bands per band in the input:\ntStart, tEnd: each of these holds a 1D array, with one entry per segment in the piecewise linear fit; each entry contains the start time of the first or last images in that segment. By default the values here are in fractional years, for easy use with the coefficients.\ncoefs_BANDNAME: there will be one such output band per input band. Each of these holds a 2D array, with one row per segment. The values in that row are the coefficients of the linear fit for that segment - that is, the values of A, B, C, ... for that segment. As described above, the values here are affected by \u0027dateFormat\u0027\n.rmse_BANDNAME: there will be one such output band per input band. This holds a 1D array, with one entry per segment. The value for each segment is the RMSE for the linear fit residuals for that segment.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "collection",
+      "type": "ImageCollection",
+      "description": "Collection of images on which to detect breakpoints."
+    }, {
+      "argumentName": "breakpointBand",
+      "type": "String",
+      "description": "The name of the band to use for breakpoint detection. Optional only if the images have only a single band.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "seasonalModelOrder",
+      "type": "Integer",
+      "description": "The order of the harmonic seasonal model.",
+      "optional": true,
+      "defaultValue": 3.0
+    }, {
+      "argumentName": "minSpacing",
+      "type": "Float",
+      "description": "The minimum spacing between breakpoints. If this is between 0 and 1 (exclusive), it will be interpreted as a fraction of the number of images in the collection. Otherwise, it will be interpreted as a number of samples.",
+      "optional": true,
+      "defaultValue": 0.15
+    }, {
+      "argumentName": "maxBreaks",
+      "type": "Integer",
+      "description": "The maximum number of breakpoints.",
+      "optional": true,
+      "defaultValue": 0.0
+    }, {
+      "argumentName": "dateFormat",
+      "type": "Integer",
+      "description": "The time representation to use in the results: 1 \u003d fractional years,  2 \u003d unix time in milliseconds. This affects the values in the tStart and tEnd bands and the \u0027t\u0027 values used in the harmonic model. The fractional years used here and in that model are defined as the fractional number of 365.25-day years since 1 Jan 1970.",
+      "optional": true,
+      "defaultValue": 1.0
+    }]
+  }, {
     "name": "algorithms/ExtractRegion.AggregationContainer",
     "description": "INTERNAL",
     "returnType": "Image\u003cunknown bands\u003e",
@@ -3513,6 +3552,25 @@
       "type": "Clusterer"
     }]
   }, {
+    "name": "algorithms/Geometry.coveringGrid",
+    "description": "Returns a collection of features that cover this geometry, where each feature is a rectangle in the grid defined by the given projection.",
+    "returnType": "FeatureCollection",
+    "arguments": [{
+      "argumentName": "geometry",
+      "type": "Geometry",
+      "description": "The result is the grid cells that intersect with this region."
+    }, {
+      "argumentName": "proj",
+      "type": "Projection",
+      "description": "The projection in which to construct the grid.  A feature is generated for each grid cell that intersects \u0027geometry\u0027, where cell corners are at integer-valued positions in the projection.  If the projection is scaled in meters, the points will be on a grid of that size at the point of true scale."
+    }, {
+      "argumentName": "scale",
+      "type": "Float",
+      "description": "Overrides the scale of the projection, if provided.  May be required if the projection isn\u0027t already scaled.",
+      "optional": true,
+      "defaultValue": null
+    }]
+  }, {
     "name": "algorithms/Geometry.intersects",
     "description": "Returns true iff the geometries intersect.",
     "returnType": "Boolean",
@@ -5430,7 +5488,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Collection.geometry",
-    "description": "Extracts and merges the geometries of a collection. Requires that all the geometries in the collection share the projection and edge interpretation.",
+    "description": "Extracts and merges the geometries of a collection. Requires that all the geometries in the collection share the projection and edge interpretation.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well, use the smallest collection that is required to achieve the desired outcome.",
     "returnType": "Geometry",
     "arguments": [{
       "argumentName": "collection",
@@ -8913,7 +8971,7 @@
     }]
   }, {
     "name": "algorithms/Image.entropy",
-    "description": "Computes the windowed entropy for each band using the specified kernel centered on each input pixel.",
+    "description": "Computes the windowed entropy for each band using the specified kernel centered on each input pixel.  Entropy is computed as -sum(p*log2(p)), where p is the normalized probability of occurrence of the values encountered in each window.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10339,7 +10397,7 @@
     }]
   }, {
     "name": "algorithms/Image.clipToBoundsAndScale",
-    "description": "Clips an image to the bounds of a Geometry, and scales the clipped image to a particular size or scale.",
+    "description": "Clips an image to the bounds of a Geometry, and scales the clipped image to a particular size or scale.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well, use the smallest collection (or geometry) that is required to achieve the desired outcome.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",

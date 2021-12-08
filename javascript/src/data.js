@@ -631,9 +631,15 @@ ee.data.makeThumbUrl = function(id) {
  * @param {!Object} params An object containing download options with the
  *     following possible values:
  *   - image: The image to download.
- *   - name: a base name to use when constructing filenames.
- *   - bands: a description of the bands to download. Must be an array of
- *         dictionaries, each with the following keys:
+ *   - name: a base name to use when constructing filenames. Only applicable
+ *         when format is "ZIPPED_GEO_TIFF" (default) or filePerBand is true.
+ *         Defaults to the image id (or "download" for computed images) when
+ *         format is "ZIPPED_GEO_TIFF" or filePerBand is true, otherwise a
+ *         random character string is generated. Band names are appended when
+ *         filePerBand is true.
+ *   - bands: a description of the bands to download. Must be an array of band
+ *         names or an array of dictionaries, each with the following keys
+ *         (optional parameters apply only when filePerBand is true):
  *     + id: the name of the band, a string, required.
  *     + crs: an optional CRS string defining the band projection.
  *     + crs_transform: an optional array of 6 numbers specifying an affine
@@ -642,7 +648,7 @@ ee.data.makeThumbUrl = function(id) {
  *     + dimensions: an optional array of two integers defining the width and
  *           height to which the band is cropped.
  *     + scale: an optional number, specifying the scale in meters of the band;
- *              ignored if crs and crs_transform is specified.
+ *              ignored if crs and crs_transform are specified.
  *   - crs: a default CRS string to use for any bands that do not explicitly
  *         specify one.
  *   - crs_transform: a default affine transform to use for any bands that do
@@ -650,12 +656,18 @@ ee.data.makeThumbUrl = function(id) {
  *   - dimensions: default image cropping dimensions to use for any bands that
  *         do not specify them.
  *   - scale: a default scale to use for any bands that do not specify one;
- *         ignored if dimensions is specified.
- *   - region: a polygon specifying a region to download.
- *   - filePerBand: Whether to produce a different GeoTIFF per band (boolean).
+ *         ignored if crs and crs_transform are specified.
+ *   - region: a polygon specifying a region to download; ignored if crs
+ *         and crs_transform is specified.
+ *   - filePerBand: whether to produce a separate GeoTIFF per band (boolean).
  *         Defaults to true. If false, a single GeoTIFF is produced and all
  *         band-level transformations will be ignored.
- *   - id: deprecated, use image: ee.Image(id)
+ *   - format: the download format. One of: "ZIPPED_GEO_TIFF" (GeoTIFF file(s)
+ *         wrapped in a zip file, default), "GEO_TIFF" (GeoTIFF file),
+ *         "NPY" (NumPy binary format). If "GEO_TIFF" or "NPY", filePerBand
+ *         and all band-level transformations will be ignored. Loading a NumPy
+ *         output results in a structured array.
+ *   - id: deprecated, use image parameter.
  * @param {function(?ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.DownloadId} A download id and token, or null if a callback
