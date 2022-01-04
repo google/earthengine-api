@@ -1096,7 +1096,7 @@ class TaskListCommand(object):
     status = args.status
     tasks = ee.data.getTaskList()
     descs = [utils.truncate(task.get('description', ''), 40) for task in tasks]
-    desc_length = max(len(word) for word in descs)
+    desc_length = max((len(word) for word in descs), default=0)
     format_str = '{:25s} {:13s} {:%ds} {:10s} {:s}' % (desc_length + 1)
     for task in tasks:
       if status and task['state'] not in status:

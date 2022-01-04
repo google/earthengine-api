@@ -3597,7 +3597,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.cutLines",
-    "description": "Converts LineStrings into a MultiLineString by cutting it in two at each distance along the length of the LineString.",
+    "description": "Converts LineString, MultiLineString, and LinearRing geometries into a MultiLineString by cutting them into parts no longer than the given distance along their length. All other geometry types will be converted to an empty MultiLineString.",
     "returnType": "Geometry",
     "arguments": [{
       "argumentName": "geometry",
@@ -4540,7 +4540,7 @@
     }]
   }, {
     "name": "algorithms/Feature.cutLines",
-    "description": "Converts LineStrings into a MultiLineString by cutting it in two at each distance along the length of the LineString.",
+    "description": "Converts LineString, MultiLineString, and LinearRing geometries into a MultiLineString by cutting them into parts no longer than the given distance along their length. All other geometry types will be converted to an empty MultiLineString.",
     "returnType": "Feature",
     "arguments": [{
       "argumentName": "feature",
@@ -8903,7 +8903,7 @@
     }, {
       "argumentName": "mode",
       "type": "String",
-      "description": "The interpolation mode to use.  One of \u0027nearest_neighbor\u0027, \u0027bilinear\u0027 or \u0027bicubic\u0027.)",
+      "description": "The interpolation mode to use.  One of \u0027nearest_neighbor\u0027, \u0027bilinear\u0027 or \u0027bicubic\u0027.",
       "optional": true,
       "defaultValue": "bicubic"
     }, {
@@ -9995,7 +9995,7 @@
     }]
   }, {
     "name": "algorithms/Image.sldStyle",
-    "description": "Styles a raster input with the provided OGC SLD styling.\nPoints of note:\n * OGC SLD 1.0 and OGC SE 1.1 are supported.\n * The XML document passed in can be complete, or just the   SldRasterSymbolizer element and down.\n * Exactly one SldRasterSymbolizer is required.\n * Bands may be selected by their proper EarthEngine names or   using numeric identifiers (\"1\", \"2\", ...). Proper   EarthEngine names are tried first.\n * The Histogram and Normalize contrast stretch mechanisms are   supported.\n * The type\u003d\"values\", type\u003d\"intervals\" and type\u003d\"ramp\"   attributes for ColorMap element in SLD 1.0 (GeoServer   extensions) are\n   supported.\n * Opacity is only taken into account when it is 0.0   (transparent). Non-zero opacity values are treated as   completely opaque.\n * The OverlapBehavior definition is currently ignored.\n * The ShadedRelief mechanism is not currently supported.\n * The ImageOutline mechanism is not currently supported.\n * The Geometry element is ignored.\nThe output image will have histogram_bandname metadata if histogram equalization or normalization is requested.",
+    "description": "Styles a raster input with the provided OGC SLD styling.\nPoints of note:\n * OGC SLD 1.0 and OGC SE 1.1 are supported.\n * The XML document passed in can be complete, or just the   SldRasterSymbolizer element and down.\n * Exactly one SldRasterSymbolizer is required.\n * Bands may be selected by their proper EarthEngine names or   using numeric identifiers (\"1\", \"2\", ...). Proper   EarthEngine names are tried first.\n * The Histogram and Normalize contrast stretch mechanisms are   supported.\n * The type\u003d\"values\", type\u003d\"intervals\" and type\u003d\"ramp\"   attributes for ColorMap element in SLD 1.0 (GeoServer   extensions) are supported.\n * Opacity is only taken into account when it is 0.0   (transparent). Non-zero opacity values are treated as   completely opaque.\n * The OverlapBehavior definition is currently ignored.\n * The ShadedRelief mechanism is not currently supported.\n * The ImageOutline mechanism is not currently supported.\n * The Geometry element is ignored.\nThe output image will have histogram_bandname metadata if histogram equalization or normalization is requested.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -11765,6 +11765,19 @@
       "argumentName": "object",
       "type": "Object",
       "description": "The object to encode."
+    }]
+  }, {
+    "name": "algorithms/String.equals",
+    "description": "Checks for string equality with a given object. Returns true if the target is a string and is lexicographically equal to the reference, or false otherwise.",
+    "returnType": "Boolean",
+    "arguments": [{
+      "argumentName": "reference",
+      "type": "String",
+      "description": "The string to compare for equality."
+    }, {
+      "argumentName": "target",
+      "type": "Object",
+      "description": "The second object to check for equality."
     }]
   }, {
     "name": "algorithms/String.index",
