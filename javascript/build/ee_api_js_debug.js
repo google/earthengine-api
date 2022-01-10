@@ -16998,7 +16998,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.293";
+ee.apiclient.API_CLIENT_VERSION = "0.1.294";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17279,8 +17279,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.293";
-  "0.1.293" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.294";
+  "0.1.294" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17831,7 +17831,6 @@ ee.rpc_convert.assetTypeToLegacyAssetType = function(type) {
       return "Table";
     case "CLASSIFIER":
       return "Classifier";
-    case "DATA_MAPPING_SERVICE":
     case "FEATURE_VIEW":
       return "FeatureView";
     default:
@@ -18816,7 +18815,7 @@ ee.rpc_convert_batch.buildRankingRule_ = function(rules) {
   throw Error("Unable to build ranking rule from rules: " + JSON.stringify(originalRules) + ". Rules should either be a comma-separated string or list of strings.");
 };
 ee.rpc_convert_batch.buildRankByOneThingRule_ = function(ruleString) {
-  var rankByOneThingRule = new module$exports$eeapiclient$ee_api_client.RankByOneThingRule({direction:null, rankByAttributeRule:null, rankByMinVisibleLodRule:null, rankByMinZoomLevelRule:null, rankByGeometryTypeRule:null,});
+  var rankByOneThingRule = new module$exports$eeapiclient$ee_api_client.RankByOneThingRule({direction:null, rankByAttributeRule:null, rankByMinZoomLevelRule:null, rankByGeometryTypeRule:null,});
   ruleString = ruleString.trim();
   var matches = ruleString.match(/^([\S]+.*)\s+(ASC|DESC)$/);
   if (null == matches) {

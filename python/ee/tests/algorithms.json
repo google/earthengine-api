@@ -6649,7 +6649,7 @@
     }]
   }, {
     "name": "algorithms/Filter.calendarRange",
-    "description": "Returns a filter that passes if the object\u0027s timestamp falls within the given range of a calendar field. The month, day_of_year, day_of_month, and day_of_week are 1-based.  Times are assumed to be in UTC. Weeks are assumed to begin on Monday as day 1. If end \u003c start then this tests for value \u003e\u003d start OR value \u003c\u003d end, to allow for wrapping.",
+    "description": "Returns a filter that passes if the object\u0027s timestamp falls within the given range of a calendar field. The `month`, `day_of_year`, `day_of_month`, and `day_of_week` are 1-based. Times are assumed to be in UTC. Weeks are assumed to begin on Monday as day 1. If `end` \u003c `start` then this tests for `value` \u003e\u003d `start` OR `value` \u003c\u003d `end`, to allow for wrapping.",
     "returnType": "Filter",
     "arguments": [{
       "argumentName": "start",
@@ -6664,7 +6664,7 @@
     }, {
       "argumentName": "field",
       "type": "String",
-      "description": "The calendar field to filter over. Options are: \u0027year\u0027, \u0027month\u0027, \u0027hour\u0027, \u0027minute\u0027, \u0027day_of_year\u0027, \u0027day_of_month\u0027, and \u0027day_of_week\u0027.",
+      "description": "The calendar field to filter over. Options are: `year`, `month`, `hour`, `minute`, `day_of_year`, `day_of_month`, and `day_of_week`.",
       "optional": true,
       "defaultValue": "day_of_year"
     }]
@@ -8644,7 +8644,7 @@
     }, {
       "argumentName": "overwrite",
       "type": "Boolean",
-      "description": "If true, bands from srcImg will override bands with the same names in dstImg. Otherwise the new band will be renamed with a numerical suffix (\u0027foo\u0027 to \u0027foo_1\u0027 unless \u0027foo_1\u0027 exists, then \u0027foo_2\u0027 unless it exists, etc).",
+      "description": "If true, bands from `srcImg` will override bands with the same names in `dstImg`. Otherwise the new band will be renamed with a numerical suffix (`foo` to `foo_1` unless `foo_1` exists, then `foo_2` unless it exists, etc).",
       "optional": true,
       "defaultValue": false
     }]
