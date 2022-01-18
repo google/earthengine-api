@@ -271,7 +271,7 @@
     }]
   }, {
     "name": "algorithms/Landsat.calibratedRadiance",
-    "description": "Calibrates each band of an image by applying linear transformation with slope RADIANCE_MULT_BAND_N and y-intercept RADIANCE_ADD_BAND_N; these values are extracted from the image metadata.",
+    "description": "Calibrates each band of an image by applying linear transformation with slope `RADIANCE_MULT_BAND_N` and y-intercept `RADIANCE_ADD_BAND_N`; these values are extracted from the image metadata.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -615,7 +615,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.StructuralChangeBreakpoints",
-    "description": "Runs breakpoint detection, similar to R\u0027s strucchange::breakpoints function.\nEach pixel is fit by a piecewise linear/harmonic model, of the form\nY \u003d A + B*t + C*cos(2*pi*season(t)) + D*sin(2*pi*season(t)) + E*cos(4*pi*season(t)) + F*sin(4*pi*season(t)) + ...\nIn this equation, \u0027t\u0027 is the start time of the image in the format specified by \u0027dateFormat\u0027, and \u0027season(t)\u0027 is the fractional year of that start time (see the description of dateFormat for details). The maximum order of the harmonic terms is determined by \u0027seasonalModelOrder\u0027.\nThe result is an image containing two bands, plus two bands per band in the input:\ntStart, tEnd: each of these holds a 1D array, with one entry per segment in the piecewise linear fit; each entry contains the start time of the first or last images in that segment. By default the values here are in fractional years, for easy use with the coefficients.\ncoefs_BANDNAME: there will be one such output band per input band. Each of these holds a 2D array, with one row per segment. The values in that row are the coefficients of the linear fit for that segment - that is, the values of A, B, C, ... for that segment. As described above, the values here are affected by \u0027dateFormat\u0027\n.rmse_BANDNAME: there will be one such output band per input band. This holds a 1D array, with one entry per segment. The value for each segment is the RMSE for the linear fit residuals for that segment.",
+    "description": "Runs breakpoint detection, similar to R\u0027s strucchange::breakpoints function.\nEach pixel is fit by a piecewise linear/harmonic model, of the form\nY \u003d A + B * t + C * cos(2 * pi * season(t)) + D * sin(2 * pi * season(t)) + E * cos(4 * pi * season(t)) + F * sin(4 * pi * season(t)) + ...\nIn this equation, \u0027t\u0027 is the start time of the image in the format specified by \u0027dateFormat\u0027, and \u0027season(t)\u0027 is the fractional year of that start time (see the description of dateFormat for details). The maximum order of the harmonic terms is determined by \u0027seasonalModelOrder\u0027.\nThe result is an image containing two bands, plus two bands per band in the input:\n`tStart`, `tEnd`: each of these holds a 1D array, with one entry per segment in the piecewise linear fit; each entry contains the start time of the first or last images in that segment. By default the values here are in fractional years, for easy use with the coefficients.\n`coefs_BANDNAME`: there will be one such output band per input band. Each of these holds a 2D array, with one row per segment. The values in that row are the coefficients of the linear fit for that segment - that is, the values of A, B, C, ... for that segment. As described above, the values here are affected by \u0027dateFormat\u0027\n.`rmse_BANDNAME`: there will be one such output band per input band. This holds a 1D array, with one entry per segment. The value for each segment is the RMSE for the linear fit residuals for that segment.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -1493,7 +1493,7 @@
     }]
   }, {
     "name": "algorithms/DateRangeCollection",
-    "description": "Returns a collection of objects with \u0027system:index\u0027, \u0027date_range\u0027 properties in a defined sequence at regular intervals, suitable for mapping over.",
+    "description": "Returns a collection of objects with `system:index`, `date_range` properties in a defined sequence at regular intervals, suitable for mapping over.",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "startTime",
@@ -2687,7 +2687,7 @@
     }, {
       "argumentName": "svmType",
       "type": "String",
-      "description": "The SVM type. One of C_SVC, NU_SVC, ONE_CLASS, EPSILON_SVR or NU_SVR.",
+      "description": "The SVM type. One of `C_SVC`, `NU_SVC`, `ONE_CLASS`, `EPSILON_SVR` or `NU_SVR`.",
       "optional": true,
       "defaultValue": "C_SVC"
     }, {
@@ -2926,7 +2926,7 @@
     }, {
       "argumentName": "svmType",
       "type": "String",
-      "description": "The SVM type. One of C_SVC, NU_SVC, ONE_CLASS, EPSILON_SVR or NU_SVR.",
+      "description": "The SVM type. One of `C_SVC`, `NU_SVC`, `ONE_CLASS`, `EPSILON_SVR` or `NU_SVR`.",
       "optional": true,
       "defaultValue": "C_SVC"
     }, {
@@ -3130,7 +3130,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.mode",
-    "description": "Returns the classifier mode: CLASSIFICATION, REGRESSION, PROBABILITY, MULTIPROBABILITY, RAW or RAW_REGRESSION.",
+    "description": "Returns the classifier mode: `CLASSIFICATION`, `REGRESSION`, `PROBABILITY`, `MULTIPROBABILITY`, `RAW` or `RAW_REGRESSION`.",
     "returnType": "String",
     "arguments": [{
       "argumentName": "classifier",
@@ -5847,7 +5847,7 @@
     }, {
       "argumentName": "pointShape",
       "type": "String",
-      "description": "The default shape of the marker to draw at each point location.  One of: circle, square, diamond, cross, plus, pentagram, hexagram, triangle, triangle_up triangle_down, triangle_left, triangle_right, pentagon, hexagon, star5, star6. This argument also supports the following Matlab marker abbreviations: o, s, d, x, +, p, h, ^, v, \u003c, \u003e.",
+      "description": "The default shape of the marker to draw at each point location.  One of: `circle`, `square`, `diamond`, `cross`, `plus`, `pentagram`, `hexagram`, `triangle`, `triangle_up`, `triangle_down`, `triangle_left`, `triangle_right`, `pentagon`, `hexagon`, `star5`, `star6`. This argument also supports the following Matlab marker abbreviations: `o`, `s`, `d`, `x`, `+`, `p`, `h`, `^`, `v`, `\u003c`, `\u003e`.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -8872,7 +8872,7 @@
     }]
   }, {
     "name": "algorithms/Image.date",
-    "description": "Returns the acquisition time of an image as a Date object.  This helper function is equivalent to ee.Date(image.get(\u0027system:time_start\u0027)).",
+    "description": "Returns the acquisition time of an image as a Date object. This helper function is equivalent to `ee.Date(image.get(\u0027system:time_start\u0027))`.",
     "returnType": "Date",
     "arguments": [{
       "argumentName": "image",
@@ -8881,7 +8881,7 @@
     }]
   }, {
     "name": "algorithms/Image.derivative",
-    "description": "Computes the X and Y discrete derivatives for each band in the input image, in pixel coordinates.\nFor each band of the input image, the output image will have two bands named with the suffixes \u0027_x\u0027 and \u0027_y\u0027, containing the respective derivatives.",
+    "description": "Computes the X and Y discrete derivatives for each band in the input image, in pixel coordinates.\nFor each band of the input image, the output image will have two bands named with the suffixes `_x` and `_y`, containing the respective derivatives.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -8971,7 +8971,7 @@
     }]
   }, {
     "name": "algorithms/Image.entropy",
-    "description": "Computes the windowed entropy for each band using the specified kernel centered on each input pixel.  Entropy is computed as -sum(p*log2(p)), where p is the normalized probability of occurrence of the values encountered in each window.",
+    "description": "Computes the windowed entropy for each band using the specified kernel centered on each input pixel. Entropy is computed as -sum(p * log2(p)), where p is the normalized probability of occurrence of the values encountered in each window.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9005,7 +9005,7 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "Distance metric to use: options are \u0027squared_euclidean\u0027, \u0027manhattan\u0027 or \u0027chebyshev\u0027.",
+      "description": "Distance metric to use: options are `squared_euclidean`, `manhattan` or `chebyshev`.",
       "optional": true,
       "defaultValue": "squared_euclidean"
     }]
@@ -14810,7 +14810,7 @@
     }]
   }, {
     "name": "algorithms/Array.matrixMultiply",
-    "description": "Returns the matrix multiplication A*B.",
+    "description": "Returns the matrix multiplication A * B.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14823,7 +14823,7 @@
     }]
   }, {
     "name": "algorithms/Array.matrixSolve",
-    "description": "Solves for x in the matrix equation A*x\u003dB, finding a least-squares solution if A is overdetermined.",
+    "description": "Solves for x in the matrix equation A * x \u003d B, finding a least-squares solution if A is overdetermined.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14899,7 +14899,7 @@
     }]
   }, {
     "name": "algorithms/Image.matrixMultiply",
-    "description": "Returns the matrix multiplication A*B for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
+    "description": "Returns the matrix multiplication A * B for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -14912,7 +14912,7 @@
     }]
   }, {
     "name": "algorithms/Image.matrixSolve",
-    "description": "Solves for x in the matrix equation A*x\u003dB, finding a least-squares solution if A is overdetermined for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
+    "description": "Solves for x in the matrix equation A * x \u003d B, finding a least-squares solution if A is overdetermined for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is the union of the input types.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -14925,7 +14925,7 @@
     }]
   }, {
     "name": "algorithms/Array.matrixCholeskyDecomposition",
-    "description": "Calculates the Cholesky decomposition of a matrix. The Cholesky decomposition is a decomposition into the form L*L\u0027 where L is a lower triangular matrix. The input must be a symmetric positive-definite matrix. Returns a dictionary with 1 entry named \u0027L\u0027.",
+    "description": "Calculates the Cholesky decomposition of a matrix. The Cholesky decomposition is a decomposition into the form L * L\u0027 where L is a lower triangular matrix. The input must be a symmetric positive-definite matrix. Returns a dictionary with 1 entry named \u0027L\u0027.",
     "returnType": "Dictionary\u003cObject\u003e",
     "arguments": [{
       "argumentName": "array",
@@ -14961,7 +14961,7 @@
     }]
   }, {
     "name": "algorithms/Image.matrixCholeskyDecomposition",
-    "description": "Calculates the Cholesky decomposition of a matrix. The Cholesky decomposition is a decomposition into the form L*L\u0027 where L is a lower triangular matrix. The input must be a symmetric positive-definite matrix. Returns an image with 1 band named \u0027L\u0027.",
+    "description": "Calculates the Cholesky decomposition of a matrix. The Cholesky decomposition is a decomposition into the form L * L\u0027 where L is a lower triangular matrix. The input must be a symmetric positive-definite matrix. Returns an image with 1 band named \u0027L\u0027.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",

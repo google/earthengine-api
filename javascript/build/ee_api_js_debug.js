@@ -7409,7 +7409,7 @@ module$contents$goog$html$SafeHtml_SafeHtml.createScript = function(script, attr
   for (var attr in attributes) {
     if (Object.prototype.hasOwnProperty.call(attributes, attr)) {
       var attrLower = attr.toLowerCase();
-      if ("language" == attrLower || "src" == attrLower || "text" == attrLower || "type" == attrLower) {
+      if ("language" == attrLower || "src" == attrLower || "text" == attrLower) {
         throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'Cannot set "' + attrLower + '" attribute' : "");
       }
     }
@@ -7972,7 +7972,7 @@ goog.string.truncateMiddle = function(str, chars, opt_protectEscapedCharacters, 
   opt_protectEscapedCharacters && (str = goog.string.htmlEscape(str));
   return str;
 };
-goog.string.specialEscapeChars_ = {"\x00":"\\0", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\x0B", '"':'\\"', "\\":"\\\\", "<":"\\u003C"};
+goog.string.specialEscapeChars_ = {"\x00":"\\0", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\v":"\\x0B", '"':'\\"', "\\":"\\\\", "<":"\\u003C"};
 goog.string.jsEscapeCache_ = {"'":"\\'"};
 goog.string.quote = function(s) {
   s = String(s);
@@ -13644,6 +13644,28 @@ module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsApiClientImpl.proto
 };
 module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsApiClient = function() {
 };
+module$exports$eeapiclient$ee_api_client.IProjectsFeatureViewsTilesApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsFeatureViewsTilesApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IProjectsFeatureViewsTilesApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IProjectsFeatureViewsTilesApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClientImpl.prototype.get = function(parent, zoom, x, y, namedParameters, passthroughNamedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  passthroughNamedParameters = void 0 === passthroughNamedParameters ? {} : passthroughNamedParameters;
+  this.$apiClient.$validateParameter(parent, RegExp("^projects/[^/]+/featureViews/[^/]+$"));
+  return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.featureViews.tiles.get", path:"/" + this.gapiVersion + "/" + parent + "/tiles/" + zoom + "/" + x + "/" + y, queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.HttpBody});
+};
+module$exports$eeapiclient$ee_api_client.ProjectsFeatureViewsTilesApiClient = function() {
+};
 module$exports$eeapiclient$ee_api_client.IProjectsFilmstripThumbnailsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsFilmstripThumbnailsApiClient$XgafvEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ProjectsFilmstripThumbnailsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
@@ -16194,7 +16216,7 @@ goog.json.Serializer.prototype.serializeInternal = function(object, sb) {
     }
   }
 };
-goog.json.Serializer.charToJsonCharCache_ = {'"':'\\"', "\\":"\\\\", "/":"\\/", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\x0B":"\\u000b"};
+goog.json.Serializer.charToJsonCharCache_ = {'"':'\\"', "\\":"\\\\", "/":"\\/", "\b":"\\b", "\f":"\\f", "\n":"\\n", "\r":"\\r", "\t":"\\t", "\v":"\\u000b"};
 goog.json.Serializer.charsToReplace_ = /\uffff/.test("\uffff") ? /[\\"\x00-\x1f\x7f-\uffff]/g : /[\\"\x00-\x1f\x7f-\xff]/g;
 goog.json.Serializer.prototype.serializeString_ = function(s, sb) {
   sb.push('"', s.replace(goog.json.Serializer.charsToReplace_, function(c) {
@@ -16998,7 +17020,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.294";
+ee.apiclient.API_CLIENT_VERSION = "0.1.295";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17279,8 +17301,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.294";
-  "0.1.294" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.295";
+  "0.1.295" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
