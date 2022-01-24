@@ -62,6 +62,12 @@ function createPieChartSliceDictionary(fc) {
   return ee.List(fc.aggregate_array("transition_class_palette"))
     .map(function(p) { return {'color': p}; }).getInfo();
 }
+
+// Convert a number to a string. Used for constructing dictionary key lists
+// from computed number objects.
+function numToString(num) {
+  return ee.Number(num).format();
+}
 // [END define_helper_functions]
 
 // [START define_lookup_dictionaries]
@@ -71,12 +77,12 @@ function createPieChartSliceDictionary(fc) {
 
 // Create a dictionary for looking up names of transition classes.
 var lookup_names = ee.Dictionary.fromLists(
-    ee.List(gsw.get('transition_class_values')).map(ee.String),
+    ee.List(gsw.get('transition_class_values')).map(numToString),
     gsw.get('transition_class_names')
 );
 // Create a dictionary for looking up colors of transition classes.
 var lookup_palette = ee.Dictionary.fromLists(
-    ee.List(gsw.get('transition_class_values')).map(ee.String),
+    ee.List(gsw.get('transition_class_values')).map(numToString),
     gsw.get('transition_class_palette')
 );
 // [END define_lookup_dictionaries]
