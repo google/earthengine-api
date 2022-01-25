@@ -547,6 +547,9 @@ function deepEqualsValue(
       return false;
     }
 
+  } else if (isSerializable) {
+    return deepEquals(value1 as ISerializable, value2 as ISerializable);
+
   } else if (typeof value1 === 'object') {
     if (JSON.stringify(value1) !== JSON.stringify(value2)) {
       return false;

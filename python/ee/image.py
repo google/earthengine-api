@@ -413,38 +413,56 @@ class Image(element.Element):
     return self._apply_spatial_transformations(params)
 
   def getDownloadURL(self, params=None):
-    """Get a download URL for this image.
+    """Get a download URL for an image chunk.
+
+    Generates a download URL for small chunks of image data in GeoTIFF or NumPy
+    format. Maximum request size is 32 MB, maximum grid dimension is 10000.
+
+    Use getThumbURL for RGB visualization formats PNG and JPG.
 
     Args:
-      params: An object containing visualization options with the following
+      params: An object containing download options with the following
           possible values:
-        name -  a base name to use when constructing filenames.
-        bands -  a description of the bands to download. Must be an array of
-            dictionaries, each with the following keys:
-          id -  the name of the band, a string, required.
-          crs -  an optional CRS string defining the band projection.
-          crs_transform -  an optional array of 6 numbers specifying an affine
-              transform from the specified CRS, in the order: xScale, yShearing,
-              xShearing, yScale, xTranslation and yTranslation.
-          dimensions -  an optional array of two integers defining the width and
+        - name: a base name to use when constructing filenames. Only applicable
+            when format is "ZIPPED_GEO_TIFF" (default) or filePerBand is true.
+            Defaults to the image id (or "download" for computed images) when
+            format is "ZIPPED_GEO_TIFF" or filePerBand is true, otherwise a
+            random character string is generated. Band names are appended when
+            filePerBand is true.
+        - bands: a description of the bands to download. Must be an array of
+            band names or an array of dictionaries, each with the
+            following keys:
+          + id: the name of the band, a string, required.
+          + crs: an optional CRS string defining the band projection.
+          + crs_transform: an optional array of 6 numbers specifying an affine
+              transform from the specified CRS, in the order:
+              [xScale, yShearing, xShearing, yScale, xTranslation, yTranslation]
+          + dimensions: an optional array of two integers defining the width and
               height to which the band is cropped.
-          scale -  an optional number, specifying the scale in meters of the
-                 band; ignored if crs and crs_transform is specified.
-        crs -  a default CRS string to use for any bands that do not explicitly
+          + scale: an optional number, specifying the scale in meters of the
+                 band; ignored if crs and crs_transform are specified.
+        - crs: a default CRS string to use for any bands that do not explicitly
             specify one.
-        crs_transform -  a default affine transform to use for any bands that do
+        - crs_transform: a default affine transform to use for any bands that do
             not specify one, of the same format as the crs_transform of bands.
-        dimensions -  default image cropping dimensions to use for any bands
+        - dimensions: default image cropping dimensions to use for any bands
             that do not specify them.
-        scale -  a default scale to use for any bands that do not specify one;
+        - scale: a default scale to use for any bands that do not specify one;
             ignored if crs and crs_transform is specified.
-        region -  a polygon specifying a region to download; ignored if crs
-            and crs_transform is specified.
-        filePerBand - whether to produce a different GeoTIFF per band (boolean).
+        - region: a polygon specifying a region to download; ignored if crs
+            and crs_transform are specified.
+        - filePerBand: whether to produce a separate GeoTIFF per band (boolean).
             Defaults to true. If false, a single GeoTIFF is produced and all
             band-level transformations will be ignored.
+        - format: the download format. One of:
+            "ZIPPED_GEO_TIFF" (GeoTIFF file(s) wrapped in a zip file, default),
+            "GEO_TIFF" (GeoTIFF file), "NPY" (NumPy binary format).
+            If "GEO_TIFF" or "NPY", filePerBand and all band-level
+            transformations will be ignored. Loading a NumPy output results in
+            a structured array.
+
     Returns:
-      A URL to download the specified image.
+      A URL to download for the specified image chunk.
     """
     request = params or {}
     request['image'] = self

@@ -492,7 +492,8 @@ ee.rpc_convert.listImagesToGetList = function(result) {
 };
 
 /**
- * @param {?string} type The cloud asset type.
+ * @param {?string} type The cloud asset type. These types must match the values
+ *     in google.earthengine.v1main.EarthEngineAsset.Type.
  * @return {string} The equivalent legacy asset type.
  */
 ee.rpc_convert.assetTypeToLegacyAssetType = function(type) {

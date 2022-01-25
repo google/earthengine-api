@@ -200,10 +200,10 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  * @param {Object} params An object containing download options with the
  *     following possible values:
  *   - name: a base name to use when constructing filenames. Only applicable
- *         when format is zipped_geotiff (default) or filePerBand is true.
+ *         when format is "ZIPPED_GEO_TIFF" (default) or filePerBand is true.
  *         Defaults to the image id (or "download" for computed images) when
- *         format is zipped_geotiff or filePerBand is true, otherwise a random
- *         character string is generated. Band names are appended when
+ *         format is "ZIPPED_GEO_TIFF" or filePerBand is true, otherwise a
+ *         random character string is generated. Band names are appended when
  *         filePerBand is true.
  *   - bands: a description of the bands to download. Must be an array of band
  *         names or an array of dictionaries, each with the following keys
@@ -216,7 +216,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *     + dimensions: an optional array of two integers defining the width and
  *           height to which the band is cropped.
  *     + scale: an optional number, specifying the scale in meters of the band;
- *              ignored if crs and crs_transform is specified.
+ *              ignored if crs and crs_transform are specified.
  *   - crs: a default CRS string to use for any bands that do not explicitly
  *         specify one.
  *   - crs_transform: a default affine transform to use for any bands that do
@@ -224,16 +224,17 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
  *   - dimensions: default image cropping dimensions to use for any bands that
  *         do not specify them.
  *   - scale: a default scale to use for any bands that do not specify one;
- *         ignored if crs and crs_transform is specified.
+ *         ignored if crs and crs_transform are specified.
  *   - region: a polygon specifying a region to download; ignored if crs
  *         and crs_transform is specified.
- *   - filePerBand: Whether to produce a separate GeoTIFF per band (boolean).
+ *   - filePerBand: whether to produce a separate GeoTIFF per band (boolean).
  *         Defaults to true. If false, a single GeoTIFF is produced and all
  *         band-level transformations will be ignored.
  *   - format: the download format. One of: "ZIPPED_GEO_TIFF" (GeoTIFF file(s)
  *         wrapped in a zip file, default), "GEO_TIFF" (GeoTIFF file),
- *         "NPY" (NumPy structured array). If "GEO_TIFF" or "NPY", filePerBand
- *         and all band-level transformations will be ignored.
+ *         "NPY" (NumPy binary format). If "GEO_TIFF" or "NPY", filePerBand
+ *         and all band-level transformations will be ignored. Loading a NumPy
+ *         output results in a structured array.
  * @param {function(string?, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {string|undefined} Returns a download URL, or undefined if a callback

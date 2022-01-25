@@ -1026,7 +1026,8 @@ def _prepare_table_export_config(collection, config, export_destination):
   Returns:
     A config dict containing all information required for the export.
   """
-  if export_destination != Task.ExportDestination.ASSET:
+  if (export_destination != Task.ExportDestination.ASSET
+     ):
     if 'fileFormat' not in config:
       config['fileFormat'] = 'CSV'
 
@@ -1497,7 +1498,8 @@ def _canonicalize_parameters(config, destination):
 
     if 'driveFileNamePrefix' not in config and 'description' in config:
       config['driveFileNamePrefix'] = config['description']
-  elif destination != Task.ExportDestination.ASSET:
+  elif (destination != Task.ExportDestination.ASSET
+       ):
     raise ee_exception.EEException('Unknown export destination.')
 
   if (IMAGE_FORMAT_FIELD in config and

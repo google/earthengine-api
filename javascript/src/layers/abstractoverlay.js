@@ -80,9 +80,11 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
 
     // MapType options required by the compiler but which we don't support.
 
-    this.projection = null;
+    /** @type {?} */
+    this.projection;
+    /** @type {?} */
+    this.alt;
     this.radius = 0;
-    this.alt = null;
   }
 
   /**

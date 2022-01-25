@@ -374,7 +374,7 @@ Export.video.toDrive = function(
  * equivalent parameters, see the Public API section above.
  *
  * @typedef {!data.ImageTaskConfig|!data.MapTaskConfig|
- *     !data.TableTaskConfig|!data.TableDmsTaskConfig|!data.VideoTaskConfig|
+ *     !data.TableTaskConfig|!data.FeatureViewTaskConfig|!data.VideoTaskConfig|
  *     !data.VideoMapTaskConfig|!data.ClassifierTaskConfig}
  */
 const ServerTaskConfig = {};
@@ -622,7 +622,7 @@ Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
  * @param {!ServerTaskConfig} taskConfig Table export config to
  *     prepare.
  * @param {!data.ExportDestination} destination Export destination.
- * @return {!data.TableTaskConfig|!data.TableDmsTaskConfig}
+ * @return {!data.TableTaskConfig|!data.FeatureViewTaskConfig}
  * @private
  */
 Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
@@ -634,7 +634,7 @@ Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
   taskConfig = Export.reconcileTableFormat(taskConfig);
   // Add top-level destination fields.
   taskConfig = Export.prepareDestination_(taskConfig, destination);
-  return /** @type {!data.TableTaskConfig|!data.TableDmsTaskConfig} */ (
+  return /** @type {!data.TableTaskConfig|!data.FeatureViewTaskConfig} */ (
       taskConfig);
 };
 

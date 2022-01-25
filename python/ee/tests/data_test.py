@@ -5,7 +5,6 @@ from unittest import mock
 
 import httplib2
 
-
 import unittest
 import ee
 from ee import apitestcase
@@ -18,15 +17,12 @@ class DataTest(unittest.TestCase):
     mock_http = mock.MagicMock(httplib2.Http)
     # Return in three groups.
     mock_http.request.side_effect = [
-        (httplib2.Response({
-            'status': 200
-        }), b'{"operations": [{"name": "name1"}], "nextPageToken": "t1"}'),
-        (httplib2.Response({
-            'status': 200
-        }), b'{"operations": [{"name": "name2"}], "nextPageToken": "t2"}'),
-        (httplib2.Response({
-            'status': 200
-        }), b'{"operations": [{"name": "name3"}]}'),
+        (httplib2.Response({'status': 200}),
+         b'{"operations": [{"name": "name1"}], "nextPageToken": "t1"}'),
+        (httplib2.Response({'status': 200}),
+         b'{"operations": [{"name": "name2"}], "nextPageToken": "t2"}'),
+        (httplib2.Response({'status': 200}),
+         b'{"operations": [{"name": "name3"}]}'),
     ]
     with apitestcase.UsingCloudApi(mock_http=mock_http):
       self.assertEqual([{
@@ -48,20 +44,22 @@ class DataTest(unittest.TestCase):
     mock_http = mock.MagicMock(httplib2.Http)
     with apitestcase.UsingCloudApi(mock_http=mock_http), mock.patch.object(
         ee.data, 'updateAsset', autospec=True) as mock_update_asset:
-      ee.data.setAssetProperties(
-          'foo', {'mYPropErTy': 'Value', 'system:time_start': 1})
+      ee.data.setAssetProperties('foo', {
+          'mYPropErTy': 'Value',
+          'system:time_start': 1
+      })
       asset_id = mock_update_asset.call_args[0][0]
       self.assertEqual(asset_id, 'foo')
       asset = mock_update_asset.call_args[0][1]
-      self.assertEqual(
-          asset['properties'],
-          {'mYPropErTy': 'Value', 'system:time_start': 1})
+      self.assertEqual(asset['properties'], {
+          'mYPropErTy': 'Value',
+          'system:time_start': 1
+      })
       update_mask = mock_update_asset.call_args[0][2]
       self.assertSetEqual(
-          set(update_mask), set([
-              'properties.\"mYPropErTy\"',
-              'properties.\"system:time_start\"'
-          ]))
+          set(update_mask),
+          set(['properties.\"mYPropErTy\"',
+               'properties.\"system:time_start\"']))
 
   def testListAssets(self):
     cloud_api_resource = mock.MagicMock()
@@ -92,10 +90,9 @@ class DataTest(unittest.TestCase):
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
       mock_result = {'assets': [{'name': 'id1', 'type': 'FOLDER'}]}
       cloud_api_resource.projects().listAssets(
-          ).execute.return_value = mock_result
+      ).execute.return_value = mock_result
       actual_result = ee.data.listBuckets()
-    cloud_api_resource.projects().listAssets(
-        ).execute.assert_called_once()
+    cloud_api_resource.projects().listAssets().execute.assert_called_once()
     self.assertEqual(mock_result, actual_result)
 
   def testSimpleGetListViaCloudApi(self):
@@ -120,13 +117,11 @@ class DataTest(unittest.TestCase):
       mock_result = {'assets': [{'name': 'id1', 'type': 'IMAGE_COLLECTION'}]}
       cloud_api_resource.projects().listAssets(
       ).execute.return_value = mock_result
-      actual_result = ee.data.getList(
-          {'id': 'projects/my-project/assets/', 'num': 3})
-      expected_params = {
-
-          'parent': 'projects/my-project',
-          'pageSize': 3
-      }
+      actual_result = ee.data.getList({
+          'id': 'projects/my-project/assets/',
+          'num': 3
+      })
+      expected_params = {'parent': 'projects/my-project', 'pageSize': 3}
       expected_result = [{'id': 'id1', 'type': 'ImageCollection'}]
       cloud_api_resource.projects().listAssets.assert_called_with(
           **expected_params)
@@ -138,12 +133,11 @@ class DataTest(unittest.TestCase):
       mock_result = {'assets': [{'name': 'id1', 'type': 'IMAGE_COLLECTION'}]}
       cloud_api_resource.projects().listAssets(
       ).execute.return_value = mock_result
-      actual_result = ee.data.getList(
-          {'id': 'projects/my-project/assets', 'num': 3})
-      expected_params = {
-          'parent': 'projects/my-project',
-          'pageSize': 3
-      }
+      actual_result = ee.data.getList({
+          'id': 'projects/my-project/assets',
+          'num': 3
+      })
+      expected_params = {'parent': 'projects/my-project', 'pageSize': 3}
       expected_result = [{'id': 'id1', 'type': 'ImageCollection'}]
       cloud_api_resource.projects().listAssets.assert_called_with(
           **expected_params)
@@ -152,12 +146,7 @@ class DataTest(unittest.TestCase):
   def testComplexGetListViaCloudApi(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
-      mock_result = {
-          'images': [{
-              'name': 'id1',
-              'size_bytes': 1234
-          }]
-      }
+      mock_result = {'images': [{'name': 'id1', 'size_bytes': 1234}]}
       cloud_api_resource.projects().assets().listImages(
       ).execute.return_value = mock_result
       actual_result = ee.data.getList({
@@ -267,17 +256,15 @@ def DoCloudProfileStubHttp(test, expect_profiling):
 
   def Request(unused_self, unused_url, method, body, headers):
     _ = method, body  # Unused kwargs.
-    test.assertEqual(expect_profiling,
-                     ee.data._PROFILE_REQUEST_HEADER in headers)
-    response_dict = {
-        'status': 200,
-        'content-type': 'application/json'
-    }
+    test.assertEqual(expect_profiling, ee.data._PROFILE_REQUEST_HEADER
+                     in headers)
+    response_dict = {'status': 200, 'content-type': 'application/json'}
     if expect_profiling:
       response_dict[
           ee.data._PROFILE_RESPONSE_HEADER_LOWERCASE] = 'someProfileId'
     response = httplib2.Response(response_dict)
     return response, '{"data": "dummy_data"}'
+
   return mock.patch('httplib2.Http.request', new=Request)
 
 

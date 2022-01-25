@@ -291,8 +291,10 @@ class Filter(computedobject.ComputedObject):
     Items in the collection with a footprint that fails to intersect
     the given geometry will be excluded. This is an alias for geometry().
 
-    Caution: collating the geometries of complex FeatureCollection inputs can be
-    slow and memory intensive.
+    Caution: providing a large or complex collection as input can result in poor
+    performance. Collating the geometry of collections does not scale well, use
+    the smallest collection (or geometry) that is required to achieve the
+    desired outcome.
 
     Args:
       geometry: The geometry to filter to either as a GeoJSON geometry,
