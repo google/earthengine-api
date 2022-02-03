@@ -25,6 +25,8 @@ goog.provide('ee.data.ExportDestination');
 goog.provide('ee.data.ExportState');
 goog.provide('ee.data.ExportType');
 goog.provide('ee.data.FeatureCollectionDescription');
+goog.provide('ee.data.FeatureViewDescription');
+goog.provide('ee.data.FeatureViewTaskConfig');
 goog.provide('ee.data.FeatureVisualizationParameters');
 goog.provide('ee.data.FileBand');
 goog.provide('ee.data.FileSource');
@@ -55,6 +57,7 @@ goog.provide('ee.data.TableTaskConfig');
 goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
 goog.provide('ee.data.TaskUpdateActions');
+goog.provide('ee.data.ThinningStrategy');
 goog.provide('ee.data.ThumbnailId');
 goog.provide('ee.data.Tileset');
 goog.provide('ee.data.VideoTaskConfig');
@@ -465,6 +468,77 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat = '') {
   };
   return {mapid, token, formatTileUrl, urlFormat};
 };
+
+
+/**
+ * Get a tiles key for a given map or asset. The tiles key can be passed to an
+ * instance of FeatureViewTileSource which can be rendered on a base map outside
+ * of the Code Editor.
+ * @param {!ee.data.FeatureViewVisualizationParameters} params
+ *     The visualization parameters as a (client-side) JavaScript object.
+ *     For FeatureView assets:
+ *       - assetName (string) The asset ID for which to obtain a tiles key.
+ *       - visParams (Object) The visualization parameters for this layer.
+ * @param {function(?ee.data.FeatureViewTilesKey, string=)=} opt_callback An
+ *     optional callback. If not supplied, the call is made synchronously.
+ * @return {?ee.data.FeatureViewTilesKey} The call results. Null if a callback
+ *     is specified.
+ * @export
+ */
+ee.data.getFeatureViewTilesKey = function(params, opt_callback) {
+  const visualizationExpression = params.visParams ?
+      ee.data.expressionAugmenter_(
+          ee.Serializer.encodeCloudApiExpression(params.visParams)) :
+      null;
+  const map = new ee.api.FeatureView({
+    name: null,
+    asset: params.assetName,
+    visualizationExpression,
+  });
+  const fields = ['name'];
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(
+      call.featureView()
+          .create(call.projectsPath(), map, {fields})
+          .then((response) => {
+            const formatTileUrl = (x, y, z) =>
+                `${ee.apiclient.getTileBaseUrl()}/${ee.apiclient.VERSION}/${
+                    response['name']}/tiles/${z}/${x}/${y}`;
+            const token = response['name'].split('/').pop();
+            return {
+              token,
+              formatTileUrl,
+            };
+          }));
+};
+
+/**
+ * List features for a given table asset.
+ * @param {string} asset The table asset ID to query.
+ * @param {!ee.api.ProjectsAssetsListFeaturesNamedParameters} params An object
+ *     containing request parameters with the following possible values:
+ *     - pageSize (number): An optional maximum number of results per page,
+ *           default is 1000.
+ *     - pageToken (string): An optional token identifying a page of results the
+ *           server should return, usually taken from the response object.
+ *     - region (string): If present, a geometry defining a query region,
+ *           specified as a GeoJSON geometry string (see RFC 7946).
+ *     - filter (comma-separated strings): If present, specifies additional
+ *           simple property filters (see https://google.aip.dev/160).
+ * @param {function(!ee.api.ListFeaturesResponse, string=)=} opt_callback An
+ *     optional callback, called with two parameters: the first is the resulting
+ *     list of features and the second is an error string on failure. If not
+ *     supplied, the call is made synchronously.
+ * @return {?ee.api.ListFeaturesResponse} The call results. Null if a
+ *     callback is specified.
+ * @export
+ */
+ee.data.listFeatures = function(asset, params, opt_callback) {
+  const call = new ee.apiclient.Call(opt_callback);
+  const name = ee.rpc_convert.assetIdToAssetName(asset);
+  return call.handle(call.assets().listFeatures(name, params));
+};
+
 
 /**
  * Sends a request to compute a value.
@@ -1819,6 +1893,7 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
  */
 ee.data.AssetType = {
   ALGORITHM: 'Algorithm',
+  FEATURE_VIEW: 'FeatureView',
   FOLDER: 'Folder',
   FEATURE_COLLECTION: 'FeatureCollection',
   IMAGE: 'Image',
@@ -1852,6 +1927,13 @@ ee.data.ExportDestination = {
   DRIVE: 'DRIVE',
   GCS: 'GOOGLE_CLOUD_STORAGE',
   ASSET: 'ASSET',
+  FEATURE_VIEW: 'FEATURE_VIEW',
+};
+
+/** @enum {string} The FeatureView thinning strategy. */
+ee.data.ThinningStrategy = {
+  GLOBALLY_CONSISTENT: 'GLOBALLY_CONSISTENT',
+  HIGHER_DENSITY: 'HIGHER_DENSITY',
 };
 
 /** @enum {string} The names of the EE system time asset properties. */
@@ -2031,6 +2113,47 @@ ee.data.AssetQuotaDetails = class {
     this.asset_size;
   }
 };
+
+
+/**
+ * A description of a FeatureView. The type value is always
+ * ee.data.AssetType.FEATURE_VIEW.
+ * @record @struct
+ */
+ee.data.FeatureViewDescription = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string}
+     */
+    this.id;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.version;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.featureCount;
+
+    /**
+     * @export {!ee.api.FeatureViewLocation}
+     */
+    this.mapLocation;
+  }
+};
+
 
 /**
  * A description of a folder. The type value is always ee.data.AssetType.FOLDER.
@@ -2440,6 +2563,29 @@ ee.data.ImageVisualizationParameters = class {
   }
 };
 
+
+/**
+ * An object describing FeatureView visualization parameters.
+ * @see ee.data.getFeatureViewTilesKey
+ * @record @struct
+ */
+ee.data.FeatureViewVisualizationParameters = class {
+  constructor() {
+    /**
+     * The asset name to fetch the tiles key for.
+     * @export {string|undefined}
+     */
+    this.assetName;
+
+    /**
+     * The visualization parameters for this layer.
+     * @export {!Object|undefined}
+     */
+    this.visParams;
+  }
+};
+
+
 /**
  * An object describing the parameters for generating a thumbnail image.
  * Consists of all parameters of ee.data.ImageVisualizationParameters as well as
@@ -2778,6 +2924,26 @@ ee.data.MapId = class extends ee.data.RawMapId {
   }
 };
 
+
+/**
+ * A tiles key for displaying FeatureView layers.
+ * @record @struct
+ */
+ee.data.FeatureViewTilesKey = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.token;
+
+    /**
+     * @export {function(number,number,number):string}
+     */
+    this.formatTileUrl;
+  }
+};
+
+
 /**
  * The range of zoom levels for our map tiles.
  * @enum {number}
@@ -2925,6 +3091,26 @@ ee.data.ImageExportFormatConfig;
  * }}
  */
 ee.data.MapTaskConfig;
+
+/**
+ * An object for specifying configuration of a task to export feature
+ * collections to a FeatureView.
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: string,
+ *   sourceUrl: (undefined|string),
+ *   description: (undefined|string),
+ *   element: (undefined|!ee.Element),
+ *   mapName: (undefined|string),
+ *   maxFeaturesPerTile: (undefined|number),
+ *   thinningStrategy: (undefined|!ee.data.ThinningStrategy),
+ *   thinningRanking: (undefined|string|!Array<string>),
+ *   zOrderRanking: (undefined|string|!Array<string>),
+ * }}
+ */
+ee.data.FeatureViewTaskConfig;
+
 
 /**
  * An object for specifying configuration of a task to export feature

@@ -15,6 +15,7 @@ import platform
 import re
 import threading
 import uuid
+import sys
 
 import six
 from google_auth_httplib2 import AuthorizedHttp
@@ -100,6 +101,9 @@ _USER_PROJECT_OVERRIDE_HEADER = 'X-Goog-User-Project'
 
 # The HTTP header used to indicate the version of the client library used.
 _API_CLIENT_VERSION_HEADER = 'X-Goog-Api-Client'
+
+# Optional HTTP header returned to display initialization-time messages.
+_INIT_MESSAGE_HEADER = 'x-earth-engine-init-message'  # lowercase for httplib2
 
 # Maximum number of times to retry a rate-limited request.
 MAX_RETRIES = 5
@@ -583,6 +587,68 @@ def getMapId(params):
           'tile_fetcher': TileFetcher(url_format, map_name=map_name)}
 
 
+def getFeatureViewTilesKey(params):
+  """Get a tiles key for a given map or asset.
+
+  Args:
+    params: An object containing parameters with the following possible values:
+      assetId - The asset ID for which to obtain a tiles key.
+      visParams - The visualization parameters for this layer.
+
+  Returns:
+    A dictionary containing:
+    - "token" string: this identifies the FeatureView.
+  """
+  request = {
+      'asset':
+          _cloud_api_utils.convert_asset_id_to_asset_name(
+              params.get('assetId'))
+  }
+  # Only include visParams if it's non-empty.
+  if params.get('visParams'):
+    request['visualizationExpression'] = serializer.encode(
+        params.get('visParams'), for_cloud_api=True)
+  # Make it return only the name field, as otherwise it echoes the entire
+  # request, which might be large.
+  result = _execute_cloud_call(
+      _get_cloud_api_resource().projects().featureView().create(
+          parent=_get_projects_path(), fields='name', body=request))
+  token = result['name'].rsplit('/', 1).pop()
+  return {
+      'token': token,
+  }
+
+
+def listFeatures(params):
+  """List features for a given table or FeatureView asset.
+
+  Args:
+    params: An object containing parameters with the following possible values:
+      assetId - The asset ID for which to list features.
+      pageSize - An optional max number of results per page, default is 1000.
+      pageToken - An optional token identifying a new page of results the server
+                  should return, usually taken from the response object.
+      region - If present, a geometry defining a query region, specified as a
+               GeoJSON geometry string (see RFC 7946).
+      filter - If present, specifies additional simple property filters
+               (see https://google.aip.dev/160).
+
+  Returns:
+    A dictionary containing:
+    - "type": always "FeatureCollection" marking this object as a GeoJSON
+              feature collection.
+    - "features": a list of GeoJSON features.
+    - "next_page_token": A token to retrieve the next page of results in a
+                         subsequent call to this function.
+  """
+  params = params.copy()
+  params['asset'] = _cloud_api_utils.convert_asset_id_to_asset_name(
+      params.get('assetId'))
+  del params['assetId']
+  return _execute_cloud_call(
+      _get_cloud_api_resource().projects().assets().listFeatures(**params))
+
+
 def getTileUrl(mapid, x, y, z):
   """Generate a URL for map tiles from a Map ID and coordinates.
 
@@ -994,6 +1060,14 @@ def getAlgorithms():
   except TypeError:
     call = _get_cloud_api_resource().projects().algorithms().list(
         project=_get_projects_path(), prettyPrint=False)
+
+  def inspect(response):
+    if _INIT_MESSAGE_HEADER in response:
+      print(
+          '*** Earth Engine ***',
+          response[_INIT_MESSAGE_HEADER],
+          file=sys.stderr)
+  call.add_response_callback(inspect)
   return _cloud_api_utils.convert_algorithms(_execute_cloud_call(call))
 
 
@@ -1575,7 +1649,6 @@ def setIamPolicy(asset_id, policy):
           prettyPrint=False))
 
 
-@deprecation.Deprecated('Use updateAsset')
 def setAssetProperties(assetId, properties):
   """Sets metadata properties of the asset with the given ID.
 

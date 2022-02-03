@@ -20,6 +20,7 @@ ee.rpc_convert_batch.ExportDestination = {
   DRIVE: 'DRIVE',
   GCS: 'GOOGLE_CLOUD_STORAGE',
   ASSET: 'ASSET',
+  FEATURE_VIEW: 'FEATURE_VIEW',
 };
 
 
@@ -86,6 +87,7 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
     description: stringOrNull_(params['description']),
     fileExportOptions: null,
     assetExportOptions: null,
+    featureViewExportOptions: null,
     selectors: /** @type {?Array<string>} */ (selectors),
     maxErrorMeters: numberOrNull_(params['maxErrorMeters']),
     requestId: stringOrNull_(params['id']),
@@ -103,6 +105,10 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
     case ee.rpc_convert_batch.ExportDestination.ASSET:
       result.assetExportOptions =
           ee.rpc_convert_batch.buildTableAssetExportOptions_(params);
+      break;
+    case ee.rpc_convert_batch.ExportDestination.FEATURE_VIEW:
+      result.featureViewExportOptions =
+          ee.rpc_convert_batch.buildFeatureViewExportOptions_(params);
       break;
     default:
       throw new Error(`Export destination "${destination}" unknown`);
@@ -254,6 +260,8 @@ ee.rpc_convert_batch.guessDestination_ = function(params) {
     destination = ee.rpc_convert_batch.ExportDestination.GCS;
   } else if (params['assetId'] != null) {
     destination = ee.rpc_convert_batch.ExportDestination.ASSET;
+  } else if (params['mapName'] != null) {
+    destination = ee.rpc_convert_batch.ExportDestination.FEATURE_VIEW;
   }
   return destination;
 };
@@ -449,6 +457,24 @@ ee.rpc_convert_batch.buildTableAssetExportOptions_ = function(params) {
   });
 };
 
+
+/**
+ * Returns a FeatureViewExportOptions built from ExportParameters.
+ *
+ * @param {!Object} params
+ * @return {!ee.api.FeatureViewAssetExportOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildFeatureViewExportOptions_ = function(params) {
+  return new ee.api.FeatureViewAssetExportOptions({
+    featureViewDestination:
+        ee.rpc_convert_batch.buildFeatureViewDestination_(params),
+    ingestionTimeParameters:
+        ee.rpc_convert_batch.buildFeatureViewIngestionTimeParameters_(params),
+  });
+};
+
+
 /**
  * Returns a VideoFileExportOptions built from ExportParameters.
  *
@@ -638,4 +664,139 @@ ee.rpc_convert_batch.buildDriveDestination_ = function(params) {
 ee.rpc_convert_batch.buildEarthEngineDestination_ = function(params) {
   return new ee.api.EarthEngineDestination(
       {name: ee.rpc_convert.assetIdToAssetName(params['assetId'])});
+};
+
+
+/**
+ * @param {!Object} params A FeatureViewDestination parameter list.
+ * @return {!ee.api.FeatureViewDestination}
+ * @private
+ */
+ee.rpc_convert_batch.buildFeatureViewDestination_ = function(params) {
+  return new ee.api.FeatureViewDestination(
+      {name: ee.rpc_convert.assetIdToAssetName(params['mapName'])});
+};
+
+/**
+ * @param {?Object} params An ExportParameters parameter list.
+ * @return {?ee.api.FeatureViewIngestionTimeParameters}
+ * @private
+ */
+ee.rpc_convert_batch.buildFeatureViewIngestionTimeParameters_ = function(
+    params) {
+  return new ee.api.FeatureViewIngestionTimeParameters({
+    thinningOptions: ee.rpc_convert_batch.buildThinningOptions_(params),
+    rankingOptions: ee.rpc_convert_batch.buildRankingOptions_(params)
+  });
+};
+
+/**
+ * @param {?Object} params ExportParameters parameters list.
+ * @return {?ee.api.ThinningOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildThinningOptions_ = function(params) {
+  if (params == null) {
+    return null;
+  }
+  return new ee.api.ThinningOptions({
+    maxFeaturesPerTile: numberOrNull_(params['maxFeaturesPerTile']),
+    thinningStrategy: params['thinningStrategy']
+  });
+};
+
+/**
+ * @param {?Object} params ExportParameters parameters list.
+ * @return {?ee.api.RankingOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildRankingOptions_ = function(params) {
+  if (params == null) {
+    return null;
+  }
+  return new ee.api.RankingOptions({
+    zOrderRankingRule:
+        ee.rpc_convert_batch.buildRankingRule_(params['zOrderRanking']),
+    thinningRankingRule:
+        ee.rpc_convert_batch.buildRankingRule_(params['thinningRanking']),
+  });
+};
+
+/**
+ * @param {*} rules Ranking rules expressed as either one string or a list of
+ *     rule strings.
+ * @return {?ee.api.RankingRule}
+ * @private
+ */
+ee.rpc_convert_batch.buildRankingRule_ = function(rules) {
+  if (!rules) {
+    return null;
+  }
+  const originalRules = rules;
+  if (typeof rules === 'string') {
+    rules = rules.split(',');
+  }
+  if (Array.isArray(rules)) {
+    return new ee.api.RankingRule({
+      rankByOneThingRule:
+          (rules || []).map(ee.rpc_convert_batch.buildRankByOneThingRule_),
+    });
+  } else {
+    throw new Error(`Unable to build ranking rule from rules: ${
+        JSON.stringify(
+            originalRules)}. Rules should either be a comma-separated string or list of strings.`);
+  }
+};
+
+/**
+ * @param {?string} ruleString String representing a RankByOneThingRule.
+ * @return {!ee.api.RankByOneThingRule}
+ * @private
+ */
+ee.rpc_convert_batch.buildRankByOneThingRule_ = function(ruleString) {
+  const rankByOneThingRule = new ee.api.RankByOneThingRule({
+    direction: null,
+    rankByAttributeRule: null,
+    rankByMinZoomLevelRule: null,
+    rankByGeometryTypeRule: null,
+  });
+
+  // Parse rule string. Input is expected in the string format: `attr_name ASC,
+  // .minZoomLevel DESC, .geometryType ASC` or as a list of strings: ["attr_name
+  // ASC", ".pixelSize DESC", ".geometryType ASC"]. .minZoomLevel and .geometryType
+  // correspond to minVisibleLOD and geometryType ranking rules in DMS. Rules
+  // that do not start with the keywords ".minZoomLevel" or ".geometryType" are
+  // assumed to be attribute rules.
+  ruleString = ruleString.trim();
+  const matches = ruleString.match(/^([\S]+.*)\s+(ASC|DESC)$/);
+  if (matches == null) {
+    throw new Error(
+        'Ranking rule format is invalid. Each rule should be defined by a rule type and a direction (ASC or DESC), separated by a space. Valid rule types are: .geometryType, .minZoomLevel, or a feature property name.');
+  }
+  const [, ruleType, direction] = matches;
+  switch (direction.toUpperCase()) {
+    case 'ASC':
+      rankByOneThingRule.direction = 'ASCENDING';
+      break;
+    case 'DESC':
+      rankByOneThingRule.direction = 'DESCENDING';
+      break;
+    default:
+      throw new Error(`Ranking rule direction '${
+          direction}' is invalid. Directions are: ASC, DESC.`);
+  }
+  switch (ruleType.trim()) {
+    case '.geometryType':
+      rankByOneThingRule.rankByGeometryTypeRule =
+          new ee.api.RankByGeometryTypeRule({});
+      break;
+    case '.minZoomLevel':
+      rankByOneThingRule.rankByMinZoomLevelRule =
+          new ee.api.RankByMinZoomLevelRule({});
+      break;
+    default:
+      rankByOneThingRule.rankByAttributeRule = new ee.api.RankByAttributeRule(
+          {attributeName: stringOrNull_(ruleType)});
+  }
+  return rankByOneThingRule;
 };

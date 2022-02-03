@@ -25,7 +25,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.296';
+const API_CLIENT_VERSION = '0.1.297';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -158,6 +158,11 @@ class Call {
     return new api.ProjectsVideoApiClientImpl(
         apiVersion.VERSION, this.requestService);
   }
+  featureView() {
+    return new api.ProjectsFeatureViewApiClientImpl(
+        apiVersion.VERSION, this.requestService);
+  }
+
   thumbnails() {
     return new api.ProjectsThumbnailsApiClientImpl(
         apiVersion.VERSION, this.requestService);

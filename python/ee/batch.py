@@ -70,6 +70,7 @@ class Task(object):
     DRIVE = 'DRIVE'
     GCS = 'GOOGLE_CLOUD_STORAGE'
     ASSET = 'ASSET'
+    FEATURE_VIEW = 'FEATURE_VIEW'
 
   def start(self):
     """Starts the task. No-op for started tasks."""
@@ -493,7 +494,8 @@ class Export(object):
     def __new__(cls, collection, description='myExportTableTask', config=None):
       """Export an EE FeatureCollection as a table.
 
-      The exported table will reside in Google Drive or Cloud Storage.
+      The exported table will reside in Google Drive, Cloud Storage, or as a
+      FeatureView.
 
       Args:
         collection: The feature collection to be exported.
@@ -516,6 +518,11 @@ class Export(object):
             If exporting to Google Cloud Storage:
             - outputBucket: The name of a Cloud Storage bucket for the export.
             - outputPrefix: Cloud Storage object name prefix for the export.
+            If exporting to FeatureView:
+            - thinning_options: Options that control the density at which
+              features are displayed per tile.
+            - ranking_options: Options for assigning z-order ranks and thinning
+              ranks to features.
 
       Returns:
         An unstarted Task that exports the table.
@@ -627,6 +634,32 @@ class Export(object):
       config = _capture_parameters(locals(), ['collection'])
       config = _prepare_table_export_config(collection, config,
                                             Task.ExportDestination.ASSET)
+      return _create_export_task(config, Task.Type.EXPORT_TABLE)
+
+    @staticmethod
+    def toFeatureView(collection,
+                      description='myExportTableTask',
+                      assetId=None,
+                      ingestionTimeParameters=None,
+                      **kwargs):
+      """Creates a task to export a FeatureCollection to a FeatureView.
+
+      Args:
+        collection: The feature collection to be exported.
+        description: Human-readable name of the task.
+        assetId: The destination asset ID.
+        ingestionTimeParameters: The FeatureView ingestion time parameters.
+        **kwargs: Holds other keyword arguments that may have been deprecated.
+
+      Returns:
+        An unstarted Task that exports the table.
+      """
+      config = dict(
+          description=description,
+          assetId=assetId,
+          ingestionTimeParameters=ingestionTimeParameters)
+      config = _prepare_table_export_config(collection, config,
+                                            Task.ExportDestination.FEATURE_VIEW)
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
   class video(object):
@@ -1026,8 +1059,8 @@ def _prepare_table_export_config(collection, config, export_destination):
   Returns:
     A config dict containing all information required for the export.
   """
-  if (export_destination != Task.ExportDestination.ASSET
-     ):
+  if (export_destination != Task.ExportDestination.ASSET and
+      export_destination != Task.ExportDestination.FEATURE_VIEW):
     if 'fileFormat' not in config:
       config['fileFormat'] = 'CSV'
 
@@ -1044,6 +1077,11 @@ def _prepare_table_export_config(collection, config, export_destination):
   if export_destination == Task.ExportDestination.ASSET:
     request['assetExportOptions'] = {
         'earthEngineDestination': _build_earth_engine_destination(config)
+    }
+  elif export_destination == Task.ExportDestination.FEATURE_VIEW:
+    request['featureViewExportOptions'] = {
+        'featureViewDestination': _build_feature_view_destination(config),
+        'ingestionTimeParameters': _build_ingestion_time_parameters(config)
     }
   else:
     request['fileExportOptions'] = _build_table_file_export_options(
@@ -1395,6 +1433,43 @@ def _build_earth_engine_destination(config):
   }
 
 
+def _build_feature_view_destination(config):
+  """Builds a FeatureViewDestination from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the FeatureViewDestination.
+
+  Returns:
+    A FeatureViewDestination containing information extracted from
+    config.
+  """
+  return {
+      'name': _cloud_api_utils.convert_asset_id_to_asset_name(
+          config.pop('assetId'))
+  }
+
+
+def _build_ingestion_time_parameters(config):
+  """Builds a FeatureViewIngestionTimeParameters from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the FeatureViewIngestionTimeParameters.
+
+  Returns:
+    A FeatureViewIngestionTimeParameters containing information extracted from
+    config.
+  """
+  parameters = {}
+
+  input_params = config.pop('ingestionTimeParameters', None)
+  if input_params:
+    for param in input_params.keys() & ['thinningOptions', 'rankingOptions']:
+      parameters[param] = input_params.pop(param)
+  return parameters
+
+
 def _create_export_task(config, task_type):
   """Creates an export task.
 
@@ -1498,8 +1573,8 @@ def _canonicalize_parameters(config, destination):
 
     if 'driveFileNamePrefix' not in config and 'description' in config:
       config['driveFileNamePrefix'] = config['description']
-  elif (destination != Task.ExportDestination.ASSET
-       ):
+  elif (destination != Task.ExportDestination.ASSET and
+        destination != Task.ExportDestination.FEATURE_VIEW):
     raise ee_exception.EEException('Unknown export destination.')
 
   if (IMAGE_FORMAT_FIELD in config and

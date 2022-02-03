@@ -1,7 +1,7 @@
 const hexGrid = require('@turf/hex-grid').default;
 const ee = require('@google/earthengine');
 
-const PRIVATE_KEY = require('./privatekey.json');
+const PRIVATE_KEY = require('./.private-key.json');
 
 const DEGREES_LATITUDE_TO_MILES = 69;
 

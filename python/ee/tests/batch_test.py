@@ -724,6 +724,72 @@ class BatchTestCase(apitestcase.ApiTestCase):
               }
           }, task.config)
 
+  def testExportTableToFeatureViewCloudApi(self):
+    """Verifies the export task created by Export.table.toFeatureView()."""
+    with apitestcase.UsingCloudApi():
+      task = ee.batch.Export.table.toFeatureView(
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          assetId='users/foo/bar',
+          ingestionTimeParameters={
+              'thinningOptions': {
+                  'maxFeaturesPerTile': 10,
+              },
+              'rankingOptions': {
+                  'zOrderRankingRule': {}
+              }
+          })
+      self.assertIsNone(task.id)
+      self.assertIsNone(task.name)
+      self.assertEqual('EXPORT_FEATURES', task.task_type)
+      self.assertEqual('UNSUBMITTED', task.state)
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('foo'),
+              'description': 'foo',
+              'featureViewExportOptions': {
+                  'featureViewDestination': {
+                      'name': 'projects/earthengine-legacy/assets/users/foo/bar'
+                  },
+                  'ingestionTimeParameters': {
+                      'thinningOptions': {
+                          'maxFeaturesPerTile': 10
+                      },
+                      'rankingOptions': {
+                          'zOrderRankingRule': {}
+                      }
+                  }
+              }
+          }, task.config)
+
+  def testExportTableToFeatureViewEmptyParamsCloudApi(self):
+    """Verifies the export task created by Export.table.toFeatureView()."""
+    with apitestcase.UsingCloudApi():
+      task = ee.batch.Export.table.toFeatureView(
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          assetId='users/foo/bar')
+      with self.subTest(name='TaskIdAndName'):
+        self.assertIsNone(task.id)
+        self.assertIsNone(task.name)
+      with self.subTest(name='TypeIsExportFeatures'):
+        self.assertEqual('EXPORT_FEATURES', task.task_type)
+      with self.subTest(name='StateIsUnsubmitted'):
+        self.assertEqual('UNSUBMITTED', task.state)
+      with self.subTest(name='ConfigContents'):
+        self.assertEqual(
+            {
+                'expression': ee.FeatureCollection('foo'),
+                'description': 'foo',
+                'featureViewExportOptions': {
+                    'featureViewDestination': {
+                        'name':
+                            'projects/earthengine-legacy/assets/users/foo/bar'
+                    },
+                    'ingestionTimeParameters': {}
+                }
+            }, task.config)
+
   def testExportVideoCloudApi(self):
     """Verifies the task created by Export.video()."""
     with apitestcase.UsingCloudApi():

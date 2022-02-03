@@ -251,6 +251,52 @@ class DataTest(unittest.TestCase):
       with self.assertRaisesRegex(ee.ee_exception.EEException, '^errorly$'):
         ee.data.listImages({'parent': 'projects/earthengine-public/assets/q'})
 
+  def testListFeatures(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {
+          'type':
+              'FeatureCollection',
+          'features': [{
+              'type': 'Feature',
+              'properties': {
+                  'baz': 'qux',
+                  'foo': 'bar',
+                  'system:index': '0'
+              }
+          }]
+      }
+      cloud_api_resource.projects().assets().listFeatures(
+      ).execute.return_value = mock_result
+      actual_result = ee.data.listFeatures({
+          'assetId':
+              'users/userfoo/foobar',
+          'region':
+              '{\"type\":\"Polygon\",\"coordinates\":[[[-96,42],[-95,42],[-95,43],[-96,43],[-96,42]]]}'
+      })
+      cloud_api_resource.projects().assets().listFeatures(
+      ).execute.assert_called_once()
+      self.assertEqual(mock_result, actual_result)
+
+  def testGetFeatureViewTilesKey(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {
+          'name': 'projects/projectfoo/featureView/tiles-key-foo'
+      }
+      cloud_api_resource.projects().featureView().create(
+      ).execute.return_value = mock_result
+      actual_result = ee.data.getFeatureViewTilesKey({
+          'assetId': 'projects/projectfoo/assets/assetbar',
+      })
+      cloud_api_resource.projects().featureView().create(
+      ).execute.assert_called_once()
+      self.assertEqual(
+          {
+              'token': 'tiles-key-foo',
+          },
+          actual_result)
+
 
 def DoCloudProfileStubHttp(test, expect_profiling):
 

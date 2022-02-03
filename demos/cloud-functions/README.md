@@ -42,8 +42,8 @@ npm install
 
 [Create and authorize a Service
 Account](https://developers.google.com/earth-engine/service_account), and put
-your `privatekey.json` file in the project root folder. Next, test the endpoint
-(Cloud Function) script locally:
+your `.private-key.json` file in the project root folder. Next, test the
+endpoint (Cloud Function) script locally:
 
 ```
 npm test

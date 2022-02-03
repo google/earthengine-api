@@ -7,4 +7,4 @@
 EE_ACCOUNT = '<YOUR-SERVICE-ACCOUNT-ID>@developer.gserviceaccount.com'
 
 # The private key associated with your service account in JSON format.
-EE_PRIVATE_KEY_FILE = 'privatekey.json'
+EE_PRIVATE_KEY_FILE = '.private-key.json'

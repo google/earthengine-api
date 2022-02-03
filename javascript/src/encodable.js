@@ -510,6 +510,8 @@ ee.rpc_convert.assetTypeToLegacyAssetType = function(type) {
       return 'Table';
     case 'CLASSIFIER':
       return 'Classifier';
+    case 'FEATURE_VIEW':
+      return 'FeatureView';
     default:
       return 'Unknown';
   }
@@ -607,6 +609,12 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
       }
       return legacyBand;
     });
+  }
+  if (result.featureViewAssetLocation) {
+    asset['mapLocation'] = result.featureViewAssetLocation;
+  }
+  if (result.featureCount) {
+    asset['featureCount'] = result.featureCount;
   }
   return asset;
 };
