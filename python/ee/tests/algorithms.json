@@ -9213,7 +9213,7 @@
     }]
   }, {
     "name": "algorithms/Image.normalizedDifference",
-    "description": "Computes the normalized difference between two bands. If the bands to use are not specified, uses the first two bands. The normalized difference is computed as (first − second) / (first + second). Note that negative input values are forced to 0 so that the result is confined to the range (-1, 1).",
+    "description": "Computes the normalized difference between two bands. If the bands to use are not specified, uses the first two bands. The normalized difference is computed as (first − second) / (first + second). Note that the returned image band name is \u0027nd\u0027, the input image properties are not retained in the output image, and a negative pixel value in either input band will cause the output pixel to be masked. To avoid masking negative input values, use `ee.Image.expression()` to compute normalized difference.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -9713,11 +9713,11 @@
     }, {
       "argumentName": "from",
       "type": "List\u003cObject\u003e",
-      "description": "The source values (numbers or EEArrays). All values in this list will be mapped to the corresponding value in \u0027to\u0027."
+      "description": "The source values (numbers or ee.Array). All values in this list will be mapped to the corresponding value in \u0027to\u0027."
     }, {
       "argumentName": "to",
       "type": "List\u003cObject\u003e",
-      "description": "The destination values (numbers or EEArrays). These are used to replace the corresponding values in \u0027from\u0027. Must have the same number of values as \u0027from\u0027."
+      "description": "The destination values (numbers or ee.Array). These are used to replace the corresponding values in \u0027from\u0027. Must have the same number of values as \u0027from\u0027."
     }, {
       "argumentName": "defaultValue",
       "type": "Object",
@@ -13592,7 +13592,7 @@
     }]
   }, {
     "name": "algorithms/Array.length",
-    "description": "Returns a 1-D EEArray containing the length of each dimension of the given EEArray.",
+    "description": "Returns a 1-D ee.Array containing the length of each dimension of the given ee.Array.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "array",

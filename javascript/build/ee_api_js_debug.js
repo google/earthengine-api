@@ -6646,11 +6646,12 @@ goog.dom.tags.isVoidTag = function(tagName) {
 };
 goog.html = {};
 goog.html.trustedtypes = {};
+goog.html.trustedtypes.POLICY_NAME = goog.TRUSTED_TYPES_POLICY_NAME ? goog.TRUSTED_TYPES_POLICY_NAME + "#html" : "";
 goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse = function() {
-  if (!goog.TRUSTED_TYPES_POLICY_NAME) {
+  if (!goog.html.trustedtypes.POLICY_NAME) {
     return null;
   }
-  void 0 === goog.html.trustedtypes.cachedPolicy_ && (goog.html.trustedtypes.cachedPolicy_ = goog.createTrustedTypesPolicy(goog.TRUSTED_TYPES_POLICY_NAME + "#html"));
+  void 0 === goog.html.trustedtypes.cachedPolicy_ && (goog.html.trustedtypes.cachedPolicy_ = goog.createTrustedTypesPolicy(goog.html.trustedtypes.POLICY_NAME));
   return goog.html.trustedtypes.cachedPolicy_;
 };
 goog.string.TypedString = function() {
@@ -7241,7 +7242,7 @@ function module$contents$goog$html$SafeStyle_hasBalancedSquareBrackets(value) {
   }
   return outside;
 }
-var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-,.\"'%_!#/ a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|var)\\([-+*/0-9a-zA-Z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
+var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-,.\"'%_!#/ a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|radial-gradient|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|var)\\([-+*/0-9a-zA-Z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
 /\/\*/;
 function module$contents$goog$html$SafeStyle_sanitizeUrl(value) {
   return value.replace(module$contents$goog$html$SafeStyle_URL_RE, function(match$jscomp$0, before, url, after) {
@@ -9230,6 +9231,11 @@ module$exports$eeapiclient$ee_api_client.IOperationMetadataStateEnum = function 
 module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum = {CANCELLED:"CANCELLED", CANCELLING:"CANCELLING", FAILED:"FAILED", PENDING:"PENDING", RUNNING:"RUNNING", STATE_UNSPECIFIED:"STATE_UNSPECIFIED", SUCCEEDED:"SUCCEEDED", values:function() {
   return [module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum.STATE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum.PENDING, module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum.RUNNING, module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum.CANCELLING, module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum.SUCCEEDED, 
   module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum.CANCELLED, module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum.FAILED];
+}};
+module$exports$eeapiclient$ee_api_client.IOperationNotificationSeverityEnum = function module$contents$eeapiclient$ee_api_client_IOperationNotificationSeverityEnum() {
+};
+module$exports$eeapiclient$ee_api_client.OperationNotificationSeverityEnum = {SEVERE:"SEVERE", SEVERITY_UNSPECIFIED:"SEVERITY_UNSPECIFIED", WARNING:"WARNING", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.OperationNotificationSeverityEnum.SEVERITY_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.OperationNotificationSeverityEnum.WARNING, module$exports$eeapiclient$ee_api_client.OperationNotificationSeverityEnum.SEVERE];
 }};
 module$exports$eeapiclient$ee_api_client.IPixelDataTypePrecisionEnum = function module$contents$eeapiclient$ee_api_client_IPixelDataTypePrecisionEnum() {
 };
@@ -11949,13 +11955,14 @@ module$exports$eeapiclient$ee_api_client.OperationMetadata = function(parameters
   this.Serializable$set("attempt", null == parameters.attempt ? null : parameters.attempt);
   this.Serializable$set("scriptUri", null == parameters.scriptUri ? null : parameters.scriptUri);
   this.Serializable$set("destinationUris", null == parameters.destinationUris ? null : parameters.destinationUris);
+  this.Serializable$set("notifications", null == parameters.notifications ? null : parameters.notifications);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.OperationMetadata, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.OperationMetadata.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.OperationMetadata;
 };
 module$exports$eeapiclient$ee_api_client.OperationMetadata.prototype.getPartialClassMetadata = function() {
-  return {arrays:{stages:module$exports$eeapiclient$ee_api_client.OperationStage}, enums:{state:module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum}, keys:"attempt createTime description destinationUris endTime priority progress scriptUri stages startTime state type updateTime".split(" ")};
+  return {arrays:{notifications:module$exports$eeapiclient$ee_api_client.OperationNotification, stages:module$exports$eeapiclient$ee_api_client.OperationStage}, enums:{state:module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum}, keys:"attempt createTime description destinationUris endTime notifications priority progress scriptUri stages startTime state type updateTime".split(" ")};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.OperationMetadata.prototype, {attempt:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("attempt") ? this.Serializable$get("attempt") : null;
@@ -11977,6 +11984,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("endTime") ? this.Serializable$get("endTime") : null;
 }, set:function(value) {
   this.Serializable$set("endTime", value);
+}}, notifications:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("notifications") ? this.Serializable$get("notifications") : null;
+}, set:function(value) {
+  this.Serializable$set("notifications", value);
 }}, priority:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("priority") ? this.Serializable$get("priority") : null;
 }, set:function(value) {
@@ -12012,6 +12023,38 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }}});
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.OperationMetadata, {State:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum;
+}}});
+module$exports$eeapiclient$ee_api_client.OperationNotificationParameters = function module$contents$eeapiclient$ee_api_client_OperationNotificationParameters() {
+};
+module$exports$eeapiclient$ee_api_client.OperationNotification = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("severity", null == parameters.severity ? null : parameters.severity);
+  this.Serializable$set("topic", null == parameters.topic ? null : parameters.topic);
+  this.Serializable$set("detail", null == parameters.detail ? null : parameters.detail);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.OperationNotification, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.OperationNotification.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.OperationNotification;
+};
+module$exports$eeapiclient$ee_api_client.OperationNotification.prototype.getPartialClassMetadata = function() {
+  return {enums:{severity:module$exports$eeapiclient$ee_api_client.OperationNotificationSeverityEnum}, keys:["detail", "severity", "topic"]};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.OperationNotification.prototype, {detail:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("detail") ? this.Serializable$get("detail") : null;
+}, set:function(value) {
+  this.Serializable$set("detail", value);
+}}, severity:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("severity") ? this.Serializable$get("severity") : null;
+}, set:function(value) {
+  this.Serializable$set("severity", value);
+}}, topic:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("topic") ? this.Serializable$get("topic") : null;
+}, set:function(value) {
+  this.Serializable$set("topic", value);
+}}});
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.OperationNotification, {Severity:{configurable:!0, enumerable:!0, get:function() {
+  return module$exports$eeapiclient$ee_api_client.OperationNotificationSeverityEnum;
 }}});
 module$exports$eeapiclient$ee_api_client.OperationStageParameters = function module$contents$eeapiclient$ee_api_client_OperationStageParameters() {
 };
@@ -17016,7 +17059,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.298";
+ee.apiclient.API_CLIENT_VERSION = "0.1.299";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17297,8 +17340,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.298";
-  "0.1.298" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.299";
+  "0.1.299" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

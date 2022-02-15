@@ -732,12 +732,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
           description='foo',
           assetId='users/foo/bar',
           ingestionTimeParameters={
-              'thinningOptions': {
-                  'maxFeaturesPerTile': 10,
-              },
-              'rankingOptions': {
-                  'zOrderRankingRule': {}
-              }
+              'maxFeaturesPerTile': 10,
+              'zOrderRanking': []
           })
       self.assertIsNone(task.id)
       self.assertIsNone(task.name)
@@ -755,9 +751,6 @@ class BatchTestCase(apitestcase.ApiTestCase):
                       'thinningOptions': {
                           'maxFeaturesPerTile': 10
                       },
-                      'rankingOptions': {
-                          'zOrderRankingRule': {}
-                      }
                   }
               }
           }, task.config)
@@ -789,6 +782,80 @@ class BatchTestCase(apitestcase.ApiTestCase):
                     'ingestionTimeParameters': {}
                 }
             }, task.config)
+
+  def testExportTableToFeatureViewAllIngestionParams(self):
+    """Verifies the task ingestion params created by toFeatureView()."""
+    task = ee.batch.Export.table.toFeatureView(
+        collection=ee.FeatureCollection('foo'),
+        description='foo',
+        assetId='users/foo/bar',
+        ingestionTimeParameters={
+            'maxFeaturesPerTile': 10,
+            'thinningStrategy': 'GLOBALLY_CONSISTENT',
+            'thinningRanking': 'my-attribute ASC, other-attr DESC',
+            'zOrderRanking': ['.minZoomLevel DESC', '.geometryType ASC']
+        })
+    expected_ingestion_params = {
+        'rankingOptions': {
+            'thinningRankingRule': {
+                'rankByOneThingRule': [{
+                    'direction': 'ASCENDING',
+                    'rankByAttributeRule': {
+                        'attributeName': 'my-attribute'
+                    }
+                }, {
+                    'direction': 'DESCENDING',
+                    'rankByAttributeRule': {
+                        'attributeName': 'other-attr'
+                    }
+                }]
+            },
+            'zOrderRankingRule': {
+                'rankByOneThingRule': [{
+                    'direction': 'DESCENDING',
+                    'rankByMinZoomLevelRule': {}
+                }, {
+                    'direction': 'ASCENDING',
+                    'rankByGeometryTypeRule': {}
+                }]
+            }
+        },
+        'thinningOptions': {
+            'maxFeaturesPerTile': 10,
+            'thinningStrategy': 'GLOBALLY_CONSISTENT'
+        }
+    }
+    self.assertEqual(
+        expected_ingestion_params,
+        task.config['featureViewExportOptions']['ingestionTimeParameters'])
+
+  def testExportTableToFeatureViewBadRankByOneThingRule(self):
+    """Verifies a bad RankByOneThingRule throws an exception."""
+    with self.assertRaisesRegex(ee.EEException,
+                                'Ranking rule format is invalid.*'):
+      ee.batch.Export.table.toFeatureView(
+          collection=ee.FeatureCollection('foo'),
+          assetId='users/foo/bar',
+          ingestionTimeParameters={'thinningRanking': 'my-attribute BAD_DIR'})
+
+  def testExportTableToFeatureViewBadRankingRule(self):
+    """Verifies a bad RankingRule throws an exception."""
+    with self.assertRaisesRegex(ee.EEException,
+                                'Unable to build ranking rule from rules.*'):
+      ee.batch.Export.table.toFeatureView(
+          collection=ee.FeatureCollection('foo'),
+          assetId='users/foo/bar',
+          ingestionTimeParameters={'thinningRanking': {'key': 'val'}})
+
+  def testExportTableToFeatureViewBadIngestionTimeParams(self):
+    """Verifies a bad set of ingestion time params throws an exception."""
+    with self.assertRaisesWithLiteralMatch(
+        ee.EEException, ('The following keys are unrecognized in the '
+                         'ingestion parameters: [\'badThinningKey\']')):
+      ee.batch.Export.table.toFeatureView(
+          collection=ee.FeatureCollection('foo'),
+          assetId='users/foo/bar',
+          ingestionTimeParameters={'badThinningKey': {'key': 'val'}})
 
   def testExportVideoCloudApi(self):
     """Verifies the task created by Export.video()."""

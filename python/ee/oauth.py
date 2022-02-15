@@ -13,7 +13,6 @@ from __future__ import print_function
 
 
 import base64
-import datetime
 import errno
 import hashlib
 import json
@@ -21,6 +20,7 @@ import os
 import sys
 import webbrowser
 import six
+
 from six.moves import input
 from six.moves.urllib import parse
 from six.moves.urllib import request
@@ -33,7 +33,6 @@ try:
   import IPython
 except ImportError:
   pass
-
 
 CLIENT_ID = ('517222506229-vsmmajv00ul0bs7p89v5m89qs8eb9359.'
              'apps.googleusercontent.com')
@@ -53,6 +52,18 @@ def get_credentials_path():
   return cred_path
 
 
+def get_credentials_arguments():
+  with open(get_credentials_path()) as creds:
+    stored = json.load(creds)
+    args = {}
+    args['token_uri'] = TOKEN_URI  # Not overridable in file
+    args['refresh_token'] = stored['refresh_token']  # Must be present
+    args['client_id'] = stored.get('client_id', CLIENT_ID)
+    args['client_secret'] = stored.get('client_secret', CLIENT_SECRET)
+    args['scopes'] = stored.get('scopes', SCOPES)
+    return args
+
+
 def get_authorization_url(code_challenge):
   """Returns a URL to generate an auth code."""
 
@@ -66,13 +77,13 @@ def get_authorization_url(code_challenge):
   })
 
 
-def request_token(auth_code, code_verifier):
+def request_token(auth_code, code_verifier, client_id=None, client_secret=None):
   """Uses authorization code to request tokens."""
 
   request_args = {
       'code': auth_code,
-      'client_id': CLIENT_ID,
-      'client_secret': CLIENT_SECRET,
+      'client_id': client_id or CLIENT_ID,
+      'client_secret': client_secret or CLIENT_SECRET,
       'redirect_uri': REDIRECT_URI,
       'grant_type': 'authorization_code',
       'code_verifier': code_verifier,
@@ -92,7 +103,7 @@ def request_token(auth_code, code_verifier):
   return refresh_token
 
 
-def write_token(refresh_token):
+def write_token(refresh_token, client_info=None):
   """Attempts to write the passed token to the given user directory."""
 
   credentials_path = get_credentials_path()
@@ -103,7 +114,8 @@ def write_token(refresh_token):
     if e.errno != errno.EEXIST:
       raise Exception('Error creating directory %s: %s' % (dirname, e))
 
-  file_content = json.dumps({'refresh_token': refresh_token})
+  client_info = client_info or {}
+  file_content = json.dumps(dict(refresh_token=refresh_token, **client_info))
   if os.path.exists(credentials_path):
     # Remove file because os.open will not change permissions of existing files
     os.remove(credentials_path)
@@ -115,7 +127,7 @@ def write_token(refresh_token):
 def _in_colab_shell():
   """Tests if the code is being executed within Google Colab."""
   try:
-    import google.colab  # pylint: disable=unused-variable
+    import google.colab  # pylint: disable=unused-import
     return True
   except ImportError:
     return False
@@ -138,8 +150,9 @@ def _obtain_and_write_token(auth_code=None, code_verifier=None):
   if not auth_code:
     auth_code = input('Enter verification code: ')
   assert isinstance(auth_code, six.string_types)
-  token = request_token(auth_code.strip(), code_verifier)
-  write_token(token)
+  client_info = {}
+  token = request_token(auth_code.strip(), code_verifier, **client_info)
+  write_token(token, client_info)
   print('\nSuccessfully saved authorization token.')
 
 
@@ -191,6 +204,19 @@ def _base64param(byte_string):
   return base64.urlsafe_b64encode(byte_string).rstrip(b'=')
 
 
+def _nonce_table(*nonce_keys):
+  """Makes random nonces, and adds PKCE challenges for each _verifier nonce."""
+  table = {}
+  for key in nonce_keys:
+    table[key] = _base64param(os.urandom(32))
+    if key.endswith('_verifier'):
+      # Generate a challenge that the server will use to ensure that requests
+      # only work with our verifiers.  https://tools.ietf.org/html/rfc7636
+      pkce_challenge = _base64param(hashlib.sha256(table[key]).digest())
+      table[key.replace('_verifier', '_challenge')] = pkce_challenge
+  return {k: v.decode() for k, v in table.items()}
+
+
 def authenticate(
     cli_authorization_code=None,
     quiet=False,
@@ -209,11 +235,9 @@ def authenticate(
     _obtain_and_write_token(cli_authorization_code, cli_code_verifier)
     return
 
-  # PKCE.  Generates a challenge that the server will use to ensure that the
-  # auth_code only works with our verifier.  https://tools.ietf.org/html/rfc7636
-  code_verifier = _base64param(os.urandom(32))
-  code_challenge = _base64param(hashlib.sha256(code_verifier).digest())
-  auth_url = get_authorization_url(code_challenge)
+  pkce = _nonce_table('code_verifier')
+  code_verifier = pkce['code_verifier']
+  auth_url = get_authorization_url(pkce['code_challenge'])
 
   if quiet:
     _display_auth_instructions_for_noninteractive(auth_url, code_verifier)

@@ -541,7 +541,8 @@ def _convert_algorithm(algorithm):
   # Strip leading 'algorithms/' from the name.
   algorithm_name = algorithm['name'][11:]
   converted_algorithm = _convert_dict(
-      algorithm, {
+      algorithm,
+      {
           'description': 'description',
           'returnType': 'returns',
           'arguments': ('args', _convert_algorithm_arguments),

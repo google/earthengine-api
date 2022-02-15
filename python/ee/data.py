@@ -220,15 +220,7 @@ def get_persistent_credentials():
     OAuth2Credentials built from persistently stored refresh_token
   """
   try:
-    tokens = json.load(open(oauth.get_credentials_path()))
-    refresh_token = tokens['refresh_token']
-    return Credentials(
-        None,
-        refresh_token=refresh_token,
-        token_uri=oauth.TOKEN_URI,
-        client_id=oauth.CLIENT_ID,
-        client_secret=oauth.CLIENT_SECRET,
-        scopes=oauth.SCOPES)
+    return Credentials(None, **oauth.get_credentials_arguments())
   except IOError:
     raise ee_exception.EEException(
         'Please authorize access to your Earth Engine account by '

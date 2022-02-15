@@ -9,7 +9,7 @@ from __future__ import absolute_import
 from __future__ import division
 from __future__ import print_function
 import collections
-from datetime import datetime
+import datetime
 import json
 import os
 import re
@@ -17,13 +17,13 @@ import tempfile
 import threading
 import time
 
+from google.cloud import storage
+from google.oauth2.credentials import Credentials
 import httplib2
 import six
 from six.moves import input
 from six.moves import urllib
 
-from google.cloud import storage
-from google.oauth2.credentials import Credentials
 import ee
 
 HOMEDIR = os.path.expanduser('~')
@@ -43,6 +43,8 @@ CONFIG_PARAMS = {
     'refresh_token': None,
     'cloud_api_key': None,
     'project': None,
+    'client_id': ee.oauth.CLIENT_ID,
+    'client_secret': ee.oauth.CLIENT_SECRET,
 }
 
 TASK_FINISHED_STATES = (ee.batch.Task.State.COMPLETED,
@@ -94,10 +96,10 @@ class CommandLineConfig(object):
     elif self.refresh_token:
       return Credentials(
           None,
+          client_id=self.client_id,
+          client_secret=self.client_secret,
           refresh_token=self.refresh_token,
           token_uri=ee.oauth.TOKEN_URI,
-          client_id=ee.oauth.CLIENT_ID,
-          client_secret=ee.oauth.CLIENT_SECRET,
           scopes=ee.oauth.SCOPES)
     else:
       return 'persistent'
@@ -259,7 +261,7 @@ def wait_for_task(task_id, timeout, log_progress=True):
       return
     if log_progress and elapsed - last_check >= 30:
       print('[{:%H:%M:%S}] Current state for task {}: {}'
-            .format(datetime.now(), task_id, state))
+            .format(datetime.datetime.now(), task_id, state))
       last_check = elapsed
     remaining = timeout - elapsed
     if remaining > 0:

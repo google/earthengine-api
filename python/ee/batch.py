@@ -10,6 +10,7 @@ The public function styling uses camelCase to match the JavaScript names.
 
 # pylint: disable=g-bad-import-order
 import json
+import re
 import six
 
 from . import _cloud_api_utils
@@ -1450,6 +1451,114 @@ def _build_feature_view_destination(config):
   }
 
 
+def _get_rank_by_one_thing_rule(rule_str):
+  """Returns a RankByOneThingRule dict created from the rank-by-one-thing rule.
+
+  Args:
+    rule_str: The rule string. The string is expected in the format:
+      `rule_type rule_direction`. Valid rule types include `.minZoomLevel`,
+      `.geometryType`, or an arbitrary string to represent attribute rules.
+      Valid rule directions include `ASC` or `DESC`.
+
+  Returns:
+    A RankByOneThingRule object containing information extracted from rule_str.
+  """
+  matches = re.findall(r'^([\S]+.*)\s+(ASC|DESC)$', rule_str.strip())
+  if not matches:
+    raise ee_exception.EEException(
+        ('Ranking rule format is invalid. Each rule should be defined by a '
+         'rule type and a direction (ASC or DESC), separated by a space. '
+         'Valid rule types are: .geometryType, .minZoomLevel, or a feature '
+         'property name.'))
+
+  output = {}
+  rule_type, rule_dir = matches[0]
+
+  if rule_type == '.geometryType':
+    output['rankByGeometryTypeRule'] = {}
+  elif rule_type == '.minZoomLevel':
+    output['rankByMinZoomLevelRule'] = {}
+  else:
+    output['rankByAttributeRule'] = {'attributeName': rule_type}
+
+  if rule_dir.upper() == 'ASC':
+    output['direction'] = 'ASCENDING'
+  elif rule_dir.upper() == 'DESC':
+    output['direction'] = 'DESCENDING'
+  return output
+
+
+def _get_ranking_rule(rules):
+  """Returns a RankingRule dict created from the rank-by-one-thing rules.
+
+  Args:
+    rules: A string representing comma separated rank-by-one-thing rules, or a
+      list of rank-by-one-thing rule strings.
+
+  Returns:
+    A RankingRule object containing information extracted from rules.
+  """
+  if not rules:
+    return None
+
+  rules_arr = rules
+  if isinstance(rules, str):
+    rules_arr = rules.split(',')
+  if isinstance(rules_arr, list):
+    rank_by_one_thing_rules = list(
+        map(_get_rank_by_one_thing_rule, rules_arr))
+    return {'rankByOneThingRule': rank_by_one_thing_rules}
+
+  raise ee_exception.EEException(
+      ('Unable to build ranking rule from rules. Rules should '
+       'either be a comma-separated string or list of strings.'))
+
+
+def _build_thinning_options(config):
+  """Returns a ThinningOptions dict created from the config.
+
+  Args:
+    config: The user-specified ingestion parameters. Will be modified in-place
+      by removing parameters used in the ThinningOptions.
+
+  Returns:
+    A ThinningOptions object containing information extracted from config.
+  """
+  if not config:
+    return None
+
+  output = {}
+  for key in ['maxFeaturesPerTile', 'thinningStrategy']:
+    if key in config:
+      output[key] = config.pop(key)
+  return output
+
+
+def _build_ranking_options(config):
+  """Returns a RankingOptions dict created from the config.
+
+  Args:
+    config: The user-specified export parameters. Will be modified in-place
+      by removing parameters used in the RankingOptions.
+
+  Returns:
+    A RankingOptions object containing information extracted from config.
+  """
+  if not config:
+    return None
+
+  output = {}
+  thinning_ranking = config.pop('thinningRanking', None)
+  thinning_ranking_rule = _get_ranking_rule(thinning_ranking)
+  if thinning_ranking_rule:
+    output['thinningRankingRule'] = thinning_ranking_rule
+  z_order_ranking = config.pop('zOrderRanking', None)
+  z_order_ranking_rule = _get_ranking_rule(z_order_ranking)
+  if z_order_ranking_rule:
+    output['zOrderRankingRule'] = z_order_ranking_rule
+  return output
+
+
 def _build_ingestion_time_parameters(config):
   """Builds a FeatureViewIngestionTimeParameters from values in a config dict.
 
@@ -1461,13 +1570,22 @@ def _build_ingestion_time_parameters(config):
     A FeatureViewIngestionTimeParameters containing information extracted from
     config.
   """
-  parameters = {}
-
   input_params = config.pop('ingestionTimeParameters', None)
+  output_params = {}
+
+  thinning_options = _build_thinning_options(input_params)
+  if thinning_options:
+    output_params['thinningOptions'] = thinning_options
+
+  ranking_options = _build_ranking_options(input_params)
+  if ranking_options:
+    output_params['rankingOptions'] = ranking_options
+
   if input_params:
-    for param in input_params.keys() & ['thinningOptions', 'rankingOptions']:
-      parameters[param] = input_params.pop(param)
-  return parameters
+    raise ee_exception.EEException(
+        'The following keys are unrecognized in the ingestion parameters: %s' %
+        list(input_params.keys()))
+  return output_params
 
 
 def _create_export_task(config, task_type):
