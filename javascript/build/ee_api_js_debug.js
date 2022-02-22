@@ -4303,14 +4303,13 @@ goog.collections.iters.forEach = function(iterable, f) {
 var module$contents$goog$collections$iters_MapIterator = function(childIter, mapFn) {
   this.childIterator_ = module$contents$goog$collections$iters_getIterator(childIter);
   this.mapFn_ = mapFn;
-  this.nextIndex_ = 0;
 };
 module$contents$goog$collections$iters_MapIterator.prototype[Symbol.iterator] = function() {
   return this;
 };
 module$contents$goog$collections$iters_MapIterator.prototype.next = function() {
   var childResult = this.childIterator_.next();
-  return {value:childResult.done ? void 0 : this.mapFn_.call(void 0, childResult.value, this.nextIndex_++), done:childResult.done,};
+  return {value:childResult.done ? void 0 : this.mapFn_.call(void 0, childResult.value), done:childResult.done,};
 };
 goog.collections.iters.map = function(iterable, f) {
   return new module$contents$goog$collections$iters_MapIterator(iterable, f);
@@ -4318,7 +4317,6 @@ goog.collections.iters.map = function(iterable, f) {
 var module$contents$goog$collections$iters_FilterIterator = function(childIter, filterFn) {
   this.childIter_ = module$contents$goog$collections$iters_getIterator(childIter);
   this.filterFn_ = filterFn;
-  this.nextIndex_ = 0;
 };
 module$contents$goog$collections$iters_FilterIterator.prototype[Symbol.iterator] = function() {
   return this;
@@ -4329,7 +4327,7 @@ module$contents$goog$collections$iters_FilterIterator.prototype.next = function(
     if (childResult.done) {
       return {done:!0, value:void 0};
     }
-    if (this.filterFn_.call(void 0, childResult.value, this.nextIndex_++)) {
+    if (this.filterFn_.call(void 0, childResult.value)) {
       return childResult;
     }
   }
@@ -5932,7 +5930,12 @@ module$exports$tslib.__param = function(paramIndex, decorator) {
   };
 };
 module$exports$tslib.__awaiter = function(thisArg, _arguments, P, generator) {
-  return new (P || (P = Promise))(function(resolve$jscomp$0, reject) {
+  function adopt(value) {
+    return value instanceof P ? value : new P(function(resolve) {
+      resolve(value);
+    });
+  }
+  return new (P || (P = Promise))(function(resolve, reject) {
     function fulfilled(value) {
       try {
         step(generator.next(value));
@@ -5948,9 +5951,7 @@ module$exports$tslib.__awaiter = function(thisArg, _arguments, P, generator) {
       }
     }
     function step(result) {
-      result.done ? resolve$jscomp$0(result.value) : (new P(function(resolve) {
-        resolve(result.value);
-      })).then(fulfilled, rejected);
+      result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected);
     }
     step((generator = generator.apply(thisArg, _arguments)).next());
   });
@@ -17059,7 +17060,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.299";
+ee.apiclient.API_CLIENT_VERSION = "0.1.300";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17340,8 +17341,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.299";
-  "0.1.299" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.300";
+  "0.1.300" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
