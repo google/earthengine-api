@@ -2970,8 +2970,8 @@ ee.data.MapZoomRange = {
 ee.data.AbstractTaskConfig;
 
 /**
- * An object for specifying configuration of a task to export an image
- * substuting a format options dictionary for format-specific options.
+ * An object for specifying configuration of a task to export an image,
+ * substituting a format options dictionary for format-specific options.
  *
  * @typedef {{
  *   id: string,
@@ -3314,11 +3314,13 @@ ee.data.AssetDescription = class {
 
     /**
      * @export {number}
+     * @deprecated This field is no longer being set.
      */
     this.period;
 
     /**
      * @export {!Array<number>|undefined}
+     * @deprecated This field is no longer being set.
      */
     this.period_mapping;
 
