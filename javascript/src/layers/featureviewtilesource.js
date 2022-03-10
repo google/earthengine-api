@@ -41,5 +41,6 @@ const FeatureViewTileSource = class extends AbstractTileSource {
     return this.tilesKey_.token;
   }
 };
+goog.exportSymbol('ee.layers.FeatureViewTileSource', FeatureViewTileSource);
 
 exports = {FeatureViewTileSource};

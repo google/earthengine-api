@@ -785,11 +785,15 @@ ee.rpc_convert.iamPolicyToAcl = function(result) {
  * @return {!ee.api.Policy}
  */
 ee.rpc_convert.aclToIamPolicy = function(acls) {
+  const hasPrefix = (email) => email.includes(':');
   const isGroup = (email) => acls['groups'] && acls['groups'].has(email);
   const isServiceAccount = (email) =>
       email.match(/[@|\.]gserviceaccount\.com$/);
   // Converts the list of emails to <prefix>:<email> format for IamPolicy.
   const asMembers = (aclName) => (acls[aclName] || []).map((email) => {
+    if (hasPrefix(email)) {
+      return email;
+    }
     let prefix = 'user:';
     if (isGroup(email)) {
       prefix = 'group:';

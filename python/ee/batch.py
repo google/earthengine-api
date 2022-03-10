@@ -613,11 +613,12 @@ class Export(object):
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
     @staticmethod
-    def toAsset(collection,
-                description='myExportTableTask',
-                assetId=None,
-                maxVertices=None,
-                **kwargs):
+    def toAsset(
+        collection,
+        description='myExportTableTask',
+        assetId=None,
+        maxVertices=None,
+        **kwargs):
       """Creates a task to export a FeatureCollection to an EE table asset.
 
       Args:
@@ -632,17 +633,23 @@ class Export(object):
       Returns:
         An unstarted Task that exports the table.
       """
-      config = _capture_parameters(locals(), ['collection'])
+      config = {
+          'description': description,
+          'assetId': assetId,
+          'maxVertices': maxVertices,
+      }
+      config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
                                             Task.ExportDestination.ASSET)
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
     @staticmethod
-    def toFeatureView(collection,
-                      description='myExportTableTask',
-                      assetId=None,
-                      ingestionTimeParameters=None,
-                      **kwargs):
+    def toFeatureView(
+        collection,
+        description='myExportTableTask',
+        assetId=None,
+        ingestionTimeParameters=None,
+        **kwargs):
       """Creates a task to export a FeatureCollection to a FeatureView.
 
       Args:
@@ -655,10 +662,12 @@ class Export(object):
       Returns:
         An unstarted Task that exports the table.
       """
-      config = dict(
-          description=description,
-          assetId=assetId,
-          ingestionTimeParameters=ingestionTimeParameters)
+      config = {
+          'description': description,
+          'assetId': assetId,
+          'ingestionTimeParameters': ingestionTimeParameters,
+      }
+      config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
                                             Task.ExportDestination.FEATURE_VIEW)
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
