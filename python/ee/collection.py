@@ -103,8 +103,8 @@ class Collection(element.Element):
 
     Items in the collection with a system:time_start property that doesn't
     fall between the start and end dates will be excluded.
-    This is equivalent to self.filter(ee.Filter.date(...)), see the ee.Filter
-    module for other date filtering options.
+    This is equivalent to self.filter(ee.Filter.date(...)); see the ee.Filter
+    type for other date filtering options.
 
     Args:
       start: The start date as a Date object, a string representation of

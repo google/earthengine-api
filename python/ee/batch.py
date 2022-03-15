@@ -1090,8 +1090,11 @@ def _prepare_table_export_config(collection, config, export_destination):
     }
   elif export_destination == Task.ExportDestination.FEATURE_VIEW:
     request['featureViewExportOptions'] = {
-        'featureViewDestination': _build_feature_view_destination(config),
-        'ingestionTimeParameters': _build_ingestion_time_parameters(config)
+        'featureViewDestination':
+            _build_feature_view_destination(config),
+        'ingestionTimeParameters':
+            build_ingestion_time_parameters(
+                config.pop('ingestionTimeParameters', None))
     }
   else:
     request['fileExportOptions'] = _build_table_file_export_options(
@@ -1568,18 +1571,17 @@ def _build_ranking_options(config):
   return output
 
 
-def _build_ingestion_time_parameters(config):
-  """Builds a FeatureViewIngestionTimeParameters from values in a config dict.
+def build_ingestion_time_parameters(input_params):
+  """Builds a FeatureViewIngestionTimeParameters from values in a params dict.
 
   Args:
-    config: All the user-specified export parameters. Will be modified in-place
-      by removing parameters used in the FeatureViewIngestionTimeParameters.
+    input_params: All the user-specified ingestions time parameters. Will be
+      modified in-place to remove fields in FeatureViewIngestionTimeParameters.
 
   Returns:
     A FeatureViewIngestionTimeParameters containing information extracted from
     config.
   """
-  input_params = config.pop('ingestionTimeParameters', None)
   output_params = {}
 
   thinning_options = _build_thinning_options(input_params)

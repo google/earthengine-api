@@ -134,8 +134,8 @@ ee.Collection.prototype.filterBounds = function(geometry) {
  * Dates, numbers (interpreted as milliseconds since 1970-01-01T00:00:00Z), or
  * strings (such as '1996-01-01T08:00'). Based on 'system:time_start'.
  *
- * This is equivalent to this.filter(ee.Filter.date(...)), see the ee.Filter
- * module for other date filtering options.
+ * This is equivalent to this.filter(ee.Filter.date(...)); see the ee.Filter
+ * type for other date filtering options.
  *
  * @param {!Date|string|number} start The start date (inclusive).
  * @param {?Date|string|number=} opt_end The end date (exclusive). Optional. If
