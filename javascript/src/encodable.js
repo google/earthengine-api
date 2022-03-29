@@ -757,7 +757,8 @@ ee.rpc_convert.iamPolicyToAcl = function(result) {
   });
   const groups = new Set();
   const toAcl = (member) => {
-    const email = member.replace(/^group:|^user:|^serviceAccount:/, '');
+    const email =
+        member.replace(/^domain:|^group:|^serviceAccount:|^user:/, '');
     if (member.startsWith('group:')) {
       groups.add(email);
     }
@@ -786,6 +787,7 @@ ee.rpc_convert.iamPolicyToAcl = function(result) {
  */
 ee.rpc_convert.aclToIamPolicy = function(acls) {
   const hasPrefix = (email) => email.includes(':');
+  const isDomain = (email) => !email.includes('@');
   const isGroup = (email) => acls['groups'] && acls['groups'].has(email);
   const isServiceAccount = (email) =>
       email.match(/[@|\.]gserviceaccount\.com$/);
@@ -795,7 +797,9 @@ ee.rpc_convert.aclToIamPolicy = function(acls) {
       return email;
     }
     let prefix = 'user:';
-    if (isGroup(email)) {
+    if (isDomain(email)) {
+      prefix = 'domain:';
+    } else if (isGroup(email)) {
       prefix = 'group:';
     } else if (isServiceAccount(email)) {
       prefix = 'serviceAccount:';

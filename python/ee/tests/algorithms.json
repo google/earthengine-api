@@ -5002,6 +5002,19 @@
       "type": "Element"
     }]
   }, {
+    "name": "algorithms/Element.get",
+    "description": "Extract a property from a feature.",
+    "returnType": "\u003cany\u003e",
+    "arguments": [{
+      "argumentName": "object",
+      "type": "Element",
+      "description": "The feature to extract the property from."
+    }, {
+      "argumentName": "property",
+      "type": "String",
+      "description": "The property to extract."
+    }]
+  }, {
     "name": "algorithms/Element.set",
     "description": "Overrides a metadata property of an object.",
     "returnType": "Element",
@@ -5034,19 +5047,6 @@
       "description": "The property values to override."
     }],
     "hidden": true
-  }, {
-    "name": "algorithms/Element.get",
-    "description": "Extract a property from a feature.",
-    "returnType": "\u003cany\u003e",
-    "arguments": [{
-      "argumentName": "object",
-      "type": "Element",
-      "description": "The feature to extract the property from."
-    }, {
-      "argumentName": "property",
-      "type": "String",
-      "description": "The property to extract."
-    }]
   }, {
     "name": "algorithms/Element.getNumber",
     "description": "Extract a property from a feature.",

@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.303'
+__version__ = '0.1.304'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -78,15 +78,22 @@ Algorithms = _AlgorithmsContainer()
 def Authenticate(
     authorization_code=None,
     quiet=None,
-    code_verifier=None):
+    code_verifier=None,
+    auth_mode=None):
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
     authorization_code: An optional authorization code.
     quiet: If true, do not require interactive prompts.
     code_verifier: PKCE verifier to prevent auth code stealing.
+    auth_mode: The authentication mode. One of:
+      "paste" - send user to accounts.google.com to get a pastable token;
+      "notebook" - send user to notebook authenticator page;
+      "gcloud" - use gcloud to obtain credentials (will set appdefault);
+      "appdefault" - read from existing $APPLICATION_DEFAULT_CREDENTIALS file;
+      None - a default mode is chosen based on your environment.
   """
-  oauth.authenticate(authorization_code, quiet, code_verifier)
+  oauth.authenticate(authorization_code, quiet, code_verifier, auth_mode)
 
 
 def Initialize(

@@ -605,9 +605,14 @@ def getFeatureViewTilesKey(params):
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().featureView().create(
           parent=_get_projects_path(), fields='name', body=request))
-  token = result['name'].rsplit('/', 1).pop()
+  name = result['name']
+  version = _cloud_api_utils.VERSION
+  format_tile_url = (
+      lambda x, y, z: f'{_tile_base_url}/{version}/{name}/tiles/{z}/{x}/{y}')
+  token = name.rsplit('/', 1).pop()
   return {
       'token': token,
+      'formatTileUrl': format_tile_url,
   }
 
 

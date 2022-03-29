@@ -383,13 +383,18 @@ class AuthenticateCommand(object):
     parser.add_argument(
         '--code-verifier',
         help='PKCE verifier to prevent auth code stealing.')
+    parser.add_argument(
+        '--auth_mode', choices=['paste', 'notebook', 'gcloud', 'appdefault'],
+        help='One of: paste - get pastable token; notebook - use notebook'
+        ' authenticator; gcloud - use gcloud; appdefault - read'
+        ' APPLICATION_DEFAULT_CREDENTIALS')
 
   def run(self, args, unused_config):
     """Prompts for an auth code, requests a token and saves it."""
 
     # Filter for arguments relevant for ee.Authenticate()
     args_auth = {x: vars(args)[x] for x in (
-        'authorization_code', 'quiet', 'code_verifier')}
+        'authorization_code', 'quiet', 'code_verifier', 'auth_mode')}
     ee.Authenticate(**args_auth)
 
 

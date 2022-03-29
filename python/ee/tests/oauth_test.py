@@ -46,8 +46,8 @@ class OAuthTest(unittest.TestCase):
     oauth_pkg = 'ee.oauth'
     with mock.patch(oauth_pkg+'.get_credentials_path',
                     new=mock_credentials_path):
-      refresh_token = '123'
-      ee.oauth.write_token(refresh_token)
+      client_info = dict(refresh_token='123')
+      ee.oauth.write_private_json(ee.oauth.get_credentials_path(), client_info)
 
     with open(mock_credentials_path()) as f:
       token = json.load(f)

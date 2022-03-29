@@ -278,12 +278,12 @@ class DataTest(unittest.TestCase):
       ).execute.assert_called_once()
       self.assertEqual(mock_result, actual_result)
 
+  @mock.patch.object(ee.data, '_tile_base_url', new='base_url')
   def testGetFeatureViewTilesKey(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
-      mock_result = {
-          'name': 'projects/projectfoo/featureView/tiles-key-foo'
-      }
+      mock_name = 'projects/projectfoo/featureView/tiles-key-foo'
+      mock_result = {'name': mock_name}
       cloud_api_resource.projects().featureView().create(
       ).execute.return_value = mock_result
       actual_result = ee.data.getFeatureViewTilesKey({
@@ -291,11 +291,14 @@ class DataTest(unittest.TestCase):
       })
       cloud_api_resource.projects().featureView().create(
       ).execute.assert_called_once()
-      self.assertEqual(
-          {
-              'token': 'tiles-key-foo',
-          },
-          actual_result)
+      expected_keys = [
+          'token',
+          'formatTileUrl',
+      ]
+      self.assertEqual(expected_keys, list(actual_result.keys()))
+      self.assertEqual('tiles-key-foo', actual_result['token'])
+      self.assertEqual(f'base_url/v1alpha/{mock_name}/tiles/7/5/6',
+                       actual_result['formatTileUrl'](5, 6, 7))
 
 
 def DoCloudProfileStubHttp(test, expect_profiling):

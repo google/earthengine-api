@@ -45,6 +45,7 @@ CONFIG_PARAMS = {
     'project': None,
     'client_id': ee.oauth.CLIENT_ID,
     'client_secret': ee.oauth.CLIENT_SECRET,
+    'scopes': ee.oauth.SCOPES,
 }
 
 TASK_FINISHED_STATES = (ee.batch.Task.State.COMPLETED,
@@ -99,8 +100,8 @@ class CommandLineConfig(object):
           client_id=self.client_id,
           client_secret=self.client_secret,
           refresh_token=self.refresh_token,
-          token_uri=ee.oauth.TOKEN_URI,
-          scopes=ee.oauth.SCOPES)
+          scopes=self.scopes,
+          token_uri=ee.oauth.TOKEN_URI)
     else:
       return 'persistent'
 

@@ -1508,11 +1508,6 @@ goog.partial = function(fn, var_args) {
     return fn.apply(this, newArgs);
   };
 };
-goog.mixin = function(target, source) {
-  for (var x in source) {
-    target[x] = source[x];
-  }
-};
 goog.now = function() {
   return Date.now();
 };
@@ -2619,7 +2614,9 @@ goog.events.BrowserFeature = {TOUCH_ENABLED:"ontouchstart" in goog.global || !!(
     passive = !0;
   }});
   try {
-    goog.global.addEventListener("test", goog.nullFunction, options), goog.global.removeEventListener("test", goog.nullFunction, options);
+    goog.global.addEventListener("test", function() {
+    }, options), goog.global.removeEventListener("test", function() {
+    }, options);
   } catch (e) {
   }
   return passive;
@@ -4653,11 +4650,7 @@ goog.math.safeCeil = function(num, opt_epsilon) {
 };
 goog.iter = {};
 goog.iter.Iterable = {};
-goog.iter.StopIteration = "StopIteration" in goog.global ? goog.global.StopIteration : {message:"StopIteration", stack:""};
 goog.iter.Iterator = function() {
-};
-goog.iter.Iterator.prototype.nextValueOrThrow = function() {
-  throw goog.iter.StopIteration;
 };
 goog.iter.Iterator.prototype.next = function() {
   return goog.iter.ES6_ITERATOR_DONE;
@@ -4665,18 +4658,6 @@ goog.iter.Iterator.prototype.next = function() {
 goog.iter.ES6_ITERATOR_DONE = goog.debug.freeze({done:!0, value:void 0});
 goog.iter.createEs6IteratorYield = function(value) {
   return {value:value, done:!1};
-};
-goog.iter.toEs4IteratorNext = function(es6NextValue) {
-  if (es6NextValue.done) {
-    throw goog.iter.StopIteration;
-  }
-  return es6NextValue.value;
-};
-goog.iter.checkNoImplicitStopIterationInEs6 = function(ex) {
-  if (ex === goog.iter.StopIteration) {
-    throw Error("ES6 Iteration protocol does NOT adjust control flow when StopIteration is thrown from callback helper functions. If your code relies on this behavior, consider throwing a different error and catching it to terminate iteration.");
-  }
-  throw ex;
 };
 goog.iter.Iterator.prototype.__iterator__ = function(opt_keys) {
   return this;
@@ -4701,32 +4682,20 @@ goog.iter.toIterator = function(iterable) {
         i++;
       }
     };
-    var iterNext = newIter.next;
-    newIter.nextValueOrThrow = function() {
-      return goog.iter.toEs4IteratorNext(iterNext.call(newIter));
-    };
     return newIter;
   }
   throw Error("Not implemented");
 };
 goog.iter.forEach = function(iterable, f, opt_obj) {
   if (goog.isArrayLike(iterable)) {
-    try {
-      module$contents$goog$array_forEach(iterable, f, opt_obj);
-    } catch (ex) {
-      goog.iter.checkNoImplicitStopIterationInEs6(ex);
-    }
+    module$contents$goog$array_forEach(iterable, f, opt_obj);
   } else {
     for (var iterator = goog.iter.toIterator(iterable);;) {
-      var $jscomp$destructuring$var12 = iterator.next(), value = $jscomp$destructuring$var12.value;
+      var $jscomp$destructuring$var12 = iterator.next();
       if ($jscomp$destructuring$var12.done) {
         break;
       }
-      try {
-        f.call(opt_obj, value, void 0, iterator);
-      } catch (ex$39) {
-        goog.iter.checkNoImplicitStopIterationInEs6(ex$39);
-      }
+      f.call(opt_obj, $jscomp$destructuring$var12.value, void 0, iterator);
     }
   }
 };
@@ -4738,18 +4707,10 @@ goog.iter.filter = function(iterable, f, opt_obj) {
       if ($jscomp$destructuring$var13.done) {
         return goog.iter.ES6_ITERATOR_DONE;
       }
-      try {
-        if (f.call(opt_obj, value, void 0, iterator)) {
-          return goog.iter.createEs6IteratorYield(value);
-        }
-      } catch (ex) {
-        goog.iter.checkNoImplicitStopIterationInEs6(ex);
+      if (f.call(opt_obj, value, void 0, iterator)) {
+        return goog.iter.createEs6IteratorYield(value);
       }
     }
-  };
-  var iterNext = newIter.next;
-  newIter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(newIter));
   };
   return newIter;
 };
@@ -4771,10 +4732,6 @@ goog.iter.range = function(startOrStop, opt_stop, opt_step) {
     start += step;
     return goog.iter.createEs6IteratorYield(rv);
   };
-  var iterNext = newIter.next;
-  newIter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(newIter));
-  };
   return newIter;
 };
 goog.iter.join = function(iterable, deliminator) {
@@ -4783,20 +4740,12 @@ goog.iter.join = function(iterable, deliminator) {
 goog.iter.map = function(iterable, f, opt_obj) {
   var iterator = goog.iter.toIterator(iterable), newIter = new goog.iter.Iterator();
   newIter.next = function() {
-    var $jscomp$destructuring$var14 = iterator.next(), value = $jscomp$destructuring$var14.value;
+    var $jscomp$destructuring$var14 = iterator.next();
     if ($jscomp$destructuring$var14.done) {
       return goog.iter.ES6_ITERATOR_DONE;
     }
-    try {
-      var mappedVal = f.call(opt_obj, value, void 0, iterator);
-      return goog.iter.createEs6IteratorYield(mappedVal);
-    } catch (ex) {
-      goog.iter.checkNoImplicitStopIterationInEs6(ex);
-    }
-  };
-  var iterNext = newIter.next;
-  newIter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(newIter));
+    var mappedVal = f.call(opt_obj, $jscomp$destructuring$var14.value, void 0, iterator);
+    return goog.iter.createEs6IteratorYield(mappedVal);
   };
   return newIter;
 };
@@ -4809,31 +4758,23 @@ goog.iter.reduce = function(iterable, f, val$jscomp$0, opt_obj) {
 };
 goog.iter.some = function(iterable, f, opt_obj) {
   for (var iterator = goog.iter.toIterator(iterable);;) {
-    var $jscomp$destructuring$var15 = iterator.next(), value = $jscomp$destructuring$var15.value;
+    var $jscomp$destructuring$var15 = iterator.next();
     if ($jscomp$destructuring$var15.done) {
       return !1;
     }
-    try {
-      if (f.call(opt_obj, value, void 0, iterator)) {
-        return !0;
-      }
-    } catch (ex) {
-      goog.iter.checkNoImplicitStopIterationInEs6(ex);
+    if (f.call(opt_obj, $jscomp$destructuring$var15.value, void 0, iterator)) {
+      return !0;
     }
   }
 };
 goog.iter.every = function(iterable, f, opt_obj) {
   for (var iterator = goog.iter.toIterator(iterable);;) {
-    var $jscomp$destructuring$var16 = iterator.next(), value = $jscomp$destructuring$var16.value;
+    var $jscomp$destructuring$var16 = iterator.next();
     if ($jscomp$destructuring$var16.done) {
       return !0;
     }
-    try {
-      if (!f.call(opt_obj, value, void 0, iterator)) {
-        return !1;
-      }
-    } catch (ex) {
-      goog.iter.checkNoImplicitStopIterationInEs6(ex);
+    if (!f.call(opt_obj, $jscomp$destructuring$var16.value, void 0, iterator)) {
+      return !1;
     }
   }
 };
@@ -4851,17 +4792,13 @@ goog.iter.chainFromIterable = function(iterable) {
         }
         current = goog.iter.toIterator(it.value);
       }
-      var it$40 = current.next();
-      if (it$40.done) {
+      var it$39 = current.next();
+      if (it$39.done) {
         current = null;
       } else {
-        return goog.iter.createEs6IteratorYield(it$40.value);
+        return goog.iter.createEs6IteratorYield(it$39.value);
       }
     }
-  };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
   };
   return iter;
 };
@@ -4878,28 +4815,13 @@ goog.iter.dropWhile = function(iterable, f, opt_obj) {
       }
     }
   };
-  var iterNext = newIter.next;
-  newIter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(newIter));
-  };
   return newIter;
 };
 goog.iter.takeWhile = function(iterable, f, opt_obj) {
   var iterator = goog.iter.toIterator(iterable), iter = new goog.iter.Iterator();
   iter.next = function() {
     var $jscomp$destructuring$var18 = iterator.next(), value = $jscomp$destructuring$var18.value;
-    if ($jscomp$destructuring$var18.done) {
-      return goog.iter.ES6_ITERATOR_DONE;
-    }
-    try {
-      return f.call(opt_obj, value, void 0, iterator) ? goog.iter.createEs6IteratorYield(value) : goog.iter.ES6_ITERATOR_DONE;
-    } catch (ex) {
-      goog.iter.checkNoImplicitStopIterationInEs6(ex);
-    }
-  };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
+    return $jscomp$destructuring$var18.done ? goog.iter.ES6_ITERATOR_DONE : f.call(opt_obj, value, void 0, iterator) ? goog.iter.createEs6IteratorYield(value) : goog.iter.ES6_ITERATOR_DONE;
   };
   return iter;
 };
@@ -4951,10 +4873,6 @@ goog.iter.product = function(var_args) {
     }
     return goog.iter.ES6_ITERATOR_DONE;
   };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
-  };
   return iter;
 };
 goog.iter.cycle = function(iterable) {
@@ -4976,10 +4894,6 @@ goog.iter.cycle = function(iterable) {
     cacheIndex = (cacheIndex + 1) % cache.length;
     return goog.iter.createEs6IteratorYield(returnElement);
   };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
-  };
   return iter;
 };
 goog.iter.count = function(opt_start, opt_step) {
@@ -4989,20 +4903,12 @@ goog.iter.count = function(opt_start, opt_step) {
     counter += step;
     return goog.iter.createEs6IteratorYield(returnValue);
   };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
-  };
   return iter;
 };
 goog.iter.repeat = function(value) {
   var iter = new goog.iter.Iterator();
   iter.next = function() {
     return goog.iter.createEs6IteratorYield(value);
-  };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
   };
   return iter;
 };
@@ -5015,10 +4921,6 @@ goog.iter.accumulate = function(iterable) {
     }
     total += $jscomp$destructuring$var20.value;
     return goog.iter.createEs6IteratorYield(total);
-  };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
   };
   return iter;
 };
@@ -5039,10 +4941,6 @@ goog.iter.zip = function(var_args) {
       }
       return goog.iter.createEs6IteratorYield(arr);
     };
-    var iterNext = iter.next;
-    iter.nextValueOrThrow = function() {
-      return goog.iter.toEs4IteratorNext(iterNext.call(iter));
-    };
   }
   return iter;
 };
@@ -5059,10 +4957,6 @@ goog.iter.zipLongest = function(fillValue, var_args) {
         it.done ? arr.push(fillValue) : (arr.push(it.value), iteratorsHaveValues = !0);
       }
       return iteratorsHaveValues ? goog.iter.createEs6IteratorYield(arr) : (allDone = !0, goog.iter.ES6_ITERATOR_DONE);
-    };
-    var iterNext = iter.next;
-    iter.nextValueOrThrow = function() {
-      return goog.iter.toEs4IteratorNext(iterNext.call(iter));
     };
   }
   return iter;
@@ -5088,10 +4982,6 @@ goog.iter.compress = function(iterable, selectors) {
       }
     }
   };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
-  };
   return iter;
 };
 goog.iter.GroupByIterator_ = function(iterable, opt_keyFunc) {
@@ -5110,9 +5000,6 @@ goog.iter.GroupByIterator_.prototype.next = function() {
   }
   this.targetKey = this.currentKey;
   return goog.iter.createEs6IteratorYield([this.currentKey, this.groupItems_(this.targetKey)]);
-};
-goog.iter.GroupByIterator_.prototype.nextValueOrThrow = function() {
-  return goog.iter.toEs4IteratorNext(goog.iter.GroupByIterator_.prototype.next.call(this));
 };
 goog.iter.GroupByIterator_.prototype.groupItems_ = function(targetKey) {
   for (var arr = []; this.currentKey == targetKey;) {
@@ -5139,10 +5026,6 @@ goog.iter.starMap = function(iterable, f, opt_obj) {
     var args = goog.iter.toArray(it.value), value = f.apply(opt_obj, module$contents$goog$array_concat(args, void 0, iterator));
     return goog.iter.createEs6IteratorYield(value);
   };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
-  };
   return iter;
 };
 goog.iter.tee = function(iterable, opt_num) {
@@ -5168,10 +5051,6 @@ goog.iter.tee = function(iterable, opt_num) {
       goog.asserts.assert(!module$contents$goog$array_isEmpty(buffer));
       return goog.iter.createEs6IteratorYield(buffer.shift());
     };
-    var iterNext = iter.next;
-    iter.nextValueOrThrow = function() {
-      return goog.iter.toEs4IteratorNext(iterNext.call(iter));
-    };
     return iter;
   });
 };
@@ -5183,10 +5062,6 @@ goog.iter.limit = function(iterable, limitSize) {
   var iterator = goog.iter.toIterator(iterable), iter = new goog.iter.Iterator(), remaining = limitSize;
   iter.next = function() {
     return 0 < remaining-- ? iterator.next() : goog.iter.ES6_ITERATOR_DONE;
-  };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
   };
   return iter;
 };
@@ -5225,10 +5100,6 @@ goog.iter.combinations = function(iterable, length) {
     var $jscomp$destructuring$var22 = sortedIndexIterator.next();
     return $jscomp$destructuring$var22.done ? goog.iter.ES6_ITERATOR_DONE : goog.iter.createEs6IteratorYield(module$contents$goog$array_map($jscomp$destructuring$var22.value, getIndexFromElements));
   };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
-  };
   return iter;
 };
 goog.iter.combinationsWithReplacement = function(iterable, length) {
@@ -5241,10 +5112,6 @@ goog.iter.combinationsWithReplacement = function(iterable, length) {
   iter.next = function() {
     var $jscomp$destructuring$var23 = sortedIndexIterator.next();
     return $jscomp$destructuring$var23.done ? goog.iter.ES6_ITERATOR_DONE : goog.iter.createEs6IteratorYield(module$contents$goog$array_map($jscomp$destructuring$var23.value, getIndexFromElements));
-  };
-  var iterNext = iter.next;
-  iter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(iter));
   };
   return iter;
 };
@@ -5298,13 +5165,6 @@ var module$contents$goog$iter$es6_ShimGoogIterator = function(iter) {
   this.iter_ = iter;
 };
 $jscomp.inherits(module$contents$goog$iter$es6_ShimGoogIterator, goog.iter.Iterator);
-module$contents$goog$iter$es6_ShimGoogIterator.prototype.nextValueOrThrow = function() {
-  var result = this.iter_.next();
-  if (result.done) {
-    throw goog.iter.StopIteration;
-  }
-  return result.value;
-};
 module$contents$goog$iter$es6_ShimGoogIterator.prototype.next = function() {
   return this.iter_.next();
 };
@@ -5498,10 +5358,6 @@ goog.structs.Map.prototype.__iterator__ = function(opt_keys) {
     }
     var key = selfObj.keys_[i++];
     return goog.iter.createEs6IteratorYield(opt_keys ? key : selfObj.map_[key]);
-  };
-  var iterNext = newIter.next;
-  newIter.nextValueOrThrow = function() {
-    return goog.iter.toEs4IteratorNext(iterNext.call(newIter));
   };
   return newIter;
 };
@@ -6136,7 +5992,7 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function module$con
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$65 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$65 = {$jscomp$loop$prop$mapMetadata$66:$jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$64 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$64 = {$jscomp$loop$prop$mapMetadata$65:$jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65}, 
   $jscomp$key$key = $jscomp$iter$6.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
@@ -6149,11 +6005,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
       } else if (objects.hasOwnProperty(key)) {
         copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
       } else if (objectMaps.hasOwnProperty(key)) {
-        $jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66 = objectMaps[key], copy = $jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66.isPropertyArray ? value.map(function($jscomp$loop$65) {
+        $jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65 = objectMaps[key], copy = $jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65.isPropertyArray ? value.map(function($jscomp$loop$64) {
           return function(v) {
-            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66, valueGetter, valueSetter, copyInstanciator);
+            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65, valueGetter, valueSetter, copyInstanciator);
           };
-        }($jscomp$loop$65)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66, valueGetter, valueSetter, copyInstanciator);
+        }($jscomp$loop$64)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65, valueGetter, valueSetter, copyInstanciator);
       } else if (Array.isArray(value)) {
         if (metadata.emptyArrayIsUnset && 0 === value.length) {
           continue;
@@ -6199,39 +6055,39 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$67 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$67 = {$jscomp$loop$prop$value2$68:$jscomp$loop$67.$jscomp$loop$prop$value2$68, $jscomp$loop$prop$mapMetadata$69:$jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69}, $jscomp$key$key = $jscomp$iter$8.next()) {
+  for (var $jscomp$loop$66 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$66 = {$jscomp$loop$prop$value2$67:$jscomp$loop$66.$jscomp$loop$prop$value2$67, $jscomp$loop$prop$mapMetadata$68:$jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68}, $jscomp$key$key = $jscomp$iter$8.next()) {
     var key = $jscomp$key$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$67.$jscomp$loop$prop$value2$68 = serializable2.Serializable$get(key);
+      $jscomp$loop$66.$jscomp$loop$prop$value2$67 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, !0, !0)) {
           return !1;
         }
       } else if (objects1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, !1, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, !1, !0)) {
           return !1;
         }
       } else if (objectMaps1.hasOwnProperty(key)) {
-        if ($jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69 = objectMaps1[key], $jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69.isPropertyArray) {
-          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68) || value1.some(function($jscomp$loop$67) {
+        if ($jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68 = objectMaps1[key], $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68.isPropertyArray) {
+          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67) || value1.some(function($jscomp$loop$66) {
             return function(v1, i) {
-              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$67.$jscomp$loop$prop$value2$68[i], $jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69);
+              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$66.$jscomp$loop$prop$value2$67[i], $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68);
             };
-          }($jscomp$loop$67))) {
+          }($jscomp$loop$66))) {
             return !1;
           }
-        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, $jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69)) {
+        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68)) {
           return !1;
         }
       } else if (Array.isArray(value1)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, !0, !1)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, !0, !1)) {
           return !1;
         }
-      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, !1, !1)) {
+      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, !1, !1)) {
         return !1;
       }
     }
@@ -7398,18 +7254,18 @@ module$contents$goog$html$SafeHtml_SafeHtml.combineAttributes = function(fixedAt
   for (name in fixedAttributes) {
     Object.prototype.hasOwnProperty.call(fixedAttributes, name) && (goog.asserts.assert(name.toLowerCase() == name, "Must be lower case"), combinedAttributes[name] = fixedAttributes[name]);
   }
-  for (var name$42 in defaultAttributes) {
-    Object.prototype.hasOwnProperty.call(defaultAttributes, name$42) && (goog.asserts.assert(name$42.toLowerCase() == name$42, "Must be lower case"), combinedAttributes[name$42] = defaultAttributes[name$42]);
+  for (var name$41 in defaultAttributes) {
+    Object.prototype.hasOwnProperty.call(defaultAttributes, name$41) && (goog.asserts.assert(name$41.toLowerCase() == name$41, "Must be lower case"), combinedAttributes[name$41] = defaultAttributes[name$41]);
   }
   if (attributes) {
-    for (var name$43 in attributes) {
-      if (Object.prototype.hasOwnProperty.call(attributes, name$43)) {
-        var nameLower = name$43.toLowerCase();
+    for (var name$42 in attributes) {
+      if (Object.prototype.hasOwnProperty.call(attributes, name$42)) {
+        var nameLower = name$42.toLowerCase();
         if (nameLower in fixedAttributes) {
-          throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'Cannot override "' + nameLower + '" attribute, got "' + name$43 + '" with value "' + attributes[name$43] + '"' : "");
+          throw Error(module$contents$goog$html$SafeHtml_SafeHtml.ENABLE_ERROR_MESSAGES ? 'Cannot override "' + nameLower + '" attribute, got "' + name$42 + '" with value "' + attributes[name$42] + '"' : "");
         }
         nameLower in defaultAttributes && delete combinedAttributes[nameLower];
-        combinedAttributes[name$43] = attributes[name$43];
+        combinedAttributes[name$42] = attributes[name$42];
       }
     }
   }
@@ -8026,13 +7882,13 @@ goog.string.editDistance = function(a, b) {
   for (var i = 0; i < b.length + 1; i++) {
     v0[i] = i;
   }
-  for (var i$44 = 0; i$44 < a.length; i$44++) {
-    v1[0] = i$44 + 1;
+  for (var i$43 = 0; i$43 < a.length; i$43++) {
+    v1[0] = i$43 + 1;
     for (var j = 0; j < b.length; j++) {
-      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + Number(a[i$44] != b[j]));
+      v1[j + 1] = Math.min(v1[j] + 1, v0[j + 1] + 1, v0[j] + Number(a[i$43] != b[j]));
     }
-    for (var j$45 = 0; j$45 < v0.length; j$45++) {
-      v0[j$45] = v1[j$45];
+    for (var j$44 = 0; j$44 < v0.length; j$44++) {
+      v0[j$44] = v1[j$44];
     }
   }
   return v1[b.length];
@@ -8906,7 +8762,7 @@ module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.base64En
     var reader = new FileReader();
     reader.onload = function(ev) {
       try {
-        var file$46 = ev.target.result, toResolve = file$46.substr(file$46.indexOf(",") + 1);
+        var file$45 = ev.target.result, toResolve = file$45.substr(file$45.indexOf(",") + 1);
         resolve(toResolve);
       } catch (e) {
         reject(e);
@@ -9620,13 +9476,14 @@ module$exports$eeapiclient$ee_api_client.ComputeFeaturesRequest = function(param
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("pageSize", null == parameters.pageSize ? null : parameters.pageSize);
   this.Serializable$set("pageToken", null == parameters.pageToken ? null : parameters.pageToken);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ComputeFeaturesRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ComputeFeaturesRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ComputeFeaturesRequest;
 };
 module$exports$eeapiclient$ee_api_client.ComputeFeaturesRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:["expression", "pageSize", "pageToken"], objects:{expression:module$exports$eeapiclient$ee_api_client.Expression}};
+  return {keys:["expression", "pageSize", "pageToken", "workloadTag"], objects:{expression:module$exports$eeapiclient$ee_api_client.Expression}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ComputeFeaturesRequest.prototype, {expression:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
@@ -9640,6 +9497,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("pageToken") ? this.Serializable$get("pageToken") : null;
 }, set:function(value) {
   this.Serializable$set("pageToken", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 module$exports$eeapiclient$ee_api_client.ComputeFeaturesResponseParameters = function module$contents$eeapiclient$ee_api_client_ComputeFeaturesResponseParameters() {
 };
@@ -9678,13 +9539,14 @@ module$exports$eeapiclient$ee_api_client.ComputeImagesRequest = function(paramet
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("pageSize", null == parameters.pageSize ? null : parameters.pageSize);
   this.Serializable$set("pageToken", null == parameters.pageToken ? null : parameters.pageToken);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ComputeImagesRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ComputeImagesRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ComputeImagesRequest;
 };
 module$exports$eeapiclient$ee_api_client.ComputeImagesRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:["expression", "pageSize", "pageToken"], objects:{expression:module$exports$eeapiclient$ee_api_client.Expression}};
+  return {keys:["expression", "pageSize", "pageToken", "workloadTag"], objects:{expression:module$exports$eeapiclient$ee_api_client.Expression}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ComputeImagesRequest.prototype, {expression:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
@@ -9698,6 +9560,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("pageToken") ? this.Serializable$get("pageToken") : null;
 }, set:function(value) {
   this.Serializable$set("pageToken", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 module$exports$eeapiclient$ee_api_client.ComputeImagesResponseParameters = function module$contents$eeapiclient$ee_api_client_ComputeImagesResponseParameters() {
 };
@@ -9733,13 +9599,14 @@ module$exports$eeapiclient$ee_api_client.ComputePixelsRequest = function(paramet
   this.Serializable$set("grid", null == parameters.grid ? null : parameters.grid);
   this.Serializable$set("bandIds", null == parameters.bandIds ? null : parameters.bandIds);
   this.Serializable$set("visualizationOptions", null == parameters.visualizationOptions ? null : parameters.visualizationOptions);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ComputePixelsRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ComputePixelsRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ComputePixelsRequest;
 };
 module$exports$eeapiclient$ee_api_client.ComputePixelsRequest.prototype.getPartialClassMetadata = function() {
-  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.ComputePixelsRequestFileFormatEnum}, keys:["bandIds", "expression", "fileFormat", "grid", "visualizationOptions"], objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, grid:module$exports$eeapiclient$ee_api_client.PixelGrid, visualizationOptions:module$exports$eeapiclient$ee_api_client.VisualizationOptions}};
+  return {enums:{fileFormat:module$exports$eeapiclient$ee_api_client.ComputePixelsRequestFileFormatEnum}, keys:"bandIds expression fileFormat grid visualizationOptions workloadTag".split(" "), objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, grid:module$exports$eeapiclient$ee_api_client.PixelGrid, visualizationOptions:module$exports$eeapiclient$ee_api_client.VisualizationOptions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ComputePixelsRequest.prototype, {bandIds:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bandIds") ? this.Serializable$get("bandIds") : null;
@@ -9761,6 +9628,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("visualizationOptions") ? this.Serializable$get("visualizationOptions") : null;
 }, set:function(value) {
   this.Serializable$set("visualizationOptions", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ComputePixelsRequest, {FileFormat:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.ComputePixelsRequestFileFormatEnum;
@@ -9771,18 +9642,23 @@ module$exports$eeapiclient$ee_api_client.ComputeValueRequest = function(paramete
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ComputeValueRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ComputeValueRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ComputeValueRequest;
 };
 module$exports$eeapiclient$ee_api_client.ComputeValueRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:["expression"], objects:{expression:module$exports$eeapiclient$ee_api_client.Expression}};
+  return {keys:["expression", "workloadTag"], objects:{expression:module$exports$eeapiclient$ee_api_client.Expression}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ComputeValueRequest.prototype, {expression:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("expression") ? this.Serializable$get("expression") : null;
 }, set:function(value) {
   this.Serializable$set("expression", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 module$exports$eeapiclient$ee_api_client.ComputeValueResponseParameters = function module$contents$eeapiclient$ee_api_client_ComputeValueResponseParameters() {
 };
@@ -10224,13 +10100,14 @@ module$exports$eeapiclient$ee_api_client.ExportClassifierRequest = function(para
   this.Serializable$set("assetExportOptions", null == parameters.assetExportOptions ? null : parameters.assetExportOptions);
   this.Serializable$set("maxWorkers", null == parameters.maxWorkers ? null : parameters.maxWorkers);
   this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ExportClassifierRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ExportClassifierRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ExportClassifierRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportClassifierRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"assetExportOptions description expression maxWorkerCount maxWorkers requestId".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression}};
+  return {keys:"assetExportOptions description expression maxWorkerCount maxWorkers requestId workloadTag".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.ClassifierAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportClassifierRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("assetExportOptions") ? this.Serializable$get("assetExportOptions") : null;
@@ -10256,6 +10133,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
 }, set:function(value) {
   this.Serializable$set("requestId", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 module$exports$eeapiclient$ee_api_client.ExportImageRequestParameters = function module$contents$eeapiclient$ee_api_client_ExportImageRequestParameters() {
 };
@@ -10271,13 +10152,14 @@ module$exports$eeapiclient$ee_api_client.ExportImageRequest = function(parameter
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
   this.Serializable$set("maxWorkers", null == parameters.maxWorkers ? null : parameters.maxWorkers);
   this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ExportImageRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ExportImageRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ExportImageRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportImageRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"assetExportOptions description expression fileExportOptions grid maxPixels maxWorkerCount maxWorkers requestId".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.ImageAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, fileExportOptions:module$exports$eeapiclient$ee_api_client.ImageFileExportOptions, grid:module$exports$eeapiclient$ee_api_client.PixelGrid}};
+  return {keys:"assetExportOptions description expression fileExportOptions grid maxPixels maxWorkerCount maxWorkers requestId workloadTag".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.ImageAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, fileExportOptions:module$exports$eeapiclient$ee_api_client.ImageFileExportOptions, grid:module$exports$eeapiclient$ee_api_client.PixelGrid}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportImageRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("assetExportOptions") ? this.Serializable$get("assetExportOptions") : null;
@@ -10315,6 +10197,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
 }, set:function(value) {
   this.Serializable$set("requestId", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 module$exports$eeapiclient$ee_api_client.ExportMapRequestParameters = function module$contents$eeapiclient$ee_api_client_ExportMapRequestParameters() {
 };
@@ -10328,13 +10214,14 @@ module$exports$eeapiclient$ee_api_client.ExportMapRequest = function(parameters)
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
   this.Serializable$set("maxWorkers", null == parameters.maxWorkers ? null : parameters.maxWorkers);
   this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ExportMapRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ExportMapRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ExportMapRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportMapRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"description expression maxWorkerCount maxWorkers requestId tileExportOptions tileOptions".split(" "), objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, tileExportOptions:module$exports$eeapiclient$ee_api_client.ImageFileExportOptions, tileOptions:module$exports$eeapiclient$ee_api_client.TileOptions}};
+  return {keys:"description expression maxWorkerCount maxWorkers requestId tileExportOptions tileOptions workloadTag".split(" "), objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, tileExportOptions:module$exports$eeapiclient$ee_api_client.ImageFileExportOptions, tileOptions:module$exports$eeapiclient$ee_api_client.TileOptions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportMapRequest.prototype, {description:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("description") ? this.Serializable$get("description") : null;
@@ -10364,6 +10251,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("tileOptions") ? this.Serializable$get("tileOptions") : null;
 }, set:function(value) {
   this.Serializable$set("tileOptions", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 module$exports$eeapiclient$ee_api_client.ExportTableRequestParameters = function module$contents$eeapiclient$ee_api_client_ExportTableRequestParameters() {
 };
@@ -10382,13 +10273,14 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequest = function(parameter
   this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
   this.Serializable$set("maxVertices", null == parameters.maxVertices ? null : parameters.maxVertices);
   this.Serializable$set("initialPolicy", null == parameters.initialPolicy ? null : parameters.initialPolicy);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ExportTableRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ExportTableRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"assetExportOptions description expression featureViewExportOptions fileExportOptions initialPolicy maxErrorMeters maxVertices maxWorkerCount maxWorkers requestId selectors".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewExportOptions:module$exports$eeapiclient$ee_api_client.FeatureViewAssetExportOptions, 
+  return {keys:"assetExportOptions description expression featureViewExportOptions fileExportOptions initialPolicy maxErrorMeters maxVertices maxWorkerCount maxWorkers requestId selectors workloadTag".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewExportOptions:module$exports$eeapiclient$ee_api_client.FeatureViewAssetExportOptions, 
   fileExportOptions:module$exports$eeapiclient$ee_api_client.TableFileExportOptions, initialPolicy:module$exports$eeapiclient$ee_api_client.Policy}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
@@ -10439,6 +10331,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("selectors") ? this.Serializable$get("selectors") : null;
 }, set:function(value) {
   this.Serializable$set("selectors", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 module$exports$eeapiclient$ee_api_client.ExportVideoMapRequestParameters = function module$contents$eeapiclient$ee_api_client_ExportVideoMapRequestParameters() {
 };
@@ -10454,13 +10350,14 @@ module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest = function(parame
   this.Serializable$set("version", null == parameters.version ? null : parameters.version);
   this.Serializable$set("maxWorkers", null == parameters.maxWorkers ? null : parameters.maxWorkers);
   this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest.prototype.getPartialClassMetadata = function() {
-  return {enums:{version:module$exports$eeapiclient$ee_api_client.ExportVideoMapRequestVersionEnum}, keys:"description expression maxWorkerCount maxWorkers requestId tileExportOptions tileOptions version videoOptions".split(" "), objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, tileExportOptions:module$exports$eeapiclient$ee_api_client.VideoFileExportOptions, tileOptions:module$exports$eeapiclient$ee_api_client.TileOptions, 
+  return {enums:{version:module$exports$eeapiclient$ee_api_client.ExportVideoMapRequestVersionEnum}, keys:"description expression maxWorkerCount maxWorkers requestId tileExportOptions tileOptions version videoOptions workloadTag".split(" "), objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, tileExportOptions:module$exports$eeapiclient$ee_api_client.VideoFileExportOptions, tileOptions:module$exports$eeapiclient$ee_api_client.TileOptions, 
   videoOptions:module$exports$eeapiclient$ee_api_client.VideoOptions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest.prototype, {description:{configurable:!0, enumerable:!0, get:function() {
@@ -10499,6 +10396,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("videoOptions") ? this.Serializable$get("videoOptions") : null;
 }, set:function(value) {
   this.Serializable$set("videoOptions", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportVideoMapRequest, {Version:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.ExportVideoMapRequestVersionEnum;
@@ -10515,13 +10416,14 @@ module$exports$eeapiclient$ee_api_client.ExportVideoRequest = function(parameter
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
   this.Serializable$set("maxWorkers", null == parameters.maxWorkers ? null : parameters.maxWorkers);
   this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
+  this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ExportVideoRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ExportVideoRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ExportVideoRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportVideoRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"description expression fileExportOptions maxWorkerCount maxWorkers requestId videoOptions".split(" "), objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, fileExportOptions:module$exports$eeapiclient$ee_api_client.VideoFileExportOptions, videoOptions:module$exports$eeapiclient$ee_api_client.VideoOptions}};
+  return {keys:"description expression fileExportOptions maxWorkerCount maxWorkers requestId videoOptions workloadTag".split(" "), objects:{expression:module$exports$eeapiclient$ee_api_client.Expression, fileExportOptions:module$exports$eeapiclient$ee_api_client.VideoFileExportOptions, videoOptions:module$exports$eeapiclient$ee_api_client.VideoOptions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportVideoRequest.prototype, {description:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("description") ? this.Serializable$get("description") : null;
@@ -10551,6 +10453,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("videoOptions") ? this.Serializable$get("videoOptions") : null;
 }, set:function(value) {
   this.Serializable$set("videoOptions", value);
+}}, workloadTag:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("workloadTag") ? this.Serializable$get("workloadTag") : null;
+}, set:function(value) {
+  this.Serializable$set("workloadTag", value);
 }}});
 module$exports$eeapiclient$ee_api_client.ExprParameters = function module$contents$eeapiclient$ee_api_client_ExprParameters() {
 };
@@ -11855,18 +11761,23 @@ module$exports$eeapiclient$ee_api_client.OperationMetadata = function(parameters
   this.Serializable$set("scriptUri", null == parameters.scriptUri ? null : parameters.scriptUri);
   this.Serializable$set("destinationUris", null == parameters.destinationUris ? null : parameters.destinationUris);
   this.Serializable$set("notifications", null == parameters.notifications ? null : parameters.notifications);
+  this.Serializable$set("batchEecuUsageSeconds", null == parameters.batchEecuUsageSeconds ? null : parameters.batchEecuUsageSeconds);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.OperationMetadata, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.OperationMetadata.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.OperationMetadata;
 };
 module$exports$eeapiclient$ee_api_client.OperationMetadata.prototype.getPartialClassMetadata = function() {
-  return {arrays:{notifications:module$exports$eeapiclient$ee_api_client.OperationNotification, stages:module$exports$eeapiclient$ee_api_client.OperationStage}, enums:{state:module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum}, keys:"attempt createTime description destinationUris endTime notifications priority progress scriptUri stages startTime state type updateTime".split(" ")};
+  return {arrays:{notifications:module$exports$eeapiclient$ee_api_client.OperationNotification, stages:module$exports$eeapiclient$ee_api_client.OperationStage}, enums:{state:module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum}, keys:"attempt batchEecuUsageSeconds createTime description destinationUris endTime notifications priority progress scriptUri stages startTime state type updateTime".split(" ")};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.OperationMetadata.prototype, {attempt:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("attempt") ? this.Serializable$get("attempt") : null;
 }, set:function(value) {
   this.Serializable$set("attempt", value);
+}}, batchEecuUsageSeconds:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("batchEecuUsageSeconds") ? this.Serializable$get("batchEecuUsageSeconds") : null;
+}, set:function(value) {
+  this.Serializable$set("batchEecuUsageSeconds", value);
 }}, createTime:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("createTime") ? this.Serializable$get("createTime") : null;
 }, set:function(value) {
@@ -15289,7 +15200,7 @@ goog.Promise = function(resolver, opt_context) {
   this.executing_ = !1;
   0 < goog.Promise.UNHANDLED_REJECTION_DELAY ? this.unhandledRejectionId_ = 0 : 0 == goog.Promise.UNHANDLED_REJECTION_DELAY && (this.hadUnhandledRejection_ = !1);
   goog.Promise.LONG_STACK_TRACES && (this.stack_ = [], this.addStackTrace_(Error("created")), this.currentStep_ = 0);
-  if (resolver != goog.nullFunction) {
+  if (resolver != goog.functions.UNDEFINED) {
     try {
       var self = this;
       resolver.call(opt_context, function(value) {
@@ -15342,7 +15253,7 @@ goog.Promise.resolve = function(opt_value) {
   if (opt_value instanceof goog.Promise) {
     return opt_value;
   }
-  var promise = new goog.Promise(goog.nullFunction);
+  var promise = new goog.Promise(goog.functions.UNDEFINED);
   promise.resolve_(goog.Promise.State_.FULFILLED, opt_value);
   return promise;
 };
@@ -15432,7 +15343,7 @@ goog.Promise.prototype.thenVoid = function(opt_onFulfilled, opt_onRejected, opt_
   null != opt_onFulfilled && goog.asserts.assertFunction(opt_onFulfilled, "opt_onFulfilled should be a function.");
   null != opt_onRejected && goog.asserts.assertFunction(opt_onRejected, "opt_onRejected should be a function. Did you pass opt_context as the second argument instead of the third?");
   goog.Promise.LONG_STACK_TRACES && this.addStackTrace_(Error("then"));
-  this.addCallbackEntry_(goog.Promise.getCallbackEntry_(opt_onFulfilled || goog.nullFunction, opt_onRejected || null, opt_context));
+  this.addCallbackEntry_(goog.Promise.getCallbackEntry_(opt_onFulfilled || goog.functions.UNDEFINED, opt_onRejected || null, opt_context));
 };
 goog.Promise.prototype.thenAlways = function(onSettled, opt_context) {
   goog.Promise.LONG_STACK_TRACES && this.addStackTrace_(Error("thenAlways"));
@@ -15476,16 +15387,16 @@ goog.Promise.prototype.addChildPromise_ = function(onFulfilled, onRejected, opt_
       try {
         var result = onFulfilled.call(opt_context, value);
         resolve(result);
-      } catch (err$47) {
-        reject(err$47);
+      } catch (err$46) {
+        reject(err$46);
       }
     } : resolve;
     callbackEntry.onRejected = onRejected ? function(reason) {
       try {
         var result = onRejected.call(opt_context, reason);
         void 0 === result && reason instanceof goog.Promise.CancellationError ? reject(reason) : resolve(result);
-      } catch (err$48) {
-        reject(err$48);
+      } catch (err$47) {
+        reject(err$47);
       }
     } : reject;
   });
@@ -15575,8 +15486,8 @@ goog.Promise.prototype.executeCallback_ = function(callbackEntry, state, result)
   } else {
     try {
       callbackEntry.always ? callbackEntry.onFulfilled.call(callbackEntry.context) : goog.Promise.invokeCallback_(callbackEntry, state, result);
-    } catch (err$49) {
-      goog.Promise.handleRejection_.call(null, err$49);
+    } catch (err$48) {
+      goog.Promise.handleRejection_.call(null, err$48);
     }
   }
   goog.Promise.returnEntry_(callbackEntry);
@@ -16063,9 +15974,12 @@ goog.net.jsloader.cancel_ = function() {
 };
 goog.net.jsloader.cleanup_ = function(scriptNode, removeScriptNode, opt_timeout) {
   null != opt_timeout && goog.global.clearTimeout(opt_timeout);
-  scriptNode.onload = goog.nullFunction;
-  scriptNode.onerror = goog.nullFunction;
-  scriptNode.onreadystatechange = goog.nullFunction;
+  scriptNode.onload = function() {
+  };
+  scriptNode.onerror = function() {
+  };
+  scriptNode.onreadystatechange = function() {
+  };
   removeScriptNode && window.setTimeout(function() {
     goog.dom.removeNode(scriptNode);
   }, 0);
@@ -16104,7 +16018,7 @@ goog.json.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(
       var result = eval("(" + o + ")");
       error && goog.json.errorLogger_("Invalid JSON: " + o, error);
       return result;
-    } catch (ex$50) {
+    } catch (ex$49) {
     }
   }
   throw Error("Invalid JSON string: " + o);
@@ -16695,9 +16609,9 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   }, this), this.xhr_.upload && (this.xhr_.upload.onprogress = goog.bind(this.onProgressHandler_, this)));
   try {
     goog.log.fine(this.logger_, this.formatMsg_("Opening Xhr")), this.inOpen_ = !0, this.xhr_.open(method, String(url), !0), this.inOpen_ = !1;
-  } catch (err$51) {
-    goog.log.fine(this.logger_, this.formatMsg_("Error opening Xhr: " + err$51.message));
-    this.error_(goog.net.ErrorCode.EXCEPTION, err$51);
+  } catch (err$50) {
+    goog.log.fine(this.logger_, this.formatMsg_("Error opening Xhr: " + err$50.message));
+    this.error_(goog.net.ErrorCode.EXCEPTION, err$50);
     return;
   }
   var content = opt_content || "", headers = new Map(this.headers);
@@ -16708,8 +16622,8 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
       }
     } else if ("function" === typeof opt_headers.keys && "function" === typeof opt_headers.get) {
       for (var $jscomp$iter$18 = $jscomp.makeIterator(opt_headers.keys()), $jscomp$key$key = $jscomp$iter$18.next(); !$jscomp$key$key.done; $jscomp$key$key = $jscomp$iter$18.next()) {
-        var key$52 = $jscomp$key$key.value;
-        headers.set(key$52, opt_headers.get(key$52));
+        var key$51 = $jscomp$key$key.value;
+        headers.set(key$51, opt_headers.get(key$51));
       }
     } else {
       throw Error("Unknown input type for opt_headers: " + String(opt_headers));
@@ -16720,23 +16634,23 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   }), contentIsFormData = goog.global.FormData && content instanceof goog.global.FormData;
   !module$contents$goog$array_contains(goog.net.XhrIo.METHODS_WITH_FORM_DATA, method) || contentTypeKey || contentIsFormData || headers.set(goog.net.XhrIo.CONTENT_TYPE_HEADER, goog.net.XhrIo.FORM_CONTENT_TYPE);
   for (var $jscomp$iter$19 = $jscomp.makeIterator(headers), $jscomp$key$ = $jscomp$iter$19.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$19.next()) {
-    var $jscomp$destructuring$var31 = $jscomp.makeIterator($jscomp$key$.value), key$53 = $jscomp$destructuring$var31.next().value, value = $jscomp$destructuring$var31.next().value;
-    this.xhr_.setRequestHeader(key$53, value);
+    var $jscomp$destructuring$var31 = $jscomp.makeIterator($jscomp$key$.value), key$52 = $jscomp$destructuring$var31.next().value, value = $jscomp$destructuring$var31.next().value;
+    this.xhr_.setRequestHeader(key$52, value);
   }
   this.responseType_ && (this.xhr_.responseType = this.responseType_);
   "withCredentials" in this.xhr_ && this.xhr_.withCredentials !== this.withCredentials_ && (this.xhr_.withCredentials = this.withCredentials_);
   if ("setTrustToken" in this.xhr_ && this.trustToken_) {
     try {
       this.xhr_.setTrustToken(this.trustToken_);
-    } catch (err$54) {
-      goog.log.fine(this.logger_, this.formatMsg_("Error SetTrustToken: " + err$54.message));
+    } catch (err$53) {
+      goog.log.fine(this.logger_, this.formatMsg_("Error SetTrustToken: " + err$53.message));
     }
   }
   try {
     this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (this.useXhr2Timeout_ = goog.net.XhrIo.shouldUseXhr2Timeout_(this.xhr_), goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete, xhr2 " + this.useXhr2Timeout_)), this.useXhr2Timeout_ ? (this.xhr_[goog.net.XhrIo.XHR2_TIMEOUT_] = this.timeoutInterval_, this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = goog.bind(this.timeout_, this)) : this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, 
     this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
-  } catch (err$55) {
-    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$55.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$55);
+  } catch (err$54) {
+    goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err$54.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err$54);
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
@@ -16810,7 +16724,8 @@ goog.net.XhrIo.buildProgressEvent_ = function(e, eventType) {
 goog.net.XhrIo.prototype.cleanUpXhr_ = function(opt_fromDispose) {
   if (this.xhr_) {
     this.cleanUpTimeoutTimer_();
-    var xhr = this.xhr_, clearedOnReadyStateChange = this.xhrOptions_[goog.net.XmlHttp.OptionType.USE_NULL_FUNCTION] ? goog.nullFunction : null;
+    var xhr = this.xhr_, clearedOnReadyStateChange = this.xhrOptions_[goog.net.XmlHttp.OptionType.USE_NULL_FUNCTION] ? function() {
+    } : null;
     this.xhrOptions_ = this.xhr_ = null;
     opt_fromDispose || this.dispatchEvent(goog.net.EventType.READY);
     try {
@@ -16958,7 +16873,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.303";
+ee.apiclient.API_CLIENT_VERSION = "0.1.304";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17057,12 +16972,12 @@ module$contents$ee$apiclient_EERequestService.prototype.send = function(params, 
   module$contents$eeapiclient$request_params_processParams(params);
   var path = params.path || "", url = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + path, args = module$contents$ee$apiclient_apiclient.makeRequest_(params.queryParams || {}), body = params.body ? JSON.stringify(params.body) : void 0;
   if (this.sync) {
-    var raw = module$contents$ee$apiclient_apiclient.send(url, args, void 0, params.httpMethod, body, this.retries), value$56 = responseCtor ? module$contents$eeapiclient$domain_object_deserialize(responseCtor, raw) : raw, thenable = function(v) {
+    var raw = module$contents$ee$apiclient_apiclient.send(url, args, void 0, params.httpMethod, body, this.retries), value$55 = responseCtor ? module$contents$eeapiclient$domain_object_deserialize(responseCtor, raw) : raw, thenable = function(v) {
       return {then:function(f) {
         return thenable(f(v));
       }};
     };
-    return thenable(value$56);
+    return thenable(value$55);
   }
   return (new Promise(function(resolve, reject) {
     module$contents$ee$apiclient_apiclient.send(url, args, function(value, error) {
@@ -17239,8 +17154,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.303";
-  "0.1.303" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.304";
+  "0.1.304" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17557,6 +17472,7 @@ goog.exportSymbol("ee.api.EarthEngineAsset", module$exports$eeapiclient$ee_api_c
 goog.exportSymbol("ee.api.ListImagesResponse", module$exports$eeapiclient$ee_api_client.ListImagesResponse);
 goog.exportSymbol("ee.api.Image", module$exports$eeapiclient$ee_api_client.Image);
 goog.exportSymbol("ee.api.Operation", module$exports$eeapiclient$ee_api_client.Operation);
+goog.exportSymbol("ee.api.ListFeaturesResponse", module$exports$eeapiclient$ee_api_client.ListFeaturesResponse);
 ee.Encodable = function() {
 };
 ee.rpc_node = {};
@@ -17907,7 +17823,7 @@ ee.rpc_convert.iamPolicyToAcl = function(result) {
     bindingMap[binding.role] = binding.members;
   });
   var groups = new Set(), toAcl = function(member) {
-    var email = member.replace(/^group:|^user:|^serviceAccount:/, "");
+    var email = member.replace(/^domain:|^group:|^serviceAccount:|^user:/, "");
     member.startsWith("group:") && groups.add(email);
     return email;
   }, readersWithAll = bindingMap["roles/viewer"] || [], readers = readersWithAll.filter(function(reader) {
@@ -17920,6 +17836,8 @@ ee.rpc_convert.iamPolicyToAcl = function(result) {
 ee.rpc_convert.aclToIamPolicy = function(acls) {
   var hasPrefix = function(email) {
     return email.includes(":");
+  }, isDomain = function(email) {
+    return !email.includes("@");
   }, isGroup = function(email) {
     return acls.groups && acls.groups.has(email);
   }, isServiceAccount = function(email) {
@@ -17930,7 +17848,7 @@ ee.rpc_convert.aclToIamPolicy = function(acls) {
         return email;
       }
       var prefix = "user:";
-      isGroup(email) ? prefix = "group:" : isServiceAccount(email) && (prefix = "serviceAccount:");
+      isDomain(email) ? prefix = "domain:" : isGroup(email) ? prefix = "group:" : isServiceAccount(email) && (prefix = "serviceAccount:");
       return prefix + email;
     });
   }, all = acls.all_users_can_read ? ["allUsers"] : [], bindings = [{role:"roles/owner", members:asMembers("owners")}, {role:"roles/viewer", members:asMembers("readers").concat(all)}, {role:"roles/editor", members:asMembers("writers")},].map(function(params) {
@@ -18521,8 +18439,8 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   }
   if (null != value.functionInvocationValue) {
     for (var inv = value.functionInvocationValue, args = {}, $jscomp$iter$26 = $jscomp.makeIterator(Object.keys(inv.arguments || {})), $jscomp$key$k = $jscomp$iter$26.next(); !$jscomp$key$k.done; $jscomp$key$k = $jscomp$iter$26.next()) {
-      var k$57 = $jscomp$key$k.value;
-      args[k$57] = this.optimizeValue(inv.arguments[k$57], depth + 3);
+      var k$56 = $jscomp$key$k.value;
+      args[k$56] = this.optimizeValue(inv.arguments[k$56], depth + 3);
     }
     return inv.functionName ? ee.rpc_node.functionByName(inv.functionName, args) : ee.rpc_node.functionByReference(this.optimizeReference(inv.functionReference || ""), args);
   }
@@ -19026,7 +18944,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
   if ("string" === typeof params.crs_transform) {
     try {
       params.crs_transform = JSON.parse(params.crs_transform);
-    } catch (e$58) {
+    } catch (e$57) {
     }
   }
   var image = ee.data.images.buildDownloadIdImage(params.image, params), thumbnail = new module$exports$eeapiclient$ee_api_client.Thumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(image)), fileFormat:ee.rpc_convert.fileFormat(params.format), filenamePrefix:params.name, bandIds:params.bands && ee.rpc_convert.bandList(params.bands.map(function(band) {
@@ -19081,8 +18999,8 @@ goog.exportSymbol("ee.data.newTaskId", ee.data.newTaskId);
 ee.data.getTaskStatus = function(taskId, opt_callback) {
   var opNames = ee.data.makeStringArray_(taskId).map(ee.rpc_convert.taskIdToOperationName);
   if (1 === opNames.length) {
-    var call$60 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$60.handle(call$60.operations().get(opNames[0]).then(function(op) {
+    var call$59 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$59.handle(call$59.operations().get(opNames[0]).then(function(op) {
       return [ee.rpc_convert.operationToTask(op)];
     }));
   }
@@ -19136,8 +19054,8 @@ goog.exportSymbol("ee.data.listOperations", ee.data.listOperations);
 ee.data.cancelOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName), request = new module$exports$eeapiclient$ee_api_client.CancelOperationRequest();
   if (1 === opNames.length) {
-    var call$61 = new module$contents$ee$apiclient_Call(opt_callback);
-    call$61.handle(call$61.operations().cancel(opNames[0], request));
+    var call$60 = new module$contents$ee$apiclient_Call(opt_callback);
+    call$60.handle(call$60.operations().cancel(opNames[0], request));
   } else {
     var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
     call.send(opNames.map(function(op) {
@@ -19149,8 +19067,8 @@ goog.exportSymbol("ee.data.cancelOperation", ee.data.cancelOperation);
 ee.data.getOperation = function(operationName, opt_callback) {
   var opNames = ee.data.makeStringArray_(operationName).map(ee.rpc_convert.taskIdToOperationName);
   if (!Array.isArray(operationName)) {
-    var call$62 = new module$contents$ee$apiclient_Call(opt_callback);
-    return call$62.handle(call$62.operations().get(opNames[0]));
+    var call$61 = new module$contents$ee$apiclient_Call(opt_callback);
+    return call$61.handle(call$61.operations().get(opNames[0]));
   }
   var call = new module$contents$ee$apiclient_BatchCall(opt_callback), operations = call.operations();
   return call.send(opNames.map(function(op) {
@@ -19559,9 +19477,9 @@ ee.ComputedObject.prototype.encodeCloudValue = function(serializer) {
     }
     return ee.rpc_node.argumentReference(name);
   }
-  var encodedArgs = {}, name$63;
-  for (name$63 in this.args) {
-    void 0 !== this.args[name$63] && (encodedArgs[name$63] = ee.rpc_node.reference(serializer.makeReference(this.args[name$63])));
+  var encodedArgs = {}, name$62;
+  for (name$62 in this.args) {
+    void 0 !== this.args[name$62] && (encodedArgs[name$62] = ee.rpc_node.reference(serializer.makeReference(this.args[name$62])));
   }
   return "string" === typeof this.func ? ee.rpc_node.functionByName(String(this.func), encodedArgs) : this.func.encodeCloudInvocation(serializer, encodedArgs);
 };
@@ -21678,8 +21596,8 @@ ee.CustomFunction.resolveNamelessArgs_ = function(signature, vars, body) {
       return node.functionDefinitionValue ? 1 : node.arrayValue ? countNodes(node.arrayValue.values) : node.dictionaryValue ? countNodes(Object.values(node.dictionaryValue.values)) : node.functionInvocationValue ? countNodes(Object.values(node.functionInvocationValue.arguments)) : 0;
     };
     return countNodes(Object.values(expression.values));
-  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars), "<unbound>")) + "_", i$64 = 0; i$64 < namelessArgIndices.length; i$64++) {
-    var index = namelessArgIndices[i$64], name = baseName + i$64;
+  }(ee.Serializer.encodeCloudApiExpression(body.apply(null, vars), "<unbound>")) + "_", i$63 = 0; i$63 < namelessArgIndices.length; i$63++) {
+    var index = namelessArgIndices[i$63], name = baseName + i$63;
     vars[index].varName = name;
     signature.args[index].name = name;
   }
