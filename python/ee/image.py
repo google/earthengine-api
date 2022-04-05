@@ -666,25 +666,14 @@ class Image(element.Element):
     # that takes a set of Images and produces an Image. We need to make an
     # ee.Function to wrap it properly: encoding and specification of input and
     # output types.
-    class ReinterpretedFunction(function.Function):
-      """A function that executes the result of a function."""
-
-      def encode_invocation(self, encoder):
-        return body.encode(encoder)
-
-      def encode_cloud_invocation(self, encoder):
-        return {'functionReference': encoder(body)}
-
-      def getSignature(self):
-        return {
-            'name': '',
-            'args': [{'name': name, 'type': 'Image', 'optional': False}
-                     for name in all_vars],
-            'returns': 'Image'
-        }
-
+    signature = {
+        'name': '',
+        'args': [{'name': name, 'type': 'Image', 'optional': False}
+                 for name in all_vars],
+        'returns': 'Image'
+    }
     # Perform the call to the result of Image.parseExpression
-    return ReinterpretedFunction().apply(args)
+    return function.SecondOrderFunction(body, signature).apply(args)
 
   def clip(self, clip_geometry):
     """Clips an image to a Geometry or Feature.

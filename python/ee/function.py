@@ -187,3 +187,28 @@ class Function(encodable.EncodableFunction):
                                 subsequent_indent=' ' * 6)
         parts.append(arg_doc)
     return '\n'.join(parts)
+
+
+class SecondOrderFunction(Function):
+  """A function that executes the result of a function."""
+
+  def __init__(self, function_body, signature):
+    """Creates a SecondOrderFunction.
+
+    Args:
+      function_body: The function that returns the function to execute.
+      signature: The signature of the function to execute, as described in
+        getSignature().
+    """
+    super().__init__()
+    self._function_body = function_body
+    self._signature = signature
+
+  def encode_invocation(self, encoder):
+    return self._function_body.encode(encoder)
+
+  def encode_cloud_invocation(self, encoder):
+    return {'functionReference': encoder(self._function_body)}
+
+  def getSignature(self):
+    return self._signature

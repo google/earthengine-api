@@ -16012,6 +16012,12 @@
       "description": "Format to return data in, either \u0027text\u0027 or \u0027json\u0027.",
       "optional": true,
       "defaultValue": "text"
+    }, {
+      "argumentName": "maxEntries",
+      "type": "Integer",
+      "description": "Maximum number of profile entries to return.\nIf the profiles requested collectively exceed this limit, some entries may be merged (values aggregated and description details replaced with \"(...)\") until the profile fits within this limit.\nIn addition to this limit, there are also inherent limits on the number of profile entries recorded, which cannot be raised.\nIf not specified, the default limit is 200.",
+      "optional": true,
+      "defaultValue": null
     }],
     "hidden": true
   }]
