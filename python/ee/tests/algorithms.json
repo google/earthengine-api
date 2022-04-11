@@ -4996,7 +4996,7 @@
   }, {
     "name": "algorithms/Element.propertyNames",
     "description": "Returns the names of properties on this element.",
-    "returnType": "List\u003cString\u003e",
+    "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "element",
       "type": "Element"

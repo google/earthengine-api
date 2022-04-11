@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.305'
+__version__ = '0.1.306'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -90,7 +90,7 @@ def Authenticate(
       "paste" - send user to accounts.google.com to get a pastable token;
       "notebook" - send user to notebook authenticator page;
       "gcloud" - use gcloud to obtain credentials (will set appdefault);
-      "appdefault" - read from existing $APPLICATION_DEFAULT_CREDENTIALS file;
+      "appdefault" - read from existing $GOOGLE_APPLICATION_CREDENTIALS file;
       None - a default mode is chosen based on your environment.
   """
   oauth.authenticate(authorization_code, quiet, code_verifier, auth_mode)

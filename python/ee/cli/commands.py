@@ -387,7 +387,7 @@ class AuthenticateCommand(object):
         '--auth_mode', choices=['paste', 'notebook', 'gcloud', 'appdefault'],
         help='One of: paste - get pastable token; notebook - use notebook'
         ' authenticator; gcloud - use gcloud; appdefault - read'
-        ' APPLICATION_DEFAULT_CREDENTIALS')
+        ' GOOGLE_APPLICATION_CREDENTIALS')
 
   def run(self, args, unused_config):
     """Prompts for an auth code, requests a token and saves it."""

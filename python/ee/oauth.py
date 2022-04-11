@@ -299,7 +299,7 @@ def _load_app_default_credentials(run_gcloud=True):
   else:
     # Only consult the environment variable in appdefault mode, because gcloud
     # always writes to the default location.
-    adc_path = os.getenv('APPLICATION_DEFAULT_CREDENTIALS', adc_path)
+    adc_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', adc_path)
   with open(adc_path) as adc_json:
     adc = json.load(adc_json)
     adc = {k: adc[k] for k in ['client_id', 'client_secret', 'refresh_token']}
@@ -327,7 +327,7 @@ def authenticate(
           web users who do not run code locally. Credentials expire in 7 days.
         "gcloud" - use gcloud to obtain credentials. This runs a command line to
           set the appdefault file, which must run on your local machine.
-        "appdefault" - read an existing $APPLICATION_DEFAULT_CREDENTIALS file
+        "appdefault" - read an existing $GOOGLE_APPLICATION_CREDENTIALS file
           without running gcloud.
         None - a default mode is chosen based on your environment.
 
