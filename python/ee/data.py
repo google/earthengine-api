@@ -1183,10 +1183,11 @@ def getTaskList():
           for o in listOperations()]
 
 
-def listOperations(project=None):
+def listOperations(limit=3000,project=None):
   """Retrieves a list of the user's tasks.
 
   Args:
+    limit: Maximum number of results to return
     project: The project to list operations for, uses the default set project
       if none is provided.
   Returns:
@@ -1199,7 +1200,7 @@ def listOperations(project=None):
   operations = []
   request = _get_cloud_api_resource().projects().operations().list(
       pageSize=_TASKLIST_PAGE_SIZE, name=project)
-  while request is not None:
+  while request is not None and len(operations)<limit:
     try:
       response = request.execute(num_retries=MAX_RETRIES)
       operations += response.get('operations', [])
@@ -1207,7 +1208,7 @@ def listOperations(project=None):
           request, response)
     except googleapiclient.errors.HttpError as e:
       raise _translate_cloud_exception(e)
-  return operations
+  return operations[:limit];
 
 
 @deprecation.Deprecated('Use getOperation')
