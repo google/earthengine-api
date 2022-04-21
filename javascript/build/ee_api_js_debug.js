@@ -15114,12 +15114,12 @@ goog.async.nextTick = function(callback, opt_context, opt_useSetImmediate) {
   var cb = callback;
   opt_context && (cb = goog.bind(callback, opt_context));
   cb = goog.async.nextTick.wrapCallback_(cb);
-  "function" === typeof goog.global.setImmediate && (opt_useSetImmediate || goog.async.nextTick.useSetImmediate_()) ? goog.global.setImmediate(cb) : (goog.async.nextTick.setImmediate_ || (goog.async.nextTick.setImmediate_ = goog.async.nextTick.getSetImmediateEmulator_()), goog.async.nextTick.setImmediate_(cb));
+  "function" === typeof goog.global.setImmediate && (opt_useSetImmediate || goog.async.nextTick.useSetImmediate_()) ? goog.global.setImmediate(cb) : (goog.async.nextTick.nextTickImpl || (goog.async.nextTick.nextTickImpl = goog.async.nextTick.getNextTickImpl_()), goog.async.nextTick.nextTickImpl(cb));
 };
 goog.async.nextTick.useSetImmediate_ = function() {
   return goog.global.Window && goog.global.Window.prototype && !module$contents$goog$labs$userAgent$browser_matchEdgeHtml() && goog.global.Window.prototype.setImmediate == goog.global.setImmediate ? !1 : !0;
 };
-goog.async.nextTick.getSetImmediateEmulator_ = function() {
+goog.async.nextTick.getNextTickImpl_ = function() {
   var Channel = goog.global.MessageChannel;
   "undefined" === typeof Channel && "undefined" !== typeof window && window.postMessage && window.addEventListener && !module$contents$goog$labs$userAgent$engine_isPresto() && (Channel = function() {
     var iframe = goog.dom.createElement(goog.dom.TagName.IFRAME);
@@ -16914,7 +16914,7 @@ goog.net.XhrIo.prototype.getResponseHeader = function(key) {
   }
 };
 goog.net.XhrIo.prototype.getAllResponseHeaders = function() {
-  return this.xhr_ && this.isComplete() ? this.xhr_.getAllResponseHeaders() || "" : "";
+  return this.xhr_ && this.getReadyState() >= goog.net.XmlHttp.ReadyState.LOADED ? this.xhr_.getAllResponseHeaders() || "" : "";
 };
 goog.net.XhrIo.prototype.getResponseHeaders = function() {
   for (var headersObject = {}, headersArray = this.getAllResponseHeaders().split("\r\n"), i = 0; i < headersArray.length; i++) {
@@ -16953,7 +16953,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.306";
+ee.apiclient.API_CLIENT_VERSION = "0.1.307";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17234,8 +17234,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.306";
-  "0.1.306" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.307";
+  "0.1.307" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

@@ -25,7 +25,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.306';
+const API_CLIENT_VERSION = '0.1.307';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;

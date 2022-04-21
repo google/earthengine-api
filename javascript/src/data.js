@@ -27,6 +27,7 @@ goog.provide('ee.data.ExportType');
 goog.provide('ee.data.FeatureCollectionDescription');
 goog.provide('ee.data.FeatureViewDescription');
 goog.provide('ee.data.FeatureViewTaskConfig');
+goog.provide('ee.data.FeatureViewTilesKey');
 goog.provide('ee.data.FeatureVisualizationParameters');
 goog.provide('ee.data.FileBand');
 goog.provide('ee.data.FileSource');
