@@ -6016,7 +6016,7 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function module$con
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$64 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$64 = {$jscomp$loop$prop$mapMetadata$65:$jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$loop$65 = {}, $jscomp$iter$6 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$6.next(); !$jscomp$key$key.done; $jscomp$loop$65 = {$jscomp$loop$prop$mapMetadata$66:$jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66}, 
   $jscomp$key$key = $jscomp$iter$6.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
@@ -6029,11 +6029,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
       } else if (objects.hasOwnProperty(key)) {
         copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
       } else if (objectMaps.hasOwnProperty(key)) {
-        $jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65 = objectMaps[key], copy = $jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65.isPropertyArray ? value.map(function($jscomp$loop$64) {
+        $jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66 = objectMaps[key], copy = $jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66.isPropertyArray ? value.map(function($jscomp$loop$65) {
           return function(v) {
-            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65, valueGetter, valueSetter, copyInstanciator);
+            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66, valueGetter, valueSetter, copyInstanciator);
           };
-        }($jscomp$loop$64)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$64.$jscomp$loop$prop$mapMetadata$65, valueGetter, valueSetter, copyInstanciator);
+        }($jscomp$loop$65)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$65.$jscomp$loop$prop$mapMetadata$66, valueGetter, valueSetter, copyInstanciator);
       } else if (Array.isArray(value)) {
         if (metadata.emptyArrayIsUnset && 0 === value.length) {
           continue;
@@ -6079,39 +6079,39 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$loop$66 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$66 = {$jscomp$loop$prop$value2$67:$jscomp$loop$66.$jscomp$loop$prop$value2$67, $jscomp$loop$prop$mapMetadata$68:$jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68}, $jscomp$key$key = $jscomp$iter$8.next()) {
+  for (var $jscomp$loop$67 = {}, $jscomp$iter$8 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$8.next(); !$jscomp$key$key.done; $jscomp$loop$67 = {$jscomp$loop$prop$value2$68:$jscomp$loop$67.$jscomp$loop$prop$value2$68, $jscomp$loop$prop$mapMetadata$69:$jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69}, $jscomp$key$key = $jscomp$iter$8.next()) {
     var key = $jscomp$key$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$66.$jscomp$loop$prop$value2$67 = serializable2.Serializable$get(key);
+      $jscomp$loop$67.$jscomp$loop$prop$value2$68 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, !0, !0)) {
           return !1;
         }
       } else if (objects1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, !1, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, !1, !0)) {
           return !1;
         }
       } else if (objectMaps1.hasOwnProperty(key)) {
-        if ($jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68 = objectMaps1[key], $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68.isPropertyArray) {
-          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67) || value1.some(function($jscomp$loop$66) {
+        if ($jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69 = objectMaps1[key], $jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69.isPropertyArray) {
+          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68) || value1.some(function($jscomp$loop$67) {
             return function(v1, i) {
-              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$66.$jscomp$loop$prop$value2$67[i], $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68);
+              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$67.$jscomp$loop$prop$value2$68[i], $jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69);
             };
-          }($jscomp$loop$66))) {
+          }($jscomp$loop$67))) {
             return !1;
           }
-        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, $jscomp$loop$66.$jscomp$loop$prop$mapMetadata$68)) {
+        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, $jscomp$loop$67.$jscomp$loop$prop$mapMetadata$69)) {
           return !1;
         }
       } else if (Array.isArray(value1)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, !0, !1)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, !0, !1)) {
           return !1;
         }
-      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$66.$jscomp$loop$prop$value2$67, !1, !1)) {
+      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$67.$jscomp$loop$prop$value2$68, !1, !1)) {
         return !1;
       }
     }
@@ -11370,13 +11370,14 @@ module$exports$eeapiclient$ee_api_client.ImageManifest = function(parameters) {
   this.Serializable$set("startTime", null == parameters.startTime ? null : parameters.startTime);
   this.Serializable$set("endTime", null == parameters.endTime ? null : parameters.endTime);
   this.Serializable$set("minTileAreaRatio", null == parameters.minTileAreaRatio ? null : parameters.minTileAreaRatio);
+  this.Serializable$set("skipMetadataRead", null == parameters.skipMetadataRead ? null : parameters.skipMetadataRead);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ImageManifest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ImageManifest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ImageManifest;
 };
 module$exports$eeapiclient$ee_api_client.ImageManifest.prototype.getPartialClassMetadata = function() {
-  return {arrays:{bands:module$exports$eeapiclient$ee_api_client.TilesetBand, maskBands:module$exports$eeapiclient$ee_api_client.TilesetMaskBand, tilesets:module$exports$eeapiclient$ee_api_client.Tileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum}, keys:"bands endTime footprint maskBands minTileAreaRatio missingData name properties pyramidingPolicy startTime tilesets uriPrefix".split(" "), 
+  return {arrays:{bands:module$exports$eeapiclient$ee_api_client.TilesetBand, maskBands:module$exports$eeapiclient$ee_api_client.TilesetMaskBand, tilesets:module$exports$eeapiclient$ee_api_client.Tileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum}, keys:"bands endTime footprint maskBands minTileAreaRatio missingData name properties pyramidingPolicy skipMetadataRead startTime tilesets uriPrefix".split(" "), 
   objectMaps:{properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{footprint:module$exports$eeapiclient$ee_api_client.PixelFootprint, missingData:module$exports$eeapiclient$ee_api_client.MissingData}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ImageManifest.prototype, {bands:{configurable:!0, enumerable:!0, get:function() {
@@ -11415,6 +11416,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("pyramidingPolicy") ? this.Serializable$get("pyramidingPolicy") : null;
 }, set:function(value) {
   this.Serializable$set("pyramidingPolicy", value);
+}}, skipMetadataRead:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("skipMetadataRead") ? this.Serializable$get("skipMetadataRead") : null;
+}, set:function(value) {
+  this.Serializable$set("skipMetadataRead", value);
 }}, startTime:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("startTime") ? this.Serializable$get("startTime") : null;
 }, set:function(value) {
@@ -11438,18 +11443,23 @@ module$exports$eeapiclient$ee_api_client.ImageSource = function(parameters) {
   module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("uris", null == parameters.uris ? null : parameters.uris);
   this.Serializable$set("affineTransform", null == parameters.affineTransform ? null : parameters.affineTransform);
+  this.Serializable$set("dimensions", null == parameters.dimensions ? null : parameters.dimensions);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ImageSource, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ImageSource.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ImageSource;
 };
 module$exports$eeapiclient$ee_api_client.ImageSource.prototype.getPartialClassMetadata = function() {
-  return {keys:["affineTransform", "uris"], objects:{affineTransform:module$exports$eeapiclient$ee_api_client.AffineTransform}};
+  return {keys:["affineTransform", "dimensions", "uris"], objects:{affineTransform:module$exports$eeapiclient$ee_api_client.AffineTransform, dimensions:module$exports$eeapiclient$ee_api_client.GridDimensions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ImageSource.prototype, {affineTransform:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("affineTransform") ? this.Serializable$get("affineTransform") : null;
 }, set:function(value) {
   this.Serializable$set("affineTransform", value);
+}}, dimensions:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("dimensions") ? this.Serializable$get("dimensions") : null;
+}, set:function(value) {
+  this.Serializable$set("dimensions", value);
 }}, uris:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("uris") ? this.Serializable$get("uris") : null;
 }, set:function(value) {
@@ -15737,6 +15747,10 @@ module$contents$goog$async$Throttle_Throttle.prototype.doAction_ = function() {
   this.listener_.apply(null, args);
 };
 goog.async.Throttle = module$contents$goog$async$Throttle_Throttle;
+goog.promise.deferredBase = {};
+function module$contents$goog$promise$deferredBase_DeferredBaseDoNotUse() {
+}
+goog.promise.deferredBase.DeferredBaseDoNotUse = module$contents$goog$promise$deferredBase_DeferredBaseDoNotUse;
 /*
 
  Copyright 2005, 2007 Bob Ippolito. All Rights Reserved.
@@ -15759,6 +15773,7 @@ goog.async.Deferred = function(opt_onCancelFunction, opt_defaultScope) {
     "string" == typeof target.stack && (this.constructorStack_ = target.stack.replace(/^[^\n]*\n/, ""));
   }
 };
+goog.inherits(goog.async.Deferred, module$contents$goog$promise$deferredBase_DeferredBaseDoNotUse);
 goog.async.Deferred.STRICT_ERRORS = !1;
 goog.async.Deferred.LONG_STACK_TRACES = !1;
 goog.async.Deferred.prototype.cancel = function(opt_deepCancel) {
@@ -16953,7 +16968,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.307";
+ee.apiclient.API_CLIENT_VERSION = "0.1.308";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17234,8 +17249,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.307";
-  "0.1.307" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.308";
+  "0.1.308" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -18927,7 +18942,7 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat) {
   }, urlFormat:urlFormat};
 };
 ee.data.getFeatureViewTilesKey = function(params, opt_callback) {
-  var visualizationExpression = params.visParams ? ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.visParams)) : null, map = new module$exports$eeapiclient$ee_api_client.FeatureView({name:null, asset:params.assetName, mapName:params.mapName, visualizationExpression:visualizationExpression,}), call = new module$contents$ee$apiclient_Call(opt_callback);
+  var visualizationExpression = params.visParams ? ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.visParams)) : null, map = new module$exports$eeapiclient$ee_api_client.FeatureView({name:null, asset:params.assetId, mapName:params.mapName, visualizationExpression:visualizationExpression,}), call = new module$contents$ee$apiclient_Call(opt_callback);
   return call.handle(call.featureView().create(call.projectsPath(), map, {fields:["name"]}).then(function(response) {
     var token = response.name.split("/").pop(), rawTilesKey = token.substring(0, token.lastIndexOf("-"));
     return {token:token, formatTileUrl:function(x, y, z) {
@@ -23920,17 +23935,17 @@ goog.structs.Node.prototype.getValue = function() {
 goog.structs.Node.prototype.clone = function() {
   return new goog.structs.Node(this.key_, this.value_);
 };
-goog.structs.Heap = function(opt_heap) {
+var module$contents$goog$structs$Heap_Heap = function(opt_heap) {
   this.nodes_ = [];
   opt_heap && this.insertAll(opt_heap);
 };
-goog.structs.Heap.prototype.insert = function(key, value) {
+module$contents$goog$structs$Heap_Heap.prototype.insert = function(key, value) {
   var node = new goog.structs.Node(key, value), nodes = this.nodes_;
   nodes.push(node);
   this.moveUp_(nodes.length - 1);
 };
-goog.structs.Heap.prototype.insertAll = function(heap) {
-  if (heap instanceof goog.structs.Heap) {
+module$contents$goog$structs$Heap_Heap.prototype.insertAll = function(heap) {
+  if (heap instanceof module$contents$goog$structs$Heap_Heap) {
     var keys = heap.getKeys();
     var values = heap.getValues();
     if (0 >= this.getCount()) {
@@ -23942,26 +23957,26 @@ goog.structs.Heap.prototype.insertAll = function(heap) {
   } else {
     keys = module$contents$goog$object_getKeys(heap), values = module$contents$goog$object_getValues(heap);
   }
-  for (i = 0; i < keys.length; i++) {
-    this.insert(keys[i], values[i]);
+  for (var i$64 = 0; i$64 < keys.length; i$64++) {
+    this.insert(keys[i$64], values[i$64]);
   }
 };
-goog.structs.Heap.prototype.remove = function() {
+module$contents$goog$structs$Heap_Heap.prototype.remove = function() {
   var nodes = this.nodes_, count = nodes.length, rootNode = nodes[0];
   if (!(0 >= count)) {
-    return 1 == count ? module$contents$goog$array_clear(nodes) : (nodes[0] = nodes.pop(), this.moveDown_(0)), rootNode.getValue();
+    return 1 == count ? nodes.length = 0 : (nodes[0] = nodes.pop(), this.moveDown_(0)), rootNode.getValue();
   }
 };
-goog.structs.Heap.prototype.peek = function() {
+module$contents$goog$structs$Heap_Heap.prototype.peek = function() {
   var nodes = this.nodes_;
   if (0 != nodes.length) {
     return nodes[0].getValue();
   }
 };
-goog.structs.Heap.prototype.peekKey = function() {
+module$contents$goog$structs$Heap_Heap.prototype.peekKey = function() {
   return this.nodes_[0] && this.nodes_[0].getKey();
 };
-goog.structs.Heap.prototype.moveDown_ = function(index) {
+module$contents$goog$structs$Heap_Heap.prototype.moveDown_ = function(index) {
   for (var nodes = this.nodes_, count = nodes.length, node = nodes[index]; index < count >> 1;) {
     var leftChildIndex = this.getLeftChildIndex_(index), rightChildIndex = this.getRightChildIndex_(index), smallerChildIndex = rightChildIndex < count && nodes[rightChildIndex].getKey() < nodes[leftChildIndex].getKey() ? rightChildIndex : leftChildIndex;
     if (nodes[smallerChildIndex].getKey() > node.getKey()) {
@@ -23972,7 +23987,7 @@ goog.structs.Heap.prototype.moveDown_ = function(index) {
   }
   nodes[index] = node;
 };
-goog.structs.Heap.prototype.moveUp_ = function(index) {
+module$contents$goog$structs$Heap_Heap.prototype.moveUp_ = function(index) {
   for (var nodes = this.nodes_, node = nodes[index]; 0 < index;) {
     var parentIndex = this.getParentIndex_(index);
     if (nodes[parentIndex].getKey() > node.getKey()) {
@@ -23983,62 +23998,64 @@ goog.structs.Heap.prototype.moveUp_ = function(index) {
   }
   nodes[index] = node;
 };
-goog.structs.Heap.prototype.getLeftChildIndex_ = function(index) {
+module$contents$goog$structs$Heap_Heap.prototype.getLeftChildIndex_ = function(index) {
   return 2 * index + 1;
 };
-goog.structs.Heap.prototype.getRightChildIndex_ = function(index) {
+module$contents$goog$structs$Heap_Heap.prototype.getRightChildIndex_ = function(index) {
   return 2 * index + 2;
 };
-goog.structs.Heap.prototype.getParentIndex_ = function(index) {
+module$contents$goog$structs$Heap_Heap.prototype.getParentIndex_ = function(index) {
   return index - 1 >> 1;
 };
-goog.structs.Heap.prototype.getValues = function() {
+module$contents$goog$structs$Heap_Heap.prototype.getValues = function() {
   for (var nodes = this.nodes_, rv = [], l = nodes.length, i = 0; i < l; i++) {
     rv.push(nodes[i].getValue());
   }
   return rv;
 };
-goog.structs.Heap.prototype.getKeys = function() {
+module$contents$goog$structs$Heap_Heap.prototype.getKeys = function() {
   for (var nodes = this.nodes_, rv = [], l = nodes.length, i = 0; i < l; i++) {
     rv.push(nodes[i].getKey());
   }
   return rv;
 };
-goog.structs.Heap.prototype.containsValue = function(val) {
-  return module$contents$goog$array_some(this.nodes_, function(node) {
+module$contents$goog$structs$Heap_Heap.prototype.containsValue = function(val) {
+  return this.nodes_.some(function(node) {
     return node.getValue() == val;
   });
 };
-goog.structs.Heap.prototype.containsKey = function(key) {
-  return module$contents$goog$array_some(this.nodes_, function(node) {
+module$contents$goog$structs$Heap_Heap.prototype.containsKey = function(key) {
+  return this.nodes_.some(function(node) {
     return node.getKey() == key;
   });
 };
-goog.structs.Heap.prototype.clone = function() {
-  return new goog.structs.Heap(this);
+module$contents$goog$structs$Heap_Heap.prototype.clone = function() {
+  return new module$contents$goog$structs$Heap_Heap(this);
 };
-goog.structs.Heap.prototype.getCount = function() {
+module$contents$goog$structs$Heap_Heap.prototype.getCount = function() {
   return this.nodes_.length;
 };
-goog.structs.Heap.prototype.isEmpty = function() {
+module$contents$goog$structs$Heap_Heap.prototype.isEmpty = function() {
   return 0 === this.nodes_.length;
 };
-goog.structs.Heap.prototype.clear = function() {
-  module$contents$goog$array_clear(this.nodes_);
+module$contents$goog$structs$Heap_Heap.prototype.clear = function() {
+  this.nodes_.length = 0;
 };
-goog.structs.PriorityQueue = function() {
-  goog.structs.Heap.call(this);
+goog.structs.Heap = module$contents$goog$structs$Heap_Heap;
+var module$contents$goog$structs$PriorityQueue_PriorityQueue = function() {
+  module$contents$goog$structs$Heap_Heap.apply(this, arguments);
 };
-goog.inherits(goog.structs.PriorityQueue, goog.structs.Heap);
-goog.structs.PriorityQueue.prototype.enqueue = function(priority, value) {
+$jscomp.inherits(module$contents$goog$structs$PriorityQueue_PriorityQueue, module$contents$goog$structs$Heap_Heap);
+module$contents$goog$structs$PriorityQueue_PriorityQueue.prototype.enqueue = function(priority, value) {
   this.insert(priority, value);
 };
-goog.structs.PriorityQueue.prototype.dequeue = function() {
+module$contents$goog$structs$PriorityQueue_PriorityQueue.prototype.dequeue = function() {
   return this.remove();
 };
+goog.structs.PriorityQueue = module$contents$goog$structs$PriorityQueue_PriorityQueue;
 goog.structs.PriorityPool = function(opt_minCount, opt_maxCount) {
   this.delayTimeout_ = void 0;
-  this.requestQueue_ = new goog.structs.PriorityQueue();
+  this.requestQueue_ = new module$contents$goog$structs$PriorityQueue_PriorityQueue();
   goog.structs.Pool.call(this, opt_minCount, opt_maxCount);
 };
 goog.inherits(goog.structs.PriorityPool, goog.structs.Pool);

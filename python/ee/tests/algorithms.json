@@ -3146,7 +3146,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.confusionMatrix",
-    "description": "Computes a 2D confusion matrix for a classifier based on its training data (ie: resubstitution error).  Axis 0 of the matrix correspond to the input classes, and axis 1 to the output classes.  The rows and columns  start at class 0 and increase sequentially up to the maximum class value, so some rows or columns might be empty if the input classes aren\u0027t 0-based or sequential.",
+    "description": "Computes a 2D confusion matrix for a classifier based on its training data (ie: resubstitution error).  Axis 0 of the matrix corresponds to the input classes, and axis 1 corresponds to the output classes.  The rows and columns  start at class 0 and increase sequentially up to the maximum class value, so some rows or columns might be empty if the input classes aren\u0027t 0-based or sequential.",
     "returnType": "ConfusionMatrix",
     "arguments": [{
       "argumentName": "classifier",
