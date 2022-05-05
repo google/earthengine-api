@@ -107,14 +107,15 @@ class Function(encodable.EncodableFunction):
         promoted_args[name] = Function._promoter(args[name], spec['type'])
       elif not spec.get('optional'):
         raise ee_exception.EEException(
-            'Required argument (%s) missing to function: %s' % (name, self))
+            'Required argument (%s) missing to function: %s'
+            % (name, self.name))
       known.add(name)
 
     # Check for unknown arguments.
     unknown = set(args.keys()).difference(known)
     if unknown:
       raise ee_exception.EEException(
-          'Unrecognized arguments %s to function: %s' % (unknown, self))
+          'Unrecognized arguments %s to function: %s' % (unknown, self.name))
 
     return promoted_args
 
@@ -139,7 +140,7 @@ class Function(encodable.EncodableFunction):
     # Handle positional arguments.
     if len(specs) < len(args):
       raise ee_exception.EEException(
-          'Too many (%d) arguments to function: %s' % (len(args), self))
+          'Too many (%d) arguments to function: %s' % (len(args), self.name))
     named_args = dict([(spec['name'], value)
                        for spec, value in zip(specs, args)])
 
@@ -149,7 +150,7 @@ class Function(encodable.EncodableFunction):
         if name in named_args:
           raise ee_exception.EEException(
               'Argument %s specified as both positional and '
-              'keyword to function: %s' % (name, self))
+              'keyword to function: %s' % (name, self.name))
         named_args[name] = extra_keyword_args[name]
       # Unrecognized arguments are checked in promoteArgs().
 

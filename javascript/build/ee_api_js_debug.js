@@ -12760,18 +12760,23 @@ module$exports$eeapiclient$ee_api_client.TileLimiting = function(parameters) {
   this.Serializable$set("maxPrerenderZoom", null == parameters.maxPrerenderZoom ? null : parameters.maxPrerenderZoom);
   this.Serializable$set("minVerticesPerTile", null == parameters.minVerticesPerTile ? null : parameters.minVerticesPerTile);
   this.Serializable$set("neighborDepth", null == parameters.neighborDepth ? null : parameters.neighborDepth);
+  this.Serializable$set("minFeaturesPerTile", null == parameters.minFeaturesPerTile ? null : parameters.minFeaturesPerTile);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.TileLimiting, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.TileLimiting.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.TileLimiting;
 };
 module$exports$eeapiclient$ee_api_client.TileLimiting.prototype.getPartialClassMetadata = function() {
-  return {keys:["maxPrerenderZoom", "minVerticesPerTile", "neighborDepth"]};
+  return {keys:["maxPrerenderZoom", "minFeaturesPerTile", "minVerticesPerTile", "neighborDepth"]};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TileLimiting.prototype, {maxPrerenderZoom:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("maxPrerenderZoom") ? this.Serializable$get("maxPrerenderZoom") : null;
 }, set:function(value) {
   this.Serializable$set("maxPrerenderZoom", value);
+}}, minFeaturesPerTile:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("minFeaturesPerTile") ? this.Serializable$get("minFeaturesPerTile") : null;
+}, set:function(value) {
+  this.Serializable$set("minFeaturesPerTile", value);
 }}, minVerticesPerTile:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("minVerticesPerTile") ? this.Serializable$get("minVerticesPerTile") : null;
 }, set:function(value) {
@@ -16968,7 +16973,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.308";
+ee.apiclient.API_CLIENT_VERSION = "0.1.309";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17249,8 +17254,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.308";
-  "0.1.308" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.309";
+  "0.1.309" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
