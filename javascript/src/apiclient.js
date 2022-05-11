@@ -25,7 +25,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.309';
+const API_CLIENT_VERSION = '0.1.310';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -1738,3 +1738,4 @@ goog.exportSymbol('ee.api.ListImagesResponse', api.ListImagesResponse);
 goog.exportSymbol('ee.api.Image', api.Image);
 goog.exportSymbol('ee.api.Operation', api.Operation);
 goog.exportSymbol('ee.api.ListFeaturesResponse', api.ListFeaturesResponse);
+goog.exportSymbol('ee.api.FeatureViewLocation', api.FeatureViewLocation);

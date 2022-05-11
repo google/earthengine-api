@@ -1328,8 +1328,6 @@ goog.requireType = function(namespace) {
   return {};
 };
 goog.basePath = "";
-goog.nullFunction = function() {
-};
 goog.abstractMethod = function() {
   throw Error("unimplemented abstract method");
 };
@@ -16973,7 +16971,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.309";
+ee.apiclient.API_CLIENT_VERSION = "0.1.310";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17254,8 +17252,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.309";
-  "0.1.309" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.310";
+  "0.1.310" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17573,6 +17571,7 @@ goog.exportSymbol("ee.api.ListImagesResponse", module$exports$eeapiclient$ee_api
 goog.exportSymbol("ee.api.Image", module$exports$eeapiclient$ee_api_client.Image);
 goog.exportSymbol("ee.api.Operation", module$exports$eeapiclient$ee_api_client.Operation);
 goog.exportSymbol("ee.api.ListFeaturesResponse", module$exports$eeapiclient$ee_api_client.ListFeaturesResponse);
+goog.exportSymbol("ee.api.FeatureViewLocation", module$exports$eeapiclient$ee_api_client.FeatureViewLocation);
 ee.Encodable = function() {
 };
 ee.rpc_node = {};
