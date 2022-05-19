@@ -153,12 +153,15 @@ def build_cloud_resource(api_base_url,
         cache_discovery=False,
         **kwargs)  # pytype: disable=wrong-keyword-args
 
+  resource = None
   try:
     # google-api-python-client made static_discovery the default in version 2,
     # but it's not backward-compatible. There's no reliable way to check the
     # package version, either.
     resource = build(static_discovery=False)
   except TypeError:
+    pass  # Handle fallback case outside except block, for cleaner stack traces.
+  if resource is None:
     resource = build()
   resource._baseUrl = api_base_url
   return resource
@@ -730,6 +733,7 @@ def convert_operation_to_task(operation):
           'description': 'description',
           'type': 'task_type',
           'destinationUris': 'destination_uris',
+          'batchEecuUsageSeconds': 'batch_eecu_usage_seconds',
           })
   if operation.get('done'):
     if 'error' in operation:

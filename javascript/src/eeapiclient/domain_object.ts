@@ -24,12 +24,12 @@ type Primitive = string|number|boolean|null|undefined;
  * i.e., {a: {b: {c: boolean}}} gets transformed into {a?: {b?: {c?: boolean}}}
  */
 export type DeepPartialISerializable<T> =
-    T extends Primitive ? Partial<T>: T extends object ?
+    T extends Primitive ? Partial<T>: T extends ISerializable ?
     Omit<
         {[K in keyof T]?: DeepPartialISerializable<T[K]>},
-        'Serializable$get'|'Serializable$has'|'Serializable$set'|
-        'getClassMetadata'|'getConstructor'|'getPartialClassMetadata'>:
-    unknown;
+        keyof ISerializable|'getPartialClassMetadata'>:
+    T extends object ? {[K in keyof T]?: DeepPartialISerializable<T[K]>} :
+                       unknown;
 
 /**
  * Description of the properties in a Serializable class.

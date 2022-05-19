@@ -3009,7 +3009,7 @@ function module$contents$goog$labs$userAgent$browser_getFullVersionFromUserAgent
   }
   return "";
 }
-function module$contents$goog$labs$userAgent$browser_versionOf(browser) {
+function module$contents$goog$labs$userAgent$browser_versionOf_(browser) {
   if (module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() && browser !== module$contents$goog$labs$userAgent$browser_Brand.SILK) {
     var matchingBrand = module$contents$goog$labs$userAgent$util_getUserAgentData().brands.find(function($jscomp$destructuring$var2) {
       return $jscomp$destructuring$var2.brand === browser;
@@ -3027,14 +3027,13 @@ function module$contents$goog$labs$userAgent$browser_versionOf(browser) {
   }
   return 0 === versionParts.length ? NaN : Number(versionParts[0]);
 }
-goog.labs.userAgent.browser.versionOf = module$contents$goog$labs$userAgent$browser_versionOf;
 goog.labs.userAgent.browser.isAtLeast = function module$contents$goog$labs$userAgent$browser_isAtLeast(brand, majorVersion) {
   goog.asserts.assert(Math.floor(majorVersion) === majorVersion, "Major version must be an integer");
-  return module$contents$goog$labs$userAgent$browser_versionOf(brand) >= majorVersion;
+  return module$contents$goog$labs$userAgent$browser_versionOf_(brand) >= majorVersion;
 };
 goog.labs.userAgent.browser.isAtMost = function module$contents$goog$labs$userAgent$browser_isAtMost(brand, majorVersion) {
   goog.asserts.assert(Math.floor(majorVersion) === majorVersion, "Major version must be an integer");
-  return module$contents$goog$labs$userAgent$browser_versionOf(brand) <= majorVersion;
+  return module$contents$goog$labs$userAgent$browser_versionOf_(brand) <= majorVersion;
 };
 var module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion = function(brand) {
   this.brand_ = brand;
@@ -6480,7 +6479,7 @@ module$contents$goog$html$SafeScript_SafeScript.stringify_ = function(val) {
   return JSON.stringify(val).replace(/</g, "\\x3c");
 };
 module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse = function(script) {
-  var policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), trustedScript = policy ? policy.createScript(script) : script;
+  var noinlineScript = script, policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), trustedScript = policy ? policy.createScript(noinlineScript) : noinlineScript;
   return new module$contents$goog$html$SafeScript_SafeScript(trustedScript, module$contents$goog$html$SafeScript_CONSTRUCTOR_TOKEN_PRIVATE);
 };
 module$contents$goog$html$SafeScript_SafeScript.prototype.toString = function() {
@@ -6737,7 +6736,7 @@ goog.html.TrustedResourceUrl.fromSafeScript = function(safeScript) {
 };
 goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
 goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse = function(url) {
-  var policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), value = policy ? policy.createScriptURL(url) : url;
+  var noinlineUrl = url, policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), value = policy ? policy.createScriptURL(noinlineUrl) : noinlineUrl;
   return new goog.html.TrustedResourceUrl(value, goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
 };
 goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, params) {
@@ -7238,7 +7237,7 @@ module$contents$goog$html$SafeHtml_SafeHtml.concatWithDir = function(dir, var_ar
   return html;
 };
 module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse = function(html, dir) {
-  var policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), trustedHtml = policy ? policy.createHTML(html) : html;
+  var noinlineHtml = html, policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), trustedHtml = policy ? policy.createHTML(noinlineHtml) : noinlineHtml;
   return new module$contents$goog$html$SafeHtml_SafeHtml(trustedHtml, dir, module$contents$goog$html$SafeHtml_CONSTRUCTOR_TOKEN_PRIVATE);
 };
 module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse = function(tagName, attributes, content) {
@@ -14132,14 +14131,14 @@ module$exports$eeapiclient$promise_request_service.PromiseRequestService.prototy
   });
 };
 goog.async = {};
-goog.async.FreeList = function(create, reset, limit) {
+var module$contents$goog$async$FreeList_FreeList = function(create, reset, limit) {
   this.limit_ = limit;
   this.create_ = create;
   this.reset_ = reset;
   this.occupants_ = 0;
   this.head_ = null;
 };
-goog.async.FreeList.prototype.get = function() {
+module$contents$goog$async$FreeList_FreeList.prototype.get = function() {
   if (0 < this.occupants_) {
     this.occupants_--;
     var item = this.head_;
@@ -14150,13 +14149,14 @@ goog.async.FreeList.prototype.get = function() {
   }
   return item;
 };
-goog.async.FreeList.prototype.put = function(item) {
+module$contents$goog$async$FreeList_FreeList.prototype.put = function(item) {
   this.reset_(item);
   this.occupants_ < this.limit_ && (this.occupants_++, item.next = this.head_, this.head_ = item);
 };
-goog.async.FreeList.prototype.occupants = function() {
+module$contents$goog$async$FreeList_FreeList.prototype.occupants = function() {
   return this.occupants_;
 };
+goog.async.FreeList = module$contents$goog$async$FreeList_FreeList;
 goog.dom.BrowserFeature = {};
 goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS = !1;
 goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS = !1;
@@ -15203,7 +15203,7 @@ module$contents$goog$async$WorkQueue_WorkQueue.prototype.getUnusedItem_ = functi
   return module$contents$goog$async$WorkQueue_WorkQueue.freelist_.get();
 };
 module$contents$goog$async$WorkQueue_WorkQueue.DEFAULT_MAX_UNUSED = 100;
-module$contents$goog$async$WorkQueue_WorkQueue.freelist_ = new goog.async.FreeList(function() {
+module$contents$goog$async$WorkQueue_WorkQueue.freelist_ = new module$contents$goog$async$FreeList_FreeList(function() {
   return new module$contents$goog$async$WorkQueue_WorkItem();
 }, function(item) {
   return item.reset();
@@ -15266,25 +15266,26 @@ goog.async.run.processWorkQueue = function() {
 goog.promise = {};
 goog.promise.Resolver = function() {
 };
-goog.Thenable = function() {
+function module$contents$goog$Thenable_Thenable() {
+}
+module$contents$goog$Thenable_Thenable.prototype.then = function(opt_onFulfilled, opt_onRejected, opt_context) {
 };
-goog.Thenable.prototype.then = function(opt_onFulfilled, opt_onRejected, opt_context) {
+module$contents$goog$Thenable_Thenable.IMPLEMENTED_BY_PROP = "$goog_Thenable";
+module$contents$goog$Thenable_Thenable.addImplementation = function(ctor) {
+  ctor.prototype[module$contents$goog$Thenable_Thenable.IMPLEMENTED_BY_PROP] = !0;
 };
-goog.Thenable.IMPLEMENTED_BY_PROP = "$goog_Thenable";
-goog.Thenable.addImplementation = function(ctor) {
-  ctor.prototype[goog.Thenable.IMPLEMENTED_BY_PROP] = !0;
-};
-goog.Thenable.isImplementedBy = function(object) {
+module$contents$goog$Thenable_Thenable.isImplementedBy = function(object) {
   if (!object) {
     return !1;
   }
   try {
-    return !!object[goog.Thenable.IMPLEMENTED_BY_PROP];
+    return !!object[module$contents$goog$Thenable_Thenable.IMPLEMENTED_BY_PROP];
     return !!object.$goog_Thenable;
   } catch (e) {
     return !1;
   }
 };
+goog.Thenable = module$contents$goog$Thenable_Thenable;
 goog.Promise = function(resolver, opt_context) {
   this.state_ = goog.Promise.State_.PENDING;
   this.result_ = void 0;
@@ -15326,7 +15327,7 @@ goog.Promise.CallbackEntry_.prototype.reset = function() {
   this.always = !1;
 };
 goog.Promise.DEFAULT_MAX_UNUSED = 100;
-goog.Promise.freelist_ = new goog.async.FreeList(function() {
+goog.Promise.freelist_ = new module$contents$goog$async$FreeList_FreeList(function() {
   return new goog.Promise.CallbackEntry_();
 }, function(item) {
   item.reset();
@@ -15430,7 +15431,7 @@ goog.Promise.prototype.then = function(opt_onFulfilled, opt_onRejected, opt_cont
   goog.Promise.LONG_STACK_TRACES && this.addStackTrace_(Error("then"));
   return this.addChildPromise_("function" === typeof opt_onFulfilled ? opt_onFulfilled : null, "function" === typeof opt_onRejected ? opt_onRejected : null, opt_context);
 };
-goog.Thenable.addImplementation(goog.Promise);
+module$contents$goog$Thenable_Thenable.addImplementation(goog.Promise);
 goog.Promise.prototype.thenVoid = function(opt_onFulfilled, opt_onRejected, opt_context) {
   null != opt_onFulfilled && goog.asserts.assertFunction(opt_onFulfilled, "opt_onFulfilled should be a function.");
   null != opt_onRejected && goog.asserts.assertFunction(opt_onRejected, "opt_onRejected should be a function. Did you pass opt_context as the second argument instead of the third?");
@@ -15514,7 +15515,7 @@ goog.Promise.maybeThen_ = function(value, onFulfilled, onRejected, context) {
   if (value instanceof goog.Promise) {
     return value.thenVoid(onFulfilled, onRejected, context), !0;
   }
-  if (goog.Thenable.isImplementedBy(value)) {
+  if (module$contents$goog$Thenable_Thenable.isImplementedBy(value)) {
     return value.then(onFulfilled, onRejected, context), !0;
   }
   if (goog.isObject(value)) {
@@ -15871,7 +15872,7 @@ goog.async.Deferred.prototype.then = function(opt_onFulfilled, opt_onRejected, o
   });
   return promise.then(opt_onFulfilled, opt_onRejected, opt_context);
 };
-goog.Thenable.addImplementation(goog.async.Deferred);
+module$contents$goog$Thenable_Thenable.addImplementation(goog.async.Deferred);
 goog.async.Deferred.prototype.chainDeferred = function(otherDeferred) {
   this.addCallbacks(otherDeferred.callback, otherDeferred.errback, otherDeferred);
   return this;
@@ -15910,7 +15911,7 @@ goog.async.Deferred.prototype.fire_ = function() {
       try {
         var ret = f.call(scope || this.defaultScope_, res);
         void 0 !== ret && (this.hadError_ = this.hadError_ && (ret == res || this.isError(ret)), this.result_ = res = ret);
-        if (goog.Thenable.isImplementedBy(res) || "function" === typeof goog.global.Promise && res instanceof goog.global.Promise) {
+        if (module$contents$goog$Thenable_Thenable.isImplementedBy(res) || "function" === typeof goog.global.Promise && res instanceof goog.global.Promise) {
           this.blocked_ = isNewlyBlocked = !0;
         }
       } catch (ex) {
@@ -16093,7 +16094,6 @@ goog.json = {};
 goog.json.Replacer = {};
 goog.json.Reviver = {};
 goog.json.USE_NATIVE_JSON = !1;
-goog.json.TRY_NATIVE_JSON = !0;
 goog.json.isValid = function(s) {
   return /^\s*$/.test(s) ? !1 : /^[\],:{}\s\u2028\u2029]*$/.test(s.replace(/\\["\\\/bfnrtu]/g, "@").replace(/(?:"[^"\\\n\r\u2028\u2029\x00-\x08\x0a-\x1f]*"|true|false|null|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)[\s\u2028\u2029]*(?=:|,|]|}|$)/g, "]").replace(/(?:^|:|,)(?:[\s\u2028\u2029]*\[)+/g, ""));
 };
@@ -16103,12 +16103,10 @@ goog.json.setErrorLogger = function(errorLogger) {
   goog.json.errorLogger_ = errorLogger;
 };
 goog.json.parse = goog.json.USE_NATIVE_JSON ? goog.global.JSON.parse : function(s) {
-  if (goog.json.TRY_NATIVE_JSON) {
-    try {
-      return goog.global.JSON.parse(s);
-    } catch (ex) {
-      var error = ex;
-    }
+  try {
+    return goog.global.JSON.parse(s);
+  } catch (ex) {
+    var error = ex;
   }
   var o = String(s);
   if (goog.json.isValid(o)) {
@@ -16971,7 +16969,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.310";
+ee.apiclient.API_CLIENT_VERSION = "0.1.311";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17252,8 +17250,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.310";
-  "0.1.310" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.311";
+  "0.1.311" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

@@ -71,9 +71,7 @@ ee.Initialize(EE_CREDENTIALS)
 # The Jinja templating system we use to dynamically generate HTML. See:
 # http://jinja.pocoo.org/docs/dev/
 JINJA2_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
-    autoescape=True,
-    extensions=['jinja2.ext.autoescape'])
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)), autoescape=True)
 
 # Check https://developers.google.com/drive/scopes for all available scopes.
 OAUTH_SCOPE = 'https://www.googleapis.com/auth/drive'
@@ -370,8 +368,8 @@ def _GiveFilesToUser(temp_file_prefix, email, user_id, filename):
   Copies and then deletes the source files from the app's Drive.
 
   Args:
-    temp_file_prefix: The prefix of the temp files in the service
-        account's Drive.
+    temp_file_prefix: The prefix of the temp files in the service account's
+      Drive.
     email: The email address of the user to give the files to.
     user_id: The ID of the user to give the files to.
     filename: The name to give the files in the user's Drive.

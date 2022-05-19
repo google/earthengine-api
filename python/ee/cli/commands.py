@@ -1093,7 +1093,9 @@ class TaskListCommand(object):
         '--long_format',
         '-l',
         action='store_true',
-        help='Print output in long format.')
+        help=('Print output in long format. Extra columns are: creation time, '
+              'start time, update time, EECU-seconds, output URLs.')
+    )
 
   def run(self, args, config):
     """Lists tasks present for a user, maybe filtering by state."""
@@ -1111,10 +1113,14 @@ class TaskListCommand(object):
       extra = ''
       if args.long_format:
         show_date = lambda ms: _parse_millis(ms).strftime('%Y-%m-%d %H:%M:%S')
-        extra = ' {:20s} {:20s} {:20s} {}'.format(
+        eecu = '{:.4f}'.format(
+            task['batch_eecu_usage_seconds']
+        ) if 'batch_eecu_usage_seconds' in task else '-'
+        extra = ' {:20s} {:20s} {:20s} {:11s} {}'.format(
             show_date(task['creation_timestamp_ms']),
             show_date(task['start_timestamp_ms']),
             show_date(task['update_timestamp_ms']),
+            eecu,
             ' '.join(task.get('destination_uris', [])))
       print(format_str.format(
           task['id'], task_type, truncated_desc,
