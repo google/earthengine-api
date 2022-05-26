@@ -49,8 +49,7 @@ AUTH_URI = 'https://accounts.google.com/o/oauth2/auth'
 AUTH_PAGE_URL = 'https://code.earthengine.google.com/client-auth'
 MODE_URL = AUTH_PAGE_URL + '/mode'
 FETCH_URL = AUTH_PAGE_URL + '/fetch'
-SCOPE_PARAM = 'scopes=' + parse.quote(' '.join(SCOPES))
-AUTH_URL_TEMPLATE = AUTH_PAGE_URL + '?' + SCOPE_PARAM + (
+AUTH_URL_TEMPLATE = AUTH_PAGE_URL + '?scopes={scopes}' + (
     '&request_id={request_id}&tc={token_challenge}&cc={client_challenge}')
 
 # Command to execute in gcloud mode
@@ -80,12 +79,12 @@ def get_credentials_arguments():
     return args
 
 
-def get_authorization_url(code_challenge):
+def get_authorization_url(code_challenge, scopes=None):
   """Returns a URL to generate an auth code."""
 
   return 'https://accounts.google.com/o/oauth2/auth?' + parse.urlencode({
       'client_id': CLIENT_ID,
-      'scope': ' '.join(SCOPES),
+      'scope': ' '.join(scopes or SCOPES),
       'redirect_uri': REDIRECT_URI,
       'response_type': 'code',
       'code_challenge': code_challenge,
@@ -163,7 +162,7 @@ def _in_jupyter_shell():
     return False
 
 
-def _obtain_and_write_token(auth_code=None, code_verifier=None):
+def _obtain_and_write_token(auth_code=None, code_verifier=None, scopes=None):
   """Obtains and writes credentials token based on an authorization code."""
   fetch_data = {}
   if code_verifier and ':' in code_verifier:
@@ -173,14 +172,14 @@ def _obtain_and_write_token(auth_code=None, code_verifier=None):
     auth_code = input('Enter verification code: ')
   assert isinstance(auth_code, six.string_types)
   client_info = {}
-  scopes = SCOPES
+  scopes = scopes or SCOPES
   if fetch_data:
     data = json.dumps(fetch_data).encode()
     headers = {'Content-Type': 'application/json; charset=UTF-8'}
     fetch_client = request.Request(FETCH_URL, data=data, headers=headers)
     fetched_info = json.loads(request.urlopen(fetch_client).read().decode())
     client_info = {k: fetched_info[k] for k in ['client_id', 'client_secret']}
-    scopes = fetched_info.get('scopes') or SCOPES
+    scopes = fetched_info.get('scopes') or scopes
   token = request_token(auth_code.strip(), code_verifier, **client_info)
   client_info['refresh_token'] = token
   client_info['scopes'] = scopes
@@ -275,7 +274,7 @@ def _in_notebook():
   return _in_colab_shell() or _in_jupyter_shell()
 
 
-def _load_app_default_credentials(run_gcloud=True):
+def _load_app_default_credentials(run_gcloud=True, scopes=None):
   """Initializes credentials from ADC, optionally running gcloud to get them."""
   adc_path = _cloud_sdk.get_application_default_credentials_path()
   if run_gcloud:
@@ -288,7 +287,7 @@ def _load_app_default_credentials(run_gcloud=True):
     client_id_file = get_credentials_path() + '-client-id.json'
     write_private_json(client_id_file, dict(installed=client_id_json))
     command = GCLOUD_COMMAND.format(
-        scopes=','.join(SCOPES), client_id_file=client_id_file)
+        scopes=','.join(scopes or SCOPES), client_id_file=client_id_file)
     print('Fetching credentials using gcloud')
     return_code = os.system(command)
     os.remove(client_id_file)
@@ -311,7 +310,8 @@ def authenticate(
     cli_authorization_code=None,
     quiet=False,
     cli_code_verifier=None,
-    auth_mode=None):
+    auth_mode=None,
+    scopes=None):
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
@@ -330,13 +330,16 @@ def authenticate(
         "appdefault" - read an existing $GOOGLE_APPLICATION_CREDENTIALS file
           without running gcloud.
         None - a default mode is chosen based on your environment.
+   scopes: List of scopes to use for authentication. Defaults to [
+       'https://www.googleapis.com/auth/earthengine',
+       'https://www.googleapis.com/auth/devstorage.full_control' ].
 
   Raises:
      Exception: on invalid arguments.
   """
 
   if cli_authorization_code:
-    _obtain_and_write_token(cli_authorization_code, cli_code_verifier)
+    _obtain_and_write_token(cli_authorization_code, cli_code_verifier, scopes)
     return
 
   if auth_mode:
@@ -349,17 +352,18 @@ def authenticate(
       auth_mode = 'notebook' if _in_notebook() else 'gcloud'
 
   if auth_mode in ['appdefault', 'gcloud']:
-    _load_app_default_credentials(auth_mode == 'gcloud')
+    _load_app_default_credentials(auth_mode == 'gcloud', scopes)
     return
 
   pkce = _nonce_table('code_verifier')
   code_verifier = pkce['code_verifier']
-  auth_url = get_authorization_url(pkce['code_challenge'])
+  auth_url = get_authorization_url(pkce['code_challenge'], scopes)
 
   if auth_mode == 'notebook':
     nonces = ['request_id', 'token_verifier', 'client_verifier']
     request_info = _nonce_table(*nonces)
-    auth_url = AUTH_URL_TEMPLATE.format(**request_info)
+    scope_param = parse.quote(' '.join(scopes or SCOPES))
+    auth_url = AUTH_URL_TEMPLATE.format(scopes=scope_param, **request_info)
     code_verifier = ':'.join(request_info[k] for k in nonces)
 
   if quiet:
@@ -379,4 +383,4 @@ def authenticate(
     _display_auth_instructions_with_print(auth_url)
   _open_new_browser(auth_url)
 
-  _obtain_and_write_token(None, code_verifier)  # Will prompt for auth_code.
+  _obtain_and_write_token(None, code_verifier, scopes)  # Prompts for auth_code.

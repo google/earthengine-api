@@ -45,17 +45,3 @@ BuildDep https://github.com/sigmavirus24/uritemplate.git tags/0.3.0 uritemplate
 
 # Build the Earth Engine Python client library.
 BuildDep https://github.com/google/earthengine-api.git tags/v0.1.60 python/ee
-
-# Install the Google App Engine command line tools.
-if ! hash dev_appserver.py 2>/dev/null; then
-  # Install the `gcloud` command line tool.
-  curl https://sdk.cloud.google.com/ | bash
-  # Ensure the `gcloud` command is in our path.
-  if [ -f ~/.bashrc ]; then
-    source ~/.bashrc
-  elif [ -f ~/.bash_profile ]; then
-    source ~/.bash_profile
-  fi
-  # Install the Google App Engine command line tools.
-  gcloud components update gae-python
-fi

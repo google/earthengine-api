@@ -51,10 +51,12 @@ goog.require('goog.object');
  * In most cases, an authorization token should be set before the library
  * is initialized, either with ee.data.authorize() or ee.data.setAuthToken().
  *
- * Note that some parameters differ between JavaScript and Python.  In
- * addition to opt_url and project below, Python also supports: credentials -
- * a google.oauth2.Credentials object or 'persistent' to use stored
- * credentials (the default); http_transport - a httplib2.Http client.
+ * In Python, this method is named ee.Initialize, with a capital I.  Note that
+ * some parameters differ between JavaScript and Python.  In addition to opt_url
+ * and project below, Python also supports:
+ *  credentials - a google.oauth2.Credentials object or 'persistent' to use
+ *    stored credentials (the default);
+ *  http_transport - a httplib2.Http client.
  *
  * @param {string?=} opt_baseurl The Earth Engine REST API endpoint.
  *     (Python argument name: opt_url)
@@ -67,8 +69,8 @@ goog.require('goog.object');
  *     invoked with an error if the initialization fails. (JavaScript only)
  * @param {string?=} opt_xsrfToken A string to pass in the "xsrfToken"
  *     parameter of EE API XHRs. (JavaScript only)
- * @param {string?=} opt_project Optional project ID or number to use when
-       making API calls. (Python argument name: project)
+ * @param {string?=} opt_project Optional client project ID or number to use
+ *     when making API calls. (Python argument name: project)
  * @export
  */
 ee.initialize = function(

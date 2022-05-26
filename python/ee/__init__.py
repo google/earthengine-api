@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.311'
+__version__ = '0.1.312'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -79,7 +79,8 @@ def Authenticate(
     authorization_code=None,
     quiet=None,
     code_verifier=None,
-    auth_mode=None):
+    auth_mode=None,
+    scopes=None):
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
@@ -92,8 +93,12 @@ def Authenticate(
       "gcloud" - use gcloud to obtain credentials (will set appdefault);
       "appdefault" - read from existing $GOOGLE_APPLICATION_CREDENTIALS file;
       None - a default mode is chosen based on your environment.
+     scopes: List of scopes to use for authentication. Defaults to [
+       'https://www.googleapis.com/auth/earthengine',
+       'https://www.googleapis.com/auth/devstorage.full_control' ].
   """
-  oauth.authenticate(authorization_code, quiet, code_verifier, auth_mode)
+  oauth.authenticate(authorization_code, quiet, code_verifier, auth_mode,
+                     scopes)
 
 
 def Initialize(
@@ -116,7 +121,7 @@ def Initialize(
     opt_url: The base url for the EarthEngine REST API to connect to.
     cloud_api_key: An optional API key to use the Cloud API.
     http_transport: The http transport method to use when making requests.
-    project: The project-id or number to use when making api calls.
+    project: The client project ID or number to use when making API calls.
   """
   if credentials == 'persistent':
     credentials = data.get_persistent_credentials()

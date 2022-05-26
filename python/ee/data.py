@@ -162,7 +162,7 @@ def initialize(credentials=None,
     tile_base_url: The EarthEngine REST tile endpoint.
     cloud_api_base_url: The EarthEngine Cloud API endpoint.
     cloud_api_key: The API key to use with the Cloud API.
-    project: The default cloud project associated with the user.
+    project: The client project ID or number to use when making API calls.
     http_transport: The http transport to use
   """
   global _api_base_url, _tile_base_url, _credentials, _initialized

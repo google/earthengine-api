@@ -388,6 +388,8 @@ class AuthenticateCommand(object):
         help='One of: paste - get pastable token; notebook - use notebook'
         ' authenticator; gcloud - use gcloud; appdefault - read'
         ' GOOGLE_APPLICATION_CREDENTIALS')
+    parser.add_argument(
+        '--scopes', help='Optional comma-separated list of scopes.')
 
   def run(self, args, unused_config):
     """Prompts for an auth code, requests a token and saves it."""
@@ -395,6 +397,8 @@ class AuthenticateCommand(object):
     # Filter for arguments relevant for ee.Authenticate()
     args_auth = {x: vars(args)[x] for x in (
         'authorization_code', 'quiet', 'code_verifier', 'auth_mode')}
+    if args.scopes:
+      args_auth['scopes'] = args.scopes.split(',')
     ee.Authenticate(**args_auth)
 
 

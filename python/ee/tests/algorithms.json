@@ -10070,7 +10070,7 @@
     }, {
       "argumentName": "classValues",
       "type": "List\u003cInteger\u003e",
-      "description": "A list of class values for which to override the numPixels parameter. Must be the same size as classPoints or null.",
+      "description": "A list of class values for which to override the numPoints parameter. Must be the same size as classPoints or null.",
       "optional": true,
       "defaultValue": null
     }, {
