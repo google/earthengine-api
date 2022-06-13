@@ -1,10 +1,6 @@
 #!/usr/bin/env python
 """Test for ee._cloud_api_utils."""
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import json
 import warnings
 
@@ -249,6 +245,10 @@ class CloudApiUtilsTest(unittest.TestCase):
             'deprecated': 'reason'
         }
     }, result)
+
+  def test_convert_empty_algorithms(self):
+    result = _cloud_api_utils.convert_algorithms({})
+    self.assertEqual({}, result)
 
   def test_convert_to_image_file_format(self):
     self.assertEqual('AUTO_JPEG_PNG',

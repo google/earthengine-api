@@ -1459,7 +1459,7 @@ def _build_feature_view_destination(config):
   """
   return {
       'name': _cloud_api_utils.convert_asset_id_to_asset_name(
-          config.pop('assetId'))
+          config.pop('assetId')),
   }
 
 

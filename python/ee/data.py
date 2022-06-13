@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Singleton for the library's communication with the Earth Engine API."""
 
-from __future__ import print_function
-
 
 
 # Using lowercase function naming to match the JavaScript names.
@@ -732,9 +730,11 @@ def computeValue(obj):
   Returns:
     The result of evaluating that object on the server.
   """
+  body = {'expression': serializer.encode(obj, for_cloud_api=True)}
+
   return _execute_cloud_call(
       _get_cloud_api_resource().projects().value().compute(
-          body={'expression': serializer.encode(obj, for_cloud_api=True)},
+          body=body,
           project=_get_projects_path(),
           prettyPrint=False))['result']
 
@@ -1385,11 +1385,11 @@ def _prepare_and_run_export(request_id, params, export_endpoint):
 
   Args:
     request_id (string): An optional unique ID for the task.
-    params: The object that describes the export task.
-      The "expression" parameter can be the actual object
-      to be exported, not its serialized form. This may be modified.
-    export_endpoint: A callable representing the export endpoint
-      to invoke (e.g., _cloud_api_resource.image().export).
+    params: The object that describes the export task. The "expression"
+      parameter can be the actual object to be exported, not its serialized
+      form. This may be modified.
+    export_endpoint: A callable representing the export endpoint to invoke
+      (e.g., _cloud_api_resource.image().export).
 
   Returns:
     An Operation with information about the created task.

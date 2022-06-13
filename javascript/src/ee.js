@@ -671,6 +671,10 @@ ee.makeClass_ = function(name) {
     }
   };
   goog.inherits(target, ee.ComputedObject);
+  /**
+   * @return {string}
+   * @override
+   */
   target.prototype.name = function() { return name; };
   ee.ApiFunction.importApi(target, name, name);
   return target;

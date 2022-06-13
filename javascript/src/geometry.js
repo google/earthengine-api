@@ -660,6 +660,7 @@ goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
  * @param {function(*): *=} opt_encoder A function that can be called to encode
  *    the components of an object.
  * @return {*} An encoded representation of the geometry.
+ * @override
  */
 ee.Geometry.prototype.encode = function(opt_encoder) {
   if (!this.type_) {

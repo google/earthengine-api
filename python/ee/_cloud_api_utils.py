@@ -6,10 +6,6 @@ their new Cloud API equivalents. This generally requires remapping call
 parameters and result values.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import calendar
 import copy
 import datetime
@@ -535,8 +531,8 @@ def convert_algorithms(algorithms):
     A version of that algorithms list that can be interpreted by
     apifunction.initialize().
   """
-  return dict(
-      _convert_algorithm(algorithm) for algorithm in algorithms['algorithms'])
+  algs = algorithms.get('algorithms', [])
+  return dict(_convert_algorithm(algorithm) for algorithm in algs)
 
 
 def _convert_algorithm(algorithm):

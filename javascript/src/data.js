@@ -70,6 +70,7 @@ goog.require('ee.rpc_convert_batch');
 goog.require('goog.array');
 goog.require('goog.functions');
 goog.require('goog.object');
+goog.require('goog.singleton');
 goog.requireType('ee.Collection');
 goog.requireType('ee.ComputedObject');
 goog.requireType('ee.Element');
@@ -551,11 +552,11 @@ ee.data.listFeatures = function(asset, params, opt_callback) {
 ee.data.computeValue = function(obj, opt_callback) {
   const expression =
       ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(obj));
+  const request = {expression};
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(
       call.value()
-          .compute(
-              call.projectsPath(), new ee.api.ComputeValueRequest({expression}))
+          .compute(call.projectsPath(), new ee.api.ComputeValueRequest(request))
           .then(x => x['result']));
 };
 
@@ -1881,7 +1882,6 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
   return call.handle(getAssetRequest.then(getResponse));
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                               Types and enums.                             //
 ////////////////////////////////////////////////////////////////////////////////
@@ -2965,7 +2965,8 @@ ee.data.MapZoomRange = {
  *   type: string,
  *   description: (undefined|string),
  *   sourceUrl: (undefined|string),
- *   element: (undefined|!ee.Element|!ee.ComputedObject)
+ *   element: (undefined|!ee.Element|!ee.ComputedObject),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.AbstractTaskConfig;
@@ -2996,7 +2997,8 @@ ee.data.AbstractTaskConfig;
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
  *   assetId: (undefined|string),
- *   pyramidingPolicy: (undefined|string)
+ *   pyramidingPolicy: (undefined|string),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.ImageTaskConfigUnformatted;
@@ -3039,7 +3041,8 @@ ee.data.ImageTaskConfigUnformatted;
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
  *   assetId: (undefined|string),
- *   pyramidingPolicy: (undefined|string)
+ *   pyramidingPolicy: (undefined|string),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.ImageTaskConfig;
@@ -3060,7 +3063,8 @@ ee.data.ImageTaskConfig;
  *   sequenceData: (undefined|boolean),
  *   collapseBands: (undefined|boolean),
  *   maskedThreshold: (undefined|number),
- *   shardSize: (undefined|number)
+ *   shardSize: (undefined|number),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.ImageExportFormatConfig;
@@ -3088,7 +3092,8 @@ ee.data.ImageExportFormatConfig;
  *   outputPrefix: (undefined|string),
  *   bucketCorsUris: (undefined|!Array<string>),
  *   mapsApiKey: (undefined|string),
- *   generateEarthHtml: (undefined|boolean)
+ *   generateEarthHtml: (undefined|boolean),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.MapTaskConfig;
@@ -3108,6 +3113,7 @@ ee.data.MapTaskConfig;
  *   thinningStrategy: (undefined|!ee.data.ThinningStrategy),
  *   thinningRanking: (undefined|string|!Array<string>),
  *   zOrderRanking: (undefined|string|!Array<string>),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.FeatureViewTaskConfig;
@@ -3130,7 +3136,8 @@ ee.data.FeatureViewTaskConfig;
  *   outputPrefix: (undefined|string),
  *   assetId: (undefined|string),
  *   maxWorkers: (undefined|number),
- *   maxVertices: (undefined|number)
+ *   maxVertices: (undefined|number),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.TableTaskConfig;
@@ -3157,7 +3164,8 @@ ee.data.TableTaskConfig;
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),
- *   outputPrefix: (undefined|string)
+ *   outputPrefix: (undefined|string),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.VideoTaskConfig;

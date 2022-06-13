@@ -143,6 +143,7 @@ ee.Image.reset = function() {
  *     - bands - a list containing metadata about the bands in the collection.
  *     - properties - a dictionary containing the image's metadata properties.
  * @export
+ * @override
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.ImageDescription} */(

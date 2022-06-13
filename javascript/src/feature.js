@@ -122,6 +122,7 @@ ee.Feature.reset = function() {
  *     the second if unsuccessful.
  * @return {ee.data.GeoJSONFeature} A description of the feature.
  * @export
+ * @override
  */
 ee.Feature.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.GeoJSONFeature} */(

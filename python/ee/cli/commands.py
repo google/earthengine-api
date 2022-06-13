@@ -6,10 +6,6 @@ defines the supported positional and optional arguments, as well as
 the actions to be taken when the command is executed.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 # pylint: disable=g-bad-import-order
 from six.moves import range
 import argparse

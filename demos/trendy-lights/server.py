@@ -58,8 +58,6 @@ which in turn helps us avoid exceeding our quota and respond to user
 requests more quickly.
 
 """
-
-from __future__ import print_function
 import json
 import os
 

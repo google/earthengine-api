@@ -5,9 +5,6 @@ This module defines the Command class which is the base class of all
 the commands supported by the EE command line tool. It also defines
 the classes for configuration and runtime context management.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 import collections
 import datetime
 import json

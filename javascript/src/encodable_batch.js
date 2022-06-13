@@ -113,6 +113,7 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
     default:
       throw new Error(`Export destination "${destination}" unknown`);
   }
+
   return result;
 };
 
@@ -763,10 +764,10 @@ ee.rpc_convert_batch.buildRankByOneThingRule_ = function(ruleString) {
 
   // Parse rule string. Input is expected in the string format: `attr_name ASC,
   // .minZoomLevel DESC, .geometryType ASC` or as a list of strings: ["attr_name
-  // ASC", ".pixelSize DESC", ".geometryType ASC"]. .minZoomLevel and .geometryType
-  // correspond to minVisibleLOD and geometryType ranking rules in DMS. Rules
-  // that do not start with the keywords ".minZoomLevel" or ".geometryType" are
-  // assumed to be attribute rules.
+  // ASC", ".pixelSize DESC", ".geometryType ASC"]. .minZoomLevel and
+  // .geometryType correspond to minVisibleLOD and geometryType ranking rules in
+  // DMS. Rules that do not start with the keywords ".minZoomLevel" or
+  // ".geometryType" are assumed to be attribute rules.
   ruleString = ruleString.trim();
   const matches = ruleString.match(/^([\S]+.*)\s+(ASC|DESC)$/);
   if (matches == null) {

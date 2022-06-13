@@ -9,9 +9,6 @@ Typical use-case consists of:
    'get_credentials_path'
 """
 
-from __future__ import print_function
-
-
 import base64
 import errno
 import hashlib

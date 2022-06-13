@@ -179,6 +179,7 @@ ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
  *     - properties: an optional dictionary containing the collection's
  *           metadata properties.
  * @export
+ * @override
  */
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.FeatureCollectionDescription} */(

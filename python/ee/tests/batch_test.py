@@ -745,7 +745,8 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'foo',
               'featureViewExportOptions': {
                   'featureViewDestination': {
-                      'name': 'projects/earthengine-legacy/assets/users/foo/bar'
+                      'name':
+                          'projects/earthengine-legacy/assets/users/foo/bar',
                   },
                   'ingestionTimeParameters': {
                       'thinningOptions': {
@@ -777,7 +778,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
                 'featureViewExportOptions': {
                     'featureViewDestination': {
                         'name':
-                            'projects/earthengine-legacy/assets/users/foo/bar'
+                            'projects/earthengine-legacy/assets/users/foo/bar',
                     },
                     'ingestionTimeParameters': {}
                 }
