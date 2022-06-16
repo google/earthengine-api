@@ -47,6 +47,7 @@ class Task(object):
     """
     self.id = self._request_id = task_id
     self.config = config and config.copy()
+    self.workload_tag = data.getWorkloadTag()
     self.task_type = task_type
     self.state = state
     self.name = name
@@ -80,6 +81,11 @@ class Task(object):
           'Task config must be specified for tasks to be started.')
     if not self._request_id:
       self._request_id = data.newTaskId()[0]
+
+    # Supply the workload tag, even if empty, to prevent it from being reset
+    # later.
+    if 'workloadTag' not in self.config:
+      self.config['workloadTag'] = self.workload_tag
 
     if self.task_type == Task.Type.EXPORT_IMAGE:
       result = data.exportImage(self._request_id, self.config)
@@ -1457,10 +1463,12 @@ def _build_feature_view_destination(config):
     A FeatureViewDestination containing information extracted from
     config.
   """
-  return {
-      'name': _cloud_api_utils.convert_asset_id_to_asset_name(
-          config.pop('assetId')),
+  feature_view_destination = {
+      'name':
+          _cloud_api_utils.convert_asset_id_to_asset_name(
+              config.pop('assetId')),
   }
+  return feature_view_destination
 
 
 def _get_rank_by_one_thing_rule(rule_str):

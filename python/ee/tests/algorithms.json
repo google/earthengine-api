@@ -5488,7 +5488,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Collection.geometry",
-    "description": "Extracts and merges the geometries of a collection. Requires that all the geometries in the collection share the projection and edge interpretation.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well, use the smallest collection that is required to achieve the desired outcome.",
+    "description": "Extracts and merges the geometries of a collection. Requires that all the geometries in the collection share the projection and edge interpretation.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well; use the smallest collection that is required to achieve the desired outcome.",
     "returnType": "Geometry",
     "arguments": [{
       "argumentName": "collection",
@@ -8709,7 +8709,7 @@
     }]
   }, {
     "name": "algorithms/Image.cat",
-    "description": "Concatenate a list of images together into a single image. If two or more bands share a name, they are suffixed with an incrementing index. This function will promote constant values into constant images.",
+    "description": "Combines a list of images into a single image which contains all bands from all of the images.\nIf two or more bands share a name, they are suffixed with an incrementing index.\nThe resulting image will have the metadata from the first input image, only.\nThis function will promote constant values into constant images.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "images",
@@ -10397,7 +10397,7 @@
     }]
   }, {
     "name": "algorithms/Image.clipToBoundsAndScale",
-    "description": "Clips an image to the bounds of a Geometry, and scales the clipped image to a particular size or scale.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well, use the smallest collection (or geometry) that is required to achieve the desired outcome.",
+    "description": "Clips an image to the bounds of a Geometry, and scales the clipped image to a particular size or scale.\nCaution: providing a large or complex collection as the `geometry` argument can result in poor performance. Collating the geometry of collections does not scale well; use the smallest collection (or geometry) that is required to achieve the desired outcome.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",

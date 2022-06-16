@@ -362,7 +362,15 @@ ee.Image.rgb = function(r, g, b) {
 
 
 /**
- * Concatenate the given images together into a single image.
+ * Combines the given images into a single image which contains all bands from
+ * all of the images.
+ *
+ * If two or more bands share a name, they are suffixed with an incrementing
+ * index.
+ *
+ * The resulting image will have the metadata from the first input image, only.
+ *
+ * This function will promote constant values into constant images.
  *
  * @param {...ee.Image} var_args The images to be combined.
  * @return {ee.Image} The combined image.

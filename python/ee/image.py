@@ -547,7 +547,21 @@ class Image(element.Element):
 
   @staticmethod
   def cat(*args):
-    """Concatenate the given images together into a single image."""
+    """Combine the given images' bands into a single image with all the bands.
+
+    If two or more bands share a name, they are suffixed with an incrementing
+    index.
+
+    The resulting image will have the metadata from the first input image, only.
+
+    This function will promote constant values into constant images.
+
+    Args:
+      *args: The list of images to be combined.
+
+    Returns:
+      The combined image.
+    """
     return Image.combine_(args)
 
   @staticmethod

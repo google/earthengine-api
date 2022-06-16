@@ -3428,7 +3428,7 @@ ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", INSTAL
 TRANSITIONEND:goog.events.eventTypeHelpers.getVendorPrefixedName("TransitionEnd"), POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", 
 MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXT:"text", TEXTINPUT:goog.userAgent.IE ? "textinput" : "textInput", 
 COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", BEFOREINPUT:"beforeinput", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage", DOMSUBTREEMODIFIED:"DOMSubtreeModified", DOMNODEINSERTED:"DOMNodeInserted", DOMNODEREMOVED:"DOMNodeRemoved", 
-DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", DOMATTRMODIFIED:"DOMAttrModified", DOMCHARACTERDATAMODIFIED:"DOMCharacterDataModified", BEFOREPRINT:"beforeprint", AFTERPRINT:"afterprint", BEFOREINSTALLPROMPT:"beforeinstallprompt", APPINSTALLED:"appinstalled"};
+DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", DOMATTRMODIFIED:"DOMAttrModified", DOMCHARACTERDATAMODIFIED:"DOMCharacterDataModified", BEFOREPRINT:"beforeprint", AFTERPRINT:"afterprint", BEFOREINSTALLPROMPT:"beforeinstallprompt", APPINSTALLED:"appinstalled", CANCEL:"cancel", FINISH:"finish", REMOVE:"remove"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
@@ -8903,6 +8903,11 @@ module$exports$eeapiclient$ee_api_client.FeatureViewAttributeTypeEnum = {BOOLEAN
   return [module$exports$eeapiclient$ee_api_client.FeatureViewAttributeTypeEnum.TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.FeatureViewAttributeTypeEnum.INTEGER, module$exports$eeapiclient$ee_api_client.FeatureViewAttributeTypeEnum.BOOLEAN, module$exports$eeapiclient$ee_api_client.FeatureViewAttributeTypeEnum.DOUBLE, module$exports$eeapiclient$ee_api_client.FeatureViewAttributeTypeEnum.STRING, 
   module$exports$eeapiclient$ee_api_client.FeatureViewAttributeTypeEnum.DATE_TIME];
 }};
+module$exports$eeapiclient$ee_api_client.IFeatureViewDestinationPermissionsEnum = function module$contents$eeapiclient$ee_api_client_IFeatureViewDestinationPermissionsEnum() {
+};
+module$exports$eeapiclient$ee_api_client.FeatureViewDestinationPermissionsEnum = {FEATURE_VIEW_ASSET_PERMISSIONS_UNSPECIFIED:"FEATURE_VIEW_ASSET_PERMISSIONS_UNSPECIFIED", PUBLIC:"PUBLIC", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.FeatureViewDestinationPermissionsEnum.FEATURE_VIEW_ASSET_PERMISSIONS_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.FeatureViewDestinationPermissionsEnum.PUBLIC];
+}};
 module$exports$eeapiclient$ee_api_client.IFilmstripThumbnailFileFormatEnum = function module$contents$eeapiclient$ee_api_client_IFilmstripThumbnailFileFormatEnum() {
 };
 module$exports$eeapiclient$ee_api_client.FilmstripThumbnailFileFormatEnum = {AUTO_JPEG_PNG:"AUTO_JPEG_PNG", GEO_TIFF:"GEO_TIFF", IMAGE_FILE_FORMAT_UNSPECIFIED:"IMAGE_FILE_FORMAT_UNSPECIFIED", JPEG:"JPEG", MULTI_BAND_IMAGE_TILE:"MULTI_BAND_IMAGE_TILE", NPY:"NPY", PNG:"PNG", TF_RECORD_IMAGE:"TF_RECORD_IMAGE", ZIPPED_GEO_TIFF:"ZIPPED_GEO_TIFF", ZIPPED_GEO_TIFF_PER_BAND:"ZIPPED_GEO_TIFF_PER_BAND", values:function() {
@@ -8998,8 +9003,8 @@ module$exports$eeapiclient$ee_api_client.TableFileFormatEnum = {CSV:"CSV", GEO_J
 }};
 module$exports$eeapiclient$ee_api_client.ITableManifestCsvColumnDataTypeOverridesEnum = function module$contents$eeapiclient$ee_api_client_ITableManifestCsvColumnDataTypeOverridesEnum() {
 };
-module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum = {CSV_COLUMN_DATA_TYPE_NUMERIC:"CSV_COLUMN_DATA_TYPE_NUMERIC", CSV_COLUMN_DATA_TYPE_STRING:"CSV_COLUMN_DATA_TYPE_STRING", CSV_COLUMN_DATA_TYPE_UNSPECIFIED:"CSV_COLUMN_DATA_TYPE_UNSPECIFIED", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum.CSV_COLUMN_DATA_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum.CSV_COLUMN_DATA_TYPE_STRING, module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum.CSV_COLUMN_DATA_TYPE_NUMERIC];
+module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum = {CSV_COLUMN_DATA_TYPE_LONG:"CSV_COLUMN_DATA_TYPE_LONG", CSV_COLUMN_DATA_TYPE_NUMERIC:"CSV_COLUMN_DATA_TYPE_NUMERIC", CSV_COLUMN_DATA_TYPE_STRING:"CSV_COLUMN_DATA_TYPE_STRING", CSV_COLUMN_DATA_TYPE_UNSPECIFIED:"CSV_COLUMN_DATA_TYPE_UNSPECIFIED", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum.CSV_COLUMN_DATA_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum.CSV_COLUMN_DATA_TYPE_STRING, module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum.CSV_COLUMN_DATA_TYPE_NUMERIC, module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum.CSV_COLUMN_DATA_TYPE_LONG];
 }};
 module$exports$eeapiclient$ee_api_client.IThinningOptionsThinningStrategyEnum = function module$contents$eeapiclient$ee_api_client_IThinningOptionsThinningStrategyEnum() {
 };
@@ -10613,27 +10618,30 @@ module$exports$eeapiclient$ee_api_client.FeatureViewDestination = function(param
   module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("assetVersion", null == parameters.assetVersion ? null : parameters.assetVersion);
-  this.Serializable$set("isMapPublic", null == parameters.isMapPublic ? null : parameters.isMapPublic);
+  this.Serializable$set("permissions", null == parameters.permissions ? null : parameters.permissions);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.FeatureViewDestination, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.FeatureViewDestination.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.FeatureViewDestination;
 };
 module$exports$eeapiclient$ee_api_client.FeatureViewDestination.prototype.getPartialClassMetadata = function() {
-  return {keys:["assetVersion", "isMapPublic", "name"]};
+  return {enums:{permissions:module$exports$eeapiclient$ee_api_client.FeatureViewDestinationPermissionsEnum}, keys:["assetVersion", "name", "permissions"]};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.FeatureViewDestination.prototype, {assetVersion:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("assetVersion") ? this.Serializable$get("assetVersion") : null;
 }, set:function(value) {
   this.Serializable$set("assetVersion", value);
-}}, isMapPublic:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("isMapPublic") ? this.Serializable$get("isMapPublic") : null;
-}, set:function(value) {
-  this.Serializable$set("isMapPublic", value);
 }}, name:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("name") ? this.Serializable$get("name") : null;
 }, set:function(value) {
   this.Serializable$set("name", value);
+}}, permissions:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("permissions") ? this.Serializable$get("permissions") : null;
+}, set:function(value) {
+  this.Serializable$set("permissions", value);
+}}});
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.FeatureViewDestination, {Permissions:{configurable:!0, enumerable:!0, get:function() {
+  return module$exports$eeapiclient$ee_api_client.FeatureViewDestinationPermissionsEnum;
 }}});
 module$exports$eeapiclient$ee_api_client.FeatureViewIngestionTimeParametersParameters = function module$contents$eeapiclient$ee_api_client_FeatureViewIngestionTimeParametersParameters() {
 };
@@ -15822,7 +15830,8 @@ goog.async.Deferred.prototype.then = function(opt_onFulfilled, opt_onRejected, o
   });
   this.addCallbacks(resolve, function(reason) {
     reason instanceof goog.async.Deferred.CanceledError ? promise.cancel() : reject(reason);
-  });
+    return goog.async.Deferred.CONVERTED_TO_PROMISE_;
+  }, this);
   return promise.then(opt_onFulfilled, opt_onRejected, opt_context);
 };
 module$contents$goog$Thenable_Thenable.addImplementation(goog.async.Deferred);
@@ -15855,14 +15864,17 @@ goog.async.Deferred.prototype.hasErrback_ = function() {
 goog.async.Deferred.prototype.getLastValueForMigration = function() {
   return this.hasFired() && !this.hadError_ ? this.result_ : void 0;
 };
+goog.async.Deferred.CONVERTED_TO_PROMISE_ = {};
 goog.async.Deferred.prototype.fire_ = function() {
   this.unhandledErrorId_ && this.hasFired() && this.hasErrback_() && (goog.async.Deferred.unscheduleError_(this.unhandledErrorId_), this.unhandledErrorId_ = 0);
   this.parent_ && (this.parent_.branches_--, delete this.parent_);
-  for (var res = this.result_, unhandledException = !1, isNewlyBlocked = !1; this.sequence_.length && !this.blocked_;) {
+  for (var res = this.result_, unhandledException = !1, isNewlyBlocked = !1, wasConvertedToPromise = !1; this.sequence_.length && !this.blocked_;) {
+    wasConvertedToPromise = !1;
     var sequenceEntry = this.sequence_.shift(), callback = sequenceEntry[0], errback = sequenceEntry[1], scope = sequenceEntry[2], f = this.hadError_ ? errback : callback;
     if (f) {
       try {
         var ret = f.call(scope || this.defaultScope_, res);
+        ret === goog.async.Deferred.CONVERTED_TO_PROMISE_ && (wasConvertedToPromise = !0, ret = void 0);
         void 0 !== ret && (this.hadError_ = this.hadError_ && (ret == res || this.isError(ret)), this.result_ = res = ret);
         if (module$contents$goog$Thenable_Thenable.isImplementedBy(res) || "function" === typeof goog.global.Promise && res instanceof goog.global.Promise) {
           this.blocked_ = isNewlyBlocked = !0;
@@ -15877,7 +15889,7 @@ goog.async.Deferred.prototype.fire_ = function() {
     var onCallback = goog.bind(this.continue_, this, !0), onErrback = goog.bind(this.continue_, this, !1);
     res instanceof goog.async.Deferred ? (res.addCallbacks(onCallback, onErrback), res.blocking_ = !0) : res.then(onCallback, onErrback);
   } else {
-    !goog.async.Deferred.STRICT_ERRORS || !this.isError(res) || res instanceof goog.async.Deferred.CanceledError || (unhandledException = this.hadError_ = !0);
+    !goog.async.Deferred.STRICT_ERRORS || wasConvertedToPromise || !this.isError(res) || res instanceof goog.async.Deferred.CanceledError || (unhandledException = this.hadError_ = !0);
   }
   unhandledException && (this.unhandledErrorId_ = goog.async.Deferred.scheduleError_(res));
 };
@@ -16922,7 +16934,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.315";
+ee.apiclient.API_CLIENT_VERSION = "0.1.316";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17203,8 +17215,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.315";
-  "0.1.315" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.316";
+  "0.1.316" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

@@ -731,6 +731,9 @@ def computeValue(obj):
     The result of evaluating that object on the server.
   """
   body = {'expression': serializer.encode(obj, for_cloud_api=True)}
+  workload_tag = getWorkloadTag()
+  if workload_tag:
+    body['workloadTag'] = workload_tag
 
   return _execute_cloud_call(
       _get_cloud_api_resource().projects().value().compute(
@@ -1394,6 +1397,12 @@ def _prepare_and_run_export(request_id, params, export_endpoint):
   Returns:
     An Operation with information about the created task.
   """
+  if 'workloadTag' not in params:
+    workload_tag = getWorkloadTag()
+    if workload_tag:
+      params['workloadTag'] = workload_tag
+  elif not params['workloadTag']:
+    del params['workloadTag']
   if request_id:
     if isinstance(request_id, six.string_types):
       params['requestId'] = request_id
@@ -1748,3 +1757,123 @@ def convert_asset_id_to_asset_name(asset_id):
     An asset name string in the format 'projects/*/assets/**'.
   """
   return _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
+
+
+def getWorkloadTag():
+  """Returns the currently set workload tag."""
+  return _workloadTag.get()
+
+
+def setWorkloadTag(tag):
+  """Sets the workload tag, used to label computation and exports.
+
+  Workload tag must be 1 - 63 characters, beginning and ending with an
+  alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+  (.), and alphanumerics between, or an empty string to clear the workload tag.
+
+  Args:
+    tag: The tag to set.
+  """
+  _workloadTag.set(tag)
+
+
+@contextlib.contextmanager
+def workloadTagContext(tag):
+  """Produces a context manager which sets the workload tag, then resets it.
+
+  Workload tag must be 1 - 63 characters, beginning and ending with an
+  alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+  (.), and alphanumerics between, or an empty string to clear the workload tag.
+
+  Args:
+    tag: The tag to set.
+
+  Yields:
+    None.
+  """
+  setWorkloadTag(tag)
+  try:
+    yield
+  finally:
+    resetWorkloadTag()
+
+
+def setDefaultWorkloadTag(tag):
+  """Sets the workload tag, and as the default for which to reset back to.
+
+  For example, calling `ee.data.resetWorkloadTag()` will reset the workload tag
+  back to the default chosen here. To reset the default back to none, pass in
+  an empty string or pass in true to `ee.data.resetWorkloadTag(true)`, like so.
+
+  Workload tag must be 1 - 63 characters, beginning and ending with an
+  alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+  (.), and alphanumerics between, or an empty string to reset the default back
+  to none.
+
+  Args:
+    tag: The tag to set.
+  """
+  _workloadTag.setDefault(tag)
+  _workloadTag.set(tag)
+
+
+def resetWorkloadTag(opt_resetDefault=False):
+  """Sets the default tag for which to reset back to.
+
+  If opt_resetDefault parameter is set to true, the default will be set to empty
+  before resetting. Defaults to False.
+
+  Args:
+    opt_resetDefault: Whether to reset the default back to empty.
+  """
+  if opt_resetDefault:
+    _workloadTag.setDefault('')
+  _workloadTag.reset()
+
+
+class _WorkloadTag(object):
+  """A helper class to manage the workload tag."""
+
+  def __init__(self):
+    self._tag = ''
+    self._default = ''
+
+  def get(self):
+    return self._tag
+
+  def set(self, tag):
+    self._tag = self.validate(tag)
+
+  def setDefault(self, newDefault):
+    self._default = self.validate(newDefault)
+
+  def reset(self):
+    self._tag = self._default
+
+  def validate(self, tag):
+    """Throws an error if setting an invalid tag.
+
+    Args:
+      tag: the tag to validate.
+
+    Returns:
+      The validated tag.
+
+    Raises:
+      ValueError if the tag does not match the expected format.
+    """
+    if not tag and tag != 0:
+      return ''
+    tag = str(tag)
+    if not re.fullmatch(r'([a-z0-9]|[a-z0-9][-_\.a-z0-9]{0,61}[a-z0-9])', tag):
+      validationMessage = (
+          'Tags must be 1-63 characters, '
+          'beginning and ending with an lowercase alphanumeric character'
+          '([a-z0-9]) with dashes (-), underscores (_), '
+          'dots (.), and lowercase alphanumerics between.')
+      raise ValueError(f'Invalid tag, "{tag}". {validationMessage}')
+    return tag
+
+
+# Tracks the currently set workload tag.
+_workloadTag = _WorkloadTag()

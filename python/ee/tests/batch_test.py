@@ -1043,6 +1043,51 @@ class BatchTestCase(apitestcase.ApiTestCase):
           task_ordered.config.pop('expression').serialize(for_cloud_api=True))
       self.assertEqual(expected_config, task_ordered.config)
 
+  def testExportWorkloadTag(self):
+    """Verifies that the workload tag state is captured before start."""
+    mock_cloud_api_resource = mock.MagicMock()
+    mock_cloud_api_resource.projects().table().export().execute.return_value = {
+        'name': 'projects/earthengine-legacy/operations/foo',
+        'metadata': {},
+    }
+
+    with apitestcase.UsingCloudApi(cloud_api_resource=mock_cloud_api_resource):
+      ee.data.setWorkloadTag('test-export')
+      task = ee.batch.Export.table(ee.FeatureCollection('foo'), 'bar')
+      ee.data.setWorkloadTag('not-test-export')
+      self.assertEqual('test-export', task.workload_tag)
+      task.start()
+      self.assertEqual('test-export', task.config['workloadTag'])
+      export_args = mock_cloud_api_resource.projects().table().export.call_args
+      self.assertEqual(export_args[1]['body']['workloadTag'], 'test-export')
+
+    ee.data.resetWorkloadTag(True)
+
+    with apitestcase.UsingCloudApi(cloud_api_resource=mock_cloud_api_resource):
+      ee.data.setWorkloadTag('test-export')
+      task = ee.batch.Export.table(ee.FeatureCollection('foo'), 'bar')
+      self.assertEqual('test-export', task.workload_tag)
+      task.config['workloadTag'] = 'not-test-export'
+      task.start()
+      # Overridden in config.
+      self.assertEqual('not-test-export', task.config['workloadTag'])
+      export_args = mock_cloud_api_resource.projects().table().export.call_args
+      self.assertEqual(export_args[1]['body']['workloadTag'], 'not-test-export')
+
+    ee.data.resetWorkloadTag(True)
+
+    with apitestcase.UsingCloudApi(cloud_api_resource=mock_cloud_api_resource):
+      task = ee.batch.Export.table(ee.FeatureCollection('foo'), 'bar')
+      ee.data.setWorkloadTag('not-test-export')
+      self.assertEqual('', task.workload_tag)
+      task.start()
+      # Not captured on start().
+      self.assertEqual('', task.config['workloadTag'])
+      export_args = mock_cloud_api_resource.projects().table().export.call_args
+      self.assertNotIn('workloadTag', export_args[1]['body'])
+
+    ee.data.resetWorkloadTag(True)
+
 
 if __name__ == '__main__':
   unittest.main()

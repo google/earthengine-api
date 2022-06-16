@@ -114,6 +114,9 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
       throw new Error(`Export destination "${destination}" unknown`);
   }
 
+  if (params['workloadTag']) {
+    result.workloadTag = params['workloadTag'];
+  }
   return result;
 };
 

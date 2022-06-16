@@ -115,10 +115,10 @@ ee.Collection.prototype.filterMetadata = function(name, operator, value) {
  *
  * This is equivalent to this.filter(ee.Filter.bounds(...)).
  *
- * Caution: providing a large or complex collection as input can result in poor
- * performance. Collating the geometry of collections does not scale well, use
- * the smallest collection (or geometry) that is required to achieve the desired
- * outcome.
+ * Caution: providing a large or complex collection as the `geometry` argument
+ * can result in poor performance. Collating the geometry of collections does
+ * not scale well; use the smallest collection (or geometry) that is required to
+ * achieve the desired outcome.
  * @param {!ee.Geometry|!ee.ComputedObject|!ee.FeatureCollection} geometry
  *     The geometry, feature or collection to intersect with.
  * @return {ee.Collection} The filtered collection.

@@ -553,6 +553,10 @@ ee.data.computeValue = function(obj, opt_callback) {
   const expression =
       ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(obj));
   const request = {expression};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    request.workloadTag = workloadTag;
+  }
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(
       call.value()
@@ -1184,6 +1188,14 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
   const metadata = (params['sourceUrl'] != null) ?
       {'__source_url__': params['sourceUrl']} :
       {};
+  if (!('workloadTag' in params)) {
+    const workloadTag = ee.data.getWorkloadTag();
+    if (workloadTag) {
+      params['workloadTag'] = workloadTag;
+    }
+  } else if (!params['workloadTag']) {
+    delete params['workloadTag'];
+  }
   const call = new ee.apiclient.Call(opt_callback);
   const handle = (response) =>
       call.handle(response.then(ee.rpc_convert.operationToProcessingResponse));
@@ -1226,6 +1238,9 @@ ee.data.prepareExportImageRequest_ = function(taskConfig, metadata) {
   const imageRequest = ee.rpc_convert_batch.taskToExportImageRequest(imageTask);
   imageRequest.expression =
       ee.data.expressionAugmenter_(imageRequest.expression, metadata);
+  if (taskConfig['workloadTag']) {
+    imageRequest.workloadTag = taskConfig['workloadTag'];
+  }
   return imageRequest;
 };
 
@@ -1249,6 +1264,9 @@ ee.data.prepareExportVideoRequest_ = function(taskConfig, metadata) {
   const videoRequest = ee.rpc_convert_batch.taskToExportVideoRequest(videoTask);
   videoRequest.expression =
       ee.data.expressionAugmenter_(videoRequest.expression, metadata);
+  if (taskConfig['workloadTag']) {
+    videoRequest.workloadTag = taskConfig['workloadTag'];
+  }
   return videoRequest;
 };
 
@@ -1274,6 +1292,9 @@ ee.data.prepareExportMapRequest_ = function(taskConfig, metadata) {
   const mapRequest = ee.rpc_convert_batch.taskToExportMapRequest(mapTask);
   mapRequest.expression =
       ee.data.expressionAugmenter_(mapRequest.expression, metadata);
+  if (taskConfig['workloadTag']) {
+    mapRequest.workloadTag = taskConfig['workloadTag'];
+  }
   return mapRequest;
 };
 
@@ -1881,6 +1902,136 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
   const getAssetRequest = assetsCall.get(name, {prettyPrint: false});
   return call.handle(getAssetRequest.then(getResponse));
 };
+
+/**
+ * @struct
+ */
+ee.data.WorkloadTag = class {
+  constructor() {
+    /**
+     * @private {string}
+     */
+    this.tag = '';
+
+    /**
+     * @private {string}
+     */
+    this.default = '';
+  }
+
+  /**
+   * @return {string}
+   */
+  get() {
+    return this.tag;
+  }
+
+  /**
+   * @param {string|null|undefined} tag
+   */
+  set(tag) {
+    this.tag = this.validate(tag);
+  }
+
+  /**
+   * @param {string|null|undefined} newDefault
+   */
+  setDefault(newDefault) {
+    this.default = this.validate(newDefault);
+  }
+
+  /**
+   * Reset the current tag to default.
+   */
+  reset() {
+    this.tag = this.default;
+  }
+
+  /**
+   * Throws an error if setting an invalid tag. Will return empty string for
+   * null or undefined inputs.
+   * @param {string|null|undefined} tag
+   * @return {string} The validated tag.
+   * @throws {!Error} If the tag does not match the valid format.
+   */
+  validate(tag) {
+    if (tag == null || tag === '') {
+      return '';
+    }
+
+    tag = String(tag);
+    if (!/^([a-z0-9]|[a-z0-9][-_\.a-z0-9]{0,61}[a-z0-9])$/g.test(tag)) {
+      const validationMessage = 'Tags must be 1-63 characters, ' +
+          'beginning and ending with a lowercase alphanumeric character' + 
+          '([a-z0-9]) with dashes (-), underscores (_), dots (.), and' + 
+          'lowercase alphanumerics between.';
+      throw new Error(`Invalid tag, "${tag}". ${validationMessage}`);
+    }
+    return tag;
+  }
+
+  /**
+   * @return {!ee.data.WorkloadTag}
+   */
+  static getInstance() {
+    return goog.singleton.getInstance(ee.data.WorkloadTag);
+  }
+};
+
+/**
+ * Returns the currently set workload tag.
+ * @return {string}
+ * @export
+ */
+ee.data.getWorkloadTag = function() {
+  return ee.data.WorkloadTag.getInstance().get();
+};
+
+/**
+ * Sets the workload tag, used to label computation and exports.
+ *
+ * Workload tag must be 1 - 63 characters, beginning and ending with an
+ * alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+ * (.), and alphanumerics between, or an empty string to clear the workload tag.
+ * @param {string} tag
+ * @export
+ */
+ee.data.setWorkloadTag = function(tag) {
+  ee.data.WorkloadTag.getInstance().set(tag);
+};
+
+/**
+ * Sets the workload tag, and as the default for which to reset back to.
+ *
+ * For example, calling `ee.data.resetWorkloadTag()` will reset the workload tag
+ * back to the default chosen here. To reset the default back to none, pass in
+ * an empty string or pass in true to `ee.data.resetWorkloadTag(true)`, like so.
+ *
+ * Workload tag must be 1 - 63 characters, beginning and ending with an
+ * alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+ * (.), and alphanumerics between, or an empty string to reset the default back
+ * to none.
+ * @param {string} tag
+ * @export
+ */
+ee.data.setDefaultWorkloadTag = function(tag) {
+  ee.data.WorkloadTag.getInstance().setDefault(tag);
+  ee.data.WorkloadTag.getInstance().set(tag);
+};
+
+/**
+ * Resets the tag back to the default. If resetDefault parameter
+ * is set to true, the default will be set to empty before resetting.
+ * @param {boolean=} opt_resetDefault
+ * @export
+ */
+ee.data.resetWorkloadTag = function(opt_resetDefault) {
+  if (opt_resetDefault) {
+    ee.data.WorkloadTag.getInstance().setDefault('');
+  }
+  ee.data.WorkloadTag.getInstance().reset();
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //                               Types and enums.                             //

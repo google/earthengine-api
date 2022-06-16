@@ -300,6 +300,61 @@ class DataTest(unittest.TestCase):
       self.assertEqual(f'base_url/v1alpha/{mock_name}/tiles/7/5/6',
                        actual_result['formatTileUrl'](5, 6, 7))
 
+  def testWorkloadTag(self):
+    self.assertEqual('', ee.data.getWorkloadTag())
+    ee.data.setDefaultWorkloadTag(None)
+    self.assertEqual('', ee.data.getWorkloadTag())
+    ee.data.setDefaultWorkloadTag('')
+    self.assertEqual('', ee.data.getWorkloadTag())
+    ee.data.setDefaultWorkloadTag(0)
+    self.assertEqual('0', ee.data.getWorkloadTag())
+    ee.data.setDefaultWorkloadTag(123)
+    self.assertEqual('123', ee.data.getWorkloadTag())
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('inv@lid')
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('Invalid')
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('-invalid')
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('invalid_')
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('i' * 64)
+
+    ee.data.setDefaultWorkloadTag('default-tag')
+    self.assertEqual('default-tag', ee.data.getWorkloadTag())
+
+    ee.data.setWorkloadTag('exports-1')
+    self.assertEqual('exports-1', ee.data.getWorkloadTag())
+
+    ee.data.setWorkloadTag('exports-2')
+    self.assertEqual('exports-2', ee.data.getWorkloadTag())
+
+    ee.data.resetWorkloadTag()
+    self.assertEqual('default-tag', ee.data.getWorkloadTag())
+
+    with ee.data.workloadTagContext('in-context'):
+      self.assertEqual('in-context', ee.data.getWorkloadTag())
+
+    self.assertEqual('default-tag', ee.data.getWorkloadTag())
+
+    ee.data.setWorkloadTag('reset-me')
+    self.assertEqual('reset-me', ee.data.getWorkloadTag())
+
+    ee.data.setWorkloadTag('')
+    self.assertEqual('', ee.data.getWorkloadTag())
+
+    ee.data.setDefaultWorkloadTag('reset-me')
+    self.assertEqual('reset-me', ee.data.getWorkloadTag())
+
+    ee.data.resetWorkloadTag(True)
+    self.assertEqual('', ee.data.getWorkloadTag())
+
 
 def DoCloudProfileStubHttp(test, expect_profiling):
 

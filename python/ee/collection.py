@@ -84,10 +84,10 @@ class Collection(element.Element):
     the given geometry will be excluded.
     This is equivalent to self.filter(Filter().geometry(...)).
 
-    Caution: providing a large or complex collection as input can result in poor
-    performance. Collating the geometry of collections does not scale well, use
-    the smallest collection (or geometry) that is required to achieve the
-    desired outcome.
+    Caution: providing a large or complex collection as the `geometry` argument
+    can result in poor performance. Collating the geometry of collections does
+    not scale well; use the smallest collection (or geometry) that is required
+    to achieve the desired outcome.
 
     Args:
       geometry: The boundary to filter to either as a GeoJSON geometry,
