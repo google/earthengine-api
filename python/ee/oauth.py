@@ -12,6 +12,7 @@ Typical use-case consists of:
 import base64
 import errno
 import hashlib
+import http.server
 import json
 import os
 import sys
@@ -51,7 +52,12 @@ AUTH_URL_TEMPLATE = AUTH_PAGE_URL + '?scopes={scopes}' + (
 
 # Command to execute in gcloud mode
 GCLOUD_COMMAND = ('gcloud auth application-default login --scopes={scopes} '
-                  '--client-id-file={client_id_file}')
+                  '--client-id-file={client_id_file} {flags}')
+
+DEFAULT_LOCAL_PORT = 8085
+WAITING_CODA = 'Waiting for successful authorization from web browser ...'
+PASTE_CODA = ('The authorization workflow will generate a code, which you'
+              ' should paste in the box below.')
 
 # Command-line browsers cannot handle the auth pages.
 TEXT_BROWSERS = ['elinks', 'links', 'lynx', 'w3m', 'www-browser']
@@ -76,13 +82,13 @@ def get_credentials_arguments():
     return args
 
 
-def get_authorization_url(code_challenge, scopes=None):
+def get_authorization_url(code_challenge, scopes=None, redirect_uri=None):
   """Returns a URL to generate an auth code."""
 
   return 'https://accounts.google.com/o/oauth2/auth?' + parse.urlencode({
       'client_id': CLIENT_ID,
       'scope': ' '.join(scopes or SCOPES),
-      'redirect_uri': REDIRECT_URI,
+      'redirect_uri': redirect_uri or REDIRECT_URI,
       'response_type': 'code',
       'code_challenge': code_challenge,
       'code_challenge_method': 'S256',
@@ -159,16 +165,21 @@ def _in_jupyter_shell():
     return False
 
 
-def _obtain_and_write_token(auth_code=None, code_verifier=None, scopes=None):
+def _obtain_and_write_token(auth_code=None,
+                            code_verifier=None,
+                            scopes=None,
+                            redirect_uri=None):
   """Obtains and writes credentials token based on an authorization code."""
   fetch_data = {}
   if code_verifier and ':' in code_verifier:
     request_id, code_verifier, client_verifier = code_verifier.split(':')
     fetch_data = dict(request_id=request_id, client_verifier=client_verifier)
+  client_info = {}
+  if redirect_uri:
+    client_info['redirect_uri'] = redirect_uri
   if not auth_code:
     auth_code = input('Enter verification code: ')
   assert isinstance(auth_code, six.string_types)
-  client_info = {}
   scopes = scopes or SCOPES
   if fetch_data:
     data = json.dumps(fetch_data).encode()
@@ -199,7 +210,7 @@ def _display_auth_instructions_for_noninteractive(auth_url, code_verifier):
             auth_url, six.ensure_str(code_verifier)))
 
 
-def _display_auth_instructions_with_print(auth_url):
+def _display_auth_instructions_with_print(auth_url, coda=None):
   """Displays instructions for authenticating using a print statement."""
   print('To authorize access needed by Earth Engine, open the following '
         'URL in a web browser and follow the instructions. If the web '
@@ -207,21 +218,18 @@ def _display_auth_instructions_with_print(auth_url):
         'URL below.\n'
         '\n'
         '    {0}\n'
-        '\n'
-        'The authorization workflow will generate a code, which you '
-        'should paste in the box below. '.format(auth_url))
+        '\n{1}'.format(auth_url, coda or PASTE_CODA))
 
 
-def _display_auth_instructions_with_html(auth_url):
+def _display_auth_instructions_with_html(auth_url, coda=None):
   """Displays instructions for authenticating using HTML code."""
   try:
     IPython.display.display(IPython.display.HTML(
         """<p>To authorize access needed by Earth Engine, open the following
         URL in a web browser and follow the instructions:</p>
         <p><a href={0}>{0}</a></p>
-        <p>The authorization workflow will generate a code, which you
-        should paste in the box below</p>
-        """.format(auth_url)))
+        <p>{1}</p>
+        """.format(auth_url, coda or PASTE_CODA)))
   except NameError:
     print('The IPython module must be installed to use HTML.')
     raise
@@ -246,7 +254,7 @@ def _nonce_table(*nonce_keys):
 
 
 def _open_new_browser(url):
-  """Open a web browser if possible."""
+  """Opens a web browser if possible."""
   try:
     browser = webbrowser.get()
     if hasattr(browser, 'name') and browser.name in TEXT_BROWSERS:
@@ -256,22 +264,11 @@ def _open_new_browser(url):
   webbrowser.open_new(url)
 
 
-def _get_mode():
-  """Determines if we should use the new private OAuth client mode."""
-  try:
-    content = request.urlopen(MODE_URL).read().decode().strip()
-    if content in ['private', 'legacy']:
-      return content
-  except HTTPError:
-    pass
-  return 'legacy'
-
-
 def _in_notebook():
   return _in_colab_shell() or _in_jupyter_shell()
 
 
-def _load_app_default_credentials(run_gcloud=True, scopes=None):
+def _load_app_default_credentials(run_gcloud=True, scopes=None, quiet=None):
   """Initializes credentials from ADC, optionally running gcloud to get them."""
   adc_path = _cloud_sdk.get_application_default_credentials_path()
   if run_gcloud:
@@ -284,14 +281,15 @@ def _load_app_default_credentials(run_gcloud=True, scopes=None):
     client_id_file = get_credentials_path() + '-client-id.json'
     write_private_json(client_id_file, dict(installed=client_id_json))
     command = GCLOUD_COMMAND.format(
-        scopes=','.join(scopes or SCOPES), client_id_file=client_id_file)
+        scopes=','.join(scopes or SCOPES),
+        client_id_file=client_id_file,
+        flags='--no-browser' if quiet else '')
     print('Fetching credentials using gcloud')
     return_code = os.system(command)
     os.remove(client_id_file)
     if return_code != 0:
-      print('gcloud failed. '
-            'Please check for any errors above and install gcloud if needed.')
-      return
+      raise Exception('gcloud failed. Please check for any errors above '
+                      'and install gcloud if needed.')
   else:
     # Only consult the environment variable in appdefault mode, because gcloud
     # always writes to the default location.
@@ -301,6 +299,42 @@ def _load_app_default_credentials(run_gcloud=True, scopes=None):
     adc = {k: adc[k] for k in ['client_id', 'client_secret', 'refresh_token']}
     write_private_json(get_credentials_path(), adc)
   print('\nSuccessfully saved authorization token.')
+
+
+def _start_server(port):
+  """Starts and returns a web server that handles the OAuth callback."""
+
+  class Handler(http.server.BaseHTTPRequestHandler):
+    """Handles the OAuth callback and reports a success page."""
+
+    code = None
+
+    def do_GET(self):  # pylint: disable=invalid-name
+      Handler.code = parse.parse_qs(parse.urlparse(self.path).query)['code'][0]
+      self.send_response(200)
+      self.send_header('Content-type', 'text/plain; charset=utf-8')
+      self.end_headers()
+      self.wfile.write(
+          b'\n\nGoogle Earth Engine authorization successful!\n\n\n'
+          b'Credentials have been retrieved.  Please close this window.\n\n'
+          b'  \xf0\x9f\x8c\x8d  \xe2\x9a\x99\xef\xb8\x8f  \xf0\x9f\x8c\x8f'
+          b'  \xe2\x9a\x99\xef\xb8\x8f  \xf0\x9f\x8c\x8e ')  # Earth emoji
+
+    def log_message(self, *_):
+      pass  # Suppresses the logging of request info to stderr.
+
+  class Server(object):
+
+    def __init__(self):
+      self.server = http.server.HTTPServer(('localhost', port), Handler)
+      self.url = 'http://localhost:%s' % self.server.server_address[1]
+
+    def fetch_code(self):
+      self.server.handle_request()  # Blocks until a single request arrives.
+      self.server.server_close()
+      return Handler.code
+
+  return Server()
 
 
 def authenticate(
@@ -313,23 +347,24 @@ def authenticate(
 
   Args:
     cli_authorization_code: An optional authorization code.  Supports CLI mode,
-        where the code is passed as an argument to `earthengine authenticate`.
+      where the code is passed as an argument to `earthengine authenticate`.
     quiet: If true, do not require interactive prompts.
     cli_code_verifier: PKCE verifier to prevent auth code stealing.  Must be
-        provided if cli_authorization_code is given.
-    auth_mode: The authentication mode.  One of:
-        "paste" - send user to accounts.google.com to get a pastable token. This
-          legacy mode will be disabled in April 2022 for security reasons.
+      provided if cli_authorization_code is given.
+    auth_mode: The authorization mode.  One of:
         "notebook" - send user to notebook authenticator page. Intended for
           web users who do not run code locally. Credentials expire in 7 days.
         "gcloud" - use gcloud to obtain credentials. This runs a command line to
           set the appdefault file, which must run on your local machine.
         "appdefault" - read an existing $GOOGLE_APPLICATION_CREDENTIALS file
           without running gcloud.
+        "localhost" - sends credentials to the Python environment on the same
+          localhost as the browser. Does not work for remote shells. Default
+          port is 8085; use localhost:N set port or localhost:0 to auto-select.
         None - a default mode is chosen based on your environment.
-   scopes: List of scopes to use for authentication. Defaults to [
-       'https://www.googleapis.com/auth/earthengine',
-       'https://www.googleapis.com/auth/devstorage.full_control' ].
+   scopes: List of scopes to use for authorization. Defaults to [
+     'https://www.googleapis.com/auth/earthengine',
+     'https://www.googleapis.com/auth/devstorage.full_control' ].
 
   Raises:
      Exception: on invalid arguments.
@@ -339,45 +374,81 @@ def authenticate(
     _obtain_and_write_token(cli_authorization_code, cli_code_verifier, scopes)
     return
 
-  if auth_mode:
-    if auth_mode not in ['paste', 'notebook', 'gcloud', 'appdefault']:
-      raise Exception('Unknown auth_mode "%s"' % auth_mode)
-  else:
-    if _get_mode() == 'legacy':
-      auth_mode = 'paste'
-    else:
-      auth_mode = 'notebook' if _in_notebook() else 'gcloud'
+  if not auth_mode:
+    auth_mode = 'notebook' if _in_notebook() else 'gcloud'
 
   if auth_mode in ['appdefault', 'gcloud']:
-    _load_app_default_credentials(auth_mode == 'gcloud', scopes)
+    _load_app_default_credentials(auth_mode == 'gcloud', scopes, quiet)
     return
 
-  pkce = _nonce_table('code_verifier')
-  code_verifier = pkce['code_verifier']
-  auth_url = get_authorization_url(pkce['code_challenge'], scopes)
+  flow = Flow(auth_mode, scopes)
 
-  if auth_mode == 'notebook':
-    nonces = ['request_id', 'token_verifier', 'client_verifier']
-    request_info = _nonce_table(*nonces)
-    scope_param = parse.quote(' '.join(scopes or SCOPES))
-    auth_url = AUTH_URL_TEMPLATE.format(scopes=scope_param, **request_info)
-    code_verifier = ':'.join(request_info[k] for k in nonces)
+  if flow.display_instructions(quiet):
+    _open_new_browser(flow.auth_url)
 
-  if quiet:
-    _display_auth_instructions_for_noninteractive(auth_url, code_verifier)
-    _open_new_browser(auth_url)
-    return
+  flow.save_code()
 
-  if _in_colab_shell():
-    if sys.version_info[0] == 2:  # Python 2
-      _display_auth_instructions_for_noninteractive(auth_url, code_verifier)
-      return
-    else:  # Python 3
-      _display_auth_instructions_with_print(auth_url)
-  elif _in_jupyter_shell():
-    _display_auth_instructions_with_html(auth_url)
-  else:
-    _display_auth_instructions_with_print(auth_url)
-  _open_new_browser(auth_url)
 
-  _obtain_and_write_token(None, code_verifier, scopes)  # Prompts for auth_code.
+class Flow(object):
+  """Holds state for auth flows."""
+
+  def __init__(self, auth_mode='notebook', scopes=None):
+    """Initializes auth URL and PKCE verifier, for use in save_code().
+
+    Args:
+      auth_mode: Authorization mode, one of "notebook" or "localhost[:PORT]".
+      scopes: Optional scope list override.
+
+    Raises:
+       Exception: on invalid arguments.
+    """
+    port = DEFAULT_LOCAL_PORT
+    if auth_mode and auth_mode.startswith('localhost:'):
+      auth_mode, port = auth_mode.split(':', 1)
+
+    self.scopes = scopes or SCOPES
+    self.server = None
+    if auth_mode == 'localhost':
+      pkce = _nonce_table('code_verifier')
+      self.code_verifier = pkce['code_verifier']
+      self.server = _start_server(int(port))
+      self.auth_url = get_authorization_url(pkce['code_challenge'], self.scopes,
+                                            self.server.url)
+    elif auth_mode == 'notebook':
+      nonces = ['request_id', 'token_verifier', 'client_verifier']
+      request_info = _nonce_table(*nonces)
+      self.auth_url = AUTH_URL_TEMPLATE.format(
+          scopes=parse.quote(' '.join(self.scopes)), **request_info)
+      self.code_verifier = ':'.join(request_info[k] for k in nonces)
+    else:
+      raise Exception('Unknown auth_mode "%s"' % auth_mode)
+
+  def save_code(self, code=None):
+    """Fetches auth code if not given, and saves the generated credentials."""
+    redirect_uri = None
+    if self.server and not code:
+      redirect_uri = self.server.url
+      code = self.server.fetch_code()  # Waits for oauth callback
+    _obtain_and_write_token(code, self.code_verifier, self.scopes, redirect_uri)
+
+  def display_instructions(self, quiet=None):
+    """Prints to stdout, and returns True if a browser should be opened."""
+
+    if quiet:
+      _display_auth_instructions_for_noninteractive(self.auth_url,
+                                                    self.code_verifier)
+      return True
+
+    coda = WAITING_CODA if self.server else None
+    if _in_colab_shell():
+      if sys.version_info[0] == 2:  # Python 2
+        _display_auth_instructions_for_noninteractive(self.auth_url,
+                                                      self.code_verifier)
+        return False
+      else:  # Python 3
+        _display_auth_instructions_with_print(self.auth_url, coda)
+    elif _in_jupyter_shell():
+      _display_auth_instructions_with_html(self.auth_url, coda)
+    else:
+      _display_auth_instructions_with_print(self.auth_url, coda)
+    return True

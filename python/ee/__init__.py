@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.316'
+__version__ = '0.1.317'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -85,20 +85,24 @@ def Authenticate(
 
   Args:
     authorization_code: An optional authorization code.
-    quiet: If true, do not require interactive prompts.
+    quiet: If true, do not require interactive prompts and force --no-browser
+      mode for gcloud.
     code_verifier: PKCE verifier to prevent auth code stealing.
     auth_mode: The authentication mode. One of:
-      "paste" - send user to accounts.google.com to get a pastable token;
       "notebook" - send user to notebook authenticator page;
       "gcloud" - use gcloud to obtain credentials (will set appdefault);
       "appdefault" - read from existing $GOOGLE_APPLICATION_CREDENTIALS file;
+      "localhost" - runs auth flow in local browser only;
       None - a default mode is chosen based on your environment.
      scopes: List of scopes to use for authentication. Defaults to [
        'https://www.googleapis.com/auth/earthengine',
        'https://www.googleapis.com/auth/devstorage.full_control' ].
+
+  Returns:
+     (auth_url, code_verifier) when called with quiet='init_only'
   """
-  oauth.authenticate(authorization_code, quiet, code_verifier, auth_mode,
-                     scopes)
+  return oauth.authenticate(authorization_code, quiet, code_verifier, auth_mode,
+                            scopes)
 
 
 def Initialize(

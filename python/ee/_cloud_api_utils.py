@@ -11,6 +11,7 @@ import copy
 import datetime
 
 import re
+import sys
 import warnings
 
 from . import ee_exception
@@ -20,14 +21,16 @@ from googleapiclient import discovery
 from googleapiclient import http
 from googleapiclient import model
 
-# We use the urllib3-aware shim if it's available.
-# It is not available by default if the package is installed via the conda-forge
-# channel.
+# We use the urllib3-aware shim if it's available and supported.
+# It is not compatible with Python 3.10 or newer.
 # pylint: disable=g-bad-import-order,g-import-not-at-top
-try:
-  import httplib2shim as httplib2
-except ImportError:
+if sys.version_info >= (3, 10):
   import httplib2
+else:
+  try:
+    import httplib2shim as httplib2
+  except ImportError:
+    import httplib2
 import six
 # pylint: enable=g-bad-import-order,g-import-not-at-top
 

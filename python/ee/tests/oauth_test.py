@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.oauth module."""
 
-
 import json
 from unittest import mock
 from six.moves.urllib import parse
@@ -41,18 +40,17 @@ class OAuthTest(unittest.TestCase):
   def testWriteToken(self):
 
     def mock_credentials_path():
-      return self.test_tmpdir+'/tempfile'
+      return self.test_tmpdir + '/tempfile'
 
     oauth_pkg = 'ee.oauth'
-    with mock.patch(oauth_pkg+'.get_credentials_path',
-                    new=mock_credentials_path):
+    with mock.patch(
+        oauth_pkg + '.get_credentials_path', new=mock_credentials_path):
       client_info = dict(refresh_token='123')
       ee.oauth.write_private_json(ee.oauth.get_credentials_path(), client_info)
 
     with open(mock_credentials_path()) as f:
       token = json.load(f)
       self.assertEqual({'refresh_token': '123'}, token)
-
 
 if __name__ == '__main__':
   unittest.main()
