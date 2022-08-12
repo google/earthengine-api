@@ -1348,8 +1348,6 @@ goog.loadedModules_ = {};
 goog.DEPENDENCIES_ENABLED = !1;
 goog.TRANSPILE = "detect";
 goog.ASSUME_ES_MODULES_TRANSPILED = !1;
-goog.TRANSPILE_TO_LANGUAGE = "";
-goog.TRANSPILER = "transpile.js";
 goog.TRUSTED_TYPES_POLICY_NAME = "goog";
 goog.hasBadLetScoping = null;
 goog.loadModule = function(moduleDef) {
@@ -10102,14 +10100,15 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequest = function(parameter
   this.Serializable$set("maxVertices", null == parameters.maxVertices ? null : parameters.maxVertices);
   this.Serializable$set("initialPolicy", null == parameters.initialPolicy ? null : parameters.initialPolicy);
   this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
+  this.Serializable$set("policy", null == parameters.policy ? null : parameters.policy);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ExportTableRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ExportTableRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"assetExportOptions description expression featureViewExportOptions fileExportOptions initialPolicy maxErrorMeters maxVertices maxWorkerCount maxWorkers requestId selectors workloadTag".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewExportOptions:module$exports$eeapiclient$ee_api_client.FeatureViewAssetExportOptions, 
-  fileExportOptions:module$exports$eeapiclient$ee_api_client.TableFileExportOptions, initialPolicy:module$exports$eeapiclient$ee_api_client.Policy}};
+  return {keys:"assetExportOptions description expression featureViewExportOptions fileExportOptions initialPolicy maxErrorMeters maxVertices maxWorkerCount maxWorkers policy requestId selectors workloadTag".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewExportOptions:module$exports$eeapiclient$ee_api_client.FeatureViewAssetExportOptions, 
+  fileExportOptions:module$exports$eeapiclient$ee_api_client.TableFileExportOptions, initialPolicy:module$exports$eeapiclient$ee_api_client.Policy, policy:module$exports$eeapiclient$ee_api_client.Policy}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("assetExportOptions") ? this.Serializable$get("assetExportOptions") : null;
@@ -10151,6 +10150,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("maxWorkers") ? this.Serializable$get("maxWorkers") : null;
 }, set:function(value) {
   this.Serializable$set("maxWorkers", value);
+}}, policy:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("policy") ? this.Serializable$get("policy") : null;
+}, set:function(value) {
+  this.Serializable$set("policy", value);
 }}, requestId:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
 }, set:function(value) {
@@ -16856,7 +16859,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.319";
+ee.apiclient.API_CLIENT_VERSION = "0.1.320";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17137,8 +17140,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.319";
-  "0.1.319" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.320";
+  "0.1.320" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

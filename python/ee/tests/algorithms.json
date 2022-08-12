@@ -10746,7 +10746,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.combine",
-    "description": "Makes a new collection that is a copy of the images in primary, adding all the bands from the image in secondary with a matching ID. If there\u0027s no matching image, the primary image is just copied. This is equivalent to a join on ID with merging of the bands of the result.\nNote that this algorithm assumes that for a matching pair of inputs, both have the same footprint and metadata.",
+    "description": "Makes a new collection that is a copy of the images in primary, adding all the bands from the image in secondary with a matching ID. If there are no matching IDs, the resulting collection will be empty. This is equivalent to an inner join on ID with merging of the bands of the result.\nNote that this algorithm assumes that for a matching pair of inputs, both have the same footprint and metadata.",
     "returnType": "ImageCollection",
     "arguments": [{
       "argumentName": "primary",
