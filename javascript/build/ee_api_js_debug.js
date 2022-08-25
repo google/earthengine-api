@@ -10098,7 +10098,6 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequest = function(parameter
   this.Serializable$set("maxWorkers", null == parameters.maxWorkers ? null : parameters.maxWorkers);
   this.Serializable$set("maxWorkerCount", null == parameters.maxWorkerCount ? null : parameters.maxWorkerCount);
   this.Serializable$set("maxVertices", null == parameters.maxVertices ? null : parameters.maxVertices);
-  this.Serializable$set("initialPolicy", null == parameters.initialPolicy ? null : parameters.initialPolicy);
   this.Serializable$set("workloadTag", null == parameters.workloadTag ? null : parameters.workloadTag);
   this.Serializable$set("policy", null == parameters.policy ? null : parameters.policy);
 };
@@ -10107,8 +10106,8 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getConstru
   return module$exports$eeapiclient$ee_api_client.ExportTableRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"assetExportOptions description expression featureViewExportOptions fileExportOptions initialPolicy maxErrorMeters maxVertices maxWorkerCount maxWorkers policy requestId selectors workloadTag".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewExportOptions:module$exports$eeapiclient$ee_api_client.FeatureViewAssetExportOptions, 
-  fileExportOptions:module$exports$eeapiclient$ee_api_client.TableFileExportOptions, initialPolicy:module$exports$eeapiclient$ee_api_client.Policy, policy:module$exports$eeapiclient$ee_api_client.Policy}};
+  return {keys:"assetExportOptions description expression featureViewExportOptions fileExportOptions maxErrorMeters maxVertices maxWorkerCount maxWorkers policy requestId selectors workloadTag".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewExportOptions:module$exports$eeapiclient$ee_api_client.FeatureViewAssetExportOptions, 
+  fileExportOptions:module$exports$eeapiclient$ee_api_client.TableFileExportOptions, policy:module$exports$eeapiclient$ee_api_client.Policy}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("assetExportOptions") ? this.Serializable$get("assetExportOptions") : null;
@@ -10130,10 +10129,6 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("fileExportOptions") ? this.Serializable$get("fileExportOptions") : null;
 }, set:function(value) {
   this.Serializable$set("fileExportOptions", value);
-}}, initialPolicy:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("initialPolicy") ? this.Serializable$get("initialPolicy") : null;
-}, set:function(value) {
-  this.Serializable$set("initialPolicy", value);
 }}, maxErrorMeters:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("maxErrorMeters") ? this.Serializable$get("maxErrorMeters") : null;
 }, set:function(value) {
@@ -16859,7 +16854,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.321";
+ee.apiclient.API_CLIENT_VERSION = "0.1.322";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17140,8 +17135,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.321";
-  "0.1.321" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.322";
+  "0.1.322" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -23326,6 +23321,9 @@ ee.layers.AbstractOverlay.prototype.setOpacity = function(opacity) {
     goog.style.setOpacity(tile.div, this.opacity);
   }, this);
 };
+ee.layers.AbstractOverlay.prototype.getTilesById = function() {
+  return this.tilesById;
+};
 ee.layers.AbstractOverlay.prototype.getStats = function() {
   return this.stats;
 };
@@ -23433,6 +23431,9 @@ ee.layers.AbstractTile = function(coord, zoom, ownerDocument, uniqueId) {
   this.isRetrying_ = !1;
 };
 $jscomp.inherits(ee.layers.AbstractTile, goog.events.EventTarget);
+ee.layers.AbstractTile.prototype.getDiv = function() {
+  return this.div;
+};
 ee.layers.AbstractTile.prototype.startLoad = function() {
   var $jscomp$this = this;
   if (!this.isRetrying_ && this.getStatus() == ee.layers.AbstractTile.Status.LOADING) {

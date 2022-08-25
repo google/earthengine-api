@@ -8854,7 +8854,7 @@
     "arguments": [{
       "argumentName": "cost",
       "type": "Image\u003cunknown bands\u003e",
-      "description": "A single-band image representing the cost to traverse each pixel. Masked pixels can\u0027t be traversed."
+      "description": "An image representing the cost to traverse each pixel. Masked pixels can\u0027t be traversed."
     }, {
       "argumentName": "source",
       "type": "Image\u003cunknown bands\u003e",
