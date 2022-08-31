@@ -7,7 +7,6 @@ the actions to be taken when the command is executed.
 """
 
 # pylint: disable=g-bad-import-order
-from six.moves import range
 import argparse
 import calendar
 from collections import Counter
@@ -16,7 +15,7 @@ import json
 import logging
 import os
 import re
-import six
+import urllib.parse
 import shutil
 import sys
 import tempfile
@@ -525,7 +524,7 @@ class AclChCommand(object):
 
   def _apply_permissions(self, acl, permissions):
     """Applies the given permission edits to the given acl."""
-    for user, role in six.iteritems(permissions):
+    for user, role in permissions.items():
       if self._is_all_users(user):
         acl[ALL_USERS_CAN_READ] = (role == 'R')
       elif role == 'R':
@@ -670,7 +669,7 @@ class AssetSetCommand(object):
     asset = {}
     if properties:
       asset['properties'] = {
-          k: v for k, v in six.iteritems(properties) if v is not None
+          k: v for k, v in properties.items() if v is not None
       }
     # args.time_start and .time_end could have any of three falsy values, with
     # different meanings:
@@ -1657,8 +1656,7 @@ class PrepareModelCommand(object):
               source_flag_name))
 
     for k, v in spec.items():
-      if ((not isinstance(k, six.string_types)) or
-          (not isinstance(v, six.string_types))):
+      if ((not isinstance(k, str)) or (not isinstance(v, str))):
         raise ValueError('All key/value pairs of the dictionary specified in '
                          '{} must be strings.'.format(source_flag_name))
 

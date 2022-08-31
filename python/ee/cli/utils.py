@@ -13,13 +13,12 @@ import re
 import tempfile
 import threading
 import time
+import urllib.parse
 
 from google.cloud import storage
 from google.oauth2.credentials import Credentials
 import httplib2
 import six
-from six.moves import input
-from six.moves import urllib
 
 import ee
 

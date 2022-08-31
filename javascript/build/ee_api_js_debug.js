@@ -2803,14 +2803,7 @@ module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version.prototyp
 module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version.prototype.isAtLeast = function(version) {
   return 0 <= (0,goog.string.internal.compareVersions)(this.versionString_, version);
 };
-var module$exports$goog$labs$userAgent$highEntropy$highEntropyData = {}, module$contents$goog$labs$userAgent$highEntropy$highEntropyData_fullVersionListAvailable = !1;
-function module$contents$goog$labs$userAgent$highEntropy$highEntropyData_hasFullVersionList() {
-  return module$contents$goog$labs$userAgent$highEntropy$highEntropyData_fullVersionListAvailable;
-}
-module$exports$goog$labs$userAgent$highEntropy$highEntropyData.hasFullVersionList = module$contents$goog$labs$userAgent$highEntropy$highEntropyData_hasFullVersionList;
-module$exports$goog$labs$userAgent$highEntropy$highEntropyData.setHasFullVersionListForTesting = function module$contents$goog$labs$userAgent$highEntropy$highEntropyData_setHasFullVersionListForTesting(value) {
-  module$contents$goog$labs$userAgent$highEntropy$highEntropyData_fullVersionListAvailable = value;
-};
+var module$exports$goog$labs$userAgent$highEntropy$highEntropyData = {};
 module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList = new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue("fullVersionList");
 module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion = new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue("platformVersion");
 module$exports$goog$labs$userAgent$highEntropy$highEntropyData.resetAllForTesting = function module$contents$goog$labs$userAgent$highEntropy$highEntropyData_resetAllForTesting() {
@@ -2823,6 +2816,9 @@ goog.labs.userAgent.browser.Brand = module$contents$goog$labs$userAgent$browser_
 function module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() {
   var userAgentData = module$contents$goog$labs$userAgent$util_getUserAgentData();
   return !!userAgentData && 0 < userAgentData.brands.length;
+}
+function module$contents$goog$labs$userAgent$browser_hasFullVersionList() {
+  return module$contents$goog$labs$userAgent$browser_isAtLeast(module$contents$goog$labs$userAgent$browser_Brand.CHROMIUM, 98);
 }
 function module$contents$goog$labs$userAgent$browser_matchOpera() {
   return module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() ? !1 : module$contents$goog$labs$userAgent$util_matchUserAgent("Opera");
@@ -2855,12 +2851,19 @@ function module$contents$goog$labs$userAgent$browser_matchChrome() {
 function module$contents$goog$labs$userAgent$browser_matchAndroidBrowser() {
   return module$contents$goog$labs$userAgent$util_matchUserAgent("Android") && !(module$contents$goog$labs$userAgent$browser_matchChrome() || module$contents$goog$labs$userAgent$browser_matchFirefox() || module$contents$goog$labs$userAgent$browser_matchOpera() || module$contents$goog$labs$userAgent$browser_isSilk());
 }
+var module$contents$goog$labs$userAgent$browser_isOpera = module$contents$goog$labs$userAgent$browser_matchOpera;
 goog.labs.userAgent.browser.isOpera = module$contents$goog$labs$userAgent$browser_matchOpera;
+var module$contents$goog$labs$userAgent$browser_isIE = module$contents$goog$labs$userAgent$browser_matchIE;
 goog.labs.userAgent.browser.isIE = module$contents$goog$labs$userAgent$browser_matchIE;
+var module$contents$goog$labs$userAgent$browser_isEdge = module$contents$goog$labs$userAgent$browser_matchEdgeHtml;
 goog.labs.userAgent.browser.isEdge = module$contents$goog$labs$userAgent$browser_matchEdgeHtml;
+var module$contents$goog$labs$userAgent$browser_isEdgeChromium = module$contents$goog$labs$userAgent$browser_matchEdgeChromium;
 goog.labs.userAgent.browser.isEdgeChromium = module$contents$goog$labs$userAgent$browser_matchEdgeChromium;
+var module$contents$goog$labs$userAgent$browser_isOperaChromium = module$contents$goog$labs$userAgent$browser_matchOperaChromium;
 goog.labs.userAgent.browser.isOperaChromium = module$contents$goog$labs$userAgent$browser_matchOperaChromium;
+var module$contents$goog$labs$userAgent$browser_isFirefox = module$contents$goog$labs$userAgent$browser_matchFirefox;
 goog.labs.userAgent.browser.isFirefox = module$contents$goog$labs$userAgent$browser_matchFirefox;
+var module$contents$goog$labs$userAgent$browser_isSafari = module$contents$goog$labs$userAgent$browser_matchSafari;
 goog.labs.userAgent.browser.isSafari = module$contents$goog$labs$userAgent$browser_matchSafari;
 var module$contents$goog$labs$userAgent$browser_isCoast = module$contents$goog$labs$userAgent$browser_matchCoast;
 goog.labs.userAgent.browser.isCoast = module$contents$goog$labs$userAgent$browser_matchCoast;
@@ -2869,6 +2872,7 @@ goog.labs.userAgent.browser.isIosWebview = function module$contents$goog$labs$us
 };
 var module$contents$goog$labs$userAgent$browser_isChrome = module$contents$goog$labs$userAgent$browser_matchChrome;
 goog.labs.userAgent.browser.isChrome = module$contents$goog$labs$userAgent$browser_matchChrome;
+var module$contents$goog$labs$userAgent$browser_isAndroidBrowser = module$contents$goog$labs$userAgent$browser_matchAndroidBrowser;
 goog.labs.userAgent.browser.isAndroidBrowser = module$contents$goog$labs$userAgent$browser_matchAndroidBrowser;
 function module$contents$goog$labs$userAgent$browser_isSilk() {
   return module$contents$goog$labs$userAgent$util_matchUserAgent("Silk");
@@ -2997,10 +3001,11 @@ function module$contents$goog$labs$userAgent$browser_versionOf_(browser) {
   }
   return 0 === versionParts.length ? NaN : Number(versionParts[0]);
 }
-goog.labs.userAgent.browser.isAtLeast = function module$contents$goog$labs$userAgent$browser_isAtLeast(brand, majorVersion) {
+function module$contents$goog$labs$userAgent$browser_isAtLeast(brand, majorVersion) {
   goog.asserts.assert(Math.floor(majorVersion) === majorVersion, "Major version must be an integer");
   return module$contents$goog$labs$userAgent$browser_versionOf_(brand) >= majorVersion;
-};
+}
+goog.labs.userAgent.browser.isAtLeast = module$contents$goog$labs$userAgent$browser_isAtLeast;
 goog.labs.userAgent.browser.isAtMost = function module$contents$goog$labs$userAgent$browser_isAtMost(brand, majorVersion) {
   goog.asserts.assert(Math.floor(majorVersion) === majorVersion, "Major version must be an integer");
   return module$contents$goog$labs$userAgent$browser_versionOf_(brand) <= majorVersion;
@@ -3046,11 +3051,11 @@ module$contents$goog$labs$userAgent$browser_UserAgentStringFallbackBrandVersion.
 };
 goog.labs.userAgent.browser.loadFullVersions = function module$contents$goog$labs$userAgent$browser_loadFullVersions() {
   return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context) {
-    return module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() && module$contents$goog$labs$userAgent$highEntropy$highEntropyData_hasFullVersionList() ? $jscomp$generator$context.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 0) : $jscomp$generator$context.jumpTo(0);
+    return module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() && module$contents$goog$labs$userAgent$browser_hasFullVersionList() ? $jscomp$generator$context.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 0) : $jscomp$generator$context.jumpTo(0);
   });
 };
 function module$contents$goog$labs$userAgent$browser_fullVersionOf(browser) {
-  if (module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() && module$contents$goog$labs$userAgent$highEntropy$highEntropyData_hasFullVersionList()) {
+  if (module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() && module$contents$goog$labs$userAgent$browser_hasFullVersionList()) {
     return module$contents$goog$labs$userAgent$util_getUserAgentData().brands.find(function($jscomp$destructuring$var8) {
       return $jscomp$destructuring$var8.brand === browser;
     }) ? new module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion(browser) : void 0;
@@ -13221,8 +13226,8 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }, set:function(value) {
   this.Serializable$set("start", value);
 }}});
-var module$contents$eeapiclient$ee_api_client_PARAM_MAP_0 = {$Xgafv:"$.xgafv", access_token:"access_token", alt:"alt", assetId:"assetId", callback:"callback", endTime:"endTime", fields:"fields", filter:"filter", key:"key", oauth_token:"oauth_token", overwrite:"overwrite", pageSize:"pageSize", pageToken:"pageToken", prettyPrint:"prettyPrint", quotaUser:"quotaUser", region:"region", startTime:"startTime", updateMask:"updateMask", uploadType:"uploadType", upload_protocol:"upload_protocol", 
-view:"view", workloadTag:"workloadTag"};
+var module$contents$eeapiclient$ee_api_client_PARAM_MAP_0 = {$Xgafv:"$.xgafv", access_token:"access_token", alt:"alt", assetId:"assetId", billingAccount:"billingAccount", callback:"callback", endTime:"endTime", fields:"fields", filter:"filter", key:"key", oauth_token:"oauth_token", overwrite:"overwrite", pageSize:"pageSize", pageToken:"pageToken", prettyPrint:"prettyPrint", quotaUser:"quotaUser", region:"region", startTime:"startTime", updateMask:"updateMask", uploadType:"uploadType", 
+upload_protocol:"upload_protocol", view:"view", workloadTag:"workloadTag"};
 module$exports$eeapiclient$ee_api_client.IProjectsAlgorithmsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsAlgorithmsApiClient$XgafvEnum() {
 };
 module$exports$eeapiclient$ee_api_client.ProjectsAlgorithmsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
@@ -16854,7 +16859,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.322";
+ee.apiclient.API_CLIENT_VERSION = "0.1.323";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17135,8 +17140,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.322";
-  "0.1.322" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.323";
+  "0.1.323" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

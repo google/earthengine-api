@@ -573,7 +573,7 @@
     }, {
       "argumentName": "tmaskBands",
       "type": "List\u003cObject\u003e",
-      "description": "The name or index of the bands to use for iterative TMask cloud detection. These are typically the green band and the SWIR2 band.  If unspecified, TMask is not used.  If specified, \u0027tmaskBands\u0027 must be included in \u0027breakpointBands\u0027.",
+      "description": "The name or index of the bands to use for iterative TMask cloud detection. These are typically the green band and the SWIR1 band.  If unspecified, TMask is not used.  If specified, \u0027tmaskBands\u0027 must be included in \u0027breakpointBands\u0027.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -8959,7 +8959,7 @@
     }, {
       "argumentName": "kernel",
       "type": "Kernel",
-      "description": "The distance kernel.",
+      "description": "The distance kernel. One of chebyshev, euclidean, or manhattan.",
       "optional": true,
       "defaultValue": null
     }, {
