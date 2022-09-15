@@ -7361,7 +7361,7 @@ goog.dom.safe.getNonce_ = function(selector, win) {
 };
 goog.string.DETECT_DOUBLE_ESCAPING = !1;
 goog.string.FORCE_NON_DOM_HTML_UNESCAPING = !1;
-goog.string.Unicode = {NBSP:"\u00a0"};
+goog.string.Unicode = {NBSP:"\u00a0", ZERO_WIDTH_SPACE:"\u200b"};
 goog.string.startsWith = goog.string.internal.startsWith;
 goog.string.endsWith = goog.string.internal.endsWith;
 goog.string.caseInsensitiveStartsWith = goog.string.internal.caseInsensitiveStartsWith;
@@ -14007,7 +14007,7 @@ module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl.pr
 module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClient = function() {
 };
 ee.api = module$exports$eeapiclient$ee_api_client;
-var module$exports$ee$apiVersion = {V1ALPHA:"v1alpha"};
+var module$exports$ee$apiVersion = {V1ALPHA:"v1alpha", V1:"v1"};
 module$exports$ee$apiVersion.VERSION = module$exports$ee$apiVersion.V1ALPHA;
 var module$exports$eeapiclient$promise_request_service = {}, module$contents$eeapiclient$promise_request_service_module = module$contents$eeapiclient$promise_request_service_module || {id:"javascript/typescript/contrib/apiclient/request_service/promise_request_service.closure.js"};
 module$exports$eeapiclient$promise_request_service.PromiseRequestService = function() {
@@ -16859,7 +16859,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.324";
+ee.apiclient.API_CLIENT_VERSION = "0.1.325";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17140,8 +17140,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.324";
-  "0.1.324" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.325";
+  "0.1.325" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -22098,7 +22098,8 @@ ee.initializeUnboundMethods_ = function() {
 ee.initializeGeneratedClasses_ = function() {
   var signatures = ee.ApiFunction.allSignatures(), names = {}, returnTypes = {}, sig;
   for (sig in signatures) {
-    var type = -1 != sig.indexOf(".") ? sig.slice(0, sig.indexOf(".")) : sig;
+    var type = void 0;
+    type = -1 != sig.indexOf(".") ? sig.slice(0, sig.indexOf(".")) : sig;
     names[type] = !0;
     var rtype = signatures[sig].returns.replace(/<.*>/, "");
     returnTypes[rtype] = !0;

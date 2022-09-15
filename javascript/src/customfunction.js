@@ -35,11 +35,11 @@ ee.CustomFunction = function(signature, body) {
     return ee.ComputedObject.construct(ee.CustomFunction, arguments);
   }
 
-  var vars = [];
-  var args = signature['args'];
-  for (var i = 0; i < args.length; i++) {
-    var arg = args[i];
-    var type = ee.Types.nameToClass(arg['type']);
+  const vars = [];
+  const args = signature['args'];
+  for (let i = 0; i < args.length; i++) {
+    const arg = args[i];
+    const type = ee.Types.nameToClass(arg['type']);
     vars.push(ee.CustomFunction.variable(type, arg['name']));
   }
 
@@ -134,7 +134,7 @@ ee.CustomFunction.variable = function(type, name) {
    * Avoid Object.create() for backwards compatibility.
    * @constructor
    */
-  var klass = function(name) {
+  const klass = function(name) {
     this.func = null;
     this.args = null;
     this.varName = name;
@@ -156,20 +156,20 @@ ee.CustomFunction.variable = function(type, name) {
  * @return {!ee.CustomFunction} The constructed CustomFunction.
  */
 ee.CustomFunction.create = function(func, returnType, arg_types) {
-  var stringifyType = function(type) {
+  const stringifyType = function(type) {
     if (typeof type === 'string') {
       return type;
     } else {
       return ee.Types.classToName(type);
     }
   };
-  var args = goog.array.map(arg_types, function(argType) {
+  const args = goog.array.map(arg_types, function(argType) {
     return {
       'name': null,
       'type': stringifyType(argType)
     };
   });
-  var signature = {
+  const signature = {
     'name': '',
     'returns': stringifyType(returnType),
     'args': args

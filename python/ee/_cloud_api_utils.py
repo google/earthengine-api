@@ -10,6 +10,7 @@ import calendar
 import copy
 import datetime
 
+import os
 import re
 import sys
 import warnings
@@ -35,7 +36,7 @@ import six
 # pylint: enable=g-bad-import-order,g-import-not-at-top
 
 # The Cloud API version.
-VERSION = 'v1alpha'
+VERSION = os.environ.get('EE_CLOUD_API_VERSION', 'v1alpha')
 
 PROJECT_ID_PATTERN = (r'^(?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
                       r'[a-z][-a-z0-9]{4,28}[a-z0-9]$')

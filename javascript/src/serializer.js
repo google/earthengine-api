@@ -103,7 +103,7 @@ ee.Serializer.hash_ = new goog.crypt.Md5();
  * @export
  */
 ee.Serializer.encode = function(obj, opt_isCompound) {
-  var compound = (opt_isCompound !== undefined) ? opt_isCompound : true;
+  const compound = (opt_isCompound !== undefined) ? opt_isCompound : true;
   return new ee.Serializer(compound).encode_(obj);
 };
 
@@ -154,7 +154,7 @@ ee.Serializer.stringify = function(encoded) {
  * @private
  */
 ee.Serializer.prototype.encode_ = function(object) {
-  var value = this.encodeValue_(object);
+  let value = this.encodeValue_(object);
   if (this.isCompound_) {
     if (goog.isObject(value) &&
         value['type'] == 'ValueRef' &&
@@ -194,9 +194,9 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     throw Error('Can\'t encode an undefined value.');
   }
 
-  var result;
+  let result;
 
-  var hash = goog.isObject(object) ? object[this.HASH_KEY] : null;
+  let hash = goog.isObject(object) ? object[this.HASH_KEY] : null;
   if (this.isCompound_ && hash != null && this.encoded_[hash]) {
     // Any object that's already been encoded should have a hash on it.
     // If we find one and it's in the map of encoded values,
@@ -234,7 +234,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
     }, this);
   } else if (goog.isObject(object) && typeof object !== 'function') {
     // Regular objects are encoded recursively and wrapped in a type specifier.
-    var encodedObject = goog.object.map(object, function(element) {
+    const encodedObject = goog.object.map(object, function(element) {
       if (typeof element !== 'function') {
         return this.encodeValue_(element);
       }
@@ -251,7 +251,7 @@ ee.Serializer.prototype.encodeValue_ = function(object) {
 
   if (this.isCompound_) {
     hash = ee.Serializer.computeHash(result);
-    var name;
+    let name;
     if (this.encoded_[hash]) {
       name = this.encoded_[hash];
     } else {
