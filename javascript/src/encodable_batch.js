@@ -358,7 +358,7 @@ ee.rpc_convert_batch.buildTfRecordFormatOptions_ = function(params) {
 ee.rpc_convert_batch.buildImageFileExportOptions_ = function(
     params, destination) {
   const result = new ee.api.ImageFileExportOptions({
-    gcsDestination: null,
+    cloudStorageDestination: null,
     driveDestination: null,
     geoTiffOptions: null,
     tfRecordOptions: null,
@@ -375,7 +375,8 @@ ee.rpc_convert_batch.buildImageFileExportOptions_ = function(
   }
 
   if (destination === ee.rpc_convert_batch.ExportDestination.GCS) {
-    result.gcsDestination = ee.rpc_convert_batch.buildGcsDestination_(params);
+    result.cloudStorageDestination =
+        ee.rpc_convert_batch.buildCloudStorageDestination_(params);
     // Drive is default.
   } else {
     result.driveDestination =
@@ -430,13 +431,14 @@ ee.rpc_convert_batch.buildImageAssetExportOptions_ = function(params) {
 ee.rpc_convert_batch.buildTableFileExportOptions_ = function(
     params, destination) {
   const result = new ee.api.TableFileExportOptions({
-    gcsDestination: null,
+    cloudStorageDestination: null,
     driveDestination: null,
     fileFormat: ee.rpc_convert.tableFileFormat(params['fileFormat']),
   });
 
   if (destination === ee.rpc_convert_batch.ExportDestination.GCS) {
-    result.gcsDestination = ee.rpc_convert_batch.buildGcsDestination_(params);
+    result.cloudStorageDestination =
+        ee.rpc_convert_batch.buildCloudStorageDestination_(params);
     // Drive is default.
   } else {
     result.driveDestination =
@@ -490,14 +492,15 @@ ee.rpc_convert_batch.buildFeatureViewExportOptions_ = function(params) {
 ee.rpc_convert_batch.buildVideoFileExportOptions_ = function(
     params, destination) {
   const result = new ee.api.VideoFileExportOptions({
-    gcsDestination: null,
+    cloudStorageDestination: null,
     driveDestination: null,
     // Currently MP4 is the only supported video format.
     fileFormat: 'MP4',
   });
 
   if (destination === ee.rpc_convert_batch.ExportDestination.GCS) {
-    result.gcsDestination = ee.rpc_convert_batch.buildGcsDestination_(params);
+    result.cloudStorageDestination =
+        ee.rpc_convert_batch.buildCloudStorageDestination_(params);
   } else {
     result.driveDestination =
         ee.rpc_convert_batch.buildDriveDestination_(params);
@@ -544,13 +547,13 @@ ee.rpc_convert_batch.buildVideoMapOptions_ = function(params) {
  */
 ee.rpc_convert_batch.buildTileOptions_ = function(params) {
   return new ee.api.TileOptions({
-    maxZoom: numberOrNull_(params['maxZoom']),
+    endZoom: numberOrNull_(params['endZoom'] ?? params['maxZoom']),
+    startZoom: numberOrNull_(params['startZoom'] ?? params['minZoom']),
     scale: numberOrNull_(params['scale']),
-    minZoom: numberOrNull_(params['minZoom']),
-    skipEmptyTiles: Boolean(params['skipEmptyTiles']),
+    skipEmpty: Boolean(params['skipEmpty'] ?? params['skipEmptyTiles']),
     mapsApiKey: stringOrNull_(params['mapsApiKey']),
-    tileDimensions:
-        ee.rpc_convert_batch.buildGridDimensions_(params['tileDimensions']),
+    dimensions: ee.rpc_convert_batch.buildGridDimensions_(
+        params['dimensions'] ?? params['tileDimensions']),
     stride: numberOrNull_(params['stride']),
     zoomSubset: ee.rpc_convert_batch.buildZoomSubset_(
         numberOrNull_(params['minTimeMachineZoomSubset']),
@@ -563,21 +566,16 @@ ee.rpc_convert_batch.buildTileOptions_ = function(params) {
  * Returns a ZoomSubset created from an object, or possibly null if no subset
  * parameters are provided.
  *
- * @param {number|null} min
- * @param {number|null} max
+ * @param {number|null} start
+ * @param {number|null} end
  * @return {?ee.api.ZoomSubset}
  * @private
  */
-ee.rpc_convert_batch.buildZoomSubset_ = function(min, max) {
-  if (min == null && max == null) {
+ee.rpc_convert_batch.buildZoomSubset_ = function(start, end) {
+  if (start == null && end == null) {
     return null;
   }
-  const result = new ee.api.ZoomSubset({min: 0, max: null});
-  if (min != null) {
-    result.min = min;
-  }
-  result.max = max;
-  return result;
+  return new ee.api.ZoomSubset({start: start ?? 0, end});
 };
 
 
@@ -630,15 +628,15 @@ ee.rpc_convert_batch.buildGridDimensions_ = function(dimensions) {
 
 /**
  * @param {!Object} params
- * @return {!ee.api.GcsDestination}
+ * @return {!ee.api.CloudStorageDestination}
  * @private
  */
-ee.rpc_convert_batch.buildGcsDestination_ = function(params) {
+ee.rpc_convert_batch.buildCloudStorageDestination_ = function(params) {
   let permissions = null;
   if (params['writePublicTiles'] != null) {
     permissions = params['writePublicTiles'] ? 'PUBLIC' : 'DEFAULT_OBJECT_ACL';
   }
-  return new ee.api.GcsDestination({
+  return new ee.api.CloudStorageDestination({
     bucket: stringOrNull_(params['outputBucket']),
     filenamePrefix: stringOrNull_(params['outputPrefix']),
     bucketCorsUris: params['bucketCorsUris'] || null,
@@ -765,11 +763,11 @@ ee.rpc_convert_batch.buildRankByOneThingRule_ = function(ruleString) {
     rankByGeometryTypeRule: null,
   });
 
-  // Parse rule string. Input is expected in the string format: `attr_name ASC,
-  // .minZoomLevel DESC, .geometryType ASC` or as a list of strings: ["attr_name
-  // ASC", ".pixelSize DESC", ".geometryType ASC"]. .minZoomLevel and
-  // .geometryType correspond to minVisibleLOD and geometryType ranking rules in
-  // DMS. Rules that do not start with the keywords ".minZoomLevel" or
+  // Parse rule string. Input is expected in the string format:
+  // `attr_name ASC, .minZoomLevel DESC, .geometryType ASC`
+  // or as a list of strings:
+  // ["attr_name ASC", ".pixelSize DESC", ".geometryType ASC"].
+  // Rules that do not start with the keywords ".minZoomLevel" or
   // ".geometryType" are assumed to be attribute rules.
   ruleString = ruleString.trim();
   const matches = ruleString.match(/^([\S]+.*)\s+(ASC|DESC)$/);

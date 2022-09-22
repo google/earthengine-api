@@ -260,7 +260,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           'maxPixels': {
               'value': '1000'
           },
-          'maxWorkerCount': {
+          'maxWorkers': {
               'value': 100
           }
       }, task_ordered.config)
@@ -297,7 +297,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           'maxPixels': {
               'value': '1000'
           },
-          'maxWorkerCount': {
+          'maxWorkers': {
               'value': 100
           }
       }, task_ordered.config)
@@ -324,7 +324,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           'description': 'TestDescription',
           'fileExportOptions': {
               'fileFormat': 'GEO_TIFF',
-              'gcsDestination': {
+              'cloudStorageDestination': {
                   'bucket': 'test-bucket',
                   'filenamePrefix': 'TestDescription'
               },
@@ -497,17 +497,17 @@ class BatchTestCase(apitestcase.ApiTestCase):
           'expression': expected_expression,
           'description': 'myExportMapTask',
           'tileOptions': {
-              'maxZoom': config['maxZoom'],
+              'endZoom': config['maxZoom'],
           },
           'tileExportOptions': {
               'fileFormat': 'AUTO_JPEG_PNG',
-              'gcsDestination': {
+              'cloudStorageDestination': {
                   'bucket': config['bucket'],
                   'filenamePrefix': config['path'],
                   'permissions': 'PUBLIC',
               },
           },
-          'maxWorkerCount': {'value': 100}
+          'maxWorkers': {'value': 100}
       }, task_keyed.config)
 
       with self.assertRaisesRegex(ee.EEException,
@@ -533,13 +533,67 @@ class BatchTestCase(apitestcase.ApiTestCase):
           },
           'tileExportOptions': {
               'fileFormat': 'JPEG',
-              'gcsDestination': {
+              'cloudStorageDestination': {
                   'bucket': config['bucket'],
                   'filenamePrefix': 'TestDescription',
               },
           },
-          'maxWorkerCount': {'value': 100}
+          'maxWorkers': {'value': 100}
       }, task_ordered.config)
+
+  def testExportMapToCloudStorageCloudApi_WithV1Parameters(self):
+    """Verifies Export.map.toCloudStorage() tasks with v1 parameters."""
+    with apitestcase.UsingCloudApi():
+      config = dict(
+          image=ee.Image(1),
+          bucket='test-bucket',
+          minZoom=1,
+          maxZoom=7,
+          startZoom=2,  # Takes precedence over minZoom.
+          endZoom=8,  # Takes precedence over maxZoom.
+          path='foo/gcs/path',
+          skipEmptyTiles=True,
+          skipEmpty=False,  # Takes precedence over skipEmpty.
+          maxWorkers=100)
+
+      # Test keyed parameters.
+      task_keyed = ee.batch.Export.map.toCloudStorage(
+          image=config['image'],
+          bucket=config['bucket'],
+          minZoom=config['minZoom'],
+          maxZoom=config['maxZoom'],
+          startZoom=config['startZoom'],
+          endZoom=config['endZoom'],
+          path=config['path'],
+          maxWorkers=config['maxWorkers'],
+          skipEmptyTiles=config['skipEmptyTiles'],
+          skipEmpty=config['skipEmpty'])
+      expected_expression = ee.Image(1)
+      self.assertIsNone(task_keyed.id)
+      self.assertIsNone(task_keyed.name)
+      self.assertEqual('EXPORT_TILES', task_keyed.task_type)
+      self.assertEqual('UNSUBMITTED', task_keyed.state)
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'myExportMapTask',
+              'tileOptions': {
+                  'startZoom': config['startZoom'],
+                  'endZoom': config['endZoom'],
+                  'skipEmpty': config['skipEmpty'],
+              },
+              'tileExportOptions': {
+                  'fileFormat': 'AUTO_JPEG_PNG',
+                  'cloudStorageDestination': {
+                      'bucket': config['bucket'],
+                      'filenamePrefix': config['path'],
+                      'permissions': 'PUBLIC',
+                  },
+              },
+              'maxWorkers': {
+                  'value': 100
+              }
+          }, task_keyed.config)
 
   def testExportTableCloudApi(self):
     """Verifies the task created by Export.table()."""
@@ -559,7 +613,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'filenamePrefix': 'myExportTableTask',
               }
           },
-          'maxWorkerCount': {'value': 100},
+          'maxWorkers': {'value': 100},
       }, task.config)
 
   def testExportTableCloudApiBogusParameter(self):
@@ -607,7 +661,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'myExportTableTask',
               'fileExportOptions': {
                   'fileFormat': 'CSV',
-                  'gcsDestination': {
+                  'cloudStorageDestination': {
                       'bucket': 'test-bucket',
                       'filenamePrefix': 'myExportTableTask',
                   },
@@ -717,7 +771,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'myExportTableTask',
               'fileExportOptions': {
                   'fileFormat': 'TF_RECORD_TABLE',
-                  'gcsDestination': {
+                  'cloudStorageDestination': {
                       'bucket': 'test-bucket',
                       'filenamePrefix': 'myExportTableTask',
                   }
@@ -904,7 +958,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'filenamePrefix': 'TestVideoName',
               }
           },
-          'maxWorkerCount': {'value': 100}
+          'maxWorkers': {'value': 100}
       }, task.config)
 
       config['outputBucket'] = 'test-bucket'
@@ -925,12 +979,12 @@ class BatchTestCase(apitestcase.ApiTestCase):
           },
           'fileExportOptions': {
               'fileFormat': 'MP4',
-              'gcsDestination': {
+              'cloudStorageDestination': {
                   'bucket': 'test-bucket',
                   'filenamePrefix': 'TestVideoName',
               }
           },
-          'maxWorkerCount': {'value': 100}
+          'maxWorkers': {'value': 100}
       }, gcs_task.config)
 
       with self.assertRaisesRegex(ee.EEException,
@@ -956,7 +1010,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           'description': 'TestVideoName',
           'fileExportOptions': {
               'fileFormat': 'MP4',
-              'gcsDestination': {
+              'cloudStorageDestination': {
                   'bucket': 'test-bucket',
                   'filenamePrefix': 'TestVideoName',
               }

@@ -9,6 +9,7 @@ parameters and result values.
 import calendar
 import copy
 import datetime
+import json
 
 import os
 import re
@@ -319,22 +320,6 @@ def _convert_bounding_box_to_geo_json(bbox):
 
 def convert_get_list_params_to_list_assets_params(params):
   """Converts a getList params dict to something usable with listAssets."""
-  return _convert_dict(
-      params, {
-          'id': ('parent', convert_asset_id_to_asset_name),
-          'num': 'pageSize'
-      }, key_warnings=True)
-
-
-def convert_list_assets_result_to_get_list_result(result):
-  """Converts a listAssets result to something getList can return."""
-  if 'assets' not in result:
-    return []
-  return [_convert_asset_for_get_list_result(i) for i in result['assets']]
-
-
-def convert_get_list_params_to_list_images_params(params):
-  """Converts a getList params dict to something usable with listImages."""
   params = _convert_dict(
       params, {
           'id': ('parent', convert_asset_id_to_asset_name),
@@ -349,6 +334,69 @@ def convert_get_list_params_to_list_images_params(params):
   # getList returns minimal information; we can filter unneeded stuff out
   # server-side.
   params['view'] = 'BASIC'
+  return convert_list_images_params_to_list_assets_params(params)
+
+
+def convert_list_assets_result_to_get_list_result(result):
+  """Converts a listAssets result to something getList can return."""
+  if 'assets' not in result:
+    return []
+  return [_convert_asset_for_get_list_result(i) for i in result['assets']]
+
+
+def _convert_list_images_filter_params_to_list_assets_params(params):
+  """Converts a listImages params dict to something usable with listAssets."""
+  query_strings = []
+  if 'startTime' in params:
+    query_strings.append('startTime >= "{}"'.format(params['startTime']))
+    del params['startTime']
+
+  if 'endTime' in params:
+    query_strings.append('endTime < "{}"'.format(params['endTime']))
+    del params['endTime']
+
+  region_error = 'Filter parameter "region" must be a GeoJSON or WKT string.'
+  if 'region' in params:
+    region = params['region']
+    if isinstance(region, dict):
+      try:
+        region = json.dumps(region)
+      except TypeError as e:
+        raise Exception(region_error) from e
+    elif not isinstance(region, six.string_types):
+      raise Exception(region_error)
+
+    # Double quotes are not valid in the GeoJSON strings, since we wrap the
+    # query in a set of double quotes. We trivially avoid doubly-escaping the
+    # quotes by replacing double quotes with single quotes.
+    region = region.replace('"', "'")
+    query_strings.append('intersects("{}")'.format(region))
+    del params['region']
+  if 'properties' in params:
+    if isinstance(params['properties'], list) and any(
+        not isinstance(p, six.string_types) for p in params['properties']):
+      raise Exception(
+          'Filter parameter "properties" must be an array of strings')
+
+    for property_query in params['properties']:
+      # Property filtering requires that properties be prefixed by "properties."
+      prop = re.sub(r'^(properties\.)?', 'properties.', property_query.strip())
+      query_strings.append(prop)
+
+    del params['properties']
+  return ' AND '.join(query_strings)
+
+
+def convert_list_images_params_to_list_assets_params(params):
+  """Converts a listImages params dict to something usable with listAssets."""
+  params = params.copy()
+  extra_filters = _convert_list_images_filter_params_to_list_assets_params(
+      params)
+  if extra_filters:
+    if 'filter' in params:
+      params['filter'] = '{} AND {}'.format(params['filter'], extra_filters)
+    else:
+      params['filter'] = extra_filters
   return params
 
 
@@ -379,8 +427,7 @@ def _convert_image_for_get_list_result(asset):
   result = _convert_dict(
       asset, {
           'name': 'id',
-      },
-      defaults={'type': 'Image'})
+      }, defaults={'type': 'Image'})
   return result
 
 

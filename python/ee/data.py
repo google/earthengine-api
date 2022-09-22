@@ -432,55 +432,74 @@ def getList(params):
   """Get a list of contents for a collection asset.
 
   Args:
-    params: An object containing request parameters with the
-        following possible values:
-            id (string) The asset id of the collection to list.
-            starttime (number) Start time, in msec since the epoch.
-            endtime (number) End time, in msec since the epoch.
-            fields (comma-separated strings) Field names to return.
+    params: An object containing request parameters with the possible values:
+      id - (string) The asset id of the collection to list, required.
+      starttime - (number) Start time, in msec since the epoch.
+      endtime - (number) End time, in msec since the epoch.
 
   Returns:
     The list call results.
   """
-  # Translate the parameter list to use listAssets or listImages. If it
-  # doesn't specify anything other than the ID and "num", use listAssets.
-  # Otherwise, use listImages.
-  if six.viewkeys(params) - set(['id', 'num']):
-    result = listImages(
-        _cloud_api_utils.convert_get_list_params_to_list_images_params(
-            params))
-    result = _cloud_api_utils.convert_list_images_result_to_get_list_result(
-        result)
-  else:
-    result = listAssets(
-        _cloud_api_utils.convert_get_list_params_to_list_assets_params(
-            params))
-    result = _cloud_api_utils.convert_list_assets_result_to_get_list_result(
-        result)
+  result = listAssets(
+      _cloud_api_utils.convert_get_list_params_to_list_assets_params(params))
+  result = _cloud_api_utils.convert_list_assets_result_to_get_list_result(
+      result)
 
   return result
 
 
 def listImages(params):
-  """Returns the images in an image collection or folder."""
+  """Returns the images in an image collection or folder.
+
+  Args:
+    params: An object containing request parameters with the following possible
+      values, all but 'parent` are optional:
+      parent - (string) The ID of the image collection to list, required.
+      pageSize - (string) The number of results to return. Defaults to 1000.
+      pageToken - (string) The token page of results to return.
+      startTime - (ISO 8601 string): The minimum start time (inclusive).
+      endTime - (ISO 8601 string): The maximum end time (exclusive).
+      region - (GeoJSON or WKT string): A region to filter on.
+      properties - (list of strings): A list of property filters to apply, for
+        example, ["classification=urban", "size>=2"].
+      filter - (string) An additional filter query to apply. Example query:
+          `properties.my_property>=1 AND properties.my_property<2 AND
+          startTime >= "2019-01-01T00:00:00.000Z" AND
+          endTime < "2020-01-01T00:00:00.000Z" AND
+          intersects("{'type':'Point','coordinates':[0,0]}")`
+        See https://google.aip.dev/160 for how to construct a query.
+      view - (string) Specifies how much detail is returned in the list. Either
+        "FULL" (default) for all image properties or "BASIC".
+  """
   images = {'images': []}
-  request = _get_cloud_api_resource().projects().assets().listImages(**params)
-  while request is not None:
-    response = _execute_cloud_call(request)
-    images['images'].extend(response.get('images', []))
-    request = _cloud_api_resource.projects().assets().listImages_next(
-        request, response)
-    # We currently treat pageSize as a cap on the results, if this param was
-    # provided we should break fast and not return more than the asked for
-    # amount.
-    if 'pageSize' in params:
-      break
+  assets = listAssets(
+      _cloud_api_utils.convert_list_images_params_to_list_assets_params(params))
+  images['images'].extend(assets.get('assets', []))
   return images
 
 
 def listAssets(params):
-  """Returns the assets in a folder."""
+  """Returns the assets in a folder.
+
+  Args:
+    params: An object containing request parameters with the following possible
+      values, all but 'parent` are optional:
+      parent - (string) The ID of the collection or folder to list, required.
+      pageSize - (string) The number of results to return. Defaults to 1000.
+      pageToken - (string) The token page of results to return.
+      filter - (string) An additional filter query to apply. Example query:
+        '''properties.my_property>=1 AND properties.my_property<2 AND
+           startTime >= "2019-01-01T00:00:00.000Z" AND
+           endTime < "2020-01-01T00:00:00.000Z" AND
+           intersects("{'type':'Point','coordinates':[0,0]}")'''
+        See https://google.aip.dev/160 for how to construct a query.
+      view - (string) Specifies how much detail is returned in the list. Either
+        "FULL" (default) for all image properties or "BASIC".
+  """
   assets = {'assets': []}
+  if 'parent' in params:
+    params['parent'] = _cloud_api_utils.convert_asset_id_to_asset_name(
+        params['parent'])
   if 'parent' in params and _cloud_api_utils.is_asset_root(params['parent']):
     # If the asset name is 'projects/my-project/assets' we assume a user
     # wants to list their cloud assets, to do this we call the alternative
@@ -1570,7 +1589,7 @@ def getAssetRootQuota(rootId):
   return {
       'asset_count': {
           'usage': int(quota.get('assetCount', 0)),
-          'limit': int(quota.get('maxAssetCount', 0))
+          'limit': int(quota.get('maxAssets', quota.get('maxAssetCount', 0)))
       },
       'asset_size': {
           'usage': int(quota.get('sizeBytes', 0)),

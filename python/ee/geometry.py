@@ -28,6 +28,9 @@ class Geometry(computedobject.ComputedObject):
 
   _initialized = False
 
+  # Tell pytype to not complain about dynamic attributes.
+  _HAS_DYNAMIC_ATTRIBUTES = True
+
   def __init__(self,
                geo_json,
                opt_proj=None,

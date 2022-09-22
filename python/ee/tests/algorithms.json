@@ -3250,6 +3250,20 @@
       "type": "ConfusionMatrix"
     }]
   }, {
+    "name": "algorithms/ConfusionMatrix.fscore",
+    "description": "Computes the Fβ-score for the confusion matrix.",
+    "returnType": "Array",
+    "arguments": [{
+      "argumentName": "confusionMatrix",
+      "type": "ConfusionMatrix"
+    }, {
+      "argumentName": "beta",
+      "type": "Float",
+      "description": "A factor indicating how much more important recall is than precision. The standard F-score is equivalent to setting β to one.",
+      "optional": true,
+      "defaultValue": 1.0
+    }]
+  }, {
     "name": "algorithms/ConfusionMatrix.kappa",
     "description": "Computes the Kappa statistic for the confusion matrix.",
     "returnType": "Float",

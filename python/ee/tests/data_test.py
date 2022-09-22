@@ -69,21 +69,24 @@ class DataTest(unittest.TestCase):
       ).execute.return_value = mock_result
       cloud_api_resource.projects().assets().listAssets_next.return_value = None
       actual_result = ee.data.listAssets({'p': 'q'})
-      cloud_api_resource.projects().assets().listAssets().\
-        execute.assert_called_once()
+      cloud_api_resource.projects().assets().listAssets(
+      ).execute.assert_called_once()
       self.assertEqual(mock_result, actual_result)
 
   def testListImages(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
-      mock_result = {'images': [{'path': 'id1', 'type': 'type1'}]}
-      cloud_api_resource.projects().assets().listImages(
+      mock_result = {'assets': [{'path': 'id1', 'type': 'type1'}]}
+      cloud_api_resource.projects().assets().listAssets(
       ).execute.return_value = mock_result
-      cloud_api_resource.projects().assets().listImages_next.return_value = None
+      cloud_api_resource.projects().assets().listAssets_next.return_value = None
       actual_result = ee.data.listImages({'p': 'q'})
-      cloud_api_resource.projects().assets().listImages(
+      cloud_api_resource.projects().assets().listAssets(
       ).execute.assert_called_once()
-      self.assertEqual(mock_result, actual_result)
+      self.assertEqual({'images': [{
+          'path': 'id1',
+          'type': 'type1'
+      }]}, actual_result)
 
   def testListBuckets(self):
     cloud_api_resource = mock.MagicMock()
@@ -104,7 +107,8 @@ class DataTest(unittest.TestCase):
       actual_result = ee.data.getList({'id': 'glam', 'num': 3})
       expected_params = {
           'parent': 'projects/earthengine-public/assets/glam',
-          'pageSize': 3
+          'pageSize': 3,
+          'view': 'BASIC',
       }
       expected_result = [{'id': 'id1', 'type': 'ImageCollection'}]
       cloud_api_resource.projects().assets().listAssets.assert_called_with(
@@ -121,7 +125,11 @@ class DataTest(unittest.TestCase):
           'id': 'projects/my-project/assets/',
           'num': 3
       })
-      expected_params = {'parent': 'projects/my-project', 'pageSize': 3}
+      expected_params = {
+          'parent': 'projects/my-project',
+          'pageSize': 3,
+          'view': 'BASIC'
+      }
       expected_result = [{'id': 'id1', 'type': 'ImageCollection'}]
       cloud_api_resource.projects().listAssets.assert_called_with(
           **expected_params)
@@ -137,7 +145,11 @@ class DataTest(unittest.TestCase):
           'id': 'projects/my-project/assets',
           'num': 3
       })
-      expected_params = {'parent': 'projects/my-project', 'pageSize': 3}
+      expected_params = {
+          'parent': 'projects/my-project',
+          'pageSize': 3,
+          'view': 'BASIC'
+      }
       expected_result = [{'id': 'id1', 'type': 'ImageCollection'}]
       cloud_api_resource.projects().listAssets.assert_called_with(
           **expected_params)
@@ -146,8 +158,14 @@ class DataTest(unittest.TestCase):
   def testComplexGetListViaCloudApi(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
-      mock_result = {'images': [{'name': 'id1', 'size_bytes': 1234}]}
-      cloud_api_resource.projects().assets().listImages(
+      mock_result = {
+          'assets': [{
+              'name': 'id1',
+              'type': 'IMAGE',
+              'size_bytes': 1234
+          }]
+      }
+      cloud_api_resource.projects().assets().listAssets(
       ).execute.return_value = mock_result
       actual_result = ee.data.getList({
           'id': 'glam',
@@ -158,12 +176,11 @@ class DataTest(unittest.TestCase):
       expected_params = {
           'parent': 'projects/earthengine-public/assets/glam',
           'pageSize': 3,
-          'startTime': '1970-01-01T01:00:12.345000Z',
           'view': 'BASIC',
-          'filter': 'foo'
+          'filter': 'foo AND startTime >= "1970-01-01T01:00:12.345000Z"'
       }
       expected_result = [{'id': 'id1', 'type': 'Image'}]
-      cloud_api_resource.projects().assets().listImages.assert_called_with(
+      cloud_api_resource.projects().assets().listAssets.assert_called_with(
           **expected_params)
       self.assertEqual(expected_result, actual_result)
 

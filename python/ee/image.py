@@ -32,6 +32,9 @@ class Image(element.Element):
 
   _initialized = False
 
+  # Tell pytype to not complain about dynamic attributes.
+  _HAS_DYNAMIC_ATTRIBUTES = True
+
   def __init__(self, args=None, version=None):
     """Constructs an Earth Engine image.
 
@@ -50,7 +53,6 @@ class Image(element.Element):
     Raises:
       EEException: if passed something other than the above.
     """
-
     self.initialize()
 
     if version is not None:

@@ -24,6 +24,9 @@ class FeatureCollection(collection.Collection):
 
   _initialized = False
 
+  # Tell pytype to not complain about dynamic attributes.
+  _HAS_DYNAMIC_ATTRIBUTES = True
+
   def __init__(self, args, opt_column=None):
     """Constructs a collection features.
 

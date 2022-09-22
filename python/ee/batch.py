@@ -1008,7 +1008,7 @@ def _prepare_image_export_config(image, config, export_destination):
 
   # This can only be set by internal users.
   if 'maxWorkers' in config:
-    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+    request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
 
   # Of the remaining fields in ExportImageRequest:
   # - All the values that would go into the PixelGrid should have been folded
@@ -1057,7 +1057,7 @@ def _prepare_map_export_config(image, config):
       config, Task.ExportDestination.GCS)
   # This can only be set by internal users.
   if 'maxWorkers' in config:
-    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+    request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
   if config:
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
@@ -1116,7 +1116,7 @@ def _prepare_table_export_config(collection, config, export_destination):
 
   # This can only be set by internal users.
   if 'maxWorkers' in config:
-    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+    request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
 
   if config:
     raise ee_exception.EEException(
@@ -1152,7 +1152,7 @@ def _prepare_video_export_config(collection, config, export_destination):
       config, export_destination)
   # This can only be set by internal users.
   if 'maxWorkers' in config:
-    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+    request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
 
   if config:
     raise ee_exception.EEException(
@@ -1182,7 +1182,7 @@ def _build_image_file_export_options(config, export_destination):
         config)
   elif export_destination == Task.ExportDestination.GCS:
     file_export_options[
-        'gcsDestination'] = _build_gcs_destination(
+        'cloudStorageDestination'] = _build_cloud_storage_destination(
             config)
   else:
     raise ee_exception.EEException(
@@ -1280,7 +1280,7 @@ def _build_table_file_export_options(config, export_destination):
         config)
   elif export_destination == Task.ExportDestination.GCS:
     file_export_options[
-        'gcsDestination'] = _build_gcs_destination(
+        'cloudStorageDestination'] = _build_cloud_storage_destination(
             config)
   else:
     raise ee_exception.EEException(
@@ -1331,7 +1331,7 @@ def _build_video_file_export_options(config, export_destination):
         config)
   elif export_destination == Task.ExportDestination.GCS:
     file_export_options[
-        'gcsDestination'] = _build_gcs_destination(
+        'cloudStorageDestination'] = _build_cloud_storage_destination(
             config)
   else:
     raise ee_exception.EEException(
@@ -1383,15 +1383,15 @@ def _build_drive_destination(config):
   return drive_destination
 
 
-def _build_gcs_destination(config):
-  """Builds a GcsDestination from values in a config dict.
+def _build_cloud_storage_destination(config):
+  """Builds a CloudStorageDestination from values in a config dict.
 
   Args:
     config: All the user-specified export parameters. Will be modified in-place
-      by removing parameters used in the GcsDestination.
+      by removing parameters used in the CloudStorageDestination.
 
   Returns:
-    A GcsDestination containing information extracted from
+    A CloudStorageDestination containing information extracted from
     config.
   """
   cloud_storage_export_destination = {'bucket': config.pop('outputBucket')}
@@ -1418,16 +1418,27 @@ def _build_tile_options(config):
   if 'maxZoom' in config:
     if 'scale' in config:
       raise ee_exception.EEException('Both maxZoom and scale are specified.')
-    tile_options['maxZoom'] = config.pop('maxZoom')
+    tile_options['endZoom'] = config.pop('maxZoom')
+
+  if 'endZoom' in config:
+    if 'scale' in config:
+      raise ee_exception.EEException('Both endZoom and scale are specified.')
+    tile_options['endZoom'] = config.pop('endZoom')
 
   if 'scale' in config:
     tile_options['scale'] = config.pop('scale')
 
   if 'minZoom' in config:
-    tile_options['minZoom'] = config.pop('minZoom')
+    tile_options['startZoom'] = config.pop('minZoom')
+
+  if 'startZoom' in config:
+    tile_options['startZoom'] = config.pop('startZoom')
 
   if config.pop('skipEmptyTiles', False):
-    tile_options['skipEmptyTiles'] = True
+    tile_options['skipEmpty'] = True
+
+  if 'skipEmpty' in config:
+    tile_options['skipEmpty'] = config.pop('skipEmpty')
 
   if 'mapsApiKey' in config:
     tile_options['mapsApiKey'] = config.pop('mapsApiKey')

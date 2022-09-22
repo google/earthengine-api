@@ -482,15 +482,6 @@ ee.rpc_convert.listAssetsToGetList = function(result) {
   return (result.assets || []).map(ee.rpc_convert.assetToLegacyResult);
 };
 
-
-/**
- * @param {!ee.api.ListImagesResponse} result
- * @return {!Object}
- */
-ee.rpc_convert.listImagesToGetList = function(result) {
-  return (result.images || []).map(ee.rpc_convert.imageToLegacyResult);
-};
-
 /**
  * @param {?string} type The cloud asset type. These types must match the values
  *     in google.earthengine.v1main.EarthEngineAsset.Type.
@@ -673,16 +664,6 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   return asset;
 };
 
-
-/**
- * @param {!ee.api.Image} result
- * @return {!Object}
- */
-ee.rpc_convert.imageToLegacyResult = function(result) {
-  return ee.rpc_convert.makeLegacyAsset_('Image', result.name);
-};
-
-
 /**
  * @param {?string} type
  * @param {?undefined|string} name
@@ -701,36 +682,36 @@ ee.rpc_convert.makeLegacyAsset_ = function(type, name) {
 
 /**
  * @param {!Object} param
- * @return {!ee.api.ProjectsAssetsListImagesNamedParameters}
+ * @return {!ee.api.ProjectsAssetsListAssetsNamedParameters}
  */
-ee.rpc_convert.getListToListImages = function(param) {
-  /** @type {!ee.api.ProjectsAssetsListImagesNamedParameters} */
-  const imagesRequest = {};
+ee.rpc_convert.getListToListAssets = function(param) {
+  const assetsRequest = {};
   const toTimestamp = (msec) => new Date(msec).toISOString();
   if (param['num']) {
-    imagesRequest.pageSize = param['num'];
+    assetsRequest['pageSize'] = param['num'];
   }
   if (param['starttime']) {
-    imagesRequest.startTime = toTimestamp(param['starttime']);
+    assetsRequest['startTime'] = toTimestamp(param['starttime']);
   }
   if (param['endtime']) {
-    imagesRequest.endTime = toTimestamp(param['endtime']);
+    assetsRequest['endTime'] = toTimestamp(param['endtime']);
   }
   if (param['bbox']) {
-    imagesRequest.region = ee.rpc_convert.boundingBoxToGeoJson(param['bbox']);
+    assetsRequest['region'] =
+        ee.rpc_convert.boundingBoxToGeoJson(param['bbox']);
   }
   if (param['region']) {
-    imagesRequest.region = param['region'];
+    assetsRequest['region'] = param['region'];
   }
   if (param['bbox'] && param['region']) {
     console.warn('Multiple request parameters converted to region');
   }
+  // The ID field is pulled into the "parent" param, the URL of the request.
   const allKeys = ['id', 'num', 'starttime', 'endtime', 'bbox', 'region'];
   for (let key of Object.keys(param).filter(k => !allKeys.includes(k))) {
     console.warn('Unrecognized key ' + key + ' ignored');
   }
-  imagesRequest.fields = 'assets(type,path)';
-  return imagesRequest;
+  return ee.rpc_convert.processListImagesParams(assetsRequest);
 };
 
 
@@ -1100,11 +1081,88 @@ ee.rpc_convert.folderQuotaToAssetQuotaDetails = function(quota) {
   return {
     asset_count: {
       usage: toNumber(quota.assetCount),
-      limit: toNumber(quota.maxAssetCount),
+      limit: toNumber(quota.maxAssets ?? quota.maxAssetCount),
     },
     asset_size: {
       usage: toNumber(quota.sizeBytes),
       limit: toNumber(quota.maxSizeBytes),
     }
   };
+};
+
+
+/**
+ * Processes the ee.data.listImages filter params into a single query string and
+ * removes them from the input params.
+ *
+ * @param {!Object} params
+ * @return {string}
+ * @private
+ */
+ee.rpc_convert.parseFilterParamsFromListImages_ = function(params) {
+  const queryStrings = [];
+  const toISOString = (dateStr) => new Date(dateStr).toISOString();
+  if ('startTime' in params) {
+    queryStrings.push(`startTime >= "${toISOString(params['startTime'])}"`);
+    delete params['startTime'];
+  }
+  if ('endTime' in params) {
+    queryStrings.push(`endTime < "${toISOString(params['endTime'])}"`);
+    delete params['endTime'];
+  }
+  const REGION_ERROR = 'Filter parameter "region" must be a ' +
+      'GeoJSON or WKT string.';
+  if ('region' in params) {
+    let region = params['region'];
+    if (typeof region === 'object') {
+      try {
+        region = JSON.stringify(region);
+      } catch (x) {
+        throw new Error(REGION_ERROR);
+      }
+    } else if (typeof region !== 'string') {
+      throw new Error(REGION_ERROR);
+    }
+    // Double quotes are not valid in the GeoJSON strings, since we wrap the
+    // query in a set of double quotes. We trivially avoid doubly-escaping the
+    // quotes by replacing double quotes with single quotes.
+    region = region.replace(/"/g, `'`);
+    queryStrings.push(`intersects("${region}")`);
+    delete params['region'];
+  }
+  if ('properties' in params) {
+    if (!Array.isArray(params['properties']) &&
+        params['properties'].some((property) => typeof property !== 'string')) {
+      throw new Error(
+          'Filter parameter "properties" must be an array of strings');
+    }
+    for (let propertyQuery of params['properties']) {
+      // Property filtering requires that properties be prefixed by
+      // "properties."
+      queryStrings.push(
+          propertyQuery.trim().replace(/^(properties\.)?/, 'properties.'));
+    }
+    delete params['properties'];
+  }
+  return queryStrings.join(' AND ');
+};
+
+
+/**
+ * Processes the ee.data.listImages params into ListAssets request params.
+ *
+ * @param {!Object} params
+ * @return {!ee.api.ProjectsAssetsListAssetsNamedParameters}
+ */
+ee.rpc_convert.processListImagesParams = function(params) {
+  params = Object.assign({}, params);
+  const extraFilters = ee.rpc_convert.parseFilterParamsFromListImages_(params);
+  if (extraFilters) {
+    if (params['filter']) {
+      params['filter'] = `${params['filter']} AND ${extraFilters}`;
+    } else {
+      params['filter'] = extraFilters;
+    }
+  }
+  return params;
 };

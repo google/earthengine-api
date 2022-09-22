@@ -1429,15 +1429,42 @@ ee.data.getInfo = ee.data.getAsset;
 
 
 /**
+ * Make a ListAssetsRequest network call and translates the response object
+ * into a plain JS object after transforming the response using the
+ * post-processing function.
+ *
+ * @template T
+ * @param {string} parent The ID of the collection or folder to list.
+ * @param {!ee.api.ProjectsAssetsListAssetsNamedParameters=} opt_params
+ * @param {function(T,string=)=} opt_callback
+ * @param {function(?ee.api.ListAssetsResponse):T=} opt_postProcessing Mutation
+ *     to perform on the list assets response before returning.
+ * @return {T}
+ * @private
+ */
+ee.data.makeListAssetsCall_ = function(
+    parent, opt_params = {}, opt_callback = undefined,
+    opt_postProcessing = goog.functions.identity) {
+  // Detect project asset root call.
+  const isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(parent);
+  const call = new ee.apiclient.Call(opt_callback);
+  const methodRoot = isProjectAssetRoot ? call.projects() : call.assets();
+  parent = isProjectAssetRoot ? ee.rpc_convert.projectParentFromPath(parent) :
+                                ee.rpc_convert.assetIdToAssetName(parent);
+  return call.handle(
+      methodRoot.listAssets(parent, opt_params).then(opt_postProcessing));
+};
+
+
+/**
  * Returns a list of the contents in an asset collection or folder.
  *
  * @deprecated Use ee.data.listAssets() or ee.data.listImages().
  * @param {!Object} params An object containing request parameters with
  *     the following possible values:
- *       - id (string) The asset id of the collection to list.
+ *       - id (string) The asset ID of the collection to list.
  *       - starttime (number) Start time, in msec since the epoch.
  *       - endtime (number) End time, in msec since the epoch.
- *       - fields (comma-separated strings) Field names to return.
  * @param {function(?ee.data.AssetList, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AssetList} The list call results, or null if a callback
@@ -1445,43 +1472,36 @@ ee.data.getInfo = ee.data.getAsset;
  * @export
  */
 ee.data.getList = function(params, opt_callback) {
-  const call = new ee.apiclient.Call(opt_callback);
-  let methodRoot = call.assets();
-  let parent = ee.rpc_convert.assetIdToAssetName(params['id']);
-  const isProjectAssetRoot =
-      ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(params['id']);
-  if (isProjectAssetRoot) {
-    // Use call.projects() for project asset root calls instead of
-    // call.assets().
-    methodRoot = call.projects();
-    parent = ee.rpc_convert.projectParentFromPath(params['id']);
-  }
-  // If the parameters don't specify anything other than the ID and "num",
-  // then assets.listImages will be called instead of assets.listAssets.
-  // TODO(user): Add support for page tokens for listImages and listAssets.
-  if (Object.keys(params).every(k => k === 'id' || k === 'num')) {
-    return call.handle(methodRoot.listAssets(parent, {pageSize: params['num']})
-                           .then(ee.rpc_convert.listAssetsToGetList));
-  } else {
-    if (isProjectAssetRoot) {
-      throw new Error(
-          'getList on a project does not support filtering options. Please ' +
-          'provide a full asset path. Got: ' + params['id']);
-    }
-    const body = ee.rpc_convert.getListToListImages(params);
-    return call.handle(methodRoot.listImages(parent, body)
-                           .then(ee.rpc_convert.listImagesToGetList));
-  }
+  return ee.data.makeListAssetsCall_(
+      params['id'], ee.rpc_convert.getListToListAssets(params), opt_callback,
+      (r) => {
+        if (r == null) {
+          return null;
+        }
+        return /** @type {!ee.data.AssetList} */ (
+            ee.rpc_convert.listAssetsToGetList(r));
+      });
 };
 
 
 /**
- * Returns a list of the contents in an asset collection or folder.
+ * Returns a list of the contents in an asset collection or folder, in an
+ * object that includes an `assets` array and an optional `nextPageToken`.
  *
- * @param {string} parent
- * @param {!ee.api.ProjectsAssetsListAssetsNamedParameters=} params Options:
- *     pageSize (defaults to 1000), pageToken, filter (see
- *     https://google.aip.dev/160), view (default is 'FULL', may be 'BASIC').
+ * @param {string} parent The ID of the collection or folder to list.
+ * @param {!ee.api.ProjectsAssetsListAssetsNamedParameters=} opt_params An
+ *     object containing optional request parameters with the following
+ * possible values:
+ *       - pageSize (string) The number of results to return. Defaults to 1000.
+ *       - pageToken (string) The token for the page of results to return.
+ *       - filter (string) An additional filter query to apply. Example query:
+ *            `properties.my_property>=1 AND properties.my_property<2 AND
+ *            startTime >= "2019-01-01T00:00:00.000Z" AND
+ *            endTime < "2020-01-01T00:00:00.000Z" AND
+ *            intersects("{'type':'Point','coordinates':[0,0]}")`
+ *         See https://google.aip.dev/160 for how to construct a query.
+ *       - view (string) Specifies how much detail is returned in the list.
+ *         Either "FULL" (default) for all image properties or "BASIC".
  * @param {function(?ee.api.ListAssetsResponse, string=)=}
  *     opt_callback  If not supplied, the call is made synchronously.
  * @return {?ee.api.ListAssetsResponse}
@@ -1489,39 +1509,63 @@ ee.data.getList = function(params, opt_callback) {
  *     array and an optional `nextPageToken`.
  * @export
  */
-ee.data.listAssets = function(parent, params = {}, opt_callback = undefined) {
-  // Detect project asset root call.
-  const isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(parent);
-  const call = new ee.apiclient.Call(opt_callback);
-  const methodRoot = isProjectAssetRoot ? call.projects() : call.assets();
-  parent = isProjectAssetRoot ? ee.rpc_convert.projectParentFromPath(parent) :
-                                ee.rpc_convert.assetIdToAssetName(parent);
-  return call.handle(methodRoot.listAssets(parent, params));
+ee.data.listAssets = function(
+    parent, opt_params = {}, opt_callback = undefined) {
+  return ee.data.makeListAssetsCall_(parent, opt_params, opt_callback);
 };
 
 
 /**
- * Returns a list of the contents in an asset collection or folder.
+ * Returns a list of the contents in an image collection, in an object that
+ * includes an `images` array and an optional `nextPageToken`.
  *
- * @param {string} parent
- * @param {!ee.api.ProjectsAssetsListImagesNamedParameters=} params Options:
- *     pageSize (defaults to 1000), pageToken, filter (see
- *     https://google.aip.dev/160), view (default is 'FULL', may be 'BASIC').
- * @param {function(?ee.api.ListImagesResponse, string=)=}
+ * @param {string} parent The ID of the image collection to list.
+ * @param {!Object=} opt_params An object containing optional request
+ *     parameters with the following possible values:
+ *       - pageSize (string) The number of results to return. Defaults to 1000.
+ *       - pageToken (string) The token page of results to return.
+ *       - startTime (ISO 8601 string) The minimum start time (inclusive).
+ *       - endTime (ISO 8601 string) The maximum end time (exclusive).
+ *       - region (GeoJSON or WKT string) A region to filter on.
+ *       - properties (list of strings) A list of property filters to apply,
+ *         for example: ["classification=urban", "size>=2"].
+ *       - filter (string) An additional filter query to apply. Example query:
+ *            `properties.my_property>=1 AND properties.my_property<2 AND
+ *            startTime >= "2019-01-01T00:00:00.000Z" AND
+ *            endTime < "2020-01-01T00:00:00.000Z" AND
+ *            intersects("{'type':'Point','coordinates':[0,0]}")`
+ *         See https://google.aip.dev/160 for how to construct a query.
+ *       - view (string) Specifies how much detail is returned in the list.
+ *         Either "FULL" (default) for all image properties or "BASIC".
+ * @param {function(?ee.data.ListImagesResponse, string=)=}
  *     opt_callback  If not supplied, the call is made synchronously.
- * @return {?ee.api.ListImagesResponse}
+ * @return {?ee.data.ListImagesResponse}
  *     Results, or null if a callback is specified. Will include an `images`
  *     array and an optional `nextPageToken`.
  * @export
  */
-ee.data.listImages = function(parent, params = {}, opt_callback = undefined) {
-  const call = new ee.apiclient.Call(opt_callback);
-  return call.handle(call.assets().listImages(parent, params));
+ee.data.listImages = function(
+    parent, opt_params = {}, opt_callback = undefined) {
+  const params = ee.rpc_convert.processListImagesParams(opt_params);
+  return ee.data.makeListAssetsCall_(parent, params, opt_callback, (r) => {
+    if (r == null) {
+      return null;
+    }
+    const listImagesResponse = {};
+    if (r.assets) {
+      listImagesResponse.images = r.assets;
+    }
+    if (r.nextPageToken) {
+      listImagesResponse.nextPageToken = r.nextPageToken;
+    }
+    return listImagesResponse;
+  });
 };
 
 
 /**
- * Returns a list of the contents in an asset collection or folder.
+ * Returns a list of asset roots belonging to the user or Cloud Project. Leave
+ * the project field blank to use the current project.
  *
  * @param {string=} project Project to query. Defaults to current project.
  * @param {function(?ee.api.ListAssetsResponse, string=)=}
@@ -2162,6 +2206,26 @@ ee.data.ShortAssetDescription = class {
  * @typedef {!Array<!ee.data.ShortAssetDescription>}
  */
 ee.data.AssetList;
+
+
+
+/**
+ * An object returned by the ee.data.listImages method.
+ * @record @struct
+ */
+ee.data.ListImagesResponse = class {
+  constructor() {
+    /**
+     * @export {!Array<!ee.api.EarthEngineAsset>|undefined}
+     */
+    this.images;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.nextPageToken;
+  }
+};
 
 
 /**
