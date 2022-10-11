@@ -1229,6 +1229,11 @@ goog.getLocale = function() {
 goog.TRUSTED_SITE = !0;
 goog.DISALLOW_TEST_ONLY_CODE = !goog.DEBUG;
 goog.ENABLE_CHROME_APP_SAFE_SCRIPT_LOADING = !1;
+goog.readFlagInternalDoNotUseOrElse = function(googFlagId, defaultValue) {
+  var obj = goog.getObjectByName(goog.FLAGS_OBJECT_), val = obj && obj[googFlagId];
+  return null != val ? val : defaultValue;
+};
+goog.FLAGS_OBJECT_ = "CLOSURE_FLAGS";
 goog.provide = function(name) {
   if (goog.isInModuleLoader_()) {
     throw Error("goog.provide cannot be used within a module.");
@@ -2591,10 +2596,15 @@ goog.events.BrowserFeature = {TOUCH_ENABLED:"ontouchstart" in goog.global || !!(
   }
   return passive;
 })};
-var module$exports$goog$labs$userAgent = {};
-module$exports$goog$labs$userAgent.USE_CLIENT_HINTS = function() {
-  return !1;
-}();
+goog.labs = {};
+goog.labs.userAgent = {};
+var module$contents$goog$labs$userAgent_forceClientHintsInTests = !1;
+goog.labs.userAgent.setUseClientHintsForTesting = function(use) {
+  module$contents$goog$labs$userAgent_forceClientHintsInTests = use;
+};
+goog.labs.userAgent.useClientHints = function() {
+  return module$contents$goog$labs$userAgent_forceClientHintsInTests;
+};
 goog.string = {};
 goog.string.internal = {};
 goog.string.internal.startsWith = function(str, prefix) {
@@ -2678,8 +2688,6 @@ goog.string.internal.compareVersions = function(version1, version2) {
 goog.string.internal.compareElements_ = function(left, right) {
   return left < right ? -1 : left > right ? 1 : 0;
 };
-goog.labs = {};
-goog.labs.userAgent = {};
 goog.labs.userAgent.util = {};
 function module$contents$goog$labs$userAgent$util_getNativeUserAgentString() {
   var navigator = module$contents$goog$labs$userAgent$util_getNavigator();
@@ -2692,9 +2700,6 @@ function module$contents$goog$labs$userAgent$util_getNativeUserAgentString() {
   return "";
 }
 function module$contents$goog$labs$userAgent$util_getNativeUserAgentData() {
-  if (!module$exports$goog$labs$userAgent.USE_CLIENT_HINTS) {
-    return null;
-  }
   var navigator = module$contents$goog$labs$userAgent$util_getNavigator();
   return navigator ? navigator.userAgentData || null : null;
 }
@@ -2709,6 +2714,9 @@ function module$contents$goog$labs$userAgent$util_getUserAgentData() {
   return module$contents$goog$labs$userAgent$util_userAgentDataInternal;
 }
 function module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand(str) {
+  if (!(0,goog.labs.userAgent.useClientHints)()) {
+    return !1;
+  }
   var data = module$contents$goog$labs$userAgent$util_getUserAgentData();
   return data ? data.brands.some(function($jscomp$destructuring$var0) {
     var brand = $jscomp$destructuring$var0.brand;
@@ -2806,14 +2814,13 @@ module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version.prototyp
 var module$exports$goog$labs$userAgent$highEntropy$highEntropyData = {};
 module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList = new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue("fullVersionList");
 module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion = new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue("platformVersion");
-module$exports$goog$labs$userAgent$highEntropy$highEntropyData.resetAllForTesting = function module$contents$goog$labs$userAgent$highEntropy$highEntropyData_resetAllForTesting() {
-  module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.resetForTesting();
-  module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion.resetForTesting();
-};
 goog.labs.userAgent.browser = {};
 var module$contents$goog$labs$userAgent$browser_Brand = {ANDROID_BROWSER:"Android Browser", CHROMIUM:"Chromium", EDGE:"Microsoft Edge", FIREFOX:"Firefox", IE:"Internet Explorer", OPERA:"Opera", SAFARI:"Safari", SILK:"Silk",};
 goog.labs.userAgent.browser.Brand = module$contents$goog$labs$userAgent$browser_Brand;
-function module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() {
+function module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand(ignoreClientHintsFlag) {
+  if (!(void 0 !== ignoreClientHintsFlag && ignoreClientHintsFlag || (0,goog.labs.userAgent.useClientHints)())) {
+    return !1;
+  }
   var userAgentData = module$contents$goog$labs$userAgent$util_getUserAgentData();
   return !!userAgentData && 0 < userAgentData.brands.length;
 }
@@ -3002,70 +3009,82 @@ function module$contents$goog$labs$userAgent$browser_versionOf_(browser) {
   return 0 === versionParts.length ? NaN : Number(versionParts[0]);
 }
 function module$contents$goog$labs$userAgent$browser_isAtLeast(brand, majorVersion) {
-  goog.asserts.assert(Math.floor(majorVersion) === majorVersion, "Major version must be an integer");
+  (0,goog.asserts.assert)(Math.floor(majorVersion) === majorVersion, "Major version must be an integer");
   return module$contents$goog$labs$userAgent$browser_versionOf_(brand) >= majorVersion;
 }
 goog.labs.userAgent.browser.isAtLeast = module$contents$goog$labs$userAgent$browser_isAtLeast;
 goog.labs.userAgent.browser.isAtMost = function module$contents$goog$labs$userAgent$browser_isAtMost(brand, majorVersion) {
-  goog.asserts.assert(Math.floor(majorVersion) === majorVersion, "Major version must be an integer");
+  (0,goog.asserts.assert)(Math.floor(majorVersion) === majorVersion, "Major version must be an integer");
   return module$contents$goog$labs$userAgent$browser_versionOf_(brand) <= majorVersion;
 };
-var module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion = function(brand) {
+var module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion = function(brand, useUach, fallbackVersion) {
   this.brand_ = brand;
+  this.version_ = new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(fallbackVersion);
+  this.useUach_ = useUach;
 };
 module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion.prototype.getIfLoaded = function() {
-  var $jscomp$this = this, loadedVersionList = module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.getIfLoaded();
-  if (void 0 !== loadedVersionList) {
-    var matchingBrand = loadedVersionList.find(function($jscomp$destructuring$var4) {
-      return $jscomp$this.brand_ === $jscomp$destructuring$var4.brand;
-    });
-    goog.asserts.assertExists(matchingBrand);
-    return new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(matchingBrand.version);
+  var $jscomp$this = this;
+  if (this.useUach_) {
+    var loadedVersionList = module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.getIfLoaded();
+    if (void 0 !== loadedVersionList) {
+      var matchingBrand = loadedVersionList.find(function($jscomp$destructuring$var4) {
+        return $jscomp$this.brand_ === $jscomp$destructuring$var4.brand;
+      });
+      (0,goog.asserts.assertExists)(matchingBrand);
+      return new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(matchingBrand.version);
+    }
+  }
+  if (module$contents$goog$labs$userAgent$browser_preUachHasLoaded) {
+    return this.version_;
   }
 };
 module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion.prototype.load = function() {
   var $jscomp$async$this = this, loadedVersionList, matchingBrand;
   return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context) {
     if (1 == $jscomp$generator$context.nextAddress) {
-      return $jscomp$generator$context.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 2);
+      return $jscomp$async$this.useUach_ ? $jscomp$generator$context.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 5) : $jscomp$generator$context.yield(0, 3);
     }
-    loadedVersionList = $jscomp$generator$context.yieldResult;
-    matchingBrand = loadedVersionList.find(function($jscomp$destructuring$var6) {
-      return $jscomp$async$this.brand_ === $jscomp$destructuring$var6.brand;
-    });
-    goog.asserts.assertExists(matchingBrand);
-    return $jscomp$generator$context.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(matchingBrand.version));
-  });
-};
-var module$contents$goog$labs$userAgent$browser_UserAgentStringFallbackBrandVersion = function(versionString) {
-  this.version_ = new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(versionString);
-};
-module$contents$goog$labs$userAgent$browser_UserAgentStringFallbackBrandVersion.prototype.getIfLoaded = function() {
-  return this.version_;
-};
-module$contents$goog$labs$userAgent$browser_UserAgentStringFallbackBrandVersion.prototype.load = function() {
-  var $jscomp$async$this = this;
-  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context) {
+    if (3 != $jscomp$generator$context.nextAddress && (loadedVersionList = $jscomp$generator$context.yieldResult, void 0 !== loadedVersionList)) {
+      return matchingBrand = loadedVersionList.find(function($jscomp$destructuring$var6) {
+        return $jscomp$async$this.brand_ === $jscomp$destructuring$var6.brand;
+      }), (0,goog.asserts.assertExists)(matchingBrand), $jscomp$generator$context.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(matchingBrand.version));
+    }
+    module$contents$goog$labs$userAgent$browser_preUachHasLoaded = !0;
     return $jscomp$generator$context.return($jscomp$async$this.version_);
   });
 };
+var module$contents$goog$labs$userAgent$browser_preUachHasLoaded = !1;
 goog.labs.userAgent.browser.loadFullVersions = function module$contents$goog$labs$userAgent$browser_loadFullVersions() {
   return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context) {
-    return module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() && module$contents$goog$labs$userAgent$browser_hasFullVersionList() ? $jscomp$generator$context.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 0) : $jscomp$generator$context.jumpTo(0);
+    if (1 == $jscomp$generator$context.nextAddress) {
+      return module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand(!0) ? $jscomp$generator$context.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 2) : $jscomp$generator$context.jumpTo(2);
+    }
+    module$contents$goog$labs$userAgent$browser_preUachHasLoaded = !0;
+    $jscomp$generator$context.jumpToEnd();
   });
 };
+goog.labs.userAgent.browser.resetForTesting = function() {
+  module$contents$goog$labs$userAgent$browser_preUachHasLoaded = !1;
+  module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.resetForTesting();
+};
 function module$contents$goog$labs$userAgent$browser_fullVersionOf(browser) {
-  if (module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand() && module$contents$goog$labs$userAgent$browser_hasFullVersionList()) {
-    return module$contents$goog$labs$userAgent$util_getUserAgentData().brands.find(function($jscomp$destructuring$var8) {
+  var fallbackVersionString = "";
+  module$contents$goog$labs$userAgent$browser_hasFullVersionList() || (fallbackVersionString = module$contents$goog$labs$userAgent$browser_getFullVersionFromUserAgentString(browser));
+  var useUach = browser !== module$contents$goog$labs$userAgent$browser_Brand.SILK && module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand(!0);
+  if (useUach) {
+    if (!module$contents$goog$labs$userAgent$util_getUserAgentData().brands.find(function($jscomp$destructuring$var8) {
       return $jscomp$destructuring$var8.brand === browser;
-    }) ? new module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion(browser) : void 0;
+    })) {
+      return;
+    }
+  } else if ("" === fallbackVersionString) {
+    return;
   }
-  var fullVersionFromUserAgentString = module$contents$goog$labs$userAgent$browser_getFullVersionFromUserAgentString(browser);
-  return "" === fullVersionFromUserAgentString ? void 0 : new module$contents$goog$labs$userAgent$browser_UserAgentStringFallbackBrandVersion(fullVersionFromUserAgentString);
+  return new module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion(browser, useUach, fallbackVersionString);
 }
 goog.labs.userAgent.browser.fullVersionOf = module$contents$goog$labs$userAgent$browser_fullVersionOf;
 goog.labs.userAgent.browser.getVersionStringForLogging = function module$contents$goog$labs$userAgent$browser_getVersionStringForLogging(browser) {
-  if (module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand()) {
+  if (module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand(!0)) {
     var fullVersionObj = module$contents$goog$labs$userAgent$browser_fullVersionOf(browser);
     if (fullVersionObj) {
       var fullVersion = fullVersionObj.getIfLoaded();
@@ -3075,7 +3094,7 @@ goog.labs.userAgent.browser.getVersionStringForLogging = function module$content
       var matchingBrand = module$contents$goog$labs$userAgent$util_getUserAgentData().brands.find(function($jscomp$destructuring$var10) {
         return $jscomp$destructuring$var10.brand === browser;
       });
-      goog.asserts.assertExists(matchingBrand);
+      (0,goog.asserts.assertExists)(matchingBrand);
       return matchingBrand.version;
     }
     return "";
@@ -3142,7 +3161,10 @@ goog.labs.userAgent.engine.isVersionOrHigher = function module$contents$goog$lab
 };
 goog.labs.userAgent.engine.isWebKit = module$contents$goog$labs$userAgent$engine_isWebKit;
 goog.labs.userAgent.platform = {};
-function module$contents$goog$labs$userAgent$platform_useUserAgentDataPlatform() {
+function module$contents$goog$labs$userAgent$platform_useUserAgentDataPlatform(ignoreClientHintsFlag) {
+  if (!(void 0 !== ignoreClientHintsFlag && ignoreClientHintsFlag || (0,goog.labs.userAgent.useClientHints)())) {
+    return !1;
+  }
   var userAgentData = module$contents$goog$labs$userAgent$util_getUserAgentData();
   return !!userAgentData && !!userAgentData.platform;
 }
@@ -3206,22 +3228,23 @@ function module$contents$goog$labs$userAgent$platform_getVersion() {
   return version || "";
 }
 var module$contents$goog$labs$userAgent$platform_PlatformVersion = function() {
+  this.preUachHasLoaded_ = !1;
 };
 module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.getIfLoaded = function() {
-  if (module$contents$goog$labs$userAgent$util_getUserAgentData()) {
+  if (module$contents$goog$labs$userAgent$platform_useUserAgentDataPlatform(!0)) {
     var loadedPlatformVersion = module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion.getIfLoaded();
-    if (void 0 !== loadedPlatformVersion) {
-      return new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(loadedPlatformVersion);
-    }
-  } else {
+    return void 0 === loadedPlatformVersion ? void 0 : new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(loadedPlatformVersion);
+  }
+  if (this.preUachHasLoaded_) {
     return new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(module$contents$goog$labs$userAgent$platform_getVersion());
   }
 };
 module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.load = function() {
-  var JSCompiler_temp_const;
+  var $jscomp$async$this = this, JSCompiler_temp_const;
   return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context) {
     if (1 == $jscomp$generator$context.nextAddress) {
-      if (!module$contents$goog$labs$userAgent$util_getUserAgentData()) {
+      if (!module$contents$goog$labs$userAgent$platform_useUserAgentDataPlatform(!0)) {
+        $jscomp$async$this.preUachHasLoaded_ = !0;
         return $jscomp$generator$context.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(module$contents$goog$labs$userAgent$platform_getVersion()));
         return $jscomp$generator$context.jumpTo(0);
       }
@@ -3230,6 +3253,10 @@ module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.load = fu
     }
     return $jscomp$generator$context.return(new JSCompiler_temp_const($jscomp$generator$context.yieldResult));
   });
+};
+module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.resetForTesting = function() {
+  module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion.resetForTesting();
+  this.preUachHasLoaded_ = !1;
 };
 var module$contents$goog$labs$userAgent$platform_version = new module$contents$goog$labs$userAgent$platform_PlatformVersion();
 goog.labs.userAgent.platform.getVersion = module$contents$goog$labs$userAgent$platform_getVersion;
@@ -8879,8 +8906,8 @@ module$exports$eeapiclient$ee_api_client.TilesetDataTypeEnum = {DATA_TYPE_UNSPEC
 }};
 module$exports$eeapiclient$ee_api_client.ITrialStatusEligibilityEnum = function module$contents$eeapiclient$ee_api_client_ITrialStatusEligibilityEnum() {
 };
-module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum = {ALREADY_EVALUATED:"ALREADY_EVALUATED", ELIGIBILITY_UNSPECIFIED:"ELIGIBILITY_UNSPECIFIED", ELIGIBLE:"ELIGIBLE", REDEEMED:"REDEEMED", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ELIGIBILITY_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ELIGIBLE, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.REDEEMED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ALREADY_EVALUATED];
+module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum = {ALREADY_EVALUATED:"ALREADY_EVALUATED", ELIGIBILITY_UNSPECIFIED:"ELIGIBILITY_UNSPECIFIED", ELIGIBLE:"ELIGIBLE", NO_BILLING_ACCOUNT:"NO_BILLING_ACCOUNT", REDEEMED:"REDEEMED", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ELIGIBILITY_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ELIGIBLE, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.REDEEMED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ALREADY_EVALUATED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.NO_BILLING_ACCOUNT];
 }};
 module$exports$eeapiclient$ee_api_client.ITrialStatusStateEnum = function module$contents$eeapiclient$ee_api_client_ITrialStatusStateEnum() {
 };
@@ -12970,13 +12997,14 @@ module$exports$eeapiclient$ee_api_client.TrialStatus = function(parameters) {
   this.Serializable$set("state", null == parameters.state ? null : parameters.state);
   this.Serializable$set("startTime", null == parameters.startTime ? null : parameters.startTime);
   this.Serializable$set("expiryTime", null == parameters.expiryTime ? null : parameters.expiryTime);
+  this.Serializable$set("subscription", null == parameters.subscription ? null : parameters.subscription);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.TrialStatus, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.TrialStatus.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.TrialStatus;
 };
 module$exports$eeapiclient$ee_api_client.TrialStatus.prototype.getPartialClassMetadata = function() {
-  return {enums:{eligibility:module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum, state:module$exports$eeapiclient$ee_api_client.TrialStatusStateEnum}, keys:["billingAccount", "eligibility", "expiryTime", "startTime", "state"]};
+  return {enums:{eligibility:module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum, state:module$exports$eeapiclient$ee_api_client.TrialStatusStateEnum}, keys:"billingAccount eligibility expiryTime startTime state subscription".split(" ")};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TrialStatus.prototype, {billingAccount:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("billingAccount") ? this.Serializable$get("billingAccount") : null;
@@ -12998,6 +13026,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("state") ? this.Serializable$get("state") : null;
 }, set:function(value) {
   this.Serializable$set("state", value);
+}}, subscription:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("subscription") ? this.Serializable$get("subscription") : null;
+}, set:function(value) {
+  this.Serializable$set("subscription", value);
 }}});
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TrialStatus, {Eligibility:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum;
@@ -16916,7 +16948,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.326";
+ee.apiclient.API_CLIENT_VERSION = "0.1.327";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17197,8 +17229,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.326";
-  "0.1.326" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.327";
+  "0.1.327" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
