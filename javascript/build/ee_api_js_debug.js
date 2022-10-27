@@ -1275,6 +1275,17 @@ goog.module.getInternal_ = function(name) {
   var ns;
   return null;
 };
+goog.requireDynamic = function(name) {
+  return null;
+};
+goog.importHandler_ = null;
+goog.uncompiledChunkIdHandler_ = null;
+goog.setImportHandlerInternalDoNotCallOrElse = function(fn) {
+  goog.importHandler_ = fn;
+};
+goog.setUncompiledChunkIdHandlerInternalDoNotCallOrElse = function(fn) {
+  goog.uncompiledChunkIdHandler_ = fn;
+};
 goog.ModuleType = {ES6:"es6", GOOG:"goog"};
 goog.moduleLoaderState_ = null;
 goog.isInModuleLoader_ = function() {
@@ -6871,7 +6882,7 @@ function module$contents$goog$html$SafeStyle_hasBalancedSquareBrackets(value) {
   }
   return outside;
 }
-var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-,.\"'%_!#/ a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|radial-gradient|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|var)\\([-+*/0-9a-zA-Z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
+var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-,.\"'%_!#/ a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|radial-gradient|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|steps|var)\\([-+*/0-9a-zA-Z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
 /\/\*/;
 function module$contents$goog$html$SafeStyle_sanitizeUrl(value) {
   return value.replace(module$contents$goog$html$SafeStyle_URL_RE, function(match$jscomp$0, before, url, after) {
@@ -8875,6 +8886,11 @@ module$exports$eeapiclient$ee_api_client.ITableFileFormatEnum = function module$
 module$exports$eeapiclient$ee_api_client.TableFileFormatEnum = {CSV:"CSV", GEO_JSON:"GEO_JSON", KML:"KML", KMZ:"KMZ", SHP:"SHP", TABLE_FILE_FORMAT_UNSPECIFIED:"TABLE_FILE_FORMAT_UNSPECIFIED", TF_RECORD_TABLE:"TF_RECORD_TABLE", values:function() {
   return [module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.TABLE_FILE_FORMAT_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.CSV, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.GEO_JSON, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.KML, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.KMZ, 
   module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.SHP, module$exports$eeapiclient$ee_api_client.TableFileFormatEnum.TF_RECORD_TABLE];
+}};
+module$exports$eeapiclient$ee_api_client.ITableManifestColumnDataTypeOverridesEnum = function module$contents$eeapiclient$ee_api_client_ITableManifestColumnDataTypeOverridesEnum() {
+};
+module$exports$eeapiclient$ee_api_client.TableManifestColumnDataTypeOverridesEnum = {COLUMN_DATA_TYPE_LONG:"COLUMN_DATA_TYPE_LONG", COLUMN_DATA_TYPE_NUMERIC:"COLUMN_DATA_TYPE_NUMERIC", COLUMN_DATA_TYPE_STRING:"COLUMN_DATA_TYPE_STRING", COLUMN_DATA_TYPE_UNSPECIFIED:"COLUMN_DATA_TYPE_UNSPECIFIED", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.TableManifestColumnDataTypeOverridesEnum.COLUMN_DATA_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TableManifestColumnDataTypeOverridesEnum.COLUMN_DATA_TYPE_STRING, module$exports$eeapiclient$ee_api_client.TableManifestColumnDataTypeOverridesEnum.COLUMN_DATA_TYPE_NUMERIC, module$exports$eeapiclient$ee_api_client.TableManifestColumnDataTypeOverridesEnum.COLUMN_DATA_TYPE_LONG];
 }};
 module$exports$eeapiclient$ee_api_client.ITableManifestCsvColumnDataTypeOverridesEnum = function module$contents$eeapiclient$ee_api_client_ITableManifestCsvColumnDataTypeOverridesEnum() {
 };
@@ -12370,16 +12386,21 @@ module$exports$eeapiclient$ee_api_client.TableManifest = function(parameters) {
   this.Serializable$set("endTime", null == parameters.endTime ? null : parameters.endTime);
   this.Serializable$set("csvColumnDataTypeOverrides", null == parameters.csvColumnDataTypeOverrides ? null : parameters.csvColumnDataTypeOverrides);
   this.Serializable$set("policy", null == parameters.policy ? null : parameters.policy);
+  this.Serializable$set("columnDataTypeOverrides", null == parameters.columnDataTypeOverrides ? null : parameters.columnDataTypeOverrides);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.TableManifest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.TableManifest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.TableManifest;
 };
 module$exports$eeapiclient$ee_api_client.TableManifest.prototype.getPartialClassMetadata = function() {
-  return {arrays:{sources:module$exports$eeapiclient$ee_api_client.TableSource}, enums:{csvColumnDataTypeOverrides:module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum}, keys:"csvColumnDataTypeOverrides endTime name policy properties sources startTime uriPrefix".split(" "), objectMaps:{csvColumnDataTypeOverrides:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}, properties:{ctor:null, 
-  isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{policy:module$exports$eeapiclient$ee_api_client.Policy}};
+  return {arrays:{sources:module$exports$eeapiclient$ee_api_client.TableSource}, enums:{columnDataTypeOverrides:module$exports$eeapiclient$ee_api_client.TableManifestColumnDataTypeOverridesEnum, csvColumnDataTypeOverrides:module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum}, keys:"columnDataTypeOverrides csvColumnDataTypeOverrides endTime name policy properties sources startTime uriPrefix".split(" "), 
+  objectMaps:{columnDataTypeOverrides:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}, csvColumnDataTypeOverrides:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}, properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{policy:module$exports$eeapiclient$ee_api_client.Policy}};
 };
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TableManifest.prototype, {csvColumnDataTypeOverrides:{configurable:!0, enumerable:!0, get:function() {
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TableManifest.prototype, {columnDataTypeOverrides:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("columnDataTypeOverrides") ? this.Serializable$get("columnDataTypeOverrides") : null;
+}, set:function(value) {
+  this.Serializable$set("columnDataTypeOverrides", value);
+}}, csvColumnDataTypeOverrides:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("csvColumnDataTypeOverrides") ? this.Serializable$get("csvColumnDataTypeOverrides") : null;
 }, set:function(value) {
   this.Serializable$set("csvColumnDataTypeOverrides", value);
@@ -12412,7 +12433,9 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }, set:function(value) {
   this.Serializable$set("uriPrefix", value);
 }}});
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TableManifest, {CsvColumnDataTypeOverrides:{configurable:!0, enumerable:!0, get:function() {
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TableManifest, {ColumnDataTypeOverrides:{configurable:!0, enumerable:!0, get:function() {
+  return module$exports$eeapiclient$ee_api_client.TableManifestColumnDataTypeOverridesEnum;
+}}, CsvColumnDataTypeOverrides:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverridesEnum;
 }}});
 module$exports$eeapiclient$ee_api_client.TableSourceParameters = function module$contents$eeapiclient$ee_api_client_TableSourceParameters() {
@@ -14134,6 +14157,131 @@ module$contents$goog$async$FreeList_FreeList.prototype.occupants = function() {
   return this.occupants_;
 };
 goog.async.FreeList = module$contents$goog$async$FreeList_FreeList;
+goog.dom.element = {};
+var module$contents$goog$dom$element_isElement = function(value) {
+  return goog.isObject(value) && value.nodeType === goog.dom.NodeType.ELEMENT;
+}, module$contents$goog$dom$element_isHtmlElement = function(value) {
+  return goog.isObject(value) && module$contents$goog$dom$element_isElement(value) && (!value.namespaceURI || "http://www.w3.org/1999/xhtml" === value.namespaceURI);
+}, module$contents$goog$dom$element_isHtmlElementOfType = function(value, tagName) {
+  return goog.isObject(value) && module$contents$goog$dom$element_isHtmlElement(value) && value.tagName.toUpperCase() === tagName.toString();
+};
+goog.dom.element.isElement = module$contents$goog$dom$element_isElement;
+goog.dom.element.isHtmlElement = module$contents$goog$dom$element_isHtmlElement;
+goog.dom.element.isHtmlElementOfType = module$contents$goog$dom$element_isHtmlElementOfType;
+goog.dom.element.isHtmlAnchorElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.A);
+};
+goog.dom.element.isHtmlButtonElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.BUTTON);
+};
+goog.dom.element.isHtmlLinkElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.LINK);
+};
+goog.dom.element.isHtmlImageElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.IMG);
+};
+goog.dom.element.isHtmlAudioElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.AUDIO);
+};
+goog.dom.element.isHtmlVideoElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.VIDEO);
+};
+goog.dom.element.isHtmlInputElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.INPUT);
+};
+goog.dom.element.isHtmlTextAreaElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.TEXTAREA);
+};
+goog.dom.element.isHtmlCanvasElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.CANVAS);
+};
+goog.dom.element.isHtmlEmbedElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.EMBED);
+};
+goog.dom.element.isHtmlFormElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.FORM);
+};
+goog.dom.element.isHtmlFrameElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.FRAME);
+};
+goog.dom.element.isHtmlIFrameElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.IFRAME);
+};
+goog.dom.element.isHtmlObjectElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.OBJECT);
+};
+goog.dom.element.isHtmlScriptElement = function(value) {
+  return module$contents$goog$dom$element_isHtmlElementOfType(value, goog.dom.TagName.SCRIPT);
+};
+goog.asserts.dom = {};
+var module$contents$goog$asserts$dom_assertIsHtmlElement = function(value) {
+  goog.asserts.ENABLE_ASSERTS && !module$contents$goog$dom$element_isHtmlElement(value) && goog.asserts.fail("Argument is not an HTML Element; got: " + module$contents$goog$asserts$dom_debugStringForType(value));
+  return value;
+}, module$contents$goog$asserts$dom_assertIsHtmlElementOfType = function(value, tagName) {
+  goog.asserts.ENABLE_ASSERTS && !module$contents$goog$dom$element_isHtmlElementOfType(value, tagName) && goog.asserts.fail("Argument is not an HTML Element with tag name " + (tagName.toString() + "; got: " + module$contents$goog$asserts$dom_debugStringForType(value)));
+  return value;
+}, module$contents$goog$asserts$dom_debugStringForType = function(value) {
+  if (goog.isObject(value)) {
+    try {
+      return value.constructor.displayName || value.constructor.name || Object.prototype.toString.call(value);
+    } catch (e) {
+      return "<object could not be stringified>";
+    }
+  } else {
+    return void 0 === value ? "undefined" : null === value ? "null" : typeof value;
+  }
+};
+goog.asserts.dom.assertIsElement = function(value) {
+  goog.asserts.ENABLE_ASSERTS && !module$contents$goog$dom$element_isElement(value) && goog.asserts.fail("Argument is not an Element; got: " + module$contents$goog$asserts$dom_debugStringForType(value));
+  return value;
+};
+goog.asserts.dom.assertIsHtmlElement = module$contents$goog$asserts$dom_assertIsHtmlElement;
+goog.asserts.dom.assertIsHtmlElementOfType = module$contents$goog$asserts$dom_assertIsHtmlElementOfType;
+goog.asserts.dom.assertIsHtmlAnchorElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.A);
+};
+goog.asserts.dom.assertIsHtmlButtonElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.BUTTON);
+};
+goog.asserts.dom.assertIsHtmlLinkElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.LINK);
+};
+goog.asserts.dom.assertIsHtmlImageElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.IMG);
+};
+goog.asserts.dom.assertIsHtmlAudioElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.AUDIO);
+};
+goog.asserts.dom.assertIsHtmlVideoElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.VIDEO);
+};
+goog.asserts.dom.assertIsHtmlInputElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.INPUT);
+};
+goog.asserts.dom.assertIsHtmlTextAreaElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.TEXTAREA);
+};
+goog.asserts.dom.assertIsHtmlCanvasElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.CANVAS);
+};
+goog.asserts.dom.assertIsHtmlEmbedElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.EMBED);
+};
+goog.asserts.dom.assertIsHtmlFormElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.FORM);
+};
+goog.asserts.dom.assertIsHtmlFrameElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.FRAME);
+};
+goog.asserts.dom.assertIsHtmlIFrameElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.IFRAME);
+};
+goog.asserts.dom.assertIsHtmlObjectElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.OBJECT);
+};
+goog.asserts.dom.assertIsHtmlScriptElement = function(value) {
+  return module$contents$goog$asserts$dom_assertIsHtmlElementOfType(value, goog.dom.TagName.SCRIPT);
+};
 goog.dom.BrowserFeature = {};
 goog.dom.BrowserFeature.ASSUME_NO_OFFSCREEN_CANVAS = !1;
 goog.dom.BrowserFeature.ASSUME_OFFSCREEN_CANVAS = !1;
@@ -14297,7 +14445,7 @@ goog.dom.getElement = function(element) {
 };
 goog.dom.getHTMLElement = function(id) {
   var element = goog.dom.getElement(id);
-  return element ? goog.asserts.assertInstanceof(element, HTMLElement) : null;
+  return element ? module$contents$goog$asserts$dom_assertIsHtmlElement(element) : null;
 };
 goog.dom.getElementHelper_ = function(doc, element) {
   return "string" === typeof element ? doc.getElementById(element) : element;
@@ -14306,12 +14454,12 @@ goog.dom.getRequiredElement = function(id) {
   return goog.dom.getRequiredElementHelper_(document, id);
 };
 goog.dom.getRequiredHTMLElement = function(id) {
-  return goog.asserts.assertInstanceof(goog.dom.getRequiredElementHelper_(document, id), HTMLElement);
+  return module$contents$goog$asserts$dom_assertIsHtmlElement(goog.dom.getRequiredElementHelper_(document, id));
 };
 goog.dom.getRequiredElementHelper_ = function(doc, id) {
   goog.asserts.assertString(id);
   var element = goog.dom.getElementHelper_(doc, id);
-  return element = goog.asserts.assertElement(element, "No element found with id: " + id);
+  return goog.asserts.assert(element, "No element found with id: " + id);
 };
 goog.dom.$ = goog.dom.getElement;
 goog.dom.getElementsByTagName = function(tagName, opt_parent) {
@@ -14333,7 +14481,7 @@ goog.dom.getElementByClass = function(className, opt_el) {
 };
 goog.dom.getHTMLElementByClass = function(className, opt_parent) {
   var element = goog.dom.getElementByClass(className, opt_parent);
-  return element ? goog.asserts.assertInstanceof(element, HTMLElement) : null;
+  return element ? module$contents$goog$asserts$dom_assertIsHtmlElement(element) : null;
 };
 goog.dom.getRequiredElementByClass = function(className, opt_root) {
   var retValue = goog.dom.getElementByClass(className, opt_root);
@@ -14341,7 +14489,8 @@ goog.dom.getRequiredElementByClass = function(className, opt_root) {
 };
 goog.dom.getRequiredHTMLElementByClass = function(className, opt_parent) {
   var retValue = goog.dom.getElementByClass(className, opt_parent);
-  return goog.asserts.assertInstanceof(retValue, HTMLElement, "No HTMLElement found with className: " + className);
+  goog.asserts.assert(retValue, "No HTMLElement found with className: " + className);
+  return module$contents$goog$asserts$dom_assertIsHtmlElement(retValue);
 };
 goog.dom.canUseQuerySelector_ = function(parent) {
   return !(!parent.querySelectorAll || !parent.querySelector);
@@ -16948,7 +17097,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.329";
+ee.apiclient.API_CLIENT_VERSION = "0.1.330";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17229,8 +17378,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.329";
-  "0.1.329" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.330";
+  "0.1.330" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

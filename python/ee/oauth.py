@@ -15,6 +15,7 @@ import hashlib
 import http.server
 import json
 import os
+import subprocess
 import sys
 import webbrowser
 
@@ -51,8 +52,7 @@ AUTH_URL_TEMPLATE = AUTH_PAGE_URL + '?scopes={scopes}' + (
     '&request_id={request_id}&tc={token_challenge}&cc={client_challenge}')
 
 # Command to execute in gcloud mode
-GCLOUD_COMMAND = ('gcloud auth application-default login --scopes={scopes} '
-                  '--client-id-file={client_id_file} {flags}')
+GCLOUD_COMMAND = 'gcloud auth application-default login'
 
 DEFAULT_LOCAL_PORT = 8085
 WAITING_CODA = 'Waiting for successful authorization from web browser ...'
@@ -280,16 +280,27 @@ def _load_app_default_credentials(run_gcloud=True, scopes=None, quiet=None):
         token_uri=TOKEN_URI)
     client_id_file = get_credentials_path() + '-client-id.json'
     write_private_json(client_id_file, dict(installed=client_id_json))
-    command = GCLOUD_COMMAND.format(
-        scopes=','.join(scopes or SCOPES),
-        client_id_file=client_id_file,
-        flags='--no-browser' if quiet else '')
+    command = GCLOUD_COMMAND.split()
+    command += ['--scopes=%s' % (','.join(scopes or SCOPES))]
+    command += ['--client-id-file=%s' % client_id_file]
+    command += ['--no-browser'] if quiet else []
     print('Fetching credentials using gcloud')
-    return_code = os.system(command)
-    os.remove(client_id_file)
-    if return_code != 0:
-      raise Exception('gcloud failed. Please check for any errors above '
-                      'and install gcloud if needed.')
+    more_info = '\nMore information: ' + (
+        'https://developers.google.com/earth-engine/guides/python_install\n')
+    try:
+      subprocess.run(command, check=True)
+    except FileNotFoundError as e:
+      tip = 'Please ensure that gcloud is installed.' + more_info
+      raise Exception('gcloud command not found. ' + tip) from e
+    except subprocess.CalledProcessError as e:
+      tip = ('Please check for any errors above.\n*Possible fixes:'
+             ' If you loaded a page with a "redirect_uri_mismatch" error,'
+             ' run earthengine authenticate with the --quiet flag;'
+             ' if the error page says "invalid_request", be sure to run the'
+             ' entire gcloud auth command that is shown.' + more_info)
+      raise Exception('gcloud failed. ' + tip) from e
+    finally:
+      os.remove(client_id_file)
   else:
     # Only consult the environment variable in appdefault mode, because gcloud
     # always writes to the default location.

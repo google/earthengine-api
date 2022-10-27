@@ -4,6 +4,7 @@
 from unittest import mock
 
 import httplib2
+import requests
 
 import unittest
 import ee
@@ -375,18 +376,19 @@ class DataTest(unittest.TestCase):
 
 def DoCloudProfileStubHttp(test, expect_profiling):
 
-  def Request(unused_self, unused_url, method, body, headers):
-    _ = method, body  # Unused kwargs.
+  def MockRequest(unused_self, method, uri, data, headers, timeout):
+    del method, uri, data, timeout  # Unused
     test.assertEqual(expect_profiling, ee.data._PROFILE_REQUEST_HEADER
                      in headers)
-    response_dict = {'status': 200, 'content-type': 'application/json'}
+    response = requests.Response()
+    response.status_code = 200
+    response._content = '{"data": "dummy_data"}'
     if expect_profiling:
-      response_dict[
+      response.headers[
           ee.data._PROFILE_RESPONSE_HEADER_LOWERCASE] = 'someProfileId'
-    response = httplib2.Response(response_dict)
-    return response, '{"data": "dummy_data"}'
+    return response
 
-  return mock.patch('httplib2.Http.request', new=Request)
+  return mock.patch.object(requests.Session, 'request', new=MockRequest)
 
 
 if __name__ == '__main__':

@@ -13,7 +13,6 @@ import json
 
 import os
 import re
-import sys
 import warnings
 
 from . import ee_exception
@@ -23,18 +22,9 @@ from googleapiclient import discovery
 from googleapiclient import http
 from googleapiclient import model
 
-# We use the urllib3-aware shim if it's available and supported.
-# It is not compatible with Python 3.10 or newer.
-# pylint: disable=g-bad-import-order,g-import-not-at-top
-if sys.version_info >= (3, 10):
-  import httplib2
-else:
-  try:
-    import httplib2shim as httplib2
-  except ImportError:
-    import httplib2
+import httplib2
+import requests
 import six
-# pylint: enable=g-bad-import-order,g-import-not-at-top
 
 # The Cloud API version.
 VERSION = os.environ.get('EE_CLOUD_API_VERSION', 'v1alpha')
@@ -49,6 +39,33 @@ ASSET_ROOT_PATTERN = (r'^projects/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
 
 # The default user project to use when making Cloud API calls.
 _cloud_api_user_project = None
+
+
+class _Http:
+  """A httplib2.Http-like object based on requests."""
+
+  def __init__(self, timeout=None):
+    self._timeout = timeout
+
+  def request(  # pylint: disable=invalid-name
+      self,
+      uri,
+      method='GET',
+      body=None,
+      headers=None,
+      redirections=None,
+      connection_type=None):
+    """Makes an HTTP request using httplib2 semantics."""
+    del connection_type  # Unused
+
+    with requests.Session() as session:
+      session.max_redirects = redirections
+      response = session.request(
+          method, uri, data=body, headers=headers, timeout=self._timeout)
+      headers = dict(response.headers)
+      headers['status'] = response.status_code
+      content = response.content
+    return httplib2.Response(headers), content
 
 
 def _wrap_request(headers_supplier, response_inspector):
@@ -132,7 +149,7 @@ def build_cloud_resource(api_base_url,
       '{}/$discovery/rest?version={}&prettyPrint=false'
       .format(api_base_url, VERSION))
   if http_transport is None:
-    http_transport = httplib2.Http(timeout=timeout)
+    http_transport = _Http(timeout)
   if credentials is not None:
     http_transport = AuthorizedHttp(credentials, http=http_transport)
   request_builder = _wrap_request(headers_supplier, response_inspector)
@@ -188,6 +205,8 @@ def build_cloud_resource_from_document(discovery_document,
     A resource object to use to call the Cloud API.
   """
   request_builder = _wrap_request(headers_supplier, response_inspector)
+  if http_transport is None:
+    http_transport = _Http()
   return discovery.build_from_document(
       discovery_document,
       http=http_transport,
