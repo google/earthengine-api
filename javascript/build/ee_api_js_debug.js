@@ -2590,7 +2590,7 @@ goog.debug.freeze = function(arg) {
     return goog.debug.freezeInternal_(arg);
   }();
 };
-goog.events.BrowserFeature = {TOUCH_ENABLED:"ontouchstart" in goog.global || !!(goog.global.document && document.documentElement && "ontouchstart" in document.documentElement) || !(!goog.global.navigator || !goog.global.navigator.maxTouchPoints && !goog.global.navigator.msMaxTouchPoints), POINTER_EVENTS:"PointerEvent" in goog.global, MSPOINTER_EVENTS:"MSPointerEvent" in goog.global && !(!goog.global.navigator || !goog.global.navigator.msPointerEnabled), PASSIVE_EVENTS:function(fn) {
+goog.events.BrowserFeature = {TOUCH_ENABLED:"ontouchstart" in goog.global || !!(goog.global.document && document.documentElement && "ontouchstart" in document.documentElement) || !(!goog.global.navigator || !goog.global.navigator.maxTouchPoints && !goog.global.navigator.msMaxTouchPoints), POINTER_EVENTS:"PointerEvent" in goog.global, MSPOINTER_EVENTS:!1, PASSIVE_EVENTS:function(fn) {
   return {valueOf:fn}.valueOf();
 }(function() {
   if (!goog.global.addEventListener || !Object.defineProperty) {
@@ -14574,7 +14574,7 @@ goog.dom.getDocumentScroll = function() {
 };
 goog.dom.getDocumentScroll_ = function(doc) {
   var el = goog.dom.getDocumentScrollElement_(doc), win = goog.dom.getWindow_(doc);
-  return goog.userAgent.IE && goog.userAgent.isVersionOrHigher("10") && win.pageYOffset != el.scrollTop ? new goog.math.Coordinate(el.scrollLeft, el.scrollTop) : new goog.math.Coordinate(win.pageXOffset || el.scrollLeft, win.pageYOffset || el.scrollTop);
+  return goog.userAgent.IE && win.pageYOffset != el.scrollTop ? new goog.math.Coordinate(el.scrollLeft, el.scrollTop) : new goog.math.Coordinate(win.pageXOffset || el.scrollLeft, win.pageYOffset || el.scrollTop);
 };
 goog.dom.getDocumentScrollElement = function() {
   return goog.dom.getDocumentScrollElement_(document);
@@ -14802,7 +14802,7 @@ goog.dom.isWindow = function(obj) {
 };
 goog.dom.getParentElement = function(element) {
   var parent;
-  if (goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY && !(goog.userAgent.IE && goog.userAgent.isVersionOrHigher("9") && !goog.userAgent.isVersionOrHigher("10") && goog.global.SVGElement && element instanceof goog.global.SVGElement) && (parent = element.parentElement)) {
+  if (goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY && (parent = element.parentElement)) {
     return parent;
   }
   parent = element.parentNode;
@@ -15350,6 +15350,7 @@ goog.ASSUME_NATIVE_PROMISE = !1;
 var module$contents$goog$async$run_schedule, module$contents$goog$async$run_workQueueScheduled = !1, module$contents$goog$async$run_workQueue = new module$contents$goog$async$WorkQueue_WorkQueue(), module$contents$goog$async$run_run = function(callback, context) {
   module$contents$goog$async$run_schedule || module$contents$goog$async$run_initializeRunner();
   module$contents$goog$async$run_workQueueScheduled || (module$contents$goog$async$run_schedule(), module$contents$goog$async$run_workQueueScheduled = !0);
+  goog.DEBUG && "createTask" in console && !callback.consoleTask && (callback.consoleTask = console.createTask(callback.name || "anonymous"));
   module$contents$goog$async$run_workQueue.add(callback, context);
 }, module$contents$goog$async$run_initializeRunner = function() {
   if (goog.ASSUME_NATIVE_PROMISE || goog.global.Promise && goog.global.Promise.resolve) {
@@ -15378,7 +15379,9 @@ goog.DEBUG && (module$contents$goog$async$run_run.resetQueue = function() {
 module$contents$goog$async$run_run.processWorkQueue = function() {
   for (var item = null; item = module$contents$goog$async$run_workQueue.remove();) {
     try {
-      item.fn.call(item.scope);
+      goog.DEBUG && item.fn.consoleTask ? item.fn.consoleTask.run(function() {
+        return (0,goog.asserts.assertExists)(item).fn.call(item.scope);
+      }) : item.fn.call(item.scope);
     } catch (e) {
       module$contents$goog$async$throwException_throwException(e);
     }
@@ -16878,7 +16881,7 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
   }
 };
 goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
-  return goog.userAgent.IE && goog.userAgent.isVersionOrHigher(9) && "number" === typeof xhr[goog.net.XhrIo.XHR2_TIMEOUT_] && void 0 !== xhr[goog.net.XhrIo.XHR2_ON_TIMEOUT_];
+  return goog.userAgent.IE && "number" === typeof xhr[goog.net.XhrIo.XHR2_TIMEOUT_] && void 0 !== xhr[goog.net.XhrIo.XHR2_ON_TIMEOUT_];
 };
 goog.net.XhrIo.prototype.createXhr = function() {
   return this.xmlHttpFactory_ ? this.xmlHttpFactory_.createInstance() : goog.net.XmlHttp();
@@ -17097,7 +17100,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.330";
+ee.apiclient.API_CLIENT_VERSION = "0.1.331";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17378,8 +17381,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.330";
-  "0.1.330" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.331";
+  "0.1.331" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -23372,19 +23375,7 @@ goog.style.getBorderBoxSize = function(element) {
   return new goog.math.Size(element.offsetWidth, element.offsetHeight);
 };
 goog.style.setBorderBoxSize = function(element, size) {
-  var doc = goog.dom.getOwnerDocument(element), isCss1CompatMode = goog.dom.getDomHelper(doc).isCss1CompatMode();
-  if (!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10") || isCss1CompatMode) {
-    goog.style.setBoxSizingSize_(element, size, "border-box");
-  } else {
-    var style = element.style;
-    if (isCss1CompatMode) {
-      var paddingBox = goog.style.getPaddingBox(element), borderBox = goog.style.getBorderBox(element);
-      style.pixelWidth = size.width - borderBox.left - paddingBox.left - paddingBox.right - borderBox.right;
-      style.pixelHeight = size.height - borderBox.top - paddingBox.top - paddingBox.bottom - borderBox.bottom;
-    } else {
-      style.pixelWidth = size.width, style.pixelHeight = size.height;
-    }
-  }
+  goog.style.setBoxSizingSize_(element, size, "border-box");
 };
 goog.style.getContentBoxSize = function(element) {
   var doc = goog.dom.getOwnerDocument(element), ieCurrentStyle = goog.userAgent.IE && element.currentStyle;
@@ -23396,19 +23387,7 @@ goog.style.getContentBoxSize = function(element) {
   return new goog.math.Size(borderBoxSize.width - borderBox.left - paddingBox.left - paddingBox.right - borderBox.right, borderBoxSize.height - borderBox.top - paddingBox.top - paddingBox.bottom - borderBox.bottom);
 };
 goog.style.setContentBoxSize = function(element, size) {
-  var doc = goog.dom.getOwnerDocument(element), isCss1CompatMode = goog.dom.getDomHelper(doc).isCss1CompatMode();
-  if (!goog.userAgent.IE || goog.userAgent.isVersionOrHigher("10") || isCss1CompatMode) {
-    goog.style.setBoxSizingSize_(element, size, "content-box");
-  } else {
-    var style = element.style;
-    if (isCss1CompatMode) {
-      style.pixelWidth = size.width, style.pixelHeight = size.height;
-    } else {
-      var paddingBox = goog.style.getPaddingBox(element), borderBox = goog.style.getBorderBox(element);
-      style.pixelWidth = size.width + borderBox.left + paddingBox.left + paddingBox.right + borderBox.right;
-      style.pixelHeight = size.height + borderBox.top + paddingBox.top + paddingBox.bottom + borderBox.bottom;
-    }
-  }
+  goog.style.setBoxSizingSize_(element, size, "content-box");
 };
 goog.style.setBoxSizingSize_ = function(element, size, boxSizing) {
   var style = element.style;
@@ -23839,7 +23818,7 @@ goog.net.ImageLoader = function(opt_parent) {
 };
 goog.inherits(goog.net.ImageLoader, goog.events.EventTarget);
 goog.net.ImageLoader.CorsRequestType = {ANONYMOUS:"anonymous", USE_CREDENTIALS:"use-credentials",};
-goog.net.ImageLoader.IMAGE_LOAD_EVENTS_ = [goog.userAgent.IE && !goog.userAgent.isVersionOrHigher("11") ? goog.net.EventType.READY_STATE_CHANGE : goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR,];
+goog.net.ImageLoader.IMAGE_LOAD_EVENTS_ = [goog.events.EventType.LOAD, goog.net.EventType.ABORT, goog.net.EventType.ERROR,];
 goog.net.ImageLoader.prototype.addImage = function(id, image, opt_corsRequestType) {
   var src = "string" === typeof image ? image : image.src;
   src && (this.completionFired_ = !1, this.imageIdToRequestMap_[id] = {src:src, corsRequestType:void 0 !== opt_corsRequestType ? opt_corsRequestType : null,});
