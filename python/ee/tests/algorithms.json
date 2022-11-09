@@ -9242,7 +9242,7 @@
     }]
   }, {
     "name": "algorithms/Image.paint",
-    "description": "Paints the geometries of a collection onto an image.",
+    "description": "Paints the geometries of a collection onto an image, using the given \u0027color\u0027 value to replace each band\u0027s values where any geometry covers the image (or, if a line width isspecified, where the perimeters do).\nThis algorithm is most suitable for converting categorical data from feature properties to pixels in an image; if you wish to visualize a collection, consider using FeatureCollection.style instead, which supports RGB colors whereas this algorithm is strictly \u0027monochrome\u0027 (using single numeric values).",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9255,13 +9255,13 @@
     }, {
       "argumentName": "color",
       "type": "Object",
-      "description": "Either the name of a color property or a number.",
+      "description": "The pixel value to paint into every band of the input image, either as a number which will be used for all features, or the name of a numeric property to take from each  feature in the collection.",
       "optional": true,
       "defaultValue": 0.0
     }, {
       "argumentName": "width",
       "type": "Object",
-      "description": "Either the name of a line-width property or a number.",
+      "description": "Line width, either as a number which will be the line width for all geometries, or the name of a numeric property to take from each feature in the collection. If unspecified, the geometries will be filled instead of outlined.",
       "optional": true,
       "defaultValue": null
     }]

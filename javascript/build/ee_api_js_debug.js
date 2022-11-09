@@ -9903,18 +9903,23 @@ module$exports$eeapiclient$ee_api_client.EarthEngineDestination = function(param
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
+  this.Serializable$set("overwrite", null == parameters.overwrite ? null : parameters.overwrite);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.EarthEngineDestination, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.EarthEngineDestination.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.EarthEngineDestination;
 };
 module$exports$eeapiclient$ee_api_client.EarthEngineDestination.prototype.getPartialClassMetadata = function() {
-  return {keys:["name"]};
+  return {keys:["name", "overwrite"]};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.EarthEngineDestination.prototype, {name:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("name") ? this.Serializable$get("name") : null;
 }, set:function(value) {
   this.Serializable$set("name", value);
+}}, overwrite:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("overwrite") ? this.Serializable$get("overwrite") : null;
+}, set:function(value) {
+  this.Serializable$set("overwrite", value);
 }}});
 module$exports$eeapiclient$ee_api_client.EarthEngineMapParameters = function module$contents$eeapiclient$ee_api_client_EarthEngineMapParameters() {
 };
@@ -17100,7 +17105,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.331";
+ee.apiclient.API_CLIENT_VERSION = "0.1.332";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17381,8 +17386,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.331";
-  "0.1.331" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.332";
+  "0.1.332" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
