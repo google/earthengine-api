@@ -240,10 +240,18 @@ class Export(object):
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toAsset(image, description='myExportImageTask', assetId=None,
-                pyramidingPolicy=None, dimensions=None, region=None,
-                scale=None, crs=None, crsTransform=None, maxPixels=None,
-                **kwargs):
+    def toAsset(
+        image,
+        description='myExportImageTask',
+        assetId=None,
+        pyramidingPolicy=None,
+        dimensions=None,
+        region=None,
+        scale=None,
+        crs=None,
+        crsTransform=None,
+        maxPixels=None,
+        **kwargs):
       """Creates a task to export an EE Image to an EE Asset.
 
       Args:
@@ -1458,8 +1466,9 @@ def _build_earth_engine_destination(config):
     config.
   """
   return {
-      'name': _cloud_api_utils.convert_asset_id_to_asset_name(
-          config.pop('assetId'))
+      'name':
+          _cloud_api_utils.convert_asset_id_to_asset_name(
+              config.pop('assetId')),
   }
 
 

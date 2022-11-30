@@ -406,11 +406,15 @@ ee.data.getMapId = function(params, opt_callback) {
     bandIds: ee.rpc_convert.bandList(params.bands),
     visualizationOptions: ee.rpc_convert.visualizationOptions(params),
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => ee.data.makeMapId_(response['name'], '');
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(
-      call.maps().create(call.projectsPath(), map, {fields}).then(getResponse));
+      call.maps().create(call.projectsPath(), map, queryParams).then(getResponse));
 };
 
 
@@ -610,7 +614,11 @@ ee.data.getThumbId = function(params, opt_callback) {
     visualizationOptions: ee.rpc_convert.visualizationOptions(params),
     grid: null,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => {
     /** @type {!ee.data.ThumbnailId} */
     const ret = {thumbid: response['name'], token: ''};
@@ -618,7 +626,7 @@ ee.data.getThumbId = function(params, opt_callback) {
   };
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(call.thumbnails()
-                         .create(call.projectsPath(), thumbnail, {fields})
+                         .create(call.projectsPath(), thumbnail, queryParams)
                          .then(getResponse));
 };
 
@@ -648,7 +656,11 @@ ee.data.getVideoThumbId = function(params, opt_callback) {
     videoOptions: videoOptions,
     grid: null,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => {
     /** @type {!ee.data.ThumbnailId} */
     const ret = {thumbid: response['name'], token: ''};
@@ -656,7 +668,7 @@ ee.data.getVideoThumbId = function(params, opt_callback) {
   };
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(call.videoThumbnails()
-                         .create(call.projectsPath(), request, {fields})
+                         .create(call.projectsPath(), request, queryParams)
                          .then(getResponse));
 };
 
@@ -680,7 +692,11 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
     orientation: ee.rpc_convert.orientation(params.orientation),
     grid: null,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => {
     /** @type {!ee.data.ThumbnailId} */
     const ret = {thumbid: response['name'], token: ''};
@@ -688,7 +704,7 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
   };
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(call.filmstripThumbnails()
-                         .create(call.projectsPath(), request, {fields})
+                         .create(call.projectsPath(), request, queryParams)
                          .then(getResponse));
 };
 
@@ -823,7 +839,11 @@ ee.data.getDownloadId = function(params, opt_callback) {
         ee.rpc_convert.bandList(params['bands'].map((band) => band.id)),
     grid: null,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => {
     /** @type {!ee.data.DownloadId} */
     const ret = {docid: response['name'], token: ''};
@@ -831,7 +851,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
   };
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(call.thumbnails()
-                         .create(call.projectsPath(), thumbnail, {fields})
+                         .create(call.projectsPath(), thumbnail, queryParams)
                          .then(getResponse));
 };
 
@@ -893,7 +913,11 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
     selectors,
     filename,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   /** @type {function(!ee.api.Table): !ee.data.DownloadId} */
   const getResponse = (res) => {
     /** @type {!ee.data.DownloadId} */
@@ -901,7 +925,7 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
     return ret;
   };
   return call.handle(call.tables()
-                         .create(call.projectsPath(), table, {fields})
+                         .create(call.projectsPath(), table, queryParams)
                          .then(getResponse));
 };
 

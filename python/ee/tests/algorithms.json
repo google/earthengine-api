@@ -8863,12 +8863,12 @@
     }]
   }, {
     "name": "algorithms/Image.cumulativeCost",
-    "description": "Computes a cumulative cost map based on an image containing costs to traverse each pixel and an image containing source locations.",
+    "description": "Computes a cumulative cost map based on an image containing costs to traverse each pixel and an image containing source locations.\nEach output band represents the cumulative cost over the corresponding input cost band.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "cost",
       "type": "Image\u003cunknown bands\u003e",
-      "description": "An image representing the cost to traverse each pixel. Masked pixels can\u0027t be traversed."
+      "description": "An image representing the cost to traverse each pixel. Masked pixels can\u0027t be traversed. When comparing pixel traversal costs, we use band-wise dictionary ordering. Ancillary cost bands are only considered when paths over primary bands are equal cost."
     }, {
       "argumentName": "source",
       "type": "Image\u003cunknown bands\u003e",
@@ -9242,7 +9242,7 @@
     }]
   }, {
     "name": "algorithms/Image.paint",
-    "description": "Paints the geometries of a collection onto an image, using the given \u0027color\u0027 value to replace each band\u0027s values where any geometry covers the image (or, if a line width isspecified, where the perimeters do).\nThis algorithm is most suitable for converting categorical data from feature properties to pixels in an image; if you wish to visualize a collection, consider using FeatureCollection.style instead, which supports RGB colors whereas this algorithm is strictly \u0027monochrome\u0027 (using single numeric values).",
+    "description": "Paints the geometries of a collection onto an image, using the given \u0027color\u0027 value to replace each band\u0027s values where any geometry covers the image (or, if a line width is specified, where the perimeters do).\nThis algorithm is most suitable for converting categorical data from feature properties to pixels in an image; if you wish to visualize a collection, consider using FeatureCollection.style instead, which supports RGB colors whereas this algorithm is strictly \u0027monochrome\u0027 (using single numeric values).",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9255,7 +9255,7 @@
     }, {
       "argumentName": "color",
       "type": "Object",
-      "description": "The pixel value to paint into every band of the input image, either as a number which will be used for all features, or the name of a numeric property to take from each  feature in the collection.",
+      "description": "The pixel value to paint into every band of the input image, either as a number which will be used for all features, or the name of a numeric property to take from each feature in the collection.",
       "optional": true,
       "defaultValue": 0.0
     }, {

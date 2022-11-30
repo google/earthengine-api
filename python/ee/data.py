@@ -581,11 +581,18 @@ def getMapId(params):
       params)
   if visualizationOptions:
     request['visualizationOptions'] = visualizationOptions
-  # Make it return only the name field, as otherwise it echoes the entire
-  # request, which might be large.
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
+  queryParams = {
+      'fields': 'name',
+      'body': request,
+  }
+  workload_tag = getWorkloadTag()
+  if workload_tag:
+    queryParams['workloadTag'] = workload_tag
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().maps().create(
-          parent=_get_projects_path(), fields='name', body=request))
+          parent=_get_projects_path(), **queryParams))
   map_name = result['name']
   url_format = '%s/%s/%s/tiles/{z}/{x}/{y}' % (
       _tile_base_url, _cloud_api_utils.VERSION, map_name)
@@ -617,8 +624,8 @@ def getFeatureViewTilesKey(params):
   if params.get('visParams'):
     request['visualizationExpression'] = serializer.encode(
         params.get('visParams'), for_cloud_api=True)
-  # Make it return only the name field, as otherwise it echoes the entire
-  # request, which might be large.
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().featureView().create(
           parent=_get_projects_path(), fields='name', body=request))
@@ -846,8 +853,15 @@ def getThumbId(params, thumbType=None):
       params)
   if visualizationOptions:
     request['visualizationOptions'] = visualizationOptions
-  # Make it return only the name field, as otherwise it echoes the entire
-  # request, which might be large.
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
+  queryParams = {
+      'fields': 'name',
+      'body': request,
+  }
+  workload_tag = getWorkloadTag()
+  if workload_tag:
+    queryParams['workloadTag'] = workload_tag
   if thumbType == 'video':
     if 'framesPerSecond' in params:
       request['videoOptions'] = {
@@ -855,20 +869,20 @@ def getThumbId(params, thumbType=None):
       }
     result = _execute_cloud_call(
         _get_cloud_api_resource().projects().videoThumbnails().create(
-            parent=_get_projects_path(), fields='name', body=request))
+            parent=_get_projects_path(), **queryParams))
   elif thumbType == 'filmstrip':
     # Currently only 'VERTICAL' thumbnails are supported.
     request['orientation'] = 'VERTICAL'
     result = _execute_cloud_call(
         _get_cloud_api_resource().projects().filmstripThumbnails().create(
-            parent=_get_projects_path(), fields='name', body=request))
+            parent=_get_projects_path(), **queryParams))
   else:
     request['filenamePrefix'] = params.get('name')
     request['bandIds'] = _cloud_api_utils.convert_to_band_list(
         params.get('bands'))
     result = _execute_cloud_call(
         _get_cloud_api_resource().projects().thumbnails().create(
-            parent=_get_projects_path(), fields='name', body=request))
+            parent=_get_projects_path(), **queryParams))
   return {'thumbid': result['name'], 'token': ''}
 
 
@@ -985,9 +999,18 @@ def getDownloadId(params):
   if bands:
     request['bandIds'] = _cloud_api_utils.convert_to_band_list(
         [band['id'] for band in bands])
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
+  queryParams = {
+      'fields': 'name',
+      'body': request,
+  }
+  workload_tag = getWorkloadTag()
+  if workload_tag:
+    queryParams['workloadTag'] = workload_tag
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().thumbnails().create(
-          parent=_get_projects_path(), fields='name', body=request))
+          parent=_get_projects_path(), **queryParams))
   return {'docid': result['name'], 'token': ''}
 
 
@@ -1038,9 +1061,18 @@ def getTableDownloadId(params):
       'selectors': selectors,
       'filename': filename,
   }
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
+  queryParams = {
+      'fields': 'name',
+      'body': request,
+  }
+  workload_tag = getWorkloadTag()
+  if workload_tag:
+    queryParams['workloadTag'] = workload_tag
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().tables().create(
-          parent=_get_projects_path(), fields='name', body=request))
+          parent=_get_projects_path(), **queryParams))
   return {'docid': result['name'], 'token': ''}
 
 

@@ -205,7 +205,7 @@ ee.rpc_convert.orientation = function(orientation) {
     return 'VERTICAL';
   }
   const upper = orientation.toUpperCase();
-  if (upper !== 'HORIZONTAL' || upper !== 'VERTICAL') {
+  if (upper !== 'HORIZONTAL' && upper !== 'VERTICAL') {
     throw new Error('Orientation must be "horizontal" or "vertical"');
   }
   return upper;

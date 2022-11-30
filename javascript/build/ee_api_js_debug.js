@@ -5616,9 +5616,7 @@ ee.TileEvent = function(count) {
   this.count = count;
 };
 goog.inherits(ee.TileEvent, goog.events.Event);
-var module$exports$tslib = {}, module$contents$tslib_extendStatics = Object.setPrototypeOf || {__proto__:[]} instanceof Array && function(d, b) {
-  d.__proto__ = b;
-} || function(d, b) {
+var module$exports$tslib = {}, module$contents$tslib_extendStatics = Object.setPrototypeOf || function(d, b) {
   for (var p in b) {
     Object.prototype.hasOwnProperty.call(b, p) && (d[p] = b[p]);
   }
@@ -17105,7 +17103,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.332";
+ee.apiclient.API_CLIENT_VERSION = "0.1.334";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17386,8 +17384,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.332";
-  "0.1.332" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.334";
+  "0.1.334" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17790,7 +17788,7 @@ ee.rpc_convert.orientation = function(orientation) {
     return "VERTICAL";
   }
   var upper = orientation.toUpperCase();
-  if ("HORIZONTAL" !== upper || "VERTICAL" !== upper) {
+  if ("HORIZONTAL" !== upper && "VERTICAL" !== upper) {
     throw Error('Orientation must be "horizontal" or "vertical"');
   }
   return upper;
@@ -19092,8 +19090,10 @@ ee.data.getMapId = function(params, opt_callback) {
   if (void 0 !== params.version) {
     throw Error("Image version specification not supported.");
   }
-  var map = new module$exports$eeapiclient$ee_api_client.EarthEngineMap({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.image)), fileFormat:ee.rpc_convert.fileFormat(params.format), bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params),}), call = new module$contents$ee$apiclient_Call(opt_callback);
-  return call.handle(call.maps().create(call.projectsPath(), map, {fields:["name"]}).then(function(response) {
+  var map = new module$exports$eeapiclient$ee_api_client.EarthEngineMap({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.image)), fileFormat:ee.rpc_convert.fileFormat(params.format), bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params),}), queryParams = {fields:"name"}, workloadTag = ee.data.getWorkloadTag();
+  workloadTag && (queryParams.workloadTag = workloadTag);
+  var call = new module$contents$ee$apiclient_Call(opt_callback);
+  return call.handle(call.maps().create(call.projectsPath(), map, queryParams).then(function(response) {
     return ee.data.makeMapId_(response.name, "");
   }));
 };
@@ -19158,23 +19158,29 @@ ee.data.getThumbId = function(params, opt_callback) {
   if (void 0 !== params.dimensions) {
     throw Error('"dimensions" is not supported in call to ee.data.getThumbId. Use ee.Image.getThumbURL.');
   }
-  var thumbnail = new module$exports$eeapiclient$ee_api_client.Thumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.image)), fileFormat:ee.rpc_convert.fileFormat(params.format), filenamePrefix:params.name, bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params), grid:null,}), call = new module$contents$ee$apiclient_Call(opt_callback);
-  return call.handle(call.thumbnails().create(call.projectsPath(), thumbnail, {fields:["name"]}).then(function(response) {
+  var thumbnail = new module$exports$eeapiclient$ee_api_client.Thumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.image)), fileFormat:ee.rpc_convert.fileFormat(params.format), filenamePrefix:params.name, bandIds:ee.rpc_convert.bandList(params.bands), visualizationOptions:ee.rpc_convert.visualizationOptions(params), grid:null,}), queryParams = {fields:"name"}, workloadTag = ee.data.getWorkloadTag();
+  workloadTag && (queryParams.workloadTag = workloadTag);
+  var call = new module$contents$ee$apiclient_Call(opt_callback);
+  return call.handle(call.thumbnails().create(call.projectsPath(), thumbnail, queryParams).then(function(response) {
     return {thumbid:response.name, token:""};
   }));
 };
 goog.exportSymbol("ee.data.getThumbId", ee.data.getThumbId);
 ee.data.getVideoThumbId = function(params, opt_callback) {
   var videoOptions = new module$exports$eeapiclient$ee_api_client.VideoOptions({framesPerSecond:params.framesPerSecond || null, maxFrames:params.maxFrames || null, maxPixelsPerFrame:params.maxPixelsPerFrame || null,}), request = new module$exports$eeapiclient$ee_api_client.VideoThumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.imageCollection)), fileFormat:ee.rpc_convert.fileFormat(params.format), 
-  videoOptions:videoOptions, grid:null,}), call = new module$contents$ee$apiclient_Call(opt_callback);
-  return call.handle(call.videoThumbnails().create(call.projectsPath(), request, {fields:["name"]}).then(function(response) {
+  videoOptions:videoOptions, grid:null,}), queryParams = {fields:"name"}, workloadTag = ee.data.getWorkloadTag();
+  workloadTag && (queryParams.workloadTag = workloadTag);
+  var call = new module$contents$ee$apiclient_Call(opt_callback);
+  return call.handle(call.videoThumbnails().create(call.projectsPath(), request, queryParams).then(function(response) {
     return {thumbid:response.name, token:""};
   }));
 };
 goog.exportSymbol("ee.data.getVideoThumbId", ee.data.getVideoThumbId);
 ee.data.getFilmstripThumbId = function(params, opt_callback) {
-  var request = new module$exports$eeapiclient$ee_api_client.FilmstripThumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.imageCollection)), fileFormat:ee.rpc_convert.fileFormat(params.format), orientation:ee.rpc_convert.orientation(params.orientation), grid:null,}), call = new module$contents$ee$apiclient_Call(opt_callback);
-  return call.handle(call.filmstripThumbnails().create(call.projectsPath(), request, {fields:["name"]}).then(function(response) {
+  var request = new module$exports$eeapiclient$ee_api_client.FilmstripThumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(params.imageCollection)), fileFormat:ee.rpc_convert.fileFormat(params.format), orientation:ee.rpc_convert.orientation(params.orientation), grid:null,}), queryParams = {fields:"name"}, workloadTag = ee.data.getWorkloadTag();
+  workloadTag && (queryParams.workloadTag = workloadTag);
+  var call = new module$contents$ee$apiclient_Call(opt_callback);
+  return call.handle(call.filmstripThumbnails().create(call.projectsPath(), request, queryParams).then(function(response) {
     return {thumbid:response.name, token:""};
   }));
 };
@@ -19226,8 +19232,10 @@ ee.data.getDownloadId = function(params, opt_callback) {
   }
   var image = ee.data.images.buildDownloadIdImage(params.image, params), thumbnail = new module$exports$eeapiclient$ee_api_client.Thumbnail({name:null, expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(image)), fileFormat:ee.rpc_convert.fileFormat(params.format), filenamePrefix:params.name, bandIds:params.bands && ee.rpc_convert.bandList(params.bands.map(function(band) {
     return band.id;
-  })), grid:null,}), call = new module$contents$ee$apiclient_Call(opt_callback);
-  return call.handle(call.thumbnails().create(call.projectsPath(), thumbnail, {fields:["name"]}).then(function(response) {
+  })), grid:null,}), queryParams = {fields:"name"}, workloadTag = ee.data.getWorkloadTag();
+  workloadTag && (queryParams.workloadTag = workloadTag);
+  var call = new module$contents$ee$apiclient_Call(opt_callback);
+  return call.handle(call.thumbnails().create(call.projectsPath(), thumbnail, queryParams).then(function(response) {
     return {docid:response.name, token:""};
   }));
 };
@@ -19250,8 +19258,9 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
       throw Error("'selectors' parameter must be an array of strings.");
     }
   }
-  var table = new module$exports$eeapiclient$ee_api_client.Table({name:null, expression:expression, fileFormat:fileFormat, selectors:selectors, filename:params.filename || null,});
-  return call.handle(call.tables().create(call.projectsPath(), table, {fields:["name"]}).then(function(res) {
+  var table = new module$exports$eeapiclient$ee_api_client.Table({name:null, expression:expression, fileFormat:fileFormat, selectors:selectors, filename:params.filename || null,}), queryParams = {fields:"name"}, workloadTag = ee.data.getWorkloadTag();
+  workloadTag && (queryParams.workloadTag = workloadTag);
+  return call.handle(call.tables().create(call.projectsPath(), table, queryParams).then(function(res) {
     return {docid:res.name || "", token:""};
   }));
 };
