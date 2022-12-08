@@ -3,8 +3,6 @@
 
 
 
-import six
-
 import unittest
 
 import ee
@@ -22,6 +20,7 @@ class EETestCase(apitestcase.ApiTestCase):
 
     def MockAlgorithms():
       return {}
+
     ee.data.getAlgorithms = MockAlgorithms
 
     # Verify that the base state is uninitialized.
@@ -57,25 +56,34 @@ class EETestCase(apitestcase.ApiTestCase):
       return {
           'fakeFunction': {
               'type': 'Algorithm',
-              'args': [
-                  {'name': 'image1', 'type': 'Image'},
-                  {'name': 'image2', 'type': 'Image'}
-              ],
+              'args': [{
+                  'name': 'image1',
+                  'type': 'Image'
+              }, {
+                  'name': 'image2',
+                  'type': 'Image'
+              }],
               'returns': 'Image'
           },
           'Image.constant': apitestcase.GetAlgorithms()['Image.constant']
       }
+
     ee.data.getAlgorithms = MockAlgorithms
 
     ee.Initialize(None)
     image1 = ee.Image(1)
     image2 = ee.Image(2)
-    expected = ee.Image(ee.ComputedObject(
-        ee.ApiFunction.lookup('fakeFunction'),
-        {'image1': image1, 'image2': image2}))
+    expected = ee.Image(
+        ee.ComputedObject(
+            ee.ApiFunction.lookup('fakeFunction'), {
+                'image1': image1,
+                'image2': image2
+            }))
 
-    applied_with_images = ee.apply(
-        'fakeFunction', {'image1': image1, 'image2': image2})
+    applied_with_images = ee.apply('fakeFunction', {
+        'image1': image1,
+        'image2': image2
+    })
     self.assertEqual(expected, applied_with_images)
 
     applied_with_numbers = ee.apply('fakeFunction', {'image1': 1, 'image2': 2})
@@ -104,51 +112,43 @@ class EETestCase(apitestcase.ApiTestCase):
       return {
           'Array': {
               'type': 'Algorithm',
-              'args': [
-                  {
-                      'name': 'values',
-                      'type': 'Serializable',
-                      'description': ''
-                  }
-              ],
+              'args': [{
+                  'name': 'values',
+                  'type': 'Serializable',
+                  'description': ''
+              }],
               'description': '',
               'returns': 'Array'
           },
           'Array.cos': {
               'type': 'Algorithm',
-              'args': [
-                  {
-                      'type': 'Array',
-                      'description': '',
-                      'name': 'input'
-                  }
-              ],
+              'args': [{
+                  'type': 'Array',
+                  'description': '',
+                  'name': 'input'
+              }],
               'description': '',
               'returns': 'Array'
           },
           'Kernel.circle': {
               'returns': 'Kernel',
-              'args': [
-                  {
-                      'type': 'float',
-                      'description': '',
-                      'name': 'radius',
-                  },
-                  {
-                      'default': 1.0,
-                      'type': 'float',
-                      'optional': True,
-                      'description': '',
-                      'name': 'scale'
-                  },
-                  {
-                      'default': True,
-                      'type': 'boolean',
-                      'optional': True,
-                      'description': '',
-                      'name': 'normalize'
-                      }
-                  ],
+              'args': [{
+                  'type': 'float',
+                  'description': '',
+                  'name': 'radius',
+              }, {
+                  'default': 1.0,
+                  'type': 'float',
+                  'optional': True,
+                  'description': '',
+                  'name': 'scale'
+              }, {
+                  'default': True,
+                  'type': 'boolean',
+                  'optional': True,
+                  'description': '',
+                  'name': 'normalize'
+              }],
               'type': 'Algorithm',
               'description': ''
           },
@@ -157,16 +157,16 @@ class EETestCase(apitestcase.ApiTestCase):
               'args': []
           },
           'fakeFunction': {
-              'returns': 'Array',
-              'args': [
-                  {
-                      'type': 'Reducer',
-                      'description': '',
-                      'name': 'kernel',
-                  }
-              ]
+              'returns':
+                  'Array',
+              'args': [{
+                  'type': 'Reducer',
+                  'description': '',
+                  'name': 'kernel',
+              }]
           }
       }
+
     ee.data.getAlgorithms = MockAlgorithms
 
     ee.Initialize(None)
@@ -217,26 +217,41 @@ class EETestCase(apitestcase.ApiTestCase):
     def MockAlgorithms():
       return {
           'Foo': {
-              'returns': 'Foo',
-              'args': [
-                  {'name': 'arg1', 'type': 'Object'},
-                  {'name': 'arg2', 'type': 'Object', 'optional': True}
-              ]
+              'returns':
+                  'Foo',
+              'args': [{
+                  'name': 'arg1',
+                  'type': 'Object'
+              }, {
+                  'name': 'arg2',
+                  'type': 'Object',
+                  'optional': True
+              }]
           },
           'Foo.makeBar': {
               'returns': 'Bar',
-              'args': [{'name': 'foo', 'type': 'Foo'}]
+              'args': [{
+                  'name': 'foo',
+                  'type': 'Foo'
+              }]
           },
           'Foo.takeBar': {
-              'returns': 'Bar',
-              'args': [
-                  {'name': 'foo', 'type': 'Foo'},
-                  {'name': 'bar', 'type': 'Bar'}
-              ]
+              'returns':
+                  'Bar',
+              'args': [{
+                  'name': 'foo',
+                  'type': 'Foo'
+              }, {
+                  'name': 'bar',
+                  'type': 'Bar'
+              }]
           },
           'Bar.baz': {
               'returns': 'Baz',
-              'args': [{'name': 'bar', 'type': 'Bar'}]
+              'args': [{
+                  'name': 'bar',
+                  'type': 'Bar'
+              }]
           }
       }
 
@@ -294,8 +309,9 @@ class EETestCase(apitestcase.ApiTestCase):
     """Test the behavior of casting with dynamic classes."""
     self.InitializeApi()
     result = ee.Geometry.Rectangle(1, 1, 2, 2).bounds(0, 'EPSG:4326')
-    expected = (ee.Geometry.Polygon([[1, 2], [1, 1], [2, 1], [2, 2]])
-                .bounds(ee.ErrorMargin(0), ee.Projection('EPSG:4326')))
+    expected = (
+        ee.Geometry.Polygon([[1, 2], [1, 1], [2, 1], [2, 2]]).bounds(
+            ee.ErrorMargin(0), ee.Projection('EPSG:4326')))
     self.assertEqual(expected, result)
 
   def testPromotion(self):
@@ -303,8 +319,8 @@ class EETestCase(apitestcase.ApiTestCase):
     self.InitializeApi()
 
     # Features and Images are both already Elements.
-    self.assertTrue(isinstance(ee._Promote(ee.Feature(None), 'Element'),
-                               ee.Feature))
+    self.assertTrue(
+        isinstance(ee._Promote(ee.Feature(None), 'Element'), ee.Feature))
     self.assertTrue(isinstance(ee._Promote(ee.Image(0), 'Element'), ee.Image))
 
     # Promote an untyped object to an Element.
@@ -347,6 +363,7 @@ class EETestCase(apitestcase.ApiTestCase):
               'returns': 'Object'
           }
       }
+
     ee.data.getAlgorithms = MockAlgorithms
 
     ee.ApiFunction.importApi(lambda: None, 'Quux', 'Quux')
@@ -403,6 +420,7 @@ class EETestCase(apitestcase.ApiTestCase):
               'preview': True
           }
       }
+
     ee.data.getAlgorithms = MockAlgorithms
 
     ee.Initialize(None)
@@ -415,23 +433,13 @@ class EETestCase(apitestcase.ApiTestCase):
 
     # In Python 2, the docstrings end up UTF-8 encoded. In Python 3, they remain
     # Unicode.
-    if six.PY3:
-      self.assertEqual(ee.Algorithms.Foo.__doc__, foo)
-      self.assertIn(foo, ee.Image.oldBar.__doc__)
-      self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
-      self.assertIn('PREVIEW: This function is preview or internal only.',
-                    ee.Image.newBaz.__doc__)
-      self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
-      self.assertEqual(ee.Image.baz.__doc__, baz)
-    else:
-      self.assertEqual(ee.Algorithms.Foo.__doc__,
-                       '\xef\xac\x80\xc3\xb6\xc7\xab')
-      self.assertIn('\xef\xac\x80\xc3\xb6\xc7\xab', ee.Image.oldBar.__doc__)
-      self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
-      self.assertIn('PREVIEW: This function is preview or internal only.',
-                    ee.Image.newBaz.__doc__)
-      self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: b\xc3\xa4r')
-      self.assertEqual(ee.Image.baz.__doc__, 'b\xc3\xa2\xc3\x9f')
+    self.assertEqual(ee.Algorithms.Foo.__doc__, foo)
+    self.assertIn(foo, ee.Image.oldBar.__doc__)
+    self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
+    self.assertIn('PREVIEW: This function is preview or internal only.',
+                  ee.Image.newBaz.__doc__)
+    self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
+    self.assertEqual(ee.Image.baz.__doc__, baz)
 
 
 if __name__ == '__main__':

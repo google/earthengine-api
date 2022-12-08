@@ -8,10 +8,9 @@
 # pylint: disable=g-bad-name
 
 # pylint: disable=g-bad-import-order
+import collections.abc
 import json
 import numbers
-import six
-from six.moves import collections_abc
 
 from . import apifunction
 from . import computedobject
@@ -104,8 +103,8 @@ class Geometry(computedobject.ComputedObject):
     elif 'crs' in geo_json:
       if (isinstance(geo_json.get('crs'), dict) and
           geo_json['crs'].get('type') == 'name' and
-          isinstance(geo_json['crs'].get('properties'), dict) and isinstance(
-              geo_json['crs']['properties'].get('name'), six.string_types)):
+          isinstance(geo_json['crs'].get('properties'), dict) and
+          isinstance(geo_json['crs']['properties'].get('name'), str)):
         self._proj = geo_json['crs']['properties']['name']
       else:
         raise ee_exception.EEException('Invalid CRS declaration in GeoJSON: ' +
@@ -136,7 +135,7 @@ class Geometry(computedobject.ComputedObject):
       ctor_args['coordinates'] = self._coordinates
 
     if self._proj is not None:
-      if isinstance(self._proj, six.string_types):
+      if isinstance(self._proj, str):
         ctor_args['crs'] = apifunction.ApiFunction.lookup('Projection').call(
             self._proj)
       else:
@@ -662,11 +661,11 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       The number of nested arrays or -1 on error.
     """
-    if not isinstance(shape, collections_abc.Iterable):
+    if not isinstance(shape, collections.abc.Iterable):
       return -1
 
-    if (shape and isinstance(shape[0], collections_abc.Iterable) and
-        not isinstance(shape[0], six.string_types)):
+    if (shape and isinstance(shape[0], collections.abc.Iterable) and
+        not isinstance(shape[0], str)):
       count = Geometry._isValidCoordinates(shape[0])
       # If more than 1 ring or polygon, they should have the same nesting.
       for i in range(1, len(shape)):

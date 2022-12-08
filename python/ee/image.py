@@ -24,8 +24,6 @@ from . import element
 from . import function
 from . import geometry
 
-import six
-
 
 class Image(element.Element):
   """An object to represent an Earth Engine image."""
@@ -180,7 +178,7 @@ class Image(element.Element):
         # comma-separated list of numbers, potentially wrapped in square
         # brackets. Parameter coercion takes care of the first two, but we need
         # to deal with the third.
-        if isinstance(crs_transform, six.string_types):
+        if isinstance(crs_transform, str):
           crs_transform = [
               float(x) for x in crs_transform.lstrip('[').rstrip(']').split(',')
           ]
@@ -261,7 +259,7 @@ class Image(element.Element):
               selection_params['geometry'] = region
               continue
             # Otherwise, we may be given a GeoJSON object or string.
-            if isinstance(region, six.string_types):
+            if isinstance(region, str):
               region = json.loads(region)
             # By default the Geometry should be planar.
             if isinstance(region, list):
@@ -748,7 +746,7 @@ def _parse_dimensions(dimensions):
   """Parses a dimensions specification into a one or two element list."""
   if ee_types.isNumber(dimensions):
     return [dimensions]
-  elif isinstance(dimensions, six.string_types):
+  elif isinstance(dimensions, str):
     # Unpack WIDTHxHEIGHT
     return [int(x) for x in dimensions.split('x')]
   elif isinstance(dimensions, (list, tuple)) and 1 <= len(dimensions) <= 2:

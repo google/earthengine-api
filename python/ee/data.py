@@ -14,8 +14,6 @@ import re
 import threading
 import uuid
 import sys
-
-import six
 from google_auth_httplib2 import AuthorizedHttp
 
 from . import __version__
@@ -344,6 +342,24 @@ def _translate_cloud_exception(http_error):
   return ee_exception.EEException(http_error._get_reason())  # pylint: disable=protected-access
 
 
+def _maybe_populate_workload_tag(body):
+  """Populates the workload tag on the request body passed in if applicable.
+
+  Defaults to the workload tag set by ee.data.setWorkloadTag() or related
+  methods. A workload tag already set on the body takes precedence. The workload
+  tag will not be set if it's an empty string.
+
+  Args:
+    body: The request body.
+  """
+  if 'workloadTag' not in body:
+    workload_tag = getWorkloadTag()
+    if workload_tag:
+      body['workloadTag'] = workload_tag
+  elif not body['workloadTag']:
+    del body['workloadTag']
+
+
 def setCloudApiKey(cloud_api_key):
   """Sets the Cloud API key parameter ("api_key") for all requests."""
   global _cloud_api_key
@@ -562,7 +578,7 @@ def getMapId(params):
     - "tile_fetcher": a TileFetcher which can be used to fetch the tile
       images, or to get a format for the tile URLs.
   """
-  if isinstance(params['image'], six.string_types):
+  if isinstance(params['image'], str):
     raise ee_exception.EEException('Image as JSON string not supported.')
   if 'version' in params:
     raise ee_exception.EEException(
@@ -587,9 +603,7 @@ def getMapId(params):
       'fields': 'name',
       'body': request,
   }
-  workload_tag = getWorkloadTag()
-  if workload_tag:
-    queryParams['workloadTag'] = workload_tag
+  _maybe_populate_workload_tag(queryParams)
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().maps().create(
           parent=_get_projects_path(), **queryParams))
@@ -757,9 +771,7 @@ def computeValue(obj):
     The result of evaluating that object on the server.
   """
   body = {'expression': serializer.encode(obj, for_cloud_api=True)}
-  workload_tag = getWorkloadTag()
-  if workload_tag:
-    body['workloadTag'] = workload_tag
+  _maybe_populate_workload_tag(body)
 
   return _execute_cloud_call(
       _get_cloud_api_resource().projects().value().compute(
@@ -829,7 +841,7 @@ def getThumbId(params, thumbType=None):
   """
   # We only really support accessing this method via ee.Image.getThumbURL,
   # which folds almost all the parameters into the Image itself.
-  if isinstance(params['image'], six.string_types):
+  if isinstance(params['image'], str):
     raise ee_exception.EEException('Image as JSON string not supported.')
   if 'version' in params:
     raise ee_exception.EEException(
@@ -859,9 +871,7 @@ def getThumbId(params, thumbType=None):
       'fields': 'name',
       'body': request,
   }
-  workload_tag = getWorkloadTag()
-  if workload_tag:
-    queryParams['workloadTag'] = workload_tag
+  _maybe_populate_workload_tag(queryParams)
   if thumbType == 'video':
     if 'framesPerSecond' in params:
       request['videoOptions'] = {
@@ -962,7 +972,7 @@ def getDownloadId(params):
                                    'ee.Image.getDownloadURL instead.')
   if 'image' not in params:
     raise ee_exception.EEException('Missing image parameter.')
-  if isinstance(params['image'], six.string_types):
+  if isinstance(params['image'], str):
     raise ee_exception.EEException('Image as JSON string not supported.')
   params.setdefault('filePerBand', True)
   params.setdefault(
@@ -977,11 +987,11 @@ def getDownloadId(params):
   bands = None
   if 'bands' in params:
     bands = params['bands']
-    if isinstance(bands, six.string_types):
+    if isinstance(bands, str):
       bands = _cloud_api_utils.convert_to_band_list(bands)
     if not isinstance(bands, list):
       raise ee_exception.EEException('Bands parameter must be a list.')
-    if all(isinstance(band, six.string_types) for band in bands):
+    if all(isinstance(band, str) for band in bands):
       # Support expressing the bands list as a list of strings.
       bands = [{'id': band} for band in bands]
     if not all('id' in band for band in bands):
@@ -1005,9 +1015,7 @@ def getDownloadId(params):
       'fields': 'name',
       'body': request,
   }
-  workload_tag = getWorkloadTag()
-  if workload_tag:
-    queryParams['workloadTag'] = workload_tag
+  _maybe_populate_workload_tag(queryParams)
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().thumbnails().create(
           parent=_get_projects_path(), **queryParams))
@@ -1049,7 +1057,7 @@ def getTableDownloadId(params):
   selectors = None
   if 'selectors' in params:
     selectors = params['selectors']
-    if isinstance(selectors, six.string_types):
+    if isinstance(selectors, str):
       selectors = selectors.split(',')
   filename = None
   if 'filename' in params:
@@ -1067,9 +1075,7 @@ def getTableDownloadId(params):
       'fields': 'name',
       'body': request,
   }
-  workload_tag = getWorkloadTag()
-  if workload_tag:
-    queryParams['workloadTag'] = workload_tag
+  _maybe_populate_workload_tag(queryParams)
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().tables().create(
           parent=_get_projects_path(), **queryParams))
@@ -1221,7 +1227,7 @@ def newTaskId(count=1):
   Returns:
     A list containing generated ID strings.
   """
-  return [str(uuid.uuid4()) for _ in six.moves.xrange(count)]
+  return [str(uuid.uuid4()) for _ in range(count)]
 
 
 @deprecation.Deprecated('Use listOperations')
@@ -1280,7 +1286,7 @@ def getTaskStatus(taskId):
         doesn't exist.
       error_message (string) For a FAILED task, a description of the error.
   """
-  if isinstance(taskId, six.string_types):
+  if isinstance(taskId, str):
     taskId = [taskId]
   result = []
   for one_id in taskId:
@@ -1448,20 +1454,14 @@ def _prepare_and_run_export(request_id, params, export_endpoint):
   Returns:
     An Operation with information about the created task.
   """
-  if 'workloadTag' not in params:
-    workload_tag = getWorkloadTag()
-    if workload_tag:
-      params['workloadTag'] = workload_tag
-  elif not params['workloadTag']:
-    del params['workloadTag']
+  _maybe_populate_workload_tag(params)
   if request_id:
-    if isinstance(request_id, six.string_types):
+    if isinstance(request_id, str):
       params['requestId'] = request_id
     # If someone passes request_id via newTaskId() (which returns a list)
     # try to do the right thing and use the first entry as a request ID.
-    elif (isinstance(request_id, list)
-          and len(request_id) == 1
-          and isinstance(request_id[0], six.string_types)):
+    elif (isinstance(request_id, list) and len(request_id) == 1 and
+          isinstance(request_id[0], str)):
       params['requestId'] = request_id[0]
     else:
       raise ValueError('"requestId" must be a string.')
@@ -1682,7 +1682,7 @@ def setAssetAcl(assetId, aclUpdate):
         value returned by getAssetAcl but without "owners".
   """
   # The ACL may be a string by the time it gets to us. Sigh.
-  if isinstance(aclUpdate, six.string_types):
+  if isinstance(aclUpdate, str):
     aclUpdate = json.loads(aclUpdate)
   setIamPolicy(assetId, _cloud_api_utils.convert_acl_to_iam_policy(aclUpdate))
   return

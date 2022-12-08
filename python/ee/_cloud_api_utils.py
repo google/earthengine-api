@@ -24,7 +24,6 @@ from googleapiclient import model
 
 import httplib2
 import requests
-import six
 
 # The Cloud API version.
 VERSION = os.environ.get('EE_CLOUD_API_VERSION', 'v1alpha')
@@ -251,7 +250,7 @@ def _convert_dict(to_convert,
     added.
   """
   result = {}
-  for key, value in six.iteritems(to_convert):
+  for key, value in to_convert.items():
     if key in conversions:
       conversion = conversions[key]
       if conversion is not None:
@@ -269,7 +268,7 @@ def _convert_dict(to_convert,
     elif key_warnings:
       warnings.warn('Unrecognized key {} ignored'.format(key))
   if defaults:
-    for default_key, default_value in six.iteritems(defaults):
+    for default_key, default_value in defaults.items():
       if default_key not in result:
         result[default_key] = default_value
   return result
@@ -382,7 +381,7 @@ def _convert_list_images_filter_params_to_list_assets_params(params):
         region = json.dumps(region)
       except TypeError as e:
         raise Exception(region_error) from e
-    elif not isinstance(region, six.string_types):
+    elif not isinstance(region, str):
       raise Exception(region_error)
 
     # Double quotes are not valid in the GeoJSON strings, since we wrap the
@@ -393,7 +392,7 @@ def _convert_list_images_filter_params_to_list_assets_params(params):
     del params['region']
   if 'properties' in params:
     if isinstance(params['properties'], list) and any(
-        not isinstance(p, six.string_types) for p in params['properties']):
+        not isinstance(p, str) for p in params['properties']):
       raise Exception(
           'Filter parameter "properties" must be an array of strings')
 
@@ -571,7 +570,7 @@ def encode_number_as_cloud_value(number):
   # Numeric values in constantValue-style nodes end up stored in doubles. If the
   # input is an integer that loses precision as a double, use the int64 slot
   # ("integerValue") in ValueNode.
-  if (isinstance(number, six.integer_types) and float(number) != number):
+  if (isinstance(number, int) and float(number) != number):
     return {'integerValue': str(number)}
   else:
     return {'constantValue': number}
@@ -709,7 +708,7 @@ def convert_to_band_list(bands):
   """
   if bands is None:
     return []
-  elif isinstance(bands, six.string_types):
+  elif isinstance(bands, str):
     return bands.split(',')
   elif isinstance(bands, list):
     return bands
@@ -730,7 +729,7 @@ def convert_to_visualization_options(params):
   result = {}
   if 'palette' in params:
     palette = params['palette']
-    if isinstance(palette, six.string_types):
+    if isinstance(palette, str):
       palette = palette.split(',')
     result['paletteColors'] = palette
     value_range = len(palette) - 1
@@ -869,7 +868,7 @@ def convert_to_grid_dimensions(dimensions):
   Returns:
     A GridDimensions as a dict.
   """
-  if isinstance(dimensions, six.integer_types):
+  if isinstance(dimensions, int):
     return {'width': dimensions, 'height': dimensions}
   elif len(dimensions) == 1:
     return {'width': dimensions[0], 'height': dimensions[0]}

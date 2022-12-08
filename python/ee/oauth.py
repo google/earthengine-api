@@ -17,15 +17,13 @@ import json
 import os
 import subprocess
 import sys
+import urllib.error
+import urllib.parse
+import urllib.request
 import webbrowser
 
 from google.auth import _cloud_sdk
 import six
-from six.moves import input
-from six.moves.urllib import parse
-from six.moves.urllib import request
-from six.moves.urllib.error import HTTPError
-
 
 # Optional imports used for specific shells.
 # pylint: disable=g-import-not-at-top
@@ -85,7 +83,7 @@ def get_credentials_arguments():
 def get_authorization_url(code_challenge, scopes=None, redirect_uri=None):
   """Returns a URL to generate an auth code."""
 
-  return 'https://accounts.google.com/o/oauth2/auth?' + parse.urlencode({
+  return 'https://accounts.google.com/o/oauth2/auth?' + urllib.parse.urlencode({
       'client_id': CLIENT_ID,
       'scope': ' '.join(scopes or SCOPES),
       'redirect_uri': redirect_uri or REDIRECT_URI,
@@ -114,11 +112,11 @@ def request_token(auth_code,
   refresh_token = None
 
   try:
-    response = request.urlopen(
+    response = urllib.request.urlopen(
         TOKEN_URI,
-        parse.urlencode(request_args).encode()).read().decode()
+        urllib.parse.urlencode(request_args).encode()).read().decode()
     refresh_token = json.loads(response)['refresh_token']
-  except HTTPError as e:
+  except urllib.error.HTTPError as e:
     raise Exception('Problem requesting tokens. Please try again.  %s %s' %
                     (e, e.read()))
 
@@ -179,13 +177,14 @@ def _obtain_and_write_token(auth_code=None,
     client_info['redirect_uri'] = redirect_uri
   if not auth_code:
     auth_code = input('Enter verification code: ')
-  assert isinstance(auth_code, six.string_types)
+  assert isinstance(auth_code, str)
   scopes = scopes or SCOPES
   if fetch_data:
     data = json.dumps(fetch_data).encode()
     headers = {'Content-Type': 'application/json; charset=UTF-8'}
-    fetch_client = request.Request(FETCH_URL, data=data, headers=headers)
-    fetched_info = json.loads(request.urlopen(fetch_client).read().decode())
+    fetch_client = urllib.request.Request(FETCH_URL, data=data, headers=headers)
+    fetched_info = json.loads(
+        urllib.request.urlopen(fetch_client).read().decode())
     client_info = {k: fetched_info[k] for k in ['client_id', 'client_secret']}
     scopes = fetched_info.get('scopes') or scopes
   token = request_token(auth_code.strip(), code_verifier, **client_info)
@@ -321,7 +320,8 @@ def _start_server(port):
     code = None
 
     def do_GET(self):  # pylint: disable=invalid-name
-      Handler.code = parse.parse_qs(parse.urlparse(self.path).query)['code'][0]
+      Handler.code = urllib.parse.parse_qs(
+          urllib.parse.urlparse(self.path).query)['code'][0]
       self.send_response(200)
       self.send_header('Content-type', 'text/plain; charset=utf-8')
       self.end_headers()
@@ -429,7 +429,7 @@ class Flow(object):
       nonces = ['request_id', 'token_verifier', 'client_verifier']
       request_info = _nonce_table(*nonces)
       self.auth_url = AUTH_URL_TEMPLATE.format(
-          scopes=parse.quote(' '.join(self.scopes)), **request_info)
+          scopes=urllib.parse.quote(' '.join(self.scopes)), **request_info)
       self.code_verifier = ':'.join(request_info[k] for k in nonces)
     else:
       raise Exception('Unknown auth_mode "%s"' % auth_mode)

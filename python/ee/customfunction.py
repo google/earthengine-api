@@ -7,7 +7,6 @@
 # pylint: disable=g-bad-name
 
 # pylint: disable=g-bad-import-order
-import six
 
 from . import computedobject
 from . import ee_exception
@@ -114,7 +113,7 @@ class CustomFunction(function.Function, encodable.Encodable):
     """
 
     def StringifyType(t):
-      return t if isinstance(t, six.string_types) else ee_types.classToName(t)
+      return t if isinstance(t, str) else ee_types.classToName(t)
 
     args = [{'name': None, 'type': StringifyType(i)} for i in arg_types]
     signature = {
@@ -160,12 +159,13 @@ class CustomFunction(function.Function, encodable.Encodable):
         elif 'arrayValue' in node:
           return CountNodes(node['arrayValue']['values'])
         elif 'dictionaryValue' in node:
-          return CountNodes(six.itervalues(node['dictionaryValue']['values']))
+          return CountNodes(node['dictionaryValue']['values'].values())
         elif 'functionInvocationValue' in node:
           fn = node['functionInvocationValue']
-          return CountNodes(six.itervalues(fn['arguments']))
+          return CountNodes(fn['arguments'].values())
         return 0
-      return CountNodes(six.itervalues(expression['values']))
+
+      return CountNodes(expression['values'].values())
 
     # There are three function building phases, which each call body():
     # 1 - Check Return.  The constructor verifies that body() returns a result,

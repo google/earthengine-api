@@ -7,6 +7,7 @@ import httplib2
 import requests
 
 import ee
+from ee import _cloud_api_utils
 from ee import apitestcase
 from ee import featurecollection
 from ee import image
@@ -431,8 +432,9 @@ class DataTest(unittest.TestCase):
       ]
       self.assertEqual(expected_keys, list(actual_result.keys()))
       self.assertEqual('tiles-key-foo', actual_result['token'])
-      self.assertEqual(f'base_url/v1alpha/{mock_name}/tiles/7/5/6',
-                       actual_result['formatTileUrl'](5, 6, 7))
+      self.assertEqual(
+          f'base_url/{_cloud_api_utils.VERSION}/{mock_name}/tiles/7/5/6',
+          actual_result['formatTileUrl'](5, 6, 7))
 
   def testWorkloadTag(self):
     self.assertEqual('', ee.data.getWorkloadTag())

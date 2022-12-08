@@ -3,7 +3,7 @@
 
 import json
 from unittest import mock
-from six.moves.urllib import parse
+import urllib.parse
 
 import tempfile
 import unittest
@@ -27,11 +27,11 @@ class OAuthTest(unittest.TestCase):
         return ('{"refresh_token": "' + self.code + '456"}').encode()
 
     def mock_urlopen(unused_url, param):
-      parsed = parse.parse_qs(param)
+      parsed = urllib.parse.parse_qs(param)
       self.assertEqual('xyz', parsed[b'code_verifier'][0].decode())
       return MockResponse(parsed[b'code'][0])
 
-    with mock.patch('six.moves.urllib.request.urlopen', new=mock_urlopen):
+    with mock.patch('urllib.request.urlopen', new=mock_urlopen):
       auth_code = '123'
       verifier = 'xyz'
       refresh_token = ee.oauth.request_token(auth_code, verifier)

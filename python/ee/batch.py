@@ -11,7 +11,6 @@ The public function styling uses camelCase to match the JavaScript names.
 # pylint: disable=g-bad-import-order
 import json
 import re
-import six
 
 from . import _cloud_api_utils
 from . import data
@@ -1001,8 +1000,7 @@ def _prepare_image_export_config(image, config, export_destination):
             'pyramidingPolicy'] = pyramiding_policy.pop('.default').upper()
       if pyramiding_policy:
         asset_export_options['pyramidingPolicyOverrides'] = {
-            band: policy.upper()
-            for band, policy in six.iteritems(pyramiding_policy)
+            band: policy.upper() for band, policy in pyramiding_policy.items()
         }
     request['assetExportOptions'] = asset_export_options
   else:
@@ -1208,7 +1206,7 @@ def _build_image_file_export_options(config, export_destination):
         raise ee_exception.EEException('File dimensions specified twice.')
       file_dimensions = config.pop('fileDimensions')
     if file_dimensions is not None:
-      if isinstance(file_dimensions, six.integer_types):
+      if isinstance(file_dimensions, int):
         file_dimensions = (file_dimensions, file_dimensions)
       geo_tiff_options['tileDimensions'] = {
           'width': file_dimensions[0],
@@ -1657,7 +1655,7 @@ def _capture_parameters(all_locals, parameters_to_exclude):
     A dict containing all the non-None values in all_locals, except for
     those listed in parameters_to_exclude.
   """
-  result = {k: v for k, v in six.iteritems(all_locals) if v is not None}
+  result = {k: v for k, v in all_locals.items() if v is not None}
   for parameter_to_exclude in parameters_to_exclude:
     if parameter_to_exclude in result:
       del result[parameter_to_exclude]
@@ -1711,8 +1709,7 @@ def _canonicalize_parameters(config, destination):
   if 'region' in config:
     config['region'] = _canonicalize_region(config['region'])
 
-  if 'selectors' in config and isinstance(config['selectors'],
-                                          six.string_types):
+  if 'selectors' in config and isinstance(config['selectors'], str):
     config['selectors'] = config['selectors'].split(',')
 
   if destination == Task.ExportDestination.GCS:
@@ -1739,7 +1736,7 @@ def _canonicalize_parameters(config, destination):
     prefix = FORMAT_PREFIX_MAP[config[IMAGE_FORMAT_FIELD].upper()]
     format_options = config.get(IMAGE_FORMAT_OPTIONS_FIELD, {})
     keys_to_delete = []
-    for key, value in six.iteritems(config):
+    for key, value in config.items():
       if key.startswith(prefix):
         # Transform like "tiffSomeKey" -> "someKey"
         remapped_key = key[len(prefix):]
@@ -1766,7 +1763,7 @@ def _canonicalize_region(region):
   if isinstance(region, geometry.Geometry):
     return region
 
-  if isinstance(region, six.string_types):
+  if isinstance(region, str):
     try:
       region = json.loads(region)
     except:

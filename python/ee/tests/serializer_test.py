@@ -4,7 +4,6 @@
 
 
 import json
-import six
 
 import unittest
 
@@ -16,7 +15,7 @@ from ee import serializer
 def _max_depth(x):
   """Computes the maximum nesting level of some dict/list."""
   if isinstance(x, dict):
-    return 1 + max(_max_depth(v) for v in six.itervalues(x))
+    return 1 + max(_max_depth(v) for v in x.values())
   elif isinstance(x, list):
     return 1 + max(_max_depth(v) for v in x)
   else:

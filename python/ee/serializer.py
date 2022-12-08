@@ -13,7 +13,6 @@ import hashlib
 import json
 import math
 import numbers
-import six
 
 from . import _cloud_api_utils
 from . import ee_exception
@@ -124,8 +123,7 @@ class Serializer(object):
     if self._is_compound and encoded:
       # Already encoded objects are encoded as ValueRefs and returned directly.
       return {'type': 'ValueRef', 'value': encoded}
-    elif obj is None or isinstance(obj,
-                                   (bool, numbers.Number, six.string_types)):
+    elif obj is None or isinstance(obj, (bool, numbers.Number, str)):
       # Primitives are encoded as is and not saved in the scope.
       return obj
     elif isinstance(obj, datetime.datetime):
@@ -199,7 +197,7 @@ class Serializer(object):
     reference = self._encoded.get(hashval, None)
     if reference:
       return reference
-    elif obj is None or isinstance(obj, (bool, six.string_types)):
+    elif obj is None or isinstance(obj, (bool, str)):
       result = {'constantValue': obj}
     elif isinstance(obj, numbers.Number):
       result = _cloud_api_utils.encode_number_as_cloud_value(obj)
@@ -395,7 +393,7 @@ class _ExpressionOptimizer(object):
         reference_counts[reference] += 1
 
     self._visit_all_values_in_expression(increment_reference_count)
-    return set(reference for reference, count in six.iteritems(reference_counts)
+    return set(reference for reference, count in reference_counts.items()
                if count == 1)
 
   def optimize(self):
@@ -471,13 +469,12 @@ class _ExpressionOptimizer(object):
       # Optimise recursively, then turn a dict of constants into a constant
       # dict.
       optimized_dict = {
-          key: self._optimize_value(dict_value, depth + 3) for key, dict_value
-          in six.iteritems(value['dictionaryValue']['values'])
+          key: self._optimize_value(dict_value, depth + 3)
+          for key, dict_value in value['dictionaryValue']['values'].items()
       }
-      if all(
-          self._is_constant_value(v) for v in six.itervalues(optimized_dict)):
+      if all(self._is_constant_value(v) for v in optimized_dict.values()):
         optimized_dict = {
-            k: v['constantValue'] for k, v in six.iteritems(optimized_dict)
+            k: v['constantValue'] for k, v in optimized_dict.items()
         }
         return {'constantValue': optimized_dict}
       else:
@@ -503,7 +500,7 @@ class _ExpressionOptimizer(object):
                 function_invocation['functionReference'])
       optimized_invocation['arguments'] = {
           k: self._optimize_value(arguments[k], depth + 3)
-          for k, v in six.iteritems(arguments)
+          for k, v in arguments.items()
       }
       return {'functionInvocationValue': optimized_invocation}
     elif 'valueReference' in value:

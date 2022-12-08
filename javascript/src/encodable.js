@@ -1081,7 +1081,7 @@ ee.rpc_convert.folderQuotaToAssetQuotaDetails = function(quota) {
   return {
     asset_count: {
       usage: toNumber(quota.assetCount),
-      limit: toNumber(quota.maxAssets ?? quota.maxAssetCount),
+      limit: toNumber(quota.maxAssets),
     },
     asset_size: {
       usage: toNumber(quota.sizeBytes),

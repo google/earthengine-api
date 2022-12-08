@@ -3,8 +3,6 @@
 
 
 
-import six
-
 import unittest
 import ee
 from ee import apitestcase
@@ -21,7 +19,7 @@ class ElementTestCase(apitestcase.ApiTestCase):
       properties = {}
       while image.func == ee.ApiFunction.lookup('Element.set'):
         key = image.args['key']
-        if not isinstance(key, six.string_types):
+        if not isinstance(key, str):
           key = key.encode()
         properties[key] = image.args['value']
         image = image.args['object']

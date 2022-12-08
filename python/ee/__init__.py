@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.334'
+__version__ = '0.1.335'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -12,7 +12,6 @@ import datetime
 import inspect
 import numbers
 import os
-import six
 
 from . import batch
 from . import data
@@ -249,15 +248,12 @@ def _Promote(arg, klass):
   elif klass == 'Filter':
     return Filter(arg)
   elif klass == 'Algorithm':
-    if isinstance(arg, six.string_types):
+    if isinstance(arg, str):
       # An API function name.
       return ApiFunction.lookup(arg)
     elif callable(arg):
       # A native function that needs to be wrapped.
-      if six.PY2:
-        args_count = len(inspect.getargspec(arg).args)
-      else:
-        args_count = len(inspect.getfullargspec(arg).args)
+      args_count = len(inspect.getfullargspec(arg).args)
       return CustomFunction.create(arg, 'Object', ['Object'] * args_count)
     elif isinstance(arg, Encodable):
       # An ee.Function or a computed function like the return value of
@@ -291,7 +287,7 @@ def _Promote(arg, klass):
     elif ctor:
       # The client-side constructor will call the server-side constructor.
       return cls(arg)
-    elif isinstance(arg, six.string_types):
+    elif isinstance(arg, str):
       if hasattr(cls, arg):
         # arg is the name of a method in klass.
         return getattr(cls, arg)()

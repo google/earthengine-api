@@ -28,13 +28,13 @@ and therefore violate style guidelines.
 
 from collections import abc
 import functools
+import io
 import math
+import queue
 import sys
 import threading
-import six
-from six.moves import queue
-from six.moves import urllib
-from six.moves import xrange
+import tkinter as Tkinter
+import urllib.request
 
 # check if the Python imaging libraries used by the mapclient module are
 # installed
@@ -56,7 +56,7 @@ except ImportError:
     raise
 
 try:
-  from six.moves import tkinter as Tkinter  # pylint: disable=g-import-not-at-top
+  pass
 except ImportError:
   print("""
     ERROR: A Python library (Tkinter) used by the Earth Engine API mapclient
@@ -375,10 +375,12 @@ class MapOverlay(object):
       The list of tile keys to fill the given viewport.
     """
     tile_list = []
-    for y in xrange(int(bbox[1] / MapOverlay.TILE_HEIGHT),
-                    int(bbox[3] / MapOverlay.TILE_HEIGHT + 1)):
-      for x in xrange(int(bbox[0] / MapOverlay.TILE_WIDTH),
-                      int(bbox[2] / MapOverlay.TILE_WIDTH + 1)):
+    for y in range(
+        int(bbox[1] / MapOverlay.TILE_HEIGHT),
+        int(bbox[3] / MapOverlay.TILE_HEIGHT + 1)):
+      for x in range(
+          int(bbox[0] / MapOverlay.TILE_WIDTH),
+          int(bbox[2] / MapOverlay.TILE_WIDTH + 1)):
         tile_list.append((level, x, y))
     return tile_list
 
@@ -453,7 +455,7 @@ class MapOverlay(object):
               print(e, file=sys.stderr)
             else:
               # PhotoImage can't handle alpha on LA images.
-              image = Image.open(six.BytesIO(data)).convert('RGBA')
+              image = Image.open(io.BytesIO(data)).convert('RGBA')
               callback(image)
               self.overlay.PutCacheTile(key, image)
 
@@ -490,8 +492,7 @@ def addToMap(eeobject, vis_params=None, *unused_args):
     vis_params = dict(vis_params)
     for key in vis_params:
       item = vis_params.get(key)
-      if (isinstance(item, abc.Iterable) and
-          not isinstance(item, six.string_types)):
+      if (isinstance(item, abc.Iterable) and not isinstance(item, str)):
         vis_params[key] = ','.join([str(x) for x in item])
 
   overlay = MakeOverlay(eeobject.getMapId(vis_params))
