@@ -3440,8 +3440,8 @@ SEEKED:"seeked", SEEKING:"seeking", STALLED:"stalled", SUSPEND:"suspend", TIMEUP
 ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", INSTALL:"install", ACTIVATE:"activate", FETCH:"fetch", FOREIGNFETCH:"foreignfetch", MESSAGEERROR:"messageerror", STATECHANGE:"statechange", UPDATEFOUND:"updatefound", CONTROLLERCHANGE:"controllerchange", ANIMATIONSTART:goog.events.eventTypeHelpers.getVendorPrefixedName("AnimationStart"), ANIMATIONEND:goog.events.eventTypeHelpers.getVendorPrefixedName("AnimationEnd"), ANIMATIONITERATION:goog.events.eventTypeHelpers.getVendorPrefixedName("AnimationIteration"), 
 TRANSITIONEND:goog.events.eventTypeHelpers.getVendorPrefixedName("TransitionEnd"), POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", 
 MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXT:"text", TEXTINPUT:goog.userAgent.IE ? "textinput" : "textInput", 
-COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", BEFOREINPUT:"beforeinput", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage", DOMSUBTREEMODIFIED:"DOMSubtreeModified", DOMNODEINSERTED:"DOMNodeInserted", DOMNODEREMOVED:"DOMNodeRemoved", 
-DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", DOMATTRMODIFIED:"DOMAttrModified", DOMCHARACTERDATAMODIFIED:"DOMCharacterDataModified", BEFOREPRINT:"beforeprint", AFTERPRINT:"afterprint", BEFOREINSTALLPROMPT:"beforeinstallprompt", APPINSTALLED:"appinstalled", CANCEL:"cancel", FINISH:"finish", REMOVE:"remove"};
+COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", BEFOREINPUT:"beforeinput", FULLSCREENCHANGE:"fullscreenchange", WEBKITBEGINFULLSCREEN:"webkitbeginfullscreen", WEBKITENDFULLSCREEN:"webkitendfullscreen", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", 
+STORAGE:"storage", DOMSUBTREEMODIFIED:"DOMSubtreeModified", DOMNODEINSERTED:"DOMNodeInserted", DOMNODEREMOVED:"DOMNodeRemoved", DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", DOMATTRMODIFIED:"DOMAttrModified", DOMCHARACTERDATAMODIFIED:"DOMCharacterDataModified", BEFOREPRINT:"beforeprint", AFTERPRINT:"afterprint", BEFOREINSTALLPROMPT:"beforeinstallprompt", APPINSTALLED:"appinstalled", CANCEL:"cancel", FINISH:"finish", REMOVE:"remove"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
@@ -6466,58 +6466,6 @@ goog.dom.asserts.assertIsLocation = function(o) {
   }
   return o;
 };
-goog.dom.asserts.assertIsElementType_ = function(o, typename) {
-  if (goog.asserts.ENABLE_ASSERTS) {
-    var win = goog.dom.asserts.getWindow_(o);
-    win && "undefined" != typeof win[typename] && (o && (o instanceof win[typename] || !(o instanceof win.Location || o instanceof win.Element)) || goog.asserts.fail("Argument is not a %s (or a non-Element, non-Location mock); got: %s", typename, goog.dom.asserts.debugStringForType_(o)));
-  }
-  return o;
-};
-goog.dom.asserts.assertIsHTMLAnchorElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLAnchorElement");
-};
-goog.dom.asserts.assertIsHTMLButtonElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLButtonElement");
-};
-goog.dom.asserts.assertIsHTMLLinkElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLLinkElement");
-};
-goog.dom.asserts.assertIsHTMLImageElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLImageElement");
-};
-goog.dom.asserts.assertIsHTMLAudioElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLAudioElement");
-};
-goog.dom.asserts.assertIsHTMLVideoElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLVideoElement");
-};
-goog.dom.asserts.assertIsHTMLInputElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLInputElement");
-};
-goog.dom.asserts.assertIsHTMLTextAreaElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLTextAreaElement");
-};
-goog.dom.asserts.assertIsHTMLCanvasElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLCanvasElement");
-};
-goog.dom.asserts.assertIsHTMLEmbedElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLEmbedElement");
-};
-goog.dom.asserts.assertIsHTMLFormElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLFormElement");
-};
-goog.dom.asserts.assertIsHTMLFrameElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLFrameElement");
-};
-goog.dom.asserts.assertIsHTMLIFrameElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLIFrameElement");
-};
-goog.dom.asserts.assertIsHTMLObjectElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLObjectElement");
-};
-goog.dom.asserts.assertIsHTMLScriptElement = function(o) {
-  return goog.dom.asserts.assertIsElementType_(o, "HTMLScriptElement");
-};
 goog.dom.asserts.debugStringForType_ = function(value) {
   if (goog.isObject(value)) {
     try {
@@ -6975,7 +6923,7 @@ function module$contents$goog$html$SafeStyle_sanitizePropertyValueString(value) 
       return (0,goog.asserts.fail)("String value requires balanced square brackets and one identifier per pair of brackets, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
     }
   } else {
-    return (0,goog.asserts.fail)("String value allows only [-,.\"'%_!#/ a-zA-Z0-9\\[\\]] and simple functions, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
+    return (0,goog.asserts.fail)("String value allows only [-+,.\"'%_!#/ a-zA-Z0-9\\[\\]] and simple functions, got: " + value), module$contents$goog$html$SafeStyle_SafeStyle.INNOCUOUS_STRING;
   }
   return module$contents$goog$html$SafeStyle_sanitizeUrl(value);
 }
@@ -7005,7 +6953,7 @@ function module$contents$goog$html$SafeStyle_hasBalancedSquareBrackets(value) {
   }
   return outside;
 }
-var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-,.\"'%_!#/ a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|radial-gradient|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|steps|var)\\([-+*/0-9a-zA-Z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
+var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-+,.\"'%_!#/ a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|radial-gradient|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|steps|var)\\([-+*/0-9a-zA-Z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
 /\/\*/;
 function module$contents$goog$html$SafeStyle_sanitizeUrl(value) {
   return value.replace(module$contents$goog$html$SafeStyle_URL_RE, function(match$jscomp$0, before, url, after) {
@@ -8836,9 +8784,9 @@ module$exports$eeapiclient$ee_api_client.AuthorizationLoggingOptionsPermissionTy
 }};
 module$exports$eeapiclient$ee_api_client.ICapabilitiesCapabilitiesEnum = function module$contents$eeapiclient$ee_api_client_ICapabilitiesCapabilitiesEnum() {
 };
-module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum = {CAPABILITY_GROUP_UNSPECIFIED:"CAPABILITY_GROUP_UNSPECIFIED", CLOUD_ALPHA:"CLOUD_ALPHA", EXTERNAL:"EXTERNAL", INTERNAL:"INTERNAL", LIMITED:"LIMITED", PREAUTHORIZED:"PREAUTHORIZED", PREVIEW:"PREVIEW", PUBLIC:"PUBLIC", values:function() {
+module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum = {AUTO_APPEAL_ELIGIBLE:"AUTO_APPEAL_ELIGIBLE", CAPABILITY_GROUP_UNSPECIFIED:"CAPABILITY_GROUP_UNSPECIFIED", CLOUD_ALPHA:"CLOUD_ALPHA", EXTERNAL:"EXTERNAL", INTERNAL:"INTERNAL", LIMITED:"LIMITED", PREAUTHORIZED:"PREAUTHORIZED", PREVIEW:"PREVIEW", PUBLIC:"PUBLIC", RESTRICTED:"RESTRICTED", values:function() {
   return [module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.CAPABILITY_GROUP_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.PUBLIC, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.INTERNAL, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.EXTERNAL, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.LIMITED, 
-  module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.PREAUTHORIZED, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.PREVIEW, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.CLOUD_ALPHA];
+  module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.PREAUTHORIZED, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.PREVIEW, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.CLOUD_ALPHA, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.RESTRICTED, module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum.AUTO_APPEAL_ELIGIBLE];
 }};
 module$exports$eeapiclient$ee_api_client.IChangeSubscriptionTypeRequestChangeTimeEnum = function module$contents$eeapiclient$ee_api_client_IChangeSubscriptionTypeRequestChangeTimeEnum() {
 };
@@ -9247,6 +9195,19 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }, set:function(value) {
   this.Serializable$set("type", value);
 }}});
+module$exports$eeapiclient$ee_api_client.AppealRestrictionRequestParameters = function module$contents$eeapiclient$ee_api_client_AppealRestrictionRequestParameters() {
+};
+module$exports$eeapiclient$ee_api_client.AppealRestrictionRequest = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.AppealRestrictionRequest, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.AppealRestrictionRequest.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.AppealRestrictionRequest;
+};
+module$exports$eeapiclient$ee_api_client.AppealRestrictionRequest.prototype.getPartialClassMetadata = function() {
+  return {keys:[]};
+};
 module$exports$eeapiclient$ee_api_client.ArrayValueParameters = function module$contents$eeapiclient$ee_api_client_ArrayValueParameters() {
 };
 module$exports$eeapiclient$ee_api_client.ArrayValue = function(parameters) {
@@ -9373,19 +9334,19 @@ module$exports$eeapiclient$ee_api_client.BigQueryExportOptionsParameters = funct
 module$exports$eeapiclient$ee_api_client.BigQueryExportOptions = function(parameters) {
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
-  this.Serializable$set("bigQueryDestination", null == parameters.bigQueryDestination ? null : parameters.bigQueryDestination);
+  this.Serializable$set("bigqueryDestination", null == parameters.bigqueryDestination ? null : parameters.bigqueryDestination);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.BigQueryExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.BigQueryExportOptions.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.BigQueryExportOptions;
 };
 module$exports$eeapiclient$ee_api_client.BigQueryExportOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["bigQueryDestination"], objects:{bigQueryDestination:module$exports$eeapiclient$ee_api_client.BigQueryDestination}};
+  return {keys:["bigqueryDestination"], objects:{bigqueryDestination:module$exports$eeapiclient$ee_api_client.BigQueryDestination}};
 };
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.BigQueryExportOptions.prototype, {bigQueryDestination:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("bigQueryDestination") ? this.Serializable$get("bigQueryDestination") : null;
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.BigQueryExportOptions.prototype, {bigqueryDestination:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("bigqueryDestination") ? this.Serializable$get("bigqueryDestination") : null;
 }, set:function(value) {
-  this.Serializable$set("bigQueryDestination", value);
+  this.Serializable$set("bigqueryDestination", value);
 }}});
 module$exports$eeapiclient$ee_api_client.BindingParameters = function module$contents$eeapiclient$ee_api_client_BindingParameters() {
 };
@@ -10030,6 +9991,7 @@ module$exports$eeapiclient$ee_api_client.EarthEngineAsset = function(parameters)
   this.Serializable$set("tilestoreEntry", null == parameters.tilestoreEntry ? null : parameters.tilestoreEntry);
   this.Serializable$set("gcsLocation", null == parameters.gcsLocation ? null : parameters.gcsLocation);
   this.Serializable$set("featureViewAssetLocation", null == parameters.featureViewAssetLocation ? null : parameters.featureViewAssetLocation);
+  this.Serializable$set("tableLocation", null == parameters.tableLocation ? null : parameters.tableLocation);
   this.Serializable$set("type", null == parameters.type ? null : parameters.type);
   this.Serializable$set("name", null == parameters.name ? null : parameters.name);
   this.Serializable$set("id", null == parameters.id ? null : parameters.id);
@@ -10051,9 +10013,9 @@ module$exports$eeapiclient$ee_api_client.EarthEngineAsset.prototype.getConstruct
   return module$exports$eeapiclient$ee_api_client.EarthEngineAsset;
 };
 module$exports$eeapiclient$ee_api_client.EarthEngineAsset.prototype.getPartialClassMetadata = function() {
-  return {arrays:{bands:module$exports$eeapiclient$ee_api_client.ImageBand}, enums:{type:module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum}, keys:"bands cloudStorageLocation description endTime expression featureCount featureViewAssetLocation gcsLocation geometry id name properties quota sizeBytes startTime tilestoreEntry tilestoreLocation title type updateTime".split(" "), objectMaps:{geometry:{ctor:null, isPropertyArray:!1, 
-  isSerializable:!1, isValueArray:!1}, properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{cloudStorageLocation:module$exports$eeapiclient$ee_api_client.CloudStorageLocation, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewAssetLocation:module$exports$eeapiclient$ee_api_client.FeatureViewLocation, gcsLocation:module$exports$eeapiclient$ee_api_client.GcsLocation, 
-  quota:module$exports$eeapiclient$ee_api_client.FolderQuota, tilestoreEntry:module$exports$eeapiclient$ee_api_client.TilestoreEntry, tilestoreLocation:module$exports$eeapiclient$ee_api_client.TilestoreLocation}};
+  return {arrays:{bands:module$exports$eeapiclient$ee_api_client.ImageBand}, enums:{type:module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum}, keys:"bands cloudStorageLocation description endTime expression featureCount featureViewAssetLocation gcsLocation geometry id name properties quota sizeBytes startTime tableLocation tilestoreEntry tilestoreLocation title type updateTime".split(" "), objectMaps:{geometry:{ctor:null, 
+  isPropertyArray:!1, isSerializable:!1, isValueArray:!1}, properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{cloudStorageLocation:module$exports$eeapiclient$ee_api_client.CloudStorageLocation, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewAssetLocation:module$exports$eeapiclient$ee_api_client.FeatureViewLocation, gcsLocation:module$exports$eeapiclient$ee_api_client.GcsLocation, 
+  quota:module$exports$eeapiclient$ee_api_client.FolderQuota, tableLocation:module$exports$eeapiclient$ee_api_client.TableLocation, tilestoreEntry:module$exports$eeapiclient$ee_api_client.TilestoreEntry, tilestoreLocation:module$exports$eeapiclient$ee_api_client.TilestoreLocation}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.EarthEngineAsset.prototype, {bands:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bands") ? this.Serializable$get("bands") : null;
@@ -10115,6 +10077,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("startTime") ? this.Serializable$get("startTime") : null;
 }, set:function(value) {
   this.Serializable$set("startTime", value);
+}}, tableLocation:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("tableLocation") ? this.Serializable$get("tableLocation") : null;
+}, set:function(value) {
+  this.Serializable$set("tableLocation", value);
 }}, tilestoreEntry:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("tilestoreEntry") ? this.Serializable$get("tilestoreEntry") : null;
 }, set:function(value) {
@@ -10393,7 +10359,7 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequest = function(parameter
   this.Serializable$set("fileExportOptions", null == parameters.fileExportOptions ? null : parameters.fileExportOptions);
   this.Serializable$set("assetExportOptions", null == parameters.assetExportOptions ? null : parameters.assetExportOptions);
   this.Serializable$set("featureViewExportOptions", null == parameters.featureViewExportOptions ? null : parameters.featureViewExportOptions);
-  this.Serializable$set("bigQueryExportOptions", null == parameters.bigQueryExportOptions ? null : parameters.bigQueryExportOptions);
+  this.Serializable$set("bigqueryExportOptions", null == parameters.bigqueryExportOptions ? null : parameters.bigqueryExportOptions);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("selectors", null == parameters.selectors ? null : parameters.selectors);
@@ -10410,17 +10376,17 @@ module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getConstru
   return module$exports$eeapiclient$ee_api_client.ExportTableRequest;
 };
 module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:"assetExportOptions bigQueryExportOptions description expression featureViewExportOptions fileExportOptions maxErrorMeters maxVertices maxWorkerCount maxWorkers policy requestId selectors workloadTag".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, bigQueryExportOptions:module$exports$eeapiclient$ee_api_client.BigQueryExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, 
+  return {keys:"assetExportOptions bigqueryExportOptions description expression featureViewExportOptions fileExportOptions maxErrorMeters maxVertices maxWorkerCount maxWorkers policy requestId selectors workloadTag".split(" "), objects:{assetExportOptions:module$exports$eeapiclient$ee_api_client.TableAssetExportOptions, bigqueryExportOptions:module$exports$eeapiclient$ee_api_client.BigQueryExportOptions, expression:module$exports$eeapiclient$ee_api_client.Expression, 
   featureViewExportOptions:module$exports$eeapiclient$ee_api_client.FeatureViewAssetExportOptions, fileExportOptions:module$exports$eeapiclient$ee_api_client.TableFileExportOptions, policy:module$exports$eeapiclient$ee_api_client.Policy}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ExportTableRequest.prototype, {assetExportOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("assetExportOptions") ? this.Serializable$get("assetExportOptions") : null;
 }, set:function(value) {
   this.Serializable$set("assetExportOptions", value);
-}}, bigQueryExportOptions:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("bigQueryExportOptions") ? this.Serializable$get("bigQueryExportOptions") : null;
+}}, bigqueryExportOptions:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("bigqueryExportOptions") ? this.Serializable$get("bigqueryExportOptions") : null;
 }, set:function(value) {
-  this.Serializable$set("bigQueryExportOptions", value);
+  this.Serializable$set("bigqueryExportOptions", value);
 }}, description:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("description") ? this.Serializable$get("description") : null;
 }, set:function(value) {
@@ -12759,6 +12725,40 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TableFileExportOptions, {FileFormat:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.TableFileExportOptionsFileFormatEnum;
 }}});
+module$exports$eeapiclient$ee_api_client.TableLocationParameters = function module$contents$eeapiclient$ee_api_client_TableLocationParameters() {
+};
+module$exports$eeapiclient$ee_api_client.TableLocation = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("paths", null == parameters.paths ? null : parameters.paths);
+  this.Serializable$set("sizeBytes", null == parameters.sizeBytes ? null : parameters.sizeBytes);
+  this.Serializable$set("shardCount", null == parameters.shardCount ? null : parameters.shardCount);
+  this.Serializable$set("primaryGeometryColumn", null == parameters.primaryGeometryColumn ? null : parameters.primaryGeometryColumn);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.TableLocation, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.TableLocation.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.TableLocation;
+};
+module$exports$eeapiclient$ee_api_client.TableLocation.prototype.getPartialClassMetadata = function() {
+  return {keys:["paths", "primaryGeometryColumn", "shardCount", "sizeBytes"]};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.TableLocation.prototype, {paths:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("paths") ? this.Serializable$get("paths") : null;
+}, set:function(value) {
+  this.Serializable$set("paths", value);
+}}, primaryGeometryColumn:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("primaryGeometryColumn") ? this.Serializable$get("primaryGeometryColumn") : null;
+}, set:function(value) {
+  this.Serializable$set("primaryGeometryColumn", value);
+}}, shardCount:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("shardCount") ? this.Serializable$get("shardCount") : null;
+}, set:function(value) {
+  this.Serializable$set("shardCount", value);
+}}, sizeBytes:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("sizeBytes") ? this.Serializable$get("sizeBytes") : null;
+}, set:function(value) {
+  this.Serializable$set("sizeBytes", value);
+}}});
 module$exports$eeapiclient$ee_api_client.TableManifestParameters = function module$contents$eeapiclient$ee_api_client_TableManifestParameters() {
 };
 module$exports$eeapiclient$ee_api_client.TableManifest = function(parameters) {
@@ -13751,8 +13751,8 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }, set:function(value) {
   this.Serializable$set("start", value);
 }}});
-var module$contents$eeapiclient$ee_api_client_PARAM_MAP_0 = {$Xgafv:"$.xgafv", access_token:"access_token", alt:"alt", assetId:"assetId", billingAccount:"billingAccount", callback:"callback", endTime:"endTime", fields:"fields", filter:"filter", key:"key", oauth_token:"oauth_token", overwrite:"overwrite", pageSize:"pageSize", pageToken:"pageToken", prettyPrint:"prettyPrint", quotaUser:"quotaUser", region:"region", startTime:"startTime", updateMask:"updateMask", uploadType:"uploadType", 
-upload_protocol:"upload_protocol", view:"view", workloadTag:"workloadTag"};
+var module$contents$eeapiclient$ee_api_client_PARAM_MAP_0 = {$Xgafv:"$.xgafv", access_token:"access_token", alt:"alt", assetId:"assetId", billingAccount:"billingAccount", callback:"callback", endTime:"endTime", fields:"fields", filter:"filter", key:"key", oauth_token:"oauth_token", overwrite:"overwrite", pageSize:"pageSize", pageToken:"pageToken", parent:"parent", prettyPrint:"prettyPrint", quotaUser:"quotaUser", region:"region", startTime:"startTime", updateMask:"updateMask", 
+uploadType:"uploadType", upload_protocol:"upload_protocol", view:"view", workloadTag:"workloadTag"};
 module$exports$eeapiclient$ee_api_client.IBillingAccountsSubscriptionsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IBillingAccountsSubscriptionsApiClient$XgafvEnum() {
 };
 module$exports$eeapiclient$ee_api_client.BillingAccountsSubscriptionsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
@@ -13792,6 +13792,27 @@ module$exports$eeapiclient$ee_api_client.BillingAccountsSubscriptionsApiClientIm
   return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.billingAccounts.subscriptions.terminate", path:"/" + this.gapiVersion + "/" + name + ":terminate", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.Subscription});
 };
 module$exports$eeapiclient$ee_api_client.BillingAccountsSubscriptionsApiClient = function() {
+};
+module$exports$eeapiclient$ee_api_client.ICapabilitiesApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_ICapabilitiesApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.CapabilitiesApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.CapabilitiesApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.CapabilitiesApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.ICapabilitiesApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_ICapabilitiesApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.CapabilitiesApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.CapabilitiesApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.CapabilitiesApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.CapabilitiesApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.CapabilitiesApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.CapabilitiesApiClientImpl.prototype.appealRestriction = function($requestBody, namedParameters, passthroughNamedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  passthroughNamedParameters = void 0 === passthroughNamedParameters ? {} : passthroughNamedParameters;
+  return this.$apiClient.$request({body:$requestBody, httpMethod:"POST", methodId:"earthengine.capabilities.appealRestriction", path:"/" + this.gapiVersion + "/capabilities:appealRestriction", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.Empty});
+};
+module$exports$eeapiclient$ee_api_client.CapabilitiesApiClient = function() {
 };
 module$exports$eeapiclient$ee_api_client.IProjectsAlgorithmsApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IProjectsAlgorithmsApiClient$XgafvEnum() {
 };
@@ -14582,6 +14603,27 @@ module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClientImpl.pr
   return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.projects.videoThumbnails.getPixels", path:"/" + this.gapiVersion + "/" + name + ":getPixels", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.HttpBody});
 };
 module$exports$eeapiclient$ee_api_client.ProjectsVideoThumbnailsApiClient = function() {
+};
+module$exports$eeapiclient$ee_api_client.IV1alphaApiClient$XgafvEnum = function module$contents$eeapiclient$ee_api_client_IV1alphaApiClient$XgafvEnum() {
+};
+module$exports$eeapiclient$ee_api_client.V1alphaApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.V1alphaApiClient$XgafvEnum[1], module$exports$eeapiclient$ee_api_client.V1alphaApiClient$XgafvEnum[2]];
+}};
+module$exports$eeapiclient$ee_api_client.IV1alphaApiClientAltEnum = function module$contents$eeapiclient$ee_api_client_IV1alphaApiClientAltEnum() {
+};
+module$exports$eeapiclient$ee_api_client.V1alphaApiClientAltEnum = {JSON:"json", MEDIA:"media", PROTO:"proto", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.V1alphaApiClientAltEnum.JSON, module$exports$eeapiclient$ee_api_client.V1alphaApiClientAltEnum.MEDIA, module$exports$eeapiclient$ee_api_client.V1alphaApiClientAltEnum.PROTO];
+}};
+module$exports$eeapiclient$ee_api_client.V1alphaApiClientImpl = function(gapiVersion, gapiRequestService, apiClientHookFactory) {
+  this.gapiVersion = gapiVersion;
+  this.$apiClient = new module$exports$eeapiclient$promise_api_client.PromiseApiClient(gapiRequestService, void 0 === apiClientHookFactory ? null : apiClientHookFactory);
+};
+module$exports$eeapiclient$ee_api_client.V1alphaApiClientImpl.prototype.getCapabilities = function(namedParameters, passthroughNamedParameters) {
+  namedParameters = void 0 === namedParameters ? {} : namedParameters;
+  passthroughNamedParameters = void 0 === passthroughNamedParameters ? {} : passthroughNamedParameters;
+  return this.$apiClient.$request({body:null, httpMethod:"GET", methodId:"earthengine.getCapabilities", path:"/" + this.gapiVersion + "/capabilities", queryParams:module$contents$eeapiclient$request_params_buildQueryParams(namedParameters, module$contents$eeapiclient$ee_api_client_PARAM_MAP_0, passthroughNamedParameters), responseCtor:module$exports$eeapiclient$ee_api_client.Capabilities});
+};
+module$exports$eeapiclient$ee_api_client.V1alphaApiClient = function() {
 };
 ee.api = module$exports$eeapiclient$ee_api_client;
 var module$exports$ee$apiVersion = {V1ALPHA:"v1alpha", V1:"v1"};
@@ -15687,7 +15729,7 @@ module$contents$goog$async$WorkQueue_WorkItem.prototype.reset = function() {
 };
 goog.async.WorkQueue = module$contents$goog$async$WorkQueue_WorkQueue;
 goog.debug.asyncStackTag = {};
-var module$contents$goog$debug$asyncStackTag_CONSOLE_TASK_SYMBOL = "createTask" in console ? Symbol("consoleTask") : void 0;
+var module$contents$goog$debug$asyncStackTag_createTask = goog.DEBUG && goog.global.console && goog.global.console.createTask ? goog.global.console.createTask.bind(goog.global.console) : void 0, module$contents$goog$debug$asyncStackTag_CONSOLE_TASK_SYMBOL = module$contents$goog$debug$asyncStackTag_createTask ? Symbol("consoleTask") : void 0;
 function module$contents$goog$debug$asyncStackTag_wrap(fn, name) {
   function wrappedFn() {
     var args = $jscomp.getRestArguments.apply(0, arguments), $jscomp$this = this;
@@ -15696,10 +15738,10 @@ function module$contents$goog$debug$asyncStackTag_wrap(fn, name) {
     });
   }
   name = void 0 === name ? "anonymous" : name;
-  if (!(goog.DEBUG && "createTask" in console) || fn[(0,goog.asserts.assertExists)(module$contents$goog$debug$asyncStackTag_CONSOLE_TASK_SYMBOL)]) {
+  if (!goog.DEBUG || !module$contents$goog$debug$asyncStackTag_createTask || fn[(0,goog.asserts.assertExists)(module$contents$goog$debug$asyncStackTag_CONSOLE_TASK_SYMBOL)]) {
     return fn;
   }
-  var consoleTask = console.createTask(fn.name || name);
+  var consoleTask = module$contents$goog$debug$asyncStackTag_createTask(fn.name || name);
   wrappedFn[(0,goog.asserts.assertExists)(module$contents$goog$debug$asyncStackTag_CONSOLE_TASK_SYMBOL)] = consoleTask;
   return wrappedFn;
 }
@@ -17458,7 +17500,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.335";
+ee.apiclient.API_CLIENT_VERSION = "0.1.336";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17739,8 +17781,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.335";
-  "0.1.335" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.336";
+  "0.1.336" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -19089,7 +19131,7 @@ ExpressionOptimizer.prototype.countReferences = function() {
   return counts;
 };
 ee.rpc_convert_batch = {};
-ee.rpc_convert_batch.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET", FEATURE_VIEW:"FEATURE_VIEW",};
+ee.rpc_convert_batch.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET", FEATURE_VIEW:"FEATURE_VIEW", BIGQUERY:"BIGQUERY",};
 ee.rpc_convert_batch.taskToExportImageRequest = function(params) {
   if (null == params.element) {
     throw Error('"element" not found in params ' + params);
@@ -19126,6 +19168,9 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
       break;
     case ee.rpc_convert_batch.ExportDestination.FEATURE_VIEW:
       result.featureViewExportOptions = ee.rpc_convert_batch.buildFeatureViewExportOptions_(params);
+      break;
+    case ee.rpc_convert_batch.ExportDestination.BIGQUERY:
+      result.bigqueryExportOptions = ee.rpc_convert_batch.buildBigQueryExportOptions_(params);
       break;
     default:
       throw Error('Export destination "' + destination + '" unknown');
@@ -19232,6 +19277,9 @@ ee.rpc_convert_batch.buildTableAssetExportOptions_ = function(params) {
 ee.rpc_convert_batch.buildFeatureViewExportOptions_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.FeatureViewAssetExportOptions({featureViewDestination:ee.rpc_convert_batch.buildFeatureViewDestination_(params), ingestionTimeParameters:ee.rpc_convert_batch.buildFeatureViewIngestionTimeParameters_(params),});
 };
+ee.rpc_convert_batch.buildBigQueryExportOptions_ = function(params) {
+  return new module$exports$eeapiclient$ee_api_client.BigQueryExportOptions({bigQueryDestination:ee.rpc_convert_batch.buildBigQueryDestination_(params),});
+};
 ee.rpc_convert_batch.buildVideoFileExportOptions_ = function(params, destination) {
   var result = new module$exports$eeapiclient$ee_api_client.VideoFileExportOptions({cloudStorageDestination:null, driveDestination:null, fileFormat:"MP4",});
   destination === ee.rpc_convert_batch.ExportDestination.GCS ? result.cloudStorageDestination = ee.rpc_convert_batch.buildCloudStorageDestination_(params) : result.driveDestination = ee.rpc_convert_batch.buildDriveDestination_(params);
@@ -19289,6 +19337,9 @@ ee.rpc_convert_batch.buildEarthEngineDestination_ = function(params) {
 };
 ee.rpc_convert_batch.buildFeatureViewDestination_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.FeatureViewDestination({name:ee.rpc_convert.assetIdToAssetName(params.mapName)});
+};
+ee.rpc_convert_batch.buildBigQueryDestination_ = function(params) {
+  return new module$exports$eeapiclient$ee_api_client.BigQueryDestination({table:stringOrNull_(params.table), overwrite:!!params.overwrite,});
 };
 ee.rpc_convert_batch.buildFeatureViewIngestionTimeParameters_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.FeatureViewIngestionTimeParameters({thinningOptions:ee.rpc_convert_batch.buildThinningOptions_(params), rankingOptions:ee.rpc_convert_batch.buildRankingOptions_(params)});
@@ -20029,7 +20080,7 @@ goog.exportSymbol("ee.data.resetWorkloadTag", ee.data.resetWorkloadTag);
 ee.data.AssetType = {ALGORITHM:"Algorithm", CLASSIFIER:"Classifier", FEATURE_VIEW:"FeatureView", FOLDER:"Folder", FEATURE_COLLECTION:"FeatureCollection", IMAGE:"Image", IMAGE_COLLECTION:"ImageCollection", TABLE:"Table", UNKNOWN:"Unknown"};
 ee.data.ExportType = {IMAGE:"EXPORT_IMAGE", MAP:"EXPORT_TILES", TABLE:"EXPORT_FEATURES", VIDEO:"EXPORT_VIDEO", VIDEO_MAP:"EXPORT_VIDEO_MAP", CLASSIFIER:"EXPORT_CLASSIFIER"};
 ee.data.ExportState = {UNSUBMITTED:"UNSUBMITTED", READY:"READY", RUNNING:"RUNNING", COMPLETED:"COMPLETED", FAILED:"FAILED", CANCEL_REQUESTED:"CANCEL_REQUESTED", CANCELLED:"CANCELLED",};
-ee.data.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET", FEATURE_VIEW:"FEATURE_VIEW",};
+ee.data.ExportDestination = {DRIVE:"DRIVE", GCS:"GOOGLE_CLOUD_STORAGE", ASSET:"ASSET", FEATURE_VIEW:"FEATURE_VIEW", BIGQUERY:"BIGQUERY",};
 ee.data.ThinningStrategy = {GLOBALLY_CONSISTENT:"GLOBALLY_CONSISTENT", HIGHER_DENSITY:"HIGHER_DENSITY",};
 ee.data.SystemPropertyPrefix = "system:";
 ee.data.SystemTimeProperty = {START:"system:time_start", END:"system:time_end"};
@@ -21843,6 +21894,10 @@ module$contents$ee$batch_Export.table.toFeatureView = function(collection, opt_d
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
 goog.exportSymbol("module$contents$ee$batch_Export.table.toFeatureView", module$contents$ee$batch_Export.table.toFeatureView);
+module$contents$ee$batch_Export.table.toBigQuery = function(collection, opt_description, opt_table, opt_selectors, opt_maxVertices) {
+  var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.table.toBigQuery, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.BIGQUERY, ee.data.ExportType.TABLE);
+  return module$contents$ee$batch_ExportTask.create(serverConfig);
+};
 module$contents$ee$batch_Export.video.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.video.toCloudStorage, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.VIDEO);
   return module$contents$ee$batch_ExportTask.create(serverConfig);

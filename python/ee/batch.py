@@ -447,10 +447,19 @@ class Export(object):
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toCloudStorage(image, description='myExportMapTask', bucket=None,
-                       fileFormat=None, path=None, writePublicTiles=None,
-                       maxZoom=None, scale=None, minZoom=None,
-                       region=None, skipEmptyTiles=None, mapsApiKey=None,
+    def toCloudStorage(image,
+                       description='myExportMapTask',
+                       bucket=None,
+                       fileFormat=None,
+                       path=None,
+                       writePublicTiles=None,
+                       maxZoom=None,
+                       scale=None,
+                       minZoom=None,
+                       region=None,
+                       skipEmptyTiles=None,
+                       mapsApiKey=None,
+                       bucketCorsUris=None,
                        **kwargs):
       """Creates a task to export an Image as a pyramid of map tiles.
 
@@ -486,6 +495,13 @@ class Export(object):
             map tiles. Defaults to false.
         mapsApiKey: Used in index.html to initialize the Google Maps API. This
             removes the "development purposes only" message from the map.
+        bucketCorsUris: A list of domains that are allowed to retrieve the
+            exported tiles from JavaScript. Setting the tiles to public is not
+            enough to allow them to be accessible by a web page, so you must
+            explicitly give domains access to the bucket. This is known as
+            Cross-Origin-Resource-Sharing, or CORS. You can allow all domains to
+            have access using "*", but this is generally discouraged. See
+            https://cloud.google.com/storage/docs/cross-origin for more details.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -1400,13 +1416,14 @@ def _build_cloud_storage_destination(config):
     A CloudStorageDestination containing information extracted from
     config.
   """
-  cloud_storage_export_destination = {'bucket': config.pop('outputBucket')}
+  destination = {'bucket': config.pop('outputBucket')}
   if 'outputPrefix' in config:
-    cloud_storage_export_destination['filenamePrefix'] = config.pop(
-        'outputPrefix')
+    destination['filenamePrefix'] = config.pop('outputPrefix')
+  if 'bucketCorsUris' in config:
+    destination['bucketCorsUris'] = config.pop('bucketCorsUris')
   if config.pop('writePublicTiles', False):
-    cloud_storage_export_destination['permissions'] = 'PUBLIC'
-  return cloud_storage_export_destination
+    destination['permissions'] = 'PUBLIC'
+  return destination
 
 
 def _build_tile_options(config):

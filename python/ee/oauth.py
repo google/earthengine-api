@@ -23,7 +23,6 @@ import urllib.request
 import webbrowser
 
 from google.auth import _cloud_sdk
-import six
 
 # Optional imports used for specific shells.
 # pylint: disable=g-import-not-at-top
@@ -196,6 +195,13 @@ def _obtain_and_write_token(auth_code=None,
 
 def _display_auth_instructions_for_noninteractive(auth_url, code_verifier):
   """Displays instructions for authenticating without blocking for user input."""
+  # Python 3 `bytes` should be decoded to `str` if used as an argument of
+  # `str.format()`.  In Python 2, both `str` and `unicode` strings are fine.
+  if sys.version_info[0] == 3 and isinstance(code_verifier, bytes):
+    code_verifier_str = code_verifier.decode('utf-8', 'strict')
+  else:
+    code_verifier_str = code_verifier
+
   print('Paste the following address into a web browser:\n'
         '\n'
         '    {0}\n'
@@ -206,7 +212,7 @@ def _display_auth_instructions_for_noninteractive(auth_url, code_verifier):
         '\n'
         '    earthengine authenticate --code-verifier={1} '
         '--authorization-code=PLACE_AUTH_CODE_HERE\n'.format(
-            auth_url, six.ensure_str(code_verifier)))
+            auth_url, code_verifier_str))
 
 
 def _display_auth_instructions_with_print(auth_url, coda=None):

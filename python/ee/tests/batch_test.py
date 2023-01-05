@@ -497,9 +497,12 @@ class BatchTestCase(apitestcase.ApiTestCase):
 
       # Test keyed parameters.
       task_keyed = ee.batch.Export.map.toCloudStorage(
-          image=config['image'], bucket=config['bucket'],
-          maxZoom=config['maxZoom'], path=config['path'],
-          maxWorkers=config['maxWorkers'])
+          image=config['image'],
+          bucket=config['bucket'],
+          maxZoom=config['maxZoom'],
+          path=config['path'],
+          maxWorkers=config['maxWorkers'],
+          bucketCorsUris=['*'])
       expected_expression = ee.Image(1)
       self.assertIsNone(task_keyed.id)
       self.assertIsNone(task_keyed.name)
@@ -517,6 +520,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   'bucket': config['bucket'],
                   'filenamePrefix': config['path'],
                   'permissions': 'PUBLIC',
+                  'bucketCorsUris': ['*'],
               },
           },
           'maxWorkers': {'value': 100}

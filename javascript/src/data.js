@@ -413,8 +413,9 @@ ee.data.getMapId = function(params, opt_callback) {
   }
   const getResponse = (response) => ee.data.makeMapId_(response['name'], '');
   const call = new ee.apiclient.Call(opt_callback);
-  return call.handle(
-      call.maps().create(call.projectsPath(), map, queryParams).then(getResponse));
+  return call.handle(call.maps()
+                         .create(call.projectsPath(), map, queryParams)
+                         .then(getResponse));
 };
 
 
@@ -2030,8 +2031,8 @@ ee.data.WorkloadTag = class {
     tag = String(tag);
     if (!/^([a-z0-9]|[a-z0-9][-_\.a-z0-9]{0,61}[a-z0-9])$/g.test(tag)) {
       const validationMessage = 'Tags must be 1-63 characters, ' +
-          'beginning and ending with a lowercase alphanumeric character' + 
-          '([a-z0-9]) with dashes (-), underscores (_), dots (.), and' + 
+          'beginning and ending with a lowercase alphanumeric character' +
+          '([a-z0-9]) with dashes (-), underscores (_), dots (.), and' +
           'lowercase alphanumerics between.';
       throw new Error(`Invalid tag, "${tag}". ${validationMessage}`);
     }

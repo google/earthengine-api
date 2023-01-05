@@ -18,7 +18,6 @@ import urllib.parse
 from google.cloud import storage
 from google.oauth2.credentials import Credentials
 import httplib2
-import six
 
 import ee
 
@@ -190,7 +189,7 @@ class GcsHelper(object):
       if stripped_name == '/':
         continue
 
-      output_path = temp_dir + six.ensure_str(stripped_name)
+      output_path = temp_dir + _ensure_str(stripped_name)
       dir_path = os.path.dirname(output_path)
       if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -218,7 +217,7 @@ class GcsHelper(object):
 
 
 def is_gcs_path(path):
-  return six.ensure_str(path.strip()).startswith('gs://')
+  return _ensure_str(path.strip()).startswith('gs://')
 
 
 def query_yes_no(msg):
@@ -235,7 +234,7 @@ def query_yes_no(msg):
 
 def truncate(string, length):
   if len(string) > length:
-    return six.ensure_str(string[:length]) + '..'
+    return _ensure_str(string[:length]) + '..'
   else:
     return string
 
@@ -322,7 +321,7 @@ def expand_gcs_wildcards(source_files):
 
     # Capture the part of the path after gs:// and before the first /
     bucket_regex = 'gs://([a-z0-9_.-]+)/(.*)'
-    bucket_match = re.match(bucket_regex, six.ensure_str(source))
+    bucket_match = re.match(bucket_regex, _ensure_str(source))
     if bucket_match:
       bucket, rest = bucket_match.group(1, 2)
     else:
@@ -333,7 +332,7 @@ def expand_gcs_wildcards(source_files):
     bucket_files = _gcs_ls(bucket, prefix)
 
     # Regex to match the source path with wildcards expanded
-    regex = six.ensure_str(re.escape(source)).replace(r'\*', '[^/]*') + '$'
+    regex = _ensure_str(re.escape(source)).replace(r'\*', '[^/]*') + '$'
     for gcs_path in bucket_files:
       if re.match(regex, gcs_path):
         yield gcs_path
@@ -399,3 +398,11 @@ def _gcs_ls(bucket, prefix=''):
 
     # Load next page, continue at beginning of while True:
     next_page_token = json_content['nextPageToken']
+
+
+def _ensure_str(s):
+  """Converts Python 3 string or bytes object to string."""
+  if isinstance(s, bytes):
+    return s.decode('utf-8', 'strict')
+  return s
+  
