@@ -43,8 +43,7 @@ setup(
         'google-auth>=1.4.1',
         'google-auth-httplib2>=0.0.3',
         'httplib2>=0.9.2,<1dev',
-        'requests',
-        'six'
+        'requests'
     ],
     entry_points={
         'console_scripts': ['earthengine = ee.cli.eecli:main',],

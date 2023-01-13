@@ -135,6 +135,9 @@ MAX_TYPE_LENGTH = len(ASSET_TYPE_IMAGE_COLL_CLOUD)
 # The maximum number of tasks to retrieve in each request to "/tasklist".
 _TASKLIST_PAGE_SIZE = 500
 
+# Next page token key for list endpoints.
+_NEXT_PAGE_TOKEN_KEY = 'nextPageToken'
+
 
 def initialize(credentials=None,
                api_base_url=None,
@@ -491,6 +494,8 @@ def listImages(params):
   assets = listAssets(
       _cloud_api_utils.convert_list_images_params_to_list_assets_params(params))
   images['images'].extend(assets.get('assets', []))
+  if _NEXT_PAGE_TOKEN_KEY in assets:
+    images[_NEXT_PAGE_TOKEN_KEY] = assets.get(_NEXT_PAGE_TOKEN_KEY)
   return images
 
 
@@ -525,6 +530,7 @@ def listAssets(params):
   else:
     cloud_resource_root = _get_cloud_api_resource().projects().assets()
   request = cloud_resource_root.listAssets(**params)
+  response = None
   while request is not None:
     response = _execute_cloud_call(request)
     assets['assets'].extend(response.get('assets', []))
@@ -534,6 +540,10 @@ def listAssets(params):
     # amount.
     if 'pageSize' in params:
       break
+  # A next page token should only be present if pageSize is set, but populate it
+  # on the return value if a token is present in the last response.
+  if response and _NEXT_PAGE_TOKEN_KEY in response:
+    assets[_NEXT_PAGE_TOKEN_KEY] = response.get(_NEXT_PAGE_TOKEN_KEY)
   return assets
 
 

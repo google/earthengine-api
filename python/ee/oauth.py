@@ -15,6 +15,7 @@ import hashlib
 import http.server
 import json
 import os
+import shutil
 import subprocess
 import sys
 import urllib.error
@@ -286,6 +287,7 @@ def _load_app_default_credentials(run_gcloud=True, scopes=None, quiet=None):
     client_id_file = get_credentials_path() + '-client-id.json'
     write_private_json(client_id_file, dict(installed=client_id_json))
     command = GCLOUD_COMMAND.split()
+    command[0] = shutil.which(command[0]) or command[0]  # Windows fix
     command += ['--scopes=%s' % (','.join(scopes or SCOPES))]
     command += ['--client-id-file=%s' % client_id_file]
     command += ['--no-browser'] if quiet else []
