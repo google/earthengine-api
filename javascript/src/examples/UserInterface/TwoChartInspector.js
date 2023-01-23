@@ -2,7 +2,7 @@
 // time-series of NDVI and reflectance for each click on the map.
 
 // Filter collection to dates of interest.
-var l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+var l8 = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
     .filterDate('2016-06-01', '2017-06-01');
 
 // Create two collections to sample from, one for each plot.

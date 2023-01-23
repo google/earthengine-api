@@ -1,7 +1,7 @@
 // Canny Edge Detector example.
 
 // Load an image and compute NDVI from it.
-var image = ee.Image('LANDSAT/LT05/C01/T1_TOA/LT05_031034_20110619');
+var image = ee.Image('LANDSAT/LT05/C02/T1_TOA/LT05_031034_20110619');
 var ndvi = image.normalizedDifference(['B4','B3']);
 
 // Detect edges in the composite.

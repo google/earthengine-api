@@ -202,7 +202,7 @@ app.createHelpers = function() {
 
 /** Creates the app constants. */
 app.createConstants = function() {
-  app.COLLECTION_ID = 'LANDSAT/LC08/C01/T1_RT_TOA';
+  app.COLLECTION_ID = 'LANDSAT/LC08/C02/T1_TOA';
   app.SECTION_STYLE = {margin: '20px 0 0 0'};
   app.HELPER_TEXT_STYLE = {
       margin: '8px 0 -3px 8px',
@@ -214,17 +214,17 @@ app.createConstants = function() {
     'False color (B7/B6/B4)': {
       description: 'Vegetation is shades of red, urban areas are ' +
                    'cyan blue, and soils are browns.',
-      visParams: {gamma: 1.3, min: 0, max: 0.3, bands: ['B7', 'B6', 'B4']}
+      visParams: {gamma: 1.1, min: 0, max: 0.45, bands: ['B7', 'B6', 'B4']}
     },
     'Natural color (B4/B3/B2)': {
       description: 'Ground features appear in colors similar to their ' +
                    'appearance to the human visual system.',
-      visParams: {gamma: 1.3, min: 0, max: 0.3, bands: ['B4', 'B3', 'B2']}
+      visParams: {gamma: 1.1, min: 0, max: 0.35, bands: ['B4', 'B3', 'B2']}
     },
     'Atmospheric (B7/B6/B5)': {
       description: 'Coast lines and shores are well-defined. ' +
                    'Vegetation appears blue.',
-      visParams: {gamma: 1.3, min: 0, max: 0.3, bands: ['B7', 'B6', 'B5']}
+      visParams: {gamma: 1.1, min: 0, max: 0.45, bands: ['B7', 'B6', 'B5']}
     }
   };
 };

@@ -1,19 +1,19 @@
 // Step through thumbnails of an image collection showing the development
 // of an airstrip developed for gold mining in the 1980's and 1990's.
 var box = ee.Geometry.Polygon([[
-               [-62.955, 2.433], [-62.830, 2.433],
-               [-62.830, 2.559], [-62.955, 2.559]]]);
+  [-62.955, 2.433], [-62.830, 2.433],
+  [-62.830, 2.559], [-62.955, 2.559]]]);
 
 var visParams = {
-  bands: ['B3', 'B2', 'B1'],
-  min: 0,
-  max: 1200,
+  bands: ['SR_B3', 'SR_B2', 'SR_B1'],
+  min: (0.0 + 0.2) / 0.0000275,  // Apply scale and offset 
+  max: (0.35 + 0.2) / 0.0000275,  // Apply scale and offset
   gamma: [1.1, 1.1, 1]
 };
 
-var images = ee.ImageCollection('LANDSAT/LT05/C01/T1_SR')
-    .filterBounds(box)
-    .filterDate('1984-01-01', '1991-01-01');
+var images = ee.ImageCollection('LANDSAT/LT05/C02/T1_L2')
+  .filterBounds(box)
+  .filterDate('1984-01-01', '1991-01-01');
 
 Map.centerObject(box);
 Map.addLayer(ee.Image(images.first()), visParams, 'Landsat 5');
@@ -32,8 +32,8 @@ images.size().evaluate(function(length) {
 var prevButton = new ui.Button('Previous', null, true, {margin: '0 auto 0 0'});
 var nextButton = new ui.Button('Next', null, false, {margin: '0 0 0 auto'});
 var buttonPanel = new ui.Panel(
-    [prevButton, nextButton],
-    ui.Panel.Layout.Flow('horizontal'));
+  [prevButton, nextButton],
+  ui.Panel.Layout.Flow('horizontal'));
 
 // Build the thumbnail display panel
 var introPanel = ui.Panel([
@@ -58,12 +58,12 @@ var thumbnail = ui.Thumbnail({
     dimensions: '256x256',
     region: box,
   }),
-  style: {height: '300px', width: '300px'},
+  style: {height: '345px', width: '345px'},
   onClick: function(widget) {
     // Add the whole scene to the map when the thumbnail is clicked.
     var layer = Map.layers().get(0);
     if (layer.get('eeObject') != thumbnail.getImage()) {
-      layer.set('eeObject', thumbnail.getImage());
+    layer.set('eeObject', thumbnail.getImage());
     }
   }
 });
@@ -73,7 +73,7 @@ var dateLabel = ui.Label({style: {margin: '2px 0'}});
 var idLabel = ui.Label({style: {margin: '2px 0'}});
 var mainPanel = ui.Panel({
   widgets: [introPanel, buttonPanel, imagePanel, idLabel, dateLabel],
-  style: {position: 'bottom-left', width: '330px'}
+  style: {position: 'bottom-left', width: '375px'}
 });
 Map.add(mainPanel);
 

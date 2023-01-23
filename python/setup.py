@@ -37,7 +37,6 @@ setup(
         # Note we omit TensorFlow (used by the CLI) here on purpose to avoid
         # an extra 0.5GiB of deps compared to our current 26MiB; Use of TF
         # functionality requires a manual install of TensorFlow.
-        'future',
         'google-cloud-storage',
         'google-api-python-client>=1.12.1',
         'google-auth>=1.4.1',

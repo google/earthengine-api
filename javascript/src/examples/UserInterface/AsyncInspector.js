@@ -1,7 +1,7 @@
-// Desmontrate asynchronous updating of UI elements through evaluate().
+// Demonstrate asynchronous updating of UI elements through evaluate().
 
 // Filter a collection to a time of interest.
-var l8 = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+var l8 = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
     .filterDate('2014-06-01', '2015-06-01');
 
 var ndvi = l8.map(function(image) {

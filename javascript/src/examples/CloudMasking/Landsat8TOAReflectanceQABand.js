@@ -2,15 +2,15 @@
 
 // Function to mask clouds using the quality band of Landsat 8.
 var maskL8 = function(image) {
-  var qa = image.select('BQA');
+  var qa = image.select('QA_PIXEL');
   /// Check that the cloud bit is off.
-  // See https://www.usgs.gov/land-resources/nli/landsat/landsat-collection-1-level-1-quality-assessment-band
-  var mask = qa.bitwiseAnd(1 << 4).eq(0);
+  // See https://www.usgs.gov/media/files/landsat-8-9-olitirs-collection-2-level-1-data-format-control-book
+  var mask = qa.bitwiseAnd(1 << 3).eq(0);
   return image.updateMask(mask);
-}
+};
 
 // Map the function over one year of Landsat 8 TOA data and take the median.
-var composite = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+var composite = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
     .filterDate('2016-01-01', '2016-12-31')
     .map(maskL8)
     .median();

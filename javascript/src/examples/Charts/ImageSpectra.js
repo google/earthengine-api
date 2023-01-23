@@ -1,5 +1,5 @@
 // Plot band values at points in an image.
-var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA');
+var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA');
 
 var COLOR = {
   PARK: 'ff0000',
@@ -48,7 +48,7 @@ bandChart.setOptions({
 });
 
 // From: https://landsat.usgs.gov/what-are-best-spectral-bands-use-my-study
-var wavelengths = [.44, .48, .56, .65, .86, 1.61, 2.2];
+var wavelengths = [0.44, 0.48, 0.56, 0.65, 0.86, 1.61, 2.2];
 
 var spectraChart = ui.Chart.image.regions({
   image: mexicoImage,

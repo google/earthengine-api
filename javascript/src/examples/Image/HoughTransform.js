@@ -1,7 +1,7 @@
 // An example finding linear features using the HoughTransform.
 
 // Load an image and compute NDVI.
-var image = ee.Image('LANDSAT/LC08/C01/T1_TOA/LC08_033032_20170719');
+var image = ee.Image('LANDSAT/LC08/C02/T1_TOA/LC08_033032_20170719');
 var ndvi = image.normalizedDifference(['B5', 'B4']);
 
 // Apply a Canny edge detector.

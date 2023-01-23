@@ -10,7 +10,7 @@ var palette = [
   '004C00', '023B01', '012E01', '011D01', '011301'];
 
 // Just display the image with the palette.
-var image = ee.Image('LANDSAT/LC08/C01/T1_TOA/LC08_034034_20170608');
+var image = ee.Image('LANDSAT/LC08/C02/T1_TOA/LC08_034034_20170608');
 var ndvi = image.normalizedDifference(['B5','B4']);
 
 Map.addLayer(ndvi, {min: 0, max: 1, palette: palette}, 'Landsat NDVI');

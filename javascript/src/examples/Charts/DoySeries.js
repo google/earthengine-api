@@ -11,9 +11,10 @@ var desert = ee.Feature(  // Black Rock Desert.
     {label: 'Desert'});
 var westernRegions = new ee.FeatureCollection([city, forest, desert]);
 
-var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
-    .filterBounds(westernRegions);
-landsat8Toa = landsat8Toa.select('B[1-7]');
+var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
+    .filterBounds(westernRegions)
+    .filterDate('2013-01-01', '2018-01-01')
+    .select('B[1-7]');
 
 // Create a chart using a sequence of arguments.
 var bands = ui.Chart.image.doySeries(landsat8Toa, forest, null, 200);
@@ -38,4 +39,4 @@ var regions = ui.Chart.image.doySeriesByRegion({
 print(regions);
 
 Map.addLayer(westernRegions);
-Map.setCenter(-121, 39.4, 6);
+Map.setCenter(-121, 39.4, 7);
