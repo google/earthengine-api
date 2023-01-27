@@ -1495,8 +1495,7 @@ def _build_feature_view_destination(config):
       by removing parameters used in the FeatureViewDestination.
 
   Returns:
-    A FeatureViewDestination containing information extracted from
-    config.
+    A FeatureViewDestination containing information extracted from config.
   """
   feature_view_destination = {
       'name':

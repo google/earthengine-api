@@ -647,7 +647,8 @@ Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
  * @param {!ServerTaskConfig} taskConfig Table export config to
  *     prepare.
  * @param {!data.ExportDestination} destination Export destination.
- * @return {!data.TableTaskConfig|!data.FeatureViewTaskConfig}
+ * @return {!data.TableTaskConfig|!data.FeatureViewTaskConfig|
+ *     !data.BigQueryTaskConfig}
  * @private
  */
 Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
@@ -659,8 +660,7 @@ Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
   taskConfig = Export.reconcileTableFormat(taskConfig);
   // Add top-level destination fields.
   taskConfig = Export.prepareDestination_(taskConfig, destination);
-  return /** @type {!data.TableTaskConfig|!data.FeatureViewTaskConfig} */ (
-      taskConfig);
+  return /** @type {!data.TableTaskConfig|!data.FeatureViewTaskConfig|!data.BigQueryTaskConfig}*/ (taskConfig);
 };
 
 
