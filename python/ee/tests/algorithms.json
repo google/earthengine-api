@@ -5188,9 +5188,7 @@
       "description": "The list of properties to exclude when copying all properties. Must not be specified if properties is.",
       "optional": true,
       "defaultValue": null
-    }],
-    "deprecated": true,
-    "deprecationReason": "Use Element.copyProperties()"
+    }]
   }, {
     "name": "algorithms/Element.geometry",
     "description": "Returns the geometry of a given feature in a given projection.",
@@ -5217,7 +5215,8 @@
       "description": "If true, the geometry will have geodesic edges. If false, it will have edges as straight lines in the specified projection. If null, the edge interpretation will be the same as the original geometry. This argument is ignored if proj is not specified.",
       "optional": true,
       "defaultValue": null
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Feature.geometry",
     "description": "Returns the geometry of a given feature in a given projection.",
@@ -5244,9 +5243,7 @@
       "description": "If true, the geometry will have geodesic edges. If false, it will have edges as straight lines in the specified projection. If null, the edge interpretation will be the same as the original geometry. This argument is ignored if proj is not specified.",
       "optional": true,
       "defaultValue": null
-    }],
-    "deprecated": true,
-    "deprecationReason": "Use Element.geometry()"
+    }]
   }, {
     "name": "algorithms/Image.geometry",
     "description": "Returns the geometry of a given feature in a given projection.",
@@ -5273,9 +5270,7 @@
       "description": "If true, the geometry will have geodesic edges. If false, it will have edges as straight lines in the specified projection. If null, the edge interpretation will be the same as the original geometry. This argument is ignored if proj is not specified.",
       "optional": true,
       "defaultValue": null
-    }],
-    "deprecated": true,
-    "deprecationReason": "Use Element.geometry()"
+    }]
   }, {
     "name": "algorithms/AggregateFeatureCollection.array",
     "description": "Aggregates over a given property of the objects in a collection, calculating a list of all the values of the selected property.",

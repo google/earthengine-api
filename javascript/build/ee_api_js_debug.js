@@ -9077,8 +9077,9 @@ module$exports$eeapiclient$ee_api_client.TilesetDataTypeEnum = {DATA_TYPE_UNSPEC
 }};
 module$exports$eeapiclient$ee_api_client.ITrialStatusEligibilityEnum = function module$contents$eeapiclient$ee_api_client_ITrialStatusEligibilityEnum() {
 };
-module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum = {ALREADY_EVALUATED:"ALREADY_EVALUATED", ELIGIBILITY_UNSPECIFIED:"ELIGIBILITY_UNSPECIFIED", ELIGIBLE:"ELIGIBLE", NO_BILLING_ACCOUNT:"NO_BILLING_ACCOUNT", REDEEMED:"REDEEMED", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ELIGIBILITY_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ELIGIBLE, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.REDEEMED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ALREADY_EVALUATED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.NO_BILLING_ACCOUNT];
+module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum = {ACCOUNT_INELIGIBLE:"ACCOUNT_INELIGIBLE", ALREADY_EVALUATED:"ALREADY_EVALUATED", ELIGIBILITY_UNSPECIFIED:"ELIGIBILITY_UNSPECIFIED", ELIGIBLE:"ELIGIBLE", NO_BILLING_ACCOUNT:"NO_BILLING_ACCOUNT", REDEEMED:"REDEEMED", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ELIGIBILITY_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ELIGIBLE, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.REDEEMED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ALREADY_EVALUATED, module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.NO_BILLING_ACCOUNT, 
+  module$exports$eeapiclient$ee_api_client.TrialStatusEligibilityEnum.ACCOUNT_INELIGIBLE];
 }};
 module$exports$eeapiclient$ee_api_client.ITrialStatusStateEnum = function module$contents$eeapiclient$ee_api_client_ITrialStatusStateEnum() {
 };
@@ -17542,7 +17543,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.339";
+ee.apiclient.API_CLIENT_VERSION = "0.1.340";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17823,8 +17824,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.339";
-  "0.1.339" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.340";
+  "0.1.340" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
