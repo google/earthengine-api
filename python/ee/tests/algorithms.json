@@ -10138,7 +10138,7 @@
     }]
   }, {
     "name": "algorithms/Image.retile",
-    "description": "Change the size of tiles in which the input image is calculated.\n\nWhen pixels of this image are needed, they are computed in tiles of the specified size. This allows a memory-intensive image computation, such as one involving large array bands, to be broken up into smaller pieces that will fit into memory where larger ones will not.\n\nCurrently, if the image is used in a reduce operation, the tileScale parameter should be used instead of retile(). retile() will also have no or detrimental effect in an Export.video task.",
+    "description": "Change the size of tiles in which the input image is calculated.\n\nWhen pixels of this image are needed, they are computed in tiles of at most the specified size. This allows a memory-intensive image computation, such as one involving large array bands, to be broken up into smaller pieces that will fit into memory where larger ones would not.\n\nCurrently, if the image is used in a reduce operation, the tileScale parameter should be used instead of retile(). retile() is supported by Export.image but its behavior in other export tasks is not guaranteed.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10147,7 +10147,7 @@
     }, {
       "argumentName": "size",
       "type": "Integer",
-      "description": "Edge length in pixels of the tile grid to use; must be between 1 and 256."
+      "description": "Edge length in pixels of the tile grid to use; must be between 1 and 32768."
     }],
     "hidden": true
   }, {
