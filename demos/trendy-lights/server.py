@@ -58,8 +58,6 @@ which in turn helps us avoid exceeding our quota and respond to user
 requests more quickly.
 
 """
-
-from __future__ import print_function
 import json
 import os
 
@@ -232,9 +230,7 @@ POLYGON_IDS = [name.replace('.json', '') for name in os.listdir(POLYGON_PATH)]
 # Create the Jinja templating system we use to dynamically generate HTML. See:
 # http://jinja.pocoo.org/docs/dev/
 JINJA2_ENVIRONMENT = jinja2.Environment(
-    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)),
-    autoescape=True,
-    extensions=['jinja2.ext.autoescape'])
+    loader=jinja2.FileSystemLoader(os.path.dirname(__file__)), autoescape=True)
 
 # Initialize the EE API.
 ee.Initialize(EE_CREDENTIALS)

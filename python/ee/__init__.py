@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.295'
+__version__ = '0.1.340'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -12,7 +12,6 @@ import datetime
 import inspect
 import numbers
 import os
-import six
 
 from . import batch
 from . import data
@@ -78,15 +77,31 @@ Algorithms = _AlgorithmsContainer()
 def Authenticate(
     authorization_code=None,
     quiet=None,
-    code_verifier=None):
+    code_verifier=None,
+    auth_mode=None,
+    scopes=None):
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
     authorization_code: An optional authorization code.
-    quiet: If true, do not require interactive prompts.
+    quiet: If true, do not require interactive prompts and force --no-browser
+      mode for gcloud.
     code_verifier: PKCE verifier to prevent auth code stealing.
+    auth_mode: The authentication mode. One of:
+      "notebook" - send user to notebook authenticator page;
+      "gcloud" - use gcloud to obtain credentials (will set appdefault);
+      "appdefault" - read from existing $GOOGLE_APPLICATION_CREDENTIALS file;
+      "localhost" - runs auth flow in local browser only;
+      None - a default mode is chosen based on your environment.
+     scopes: List of scopes to use for authentication. Defaults to [
+       'https://www.googleapis.com/auth/earthengine',
+       'https://www.googleapis.com/auth/devstorage.full_control' ].
+
+  Returns:
+     (auth_url, code_verifier) when called with quiet='init_only'
   """
-  oauth.authenticate(authorization_code, quiet, code_verifier)
+  return oauth.authenticate(authorization_code, quiet, code_verifier, auth_mode,
+                            scopes)
 
 
 def Initialize(
@@ -109,7 +124,7 @@ def Initialize(
     opt_url: The base url for the EarthEngine REST API to connect to.
     cloud_api_key: An optional API key to use the Cloud API.
     http_transport: The http transport method to use when making requests.
-    project: The project-id or number to use when making api calls.
+    project: The client project ID or number to use when making API calls.
   """
   if credentials == 'persistent':
     credentials = data.get_persistent_credentials()
@@ -233,15 +248,12 @@ def _Promote(arg, klass):
   elif klass == 'Filter':
     return Filter(arg)
   elif klass == 'Algorithm':
-    if isinstance(arg, six.string_types):
+    if isinstance(arg, str):
       # An API function name.
       return ApiFunction.lookup(arg)
     elif callable(arg):
       # A native function that needs to be wrapped.
-      if six.PY2:
-        args_count = len(inspect.getargspec(arg).args)
-      else:
-        args_count = len(inspect.getfullargspec(arg).args)
+      args_count = len(inspect.getfullargspec(arg).args)
       return CustomFunction.create(arg, 'Object', ['Object'] * args_count)
     elif isinstance(arg, Encodable):
       # An ee.Function or a computed function like the return value of
@@ -275,7 +287,7 @@ def _Promote(arg, klass):
     elif ctor:
       # The client-side constructor will call the server-side constructor.
       return cls(arg)
-    elif isinstance(arg, six.string_types):
+    elif isinstance(arg, str):
       if hasattr(cls, arg):
         # arg is the name of a method in klass.
         return getattr(cls, arg)()

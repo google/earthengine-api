@@ -24,13 +24,14 @@ from . import element
 from . import function
 from . import geometry
 
-import six
-
 
 class Image(element.Element):
   """An object to represent an Earth Engine image."""
 
   _initialized = False
+
+  # Tell pytype to not complain about dynamic attributes.
+  _HAS_DYNAMIC_ATTRIBUTES = True
 
   def __init__(self, args=None, version=None):
     """Constructs an Earth Engine image.
@@ -50,7 +51,6 @@ class Image(element.Element):
     Raises:
       EEException: if passed something other than the above.
     """
-
     self.initialize()
 
     if version is not None:
@@ -178,7 +178,7 @@ class Image(element.Element):
         # comma-separated list of numbers, potentially wrapped in square
         # brackets. Parameter coercion takes care of the first two, but we need
         # to deal with the third.
-        if isinstance(crs_transform, six.string_types):
+        if isinstance(crs_transform, str):
           crs_transform = [
               float(x) for x in crs_transform.lstrip('[').rstrip(']').split(',')
           ]
@@ -259,7 +259,7 @@ class Image(element.Element):
               selection_params['geometry'] = region
               continue
             # Otherwise, we may be given a GeoJSON object or string.
-            if isinstance(region, six.string_types):
+            if isinstance(region, str):
               region = json.loads(region)
             # By default the Geometry should be planar.
             if isinstance(region, list):
@@ -547,7 +547,21 @@ class Image(element.Element):
 
   @staticmethod
   def cat(*args):
-    """Concatenate the given images together into a single image."""
+    """Combine the given images' bands into a single image with all the bands.
+
+    If two or more bands share a name, they are suffixed with an incrementing
+    index.
+
+    The resulting image will have the metadata from the first input image, only.
+
+    This function will promote constant values into constant images.
+
+    Args:
+      *args: The list of images to be combined.
+
+    Returns:
+      The combined image.
+    """
     return Image.combine_(args)
 
   @staticmethod
@@ -666,25 +680,14 @@ class Image(element.Element):
     # that takes a set of Images and produces an Image. We need to make an
     # ee.Function to wrap it properly: encoding and specification of input and
     # output types.
-    class ReinterpretedFunction(function.Function):
-      """A function that executes the result of a function."""
-
-      def encode_invocation(self, encoder):
-        return body.encode(encoder)
-
-      def encode_cloud_invocation(self, encoder):
-        return {'functionReference': encoder(body)}
-
-      def getSignature(self):
-        return {
-            'name': '',
-            'args': [{'name': name, 'type': 'Image', 'optional': False}
-                     for name in all_vars],
-            'returns': 'Image'
-        }
-
+    signature = {
+        'name': '',
+        'args': [{'name': name, 'type': 'Image', 'optional': False}
+                 for name in all_vars],
+        'returns': 'Image'
+    }
     # Perform the call to the result of Image.parseExpression
-    return ReinterpretedFunction().apply(args)
+    return function.SecondOrderFunction(body, signature).apply(args)
 
   def clip(self, clip_geometry):
     """Clips an image to a Geometry or Feature.
@@ -743,7 +746,7 @@ def _parse_dimensions(dimensions):
   """Parses a dimensions specification into a one or two element list."""
   if ee_types.isNumber(dimensions):
     return [dimensions]
-  elif isinstance(dimensions, six.string_types):
+  elif isinstance(dimensions, str):
     # Unpack WIDTHxHEIGHT
     return [int(x) for x in dimensions.split('x')]
   elif isinstance(dimensions, (list, tuple)) and 1 <= len(dimensions) <= 2:

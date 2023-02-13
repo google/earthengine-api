@@ -6,7 +6,8 @@ public use by ee/__init__.py, the test is located here but uses the ee.-prefixed
 name since that is the name we want to ensure works.
 """
 
-import six
+import io
+
 
 import unittest
 import ee
@@ -26,7 +27,7 @@ class ProfilingTest(apitestcase.ApiTestCase):
 
   def testProfilePrinting(self):
     ee.data.computeValue = self.MockValue
-    out = six.StringIO()
+    out = io.StringIO()
     with ee.profilePrinting(destination=out):
       self.assertEqual('hooked=True getProfiles=False', ee.Number(1).getInfo())
     self.assertEqual('hooked=False getProfiles=True', out.getvalue())

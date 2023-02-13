@@ -115,10 +115,10 @@ ee.Collection.prototype.filterMetadata = function(name, operator, value) {
  *
  * This is equivalent to this.filter(ee.Filter.bounds(...)).
  *
- * Caution: providing a large or complex collection as input can result in poor
- * performance. Collating the geometry of collections does not scale well, use
- * the smallest collection (or geometry) that is required to achieve the desired
- * outcome.
+ * Caution: providing a large or complex collection as the `geometry` argument
+ * can result in poor performance. Collating the geometry of collections does
+ * not scale well; use the smallest collection (or geometry) that is required to
+ * achieve the desired outcome.
  * @param {!ee.Geometry|!ee.ComputedObject|!ee.FeatureCollection} geometry
  *     The geometry, feature or collection to intersect with.
  * @return {ee.Collection} The filtered collection.
@@ -134,7 +134,8 @@ ee.Collection.prototype.filterBounds = function(geometry) {
  * Dates, numbers (interpreted as milliseconds since 1970-01-01T00:00:00Z), or
  * strings (such as '1996-01-01T08:00'). Based on 'system:time_start'.
  *
- * This is equivalent to this.filter(ee.Filter.date(...)).
+ * This is equivalent to this.filter(ee.Filter.date(...)); see the ee.Filter
+ * type for other date filtering options.
  *
  * @param {!Date|string|number} start The start date (inclusive).
  * @param {?Date|string|number=} opt_end The end date (exclusive). Optional. If

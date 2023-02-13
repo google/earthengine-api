@@ -89,7 +89,7 @@ ee.Function.prototype.call = function(var_args) {
  * @export
  */
 ee.Function.prototype.apply = function(namedArgs) {
-  var result = new ee.ComputedObject(this, this.promoteArgs(namedArgs));
+  const result = new ee.ComputedObject(this, this.promoteArgs(namedArgs));
   return /** @type {!ee.ComputedObject} */(
       ee.Function.promoter_(result, this.getReturnType()));
 };
@@ -109,15 +109,15 @@ ee.Function.prototype.apply = function(namedArgs) {
  * @package
  */
 ee.Function.prototype.callOrApply = function(thisValue, args) {
-  var isInstance = (thisValue !== undefined);
-  var signature = this.getSignature();
+  const isInstance = (thisValue !== undefined);
+  const signature = this.getSignature();
 
   // Convert positional to named args.
-  var namedArgs;
+  let namedArgs;
   if (ee.Types.useKeywordArgs(args, signature, isInstance)) {
     namedArgs = goog.object.clone(/** @type {Object} */ (args[0]));
     if (isInstance) {
-      var firstArgName = signature['args'][0]['name'];
+      const firstArgName = signature['args'][0]['name'];
       if (firstArgName in namedArgs) {
         throw Error('Named args for ' + signature['name'] +
                     ' can\'t contain keyword ' + firstArgName);
@@ -142,13 +142,13 @@ ee.Function.prototype.callOrApply = function(thisValue, args) {
  * @protected
  */
 ee.Function.prototype.promoteArgs = function(args) {
-  var specs = this.getSignature()['args'];
+  const specs = this.getSignature()['args'];
 
   // Promote all recognized args.
-  var promotedArgs = {};
-  var known = {};
-  for (var i = 0; i < specs.length; i++) {
-    var name = specs[i]['name'];
+  const promotedArgs = {};
+  const known = {};
+  for (let i = 0; i < specs.length; i++) {
+    const name = specs[i]['name'];
     if (name in args && args[name] !== undefined) {
       promotedArgs[name] = ee.Function.promoter_(args[name], specs[i]['type']);
     } else if (!specs[i]['optional']) {
@@ -159,8 +159,8 @@ ee.Function.prototype.promoteArgs = function(args) {
   }
 
   // Check for unknown arguments.
-  var unknown = [];
-  for (var argName in args) {
+  const unknown = [];
+  for (const argName in args) {
     if (!known[argName]) {
       unknown.push(argName);
     }
@@ -184,13 +184,13 @@ ee.Function.prototype.promoteArgs = function(args) {
  * @protected
  */
 ee.Function.prototype.nameArgs = function(args) {
-  var specs = this.getSignature()['args'];
+  const specs = this.getSignature()['args'];
   if (specs.length < args.length) {
     throw Error('Too many (' + args.length + ') arguments to function: ' +
                 this);
   }
-  var namedArgs = {};
-  for (var i = 0; i < args.length; i++) {
+  const namedArgs = {};
+  for (let i = 0; i < args.length; i++) {
     namedArgs[specs[i]['name']] = args[i];
   }
   return namedArgs;
@@ -215,8 +215,8 @@ ee.Function.prototype.getReturnType = function() {
  * @override
  */
 ee.Function.prototype.toString = function(opt_name, opt_isInstance) {
-  var signature = this.getSignature();
-  var buffer = [];
+  const signature = this.getSignature();
+  const buffer = [];
   buffer.push(opt_name || signature['name']);
   buffer.push('(');
   buffer.push(goog.array.map(signature['args'].slice(opt_isInstance ? 1 : 0),
@@ -233,13 +233,13 @@ ee.Function.prototype.toString = function(opt_name, opt_isInstance) {
   buffer.push('\n');
   if (signature['args'].length) {
     buffer.push('\nArgs:\n');
-    for (var i = 0; i < signature['args'].length; i++) {
+    for (let i = 0; i < signature['args'].length; i++) {
       if (opt_isInstance && i == 0) {
         buffer.push('  this:');
       } else {
         buffer.push('\n  ');
       }
-      var arg = signature['args'][i];
+      const arg = signature['args'][i];
       buffer.push(arg['name']);
       buffer.push(' (');
       buffer.push(arg['type']);

@@ -3,8 +3,6 @@
 
 Count Panoramio photos near SF that mention bridges.
 """
-
-from __future__ import print_function
 import ee
 import ee.mapclient
 

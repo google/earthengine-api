@@ -40,8 +40,8 @@ var BORDER_STYLE = '4px solid rgba(97, 97, 97, 0.05)';
  * Collection display defaults
  */
 
-// Landsat 8 TOA
-var COLLECTION_ID = 'LANDSAT/LC08/C01/T1_TOA';
+// Landsat 8 TOA.
+var COLLECTION_ID = 'LANDSAT/LC08/C02/T1_TOA';
 var START_DATE = '2017-01-01';
 var END_DATE = '2018-01-01';
 var VIZ_PARAMS = {bands: ['B4', 'B3', 'B2'], min: 0, max: 0.4, gamma: 1.5};
@@ -62,7 +62,7 @@ var MAX_MOSAIC_SIZE = 20;
  * Return the main side panel, populated with title and app description.
  */
 function makeSidePanel() {
-  // Create the base side panel, into which other widgets will be added
+  // Create the base side panel, into which other widgets will be added.
   var mainPanel = ui.Panel({
     layout: ui.Panel.Layout.flow('vertical', true),
     style: {
@@ -74,11 +74,11 @@ function makeSidePanel() {
     }
   });
 
-  // Add the app title to the side panel
+  // Add the app title to the side panel.
   var titleLabel = ui.Label('Collection Mosaic Editor', TITLE_STYLE);
   mainPanel.add(titleLabel);
 
-  // Add the app description to the main panel
+  // Add the app description to the main panel.
   var descriptionText =
       'This app allows you to interactively explore the effects of ' +
       'mosaicking different Landsat 8 TOA images using ee.Reducer.median(). ' +
@@ -131,7 +131,7 @@ function makeThumbnail(id, onChangeFunc) {
   var imageLabel = ui.Label(shortImageId, LABEL_STYLE);
   thumbnailContainer.add(imageLabel);
 
-  // Add the thumbnail itself to the container
+  // Add the thumbnail itself to the container.
   var thumbnail = ui.Thumbnail({
     image: ee.Image(id).visualize(VIZ_PARAMS),
     params: {dimensions: THUMBNAIL_WIDTH, crs: 'EPSG:3857', format: 'jpg'},
@@ -155,7 +155,7 @@ function makeThumbnail(id, onChangeFunc) {
  * Map panel setup
  */
 
-/** Returns a ui.Map with some UI configuration in place */
+/** Returns a ui.Map with some UI configuration in place. */
 function makeMapPanel() {
   var map = ui.Map();
   // Add an informational label
@@ -210,7 +210,7 @@ function updateUI(geometry, mapPanel, thumbnailGrid) {
   var first = ee.Image(images.first());
   images = images.filterBounds(first.geometry().centroid());
 
-  // Repopulate the thumbnail grid with new thumbnails
+  // Repopulate the thumbnail grid with new thumbnails.
   thumbnailGrid.clear();
   images.limit(MAX_MOSAIC_SIZE)
       .aggregate_array('system:id')
@@ -235,7 +235,7 @@ function updateUI(geometry, mapPanel, thumbnailGrid) {
         // Recompute the mosaic from the new image IDs and add to the mapPanel.
         updateMosaic(ids, mapPanel);
 
-        // Center the map to the new mosaic
+        // Center the map to the new mosaic.
         mapPanel.centerObject(first);
       });
 }
@@ -255,7 +255,7 @@ var mapPanel = makeMapPanel();
 // Use a SplitPanel so it's possible to resize the two panels.
 ui.root.add(ui.SplitPanel(sidePanel, mapPanel));
 
-// Add the thumbnail grid to the side panel
+// Add the thumbnail grid to the side panel.
 var thumbnailGrid = makeThumbnailGrid();
 sidePanel.add(thumbnailGrid);
 
@@ -270,7 +270,7 @@ mapPanel.onClick(function(coords) {
   mapPanel.layers().set(1, dot);
 });
 
-// Launch the app with an initial point pre-selected
+// Launch the app with an initial point pre-selected.
 var initGeometry = ee.Geometry.Point([-79.91, 43.62]);
 mapPanel.centerObject(initGeometry);
 updateUI(initGeometry, mapPanel, thumbnailGrid);

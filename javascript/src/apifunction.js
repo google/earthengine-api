@@ -156,7 +156,7 @@ ee.ApiFunction.unboundFunctions = function() {
  * @export
  */
 ee.ApiFunction.lookup = function(name) {
-  var func = ee.ApiFunction.lookupInternal(name);
+  const func = ee.ApiFunction.lookupInternal(name);
   if (!func) {
     throw Error('Unknown built-in function name: ' + name);
   }
@@ -190,7 +190,7 @@ ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
      * @param {?ee.data.AlgorithmsRegistry} data
      * @param {string=} opt_error
      */
-    var callback = function(data, opt_error) {
+    const callback = function(data, opt_error) {
       if (opt_error) {
         if (opt_failureCallback) {
           opt_failureCallback(Error(opt_error));
@@ -201,7 +201,7 @@ ee.ApiFunction.initialize = function(opt_successCallback, opt_failureCallback) {
       ee.ApiFunction.api_ = goog.object.map(data, function(sig, name) {
         // Strip type parameters.
         sig.returns = sig.returns.replace(/<.*>/, '');
-        for (var i = 0; i < sig.args.length; i++) {
+        for (let i = 0; i < sig.args.length; i++) {
           sig.args[i].type = sig.args[i].type.replace(/<.*>/, '');
         }
         return new ee.ApiFunction(name, sig);
@@ -244,25 +244,25 @@ ee.ApiFunction.reset = function() {
  */
 ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
   ee.ApiFunction.initialize();
-  var prepend = opt_prepend || '';
+  const prepend = opt_prepend || '';
   goog.object.forEach(ee.ApiFunction.api_, function(apiFunc, name) {
-    var parts = name.split('.');
+    const parts = name.split('.');
     if (parts.length == 2 && parts[0] == prefix) {
-      var fname = prepend + parts[1];
-      var signature = apiFunc.getSignature();
+      const fname = prepend + parts[1];
+      const signature = apiFunc.getSignature();
 
       // Mark signatures as used.
       ee.ApiFunction.boundSignatures_[name] = true;
 
       // Decide whether this is a static or an instance function.
-      var isInstance = false;
+      let isInstance = false;
       if (signature['args'].length) {
-        var firstArgType = signature['args'][0]['type'];
+        const firstArgType = signature['args'][0]['type'];
         isInstance = firstArgType != 'Object' &&
                      ee.Types.isSubtype(firstArgType, typeName);
       }
       // Assume we have a constructor Function if we get an instance method.
-      var destination =
+      const destination =
           isInstance ? /** @type {!Function} */(target).prototype : target;
 
       if (fname in destination && !destination[fname]['signature']) {
@@ -296,8 +296,8 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
  * @param {!Function|!Object} target The class to remove from.
  */
 ee.ApiFunction.clearApi = function(target) {
-  var clear = function(target) {
-    for (var name in target) {
+  const clear = function(target) {
+    for (const name in target) {
       if (typeof target[name] === 'function' && target[name]['signature']) {
         delete target[name];
       }

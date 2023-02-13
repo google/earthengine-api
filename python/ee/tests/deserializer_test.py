@@ -63,5 +63,14 @@ class DeserializerTest(apitestcase.ApiTestCase):
         cloud_output.addBands(42).serialize(),
         input_image.addBands(42).serialize())
 
+  def testImageExpression(self):
+    """Verifies that ee.Image.expression results can be re-encoded."""
+    image = ee.Image(13)
+    expression = image.expression('x', {'x': image})
+    expression_encoded = serializer.toJSON(expression)
+    expression_decoded = deserializer.decode(json.loads(expression_encoded))
+    expression_re_encoded = serializer.toJSON(expression_decoded)
+    self.assertEqual(expression_encoded, expression_re_encoded)
+
 if __name__ == '__main__':
   unittest.main()

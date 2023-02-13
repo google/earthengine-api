@@ -5,25 +5,20 @@ This module defines the Command class which is the base class of all
 the commands supported by the EE command line tool. It also defines
 the classes for configuration and runtime context management.
 """
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
 import collections
-from datetime import datetime
+import datetime
 import json
 import os
 import re
 import tempfile
 import threading
 import time
-
-import httplib2
-import six
-from six.moves import input
-from six.moves import urllib
+import urllib.parse
 
 from google.cloud import storage
 from google.oauth2.credentials import Credentials
+import httplib2
+
 import ee
 
 HOMEDIR = os.path.expanduser('~')
@@ -43,6 +38,9 @@ CONFIG_PARAMS = {
     'refresh_token': None,
     'cloud_api_key': None,
     'project': None,
+    'client_id': ee.oauth.CLIENT_ID,
+    'client_secret': ee.oauth.CLIENT_SECRET,
+    'scopes': ee.oauth.SCOPES,
 }
 
 TASK_FINISHED_STATES = (ee.batch.Task.State.COMPLETED,
@@ -94,11 +92,11 @@ class CommandLineConfig(object):
     elif self.refresh_token:
       return Credentials(
           None,
+          client_id=self.client_id,
+          client_secret=self.client_secret,
           refresh_token=self.refresh_token,
-          token_uri=ee.oauth.TOKEN_URI,
-          client_id=ee.oauth.CLIENT_ID,
-          client_secret=ee.oauth.CLIENT_SECRET,
-          scopes=ee.oauth.SCOPES)
+          scopes=self.scopes,
+          token_uri=ee.oauth.TOKEN_URI)
     else:
       return 'persistent'
 
@@ -191,7 +189,7 @@ class GcsHelper(object):
       if stripped_name == '/':
         continue
 
-      output_path = temp_dir + six.ensure_str(stripped_name)
+      output_path = temp_dir + _ensure_str(stripped_name)
       dir_path = os.path.dirname(output_path)
       if not os.path.exists(dir_path):
         os.makedirs(dir_path)
@@ -219,7 +217,7 @@ class GcsHelper(object):
 
 
 def is_gcs_path(path):
-  return six.ensure_str(path.strip()).startswith('gs://')
+  return _ensure_str(path.strip()).startswith('gs://')
 
 
 def query_yes_no(msg):
@@ -236,7 +234,7 @@ def query_yes_no(msg):
 
 def truncate(string, length):
   if len(string) > length:
-    return six.ensure_str(string[:length]) + '..'
+    return _ensure_str(string[:length]) + '..'
   else:
     return string
 
@@ -259,7 +257,7 @@ def wait_for_task(task_id, timeout, log_progress=True):
       return
     if log_progress and elapsed - last_check >= 30:
       print('[{:%H:%M:%S}] Current state for task {}: {}'
-            .format(datetime.now(), task_id, state))
+            .format(datetime.datetime.now(), task_id, state))
       last_check = elapsed
     remaining = timeout - elapsed
     if remaining > 0:
@@ -323,7 +321,7 @@ def expand_gcs_wildcards(source_files):
 
     # Capture the part of the path after gs:// and before the first /
     bucket_regex = 'gs://([a-z0-9_.-]+)/(.*)'
-    bucket_match = re.match(bucket_regex, six.ensure_str(source))
+    bucket_match = re.match(bucket_regex, _ensure_str(source))
     if bucket_match:
       bucket, rest = bucket_match.group(1, 2)
     else:
@@ -334,7 +332,7 @@ def expand_gcs_wildcards(source_files):
     bucket_files = _gcs_ls(bucket, prefix)
 
     # Regex to match the source path with wildcards expanded
-    regex = six.ensure_str(re.escape(source)).replace(r'\*', '[^/]*') + '$'
+    regex = _ensure_str(re.escape(source)).replace(r'\*', '[^/]*') + '$'
     for gcs_path in bucket_files:
       if re.match(regex, gcs_path):
         yield gcs_path
@@ -400,3 +398,11 @@ def _gcs_ls(bucket, prefix=''):
 
     # Load next page, continue at beginning of while True:
     next_page_token = json_content['nextPageToken']
+
+
+def _ensure_str(s):
+  """Converts Python 3 string or bytes object to string."""
+  if isinstance(s, bytes):
+    return s.decode('utf-8', 'strict')
+  return s
+  

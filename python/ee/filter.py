@@ -36,6 +36,9 @@ class Filter(computedobject.ComputedObject):
 
   _initialized = False
 
+  # Tell pytype to not complain about dynamic attributes.
+  _HAS_DYNAMIC_ATTRIBUTES = True
+
   def __init__(self, opt_filter=None):
     """Construct a filter.
 
@@ -291,10 +294,10 @@ class Filter(computedobject.ComputedObject):
     Items in the collection with a footprint that fails to intersect
     the given geometry will be excluded. This is an alias for geometry().
 
-    Caution: providing a large or complex collection as input can result in poor
-    performance. Collating the geometry of collections does not scale well, use
-    the smallest collection (or geometry) that is required to achieve the
-    desired outcome.
+    Caution: providing a large or complex collection as the `geometry` argument
+    can result in poor performance. Collating the geometry of collections does
+    not scale well; use the smallest collection (or geometry) that is required
+    to achieve the desired outcome.
 
     Args:
       geometry: The geometry to filter to either as a GeoJSON geometry,

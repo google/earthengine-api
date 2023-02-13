@@ -25,6 +25,9 @@ goog.provide('ee.data.ExportDestination');
 goog.provide('ee.data.ExportState');
 goog.provide('ee.data.ExportType');
 goog.provide('ee.data.FeatureCollectionDescription');
+goog.provide('ee.data.FeatureViewDescription');
+goog.provide('ee.data.FeatureViewTaskConfig');
+goog.provide('ee.data.FeatureViewTilesKey');
 goog.provide('ee.data.FeatureVisualizationParameters');
 goog.provide('ee.data.FileBand');
 goog.provide('ee.data.FileSource');
@@ -55,6 +58,7 @@ goog.provide('ee.data.TableTaskConfig');
 goog.provide('ee.data.TaskListResponse');
 goog.provide('ee.data.TaskStatus');
 goog.provide('ee.data.TaskUpdateActions');
+goog.provide('ee.data.ThinningStrategy');
 goog.provide('ee.data.ThumbnailId');
 goog.provide('ee.data.Tileset');
 goog.provide('ee.data.VideoTaskConfig');
@@ -66,6 +70,7 @@ goog.require('ee.rpc_convert_batch');
 goog.require('goog.array');
 goog.require('goog.functions');
 goog.require('goog.object');
+goog.require('goog.singleton');
 goog.requireType('ee.Collection');
 goog.requireType('ee.ComputedObject');
 goog.requireType('ee.Element');
@@ -401,11 +406,16 @@ ee.data.getMapId = function(params, opt_callback) {
     bandIds: ee.rpc_convert.bandList(params.bands),
     visualizationOptions: ee.rpc_convert.visualizationOptions(params),
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => ee.data.makeMapId_(response['name'], '');
   const call = new ee.apiclient.Call(opt_callback);
-  return call.handle(
-      call.maps().create(call.projectsPath(), map, {fields}).then(getResponse));
+  return call.handle(call.maps()
+                         .create(call.projectsPath(), map, queryParams)
+                         .then(getResponse));
 };
 
 
@@ -466,6 +476,77 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat = '') {
   return {mapid, token, formatTileUrl, urlFormat};
 };
 
+
+/**
+ * Get a tiles key for a given map or asset. The tiles key can be passed to an
+ * instance of FeatureViewTileSource which can be rendered on a base map outside
+ * of the Code Editor.
+ * @param {!ee.data.FeatureViewVisualizationParameters} params
+ *     The visualization parameters as a (client-side) JavaScript object.
+ *     For FeatureView assets:
+ *       - assetId (string) The asset ID for which to obtain a tiles key.
+ *       - visParams (Object) The visualization parameters for this layer.
+ * @param {function(?ee.data.FeatureViewTilesKey, string=)=} opt_callback An
+ *     optional callback. If not supplied, the call is made synchronously.
+ * @return {?ee.data.FeatureViewTilesKey} The call results. Null if a callback
+ *     is specified.
+ * @export
+ */
+ee.data.getFeatureViewTilesKey = function(params, opt_callback) {
+  const visualizationExpression = params.visParams ?
+      ee.data.expressionAugmenter_(
+          ee.Serializer.encodeCloudApiExpression(params.visParams)) :
+      null;
+  const map = new ee.api.FeatureView({
+    name: null,
+    asset: params.assetId,
+    visualizationExpression,
+  });
+  const fields = ['name'];
+  const call = new ee.apiclient.Call(opt_callback);
+  return call.handle(
+      call.featureView()
+          .create(call.projectsPath(), map, {fields})
+          .then((response) => {
+            const formatTileUrl = (x, y, z) =>
+                `${ee.apiclient.getTileBaseUrl()}/${ee.apiclient.VERSION}/${
+                    response['name']}/tiles/${z}/${x}/${y}`;
+            const token = response['name'].split('/').pop();
+            return {
+              token,
+              formatTileUrl,
+            };
+          }));
+};
+
+/**
+ * List features for a given table asset.
+ * @param {string} asset The table asset ID to query.
+ * @param {!ee.api.ProjectsAssetsListFeaturesNamedParameters} params An object
+ *     containing request parameters with the following possible values:
+ *     - pageSize (number): An optional maximum number of results per page,
+ *           default is 1000.
+ *     - pageToken (string): An optional token identifying a page of results the
+ *           server should return, usually taken from the response object.
+ *     - region (string): If present, a geometry defining a query region,
+ *           specified as a GeoJSON geometry string (see RFC 7946).
+ *     - filter (comma-separated strings): If present, specifies additional
+ *           simple property filters (see https://google.aip.dev/160).
+ * @param {function(!ee.api.ListFeaturesResponse, string=)=} opt_callback An
+ *     optional callback, called with two parameters: the first is the resulting
+ *     list of features and the second is an error string on failure. If not
+ *     supplied, the call is made synchronously.
+ * @return {?ee.api.ListFeaturesResponse} The call results. Null if a
+ *     callback is specified.
+ * @export
+ */
+ee.data.listFeatures = function(asset, params, opt_callback) {
+  const call = new ee.apiclient.Call(opt_callback);
+  const name = ee.rpc_convert.assetIdToAssetName(asset);
+  return call.handle(call.assets().listFeatures(name, params));
+};
+
+
 /**
  * Sends a request to compute a value.
  * @param {*} obj
@@ -476,11 +557,15 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat = '') {
 ee.data.computeValue = function(obj, opt_callback) {
   const expression =
       ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(obj));
+  const request = {expression};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    request.workloadTag = workloadTag;
+  }
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(
       call.value()
-          .compute(
-              call.projectsPath(), new ee.api.ComputeValueRequest({expression}))
+          .compute(call.projectsPath(), new ee.api.ComputeValueRequest(request))
           .then(x => x['result']));
 };
 
@@ -530,7 +615,11 @@ ee.data.getThumbId = function(params, opt_callback) {
     visualizationOptions: ee.rpc_convert.visualizationOptions(params),
     grid: null,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => {
     /** @type {!ee.data.ThumbnailId} */
     const ret = {thumbid: response['name'], token: ''};
@@ -538,7 +627,7 @@ ee.data.getThumbId = function(params, opt_callback) {
   };
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(call.thumbnails()
-                         .create(call.projectsPath(), thumbnail, {fields})
+                         .create(call.projectsPath(), thumbnail, queryParams)
                          .then(getResponse));
 };
 
@@ -568,7 +657,11 @@ ee.data.getVideoThumbId = function(params, opt_callback) {
     videoOptions: videoOptions,
     grid: null,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => {
     /** @type {!ee.data.ThumbnailId} */
     const ret = {thumbid: response['name'], token: ''};
@@ -576,7 +669,7 @@ ee.data.getVideoThumbId = function(params, opt_callback) {
   };
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(call.videoThumbnails()
-                         .create(call.projectsPath(), request, {fields})
+                         .create(call.projectsPath(), request, queryParams)
                          .then(getResponse));
 };
 
@@ -600,7 +693,11 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
     orientation: ee.rpc_convert.orientation(params.orientation),
     grid: null,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => {
     /** @type {!ee.data.ThumbnailId} */
     const ret = {thumbid: response['name'], token: ''};
@@ -608,7 +705,7 @@ ee.data.getFilmstripThumbId = function(params, opt_callback) {
   };
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(call.filmstripThumbnails()
-                         .create(call.projectsPath(), request, {fields})
+                         .create(call.projectsPath(), request, queryParams)
                          .then(getResponse));
 };
 
@@ -743,7 +840,11 @@ ee.data.getDownloadId = function(params, opt_callback) {
         ee.rpc_convert.bandList(params['bands'].map((band) => band.id)),
     grid: null,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   const getResponse = (response) => {
     /** @type {!ee.data.DownloadId} */
     const ret = {docid: response['name'], token: ''};
@@ -751,7 +852,7 @@ ee.data.getDownloadId = function(params, opt_callback) {
   };
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(call.thumbnails()
-                         .create(call.projectsPath(), thumbnail, {fields})
+                         .create(call.projectsPath(), thumbnail, queryParams)
                          .then(getResponse));
 };
 
@@ -813,7 +914,11 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
     selectors,
     filename,
   });
-  const fields = ['name'];
+  const queryParams = {fields: 'name'};
+  const workloadTag = ee.data.getWorkloadTag();
+  if (workloadTag) {
+    queryParams.workloadTag = workloadTag;
+  }
   /** @type {function(!ee.api.Table): !ee.data.DownloadId} */
   const getResponse = (res) => {
     /** @type {!ee.data.DownloadId} */
@@ -821,7 +926,7 @@ ee.data.getTableDownloadId = function(params, opt_callback) {
     return ret;
   };
   return call.handle(call.tables()
-                         .create(call.projectsPath(), table, {fields})
+                         .create(call.projectsPath(), table, queryParams)
                          .then(getResponse));
 };
 
@@ -1108,6 +1213,14 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
   const metadata = (params['sourceUrl'] != null) ?
       {'__source_url__': params['sourceUrl']} :
       {};
+  if (!('workloadTag' in params)) {
+    const workloadTag = ee.data.getWorkloadTag();
+    if (workloadTag) {
+      params['workloadTag'] = workloadTag;
+    }
+  } else if (!params['workloadTag']) {
+    delete params['workloadTag'];
+  }
   const call = new ee.apiclient.Call(opt_callback);
   const handle = (response) =>
       call.handle(response.then(ee.rpc_convert.operationToProcessingResponse));
@@ -1150,6 +1263,9 @@ ee.data.prepareExportImageRequest_ = function(taskConfig, metadata) {
   const imageRequest = ee.rpc_convert_batch.taskToExportImageRequest(imageTask);
   imageRequest.expression =
       ee.data.expressionAugmenter_(imageRequest.expression, metadata);
+  if (taskConfig['workloadTag']) {
+    imageRequest.workloadTag = taskConfig['workloadTag'];
+  }
   return imageRequest;
 };
 
@@ -1173,6 +1289,9 @@ ee.data.prepareExportVideoRequest_ = function(taskConfig, metadata) {
   const videoRequest = ee.rpc_convert_batch.taskToExportVideoRequest(videoTask);
   videoRequest.expression =
       ee.data.expressionAugmenter_(videoRequest.expression, metadata);
+  if (taskConfig['workloadTag']) {
+    videoRequest.workloadTag = taskConfig['workloadTag'];
+  }
   return videoRequest;
 };
 
@@ -1198,6 +1317,9 @@ ee.data.prepareExportMapRequest_ = function(taskConfig, metadata) {
   const mapRequest = ee.rpc_convert_batch.taskToExportMapRequest(mapTask);
   mapRequest.expression =
       ee.data.expressionAugmenter_(mapRequest.expression, metadata);
+  if (taskConfig['workloadTag']) {
+    mapRequest.workloadTag = taskConfig['workloadTag'];
+  }
   return mapRequest;
 };
 
@@ -1332,15 +1454,42 @@ ee.data.getInfo = ee.data.getAsset;
 
 
 /**
+ * Make a ListAssetsRequest network call and translates the response object
+ * into a plain JS object after transforming the response using the
+ * post-processing function.
+ *
+ * @template T
+ * @param {string} parent The ID of the collection or folder to list.
+ * @param {!ee.api.ProjectsAssetsListAssetsNamedParameters=} opt_params
+ * @param {function(T,string=)=} opt_callback
+ * @param {function(?ee.api.ListAssetsResponse):T=} opt_postProcessing Mutation
+ *     to perform on the list assets response before returning.
+ * @return {T}
+ * @private
+ */
+ee.data.makeListAssetsCall_ = function(
+    parent, opt_params = {}, opt_callback = undefined,
+    opt_postProcessing = goog.functions.identity) {
+  // Detect project asset root call.
+  const isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(parent);
+  const call = new ee.apiclient.Call(opt_callback);
+  const methodRoot = isProjectAssetRoot ? call.projects() : call.assets();
+  parent = isProjectAssetRoot ? ee.rpc_convert.projectParentFromPath(parent) :
+                                ee.rpc_convert.assetIdToAssetName(parent);
+  return call.handle(
+      methodRoot.listAssets(parent, opt_params).then(opt_postProcessing));
+};
+
+
+/**
  * Returns a list of the contents in an asset collection or folder.
  *
  * @deprecated Use ee.data.listAssets() or ee.data.listImages().
  * @param {!Object} params An object containing request parameters with
  *     the following possible values:
- *       - id (string) The asset id of the collection to list.
+ *       - id (string) The asset ID of the collection to list.
  *       - starttime (number) Start time, in msec since the epoch.
  *       - endtime (number) End time, in msec since the epoch.
- *       - fields (comma-separated strings) Field names to return.
  * @param {function(?ee.data.AssetList, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.AssetList} The list call results, or null if a callback
@@ -1348,43 +1497,36 @@ ee.data.getInfo = ee.data.getAsset;
  * @export
  */
 ee.data.getList = function(params, opt_callback) {
-  const call = new ee.apiclient.Call(opt_callback);
-  let methodRoot = call.assets();
-  let parent = ee.rpc_convert.assetIdToAssetName(params['id']);
-  const isProjectAssetRoot =
-      ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(params['id']);
-  if (isProjectAssetRoot) {
-    // Use call.projects() for project asset root calls instead of
-    // call.assets().
-    methodRoot = call.projects();
-    parent = ee.rpc_convert.projectParentFromPath(params['id']);
-  }
-  // If the parameters don't specify anything other than the ID and "num",
-  // then assets.listImages will be called instead of assets.listAssets.
-  // TODO(user): Add support for page tokens for listImages and listAssets.
-  if (Object.keys(params).every(k => k === 'id' || k === 'num')) {
-    return call.handle(methodRoot.listAssets(parent, {pageSize: params['num']})
-                           .then(ee.rpc_convert.listAssetsToGetList));
-  } else {
-    if (isProjectAssetRoot) {
-      throw new Error(
-          'getList on a project does not support filtering options. Please ' +
-          'provide a full asset path. Got: ' + params['id']);
-    }
-    const body = ee.rpc_convert.getListToListImages(params);
-    return call.handle(methodRoot.listImages(parent, body)
-                           .then(ee.rpc_convert.listImagesToGetList));
-  }
+  return ee.data.makeListAssetsCall_(
+      params['id'], ee.rpc_convert.getListToListAssets(params), opt_callback,
+      (r) => {
+        if (r == null) {
+          return null;
+        }
+        return /** @type {!ee.data.AssetList} */ (
+            ee.rpc_convert.listAssetsToGetList(r));
+      });
 };
 
 
 /**
- * Returns a list of the contents in an asset collection or folder.
+ * Returns a list of the contents in an asset collection or folder, in an
+ * object that includes an `assets` array and an optional `nextPageToken`.
  *
- * @param {string} parent
- * @param {!ee.api.ProjectsAssetsListAssetsNamedParameters=} params Options:
- *     pageSize (defaults to 1000), pageToken, filter (see
- *     https://google.aip.dev/160), view (default is 'FULL', may be 'BASIC').
+ * @param {string} parent The ID of the collection or folder to list.
+ * @param {!ee.api.ProjectsAssetsListAssetsNamedParameters=} opt_params An
+ *     object containing optional request parameters with the following
+ * possible values:
+ *       - pageSize (string) The number of results to return. Defaults to 1000.
+ *       - pageToken (string) The token for the page of results to return.
+ *       - filter (string) An additional filter query to apply. Example query:
+ *            `properties.my_property>=1 AND properties.my_property<2 AND
+ *            startTime >= "2019-01-01T00:00:00.000Z" AND
+ *            endTime < "2020-01-01T00:00:00.000Z" AND
+ *            intersects("{'type':'Point','coordinates':[0,0]}")`
+ *         See https://google.aip.dev/160 for how to construct a query.
+ *       - view (string) Specifies how much detail is returned in the list.
+ *         Either "FULL" (default) for all image properties or "BASIC".
  * @param {function(?ee.api.ListAssetsResponse, string=)=}
  *     opt_callback  If not supplied, the call is made synchronously.
  * @return {?ee.api.ListAssetsResponse}
@@ -1392,39 +1534,63 @@ ee.data.getList = function(params, opt_callback) {
  *     array and an optional `nextPageToken`.
  * @export
  */
-ee.data.listAssets = function(parent, params = {}, opt_callback = undefined) {
-  // Detect project asset root call.
-  const isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(parent);
-  const call = new ee.apiclient.Call(opt_callback);
-  const methodRoot = isProjectAssetRoot ? call.projects() : call.assets();
-  parent = isProjectAssetRoot ? ee.rpc_convert.projectParentFromPath(parent) :
-                                ee.rpc_convert.assetIdToAssetName(parent);
-  return call.handle(methodRoot.listAssets(parent, params));
+ee.data.listAssets = function(
+    parent, opt_params = {}, opt_callback = undefined) {
+  return ee.data.makeListAssetsCall_(parent, opt_params, opt_callback);
 };
 
 
 /**
- * Returns a list of the contents in an asset collection or folder.
+ * Returns a list of the contents in an image collection, in an object that
+ * includes an `images` array and an optional `nextPageToken`.
  *
- * @param {string} parent
- * @param {!ee.api.ProjectsAssetsListImagesNamedParameters=} params Options:
- *     pageSize (defaults to 1000), pageToken, filter (see
- *     https://google.aip.dev/160), view (default is 'FULL', may be 'BASIC').
- * @param {function(?ee.api.ListImagesResponse, string=)=}
+ * @param {string} parent The ID of the image collection to list.
+ * @param {!Object=} opt_params An object containing optional request
+ *     parameters with the following possible values:
+ *       - pageSize (string) The number of results to return. Defaults to 1000.
+ *       - pageToken (string) The token page of results to return.
+ *       - startTime (ISO 8601 string) The minimum start time (inclusive).
+ *       - endTime (ISO 8601 string) The maximum end time (exclusive).
+ *       - region (GeoJSON or WKT string) A region to filter on.
+ *       - properties (list of strings) A list of property filters to apply,
+ *         for example: ["classification=urban", "size>=2"].
+ *       - filter (string) An additional filter query to apply. Example query:
+ *            `properties.my_property>=1 AND properties.my_property<2 AND
+ *            startTime >= "2019-01-01T00:00:00.000Z" AND
+ *            endTime < "2020-01-01T00:00:00.000Z" AND
+ *            intersects("{'type':'Point','coordinates':[0,0]}")`
+ *         See https://google.aip.dev/160 for how to construct a query.
+ *       - view (string) Specifies how much detail is returned in the list.
+ *         Either "FULL" (default) for all image properties or "BASIC".
+ * @param {function(?ee.data.ListImagesResponse, string=)=}
  *     opt_callback  If not supplied, the call is made synchronously.
- * @return {?ee.api.ListImagesResponse}
+ * @return {?ee.data.ListImagesResponse}
  *     Results, or null if a callback is specified. Will include an `images`
  *     array and an optional `nextPageToken`.
  * @export
  */
-ee.data.listImages = function(parent, params = {}, opt_callback = undefined) {
-  const call = new ee.apiclient.Call(opt_callback);
-  return call.handle(call.assets().listImages(parent, params));
+ee.data.listImages = function(
+    parent, opt_params = {}, opt_callback = undefined) {
+  const params = ee.rpc_convert.processListImagesParams(opt_params);
+  return ee.data.makeListAssetsCall_(parent, params, opt_callback, (r) => {
+    if (r == null) {
+      return null;
+    }
+    const listImagesResponse = {};
+    if (r.assets) {
+      listImagesResponse.images = r.assets;
+    }
+    if (r.nextPageToken) {
+      listImagesResponse.nextPageToken = r.nextPageToken;
+    }
+    return listImagesResponse;
+  });
 };
 
 
 /**
- * Returns a list of the contents in an asset collection or folder.
+ * Returns a list of asset roots belonging to the user or Cloud Project. Leave
+ * the project field blank to use the current project.
  *
  * @param {string=} project Project to query. Defaults to current project.
  * @param {function(?ee.api.ListAssetsResponse, string=)=}
@@ -1806,6 +1972,135 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
   return call.handle(getAssetRequest.then(getResponse));
 };
 
+/**
+ * @struct
+ */
+ee.data.WorkloadTag = class {
+  constructor() {
+    /**
+     * @private {string}
+     */
+    this.tag = '';
+
+    /**
+     * @private {string}
+     */
+    this.default = '';
+  }
+
+  /**
+   * @return {string}
+   */
+  get() {
+    return this.tag;
+  }
+
+  /**
+   * @param {string|null|undefined} tag
+   */
+  set(tag) {
+    this.tag = this.validate(tag);
+  }
+
+  /**
+   * @param {string|null|undefined} newDefault
+   */
+  setDefault(newDefault) {
+    this.default = this.validate(newDefault);
+  }
+
+  /**
+   * Reset the current tag to default.
+   */
+  reset() {
+    this.tag = this.default;
+  }
+
+  /**
+   * Throws an error if setting an invalid tag. Will return empty string for
+   * null or undefined inputs.
+   * @param {string|null|undefined} tag
+   * @return {string} The validated tag.
+   * @throws {!Error} If the tag does not match the valid format.
+   */
+  validate(tag) {
+    if (tag == null || tag === '') {
+      return '';
+    }
+
+    tag = String(tag);
+    if (!/^([a-z0-9]|[a-z0-9][-_\.a-z0-9]{0,61}[a-z0-9])$/g.test(tag)) {
+      const validationMessage = 'Tags must be 1-63 characters, ' +
+          'beginning and ending with a lowercase alphanumeric character' +
+          '([a-z0-9]) with dashes (-), underscores (_), dots (.), and' +
+          'lowercase alphanumerics between.';
+      throw new Error(`Invalid tag, "${tag}". ${validationMessage}`);
+    }
+    return tag;
+  }
+
+  /**
+   * @return {!ee.data.WorkloadTag}
+   */
+  static getInstance() {
+    return goog.singleton.getInstance(ee.data.WorkloadTag);
+  }
+};
+
+/**
+ * Returns the currently set workload tag.
+ * @return {string}
+ * @export
+ */
+ee.data.getWorkloadTag = function() {
+  return ee.data.WorkloadTag.getInstance().get();
+};
+
+/**
+ * Sets the workload tag, used to label computation and exports.
+ *
+ * Workload tag must be 1 - 63 characters, beginning and ending with an
+ * alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+ * (.), and alphanumerics between, or an empty string to clear the workload tag.
+ * @param {string} tag
+ * @export
+ */
+ee.data.setWorkloadTag = function(tag) {
+  ee.data.WorkloadTag.getInstance().set(tag);
+};
+
+/**
+ * Sets the workload tag, and as the default for which to reset back to.
+ *
+ * For example, calling `ee.data.resetWorkloadTag()` will reset the workload tag
+ * back to the default chosen here. To reset the default back to none, pass in
+ * an empty string or pass in true to `ee.data.resetWorkloadTag(true)`, like so.
+ *
+ * Workload tag must be 1 - 63 characters, beginning and ending with an
+ * alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+ * (.), and alphanumerics between, or an empty string to reset the default back
+ * to none.
+ * @param {string} tag
+ * @export
+ */
+ee.data.setDefaultWorkloadTag = function(tag) {
+  ee.data.WorkloadTag.getInstance().setDefault(tag);
+  ee.data.WorkloadTag.getInstance().set(tag);
+};
+
+/**
+ * Resets the tag back to the default. If resetDefault parameter
+ * is set to true, the default will be set to empty before resetting.
+ * @param {boolean=} opt_resetDefault
+ * @export
+ */
+ee.data.resetWorkloadTag = function(opt_resetDefault) {
+  if (opt_resetDefault) {
+    ee.data.WorkloadTag.getInstance().setDefault('');
+  }
+  ee.data.WorkloadTag.getInstance().reset();
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //                               Types and enums.                             //
@@ -1819,6 +2114,7 @@ ee.data.getAssetRootQuota = function(rootId, opt_callback) {
  */
 ee.data.AssetType = {
   ALGORITHM: 'Algorithm',
+  FEATURE_VIEW: 'FeatureView',
   FOLDER: 'Folder',
   FEATURE_COLLECTION: 'FeatureCollection',
   IMAGE: 'Image',
@@ -1852,6 +2148,13 @@ ee.data.ExportDestination = {
   DRIVE: 'DRIVE',
   GCS: 'GOOGLE_CLOUD_STORAGE',
   ASSET: 'ASSET',
+  FEATURE_VIEW: 'FEATURE_VIEW',
+};
+
+/** @enum {string} The FeatureView thinning strategy. */
+ee.data.ThinningStrategy = {
+  GLOBALLY_CONSISTENT: 'GLOBALLY_CONSISTENT',
+  HIGHER_DENSITY: 'HIGHER_DENSITY',
 };
 
 /** @enum {string} The names of the EE system time asset properties. */
@@ -1928,6 +2231,26 @@ ee.data.ShortAssetDescription = class {
  * @typedef {!Array<!ee.data.ShortAssetDescription>}
  */
 ee.data.AssetList;
+
+
+
+/**
+ * An object returned by the ee.data.listImages method.
+ * @record @struct
+ */
+ee.data.ListImagesResponse = class {
+  constructor() {
+    /**
+     * @export {!Array<!ee.api.EarthEngineAsset>|undefined}
+     */
+    this.images;
+
+    /**
+     * @export {string|undefined}
+     */
+    this.nextPageToken;
+  }
+};
 
 
 /**
@@ -2031,6 +2354,47 @@ ee.data.AssetQuotaDetails = class {
     this.asset_size;
   }
 };
+
+
+/**
+ * A description of a FeatureView. The type value is always
+ * ee.data.AssetType.FEATURE_VIEW.
+ * @record @struct
+ */
+ee.data.FeatureViewDescription = class {
+  constructor() {
+    /**
+     * @export {!ee.data.AssetType}
+     */
+    this.type;
+
+    /**
+     * @export {string}
+     */
+    this.id;
+
+    /**
+     * @export {!Object|undefined}
+     */
+    this.properties;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.version;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.featureCount;
+
+    /**
+     * @export {!ee.api.FeatureViewLocation}
+     */
+    this.mapLocation;
+  }
+};
+
 
 /**
  * A description of a folder. The type value is always ee.data.AssetType.FOLDER.
@@ -2440,6 +2804,29 @@ ee.data.ImageVisualizationParameters = class {
   }
 };
 
+
+/**
+ * An object describing FeatureView visualization parameters.
+ * @see ee.data.getFeatureViewTilesKey
+ * @record @struct
+ */
+ee.data.FeatureViewVisualizationParameters = class {
+  constructor() {
+    /**
+     * The asset ID to fetch the tiles key for.
+     * @export {string|undefined}
+     */
+    this.assetId;
+
+    /**
+     * The visualization parameters for this layer.
+     * @export {!Object|undefined}
+     */
+    this.visParams;
+  }
+};
+
+
 /**
  * An object describing the parameters for generating a thumbnail image.
  * Consists of all parameters of ee.data.ImageVisualizationParameters as well as
@@ -2778,6 +3165,26 @@ ee.data.MapId = class extends ee.data.RawMapId {
   }
 };
 
+
+/**
+ * A tiles key for displaying FeatureView layers.
+ * @record @struct
+ */
+ee.data.FeatureViewTilesKey = class {
+  constructor() {
+    /**
+     * @export {string}
+     */
+    this.token;
+
+    /**
+     * @export {function(number,number,number):string}
+     */
+    this.formatTileUrl;
+  }
+};
+
+
 /**
  * The range of zoom levels for our map tiles.
  * @enum {number}
@@ -2798,14 +3205,15 @@ ee.data.MapZoomRange = {
  *   type: string,
  *   description: (undefined|string),
  *   sourceUrl: (undefined|string),
- *   element: (undefined|!ee.Element|!ee.ComputedObject)
+ *   element: (undefined|!ee.Element|!ee.ComputedObject),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.AbstractTaskConfig;
 
 /**
- * An object for specifying configuration of a task to export an image
- * substuting a format options dictionary for format-specific options.
+ * An object for specifying configuration of a task to export an image,
+ * substituting a format options dictionary for format-specific options.
  *
  * @typedef {{
  *   id: string,
@@ -2829,7 +3237,8 @@ ee.data.AbstractTaskConfig;
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
  *   assetId: (undefined|string),
- *   pyramidingPolicy: (undefined|string)
+ *   pyramidingPolicy: (undefined|string),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.ImageTaskConfigUnformatted;
@@ -2872,7 +3281,8 @@ ee.data.ImageTaskConfigUnformatted;
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
  *   assetId: (undefined|string),
- *   pyramidingPolicy: (undefined|string)
+ *   pyramidingPolicy: (undefined|string),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.ImageTaskConfig;
@@ -2893,7 +3303,8 @@ ee.data.ImageTaskConfig;
  *   sequenceData: (undefined|boolean),
  *   collapseBands: (undefined|boolean),
  *   maskedThreshold: (undefined|number),
- *   shardSize: (undefined|number)
+ *   shardSize: (undefined|number),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.ImageExportFormatConfig;
@@ -2921,10 +3332,32 @@ ee.data.ImageExportFormatConfig;
  *   outputPrefix: (undefined|string),
  *   bucketCorsUris: (undefined|!Array<string>),
  *   mapsApiKey: (undefined|string),
- *   generateEarthHtml: (undefined|boolean)
+ *   generateEarthHtml: (undefined|boolean),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.MapTaskConfig;
+
+/**
+ * An object for specifying configuration of a task to export feature
+ * collections to a FeatureView.
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: string,
+ *   sourceUrl: (undefined|string),
+ *   description: (undefined|string),
+ *   element: (undefined|!ee.Element),
+ *   mapName: (undefined|string),
+ *   maxFeaturesPerTile: (undefined|number),
+ *   thinningStrategy: (undefined|!ee.data.ThinningStrategy),
+ *   thinningRanking: (undefined|string|!Array<string>),
+ *   zOrderRanking: (undefined|string|!Array<string>),
+ *   workloadTag: (undefined|string),
+ * }}
+ */
+ee.data.FeatureViewTaskConfig;
+
 
 /**
  * An object for specifying configuration of a task to export feature
@@ -2943,7 +3376,8 @@ ee.data.MapTaskConfig;
  *   outputPrefix: (undefined|string),
  *   assetId: (undefined|string),
  *   maxWorkers: (undefined|number),
- *   maxVertices: (undefined|number)
+ *   maxVertices: (undefined|number),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.TableTaskConfig;
@@ -2970,7 +3404,8 @@ ee.data.TableTaskConfig;
  *   driveFolder: (undefined|string),
  *   driveFileNamePrefix: (undefined|string),
  *   outputBucket: (undefined|string),
- *   outputPrefix: (undefined|string)
+ *   outputPrefix: (undefined|string),
+ *   workloadTag: (undefined|string),
  * }}
  */
 ee.data.VideoTaskConfig;
@@ -3128,11 +3563,13 @@ ee.data.AssetDescription = class {
 
     /**
      * @export {number}
+     * @deprecated This field is no longer being set.
      */
     this.period;
 
     /**
      * @export {!Array<number>|undefined}
+     * @deprecated This field is no longer being set.
      */
     this.period_mapping;
 

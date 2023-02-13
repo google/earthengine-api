@@ -10,8 +10,6 @@ interactive (looping) mode, where the user will be able to run multiple
 commands as in a typical terminal program.
 """
 
-from __future__ import print_function
-
 import argparse
 import sys
 

@@ -9,7 +9,6 @@
 # pylint: disable=g-bad-import-order
 import json
 import numbers
-import six
 
 from . import apifunction
 from . import computedobject
@@ -74,8 +73,7 @@ def _decodeValue(json_obj, named_values):
   """
 
   # Check for primitive values.
-  if (json_obj is None or
-      isinstance(json_obj, (bool, numbers.Number, six.string_types))):
+  if (json_obj is None or isinstance(json_obj, (bool, numbers.Number, str))):
     return json_obj
 
   # Check for array values.
@@ -95,7 +93,7 @@ def _decodeValue(json_obj, named_values):
       raise ee_exception.EEException('Unknown ValueRef: ' + json_obj)
   elif type_name == 'ArgumentRef':
     var_name = json_obj['value']
-    if not isinstance(var_name, six.string_types):
+    if not isinstance(var_name, str):
       raise ee_exception.EEException('Invalid variable name: ' + var_name)
     return customfunction.CustomFunction.variable(None, var_name)  # pylint: disable=protected-access
   elif type_name == 'Date':
@@ -144,9 +142,17 @@ def _invocation(func, args):
   if isinstance(func, function.Function):
     return func.apply(args)
   elif isinstance(func, computedobject.ComputedObject):
-    # We have to allow ComputedObjects for cases where invocations
-    # return a function, e.g. Image.parseExpression().
-    return computedobject.ComputedObject(func, args)
+    # We have to allow ComputedObjects for cases where invocations return a
+    # function, e.g. Image.parseExpression(). These need to get turned back into
+    # some kind of Function, for which we need a signature. Type information has
+    # been lost at this point, so we just use ComputedObject.
+    signature = {
+        'name': '',
+        'args': [{'name': name, 'type': 'ComputedObject', 'optional': False}
+                 for name in args],
+        'returns': 'ComputedObject'
+    }
+    return function.SecondOrderFunction(func, signature).apply(args)
   raise ee_exception.EEException('Invalid function value: %s' % func)
 
 
@@ -186,8 +192,10 @@ def decodeCloudApi(json_obj):
     elif 'arrayValue' in node:
       return [decode_node(x) for x in node['arrayValue']['values']]
     elif 'dictionaryValue' in node:
-      return {key: decode_node(x)
-              for key, x in six.iteritems(node['dictionaryValue']['values'])}
+      return {
+          key: decode_node(x)
+          for key, x in node['dictionaryValue']['values'].items()
+      }
     elif 'argumentReference' in node:
       return customfunction.CustomFunction.variable(
           None, node['argumentReference'])  # pylint: disable=protected-access
@@ -215,9 +223,7 @@ def decodeCloudApi(json_obj):
       func = lookup(invoked['functionReference'], 'function')
     else:
       func = apifunction.ApiFunction.lookup(invoked['functionName'])
-    args = {
-        key: decode_node(x) for key, x in six.iteritems(invoked['arguments'])
-    }
+    args = {key: decode_node(x) for key, x in invoked['arguments'].items()}
     return _invocation(func, args)
 
   return lookup(json_obj['result'], 'result value')

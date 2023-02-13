@@ -101,6 +101,7 @@ ee.MapLayerOverlay = class extends ee.AbstractOverlay {
    * @param {number} zoom Zoom level.
    * @param {Node} ownerDocument Parent document.
    * @return {Node} Element to be displayed as a map tile.
+   * @override
    */
   getTile(coord, zoom, ownerDocument) {
     var maxCoord = 1 << zoom;
@@ -153,7 +154,10 @@ ee.MapLayerOverlay = class extends ee.AbstractOverlay {
     return this.tiles_.getCount();
   }
 
-  /** @return {number} The number of tiles currently loading. */
+  /**
+   * @return {number} The number of tiles currently loading.
+   * @override
+   */
   getLoadingTilesCount() {
     return this.tilesLoading.length;
   }

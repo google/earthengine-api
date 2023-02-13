@@ -18,6 +18,9 @@ class Feature(element.Element):
 
   _initialized = False
 
+  # Tell pytype to not complain about dynamic attributes.
+  _HAS_DYNAMIC_ATTRIBUTES = True
+
   def __init__(self, geom, opt_properties=None):
     """Creates a feature a geometry or computed object.
 

@@ -84,10 +84,10 @@ class Collection(element.Element):
     the given geometry will be excluded.
     This is equivalent to self.filter(Filter().geometry(...)).
 
-    Caution: providing a large or complex collection as input can result in poor
-    performance. Collating the geometry of collections does not scale well, use
-    the smallest collection (or geometry) that is required to achieve the
-    desired outcome.
+    Caution: providing a large or complex collection as the `geometry` argument
+    can result in poor performance. Collating the geometry of collections does
+    not scale well; use the smallest collection (or geometry) that is required
+    to achieve the desired outcome.
 
     Args:
       geometry: The boundary to filter to either as a GeoJSON geometry,
@@ -101,9 +101,10 @@ class Collection(element.Element):
   def filterDate(self, start, opt_end=None):
     """Shortcut to filter a collection with a date range.
 
-    Items in the collection with a time_start property that doesn't
+    Items in the collection with a system:time_start property that doesn't
     fall between the start and end dates will be excluded.
-    This is equivalent to self.filter(Filter().date(...)).
+    This is equivalent to self.filter(ee.Filter.date(...)); see the ee.Filter
+    type for other date filtering options.
 
     Args:
       start: The start date as a Date object, a string representation of

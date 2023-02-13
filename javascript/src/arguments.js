@@ -249,20 +249,20 @@ ee.arguments.extract = ee.arguments.extractFromFunction;
  * @private
  */
 ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
-  var paramNamesWithOptPrefix =
+  const paramNamesWithOptPrefix =
       ee.arguments.getParamNames_(fn, parameterMatcher);
-  var paramNames = goog.array.map(paramNamesWithOptPrefix, function(param) {
+  const paramNames = goog.array.map(paramNamesWithOptPrefix, function(param) {
     return param.replace(/^opt_/, '');
   });
 
-  var fnName = ee.arguments.getFnName_(fn);
-  var fnNameSnippet = fnName ? ' to function ' + fnName : '';
+  const fnName = ee.arguments.getFnName_(fn);
+  const fnNameSnippet = fnName ? ' to function ' + fnName : '';
 
-  var args = {};
-  var firstArg = originalArgs[0];
+  let args = {};
+  const firstArg = originalArgs[0];
   // Check if firstArg is a fancy object and not just a dictionary by using
   // Object.getPrototypeOf.
-  var firstArgCouldBeDictionary = goog.isObject(firstArg) &&
+  const firstArgCouldBeDictionary = goog.isObject(firstArg) &&
       typeof firstArg !== 'function' && !Array.isArray(firstArg) &&
       Object.getPrototypeOf(firstArg).constructor.name === 'Object';
 
@@ -275,17 +275,17 @@ ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
           'Expected at most ' + paramNames.length + ' but ' +
           'got ' + originalArgs.length + '.');
     }
-    for (var i = 0; i < originalArgs.length; i++) {
+    for (let i = 0; i < originalArgs.length; i++) {
       args[paramNames[i]] = originalArgs[i];
     }
   } else {
     // Could be either case #1 or case #2 described in the JsDocs above.
-    var seen = new goog.structs.Set(goog.object.getKeys(firstArg));
-    var expected = new goog.structs.Set(paramNames);
-    var anyExpected = !expected.intersection(seen).isEmpty();
+    const seen = new goog.structs.Set(goog.object.getKeys(firstArg));
+    const expected = new goog.structs.Set(paramNames);
+    const anyExpected = !expected.intersection(seen).isEmpty();
     if (anyExpected) {
       // Case #1 above.
-      var unexpected = seen.difference(expected);
+      const unexpected = seen.difference(expected);
       if (!(unexpected.size === 0)) {
         throw new Error(
             'Unexpected arguments' + fnNameSnippet + ': ' +
@@ -299,12 +299,12 @@ ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
   }
 
   // Ensure that all the required parameters are present.
-  var provided = new goog.structs.Set(goog.object.getKeys(args));
-  var required = new goog.structs.Set(
+  const provided = new goog.structs.Set(goog.object.getKeys(args));
+  const required = new goog.structs.Set(
       goog.array.filter(paramNamesWithOptPrefix, function(param) {
         return !goog.string.startsWith(param, 'opt_');
       }));
-  var missing = required.difference(provided);
+  const missing = required.difference(provided);
   if (!(missing.size === 0)) {
     throw new Error(
         'Missing required arguments' + fnNameSnippet + ': ' +
@@ -326,11 +326,11 @@ ee.arguments.extractImpl_ = function(fn, originalArgs, parameterMatcher) {
  * @private
  */
 ee.arguments.getParamNames_ = function(fn, parameterMatcher) {
-  var paramNames = [];
+  let paramNames = [];
   if (goog.global['EXPORTED_FN_INFO']) {
     // For pre-minified builds, use a global map of function metadata, keyed by
     // the toString() value of the function body.
-    var exportedFnInfo = goog.global['EXPORTED_FN_INFO'][fn.toString()];
+    const exportedFnInfo = goog.global['EXPORTED_FN_INFO'][fn.toString()];
     if (!goog.isObject(exportedFnInfo)) {
       ee.arguments.throwMatchFailedError_();
     }
@@ -341,13 +341,13 @@ ee.arguments.getParamNames_ = function(fn, parameterMatcher) {
   } else {
     // For un-compiled code, infer parameter names directly from the function
     // body. Inspired by Angular's inferInjectionArgs().
-    var fnStr = fn.toString().replace(ee.arguments.JS_COMMENT_MATCHER_, '');
+    const fnStr = fn.toString().replace(ee.arguments.JS_COMMENT_MATCHER_, '');
     const fnMatchResult = fnStr.match(parameterMatcher);
     if (fnMatchResult === null) {
       ee.arguments.throwMatchFailedError_();
     }
-    var fnParamDecl = fnMatchResult[1];
-    var fnParamList = fnParamDecl.split(',') || [];
+    const fnParamDecl = fnMatchResult[1];
+    const fnParamList = fnParamDecl.split(',') || [];
     paramNames = fnParamList.map(
         /**
          * Removes defaulted values from the parameters if present.
@@ -369,7 +369,7 @@ ee.arguments.getParamNames_ = function(fn, parameterMatcher) {
  */
 ee.arguments.getFnName_ = function(fn) {
   if (goog.global['EXPORTED_FN_INFO']) {
-    var entireName = goog.global['EXPORTED_FN_INFO'][fn.toString()]['name'];
+    const entireName = goog.global['EXPORTED_FN_INFO'][fn.toString()]['name'];
     return entireName.split('.').pop() + '()';
   } else {
     return null;  // We cannot use reflection to determine the function name.

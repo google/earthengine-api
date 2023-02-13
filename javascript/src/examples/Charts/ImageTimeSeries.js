@@ -4,7 +4,7 @@
 var sanFrancisco =
     ee.Geometry.Rectangle(-122.45, 37.74, -122.4, 37.8);
 
-var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+var landsat8Toa = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
     .filterDate('2015-12-25', '2016-12-25')
     .select('B[1-7]');
 
@@ -27,7 +27,7 @@ Map.add(chart);
 // Outline and center San Francisco on the map.
 var sfLayer = ui.Map.Layer(sanFrancisco, {color: 'FF0000'}, 'SF');
 Map.layers().add(sfLayer);
-Map.setCenter(-122.47, 37.7, 9);
+Map.setCenter(-122.47, 37.7, 11);
 
 // Create a label on the map.
 var label = ui.Label('Click a point on the chart to show the image for that date.');

@@ -9,7 +9,6 @@
 # pylint: disable=g-bad-import-order
 import datetime
 import numbers
-import six
 
 from . import computedobject
 
@@ -41,7 +40,7 @@ def classToName(klass):
     return klass.name()
   elif issubclass(klass, numbers.Number):
     return 'Number'
-  elif issubclass(klass, six.string_types):
+  elif issubclass(klass, str):
     return 'String'
   elif issubclass(klass, (list, tuple)):
     return 'Array'
@@ -110,7 +109,7 @@ def isString(obj):
   Returns:
     Whether the object is a string or string variable.
   """
-  return (isinstance(obj, six.string_types) or
+  return (isinstance(obj, str) or
           (isinstance(obj, computedobject.ComputedObject) and
            obj.name() == 'String'))
 

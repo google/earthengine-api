@@ -9,6 +9,7 @@ import ee
 
 # A function to experiment on.
 TEST_FUNC = ee.Function()
+TEST_FUNC.name = 'testFunction'
 TEST_FUNC.getSignature = lambda: {  # pylint: disable-msg=g-long-lambda
     'description': 'Method description.',
     'returns': 'Image',
@@ -95,6 +96,14 @@ class FunctionTest(unittest.TestCase):
   def testToString(self):
     """Verifies function docstring generation."""
     self.assertEqual(EXPECTED_DOC, str(TEST_FUNC))
+
+  def testArgumentFailureMessage(self):
+    """Verifies properly formed function error message generation."""
+    self.assertRaisesRegex(
+        ee.EEException,
+        r'Required argument \(a\) missing to function: testFunction',
+        TEST_FUNC.promoteArgs,
+        {})
 
 
 if __name__ == '__main__':

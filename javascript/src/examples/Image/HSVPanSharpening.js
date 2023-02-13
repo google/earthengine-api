@@ -1,7 +1,7 @@
 // HSV-based Pan-Sharpening.
 
 // Grab a sample L8 image and pull out the RGB and pan bands.
-var image = ee.Image(ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+var image = ee.Image(ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
   .filterDate('2017-01-01', '2017-12-31')
   .filterBounds(ee.Geometry.Point(-122.0808, 37.3947))
   .sort('CLOUD_COVER')

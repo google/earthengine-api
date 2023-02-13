@@ -7,7 +7,6 @@
 # pylint: disable=g-bad-name
 
 # pylint: disable=g-bad-import-order
-import six
 
 from . import data
 from . import ee_exception
@@ -32,8 +31,7 @@ class ComputedObjectMetaclass(type):
       return type.__call__(cls, *args, **kwargs)
 
 
-class ComputedObject(six.with_metaclass(
-    ComputedObjectMetaclass, encodable.Encodable)):
+class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
   """A representation of an Earth Engine computed object.
 
   This is a base class for most API objects.
@@ -108,7 +106,7 @@ class ComputedObject(six.with_metaclass(
       # Encode the function that we're calling.
       func = encoder(self.func)
       # Built-in functions are encoded as strings under a different key.
-      key = 'functionName' if isinstance(func, six.string_types) else 'function'
+      key = 'functionName' if isinstance(func, str) else 'function'
 
       # Encode all arguments recursively.
       encoded_args = {}
@@ -139,7 +137,7 @@ class ComputedObject(six.with_metaclass(
         )
       return {'argumentReference': ref}
     else:
-      if isinstance(self.func, six.string_types):
+      if isinstance(self.func, str):
         invocation = {'functionName': self.func}
       else:
         invocation = self.func.encode_cloud_invocation(encoder)

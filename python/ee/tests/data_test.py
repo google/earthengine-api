@@ -4,11 +4,14 @@
 from unittest import mock
 
 import httplib2
+import requests
 
-import unittest
 import ee
+from ee import _cloud_api_utils
 from ee import apitestcase
-import ee.image as image
+from ee import featurecollection
+from ee import image
+import unittest
 
 
 class DataTest(unittest.TestCase):
@@ -69,21 +72,24 @@ class DataTest(unittest.TestCase):
       ).execute.return_value = mock_result
       cloud_api_resource.projects().assets().listAssets_next.return_value = None
       actual_result = ee.data.listAssets({'p': 'q'})
-      cloud_api_resource.projects().assets().listAssets().\
-        execute.assert_called_once()
+      cloud_api_resource.projects().assets().listAssets(
+      ).execute.assert_called_once()
       self.assertEqual(mock_result, actual_result)
 
   def testListImages(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
-      mock_result = {'images': [{'path': 'id1', 'type': 'type1'}]}
-      cloud_api_resource.projects().assets().listImages(
+      mock_result = {'assets': [{'path': 'id1', 'type': 'type1'}]}
+      cloud_api_resource.projects().assets().listAssets(
       ).execute.return_value = mock_result
-      cloud_api_resource.projects().assets().listImages_next.return_value = None
+      cloud_api_resource.projects().assets().listAssets_next.return_value = None
       actual_result = ee.data.listImages({'p': 'q'})
-      cloud_api_resource.projects().assets().listImages(
+      cloud_api_resource.projects().assets().listAssets(
       ).execute.assert_called_once()
-      self.assertEqual(mock_result, actual_result)
+      self.assertEqual({'images': [{
+          'path': 'id1',
+          'type': 'type1'
+      }]}, actual_result)
 
   def testListBuckets(self):
     cloud_api_resource = mock.MagicMock()
@@ -104,7 +110,8 @@ class DataTest(unittest.TestCase):
       actual_result = ee.data.getList({'id': 'glam', 'num': 3})
       expected_params = {
           'parent': 'projects/earthengine-public/assets/glam',
-          'pageSize': 3
+          'pageSize': 3,
+          'view': 'BASIC',
       }
       expected_result = [{'id': 'id1', 'type': 'ImageCollection'}]
       cloud_api_resource.projects().assets().listAssets.assert_called_with(
@@ -121,7 +128,11 @@ class DataTest(unittest.TestCase):
           'id': 'projects/my-project/assets/',
           'num': 3
       })
-      expected_params = {'parent': 'projects/my-project', 'pageSize': 3}
+      expected_params = {
+          'parent': 'projects/my-project',
+          'pageSize': 3,
+          'view': 'BASIC'
+      }
       expected_result = [{'id': 'id1', 'type': 'ImageCollection'}]
       cloud_api_resource.projects().listAssets.assert_called_with(
           **expected_params)
@@ -137,7 +148,11 @@ class DataTest(unittest.TestCase):
           'id': 'projects/my-project/assets',
           'num': 3
       })
-      expected_params = {'parent': 'projects/my-project', 'pageSize': 3}
+      expected_params = {
+          'parent': 'projects/my-project',
+          'pageSize': 3,
+          'view': 'BASIC'
+      }
       expected_result = [{'id': 'id1', 'type': 'ImageCollection'}]
       cloud_api_resource.projects().listAssets.assert_called_with(
           **expected_params)
@@ -146,8 +161,14 @@ class DataTest(unittest.TestCase):
   def testComplexGetListViaCloudApi(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
-      mock_result = {'images': [{'name': 'id1', 'size_bytes': 1234}]}
-      cloud_api_resource.projects().assets().listImages(
+      mock_result = {
+          'assets': [{
+              'name': 'id1',
+              'type': 'IMAGE',
+              'size_bytes': 1234
+          }]
+      }
+      cloud_api_resource.projects().assets().listAssets(
       ).execute.return_value = mock_result
       actual_result = ee.data.getList({
           'id': 'glam',
@@ -158,14 +179,47 @@ class DataTest(unittest.TestCase):
       expected_params = {
           'parent': 'projects/earthengine-public/assets/glam',
           'pageSize': 3,
-          'startTime': '1970-01-01T01:00:12.345000Z',
           'view': 'BASIC',
-          'filter': 'foo'
+          'filter': 'foo AND startTime >= "1970-01-01T01:00:12.345000Z"'
       }
       expected_result = [{'id': 'id1', 'type': 'Image'}]
-      cloud_api_resource.projects().assets().listImages.assert_called_with(
+      cloud_api_resource.projects().assets().listAssets.assert_called_with(
           **expected_params)
       self.assertEqual(expected_result, actual_result)
+
+  def testGetMapId(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {
+          'name': 'projects/earthengine-legacy/maps/DOCID',
+      }
+      cloud_api_resource.projects().maps().create(
+      ).execute.return_value = mock_result
+      actual_result = ee.data.getMapId({
+          'image': image.Image('my-image'),
+      })
+      cloud_api_resource.projects().maps().create().execute.assert_called_once()
+      self.assertEqual('projects/earthengine-legacy/maps/DOCID',
+                       actual_result['mapid'])
+      self.assertEqual('', actual_result['token'])
+      self.assertIsInstance(actual_result['tile_fetcher'], ee.data.TileFetcher)
+
+  def testGetMapId_withWorkloadTag(self):
+    with ee.data.workloadTagContext('mapid-tag'):
+      cloud_api_resource = mock.MagicMock()
+      with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+        mock_result = {
+            'name': 'projects/earthengine-legacy/maps/DOCID',
+        }
+        cloud_api_resource.projects().maps().create(
+        ).execute.return_value = mock_result
+        ee.data.getMapId({
+            'image': image.Image('my-image'),
+        })
+        self.assertEqual(
+            'mapid-tag',
+            cloud_api_resource.projects().maps().create.call_args_list[1]
+            .kwargs['workloadTag'])
 
   # The Cloud API context manager does not mock getAlgorithms, so it's done
   # separately here.
@@ -191,6 +245,22 @@ class DataTest(unittest.TestCase):
               'docid': 'projects/earthengine-legacy/thumbnails/DOCID',
               'token': ''
           }, actual_result)
+
+  def testGetDownloadId_withWorkloadTag(self):
+    with ee.data.workloadTagContext('downloadid-tag'):
+      cloud_api_resource = mock.MagicMock()
+      with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+        mock_result = {'name': 'projects/earthengine-legacy/thumbnails/DOCID'}
+        cloud_api_resource.projects().thumbnails().create(
+        ).execute.return_value = mock_result
+        ee.data.getDownloadId({
+            'image': image.Image('my-image'),
+            'name': 'dummy'
+        })
+        self.assertEqual(
+            'downloadid-tag',
+            cloud_api_resource.projects().thumbnails().create.call_args
+            .kwargs['workloadTag'])
 
   def testGetDownloadId_withBandList(self):
     cloud_api_resource = mock.MagicMock()
@@ -228,6 +298,71 @@ class DataTest(unittest.TestCase):
             'name': 'dummy'
         })
 
+  def testGetThumbId(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'name': 'projects/earthengine-legacy/thumbnails/DOCID'}
+      cloud_api_resource.projects().thumbnails().create(
+      ).execute.return_value = mock_result
+      actual_result = ee.data.getThumbId({
+          'image': image.Image('my-image'),
+          'name': 'dummy'
+      })
+      cloud_api_resource.projects().thumbnails().create(
+      ).execute.assert_called_once()
+      self.assertEqual(
+          {
+              'thumbid': 'projects/earthengine-legacy/thumbnails/DOCID',
+              'token': ''
+          }, actual_result)
+
+  def testGetThumbId_withWorkloadTag(self):
+    with ee.data.workloadTagContext('thumbid-tag'):
+      cloud_api_resource = mock.MagicMock()
+      with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+        mock_result = {'name': 'projects/earthengine-legacy/thumbnails/DOCID'}
+        cloud_api_resource.projects().thumbnails().create(
+        ).execute.return_value = mock_result
+        ee.data.getThumbId({'image': image.Image('my-image'), 'name': 'dummy'})
+        self.assertEqual(
+            'thumbid-tag',
+            cloud_api_resource.projects().thumbnails().create.call_args
+            .kwargs['workloadTag'])
+
+  def testGetTableDownloadId(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'name': 'projects/earthengine-legacy/table/DOCID'}
+      cloud_api_resource.projects().tables().create(
+      ).execute.return_value = mock_result
+      actual_result = ee.data.getTableDownloadId({
+          'table': featurecollection.FeatureCollection('my-fc'),
+          'filename': 'dummy'
+      })
+      cloud_api_resource.projects().tables().create(
+      ).execute.assert_called_once()
+      self.assertEqual(
+          {
+              'docid': 'projects/earthengine-legacy/table/DOCID',
+              'token': ''
+          }, actual_result)
+
+  def testGetTableDownloadId_withWorkloadTag(self):
+    with ee.data.workloadTagContext('tableid-tag'):
+      cloud_api_resource = mock.MagicMock()
+      with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+        mock_result = {'name': 'projects/earthengine-legacy/thumbnails/DOCID'}
+        cloud_api_resource.projects().tables().create(
+        ).execute.return_value = mock_result
+        ee.data.getTableDownloadId({
+            'table': featurecollection.FeatureCollection('my-fc'),
+            'filename': 'dummy'
+        })
+        self.assertEqual(
+            'tableid-tag',
+            cloud_api_resource.projects().tables().create.call_args
+            .kwargs['workloadTag'])
+
   def testCloudProfilingEnabled(self):
     seen = []
 
@@ -251,21 +386,127 @@ class DataTest(unittest.TestCase):
       with self.assertRaisesRegex(ee.ee_exception.EEException, '^errorly$'):
         ee.data.listImages({'parent': 'projects/earthengine-public/assets/q'})
 
+  def testListFeatures(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {
+          'type':
+              'FeatureCollection',
+          'features': [{
+              'type': 'Feature',
+              'properties': {
+                  'baz': 'qux',
+                  'foo': 'bar',
+                  'system:index': '0'
+              }
+          }]
+      }
+      cloud_api_resource.projects().assets().listFeatures(
+      ).execute.return_value = mock_result
+      actual_result = ee.data.listFeatures({
+          'assetId':
+              'users/userfoo/foobar',
+          'region':
+              '{\"type\":\"Polygon\",\"coordinates\":[[[-96,42],[-95,42],[-95,43],[-96,43],[-96,42]]]}'
+      })
+      cloud_api_resource.projects().assets().listFeatures(
+      ).execute.assert_called_once()
+      self.assertEqual(mock_result, actual_result)
+
+  @mock.patch.object(ee.data, '_tile_base_url', new='base_url')
+  def testGetFeatureViewTilesKey(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_name = 'projects/projectfoo/featureView/tiles-key-foo'
+      mock_result = {'name': mock_name}
+      cloud_api_resource.projects().featureView().create(
+      ).execute.return_value = mock_result
+      actual_result = ee.data.getFeatureViewTilesKey({
+          'assetId': 'projects/projectfoo/assets/assetbar',
+      })
+      cloud_api_resource.projects().featureView().create(
+      ).execute.assert_called_once()
+      expected_keys = [
+          'token',
+          'formatTileUrl',
+      ]
+      self.assertEqual(expected_keys, list(actual_result.keys()))
+      self.assertEqual('tiles-key-foo', actual_result['token'])
+      self.assertEqual(
+          f'base_url/{_cloud_api_utils.VERSION}/{mock_name}/tiles/7/5/6',
+          actual_result['formatTileUrl'](5, 6, 7))
+
+  def testWorkloadTag(self):
+    self.assertEqual('', ee.data.getWorkloadTag())
+    ee.data.setDefaultWorkloadTag(None)
+    self.assertEqual('', ee.data.getWorkloadTag())
+    ee.data.setDefaultWorkloadTag('')
+    self.assertEqual('', ee.data.getWorkloadTag())
+    ee.data.setDefaultWorkloadTag(0)
+    self.assertEqual('0', ee.data.getWorkloadTag())
+    ee.data.setDefaultWorkloadTag(123)
+    self.assertEqual('123', ee.data.getWorkloadTag())
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('inv@lid')
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('Invalid')
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('-invalid')
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('invalid_')
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('i' * 64)
+
+    ee.data.setDefaultWorkloadTag('default-tag')
+    self.assertEqual('default-tag', ee.data.getWorkloadTag())
+
+    ee.data.setWorkloadTag('exports-1')
+    self.assertEqual('exports-1', ee.data.getWorkloadTag())
+
+    ee.data.setWorkloadTag('exports-2')
+    self.assertEqual('exports-2', ee.data.getWorkloadTag())
+
+    ee.data.resetWorkloadTag()
+    self.assertEqual('default-tag', ee.data.getWorkloadTag())
+
+    with ee.data.workloadTagContext('in-context'):
+      self.assertEqual('in-context', ee.data.getWorkloadTag())
+
+    self.assertEqual('default-tag', ee.data.getWorkloadTag())
+
+    ee.data.setWorkloadTag('reset-me')
+    self.assertEqual('reset-me', ee.data.getWorkloadTag())
+
+    ee.data.setWorkloadTag('')
+    self.assertEqual('', ee.data.getWorkloadTag())
+
+    ee.data.setDefaultWorkloadTag('reset-me')
+    self.assertEqual('reset-me', ee.data.getWorkloadTag())
+
+    ee.data.resetWorkloadTag(True)
+    self.assertEqual('', ee.data.getWorkloadTag())
+
 
 def DoCloudProfileStubHttp(test, expect_profiling):
 
-  def Request(unused_self, unused_url, method, body, headers):
-    _ = method, body  # Unused kwargs.
+  def MockRequest(unused_self, method, uri, data, headers, timeout):
+    del method, uri, data, timeout  # Unused
     test.assertEqual(expect_profiling, ee.data._PROFILE_REQUEST_HEADER
                      in headers)
-    response_dict = {'status': 200, 'content-type': 'application/json'}
+    response = requests.Response()
+    response.status_code = 200
+    response._content = '{"data": "dummy_data"}'
     if expect_profiling:
-      response_dict[
+      response.headers[
           ee.data._PROFILE_RESPONSE_HEADER_LOWERCASE] = 'someProfileId'
-    response = httplib2.Response(response_dict)
-    return response, '{"data": "dummy_data"}'
+    return response
 
-  return mock.patch('httplib2.Http.request', new=Request)
+  return mock.patch.object(requests.Session, 'request', new=MockRequest)
 
 
 if __name__ == '__main__':

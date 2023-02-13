@@ -6,14 +6,12 @@ their new Cloud API equivalents. This generally requires remapping call
 parameters and result values.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 import calendar
 import copy
 import datetime
+import json
 
+import os
 import re
 import warnings
 
@@ -24,19 +22,11 @@ from googleapiclient import discovery
 from googleapiclient import http
 from googleapiclient import model
 
-# We use the urllib3-aware shim if it's available.
-# It is not available by default if the package is installed via the conda-forge
-# channel.
-# pylint: disable=g-bad-import-order,g-import-not-at-top
-try:
-  import httplib2shim as httplib2
-except ImportError:
-  import httplib2
-import six
-# pylint: enable=g-bad-import-order,g-import-not-at-top
+import httplib2
+import requests
 
 # The Cloud API version.
-VERSION = 'v1alpha'
+VERSION = os.environ.get('EE_CLOUD_API_VERSION', 'v1alpha')
 
 PROJECT_ID_PATTERN = (r'^(?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
                       r'[a-z][-a-z0-9]{4,28}[a-z0-9]$')
@@ -48,6 +38,33 @@ ASSET_ROOT_PATTERN = (r'^projects/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
 
 # The default user project to use when making Cloud API calls.
 _cloud_api_user_project = None
+
+
+class _Http:
+  """A httplib2.Http-like object based on requests."""
+
+  def __init__(self, timeout=None):
+    self._timeout = timeout
+
+  def request(  # pylint: disable=invalid-name
+      self,
+      uri,
+      method='GET',
+      body=None,
+      headers=None,
+      redirections=None,
+      connection_type=None):
+    """Makes an HTTP request using httplib2 semantics."""
+    del connection_type  # Unused
+
+    with requests.Session() as session:
+      session.max_redirects = redirections
+      response = session.request(
+          method, uri, data=body, headers=headers, timeout=self._timeout)
+      headers = dict(response.headers)
+      headers['status'] = response.status_code
+      content = response.content
+    return httplib2.Response(headers), content
 
 
 def _wrap_request(headers_supplier, response_inspector):
@@ -131,7 +148,7 @@ def build_cloud_resource(api_base_url,
       '{}/$discovery/rest?version={}&prettyPrint=false'
       .format(api_base_url, VERSION))
   if http_transport is None:
-    http_transport = httplib2.Http(timeout=timeout)
+    http_transport = _Http(timeout)
   if credentials is not None:
     http_transport = AuthorizedHttp(credentials, http=http_transport)
   request_builder = _wrap_request(headers_supplier, response_inspector)
@@ -153,12 +170,15 @@ def build_cloud_resource(api_base_url,
         cache_discovery=False,
         **kwargs)  # pytype: disable=wrong-keyword-args
 
+  resource = None
   try:
     # google-api-python-client made static_discovery the default in version 2,
     # but it's not backward-compatible. There's no reliable way to check the
     # package version, either.
     resource = build(static_discovery=False)
   except TypeError:
+    pass  # Handle fallback case outside except block, for cleaner stack traces.
+  if resource is None:
     resource = build()
   resource._baseUrl = api_base_url
   return resource
@@ -184,6 +204,8 @@ def build_cloud_resource_from_document(discovery_document,
     A resource object to use to call the Cloud API.
   """
   request_builder = _wrap_request(headers_supplier, response_inspector)
+  if http_transport is None:
+    http_transport = _Http()
   return discovery.build_from_document(
       discovery_document,
       http=http_transport,
@@ -228,7 +250,7 @@ def _convert_dict(to_convert,
     added.
   """
   result = {}
-  for key, value in six.iteritems(to_convert):
+  for key, value in to_convert.items():
     if key in conversions:
       conversion = conversions[key]
       if conversion is not None:
@@ -246,7 +268,7 @@ def _convert_dict(to_convert,
     elif key_warnings:
       warnings.warn('Unrecognized key {} ignored'.format(key))
   if defaults:
-    for default_key, default_value in six.iteritems(defaults):
+    for default_key, default_value in defaults.items():
       if default_key not in result:
         result[default_key] = default_value
   return result
@@ -316,22 +338,6 @@ def _convert_bounding_box_to_geo_json(bbox):
 
 def convert_get_list_params_to_list_assets_params(params):
   """Converts a getList params dict to something usable with listAssets."""
-  return _convert_dict(
-      params, {
-          'id': ('parent', convert_asset_id_to_asset_name),
-          'num': 'pageSize'
-      }, key_warnings=True)
-
-
-def convert_list_assets_result_to_get_list_result(result):
-  """Converts a listAssets result to something getList can return."""
-  if 'assets' not in result:
-    return []
-  return [_convert_asset_for_get_list_result(i) for i in result['assets']]
-
-
-def convert_get_list_params_to_list_images_params(params):
-  """Converts a getList params dict to something usable with listImages."""
   params = _convert_dict(
       params, {
           'id': ('parent', convert_asset_id_to_asset_name),
@@ -346,6 +352,69 @@ def convert_get_list_params_to_list_images_params(params):
   # getList returns minimal information; we can filter unneeded stuff out
   # server-side.
   params['view'] = 'BASIC'
+  return convert_list_images_params_to_list_assets_params(params)
+
+
+def convert_list_assets_result_to_get_list_result(result):
+  """Converts a listAssets result to something getList can return."""
+  if 'assets' not in result:
+    return []
+  return [_convert_asset_for_get_list_result(i) for i in result['assets']]
+
+
+def _convert_list_images_filter_params_to_list_assets_params(params):
+  """Converts a listImages params dict to something usable with listAssets."""
+  query_strings = []
+  if 'startTime' in params:
+    query_strings.append('startTime >= "{}"'.format(params['startTime']))
+    del params['startTime']
+
+  if 'endTime' in params:
+    query_strings.append('endTime < "{}"'.format(params['endTime']))
+    del params['endTime']
+
+  region_error = 'Filter parameter "region" must be a GeoJSON or WKT string.'
+  if 'region' in params:
+    region = params['region']
+    if isinstance(region, dict):
+      try:
+        region = json.dumps(region)
+      except TypeError as e:
+        raise Exception(region_error) from e
+    elif not isinstance(region, str):
+      raise Exception(region_error)
+
+    # Double quotes are not valid in the GeoJSON strings, since we wrap the
+    # query in a set of double quotes. We trivially avoid doubly-escaping the
+    # quotes by replacing double quotes with single quotes.
+    region = region.replace('"', "'")
+    query_strings.append('intersects("{}")'.format(region))
+    del params['region']
+  if 'properties' in params:
+    if isinstance(params['properties'], list) and any(
+        not isinstance(p, str) for p in params['properties']):
+      raise Exception(
+          'Filter parameter "properties" must be an array of strings')
+
+    for property_query in params['properties']:
+      # Property filtering requires that properties be prefixed by "properties."
+      prop = re.sub(r'^(properties\.)?', 'properties.', property_query.strip())
+      query_strings.append(prop)
+
+    del params['properties']
+  return ' AND '.join(query_strings)
+
+
+def convert_list_images_params_to_list_assets_params(params):
+  """Converts a listImages params dict to something usable with listAssets."""
+  params = params.copy()
+  extra_filters = _convert_list_images_filter_params_to_list_assets_params(
+      params)
+  if extra_filters:
+    if 'filter' in params:
+      params['filter'] = '{} AND {}'.format(params['filter'], extra_filters)
+    else:
+      params['filter'] = extra_filters
   return params
 
 
@@ -376,8 +445,7 @@ def _convert_image_for_get_list_result(asset):
   result = _convert_dict(
       asset, {
           'name': 'id',
-      },
-      defaults={'type': 'Image'})
+      }, defaults={'type': 'Image'})
   return result
 
 
@@ -502,7 +570,7 @@ def encode_number_as_cloud_value(number):
   # Numeric values in constantValue-style nodes end up stored in doubles. If the
   # input is an integer that loses precision as a double, use the int64 slot
   # ("integerValue") in ValueNode.
-  if (isinstance(number, six.integer_types) and float(number) != number):
+  if (isinstance(number, int) and float(number) != number):
     return {'integerValue': str(number)}
   else:
     return {'constantValue': number}
@@ -532,8 +600,8 @@ def convert_algorithms(algorithms):
     A version of that algorithms list that can be interpreted by
     apifunction.initialize().
   """
-  return dict(
-      _convert_algorithm(algorithm) for algorithm in algorithms['algorithms'])
+  algs = algorithms.get('algorithms', [])
+  return dict(_convert_algorithm(algorithm) for algorithm in algs)
 
 
 def _convert_algorithm(algorithm):
@@ -541,7 +609,8 @@ def _convert_algorithm(algorithm):
   # Strip leading 'algorithms/' from the name.
   algorithm_name = algorithm['name'][11:]
   converted_algorithm = _convert_dict(
-      algorithm, {
+      algorithm,
+      {
           'description': 'description',
           'returnType': 'returns',
           'arguments': ('args', _convert_algorithm_arguments),
@@ -639,7 +708,7 @@ def convert_to_band_list(bands):
   """
   if bands is None:
     return []
-  elif isinstance(bands, six.string_types):
+  elif isinstance(bands, str):
     return bands.split(',')
   elif isinstance(bands, list):
     return bands
@@ -660,7 +729,7 @@ def convert_to_visualization_options(params):
   result = {}
   if 'palette' in params:
     palette = params['palette']
-    if isinstance(palette, six.string_types):
+    if isinstance(palette, str):
       palette = palette.split(',')
     result['paletteColors'] = palette
     value_range = len(palette) - 1
@@ -729,6 +798,7 @@ def convert_operation_to_task(operation):
           'description': 'description',
           'type': 'task_type',
           'destinationUris': 'destination_uris',
+          'batchEecuUsageSeconds': 'batch_eecu_usage_seconds',
           })
   if operation.get('done'):
     if 'error' in operation:
@@ -798,7 +868,7 @@ def convert_to_grid_dimensions(dimensions):
   Returns:
     A GridDimensions as a dict.
   """
-  if isinstance(dimensions, six.integer_types):
+  if isinstance(dimensions, int):
     return {'width': dimensions, 'height': dimensions}
   elif len(dimensions) == 1:
     return {'width': dimensions[0], 'height': dimensions[0]}

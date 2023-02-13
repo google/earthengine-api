@@ -1,7 +1,7 @@
 // Composite an image collection and clip it to a boundary.
 
 // Load Landsat 7 raw imagery and filter it to April-July 2000.
-var collection = ee.ImageCollection('LANDSAT/LE07/C01/T1')
+var collection = ee.ImageCollection('LANDSAT/LE07/C02/T1')
     .filterDate('2000-04-01', '2000-07-01');
 
 // Reduce the collection by taking the median.

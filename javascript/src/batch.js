@@ -310,6 +310,28 @@ Export.table.toAsset = function(
 
 
 /**
+ * @param {!FeatureCollection} collection
+ * @param {string=} opt_description
+ * @param {string=} opt_assetId
+ * @param {number=} opt_maxFeaturesPerTile
+ * @param {string=} opt_thinningStrategy
+ * @param {string|!Array<string>=} opt_thinningRanking
+ * @param {string|!Array<string>=} opt_zOrderRanking
+ * @return {!ExportTask}
+ * @export
+ */
+Export.table.toFeatureView = function(
+    collection, opt_description, opt_assetId, opt_maxFeaturesPerTile,
+    opt_thinningStrategy, opt_thinningRanking, opt_zOrderRanking) {
+  const clientConfig =
+      eeArguments.extractFromFunction(Export.table.toFeatureView, arguments);
+  const serverConfig = Export.convertToServerParams(
+      clientConfig, ExportDestination.FEATURE_VIEW, ExportType.TABLE);
+  return ExportTask.create(serverConfig);
+};
+
+
+/**
  * @param {!ImageCollection} collection
  * @param {string=} opt_description
  * @param {string=} opt_bucket
@@ -569,6 +591,9 @@ Export.prepareDestination_ = function(taskConfig, destination) {
     case ExportDestination.ASSET:
       taskConfig['assetId'] = taskConfig['assetId'] || '';
       break;
+    case ExportDestination.FEATURE_VIEW:
+      taskConfig['mapName'] = taskConfig['mapName'] || '';
+      break;
     // The default is to drive.
     case ExportDestination.DRIVE:
     default:
@@ -622,7 +647,8 @@ Export.image.prepareTaskConfig_ = function(taskConfig, destination) {
  * @param {!ServerTaskConfig} taskConfig Table export config to
  *     prepare.
  * @param {!data.ExportDestination} destination Export destination.
- * @return {!data.TableTaskConfig|!data.FeatureViewTaskConfig}
+ * @return {!data.TableTaskConfig|!data.FeatureViewTaskConfig|
+ *     !data.BigQueryTaskConfig}
  * @private
  */
 Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
@@ -634,8 +660,7 @@ Export.table.prepareTaskConfig_ = function(taskConfig, destination) {
   taskConfig = Export.reconcileTableFormat(taskConfig);
   // Add top-level destination fields.
   taskConfig = Export.prepareDestination_(taskConfig, destination);
-  return /** @type {!data.TableTaskConfig|!data.FeatureViewTaskConfig} */ (
-      taskConfig);
+  return /** @type {!data.TableTaskConfig|!data.FeatureViewTaskConfig|!data.BigQueryTaskConfig}*/ (taskConfig);
 };
 
 

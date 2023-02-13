@@ -16,7 +16,6 @@ from . import data
 from . import oauth
 from .apifunction import ApiFunction
 # pylint: enable=g-importing-member
-import six
 from google.auth import crypt
 from google.oauth2 import service_account
 
@@ -75,7 +74,7 @@ def call(func, *args, **kwargs):
     specifies a recognized return type, the returned value will be cast
     to that type.
   """
-  if isinstance(func, six.string_types):
+  if isinstance(func, str):
     func = ApiFunction.lookup(func)
   return func.call(*args, **kwargs)
 
@@ -93,7 +92,7 @@ def apply(func, named_args):  # pylint: disable=redefined-builtin
     specifies a recognized return type, the returned value will be cast
     to that type.
   """
-  if isinstance(func, six.string_types):
+  if isinstance(func, str):
     func = ApiFunction.lookup(func)
   return func.apply(named_args)
 

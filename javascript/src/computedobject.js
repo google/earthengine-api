@@ -195,6 +195,7 @@ ee.ComputedObject.prototype.serialize = function(legacy = false) {
 
 /**
  * @return {string} A human-readable representation of the object.
+ * @override
  */
 ee.ComputedObject.prototype.toString = function() {
   return 'ee.' + this.name() + '(' + ee.Serializer.toReadableJSON(this) + ')';

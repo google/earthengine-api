@@ -573,7 +573,7 @@
     }, {
       "argumentName": "tmaskBands",
       "type": "List\u003cObject\u003e",
-      "description": "The name or index of the bands to use for iterative TMask cloud detection. These are typically the green band and the SWIR2 band.  If unspecified, TMask is not used.  If specified, \u0027tmaskBands\u0027 must be included in \u0027breakpointBands\u0027.",
+      "description": "The name or index of the bands to use for iterative TMask cloud detection. These are typically the green band and the SWIR1 band.  If unspecified, TMask is not used.  If specified, \u0027tmaskBands\u0027 must be included in \u0027breakpointBands\u0027.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -3146,7 +3146,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.confusionMatrix",
-    "description": "Computes a 2D confusion matrix for a classifier based on its training data (ie: resubstitution error).  Axis 0 of the matrix correspond to the input classes, and axis 1 to the output classes.  The rows and columns  start at class 0 and increase sequentially up to the maximum class value, so some rows or columns might be empty if the input classes aren\u0027t 0-based or sequential.",
+    "description": "Computes a 2D confusion matrix for a classifier based on its training data (ie: resubstitution error).  Axis 0 of the matrix corresponds to the input classes, and axis 1 corresponds to the output classes.  The rows and columns  start at class 0 and increase sequentially up to the maximum class value, so some rows or columns might be empty if the input classes aren\u0027t 0-based or sequential.",
     "returnType": "ConfusionMatrix",
     "arguments": [{
       "argumentName": "classifier",
@@ -3248,6 +3248,20 @@
     "arguments": [{
       "argumentName": "confusionMatrix",
       "type": "ConfusionMatrix"
+    }]
+  }, {
+    "name": "algorithms/ConfusionMatrix.fscore",
+    "description": "Computes the Fβ-score for the confusion matrix.",
+    "returnType": "Array",
+    "arguments": [{
+      "argumentName": "confusionMatrix",
+      "type": "ConfusionMatrix"
+    }, {
+      "argumentName": "beta",
+      "type": "Float",
+      "description": "A factor indicating how much more important recall is than precision. The standard F-score is equivalent to setting β to one.",
+      "optional": true,
+      "defaultValue": 1.0
     }]
   }, {
     "name": "algorithms/ConfusionMatrix.kappa",
@@ -4996,10 +5010,23 @@
   }, {
     "name": "algorithms/Element.propertyNames",
     "description": "Returns the names of properties on this element.",
-    "returnType": "List\u003cString\u003e",
+    "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "element",
       "type": "Element"
+    }]
+  }, {
+    "name": "algorithms/Element.get",
+    "description": "Extract a property from a feature.",
+    "returnType": "\u003cany\u003e",
+    "arguments": [{
+      "argumentName": "object",
+      "type": "Element",
+      "description": "The feature to extract the property from."
+    }, {
+      "argumentName": "property",
+      "type": "String",
+      "description": "The property to extract."
     }]
   }, {
     "name": "algorithms/Element.set",
@@ -5034,19 +5061,6 @@
       "description": "The property values to override."
     }],
     "hidden": true
-  }, {
-    "name": "algorithms/Element.get",
-    "description": "Extract a property from a feature.",
-    "returnType": "\u003cany\u003e",
-    "arguments": [{
-      "argumentName": "object",
-      "type": "Element",
-      "description": "The feature to extract the property from."
-    }, {
-      "argumentName": "property",
-      "type": "String",
-      "description": "The property to extract."
-    }]
   }, {
     "name": "algorithms/Element.getNumber",
     "description": "Extract a property from a feature.",
@@ -5174,9 +5188,7 @@
       "description": "The list of properties to exclude when copying all properties. Must not be specified if properties is.",
       "optional": true,
       "defaultValue": null
-    }],
-    "deprecated": true,
-    "deprecationReason": "Use Element.copyProperties()"
+    }]
   }, {
     "name": "algorithms/Element.geometry",
     "description": "Returns the geometry of a given feature in a given projection.",
@@ -5203,7 +5215,8 @@
       "description": "If true, the geometry will have geodesic edges. If false, it will have edges as straight lines in the specified projection. If null, the edge interpretation will be the same as the original geometry. This argument is ignored if proj is not specified.",
       "optional": true,
       "defaultValue": null
-    }]
+    }],
+    "hidden": true
   }, {
     "name": "algorithms/Feature.geometry",
     "description": "Returns the geometry of a given feature in a given projection.",
@@ -5230,9 +5243,7 @@
       "description": "If true, the geometry will have geodesic edges. If false, it will have edges as straight lines in the specified projection. If null, the edge interpretation will be the same as the original geometry. This argument is ignored if proj is not specified.",
       "optional": true,
       "defaultValue": null
-    }],
-    "deprecated": true,
-    "deprecationReason": "Use Element.geometry()"
+    }]
   }, {
     "name": "algorithms/Image.geometry",
     "description": "Returns the geometry of a given feature in a given projection.",
@@ -5259,9 +5270,7 @@
       "description": "If true, the geometry will have geodesic edges. If false, it will have edges as straight lines in the specified projection. If null, the edge interpretation will be the same as the original geometry. This argument is ignored if proj is not specified.",
       "optional": true,
       "defaultValue": null
-    }],
-    "deprecated": true,
-    "deprecationReason": "Use Element.geometry()"
+    }]
   }, {
     "name": "algorithms/AggregateFeatureCollection.array",
     "description": "Aggregates over a given property of the objects in a collection, calculating a list of all the values of the selected property.",
@@ -5488,7 +5497,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Collection.geometry",
-    "description": "Extracts and merges the geometries of a collection. Requires that all the geometries in the collection share the projection and edge interpretation.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well, use the smallest collection that is required to achieve the desired outcome.",
+    "description": "Extracts and merges the geometries of a collection. Requires that all the geometries in the collection share the projection and edge interpretation.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well; use the smallest collection that is required to achieve the desired outcome.",
     "returnType": "Geometry",
     "arguments": [{
       "argumentName": "collection",
@@ -8709,7 +8718,7 @@
     }]
   }, {
     "name": "algorithms/Image.cat",
-    "description": "Concatenate a list of images together into a single image. If two or more bands share a name, they are suffixed with an incrementing index. This function will promote constant values into constant images.",
+    "description": "Combines a list of images into a single image which contains all bands from all of the images.\nIf two or more bands share a name, they are suffixed with an incrementing index.\nThe resulting image will have the metadata from the first input image, only.\nThis function will promote constant values into constant images.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "images",
@@ -8849,12 +8858,12 @@
     }]
   }, {
     "name": "algorithms/Image.cumulativeCost",
-    "description": "Computes a cumulative cost map based on an image containing costs to traverse each pixel and an image containing source locations.",
+    "description": "Computes a cumulative cost map based on an image containing costs to traverse each pixel and an image containing source locations.\nEach output band represents the cumulative cost over the corresponding input cost band.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "cost",
       "type": "Image\u003cunknown bands\u003e",
-      "description": "A single-band image representing the cost to traverse each pixel. Masked pixels can\u0027t be traversed."
+      "description": "An image representing the cost to traverse each pixel. Masked pixels can\u0027t be traversed. When comparing pixel traversal costs, we use band-wise dictionary ordering. Ancillary cost bands are only considered when paths over primary bands are equal cost."
     }, {
       "argumentName": "source",
       "type": "Image\u003cunknown bands\u003e",
@@ -8959,7 +8968,7 @@
     }, {
       "argumentName": "kernel",
       "type": "Kernel",
-      "description": "The distance kernel.",
+      "description": "The distance kernel. One of chebyshev, euclidean, or manhattan.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -9213,7 +9222,7 @@
     }]
   }, {
     "name": "algorithms/Image.normalizedDifference",
-    "description": "Computes the normalized difference between two bands. If the bands to use are not specified, uses the first two bands. The normalized difference is computed as (first − second) / (first + second). Note that negative input values are forced to 0 so that the result is confined to the range (-1, 1).",
+    "description": "Computes the normalized difference between two bands. If the bands to use are not specified, uses the first two bands. The normalized difference is computed as (first − second) / (first + second). Note that the returned image band name is \u0027nd\u0027, the input image properties are not retained in the output image, and a negative pixel value in either input band will cause the output pixel to be masked. To avoid masking negative input values, use `ee.Image.expression()` to compute normalized difference.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -9228,7 +9237,7 @@
     }]
   }, {
     "name": "algorithms/Image.paint",
-    "description": "Paints the geometries of a collection onto an image.",
+    "description": "Paints the geometries of a collection onto an image, using the given \u0027color\u0027 value to replace each band\u0027s values where any geometry covers the image (or, if a line width is specified, where the perimeters do).\nThis algorithm is most suitable for converting categorical data from feature properties to pixels in an image; if you wish to visualize a collection, consider using FeatureCollection.style instead, which supports RGB colors whereas this algorithm is strictly \u0027monochrome\u0027 (using single numeric values).",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9241,13 +9250,13 @@
     }, {
       "argumentName": "color",
       "type": "Object",
-      "description": "Either the name of a color property or a number.",
+      "description": "The pixel value to paint into every band of the input image, either as a number which will be used for all features, or the name of a numeric property to take from each feature in the collection.",
       "optional": true,
       "defaultValue": 0.0
     }, {
       "argumentName": "width",
       "type": "Object",
-      "description": "Either the name of a line-width property or a number.",
+      "description": "Line width, either as a number which will be the line width for all geometries, or the name of a numeric property to take from each feature in the collection. If unspecified, the geometries will be filled instead of outlined.",
       "optional": true,
       "defaultValue": null
     }]
@@ -9713,11 +9722,11 @@
     }, {
       "argumentName": "from",
       "type": "List\u003cObject\u003e",
-      "description": "The source values (numbers or EEArrays). All values in this list will be mapped to the corresponding value in \u0027to\u0027."
+      "description": "The source values (numbers or ee.Array). All values in this list will be mapped to the corresponding value in \u0027to\u0027."
     }, {
       "argumentName": "to",
       "type": "List\u003cObject\u003e",
-      "description": "The destination values (numbers or EEArrays). These are used to replace the corresponding values in \u0027from\u0027. Must have the same number of values as \u0027from\u0027."
+      "description": "The destination values (numbers or ee.Array). These are used to replace the corresponding values in \u0027from\u0027. Must have the same number of values as \u0027from\u0027."
     }, {
       "argumentName": "defaultValue",
       "type": "Object",
@@ -10070,7 +10079,7 @@
     }, {
       "argumentName": "classValues",
       "type": "List\u003cInteger\u003e",
-      "description": "A list of class values for which to override the numPixels parameter. Must be the same size as classPoints or null.",
+      "description": "A list of class values for which to override the numPoints parameter. Must be the same size as classPoints or null.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -10397,7 +10406,7 @@
     }]
   }, {
     "name": "algorithms/Image.clipToBoundsAndScale",
-    "description": "Clips an image to the bounds of a Geometry, and scales the clipped image to a particular size or scale.\nCaution: providing a large or complex collection as input can result in poor performance. Collating the geometry of collections does not scale well, use the smallest collection (or geometry) that is required to achieve the desired outcome.",
+    "description": "Clips an image to the bounds of a Geometry, and scales the clipped image to a particular size or scale.\nCaution: providing a large or complex collection as the `geometry` argument can result in poor performance. Collating the geometry of collections does not scale well; use the smallest collection (or geometry) that is required to achieve the desired outcome.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -10746,7 +10755,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.combine",
-    "description": "Makes a new collection that is a copy of the images in primary, adding all the bands from the image in secondary with a matching ID. If there\u0027s no matching image, the primary image is just copied. This is equivalent to a join on ID with merging of the bands of the result.\nNote that this algorithm assumes that for a matching pair of inputs, both have the same footprint and metadata.",
+    "description": "Makes a new collection that is a copy of the images in primary, adding all the bands from the image in secondary with a matching ID. If there are no matching IDs, the resulting collection will be empty. This is equivalent to an inner join on ID with merging of the bands of the result.\nNote that this algorithm assumes that for a matching pair of inputs, both have the same footprint and metadata.",
     "returnType": "ImageCollection",
     "arguments": [{
       "argumentName": "primary",
@@ -13592,7 +13601,7 @@
     }]
   }, {
     "name": "algorithms/Array.length",
-    "description": "Returns a 1-D EEArray containing the length of each dimension of the given EEArray.",
+    "description": "Returns a 1-D ee.Array containing the length of each dimension of the given ee.Array.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "array",
@@ -16012,6 +16021,12 @@
       "description": "Format to return data in, either \u0027text\u0027 or \u0027json\u0027.",
       "optional": true,
       "defaultValue": "text"
+    }, {
+      "argumentName": "maxEntries",
+      "type": "Integer",
+      "description": "Maximum number of profile entries to return.\nIf the profiles requested collectively exceed this limit, some entries may be merged (values aggregated and description details replaced with \"(...)\") until the profile fits within this limit.\nIn addition to this limit, there are also inherent limits on the number of profile entries recorded, which cannot be raised.\nIf not specified, the default limit is 200.",
+      "optional": true,
+      "defaultValue": null
     }],
     "hidden": true
   }]

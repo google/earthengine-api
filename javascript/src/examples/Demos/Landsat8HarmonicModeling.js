@@ -1,5 +1,5 @@
 // Load a collection of Landsat TOA reflectance images.
-var landsatCollection = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA');
+var landsatCollection = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA');
 
 // Set the region of interest to a point.
 var roi = ee.Geometry.Point([-121.14, 37.98]);

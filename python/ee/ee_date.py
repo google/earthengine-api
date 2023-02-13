@@ -6,7 +6,6 @@
 # pylint: disable=g-bad-import-order
 import datetime
 import math
-import six
 
 from . import apifunction
 from . import computedobject
@@ -22,6 +21,9 @@ class Date(computedobject.ComputedObject):
   """An object to represent dates."""
 
   _initialized = False
+
+  # Tell pytype to not complain about dynamic attributes.
+  _HAS_DYNAMIC_ATTRIBUTES = True
 
   def __init__(self, date, opt_tz=None):
     """Construct a date.
@@ -48,10 +50,10 @@ class Date(computedobject.ComputedObject):
               math.floor(serializer.DatetimeToMicroseconds(date) / 1000)}
     elif types.isNumber(date):
       args = {'value': date}
-    elif isinstance(date, six.string_types):
+    elif isinstance(date, str):
       args = {'value': date}
       if opt_tz:
-        if isinstance(opt_tz, six.string_types):
+        if isinstance(opt_tz, str):
           args['timeZone'] = opt_tz
         else:
           raise ee_exception.EEException(

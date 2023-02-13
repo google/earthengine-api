@@ -25,7 +25,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.295';
+const API_CLIENT_VERSION = '0.1.340';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -158,6 +158,11 @@ class Call {
     return new api.ProjectsVideoApiClientImpl(
         apiVersion.VERSION, this.requestService);
   }
+  featureView() {
+    return new api.ProjectsFeatureViewApiClientImpl(
+        apiVersion.VERSION, this.requestService);
+  }
+
   thumbnails() {
     return new api.ProjectsThumbnailsApiClientImpl(
         apiVersion.VERSION, this.requestService);
@@ -1729,6 +1734,6 @@ exports.isAuthTokenRefreshingEnabled = apiclient.isAuthTokenRefreshingEnabled_;
 // library methods visible to user code.
 goog.exportSymbol('ee.api.ListAssetsResponse', api.ListAssetsResponse);
 goog.exportSymbol('ee.api.EarthEngineAsset', api.EarthEngineAsset);
-goog.exportSymbol('ee.api.ListImagesResponse', api.ListImagesResponse);
-goog.exportSymbol('ee.api.Image', api.Image);
 goog.exportSymbol('ee.api.Operation', api.Operation);
+goog.exportSymbol('ee.api.ListFeaturesResponse', api.ListFeaturesResponse);
+goog.exportSymbol('ee.api.FeatureViewLocation', api.FeatureViewLocation);

@@ -150,9 +150,9 @@ ee.data.Profiler = class extends goog.events.EventTarget {
     } else if (this.lastRefreshToken_) {
       return 'Loading...';
     } else {
-      var profiles = 0;
-      var nonTileProfiles = 0;
-      var tileProfiles = 0;
+      let profiles = 0;
+      let nonTileProfiles = 0;
+      let tileProfiles = 0;
       goog.object.forEach(this.profileIds_, function(refCount) {
         profiles++;
         if (refCount === Infinity) {
@@ -192,7 +192,7 @@ ee.data.Profiler = class extends goog.events.EventTarget {
   getProfileHook() {
     // Capture the current profileIds table so that if we get clearAndDrop()
     // then the data from here is effectively discarded.
-    var profileIds = this.profileIds_;
+    const profileIds = this.profileIds_;
 
     if (this.isEnabled_) {
       return goog.bind(function(profileId) {
@@ -215,7 +215,7 @@ ee.data.Profiler = class extends goog.events.EventTarget {
    * @private
    */
   removeProfile_(profileId) {
-    var count = this.profileIds_[profileId];
+    const count = this.profileIds_[profileId];
     if (count > 1) {
       // Reference count will be decremented but not to zero.
       this.profileIds_[profileId]--;
@@ -234,13 +234,13 @@ ee.data.Profiler = class extends goog.events.EventTarget {
    */
   refresh_(retryAttempt = 0) {
     // Create a unique object identity for this request.
-    var marker = {};
+    const marker = {};
     this.lastRefreshToken_ = marker;
     /**
      * @param{?Object|undefined} result Object obtained from getProfiles.
      * @param{string=} error Error message returned on failure.
      */
-    var handleResponse = (result, error) => {
+    const handleResponse = (result, error) => {
       if (marker != this.lastRefreshToken_) return;  // Superseded.
       if (error && typeof retryAttempt === 'number' &&
           retryAttempt < this.MAX_RETRY_COUNT_) {
@@ -257,15 +257,15 @@ ee.data.Profiler = class extends goog.events.EventTarget {
       this.dispatchEvent(ee.data.Profiler.EventType.DATA_CHANGED);
     };
 
-    var ids = goog.object.getKeys(this.profileIds_);
+    const ids = goog.object.getKeys(this.profileIds_);
     if (ids.length === 0) {
       // Shortcut: no input, so no output.
       handleResponse(
           ee.data.Profiler.getEmptyProfile_(this.format_), undefined);
     } else {
-      var getProfilesFn = this.showInternal_ ? 'Profile.getProfilesInternal' :
+      const getProfilesFn = this.showInternal_ ? 'Profile.getProfilesInternal' :
                                                'Profile.getProfiles';
-      var profileValue = ee.ApiFunction._apply(getProfilesFn, {
+      const profileValue = ee.ApiFunction._apply(getProfilesFn, {
         'ids': ids,
         'format': this.format_.toString(),
       });
@@ -304,7 +304,7 @@ ee.data.Profiler = class extends goog.events.EventTarget {
    * @param {string} tileId
    */
   removeTile(tileId) {
-    var profileId = this.tileProfileIds_[tileId];
+    const profileId = this.tileProfileIds_[tileId];
     if (!profileId) {
       // This can occur when profiling was not enabled before (or if a tileId is
       // duplicated, which should not occur).

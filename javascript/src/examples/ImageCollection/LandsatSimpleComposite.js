@@ -1,8 +1,8 @@
 // Composite 6 months of Landsat 8.
 
 // Note that the input to simpleComposite is raw data.
-var l8_filtered = ee.ImageCollection('LANDSAT/LC08/C01/T1').filterDate(
-  '2015-1-1', '2015-7-1');
+var l8_filtered = ee.ImageCollection('LANDSAT/LC08/C02/T1')
+  .filterDate('2015-1-1', '2015-7-1');
 
 // The asFloat parameter gives floating-point TOA output instead of
 // the UINT8 outputs of the default simpleComposite().

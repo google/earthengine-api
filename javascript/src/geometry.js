@@ -351,7 +351,7 @@ ee.Geometry.BBox = function(west, south, east, north) {
   const coordinates = [west, south, east, north];
   if (ee.Geometry.hasServerValue_(coordinates)) {
     // Some arguments cannot be handled in the client, so make a server call.
-    return new ee.ApiFunction('GeometryConstructors.BBox').apply(coordinates);
+    return new ee.ApiFunction('GeometryConstructors.BBox').call(...coordinates);
   }
   // Else proceed with client-side implementation.
 
@@ -660,6 +660,7 @@ goog.inherits(ee.Geometry.MultiPolygon, ee.Geometry);
  * @param {function(*): *=} opt_encoder A function that can be called to encode
  *    the components of an object.
  * @return {*} An encoded representation of the geometry.
+ * @override
  */
 ee.Geometry.prototype.encode = function(opt_encoder) {
   if (!this.type_) {

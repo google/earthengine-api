@@ -48,7 +48,7 @@ ee.Image = function(opt_args) {
 
   ee.Image.initialize();
 
-  var argCount = arguments.length;
+  const argCount = arguments.length;
   if (argCount == 0 || (argCount == 1 && opt_args === undefined)) {
     ee.Image.base(this, 'constructor', new ee.ApiFunction('Image.mask'), {
       'image': new ee.Image(0),
@@ -84,8 +84,8 @@ ee.Image = function(opt_args) {
     }
   } else if (argCount == 2) {
     // An ID and version.
-    var id = arguments[0];
-    var version = arguments[1];
+    const id = arguments[0];
+    const version = arguments[1];
     if (ee.Types.isString(id) && ee.Types.isNumber(version)) {
       ee.Image.base(this, 'constructor', new ee.ApiFunction('Image.load'), {
         'id': id,
@@ -143,6 +143,7 @@ ee.Image.reset = function() {
  *     - bands - a list containing metadata about the bands in the collection.
  *     - properties - a dictionary containing the image's metadata properties.
  * @export
+ * @override
  */
 ee.Image.prototype.getInfo = function(opt_callback) {
   return /** @type {ee.data.ImageDescription} */(
@@ -164,10 +165,10 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  * @export
  */
 ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extractFromFunction(
+  const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getMap, arguments);
 
-  var request = ee.data.images.applyVisualization(this, args['visParams']);
+  const request = ee.data.images.applyVisualization(this, args['visParams']);
 
   if (args['callback']) {
     const callback =
@@ -183,7 +184,7 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
           callback(mapId, error);
         });
   } else {
-    var response =
+    const response =
         /** @type {!ee.data.MapId} */ (ee.data.getMapId(request));
     response.image = this;
     return response;
@@ -353,7 +354,7 @@ ee.Image.prototype.getThumbURL = function(params, opt_callback) {
  * @export
  */
 ee.Image.rgb = function(r, g, b) {
-  var args = ee.arguments.extractFromFunction(ee.Image.rgb, arguments);
+  const args = ee.arguments.extractFromFunction(ee.Image.rgb, arguments);
   return ee.Image.combine_(
       [args['r'], args['g'], args['b']],
       ['vis-red', 'vis-green', 'vis-blue']);
@@ -361,14 +362,22 @@ ee.Image.rgb = function(r, g, b) {
 
 
 /**
- * Concatenate the given images together into a single image.
+ * Combines the given images into a single image which contains all bands from
+ * all of the images.
+ *
+ * If two or more bands share a name, they are suffixed with an incrementing
+ * index.
+ *
+ * The resulting image will have the metadata from the first input image, only.
+ *
+ * This function will promote constant values into constant images.
  *
  * @param {...ee.Image} var_args The images to be combined.
  * @return {ee.Image} The combined image.
  * @export
  */
 ee.Image.cat = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
+  const args = Array.prototype.slice.call(arguments);
   return ee.Image.combine_(args, null);
 };
 
@@ -388,8 +397,8 @@ ee.Image.combine_ = function(images, opt_names) {
   }
 
   // Append all the bands.
-  var result = new ee.Image(images[0]);
-  for (var i = 1; i < images.length; i++) {
+  let result = new ee.Image(images[0]);
+  for (let i = 1; i < images.length; i++) {
     result = /** @type {!ee.Image} */ (
         ee.ApiFunction._call('Image.addBands', result, images[i]));
   }
@@ -419,9 +428,9 @@ ee.Image.combine_ = function(images, opt_names) {
  * @export
  */
 ee.Image.prototype.select = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
+  const args = Array.prototype.slice.call(arguments);
 
-  var algorithmArgs = {
+  const algorithmArgs = {
     'input': this,
     'bandSelectors': args[0] || []
   };
@@ -432,9 +441,9 @@ ee.Image.prototype.select = function(var_args) {
       ee.Types.isString(args[0]) ||
       ee.Types.isNumber(args[0])) {
     // Varargs inputs.
-    var selectors = args;
+    const selectors = args;
     // Verify we didn't get anything unexpected.
-    for (var i = 0; i < selectors.length; i++) {
+    for (let i = 0; i < selectors.length; i++) {
       if (!ee.Types.isString(selectors[i]) &&
           !ee.Types.isNumber(selectors[i]) &&
           !(selectors[i] instanceof ee.ComputedObject)) {
@@ -474,28 +483,28 @@ ee.Image.prototype.select = function(var_args) {
  * @export
  */
 ee.Image.prototype.expression = function(expression, opt_map) {
-  var originalArgs = ee.arguments.extractFromFunction(
+  const originalArgs = ee.arguments.extractFromFunction(
       ee.Image.prototype.expression, arguments);
 
-  var eeArgName = 'DEFAULT_EXPRESSION_IMAGE';
-  var vars = [eeArgName];
-  var eeArgs = goog.object.create(eeArgName, this);
+  const eeArgName = 'DEFAULT_EXPRESSION_IMAGE';
+  const vars = [eeArgName];
+  const eeArgs = goog.object.create(eeArgName, this);
 
   // Add custom arguments, promoting them to Images manually.
   if (originalArgs['map']) {
-    var map = originalArgs['map'];
-    for (var name in map) {
+    const map = originalArgs['map'];
+    for (const name in map) {
       vars.push(name);
       eeArgs[name] = new ee.Image(map[name]);
     }
   }
 
-  var body = ee.ApiFunction._call('Image.parseExpression',
+  const body = ee.ApiFunction._call('Image.parseExpression',
       originalArgs['expression'], eeArgName, vars);
 
   // Reinterpret the body call as an ee.Function by hand-generating the
   // signature so the computed function knows its input and output types.
-  var func = new ee.Function();
+  const func = new ee.Function();
   func.encode = function(encoder) {
     return body.encode(encoder);
   };
@@ -564,7 +573,7 @@ ee.Image.prototype.clip = function(geometry) {
  * @export
  */
 ee.Image.prototype.rename = function(var_args) {
-  var names;
+  let names;
   if (arguments.length == 1 && !ee.Types.isString(arguments[0])) {
     // An array.
     names = arguments[0];

@@ -24,12 +24,12 @@ type Primitive = string|number|boolean|null|undefined;
  * i.e., {a: {b: {c: boolean}}} gets transformed into {a?: {b?: {c?: boolean}}}
  */
 export type DeepPartialISerializable<T> =
-    T extends Primitive ? Partial<T>: T extends object ?
+    T extends Primitive ? Partial<T>: T extends ISerializable ?
     Omit<
         {[K in keyof T]?: DeepPartialISerializable<T[K]>},
-        'Serializable$get'|'Serializable$has'|'Serializable$set'|
-        'getClassMetadata'|'getConstructor'|'getPartialClassMetadata'>:
-    unknown;
+        keyof ISerializable|'getPartialClassMetadata'>:
+    T extends object ? {[K in keyof T]?: DeepPartialISerializable<T[K]>} :
+                       unknown;
 
 /**
  * Description of the properties in a Serializable class.
@@ -258,7 +258,7 @@ type CopyInstanciator<T> = (ctor: CopyConstructor) => T;
  * @param copyInstanciator Function used to make new target instances.
  * @param targetConstructor Optional. The target's constructor function.
  */
-function deepCopy<T>(
+function deepCopy<T extends {}>(
     source: unknown, valueGetter: CopyValueGetter, valueSetter: CopyValueSetter,
     copyInstanciator: CopyInstanciator<T>,
     targetConstructor?: CopyConstructor): T {
@@ -322,7 +322,7 @@ function deepCopy<T>(
   return target;
 }
 
-function deepCopyObjectMap<T>(
+function deepCopyObjectMap<T extends {}>(
     value: ObjectMap<{}>, mapMetadata: ObjectMapMetadata,
     valueGetter: CopyValueGetter, valueSetter: CopyValueSetter,
     copyInstanciator: CopyInstanciator<T>) {
@@ -337,7 +337,7 @@ function deepCopyObjectMap<T>(
   return objMap;
 }
 
-function deepCopyValue<T>(
+function deepCopyValue<T extends {}>(
     value: {}, valueGetter: CopyValueGetter, valueSetter: CopyValueSetter,
     copyInstanciator: CopyInstanciator<T>, isArray: boolean, isRef: boolean,
     ctor?: CopyConstructor) {
@@ -561,7 +561,7 @@ function deepEqualsValue(
   return true;
 }
 
-function sameKeys<T>(a: T, b: T) {
+function sameKeys<T extends {}>(a: T, b: T) {
   if (typeof a !== typeof b || Array.isArray(a) !== Array.isArray(b)) {
     throw new Error('Types are not comparable.');
   }

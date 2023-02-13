@@ -6,12 +6,7 @@ defines the supported positional and optional arguments, as well as
 the actions to be taken when the command is executed.
 """
 
-from __future__ import absolute_import
-from __future__ import division
-from __future__ import print_function
-
 # pylint: disable=g-bad-import-order
-from six.moves import range
 import argparse
 import calendar
 from collections import Counter
@@ -20,7 +15,7 @@ import json
 import logging
 import os
 import re
-import six
+import urllib.parse
 import shutil
 import sys
 import tempfile
@@ -379,17 +374,26 @@ class AuthenticateCommand(object):
     parser.add_argument(
         '--quiet',
         action='store_true',
-        help='Do not issue any interactive prompts.')
+        help='Do not prompt for input, and run gcloud in no-browser mode.')
     parser.add_argument(
         '--code-verifier',
         help='PKCE verifier to prevent auth code stealing.')
+    parser.add_argument(
+        '--auth_mode',
+        help='One of: notebook - use notebook authenticator; gcloud - use'
+        ' gcloud; appdefault - read GOOGLE_APPLICATION_CREDENTIALS;'
+        ' localhost[:PORT] - use local browser')
+    parser.add_argument(
+        '--scopes', help='Optional comma-separated list of scopes.')
 
   def run(self, args, unused_config):
     """Prompts for an auth code, requests a token and saves it."""
 
     # Filter for arguments relevant for ee.Authenticate()
     args_auth = {x: vars(args)[x] for x in (
-        'authorization_code', 'quiet', 'code_verifier')}
+        'authorization_code', 'quiet', 'code_verifier', 'auth_mode')}
+    if args.scopes:
+      args_auth['scopes'] = args.scopes.split(',')
     ee.Authenticate(**args_auth)
 
 
@@ -520,7 +524,7 @@ class AclChCommand(object):
 
   def _apply_permissions(self, acl, permissions):
     """Applies the given permission edits to the given acl."""
-    for user, role in six.iteritems(permissions):
+    for user, role in permissions.items():
       if self._is_all_users(user):
         acl[ALL_USERS_CAN_READ] = (role == 'R')
       elif role == 'R':
@@ -665,7 +669,7 @@ class AssetSetCommand(object):
     asset = {}
     if properties:
       asset['properties'] = {
-          k: v for k, v in six.iteritems(properties) if v is not None
+          k: v for k, v in properties.items() if v is not None
       }
     # args.time_start and .time_end could have any of three falsy values, with
     # different meanings:
@@ -1088,7 +1092,9 @@ class TaskListCommand(object):
         '--long_format',
         '-l',
         action='store_true',
-        help='Print output in long format.')
+        help=('Print output in long format. Extra columns are: creation time, '
+              'start time, update time, EECU-seconds, output URLs.')
+    )
 
   def run(self, args, config):
     """Lists tasks present for a user, maybe filtering by state."""
@@ -1106,10 +1112,14 @@ class TaskListCommand(object):
       extra = ''
       if args.long_format:
         show_date = lambda ms: _parse_millis(ms).strftime('%Y-%m-%d %H:%M:%S')
-        extra = ' {:20s} {:20s} {:20s} {}'.format(
+        eecu = '{:.4f}'.format(
+            task['batch_eecu_usage_seconds']
+        ) if 'batch_eecu_usage_seconds' in task else '-'
+        extra = ' {:20s} {:20s} {:20s} {:11s} {}'.format(
             show_date(task['creation_timestamp_ms']),
             show_date(task['start_timestamp_ms']),
             show_date(task['update_timestamp_ms']),
+            eecu,
             ' '.join(task.get('destination_uris', [])))
       print(format_str.format(
           task['id'], task_type, truncated_desc,
@@ -1646,8 +1656,7 @@ class PrepareModelCommand(object):
               source_flag_name))
 
     for k, v in spec.items():
-      if ((not isinstance(k, six.string_types)) or
-          (not isinstance(v, six.string_types))):
+      if ((not isinstance(k, str)) or (not isinstance(v, str))):
         raise ValueError('All key/value pairs of the dictionary specified in '
                          '{} must be strings.'.format(source_flag_name))
 

@@ -10,7 +10,7 @@ The public function styling uses camelCase to match the JavaScript names.
 
 # pylint: disable=g-bad-import-order
 import json
-import six
+import re
 
 from . import _cloud_api_utils
 from . import data
@@ -46,6 +46,7 @@ class Task(object):
     """
     self.id = self._request_id = task_id
     self.config = config and config.copy()
+    self.workload_tag = data.getWorkloadTag()
     self.task_type = task_type
     self.state = state
     self.name = name
@@ -70,6 +71,7 @@ class Task(object):
     DRIVE = 'DRIVE'
     GCS = 'GOOGLE_CLOUD_STORAGE'
     ASSET = 'ASSET'
+    FEATURE_VIEW = 'FEATURE_VIEW'
 
   def start(self):
     """Starts the task. No-op for started tasks."""
@@ -78,6 +80,11 @@ class Task(object):
           'Task config must be specified for tasks to be started.')
     if not self._request_id:
       self._request_id = data.newTaskId()[0]
+
+    # Supply the workload tag, even if empty, to prevent it from being reset
+    # later.
+    if 'workloadTag' not in self.config:
+      self.config['workloadTag'] = self.workload_tag
 
     if self.task_type == Task.Type.EXPORT_IMAGE:
       result = data.exportImage(self._request_id, self.config)
@@ -232,10 +239,18 @@ class Export(object):
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toAsset(image, description='myExportImageTask', assetId=None,
-                pyramidingPolicy=None, dimensions=None, region=None,
-                scale=None, crs=None, crsTransform=None, maxPixels=None,
-                **kwargs):
+    def toAsset(
+        image,
+        description='myExportImageTask',
+        assetId=None,
+        pyramidingPolicy=None,
+        dimensions=None,
+        region=None,
+        scale=None,
+        crs=None,
+        crsTransform=None,
+        maxPixels=None,
+        **kwargs):
       """Creates a task to export an EE Image to an EE Asset.
 
       Args:
@@ -432,10 +447,19 @@ class Export(object):
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toCloudStorage(image, description='myExportMapTask', bucket=None,
-                       fileFormat=None, path=None, writePublicTiles=None,
-                       maxZoom=None, scale=None, minZoom=None,
-                       region=None, skipEmptyTiles=None, mapsApiKey=None,
+    def toCloudStorage(image,
+                       description='myExportMapTask',
+                       bucket=None,
+                       fileFormat=None,
+                       path=None,
+                       writePublicTiles=None,
+                       maxZoom=None,
+                       scale=None,
+                       minZoom=None,
+                       region=None,
+                       skipEmptyTiles=None,
+                       mapsApiKey=None,
+                       bucketCorsUris=None,
                        **kwargs):
       """Creates a task to export an Image as a pyramid of map tiles.
 
@@ -471,6 +495,13 @@ class Export(object):
             map tiles. Defaults to false.
         mapsApiKey: Used in index.html to initialize the Google Maps API. This
             removes the "development purposes only" message from the map.
+        bucketCorsUris: A list of domains that are allowed to retrieve the
+            exported tiles from JavaScript. Setting the tiles to public is not
+            enough to allow them to be accessible by a web page, so you must
+            explicitly give domains access to the bucket. This is known as
+            Cross-Origin-Resource-Sharing, or CORS. You can allow all domains to
+            have access using "*", but this is generally discouraged. See
+            https://cloud.google.com/storage/docs/cross-origin for more details.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -493,7 +524,8 @@ class Export(object):
     def __new__(cls, collection, description='myExportTableTask', config=None):
       """Export an EE FeatureCollection as a table.
 
-      The exported table will reside in Google Drive or Cloud Storage.
+      The exported table will reside in Google Drive, Cloud Storage, or as a
+      FeatureView.
 
       Args:
         collection: The feature collection to be exported.
@@ -516,6 +548,11 @@ class Export(object):
             If exporting to Google Cloud Storage:
             - outputBucket: The name of a Cloud Storage bucket for the export.
             - outputPrefix: Cloud Storage object name prefix for the export.
+            If exporting to FeatureView:
+            - thinning_options: Options that control the density at which
+              features are displayed per tile.
+            - ranking_options: Options for assigning z-order ranks and thinning
+              ranks to features.
 
       Returns:
         An unstarted Task that exports the table.
@@ -605,11 +642,12 @@ class Export(object):
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
     @staticmethod
-    def toAsset(collection,
-                description='myExportTableTask',
-                assetId=None,
-                maxVertices=None,
-                **kwargs):
+    def toAsset(
+        collection,
+        description='myExportTableTask',
+        assetId=None,
+        maxVertices=None,
+        **kwargs):
       """Creates a task to export a FeatureCollection to an EE table asset.
 
       Args:
@@ -624,9 +662,43 @@ class Export(object):
       Returns:
         An unstarted Task that exports the table.
       """
-      config = _capture_parameters(locals(), ['collection'])
+      config = {
+          'description': description,
+          'assetId': assetId,
+          'maxVertices': maxVertices,
+      }
+      config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
                                             Task.ExportDestination.ASSET)
+      return _create_export_task(config, Task.Type.EXPORT_TABLE)
+
+    @staticmethod
+    def toFeatureView(
+        collection,
+        description='myExportTableTask',
+        assetId=None,
+        ingestionTimeParameters=None,
+        **kwargs):
+      """Creates a task to export a FeatureCollection to a FeatureView.
+
+      Args:
+        collection: The feature collection to be exported.
+        description: Human-readable name of the task.
+        assetId: The destination asset ID.
+        ingestionTimeParameters: The FeatureView ingestion time parameters.
+        **kwargs: Holds other keyword arguments that may have been deprecated.
+
+      Returns:
+        An unstarted Task that exports the table.
+      """
+      config = {
+          'description': description,
+          'assetId': assetId,
+          'ingestionTimeParameters': ingestionTimeParameters,
+      }
+      config = {k: v for k, v, in config.items() if v is not None}
+      config = _prepare_table_export_config(collection, config,
+                                            Task.ExportDestination.FEATURE_VIEW)
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
   class video(object):
@@ -944,8 +1016,7 @@ def _prepare_image_export_config(image, config, export_destination):
             'pyramidingPolicy'] = pyramiding_policy.pop('.default').upper()
       if pyramiding_policy:
         asset_export_options['pyramidingPolicyOverrides'] = {
-            band: policy.upper()
-            for band, policy in six.iteritems(pyramiding_policy)
+            band: policy.upper() for band, policy in pyramiding_policy.items()
         }
     request['assetExportOptions'] = asset_export_options
   else:
@@ -959,7 +1030,7 @@ def _prepare_image_export_config(image, config, export_destination):
 
   # This can only be set by internal users.
   if 'maxWorkers' in config:
-    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+    request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
 
   # Of the remaining fields in ExportImageRequest:
   # - All the values that would go into the PixelGrid should have been folded
@@ -1008,7 +1079,7 @@ def _prepare_map_export_config(image, config):
       config, Task.ExportDestination.GCS)
   # This can only be set by internal users.
   if 'maxWorkers' in config:
-    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+    request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
   if config:
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
@@ -1026,8 +1097,8 @@ def _prepare_table_export_config(collection, config, export_destination):
   Returns:
     A config dict containing all information required for the export.
   """
-  if (export_destination != Task.ExportDestination.ASSET
-     ):
+  if (export_destination != Task.ExportDestination.ASSET and
+      export_destination != Task.ExportDestination.FEATURE_VIEW):
     if 'fileFormat' not in config:
       config['fileFormat'] = 'CSV'
 
@@ -1045,6 +1116,14 @@ def _prepare_table_export_config(collection, config, export_destination):
     request['assetExportOptions'] = {
         'earthEngineDestination': _build_earth_engine_destination(config)
     }
+  elif export_destination == Task.ExportDestination.FEATURE_VIEW:
+    request['featureViewExportOptions'] = {
+        'featureViewDestination':
+            _build_feature_view_destination(config),
+        'ingestionTimeParameters':
+            build_ingestion_time_parameters(
+                config.pop('ingestionTimeParameters', None))
+    }
   else:
     request['fileExportOptions'] = _build_table_file_export_options(
         config, export_destination)
@@ -1059,7 +1138,7 @@ def _prepare_table_export_config(collection, config, export_destination):
 
   # This can only be set by internal users.
   if 'maxWorkers' in config:
-    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+    request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
 
   if config:
     raise ee_exception.EEException(
@@ -1095,7 +1174,7 @@ def _prepare_video_export_config(collection, config, export_destination):
       config, export_destination)
   # This can only be set by internal users.
   if 'maxWorkers' in config:
-    request['maxWorkerCount'] = {'value': int(config.pop('maxWorkers'))}
+    request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
 
   if config:
     raise ee_exception.EEException(
@@ -1125,7 +1204,7 @@ def _build_image_file_export_options(config, export_destination):
         config)
   elif export_destination == Task.ExportDestination.GCS:
     file_export_options[
-        'gcsDestination'] = _build_gcs_destination(
+        'cloudStorageDestination'] = _build_cloud_storage_destination(
             config)
   else:
     raise ee_exception.EEException(
@@ -1143,7 +1222,7 @@ def _build_image_file_export_options(config, export_destination):
         raise ee_exception.EEException('File dimensions specified twice.')
       file_dimensions = config.pop('fileDimensions')
     if file_dimensions is not None:
-      if isinstance(file_dimensions, six.integer_types):
+      if isinstance(file_dimensions, int):
         file_dimensions = (file_dimensions, file_dimensions)
       geo_tiff_options['tileDimensions'] = {
           'width': file_dimensions[0],
@@ -1223,7 +1302,7 @@ def _build_table_file_export_options(config, export_destination):
         config)
   elif export_destination == Task.ExportDestination.GCS:
     file_export_options[
-        'gcsDestination'] = _build_gcs_destination(
+        'cloudStorageDestination'] = _build_cloud_storage_destination(
             config)
   else:
     raise ee_exception.EEException(
@@ -1274,7 +1353,7 @@ def _build_video_file_export_options(config, export_destination):
         config)
   elif export_destination == Task.ExportDestination.GCS:
     file_export_options[
-        'gcsDestination'] = _build_gcs_destination(
+        'cloudStorageDestination'] = _build_cloud_storage_destination(
             config)
   else:
     raise ee_exception.EEException(
@@ -1326,24 +1405,25 @@ def _build_drive_destination(config):
   return drive_destination
 
 
-def _build_gcs_destination(config):
-  """Builds a GcsDestination from values in a config dict.
+def _build_cloud_storage_destination(config):
+  """Builds a CloudStorageDestination from values in a config dict.
 
   Args:
     config: All the user-specified export parameters. Will be modified in-place
-      by removing parameters used in the GcsDestination.
+      by removing parameters used in the CloudStorageDestination.
 
   Returns:
-    A GcsDestination containing information extracted from
+    A CloudStorageDestination containing information extracted from
     config.
   """
-  cloud_storage_export_destination = {'bucket': config.pop('outputBucket')}
+  destination = {'bucket': config.pop('outputBucket')}
   if 'outputPrefix' in config:
-    cloud_storage_export_destination['filenamePrefix'] = config.pop(
-        'outputPrefix')
+    destination['filenamePrefix'] = config.pop('outputPrefix')
+  if 'bucketCorsUris' in config:
+    destination['bucketCorsUris'] = config.pop('bucketCorsUris')
   if config.pop('writePublicTiles', False):
-    cloud_storage_export_destination['permissions'] = 'PUBLIC'
-  return cloud_storage_export_destination
+    destination['permissions'] = 'PUBLIC'
+  return destination
 
 
 def _build_tile_options(config):
@@ -1361,16 +1441,27 @@ def _build_tile_options(config):
   if 'maxZoom' in config:
     if 'scale' in config:
       raise ee_exception.EEException('Both maxZoom and scale are specified.')
-    tile_options['maxZoom'] = config.pop('maxZoom')
+    tile_options['endZoom'] = config.pop('maxZoom')
+
+  if 'endZoom' in config:
+    if 'scale' in config:
+      raise ee_exception.EEException('Both endZoom and scale are specified.')
+    tile_options['endZoom'] = config.pop('endZoom')
 
   if 'scale' in config:
     tile_options['scale'] = config.pop('scale')
 
   if 'minZoom' in config:
-    tile_options['minZoom'] = config.pop('minZoom')
+    tile_options['startZoom'] = config.pop('minZoom')
+
+  if 'startZoom' in config:
+    tile_options['startZoom'] = config.pop('startZoom')
 
   if config.pop('skipEmptyTiles', False):
-    tile_options['skipEmptyTiles'] = True
+    tile_options['skipEmpty'] = True
+
+  if 'skipEmpty' in config:
+    tile_options['skipEmpty'] = config.pop('skipEmpty')
 
   if 'mapsApiKey' in config:
     tile_options['mapsApiKey'] = config.pop('mapsApiKey')
@@ -1390,9 +1481,164 @@ def _build_earth_engine_destination(config):
     config.
   """
   return {
-      'name': _cloud_api_utils.convert_asset_id_to_asset_name(
-          config.pop('assetId'))
+      'name':
+          _cloud_api_utils.convert_asset_id_to_asset_name(
+              config.pop('assetId')),
   }
+
+
+def _build_feature_view_destination(config):
+  """Builds a FeatureViewDestination from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the FeatureViewDestination.
+
+  Returns:
+    A FeatureViewDestination containing information extracted from config.
+  """
+  feature_view_destination = {
+      'name':
+          _cloud_api_utils.convert_asset_id_to_asset_name(
+              config.pop('assetId')),
+  }
+  return feature_view_destination
+
+
+def _get_rank_by_one_thing_rule(rule_str):
+  """Returns a RankByOneThingRule dict created from the rank-by-one-thing rule.
+
+  Args:
+    rule_str: The rule string. The string is expected in the format:
+      `rule_type rule_direction`. Valid rule types include `.minZoomLevel`,
+      `.geometryType`, or an arbitrary string to represent attribute rules.
+      Valid rule directions include `ASC` or `DESC`.
+
+  Returns:
+    A RankByOneThingRule object containing information extracted from rule_str.
+  """
+  matches = re.findall(r'^([\S]+.*)\s+(ASC|DESC)$', rule_str.strip())
+  if not matches:
+    raise ee_exception.EEException(
+        ('Ranking rule format is invalid. Each rule should be defined by a '
+         'rule type and a direction (ASC or DESC), separated by a space. '
+         'Valid rule types are: .geometryType, .minZoomLevel, or a feature '
+         'property name.'))
+
+  output = {}
+  rule_type, rule_dir = matches[0]
+
+  if rule_type == '.geometryType':
+    output['rankByGeometryTypeRule'] = {}
+  elif rule_type == '.minZoomLevel':
+    output['rankByMinZoomLevelRule'] = {}
+  else:
+    output['rankByAttributeRule'] = {'attributeName': rule_type}
+
+  if rule_dir.upper() == 'ASC':
+    output['direction'] = 'ASCENDING'
+  elif rule_dir.upper() == 'DESC':
+    output['direction'] = 'DESCENDING'
+  return output
+
+
+def _get_ranking_rule(rules):
+  """Returns a RankingRule dict created from the rank-by-one-thing rules.
+
+  Args:
+    rules: A string representing comma separated rank-by-one-thing rules, or a
+      list of rank-by-one-thing rule strings.
+
+  Returns:
+    A RankingRule object containing information extracted from rules.
+  """
+  if not rules:
+    return None
+
+  rules_arr = rules
+  if isinstance(rules, str):
+    rules_arr = rules.split(',')
+  if isinstance(rules_arr, list):
+    rank_by_one_thing_rules = list(
+        map(_get_rank_by_one_thing_rule, rules_arr))
+    return {'rankByOneThingRule': rank_by_one_thing_rules}
+
+  raise ee_exception.EEException(
+      ('Unable to build ranking rule from rules. Rules should '
+       'either be a comma-separated string or list of strings.'))
+
+
+def _build_thinning_options(config):
+  """Returns a ThinningOptions dict created from the config.
+
+  Args:
+    config: The user-specified ingestion parameters. Will be modified in-place
+      by removing parameters used in the ThinningOptions.
+
+  Returns:
+    A ThinningOptions object containing information extracted from config.
+  """
+  if not config:
+    return None
+
+  output = {}
+  for key in ['maxFeaturesPerTile', 'thinningStrategy']:
+    if key in config:
+      output[key] = config.pop(key)
+  return output
+
+
+def _build_ranking_options(config):
+  """Returns a RankingOptions dict created from the config.
+
+  Args:
+    config: The user-specified export parameters. Will be modified in-place
+      by removing parameters used in the RankingOptions.
+
+  Returns:
+    A RankingOptions object containing information extracted from config.
+  """
+  if not config:
+    return None
+
+  output = {}
+  thinning_ranking = config.pop('thinningRanking', None)
+  thinning_ranking_rule = _get_ranking_rule(thinning_ranking)
+  if thinning_ranking_rule:
+    output['thinningRankingRule'] = thinning_ranking_rule
+  z_order_ranking = config.pop('zOrderRanking', None)
+  z_order_ranking_rule = _get_ranking_rule(z_order_ranking)
+  if z_order_ranking_rule:
+    output['zOrderRankingRule'] = z_order_ranking_rule
+  return output
+
+
+def build_ingestion_time_parameters(input_params):
+  """Builds a FeatureViewIngestionTimeParameters from values in a params dict.
+
+  Args:
+    input_params: All the user-specified ingestions time parameters. Will be
+      modified in-place to remove fields in FeatureViewIngestionTimeParameters.
+
+  Returns:
+    A FeatureViewIngestionTimeParameters containing information extracted from
+    config.
+  """
+  output_params = {}
+
+  thinning_options = _build_thinning_options(input_params)
+  if thinning_options:
+    output_params['thinningOptions'] = thinning_options
+
+  ranking_options = _build_ranking_options(input_params)
+  if ranking_options:
+    output_params['rankingOptions'] = ranking_options
+
+  if input_params:
+    raise ee_exception.EEException(
+        'The following keys are unrecognized in the ingestion parameters: %s' %
+        list(input_params.keys()))
+  return output_params
 
 
 def _create_export_task(config, task_type):
@@ -1425,7 +1671,7 @@ def _capture_parameters(all_locals, parameters_to_exclude):
     A dict containing all the non-None values in all_locals, except for
     those listed in parameters_to_exclude.
   """
-  result = {k: v for k, v in six.iteritems(all_locals) if v is not None}
+  result = {k: v for k, v in all_locals.items() if v is not None}
   for parameter_to_exclude in parameters_to_exclude:
     if parameter_to_exclude in result:
       del result[parameter_to_exclude]
@@ -1479,8 +1725,7 @@ def _canonicalize_parameters(config, destination):
   if 'region' in config:
     config['region'] = _canonicalize_region(config['region'])
 
-  if 'selectors' in config and isinstance(config['selectors'],
-                                          six.string_types):
+  if 'selectors' in config and isinstance(config['selectors'], str):
     config['selectors'] = config['selectors'].split(',')
 
   if destination == Task.ExportDestination.GCS:
@@ -1498,8 +1743,8 @@ def _canonicalize_parameters(config, destination):
 
     if 'driveFileNamePrefix' not in config and 'description' in config:
       config['driveFileNamePrefix'] = config['description']
-  elif (destination != Task.ExportDestination.ASSET
-       ):
+  elif (destination != Task.ExportDestination.ASSET and
+        destination != Task.ExportDestination.FEATURE_VIEW):
     raise ee_exception.EEException('Unknown export destination.')
 
   if (IMAGE_FORMAT_FIELD in config and
@@ -1507,7 +1752,7 @@ def _canonicalize_parameters(config, destination):
     prefix = FORMAT_PREFIX_MAP[config[IMAGE_FORMAT_FIELD].upper()]
     format_options = config.get(IMAGE_FORMAT_OPTIONS_FIELD, {})
     keys_to_delete = []
-    for key, value in six.iteritems(config):
+    for key, value in config.items():
       if key.startswith(prefix):
         # Transform like "tiffSomeKey" -> "someKey"
         remapped_key = key[len(prefix):]
@@ -1534,7 +1779,7 @@ def _canonicalize_region(region):
   if isinstance(region, geometry.Geometry):
     return region
 
-  if isinstance(region, six.string_types):
+  if isinstance(region, str):
     try:
       region = json.loads(region)
     except:

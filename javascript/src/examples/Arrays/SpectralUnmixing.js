@@ -1,7 +1,7 @@
 // Array-based spectral unmixing.
 
 // Create a mosaic of Landsat 5 images from June through September, 2007.
-var allBandMosaic = ee.ImageCollection('LANDSAT/LT05/C01/T1')
+var allBandMosaic = ee.ImageCollection('LANDSAT/LT05/C02/T1')
   .filterDate('2007-06-01', '2007-09-30')
   .select('B[0-7]')
   .median();

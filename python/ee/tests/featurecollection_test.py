@@ -5,6 +5,7 @@
 
 from unittest import mock
 
+from ee import _cloud_api_utils
 import unittest
 
 import ee
@@ -96,7 +97,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
       url = ee.data.makeTableDownloadUrl(result)
 
       self.assertDictEqual(result, {'docid': '5', 'token': '6'})
-      self.assertEqual(url, '/v1alpha/5:getFeatures')
+      self.assertEqual(url, f'/{_cloud_api_utils.VERSION}/5:getFeatures')
 
   def testSelect(self):
     def equals(c1, c2):

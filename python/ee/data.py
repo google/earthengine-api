@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Singleton for the library's communication with the Earth Engine API."""
 
-from __future__ import print_function
-
 
 
 # Using lowercase function naming to match the JavaScript names.
@@ -15,8 +13,7 @@ import platform
 import re
 import threading
 import uuid
-
-import six
+import sys
 from google_auth_httplib2 import AuthorizedHttp
 
 from . import __version__
@@ -101,6 +98,9 @@ _USER_PROJECT_OVERRIDE_HEADER = 'X-Goog-User-Project'
 # The HTTP header used to indicate the version of the client library used.
 _API_CLIENT_VERSION_HEADER = 'X-Goog-Api-Client'
 
+# Optional HTTP header returned to display initialization-time messages.
+_INIT_MESSAGE_HEADER = 'x-earth-engine-init-message'  # lowercase for httplib2
+
 # Maximum number of times to retry a rate-limited request.
 MAX_RETRIES = 5
 
@@ -135,6 +135,9 @@ MAX_TYPE_LENGTH = len(ASSET_TYPE_IMAGE_COLL_CLOUD)
 # The maximum number of tasks to retrieve in each request to "/tasklist".
 _TASKLIST_PAGE_SIZE = 500
 
+# Next page token key for list endpoints.
+_NEXT_PAGE_TOKEN_KEY = 'nextPageToken'
+
 
 def initialize(credentials=None,
                api_base_url=None,
@@ -158,7 +161,7 @@ def initialize(credentials=None,
     tile_base_url: The EarthEngine REST tile endpoint.
     cloud_api_base_url: The EarthEngine Cloud API endpoint.
     cloud_api_key: The API key to use with the Cloud API.
-    project: The default cloud project associated with the user.
+    project: The client project ID or number to use when making API calls.
     http_transport: The http transport to use
   """
   global _api_base_url, _tile_base_url, _credentials, _initialized
@@ -216,15 +219,7 @@ def get_persistent_credentials():
     OAuth2Credentials built from persistently stored refresh_token
   """
   try:
-    tokens = json.load(open(oauth.get_credentials_path()))
-    refresh_token = tokens['refresh_token']
-    return Credentials(
-        None,
-        refresh_token=refresh_token,
-        token_uri=oauth.TOKEN_URI,
-        client_id=oauth.CLIENT_ID,
-        client_secret=oauth.CLIENT_SECRET,
-        scopes=oauth.SCOPES)
+    return Credentials(None, **oauth.get_credentials_arguments())
   except IOError:
     raise ee_exception.EEException(
         'Please authorize access to your Earth Engine account by '
@@ -350,6 +345,24 @@ def _translate_cloud_exception(http_error):
   return ee_exception.EEException(http_error._get_reason())  # pylint: disable=protected-access
 
 
+def _maybe_populate_workload_tag(body):
+  """Populates the workload tag on the request body passed in if applicable.
+
+  Defaults to the workload tag set by ee.data.setWorkloadTag() or related
+  methods. A workload tag already set on the body takes precedence. The workload
+  tag will not be set if it's an empty string.
+
+  Args:
+    body: The request body.
+  """
+  if 'workloadTag' not in body:
+    workload_tag = getWorkloadTag()
+    if workload_tag:
+      body['workloadTag'] = workload_tag
+  elif not body['workloadTag']:
+    del body['workloadTag']
+
+
 def setCloudApiKey(cloud_api_key):
   """Sets the Cloud API key parameter ("api_key") for all requests."""
   global _cloud_api_key
@@ -438,55 +451,76 @@ def getList(params):
   """Get a list of contents for a collection asset.
 
   Args:
-    params: An object containing request parameters with the
-        following possible values:
-            id (string) The asset id of the collection to list.
-            starttime (number) Start time, in msec since the epoch.
-            endtime (number) End time, in msec since the epoch.
-            fields (comma-separated strings) Field names to return.
+    params: An object containing request parameters with the possible values:
+      id - (string) The asset id of the collection to list, required.
+      starttime - (number) Start time, in msec since the epoch.
+      endtime - (number) End time, in msec since the epoch.
 
   Returns:
     The list call results.
   """
-  # Translate the parameter list to use listAssets or listImages. If it
-  # doesn't specify anything other than the ID and "num", use listAssets.
-  # Otherwise, use listImages.
-  if six.viewkeys(params) - set(['id', 'num']):
-    result = listImages(
-        _cloud_api_utils.convert_get_list_params_to_list_images_params(
-            params))
-    result = _cloud_api_utils.convert_list_images_result_to_get_list_result(
-        result)
-  else:
-    result = listAssets(
-        _cloud_api_utils.convert_get_list_params_to_list_assets_params(
-            params))
-    result = _cloud_api_utils.convert_list_assets_result_to_get_list_result(
-        result)
+  result = listAssets(
+      _cloud_api_utils.convert_get_list_params_to_list_assets_params(params))
+  result = _cloud_api_utils.convert_list_assets_result_to_get_list_result(
+      result)
 
   return result
 
 
 def listImages(params):
-  """Returns the images in an image collection or folder."""
+  """Returns the images in an image collection or folder.
+
+  Args:
+    params: An object containing request parameters with the following possible
+      values, all but 'parent` are optional:
+      parent - (string) The ID of the image collection to list, required.
+      pageSize - (string) The number of results to return. Defaults to 1000.
+      pageToken - (string) The token page of results to return.
+      startTime - (ISO 8601 string): The minimum start time (inclusive).
+      endTime - (ISO 8601 string): The maximum end time (exclusive).
+      region - (GeoJSON or WKT string): A region to filter on.
+      properties - (list of strings): A list of property filters to apply, for
+        example, ["classification=urban", "size>=2"].
+      filter - (string) An additional filter query to apply. Example query:
+          `properties.my_property>=1 AND properties.my_property<2 AND
+          startTime >= "2019-01-01T00:00:00.000Z" AND
+          endTime < "2020-01-01T00:00:00.000Z" AND
+          intersects("{'type':'Point','coordinates':[0,0]}")`
+        See https://google.aip.dev/160 for how to construct a query.
+      view - (string) Specifies how much detail is returned in the list. Either
+        "FULL" (default) for all image properties or "BASIC".
+  """
   images = {'images': []}
-  request = _get_cloud_api_resource().projects().assets().listImages(**params)
-  while request is not None:
-    response = _execute_cloud_call(request)
-    images['images'].extend(response.get('images', []))
-    request = _cloud_api_resource.projects().assets().listImages_next(
-        request, response)
-    # We currently treat pageSize as a cap on the results, if this param was
-    # provided we should break fast and not return more than the asked for
-    # amount.
-    if 'pageSize' in params:
-      break
+  assets = listAssets(
+      _cloud_api_utils.convert_list_images_params_to_list_assets_params(params))
+  images['images'].extend(assets.get('assets', []))
+  if _NEXT_PAGE_TOKEN_KEY in assets:
+    images[_NEXT_PAGE_TOKEN_KEY] = assets.get(_NEXT_PAGE_TOKEN_KEY)
   return images
 
 
 def listAssets(params):
-  """Returns the assets in a folder."""
+  """Returns the assets in a folder.
+
+  Args:
+    params: An object containing request parameters with the following possible
+      values, all but 'parent` are optional:
+      parent - (string) The ID of the collection or folder to list, required.
+      pageSize - (string) The number of results to return. Defaults to 1000.
+      pageToken - (string) The token page of results to return.
+      filter - (string) An additional filter query to apply. Example query:
+        '''properties.my_property>=1 AND properties.my_property<2 AND
+           startTime >= "2019-01-01T00:00:00.000Z" AND
+           endTime < "2020-01-01T00:00:00.000Z" AND
+           intersects("{'type':'Point','coordinates':[0,0]}")'''
+        See https://google.aip.dev/160 for how to construct a query.
+      view - (string) Specifies how much detail is returned in the list. Either
+        "FULL" (default) for all image properties or "BASIC".
+  """
   assets = {'assets': []}
+  if 'parent' in params:
+    params['parent'] = _cloud_api_utils.convert_asset_id_to_asset_name(
+        params['parent'])
   if 'parent' in params and _cloud_api_utils.is_asset_root(params['parent']):
     # If the asset name is 'projects/my-project/assets' we assume a user
     # wants to list their cloud assets, to do this we call the alternative
@@ -496,6 +530,7 @@ def listAssets(params):
   else:
     cloud_resource_root = _get_cloud_api_resource().projects().assets()
   request = cloud_resource_root.listAssets(**params)
+  response = None
   while request is not None:
     response = _execute_cloud_call(request)
     assets['assets'].extend(response.get('assets', []))
@@ -505,6 +540,10 @@ def listAssets(params):
     # amount.
     if 'pageSize' in params:
       break
+  # A next page token should only be present if pageSize is set, but populate it
+  # on the return value if a token is present in the last response.
+  if response and _NEXT_PAGE_TOKEN_KEY in response:
+    assets[_NEXT_PAGE_TOKEN_KEY] = response.get(_NEXT_PAGE_TOKEN_KEY)
   return assets
 
 
@@ -549,7 +588,7 @@ def getMapId(params):
     - "tile_fetcher": a TileFetcher which can be used to fetch the tile
       images, or to get a format for the tile URLs.
   """
-  if isinstance(params['image'], six.string_types):
+  if isinstance(params['image'], str):
     raise ee_exception.EEException('Image as JSON string not supported.')
   if 'version' in params:
     raise ee_exception.EEException(
@@ -568,11 +607,16 @@ def getMapId(params):
       params)
   if visualizationOptions:
     request['visualizationOptions'] = visualizationOptions
-  # Make it return only the name field, as otherwise it echoes the entire
-  # request, which might be large.
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
+  queryParams = {
+      'fields': 'name',
+      'body': request,
+  }
+  _maybe_populate_workload_tag(queryParams)
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().maps().create(
-          parent=_get_projects_path(), fields='name', body=request))
+          parent=_get_projects_path(), **queryParams))
   map_name = result['name']
   url_format = '%s/%s/%s/tiles/{z}/{x}/{y}' % (
       _tile_base_url, _cloud_api_utils.VERSION, map_name)
@@ -581,6 +625,73 @@ def getMapId(params):
 
   return {'mapid': map_name, 'token': '',
           'tile_fetcher': TileFetcher(url_format, map_name=map_name)}
+
+
+def getFeatureViewTilesKey(params):
+  """Get a tiles key for a given map or asset.
+
+  Args:
+    params: An object containing parameters with the following possible values:
+      assetId - The asset ID for which to obtain a tiles key.
+      visParams - The visualization parameters for this layer.
+
+  Returns:
+    A dictionary containing:
+    - "token" string: this identifies the FeatureView.
+  """
+  request = {
+      'asset':
+          _cloud_api_utils.convert_asset_id_to_asset_name(
+              params.get('assetId'))
+  }
+  # Only include visParams if it's non-empty.
+  if params.get('visParams'):
+    request['visualizationExpression'] = serializer.encode(
+        params.get('visParams'), for_cloud_api=True)
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
+  result = _execute_cloud_call(
+      _get_cloud_api_resource().projects().featureView().create(
+          parent=_get_projects_path(), fields='name', body=request))
+  name = result['name']
+  version = _cloud_api_utils.VERSION
+  format_tile_url = (
+      lambda x, y, z: f'{_tile_base_url}/{version}/{name}/tiles/{z}/{x}/{y}')
+  token = name.rsplit('/', 1).pop()
+  return {
+      'token': token,
+      'formatTileUrl': format_tile_url,
+  }
+
+
+def listFeatures(params):
+  """List features for a given table or FeatureView asset.
+
+  Args:
+    params: An object containing parameters with the following possible values:
+      assetId - The asset ID for which to list features.
+      pageSize - An optional max number of results per page, default is 1000.
+      pageToken - An optional token identifying a new page of results the server
+                  should return, usually taken from the response object.
+      region - If present, a geometry defining a query region, specified as a
+               GeoJSON geometry string (see RFC 7946).
+      filter - If present, specifies additional simple property filters
+               (see https://google.aip.dev/160).
+
+  Returns:
+    A dictionary containing:
+    - "type": always "FeatureCollection" marking this object as a GeoJSON
+              feature collection.
+    - "features": a list of GeoJSON features.
+    - "next_page_token": A token to retrieve the next page of results in a
+                         subsequent call to this function.
+  """
+  params = params.copy()
+  params['asset'] = _cloud_api_utils.convert_asset_id_to_asset_name(
+      params.get('assetId'))
+  del params['assetId']
+  return _execute_cloud_call(
+      _get_cloud_api_resource().projects().assets().listFeatures(**params))
 
 
 def getTileUrl(mapid, x, y, z):
@@ -669,9 +780,12 @@ def computeValue(obj):
   Returns:
     The result of evaluating that object on the server.
   """
+  body = {'expression': serializer.encode(obj, for_cloud_api=True)}
+  _maybe_populate_workload_tag(body)
+
   return _execute_cloud_call(
       _get_cloud_api_resource().projects().value().compute(
-          body={'expression': serializer.encode(obj, for_cloud_api=True)},
+          body=body,
           project=_get_projects_path(),
           prettyPrint=False))['result']
 
@@ -737,7 +851,7 @@ def getThumbId(params, thumbType=None):
   """
   # We only really support accessing this method via ee.Image.getThumbURL,
   # which folds almost all the parameters into the Image itself.
-  if isinstance(params['image'], six.string_types):
+  if isinstance(params['image'], str):
     raise ee_exception.EEException('Image as JSON string not supported.')
   if 'version' in params:
     raise ee_exception.EEException(
@@ -761,8 +875,13 @@ def getThumbId(params, thumbType=None):
       params)
   if visualizationOptions:
     request['visualizationOptions'] = visualizationOptions
-  # Make it return only the name field, as otherwise it echoes the entire
-  # request, which might be large.
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
+  queryParams = {
+      'fields': 'name',
+      'body': request,
+  }
+  _maybe_populate_workload_tag(queryParams)
   if thumbType == 'video':
     if 'framesPerSecond' in params:
       request['videoOptions'] = {
@@ -770,20 +889,20 @@ def getThumbId(params, thumbType=None):
       }
     result = _execute_cloud_call(
         _get_cloud_api_resource().projects().videoThumbnails().create(
-            parent=_get_projects_path(), fields='name', body=request))
+            parent=_get_projects_path(), **queryParams))
   elif thumbType == 'filmstrip':
     # Currently only 'VERTICAL' thumbnails are supported.
     request['orientation'] = 'VERTICAL'
     result = _execute_cloud_call(
         _get_cloud_api_resource().projects().filmstripThumbnails().create(
-            parent=_get_projects_path(), fields='name', body=request))
+            parent=_get_projects_path(), **queryParams))
   else:
     request['filenamePrefix'] = params.get('name')
     request['bandIds'] = _cloud_api_utils.convert_to_band_list(
         params.get('bands'))
     result = _execute_cloud_call(
         _get_cloud_api_resource().projects().thumbnails().create(
-            parent=_get_projects_path(), fields='name', body=request))
+            parent=_get_projects_path(), **queryParams))
   return {'thumbid': result['name'], 'token': ''}
 
 
@@ -863,7 +982,7 @@ def getDownloadId(params):
                                    'ee.Image.getDownloadURL instead.')
   if 'image' not in params:
     raise ee_exception.EEException('Missing image parameter.')
-  if isinstance(params['image'], six.string_types):
+  if isinstance(params['image'], str):
     raise ee_exception.EEException('Image as JSON string not supported.')
   params.setdefault('filePerBand', True)
   params.setdefault(
@@ -878,11 +997,11 @@ def getDownloadId(params):
   bands = None
   if 'bands' in params:
     bands = params['bands']
-    if isinstance(bands, six.string_types):
+    if isinstance(bands, str):
       bands = _cloud_api_utils.convert_to_band_list(bands)
     if not isinstance(bands, list):
       raise ee_exception.EEException('Bands parameter must be a list.')
-    if all(isinstance(band, six.string_types) for band in bands):
+    if all(isinstance(band, str) for band in bands):
       # Support expressing the bands list as a list of strings.
       bands = [{'id': band} for band in bands]
     if not all('id' in band for band in bands):
@@ -900,9 +1019,16 @@ def getDownloadId(params):
   if bands:
     request['bandIds'] = _cloud_api_utils.convert_to_band_list(
         [band['id'] for band in bands])
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
+  queryParams = {
+      'fields': 'name',
+      'body': request,
+  }
+  _maybe_populate_workload_tag(queryParams)
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().thumbnails().create(
-          parent=_get_projects_path(), fields='name', body=request))
+          parent=_get_projects_path(), **queryParams))
   return {'docid': result['name'], 'token': ''}
 
 
@@ -941,7 +1067,7 @@ def getTableDownloadId(params):
   selectors = None
   if 'selectors' in params:
     selectors = params['selectors']
-    if isinstance(selectors, six.string_types):
+    if isinstance(selectors, str):
       selectors = selectors.split(',')
   filename = None
   if 'filename' in params:
@@ -953,9 +1079,16 @@ def getTableDownloadId(params):
       'selectors': selectors,
       'filename': filename,
   }
+  # Returns only the `name` field, otherwise it echoes the entire request, which
+  # might be large.
+  queryParams = {
+      'fields': 'name',
+      'body': request,
+  }
+  _maybe_populate_workload_tag(queryParams)
   result = _execute_cloud_call(
       _get_cloud_api_resource().projects().tables().create(
-          parent=_get_projects_path(), fields='name', body=request))
+          parent=_get_projects_path(), **queryParams))
   return {'docid': result['name'], 'token': ''}
 
 
@@ -994,6 +1127,14 @@ def getAlgorithms():
   except TypeError:
     call = _get_cloud_api_resource().projects().algorithms().list(
         project=_get_projects_path(), prettyPrint=False)
+
+  def inspect(response):
+    if _INIT_MESSAGE_HEADER in response:
+      print(
+          '*** Earth Engine ***',
+          response[_INIT_MESSAGE_HEADER],
+          file=sys.stderr)
+  call.add_response_callback(inspect)
   return _cloud_api_utils.convert_algorithms(_execute_cloud_call(call))
 
 
@@ -1096,7 +1237,7 @@ def newTaskId(count=1):
   Returns:
     A list containing generated ID strings.
   """
-  return [str(uuid.uuid4()) for _ in six.moves.xrange(count)]
+  return [str(uuid.uuid4()) for _ in range(count)]
 
 
 @deprecation.Deprecated('Use listOperations')
@@ -1155,7 +1296,7 @@ def getTaskStatus(taskId):
         doesn't exist.
       error_message (string) For a FAILED task, a description of the error.
   """
-  if isinstance(taskId, six.string_types):
+  if isinstance(taskId, str):
     taskId = [taskId]
   result = []
   for one_id in taskId:
@@ -1314,23 +1455,23 @@ def _prepare_and_run_export(request_id, params, export_endpoint):
 
   Args:
     request_id (string): An optional unique ID for the task.
-    params: The object that describes the export task.
-      The "expression" parameter can be the actual object
-      to be exported, not its serialized form. This may be modified.
-    export_endpoint: A callable representing the export endpoint
-      to invoke (e.g., _cloud_api_resource.image().export).
+    params: The object that describes the export task. The "expression"
+      parameter can be the actual object to be exported, not its serialized
+      form. This may be modified.
+    export_endpoint: A callable representing the export endpoint to invoke
+      (e.g., _cloud_api_resource.image().export).
 
   Returns:
     An Operation with information about the created task.
   """
+  _maybe_populate_workload_tag(params)
   if request_id:
-    if isinstance(request_id, six.string_types):
+    if isinstance(request_id, str):
       params['requestId'] = request_id
     # If someone passes request_id via newTaskId() (which returns a list)
     # try to do the right thing and use the first entry as a request ID.
-    elif (isinstance(request_id, list)
-          and len(request_id) == 1
-          and isinstance(request_id[0], six.string_types)):
+    elif (isinstance(request_id, list) and len(request_id) == 1 and
+          isinstance(request_id[0], str)):
       params['requestId'] = request_id[0]
     else:
       raise ValueError('"requestId" must be a string.')
@@ -1490,7 +1631,7 @@ def getAssetRootQuota(rootId):
   return {
       'asset_count': {
           'usage': int(quota.get('assetCount', 0)),
-          'limit': int(quota.get('maxAssetCount', 0))
+          'limit': int(quota.get('maxAssets', quota.get('maxAssetCount', 0)))
       },
       'asset_size': {
           'usage': int(quota.get('sizeBytes', 0)),
@@ -1551,7 +1692,7 @@ def setAssetAcl(assetId, aclUpdate):
         value returned by getAssetAcl but without "owners".
   """
   # The ACL may be a string by the time it gets to us. Sigh.
-  if isinstance(aclUpdate, six.string_types):
+  if isinstance(aclUpdate, str):
     aclUpdate = json.loads(aclUpdate)
   setIamPolicy(assetId, _cloud_api_utils.convert_acl_to_iam_policy(aclUpdate))
   return
@@ -1575,7 +1716,6 @@ def setIamPolicy(asset_id, policy):
           prettyPrint=False))
 
 
-@deprecation.Deprecated('Use updateAsset')
 def setAssetProperties(assetId, properties):
   """Sets metadata properties of the asset with the given ID.
 
@@ -1678,3 +1818,123 @@ def convert_asset_id_to_asset_name(asset_id):
     An asset name string in the format 'projects/*/assets/**'.
   """
   return _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
+
+
+def getWorkloadTag():
+  """Returns the currently set workload tag."""
+  return _workloadTag.get()
+
+
+def setWorkloadTag(tag):
+  """Sets the workload tag, used to label computation and exports.
+
+  Workload tag must be 1 - 63 characters, beginning and ending with an
+  alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+  (.), and alphanumerics between, or an empty string to clear the workload tag.
+
+  Args:
+    tag: The tag to set.
+  """
+  _workloadTag.set(tag)
+
+
+@contextlib.contextmanager
+def workloadTagContext(tag):
+  """Produces a context manager which sets the workload tag, then resets it.
+
+  Workload tag must be 1 - 63 characters, beginning and ending with an
+  alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+  (.), and alphanumerics between, or an empty string to clear the workload tag.
+
+  Args:
+    tag: The tag to set.
+
+  Yields:
+    None.
+  """
+  setWorkloadTag(tag)
+  try:
+    yield
+  finally:
+    resetWorkloadTag()
+
+
+def setDefaultWorkloadTag(tag):
+  """Sets the workload tag, and as the default for which to reset back to.
+
+  For example, calling `ee.data.resetWorkloadTag()` will reset the workload tag
+  back to the default chosen here. To reset the default back to none, pass in
+  an empty string or pass in true to `ee.data.resetWorkloadTag(true)`, like so.
+
+  Workload tag must be 1 - 63 characters, beginning and ending with an
+  alphanumeric character ([a-z0-9A-Z]) with dashes (-), underscores (_), dots
+  (.), and alphanumerics between, or an empty string to reset the default back
+  to none.
+
+  Args:
+    tag: The tag to set.
+  """
+  _workloadTag.setDefault(tag)
+  _workloadTag.set(tag)
+
+
+def resetWorkloadTag(opt_resetDefault=False):
+  """Sets the default tag for which to reset back to.
+
+  If opt_resetDefault parameter is set to true, the default will be set to empty
+  before resetting. Defaults to False.
+
+  Args:
+    opt_resetDefault: Whether to reset the default back to empty.
+  """
+  if opt_resetDefault:
+    _workloadTag.setDefault('')
+  _workloadTag.reset()
+
+
+class _WorkloadTag(object):
+  """A helper class to manage the workload tag."""
+
+  def __init__(self):
+    self._tag = ''
+    self._default = ''
+
+  def get(self):
+    return self._tag
+
+  def set(self, tag):
+    self._tag = self.validate(tag)
+
+  def setDefault(self, newDefault):
+    self._default = self.validate(newDefault)
+
+  def reset(self):
+    self._tag = self._default
+
+  def validate(self, tag):
+    """Throws an error if setting an invalid tag.
+
+    Args:
+      tag: the tag to validate.
+
+    Returns:
+      The validated tag.
+
+    Raises:
+      ValueError if the tag does not match the expected format.
+    """
+    if not tag and tag != 0:
+      return ''
+    tag = str(tag)
+    if not re.fullmatch(r'([a-z0-9]|[a-z0-9][-_\.a-z0-9]{0,61}[a-z0-9])', tag):
+      validationMessage = (
+          'Tags must be 1-63 characters, '
+          'beginning and ending with an lowercase alphanumeric character'
+          '([a-z0-9]) with dashes (-), underscores (_), '
+          'dots (.), and lowercase alphanumerics between.')
+      raise ValueError(f'Invalid tag, "{tag}". {validationMessage}')
+    return tag
+
+
+# Tracks the currently set workload tag.
+_workloadTag = _WorkloadTag()
