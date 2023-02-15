@@ -337,7 +337,7 @@ goog.inherits(ee.Geometry.Rectangle, ee.Geometry);
  * @param {number} south The southernmost enclosed latitude. If less than -90°
  *     (south pole), will be treated as -90°.
  * @param {number} east The easternmost enclosed longitude.
- * @param {number} north The northernmost enclosed longitude. If greater than
+ * @param {number} north The northernmost enclosed latitude. If greater than
  *     +90° (north pole), will be treated as +90°.
  * @constructor
  * @extends {ee.Geometry.Rectangle}

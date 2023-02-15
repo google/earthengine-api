@@ -4154,7 +4154,7 @@
     }, {
       "argumentName": "north",
       "type": "Float",
-      "description": "The northernmost enclosed longitude. If greater than +90 (north pole), will be treated as +90."
+      "description": "The northernmost enclosed latitude. If greater than +90 (north pole), will be treated as +90."
     }]
   }, {
     "name": "algorithms/GeometryConstructors.LineString",

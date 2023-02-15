@@ -42,6 +42,11 @@ try:
   TENSORFLOW_INSTALLED = True
 except ImportError:
   pass
+except TypeError:
+  # The installed version of the protobuf package is incompatible with
+  # Tensorflow. A type error is thrown when trying to generate proto
+  # descriptors. Reinstalling Tensorflow should fix any dep versioning issues.
+  pass
 finally:
   logging.getLogger().setLevel(old_level)
 

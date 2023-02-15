@@ -694,6 +694,118 @@ def listFeatures(params):
       _get_cloud_api_resource().projects().assets().listFeatures(**params))
 
 
+def getPixels(params):
+  """Fetches pixels from an image asset.
+
+  Args:
+    params: An object containing parameters with the following possible values:
+      assetId - The asset ID for which to get pixels. Must be an image asset.
+      fileFormat - The resulting file format. Defaults to png. See
+          https://developers.google.com/earth-engine/reference/rest/v1/ImageFileFormat
+          for the available formats.
+      grid - Parameters describing the pixel grid in which to fetch data.
+          Defaults to the native pixel grid of the data.
+      region - If present, the region of data to return, specified as a GeoJSON
+          geometry object (see RFC 7946).
+      bandIds - If present, specifies a specific set of bands from which to get
+          pixels.
+      visualizationOptions - If present, a set of visualization options to apply
+          before the pixels are returned. See
+          https://developers.google.com/earth-engine/reference/rest/v1/VisualizationOptions
+          for details.
+
+  Returns:
+    The pixels as raw image data.
+  """
+  params = params.copy()
+  name = _cloud_api_utils.convert_asset_id_to_asset_name(params.get('assetId'))
+  del params['assetId']
+  params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
+      params.get('fileFormat'))
+  return _execute_cloud_call(
+      _cloud_api_resource_raw.projects().assets().getPixels(
+          name=name, body=params))
+
+
+def computePixels(params):
+  """Computes a tile by performing an arbitrary computation on image data.
+
+  Args:
+    params: An object containing parameters with the following possible values:
+      expression - The expression to compute.
+      fileFormat - The resulting file format. Defaults to png. See
+          https://developers.google.com/earth-engine/reference/rest/v1/ImageFileFormat
+          for the available formats.
+      grid - Parameters describing the pixel grid in which to fetch data.
+          Defaults to the native pixel grid of the data.
+      bandIds - If present, specifies a specific set of bands from which to get
+          pixels.
+      visualizationOptions - If present, a set of visualization options to apply
+          before the pixels are computed and returned. See
+          https://developers.google.com/earth-engine/reference/rest/v1/VisualizationOptions
+          for details.
+
+  Returns:
+    The pixels as raw image data.
+  """
+  params = params.copy()
+  params['expression'] = serializer.encode(params['expression'])
+  params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
+      params.get('fileFormat'))
+  _maybe_populate_workload_tag(params)
+  return _execute_cloud_call(
+      _cloud_api_resource_raw.projects().image().computePixels(
+          project=_get_projects_path(), body=params))
+
+
+def computeImages(params):
+  """Computes a list of images by applying a computation to features.
+
+  Args:
+    params: An object containing parameters with the following possible values:
+      expression - The expression to compute.
+      pageSize - The maximum number of results per page. The server may return
+          fewer images than requested. If unspecified, the page size default is
+          1000 results per page.
+      pageToken - A token identifying a page of results the server should
+                  return.
+      workloadTag - User supplied tag to track this computation.
+
+  Returns:
+    A list with the results of the computation.
+  """
+  params = params.copy()
+  params['expression'] = serializer.encode(params['expression'])
+  _maybe_populate_workload_tag(params)
+  return _execute_cloud_call(
+      _cloud_api_resource.projects().imageCollection().computeImages(
+          project=_get_projects_path(), body=params))
+
+
+def computeFeatures(params):
+  """Computes a list of features by applying a computation to features.
+
+  Args:
+    params: An object containing parameters with the following possible values:
+      expression - The expression to compute.
+      pageSize - The maximum number of results per page. The server may return
+          fewer images than requested. If unspecified, the page size default is
+          1000 results per page.
+      pageToken - A token identifying a page of results the server should
+                  return.
+      workloadTag - User supplied tag to track this computation.
+
+  Returns:
+    A list with the results of the computation.
+  """
+  params = params.copy()
+  params['expression'] = serializer.encode(params['expression'])
+  _maybe_populate_workload_tag(params)
+  return _execute_cloud_call(
+      _cloud_api_resource.projects().table().computeFeatures(
+          project=_get_projects_path(), body=params))
+
+
 def getTileUrl(mapid, x, y, z):
   """Generate a URL for map tiles from a Map ID and coordinates.
 

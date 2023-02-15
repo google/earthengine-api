@@ -287,7 +287,7 @@ class Geometry(computedobject.ComputedObject):
       south: The southernmost enclosed latitude. If less than -90° (south pole),
         will be treated as -90°.
       east: The easternmost enclosed longitude.
-      north: The northernmost enclosed longitude. If greater than +90° (north
+      north: The northernmost enclosed latitude. If greater than +90° (north
         pole), will be treated as +90°.
 
     Returns:
