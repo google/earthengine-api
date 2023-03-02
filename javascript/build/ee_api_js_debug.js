@@ -45,13 +45,15 @@ $jscomp.TRUST_ES6_POLYFILLS = !$jscomp.ISOLATE_POLYFILLS || $jscomp.IS_SYMBOL_NA
 $jscomp.polyfills = {};
 $jscomp.propertyToPolyfillSymbol = {};
 $jscomp.POLYFILL_PREFIX = "$jscp$";
-var $jscomp$lookupPolyfilledValue = function(target, property) {
-  var obfuscatedName = $jscomp.propertyToPolyfillSymbol[property];
-  if (null == obfuscatedName) {
-    return target[property];
+var $jscomp$lookupPolyfilledValue = function(target, property, isOptionalAccess) {
+  if (!isOptionalAccess || null != target) {
+    var obfuscatedName = $jscomp.propertyToPolyfillSymbol[property];
+    if (null == obfuscatedName) {
+      return target[property];
+    }
+    var polyfill = target[obfuscatedName];
+    return void 0 !== polyfill ? polyfill : target[property];
   }
-  var polyfill = target[obfuscatedName];
-  return void 0 !== polyfill ? polyfill : target[property];
 };
 $jscomp.polyfill = function(target, polyfill, fromLang, toLang) {
   polyfill && ($jscomp.ISOLATE_POLYFILLS ? $jscomp.polyfillIsolated(target, polyfill, fromLang, toLang) : $jscomp.polyfillUnisolated(target, polyfill, fromLang, toLang));
@@ -2611,6 +2613,14 @@ goog.events.BrowserFeature = {TOUCH_ENABLED:"ontouchstart" in goog.global || !!(
   }
   return passive;
 })};
+goog.flags = {};
+var module$contents$goog$flags_STAGING = goog.readFlagInternalDoNotUseOrElse(1, goog.FLAGS_STAGING_DEFAULT);
+goog.flags.USE_USER_AGENT_CLIENT_HINTS = goog.readFlagInternalDoNotUseOrElse(610401301, !1);
+goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = goog.readFlagInternalDoNotUseOrElse(899588437, !1);
+goog.flags.TESTONLY_FALSE_FLAG = goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
+goog.flags.TESTONLY_DEBUG_FLAG = goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
+goog.flags.TESTONLY_STAGING_FLAG = goog.readFlagInternalDoNotUseOrElse(2147483646, module$contents$goog$flags_STAGING);
+goog.flags.TESTONLY_TRUE_FLAG = goog.readFlagInternalDoNotUseOrElse(2147483647, !0);
 goog.labs = {};
 goog.labs.userAgent = {};
 var module$contents$goog$labs$userAgent_forceClientHintsInTests = !1;
@@ -2618,7 +2628,7 @@ goog.labs.userAgent.setUseClientHintsForTesting = function(use) {
   module$contents$goog$labs$userAgent_forceClientHintsInTests = use;
 };
 goog.labs.userAgent.useClientHints = function() {
-  return module$contents$goog$labs$userAgent_forceClientHintsInTests;
+  return goog.flags.USE_USER_AGENT_CLIENT_HINTS || module$contents$goog$labs$userAgent_forceClientHintsInTests;
 };
 goog.string = {};
 goog.string.internal = {};
@@ -17546,7 +17556,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.343";
+ee.apiclient.API_CLIENT_VERSION = "0.1.344";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17827,8 +17837,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.343";
-  "0.1.343" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.344";
+  "0.1.344" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
