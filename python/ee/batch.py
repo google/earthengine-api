@@ -894,6 +894,12 @@ ALLOWED_FORMAT_OPTIONS = {
     'tfrecordCollapseBands', 'tfrecordMaskedThreshold'
 }
 
+# Export destinations which do not require file format/options configuration.
+NON_FILE_DESTINATIONS = frozenset([
+    Task.ExportDestination.ASSET,
+    Task.ExportDestination.FEATURE_VIEW,
+])
+
 
 def _ConvertConfigParams(config):
   """Converts numeric sequences into comma-separated string representations."""
@@ -1097,10 +1103,11 @@ def _prepare_table_export_config(collection, config, export_destination):
   Returns:
     A config dict containing all information required for the export.
   """
-  if (export_destination != Task.ExportDestination.ASSET and
-      export_destination != Task.ExportDestination.FEATURE_VIEW):
-    if 'fileFormat' not in config:
-      config['fileFormat'] = 'CSV'
+  if (
+      export_destination not in NON_FILE_DESTINATIONS
+      and 'fileFormat' not in config
+  ):
+    config['fileFormat'] = 'CSV'
 
   _canonicalize_parameters(config, export_destination)
 
@@ -1743,8 +1750,7 @@ def _canonicalize_parameters(config, destination):
 
     if 'driveFileNamePrefix' not in config and 'description' in config:
       config['driveFileNamePrefix'] = config['description']
-  elif (destination != Task.ExportDestination.ASSET and
-        destination != Task.ExportDestination.FEATURE_VIEW):
+  elif destination not in NON_FILE_DESTINATIONS:
     raise ee_exception.EEException('Unknown export destination.')
 
   if (IMAGE_FORMAT_FIELD in config and
