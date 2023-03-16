@@ -65,6 +65,9 @@ _initialized = False
 # it timed out. 0 means no limit.
 _deadline_ms = 0
 
+# User agent to indicate which application is calling Earth Engine
+_user_agent = None
+
 
 class _ThreadLocals(threading.local):
 
@@ -97,6 +100,9 @@ _USER_PROJECT_OVERRIDE_HEADER = 'X-Goog-User-Project'
 
 # The HTTP header used to indicate the version of the client library used.
 _API_CLIENT_VERSION_HEADER = 'X-Goog-Api-Client'
+
+# The HTTP header used to indicate the user agent.
+_USER_AGENT_HEADER = 'user-agent'
 
 # Optional HTTP header returned to display initialization-time messages.
 _INIT_MESSAGE_HEADER = 'x-earth-engine-init-message'  # lowercase for httplib2
@@ -291,6 +297,8 @@ def _make_request_headers():
   client_version_header_values = []
   if _cloud_api_client_version is not None:
     client_version_header_values.append('ee-py/' + _cloud_api_client_version)
+  if _user_agent is not None:
+    headers[_USER_AGENT_HEADER] = _user_agent
   client_version_header_values.append('python/' + platform.python_version())
   headers[_API_CLIENT_VERSION_HEADER] = ' '.join(client_version_header_values)
   if _thread_locals.profile_hook:
@@ -374,6 +382,16 @@ def setCloudApiUserProject(cloud_api_user_project):
   global _cloud_api_user_project
   _cloud_api_user_project = cloud_api_user_project
   _cloud_api_utils.set_cloud_api_user_project(_cloud_api_user_project)
+
+
+def setUserAgent(user_agent):
+  global _user_agent
+  _user_agent = user_agent
+  _install_cloud_api_resource()
+
+
+def getUserAgent():
+  return _user_agent
 
 
 def setDeadline(milliseconds):

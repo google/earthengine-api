@@ -70,7 +70,7 @@ describe('bypassCorsPreflight', () => {
       methodId: 'someservice.whatever.get',
     };
     bypassCorsPreflight(params);
-    expect(params.headers).toBeUndefined();
+    expect(params.headers).toEqual({});
     expect(params.httpMethod).toEqual('GET');
     expect(params.queryParams).toBeUndefined();
   });
@@ -181,6 +181,21 @@ describe('bypassCorsPreflight', () => {
     expect(params.httpMethod).toEqual('GET');
     expect(params.queryParams).toEqual({'$httpHeaders': 'foo%3Abar%0D%0A'});
   });
+
+  it('handles would-trigger-preflight cors headers without safe headers',
+     () => {
+       const params: MakeRequestParams = {
+         path: 'v1/whatever',
+         httpMethod: 'GET',
+         methodId: 'someservice.whatever.get',
+         headers: {'foo': 'bar'},
+         queryParams: {},
+       };
+       bypassCorsPreflight(params);
+       expect(params.headers).toEqual({});
+       expect(params.httpMethod).toEqual('GET');
+       expect(params.queryParams).toEqual({'$httpHeaders': 'foo%3Abar%0D%0A'});
+     });
 
   it('handles would-trigger-preflight cors headers with existing query params',
      () => {

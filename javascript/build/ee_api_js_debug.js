@@ -7034,8 +7034,8 @@ module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createRule = function(se
     throw Error("Selector does not allow '<', got: " + selector);
   }
   var selectorToCheck = selector.replace(/('|")((?!\1)[^\r\n\f\\]|\\[\s\S])*\1/g, "");
-  if (!/^[-_a-zA-Z0-9#.:* ,>+~[\]()=^$|]+$/.test(selectorToCheck)) {
-    throw Error("Selector allows only [-_a-zA-Z0-9#.:* ,>+~[\\]()=^$|] and strings, got: " + selector);
+  if (!/^[-_a-zA-Z0-9#.:* ,>+~[\]()=\\^$|]+$/.test(selectorToCheck)) {
+    throw Error("Selector allows only [-_a-zA-Z0-9#.:* ,>+~[\\]()=\\^$|] and strings, got: " + selector);
   }
   if (!module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.hasBalancedBrackets_(selectorToCheck)) {
     throw Error("() and [] in selector must be balanced, got: " + selector);
@@ -8675,22 +8675,22 @@ function module$contents$eeapiclient$request_params_buildQueryParams(params, map
 module$exports$eeapiclient$request_params.buildQueryParams = module$contents$eeapiclient$request_params_buildQueryParams;
 var module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders = ["accept", "accept-language", "content-language"], module$contents$eeapiclient$request_params_simpleCorsAllowedMethods = ["GET", "HEAD", "POST"];
 module$exports$eeapiclient$request_params.bypassCorsPreflight = function module$contents$eeapiclient$request_params_bypassCorsPreflight(params) {
-  var safeHeaders = {}, unsafeHeaders = {}, hasUnsafeHeaders = !1, hasSafeHeaders = !1, hasContentType = !1;
+  var safeHeaders = {}, unsafeHeaders = {}, hasUnsafeHeaders = !1, hasContentType = !1;
   if (params.headers) {
     hasContentType = null != params.headers["Content-Type"];
     for (var $jscomp$iter$22 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$ = $jscomp$iter$22.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$22.next()) {
       var $jscomp$destructuring$var29 = $jscomp.makeIterator($jscomp$key$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var29.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var29.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
-      module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders.includes(key) ? (safeHeaders[key] = value, hasSafeHeaders = !0) : (unsafeHeaders[key] = value, hasUnsafeHeaders = !0);
+      module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders.includes(key) ? safeHeaders[key] = value : (unsafeHeaders[key] = value, hasUnsafeHeaders = !0);
     }
   }
   if (null != params.body || "PUT" === params.httpMethod || "POST" === params.httpMethod) {
-    hasContentType || (unsafeHeaders["Content-Type"] = "application/json", hasUnsafeHeaders = !0), safeHeaders["Content-Type"] = "text/plain", hasSafeHeaders = !0;
+    hasContentType || (unsafeHeaders["Content-Type"] = "application/json", hasUnsafeHeaders = !0), safeHeaders["Content-Type"] = "text/plain";
   }
   if (hasUnsafeHeaders) {
     var finalParam = (0,module$exports$goog$net$rpc$HttpCors.generateEncodedHttpHeadersOverwriteParam)(unsafeHeaders);
     module$contents$eeapiclient$request_params_addQueryParameter(params, module$exports$goog$net$rpc$HttpCors.HTTP_HEADERS_PARAM_NAME, finalParam);
   }
-  hasSafeHeaders && (params.headers = safeHeaders);
+  params.headers = safeHeaders;
   module$contents$eeapiclient$request_params_simpleCorsAllowedMethods.includes(params.httpMethod) || (module$contents$eeapiclient$request_params_addQueryParameter(params, module$exports$goog$net$rpc$HttpCors.HTTP_METHOD_PARAM_NAME, params.httpMethod), params.httpMethod = "POST");
 };
 function module$contents$eeapiclient$request_params_addQueryParameter(params, key, value) {
@@ -17556,7 +17556,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.345";
+ee.apiclient.API_CLIENT_VERSION = "0.1.346";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17837,8 +17837,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.345";
-  "0.1.345" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.346";
+  "0.1.346" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -18414,8 +18414,8 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
   result.startTime && (properties["system:time_start"] = Date.parse(result.startTime));
   result.endTime && (properties["system:time_end"] = Date.parse(result.endTime));
   result.geometry && (properties["system:footprint"] = result.geometry);
-  "string" === typeof result.title && (properties["system:title"] = result.title);
-  "string" === typeof result.description && (properties["system:description"] = result.description);
+  "string" === typeof result.title ? properties["system:title"] = result.title : "string" === typeof properties.title && (properties["system:title"] = properties.title);
+  "string" === typeof result.description ? properties["system:description"] = result.description : "string" === typeof properties.description && (properties["system:description"] = properties.description);
   result.updateTime && (asset.version = 1E3 * Date.parse(result.updateTime));
   asset.properties = properties;
   result.bands && (asset.bands = result.bands.map(function(band) {

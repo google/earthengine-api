@@ -132,6 +132,7 @@ class CommandLineConfig(object):
         opt_url=self.url,
         cloud_api_key=self.cloud_api_key,
         project=self._get_project())
+    ee.data.setUserAgent('eecli')
 
   def save(self):
     config = {}

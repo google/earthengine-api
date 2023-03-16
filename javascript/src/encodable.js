@@ -554,9 +554,13 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
   }
   if (typeof result.title === 'string') {
     properties['system:title'] = result.title;
+  } else if (typeof properties['title'] === 'string') {
+    properties['system:title'] = properties['title'];
   }
   if (typeof result.description === 'string') {
     properties['system:description'] = result.description;
+  } else if (typeof properties['description'] === 'string') {
+    properties['system:description'] = properties['description'];
   }
   if (result.updateTime) {
     asset['version'] = Date.parse(result.updateTime) * 1000;  // us
