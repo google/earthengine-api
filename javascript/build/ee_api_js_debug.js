@@ -2617,6 +2617,8 @@ goog.flags = {};
 var module$contents$goog$flags_STAGING = goog.readFlagInternalDoNotUseOrElse(1, goog.FLAGS_STAGING_DEFAULT);
 goog.flags.USE_USER_AGENT_CLIENT_HINTS = goog.readFlagInternalDoNotUseOrElse(610401301, !1);
 goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = goog.readFlagInternalDoNotUseOrElse(899588437, !1);
+goog.flags.APPS_JSPB_UNSORTED_MAPS_FLAG = goog.readFlagInternalDoNotUseOrElse(513561853, module$contents$goog$flags_STAGING);
+goog.flags.APPS_JSPB_REMOVE_INTERNAL_WRAPPERS = goog.readFlagInternalDoNotUseOrElse(516931134, module$contents$goog$flags_STAGING);
 goog.flags.TESTONLY_FALSE_FLAG = goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
 goog.flags.TESTONLY_DEBUG_FLAG = goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
 goog.flags.TESTONLY_STAGING_FLAG = goog.readFlagInternalDoNotUseOrElse(2147483646, module$contents$goog$flags_STAGING);
@@ -8845,8 +8847,8 @@ module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum = {AUTO_AP
 }};
 module$exports$eeapiclient$ee_api_client.IChangeSubscriptionTypeRequestChangeTimeEnum = function module$contents$eeapiclient$ee_api_client_IChangeSubscriptionTypeRequestChangeTimeEnum() {
 };
-module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.EARLIEST_POSSIBLE];
+module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.SPECIFIC_DATE];
 }};
 module$exports$eeapiclient$ee_api_client.IChangeSubscriptionTypeRequestTypeEnum = function module$contents$eeapiclient$ee_api_client_IChangeSubscriptionTypeRequestTypeEnum() {
 };
@@ -9020,8 +9022,8 @@ module$exports$eeapiclient$ee_api_client.ScheduledUpdateSubscriptionUpdateTypeEn
 }};
 module$exports$eeapiclient$ee_api_client.IScheduledUpdateUpdateChangeTypeEnum = function module$contents$eeapiclient$ee_api_client_IScheduledUpdateUpdateChangeTypeEnum() {
 };
-module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.EARLIEST_POSSIBLE];
+module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.SPECIFIC_DATE];
 }};
 module$exports$eeapiclient$ee_api_client.ISubscriptionStateEnum = function module$contents$eeapiclient$ee_api_client_ISubscriptionStateEnum() {
 };
@@ -9062,8 +9064,8 @@ module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverrides
 }};
 module$exports$eeapiclient$ee_api_client.ITerminateSubscriptionRequestTerminationTypeEnum = function module$contents$eeapiclient$ee_api_client_ITerminateSubscriptionRequestTerminationTypeEnum() {
 };
-module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.EARLIEST_POSSIBLE];
+module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.SPECIFIC_DATE];
 }};
 module$exports$eeapiclient$ee_api_client.IThinningOptionsThinningStrategyEnum = function module$contents$eeapiclient$ee_api_client_IThinningOptionsThinningStrategyEnum() {
 };
@@ -17556,7 +17558,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.346";
+ee.apiclient.API_CLIENT_VERSION = "0.1.347";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17837,8 +17839,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.346";
-  "0.1.346" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.347";
+  "0.1.347" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
