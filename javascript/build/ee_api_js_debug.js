@@ -11098,18 +11098,23 @@ module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions = function(pa
   this.Serializable$set("tileDimensions", null == parameters.tileDimensions ? null : parameters.tileDimensions);
   this.Serializable$set("skipEmptyFiles", null == parameters.skipEmptyFiles ? null : parameters.skipEmptyFiles);
   this.Serializable$set("tileSize", null == parameters.tileSize ? null : parameters.tileSize);
+  this.Serializable$set("noData", null == parameters.noData ? null : parameters.noData);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions;
 };
 module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions.prototype.getPartialClassMetadata = function() {
-  return {keys:["cloudOptimized", "skipEmptyFiles", "tileDimensions", "tileSize"], objects:{tileDimensions:module$exports$eeapiclient$ee_api_client.GridDimensions}};
+  return {keys:["cloudOptimized", "noData", "skipEmptyFiles", "tileDimensions", "tileSize"], objects:{noData:module$exports$eeapiclient$ee_api_client.Number, tileDimensions:module$exports$eeapiclient$ee_api_client.GridDimensions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions.prototype, {cloudOptimized:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("cloudOptimized") ? this.Serializable$get("cloudOptimized") : null;
 }, set:function(value) {
   this.Serializable$set("cloudOptimized", value);
+}}, noData:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("noData") ? this.Serializable$get("noData") : null;
+}, set:function(value) {
+  this.Serializable$set("noData", value);
 }}, skipEmptyFiles:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("skipEmptyFiles") ? this.Serializable$get("skipEmptyFiles") : null;
 }, set:function(value) {
@@ -11912,6 +11917,30 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("destinationName") ? this.Serializable$get("destinationName") : null;
 }, set:function(value) {
   this.Serializable$set("destinationName", value);
+}}});
+module$exports$eeapiclient$ee_api_client.NumberParameters = function module$contents$eeapiclient$ee_api_client_NumberParameters() {
+};
+module$exports$eeapiclient$ee_api_client.Number = function(parameters) {
+  parameters = void 0 === parameters ? {} : parameters;
+  module$exports$eeapiclient$domain_object.Serializable.call(this);
+  this.Serializable$set("floatValue", null == parameters.floatValue ? null : parameters.floatValue);
+  this.Serializable$set("integerValue", null == parameters.integerValue ? null : parameters.integerValue);
+};
+$jscomp.inherits(module$exports$eeapiclient$ee_api_client.Number, module$exports$eeapiclient$domain_object.Serializable);
+module$exports$eeapiclient$ee_api_client.Number.prototype.getConstructor = function() {
+  return module$exports$eeapiclient$ee_api_client.Number;
+};
+module$exports$eeapiclient$ee_api_client.Number.prototype.getPartialClassMetadata = function() {
+  return {keys:["floatValue", "integerValue"]};
+};
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.Number.prototype, {floatValue:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("floatValue") ? this.Serializable$get("floatValue") : null;
+}, set:function(value) {
+  this.Serializable$set("floatValue", value);
+}}, integerValue:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("integerValue") ? this.Serializable$get("integerValue") : null;
+}, set:function(value) {
+  this.Serializable$set("integerValue", value);
 }}});
 module$exports$eeapiclient$ee_api_client.OperationParameters = function module$contents$eeapiclient$ee_api_client_OperationParameters() {
 };
@@ -17558,7 +17587,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.347";
+ee.apiclient.API_CLIENT_VERSION = "0.1.348";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17839,8 +17868,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.347";
-  "0.1.347" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.348";
+  "0.1.348" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
