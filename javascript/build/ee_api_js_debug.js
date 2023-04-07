@@ -17587,7 +17587,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.348";
+ee.apiclient.API_CLIENT_VERSION = "0.1.349";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17868,8 +17868,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.348";
-  "0.1.348" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.349";
+  "0.1.349" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -20140,8 +20140,8 @@ ee.data.WorkloadTag.prototype.validate = function(tag) {
     return "";
   }
   tag = String(tag);
-  if (!/^([a-z0-9]|[a-z0-9][-_\.a-z0-9]{0,61}[a-z0-9])$/g.test(tag)) {
-    throw Error('Invalid tag, "' + tag + '". Tags must be 1-63 characters, beginning and ending with a lowercase alphanumeric character([a-z0-9]) with dashes (-), underscores (_), dots (.), andlowercase alphanumerics between.');
+  if (!/^([a-z0-9]|[a-z0-9][-_a-z0-9]{0,61}[a-z0-9])$/g.test(tag)) {
+    throw Error('Invalid tag, "' + tag + '". Tags must be 1-63 characters, beginning and ending with a lowercase alphanumeric character ([a-z0-9]) with dashes (-), underscores (_), and lowercase alphanumerics between.');
   }
   return tag;
 };

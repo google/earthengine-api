@@ -2029,10 +2029,10 @@ ee.data.WorkloadTag = class {
     }
 
     tag = String(tag);
-    if (!/^([a-z0-9]|[a-z0-9][-_\.a-z0-9]{0,61}[a-z0-9])$/g.test(tag)) {
+    if (!/^([a-z0-9]|[a-z0-9][-_a-z0-9]{0,61}[a-z0-9])$/g.test(tag)) {
       const validationMessage = 'Tags must be 1-63 characters, ' +
-          'beginning and ending with a lowercase alphanumeric character' +
-          '([a-z0-9]) with dashes (-), underscores (_), dots (.), and' +
+          'beginning and ending with a lowercase alphanumeric character ' +
+          '([a-z0-9]) with dashes (-), underscores (_), and ' +
           'lowercase alphanumerics between.';
       throw new Error(`Invalid tag, "${tag}". ${validationMessage}`);
     }

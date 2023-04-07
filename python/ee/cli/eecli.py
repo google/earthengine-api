@@ -71,6 +71,11 @@ def _get_tensorflow():
     return tf
   except ImportError:
     return None
+  except TypeError:
+    # The installed version of the protobuf package is incompatible with
+    # Tensorflow. A type error is thrown when trying to generate proto
+    # descriptors. Reinstalling Tensorflow should fix any dep versioning issues.
+    return None
 
 
 def main():

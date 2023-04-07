@@ -2056,12 +2056,12 @@ class _WorkloadTag(object):
     if not tag and tag != 0:
       return ''
     tag = str(tag)
-    if not re.fullmatch(r'([a-z0-9]|[a-z0-9][-_\.a-z0-9]{0,61}[a-z0-9])', tag):
+    if not re.fullmatch(r'([a-z0-9]|[a-z0-9][-_a-z0-9]{0,61}[a-z0-9])', tag):
       validationMessage = (
           'Tags must be 1-63 characters, '
-          'beginning and ending with an lowercase alphanumeric character'
+          'beginning and ending with an lowercase alphanumeric character '
           '([a-z0-9]) with dashes (-), underscores (_), '
-          'dots (.), and lowercase alphanumerics between.')
+          'and lowercase alphanumerics between.')
       raise ValueError(f'Invalid tag, "{tag}". {validationMessage}')
     return tag
 

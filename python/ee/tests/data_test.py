@@ -451,6 +451,9 @@ class DataTest(unittest.TestCase):
       ee.data.setDefaultWorkloadTag('inv@lid')
 
     with self.assertRaisesRegex(ValueError, 'Invalid tag'):
+      ee.data.setDefaultWorkloadTag('in.valid')
+
+    with self.assertRaisesRegex(ValueError, 'Invalid tag'):
       ee.data.setDefaultWorkloadTag('Invalid')
 
     with self.assertRaisesRegex(ValueError, 'Invalid tag'):
