@@ -112,6 +112,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           tiffCloudOptimized=True,
           shardSize=512,
           fileDimensions=1024,
+          noData=1,
       )
       task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)
       expected_expression = ee.Image(1).reproject(
@@ -128,24 +129,18 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'TestDescription',
               'fileExportOptions': {
                   'fileFormat': 'GEO_TIFF',
-                  'driveDestination': {
-                      'filenamePrefix': 'TestDescription'
-                  },
+                  'driveDestination': {'filenamePrefix': 'TestDescription'},
                   'geoTiffOptions': {
                       'cloudOptimized': True,
-                      'tileDimensions': {
-                          'width': 1024,
-                          'height': 1024
-                      },
-                      'tileSize': {
-                          'value': 512
-                      }
+                      'tileDimensions': {'width': 1024, 'height': 1024},
+                      'tileSize': {'value': 512},
+                      'noData': {'floatValue': 1},
                   },
               },
-              'maxPixels': {
-                  'value': '10000000000'
-              },
-          }, task.config)
+              'maxPixels': {'value': '10000000000'},
+          },
+          task.config,
+      )
 
   def testExportImageWithTfRecordCloudApi(self):
     """Verifies the task created by Export.image()."""

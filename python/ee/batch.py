@@ -1239,6 +1239,8 @@ def _build_image_file_export_options(config, export_destination):
       geo_tiff_options['skipEmptyFiles'] = True
     if config.get('shardSize', None):
       geo_tiff_options['tileSize'] = {'value': config.pop('shardSize')}
+    if config.get('noData', None):
+      geo_tiff_options['noData'] = {'floatValue': config.pop('noData')}
     if geo_tiff_options:
       file_export_options['geoTiffOptions'] = geo_tiff_options
   elif file_format == 'TF_RECORD_IMAGE':

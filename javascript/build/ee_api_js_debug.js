@@ -17587,7 +17587,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.349";
+ee.apiclient.API_CLIENT_VERSION = "0.1.350";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17868,8 +17868,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.349";
-  "0.1.349" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.350";
+  "0.1.350" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -19303,6 +19303,9 @@ function stringOrNull_(value) {
 function numberOrNull_(value) {
   return null != value ? Number(value) : null;
 }
+function noDataOrNull_(value) {
+  return null != value ? new module$exports$eeapiclient$ee_api_client.Number({floatValue:Number(value)}) : null;
+}
 ee.rpc_convert_batch.guessDestination_ = function(params) {
   var destination = ee.rpc_convert_batch.ExportDestination.DRIVE;
   if (null == params) {
@@ -19317,7 +19320,7 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
     throw Error('Export cannot set both "fileDimensions" and "tiffFileDimensions".');
   }
   var tileSize = params.tiffShardSize || params.shardSize;
-  return new module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions({cloudOptimized:!!params.tiffCloudOptimized, skipEmptyFiles:!(!params.skipEmptyTiles && !params.tiffSkipEmptyFiles), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.fileDimensions || params.tiffFileDimensions), tileSize:numberOrNull_(tileSize),});
+  return new module$exports$eeapiclient$ee_api_client.GeoTiffImageExportOptions({cloudOptimized:!!params.tiffCloudOptimized, skipEmptyFiles:!(!params.skipEmptyTiles && !params.tiffSkipEmptyFiles), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.fileDimensions || params.tiffFileDimensions), tileSize:numberOrNull_(tileSize), noData:noDataOrNull_(params.noData),});
 };
 ee.rpc_convert_batch.buildTfRecordFormatOptions_ = function(params) {
   var tfRecordOptions = new module$exports$eeapiclient$ee_api_client.TfRecordImageExportOptions({compress:!!params.tfrecordCompressed, maxSizeBytes:stringOrNull_(params.tfrecordMaxFileSize), sequenceData:!!params.tfrecordSequenceData, collapseBands:!!params.tfrecordCollapseBands, maxMaskedRatio:numberOrNull_(params.tfrecordMaskedThreshold), defaultValue:numberOrNull_(params.tfrecordDefaultValue), tileDimensions:ee.rpc_convert_batch.buildGridDimensions_(params.tfrecordPatchDimensions), 

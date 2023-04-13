@@ -247,9 +247,21 @@ function numberOrNull_(value) {
 
 
 /**
+ * @param {*} value
+ * @return {!ee.api.Number|null}
+ * @private
+ */
+function noDataOrNull_(value) {
+  if (value != null) {
+    return new ee.api.Number({floatValue: Number(value)});
+  }
+  return null;
+}
+
+
+/**
  * Guesses an export destination from the ExportParameters object.
- * @param {?Object|undefined} params ExportParamaters
- * ({@see earthengine.service.batch.batch_task_parameters.proto}).
+ * @param {?Object|undefined} params ExportParameters
  * @return {string}
  * @private
  * #visibleForTesting
@@ -294,6 +306,7 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
         Boolean(params['skipEmptyTiles'] || params['tiffSkipEmptyFiles']),
     tileDimensions: ee.rpc_convert_batch.buildGridDimensions_(fileDimensions),
     tileSize: numberOrNull_(tileSize),
+    noData: noDataOrNull_(params['noData']),
   });
 };
 
