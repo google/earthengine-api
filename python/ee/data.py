@@ -284,11 +284,20 @@ def _install_cloud_api_resource():
       raw=True)
 
 
-def _get_cloud_api_resource():
-  if _cloud_api_resource is None:
+def _verify_cloud_api_resource():
+  if _cloud_api_resource is None or _cloud_api_resource_raw is None:
     raise ee_exception.EEException(
         'Earth Engine client library not initialized. Run `ee.Initialize()`')
-  return _cloud_api_resource
+
+
+def _get_cloud_projects():
+  _verify_cloud_api_resource()
+  return _cloud_api_resource.projects()
+
+
+def _get_cloud_projects_raw():
+  _verify_cloud_api_resource()
+  return _cloud_api_resource_raw.projects()
 
 
 def _make_request_headers():
@@ -440,9 +449,13 @@ def getInfo(asset_id):
   # Don't use getAsset as it will translate the exception, and we need
   # to handle 404s specially.
   try:
-    return _get_cloud_api_resource().projects().assets().get(
-        name=_cloud_api_utils.convert_asset_id_to_asset_name(asset_id),
-        prettyPrint=False).execute(num_retries=MAX_RETRIES)
+    name = _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
+    return (
+        _get_cloud_projects()
+        .assets()
+        .get(name=name, prettyPrint=False)
+        .execute(num_retries=MAX_RETRIES)
+    )
   except googleapiclient.errors.HttpError as e:
     if e.resp.status == 404:
       return None
@@ -459,9 +472,10 @@ def getAsset(asset_id):
   Returns:
     The asset's information, as an EarthEngineAsset.
   """
-  return _execute_cloud_call(_get_cloud_api_resource().projects().assets().get(
-      name=_cloud_api_utils.convert_asset_id_to_asset_name(asset_id),
-      prettyPrint=False))
+  name = _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
+  return _execute_cloud_call(
+      _get_cloud_projects().assets().get(name=name, prettyPrint=False)
+  )
 
 
 @deprecation.Deprecated('Use listAssets or listImages')
@@ -544,9 +558,9 @@ def listAssets(params):
     # wants to list their cloud assets, to do this we call the alternative
     # listAssets method and remove the trailing '/assets/?'
     params['parent'] = re.sub('/assets/?$', '', params['parent'])
-    cloud_resource_root = _get_cloud_api_resource().projects()
+    cloud_resource_root = _get_cloud_projects()
   else:
-    cloud_resource_root = _get_cloud_api_resource().projects().assets()
+    cloud_resource_root = _get_cloud_projects().assets()
   request = cloud_resource_root.listAssets(**params)
   response = None
   while request is not None:
@@ -568,8 +582,7 @@ def listAssets(params):
 def listBuckets(project=None):
   if project is None:
     project = _get_projects_path()
-  return _execute_cloud_call(
-      _get_cloud_api_resource().projects().listAssets(parent=project))
+  return _execute_cloud_call(_get_cloud_projects().listAssets(parent=project))
 
 
 def getMapId(params):
@@ -633,8 +646,10 @@ def getMapId(params):
   }
   _maybe_populate_workload_tag(queryParams)
   result = _execute_cloud_call(
-      _get_cloud_api_resource().projects().maps().create(
-          parent=_get_projects_path(), **queryParams))
+      _get_cloud_projects()
+      .maps()
+      .create(parent=_get_projects_path(), **queryParams)
+  )
   map_name = result['name']
   url_format = '%s/%s/%s/tiles/{z}/{x}/{y}' % (
       _tile_base_url, _cloud_api_utils.VERSION, map_name)
@@ -669,8 +684,10 @@ def getFeatureViewTilesKey(params):
   # Returns only the `name` field, otherwise it echoes the entire request, which
   # might be large.
   result = _execute_cloud_call(
-      _get_cloud_api_resource().projects().featureView().create(
-          parent=_get_projects_path(), fields='name', body=request))
+      _get_cloud_projects()
+      .featureView()
+      .create(parent=_get_projects_path(), fields='name', body=request)
+  )
   name = result['name']
   version = _cloud_api_utils.VERSION
   format_tile_url = (
@@ -708,8 +725,13 @@ def listFeatures(params):
   params['asset'] = _cloud_api_utils.convert_asset_id_to_asset_name(
       params.get('assetId'))
   del params['assetId']
-  return _execute_cloud_call(
-      _get_cloud_api_resource().projects().assets().listFeatures(**params))
+
+  def call(params):
+    return _execute_cloud_call(
+        _get_cloud_projects().assets().listFeatures(**params)
+    )
+
+  return call(params)
 
 
 def getPixels(params):
@@ -740,9 +762,12 @@ def getPixels(params):
   del params['assetId']
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
       params.get('fileFormat'))
-  return _execute_cloud_call(
-      _cloud_api_resource_raw.projects().assets().getPixels(
-          name=name, body=params))
+  data = _execute_cloud_call(
+      _get_cloud_projects_raw()
+      .assets()
+      .getPixels(name=name, body=params)
+  )
+  return data
 
 
 def computePixels(params):
@@ -771,9 +796,12 @@ def computePixels(params):
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
       params.get('fileFormat'))
   _maybe_populate_workload_tag(params)
-  return _execute_cloud_call(
-      _cloud_api_resource_raw.projects().image().computePixels(
-          project=_get_projects_path(), body=params))
+  data = _execute_cloud_call(
+      _get_cloud_projects_raw()
+      .image()
+      .computePixels(project=_get_projects_path(), body=params)
+  )
+  return data
 
 
 def computeImages(params):
@@ -796,8 +824,10 @@ def computeImages(params):
   params['expression'] = serializer.encode(params['expression'])
   _maybe_populate_workload_tag(params)
   return _execute_cloud_call(
-      _cloud_api_resource.projects().imageCollection().computeImages(
-          project=_get_projects_path(), body=params))
+      _get_cloud_projects()
+      .imageCollection()
+      .computeImages(project=_get_projects_path(), body=params)
+  )
 
 
 def computeFeatures(params):
@@ -819,9 +849,15 @@ def computeFeatures(params):
   params = params.copy()
   params['expression'] = serializer.encode(params['expression'])
   _maybe_populate_workload_tag(params)
-  return _execute_cloud_call(
-      _cloud_api_resource.projects().table().computeFeatures(
-          project=_get_projects_path(), body=params))
+
+  def call(params):
+    return _execute_cloud_call(
+        _get_cloud_projects()
+        .table()
+        .computeFeatures(project=_get_projects_path(), body=params)
+    )
+
+  return call(params)
 
 
 def getTileUrl(mapid, x, y, z):
@@ -895,9 +931,10 @@ class TileFetcher(object):
       EEException if the fetch fails.
     """
     return _execute_cloud_call(
-        _cloud_api_resource_raw.projects().maps().tiles().get(
-            parent=self._map_name, x=x, y=y, zoom=z,
-        ), num_retries=MAX_RETRIES
+        _get_cloud_projects_raw()
+        .maps()
+        .tiles()
+        .get(parent=self._map_name, x=x, y=y, zoom=z)
     )
 
 
@@ -914,10 +951,10 @@ def computeValue(obj):
   _maybe_populate_workload_tag(body)
 
   return _execute_cloud_call(
-      _get_cloud_api_resource().projects().value().compute(
-          body=body,
-          project=_get_projects_path(),
-          prettyPrint=False))['result']
+      _get_cloud_projects()
+      .value()
+      .compute(body=body, project=_get_projects_path(), prettyPrint=False)
+  )['result']
 
 
 @deprecation.Deprecated('Use getThumbId and makeThumbUrl')
@@ -942,21 +979,15 @@ def getThumbnail(params, thumbType=None):
   thumbid = params['image'].getThumbId(params)['thumbid']
   if thumbType == 'video':
     return _execute_cloud_call(
-        _cloud_api_resource_raw.projects().videoThumbnails().getPixels(
-            name=thumbid
-        ), num_retries=MAX_RETRIES
+        _get_cloud_projects_raw().videoThumbnails().getPixels(name=thumbid)
     )
   elif thumbType == 'filmstrip':
     return _execute_cloud_call(
-        _cloud_api_resource_raw.projects().filmstripThumbnails().getPixels(
-            name=thumbid
-        ), num_retries=MAX_RETRIES
+        _get_cloud_projects_raw().filmstripThumbnails().getPixels(name=thumbid)
     )
   else:
     return _execute_cloud_call(
-        _cloud_api_resource_raw.projects().thumbnails().getPixels(
-            name=thumbid
-        ), num_retries=MAX_RETRIES
+        _get_cloud_projects_raw().thumbnails().getPixels(name=thumbid)
     )
 
 
@@ -1018,21 +1049,28 @@ def getThumbId(params, thumbType=None):
           'framesPerSecond': params.get('framesPerSecond')
       }
     result = _execute_cloud_call(
-        _get_cloud_api_resource().projects().videoThumbnails().create(
-            parent=_get_projects_path(), **queryParams))
+        _get_cloud_projects()
+        .videoThumbnails()
+        .create(parent=_get_projects_path(), **queryParams)
+    )
   elif thumbType == 'filmstrip':
     # Currently only 'VERTICAL' thumbnails are supported.
     request['orientation'] = 'VERTICAL'
     result = _execute_cloud_call(
-        _get_cloud_api_resource().projects().filmstripThumbnails().create(
-            parent=_get_projects_path(), **queryParams))
+        _get_cloud_projects()
+        .filmstripThumbnails()
+        .create(parent=_get_projects_path(), **queryParams)
+    )
   else:
     request['filenamePrefix'] = params.get('name')
     request['bandIds'] = _cloud_api_utils.convert_to_band_list(
-        params.get('bands'))
+        params.get('bands')
+    )
     result = _execute_cloud_call(
-        _get_cloud_api_resource().projects().thumbnails().create(
-            parent=_get_projects_path(), **queryParams))
+        _get_cloud_projects()
+        .thumbnails()
+        .create(parent=_get_projects_path(), **queryParams)
+    )
   return {'thumbid': result['name'], 'token': ''}
 
 
@@ -1157,8 +1195,10 @@ def getDownloadId(params):
   }
   _maybe_populate_workload_tag(queryParams)
   result = _execute_cloud_call(
-      _get_cloud_api_resource().projects().thumbnails().create(
-          parent=_get_projects_path(), **queryParams))
+      _get_cloud_projects()
+      .thumbnails()
+      .create(parent=_get_projects_path(), **queryParams)
+  )
   return {'docid': result['name'], 'token': ''}
 
 
@@ -1217,8 +1257,10 @@ def getTableDownloadId(params):
   }
   _maybe_populate_workload_tag(queryParams)
   result = _execute_cloud_call(
-      _get_cloud_api_resource().projects().tables().create(
-          parent=_get_projects_path(), **queryParams))
+      _get_cloud_projects()
+      .tables()
+      .create(parent=_get_projects_path(), **queryParams)
+  )
   return {'docid': result['name'], 'token': ''}
 
 
@@ -1252,11 +1294,17 @@ def getAlgorithms():
                 is not specified.
   """
   try:
-    call = _get_cloud_api_resource().projects().algorithms().list(
-        parent=_get_projects_path(), prettyPrint=False)
+    call = (
+        _get_cloud_projects()
+        .algorithms()
+        .list(parent=_get_projects_path(), prettyPrint=False)
+    )
   except TypeError:
-    call = _get_cloud_api_resource().projects().algorithms().list(
-        project=_get_projects_path(), prettyPrint=False)
+    call = (
+        _get_cloud_projects()
+        .algorithms()
+        .list(project=_get_projects_path(), prettyPrint=False)
+    )
 
   def inspect(response):
     if _INIT_MESSAGE_HEADER in response:
@@ -1302,11 +1350,15 @@ def createAsset(
       asset['type'])
   parent, asset_id = _cloud_api_utils.split_asset_name(asset.pop('name'))
   return _execute_cloud_call(
-      _get_cloud_api_resource().projects().assets().create(
+      _get_cloud_projects()
+      .assets()
+      .create(
           parent=parent,
           assetId=asset_id,
           body=asset,
-          prettyPrint=False))
+          prettyPrint=False,
+      )
+  )
 
 
 def copyAsset(sourceId, destinationId, allowOverwrite=False
@@ -1324,11 +1376,10 @@ def copyAsset(sourceId, destinationId, allowOverwrite=False
       'overwrite':
           allowOverwrite
   }
-  _execute_cloud_call(_get_cloud_api_resource().projects().assets().copy(
-      sourceName=_cloud_api_utils.convert_asset_id_to_asset_name(sourceId),
-      body=request))
-
-  return
+  name = _cloud_api_utils.convert_asset_id_to_asset_name(sourceId)
+  _execute_cloud_call(
+      _get_cloud_projects().assets().copy(sourceName=name, body=request)
+  )
 
 
 def renameAsset(sourceId, destinationId):
@@ -1338,13 +1389,13 @@ def renameAsset(sourceId, destinationId):
     sourceId: The ID of the asset to rename.
     destinationId: The new ID of the asset.
   """
-  _execute_cloud_call(_get_cloud_api_resource().projects().assets().move(
-      sourceName=_cloud_api_utils.convert_asset_id_to_asset_name(sourceId),
-      body={
-          'destinationName':
-              _cloud_api_utils.convert_asset_id_to_asset_name(destinationId)
-      }))
-  return
+  src_name = _cloud_api_utils.convert_asset_id_to_asset_name(sourceId)
+  dest_name = _cloud_api_utils.convert_asset_id_to_asset_name(destinationId)
+  _execute_cloud_call(
+      _get_cloud_projects()
+      .assets()
+      .move(sourceName=src_name, body={'destinationName': dest_name})
+  )
 
 
 def deleteAsset(assetId):
@@ -1353,9 +1404,8 @@ def deleteAsset(assetId):
   Args:
     assetId: The ID of the asset to delete.
   """
-  _execute_cloud_call(_get_cloud_api_resource().projects().assets().delete(
-      name=_cloud_api_utils.convert_asset_id_to_asset_name(assetId)))
-  return
+  name = _cloud_api_utils.convert_asset_id_to_asset_name(assetId)
+  _execute_cloud_call(_get_cloud_projects().assets().delete(name=name))
 
 
 def newTaskId(count=1):
@@ -1397,16 +1447,15 @@ def listOperations(project=None):
   if project is None:
     project = _get_projects_path()
   operations = []
-  request = _get_cloud_api_resource().projects().operations().list(
-      pageSize=_TASKLIST_PAGE_SIZE, name=project)
+  request = (
+      _get_cloud_projects()
+      .operations()
+      .list(pageSize=_TASKLIST_PAGE_SIZE, name=project)
+  )
   while request is not None:
-    try:
-      response = request.execute(num_retries=MAX_RETRIES)
-      operations += response.get('operations', [])
-      request = _cloud_api_resource.projects().operations().list_next(
-          request, response)
-    except googleapiclient.errors.HttpError as e:
-      raise _translate_cloud_exception(e)
+    response = _execute_cloud_call(request)
+    operations += response.get('operations', [])
+    request = _get_cloud_projects().operations().list_next(request, response)
   return operations
 
 
@@ -1433,9 +1482,12 @@ def getTaskStatus(taskId):
     try:
       # Don't use getOperation as it will translate the exception, and we need
       # to handle 404s specially.
-      operation = _get_cloud_api_resource().projects().operations().get(
-          name=_cloud_api_utils.convert_task_id_to_operation_name(
-              one_id)).execute(num_retries=MAX_RETRIES)
+      operation = (
+          _get_cloud_projects()
+          .operations()
+          .get(name=_cloud_api_utils.convert_task_id_to_operation_name(one_id))
+          .execute(num_retries=MAX_RETRIES)
+      )
       result.append(_cloud_api_utils.convert_operation_to_task(operation))
     except googleapiclient.errors.HttpError as e:
       if e.resp.status == 404:
@@ -1456,8 +1508,8 @@ def getOperation(operation_name):
     An Operation status dictionary for the requested operation.
   """
   return _execute_cloud_call(
-      _get_cloud_api_resource().projects().operations().get(
-          name=operation_name))
+      _get_cloud_projects().operations().get(name=operation_name)
+  )
 
 
 @deprecation.Deprecated('Use cancelOperation')
@@ -1468,8 +1520,9 @@ def cancelTask(taskId):
 
 
 def cancelOperation(operation_name):
-  _execute_cloud_call(_get_cloud_api_resource().projects().operations().cancel(
-      name=operation_name, body={}))
+  _execute_cloud_call(
+      _get_cloud_projects().operations().cancel(name=operation_name, body={})
+  )
 
 
 def exportImage(request_id, params):
@@ -1495,8 +1548,8 @@ def exportImage(request_id, params):
   """
   params = params.copy()
   return _prepare_and_run_export(
-      request_id, params,
-      _get_cloud_api_resource().projects().image().export)
+      request_id, params, _get_cloud_projects().image().export
+  )
 
 
 def exportTable(request_id, params):
@@ -1522,8 +1575,8 @@ def exportTable(request_id, params):
   """
   params = params.copy()
   return _prepare_and_run_export(
-      request_id, params,
-      _get_cloud_api_resource().projects().table().export)
+      request_id, params, _get_cloud_projects().table().export
+  )
 
 
 def exportVideo(request_id, params):
@@ -1549,8 +1602,8 @@ def exportVideo(request_id, params):
   """
   params = params.copy()
   return _prepare_and_run_export(
-      request_id, params,
-      _get_cloud_api_resource().projects().video().export)
+      request_id, params, _get_cloud_projects().video().export
+  )
 
 
 def exportMap(request_id, params):
@@ -1576,8 +1629,8 @@ def exportMap(request_id, params):
   """
   params = params.copy()
   return _prepare_and_run_export(
-      request_id, params,
-      _get_cloud_api_resource().projects().map().export)
+      request_id, params, _get_cloud_projects().map().export
+  )
 
 
 def _prepare_and_run_export(request_id, params, export_endpoint):
@@ -1589,7 +1642,7 @@ def _prepare_and_run_export(request_id, params, export_endpoint):
       parameter can be the actual object to be exported, not its serialized
       form. This may be modified.
     export_endpoint: A callable representing the export endpoint to invoke
-      (e.g., _cloud_api_resource.image().export).
+      (e.g., _get_cloud_api_resource().image().export).
 
   Returns:
     An Operation with information about the created task.
@@ -1657,9 +1710,11 @@ def startIngestion(request_id, params, allow_overwrite=False):
   # idempotent.
   num_retries = MAX_RETRIES if request_id else 0
   operation = _execute_cloud_call(
-      _get_cloud_api_resource().projects().image().import_(
-          project=_get_projects_path(), body=request),
-      num_retries=num_retries)
+      _get_cloud_projects()
+      .image()
+      .import_(project=_get_projects_path(), body=request),
+      num_retries=num_retries,
+  )
   return {
       'id':
           _cloud_api_utils.convert_operation_name_to_task_id(
@@ -1705,9 +1760,11 @@ def startTableIngestion(request_id, params, allow_overwrite=False):
   # idempotent.
   num_retries = MAX_RETRIES if request_id else 0
   operation = _execute_cloud_call(
-      _get_cloud_api_resource().projects().table().import_(
-          project=_get_projects_path(), body=request),
-      num_retries=num_retries)
+      _get_cloud_projects()
+      .table()
+      .import_(project=_get_projects_path(), body=request),
+      num_retries=num_retries,
+  )
   return {
       'id':
           _cloud_api_utils.convert_operation_name_to_task_id(
@@ -1801,11 +1858,12 @@ def getIamPolicy(asset_id):
   Returns:
     The asset's ACL, as an IAM Policy.
   """
+  name = _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
   return _execute_cloud_call(
-      _get_cloud_api_resource().projects().assets().getIamPolicy(
-          resource=_cloud_api_utils.convert_asset_id_to_asset_name(asset_id),
-          body={},
-          prettyPrint=False))
+      _get_cloud_projects()
+      .assets()
+      .getIamPolicy(resource=name, body={}, prettyPrint=False)
+  )
 
 
 @deprecation.Deprecated('Use setIamPolicy')
@@ -1839,11 +1897,12 @@ def setIamPolicy(asset_id, policy):
   Returns:
     The new ACL, as an IAM Policy.
   """
+  name = _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
   return _execute_cloud_call(
-      _get_cloud_api_resource().projects().assets().setIamPolicy(
-          resource=_cloud_api_utils.convert_asset_id_to_asset_name(asset_id),
-          body={'policy': policy},
-          prettyPrint=False))
+      _get_cloud_projects()
+      .assets()
+      .setIamPolicy(resource=name, body={'policy': policy}, prettyPrint=False)
+  )
 
 
 def setAssetProperties(assetId, properties):
@@ -1883,13 +1942,13 @@ def updateAsset(asset_id, asset, update_mask):
       empty, all properties and both timestamps will be updated.
   """
   name = _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
-  _execute_cloud_call(_get_cloud_api_resource().projects().assets().patch(
-      name=name, body={
-          'updateMask': {
-              'paths': update_mask
-          },
-          'asset': asset
-      }))
+  _execute_cloud_call(
+      _get_cloud_projects()
+      .assets()
+      .patch(
+          name=name, body={'updateMask': {'paths': update_mask}, 'asset': asset}
+      )
+  )
 
 
 def createAssetHome(requestedId):

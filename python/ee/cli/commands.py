@@ -553,7 +553,7 @@ class AclChCommand(object):
     # We previously used "AllUsers" as the magic string to denote that we wanted
     # to apply some permission to everyone. However, Google Cloud convention for
     # this concept is "allUsers". Because some people might be using one and
-    # some the other, we do a case-insentive comparison.
+    # some the other, we do a case-insensitive comparison.
     return user.lower() == ALL_USERS.lower()
 
 

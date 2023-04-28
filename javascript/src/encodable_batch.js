@@ -306,7 +306,7 @@ ee.rpc_convert_batch.buildGeoTiffFormatOptions_ = function(params) {
         Boolean(params['skipEmptyTiles'] || params['tiffSkipEmptyFiles']),
     tileDimensions: ee.rpc_convert_batch.buildGridDimensions_(fileDimensions),
     tileSize: numberOrNull_(tileSize),
-    noData: noDataOrNull_(params['noData']),
+    noData: noDataOrNull_(params['tiffNoData']),
   });
 };
 

@@ -87,27 +87,40 @@ class ApiTestCase(unittest.TestCase):
     return {'docid': '5', 'token': '6'}
 
 
+def _GenerateCloudApiResource(mock_http, raw):
+  """Returns a Cloud API resource for testing."""
+  discovery_doc_path = os.path.join(
+     os.path.dirname(os.path.realpath(__file__)),
+     "tests/cloud_api_discovery_document.json")
+  with open(discovery_doc_path) as discovery_doc_file:
+    discovery_doc_str = discovery_doc_file.read()
+  return _cloud_api_utils.build_cloud_resource_from_document(
+      json.loads(discovery_doc_str),
+      http_transport=mock_http,
+      headers_supplier=ee.data._make_request_headers,  # pylint: disable=protected-access
+      response_inspector=ee.data._handle_profiling_response,  # pylint: disable=protected-access
+      raw=raw,
+  )
+
+
 @contextlib.contextmanager
-def UsingCloudApi(cloud_api_resource=None, mock_http=None):
+def UsingCloudApi(
+    cloud_api_resource=None, cloud_api_resource_raw=None, mock_http=None
+):
   """Returns a context manager under which the Cloud API is enabled."""
-  old_cloud_api_resource = ee.data._cloud_api_resource
+  old_cloud_api_resource = ee.data._cloud_api_resource  # pylint: disable=protected-access
+  old_cloud_api_resource_raw = ee.data._cloud_api_resource_raw  # pylint: disable=protected-access
   try:
     if cloud_api_resource is None:
-      discovery_doc_path = os.path.join(
-         os.path.dirname(os.path.realpath(__file__)),
-         "tests/cloud_api_discovery_document.json")
-      with open(discovery_doc_path) as discovery_doc_file:
-        discovery_doc_str = discovery_doc_file.read()
-      cloud_api_resource = (
-          _cloud_api_utils.build_cloud_resource_from_document(
-              json.loads(discovery_doc_str),
-              http_transport=mock_http,
-              headers_supplier=ee.data._make_request_headers,
-              response_inspector=ee.data._handle_profiling_response))
-    ee.data._cloud_api_resource = cloud_api_resource
+      cloud_api_resource = _GenerateCloudApiResource(mock_http, False)
+    if cloud_api_resource_raw is None:
+      cloud_api_resource_raw = _GenerateCloudApiResource(mock_http, True)
+    ee.data._cloud_api_resource = cloud_api_resource  # pylint: disable=protected-access
+    ee.data._cloud_api_resource_raw = cloud_api_resource_raw  # pylint: disable=protected-access
     yield
   finally:
-    ee.data._cloud_api_resource = old_cloud_api_resource
+    ee.data._cloud_api_resource = old_cloud_api_resource  # pylint: disable=protected-access
+    ee.data._cloud_api_resource_raw = old_cloud_api_resource_raw  # pylint: disable=protected-access
 
 
 # A sample of encoded EE API JSON, used by SerializerTest and DeserializerTest.

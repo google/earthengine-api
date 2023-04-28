@@ -1,6 +1,5 @@
 #!/usr/bin/env python
 """Test for the ee.batch module."""
-import copy
 from unittest import mock
 
 import unittest
@@ -112,7 +111,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           tiffCloudOptimized=True,
           shardSize=512,
           fileDimensions=1024,
-          noData=1,
+          formatOptions={'noData': 1},
       )
       task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)
       expected_expression = ee.Image(1).reproject(
@@ -347,72 +346,6 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'value': '10000000000'
           },
       }, task.config)
-
-  def testUnknownFileFormat(self):
-    self.assertRaisesRegex(ee.EEException, '.*file format.*',
-                           ee.batch.ConvertFormatSpecificParams,
-                           {'fileFormat': 'mp3'})
-
-  def testFormatParamSpecifiedTwice(self):
-    self.assertRaisesRegex(ee.EEException, '.*at least twice.*',
-                           ee.batch.ConvertFormatSpecificParams, {
-                               'cloudOptimized': False,
-                               'formatOptions': {
-                                   'cloudOptimized': True
-                               }
-                           })
-
-  def testDisallowedFormatPrefix(self):
-    self.assertRaisesRegex(ee.EEException, '.*prefix "tiff" disallowed.*',
-                           ee.batch.ConvertFormatSpecificParams, {
-                               'tiffCloudOptimized': False,
-                               'formatOptions': {
-                                   'cloudOptimized': True
-                               }
-                           })
-
-  def testUnknownFormatOption(self):
-    self.assertRaisesRegex(ee.EEException, '.*not a valid option.*',
-                           ee.batch.ConvertFormatSpecificParams,
-                           {'formatOptions': {
-                               'garbage': 0
-                           }})
-
-  def testConvertFormat(self):
-    config = {
-        'fieldA': 1,
-        'fieldB': 3,
-        'fileFormat': 'GEoTIFF',
-        'formatOptions': {
-            'cloudOptimized': False
-        }
-    }
-    fixed_config = copy.copy(config)
-    ee.batch.ConvertFormatSpecificParams(fixed_config)
-    self.assertEqual(
-        fixed_config, {
-            'fieldA': 1,
-            'fieldB': 3,
-            'fileFormat': 'GEoTIFF',
-            'tiffCloudOptimized': False
-        })
-
-  def testConvertFormatTfRecord(self):
-    config = {
-        'fileFormat': 'tfrecord',
-        'formatOptions': {
-            'patchDimensions': [10, 10],
-            'compressed': True
-        }
-    }
-    fixed_config = copy.copy(config)
-    ee.batch.ConvertFormatSpecificParams(fixed_config)
-    self.assertEqual(
-        fixed_config, {
-            'fileFormat': 'tfrecord',
-            'tfrecordPatchDimensions': '10,10',
-            'tfrecordCompressed': True
-        })
 
   def testExportImageToGoogleDriveCloudApi(self):
     """Verifies the Drive destined task created by Export.image.toDrive()."""

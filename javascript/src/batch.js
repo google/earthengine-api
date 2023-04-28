@@ -780,6 +780,7 @@ const FORMAT_OPTIONS_MAP = {
   'GEO_TIFF': [
     'cloudOptimized',
     'fileDimensions',
+    'noData',
     'shardSize',
   ],
   'TF_RECORD_IMAGE': [

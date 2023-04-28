@@ -184,10 +184,13 @@ def build_cloud_resource(api_base_url,
   return resource
 
 
-def build_cloud_resource_from_document(discovery_document,
-                                       http_transport=None,
-                                       headers_supplier=None,
-                                       response_inspector=None):
+def build_cloud_resource_from_document(
+    discovery_document,
+    http_transport=None,
+    headers_supplier=None,
+    response_inspector=None,
+    raw=False,
+):
   """Builds an Earth Engine Cloud API resource from a description of the API.
 
   This version is intended for use in tests.
@@ -199,6 +202,7 @@ def build_cloud_resource_from_document(discovery_document,
       to a request. Will be called once for each request.
     response_inspector: A callable that will be invoked with the raw
       httplib2.Response responses.
+    raw: Whether to return raw bytes when making method requests.
 
   Returns:
     A resource object to use to call the Cloud API.
@@ -206,10 +210,13 @@ def build_cloud_resource_from_document(discovery_document,
   request_builder = _wrap_request(headers_supplier, response_inspector)
   if http_transport is None:
     http_transport = _Http()
+  alt_model = model.RawModel() if raw else None
   return discovery.build_from_document(
       discovery_document,
       http=http_transport,
-      requestBuilder=request_builder)
+      requestBuilder=request_builder,
+      model=alt_model,
+  )
 
 
 def _convert_dict(to_convert,

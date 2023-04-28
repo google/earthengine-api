@@ -886,14 +886,6 @@ IMAGE_FORMAT_FIELD = 'fileFormat'
 # Image format-specific options dictionary config field.
 IMAGE_FORMAT_OPTIONS_FIELD = 'formatOptions'
 
-# Format-specific options permitted in formatOptions config parameter.
-ALLOWED_FORMAT_OPTIONS = {
-    'tiffCloudOptimized', 'tiffFileDimensions', 'tfrecordPatchDimensions',
-    'tfrecordKernelSize', 'tfrecordCompressed', 'tfrecordMaxFileSize',
-    'tfrecordDefaultValue', 'tfrecordTensorDepths', 'tfrecordSequenceData',
-    'tfrecordCollapseBands', 'tfrecordMaskedThreshold'
-}
-
 # Export destinations which do not require file format/options configuration.
 NON_FILE_DESTINATIONS = frozenset([
     Task.ExportDestination.ASSET,
@@ -915,63 +907,6 @@ def _ConvertConfigParams(config):
         updatedConfig[k] = ','.join(str(e) for e in v)
 
   return updatedConfig
-
-
-# TODO(user): This method and its uses are very hack-y, and once we're using One
-# Platform API we should stop sending arbitrary parameters from "options".
-def ConvertFormatSpecificParams(configDict):
-  """Mutates configDict into server params by extracting format options.
-
-    For example:
-      {'fileFormat': 'GeoTIFF', 'formatOptions': {'cloudOptimized': true}}
-    becomes:
-      {'fileFormat': 'GeoTIFF', 'tiffCloudOptimized': true}
-
-    Also performs checks to make sure any specified options are valid and/or
-    won't collide with top level arguments when converted to server-friendly
-    parameters.
-
-  Args:
-    configDict: A task config dict
-
-  Raises:
-    EEException: We were unable to create format specific parameters for the
-    server.
-  """
-
-  formatString = 'GeoTIFF'
-  if IMAGE_FORMAT_FIELD in configDict:
-    formatString = configDict[IMAGE_FORMAT_FIELD]
-
-  formatString = formatString.upper()
-  if formatString not in FORMAT_PREFIX_MAP:
-    raise ee_exception.EEException(
-        'Invalid file format. Currently only "GeoTIFF" and "TFRecord" is '
-        'supported.')
-
-  if IMAGE_FORMAT_OPTIONS_FIELD in configDict:
-    options = configDict.pop(IMAGE_FORMAT_OPTIONS_FIELD)
-
-    if set(options) & set(configDict):
-      raise ee_exception.EEException(
-          'Parameter specified at least twice: once in config, '
-          'and once in format options.')
-
-    prefix = FORMAT_PREFIX_MAP[formatString]
-    _CheckConfigDisallowedPrefixes(configDict, prefix)
-
-    prefixedOptions = {}
-    for key, value in options.items():
-      prefixedKey = prefix + key[:1].upper() + key[1:]
-      if prefixedKey not in ALLOWED_FORMAT_OPTIONS:
-        raise ee_exception.EEException(
-            '"{}" is not a valid option for "{}".'.format(
-                key, formatString))
-      prefixedOptions[prefixedKey] = value
-
-    prefixedOptions.update(_ConvertConfigParams(prefixedOptions))
-
-    configDict.update(prefixedOptions)
 
 
 def _prepare_image_export_config(image, config, export_destination):
@@ -1223,6 +1158,10 @@ def _build_image_file_export_options(config, export_destination):
     geo_tiff_options = {}
     if file_format_options.pop('cloudOptimized', False):
       geo_tiff_options['cloudOptimized'] = True
+    if 'noData' in file_format_options:
+      geo_tiff_options['noData'] = {
+          'floatValue': file_format_options.pop('noData')
+      }
     file_dimensions = file_format_options.pop('fileDimensions', None)
     if 'fileDimensions' in config:
       if file_dimensions is not None:
@@ -1239,8 +1178,6 @@ def _build_image_file_export_options(config, export_destination):
       geo_tiff_options['skipEmptyFiles'] = True
     if config.get('shardSize', None):
       geo_tiff_options['tileSize'] = {'value': config.pop('shardSize')}
-    if config.get('noData', None):
-      geo_tiff_options['noData'] = {'floatValue': config.pop('noData')}
     if geo_tiff_options:
       file_export_options['geoTiffOptions'] = geo_tiff_options
   elif file_format == 'TF_RECORD_IMAGE':
