@@ -6547,7 +6547,10 @@ goog.string.Const.TYPE_MARKER_ = {};
 goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ = {};
 goog.string.Const.EMPTY = goog.string.Const.from("");
 var module$contents$goog$html$SafeScript_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeScript_SafeScript = function(value, token) {
-  this.privateDoNotAccessOrElseSafeScriptWrappedValue_ = token === module$contents$goog$html$SafeScript_CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
+  if (goog.DEBUG && token !== module$contents$goog$html$SafeScript_CONSTRUCTOR_TOKEN_PRIVATE) {
+    throw Error("SafeScript is not meant to be built directly");
+  }
+  this.privateDoNotAccessOrElseSafeScriptWrappedValue_ = value;
   this.implementsGoogStringTypedString = !0;
 };
 module$contents$goog$html$SafeScript_SafeScript.prototype.toString = function() {
@@ -6639,7 +6642,10 @@ goog.fs.blob.getBlobWithProperties = function(parts, opt_type, opt_endings) {
   throw Error("This browser doesn't seem to support creating Blobs");
 };
 goog.html.TrustedResourceUrl = function(value, token) {
-  this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = token === goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ ? value : "";
+  if (goog.DEBUG && token !== goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_) {
+    throw Error("TrustedResourceUrl is not meant to be built directly");
+  }
+  this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = value;
 };
 goog.html.TrustedResourceUrl.prototype.toString = function() {
   return this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ + "";
@@ -6718,7 +6724,10 @@ goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, 
   return currentString;
 };
 goog.html.SafeUrl = function(value, token) {
-  this.privateDoNotAccessOrElseSafeUrlWrappedValue_ = token === goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_ ? value : "";
+  if (goog.DEBUG && token !== goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_) {
+    throw Error("SafeUrl is not meant to be built directly");
+  }
+  this.privateDoNotAccessOrElseSafeUrlWrappedValue_ = value;
 };
 goog.html.SafeUrl.prototype.toString = function() {
   return this.privateDoNotAccessOrElseSafeUrlWrappedValue_.toString();
@@ -6908,7 +6917,10 @@ goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse = function(url) 
 goog.html.SafeUrl.INNOCUOUS_URL = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.html.SafeUrl.INNOCUOUS_STRING);
 goog.html.SafeUrl.ABOUT_BLANK = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse("about:blank");
 var module$contents$goog$html$SafeStyle_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeStyle_SafeStyle = function(value, token) {
-  this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = token === module$contents$goog$html$SafeStyle_CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
+  if (goog.DEBUG && token !== module$contents$goog$html$SafeStyle_CONSTRUCTOR_TOKEN_PRIVATE) {
+    throw Error("SafeStyle is not meant to be built directly");
+  }
+  this.privateDoNotAccessOrElseSafeStyleWrappedValue_ = value;
   this.implementsGoogStringTypedString = !0;
 };
 module$contents$goog$html$SafeStyle_SafeStyle.fromConstant = function(style) {
@@ -7026,7 +7038,10 @@ function module$contents$goog$html$SafeStyle_sanitizeUrl(value) {
 }
 goog.html.SafeStyle = module$contents$goog$html$SafeStyle_SafeStyle;
 var module$contents$goog$html$SafeStyleSheet_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeStyleSheet_SafeStyleSheet = function(value, token) {
-  this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = token === module$contents$goog$html$SafeStyleSheet_CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
+  if (goog.DEBUG && token !== module$contents$goog$html$SafeStyleSheet_CONSTRUCTOR_TOKEN_PRIVATE) {
+    throw Error("SafeStyleSheet is not meant to be built directly");
+  }
+  this.privateDoNotAccessOrElseSafeStyleSheetWrappedValue_ = value;
   this.implementsGoogStringTypedString = !0;
 };
 module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.prototype.toString = function() {
@@ -7089,7 +7104,10 @@ module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecu
 module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.EMPTY = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse("");
 goog.html.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
 var module$contents$goog$html$SafeHtml_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeHtml_SafeHtml = function(value, token) {
-  this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = token === module$contents$goog$html$SafeHtml_CONSTRUCTOR_TOKEN_PRIVATE ? value : "";
+  if (goog.DEBUG && token !== module$contents$goog$html$SafeHtml_CONSTRUCTOR_TOKEN_PRIVATE) {
+    throw Error("SafeHtml is not meant to be built directly");
+  }
+  this.privateDoNotAccessOrElseSafeHtmlWrappedValue_ = value;
   this.implementsGoogStringTypedString = !0;
 };
 module$contents$goog$html$SafeHtml_SafeHtml.prototype.getTypedStringValue = function() {
@@ -9371,15 +9389,20 @@ module$exports$eeapiclient$ee_api_client.BigQueryDestination = function(paramete
   module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("table", null == parameters.table ? null : parameters.table);
   this.Serializable$set("overwrite", null == parameters.overwrite ? null : parameters.overwrite);
+  this.Serializable$set("append", null == parameters.append ? null : parameters.append);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.BigQueryDestination, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.BigQueryDestination.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.BigQueryDestination;
 };
 module$exports$eeapiclient$ee_api_client.BigQueryDestination.prototype.getPartialClassMetadata = function() {
-  return {keys:["overwrite", "table"]};
+  return {keys:["append", "overwrite", "table"]};
 };
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.BigQueryDestination.prototype, {overwrite:{configurable:!0, enumerable:!0, get:function() {
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.BigQueryDestination.prototype, {append:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("append") ? this.Serializable$get("append") : null;
+}, set:function(value) {
+  this.Serializable$set("append", value);
+}}, overwrite:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("overwrite") ? this.Serializable$get("overwrite") : null;
 }, set:function(value) {
   this.Serializable$set("overwrite", value);
@@ -17588,7 +17611,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1ALPHA;
-ee.apiclient.API_CLIENT_VERSION = "0.1.352";
+ee.apiclient.API_CLIENT_VERSION = "0.1.353";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17869,8 +17892,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType,}, version = "0.1.352";
-  "0.1.352" === version && (version = "latest");
+  var headers = {"Content-Type":contentType,}, version = "0.1.353";
+  "0.1.353" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -19431,7 +19454,7 @@ ee.rpc_convert_batch.buildFeatureViewDestination_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.FeatureViewDestination({name:ee.rpc_convert.assetIdToAssetName(params.mapName)});
 };
 ee.rpc_convert_batch.buildBigQueryDestination_ = function(params) {
-  return new module$exports$eeapiclient$ee_api_client.BigQueryDestination({table:stringOrNull_(params.table), overwrite:!!params.overwrite,});
+  return new module$exports$eeapiclient$ee_api_client.BigQueryDestination({table:stringOrNull_(params.table), overwrite:!!params.overwrite, append:!!params.append,});
 };
 ee.rpc_convert_batch.buildFeatureViewIngestionTimeParameters_ = function(params) {
   return new module$exports$eeapiclient$ee_api_client.FeatureViewIngestionTimeParameters({thinningOptions:ee.rpc_convert_batch.buildThinningOptions_(params), rankingOptions:ee.rpc_convert_batch.buildRankingOptions_(params)});
@@ -21987,7 +22010,7 @@ module$contents$ee$batch_Export.table.toFeatureView = function(collection, opt_d
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
 goog.exportSymbol("module$contents$ee$batch_Export.table.toFeatureView", module$contents$ee$batch_Export.table.toFeatureView);
-module$contents$ee$batch_Export.table.toBigQuery = function(collection, opt_description, opt_table, opt_selectors, opt_maxVertices, opt_overwrite) {
+module$contents$ee$batch_Export.table.toBigQuery = function(collection, opt_description, opt_table, opt_selectors, opt_maxVertices, opt_overwrite, opt_append) {
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.table.toBigQuery, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.BIGQUERY, ee.data.ExportType.TABLE);
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
