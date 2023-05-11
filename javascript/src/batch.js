@@ -892,7 +892,7 @@ Export.reconcileImageFormat = function(taskConfig) {
  * Validates any format specific options, and converts said options to a
  * backend friendly format.
  * @param {!ServerTaskConfig} taskConfig Arguments
- *     passed to an map export "toCloudStorage" request.
+ *     passed to a map export "toCloudStorage" request.
  * @return {!ServerTaskConfig}
  */
 Export.reconcileMapFormat = function(taskConfig) {

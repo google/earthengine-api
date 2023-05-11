@@ -1327,11 +1327,10 @@ def createAsset(
   If you are using the Cloud API, use "IMAGE_COLLECTION" or "FOLDER".
 
   Args:
-    value: An object describing the asset to create or a JSON string
-        with the already-serialized value for the new asset.
+    value: An object describing the asset to create.
     opt_path: An optional desired ID, including full path.
-    opt_properties: The keys and values of the properties to set
-        on the created asset.
+    opt_properties: The keys and values of the properties to set on the created
+      asset.
 
   Returns:
     A description of the saved asset, including a generated ID.
@@ -1346,6 +1345,20 @@ def createAsset(
     asset['name'] = _cloud_api_utils.convert_asset_id_to_asset_name(opt_path)
   if 'properties' not in asset and opt_properties:
     asset['properties'] = opt_properties
+  # Make sure title and description are loaded in as properties.
+  move_to_properties = ['title', 'description']
+  for prop in move_to_properties:
+    if prop in asset:
+      if 'properties' not in asset or not isinstance(asset['properties'], dict):
+        asset['properties'] = {prop: asset[prop]}
+      else:
+        properties = asset['properties'].copy()
+        properties.setdefault(prop, asset[prop])
+        asset['properties'] = properties
+      del asset[prop]
+  if 'gcs_location' in asset and 'cloud_storage_location' not in asset:
+    asset['cloud_storage_location'] = asset['gcs_location']
+    del asset['gcs_location']
   asset['type'] = _cloud_api_utils.convert_asset_type_for_create_asset(
       asset['type'])
   parent, asset_id = _cloud_api_utils.split_asset_name(asset.pop('name'))

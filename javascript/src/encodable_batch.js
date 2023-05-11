@@ -434,7 +434,7 @@ ee.rpc_convert_batch.buildImageAssetExportOptions_ = function(params) {
 
 
 /**
- * Returns an TableFileExportOptions built from ExportParameters.
+ * Returns a TableFileExportOptions built from ExportParameters.
  *
  * @param {!Object} params
  * @param {string} destination

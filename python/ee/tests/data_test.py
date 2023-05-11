@@ -43,6 +43,88 @@ class DataTest(unittest.TestCase):
     with apitestcase.UsingCloudApi(mock_http=mock_http):
       self.assertEqual([], ee.data.listOperations())
 
+  def testCreateAsset(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {
+          'type': 'FOLDER',
+          'name': 'projects/earthengine-legacy/assets/users/foo/xyz1234',
+          'id': 'users/foo/xyz1234',
+      }
+      cloud_api_resource.projects().assets().create.execute.return_value = (
+          mock_result
+      )
+      ee.data.createAsset({'type': 'FOLDER'}, 'users/foo/xyz123')
+      mock_create_asset = cloud_api_resource.projects().assets().create
+      mock_create_asset.assert_called_once()
+      parent = mock_create_asset.call_args.kwargs['parent']
+      self.assertEqual(parent, 'projects/earthengine-legacy')
+      asset_id = mock_create_asset.call_args.kwargs['assetId']
+      self.assertEqual(asset_id, 'users/foo/xyz123')
+      asset = mock_create_asset.call_args.kwargs['body']
+      self.assertEqual(asset, {'type': 'FOLDER'})
+
+  def testCreateAssetWithV1AlphaParams(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {
+          'type': 'IMAGE',
+          'name': 'projects/earthengine-legacy/assets/users/foo/xyz1234',
+          'id': 'users/foo/xyz1234',
+          'properties': {
+              'title': 'My Test Asset',
+              'description': 'original description',
+              'myProperty': 1,
+          },
+          'cloudStorageLocation': {'uris': ['gs://my-bucket/path']},
+          'tilestoreLocation': {'sources': []},
+      }
+      cloud_api_resource.projects().assets().create.execute.return_value = (
+          mock_result
+      )
+      test_properties = {
+          'myProperty': 1,
+          'description': 'original description',
+      }
+      ee.data.createAsset(
+          {
+              'type': 'IMAGE',
+              'gcs_location': {'uris': ['gs://my-bucket/path']},
+              'tilestore_entry': {'sources': []},
+              'title': 'My Test Asset',
+              'description': 'new description',
+              'properties': test_properties,
+          },
+          'users/foo/xyz123',
+      )
+      mock_create_asset = cloud_api_resource.projects().assets().create
+      mock_create_asset.assert_called_once()
+      parent = mock_create_asset.call_args.kwargs['parent']
+      self.assertEqual(parent, 'projects/earthengine-legacy')
+      asset_id = mock_create_asset.call_args.kwargs['assetId']
+      self.assertEqual(asset_id, 'users/foo/xyz123')
+      asset = mock_create_asset.call_args.kwargs['body']
+      self.assertEqual(
+          asset['properties'],
+          {
+              'title': 'My Test Asset',
+              'description': 'original description',
+              'myProperty': 1,
+          },
+      )
+      self.assertEqual(test_properties, {
+          'myProperty': 1,
+          'description': 'original description',
+      })
+      self.assertEqual(
+          asset['cloud_storage_location'],
+          {'uris': ['gs://my-bucket/path']},
+      )
+      self.assertEqual(
+          asset['tilestore_location'],
+          {'sources': []},
+      )
+
   def testSetAssetProperties(self):
     mock_http = mock.MagicMock(httplib2.Http)
     with apitestcase.UsingCloudApi(mock_http=mock_http), mock.patch.object(

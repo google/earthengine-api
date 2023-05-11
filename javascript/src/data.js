@@ -1653,8 +1653,7 @@ ee.data.createAssetHome = function(requestedId, opt_callback) {
  * or folder, pass in a "value" object with a "type" key whose value is
  * one of ee.data.AssetType.* (i.e. "ImageCollection" or "Folder").
  *
- * @param {!Object|string} value An object describing the asset to create or
- *     a JSON string with the already-serialized value for the new asset.
+ * @param {!Object} value An object describing the asset to create.
  * @param {string=} opt_path An optional desired ID, including full path.
  * @param {boolean=} opt_force Force overwrite.
  * @param {!Object=} opt_properties The keys and values of the properties to set
@@ -1682,14 +1681,32 @@ ee.data.createAsset = function(
   if (split === -1) {
     throw new Error('Asset name must contain /assets/.');
   }
+  value = Object.assign({}, value);
+  if (value['gcsLocation'] && !value['cloudStorageLocation']) {
+    value['cloudStorageLocation'] = value['gcsLocation'];
+    delete value['gcsLocation'];
+  }
+  if (value['cloudStorageLocation']) {
+    value['cloudStorageLocation'] =
+        new ee.api.CloudStorageLocation(value['cloudStorageLocation']);
+  }
+  if (opt_properties && !value['properties']) {
+    value['properties'] = Object.assign({}, opt_properties);
+  }
+  // Make sure title and description are loaded in as properties.
+  const moveToProperties = ['title', 'description'];
+  for (const prop of moveToProperties) {
+    if (value[prop]) {
+      value['properties'] =
+          Object.assign({[prop]: value[prop]}, value['properties'] || {});
+      delete value[prop];
+    }
+  }
   const asset = new ee.api.EarthEngineAsset(value);
   const parent = name.slice(0, split);
   const assetId = name.slice(split + 8);
   asset.id = null;
   asset.name = null;
-  if (opt_properties && !asset.properties) {
-    asset.properties = opt_properties;
-  }
   asset.type = ee.rpc_convert.assetTypeForCreate(asset.type);
   const call = new ee.apiclient.Call(opt_callback);
   return call.handle(call.assets()
