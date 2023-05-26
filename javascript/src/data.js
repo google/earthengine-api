@@ -20,6 +20,7 @@ goog.provide('ee.data.AssetType');
 goog.provide('ee.data.AuthPrivateKey');
 goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
+goog.provide('ee.data.BigQueryTaskConfig');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.ExportDestination');
 goog.provide('ee.data.ExportState');
@@ -2166,6 +2167,7 @@ ee.data.ExportDestination = {
   GCS: 'GOOGLE_CLOUD_STORAGE',
   ASSET: 'ASSET',
   FEATURE_VIEW: 'FEATURE_VIEW',
+  BIGQUERY: 'BIGQUERY',
 };
 
 /** @enum {string} The FeatureView thinning strategy. */
@@ -3374,6 +3376,26 @@ ee.data.MapTaskConfig;
  * }}
  */
 ee.data.FeatureViewTaskConfig;
+
+/**
+ * An object for specifying configuration of a task to export feature
+ * collections to BigQuery.
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: string,
+ *   sourceUrl: (undefined|string),
+ *   description: (undefined|string),
+ *   element: (undefined|!ee.Element),
+ *   table: (undefined|string),
+ *   overwrite: (undefined|boolean),
+ *   append: (undefined|boolean),
+ *   maxWorkers: (undefined|number),
+ *   maxVertices: (undefined|number),
+ *   workloadTag: (undefined|string),
+ * }}
+ */
+ee.data.BigQueryTaskConfig;
 
 
 /**

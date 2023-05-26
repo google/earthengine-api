@@ -332,6 +332,27 @@ Export.table.toFeatureView = function(
 
 
 /**
+ * @param {!FeatureCollection} collection
+ * @param {string=} opt_description
+ * @param {string=} opt_table
+ * @param {boolean=} opt_overwrite
+ * @param {boolean=} opt_append
+ * @param {string|!Array<string>=} opt_selectors
+ * @param {number=} opt_maxVertices
+ * @return {!ExportTask}
+ */
+Export.table.toBigQuery = function(
+    collection, opt_description, opt_table, opt_overwrite, opt_append,
+    opt_selectors, opt_maxVertices) {
+  const clientConfig =
+      eeArguments.extractFromFunction(Export.table.toBigQuery, arguments);
+  const serverConfig = Export.convertToServerParams(
+      clientConfig, ExportDestination.BIGQUERY, ExportType.TABLE);
+  return ExportTask.create(serverConfig);
+};
+
+
+/**
  * @param {!ImageCollection} collection
  * @param {string=} opt_description
  * @param {string=} opt_bucket
@@ -593,6 +614,9 @@ Export.prepareDestination_ = function(taskConfig, destination) {
       break;
     case ExportDestination.FEATURE_VIEW:
       taskConfig['mapName'] = taskConfig['mapName'] || '';
+      break;
+    case ExportDestination.BIGQUERY:
+      taskConfig['table'] = taskConfig['table'] || '';
       break;
     // The default is to drive.
     case ExportDestination.DRIVE:

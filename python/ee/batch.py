@@ -72,6 +72,7 @@ class Task(object):
     GCS = 'GOOGLE_CLOUD_STORAGE'
     ASSET = 'ASSET'
     FEATURE_VIEW = 'FEATURE_VIEW'
+    BIGQUERY = 'BIGQUERY'
 
   def start(self):
     """Starts the task. No-op for started tasks."""
@@ -701,6 +702,55 @@ class Export(object):
                                             Task.ExportDestination.FEATURE_VIEW)
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
+    @staticmethod
+    def toBigQuery(
+        collection,
+        description='myExportTableTask',
+        table=None,
+        overwrite=False,
+        append=False,
+        selectors=None,
+        maxVertices=None,
+        **kwargs,
+    ):
+      """Creates a task to export a FeatureCollection to a BigQuery table.
+
+      This feature is in Preview, and the API and behavior may change
+      significantly.
+
+      Args:
+        collection: The feature collection to be exported.
+        description: Human-readable name of the task.
+        table: The fully-qualifed BigQuery destination table with
+          "project_id.dataset_id.table_id" format.
+        overwrite: Whether the existing table should be overwritten by this
+          export.
+        append: Whether table data should be appended if the table already
+          exists and has a compatible schema.
+        selectors: The list of properties to include in the output, as a list of
+          strings or a comma-separated string. By default, all properties are
+          included.
+        maxVertices: Max number of uncut vertices per geometry; geometries with
+          more vertices will be cut into pieces smaller than this size.
+        **kwargs: Holds other keyword arguments that may have been deprecated.
+
+      Returns:
+        An unstarted Task that exports the table.
+      """
+      config = {
+          'description': description,
+          'table': table,
+          'overwrite': overwrite,
+          'append': append,
+          'selectors': selectors,
+          'maxVertices': maxVertices,
+      }
+      config = {k: v for k, v, in config.items() if v is not None}
+      config = _prepare_table_export_config(
+          collection, config, Task.ExportDestination.BIGQUERY
+      )
+      return _create_export_task(config, Task.Type.EXPORT_TABLE)
+
   class video(object):
     """A class with static methods to start video export task."""
 
@@ -890,6 +940,7 @@ IMAGE_FORMAT_OPTIONS_FIELD = 'formatOptions'
 NON_FILE_DESTINATIONS = frozenset([
     Task.ExportDestination.ASSET,
     Task.ExportDestination.FEATURE_VIEW,
+    Task.ExportDestination.BIGQUERY,
 ])
 
 
@@ -1065,6 +1116,10 @@ def _prepare_table_export_config(collection, config, export_destination):
         'ingestionTimeParameters':
             build_ingestion_time_parameters(
                 config.pop('ingestionTimeParameters', None))
+    }
+  elif export_destination == Task.ExportDestination.BIGQUERY:
+    request['bigqueryExportOptions'] = {
+        'bigqueryDestination': _build_bigquery_destination(config)
     }
   else:
     request['fileExportOptions'] = _build_table_file_export_options(
@@ -1369,6 +1424,25 @@ def _build_cloud_storage_destination(config):
     destination['bucketCorsUris'] = config.pop('bucketCorsUris')
   if config.pop('writePublicTiles', False):
     destination['permissions'] = 'PUBLIC'
+  return destination
+
+
+def _build_bigquery_destination(config):
+  """Builds a BigqueryDestination from values in a config dict.
+
+  Args:
+    config: All the user-specified export parameters. Will be modified in-place
+      by removing parameters used in the BigqueryDestination.
+
+  Returns:
+    A BigqueryDestination containing information extracted from
+    config.
+  """
+  destination = {
+      'table': config.pop('table'),
+      'overwrite': config.pop('overwrite', False),
+      'append': config.pop('append', False),
+  }
   return destination
 
 

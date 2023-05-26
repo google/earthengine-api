@@ -21,6 +21,7 @@ ee.rpc_convert_batch.ExportDestination = {
   GCS: 'GOOGLE_CLOUD_STORAGE',
   ASSET: 'ASSET',
   FEATURE_VIEW: 'FEATURE_VIEW',
+  BIGQUERY: 'BIGQUERY',
 };
 
 
@@ -88,6 +89,7 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
     fileExportOptions: null,
     assetExportOptions: null,
     featureViewExportOptions: null,
+    bigqueryExportOptions: null,
     selectors: /** @type {?Array<string>} */ (selectors),
     maxErrorMeters: numberOrNull_(params['maxErrorMeters']),
     requestId: stringOrNull_(params['id']),
@@ -109,6 +111,10 @@ ee.rpc_convert_batch.taskToExportTableRequest = function(params) {
     case ee.rpc_convert_batch.ExportDestination.FEATURE_VIEW:
       result.featureViewExportOptions =
           ee.rpc_convert_batch.buildFeatureViewExportOptions_(params);
+      break;
+    case ee.rpc_convert_batch.ExportDestination.BIGQUERY:
+      result.bigqueryExportOptions =
+          ee.rpc_convert_batch.buildBigQueryExportOptions_(params);
       break;
     default:
       throw new Error(`Export destination "${destination}" unknown`);
@@ -278,6 +284,9 @@ ee.rpc_convert_batch.guessDestination_ = function(params) {
     destination = ee.rpc_convert_batch.ExportDestination.ASSET;
   } else if (params['mapName'] != null) {
     destination = ee.rpc_convert_batch.ExportDestination.FEATURE_VIEW;
+  }
+  if (params['table'] != null) {
+    destination = ee.rpc_convert_batch.ExportDestination.BIGQUERY;
   }
   return destination;
 };
@@ -493,6 +502,21 @@ ee.rpc_convert_batch.buildFeatureViewExportOptions_ = function(params) {
   });
 };
 
+/**
+ * Returns BigQueryExportOptions built from ExportParameters.
+ *
+ * @param {!Object} params
+ * @return {!ee.api.BigQueryExportOptions}
+ * @private
+ */
+ee.rpc_convert_batch.buildBigQueryExportOptions_ = function(params) {
+  return new ee.api.BigQueryExportOptions({
+    // `bigquery_destination` from the API is translated to
+    // `bigqueryDestination` in the JavaScript.
+    bigqueryDestination: ee.rpc_convert_batch.buildBigQueryDestination_(params),
+  });
+};
+
 
 /**
  * Returns a VideoFileExportOptions built from ExportParameters.
@@ -690,6 +714,19 @@ ee.rpc_convert_batch.buildEarthEngineDestination_ = function(params) {
 ee.rpc_convert_batch.buildFeatureViewDestination_ = function(params) {
   return new ee.api.FeatureViewDestination(
       {name: ee.rpc_convert.assetIdToAssetName(params['mapName'])});
+};
+
+/**
+ * @param {!Object} params A BigQueryDestination parameter list.
+ * @return {!ee.api.BigQueryDestination}
+ * @private
+ */
+ee.rpc_convert_batch.buildBigQueryDestination_ = function(params) {
+  return new ee.api.BigQueryDestination({
+    table: stringOrNull_(params['table']),
+    overwrite: Boolean(params['overwrite']),
+    append: Boolean(params['append']),
+  });
 };
 
 /**

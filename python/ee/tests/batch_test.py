@@ -859,6 +859,74 @@ class BatchTestCase(apitestcase.ApiTestCase):
           assetId='users/foo/bar',
           ingestionTimeParameters={'badThinningKey': {'key': 'val'}})
 
+  def testExportTableToBigQueryRequiredParams(self):
+    """Verifies the export task created by Export.table.toBigQuery()."""
+    with apitestcase.UsingCloudApi():
+      task = ee.batch.Export.table.toBigQuery(
+          collection=ee.FeatureCollection('foo'),
+          table='project.dataset.table',
+          description='foo',
+      )
+      with self.subTest(name='TaskIdAndName'):
+        self.assertIsNone(task.id)
+        self.assertIsNone(task.name)
+      with self.subTest(name='TypeIsExportFeatures'):
+        self.assertEqual('EXPORT_FEATURES', task.task_type)
+      with self.subTest(name='StateIsUnsubmitted'):
+        self.assertEqual('UNSUBMITTED', task.state)
+      with self.subTest(name='ConfigContents'):
+        self.assertEqual(
+            {
+                'expression': ee.FeatureCollection('foo'),
+                'description': 'foo',
+                'bigqueryExportOptions': {
+                    'bigqueryDestination': {
+                        'table': 'project.dataset.table',
+                        'overwrite': False,
+                        'append': False,
+                    }
+                },
+            },
+            task.config,
+        )
+
+  def testExportTableToBigQueryAllParams(self):
+    """Verifies the export task created by Export.table.toBigQuery()."""
+    with apitestcase.UsingCloudApi():
+      task = ee.batch.Export.table.toBigQuery(
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          table='project.dataset.table',
+          overwrite=True,
+          append=True,
+          selectors=['.geo'],
+          maxVertices=500,
+      )
+      with self.subTest(name='TaskIdAndName'):
+        self.assertIsNone(task.id)
+        self.assertIsNone(task.name)
+      with self.subTest(name='TypeIsExportFeatures'):
+        self.assertEqual('EXPORT_FEATURES', task.task_type)
+      with self.subTest(name='StateIsUnsubmitted'):
+        self.assertEqual('UNSUBMITTED', task.state)
+      with self.subTest(name='ConfigContents'):
+        self.assertEqual(
+            {
+                'expression': ee.FeatureCollection('foo'),
+                'description': 'foo',
+                'maxVertices': {'value': 500},
+                'selectors': ['.geo'],
+                'bigqueryExportOptions': {
+                    'bigqueryDestination': {
+                        'table': 'project.dataset.table',
+                        'overwrite': True,
+                        'append': True,
+                    }
+                },
+            },
+            task.config,
+        )
+
   def testExportVideoCloudApi(self):
     """Verifies the task created by Export.video()."""
     with apitestcase.UsingCloudApi():

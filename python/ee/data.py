@@ -761,7 +761,8 @@ def getPixels(params):
   name = _cloud_api_utils.convert_asset_id_to_asset_name(params.get('assetId'))
   del params['assetId']
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
-      params.get('fileFormat'))
+      params.get('fileFormat')
+  )
   data = _execute_cloud_call(
       _get_cloud_projects_raw()
       .assets()
@@ -794,7 +795,8 @@ def computePixels(params):
   params = params.copy()
   params['expression'] = serializer.encode(params['expression'])
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
-      params.get('fileFormat'))
+      params.get('fileFormat')
+  )
   _maybe_populate_workload_tag(params)
   data = _execute_cloud_call(
       _get_cloud_projects_raw()
