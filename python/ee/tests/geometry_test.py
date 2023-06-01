@@ -451,6 +451,13 @@ class GeometryTest(apitestcase.ApiTestCase):
         ee.Geometry.BBox(-10, -90, 10, 20),
         ee.Geometry.BBox(-10, -inf, 10, 20))
 
+  def testCrs_invalid_throws(self):
+    geo_json = ee.Geometry.LineString(1, 2, 3, 4).toGeoJSON()
+    geo_json['crs'] = {'something': 'invalid-crs'}
+    self.assertInvalid(
+        ee.Geometry, 'Invalid CRS declaration in GeoJSON:', geo_json
+    )
+
   def assertValid(self, nesting, ctor, *coords):
     """Checks that geometry is valid and has the expected nesting level.
 

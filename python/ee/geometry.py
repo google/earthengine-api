@@ -101,14 +101,7 @@ class Geometry(computedobject.ComputedObject):
     if opt_proj:
       self._proj = opt_proj
     elif 'crs' in geo_json:
-      if (isinstance(geo_json.get('crs'), dict) and
-          geo_json['crs'].get('type') == 'name' and
-          isinstance(geo_json['crs'].get('properties'), dict) and
-          isinstance(geo_json['crs']['properties'].get('name'), str)):
-        self._proj = geo_json['crs']['properties']['name']
-      else:
-        raise ee_exception.EEException('Invalid CRS declaration in GeoJSON: ' +
-                                       json.dumps(geo_json['crs']))
+      self._proj = self._get_name_from_crs(geo_json.get('crs'))
     else:
       self._proj = None
 
@@ -148,6 +141,18 @@ class Geometry(computedobject.ComputedObject):
       ctor_args['evenOdd'] = self._evenOdd
     self._computed_equivalent = apifunction.ApiFunction.lookup(
         'GeometryConstructors.' + ctor_name).apply(ctor_args)
+
+  def _get_name_from_crs(self, crs):
+    """Returns projection name from a CRS."""
+    if isinstance(crs, dict) and crs.get('type') == 'name':
+      properties = crs.get('properties')
+      if isinstance(properties, dict):
+        name = properties.get('name')
+        if isinstance(name, str):
+          return name
+    raise ee_exception.EEException(
+        'Invalid CRS declaration in GeoJSON: ' + json.dumps(crs)
+    )
 
   @classmethod
   def initialize(cls):

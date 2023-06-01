@@ -16,7 +16,6 @@ import uuid
 import sys
 from google_auth_httplib2 import AuthorizedHttp
 
-from . import __version__
 from . import _cloud_api_utils
 from . import deprecation
 from . import encodable
@@ -27,6 +26,8 @@ import googleapiclient
 from . import ee_exception
 
 from google.oauth2.credentials import Credentials
+
+from . import __version__
 
 # OAuth2 credentials object.  This may be set by ee.Initialize().
 _credentials = None
@@ -284,19 +285,17 @@ def _install_cloud_api_resource():
       raw=True)
 
 
-def _verify_cloud_api_resource():
-  if _cloud_api_resource is None or _cloud_api_resource_raw is None:
+def _get_cloud_projects():
+  if _cloud_api_resource is None:
     raise ee_exception.EEException(
         'Earth Engine client library not initialized. Run `ee.Initialize()`')
-
-
-def _get_cloud_projects():
-  _verify_cloud_api_resource()
   return _cloud_api_resource.projects()
 
 
 def _get_cloud_projects_raw():
-  _verify_cloud_api_resource()
+  if _cloud_api_resource_raw is None:
+    raise ee_exception.EEException(
+        'Earth Engine client library not initialized. Run `ee.Initialize()`')
   return _cloud_api_resource_raw.projects()
 
 

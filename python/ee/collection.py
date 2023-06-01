@@ -200,7 +200,7 @@ class Collection(element.Element):
       ee_exception.EEException: if algorithm is not a function.
     """
     element_type = self.elementType()
-    with_cast = lambda e: algorithm(element_type(e))
+    with_cast = lambda e: algorithm(element_type(e, None))
     return self._cast(apifunction.ApiFunction.call_(
         'Collection.map', self, with_cast, opt_dropNulls))
 
@@ -226,6 +226,6 @@ class Collection(element.Element):
       ee_exception.EEException: if algorithm is not a function.
     """
     element_type = self.elementType()
-    with_cast = lambda e, prev: algorithm(element_type(e), prev)
+    with_cast = lambda e, prev: algorithm(element_type(e, None), prev)
     return apifunction.ApiFunction.call_(
         'Collection.iterate', self, with_cast, first)
