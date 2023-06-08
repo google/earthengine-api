@@ -26,7 +26,7 @@ class EETestCase(apitestcase.ApiTestCase):
     # Verify that the base state is uninitialized.
     self.assertFalse(ee.data._initialized)
     self.assertEqual(ee.data._api_base_url, None)
-    self.assertEqual(ee.ApiFunction._api, None)
+    self.assertEqual(ee.ApiFunction._api, {})
     self.assertFalse(ee.Image._initialized)
 
     # Verify that ee.Initialize() sets the URL and initializes classes.
@@ -45,7 +45,7 @@ class EETestCase(apitestcase.ApiTestCase):
     ee.Reset()
     self.assertFalse(ee.data._initialized)
     self.assertEqual(ee.data._api_base_url, None)
-    self.assertEqual(ee.ApiFunction._api, None)
+    self.assertEqual(ee.ApiFunction._api, {})
     self.assertFalse(ee.Image._initialized)
 
   def testCallAndApply(self):

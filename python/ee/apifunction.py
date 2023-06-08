@@ -32,7 +32,7 @@ class ApiFunction(function.Function):
   """An object representing an EE API Function."""
 
   # A dictionary of functions defined by the API server.
-  _api = None
+  _api = {}
 
   # A set of algorithm names containing all algorithms that have been bound to
   # a function so far using importApi().
@@ -164,7 +164,7 @@ class ApiFunction(function.Function):
   @classmethod
   def reset(cls):
     """Clears the API functions list so it will be reloaded from the server."""
-    cls._api = None
+    cls._api = {}
     cls._bound_signatures = set()
 
   @classmethod

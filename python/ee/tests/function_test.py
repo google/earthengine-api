@@ -9,8 +9,8 @@ import ee
 
 # A function to experiment on.
 TEST_FUNC = ee.Function()
-TEST_FUNC.name = 'testFunction'
 TEST_FUNC.getSignature = lambda: {  # pylint: disable-msg=g-long-lambda
+    'name': 'testFunction',
     'description': 'Method description.',
     'returns': 'Image',
     'args': [

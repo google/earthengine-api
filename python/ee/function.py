@@ -96,26 +96,29 @@ class Function(encodable.EncodableFunction):
       EEException: If unrecognized arguments are passed or required ones are
           missing.
     """
-    specs = self.getSignature()['args']
+    signature = self.getSignature()
+    arg_specs = signature['args']
 
     # Promote all recognized args.
     promoted_args = {}
     known = set()
-    for spec in specs:
-      name = spec['name']
+    for arg_spec in arg_specs:
+      name = arg_spec['name']
       if name in args:
-        promoted_args[name] = Function._promoter(args[name], spec['type'])
-      elif not spec.get('optional'):
+        promoted_args[name] = Function._promoter(args[name], arg_spec['type'])
+      elif not arg_spec.get('optional'):
         raise ee_exception.EEException(
             'Required argument (%s) missing to function: %s'
-            % (name, self.name))
+            % (name, signature.get('name')))
       known.add(name)
 
     # Check for unknown arguments.
     unknown = set(args.keys()).difference(known)
     if unknown:
       raise ee_exception.EEException(
-          'Unrecognized arguments %s to function: %s' % (unknown, self.name))
+          'Unrecognized arguments %s to function: %s'
+          % (unknown, signature.get('name'))
+      )
 
     return promoted_args
 
@@ -135,14 +138,18 @@ class Function(encodable.EncodableFunction):
     Raises:
       EEException: If conflicting arguments or too many of them are supplied.
     """
-    specs = self.getSignature()['args']
+    signature = self.getSignature()
+    arg_specs = signature['args']
 
     # Handle positional arguments.
-    if len(specs) < len(args):
+    if len(arg_specs) < len(args):
       raise ee_exception.EEException(
-          'Too many (%d) arguments to function: %s' % (len(args), self.name))
-    named_args = dict([(spec['name'], value)
-                       for spec, value in zip(specs, args)])
+          'Too many (%d) arguments to function: %s'
+          % (len(args), signature.get('name'))
+      )
+    named_args = dict(
+        [(arg_spec['name'], value) for arg_spec, value in zip(arg_specs, args)]
+    )
 
     # Handle keyword arguments.
     if extra_keyword_args:
@@ -150,7 +157,8 @@ class Function(encodable.EncodableFunction):
         if name in named_args:
           raise ee_exception.EEException(
               'Argument %s specified as both positional and '
-              'keyword to function: %s' % (name, self.name))
+              'keyword to function: %s' % (name, signature.get('name'))
+          )
         named_args[name] = extra_keyword_args[name]
       # Unrecognized arguments are checked in promoteArgs().
 

@@ -36,7 +36,7 @@ def Deprecated(message):
     # If there are non-ASCII characters in the docs, and we're in
     # Python 2, use a hammer to force them into a str.
     except UnicodeDecodeError:
-      Wrapper.__doc__ += deprecation_message.encode('utf8')
+      Wrapper.__doc__ += str(deprecation_message.encode('utf8'))
     return Wrapper
   return Decorator
 
