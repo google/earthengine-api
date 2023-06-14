@@ -723,8 +723,11 @@ class Export(object):
         description: Human-readable name of the task.
         table: The fully-qualifed BigQuery destination table with
           "project_id.dataset_id.table_id" format.
-        overwrite: Whether the existing table should be overwritten by this
-          export.
+        overwrite: [Not yet supported.] Whether the existing table should be
+          overwritten by the results of this export.
+          The `overwrite` and `append` parameters cannot be `true`
+          simultaneously. The export fails if the table already exists and both
+          `overwrite` and `append` are `false`.
         append: Whether table data should be appended if the table already
           exists and has a compatible schema.
         selectors: The list of properties to include in the output, as a list of
