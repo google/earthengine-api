@@ -4,5 +4,6 @@ This example shows how to build a simplepython pipeline to export the data  from
 to BigQuery.  
 
 # Process Flow
+![Preview](./Processflow.png)
 
 
