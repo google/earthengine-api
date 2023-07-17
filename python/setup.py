@@ -33,6 +33,7 @@ setup(
         'ee.cli': ['licenses.txt'],
     },
     test_suite='ee/tests',
+    python_requires='>=3.7',
     install_requires=[
         # Note we omit TensorFlow (used by the CLI) here on purpose to avoid
         # an extra 0.5GiB of deps compared to our current 26MiB; Use of TF

@@ -347,6 +347,11 @@ ee.Geometry.BBox = function(west, south, east, north) {
   if (!(this instanceof ee.Geometry.BBox)) {
     return ee.Geometry.createInstance_(ee.Geometry.BBox, arguments);
   }
+  const args = ee.arguments.extractFromFunction(ee.Geometry.BBox, arguments);
+  west = args['west'];
+  south = args['south'];
+  east = args['east'];
+  north = args['north'];
 
   const coordinates = [west, south, east, north];
   if (ee.Geometry.hasServerValue_(coordinates)) {

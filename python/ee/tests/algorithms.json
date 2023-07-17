@@ -6956,6 +6956,31 @@
       }
     }]
   }, {
+    "name": "algorithms/Filter.area",
+    "description": "Returns a filter that passes if the specified geometry has an area within the given range (inclusive).",
+    "returnType": "Filter",
+    "arguments": [{
+      "argumentName": "min",
+      "type": "Float",
+      "description": "Minimum area in square meters (inclusive)."
+    }, {
+      "argumentName": "max",
+      "type": "Float",
+      "description": "Maximum area in square meters (inclusive)."
+    }, {
+      "argumentName": "maxError",
+      "type": "ErrorMargin",
+      "description": "The maximum allowed error for computing the geometry\u0027s area.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "geometrySelector",
+      "type": "String",
+      "description": "The name of the geometry property to use for filtering. Leave blank or use \u0027.geo\u0027 to operate on the object\u0027s geometry.",
+      "optional": true,
+      "defaultValue": null
+    }]
+  }, {
     "name": "algorithms/Filter.expression",
     "description": "Constructs a filter tree from a string.",
     "returnType": "Filter",
