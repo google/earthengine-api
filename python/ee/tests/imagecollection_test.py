@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.imagecollection module."""
 
-
-
 from unittest import mock
 
 import unittest

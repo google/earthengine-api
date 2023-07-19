@@ -24,8 +24,6 @@ and therefore violate style guidelines.
 #    a good idea to use a semaphore to keep new tiles from being added
 #    and subsequently moved.
 
-
-
 from collections import abc
 import functools
 import io

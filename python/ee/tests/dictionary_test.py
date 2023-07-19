@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.dictionary module."""
 
-
-
 import unittest
 
 import ee

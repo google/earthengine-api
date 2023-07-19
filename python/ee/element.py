@@ -4,8 +4,6 @@
 This class is never intended to be instantiated by the user.
 """
 
-
-
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 

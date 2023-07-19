@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.date module."""
 
-
-
 import datetime
 
 import unittest

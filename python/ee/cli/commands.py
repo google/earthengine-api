@@ -6,24 +6,24 @@ defines the supported positional and optional arguments, as well as
 the actions to be taken when the command is executed.
 """
 
-# pylint: disable=g-bad-import-order
 import argparse
 import calendar
-from collections import Counter
+import collections
 import datetime
 import json
 import logging
 import os
 import re
-import urllib.parse
 import shutil
 import sys
 import tempfile
+import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
 # pylint: disable=g-import-not-at-top
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+# pylint: disable=g-bad-import-order
 TENSORFLOW_INSTALLED = False
 # pylint: disable=g-import-not-at-top
 try:
@@ -310,7 +310,8 @@ def _decode_property_flags(args):
   """Decodes metadata properties from args as a name->value dict."""
   property_list = list(args.property or [])
   names = [name for name, _ in property_list]
-  duplicates = [name for name, count in Counter(names).items() if count > 1]
+  duplicates = [
+      name for name, count in collections.Counter(names).items() if count > 1]
   if duplicates:
     raise ee.EEException('Duplicate property name(s): %s.' % duplicates)
   return dict(property_list)
@@ -1696,7 +1697,7 @@ class PrepareModelCommand(object):
   def _get_input_tensor_spec(graph_def, input_names_set):
     """Extracts the types of the given node names from the GraphDef."""
 
-    # Get the op names stripped of the input index e.g: "op:0" becomes "op"
+    # Get the op names stripped of the input index, e.g. "op:0" becomes "op".
     input_names_missing_index = {
         PrepareModelCommand._strip_index(i): i for i in input_names_set
     }

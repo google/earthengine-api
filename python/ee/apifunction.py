@@ -11,8 +11,6 @@ This class manages the algorithm dictionary and creates JavaScript functions
 to apply each EE algorithm.
 """
 
-
-
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 

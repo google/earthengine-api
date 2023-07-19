@@ -2,10 +2,9 @@
 """Test for the ee.batch module."""
 from unittest import mock
 
-import unittest
-
 import ee
 from ee import apitestcase
+import unittest
 
 TASK_STATUS_1 = {
     'description': 'FirstTestTask',

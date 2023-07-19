@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.number module."""
 
-
-
 import unittest
 
 import ee

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """A wrapper for lists."""
 
-
-
 from . import apifunction
 from . import computedobject
 from . import ee_exception

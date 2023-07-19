@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """A wrapper for dates."""
 
-
-
 # pylint: disable=g-bad-import-order
 import datetime
 import math

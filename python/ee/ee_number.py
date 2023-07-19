@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """A wrapper for numbers."""
 
-
-
 import numbers
 
 from . import _cloud_api_utils

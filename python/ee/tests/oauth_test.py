@@ -18,7 +18,7 @@ class OAuthTest(unittest.TestCase):
 
   def testRequestToken(self):
 
-    class MockResponse(object):
+    class MockResponse:
 
       def __init__(self, code):
         self.code = code.decode()

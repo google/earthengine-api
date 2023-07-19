@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Singleton for the library's communication with the Earth Engine API."""
 
-
-
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 

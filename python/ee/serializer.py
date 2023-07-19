@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """A serializer that encodes EE object trees as JSON DAGs."""
 
-
-
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 

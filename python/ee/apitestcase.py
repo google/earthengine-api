@@ -1,17 +1,14 @@
 #!/usr/bin/env python
 """A TestCase that initializes the library with standard API methods."""
 
-
-
 import contextlib
 import json
 import os
-from . import _cloud_api_utils
-
-import unittest
 
 import ee
+import unittest
 
+from . import _cloud_api_utils
 
 # Cached algorithms list
 _algorithms_cache = None

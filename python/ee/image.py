@@ -4,8 +4,6 @@
 See: https://sites.google.com/site/earthengineapidocs for more details.
 """
 
-
-
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 

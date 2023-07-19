@@ -2,8 +2,6 @@
 # coding=utf-8
 """An object representing EE Geometries."""
 
-
-
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 

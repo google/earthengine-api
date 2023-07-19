@@ -12,7 +12,7 @@ from ee import ee_exception
 class CloudApiUtilsTest(unittest.TestCase):
 
   def setUp(self):
-    super(CloudApiUtilsTest, self).setUp()
+    super().setUp()
     _cloud_api_utils.set_cloud_api_user_project('earthengine-legacy')
 
   def test_convert_dict_simple(self):
@@ -44,13 +44,16 @@ class CloudApiUtilsTest(unittest.TestCase):
           'x': 'flan',
           'y': 'flan'
       })
+      self.assertEqual({'flan': 2}, result)
       self.assertLen(w, 1)
       self.assertEqual('Multiple request parameters converted to flan',
                        str(w[0].message))
+
     with warnings.catch_warnings(record=True) as w:
       result = _cloud_api_utils._convert_dict({'x': 1, 'y': 2}, {'x': 'flan'})
       self.assertEqual({'flan': 1}, result)
       self.assertEmpty(w)
+
     with warnings.catch_warnings(record=True) as w:
       result = _cloud_api_utils._convert_dict(
           {

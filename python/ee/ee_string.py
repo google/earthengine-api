@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """A wrapper for strings."""
 
-
-
 # pylint: disable=g-bad-import-order
 
 from . import apifunction

@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """A wrapper for dictionaries."""
 
-
-
 from . import apifunction
 from . import computedobject
 

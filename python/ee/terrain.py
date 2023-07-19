@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """A namespace for Terrain."""
 
-
-
 from . import apifunction
 
 # Using lowercase function naming to match the JavaScript names.

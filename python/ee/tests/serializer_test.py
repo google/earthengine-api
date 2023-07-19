@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.serializer module."""
 
-
-
 import json
 
 import unittest

@@ -8,7 +8,6 @@ name since that is the name we want to ensure works.
 
 import io
 
-
 import unittest
 import ee
 from ee import apitestcase

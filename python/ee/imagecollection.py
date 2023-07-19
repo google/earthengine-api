@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Representation for an Earth Engine ImageCollection."""
 
-
-
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 

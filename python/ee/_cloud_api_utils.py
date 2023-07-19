@@ -26,10 +26,7 @@ import httplib2
 import requests
 
 # The Cloud API version.
-VERSION = os.environ.get(
-    'EE_CLOUD_API_VERSION',
-    'v1alpha'
-)
+VERSION = os.environ.get('EE_CLOUD_API_VERSION', 'v1')
 
 PROJECT_ID_PATTERN = (r'^(?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
                       r'[a-z][-a-z0-9]{4,28}[a-z0-9]$')

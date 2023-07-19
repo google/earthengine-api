@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.featurecollection module."""
 
-
-
 from unittest import mock
 
 from ee import _cloud_api_utils

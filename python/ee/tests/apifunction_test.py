@@ -1,15 +1,11 @@
 #!/usr/bin/env python
 """Test for the ee.apifunction module."""
 
-
-
 import types
 
-import unittest
-
 import ee
-
 from ee import apitestcase
+import unittest
 
 
 class ApiFunctionTest(apitestcase.ApiTestCase):
@@ -19,7 +15,7 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
 
     # Check instance vs static functions, and trampling of
     # existing functions.
-    class TestClass(object):
+    class TestClass:
 
       def pre_addBands(self):  # pylint: disable=g-bad-name
         pass
@@ -51,7 +47,7 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
   def testAddFunctions_Inherited(self):
     """Verifies that inherited non-client functions can be overridden."""
 
-    class Base(object):
+    class Base:
 
       def ClientOverride(self):
         pass

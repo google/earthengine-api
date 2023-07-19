@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """A base class for EE Functions."""
 
-
-
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 

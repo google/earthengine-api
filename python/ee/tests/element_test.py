@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.element module."""
 
-
-
 import unittest
 import ee
 from ee import apitestcase

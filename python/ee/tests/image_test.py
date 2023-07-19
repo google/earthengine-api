@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.image module."""
 
-
-
 import json
 from unittest import mock
 

@@ -1,17 +1,15 @@
 #!/usr/bin/env python
 """Test for the ee.__init__ file."""
 
-
-
-import unittest
-
 import ee
 from ee import apitestcase
+import unittest
 
 
 class EETestCase(apitestcase.ApiTestCase):
 
   def setUp(self):
+    super().setUp()
     ee.Reset()
     ee.data._install_cloud_api_resource = lambda: None
 
@@ -25,7 +23,7 @@ class EETestCase(apitestcase.ApiTestCase):
 
     # Verify that the base state is uninitialized.
     self.assertFalse(ee.data._initialized)
-    self.assertEqual(ee.data._api_base_url, None)
+    self.assertIsNone(ee.data._api_base_url)
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertFalse(ee.Image._initialized)
 
@@ -102,7 +100,7 @@ class EETestCase(apitestcase.ApiTestCase):
 
     # Test None promotion.
     called_with_null = ee.call('fakeFunction', None, 1)
-    self.assertEqual(None, called_with_null.args['image1'])
+    self.assertIsNone(called_with_null.args['image1'])
 
   def testDynamicClasses(self):
     """Verifies dynamic class initialization."""
@@ -194,17 +192,15 @@ class EETestCase(apitestcase.ApiTestCase):
     f1 = ee.ApiFunction('Array.cos').call([1, 2])
     f2 = ee.ApiFunction('Array.cos').call(ee.Array([1, 2]))
     self.assertEqual(f1, f2)
-    self.assertTrue(isinstance(f1, ee.Array))
+    self.assertIsInstance(f1, ee.Array)
 
     f3 = ee.call('fakeFunction', 'mean')
     f4 = ee.call('fakeFunction', ee.Reducer.mean())
     self.assertEqual(f3, f4)
 
-    try:
+    with self.assertRaisesRegex(
+        ee.EEException, 'Unknown algorithm: Reducer.moo'):
       ee.call('fakeFunction', 'moo')
-      self.fail()
-    except ee.EEException as e:
-      self.assertTrue('Unknown algorithm: Reducer.moo' in str(e))
 
   def testDynamicConstructor(self):
     # Test the behavior of the dynamic class constructor.
@@ -284,26 +280,21 @@ class EETestCase(apitestcase.ApiTestCase):
 
     # Make sure we can create a Bar.
     bar = ee.Foo(1).makeBar()
-    self.assertTrue(isinstance(bar, ee.Bar))
+    self.assertIsInstance(bar, ee.Bar)
 
     # Now cast something else to a Bar and verify it was just a cast.
     cast = ee.Bar(ee.Foo(1))
-    self.assertTrue(isinstance(cast, ee.Bar))
+    self.assertIsInstance(cast, ee.Bar)
     self.assertEqual(ctor, cast.func)
 
     # We shouldn't be able to cast with more than 1 arg.
-    try:
+    with self.assertRaisesRegex(
+        ee.EEException, 'Too many arguments for ee.Bar'):
       ee.Bar(x, 'foo')
-      self.fail('Expected an exception.')
-    except ee.EEException as e:
-      self.assertTrue('Too many arguments for ee.Bar' in str(e))
 
     # We shouldn't be able to cast a primitive.
-    try:
+    with self.assertRaisesRegex(ee.EEException, 'Must be a ComputedObject'):
       ee.Bar(1)
-      self.fail('Expected an exception.')
-    except ee.EEException as e:
-      self.assertTrue('Must be a ComputedObject' in str(e))
 
   def testDynamicConstructorCasting(self):
     """Test the behavior of casting with dynamic classes."""
@@ -319,17 +310,16 @@ class EETestCase(apitestcase.ApiTestCase):
     self.InitializeApi()
 
     # Features and Images are both already Elements.
-    self.assertTrue(
-        isinstance(ee._Promote(ee.Feature(None), 'Element'), ee.Feature))
-    self.assertTrue(isinstance(ee._Promote(ee.Image(0), 'Element'), ee.Image))
+    self.assertIsInstance(ee._Promote(ee.Feature(None), 'Element'), ee.Feature)
+    self.assertIsInstance(ee._Promote(ee.Image(0), 'Element'), ee.Image)
 
     # Promote an untyped object to an Element.
     untyped = ee.ComputedObject('foo', {})
-    self.assertTrue(isinstance(ee._Promote(untyped, 'Element'), ee.Element))
+    self.assertIsInstance(ee._Promote(untyped, 'Element'), ee.Element)
 
     # Promote an untyped variable to an Element.
     untyped = ee.ComputedObject(None, None, 'foo')
-    self.assertTrue(isinstance(ee._Promote(untyped, 'Element'), ee.Element))
+    self.assertIsInstance(ee._Promote(untyped, 'Element'), ee.Element)
     self.assertEqual('foo', ee._Promote(untyped, 'Element').varName)
 
   def testUnboundMethods(self):
@@ -371,7 +361,7 @@ class EETestCase(apitestcase.ApiTestCase):
 
     self.assertTrue(callable(ee.Algorithms.Foo))
     self.assertTrue(callable(ee.Algorithms.Foo.bar))
-    self.assertTrue('Quux' not in ee.Algorithms)
+    self.assertNotIn('Quux', ee.Algorithms)
     self.assertEqual(ee.call('Foo.bar'), ee.Algorithms.Foo.bar())
     self.assertNotEqual(ee.Algorithms.Foo.bar(), ee.Algorithms.last())
 

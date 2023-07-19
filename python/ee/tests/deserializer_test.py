@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """Test for the ee.deserializer module."""
 
-
-
 import json
 
 import unittest
