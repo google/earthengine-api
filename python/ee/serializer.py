@@ -4,7 +4,6 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
 import collections
 import datetime
 import hashlib
@@ -12,9 +11,9 @@ import json
 import math
 import numbers
 
-from . import _cloud_api_utils
-from . import ee_exception
-from . import encodable
+from ee import _cloud_api_utils
+from ee import ee_exception
+from ee import encodable
 
 # The datetime for the beginning of the Unix epoch.
 _EPOCH_DATETIME = datetime.datetime.utcfromtimestamp(0)
@@ -357,9 +356,11 @@ class _ExpressionOptimizer:
       values: If provided (in compound mode), a set of named ValueNodes.
     """
     self._result = result
-    # We want to make sure the process is deterministic.
-    self._values = collections.OrderedDict(
-        values) if values is not None else None
+    # Convert sequence of tuples to a dict allowing lookup.
+    # Values will be of the form:
+    #  [('0', {'constantValue': 99}), ('1', {'constantValue': 98}), ...]
+    self._values = dict(values) if values is not None else None
+
     if self._is_compound():
       self._single_uses = self._find_single_uses()
       self._optimized_values = {}

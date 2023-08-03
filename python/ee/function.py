@@ -6,10 +6,10 @@
 
 import textwrap
 
-from . import computedobject
-from . import ee_exception
-from . import encodable
-from . import serializer
+from ee import computedobject
+from ee import ee_exception
+from ee import encodable
+from ee import serializer
 
 
 class Function(encodable.EncodableFunction):

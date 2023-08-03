@@ -8,14 +8,13 @@ The public function styling uses camelCase to match the JavaScript names.
 
 # pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
 import json
 import re
 
-from . import _cloud_api_utils
-from . import data
-from . import ee_exception
-from . import geometry
+from ee import _cloud_api_utils
+from ee import data
+from ee import ee_exception
+from ee import geometry
 
 
 class Task:
@@ -1805,7 +1804,7 @@ def _canonicalize_region(region):
     try:
       region = json.loads(region)
     except json.JSONDecodeError:
-      raise region_error
+      raise region_error  # pylint: disable=raise-missing-from
 
   # It's probably a list of coordinates - attempt to parse as a LineString or
   # Polygon.
@@ -1815,5 +1814,5 @@ def _canonicalize_region(region):
     try:
       region = geometry.Geometry.Polygon(region)
     except:
-      raise region_error
+      raise region_error  # pylint: disable=raise-missing-from
   return region

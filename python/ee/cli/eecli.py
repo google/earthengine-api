@@ -25,7 +25,7 @@ class CommandDispatcher(commands.Dispatcher):
 
 def _run_command(*argv):
   """Runs an eecli command."""
-  _ = argv
+  del argv  # Unused
 
   # Set the program name to 'earthengine' for proper help text display.
   parser = argparse.ArgumentParser(

@@ -1,29 +1,28 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.362'
+__version__ = '0.1.363'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
 import collections
 import datetime
 import inspect
 import numbers
 import os
 
-from . import batch
-from . import data
-from . import deserializer
-from . import ee_types as types
-from . import oauth
+from ee import batch
+from ee import data
+from ee import deserializer
+from ee import ee_types as types
+from ee import oauth
 
 # Public re-exports.
-from ._helpers import ServiceAccountCredentials
 from ._helpers import apply  # pylint: disable=redefined-builtin
 from ._helpers import call
 from ._helpers import profilePrinting
+from ._helpers import ServiceAccountCredentials
 from .apifunction import ApiFunction
 from .collection import Collection
 from .computedobject import ComputedObject
@@ -54,14 +53,14 @@ _generatedClasses = []
 
 
 class _AlgorithmsContainer(dict):
-  """A lightweight class that is used as a dictionary with dot notation.
-  """
+  """A lightweight class that is used as a dictionary with dot notation."""
 
   def __getattr__(self, name):
     try:
       return self[name]
     except KeyError:
-      raise AttributeError
+      # Match dict's behavior when a key is missing.
+      raise AttributeError  # pylint: disable=raise-missing-from
 
   def __setattr__(self, name, value):
     self[name] = value
@@ -301,6 +300,7 @@ def _Promote(arg, klass):
 
 
 def _InitializeUnboundMethods():
+  """Initializes the unbounded functions."""
   # Sort the items by length, so parents get created before children.
   items = sorted(
       ApiFunction.unboundFunctions().items(), key=lambda x: len(x[0]))

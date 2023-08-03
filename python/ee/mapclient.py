@@ -411,7 +411,7 @@ class MapOverlay:
     def __init__(self, overlay):
       threading.Thread.__init__(self)
       self.overlay = overlay
-      self.setDaemon(True)
+      self.daemon = True
       self.start()
 
     def run(self):

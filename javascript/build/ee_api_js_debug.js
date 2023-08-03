@@ -1922,8 +1922,8 @@ goog.array.reduce = goog.NATIVE_ARRAY_PROTOTYPES && (module$contents$goog$array_
   goog.asserts.assert(null != arr.length);
   opt_obj && (f = goog.bind(f, opt_obj));
   return Array.prototype.reduce.call(arr, f, val);
-} : function(arr, f, val$jscomp$0, opt_obj) {
-  var rval = val$jscomp$0;
+} : function(arr, f, val, opt_obj) {
+  var rval = val;
   module$contents$goog$array_forEach(arr, function(val, index) {
     rval = f.call(opt_obj, rval, val, index, arr);
   });
@@ -1934,8 +1934,8 @@ goog.array.reduceRight = goog.NATIVE_ARRAY_PROTOTYPES && (module$contents$goog$a
   goog.asserts.assert(null != f);
   opt_obj && (f = goog.bind(f, opt_obj));
   return Array.prototype.reduceRight.call(arr, f, val);
-} : function(arr, f, val$jscomp$0, opt_obj) {
-  var rval = val$jscomp$0;
+} : function(arr, f, val, opt_obj) {
+  var rval = val;
   module$contents$goog$array_forEachRight(arr, function(val, index) {
     rval = f.call(opt_obj, rval, val, index, arr);
   });
@@ -1965,9 +1965,9 @@ var module$contents$goog$array_every = goog.NATIVE_ARRAY_PROTOTYPES && (module$c
   return !0;
 };
 goog.array.every = module$contents$goog$array_every;
-function module$contents$goog$array_count(arr$jscomp$0, f, opt_obj) {
+function module$contents$goog$array_count(arr, f, opt_obj) {
   var count = 0;
-  module$contents$goog$array_forEach(arr$jscomp$0, function(element, index, arr) {
+  module$contents$goog$array_forEach(arr, function(element, index, arr) {
     f.call(opt_obj, element, index, arr) && ++count;
   }, opt_obj);
   return count;
@@ -2362,48 +2362,48 @@ goog.debug.expose = function(obj, opt_showFn) {
   }
   return str.join("\n");
 };
-goog.debug.deepExpose = function(obj$jscomp$0, opt_showFn) {
-  var str$jscomp$0 = [], uidsToCleanup = [], ancestorUids = {}, helper = function(obj, space) {
+goog.debug.deepExpose = function(obj, opt_showFn) {
+  var str = [], uidsToCleanup = [], ancestorUids = {}, helper = function(obj, space) {
     var nestspace = space + "  ", indentMultiline = function(str) {
       return str.replace(/\n/g, "\n" + space);
     };
     try {
       if (void 0 === obj) {
-        str$jscomp$0.push("undefined");
+        str.push("undefined");
       } else if (null === obj) {
-        str$jscomp$0.push("NULL");
+        str.push("NULL");
       } else if ("string" === typeof obj) {
-        str$jscomp$0.push('"' + indentMultiline(obj) + '"');
+        str.push('"' + indentMultiline(obj) + '"');
       } else if ("function" === typeof obj) {
-        str$jscomp$0.push(indentMultiline(String(obj)));
+        str.push(indentMultiline(String(obj)));
       } else if (goog.isObject(obj)) {
         goog.hasUid(obj) || uidsToCleanup.push(obj);
         var uid = goog.getUid(obj);
         if (ancestorUids[uid]) {
-          str$jscomp$0.push("*** reference loop detected (id=" + uid + ") ***");
+          str.push("*** reference loop detected (id=" + uid + ") ***");
         } else {
           ancestorUids[uid] = !0;
-          str$jscomp$0.push("{");
+          str.push("{");
           for (var x in obj) {
             if (opt_showFn || "function" !== typeof obj[x]) {
-              str$jscomp$0.push("\n"), str$jscomp$0.push(nestspace), str$jscomp$0.push(x + " = "), helper(obj[x], nestspace);
+              str.push("\n"), str.push(nestspace), str.push(x + " = "), helper(obj[x], nestspace);
             }
           }
-          str$jscomp$0.push("\n" + space + "}");
+          str.push("\n" + space + "}");
           delete ancestorUids[uid];
         }
       } else {
-        str$jscomp$0.push(obj);
+        str.push(obj);
       }
     } catch (e) {
-      str$jscomp$0.push("*** " + e + " ***");
+      str.push("*** " + e + " ***");
     }
   };
-  helper(obj$jscomp$0, "");
+  helper(obj, "");
   for (var i = 0; i < uidsToCleanup.length; i++) {
     goog.removeUid(uidsToCleanup[i]);
   }
-  return str$jscomp$0.join("");
+  return str.join("");
 };
 goog.debug.exposeArray = function(arr) {
   for (var str = [], i = 0; i < arr.length; i++) {
@@ -2908,8 +2908,8 @@ module$exports$tslib.__asyncValues = function(o) {
       });
     };
   }
-  function settle(resolve, reject, d, v$jscomp$0) {
-    Promise.resolve(v$jscomp$0).then(function(v) {
+  function settle(resolve, reject, d, v) {
+    Promise.resolve(v).then(function(v) {
       resolve({value:v, done:d});
     }, reject);
   }
@@ -2953,23 +2953,23 @@ module$exports$tslib.__classPrivateFieldIn = function(state, receiver) {
   return "function" === typeof state ? receiver === state : state.has(receiver);
 };
 var module$exports$closure$flags$flags$2etoggles = {}, module$contents$closure$flags$flags$2etoggles_module = module$contents$closure$flags$flags$2etoggles_module || {id:"third_party/javascript/closure/flags/flags.toggles.closure.js"};
-module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_TOGGLES = !1;
-module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_USER_AGENT_CLIENT_HINTS_ENABLE = !1;
-module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__ASYNC_THROW_ON_UNICODE_TO_BYTE_ENABLE = !1;
-module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__CLIENT_ONLY_WIZ_ATTRIBUTE_SANITIZATION_ENABLE = !1;
-module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__TESTONLY_FALSE_FLAG_ENABLE = !1;
-module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__TESTONLY_DEBUG_FLAG_ENABLE = !1;
-module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__TESTONLY_STAGING_FLAG_DISABLE = !1;
-module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__TESTONLY_TRUE_FLAG_DISABLE = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_attribute_sanitization__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_false_flag__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_true_flag__disable = !1;
 goog.flags = {};
 var module$contents$goog$flags_STAGING = goog.readFlagInternalDoNotUseOrElse(1, goog.FLAGS_STAGING_DEFAULT);
-goog.flags.USE_USER_AGENT_CLIENT_HINTS = module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_TOGGLES ? module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_USER_AGENT_CLIENT_HINTS_ENABLE : goog.readFlagInternalDoNotUseOrElse(610401301, !1);
-goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_TOGGLES ? module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__ASYNC_THROW_ON_UNICODE_TO_BYTE_ENABLE : goog.readFlagInternalDoNotUseOrElse(899588437, !1);
-goog.flags.CLIENT_ONLY_WIZ_ATTRIBUTE_SANITIZATION = module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_TOGGLES ? module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__CLIENT_ONLY_WIZ_ATTRIBUTE_SANITIZATION_ENABLE : goog.readFlagInternalDoNotUseOrElse(533565600, !1);
-goog.flags.TESTONLY_FALSE_FLAG = module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_TOGGLES ? module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__TESTONLY_FALSE_FLAG_ENABLE : goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
-goog.flags.TESTONLY_DEBUG_FLAG = module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_TOGGLES ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__TESTONLY_DEBUG_FLAG_ENABLE : goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
-goog.flags.TESTONLY_STAGING_FLAG = module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_TOGGLES ? !module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__TESTONLY_STAGING_FLAG_DISABLE : goog.readFlagInternalDoNotUseOrElse(2147483646, module$contents$goog$flags_STAGING);
-goog.flags.TESTONLY_TRUE_FLAG = module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__USE_TOGGLES ? !module$exports$closure$flags$flags$2etoggles.GOOGFLAGS__TESTONLY_TRUE_FLAG_DISABLE : goog.readFlagInternalDoNotUseOrElse(2147483647, !0);
+goog.flags.USE_USER_AGENT_CLIENT_HINTS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable : goog.readFlagInternalDoNotUseOrElse(610401301, !1);
+goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable : goog.readFlagInternalDoNotUseOrElse(899588437, !1);
+goog.flags.CLIENT_ONLY_WIZ_ATTRIBUTE_SANITIZATION = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_attribute_sanitization__enable : goog.readFlagInternalDoNotUseOrElse(533565600, !1);
+goog.flags.TESTONLY_FALSE_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_false_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
+goog.flags.TESTONLY_DEBUG_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
+goog.flags.TESTONLY_STAGING_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable : goog.readFlagInternalDoNotUseOrElse(2147483646, module$contents$goog$flags_STAGING);
+goog.flags.TESTONLY_TRUE_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_true_flag__disable : goog.readFlagInternalDoNotUseOrElse(2147483647, !0);
 goog.labs = {};
 goog.labs.userAgent = {};
 var module$contents$goog$labs$userAgent_forceClientHintsInTests = !1;
@@ -5109,8 +5109,8 @@ goog.iter.map = function(iterable, f, opt_obj) {
   };
   return newIter;
 };
-goog.iter.reduce = function(iterable, f, val$jscomp$0, opt_obj) {
-  var rval = val$jscomp$0;
+goog.iter.reduce = function(iterable, f, val, opt_obj) {
+  var rval = val;
   goog.iter.forEach(iterable, function(val) {
     rval = f.call(opt_obj, rval, val);
   });
@@ -7043,7 +7043,7 @@ function module$contents$goog$html$SafeStyle_hasBalancedSquareBrackets(value) {
 var module$contents$goog$html$SafeStyle_VALUE_RE = RegExp("^[-+,.\"'%_!#/ a-zA-Z0-9\\[\\]]+$"), module$contents$goog$html$SafeStyle_URL_RE = RegExp("\\b(url\\([ \t\n]*)('[ -&(-\\[\\]-~]*'|\"[ !#-\\[\\]-~]*\"|[!#-&*-\\[\\]-~]*)([ \t\n]*\\))", "g"), module$contents$goog$html$SafeStyle_FUNCTIONS_RE = RegExp("\\b(calc|cubic-bezier|fit-content|hsl|hsla|linear-gradient|matrix|minmax|radial-gradient|repeat|rgb|rgba|(rotate|scale|translate)(X|Y|Z|3d)?|steps|var)\\([-+*/0-9a-zA-Z.%#\\[\\], ]+\\)", "g"), module$contents$goog$html$SafeStyle_COMMENT_RE = 
 /\/\*/;
 function module$contents$goog$html$SafeStyle_sanitizeUrl(value) {
-  return value.replace(module$contents$goog$html$SafeStyle_URL_RE, function(match$jscomp$0, before, url, after) {
+  return value.replace(module$contents$goog$html$SafeStyle_URL_RE, function(match, before, url, after) {
     var quote = "";
     url = url.replace(/^(['"])(.*)\1$/, function(match, start, inside) {
       quote = start;
@@ -17326,9 +17326,9 @@ goog.net.XhrIo.prototype.getResponseHeaders = function() {
       var keyValue = goog.string.splitLimit(headersArray[i], ":", 1), key = keyValue[0], value = keyValue[1];
       if ("string" === typeof value) {
         value = value.trim();
-        var values$jscomp$0 = headersObject[key] || [];
-        headersObject[key] = values$jscomp$0;
-        values$jscomp$0.push(value);
+        var values = headersObject[key] || [];
+        headersObject[key] = values;
+        values.push(value);
       }
     }
   }
@@ -17357,7 +17357,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.362";
+ee.apiclient.API_CLIENT_VERSION = "0.1.363";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17638,8 +17638,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.362";
-  "0.1.362" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.363";
+  "0.1.363" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17703,7 +17703,7 @@ module$contents$ee$apiclient_apiclient.withProfiling = function(hook, body, this
     module$contents$ee$apiclient_apiclient.profileHook_ = saved;
   }
 };
-module$contents$ee$apiclient_apiclient.handleResponse_ = function(status$jscomp$0, getResponseHeader, responseText, profileHook, callback, url, method) {
+module$contents$ee$apiclient_apiclient.handleResponse_ = function(status, getResponseHeader, responseText, profileHook, callback, url, method) {
   var profileId = profileHook ? getResponseHeader(module$contents$ee$apiclient_apiclient.PROFILE_HEADER) : "";
   profileId && profileHook && profileHook(profileId);
   var parseJson = function(body) {
@@ -17722,12 +17722,12 @@ module$contents$ee$apiclient_apiclient.handleResponse_ = function(status$jscomp$
     }
   }, errorMessage, typeHeader = getResponseHeader("Content-Type") || "application/json", contentType = typeHeader.replace(/;.*/, "");
   if ("application/json" === contentType || "text/json" === contentType) {
-    var response$jscomp$0 = parseJson(responseText);
-    if (response$jscomp$0.parsed) {
-      var data = response$jscomp$0.parsed;
+    var response = parseJson(responseText);
+    if (response.parsed) {
+      var data = response.parsed;
       void 0 === data && (errorMessage = "Malformed response: " + responseText);
     } else {
-      errorMessage = response$jscomp$0;
+      errorMessage = response;
     }
   } else if ("multipart/mixed" === contentType) {
     data = {};
@@ -17742,7 +17742,7 @@ module$contents$ee$apiclient_apiclient.handleResponse_ = function(status$jscomp$
   } else {
     var typeError = "Response was unexpectedly not JSON, but " + contentType;
   }
-  errorMessage = errorMessage || statusError(status$jscomp$0) || typeError;
+  errorMessage = errorMessage || statusError(status) || typeError;
   if (callback) {
     return callback(data, errorMessage), null;
   }
@@ -18134,8 +18134,8 @@ ee.rpc_convert.algorithms = function(result) {
     algorithm.sourceCodeUri && (internalAlgorithm.sourceCodeUri = algorithm.sourceCodeUri);
     return internalAlgorithm;
   }, internalAlgorithms = {}, $jscomp$iter$33 = $jscomp.makeIterator(result.algorithms || []), $jscomp$key$algorithm = $jscomp$iter$33.next(); !$jscomp$key$algorithm.done; $jscomp$key$algorithm = $jscomp$iter$33.next()) {
-    var algorithm$jscomp$0 = $jscomp$key$algorithm.value, name = algorithm$jscomp$0.name.replace(/^algorithms\//, "");
-    internalAlgorithms[name] = convertAlgorithm(algorithm$jscomp$0);
+    var algorithm = $jscomp$key$algorithm.value, name = algorithm.name.replace(/^algorithms\//, "");
+    internalAlgorithms[name] = convertAlgorithm(algorithm);
   }
   return internalAlgorithms;
 };
@@ -18245,19 +18245,19 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
     return (new Date(Number(msec))).toISOString();
   }, asNull = function(value) {
     return null === value ? module$exports$eeapiclient$domain_object.NULL_VALUE : void 0;
-  }, properties = Object.assign({}, legacyProperties), value$jscomp$0, extractValue = function(key) {
-    value$jscomp$0 = properties[key];
+  }, properties = Object.assign({}, legacyProperties), value, extractValue = function(key) {
+    value = properties[key];
     delete properties[key];
-    return value$jscomp$0;
+    return value;
   };
-  void 0 !== extractValue("system:asset_size") && (asset.sizeBytes = asNull(value$jscomp$0) || String(value$jscomp$0));
-  void 0 !== extractValue("system:time_start") && (asset.startTime = asNull(value$jscomp$0) || toTimestamp(value$jscomp$0));
-  void 0 !== extractValue("system:time_end") && (asset.endTime = asNull(value$jscomp$0) || toTimestamp(value$jscomp$0));
-  void 0 !== extractValue("system:footprint") && (asset.geometry = asNull(value$jscomp$0) || value$jscomp$0);
+  void 0 !== extractValue("system:asset_size") && (asset.sizeBytes = asNull(value) || String(value));
+  void 0 !== extractValue("system:time_start") && (asset.startTime = asNull(value) || toTimestamp(value));
+  void 0 !== extractValue("system:time_end") && (asset.endTime = asNull(value) || toTimestamp(value));
+  void 0 !== extractValue("system:footprint") && (asset.geometry = asNull(value) || value);
   extractValue("system:title");
-  "string" !== typeof value$jscomp$0 && null !== value$jscomp$0 || null != properties.title || (properties.title = asNull(value$jscomp$0) || value$jscomp$0);
+  "string" !== typeof value && null !== value || null != properties.title || (properties.title = asNull(value) || value);
   extractValue("system:description");
-  "string" !== typeof value$jscomp$0 && null !== value$jscomp$0 || null != properties.description || (properties.description = asNull(value$jscomp$0) || value$jscomp$0);
+  "string" !== typeof value && null !== value || null != properties.description || (properties.description = asNull(value) || value);
   Object.entries(properties).forEach(function($jscomp$destructuring$var40) {
     var $jscomp$destructuring$var41 = $jscomp.makeIterator($jscomp$destructuring$var40), key = $jscomp$destructuring$var41.next().value, value = $jscomp$destructuring$var41.next().value;
     properties[key] = asNull(value) || value;
@@ -18943,8 +18943,8 @@ ExpressionOptimizer.prototype.optimizeValue = function(value, depth) {
   }
   if (null != value.dictionaryValue) {
     for (var values = {}, constantValues = {}, $jscomp$iter$37 = $jscomp.makeIterator(Object.entries(value.dictionaryValue.values || {})), $jscomp$key$ = $jscomp$iter$37.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$37.next()) {
-      var $jscomp$destructuring$var45 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var45.next().value, v$jscomp$0 = $jscomp$destructuring$var45.next().value;
-      values[k] = this.optimizeValue(v$jscomp$0, depth + 3);
+      var $jscomp$destructuring$var45 = $jscomp.makeIterator($jscomp$key$.value), k = $jscomp$destructuring$var45.next().value, v = $jscomp$destructuring$var45.next().value;
+      values[k] = this.optimizeValue(v, depth + 3);
       null !== constantValues && isConst(values[k]) ? constantValues[k] = serializeConst(values[k].constantValue) : constantValues = null;
     }
     return null !== constantValues ? ee.rpc_node.constant(constantValues) : ee.rpc_node.dictionary(values);
@@ -19714,7 +19714,7 @@ ee.data.prepareExportVideoMapRequest_ = function(taskConfig, metadata) {
 };
 ee.data.prepareExportClassifierRequest_ = function(taskConfig, metadata) {
   var classifierRequest = ee.rpc_convert_batch.taskToExportClassifierRequest(taskConfig);
-  classifierRequest.expression = ee.data.expressionAugmenter_(classifierRequest.expression);
+  classifierRequest.expression = ee.data.expressionAugmenter_(classifierRequest.expression, metadata);
   taskConfig.workloadTag && (classifierRequest.workloadTag = taskConfig.workloadTag);
   return classifierRequest;
 };
@@ -20400,14 +20400,14 @@ ee.ApiFunction.importApi = function(target, prefix, typeName, opt_prepend) {
     }
   });
 };
-ee.ApiFunction.clearApi = function(target$jscomp$0) {
+ee.ApiFunction.clearApi = function(target) {
   var clear = function(target) {
     for (var name in target) {
       "function" === typeof target[name] && target[name].signature && delete target[name];
     }
   };
-  clear(target$jscomp$0);
-  clear(target$jscomp$0.prototype || {});
+  clear(target);
+  clear(target.prototype || {});
 };
 ee.arguments = {};
 ee.arguments.extractFromFunction = function(fn, originalArgs) {
@@ -21413,9 +21413,9 @@ goog.exportProperty(ee.Image.prototype, "select", ee.Image.prototype.select);
 ee.Image.prototype.expression = function(expression, opt_map) {
   var originalArgs = ee.arguments.extractFromFunction(ee.Image.prototype.expression, arguments), vars = ["DEFAULT_EXPRESSION_IMAGE"], eeArgs = {DEFAULT_EXPRESSION_IMAGE:this};
   if (originalArgs.map) {
-    var map = originalArgs.map, name$jscomp$0;
-    for (name$jscomp$0 in map) {
-      vars.push(name$jscomp$0), eeArgs[name$jscomp$0] = new ee.Image(map[name$jscomp$0]);
+    var map = originalArgs.map, name;
+    for (name in map) {
+      vars.push(name), eeArgs[name] = new ee.Image(map[name]);
     }
   }
   var body = ee.ApiFunction._call("Image.parseExpression", originalArgs.expression, "DEFAULT_EXPRESSION_IMAGE", vars), func = new ee.Function();
@@ -22070,12 +22070,12 @@ module$contents$ee$batch_Export.prefixImageFormatOptions_ = function(taskConfig,
     throw Error("Parameter specified at least twice: once in config, and once in config format options.");
   }
   for (var prefix = module$contents$ee$batch_FORMAT_PREFIX_MAP[imageFormat], validOptionKeys = module$contents$ee$batch_FORMAT_OPTIONS_MAP[imageFormat], prefixedOptions = {}, $jscomp$iter$40 = $jscomp.makeIterator(Object.entries(formatOptions)), $jscomp$key$ = $jscomp$iter$40.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$40.next()) {
-    var $jscomp$destructuring$var50 = $jscomp.makeIterator($jscomp$key$.value), key$jscomp$0 = $jscomp$destructuring$var50.next().value, value = $jscomp$destructuring$var50.next().value;
-    if (!module$contents$goog$array_contains(validOptionKeys, key$jscomp$0)) {
+    var $jscomp$destructuring$var50 = $jscomp.makeIterator($jscomp$key$.value), key = $jscomp$destructuring$var50.next().value, value = $jscomp$destructuring$var50.next().value;
+    if (!module$contents$goog$array_contains(validOptionKeys, key)) {
       var validKeysMsg = validOptionKeys.join(", ");
-      throw Error('"' + key$jscomp$0 + '" is not a valid option, the image format "' + imageFormat + '""may have the following options: ' + (validKeysMsg + '".'));
+      throw Error('"' + key + '" is not a valid option, the image format "' + imageFormat + '""may have the following options: ' + (validKeysMsg + '".'));
     }
-    var prefixedKey = prefix + key$jscomp$0[0].toUpperCase() + key$jscomp$0.substring(1);
+    var prefixedKey = prefix + key[0].toUpperCase() + key.substring(1);
     Array.isArray(value) ? prefixedOptions[prefixedKey] = value.join() : prefixedOptions[prefixedKey] = value;
   }
   return prefixedOptions;
@@ -22191,7 +22191,7 @@ ee.CustomFunction.prototype.encodeCloudInvocation = function(serializer, args) {
 ee.CustomFunction.prototype.getSignature = function() {
   return this.signature_;
 };
-ee.CustomFunction.variable = function(type, name$jscomp$0) {
+ee.CustomFunction.variable = function(type, name) {
   type = type || Object;
   if (!(type.prototype instanceof ee.ComputedObject)) {
     if (type && type != Object) {
@@ -22213,7 +22213,7 @@ ee.CustomFunction.variable = function(type, name$jscomp$0) {
     this.varName = name;
   };
   klass.prototype = type.prototype;
-  return new klass(name$jscomp$0);
+  return new klass(name);
 };
 ee.CustomFunction.create = function(func, returnType, arg_types) {
   var stringifyType = function(type) {
@@ -22391,9 +22391,9 @@ ee.Deserializer.roundTrip_ = function(node, value) {
   };
   return new Reencoder();
 };
-ee.Deserializer.invocation_ = function(func, args$jscomp$0) {
+ee.Deserializer.invocation_ = function(func, args) {
   if (func instanceof ee.Function) {
-    return func.apply(args$jscomp$0);
+    return func.apply(args);
   }
   if (func instanceof ee.ComputedObject) {
     var ComputedFunction = function() {
@@ -22406,7 +22406,7 @@ ee.Deserializer.invocation_ = function(func, args$jscomp$0) {
     ComputedFunction.prototype.encodeCloudInvocation = function(serializer, args) {
       return ee.rpc_node.functionByReference(serializer.makeReference(func), args);
     };
-    return new ee.ComputedObject(new ComputedFunction(), args$jscomp$0);
+    return new ee.ComputedObject(new ComputedFunction(), args);
   }
   throw Error("Invalid function value");
 };
@@ -24330,8 +24330,8 @@ var module$contents$safevalues$builders$url_sanitizer_sanitizationCallbacks = []
 goog.DEBUG && module$contents$safevalues$builders$url_sanitizer_addJavaScriptUrlSanitizationCallback(function(url) {
   (0,goog.log.warning)((0,goog.log.getLogger)("safevalues"), "A URL with content '" + url + "' was sanitized away.");
 });
-function module$contents$safevalues$builders$url_sanitizer_addJavaScriptUrlSanitizationCallback(callback$jscomp$0) {
-  -1 === module$contents$safevalues$builders$url_sanitizer_sanitizationCallbacks.indexOf(callback$jscomp$0) && module$contents$safevalues$builders$url_sanitizer_sanitizationCallbacks.push(callback$jscomp$0);
+function module$contents$safevalues$builders$url_sanitizer_addJavaScriptUrlSanitizationCallback(callback) {
+  -1 === module$contents$safevalues$builders$url_sanitizer_sanitizationCallbacks.indexOf(callback) && module$contents$safevalues$builders$url_sanitizer_sanitizationCallbacks.push(callback);
   module$contents$safevalues$builders$url_sanitizer_triggerCallbacks = function(url) {
     module$contents$safevalues$builders$url_sanitizer_sanitizationCallbacks.forEach(function(callback) {
       callback(url);

@@ -18,12 +18,12 @@ import copy
 import keyword
 import re
 
-from . import computedobject
-from . import data
-from . import deprecation
-from . import ee_exception
-from . import ee_types
-from . import function
+from ee import computedobject
+from ee import data
+from ee import deprecation
+from ee import ee_exception
+from ee import ee_types
+from ee import function
 
 
 class ApiFunction(function.Function):

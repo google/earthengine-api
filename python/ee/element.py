@@ -7,9 +7,9 @@ This class is never intended to be instantiated by the user.
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-from . import apifunction
-from . import computedobject
-from . import ee_exception
+from ee import apifunction
+from ee import computedobject
+from ee import ee_exception
 
 
 class Element(computedobject.ComputedObject):

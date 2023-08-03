@@ -5,16 +5,15 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
 import collections.abc
 import json
 import numbers
 
-from . import apifunction
-from . import computedobject
-from . import ee_exception
-from . import ee_types
-from . import serializer
+from ee import apifunction
+from ee import computedobject
+from ee import ee_exception
+from ee import ee_types
+from ee import serializer
 
 # A sentinel value used to detect unspecified function parameters.
 _UNSPECIFIED = object()

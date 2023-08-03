@@ -8,7 +8,7 @@ import os
 import ee
 import unittest
 
-from . import _cloud_api_utils
+from ee import _cloud_api_utils
 
 # Cached algorithms list
 _algorithms_cache = None
@@ -34,6 +34,7 @@ def GetAlgorithms():
 
 
 class ApiTestCase(unittest.TestCase):
+  """A TestCase that initializes the library with standard API methods."""
 
   def setUp(self):
     super().setUp()

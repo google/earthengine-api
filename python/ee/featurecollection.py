@@ -5,16 +5,16 @@
 # pylint: disable=g-bad-name
 # pylint: disable=g-long-lambda
 
-from . import apifunction
-from . import collection
-from . import computedobject
-from . import data
-from . import deprecation
-from . import ee_exception
-from . import ee_list
-from . import ee_types
-from . import feature
-from . import geometry
+from ee import apifunction
+from ee import collection
+from ee import computedobject
+from ee import data
+from ee import deprecation
+from ee import ee_exception
+from ee import ee_list
+from ee import ee_types
+from ee import feature
+from ee import geometry
 
 
 class FeatureCollection(collection.Collection):

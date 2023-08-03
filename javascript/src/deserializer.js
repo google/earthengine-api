@@ -74,7 +74,7 @@ ee.Deserializer.decode = function(json) {
 
 /**
  * Decodes an object previously encoded using the EE API v2 (DAG) format. This
- * uses a provided scopre for ValueRef lookup and does not not allow the input
+ * uses a provided scopre for ValueRef lookup and does not allow the input
  * to be a CompoundValue.
  *
  * @param {*} json The serialied object to decode.

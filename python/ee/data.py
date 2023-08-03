@@ -4,28 +4,26 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
 import contextlib
 import json
 import platform
 import re
+import sys
 import threading
 import uuid
-import sys
-from google_auth_httplib2 import AuthorizedHttp
-
-from . import _cloud_api_utils
-from . import deprecation
-from . import encodable
-from . import oauth
-from . import serializer
-import googleapiclient
-
-from . import ee_exception
 
 from google.oauth2.credentials import Credentials
+from google_auth_httplib2 import AuthorizedHttp
+import googleapiclient
 
-from . import __version__
+from ee import _cloud_api_utils
+from ee import deprecation
+from ee import ee_exception
+from ee import encodable
+from ee import oauth
+from ee import serializer
+
+from ee import __version__
 
 # OAuth2 credentials object.  This may be set by ee.Initialize().
 _credentials = None
@@ -69,6 +67,7 @@ _user_agent = None
 
 
 class _ThreadLocals(threading.local):
+  """Storage for thread local variables."""
 
   def __init__(self):
     # pylint: disable=super-init-not-called
@@ -457,7 +456,7 @@ def getInfo(asset_id):
     if e.resp.status == 404:
       return None
     else:
-      raise _translate_cloud_exception(e)
+      raise _translate_cloud_exception(e)  # pylint: disable=raise-missing-from
 
 
 def getAsset(asset_id):
@@ -1505,7 +1504,7 @@ def getTaskStatus(taskId):
       if e.resp.status == 404:
         result.append({'id': one_id, 'state': 'UNKNOWN'})
       else:
-        raise _translate_cloud_exception(e)
+        raise _translate_cloud_exception(e)  # pylint: disable=raise-missing-from
   return result
 
 

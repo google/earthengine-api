@@ -1,8 +1,8 @@
 #!/usr/bin/env python
 """A wrapper for dictionaries."""
 
-from . import apifunction
-from . import computedobject
+from ee import apifunction
+from ee import computedobject
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name

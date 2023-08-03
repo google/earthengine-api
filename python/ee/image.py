@@ -12,15 +12,15 @@ See: https://sites.google.com/site/earthengineapidocs for more details.
 
 import json
 
-from . import apifunction
-from . import computedobject
-from . import data
-from . import deprecation
-from . import ee_exception
-from . import ee_types
-from . import element
-from . import function
-from . import geometry
+from ee import apifunction
+from ee import computedobject
+from ee import data
+from ee import deprecation
+from ee import ee_exception
+from ee import ee_types
+from ee import element
+from ee import function
+from ee import geometry
 
 
 class Image(element.Element):

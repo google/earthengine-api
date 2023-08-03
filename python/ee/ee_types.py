@@ -4,11 +4,10 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
 import datetime
 import numbers
 
-from . import computedobject
+from ee import computedobject
 
 
 # A dictionary of the classes in the ee module.  Set by registerClasses.

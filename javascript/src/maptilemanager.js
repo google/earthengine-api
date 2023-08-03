@@ -425,7 +425,7 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
 
   /**
    * Handles the success of a request. Dispatches the SUCCESS event and marks
-   * the the request as completed.
+   * the request as completed.
    * @private
    */
   markCompleted_() {

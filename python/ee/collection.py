@@ -7,11 +7,11 @@ This class is never intended to be instantiated by the user.
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-from . import apifunction
-from . import deprecation
-from . import ee_exception
-from . import element
-from . import filter   # pylint: disable=redefined-builtin
+from ee import apifunction
+from ee import deprecation
+from ee import ee_exception
+from ee import element
+from ee import filter   # pylint: disable=redefined-builtin
 
 
 class Collection(element.Element):

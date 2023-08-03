@@ -2,16 +2,13 @@
 """An object representing a custom EE Function."""
 
 # Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
-
-from . import computedobject
-from . import ee_exception
-from . import ee_types
-from . import encodable
-from . import function
-from . import serializer
+from ee import computedobject
+from ee import ee_exception
+from ee import ee_types
+from ee import encodable
+from ee import function
+from ee import serializer
 
 
 # Multiple inheritance, yay! This is necessary because a CustomFunction needs to

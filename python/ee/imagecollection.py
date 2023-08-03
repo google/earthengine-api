@@ -4,14 +4,14 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-from . import apifunction
-from . import collection
-from . import computedobject
-from . import data
-from . import ee_exception
-from . import ee_list
-from . import ee_types
-from . import image
+from ee import apifunction
+from ee import collection
+from ee import computedobject
+from ee import data
+from ee import ee_exception
+from ee import ee_list
+from ee import ee_types
+from ee import image
 
 
 class ImageCollection(collection.Collection):

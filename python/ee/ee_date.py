@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 """A wrapper for dates."""
 
-# pylint: disable=g-bad-import-order
 import datetime
 import math
 
-from . import apifunction
-from . import computedobject
-from . import ee_exception
-from . import ee_types as types
-from . import serializer
+from ee import apifunction
+from ee import computedobject
+from ee import ee_exception
+from ee import ee_types as types
+from ee import serializer
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name

@@ -13,9 +13,9 @@ import json
 import sys
 from google.auth import crypt
 from google.oauth2 import service_account
-from . import apifunction
-from . import data
-from . import oauth
+from ee import apifunction
+from ee import data
+from ee import oauth
 
 
 def ServiceAccountCredentials(email, key_file=None, key_data=None):

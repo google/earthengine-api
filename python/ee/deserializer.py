@@ -4,18 +4,17 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
 import json
 import numbers
 
-from . import apifunction
-from . import computedobject
-from . import customfunction
-from . import ee_date
-from . import ee_exception
-from . import encodable
-from . import function
-from . import geometry
+from ee import apifunction
+from ee import computedobject
+from ee import customfunction
+from ee import ee_date
+from ee import ee_exception
+from ee import encodable
+from ee import function
+from ee import geometry
 
 
 def fromJSON(json_obj):
@@ -59,7 +58,7 @@ def decode(json_obj):
 def _decodeValue(json_obj, named_values):
   """Decodes an object previously encoded using the EE API v2 (DAG) format.
 
-  This uses a provided scope for ValueRef lookup and does not not allow the
+  This uses a provided scope for ValueRef lookup and does not allow the
   input to be a CompoundValue.
 
   Args:

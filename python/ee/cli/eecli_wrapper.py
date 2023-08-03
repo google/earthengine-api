@@ -4,11 +4,15 @@
 import os
 import sys
 
-if sys.version_info[:3] < (3,):
-  sys.exit('earthengine requires Python 3 or newer.')
+# Minimum python version.
+MAJOR = 3
+MINOR = 7
+
+if (sys.version_info.major != MAJOR or sys.version_info.minor < MINOR):
+  sys.exit('earthengine requires Python %d >= %d.%d' % (MAJOR, MAJOR, MINOR))
 
 
-def OutputAndExit(message):
+def OutputAndExit(message: str) -> None:
   sys.stderr.write('%s\n' % message)
   sys.exit(1)
 
@@ -24,8 +28,10 @@ THIRD_PARTY_DIR = os.path.join(EECLI_DIR, 'third_party')
 sys.path.insert(0, THIRD_PARTY_DIR)
 
 
-def RunMain():
+def RunMain() -> None:
+  # pytype: disable=import-error
   import eecli  # pylint: disable=g-import-not-at-top
+  # pytype: enable=import-error
   sys.exit(eecli.main())
 
 if __name__ == '__main__':

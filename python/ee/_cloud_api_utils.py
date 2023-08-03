@@ -12,17 +12,17 @@ import datetime
 import json
 import os
 import re
+from typing import Any, Dict, Optional, Sequence, Union
 import warnings
 
-from google_auth_httplib2 import AuthorizedHttp
-from google_auth_httplib2 import Request
+import google_auth_httplib2
 from googleapiclient import discovery
 from googleapiclient import http
 from googleapiclient import model
 import httplib2
 import requests
 
-from . import ee_exception
+from ee import ee_exception
 
 # The Cloud API version.
 VERSION = os.environ.get('EE_CLOUD_API_VERSION', 'v1')
@@ -41,8 +41,9 @@ _cloud_api_user_project = None
 
 class _Http:
   """A httplib2.Http-like object based on requests."""
+  timeout: Optional[float]
 
-  def __init__(self, timeout=None):
+  def __init__(self, timeout: Optional[float] = None):
     self._timeout = timeout
 
   def request(  # pylint: disable=invalid-name
@@ -149,7 +150,9 @@ def build_cloud_resource(api_base_url,
   if http_transport is None:
     http_transport = _Http(timeout)
   if credentials is not None:
-    http_transport = AuthorizedHttp(credentials, http=http_transport)
+    http_transport = google_auth_httplib2.AuthorizedHttp(
+        credentials, http=http_transport
+    )
   request_builder = _wrap_request(headers_supplier, response_inspector)
   # Discovery uses json by default.
   if raw:
@@ -189,7 +192,7 @@ def build_cloud_resource_from_document(
     headers_supplier=None,
     response_inspector=None,
     raw=False,
-):
+) -> discovery.Resource:
   """Builds an Earth Engine Cloud API resource from a description of the API.
 
   This version is intended for use in tests.
@@ -218,11 +221,13 @@ def build_cloud_resource_from_document(
   )
 
 
-def _convert_dict(to_convert,
-                  conversions,
-                  defaults=None,
-                  key_warnings=False,
-                  retain_keys=False):
+def _convert_dict(
+    to_convert: Dict[str, Any],
+    conversions: Dict[str, Any],
+    defaults: Optional[Dict[str, Any]] = None,
+    key_warnings: bool = False,
+    retain_keys: bool = False,
+) -> Dict[str, Any]:
   """Applies a set of conversion rules to a dict.
 
   Args:
@@ -255,7 +260,7 @@ def _convert_dict(to_convert,
     The "to_convert" dict with keys renamed, values converted, and defaults
     added.
   """
-  result = {}
+  result: Dict[str, Any] = {}
   for key, value in to_convert.items():
     if key in conversions:
       conversion = conversions[key]
@@ -266,13 +271,12 @@ def _convert_dict(to_convert,
         else:
           key = conversion
         if key in result:
-          warnings.warn(
-              'Multiple request parameters converted to {}'.format(key))
+          warnings.warn(f'Multiple request parameters converted to {key}')
         result[key] = value
     elif retain_keys:
       result[key] = value
     elif key_warnings:
-      warnings.warn('Unrecognized key {} ignored'.format(key))
+      warnings.warn(f'Unrecognized key {key} ignored')
   if defaults:
     for default_key, default_value in defaults.items():
       if default_key not in result:
@@ -280,7 +284,8 @@ def _convert_dict(to_convert,
   return result
 
 
-def _convert_value(value, conversions, default):
+def _convert_value(
+    value: str, conversions: Dict[str, Any], default: Any) -> Any:
   """Converts a value using a set of value mappings.
 
   Args:
@@ -296,7 +301,7 @@ def _convert_value(value, conversions, default):
   return conversions.get(value, default)
 
 
-def _convert_msec_to_timestamp(time_msec):
+def _convert_msec_to_timestamp(time_msec: float) -> str:
   """Converts a time value to a google.protobuf.Timestamp's string form.
 
   Args:
@@ -310,7 +315,7 @@ def _convert_msec_to_timestamp(time_msec):
       time_msec / 1000.0).isoformat() + 'Z'
 
 
-def _convert_timestamp_to_msec(timestamp):
+def _convert_timestamp_to_msec(timestamp: str) -> int:
   """Converts a google.protobuf.Timestamp's string form to a time in msec.
 
   Args:
@@ -331,12 +336,9 @@ def _convert_timestamp_to_msec(timestamp):
           int(parsed_timestamp.microsecond / 1000))
 
 
-def _convert_bounding_box_to_geo_json(bbox):
+def _convert_bounding_box_to_geo_json(bbox: Sequence[float]) -> str:
   """Converts a lng/lat bounding box to a GeoJSON string."""
-  lng_min = bbox[0]
-  lat_min = bbox[1]
-  lng_max = bbox[2]
-  lat_max = bbox[3]
+  lng_min, lat_min, lng_max, lat_max = bbox
   return ('{{"type":"Polygon","coordinates":'
           '[[[{0},{1}],[{2},{1}],[{2},{3}],[{0},{3}],[{0},{1}]]]}}'.format(
               lng_min, lat_min, lng_max, lat_max))
@@ -424,7 +426,7 @@ def convert_list_images_params_to_list_assets_params(params):
   return params
 
 
-def is_asset_root(asset_name):
+def is_asset_root(asset_name: str) -> bool:
   return bool(re.match(ASSET_ROOT_PATTERN, asset_name))
 
 
@@ -455,7 +457,7 @@ def _convert_image_for_get_list_result(asset):
   return result
 
 
-def _convert_asset_type_for_get_list_result(asset_type):
+def _convert_asset_type_for_get_list_result(asset_type: str) -> str:
   """Converts an EarthEngineAsset.Type to the format returned by getList."""
   return _convert_value(
       asset_type, {
@@ -466,7 +468,7 @@ def _convert_asset_type_for_get_list_result(asset_type):
       }, 'Unknown')
 
 
-def convert_asset_type_for_create_asset(asset_type):
+def convert_asset_type_for_create_asset(asset_type: str) -> str:
   """Converts a createAsset asset type to an EarthEngineAsset.Type."""
   return _convert_value(
       asset_type, {
@@ -827,7 +829,7 @@ def _convert_operation_state_to_task_state(state):
       }, 'UNKNOWN')
 
 
-def convert_iam_policy_to_acl(policy):
+def convert_iam_policy_to_acl(policy: Dict[str, Any])  -> Dict[str, Any]:
   """Converts an IAM Policy proto to the legacy ACL format."""
   bindings = {
       binding['role']: binding.get('members', [])
@@ -847,7 +849,7 @@ def convert_iam_policy_to_acl(policy):
   return result
 
 
-def convert_acl_to_iam_policy(acl):
+def convert_acl_to_iam_policy(acl: Dict[str, Any]) -> Dict[str, Any]:
   """Converts the legacy ACL format to an IAM Policy proto."""
   owners = acl.get('owners', [])
   readers = acl.get('readers', [])
@@ -864,7 +866,9 @@ def convert_acl_to_iam_policy(acl):
   return {'bindings': bindings}
 
 
-def convert_to_grid_dimensions(dimensions):
+def convert_to_grid_dimensions(
+    dimensions: Union[float, Sequence[float]]
+) -> Dict[str, float]:
   """Converts an input value to GridDimensions.
 
   Args:

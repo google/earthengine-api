@@ -3,10 +3,10 @@
 
 import numbers
 
-from . import _cloud_api_utils
-from . import apifunction
-from . import computedobject
-from . import ee_exception
+from ee import _cloud_api_utils
+from ee import apifunction
+from ee import computedobject
+from ee import ee_exception
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name

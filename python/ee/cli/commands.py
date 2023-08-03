@@ -17,6 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
+from typing import Any
 import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
@@ -162,7 +163,7 @@ def _comma_separated_numbers(string):
     except ValueError:
       try:
         numbervalues.append(float(value))
-      except ValueError:
+      except ValueError:  # pylint: disable=raise-missing-from
         raise argparse.ArgumentTypeError(error_msg.format(string))
   return numbervalues
 
@@ -188,7 +189,7 @@ def _decode_number(string):
   try:
     return float(string)
   except ValueError:
-    raise argparse.ArgumentTypeError(
+    raise argparse.ArgumentTypeError(  # pylint: disable=raise-missing-from
         'Invalid value for property of type "number": "%s".' % string)
 
 
@@ -264,7 +265,7 @@ def _decode_property(string):
   if not m:
     raise argparse.ArgumentTypeError(
         'Invalid property: "%s". Must have the form "name=value" or '
-        '"(type)name=value".', string)
+        '"(type)name=value".' % string)
   _, type_str, name, value_str = m.groups()
   if value_str == 'null' and type_str != TYPE_STRING:
     return (name, None)
@@ -341,13 +342,17 @@ def _pretty_print_json(json_obj):
 
 class Dispatcher:
   """Dispatches to a set of commands implemented as command classes."""
+  COMMANDS: list[Any]
+  command_dict: dict[str, Any]
+  dest: str
+  name: str
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     self.command_dict = {}
-    self.dest = self.name + '_cmd'  # pytype: disable=attribute-error
+    self.dest = self.name + '_cmd'
     subparsers = parser.add_subparsers(title='Commands', dest=self.dest)
     subparsers.required = True  # Needed for proper missing arg handling in 3.x
-    for command in self.COMMANDS:  # pytype: disable=attribute-error
+    for command in self.COMMANDS:
       command_help = None
       if command.__doc__ and command.__doc__.splitlines():
         command_help = command.__doc__.splitlines()[0]
@@ -357,7 +362,9 @@ class Dispatcher:
           help=command_help)
       self.command_dict[command.name] = command(subparser)
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     self.command_dict[vars(args)[self.dest]].run(args, config)
 
 
@@ -373,7 +380,7 @@ class AuthenticateCommand:
 
   name = 'authenticate'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--authorization-code',
         help='Use this specified authorization code.')
@@ -392,8 +399,11 @@ class AuthenticateCommand:
     parser.add_argument(
         '--scopes', help='Optional comma-separated list of scopes.')
 
-  def run(self, args, unused_config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Prompts for an auth code, requests a token and saves it."""
+    del config  # Unused
 
     # Filter for arguments relevant for ee.Authenticate()
     args_auth = {x: vars(args)[x] for x in (
@@ -408,10 +418,12 @@ class SetProjectCommand:
 
   name = 'set_project'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('project', help='project id or number to use.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Saves the project to the config file."""
 
     config_path = config.config_file
@@ -428,11 +440,14 @@ class UnSetProjectCommand:
 
   name = 'unset_project'
 
-  def __init__(self, unused_parser):
-    pass
+  def __init__(self, parser: argparse.ArgumentParser):
+    del parser  # Unused.
 
-  def run(self, unused_args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Saves the project to the config file."""
+    del args  # Unused.
 
     config_path = config.config_file
     with open(config_path) as config_file_json:
@@ -456,7 +471,7 @@ class AclChCommand:
 
   name = 'ch'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('-u', action='append', metavar='user permission',
                         help='Add or modify a user\'s permission.')
     parser.add_argument('-d', action='append', metavar='remove user',
@@ -467,7 +482,9 @@ class AclChCommand:
                         help='Remove all permissions for a user.')
     parser.add_argument('asset_id', help='ID of the asset.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Performs an ACL update."""
     config.ee_init()
     permissions = self._parse_permissions(args)
@@ -563,10 +580,12 @@ class AclGetCommand:
 
   name = 'get'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('asset_id', help='ID of the asset.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     acl = ee.data.getAssetAcl(args.asset_id)
     _pretty_print_json(acl)
@@ -598,12 +617,14 @@ class AclSetCommand:
       },
   }
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('file_or_acl_name',
                         help='File path or canned ACL name.')
     parser.add_argument('asset_id', help='ID of the asset.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Sets asset ACL to a canned ACL or one provided in a JSON file."""
     config.ee_init()
     if args.file_or_acl_name in list(self.CANNED_ACLS.keys()):
@@ -630,10 +651,12 @@ class AssetInfoCommand:
 
   name = 'info'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('asset_id', help='ID of the asset to print.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     info = ee.data.getInfo(args.asset_id)
     if info:
@@ -659,11 +682,13 @@ class AssetSetCommand:
 
   name = 'set'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('asset_id', help='ID of the asset to update.')
     _add_property_flags(parser)
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Runs the asset update."""
     config.ee_init()
     properties = _decode_property_flags(args)
@@ -713,14 +738,16 @@ class CopyCommand:
 
   name = 'cp'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'source', help='Full path of the source asset.')
     parser.add_argument(
         'destination', help='Full path of the destination asset.')
     _add_overwrite_arg(parser)
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Runs the asset copy."""
     config.ee_init()
     ee.data.copyAsset(
@@ -742,7 +769,9 @@ class CreateCommandBase:
         help='Make parent folders as needed.')
     self.asset_type = asset_type
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     ee.data.create_assets(args.asset_id, self.asset_type, args.parents)
 
@@ -752,7 +781,7 @@ class CreateCollectionCommand(CreateCommandBase):
 
   name = 'collection'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     super().__init__(
         parser, 'an image collection', ee.data.ASSET_TYPE_IMAGE_COLL)
 
@@ -762,7 +791,7 @@ class CreateFolderCommand(CreateCommandBase):
 
   name = 'folder'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     super().__init__(parser, 'a folder', ee.data.ASSET_TYPE_FOLDER)
 
 
@@ -782,7 +811,7 @@ class ListCommand:
 
   name = 'ls'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'asset_id', nargs='*',
         help='A folder or image collection to be inspected.')
@@ -803,7 +832,9 @@ class ListCommand:
         '--filter', '-f', default='', type=str,
         help='Filter string to pass to ee.ImageCollection.filter().')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Runs the list command."""
     config.ee_init()
     if not args.asset_id:
@@ -851,6 +882,7 @@ class ListCommand:
 
   def _list_asset_content(self, asset, max_items, total_assets, long_format,
                           recursive, filter_string):
+    """Prints the contents of an asset and its children."""
     try:
       list_req = {'id': asset}
       if max_items >= 0:
@@ -872,7 +904,7 @@ class SizeCommand:
 
   name = 'du'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'asset_id',
         nargs='*',
@@ -881,7 +913,9 @@ class SizeCommand:
         '--summarize', '-s', action='store_true',
         help='Display only a total.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Runs the du command."""
     config.ee_init()
 
@@ -963,13 +997,15 @@ class MoveCommand:
 
   name = 'mv'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'source', help='Full path of the source asset.')
     parser.add_argument(
         'destination', help='Full path of the destination asset.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     ee.data.renameAsset(args.source, args.destination)
 
@@ -979,7 +1015,7 @@ class RmCommand:
 
   name = 'rm'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'asset_id', nargs='+', help='Full path of an asset to delete.')
     parser.add_argument(
@@ -993,7 +1029,9 @@ class RmCommand:
         '--verbose', '-v', action='store_true',
         help='Print the progress of the operation to the console.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     for asset in args.asset_id:
       self._delete_asset(asset, args.recursive, args.verbose, args.dry_run)
@@ -1028,13 +1066,15 @@ class TaskCancelCommand:
 
   name = 'cancel'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'task_ids', nargs='+',
         help='IDs of one or more tasks to cancel,'
         ' or `all` to cancel all tasks.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Cancels a running task."""
     config.ee_init()
     cancel_all = args.task_ids == ['all']
@@ -1059,10 +1099,12 @@ class TaskInfoCommand:
 
   name = 'info'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('task_id', nargs='*', help='ID of a task to get.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Runs the TaskInfo command."""
     config.ee_init()
     for i, status in enumerate(ee.data.getTaskStatus(args.task_id)):
@@ -1090,7 +1132,7 @@ class TaskListCommand:
 
   name = 'list'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--status', '-s', required=False, nargs='*',
         choices=['READY', 'RUNNING', 'COMPLETED', 'FAILED',
@@ -1104,7 +1146,9 @@ class TaskListCommand:
               'start time, update time, EECU-seconds, output URLs.')
     )
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Lists tasks present for a user, maybe filtering by state."""
     config.ee_init()
     status = args.status
@@ -1139,7 +1183,7 @@ class TaskWaitCommand:
 
   name = 'wait'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--timeout', '-t', default=sys.maxsize, type=int,
         help=('Stop waiting for the task(s) to finish after the specified,'
@@ -1153,7 +1197,9 @@ class TaskWaitCommand:
                               ' task ids to wait on; or \'all\' to wait on all'
                               ' running tasks.'))
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Waits on the given tasks to complete or for a timeout to pass."""
     config.ee_init()
     task_ids = []
@@ -1199,7 +1245,7 @@ class UploadImageCommand:
 
   name = 'image'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     _add_wait_arg(parser)
     _add_overwrite_arg(parser)
     parser.add_argument(
@@ -1250,7 +1296,9 @@ class UploadImageCommand:
       bands = ['b%d' % (i + 1) for i in range(num_bands)]
     return bands
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Starts the upload task, and waits for completion if requested."""
     config.ee_init()
     manifest = self.manifest_from_args(args)
@@ -1352,7 +1400,7 @@ class UploadTableCommand:
 
   name = 'table'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     _add_wait_arg(parser)
     _add_overwrite_arg(parser)
     parser.add_argument(
@@ -1448,7 +1496,9 @@ class UploadTableCommand:
         help='Local path to a JSON asset manifest file. No other flags are '
         'used if this flag is set.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Starts the upload task, and waits for completion if requested."""
     config.ee_init()
     manifest = self.manifest_from_args(args)
@@ -1526,14 +1576,14 @@ class UploadCommand(Dispatcher):
 class _UploadManifestBase:
   """Uploads an asset to Earth Engine using the given manifest file."""
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     _add_wait_arg(parser)
     _add_overwrite_arg(parser)
     parser.add_argument(
         'manifest',
         help=('Local path to a JSON asset manifest file.'))
 
-  def run(self, args, config, ingestion_function):
+  def run(self, args: argparse.Namespace, config, ingestion_function) -> None:
     """Starts the upload task, and waits for completion if requested."""
     config.ee_init()
     with open(args.manifest) as fh:
@@ -1548,8 +1598,10 @@ class UploadImageManifestCommand(_UploadManifestBase):
   name = 'upload_manifest'
 
   # pytype: disable=signature-mismatch
-  def run(self, args, config):
-  # pytype: enable=signature-mismatch
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    # pytype: enable=signature-mismatch
     """Starts the upload task, and waits for completion if requested."""
     print(
         'This command is deprecated. '
@@ -1564,8 +1616,10 @@ class UploadTableManifestCommand(_UploadManifestBase):
   name = 'upload_table_manifest'
 
   # pytype: disable=signature-mismatch
-  def run(self, args, config):
-  # pytype: enable=signature-mismatch
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    # pytype: enable=signature-mismatch
     print(
         'This command is deprecated. '
         'Use "earthengine upload table --manifest".'
@@ -1578,10 +1632,14 @@ class LicensesCommand:
 
   name = 'licenses'
 
-  def __init__(self, unused_parser):
-    pass
+  def __init__(self, parser: argparse.ArgumentParser):
+    del parser  # Unused.
 
-  def run(self, unused_args, unused_config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    del args  # Unused.
+    del config  # Unused.
     print('The Earth Engine python client library uess the following opensource'
           ' libraries.\n')
     license_path = os.path.join(os.path.dirname(__file__), 'licenses.txt')
@@ -1598,7 +1656,7 @@ class PrepareModelCommand:
 
   name = 'prepare'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--source_dir',
         help='The local or Cloud Storage path to directory containing the '
@@ -1794,7 +1852,9 @@ class PrepareModelCommand:
     builder.save()
     return out_dir
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Wraps a SavedModel in EE RPC-friendly ops and saves a copy of it."""
     ModelCommand.check_tensorflow_installed()
 
