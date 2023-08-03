@@ -68,7 +68,7 @@ class Date(computedobject.ComputedObject):
       raise ee_exception.EEException(
           'Invalid argument specified for ee.Date(): %s' % date)
 
-    super(Date, self).__init__(func, args, varName)
+    super().__init__(func, args, varName)
 
   @classmethod
   def initialize(cls):

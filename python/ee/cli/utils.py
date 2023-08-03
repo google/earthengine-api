@@ -16,7 +16,7 @@ import time
 import urllib.parse
 
 from google.cloud import storage
-from google.oauth2.credentials import Credentials
+from google.oauth2 import credentials
 import httplib2
 
 import ee
@@ -48,7 +48,7 @@ TASK_FINISHED_STATES = (ee.batch.Task.State.COMPLETED,
                         ee.batch.Task.State.CANCELLED)
 
 
-class CommandLineConfig(object):
+class CommandLineConfig:
   """Holds the configuration parameters used by the EE command line interface.
 
   This class attempts to load the configuration parameters from a file
@@ -90,7 +90,7 @@ class CommandLineConfig(object):
     elif self.account and self.private_key:
       return ee.ServiceAccountCredentials(self.account, self.private_key)
     elif self.refresh_token:
-      return Credentials(
+      return credentials.Credentials(
           None,
           client_id=self.client_id,
           client_secret=self.client_secret,
@@ -144,7 +144,7 @@ class CommandLineConfig(object):
       json.dump(config, output_file)
 
 
-class GcsHelper(object):
+class GcsHelper:
   """A helper for manipulating files in GCS."""
 
   def __init__(self, client):
@@ -406,4 +406,3 @@ def _ensure_str(s):
   if isinstance(s, bytes):
     return s.decode('utf-8', 'strict')
   return s
-  

@@ -72,8 +72,7 @@ class Geometry(computedobject.ComputedObject):
             'Setting the CRS or geodesic on a computed Geometry is not '
             'supported.  Use Geometry.transform().')
       else:
-        super(Geometry, self).__init__(geo_json.func, geo_json.args,
-                                       geo_json.varName)
+        super().__init__(geo_json.func, geo_json.args, geo_json.varName)
         return
 
     # Below here we're working with a GeoJSON literal.
@@ -83,7 +82,7 @@ class Geometry(computedobject.ComputedObject):
     if not Geometry._isValidGeometry(geo_json):
       raise ee_exception.EEException('Invalid GeoJSON geometry.')
 
-    super(Geometry, self).__init__(None, None)
+    super().__init__(None, None)
 
     # The type of the geometry.
     self._type = geo_json['type']
@@ -566,7 +565,7 @@ class Geometry(computedobject.ComputedObject):
   def encode(self, opt_encoder=None):
     """Returns a GeoJSON-compatible representation of the geometry."""
     if not getattr(self, '_type', None):
-      return super(Geometry, self).encode(opt_encoder)
+      return super().encode(opt_encoder)
 
     result = {'type': self._type}
     if self._type == 'GeometryCollection':
@@ -588,7 +587,7 @@ class Geometry(computedobject.ComputedObject):
   def encode_cloud_value(self, encoder):
     """Returns a server-side invocation of the appropriate constructor."""
     if not getattr(self, '_type', None):
-      return super(Geometry, self).encode_cloud_value(encoder)
+      return super().encode_cloud_value(encoder)
 
     return self._computed_equivalent.encode_cloud_value(encoder)
 

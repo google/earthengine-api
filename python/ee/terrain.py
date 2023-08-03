@@ -7,7 +7,7 @@ from . import apifunction
 # pylint: disable=g-bad-name
 
 
-class Terrain(object):
+class Terrain:
   """An namespace for Terrain Algorithms."""
 
   _initialized = False

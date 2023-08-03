@@ -10918,7 +10918,7 @@
     }]
   }, {
     "name": "algorithms/ImageCollection.toBands",
-    "description": "Converts a collection to a single multi-band image containing all of the bands of every image in the collection.  Output bands are named by prefixing the existing band names with the image id from which it came (e.g.: \u0027image1_band1\u0027)",
+    "description": "Converts a collection to a single multi-band image containing all of the bands of every image in the collection.  Output bands are named by prefixing the existing band names with the image id from which it came (e.g.: \u0027image1_band1\u0027). Note: The maximum number of bands is 5000",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",

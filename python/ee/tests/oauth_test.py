@@ -14,6 +14,7 @@ import ee
 class OAuthTest(unittest.TestCase):
 
   def setUp(self):
+    super().setUp()
     self.test_tmpdir = tempfile.mkdtemp()
 
   def testRequestToken(self):

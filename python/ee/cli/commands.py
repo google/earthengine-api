@@ -23,13 +23,14 @@ import urllib.parse
 # pylint: disable=g-import-not-at-top
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
-# pylint: disable=g-bad-import-order
+# Suppress non-error logs while TF initializes
+old_level = logging.getLogger().level
+logging.getLogger().setLevel(logging.ERROR)
+
 TENSORFLOW_INSTALLED = False
+
 # pylint: disable=g-import-not-at-top
 try:
-  # Suppress non-error logs while TF initializes
-  old_level = logging.getLogger().level
-  logging.getLogger().setLevel(logging.ERROR)
   import tensorflow.compat.v1 as tf
   from tensorflow.compat.v1.saved_model import utils as saved_model_utils
   from tensorflow.compat.v1.saved_model import signature_constants
@@ -54,13 +55,12 @@ TENSORFLOW_ADDONS_INSTALLED = False
 # pylint: disable=g-import-not-at-top
 if TENSORFLOW_INSTALLED:
   try:
-    if sys.version_info[0] >= 3:
-      # This import is enough to register TFA ops though isn't directly used
-      # (for now).
-      # pylint: disable=unused-import
-      import tensorflow_addons as tfa
-      tfa.register_all(custom_kernels=False)
-      TENSORFLOW_ADDONS_INSTALLED = True
+    # This import is enough to register TFA ops though isn't directly used
+    # (for now).
+    # pylint: disable=unused-import
+    import tensorflow_addons as tfa
+    tfa.register_all(custom_kernels=False)  # pytype: disable=module-attr
+    TENSORFLOW_ADDONS_INSTALLED = True
   except ImportError:
     pass
   except AttributeError:
@@ -70,7 +70,7 @@ if TENSORFLOW_INSTALLED:
     # successfully registered TFA.
     TENSORFLOW_ADDONS_INSTALLED = True
 
-# pylint: disable=g-import-not-at-top
+# pylint: disable=g-import-not-at-top, g-bad-import-order
 import ee
 from ee.cli import utils
 
@@ -339,15 +339,15 @@ def _pretty_print_json(json_obj):
   print(json.dumps(json_obj, sort_keys=True, indent=2, separators=(',', ': ')))
 
 
-class Dispatcher(object):
+class Dispatcher:
   """Dispatches to a set of commands implemented as command classes."""
 
   def __init__(self, parser):
     self.command_dict = {}
-    self.dest = self.name + '_cmd'
+    self.dest = self.name + '_cmd'  # pytype: disable=attribute-error
     subparsers = parser.add_subparsers(title='Commands', dest=self.dest)
     subparsers.required = True  # Needed for proper missing arg handling in 3.x
-    for command in self.COMMANDS:
+    for command in self.COMMANDS:  # pytype: disable=attribute-error
       command_help = None
       if command.__doc__ and command.__doc__.splitlines():
         command_help = command.__doc__.splitlines()[0]
@@ -361,7 +361,7 @@ class Dispatcher(object):
     self.command_dict[vars(args)[self.dest]].run(args, config)
 
 
-class AuthenticateCommand(object):
+class AuthenticateCommand:
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Note that running this command in the default interactive mode within
@@ -403,7 +403,7 @@ class AuthenticateCommand(object):
     ee.Authenticate(**args_auth)
 
 
-class SetProjectCommand(object):
+class SetProjectCommand:
   """Sets the default user project to be used for all API calls."""
 
   name = 'set_project'
@@ -423,7 +423,7 @@ class SetProjectCommand(object):
     print('Successfully saved project id')
 
 
-class UnSetProjectCommand(object):
+class UnSetProjectCommand:
   """UnSets the default user project to be used for all API calls."""
 
   name = 'unset_project'
@@ -444,7 +444,7 @@ class UnSetProjectCommand(object):
     print('Successfully unset project id')
 
 
-class AclChCommand(object):
+class AclChCommand:
   """Changes the access control list for an asset.
 
   Each change specifies the email address of a user or group and,
@@ -558,7 +558,7 @@ class AclChCommand(object):
     return user.lower() == ALL_USERS.lower()
 
 
-class AclGetCommand(object):
+class AclGetCommand:
   """Prints the access control list for an asset."""
 
   name = 'get'
@@ -572,7 +572,7 @@ class AclGetCommand(object):
     _pretty_print_json(acl)
 
 
-class AclSetCommand(object):
+class AclSetCommand:
   """Sets the access control list for an asset.
 
   The ACL may be the name of a canned ACL, or it may be the path to a
@@ -625,7 +625,7 @@ class AclCommand(Dispatcher):
   ]
 
 
-class AssetInfoCommand(object):
+class AssetInfoCommand:
   """Prints metadata and other information about an Earth Engine asset."""
 
   name = 'info'
@@ -643,7 +643,7 @@ class AssetInfoCommand(object):
           'Asset does not exist or is not accessible: %s' % args.asset_id)
 
 
-class AssetSetCommand(object):
+class AssetSetCommand:
   """Sets metadata properties of an Earth Engine asset.
 
   Properties may be of type "string", "number", or "date". Dates must
@@ -708,7 +708,7 @@ class AssetCommand(Dispatcher):
   ]
 
 
-class CopyCommand(object):
+class CopyCommand:
   """Creates a new Earth Engine asset as a copy of another asset."""
 
   name = 'cp'
@@ -730,7 +730,7 @@ class CopyCommand(object):
     )
 
 
-class CreateCommandBase(object):
+class CreateCommandBase:
   """Base class for implementing Create subcommands."""
 
   def __init__(self, parser, fragment, asset_type):
@@ -753,7 +753,7 @@ class CreateCollectionCommand(CreateCommandBase):
   name = 'collection'
 
   def __init__(self, parser):
-    super(CreateCollectionCommand, self).__init__(
+    super().__init__(
         parser, 'an image collection', ee.data.ASSET_TYPE_IMAGE_COLL)
 
 
@@ -763,8 +763,7 @@ class CreateFolderCommand(CreateCommandBase):
   name = 'folder'
 
   def __init__(self, parser):
-    super(CreateFolderCommand, self).__init__(
-        parser, 'a folder', ee.data.ASSET_TYPE_FOLDER)
+    super().__init__(parser, 'a folder', ee.data.ASSET_TYPE_FOLDER)
 
 
 class CreateCommand(Dispatcher):
@@ -778,7 +777,7 @@ class CreateCommand(Dispatcher):
   ]
 
 
-class ListCommand(object):
+class ListCommand:
   """Prints the contents of a folder or collection."""
 
   name = 'ls'
@@ -805,6 +804,7 @@ class ListCommand(object):
         help='Filter string to pass to ee.ImageCollection.filter().')
 
   def run(self, args, config):
+    """Runs the list command."""
     config.ee_init()
     if not args.asset_id:
       roots = ee.data.getAssetRoots()
@@ -867,7 +867,7 @@ class ListCommand(object):
       print(e)
 
 
-class SizeCommand(object):
+class SizeCommand:
   """Prints the size and names of all items in a given folder or collection."""
 
   name = 'du'
@@ -958,7 +958,7 @@ class SizeCommand(object):
     return sum(sizes.getInfo())
 
 
-class MoveCommand(object):
+class MoveCommand:
   """Moves or renames an Earth Engine asset."""
 
   name = 'mv'
@@ -974,7 +974,7 @@ class MoveCommand(object):
     ee.data.renameAsset(args.source, args.destination)
 
 
-class RmCommand(object):
+class RmCommand:
   """Deletes the specified assets."""
 
   name = 'rm'
@@ -1023,7 +1023,7 @@ class RmCommand(object):
         print('Failed to delete %s. %s' % (asset_id, e))
 
 
-class TaskCancelCommand(object):
+class TaskCancelCommand:
   """Cancels a running task."""
 
   name = 'cancel'
@@ -1035,6 +1035,7 @@ class TaskCancelCommand(object):
         ' or `all` to cancel all tasks.')
 
   def run(self, args, config):
+    """Cancels a running task."""
     config.ee_init()
     cancel_all = args.task_ids == ['all']
     if cancel_all:
@@ -1053,7 +1054,7 @@ class TaskCancelCommand(object):
         print('Task "%s" already in state "%s".' % (status['id'], state))
 
 
-class TaskInfoCommand(object):
+class TaskInfoCommand:
   """Prints information about a task."""
 
   name = 'info'
@@ -1062,6 +1063,7 @@ class TaskInfoCommand(object):
     parser.add_argument('task_id', nargs='*', help='ID of a task to get.')
 
   def run(self, args, config):
+    """Runs the TaskInfo command."""
     config.ee_init()
     for i, status in enumerate(ee.data.getTaskStatus(args.task_id)):
       if i:
@@ -1083,7 +1085,7 @@ class TaskInfoCommand(object):
         print('  Destination URIs: %s' % ', '.join(status['destination_uris']))
 
 
-class TaskListCommand(object):
+class TaskListCommand:
   """Lists the tasks submitted recently."""
 
   name = 'list'
@@ -1132,7 +1134,7 @@ class TaskListCommand(object):
           task['state'], task.get('error_message', '---')) + extra)
 
 
-class TaskWaitCommand(object):
+class TaskWaitCommand:
   """Waits for the specified task or tasks to complete."""
 
   name = 'wait'
@@ -1188,7 +1190,7 @@ class TaskCommand(Dispatcher):
 
 # TODO(user): in both upload tasks, check if the parent namespace
 # exists and is writeable first.
-class UploadImageCommand(object):
+class UploadImageCommand:
   """Uploads an image from Cloud Storage to Earth Engine.
 
   See docs for "asset set" for additional details on how to specify asset
@@ -1292,10 +1294,7 @@ class UploadImageCommand(object):
     # If we are ingesting a tfrecord, we actually treat the inputs as one
     # source and many uris.
     if any(is_tf_record(source) for source in source_files):
-      tileset = {
-          'id': 'ts',
-          'sources': [{'uris': [source for source in source_files]}]
-      }
+      tileset = {'id': 'ts', 'sources': [{'uris': list(source_files)}]}
     else:
       tileset = {
           'id': 'ts',
@@ -1348,7 +1347,7 @@ class UploadImageCommand(object):
 
 # TODO(user): update src_files help string when secondary files
 # can be uploaded.
-class UploadTableCommand(object):
+class UploadTableCommand:
   """Uploads a table from Cloud Storage to Earth Engine."""
 
   name = 'table'
@@ -1524,7 +1523,7 @@ class UploadCommand(Dispatcher):
   ]
 
 
-class _UploadManifestBase(object):
+class _UploadManifestBase:
   """Uploads an asset to Earth Engine using the given manifest file."""
 
   def __init__(self, parser):
@@ -1548,14 +1547,15 @@ class UploadImageManifestCommand(_UploadManifestBase):
 
   name = 'upload_manifest'
 
+  # pytype: disable=signature-mismatch
   def run(self, args, config):
+  # pytype: enable=signature-mismatch
     """Starts the upload task, and waits for completion if requested."""
     print(
         'This command is deprecated. '
         'Use "earthengine upload image --manifest".'
     )
-    super(UploadImageManifestCommand, self).run(
-        args, config, ee.data.startIngestion)
+    super().run(args, config, ee.data.startIngestion)
 
 
 class UploadTableManifestCommand(_UploadManifestBase):
@@ -1563,16 +1563,17 @@ class UploadTableManifestCommand(_UploadManifestBase):
 
   name = 'upload_table_manifest'
 
+  # pytype: disable=signature-mismatch
   def run(self, args, config):
+  # pytype: enable=signature-mismatch
     print(
         'This command is deprecated. '
         'Use "earthengine upload table --manifest".'
     )
-    super(UploadTableManifestCommand, self).run(
-        args, config, ee.data.startTableIngestion)
+    super().run(args, config, ee.data.startTableIngestion)
 
 
-class LicensesCommand(object):
+class LicensesCommand:
   """Prints the name and license of all third party dependencies."""
 
   name = 'licenses'
@@ -1584,10 +1585,11 @@ class LicensesCommand(object):
     print('The Earth Engine python client library uess the following opensource'
           ' libraries.\n')
     license_path = os.path.join(os.path.dirname(__file__), 'licenses.txt')
-    print(open(license_path).read())
+    with open(license_path) as f:
+      print(f.read())
 
 
-class PrepareModelCommand(object):
+class PrepareModelCommand:
   """Prepares a TensorFlow/Keras SavedModel for inference with Earth Engine.
 
   This is required only if a model is manually uploaded to Cloud AI Platform
@@ -1844,14 +1846,9 @@ class ModelCommand(Dispatcher):
       )
     else:
       if not TENSORFLOW_ADDONS_INSTALLED:
-        if sys.version_info[0] < 3:
-          print(
-              'Warning: Python 3 required for TensorFlow Addons. Models that '
-              'use non-standard ops may not work.')
-        else:
-          print(
-              'Warning: TensorFlow Addons not found. Models that use '
-              'non-standard ops may not work.')
+        print(
+            'Warning: TensorFlow Addons not found. Models that use '
+            'non-standard ops may not work.')
 
 EXTERNAL_COMMANDS = [
     AuthenticateCommand,

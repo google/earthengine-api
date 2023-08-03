@@ -54,7 +54,7 @@ class Image(element.Element):
     if version is not None:
       if ee_types.isString(args) and ee_types.isNumber(version):
         # An ID and version.
-        super(Image, self).__init__(
+        super().__init__(
             apifunction.ApiFunction.lookup('Image.load'),
             {'id': args, 'version': version})
       else:
@@ -65,26 +65,26 @@ class Image(element.Element):
 
     if ee_types.isNumber(args):
       # A constant image.
-      super(Image, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('Image.constant'), {'value': args})
     elif ee_types.isString(args):
       # An ID.
-      super(Image, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('Image.load'), {'id': args})
     elif isinstance(args, (list, tuple)):
       # Make an image out of each element.
       image = Image.combine_([Image(i) for i in args])
-      super(Image, self).__init__(image.func, image.args)
+      super().__init__(image.func, image.args)
     elif isinstance(args, computedobject.ComputedObject):
       if args.name() == 'Array':
         # A constant array image.
-        super(Image, self).__init__(
+        super().__init__(
             apifunction.ApiFunction.lookup('Image.constant'), {'value': args})
       else:
         # A custom object to reinterpret as an Image.
-        super(Image, self).__init__(args.func, args.args, args.varName)
+        super().__init__(args.func, args.args, args.varName)
     elif args is None:
-      super(Image, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('Image.mask'),
           {'image': Image(0), 'mask': Image(0)})
     else:
@@ -112,7 +112,7 @@ class Image(element.Element):
           bands - Array containing metadata about the bands in the image,
           properties - Dictionary containing the image's metadata properties.
     """
-    return super(Image, self).getInfo()
+    return super().getInfo()
 
   def getMapId(self, vis_params=None):
     """Fetch and return a map ID dictionary, suitable for use in a Map overlay.

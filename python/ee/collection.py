@@ -21,7 +21,7 @@ class Collection(element.Element):
 
   def __init__(self, func, args, opt_varName=None):
     """Constructs a collection by initializing its ComputedObject."""
-    super(Collection, self).__init__(func, args, opt_varName)
+    super().__init__(func, args, opt_varName)
 
   @classmethod
   def initialize(cls):
@@ -128,7 +128,7 @@ class Collection(element.Element):
        properties: a dictionary containing the collection's metadata
            properties.
     """
-    return super(Collection, self).getInfo()
+    return super().getInfo()
 
   def limit(self, maximum, opt_property=None, opt_ascending=None):
     """Limit a collection to the specified number of elements.

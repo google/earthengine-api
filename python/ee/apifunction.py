@@ -203,16 +203,9 @@ class ApiFunction(function.Function):
           return lambda *args, **kwargs: func.call(*args, **kwargs)  # pylint: disable=unnecessary-lambda
         bound_function = MakeBoundFunction(api_func)
 
-        # Add docs. If there are non-ASCII characters in the docs, and we're in
-        # Python 2, use a hammer to force them into a str.
-        try:
-          setattr(bound_function, '__name__', str(name))
-        except TypeError:
-          setattr(bound_function, '__name__', name.encode('utf8'))
-        try:
-          bound_function.__doc__ = str(api_func)
-        except UnicodeEncodeError:
-          bound_function.__doc__ = api_func.__str__().encode('utf8')
+        # Add docs.
+        setattr(bound_function, '__name__', str(name))
+        bound_function.__doc__ = str(api_func)
 
         # Attach the signature object for documentation generators.
         bound_function.signature = signature

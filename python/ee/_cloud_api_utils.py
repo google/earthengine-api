@@ -10,20 +10,19 @@ import calendar
 import copy
 import datetime
 import json
-
 import os
 import re
 import warnings
 
-from . import ee_exception
 from google_auth_httplib2 import AuthorizedHttp
 from google_auth_httplib2 import Request
 from googleapiclient import discovery
 from googleapiclient import http
 from googleapiclient import model
-
 import httplib2
 import requests
+
+from . import ee_exception
 
 # The Cloud API version.
 VERSION = os.environ.get('EE_CLOUD_API_VERSION', 'v1')
@@ -387,9 +386,9 @@ def _convert_list_images_filter_params_to_list_assets_params(params):
       try:
         region = json.dumps(region)
       except TypeError as e:
-        raise Exception(region_error) from e
+        raise Exception(region_error) from e  # pylint:disable=broad-exception-raised
     elif not isinstance(region, str):
-      raise Exception(region_error)
+      raise Exception(region_error)  # pylint:disable=broad-exception-raised
 
     # Double quotes are not valid in the GeoJSON strings, since we wrap the
     # query in a set of double quotes. We trivially avoid doubly-escaping the
@@ -400,7 +399,7 @@ def _convert_list_images_filter_params_to_list_assets_params(params):
   if 'properties' in params:
     if isinstance(params['properties'], list) and any(
         not isinstance(p, str) for p in params['properties']):
-      raise Exception(
+      raise Exception(  # pylint:disable=broad-exception-raised
           'Filter parameter "properties" must be an array of strings')
 
     for property_query in params['properties']:

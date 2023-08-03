@@ -44,23 +44,23 @@ class ImageCollection(collection.Collection):
 
     if ee_types.isString(args):
       # An ID.
-      super(ImageCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('ImageCollection.load'), {'id': args})
     elif isinstance(args, (list, tuple)):
       # A list of images.
-      super(ImageCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('ImageCollection.fromImages'), {
               'images': [image.Image(i) for i in args]
           })
     elif isinstance(args, ee_list.List):
       # A computed list of images.
-      super(ImageCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('ImageCollection.fromImages'), {
               'images': args
           })
     elif isinstance(args, computedobject.ComputedObject):
       # A custom object to reinterpret as an ImageCollection.
-      super(ImageCollection, self).__init__(args.func, args.args, args.varName)
+      super().__init__(args.func, args.args, args.varName)
     else:
       raise ee_exception.EEException(
           'Unrecognized argument type to convert to an ImageCollection: %s' %
@@ -70,7 +70,7 @@ class ImageCollection(collection.Collection):
   def initialize(cls):
     """Imports API functions to this class."""
     if not cls._initialized:
-      super(ImageCollection, cls).initialize()
+      super().initialize()
       apifunction.ApiFunction.importApi(
           cls, 'ImageCollection', 'ImageCollection')
       apifunction.ApiFunction.importApi(

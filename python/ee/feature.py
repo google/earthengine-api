@@ -43,7 +43,7 @@ class Feature(element.Element):
         raise ee_exception.EEException(
             'Can\'t create Feature out of a Feature and properties.')
       # A pre-constructed Feature. Copy.
-      super(Feature, self).__init__(geom.func, geom.args)
+      super().__init__(geom.func, geom.args)
       return
 
     self.initialize()
@@ -51,13 +51,13 @@ class Feature(element.Element):
     feature_constructor = apifunction.ApiFunction.lookup('Feature')
     if geom is None or isinstance(geom, geometry.Geometry):
       # A geometry object.
-      super(Feature, self).__init__(feature_constructor, {
+      super().__init__(feature_constructor, {
           'geometry': geom,
           'metadata': opt_properties or None
       })
     elif isinstance(geom, computedobject.ComputedObject):
       # A custom object to reinterpret as a Feature.
-      super(Feature, self).__init__(geom.func, geom.args, geom.varName)
+      super().__init__(geom.func, geom.args, geom.varName)
     elif isinstance(geom, dict) and geom.get('type') == 'Feature':
       properties = geom.get('properties', {})
       if 'id' in geom:
@@ -67,14 +67,14 @@ class Feature(element.Element):
         properties = properties.copy()
         properties['system:index'] = geom['id']
       # Try to convert a GeoJSON Feature.
-      super(Feature, self).__init__(feature_constructor, {
+      super().__init__(feature_constructor, {
           'geometry': geometry.Geometry(geom.get('geometry', None)),
           'metadata': properties
       })
     else:
       # Try to convert the geometry arg to a Geometry, in the hopes of it
       # turning out to be GeoJSON.
-      super(Feature, self).__init__(feature_constructor, {
+      super().__init__(feature_constructor, {
           'geometry': geometry.Geometry(geom),
           'metadata': opt_properties or None
       })

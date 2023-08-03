@@ -33,10 +33,10 @@ class List(computedobject.ComputedObject):
     self.initialize()
 
     if isinstance(arg, (list, tuple)):
-      super(List, self).__init__(None, None)
+      super().__init__(None, None)
       self._list = arg
     elif isinstance(arg, computedobject.ComputedObject):
-      super(List, self).__init__(arg.func, arg.args, arg.varName)
+      super().__init__(arg.func, arg.args, arg.varName)
       self._list = None
     else:
       raise ee_exception.EEException(
@@ -63,10 +63,10 @@ class List(computedobject.ComputedObject):
     if isinstance(self._list, (list, tuple)):
       return [opt_encoder(elem) for elem in self._list]
     else:
-      return super(List, self).encode(opt_encoder)
+      return super().encode(opt_encoder)
 
   def encode_cloud_value(self, opt_encoder=None):
     if isinstance(self._list, (list, tuple)):
       return {'valueReference': opt_encoder(self._list)}
     else:
-      return super(List, self).encode_cloud_value(opt_encoder)
+      return super().encode_cloud_value(opt_encoder)

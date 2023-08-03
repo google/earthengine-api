@@ -57,29 +57,28 @@ class FeatureCollection(collection.Collection):
       actual_args = {'tableId': args}
       if opt_column:
         actual_args['geometryColumn'] = opt_column
-      super(FeatureCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('Collection.loadTable'), actual_args)
     elif isinstance(args, (list, tuple)):
       # A list of features.
-      super(FeatureCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('Collection'), {
               'features': [feature.Feature(i) for i in args]
           })
     elif isinstance(args, ee_list.List):
       # A computed list of features.
-      super(FeatureCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('Collection'), {
               'features': args
           })
     elif isinstance(args, dict) and args.get('type') == 'FeatureCollection':
       # A GeoJSON FeatureCollection
-      super(FeatureCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('Collection'),
           {'features': [feature.Feature(i) for i in args.get('features', [])]})
     elif isinstance(args, computedobject.ComputedObject):
       # A custom object to reinterpret as a FeatureCollection.
-      super(FeatureCollection, self).__init__(
-          args.func, args.args, args.varName)
+      super().__init__(args.func, args.args, args.varName)
     else:
       raise ee_exception.EEException(
           'Unrecognized argument type to convert to a FeatureCollection: %s' %
@@ -89,7 +88,7 @@ class FeatureCollection(collection.Collection):
   def initialize(cls):
     """Imports API functions to this class."""
     if not cls._initialized:
-      super(FeatureCollection, cls).initialize()
+      super().initialize()
       apifunction.ApiFunction.importApi(
           cls, 'FeatureCollection', 'FeatureCollection')
       cls._initialized = True

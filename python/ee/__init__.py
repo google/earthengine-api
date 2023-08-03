@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.361'
+__version__ = '0.1.362'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -315,8 +315,7 @@ def _InitializeUnboundMethods():
     target = Algorithms
     while len(name_parts) > 1:
       first = name_parts[0]
-      # Set the attribute if it doesn't already exist. The try/except block
-      # works in both Python 2 & 3.
+      # Set the attribute if it doesn't already exist.
       try:
         getattr(target, first)
       except AttributeError:
@@ -331,12 +330,7 @@ def _InitializeUnboundMethods():
       return lambda *args, **kwargs: f.call(*args, **kwargs)  # pylint: disable=unnecessary-lambda
     bound = GenerateFunction(func)
     bound.signature = signature
-    # Add docs. If there are non-ASCII characters in the docs, and we're in
-    # Python 2, use a hammer to force them into a str.
-    try:
-      bound.__doc__ = str(func)
-    except UnicodeEncodeError:
-      bound.__doc__ = func.__str__().encode('utf8')
+    bound.__doc__ = str(func)
     setattr(target, name_parts[0], bound)
 
 

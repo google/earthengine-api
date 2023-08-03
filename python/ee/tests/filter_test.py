@@ -104,7 +104,7 @@ class FilterTest(apitestcase.ApiTestCase):
   def testInList(self):
     """Verifies that list membership filters work."""
     self.assertEqual(
-        ee.Filter.listContains(None, None, 'foo', [1, 2]),
+        ee.Filter.listContains(None, None, 'foo', [1, 2]),  # pytype: disable=attribute-error
         ee.Filter.inList('foo', [1, 2]))
 
   def testInternals(self):

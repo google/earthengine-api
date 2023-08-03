@@ -28,7 +28,7 @@ class Dictionary(computedobject.ComputedObject):
     self.initialize()
 
     if isinstance(arg, dict):
-      super(Dictionary, self).__init__(None, None)
+      super().__init__(None, None)
       self._dictionary = arg
     else:
       self._dictionary = None
@@ -36,11 +36,10 @@ class Dictionary(computedobject.ComputedObject):
           and arg.func
           and arg.func.getSignature()['returns'] == 'Dictionary'):
         # If it's a call that's already returning a Dictionary, just cast.
-        super(Dictionary, self).__init__(arg.func, arg.args, arg.varName)
+        super().__init__(arg.func, arg.args, arg.varName)
       else:
         # Delegate everything else to the server-side constructor.
-        super(Dictionary, self).__init__(
-            apifunction.ApiFunction('Dictionary'), {'input': arg})
+        super().__init__(apifunction.ApiFunction('Dictionary'), {'input': arg})
 
   @classmethod
   def initialize(cls):
@@ -63,10 +62,10 @@ class Dictionary(computedobject.ComputedObject):
     if self._dictionary is not None:
       return opt_encoder(self._dictionary)
     else:
-      return super(Dictionary, self).encode(opt_encoder)
+      return super().encode(opt_encoder)
 
   def encode_cloud_value(self, opt_encoder=None):
     if self._dictionary is not None:
       return {'valueReference': opt_encoder(self._dictionary)}
     else:
-      return super(Dictionary, self).encode_cloud_value(opt_encoder)
+      return super().encode_cloud_value(opt_encoder)

@@ -42,7 +42,7 @@ class EETestCase(apitestcase.ApiTestCase):
     # Verify that ee.Reset() reverts everything to the base state.
     ee.Reset()
     self.assertFalse(ee.data._initialized)
-    self.assertEqual(ee.data._api_base_url, None)
+    self.assertIsNone(ee.data._api_base_url)
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertFalse(ee.Image._initialized)
 
@@ -417,12 +417,11 @@ class EETestCase(apitestcase.ApiTestCase):
 
     # The initialisation shouldn't blow up.
     self.assertTrue(callable(ee.Algorithms.Foo))
+    # pytype: disable=attribute-error
     self.assertTrue(callable(ee.Image.bar))
     self.assertTrue(callable(ee.Image.baz))
     self.assertTrue(callable(ee.Image.baz))
 
-    # In Python 2, the docstrings end up UTF-8 encoded. In Python 3, they remain
-    # Unicode.
     self.assertEqual(ee.Algorithms.Foo.__doc__, foo)
     self.assertIn(foo, ee.Image.oldBar.__doc__)
     self.assertIn('DEPRECATED: Causes fire', ee.Image.oldBar.__doc__)
@@ -430,6 +429,7 @@ class EETestCase(apitestcase.ApiTestCase):
                   ee.Image.newBaz.__doc__)
     self.assertEqual(ee.Image.bar.__doc__, '\n\nArgs:\n  bar: ' + bar)
     self.assertEqual(ee.Image.baz.__doc__, baz)
+    # pytype: enable=attribute-error
 
 
 if __name__ == '__main__':

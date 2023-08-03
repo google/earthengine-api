@@ -33,10 +33,10 @@ class Number(computedobject.ComputedObject):
     self.initialize()
 
     if isinstance(number, numbers.Number):
-      super(Number, self).__init__(None, None)
+      super().__init__(None, None)
       self._number = number
     elif isinstance(number, computedobject.ComputedObject):
-      super(Number, self).__init__(number.func, number.args, number.varName)
+      super().__init__(number.func, number.args, number.varName)
       self._number = None
     else:
       raise ee_exception.EEException(
@@ -63,10 +63,10 @@ class Number(computedobject.ComputedObject):
     if isinstance(self._number, numbers.Number):
       return self._number
     else:
-      return super(Number, self).encode(opt_encoder)
+      return super().encode(opt_encoder)
 
   def encode_cloud_value(self, opt_encoder=None):
     if isinstance(self._number, numbers.Number):
       return _cloud_api_utils.encode_number_as_cloud_value(self._number)
     else:
-      return super(Number, self).encode_cloud_value(opt_encoder)
+      return super().encode_cloud_value(opt_encoder)

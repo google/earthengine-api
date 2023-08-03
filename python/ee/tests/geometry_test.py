@@ -208,7 +208,7 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     # GeoJSON.
     from_json = ee.Geometry(line.toGeoJSON())
-    self.assertEqual(from_json.func, None)
+    self.assertIsNone(from_json.func)
     self.assertEqual(from_json._type, 'LineString')
     self.assertEqual(from_json._coordinates, [[1, 2], [3, 4]])
 
@@ -221,7 +221,7 @@ class GeometryTest(apitestcase.ApiTestCase):
         }
     }
     from_json_with_crs = ee.Geometry(json_with_crs)
-    self.assertEqual(from_json_with_crs.func, None)
+    self.assertIsNone(from_json_with_crs.func)
     self.assertEqual(from_json_with_crs._type, 'LineString')
     self.assertEqual(from_json_with_crs._proj, 'SR-ORG:6974')
 

@@ -875,7 +875,7 @@ def getTileUrl(mapid, x, y, z):
   return mapid['tile_fetcher'].format_tile_url(x, y, z)
 
 
-class TileFetcher(object):
+class TileFetcher:
   """A helper class to fetch image tiles."""
 
   def __init__(self, url_format, map_name=None):
@@ -2093,7 +2093,7 @@ def resetWorkloadTag(opt_resetDefault=False):
   _workloadTag.reset()
 
 
-class _WorkloadTag(object):
+class _WorkloadTag:
   """A helper class to manage the workload tag."""
 
   def __init__(self):

@@ -4,8 +4,8 @@
 import os
 import sys
 
-if not (2, 6) <= sys.version_info[:3] < (3,):
-  sys.exit('earthengine requires python 2.6 or 2.7.')
+if sys.version_info[:3] < (3,):
+  sys.exit('earthengine requires Python 3 or newer.')
 
 
 def OutputAndExit(message):

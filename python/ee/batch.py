@@ -18,7 +18,7 @@ from . import ee_exception
 from . import geometry
 
 
-class Task(object):
+class Task:
   """A batch task that can be run on the EE batch processing system."""
 
   def __init__(self, task_id, task_type, state, config=None, name=None):
@@ -51,13 +51,13 @@ class Task(object):
     self.state = state
     self.name = name
 
-  class Type(object):
+  class Type:
     EXPORT_IMAGE = 'EXPORT_IMAGE'
     EXPORT_MAP = 'EXPORT_TILES'
     EXPORT_TABLE = 'EXPORT_FEATURES'
     EXPORT_VIDEO = 'EXPORT_VIDEO'
 
-  class State(object):
+  class State:
     UNSUBMITTED = 'UNSUBMITTED'
     READY = 'READY'
     RUNNING = 'RUNNING'
@@ -67,7 +67,7 @@ class Task(object):
     CANCELLED = 'CANCELLED'
 
   # Export destinations.
-  class ExportDestination(object):
+  class ExportDestination:
     DRIVE = 'DRIVE'
     GCS = 'GOOGLE_CLOUD_STORAGE'
     ASSET = 'ASSET'
@@ -166,14 +166,14 @@ class Task(object):
       return '<Task "%s">' % self.id
 
 
-class Export(object):
+class Export:
   """A class with static methods to start export tasks."""
 
   def __init__(self):
     """Forbids class instantiation."""
     raise AssertionError('This class cannot be instantiated.')
 
-  class image(object):
+  class image:
     """A static class with methods to start image export tasks."""
 
     def __init__(self):
@@ -438,7 +438,7 @@ class Export(object):
       return _create_export_task(config, Task.Type.EXPORT_IMAGE)
     # pylint: enable=unused-argument
 
-  class map(object):
+  class map:
     """A class with a static method to start map export tasks."""
 
     def __init__(self):
@@ -515,7 +515,7 @@ class Export(object):
       return _create_export_task(config, Task.Type.EXPORT_MAP)
     # pylint: enable=unused-argument
 
-  class table(object):
+  class table:
     """A class with static methods to start table export tasks."""
 
     def __init__(self):
@@ -754,7 +754,7 @@ class Export(object):
       )
       return _create_export_task(config, Task.Type.EXPORT_TABLE)
 
-  class video(object):
+  class video:
     """A class with static methods to start video export task."""
 
     def __init__(self):
@@ -1804,8 +1804,9 @@ def _canonicalize_region(region):
   if isinstance(region, str):
     try:
       region = json.loads(region)
-    except:
+    except json.JSONDecodeError:
       raise region_error
+
   # It's probably a list of coordinates - attempt to parse as a LineString or
   # Polygon.
   try:

@@ -36,7 +36,7 @@ def GetAlgorithms():
 class ApiTestCase(unittest.TestCase):
 
   def setUp(self):
-    super(ApiTestCase, self).setUp()
+    super().setUp()
     self.InitializeApi()
 
   def InitializeApi(self, should_mock=True):

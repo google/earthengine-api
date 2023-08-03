@@ -17,7 +17,6 @@ import json
 import os
 import shutil
 import subprocess
-import sys
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -109,18 +108,17 @@ def request_token(auth_code,
       'code_verifier': code_verifier,
   }
 
-  refresh_token = None
-
   try:
     response = urllib.request.urlopen(
         TOKEN_URI,
         urllib.parse.urlencode(request_args).encode()).read().decode()
-    refresh_token = json.loads(response)['refresh_token']
   except urllib.error.HTTPError as e:
+    # pylint:disable=broad-exception-raised,raise-missing-from
     raise Exception('Problem requesting tokens. Please try again.  %s %s' %
                     (e, e.read()))
+    # pylint:enable=broad-exception-raised,raise-missing-from
 
-  return refresh_token
+  return json.loads(response)['refresh_token']
 
 
 def write_private_json(json_path, info_dict):
@@ -131,7 +129,9 @@ def write_private_json(json_path, info_dict):
     os.makedirs(dirname)
   except OSError as e:
     if e.errno != errno.EEXIST:
+      # pylint:disable=broad-exception-raised,raise-missing-from
       raise Exception('Error creating directory %s: %s' % (dirname, e))
+      # pylint:enable=broad-exception-raised,raise-missing-from
 
   file_content = json.dumps(info_dict)
   if os.path.exists(json_path):
@@ -197,8 +197,8 @@ def _obtain_and_write_token(auth_code=None,
 def _display_auth_instructions_for_noninteractive(auth_url, code_verifier):
   """Displays instructions for authenticating without blocking for user input."""
   # Python 3 `bytes` should be decoded to `str` if used as an argument of
-  # `str.format()`.  In Python 2, both `str` and `unicode` strings are fine.
-  if sys.version_info[0] == 3 and isinstance(code_verifier, bytes):
+  # `str.format()`.
+  if isinstance(code_verifier, bytes):
     code_verifier_str = code_verifier.decode('utf-8', 'strict')
   else:
     code_verifier_str = code_verifier
@@ -298,14 +298,14 @@ def _load_app_default_credentials(run_gcloud=True, scopes=None, quiet=None):
       subprocess.run(command, check=True)
     except FileNotFoundError as e:
       tip = 'Please ensure that gcloud is installed.' + more_info
-      raise Exception('gcloud command not found. ' + tip) from e
+      raise Exception('gcloud command not found. ' + tip) from e  # pylint:disable=broad-exception-raised
     except subprocess.CalledProcessError as e:
       tip = ('Please check for any errors above.\n*Possible fixes:'
              ' If you loaded a page with a "redirect_uri_mismatch" error,'
              ' run earthengine authenticate with the --quiet flag;'
              ' if the error page says "invalid_request", be sure to run the'
              ' entire gcloud auth command that is shown.' + more_info)
-      raise Exception('gcloud failed. ' + tip) from e
+      raise Exception('gcloud failed. ' + tip) from e  # pylint:disable=broad-exception-raised
     finally:
       os.remove(client_id_file)
   else:
@@ -342,7 +342,7 @@ def _start_server(port):
     def log_message(self, *_):
       pass  # Suppresses the logging of request info to stderr.
 
-  class Server(object):
+  class Server:
 
     def __init__(self):
       self.server = http.server.HTTPServer(('localhost', port), Handler)
@@ -408,7 +408,7 @@ def authenticate(
   flow.save_code()
 
 
-class Flow(object):
+class Flow:
   """Holds state for auth flows."""
 
   def __init__(self, auth_mode='notebook', scopes=None):
@@ -440,7 +440,7 @@ class Flow(object):
           scopes=urllib.parse.quote(' '.join(self.scopes)), **request_info)
       self.code_verifier = ':'.join(request_info[k] for k in nonces)
     else:
-      raise Exception('Unknown auth_mode "%s"' % auth_mode)
+      raise Exception('Unknown auth_mode "%s"' % auth_mode)  # pylint:disable=broad-exception-raised
 
   def save_code(self, code=None):
     """Fetches auth code if not given, and saves the generated credentials."""
@@ -460,12 +460,7 @@ class Flow(object):
 
     coda = WAITING_CODA if self.server else None
     if _in_colab_shell():
-      if sys.version_info[0] == 2:  # Python 2
-        _display_auth_instructions_for_noninteractive(self.auth_url,
-                                                      self.code_verifier)
-        return False
-      else:  # Python 3
-        _display_auth_instructions_with_print(self.auth_url, coda)
+      _display_auth_instructions_with_print(self.auth_url, coda)
     elif _in_jupyter_shell():
       _display_auth_instructions_with_html(self.auth_url, coda)
     else:

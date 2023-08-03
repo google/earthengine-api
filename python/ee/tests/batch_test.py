@@ -32,7 +32,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
   """A test case for batch functionality."""
 
   def setUp(self):
-    super(BatchTestCase, self).setUp()
+    super().setUp()
 
     self.start_call_params = None
     self.update_call_params = None

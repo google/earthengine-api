@@ -27,12 +27,16 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     self.assertFalse(hasattr(TestClass, '_pre_addBands'))
 
     ee.ApiFunction.importApi(TestClass, 'Image', 'Image', 'pre_')
+    # pytype: disable=attribute-error
     self.assertNotIsInstance(TestClass.pre_load, types.MethodType)
+    # pytype: enable=attribute-error
     self.assertFalse(hasattr(TestClass, 'select'))
     # Unbound methods are just functions in Python 3. Check both to maintain
     # backward compatibility.
+    # pytype: disable=attribute-error
     self.assertIsInstance(TestClass.pre_select,
                           (types.FunctionType, types.MethodType))
+    # pytype: enable=attribute-error
     self.assertIsInstance(TestClass.pre_addBands,
                           (types.FunctionType, types.MethodType))
     self.assertFalse(hasattr(TestClass, '_pre_addBands'))
@@ -58,7 +62,9 @@ class ApiFunctionTest(apitestcase.ApiTestCase):
     ee.ApiFunction.importApi(Base, 'Image', 'Image')
     ee.ApiFunction.importApi(Child, 'Image', 'Image')
     self.assertEqual(Base.ClientOverride, Child.ClientOverride)
+    # pytype: disable=attribute-error
     self.assertNotEqual(Base.addBands, Child.addBands)
+    # pytype: enable=attribute-error
 
 
 if __name__ == '__main__':

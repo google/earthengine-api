@@ -37,13 +37,13 @@ goog.require('goog.events');
 goog.require('goog.events.Event');
 goog.require('goog.events.EventTarget');
 goog.require('goog.events.EventType');
-goog.require('goog.html.SafeUrl');
 goog.require('goog.net.EventType');
 goog.require('goog.net.ImageLoader');
 goog.require('goog.net.XhrIo');
 goog.require('goog.singleton');
 goog.require('goog.structs.Map');
 goog.require('goog.structs.PriorityPool');
+goog.require('safevalues');
 
 /**
  * A manager of a TokenPool.
@@ -521,9 +521,9 @@ ee.MapTileManager.Request_ = class extends goog.Disposable {
         var objectUrl, ok;
         if (xhrIo.getStatus() >= 200 && xhrIo.getStatus() < 300) {
           try {
-            objectUrl = goog.html.SafeUrl.unwrap(goog.html.SafeUrl.fromBlob(
+            objectUrl = safevalues.unwrapUrl(safevalues.objectUrlFromSafeSource(
                 /** @type {!Blob} */ (xhrIo.getResponse())));
-            ok = (objectUrl !== goog.html.SafeUrl.INNOCUOUS_STRING);
+            ok = (objectUrl !== safevalues.INNOCUOUS_URL.toString());
           } catch (e) {
             // Browser did not support blob response, or we made a mistake. We
             // will fall back to re-requesting the tile as an image since ok is

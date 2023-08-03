@@ -58,20 +58,20 @@ class Filter(computedobject.ComputedObject):
         opt_filter = opt_filter[0]
       else:
         self._filter = tuple(opt_filter)
-        super(Filter, self).__init__(
+        super().__init__(
             apifunction.ApiFunction.lookup('Filter.and'),
             {'filters': self._filter})
         return
 
     if isinstance(opt_filter, computedobject.ComputedObject):
-      super(Filter, self).__init__(
+      super().__init__(
           opt_filter.func, opt_filter.args, opt_filter.varName)
       self._filter = (opt_filter,)
     elif opt_filter is None:
       # A silly call with no arguments left for backward-compatibility.
       # Encoding such a filter is expected to fail, but it can be composed
       # by calling the various methods that end up in _append().
-      super(Filter, self).__init__(None, None)
+      super().__init__(None, None)
       self._filter = ()
     else:
       raise ee_exception.EEException(
