@@ -4,10 +4,9 @@
 import datetime
 import re
 
-import unittest
-
 import ee
 from ee import apitestcase
+import unittest
 
 
 class CollectionTestCase(apitestcase.ApiTestCase):
@@ -168,7 +167,8 @@ class CollectionTestCase(apitestcase.ApiTestCase):
 
     with self.assertRaisesRegex(
         Exception,
-        'A mapped function\'s arguments cannot be used in client-side operations'
+        'A mapped function\'s arguments cannot be used in client-side '
+        'operations',
     ):
       fc.map(lambda x: x.serialize())
 

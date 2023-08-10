@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 """A deserializer that decodes EE object trees from JSON DAGs."""
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
 import json
 import numbers
 
@@ -17,7 +14,7 @@ from ee import function
 from ee import geometry
 
 
-def fromJSON(json_obj):
+def fromJSON(json_obj):  # pylint: disable=g-bad-name
   """Deserialize an object from a JSON string appropriate for API calls.
 
   Args:
@@ -55,7 +52,7 @@ def decode(json_obj):
   return _decodeValue(json_obj, named_values)
 
 
-def _decodeValue(json_obj, named_values):
+def _decodeValue(json_obj, named_values):  # pylint: disable=g-bad-name
   """Decodes an object previously encoded using the EE API v2 (DAG) format.
 
   This uses a provided scope for ValueRef lookup and does not allow the
@@ -153,7 +150,7 @@ def _invocation(func, args):
   raise ee_exception.EEException('Invalid function value: %s' % func)
 
 
-def fromCloudApiJSON(json_obj):
+def fromCloudApiJSON(json_obj):  # pylint: disable=g-bad-name
   """Deserializes an object from the JSON string used in Cloud API calls.
 
   Args:
@@ -165,7 +162,7 @@ def fromCloudApiJSON(json_obj):
   return decodeCloudApi(json.loads(json_obj))
 
 
-def decodeCloudApi(json_obj):
+def decodeCloudApi(json_obj):  # pylint: disable=g-bad-name
   """Decodes an object previously encoded using the EE Cloud API format.
 
   Args:

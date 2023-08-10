@@ -4,9 +4,6 @@
 from ee import apifunction
 from ee import computedobject
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
 
 class Dictionary(computedobject.ComputedObject):
   """An object to represent dictionaries."""

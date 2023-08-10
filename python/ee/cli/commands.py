@@ -1415,6 +1415,15 @@ class UploadTableCommand:
         help='Destination asset ID for the uploaded file.')
     _add_property_flags(parser)
     parser.add_argument(
+        '--charset',
+        help=(
+            'The name of the charset to use for decoding strings. If not '
+            'given, the charset "UTF-8" is assumed by default.'
+        ),
+        type=str,
+        nargs='?',
+    )
+    parser.add_argument(
         '--max_error',
         help='Max allowed error in meters when transforming geometry '
              'between coordinate systems.',
@@ -1522,6 +1531,8 @@ class UploadTableCommand:
     properties = _decode_property_flags(args)
     args.asset_id = ee.data.convert_asset_id_to_asset_name(args.asset_id)
     source = {'uris': source_files}
+    if args.charset:
+      source['charset'] = args.charset
     if args.max_error:
       source['maxErrorMeters'] = args.max_error
     if args.max_vertices:
@@ -1647,6 +1658,160 @@ class LicensesCommand:
       print(f.read())
 
 
+def _get_nodes(node_spec, source_flag_name):
+  """Extract a node mapping from a list or flag-specified JSON."""
+  try:
+    spec = json.loads(node_spec)
+  except ValueError:
+    spec = [n.strip() for n in node_spec.split(',')]
+    return {item: item for item in spec}
+
+  if not isinstance(spec, dict):
+    raise ValueError(
+        'If flag {} is JSON it must specify a dictionary.'.format(
+            source_flag_name))
+
+  for k, v in spec.items():
+    if (not isinstance(k, str) or not isinstance(v, str)):
+      raise ValueError(
+          'All key/value pairs of the dictionary specified in ' +
+          f'{source_flag_name} must be strings.')
+
+  return spec
+
+
+def _validate_and_extract_nodes(args):
+  """Validate command line args and extract in/out node mappings."""
+  if not args.source_dir:
+    raise ValueError('Flag --source_dir must be set.')
+  if not args.dest_dir:
+    raise ValueError('Flag --dest_dir must be set.')
+  if not args.input:
+    raise ValueError('Flag --input must be set.')
+  if not args.output:
+    raise ValueError('Flag --output must be set.')
+
+  return (_get_nodes(args.input, '--input'),
+          _get_nodes(args.output, '--output'))
+
+
+def _encode_op(output_tensor, name):
+  return tf.identity(
+      tf.map_fn(lambda x: tf.io.encode_base64(tf.serialize_tensor(x)),
+                output_tensor, tf.string),
+      name=name)
+
+
+def _decode_op(input_tensor, dtype):
+  mapped = tf.map_fn(lambda x: tf.parse_tensor(tf.io.decode_base64(x), dtype),
+                     input_tensor, dtype)
+  return mapped
+
+
+def _strip_index(edge_name):
+  colon_pos = edge_name.rfind(':')
+  if colon_pos == -1:
+    return edge_name
+  else:
+    return edge_name[:colon_pos]
+
+
+def _get_input_tensor_spec(graph_def, input_names_set):
+  """Extracts the types of the given node names from the GraphDef."""
+
+  # Get the op names stripped of the input index, e.g. "op:0" becomes "op".
+  input_names_missing_index = {_strip_index(i): i for i in input_names_set}
+
+  spec = {}
+  for cur_node in graph_def.node:
+    if cur_node.name in input_names_missing_index:
+      if 'shape' not in cur_node.attr or 'dtype' not in cur_node.attr:
+        raise ValueError(
+            'Specified input op is not a valid graph input: \'{}\'.'.format(
+                cur_node.name))
+
+      spec[input_names_missing_index[cur_node.name]] = tf.dtypes.DType(
+          cur_node.attr['dtype'].type)
+
+  if len(spec) != len(input_names_set):
+    raise ValueError(
+        'Specified input ops were missing from graph: {}.'.format(
+            list(set(input_names_set).difference(list(spec.keys())))))
+  return spec
+
+
+def _make_rpc_friendly(model_dir, tag, in_map, out_map, vars_path):
+  """Wraps a SavedModel in EE RPC-friendly ops and saves a temporary copy."""
+  out_dir = tempfile.mkdtemp()
+  builder = tf.saved_model.Builder(out_dir)
+
+  # Get a GraphDef from the saved model
+  with tf.Session() as sesh:
+    meta_graph = tf.saved_model.load(sesh, [tag], model_dir)
+
+  graph_def = meta_graph.graph_def
+
+  # Purge the default graph immediately after: we want to remap parts of the
+  # graph when we load it and we don't know what those parts are yet.
+  tf.reset_default_graph()
+
+  input_op_keys = list(in_map.keys())
+  input_new_keys = list(in_map.values())
+
+  # Get the shape and type of the input tensors
+  in_op_types = _get_input_tensor_spec(graph_def, input_op_keys)
+
+  # Create new input placeholders to receive RPC TensorProto payloads
+  in_op_map = {
+      k: tf.placeholder(
+          tf.string, shape=[None], name='earthengine_in_{}'.format(i))
+      for (i, k) in enumerate(input_new_keys)
+  }
+
+  # Glue on decoding ops to remap to the imported graph.
+  decoded_op_map = {
+      k: _decode_op(in_op_map[in_map[k]], in_op_types[k])
+      for k in input_op_keys
+  }
+
+  # Okay now we're ready to import the graph again but remapped.
+  saver = tf.train.import_meta_graph(
+      meta_graph_or_file=meta_graph, input_map=decoded_op_map)
+
+  # Boilerplate to build a signature def for our new graph
+  sig_in = {
+      _strip_index(k):
+      saved_model_utils.build_tensor_info(v) for (k, v) in in_op_map.items()
+  }
+
+  sig_out = {}
+  for index, (k, v) in enumerate(out_map.items()):
+    out_tensor = saved_model_utils.build_tensor_info(
+        _encode_op(
+            tf.get_default_graph().get_tensor_by_name(k),
+            name='earthengine_out_{}'.format(index)))
+
+    sig_out[_strip_index(v)] = out_tensor
+
+  sig_def = signature_def_utils.build_signature_def(
+      sig_in, sig_out, signature_constants.PREDICT_METHOD_NAME)
+
+  # Open a new session to load the variables and add them to the builder.
+  with tf.Session() as sesh:
+    if saver:
+      saver.restore(sesh, model_dir + vars_path)
+    builder.add_meta_graph_and_variables(
+        sesh,
+        tags=[tf.saved_model.tag_constants.SERVING],
+        signature_def_map={
+            signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: sig_def
+        },
+        saver=saver)
+
+  builder.save()
+  return out_dir
+
+
 class PrepareModelCommand:
   """Prepares a TensorFlow/Keras SavedModel for inference with Earth Engine.
 
@@ -1692,173 +1857,13 @@ class PrepareModelCommand:
         'stored under \'model_dir/variables/x.*\', set '
         '--variables=/variables/x). Defaults to \'/variables/variables\'.')
 
-  @staticmethod
-  def _validate_and_extract_nodes(args):
-    """Validate command line args and extract in/out node mappings."""
-    if not args.source_dir:
-      raise ValueError('Flag --source_dir must be set.')
-    if not args.dest_dir:
-      raise ValueError('Flag --dest_dir must be set.')
-    if not args.input:
-      raise ValueError('Flag --input must be set.')
-    if not args.output:
-      raise ValueError('Flag --output must be set.')
-
-    return (PrepareModelCommand._get_nodes(args.input, '--input'),
-            PrepareModelCommand._get_nodes(args.output, '--output'))
-
-  @staticmethod
-  def _get_nodes(node_spec, source_flag_name):
-    """Extract a node mapping from a list or flag-specified JSON."""
-    try:
-      spec = json.loads(node_spec)
-    except ValueError:
-      spec = [n.strip() for n in node_spec.split(',')]
-      return {item: item for item in spec}
-
-    if not isinstance(spec, dict):
-      raise ValueError(
-          'If flag {} is JSON it must specify a dictionary.'.format(
-              source_flag_name))
-
-    for k, v in spec.items():
-      if ((not isinstance(k, str)) or (not isinstance(v, str))):
-        raise ValueError('All key/value pairs of the dictionary specified in '
-                         '{} must be strings.'.format(source_flag_name))
-
-    return spec
-
-  @staticmethod
-  def _encode_op(output_tensor, name):
-    return tf.identity(
-        tf.map_fn(lambda x: tf.io.encode_base64(tf.serialize_tensor(x)),
-                  output_tensor, tf.string),
-        name=name)
-
-  @staticmethod
-  def _decode_op(input_tensor, dtype):
-    mapped = tf.map_fn(lambda x: tf.parse_tensor(tf.io.decode_base64(x), dtype),
-                       input_tensor, dtype)
-    return mapped
-
-  @staticmethod
-  def _shape_from_proto(shape_proto):
-    return [d.size for d in shape_proto.dim]
-
-  @staticmethod
-  def _strip_index(edge_name):
-    colon_pos = edge_name.rfind(':')
-    if colon_pos == -1:
-      return edge_name
-    else:
-      return edge_name[:colon_pos]
-
-  @staticmethod
-  def _get_input_tensor_spec(graph_def, input_names_set):
-    """Extracts the types of the given node names from the GraphDef."""
-
-    # Get the op names stripped of the input index, e.g. "op:0" becomes "op".
-    input_names_missing_index = {
-        PrepareModelCommand._strip_index(i): i for i in input_names_set
-    }
-
-    spec = {}
-    for cur_node in graph_def.node:
-      if cur_node.name in input_names_missing_index:
-        if 'shape' not in cur_node.attr or 'dtype' not in cur_node.attr:
-          raise ValueError(
-              'Specified input op is not a valid graph input: \'{}\'.'.format(
-                  cur_node.name))
-
-        spec[input_names_missing_index[cur_node.name]] = tf.dtypes.DType(
-            cur_node.attr['dtype'].type)
-
-    if len(spec) != len(input_names_set):
-      raise ValueError(
-          'Specified input ops were missing from graph: {}.'.format(
-              list(set(input_names_set).difference(list(spec.keys())))))
-    return spec
-
-  @staticmethod
-  def _make_rpc_friendly(model_dir, tag, in_map, out_map, vars_path):
-    """Wraps a SavedModel in EE RPC-friendly ops and saves a temporary copy."""
-    out_dir = tempfile.mkdtemp()
-    builder = tf.saved_model.Builder(out_dir)
-
-    # Get a GraphDef from the saved model
-    with tf.Session() as sesh:
-      meta_graph = tf.saved_model.load(sesh, [tag], model_dir)
-
-    graph_def = meta_graph.graph_def
-
-    # Purge the default graph immediately after: we want to remap parts of the
-    # graph when we load it and we don't know what those parts are yet.
-    tf.reset_default_graph()
-
-    input_op_keys = list(in_map.keys())
-    input_new_keys = list(in_map.values())
-
-    # Get the shape and type of the input tensors
-    in_op_types = PrepareModelCommand._get_input_tensor_spec(
-        graph_def, input_op_keys)
-
-    # Create new input placeholders to receive RPC TensorProto payloads
-    in_op_map = {
-        k: tf.placeholder(
-            tf.string, shape=[None], name='earthengine_in_{}'.format(i))
-        for (i, k) in enumerate(input_new_keys)
-    }
-
-    # Glue on decoding ops to remap to the imported graph.
-    decoded_op_map = {
-        k: PrepareModelCommand._decode_op(in_op_map[in_map[k]], in_op_types[k])
-        for k in input_op_keys
-    }
-
-    # Okay now we're ready to import the graph again but remapped.
-    saver = tf.train.import_meta_graph(
-        meta_graph_or_file=meta_graph, input_map=decoded_op_map)
-
-    # Boilerplate to build a signature def for our new graph
-    sig_in = {
-        PrepareModelCommand._strip_index(k):
-        saved_model_utils.build_tensor_info(v) for (k, v) in in_op_map.items()
-    }
-
-    sig_out = {}
-    for index, (k, v) in enumerate(out_map.items()):
-      out_tensor = saved_model_utils.build_tensor_info(
-          PrepareModelCommand._encode_op(
-              tf.get_default_graph().get_tensor_by_name(k),
-              name='earthengine_out_{}'.format(index)))
-
-      sig_out[PrepareModelCommand._strip_index(v)] = out_tensor
-
-    sig_def = signature_def_utils.build_signature_def(
-        sig_in, sig_out, signature_constants.PREDICT_METHOD_NAME)
-
-    # Open a new session to load the variables and add them to the builder.
-    with tf.Session() as sesh:
-      if saver:
-        saver.restore(sesh, model_dir + vars_path)
-      builder.add_meta_graph_and_variables(
-          sesh,
-          tags=[tf.saved_model.tag_constants.SERVING],
-          signature_def_map={
-              signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: sig_def
-          },
-          saver=saver)
-
-    builder.save()
-    return out_dir
-
   def run(
       self, args: argparse.Namespace, config: utils.CommandLineConfig
   ) -> None:
     """Wraps a SavedModel in EE RPC-friendly ops and saves a copy of it."""
-    ModelCommand.check_tensorflow_installed()
+    check_tensorflow_installed()
 
-    in_spec, out_spec = PrepareModelCommand._validate_and_extract_nodes(args)
+    in_spec, out_spec = _validate_and_extract_nodes(args)
     gcs_client = None
 
     if utils.is_gcs_path(args.source_dir):
@@ -1872,7 +1877,7 @@ class PrepareModelCommand:
 
     tag = args.tag if args.tag else tf.saved_model.tag_constants.SERVING
     vars_path = args.variables if args.variables else DEFAULT_VARIABLES_PREFIX
-    new_model_dir = PrepareModelCommand._make_rpc_friendly(
+    new_model_dir = _make_rpc_friendly(
         local_model_dir, tag, in_spec, out_spec, vars_path)
 
     if utils.is_gcs_path(args.dest_dir):
@@ -1887,28 +1892,28 @@ class PrepareModelCommand:
             args.dest_dir))
 
 
+def check_tensorflow_installed():
+  """Checks the status of TensorFlow installations."""
+  if not TENSORFLOW_INSTALLED:
+    raise ImportError(
+        'By default, TensorFlow is not installed with Earth Engine client '
+        'libraries. To use \'model\' commands, make sure at least TensorFlow '
+        '1.14 is installed; you can do this by executing \'pip install '
+        'tensorflow\' in your shell.'
+    )
+  else:
+    if not TENSORFLOW_ADDONS_INSTALLED:
+      print(
+          'Warning: TensorFlow Addons not found. Models that use '
+          'non-standard ops may not work.')
+
+
 class ModelCommand(Dispatcher):
   """TensorFlow model related commands."""
 
   name = 'model'
 
   COMMANDS = [PrepareModelCommand]
-
-  @staticmethod
-  def check_tensorflow_installed():
-    """Checks the status of TensorFlow installations."""
-    if not TENSORFLOW_INSTALLED:
-      raise ImportError(
-          'By default, TensorFlow is not installed with Earth Engine client '
-          'libraries. To use \'model\' commands, make sure at least TensorFlow '
-          '1.14 is installed; you can do this by executing \'pip install '
-          'tensorflow\' in your shell.'
-      )
-    else:
-      if not TENSORFLOW_ADDONS_INSTALLED:
-        print(
-            'Warning: TensorFlow Addons not found. Models that use '
-            'non-standard ops may not work.')
 
 EXTERNAL_COMMANDS = [
     AuthenticateCommand,

@@ -12,7 +12,7 @@ import datetime
 import json
 import os
 import re
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 import warnings
 
 import google_auth_httplib2
@@ -114,7 +114,7 @@ def _wrap_request(headers_supplier, response_inspector):
   return builder
 
 
-def set_cloud_api_user_project(cloud_api_user_project):
+def set_cloud_api_user_project(cloud_api_user_project) -> None:
   global _cloud_api_user_project
   _cloud_api_user_project = cloud_api_user_project
 
@@ -344,7 +344,7 @@ def _convert_bounding_box_to_geo_json(bbox: Sequence[float]) -> str:
               lng_min, lat_min, lng_max, lat_max))
 
 
-def convert_get_list_params_to_list_assets_params(params):
+def convert_get_list_params_to_list_assets_params(params) -> Dict[str, Any]:
   """Converts a getList params dict to something usable with listAssets."""
   params = _convert_dict(
       params, {
@@ -363,14 +363,14 @@ def convert_get_list_params_to_list_assets_params(params):
   return convert_list_images_params_to_list_assets_params(params)
 
 
-def convert_list_assets_result_to_get_list_result(result):
+def convert_list_assets_result_to_get_list_result(result) -> List[Any]:
   """Converts a listAssets result to something getList can return."""
   if 'assets' not in result:
     return []
   return [_convert_asset_for_get_list_result(i) for i in result['assets']]
 
 
-def _convert_list_images_filter_params_to_list_assets_params(params):
+def _convert_list_images_filter_params_to_list_assets_params(params) -> str:
   """Converts a listImages params dict to something usable with listAssets."""
   query_strings = []
   if 'startTime' in params:
@@ -413,7 +413,9 @@ def _convert_list_images_filter_params_to_list_assets_params(params):
   return ' AND '.join(query_strings)
 
 
-def convert_list_images_params_to_list_assets_params(params):
+def convert_list_images_params_to_list_assets_params(
+    params: Dict[str, Any]
+) -> Dict[str, Any]:
   """Converts a listImages params dict to something usable with listAssets."""
   params = params.copy()
   extra_filters = _convert_list_images_filter_params_to_list_assets_params(
@@ -430,14 +432,14 @@ def is_asset_root(asset_name: str) -> bool:
   return bool(re.match(ASSET_ROOT_PATTERN, asset_name))
 
 
-def convert_list_images_result_to_get_list_result(result):
+def convert_list_images_result_to_get_list_result(result) -> List[Any]:
   """Converts a listImages result to something getList can return."""
   if 'images' not in result:
     return []
   return [_convert_image_for_get_list_result(i) for i in result['images']]
 
 
-def _convert_asset_for_get_list_result(asset):
+def _convert_asset_for_get_list_result(asset) -> Dict[str, Any]:
   """Converts an EarthEngineAsset to the format returned by getList."""
   result = _convert_dict(
       asset, {
@@ -448,7 +450,7 @@ def _convert_asset_for_get_list_result(asset):
   return result
 
 
-def _convert_image_for_get_list_result(asset):
+def _convert_image_for_get_list_result(asset) -> Dict[str, Any]:
   """Converts an Image to the format returned by getList."""
   result = _convert_dict(
       asset, {
@@ -479,7 +481,7 @@ def convert_asset_type_for_create_asset(asset_type: str) -> str:
       }, asset_type)
 
 
-def convert_asset_id_to_asset_name(asset_id):
+def convert_asset_id_to_asset_name(asset_id: str) -> str:
   """Converts an internal asset ID to a Cloud API asset name.
 
   If asset_id already matches the format 'projects/*/assets/**', it is returned
@@ -499,7 +501,7 @@ def convert_asset_id_to_asset_name(asset_id):
     return 'projects/earthengine-public/assets/{}'.format(asset_id)
 
 
-def split_asset_name(asset_name):
+def split_asset_name(asset_name: str) -> Tuple[str, str]:
   """Splits an asset name into the parent and ID parts.
 
   Args:
@@ -508,22 +510,23 @@ def split_asset_name(asset_name):
   Returns:
     The parent ('projects/*') and ID ('**') parts of the name.
   """
-  projects, parent, _, remainder = asset_name.split('/', 3)
+  projects, parent, assets, remainder = asset_name.split('/', 3)
+  del assets  # Unused.
   return projects + '/' + parent, remainder
 
 
-def convert_operation_name_to_task_id(operation_name):
+def convert_operation_name_to_task_id(operation_name: str) -> str:
   """Converts an Operation name to a task ID."""
   found = re.search(r'^.*operations/(.*)$', operation_name)
   return found.group(1) if found else operation_name
 
 
-def convert_task_id_to_operation_name(task_id):
+def convert_task_id_to_operation_name(task_id: str) -> str:
   """Converts a task ID to an Operation name."""
   return 'projects/{}/operations/{}'.format(_cloud_api_user_project, task_id)
 
 
-def convert_params_to_image_manifest(params):
+def convert_params_to_image_manifest(params: Dict[str, Any]) -> Dict[str, Any]:
   """Converts params to an ImageManifest for ingestion."""
   return _convert_dict(
       params, {
@@ -533,7 +536,7 @@ def convert_params_to_image_manifest(params):
       retain_keys=True)
 
 
-def convert_params_to_table_manifest(params):
+def convert_params_to_table_manifest(params: Dict[str, Any]) -> Dict[str, Any]:
   """Converts params to a TableManifest for ingestion."""
   return _convert_dict(
       params, {
@@ -543,7 +546,7 @@ def convert_params_to_table_manifest(params):
       retain_keys=True)
 
 
-def convert_tilesets_to_one_platform_tilesets(tilesets):
+def convert_tilesets_to_one_platform_tilesets(tilesets: List[Any]) -> List[Any]:
   """Converts a tileset to a one platform representation of a tileset."""
   converted_tilesets = []
   for tileset in tilesets:
@@ -555,7 +558,7 @@ def convert_tilesets_to_one_platform_tilesets(tilesets):
   return converted_tilesets
 
 
-def convert_sources_to_one_platform_sources(sources):
+def convert_sources_to_one_platform_sources(sources: List[Any]) -> List[Any]:
   """Converts the sources to one platform representation of sources."""
   converted_sources = []
   for source in sources:
@@ -574,7 +577,7 @@ def convert_sources_to_one_platform_sources(sources):
   return converted_sources
 
 
-def encode_number_as_cloud_value(number):
+def encode_number_as_cloud_value(number: float) -> Dict[str, Union[float, str]]:
   # Numeric values in constantValue-style nodes end up stored in doubles. If the
   # input is an integer that loses precision as a double, use the int64 slot
   # ("integerValue") in ValueNode.
@@ -584,7 +587,7 @@ def encode_number_as_cloud_value(number):
     return {'constantValue': number}
 
 
-def convert_algorithms(algorithms):
+def convert_algorithms(algorithms) -> Dict[str, Any]:
   """Converts a ListAlgorithmsResult to the internal format.
 
   The internal code expects a dict mapping each algorithm's name to a dict
@@ -612,7 +615,7 @@ def convert_algorithms(algorithms):
   return dict(_convert_algorithm(algorithm) for algorithm in algs)
 
 
-def _convert_algorithm(algorithm):
+def _convert_algorithm(algorithm: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
   """Converts an Algorithm to the internal format."""
   # Strip leading 'algorithms/' from the name.
   algorithm_name = algorithm['name'][11:]
@@ -635,11 +638,12 @@ def _convert_algorithm(algorithm):
   return algorithm_name, converted_algorithm
 
 
-def _convert_algorithm_arguments(args):
+def _convert_algorithm_arguments(
+    args: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
   return [_convert_algorithm_argument(arg) for arg in args]
 
 
-def _convert_algorithm_argument(arg):
+def _convert_algorithm_argument(arg: Dict[str, Any]) -> Dict[str, Any]:
   return _convert_dict(
       arg, {
           'argumentName': 'name',
@@ -654,7 +658,7 @@ def _convert_algorithm_argument(arg):
       })
 
 
-def convert_to_image_file_format(format_str):
+def convert_to_image_file_format(format_str: Optional[str]) -> str:
   """Converts a legacy file format string to an ImageFileFormat enum value.
 
   Args:
@@ -681,7 +685,7 @@ def convert_to_image_file_format(format_str):
     return format_str
 
 
-def convert_to_table_file_format(format_str):
+def convert_to_table_file_format(format_str: Optional[str]) -> str:
   """Converts a legacy file format string to a TableFileFormat enum value.
 
   Args:
@@ -704,7 +708,7 @@ def convert_to_table_file_format(format_str):
     return format_str
 
 
-def convert_to_band_list(bands):
+def convert_to_band_list(bands: Union[List[str], None, str]) -> List[str]:
   """Converts a band list, possibly as CSV, to a real list of bands.
 
   Args:
@@ -724,7 +728,7 @@ def convert_to_band_list(bands):
     raise ee_exception.EEException('Invalid band list ' + bands)
 
 
-def convert_to_visualization_options(params):
+def convert_to_visualization_options(params: Dict[str, Any]) -> Dict[str, Any]:
   """Extracts a VisualizationOptions from a param dict.
 
   Args:
@@ -787,14 +791,14 @@ def convert_to_visualization_options(params):
   return result
 
 
-def _convert_csv_numbers_to_list(value):
+def _convert_csv_numbers_to_list(value: str) -> List[float]:
   """Converts a string containing CSV numbers to a list."""
   if not value:
     return []
   return [float(x) for x in value.split(',')]
 
 
-def convert_operation_to_task(operation):
+def convert_operation_to_task(operation: Dict[str, Any]) -> Dict[str, Any]:
   """Converts an Operation to a legacy Task."""
   result = _convert_dict(
       operation['metadata'], {
@@ -816,7 +820,7 @@ def convert_operation_to_task(operation):
   return result
 
 
-def _convert_operation_state_to_task_state(state):
+def _convert_operation_state_to_task_state(state: str) -> str:
   """Converts a state string from an Operation to the Task equivalent."""
   return _convert_value(
       state, {

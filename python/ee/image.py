@@ -4,12 +4,6 @@
 See: https://sites.google.com/site/earthengineapidocs for more details.
 """
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
-# Disable lint messages caused by Python 3 compatibility changes.
-# pylint: disable=superfluous-parens
-
 import json
 
 from ee import apifunction
@@ -517,10 +511,12 @@ class Image(element.Element):
     # behaviour.
     return data.makeThumbUrl(self.getThumbId(params))
 
+  # pylint: disable=g-bad-name
   # Deprecated spellings to match the JS library.
   getDownloadUrl = deprecation.Deprecated('Use getDownloadURL().')(
       getDownloadURL)
   getThumbUrl = deprecation.Deprecated('Use getThumbURL().')(getThumbURL)
+  # pylint: enable=g-bad-name
 
   ###################################################
   # Static methods.

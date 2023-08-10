@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 """A serializer that encodes EE object trees as JSON DAGs."""
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
 import collections
 import datetime
 import hashlib
@@ -24,7 +21,7 @@ _EPOCH_DATETIME = datetime.datetime.utcfromtimestamp(0)
 _DEPTH_LIMIT = 50
 
 
-def DatetimeToMicroseconds(date):
+def DatetimeToMicroseconds(date):  # pylint: disable=g-bad-name
   """Convert a datetime to a timestamp, microseconds since the epoch."""
   td = (date - _EPOCH_DATETIME)
   microseconds = td.microseconds + (td.seconds + td.days * 24 * 3600) * 1e6
@@ -293,7 +290,7 @@ def encode(obj, is_compound=True, for_cloud_api=True, unbound_name=None):
   return serializer._encode(obj)  # pylint: disable=protected-access
 
 
-def toJSON(obj, opt_pretty=False, for_cloud_api=True):
+def toJSON(obj, opt_pretty=False, for_cloud_api=True):  # pylint: disable=g-bad-name
   """Serialize an object to a JSON string appropriate for API calls.
 
   Args:
@@ -310,7 +307,7 @@ def toJSON(obj, opt_pretty=False, for_cloud_api=True):
   return json.dumps(encoded, indent=2 if opt_pretty else None)
 
 
-def toReadableJSON(obj, for_cloud_api=True):
+def toReadableJSON(obj, for_cloud_api=True):  # pylint: disable=g-bad-name
   """Convert an object to readable JSON."""
   return toJSON(obj, True, for_cloud_api=for_cloud_api)
 

@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 """A base class for EE Functions."""
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
 import textwrap
 
 from ee import computedobject
@@ -172,12 +169,12 @@ class Function(encodable.EncodableFunction):
 
   def __str__(self):
     """Returns a user-readable docstring for this function."""
-    DOCSTRING_WIDTH = 75
+    docstring_width = 75
     signature = self.getSignature()
     parts = []
     if 'description' in signature:
       parts.append(
-          textwrap.fill(signature['description'], width=DOCSTRING_WIDTH))
+          textwrap.fill(signature['description'], width=docstring_width))
     args = signature['args']
     if args:
       parts.append('')
@@ -190,7 +187,7 @@ class Function(encodable.EncodableFunction):
         else:
           arg_header = name_part
         arg_doc = textwrap.fill(arg_header,
-                                width=DOCSTRING_WIDTH - len(name_part),
+                                width=docstring_width - len(name_part),
                                 subsequent_indent=' ' * 6)
         parts.append(arg_doc)
     return '\n'.join(parts)

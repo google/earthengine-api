@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 """An object representing EE Features."""
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception

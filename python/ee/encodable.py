@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 """Interfaces implemented by serializable objects."""
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
-
 
 class Encodable:
   """An interface implemented by objects that can serialize themselves."""

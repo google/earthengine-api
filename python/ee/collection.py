@@ -19,7 +19,7 @@ class Collection(element.Element):
 
   _initialized = False
 
-  def __init__(self, func, args, opt_varName=None):
+  def __init__(self, func, args, opt_varName=None):  # pylint: disable=useless-parent-delegation
     """Constructs a collection by initializing its ComputedObject."""
     super().__init__(func, args, opt_varName)
 
@@ -115,7 +115,7 @@ class Collection(element.Element):
     """
     return self.filter(filter.Filter.date(start, opt_end))
 
-  def getInfo(self):
+  def getInfo(self):  # pylint: disable=useless-parent-delegation
     """Returns all the known information about this collection.
 
     This function makes an REST call to to retrieve all the known information

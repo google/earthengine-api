@@ -3,9 +3,6 @@
 
 from ee import apifunction
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
 
 class Terrain:
   """An namespace for Terrain Algorithms."""

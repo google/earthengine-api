@@ -10,10 +10,12 @@ import platform
 import re
 import sys
 import threading
+from typing import Iterator, Optional, Union
 import uuid
 
-from google.oauth2.credentials import Credentials
-from google_auth_httplib2 import AuthorizedHttp
+# Rename to avoid redefined-outer-name warning.
+from google.oauth2 import credentials as credentials_lib
+import google_auth_httplib2
 import googleapiclient
 
 from ee import _cloud_api_utils
@@ -170,7 +172,7 @@ def initialize(credentials=None,
   """
   global _api_base_url, _tile_base_url, _credentials, _initialized
   global _cloud_api_base_url
-  global _cloud_api_resource, _cloud_api_resource_raw, _cloud_api_key
+  global _cloud_api_key
   global _cloud_api_user_project, _http_transport
   global _cloud_api_client_version
 
@@ -223,12 +225,15 @@ def get_persistent_credentials():
     OAuth2Credentials built from persistently stored refresh_token
   """
   try:
-    return Credentials(None, **oauth.get_credentials_arguments())
+    return credentials_lib.Credentials(
+        None, **oauth.get_credentials_arguments()
+    )
   except IOError:
-    raise ee_exception.EEException(
+    raise ee_exception.EEException(  # pylint: disable=raise-missing-from
         'Please authorize access to your Earth Engine account by '
         'running\n\nearthengine authenticate\n\n'
-        'in your command line, and then retry.')
+        'in your command line, and then retry.'
+    )
 
 
 def reset():
@@ -259,7 +264,6 @@ def _get_projects_path():
 def _install_cloud_api_resource():
   """Builds or rebuilds the Cloud API resource object, if needed."""
   global _cloud_api_resource, _cloud_api_resource_raw
-  global _http_transport
 
   timeout = (_deadline_ms / 1000.0) or None
   _cloud_api_resource = _cloud_api_utils.build_cloud_resource(
@@ -341,7 +345,7 @@ def _execute_cloud_call(call, num_retries=MAX_RETRIES):
   try:
     return call.execute(num_retries=num_retries)
   except googleapiclient.errors.HttpError as e:
-    raise _translate_cloud_exception(e)
+    raise _translate_cloud_exception(e)  # pylint: disable=raise-missing-from
 
 
 def _translate_cloud_exception(http_error):
@@ -518,9 +522,12 @@ def listImages(params):
       view - (string) Specifies how much detail is returned in the list. Either
         "FULL" (default) for all image properties or "BASIC".
   """
-  images = {'images': []}
+  # Allow the user to pass a single string, interpreted as 'parent'
+  if isinstance(params, str):
+    params = {'parent': params}
   assets = listAssets(
       _cloud_api_utils.convert_list_images_params_to_list_assets_params(params))
+  images = {'images': []}
   images['images'].extend(assets.get('assets', []))
   if _NEXT_PAGE_TOKEN_KEY in assets:
     images[_NEXT_PAGE_TOKEN_KEY] = assets.get(_NEXT_PAGE_TOKEN_KEY)
@@ -545,7 +552,9 @@ def listAssets(params):
       view - (string) Specifies how much detail is returned in the list. Either
         "FULL" (default) for all image properties or "BASIC".
   """
-  assets = {'assets': []}
+  # Allow the user to pass a single string, interpreted as 'parent'
+  if isinstance(params, str):
+    params = {'parent': params}
   if 'parent' in params:
     params['parent'] = _cloud_api_utils.convert_asset_id_to_asset_name(
         params['parent'])
@@ -559,6 +568,7 @@ def listAssets(params):
     cloud_resource_root = _get_cloud_projects().assets()
   request = cloud_resource_root.listAssets(**params)
   response = None
+  assets = {'assets': []}
   while request is not None:
     response = _execute_cloud_call(request)
     assets['assets'].extend(response.get('assets', []))
@@ -1981,7 +1991,7 @@ def createAssetHome(requestedId):
 
 def authorizeHttp(http):
   if _credentials:
-    return AuthorizedHttp(_credentials)
+    return google_auth_httplib2.AuthorizedHttp(_credentials)
   else:
     return http
 
@@ -2020,12 +2030,12 @@ def convert_asset_id_to_asset_name(asset_id):
   return _cloud_api_utils.convert_asset_id_to_asset_name(asset_id)
 
 
-def getWorkloadTag():
+def getWorkloadTag() -> Optional[Union[int, str]]:
   """Returns the currently set workload tag."""
   return _workloadTag.get()
 
 
-def setWorkloadTag(tag):
+def setWorkloadTag(tag: Optional[Union[int, str]]) -> None:
   """Sets the workload tag, used to label computation and exports.
 
   Workload tag must be 1 - 63 characters, beginning and ending with an
@@ -2039,7 +2049,7 @@ def setWorkloadTag(tag):
 
 
 @contextlib.contextmanager
-def workloadTagContext(tag):
+def workloadTagContext(tag: Optional[Union[int, str]]) -> Iterator[None]:
   """Produces a context manager which sets the workload tag, then resets it.
 
   Workload tag must be 1 - 63 characters, beginning and ending with an
@@ -2059,7 +2069,7 @@ def workloadTagContext(tag):
     resetWorkloadTag()
 
 
-def setDefaultWorkloadTag(tag):
+def setDefaultWorkloadTag(tag: Optional[Union[int, str]]) -> None:
   """Sets the workload tag, and as the default for which to reset back to.
 
   For example, calling `ee.data.resetWorkloadTag()` will reset the workload tag
@@ -2078,7 +2088,7 @@ def setDefaultWorkloadTag(tag):
   _workloadTag.set(tag)
 
 
-def resetWorkloadTag(opt_resetDefault=False):
+def resetWorkloadTag(opt_resetDefault: bool = False) -> None:
   """Sets the default tag for which to reset back to.
 
   If opt_resetDefault parameter is set to true, the default will be set to empty
@@ -2092,26 +2102,30 @@ def resetWorkloadTag(opt_resetDefault=False):
   _workloadTag.reset()
 
 
+# TODO(user): Consider only returning str even for ints.
 class _WorkloadTag:
   """A helper class to manage the workload tag."""
+  _tag: Optional[Union[int, str]]
+  _default: Optional[Union[int, str]]
 
   def __init__(self):
+    # TODO(user): Consider using None as default and setting them above.
     self._tag = ''
     self._default = ''
 
-  def get(self):
+  def get(self) -> Union[int, str, None]:
     return self._tag
 
-  def set(self, tag):
+  def set(self, tag: Optional[Union[int, str]]) -> None:
     self._tag = self.validate(tag)
 
-  def setDefault(self, newDefault):
+  def setDefault(self, newDefault: Optional[Union[int, str]]) -> None:
     self._default = self.validate(newDefault)
 
-  def reset(self):
+  def reset(self) -> None:
     self._tag = self._default
 
-  def validate(self, tag):
+  def validate(self, tag: Optional[Union[int, str]]) -> str:
     """Throws an error if setting an invalid tag.
 
     Args:

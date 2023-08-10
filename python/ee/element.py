@@ -4,9 +4,6 @@
 This class is never intended to be instantiated by the user.
 """
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
@@ -17,7 +14,7 @@ class Element(computedobject.ComputedObject):
 
   _initialized = False
 
-  def __init__(self, func, args, opt_varName=None):
+  def __init__(self, func, args, opt_varName=None):  # pylint: disable=g-bad-name,useless-parent-delegation
     """Constructs a collection by initializing its ComputedObject."""
     super().__init__(func, args, opt_varName)
 

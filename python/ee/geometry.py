@@ -2,9 +2,6 @@
 # coding=utf-8
 """An object representing EE Geometries."""
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
 import collections.abc
 import json
 import numbers
@@ -31,7 +28,7 @@ class Geometry(computedobject.ComputedObject):
                geo_json,
                opt_proj=None,
                opt_geodesic=None,
-               opt_evenOdd=None):
+               opt_evenOdd=None):  # pylint: disable=g-bad-name
     """Creates a geometry.
 
     Args:
@@ -107,7 +104,7 @@ class Geometry(computedobject.ComputedObject):
       self._geodesic = bool(geo_json['geodesic'])
 
     # Whether polygon interiors use the even/odd rule.
-    self._evenOdd = opt_evenOdd
+    self._evenOdd = opt_evenOdd  # pylint: disable=g-bad-name
     if opt_evenOdd is None and 'evenOdd' in geo_json:
       self._evenOdd = bool(geo_json['evenOdd'])
 
@@ -221,7 +218,7 @@ class Geometry(computedobject.ComputedObject):
   def Rectangle(coords=_UNSPECIFIED,
                 proj=_UNSPECIFIED,
                 geodesic=_UNSPECIFIED,
-                evenOdd=_UNSPECIFIED,
+                evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
                 *args,
                 **kwargs):
     """Constructs an ee.Geometry describing a rectangular polygon.
@@ -368,7 +365,7 @@ class Geometry(computedobject.ComputedObject):
   def LineString(coords=_UNSPECIFIED,
                  proj=_UNSPECIFIED,
                  geodesic=_UNSPECIFIED,
-                 maxError=_UNSPECIFIED,
+                 maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
                  *args):
     """Constructs an ee.Geometry describing a LineString.
 
@@ -403,7 +400,7 @@ class Geometry(computedobject.ComputedObject):
   def LinearRing(coords=_UNSPECIFIED,
                  proj=_UNSPECIFIED,
                  geodesic=_UNSPECIFIED,
-                 maxError=_UNSPECIFIED,
+                 maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
                  *args):
     """Constructs an ee.Geometry describing a LinearRing.
 
@@ -441,7 +438,7 @@ class Geometry(computedobject.ComputedObject):
   def MultiLineString(coords=_UNSPECIFIED,
                       proj=_UNSPECIFIED,
                       geodesic=_UNSPECIFIED,
-                      maxError=_UNSPECIFIED,
+                      maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
                       *args):
     """Constructs an ee.Geometry describing a MultiLineString.
 
@@ -480,8 +477,8 @@ class Geometry(computedobject.ComputedObject):
   def Polygon(coords=_UNSPECIFIED,
               proj=_UNSPECIFIED,
               geodesic=_UNSPECIFIED,
-              maxError=_UNSPECIFIED,
-              evenOdd=_UNSPECIFIED,
+              maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
+              evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
               *args):
     """Constructs an ee.Geometry describing a polygon.
 
@@ -522,8 +519,8 @@ class Geometry(computedobject.ComputedObject):
   def MultiPolygon(coords=_UNSPECIFIED,
                    proj=_UNSPECIFIED,
                    geodesic=_UNSPECIFIED,
-                   maxError=_UNSPECIFIED,
-                   evenOdd=_UNSPECIFIED,
+                   maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
+                   evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
                    *args):
     """Constructs an ee.Geometry describing a MultiPolygon.
 

@@ -1,9 +1,6 @@
 #!/usr/bin/env python
 """Representation for an Earth Engine ImageCollection."""
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
 from ee import apifunction
 from ee import collection
 from ee import computedobject
@@ -191,7 +188,7 @@ class ImageCollection(collection.Collection):
     """
     return self._getThumbURL(['png', 'jpg'], params, thumbType='filmstrip')
 
-  def _getThumbURL(self, valid_formats, params=None, thumbType=None):
+  def _getThumbURL(self, valid_formats, params=None, thumbType=None):  # pylint: disable=g-bad-name
     """Get the URL for a thumbnail of this collection.
 
     Args:

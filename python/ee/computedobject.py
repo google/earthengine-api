@@ -1,8 +1,7 @@
 #!/usr/bin/env python
 """A representation of an Earth Engine computed object."""
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
+from typing import Any, Dict, Optional
 
 from ee import data
 from ee import ee_exception
@@ -46,11 +45,22 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
      deterministic variable names for mapped functions, ensuring that nested
      mapping calls do not use the same variable name.
   """
+  func: Optional[Any]
+  args: Optional[Dict[str, Any]]
+  varName: Optional[str]  # pylint: disable=g-bad-name
 
   # Tell pytype not to worry about dynamic attributes.
-  _HAS_DYNAMIC_ATTRIBUTES = True
+  _HAS_DYNAMIC_ATTRIBUTES: bool = True
 
-  def __init__(self, func, args, opt_varName=None):
+  # False until the client has initialized the dynamic attributes.
+  _initialized: bool
+
+  def __init__(
+      self,
+      func: Optional[Any],
+      args: Optional[Dict[str, Any]],
+      opt_varName: Optional[str] = None,  # pylint: disable=g-bad-name
+  ):
     """Creates a computed object.
 
     Args:
@@ -70,20 +80,20 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
           'When "opt_varName" is specified, "func" and "args" must be null.')
     self.func = func
     self.args = args
-    self.varName = opt_varName
+    self.varName = opt_varName  # pylint: disable=g-bad-name
 
-  def __eq__(self, other):
+  def __eq__(self, other: ...) -> bool:
     # pylint: disable=unidiomatic-typecheck
     return (type(self) == type(other) and
             self.__dict__ == other.__dict__)
 
-  def __ne__(self, other):
+  def __ne__(self, other: ...) -> bool:
     return not self.__eq__(other)
 
-  def __hash__(self):
+  def __hash__(self) -> int:
     return hash(ComputedObject.freeze(self.__dict__))
 
-  def getInfo(self):
+  def getInfo(self) -> Any:
     """Fetch and return information about this object.
 
     Returns:
@@ -91,7 +101,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     """
     return data.computeValue(self)
 
-  def encode(self, encoder):
+  def encode(self, encoder: ...) -> Dict[str, Any]:
     """Encodes the object in a format compatible with Serializer."""
     if self.isVariable():
       return {
@@ -106,6 +116,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
 
       # Encode all arguments recursively.
       encoded_args = {}
+      assert self.args is not None  # For pytype
       for name, value in self.args.items():
         if value is not None:
           encoded_args[name] = encoder(value)
@@ -116,7 +127,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
           key: func
       }
 
-  def encode_cloud_value(self, encoder):
+  def encode_cloud_value(self, encoder: ...) -> Dict[str, Any]:
     if self.isVariable():
       ref = self.varName
       if ref is None and isinstance(
@@ -129,17 +140,19 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
         # the map operation and cannot be evaluated. See the Count Functions
         # case in customfunction.py for details on the unbound_name mechanism.
         raise ee_exception.EEException(
-            'A mapped function\'s arguments cannot be used in client-side operations'
+            "A mapped function's arguments cannot be used in "
+            'client-side operations'
         )
       return {'argumentReference': ref}
     else:
       if isinstance(self.func, str):
         invocation = {'functionName': self.func}
       else:
+        assert self.func is not None
         invocation = self.func.encode_cloud_invocation(encoder)
 
       # Encode all arguments recursively.
-      encoded_args = {}
+      encoded_args: Dict[str, Any] = {}
       for name in sorted(self.args):
         value = self.args[name]
         if value is not None:
@@ -148,10 +161,8 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
       return {'functionInvocationValue': invocation}
 
   def serialize(
-      self,
-      opt_pretty=False,
-      for_cloud_api=True
-  ):
+      self, opt_pretty: bool = False, for_cloud_api: bool = True
+  ) -> str:
     """Serialize this object into a JSON string.
 
     Args:
@@ -168,17 +179,17 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
         for_cloud_api=for_cloud_api
     )
 
-  def __str__(self):
+  def __str__(self) -> str:
     """Writes out the object in a human-readable form."""
     return 'ee.%s(%s)' % (self.name(), serializer.toReadableJSON(self))
 
-  def isVariable(self):
+  def isVariable(self) -> bool:
     """Returns whether this computed object is a variable reference."""
     # We can't just check for varName != null, since we allow that
     # to remain null until for CustomFunction.resolveNamelessArgs_().
     return self.func is None and self.args is None
 
-  def aside(self, func, *var_args):
+  def aside(self, func: ..., *var_args) -> 'ComputedObject':
     """Calls a function passing this object as the first argument.
 
     Returns the object itself for chaining. Convenient e.g. when debugging:
@@ -200,12 +211,12 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     return self
 
   @classmethod
-  def name(cls):
+  def name(cls) -> str:
     """Returns the name of the object, used in __str__()."""
     return 'ComputedObject'
 
   @classmethod
-  def _cast(cls, obj):
+  def _cast(cls, obj: ...) -> Any:
     """Cast a ComputedObject to a new instance of the same class as this.
 
     Args:
@@ -217,14 +228,14 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     if isinstance(obj, cls):
       return obj
     else:
-      result = cls.__new__(cls)
+      result = cls.__new__(cls)  # pylint: disable=no-value-for-parameter
       result.func = obj.func
       result.args = obj.args
       result.varName = obj.varName
       return result
 
   @staticmethod
-  def freeze(obj):
+  def freeze(obj: ...) -> Any:
     """Freeze a list or dict so it can be hashed."""
     if isinstance(obj, dict):
       return frozenset(
