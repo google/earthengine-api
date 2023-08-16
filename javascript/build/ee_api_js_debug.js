@@ -8900,8 +8900,9 @@ module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum = {AUTO_AP
 }};
 module$exports$eeapiclient$ee_api_client.IChangeSubscriptionTypeRequestChangeTimeEnum = function() {
 };
-module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.SPECIFIC_DATE];
+module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", END_OF_TERM:"END_OF_TERM", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.SPECIFIC_DATE, 
+  module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.END_OF_TERM];
 }};
 module$exports$eeapiclient$ee_api_client.IChangeSubscriptionTypeRequestTypeEnum = function() {
 };
@@ -9064,8 +9065,9 @@ module$exports$eeapiclient$ee_api_client.ScheduledUpdateSubscriptionUpdateTypeEn
 }};
 module$exports$eeapiclient$ee_api_client.IScheduledUpdateUpdateChangeTypeEnum = function() {
 };
-module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.SPECIFIC_DATE];
+module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", END_OF_TERM:"END_OF_TERM", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.SPECIFIC_DATE, 
+  module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.END_OF_TERM];
 }};
 module$exports$eeapiclient$ee_api_client.ISubscriptionStateEnum = function() {
 };
@@ -9106,8 +9108,9 @@ module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverrides
 }};
 module$exports$eeapiclient$ee_api_client.ITerminateSubscriptionRequestTerminationTypeEnum = function() {
 };
-module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.SPECIFIC_DATE];
+module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", END_OF_TERM:"END_OF_TERM", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.SPECIFIC_DATE, 
+  module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.END_OF_TERM];
 }};
 module$exports$eeapiclient$ee_api_client.IThinningOptionsThinningStrategyEnum = function() {
 };
@@ -17014,7 +17017,7 @@ goog.net.XhrIo = function(opt_xmlHttpFactory) {
   this.timeoutId_ = null;
   this.responseType_ = goog.net.XhrIo.ResponseType.DEFAULT;
   this.useXhr2Timeout_ = this.progressEventsEnabled_ = this.withCredentials_ = !1;
-  this.trustToken_ = null;
+  this.attributionReportingOptions_ = this.trustToken_ = null;
 };
 goog.inherits(goog.net.XhrIo, goog.events.EventTarget);
 goog.net.XhrIo.ResponseType = {DEFAULT:"", TEXT:"text", DOCUMENT:"document", BLOB:"blob", ARRAY_BUFFER:"arraybuffer"};
@@ -17076,6 +17079,9 @@ goog.net.XhrIo.prototype.getProgressEventsEnabled = function() {
 goog.net.XhrIo.prototype.setTrustToken = function(trustToken) {
   this.trustToken_ = trustToken;
 };
+goog.net.XhrIo.prototype.setAttributionReporting = function(attributionReportingOptions) {
+  this.attributionReportingOptions_ = attributionReportingOptions;
+};
 goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_headers) {
   if (this.xhr_) {
     throw Error("[goog.net.XhrIo] Object is active with another request=" + this.lastUri_ + "; newUri=" + url);
@@ -17130,6 +17136,13 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
       this.xhr_.setTrustToken(this.trustToken_);
     } catch (err) {
       goog.log.fine(this.logger_, this.formatMsg_("Error SetTrustToken: " + err.message));
+    }
+  }
+  if ("setAttributionReporting" in this.xhr_ && this.attributionReportingOptions_) {
+    try {
+      this.xhr_.setAttributionReporting(this.attributionReportingOptions_);
+    } catch (err) {
+      goog.log.fine(this.logger_, this.formatMsg_("Error SetAttributionReporting: " + err.message));
     }
   }
   try {
@@ -17359,7 +17372,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.364";
+ee.apiclient.API_CLIENT_VERSION = "0.1.365";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17640,8 +17653,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.364";
-  "0.1.364" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.365";
+  "0.1.365" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -24217,21 +24230,25 @@ function module$contents$safevalues$internals$attribute_impl_unwrapAttributePref
   throw Error(message);
 }
 module$exports$safevalues$internals$attribute_impl.unwrapAttributePrefix = module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix;
-var $jscomp$templatelit$1274514361$0 = $jscomp.createTemplateTagFirstArg([""]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
+var $jscomp$templatelit$1274514361$0 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$1 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$1274514361$2 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$3 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || 
+{id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
 function module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, numExprs) {
   if (!module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) || numExprs + 1 !== templateObj.length) {
     throw new TypeError("\n    ############################## ERROR ##############################\n\n    It looks like you are trying to call a template tag function (fn`...`)\n    using the normal function syntax (fn(...)), which is not supported.\n\n    The functions in the safevalues library are not designed to be called\n    like normal functions, and doing so invalidates the security guarantees\n    that safevalues provides.\n\n    If you are stuck and not sure how to proceed, please reach out to us\n    instead through:\n     - go/ise-hardening-yaqs (preferred) // LINE-INTERNAL\n     - g/ise-hardening // LINE-INTERNAL\n     - https://github.com/google/safevalues/issues\n\n    ############################## ERROR ##############################");
   }
 }
-var module$contents$safevalues$internals$string_literal_isTranspiled = -1 === function() {
-  return "";
-}.toString().indexOf("`");
-function module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) {
-  return Array.isArray(templateObj) && Array.isArray(templateObj.raw) && templateObj.length === templateObj.raw.length && (module$contents$safevalues$internals$string_literal_isTranspiled || templateObj !== templateObj.raw) && (module$contents$safevalues$internals$string_literal_isTranspiled && !module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$0) || module$contents$safevalues$internals$string_literal_checkFrozen(templateObj)) ? 
-  !0 : !1;
-}
 function module$contents$safevalues$internals$string_literal_checkFrozen(templateObj) {
   return Object.isFrozen(templateObj) && Object.isFrozen(templateObj.raw);
+}
+function module$contents$safevalues$internals$string_literal_checkFrozenExamples() {
+  return module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$0) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$1) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$2) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$3);
+}
+var module$contents$safevalues$internals$string_literal_isTranspiled = -1 !== module$contents$safevalues$internals$string_literal_checkFrozenExamples.toString().indexOf("[") || function() {
+  return "";
+}.toString().indexOf("`"), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozenExamples();
+function module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) {
+  return Array.isArray(templateObj) && Array.isArray(templateObj.raw) && templateObj.length === templateObj.raw.length && (module$contents$safevalues$internals$string_literal_isTranspiled || templateObj !== templateObj.raw) && (module$contents$safevalues$internals$string_literal_isTranspiled && !module$contents$safevalues$internals$string_literal_frozenTSA || module$contents$safevalues$internals$string_literal_checkFrozen(templateObj)) ? 
+  !0 : !1;
 }
 ;var module$contents$safevalues$builders$attribute_builders_module = module$contents$safevalues$builders$attribute_builders_module || {id:"third_party/javascript/safevalues/builders/attribute_builders.closure.js"};
 function module$contents$safevalues$builders$attribute_builders_safeAttrPrefix(templ) {

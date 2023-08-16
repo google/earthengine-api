@@ -6,9 +6,9 @@ import json
 import os
 
 import ee
+from ee import _cloud_api_utils
 import unittest
 
-from ee import _cloud_api_utils
 
 # Cached algorithms list
 _algorithms_cache = None
@@ -56,7 +56,7 @@ class ApiTestCase(unittest.TestCase):
 
     ee.Reset()
 
-    ee.data._install_cloud_api_resource = lambda: None
+    ee.data._install_cloud_api_resource = lambda: None  # pylint: disable=protected-access
     ee.data.getAlgorithms = GetAlgorithms
     if should_mock:
       ee.data.computeValue = lambda x: {'value': 'fakeValue'}

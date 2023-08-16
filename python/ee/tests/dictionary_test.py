@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """Test for the ee.dictionary module."""
 
-import unittest
-
 import ee
 from ee import apitestcase
+import unittest
 
 
 class DictionaryTest(apitestcase.ApiTestCase):

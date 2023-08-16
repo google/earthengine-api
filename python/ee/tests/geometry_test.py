@@ -1,11 +1,9 @@
 #!/usr/bin/env python
-# coding=utf-8
 """Test for the ee.geometry module."""
-
-import unittest
 
 import ee
 from ee import apitestcase
+import unittest
 
 
 class GeometryTest(apitestcase.ApiTestCase):

@@ -78,14 +78,14 @@ class Filter(computedobject.ComputedObject):
           'Invalid argument specified for ee.Filter(): %s' % opt_filter)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Filter', 'Filter')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
@@ -309,5 +309,5 @@ class Filter(computedobject.ComputedObject):
     return Filter.geometry(geometry, opt_errorMargin)
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Filter'

@@ -39,20 +39,20 @@ class Dictionary(computedobject.ComputedObject):
         super().__init__(apifunction.ApiFunction('Dictionary'), {'input': arg})
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Dictionary', 'Dictionary')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Dictionary'
 
   def encode(self, opt_encoder=None):

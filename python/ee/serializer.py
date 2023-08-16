@@ -158,7 +158,7 @@ class Serializer:
                     for key, value in obj.items()])
       }
     else:
-      raise ee_exception.EEException('Can\'t encode object: %s' % obj)
+      raise ee_exception.EEException('Cannot encode object: %s' % obj)
 
     if self._is_compound:
       # Save the new object and return a ValueRef.
@@ -254,7 +254,7 @@ class Serializer:
             }
         }
     else:
-      raise ee_exception.EEException('Can\'t encode object: %s' % obj)
+      raise ee_exception.EEException('Cannot encode object: %s' % obj)
 
     if self._is_compound:
       # Save the new object and return a ValueRef.

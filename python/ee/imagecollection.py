@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """Representation for an Earth Engine ImageCollection."""
 
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple
+
 from ee import apifunction
 from ee import collection
 from ee import computedobject
@@ -19,7 +21,7 @@ class ImageCollection(collection.Collection):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, args):
+  def __init__(self, args: Any):
     """ImageCollection constructor.
 
     Args:
@@ -64,7 +66,7 @@ class ImageCollection(collection.Collection):
           args)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       super().initialize()
@@ -75,12 +77,12 @@ class ImageCollection(collection.Collection):
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def getMapId(self, vis_params=None):
+  def getMapId(self, vis_params: Optional[Any] = None) -> Dict[str, Any]:
     """Fetch and return a Map ID.
 
     This mosaics the collection to a single image and return a map ID suitable
@@ -95,7 +97,10 @@ class ImageCollection(collection.Collection):
     mosaic = apifunction.ApiFunction.call_('ImageCollection.mosaic', self)
     return mosaic.getMapId(vis_params)
 
-  def select(self, selectors, opt_names=None, *args):
+  # pylint: disable-next=keyword-arg-before-vararg
+  def select(
+      self, selectors: Any, opt_names: Optional[Any] = None, *args
+  ) -> 'ImageCollection':
     """Select bands from each image in a collection.
 
     Args:
@@ -111,7 +116,7 @@ class ImageCollection(collection.Collection):
     """
     return self.map(lambda img: img.select(selectors, opt_names, *args))
 
-  def first(self):
+  def first(self) -> image.Image:
     """Returns the first entry from a given collection.
 
     Returns:
@@ -120,14 +125,14 @@ class ImageCollection(collection.Collection):
     return image.Image(apifunction.ApiFunction.call_('Collection.first', self))
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'ImageCollection'
 
   @staticmethod
   def elementType():
     return image.Image
 
-  def getVideoThumbURL(self, params=None):
+  def getVideoThumbURL(self, params: Optional[Dict[str, Any]] = None) -> str:
     """Get the URL for an animated video thumbnail of the given collection.
 
     Note: Videos can only be created when the image visualization
@@ -160,7 +165,7 @@ class ImageCollection(collection.Collection):
     """
     return self._getThumbURL(['gif'], params, thumbType='video')
 
-  def getFilmstripThumbURL(self, params=None):
+  def getFilmstripThumbURL(self, params: Optional[Any] = None) -> str:
     """Get the URL for a "filmstrip" thumbnail of the given collection.
 
     Args:
@@ -188,7 +193,13 @@ class ImageCollection(collection.Collection):
     """
     return self._getThumbURL(['png', 'jpg'], params, thumbType='filmstrip')
 
-  def _getThumbURL(self, valid_formats, params=None, thumbType=None):  # pylint: disable=g-bad-name
+  def _getThumbURL(
+      self,
+      valid_formats: Sequence[str],
+      # TODO(user): Need to drop the default None and use Dict[str, Any]]
+      params: Optional[Any] = None,
+      thumbType: Optional[str] = None,  # pylint: disable=g-bad-name
+  ) -> str:
     """Get the URL for a thumbnail of this collection.
 
     Args:
@@ -226,6 +237,7 @@ class ImageCollection(collection.Collection):
     clipped_collection, request = self._apply_preparation_function(
         map_function, params)
 
+    assert params is not None
     request['format'] = params.get('format', valid_formats[0])
     if request['format'] not in valid_formats:
       raise ee_exception.EEException(
@@ -243,7 +255,11 @@ class ImageCollection(collection.Collection):
 
     return data.makeThumbUrl(data.getThumbId(request, thumbType=thumbType))
 
-  def _apply_preparation_function(self, preparation_function, params):
+  def _apply_preparation_function(
+      self,
+      preparation_function: Callable[[Any, Any], Any],
+      params: Dict[str, Any],
+  ) -> Any:
     """Applies a preparation function to an ImageCollection.
 
     Args:
@@ -277,7 +293,9 @@ class ImageCollection(collection.Collection):
       return prepared_img
     return self.map(apply_params), remaining_params
 
-  def prepare_for_export(self, params):
+  def prepare_for_export(
+      self, params: Dict[str, Any]
+  ) -> Tuple['ImageCollection', Dict[str, Any]]:
     """Applies all relevant export parameters to an ImageCollection.
 
     Args:

@@ -2,13 +2,12 @@
 """Test for the ee.oauth module."""
 
 import json
+import tempfile
 from unittest import mock
 import urllib.parse
 
-import tempfile
-import unittest
-
 import ee
+import unittest
 
 
 class OAuthTest(unittest.TestCase):

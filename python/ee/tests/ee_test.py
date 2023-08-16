@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 """Test for the ee.__init__ file."""
 
-import ee
 from ee import apitestcase
 import unittest
+import ee
 
 
 class EETestCase(apitestcase.ApiTestCase):

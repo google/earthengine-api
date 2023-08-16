@@ -10,7 +10,7 @@ import platform
 import re
 import sys
 import threading
-from typing import Iterator, Optional, Union
+from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Union
 import uuid
 
 # Rename to avoid redefined-outer-name warning.
@@ -19,6 +19,7 @@ import google_auth_httplib2
 import googleapiclient
 
 from ee import _cloud_api_utils
+from ee import computedobject
 from ee import deprecation
 from ee import ee_exception
 from ee import encodable
@@ -28,19 +29,19 @@ from ee import serializer
 from ee import __version__
 
 # OAuth2 credentials object.  This may be set by ee.Initialize().
-_credentials = None
+_credentials: Optional[credentials_lib.Credentials] = None
 
 # The base URL for all data calls.  This is set by ee.Initialize().
-_api_base_url = None
+_api_base_url: Optional[str] = None
 
 # The base URL for map tiles.  This is set by ee.Initialize().
-_tile_base_url = None
+_tile_base_url: Optional[str] = None
 
 # The base URL for all Cloud API calls.  This is set by ee.Initialize().
-_cloud_api_base_url = None
+_cloud_api_base_url: Optional[str] = None
 
 # Google Cloud API key.  This may be set by ee.Initialize().
-_cloud_api_key = None
+_cloud_api_key: Optional[str] = None
 
 # A resource object for making Cloud API calls.
 _cloud_api_resource = None
@@ -49,23 +50,23 @@ _cloud_api_resource = None
 _cloud_api_resource_raw = None
 
 # The default user project to use when making Cloud API calls.
-_cloud_api_user_project = None
+_cloud_api_user_project: Optional[str] = None
 
 # The API client version number to send when making requests.
-_cloud_api_client_version = None
+_cloud_api_client_version: Optional[str] = None
 
 # The http_transport to use.
 _http_transport = None
 
 # Whether the module has been initialized.
-_initialized = False
+_initialized: bool = False
 
 # Sets the number of milliseconds to wait for a request before considering
 # it timed out. 0 means no limit.
-_deadline_ms = 0
+_deadline_ms: int = 0
 
 # User agent to indicate which application is calling Earth Engine
-_user_agent = None
+_user_agent: Optional[str] = None
 
 
 class _ThreadLocals(threading.local):
@@ -83,7 +84,7 @@ class _ThreadLocals(threading.local):
     # and the user would have to modify each call to profile, rather than
     # enabling profiling as a wrapper around the entire program (with
     # ee.data.profiling, defined below).
-    self.profile_hook = None
+    self.profile_hook: Optional[Callable[[str], None]] = None
 
 
 _thread_locals = _ThreadLocals()
@@ -145,13 +146,15 @@ _TASKLIST_PAGE_SIZE = 500
 _NEXT_PAGE_TOKEN_KEY = 'nextPageToken'
 
 
-def initialize(credentials=None,
-               api_base_url=None,
-               tile_base_url=None,
-               cloud_api_base_url=None,
-               cloud_api_key=None,
-               project=None,
-               http_transport=None):
+def initialize(
+    credentials: Any = None,
+    api_base_url: Optional[str] = None,
+    tile_base_url: Optional[str] = None,
+    cloud_api_base_url: Optional[str] = None,
+    cloud_api_key: Optional[str] = None,
+    project: Optional[str] = None,
+    http_transport: Any = None,
+) -> None:
   """Initializes the data module, setting credentials and base URLs.
 
   If any of the arguments are unspecified, they will keep their old values;
@@ -216,7 +219,7 @@ def initialize(credentials=None,
   _initialized = True
 
 
-def get_persistent_credentials():
+def get_persistent_credentials() -> credentials_lib.Credentials:
   """Read persistent credentials from ~/.config/earthengine.
 
   Raises EEException with helpful explanation if credentials don't exist.
@@ -236,7 +239,7 @@ def get_persistent_credentials():
     )
 
 
-def reset():
+def reset() -> None:
   """Resets the data module, clearing credentials and custom base URLs."""
   global _api_base_url, _tile_base_url, _credentials, _initialized
   global _cloud_api_base_url
@@ -253,7 +256,7 @@ def reset():
   _initialized = False
 
 
-def _get_projects_path():
+def _get_projects_path() -> str:
   """Returns the projects path to use for constructing a request."""
   if _cloud_api_user_project is not None:
     return 'projects/' + _cloud_api_user_project
@@ -261,7 +264,7 @@ def _get_projects_path():
     return 'projects/' + DEFAULT_CLOUD_API_USER_PROJECT
 
 
-def _install_cloud_api_resource():
+def _install_cloud_api_resource() -> None:
   """Builds or rebuilds the Cloud API resource object, if needed."""
   global _cloud_api_resource, _cloud_api_resource_raw
 
@@ -286,24 +289,24 @@ def _install_cloud_api_resource():
       raw=True)
 
 
-def _get_cloud_projects():
+def _get_cloud_projects() -> Any:
   if _cloud_api_resource is None:
     raise ee_exception.EEException(
         'Earth Engine client library not initialized. Run `ee.Initialize()`')
   return _cloud_api_resource.projects()
 
 
-def _get_cloud_projects_raw():
+def _get_cloud_projects_raw() -> Any:
   if _cloud_api_resource_raw is None:
     raise ee_exception.EEException(
         'Earth Engine client library not initialized. Run `ee.Initialize()`')
   return _cloud_api_resource_raw.projects()
 
 
-def _make_request_headers():
+def _make_request_headers() -> Optional[Dict[str, Any]]:
   """Adds headers based on client context."""
-  headers = {}
-  client_version_header_values = []
+  headers: Dict[str, Any] = {}
+  client_version_header_values: List[Any] = []
   if _cloud_api_client_version is not None:
     client_version_header_values.append('ee-py/' + _cloud_api_client_version)
   if _user_agent is not None:
@@ -319,7 +322,7 @@ def _make_request_headers():
   return None
 
 
-def _handle_profiling_response(response):
+def _handle_profiling_response(response) -> None:
   """Handles profiling annotations on Cloud API responses."""
   # Call the profile hook if present. Note that this is done before we handle
   # the content, so that profiles are reported even if the response is an error.
@@ -328,7 +331,7 @@ def _handle_profiling_response(response):
     _thread_locals.profile_hook(response[_PROFILE_RESPONSE_HEADER_LOWERCASE])
 
 
-def _execute_cloud_call(call, num_retries=MAX_RETRIES):
+def _execute_cloud_call(call, num_retries: int = MAX_RETRIES) -> Any:
   """Executes a Cloud API call and translates errors to EEExceptions.
 
   Args:
@@ -348,7 +351,9 @@ def _execute_cloud_call(call, num_retries=MAX_RETRIES):
     raise _translate_cloud_exception(e)  # pylint: disable=raise-missing-from
 
 
-def _translate_cloud_exception(http_error):
+def _translate_cloud_exception(
+    http_error: googleapiclient.errors.HttpError,
+) -> ee_exception.EEException:
   """Translates a Cloud API exception into an EEException.
 
   Args:
@@ -362,7 +367,7 @@ def _translate_cloud_exception(http_error):
   return ee_exception.EEException(http_error._get_reason())  # pylint: disable=protected-access
 
 
-def _maybe_populate_workload_tag(body):
+def _maybe_populate_workload_tag(body: Dict[str, Any]) -> None:
   """Populates the workload tag on the request body passed in if applicable.
 
   Defaults to the workload tag set by ee.data.setWorkloadTag() or related
@@ -380,30 +385,30 @@ def _maybe_populate_workload_tag(body):
     del body['workloadTag']
 
 
-def setCloudApiKey(cloud_api_key):
+def setCloudApiKey(cloud_api_key: str) -> None:
   """Sets the Cloud API key parameter ("api_key") for all requests."""
   global _cloud_api_key
   _cloud_api_key = cloud_api_key
   _install_cloud_api_resource()
 
 
-def setCloudApiUserProject(cloud_api_user_project):
+def setCloudApiUserProject(cloud_api_user_project: str) -> None:
   global _cloud_api_user_project
   _cloud_api_user_project = cloud_api_user_project
   _cloud_api_utils.set_cloud_api_user_project(_cloud_api_user_project)
 
 
-def setUserAgent(user_agent):
+def setUserAgent(user_agent: str) -> None:
   global _user_agent
   _user_agent = user_agent
   _install_cloud_api_resource()
 
 
-def getUserAgent():
+def getUserAgent() -> Optional[str]:
   return _user_agent
 
 
-def setDeadline(milliseconds):
+def setDeadline(milliseconds: float) -> None:
   """Sets the timeout length for API requests.
 
   Args:
@@ -416,7 +421,7 @@ def setDeadline(milliseconds):
 
 
 @contextlib.contextmanager
-def profiling(hook):
+def profiling(hook: Any) -> Iterator[None]:
   # pylint: disable=g-doc-return-or-yield
   """Returns a context manager which enables or disables profiling.
 
@@ -437,7 +442,7 @@ def profiling(hook):
 
 
 @deprecation.Deprecated('Use getAsset')
-def getInfo(asset_id):
+def getInfo(asset_id: str) -> Optional[Any]:
   """Load info for an asset, given an asset id.
 
   Args:
@@ -463,7 +468,7 @@ def getInfo(asset_id):
       raise _translate_cloud_exception(e)  # pylint: disable=raise-missing-from
 
 
-def getAsset(asset_id):
+def getAsset(asset_id: str) -> Any:
   """Loads info for an asset, given an asset id.
 
   Args:
@@ -479,7 +484,7 @@ def getAsset(asset_id):
 
 
 @deprecation.Deprecated('Use listAssets or listImages')
-def getList(params):
+def getList(params: Dict[str, Any]) -> Any:
   """Get a list of contents for a collection asset.
 
   Args:
@@ -499,7 +504,7 @@ def getList(params):
   return result
 
 
-def listImages(params):
+def listImages(params: Dict[str, Any]) -> Dict[str, Optional[List[int]]]:
   """Returns the images in an image collection or folder.
 
   Args:
@@ -534,7 +539,7 @@ def listImages(params):
   return images
 
 
-def listAssets(params):
+def listAssets(params: dict[str, Any]) -> dict[str, List[Any]]:
   """Returns the assets in a folder.
 
   Args:
@@ -585,13 +590,13 @@ def listAssets(params):
   return assets
 
 
-def listBuckets(project=None):
+def listBuckets(project: Optional[str] = None) -> Any:
   if project is None:
     project = _get_projects_path()
   return _execute_cloud_call(_get_cloud_projects().listAssets(parent=project))
 
 
-def getMapId(params):
+def getMapId(params: Dict[str, Any]) -> Dict[str, Any]:
   """Get a Map ID for a given asset.
 
   Args:
@@ -666,7 +671,7 @@ def getMapId(params):
           'tile_fetcher': TileFetcher(url_format, map_name=map_name)}
 
 
-def getFeatureViewTilesKey(params):
+def getFeatureViewTilesKey(params: Dict[str, Any]) -> Dict[str, Any]:
   """Get a tiles key for a given map or asset.
 
   Args:
@@ -705,7 +710,7 @@ def getFeatureViewTilesKey(params):
   }
 
 
-def listFeatures(params):
+def listFeatures(params: dict[str, Any]) -> Any:
   """List features for a given table or FeatureView asset.
 
   Args:
@@ -740,7 +745,7 @@ def listFeatures(params):
   return call(params)
 
 
-def getPixels(params):
+def getPixels(params: Dict[str, Any]) -> Any:
   """Fetches pixels from an image asset.
 
   Args:
@@ -777,7 +782,7 @@ def getPixels(params):
   return data
 
 
-def computePixels(params):
+def computePixels(params: Dict[str, Any]) -> Any:
   """Computes a tile by performing an arbitrary computation on image data.
 
   Args:
@@ -812,7 +817,7 @@ def computePixels(params):
   return data
 
 
-def computeImages(params):
+def computeImages(params: Dict[str, Any]) -> Any:
   """Computes a list of images by applying a computation to features.
 
   Args:
@@ -838,7 +843,7 @@ def computeImages(params):
   )
 
 
-def computeFeatures(params):
+def computeFeatures(params: Dict[str, Any]) -> Any:
   """Computes a list of features by applying a computation to features.
 
   Args:
@@ -868,7 +873,7 @@ def computeFeatures(params):
   return call(params)
 
 
-def getTileUrl(mapid, x, y, z):
+def getTileUrl(mapid: Dict[str, Any], x: float, y: float, z: float) -> str:
   """Generate a URL for map tiles from a Map ID and coordinates.
 
   Args:
@@ -886,13 +891,15 @@ def getTileUrl(mapid, x, y, z):
 
 class TileFetcher:
   """A helper class to fetch image tiles."""
+  _url_format: str
+  _map_name: str
 
   def __init__(self, url_format, map_name=None):
     self._url_format = url_format
     self._map_name = map_name
 
   @property
-  def url_format(self):
+  def url_format(self) -> str:
     """Gets the URL format for this tile fetcher.
 
     Returns:
@@ -905,7 +912,7 @@ class TileFetcher:
     """
     return self._url_format
 
-  def format_tile_url(self, x, y, z):
+  def format_tile_url(self, x: float, y: float, z: float) -> str:
     """Generates the URL for a particular tile.
 
     Args:
@@ -922,7 +929,7 @@ class TileFetcher:
       x += width
     return self.url_format.format(x=x, y=y, z=z)
 
-  def fetch_tile(self, x, y, z):
+  def fetch_tile(self, x: float, y: float, z: float) -> Any:
     """Fetches the map tile specified by (x, y, z).
 
     This method uses any credentials that were specified to ee.Initialize().
@@ -946,7 +953,7 @@ class TileFetcher:
     )
 
 
-def computeValue(obj):
+def computeValue(obj: computedobject.ComputedObject) -> Any:
   """Sends a request to compute a value.
 
   Args:
@@ -966,7 +973,9 @@ def computeValue(obj):
 
 
 @deprecation.Deprecated('Use getThumbId and makeThumbUrl')
-def getThumbnail(params, thumbType=None):
+def getThumbnail(
+    params: Dict[str, Any], thumbType: Optional[str] = None
+) -> Any:
   """Get a Thumbnail for a given asset.
 
   Args:
@@ -999,7 +1008,9 @@ def getThumbnail(params, thumbType=None):
     )
 
 
-def getThumbId(params, thumbType=None):
+def getThumbId(
+    params: Dict[str, Any], thumbType: Optional[str] = None
+) -> Dict[str, str]:
   """Get a Thumbnail ID for a given asset.
 
   Args:
@@ -1082,11 +1093,11 @@ def getThumbId(params, thumbType=None):
   return {'thumbid': result['name'], 'token': ''}
 
 
-def makeThumbUrl(thumbId):
-  """Create a thumbnail URL from the given thumbid and token.
+def makeThumbUrl(thumbId: Dict[str, str]) -> str:
+  """Create a thumbnail URL from the given thumbid.
 
   Args:
-    thumbId: An object containing a thumbnail thumbid and token.
+    thumbId: A dictionary containing a thumbnail thumbid.
 
   Returns:
     A URL from which the thumbnail can be obtained.
@@ -1098,7 +1109,7 @@ def makeThumbUrl(thumbId):
   return url
 
 
-def getDownloadId(params):
+def getDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
   """Get a Download ID.
 
   Args:
@@ -1210,11 +1221,11 @@ def getDownloadId(params):
   return {'docid': result['name'], 'token': ''}
 
 
-def makeDownloadUrl(downloadId):
-  """Create a download URL from the given docid and token.
+def makeDownloadUrl(downloadId: Dict[str, str]) -> str:
+  """Create a download URL from the given docid.
 
   Args:
-    downloadId: An object containing a download docid and token.
+    downloadId: A dictionary containing a download docid.
 
   Returns:
     A URL from which the download can be obtained.
@@ -1223,7 +1234,7 @@ def makeDownloadUrl(downloadId):
                                  downloadId['docid'])
 
 
-def getTableDownloadId(params):
+def getTableDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
   """Get a Download ID.
 
   Args:
@@ -1272,11 +1283,11 @@ def getTableDownloadId(params):
   return {'docid': result['name'], 'token': ''}
 
 
-def makeTableDownloadUrl(downloadId):
-  """Create a table download URL from a docid and token.
+def makeTableDownloadUrl(downloadId: Dict[str, str]) -> str:
+  """Create a table download URL from a docid.
 
   Args:
-    downloadId: A table download id and token.
+    downloadId: A dictionary with a table download docid.
 
   Returns:
     A Url from which the download can be obtained.
@@ -1285,7 +1296,7 @@ def makeTableDownloadUrl(downloadId):
       _tile_base_url, _cloud_api_utils.VERSION, downloadId['docid'])
 
 
-def getAlgorithms():
+def getAlgorithms() -> Any:
   """Get the list of algorithms.
 
   Returns:
@@ -1325,9 +1336,10 @@ def getAlgorithms():
 
 
 def createAsset(
-    value,
-    opt_path=None,
-    opt_properties=None):
+    value: Dict[str, Any],
+    opt_path: Optional[str] = None,
+    opt_properties: Optional[Dict[str, Any]] = None,
+) -> Any:
   """Creates an asset from a JSON value.
 
   To create an empty image collection or folder, pass in a "value" object
@@ -1382,8 +1394,11 @@ def createAsset(
   )
 
 
-def copyAsset(sourceId, destinationId, allowOverwrite=False
-             ):
+def copyAsset(
+    sourceId: str,
+    destinationId: str,
+    allowOverwrite: bool = False
+) -> None:
   """Copies the asset from sourceId into destinationId.
 
   Args:
@@ -1403,7 +1418,7 @@ def copyAsset(sourceId, destinationId, allowOverwrite=False
   )
 
 
-def renameAsset(sourceId, destinationId):
+def renameAsset(sourceId: str, destinationId: str) -> None:
   """Renames the asset from sourceId to destinationId.
 
   Args:
@@ -1419,7 +1434,7 @@ def renameAsset(sourceId, destinationId):
   )
 
 
-def deleteAsset(assetId):
+def deleteAsset(assetId: str) -> None:
   """Deletes the asset with the given id.
 
   Args:
@@ -1429,7 +1444,7 @@ def deleteAsset(assetId):
   _execute_cloud_call(_get_cloud_projects().assets().delete(name=name))
 
 
-def newTaskId(count=1):
+def newTaskId(count: int = 1) -> List[str]:
   """Generate an ID for a long-running task.
 
   Args:
@@ -1442,7 +1457,7 @@ def newTaskId(count=1):
 
 
 @deprecation.Deprecated('Use listOperations')
-def getTaskList():
+def getTaskList() -> List[Any]:
   """Retrieves a list of the user's tasks.
 
   Returns:
@@ -1454,7 +1469,7 @@ def getTaskList():
           for o in listOperations()]
 
 
-def listOperations(project=None):
+def listOperations(project: Optional[str] = None) -> List[Any]:
   """Retrieves a list of the user's tasks.
 
   Args:
@@ -1481,7 +1496,7 @@ def listOperations(project=None):
 
 
 @deprecation.Deprecated('Use getOperation')
-def getTaskStatus(taskId):
+def getTaskStatus(taskId: Union[List[str], str]) -> List[Any]:
   """Retrieve status of one or more long-running tasks.
 
   Args:
@@ -1518,7 +1533,7 @@ def getTaskStatus(taskId):
   return result
 
 
-def getOperation(operation_name):
+def getOperation(operation_name: str) -> Any:
   """Retrieves the status of a long-running operation.
 
   Args:
@@ -1534,19 +1549,18 @@ def getOperation(operation_name):
 
 
 @deprecation.Deprecated('Use cancelOperation')
-def cancelTask(taskId):
+def cancelTask(taskId: str) -> None:
   """Cancels a batch task."""
   cancelOperation(_cloud_api_utils.convert_task_id_to_operation_name(taskId))
-  return
 
 
-def cancelOperation(operation_name):
+def cancelOperation(operation_name: str) -> None:
   _execute_cloud_call(
       _get_cloud_projects().operations().cancel(name=operation_name, body={})
   )
 
 
-def exportImage(request_id, params):
+def exportImage(request_id: str, params: Dict[str, Any]) -> Any:
   """Starts an image export task running.
 
   This is a low-level method. The higher-level ee.batch.Export.image object
@@ -1573,7 +1587,7 @@ def exportImage(request_id, params):
   )
 
 
-def exportTable(request_id, params):
+def exportTable(request_id: str, params: Dict[str, Any]) -> Any:
   """Starts a table export task running.
 
   This is a low-level method. The higher-level ee.batch.Export.table object
@@ -1600,7 +1614,7 @@ def exportTable(request_id, params):
   )
 
 
-def exportVideo(request_id, params):
+def exportVideo(request_id: str, params: Dict[str, Any]) -> Any:
   """Starts a video export task running.
 
   This is a low-level method. The higher-level ee.batch.Export.video object
@@ -1627,7 +1641,7 @@ def exportVideo(request_id, params):
   )
 
 
-def exportMap(request_id, params):
+def exportMap(request_id: str, params: Dict[str, Any]) -> Any:
   """Starts a map export task running.
 
   This is a low-level method. The higher-level ee.batch.Export.map object
@@ -1654,7 +1668,9 @@ def exportMap(request_id, params):
   )
 
 
-def _prepare_and_run_export(request_id, params, export_endpoint):
+def _prepare_and_run_export(
+    request_id: str, params: Dict[str, Any], export_endpoint: Any
+) -> Any:
   """Starts an export task running.
 
   Args:
@@ -1688,7 +1704,9 @@ def _prepare_and_run_export(request_id, params, export_endpoint):
       num_retries=num_retries)
 
 
-def startIngestion(request_id, params, allow_overwrite=False):
+def startIngestion(
+    request_id: Any, params: Dict[str, Any], allow_overwrite: bool = False
+) -> Dict[str, Any]:
   """Creates an image asset import task.
 
   Args:
@@ -1745,7 +1763,9 @@ def startIngestion(request_id, params, allow_overwrite=False):
   }
 
 
-def startTableIngestion(request_id, params, allow_overwrite=False):
+def startTableIngestion(
+    request_id: str, params: Dict[str, Any], allow_overwrite: bool = False
+) -> Dict[str, Any]:
   """Creates a table asset import task.
 
   Args:
@@ -1795,7 +1815,7 @@ def startTableIngestion(request_id, params, allow_overwrite=False):
   }
 
 
-def getAssetRoots():
+def getAssetRoots() -> Any:
   """Returns the list of the root folders the user owns.
 
   Note: The "id" values for roots are two levels deep, e.g. "users/johndoe"
@@ -1812,7 +1832,7 @@ def getAssetRoots():
       listBuckets())
 
 
-def getAssetRootQuota(rootId):
+def getAssetRootQuota(rootId: str) -> Dict[str, Any]:
   """Returns quota usage details for the asset root with the given ID.
 
   Usage notes:
@@ -1849,7 +1869,7 @@ def getAssetRootQuota(rootId):
 
 
 @deprecation.Deprecated('Use getIamPolicy')
-def getAssetAcl(assetId):
+def getAssetAcl(assetId: str) -> Any:
   """Returns the access control list of the asset with the given ID.
 
   Args:
@@ -1870,7 +1890,7 @@ def getAssetAcl(assetId):
   return _cloud_api_utils.convert_iam_policy_to_acl(policy)
 
 
-def getIamPolicy(asset_id):
+def getIamPolicy(asset_id: str) -> Any:
   """Loads ACL info for an asset, given an asset id.
 
   Args:
@@ -1888,7 +1908,7 @@ def getIamPolicy(asset_id):
 
 
 @deprecation.Deprecated('Use setIamPolicy')
-def setAssetAcl(assetId, aclUpdate):
+def setAssetAcl(assetId: str, aclUpdate: Union[str, Dict[str, Any]]) -> None:
   """Sets the access control list of the asset with the given ID.
 
   The owner ACL cannot be changed, and the final ACL of the asset
@@ -1904,10 +1924,9 @@ def setAssetAcl(assetId, aclUpdate):
   if isinstance(aclUpdate, str):
     aclUpdate = json.loads(aclUpdate)
   setIamPolicy(assetId, _cloud_api_utils.convert_acl_to_iam_policy(aclUpdate))
-  return
 
 
-def setIamPolicy(asset_id, policy):
+def setIamPolicy(asset_id: str, policy: Any) -> None:
   """Sets ACL info for an asset.
 
   Args:
@@ -1926,7 +1945,7 @@ def setIamPolicy(asset_id, policy):
   )
 
 
-def setAssetProperties(assetId, properties):
+def setAssetProperties(assetId: str, properties: Dict[str, Any]) -> None:
   """Sets metadata properties of the asset with the given ID.
 
   To delete a property, set its value to None.
@@ -1943,10 +1962,9 @@ def setAssetProperties(assetId, properties):
   # updating.
   update_mask = [FieldMaskPathForKey(key) for key in properties]
   updateAsset(assetId, {'properties': properties}, update_mask)
-  return
 
 
-def updateAsset(asset_id, asset, update_mask):
+def updateAsset(asset_id: str, asset: Any, update_mask: Sequence[str]) -> None:
   """Updates an asset.
 
   Args:
@@ -1972,7 +1990,7 @@ def updateAsset(asset_id, asset, update_mask):
   )
 
 
-def createAssetHome(requestedId):
+def createAssetHome(requestedId: str) -> None:
   """Attempts to create a home root folder for the current user ("users/joe").
 
   Results in an error if the user already has a home root folder or the
@@ -1986,17 +2004,18 @@ def createAssetHome(requestedId):
       'name': _cloud_api_utils.convert_asset_id_to_asset_name(requestedId),
       'type': 'FOLDER'
   })
-  return
 
 
-def authorizeHttp(http):
+def authorizeHttp(http: Any) -> Any:
   if _credentials:
     return google_auth_httplib2.AuthorizedHttp(_credentials)
   else:
     return http
 
 
-def create_assets(asset_ids, asset_type, mk_parents):
+def create_assets(
+    asset_ids: Sequence[str], asset_type: str, mk_parents: bool
+) -> None:
   """Creates the specified assets if they do not exist."""
   for asset_id in asset_ids:
     if getInfo(asset_id):
@@ -2015,7 +2034,7 @@ def create_assets(asset_ids, asset_type, mk_parents):
     createAsset({'type': asset_type}, asset_id)
 
 
-def convert_asset_id_to_asset_name(asset_id):
+def convert_asset_id_to_asset_name(asset_id: str) -> str:
   """Converts an internal asset ID to a Cloud API asset name.
 
   If asset_id already matches the format 'projects/*/assets/**', it is returned

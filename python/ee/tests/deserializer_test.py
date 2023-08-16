@@ -3,12 +3,11 @@
 
 import json
 
-import unittest
-
 import ee
 from ee import apitestcase
 from ee import deserializer
 from ee import serializer
+import unittest
 
 
 class DeserializerTest(apitestcase.ApiTestCase):

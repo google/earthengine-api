@@ -3,9 +3,9 @@
 
 from unittest import mock
 
-import unittest
 import ee
 from ee import apitestcase
+import unittest
 
 
 class ImageCollectionTestCase(apitestcase.ApiTestCase):

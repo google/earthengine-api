@@ -751,7 +751,7 @@ def convert_to_visualization_options(params: Dict[str, Any]) -> Dict[str, Any]:
   if 'gain' in params or 'bias' in params:
     if 'min' in params or 'max' in params:
       raise ee_exception.EEException(
-          'Gain and bias can\'t be specified together with min and max')
+          'Gain and bias cannot be specified together with min and max')
     # The Cloud API doesn't support gain/bias, only min/max. Extract and
     # convert.
     gains = _convert_csv_numbers_to_list(params.get('gain'))

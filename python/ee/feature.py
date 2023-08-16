@@ -1,6 +1,8 @@
 #!/usr/bin/env python
 """An object representing EE Features."""
 
+from typing import Any, Dict, Optional, Union
+
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
@@ -16,7 +18,20 @@ class Feature(element.Element):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, geom, opt_properties=None):
+  def __init__(
+      self,
+      geom: Optional[
+          Union[
+              'Feature',
+              geometry.Geometry,
+              Dict[str, Any],
+              computedobject.ComputedObject,
+          ]
+      ],
+      opt_properties: Optional[
+          Union[Dict[str, Any], computedobject.ComputedObject]
+      ] = None,
+  ):
     """Creates a feature a geometry or computed object.
 
     Features can be constructed from one of the following arguments plus an
@@ -38,7 +53,7 @@ class Feature(element.Element):
     if isinstance(geom, Feature):
       if opt_properties is not None:
         raise ee_exception.EEException(
-            'Can\'t create Feature out of a Feature and properties.')
+            'Cannot create Feature out of a Feature and properties.')
       # A pre-constructed Feature. Copy.
       super().__init__(geom.func, geom.args)
       return
@@ -60,7 +75,7 @@ class Feature(element.Element):
       if 'id' in geom:
         if 'system:index' in properties:
           raise ee_exception.EEException(
-              'Can\'t specify both "id" and "system:index".')
+              'Cannot specify both "id" and "system:index".')
         properties = properties.copy()
         properties['system:index'] = geom['id']
       # Try to convert a GeoJSON Feature.
@@ -77,19 +92,21 @@ class Feature(element.Element):
       })
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Feature', 'Feature')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def getMapId(self, vis_params=None):
+  def getMapId(
+      self, vis_params: Optional[Dict[str, Any]] = None
+  ) -> Dict[str, Any]:
     """Fetch and return a map id and token, suitable for use in a Map overlay.
 
     Args:
@@ -106,5 +123,5 @@ class Feature(element.Element):
     return collection.getMapId(vis_params)
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Feature'

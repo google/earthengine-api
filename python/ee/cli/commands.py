@@ -163,7 +163,8 @@ def _comma_separated_numbers(string):
     except ValueError:
       try:
         numbervalues.append(float(value))
-      except ValueError:  # pylint: disable=raise-missing-from
+      except ValueError:
+        # pylint: disable-next=raise-missing-from
         raise argparse.ArgumentTypeError(error_msg.format(string))
   return numbervalues
 
@@ -1484,12 +1485,14 @@ class UploadTableCommand:
              'generated. A generated point geometry column will be named '
              '{x_column}_{y_column}_N where N might be appended to '
              'disambiguate the column name. For CSV/TFRecord only.')
+    # pylint: disable=line-too-long
     parser.add_argument(
         '--date_format',
         help='A format used to parse dates. The format pattern must follow '
              'http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html. '
              'If unspecified, dates will be imported as strings. For '
              'CSV/TFRecord only.')
+    # pylint: enable=line-too-long
     parser.add_argument(
         '--csv_delimiter',
         help='A single character used as a delimiter between column values '

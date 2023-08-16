@@ -153,7 +153,7 @@ class Task:
                         status.get('name')))
     return tasks
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     """Returns a string representation of the task."""
     if self.config and self.id:
       return '<Task %s %s: %s (%s)>' % (self.id, self.task_type,

@@ -3,7 +3,8 @@
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
-# pylint: disable=g-long-lambda
+
+from typing import Any, Dict, List, Optional, Union
 
 from ee import apifunction
 from ee import collection
@@ -25,7 +26,20 @@ class FeatureCollection(collection.Collection):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, args, opt_column=None):
+  def __init__(
+      self,
+      args: Optional[
+          Union[
+              Dict[str, Any],
+              List[Any],
+              str,
+              feature.Feature,
+              geometry.Geometry,
+              computedobject.ComputedObject,
+          ]
+      ],
+      opt_column: Optional[Any] = None,
+  ):
     """Constructs a collection features.
 
     Args:
@@ -85,7 +99,7 @@ class FeatureCollection(collection.Collection):
           args)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       super().initialize()
@@ -94,12 +108,14 @@ class FeatureCollection(collection.Collection):
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def getMapId(self, vis_params=None):
+  def getMapId(
+      self, vis_params: Optional[Dict[str, Any]] = None
+  ) -> Dict[str, Any]:
     """Fetch and return a map id and token, suitable for use in a Map overlay.
 
     Args:
@@ -117,7 +133,12 @@ class FeatureCollection(collection.Collection):
     })
     return painted.getMapId({})
 
-  def getDownloadURL(self, filetype=None, selectors=None, filename=None):
+  def getDownloadURL(
+      self,
+      filetype: Optional[str] = None,
+      selectors: Optional[Any] = None,
+      filename: Optional[str] = None,
+  ) -> str:
     """Gets a download URL.
 
     When the URL is accessed, the FeatureCollection is downloaded in one of
@@ -150,8 +171,16 @@ class FeatureCollection(collection.Collection):
   getDownloadUrl = deprecation.Deprecated('Use getDownloadURL().')(
       getDownloadURL)
 
-  def select(self, propertySelectors, newProperties=None,
-             retainGeometry=True, *args):
+  # TODO(user): How to handle type annotations for
+  #  feature_collection.select('a', 'b', 'c')?
+  # pylint: disable-next=keyword-arg-before-vararg
+  def select(
+      self,
+      propertySelectors: Any,
+      newProperties: Optional[Any] = None,
+      retainGeometry: Union[bool, str] = True,
+      *args,
+  ) -> 'FeatureCollection':
     """Select properties from each feature in a collection.
 
     Args:
@@ -176,13 +205,16 @@ class FeatureCollection(collection.Collection):
       return self.map(lambda feat: feat.select(args, None, True))
     else:
       return self.map(
+          # pylint: disable-next=g-long-lambda
           lambda feat: feat.select(
-              propertySelectors, newProperties, retainGeometry))
+              propertySelectors, newProperties, retainGeometry
+          )
+      )
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'FeatureCollection'
 
   @staticmethod
-  def elementType():
+  def elementType() -> type[feature.Feature]:
     return feature.Feature

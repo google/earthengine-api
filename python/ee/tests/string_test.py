@@ -1,10 +1,9 @@
 #!/usr/bin/env python
 """Test for the ee.string module."""
 
-import unittest
-
 import ee
 from ee import apitestcase
+import unittest
 
 
 class StringTest(apitestcase.ApiTestCase):

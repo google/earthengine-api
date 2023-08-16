@@ -19,20 +19,20 @@ class Element(computedobject.ComputedObject):
     super().__init__(func, args, opt_varName)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Element', 'Element')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Element'
 
   def set(self, *args):

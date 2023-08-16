@@ -3,11 +3,10 @@
 
 from unittest import mock
 
-from ee import _cloud_api_utils
-import unittest
-
 import ee
+from ee import _cloud_api_utils
 from ee import apitestcase
+import unittest
 
 
 class FeatureCollectionTestCase(apitestcase.ApiTestCase):

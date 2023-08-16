@@ -1,9 +1,8 @@
 #!/usr/bin/env python
 """Test for the ee.function module."""
 
-import unittest
-
 import ee
+import unittest
 
 # A function to experiment on.
 TEST_FUNC = ee.Function()

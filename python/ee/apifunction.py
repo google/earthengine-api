@@ -146,7 +146,7 @@ class ApiFunction(function.Function):
     return cls._api.get(name, None)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Initializes the list of signatures from the Earth Engine front-end."""
     if not cls._api:
       signatures = data.getAlgorithms()
@@ -160,7 +160,7 @@ class ApiFunction(function.Function):
       cls._api = api
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Clears the API functions list so it will be reloaded from the server."""
     cls._api = {}
     cls._bound_signatures = set()

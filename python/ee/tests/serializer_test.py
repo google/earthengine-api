@@ -3,11 +3,10 @@
 
 import json
 
-import unittest
-
 import ee
 from ee import apitestcase
 from ee import serializer
+import unittest
 
 
 def _max_depth(x):

@@ -8900,8 +8900,9 @@ module$exports$eeapiclient$ee_api_client.CapabilitiesCapabilitiesEnum = {AUTO_AP
 }};
 module$exports$eeapiclient$ee_api_client.IChangeSubscriptionTypeRequestChangeTimeEnum = function() {
 };
-module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.SPECIFIC_DATE];
+module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", END_OF_TERM:"END_OF_TERM", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.SPECIFIC_DATE, 
+  module$exports$eeapiclient$ee_api_client.ChangeSubscriptionTypeRequestChangeTimeEnum.END_OF_TERM];
 }};
 module$exports$eeapiclient$ee_api_client.IChangeSubscriptionTypeRequestTypeEnum = function() {
 };
@@ -9064,8 +9065,9 @@ module$exports$eeapiclient$ee_api_client.ScheduledUpdateSubscriptionUpdateTypeEn
 }};
 module$exports$eeapiclient$ee_api_client.IScheduledUpdateUpdateChangeTypeEnum = function() {
 };
-module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.SPECIFIC_DATE];
+module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", END_OF_TERM:"END_OF_TERM", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.SPECIFIC_DATE, 
+  module$exports$eeapiclient$ee_api_client.ScheduledUpdateUpdateChangeTypeEnum.END_OF_TERM];
 }};
 module$exports$eeapiclient$ee_api_client.ISubscriptionStateEnum = function() {
 };
@@ -9106,8 +9108,9 @@ module$exports$eeapiclient$ee_api_client.TableManifestCsvColumnDataTypeOverrides
 }};
 module$exports$eeapiclient$ee_api_client.ITerminateSubscriptionRequestTerminationTypeEnum = function() {
 };
-module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
-  return [module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.SPECIFIC_DATE];
+module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum = {CHANGE_TIME_TYPE_UNSPECIFIED:"CHANGE_TIME_TYPE_UNSPECIFIED", EARLIEST_POSSIBLE:"EARLIEST_POSSIBLE", END_OF_PERIOD:"END_OF_PERIOD", END_OF_TERM:"END_OF_TERM", SPECIFIC_DATE:"SPECIFIC_DATE", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.CHANGE_TIME_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.END_OF_PERIOD, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.EARLIEST_POSSIBLE, module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.SPECIFIC_DATE, 
+  module$exports$eeapiclient$ee_api_client.TerminateSubscriptionRequestTerminationTypeEnum.END_OF_TERM];
 }};
 module$exports$eeapiclient$ee_api_client.IThinningOptionsThinningStrategyEnum = function() {
 };
@@ -17014,7 +17017,7 @@ goog.net.XhrIo = function(opt_xmlHttpFactory) {
   this.timeoutId_ = null;
   this.responseType_ = goog.net.XhrIo.ResponseType.DEFAULT;
   this.useXhr2Timeout_ = this.progressEventsEnabled_ = this.withCredentials_ = !1;
-  this.trustToken_ = null;
+  this.attributionReportingOptions_ = this.trustToken_ = null;
 };
 goog.inherits(goog.net.XhrIo, goog.events.EventTarget);
 goog.net.XhrIo.ResponseType = {DEFAULT:"", TEXT:"text", DOCUMENT:"document", BLOB:"blob", ARRAY_BUFFER:"arraybuffer"};
@@ -17076,6 +17079,9 @@ goog.net.XhrIo.prototype.getProgressEventsEnabled = function() {
 goog.net.XhrIo.prototype.setTrustToken = function(trustToken) {
   this.trustToken_ = trustToken;
 };
+goog.net.XhrIo.prototype.setAttributionReporting = function(attributionReportingOptions) {
+  this.attributionReportingOptions_ = attributionReportingOptions;
+};
 goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_headers) {
   if (this.xhr_) {
     throw Error("[goog.net.XhrIo] Object is active with another request=" + this.lastUri_ + "; newUri=" + url);
@@ -17130,6 +17136,13 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
       this.xhr_.setTrustToken(this.trustToken_);
     } catch (err) {
       goog.log.fine(this.logger_, this.formatMsg_("Error SetTrustToken: " + err.message));
+    }
+  }
+  if ("setAttributionReporting" in this.xhr_ && this.attributionReportingOptions_) {
+    try {
+      this.xhr_.setAttributionReporting(this.attributionReportingOptions_);
+    } catch (err) {
+      goog.log.fine(this.logger_, this.formatMsg_("Error SetAttributionReporting: " + err.message));
     }
   }
   try {
@@ -17359,7 +17372,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.364";
+ee.apiclient.API_CLIENT_VERSION = "0.1.365";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17640,8 +17653,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.364";
-  "0.1.364" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.365";
+  "0.1.365" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -24217,21 +24230,25 @@ function module$contents$safevalues$internals$attribute_impl_unwrapAttributePref
   throw Error(message);
 }
 module$exports$safevalues$internals$attribute_impl.unwrapAttributePrefix = module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix;
-var $jscomp$templatelit$1274514361$0 = $jscomp.createTemplateTagFirstArg([""]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
+var $jscomp$templatelit$1274514361$0 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$1 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$1274514361$2 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$3 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || 
+{id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
 function module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, numExprs) {
   if (!module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) || numExprs + 1 !== templateObj.length) {
     throw new TypeError("\n    ############################## ERROR ##############################\n\n    It looks like you are trying to call a template tag function (fn`...`)\n    using the normal function syntax (fn(...)), which is not supported.\n\n    The functions in the safevalues library are not designed to be called\n    like normal functions, and doing so invalidates the security guarantees\n    that safevalues provides.\n\n    If you are stuck and not sure how to proceed, please reach out to us\n    instead through:\n     - go/ise-hardening-yaqs (preferred) // LINE-INTERNAL\n     - g/ise-hardening // LINE-INTERNAL\n     - https://github.com/google/safevalues/issues\n\n    ############################## ERROR ##############################");
   }
 }
-var module$contents$safevalues$internals$string_literal_isTranspiled = -1 === function() {
-  return "";
-}.toString().indexOf("`");
-function module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) {
-  return Array.isArray(templateObj) && Array.isArray(templateObj.raw) && templateObj.length === templateObj.raw.length && (module$contents$safevalues$internals$string_literal_isTranspiled || templateObj !== templateObj.raw) && (module$contents$safevalues$internals$string_literal_isTranspiled && !module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$0) || module$contents$safevalues$internals$string_literal_checkFrozen(templateObj)) ? 
-  !0 : !1;
-}
 function module$contents$safevalues$internals$string_literal_checkFrozen(templateObj) {
   return Object.isFrozen(templateObj) && Object.isFrozen(templateObj.raw);
+}
+function module$contents$safevalues$internals$string_literal_checkFrozenExamples() {
+  return module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$0) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$1) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$2) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$3);
+}
+var module$contents$safevalues$internals$string_literal_isTranspiled = -1 !== module$contents$safevalues$internals$string_literal_checkFrozenExamples.toString().indexOf("[") || function() {
+  return "";
+}.toString().indexOf("`"), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozenExamples();
+function module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) {
+  return Array.isArray(templateObj) && Array.isArray(templateObj.raw) && templateObj.length === templateObj.raw.length && (module$contents$safevalues$internals$string_literal_isTranspiled || templateObj !== templateObj.raw) && (module$contents$safevalues$internals$string_literal_isTranspiled && !module$contents$safevalues$internals$string_literal_frozenTSA || module$contents$safevalues$internals$string_literal_checkFrozen(templateObj)) ? 
+  !0 : !1;
 }
 ;var module$contents$safevalues$builders$attribute_builders_module = module$contents$safevalues$builders$attribute_builders_module || {id:"third_party/javascript/safevalues/builders/attribute_builders.closure.js"};
 function module$contents$safevalues$builders$attribute_builders_safeAttrPrefix(templ) {
@@ -26230,7 +26247,7 @@ ee.data.Profiler.Format.prototype.toString = function() {
 ee.data.Profiler.Format.TEXT = new ee.data.Profiler.Format("text");
 ee.data.Profiler.Format.JSON = new ee.data.Profiler.Format("json");
 (function() {
-  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction.lookup ee.ApiFunction._call ee.ApiFunction._apply ee.batch.Export.table.toDrive ee.batch.Export.table.toAsset ee.batch.Export.table.toFeatureView ee.batch.Export.image.toCloudStorage ee.batch.Export.video.toCloudStorage ee.batch.Export.classifier.toAsset ee.batch.Export.map.toCloudStorage ee.batch.Export.video.toDrive ee.batch.Export.image.toAsset ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.table.toCloudStorage ee.batch.Export.image.toDrive ee.Collection.prototype.filterBounds ee.Collection.prototype.sort ee.Collection.prototype.filterDate ee.Collection.prototype.filter ee.Collection.prototype.limit ee.Collection.prototype.iterate ee.Collection.prototype.filterMetadata ee.Collection.prototype.map ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.ComputedObject.prototype.serialize ee.data.renameAsset ee.data.authenticateViaPopup ee.data.updateAsset ee.data.newTaskId ee.data.listImages ee.data.copyAsset ee.data.authenticate ee.data.getTaskStatus ee.data.startIngestion ee.data.computeValue ee.data.getTaskListWithLimit ee.data.getThumbId ee.data.makeThumbUrl ee.data.makeTableDownloadUrl ee.data.resetWorkloadTag ee.data.setDefaultWorkloadTag ee.data.getTableDownloadId ee.data.startTableIngestion ee.data.getFilmstripThumbId ee.data.getVideoThumbId ee.data.listBuckets ee.data.createFolder ee.data.getDownloadId ee.data.createAssetHome ee.data.setAssetAcl ee.data.setWorkloadTag ee.data.makeDownloadUrl ee.data.getAssetRoots ee.data.createAsset ee.data.getWorkloadTag ee.data.getAsset ee.data.cancelTask ee.data.cancelOperation ee.data.listOperations ee.data.getOperation ee.data.getAssetRootQuota ee.data.getMapId ee.data.listAssets ee.data.getAssetAcl ee.data.getTileUrl ee.data.setAssetProperties ee.data.deleteAsset ee.data.updateTask ee.data.startProcessing ee.data.authenticateViaPrivateKey ee.data.getInfo ee.data.getList ee.data.authenticateViaOauth ee.data.getFeatureViewTilesKey ee.data.getTaskList ee.data.listFeatures ee.Date ee.Deserializer.decodeCloudApi ee.Deserializer.fromCloudApiJSON ee.Deserializer.fromJSON ee.Deserializer.decode ee.Dictionary ee.InitState ee.reset ee.apply ee.TILE_SIZE ee.call ee.initialize ee.Algorithms ee.Element.prototype.set ee.Feature ee.Feature.prototype.getMap ee.Feature.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.getInfo ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.select ee.Filter.lt ee.Filter.and ee.Filter.or ee.Filter.gte ee.Filter.date ee.Filter.prototype.not ee.Filter.inList ee.Filter ee.Filter.eq ee.Filter.metadata ee.Filter.neq ee.Filter.bounds ee.Filter.gt ee.Filter.lte ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry.Polygon ee.Geometry.prototype.toGeoJSON ee.Geometry.prototype.toGeoJSONString ee.Geometry.BBox ee.Geometry.Point ee.Geometry.LinearRing ee.Geometry.prototype.serialize ee.Geometry.MultiPolygon ee.Geometry ee.Geometry.MultiPoint ee.Geometry.MultiLineString ee.Geometry.Rectangle ee.Geometry.LineString ee.Image ee.Image.prototype.expression ee.Image.prototype.getMap ee.Image.prototype.rename ee.Image.prototype.getDownloadURL ee.Image.rgb ee.Image.prototype.getInfo ee.Image.prototype.getThumbURL ee.Image.prototype.getThumbId ee.Image.prototype.select ee.Image.cat ee.Image.prototype.clip ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.first ee.ImageCollection.prototype.select ee.ImageCollection ee.List ee.Number ee.Serializer.encodeCloudApi ee.Serializer.toCloudApiJSON ee.Serializer.toJSON ee.Serializer.toReadableJSON ee.Serializer.encodeCloudApiPretty ee.Serializer.toReadableCloudApiJSON ee.Serializer.encode ee.String ee.Terrain".split(" "), 
+  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction.lookup ee.ApiFunction._call ee.ApiFunction._apply ee.batch.Export.table.toDrive ee.batch.Export.table.toAsset ee.batch.Export.table.toFeatureView ee.batch.Export.image.toCloudStorage ee.batch.Export.video.toCloudStorage ee.batch.Export.classifier.toAsset ee.batch.Export.map.toCloudStorage ee.batch.Export.video.toDrive ee.batch.Export.image.toAsset ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.table.toCloudStorage ee.batch.Export.image.toDrive ee.Collection.prototype.filterBounds ee.Collection.prototype.sort ee.Collection.prototype.filterDate ee.Collection.prototype.filter ee.Collection.prototype.limit ee.Collection.prototype.iterate ee.Collection.prototype.filterMetadata ee.Collection.prototype.map ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.ComputedObject.prototype.serialize ee.data.renameAsset ee.data.authenticateViaPopup ee.data.updateAsset ee.data.newTaskId ee.data.listImages ee.data.copyAsset ee.data.authenticate ee.data.getTaskStatus ee.data.startIngestion ee.data.computeValue ee.data.getTaskListWithLimit ee.data.getThumbId ee.data.makeThumbUrl ee.data.makeTableDownloadUrl ee.data.resetWorkloadTag ee.data.setDefaultWorkloadTag ee.data.getTableDownloadId ee.data.startTableIngestion ee.data.getFilmstripThumbId ee.data.getVideoThumbId ee.data.listBuckets ee.data.createFolder ee.data.getDownloadId ee.data.createAssetHome ee.data.setAssetAcl ee.data.setWorkloadTag ee.data.makeDownloadUrl ee.data.getAssetRoots ee.data.createAsset ee.data.getWorkloadTag ee.data.getAsset ee.data.cancelTask ee.data.cancelOperation ee.data.listOperations ee.data.getOperation ee.data.getAssetRootQuota ee.data.getMapId ee.data.listAssets ee.data.getAssetAcl ee.data.getTileUrl ee.data.setAssetProperties ee.data.deleteAsset ee.data.updateTask ee.data.startProcessing ee.data.authenticateViaPrivateKey ee.data.getInfo ee.data.getList ee.data.authenticateViaOauth ee.data.getFeatureViewTilesKey ee.data.getTaskList ee.data.listFeatures ee.Date ee.Deserializer.decodeCloudApi ee.Deserializer.fromCloudApiJSON ee.Deserializer.fromJSON ee.Deserializer.decode ee.Dictionary ee.InitState ee.reset ee.apply ee.TILE_SIZE ee.call ee.initialize ee.Algorithms ee.Element.prototype.set ee.Feature ee.Feature.prototype.getMap ee.Feature.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.getInfo ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.select ee.Filter.lt ee.Filter.and ee.Filter.or ee.Filter.gte ee.Filter.date ee.Filter.prototype.not ee.Filter.inList ee.Filter ee.Filter.eq ee.Filter.metadata ee.Filter.neq ee.Filter.bounds ee.Filter.gt ee.Filter.lte ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry.Polygon ee.Geometry.prototype.toGeoJSON ee.Geometry.prototype.toGeoJSONString ee.Geometry.BBox ee.Geometry.Point ee.Geometry.LinearRing ee.Geometry.prototype.serialize ee.Geometry.MultiPolygon ee.Geometry ee.Geometry.MultiPoint ee.Geometry.MultiLineString ee.Geometry.Rectangle ee.Geometry.LineString ee.Image ee.Image.prototype.expression ee.Image.prototype.getMap ee.Image.prototype.rename ee.Image.prototype.getDownloadURL ee.Image.rgb ee.Image.prototype.getInfo ee.Image.prototype.getThumbURL ee.Image.prototype.getThumbId ee.Image.prototype.select ee.Image.cat ee.Image.prototype.clip ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.first ee.ImageCollection.prototype.select ee.ImageCollection ee.List ee.Number ee.Serializer.encodeCloudApi ee.Serializer.toJSON ee.Serializer.toReadableJSON ee.Serializer.toCloudApiJSON ee.Serializer.encodeCloudApiPretty ee.Serializer.toReadableCloudApiJSON ee.Serializer.encode ee.String ee.Terrain".split(" "), 
   orderedParamLists = [["name"], ["name", "var_args"], ["name", "namedArgs"], "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices".split(" "), ["collection", "opt_description", "opt_assetId", "opt_maxVertices"], "collection opt_description opt_assetId opt_maxFeaturesPerTile opt_thinningStrategy opt_thinningRanking opt_zOrderRanking".split(" "), "image opt_description opt_bucket opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions".split(" "), 
   "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), ["classifier", "opt_description", "opt_assetId"], "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey opt_bucketCorsUris".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames".split(" "), 
   "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices".split(" "), 
@@ -26250,7 +26267,7 @@ ee.data.Profiler.Format.JSON = new ee.data.Profiler.Format("json");
   ee.data.deleteAsset, ee.data.updateTask, ee.data.startProcessing, ee.data.authenticateViaPrivateKey, ee.data.getInfo, ee.data.getList, ee.data.authenticateViaOauth, ee.data.getFeatureViewTilesKey, ee.data.getTaskList, ee.data.listFeatures, ee.Date, ee.Deserializer.decodeCloudApi, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.fromJSON, ee.Deserializer.decode, ee.Dictionary, ee.InitState, ee.reset, ee.apply, ee.TILE_SIZE, ee.call, ee.initialize, ee.Algorithms, ee.Element.prototype.set, ee.Feature, 
   ee.Feature.prototype.getMap, ee.Feature.prototype.getInfo, ee.FeatureCollection, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection.prototype.getDownloadURL, ee.FeatureCollection.prototype.getMap, ee.FeatureCollection.prototype.select, ee.Filter.lt, ee.Filter.and, ee.Filter.or, ee.Filter.gte, ee.Filter.date, ee.Filter.prototype.not, ee.Filter.inList, ee.Filter, ee.Filter.eq, ee.Filter.metadata, ee.Filter.neq, ee.Filter.bounds, ee.Filter.gt, ee.Filter.lte, ee.Function.prototype.apply, 
   ee.Function.prototype.call, ee.Geometry.Polygon, ee.Geometry.prototype.toGeoJSON, ee.Geometry.prototype.toGeoJSONString, ee.Geometry.BBox, ee.Geometry.Point, ee.Geometry.LinearRing, ee.Geometry.prototype.serialize, ee.Geometry.MultiPolygon, ee.Geometry, ee.Geometry.MultiPoint, ee.Geometry.MultiLineString, ee.Geometry.Rectangle, ee.Geometry.LineString, ee.Image, ee.Image.prototype.expression, ee.Image.prototype.getMap, ee.Image.prototype.rename, ee.Image.prototype.getDownloadURL, ee.Image.rgb, ee.Image.prototype.getInfo, 
-  ee.Image.prototype.getThumbURL, ee.Image.prototype.getThumbId, ee.Image.prototype.select, ee.Image.cat, ee.Image.prototype.clip, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.first, ee.ImageCollection.prototype.select, ee.ImageCollection, ee.List, ee.Number, ee.Serializer.encodeCloudApi, ee.Serializer.toCloudApiJSON, ee.Serializer.toJSON, ee.Serializer.toReadableJSON, 
+  ee.Image.prototype.getThumbURL, ee.Image.prototype.getThumbId, ee.Image.prototype.select, ee.Image.cat, ee.Image.prototype.clip, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.first, ee.ImageCollection.prototype.select, ee.ImageCollection, ee.List, ee.Number, ee.Serializer.encodeCloudApi, ee.Serializer.toJSON, ee.Serializer.toReadableJSON, ee.Serializer.toCloudApiJSON, 
   ee.Serializer.encodeCloudApiPretty, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.encode, ee.String, ee.Terrain].forEach(function(fn, i) {
     fn && (exportedFnInfo[fn.toString()] = {name:orderedFnNames[i], paramNames:orderedParamLists[i]});
   });

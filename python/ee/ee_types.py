@@ -25,8 +25,7 @@ def _registerClasses(classes) -> None:
   _registered_classes = classes
 
 
-# TODO(user): Any -> type[Any].
-def classToName(a_class: Any) -> str:
+def classToName(a_class: type[Any]) -> str:
   """Converts a class to the API-friendly type name.
 
   Args:

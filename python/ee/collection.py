@@ -24,7 +24,7 @@ class Collection(element.Element):
     super().__init__(func, args, opt_varName)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Collection', 'Collection')
@@ -33,7 +33,7 @@ class Collection(element.Element):
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class.
 
     Also resets the serial ID used for mapping Python functions to 0.
@@ -171,7 +171,7 @@ class Collection(element.Element):
         apifunction.ApiFunction.apply_('Collection.limit', args))
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Collection'
 
   @staticmethod

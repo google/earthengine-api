@@ -167,7 +167,7 @@ class Function(encodable.EncodableFunction):
         self, for_cloud_api=for_cloud_api
     )
 
-  def __str__(self):
+  def __str__(self) -> str:
     """Returns a user-readable docstring for this function."""
     docstring_width = 75
     signature = self.getSignature()
