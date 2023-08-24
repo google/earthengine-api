@@ -539,7 +539,7 @@ def listImages(params: Dict[str, Any]) -> Dict[str, Optional[List[int]]]:
   return images
 
 
-def listAssets(params: dict[str, Any]) -> dict[str, List[Any]]:
+def listAssets(params: Dict[str, Any]) -> Dict[str, List[Any]]:
   """Returns the assets in a folder.
 
   Args:
