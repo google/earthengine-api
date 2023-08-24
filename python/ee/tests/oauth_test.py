@@ -26,7 +26,8 @@ class OAuthTest(unittest.TestCase):
       def read(self):
         return ('{"refresh_token": "' + self.code + '456"}').encode()
 
-    def mock_urlopen(unused_url, param):
+    def mock_urlopen(url, param):
+      del url  # Unused.
       parsed = urllib.parse.parse_qs(param)
       self.assertEqual('xyz', parsed[b'code_verifier'][0].decode())
       return MockResponse(parsed[b'code'][0])

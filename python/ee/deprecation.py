@@ -5,7 +5,7 @@ import functools
 import warnings
 
 
-def Deprecated(message):
+def Deprecated(message: str):
   """Returns a decorator with a given warning message."""
 
   def Decorator(func):

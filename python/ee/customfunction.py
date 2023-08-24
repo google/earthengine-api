@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 """An object representing a custom EE Function."""
 
-# Using lowercase function naming to match the JavaScript names.
-
 from ee import computedobject
 from ee import ee_exception
 from ee import ee_types
@@ -11,8 +9,8 @@ from ee import function
 from ee import serializer
 
 
-# Multiple inheritance, yay! This is necessary because a CustomFunction needs to
-# know how to encode itself in different ways:
+# Multiple inheritance is necessary because a CustomFunction needs to know how
+# to encode itself in different ways:
 # - as an Encodable: encode its definition
 # - as a Function: encode its invocation (which may also involve encoding its
 #   definition, if that hasn't happened yet).
@@ -183,7 +181,7 @@ class CustomFunction(function.Function, encodable.Encodable):
     base_name = '_MAPPING_VAR_%d_' % CountFunctions(serialized_body)
 
     # Update the vars and signature by the name.
-    for (i, index) in enumerate(nameless_arg_indices):
+    for i, index in enumerate(nameless_arg_indices):
       name = base_name + str(i)
       variables[index].varName = name
       signature['args'][index]['name'] = name

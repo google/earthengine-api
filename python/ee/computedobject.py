@@ -82,18 +82,19 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     self.args = args
     self.varName = opt_varName  # pylint: disable=g-bad-name
 
-  def __eq__(self, other: ...) -> bool:
+  def __eq__(self, other: Any) -> bool:
     # pylint: disable=unidiomatic-typecheck
     return (type(self) == type(other) and
             self.__dict__ == other.__dict__)
 
-  def __ne__(self, other: ...) -> bool:
+  def __ne__(self, other: Any) -> bool:
     return not self.__eq__(other)
 
   def __hash__(self) -> int:
     return hash(ComputedObject.freeze(self.__dict__))
 
-  def getInfo(self) -> Any:
+  # pylint: disable-next=useless-parent-delegation
+  def getInfo(self) -> Optional[Any]:
     """Fetch and return information about this object.
 
     Returns:
@@ -101,7 +102,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     """
     return data.computeValue(self)
 
-  def encode(self, encoder: ...) -> Dict[str, Any]:
+  def encode(self, encoder: Any) -> Dict[str, Any]:
     """Encodes the object in a format compatible with Serializer."""
     if self.isVariable():
       return {
@@ -127,7 +128,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
           key: func
       }
 
-  def encode_cloud_value(self, encoder: ...) -> Dict[str, Any]:
+  def encode_cloud_value(self, encoder: Any) -> Dict[str, Any]:
     if self.isVariable():
       ref = self.varName
       if ref is None and isinstance(
@@ -189,7 +190,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     # to remain null until for CustomFunction.resolveNamelessArgs_().
     return self.func is None and self.args is None
 
-  def aside(self, func: ..., *var_args) -> 'ComputedObject':
+  def aside(self, func: Any, *var_args) -> 'ComputedObject':
     """Calls a function passing this object as the first argument.
 
     Returns the object itself for chaining. Convenient e.g. when debugging:
@@ -216,7 +217,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     return 'ComputedObject'
 
   @classmethod
-  def _cast(cls, obj: ...) -> Any:
+  def _cast(cls, obj: Any) -> Any:
     """Cast a ComputedObject to a new instance of the same class as this.
 
     Args:
@@ -235,7 +236,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
       return result
 
   @staticmethod
-  def freeze(obj: ...) -> Any:
+  def freeze(obj: Any) -> Any:
     """Freeze a list or dict so it can be hashed."""
     if isinstance(obj, dict):
       return frozenset(

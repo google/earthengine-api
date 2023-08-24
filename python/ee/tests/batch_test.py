@@ -1,9 +1,12 @@
 #!/usr/bin/env python
 """Test for the ee.batch module."""
+from typing import Any, Optional
 from unittest import mock
 
 import ee
 from ee import apitestcase
+from ee import batch
+from ee import data
 import unittest
 
 TASK_STATUS_1 = {
@@ -28,8 +31,112 @@ TASK_STATUS_2 = {
 }
 
 
+class TaskTest(unittest.TestCase):
+
+  def testStartWithoutConfig(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    self.assertIsNone((task.config))
+    with self.assertRaisesRegex(ee.EEException, 'Task config'):
+      task.start()
+
+  def testStartUnknownTaskType(self):
+    task_type = 'bad task type'
+    task = batch.Task('an id', task_type, 'a state', {'some': 'value'})
+    with self.assertRaisesRegex(
+        ee.EEException, f'Unknown Task type "{task_type}"'
+    ):
+      task.start()
+
+  def testStatusWithId(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    with mock.patch.object(data, 'getTaskStatus', return_value=[TASK_STATUS_1]):
+      self.assertEqual('RUNNING', task.status()['state'])
+
+  def testStatusWithIdStateUnknown(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    with mock.patch.object(
+        data, 'getTaskStatus', return_value=[{'state': 'UNKNOWN'}]
+    ):
+      self.assertEqual({'state': 'UNSUBMITTED'}, task.status())
+
+  def testStatusWithoutId(self):
+    task = batch.Task(None, 'a task type', 'a state')
+    self.assertEqual({'state': 'UNSUBMITTED'}, task.status())
+
+  def testActive(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    with mock.patch.object(data, 'getTaskStatus', return_value=[TASK_STATUS_1]):
+      self.assertTrue(task.active())
+
+  def testNotActive(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    with mock.patch.object(data, 'getTaskStatus', return_value=[TASK_STATUS_2]):
+      self.assertFalse(task.active())
+
+  def testReprWithoutConfig(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    self.assertEqual('<Task "an id">', task.__repr__())
+
+  def testReprWithConfig(self):
+    an_id = None
+    task_type = 'a task type'
+    state = 'a state'
+    description = 'a description'
+    task = batch.Task(
+        an_id, task_type, state, config={'description': description}
+    )
+    self.assertEqual(
+        f'<Task {task_type}: {description} ({state})>', task.__repr__()
+    )
+
+  def testReprWithIdAndConfig(self):
+    an_id = 'an id'
+    task_type = 'a task type'
+    state = 'a state'
+    description = 'a description'
+    task = batch.Task(
+        an_id, task_type, state, config={'description': description}
+    )
+    self.assertEqual(
+        f'<Task {an_id} {task_type}: {description} ({state})>', task.__repr__()
+    )
+
+
+class ExportTest(unittest.TestCase):
+
+  def testExportCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export()
+
+  def testExportImageCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.image.__init__('something')
+
+  def testExportMapCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.map.__init__('something')
+
+  def testExportTableCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.table.__init__('something')
+
+  def testExportVideoCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.video.__init__('something')
+
+  def testExportVideoMapCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.videoMap.__init__('something')
+
+  def testExportClassifierCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.classifier.__init__('something')
+
+
 class BatchTestCase(apitestcase.ApiTestCase):
   """A test case for batch functionality."""
+  start_call_params: Optional[Any]
+  update_call_params: Optional[Any]
 
   def setUp(self):
     super().setUp()

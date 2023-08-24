@@ -579,7 +579,8 @@ class DataTest(unittest.TestCase):
 
 def DoCloudProfileStubHttp(test, expect_profiling):
 
-  def MockRequest(unused_self, method, uri, data, headers, timeout):
+  def MockRequest(self, method, uri, data, headers, timeout):
+    del self  # Unused.
     del method, uri, data, timeout  # Unused
     test.assertEqual(expect_profiling, ee.data._PROFILE_REQUEST_HEADER
                      in headers)

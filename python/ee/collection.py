@@ -7,11 +7,14 @@ This class is never intended to be instantiated by the user.
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+from typing import Any, Dict, Optional
+
 from ee import apifunction
 from ee import deprecation
 from ee import ee_exception
 from ee import element
-from ee import filter   # pylint: disable=redefined-builtin
+from ee import filter as ee_filter
+from ee import function
 
 
 class Collection(element.Element):
@@ -19,7 +22,13 @@ class Collection(element.Element):
 
   _initialized = False
 
-  def __init__(self, func, args, opt_varName=None):  # pylint: disable=useless-parent-delegation
+  # pylint: disable-next=useless-parent-delegation
+  def __init__(
+      self,
+      func: function.Function,
+      args: Dict[str, Any],
+      opt_varName: Optional[str] = None,
+  ):
     """Constructs a collection by initializing its ComputedObject."""
     super().__init__(func, args, opt_varName)
 
@@ -73,7 +82,7 @@ class Collection(element.Element):
     Returns:
       The filtered collection.
     """
-    return self.filter(filter.Filter.metadata_(name, operator, value))
+    return self.filter(ee_filter.Filter.metadata_(name, operator, value))
 
   def filterBounds(self, geometry):
     """Shortcut to add a geometry filter to a collection.
@@ -94,7 +103,7 @@ class Collection(element.Element):
     Returns:
       The filtered collection.
     """
-    return self.filter(filter.Filter.geometry(geometry))
+    return self.filter(ee_filter.Filter.geometry(geometry))
 
   def filterDate(self, start, opt_end=None):
     """Shortcut to filter a collection with a date range.
@@ -113,9 +122,10 @@ class Collection(element.Element):
     Returns:
       The filter object.
     """
-    return self.filter(filter.Filter.date(start, opt_end))
+    return self.filter(ee_filter.Filter.date(start, opt_end))
 
-  def getInfo(self):  # pylint: disable=useless-parent-delegation
+  # pylint: disable-next=useless-parent-delegation
+  def getInfo(self) -> Optional[Any]:
     """Returns all the known information about this collection.
 
     This function makes an REST call to to retrieve all the known information
@@ -130,7 +140,12 @@ class Collection(element.Element):
     """
     return super().getInfo()
 
-  def limit(self, maximum, opt_property=None, opt_ascending=None):
+  def limit(
+      self,
+      maximum: int,
+      opt_property: Optional[str] = None,
+      opt_ascending: Optional[bool] = None,
+  ) -> 'Collection':
     """Limit a collection to the specified number of elements.
 
     This limits a collection to the specified number of elements, optionally

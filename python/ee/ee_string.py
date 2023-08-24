@@ -62,13 +62,13 @@ class String(computedobject.ComputedObject):
   def name() -> str:
     return 'String'
 
-  def encode(self, opt_encoder: ... = None) -> Any:
+  def encode(self, opt_encoder: Any = None) -> Any:
     if isinstance(self._string, str):
       return self._string
     else:
       return self._string.encode(opt_encoder)
 
-  def encode_cloud_value(self, opt_encoder: ... = None) -> Any:
+  def encode_cloud_value(self, opt_encoder: Any = None) -> Any:
     if isinstance(self._string, str):
       return {'constantValue': self._string}
     else:

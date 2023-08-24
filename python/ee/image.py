@@ -101,7 +101,8 @@ class Image(element.Element):
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def getInfo(self) -> Any:  # pylint: disable=useless-parent-delegation
+  # pylint: disable-next=useless-parent-delegation
+  def getInfo(self) -> Optional[Any]:
     """Fetch and return information about this image.
 
     Returns:

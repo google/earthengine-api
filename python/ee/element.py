@@ -3,6 +3,7 @@
 
 This class is never intended to be instantiated by the user.
 """
+from typing import Any, Dict, Optional, Union
 
 from ee import apifunction
 from ee import computedobject
@@ -14,7 +15,13 @@ class Element(computedobject.ComputedObject):
 
   _initialized = False
 
-  def __init__(self, func, args, opt_varName=None):  # pylint: disable=g-bad-name,useless-parent-delegation
+  # pylint: disable-next=useless-parent-delegation
+  def __init__(
+      self,
+      func: Optional[apifunction.ApiFunction],
+      args: Optional[Dict[str, Any]],
+      opt_varName: Optional[str] = None,  # pylint: disable=g-bad-name
+  ):
     """Constructs a collection by initializing its ComputedObject."""
     super().__init__(func, args, opt_varName)
 
@@ -35,7 +42,10 @@ class Element(computedobject.ComputedObject):
   def name() -> str:
     return 'Element'
 
-  def set(self, *args):
+  def set(
+      self,
+      *args: Union[Dict[str, Any], float, str, computedobject.ComputedObject],
+  ) -> 'Element':
     """Overrides one or more metadata properties of an Element.
 
     Args:

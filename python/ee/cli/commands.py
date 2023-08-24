@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
-from typing import Any
+from typing import Any, Dict, List
 import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
@@ -343,8 +343,8 @@ def _pretty_print_json(json_obj):
 
 class Dispatcher:
   """Dispatches to a set of commands implemented as command classes."""
-  COMMANDS: list[Any]
-  command_dict: dict[str, Any]
+  COMMANDS: List[Any]
+  command_dict: Dict[str, Any]
   dest: str
   name: str
 
@@ -988,9 +988,7 @@ class SizeCommand:
 
   def _get_size_image_collection(self, asset):
     images = ee.ImageCollection(asset['id'])
-    sizes = images.aggregate_array('system:asset_size')
-
-    return sum(sizes.getInfo())
+    return images.aggregate_sum('system:asset_size').getInfo()
 
 
 class MoveCommand:

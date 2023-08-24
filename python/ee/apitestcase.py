@@ -4,6 +4,7 @@
 import contextlib
 import json
 import os
+from typing import Any, Dict, Iterable, Optional
 
 import ee
 from ee import _cloud_api_utils
@@ -11,10 +12,10 @@ import unittest
 
 
 # Cached algorithms list
-_algorithms_cache = None
+_algorithms_cache: Optional[Dict[str, Any]] = None
 
 
-def GetAlgorithms():
+def GetAlgorithms() -> Dict[str, Any]:
   """Returns a static version of the ListAlgorithms call.
 
   After ApiTestCase.setUp is called, ee.data.getAlgorithms() is patched to use
@@ -35,12 +36,16 @@ def GetAlgorithms():
 
 class ApiTestCase(unittest.TestCase):
   """A TestCase that initializes the library with standard API methods."""
+  last_download_call: Optional[Any]
+  last_thumb_call: Optional[Any]
+  last_table_call: Optional[Any]
+  last_mapid_call: Optional[Any]
 
   def setUp(self):
     super().setUp()
     self.InitializeApi()
 
-  def InitializeApi(self, should_mock=True):
+  def InitializeApi(self, should_mock: bool = True):
     """Initializes the library with standard API methods.
 
     This is normally invoked during setUp(), but subclasses may invoke
@@ -67,25 +72,31 @@ class ApiTestCase(unittest.TestCase):
       ee.Initialize(None, '')
 
   # We are mocking the url here so the unit tests are happy.
-  def _MockMapId(self, params):
+  def _MockMapId(self, params: Dict[str, Any]) -> Dict[str, str]:
     self.last_mapid_call = {'url': '/mapid', 'data': params}
     return {'mapid': 'fakeMapId', 'token': 'fakeToken'}
 
-  def _MockDownloadUrl(self, params):
+  def _MockDownloadUrl(self, params: Dict[str, Any]) -> Dict[str, str]:
     self.last_download_call = {'url': '/download', 'data': params}
     return {'docid': '1', 'token': '2'}
 
-  def _MockThumbUrl(self, params, thumbType=None):  # pylint: disable=invalid-name,unused-argument
+  def _MockThumbUrl(
+      self,
+      params: Dict[str, Any],
+      # pylint: disable-next=invalid-name
+      thumbType: str = None,
+  ) -> Dict[str, str]:
+    del thumbType  # Unused.
     # Hang on to the call arguments.
     self.last_thumb_call = {'url': '/thumb', 'data': params}
     return {'thumbid': '3', 'token': '4'}
 
-  def _MockTableDownload(self, params):
+  def _MockTableDownload(self, params: Dict[str, Any]) -> Dict[str, str]:
     self.last_table_call = {'url': '/table', 'data': params}
     return {'docid': '5', 'token': '6'}
 
 
-def _GenerateCloudApiResource(mock_http, raw):
+def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> Any:
   """Returns a Cloud API resource for testing."""
   discovery_doc_path = os.path.join(
      os.path.dirname(os.path.realpath(__file__)),
@@ -103,8 +114,10 @@ def _GenerateCloudApiResource(mock_http, raw):
 
 @contextlib.contextmanager
 def UsingCloudApi(
-    cloud_api_resource=None, cloud_api_resource_raw=None, mock_http=None
-):
+    cloud_api_resource: Optional[Any] = None,
+    cloud_api_resource_raw: Optional[Any] = None,
+    mock_http: Optional[Any] = None,
+) -> Iterable[Any]:
   """Returns a context manager under which the Cloud API is enabled."""
   old_cloud_api_resource = ee.data._cloud_api_resource  # pylint: disable=protected-access
   old_cloud_api_resource_raw = ee.data._cloud_api_resource_raw  # pylint: disable=protected-access

@@ -92,10 +92,12 @@ class ApiFunction(function.Function):
     """
     return cls.lookup(name).apply(named_args)
 
-  def encode_invocation(self, unused_encoder):
+  def encode_invocation(self, encoder):
+    del encoder  # Unused.
     return self._signature['name']
 
-  def encode_cloud_invocation(self, unused_encoder):
+  def encode_cloud_invocation(self, encoder):
+    del encoder  # Unused.
     return {'functionName': self._signature['name']}
 
   def getSignature(self):

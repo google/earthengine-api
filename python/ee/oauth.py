@@ -17,6 +17,7 @@ import json
 import os
 import shutil
 import subprocess
+from typing import Any, Dict, Optional, Sequence, Union
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -60,14 +61,14 @@ PASTE_CODA = ('The authorization workflow will generate a code, which you'
 TEXT_BROWSERS = ['elinks', 'links', 'lynx', 'w3m', 'www-browser']
 
 
-def get_credentials_path():
+def get_credentials_path() -> str:
   cred_path = os.path.expanduser(
       '~/.config/earthengine/credentials',
   )
   return cred_path
 
 
-def get_credentials_arguments():
+def get_credentials_arguments() -> Dict[str, Any]:
   with open(get_credentials_path()) as creds:
     stored = json.load(creds)
     args = {}
@@ -79,7 +80,11 @@ def get_credentials_arguments():
     return args
 
 
-def get_authorization_url(code_challenge, scopes=None, redirect_uri=None):
+def get_authorization_url(
+    code_challenge: str,
+    scopes: Optional[Sequence[str]] = None,
+    redirect_uri: Optional[str] = None,
+) -> str:
   """Returns a URL to generate an auth code."""
 
   return 'https://accounts.google.com/o/oauth2/auth?' + urllib.parse.urlencode({
@@ -92,11 +97,13 @@ def get_authorization_url(code_challenge, scopes=None, redirect_uri=None):
   })
 
 
-def request_token(auth_code,
-                  code_verifier,
-                  client_id=None,
-                  client_secret=None,
-                  redirect_uri=None):
+def request_token(
+    auth_code: str,
+    code_verifier: str,
+    client_id: Optional[str] = None,
+    client_secret: Optional[str] = None,
+    redirect_uri: Optional[str] = None,
+) -> str:
   """Uses authorization code to request tokens."""
 
   request_args = {
@@ -121,7 +128,7 @@ def request_token(auth_code,
   return json.loads(response)['refresh_token']
 
 
-def write_private_json(json_path, info_dict):
+def write_private_json(json_path: str, info_dict: Dict[str, Any]) -> None:
   """Attempts to write the passed token to the given user directory."""
 
   dirname = os.path.dirname(json_path)
@@ -142,7 +149,7 @@ def write_private_json(json_path, info_dict):
     f.write(file_content)
 
 
-def _in_colab_shell():
+def _in_colab_shell() -> bool:
   """Tests if the code is being executed within Google Colab."""
   try:
     import google.colab  # pylint: disable=unused-import
@@ -151,7 +158,7 @@ def _in_colab_shell():
     return False
 
 
-def _in_jupyter_shell():
+def _in_jupyter_shell() -> bool:
   """Tests if the code is being executed within Jupyter."""
   try:
     import ipykernel.zmqshell
@@ -163,10 +170,12 @@ def _in_jupyter_shell():
     return False
 
 
-def _obtain_and_write_token(auth_code=None,
-                            code_verifier=None,
-                            scopes=None,
-                            redirect_uri=None):
+def _obtain_and_write_token(
+    auth_code: Optional[str] = None,
+    code_verifier: Optional[str] = None,
+    scopes: Optional[Sequence[str]] = None,
+    redirect_uri: Optional[str] = None,
+) -> None:
   """Obtains and writes credentials token based on an authorization code."""
   fetch_data = {}
   if code_verifier and ':' in code_verifier:
@@ -194,7 +203,9 @@ def _obtain_and_write_token(auth_code=None,
   print('\nSuccessfully saved authorization token.')
 
 
-def _display_auth_instructions_for_noninteractive(auth_url, code_verifier):
+def _display_auth_instructions_for_noninteractive(
+    auth_url: str, code_verifier: Union[bytes, str]
+) -> None:
   """Displays instructions for authenticating without blocking for user input."""
   # Python 3 `bytes` should be decoded to `str` if used as an argument of
   # `str.format()`.
@@ -216,7 +227,9 @@ def _display_auth_instructions_for_noninteractive(auth_url, code_verifier):
             auth_url, code_verifier_str))
 
 
-def _display_auth_instructions_with_print(auth_url, coda=None):
+def _display_auth_instructions_with_print(
+    auth_url: str, coda: Optional[str] = None
+) -> None:
   """Displays instructions for authenticating using a print statement."""
   print('To authorize access needed by Earth Engine, open the following '
         'URL in a web browser and follow the instructions. If the web '
@@ -227,7 +240,9 @@ def _display_auth_instructions_with_print(auth_url, coda=None):
         '\n{1}'.format(auth_url, coda or PASTE_CODA))
 
 
-def _display_auth_instructions_with_html(auth_url, coda=None):
+def _display_auth_instructions_with_html(
+    auth_url: str, coda: Optional[str] = None
+) -> None:
   """Displays instructions for authenticating using HTML code."""
   try:
     IPython.display.display(IPython.display.HTML(
@@ -241,12 +256,12 @@ def _display_auth_instructions_with_html(auth_url, coda=None):
     raise
 
 
-def _base64param(byte_string):
+def _base64param(byte_string: bytes) -> bytes:
   """Encodes bytes for use as a URL parameter."""
   return base64.urlsafe_b64encode(byte_string).rstrip(b'=')
 
 
-def _nonce_table(*nonce_keys):
+def _nonce_table(*nonce_keys: str) -> Dict[str, str]:
   """Makes random nonces, and adds PKCE challenges for each _verifier nonce."""
   table = {}
   for key in nonce_keys:
@@ -259,7 +274,7 @@ def _nonce_table(*nonce_keys):
   return {k: v.decode() for k, v in table.items()}
 
 
-def _open_new_browser(url):
+def _open_new_browser(url: str) -> None:
   """Opens a web browser if possible."""
   try:
     browser = webbrowser.get()
@@ -270,11 +285,15 @@ def _open_new_browser(url):
   webbrowser.open_new(url)
 
 
-def _in_notebook():
+def _in_notebook() -> bool:
   return _in_colab_shell() or _in_jupyter_shell()
 
 
-def _load_app_default_credentials(run_gcloud=True, scopes=None, quiet=None):
+def _load_app_default_credentials(
+    run_gcloud: bool = True,
+    scopes: Optional[Sequence[str]] = None,
+    quiet: Optional[bool] = None,
+) -> None:
   """Initializes credentials from ADC, optionally running gcloud to get them."""
   adc_path = _cloud_sdk.get_application_default_credentials_path()
   if run_gcloud:
@@ -319,15 +338,15 @@ def _load_app_default_credentials(run_gcloud=True, scopes=None, quiet=None):
   print('\nSuccessfully saved authorization token.')
 
 
-def _start_server(port):
+def _start_server(port: int):
   """Starts and returns a web server that handles the OAuth callback."""
 
   class Handler(http.server.BaseHTTPRequestHandler):
     """Handles the OAuth callback and reports a success page."""
 
-    code = None
+    code: Optional[str] = None
 
-    def do_GET(self):  # pylint: disable=invalid-name
+    def do_GET(self) -> None:  # pylint: disable=invalid-name
       Handler.code = urllib.parse.parse_qs(
           urllib.parse.urlparse(self.path).query)['code'][0]
       self.send_response(200)
@@ -339,16 +358,18 @@ def _start_server(port):
           b'  \xf0\x9f\x8c\x8d  \xe2\x9a\x99\xef\xb8\x8f  \xf0\x9f\x8c\x8f'
           b'  \xe2\x9a\x99\xef\xb8\x8f  \xf0\x9f\x8c\x8e ')  # Earth emoji
 
-    def log_message(self, *_):
+    def log_message(self, *_) -> None:
       pass  # Suppresses the logging of request info to stderr.
 
   class Server:
+    server: http.server.HTTPServer
+    url: str
 
-    def __init__(self):
+    def __init__(self) -> None:
       self.server = http.server.HTTPServer(('localhost', port), Handler)
       self.url = 'http://localhost:%s' % self.server.server_address[1]
 
-    def fetch_code(self):
+    def fetch_code(self) -> Optional[str]:
       self.server.handle_request()  # Blocks until a single request arrives.
       self.server.server_close()
       return Handler.code
@@ -357,11 +378,12 @@ def _start_server(port):
 
 
 def authenticate(
-    cli_authorization_code=None,
-    quiet=False,
-    cli_code_verifier=None,
-    auth_mode=None,
-    scopes=None):
+    cli_authorization_code: Optional[str] = None,
+    quiet: bool = False,
+    cli_code_verifier: Optional[str] = None,
+    auth_mode: Optional[str] = None,
+    scopes: Optional[Sequence[str]] = None,
+) -> None:
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
@@ -410,8 +432,14 @@ def authenticate(
 
 class Flow:
   """Holds state for auth flows."""
+  code_verifier: str
+  scopes: Sequence[str]
+  server: Optional[Any]
+  auth_url: str
 
-  def __init__(self, auth_mode='notebook', scopes=None):
+  def __init__(
+      self, auth_mode: str = 'notebook', scopes: Optional[Sequence[str]] = None
+  ):
     """Initializes auth URL and PKCE verifier, for use in save_code().
 
     Args:
@@ -442,7 +470,7 @@ class Flow:
     else:
       raise Exception('Unknown auth_mode "%s"' % auth_mode)  # pylint:disable=broad-exception-raised
 
-  def save_code(self, code=None):
+  def save_code(self, code: Optional[str] = None) -> None:
     """Fetches auth code if not given, and saves the generated credentials."""
     redirect_uri = None
     if self.server and not code:
@@ -450,7 +478,7 @@ class Flow:
       code = self.server.fetch_code()  # Waits for oauth callback
     _obtain_and_write_token(code, self.code_verifier, self.scopes, redirect_uri)
 
-  def display_instructions(self, quiet=None):
+  def display_instructions(self, quiet: Optional[bool] = None) -> bool:
     """Prints to stdout, and returns True if a browser should be opened."""
 
     if quiet:

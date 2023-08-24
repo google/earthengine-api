@@ -1,6 +1,9 @@
 #!/usr/bin/env python
 """A wrapper for dictionaries."""
 
+
+from typing import Any, Dict, Optional, Sequence, Union
+
 from ee import apifunction
 from ee import computedobject
 
@@ -8,12 +11,19 @@ from ee import computedobject
 class Dictionary(computedobject.ComputedObject):
   """An object to represent dictionaries."""
 
+  _dictionary: Optional[Dict[Any, Any]]
+
   _initialized = False
 
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, arg=None):
+  def __init__(
+      self,
+      arg: Optional[
+          Union[Dict[Any, Any], Sequence[Any], computedobject.ComputedObject]
+      ] = None,
+  ):
     """Construct a dictionary.
 
     Args:

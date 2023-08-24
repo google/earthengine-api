@@ -12,7 +12,7 @@ from ee import ee_exception
 class List(computedobject.ComputedObject):
   """An object to represent lists."""
   _list: Optional[
-      Union[ListType[Any], Tuple[Any, ...], computedobject.ComputedObject]
+      Union[ListType[Any], Tuple[Any, Any], computedobject.ComputedObject]
   ]
 
   _initialized = False
@@ -23,7 +23,7 @@ class List(computedobject.ComputedObject):
   def __init__(
       self,
       arg: Optional[
-          Union[ListType[Any], Tuple[Any, ...], computedobject.ComputedObject]
+          Union[ListType[Any], Tuple[Any, Any], computedobject.ComputedObject]
       ],
   ):
     """Construct a list wrapper.

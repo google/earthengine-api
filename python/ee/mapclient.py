@@ -244,8 +244,9 @@ class MapClient(threading.Thread):
       self.anchor_x = event.x
       self.anchor_y = event.y
 
-  def ReleaseHandler(self, unused_event):
+  def ReleaseHandler(self, event):
     """Unbind drag handler and redraw."""
+    del event  # Unused.
     self.canvas.unbind('<Motion>')  # pytype: disable=attribute-error
     self.LoadTiles()
 
@@ -450,20 +451,21 @@ def MakeOverlay(mapid, baseurl=BASE_URL):
 map_instance = None
 
 
-# pylint: disable=g-bad-name
-def addToMap(eeobject, vis_params=None, *unused_args):
+# pylint: disable-next=g-bad-name,keyword-arg-before-vararg]
+def addToMap(eeobject, vis_params=None, *args):
   """Adds a layer to the default map instance.
 
   Args:
       eeobject: the object to add to the map.
       vis_params: a dictionary of visualization parameters.  See
           ee.data.getMapId().
-      *unused_args: unused arguments, left for compatibility with the JS API.
+      *args: unused arguments, left for compatibility with the JS API.
 
   This call exists to be an equivalent to the playground addToMap() call.
   It uses a global MapInstance to hang on to "the map".  If the MapInstance
   isn't initialized, this creates a new one.
   """
+  del args  # Unused.
   # Flatten any lists to comma separated strings.
   if vis_params:
     vis_params = dict(vis_params)

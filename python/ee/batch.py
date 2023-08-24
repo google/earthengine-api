@@ -8,8 +8,10 @@ The public function styling uses camelCase to match the JavaScript names.
 
 # pylint: disable=g-bad-name
 
+import enum
 import json
 import re
+from typing import Any, Dict, List, Optional, Sequence, Union
 
 from ee import _cloud_api_utils
 from ee import data
@@ -20,7 +22,45 @@ from ee import geometry
 class Task:
   """A batch task that can be run on the EE batch processing system."""
 
-  def __init__(self, task_id, task_type, state, config=None, name=None):
+  class Type(str, enum.Enum):
+    EXPORT_IMAGE = 'EXPORT_IMAGE'
+    EXPORT_MAP = 'EXPORT_TILES'
+    EXPORT_TABLE = 'EXPORT_FEATURES'
+    EXPORT_VIDEO = 'EXPORT_VIDEO'
+
+  class State(str, enum.Enum):
+    UNSUBMITTED = 'UNSUBMITTED'
+    READY = 'READY'
+    RUNNING = 'RUNNING'
+    COMPLETED = 'COMPLETED'
+    FAILED = 'FAILED'
+    CANCEL_REQUESTED = 'CANCEL_REQUESTED'
+    CANCELLED = 'CANCELLED'
+
+  class ExportDestination(str, enum.Enum):
+    DRIVE = 'DRIVE'
+    GCS = 'GOOGLE_CLOUD_STORAGE'
+    ASSET = 'ASSET'
+    FEATURE_VIEW = 'FEATURE_VIEW'
+    BIGQUERY = 'BIGQUERY'
+
+  config: Optional[Dict[str, Any]]
+  id: Optional[str]
+  name: Optional[str]
+  state: State
+  task_type: Type
+  workload_tag: Optional[Union[int, str]]
+
+  _request_id: Optional[str]
+
+  def __init__(
+      self,
+      task_id: Optional[str],
+      task_type: Type,
+      state: State,
+      config: Optional[Dict[str, Any]] = None,
+      name: Optional[str] = None,
+  ):
     """Creates a Task with the given ID and configuration.
 
     The constructor is not for public use. Instances can be obtained by:
@@ -50,30 +90,7 @@ class Task:
     self.state = state
     self.name = name
 
-  class Type:
-    EXPORT_IMAGE = 'EXPORT_IMAGE'
-    EXPORT_MAP = 'EXPORT_TILES'
-    EXPORT_TABLE = 'EXPORT_FEATURES'
-    EXPORT_VIDEO = 'EXPORT_VIDEO'
-
-  class State:
-    UNSUBMITTED = 'UNSUBMITTED'
-    READY = 'READY'
-    RUNNING = 'RUNNING'
-    COMPLETED = 'COMPLETED'
-    FAILED = 'FAILED'
-    CANCEL_REQUESTED = 'CANCEL_REQUESTED'
-    CANCELLED = 'CANCELLED'
-
-  # Export destinations.
-  class ExportDestination:
-    DRIVE = 'DRIVE'
-    GCS = 'GOOGLE_CLOUD_STORAGE'
-    ASSET = 'ASSET'
-    FEATURE_VIEW = 'FEATURE_VIEW'
-    BIGQUERY = 'BIGQUERY'
-
-  def start(self):
+  def start(self) -> None:
     """Starts the task. No-op for started tasks."""
     if not self.config:
       raise ee_exception.EEException(
@@ -102,7 +119,7 @@ class Task:
           result['name'])
       self.name = result['name']
 
-  def status(self):
+  def status(self) -> Dict[str, Any]:
     """Fetches the current status of the task.
 
     Returns:
@@ -123,18 +140,18 @@ class Task:
       result = {'state': Task.State.UNSUBMITTED}
     return result
 
-  def active(self):
+  def active(self) -> bool:
     """Returns whether the task is still running."""
     return self.status()['state'] in (Task.State.READY,
                                       Task.State.RUNNING,
                                       Task.State.CANCEL_REQUESTED)
 
-  def cancel(self):
+  def cancel(self) -> None:
     """Cancels the task."""
     data.cancelTask(self.id)
 
   @staticmethod
-  def list():
+  def list() -> List['Task']:
     """Returns the tasks submitted to EE by the current user.
 
     These include all currently running tasks as well as recently canceled or
@@ -179,7 +196,12 @@ class Export:
       """Forbids class instantiation."""
       raise AssertionError('This class cannot be instantiated.')
 
-    def __new__(cls, image, description='myExportImageTask', config=None):
+    def __new__(
+        cls,
+        image: Any,
+        description: str = 'myExportImageTask',
+        config: Optional[Dict[str, Any]] = None,
+    ):
       """Creates a task to export an EE Image to Google Drive or Cloud Storage.
 
       Args:
@@ -921,14 +943,6 @@ class Export:
                                             Task.ExportDestination.DRIVE)
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
 
-
-def _CheckConfigDisallowedPrefixes(config, prefix):
-  for key in config:
-    if key.startswith(prefix):
-      raise ee_exception.EEException(
-          'Export config parameter prefix "{}" disallowed, found "{}"'.
-          format(prefix, key))
-
 # Mapping from file formats to prefixes attached to format specific config.
 FORMAT_PREFIX_MAP = {'GEOTIFF': 'tiff', 'TFRECORD': 'tfrecord'}
 
@@ -946,23 +960,9 @@ NON_FILE_DESTINATIONS = frozenset([
 ])
 
 
-def _ConvertConfigParams(config):
-  """Converts numeric sequences into comma-separated string representations."""
-  updatedConfig = {}
-  # Non-Cloud API expects that pyramiding policy is a JSON string.
-  if 'pyramidingPolicy' in config:
-    updatedConfig['pyramidingPolicy'] = json.dumps(config['pyramidingPolicy'])
-  for k, v in config.items():
-    if v and isinstance(v, (list, tuple)):
-      # Leave nested lists/tuples alone. We're only interested in converting
-      # lists of strings or numbers.
-      if not isinstance(v[0], (list, tuple)):
-        updatedConfig[k] = ','.join(str(e) for e in v)
-
-  return updatedConfig
-
-
-def _prepare_image_export_config(image, config, export_destination):
+def _prepare_image_export_config(
+    image: Any, config: Dict[str, Any], export_destination: str
+) -> Dict[str, Any]:
   """Performs all preparation steps for an image export.
 
   Args:
@@ -1039,7 +1039,9 @@ def _prepare_image_export_config(image, config, export_destination):
   return request
 
 
-def _prepare_map_export_config(image, config):
+def _prepare_map_export_config(
+    image: Any, config: Dict[str, Any]
+) -> Dict[str, Any]:
   """Performs all preparation steps for a map export.
 
   Args:
@@ -1080,7 +1082,9 @@ def _prepare_map_export_config(image, config):
   return request
 
 
-def _prepare_table_export_config(collection, config, export_destination):
+def _prepare_table_export_config(
+    collection: Any, config: Dict[str, Any], export_destination
+) -> Dict[str, Any]:
   """Performs all preparation steps for a table export.
 
   Args:
@@ -1145,7 +1149,9 @@ def _prepare_table_export_config(collection, config, export_destination):
   return request
 
 
-def _prepare_video_export_config(collection, config, export_destination):
+def _prepare_video_export_config(
+    collection: Any, config: Dict[str, Any], export_destination: str
+) -> Dict[str, Any]:
   """Performs all preparation steps for a video export.
 
   Args:
@@ -1181,7 +1187,9 @@ def _prepare_video_export_config(collection, config, export_destination):
   return request
 
 
-def _build_image_file_export_options(config, export_destination):
+def _build_image_file_export_options(
+    config: Dict[str, Any], export_destination: str
+) -> Dict[str, Any]:
   """Builds an ImageFileExportOptions from values in a config dict.
 
   Args:
@@ -1284,7 +1292,9 @@ def _build_image_file_export_options(config, export_destination):
   return file_export_options
 
 
-def _build_table_file_export_options(config, export_destination):
+def _build_table_file_export_options(
+    config: Dict[str, Any], export_destination: str
+) -> Dict[str, Any]:
   """Builds a TableFileExportOptions from values in a config dict.
 
   Args:
@@ -1313,7 +1323,7 @@ def _build_table_file_export_options(config, export_destination):
   return file_export_options
 
 
-def _build_video_options(config):
+def _build_video_options(config: Dict[str, Any]) -> Dict[str, Any]:
   """Builds a VideoOptions from values in a config dict.
 
   Args:
@@ -1335,7 +1345,9 @@ def _build_video_options(config):
   return video_options
 
 
-def _build_video_file_export_options(config, export_destination):
+def _build_video_file_export_options(
+    config: Dict[str, Any], export_destination: str
+) -> Dict[str, Any]:
   """Builds a VideoFileExportOptions from values in a config dict.
 
   Args:
@@ -1364,7 +1376,9 @@ def _build_video_file_export_options(config, export_destination):
   return file_export_options
 
 
-def _prepare_classifier_export_config(classifier, config, export_destination):
+def _prepare_classifier_export_config(
+    classifier: Any, config: Dict[str, Any], export_destination: str
+) -> Dict[str, Any]:
   """Performs all preparation steps for a classifier export.
 
   Args:
@@ -1389,7 +1403,7 @@ def _prepare_classifier_export_config(classifier, config, export_destination):
   return request
 
 
-def _build_drive_destination(config):
+def _build_drive_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   """Builds a DriveDestination from values in a config dict.
 
   Args:
@@ -1408,7 +1422,7 @@ def _build_drive_destination(config):
   return drive_destination
 
 
-def _build_cloud_storage_destination(config):
+def _build_cloud_storage_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   """Builds a CloudStorageDestination from values in a config dict.
 
   Args:
@@ -1429,7 +1443,7 @@ def _build_cloud_storage_destination(config):
   return destination
 
 
-def _build_bigquery_destination(config):
+def _build_bigquery_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   """Builds a BigqueryDestination from values in a config dict.
 
   Args:
@@ -1448,7 +1462,7 @@ def _build_bigquery_destination(config):
   return destination
 
 
-def _build_tile_options(config):
+def _build_tile_options(config: Dict[str, Any]) -> Dict[str, Any]:
   """Builds a TileOptions from values in a config dict.
 
   Args:
@@ -1491,7 +1505,7 @@ def _build_tile_options(config):
   return tile_options
 
 
-def _build_earth_engine_destination(config):
+def _build_earth_engine_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   """Builds an EarthEngineDestination from values in a config dict.
 
   Args:
@@ -1509,7 +1523,7 @@ def _build_earth_engine_destination(config):
   }
 
 
-def _build_feature_view_destination(config):
+def _build_feature_view_destination(config: Dict[str, Any]) -> Dict[str, Any]:
   """Builds a FeatureViewDestination from values in a config dict.
 
   Args:
@@ -1527,7 +1541,7 @@ def _build_feature_view_destination(config):
   return feature_view_destination
 
 
-def _get_rank_by_one_thing_rule(rule_str):
+def _get_rank_by_one_thing_rule(rule_str: str) -> Dict[str, Any]:
   """Returns a RankByOneThingRule dict created from the rank-by-one-thing rule.
 
   Args:
@@ -1564,7 +1578,9 @@ def _get_rank_by_one_thing_rule(rule_str):
   return output
 
 
-def _get_ranking_rule(rules):
+def _get_ranking_rule(
+    rules: Optional[Union[str, List[str]]]
+) -> Optional[Dict[str, List[Dict[str, Any]]]]:
   """Returns a RankingRule dict created from the rank-by-one-thing rules.
 
   Args:
@@ -1590,7 +1606,7 @@ def _get_ranking_rule(rules):
        'either be a comma-separated string or list of strings.'))
 
 
-def _build_thinning_options(config):
+def _build_thinning_options(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
   """Returns a ThinningOptions dict created from the config.
 
   Args:
@@ -1610,7 +1626,7 @@ def _build_thinning_options(config):
   return output
 
 
-def _build_ranking_options(config):
+def _build_ranking_options(config: Dict[str, Any]) -> Optional[Dict[str, Any]]:
   """Returns a RankingOptions dict created from the config.
 
   Args:
@@ -1635,7 +1651,9 @@ def _build_ranking_options(config):
   return output
 
 
-def build_ingestion_time_parameters(input_params):
+def build_ingestion_time_parameters(
+    input_params: Dict[str, Any]
+) -> Dict[str, Any]:
   """Builds a FeatureViewIngestionTimeParameters from values in a params dict.
 
   Args:
@@ -1663,7 +1681,7 @@ def build_ingestion_time_parameters(input_params):
   return output_params
 
 
-def _create_export_task(config, task_type):
+def _create_export_task(config: Dict[str, Any], task_type: Task.Type) -> Task:
   """Creates an export task.
 
   Args:
@@ -1676,7 +1694,9 @@ def _create_export_task(config, task_type):
   return Task(None, task_type, Task.State.UNSUBMITTED, config)
 
 
-def _capture_parameters(all_locals, parameters_to_exclude):
+def _capture_parameters(
+    all_locals, parameters_to_exclude: Sequence[str]
+) -> Dict[str, Any]:
   """Creates a parameter dict by copying all non-None locals.
 
   This is generally invoked as the first part of call processing, via
@@ -1789,7 +1809,9 @@ def _canonicalize_parameters(config, destination):
       del config[key]
 
 
-def _canonicalize_region(region):
+def _canonicalize_region(
+    region: Union[str, geometry.Geometry, Any]
+) -> geometry.Geometry:
   """Converts a region parameter to a form appropriate for export."""
   region_error = ee_exception.EEException(
       'Invalid format for "region" property. '

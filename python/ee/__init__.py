@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 """The EE Python library."""
 
-__version__ = '0.1.365'
+__version__ = '0.1.366'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -11,6 +11,7 @@ import datetime
 import inspect
 import numbers
 import os
+from typing import Any, Hashable, Optional, Type
 
 from ee import batch
 from ee import data
@@ -55,7 +56,7 @@ _generatedClasses = []
 class _AlgorithmsContainer(dict):
   """A lightweight class that is used as a dictionary with dot notation."""
 
-  def __getattr__(self, name):
+  def __getattr__(self, name: Hashable) -> Any:
     try:
       return self[name]
     except KeyError:
@@ -191,7 +192,7 @@ def _ResetGeneratedClasses():
   types._registerClasses(globals())     # pylint: disable=protected-access
 
 
-def _Promote(arg, klass):
+def _Promote(arg: Optional[Any], a_class: str) -> Optional[Any]:
   """Wrap an argument in an object of the specified class.
 
   This is used to e.g.: promote numbers or strings to Images and arrays
@@ -199,7 +200,7 @@ def _Promote(arg, klass):
 
   Args:
     arg: The object to promote.
-    klass: The expected type.
+    a_class: The expected type.
 
   Returns:
     The argument promoted if the class is recognized, otherwise the
@@ -208,9 +209,9 @@ def _Promote(arg, klass):
   if arg is None:
     return arg
 
-  if klass == 'Image':
+  if a_class == 'Image':
     return Image(arg)
-  elif klass == 'Feature':
+  elif a_class == 'Feature':
     if isinstance(arg, Collection):
       # TODO(user): Decide whether we want to leave this in. It can be
       #              quite dangerous on large collections.
@@ -218,7 +219,7 @@ def _Promote(arg, klass):
           'Feature', ApiFunction.call_('Collection.geometry', arg))
     else:
       return Feature(arg)
-  elif klass == 'Element':
+  elif a_class == 'Element':
     if isinstance(arg, Element):
       # Already an Element.
       return arg
@@ -231,22 +232,22 @@ def _Promote(arg, klass):
     else:
       # No way to convert.
       raise EEException('Cannot convert {0} to Element.'.format(arg))
-  elif klass == 'Geometry':
+  elif a_class == 'Geometry':
     if isinstance(arg, Collection):
       return ApiFunction.call_('Collection.geometry', arg)
     else:
       return Geometry(arg)
-  elif klass in ('FeatureCollection', 'Collection'):
+  elif a_class in ('FeatureCollection', 'Collection'):
     # For now Collection is synonymous with FeatureCollection.
     if isinstance(arg, Collection):
       return arg
     else:
       return FeatureCollection(arg)
-  elif klass == 'ImageCollection':
+  elif a_class == 'ImageCollection':
     return ImageCollection(arg)
-  elif klass == 'Filter':
+  elif a_class == 'Filter':
     return Filter(arg)
-  elif klass == 'Algorithm':
+  elif a_class == 'Algorithm':
     if isinstance(arg, str):
       # An API function name.
       return ApiFunction.lookup(arg)
@@ -260,25 +261,25 @@ def _Promote(arg, klass):
       return arg
     else:
       raise EEException('Argument is not a function: {0}'.format(arg))
-  elif klass == 'Dictionary':
+  elif a_class == 'Dictionary':
     if isinstance(arg, dict):
       return arg
     else:
       return Dictionary(arg)
-  elif klass == 'String':
+  elif a_class == 'String':
     if (types.isString(arg) or
         isinstance(arg, ComputedObject) or
         isinstance(arg, String)):
       return String(arg)
     else:
       return arg
-  elif klass == 'List':
+  elif a_class == 'List':
     return List(arg)
-  elif klass in ('Number', 'Float', 'Long', 'Integer', 'Short', 'Byte'):
+  elif a_class in ('Number', 'Float', 'Long', 'Integer', 'Short', 'Byte'):
     return Number(arg)
-  elif klass in globals():
-    cls = globals()[klass]
-    ctor = ApiFunction.lookupInternal(klass)
+  elif a_class in globals():
+    cls = globals()[a_class]
+    ctor = ApiFunction.lookupInternal(a_class)
     # Handle dynamically created classes.
     if isinstance(arg, cls):
       # Return unchanged.
@@ -288,10 +289,10 @@ def _Promote(arg, klass):
       return cls(arg)
     elif isinstance(arg, str):
       if hasattr(cls, arg):
-        # arg is the name of a method in klass.
+        # arg is the name of a method in a_class.
         return getattr(cls, arg)()
       else:
-        raise EEException('Unknown algorithm: {0}.{1}'.format(klass, arg))
+        raise EEException('Unknown algorithm: {0}.{1}'.format(a_class, arg))
     else:
       # Client-side cast.
       return cls(arg)
@@ -299,7 +300,7 @@ def _Promote(arg, klass):
     return arg
 
 
-def _InitializeUnboundMethods():
+def _InitializeUnboundMethods() -> None:
   """Initializes the unbounded functions."""
   # Sort the items by length, so parents get created before children.
   items = sorted(
@@ -334,7 +335,7 @@ def _InitializeUnboundMethods():
     setattr(target, name_parts[0], bound)
 
 
-def _InitializeGeneratedClasses():
+def _InitializeGeneratedClasses() -> None:
   """Generate classes for extra types that appear in the web API."""
   signatures = ApiFunction.allSignatures()
   # Collect the first part of all function names.
@@ -368,10 +369,10 @@ def _MakeClass(name):
     Returns:
       The new class.
     """
-    klass = globals()[name]
+    a_class = globals()[name]
     onlyOneArg = (len(args) == 1)
     # Are we trying to cast something that's already of the right class?
-    if onlyOneArg and isinstance(args[0], klass):
+    if onlyOneArg and isinstance(args[0], a_class):
       result = args[0]
     else:
       # Decide whether to call a server-side constructor or just do a

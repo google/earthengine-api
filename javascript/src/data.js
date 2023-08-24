@@ -362,7 +362,6 @@ ee.data.getAlgorithms = function(opt_callback) {
                          .then(ee.rpc_convert.algorithms));
 };
 
-
 /**
  * Get a Map ID for a given asset
  * @param {!ee.data.ImageVisualizationParameters} params
@@ -1417,7 +1416,6 @@ ee.data.startTableIngestion = function(taskId, request, opt_callback) {
   return convert(ee.data.ingestTable(taskId, manifest, wrappedCallback));
 };
 
-
 ////////////////////////////////////////////////////////////////////////////////
 //                             Asset management.                              //
 ////////////////////////////////////////////////////////////////////////////////
@@ -2373,7 +2371,6 @@ ee.data.AssetQuotaDetails = class {
     this.asset_size;
   }
 };
-
 
 /**
  * A description of a FeatureView. The type value is always

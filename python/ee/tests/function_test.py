@@ -6,7 +6,8 @@ import unittest
 
 # A function to experiment on.
 TEST_FUNC = ee.Function()
-TEST_FUNC.getSignature = lambda: {  # pylint: disable-msg=g-long-lambda
+# pylint: disable-next=g-long-lambda
+TEST_FUNC.getSignature = lambda: {
     'name': 'testFunction',
     'description': 'Method description.',
     'returns': 'Image',

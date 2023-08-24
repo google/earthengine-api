@@ -12,7 +12,7 @@ import datetime
 import json
 import os
 import re
-from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
 import warnings
 
 import google_auth_httplib2
@@ -36,7 +36,7 @@ ASSET_ROOT_PATTERN = (r'^projects/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
                       r'[a-z][a-z0-9\-]{4,28}[a-z0-9])/assets/?$')
 
 # The default user project to use when making Cloud API calls.
-_cloud_api_user_project = None
+_cloud_api_user_project: Optional[str] = None
 
 
 class _Http:
@@ -67,7 +67,10 @@ class _Http:
     return httplib2.Response(headers), content
 
 
-def _wrap_request(headers_supplier, response_inspector):
+def _wrap_request(
+    headers_supplier: Callable[[], Dict[str, Any]],
+    response_inspector: Callable[[Any], None],
+) -> Callable[..., http.HttpRequest]:
   """Builds a callable that wraps an API request.
 
   Args:
@@ -85,14 +88,16 @@ def _wrap_request(headers_supplier, response_inspector):
     return http.HttpRequest
 
   # pylint: disable=invalid-name
-  def builder(http_transport,
-              postproc,
-              uri,
-              method='GET',
-              body=None,
-              headers=None,
-              methodId=None,
-              resumable=None):
+  def builder(
+      http_transport: Any,
+      postproc: Any,
+      uri: Any,
+      method: str = 'GET',
+      body: Optional[Any] = None,
+      headers: Optional[Any] = None,
+      methodId: Optional[Any] = None,
+      resumable: Optional[Any] = None,
+  ) -> http.HttpRequest:
     """Builds an HttpRequest, adding headers and response inspection."""
     additional_headers = headers_supplier()
     if additional_headers:
@@ -114,19 +119,21 @@ def _wrap_request(headers_supplier, response_inspector):
   return builder
 
 
-def set_cloud_api_user_project(cloud_api_user_project) -> None:
+def set_cloud_api_user_project(cloud_api_user_project: str) -> None:
   global _cloud_api_user_project
   _cloud_api_user_project = cloud_api_user_project
 
 
-def build_cloud_resource(api_base_url,
-                         api_key=None,
-                         credentials=None,
-                         timeout=None,
-                         headers_supplier=None,
-                         response_inspector=None,
-                         http_transport=None,
-                         raw=False):
+def build_cloud_resource(
+    api_base_url: str,
+    api_key: Optional[Any] = None,
+    credentials: Optional[Any] = None,
+    timeout: Optional[float] = None,
+    headers_supplier: Optional[Callable[[], Dict[str, Any]]] = None,
+    response_inspector: Optional[Callable[[Any], None]] = None,
+    http_transport: Optional[Any] = None,
+    raw: Optional[bool] = False,
+) -> Any:
   """Builds an Earth Engine Cloud API resource.
 
   Args:

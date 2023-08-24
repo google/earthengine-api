@@ -61,13 +61,13 @@ class Number(computedobject.ComputedObject):
   def name() -> str:
     return 'Number'
 
-  def encode(self, opt_encoder: ... = None) -> Any:
+  def encode(self, opt_encoder: Any = None) -> Any:
     if isinstance(self._number, numbers.Number):
       return self._number
     else:
       return super().encode(opt_encoder)
 
-  def encode_cloud_value(self, opt_encoder: ... = None) -> Any:
+  def encode_cloud_value(self, opt_encoder: Any = None) -> Any:
     if isinstance(self._number, numbers.Number):
       return _cloud_api_utils.encode_number_as_cloud_value(self._number)
     else:

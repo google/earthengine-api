@@ -17,6 +17,7 @@ import uuid
 from google.oauth2 import credentials as credentials_lib
 import google_auth_httplib2
 import googleapiclient
+import httplib2
 
 from ee import _cloud_api_utils
 from ee import computedobject
@@ -322,7 +323,7 @@ def _make_request_headers() -> Optional[Dict[str, Any]]:
   return None
 
 
-def _handle_profiling_response(response) -> None:
+def _handle_profiling_response(response: httplib2.Response) -> None:
   """Handles profiling annotations on Cloud API responses."""
   # Call the profile hook if present. Note that this is done before we handle
   # the content, so that profiles are reported even if the response is an error.
@@ -331,7 +332,9 @@ def _handle_profiling_response(response) -> None:
     _thread_locals.profile_hook(response[_PROFILE_RESPONSE_HEADER_LOWERCASE])
 
 
-def _execute_cloud_call(call, num_retries: int = MAX_RETRIES) -> Any:
+def _execute_cloud_call(
+    call: googleapiclient.http.HttpRequest, num_retries: int = MAX_RETRIES
+) -> Any:
   """Executes a Cloud API call and translates errors to EEExceptions.
 
   Args:
@@ -539,7 +542,7 @@ def listImages(params: Dict[str, Any]) -> Dict[str, Optional[List[int]]]:
   return images
 
 
-def listAssets(params: dict[str, Any]) -> dict[str, List[Any]]:
+def listAssets(params: Dict[str, Any]) -> Dict[str, List[Any]]:
   """Returns the assets in a folder.
 
   Args:
@@ -710,7 +713,7 @@ def getFeatureViewTilesKey(params: Dict[str, Any]) -> Dict[str, Any]:
   }
 
 
-def listFeatures(params: dict[str, Any]) -> Any:
+def listFeatures(params: Dict[str, Any]) -> Any:
   """List features for a given table or FeatureView asset.
 
   Args:
