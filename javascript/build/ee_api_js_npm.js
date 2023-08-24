@@ -17372,7 +17372,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.366";
+ee.apiclient.API_CLIENT_VERSION = "0.1.367";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17653,8 +17653,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.366";
-  "0.1.366" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.367";
+  "0.1.367" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -18838,7 +18838,9 @@ ee.Serializer.encodeCloudApi = function(obj) {
 };
 goog.exportSymbol("ee.Serializer.encodeCloudApi", ee.Serializer.encodeCloudApi);
 ee.Serializer.encodeCloudApiExpression = function(obj, unboundName) {
-  var serializer = new ee.Serializer(!0);
+  return ee.Serializer.encodeCloudApiExpressionWithSerializer(new ee.Serializer(!0), obj, unboundName);
+};
+ee.Serializer.encodeCloudApiExpressionWithSerializer = function(serializer, obj, unboundName) {
   serializer.unboundName = unboundName;
   return serializer.encodeForCloudApi_(obj);
 };
@@ -19422,7 +19424,7 @@ ee.data.listFeatures = function(asset, params, opt_callback) {
 };
 goog.exportSymbol("ee.data.listFeatures", ee.data.listFeatures);
 ee.data.computeValue = function(obj, opt_callback) {
-  var request = {expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(obj))}, workloadTag = ee.data.getWorkloadTag();
+  var request = {expression:ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpressionWithSerializer(new ee.Serializer(!0), obj, void 0))}, workloadTag = ee.data.getWorkloadTag();
   workloadTag && (request.workloadTag = workloadTag);
   var call = new module$contents$ee$apiclient_Call(opt_callback);
   return call.handle(call.value().compute(call.projectsPath(), new module$exports$eeapiclient$ee_api_client.ComputeValueRequest(request)).then(function(x) {

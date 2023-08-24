@@ -4,7 +4,7 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Type, Union
 
 from ee import apifunction
 from ee import collection
@@ -216,5 +216,5 @@ class FeatureCollection(collection.Collection):
     return 'FeatureCollection'
 
   @staticmethod
-  def elementType() -> type[feature.Feature]:
+  def elementType() -> Type[feature.Feature]:
     return feature.Feature

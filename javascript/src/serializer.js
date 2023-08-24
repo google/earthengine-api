@@ -303,6 +303,21 @@ ee.Serializer.encodeCloudApi = function(obj) {
 ee.Serializer.encodeCloudApiExpression = function(
     obj, unboundName = undefined) {
   const serializer = new ee.Serializer(true);
+  return ee.Serializer.encodeCloudApiExpressionWithSerializer(
+      serializer, obj, unboundName);
+};
+
+
+/**
+ * Serializes an object into an Expression for Cloud API calls with a
+ * Serializer.
+ * @param {!ee.Serializer} serializer The Serializer.
+ * @param {*} obj The object to Serialize.
+ * @param {string=} unboundName Name for unbound variables in computed objects.
+ * @return {!ee.api.Expression} The encoded object.
+ */
+ee.Serializer.encodeCloudApiExpressionWithSerializer = function(
+    serializer, obj, unboundName = undefined) {
   serializer.unboundName = unboundName;
   return serializer.encodeForCloudApi_(obj);
 };

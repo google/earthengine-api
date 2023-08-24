@@ -555,8 +555,10 @@ ee.data.listFeatures = function(asset, params, opt_callback) {
  * @export
  */
 ee.data.computeValue = function(obj, opt_callback) {
-  const expression =
-      ee.data.expressionAugmenter_(ee.Serializer.encodeCloudApiExpression(obj));
+  const serializer = new ee.Serializer(true);
+  const expression = ee.data.expressionAugmenter_(
+      ee.Serializer.encodeCloudApiExpressionWithSerializer(
+          serializer, obj, /* unboundName= */ undefined));
   const request = {expression};
   const workloadTag = ee.data.getWorkloadTag();
   if (workloadTag) {

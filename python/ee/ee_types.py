@@ -6,7 +6,7 @@
 
 import datetime
 import numbers
-from typing import Any
+from typing import Any, Type
 
 from ee import computedobject
 
@@ -25,7 +25,7 @@ def _registerClasses(classes) -> None:
   _registered_classes = classes
 
 
-def classToName(a_class: type[Any]) -> str:
+def classToName(a_class: Type[Any]) -> str:
   """Converts a class to the API-friendly type name.
 
   Args:
