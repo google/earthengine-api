@@ -1,6 +1,7 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.batch module."""
 from typing import Any, Optional
+import unittest
 from unittest import mock
 
 import ee
@@ -955,6 +956,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           assetId='users/foo/bar',
           ingestionTimeParameters={'thinningRanking': {'key': 'val'}})
 
+  @unittest.skip('assertRaisesWithLiteralMatch is google specific')
   def testExportTableToFeatureViewBadIngestionTimeParams(self):
     """Verifies a bad set of ingestion time params throws an exception."""
     with self.assertRaisesWithLiteralMatch(

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Representation for an Earth Engine ImageCollection."""
 
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple

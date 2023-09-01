@@ -878,6 +878,9 @@ ee.rpc_convert.operationToTask = function(result) {
   internalTask['task_type'] = metadata.type || 'UNKNOWN';
   internalTask['output_url'] = metadata.destinationUris;
   internalTask['source_url'] = metadata.scriptUri;
+  if (metadata.batchEecuUsageSeconds != null) {
+    internalTask['batch_eecu_usage_seconds'] = metadata.batchEecuUsageSeconds;
+  }
   return internalTask;
 };
 

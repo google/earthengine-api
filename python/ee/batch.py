@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """An interface to the Earth Engine batch processing system.
 
 Use the static methods on the Export class to create export tasks, call start()

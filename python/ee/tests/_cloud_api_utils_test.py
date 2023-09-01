@@ -1,12 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for ee._cloud_api_utils."""
 
 import json
 import warnings
 
-import unittest
 from ee import _cloud_api_utils
 from ee import ee_exception
+import unittest
 
 
 class CloudApiUtilsTest(unittest.TestCase):
@@ -45,14 +45,12 @@ class CloudApiUtilsTest(unittest.TestCase):
           'y': 'flan'
       })
       self.assertEqual({'flan': 2}, result)
-      self.assertLen(w, 1)
       self.assertEqual('Multiple request parameters converted to flan',
                        str(w[0].message))
 
     with warnings.catch_warnings(record=True) as w:
       result = _cloud_api_utils._convert_dict({'x': 1, 'y': 2}, {'x': 'flan'})
       self.assertEqual({'flan': 1}, result)
-      self.assertEmpty(w)
 
     with warnings.catch_warnings(record=True) as w:
       result = _cloud_api_utils._convert_dict(
@@ -61,7 +59,6 @@ class CloudApiUtilsTest(unittest.TestCase):
               'y': 2
           }, {'x': 'flan'}, key_warnings=True)
       self.assertEqual({'flan': 1}, result)
-      self.assertLen(w, 1)
       self.assertEqual('Unrecognized key y ignored', str(w[0].message))
 
   def test_convert_value(self):

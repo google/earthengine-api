@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Singleton for the library's communication with the Earth Engine API."""
 
 # Using lowercase function naming to match the JavaScript names.

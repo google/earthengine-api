@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Convenience functions and code used by ee/__init__.py.
 
 These functions are in general re-exported from the "ee" module and should be

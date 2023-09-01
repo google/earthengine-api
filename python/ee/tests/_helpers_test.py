@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for ee._helpers.
 
 When the function in question is defined in ee/_helpers.py but exported for

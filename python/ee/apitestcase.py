@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """A TestCase that initializes the library with standard API methods."""
 
 import contextlib

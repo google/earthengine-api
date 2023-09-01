@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Commands supported by the Earth Engine command line interface.
 
 Each command is implemented by extending the Command class. Each class
@@ -317,16 +317,6 @@ def _decode_property_flags(args):
   if duplicates:
     raise ee.EEException('Duplicate property name(s): %s.' % duplicates)
   return dict(property_list)
-
-
-def _decode_timestamp_flags(args):
-  """Decodes timestamp properties from args as a name->value dict."""
-  result = {}
-  if args.time_start is not None:
-    result[SYSTEM_TIME_START] = args.time_start
-  if args.time_end is not None:
-    result[SYSTEM_TIME_END] = args.time_end
-  return result
 
 
 def _check_valid_files(filenames):

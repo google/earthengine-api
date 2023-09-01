@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.data module."""
 
 from unittest import mock

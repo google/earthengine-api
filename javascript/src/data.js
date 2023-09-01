@@ -532,7 +532,7 @@ ee.data.getFeatureViewTilesKey = function(params, opt_callback) {
  *           specified as a GeoJSON geometry string (see RFC 7946).
  *     - filter (comma-separated strings): If present, specifies additional
  *           simple property filters (see https://google.aip.dev/160).
- * @param {function(!ee.api.ListFeaturesResponse, string=)=} opt_callback An
+ * @param {function(?ee.api.ListFeaturesResponse, string=)=} opt_callback An
  *     optional callback, called with two parameters: the first is the resulting
  *     list of features and the second is an error string on failure. If not
  *     supplied, the call is made synchronously.
@@ -875,7 +875,7 @@ ee.data.makeDownloadUrl = function(id) {
 
 /**
  * Get a download ID.
- * @param {Object} params An object containing table download options with the
+ * @param {!Object} params An object containing table download options with the
  *     following possible values:
  *   - table: The feature collection to download.
  *   - format: The download format, CSV, JSON, KML, KMZ or TF_RECORD.
@@ -951,10 +951,17 @@ ee.data.makeTableDownloadUrl = function(id) {
 
 
 /**
- * Generate an ID for a long-running task.
+ * Generates an "unsubmitted" ID for a long-running task.
+ *
+ * Before tasks are submitted, they may be assigned IDs to track them. The
+ * server ensures that the same ID cannot be reused. These IDs have a UUID
+ * format: xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx.
+ *
+ * Tasks that are running on the server have a ID without hyphens. This is
+ * returned by ee.data.startProcessing and other batch methods.
  *
  * @param {number=} opt_count The number of IDs to generate, one by default.
- * @param {function(Array.<string>, string=)=} opt_callback An optional
+ * @param {function(!Array.<string>, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?Array.<string>} An array containing generated ID strings, or null
  *     if a callback is specified.
@@ -976,8 +983,8 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
  * Retrieve status of one or more long-running tasks.
  *
  * @deprecated Use ee.data.getOperation().
- * @param {string|!Array.<string>} taskId ID of the task or an array of
- *     multiple task IDs.
+ * @param {string|!Array.<string>} taskId Submitted ID of the task or an array
+ *     of multiple task IDs. May also contain operation names.
  * @param {function(?Array.<!ee.data.TaskStatus>, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?Array.<!ee.data.TaskStatus>} Null if a callback isn't specified,
@@ -1069,7 +1076,8 @@ ee.data.getTaskListWithLimit = function(opt_limit, opt_callback) {
 /**
  * @param {number=} opt_limit Maximum number of results to return.
  * @param {function(?Array<!ee.api.Operation>=,string=)=} opt_callback
- * @return {?Array<!ee.api.Operation>}
+ * @return {?Array<!ee.api.Operation>} See getOperation for details on the
+ *    Operation object.
  * @export
  */
 ee.data.listOperations = function(opt_limit, opt_callback) {
@@ -1116,7 +1124,8 @@ ee.data.listOperations = function(opt_limit, opt_callback) {
  * @export
  */
 ee.data.cancelOperation = function(operationName, opt_callback) {
-  const opNames = ee.data.makeStringArray_(operationName);
+  const opNames = ee.data.makeStringArray_(operationName)
+                      .map(ee.rpc_convert.taskIdToOperationName);
   const request = new ee.api.CancelOperationRequest();  // Empty, but required.
   if (opNames.length === 1) {
     const call = new ee.apiclient.Call(opt_callback);
@@ -1136,7 +1145,25 @@ ee.data.cancelOperation = function(operationName, opt_callback) {
  * @param {function(?Object, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.api.Operation|!Object<string,!ee.api.Operation>}
- *     Operation status, or a map from operation names to status. See
+ *     Operation status, or a map from operation names to status. Each Operation
+ *     contains:
+ *   - name: operation name in the format projects/X/operations/Y
+ *   - done: true when operation has finished running.
+ *   - error: may be set when done=true. Contains message and other fields from
+ *     https://cloud.google.com/tasks/docs/reference/rpc/google.rpc#status
+ *   - metadata, which contains
+ *     + state: PENDING, RUNNING, CANCELLING, SUCCEEDED, CANCELLED, or FAILED
+ *     + description: Supplied task description
+ *     + type: EXPORT_IMAGE, EXPORT_FEATURES, etc.
+ *     + create_time: Time the operation was first submitted.
+ *     + update_time: Timestamp of most recent update.
+ *     + start_time: Time the operation started, when so.
+ *     + end_time: Time the operation finished running, when so.
+ *     + attempt: Number of retries of this task, starting at 1.
+ *     + destination_uris: Resources output by this operation.
+ *     + batch_eecu_usage_seconds: CPU used by this operation.
+ *
+ *     See more details on Operations here:
  *     https://cloud.google.com/apis/design/design_patterns#long_running_operations
  * @export
  */
@@ -1157,10 +1184,11 @@ ee.data.getOperation = function(operationName, opt_callback) {
  * Cancels the task provided.
  *
  * @deprecated Use ee.data.cancelOperation().
- * @param {string} taskId ID of the task.
- * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback
+ * @param {string} taskId Submitted ID of the task. May also contain operation
+ *     name.
+ * @param {function(?ee.data.ProcessingResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?Array.<ee.data.TaskStatus>} An array of updated tasks, or null
+ * @return {?Array.<!ee.data.TaskStatus>} An array of updated tasks, or null
  *     if a callback is specified.
  * @export
  */
@@ -1173,8 +1201,8 @@ ee.data.cancelTask = function(taskId, opt_callback) {
 /**
  * Update one or more tasks' properties. For now, only the following properties
  * may be updated: State (to CANCELLED)
- * @param {string|!Array.<string>} taskId ID of the task or an array of
- *     multiple task IDs.
+ * @param {string|!Array.<string>} taskId Submitted ID of the task or an array
+ *     of multiple task IDs. May also contain operation names.
  * @param {!ee.data.TaskUpdateActions} action Action performed on tasks.
  * @param {function(?ee.data.ProcessingResponse, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
@@ -1197,16 +1225,23 @@ ee.data.updateTask = function(taskId, action, opt_callback) {
 /**
  * Create processing task that exports or pre-renders an image.
  *
- * @param {string} taskId ID for the task (obtained using newTaskId).
- * @param {Object} params The object that describes the processing task;
+ * @param {string} taskId Unsubmitted ID for the task (obtained from newTaskId).
+ *     Used to identify duplicated tasks; may be null. The server will create
+ *     and return a submitted ID.
+ * @param {!Object} params The object that describes the processing task;
  *    only fields that are common for all processing types are documented here.
  *      type (string) Either 'EXPORT_IMAGE', 'EXPORT_FEATURES', 'EXPORT_VIDEO'
  * or 'EXPORT_TILES'. json (string) JSON description of the image.
- * @param {function(ee.data.ProcessingResponse, string=)=} opt_callback An
+ * @param {function(?ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
- * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
- *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
- *     Null if a callback is specified.
+ * @return {?ee.data.ProcessingResponse} An object with fields:
+ *   - taskId: Submitted task ID (without hyphens).
+ *   - name: Full operation name in the format projects/X/operations/Y
+ *   - started: will be 'OK'
+ *   - note: may have value 'ALREADY_EXISTS' if an identical task with the same
+ *     unsubmitted ID already exists.
+ *
+ *     Return value is null if a callback is specified.
  * @export
  */
 ee.data.startProcessing = function(taskId, params, opt_callback) {
@@ -1328,14 +1363,14 @@ ee.data.prepareExportMapRequest_ = function(taskConfig, metadata) {
 /**
  * Creates an image asset ingestion task.
  *
- * @param {string} taskId ID for the task (obtained using newTaskId).
+ * See ee.data.startProcessing for details on task IDs and response format.
+ *
+ * @param {string} taskId Unsubmitted ID for the task (obtained from newTaskId).
  * @param {!ee.data.IngestionRequest} request The object that describes the
  *     ingestion.
  * @param {function(?ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
- * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
- *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
- *     Null if a callback is specified.
+ * @return {?ee.data.ProcessingResponse}
  * @export
  */
 ee.data.startIngestion = function(taskId, request, opt_callback) {
@@ -1352,12 +1387,13 @@ ee.data.startIngestion = function(taskId, request, opt_callback) {
 /**
  * Ingests an image asset.
  *
- * @param {string} taskId ID for the task (obtained using newTaskId).
+ * @param {string} taskId Unsubmitted ID for the task (obtained from newTaskId).
  * @param {!ee.api.ImageManifest} imageManifest The object that
  *     describes the ingestion.  See
  *     https://developers.google.com/s/results/earth-engine?q="ImageManifest"
  * @param {function(?ee.api.Operation, string=)} callback
- * @return {?ee.api.Operation}
+ * @return {?ee.api.Operation} See getOperation for details on the
+ *    Operation object.
  */
 ee.data.ingestImage = function(taskId, imageManifest, callback) {
   const request = new ee.api.ImportImageRequest({
@@ -1375,12 +1411,13 @@ ee.data.ingestImage = function(taskId, imageManifest, callback) {
 /**
  * Ingests a table asset.
  *
- * @param {string} taskId ID for the task (obtained using newTaskId).
+ * @param {string} taskId Unsubmitted ID for the task (obtained from newTaskId).
  * @param {!ee.api.TableManifest} tableManifest The object that
  *     describes the ingestion. See
  *     https://developers.google.com/s/results/earth-engine?q="TableManifest"
  * @param {function(?ee.api.Operation, string=)} callback
- * @return {?ee.api.Operation}
+ * @return {?ee.api.Operation} See getOperation for details on the
+ *    Operation object.
  */
 ee.data.ingestTable = function(taskId, tableManifest, callback) {
   const request = new ee.api.ImportTableRequest({
@@ -1398,14 +1435,14 @@ ee.data.ingestTable = function(taskId, tableManifest, callback) {
 /**
  * Creates a table asset ingestion task.
  *
- * @param {string} taskId ID for the task (obtained using newTaskId).
+ * See ee.data.startProcessing for details on task IDs and response format.
+ *
+ * @param {string} taskId Unsubmitted ID for the task (obtained from newTaskId).
  * @param {!ee.data.TableIngestionRequest} request The object that describes the
  *     ingestion.
  * @param {function(?ee.data.ProcessingResponse, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
- * @return {?ee.data.ProcessingResponse} May contain field 'note' with value
- *     'ALREADY_EXISTS' if an identical task with the same ID already exists.
- *     Null if a callback is specified.
+ * @return {?ee.data.ProcessingResponse}
  * @export
  */
 ee.data.startTableIngestion = function(taskId, request, opt_callback) {
@@ -3279,7 +3316,7 @@ ee.data.ImageTaskConfigUnformatted;
  *   maxPixels: (undefined|number),
  *   maxWorkers: (undefined|number),
  *   shardSize: (undefined|number),
- *   fileDimensions: (undefined|string|number|Array<number>),
+ *   fileDimensions: (undefined|string|number|!Array<number>),
  *   skipEmptyTiles: (undefined|boolean),
  *   fileFormat: (undefined|string),
  *   tiffCloudOptimized: (undefined|boolean),
@@ -3461,6 +3498,11 @@ ee.data.TaskStatus = class {
      */
     this.id;
 
+     /**
+     * @export {string|undefined}
+     */
+    this.name;
+
     /**
      * @export {string|undefined}
      */
@@ -3475,6 +3517,11 @@ ee.data.TaskStatus = class {
      * @export {number|undefined}
      */
     this.update_timestamp_ms;
+
+    /**
+     * @export {number|undefined}
+     */
+    this.start_timestamp_ms;
 
     /**
      * @export {number|undefined}
@@ -3512,6 +3559,11 @@ ee.data.TaskStatus = class {
     this.state;
 
     /**
+     * @export {number|undefined}
+     */
+    this.batch_eecu_usage_seconds;
+
+    /**
      * @export {string|undefined}
      */
     this.internal_error_info;
@@ -3545,7 +3597,12 @@ ee.data.ProcessingResponse = class {
      * @export {string|undefined}
      */
     this.taskId;
-  }
+    /**
+     * The operation name, in the format projects/X/operations/Y.
+     * @export {string|undefined}
+     */
+    this.name;
+   }
 };
 
 

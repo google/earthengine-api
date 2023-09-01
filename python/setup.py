@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2012 Google Inc. All Rights Reserved.
 
@@ -16,7 +16,7 @@ except ImportError:
   from distutils.core import setup                      # pylint: disable=g-import-not-at-top
 
 
-def GetVersion():
+def GetVersion() -> str:
   with open('ee/__init__.py') as f:
     return re.findall(r'__version__\s*=\s*\'([.\d]+)\'', f.read())[0]
 

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """A representation of an Earth Engine computed object."""
 
 from typing import Any, Dict, Optional

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Earth Engine OAuth2 helper functions for generating client tokens.
 
 Typical use-case consists of:

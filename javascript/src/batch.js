@@ -81,38 +81,23 @@ class ExportTask {
     googAsserts.assert(
         this.config_, 'Task config must be specified for tasks to be started.');
 
+    this.id = this.id || data.newTaskId(1)[0];
+    googAsserts.assertString(this.id, 'Failed to obtain task ID.');
+
     // Synchronous task start.
     if (!opt_success) {
-      this.id = this.id || data.newTaskId(1)[0];
-      googAsserts.assertString(this.id, 'Failed to obtain task ID.');
-      data.startProcessing(this.id, this.config_);
+      const response = data.startProcessing(this.id, this.config_);
+      this.id = response.taskId ?? null;
       return;
     }
 
     // Asynchronous task start.
-    const startProcessing = () => {
-      googAsserts.assertString(this.id);
-      data.startProcessing(this.id, this.config_, (_, error) => {
-        if (error) {
-          opt_error(error);
-        } else {
-          opt_success();
-        }
-      });
-    };
-
-    if (this.id) {
-      startProcessing();
-      return;
-    }
-
-    data.newTaskId(1, (ids) => {
-      const id = ids && ids[0];
-      if (id) {
-        this.id = id;
-        startProcessing();
+    data.startProcessing(this.id, this.config_, (response, error) => {
+      if (error) {
+        opt_error(error);
       } else {
-        opt_error('Failed to obtain task ID.');
+        this.id = response.taskId ?? null;
+        opt_success();
       }
     });
   }

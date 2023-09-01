@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Executable for the Earth Engine command line interface.
 
 This executable starts a Python Cmd instance to receive and process command

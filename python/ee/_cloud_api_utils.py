@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Earth Engine helper functions for working with the Cloud API.
 
 Many of the functions defined here are for mapping legacy calls in ee.data into

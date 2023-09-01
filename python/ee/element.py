@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Base class for Image, Feature and Collection.
 
 This class is never intended to be instantiated by the user.

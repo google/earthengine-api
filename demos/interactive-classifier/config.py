@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Handles Earth Engine service account configuration."""
 
 import ee

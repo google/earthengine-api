@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """An object representing EE Features."""
 
 from typing import Any, Dict, Optional, Union

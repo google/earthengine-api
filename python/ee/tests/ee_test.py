@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.__init__ file."""
 
 from ee import apitestcase

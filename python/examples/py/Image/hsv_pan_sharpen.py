@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """HSV-based Pan-Sharpening example."""
 
 import ee
