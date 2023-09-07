@@ -4,6 +4,7 @@
  * We don't autogenerate this class because we want the constructor
  * to promote by pushing things through the server-side Date() function.
  *
+ * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.Date');

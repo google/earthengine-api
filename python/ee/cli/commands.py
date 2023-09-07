@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Sequence, Tuple, Union
 import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
@@ -114,7 +114,7 @@ SAVED_MODEL_MAX_SIZE = 400 * 1024 * 1024
 DEFAULT_VARIABLES_PREFIX = '/variables/variables'
 
 
-def _add_wait_arg(parser):
+def _add_wait_arg(parser: argparse.ArgumentParser) -> None:
   parser.add_argument(
       '--wait', '-w', nargs='?', default=-1, type=int, const=sys.maxsize,
       help=('Wait for the task to finish,'
@@ -123,13 +123,15 @@ def _add_wait_arg(parser):
             ' task in the background, and returns immediately.'))
 
 
-def _add_overwrite_arg(parser):
+def _add_overwrite_arg(parser: argparse.ArgumentParser) -> None:
   parser.add_argument(
       '--force', '-f', action='store_true',
       help='Overwrite any existing version of the asset.')
 
 
-def _upload(args, request, ingestion_function):
+def _upload(
+    args: argparse.Namespace, request: Dict[str, Any], ingestion_function: Any
+) -> None:
   if 0 <= args.wait < 10:
     raise ee.EEException('Wait time should be at least 10 seconds.')
   request_id = ee.data.newTaskId()[0]
@@ -141,7 +143,7 @@ def _upload(args, request, ingestion_function):
 
 
 # Argument types
-def _comma_separated_strings(string):
+def _comma_separated_strings(string: str) -> List[str]:
   """Parses an input consisting of comma-separated strings."""
   error_msg = 'Argument should be a comma-separated list of strings: {}'
   values = string.split(',')
@@ -150,7 +152,7 @@ def _comma_separated_strings(string):
   return values
 
 
-def _comma_separated_numbers(string):
+def _comma_separated_numbers(string: str) -> List[float]:
   """Parses an input consisting of comma-separated numbers."""
   error_msg = 'Argument should be a comma-separated list of numbers: {}'
   values = string.split(',')
@@ -169,7 +171,7 @@ def _comma_separated_numbers(string):
   return numbervalues
 
 
-def _comma_separated_pyramiding_policies(string):
+def _comma_separated_pyramiding_policies(string: str) -> List[str]:
   """Parses an input consisting of comma-separated pyramiding policies."""
   error_msg = ('Argument should be a comma-separated list of: '
                '{{"mean", "sample", "min", "max", "mode"}}: {}')
@@ -185,7 +187,7 @@ def _comma_separated_pyramiding_policies(string):
   return redvalues
 
 
-def _decode_number(string):
+def _decode_number(string: str) -> float:
   """Decodes a number from a command line argument."""
   try:
     return float(string)
@@ -194,25 +196,25 @@ def _decode_number(string):
         'Invalid value for property of type "number": "%s".' % string)
 
 
-def _timestamp_ms_for_datetime(datetime_obj):
+def _timestamp_ms_for_datetime(datetime_obj: datetime.datetime) -> int:
   """Returns time since the epoch in ms for the given UTC datetime object."""
   return (
       int(calendar.timegm(datetime_obj.timetuple()) * 1000) +
-      datetime_obj.microsecond / 1000)
+      datetime_obj.microsecond // 1000)
 
 
-def _cloud_timestamp_for_timestamp_ms(timestamp_ms):
+def _cloud_timestamp_for_timestamp_ms(timestamp_ms: float) -> str:
   """Returns a Cloud-formatted date for the given millisecond timestamp."""
   # Desired format is like '2003-09-07T19:30:12.345Z'
   return datetime.datetime.utcfromtimestamp(
       timestamp_ms / 1000.0).isoformat() + 'Z'
 
 
-def _parse_millis(millis):
+def _parse_millis(millis: float) -> datetime.datetime:
   return datetime.datetime.fromtimestamp(millis / 1000)
 
 
-def _decode_date(string):
+def _decode_date(string: str) -> Union[float, str]:
   """Decodes a date from a command line argument, returning msec since epoch".
 
   Args:
@@ -245,7 +247,7 @@ def _decode_date(string):
       'Invalid value for property of type "date": "%s".' % string)
 
 
-def _decode_property(string):
+def _decode_property(string: str) -> Tuple[str, Any]:
   """Decodes a general key-value property from a command-line argument.
 
   Args:
@@ -319,7 +321,7 @@ def _decode_property_flags(args):
   return dict(property_list)
 
 
-def _check_valid_files(filenames):
+def _check_valid_files(filenames: Sequence[str]) -> None:
   """Returns true if the given filenames are valid upload file URIs."""
   for filename in filenames:
     if not filename.startswith('gs://'):
@@ -536,7 +538,7 @@ class AclChCommand:
         self._remove_permission(permissions, group, 'group:')
     return permissions
 
-  def _apply_permissions(self, acl, permissions):
+  def _apply_permissions(self, acl, permissions) -> None:
     """Applies the given permission edits to the given acl."""
     for user, role in permissions.items():
       if self._is_all_users(user):
@@ -557,7 +559,7 @@ class AclChCommand:
         if user in acl[WRITERS]:
           acl[WRITERS].remove(user)
 
-  def _is_all_users(self, user):
+  def _is_all_users(self, user: str) -> bool:
     """Determines if a user name represents the special "all users" entity."""
     # We previously used "AllUsers" as the magic string to denote that we wanted
     # to apply some permission to everyone. However, Google Cloud convention for
@@ -820,8 +822,18 @@ class ListCommand:
         action='store_true',
         help='List folders recursively.')
     parser.add_argument(
-        '--filter', '-f', default='', type=str,
-        help='Filter string to pass to ee.ImageCollection.filter().')
+        '--filter',
+        '-f',
+        default='',
+        type=str,
+        help=(
+            'Filter string to use on a collection. Accepts property names'
+            ' "start_time", "end_time", "update_time", and "properties.foo"'
+            ' (where "foo" is any user-defined property). Example filter'
+            ' strings: properties.SCENE_ID="ABC";'
+            ' start_time>"2023-02-03T00:00:00+00:00"'
+        ),
+    )
 
   def run(
       self, args: argparse.Namespace, config: utils.CommandLineConfig
@@ -1629,26 +1641,6 @@ class UploadTableManifestCommand(_UploadManifestBase):
     super().run(args, config, ee.data.startTableIngestion)
 
 
-class LicensesCommand:
-  """Prints the name and license of all third party dependencies."""
-
-  name = 'licenses'
-
-  def __init__(self, parser: argparse.ArgumentParser):
-    del parser  # Unused.
-
-  def run(
-      self, args: argparse.Namespace, config: utils.CommandLineConfig
-  ) -> None:
-    del args  # Unused.
-    del config  # Unused.
-    print('The Earth Engine python client library uess the following opensource'
-          ' libraries.\n')
-    license_path = os.path.join(os.path.dirname(__file__), 'licenses.txt')
-    with open(license_path) as f:
-      print(f.read())
-
-
 def _get_nodes(node_spec, source_flag_name):
   """Extract a node mapping from a list or flag-specified JSON."""
   try:
@@ -1913,7 +1905,6 @@ EXTERNAL_COMMANDS = [
     CopyCommand,
     CreateCommand,
     ListCommand,
-    LicensesCommand,
     SizeCommand,
     MoveCommand,
     ModelCommand,

@@ -1,5 +1,6 @@
 /**
  * @fileoverview Initialization and convenience functions for the EE library.
+ * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee');

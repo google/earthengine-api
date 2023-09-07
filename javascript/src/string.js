@@ -1,5 +1,6 @@
 /**
  * @fileoverview A wrapper for strings.
+ * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.String');

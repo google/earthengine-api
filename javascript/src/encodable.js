@@ -1,5 +1,6 @@
 /**
  * @fileoverview An interface implemented by serializable objects.
+ * @author maxus@google.com (Max Shawabkeh)
  */
 
 goog.provide('ee.Encodable');
@@ -42,7 +43,6 @@ ee.Encodable.Serializer;
  * @return {!ee.api.ValueNode} The encoded object.
  */
 ee.Encodable.prototype.encodeCloudValue = goog.abstractMethod;
-
 
 /**
  * Holds utility functions to build javascript protocol buffer objects.

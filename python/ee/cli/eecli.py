@@ -19,7 +19,7 @@ from ee.cli import utils
 
 
 class CommandDispatcher(commands.Dispatcher):
-  name = 'main'
+  name: str = 'main'
   COMMANDS = commands.EXTERNAL_COMMANDS
 
 

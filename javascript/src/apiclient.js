@@ -25,7 +25,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.368';
+const API_CLIENT_VERSION = '0.1.369';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -58,6 +58,19 @@ class Call {
     apiclient.initialize();
     this.callback = callback;
     this.requestService = new EERequestService(!callback, retries);
+  }
+
+  /**
+   * Configures partial error detection for this Call.
+   *
+   * @param {function(!Object):boolean=} detectPartialError Checks if response
+   *     JSON should be returned directly instead of throwing an error.
+   *     Needed for Operations. See https://google.aip.dev/193#partial-errors
+   * @return {!Call}
+   */
+  withDetectPartialError(detectPartialError) {
+    this.requestService.detectPartialError = detectPartialError;
+    return this;
   }
 
   /**
@@ -196,6 +209,8 @@ class EERequestService extends PromiseRequestService {
   constructor(sync = false, retries = undefined) {
     super();
     this.sync = sync;
+    /** @type {function(!Object):boolean|undefined} */
+    this.detectPartialError = undefined;
 
     if (retries != null) {
       this.retries = retries;
@@ -229,7 +244,8 @@ class EERequestService extends PromiseRequestService {
     const body = params.body ? JSON.stringify(params.body) : undefined;
     if (this.sync) {
       const raw = apiclient.send(
-          url, args, undefined, params.httpMethod, body, this.retries);
+          url, args, undefined, params.httpMethod, body, this.retries,
+          this.detectPartialError);
       const value = responseCtor ? deserialize(responseCtor, raw) : raw;
       // Converts a value into an "instant" promise, with a then method that
       // immediately applies a function and builds a new thenable of the result.
@@ -246,7 +262,8 @@ class EERequestService extends PromiseRequestService {
         }
       };
       apiclient.send(
-          url, args, resolveOrReject, params.httpMethod, body, this.retries);
+          url, args, resolveOrReject, params.httpMethod, body, this.retries,
+          this.detectPartialError);
     });
     return value.then(r => responseCtor ? deserialize(responseCtor, r) : r);
   }
@@ -272,6 +289,22 @@ class BatchCall extends Call {
   constructor(callback) {
     super(callback);
     this.requestService = new BatchRequestService();
+    /** @type {function(!Object):boolean|undefined} */
+    this.detectPartialError = undefined;
+  }
+
+  /**
+   * Configures partial error detection for this BatchCall.
+   *
+   * @param {function(!Object):boolean=} detectPartialError Checks if response
+   *     JSON should be returned directly instead of throwing an error.
+   *     Needed for Operations. See https://google.aip.dev/193#partial-errors
+   * @return {!BatchCall}
+   * @override
+   */
+  withDetectPartialError(detectPartialError) {
+    this.detectPartialError = detectPartialError;
+    return this;
   }
 
   /**
@@ -315,11 +348,14 @@ class BatchCall extends Call {
     if (this.callback) {
       const callback = (result, err = undefined) =>
         this.callback(err ? result : deserializeResponses(result), err);
-      apiclient.send(batchUrl, null, callback, multipart, body);
+      apiclient.send(
+          batchUrl, null, callback, multipart, body, undefined,
+          this.detectPartialError);
       return null;
     }
-    return deserializeResponses(
-        apiclient.send(batchUrl, null, undefined, multipart, body));
+    return deserializeResponses(apiclient.send(
+        batchUrl, null, undefined, multipart, body, undefined,
+        this.detectPartialError));
   }
 }
 
@@ -769,11 +805,13 @@ apiclient.isInitialized = function() {
  *     is POST.  If this starts with 'multipart', used as content type instead.
  * @param {string=} body The payload for POST or multipart requests.
  * @param {number=} retries Overrides the default max retries value.
+ * @param {function(!Object):boolean=} detectPartialError Checks if response
+ *     JSON should be returned directly instead of throwing an error.
  * @return {?Object} The data object returned by the API call, or null if a
  *     callback was specified.
  */
 apiclient.send = function(
-    path, params, callback, method, body, retries) {
+    path, params, callback, method, body, retries, detectPartialError) {
   // Make sure we never perform API calls before initialization.
   apiclient.initialize();
 
@@ -859,7 +897,8 @@ apiclient.send = function(
     // Send an asynchronous request.
     const request =
         apiclient.buildAsyncRequest_(
-            url, callback, method, requestData, headers, retries);
+            url, callback, method, requestData, headers, retries,
+            detectPartialError);
 
     apiclient.requestQueue_.push(request);
     apiclient.RequestThrottle_.fire();
@@ -904,7 +943,8 @@ apiclient.send = function(
             // implement getResponseHeader when synchronous.
             return null;
           }
-        }, xmlHttp.responseText, profileHookAtCallTime, undefined, url, method);
+        }, xmlHttp.responseText, profileHookAtCallTime, undefined, url, method,
+        detectPartialError);
   }
 };
 
@@ -920,11 +960,13 @@ apiclient.send = function(
  * @param {?string} content The content of the request.
  * @param {!Object<string,string>} headers The headers to send with the request.
  * @param {number=} retries Overrides the default max retries value.
+ * @param {function(!Object):boolean=} detectPartialError Checks if response
+ *     JSON should be returned directly instead of throwing an error.
  * @return {!apiclient.NetworkRequest_} The async request.
  * @private
  */
 apiclient.buildAsyncRequest_ = function(
-    url, callback, method, content, headers, retries) {
+    url, callback, method, content, headers, retries, detectPartialError) {
   let retryCount = 0;
   const request = {
     url: url,
@@ -948,7 +990,8 @@ apiclient.buildAsyncRequest_ = function(
 
     return apiclient.handleResponse_(
         xhrIo.getStatus(), goog.bind(xhrIo.getResponseHeader, xhrIo),
-        xhrIo.getResponseText(), profileHookAtCallTime, callback, url, method);
+        xhrIo.getResponseText(), profileHookAtCallTime, callback, url, method,
+        detectPartialError);
   };
   request.callback = wrappedCallback;
 
@@ -992,13 +1035,15 @@ apiclient.withProfiling = function(hook, body, thisObject) {
  *     execute if the request is asynchronous.
  * @param {string=} url The request's URL.
  * @param {string=} method The request's HTTP method.
+ * @param {function(!Object):boolean=} detectPartialError Checks if response
+ *     JSON should be returned directly instead of throwing an error.
  * @return {?Object} The response data, if the request is synchronous,
  *     otherwise null, if the request is asynchronous.
  * @private
  */
 apiclient.handleResponse_ = function(
     status, getResponseHeader, responseText, profileHook, callback, url,
-    method) {
+    method, detectPartialError) {
   // Only attempt to get the profile response header if we have a hook.
   const profileId =
       profileHook ? getResponseHeader(apiclient.PROFILE_HEADER) : '';
@@ -1009,7 +1054,8 @@ apiclient.handleResponse_ = function(
     try {
       const response = JSON.parse(body);
       if (goog.isObject(response)) {
-        if ('error' in response && 'message' in response['error']) {
+        if ('error' in response && 'message' in response['error'] &&
+           !(detectPartialError && detectPartialError(response))) {
           return response['error']['message'];
         }
       }
@@ -1035,9 +1081,6 @@ apiclient.handleResponse_ = function(
     const response = parseJson(responseText);
     if (response.parsed) {
       data = response.parsed;
-      if (data === undefined) {
-        errorMessage = 'Malformed response: ' + responseText;
-      }
     } else {
       errorMessage = response;
     }

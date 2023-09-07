@@ -40,7 +40,7 @@ SCOPES = [
     'https://www.googleapis.com/auth/devstorage.full_control'
 ]
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'  # Prompts user to copy-paste code
-TOKEN_URI = 'https://accounts.google.com/o/oauth2/token'
+TOKEN_URI = 'https://oauth2.googleapis.com/token'
 AUTH_URI = 'https://accounts.google.com/o/oauth2/auth'
 
 AUTH_PAGE_URL = 'https://code.earthengine.google.com/client-auth'

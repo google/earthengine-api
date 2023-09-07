@@ -1,5 +1,6 @@
 /**
  * @fileoverview Representation of an Earth Engine FeatureCollection.
+ * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.FeatureCollection');

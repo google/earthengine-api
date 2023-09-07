@@ -6,14 +6,19 @@
 
 import re
 
+# pylint: disable=g-import-not-at-top,g-importing-member
 try:
   # if setuptools is available, use it to take advantage of its dependency
   # handling
-  from setuptools import setup                          # pylint: disable=g-import-not-at-top
+  from setuptools import setup
 except ImportError:
-  # if setuptools is not available, use distutils (standard library). Users
-  # will receive errors for missing packages
-  from distutils.core import setup                      # pylint: disable=g-import-not-at-top
+  # if setuptools is not available, use distutils. Users will receive errors
+  # for missing packages
+  # TODO(user): Remove the distutils backup.
+  import warnings
+  warnings.warn('distutils package is deprecated, to be removed in Python 3.12')
+  from distutils.core import setup  # pylint: disable=deprecated-module
+# pylint: enable=g-import-not-at-top,g-importing-member
 
 
 def GetVersion() -> str:
@@ -30,7 +35,6 @@ setup(
     packages=['ee', 'ee.cli'],
     package_data={
         'ee': ['tests/*.py', 'tests/*.json',],
-        'ee.cli': ['licenses.txt'],
     },
     test_suite='ee/tests',
     python_requires='>=3.7',

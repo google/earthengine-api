@@ -17,6 +17,7 @@ to apply each EE algorithm.
 import copy
 import keyword
 import re
+from typing import Any, Dict, Optional, Type
 
 from ee import computedobject
 from ee import data
@@ -28,6 +29,7 @@ from ee import function
 
 class ApiFunction(function.Function):
   """An object representing an EE API Function."""
+  _signature: Dict[str, Any]
 
   # A dictionary of functions defined by the API server.
   _api = {}
@@ -36,7 +38,7 @@ class ApiFunction(function.Function):
   # a function so far using importApi().
   _bound_signatures = set()
 
-  def __init__(self, name, opt_signature=None):
+  def __init__(self, name: str, opt_signature: Optional[Dict[str, Any]] = None):
     """Creates a function defined by the EE API.
 
     Args:
@@ -57,14 +59,14 @@ class ApiFunction(function.Function):
 
   # For Python 3, __hash__ is needed because __eq__ is defined.
   # See https://docs.python.org/3/reference/datamodel.html#object.__hash__
-  def __hash__(self):
+  def __hash__(self) -> int:
     return hash(computedobject.ComputedObject.freeze(self.getSignature()))
 
-  def __ne__(self, other):
+  def __ne__(self, other: Any) -> bool:
     return not self.__eq__(other)
 
   @classmethod
-  def call_(cls, name, *args, **kwargs):
+  def call_(cls, name: str, *args: Any, **kwargs: Any) -> Any:
     """Call a named API function with positional and keyword arguments.
 
     Args:
@@ -79,7 +81,7 @@ class ApiFunction(function.Function):
     return cls.lookup(name).call(*args, **kwargs)
 
   @classmethod
-  def apply_(cls, name, named_args):
+  def apply_(cls, name: str, named_args: Dict[str, Any]) -> Any:
     """Call a named API function with a dictionary of named arguments.
 
     Args:
@@ -100,26 +102,27 @@ class ApiFunction(function.Function):
     del encoder  # Unused.
     return {'functionName': self._signature['name']}
 
-  def getSignature(self):
+  def getSignature(self) -> Dict[str, Any]:
     """Returns a description of the interface provided by this function."""
     return self._signature
 
   @classmethod
-  def allSignatures(cls):
+  def allSignatures(cls) -> Dict[str, Dict[str, Any]]:
     """Returns a map from the name to signature for all API functions."""
     cls.initialize()
     return dict([(name, func.getSignature())
                  for name, func in cls._api.items()])
 
   @classmethod
-  def unboundFunctions(cls):
+  def unboundFunctions(cls) -> Dict[str, Any]:
     """Returns the functions that have not been bound using importApi() yet."""
     cls.initialize()
     return dict([(name, func) for name, func in cls._api.items()
                  if name not in cls._bound_signatures])
 
+  # TODO(user): Any -> 'ApiFunction' for the return type.
   @classmethod
-  def lookup(cls, name):
+  def lookup(cls, name: str) -> Any:
     """Looks up an API function by name.
 
     Args:
@@ -129,13 +132,14 @@ class ApiFunction(function.Function):
       The requested ApiFunction.
     """
     result = cls.lookupInternal(name)
+    # TODO(user): name -> result?
     if not name:
       raise ee_exception.EEException(
           'Unknown built-in function name: %s' % name)
     return result
 
   @classmethod
-  def lookupInternal(cls, name):
+  def lookupInternal(cls, name: str) -> Optional['ApiFunction']:
     """Looks up an API function by name.
 
     Args:
@@ -168,7 +172,13 @@ class ApiFunction(function.Function):
     cls._bound_signatures = set()
 
   @classmethod
-  def importApi(cls, target, prefix, type_name, opt_prepend=None):
+  def importApi(
+      cls,
+      target: Any,
+      prefix: str,
+      type_name: str,
+      opt_prepend: Optional[str] = None,
+  ) -> None:
     """Adds all API functions that begin with a given prefix to a target class.
 
     Args:
@@ -233,7 +243,7 @@ class ApiFunction(function.Function):
         setattr(target, fname, bound_function)
 
   @staticmethod
-  def clearApi(target):
+  def clearApi(target: Type[Any]) -> None:
     """Removes all methods added by importApi() from a target class.
 
     Args:

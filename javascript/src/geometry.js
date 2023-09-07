@@ -1,5 +1,6 @@
 /**
  * @fileoverview An object representing EE Geometries.
+ * @author maxus@google.com (Max Shawabkeh)
  */
 
 goog.provide('ee.Geometry');

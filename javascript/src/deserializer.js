@@ -1,6 +1,7 @@
 /**
  * @fileoverview A deserializer that decodes EE object trees from JSON DAGs.
  *
+ * @author maxus@google.com (Max Shawabkeh)
  */
 
 goog.provide('ee.Deserializer');

@@ -1,5 +1,6 @@
 /**
  * @fileoverview Collection filters.
+ * @author gorelick@google.com (Noel Gorelick)
  *
  * new Filter('time', low, high)
  *    .bounds(ring)

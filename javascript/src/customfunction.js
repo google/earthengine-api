@@ -1,5 +1,6 @@
 /**
  * @fileoverview An object representing a custom EE Function.
+ * @author maxus@google.com (Max Shawabkeh)
  */
 
 goog.provide('ee.CustomFunction');

@@ -1,5 +1,6 @@
 /**
  * @fileoverview A wrapper for dicts.
+ * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.Dictionary');

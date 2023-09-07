@@ -1,6 +1,7 @@
 /**
  * @fileoverview Singleton for all of the library's communication
  * with the Earth Engine API.
+ * @author gorelick@google.com (Noel Gorelick)
  * @suppress {missingRequire} TODO(user): this shouldn't be needed
  * @suppress {useOfGoogProvide} TODO(user): Convert to goog.module.
  */
@@ -75,6 +76,7 @@ goog.require('goog.singleton');
 goog.requireType('ee.Collection');
 goog.requireType('ee.ComputedObject');
 goog.requireType('ee.Element');
+goog.requireType('ee.Encodable');
 goog.requireType('ee.Image');
 goog.requireType('ee.data.images');
 goog.requireType('proto.google.protobuf.Value');
@@ -556,10 +558,12 @@ ee.data.listFeatures = function(asset, params, opt_callback) {
  */
 ee.data.computeValue = function(obj, opt_callback) {
   const serializer = new ee.Serializer(true);
-  const expression = ee.data.expressionAugmenter_(
-      ee.Serializer.encodeCloudApiExpressionWithSerializer(
-          serializer, obj, /* unboundName= */ undefined));
-  const request = {expression};
+  const expression = ee.Serializer.encodeCloudApiExpressionWithSerializer(
+      serializer, obj, /* unboundName= */ undefined);
+  let extraMetadata = {};
+  const request = {
+    expression: ee.data.expressionAugmenter_(expression, extraMetadata)
+  };
   const workloadTag = ee.data.getWorkloadTag();
   if (workloadTag) {
     request.workloadTag = workloadTag;
@@ -961,7 +965,7 @@ ee.data.makeTableDownloadUrl = function(id) {
  * returned by ee.data.startProcessing and other batch methods.
  *
  * @param {number=} opt_count The number of IDs to generate, one by default.
- * @param {function(!Array.<string>, string=)=} opt_callback An optional
+ * @param {function(?Array.<string>, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?Array.<string>} An array containing generated ID strings, or null
  *     if a callback is specified.
@@ -976,6 +980,16 @@ ee.data.newTaskId = function(opt_count, opt_callback) {
       () => [hex(8), hex(4), '4' + hex(3), variantPart(), hex(12)].join('-');
   const uuids = goog.array.range(opt_count || 1).map(generateUUID);
   return opt_callback ? opt_callback(uuids) : uuids;
+};
+
+
+/**
+ * Indicator function to determine if a response is an operation error.
+ * @param {!Object} response Response from a JSON API call.
+ * @return {boolean}
+ */
+ee.data.isOperationError_ = function(response) {
+  return response['name'] && response['done'] && response['error'];
 };
 
 
@@ -997,13 +1011,16 @@ ee.data.getTaskStatus = function(taskId, opt_callback) {
       ee.rpc_convert.taskIdToOperationName);
   if (opNames.length === 1) {
     const getResponse = (op) => [ee.rpc_convert.operationToTask(op)];
-    const call = new ee.apiclient.Call(opt_callback);
+    // Return operation and don't throw error if operation itself had an error.
+    const call = new ee.apiclient.Call(opt_callback)
+                     .withDetectPartialError(ee.data.isOperationError_);
     return call.handle(call.operations().get(opNames[0]).then(getResponse));
   }
   const getResponse = (data) =>
       opNames.map(id => ee.rpc_convert.operationToTask(data[id]));
 
-  const call = new ee.apiclient.BatchCall(opt_callback);
+  const call = new ee.apiclient.BatchCall(opt_callback)
+                   .withDetectPartialError(ee.data.isOperationError_);
   const operations = call.operations();
   return call.send(opNames.map(op => [op, operations.get(op)]), getResponse);
 };
@@ -1171,10 +1188,13 @@ ee.data.getOperation = function(operationName, opt_callback) {
   const opNames = ee.data.makeStringArray_(operationName)
                       .map(ee.rpc_convert.taskIdToOperationName);
   if (!Array.isArray(operationName)) {
-    const call = new ee.apiclient.Call(opt_callback);
+    // Return operation and don't throw error if operation itself had an error.
+    const call = new ee.apiclient.Call(opt_callback)
+                     .withDetectPartialError(ee.data.isOperationError_);
     return call.handle(call.operations().get(opNames[0]));
   }
-  const call = new ee.apiclient.BatchCall(opt_callback);
+  const call = new ee.apiclient.BatchCall(opt_callback)
+                   .withDetectPartialError(ee.data.isOperationError_);
   const operations = call.operations();
   return call.send(opNames.map(op => [op, operations.get(op)]));
 };

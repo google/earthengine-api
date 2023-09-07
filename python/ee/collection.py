@@ -7,14 +7,17 @@ This class is never intended to be instantiated by the user.
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-from typing import Any, Dict, Optional
+import datetime
+from typing import Any, Callable, Dict, Optional, Type, Union
 
 from ee import apifunction
 from ee import deprecation
+from ee import ee_date
 from ee import ee_exception
 from ee import element
 from ee import filter as ee_filter
 from ee import function
+from ee import geometry as ee_geometry
 
 
 class Collection(element.Element):
@@ -50,7 +53,7 @@ class Collection(element.Element):
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def filter(self, new_filter):
+  def filter(self, new_filter: Union[str, ee_filter.Filter]) -> Any:
     """Apply a filter to this collection.
 
     Args:
@@ -65,7 +68,9 @@ class Collection(element.Element):
         'Collection.filter', self, new_filter))
 
   @deprecation.CanUseDeprecated
-  def filterMetadata(self, name, operator, value):
+  def filterMetadata(
+      self, name: str, operator: str, value: Union[int, str]
+  ) -> Any:
     """Shortcut to add a metadata filter to a collection.
 
     This is equivalent to self.filter(Filter().metadata(...)).
@@ -84,7 +89,9 @@ class Collection(element.Element):
     """
     return self.filter(ee_filter.Filter.metadata_(name, operator, value))
 
-  def filterBounds(self, geometry):
+  def filterBounds(
+      self, geometry: Union[Dict[str, Any], ee_geometry.Geometry]
+  ) -> Any:
     """Shortcut to add a geometry filter to a collection.
 
     Items in the collection with a footprint that fails to intersect
@@ -105,7 +112,14 @@ class Collection(element.Element):
     """
     return self.filter(ee_filter.Filter.geometry(geometry))
 
-  def filterDate(self, start, opt_end=None):
+  # TODO(user): Any --> DateRange
+  def filterDate(
+      self,
+      start: Union[datetime.datetime, ee_date.Date, int, str, Any],
+      opt_end: Optional[
+          Union[datetime.datetime, ee_date.Date, int, str, Any]
+      ] = None,
+  ) -> Any:
     """Shortcut to filter a collection with a date range.
 
     Items in the collection with a system:time_start property that doesn't
@@ -168,7 +182,10 @@ class Collection(element.Element):
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
 
-  def sort(self, prop, opt_ascending=None):
+  # TODO(user): Make opt_ascending default to True
+  def sort(
+      self, prop: str, opt_ascending: Optional[bool] = None
+  ) -> Any:
     """Sort a collection by the specified property.
 
     Args:
@@ -190,11 +207,16 @@ class Collection(element.Element):
     return 'Collection'
 
   @staticmethod
-  def elementType():
+  def elementType() -> Type[element.Element]:
     """Returns the type of the collection's elements."""
     return element.Element
 
-  def map(self, algorithm, opt_dropNulls=None):
+  # TODO(user): Can opt_dropNulls default to False?
+  def map(
+      self,
+      algorithm: Callable[[Any], Any],
+      opt_dropNulls: Optional[bool] = None,
+  ) -> Any:
     """Maps an algorithm over a collection.
 
     Args:
@@ -217,7 +239,9 @@ class Collection(element.Element):
     return self._cast(apifunction.ApiFunction.call_(
         'Collection.map', self, with_cast, opt_dropNulls))
 
-  def iterate(self, algorithm, first=None):
+  def iterate(
+      self, algorithm: Callable[[Any, Any], Any], first: Optional[Any] = None
+  ) -> Any:
     """Iterates over a collection with an algorithm.
 
     Applies a user-supplied function to each element of a collection. The

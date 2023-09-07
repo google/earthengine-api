@@ -6,6 +6,8 @@ import json
 import os
 from typing import Any, Dict, Iterable, Optional
 
+from googleapiclient import discovery
+
 import ee
 from ee import _cloud_api_utils
 import unittest
@@ -96,7 +98,7 @@ class ApiTestCase(unittest.TestCase):
     return {'docid': '5', 'token': '6'}
 
 
-def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> Any:
+def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> discovery.Resource:
   """Returns a Cloud API resource for testing."""
   discovery_doc_path = os.path.join(
      os.path.dirname(os.path.realpath(__file__)),

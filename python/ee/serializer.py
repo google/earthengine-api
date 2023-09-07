@@ -61,8 +61,8 @@ class Serializer:
     """
     self.unbound_name = unbound_name
 
-    self._is_compound = bool(is_compound)
-    self._for_cloud_api = bool(for_cloud_api)
+    self._is_compound = is_compound
+    self._for_cloud_api = for_cloud_api
     self._scope = []
     self._encoded = {}
     self._hashcache = {}

@@ -1,5 +1,6 @@
 /**
  * @fileoverview Javascript representation for an Earth Engine ImageCollection.
+ * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.ImageCollection');
