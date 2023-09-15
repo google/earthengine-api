@@ -1,7 +1,6 @@
 /**
  * @fileoverview Base class for Image, Feature and Collection.
  * This class is never intended to be instantiated by the user.
- * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.Element');

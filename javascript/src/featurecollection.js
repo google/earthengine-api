@@ -1,6 +1,5 @@
 /**
  * @fileoverview Representation of an Earth Engine FeatureCollection.
- * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.FeatureCollection');
@@ -70,8 +69,8 @@ ee.FeatureCollection = function(args, opt_column) {
       actualArgs['geometryColumn'] = opt_column;
     }
     ee.FeatureCollection.base(
-        this, 
-        'constructor', 
+        this,
+        'constructor',
         new ee.ApiFunction('Collection.loadTable'), actualArgs);
   } else if (Array.isArray(args)) {
     // A list of features.

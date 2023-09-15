@@ -325,6 +325,7 @@ Export.table.toFeatureView = function(
  * @param {string|!Array<string>=} opt_selectors
  * @param {number=} opt_maxVertices
  * @return {!ExportTask}
+ * @export
  */
 Export.table.toBigQuery = function(
     collection, opt_description, opt_table, opt_overwrite, opt_append,

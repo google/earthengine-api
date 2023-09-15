@@ -1,7 +1,6 @@
 /**
  * @fileoverview A class to generate the ee.Terrain namespace.
  *
- * @author gorelick@google.com (Noel Gorelick)
  * @suppress {useOfGoogProvide}
  */
 

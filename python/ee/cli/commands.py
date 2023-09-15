@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
-from typing import Any, Dict, List, Sequence, Tuple, Union
+from typing import Any, Dict, Hashable, List, Optional, Sequence, Tuple, Type, Union
 import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
@@ -291,7 +291,7 @@ def _decode_property(string: str) -> Tuple[str, Any]:
   return (name, value)
 
 
-def _add_property_flags(parser):
+def _add_property_flags(parser: argparse.ArgumentParser) -> None:
   """Adds command line flags related to metadata properties to a parser."""
   parser.add_argument(
       '--property', '-p',
@@ -310,7 +310,7 @@ def _add_property_flags(parser):
       type=_decode_date)
 
 
-def _decode_property_flags(args):
+def _decode_property_flags(args: argparse.Namespace) -> Dict[str, Any]:
   """Decodes metadata properties from args as a name->value dict."""
   property_list = list(args.property or [])
   names = [name for name, _ in property_list]
@@ -328,8 +328,8 @@ def _check_valid_files(filenames: Sequence[str]) -> None:
       raise ee.EEException('Invalid Cloud Storage URL: ' + filename)
 
 
-def _pretty_print_json(json_obj):
-  """Pretty-prints a JSON object to stdandard output."""
+def _pretty_print_json(json_obj: Any) -> None:
+  """Pretty-prints a JSON object to standard output."""
   print(json.dumps(json_obj, sort_keys=True, indent=2, separators=(',', ': ')))
 
 
@@ -485,7 +485,9 @@ class AclChCommand:
     self._apply_permissions(acl, permissions)
     ee.data.setAssetAcl(args.asset_id, json.dumps(acl))
 
-  def _set_permission(self, permissions, grant, prefix):
+  def _set_permission(
+      self, permissions: Dict[str, str], grant: str, prefix: str
+  ) -> None:
     """Sets the permission for a given user/group."""
     parts = grant.rsplit(':', 1)
     if len(parts) != 2 or parts[1] not in ['R', 'W']:
@@ -500,7 +502,9 @@ class AclChCommand:
       raise ee.EEException('Cannot grant write permissions to all users.')
     permissions[prefixed_user] = role
 
-  def _remove_permission(self, permissions, user, prefix):
+  def _remove_permission(
+      self, permissions: Dict[str, str], user: str, prefix: str
+  ) -> None:
     """Removes permissions for a given user/group."""
     prefixed_user = user
     if not self._is_all_users(user):
@@ -509,7 +513,7 @@ class AclChCommand:
       raise ee.EEException('Multiple permission settings for "%s".' % user)
     permissions[prefixed_user] = 'D'
 
-  def _user_account_type(self, user):
+  def _user_account_type(self, user: str) -> str:
     """Returns the appropriate account type for a user email."""
 
     # Here 'user' ends with ':R', ':W', or ':D', so we extract
@@ -519,7 +523,7 @@ class AclChCommand:
     else:
       return 'user:'
 
-  def _parse_permissions(self, args):
+  def _parse_permissions(self, args: argparse.Namespace) -> Dict[str, str]:
     """Decodes and sanity-checks the permissions in the arguments."""
     # A dictionary mapping from user ids to one of 'R', 'W', or 'D'.
     permissions = {}
@@ -538,26 +542,33 @@ class AclChCommand:
         self._remove_permission(permissions, group, 'group:')
     return permissions
 
-  def _apply_permissions(self, acl, permissions) -> None:
+  def _apply_permissions(
+      self, acl: Dict[str, Union[bool, List[str]]], permissions: Dict[str, str]
+  ) -> None:
     """Applies the given permission edits to the given acl."""
     for user, role in permissions.items():
       if self._is_all_users(user):
         acl[ALL_USERS_CAN_READ] = (role == 'R')
-      elif role == 'R':
-        if user not in acl[READERS]:
-          acl[READERS].append(user)
-        if user in acl[WRITERS]:
-          acl[WRITERS].remove(user)
-      elif role == 'W':
-        if user in acl[READERS]:
-          acl[READERS].remove(user)
-        if user not in acl[WRITERS]:
-          acl[WRITERS].append(user)
-      elif role == 'D':
-        if user in acl[READERS]:
-          acl[READERS].remove(user)
-        if user in acl[WRITERS]:
-          acl[WRITERS].remove(user)
+      else:
+        # Make pytype understand the types.
+        assert isinstance(acl[READERS], list)
+        assert isinstance(acl[WRITERS], list)
+
+        if role == 'R':
+          if user not in acl[READERS]:
+            acl[READERS].append(user)
+          if user in acl[WRITERS]:
+            acl[WRITERS].remove(user)
+        elif role == 'W':
+          if user in acl[READERS]:
+            acl[READERS].remove(user)
+          if user not in acl[WRITERS]:
+            acl[WRITERS].append(user)
+        elif role == 'D':
+          if user in acl[READERS]:
+            acl[READERS].remove(user)
+          if user in acl[WRITERS]:
+            acl[WRITERS].remove(user)
 
   def _is_all_users(self, user: str) -> bool:
     """Determines if a user name represents the special "all users" entity."""
@@ -1305,14 +1316,13 @@ class UploadImageCommand:
     manifest = self.manifest_from_args(args)
     _upload(args, manifest, ee.data.startIngestion)
 
-  def manifest_from_args(self, args):
+  def manifest_from_args(self, args: argparse.Namespace) -> Dict[str, Any]:
     """Constructs an upload manifest from the command-line flags."""
 
-    def is_tf_record(path):
-      if any(path.lower().endswith(extension)
-             for extension in TF_RECORD_EXTENSIONS):
-        return True
-      return False
+    def is_tf_record(path: str) -> bool:
+      return any(
+          path.lower().endswith(extension) for extension in TF_RECORD_EXTENSIONS
+      )
 
     if args.manifest:
       with open(args.manifest) as fh:
@@ -1516,7 +1526,7 @@ class UploadTableCommand:
     manifest = self.manifest_from_args(args)
     _upload(args, manifest, ee.data.startTableIngestion)
 
-  def manifest_from_args(self, args):
+  def manifest_from_args(self, args: argparse.Namespace) -> Any:
     """Constructs an upload manifest from the command-line flags."""
 
     if args.manifest:

@@ -1,6 +1,5 @@
 /**
  * @fileoverview An interface implemented by serializable objects.
- * @author maxus@google.com (Max Shawabkeh)
  */
 
 goog.provide('ee.Encodable');

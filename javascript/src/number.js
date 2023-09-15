@@ -1,6 +1,5 @@
 /**
  * @fileoverview A wrapper for numbers.
- * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.Number');

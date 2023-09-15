@@ -1,6 +1,5 @@
 /**
  * @fileoverview A set of utilities to work with EE types.
- * @author maxus@google.com (Max Shawabkeh)
  */
 
 goog.provide('ee.Types');

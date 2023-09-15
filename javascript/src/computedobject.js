@@ -1,7 +1,5 @@
 /**
  * @fileoverview A representation of a computed earthengine object.
- *
- * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.ComputedObject');

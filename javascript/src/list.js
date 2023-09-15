@@ -1,6 +1,5 @@
 /**
  * @fileoverview A wrapper for Lists.
- * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.List');

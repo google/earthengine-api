@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The EE Python library."""
 
-__version__ = '0.1.369'
+__version__ = '0.1.370'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -128,6 +128,7 @@ def Initialize(
   """
   if credentials == 'persistent':
     credentials = data.get_persistent_credentials()
+
   data.initialize(
       credentials=credentials,
       api_base_url=(opt_url + '/api' if opt_url else None),
@@ -136,22 +137,25 @@ def Initialize(
       cloud_api_key=cloud_api_key,
       project=project,
       http_transport=http_transport)
+
   # Initialize the dynamically loaded functions on the objects that want them.
   ApiFunction.initialize()
-  Element.initialize()
-  Image.initialize()
-  Feature.initialize()
   Collection.initialize()
-  ImageCollection.initialize()
+  Date.initialize()
+  Dictionary.initialize()
+  Element.initialize()
+  Feature.initialize()
   FeatureCollection.initialize()
   Filter.initialize()
   Geometry.initialize()
+  Image.initialize()
+  ImageCollection.initialize()
   List.initialize()
   Number.initialize()
   String.initialize()
-  Date.initialize()
-  Dictionary.initialize()
   Terrain.initialize()
+
+  # These must happen last.
   _InitializeGeneratedClasses()
   _InitializeUnboundMethods()
 
@@ -159,21 +163,24 @@ def Initialize(
 def Reset():
   """Reset the library. Useful for re-initializing to a different server."""
   data.reset()
+
+  # Must call reset on the base class before any of its derived classes.
   ApiFunction.reset()
-  Element.reset()
-  Image.reset()
+  Element.reset()  # Must be before Collection.
+  Collection.reset()  # Must be before FeatureCollection and ImageCollection.
+  Date.reset()
+  Dictionary.reset()
   Feature.reset()
-  Collection.reset()
-  ImageCollection.reset()
   FeatureCollection.reset()
   Filter.reset()
   Geometry.reset()
+  Image.reset()
+  ImageCollection.reset()
   List.reset()
   Number.reset()
   String.reset()
-  Date.reset()
-  Dictionary.reset()
   Terrain.reset()
+
   _ResetGeneratedClasses()
   global Algorithms
   Algorithms = _AlgorithmsContainer()

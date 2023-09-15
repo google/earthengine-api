@@ -1,6 +1,5 @@
 /**
  * @fileoverview A base class for EE Functions.
- * @author maxus@google.com (Max Shawabkeh)
  */
 
 goog.provide('ee.Function');

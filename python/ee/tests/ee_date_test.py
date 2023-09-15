@@ -9,6 +9,7 @@ import unittest
 
 
 class DateTest(apitestcase.ApiTestCase):
+
   def testDate(self):
     """Verifies date constructors."""
 

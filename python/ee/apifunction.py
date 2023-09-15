@@ -14,10 +14,12 @@ to apply each EE algorithm.
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+from __future__ import annotations
+
 import copy
 import keyword
 import re
-from typing import Any, Dict, Optional, Type
+from typing import Any, Dict, Optional, Set, Type
 
 from ee import computedobject
 from ee import data
@@ -32,11 +34,11 @@ class ApiFunction(function.Function):
   _signature: Dict[str, Any]
 
   # A dictionary of functions defined by the API server.
-  _api = {}
+  _api: Dict[str, ApiFunction] = {}
 
   # A set of algorithm names containing all algorithms that have been bound to
   # a function so far using importApi().
-  _bound_signatures = set()
+  _bound_signatures: Set[str] = set()
 
   def __init__(self, name: str, opt_signature: Optional[Dict[str, Any]] = None):
     """Creates a function defined by the EE API.
@@ -53,7 +55,7 @@ class ApiFunction(function.Function):
     self._signature = copy.deepcopy(opt_signature)
     self._signature['name'] = name
 
-  def __eq__(self, other):
+  def __eq__(self, other: Any) -> bool:
     return (isinstance(other, ApiFunction) and
             self.getSignature() == other.getSignature())
 
@@ -94,11 +96,11 @@ class ApiFunction(function.Function):
     """
     return cls.lookup(name).apply(named_args)
 
-  def encode_invocation(self, encoder):
+  def encode_invocation(self, encoder: Any) -> Any:
     del encoder  # Unused.
     return self._signature['name']
 
-  def encode_cloud_invocation(self, encoder):
+  def encode_cloud_invocation(self, encoder: Any) -> Dict[str, Any]:
     del encoder  # Unused.
     return {'functionName': self._signature['name']}
 
@@ -120,7 +122,7 @@ class ApiFunction(function.Function):
     return dict([(name, func) for name, func in cls._api.items()
                  if name not in cls._bound_signatures])
 
-  # TODO(user): Any -> 'ApiFunction' for the return type.
+  # TODO(user): Any -> ApiFunction for the return type.
   @classmethod
   def lookup(cls, name: str) -> Any:
     """Looks up an API function by name.
@@ -139,7 +141,7 @@ class ApiFunction(function.Function):
     return result
 
   @classmethod
-  def lookupInternal(cls, name: str) -> Optional['ApiFunction']:
+  def lookupInternal(cls, name: str) -> Optional[ApiFunction]:
     """Looks up an API function by name.
 
     Args:
@@ -212,7 +214,8 @@ class ApiFunction(function.Function):
         # Create a new function so we can attach properties to it.
         def MakeBoundFunction(func):
           # We need the lambda to capture "func" from the enclosing scope.
-          return lambda *args, **kwargs: func.call(*args, **kwargs)  # pylint: disable=unnecessary-lambda
+          # pylint: disable-next=unnecessary-lambda
+          return lambda *args, **kwargs: func.call(*args, **kwargs)
         bound_function = MakeBoundFunction(api_func)
 
         # Add docs.

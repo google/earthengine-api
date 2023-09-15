@@ -1,7 +1,5 @@
 /**
  * @fileoverview A serializer that encodes EE object trees as JSON DAGs.
- *
- * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.Serializer');

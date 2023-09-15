@@ -2997,7 +2997,7 @@
     "arguments": [{
       "argumentName": "metric",
       "type": "String",
-      "description": "The distance metric to use.  Options are:\n  \u0027euclidean\u0027 - euclidean distance from the unnormalized class mean.\n  \u0027cosine\u0027 - spectral angle from the unnormalized class mean.\n  \u0027mahalanobis\u0027 - Mahalanobis distance from the class mean.",
+      "description": "The distance metric to use.  Options are:\n  \u0027euclidean\u0027 - euclidean distance from the unnormalized class mean.\n  \u0027cosine\u0027 - spectral angle from the unnormalized class mean.\n  \u0027mahalanobis\u0027 - Mahalanobis distance from the class mean.\n  \u0027manhattan\u0027 - Manhattan distance from the unnormalized class mean.",
       "optional": true,
       "defaultValue": "euclidean"
     }, {
@@ -9133,6 +9133,37 @@
       "description": "The behavior for points that are outside of the range of the supplied function.  Options are: \u0027extrapolate\u0027, \u0027clamp\u0027, \u0027mask\u0027 or \u0027input\u0027.",
       "optional": true,
       "defaultValue": "extrapolate"
+    }]
+  }, {
+    "name": "algorithms/Image.linkCollection",
+    "description": "Links the source image to a matching image from an image collection.\nAny specified bands or metadata will be added to the source image from the image found in the collection, and if the bands or metadata are already present they will be overwritten. If a matching image is not found, any new or updated bands will be fully masked and any new or updated metadata will be null. The output footprint will be the same as the source image footprint.\nA match is determined if the source image and an image in the collection have a specific equivalent metadata property. If more than one collection image would match, the collection image selected is arbitrary. By default, images are matched on their \u0027system:index\u0027 metadata property.\nThis linking function is a convenience method for adding bands to a target image based on a specified shared metadata property and is intended to support linking collections that apply different processing/product generation to the same source imagery. For more expressive linking known as \u0027joining\u0027, see https://developers.google.com/earth-engine/guides/joins_intro.",
+    "returnType": "Image\u003cunknown bands\u003e",
+    "arguments": [{
+      "argumentName": "input",
+      "type": "Image\u003cunknown bands\u003e",
+      "description": "The source image a matching image in the collection will be linked to."
+    }, {
+      "argumentName": "imageCollection",
+      "type": "ImageCollection",
+      "description": "The image collection searched to extract an image matching the source."
+    }, {
+      "argumentName": "linkedBands",
+      "type": "Object",
+      "description": "A band name or list of band names to add or update from the matching image.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "linkedProperties",
+      "type": "Object",
+      "description": "A metadata property or list of properties to add or update from the matching image.",
+      "optional": true,
+      "defaultValue": null
+    }, {
+      "argumentName": "matchPropertyName",
+      "type": "String",
+      "description": "The metadata property name to use as a match criteria.",
+      "optional": true,
+      "defaultValue": "system:index"
     }]
   }, {
     "name": "algorithms/Image.load",

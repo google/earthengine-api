@@ -1,7 +1,6 @@
 /**
  * @fileoverview Base class for ImageCollection and FeatureCollection.
  * This class is never intended to be instantiated by the user.
- * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.Collection');

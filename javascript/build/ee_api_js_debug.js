@@ -1200,7 +1200,7 @@ $jscomp.polyfill("String.prototype.padStart", function(orig) {
     return $jscomp.stringPadding(opt_padString, targetLength - string.length) + string;
   };
 }, "es8", "es3");
-var CLOSURE_TOGGLE_ORDINALS = {GoogFlags__async_throw_on_unicode_to_byte__enable:!1, GoogFlags__client_only_wiz_attribute_sanitization__enable:!1, GoogFlags__override_disable_toggles:!1, GoogFlags__testonly_debug_flag__enable:!1, GoogFlags__testonly_disabled_flag__enable:!1, GoogFlags__testonly_stable_flag__disable:!1, GoogFlags__testonly_staging_flag__disable:!1, GoogFlags__use_toggles:!1, GoogFlags__use_user_agent_client_hints__enable:!1};
+var CLOSURE_TOGGLE_ORDINALS = {GoogFlags__async_throw_on_unicode_to_byte__enable:!1, GoogFlags__client_only_wiz_attribute_sanitization__disable:!1, GoogFlags__client_only_wiz_hook_context_fix__enable:!1, GoogFlags__override_disable_toggles:!1, GoogFlags__testonly_debug_flag__enable:!1, GoogFlags__testonly_disabled_flag__enable:!1, GoogFlags__testonly_stable_flag__disable:!1, GoogFlags__testonly_staging_flag__disable:!1, GoogFlags__use_toggles:!1, GoogFlags__use_user_agent_client_hints__enable:!1};
 /*
 
  Copyright The Closure Library Authors.
@@ -2963,7 +2963,8 @@ module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable = !1;
-module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_attribute_sanitization__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_attribute_sanitization__disable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_hook_context_fix__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable = !1;
@@ -2972,7 +2973,9 @@ goog.flags = {};
 var module$contents$goog$flags_STAGING = goog.readFlagInternalDoNotUseOrElse(1, goog.FLAGS_STAGING_DEFAULT);
 goog.flags.USE_USER_AGENT_CLIENT_HINTS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable : goog.readFlagInternalDoNotUseOrElse(610401301, !1);
 goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable : goog.readFlagInternalDoNotUseOrElse(899588437, !1);
-goog.flags.CLIENT_ONLY_WIZ_ATTRIBUTE_SANITIZATION = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_attribute_sanitization__enable : goog.readFlagInternalDoNotUseOrElse(533565600, goog.DEBUG);
+goog.flags.CLIENT_ONLY_WIZ_ATTRIBUTE_SANITIZATION = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_attribute_sanitization__disable) : goog.readFlagInternalDoNotUseOrElse(533565600, 
+module$contents$goog$flags_STAGING);
+goog.flags.CLIENT_ONLY_WIZ_HOOK_CONTEXT_FIX = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_hook_context_fix__enable : goog.readFlagInternalDoNotUseOrElse(563486499, !1);
 goog.flags.TESTONLY_DISABLED_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
 goog.flags.TESTONLY_DEBUG_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
 goog.flags.TESTONLY_STAGING_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable) : goog.readFlagInternalDoNotUseOrElse(2147483646, module$contents$goog$flags_STAGING);
@@ -3810,7 +3813,7 @@ ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", INSTAL
 TRANSITIONEND:goog.events.eventTypeHelpers.getVendorPrefixedName("TransitionEnd"), POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", 
 MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXT:"text", TEXTINPUT:goog.userAgent.IE ? "textinput" : "textInput", 
 COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", BEFOREINPUT:"beforeinput", FULLSCREENCHANGE:"fullscreenchange", WEBKITBEGINFULLSCREEN:"webkitbeginfullscreen", WEBKITENDFULLSCREEN:"webkitendfullscreen", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", 
-STORAGE:"storage", DOMSUBTREEMODIFIED:"DOMSubtreeModified", DOMNODEINSERTED:"DOMNodeInserted", DOMNODEREMOVED:"DOMNodeRemoved", DOMNODEREMOVEDFROMDOCUMENT:"DOMNodeRemovedFromDocument", DOMNODEINSERTEDINTODOCUMENT:"DOMNodeInsertedIntoDocument", DOMATTRMODIFIED:"DOMAttrModified", DOMCHARACTERDATAMODIFIED:"DOMCharacterDataModified", BEFOREPRINT:"beforeprint", AFTERPRINT:"afterprint", BEFOREINSTALLPROMPT:"beforeinstallprompt", APPINSTALLED:"appinstalled", CANCEL:"cancel", FINISH:"finish", REMOVE:"remove"};
+STORAGE:"storage", BEFOREPRINT:"beforeprint", AFTERPRINT:"afterprint", BEFOREINSTALLPROMPT:"beforeinstallprompt", APPINSTALLED:"appinstalled", CANCEL:"cancel", FINISH:"finish", REMOVE:"remove"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
@@ -6768,7 +6771,11 @@ goog.html.SafeUrl.unwrap = function(safeUrl) {
   return "type_error:SafeUrl";
 };
 goog.html.SafeUrl.fromConstant = function(url) {
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
+  var str = goog.string.Const.unwrap(url);
+  if (goog.DEBUG && "javascript:" === goog.html.SafeUrl.extractScheme(str)) {
+    throw Error("Building a SafeUrl with a javascript scheme is not supported");
+  }
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(str);
 };
 goog.html.SAFE_MIME_TYPE_PATTERN_ = RegExp('^(?:audio/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)|font/\\w+|image/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon|heic|heif)|video/(?:mpeg|mp4|ogg|webm|quicktime|x-matroska))(?:;\\w+=(?:\\w+|"[\\w;,= ]+"))*$', "i");
 goog.html.SafeUrl.isSafeMimeType = function(mimeType) {
@@ -11292,21 +11299,16 @@ module$exports$eeapiclient$ee_api_client.ImageBand = function(parameters) {
   this.Serializable$set("pyramidingPolicy", null == parameters.pyramidingPolicy ? null : parameters.pyramidingPolicy);
   this.Serializable$set("tilesets", null == parameters.tilesets ? null : parameters.tilesets);
   this.Serializable$set("missingData", null == parameters.missingData ? null : parameters.missingData);
-  this.Serializable$set("cloudStorageLocation", null == parameters.cloudStorageLocation ? null : parameters.cloudStorageLocation);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ImageBand, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ImageBand.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ImageBand;
 };
 module$exports$eeapiclient$ee_api_client.ImageBand.prototype.getPartialClassMetadata = function() {
-  return {arrays:{tilesets:module$exports$eeapiclient$ee_api_client.TilestoreTileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageBandPyramidingPolicyEnum}, keys:"cloudStorageLocation dataType grid id missingData pyramidingPolicy tilesets".split(" "), objects:{cloudStorageLocation:module$exports$eeapiclient$ee_api_client.CloudStorageLocation, dataType:module$exports$eeapiclient$ee_api_client.PixelDataType, 
-  grid:module$exports$eeapiclient$ee_api_client.PixelGrid, missingData:module$exports$eeapiclient$ee_api_client.MissingData}};
+  return {arrays:{tilesets:module$exports$eeapiclient$ee_api_client.TilestoreTileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageBandPyramidingPolicyEnum}, keys:"dataType grid id missingData pyramidingPolicy tilesets".split(" "), objects:{dataType:module$exports$eeapiclient$ee_api_client.PixelDataType, grid:module$exports$eeapiclient$ee_api_client.PixelGrid, 
+  missingData:module$exports$eeapiclient$ee_api_client.MissingData}};
 };
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ImageBand.prototype, {cloudStorageLocation:{configurable:!0, enumerable:!0, get:function() {
-  return this.Serializable$has("cloudStorageLocation") ? this.Serializable$get("cloudStorageLocation") : null;
-}, set:function(value) {
-  this.Serializable$set("cloudStorageLocation", value);
-}}, dataType:{configurable:!0, enumerable:!0, get:function() {
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ImageBand.prototype, {dataType:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("dataType") ? this.Serializable$get("dataType") : null;
 }, set:function(value) {
   this.Serializable$set("dataType", value);
@@ -17376,7 +17378,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.369";
+ee.apiclient.API_CLIENT_VERSION = "0.1.370";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17667,8 +17669,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.369";
-  "0.1.369" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.370";
+  "0.1.370" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -21857,6 +21859,7 @@ module$contents$ee$batch_Export.table.toBigQuery = function(collection, opt_desc
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.table.toBigQuery, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.BIGQUERY, ee.data.ExportType.TABLE);
   return module$contents$ee$batch_ExportTask.create(serverConfig);
 };
+goog.exportSymbol("module$contents$ee$batch_Export.table.toBigQuery", module$contents$ee$batch_Export.table.toBigQuery);
 module$contents$ee$batch_Export.video.toCloudStorage = function(collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels, opt_maxFrames) {
   var clientConfig = ee.arguments.extractFromFunction(module$contents$ee$batch_Export.video.toCloudStorage, arguments), serverConfig = module$contents$ee$batch_Export.convertToServerParams(clientConfig, ee.data.ExportDestination.GCS, ee.data.ExportType.VIDEO);
   return module$contents$ee$batch_ExportTask.create(serverConfig);
@@ -24409,6 +24412,7 @@ function module$contents$safevalues$builders$url_sanitizer_restrictivelySanitize
   return void 0 !== parsedScheme && -1 !== module$contents$safevalues$builders$url_sanitizer_ALLOWED_SCHEMES.indexOf(parsedScheme.toLowerCase()) ? url : "about:invalid#zClosurez";
 }
 module$exports$safevalues$builders$url_sanitizer.restrictivelySanitizeUrl = module$contents$safevalues$builders$url_sanitizer_restrictivelySanitizeUrl;
+module$exports$safevalues$builders$url_sanitizer.JAVASCRIPT_URL_SCHEME_PATTERN = /^(?!javascript:)(?:[a-z0-9+.-]+:|[^&:\/?#]*(?:[\/?#]|$))/i;
 var module$contents$safevalues$builders$url_sanitizer_sanitizationCallbacks = [], module$contents$safevalues$builders$url_sanitizer_triggerCallbacks = function(url) {
 };
 goog.DEBUG && module$contents$safevalues$builders$url_sanitizer_addJavaScriptUrlSanitizationCallback(function(url) {
@@ -25112,23 +25116,21 @@ module$exports$safevalues$builders$style_sheet_builders.safeStyleRule = function
     }
   }
 };
-function module$contents$safevalues$builders$style_sheet_builders_safeStyleSheet(templateObj) {
+module$exports$safevalues$builders$style_sheet_builders.safeStyleSheet = function(templateObj) {
   goog.DEBUG && module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, 0);
   var styleSheet = templateObj[0];
   if (goog.DEBUG && /</.test(styleSheet)) {
     throw Error("'<' character is forbidden in styleSheet string: " + styleSheet);
   }
   return module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(styleSheet);
-}
-module$exports$safevalues$builders$style_sheet_builders.safeStyleSheet = module$contents$safevalues$builders$style_sheet_builders_safeStyleSheet;
-function module$contents$safevalues$builders$style_sheet_builders_concatStyleSheets(sheets) {
+};
+module$exports$safevalues$builders$style_sheet_builders.concatStyleSheets = function(sheets) {
   return module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(sheets.map(module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet).join(""));
-}
-module$exports$safevalues$builders$style_sheet_builders.concatStyleSheets = module$contents$safevalues$builders$style_sheet_builders_concatStyleSheets;
+};
 var module$exports$safevalues$builders$url_builders = {}, module$contents$safevalues$builders$url_builders_module = module$contents$safevalues$builders$url_builders_module || {id:"third_party/javascript/safevalues/builders/url_builders.closure.js"};
 function module$contents$safevalues$builders$url_builders_isSafeMimeType(mimeType) {
   var match = mimeType.match(/^([^;]+)(?:;\w+=(?:\w+|"[\w;,= ]+"))*$/i);
-  return 2 === (null == match ? void 0 : match.length) && (module$contents$safevalues$builders$url_builders_isSafeImageMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeAudioMimeType(match[1]));
+  return 2 === (null == match ? void 0 : match.length) && (module$contents$safevalues$builders$url_builders_isSafeImageMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeAudioMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeFontMimeType(match[1]));
 }
 function module$contents$safevalues$builders$url_builders_isSafeImageMimeType(mimeType) {
   return /^image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon|heic|heif|avif)$/i.test(mimeType);
@@ -25137,7 +25139,10 @@ function module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(mi
   return /^video\/(?:mpeg|mp4|ogg|webm|x-matroska|quicktime|x-ms-wmv)$/i.test(mimeType);
 }
 function module$contents$safevalues$builders$url_builders_isSafeAudioMimeType(mimeType) {
-  return /^audio\/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)$/i.test(mimeType);
+  return /^audio\/(?:3gpp2|3gpp|aac|amr|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)$/i.test(mimeType);
+}
+function module$contents$safevalues$builders$url_builders_isSafeFontMimeType(mimeType) {
+  return /^font\/\w+/i.test(mimeType);
 }
 module$exports$safevalues$builders$url_builders.Scheme = function() {
 };
@@ -25319,8 +25324,8 @@ module$exports$safevalues$index.safeScriptWithArgs = module$contents$safevalues$
 module$exports$safevalues$index.valueAsScript = module$contents$safevalues$builders$script_builders_valueAsScript;
 module$exports$safevalues$index.concatStyles = module$contents$safevalues$builders$style_builders_concatStyles;
 module$exports$safevalues$index.safeStyle = module$contents$safevalues$builders$style_builders_safeStyle;
-module$exports$safevalues$index.concatStyleSheets = module$contents$safevalues$builders$style_sheet_builders_concatStyleSheets;
-module$exports$safevalues$index.safeStyleSheet = module$contents$safevalues$builders$style_sheet_builders_safeStyleSheet;
+module$exports$safevalues$index.concatStyleSheets = module$exports$safevalues$builders$style_sheet_builders.concatStyleSheets;
+module$exports$safevalues$index.safeStyleSheet = module$exports$safevalues$builders$style_sheet_builders.safeStyleSheet;
 module$exports$safevalues$index.fromMediaSource = module$contents$safevalues$builders$url_builders_fromMediaSource;
 module$exports$safevalues$index.fromTrustedResourceUrl = module$contents$safevalues$builders$url_builders_fromTrustedResourceUrl;
 module$exports$safevalues$index.objectUrlFromSafeSource = module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource;
@@ -25356,6 +25361,7 @@ module$exports$safevalues$index.SafeUrl = goog.html.SafeUrl;
 module$exports$safevalues$index.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
 module$exports$safevalues$index.reportOnlyHtmlPassthrough = module$contents$safevalues$reporting$reporting_reportOnlyHtmlPassthrough;
 module$exports$safevalues$index.createHtml = module$exports$safevalues$builders$html_builders.createHtml;
+module$exports$safevalues$index.safeStyleRule = module$exports$safevalues$builders$style_sheet_builders.safeStyleRule;
 var safevalues = {};
 safevalues.safeAttrPrefix = module$contents$safevalues$builders$attribute_builders_safeAttrPrefix;
 safevalues.concatHtmls = module$exports$safevalues$index.concatHtmls;
@@ -25379,8 +25385,8 @@ safevalues.safeScriptWithArgs = module$contents$safevalues$builders$script_build
 safevalues.valueAsScript = module$contents$safevalues$builders$script_builders_valueAsScript;
 safevalues.concatStyles = module$contents$safevalues$builders$style_builders_concatStyles;
 safevalues.safeStyle = module$contents$safevalues$builders$style_builders_safeStyle;
-safevalues.concatStyleSheets = module$contents$safevalues$builders$style_sheet_builders_concatStyleSheets;
-safevalues.safeStyleSheet = module$contents$safevalues$builders$style_sheet_builders_safeStyleSheet;
+safevalues.concatStyleSheets = module$exports$safevalues$index.concatStyleSheets;
+safevalues.safeStyleSheet = module$exports$safevalues$index.safeStyleSheet;
 safevalues.fromMediaSource = module$contents$safevalues$builders$url_builders_fromMediaSource;
 safevalues.fromTrustedResourceUrl = module$contents$safevalues$builders$url_builders_fromTrustedResourceUrl;
 safevalues.objectUrlFromSafeSource = module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource;
@@ -25417,6 +25423,7 @@ safevalues.SafeUrl = goog.html.SafeUrl;
 safevalues.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
 safevalues.reportOnlyHtmlPassthrough = module$contents$safevalues$reporting$reporting_reportOnlyHtmlPassthrough;
 safevalues.createHtml = module$exports$safevalues$index.createHtml;
+safevalues.safeStyleRule = module$exports$safevalues$index.safeStyleRule;
 ee.layers.ImageOverlay = function(tileSource, opt_options) {
   ee.layers.AbstractOverlay.call(this, tileSource, opt_options);
 };

@@ -1,6 +1,5 @@
 /**
  * @fileoverview An object representing EE Features.
- * @author gorelick@google.com (Noel Gorelick)
  */
 
 goog.provide('ee.Feature');

@@ -1,7 +1,6 @@
 /**
  * @fileoverview Singleton for all of the library's communication
  * with the Earth Engine API.
- * @author gorelick@google.com (Noel Gorelick)
  * @suppress {missingRequire} TODO(user): this shouldn't be needed
  * @suppress {useOfGoogProvide} TODO(user): Convert to goog.module.
  */
