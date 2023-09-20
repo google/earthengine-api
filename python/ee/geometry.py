@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """An object representing EE Geometries."""
 
+from __future__ import annotations
+
 import collections.abc
 import json
 import numbers
@@ -199,7 +201,8 @@ class Geometry(computedobject.ComputedObject):
     return Geometry(init)
 
   @staticmethod
-  def MultiPoint(coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args) -> 'Geometry':  # pylint: disable=keyword-arg-before-vararg
+  # pylint: disable-next=keyword-arg-before-vararg
+  def MultiPoint(coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args) -> Geometry:
     """Constructs an ee.Geometry describing a MultiPoint.
 
     Args:
@@ -281,7 +284,7 @@ class Geometry(computedobject.ComputedObject):
     return Geometry(init)
 
   @staticmethod
-  def BBox(west: float, south: float, east: float, north: float) -> 'Geometry':
+  def BBox(west: float, south: float, east: float, north: float) -> Geometry:
     """Constructs a rectangle ee.Geometry from lines of latitude and longitude.
 
     If (east - west) ≥ 360° then the longitude range will be normalized to -180°

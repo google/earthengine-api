@@ -116,6 +116,57 @@ class ImageCollection(collection.Collection):
     """
     return self.map(lambda img: img.select(selectors, opt_names, *args))
 
+  # Disable argument usage check; arguments are accessed using locals().
+  # pylint: disable=unused-argument,g-bad-name
+  def linkCollection(
+      self,
+      imageCollection: 'ImageCollection',
+      linkedBands: Optional[Sequence[str]] = None,
+      linkedProperties: Optional[Sequence[str]] = None,
+      matchPropertyName: Optional[str] = None,
+  ) -> 'ImageCollection':
+    """Links images in this collection to matching images from imageCollection.
+
+    For each source image in this collection, any specified bands or metadata
+    will be added to the source image from the matching image found in
+    imageCollection. If the bands or metadata are already present they will be
+    overwritten. If a matching image is not found, any new or updated bands will
+    be fully masked and any new or updated metadata will be null. The output
+    footprint will be the same as the source image footprint.
+
+    A match is determined if the source image and an image in imageCollection
+    have a specific equivalent metadata property. If more than one collection
+    image would match, the collection image selected is arbitrary. By default,
+    images are matched on their 'system:index' metadata property.
+
+    This linking function is a convenience method for adding bands to a target
+    image based on a specified shared metadata property and is intended to
+    support linking collections that apply different processing/product
+    generation to the same source imagery. For more expressive linking known as
+    'joining', see https://developers.google.com/earth-engine/guides/joins_intro
+
+    Args:
+      imageCollection: The image collection searched to find matches from this
+        collection.
+      linkedBands: Optional list of band names to add or update from the
+        matching image.
+      linkedProperties: Optional list of metadata properties to add or
+        update from the matching image.
+      matchPropertyName: The metadata property name to use as a match
+        criteria. Defaults to "system:index".
+
+    Returns:
+      The linked image collection.
+    """
+    kwargs = {
+        k: v for k, v in locals().items() if k != 'self' and v is not None}
+    def _linkCollection(img):
+      return apifunction.ApiFunction.apply_(
+          'Image.linkCollection', {'input': img, **kwargs})
+
+    return self.map(_linkCollection)
+  # pylint: enable=g-bad-name,unused-argument
+
   def first(self) -> image.Image:
     """Returns the first entry from a given collection.
 

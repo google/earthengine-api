@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """A representation of an Earth Engine computed object."""
 
+from __future__ import annotations
+
 from typing import Any, Dict, Optional
 
 from ee import data
@@ -190,7 +192,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     # to remain null until for CustomFunction.resolveNamelessArgs_().
     return self.func is None and self.args is None
 
-  def aside(self, func: Any, *var_args) -> 'ComputedObject':
+  def aside(self, func: Any, *var_args) -> ComputedObject:
     """Calls a function passing this object as the first argument.
 
     Returns the object itself for chaining. Convenient e.g. when debugging:
@@ -217,7 +219,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     return 'ComputedObject'
 
   @classmethod
-  def _cast(cls, obj: Any) -> Any:
+  def _cast(cls, obj: ComputedObject) -> ComputedObject:
     """Cast a ComputedObject to a new instance of the same class as this.
 
     Args:
