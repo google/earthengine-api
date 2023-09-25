@@ -1,0 +1,41 @@
+{{>head}}
+
+  <div id="dartdoc-main-content" class="main-content">
+    {{#self}}
+      <div>{{>source_link}}<h1><span class="kind-property">{{name}}</span> {{kind}} {{>feature_set}}</h1></div>
+    {{/self}}
+
+    {{#self}}
+      {{#hasNoGetterSetter}}
+        <section class="multi-line-signature">
+          {{ >annotations }}
+          {{{ modelType.linkedName }}}
+          {{ >name_summary }}
+          {{ >features }}
+        </section>
+        {{>documentation}}
+        {{>source_code}}
+      {{/hasNoGetterSetter}}
+
+      {{#hasGetterOrSetter}}
+        {{#hasGetter}}
+        {{>accessor_getter}}
+        {{/hasGetter}}
+
+        {{#hasSetter}}
+        {{>accessor_setter}}
+        {{/hasSetter}}
+      {{/hasGetterOrSetter}}
+    {{/self}}
+  </div> <!-- /.main-content -->
+
+  <div id="dartdoc-sidebar-left" class="sidebar sidebar-offcanvas-left">
+    {{>search_sidebar}}
+    <h5>{{parent.name}} {{parent.kind}}</h5>
+    {{{sidebarForContainer}}}
+  </div><!--/.sidebar-offcanvas-->
+
+  <div id="dartdoc-sidebar-right" class="sidebar sidebar-offcanvas-right">
+  </div><!--/.sidebar-offcanvas-->
+
+{{>footer}}
