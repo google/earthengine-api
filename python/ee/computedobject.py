@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional
 
 from ee import data
 from ee import ee_exception
@@ -104,7 +104,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     """
     return data.computeValue(self)
 
-  def encode(self, encoder: Any) -> Dict[str, Any]:
+  def encode(self, encoder: Optional[Callable[..., Any]]) -> Dict[str, Any]:
     """Encodes the object in a format compatible with Serializer."""
     if self.isVariable():
       return {
@@ -112,6 +112,9 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
           'value': self.varName
       }
     else:
+      if encoder is None:
+        raise ValueError(
+            'encoder can only be none when encode is for a variable.')
       # Encode the function that we're calling.
       func = encoder(self.func)
       # Built-in functions are encoded as strings under a different key.

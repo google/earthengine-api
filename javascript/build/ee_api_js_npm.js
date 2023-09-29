@@ -1299,6 +1299,8 @@ goog.setImportHandlerInternalDoNotCallOrElse = function(fn) {
 goog.setUncompiledChunkIdHandlerInternalDoNotCallOrElse = function(fn) {
   goog.uncompiledChunkIdHandler_ = fn;
 };
+goog.maybeRequireFrameworkInternalOnlyDoNotCallOrElse = function(namespace) {
+};
 goog.ModuleType = {ES6:"es6", GOOG:"goog"};
 goog.moduleLoaderState_ = null;
 goog.isInModuleLoader_ = function() {
@@ -9032,6 +9034,11 @@ module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum = {MA
   return [module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum.PYRAMIDING_POLICY_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum.MEAN, module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum.SAMPLE, module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum.MIN, module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum.MAX, 
   module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum.MODE, module$exports$eeapiclient$ee_api_client.ImageManifestPyramidingPolicyEnum.MEDIAN];
 }};
+module$exports$eeapiclient$ee_api_client.IImportImageRequestModeEnum = function() {
+};
+module$exports$eeapiclient$ee_api_client.ImportImageRequestModeEnum = {IMPORT_MODE_UNSPECIFIED:"IMPORT_MODE_UNSPECIFIED", INGEST:"INGEST", VIRTUAL:"VIRTUAL", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.ImportImageRequestModeEnum.IMPORT_MODE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.ImportImageRequestModeEnum.INGEST, module$exports$eeapiclient$ee_api_client.ImportImageRequestModeEnum.VIRTUAL];
+}};
 module$exports$eeapiclient$ee_api_client.IOperationMetadataStateEnum = function() {
 };
 module$exports$eeapiclient$ee_api_client.OperationMetadataStateEnum = {CANCELLED:"CANCELLED", CANCELLING:"CANCELLING", FAILED:"FAILED", PENDING:"PENDING", RUNNING:"RUNNING", STATE_UNSPECIFIED:"STATE_UNSPECIFIED", SUCCEEDED:"SUCCEEDED", values:function() {
@@ -10122,15 +10129,16 @@ module$exports$eeapiclient$ee_api_client.EarthEngineAsset = function(parameters)
   this.Serializable$set("featureCount", null == parameters.featureCount ? null : parameters.featureCount);
   this.Serializable$set("quota", null == parameters.quota ? null : parameters.quota);
   this.Serializable$set("expression", null == parameters.expression ? null : parameters.expression);
+  this.Serializable$set("tilesets", null == parameters.tilesets ? null : parameters.tilesets);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.EarthEngineAsset, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.EarthEngineAsset.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.EarthEngineAsset;
 };
 module$exports$eeapiclient$ee_api_client.EarthEngineAsset.prototype.getPartialClassMetadata = function() {
-  return {arrays:{bands:module$exports$eeapiclient$ee_api_client.ImageBand}, enums:{type:module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum}, keys:"bands cloudStorageLocation endTime expression featureCount featureViewAssetLocation geometry id name properties quota sizeBytes startTime tableLocation tilestoreLocation type updateTime".split(" "), objectMaps:{geometry:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}, 
-  properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{cloudStorageLocation:module$exports$eeapiclient$ee_api_client.CloudStorageLocation, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewAssetLocation:module$exports$eeapiclient$ee_api_client.FeatureViewLocation, quota:module$exports$eeapiclient$ee_api_client.FolderQuota, 
-  tableLocation:module$exports$eeapiclient$ee_api_client.TableLocation, tilestoreLocation:module$exports$eeapiclient$ee_api_client.TilestoreLocation}};
+  return {arrays:{bands:module$exports$eeapiclient$ee_api_client.ImageBand, tilesets:module$exports$eeapiclient$ee_api_client.Tileset}, enums:{type:module$exports$eeapiclient$ee_api_client.EarthEngineAssetTypeEnum}, keys:"bands cloudStorageLocation endTime expression featureCount featureViewAssetLocation geometry id name properties quota sizeBytes startTime tableLocation tilesets tilestoreLocation type updateTime".split(" "), 
+  objectMaps:{geometry:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}, properties:{ctor:null, isPropertyArray:!1, isSerializable:!1, isValueArray:!1}}, objects:{cloudStorageLocation:module$exports$eeapiclient$ee_api_client.CloudStorageLocation, expression:module$exports$eeapiclient$ee_api_client.Expression, featureViewAssetLocation:module$exports$eeapiclient$ee_api_client.FeatureViewLocation, 
+  quota:module$exports$eeapiclient$ee_api_client.FolderQuota, tableLocation:module$exports$eeapiclient$ee_api_client.TableLocation, tilestoreLocation:module$exports$eeapiclient$ee_api_client.TilestoreLocation}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.EarthEngineAsset.prototype, {bands:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("bands") ? this.Serializable$get("bands") : null;
@@ -10188,6 +10196,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("tableLocation") ? this.Serializable$get("tableLocation") : null;
 }, set:function(value) {
   this.Serializable$set("tableLocation", value);
+}}, tilesets:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("tilesets") ? this.Serializable$get("tilesets") : null;
+}, set:function(value) {
+  this.Serializable$set("tilesets", value);
 }}, tilestoreLocation:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("tilestoreLocation") ? this.Serializable$get("tilestoreLocation") : null;
 }, set:function(value) {
@@ -11299,13 +11311,15 @@ module$exports$eeapiclient$ee_api_client.ImageBand = function(parameters) {
   this.Serializable$set("pyramidingPolicy", null == parameters.pyramidingPolicy ? null : parameters.pyramidingPolicy);
   this.Serializable$set("tilesets", null == parameters.tilesets ? null : parameters.tilesets);
   this.Serializable$set("missingData", null == parameters.missingData ? null : parameters.missingData);
+  this.Serializable$set("tilesetId", null == parameters.tilesetId ? null : parameters.tilesetId);
+  this.Serializable$set("tilesetBandIndex", null == parameters.tilesetBandIndex ? null : parameters.tilesetBandIndex);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ImageBand, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ImageBand.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ImageBand;
 };
 module$exports$eeapiclient$ee_api_client.ImageBand.prototype.getPartialClassMetadata = function() {
-  return {arrays:{tilesets:module$exports$eeapiclient$ee_api_client.TilestoreTileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageBandPyramidingPolicyEnum}, keys:"dataType grid id missingData pyramidingPolicy tilesets".split(" "), objects:{dataType:module$exports$eeapiclient$ee_api_client.PixelDataType, grid:module$exports$eeapiclient$ee_api_client.PixelGrid, 
+  return {arrays:{tilesets:module$exports$eeapiclient$ee_api_client.TilestoreTileset}, enums:{pyramidingPolicy:module$exports$eeapiclient$ee_api_client.ImageBandPyramidingPolicyEnum}, keys:"dataType grid id missingData pyramidingPolicy tilesetBandIndex tilesetId tilesets".split(" "), objects:{dataType:module$exports$eeapiclient$ee_api_client.PixelDataType, grid:module$exports$eeapiclient$ee_api_client.PixelGrid, 
   missingData:module$exports$eeapiclient$ee_api_client.MissingData}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ImageBand.prototype, {dataType:{configurable:!0, enumerable:!0, get:function() {
@@ -11328,6 +11342,14 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("pyramidingPolicy") ? this.Serializable$get("pyramidingPolicy") : null;
 }, set:function(value) {
   this.Serializable$set("pyramidingPolicy", value);
+}}, tilesetBandIndex:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("tilesetBandIndex") ? this.Serializable$get("tilesetBandIndex") : null;
+}, set:function(value) {
+  this.Serializable$set("tilesetBandIndex", value);
+}}, tilesetId:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("tilesetId") ? this.Serializable$get("tilesetId") : null;
+}, set:function(value) {
+  this.Serializable$set("tilesetId", value);
 }}, tilesets:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("tilesets") ? this.Serializable$get("tilesets") : null;
 }, set:function(value) {
@@ -11500,13 +11522,14 @@ module$exports$eeapiclient$ee_api_client.ImportImageRequest = function(parameter
   this.Serializable$set("description", null == parameters.description ? null : parameters.description);
   this.Serializable$set("overwrite", null == parameters.overwrite ? null : parameters.overwrite);
   this.Serializable$set("requestId", null == parameters.requestId ? null : parameters.requestId);
+  this.Serializable$set("mode", null == parameters.mode ? null : parameters.mode);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.ImportImageRequest, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.ImportImageRequest.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.ImportImageRequest;
 };
 module$exports$eeapiclient$ee_api_client.ImportImageRequest.prototype.getPartialClassMetadata = function() {
-  return {keys:["description", "imageManifest", "overwrite", "requestId"], objects:{imageManifest:module$exports$eeapiclient$ee_api_client.ImageManifest}};
+  return {enums:{mode:module$exports$eeapiclient$ee_api_client.ImportImageRequestModeEnum}, keys:["description", "imageManifest", "mode", "overwrite", "requestId"], objects:{imageManifest:module$exports$eeapiclient$ee_api_client.ImageManifest}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ImportImageRequest.prototype, {description:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("description") ? this.Serializable$get("description") : null;
@@ -11516,6 +11539,10 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("imageManifest") ? this.Serializable$get("imageManifest") : null;
 }, set:function(value) {
   this.Serializable$set("imageManifest", value);
+}}, mode:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("mode") ? this.Serializable$get("mode") : null;
+}, set:function(value) {
+  this.Serializable$set("mode", value);
 }}, overwrite:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("overwrite") ? this.Serializable$get("overwrite") : null;
 }, set:function(value) {
@@ -11524,6 +11551,9 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("requestId") ? this.Serializable$get("requestId") : null;
 }, set:function(value) {
   this.Serializable$set("requestId", value);
+}}});
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.ImportImageRequest, {Mode:{configurable:!0, enumerable:!0, get:function() {
+  return module$exports$eeapiclient$ee_api_client.ImportImageRequestModeEnum;
 }}});
 module$exports$eeapiclient$ee_api_client.ImportTableRequestParameters = function() {
 };
@@ -17378,7 +17408,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.371";
+ee.apiclient.API_CLIENT_VERSION = "0.1.373";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17579,13 +17609,13 @@ module$contents$ee$apiclient_apiclient.setAuthToken = function(clientId, tokenTy
   var tokenObject = {token_type:tokenType, access_token:accessToken, state:scopes.join(" "), expires_in:expiresIn};
   module$contents$ee$apiclient_apiclient.handleAuthResult_(void 0, void 0, tokenObject);
   !1 === updateAuthLibrary ? callback && callback() : module$contents$ee$apiclient_apiclient.ensureAuthLibLoaded_(function() {
-    goog.global.gapi.auth.setToken(tokenObject);
+    goog.global.gapi.client.setToken(tokenObject);
     callback && callback();
   });
 };
 module$contents$ee$apiclient_apiclient.refreshAuthToken = function(success, error, onImmediateFailed) {
   if (module$contents$ee$apiclient_apiclient.isAuthTokenRefreshingEnabled_()) {
-    var authArgs = {client_id:String(module$contents$ee$apiclient_apiclient.authClientId_), immediate:!0, scope:module$contents$ee$apiclient_apiclient.authScopes_.join(" ")};
+    var authArgs = {client_id:String(module$contents$ee$apiclient_apiclient.authClientId_), immediate:!0, scope:module$contents$ee$apiclient_apiclient.authScopes_.join(" "), plugin_name:"earthengine"};
     module$contents$ee$apiclient_apiclient.authTokenRefresher_(authArgs, function(result) {
       if ("immediate_failed" == result.error && onImmediateFailed) {
         onImmediateFailed();
@@ -17594,7 +17624,7 @@ module$contents$ee$apiclient_apiclient.refreshAuthToken = function(success, erro
           try {
             module$contents$ee$apiclient_apiclient.ensureAuthLibLoaded_(function() {
               try {
-                goog.global.gapi.auth.setToken(result), module$contents$ee$apiclient_apiclient.handleAuthResult_(success, error, result);
+                goog.global.gapi.client.setToken(result), module$contents$ee$apiclient_apiclient.handleAuthResult_(success, error, result);
               } catch (e) {
                 error(e.toString());
               }
@@ -17669,8 +17699,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.371";
-  "0.1.371" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.373";
+  "0.1.373" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -17780,10 +17810,10 @@ module$contents$ee$apiclient_apiclient.handleResponse_ = function(status, getRes
 module$contents$ee$apiclient_apiclient.ensureAuthLibLoaded_ = function(callback) {
   var done = function() {
     goog.global.gapi.config.update("client/cors", !0);
-    module$contents$ee$apiclient_apiclient.authTokenRefresher_ || module$contents$ee$apiclient_apiclient.setAuthTokenRefresher(goog.global.gapi.auth.authorize);
+    module$contents$ee$apiclient_apiclient.authTokenRefresher_ || module$contents$ee$apiclient_apiclient.setAuthTokenRefresher(goog.global.gapi.auth2.authorize);
     callback();
   };
-  if (goog.isObject(goog.global.gapi) && goog.isObject(goog.global.gapi.auth) && "function" === typeof goog.global.gapi.auth.authorize) {
+  if (goog.isObject(goog.global.gapi) && goog.isObject(goog.global.gapi.auth2) && "function" === typeof goog.global.gapi.auth2.authorize) {
     done();
   } else {
     for (var callbackName = Date.now().toString(36); callbackName in goog.global;) {
@@ -19353,7 +19383,7 @@ ee.data.authenticate = function(clientId, success, opt_error, opt_extraScopes, o
 };
 goog.exportSymbol("ee.data.authenticate", ee.data.authenticate);
 ee.data.authenticateViaPopup = function(opt_success, opt_error) {
-  goog.global.gapi.auth.authorize({client_id:module$contents$ee$apiclient_apiclient.getAuthClientId(), immediate:!1, scope:module$contents$ee$apiclient_apiclient.getAuthScopes().join(" ")}, goog.partial(module$contents$ee$apiclient_apiclient.handleAuthResult_, opt_success, opt_error));
+  goog.global.gapi.auth2.authorize({client_id:module$contents$ee$apiclient_apiclient.getAuthClientId(), immediate:!1, scope:module$contents$ee$apiclient_apiclient.getAuthScopes().join(" ")}, goog.partial(module$contents$ee$apiclient_apiclient.handleAuthResult_, opt_success, opt_error));
 };
 goog.exportSymbol("ee.data.authenticateViaPopup", ee.data.authenticateViaPopup);
 ee.data.authenticateViaPrivateKey = function(privateKey, opt_success, opt_error, opt_extraScopes, opt_suppressDefaultScopes) {

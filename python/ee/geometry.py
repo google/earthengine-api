@@ -174,7 +174,7 @@ class Geometry(computedobject.ComputedObject):
   # pylint: disable-next=keyword-arg-before-vararg
   def Point(
       coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args, **kwargs
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a point.
 
     Args:
@@ -232,7 +232,7 @@ class Geometry(computedobject.ComputedObject):
       evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
       **kwargs,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a rectangular polygon.
 
     Args:
@@ -380,7 +380,7 @@ class Geometry(computedobject.ComputedObject):
       geodesic=_UNSPECIFIED,
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a LineString.
 
     Args:
@@ -417,7 +417,7 @@ class Geometry(computedobject.ComputedObject):
       geodesic=_UNSPECIFIED,
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a LinearRing.
 
     If the last point is not equal to the first, a duplicate of the first
@@ -457,7 +457,7 @@ class Geometry(computedobject.ComputedObject):
       geodesic=_UNSPECIFIED,
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a MultiLineString.
 
     Create a GeoJSON MultiLineString from either a list of points, or an array
@@ -499,7 +499,7 @@ class Geometry(computedobject.ComputedObject):
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a polygon.
 
     Args:
@@ -543,7 +543,7 @@ class Geometry(computedobject.ComputedObject):
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a MultiPolygon.
 
     If created from points, only one polygon can be specified.

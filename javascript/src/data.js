@@ -194,7 +194,7 @@ ee.data.authenticate = function(
  * @export
  */
 ee.data.authenticateViaPopup = function(opt_success, opt_error) {
-  goog.global['gapi']['auth']['authorize'](
+  goog.global['gapi']['auth2']['authorize'](
       {
         'client_id': ee.apiclient.getAuthClientId(),
         'immediate': false,

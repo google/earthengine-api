@@ -25,7 +25,7 @@ const {PromiseRequestService} = goog.require('eeapiclient.promise_request_servic
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.371';
+const API_CLIENT_VERSION = '0.1.373';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -533,7 +533,7 @@ apiclient.setAuthToken = function(
     }
   } else {
     apiclient.ensureAuthLibLoaded_(function() {
-      goog.global['gapi']['auth']['setToken'](tokenObject);
+      goog.global['gapi']['client']['setToken'](tokenObject);
       if (callback) {
         callback();
       }
@@ -561,7 +561,8 @@ apiclient.refreshAuthToken = function(success, error, onImmediateFailed) {
   const authArgs = {
     'client_id': String(apiclient.authClientId_),
     'immediate': true,
-    'scope': apiclient.authScopes_.join(' ')
+    'scope': apiclient.authScopes_.join(' '),
+    'plugin_name': 'earthengine',
   };
 
   // Start the authorization flow, first trying immediate mode, which tries to
@@ -575,7 +576,7 @@ apiclient.refreshAuthToken = function(success, error, onImmediateFailed) {
           // Refresh the library auth token and handle error propagation.
           apiclient.ensureAuthLibLoaded_(function() {
             try {
-              goog.global['gapi']['auth']['setToken'](result);
+              goog.global['gapi']['client']['setToken'](result);
               apiclient.handleAuthResult_(success, error, result);
             } catch (e) {
               error(e.toString());
@@ -1128,13 +1129,13 @@ apiclient.ensureAuthLibLoaded_ = function(callback) {
     // Speed up auth request by using CORS instead of an iframe.
     goog.global['gapi']['config']['update']('client/cors', true);
     if (!apiclient.authTokenRefresher_) {
-      apiclient.setAuthTokenRefresher(goog.global['gapi']['auth']['authorize']);
+      apiclient.setAuthTokenRefresher(goog.global['gapi']['auth2']['authorize']);
     }
     callback();
   };
   if (goog.isObject(goog.global['gapi']) &&
-      goog.isObject(goog.global['gapi']['auth']) &&
-      typeof goog.global['gapi']['auth']['authorize'] === 'function') {
+      goog.isObject(goog.global['gapi']['auth2']) &&
+      typeof goog.global['gapi']['auth2']['authorize'] === 'function') {
     done();
   } else {
     // The library is not loaded; load it now.

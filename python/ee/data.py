@@ -24,8 +24,10 @@ from ee import computedobject
 from ee import deprecation
 from ee import ee_exception
 from ee import encodable
+from ee import image_converter
 from ee import oauth
 from ee import serializer
+from ee import table_converter
 
 from ee import __version__
 
@@ -713,6 +715,38 @@ def getFeatureViewTilesKey(params: Dict[str, Any]) -> Dict[str, Any]:
   }
 
 
+def _extract_table_converter(params: Dict[str, Any]) -> Optional[Any]:
+  if 'fileFormat' in params:
+    file_format = params.get('fileFormat')
+    converter = table_converter.from_file_format(file_format)
+    if converter:
+      return converter
+    raise ValueError('Invalid table file format: ', file_format)
+  return None
+
+
+def _extract_image_converter(
+    params: Dict[str, Any]
+) -> image_converter.ImageConverter:
+  file_format = params.get('fileFormat')
+  converter = image_converter.from_file_format(file_format)
+  if converter:
+    return converter
+  return image_converter.IdentityImageConverter(file_format)
+
+
+def _generate(func, list_key: str, **kwargs) -> Iterator[Any]:
+  """Returns a generator for list methods that contain a next page token."""
+  args = kwargs.copy()
+  while True:
+    response = func(**args)
+    for obj in response.get(list_key, []):
+      yield obj
+    if _NEXT_PAGE_TOKEN_KEY not in response:
+      break
+    args['params'].update({'pageToken': response[_NEXT_PAGE_TOKEN_KEY]})
+
+
 def listFeatures(params: Dict[str, Any]) -> Any:
   """List features for a given table or FeatureView asset.
 
@@ -726,6 +760,7 @@ def listFeatures(params: Dict[str, Any]) -> Any:
                GeoJSON geometry string (see RFC 7946).
       filter - If present, specifies additional simple property filters
                (see https://google.aip.dev/160).
+      fileFormat - The resulting output format.
 
   Returns:
     A dictionary containing:
@@ -745,6 +780,10 @@ def listFeatures(params: Dict[str, Any]) -> Any:
         _get_cloud_projects().assets().listFeatures(**params)
     )
 
+  converter = _extract_table_converter(params)
+  params.pop('fileFormat', None)
+  if converter:
+    return converter.do_conversion(_generate(call, 'features', params=params))
   return call(params)
 
 
@@ -774,14 +813,17 @@ def getPixels(params: Dict[str, Any]) -> Any:
   params = params.copy()
   name = _cloud_api_utils.convert_asset_id_to_asset_name(params.get('assetId'))
   del params['assetId']
+  converter = _extract_image_converter(params)
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
-      params.get('fileFormat')
+      converter.expected_data_format()
   )
   data = _execute_cloud_call(
       _get_cloud_projects_raw()
       .assets()
       .getPixels(name=name, body=params)
   )
+  if converter:
+    return converter.do_conversion(data)
   return data
 
 
@@ -808,8 +850,9 @@ def computePixels(params: Dict[str, Any]) -> Any:
   """
   params = params.copy()
   params['expression'] = serializer.encode(params['expression'])
+  converter = _extract_image_converter(params)
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
-      params.get('fileFormat')
+      converter.expected_data_format()
   )
   _maybe_populate_workload_tag(params)
   data = _execute_cloud_call(
@@ -817,6 +860,8 @@ def computePixels(params: Dict[str, Any]) -> Any:
       .image()
       .computePixels(project=_get_projects_path(), body=params)
   )
+  if converter:
+    return converter.do_conversion(data)
   return data
 
 
@@ -857,6 +902,7 @@ def computeFeatures(params: Dict[str, Any]) -> Any:
           1000 results per page.
       pageToken - A token identifying a page of results the server should
                   return.
+      fileFormat - The resulting output format.
       workloadTag - User supplied tag to track this computation.
 
   Returns:
@@ -873,6 +919,10 @@ def computeFeatures(params: Dict[str, Any]) -> Any:
         .computeFeatures(project=_get_projects_path(), body=params)
     )
 
+  converter = _extract_table_converter(params)
+  params.pop('fileFormat', None)
+  if converter:
+    return converter.do_conversion(_generate(call, 'features', params=params))
   return call(params)
 
 
