@@ -1909,6 +1909,10 @@ class ModelCommand(Dispatcher):
   COMMANDS = [PrepareModelCommand]
 
 
+EXTERNAL_COMMANDS = [
+    AuthenticateCommand,
+    AclCommand,
+    AssetCommand,
     CopyCommand,
     CreateCommand,
     ListCommand,

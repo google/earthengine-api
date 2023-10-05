@@ -359,11 +359,18 @@ ee.ImageCollection.prototype.select = function(selectors, opt_names) {
 ee.ImageCollection.prototype.linkCollection = function(
     imageCollection, opt_linkedBands, opt_linkedProperties,
     opt_matchPropertyName) {
-  const varargs = arguments;
+  let args = ee.arguments.extractFromFunction(
+        ee.ImageCollection.prototype.linkCollection, arguments);
   return /** @type {!ee.ImageCollection} */ (this.map(function(obj) {
     let img = /** @type {!ee.Image} */ (obj);
     img = /** @type {!ee.Image} */ (
-          ee.ApiFunction._call('Image.linkCollection', img, ...varargs));
+          ee.ApiFunction._call(
+              'Image.linkCollection',
+              img,
+              /** @type {!ee.ImageCollection} */ (args['imageCollection']),
+              /** @type {?Array<string>} */ (args['linkedBands']),
+              /** @type {?Array<string>} */ (args['linkedProperties']),
+              /** @type {?string} */ (args['matchPropertyName'])));
     return img;
   }));
 };

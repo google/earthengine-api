@@ -12,7 +12,7 @@ import datetime
 import json
 import os
 import re
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Union
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
 import warnings
 
 import google_auth_httplib2
@@ -48,12 +48,13 @@ class _Http:
 
   def request(  # pylint: disable=invalid-name
       self,
-      uri,
-      method='GET',
-      body=None,
-      headers=None,
-      redirections=None,
-      connection_type=None):
+      uri: str,
+      method: str = 'GET',
+      body: Optional[str] = None,
+      headers: Optional[Dict[str, str]] = None,
+      redirections: Optional[int] = None,
+      connection_type: Optional[Type[Any]] = None,
+  ) -> Tuple[httplib2.Response, Any]:
     """Makes an HTTP request using httplib2 semantics."""
     del connection_type  # Unused
 
@@ -89,9 +90,9 @@ def _wrap_request(
 
   # pylint: disable=invalid-name
   def builder(
-      http_transport: Any,
-      postproc: Any,
-      uri: Any,
+      http_transport: httplib2.Http,
+      postproc: Callable[..., Any],
+      uri: str,
       method: str = 'GET',
       body: Optional[Any] = None,
       headers: Optional[Any] = None,
@@ -126,7 +127,7 @@ def set_cloud_api_user_project(cloud_api_user_project: str) -> None:
 
 def build_cloud_resource(
     api_base_url: str,
-    api_key: Optional[Any] = None,
+    api_key: Optional[str] = None,
     credentials: Optional[Any] = None,
     timeout: Optional[float] = None,
     headers_supplier: Optional[Callable[[], Dict[str, Any]]] = None,
@@ -189,16 +190,17 @@ def build_cloud_resource(
     pass  # Handle fallback case outside except block, for cleaner stack traces.
   if resource is None:
     resource = build()
+  # pylint: disable-next=protected-access
   resource._baseUrl = api_base_url
   return resource
 
 
 def build_cloud_resource_from_document(
-    discovery_document,
-    http_transport=None,
-    headers_supplier=None,
-    response_inspector=None,
-    raw=False,
+    discovery_document: Any,
+    http_transport: Optional[httplib2.Http] = None,
+    headers_supplier: Optional[Callable[..., Any]] = None,
+    response_inspector: Optional[Callable[..., Any]] = None,
+    raw: bool = False,
 ) -> discovery.Resource:
   """Builds an Earth Engine Cloud API resource from a description of the API.
 

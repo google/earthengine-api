@@ -6,7 +6,7 @@ from __future__ import annotations
 import collections.abc
 import json
 import numbers
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from ee import apifunction
 from ee import computedobject
@@ -28,9 +28,7 @@ class Geometry(computedobject.ComputedObject):
 
   def __init__(
       self,
-      geo_json: Union[
-          Dict[str, Any], computedobject.ComputedObject, 'Geometry'
-      ],
+      geo_json: Union[Dict[str, Any], computedobject.ComputedObject, Geometry],
       opt_proj: Optional[Any] = None,
       opt_geodesic: Optional[bool] = None,
       opt_evenOdd: Optional[bool] = None,  # pylint: disable=g-bad-name
@@ -64,9 +62,10 @@ class Geometry(computedobject.ComputedObject):
     """
     self.initialize()
 
-    computed = (
-        isinstance(geo_json, computedobject.ComputedObject) and
-        not (isinstance(geo_json, Geometry) and geo_json._type is not None))  # pylint: disable=protected-access
+    # pylint: disable-next=protected-access
+    computed = isinstance(geo_json, computedobject.ComputedObject) and not (
+        isinstance(geo_json, Geometry) and geo_json._type is not None
+    )
     options = opt_proj or opt_geodesic or opt_evenOdd
     if computed:
       if options:
@@ -672,7 +671,7 @@ class Geometry(computedobject.ComputedObject):
                (nesting == 4 or not coords)))
 
   @staticmethod
-  def _isValidCoordinates(shape: Union[Sequence[float], 'Geometry']) -> int:
+  def _isValidCoordinates(shape: Union[Sequence[float], Geometry]) -> int:
     """Validate the coordinates of a geometry.
 
     Args:
@@ -848,7 +847,9 @@ class Geometry(computedobject.ComputedObject):
     return coords
 
   @staticmethod
-  def _GetSpecifiedArgs(args, keywords=(), **kwargs):
+  def _GetSpecifiedArgs(
+      args, keywords: Tuple[str, ...] = (), **kwargs
+  ) -> List[Any]:
     """Returns args, filtering out _UNSPECIFIED and checking for keywords."""
     if keywords:
       args = list(args)
