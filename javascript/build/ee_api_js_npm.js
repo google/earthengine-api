@@ -17407,7 +17407,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.374";
+ee.apiclient.API_CLIENT_VERSION = "0.1.375";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17698,8 +17698,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.374";
-  "0.1.374" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.375";
+  "0.1.375" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -25090,23 +25090,26 @@ function module$contents$safevalues$builders$script_builders_safeScriptWithArgs(
 module$exports$safevalues$builders$script_builders.safeScriptWithArgs = module$contents$safevalues$builders$script_builders_safeScriptWithArgs;
 var module$exports$safevalues$builders$style_builders = {}, module$contents$safevalues$builders$style_builders_module = module$contents$safevalues$builders$style_builders_module || {id:"third_party/javascript/safevalues/builders/style_builders.closure.js"};
 function module$contents$safevalues$builders$style_builders_safeStyle(templateObj) {
-  goog.DEBUG && module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, 0);
-  var style = templateObj[0];
+  var rest = $jscomp.getRestArguments.apply(1, arguments);
+  goog.DEBUG && module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, rest.length);
+  for (var stringifiedStyle = templateObj[0], i = 0; i < templateObj.length - 1; i++) {
+    stringifiedStyle += String(rest[i]) + templateObj[i + 1];
+  }
+  if (/[<>]/.test(stringifiedStyle)) {
+    throw Error("Forbidden characters in style string: " + stringifiedStyle);
+  }
   if (goog.DEBUG) {
-    if (0 === style.length) {
-      return module$contents$safevalues$internals$style_impl_createStyleInternal(style);
+    if (0 === stringifiedStyle.length) {
+      return module$contents$safevalues$internals$style_impl_createStyleInternal(stringifiedStyle);
     }
-    if (/[<>]/.test(style)) {
-      throw Error("Forbidden characters in style string: " + style);
+    if (!/;$/.test(stringifiedStyle)) {
+      throw Error('Style string does not end with ";": ' + stringifiedStyle);
     }
-    if (!/;$/.test(style)) {
-      throw Error('Style string does not end with ";": ' + style);
-    }
-    if (!/:/.test(style)) {
-      throw Error('Style string should contain one or more ":": ' + style);
+    if (!/:/.test(stringifiedStyle)) {
+      throw Error('Style string should contain one or more ":": ' + stringifiedStyle);
     }
   }
-  return module$contents$safevalues$internals$style_impl_createStyleInternal(style);
+  return module$contents$safevalues$internals$style_impl_createStyleInternal(stringifiedStyle);
 }
 module$exports$safevalues$builders$style_builders.safeStyle = module$contents$safevalues$builders$style_builders_safeStyle;
 function module$contents$safevalues$builders$style_builders_concatStyles(styles) {
@@ -25209,6 +25212,9 @@ var module$contents$safevalues$builders$url_builders_DEFAULT_SCHEMES = [module$e
 module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.FTP, module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.RELATIVE];
 function module$contents$safevalues$builders$url_builders_trySanitizeUrl(url, allowedSchemes) {
   allowedSchemes = void 0 === allowedSchemes ? module$contents$safevalues$builders$url_builders_DEFAULT_SCHEMES : allowedSchemes;
+  if (module$contents$safevalues$internals$url_impl_isUrl(url)) {
+    return url;
+  }
   for (var i = 0; i < allowedSchemes.length; ++i) {
     var scheme = allowedSchemes[i];
     if (module$contents$safevalues$builders$url_builders_isValidScheme(scheme) && scheme.isValid(url)) {

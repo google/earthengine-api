@@ -760,10 +760,15 @@ def listFeatures(params: Dict[str, Any]) -> Any:
                GeoJSON geometry string (see RFC 7946).
       filter - If present, specifies additional simple property filters
                (see https://google.aip.dev/160).
-      fileFormat - The resulting output format.
+      fileFormat - If present, specifies an output format for the tabular data.
+          The function makes a network request for each page until the entire
+          table has been fetched. The number of fetches depends on the number of
+          rows in the table and pageSize. pageToken is ignored. Supported
+          formats are: PANDAS_DATAFRAME for a Pandas DataFrame and
+          GEOPANDAS_GEODATAFRAME for a GeoPandas GeoDataFrame.
 
   Returns:
-    A dictionary containing:
+    A Pandas DataFrame, GeoPandas GeoDataFrame, or a dictionary containing:
     - "type": always "FeatureCollection" marking this object as a GeoJSON
               feature collection.
     - "features": a list of GeoJSON features.
@@ -795,7 +800,9 @@ def getPixels(params: Dict[str, Any]) -> Any:
       assetId - The asset ID for which to get pixels. Must be an image asset.
       fileFormat - The resulting file format. Defaults to png. See
           https://developers.google.com/earth-engine/reference/rest/v1/ImageFileFormat
-          for the available formats.
+          for the available formats. There are additional formats that convert
+          the downloaded object to a Python data object. These include:
+          NUMPY_NDARRAY, which converts to a structured NumPy array.
       grid - Parameters describing the pixel grid in which to fetch data.
           Defaults to the native pixel grid of the data.
       region - If present, the region of data to return, specified as a GeoJSON
@@ -835,7 +842,9 @@ def computePixels(params: Dict[str, Any]) -> Any:
       expression - The expression to compute.
       fileFormat - The resulting file format. Defaults to png. See
           https://developers.google.com/earth-engine/reference/rest/v1/ImageFileFormat
-          for the available formats.
+          for the available formats. There are additional formats that convert
+          the downloaded object to a Python data object. These include:
+          NUMPY_NDARRAY, which converts to a structured NumPy array.
       grid - Parameters describing the pixel grid in which to fetch data.
           Defaults to the native pixel grid of the data.
       bandIds - If present, specifies a specific set of bands from which to get
@@ -902,11 +911,21 @@ def computeFeatures(params: Dict[str, Any]) -> Any:
           1000 results per page.
       pageToken - A token identifying a page of results the server should
                   return.
-      fileFormat - The resulting output format.
+      fileFormat - If present, specifies an output format for the tabular data.
+          The function makes a network request for each page until the entire
+          table has been fetched. The number of fetches depends on the number of
+          rows in the table and pageSize. pageToken is ignored. Supported
+          formats are: PANDAS_DATAFRAME for a Pandas DataFrame and
+          GEOPANDAS_GEODATAFRAME for a GeoPandas GeoDataFrame.
       workloadTag - User supplied tag to track this computation.
 
   Returns:
-    A list with the results of the computation.
+    A Pandas DataFrame, GeoPandas GeoDataFrame, or a dictionary containing:
+    - "type": always "FeatureCollection" marking this object as a GeoJSON
+          feature collection.
+    - "features": a list of GeoJSON features.
+    - "next_page_token": A token to retrieve the next page of results in a
+          subsequent call to this function.
   """
   params = params.copy()
   params['expression'] = serializer.encode(params['expression'])
