@@ -406,7 +406,6 @@ def setCloudApiUserProject(cloud_api_user_project: str) -> None:
 def setUserAgent(user_agent: str) -> None:
   global _user_agent
   _user_agent = user_agent
-  _install_cloud_api_resource()
 
 
 def getUserAgent() -> Optional[str]:
