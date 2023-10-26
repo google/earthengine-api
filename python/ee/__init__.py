@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The EE Python library."""
 
-__version__ = '0.1.376'
+__version__ = '0.1.377'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -13,6 +13,7 @@ import numbers
 import os
 from typing import Any, Hashable, List as ListType, Optional, Sequence, Type, Union
 
+from ee import _cloud_api_utils
 from ee import batch
 from ee import data
 from ee import deserializer
@@ -110,7 +111,7 @@ def Initialize(
     credentials: Optional[Any] = 'persistent',
     opt_url: Optional[str] = None,
     cloud_api_key: Optional[str] = None,
-    http_transport: Optional[Any] = None,
+    http_transport: Optional[_cloud_api_utils.HttpTransportable] = None,
     project: Optional[Union[str, int]] = None,
 ) -> None:
   """Initialize the EE library.

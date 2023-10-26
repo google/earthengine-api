@@ -1646,10 +1646,12 @@ ee.data.listImages = function(
 
 
 /**
- * Returns a list of asset roots belonging to the user or Cloud Project. Leave
- * the project field blank to use the current project.
+ * Returns top-level assets and folders for the Cloud Project or user. Leave the
+ * project field blank to use the current project.
  *
- * @param {string=} project Project to query. Defaults to current project.
+ * @param {string=} project Project to query, e.g. "projects/my-project".
+ *     Defaults to current project. Use "projects/earthengine-legacy" for user
+ *     home folders.
  * @param {function(?ee.api.ListAssetsResponse, string=)=}
  *     opt_callback  If not supplied, the call is made synchronously.
  * @return {?ee.api.ListAssetsResponse}
@@ -1664,13 +1666,17 @@ ee.data.listBuckets = function(project, opt_callback) {
 
 
 /**
- * Returns the list of the root folders the user owns. The "id" values for roots
- * are two levels deep, e.g. "users/johndoe" not "users/johndoe/notaroot".
+ * Returns a list of top-level assets and folders for the current project.
  *
+ * The "id" values for Cloud Projects are "projects/my-project/assets/my-asset",
+ * where legacy assets (if the current project is set to "earthengine-legacy")
+ * are "users/my-username", not "users/my-username/my-asset".
+ *
+ * @deprecated Use ee.data.listBuckets() with no "project" parameter.
  * @param {function(?Array<!ee.data.FolderDescription>, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
- * @return {?Array<!ee.data.FolderDescription>} The list of writable folders.
- *     Null if a callback is specified.
+ * @return {?Array<!ee.data.FolderDescription>} The list of top-level assets and
+ *     folders. Null if a callback is specified.
  * @export
  */
 ee.data.getAssetRoots = function(opt_callback) {
@@ -1683,13 +1689,14 @@ ee.data.getAssetRoots = function(opt_callback) {
 
 /**
  * Attempts to create a home root folder (e.g. "users/joe") for the current
- * user. This results in an error if the user already has a home root folder or
- * the requested ID is unavailable.
+ * user. This results in an error if the user already has a home root folder
+ * or the requested ID is unavailable.
  *
  * @param {string} requestedId The requested ID of the home folder
  *     (e.g. "users/joe").
- * @param {function(?Array<!ee.data.FolderDescription>, string=)=} opt_callback
- *     An optional callback. If not supplied, the call is made synchronously.
+ * @param {function(?Array<!ee.data.FolderDescription>, string=)=}
+ *     opt_callback An optional callback. If not supplied, the call is made
+ *     synchronously.
  * @export
  */
 ee.data.createAssetHome = function(requestedId, opt_callback) {

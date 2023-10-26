@@ -1200,7 +1200,8 @@ $jscomp.polyfill("String.prototype.padStart", function(orig) {
     return $jscomp.stringPadding(opt_padString, targetLength - string.length) + string;
   };
 }, "es8", "es3");
-var CLOSURE_TOGGLE_ORDINALS = {GoogFlags__async_throw_on_unicode_to_byte__enable:!1, GoogFlags__client_only_wiz_attribute_sanitization__disable:!1, GoogFlags__client_only_wiz_hook_context_fix__enable:!1, GoogFlags__override_disable_toggles:!1, GoogFlags__testonly_debug_flag__enable:!1, GoogFlags__testonly_disabled_flag__enable:!1, GoogFlags__testonly_stable_flag__disable:!1, GoogFlags__testonly_staging_flag__disable:!1, GoogFlags__use_toggles:!1, GoogFlags__use_user_agent_client_hints__enable:!1};
+var CLOSURE_TOGGLE_ORDINALS = {GoogFlags__async_throw_on_unicode_to_byte__enable:!1, GoogFlags__client_only_wiz_attribute_sanitization__disable:!1, GoogFlags__client_only_wiz_hook_context_fix__enable:!1, GoogFlags__jspb_disable_serializing_empty_repeated_and_map_fields__disable:!1, GoogFlags__override_disable_toggles:!1, GoogFlags__testonly_debug_flag__enable:!1, GoogFlags__testonly_disabled_flag__enable:!1, GoogFlags__testonly_stable_flag__disable:!1, GoogFlags__testonly_staging_flag__disable:!1, 
+GoogFlags__use_toggles:!1, GoogFlags__use_user_agent_client_hints__enable:!1};
 /*
 
  Copyright The Closure Library Authors.
@@ -2967,6 +2968,7 @@ module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_cl
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_attribute_sanitization__disable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_hook_context_fix__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__jspb_disable_serializing_empty_repeated_and_map_fields__disable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable = !1;
@@ -2977,6 +2979,8 @@ goog.flags.USE_USER_AGENT_CLIENT_HINTS = module$exports$closure$flags$flags$2eto
 goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable : goog.readFlagInternalDoNotUseOrElse(899588437, !1);
 goog.flags.CLIENT_ONLY_WIZ_ATTRIBUTE_SANITIZATION = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_attribute_sanitization__disable : goog.readFlagInternalDoNotUseOrElse(533565600, !0);
 goog.flags.CLIENT_ONLY_WIZ_HOOK_CONTEXT_FIX = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_hook_context_fix__enable : goog.readFlagInternalDoNotUseOrElse(563486499, !1);
+goog.flags.JSPB_DISABLE_SERIALIZING_EMPTY_REPEATED_AND_MAP_FIELDS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__jspb_disable_serializing_empty_repeated_and_map_fields__disable) : goog.readFlagInternalDoNotUseOrElse(572417392, 
+module$contents$goog$flags_STAGING);
 goog.flags.TESTONLY_DISABLED_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
 goog.flags.TESTONLY_DEBUG_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
 goog.flags.TESTONLY_STAGING_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable) : goog.readFlagInternalDoNotUseOrElse(2147483646, module$contents$goog$flags_STAGING);
@@ -13638,8 +13642,8 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
 }, set:function(value) {
   this.Serializable$set("start", value);
 }}});
-var module$contents$eeapiclient$ee_api_client_PARAM_MAP_0 = {$Xgafv:"$.xgafv", access_token:"access_token", alt:"alt", assetId:"assetId", billingAccount:"billingAccount", callback:"callback", fields:"fields", filter:"filter", key:"key", oauth_token:"oauth_token", overwrite:"overwrite", pageSize:"pageSize", pageToken:"pageToken", parent:"parent", prettyPrint:"prettyPrint", quotaUser:"quotaUser", region:"region", updateMask:"updateMask", uploadType:"uploadType", upload_protocol:"upload_protocol", 
-view:"view", workloadTag:"workloadTag"};
+var module$contents$eeapiclient$ee_api_client_PARAM_MAP_0 = {$Xgafv:"$.xgafv", access_token:"access_token", alt:"alt", assetId:"assetId", callback:"callback", fields:"fields", filter:"filter", key:"key", oauth_token:"oauth_token", overwrite:"overwrite", pageSize:"pageSize", pageToken:"pageToken", parent:"parent", prettyPrint:"prettyPrint", quotaUser:"quotaUser", region:"region", updateMask:"updateMask", uploadType:"uploadType", upload_protocol:"upload_protocol", view:"view", 
+workloadTag:"workloadTag"};
 module$exports$eeapiclient$ee_api_client.IBillingAccountsSubscriptionsApiClient$XgafvEnum = function() {
 };
 module$exports$eeapiclient$ee_api_client.BillingAccountsSubscriptionsApiClient$XgafvEnum = {1:"1", 2:"2", values:function() {
@@ -17391,7 +17395,7 @@ goog.debug.entryPointRegistry.register(function(transformer) {
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.376";
+ee.apiclient.API_CLIENT_VERSION = "0.1.377";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -17682,8 +17686,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.376";
-  "0.1.376" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.377";
+  "0.1.377" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -25156,7 +25160,7 @@ function module$contents$safevalues$builders$url_builders_isSafeMimeType(mimeTyp
   return 2 === (null == match ? void 0 : match.length) && (module$contents$safevalues$builders$url_builders_isSafeImageMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeAudioMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeFontMimeType(match[1]));
 }
 function module$contents$safevalues$builders$url_builders_isSafeImageMimeType(mimeType) {
-  return /^image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon|heic|heif|avif)$/i.test(mimeType);
+  return /^image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon|heic|heif|avif|x-ms-bmp)$/i.test(mimeType);
 }
 function module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(mimeType) {
   return /^video\/(?:mpeg|mp4|ogg|webm|x-matroska|quicktime|x-ms-wmv)$/i.test(mimeType);

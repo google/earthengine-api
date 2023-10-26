@@ -59,7 +59,7 @@ _cloud_api_user_project: Optional[str] = None
 _cloud_api_client_version: Optional[str] = None
 
 # The http_transport to use.
-_http_transport = None
+_http_transport: _cloud_api_utils.HttpTransportable = None
 
 # Whether the module has been initialized.
 _initialized: bool = False
@@ -123,6 +123,7 @@ BASE_RETRY_WAIT = 1000
 
 # The default base URL for API calls.
 DEFAULT_API_BASE_URL = 'https://earthengine.googleapis.com/api'
+HIGH_VOLUME_API_BASE_URL = 'https://earthengine-highvolume.googleapis.com'
 
 # The default base URL for media/tile calls.
 DEFAULT_TILE_BASE_URL = 'https://earthengine.googleapis.com'
@@ -156,7 +157,7 @@ def initialize(
     cloud_api_base_url: Optional[str] = None,
     cloud_api_key: Optional[str] = None,
     project: Optional[str] = None,
-    http_transport: Any = None,
+    http_transport: Optional[_cloud_api_utils.HttpTransportable] = None,
 ) -> None:
   """Initializes the data module, setting credentials and base URLs.
 
@@ -595,6 +596,19 @@ def listAssets(params: Dict[str, Any]) -> Dict[str, List[Any]]:
 
 
 def listBuckets(project: Optional[str] = None) -> Any:
+  """Returns top-level assets and folders for the Cloud Project or user.
+
+  Args:
+    project: Project to query, e.g. "projects/my-project". Defaults to current
+      project. Use "projects/earthengine-legacy" for user home folders.
+
+  Returns:
+    A dictionary with a list of top-level assets and folders like:
+      {"assets": [
+          {"type": "FOLDER", "id": "projects/my-project/assets/my-folder", ...},
+          {"type": "IMAGE", "id": "projects/my-project/assets/my-image", ...},
+      ]}
+  """
   if project is None:
     project = _get_projects_path()
   return _execute_cloud_call(_get_cloud_projects().listAssets(parent=project))
@@ -1887,16 +1901,18 @@ def startTableIngestion(
 
 
 def getAssetRoots() -> Any:
-  """Returns the list of the root folders the user owns.
+  """Returns a list of top-level assets and folders for the current project.
 
-  Note: The "id" values for roots are two levels deep, e.g. "users/johndoe"
-        not "users/johndoe/notaroot".
+  Note: The "id" values for Cloud Projects are
+        "projects/my-project/assets/my-asset", where legacy assets (if the
+        current project is set to "earthengine-legacy") are "users/my-username",
+        not "users/my-username/my-asset".
 
   Returns:
-    A list of folder descriptions formatted like:
+    The list of top-level assets and folders like:
       [
-          {"type": "Folder", "id": "users/foo"},
-          {"type": "Folder", "id": "projects/bar"},
+          {"id": "users/foo", "type": "Folder", ...},
+          {"id": "projects/bar", "type": "Folder", ...},
       ]
   """
   return _cloud_api_utils.convert_list_assets_result_to_get_list_result(

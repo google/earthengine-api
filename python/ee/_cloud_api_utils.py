@@ -12,9 +12,10 @@ import datetime
 import json
 import os
 import re
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Callable, Dict, List, Optional, Protocol, Sequence, Tuple, Type, Union
 import warnings
 
+from google import auth
 import google_auth_httplib2
 from googleapiclient import discovery
 from googleapiclient import http
@@ -39,9 +40,24 @@ ASSET_ROOT_PATTERN = (r'^projects/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
 _cloud_api_user_project: Optional[str] = None
 
 
+class HttpTransportable(Protocol):
+  """A protocol for HTTP transport objects."""
+
+  def request(  # pylint: disable=invalid-name
+      self,
+      uri: str,
+      method: str,
+      body: Optional[str],
+      headers: Optional[Dict[str, str]],
+      redirections: Optional[int],
+      connection_type: Optional[Type[Any]],
+  ) -> Any:
+    """Make an HTTP request."""
+
+
 class _Http:
   """A httplib2.Http-like object based on requests."""
-  timeout: Optional[float]
+  _timeout: Optional[float]
 
   def __init__(self, timeout: Optional[float] = None):
     self._timeout = timeout
@@ -128,13 +144,13 @@ def set_cloud_api_user_project(cloud_api_user_project: str) -> None:
 def build_cloud_resource(
     api_base_url: str,
     api_key: Optional[str] = None,
-    credentials: Optional[Any] = None,
+    credentials: Optional[auth.credentials.Credentials] = None,
     timeout: Optional[float] = None,
     headers_supplier: Optional[Callable[[], Dict[str, Any]]] = None,
     response_inspector: Optional[Callable[[Any], None]] = None,
-    http_transport: Optional[Any] = None,
+    http_transport: Optional[HttpTransportable] = None,
     raw: Optional[bool] = False,
-) -> Any:
+) -> discovery.Resource:
   """Builds an Earth Engine Cloud API resource.
 
   Args:
