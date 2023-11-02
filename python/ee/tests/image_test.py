@@ -1,18 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.image module."""
-
-
 
 import json
 from unittest import mock
-
-import unittest
 
 import ee
 from ee import _cloud_api_utils
 from ee import apitestcase
 from ee import ee_exception
 from ee import serializer
+import unittest
 
 
 class ImageTestCase(apitestcase.ApiTestCase):

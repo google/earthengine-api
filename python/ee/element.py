@@ -1,17 +1,16 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Base class for Image, Feature and Collection.
 
 This class is never intended to be instantiated by the user.
 """
 
+from __future__ import annotations
 
+from typing import Any, Dict, Optional, Union
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
-from . import apifunction
-from . import computedobject
-from . import ee_exception
+from ee import apifunction
+from ee import computedobject
+from ee import ee_exception
 
 
 class Element(computedobject.ComputedObject):
@@ -19,28 +18,37 @@ class Element(computedobject.ComputedObject):
 
   _initialized = False
 
-  def __init__(self, func, args, opt_varName=None):
+  # pylint: disable-next=useless-parent-delegation
+  def __init__(
+      self,
+      func: Optional[apifunction.ApiFunction],
+      args: Optional[Dict[str, Any]],
+      opt_varName: Optional[str] = None,  # pylint: disable=g-bad-name
+  ):
     """Constructs a collection by initializing its ComputedObject."""
-    super(Element, self).__init__(func, args, opt_varName)
+    super().__init__(func, args, opt_varName)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Element', 'Element')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Element'
 
-  def set(self, *args):
+  def set(
+      self,
+      *args: Union[Dict[str, Any], float, str, computedobject.ComputedObject],
+  ) -> Element:
     """Overrides one or more metadata properties of an Element.
 
     Args:

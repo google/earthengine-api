@@ -1,17 +1,12 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """A base class for EE Functions."""
-
-
-
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
 
 import textwrap
 
-from . import computedobject
-from . import ee_exception
-from . import encodable
-from . import serializer
+from ee import computedobject
+from ee import ee_exception
+from ee import encodable
+from ee import serializer
 
 
 class Function(encodable.EncodableFunction):
@@ -96,26 +91,29 @@ class Function(encodable.EncodableFunction):
       EEException: If unrecognized arguments are passed or required ones are
           missing.
     """
-    specs = self.getSignature()['args']
+    signature = self.getSignature()
+    arg_specs = signature['args']
 
     # Promote all recognized args.
     promoted_args = {}
     known = set()
-    for spec in specs:
-      name = spec['name']
+    for arg_spec in arg_specs:
+      name = arg_spec['name']
       if name in args:
-        promoted_args[name] = Function._promoter(args[name], spec['type'])
-      elif not spec.get('optional'):
+        promoted_args[name] = Function._promoter(args[name], arg_spec['type'])
+      elif not arg_spec.get('optional'):
         raise ee_exception.EEException(
             'Required argument (%s) missing to function: %s'
-            % (name, self.name))
+            % (name, signature.get('name')))
       known.add(name)
 
     # Check for unknown arguments.
     unknown = set(args.keys()).difference(known)
     if unknown:
       raise ee_exception.EEException(
-          'Unrecognized arguments %s to function: %s' % (unknown, self.name))
+          'Unrecognized arguments %s to function: %s'
+          % (unknown, signature.get('name'))
+      )
 
     return promoted_args
 
@@ -135,14 +133,18 @@ class Function(encodable.EncodableFunction):
     Raises:
       EEException: If conflicting arguments or too many of them are supplied.
     """
-    specs = self.getSignature()['args']
+    signature = self.getSignature()
+    arg_specs = signature['args']
 
     # Handle positional arguments.
-    if len(specs) < len(args):
+    if len(arg_specs) < len(args):
       raise ee_exception.EEException(
-          'Too many (%d) arguments to function: %s' % (len(args), self.name))
-    named_args = dict([(spec['name'], value)
-                       for spec, value in zip(specs, args)])
+          'Too many (%d) arguments to function: %s'
+          % (len(args), signature.get('name'))
+      )
+    named_args = dict(
+        [(arg_spec['name'], value) for arg_spec, value in zip(arg_specs, args)]
+    )
 
     # Handle keyword arguments.
     if extra_keyword_args:
@@ -150,7 +152,8 @@ class Function(encodable.EncodableFunction):
         if name in named_args:
           raise ee_exception.EEException(
               'Argument %s specified as both positional and '
-              'keyword to function: %s' % (name, self.name))
+              'keyword to function: %s' % (name, signature.get('name'))
+          )
         named_args[name] = extra_keyword_args[name]
       # Unrecognized arguments are checked in promoteArgs().
 
@@ -164,14 +167,14 @@ class Function(encodable.EncodableFunction):
         self, for_cloud_api=for_cloud_api
     )
 
-  def __str__(self):
+  def __str__(self) -> str:
     """Returns a user-readable docstring for this function."""
-    DOCSTRING_WIDTH = 75
+    docstring_width = 75
     signature = self.getSignature()
     parts = []
     if 'description' in signature:
       parts.append(
-          textwrap.fill(signature['description'], width=DOCSTRING_WIDTH))
+          textwrap.fill(signature['description'], width=docstring_width))
     args = signature['args']
     if args:
       parts.append('')
@@ -184,7 +187,7 @@ class Function(encodable.EncodableFunction):
         else:
           arg_header = name_part
         arg_doc = textwrap.fill(arg_header,
-                                width=DOCSTRING_WIDTH - len(name_part),
+                                width=docstring_width - len(name_part),
                                 subsequent_indent=' ' * 6)
         parts.append(arg_doc)
     return '\n'.join(parts)

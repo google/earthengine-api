@@ -1,5 +1,5 @@
 /**
- * @fileoverview Wrapper for the generated v1alpha API methods and types.
+ * @fileoverview Wrapper for the generated v1 API methods and types.
  *
  * Necessary so that we can include the module in goog.provide-style modules
  * without awkward goog.scope/goog.module.get incantations.

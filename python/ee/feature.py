@@ -1,16 +1,13 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """An object representing EE Features."""
 
+from typing import Any, Dict, Optional, Union
 
-
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
-from . import apifunction
-from . import computedobject
-from . import ee_exception
-from . import element
-from . import geometry
+from ee import apifunction
+from ee import computedobject
+from ee import ee_exception
+from ee import element
+from ee import geometry
 
 
 class Feature(element.Element):
@@ -21,7 +18,20 @@ class Feature(element.Element):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, geom, opt_properties=None):
+  def __init__(
+      self,
+      geom: Optional[
+          Union[
+              'Feature',
+              geometry.Geometry,
+              Dict[str, Any],
+              computedobject.ComputedObject,
+          ]
+      ],
+      opt_properties: Optional[
+          Union[Dict[str, Any], computedobject.ComputedObject]
+      ] = None,
+  ):
     """Creates a feature a geometry or computed object.
 
     Features can be constructed from one of the following arguments plus an
@@ -43,9 +53,9 @@ class Feature(element.Element):
     if isinstance(geom, Feature):
       if opt_properties is not None:
         raise ee_exception.EEException(
-            'Can\'t create Feature out of a Feature and properties.')
+            'Cannot create Feature out of a Feature and properties.')
       # A pre-constructed Feature. Copy.
-      super(Feature, self).__init__(geom.func, geom.args)
+      super().__init__(geom.func, geom.args)
       return
 
     self.initialize()
@@ -53,48 +63,50 @@ class Feature(element.Element):
     feature_constructor = apifunction.ApiFunction.lookup('Feature')
     if geom is None or isinstance(geom, geometry.Geometry):
       # A geometry object.
-      super(Feature, self).__init__(feature_constructor, {
+      super().__init__(feature_constructor, {
           'geometry': geom,
           'metadata': opt_properties or None
       })
     elif isinstance(geom, computedobject.ComputedObject):
       # A custom object to reinterpret as a Feature.
-      super(Feature, self).__init__(geom.func, geom.args, geom.varName)
+      super().__init__(geom.func, geom.args, geom.varName)
     elif isinstance(geom, dict) and geom.get('type') == 'Feature':
       properties = geom.get('properties', {})
       if 'id' in geom:
         if 'system:index' in properties:
           raise ee_exception.EEException(
-              'Can\'t specify both "id" and "system:index".')
+              'Cannot specify both "id" and "system:index".')
         properties = properties.copy()
         properties['system:index'] = geom['id']
       # Try to convert a GeoJSON Feature.
-      super(Feature, self).__init__(feature_constructor, {
+      super().__init__(feature_constructor, {
           'geometry': geometry.Geometry(geom.get('geometry', None)),
           'metadata': properties
       })
     else:
       # Try to convert the geometry arg to a Geometry, in the hopes of it
       # turning out to be GeoJSON.
-      super(Feature, self).__init__(feature_constructor, {
+      super().__init__(feature_constructor, {
           'geometry': geometry.Geometry(geom),
           'metadata': opt_properties or None
       })
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Feature', 'Feature')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def getMapId(self, vis_params=None):
+  def getMapId(
+      self, vis_params: Optional[Dict[str, Any]] = None
+  ) -> Dict[str, Any]:
     """Fetch and return a map id and token, suitable for use in a Map overlay.
 
     Args:
@@ -111,5 +123,5 @@ class Feature(element.Element):
     return collection.getMapId(vis_params)
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Feature'

@@ -1,25 +1,89 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.serializer module."""
 
-
-
+import datetime
 import json
-
-import unittest
+from typing import Any, Callable, Dict, List, Union
 
 import ee
 from ee import apitestcase
 from ee import serializer
+import unittest
 
 
-def _max_depth(x):
-  """Computes the maximum nesting level of some dict/list."""
+def _max_depth(x: Union[Dict[str, Any], List[Any], str]) -> int:
+  """Computes the maximum nesting level of some dict, list, or str."""
   if isinstance(x, dict):
     return 1 + max(_max_depth(v) for v in x.values())
   elif isinstance(x, list):
     return 1 + max(_max_depth(v) for v in x)
   else:
     return 1
+
+
+class DatetimeToMicrosecondsTest(unittest.TestCase):
+
+  def testDatetimeToMicrosecondsNaive(self):
+    self.assertEqual(
+        0,
+        serializer.DatetimeToMicroseconds(
+            datetime.datetime(1970, 1, 1, 0, 0, 0)
+        ),
+    )
+    self.assertEqual(
+        1,
+        serializer.DatetimeToMicroseconds(
+            datetime.datetime(1970, 1, 1, 0, 0, 0, 1)
+        ),
+    )
+    self.assertEqual(
+        1000000,
+        serializer.DatetimeToMicroseconds(
+            datetime.datetime(1970, 1, 1, 0, 0, 1)
+        ),
+    )
+    self.assertEqual(
+        1407628800000000,
+        serializer.DatetimeToMicroseconds(datetime.datetime(2014, 8, 10)),
+    )
+    self.assertEqual(
+        -2010441600000000,
+        serializer.DatetimeToMicroseconds(datetime.datetime(1906, 4, 18)),
+    )
+
+  def testDatetimeToMicroseconds(self):
+    self.assertEqual(
+        0,
+        serializer.DatetimeToMicroseconds(
+            datetime.datetime(1970, 1, 1, 0, 0, 0, tzinfo=datetime.timezone.utc)
+        ),
+    )
+    self.assertEqual(
+        1,
+        serializer.DatetimeToMicroseconds(
+            datetime.datetime(
+                1970, 1, 1, 0, 0, 0, 1, tzinfo=datetime.timezone.utc
+            )
+        ),
+    )
+    self.assertEqual(
+        1000000,
+        serializer.DatetimeToMicroseconds(
+            datetime.datetime(1970, 1, 1, 0, 0, 1, tzinfo=datetime.timezone.utc)
+        ),
+    )
+    self.assertEqual(
+        1407628800000000,
+        serializer.DatetimeToMicroseconds(
+            datetime.datetime(2014, 8, 10, tzinfo=datetime.timezone.utc)
+        ),
+    )
+    self.assertEqual(
+        -2010441600000000,
+        serializer.DatetimeToMicroseconds(
+            datetime.datetime(1906, 4, 18, tzinfo=datetime.timezone.utc)
+        ),
+    )
 
 
 class SerializerTest(apitestcase.ApiTestCase):
@@ -32,15 +96,21 @@ class SerializerTest(apitestcase.ApiTestCase):
 
       This one is actually supported by the EE API encoding.
       """
+      _value: str
 
-      def __init__(self, value):
+      def __init__(self, value: str):
         """Creates a bytestring with a given string value."""
         self._value = value
 
-      def encode(self, unused_encoder):  # pylint: disable-msg=g-bad-name
+      # pylint: disable-next=g-bad-name
+      def encode(self, encoder: Callable[[Any], Any]) -> Dict[str, Any]:
+        del encoder  # Unused.
         return {'type': 'Bytes', 'value': self._value}
 
-      def encode_cloud_value(self, unused_encoder):
+      def encode_cloud_value(
+          self, encoder: Callable[[Any], Any]
+      ) -> Dict[str, str]:
+        del encoder  # Unused.
         # Proto3 JSON embedding of "bytes" values uses base64 encoding, which
         # this already is.
         return {'bytesValue': self._value}
@@ -92,7 +162,8 @@ class SerializerTest(apitestcase.ApiTestCase):
 
   def testRepeats(self):
     """Verifies serialization finds and removes repeated values."""
-    test1 = ee.Image(5).mask(ee.Image(5))     # pylint: disable-msg=no-member
+    # pylint: disable-next=no-member
+    test1 = ee.Image(5).mask(ee.Image(5))
     expected1 = {
         'type': 'CompoundValue',
         'scope': [

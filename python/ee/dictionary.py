@@ -1,24 +1,29 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """A wrapper for dictionaries."""
 
 
+from typing import Any, Dict, Optional, Sequence, Union
 
-from . import apifunction
-from . import computedobject
-
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
+from ee import apifunction
+from ee import computedobject
 
 
 class Dictionary(computedobject.ComputedObject):
   """An object to represent dictionaries."""
+
+  _dictionary: Optional[Dict[Any, Any]]
 
   _initialized = False
 
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, arg=None):
+  def __init__(
+      self,
+      arg: Optional[
+          Union[Dict[Any, Any], Sequence[Any], computedobject.ComputedObject]
+      ] = None,
+  ):
     """Construct a dictionary.
 
     Args:
@@ -30,7 +35,7 @@ class Dictionary(computedobject.ComputedObject):
     self.initialize()
 
     if isinstance(arg, dict):
-      super(Dictionary, self).__init__(None, None)
+      super().__init__(None, None)
       self._dictionary = arg
     else:
       self._dictionary = None
@@ -38,37 +43,36 @@ class Dictionary(computedobject.ComputedObject):
           and arg.func
           and arg.func.getSignature()['returns'] == 'Dictionary'):
         # If it's a call that's already returning a Dictionary, just cast.
-        super(Dictionary, self).__init__(arg.func, arg.args, arg.varName)
+        super().__init__(arg.func, arg.args, arg.varName)
       else:
         # Delegate everything else to the server-side constructor.
-        super(Dictionary, self).__init__(
-            apifunction.ApiFunction('Dictionary'), {'input': arg})
+        super().__init__(apifunction.ApiFunction('Dictionary'), {'input': arg})
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Dictionary', 'Dictionary')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Dictionary'
 
   def encode(self, opt_encoder=None):
     if self._dictionary is not None:
       return opt_encoder(self._dictionary)
     else:
-      return super(Dictionary, self).encode(opt_encoder)
+      return super().encode(opt_encoder)
 
   def encode_cloud_value(self, opt_encoder=None):
     if self._dictionary is not None:
       return {'valueReference': opt_encoder(self._dictionary)}
     else:
-      return super(Dictionary, self).encode_cloud_value(opt_encoder)
+      return super().encode_cloud_value(opt_encoder)

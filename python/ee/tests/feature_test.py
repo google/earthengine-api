@@ -1,12 +1,9 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.feature module."""
-
-
-
-import unittest
 
 import ee
 from ee import apitestcase
+import unittest
 
 
 class FeatureTest(apitestcase.ApiTestCase):
@@ -44,10 +41,9 @@ class FeatureTest(apitestcase.ApiTestCase):
 
     from_variable = ee.Feature(ee.CustomFunction.variable(None, 'foo'))
     self.assertIsInstance(from_variable, ee.Feature)
-    self.assertEqual({
-        'type': 'ArgumentRef',
-        'value': 'foo'
-    }, from_variable.encode(None))
+
+    result = from_variable.encode(None)
+    self.assertEqual({'type': 'ArgumentRef', 'value': 'foo'}, result)
 
     from_geo_json_feature = ee.Feature({
         'type': 'Feature',

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Executable for the Earth Engine command line interface.
 
 This executable starts a Python Cmd instance to receive and process command
@@ -19,13 +19,13 @@ from ee.cli import utils
 
 
 class CommandDispatcher(commands.Dispatcher):
-  name = 'main'
+  name: str = 'main'
   COMMANDS = commands.EXTERNAL_COMMANDS
 
 
 def _run_command(*argv):
   """Runs an eecli command."""
-  _ = argv
+  del argv  # Unused
 
   # Set the program name to 'earthengine' for proper help text display.
   parser = argparse.ArgumentParser(
@@ -70,6 +70,11 @@ def _get_tensorflow():
     import tensorflow.compat.v1 as tf
     return tf
   except ImportError:
+    return None
+  except TypeError:
+    # The installed version of the protobuf package is incompatible with
+    # Tensorflow. A type error is thrown when trying to generate proto
+    # descriptors. Reinstalling Tensorflow should fix any dep versioning issues.
     return None
 
 

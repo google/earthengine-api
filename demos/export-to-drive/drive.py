@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Helpers for interfacing with Google Drive."""
 
 import googleapiclient.discovery

@@ -21,7 +21,7 @@ goog.requireType('ee.data');
  * must implement encode() and getSignature().
  *
  * TODO(user): Implement Function.bind() while supporting both positional
- *              and named args and avoiding dependendency on CustomFunction.
+ *              and named args and avoiding a dependency on CustomFunction.
  *
  * @constructor
  * @extends {ee.Encodable}

@@ -1,13 +1,9 @@
-#!/usr/bin/env python
-# coding=utf-8
+#!/usr/bin/env python3
 """Test for the ee.geometry module."""
-
-
-
-import unittest
 
 import ee
 from ee import apitestcase
+import unittest
 
 
 class GeometryTest(apitestcase.ApiTestCase):
@@ -210,7 +206,7 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     # GeoJSON.
     from_json = ee.Geometry(line.toGeoJSON())
-    self.assertEqual(from_json.func, None)
+    self.assertIsNone(from_json.func)
     self.assertEqual(from_json._type, 'LineString')
     self.assertEqual(from_json._coordinates, [[1, 2], [3, 4]])
 
@@ -223,7 +219,7 @@ class GeometryTest(apitestcase.ApiTestCase):
         }
     }
     from_json_with_crs = ee.Geometry(json_with_crs)
-    self.assertEqual(from_json_with_crs.func, None)
+    self.assertIsNone(from_json_with_crs.func)
     self.assertEqual(from_json_with_crs._type, 'LineString')
     self.assertEqual(from_json_with_crs._proj, 'SR-ORG:6974')
 
@@ -450,6 +446,13 @@ class GeometryTest(apitestcase.ApiTestCase):
     self.assertEqual(
         ee.Geometry.BBox(-10, -90, 10, 20),
         ee.Geometry.BBox(-10, -inf, 10, 20))
+
+  def testCrs_invalid_throws(self):
+    geo_json = ee.Geometry.LineString(1, 2, 3, 4).toGeoJSON()
+    geo_json['crs'] = {'something': 'invalid-crs'}
+    self.assertInvalid(
+        ee.Geometry, 'Invalid CRS declaration in GeoJSON:', geo_json
+    )
 
   def assertValid(self, nesting, ctor, *coords):
     """Checks that geometry is valid and has the expected nesting level.

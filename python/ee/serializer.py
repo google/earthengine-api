@@ -1,25 +1,19 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """A serializer that encodes EE object trees as JSON DAGs."""
 
-
-
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
-# pylint: disable=g-bad-import-order
 import collections
 import datetime
 import hashlib
 import json
-import math
 import numbers
+from typing import Any, Dict, List, Optional, Set
 
-from . import _cloud_api_utils
-from . import ee_exception
-from . import encodable
+from ee import _cloud_api_utils
+from ee import ee_exception
+from ee import encodable
 
 # The datetime for the beginning of the Unix epoch.
-_EPOCH_DATETIME = datetime.datetime.utcfromtimestamp(0)
+_EPOCH_DATETIME = datetime.datetime.fromtimestamp(0, datetime.timezone.utc)
 
 # Don't generate very deep expressions, as the backend rejects them.
 # The backend's limit is 100, and we want to stay well away from that
@@ -27,20 +21,36 @@ _EPOCH_DATETIME = datetime.datetime.utcfromtimestamp(0)
 _DEPTH_LIMIT = 50
 
 
-def DatetimeToMicroseconds(date):
+# pylint: disable-next=g-bad-name
+def DatetimeToMicroseconds(date: datetime.datetime) -> int:
   """Convert a datetime to a timestamp, microseconds since the epoch."""
+  if date.tzinfo is None:
+    # Assume that the time is in utc.
+    date = date.replace(tzinfo=datetime.timezone.utc)
   td = (date - _EPOCH_DATETIME)
-  microseconds = td.microseconds + (td.seconds + td.days * 24 * 3600) * 1e6
-  return math.floor(microseconds)
+  return td.microseconds + (td.seconds + td.days * 24 * 3600) * 1000000
 
 
-class Serializer(object):
+class Serializer:
   """A serializer for EE object trees."""
+  unbound_name: Optional[str]
 
-  def __init__(self,
-               is_compound=True,
-               for_cloud_api=False,
-               unbound_name=None):
+  # Whether the encoding should factor out shared subtrees.
+  _is_compound: bool
+  _for_cloud_api: bool
+  # A list of shared subtrees as [name, value] pairs.
+  _scope: List[str]
+  # A lookup table from object hash to subtree names as stored in self._scope
+  _encoded: Dict[Any, Any]
+  # A lookup table from object ID as retrieved by id() to md5 hash values.
+  _hashcache: Dict[Any, Any]
+
+  def __init__(
+      self,
+      is_compound: bool = True,
+      for_cloud_api: bool = False,
+      unbound_name: Optional[str] = None,
+  ):
     """Constructs a serializer.
 
     Args:
@@ -49,24 +59,15 @@ class Serializer(object):
         the legacy API.
       unbound_name: Provides a name for unbound variables in objects.
     """
-
-    # Whether the encoding should factor out shared subtrees.
-    self._is_compound = bool(is_compound)
-
-    self._for_cloud_api = bool(for_cloud_api)
-
     self.unbound_name = unbound_name
 
-    # A list of shared subtrees as [name, value] pairs.
+    self._is_compound = is_compound
+    self._for_cloud_api = for_cloud_api
     self._scope = []
-
-    # A lookup table from object hash to subtree names as stored in self._scope
     self._encoded = {}
-
-    # A lookup table from object ID as retrieved by id() to md5 hash values.
     self._hashcache = {}
 
-  def _encode(self, obj):
+  def _encode(self, obj: Any) -> Any:
     """Encodes a top level object to be executed server-side.
 
     Args:
@@ -92,7 +93,7 @@ class Serializer(object):
       self._hashcache = {}
     return value
 
-  def _encode_for_cloud_api(self, obj):
+  def _encode_for_cloud_api(self, obj: Any) -> Any:
     """Encodes an object as an Expression or quasi-Expression."""
     value = self._encode_cloud_object(obj)
     if self._is_compound:
@@ -106,7 +107,7 @@ class Serializer(object):
       value = _ExpressionOptimizer(value).optimize()
     return value
 
-  def _encode_value(self, obj):
+  def _encode_value(self, obj: Any) -> Any:
     """Encodes a subtree as a Value in the EE API v2 (DAG) format.
 
     If _is_compound is True, this will fill the _scope and _encoded properties.
@@ -164,7 +165,7 @@ class Serializer(object):
                     for key, value in obj.items()])
       }
     else:
-      raise ee_exception.EEException('Can\'t encode object: %s' % obj)
+      raise ee_exception.EEException('Cannot encode object: %s' % obj)
 
     if self._is_compound:
       # Save the new object and return a ValueRef.
@@ -179,7 +180,7 @@ class Serializer(object):
     else:
       return result
 
-  def _encode_cloud_object(self, obj):
+  def _encode_cloud_object(self, obj: Any) -> Any:
     """Encodes an object using the Cloud API Expression form.
 
     If _is_compound is True, this will fill the _scope and _encoded properties.
@@ -260,7 +261,7 @@ class Serializer(object):
             }
         }
     else:
-      raise ee_exception.EEException('Can\'t encode object: %s' % obj)
+      raise ee_exception.EEException('Cannot encode object: %s' % obj)
 
     if self._is_compound:
       # Save the new object and return a ValueRef.
@@ -276,7 +277,12 @@ class Serializer(object):
       return result
 
 
-def encode(obj, is_compound=True, for_cloud_api=True, unbound_name=None):
+def encode(
+    obj: Any,
+    is_compound: bool = True,
+    for_cloud_api: bool = True,
+    unbound_name: Optional[str] = None,
+) -> Any:
   """Serialize an object to a JSON-compatible structure for API calls.
 
   Args:
@@ -296,7 +302,8 @@ def encode(obj, is_compound=True, for_cloud_api=True, unbound_name=None):
   return serializer._encode(obj)  # pylint: disable=protected-access
 
 
-def toJSON(obj, opt_pretty=False, for_cloud_api=True):
+# pylint: disable-next=g-bad-name
+def toJSON(obj, opt_pretty: bool = False, for_cloud_api: bool = True) -> Any:
   """Serialize an object to a JSON string appropriate for API calls.
 
   Args:
@@ -313,12 +320,13 @@ def toJSON(obj, opt_pretty=False, for_cloud_api=True):
   return json.dumps(encoded, indent=2 if opt_pretty else None)
 
 
-def toReadableJSON(obj, for_cloud_api=True):
+# pylint: disable-next=g-bad-name
+def toReadableJSON(obj: Any, for_cloud_api: bool = True) -> Any:
   """Convert an object to readable JSON."""
   return toJSON(obj, True, for_cloud_api=for_cloud_api)
 
 
-class _ExpressionOptimizer(object):
+class _ExpressionOptimizer:
   """Optimises the representation of an Expression.
 
   The Expressions generated by recursive encoding can be inefficiently
@@ -350,7 +358,7 @@ class _ExpressionOptimizer(object):
   - Collapse dicts and arrays of constants to constant dicts/arrays.
   """
 
-  def __init__(self, result, values=None):
+  def __init__(self, result: Any, values: Optional[Any] = None):
     """Builds an ExpressionOptimizer.
 
     Args:
@@ -359,23 +367,25 @@ class _ExpressionOptimizer(object):
       values: If provided (in compound mode), a set of named ValueNodes.
     """
     self._result = result
-    # We want to make sure the process is deterministic.
-    self._values = collections.OrderedDict(
-        values) if values is not None else None
+    # Convert sequence of tuples to a dict allowing lookup.
+    # Values will be of the form:
+    #  [('0', {'constantValue': 99}), ('1', {'constantValue': 98}), ...]
+    self._values = dict(values) if values is not None else None
+
     if self._is_compound():
       self._single_uses = self._find_single_uses()
       self._optimized_values = {}
       self._reference_map = {}
 
-  def _is_compound(self):
+  def _is_compound(self) -> bool:
     return self._values is not None
 
-  def _find_single_uses(self):
+  def _find_single_uses(self) -> Set[Any]:
     """Finds the names of all named values that are referred to only once."""
     reference_counts = collections.defaultdict(int)
     reference_counts[self._result] += 1
 
-    def _contained_reference(value):
+    def _contained_reference(value: Any) -> Optional[Any]:
       """Gets a contained reference from a ValueNode, if there is one."""
       if 'functionDefinitionValue' in value:
         return value['functionDefinitionValue']['body']
@@ -387,7 +397,7 @@ class _ExpressionOptimizer(object):
         return value['valueReference']
       return None
 
-    def increment_reference_count(value):
+    def increment_reference_count(value: Any) -> None:
       reference = _contained_reference(value)
       if reference is not None:
         reference_counts[reference] += 1
@@ -396,7 +406,7 @@ class _ExpressionOptimizer(object):
     return set(reference for reference, count in reference_counts.items()
                if count == 1)
 
-  def optimize(self):
+  def optimize(self) -> Any:
     """Optimises the expression, returning the optimised form."""
     optimized_result = self._optimize_referred_value(self._result)
     if self._is_compound():
@@ -404,7 +414,7 @@ class _ExpressionOptimizer(object):
     else:
       return optimized_result
 
-  def _optimize_referred_value(self, reference_or_value):
+  def _optimize_referred_value(self, reference_or_value: Any) -> Any:
     """Recursively optimises a value.
 
     Optimises a value and everything recursively reachable from it.
@@ -437,7 +447,7 @@ class _ExpressionOptimizer(object):
     else:
       return self._optimize_value(reference_or_value, 0)
 
-  def _optimize_value(self, value, depth):
+  def _optimize_value(self, value: Any, depth: int) -> Any:
     """Optimises a single value.
 
     Args:
@@ -499,8 +509,7 @@ class _ExpressionOptimizer(object):
             'functionReference'] = self._optimize_referred_value(
                 function_invocation['functionReference'])
       optimized_invocation['arguments'] = {
-          k: self._optimize_value(arguments[k], depth + 3)
-          for k, v in arguments.items()
+          k: self._optimize_value(v, depth + 3) for k, v in arguments.items()
       }
       return {'functionInvocationValue': optimized_invocation}
     elif 'valueReference' in value:
@@ -517,7 +526,7 @@ class _ExpressionOptimizer(object):
           return referenced_value
         return {'valueReference': self._optimize_referred_value(reference)}
 
-  def _is_always_liftable(self, value):
+  def _is_always_liftable(self, value: Any) -> bool:
     """Determines if a value is simple enough to lift unconditionally."""
     # Non-string constants and argument references are simple enough.
     if 'constantValue' in value:
@@ -525,15 +534,15 @@ class _ExpressionOptimizer(object):
     else:
       return 'argumentReference' in value
 
-  def _is_liftable_constant(self, value):
+  def _is_liftable_constant(self, value: Any) -> bool:
     """Whether a constant is simple enough to lift to where it's referenced."""
     return value is None or isinstance(value, (bool, numbers.Number))
 
-  def _is_constant_value(self, value):
+  def _is_constant_value(self, value: Any) -> bool:
     """Whether a ValueNode (as a dict) is a constant."""
     return 'constantValue' in value
 
-  def _visit_all_values_in_expression(self, visitor):
+  def _visit_all_values_in_expression(self, visitor: Any) -> None:
     """Calls visitor on all ValueNodes in the expression.
 
     Args:
@@ -543,7 +552,9 @@ class _ExpressionOptimizer(object):
     self._visit_all_values(self._result, self._values[self._result], set(),
                            visitor)
 
-  def _visit_all_values(self, reference, value, visited, visitor):
+  def _visit_all_values(
+      self, reference: Any, value: Any, visited: Any, visitor: Any
+  ) -> None:
     """Calls visitor on a ValueNode and its descendants.
 
     Args:

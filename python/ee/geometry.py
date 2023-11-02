@@ -1,22 +1,18 @@
-#!/usr/bin/env python
-# coding=utf-8
+#!/usr/bin/env python3
 """An object representing EE Geometries."""
 
+from __future__ import annotations
 
-
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
-# pylint: disable=g-bad-import-order
 import collections.abc
 import json
 import numbers
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
-from . import apifunction
-from . import computedobject
-from . import ee_exception
-from . import ee_types
-from . import serializer
+from ee import apifunction
+from ee import computedobject
+from ee import ee_exception
+from ee import ee_types
+from ee import serializer
 
 # A sentinel value used to detect unspecified function parameters.
 _UNSPECIFIED = object()
@@ -30,11 +26,13 @@ class Geometry(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self,
-               geo_json,
-               opt_proj=None,
-               opt_geodesic=None,
-               opt_evenOdd=None):
+  def __init__(
+      self,
+      geo_json: Union[Dict[str, Any], computedobject.ComputedObject, Geometry],
+      opt_proj: Optional[Any] = None,
+      opt_geodesic: Optional[bool] = None,
+      opt_evenOdd: Optional[bool] = None,  # pylint: disable=g-bad-name
+  ):
     """Creates a geometry.
 
     Args:
@@ -64,9 +62,10 @@ class Geometry(computedobject.ComputedObject):
     """
     self.initialize()
 
-    computed = (
-        isinstance(geo_json, computedobject.ComputedObject) and
-        not (isinstance(geo_json, Geometry) and geo_json._type is not None))  # pylint: disable=protected-access
+    # pylint: disable-next=protected-access
+    computed = isinstance(geo_json, computedobject.ComputedObject) and not (
+        isinstance(geo_json, Geometry) and geo_json._type is not None
+    )
     options = opt_proj or opt_geodesic or opt_evenOdd
     if computed:
       if options:
@@ -74,8 +73,7 @@ class Geometry(computedobject.ComputedObject):
             'Setting the CRS or geodesic on a computed Geometry is not '
             'supported.  Use Geometry.transform().')
       else:
-        super(Geometry, self).__init__(geo_json.func, geo_json.args,
-                                       geo_json.varName)
+        super().__init__(geo_json.func, geo_json.args, geo_json.varName)
         return
 
     # Below here we're working with a GeoJSON literal.
@@ -85,7 +83,7 @@ class Geometry(computedobject.ComputedObject):
     if not Geometry._isValidGeometry(geo_json):
       raise ee_exception.EEException('Invalid GeoJSON geometry.')
 
-    super(Geometry, self).__init__(None, None)
+    super().__init__(None, None)
 
     # The type of the geometry.
     self._type = geo_json['type']
@@ -101,14 +99,7 @@ class Geometry(computedobject.ComputedObject):
     if opt_proj:
       self._proj = opt_proj
     elif 'crs' in geo_json:
-      if (isinstance(geo_json.get('crs'), dict) and
-          geo_json['crs'].get('type') == 'name' and
-          isinstance(geo_json['crs'].get('properties'), dict) and
-          isinstance(geo_json['crs']['properties'].get('name'), str)):
-        self._proj = geo_json['crs']['properties']['name']
-      else:
-        raise ee_exception.EEException('Invalid CRS declaration in GeoJSON: ' +
-                                       json.dumps(geo_json['crs']))
+      self._proj = self._get_name_from_crs(geo_json.get('crs'))
     else:
       self._proj = None
 
@@ -118,7 +109,7 @@ class Geometry(computedobject.ComputedObject):
       self._geodesic = bool(geo_json['geodesic'])
 
     # Whether polygon interiors use the even/odd rule.
-    self._evenOdd = opt_evenOdd
+    self._evenOdd = opt_evenOdd  # pylint: disable=g-bad-name
     if opt_evenOdd is None and 'evenOdd' in geo_json:
       self._evenOdd = bool(geo_json['evenOdd'])
 
@@ -149,25 +140,40 @@ class Geometry(computedobject.ComputedObject):
     self._computed_equivalent = apifunction.ApiFunction.lookup(
         'GeometryConstructors.' + ctor_name).apply(ctor_args)
 
+  def _get_name_from_crs(self, crs: Dict[str, Any]) -> str:
+    """Returns projection name from a CRS."""
+    if isinstance(crs, dict) and crs.get('type') == 'name':
+      properties = crs.get('properties')
+      if isinstance(properties, dict):
+        name = properties.get('name')
+        if isinstance(name, str):
+          return name
+    raise ee_exception.EEException(
+        'Invalid CRS declaration in GeoJSON: ' + json.dumps(crs)
+    )
+
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Geometry', 'Geometry')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def __getitem__(self, key):
+  def __getitem__(self, key: str) -> Any:
     """Allows access to GeoJSON properties for backward-compatibility."""
     return self.toGeoJSON()[key]
 
   @staticmethod
-  def Point(coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args, **kwargs):
+  # pylint: disable-next=keyword-arg-before-vararg
+  def Point(
+      coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args, **kwargs
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a point.
 
     Args:
@@ -194,7 +200,8 @@ class Geometry(computedobject.ComputedObject):
     return Geometry(init)
 
   @staticmethod
-  def MultiPoint(coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args):
+  # pylint: disable-next=keyword-arg-before-vararg
+  def MultiPoint(coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args) -> Geometry:
     """Constructs an ee.Geometry describing a MultiPoint.
 
     Args:
@@ -217,12 +224,14 @@ class Geometry(computedobject.ComputedObject):
 
   # pylint: disable=keyword-arg-before-vararg
   @staticmethod
-  def Rectangle(coords=_UNSPECIFIED,
-                proj=_UNSPECIFIED,
-                geodesic=_UNSPECIFIED,
-                evenOdd=_UNSPECIFIED,
-                *args,
-                **kwargs):
+  def Rectangle(
+      coords=_UNSPECIFIED,
+      proj=_UNSPECIFIED,
+      geodesic=_UNSPECIFIED,
+      evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
+      *args,
+      **kwargs,
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a rectangular polygon.
 
     Args:
@@ -274,7 +283,7 @@ class Geometry(computedobject.ComputedObject):
     return Geometry(init)
 
   @staticmethod
-  def BBox(west, south, east, north):
+  def BBox(west: float, south: float, east: float, north: float) -> Geometry:
     """Constructs a rectangle ee.Geometry from lines of latitude and longitude.
 
     If (east - west) ≥ 360° then the longitude range will be normalized to -180°
@@ -287,7 +296,7 @@ class Geometry(computedobject.ComputedObject):
       south: The southernmost enclosed latitude. If less than -90° (south pole),
         will be treated as -90°.
       east: The easternmost enclosed longitude.
-      north: The northernmost enclosed longitude. If greater than +90° (north
+      north: The northernmost enclosed latitude. If greater than +90° (north
         pole), will be treated as +90°.
 
     Returns:
@@ -353,7 +362,7 @@ class Geometry(computedobject.ComputedObject):
         opt_geodesic=False)
 
   @staticmethod
-  def _canonicalize_longitude(longitude):
+  def _canonicalize_longitude(longitude: float) -> float:
     # Note that Python specifies "The modulo operator always yields a result
     # with the same sign as its second operand"; therefore no special handling
     # of negative arguments is needed.
@@ -364,11 +373,13 @@ class Geometry(computedobject.ComputedObject):
 
   # pylint: disable=keyword-arg-before-vararg
   @staticmethod
-  def LineString(coords=_UNSPECIFIED,
-                 proj=_UNSPECIFIED,
-                 geodesic=_UNSPECIFIED,
-                 maxError=_UNSPECIFIED,
-                 *args):
+  def LineString(
+      coords=_UNSPECIFIED,
+      proj=_UNSPECIFIED,
+      geodesic=_UNSPECIFIED,
+      maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
+      *args,
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a LineString.
 
     Args:
@@ -399,11 +410,13 @@ class Geometry(computedobject.ComputedObject):
 
   # pylint: disable=keyword-arg-before-vararg
   @staticmethod
-  def LinearRing(coords=_UNSPECIFIED,
-                 proj=_UNSPECIFIED,
-                 geodesic=_UNSPECIFIED,
-                 maxError=_UNSPECIFIED,
-                 *args):
+  def LinearRing(
+      coords=_UNSPECIFIED,
+      proj=_UNSPECIFIED,
+      geodesic=_UNSPECIFIED,
+      maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
+      *args,
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a LinearRing.
 
     If the last point is not equal to the first, a duplicate of the first
@@ -437,11 +450,13 @@ class Geometry(computedobject.ComputedObject):
 
   # pylint: disable=keyword-arg-before-vararg
   @staticmethod
-  def MultiLineString(coords=_UNSPECIFIED,
-                      proj=_UNSPECIFIED,
-                      geodesic=_UNSPECIFIED,
-                      maxError=_UNSPECIFIED,
-                      *args):
+  def MultiLineString(
+      coords=_UNSPECIFIED,
+      proj=_UNSPECIFIED,
+      geodesic=_UNSPECIFIED,
+      maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
+      *args,
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a MultiLineString.
 
     Create a GeoJSON MultiLineString from either a list of points, or an array
@@ -476,12 +491,14 @@ class Geometry(computedobject.ComputedObject):
 
   # pylint: disable=keyword-arg-before-vararg
   @staticmethod
-  def Polygon(coords=_UNSPECIFIED,
-              proj=_UNSPECIFIED,
-              geodesic=_UNSPECIFIED,
-              maxError=_UNSPECIFIED,
-              evenOdd=_UNSPECIFIED,
-              *args):
+  def Polygon(
+      coords=_UNSPECIFIED,
+      proj=_UNSPECIFIED,
+      geodesic=_UNSPECIFIED,
+      maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
+      evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
+      *args,
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a polygon.
 
     Args:
@@ -518,12 +535,14 @@ class Geometry(computedobject.ComputedObject):
 
   # pylint: disable=keyword-arg-before-vararg
   @staticmethod
-  def MultiPolygon(coords=_UNSPECIFIED,
-                   proj=_UNSPECIFIED,
-                   geodesic=_UNSPECIFIED,
-                   maxError=_UNSPECIFIED,
-                   evenOdd=_UNSPECIFIED,
-                   *args):
+  def MultiPolygon(
+      coords=_UNSPECIFIED,
+      proj=_UNSPECIFIED,
+      geodesic=_UNSPECIFIED,
+      maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
+      evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
+      *args,
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a MultiPolygon.
 
     If created from points, only one polygon can be specified.
@@ -560,10 +579,10 @@ class Geometry(computedobject.ComputedObject):
                                            evenOdd) + args)
     return Geometry(Geometry._parseArgs('MultiPolygon', 4, all_args))
 
-  def encode(self, opt_encoder=None):
+  def encode(self, opt_encoder: Optional[Any] = None) -> Dict[str, Any]:
     """Returns a GeoJSON-compatible representation of the geometry."""
     if not getattr(self, '_type', None):
-      return super(Geometry, self).encode(opt_encoder)
+      return super().encode(opt_encoder)
 
     result = {'type': self._type}
     if self._type == 'GeometryCollection':
@@ -582,27 +601,27 @@ class Geometry(computedobject.ComputedObject):
 
     return result
 
-  def encode_cloud_value(self, encoder):
+  def encode_cloud_value(self, encoder: Any) -> Any:
     """Returns a server-side invocation of the appropriate constructor."""
     if not getattr(self, '_type', None):
-      return super(Geometry, self).encode_cloud_value(encoder)
+      return super().encode_cloud_value(encoder)
 
     return self._computed_equivalent.encode_cloud_value(encoder)
 
-  def toGeoJSON(self):
+  def toGeoJSON(self) -> Dict[str, Any]:
     """Returns a GeoJSON representation of the geometry."""
     if self.func:
       raise ee_exception.EEException(
-          'Can\'t convert a computed geometry to GeoJSON. '
+          'Cannot convert a computed geometry to GeoJSON. '
           'Use getInfo() instead.')
 
     return self.encode()
 
-  def toGeoJSONString(self):
+  def toGeoJSONString(self) -> str:
     """Returns a GeoJSON string representation of the geometry."""
     if self.func:
       raise ee_exception.EEException(
-          'Can\'t convert a computed geometry to GeoJSON. '
+          'Cannot convert a computed geometry to GeoJSON. '
           'Use getInfo() instead.')
     return json.dumps(self.toGeoJSON())
 
@@ -610,14 +629,14 @@ class Geometry(computedobject.ComputedObject):
     """Returns the serialized representation of this object."""
     return serializer.toJSON(self, for_cloud_api=for_cloud_api)
 
-  def __str__(self):
+  def __str__(self) -> str:
     return 'ee.Geometry(%s)' % serializer.toReadableJSON(self)
 
-  def __repr__(self):
+  def __repr__(self) -> str:
     return self.__str__()
 
   @staticmethod
-  def _isValidGeometry(geometry):
+  def _isValidGeometry(geometry: Dict[str, Any]) -> bool:
     """Check if a geometry looks valid.
 
     Args:
@@ -652,7 +671,7 @@ class Geometry(computedobject.ComputedObject):
                (nesting == 4 or not coords)))
 
   @staticmethod
-  def _isValidCoordinates(shape):
+  def _isValidCoordinates(shape: Union[Sequence[float], Geometry]) -> int:
     """Validate the coordinates of a geometry.
 
     Args:
@@ -685,7 +704,7 @@ class Geometry(computedobject.ComputedObject):
         return -1
 
   @staticmethod
-  def _coordinatesToLine(coordinates):
+  def _coordinatesToLine(coordinates: Sequence[float]) -> Any:
     """Create a line from a list of points.
 
     Args:
@@ -710,7 +729,7 @@ class Geometry(computedobject.ComputedObject):
     return line
 
   @staticmethod
-  def _parseArgs(ctor_name, depth, args):
+  def _parseArgs(ctor_name: str, depth: int, args: Any) -> Dict[str, Any]:
     """Parses arguments into a GeoJSON dictionary or a ComputedObject.
 
     Args:
@@ -763,7 +782,7 @@ class Geometry(computedobject.ComputedObject):
       return result
 
   @staticmethod
-  def _hasServerValue(coordinates):
+  def _hasServerValue(coordinates: Any) -> bool:
     """Returns whether any of the coordinates are computed values or geometries.
 
     Computed items must be resolved by the server (evaluated in the case of
@@ -782,7 +801,7 @@ class Geometry(computedobject.ComputedObject):
       return isinstance(coordinates, computedobject.ComputedObject)
 
   @staticmethod
-  def _fixDepth(depth, coords):
+  def _fixDepth(depth: int, coords: Any) -> Any:
     """Fixes the depth of the given coordinates.
 
     Checks that each element has the expected depth as all other elements
@@ -828,7 +847,9 @@ class Geometry(computedobject.ComputedObject):
     return coords
 
   @staticmethod
-  def _GetSpecifiedArgs(args, keywords=(), **kwargs):
+  def _GetSpecifiedArgs(
+      args, keywords: Tuple[str, ...] = (), **kwargs
+  ) -> List[Any]:
     """Returns args, filtering out _UNSPECIFIED and checking for keywords."""
     if keywords:
       args = list(args)
@@ -839,5 +860,5 @@ class Geometry(computedobject.ComputedObject):
     return [i for i in args if i != _UNSPECIFIED]
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Geometry'

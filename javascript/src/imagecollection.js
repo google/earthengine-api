@@ -325,6 +325,57 @@ ee.ImageCollection.prototype.select = function(selectors, opt_names) {
 };
 
 /**
+ * Links images in this collection to matching images from `imageCollection`.
+ *
+ * For each source image in this collection, any specified bands or metadata
+ * will be added to the source image from the matching image found in
+ * `imageCollection`. If bands or metadata are already present, they will be
+ * overwritten. If matching images are not found, any new or updated bands will
+ * be fully masked and any new or updated metadata will be null. The output
+ * footprint will be the same as the source image footprint.
+ *
+ * Matches are determined if a source image and an image in `imageCollection`
+ * have a specific equivalent metadata property. If more than one collection
+ * image would match, the collection image selected is arbitrary. By default,
+ * images are matched on their 'system:index' metadata property.
+ *
+ * This linking function is a convenience method for adding bands to target
+ * images based on a specified shared metadata property and is intended to
+ * support linking collections that apply different processing/product
+ * generation to the same source imagery. For more expressive linking known as
+ * 'joining', see https://developers.google.com/earth-engine/guides/joins_intro.
+ *
+ * @param {!ee.ImageCollection} imageCollection The image collection searched to
+ *     find matches from this collection.
+ * @param {?Array<string>=} opt_linkedBands Optional list of band names to add
+ *     or update from matching images.
+ * @param {?Array<string>=} opt_linkedProperties Optional list of metadata
+ *     properties to add or update from matching images.
+ * @param {string=} opt_matchPropertyName The metadata property name to use as a
+ *     match criteria. Defaults to "system:index".
+ * @return {!ee.ImageCollection} The linked image collection.
+ * @export
+ */
+ee.ImageCollection.prototype.linkCollection = function(
+    imageCollection, opt_linkedBands, opt_linkedProperties,
+    opt_matchPropertyName) {
+  let args = ee.arguments.extractFromFunction(
+        ee.ImageCollection.prototype.linkCollection, arguments);
+  return /** @type {!ee.ImageCollection} */ (this.map(function(obj) {
+    let img = /** @type {!ee.Image} */ (obj);
+    img = /** @type {!ee.Image} */ (
+          ee.ApiFunction._call(
+              'Image.linkCollection',
+              img,
+              /** @type {!ee.ImageCollection} */ (args['imageCollection']),
+              /** @type {?Array<string>} */ (args['linkedBands']),
+              /** @type {?Array<string>} */ (args['linkedProperties']),
+              /** @type {?string} */ (args['matchPropertyName'])));
+    return img;
+  }));
+};
+
+/**
  * Returns the first entry from a given collection.
  *
  * @return {!ee.Image} The collection from which to select the first entry.

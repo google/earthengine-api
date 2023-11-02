@@ -1,12 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.batch module."""
-import copy
-from unittest import mock
-
+from typing import Any, Optional
 import unittest
+from unittest import mock
 
 import ee
 from ee import apitestcase
+from ee import batch
+from ee import data
+import unittest
 
 TASK_STATUS_1 = {
     'description': 'FirstTestTask',
@@ -30,11 +32,115 @@ TASK_STATUS_2 = {
 }
 
 
+class TaskTest(unittest.TestCase):
+
+  def testStartWithoutConfig(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    self.assertIsNone((task.config))
+    with self.assertRaisesRegex(ee.EEException, 'Task config'):
+      task.start()
+
+  def testStartUnknownTaskType(self):
+    task_type = 'bad task type'
+    task = batch.Task('an id', task_type, 'a state', {'some': 'value'})
+    with self.assertRaisesRegex(
+        ee.EEException, f'Unknown Task type "{task_type}"'
+    ):
+      task.start()
+
+  def testStatusWithId(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    with mock.patch.object(data, 'getTaskStatus', return_value=[TASK_STATUS_1]):
+      self.assertEqual('RUNNING', task.status()['state'])
+
+  def testStatusWithIdStateUnknown(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    with mock.patch.object(
+        data, 'getTaskStatus', return_value=[{'state': 'UNKNOWN'}]
+    ):
+      self.assertEqual({'state': 'UNSUBMITTED'}, task.status())
+
+  def testStatusWithoutId(self):
+    task = batch.Task(None, 'a task type', 'a state')
+    self.assertEqual({'state': 'UNSUBMITTED'}, task.status())
+
+  def testActive(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    with mock.patch.object(data, 'getTaskStatus', return_value=[TASK_STATUS_1]):
+      self.assertTrue(task.active())
+
+  def testNotActive(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    with mock.patch.object(data, 'getTaskStatus', return_value=[TASK_STATUS_2]):
+      self.assertFalse(task.active())
+
+  def testReprWithoutConfig(self):
+    task = batch.Task('an id', 'a task type', 'a state')
+    self.assertEqual('<Task "an id">', task.__repr__())
+
+  def testReprWithConfig(self):
+    an_id = None
+    task_type = 'a task type'
+    state = 'a state'
+    description = 'a description'
+    task = batch.Task(
+        an_id, task_type, state, config={'description': description}
+    )
+    self.assertEqual(
+        f'<Task {task_type}: {description} ({state})>', task.__repr__()
+    )
+
+  def testReprWithIdAndConfig(self):
+    an_id = 'an id'
+    task_type = 'a task type'
+    state = 'a state'
+    description = 'a description'
+    task = batch.Task(
+        an_id, task_type, state, config={'description': description}
+    )
+    self.assertEqual(
+        f'<Task {an_id} {task_type}: {description} ({state})>', task.__repr__()
+    )
+
+
+class ExportTest(unittest.TestCase):
+
+  def testExportCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export()
+
+  def testExportImageCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.image.__init__('something')
+
+  def testExportMapCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.map.__init__('something')
+
+  def testExportTableCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.table.__init__('something')
+
+  def testExportVideoCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.video.__init__('something')
+
+  def testExportVideoMapCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.videoMap.__init__('something')
+
+  def testExportClassifierCannotInit(self):
+    with self.assertRaises(AssertionError):
+      batch.Export.classifier.__init__('something')
+
+
 class BatchTestCase(apitestcase.ApiTestCase):
   """A test case for batch functionality."""
+  start_call_params: Optional[Any]
+  update_call_params: Optional[Any]
 
   def setUp(self):
-    super(BatchTestCase, self).setUp()
+    super().setUp()
 
     self.start_call_params = None
     self.update_call_params = None
@@ -112,6 +218,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           tiffCloudOptimized=True,
           shardSize=512,
           fileDimensions=1024,
+          formatOptions={'noData': 1},
       )
       task = ee.batch.Export.image(ee.Image(1), 'TestDescription', config)
       expected_expression = ee.Image(1).reproject(
@@ -128,24 +235,18 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'description': 'TestDescription',
               'fileExportOptions': {
                   'fileFormat': 'GEO_TIFF',
-                  'driveDestination': {
-                      'filenamePrefix': 'TestDescription'
-                  },
+                  'driveDestination': {'filenamePrefix': 'TestDescription'},
                   'geoTiffOptions': {
                       'cloudOptimized': True,
-                      'tileDimensions': {
-                          'width': 1024,
-                          'height': 1024
-                      },
-                      'tileSize': {
-                          'value': 512
-                      }
+                      'tileDimensions': {'width': 1024, 'height': 1024},
+                      'tileSize': {'value': 512},
+                      'noData': {'floatValue': 1},
                   },
               },
-              'maxPixels': {
-                  'value': '10000000000'
-              },
-          }, task.config)
+              'maxPixels': {'value': '10000000000'},
+          },
+          task.config,
+      )
 
   def testExportImageWithTfRecordCloudApi(self):
     """Verifies the task created by Export.image()."""
@@ -352,72 +453,6 @@ class BatchTestCase(apitestcase.ApiTestCase):
               'value': '10000000000'
           },
       }, task.config)
-
-  def testUnknownFileFormat(self):
-    self.assertRaisesRegex(ee.EEException, '.*file format.*',
-                           ee.batch.ConvertFormatSpecificParams,
-                           {'fileFormat': 'mp3'})
-
-  def testFormatParamSpecifiedTwice(self):
-    self.assertRaisesRegex(ee.EEException, '.*at least twice.*',
-                           ee.batch.ConvertFormatSpecificParams, {
-                               'cloudOptimized': False,
-                               'formatOptions': {
-                                   'cloudOptimized': True
-                               }
-                           })
-
-  def testDisallowedFormatPrefix(self):
-    self.assertRaisesRegex(ee.EEException, '.*prefix "tiff" disallowed.*',
-                           ee.batch.ConvertFormatSpecificParams, {
-                               'tiffCloudOptimized': False,
-                               'formatOptions': {
-                                   'cloudOptimized': True
-                               }
-                           })
-
-  def testUnknownFormatOption(self):
-    self.assertRaisesRegex(ee.EEException, '.*not a valid option.*',
-                           ee.batch.ConvertFormatSpecificParams,
-                           {'formatOptions': {
-                               'garbage': 0
-                           }})
-
-  def testConvertFormat(self):
-    config = {
-        'fieldA': 1,
-        'fieldB': 3,
-        'fileFormat': 'GEoTIFF',
-        'formatOptions': {
-            'cloudOptimized': False
-        }
-    }
-    fixed_config = copy.copy(config)
-    ee.batch.ConvertFormatSpecificParams(fixed_config)
-    self.assertEqual(
-        fixed_config, {
-            'fieldA': 1,
-            'fieldB': 3,
-            'fileFormat': 'GEoTIFF',
-            'tiffCloudOptimized': False
-        })
-
-  def testConvertFormatTfRecord(self):
-    config = {
-        'fileFormat': 'tfrecord',
-        'formatOptions': {
-            'patchDimensions': [10, 10],
-            'compressed': True
-        }
-    }
-    fixed_config = copy.copy(config)
-    ee.batch.ConvertFormatSpecificParams(fixed_config)
-    self.assertEqual(
-        fixed_config, {
-            'fileFormat': 'tfrecord',
-            'tfrecordPatchDimensions': '10,10',
-            'tfrecordCompressed': True
-        })
 
   def testExportImageToGoogleDriveCloudApi(self):
     """Verifies the Drive destined task created by Export.image.toDrive()."""
@@ -921,6 +956,7 @@ class BatchTestCase(apitestcase.ApiTestCase):
           assetId='users/foo/bar',
           ingestionTimeParameters={'thinningRanking': {'key': 'val'}})
 
+  @unittest.skip('assertRaisesWithLiteralMatch is google specific')
   def testExportTableToFeatureViewBadIngestionTimeParams(self):
     """Verifies a bad set of ingestion time params throws an exception."""
     with self.assertRaisesWithLiteralMatch(
@@ -930,6 +966,74 @@ class BatchTestCase(apitestcase.ApiTestCase):
           collection=ee.FeatureCollection('foo'),
           assetId='users/foo/bar',
           ingestionTimeParameters={'badThinningKey': {'key': 'val'}})
+
+  def testExportTableToBigQueryRequiredParams(self):
+    """Verifies the export task created by Export.table.toBigQuery()."""
+    with apitestcase.UsingCloudApi():
+      task = ee.batch.Export.table.toBigQuery(
+          collection=ee.FeatureCollection('foo'),
+          table='project.dataset.table',
+          description='foo',
+      )
+      with self.subTest(name='TaskIdAndName'):
+        self.assertIsNone(task.id)
+        self.assertIsNone(task.name)
+      with self.subTest(name='TypeIsExportFeatures'):
+        self.assertEqual('EXPORT_FEATURES', task.task_type)
+      with self.subTest(name='StateIsUnsubmitted'):
+        self.assertEqual('UNSUBMITTED', task.state)
+      with self.subTest(name='ConfigContents'):
+        self.assertEqual(
+            {
+                'expression': ee.FeatureCollection('foo'),
+                'description': 'foo',
+                'bigqueryExportOptions': {
+                    'bigqueryDestination': {
+                        'table': 'project.dataset.table',
+                        'overwrite': False,
+                        'append': False,
+                    }
+                },
+            },
+            task.config,
+        )
+
+  def testExportTableToBigQueryAllParams(self):
+    """Verifies the export task created by Export.table.toBigQuery()."""
+    with apitestcase.UsingCloudApi():
+      task = ee.batch.Export.table.toBigQuery(
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          table='project.dataset.table',
+          overwrite=True,
+          append=True,
+          selectors=['.geo'],
+          maxVertices=500,
+      )
+      with self.subTest(name='TaskIdAndName'):
+        self.assertIsNone(task.id)
+        self.assertIsNone(task.name)
+      with self.subTest(name='TypeIsExportFeatures'):
+        self.assertEqual('EXPORT_FEATURES', task.task_type)
+      with self.subTest(name='StateIsUnsubmitted'):
+        self.assertEqual('UNSUBMITTED', task.state)
+      with self.subTest(name='ConfigContents'):
+        self.assertEqual(
+            {
+                'expression': ee.FeatureCollection('foo'),
+                'description': 'foo',
+                'maxVertices': {'value': 500},
+                'selectors': ['.geo'],
+                'bigqueryExportOptions': {
+                    'bigqueryDestination': {
+                        'table': 'project.dataset.table',
+                        'overwrite': True,
+                        'append': True,
+                    }
+                },
+            },
+            task.config,
+        )
 
   def testExportVideoCloudApi(self):
     """Verifies the task created by Export.video()."""

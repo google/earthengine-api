@@ -1,26 +1,20 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """A deserializer that decodes EE object trees from JSON DAGs."""
 
-
-
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
-# pylint: disable=g-bad-import-order
 import json
 import numbers
 
-from . import apifunction
-from . import computedobject
-from . import customfunction
-from . import ee_date
-from . import ee_exception
-from . import encodable
-from . import function
-from . import geometry
+from ee import apifunction
+from ee import computedobject
+from ee import customfunction
+from ee import ee_date
+from ee import ee_exception
+from ee import encodable
+from ee import function
+from ee import geometry
 
 
-def fromJSON(json_obj):
+def fromJSON(json_obj):  # pylint: disable=g-bad-name
   """Deserialize an object from a JSON string appropriate for API calls.
 
   Args:
@@ -58,10 +52,10 @@ def decode(json_obj):
   return _decodeValue(json_obj, named_values)
 
 
-def _decodeValue(json_obj, named_values):
+def _decodeValue(json_obj, named_values):  # pylint: disable=g-bad-name
   """Decodes an object previously encoded using the EE API v2 (DAG) format.
 
-  This uses a provided scope for ValueRef lookup and does not not allow the
+  This uses a provided scope for ValueRef lookup and does not allow the
   input to be a CompoundValue.
 
   Args:
@@ -156,7 +150,7 @@ def _invocation(func, args):
   raise ee_exception.EEException('Invalid function value: %s' % func)
 
 
-def fromCloudApiJSON(json_obj):
+def fromCloudApiJSON(json_obj):  # pylint: disable=g-bad-name
   """Deserializes an object from the JSON string used in Cloud API calls.
 
   Args:
@@ -168,7 +162,7 @@ def fromCloudApiJSON(json_obj):
   return decodeCloudApi(json.loads(json_obj))
 
 
-def decodeCloudApi(json_obj):
+def decodeCloudApi(json_obj):  # pylint: disable=g-bad-name
   """Decodes an object previously encoded using the EE Cloud API format.
 
   Args:

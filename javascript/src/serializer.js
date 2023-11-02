@@ -1,6 +1,5 @@
 /**
  * @fileoverview A serializer that encodes EE object trees as JSON DAGs.
- *
  */
 
 goog.provide('ee.Serializer');
@@ -67,6 +66,12 @@ ee.Serializer = function(opt_isCompound) {
    * @private
    */
   this.hashes_ = new WeakMap();
+
+  /**
+   * A map of ValueNodes to SourceFrames.
+   * @private @const
+   */
+  this.sourceNodeMap_ = new WeakMap();
 
   /**
    * Provides a name for unbound variables in objects.  Unbound variables are
@@ -303,10 +308,24 @@ ee.Serializer.encodeCloudApi = function(obj) {
 ee.Serializer.encodeCloudApiExpression = function(
     obj, unboundName = undefined) {
   const serializer = new ee.Serializer(true);
+  return ee.Serializer.encodeCloudApiExpressionWithSerializer(
+      serializer, obj, unboundName);
+};
+
+
+/**
+ * Serializes an object into an Expression for Cloud API calls with a
+ * Serializer.
+ * @param {!ee.Serializer} serializer The Serializer.
+ * @param {*} obj The object to Serialize.
+ * @param {string=} unboundName Name for unbound variables in computed objects.
+ * @return {!ee.api.Expression} The encoded object.
+ */
+ee.Serializer.encodeCloudApiExpressionWithSerializer = function(
+    serializer, obj, unboundName = undefined) {
   serializer.unboundName = unboundName;
   return serializer.encodeForCloudApi_(obj);
 };
-
 
 /**
  * Serializes an object to a "pretty" JSON representation, in Cloud API format.
@@ -391,8 +410,9 @@ ee.Serializer.prototype.encodeForCloudApi_ = function(obj) {
     // Encode the object tree, storing each node in the scope table.
     const result = this.makeReference(obj);
     // Lift constants, and expand references.
-    return new ExpressionOptimizer(result, this.scope_, this.isCompound_)
-               .optimize();
+    return new ExpressionOptimizer(
+               result, this.scope_, this.isCompound_, this.sourceNodeMap_)
+        .optimize();
   } finally {
     // Clear state in case of future encoding.
     this.hashes_ = new WeakMap();
@@ -445,7 +465,8 @@ ee.Serializer.prototype.makeReference = function(obj) {
         'Date', {'value': ee.rpc_node.constant(millis)}));
   } else if (obj instanceof ee.Encodable) {
     // Some objects know how to encode themselves.
-    return makeRef(obj.encodeCloudValue(this));
+    const value = obj.encodeCloudValue(this);
+    return makeRef(value);
   } else if (Array.isArray(obj)) {
     // Convince the type checker that the array is actually an array.
     const asArray = /** @type {!Array} */(/** @type {*} */(obj));
@@ -478,8 +499,9 @@ class ExpressionOptimizer {
    * @param {!Array<!Array<string|!ee.api.ValueNode|?>>} values
    * @param {boolean} isCompound If true, optimize shared references;
    *     otherwise, expand all references.
+   * @param {!WeakMap} sourceNodeMap A map of ValueNodes to SourceFrames.
    */
-  constructor(rootReference, values, isCompound) {
+  constructor(rootReference, values, isCompound, sourceNodeMap) {
     /** @type {string} */
     this.rootReference = rootReference;
 
@@ -498,9 +520,14 @@ class ExpressionOptimizer {
 
     /** @type {number} */
     this.nextMappedRef = 0;
+
+    /** @type {!WeakMap} */
+    this.sourceNodeMap = sourceNodeMap;
   }
 
-  /** @return {!ee.api.Expression} */
+  /**
+   * @return {!ee.api.Expression}
+   */
   optimize() {
     const result = this.optimizeReference(this.rootReference);
     return new ee.api.Expression({
@@ -536,56 +563,78 @@ class ExpressionOptimizer {
 
     const isConst = (v) => v.constantValue !== null;
     const serializeConst = (v) => v === ee.apiclient.NULL_VALUE ? null : v;
+    // Ensure that any derived ValueNode from a parent node is associated with
+    // its parent's source frame, if available, in order to make sure that the
+    // final, top-level ValueNodes in the expression are contained in the
+    // sourceNodeMap. If the optimizer encounters duplicate ValueNodes, it will
+    // retain the reference to the first one found.
+    const storeInSourceMap = (parentValue, valueNode) => {
+      if (this.sourceNodeMap && this.sourceNodeMap.has(parentValue) &&
+          !this.sourceNodeMap.has(valueNode)) {
+        this.sourceNodeMap.set(valueNode, this.sourceNodeMap.get(parentValue));
+      }
+      return valueNode;
+    };
+
     if (isConst(value) || value.integerValue != null ||
         value.bytesValue != null || value.argumentReference != null) {
       return value;
     } else if (value.valueReference != null) {
-      const val = this.values[value.valueReference];
+      const referencedValue = this.values[value.valueReference];
 
       if (this.referenceCounts === null || (depth < DEPTH_LIMIT &&
           this.referenceCounts[value.valueReference] === 1)) {
-        return this.optimizeValue(val, depth);
-      } else if (ExpressionOptimizer.isAlwaysLiftable(val)) {
-        return val;
+        const optimized = this.optimizeValue(referencedValue, depth);
+        return storeInSourceMap(value, optimized);
+      } else if (ExpressionOptimizer.isAlwaysLiftable(referencedValue)) {
+        return storeInSourceMap(value, referencedValue);
       } else {
-        return ee.rpc_node.reference(
-            this.optimizeReference(value.valueReference));
+        const optimized =
+            ee.rpc_node.reference(this.optimizeReference(value.valueReference));
+        return storeInSourceMap(value, optimized);
       }
     } else if (value.arrayValue != null) {
       const arr = value.arrayValue.values.map(
           v => this.optimizeValue(v, depth + 3));
-      return arr.every(isConst)
-          ? ee.rpc_node.constant(arr.map(v => serializeConst(v.constantValue)))
-          : ee.rpc_node.array(arr);
+      const optimized =
+          (arr.every(isConst) ? ee.rpc_node.constant(arr.map(
+                                    v => serializeConst(v.constantValue))) :
+                                ee.rpc_node.array(arr));
+      return storeInSourceMap(value, optimized);
     } else if (value.dictionaryValue != null) {
       const values = {};
       let constantValues = {};
       for (const [k, v] of Object.entries(value.dictionaryValue.values || {})) {
         values[k] = this.optimizeValue(
-            /** @type {!ee.api.ValueNode} */(v), depth + 3);
+            /** @type {!ee.api.ValueNode} */ (v), depth + 3);
         if (constantValues !== null && isConst(values[k])) {
           constantValues[k] = serializeConst(values[k].constantValue);
         } else {
           constantValues = null;
         }
       }
-      return constantValues !== null
-          ? ee.rpc_node.constant(constantValues)
-          : ee.rpc_node.dictionary(values);
+      if (constantValues !== null) {
+        return storeInSourceMap(value, ee.rpc_node.constant(constantValues));
+      } else {
+        return storeInSourceMap(values, ee.rpc_node.dictionary(values));
+      }
     } else if (value.functionDefinitionValue != null) {
       const def = value.functionDefinitionValue;
-      return ee.rpc_node.functionDefinition(
+      const optimized = ee.rpc_node.functionDefinition(
           def.argumentNames || [], this.optimizeReference(def.body || ''));
+      return storeInSourceMap(value, optimized);
     } else if (value.functionInvocationValue != null) {
       const inv = value.functionInvocationValue;
       const args = {};
       for (const k of Object.keys(inv.arguments || {})) {
         args[k] = this.optimizeValue(inv.arguments[k], depth + 3);
       }
-      return inv.functionName
-          ? ee.rpc_node.functionByName(inv.functionName, args)
-          : ee.rpc_node.functionByReference(
-              this.optimizeReference(inv.functionReference || ''), args);
+      const optimized =
+          (inv.functionName ?
+               ee.rpc_node.functionByName(inv.functionName, args) :
+               ee.rpc_node.functionByReference(
+                   this.optimizeReference(inv.functionReference || ''), args));
+      return storeInSourceMap(value, optimized);
     }
     throw Error('Can\'t optimize value: ' + value);
   }

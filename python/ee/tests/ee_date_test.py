@@ -1,17 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.date module."""
-
-
 
 import datetime
 
-import unittest
-
 import ee
 from ee import apitestcase
+import unittest
 
 
 class DateTest(apitestcase.ApiTestCase):
+
   def testDate(self):
     """Verifies date constructors."""
 

@@ -143,7 +143,6 @@ export function bypassCorsPreflight(params: MakeRequestParams) {
   const safeHeaders: {[key: string]: string} = {};
   const unsafeHeaders: {[key: string]: string} = {};
   let hasUnsafeHeaders = false;
-  let hasSafeHeaders = false;
   let hasContentType = false;
 
   if (params.headers) {
@@ -151,7 +150,6 @@ export function bypassCorsPreflight(params: MakeRequestParams) {
     for (const [key, value] of Object.entries(params.headers)) {
       if (simpleCorsAllowedHeaders.includes(key)) {
         safeHeaders[key] = value;
-        hasSafeHeaders = true;
       } else {
         unsafeHeaders[key] = value;
         hasUnsafeHeaders = true;
@@ -172,7 +170,6 @@ export function bypassCorsPreflight(params: MakeRequestParams) {
       hasUnsafeHeaders = true;
     }
     safeHeaders['Content-Type'] = 'text/plain';
-    hasSafeHeaders = true;
   }
 
   if (hasUnsafeHeaders) {
@@ -180,9 +177,7 @@ export function bypassCorsPreflight(params: MakeRequestParams) {
         httpCors.generateEncodedHttpHeadersOverwriteParam(unsafeHeaders);
     addQueryParameter(params, httpCors.HTTP_HEADERS_PARAM_NAME, finalParam);
   }
-  if (hasSafeHeaders) {
-    params.headers = safeHeaders;
-  }
+  params.headers = safeHeaders;
 
   if (!simpleCorsAllowedMethods.includes(params.httpMethod)) {
     addQueryParameter(

@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Required credentials configuration."""
 
 # See instructions in the README.md file for how to fill these in.

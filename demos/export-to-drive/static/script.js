@@ -49,7 +49,7 @@ exporter.App = class {
 
     // Outstanding URL paths for the current map IDs, keyed by layer name.
     // Used to avoid needlessly changing the layer when the layer requested is
-    // the the same as the current layer.
+    // the same as the current layer.
     this.layerPaths = {};
 
     // The ID of this client for socket communication with App Engine.

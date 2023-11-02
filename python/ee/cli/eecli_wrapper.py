@@ -1,14 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Wrapper module for running eecli.main() from the command line."""
 
 import os
 import sys
 
-if not (2, 6) <= sys.version_info[:3] < (3,):
-  sys.exit('earthengine requires python 2.6 or 2.7.')
+# Minimum python version.
+MAJOR = 3
+MINOR = 7
+
+if (sys.version_info.major != MAJOR or sys.version_info.minor < MINOR):
+  sys.exit('earthengine requires Python %d >= %d.%d' % (MAJOR, MAJOR, MINOR))
 
 
-def OutputAndExit(message):
+def OutputAndExit(message: str) -> None:
   sys.stderr.write('%s\n' % message)
   sys.exit(1)
 
@@ -24,8 +28,10 @@ THIRD_PARTY_DIR = os.path.join(EECLI_DIR, 'third_party')
 sys.path.insert(0, THIRD_PARTY_DIR)
 
 
-def RunMain():
+def RunMain() -> None:
+  # pytype: disable=import-error
   import eecli  # pylint: disable=g-import-not-at-top
+  # pytype: enable=import-error
   sys.exit(eecli.main())
 
 if __name__ == '__main__':

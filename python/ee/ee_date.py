@@ -1,20 +1,15 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """A wrapper for dates."""
 
-
-
-# pylint: disable=g-bad-import-order
 import datetime
 import math
+from typing import Any, Dict, Optional, Union
 
-from . import apifunction
-from . import computedobject
-from . import ee_exception
-from . import ee_types as types
-from . import serializer
-
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
+from ee import apifunction
+from ee import computedobject
+from ee import ee_exception
+from ee import ee_types as types
+from ee import serializer
 
 
 class Date(computedobject.ComputedObject):
@@ -25,7 +20,11 @@ class Date(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, date, opt_tz=None):
+  def __init__(
+      self,
+      date: Union[datetime.datetime, float, str, computedobject.ComputedObject],
+      opt_tz: Optional[str] = None,
+  ):
     """Construct a date.
 
     This sends all inputs (except another Date) through the Date function.
@@ -43,8 +42,8 @@ class Date(computedobject.ComputedObject):
     self.initialize()
 
     func = apifunction.ApiFunction('Date')
-    args = None
-    varName = None
+    args: Dict[str, Any]
+    var_name = None
     if isinstance(date, datetime.datetime):
       args = {'value':
               math.floor(serializer.DatetimeToMicroseconds(date) / 1000)}
@@ -63,28 +62,28 @@ class Date(computedobject.ComputedObject):
         # If it's a call that's already returning a Date, just cast.
         func = date.func
         args = date.args
-        varName = date.varName
+        var_name = date.varName
       else:
         args = {'value': date}
     else:
       raise ee_exception.EEException(
           'Invalid argument specified for ee.Date(): %s' % date)
 
-    super(Date, self).__init__(func, args, varName)
+    super().__init__(func, args, var_name)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Date', 'Date')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Date'

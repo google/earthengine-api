@@ -9,7 +9,6 @@
  *
  * This class manages the algorithm dictionary and creates JavaScript functions
  * to apply each EE algorithm.
- *
  */
 
 goog.provide('ee.ApiFunction');

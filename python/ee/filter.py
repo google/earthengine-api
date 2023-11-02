@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Collection filters.
 
 Example usage:
@@ -8,14 +8,12 @@ Example usage:
      .lt('time', value)
 """
 
-
-
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-from . import apifunction
-from . import computedobject
-from . import ee_exception
+from ee import apifunction
+from ee import computedobject
+from ee import ee_exception
 
 
 # A map from the deprecated old-style comparison operator names to API
@@ -60,34 +58,34 @@ class Filter(computedobject.ComputedObject):
         opt_filter = opt_filter[0]
       else:
         self._filter = tuple(opt_filter)
-        super(Filter, self).__init__(
+        super().__init__(
             apifunction.ApiFunction.lookup('Filter.and'),
             {'filters': self._filter})
         return
 
     if isinstance(opt_filter, computedobject.ComputedObject):
-      super(Filter, self).__init__(
+      super().__init__(
           opt_filter.func, opt_filter.args, opt_filter.varName)
       self._filter = (opt_filter,)
     elif opt_filter is None:
       # A silly call with no arguments left for backward-compatibility.
       # Encoding such a filter is expected to fail, but it can be composed
       # by calling the various methods that end up in _append().
-      super(Filter, self).__init__(None, None)
+      super().__init__(None, None)
       self._filter = ()
     else:
       raise ee_exception.EEException(
           'Invalid argument specified for ee.Filter(): %s' % opt_filter)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
       apifunction.ApiFunction.importApi(cls, 'Filter', 'Filter')
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
@@ -311,5 +309,5 @@ class Filter(computedobject.ComputedObject):
     return Filter.geometry(geometry, opt_errorMargin)
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'Filter'

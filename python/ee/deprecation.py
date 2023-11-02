@@ -1,13 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Decorators to mark function deprecated."""
-
-
 
 import functools
 import warnings
 
 
-def Deprecated(message):
+def Deprecated(message: str):
   """Returns a decorator with a given warning message."""
 
   def Decorator(func):
@@ -31,12 +29,7 @@ def Deprecated(message):
           lineno=func.__code__.co_firstlineno + 1)
       return func(*args, **kwargs)
     deprecation_message = '\nDEPRECATED: ' + message
-    try:
-      Wrapper.__doc__ += deprecation_message
-    # If there are non-ASCII characters in the docs, and we're in
-    # Python 2, use a hammer to force them into a str.
-    except UnicodeDecodeError:
-      Wrapper.__doc__ += deprecation_message.encode('utf8')
+    Wrapper.__doc__ += deprecation_message
     return Wrapper
   return Decorator
 

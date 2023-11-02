@@ -26,7 +26,7 @@ function hillshade(az, ze, slope, aspect) {
       zenith.cos().multiply(slope.cos()));
 }
 
-// Compute terrain meaasures from the SRTM DEM.
+// Compute terrain measures from the SRTM DEM.
 var terrain = ee.Algorithms.Terrain(ee.Image('CGIAR/SRTM90_V4'));
 var slope = radians(terrain.select('slope'));
 var aspect = radians(terrain.select('aspect'));

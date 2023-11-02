@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for ee._helpers.
 
 When the function in question is defined in ee/_helpers.py but exported for
@@ -8,12 +8,11 @@ name since that is the name we want to ensure works.
 
 import io
 
-
-import unittest
 import ee
 from ee import apitestcase
 from ee.apifunction import ApiFunction
 from ee.computedobject import ComputedObject
+import unittest
 
 
 class ProfilingTest(apitestcase.ApiTestCase):

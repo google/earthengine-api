@@ -1,16 +1,14 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.function module."""
 
-
-
-import unittest
-
 import ee
+import unittest
 
 # A function to experiment on.
 TEST_FUNC = ee.Function()
-TEST_FUNC.name = 'testFunction'
-TEST_FUNC.getSignature = lambda: {  # pylint: disable-msg=g-long-lambda
+# pylint: disable-next=g-long-lambda
+TEST_FUNC.getSignature = lambda: {
+    'name': 'testFunction',
     'description': 'Method description.',
     'returns': 'Image',
     'args': [

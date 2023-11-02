@@ -1,19 +1,18 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Representation for an Earth Engine ImageCollection."""
 
+from __future__ import annotations
 
+from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
-from . import apifunction
-from . import collection
-from . import computedobject
-from . import data
-from . import ee_exception
-from . import ee_list
-from . import ee_types
-from . import image
+from ee import apifunction
+from ee import collection
+from ee import computedobject
+from ee import data
+from ee import ee_exception
+from ee import ee_list
+from ee import ee_types
+from ee import image
 
 
 class ImageCollection(collection.Collection):
@@ -24,7 +23,7 @@ class ImageCollection(collection.Collection):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, args):
+  def __init__(self, args: Any):
     """ImageCollection constructor.
 
     Args:
@@ -46,33 +45,33 @@ class ImageCollection(collection.Collection):
 
     if ee_types.isString(args):
       # An ID.
-      super(ImageCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('ImageCollection.load'), {'id': args})
     elif isinstance(args, (list, tuple)):
       # A list of images.
-      super(ImageCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('ImageCollection.fromImages'), {
               'images': [image.Image(i) for i in args]
           })
     elif isinstance(args, ee_list.List):
       # A computed list of images.
-      super(ImageCollection, self).__init__(
+      super().__init__(
           apifunction.ApiFunction.lookup('ImageCollection.fromImages'), {
               'images': args
           })
     elif isinstance(args, computedobject.ComputedObject):
       # A custom object to reinterpret as an ImageCollection.
-      super(ImageCollection, self).__init__(args.func, args.args, args.varName)
+      super().__init__(args.func, args.args, args.varName)
     else:
       raise ee_exception.EEException(
           'Unrecognized argument type to convert to an ImageCollection: %s' %
           args)
 
   @classmethod
-  def initialize(cls):
+  def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      super(ImageCollection, cls).initialize()
+      super().initialize()
       apifunction.ApiFunction.importApi(
           cls, 'ImageCollection', 'ImageCollection')
       apifunction.ApiFunction.importApi(
@@ -80,12 +79,12 @@ class ImageCollection(collection.Collection):
       cls._initialized = True
 
   @classmethod
-  def reset(cls):
+  def reset(cls) -> None:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def getMapId(self, vis_params=None):
+  def getMapId(self, vis_params: Optional[Any] = None) -> Dict[str, Any]:
     """Fetch and return a Map ID.
 
     This mosaics the collection to a single image and return a map ID suitable
@@ -100,7 +99,10 @@ class ImageCollection(collection.Collection):
     mosaic = apifunction.ApiFunction.call_('ImageCollection.mosaic', self)
     return mosaic.getMapId(vis_params)
 
-  def select(self, selectors, opt_names=None, *args):
+  # pylint: disable-next=keyword-arg-before-vararg
+  def select(
+      self, selectors: Any, opt_names: Optional[Any] = None, *args
+  ) -> ImageCollection:
     """Select bands from each image in a collection.
 
     Args:
@@ -116,7 +118,58 @@ class ImageCollection(collection.Collection):
     """
     return self.map(lambda img: img.select(selectors, opt_names, *args))
 
-  def first(self):
+  # Disable argument usage check; arguments are accessed using locals().
+  # pylint: disable=unused-argument,g-bad-name
+  def linkCollection(
+      self,
+      imageCollection: 'ImageCollection',
+      linkedBands: Optional[Sequence[str]] = None,
+      linkedProperties: Optional[Sequence[str]] = None,
+      matchPropertyName: Optional[str] = None,
+  ) -> ImageCollection:
+    """Links images in this collection to matching images from imageCollection.
+
+    For each source image in this collection, any specified bands or metadata
+    will be added to the source image from the matching image found in
+    imageCollection. If bands or metadata are already present, they will be
+    overwritten. If matching images are not found, any new or updated bands will
+    be fully masked and any new or updated metadata will be null. The output
+    footprint will be the same as the source image footprint.
+
+    Matches are determined if a source image and an image in imageCollection
+    have a specific equivalent metadata property. If more than one collection
+    image would match, the collection image selected is arbitrary. By default,
+    images are matched on their 'system:index' metadata property.
+
+    This linking function is a convenience method for adding bands target images
+    based on a specified shared metadata property and is intended to support
+    linking collections that apply different processing/product generation to
+    the same source imagery. For more expressive linking known as 'joining', see
+    https://developers.google.com/earth-engine/guides/joins_intro.
+
+    Args:
+      imageCollection: The image collection searched to find matches from this
+        collection.
+      linkedBands: Optional list of band names to add or update from matching
+        images.
+      linkedProperties: Optional list of metadata properties to add or
+        update from matching images.
+      matchPropertyName: The metadata property name to use as a match
+        criteria. Defaults to "system:index".
+
+    Returns:
+      The linked image collection.
+    """
+    kwargs = {
+        k: v for k, v in locals().items() if k != 'self' and v is not None}
+    def _linkCollection(img):
+      return apifunction.ApiFunction.apply_(
+          'Image.linkCollection', {'input': img, **kwargs})
+
+    return self.map(_linkCollection)
+  # pylint: enable=g-bad-name,unused-argument
+
+  def first(self) -> image.Image:
     """Returns the first entry from a given collection.
 
     Returns:
@@ -125,14 +178,14 @@ class ImageCollection(collection.Collection):
     return image.Image(apifunction.ApiFunction.call_('Collection.first', self))
 
   @staticmethod
-  def name():
+  def name() -> str:
     return 'ImageCollection'
 
   @staticmethod
   def elementType():
     return image.Image
 
-  def getVideoThumbURL(self, params=None):
+  def getVideoThumbURL(self, params: Optional[Dict[str, Any]] = None) -> str:
     """Get the URL for an animated video thumbnail of the given collection.
 
     Note: Videos can only be created when the image visualization
@@ -165,7 +218,7 @@ class ImageCollection(collection.Collection):
     """
     return self._getThumbURL(['gif'], params, thumbType='video')
 
-  def getFilmstripThumbURL(self, params=None):
+  def getFilmstripThumbURL(self, params: Optional[Any] = None) -> str:
     """Get the URL for a "filmstrip" thumbnail of the given collection.
 
     Args:
@@ -193,7 +246,13 @@ class ImageCollection(collection.Collection):
     """
     return self._getThumbURL(['png', 'jpg'], params, thumbType='filmstrip')
 
-  def _getThumbURL(self, valid_formats, params=None, thumbType=None):
+  def _getThumbURL(
+      self,
+      valid_formats: Sequence[str],
+      # TODO(user): Need to drop the default None and use Dict[str, Any]]
+      params: Optional[Any] = None,
+      thumbType: Optional[str] = None,  # pylint: disable=g-bad-name
+  ) -> str:
     """Get the URL for a thumbnail of this collection.
 
     Args:
@@ -231,6 +290,7 @@ class ImageCollection(collection.Collection):
     clipped_collection, request = self._apply_preparation_function(
         map_function, params)
 
+    assert params is not None
     request['format'] = params.get('format', valid_formats[0])
     if request['format'] not in valid_formats:
       raise ee_exception.EEException(
@@ -248,7 +308,11 @@ class ImageCollection(collection.Collection):
 
     return data.makeThumbUrl(data.getThumbId(request, thumbType=thumbType))
 
-  def _apply_preparation_function(self, preparation_function, params):
+  def _apply_preparation_function(
+      self,
+      preparation_function: Callable[[Any, Any], Any],
+      params: Dict[str, Any],
+  ) -> Any:
     """Applies a preparation function to an ImageCollection.
 
     Args:
@@ -282,7 +346,9 @@ class ImageCollection(collection.Collection):
       return prepared_img
     return self.map(apply_params), remaining_params
 
-  def prepare_for_export(self, params):
+  def prepare_for_export(
+      self, params: Dict[str, Any]
+  ) -> Tuple[ImageCollection, Dict[str, Any]]:
     """Applies all relevant export parameters to an ImageCollection.
 
     Args:

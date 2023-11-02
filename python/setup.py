@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 #
 # Copyright 2012 Google Inc. All Rights Reserved.
 
@@ -6,17 +6,22 @@
 
 import re
 
+# pylint: disable=g-import-not-at-top,g-importing-member
 try:
   # if setuptools is available, use it to take advantage of its dependency
   # handling
-  from setuptools import setup                          # pylint: disable=g-import-not-at-top
+  from setuptools import setup
 except ImportError:
-  # if setuptools is not available, use distutils (standard library). Users
-  # will receive errors for missing packages
-  from distutils.core import setup                      # pylint: disable=g-import-not-at-top
+  # if setuptools is not available, use distutils. Users will receive errors
+  # for missing packages
+  # TODO(user): Remove the distutils backup.
+  import warnings
+  warnings.warn('distutils package is deprecated, to be removed in Python 3.12')
+  from distutils.core import setup  # pylint: disable=deprecated-module
+# pylint: enable=g-import-not-at-top,g-importing-member
 
 
-def GetVersion():
+def GetVersion() -> str:
   with open('ee/__init__.py') as f:
     return re.findall(r'__version__\s*=\s*\'([.\d]+)\'', f.read())[0]
 
@@ -30,9 +35,9 @@ setup(
     packages=['ee', 'ee.cli'],
     package_data={
         'ee': ['tests/*.py', 'tests/*.json',],
-        'ee.cli': ['licenses.txt'],
     },
     test_suite='ee/tests',
+    python_requires='>=3.7',
     install_requires=[
         # Note we omit TensorFlow (used by the CLI) here on purpose to avoid
         # an extra 0.5GiB of deps compared to our current 26MiB; Use of TF
@@ -52,7 +57,7 @@ setup(
         # http://pypi.python.org/pypi?%3Aaction=list_classifiers
         'Programming Language :: Python',
         'Operating System :: OS Independent',
-        'Development Status :: 2 - Pre-Alpha',
+        'Development Status :: 3 - Alpha',
         'Intended Audience :: Science/Research',
         'Intended Audience :: Developers',
         'License :: OSI Approved :: Apache Software License',

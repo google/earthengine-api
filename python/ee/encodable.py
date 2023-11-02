@@ -1,13 +1,8 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Interfaces implemented by serializable objects."""
 
 
-
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable-msg=g-bad-name
-
-
-class Encodable(object):
+class Encodable:
   """An interface implemented by objects that can serialize themselves."""
 
   def encode(self, encoder):
@@ -36,7 +31,7 @@ class Encodable(object):
         'Encodable classes must implement encode_cloud_value().')
 
 
-class EncodableFunction(object):
+class EncodableFunction:
   """An interface implemented by functions that can serialize themselves."""
 
   def encode_invocation(self, encoder):

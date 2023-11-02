@@ -43,7 +43,6 @@ ee.Encodable.Serializer;
  */
 ee.Encodable.prototype.encodeCloudValue = goog.abstractMethod;
 
-
 /**
  * Holds utility functions to build javascript protocol buffer objects.
  */
@@ -554,9 +553,13 @@ ee.rpc_convert.assetToLegacyResult = function(result) {
   }
   if (typeof result.title === 'string') {
     properties['system:title'] = result.title;
+  } else if (typeof properties['title'] === 'string') {
+    properties['system:title'] = properties['title'];
   }
   if (typeof result.description === 'string') {
     properties['system:description'] = result.description;
+  } else if (typeof properties['description'] === 'string') {
+    properties['system:description'] = properties['description'];
   }
   if (result.updateTime) {
     asset['version'] = Date.parse(result.updateTime) * 1000;  // us
@@ -874,6 +877,9 @@ ee.rpc_convert.operationToTask = function(result) {
   internalTask['task_type'] = metadata.type || 'UNKNOWN';
   internalTask['output_url'] = metadata.destinationUris;
   internalTask['source_url'] = metadata.scriptUri;
+  if (metadata.batchEecuUsageSeconds != null) {
+    internalTask['batch_eecu_usage_seconds'] = metadata.batchEecuUsageSeconds;
+  }
   return internalTask;
 };
 

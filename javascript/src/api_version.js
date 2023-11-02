@@ -10,4 +10,4 @@ exports.V1ALPHA = V1ALPHA;
 exports.V1 = V1;
 
 /** @const {string} */
-exports.VERSION = V1ALPHA;
+exports.VERSION = V1;

@@ -1,23 +1,21 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """A set of utilities to work with EE types."""
-
-
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
-# pylint: disable=g-bad-import-order
 import datetime
 import numbers
+from typing import Any, Type
 
-from . import computedobject
+from ee import computedobject
 
 
 # A dictionary of the classes in the ee module.  Set by registerClasses.
 _registered_classes = {}
 
 
-def _registerClasses(classes):
+def _registerClasses(classes) -> None:
   """Registers the known classes.
 
   Args:
@@ -27,30 +25,31 @@ def _registerClasses(classes):
   _registered_classes = classes
 
 
-def classToName(klass):
+def classToName(a_class: Type[Any]) -> str:
   """Converts a class to the API-friendly type name.
 
   Args:
-    klass: The class.
+    a_class: The class.
 
   Returns:
     The name of the class, or "Object" if not recognized.
   """
-  if issubclass(klass, computedobject.ComputedObject):
-    return klass.name()
-  elif issubclass(klass, numbers.Number):
+  if issubclass(a_class, computedobject.ComputedObject):
+    return a_class.name()
+  elif issubclass(a_class, numbers.Number):
     return 'Number'
-  elif issubclass(klass, str):
+  elif issubclass(a_class, str):
     return 'String'
-  elif issubclass(klass, (list, tuple)):
+  elif issubclass(a_class, (list, tuple)):
     return 'Array'
-  elif issubclass(klass, datetime.datetime):
+  elif issubclass(a_class, datetime.datetime):
     return 'Date'
   else:
     return 'Object'
 
 
-def nameToClass(name):
+# TODO(user): Any -> Optional[type[Any]].
+def nameToClass(name: str) -> Any:
   """Converts a class name to a class.  Returns None if not an ee class.
 
   Args:
@@ -62,7 +61,7 @@ def nameToClass(name):
   return _registered_classes.get(name)
 
 
-def isSubtype(firstType, secondType):
+def isSubtype(firstType: str, secondType: str) -> bool:
   """Checks whether a type is a subtype of another.
 
   Args:
@@ -86,7 +85,7 @@ def isSubtype(firstType, secondType):
     return False
 
 
-def isNumber(obj):
+def isNumber(obj: Any) -> bool:
   """Returns true if this object is a number or number variable.
 
   Args:
@@ -100,7 +99,7 @@ def isNumber(obj):
            obj.name() == 'Number'))
 
 
-def isString(obj):
+def isString(obj: Any) -> bool:
   """Returns true if this object is a string or string variable.
 
   Args:
@@ -114,7 +113,7 @@ def isString(obj):
            obj.name() == 'String'))
 
 
-def isArray(obj):
+def isArray(obj: Any) -> bool:
   """Returns true if this object is an array or array variable.
 
   Args:

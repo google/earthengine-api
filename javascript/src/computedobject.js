@@ -1,18 +1,15 @@
 /**
  * @fileoverview A representation of a computed earthengine object.
- *
  */
 
 goog.provide('ee.ComputedObject');
 
-goog.requireType('ee.Function');
 goog.require('ee.Encodable');
 goog.require('ee.Serializer');
 goog.require('ee.api');
 goog.require('ee.data');
 goog.require('ee.rpc_node');
-
-
+goog.requireType('ee.Function');
 
 /**
  * An object to represent a computed Earth Engine object, a base for most

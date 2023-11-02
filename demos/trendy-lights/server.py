@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Web server for the Trendy Lights application.
 
 The overall architecture looks like:

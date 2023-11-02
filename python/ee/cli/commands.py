@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Commands supported by the Earth Engine command line interface.
 
 Each command is implemented by extending the Command class. Each class
@@ -6,30 +6,32 @@ defines the supported positional and optional arguments, as well as
 the actions to be taken when the command is executed.
 """
 
-# pylint: disable=g-bad-import-order
 import argparse
 import calendar
-from collections import Counter
+import collections
 import datetime
 import json
 import logging
 import os
 import re
-import urllib.parse
 import shutil
 import sys
 import tempfile
+from typing import Any, Dict, List, Sequence, Tuple, Type, Union
+import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
 # pylint: disable=g-import-not-at-top
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
 
+# Suppress non-error logs while TF initializes
+old_level = logging.getLogger().level
+logging.getLogger().setLevel(logging.ERROR)
+
 TENSORFLOW_INSTALLED = False
+
 # pylint: disable=g-import-not-at-top
 try:
-  # Suppress non-error logs while TF initializes
-  old_level = logging.getLogger().level
-  logging.getLogger().setLevel(logging.ERROR)
   import tensorflow.compat.v1 as tf
   from tensorflow.compat.v1.saved_model import utils as saved_model_utils
   from tensorflow.compat.v1.saved_model import signature_constants
@@ -42,6 +44,11 @@ try:
   TENSORFLOW_INSTALLED = True
 except ImportError:
   pass
+except TypeError:
+  # The installed version of the protobuf package is incompatible with
+  # Tensorflow. A type error is thrown when trying to generate proto
+  # descriptors. Reinstalling Tensorflow should fix any dep versioning issues.
+  pass
 finally:
   logging.getLogger().setLevel(old_level)
 
@@ -49,13 +56,12 @@ TENSORFLOW_ADDONS_INSTALLED = False
 # pylint: disable=g-import-not-at-top
 if TENSORFLOW_INSTALLED:
   try:
-    if sys.version_info[0] >= 3:
-      # This import is enough to register TFA ops though isn't directly used
-      # (for now).
-      # pylint: disable=unused-import
-      import tensorflow_addons as tfa
-      tfa.register_all(custom_kernels=False)
-      TENSORFLOW_ADDONS_INSTALLED = True
+    # This import is enough to register TFA ops though isn't directly used
+    # (for now).
+    # pylint: disable=unused-import
+    import tensorflow_addons as tfa
+    tfa.register_all(custom_kernels=False)  # pytype: disable=module-attr
+    TENSORFLOW_ADDONS_INSTALLED = True
   except ImportError:
     pass
   except AttributeError:
@@ -65,7 +71,7 @@ if TENSORFLOW_INSTALLED:
     # successfully registered TFA.
     TENSORFLOW_ADDONS_INSTALLED = True
 
-# pylint: disable=g-import-not-at-top
+# pylint: disable=g-import-not-at-top, g-bad-import-order
 import ee
 from ee.cli import utils
 
@@ -108,7 +114,7 @@ SAVED_MODEL_MAX_SIZE = 400 * 1024 * 1024
 DEFAULT_VARIABLES_PREFIX = '/variables/variables'
 
 
-def _add_wait_arg(parser):
+def _add_wait_arg(parser: argparse.ArgumentParser) -> None:
   parser.add_argument(
       '--wait', '-w', nargs='?', default=-1, type=int, const=sys.maxsize,
       help=('Wait for the task to finish,'
@@ -117,13 +123,15 @@ def _add_wait_arg(parser):
             ' task in the background, and returns immediately.'))
 
 
-def _add_overwrite_arg(parser):
+def _add_overwrite_arg(parser: argparse.ArgumentParser) -> None:
   parser.add_argument(
       '--force', '-f', action='store_true',
       help='Overwrite any existing version of the asset.')
 
 
-def _upload(args, request, ingestion_function):
+def _upload(
+    args: argparse.Namespace, request: Dict[str, Any], ingestion_function: Any
+) -> None:
   if 0 <= args.wait < 10:
     raise ee.EEException('Wait time should be at least 10 seconds.')
   request_id = ee.data.newTaskId()[0]
@@ -135,7 +143,7 @@ def _upload(args, request, ingestion_function):
 
 
 # Argument types
-def _comma_separated_strings(string):
+def _comma_separated_strings(string: str) -> List[str]:
   """Parses an input consisting of comma-separated strings."""
   error_msg = 'Argument should be a comma-separated list of strings: {}'
   values = string.split(',')
@@ -144,7 +152,7 @@ def _comma_separated_strings(string):
   return values
 
 
-def _comma_separated_numbers(string):
+def _comma_separated_numbers(string: str) -> List[float]:
   """Parses an input consisting of comma-separated numbers."""
   error_msg = 'Argument should be a comma-separated list of numbers: {}'
   values = string.split(',')
@@ -158,11 +166,12 @@ def _comma_separated_numbers(string):
       try:
         numbervalues.append(float(value))
       except ValueError:
+        # pylint: disable-next=raise-missing-from
         raise argparse.ArgumentTypeError(error_msg.format(string))
   return numbervalues
 
 
-def _comma_separated_pyramiding_policies(string):
+def _comma_separated_pyramiding_policies(string: str) -> List[str]:
   """Parses an input consisting of comma-separated pyramiding policies."""
   error_msg = ('Argument should be a comma-separated list of: '
                '{{"mean", "sample", "min", "max", "mode"}}: {}')
@@ -178,34 +187,34 @@ def _comma_separated_pyramiding_policies(string):
   return redvalues
 
 
-def _decode_number(string):
+def _decode_number(string: str) -> float:
   """Decodes a number from a command line argument."""
   try:
     return float(string)
   except ValueError:
-    raise argparse.ArgumentTypeError(
+    raise argparse.ArgumentTypeError(  # pylint: disable=raise-missing-from
         'Invalid value for property of type "number": "%s".' % string)
 
 
-def _timestamp_ms_for_datetime(datetime_obj):
+def _timestamp_ms_for_datetime(datetime_obj: datetime.datetime) -> int:
   """Returns time since the epoch in ms for the given UTC datetime object."""
   return (
       int(calendar.timegm(datetime_obj.timetuple()) * 1000) +
-      datetime_obj.microsecond / 1000)
+      datetime_obj.microsecond // 1000)
 
 
-def _cloud_timestamp_for_timestamp_ms(timestamp_ms):
+def _cloud_timestamp_for_timestamp_ms(timestamp_ms: float) -> str:
   """Returns a Cloud-formatted date for the given millisecond timestamp."""
   # Desired format is like '2003-09-07T19:30:12.345Z'
   return datetime.datetime.utcfromtimestamp(
       timestamp_ms / 1000.0).isoformat() + 'Z'
 
 
-def _parse_millis(millis):
+def _parse_millis(millis: float) -> datetime.datetime:
   return datetime.datetime.fromtimestamp(millis / 1000)
 
 
-def _decode_date(string):
+def _decode_date(string: str) -> Union[float, str]:
   """Decodes a date from a command line argument, returning msec since epoch".
 
   Args:
@@ -238,7 +247,7 @@ def _decode_date(string):
       'Invalid value for property of type "date": "%s".' % string)
 
 
-def _decode_property(string):
+def _decode_property(string: str) -> Tuple[str, Any]:
   """Decodes a general key-value property from a command-line argument.
 
   Args:
@@ -259,7 +268,7 @@ def _decode_property(string):
   if not m:
     raise argparse.ArgumentTypeError(
         'Invalid property: "%s". Must have the form "name=value" or '
-        '"(type)name=value".', string)
+        '"(type)name=value".' % string)
   _, type_str, name, value_str = m.groups()
   if value_str == 'null' and type_str != TYPE_STRING:
     return (name, None)
@@ -282,7 +291,7 @@ def _decode_property(string):
   return (name, value)
 
 
-def _add_property_flags(parser):
+def _add_property_flags(parser: argparse.ArgumentParser) -> None:
   """Adds command line flags related to metadata properties to a parser."""
   parser.add_argument(
       '--property', '-p',
@@ -301,42 +310,37 @@ def _add_property_flags(parser):
       type=_decode_date)
 
 
-def _decode_property_flags(args):
+def _decode_property_flags(args: argparse.Namespace) -> Dict[str, Any]:
   """Decodes metadata properties from args as a name->value dict."""
   property_list = list(args.property or [])
   names = [name for name, _ in property_list]
-  duplicates = [name for name, count in Counter(names).items() if count > 1]
+  duplicates = [
+      name for name, count in collections.Counter(names).items() if count > 1]
   if duplicates:
     raise ee.EEException('Duplicate property name(s): %s.' % duplicates)
   return dict(property_list)
 
 
-def _decode_timestamp_flags(args):
-  """Decodes timestamp properties from args as a name->value dict."""
-  result = {}
-  if args.time_start is not None:
-    result[SYSTEM_TIME_START] = args.time_start
-  if args.time_end is not None:
-    result[SYSTEM_TIME_END] = args.time_end
-  return result
-
-
-def _check_valid_files(filenames):
+def _check_valid_files(filenames: Sequence[str]) -> None:
   """Returns true if the given filenames are valid upload file URIs."""
   for filename in filenames:
     if not filename.startswith('gs://'):
       raise ee.EEException('Invalid Cloud Storage URL: ' + filename)
 
 
-def _pretty_print_json(json_obj):
-  """Pretty-prints a JSON object to stdandard output."""
+def _pretty_print_json(json_obj: Any) -> None:
+  """Pretty-prints a JSON object to standard output."""
   print(json.dumps(json_obj, sort_keys=True, indent=2, separators=(',', ': ')))
 
 
-class Dispatcher(object):
+class Dispatcher:
   """Dispatches to a set of commands implemented as command classes."""
+  COMMANDS: List[Any]
+  command_dict: Dict[str, Any]
+  dest: str
+  name: str
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     self.command_dict = {}
     self.dest = self.name + '_cmd'
     subparsers = parser.add_subparsers(title='Commands', dest=self.dest)
@@ -351,11 +355,13 @@ class Dispatcher(object):
           help=command_help)
       self.command_dict[command.name] = command(subparser)
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     self.command_dict[vars(args)[self.dest]].run(args, config)
 
 
-class AuthenticateCommand(object):
+class AuthenticateCommand:
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Note that running this command in the default interactive mode within
@@ -367,7 +373,7 @@ class AuthenticateCommand(object):
 
   name = 'authenticate'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--authorization-code',
         help='Use this specified authorization code.')
@@ -386,8 +392,11 @@ class AuthenticateCommand(object):
     parser.add_argument(
         '--scopes', help='Optional comma-separated list of scopes.')
 
-  def run(self, args, unused_config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Prompts for an auth code, requests a token and saves it."""
+    del config  # Unused
 
     # Filter for arguments relevant for ee.Authenticate()
     args_auth = {x: vars(args)[x] for x in (
@@ -397,15 +406,17 @@ class AuthenticateCommand(object):
     ee.Authenticate(**args_auth)
 
 
-class SetProjectCommand(object):
+class SetProjectCommand:
   """Sets the default user project to be used for all API calls."""
 
   name = 'set_project'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('project', help='project id or number to use.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Saves the project to the config file."""
 
     config_path = config.config_file
@@ -417,16 +428,19 @@ class SetProjectCommand(object):
     print('Successfully saved project id')
 
 
-class UnSetProjectCommand(object):
+class UnSetProjectCommand:
   """UnSets the default user project to be used for all API calls."""
 
   name = 'unset_project'
 
-  def __init__(self, unused_parser):
-    pass
+  def __init__(self, parser: argparse.ArgumentParser):
+    del parser  # Unused.
 
-  def run(self, unused_args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Saves the project to the config file."""
+    del args  # Unused.
 
     config_path = config.config_file
     with open(config_path) as config_file_json:
@@ -438,7 +452,7 @@ class UnSetProjectCommand(object):
     print('Successfully unset project id')
 
 
-class AclChCommand(object):
+class AclChCommand:
   """Changes the access control list for an asset.
 
   Each change specifies the email address of a user or group and,
@@ -450,7 +464,7 @@ class AclChCommand(object):
 
   name = 'ch'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('-u', action='append', metavar='user permission',
                         help='Add or modify a user\'s permission.')
     parser.add_argument('-d', action='append', metavar='remove user',
@@ -461,7 +475,9 @@ class AclChCommand(object):
                         help='Remove all permissions for a user.')
     parser.add_argument('asset_id', help='ID of the asset.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Performs an ACL update."""
     config.ee_init()
     permissions = self._parse_permissions(args)
@@ -469,7 +485,9 @@ class AclChCommand(object):
     self._apply_permissions(acl, permissions)
     ee.data.setAssetAcl(args.asset_id, json.dumps(acl))
 
-  def _set_permission(self, permissions, grant, prefix):
+  def _set_permission(
+      self, permissions: Dict[str, str], grant: str, prefix: str
+  ) -> None:
     """Sets the permission for a given user/group."""
     parts = grant.rsplit(':', 1)
     if len(parts) != 2 or parts[1] not in ['R', 'W']:
@@ -484,7 +502,9 @@ class AclChCommand(object):
       raise ee.EEException('Cannot grant write permissions to all users.')
     permissions[prefixed_user] = role
 
-  def _remove_permission(self, permissions, user, prefix):
+  def _remove_permission(
+      self, permissions: Dict[str, str], user: str, prefix: str
+  ) -> None:
     """Removes permissions for a given user/group."""
     prefixed_user = user
     if not self._is_all_users(user):
@@ -493,7 +513,7 @@ class AclChCommand(object):
       raise ee.EEException('Multiple permission settings for "%s".' % user)
     permissions[prefixed_user] = 'D'
 
-  def _user_account_type(self, user):
+  def _user_account_type(self, user: str) -> str:
     """Returns the appropriate account type for a user email."""
 
     # Here 'user' ends with ':R', ':W', or ':D', so we extract
@@ -503,7 +523,7 @@ class AclChCommand(object):
     else:
       return 'user:'
 
-  def _parse_permissions(self, args):
+  def _parse_permissions(self, args: argparse.Namespace) -> Dict[str, str]:
     """Decodes and sanity-checks the permissions in the arguments."""
     # A dictionary mapping from user ids to one of 'R', 'W', or 'D'.
     permissions = {}
@@ -522,51 +542,60 @@ class AclChCommand(object):
         self._remove_permission(permissions, group, 'group:')
     return permissions
 
-  def _apply_permissions(self, acl, permissions):
+  def _apply_permissions(
+      self, acl: Dict[str, Union[bool, List[str]]], permissions: Dict[str, str]
+  ) -> None:
     """Applies the given permission edits to the given acl."""
     for user, role in permissions.items():
       if self._is_all_users(user):
         acl[ALL_USERS_CAN_READ] = (role == 'R')
-      elif role == 'R':
-        if user not in acl[READERS]:
-          acl[READERS].append(user)
-        if user in acl[WRITERS]:
-          acl[WRITERS].remove(user)
-      elif role == 'W':
-        if user in acl[READERS]:
-          acl[READERS].remove(user)
-        if user not in acl[WRITERS]:
-          acl[WRITERS].append(user)
-      elif role == 'D':
-        if user in acl[READERS]:
-          acl[READERS].remove(user)
-        if user in acl[WRITERS]:
-          acl[WRITERS].remove(user)
+      else:
+        # Make pytype understand the types.
+        assert isinstance(acl[READERS], list)
+        assert isinstance(acl[WRITERS], list)
 
-  def _is_all_users(self, user):
+        if role == 'R':
+          if user not in acl[READERS]:
+            acl[READERS].append(user)
+          if user in acl[WRITERS]:
+            acl[WRITERS].remove(user)
+        elif role == 'W':
+          if user in acl[READERS]:
+            acl[READERS].remove(user)
+          if user not in acl[WRITERS]:
+            acl[WRITERS].append(user)
+        elif role == 'D':
+          if user in acl[READERS]:
+            acl[READERS].remove(user)
+          if user in acl[WRITERS]:
+            acl[WRITERS].remove(user)
+
+  def _is_all_users(self, user: str) -> bool:
     """Determines if a user name represents the special "all users" entity."""
     # We previously used "AllUsers" as the magic string to denote that we wanted
     # to apply some permission to everyone. However, Google Cloud convention for
     # this concept is "allUsers". Because some people might be using one and
-    # some the other, we do a case-insentive comparison.
+    # some the other, we do a case-insensitive comparison.
     return user.lower() == ALL_USERS.lower()
 
 
-class AclGetCommand(object):
+class AclGetCommand:
   """Prints the access control list for an asset."""
 
   name = 'get'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('asset_id', help='ID of the asset.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     acl = ee.data.getAssetAcl(args.asset_id)
     _pretty_print_json(acl)
 
 
-class AclSetCommand(object):
+class AclSetCommand:
   """Sets the access control list for an asset.
 
   The ACL may be the name of a canned ACL, or it may be the path to a
@@ -592,12 +621,14 @@ class AclSetCommand(object):
       },
   }
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('file_or_acl_name',
                         help='File path or canned ACL name.')
     parser.add_argument('asset_id', help='ID of the asset.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Sets asset ACL to a canned ACL or one provided in a JSON file."""
     config.ee_init()
     if args.file_or_acl_name in list(self.CANNED_ACLS.keys()):
@@ -619,15 +650,17 @@ class AclCommand(Dispatcher):
   ]
 
 
-class AssetInfoCommand(object):
+class AssetInfoCommand:
   """Prints metadata and other information about an Earth Engine asset."""
 
   name = 'info'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('asset_id', help='ID of the asset to print.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     info = ee.data.getInfo(args.asset_id)
     if info:
@@ -637,7 +670,7 @@ class AssetInfoCommand(object):
           'Asset does not exist or is not accessible: %s' % args.asset_id)
 
 
-class AssetSetCommand(object):
+class AssetSetCommand:
   """Sets metadata properties of an Earth Engine asset.
 
   Properties may be of type "string", "number", or "date". Dates must
@@ -653,11 +686,13 @@ class AssetSetCommand(object):
 
   name = 'set'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('asset_id', help='ID of the asset to update.')
     _add_property_flags(parser)
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Runs the asset update."""
     config.ee_init()
     properties = _decode_property_flags(args)
@@ -702,19 +737,21 @@ class AssetCommand(Dispatcher):
   ]
 
 
-class CopyCommand(object):
+class CopyCommand:
   """Creates a new Earth Engine asset as a copy of another asset."""
 
   name = 'cp'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'source', help='Full path of the source asset.')
     parser.add_argument(
         'destination', help='Full path of the destination asset.')
     _add_overwrite_arg(parser)
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Runs the asset copy."""
     config.ee_init()
     ee.data.copyAsset(
@@ -724,7 +761,7 @@ class CopyCommand(object):
     )
 
 
-class CreateCommandBase(object):
+class CreateCommandBase:
   """Base class for implementing Create subcommands."""
 
   def __init__(self, parser, fragment, asset_type):
@@ -736,7 +773,9 @@ class CreateCommandBase(object):
         help='Make parent folders as needed.')
     self.asset_type = asset_type
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     ee.data.create_assets(args.asset_id, self.asset_type, args.parents)
 
@@ -746,8 +785,8 @@ class CreateCollectionCommand(CreateCommandBase):
 
   name = 'collection'
 
-  def __init__(self, parser):
-    super(CreateCollectionCommand, self).__init__(
+  def __init__(self, parser: argparse.ArgumentParser):
+    super().__init__(
         parser, 'an image collection', ee.data.ASSET_TYPE_IMAGE_COLL)
 
 
@@ -756,9 +795,8 @@ class CreateFolderCommand(CreateCommandBase):
 
   name = 'folder'
 
-  def __init__(self, parser):
-    super(CreateFolderCommand, self).__init__(
-        parser, 'a folder', ee.data.ASSET_TYPE_FOLDER)
+  def __init__(self, parser: argparse.ArgumentParser):
+    super().__init__(parser, 'a folder', ee.data.ASSET_TYPE_FOLDER)
 
 
 class CreateCommand(Dispatcher):
@@ -772,12 +810,12 @@ class CreateCommand(Dispatcher):
   ]
 
 
-class ListCommand(object):
+class ListCommand:
   """Prints the contents of a folder or collection."""
 
   name = 'ls'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'asset_id', nargs='*',
         help='A folder or image collection to be inspected.')
@@ -795,10 +833,23 @@ class ListCommand(object):
         action='store_true',
         help='List folders recursively.')
     parser.add_argument(
-        '--filter', '-f', default='', type=str,
-        help='Filter string to pass to ee.ImageCollection.filter().')
+        '--filter',
+        '-f',
+        default='',
+        type=str,
+        help=(
+            'Filter string to use on a collection. Accepts property names'
+            ' "start_time", "end_time", "update_time", and "properties.foo"'
+            ' (where "foo" is any user-defined property). Example filter'
+            ' strings: properties.SCENE_ID="ABC";'
+            ' start_time>"2023-02-03T00:00:00+00:00"'
+        ),
+    )
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    """Runs the list command."""
     config.ee_init()
     if not args.asset_id:
       roots = ee.data.getAssetRoots()
@@ -845,6 +896,7 @@ class ListCommand(object):
 
   def _list_asset_content(self, asset, max_items, total_assets, long_format,
                           recursive, filter_string):
+    """Prints the contents of an asset and its children."""
     try:
       list_req = {'id': asset}
       if max_items >= 0:
@@ -861,12 +913,12 @@ class ListCommand(object):
       print(e)
 
 
-class SizeCommand(object):
+class SizeCommand:
   """Prints the size and names of all items in a given folder or collection."""
 
   name = 'du'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'asset_id',
         nargs='*',
@@ -875,7 +927,9 @@ class SizeCommand(object):
         '--summarize', '-s', action='store_true',
         help='Display only a total.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Runs the du command."""
     config.ee_init()
 
@@ -947,33 +1001,33 @@ class SizeCommand(object):
 
   def _get_size_image_collection(self, asset):
     images = ee.ImageCollection(asset['id'])
-    sizes = images.aggregate_array('system:asset_size')
-
-    return sum(sizes.getInfo())
+    return images.aggregate_sum('system:asset_size').getInfo()
 
 
-class MoveCommand(object):
+class MoveCommand:
   """Moves or renames an Earth Engine asset."""
 
   name = 'mv'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'source', help='Full path of the source asset.')
     parser.add_argument(
         'destination', help='Full path of the destination asset.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     ee.data.renameAsset(args.source, args.destination)
 
 
-class RmCommand(object):
+class RmCommand:
   """Deletes the specified assets."""
 
   name = 'rm'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'asset_id', nargs='+', help='Full path of an asset to delete.')
     parser.add_argument(
@@ -987,7 +1041,9 @@ class RmCommand(object):
         '--verbose', '-v', action='store_true',
         help='Print the progress of the operation to the console.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     config.ee_init()
     for asset in args.asset_id:
       self._delete_asset(asset, args.recursive, args.verbose, args.dry_run)
@@ -1017,18 +1073,21 @@ class RmCommand(object):
         print('Failed to delete %s. %s' % (asset_id, e))
 
 
-class TaskCancelCommand(object):
+class TaskCancelCommand:
   """Cancels a running task."""
 
   name = 'cancel'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         'task_ids', nargs='+',
         help='IDs of one or more tasks to cancel,'
         ' or `all` to cancel all tasks.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    """Cancels a running task."""
     config.ee_init()
     cancel_all = args.task_ids == ['all']
     if cancel_all:
@@ -1047,15 +1106,18 @@ class TaskCancelCommand(object):
         print('Task "%s" already in state "%s".' % (status['id'], state))
 
 
-class TaskInfoCommand(object):
+class TaskInfoCommand:
   """Prints information about a task."""
 
   name = 'info'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument('task_id', nargs='*', help='ID of a task to get.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    """Runs the TaskInfo command."""
     config.ee_init()
     for i, status in enumerate(ee.data.getTaskStatus(args.task_id)):
       if i:
@@ -1077,12 +1139,12 @@ class TaskInfoCommand(object):
         print('  Destination URIs: %s' % ', '.join(status['destination_uris']))
 
 
-class TaskListCommand(object):
+class TaskListCommand:
   """Lists the tasks submitted recently."""
 
   name = 'list'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--status', '-s', required=False, nargs='*',
         choices=['READY', 'RUNNING', 'COMPLETED', 'FAILED',
@@ -1096,7 +1158,9 @@ class TaskListCommand(object):
               'start time, update time, EECU-seconds, output URLs.')
     )
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Lists tasks present for a user, maybe filtering by state."""
     config.ee_init()
     status = args.status
@@ -1126,12 +1190,12 @@ class TaskListCommand(object):
           task['state'], task.get('error_message', '---')) + extra)
 
 
-class TaskWaitCommand(object):
+class TaskWaitCommand:
   """Waits for the specified task or tasks to complete."""
 
   name = 'wait'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--timeout', '-t', default=sys.maxsize, type=int,
         help=('Stop waiting for the task(s) to finish after the specified,'
@@ -1145,7 +1209,9 @@ class TaskWaitCommand(object):
                               ' task ids to wait on; or \'all\' to wait on all'
                               ' running tasks.'))
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Waits on the given tasks to complete or for a timeout to pass."""
     config.ee_init()
     task_ids = []
@@ -1182,7 +1248,7 @@ class TaskCommand(Dispatcher):
 
 # TODO(user): in both upload tasks, check if the parent namespace
 # exists and is writeable first.
-class UploadImageCommand(object):
+class UploadImageCommand:
   """Uploads an image from Cloud Storage to Earth Engine.
 
   See docs for "asset set" for additional details on how to specify asset
@@ -1191,7 +1257,7 @@ class UploadImageCommand(object):
 
   name = 'image'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     _add_wait_arg(parser)
     _add_overwrite_arg(parser)
     parser.add_argument(
@@ -1242,20 +1308,21 @@ class UploadImageCommand(object):
       bands = ['b%d' % (i + 1) for i in range(num_bands)]
     return bands
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Starts the upload task, and waits for completion if requested."""
     config.ee_init()
     manifest = self.manifest_from_args(args)
     _upload(args, manifest, ee.data.startIngestion)
 
-  def manifest_from_args(self, args):
+  def manifest_from_args(self, args: argparse.Namespace) -> Dict[str, Any]:
     """Constructs an upload manifest from the command-line flags."""
 
-    def is_tf_record(path):
-      if any(path.lower().endswith(extension)
-             for extension in TF_RECORD_EXTENSIONS):
-        return True
-      return False
+    def is_tf_record(path: str) -> bool:
+      return any(
+          path.lower().endswith(extension) for extension in TF_RECORD_EXTENSIONS
+      )
 
     if args.manifest:
       with open(args.manifest) as fh:
@@ -1286,10 +1353,7 @@ class UploadImageCommand(object):
     # If we are ingesting a tfrecord, we actually treat the inputs as one
     # source and many uris.
     if any(is_tf_record(source) for source in source_files):
-      tileset = {
-          'id': 'ts',
-          'sources': [{'uris': [source for source in source_files]}]
-      }
+      tileset = {'id': 'ts', 'sources': [{'uris': list(source_files)}]}
     else:
       tileset = {
           'id': 'ts',
@@ -1342,12 +1406,12 @@ class UploadImageCommand(object):
 
 # TODO(user): update src_files help string when secondary files
 # can be uploaded.
-class UploadTableCommand(object):
+class UploadTableCommand:
   """Uploads a table from Cloud Storage to Earth Engine."""
 
   name = 'table'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     _add_wait_arg(parser)
     _add_overwrite_arg(parser)
     parser.add_argument(
@@ -1361,6 +1425,15 @@ class UploadTableCommand(object):
         '--asset_id',
         help='Destination asset ID for the uploaded file.')
     _add_property_flags(parser)
+    parser.add_argument(
+        '--charset',
+        help=(
+            'The name of the charset to use for decoding strings. If not '
+            'given, the charset "UTF-8" is assumed by default.'
+        ),
+        type=str,
+        nargs='?',
+    )
     parser.add_argument(
         '--max_error',
         help='Max allowed error in meters when transforming geometry '
@@ -1422,12 +1495,14 @@ class UploadTableCommand(object):
              'generated. A generated point geometry column will be named '
              '{x_column}_{y_column}_N where N might be appended to '
              'disambiguate the column name. For CSV/TFRecord only.')
+    # pylint: disable=line-too-long
     parser.add_argument(
         '--date_format',
         help='A format used to parse dates. The format pattern must follow '
              'http://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html. '
              'If unspecified, dates will be imported as strings. For '
              'CSV/TFRecord only.')
+    # pylint: enable=line-too-long
     parser.add_argument(
         '--csv_delimiter',
         help='A single character used as a delimiter between column values '
@@ -1443,13 +1518,15 @@ class UploadTableCommand(object):
         help='Local path to a JSON asset manifest file. No other flags are '
         'used if this flag is set.')
 
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Starts the upload task, and waits for completion if requested."""
     config.ee_init()
     manifest = self.manifest_from_args(args)
     _upload(args, manifest, ee.data.startTableIngestion)
 
-  def manifest_from_args(self, args):
+  def manifest_from_args(self, args: argparse.Namespace) -> Any:
     """Constructs an upload manifest from the command-line flags."""
 
     if args.manifest:
@@ -1467,6 +1544,8 @@ class UploadTableCommand(object):
     properties = _decode_property_flags(args)
     args.asset_id = ee.data.convert_asset_id_to_asset_name(args.asset_id)
     source = {'uris': source_files}
+    if args.charset:
+      source['charset'] = args.charset
     if args.max_error:
       source['maxErrorMeters'] = args.max_error
     if args.max_vertices:
@@ -1518,17 +1597,17 @@ class UploadCommand(Dispatcher):
   ]
 
 
-class _UploadManifestBase(object):
+class _UploadManifestBase:
   """Uploads an asset to Earth Engine using the given manifest file."""
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     _add_wait_arg(parser)
     _add_overwrite_arg(parser)
     parser.add_argument(
         'manifest',
         help=('Local path to a JSON asset manifest file.'))
 
-  def run(self, args, config, ingestion_function):
+  def run(self, args: argparse.Namespace, config, ingestion_function) -> None:
     """Starts the upload task, and waits for completion if requested."""
     config.ee_init()
     with open(args.manifest) as fh:
@@ -1542,14 +1621,17 @@ class UploadImageManifestCommand(_UploadManifestBase):
 
   name = 'upload_manifest'
 
-  def run(self, args, config):
+  # pytype: disable=signature-mismatch
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    # pytype: enable=signature-mismatch
     """Starts the upload task, and waits for completion if requested."""
     print(
         'This command is deprecated. '
         'Use "earthengine upload image --manifest".'
     )
-    super(UploadImageManifestCommand, self).run(
-        args, config, ee.data.startIngestion)
+    super().run(args, config, ee.data.startIngestion)
 
 
 class UploadTableManifestCommand(_UploadManifestBase):
@@ -1557,31 +1639,173 @@ class UploadTableManifestCommand(_UploadManifestBase):
 
   name = 'upload_table_manifest'
 
-  def run(self, args, config):
+  # pytype: disable=signature-mismatch
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    # pytype: enable=signature-mismatch
     print(
         'This command is deprecated. '
         'Use "earthengine upload table --manifest".'
     )
-    super(UploadTableManifestCommand, self).run(
-        args, config, ee.data.startTableIngestion)
+    super().run(args, config, ee.data.startTableIngestion)
 
 
-class LicensesCommand(object):
-  """Prints the name and license of all third party dependencies."""
+def _get_nodes(node_spec, source_flag_name):
+  """Extract a node mapping from a list or flag-specified JSON."""
+  try:
+    spec = json.loads(node_spec)
+  except ValueError:
+    spec = [n.strip() for n in node_spec.split(',')]
+    return {item: item for item in spec}
 
-  name = 'licenses'
+  if not isinstance(spec, dict):
+    raise ValueError(
+        'If flag {} is JSON it must specify a dictionary.'.format(
+            source_flag_name))
 
-  def __init__(self, unused_parser):
-    pass
+  for k, v in spec.items():
+    if (not isinstance(k, str) or not isinstance(v, str)):
+      raise ValueError(
+          'All key/value pairs of the dictionary specified in ' +
+          f'{source_flag_name} must be strings.')
 
-  def run(self, unused_args, unused_config):
-    print('The Earth Engine python client library uess the following opensource'
-          ' libraries.\n')
-    license_path = os.path.join(os.path.dirname(__file__), 'licenses.txt')
-    print(open(license_path).read())
+  return spec
 
 
-class PrepareModelCommand(object):
+def _validate_and_extract_nodes(args):
+  """Validate command line args and extract in/out node mappings."""
+  if not args.source_dir:
+    raise ValueError('Flag --source_dir must be set.')
+  if not args.dest_dir:
+    raise ValueError('Flag --dest_dir must be set.')
+  if not args.input:
+    raise ValueError('Flag --input must be set.')
+  if not args.output:
+    raise ValueError('Flag --output must be set.')
+
+  return (_get_nodes(args.input, '--input'),
+          _get_nodes(args.output, '--output'))
+
+
+def _encode_op(output_tensor, name):
+  return tf.identity(
+      tf.map_fn(lambda x: tf.io.encode_base64(tf.serialize_tensor(x)),
+                output_tensor, tf.string),
+      name=name)
+
+
+def _decode_op(input_tensor, dtype):
+  mapped = tf.map_fn(lambda x: tf.parse_tensor(tf.io.decode_base64(x), dtype),
+                     input_tensor, dtype)
+  return mapped
+
+
+def _strip_index(edge_name):
+  colon_pos = edge_name.rfind(':')
+  if colon_pos == -1:
+    return edge_name
+  else:
+    return edge_name[:colon_pos]
+
+
+def _get_input_tensor_spec(graph_def, input_names_set):
+  """Extracts the types of the given node names from the GraphDef."""
+
+  # Get the op names stripped of the input index, e.g. "op:0" becomes "op".
+  input_names_missing_index = {_strip_index(i): i for i in input_names_set}
+
+  spec = {}
+  for cur_node in graph_def.node:
+    if cur_node.name in input_names_missing_index:
+      if 'shape' not in cur_node.attr or 'dtype' not in cur_node.attr:
+        raise ValueError(
+            'Specified input op is not a valid graph input: \'{}\'.'.format(
+                cur_node.name))
+
+      spec[input_names_missing_index[cur_node.name]] = tf.dtypes.DType(
+          cur_node.attr['dtype'].type)
+
+  if len(spec) != len(input_names_set):
+    raise ValueError(
+        'Specified input ops were missing from graph: {}.'.format(
+            list(set(input_names_set).difference(list(spec.keys())))))
+  return spec
+
+
+def _make_rpc_friendly(model_dir, tag, in_map, out_map, vars_path):
+  """Wraps a SavedModel in EE RPC-friendly ops and saves a temporary copy."""
+  out_dir = tempfile.mkdtemp()
+  builder = tf.saved_model.Builder(out_dir)
+
+  # Get a GraphDef from the saved model
+  with tf.Session() as sesh:
+    meta_graph = tf.saved_model.load(sesh, [tag], model_dir)
+
+  graph_def = meta_graph.graph_def
+
+  # Purge the default graph immediately after: we want to remap parts of the
+  # graph when we load it and we don't know what those parts are yet.
+  tf.reset_default_graph()
+
+  input_op_keys = list(in_map.keys())
+  input_new_keys = list(in_map.values())
+
+  # Get the shape and type of the input tensors
+  in_op_types = _get_input_tensor_spec(graph_def, input_op_keys)
+
+  # Create new input placeholders to receive RPC TensorProto payloads
+  in_op_map = {
+      k: tf.placeholder(
+          tf.string, shape=[None], name='earthengine_in_{}'.format(i))
+      for (i, k) in enumerate(input_new_keys)
+  }
+
+  # Glue on decoding ops to remap to the imported graph.
+  decoded_op_map = {
+      k: _decode_op(in_op_map[in_map[k]], in_op_types[k])
+      for k in input_op_keys
+  }
+
+  # Okay now we're ready to import the graph again but remapped.
+  saver = tf.train.import_meta_graph(
+      meta_graph_or_file=meta_graph, input_map=decoded_op_map)
+
+  # Boilerplate to build a signature def for our new graph
+  sig_in = {
+      _strip_index(k):
+      saved_model_utils.build_tensor_info(v) for (k, v) in in_op_map.items()
+  }
+
+  sig_out = {}
+  for index, (k, v) in enumerate(out_map.items()):
+    out_tensor = saved_model_utils.build_tensor_info(
+        _encode_op(
+            tf.get_default_graph().get_tensor_by_name(k),
+            name='earthengine_out_{}'.format(index)))
+
+    sig_out[_strip_index(v)] = out_tensor
+
+  sig_def = signature_def_utils.build_signature_def(
+      sig_in, sig_out, signature_constants.PREDICT_METHOD_NAME)
+
+  # Open a new session to load the variables and add them to the builder.
+  with tf.Session() as sesh:
+    if saver:
+      saver.restore(sesh, model_dir + vars_path)
+    builder.add_meta_graph_and_variables(
+        sesh,
+        tags=[tf.saved_model.tag_constants.SERVING],
+        signature_def_map={
+            signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: sig_def
+        },
+        saver=saver)
+
+  builder.save()
+  return out_dir
+
+
+class PrepareModelCommand:
   """Prepares a TensorFlow/Keras SavedModel for inference with Earth Engine.
 
   This is required only if a model is manually uploaded to Cloud AI Platform
@@ -1590,7 +1814,7 @@ class PrepareModelCommand(object):
 
   name = 'prepare'
 
-  def __init__(self, parser):
+  def __init__(self, parser: argparse.ArgumentParser):
     parser.add_argument(
         '--source_dir',
         help='The local or Cloud Storage path to directory containing the '
@@ -1626,171 +1850,13 @@ class PrepareModelCommand(object):
         'stored under \'model_dir/variables/x.*\', set '
         '--variables=/variables/x). Defaults to \'/variables/variables\'.')
 
-  @staticmethod
-  def _validate_and_extract_nodes(args):
-    """Validate command line args and extract in/out node mappings."""
-    if not args.source_dir:
-      raise ValueError('Flag --source_dir must be set.')
-    if not args.dest_dir:
-      raise ValueError('Flag --dest_dir must be set.')
-    if not args.input:
-      raise ValueError('Flag --input must be set.')
-    if not args.output:
-      raise ValueError('Flag --output must be set.')
-
-    return (PrepareModelCommand._get_nodes(args.input, '--input'),
-            PrepareModelCommand._get_nodes(args.output, '--output'))
-
-  @staticmethod
-  def _get_nodes(node_spec, source_flag_name):
-    """Extract a node mapping from a list or flag-specified JSON."""
-    try:
-      spec = json.loads(node_spec)
-    except ValueError:
-      spec = [n.strip() for n in node_spec.split(',')]
-      return {item: item for item in spec}
-
-    if not isinstance(spec, dict):
-      raise ValueError(
-          'If flag {} is JSON it must specify a dictionary.'.format(
-              source_flag_name))
-
-    for k, v in spec.items():
-      if ((not isinstance(k, str)) or (not isinstance(v, str))):
-        raise ValueError('All key/value pairs of the dictionary specified in '
-                         '{} must be strings.'.format(source_flag_name))
-
-    return spec
-
-  @staticmethod
-  def _encode_op(output_tensor, name):
-    return tf.identity(
-        tf.map_fn(lambda x: tf.io.encode_base64(tf.serialize_tensor(x)),
-                  output_tensor, tf.string),
-        name=name)
-
-  @staticmethod
-  def _decode_op(input_tensor, dtype):
-    mapped = tf.map_fn(lambda x: tf.parse_tensor(tf.io.decode_base64(x), dtype),
-                       input_tensor, dtype)
-    return mapped
-
-  @staticmethod
-  def _shape_from_proto(shape_proto):
-    return [d.size for d in shape_proto.dim]
-
-  @staticmethod
-  def _strip_index(edge_name):
-    colon_pos = edge_name.rfind(':')
-    if colon_pos == -1:
-      return edge_name
-    else:
-      return edge_name[:colon_pos]
-
-  @staticmethod
-  def _get_input_tensor_spec(graph_def, input_names_set):
-    """Extracts the types of the given node names from the GraphDef."""
-
-    # Get the op names stripped of the input index e.g: "op:0" becomes "op"
-    input_names_missing_index = {
-        PrepareModelCommand._strip_index(i): i for i in input_names_set
-    }
-
-    spec = {}
-    for cur_node in graph_def.node:
-      if cur_node.name in input_names_missing_index:
-        if 'shape' not in cur_node.attr or 'dtype' not in cur_node.attr:
-          raise ValueError(
-              'Specified input op is not a valid graph input: \'{}\'.'.format(
-                  cur_node.name))
-
-        spec[input_names_missing_index[cur_node.name]] = tf.dtypes.DType(
-            cur_node.attr['dtype'].type)
-
-    if len(spec) != len(input_names_set):
-      raise ValueError(
-          'Specified input ops were missing from graph: {}.'.format(
-              list(set(input_names_set).difference(list(spec.keys())))))
-    return spec
-
-  @staticmethod
-  def _make_rpc_friendly(model_dir, tag, in_map, out_map, vars_path):
-    """Wraps a SavedModel in EE RPC-friendly ops and saves a temporary copy."""
-    out_dir = tempfile.mkdtemp()
-    builder = tf.saved_model.Builder(out_dir)
-
-    # Get a GraphDef from the saved model
-    with tf.Session() as sesh:
-      meta_graph = tf.saved_model.load(sesh, [tag], model_dir)
-
-    graph_def = meta_graph.graph_def
-
-    # Purge the default graph immediately after: we want to remap parts of the
-    # graph when we load it and we don't know what those parts are yet.
-    tf.reset_default_graph()
-
-    input_op_keys = list(in_map.keys())
-    input_new_keys = list(in_map.values())
-
-    # Get the shape and type of the input tensors
-    in_op_types = PrepareModelCommand._get_input_tensor_spec(
-        graph_def, input_op_keys)
-
-    # Create new input placeholders to receive RPC TensorProto payloads
-    in_op_map = {
-        k: tf.placeholder(
-            tf.string, shape=[None], name='earthengine_in_{}'.format(i))
-        for (i, k) in enumerate(input_new_keys)
-    }
-
-    # Glue on decoding ops to remap to the imported graph.
-    decoded_op_map = {
-        k: PrepareModelCommand._decode_op(in_op_map[in_map[k]], in_op_types[k])
-        for k in input_op_keys
-    }
-
-    # Okay now we're ready to import the graph again but remapped.
-    saver = tf.train.import_meta_graph(
-        meta_graph_or_file=meta_graph, input_map=decoded_op_map)
-
-    # Boilerplate to build a signature def for our new graph
-    sig_in = {
-        PrepareModelCommand._strip_index(k):
-        saved_model_utils.build_tensor_info(v) for (k, v) in in_op_map.items()
-    }
-
-    sig_out = {}
-    for index, (k, v) in enumerate(out_map.items()):
-      out_tensor = saved_model_utils.build_tensor_info(
-          PrepareModelCommand._encode_op(
-              tf.get_default_graph().get_tensor_by_name(k),
-              name='earthengine_out_{}'.format(index)))
-
-      sig_out[PrepareModelCommand._strip_index(v)] = out_tensor
-
-    sig_def = signature_def_utils.build_signature_def(
-        sig_in, sig_out, signature_constants.PREDICT_METHOD_NAME)
-
-    # Open a new session to load the variables and add them to the builder.
-    with tf.Session() as sesh:
-      if saver:
-        saver.restore(sesh, model_dir + vars_path)
-      builder.add_meta_graph_and_variables(
-          sesh,
-          tags=[tf.saved_model.tag_constants.SERVING],
-          signature_def_map={
-              signature_constants.DEFAULT_SERVING_SIGNATURE_DEF_KEY: sig_def
-          },
-          saver=saver)
-
-    builder.save()
-    return out_dir
-
-  def run(self, args, config):
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
     """Wraps a SavedModel in EE RPC-friendly ops and saves a copy of it."""
-    ModelCommand.check_tensorflow_installed()
+    check_tensorflow_installed()
 
-    in_spec, out_spec = PrepareModelCommand._validate_and_extract_nodes(args)
+    in_spec, out_spec = _validate_and_extract_nodes(args)
     gcs_client = None
 
     if utils.is_gcs_path(args.source_dir):
@@ -1804,7 +1870,7 @@ class PrepareModelCommand(object):
 
     tag = args.tag if args.tag else tf.saved_model.tag_constants.SERVING
     vars_path = args.variables if args.variables else DEFAULT_VARIABLES_PREFIX
-    new_model_dir = PrepareModelCommand._make_rpc_friendly(
+    new_model_dir = _make_rpc_friendly(
         local_model_dir, tag, in_spec, out_spec, vars_path)
 
     if utils.is_gcs_path(args.dest_dir):
@@ -1819,6 +1885,22 @@ class PrepareModelCommand(object):
             args.dest_dir))
 
 
+def check_tensorflow_installed():
+  """Checks the status of TensorFlow installations."""
+  if not TENSORFLOW_INSTALLED:
+    raise ImportError(
+        'By default, TensorFlow is not installed with Earth Engine client '
+        'libraries. To use \'model\' commands, make sure at least TensorFlow '
+        '1.14 is installed; you can do this by executing \'pip install '
+        'tensorflow\' in your shell.'
+    )
+  else:
+    if not TENSORFLOW_ADDONS_INSTALLED:
+      print(
+          'Warning: TensorFlow Addons not found. Models that use '
+          'non-standard ops may not work.')
+
+
 class ModelCommand(Dispatcher):
   """TensorFlow model related commands."""
 
@@ -1826,26 +1908,6 @@ class ModelCommand(Dispatcher):
 
   COMMANDS = [PrepareModelCommand]
 
-  @staticmethod
-  def check_tensorflow_installed():
-    """Checks the status of TensorFlow installations."""
-    if not TENSORFLOW_INSTALLED:
-      raise ImportError(
-          'By default, TensorFlow is not installed with Earth Engine client '
-          'libraries. To use \'model\' commands, make sure at least TensorFlow '
-          '1.14 is installed; you can do this by executing \'pip install '
-          'tensorflow\' in your shell.'
-      )
-    else:
-      if not TENSORFLOW_ADDONS_INSTALLED:
-        if sys.version_info[0] < 3:
-          print(
-              'Warning: Python 3 required for TensorFlow Addons. Models that '
-              'use non-standard ops may not work.')
-        else:
-          print(
-              'Warning: TensorFlow Addons not found. Models that use '
-              'non-standard ops may not work.')
 
 EXTERNAL_COMMANDS = [
     AuthenticateCommand,
@@ -1854,7 +1916,6 @@ EXTERNAL_COMMANDS = [
     CopyCommand,
     CreateCommand,
     ListCommand,
-    LicensesCommand,
     SizeCommand,
     MoveCommand,
     ModelCommand,

@@ -1,6 +1,7 @@
 /**
  * @fileoverview A representation of an earth engine image.
- * See: https://sites.google.com/site/earthengineapidocs for more details.
+ * See: https://developers.google.com/earth-engine/apidocs/ee-image for more
+ * details.
  */
 
 goog.provide('ee.Image');

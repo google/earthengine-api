@@ -15,7 +15,7 @@
 runtime: nodejs12
 
 # Disable caching of static content so that index.html is always reloaded to allow this sample to
-# be modified and reloaded more easily. Remove this line before deploying to production to reenable
+# be modified and reloaded more easily. Remove this line before deploying to production to re-enable
 # the default cache expiration.
 default_expiration: "0m"
 

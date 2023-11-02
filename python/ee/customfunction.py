@@ -1,30 +1,29 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """An object representing a custom EE Function."""
 
+from __future__ import annotations
+
+from typing import Any, Callable, Dict, Optional
+
+from ee import computedobject
+from ee import ee_exception
+from ee import ee_types
+from ee import encodable
+from ee import function
+from ee import serializer
 
 
-# Using lowercase function naming to match the JavaScript names.
-# pylint: disable=g-bad-name
-
-# pylint: disable=g-bad-import-order
-
-from . import computedobject
-from . import ee_exception
-from . import ee_types
-from . import encodable
-from . import function
-from . import serializer
-
-
-# Multiple inheritance, yay! This is necessary because a CustomFunction needs to
-# know how to encode itself in different ways:
+# Multiple inheritance is necessary because a CustomFunction needs to know how
+# to encode itself in different ways:
 # - as an Encodable: encode its definition
 # - as a Function: encode its invocation (which may also involve encoding its
 #   definition, if that hasn't happened yet).
 class CustomFunction(function.Function, encodable.Encodable):
   """An object representing a custom EE Function."""
+  _body: Any
+  _signature: Dict[str, Any]
 
-  def __init__(self, signature, body):
+  def __init__(self, signature: Dict[str, Any], body: Any):
     """Creates a function defined by a given expression with unbound variables.
 
     The expression is created by evaluating the given function
@@ -49,14 +48,14 @@ class CustomFunction(function.Function, encodable.Encodable):
     # The expression to evaluate.
     self._body = body(*variables)
 
-  def encode(self, encoder):
+  def encode(self, encoder: Callable[[Any], Any]) -> Dict[str, Any]:
     return {
         'type': 'Function',
         'argumentNames': [x['name'] for x in self._signature['args']],
         'body': encoder(self._body)
     }
 
-  def encode_cloud_value(self, encoder):
+  def encode_cloud_value(self, encoder: Callable[[Any], Any]) -> Dict[str, Any]:
     return {
         'functionDefinitionValue': {
             'argumentNames': [x['name'] for x in self._signature['args']],
@@ -64,18 +63,20 @@ class CustomFunction(function.Function, encodable.Encodable):
         }
     }
 
-  def encode_invocation(self, encoder):
+  def encode_invocation(self, encoder: Callable[[Any], Any]) -> Dict[str, Any]:
     return self.encode(encoder)
 
-  def encode_cloud_invocation(self, encoder):
+  def encode_cloud_invocation(
+      self, encoder: Callable[[Any], Any]
+  ) -> Dict[str, Any]:
     return {'functionReference': encoder(self)}
 
-  def getSignature(self):
+  def getSignature(self) -> Dict[str, Any]:
     """Returns a description of the interface provided by this function."""
     return self._signature
 
   @staticmethod
-  def variable(type_name, name):
+  def variable(type_name: Optional[str], name: str) -> Any:
     """Returns a placeholder variable with a given name and EE type.
 
     Args:
@@ -95,7 +96,9 @@ class CustomFunction(function.Function, encodable.Encodable):
     return result
 
   @staticmethod
-  def create(func, return_type, arg_types):
+  def create(
+      func: Callable[[Any], Any], return_type: Any, arg_types: Any
+  ) -> CustomFunction:
     """Creates a CustomFunction.
 
     The result calls a given native function with the specified return type and
@@ -112,7 +115,7 @@ class CustomFunction(function.Function, encodable.Encodable):
       The constructed CustomFunction.
     """
 
-    def StringifyType(t):
+    def StringifyType(t: Any) -> str:
       return t if isinstance(t, str) else ee_types.classToName(t)
 
     args = [{'name': None, 'type': StringifyType(i)} for i in arg_types]
@@ -124,7 +127,7 @@ class CustomFunction(function.Function, encodable.Encodable):
     return CustomFunction(signature, func)
 
   @staticmethod
-  def _resolveNamelessArgs(signature, variables, body):
+  def _resolveNamelessArgs(signature: Any, variables: Any, body: Any) -> Any:
     """Deterministically generates names for unnamed variables.
 
     The names are based on the body of the function.
@@ -149,11 +152,12 @@ class CustomFunction(function.Function, encodable.Encodable):
 
     # Generate the name base by counting the number of custom functions
     # within the body.
-    def CountFunctions(expression):
+    def CountFunctions(expression: Any) -> int:
       """Counts the number of custom functions in a serialized expression."""
-      def CountNodes(nodes):
+      def CountNodes(nodes: Any) -> int:
         return sum([CountNode(node) for node in nodes])
-      def CountNode(node):
+
+      def CountNode(node: Any) -> int:
         if 'functionDefinitionValue' in node:
           return 1
         elif 'arrayValue' in node:
@@ -188,7 +192,7 @@ class CustomFunction(function.Function, encodable.Encodable):
     base_name = '_MAPPING_VAR_%d_' % CountFunctions(serialized_body)
 
     # Update the vars and signature by the name.
-    for (i, index) in enumerate(nameless_arg_indices):
+    for i, index in enumerate(nameless_arg_indices):
       name = base_name + str(i)
       variables[index].varName = name
       signature['args'][index]['name'] = name

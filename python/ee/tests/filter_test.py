@@ -1,14 +1,11 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.filter module."""
-
-
 
 import datetime
 
-import unittest
-
 import ee
 from ee import apitestcase
+import unittest
 
 
 class FilterTest(apitestcase.ApiTestCase):
@@ -106,7 +103,7 @@ class FilterTest(apitestcase.ApiTestCase):
   def testInList(self):
     """Verifies that list membership filters work."""
     self.assertEqual(
-        ee.Filter.listContains(None, None, 'foo', [1, 2]),
+        ee.Filter.listContains(None, None, 'foo', [1, 2]),  # pytype: disable=attribute-error
         ee.Filter.inList('foo', [1, 2]))
 
   def testInternals(self):

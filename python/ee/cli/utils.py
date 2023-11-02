@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Support utilities used by the Earth Engine command line interface.
 
 This module defines the Command class which is the base class of all
@@ -13,10 +13,11 @@ import re
 import tempfile
 import threading
 import time
+from typing import AnyStr, Dict, Iterable, List, Tuple, Union
 import urllib.parse
 
 from google.cloud import storage
-from google.oauth2.credentials import Credentials
+from google.oauth2 import credentials
 import httplib2
 
 import ee
@@ -31,24 +32,26 @@ DEFAULT_EE_CONFIG_FILE_RELATIVE = os.path.join(
 DEFAULT_EE_CONFIG_FILE = os.path.join(
     HOMEDIR, DEFAULT_EE_CONFIG_FILE_RELATIVE)
 
-CONFIG_PARAMS = {
-    'url': 'https://earthengine.googleapis.com',
+CONFIG_PARAMS: Dict[str, Union[str, List[str], None]] = {
     'account': None,
-    'private_key': None,
-    'refresh_token': None,
-    'cloud_api_key': None,
-    'project': None,
     'client_id': ee.oauth.CLIENT_ID,
     'client_secret': ee.oauth.CLIENT_SECRET,
+    'cloud_api_key': None,
+    'private_key': None,
+    'project': None,
+    'refresh_token': None,
     'scopes': ee.oauth.SCOPES,
+    'url': 'https://earthengine.googleapis.com',
 }
 
-TASK_FINISHED_STATES = (ee.batch.Task.State.COMPLETED,
-                        ee.batch.Task.State.FAILED,
-                        ee.batch.Task.State.CANCELLED)
+TASK_FINISHED_STATES: Tuple[str, str, str] = (
+    ee.batch.Task.State.COMPLETED,
+    ee.batch.Task.State.FAILED,
+    ee.batch.Task.State.CANCELLED,
+)
 
 
-class CommandLineConfig(object):
+class CommandLineConfig:
   """Holds the configuration parameters used by the EE command line interface.
 
   This class attempts to load the configuration parameters from a file
@@ -60,6 +63,21 @@ class CommandLineConfig(object):
 
   If --service_account_file is specified, it is used instead.
   """
+  client_email: str
+  config_file: str
+  project_override: str
+  service_account_file: str
+
+  # In CONFIG_PARAMS:
+  account: str
+  client_id: str
+  client_secret: str
+  cloud_api_key: str
+  private_key: str
+  project: str
+  refresh_token: str
+  scopes: List[str]
+  url: str
 
   def __init__(
       self, config_file=None, service_account_file=None,
@@ -90,7 +108,7 @@ class CommandLineConfig(object):
     elif self.account and self.private_key:
       return ee.ServiceAccountCredentials(self.account, self.private_key)
     elif self.refresh_token:
-      return Credentials(
+      return credentials.Credentials(
           None,
           client_id=self.client_id,
           client_secret=self.client_secret,
@@ -103,7 +121,7 @@ class CommandLineConfig(object):
   # TODO(user): We now have two ways of accessing GCS. storage.Client is
   #            preferred and we should eventually migrate to just use that
   #            instead of sending raw HTTP requests.
-  def create_gcs_helper(self):
+  def create_gcs_helper(self) -> 'GcsHelper':
     """Creates a GcsHelper using the same credentials EE authorizes with."""
     project = self._get_project()
     if project is None:
@@ -117,7 +135,7 @@ class CommandLineConfig(object):
     return GcsHelper(
         storage.Client(project=project, credentials=creds))
 
-  def _get_project(self):
+  def _get_project(self) -> str:
     # If a --project flag is passed into a command, it supersedes the one set
     # by calling the set_project command.
     if self.project_override:
@@ -125,15 +143,16 @@ class CommandLineConfig(object):
     else:
       return self.project
 
-  def ee_init(self):
+  def ee_init(self) -> None:
     """Loads the EE credentials and initializes the EE client."""
     ee.Initialize(
         credentials=self._get_credentials(),
         opt_url=self.url,
         cloud_api_key=self.cloud_api_key,
         project=self._get_project())
+    ee.data.setUserAgent('eecli')
 
-  def save(self):
+  def save(self) -> None:
     config = {}
     for key in CONFIG_PARAMS:
       value = getattr(self, key)
@@ -143,30 +162,31 @@ class CommandLineConfig(object):
       json.dump(config, output_file)
 
 
-class GcsHelper(object):
-  """A helper for manipulating files in GCS."""
+def _split_gcs_path(path):
+  m = re.search('gs://([a-z0-9-_.]*)/(.*)', path, re.IGNORECASE)
+  if not m:
+    raise ValueError('\'{}\' is not a valid GCS path'.format(path))
 
-  def __init__(self, client):
+  return m.groups()
+
+
+def _canonicalize_dir_path(path):
+  return path.strip().rstrip('/')
+
+
+class GcsHelper:
+  """A helper for manipulating files in GCS."""
+  client: storage.Client
+
+  def __init__(self, client: storage.Client):
     self.client = client
 
-  @staticmethod
-  def _split_gcs_path(path):
-    m = re.search('gs://([a-z0-9-_.]*)/(.*)', path, re.IGNORECASE)
-    if not m:
-      raise ValueError('\'{}\' is not a valid GCS path'.format(path))
-
-    return m.groups()
-
-  @staticmethod
-  def _canonicalize_dir_path(path):
-    return path.strip().rstrip('/')
-
-  def _get_blobs_under_path(self, path):
-    bucket, prefix = GcsHelper._split_gcs_path(
-        GcsHelper._canonicalize_dir_path(path))
+  def _get_blobs_under_path(self, path: str):
+    bucket, prefix = _split_gcs_path(
+        _canonicalize_dir_path(path))
     return self.client.get_bucket(bucket).list_blobs(prefix=prefix + '/')
 
-  def check_gcs_dir_within_size(self, path, max_bytes):
+  def check_gcs_dir_within_size(self, path: str, max_bytes: int) -> None:
     blobs = self._get_blobs_under_path(path)
     total_bytes = 0
     for blob in blobs:
@@ -177,13 +197,14 @@ class GcsHelper(object):
     if total_bytes == 0:
       raise ValueError('No files found at \'{}\'.'.format(path))
 
-  def download_dir_to_temp(self, path):
+  def download_dir_to_temp(self, path: str) -> str:
     """Downloads recursively the contents at a GCS path to a temp directory."""
-    canonical_path = GcsHelper._canonicalize_dir_path(path)
+    canonical_path = _canonicalize_dir_path(path)
     blobs = self._get_blobs_under_path(canonical_path)
     temp_dir = tempfile.mkdtemp()
 
-    _, prefix = GcsHelper._split_gcs_path(canonical_path)
+    bucket, prefix = _split_gcs_path(canonical_path)
+    del bucket  # Unused
     for blob in blobs:
       stripped_name = blob.name[len(prefix):]
       if stripped_name == '/':
@@ -199,16 +220,16 @@ class GcsHelper(object):
 
     return temp_dir
 
-  def upload_dir_to_bucket(self, source_path, dest_path):
+  def upload_dir_to_bucket(self, source_path: str, dest_path: str) -> None:
     """Uploads a directory to cloud storage."""
-    canonical_path = GcsHelper._canonicalize_dir_path(source_path)
+    canonical_path = _canonicalize_dir_path(source_path)
 
     files = list()
     for dirpath, _, filenames in os.walk(canonical_path):
       files += [os.path.join(dirpath, f) for f in filenames]
 
-    bucket, prefix = GcsHelper._split_gcs_path(
-        GcsHelper._canonicalize_dir_path(dest_path))
+    bucket, prefix = _split_gcs_path(
+        _canonicalize_dir_path(dest_path))
     bucket_client = self.client.get_bucket(bucket)
 
     for f in files:
@@ -216,11 +237,11 @@ class GcsHelper(object):
       bucket_client.blob(prefix + relative_file).upload_from_filename(f)
 
 
-def is_gcs_path(path):
+def is_gcs_path(path: str) -> bool:
   return _ensure_str(path.strip()).startswith('gs://')
 
 
-def query_yes_no(msg):
+def query_yes_no(msg: str) -> bool:
   print('%s (y/n)' % msg)
   while True:
     confirm = input().lower()
@@ -232,14 +253,16 @@ def query_yes_no(msg):
       print('Please respond with \'y\' or \'n\'.')
 
 
-def truncate(string, length):
+def truncate(string: str, length: int) -> str:
   if len(string) > length:
     return _ensure_str(string[:length]) + '..'
   else:
     return string
 
 
-def wait_for_task(task_id, timeout, log_progress=True):
+def wait_for_task(
+    task_id: str, timeout: float, log_progress: bool = True
+) -> None:
   """Waits for the specified task to finish, or a timeout to occur."""
   start = time.time()
   elapsed = 0
@@ -267,7 +290,9 @@ def wait_for_task(task_id, timeout, log_progress=True):
   print('Wait for task %s timed out after %.2f seconds' % (task_id, elapsed))
 
 
-def wait_for_tasks(task_id_list, timeout, log_progress=False):
+def wait_for_tasks(
+    task_id_list: List[str], timeout: float, log_progress: bool = False
+) -> None:
   """For each task specified in task_id_list, wait for that task or timeout."""
 
   if len(task_id_list) == 1:
@@ -297,7 +322,7 @@ def wait_for_tasks(task_id_list, timeout, log_progress=False):
   print('  %d tasks are still incomplete (timed-out)' % num_incomplete)
 
 
-def expand_gcs_wildcards(source_files):
+def expand_gcs_wildcards(source_files: List[str]) -> Iterable[str]:
   """Implements glob-like '*' wildcard completion for cloud storage objects.
 
   Args:
@@ -338,7 +363,7 @@ def expand_gcs_wildcards(source_files):
         yield gcs_path
 
 
-def _gcs_ls(bucket, prefix=''):
+def _gcs_ls(bucket: str, prefix: str = '') -> Iterable[str]:
   """Retrieve a list of cloud storage filepaths from the given bucket.
 
   Args:
@@ -400,9 +425,8 @@ def _gcs_ls(bucket, prefix=''):
     next_page_token = json_content['nextPageToken']
 
 
-def _ensure_str(s):
+def _ensure_str(s: AnyStr) -> str:
   """Converts Python 3 string or bytes object to string."""
   if isinstance(s, bytes):
     return s.decode('utf-8', 'strict')
   return s
-  

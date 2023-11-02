@@ -1,5 +1,4 @@
-Google Earth Engine API
-=======================
+# Google Earth Engine API
 
 Python and JavaScript client libraries for calling the Google Earth Engine API.
 
@@ -39,3 +38,11 @@ Map.addLayer(
     {min: 0, max: [0.18, 20, -0.18], bands: ['scale', 'offset', 'scale']},
     'stable lights trend');
 ```
+
+## NOTICE
+
+In order to be more responsive to bug reports and feature requests, we are
+currently using the Google Issue Tracker rather than the GitHub Issue tracker.
+Please see the [Get Help](https://developers.google.com/earth-engine/help) page
+of the Earth Engine documentation for details on how to browse and submit issues
+to Issue Tracker.

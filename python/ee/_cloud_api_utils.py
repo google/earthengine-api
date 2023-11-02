@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Earth Engine helper functions for working with the Cloud API.
 
 Many of the functions defined here are for mapping legacy calls in ee.data into
@@ -10,23 +10,23 @@ import calendar
 import copy
 import datetime
 import json
-
 import os
 import re
+from typing import Any, Callable, Dict, List, Optional, Protocol, Sequence, Tuple, Type, Union
 import warnings
 
-from . import ee_exception
-from google_auth_httplib2 import AuthorizedHttp
-from google_auth_httplib2 import Request
+from google import auth
+import google_auth_httplib2
 from googleapiclient import discovery
 from googleapiclient import http
 from googleapiclient import model
-
 import httplib2
 import requests
 
+from ee import ee_exception
+
 # The Cloud API version.
-VERSION = os.environ.get('EE_CLOUD_API_VERSION', 'v1alpha')
+VERSION = os.environ.get('EE_CLOUD_API_VERSION', 'v1')
 
 PROJECT_ID_PATTERN = (r'^(?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
                       r'[a-z][-a-z0-9]{4,28}[a-z0-9]$')
@@ -37,23 +37,40 @@ ASSET_ROOT_PATTERN = (r'^projects/((?:\w+(?:[\w\-]+\.[\w\-]+)*?\.\w+\:)?'
                       r'[a-z][a-z0-9\-]{4,28}[a-z0-9])/assets/?$')
 
 # The default user project to use when making Cloud API calls.
-_cloud_api_user_project = None
+_cloud_api_user_project: Optional[str] = None
+
+
+class HttpTransportable(Protocol):
+  """A protocol for HTTP transport objects."""
+
+  def request(  # pylint: disable=invalid-name
+      self,
+      uri: str,
+      method: str,
+      body: Optional[str],
+      headers: Optional[Dict[str, str]],
+      redirections: Optional[int],
+      connection_type: Optional[Type[Any]],
+  ) -> Any:
+    """Make an HTTP request."""
 
 
 class _Http:
   """A httplib2.Http-like object based on requests."""
+  _timeout: Optional[float]
 
-  def __init__(self, timeout=None):
+  def __init__(self, timeout: Optional[float] = None):
     self._timeout = timeout
 
   def request(  # pylint: disable=invalid-name
       self,
-      uri,
-      method='GET',
-      body=None,
-      headers=None,
-      redirections=None,
-      connection_type=None):
+      uri: str,
+      method: str = 'GET',
+      body: Optional[str] = None,
+      headers: Optional[Dict[str, str]] = None,
+      redirections: Optional[int] = None,
+      connection_type: Optional[Type[Any]] = None,
+  ) -> Tuple[httplib2.Response, Any]:
     """Makes an HTTP request using httplib2 semantics."""
     del connection_type  # Unused
 
@@ -67,7 +84,10 @@ class _Http:
     return httplib2.Response(headers), content
 
 
-def _wrap_request(headers_supplier, response_inspector):
+def _wrap_request(
+    headers_supplier: Callable[[], Dict[str, Any]],
+    response_inspector: Callable[[Any], None],
+) -> Callable[..., http.HttpRequest]:
   """Builds a callable that wraps an API request.
 
   Args:
@@ -85,14 +105,16 @@ def _wrap_request(headers_supplier, response_inspector):
     return http.HttpRequest
 
   # pylint: disable=invalid-name
-  def builder(http_transport,
-              postproc,
-              uri,
-              method='GET',
-              body=None,
-              headers=None,
-              methodId=None,
-              resumable=None):
+  def builder(
+      http_transport: httplib2.Http,
+      postproc: Callable[..., Any],
+      uri: str,
+      method: str = 'GET',
+      body: Optional[Any] = None,
+      headers: Optional[Any] = None,
+      methodId: Optional[Any] = None,
+      resumable: Optional[Any] = None,
+  ) -> http.HttpRequest:
     """Builds an HttpRequest, adding headers and response inspection."""
     additional_headers = headers_supplier()
     if additional_headers:
@@ -114,19 +136,21 @@ def _wrap_request(headers_supplier, response_inspector):
   return builder
 
 
-def set_cloud_api_user_project(cloud_api_user_project):
+def set_cloud_api_user_project(cloud_api_user_project: str) -> None:
   global _cloud_api_user_project
   _cloud_api_user_project = cloud_api_user_project
 
 
-def build_cloud_resource(api_base_url,
-                         api_key=None,
-                         credentials=None,
-                         timeout=None,
-                         headers_supplier=None,
-                         response_inspector=None,
-                         http_transport=None,
-                         raw=False):
+def build_cloud_resource(
+    api_base_url: str,
+    api_key: Optional[str] = None,
+    credentials: Optional[auth.credentials.Credentials] = None,
+    timeout: Optional[float] = None,
+    headers_supplier: Optional[Callable[[], Dict[str, Any]]] = None,
+    response_inspector: Optional[Callable[[Any], None]] = None,
+    http_transport: Optional[HttpTransportable] = None,
+    raw: Optional[bool] = False,
+) -> discovery.Resource:
   """Builds an Earth Engine Cloud API resource.
 
   Args:
@@ -150,7 +174,9 @@ def build_cloud_resource(api_base_url,
   if http_transport is None:
     http_transport = _Http(timeout)
   if credentials is not None:
-    http_transport = AuthorizedHttp(credentials, http=http_transport)
+    http_transport = google_auth_httplib2.AuthorizedHttp(
+        credentials, http=http_transport
+    )
   request_builder = _wrap_request(headers_supplier, response_inspector)
   # Discovery uses json by default.
   if raw:
@@ -180,14 +206,18 @@ def build_cloud_resource(api_base_url,
     pass  # Handle fallback case outside except block, for cleaner stack traces.
   if resource is None:
     resource = build()
+  # pylint: disable-next=protected-access
   resource._baseUrl = api_base_url
   return resource
 
 
-def build_cloud_resource_from_document(discovery_document,
-                                       http_transport=None,
-                                       headers_supplier=None,
-                                       response_inspector=None):
+def build_cloud_resource_from_document(
+    discovery_document: Any,
+    http_transport: Optional[httplib2.Http] = None,
+    headers_supplier: Optional[Callable[..., Any]] = None,
+    response_inspector: Optional[Callable[..., Any]] = None,
+    raw: bool = False,
+) -> discovery.Resource:
   """Builds an Earth Engine Cloud API resource from a description of the API.
 
   This version is intended for use in tests.
@@ -199,6 +229,7 @@ def build_cloud_resource_from_document(discovery_document,
       to a request. Will be called once for each request.
     response_inspector: A callable that will be invoked with the raw
       httplib2.Response responses.
+    raw: Whether to return raw bytes when making method requests.
 
   Returns:
     A resource object to use to call the Cloud API.
@@ -206,17 +237,22 @@ def build_cloud_resource_from_document(discovery_document,
   request_builder = _wrap_request(headers_supplier, response_inspector)
   if http_transport is None:
     http_transport = _Http()
+  alt_model = model.RawModel() if raw else None
   return discovery.build_from_document(
       discovery_document,
       http=http_transport,
-      requestBuilder=request_builder)
+      requestBuilder=request_builder,
+      model=alt_model,
+  )
 
 
-def _convert_dict(to_convert,
-                  conversions,
-                  defaults=None,
-                  key_warnings=False,
-                  retain_keys=False):
+def _convert_dict(
+    to_convert: Dict[str, Any],
+    conversions: Dict[str, Any],
+    defaults: Optional[Dict[str, Any]] = None,
+    key_warnings: bool = False,
+    retain_keys: bool = False,
+) -> Dict[str, Any]:
   """Applies a set of conversion rules to a dict.
 
   Args:
@@ -249,7 +285,7 @@ def _convert_dict(to_convert,
     The "to_convert" dict with keys renamed, values converted, and defaults
     added.
   """
-  result = {}
+  result: Dict[str, Any] = {}
   for key, value in to_convert.items():
     if key in conversions:
       conversion = conversions[key]
@@ -260,13 +296,12 @@ def _convert_dict(to_convert,
         else:
           key = conversion
         if key in result:
-          warnings.warn(
-              'Multiple request parameters converted to {}'.format(key))
+          warnings.warn(f'Multiple request parameters converted to {key}')
         result[key] = value
     elif retain_keys:
       result[key] = value
     elif key_warnings:
-      warnings.warn('Unrecognized key {} ignored'.format(key))
+      warnings.warn(f'Unrecognized key {key} ignored')
   if defaults:
     for default_key, default_value in defaults.items():
       if default_key not in result:
@@ -274,7 +309,8 @@ def _convert_dict(to_convert,
   return result
 
 
-def _convert_value(value, conversions, default):
+def _convert_value(
+    value: str, conversions: Dict[str, Any], default: Any) -> Any:
   """Converts a value using a set of value mappings.
 
   Args:
@@ -290,7 +326,7 @@ def _convert_value(value, conversions, default):
   return conversions.get(value, default)
 
 
-def _convert_msec_to_timestamp(time_msec):
+def _convert_msec_to_timestamp(time_msec: float) -> str:
   """Converts a time value to a google.protobuf.Timestamp's string form.
 
   Args:
@@ -304,7 +340,7 @@ def _convert_msec_to_timestamp(time_msec):
       time_msec / 1000.0).isoformat() + 'Z'
 
 
-def _convert_timestamp_to_msec(timestamp):
+def _convert_timestamp_to_msec(timestamp: str) -> int:
   """Converts a google.protobuf.Timestamp's string form to a time in msec.
 
   Args:
@@ -325,18 +361,15 @@ def _convert_timestamp_to_msec(timestamp):
           int(parsed_timestamp.microsecond / 1000))
 
 
-def _convert_bounding_box_to_geo_json(bbox):
+def _convert_bounding_box_to_geo_json(bbox: Sequence[float]) -> str:
   """Converts a lng/lat bounding box to a GeoJSON string."""
-  lng_min = bbox[0]
-  lat_min = bbox[1]
-  lng_max = bbox[2]
-  lat_max = bbox[3]
+  lng_min, lat_min, lng_max, lat_max = bbox
   return ('{{"type":"Polygon","coordinates":'
           '[[[{0},{1}],[{2},{1}],[{2},{3}],[{0},{3}],[{0},{1}]]]}}'.format(
               lng_min, lat_min, lng_max, lat_max))
 
 
-def convert_get_list_params_to_list_assets_params(params):
+def convert_get_list_params_to_list_assets_params(params) -> Dict[str, Any]:
   """Converts a getList params dict to something usable with listAssets."""
   params = _convert_dict(
       params, {
@@ -355,14 +388,14 @@ def convert_get_list_params_to_list_assets_params(params):
   return convert_list_images_params_to_list_assets_params(params)
 
 
-def convert_list_assets_result_to_get_list_result(result):
+def convert_list_assets_result_to_get_list_result(result) -> List[Any]:
   """Converts a listAssets result to something getList can return."""
   if 'assets' not in result:
     return []
   return [_convert_asset_for_get_list_result(i) for i in result['assets']]
 
 
-def _convert_list_images_filter_params_to_list_assets_params(params):
+def _convert_list_images_filter_params_to_list_assets_params(params) -> str:
   """Converts a listImages params dict to something usable with listAssets."""
   query_strings = []
   if 'startTime' in params:
@@ -380,9 +413,9 @@ def _convert_list_images_filter_params_to_list_assets_params(params):
       try:
         region = json.dumps(region)
       except TypeError as e:
-        raise Exception(region_error) from e
+        raise Exception(region_error) from e  # pylint:disable=broad-exception-raised
     elif not isinstance(region, str):
-      raise Exception(region_error)
+      raise Exception(region_error)  # pylint:disable=broad-exception-raised
 
     # Double quotes are not valid in the GeoJSON strings, since we wrap the
     # query in a set of double quotes. We trivially avoid doubly-escaping the
@@ -393,7 +426,7 @@ def _convert_list_images_filter_params_to_list_assets_params(params):
   if 'properties' in params:
     if isinstance(params['properties'], list) and any(
         not isinstance(p, str) for p in params['properties']):
-      raise Exception(
+      raise Exception(  # pylint:disable=broad-exception-raised
           'Filter parameter "properties" must be an array of strings')
 
     for property_query in params['properties']:
@@ -405,7 +438,9 @@ def _convert_list_images_filter_params_to_list_assets_params(params):
   return ' AND '.join(query_strings)
 
 
-def convert_list_images_params_to_list_assets_params(params):
+def convert_list_images_params_to_list_assets_params(
+    params: Dict[str, Any]
+) -> Dict[str, Any]:
   """Converts a listImages params dict to something usable with listAssets."""
   params = params.copy()
   extra_filters = _convert_list_images_filter_params_to_list_assets_params(
@@ -418,18 +453,18 @@ def convert_list_images_params_to_list_assets_params(params):
   return params
 
 
-def is_asset_root(asset_name):
+def is_asset_root(asset_name: str) -> bool:
   return bool(re.match(ASSET_ROOT_PATTERN, asset_name))
 
 
-def convert_list_images_result_to_get_list_result(result):
+def convert_list_images_result_to_get_list_result(result) -> List[Any]:
   """Converts a listImages result to something getList can return."""
   if 'images' not in result:
     return []
   return [_convert_image_for_get_list_result(i) for i in result['images']]
 
 
-def _convert_asset_for_get_list_result(asset):
+def _convert_asset_for_get_list_result(asset) -> Dict[str, Any]:
   """Converts an EarthEngineAsset to the format returned by getList."""
   result = _convert_dict(
       asset, {
@@ -440,7 +475,7 @@ def _convert_asset_for_get_list_result(asset):
   return result
 
 
-def _convert_image_for_get_list_result(asset):
+def _convert_image_for_get_list_result(asset) -> Dict[str, Any]:
   """Converts an Image to the format returned by getList."""
   result = _convert_dict(
       asset, {
@@ -449,7 +484,7 @@ def _convert_image_for_get_list_result(asset):
   return result
 
 
-def _convert_asset_type_for_get_list_result(asset_type):
+def _convert_asset_type_for_get_list_result(asset_type: str) -> str:
   """Converts an EarthEngineAsset.Type to the format returned by getList."""
   return _convert_value(
       asset_type, {
@@ -460,7 +495,7 @@ def _convert_asset_type_for_get_list_result(asset_type):
       }, 'Unknown')
 
 
-def convert_asset_type_for_create_asset(asset_type):
+def convert_asset_type_for_create_asset(asset_type: str) -> str:
   """Converts a createAsset asset type to an EarthEngineAsset.Type."""
   return _convert_value(
       asset_type, {
@@ -471,7 +506,7 @@ def convert_asset_type_for_create_asset(asset_type):
       }, asset_type)
 
 
-def convert_asset_id_to_asset_name(asset_id):
+def convert_asset_id_to_asset_name(asset_id: str) -> str:
   """Converts an internal asset ID to a Cloud API asset name.
 
   If asset_id already matches the format 'projects/*/assets/**', it is returned
@@ -491,7 +526,7 @@ def convert_asset_id_to_asset_name(asset_id):
     return 'projects/earthengine-public/assets/{}'.format(asset_id)
 
 
-def split_asset_name(asset_name):
+def split_asset_name(asset_name: str) -> Tuple[str, str]:
   """Splits an asset name into the parent and ID parts.
 
   Args:
@@ -500,22 +535,23 @@ def split_asset_name(asset_name):
   Returns:
     The parent ('projects/*') and ID ('**') parts of the name.
   """
-  projects, parent, _, remainder = asset_name.split('/', 3)
+  projects, parent, assets, remainder = asset_name.split('/', 3)
+  del assets  # Unused.
   return projects + '/' + parent, remainder
 
 
-def convert_operation_name_to_task_id(operation_name):
+def convert_operation_name_to_task_id(operation_name: str) -> str:
   """Converts an Operation name to a task ID."""
   found = re.search(r'^.*operations/(.*)$', operation_name)
   return found.group(1) if found else operation_name
 
 
-def convert_task_id_to_operation_name(task_id):
+def convert_task_id_to_operation_name(task_id: str) -> str:
   """Converts a task ID to an Operation name."""
   return 'projects/{}/operations/{}'.format(_cloud_api_user_project, task_id)
 
 
-def convert_params_to_image_manifest(params):
+def convert_params_to_image_manifest(params: Dict[str, Any]) -> Dict[str, Any]:
   """Converts params to an ImageManifest for ingestion."""
   return _convert_dict(
       params, {
@@ -525,7 +561,7 @@ def convert_params_to_image_manifest(params):
       retain_keys=True)
 
 
-def convert_params_to_table_manifest(params):
+def convert_params_to_table_manifest(params: Dict[str, Any]) -> Dict[str, Any]:
   """Converts params to a TableManifest for ingestion."""
   return _convert_dict(
       params, {
@@ -535,7 +571,7 @@ def convert_params_to_table_manifest(params):
       retain_keys=True)
 
 
-def convert_tilesets_to_one_platform_tilesets(tilesets):
+def convert_tilesets_to_one_platform_tilesets(tilesets: List[Any]) -> List[Any]:
   """Converts a tileset to a one platform representation of a tileset."""
   converted_tilesets = []
   for tileset in tilesets:
@@ -547,7 +583,7 @@ def convert_tilesets_to_one_platform_tilesets(tilesets):
   return converted_tilesets
 
 
-def convert_sources_to_one_platform_sources(sources):
+def convert_sources_to_one_platform_sources(sources: List[Any]) -> List[Any]:
   """Converts the sources to one platform representation of sources."""
   converted_sources = []
   for source in sources:
@@ -566,7 +602,7 @@ def convert_sources_to_one_platform_sources(sources):
   return converted_sources
 
 
-def encode_number_as_cloud_value(number):
+def encode_number_as_cloud_value(number: float) -> Dict[str, Union[float, str]]:
   # Numeric values in constantValue-style nodes end up stored in doubles. If the
   # input is an integer that loses precision as a double, use the int64 slot
   # ("integerValue") in ValueNode.
@@ -576,7 +612,7 @@ def encode_number_as_cloud_value(number):
     return {'constantValue': number}
 
 
-def convert_algorithms(algorithms):
+def convert_algorithms(algorithms) -> Dict[str, Any]:
   """Converts a ListAlgorithmsResult to the internal format.
 
   The internal code expects a dict mapping each algorithm's name to a dict
@@ -604,7 +640,7 @@ def convert_algorithms(algorithms):
   return dict(_convert_algorithm(algorithm) for algorithm in algs)
 
 
-def _convert_algorithm(algorithm):
+def _convert_algorithm(algorithm: Dict[str, Any]) -> Tuple[str, Dict[str, Any]]:
   """Converts an Algorithm to the internal format."""
   # Strip leading 'algorithms/' from the name.
   algorithm_name = algorithm['name'][11:]
@@ -627,11 +663,12 @@ def _convert_algorithm(algorithm):
   return algorithm_name, converted_algorithm
 
 
-def _convert_algorithm_arguments(args):
+def _convert_algorithm_arguments(
+    args: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
   return [_convert_algorithm_argument(arg) for arg in args]
 
 
-def _convert_algorithm_argument(arg):
+def _convert_algorithm_argument(arg: Dict[str, Any]) -> Dict[str, Any]:
   return _convert_dict(
       arg, {
           'argumentName': 'name',
@@ -646,7 +683,7 @@ def _convert_algorithm_argument(arg):
       })
 
 
-def convert_to_image_file_format(format_str):
+def convert_to_image_file_format(format_str: Optional[str]) -> str:
   """Converts a legacy file format string to an ImageFileFormat enum value.
 
   Args:
@@ -673,7 +710,7 @@ def convert_to_image_file_format(format_str):
     return format_str
 
 
-def convert_to_table_file_format(format_str):
+def convert_to_table_file_format(format_str: Optional[str]) -> str:
   """Converts a legacy file format string to a TableFileFormat enum value.
 
   Args:
@@ -696,7 +733,7 @@ def convert_to_table_file_format(format_str):
     return format_str
 
 
-def convert_to_band_list(bands):
+def convert_to_band_list(bands: Union[List[str], None, str]) -> List[str]:
   """Converts a band list, possibly as CSV, to a real list of bands.
 
   Args:
@@ -716,7 +753,7 @@ def convert_to_band_list(bands):
     raise ee_exception.EEException('Invalid band list ' + bands)
 
 
-def convert_to_visualization_options(params):
+def convert_to_visualization_options(params: Dict[str, Any]) -> Dict[str, Any]:
   """Extracts a VisualizationOptions from a param dict.
 
   Args:
@@ -739,7 +776,7 @@ def convert_to_visualization_options(params):
   if 'gain' in params or 'bias' in params:
     if 'min' in params or 'max' in params:
       raise ee_exception.EEException(
-          'Gain and bias can\'t be specified together with min and max')
+          'Gain and bias cannot be specified together with min and max')
     # The Cloud API doesn't support gain/bias, only min/max. Extract and
     # convert.
     gains = _convert_csv_numbers_to_list(params.get('gain'))
@@ -779,14 +816,14 @@ def convert_to_visualization_options(params):
   return result
 
 
-def _convert_csv_numbers_to_list(value):
+def _convert_csv_numbers_to_list(value: str) -> List[float]:
   """Converts a string containing CSV numbers to a list."""
   if not value:
     return []
   return [float(x) for x in value.split(',')]
 
 
-def convert_operation_to_task(operation):
+def convert_operation_to_task(operation: Dict[str, Any]) -> Dict[str, Any]:
   """Converts an Operation to a legacy Task."""
   result = _convert_dict(
       operation['metadata'], {
@@ -808,7 +845,7 @@ def convert_operation_to_task(operation):
   return result
 
 
-def _convert_operation_state_to_task_state(state):
+def _convert_operation_state_to_task_state(state: str) -> str:
   """Converts a state string from an Operation to the Task equivalent."""
   return _convert_value(
       state, {
@@ -821,7 +858,7 @@ def _convert_operation_state_to_task_state(state):
       }, 'UNKNOWN')
 
 
-def convert_iam_policy_to_acl(policy):
+def convert_iam_policy_to_acl(policy: Dict[str, Any])  -> Dict[str, Any]:
   """Converts an IAM Policy proto to the legacy ACL format."""
   bindings = {
       binding['role']: binding.get('members', [])
@@ -841,7 +878,7 @@ def convert_iam_policy_to_acl(policy):
   return result
 
 
-def convert_acl_to_iam_policy(acl):
+def convert_acl_to_iam_policy(acl: Dict[str, Any]) -> Dict[str, Any]:
   """Converts the legacy ACL format to an IAM Policy proto."""
   owners = acl.get('owners', [])
   readers = acl.get('readers', [])
@@ -858,7 +895,9 @@ def convert_acl_to_iam_policy(acl):
   return {'bindings': bindings}
 
 
-def convert_to_grid_dimensions(dimensions):
+def convert_to_grid_dimensions(
+    dimensions: Union[float, Sequence[float]]
+) -> Dict[str, float]:
   """Converts an input value to GridDimensions.
 
   Args:

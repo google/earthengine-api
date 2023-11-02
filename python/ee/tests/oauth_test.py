@@ -1,24 +1,24 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 """Test for the ee.oauth module."""
 
 import json
+import tempfile
 from unittest import mock
 import urllib.parse
 
-import tempfile
-import unittest
-
 import ee
+import unittest
 
 
 class OAuthTest(unittest.TestCase):
 
   def setUp(self):
+    super().setUp()
     self.test_tmpdir = tempfile.mkdtemp()
 
   def testRequestToken(self):
 
-    class MockResponse(object):
+    class MockResponse:
 
       def __init__(self, code):
         self.code = code.decode()
@@ -26,7 +26,8 @@ class OAuthTest(unittest.TestCase):
       def read(self):
         return ('{"refresh_token": "' + self.code + '456"}').encode()
 
-    def mock_urlopen(unused_url, param):
+    def mock_urlopen(url, param):
+      del url  # Unused.
       parsed = urllib.parse.parse_qs(param)
       self.assertEqual('xyz', parsed[b'code_verifier'][0].decode())
       return MockResponse(parsed[b'code'][0])
