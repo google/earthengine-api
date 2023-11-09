@@ -25,6 +25,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r python/requirements.txt
           pip install ./python
-      - name: Test
+      - name: Test Python Versions
         run: |
           python -c "import ee"
