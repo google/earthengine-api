@@ -2093,6 +2093,50 @@ def createAssetHome(requestedId: str) -> None:
   })
 
 
+def _get_config_path() -> str:
+  return f'{_get_projects_path()}/config'
+
+
+def getProjectConfig() -> Dict[str, Any]:
+  """Gets the project config for the current project.
+
+  Returns:
+    The project config as a dictionary.
+  """
+  return _execute_cloud_call(
+      _get_cloud_projects().getConfig(name=_get_config_path())
+  )
+
+
+def updateProjectConfig(
+    project_config: Dict[str, Any], update_mask: Optional[Sequence[str]] = None
+) -> Dict[str, Any]:
+  """Updates the project config for the current project.
+
+  Args:
+    project_config: The new project config as a dictionary.
+    update_mask: A list of the values to update. The only supported values right
+      now are: "max_concurrent_exports". If the list is empty or None, all
+      values will be updated.
+
+  Returns:
+    The updated project config as a dictionary.
+  """
+  if not update_mask:
+    update_mask = ['max_concurrent_exports']
+
+  update_mask = ','.join(update_mask)
+  if update_mask != 'max_concurrent_exports':
+    raise ValueError('Only "max_concurrent_exports" is supported right now.')
+
+  config = _get_config_path()
+  return _execute_cloud_call(
+      _get_cloud_projects().updateConfig(
+          name=config, body=project_config, updateMask=update_mask
+      )
+  )
+
+
 def authorizeHttp(http: Any) -> Any:
   if _credentials:
     return google_auth_httplib2.AuthorizedHttp(_credentials)
