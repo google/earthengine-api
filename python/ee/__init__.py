@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The EE Python library."""
 
-__version__ = '0.1.378'
+__version__ = '0.1.379'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -9,11 +9,9 @@ __version__ = '0.1.378'
 import collections
 import datetime
 import inspect
-import numbers
 import os
 from typing import Any, Hashable, List as ListType, Optional, Sequence, Type, Union
 
-from ee import _cloud_api_utils
 from ee import batch
 from ee import data
 from ee import deserializer
@@ -111,7 +109,7 @@ def Initialize(
     credentials: Optional[Any] = 'persistent',
     opt_url: Optional[str] = None,
     cloud_api_key: Optional[str] = None,
-    http_transport: Optional[_cloud_api_utils.HttpTransportable] = None,
+    http_transport: Optional[Any] = None,
     project: Optional[Union[str, int]] = None,
 ) -> None:
   """Initialize the EE library.
@@ -224,8 +222,7 @@ def _Promote(arg: Optional[Any], a_class: str) -> Optional[Any]:
     return Image(arg)
   elif a_class == 'Feature':
     if isinstance(arg, Collection):
-      # TODO(user): Decide whether we want to leave this in. It can be
-      #              quite dangerous on large collections.
+      #  This can be quite dangerous on large collections.
       return ApiFunction.call_(
           'Feature', ApiFunction.call_('Collection.geometry', arg))
     else:

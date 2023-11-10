@@ -1,4 +1,5 @@
 /**
+ * g3-format-clang
  * Utility map for ClassMetadata to describe how to create instances of child
  * properties.
  */

@@ -1,3 +1,4 @@
+// g3-format-clang
 import {Serializable, serialize} from './domain_object';
 import {GeneratedRequestParams} from './generated_types';
 import {MultipartRequest} from './multipart_request';

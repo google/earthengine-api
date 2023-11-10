@@ -5,9 +5,17 @@ from ee import apifunction
 
 
 class Terrain:
-  """An namespace for Terrain Algorithms."""
+  """A namespace for Terrain Algorithms."""
 
   _initialized: bool = False
+
+  def __init__(self):
+    raise RuntimeError(
+        self.__name__
+        + ' should not be used as an object. Only direct usage of Terrain'
+        ' static methods is allowed. For example, use this: '
+        ' `ee.Terrain.aspect(...)`'
+    )
 
   @classmethod
   def initialize(cls) -> None:

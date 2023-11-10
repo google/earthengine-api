@@ -1,3 +1,4 @@
+// g3-format-clang
 import {Serializable, SerializableCtor} from './domain_object';
 import {MultipartRequest} from './multipart_request';
 

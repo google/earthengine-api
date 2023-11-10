@@ -144,7 +144,7 @@ class Collection(element.Element):
   def getInfo(self) -> Optional[Any]:
     """Returns all the known information about this collection.
 
-    This function makes an REST call to to retrieve all the known information
+    This function makes a REST call to to retrieve all the known information
     about this collection.
 
     Returns:

@@ -1,3 +1,4 @@
+// g3-format-clang
 import 'jasmine';
 
 import {buildQueryParams, bypassCorsPreflight, MakeRequestParams} from './request_params';

@@ -123,8 +123,7 @@ def profilePrinting(destination: TextIO = sys.stderr) -> Iterator[None]:
         Defaults to sys.stderr.
 
   """
-  # TODO(user): Figure out why ee.Profile.getProfiles isn't generated and fix
-  # that.
+  # Profile.getProfiles is `hidden`, so call it explicitly.
   getProfiles = apifunction.ApiFunction.lookup('Profile.getProfiles')
 
   profile_ids = []

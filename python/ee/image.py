@@ -267,7 +267,7 @@ class Image(element.Element):
             # By default the Geometry should be planar.
             if isinstance(region, list):
               if (len(region) == 2
-                  or all(isinstance(e, (int, float)) for e in region)):
+                  or all(isinstance(e, (float, int)) for e in region)):
                 selection_params['geometry'] = geometry.Geometry.Rectangle(
                     region, None, geodesic=False)
               else:

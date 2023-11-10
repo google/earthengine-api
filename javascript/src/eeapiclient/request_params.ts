@@ -1,3 +1,4 @@
+// g3-format-clang
 import * as httpCors from 'goog:goog.net.rpc.HttpCors';
 
 import {GeneratedQueryParams} from './generated_types';

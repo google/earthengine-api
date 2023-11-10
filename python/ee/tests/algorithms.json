@@ -3609,7 +3609,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.intersects",
-    "description": "Returns true iff the geometries intersect.",
+    "description": "Returns true if and only if the geometries intersect.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -3659,7 +3659,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.disjoint",
-    "description": "Returns true iff the geometries are disjoint.",
+    "description": "Returns true if and only if the geometries are disjoint.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -3705,7 +3705,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.contains",
-    "description": "Returns true iff one geometry contains the other.",
+    "description": "Returns true if and only if one geometry contains the other.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -3730,7 +3730,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.containedIn",
-    "description": "Returns true iff one geometry is contained in the other.",
+    "description": "Returns true if and only if one geometry is contained in the other.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -3755,7 +3755,7 @@
     }]
   }, {
     "name": "algorithms/Geometry.withinDistance",
-    "description": "Returns true iff the geometries are within a specified distance.",
+    "description": "Returns true if and only if the geometries are within a specified distance.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4506,7 +4506,7 @@
     }]
   }, {
     "name": "algorithms/Feature.containedIn",
-    "description": "Returns true iff the geometry of one feature is contained in the geometry of another.",
+    "description": "Returns true if and only if the geometry of one feature is contained in the geometry of another.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4531,7 +4531,7 @@
     }]
   }, {
     "name": "algorithms/Feature.contains",
-    "description": "Returns true iff the geometry of one feature contains the geometry of another.",
+    "description": "Returns true if and only if the geometry of one feature contains the geometry of another.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4627,7 +4627,7 @@
     }]
   }, {
     "name": "algorithms/Feature.disjoint",
-    "description": "Returns true iff the feature geometries are disjoint.",
+    "description": "Returns true if and only if the feature geometries are disjoint.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4723,7 +4723,7 @@
     }]
   }, {
     "name": "algorithms/Feature.intersects",
-    "description": "Returns true iff the feature geometries intersect.",
+    "description": "Returns true if and only if the feature geometries intersect.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -4934,7 +4934,7 @@
     }]
   }, {
     "name": "algorithms/Feature.withinDistance",
-    "description": "Returns true iff the geometries of two features are within a specified distance.",
+    "description": "Returns true if and only if the geometries of two features are within a specified distance.",
     "returnType": "Boolean",
     "arguments": [{
       "argumentName": "left",
@@ -7877,7 +7877,7 @@
     }]
   }, {
     "name": "algorithms/Image.and",
-    "description": "Returns 1 iff both values are non-zero for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if both values are non-zero for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7890,7 +7890,7 @@
     }]
   }, {
     "name": "algorithms/Image.or",
-    "description": "Returns 1 iff either input value is non-zero for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if either input value is non-zero for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7903,7 +7903,7 @@
     }]
   }, {
     "name": "algorithms/Image.lt",
-    "description": "Returns 1 iff the first value is less than the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is less than the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7916,7 +7916,7 @@
     }]
   }, {
     "name": "algorithms/Image.lte",
-    "description": "Returns 1 iff the first value is less than or equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is less than or equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7929,7 +7929,7 @@
     }]
   }, {
     "name": "algorithms/Image.gt",
-    "description": "Returns 1 iff the first value is greater than the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is greater than the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7942,7 +7942,7 @@
     }]
   }, {
     "name": "algorithms/Image.gte",
-    "description": "Returns 1 iff the first value is greater than or equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is greater than or equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7955,7 +7955,7 @@
     }]
   }, {
     "name": "algorithms/Image.eq",
-    "description": "Returns 1 iff the first value is equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -7968,7 +7968,7 @@
     }]
   }, {
     "name": "algorithms/Image.neq",
-    "description": "Returns 1 iff the first value is not equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
+    "description": "Returns 1 if and only if the first value is not equal to the second for each matched pair of bands in image1 and image2. If either image1 or image2 has only 1 band, then it is used against all the bands in the other image. If the images have the same number of bands, but not the same names, they\u0027re used pairwise in the natural order. The output bands are named for the longer of the two inputs, or if they\u0027re equal in length, in image1\u0027s order. The type of the output pixels is boolean.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image1",
@@ -12151,7 +12151,7 @@
     }]
   }, {
     "name": "algorithms/Number.and",
-    "description": "Returns 1 iff both values are non-zero.",
+    "description": "Returns 1 if and only if both values are non-zero.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12164,7 +12164,7 @@
     }]
   }, {
     "name": "algorithms/Number.or",
-    "description": "Returns 1 iff either input value is non-zero.",
+    "description": "Returns 1 if and only if either input value is non-zero.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12177,7 +12177,7 @@
     }]
   }, {
     "name": "algorithms/Number.lt",
-    "description": "Returns 1 iff the first value is less than the second.",
+    "description": "Returns 1 if and only if the first value is less than the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12190,7 +12190,7 @@
     }]
   }, {
     "name": "algorithms/Number.lte",
-    "description": "Returns 1 iff the first value is less than or equal to the second.",
+    "description": "Returns 1 if and only if the first value is less than or equal to the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12203,7 +12203,7 @@
     }]
   }, {
     "name": "algorithms/Number.gt",
-    "description": "Returns 1 iff the first value is greater than the second.",
+    "description": "Returns 1 if and only if the first value is greater than the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12216,7 +12216,7 @@
     }]
   }, {
     "name": "algorithms/Number.gte",
-    "description": "Returns 1 iff the first value is greater than or equal to the second.",
+    "description": "Returns 1 if and only if the first value is greater than or equal to the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12229,7 +12229,7 @@
     }]
   }, {
     "name": "algorithms/Number.eq",
-    "description": "Returns 1 iff the first value is equal to the second.",
+    "description": "Returns 1 if and only if the first value is equal to the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -12242,7 +12242,7 @@
     }]
   }, {
     "name": "algorithms/Number.neq",
-    "description": "Returns 1 iff the first value is not equal to the second.",
+    "description": "Returns 1 if and only if the first value is not equal to the second.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "left",
@@ -14607,7 +14607,7 @@
     }]
   }, {
     "name": "algorithms/Array.and",
-    "description": "On an element-wise basis, returns 1 iff both values are non-zero.",
+    "description": "On an element-wise basis, returns 1 if and only if both values are non-zero.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14620,7 +14620,7 @@
     }]
   }, {
     "name": "algorithms/Array.or",
-    "description": "On an element-wise basis, returns 1 iff either input value is non-zero.",
+    "description": "On an element-wise basis, returns 1 if and only if either input value is non-zero.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14633,7 +14633,7 @@
     }]
   }, {
     "name": "algorithms/Array.lt",
-    "description": "On an element-wise basis, returns 1 iff the first value is less than the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is less than the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14646,7 +14646,7 @@
     }]
   }, {
     "name": "algorithms/Array.lte",
-    "description": "On an element-wise basis, returns 1 iff the first value is less than or equal to the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is less than or equal to the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14659,7 +14659,7 @@
     }]
   }, {
     "name": "algorithms/Array.gt",
-    "description": "On an element-wise basis, returns 1 iff the first value is greater than the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is greater than the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14672,7 +14672,7 @@
     }]
   }, {
     "name": "algorithms/Array.gte",
-    "description": "On an element-wise basis, returns 1 iff the first value is greater than or equal to the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is greater than or equal to the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14685,7 +14685,7 @@
     }]
   }, {
     "name": "algorithms/Array.eq",
-    "description": "On an element-wise basis, returns 1 iff the first value is equal to the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is equal to the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",
@@ -14698,7 +14698,7 @@
     }]
   }, {
     "name": "algorithms/Array.neq",
-    "description": "On an element-wise basis, returns 1 iff the first value is not equal to the second.",
+    "description": "On an element-wise basis, returns 1 if and only if the first value is not equal to the second.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "left",

@@ -1,3 +1,4 @@
+// g3-format-clang
 import {deserialize, Serializable, SerializableCtor} from './domain_object';
 import {MakeRequestParams, processParams} from './request_params';
 

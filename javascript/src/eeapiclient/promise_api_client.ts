@@ -1,3 +1,4 @@
+// g3-format-clang
 import {ApiClient, toMakeRequestParams, toMultipartMakeRequestParams} from './api_client';
 import {ApiClientHookFactory, getRequestHook} from './api_request_hook';
 import {Serializable} from './domain_object';

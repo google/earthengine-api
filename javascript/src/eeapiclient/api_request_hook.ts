@@ -1,3 +1,4 @@
+// g3-format-clang
 import {GeneratedRequestParams} from './generated_types';
 
 export interface ApiClientRequestHook {

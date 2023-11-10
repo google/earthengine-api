@@ -18,6 +18,7 @@ from google.oauth2 import credentials as credentials_lib
 import google_auth_httplib2
 import googleapiclient
 import httplib2
+import requests
 
 from ee import _cloud_api_utils
 from ee import computedobject
@@ -46,6 +47,9 @@ _cloud_api_base_url: Optional[str] = None
 # Google Cloud API key.  This may be set by ee.Initialize().
 _cloud_api_key: Optional[str] = None
 
+# A Requests session.  This is set by ee.Initialize()
+_requests_session: Optional[requests.Session] = None
+
 # A resource object for making Cloud API calls.
 _cloud_api_resource = None
 
@@ -59,7 +63,7 @@ _cloud_api_user_project: Optional[str] = None
 _cloud_api_client_version: Optional[str] = None
 
 # The http_transport to use.
-_http_transport: _cloud_api_utils.HttpTransportable = None
+_http_transport = None
 
 # Whether the module has been initialized.
 _initialized: bool = False
@@ -157,7 +161,7 @@ def initialize(
     cloud_api_base_url: Optional[str] = None,
     cloud_api_key: Optional[str] = None,
     project: Optional[str] = None,
-    http_transport: Optional[_cloud_api_utils.HttpTransportable] = None,
+    http_transport: Any = None,
 ) -> None:
   """Initializes the data module, setting credentials and base URLs.
 
@@ -178,6 +182,7 @@ def initialize(
     http_transport: The http transport to use
   """
   global _api_base_url, _tile_base_url, _credentials, _initialized
+  global _requests_session
   global _cloud_api_base_url
   global _cloud_api_key
   global _cloud_api_user_project, _http_transport
@@ -211,6 +216,9 @@ def initialize(
     _cloud_api_client_version = version
 
   _http_transport = http_transport
+
+  if _requests_session is None:
+    _requests_session = requests.Session()
 
   _install_cloud_api_resource()
 
@@ -246,12 +254,15 @@ def get_persistent_credentials() -> credentials_lib.Credentials:
 def reset() -> None:
   """Resets the data module, clearing credentials and custom base URLs."""
   global _api_base_url, _tile_base_url, _credentials, _initialized
+  global _requests_session, _cloud_api_resource, _cloud_api_resource_raw
   global _cloud_api_base_url
-  global _cloud_api_resource, _cloud_api_resource_raw
   global _cloud_api_key, _http_transport
   _credentials = None
   _api_base_url = None
   _tile_base_url = None
+  if _requests_session is not None:
+    _requests_session.close()
+    _requests_session = None
   _cloud_api_base_url = None
   _cloud_api_key = None
   _cloud_api_resource = None
@@ -273,24 +284,29 @@ def _install_cloud_api_resource() -> None:
   global _cloud_api_resource, _cloud_api_resource_raw
 
   timeout = (_deadline_ms / 1000.0) or None
+  assert _requests_session is not None
   _cloud_api_resource = _cloud_api_utils.build_cloud_resource(
       _cloud_api_base_url,
-      credentials=_credentials,
-      api_key=_cloud_api_key,
-      timeout=timeout,
-      headers_supplier=_make_request_headers,
-      response_inspector=_handle_profiling_response,
-      http_transport=_http_transport)
-
-  _cloud_api_resource_raw = _cloud_api_utils.build_cloud_resource(
-      _cloud_api_base_url,
+      _requests_session,
       credentials=_credentials,
       api_key=_cloud_api_key,
       timeout=timeout,
       headers_supplier=_make_request_headers,
       response_inspector=_handle_profiling_response,
       http_transport=_http_transport,
-      raw=True)
+  )
+
+  _cloud_api_resource_raw = _cloud_api_utils.build_cloud_resource(
+      _cloud_api_base_url,
+      _requests_session,
+      credentials=_credentials,
+      api_key=_cloud_api_key,
+      timeout=timeout,
+      headers_supplier=_make_request_headers,
+      response_inspector=_handle_profiling_response,
+      http_transport=_http_transport,
+      raw=True,
+  )
 
 
 def _get_cloud_projects() -> Any:
@@ -837,6 +853,7 @@ def getPixels(params: Dict[str, Any]) -> Any:
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
       converter.expected_data_format()
   )
+  _maybe_populate_workload_tag(params)
   data = _execute_cloud_call(
       _get_cloud_projects_raw()
       .assets()
@@ -2293,7 +2310,7 @@ class _WorkloadTag:
     if not re.fullmatch(r'([a-z0-9]|[a-z0-9][-_a-z0-9]{0,61}[a-z0-9])', tag):
       validationMessage = (
           'Tags must be 1-63 characters, '
-          'beginning and ending with an lowercase alphanumeric character '
+          'beginning and ending with a lowercase alphanumeric character '
           '([a-z0-9]) with dashes (-), underscores (_), '
           'and lowercase alphanumerics between.')
       raise ValueError(f'Invalid tag, "{tag}". {validationMessage}')

@@ -378,8 +378,7 @@ ee.promote_ = function(arg, klass) {
       return new ee.Image(/** @type {Object} */ (arg));
     case 'Feature':
       if (arg instanceof ee.Collection) {
-        // TODO(user): Decide whether we want to leave this in. It can be
-        //              quite dangerous on large collections.
+        // This can be quite dangerous on large collections.
         return ee.ApiFunction._call(
             'Feature', ee.ApiFunction._call('Collection.geometry', arg));
       } else {

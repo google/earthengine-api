@@ -6,7 +6,6 @@ goog.module.declareLegacyNamespace();
 
 const GoogConst = goog.require('goog.string.Const');
 const Throttle = goog.require('goog.async.Throttle');
-const TrustedResourceUrl = goog.require('goog.html.TrustedResourceUrl');
 const Uri = goog.require('goog.Uri');
 const XhrIo = goog.require('goog.net.XhrIo');
 const XhrLike = goog.requireType('goog.net.XhrLike');
@@ -21,11 +20,12 @@ const jsloader = goog.require('goog.net.jsloader');
 const {MakeRequestParams, processParams} = goog.require('eeapiclient.request_params');
 const {NULL_VALUE, Serializable, SerializableCtor, deserialize, serialize} = goog.require('eeapiclient.domain_object');
 const {PromiseRequestService} = goog.require('eeapiclient.promise_request_service');
+const {trustedResourceUrl} = goog.require('safevalues');
 
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.378';
+const API_CLIENT_VERSION = '0.1.379';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -1147,8 +1147,9 @@ apiclient.ensureAuthLibLoaded_ = function(callback) {
       delete goog.global[callbackName];
       done();
     };
-    jsloader.safeLoad(TrustedResourceUrl.format(
-        apiclient.AUTH_LIBRARY_URL_, {'onload': callbackName}));
+    jsloader.safeLoad(
+        trustedResourceUrl`https://apis.google.com/js/client.js?onload=${
+            callbackName}`);
   }
 };
 

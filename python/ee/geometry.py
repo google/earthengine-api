@@ -5,7 +5,7 @@ from __future__ import annotations
 
 import collections.abc
 import json
-import numbers
+import math
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from ee import apifunction
@@ -283,7 +283,12 @@ class Geometry(computedobject.ComputedObject):
     return Geometry(init)
 
   @staticmethod
-  def BBox(west: float, south: float, east: float, north: float) -> Geometry:
+  def BBox(
+      west: Union[float, computedobject.ComputedObject],
+      south: Union[float, computedobject.ComputedObject],
+      east: Union[float, computedobject.ComputedObject],
+      north: Union[float, computedobject.ComputedObject],
+  ) -> Geometry:
     """Constructs a rectangle ee.Geometry from lines of latitude and longitude.
 
     If (east - west) ≥ 360° then the longitude range will be normalized to -180°
@@ -315,10 +320,10 @@ class Geometry(computedobject.ComputedObject):
     # become bad JSON. The other two infinities are acceptable because we
     # support the general idea of an around-the-globe latitude band. By writing
     # them negated, we also reject NaN.
-    if not west < float('inf'):
+    if not west < math.inf:
       raise ee_exception.EEException(
           'Geometry.BBox: west must not be {}'.format(west))
-    if not east > float('-inf'):
+    if not east > -math.inf:
       raise ee_exception.EEException(
           'Geometry.BBox: east must not be {}'.format(east))
     # Reject cases which, if we clamped them instead, would move a box whose
@@ -694,7 +699,7 @@ class Geometry(computedobject.ComputedObject):
     else:
       # Make sure the pts are all numbers.
       for i in shape:
-        if not isinstance(i, numbers.Number):
+        if not isinstance(i, (float, int)):
           return -1
 
       # Test that we have an even number of pts.
@@ -714,7 +719,7 @@ class Geometry(computedobject.ComputedObject):
     Returns:
       An array of pairs of points.
     """
-    if not (coordinates and isinstance(coordinates[0], numbers.Number)):
+    if not (coordinates and isinstance(coordinates[0], (float, int))):
       return coordinates
     if len(coordinates) == 2:
       return coordinates
@@ -821,7 +826,7 @@ class Geometry(computedobject.ComputedObject):
       raise ee_exception.EEException('Unexpected nesting level.')
 
     # Handle a list of numbers.
-    if all(isinstance(i, numbers.Number) for i in coords):
+    if all(isinstance(i, (float, int)) for i in coords):
       coords = Geometry._coordinatesToLine(coords)
 
     # Make sure the number of nesting levels is correct.

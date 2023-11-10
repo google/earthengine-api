@@ -1,7 +1,6 @@
 #!/usr/bin/env python3
 """A wrapper for numbers."""
 
-import numbers
 from typing import Any, Optional, Union
 
 from ee import _cloud_api_utils
@@ -34,7 +33,7 @@ class Number(computedobject.ComputedObject):
     """
     self.initialize()
 
-    if isinstance(number, numbers.Number):
+    if isinstance(number, (float, int)):
       super().__init__(None, None)
       self._number = number
     elif isinstance(number, computedobject.ComputedObject):
@@ -62,13 +61,13 @@ class Number(computedobject.ComputedObject):
     return 'Number'
 
   def encode(self, opt_encoder: Any = None) -> Any:
-    if isinstance(self._number, numbers.Number):
+    if isinstance(self._number, (float, int)):
       return self._number
     else:
       return super().encode(opt_encoder)
 
   def encode_cloud_value(self, opt_encoder: Any = None) -> Any:
-    if isinstance(self._number, numbers.Number):
+    if isinstance(self._number, (float, int)):
       return _cloud_api_utils.encode_number_as_cloud_value(self._number)
     else:
       return super().encode_cloud_value(opt_encoder)

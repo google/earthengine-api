@@ -1,3 +1,4 @@
+// g3-format-clang
 import {Serializable, serialize} from './domain_object';
 
 export class MultipartRequest {

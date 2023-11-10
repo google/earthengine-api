@@ -5,7 +5,6 @@ import collections
 import datetime
 import hashlib
 import json
-import numbers
 from typing import Any, Dict, List, Optional, Set
 
 from ee import _cloud_api_utils
@@ -124,7 +123,7 @@ class Serializer:
     if self._is_compound and encoded:
       # Already encoded objects are encoded as ValueRefs and returned directly.
       return {'type': 'ValueRef', 'value': encoded}
-    elif obj is None or isinstance(obj, (bool, numbers.Number, str)):
+    elif obj is None or isinstance(obj, (bool, float, int, str)):
       # Primitives are encoded as is and not saved in the scope.
       return obj
     elif isinstance(obj, datetime.datetime):
@@ -200,7 +199,7 @@ class Serializer:
       return reference
     elif obj is None or isinstance(obj, (bool, str)):
       result = {'constantValue': obj}
-    elif isinstance(obj, numbers.Number):
+    elif isinstance(obj, (float, int)):
       result = _cloud_api_utils.encode_number_as_cloud_value(obj)
     elif isinstance(obj, datetime.datetime):
       # A raw date slipped through. Wrap it. Calling ee.Date from here would
@@ -536,7 +535,7 @@ class _ExpressionOptimizer:
 
   def _is_liftable_constant(self, value: Any) -> bool:
     """Whether a constant is simple enough to lift to where it's referenced."""
-    return value is None or isinstance(value, (bool, numbers.Number))
+    return value is None or isinstance(value, (bool, float, int))
 
   def _is_constant_value(self, value: Any) -> bool:
     """Whether a ValueNode (as a dict) is a constant."""

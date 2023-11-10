@@ -2,7 +2,6 @@
 """A deserializer that decodes EE object trees from JSON DAGs."""
 
 import json
-import numbers
 
 from ee import apifunction
 from ee import computedobject
@@ -67,7 +66,7 @@ def _decodeValue(json_obj, named_values):  # pylint: disable=g-bad-name
   """
 
   # Check for primitive values.
-  if (json_obj is None or isinstance(json_obj, (bool, numbers.Number, str))):
+  if (json_obj is None or isinstance(json_obj, (bool, float, int, str))):
     return json_obj
 
   # Check for array values.
@@ -92,7 +91,7 @@ def _decodeValue(json_obj, named_values):  # pylint: disable=g-bad-name
     return customfunction.CustomFunction.variable(None, var_name)  # pylint: disable=protected-access
   elif type_name == 'Date':
     microseconds = json_obj['value']
-    if not isinstance(microseconds, numbers.Number):
+    if not isinstance(microseconds, (float, int)):
       raise ee_exception.EEException('Invalid date value: ' + microseconds)
     return ee_date.Date(microseconds / 1e3)
   elif type_name == 'Bytes':
