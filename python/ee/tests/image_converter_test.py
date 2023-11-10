@@ -7,7 +7,7 @@ import numpy
 
 from ee import image_converter
 import unittest
-import parameterized
+from absl.testing import parameterized
 
 
 class ImageConverterTest(parameterized.TestCase):

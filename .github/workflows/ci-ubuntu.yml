@@ -25,6 +25,10 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r python/requirements.txt
           pip install ./python
+          pip install numpy geopandas parameterized
       - name: Test Python Versions
         run: |
           python -c "import ee"
+      - name: Run Unit Tests
+        run: |
+          ls -d python/ee/tests/*_test.py | xargs -t -I filename python -m unittest filename

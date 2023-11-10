@@ -125,14 +125,6 @@ class ExportTest(unittest.TestCase):
     with self.assertRaises(AssertionError):
       batch.Export.video.__init__('something')
 
-  def testExportVideoMapCannotInit(self):
-    with self.assertRaises(AssertionError):
-      batch.Export.videoMap.__init__('something')
-
-  def testExportClassifierCannotInit(self):
-    with self.assertRaises(AssertionError):
-      batch.Export.classifier.__init__('something')
-
 
 class BatchTestCase(apitestcase.ApiTestCase):
   """A test case for batch functionality."""

@@ -9,7 +9,7 @@ import pandas
 
 from ee import table_converter
 import unittest
-import parameterized
+from absl.testing import parameterized
 
 
 class TableConverterTest(parameterized.TestCase):

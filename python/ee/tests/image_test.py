@@ -456,8 +456,9 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
         }],
         'dimensions': 999,
     }
-    with self.assertRaisesWithLiteralMatch(
-        ee_exception.EEException, 'Each band dictionary must have an id.'):
+    with self.assertRaisesRegex(
+        ee_exception.EEException, '^Each band dictionary must have an id.$'
+    ):
       ee.Image('foo')._build_download_id_image(params)
 
   def testBuildDownloadIdImage_handlesDimensionsAndScale(self):
