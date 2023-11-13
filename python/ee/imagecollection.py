@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """Representation for an Earth Engine ImageCollection."""
 
+from __future__ import annotations
+
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
 from ee import apifunction
@@ -100,7 +102,7 @@ class ImageCollection(collection.Collection):
   # pylint: disable-next=keyword-arg-before-vararg
   def select(
       self, selectors: Any, opt_names: Optional[Any] = None, *args
-  ) -> 'ImageCollection':
+  ) -> ImageCollection:
     """Select bands from each image in a collection.
 
     Args:
@@ -115,6 +117,57 @@ class ImageCollection(collection.Collection):
       The image collection with selected bands.
     """
     return self.map(lambda img: img.select(selectors, opt_names, *args))
+
+  # Disable argument usage check; arguments are accessed using locals().
+  # pylint: disable=unused-argument,g-bad-name
+  def linkCollection(
+      self,
+      imageCollection: 'ImageCollection',
+      linkedBands: Optional[Sequence[str]] = None,
+      linkedProperties: Optional[Sequence[str]] = None,
+      matchPropertyName: Optional[str] = None,
+  ) -> ImageCollection:
+    """Links images in this collection to matching images from imageCollection.
+
+    For each source image in this collection, any specified bands or metadata
+    will be added to the source image from the matching image found in
+    imageCollection. If bands or metadata are already present, they will be
+    overwritten. If matching images are not found, any new or updated bands will
+    be fully masked and any new or updated metadata will be null. The output
+    footprint will be the same as the source image footprint.
+
+    Matches are determined if a source image and an image in imageCollection
+    have a specific equivalent metadata property. If more than one collection
+    image would match, the collection image selected is arbitrary. By default,
+    images are matched on their 'system:index' metadata property.
+
+    This linking function is a convenience method for adding bands target images
+    based on a specified shared metadata property and is intended to support
+    linking collections that apply different processing/product generation to
+    the same source imagery. For more expressive linking known as 'joining', see
+    https://developers.google.com/earth-engine/guides/joins_intro.
+
+    Args:
+      imageCollection: The image collection searched to find matches from this
+        collection.
+      linkedBands: Optional list of band names to add or update from matching
+        images.
+      linkedProperties: Optional list of metadata properties to add or
+        update from matching images.
+      matchPropertyName: The metadata property name to use as a match
+        criteria. Defaults to "system:index".
+
+    Returns:
+      The linked image collection.
+    """
+    kwargs = {
+        k: v for k, v in locals().items() if k != 'self' and v is not None}
+    def _linkCollection(img):
+      return apifunction.ApiFunction.apply_(
+          'Image.linkCollection', {'input': img, **kwargs})
+
+    return self.map(_linkCollection)
+  # pylint: enable=g-bad-name,unused-argument
 
   def first(self) -> image.Image:
     """Returns the first entry from a given collection.
@@ -295,7 +348,7 @@ class ImageCollection(collection.Collection):
 
   def prepare_for_export(
       self, params: Dict[str, Any]
-  ) -> Tuple['ImageCollection', Dict[str, Any]]:
+  ) -> Tuple[ImageCollection, Dict[str, Any]]:
     """Applies all relevant export parameters to an ImageCollection.
 
     Args:

@@ -20,9 +20,9 @@ class TableConverterTest(parameterized.TestCase):
     return {'type': 'Feature', 'geometry': geometry, 'properties': properties}
 
   @parameterized.named_parameters(
-      ('pandas', 'pandas', table_converter.PandasConverter),
-      ('geopandas', 'geopandas', table_converter.GeoPandasConverter),
-      ('mixed case', 'gEOPANdas', table_converter.GeoPandasConverter),
+      ('pd', 'PANDAS_DATAFRAME', table_converter.PandasConverter),
+      ('gpd', 'GEOPANDAS_GEODATAFRAME', table_converter.GeoPandasConverter),
+      ('mixed', 'pANDAs_DATAframe', None),
       ('invalid', 'UNKNOWN', None),
   )
   def test_from_file_format(

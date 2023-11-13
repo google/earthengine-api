@@ -3,6 +3,9 @@
 
 This class is never intended to be instantiated by the user.
 """
+
+from __future__ import annotations
+
 from typing import Any, Dict, Optional, Union
 
 from ee import apifunction
@@ -45,7 +48,7 @@ class Element(computedobject.ComputedObject):
   def set(
       self,
       *args: Union[Dict[str, Any], float, str, computedobject.ComputedObject],
-  ) -> 'Element':
+  ) -> Element:
     """Overrides one or more metadata properties of an Element.
 
     Args:

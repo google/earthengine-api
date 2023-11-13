@@ -518,6 +518,30 @@ class DataTest(unittest.TestCase):
           f'base_url/{_cloud_api_utils.VERSION}/{mock_name}/tiles/7/5/6',
           actual_result['formatTileUrl'](5, 6, 7))
 
+  def testGetProjectConfig(self) -> None:
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'fake-project-config-value': 1}
+      cloud_api_resource.projects().getConfig().execute.return_value = (
+          mock_result
+      )
+      actual_result = ee.data.getProjectConfig()
+      cloud_api_resource.projects().getConfig().execute.assert_called_once()
+      self.assertEqual(mock_result, actual_result)
+
+  def testUpdateProjectConfig(self) -> None:
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'fake-project-config-value': 1}
+      cloud_api_resource.projects().updateConfig().execute.return_value = (
+          mock_result
+      )
+      actual_result = ee.data.updateProjectConfig(
+          {'maxConcurrentExports': 2}, ['max_concurrent_exports']
+      )
+      cloud_api_resource.projects().updateConfig().execute.assert_called_once()
+      self.assertEqual(mock_result, actual_result)
+
   def testWorkloadTag(self):
     self.assertEqual('', ee.data.getWorkloadTag())
     ee.data.setDefaultWorkloadTag(None)

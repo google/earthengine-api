@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 """An object representing a custom EE Function."""
 
+from __future__ import annotations
+
 from typing import Any, Callable, Dict, Optional
 
 from ee import computedobject
@@ -96,7 +98,7 @@ class CustomFunction(function.Function, encodable.Encodable):
   @staticmethod
   def create(
       func: Callable[[Any], Any], return_type: Any, arg_types: Any
-  ) -> 'CustomFunction':
+  ) -> CustomFunction:
     """Creates a CustomFunction.
 
     The result calls a given native function with the specified return type and

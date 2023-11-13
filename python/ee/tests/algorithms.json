@@ -3064,6 +3064,29 @@
       "defaultValue": 0.0
     }]
   }, {
+    "name": "algorithms/Classifier.smileKNN",
+    "description": "Creates an empty kNN classifier.\nThe k-nearest neighbor algorithm (k-NN) is a method for classifying objects by a majority vote of its neighbors, with the object being assigned to the class most common amongst its k nearest neighbors (k is a positive integer, typically small, typically odd).",
+    "returnType": "Classifier",
+    "arguments": [{
+      "argumentName": "k",
+      "type": "Integer",
+      "description": "The number of neighbors for classification.",
+      "optional": true,
+      "defaultValue": 1.0
+    }, {
+      "argumentName": "searchMethod",
+      "type": "String",
+      "description": "Search method. The following are valid [AUTO, LINEAR_SEARCH, KD_TREE, COVER_TREE].\nAUTO Will choose between KD_TREE and COVER_TREE depending on the dimension count.  Results may vary between the different search methods for distance ties and probability values.  Since performance and results may vary consult with SMILE\u0027s documentation and other literature.",
+      "optional": true,
+      "defaultValue": "AUTO"
+    }, {
+      "argumentName": "metric",
+      "type": "String",
+      "description": "The distance metric to use.  NOTE: KD_TREE (and AUTO for low dimensions) will not use the metric selected. Options are:\n  \u0027EUCLIDEAN\u0027 - euclidean distance.\n  \u0027MAHALANOBIS\u0027 - Mahalanobis distance.\n  \u0027MANHATTAN\u0027 - Manhattan distance.",
+      "optional": true,
+      "defaultValue": "EUCLIDEAN"
+    }]
+  }, {
     "name": "algorithms/Classifier.smileNaiveBayes",
     "description": "Creates an empty Naive Bayes classifier.  This classifier assumes that the feature vector consists of positive integers, and negative inputs are discarded.",
     "returnType": "Classifier",

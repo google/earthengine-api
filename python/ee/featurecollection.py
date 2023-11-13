@@ -4,6 +4,8 @@
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+from __future__ import annotations
+
 from typing import Any, Dict, List, Optional, Type, Union
 
 from ee import apifunction
@@ -180,7 +182,7 @@ class FeatureCollection(collection.Collection):
       newProperties: Optional[Any] = None,
       retainGeometry: Union[bool, str] = True,
       *args,
-  ) -> 'FeatureCollection':
+  ) -> FeatureCollection:
     """Select properties from each feature in a collection.
 
     Args:

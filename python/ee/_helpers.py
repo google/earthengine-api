@@ -11,14 +11,20 @@ referenced from there (e.g. "ee.profilePrinting").
 import contextlib
 import json
 import sys
+from typing import Any, Dict, Iterator, Optional, TextIO, Union
+
 from google.auth import crypt
 from google.oauth2 import service_account
+
 from ee import apifunction
+from ee import computedobject
 from ee import data
 from ee import oauth
 
 
-def ServiceAccountCredentials(email, key_file=None, key_data=None):
+def ServiceAccountCredentials(
+    email: str, key_file: Optional[str] = None, key_data: Optional[str] = None
+) -> service_account.Credentials:
   """Configure OAuth2 credentials for a Google Service Account.
 
   Args:
@@ -58,7 +64,9 @@ def ServiceAccountCredentials(email, key_file=None, key_data=None):
       signer, email, oauth.TOKEN_URI, scopes=oauth.SCOPES)
 
 
-def call(func, *args, **kwargs):
+def call(
+    func: Union[str, apifunction.ApiFunction], *args, **kwargs
+) -> computedobject.ComputedObject:
   """Invoke the given algorithm with the specified args.
 
   Args:
@@ -77,7 +85,10 @@ def call(func, *args, **kwargs):
   return func.call(*args, **kwargs)
 
 
-def apply(func, named_args):  # pylint: disable=redefined-builtin
+# pylint: disable-next=redefined-builtin
+def apply(
+    func: Union[str, apifunction.ApiFunction], named_args: Dict[str, Any]
+) -> computedobject.ComputedObject:
   """Call a function with a dictionary of named arguments.
 
   Args:
@@ -96,7 +107,7 @@ def apply(func, named_args):  # pylint: disable=redefined-builtin
 
 
 @contextlib.contextmanager
-def profilePrinting(destination=sys.stderr):
+def profilePrinting(destination: TextIO = sys.stderr) -> Iterator[None]:
   # pylint: disable=g-doc-return-or-yield
   """Returns a context manager that prints a profile of enclosed API calls.
 

@@ -5,6 +5,8 @@ See: https://developers.google.com/earth-engine/apidocs/ee-image for more
 details.
 """
 
+from __future__ import annotations
+
 import json
 from typing import Any, Dict, Optional, Sequence, Tuple
 
@@ -537,7 +539,7 @@ class Image(element.Element):
   ###################################################
 
   @staticmethod
-  def rgb(r: float, g: float, b: float) -> 'Image':
+  def rgb(r: float, g: float, b: float) -> Image:
     """Create a 3-band image.
 
     This creates a 3-band image specifically for visualization using
@@ -554,7 +556,7 @@ class Image(element.Element):
     return Image.combine_([r, g, b], ['vis-red', 'vis-green', 'vis-blue'])
 
   @staticmethod
-  def cat(*args) -> 'Image':
+  def cat(*args) -> Image:
     """Combine the given images' bands into a single image with all the bands.
 
     If two or more bands share a name, they are suffixed with an incrementing
@@ -573,7 +575,7 @@ class Image(element.Element):
     return Image.combine_(args)
 
   @staticmethod
-  def combine_(images: Any, names: Optional[Any] = None) -> 'Image':
+  def combine_(images: Any, names: Optional[Any] = None) -> Image:
     """Combine all the bands from the given images into a single image.
 
     Args:
@@ -603,7 +605,7 @@ class Image(element.Element):
       opt_selectors: Optional[Any] = None,
       opt_names: Optional[Any] = None,
       *args,
-  ) -> 'Image':
+  ) -> Image:
     """Selects bands from an image.
 
     Can be called in one of two ways:
@@ -657,7 +659,7 @@ class Image(element.Element):
 
   def expression(
       self, expression: Any, opt_map: Optional[Any] = None
-  ) -> 'Image':
+  ) -> Image:
     """Evaluates an arithmetic expression on an image or images.
 
     The bands of the primary input image are available using the built-in
@@ -705,7 +707,7 @@ class Image(element.Element):
     # Perform the call to the result of Image.parseExpression
     return function.SecondOrderFunction(body, signature).apply(args)
 
-  def clip(self, clip_geometry: Any) -> 'Image':
+  def clip(self, clip_geometry: Any) -> Image:
     """Clips an image to a Geometry or Feature.
 
     The output bands correspond exactly to the input bands, except data not
@@ -728,7 +730,7 @@ class Image(element.Element):
       pass  # Not an ee.Geometry or GeoJSON. Just pass it along.
     return apifunction.ApiFunction.call_('Image.clip', self, clip_geometry)
 
-  def rename(self, names: Any, *args) -> 'Image':
+  def rename(self, names: Any, *args) -> Image:
     """Rename the bands of an image.
 
     Can be called with either a list of strings or any number of strings.

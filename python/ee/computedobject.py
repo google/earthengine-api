@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 """A representation of an Earth Engine computed object."""
 
-from typing import Any, Dict, Optional
+from __future__ import annotations
+
+from typing import Any, Callable, Dict, Optional
 
 from ee import data
 from ee import ee_exception
@@ -102,7 +104,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     """
     return data.computeValue(self)
 
-  def encode(self, encoder: Any) -> Dict[str, Any]:
+  def encode(self, encoder: Optional[Callable[..., Any]]) -> Dict[str, Any]:
     """Encodes the object in a format compatible with Serializer."""
     if self.isVariable():
       return {
@@ -110,6 +112,9 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
           'value': self.varName
       }
     else:
+      if encoder is None:
+        raise ValueError(
+            'encoder can only be none when encode is for a variable.')
       # Encode the function that we're calling.
       func = encoder(self.func)
       # Built-in functions are encoded as strings under a different key.
@@ -190,7 +195,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     # to remain null until for CustomFunction.resolveNamelessArgs_().
     return self.func is None and self.args is None
 
-  def aside(self, func: Any, *var_args) -> 'ComputedObject':
+  def aside(self, func: Any, *var_args) -> ComputedObject:
     """Calls a function passing this object as the first argument.
 
     Returns the object itself for chaining. Convenient e.g. when debugging:
@@ -217,7 +222,7 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     return 'ComputedObject'
 
   @classmethod
-  def _cast(cls, obj: Any) -> Any:
+  def _cast(cls, obj: ComputedObject) -> ComputedObject:
     """Cast a ComputedObject to a new instance of the same class as this.
 
     Args:

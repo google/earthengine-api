@@ -24,8 +24,10 @@ from ee import computedobject
 from ee import deprecation
 from ee import ee_exception
 from ee import encodable
+from ee import image_converter
 from ee import oauth
 from ee import serializer
+from ee import table_converter
 
 from ee import __version__
 
@@ -57,7 +59,7 @@ _cloud_api_user_project: Optional[str] = None
 _cloud_api_client_version: Optional[str] = None
 
 # The http_transport to use.
-_http_transport = None
+_http_transport: _cloud_api_utils.HttpTransportable = None
 
 # Whether the module has been initialized.
 _initialized: bool = False
@@ -121,6 +123,7 @@ BASE_RETRY_WAIT = 1000
 
 # The default base URL for API calls.
 DEFAULT_API_BASE_URL = 'https://earthengine.googleapis.com/api'
+HIGH_VOLUME_API_BASE_URL = 'https://earthengine-highvolume.googleapis.com'
 
 # The default base URL for media/tile calls.
 DEFAULT_TILE_BASE_URL = 'https://earthengine.googleapis.com'
@@ -154,7 +157,7 @@ def initialize(
     cloud_api_base_url: Optional[str] = None,
     cloud_api_key: Optional[str] = None,
     project: Optional[str] = None,
-    http_transport: Any = None,
+    http_transport: Optional[_cloud_api_utils.HttpTransportable] = None,
 ) -> None:
   """Initializes the data module, setting credentials and base URLs.
 
@@ -404,7 +407,6 @@ def setCloudApiUserProject(cloud_api_user_project: str) -> None:
 def setUserAgent(user_agent: str) -> None:
   global _user_agent
   _user_agent = user_agent
-  _install_cloud_api_resource()
 
 
 def getUserAgent() -> Optional[str]:
@@ -594,6 +596,19 @@ def listAssets(params: Dict[str, Any]) -> Dict[str, List[Any]]:
 
 
 def listBuckets(project: Optional[str] = None) -> Any:
+  """Returns top-level assets and folders for the Cloud Project or user.
+
+  Args:
+    project: Project to query, e.g. "projects/my-project". Defaults to current
+      project. Use "projects/earthengine-legacy" for user home folders.
+
+  Returns:
+    A dictionary with a list of top-level assets and folders like:
+      {"assets": [
+          {"type": "FOLDER", "id": "projects/my-project/assets/my-folder", ...},
+          {"type": "IMAGE", "id": "projects/my-project/assets/my-image", ...},
+      ]}
+  """
   if project is None:
     project = _get_projects_path()
   return _execute_cloud_call(_get_cloud_projects().listAssets(parent=project))
@@ -713,6 +728,38 @@ def getFeatureViewTilesKey(params: Dict[str, Any]) -> Dict[str, Any]:
   }
 
 
+def _extract_table_converter(params: Dict[str, Any]) -> Optional[Any]:
+  if 'fileFormat' in params:
+    file_format = params.get('fileFormat')
+    converter = table_converter.from_file_format(file_format)
+    if converter:
+      return converter
+    raise ValueError('Invalid table file format: ', file_format)
+  return None
+
+
+def _extract_image_converter(
+    params: Dict[str, Any]
+) -> image_converter.ImageConverter:
+  file_format = params.get('fileFormat')
+  converter = image_converter.from_file_format(file_format)
+  if converter:
+    return converter
+  return image_converter.IdentityImageConverter(file_format)
+
+
+def _generate(func, list_key: str, **kwargs) -> Iterator[Any]:
+  """Returns a generator for list methods that contain a next page token."""
+  args = kwargs.copy()
+  while True:
+    response = func(**args)
+    for obj in response.get(list_key, []):
+      yield obj
+    if _NEXT_PAGE_TOKEN_KEY not in response:
+      break
+    args['params'].update({'pageToken': response[_NEXT_PAGE_TOKEN_KEY]})
+
+
 def listFeatures(params: Dict[str, Any]) -> Any:
   """List features for a given table or FeatureView asset.
 
@@ -726,9 +773,15 @@ def listFeatures(params: Dict[str, Any]) -> Any:
                GeoJSON geometry string (see RFC 7946).
       filter - If present, specifies additional simple property filters
                (see https://google.aip.dev/160).
+      fileFormat - If present, specifies an output format for the tabular data.
+          The function makes a network request for each page until the entire
+          table has been fetched. The number of fetches depends on the number of
+          rows in the table and pageSize. pageToken is ignored. Supported
+          formats are: PANDAS_DATAFRAME for a Pandas DataFrame and
+          GEOPANDAS_GEODATAFRAME for a GeoPandas GeoDataFrame.
 
   Returns:
-    A dictionary containing:
+    A Pandas DataFrame, GeoPandas GeoDataFrame, or a dictionary containing:
     - "type": always "FeatureCollection" marking this object as a GeoJSON
               feature collection.
     - "features": a list of GeoJSON features.
@@ -745,6 +798,10 @@ def listFeatures(params: Dict[str, Any]) -> Any:
         _get_cloud_projects().assets().listFeatures(**params)
     )
 
+  converter = _extract_table_converter(params)
+  params.pop('fileFormat', None)
+  if converter:
+    return converter.do_conversion(_generate(call, 'features', params=params))
   return call(params)
 
 
@@ -756,7 +813,9 @@ def getPixels(params: Dict[str, Any]) -> Any:
       assetId - The asset ID for which to get pixels. Must be an image asset.
       fileFormat - The resulting file format. Defaults to png. See
           https://developers.google.com/earth-engine/reference/rest/v1/ImageFileFormat
-          for the available formats.
+          for the available formats. There are additional formats that convert
+          the downloaded object to a Python data object. These include:
+          NUMPY_NDARRAY, which converts to a structured NumPy array.
       grid - Parameters describing the pixel grid in which to fetch data.
           Defaults to the native pixel grid of the data.
       region - If present, the region of data to return, specified as a GeoJSON
@@ -774,14 +833,17 @@ def getPixels(params: Dict[str, Any]) -> Any:
   params = params.copy()
   name = _cloud_api_utils.convert_asset_id_to_asset_name(params.get('assetId'))
   del params['assetId']
+  converter = _extract_image_converter(params)
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
-      params.get('fileFormat')
+      converter.expected_data_format()
   )
   data = _execute_cloud_call(
       _get_cloud_projects_raw()
       .assets()
       .getPixels(name=name, body=params)
   )
+  if converter:
+    return converter.do_conversion(data)
   return data
 
 
@@ -793,7 +855,9 @@ def computePixels(params: Dict[str, Any]) -> Any:
       expression - The expression to compute.
       fileFormat - The resulting file format. Defaults to png. See
           https://developers.google.com/earth-engine/reference/rest/v1/ImageFileFormat
-          for the available formats.
+          for the available formats. There are additional formats that convert
+          the downloaded object to a Python data object. These include:
+          NUMPY_NDARRAY, which converts to a structured NumPy array.
       grid - Parameters describing the pixel grid in which to fetch data.
           Defaults to the native pixel grid of the data.
       bandIds - If present, specifies a specific set of bands from which to get
@@ -808,8 +872,9 @@ def computePixels(params: Dict[str, Any]) -> Any:
   """
   params = params.copy()
   params['expression'] = serializer.encode(params['expression'])
+  converter = _extract_image_converter(params)
   params['fileFormat'] = _cloud_api_utils.convert_to_image_file_format(
-      params.get('fileFormat')
+      converter.expected_data_format()
   )
   _maybe_populate_workload_tag(params)
   data = _execute_cloud_call(
@@ -817,6 +882,8 @@ def computePixels(params: Dict[str, Any]) -> Any:
       .image()
       .computePixels(project=_get_projects_path(), body=params)
   )
+  if converter:
+    return converter.do_conversion(data)
   return data
 
 
@@ -857,10 +924,21 @@ def computeFeatures(params: Dict[str, Any]) -> Any:
           1000 results per page.
       pageToken - A token identifying a page of results the server should
                   return.
+      fileFormat - If present, specifies an output format for the tabular data.
+          The function makes a network request for each page until the entire
+          table has been fetched. The number of fetches depends on the number of
+          rows in the table and pageSize. pageToken is ignored. Supported
+          formats are: PANDAS_DATAFRAME for a Pandas DataFrame and
+          GEOPANDAS_GEODATAFRAME for a GeoPandas GeoDataFrame.
       workloadTag - User supplied tag to track this computation.
 
   Returns:
-    A list with the results of the computation.
+    A Pandas DataFrame, GeoPandas GeoDataFrame, or a dictionary containing:
+    - "type": always "FeatureCollection" marking this object as a GeoJSON
+          feature collection.
+    - "features": a list of GeoJSON features.
+    - "next_page_token": A token to retrieve the next page of results in a
+          subsequent call to this function.
   """
   params = params.copy()
   params['expression'] = serializer.encode(params['expression'])
@@ -873,6 +951,10 @@ def computeFeatures(params: Dict[str, Any]) -> Any:
         .computeFeatures(project=_get_projects_path(), body=params)
     )
 
+  converter = _extract_table_converter(params)
+  params.pop('fileFormat', None)
+  if converter:
+    return converter.do_conversion(_generate(call, 'features', params=params))
   return call(params)
 
 
@@ -1819,16 +1901,18 @@ def startTableIngestion(
 
 
 def getAssetRoots() -> Any:
-  """Returns the list of the root folders the user owns.
+  """Returns a list of top-level assets and folders for the current project.
 
-  Note: The "id" values for roots are two levels deep, e.g. "users/johndoe"
-        not "users/johndoe/notaroot".
+  Note: The "id" values for Cloud Projects are
+        "projects/my-project/assets/my-asset", where legacy assets (if the
+        current project is set to "earthengine-legacy") are "users/my-username",
+        not "users/my-username/my-asset".
 
   Returns:
-    A list of folder descriptions formatted like:
+    The list of top-level assets and folders like:
       [
-          {"type": "Folder", "id": "users/foo"},
-          {"type": "Folder", "id": "projects/bar"},
+          {"id": "users/foo", "type": "Folder", ...},
+          {"id": "projects/bar", "type": "Folder", ...},
       ]
   """
   return _cloud_api_utils.convert_list_assets_result_to_get_list_result(
@@ -2007,6 +2091,50 @@ def createAssetHome(requestedId: str) -> None:
       'name': _cloud_api_utils.convert_asset_id_to_asset_name(requestedId),
       'type': 'FOLDER'
   })
+
+
+def _get_config_path() -> str:
+  return f'{_get_projects_path()}/config'
+
+
+def getProjectConfig() -> Dict[str, Any]:
+  """Gets the project config for the current project.
+
+  Returns:
+    The project config as a dictionary.
+  """
+  return _execute_cloud_call(
+      _get_cloud_projects().getConfig(name=_get_config_path())
+  )
+
+
+def updateProjectConfig(
+    project_config: Dict[str, Any], update_mask: Optional[Sequence[str]] = None
+) -> Dict[str, Any]:
+  """Updates the project config for the current project.
+
+  Args:
+    project_config: The new project config as a dictionary.
+    update_mask: A list of the values to update. The only supported values right
+      now are: "max_concurrent_exports". If the list is empty or None, all
+      values will be updated.
+
+  Returns:
+    The updated project config as a dictionary.
+  """
+  if not update_mask:
+    update_mask = ['max_concurrent_exports']
+
+  update_mask = ','.join(update_mask)
+  if update_mask != 'max_concurrent_exports':
+    raise ValueError('Only "max_concurrent_exports" is supported right now.')
+
+  config = _get_config_path()
+  return _execute_cloud_call(
+      _get_cloud_projects().updateConfig(
+          name=config, body=project_config, updateMask=update_mask
+      )
+  )
 
 
 def authorizeHttp(http: Any) -> Any:

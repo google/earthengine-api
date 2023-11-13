@@ -8,6 +8,8 @@ The public function styling uses camelCase to match the JavaScript names.
 
 # pylint: disable=g-bad-name
 
+from __future__ import annotations
+
 import enum
 import json
 import re
@@ -29,6 +31,8 @@ class Task:
     EXPORT_VIDEO = 'EXPORT_VIDEO'
 
   class State(str, enum.Enum):
+    """The state of a Task."""
+
     UNSUBMITTED = 'UNSUBMITTED'
     READY = 'READY'
     RUNNING = 'RUNNING'
@@ -36,6 +40,20 @@ class Task:
     FAILED = 'FAILED'
     CANCEL_REQUESTED = 'CANCEL_REQUESTED'
     CANCELLED = 'CANCELLED'
+
+    @classmethod
+    def active(cls, state: Union[str, Task.State]) -> bool:
+      """Returns True if the given state is an active one."""
+      if isinstance(state, str):
+        state = cls(state)
+      return state in (cls.READY, cls.RUNNING, cls.CANCEL_REQUESTED)
+
+    @classmethod
+    def success(cls, state: Union[str, Task.State]) -> bool:
+      """Returns True if the given state indicates a completed task."""
+      if isinstance(state, str):
+        state = cls(state)
+      return state == cls.COMPLETED
 
   class ExportDestination(str, enum.Enum):
     DRIVE = 'DRIVE'
@@ -142,16 +160,14 @@ class Task:
 
   def active(self) -> bool:
     """Returns whether the task is still running."""
-    return self.status()['state'] in (Task.State.READY,
-                                      Task.State.RUNNING,
-                                      Task.State.CANCEL_REQUESTED)
+    return Task.State.active(self.status()['state'])
 
   def cancel(self) -> None:
     """Cancels the task."""
     data.cancelTask(self.id)
 
   @staticmethod
-  def list() -> List['Task']:
+  def list() -> List[Task]:
     """Returns the tasks submitted to EE by the current user.
 
     These include all currently running tasks as well as recently canceled or
@@ -214,7 +230,7 @@ class Export:
               lists of numbers or a serialized string. Defaults to the image's
               region.
             - scale: The resolution in meters per pixel.
-              Defaults to the native resolution of the image assset unless
+              Defaults to the native resolution of the image asset unless
               a crs_transform is specified.
             - maxPixels: The maximum allowed number of pixels in the exported
               image. The task will fail if the exported region covers
@@ -292,7 +308,7 @@ class Export:
             lists of numbers or a serialized string. Defaults to the image's
             region.
         scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image assset unless a crsTransform
+            native resolution of the image asset unless a crsTransform
             is specified.
         crs: The coordinate reference system of the exported image's
             projection. Defaults to the image's default projection.
@@ -350,7 +366,7 @@ class Export:
             lists of numbers or a serialized string. Defaults to the image's
             region.
         scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image assset unless a crsTransform
+            native resolution of the image asset unless a crsTransform
             is specified.
         crs: The coordinate reference system of the exported image's
             projection. Defaults to the image's default projection.
@@ -421,7 +437,7 @@ class Export:
             lists of numbers or a serialized string. Defaults to the image's
             region.
         scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image assset unless a crsTransform
+            native resolution of the image asset unless a crsTransform
             is specified.
         crs: The coordinate reference system of the exported image's
             projection. Defaults to the image's default projection.

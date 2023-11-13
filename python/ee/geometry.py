@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """An object representing EE Geometries."""
 
+from __future__ import annotations
+
 import collections.abc
 import json
 import numbers
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from ee import apifunction
 from ee import computedobject
@@ -26,9 +28,7 @@ class Geometry(computedobject.ComputedObject):
 
   def __init__(
       self,
-      geo_json: Union[
-          Dict[str, Any], computedobject.ComputedObject, 'Geometry'
-      ],
+      geo_json: Union[Dict[str, Any], computedobject.ComputedObject, Geometry],
       opt_proj: Optional[Any] = None,
       opt_geodesic: Optional[bool] = None,
       opt_evenOdd: Optional[bool] = None,  # pylint: disable=g-bad-name
@@ -62,9 +62,10 @@ class Geometry(computedobject.ComputedObject):
     """
     self.initialize()
 
-    computed = (
-        isinstance(geo_json, computedobject.ComputedObject) and
-        not (isinstance(geo_json, Geometry) and geo_json._type is not None))  # pylint: disable=protected-access
+    # pylint: disable-next=protected-access
+    computed = isinstance(geo_json, computedobject.ComputedObject) and not (
+        isinstance(geo_json, Geometry) and geo_json._type is not None
+    )
     options = opt_proj or opt_geodesic or opt_evenOdd
     if computed:
       if options:
@@ -172,7 +173,7 @@ class Geometry(computedobject.ComputedObject):
   # pylint: disable-next=keyword-arg-before-vararg
   def Point(
       coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args, **kwargs
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a point.
 
     Args:
@@ -199,7 +200,8 @@ class Geometry(computedobject.ComputedObject):
     return Geometry(init)
 
   @staticmethod
-  def MultiPoint(coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args) -> 'Geometry':  # pylint: disable=keyword-arg-before-vararg
+  # pylint: disable-next=keyword-arg-before-vararg
+  def MultiPoint(coords=_UNSPECIFIED, proj=_UNSPECIFIED, *args) -> Geometry:
     """Constructs an ee.Geometry describing a MultiPoint.
 
     Args:
@@ -229,7 +231,7 @@ class Geometry(computedobject.ComputedObject):
       evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
       **kwargs,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a rectangular polygon.
 
     Args:
@@ -281,7 +283,7 @@ class Geometry(computedobject.ComputedObject):
     return Geometry(init)
 
   @staticmethod
-  def BBox(west: float, south: float, east: float, north: float) -> 'Geometry':
+  def BBox(west: float, south: float, east: float, north: float) -> Geometry:
     """Constructs a rectangle ee.Geometry from lines of latitude and longitude.
 
     If (east - west) ≥ 360° then the longitude range will be normalized to -180°
@@ -377,7 +379,7 @@ class Geometry(computedobject.ComputedObject):
       geodesic=_UNSPECIFIED,
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a LineString.
 
     Args:
@@ -414,7 +416,7 @@ class Geometry(computedobject.ComputedObject):
       geodesic=_UNSPECIFIED,
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a LinearRing.
 
     If the last point is not equal to the first, a duplicate of the first
@@ -454,7 +456,7 @@ class Geometry(computedobject.ComputedObject):
       geodesic=_UNSPECIFIED,
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a MultiLineString.
 
     Create a GeoJSON MultiLineString from either a list of points, or an array
@@ -496,7 +498,7 @@ class Geometry(computedobject.ComputedObject):
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a polygon.
 
     Args:
@@ -540,7 +542,7 @@ class Geometry(computedobject.ComputedObject):
       maxError=_UNSPECIFIED,  # pylint: disable=g-bad-name
       evenOdd=_UNSPECIFIED,  # pylint: disable=g-bad-name
       *args,
-  ) -> 'Geometry':
+  ) -> Geometry:
     """Constructs an ee.Geometry describing a MultiPolygon.
 
     If created from points, only one polygon can be specified.
@@ -669,7 +671,7 @@ class Geometry(computedobject.ComputedObject):
                (nesting == 4 or not coords)))
 
   @staticmethod
-  def _isValidCoordinates(shape: Union[Sequence[float], 'Geometry']) -> int:
+  def _isValidCoordinates(shape: Union[Sequence[float], Geometry]) -> int:
     """Validate the coordinates of a geometry.
 
     Args:
@@ -845,7 +847,9 @@ class Geometry(computedobject.ComputedObject):
     return coords
 
   @staticmethod
-  def _GetSpecifiedArgs(args, keywords=(), **kwargs):
+  def _GetSpecifiedArgs(
+      args, keywords: Tuple[str, ...] = (), **kwargs
+  ) -> List[Any]:
     """Returns args, filtering out _UNSPECIFIED and checking for keywords."""
     if keywords:
       args = list(args)

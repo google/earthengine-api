@@ -17,7 +17,7 @@ import re
 import shutil
 import sys
 import tempfile
-from typing import Any, Dict, Hashable, List, Optional, Sequence, Tuple, Type, Union
+from typing import Any, Dict, List, Sequence, Tuple, Type, Union
 import urllib.parse
 
 # Prevent TensorFlow from logging anything at the native level.
@@ -1908,6 +1908,90 @@ class ModelCommand(Dispatcher):
 
   COMMANDS = [PrepareModelCommand]
 
+
+def _using_v1alpha(func):
+  """Decorator that temporarily switches over to the v1alpha API."""
+
+  def inner(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    # pylint: disable=protected-access
+    original = ee._cloud_api_utils.VERSION
+    ee._cloud_api_utils.VERSION = 'v1alpha'
+    func(self, args, config)
+    ee._cloud_api_utils.VERSION = original
+    # pylint: enable=protected-access
+
+  return inner
+
+
+class ProjectConfigGetCommand:
+  """Prints the current project's ProjectConfig."""
+
+  name = 'get'
+
+  def __init__(self, parser: argparse.ArgumentParser):
+    del parser  # Unused.
+    pass
+
+  @_using_v1alpha
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    del args  # Unused.
+    config.ee_init()
+    print(ee.data.getProjectConfig())
+
+
+class ProjectConfigSetCommand:
+  """Updates the current project's ProjectConfig."""
+
+  name = 'set'
+
+  def __init__(self, parser: argparse.ArgumentParser):
+    parser.add_argument(
+        '--max_concurrent_exports',
+        type=int,
+        help='Max concurrent exports that can run in the project.',
+    )
+
+  @_using_v1alpha
+  def run(
+      self, args: argparse.Namespace, config: utils.CommandLineConfig
+  ) -> None:
+    if args.max_concurrent_exports < 0:
+      raise ValueError('"max_concurrent_exports" must be >= 0.')
+
+    config.ee_init()
+    print(
+        ee.data.updateProjectConfig(
+            {'maxConcurrentExports': args.max_concurrent_exports},
+            ['max_concurrent_exports'],
+        )
+    )
+
+
+class ProjectConfigCommand(Dispatcher):
+  """Prints or updates the current project's ProjectConfig."""
+
+  name = 'project_config'
+
+  COMMANDS = [
+      ProjectConfigGetCommand,
+      ProjectConfigSetCommand,
+  ]
+
+
+class AlphaCommand(Dispatcher):
+  """Commands that are part of the v1alpha API."""
+
+  name = 'alpha'
+
+  COMMANDS = [
+      ProjectConfigCommand,
+  ]
+
+
 EXTERNAL_COMMANDS = [
     AuthenticateCommand,
     AclCommand,
@@ -1915,6 +1999,7 @@ EXTERNAL_COMMANDS = [
     CopyCommand,
     CreateCommand,
     ListCommand,
+    AlphaCommand,
     SizeCommand,
     MoveCommand,
     ModelCommand,

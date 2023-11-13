@@ -7,6 +7,8 @@ This class is never intended to be instantiated by the user.
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+from __future__ import annotations
+
 import datetime
 from typing import Any, Callable, Dict, Optional, Type, Union
 
@@ -159,7 +161,7 @@ class Collection(element.Element):
       maximum: int,
       opt_property: Optional[str] = None,
       opt_ascending: Optional[bool] = None,
-  ) -> 'Collection':
+  ) -> Collection:
     """Limit a collection to the specified number of elements.
 
     This limits a collection to the specified number of elements, optionally
