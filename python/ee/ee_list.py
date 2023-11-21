@@ -4,6 +4,7 @@
 # List clashes with the class List, so call it ListType
 from typing import Any, List as ListType, Optional, Tuple, Union
 
+from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
@@ -54,7 +55,7 @@ class List(computedobject.ComputedObject):
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'List', 'List')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       cls._initialized = True
 
   @classmethod
@@ -67,15 +68,17 @@ class List(computedobject.ComputedObject):
   def name() -> str:
     return 'List'
 
-  def encode(self, opt_encoder: Optional[Any] = None) -> Any:
+  @_utils.accept_opt_prefix('opt_encoder')
+  def encode(self, encoder: Optional[Any] = None) -> Any:
     if isinstance(self._list, (list, tuple)):
       assert self._list is not None
-      return [opt_encoder(elem) for elem in self._list]
+      return [encoder(elem) for elem in self._list]
     else:
-      return super().encode(opt_encoder)
+      return super().encode(encoder)
 
-  def encode_cloud_value(self, opt_encoder: Optional[Any] = None) -> Any:
+  @_utils.accept_opt_prefix('opt_encoder')
+  def encode_cloud_value(self, encoder: Optional[Any] = None) -> Any:
     if isinstance(self._list, (list, tuple)):
-      return {'valueReference': opt_encoder(self._list)}
+      return {'valueReference': encoder(self._list)}
     else:
-      return super().encode_cloud_value(opt_encoder)
+      return super().encode_cloud_value(encoder)

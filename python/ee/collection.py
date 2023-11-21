@@ -12,6 +12,7 @@ from __future__ import annotations
 import datetime
 from typing import Any, Callable, Dict, Optional, Type, Union
 
+from ee import _utils
 from ee import apifunction
 from ee import deprecation
 from ee import ee_date
@@ -28,22 +29,23 @@ class Collection(element.Element):
   _initialized = False
 
   # pylint: disable-next=useless-parent-delegation
+  @_utils.accept_opt_prefix('opt_varName')
   def __init__(
       self,
       func: function.Function,
       args: Dict[str, Any],
-      opt_varName: Optional[str] = None,
+      varName: Optional[str] = None,
   ):
     """Constructs a collection by initializing its ComputedObject."""
-    super().__init__(func, args, opt_varName)
+    super().__init__(func, args, varName)
 
   @classmethod
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'Collection', 'Collection')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       apifunction.ApiFunction.importApi(
-          cls, 'AggregateFeatureCollection', 'Collection', 'aggregate_')
+          cls, 'AggregateFeatureCollection', cls.name(), 'aggregate_')
       cls._initialized = True
 
   @classmethod
@@ -115,10 +117,11 @@ class Collection(element.Element):
     return self.filter(ee_filter.Filter.geometry(geometry))
 
   # TODO(user): Any --> DateRange
+  @_utils.accept_opt_prefix('opt_end')
   def filterDate(
       self,
       start: Union[datetime.datetime, ee_date.Date, int, str, Any],
-      opt_end: Optional[
+      end: Optional[
           Union[datetime.datetime, ee_date.Date, int, str, Any]
       ] = None,
   ) -> Any:
@@ -130,15 +133,15 @@ class Collection(element.Element):
     type for other date filtering options.
 
     Args:
-      start: The start date as a Date object, a string representation of
-          a date, or milliseconds since epoch.
-      opt_end: The end date as a Date object, a string representation of
-          a date, or milliseconds since epoch.
+      start: The start date as a Date object, a string representation of a date,
+        or milliseconds since epoch.
+      end: The end date as a Date object, a string representation of a date, or
+        milliseconds since epoch.
 
     Returns:
       The filter object.
     """
-    return self.filter(ee_filter.Filter.date(start, opt_end))
+    return self.filter(ee_filter.Filter.date(start, end))
 
   # pylint: disable-next=useless-parent-delegation
   def getInfo(self) -> Optional[Any]:
@@ -156,51 +159,51 @@ class Collection(element.Element):
     """
     return super().getInfo()
 
+  @_utils.accept_opt_prefix(('opt_property', 'prop'), 'opt_ascending')
   def limit(
       self,
       maximum: int,
-      opt_property: Optional[str] = None,
-      opt_ascending: Optional[bool] = None,
+      prop: Optional[str] = None,
+      ascending: Optional[bool] = None,
   ) -> Collection:
     """Limit a collection to the specified number of elements.
 
     This limits a collection to the specified number of elements, optionally
-    sorting them by a specified property first.
+    sorting them by a specified prop first.
 
     Args:
        maximum: The number to limit the collection to.
-       opt_property: The property to sort by, if sorting.
-       opt_ascending: Whether to sort in ascending or descending order.
-           The default is true (ascending).
+       prop: The property to sort by, if sorting.
+       ascending: Whether to sort in ascending or descending order. The default
+         is true (ascending).
 
     Returns:
        The collection.
     """
     args = {'collection': self, 'limit': maximum}
-    if opt_property is not None:
-      args['key'] = opt_property
-    if opt_ascending is not None:
-      args['ascending'] = opt_ascending
+    if prop is not None:
+      args['key'] = prop
+    if ascending is not None:
+      args['ascending'] = ascending
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
 
-  # TODO(user): Make opt_ascending default to True
-  def sort(
-      self, prop: str, opt_ascending: Optional[bool] = None
-  ) -> Any:
+  # TODO(user): Make ascending default to True
+  @_utils.accept_opt_prefix('opt_ascending')
+  def sort(self, prop: str, ascending: Optional[bool] = None) -> Any:
     """Sort a collection by the specified property.
 
     Args:
        prop: The property to sort by.
-       opt_ascending: Whether to sort in ascending or descending
-           order.  The default is true (ascending).
+       ascending: Whether to sort in ascending or descending order.  The default
+         is true (ascending).
 
     Returns:
        The collection.
     """
     args = {'collection': self, 'key': prop}
-    if opt_ascending is not None:
-      args['ascending'] = opt_ascending
+    if ascending is not None:
+      args['ascending'] = ascending
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
 
@@ -213,22 +216,23 @@ class Collection(element.Element):
     """Returns the type of the collection's elements."""
     return element.Element
 
-  # TODO(user): Can opt_dropNulls default to False?
+  # TODO(user): Can dropNulls default to False?
+  @_utils.accept_opt_prefix('opt_dropNulls')
   def map(
       self,
       algorithm: Callable[[Any], Any],
-      opt_dropNulls: Optional[bool] = None,
+      dropNulls: Optional[bool] = None,
   ) -> Any:
     """Maps an algorithm over a collection.
 
     Args:
       algorithm: The operation to map over the images or features of the
-          collection, a Python function that receives an image or features and
-          returns one. The function is called only once and the result is
-          captured as a description, so it cannot perform imperative operations
-          or rely on external state.
-      opt_dropNulls: If true, the mapped algorithm is allowed to return nulls,
-          and the elements for which it returns nulls will be dropped.
+        collection, a Python function that receives an image or features and
+        returns one. The function is called only once and the result is captured
+        as a description, so it cannot perform imperative operations or rely on
+        external state.
+      dropNulls: If true, the mapped algorithm is allowed to return nulls, and
+        the elements for which it returns nulls will be dropped.
 
     Returns:
       The mapped collection.
@@ -238,8 +242,11 @@ class Collection(element.Element):
     """
     element_type = self.elementType()
     with_cast = lambda e: algorithm(element_type(e, None))
-    return self._cast(apifunction.ApiFunction.call_(
-        'Collection.map', self, with_cast, opt_dropNulls))
+    return self._cast(
+        apifunction.ApiFunction.call_(
+            'Collection.map', self, with_cast, dropNulls
+        )
+    )
 
   def iterate(
       self, algorithm: Callable[[Any, Any], Any], first: Optional[Any] = None

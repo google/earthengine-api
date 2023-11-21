@@ -55,7 +55,7 @@ class ComputedObjectTest(apitestcase.ApiTestCase):
     self.assertNotEqual(hash(a), hash(b))
 
   def test_bad_init_with_both_func_and_var(self):
-    message = 'When "opt_varName" is specified, "func" and "args" must be null.'
+    message = 'When "varName" is specified, "func" and "args" must be null.'
     with self.assertRaisesRegex(ee.EEException, message):
       computedobject.ComputedObject(None, {'dummy': 'arg'}, 'variable name')
 

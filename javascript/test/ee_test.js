@@ -14,13 +14,13 @@ describe('ee', function() {
 
   it('retrieves a map ID synchronously', function() {
     const image = new ee.Image('srtm90_v4');
-    const map = image.getMap({'min': 0, 'max': 1000});
+    const map = image.getMapId({'min': 0, 'max': 1000});
     expect(map.mapid).toMatch(/\w+/);
   });
 
   it('retrieves a map ID asynchronously', function(done) {
     const image = new ee.Image('srtm90_v4');
-    image.getMap({'min': 0, 'max': 1000}, ({mapid}) => {
+    image.getMapId({'min': 0, 'max': 1000}, ({mapid}) => {
       expect(mapid).toMatch(/\w+/);
       done();
     });

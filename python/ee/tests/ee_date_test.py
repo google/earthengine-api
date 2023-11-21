@@ -10,7 +10,7 @@ import unittest
 
 class DateTest(apitestcase.ApiTestCase):
 
-  def testDate(self):
+  def test_date(self):
     """Verifies date constructors."""
 
     datefunc = ee.ApiFunction.lookup('Date')
@@ -48,6 +48,26 @@ class DateTest(apitestcase.ApiTestCase):
     self.assertIsInstance(d7, ee.Date)
     self.assertEqual(datefunc, d7.func)
     self.assertEqual({'value': obj}, d7.args)
+
+  def test_date_is_not_valid(self):
+    message = r'Invalid argument specified for ee.Date\(\): \[\'a list\']'
+    with self.assertRaisesRegex(ValueError, message):
+      ee.Date(['a list'])  # pytype: disable=wrong-arg-types
+
+  def test_timezone(self):
+    self.assertEqual(
+        {'timeZone': 'America/New_York', 'value': '2018-04-23'},
+        ee.Date('2018-04-23', 'America/New_York').args,
+    )
+
+  # TODO(user): Allow for and test ee.String for the timezone.
+  def test_timezone_not_a_string(self):
+    message = r'Invalid argument specified for ee.Date\(\.\.\., opt_tz\): 123'
+    with self.assertRaisesRegex(ValueError, message):
+      ee.Date('2018-04-23', 123)  # pytype: disable=wrong-arg-types
+
+  def test_name(self):
+    self.assertEqual('Date', ee.Date.name())
 
 
 if __name__ == '__main__':

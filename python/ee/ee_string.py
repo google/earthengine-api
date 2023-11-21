@@ -3,6 +3,7 @@
 
 from typing import Any, Union
 
+from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
@@ -35,11 +36,13 @@ class String(computedobject.ComputedObject):
     if isinstance(string, str):
       super().__init__(None, None)
     elif isinstance(string, computedobject.ComputedObject):
-      if string.func and string.func.getSignature()['returns'] == 'String':
+      if string.func and string.func.getSignature()['returns'] == self.name():
         # If it's a call that's already returning a String, just cast.
         super().__init__(string.func, string.args, string.varName)
       else:
-        super().__init__(apifunction.ApiFunction('String'), {'input': string})
+        super().__init__(
+            apifunction.ApiFunction(self.name()), {'input': string}
+        )
     else:
       raise ee_exception.EEException(
           'Invalid argument specified for ee.String(): %s' % string)
@@ -49,7 +52,7 @@ class String(computedobject.ComputedObject):
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'String', 'String')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       cls._initialized = True
 
   @classmethod
@@ -62,14 +65,16 @@ class String(computedobject.ComputedObject):
   def name() -> str:
     return 'String'
 
-  def encode(self, opt_encoder: Any = None) -> Any:
+  @_utils.accept_opt_prefix('opt_encoder')
+  def encode(self, encoder: Any = None) -> Any:
     if isinstance(self._string, str):
       return self._string
     else:
-      return self._string.encode(opt_encoder)
+      return self._string.encode(encoder)
 
-  def encode_cloud_value(self, opt_encoder: Any = None) -> Any:
+  @_utils.accept_opt_prefix('opt_encoder')
+  def encode_cloud_value(self, encoder: Any = None) -> Any:
     if isinstance(self._string, str):
       return {'constantValue': self._string}
     else:
-      return self._string.encode_cloud_value(opt_encoder)
+      return self._string.encode_cloud_value(encoder)

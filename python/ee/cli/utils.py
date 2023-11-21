@@ -147,9 +147,10 @@ class CommandLineConfig:
     """Loads the EE credentials and initializes the EE client."""
     ee.Initialize(
         credentials=self._get_credentials(),
-        opt_url=self.url,
+        url=self.url,
         cloud_api_key=self.cloud_api_key,
-        project=self._get_project())
+        project=self._get_project(),
+    )
     ee.data.setUserAgent('eecli')
 
   def save(self) -> None:

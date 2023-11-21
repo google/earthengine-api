@@ -8,6 +8,7 @@ import json
 from typing import Any, Dict, List, Optional, Set
 
 from ee import _cloud_api_utils
+from ee import _utils
 from ee import ee_exception
 from ee import encodable
 
@@ -301,22 +302,23 @@ def encode(
   return serializer._encode(obj)  # pylint: disable=protected-access
 
 
+@_utils.accept_opt_prefix('opt_pretty')
 # pylint: disable-next=g-bad-name
-def toJSON(obj, opt_pretty: bool = False, for_cloud_api: bool = True) -> Any:
+def toJSON(obj, pretty: bool = False, for_cloud_api: bool = True) -> Any:
   """Serialize an object to a JSON string appropriate for API calls.
 
   Args:
     obj: The object to serialize.
-    opt_pretty: True to pretty-print the object.
+    pretty: True to pretty-print the object.
     for_cloud_api: Whether the encoding should be done for the Cloud API or the
       legacy API.
 
   Returns:
     A JSON string representing the input.
   """
-  serializer = Serializer(not opt_pretty, for_cloud_api=for_cloud_api)
+  serializer = Serializer(not pretty, for_cloud_api=for_cloud_api)
   encoded = serializer._encode(obj)  # pylint: disable=protected-access
-  return json.dumps(encoded, indent=2 if opt_pretty else None)
+  return json.dumps(encoded, indent=2 if pretty else None)
 
 
 # pylint: disable-next=g-bad-name

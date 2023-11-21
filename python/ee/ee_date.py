@@ -5,9 +5,9 @@ import datetime
 import math
 from typing import Any, Dict, Optional, Union
 
+from ee import _utils
 from ee import apifunction
 from ee import computedobject
-from ee import ee_exception
 from ee import ee_types as types
 from ee import serializer
 
@@ -20,10 +20,11 @@ class Date(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
+  @_utils.accept_opt_prefix('opt_tz')
   def __init__(
       self,
       date: Union[datetime.datetime, float, str, computedobject.ComputedObject],
-      opt_tz: Optional[str] = None,
+      tz: Optional[str] = None,
   ):
     """Construct a date.
 
@@ -37,11 +38,11 @@ class Date(computedobject.ComputedObject):
 
     Args:
       date: The date to wrap.
-      opt_tz: An optional timezone, only usable with a string date.
+      tz: An optional timezone, only usable with a string date.
     """
     self.initialize()
 
-    func = apifunction.ApiFunction('Date')
+    func = apifunction.ApiFunction(self.name())
     args: Dict[str, Any]
     var_name = None
     if isinstance(date, datetime.datetime):
@@ -51,14 +52,15 @@ class Date(computedobject.ComputedObject):
       args = {'value': date}
     elif isinstance(date, str):
       args = {'value': date}
-      if opt_tz:
-        if isinstance(opt_tz, str):
-          args['timeZone'] = opt_tz
+      if tz:
+        if isinstance(tz, str):
+          args['timeZone'] = tz
         else:
-          raise ee_exception.EEException(
-              'Invalid argument specified for ee.Date(..., opt_tz): %s' % date)
+          raise ValueError(
+              f'Invalid argument specified for ee.Date(..., opt_tz): {tz}'
+          )
     elif isinstance(date, computedobject.ComputedObject):
-      if date.func and date.func.getSignature()['returns'] == 'Date':
+      if date.func and date.func.getSignature()['returns'] == self.name():
         # If it's a call that's already returning a Date, just cast.
         func = date.func
         args = date.args
@@ -66,8 +68,7 @@ class Date(computedobject.ComputedObject):
       else:
         args = {'value': date}
     else:
-      raise ee_exception.EEException(
-          'Invalid argument specified for ee.Date(): %s' % date)
+      raise ValueError(f'Invalid argument specified for ee.Date(): {date}')
 
     super().__init__(func, args, var_name)
 
@@ -75,7 +76,7 @@ class Date(computedobject.ComputedObject):
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'Date', 'Date')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       cls._initialized = True
 
   @classmethod

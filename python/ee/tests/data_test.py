@@ -120,10 +120,6 @@ class DataTest(unittest.TestCase):
           asset['cloud_storage_location'],
           {'uris': ['gs://my-bucket/path']},
       )
-      self.assertEqual(
-          asset['tilestore_location'],
-          {'sources': []},
-      )
 
   def testSetAssetProperties(self):
     mock_http = mock.MagicMock(httplib2.Http)

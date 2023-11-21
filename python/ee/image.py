@@ -10,6 +10,7 @@ from __future__ import annotations
 import json
 from typing import Any, Dict, Optional, Sequence, Tuple
 
+from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import data
@@ -95,7 +96,7 @@ class Image(element.Element):
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'Image', 'Image')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       cls._initialized = True
 
   @classmethod
@@ -275,7 +276,8 @@ class Image(element.Element):
                     region, None, geodesic=False)
               continue
             selection_params['geometry'] = geometry.Geometry(
-                region, opt_proj=None, opt_geodesic=False)
+                region, proj=None, geodesic=False
+            )
           else:
             selection_params[key] = params[key]
     image = self
@@ -599,11 +601,12 @@ class Image(element.Element):
 
     return result
 
+  @_utils.accept_opt_prefix('opt_selectors', 'opt_names')
   # pylint: disable-next=keyword-arg-before-vararg
   def select(
       self,
-      opt_selectors: Optional[Any] = None,
-      opt_names: Optional[Any] = None,
+      selectors: Optional[Any] = None,
+      names: Optional[Any] = None,
       *args,
   ) -> Image:
     """Selects bands from an image.
@@ -619,20 +622,20 @@ class Image(element.Element):
         selected = image.select(['a', 4], ['newA', 'newB']);
 
     Args:
-      opt_selectors: An array of names, regexes or numeric indices specifying
-          the bands to select.
-      opt_names: An array of strings specifying the new names for the
-          selected bands.
+      selectors: An array of names, regexes or numeric indices specifying the
+        bands to select.
+      names: An array of strings specifying the new names for the selected
+        bands.
       *args: Selector elements as varargs.
 
     Returns:
       An image with the selected bands.
     """
-    if opt_selectors is not None:
+    if selectors is not None:
       args = list(args)
-      if opt_names is not None:
-        args.insert(0, opt_names)
-      args.insert(0, opt_selectors)
+      if names is not None:
+        args.insert(0, names)
+      args.insert(0, selectors)
     algorithm_args = {
         'input': self,
         'bandSelectors': args[0] if args else [],
@@ -657,16 +660,15 @@ class Image(element.Element):
         algorithm_args['newNames'] = args[1]
     return apifunction.ApiFunction.apply_('Image.select', algorithm_args)
 
-  def expression(
-      self, expression: Any, opt_map: Optional[Any] = None
-  ) -> Image:
+  @_utils.accept_opt_prefix(('opt_map', 'map_'))
+  def expression(self, expression: Any, map_: Optional[Any] = None) -> Image:
     """Evaluates an arithmetic expression on an image or images.
 
     The bands of the primary input image are available using the built-in
     function b(), as b(0) or b('band_name').
 
     Variables in the expression are interpreted as additional image parameters
-    which must be supplied in opt_map. The bands of each such image can be
+    which must be supplied in map_. The bands of each such image can be
     accessed like image.band_name or image[0].
 
     Both b() and image[] allow multiple arguments, to specify multiple bands,
@@ -675,7 +677,7 @@ class Image(element.Element):
 
     Args:
       expression: The expression to evaluate.
-      opt_map: An optional map of input images available by name.
+      map_: An optional map of input images available by name.
 
     Returns:
       The image computed by the provided expression.
@@ -685,8 +687,8 @@ class Image(element.Element):
     args = {arg_name: self}
 
     # Add custom arguments, promoting them to Images manually.
-    if opt_map:
-      for name, value in opt_map.items():
+    if map_:
+      for name, value in map_.items():
         all_vars.append(name)
         args[name] = Image(value)
 
@@ -700,7 +702,7 @@ class Image(element.Element):
     # output types.
     signature = {
         'name': '',
-        'args': [{'name': name, 'type': 'Image', 'optional': False}
+        'args': [{'name': name, 'type': self.name(), 'optional': False}
                  for name in all_vars],
         'returns': 'Image'
     }

@@ -1,0 +1,68 @@
+[project]
+name = "earthengine-api"
+version = "0.1.381"
+description = "Earth Engine Python API"
+requires-python = ">=3.7"
+keywords = [
+  "earth engine",
+  "image analysis",
+]
+license = {text = "Apache-2.0"}
+authors = [
+  {name = "Google LLC", email = "noreply@google.com"},
+]
+classifiers = [
+  # Get strings from
+  # http://pypi.python.org/pypi?%3Aaction=list_classifiers
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "Intended Audience :: Science/Research",
+  "License :: OSI Approved :: Apache Software License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.7",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python",
+  "Topic :: Multimedia :: Graphics :: Viewers",
+  "Topic :: Scientific/Engineering :: GIS",
+  "Topic :: Scientific/Engineering :: Image Processing",
+  "Topic :: Scientific/Engineering :: Visualization",
+  "Topic :: Software Development :: Libraries :: Python Modules",
+]
+dependencies = [
+  # Note we omit TensorFlow (used by the CLI) here on purpose to avoid
+  # an extra 0.5GiB of deps compared to our current 26MiB; Use of TF
+  # functionality requires a manual install of TensorFlow.
+  "google-cloud-storage",
+  "google-api-python-client>=1.12.1",
+  "google-auth>=1.4.1",
+  "google-auth-httplib2>=0.0.3",
+  "httplib2>=0.9.2,<1dev",
+  "requests",
+]
+
+[build-system]
+requires = ['setuptools', 'wheel']
+
+[project.entry-points."console_scripts"]
+earthengine = "ee.cli.eecli:main"
+
+[project.urls]
+Homepage = "http://code.google.com/p/earthengine-api"
+
+[tool.setuptools]
+packages = [
+  "ee",
+  "ee.cli",
+]
+
+[tool.setuptools.package-data]
+ee = [
+  "tests/*.py",
+  "tests/*.json",
+]

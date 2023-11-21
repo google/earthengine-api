@@ -1,8 +1,10 @@
 #!/usr/bin/env python3
 """An object representing EE Features."""
+from __future__ import annotations
 
 from typing import Any, Dict, Optional, Union
 
+from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
@@ -18,17 +20,18 @@ class Feature(element.Element):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
+  @_utils.accept_opt_prefix('opt_properties')
   def __init__(
       self,
       geom: Optional[
           Union[
-              'Feature',
+              Feature,
               geometry.Geometry,
               Dict[str, Any],
               computedobject.ComputedObject,
           ]
       ],
-      opt_properties: Optional[
+      properties: Optional[
           Union[Dict[str, Any], computedobject.ComputedObject]
       ] = None,
   ):
@@ -44,14 +47,14 @@ class Feature(element.Element):
 
     Args:
       geom: A geometry or feature.
-      opt_properties: A dictionary of metadata properties. If the first
-          parameter is a Feature (instead of a geometry), this is unused.
+      properties: A dictionary of metadata properties. If the first parameter is
+        a Feature (instead of a geometry), this is unused.
 
     Raises:
       EEException: if the given geometry isn't valid.
     """
     if isinstance(geom, Feature):
-      if opt_properties is not None:
+      if properties is not None:
         raise ee_exception.EEException(
             'Cannot create Feature out of a Feature and properties.')
       # A pre-constructed Feature. Copy.
@@ -60,17 +63,17 @@ class Feature(element.Element):
 
     self.initialize()
 
-    feature_constructor = apifunction.ApiFunction.lookup('Feature')
+    feature_constructor = apifunction.ApiFunction.lookup(self.name())
     if geom is None or isinstance(geom, geometry.Geometry):
       # A geometry object.
-      super().__init__(feature_constructor, {
-          'geometry': geom,
-          'metadata': opt_properties or None
-      })
+      super().__init__(
+          feature_constructor,
+          {'geometry': geom, 'metadata': properties or None},
+      )
     elif isinstance(geom, computedobject.ComputedObject):
       # A custom object to reinterpret as a Feature.
       super().__init__(geom.func, geom.args, geom.varName)
-    elif isinstance(geom, dict) and geom.get('type') == 'Feature':
+    elif isinstance(geom, dict) and geom.get('type') == self.name():
       properties = geom.get('properties', {})
       if 'id' in geom:
         if 'system:index' in properties:
@@ -86,16 +89,16 @@ class Feature(element.Element):
     else:
       # Try to convert the geometry arg to a Geometry, in the hopes of it
       # turning out to be GeoJSON.
-      super().__init__(feature_constructor, {
-          'geometry': geometry.Geometry(geom),
-          'metadata': opt_properties or None
-      })
+      super().__init__(
+          feature_constructor,
+          {'geometry': geometry.Geometry(geom), 'metadata': properties or None},
+      )
 
   @classmethod
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'Feature', 'Feature')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       cls._initialized = True
 
   @classmethod

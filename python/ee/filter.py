@@ -11,6 +11,7 @@ Example usage:
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
@@ -37,7 +38,8 @@ class Filter(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, opt_filter=None):
+  @_utils.accept_opt_prefix(('opt_filter', 'filter_'))
+  def __init__(self, filter_=None):
     """Construct a filter.
 
     This constructor accepts the following args:
@@ -47,27 +49,26 @@ class Filter(computedobject.ComputedObject):
          they're produced by the generator functions below.
 
     Args:
-      opt_filter: Optional filter to add.
+      filter_: Optional filter to add.
     """
     self.initialize()
 
-    if isinstance(opt_filter, (list, tuple)):
-      if not opt_filter:
+    if isinstance(filter_, (list, tuple)):
+      if not filter_:
         raise ee_exception.EEException('Empty list specified for ee.Filter().')
-      elif len(opt_filter) == 1:
-        opt_filter = opt_filter[0]
+      elif len(filter_) == 1:
+        filter_ = filter_[0]
       else:
-        self._filter = tuple(opt_filter)
+        self._filter = tuple(filter_)
         super().__init__(
             apifunction.ApiFunction.lookup('Filter.and'),
             {'filters': self._filter})
         return
 
-    if isinstance(opt_filter, computedobject.ComputedObject):
-      super().__init__(
-          opt_filter.func, opt_filter.args, opt_filter.varName)
-      self._filter = (opt_filter,)
-    elif opt_filter is None:
+    if isinstance(filter_, computedobject.ComputedObject):
+      super().__init__(filter_.func, filter_.args, filter_.varName)
+      self._filter = (filter_,)
+    elif filter_ is None:
       # A silly call with no arguments left for backward-compatibility.
       # Encoding such a filter is expected to fail, but it can be composed
       # by calling the various methods that end up in _append().
@@ -75,13 +76,14 @@ class Filter(computedobject.ComputedObject):
       self._filter = ()
     else:
       raise ee_exception.EEException(
-          'Invalid argument specified for ee.Filter(): %s' % opt_filter)
+          'Invalid argument specified for ee.Filter(): %s' % filter_
+      )
 
   @classmethod
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'Filter', 'Filter')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       cls._initialized = True
 
   @classmethod
@@ -209,7 +211,8 @@ class Filter(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_('Filter.or', args)
 
   @staticmethod
-  def date(start, opt_end=None):
+  @_utils.accept_opt_prefix('opt_end')
+  def date(start, end=None):
     """Filter images by date.
 
     The start and end may be a Date, numbers (interpreted as milliseconds since
@@ -218,34 +221,34 @@ class Filter(computedobject.ComputedObject):
 
     Args:
       start: The inclusive start date.
-      opt_end: The optional exclusive end date, If not specified, a
-               1-millisecond range starting at 'start' is created.
+      end: The optional exclusive end date, If not specified, a 1-millisecond
+        range starting at 'start' is created.
 
     Returns:
       The modified filter.
     """
-    date_range = apifunction.ApiFunction.call_('DateRange', start, opt_end)
+    date_range = apifunction.ApiFunction.call_('DateRange', start, end)
     return apifunction.ApiFunction.apply_('Filter.dateRangeContains', {
         'leftValue': date_range,
         'rightField': 'system:time_start'
     })
 
   @staticmethod
-  def inList(opt_leftField=None,
-             opt_rightValue=None,
-             opt_rightField=None,
-             opt_leftValue=None):
+  @_utils.accept_opt_prefix(
+      'opt_leftField', 'opt_rightValue', 'opt_rightField', 'opt_leftValue'
+  )
+  def inList(leftField=None, rightValue=None, rightField=None, leftValue=None):
     """Filter on metadata contained in a list.
 
     Args:
-      opt_leftField: A selector for the left operand.
-          Should not be specified if leftValue is specified.
-      opt_rightValue: The value of the right operand.
-          Should not be specified if rightField is specified.
-      opt_rightField: A selector for the right operand.
-          Should not be specified if rightValue is specified.
-      opt_leftValue: The value of the left operand.
-          Should not be specified if leftField is specified.
+      leftField: A selector for the left operand. Should not be specified if
+        leftValue is specified.
+      rightValue: The value of the right operand. Should not be specified if
+        rightField is specified.
+      rightField: A selector for the right operand. Should not be specified if
+        rightValue is specified.
+      leftValue: The value of the left operand. Should not be specified if
+        leftField is specified.
 
     Returns:
       The constructed filter.
@@ -253,25 +256,29 @@ class Filter(computedobject.ComputedObject):
     # Implement this in terms of listContains, with the arguments switched.
     # In listContains the list is on the left side, while in inList it's on
     # the right.
-    return apifunction.ApiFunction.apply_('Filter.listContains', {
-        'leftField': opt_rightField,
-        'rightValue': opt_leftValue,
-        'rightField': opt_leftField,
-        'leftValue': opt_rightValue
-    })
+    return apifunction.ApiFunction.apply_(
+        'Filter.listContains',
+        {
+            'leftField': rightField,
+            'rightValue': leftValue,
+            'rightField': leftField,
+            'leftValue': rightValue,
+        },
+    )
 
   @staticmethod
-  def geometry(geometry, opt_errorMargin=None):
+  @_utils.accept_opt_prefix('opt_errorMargin')
+  def geometry(geometry, errorMargin=None):
     """Filter on intersection with geometry.
 
     Items in the collection with a footprint that fails to intersect
     the given geometry will be excluded.
 
     Args:
-      geometry: The geometry to filter to either as a GeoJSON geometry,
-          or a FeatureCollection, from which a geometry will be extracted.
-      opt_errorMargin: An optional error margin. If a number, interpreted as
-          sphere surface meters.
+      geometry: The geometry to filter to either as a GeoJSON geometry, or a
+        FeatureCollection, from which a geometry will be extracted.
+      errorMargin: An optional error margin. If a number, interpreted as sphere
+        surface meters.
 
     Returns:
       The constructed filter.
@@ -281,12 +288,13 @@ class Filter(computedobject.ComputedObject):
         'leftField': '.all',
         'rightValue': apifunction.ApiFunction.call_('Feature', geometry)
     }
-    if opt_errorMargin is not None:
-      args['maxError'] = opt_errorMargin
+    if errorMargin is not None:
+      args['maxError'] = errorMargin
     return apifunction.ApiFunction.apply_('Filter.intersects', args)
 
   @staticmethod
-  def bounds(geometry, opt_errorMargin=None):
+  @_utils.accept_opt_prefix('opt_errorMargin')
+  def bounds(geometry, errorMargin=None):
     """Filter on intersection with geometry.
 
     Items in the collection with a footprint that fails to intersect
@@ -298,15 +306,15 @@ class Filter(computedobject.ComputedObject):
     to achieve the desired outcome.
 
     Args:
-      geometry: The geometry to filter to either as a GeoJSON geometry,
-          or a FeatureCollection, from which a geometry will be extracted.
-      opt_errorMargin: An optional error margin. If a number, interpreted as
-          sphere surface meters.
+      geometry: The geometry to filter to either as a GeoJSON geometry, or a
+        FeatureCollection, from which a geometry will be extracted.
+      errorMargin: An optional error margin. If a number, interpreted as sphere
+        surface meters.
 
     Returns:
       The constructed filter.
     """
-    return Filter.geometry(geometry, opt_errorMargin)
+    return Filter.geometry(geometry, errorMargin)
 
   @staticmethod
   def name() -> str:

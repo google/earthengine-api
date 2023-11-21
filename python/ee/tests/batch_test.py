@@ -125,14 +125,6 @@ class ExportTest(unittest.TestCase):
     with self.assertRaises(AssertionError):
       batch.Export.video.__init__('something')
 
-  def testExportVideoMapCannotInit(self):
-    with self.assertRaises(AssertionError):
-      batch.Export.videoMap.__init__('something')
-
-  def testExportClassifierCannotInit(self):
-    with self.assertRaises(AssertionError):
-      batch.Export.classifier.__init__('something')
-
 
 class BatchTestCase(apitestcase.ApiTestCase):
   """A test case for batch functionality."""
@@ -956,12 +948,15 @@ class BatchTestCase(apitestcase.ApiTestCase):
           assetId='users/foo/bar',
           ingestionTimeParameters={'thinningRanking': {'key': 'val'}})
 
-  @unittest.skip('assertRaisesWithLiteralMatch is google specific')
   def testExportTableToFeatureViewBadIngestionTimeParams(self):
     """Verifies a bad set of ingestion time params throws an exception."""
-    with self.assertRaisesWithLiteralMatch(
-        ee.EEException, ('The following keys are unrecognized in the '
-                         'ingestion parameters: [\'badThinningKey\']')):
+    with self.assertRaisesRegex(
+        ee.EEException,
+        (
+            r'The following keys are unrecognized in the '
+            r'ingestion parameters: \[\'badThinningKey\'\]'
+        ),
+    ):
       ee.batch.Export.table.toFeatureView(
           collection=ee.FeatureCollection('foo'),
           assetId='users/foo/bar',

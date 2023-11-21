@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, Optional
 
+from ee import _utils
 from ee import data
 from ee import ee_exception
 from ee import encodable
@@ -57,32 +58,34 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
   # False until the client has initialized the dynamic attributes.
   _initialized: bool
 
+  @_utils.accept_opt_prefix('opt_varName')
   def __init__(
       self,
       func: Optional[Any],
       args: Optional[Dict[str, Any]],
-      opt_varName: Optional[str] = None,  # pylint: disable=g-bad-name
+      varName: Optional[str] = None,  # pylint: disable=g-bad-name
   ):
     """Creates a computed object.
 
     Args:
       func: The ee.Function called to compute this object, either as an
-          Algorithm name or an ee.Function object.
-      args: A dictionary of arguments to pass to the specified function.
-          Note that the caller is responsible for promoting the arguments
-          to the correct types.
-      opt_varName: A variable name. If not None, the object will be encoded
-          as a reference to a CustomFunction variable of this name, and both
-          'func' and 'args' must be None. If all arguments are None, the
-          object is considered an unnamed variable, and a name will be
-          generated when it is included in an ee.CustomFunction.
+        Algorithm name or an ee.Function object.
+      args: A dictionary of arguments to pass to the specified function. Note
+        that the caller is responsible for promoting the arguments to the
+        correct types.
+      varName: A variable name. If not None, the object will be encoded as a
+        reference to a CustomFunction variable of this name, and both 'func' and
+        'args' must be None. If all arguments are None, the object is considered
+        an unnamed variable, and a name will be generated when it is included in
+        an ee.CustomFunction.
     """
-    if opt_varName and (func or args):
+    if varName and (func or args):
       raise ee_exception.EEException(
-          'When "opt_varName" is specified, "func" and "args" must be null.')
+          'When "varName" is specified, "func" and "args" must be null.'
+      )
     self.func = func
     self.args = args
-    self.varName = opt_varName  # pylint: disable=g-bad-name
+    self.varName = varName  # pylint: disable=g-bad-name
 
   def __eq__(self, other: Any) -> bool:
     # pylint: disable=unidiomatic-typecheck
@@ -166,24 +169,19 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
       invocation['arguments'] = encoded_args
       return {'functionInvocationValue': invocation}
 
-  def serialize(
-      self, opt_pretty: bool = False, for_cloud_api: bool = True
-  ) -> str:
+  @_utils.accept_opt_prefix('opt_pretty')
+  def serialize(self, pretty: bool = False, for_cloud_api: bool = True) -> str:
     """Serialize this object into a JSON string.
 
     Args:
-      opt_pretty: A flag indicating whether to pretty-print the JSON.
-      for_cloud_api: Whether the encoding should be done for the Cloud API
-        or the legacy API.
+      pretty: A flag indicating whether to pretty-print the JSON.
+      for_cloud_api: Whether the encoding should be done for the Cloud API or
+        the legacy API.
 
     Returns:
       The serialized representation of this object.
     """
-    return serializer.toJSON(
-        self,
-        opt_pretty,
-        for_cloud_api=for_cloud_api
-    )
+    return serializer.toJSON(self, pretty, for_cloud_api=for_cloud_api)
 
   def __str__(self) -> str:
     """Writes out the object in a human-readable form."""

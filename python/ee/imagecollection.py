@@ -5,6 +5,7 @@ from __future__ import annotations
 
 from typing import Any, Callable, Dict, Optional, Sequence, Tuple
 
+from ee import _utils
 from ee import apifunction
 from ee import collection
 from ee import computedobject
@@ -72,10 +73,8 @@ class ImageCollection(collection.Collection):
     """Imports API functions to this class."""
     if not cls._initialized:
       super().initialize()
-      apifunction.ApiFunction.importApi(
-          cls, 'ImageCollection', 'ImageCollection')
-      apifunction.ApiFunction.importApi(
-          cls, 'reduce', 'ImageCollection')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
+      apifunction.ApiFunction.importApi(cls, 'reduce', cls.name())
       cls._initialized = True
 
   @classmethod
@@ -99,24 +98,24 @@ class ImageCollection(collection.Collection):
     mosaic = apifunction.ApiFunction.call_('ImageCollection.mosaic', self)
     return mosaic.getMapId(vis_params)
 
+  @_utils.accept_opt_prefix('opt_names')
   # pylint: disable-next=keyword-arg-before-vararg
   def select(
-      self, selectors: Any, opt_names: Optional[Any] = None, *args
+      self, selectors: Any, names: Optional[Any] = None, *args
   ) -> ImageCollection:
     """Select bands from each image in a collection.
 
     Args:
-      selectors: An array of names, regexes or numeric indices specifying
-          the bands to select.
-      opt_names: An array of strings specifying the new names for the
-          selected bands.  If supplied, the length must match the number
-          of bands selected.
+      selectors: An array of names, regexes or numeric indices specifying the
+        bands to select.
+      names: An array of strings specifying the new names for the selected
+        bands.  If supplied, the length must match the number of bands selected.
       *args: Selector elements as varargs.
 
     Returns:
       The image collection with selected bands.
     """
-    return self.map(lambda img: img.select(selectors, opt_names, *args))
+    return self.map(lambda img: img.select(selectors, names, *args))
 
   # Disable argument usage check; arguments are accessed using locals().
   # pylint: disable=unused-argument,g-bad-name

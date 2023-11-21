@@ -8,6 +8,7 @@ from __future__ import annotations
 
 from typing import Any, Dict, Optional, Union
 
+from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
@@ -19,20 +20,21 @@ class Element(computedobject.ComputedObject):
   _initialized = False
 
   # pylint: disable-next=useless-parent-delegation
+  @_utils.accept_opt_prefix('opt_varName')
   def __init__(
       self,
       func: Optional[apifunction.ApiFunction],
       args: Optional[Dict[str, Any]],
-      opt_varName: Optional[str] = None,  # pylint: disable=g-bad-name
+      varName: Optional[str] = None,  # pylint: disable=g-bad-name
   ):
     """Constructs a collection by initializing its ComputedObject."""
-    super().__init__(func, args, opt_varName)
+    super().__init__(func, args, varName)
 
   @classmethod
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'Element', 'Element')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       cls._initialized = True
 
   @classmethod

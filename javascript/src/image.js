@@ -153,7 +153,7 @@ ee.Image.prototype.getInfo = function(opt_callback) {
 
 
 /**
- * An imperative function that returns a map id and optional token, suitable for
+ * An imperative function that returns a map ID and optional token, suitable for
  * generating a Map overlay.
  *
  * @param {!ee.data.ImageVisualizationParameters=} opt_visParams
@@ -165,7 +165,7 @@ ee.Image.prototype.getInfo = function(opt_callback) {
  *     specified.
  * @export
  */
-ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
+ee.Image.prototype.getMapId = function(opt_visParams, opt_callback) {
   const args = ee.arguments.extractFromFunction(
       ee.Image.prototype.getMap, arguments);
 
@@ -191,6 +191,22 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
     return response;
   }
 };
+
+/**
+ * An imperative function that returns a map ID and optional token, suitable for
+ * generating a Map overlay.
+ *
+ * @deprecated Use getMapId() instead.
+ * @param {!ee.data.ImageVisualizationParameters=} opt_visParams
+ *     The visualization parameters.
+ * @param {function(!ee.data.MapId, string=)=} opt_callback An async callback.
+ *     If not supplied, the call is made synchronously.
+ * @return {!ee.data.MapId|undefined} An object which may be passed to
+ *     ee.data.getTileUrl or ui.Map.addLayer. Undefined if a callback was
+ *     specified.
+ * @export
+ */
+ee.Image.prototype.getMap = ee.Image.prototype.getMapId;
 
 
 /**

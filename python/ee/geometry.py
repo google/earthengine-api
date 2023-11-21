@@ -8,6 +8,7 @@ import json
 import math
 from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
+from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
@@ -26,37 +27,37 @@ class Geometry(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
+  @_utils.accept_opt_prefix('opt_proj', 'opt_geodesic', 'opt_evenOdd')
   def __init__(
       self,
       geo_json: Union[Dict[str, Any], computedobject.ComputedObject, Geometry],
-      opt_proj: Optional[Any] = None,
-      opt_geodesic: Optional[bool] = None,
-      opt_evenOdd: Optional[bool] = None,  # pylint: disable=g-bad-name
+      proj: Optional[Any] = None,
+      geodesic: Optional[bool] = None,
+      evenOdd: Optional[bool] = None,  # pylint: disable=g-bad-name
   ):
     """Creates a geometry.
 
     Args:
-      geo_json: The GeoJSON object describing the geometry or a
-          computed object to be reinterpred as a Geometry. Supports
-          CRS specifications as per the GeoJSON spec, but only allows named
-          (rather than "linked" CRSs). If this includes a 'geodesic' field,
-          and opt_geodesic is not specified, it will be used as opt_geodesic.
-      opt_proj: An optional projection specification, either as an
-          ee.Projection, as a CRS ID code or as a WKT string. If specified,
-          overrides any CRS found in the geo_json parameter. If unspecified and
-          the geo_json does not declare a CRS, defaults to "EPSG:4326"
-          (x=longitude, y=latitude).
-      opt_geodesic: Whether line segments should be interpreted as spherical
-          geodesics. If false, indicates that line segments should be
-          interpreted as planar lines in the specified CRS. If absent,
-          defaults to true if the CRS is geographic (including the default
+      geo_json: The GeoJSON object describing the geometry or a computed object
+        to be reinterpred as a Geometry. Supports CRS specifications as per the
+        GeoJSON spec, but only allows named (rather than "linked" CRSs). If this
+        includes a 'geodesic' field, and geodesic is not specified, it will be
+        used as geodesic.
+      proj: An optional projection specification, either as an ee.Projection, as
+        a CRS ID code or as a WKT string. If specified, overrides any CRS found
+        in the geo_json parameter. If unspecified and the geo_json does not
+        declare a CRS, defaults to "EPSG:4326" (x=longitude, y=latitude).
+      geodesic: Whether line segments should be interpreted as spherical
+        geodesics. If false, indicates that line segments should be interpreted
+        as planar lines in the specified CRS. If absent, defaults to true if the
+        CRS is geographic (including the default
           EPSG:4326), or to false if the CRS is projected.
-      opt_evenOdd: If true, polygon interiors will be determined by the even/odd
-          rule, where a point is inside if it crosses an odd number of edges to
-          reach a point at infinity. Otherwise polygons use the left-inside
-          rule, where interiors are on the left side of the shell's edges when
-          walking the vertices in the given order. If unspecified, defaults to
-          True.
+      evenOdd: If true, polygon interiors will be determined by the even/odd
+        rule, where a point is inside if it crosses an odd number of edges to
+        reach a point at infinity. Otherwise polygons use the left-inside rule,
+        where interiors are on the left side of the shell's edges when walking
+        the vertices in the given order. If unspecified, defaults to True.
+
     Raises:
       EEException: if the given geometry isn't valid.
     """
@@ -66,7 +67,7 @@ class Geometry(computedobject.ComputedObject):
     computed = isinstance(geo_json, computedobject.ComputedObject) and not (
         isinstance(geo_json, Geometry) and geo_json._type is not None
     )
-    options = opt_proj or opt_geodesic or opt_evenOdd
+    options = proj or geodesic or evenOdd
     if computed:
       if options:
         raise ee_exception.EEException(
@@ -96,21 +97,21 @@ class Geometry(computedobject.ComputedObject):
     self._geometries = geo_json.get('geometries')
 
     # The projection code (WKT or identifier) of the geometry.
-    if opt_proj:
-      self._proj = opt_proj
+    if proj:
+      self._proj = proj
     elif 'crs' in geo_json:
       self._proj = self._get_name_from_crs(geo_json.get('crs'))
     else:
       self._proj = None
 
     # Whether the geometry has spherical geodesic edges.
-    self._geodesic = opt_geodesic
-    if opt_geodesic is None and 'geodesic' in geo_json:
+    self._geodesic = geodesic
+    if geodesic is None and 'geodesic' in geo_json:
       self._geodesic = bool(geo_json['geodesic'])
 
     # Whether polygon interiors use the even/odd rule.
-    self._evenOdd = opt_evenOdd  # pylint: disable=g-bad-name
-    if opt_evenOdd is None and 'evenOdd' in geo_json:
+    self._evenOdd = evenOdd  # pylint: disable=g-bad-name
+    if evenOdd is None and 'evenOdd' in geo_json:
       self._evenOdd = bool(geo_json['evenOdd'])
 
     # Build a proxy for this object that is an invocation of a server-side
@@ -156,7 +157,7 @@ class Geometry(computedobject.ComputedObject):
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'Geometry', 'Geometry')
+      apifunction.ApiFunction.importApi(cls, cls.name(), cls.name())
       cls._initialized = True
 
   @classmethod
@@ -358,13 +359,16 @@ class Geometry(computedobject.ComputedObject):
     # GeoJSON does not have a Rectangle type, so expand to a Polygon.
     return Geometry(
         geo_json={
-            'coordinates': [[[west, north],
-                             [west, south],
-                             [east, south],
-                             [east, north]]],
+            'coordinates': [[
+                [west, north],
+                [west, south],
+                [east, south],
+                [east, north],
+            ]],
             'type': 'Polygon',
         },
-        opt_geodesic=False)
+        geodesic=False,
+    )
 
   @staticmethod
   def _canonicalize_longitude(longitude: float) -> float:
@@ -584,10 +588,11 @@ class Geometry(computedobject.ComputedObject):
                                            evenOdd) + args)
     return Geometry(Geometry._parseArgs('MultiPolygon', 4, all_args))
 
-  def encode(self, opt_encoder: Optional[Any] = None) -> Dict[str, Any]:
+  @_utils.accept_opt_prefix('opt_encoder')
+  def encode(self, encoder: Optional[Any] = None) -> Dict[str, Any]:
     """Returns a GeoJSON-compatible representation of the geometry."""
     if not getattr(self, '_type', None):
-      return super().encode(opt_encoder)
+      return super().encode(encoder)
 
     result = {'type': self._type}
     if self._type == 'GeometryCollection':

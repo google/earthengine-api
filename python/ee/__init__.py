@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The EE Python library."""
 
-__version__ = '0.1.379'
+__version__ = '0.1.381'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -12,6 +12,7 @@ import inspect
 import os
 from typing import Any, Hashable, List as ListType, Optional, Sequence, Type, Union
 
+from ee import _utils
 from ee import batch
 from ee import data
 from ee import deserializer
@@ -24,6 +25,7 @@ from ._helpers import call
 from ._helpers import profilePrinting
 from ._helpers import ServiceAccountCredentials
 from .apifunction import ApiFunction
+from .blob import Blob
 from .collection import Collection
 from .computedobject import ComputedObject
 from .customfunction import CustomFunction
@@ -105,9 +107,10 @@ def Authenticate(
   )
 
 
+@_utils.accept_opt_prefix('opt_url')
 def Initialize(
     credentials: Optional[Any] = 'persistent',
-    opt_url: Optional[str] = None,
+    url: Optional[str] = None,
     cloud_api_key: Optional[str] = None,
     http_transport: Optional[Any] = None,
     project: Optional[Union[str, int]] = None,
@@ -121,9 +124,9 @@ def Initialize(
 
   Args:
     credentials: OAuth2 credentials.  'persistent' (default) means use
-        credentials already stored in the filesystem, or raise an explanatory
-        exception guiding the user to create those credentials.
-    opt_url: The base url for the EarthEngine REST API to connect to.
+      credentials already stored in the filesystem, or raise an explanatory
+      exception guiding the user to create those credentials.
+    url: The base url for the EarthEngine REST API to connect to.
     cloud_api_key: An optional API key to use the Cloud API.
     http_transport: The http transport method to use when making requests.
     project: The client project ID or number to use when making API calls.
@@ -133,15 +136,17 @@ def Initialize(
 
   data.initialize(
       credentials=credentials,
-      api_base_url=(opt_url + '/api' if opt_url else None),
-      tile_base_url=opt_url,
-      cloud_api_base_url=opt_url,
+      api_base_url=(url + '/api' if url else None),
+      tile_base_url=url,
+      cloud_api_base_url=url,
       cloud_api_key=cloud_api_key,
       project=project,
-      http_transport=http_transport)
+      http_transport=http_transport,
+  )
 
   # Initialize the dynamically loaded functions on the objects that want them.
   ApiFunction.initialize()
+  Blob.initialize()
   Collection.initialize()
   Date.initialize()
   Dictionary.initialize()
@@ -170,6 +175,7 @@ def Reset() -> None:
   ApiFunction.reset()
   Element.reset()  # Must be before Collection.
   Collection.reset()  # Must be before FeatureCollection and ImageCollection.
+  Blob.reset()
   Date.reset()
   Dictionary.reset()
   Feature.reset()

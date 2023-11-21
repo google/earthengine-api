@@ -2453,8 +2453,7 @@ goog.debug.normalizeErrorObject = function(err) {
     }
     return {message:message, name:err.name || "UnknownError", lineNumber:lineNumber, fileName:fileName, stack:stack || "Not available"};
   }
-  err.stack = stack;
-  return {message:err.message, name:err.name, lineNumber:err.lineNumber, fileName:err.fileName, stack:err.stack};
+  return {message:err.message, name:err.name, lineNumber:err.lineNumber, fileName:err.fileName, stack:stack};
 };
 goog.debug.serializeErrorStack_ = function(e, seen) {
   seen || (seen = {});
@@ -6062,7 +6061,7 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function(type, raw)
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$iter$19 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$19.next(), $jscomp$loop$m192531680$0 = {}; !$jscomp$key$key.done; $jscomp$loop$m192531680$0 = {mapMetadata:$jscomp$loop$m192531680$0.mapMetadata}, 
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$iter$19 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$key = $jscomp$iter$19.next(), $jscomp$loop$m1892927425$0 = {}; !$jscomp$key$key.done; $jscomp$loop$m1892927425$0 = {mapMetadata:$jscomp$loop$m1892927425$0.mapMetadata}, 
   $jscomp$key$key = $jscomp$iter$19.next()) {
     var key = $jscomp$key$key.value, value = valueGetter(key, source);
     if (null != value) {
@@ -6075,11 +6074,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
       } else if (objects.hasOwnProperty(key)) {
         copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
       } else if (objectMaps.hasOwnProperty(key)) {
-        $jscomp$loop$m192531680$0.mapMetadata = objectMaps[key], copy = $jscomp$loop$m192531680$0.mapMetadata.isPropertyArray ? value.map(function($jscomp$loop$m192531680$0) {
+        $jscomp$loop$m1892927425$0.mapMetadata = objectMaps[key], copy = $jscomp$loop$m1892927425$0.mapMetadata.isPropertyArray ? value.map(function($jscomp$loop$m1892927425$0) {
           return function(v) {
-            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$m192531680$0.mapMetadata, valueGetter, valueSetter, copyInstanciator);
+            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$m1892927425$0.mapMetadata, valueGetter, valueSetter, copyInstanciator);
           };
-        }($jscomp$loop$m192531680$0)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$m192531680$0.mapMetadata, valueGetter, valueSetter, copyInstanciator);
+        }($jscomp$loop$m1892927425$0)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$m1892927425$0.mapMetadata, valueGetter, valueSetter, copyInstanciator);
       } else if (Array.isArray(value)) {
         if (metadata.emptyArrayIsUnset && 0 === value.length) {
           continue;
@@ -6125,39 +6124,39 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$iter$21 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$21.next(), $jscomp$loop$m192531680$1 = {}; !$jscomp$key$key.done; $jscomp$loop$m192531680$1 = {value2$jscomp$7:$jscomp$loop$m192531680$1.value2$jscomp$7, mapMetadata$jscomp$2:$jscomp$loop$m192531680$1.mapMetadata$jscomp$2}, $jscomp$key$key = $jscomp$iter$21.next()) {
+  for (var $jscomp$iter$21 = $jscomp.makeIterator(keys1), $jscomp$key$key = $jscomp$iter$21.next(), $jscomp$loop$m1892927425$1 = {}; !$jscomp$key$key.done; $jscomp$loop$m1892927425$1 = {value2$jscomp$7:$jscomp$loop$m1892927425$1.value2$jscomp$7, mapMetadata$jscomp$2:$jscomp$loop$m1892927425$1.mapMetadata$jscomp$2}, $jscomp$key$key = $jscomp$iter$21.next()) {
     var key = $jscomp$key$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$m192531680$1.value2$jscomp$7 = serializable2.Serializable$get(key);
+      $jscomp$loop$m1892927425$1.value2$jscomp$7 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$1.value2$jscomp$7, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$1.value2$jscomp$7, !0, !0)) {
           return !1;
         }
       } else if (objects1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$1.value2$jscomp$7, !1, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$1.value2$jscomp$7, !1, !0)) {
           return !1;
         }
       } else if (objectMaps1.hasOwnProperty(key)) {
-        if ($jscomp$loop$m192531680$1.mapMetadata$jscomp$2 = objectMaps1[key], $jscomp$loop$m192531680$1.mapMetadata$jscomp$2.isPropertyArray) {
-          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$m192531680$1.value2$jscomp$7) || value1.some(function($jscomp$loop$m192531680$1) {
+        if ($jscomp$loop$m1892927425$1.mapMetadata$jscomp$2 = objectMaps1[key], $jscomp$loop$m1892927425$1.mapMetadata$jscomp$2.isPropertyArray) {
+          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$m1892927425$1.value2$jscomp$7) || value1.some(function($jscomp$loop$m1892927425$1) {
             return function(v1, i) {
-              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$m192531680$1.value2$jscomp$7[i], $jscomp$loop$m192531680$1.mapMetadata$jscomp$2);
+              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$m1892927425$1.value2$jscomp$7[i], $jscomp$loop$m1892927425$1.mapMetadata$jscomp$2);
             };
-          }($jscomp$loop$m192531680$1))) {
+          }($jscomp$loop$m1892927425$1))) {
             return !1;
           }
-        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$m192531680$1.value2$jscomp$7, $jscomp$loop$m192531680$1.mapMetadata$jscomp$2)) {
+        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$m1892927425$1.value2$jscomp$7, $jscomp$loop$m1892927425$1.mapMetadata$jscomp$2)) {
           return !1;
         }
       } else if (Array.isArray(value1)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$1.value2$jscomp$7, !0, !1)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$1.value2$jscomp$7, !0, !1)) {
           return !1;
         }
-      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$1.value2$jscomp$7, !1, !1)) {
+      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$1.value2$jscomp$7, !1, !1)) {
         return !1;
       }
     }
@@ -7362,37 +7361,151 @@ module$contents$goog$html$SafeHtml_SafeHtml.BR = function() {
   return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("<br>");
 }();
 goog.html.SafeHtml = module$contents$goog$html$SafeHtml_SafeHtml;
-goog.html.uncheckedconversions = {};
-goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract = function(justification, html) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(html);
-};
-goog.html.uncheckedconversions.safeScriptFromStringKnownToSatisfyTypeContract = function(justification, script) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(script);
-};
-goog.html.uncheckedconversions.safeStyleFromStringKnownToSatisfyTypeContract = function(justification, style) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
-};
-goog.html.uncheckedconversions.safeStyleSheetFromStringKnownToSatisfyTypeContract = function(justification, styleSheet) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
-};
-goog.html.uncheckedconversions.safeUrlFromStringKnownToSatisfyTypeContract = function(justification, url) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
-};
-goog.html.uncheckedconversions.trustedResourceUrlFromStringKnownToSatisfyTypeContract = function(justification, url) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(url);
-};
+/*
+
+ SPDX-License-Identifier: Apache-2.0
+*/
+var module$contents$safevalues$environment$dev_module = module$contents$safevalues$environment$dev_module || {id:"third_party/javascript/safevalues/environment/dev.closure.js"};
+var module$exports$goog$html$internals = {};
+module$exports$goog$html$internals.createSafeHtml = module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse;
+module$exports$goog$html$internals.createSafeScript = module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse;
+module$exports$goog$html$internals.createSafeStyle = module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse;
+module$exports$goog$html$internals.createSafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse;
+module$exports$goog$html$internals.createSafeUrl = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse;
+module$exports$goog$html$internals.createTrustedResourceUrl = goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse;
+var module$exports$safevalues$internals$html_impl = {}, module$contents$safevalues$internals$html_impl_module = module$contents$safevalues$internals$html_impl_module || {id:"third_party/javascript/safevalues/internals/html_impl.closure.js"};
+module$exports$safevalues$internals$html_impl.SafeHtml = module$contents$goog$html$SafeHtml_SafeHtml;
+function module$contents$safevalues$internals$html_impl_createHtmlInternal(html) {
+  return (0,module$exports$goog$html$internals.createSafeHtml)(html);
+}
+module$exports$safevalues$internals$html_impl.createHtmlInternal = module$contents$safevalues$internals$html_impl_createHtmlInternal;
+module$exports$safevalues$internals$html_impl.EMPTY_HTML = module$contents$goog$html$SafeHtml_SafeHtml.EMPTY;
+function module$contents$safevalues$internals$html_impl_isHtml(value) {
+  return value instanceof module$contents$goog$html$SafeHtml_SafeHtml;
+}
+module$exports$safevalues$internals$html_impl.isHtml = module$contents$safevalues$internals$html_impl_isHtml;
+function module$contents$safevalues$internals$html_impl_unwrapHtml(value) {
+  return module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(value);
+}
+module$exports$safevalues$internals$html_impl.unwrapHtml = module$contents$safevalues$internals$html_impl_unwrapHtml;
+var module$exports$safevalues$internals$resource_url_impl = {}, module$contents$safevalues$internals$resource_url_impl_module = module$contents$safevalues$internals$resource_url_impl_module || {id:"third_party/javascript/safevalues/internals/resource_url_impl.closure.js"};
+module$exports$safevalues$internals$resource_url_impl.TrustedResourceUrl = goog.html.TrustedResourceUrl;
+function module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(url) {
+  return (0,goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse)(url);
+}
+module$exports$safevalues$internals$resource_url_impl.createResourceUrlInternal = module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal;
+function module$contents$safevalues$internals$resource_url_impl_isResourceUrl(value) {
+  return value instanceof goog.html.TrustedResourceUrl;
+}
+module$exports$safevalues$internals$resource_url_impl.isResourceUrl = module$contents$safevalues$internals$resource_url_impl_isResourceUrl;
+function module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(value) {
+  return goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(value);
+}
+module$exports$safevalues$internals$resource_url_impl.unwrapResourceUrl = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl;
+var module$exports$safevalues$internals$script_impl = {}, module$contents$safevalues$internals$script_impl_module = module$contents$safevalues$internals$script_impl_module || {id:"third_party/javascript/safevalues/internals/script_impl.closure.js"};
+module$exports$safevalues$internals$script_impl.SafeScript = module$contents$goog$html$SafeScript_SafeScript;
+function module$contents$safevalues$internals$script_impl_createScriptInternal(script) {
+  return (0,module$exports$goog$html$internals.createSafeScript)(script);
+}
+module$exports$safevalues$internals$script_impl.createScriptInternal = module$contents$safevalues$internals$script_impl_createScriptInternal;
+module$exports$safevalues$internals$script_impl.EMPTY_SCRIPT = module$contents$goog$html$SafeScript_SafeScript.EMPTY;
+function module$contents$safevalues$internals$script_impl_isScript(value) {
+  return value instanceof module$contents$goog$html$SafeScript_SafeScript;
+}
+module$exports$safevalues$internals$script_impl.isScript = module$contents$safevalues$internals$script_impl_isScript;
+function module$contents$safevalues$internals$script_impl_unwrapScript(value) {
+  return module$contents$goog$html$SafeScript_SafeScript.unwrapTrustedScript(value);
+}
+module$exports$safevalues$internals$script_impl.unwrapScript = module$contents$safevalues$internals$script_impl_unwrapScript;
+var module$exports$safevalues$internals$style_impl = {}, module$contents$safevalues$internals$style_impl_module = module$contents$safevalues$internals$style_impl_module || {id:"third_party/javascript/safevalues/internals/style_impl.closure.js"};
+module$exports$safevalues$internals$style_impl.SafeStyle = module$contents$goog$html$SafeStyle_SafeStyle;
+function module$contents$safevalues$internals$style_impl_createStyleInternal(style) {
+  return (0,module$exports$goog$html$internals.createSafeStyle)(style);
+}
+module$exports$safevalues$internals$style_impl.createStyleInternal = module$contents$safevalues$internals$style_impl_createStyleInternal;
+function module$contents$safevalues$internals$style_impl_isStyle(value) {
+  return value instanceof module$contents$goog$html$SafeStyle_SafeStyle;
+}
+module$exports$safevalues$internals$style_impl.isStyle = module$contents$safevalues$internals$style_impl_isStyle;
+function module$contents$safevalues$internals$style_impl_unwrapStyle(value) {
+  return module$contents$goog$html$SafeStyle_SafeStyle.unwrap(value);
+}
+module$exports$safevalues$internals$style_impl.unwrapStyle = module$contents$safevalues$internals$style_impl_unwrapStyle;
+var module$exports$safevalues$internals$style_sheet_impl = {}, module$contents$safevalues$internals$style_sheet_impl_module = module$contents$safevalues$internals$style_sheet_impl_module || {id:"third_party/javascript/safevalues/internals/style_sheet_impl.closure.js"};
+module$exports$safevalues$internals$style_sheet_impl.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
+function module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(styleSheet) {
+  return (0,module$exports$goog$html$internals.createSafeStyleSheet)(styleSheet);
+}
+module$exports$safevalues$internals$style_sheet_impl.createStyleSheetInternal = module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal;
+function module$contents$safevalues$internals$style_sheet_impl_isStyleSheet(value) {
+  return value instanceof module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
+}
+module$exports$safevalues$internals$style_sheet_impl.isStyleSheet = module$contents$safevalues$internals$style_sheet_impl_isStyleSheet;
+function module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet(value) {
+  return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap(value);
+}
+module$exports$safevalues$internals$style_sheet_impl.unwrapStyleSheet = module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet;
+var module$exports$safevalues$internals$url_impl = {}, module$contents$safevalues$internals$url_impl_module = module$contents$safevalues$internals$url_impl_module || {id:"third_party/javascript/safevalues/internals/url_impl.closure.js"};
+module$exports$safevalues$internals$url_impl.SafeUrl = goog.html.SafeUrl;
+function module$contents$safevalues$internals$url_impl_createUrlInternal(url) {
+  return (0,goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse)(url);
+}
+module$exports$safevalues$internals$url_impl.createUrlInternal = module$contents$safevalues$internals$url_impl_createUrlInternal;
+module$exports$safevalues$internals$url_impl.ABOUT_BLANK = goog.html.SafeUrl.ABOUT_BLANK;
+module$exports$safevalues$internals$url_impl.INNOCUOUS_URL = goog.html.SafeUrl.INNOCUOUS_URL;
+function module$contents$safevalues$internals$url_impl_isUrl(value) {
+  return value instanceof goog.html.SafeUrl;
+}
+module$exports$safevalues$internals$url_impl.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
+function module$contents$safevalues$internals$url_impl_unwrapUrl(value) {
+  return goog.html.SafeUrl.unwrap(value);
+}
+module$exports$safevalues$internals$url_impl.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
+var module$exports$safevalues$restricted$reviewed = {}, module$contents$safevalues$restricted$reviewed_module = module$contents$safevalues$restricted$reviewed_module || {id:"third_party/javascript/safevalues/restricted/reviewed.closure.js"};
+function module$contents$safevalues$restricted$reviewed_assertValidJustification(justification) {
+  if ("string" !== typeof justification || "" === justification.trim()) {
+    var errMsg;
+    throw Error("Calls to uncheckedconversion functions must go through security review. A justification must be provided to capture what security assumptions are being made. See go/unchecked-conversions");
+  }
+}
+function module$contents$safevalues$restricted$reviewed_htmlSafeByReview(html, justification) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+  return module$contents$safevalues$internals$html_impl_createHtmlInternal(html);
+}
+module$exports$safevalues$restricted$reviewed.htmlSafeByReview = module$contents$safevalues$restricted$reviewed_htmlSafeByReview;
+function module$contents$safevalues$restricted$reviewed_scriptSafeByReview(script, justification) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+  return module$contents$safevalues$internals$script_impl_createScriptInternal(script);
+}
+module$exports$safevalues$restricted$reviewed.scriptSafeByReview = module$contents$safevalues$restricted$reviewed_scriptSafeByReview;
+function module$contents$safevalues$restricted$reviewed_resourceUrlSafeByReview(url, justification) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+  return module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(url);
+}
+module$exports$safevalues$restricted$reviewed.resourceUrlSafeByReview = module$contents$safevalues$restricted$reviewed_resourceUrlSafeByReview;
+function module$contents$safevalues$restricted$reviewed_urlSafeByReview(url, justification) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+  return module$contents$safevalues$internals$url_impl_createUrlInternal(url);
+}
+module$exports$safevalues$restricted$reviewed.urlSafeByReview = module$contents$safevalues$restricted$reviewed_urlSafeByReview;
+function module$contents$safevalues$restricted$reviewed_styleSafeByReview(style, justification) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+  return module$contents$safevalues$internals$style_impl_createStyleInternal(style);
+}
+module$exports$safevalues$restricted$reviewed.styleSafeByReview = module$contents$safevalues$restricted$reviewed_styleSafeByReview;
+function module$contents$safevalues$restricted$reviewed_styleSheetSafeByReview(stylesheet, justification) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+  return module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(stylesheet);
+}
+module$exports$safevalues$restricted$reviewed.styleSheetSafeByReview = module$contents$safevalues$restricted$reviewed_styleSheetSafeByReview;
+var safevalues = {restricted:{}};
+safevalues.restricted.reviewed = {};
+safevalues.restricted.reviewed.htmlSafeByReview = module$contents$safevalues$restricted$reviewed_htmlSafeByReview;
+safevalues.restricted.reviewed.scriptSafeByReview = module$contents$safevalues$restricted$reviewed_scriptSafeByReview;
+safevalues.restricted.reviewed.resourceUrlSafeByReview = module$contents$safevalues$restricted$reviewed_resourceUrlSafeByReview;
+safevalues.restricted.reviewed.urlSafeByReview = module$contents$safevalues$restricted$reviewed_urlSafeByReview;
+safevalues.restricted.reviewed.styleSafeByReview = module$contents$safevalues$restricted$reviewed_styleSafeByReview;
+safevalues.restricted.reviewed.styleSheetSafeByReview = module$contents$safevalues$restricted$reviewed_styleSheetSafeByReview;
 goog.dom.safe = {};
 goog.dom.safe.InsertAdjacentHtmlPosition = {AFTERBEGIN:"afterbegin", AFTEREND:"afterend", BEFOREBEGIN:"beforebegin", BEFOREEND:"beforeend"};
 goog.dom.safe.insertAdjacentHtml = function(node, position, html) {
@@ -7428,7 +7541,7 @@ goog.dom.safe.setInnerHtml = function(elem, html) {
   goog.dom.safe.unsafeSetInnerHtmlDoNotUseOrElse(elem, html);
 };
 goog.dom.safe.setInnerHtmlFromConstant = function(element, constHtml) {
-  goog.dom.safe.setInnerHtml(element, goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract(goog.string.Const.from("Constant HTML to be immediatelly used."), goog.string.Const.unwrap(constHtml)));
+  goog.dom.safe.setInnerHtml(element, module$contents$safevalues$restricted$reviewed_htmlSafeByReview(goog.string.Const.unwrap(constHtml), "Constant HTML to be immediatelly used."));
 };
 goog.dom.safe.setOuterHtml = function(elem, html) {
   elem.outerHTML = module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(html);
@@ -7702,7 +7815,7 @@ goog.string.unescapeEntitiesUsingDom_ = function(str, opt_document) {
       var n = Number("0" + entity.slice(1));
       isNaN(n) || (value = String.fromCharCode(n));
     }
-    value || (goog.dom.safe.setInnerHtml(div, goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract(goog.string.Const.from("Single HTML entity."), s + " ")), value = div.firstChild.nodeValue.slice(0, -1));
+    value || (goog.dom.safe.setInnerHtml(div, module$contents$safevalues$restricted$reviewed_htmlSafeByReview(s + " ", "Single HTML entity.")), value = div.firstChild.nodeValue.slice(0, -1));
     return seen[s] = value;
   });
 };
@@ -14566,6 +14679,37 @@ goog.dom.BrowserFeature.CAN_USE_CHILDREN_ATTRIBUTE = !0;
 goog.dom.BrowserFeature.CAN_USE_INNER_TEXT = !1;
 goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY = goog.userAgent.IE || goog.userAgent.WEBKIT;
 goog.dom.BrowserFeature.INNER_HTML_NEEDS_SCOPED_ELEMENT = goog.userAgent.IE;
+goog.html.uncheckedconversions = {};
+goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract = function(justification, html) {
+  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(html);
+};
+goog.html.uncheckedconversions.safeScriptFromStringKnownToSatisfyTypeContract = function(justification, script) {
+  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(script);
+};
+goog.html.uncheckedconversions.safeStyleFromStringKnownToSatisfyTypeContract = function(justification, style) {
+  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  return module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
+};
+goog.html.uncheckedconversions.safeStyleSheetFromStringKnownToSatisfyTypeContract = function(justification, styleSheet) {
+  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
+};
+goog.html.uncheckedconversions.safeUrlFromStringKnownToSatisfyTypeContract = function(justification, url) {
+  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
+};
+goog.html.uncheckedconversions.trustedResourceUrlFromStringKnownToSatisfyTypeContract = function(justification, url) {
+  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
+  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
+  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(url);
+};
 goog.math.Coordinate = function(opt_x, opt_y) {
   this.x = void 0 !== opt_x ? opt_x : 0;
   this.y = void 0 !== opt_y ? opt_y : 0;
@@ -17393,13 +17537,8 @@ goog.net.XhrIo.prototype.formatMsg_ = function(msg) {
 goog.debug.entryPointRegistry.register(function(transformer) {
   goog.net.XhrIo.prototype.onReadyStateChangeEntryPoint_ = transformer(goog.net.XhrIo.prototype.onReadyStateChangeEntryPoint_);
 });
-/*
-
- SPDX-License-Identifier: Apache-2.0
-*/
 var module$exports$safevalues$builders$sensitive_attributes = {}, module$contents$safevalues$builders$sensitive_attributes_module = module$contents$safevalues$builders$sensitive_attributes_module || {id:"third_party/javascript/safevalues/builders/sensitive_attributes.closure.js"};
 module$exports$safevalues$builders$sensitive_attributes.SECURITY_SENSITIVE_ATTRIBUTES = "src srcdoc codebase data href rel action formaction sandbox cite poster icon".split(" ");
-var module$contents$safevalues$environment$dev_module = module$contents$safevalues$environment$dev_module || {id:"third_party/javascript/safevalues/environment/dev.closure.js"};
 var module$exports$safevalues$internals$secrets = {}, module$contents$safevalues$internals$secrets_module = module$contents$safevalues$internals$secrets_module || {id:"third_party/javascript/safevalues/internals/secrets.closure.js"};
 module$exports$safevalues$internals$secrets.secretToken = {};
 function module$contents$safevalues$internals$secrets_ensureTokenIsValid(token) {
@@ -17432,8 +17571,8 @@ function module$contents$safevalues$internals$attribute_impl_unwrapAttributePref
   throw Error(message);
 }
 module$exports$safevalues$internals$attribute_impl.unwrapAttributePrefix = module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix;
-var $jscomp$templatelit$1274514361$0 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$1 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$1274514361$2 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$3 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), $jscomp$templatelit$1274514361$4 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$5 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], 
-["\\0"]), $jscomp$templatelit$1274514361$6 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$7 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
+var $jscomp$templatelit$m425881384$0 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$m425881384$1 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$m425881384$2 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$m425881384$3 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), $jscomp$templatelit$m425881384$4 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$m425881384$5 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], 
+["\\0"]), $jscomp$templatelit$m425881384$6 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$m425881384$7 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
 function module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, numExprs) {
   if (!module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) || numExprs + 1 !== templateObj.length) {
     throw new TypeError("\n    ############################## ERROR ##############################\n\n    It looks like you are trying to call a template tag function (fn`...`)\n    using the normal function syntax (fn(...)), which is not supported.\n\n    The functions in the safevalues library are not designed to be called\n    like normal functions, and doing so invalidates the security guarantees\n    that safevalues provides.\n\n    If you are stuck and not sure how to proceed, please reach out to us\n    instead through:\n     - go/ise-hardening-yaqs (preferred) // LINE-INTERNAL\n     - g/ise-hardening // LINE-INTERNAL\n     - https://github.com/google/safevalues/issues\n\n    ############################## ERROR ##############################");
@@ -17447,14 +17586,14 @@ function module$contents$safevalues$internals$string_literal_checkTranspiled(fn)
   return -1 === fn.toString().indexOf("`");
 }
 var module$contents$safevalues$internals$string_literal_isTranspiled = module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$1274514361$0);
+  return tag($jscomp$templatelit$m425881384$0);
 }) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$1274514361$1);
+  return tag($jscomp$templatelit$m425881384$1);
 }) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$1274514361$2);
+  return tag($jscomp$templatelit$m425881384$2);
 }) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$1274514361$3);
-}), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$4) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$5) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$6) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$7);
+  return tag($jscomp$templatelit$m425881384$3);
+}), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$4) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$5) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$6) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$7);
 function module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) {
   return Array.isArray(templateObj) && Array.isArray(templateObj.raw) && templateObj.length === templateObj.raw.length && (module$contents$safevalues$internals$string_literal_isTranspiled || templateObj !== templateObj.raw) && (module$contents$safevalues$internals$string_literal_isTranspiled && !module$contents$safevalues$internals$string_literal_frozenTSA || module$contents$safevalues$internals$string_literal_checkFrozen(templateObj)) ? 
   !0 : !1;
@@ -17475,29 +17614,7 @@ function module$contents$safevalues$builders$attribute_builders_safeAttrPrefix(t
   }
   return module$contents$safevalues$internals$attribute_impl_createAttributePrefixInternal(attrPrefix);
 }
-;var module$exports$goog$html$internals = {};
-module$exports$goog$html$internals.createSafeHtml = module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse;
-module$exports$goog$html$internals.createSafeScript = module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse;
-module$exports$goog$html$internals.createSafeStyle = module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse;
-module$exports$goog$html$internals.createSafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse;
-module$exports$goog$html$internals.createSafeUrl = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse;
-module$exports$goog$html$internals.createTrustedResourceUrl = goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse;
-var module$exports$safevalues$internals$html_impl = {}, module$contents$safevalues$internals$html_impl_module = module$contents$safevalues$internals$html_impl_module || {id:"third_party/javascript/safevalues/internals/html_impl.closure.js"};
-module$exports$safevalues$internals$html_impl.SafeHtml = module$contents$goog$html$SafeHtml_SafeHtml;
-function module$contents$safevalues$internals$html_impl_createHtmlInternal(html) {
-  return (0,module$exports$goog$html$internals.createSafeHtml)(html);
-}
-module$exports$safevalues$internals$html_impl.createHtmlInternal = module$contents$safevalues$internals$html_impl_createHtmlInternal;
-module$exports$safevalues$internals$html_impl.EMPTY_HTML = module$contents$goog$html$SafeHtml_SafeHtml.EMPTY;
-function module$contents$safevalues$internals$html_impl_isHtml(value) {
-  return value instanceof module$contents$goog$html$SafeHtml_SafeHtml;
-}
-module$exports$safevalues$internals$html_impl.isHtml = module$contents$safevalues$internals$html_impl_isHtml;
-function module$contents$safevalues$internals$html_impl_unwrapHtml(value) {
-  return module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(value);
-}
-module$exports$safevalues$internals$html_impl.unwrapHtml = module$contents$safevalues$internals$html_impl_unwrapHtml;
-var module$contents$safevalues$builders$document_fragment_builders_module = module$contents$safevalues$builders$document_fragment_builders_module || {id:"third_party/javascript/safevalues/builders/document_fragment_builders.closure.js"};
+;var module$contents$safevalues$builders$document_fragment_builders_module = module$contents$safevalues$builders$document_fragment_builders_module || {id:"third_party/javascript/safevalues/builders/document_fragment_builders.closure.js"};
 function module$contents$safevalues$builders$document_fragment_builders_safeFragment(templateObj) {
   goog.DEBUG && module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, 0);
   return document.createRange().createContextualFragment(module$contents$safevalues$internals$html_impl_unwrapHtml(module$contents$safevalues$internals$html_impl_createHtmlInternal(templateObj[0])));
@@ -17506,37 +17623,7 @@ function module$contents$safevalues$builders$document_fragment_builders_safeFrag
 function module$contents$safevalues$internals$pure_pure(valueOf) {
   return {valueOf:valueOf}.valueOf();
 }
-;var module$exports$safevalues$internals$resource_url_impl = {}, module$contents$safevalues$internals$resource_url_impl_module = module$contents$safevalues$internals$resource_url_impl_module || {id:"third_party/javascript/safevalues/internals/resource_url_impl.closure.js"};
-module$exports$safevalues$internals$resource_url_impl.TrustedResourceUrl = goog.html.TrustedResourceUrl;
-function module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(url) {
-  return (0,goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse)(url);
-}
-module$exports$safevalues$internals$resource_url_impl.createResourceUrlInternal = module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal;
-function module$contents$safevalues$internals$resource_url_impl_isResourceUrl(value) {
-  return value instanceof goog.html.TrustedResourceUrl;
-}
-module$exports$safevalues$internals$resource_url_impl.isResourceUrl = module$contents$safevalues$internals$resource_url_impl_isResourceUrl;
-function module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(value) {
-  return goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(value);
-}
-module$exports$safevalues$internals$resource_url_impl.unwrapResourceUrl = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl;
-var module$exports$safevalues$internals$url_impl = {}, module$contents$safevalues$internals$url_impl_module = module$contents$safevalues$internals$url_impl_module || {id:"third_party/javascript/safevalues/internals/url_impl.closure.js"};
-module$exports$safevalues$internals$url_impl.SafeUrl = goog.html.SafeUrl;
-function module$contents$safevalues$internals$url_impl_createUrlInternal(url) {
-  return (0,goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse)(url);
-}
-module$exports$safevalues$internals$url_impl.createUrlInternal = module$contents$safevalues$internals$url_impl_createUrlInternal;
-module$exports$safevalues$internals$url_impl.ABOUT_BLANK = goog.html.SafeUrl.ABOUT_BLANK;
-module$exports$safevalues$internals$url_impl.INNOCUOUS_URL = goog.html.SafeUrl.INNOCUOUS_URL;
-function module$contents$safevalues$internals$url_impl_isUrl(value) {
-  return value instanceof goog.html.SafeUrl;
-}
-module$exports$safevalues$internals$url_impl.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
-function module$contents$safevalues$internals$url_impl_unwrapUrl(value) {
-  return goog.html.SafeUrl.unwrap(value);
-}
-module$exports$safevalues$internals$url_impl.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
-var module$exports$safevalues$builders$url_builders = {}, module$contents$safevalues$builders$url_builders_module = module$contents$safevalues$builders$url_builders_module || {id:"third_party/javascript/safevalues/builders/url_builders.closure.js"};
+;var module$exports$safevalues$builders$url_builders = {}, module$contents$safevalues$builders$url_builders_module = module$contents$safevalues$builders$url_builders_module || {id:"third_party/javascript/safevalues/builders/url_builders.closure.js"};
 function module$contents$safevalues$builders$url_builders_isSafeMimeType(mimeType) {
   var match = mimeType.match(/^([^;]+)(?:;\w+=(?:\w+|"[\w;,= ]+"))*$/i);
   return 2 === (null == match ? void 0 : match.length) && (module$contents$safevalues$builders$url_builders_isSafeImageMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeAudioMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeFontMimeType(match[1]));
@@ -17710,35 +17797,6 @@ function module$contents$safevalues$builders$url_builders_removeJavaScriptUrlSan
   -1 !== callbackIndex && module$contents$safevalues$builders$url_builders_sanitizationCallbacks.splice(callbackIndex, 1);
 }
 module$exports$safevalues$builders$url_builders.removeJavaScriptUrlSanitizationCallback = module$contents$safevalues$builders$url_builders_removeJavaScriptUrlSanitizationCallback;
-var module$exports$safevalues$internals$script_impl = {}, module$contents$safevalues$internals$script_impl_module = module$contents$safevalues$internals$script_impl_module || {id:"third_party/javascript/safevalues/internals/script_impl.closure.js"};
-module$exports$safevalues$internals$script_impl.SafeScript = module$contents$goog$html$SafeScript_SafeScript;
-function module$contents$safevalues$internals$script_impl_createScriptInternal(script) {
-  return (0,module$exports$goog$html$internals.createSafeScript)(script);
-}
-module$exports$safevalues$internals$script_impl.createScriptInternal = module$contents$safevalues$internals$script_impl_createScriptInternal;
-module$exports$safevalues$internals$script_impl.EMPTY_SCRIPT = module$contents$goog$html$SafeScript_SafeScript.EMPTY;
-function module$contents$safevalues$internals$script_impl_isScript(value) {
-  return value instanceof module$contents$goog$html$SafeScript_SafeScript;
-}
-module$exports$safevalues$internals$script_impl.isScript = module$contents$safevalues$internals$script_impl_isScript;
-function module$contents$safevalues$internals$script_impl_unwrapScript(value) {
-  return module$contents$goog$html$SafeScript_SafeScript.unwrapTrustedScript(value);
-}
-module$exports$safevalues$internals$script_impl.unwrapScript = module$contents$safevalues$internals$script_impl_unwrapScript;
-var module$exports$safevalues$internals$style_impl = {}, module$contents$safevalues$internals$style_impl_module = module$contents$safevalues$internals$style_impl_module || {id:"third_party/javascript/safevalues/internals/style_impl.closure.js"};
-module$exports$safevalues$internals$style_impl.SafeStyle = module$contents$goog$html$SafeStyle_SafeStyle;
-function module$contents$safevalues$internals$style_impl_createStyleInternal(style) {
-  return (0,module$exports$goog$html$internals.createSafeStyle)(style);
-}
-module$exports$safevalues$internals$style_impl.createStyleInternal = module$contents$safevalues$internals$style_impl_createStyleInternal;
-function module$contents$safevalues$internals$style_impl_isStyle(value) {
-  return value instanceof module$contents$goog$html$SafeStyle_SafeStyle;
-}
-module$exports$safevalues$internals$style_impl.isStyle = module$contents$safevalues$internals$style_impl_isStyle;
-function module$contents$safevalues$internals$style_impl_unwrapStyle(value) {
-  return module$contents$goog$html$SafeStyle_SafeStyle.unwrap(value);
-}
-module$exports$safevalues$internals$style_impl.unwrapStyle = module$contents$safevalues$internals$style_impl_unwrapStyle;
 var module$exports$safevalues$builders$html_builders = {}, module$contents$safevalues$builders$html_builders_module = module$contents$safevalues$builders$html_builders_module || {id:"third_party/javascript/safevalues/builders/html_builders.closure.js"};
 function module$contents$safevalues$builders$html_builders_htmlEscape(value, options) {
   options = void 0 === options ? {} : options;
@@ -18042,7 +18100,7 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
     return !0;
   }
   for (var $jscomp$iter$34 = $jscomp.makeIterator(conditions), $jscomp$key$ = $jscomp$iter$34.next(); !$jscomp$key$.done; $jscomp$key$ = $jscomp$iter$34.next()) {
-    var $jscomp$destructuring$var35 = $jscomp.makeIterator($jscomp$key$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var35.next().value, expectedValues = $jscomp$destructuring$var35.next().value, $jscomp$optchain$tmpm1803429925$0 = void 0, value = null == ($jscomp$optchain$tmpm1803429925$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1803429925$0.value;
+    var $jscomp$destructuring$var35 = $jscomp.makeIterator($jscomp$key$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var35.next().value, expectedValues = $jscomp$destructuring$var35.next().value, $jscomp$optchain$tmpm1085474118$0 = void 0, value = null == ($jscomp$optchain$tmpm1085474118$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1085474118$0.value;
     if (value && !expectedValues.has(value)) {
       return !1;
     }
@@ -18226,6 +18284,10 @@ function module$contents$safevalues$builders$resource_url_builders_isValidPathSt
 function module$contents$safevalues$builders$resource_url_builders_isValidRelativePathStart(base) {
   return RegExp("^[^:\\s\\\\/]+/").test(base);
 }
+function module$contents$safevalues$builders$resource_url_builders_getUrlSegments(url) {
+  var segments = url.split(/\?|#/), params = /\?/.test(url) ? "?" + segments[1] : "";
+  return {path:segments[0], params:params, hash:/#/.test(url) ? "#" + (params ? segments[2] : segments[1]) : ""};
+}
 function module$contents$safevalues$builders$resource_url_builders_trustedResourceUrl(templateObj) {
   var rest = $jscomp.getRestArguments.apply(1, arguments);
   goog.DEBUG && module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, rest.length);
@@ -18248,20 +18310,14 @@ function module$contents$safevalues$builders$resource_url_builders_trustedResour
 }
 module$exports$safevalues$builders$resource_url_builders.trustedResourceUrl = module$contents$safevalues$builders$resource_url_builders_trustedResourceUrl;
 function module$contents$safevalues$builders$resource_url_builders_appendParams(trustedUrl, params) {
-  var url = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(trustedUrl).toString();
-  if (/#/.test(url)) {
-    var message = "";
-    goog.DEBUG && (message = "Found a hash in url (" + url + "), appending not supported");
-    throw Error(message);
-  }
-  var separator = /\?/.test(url) ? "&" : "?";
+  var urlSegments = module$contents$safevalues$builders$resource_url_builders_getUrlSegments(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(trustedUrl).toString()), urlParams = urlSegments.params, separator = urlParams.length ? "&" : "?";
   params.forEach(function(value, key) {
     for (var values = value instanceof Array ? value : [value], i = 0; i < values.length; i++) {
       var v = values[i];
-      null !== v && void 0 !== v && (url += separator + encodeURIComponent(key) + "=" + encodeURIComponent(String(v)), separator = "&");
+      null !== v && void 0 !== v && (urlParams += separator + encodeURIComponent(key) + "=" + encodeURIComponent(String(v)), separator = "&");
     }
   });
-  return module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(url);
+  return module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(urlSegments.path + urlParams + urlSegments.hash);
 }
 module$exports$safevalues$builders$resource_url_builders.appendParams = module$contents$safevalues$builders$resource_url_builders_appendParams;
 var module$contents$safevalues$builders$resource_url_builders_BEFORE_FRAGMENT_REGEXP = /[^#]*/;
@@ -18271,10 +18327,8 @@ function module$contents$safevalues$builders$resource_url_builders_replaceFragme
 }
 module$exports$safevalues$builders$resource_url_builders.replaceFragment = module$contents$safevalues$builders$resource_url_builders_replaceFragment;
 function module$contents$safevalues$builders$resource_url_builders_appendPathSegment(trustedUrl, pathSegment) {
-  var originalUrl = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(trustedUrl).toString(), urlSegments = originalUrl.split(/\?|#/), basePath = urlSegments[0], paramVals = /\?/.test(originalUrl) ? urlSegments[1] : void 0, fragVal = /#/.test(originalUrl) ? paramVals ? urlSegments[2] : urlSegments[1] : void 0, url = basePath + ("/" === basePath.charAt(basePath.length - 1) ? "" : "/") + encodeURIComponent(pathSegment);
-  void 0 !== paramVals && (url += "?" + paramVals);
-  void 0 !== fragVal && (url += "#" + fragVal);
-  return module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(url);
+  var urlSegments = module$contents$safevalues$builders$resource_url_builders_getUrlSegments(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(trustedUrl).toString()), separator = "/" === urlSegments.path.slice(-1) ? "" : "/", newPath = urlSegments.path + separator + encodeURIComponent(pathSegment);
+  return module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(newPath + urlSegments.params + urlSegments.hash);
 }
 module$exports$safevalues$builders$resource_url_builders.appendPathSegment = module$contents$safevalues$builders$resource_url_builders_appendPathSegment;
 function module$contents$safevalues$builders$resource_url_builders_objectUrlFromScript(safeScript) {
@@ -18347,20 +18401,6 @@ function module$contents$safevalues$builders$style_builders_concatStyles(styles)
   return module$contents$safevalues$internals$style_impl_createStyleInternal(styles.map(module$contents$safevalues$internals$style_impl_unwrapStyle).join(""));
 }
 module$exports$safevalues$builders$style_builders.concatStyles = module$contents$safevalues$builders$style_builders_concatStyles;
-var module$exports$safevalues$internals$style_sheet_impl = {}, module$contents$safevalues$internals$style_sheet_impl_module = module$contents$safevalues$internals$style_sheet_impl_module || {id:"third_party/javascript/safevalues/internals/style_sheet_impl.closure.js"};
-module$exports$safevalues$internals$style_sheet_impl.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
-function module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(styleSheet) {
-  return (0,module$exports$goog$html$internals.createSafeStyleSheet)(styleSheet);
-}
-module$exports$safevalues$internals$style_sheet_impl.createStyleSheetInternal = module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal;
-function module$contents$safevalues$internals$style_sheet_impl_isStyleSheet(value) {
-  return value instanceof module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
-}
-module$exports$safevalues$internals$style_sheet_impl.isStyleSheet = module$contents$safevalues$internals$style_sheet_impl_isStyleSheet;
-function module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet(value) {
-  return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap(value);
-}
-module$exports$safevalues$internals$style_sheet_impl.unwrapStyleSheet = module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet;
 var module$exports$safevalues$builders$style_sheet_builders = {}, module$contents$safevalues$builders$style_sheet_builders_module = module$contents$safevalues$builders$style_sheet_builders_module || {id:"third_party/javascript/safevalues/builders/style_sheet_builders.closure.js"}, module$contents$safevalues$builders$style_sheet_builders_Primitive;
 module$exports$safevalues$builders$style_sheet_builders.safeStyleRule = function(templateObj) {
   var rest = $jscomp.getRestArguments.apply(1, arguments);
@@ -18437,12 +18477,12 @@ function module$contents$safevalues$reporting$reporting_isChangedBySanitizing(s,
   }
   try {
     module$contents$safevalues$builders$html_sanitizer$html_sanitizer_lenientlySanitizeHtmlAssertUnchanged(s);
-  } catch ($jscomp$unused$catch$442189172$0) {
+  } catch ($jscomp$unused$catch$696273141$0) {
     return module$contents$safevalues$reporting$reporting_reportLegacyConversion(options, module$contents$safevalues$reporting$reporting_ReportingType.HTML_CHANGED_BY_RELAXED_SANITIZING), !0;
   }
   try {
     module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtmlAssertUnchanged(s);
-  } catch ($jscomp$unused$catch$442189172$1) {
+  } catch ($jscomp$unused$catch$696273141$1) {
     return module$contents$safevalues$reporting$reporting_reportLegacyConversion(options, module$contents$safevalues$reporting$reporting_ReportingType.HTML_CHANGED_BY_SANITIZING), !0;
   }
   return !1;
@@ -18527,7 +18567,6 @@ module$exports$safevalues$index.unwrapUrl = module$contents$safevalues$internals
 module$exports$safevalues$index.reportOnlyHtmlPassthrough = module$contents$safevalues$reporting$reporting_reportOnlyHtmlPassthrough;
 module$exports$safevalues$index.createHtml = module$exports$safevalues$builders$html_builders.createHtml;
 module$exports$safevalues$index.safeStyleRule = module$exports$safevalues$builders$style_sheet_builders.safeStyleRule;
-var safevalues = {};
 safevalues.safeAttrPrefix = module$contents$safevalues$builders$attribute_builders_safeAttrPrefix;
 safevalues.safeFragment = module$contents$safevalues$builders$document_fragment_builders_safeFragment;
 safevalues.concatHtmls = module$exports$safevalues$index.concatHtmls;
@@ -18596,7 +18635,7 @@ var $jscomp$templatelit$294235699$0 = $jscomp.createTemplateTagFirstArg(["https:
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.379";
+ee.apiclient.API_CLIENT_VERSION = "0.1.381";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -18887,8 +18926,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.379";
-  "0.1.379" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.381";
+  "0.1.381" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -22377,10 +22416,12 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
   return ee.Feature.superClass_.getInfo.call(this, opt_callback);
 };
 goog.exportProperty(ee.Feature.prototype, "getInfo", ee.Feature.prototype.getInfo);
-ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
+ee.Feature.prototype.getMapId = function(opt_visParams, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.Feature.prototype.getMap, arguments);
-  return ee.ApiFunction._call("Collection", [this]).getMap(args.visParams, args.callback);
+  return ee.ApiFunction._call("Collection", [this]).getMapId(args.visParams, args.callback);
 };
+goog.exportProperty(ee.Feature.prototype, "getMapId", ee.Feature.prototype.getMapId);
+ee.Feature.prototype.getMap = ee.Feature.prototype.getMapId;
 goog.exportProperty(ee.Feature.prototype, "getMap", ee.Feature.prototype.getMap);
 ee.Feature.prototype.name = function() {
   return "Feature";
@@ -22619,7 +22660,7 @@ ee.Image.prototype.getInfo = function(opt_callback) {
   return ee.Image.superClass_.getInfo.call(this, opt_callback);
 };
 goog.exportProperty(ee.Image.prototype, "getInfo", ee.Image.prototype.getInfo);
-ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
+ee.Image.prototype.getMapId = function(opt_visParams, opt_callback) {
   var $jscomp$this = this, args = ee.arguments.extractFromFunction(ee.Image.prototype.getMap, arguments), request = ee.data.images.applyVisualization(this, args.visParams);
   if (args.callback) {
     var callback = args.callback;
@@ -22633,6 +22674,8 @@ ee.Image.prototype.getMap = function(opt_visParams, opt_callback) {
     return response;
   }
 };
+goog.exportProperty(ee.Image.prototype, "getMapId", ee.Image.prototype.getMapId);
+ee.Image.prototype.getMap = ee.Image.prototype.getMapId;
 goog.exportProperty(ee.Image.prototype, "getMap", ee.Image.prototype.getMap);
 ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
   var args = ee.arguments.extractFromFunction(ee.Image.prototype.getDownloadURL, arguments), request = args.params ? module$contents$goog$object_clone(args.params) : {};
@@ -22831,14 +22874,16 @@ ee.FeatureCollection.reset = function() {
   ee.ApiFunction.clearApi(ee.FeatureCollection);
   ee.FeatureCollection.initialized_ = !1;
 };
-ee.FeatureCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getMap, arguments), painted = ee.ApiFunction._apply("Collection.draw", {collection:this, color:(args.visParams || {}).color || "000000"});
+ee.FeatureCollection.prototype.getMapId = function(opt_visParams, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.FeatureCollection.prototype.getMapId, arguments), painted = ee.ApiFunction._apply("Collection.draw", {collection:this, color:(args.visParams || {}).color || "000000"});
   if (args.callback) {
-    painted.getMap(void 0, args.callback);
+    painted.getMapId(void 0, args.callback);
   } else {
-    return painted.getMap();
+    return painted.getMapId();
   }
 };
+goog.exportProperty(ee.FeatureCollection.prototype, "getMapId", ee.FeatureCollection.prototype.getMapId);
+ee.FeatureCollection.prototype.getMap = ee.FeatureCollection.prototype.getMapId;
 goog.exportProperty(ee.FeatureCollection.prototype, "getMap", ee.FeatureCollection.prototype.getMap);
 ee.FeatureCollection.prototype.getInfo = function(opt_callback) {
   return ee.FeatureCollection.superClass_.getInfo.call(this, opt_callback);
@@ -22967,14 +23012,16 @@ ee.ImageCollection.prototype.getThumbURL_ = function(collection, args, validForm
     return ee.data.makeThumbUrl(getThumbId(request));
   }
 };
-ee.ImageCollection.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getMap, arguments), mosaic = ee.ApiFunction._call("ImageCollection.mosaic", this);
+ee.ImageCollection.prototype.getMapId = function(opt_visParams, opt_callback) {
+  var args = ee.arguments.extractFromFunction(ee.ImageCollection.prototype.getMapId, arguments), mosaic = ee.ApiFunction._call("ImageCollection.mosaic", this);
   if (args.callback) {
-    mosaic.getMap(args.visParams, args.callback);
+    mosaic.getMapId(args.visParams, args.callback);
   } else {
-    return mosaic.getMap(args.visParams);
+    return mosaic.getMapId(args.visParams);
   }
 };
+goog.exportProperty(ee.ImageCollection.prototype, "getMapId", ee.ImageCollection.prototype.getMapId);
+ee.ImageCollection.prototype.getMap = ee.ImageCollection.prototype.getMapId;
 goog.exportProperty(ee.ImageCollection.prototype, "getMap", ee.ImageCollection.prototype.getMap);
 ee.ImageCollection.prototype.getInfo = function(opt_callback) {
   return ee.ImageCollection.superClass_.getInfo.call(this, opt_callback);

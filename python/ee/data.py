@@ -21,6 +21,7 @@ import httplib2
 import requests
 
 from ee import _cloud_api_utils
+from ee import _utils
 from ee import computedobject
 from ee import deprecation
 from ee import ee_exception
@@ -1437,10 +1438,11 @@ def getAlgorithms() -> Any:
   return _cloud_api_utils.convert_algorithms(_execute_cloud_call(call))
 
 
+@_utils.accept_opt_prefix('opt_path', 'opt_force', 'opt_properties')
 def createAsset(
     value: Dict[str, Any],
-    opt_path: Optional[str] = None,
-    opt_properties: Optional[Dict[str, Any]] = None,
+    path: Optional[str] = None,
+    properties: Optional[Dict[str, Any]] = None,
 ) -> Any:
   """Creates an asset from a JSON value.
 
@@ -1450,8 +1452,8 @@ def createAsset(
 
   Args:
     value: An object describing the asset to create.
-    opt_path: An optional desired ID, including full path.
-    opt_properties: The keys and values of the properties to set on the created
+    path: An optional desired ID, including full path.
+    properties: The keys and values of the properties to set on the created
       asset.
 
   Returns:
@@ -1461,12 +1463,13 @@ def createAsset(
     raise ee_exception.EEException('Asset cannot be specified as string.')
   asset = value.copy()
   if 'name' not in asset:
-    if not opt_path:
+    if not path:
       raise ee_exception.EEException(
-          'Either asset name or opt_path must be specified.')
-    asset['name'] = _cloud_api_utils.convert_asset_id_to_asset_name(opt_path)
-  if 'properties' not in asset and opt_properties:
-    asset['properties'] = opt_properties
+          'Either asset name or path must be specified.'
+      )
+    asset['name'] = _cloud_api_utils.convert_asset_id_to_asset_name(path)
+  if 'properties' not in asset and properties:
+    asset['properties'] = properties
   # Make sure title and description are loaded in as properties.
   move_to_properties = ['title', 'description']
   for prop in move_to_properties:
@@ -2255,16 +2258,17 @@ def setDefaultWorkloadTag(tag: Optional[Union[int, str]]) -> None:
   _workloadTag.set(tag)
 
 
-def resetWorkloadTag(opt_resetDefault: bool = False) -> None:
+@_utils.accept_opt_prefix('opt_resetDefault')
+def resetWorkloadTag(resetDefault: bool = False) -> None:
   """Sets the default tag for which to reset back to.
 
-  If opt_resetDefault parameter is set to true, the default will be set to empty
+  If resetDefault parameter is set to true, the default will be set to empty
   before resetting. Defaults to False.
 
   Args:
-    opt_resetDefault: Whether to reset the default back to empty.
+    resetDefault: Whether to reset the default back to empty.
   """
-  if opt_resetDefault:
+  if resetDefault:
     _workloadTag.setDefault('')
   _workloadTag.reset()
 

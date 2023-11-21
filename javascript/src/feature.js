@@ -135,8 +135,8 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
  * generating a Map overlay.
  *
  * @param {?Object=} opt_visParams The visualization parameters. Currently only
- *     one parameter, 'color', containing an RGB color string is user.  If
- *     vis_params is null, black ("000000") is used.
+ *     one parameter, 'color', containing an RGB color string is allowed. If
+ *     visParams is not specified, black ("000000") is used.
  * @param {function(!Object, string=)=} opt_callback An async callback.
  * @return {!ee.data.MapId|undefined} An object which may be passed to
  *     ee.data.getTileUrl or ui.Map.addLayer, including an additional 'image'
@@ -144,13 +144,31 @@ ee.Feature.prototype.getInfo = function(opt_callback) {
  *     containing this feature. Undefined if a callback was specified.
  * @export
  */
-ee.Feature.prototype.getMap = function(opt_visParams, opt_callback) {
-  var args =
+ee.Feature.prototype.getMapId = function(opt_visParams, opt_callback) {
+  const args =
       ee.arguments.extractFromFunction(ee.Feature.prototype.getMap, arguments);
-  var collection = ee.ApiFunction._call('Collection', [this]);
-  return /** @type {ee.FeatureCollection} */(collection)
-      .getMap(args['visParams'], args['callback']);
+  const collection = ee.ApiFunction._call('Collection', [this]);
+  return /** @type {!ee.FeatureCollection} */(collection)
+      .getMapId(args['visParams'], args['callback']);
 };
+
+
+/**
+ * An imperative function that returns a map ID and optional token, suitable for
+ * generating a Map overlay.
+ *
+ * @deprecated Use getMapId() instead.
+ * @param {?Object=} opt_visParams The visualization parameters. Currently only
+ *     one parameter, 'color', containing an RGB color string is allowed. If
+ *     visParams is not specified, black ("000000") is used.
+ * @param {function(!Object, string=)=} opt_callback An async callback.
+ * @return {!ee.data.MapId|undefined} An object which may be passed to
+ *     ee.data.getTileUrl or ui.Map.addLayer, including an additional 'image'
+ *     field, containing a Collection.draw image wrapping a FeatureCollection
+ *     containing this feature. Undefined if a callback was specified.
+ * @export
+ */
+ee.Feature.prototype.getMap = ee.Feature.prototype.getMapId;
 
 
 /** @override */

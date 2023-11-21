@@ -238,7 +238,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
             [-103.623046875, 41.82045509614031],
         ]],
     }
-    self.expected_geometry = ee.Geometry(self.geo_json, opt_geodesic=False)
+    self.expected_geometry = ee.Geometry(self.geo_json, geodesic=False)
 
   def assertImageEqual(self, expected, actual):
     self.assertDictEqual(
@@ -263,11 +263,14 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           kwargs['body']['expression'],
           serializer.encode(
               self.base_image.setDefaultProjection(
-                  crs='EPSG:4326',
-                  crsTransform=[1, 0, 0, 0, -1, 0]).clipToBoundsAndScale(
-                      geometry=ee.Geometry(self.geo_json, opt_geodesic=False),
-                      width=13,
-                      height=42)))
+                  crs='EPSG:4326', crsTransform=[1, 0, 0, 0, -1, 0]
+              ).clipToBoundsAndScale(
+                  geometry=ee.Geometry(self.geo_json, geodesic=False),
+                  width=13,
+                  height=42,
+              )
+          ),
+      )
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
   def testThumb_withDimensionsRegionJson(self):
@@ -456,8 +459,9 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
         }],
         'dimensions': 999,
     }
-    with self.assertRaisesWithLiteralMatch(
-        ee_exception.EEException, 'Each band dictionary must have an id.'):
+    with self.assertRaisesRegex(
+        ee_exception.EEException, 'Each band dictionary must have an id.'
+    ):
       ee.Image('foo')._build_download_id_image(params)
 
   def testBuildDownloadIdImage_handlesDimensionsAndScale(self):
@@ -588,7 +592,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           'region': polygon.toGeoJSONString(),
           'something': 'else'
       })
-      expected_polygon = ee.Geometry(polygon.toGeoJSON(), opt_geodesic=False)
+      expected_polygon = ee.Geometry(polygon.toGeoJSON(), geodesic=False)
       self.assertImageEqual(
           self.base_image.clipToBoundsAndScale(
               scale=8, geometry=expected_polygon), image)
@@ -604,7 +608,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           'region': polygon.toGeoJSONString(),
           'something': 'else'
       })
-      expected_polygon = ee.Geometry(polygon.toGeoJSON(), opt_geodesic=False)
+      expected_polygon = ee.Geometry(polygon.toGeoJSON(), geodesic=False)
       projected = self.base_image.reproject(
           crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6])
 
