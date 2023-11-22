@@ -16,7 +16,7 @@
   "dependencies": {
     "@google/earthengine": "^0.1.x",
     "@turf/hex-grid": "^6.0.2",
-    "d3-scale": "^2.1.2",
+    "d3-scale": "^4.0.0",
     "debounce": "^1.2.0"
   },
   "devDependencies": {
