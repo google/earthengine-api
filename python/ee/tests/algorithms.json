@@ -3152,6 +3152,15 @@
       "defaultValue": null
     }]
   }, {
+    "name": "algorithms/Classifier.load",
+    "description": "Creates a Classifier.",
+    "returnType": "Classifier",
+    "arguments": [{
+      "argumentName": "id",
+      "type": "String",
+      "description": "The Classifier\u0027s Asset ID."
+    }]
+  }, {
     "name": "algorithms/Classifier.mode",
     "description": "Returns the classifier mode: `CLASSIFICATION`, `REGRESSION`, `PROBABILITY`, `MULTIPROBABILITY`, `RAW` or `RAW_REGRESSION`.",
     "returnType": "String",

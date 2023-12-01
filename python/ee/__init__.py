@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The EE Python library."""
 
-__version__ = '0.1.381'
+__version__ = '0.1.382'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -10,7 +10,7 @@ import collections
 import datetime
 import inspect
 import os
-from typing import Any, Hashable, List as ListType, Optional, Sequence, Type, Union
+from typing import Any, Hashable, List as ListType, Optional, Sequence, Tuple, Type, Union
 
 from ee import _utils
 from ee import batch
@@ -77,34 +77,37 @@ Algorithms = _AlgorithmsContainer()
 
 def Authenticate(
     authorization_code: Optional[str] = None,
-    quiet: bool = False,
+    quiet: Optional[bool] = None,
     code_verifier: Optional[str] = None,
     auth_mode: Optional[str] = None,
     scopes: Optional[Sequence[str]] = None,
-) -> None:
+    force: bool = False,
+) -> Optional[bool]:
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
     authorization_code: An optional authorization code.
     quiet: If true, do not require interactive prompts and force --no-browser
-      mode for gcloud.
+      mode for gcloud-legacy. If false, never supply --no-browser. Default is
+      None, which autodetects the --no-browser setting.
     code_verifier: PKCE verifier to prevent auth code stealing.
     auth_mode: The authentication mode. One of:
+      "colab" - use the Colab authentication flow;
       "notebook" - send user to notebook authenticator page;
-      "gcloud" - use gcloud to obtain credentials (will set appdefault);
-      "appdefault" - read from existing $GOOGLE_APPLICATION_CREDENTIALS file;
+      "gcloud" - use gcloud to obtain credentials;
+      "gcloud-legacy" - use legacy gcloud flow to obtain credentials;
       "localhost" - runs auth flow in local browser only;
       None - a default mode is chosen based on your environment.
-     scopes: List of scopes to use for authentication. Defaults to [
-       'https://www.googleapis.com/auth/earthengine',
-       'https://www.googleapis.com/auth/devstorage.full_control' ].
+    scopes: List of scopes to use for authentication. Defaults to [
+        'https://www.googleapis.com/auth/earthengine',
+        'https://www.googleapis.com/auth/devstorage.full_control' ].
+    force: Will force authentication even if valid credentials already exist.
 
   Returns:
-     (auth_url, code_verifier) when called with quiet='init_only'
+    True if we found valid credentials and didn't run the auth flow.
   """
-  oauth.authenticate(
-      authorization_code, quiet, code_verifier, auth_mode, scopes
-  )
+  return oauth.authenticate(authorization_code, quiet, code_verifier, auth_mode,
+                            scopes, force)
 
 
 @_utils.accept_opt_prefix('opt_url')

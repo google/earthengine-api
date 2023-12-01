@@ -14679,37 +14679,6 @@ goog.dom.BrowserFeature.CAN_USE_CHILDREN_ATTRIBUTE = !0;
 goog.dom.BrowserFeature.CAN_USE_INNER_TEXT = !1;
 goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY = goog.userAgent.IE || goog.userAgent.WEBKIT;
 goog.dom.BrowserFeature.INNER_HTML_NEEDS_SCOPED_ELEMENT = goog.userAgent.IE;
-goog.html.uncheckedconversions = {};
-goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract = function(justification, html) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse(html);
-};
-goog.html.uncheckedconversions.safeScriptFromStringKnownToSatisfyTypeContract = function(justification, script) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return module$contents$goog$html$SafeScript_SafeScript.createSafeScriptSecurityPrivateDoNotAccessOrElse(script);
-};
-goog.html.uncheckedconversions.safeStyleFromStringKnownToSatisfyTypeContract = function(justification, style) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse(style);
-};
-goog.html.uncheckedconversions.safeStyleSheetFromStringKnownToSatisfyTypeContract = function(justification, styleSheet) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse(styleSheet);
-};
-goog.html.uncheckedconversions.safeUrlFromStringKnownToSatisfyTypeContract = function(justification, url) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
-};
-goog.html.uncheckedconversions.trustedResourceUrlFromStringKnownToSatisfyTypeContract = function(justification, url) {
-  goog.asserts.assertString(goog.string.Const.unwrap(justification), "must provide justification");
-  goog.asserts.assert(!goog.string.internal.isEmptyOrWhitespace(goog.string.Const.unwrap(justification)), "must provide non-empty justification");
-  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(url);
-};
 goog.math.Coordinate = function(opt_x, opt_y) {
   this.x = void 0 !== opt_x ? opt_x : 0;
   this.y = void 0 !== opt_y ? opt_y : 0;
@@ -15045,7 +15014,7 @@ goog.dom.createTable_ = function(doc, rows, columns, fillWithNbsp) {
   return table;
 };
 goog.dom.constHtmlToNode = function(var_args) {
-  var stringArray = Array.prototype.map.call(arguments, goog.string.Const.unwrap), safeHtml = goog.html.uncheckedconversions.safeHtmlFromStringKnownToSatisfyTypeContract(goog.string.Const.from("Constant HTML string, that gets turned into a Node later, so it will be automatically balanced."), stringArray.join(""));
+  var stringArray = Array.prototype.map.call(arguments, goog.string.Const.unwrap), safeHtml = module$contents$safevalues$restricted$reviewed_htmlSafeByReview(stringArray.join(""), "Constant HTML string, that gets turned into a Node later, so it will be automatically balanced.");
   return goog.dom.safeHtmlToNode(safeHtml);
 };
 goog.dom.safeHtmlToNode = function(html) {
@@ -17843,8 +17812,9 @@ module$exports$safevalues$builders$html_builders.joinHtmls = module$contents$saf
 module$exports$safevalues$builders$html_builders.doctypeHtml = function() {
   return module$contents$safevalues$internals$html_impl_createHtmlInternal("<!DOCTYPE html>");
 };
-var module$contents$safevalues$builders$html_builders_AttributeValue, module$contents$safevalues$builders$html_builders_TextOrHtml, module$contents$safevalues$builders$html_builders_VALID_TAG_OR_ATTRIBUTE_NAMES = /^[a-z][a-z\d-]*$/i, module$contents$safevalues$builders$html_builders_DISALLOWED_TAG_NAMES = "APPLET BASE EMBED IFRAME LINK MATH META OBJECT SCRIPT STYLE SVG TEMPLATE".split(" "), 
-module$contents$safevalues$builders$html_builders_VOID_TAG_NAMES = "AREA BR COL COMMAND HR IMG INPUT KEYGEN PARAM SOURCE TRACK WBR".split(" "), module$contents$safevalues$builders$html_builders_URL_ATTRIBUTES = ["action", "formaction", "href"];
+var module$contents$safevalues$builders$html_builders_TextOrHtml, module$contents$safevalues$builders$html_builders_VALID_TAG_OR_ATTRIBUTE_NAMES = /^[a-z][a-z\d-]*$/i, module$contents$safevalues$builders$html_builders_DISALLOWED_TAG_NAMES = "APPLET BASE EMBED IFRAME LINK MATH META OBJECT SCRIPT STYLE SVG TEMPLATE".split(" ");
+module$exports$safevalues$builders$html_builders.VOID_TAG_NAMES = "AREA BR COL COMMAND HR IMG INPUT KEYGEN PARAM SOURCE TRACK WBR".split(" ");
+var module$contents$safevalues$builders$html_builders_URL_ATTRIBUTES = ["action", "formaction", "href"];
 function module$contents$safevalues$builders$html_builders_verifyTagName(tagName) {
   if (!module$contents$safevalues$builders$html_builders_VALID_TAG_OR_ATTRIBUTE_NAMES.test(tagName)) {
     throw Error(goog.DEBUG ? "Invalid tag name <" + tagName + ">." : "");
@@ -17853,12 +17823,17 @@ function module$contents$safevalues$builders$html_builders_verifyTagName(tagName
     throw Error(goog.DEBUG ? "Tag name <" + tagName + "> is not allowed for createHtml." : "");
   }
 }
+module$exports$safevalues$builders$html_builders.verifyTagName = module$contents$safevalues$builders$html_builders_verifyTagName;
+function module$contents$safevalues$builders$html_builders_isVoidTag(tagName) {
+  return -1 !== module$exports$safevalues$builders$html_builders.VOID_TAG_NAMES.indexOf(tagName.toUpperCase());
+}
+module$exports$safevalues$builders$html_builders.isVoidTag = module$contents$safevalues$builders$html_builders_isVoidTag;
 module$exports$safevalues$builders$html_builders.createHtml = function(tagName, attributes, content) {
   module$contents$safevalues$builders$html_builders_verifyTagName(tagName);
   var result = "<" + tagName;
   attributes && (result += module$contents$safevalues$builders$html_builders_stringifyAttributes(tagName, attributes));
   Array.isArray(content) || (content = void 0 === content ? [] : [content]);
-  if (-1 !== module$contents$safevalues$builders$html_builders_VOID_TAG_NAMES.indexOf(tagName.toUpperCase())) {
+  if (module$contents$safevalues$builders$html_builders_isVoidTag(tagName)) {
     if (goog.DEBUG && 0 < content.length) {
       throw Error("Void tag <" + tagName + "> does not allow content.");
     }
@@ -17881,6 +17856,7 @@ function module$contents$safevalues$builders$html_builders_stringifyAttributes(t
   }
   return result;
 }
+module$exports$safevalues$builders$html_builders.stringifyAttributes = module$contents$safevalues$builders$html_builders_stringifyAttributes;
 function module$contents$safevalues$builders$html_builders_getAttrNameAndValue(tagName, name, value) {
   if (/^on/i.test(name)) {
     throw Error(goog.DEBUG ? 'Attribute "' + name + " is forbidden. Inline event handlers can lead to XSS. Please use the 'addEventListener' API instead." : "");
@@ -17890,6 +17866,82 @@ function module$contents$safevalues$builders$html_builders_getAttrNameAndValue(t
     throw Error("String or number value expected, got " + typeof value + " with value '" + value + "' given.");
   }
   return name + '="' + module$contents$safevalues$builders$html_builders_htmlEscape(String(value)) + '"';
+}
+;var module$exports$safevalues$builders$html_formatter = {}, module$contents$safevalues$builders$html_formatter_module = module$contents$safevalues$builders$html_formatter_module || {id:"third_party/javascript/safevalues/builders/html_formatter.closure.js"};
+function module$contents$safevalues$builders$html_formatter_HtmlReplacement() {
+}
+function module$contents$safevalues$builders$html_formatter_StartTagReplacement() {
+}
+function module$contents$safevalues$builders$html_formatter_EndTagReplacement() {
+}
+var module$contents$safevalues$builders$html_formatter_Replacement;
+module$exports$safevalues$builders$html_formatter.HtmlFormatter = function() {
+  this.replacements = new Map();
+};
+module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.format = function(format) {
+  var $jscomp$this = this, openedTags = [], marker = (0,module$exports$safevalues$builders$html_builders.htmlEscape)("_safevalues_format_marker_:").toString(), html = (0,module$exports$safevalues$builders$html_builders.htmlEscape)(format).toString().replace(new RegExp("\\{" + marker + "[\\w&#;]+\\}", "g"), function(match) {
+    return $jscomp$this.replaceFormattingString(openedTags, match);
+  });
+  if (0 !== openedTags.length) {
+    if (goog.DEBUG) {
+      throw Error("Expected no unclosed tags, got <" + openedTags.join(">, <") + ">.");
+    }
+    throw Error();
+  }
+  return module$contents$safevalues$internals$html_impl_createHtmlInternal(html);
+};
+module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.replaceFormattingString = function(openedTags, match) {
+  var replacement = this.replacements.get(match);
+  if (!replacement) {
+    return match;
+  }
+  var result = "";
+  switch(replacement.type) {
+    case "html":
+      result = replacement.html;
+      break;
+    case "startTag":
+      result = "<" + replacement.tagName + replacement.attributes + ">";
+      goog.DEBUG && ((0,module$exports$safevalues$builders$html_builders.isVoidTag)(replacement.tagName.toLowerCase()) || openedTags.push(replacement.tagName.toLowerCase()));
+      break;
+    case "endTag":
+      result = "</" + replacement.tagName + ">";
+      if (goog.DEBUG) {
+        var lastTag = openedTags.pop();
+        if (lastTag !== replacement.tagName.toLowerCase()) {
+          throw Error("Expected </" + lastTag + ">, got </" + replacement.tagName + ">.");
+        }
+      }
+      break;
+    default:
+      goog.DEBUG && module$contents$safevalues$builders$html_formatter_checkExhaustive(replacement, "type had an unknown value");
+  }
+  return result;
+};
+module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.startTag = function(tagName, attributes) {
+  (0,module$exports$safevalues$builders$html_builders.verifyTagName)(tagName);
+  return this.storeReplacement({type:"startTag", tagName:tagName, attributes:void 0 !== attributes ? (0,module$exports$safevalues$builders$html_builders.stringifyAttributes)(tagName, attributes) : ""});
+};
+module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.endTag = function(tagName) {
+  (0,module$exports$safevalues$builders$html_builders.verifyTagName)(tagName);
+  return this.storeReplacement({type:"endTag", tagName:tagName});
+};
+module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.text = function(text) {
+  return this.storeReplacement({type:"html", html:(0,module$exports$safevalues$builders$html_builders.htmlEscape)(text).toString()});
+};
+module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.safeHtml = function(safeHtml) {
+  return this.storeReplacement({type:"html", html:module$contents$safevalues$internals$html_impl_unwrapHtml(safeHtml).toString()});
+};
+module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.storeReplacement = function(replacement) {
+  var marker = "{_safevalues_format_marker_:" + this.replacements.size + "_" + module$contents$safevalues$builders$html_formatter_getRandomString() + "}";
+  this.replacements.set((0,module$exports$safevalues$builders$html_builders.htmlEscape)(marker).toString(), replacement);
+  return marker;
+};
+function module$contents$safevalues$builders$html_formatter_getRandomString() {
+  return Math.random().toString(36).slice(2);
+}
+function module$contents$safevalues$builders$html_formatter_checkExhaustive(value, msg) {
+  throw Error(void 0 === msg ? "unexpected value " + value + "!" : msg);
 }
 ;var module$contents$safevalues$dom$globals$range_module = module$contents$safevalues$dom$globals$range_module || {id:"third_party/javascript/safevalues/dom/globals/range.closure.js"};
 function module$contents$safevalues$dom$globals$range_createContextualFragment(range, html) {
@@ -18565,6 +18617,7 @@ module$exports$safevalues$index.isUrl = module$contents$safevalues$internals$url
 module$exports$safevalues$index.SafeUrl = goog.html.SafeUrl;
 module$exports$safevalues$index.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
 module$exports$safevalues$index.reportOnlyHtmlPassthrough = module$contents$safevalues$reporting$reporting_reportOnlyHtmlPassthrough;
+module$exports$safevalues$index.HtmlFormatter = module$exports$safevalues$builders$html_formatter.HtmlFormatter;
 module$exports$safevalues$index.createHtml = module$exports$safevalues$builders$html_builders.createHtml;
 module$exports$safevalues$index.safeStyleRule = module$exports$safevalues$builders$style_sheet_builders.safeStyleRule;
 safevalues.safeAttrPrefix = module$contents$safevalues$builders$attribute_builders_safeAttrPrefix;
@@ -18629,13 +18682,14 @@ safevalues.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
 safevalues.SafeUrl = goog.html.SafeUrl;
 safevalues.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
 safevalues.reportOnlyHtmlPassthrough = module$contents$safevalues$reporting$reporting_reportOnlyHtmlPassthrough;
+safevalues.HtmlFormatter = module$exports$safevalues$builders$html_formatter.HtmlFormatter;
 safevalues.createHtml = module$exports$safevalues$index.createHtml;
 safevalues.safeStyleRule = module$exports$safevalues$index.safeStyleRule;
 var $jscomp$templatelit$294235699$0 = $jscomp.createTemplateTagFirstArg(["https://apis.google.com/js/client.js?onload=", ""]);
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.381";
+ee.apiclient.API_CLIENT_VERSION = "0.1.382";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -18926,8 +18980,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.381";
-  "0.1.381" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.382";
+  "0.1.382" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

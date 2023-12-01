@@ -13,6 +13,7 @@ import threading
 from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Union
 import uuid
 
+import google.auth
 # Rename to avoid redefined-outer-name warning.
 from google.oauth2 import credentials as credentials_lib
 import google_auth_httplib2
@@ -245,10 +246,16 @@ def get_persistent_credentials() -> credentials_lib.Credentials:
         None, **oauth.get_credentials_arguments()
     )
   except IOError:
+    # Before raising, try default credentials as a fallback.
+    try:
+      credentials, unused_project_id = google.auth.default()
+      return credentials
+    except google.auth.exceptions.DefaultCredentialsError:
+      pass
     raise ee_exception.EEException(  # pylint: disable=raise-missing-from
         'Please authorize access to your Earth Engine account by '
         'running\n\nearthengine authenticate\n\n'
-        'in your command line, and then retry.'
+        'in your command line, or ee.Authenticate() in Python, and then retry.'
     )
 
 

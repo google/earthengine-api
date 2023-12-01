@@ -17,13 +17,20 @@ import json
 import os
 import shutil
 import subprocess
+import sys
 from typing import Any, Dict, Optional, Sequence, Union
 import urllib.error
 import urllib.parse
 import urllib.request
 import webbrowser
 
+import google.auth
 from google.auth import _cloud_sdk
+import google.auth.transport.requests
+
+from ee import data as ee_data
+from ee.ee_exception import EEException
+
 
 # Optional imports used for specific shells.
 # pylint: disable=g-import-not-at-top
@@ -59,6 +66,8 @@ PASTE_CODA = ('The authorization workflow will generate a code, which you'
 
 # Command-line browsers cannot handle the auth pages.
 TEXT_BROWSERS = ['elinks', 'links', 'lynx', 'w3m', 'www-browser']
+# Environment variables indicating valid compositors on Linux.
+DISPLAY_VARIABLES = ['DISPLAY', 'WAYLAND_DISPLAY', 'MIR_SOCKET']
 
 
 def get_credentials_path() -> str:
@@ -78,6 +87,15 @@ def get_credentials_arguments() -> Dict[str, Any]:
     args['client_secret'] = stored.get('client_secret', CLIENT_SECRET)
     args['scopes'] = stored.get('scopes', SCOPES)
     return args
+
+
+def _valid_credentials_exist() -> bool:
+  try:
+    creds = ee_data.get_persistent_credentials()
+    creds.refresh(google.auth.transport.requests.Request())
+    return True
+  except (EEException, google.auth.exceptions.RefreshError):
+    return False
 
 
 def get_authorization_url(
@@ -152,7 +170,7 @@ def write_private_json(json_path: str, info_dict: Dict[str, Any]) -> None:
 def _in_colab_shell() -> bool:
   """Tests if the code is being executed within Google Colab."""
   try:
-    import google.colab  # pylint: disable=unused-import
+    import google.colab  # pylint: disable=unused-import,redefined-outer-name
     return True
   except ImportError:
     return False
@@ -194,6 +212,8 @@ def _obtain_and_write_token(
     fetch_client = urllib.request.Request(FETCH_URL, data=data, headers=headers)
     fetched_info = json.loads(
         urllib.request.urlopen(fetch_client).read().decode())
+    if 'error' in fetched_info:
+      raise EEException('Cannot authenticate: %s' % fetched_info['error'])
     client_info = {k: fetched_info[k] for k in ['client_id', 'client_secret']}
     scopes = fetched_info.get('scopes') or scopes
   token = request_token(auth_code.strip(), code_verifier, **client_info)
@@ -274,29 +294,40 @@ def _nonce_table(*nonce_keys: str) -> Dict[str, str]:
   return {k: v.decode() for k, v in table.items()}
 
 
-def _open_new_browser(url: str) -> None:
-  """Opens a web browser if possible."""
+def _open_new_browser(url: str) -> bool:
+  """Opens a web browser if possible, returning True when so."""
   try:
     browser = webbrowser.get()
     if hasattr(browser, 'name') and browser.name in TEXT_BROWSERS:
-      return
+      return False
   except webbrowser.Error:
-    return
-  webbrowser.open_new(url)
+    return False
+  if url:
+    webbrowser.open_new(url)
+  return True
 
 
-def _in_notebook() -> bool:
-  return _in_colab_shell() or _in_jupyter_shell()
+def _localhost_is_viable() -> bool:
+  valid_display = 'linux' not in sys.platform or any(
+      os.environ.get(var) for var in DISPLAY_VARIABLES)
+  return valid_display and _open_new_browser('')
 
 
-def _load_app_default_credentials(
-    run_gcloud: bool = True,
+def _no_gcloud() -> bool:
+  return not shutil.which(GCLOUD_COMMAND.split()[0])
+
+
+def _load_gcloud_credentials(
     scopes: Optional[Sequence[str]] = None,
     quiet: Optional[bool] = None,
+    run_gcloud_legacy: bool = False,
 ) -> None:
-  """Initializes credentials from ADC, optionally running gcloud to get them."""
-  adc_path = _cloud_sdk.get_application_default_credentials_path()
-  if run_gcloud:
+  """Initializes credentials by running gcloud flows."""
+  client_id_file = None
+  command = GCLOUD_COMMAND.split()
+  command[0] = shutil.which(command[0]) or command[0]  # Windows fix
+  command += ['--scopes=%s' % (','.join(scopes or SCOPES))]
+  if run_gcloud_legacy:
     client_id_json = dict(
         client_id=CLIENT_ID,
         client_secret=CLIENT_SECRET,
@@ -305,32 +336,28 @@ def _load_app_default_credentials(
         token_uri=TOKEN_URI)
     client_id_file = get_credentials_path() + '-client-id.json'
     write_private_json(client_id_file, dict(installed=client_id_json))
-    command = GCLOUD_COMMAND.split()
-    command[0] = shutil.which(command[0]) or command[0]  # Windows fix
-    command += ['--scopes=%s' % (','.join(scopes or SCOPES))]
     command += ['--client-id-file=%s' % client_id_file]
-    command += ['--no-browser'] if quiet else []
-    print('Fetching credentials using gcloud')
-    more_info = '\nMore information: ' + (
-        'https://developers.google.com/earth-engine/guides/python_install\n')
-    try:
-      subprocess.run(command, check=True)
-    except FileNotFoundError as e:
-      tip = 'Please ensure that gcloud is installed.' + more_info
-      raise Exception('gcloud command not found. ' + tip) from e  # pylint:disable=broad-exception-raised
-    except subprocess.CalledProcessError as e:
-      tip = ('Please check for any errors above.\n*Possible fixes:'
-             ' If you loaded a page with a "redirect_uri_mismatch" error,'
-             ' run earthengine authenticate with the --quiet flag;'
-             ' if the error page says "invalid_request", be sure to run the'
-             ' entire gcloud auth command that is shown.' + more_info)
-      raise Exception('gcloud failed. ' + tip) from e  # pylint:disable=broad-exception-raised
-    finally:
+    force_quiet = quiet is None and not _localhost_is_viable()
+    command += ['--no-browser'] if quiet or force_quiet else []
+  print('Fetching credentials using gcloud')
+  more_info = '\nMore information: ' + (
+      'https://developers.google.com/earth-engine/guides/auth\n')
+  try:
+    subprocess.run(command, check=True)
+  except FileNotFoundError as e:
+    tip = 'Please ensure that gcloud is installed.' + more_info
+    raise Exception('gcloud command not found. ' + tip) from e  # pylint:disable=broad-exception-raised
+  except subprocess.CalledProcessError as e:
+    tip = ('Please check for any errors above.\n*Possible fixes:'
+           ' If you loaded a page with a "redirect_uri_mismatch" error,'
+           ' run earthengine authenticate with the --quiet flag;'
+           ' if the error page says "invalid_request", be sure to run the'
+           ' entire gcloud auth command that is shown.' + more_info)
+    raise Exception('gcloud failed. ' + tip) from e  # pylint:disable=broad-exception-raised
+  finally:
+    if client_id_file:
       os.remove(client_id_file)
-  else:
-    # Only consult the environment variable in appdefault mode, because gcloud
-    # always writes to the default location.
-    adc_path = os.getenv('GOOGLE_APPLICATION_CREDENTIALS', adc_path)
+  adc_path = _cloud_sdk.get_application_default_credentials_path()
   with open(adc_path) as adc_json:
     adc = json.load(adc_json)
     adc = {k: adc[k] for k in ['client_id', 'client_secret', 'refresh_token']}
@@ -379,33 +406,42 @@ def _start_server(port: int):
 
 def authenticate(
     cli_authorization_code: Optional[str] = None,
-    quiet: bool = False,
+    quiet: Optional[bool] = None,
     cli_code_verifier: Optional[str] = None,
     auth_mode: Optional[str] = None,
     scopes: Optional[Sequence[str]] = None,
-) -> None:
+    force: bool = False,
+) -> bool:
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
     cli_authorization_code: An optional authorization code.  Supports CLI mode,
       where the code is passed as an argument to `earthengine authenticate`.
-    quiet: If true, do not require interactive prompts.
+    quiet: If true, do not require interactive prompts and force --no-browser
+      mode for gcloud-legacy. If false, never supply --no-browser. Default is
+      None, which autodetects the --no-browser setting.
     cli_code_verifier: PKCE verifier to prevent auth code stealing.  Must be
       provided if cli_authorization_code is given.
     auth_mode: The authorization mode.  One of:
+        "colab" - use the Colab authentication flow.
         "notebook" - send user to notebook authenticator page. Intended for
           web users who do not run code locally. Credentials expire in 7 days.
-        "gcloud" - use gcloud to obtain credentials. This runs a command line to
-          set the appdefault file, which must run on your local machine.
-        "appdefault" - read an existing $GOOGLE_APPLICATION_CREDENTIALS file
-          without running gcloud.
+        "gcloud" - use gcloud to obtain credentials.
         "localhost" - sends credentials to the Python environment on the same
           localhost as the browser. Does not work for remote shells. Default
           port is 8085; use localhost:N set port or localhost:0 to auto-select.
+        "gcloud-legacy" - use less convenient gcloud mode, for users without
+          cloud projects.
+        "appdefault" - included for legacy compatibility but not necessary.
+          ee.Initialize() will always check for application default credentials.
         None - a default mode is chosen based on your environment.
    scopes: List of scopes to use for authorization. Defaults to [
      'https://www.googleapis.com/auth/earthengine',
      'https://www.googleapis.com/auth/devstorage.full_control' ].
+   force: Will force authentication even if valid credentials already exist.
+
+  Returns:
+    True if we found valid credentials and didn't run the auth flow.
 
   Raises:
      Exception: on invalid arguments.
@@ -415,11 +451,31 @@ def authenticate(
     _obtain_and_write_token(cli_authorization_code, cli_code_verifier, scopes)
     return
 
-  if not auth_mode:
-    auth_mode = 'notebook' if _in_notebook() else 'gcloud'
+  if not force and _valid_credentials_exist():
+    return True
 
-  if auth_mode in ['appdefault', 'gcloud']:
-    _load_app_default_credentials(auth_mode == 'gcloud', scopes, quiet)
+  if not auth_mode:
+    if _in_colab_shell():
+      auth_mode = 'colab'
+    elif _in_jupyter_shell():
+      auth_mode = 'notebook'
+    elif _localhost_is_viable() and _no_gcloud():
+      auth_mode = 'localhost'
+    else:
+      auth_mode = 'gcloud'
+
+  if auth_mode in ['gcloud', 'gcloud-legacy']:
+    _load_gcloud_credentials(scopes, quiet, auth_mode == 'gcloud-legacy')
+    return
+
+  if auth_mode == 'colab':
+    from google.colab import auth  # pylint: disable=g-import-not-at-top # pytype: disable=import-error
+    auth.authenticate_user()
+    return
+
+  if auth_mode == 'appdefault':
+    print('appdefault no longer necessary: ee.Initialize() always checks ADC',
+          file=sys.stderr)
     return
 
   flow = Flow(auth_mode, scopes)
@@ -468,7 +524,7 @@ class Flow:
           scopes=urllib.parse.quote(' '.join(self.scopes)), **request_info)
       self.code_verifier = ':'.join(request_info[k] for k in nonces)
     else:
-      raise Exception('Unknown auth_mode "%s"' % auth_mode)  # pylint:disable=broad-exception-raised
+      raise EEException('Unknown auth_mode "%s"' % auth_mode)  # pylint:disable=broad-exception-raised
 
   def save_code(self, code: Optional[str] = None) -> None:
     """Fetches auth code if not given, and saves the generated credentials."""
