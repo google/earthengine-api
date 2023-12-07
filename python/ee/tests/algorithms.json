@@ -15289,6 +15289,12 @@
       "description": "The prediction payload size limit in bytes.  Defaults to 1.5MB (1500000 bytes)",
       "optional": true,
       "defaultValue": null
+    }, {
+      "argumentName": "payloadFormat",
+      "type": "String",
+      "description": "The payload format of entries in prediction requests and responses. One of: [\u0027SERIALIZED_TF_TENSORS, \u0027RAW_JSON\u0027, \u0027ND_ARRAYS\u0027]. Defaults to \u0027SERIALIZED_TF_TENSORS\u0027.",
+      "optional": true,
+      "defaultValue": null
     }]
   }, {
     "name": "algorithms/Model.predictImage",

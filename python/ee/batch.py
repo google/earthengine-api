@@ -29,6 +29,7 @@ class Task:
     EXPORT_MAP = 'EXPORT_TILES'
     EXPORT_TABLE = 'EXPORT_FEATURES'
     EXPORT_VIDEO = 'EXPORT_VIDEO'
+    EXPORT_CLASSIFIER = 'EXPORT_CLASSIFIER'
 
   class State(str, enum.Enum):
     """The state of a Task."""
@@ -129,6 +130,8 @@ class Task:
       result = data.exportTable(self._request_id, self.config)
     elif self.task_type == Task.Type.EXPORT_VIDEO:
       result = data.exportVideo(self._request_id, self.config)
+    elif self.task_type == Task.Type.EXPORT_CLASSIFIER:
+      result = data.exportClassifier(self._request_id, self.config)
     else:
       raise ee_exception.EEException(
           'Unknown Task type "{}"'.format(self.task_type))
@@ -958,6 +961,55 @@ class Export:
       config = _prepare_video_export_config(collection, config,
                                             Task.ExportDestination.DRIVE)
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
+
+  class classifier:
+    """A class with static methods to start classifier export tasks."""
+
+    def __init__(self):
+      """Forbids class instantiation."""
+      raise AssertionError('This class cannot be instantiated.')
+
+    def __new__(cls,
+                classifier,
+                description='myExportClassifierTask',
+                config=None):
+      """Export an EE Classifier.
+
+      Args:
+        classifier: The feature collection to be exported.
+        description: Human-readable name of the task.
+        config: A dictionary that will be copied and used as parameters
+            for the task:
+            - assetId: The destination asset ID.
+      Returns:
+        An unstarted Task that exports the table.
+      """
+      config = (config or {}).copy()
+      return Export.classifier.toAsset(classifier, description, **config)
+
+    # Disable argument usage check; arguments are accessed using locals().
+    # pylint: disable=unused-argument
+    @staticmethod
+    def toAsset(classifier,
+                description='myExportClassifierTask',
+                assetId=None,
+                overwrite=False,
+                **kwargs):
+      """Creates a task to export an EE Image to an EE Asset.
+
+      Args:
+        classifier: The classifier to be exported.
+        description: Human-readable name of the task.
+        assetId: The destination asset ID.
+        overwrite: If an existing asset can be overwritten by this export.
+        **kwargs: Holds other keyword arguments.
+      Returns:
+        An unstarted Task that exports the image as an Earth Engine Asset.
+      """
+      config = _capture_parameters(locals(), ['classifier'])
+      config = _prepare_classifier_export_config(classifier, config,
+                                                 Task.ExportDestination.ASSET)
+      return _create_export_task(config, Task.Type.EXPORT_CLASSIFIER)
 
 # Mapping from file formats to prefixes attached to format specific config.
 FORMAT_PREFIX_MAP = {'GEOTIFF': 'tiff', 'TFRECORD': 'tfrecord'}

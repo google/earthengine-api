@@ -21,6 +21,7 @@ goog.provide('ee.data.AuthPrivateKey');
 goog.provide('ee.data.Band');
 goog.provide('ee.data.BandDescription');
 goog.provide('ee.data.BigQueryTaskConfig');
+goog.provide('ee.data.ClassifierTaskConfig');
 goog.provide('ee.data.DownloadId');
 goog.provide('ee.data.ExportDestination');
 goog.provide('ee.data.ExportState');
@@ -1296,6 +1297,11 @@ ee.data.startProcessing = function(taskId, params, opt_callback) {
     case ee.data.ExportType.MAP:
       const mapRequest = ee.data.prepareExportMapRequest_(params, metadata);
       return handle(call.map().export(call.projectsPath(), mapRequest));
+    case ee.data.ExportType.CLASSIFIER:
+      const classifierRequest =
+          ee.data.prepareExportClassifierRequest_(params, metadata);
+      return handle(
+          call.classifier().export(call.projectsPath(), classifierRequest));
     default:
       throw new Error(
           `Unable to start processing for task of type ${taskType}`);
@@ -1378,6 +1384,27 @@ ee.data.prepareExportMapRequest_ = function(taskConfig, metadata) {
   }
   return mapRequest;
 };
+
+
+/**
+ * Creates an ExportClassifierRequest for a given ClassifierTaskConfig.
+ *
+ * @param {!Object} taskConfig classifier task configuration params.
+ * @param {!Object} metadata associated with the export request.
+ * @return {!ee.api.ExportClassifierRequest}
+ * @private
+ */
+ee.data.prepareExportClassifierRequest_ = function(taskConfig, metadata) {
+  const classifierRequest =
+      ee.rpc_convert_batch.taskToExportClassifierRequest(taskConfig);
+  classifierRequest.expression =
+      ee.data.expressionAugmenter_(classifierRequest.expression, metadata);
+  if (taskConfig['workloadTag']) {
+    classifierRequest.workloadTag = taskConfig['workloadTag'];
+  }
+  return classifierRequest;
+};
+
 
 /**
  * Creates an image asset ingestion task.
@@ -2195,6 +2222,7 @@ ee.data.resetWorkloadTag = function(opt_resetDefault) {
  */
 ee.data.AssetType = {
   ALGORITHM: 'Algorithm',
+  CLASSIFIER: 'Classifier',
   FEATURE_VIEW: 'FeatureView',
   FOLDER: 'Folder',
   FEATURE_COLLECTION: 'FeatureCollection',
@@ -2211,6 +2239,7 @@ ee.data.ExportType = {
   MAP: 'EXPORT_TILES',
   TABLE: 'EXPORT_FEATURES',
   VIDEO: 'EXPORT_VIDEO',
+  CLASSIFIER: 'EXPORT_CLASSIFIER'
 };
 
 /** @enum {string} The status of the export. */
@@ -3418,6 +3447,24 @@ ee.data.ImageExportFormatConfig;
  * }}
  */
 ee.data.MapTaskConfig;
+
+/**
+ * An object for specifying configuration of a task to export a classifier
+ * as an asset.
+ *
+ * @typedef {{
+ *   id: string,
+ *   type: string,
+ *   sourceUrl: (undefined|string),
+ *   description: (undefined|string),
+ *   element: (undefined|!ee.ComputedObject),
+ *   assetId: (undefined|string),
+ *   maxWorkers: (undefined|number),
+ *   workloadTag: (undefined|string),
+ * }}
+ */
+ee.data.ClassifierTaskConfig;
+
 
 /**
  * An object for specifying configuration of a task to export feature

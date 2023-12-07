@@ -29,7 +29,7 @@ from google.auth import _cloud_sdk
 import google.auth.transport.requests
 
 from ee import data as ee_data
-from ee.ee_exception import EEException
+from ee import ee_exception
 
 
 # Optional imports used for specific shells.
@@ -94,7 +94,7 @@ def _valid_credentials_exist() -> bool:
     creds = ee_data.get_persistent_credentials()
     creds.refresh(google.auth.transport.requests.Request())
     return True
-  except (EEException, google.auth.exceptions.RefreshError):
+  except (ee_exception.EEException, google.auth.exceptions.RefreshError):
     return False
 
 
@@ -213,7 +213,9 @@ def _obtain_and_write_token(
     fetched_info = json.loads(
         urllib.request.urlopen(fetch_client).read().decode())
     if 'error' in fetched_info:
-      raise EEException('Cannot authenticate: %s' % fetched_info['error'])
+      raise ee_exception.EEException(
+          'Cannot authenticate: %s' % fetched_info['error']
+      )
     client_info = {k: fetched_info[k] for k in ['client_id', 'client_secret']}
     scopes = fetched_info.get('scopes') or scopes
   token = request_token(auth_code.strip(), code_verifier, **client_info)
@@ -524,7 +526,8 @@ class Flow:
           scopes=urllib.parse.quote(' '.join(self.scopes)), **request_info)
       self.code_verifier = ':'.join(request_info[k] for k in nonces)
     else:
-      raise EEException('Unknown auth_mode "%s"' % auth_mode)  # pylint:disable=broad-exception-raised
+      # pylint:disable-next=broad-exception-raised
+      raise ee_exception.EEException('Unknown auth_mode "%s"' % auth_mode)
 
   def save_code(self, code: Optional[str] = None) -> None:
     """Fetches auth code if not given, and saves the generated credentials."""

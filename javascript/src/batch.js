@@ -33,6 +33,9 @@ Export.table = {};
 /** @const */
 Export.video = {};
 
+/** @const */
+Export.classifier = {};
+
 /**
  * ExportTask
  */
@@ -392,6 +395,22 @@ Export.video.toDrive = function(
       clientConfig, ExportDestination.DRIVE, ExportType.VIDEO);
   return ExportTask.create(serverConfig);
 };
+
+/**
+ * @param {!ComputedObject} classifier
+ * @param {string=} opt_description
+ * @param {string=} opt_assetId
+ * @return {!ExportTask}
+ * @export
+ */
+Export.classifier.toAsset = function(classifier, opt_description, opt_assetId) {
+  const clientConfig =
+      eeArguments.extractFromFunction(Export.classifier.toAsset, arguments);
+  const serverConfig = Export.convertToServerParams(
+      clientConfig, ExportDestination.ASSET, ExportType.CLASSIFIER);
+  return ExportTask.create(serverConfig);
+};
+
 
 ////////////////////////////////////////////////////////////////////////////////
 //                          Internal validation.                              //

@@ -1780,6 +1780,33 @@ def exportMap(request_id: str, params: Dict[str, Any]) -> Any:
   )
 
 
+def exportClassifier(request_id: str, params: Dict[str, Any]) -> Any:
+  """Starts a classifier export task.
+
+  This is a low-level method. The higher-level ee.batch.Export.classifier
+  object is generally preferred for initiating classifier exports.
+
+  Args:
+    request_id (string): A unique ID for the task, from newTaskId. If you are
+      using the cloud API, this does not need to be from newTaskId, (though
+      that's a good idea, as it's a good source of unique strings). It can also
+      be empty, but in that case the request is more likely to fail as it cannot
+      be safely retried.
+    params: The object that describes the export task. If you are using the
+      cloud API, this should be an ExportClassifierRequest. However, the
+      "expression" parameter can be the actual Classifier to be exported, not
+      its serialized form.
+
+  Returns:
+    A dict with information about the created task.
+    If you are using the cloud API, this will be an Operation.
+  """
+  params = params.copy()
+  return _prepare_and_run_export(
+      request_id, params, _get_cloud_projects().classifier().export
+  )
+
+
 def _prepare_and_run_export(
     request_id: str, params: Dict[str, Any], export_endpoint: Any
 ) -> Any:

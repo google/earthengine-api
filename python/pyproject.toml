@@ -1,6 +1,6 @@
 [project]
 name = "earthengine-api"
-version = "0.1.382"
+version = "0.1.383"
 description = "Earth Engine Python API"
 requires-python = ">=3.7"
 keywords = [
@@ -63,6 +63,7 @@ packages = [
 
 [tool.setuptools.package-data]
 ee = [
+  "py.typed",
   "tests/*.py",
   "tests/*.json",
 ]
