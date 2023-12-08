@@ -623,7 +623,8 @@ class Geometry(computedobject.ComputedObject):
     if self.func:
       raise ee_exception.EEException(
           'Cannot convert a computed geometry to GeoJSON. '
-          'Use getInfo() instead.')
+          'Wrap a getInfo() call in json.dumps instead.'
+      )
 
     return self.encode()
 
@@ -632,7 +633,8 @@ class Geometry(computedobject.ComputedObject):
     if self.func:
       raise ee_exception.EEException(
           'Cannot convert a computed geometry to GeoJSON. '
-          'Use getInfo() instead.')
+          'Wrap a getInfo() call in json.dumps instead.'
+      )
     return json.dumps(self.toGeoJSON())
 
   def serialize(self, for_cloud_api=True):

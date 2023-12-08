@@ -2847,8 +2847,8 @@ module$exports$tslib.__spreadArrays = function() {
   return r;
 };
 module$exports$tslib.__spreadArray = function(to, from, pack) {
-  if (!(Array.isArray(from) || from instanceof NodeList)) {
-    throw new TypeError("Expected an Array or NodeList: " + String(from));
+  if (!(Array.isArray(from) || from instanceof NodeList) && "[object Arguments]" !== Object.prototype.toString.call(from)) {
+    throw new TypeError("Expected an Array, NodeList, or or Arguments: " + String(from));
   }
   if (pack || 2 === arguments.length) {
     for (var i = 0, l = from.length, ar; i < l; i++) {
@@ -7466,44 +7466,47 @@ function module$contents$safevalues$restricted$reviewed_assertValidJustification
     throw Error("Calls to uncheckedconversion functions must go through security review. A justification must be provided to capture what security assumptions are being made. See go/unchecked-conversions");
   }
 }
-function module$contents$safevalues$restricted$reviewed_htmlSafeByReview(html, justification) {
-  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+function module$contents$safevalues$restricted$reviewed_getJustificationDuringMigration(options) {
+  return "string" === typeof options ? options : options.justification;
+}
+function module$contents$safevalues$restricted$reviewed_htmlSafeByReview(html, options) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(module$contents$safevalues$restricted$reviewed_getJustificationDuringMigration(options));
   return module$contents$safevalues$internals$html_impl_createHtmlInternal(html);
 }
 module$exports$safevalues$restricted$reviewed.htmlSafeByReview = module$contents$safevalues$restricted$reviewed_htmlSafeByReview;
-function module$contents$safevalues$restricted$reviewed_scriptSafeByReview(script, justification) {
-  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+function module$contents$safevalues$restricted$reviewed_scriptSafeByReview(script, options) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(module$contents$safevalues$restricted$reviewed_getJustificationDuringMigration(options));
   return module$contents$safevalues$internals$script_impl_createScriptInternal(script);
 }
 module$exports$safevalues$restricted$reviewed.scriptSafeByReview = module$contents$safevalues$restricted$reviewed_scriptSafeByReview;
-function module$contents$safevalues$restricted$reviewed_resourceUrlSafeByReview(url, justification) {
-  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+function module$contents$safevalues$restricted$reviewed_resourceUrlSafeByReview(url, options) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(module$contents$safevalues$restricted$reviewed_getJustificationDuringMigration(options));
   return module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(url);
 }
 module$exports$safevalues$restricted$reviewed.resourceUrlSafeByReview = module$contents$safevalues$restricted$reviewed_resourceUrlSafeByReview;
-function module$contents$safevalues$restricted$reviewed_urlSafeByReview(url, justification) {
-  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
-  return module$contents$safevalues$internals$url_impl_createUrlInternal(url);
-}
-module$exports$safevalues$restricted$reviewed.urlSafeByReview = module$contents$safevalues$restricted$reviewed_urlSafeByReview;
-function module$contents$safevalues$restricted$reviewed_styleSafeByReview(style, justification) {
-  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
-  return module$contents$safevalues$internals$style_impl_createStyleInternal(style);
-}
-module$exports$safevalues$restricted$reviewed.styleSafeByReview = module$contents$safevalues$restricted$reviewed_styleSafeByReview;
-function module$contents$safevalues$restricted$reviewed_styleSheetSafeByReview(stylesheet, justification) {
-  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(justification);
+function module$contents$safevalues$restricted$reviewed_styleSheetSafeByReview(stylesheet, options) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(module$contents$safevalues$restricted$reviewed_getJustificationDuringMigration(options));
   return module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(stylesheet);
 }
 module$exports$safevalues$restricted$reviewed.styleSheetSafeByReview = module$contents$safevalues$restricted$reviewed_styleSheetSafeByReview;
+function module$contents$safevalues$restricted$reviewed_urlSafeByReview(url, options) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(module$contents$safevalues$restricted$reviewed_getJustificationDuringMigration(options));
+  return module$contents$safevalues$internals$url_impl_createUrlInternal(url);
+}
+module$exports$safevalues$restricted$reviewed.urlSafeByReview = module$contents$safevalues$restricted$reviewed_urlSafeByReview;
+function module$contents$safevalues$restricted$reviewed_styleSafeByReview(style, options) {
+  goog.DEBUG && module$contents$safevalues$restricted$reviewed_assertValidJustification(module$contents$safevalues$restricted$reviewed_getJustificationDuringMigration(options));
+  return module$contents$safevalues$internals$style_impl_createStyleInternal(style);
+}
+module$exports$safevalues$restricted$reviewed.styleSafeByReview = module$contents$safevalues$restricted$reviewed_styleSafeByReview;
 var safevalues = {restricted:{}};
 safevalues.restricted.reviewed = {};
 safevalues.restricted.reviewed.htmlSafeByReview = module$contents$safevalues$restricted$reviewed_htmlSafeByReview;
 safevalues.restricted.reviewed.scriptSafeByReview = module$contents$safevalues$restricted$reviewed_scriptSafeByReview;
 safevalues.restricted.reviewed.resourceUrlSafeByReview = module$contents$safevalues$restricted$reviewed_resourceUrlSafeByReview;
+safevalues.restricted.reviewed.styleSheetSafeByReview = module$contents$safevalues$restricted$reviewed_styleSheetSafeByReview;
 safevalues.restricted.reviewed.urlSafeByReview = module$contents$safevalues$restricted$reviewed_urlSafeByReview;
 safevalues.restricted.reviewed.styleSafeByReview = module$contents$safevalues$restricted$reviewed_styleSafeByReview;
-safevalues.restricted.reviewed.styleSheetSafeByReview = module$contents$safevalues$restricted$reviewed_styleSheetSafeByReview;
 goog.dom.safe = {};
 goog.dom.safe.InsertAdjacentHtmlPosition = {AFTERBEGIN:"afterbegin", AFTEREND:"afterend", BEFOREBEGIN:"beforebegin", BEFOREEND:"beforeend"};
 goog.dom.safe.insertAdjacentHtml = function(node, position, html) {
@@ -9021,6 +9024,11 @@ module$exports$eeapiclient$ee_api_client.ICloudAuditOptionsLogNameEnum = functio
 module$exports$eeapiclient$ee_api_client.CloudAuditOptionsLogNameEnum = {ADMIN_ACTIVITY:"ADMIN_ACTIVITY", DATA_ACCESS:"DATA_ACCESS", UNSPECIFIED_LOG_NAME:"UNSPECIFIED_LOG_NAME", values:function() {
   return [module$exports$eeapiclient$ee_api_client.CloudAuditOptionsLogNameEnum.UNSPECIFIED_LOG_NAME, module$exports$eeapiclient$ee_api_client.CloudAuditOptionsLogNameEnum.ADMIN_ACTIVITY, module$exports$eeapiclient$ee_api_client.CloudAuditOptionsLogNameEnum.DATA_ACCESS];
 }};
+module$exports$eeapiclient$ee_api_client.ICloudAuditOptionsPermissionTypeEnum = function() {
+};
+module$exports$eeapiclient$ee_api_client.CloudAuditOptionsPermissionTypeEnum = {ADMIN_READ:"ADMIN_READ", ADMIN_WRITE:"ADMIN_WRITE", DATA_READ:"DATA_READ", DATA_WRITE:"DATA_WRITE", PERMISSION_TYPE_UNSPECIFIED:"PERMISSION_TYPE_UNSPECIFIED", values:function() {
+  return [module$exports$eeapiclient$ee_api_client.CloudAuditOptionsPermissionTypeEnum.PERMISSION_TYPE_UNSPECIFIED, module$exports$eeapiclient$ee_api_client.CloudAuditOptionsPermissionTypeEnum.ADMIN_READ, module$exports$eeapiclient$ee_api_client.CloudAuditOptionsPermissionTypeEnum.ADMIN_WRITE, module$exports$eeapiclient$ee_api_client.CloudAuditOptionsPermissionTypeEnum.DATA_READ, module$exports$eeapiclient$ee_api_client.CloudAuditOptionsPermissionTypeEnum.DATA_WRITE];
+}};
 module$exports$eeapiclient$ee_api_client.ICloudStorageDestinationPermissionsEnum = function() {
 };
 module$exports$eeapiclient$ee_api_client.CloudStorageDestinationPermissionsEnum = {DEFAULT_OBJECT_ACL:"DEFAULT_OBJECT_ACL", PUBLIC:"PUBLIC", TILE_PERMISSIONS_UNSPECIFIED:"TILE_PERMISSIONS_UNSPECIFIED", values:function() {
@@ -9697,13 +9705,14 @@ module$exports$eeapiclient$ee_api_client.CloudAuditOptions = function(parameters
   module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("logName", null == parameters.logName ? null : parameters.logName);
   this.Serializable$set("authorizationLoggingOptions", null == parameters.authorizationLoggingOptions ? null : parameters.authorizationLoggingOptions);
+  this.Serializable$set("permissionType", null == parameters.permissionType ? null : parameters.permissionType);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.CloudAuditOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.CloudAuditOptions.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.CloudAuditOptions;
 };
 module$exports$eeapiclient$ee_api_client.CloudAuditOptions.prototype.getPartialClassMetadata = function() {
-  return {enums:{logName:module$exports$eeapiclient$ee_api_client.CloudAuditOptionsLogNameEnum}, keys:["authorizationLoggingOptions", "logName"], objects:{authorizationLoggingOptions:module$exports$eeapiclient$ee_api_client.AuthorizationLoggingOptions}};
+  return {enums:{logName:module$exports$eeapiclient$ee_api_client.CloudAuditOptionsLogNameEnum, permissionType:module$exports$eeapiclient$ee_api_client.CloudAuditOptionsPermissionTypeEnum}, keys:["authorizationLoggingOptions", "logName", "permissionType"], objects:{authorizationLoggingOptions:module$exports$eeapiclient$ee_api_client.AuthorizationLoggingOptions}};
 };
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.CloudAuditOptions.prototype, {authorizationLoggingOptions:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("authorizationLoggingOptions") ? this.Serializable$get("authorizationLoggingOptions") : null;
@@ -9713,9 +9722,15 @@ $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.
   return this.Serializable$has("logName") ? this.Serializable$get("logName") : null;
 }, set:function(value) {
   this.Serializable$set("logName", value);
+}}, permissionType:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("permissionType") ? this.Serializable$get("permissionType") : null;
+}, set:function(value) {
+  this.Serializable$set("permissionType", value);
 }}});
 $jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.CloudAuditOptions, {LogName:{configurable:!0, enumerable:!0, get:function() {
   return module$exports$eeapiclient$ee_api_client.CloudAuditOptionsLogNameEnum;
+}}, PermissionType:{configurable:!0, enumerable:!0, get:function() {
+  return module$exports$eeapiclient$ee_api_client.CloudAuditOptionsPermissionTypeEnum;
 }}});
 module$exports$eeapiclient$ee_api_client.CloudStorageDestinationParameters = function() {
 };
@@ -18720,7 +18735,7 @@ var $jscomp$templatelit$294235699$0 = $jscomp.createTemplateTagFirstArg(["https:
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.383";
+ee.apiclient.API_CLIENT_VERSION = "0.1.384";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -19011,8 +19026,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.383";
-  "0.1.383" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.384";
+  "0.1.384" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

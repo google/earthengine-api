@@ -233,6 +233,10 @@ def initialize(
   _initialized = True
 
 
+def is_initialized() -> bool:
+  return _initialized
+
+
 def get_persistent_credentials() -> credentials_lib.Credentials:
   """Read persistent credentials from ~/.config/earthengine.
 

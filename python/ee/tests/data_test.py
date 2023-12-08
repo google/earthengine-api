@@ -16,6 +16,11 @@ import unittest
 
 class DataTest(unittest.TestCase):
 
+  def testIsInitialized(self):
+    self.assertFalse(ee.data.is_initialized())
+    with apitestcase.UsingCloudApi():
+      self.assertTrue(ee.data.is_initialized())
+
   def testListOperations(self):
     mock_http = mock.MagicMock(httplib2.Http)
     # Return in three groups.

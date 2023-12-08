@@ -123,6 +123,7 @@ def UsingCloudApi(
   """Returns a context manager under which the Cloud API is enabled."""
   old_cloud_api_resource = ee.data._cloud_api_resource  # pylint: disable=protected-access
   old_cloud_api_resource_raw = ee.data._cloud_api_resource_raw  # pylint: disable=protected-access
+  old_initialized = ee.data._initialized  # pylint: disable=protected-access
   try:
     if cloud_api_resource is None:
       cloud_api_resource = _GenerateCloudApiResource(mock_http, False)
@@ -130,10 +131,12 @@ def UsingCloudApi(
       cloud_api_resource_raw = _GenerateCloudApiResource(mock_http, True)
     ee.data._cloud_api_resource = cloud_api_resource  # pylint: disable=protected-access
     ee.data._cloud_api_resource_raw = cloud_api_resource_raw  # pylint: disable=protected-access
+    ee.data._initialized = True  # pylint: disable=protected-access
     yield
   finally:
     ee.data._cloud_api_resource = old_cloud_api_resource  # pylint: disable=protected-access
     ee.data._cloud_api_resource_raw = old_cloud_api_resource_raw  # pylint: disable=protected-access
+    ee.data._initialized = old_initialized  # pylint: disable=protected-access
 
 
 # A sample of encoded EE API JSON, used by SerializerTest and DeserializerTest.
