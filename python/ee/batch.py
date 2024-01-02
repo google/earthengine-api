@@ -249,7 +249,7 @@ class Export:
               single positive integer as the maximum dimension or
               "WIDTHxHEIGHT" where WIDTH and HEIGHT are each positive integers.
             - skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-              image tiles. Defaults to false.
+              image tiles. Defaults to false. Only supported on GeoTIFF exports.
             If exporting to Google Drive (default):
             - driveFolder: The Google Drive Folder that the export will reside
               in. Note: (a) if the folder name exists at any level, the output
@@ -390,7 +390,7 @@ class Export:
             still be clipped to the overall image dimensions. Must be a
             multiple of shardSize.
         skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-            image tiles. Defaults to false.
+            image tiles. Defaults to false. Only supported on GeoTIFF exports.
         fileFormat: The string file format to which the image is exported.
             Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
             'GeoTIFF'.
@@ -461,7 +461,7 @@ class Export:
             still be clipped to the overall image dimensions. Must be a
             multiple of shardSize.
         skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-            image tiles. Defaults to false.
+            image tiles. Defaults to false. Only supported on GeoTIFF exports.
         fileFormat: The string file format to which the image is exported.
             Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
             'GeoTIFF'.
@@ -1099,8 +1099,11 @@ def _prepare_image_export_config(
   #   into the image's Expression.
   # - The request ID will be populated when the Task is created.
   # We've been deleting config parameters as we handle them. Anything left
-  # over is a problem.
+  # over is a problem. We can provide helpful error messages for some edge
+  # cases like params that only work for specific export types.
   if config:
+    if 'skipEmptyTiles' in config:
+      raise ValueError('skipEmptyTiles is only supported for GeoTIFF exports.')
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
 

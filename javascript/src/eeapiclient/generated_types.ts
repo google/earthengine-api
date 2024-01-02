@@ -1,4 +1,3 @@
-// g3-format-clang
 import {Serializable, SerializableCtor} from './domain_object';
 import {MultipartRequest} from './multipart_request';
 
@@ -15,8 +14,14 @@ export interface GeneratedInterface {}
 
 /** Type for the optional queryParams map: string-indexed primitive values. */
 export interface GeneratedQueryParams {
-  [key: string]: number|ReadonlyArray<number>|string|ReadonlyArray<string>|
-      boolean|ReadonlyArray<boolean>|undefined;
+  [key: string]:
+    | number
+    | ReadonlyArray<number>
+    | string
+    | ReadonlyArray<string>
+    | boolean
+    | ReadonlyArray<boolean>
+    | undefined;
 }
 
 export interface GeneratedRequestParams {
@@ -25,7 +30,7 @@ export interface GeneratedRequestParams {
   /** The id of the called method, from discovery. */
   methodId?: string;
   queryParams?: GeneratedQueryParams;
-  body?: Serializable|GeneratedInterface|MultipartRequest|null;
+  body?: Serializable | GeneratedInterface | MultipartRequest | null;
   responseCtor?: SerializableCtor<Serializable>;
   /**
    * Whether the end-point is a streaming end-point and its type e.g.

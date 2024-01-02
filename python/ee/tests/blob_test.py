@@ -36,6 +36,31 @@ class BlobTest(apitestcase.ApiTestCase):
     }
     self.assertEqual(expect, result)
 
+    self.assertEqual({'value': 'fakeValue'}, blob.getInfo())
+
+  def test_computed_object(self):
+    """Verifies that untyped calls wrap the result in a ComputedObject."""
+    url = 'gs://ee-docs-demos/something'
+    result = ee.ApiFunction.call_('Blob', url)
+    serialized = result.serialize()
+    self.assertIsInstance(serialized, str)
+
+    expected = {
+        'result': '0',
+        'values': {
+            '0': {
+                'functionInvocationValue': {
+                    'functionName': 'Blob',
+                    'arguments': {
+                        'url': {'constantValue': url},
+                    },
+                }
+            }
+        },
+    }
+    self.assertEqual(expected, json.loads(serialized))
+    self.assertEqual({'value': 'fakeValue'}, result.getInfo())
+
   def test_wrong_arg_type(self):
     message = 'Blob url must be a string: <class \'int\'> -> "123"'
     with self.assertRaisesRegex(ValueError, message):

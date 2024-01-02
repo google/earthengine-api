@@ -1,9 +1,14 @@
 #!/usr/bin/env python3
 """Test for the ee.__init__ file."""
 
+from unittest import mock
+
+import google.auth
+from google.oauth2 import credentials
+
+import ee
 from ee import apitestcase
 import unittest
-import ee
 
 
 class EETestCase(apitestcase.ApiTestCase):
@@ -28,9 +33,10 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertFalse(ee.Image._initialized)
 
     # Verify that ee.Initialize() sets the URL and initializes classes.
-    ee.Initialize(None, 'foo')
+    ee.Initialize(None, 'foo', project='my-project')
     self.assertTrue(ee.data._initialized)
     self.assertEqual(ee.data._api_base_url, 'foo/api')
+    self.assertEqual(ee.data._cloud_api_user_project, 'my-project')
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertTrue(ee.Image._initialized)
 
@@ -43,8 +49,50 @@ class EETestCase(apitestcase.ApiTestCase):
     ee.Reset()
     self.assertFalse(ee.data._initialized)
     self.assertIsNone(ee.data._api_base_url)
+    self.assertIsNone(ee.data._cloud_api_user_project)
     self.assertEqual(ee.ApiFunction._api, {})
     self.assertFalse(ee.Image._initialized)
+
+  def testProjectInitialization(self):
+    """Verifies that we can fetch the client project from many locations.
+
+    This also exercises the logic in data.get_persistent_credentials.
+    """
+
+    cred_args = dict(refresh_token='rt', quota_project_id='qp1')
+    google_creds = credentials.Credentials(token=None, quota_project_id='qp2')
+    expected_project = None
+
+    def CheckDataInit(**kwargs):
+      self.assertEqual(expected_project, kwargs.get('project'))
+
+    moc = mock.patch.object
+    with (moc(ee.oauth, 'get_credentials_arguments', new=lambda: cred_args),
+          moc(google.auth, 'default', new=lambda: (google_creds, None)),
+          moc(ee.data, 'initialize', side_effect=CheckDataInit) as inits):
+      expected_project = 'qp0'
+      ee.Initialize(project='qp0')
+
+      expected_project = 'qp1'
+      ee.Initialize()
+
+      cred_args['refresh_token'] = None
+      ee.Initialize()
+
+      cred_args['quota_project_id'] = None
+      expected_project = 'qp2'
+      ee.Initialize()
+
+      google_creds = google_creds.with_quota_project(None)
+      expected_project = None
+      ee.Initialize()
+      self.assertEqual(5, inits.call_count)
+
+      cred_args['client_id'] = '764086051850-xxx'  # dummy usable-auth client
+      cred_args['refresh_token'] = 'rt'
+      with self.assertRaisesRegex(ee.EEException, '.*no project found..*'):
+        ee.Initialize()
+      self.assertEqual(5, inits.call_count)
 
   def testCallAndApply(self):
     """Verifies library initialization."""
@@ -286,6 +334,21 @@ class EETestCase(apitestcase.ApiTestCase):
     cast = ee.Bar(ee.Foo(1))
     self.assertIsInstance(cast, ee.Bar)
     self.assertEqual(ctor, cast.func)
+
+    # Tests for kwargs.
+    foo = ee.Foo(arg1='a', arg2='b')
+    self.assertEqual(foo.args, {'arg1': 'a', 'arg2': 'b'})
+    foo = ee.Foo('a', arg2='b')
+    self.assertEqual(foo.args, {'arg1': 'a', 'arg2': 'b'})
+    foo = ee.Foo(arg2='b', arg1='a')
+    self.assertEqual(foo.args, {'arg1': 'a', 'arg2': 'b'})
+
+    # We should get an error for an invalid kwarg.
+    with self.assertRaisesRegex(
+        ee.EEException,
+        "Unrecognized arguments {'arg_invalid'} to function: Foo",
+    ):
+      ee.Foo('a', arg_invalid='b')
 
     # We shouldn't be able to cast with more than 1 arg.
     with self.assertRaisesRegex(

@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """The EE Python library."""
 
-__version__ = '0.1.384'
+__version__ = '0.1.385'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -44,6 +44,7 @@ from .function import Function
 from .geometry import Geometry
 from .image import Image
 from .imagecollection import ImageCollection
+from .pixeltype import PixelType
 from .serializer import Serializer
 from .terrain import Terrain
 
@@ -136,6 +137,14 @@ def Initialize(
   """
   if credentials == 'persistent':
     credentials = data.get_persistent_credentials()
+  if not project and credentials and hasattr(credentials, 'quota_project_id'):
+    project = credentials.quota_project_id
+  # SDK credentials are not authorized for EE so a project must be given.
+  if not project and oauth.is_sdk_credentials(credentials):
+    raise EEException(
+        'ee.Initialize: no project found. '
+        'Call with project= or see Earth Engine Authentication docs.'
+    )
 
   data.initialize(
       credentials=credentials,
@@ -162,6 +171,7 @@ def Initialize(
   ImageCollection.initialize()
   List.initialize()
   Number.initialize()
+  PixelType.initialize()
   String.initialize()
   Terrain.initialize()
 
@@ -189,6 +199,7 @@ def Reset() -> None:
   ImageCollection.reset()
   List.reset()
   Number.reset()
+  PixelType.reset()
   String.reset()
   Terrain.reset()
 
@@ -375,13 +386,14 @@ def _InitializeGeneratedClasses() -> None:
 def _MakeClass(name: str) -> Type[Any]:
   """Generates a dynamic API class for a given name."""
 
-  def init(self, *args):
+  def init(self, *args, **kwargs):
     """Initializer for dynamically created classes.
 
     Args:
       self: The instance of this class.  Listed to make the linter hush.
       *args: Either a ComputedObject to be promoted to this type, or
              arguments to an algorithm with the same name as this class.
+      **kwargs: Any kwargs passed to this class constructor.
 
     Returns:
       The new class.
@@ -389,13 +401,11 @@ def _MakeClass(name: str) -> Type[Any]:
     a_class = globals()[name]
     onlyOneArg = (len(args) == 1)
     # Are we trying to cast something that's already of the right class?
-    if onlyOneArg and isinstance(args[0], a_class):
-      pass
-    else:
+    if not (onlyOneArg and isinstance(args[0], a_class)):
       # Decide whether to call a server-side constructor or just do a
       # client-side cast.
       ctor = ApiFunction.lookupInternal(name)
-      firstArgIsPrimitive = not isinstance(args[0], ComputedObject)
+      firstArgIsPrimitive = not isinstance((args or [None])[0], ComputedObject)
       shouldUseConstructor = False
       if ctor:
         if not onlyOneArg:
@@ -409,10 +419,10 @@ def _MakeClass(name: str) -> Type[Any]:
           shouldUseConstructor = True
 
       # Apply our decision.
-      if shouldUseConstructor:
+      if shouldUseConstructor and ctor:
         # Call ctor manually to avoid having promote() called on the output.
-        ComputedObject.__init__(
-            self, ctor, ctor.promoteArgs(ctor.nameArgs(args)))
+        promoted_args = ctor.promoteArgs(ctor.nameArgs(args, kwargs))
+        ComputedObject.__init__(self, ctor, promoted_args)
       else:
         # Just cast and hope for the best.
         if not onlyOneArg:

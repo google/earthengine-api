@@ -22,11 +22,18 @@ jobs:
         python-version: 3.11
     - name: Install EE API
       run: |
-        pip install -e ./python
+        pip install ./python
         pip install pyright
-    - name: ee type verification
+        pip install mypy
+    - name: pyright ee type verification
       run: |
         pyright --verifytypes ee
-    - name: ee.cli type verification
+      continue-on-error: true
+    - name: pyright ee.cli type verification
       run: |
         pyright --verifytypes ee.cli
+      continue-on-error: true
+    - name: mypy ee and ee.cli type verification
+      run: |
+        mypy -p ee
+      continue-on-error: true

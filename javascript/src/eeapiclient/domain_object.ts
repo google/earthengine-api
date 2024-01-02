@@ -1,22 +1,21 @@
 /**
- * g3-format-clang
  * Utility map for ClassMetadata to describe how to create instances of child
  * properties.
  */
 
 export type ObjectMap<T> = {
-  [key: string]: T
+  [key: string]: T;
 };
 
 export interface ObjectMapMetadata {
   isPropertyArray: boolean;
   isValueArray: boolean;
   isSerializable: boolean;
-  ctor: SerializableCtor<ISerializable>|null;
+  ctor: SerializableCtor<ISerializable> | null;
 }
 
 /** Primitive types used in ISerializable fields. */
-type Primitive = string|number|boolean|null|undefined;
+type Primitive = string | number | boolean | null | undefined;
 
 /**
  * Mapped type that annotates all nested fields on an object as optional,
@@ -24,13 +23,16 @@ type Primitive = string|number|boolean|null|undefined;
  *
  * i.e., {a: {b: {c: boolean}}} gets transformed into {a?: {b?: {c?: boolean}}}
  */
-export type DeepPartialISerializable<T> =
-    T extends Primitive ? Partial<T>: T extends ISerializable ?
-    Omit<
-        {[K in keyof T]?: DeepPartialISerializable<T[K]>},
-        keyof ISerializable|'getPartialClassMetadata'>:
-    T extends object ? {[K in keyof T]?: DeepPartialISerializable<T[K]>} :
-                       unknown;
+export type DeepPartialISerializable<T> = T extends Primitive
+  ? Partial<T>
+  : T extends ISerializable
+  ? Omit<
+      {[K in keyof T]?: DeepPartialISerializable<T[K]>},
+      keyof ISerializable | 'getPartialClassMetadata'
+    >
+  : T extends object
+  ? {[K in keyof T]?: DeepPartialISerializable<T[K]>}
+  : unknown;
 
 /**
  * Description of the properties in a Serializable class.
@@ -85,7 +87,8 @@ export interface ISerializable {
  * this, then we can add new fields to ClassMetadata without updating all users.
  */
 export function buildClassMetadataFromPartial(
-    partialClassMetadata: Partial<ClassMetadata>): ClassMetadata {
+  partialClassMetadata: Partial<ClassMetadata>,
+): ClassMetadata {
   return {
     arrays: {},
     descriptions: {},
@@ -126,9 +129,9 @@ export abstract class Serializable implements ISerializable {
    */
   // tslint:disable-next-line:no-any Serializables work with arbitrary data
   Serializable$get(key: string): any {
-    return this.Serializable$values.hasOwnProperty(key) ?
-        this.Serializable$values[key] :
-        null;
+    return this.Serializable$values.hasOwnProperty(key)
+      ? this.Serializable$values[key]
+      : null;
   }
 
   /**
@@ -153,7 +156,7 @@ export abstract class Serializable implements ISerializable {
 
 /** Constructs an ISerializable instance. */
 export interface SerializableCtor<T extends ISerializable> {
-  new(): T;
+  new (): T;
 }
 
 /**
@@ -161,8 +164,9 @@ export interface SerializableCtor<T extends ISerializable> {
  */
 export function clone<T extends ISerializable>(serializable: T): T {
   return deserialize(
-      serializable.getConstructor() as SerializableCtor<T>,
-      serialize(serializable));
+    serializable.getConstructor() as SerializableCtor<T>,
+    serialize(serializable),
+  );
 }
 
 /**
@@ -187,7 +191,11 @@ export function isEmpty(serializable: ISerializable): boolean {
 // tslint:disable-next-line:no-any
 export function serialize(serializable: ISerializable): ObjectMap<any> {
   return deepCopy(
-      serializable, serializeGetter, serializeSetter, serializeInstanciator);
+    serializable,
+    serializeGetter,
+    serializeSetter,
+    serializeInstanciator,
+  );
 }
 
 function serializeGetter(key: string, obj: unknown) {
@@ -199,7 +207,7 @@ function serializeSetter(key: string, obj: {}, value: {}) {
 }
 
 function serializeInstanciator(ctor: CopyConstructor) {
-  return ({} as ObjectMap<{}>);
+  return {} as ObjectMap<{}>;
 }
 
 /**
@@ -207,14 +215,20 @@ function serializeInstanciator(ctor: CopyConstructor) {
  * the data from the raw input to the new class instances.
  */
 export function deserialize<T extends ISerializable>(
-    type: SerializableCtor<T>, raw?: unknown): T {
+  type: SerializableCtor<T>,
+  raw?: unknown,
+): T {
   const result = new type();
   if (raw == null) {
     return result;
   }
   return deepCopy(
-             raw, deserializeGetter, deserializeSetter, deserializeInstanciator,
-             type) as T;
+    raw,
+    deserializeGetter,
+    deserializeSetter,
+    deserializeInstanciator,
+    type,
+  ) as T;
 }
 
 function deserializeGetter(key: string, obj: unknown) {
@@ -238,13 +252,15 @@ function deserializeInstanciator(ctor: CopyConstructor) {
  * class.
  */
 export function strictDeserialize<T extends ISerializable>(
-    type: SerializableCtor<T>, raw: DeepPartialISerializable<T>) {
+  type: SerializableCtor<T>,
+  raw: DeepPartialISerializable<T>,
+) {
   return deserialize(type, raw);
 }
 
 type CopyValueGetter = (key: string, obj: unknown) => {};
 type CopyValueSetter = (key: string, obj: {}, value: {}) => void;
-type CopyConstructor = SerializableCtor<ISerializable>|null|undefined;
+type CopyConstructor = SerializableCtor<ISerializable> | null | undefined;
 type CopyInstanciator<T> = (ctor: CopyConstructor) => T;
 
 /**
@@ -260,9 +276,12 @@ type CopyInstanciator<T> = (ctor: CopyConstructor) => T;
  * @param targetConstructor Optional. The target's constructor function.
  */
 function deepCopy<T extends {}>(
-    source: unknown, valueGetter: CopyValueGetter, valueSetter: CopyValueSetter,
-    copyInstanciator: CopyInstanciator<T>,
-    targetConstructor?: CopyConstructor): T {
+  source: unknown,
+  valueGetter: CopyValueGetter,
+  valueSetter: CopyValueSetter,
+  copyInstanciator: CopyInstanciator<T>,
+  targetConstructor?: CopyConstructor,
+): T {
   const target = copyInstanciator(targetConstructor);
   const metadata = deepCopyMetadata(source, target);
 
@@ -282,38 +301,61 @@ function deepCopy<T extends {}>(
         continue;
       }
       copy = deepCopyValue(
-          value, valueGetter, valueSetter, copyInstanciator, true, true,
-          arrays[key]);
-
+        value,
+        valueGetter,
+        valueSetter,
+        copyInstanciator,
+        true,
+        true,
+        arrays[key],
+      );
     } else if (objects.hasOwnProperty(key)) {
       // Explicitly a serializable object
       copy = deepCopyValue(
-          value, valueGetter, valueSetter, copyInstanciator, false, true,
-          objects[key]);
-
+        value,
+        valueGetter,
+        valueSetter,
+        copyInstanciator,
+        false,
+        true,
+        objects[key],
+      );
     } else if (objectMaps.hasOwnProperty(key)) {
       // Serialize all the values in an object map.
       const mapMetadata = objectMaps[key];
-      copy = mapMetadata.isPropertyArray ?
-          (value as Array<ObjectMap<{}>>)
-              .map(
-                  v => deepCopyObjectMap(
-                      v, mapMetadata, valueGetter, valueSetter,
-                      copyInstanciator)) :
-          deepCopyObjectMap(
-              value, mapMetadata, valueGetter, valueSetter, copyInstanciator);
-
-    } else if (Array.isArray(value)) {  // This needs to be second to last!
+      copy = mapMetadata.isPropertyArray
+        ? (value as Array<ObjectMap<{}>>).map((v) =>
+            deepCopyObjectMap(
+              v,
+              mapMetadata,
+              valueGetter,
+              valueSetter,
+              copyInstanciator,
+            ),
+          )
+        : deepCopyObjectMap(
+            value,
+            mapMetadata,
+            valueGetter,
+            valueSetter,
+            copyInstanciator,
+          );
+    } else if (Array.isArray(value)) {
+      // This needs to be second to last!
       // Implicitly an array, treat as primitives
       if (metadata.emptyArrayIsUnset && value.length === 0) {
         continue;
       }
       copy = deepCopyValue(
-          value, valueGetter, valueSetter, copyInstanciator, true, false);
-
+        value,
+        valueGetter,
+        valueSetter,
+        copyInstanciator,
+        true,
+        false,
+      );
     } else if (value instanceof NullClass) {
       copy = null as unknown as {};
-
     } else {
       copy = value;
     }
@@ -324,27 +366,42 @@ function deepCopy<T extends {}>(
 }
 
 function deepCopyObjectMap<T extends {}>(
-    value: ObjectMap<{}>, mapMetadata: ObjectMapMetadata,
-    valueGetter: CopyValueGetter, valueSetter: CopyValueSetter,
-    copyInstanciator: CopyInstanciator<T>) {
+  value: ObjectMap<{}>,
+  mapMetadata: ObjectMapMetadata,
+  valueGetter: CopyValueGetter,
+  valueSetter: CopyValueSetter,
+  copyInstanciator: CopyInstanciator<T>,
+) {
   const objMap: ObjectMap<{}> = {};
   for (const mapKey of Object.keys(value)) {
     const mapValue = value[mapKey];
     if (mapValue == null) continue;
     objMap[mapKey] = deepCopyValue(
-        mapValue, valueGetter, valueSetter, copyInstanciator,
-        mapMetadata.isValueArray, mapMetadata.isSerializable, mapMetadata.ctor);
+      mapValue,
+      valueGetter,
+      valueSetter,
+      copyInstanciator,
+      mapMetadata.isValueArray,
+      mapMetadata.isSerializable,
+      mapMetadata.ctor,
+    );
   }
   return objMap;
 }
 
 function deepCopyValue<T extends {}>(
-    value: {}, valueGetter: CopyValueGetter, valueSetter: CopyValueSetter,
-    copyInstanciator: CopyInstanciator<T>, isArray: boolean, isRef: boolean,
-    ctor?: CopyConstructor) {
+  value: {},
+  valueGetter: CopyValueGetter,
+  valueSetter: CopyValueSetter,
+  copyInstanciator: CopyInstanciator<T>,
+  isArray: boolean,
+  isRef: boolean,
+  ctor?: CopyConstructor,
+) {
   if (isRef && ctor == null) {
     throw new Error(
-        'Cannot deserialize a reference object without a constructor.');
+      'Cannot deserialize a reference object without a constructor.',
+    );
   }
 
   if (value == null) {
@@ -353,27 +410,25 @@ function deepCopyValue<T extends {}>(
 
   let deserialized: {};
   if (isArray && isRef) {
-    deserialized =
-        (value as ISerializable[])
-            .map(
-                v => deepCopy(
-                    v, valueGetter, valueSetter, copyInstanciator, ctor));
-
+    deserialized = (value as ISerializable[]).map((v) =>
+      deepCopy(v, valueGetter, valueSetter, copyInstanciator, ctor),
+    );
   } else if (isArray && !isRef) {
     deserialized = (value as Array<{}>).map((v) => v);
-
   } else if (!isArray && isRef) {
-    deserialized =
-        deepCopy(value, valueGetter, valueSetter, copyInstanciator, ctor);
-
+    deserialized = deepCopy(
+      value,
+      valueGetter,
+      valueSetter,
+      copyInstanciator,
+      ctor,
+    );
   } else if (value instanceof NullClass) {
     deserialized = null as unknown as {};
-
   } else if (typeof value === 'object') {
     // TODO(user): Assert as a type, declared interface, or `unknown`.
     // tslint:disable-next-line:ban-types no-unnecessary-type-assertion
     deserialized = JSON.parse(JSON.stringify(value)) as AnyDuringMigration;
-
   } else {
     deserialized = value;
   }
@@ -392,13 +447,14 @@ function deepCopyMetadata(source: unknown, target: {}) {
   return metadata;
 }
 
-
 /**
  * Returns whether or not the two serializable objects are deeply equal. The
  * traversal logic should be identical to that of serialize.
  */
 export function deepEquals(
-    serializable1: ISerializable, serializable2: ISerializable): boolean {
+  serializable1: ISerializable,
+  serializable2: ISerializable,
+): boolean {
   const metadata1 = serializable1.getClassMetadata();
   const keys1 = metadata1.keys || [];
   const arrays1 = metadata1.arrays || {};
@@ -411,8 +467,14 @@ export function deepEquals(
   const objects2 = metadata2.objects || {};
   const objectMaps2 = metadata2.objectMaps || {};
 
-  if (!(sameKeys(keys1, keys2) && sameKeys(arrays1, arrays2) &&
-        sameKeys(objects1, objects2) && sameKeys(objectMaps1, objectMaps2))) {
+  if (
+    !(
+      sameKeys(keys1, keys2) &&
+      sameKeys(arrays1, arrays2) &&
+      sameKeys(objects1, objects2) &&
+      sameKeys(objectMaps1, objectMaps2)
+    )
+  ) {
     return false;
   }
 
@@ -457,12 +519,10 @@ export function deepEquals(
       if (!deepEqualsValue(value1, value2, true, true)) {
         return false;
       }
-
     } else if (objects1.hasOwnProperty(key)) {
       if (!deepEqualsValue(value1, value2, false, true)) {
         return false;
       }
-
     } else if (objectMaps1.hasOwnProperty(key)) {
       const mapMetadata = objectMaps1[key];
       if (mapMetadata.isPropertyArray) {
@@ -470,19 +530,21 @@ export function deepEquals(
           return false;
         }
         const value1Arr = value1 as Array<ObjectMap<{}>>;
-        if (value1Arr.some(
-                (v1, i) => !deepEqualsObjectMap(v1, value2[i], mapMetadata))) {
+        if (
+          value1Arr.some(
+            (v1, i) => !deepEqualsObjectMap(v1, value2[i], mapMetadata),
+          )
+        ) {
           return false;
         }
       } else if (!deepEqualsObjectMap(value1, value2, mapMetadata)) {
         return false;
       }
-
-    } else if (Array.isArray(value1)) {  // This needs to be second to last!
+    } else if (Array.isArray(value1)) {
+      // This needs to be second to last!
       if (!deepEqualsValue(value1, value2, true, false)) {
         return false;
       }
-
     } else if (!deepEqualsValue(value1, value2, false, false)) {
       return false;
     }
@@ -491,8 +553,10 @@ export function deepEquals(
 }
 
 function hasAndIsNotEmptyArray(
-    serializable: ISerializable, key: string,
-    metadata: ClassMetadata): boolean {
+  serializable: ISerializable,
+  key: string,
+  metadata: ClassMetadata,
+): boolean {
   if (!serializable.Serializable$has(key)) return false;
   if (!metadata.emptyArrayIsUnset) return true;
   const value = serializable.Serializable$get(key);
@@ -501,8 +565,10 @@ function hasAndIsNotEmptyArray(
 }
 
 function deepEqualsObjectMap(
-    value1: ObjectMap<{}>, value2: ObjectMap<{}>,
-    mapMetadata: ObjectMapMetadata) {
+  value1: ObjectMap<{}>,
+  value2: ObjectMap<{}>,
+  mapMetadata: ObjectMapMetadata,
+) {
   if (!sameKeys(value1, value2)) {
     return false;
   }
@@ -511,9 +577,14 @@ function deepEqualsObjectMap(
     const mapValue1 = value1[mapKey];
     const mapValue2 = value2[mapKey];
 
-    if (!deepEqualsValue(
-            mapValue1, mapValue2, mapMetadata.isValueArray,
-            mapMetadata.isSerializable)) {
+    if (
+      !deepEqualsValue(
+        mapValue1,
+        mapValue2,
+        mapMetadata.isValueArray,
+        mapMetadata.isSerializable,
+      )
+    ) {
       return false;
     }
   }
@@ -522,7 +593,11 @@ function deepEqualsObjectMap(
 }
 
 function deepEqualsValue(
-    value1: {}, value2: {}, isArray: boolean, isSerializable: boolean) {
+  value1: {},
+  value2: {},
+  isArray: boolean,
+  isSerializable: boolean,
+) {
   if (value1 == null && value2 == null) {
     return true;
   }
@@ -531,13 +606,13 @@ function deepEqualsValue(
     if (!sameKeys(value1, value2)) {
       return false;
     }
-    const serializableArr1 = (value1 as ISerializable[]);
-    const serializableArr2 = (value2 as ISerializable[]);
-    if (serializableArr1.some(
-            (v1, i) => !deepEquals(v1, serializableArr2[i]))) {
+    const serializableArr1 = value1 as ISerializable[];
+    const serializableArr2 = value2 as ISerializable[];
+    if (
+      serializableArr1.some((v1, i) => !deepEquals(v1, serializableArr2[i]))
+    ) {
       return false;
     }
-
   } else if (isArray && !isSerializable) {
     if (!sameKeys(value1, value2)) {
       return false;
@@ -547,10 +622,8 @@ function deepEqualsValue(
     if (arr1.some((v, i) => v !== arr2[i])) {
       return false;
     }
-
   } else if (isSerializable) {
     return deepEquals(value1 as ISerializable, value2 as ISerializable);
-
   } else if (typeof value1 === 'object') {
     if (JSON.stringify(value1) !== JSON.stringify(value2)) {
       return false;
@@ -593,9 +666,11 @@ function sameKeys<T extends {}>(a: T, b: T) {
  * implementation details in the future.
  */
 export function serializableEqualityTester(
-    left: unknown, right: unknown): boolean|undefined {
+  left: unknown,
+  right: unknown,
+): boolean | undefined {
   if (left instanceof Serializable && right instanceof Serializable) {
     return deepEquals(left, right);
   }
-  return undefined;  // Do not change behavior for other types.
+  return undefined; // Do not change behavior for other types.
 }

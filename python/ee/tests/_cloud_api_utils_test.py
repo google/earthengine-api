@@ -2,7 +2,12 @@
 """Test for ee._cloud_api_utils."""
 
 import json
+from unittest import mock
 import warnings
+
+from google.oauth2 import credentials
+from googleapiclient import discovery
+import requests
 
 from ee import _cloud_api_utils
 from ee import ee_exception
@@ -14,6 +19,26 @@ class CloudApiUtilsTest(unittest.TestCase):
   def setUp(self):
     super().setUp()
     _cloud_api_utils.set_cloud_api_user_project('earthengine-legacy')
+
+  def test_build_cloud_resource(self):
+    base = 'https://earthengine.basetest'
+    path = '$discovery/rest?version=v1&labels=GOOGLE_INTERNAL&prettyPrint=false'
+    def check_build(api, unused_version, **kwargs):
+      self.assertEqual('earthengine', api)
+      self.assertEqual(base + '/' + path, kwargs.get('discoveryServiceUrl'))
+      http = kwargs.get('http')
+      self.assertIsNotNone(http)
+      self.assertIsNone(http.credentials.quota_project_id)
+      return mock.Mock()
+
+    with mock.patch.object(discovery, 'build', side_effect=check_build) as run:
+      session = requests.Session()
+      cred_args = dict(token=None, refresh_token='rt', quota_project_id='qp')
+      resource = _cloud_api_utils.build_cloud_resource(
+          base, session, credentials=credentials.Credentials(**cred_args)
+      )
+      self.assertEqual(base, resource._baseUrl)
+      run.assert_called_once()
 
   def test_convert_dict_simple(self):
     result = _cloud_api_utils._convert_dict({

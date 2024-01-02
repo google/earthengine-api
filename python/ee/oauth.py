@@ -44,6 +44,7 @@ CLIENT_ID = ('517222506229-vsmmajv00ul0bs7p89v5m89qs8eb9359.'
 CLIENT_SECRET = 'RUP0RZ6e0pPhDzsqIJ7KlNd1'
 SCOPES = [
     'https://www.googleapis.com/auth/earthengine',
+    'https://www.googleapis.com/auth/cloud-platform',
     'https://www.googleapis.com/auth/devstorage.full_control'
 ]
 REDIRECT_URI = 'urn:ietf:wg:oauth:2.0:oob'  # Prompts user to copy-paste code
@@ -68,6 +69,8 @@ PASTE_CODA = ('The authorization workflow will generate a code, which you'
 TEXT_BROWSERS = ['elinks', 'links', 'lynx', 'w3m', 'www-browser']
 # Environment variables indicating valid compositors on Linux.
 DISPLAY_VARIABLES = ['DISPLAY', 'WAYLAND_DISPLAY', 'MIR_SOCKET']
+# Projects owned by Google SDKs, which do not have the EE API enabled.
+SDK_PROJECTS = ['764086051850', '618104708054', '32555940559']
 
 
 def get_credentials_path() -> str:
@@ -82,11 +85,27 @@ def get_credentials_arguments() -> Dict[str, Any]:
     stored = json.load(creds)
     args = {}
     args['token_uri'] = TOKEN_URI  # Not overridable in file
-    args['refresh_token'] = stored['refresh_token']  # Must be present
+    args['refresh_token'] = stored.get('refresh_token')
     args['client_id'] = stored.get('client_id', CLIENT_ID)
     args['client_secret'] = stored.get('client_secret', CLIENT_SECRET)
     args['scopes'] = stored.get('scopes', SCOPES)
+    args['quota_project_id'] = stored.get('project')
     return args
+
+
+def is_sdk_credentials(credentials: Optional[Any]) -> bool:
+  client = (credentials and getattr(credentials, 'client_id', None)) or ''
+  return client.split('-')[0] in SDK_PROJECTS
+
+
+def get_appdefault_project() -> Optional[str]:
+  try:
+    adc_path = _cloud_sdk.get_application_default_credentials_path()
+    with open(adc_path) as adc_json:
+      adc = json.load(adc_json)
+      return adc.get('quota_project_id')
+  except FileNotFoundError:
+    return None
 
 
 def _valid_credentials_exist() -> bool:
@@ -413,7 +432,7 @@ def authenticate(
     auth_mode: Optional[str] = None,
     scopes: Optional[Sequence[str]] = None,
     force: bool = False,
-) -> bool:
+) -> Optional[bool]:
   """Prompts the user to authorize access to Earth Engine via OAuth2.
 
   Args:
@@ -443,7 +462,8 @@ def authenticate(
    force: Will force authentication even if valid credentials already exist.
 
   Returns:
-    True if we found valid credentials and didn't run the auth flow.
+    True if we found valid credentials and didn't run the auth flow, or
+    otherwise None.
 
   Raises:
      Exception: on invalid arguments.

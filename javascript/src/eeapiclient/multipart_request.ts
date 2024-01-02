@@ -1,4 +1,3 @@
-// g3-format-clang
 import {Serializable, serialize} from './domain_object';
 
 export class MultipartRequest {
@@ -6,7 +5,7 @@ export class MultipartRequest {
   private _metadataPayload = '';
   private _payloadPromise: Promise<string>;
 
-  constructor(private files: File[], private _metadata?: {}|null) {
+  constructor(private files: File[], private _metadata?: {} | null) {
     this._boundary = Date.now().toString();
     if (_metadata) {
       this.addMetadata(_metadata);
@@ -18,7 +17,7 @@ export class MultipartRequest {
     return this._boundary;
   }
 
-  metadata(): {}|undefined|null {
+  metadata(): {} | undefined | null {
     return this._metadata;
   }
 
@@ -28,31 +27,37 @@ export class MultipartRequest {
 
   private addMetadata(metadata: {}): void {
     const json =
-        (metadata instanceof Serializable) ? serialize(metadata) : metadata;
+      metadata instanceof Serializable ? serialize(metadata) : metadata;
     this._metadataPayload +=
-        'Content-Type: application/json; charset=utf-8\r\n\r\n' +
-        JSON.stringify(json) + `\r\n--${this._boundary}\r\n`;
+      'Content-Type: application/json; charset=utf-8\r\n\r\n' +
+      JSON.stringify(json) +
+      `\r\n--${this._boundary}\r\n`;
   }
 
   private build(): Promise<string> {
     let payload = `--${this._boundary}\r\n`;
     payload += this._metadataPayload;
-    return Promise.all(this.files.map(f => this.encodeFile(f)))
-        .then(filePayloads => {
-          for (const filePayload of filePayloads) {
-            payload += filePayload;
-          }
-          payload += `\r\n--${this._boundary}--`;
-          return payload;
-        });
+    return Promise.all(this.files.map((f) => this.encodeFile(f))).then(
+      (filePayloads) => {
+        for (const filePayload of filePayloads) {
+          payload += filePayload;
+        }
+        payload += `\r\n--${this._boundary}--`;
+        return payload;
+      },
+    );
   }
 
   private encodeFile(file: File): Promise<string> {
     return this.base64EncodeFile(file).then(
-        base64Str => `Content-Type: ${file.type}\r\n` +
-            `Content-Disposition: form-data; name="file"; filename="${
-                         encodeURIComponent(file.name)}"\r\n` +
-            'Content-Transfer-Encoding: base64\r\n\r\n' + base64Str);
+      (base64Str) =>
+        `Content-Type: ${file.type}\r\n` +
+        `Content-Disposition: form-data; name="file"; filename="${encodeURIComponent(
+          file.name,
+        )}"\r\n` +
+        'Content-Transfer-Encoding: base64\r\n\r\n' +
+        base64Str,
+    );
   }
 
   private base64EncodeFile(file: File): Promise<string> {

@@ -30,7 +30,7 @@ class Blob(computedobject.ComputedObject):
   _HAS_DYNAMIC_ATTRIBUTES = True
 
   def __init__(self, url: Union[str, computedobject.ComputedObject]):
-    """Create a Blob wrapper.
+    """Creates a Blob wrapper.
 
     Args:
       url: Where to fetch the blob on GCS. Must start with "gs://". This must
@@ -39,6 +39,11 @@ class Blob(computedobject.ComputedObject):
     self.initialize()
 
     if isinstance(url, computedobject.ComputedObject):
+      if url.func and url.func.getSignature()['returns'] == self.name():
+        # If it is a call that is already returning a Blob, just cast.
+        super().__init__(url.func, url.args, url.varName)
+        return
+
       super().__init__(apifunction.ApiFunction(self.name()), {'url': url})
       return
 

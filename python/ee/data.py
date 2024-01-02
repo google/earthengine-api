@@ -238,36 +238,46 @@ def is_initialized() -> bool:
 
 
 def get_persistent_credentials() -> credentials_lib.Credentials:
-  """Read persistent credentials from ~/.config/earthengine.
+  """Read persistent credentials from ~/.config/earthengine or ADC.
 
   Raises EEException with helpful explanation if credentials don't exist.
 
   Returns:
-    OAuth2Credentials built from persistently stored refresh_token
+    OAuth2Credentials built from persistently stored refresh_token, containing
+    the client project in the quota_project_id field, if available.
   """
+  credentials = None
+  args = {}
   try:
-    return credentials_lib.Credentials(
-        None, **oauth.get_credentials_arguments()
-    )
+    args = oauth.get_credentials_arguments()
   except IOError:
-    # Before raising, try default credentials as a fallback.
+    pass
+  if args.get('refresh_token'):
+    credentials = credentials_lib.Credentials(None, **args)
+  else:
+    # If EE credentials aren't available, try application default credentials.
     try:
       credentials, unused_project_id = google.auth.default()
-      return credentials
     except google.auth.exceptions.DefaultCredentialsError:
       pass
-    raise ee_exception.EEException(  # pylint: disable=raise-missing-from
-        'Please authorize access to your Earth Engine account by '
-        'running\n\nearthengine authenticate\n\n'
-        'in your command line, or ee.Authenticate() in Python, and then retry.'
-    )
+  if credentials:
+    # earthengine set_project always overrides gcloud set-quota-project
+    project = args.get('quota_project_id') or oauth.get_appdefault_project()
+    if project and project != credentials.quota_project_id:
+      credentials = credentials.with_quota_project(project)
+    return credentials
+  raise ee_exception.EEException(  # pylint: disable=raise-missing-from
+      'Please authorize access to your Earth Engine account by '
+      'running\n\nearthengine authenticate\n\n'
+      'in your command line, or ee.Authenticate() in Python, and then retry.'
+  )
 
 
 def reset() -> None:
   """Resets the data module, clearing credentials and custom base URLs."""
   global _api_base_url, _tile_base_url, _credentials, _initialized
   global _requests_session, _cloud_api_resource, _cloud_api_resource_raw
-  global _cloud_api_base_url
+  global _cloud_api_base_url, _cloud_api_user_project
   global _cloud_api_key, _http_transport
   _credentials = None
   _api_base_url = None
@@ -279,6 +289,8 @@ def reset() -> None:
   _cloud_api_key = None
   _cloud_api_resource = None
   _cloud_api_resource_raw = None
+  _cloud_api_user_project = None
+  _cloud_api_utils.set_cloud_api_user_project(DEFAULT_CLOUD_API_USER_PROJECT)
   _http_transport = None
   _initialized = False
 

@@ -240,6 +240,19 @@ class BatchTestCase(apitestcase.ApiTestCase):
           task.config,
       )
 
+  def testExportImageCloudApiInvalidSkipEmptyTiles(self):
+    """Verifies errors are thrown when incorrectly specifying skipEmptyTiles."""
+    with apitestcase.UsingCloudApi():
+      with self.assertRaisesRegex(
+          ValueError, 'skipEmptyTiles is only supported for GeoTIFF'
+      ):
+        ee.batch.Export.image.toDrive(
+            ee.Image(1),
+            'TestDescription',
+            fileFormat='TFRecord',
+            skipEmptyTiles=True,
+        )
+
   def testExportImageWithTfRecordCloudApi(self):
     """Verifies the task created by Export.image()."""
     with apitestcase.UsingCloudApi():

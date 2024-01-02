@@ -5,6 +5,7 @@ This module defines the Command class which is the base class of all
 the commands supported by the EE command line tool. It also defines
 the classes for configuration and runtime context management.
 """
+
 import collections
 import datetime
 import json
@@ -17,7 +18,6 @@ from typing import AnyStr, Dict, Iterable, List, Tuple, Union
 import urllib.parse
 
 from google.cloud import storage
-from google.oauth2 import credentials
 import httplib2
 
 import ee
@@ -34,13 +34,9 @@ DEFAULT_EE_CONFIG_FILE = os.path.join(
 
 CONFIG_PARAMS: Dict[str, Union[str, List[str], None]] = {
     'account': None,
-    'client_id': ee.oauth.CLIENT_ID,
-    'client_secret': ee.oauth.CLIENT_SECRET,
     'cloud_api_key': None,
     'private_key': None,
     'project': None,
-    'refresh_token': None,
-    'scopes': ee.oauth.SCOPES,
     'url': 'https://earthengine.googleapis.com',
 }
 
@@ -70,13 +66,9 @@ class CommandLineConfig:
 
   # In CONFIG_PARAMS:
   account: str
-  client_id: str
-  client_secret: str
   cloud_api_key: str
   private_key: str
   project: str
-  refresh_token: str
-  scopes: List[str]
   url: str
 
   def __init__(
@@ -107,14 +99,6 @@ class CommandLineConfig:
                                           self.service_account_file)
     elif self.account and self.private_key:
       return ee.ServiceAccountCredentials(self.account, self.private_key)
-    elif self.refresh_token:
-      return credentials.Credentials(
-          None,
-          client_id=self.client_id,
-          client_secret=self.client_secret,
-          refresh_token=self.refresh_token,
-          scopes=self.scopes,
-          token_uri=ee.oauth.TOKEN_URI)
     else:
       return 'persistent'
 
