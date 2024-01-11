@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Earth Engine OAuth2 helper functions for generating client tokens.
 
 Typical use-case consists of:
@@ -70,7 +69,8 @@ TEXT_BROWSERS = ['elinks', 'links', 'lynx', 'w3m', 'www-browser']
 # Environment variables indicating valid compositors on Linux.
 DISPLAY_VARIABLES = ['DISPLAY', 'WAYLAND_DISPLAY', 'MIR_SOCKET']
 # Projects owned by Google SDKs, which do not have the EE API enabled.
-SDK_PROJECTS = ['764086051850', '618104708054', '32555940559']
+SDK_PROJECTS = ['764086051850', '618104708054', '32555940559',
+                '522309567947', '1014160490159']
 
 
 def get_credentials_path() -> str:

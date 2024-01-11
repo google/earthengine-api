@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Representation of an Earth Engine FeatureCollection."""
 
 # Using lowercase function naming to match the JavaScript names.

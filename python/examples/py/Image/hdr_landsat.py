@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """HDR Landsat.
 
 Display portions of an image with different dynamic ranges.

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """General decorators and helper methods which should not import ee."""
 
 import functools

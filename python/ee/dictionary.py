@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A wrapper for dictionaries."""
 
 
@@ -40,10 +39,9 @@ class Dictionary(computedobject.ComputedObject):
       self._dictionary = arg
     else:
       self._dictionary = None
-      if (isinstance(arg, computedobject.ComputedObject)
-          and arg.func
-          and arg.func.getSignature()['returns'] == self.name()):
+      if self.is_func_returning_same(arg):
         # If it's a call that's already returning a Dictionary, just cast.
+        assert isinstance(arg, computedobject.ComputedObject)
         super().__init__(arg.func, arg.args, arg.varName)
       else:
         # Delegate everything else to the server-side constructor.

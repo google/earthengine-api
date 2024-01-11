@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Decorators to mark function deprecated."""
 
 import functools

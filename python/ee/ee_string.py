@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A wrapper for strings."""
 
 from typing import Any, Union
@@ -36,7 +35,7 @@ class String(computedobject.ComputedObject):
     if isinstance(string, str):
       super().__init__(None, None)
     elif isinstance(string, computedobject.ComputedObject):
-      if string.func and string.func.getSignature()['returns'] == self.name():
+      if self.is_func_returning_same(string):
         # If it's a call that's already returning a String, just cast.
         super().__init__(string.func, string.args, string.varName)
       else:

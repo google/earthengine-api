@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """An interface to the Earth Engine batch processing system.
 
 Use the static methods on the Export class to create export tasks, call start()
@@ -360,43 +359,41 @@ class Export:
         description: Human-readable name of the task.
         bucket: The name of a Cloud Storage bucket for the export.
         fileNamePrefix: Cloud Storage object name prefix for the export.
-            Defaults to the name of the task.
-        dimensions: The dimensions of the exported image. Takes either a
-            single positive integer as the maximum dimension or "WIDTHxHEIGHT"
-            where WIDTH and HEIGHT are each positive integers.
-        region: The lon,lat coordinates for a LinearRing or Polygon
-            specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Defaults to the image's
-            region.
-        scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image asset unless a crsTransform
-            is specified.
-        crs: The coordinate reference system of the exported image's
-            projection. Defaults to the image's default projection.
-        crsTransform: A comma-separated string of 6 numbers describing
-            the affine transform of the coordinate reference system of the
-            exported image's projection, in the order: xScale, xShearing,
-            xTranslation, yShearing, yScale and yTranslation. Defaults to
-            the image's native CRS transform.
-        maxPixels: The maximum allowed number of pixels in the exported
-            image. The task will fail if the exported region covers more
-            pixels in the specified projection. Defaults to 100,000,000.
+          Defaults to the name of the task.
+        dimensions: The dimensions of the exported image. Takes either a single
+          positive integer as the maximum dimension or "WIDTHxHEIGHT" where
+          WIDTH and HEIGHT are each positive integers.
+        region: The lon,lat coordinates for a LinearRing or Polygon specifying
+          the region to export. Can be specified as a nested lists of numbers or
+          a serialized string. Defaults to the image's region.
+        scale: The resolution in meters per pixel. Defaults to the native
+          resolution of the image asset unless a crsTransform is specified.
+        crs: The coordinate reference system of the exported image's projection.
+          Defaults to the image's default projection.
+        crsTransform: A comma-separated string of 6 numbers describing the
+          affine transform of the coordinate reference system of the exported
+          image's projection, in the order: xScale, xShearing, xTranslation,
+          yShearing, yScale and yTranslation. Defaults to the image's native CRS
+          transform.
+        maxPixels: The maximum allowed number of pixels in the exported image.
+          The task will fail if the exported region covers more pixels in the
+          specified projection. Defaults to 100,000,000.
         shardSize: Size in pixels of the tiles in which this image will be
-            computed. Defaults to 256.
+          computed. Defaults to 256.
         fileDimensions: The dimensions in pixels of each image file, if the
-            image is too large to fit in a single file. May specify a
-            single number to indicate a square shape, or a tuple of two
-            dimensions to indicate (width,height). Note that the image will
-            still be clipped to the overall image dimensions. Must be a
-            multiple of shardSize.
-        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-            image tiles. Defaults to false. Only supported on GeoTIFF exports.
+          image is too large to fit in a single file. May specify a single
+          number to indicate a square shape, or a tuple of two dimensions to
+          indicate (width,height). Note that the image will still be clipped to
+          the overall image dimensions. Must be a multiple of shardSize.
+        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked) image
+          tiles. Defaults to false. Only supported on GeoTIFF exports.
         fileFormat: The string file format to which the image is exported.
-            Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
-            'GeoTIFF'.
-        formatOptions: A dictionary of string keys to format specific options.
+          Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
+          'GeoTIFF'.
+        formatOptions: A dictionary of string keys to format-specific options.
+          For 'GeoTIFF': 'cloudOptimized' (bool), 'noData' (float).
         **kwargs: Holds other keyword arguments that may have been deprecated
-            such as 'crs_transform'.
+          such as 'crs_transform'.
 
       Returns:
         An unstarted Task that exports the image to Google Cloud Storage.
@@ -428,46 +425,44 @@ class Export:
       Args:
         image: The image to be exported.
         description: Human-readable name of the task.
-        folder: The name of a unique folder in your Drive account to
-            export into. Defaults to the root of the drive.
-        fileNamePrefix: The Google Drive filename for the export.
-            Defaults to the name of the task.
-        dimensions: The dimensions of the exported image. Takes either a
-            single positive integer as the maximum dimension or "WIDTHxHEIGHT"
-            where WIDTH and HEIGHT are each positive integers.
-        region: The lon,lat coordinates for a LinearRing or Polygon
-            specifying the region to export. Can be specified as a nested
-            lists of numbers or a serialized string. Defaults to the image's
-            region.
-        scale: The resolution in meters per pixel. Defaults to the
-            native resolution of the image asset unless a crsTransform
-            is specified.
-        crs: The coordinate reference system of the exported image's
-            projection. Defaults to the image's default projection.
-        crsTransform: A comma-separated string of 6 numbers describing
-            the affine transform of the coordinate reference system of the
-            exported image's projection, in the order: xScale, xShearing,
-            xTranslation, yShearing, yScale and yTranslation. Defaults to
-            the image's native CRS transform.
-        maxPixels: The maximum allowed number of pixels in the exported
-            image. The task will fail if the exported region covers more
-            pixels in the specified projection. Defaults to 100,000,000.
+        folder: The name of a unique folder in your Drive account to export
+          into. Defaults to the root of the drive.
+        fileNamePrefix: The Google Drive filename for the export. Defaults to
+          the name of the task.
+        dimensions: The dimensions of the exported image. Takes either a single
+          positive integer as the maximum dimension or "WIDTHxHEIGHT" where
+          WIDTH and HEIGHT are each positive integers.
+        region: The lon,lat coordinates for a LinearRing or Polygon specifying
+          the region to export. Can be specified as a nested lists of numbers or
+          a serialized string. Defaults to the image's region.
+        scale: The resolution in meters per pixel. Defaults to the native
+          resolution of the image asset unless a crsTransform is specified.
+        crs: The coordinate reference system of the exported image's projection.
+          Defaults to the image's default projection.
+        crsTransform: A comma-separated string of 6 numbers describing the
+          affine transform of the coordinate reference system of the exported
+          image's projection, in the order: xScale, xShearing, xTranslation,
+          yShearing, yScale and yTranslation. Defaults to the image's native CRS
+          transform.
+        maxPixels: The maximum allowed number of pixels in the exported image.
+          The task will fail if the exported region covers more pixels in the
+          specified projection. Defaults to 100,000,000.
         shardSize: Size in pixels of the tiles in which this image will be
-            computed. Defaults to 256.
+          computed. Defaults to 256.
         fileDimensions: The dimensions in pixels of each image file, if the
-            image is too large to fit in a single file. May specify a
-            single number to indicate a square shape, or a tuple of two
-            dimensions to indicate (width,height). Note that the image will
-            still be clipped to the overall image dimensions. Must be a
-            multiple of shardSize.
-        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
-            image tiles. Defaults to false. Only supported on GeoTIFF exports.
+          image is too large to fit in a single file. May specify a single
+          number to indicate a square shape, or a tuple of two dimensions to
+          indicate (width,height). Note that the image will still be clipped to
+          the overall image dimensions. Must be a multiple of shardSize.
+        skipEmptyTiles: If true, skip writing empty (i.e. fully-masked) image
+          tiles. Defaults to false. Only supported on GeoTIFF exports.
         fileFormat: The string file format to which the image is exported.
-            Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
-            'GeoTIFF'.
-        formatOptions: A dictionary of string keys to format specific options.
+          Currently only 'GeoTIFF' and 'TFRecord' are supported, defaults to
+          'GeoTIFF'.
+        formatOptions: A dictionary of string keys to format-specific options.
+          For 'GeoTIFF': 'cloudOptimized' (bool), 'noData' (float).
         **kwargs: Holds other keyword arguments that may have been deprecated
-            such as 'crs_transform', 'driveFolder', and 'driveFileNamePrefix'.
+          such as 'crs_transform', 'driveFolder', and 'driveFileNamePrefix'.
 
       Returns:
         An unstarted Task that exports the image to Drive.

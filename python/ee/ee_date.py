@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A wrapper for dates."""
 
 import datetime
@@ -60,7 +59,7 @@ class Date(computedobject.ComputedObject):
               f'Invalid argument specified for ee.Date(..., opt_tz): {tz}'
           )
     elif isinstance(date, computedobject.ComputedObject):
-      if date.func and date.func.getSignature()['returns'] == self.name():
+      if self.is_func_returning_same(date):
         # If it's a call that's already returning a Date, just cast.
         func = date.func
         args = date.args

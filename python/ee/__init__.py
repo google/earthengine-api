@@ -1,7 +1,6 @@
-#!/usr/bin/env python3
 """The EE Python library."""
 
-__version__ = '0.1.385'
+__version__ = '0.1.386'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -37,6 +36,7 @@ from .ee_number import Number
 from .ee_string import String
 from .element import Element
 from .encodable import Encodable
+from .errormargin import ErrorMargin
 from .feature import Feature
 from .featurecollection import FeatureCollection
 from .filter import Filter
@@ -44,6 +44,7 @@ from .function import Function
 from .geometry import Geometry
 from .image import Image
 from .imagecollection import ImageCollection
+from .join import Join
 from .pixeltype import PixelType
 from .serializer import Serializer
 from .terrain import Terrain
@@ -163,12 +164,14 @@ def Initialize(
   Date.initialize()
   Dictionary.initialize()
   Element.initialize()
+  ErrorMargin.initialize()
   Feature.initialize()
   FeatureCollection.initialize()
   Filter.initialize()
   Geometry.initialize()
   Image.initialize()
   ImageCollection.initialize()
+  Join.initialize()
   List.initialize()
   Number.initialize()
   PixelType.initialize()
@@ -191,12 +194,14 @@ def Reset() -> None:
   Blob.reset()
   Date.reset()
   Dictionary.reset()
+  ErrorMargin.reset()
   Feature.reset()
   FeatureCollection.reset()
   Filter.reset()
   Geometry.reset()
   Image.reset()
   ImageCollection.reset()
+  Join.reset()
   List.reset()
   Number.reset()
   PixelType.reset()

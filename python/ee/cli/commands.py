@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Commands supported by the Earth Engine command line interface.
 
 Each command is implemented by extending the Command class. Each class

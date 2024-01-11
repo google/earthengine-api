@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A representation of an Earth Engine image.
 
 See: https://developers.google.com/earth-engine/apidocs/ee-image for more

@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A base class for EE Functions."""
 
 import textwrap

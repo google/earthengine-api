@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Reverse mask a region.
 
 Create an image that masks everything except for the specified polygon.

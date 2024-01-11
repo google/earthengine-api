@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A wrapper for Blobs."""
 
 from typing import Any, Dict, Union
@@ -39,7 +38,7 @@ class Blob(computedobject.ComputedObject):
     self.initialize()
 
     if isinstance(url, computedobject.ComputedObject):
-      if url.func and url.func.getSignature()['returns'] == self.name():
+      if self.is_func_returning_same(url):
         # If it is a call that is already returning a Blob, just cast.
         super().__init__(url.func, url.args, url.varName)
         return

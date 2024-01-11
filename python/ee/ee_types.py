@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A set of utilities to work with EE types."""
 
 # Using lowercase function naming to match the JavaScript names.

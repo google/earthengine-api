@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A namespace for Terrain."""
 
 from ee import apifunction

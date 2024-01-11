@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A serializer that encodes EE object trees as JSON DAGs."""
 
 import collections

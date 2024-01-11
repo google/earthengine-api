@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Filter an image collection by date and region to make a median composite.
 
 See also: Clipped composite, which crops the output image

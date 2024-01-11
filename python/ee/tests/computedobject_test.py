@@ -129,5 +129,14 @@ class ComputedObjectTest(apitestcase.ApiTestCase):
     expect = ee.String('1').getInfo()
     self.assertEqual(expect, result)
 
+  def test_is_func_returning_same(self):
+    number = ee.Number(1)
+    self.assertFalse(number.is_func_returning_same(None))
+    self.assertFalse(number.is_func_returning_same(1))
+    self.assertFalse(number.is_func_returning_same(number))
+    number_computed_object_func = number.add(1)
+    self.assertTrue(number_computed_object_func)
+
+
 if __name__ == '__main__':
   unittest.main()

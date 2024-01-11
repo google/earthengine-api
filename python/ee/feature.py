@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """An object representing EE Features."""
 from __future__ import annotations
 

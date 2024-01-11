@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Create and render a feature collection from polygons."""
 
 import ee

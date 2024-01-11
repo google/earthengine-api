@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A wrapper for lists."""
 
 # List clashes with the class List, so call it ListType

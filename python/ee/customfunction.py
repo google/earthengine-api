@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """An object representing a custom EE Function."""
 
 from __future__ import annotations

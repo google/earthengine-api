@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """Representation for an Earth Engine ImageCollection."""
 
 from __future__ import annotations

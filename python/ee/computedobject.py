@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 """A representation of an Earth Engine computed object."""
 
 from __future__ import annotations
@@ -248,3 +247,10 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
       return tuple(map(ComputedObject.freeze, obj))
     else:
       return obj
+
+  def is_func_returning_same(self, an_object: Any) -> bool:
+    if not isinstance(an_object, ComputedObject):
+      return False
+    if not an_object.func:
+      return False
+    return an_object.func.getReturnType() == self.name()
