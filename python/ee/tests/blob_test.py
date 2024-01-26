@@ -18,7 +18,7 @@ class BlobTest(apitestcase.ApiTestCase):
     self.assertEqual(blob_func, blob.func)
 
     self.assertFalse(blob.isVariable())
-    self.assertEqual({'url': url}, blob.args)
+    self.assertEqual({'url': ee.String(url)}, blob.args)
 
     result = json.loads(blob.serialize())
     expect = {
@@ -35,6 +35,9 @@ class BlobTest(apitestcase.ApiTestCase):
         },
     }
     self.assertEqual(expect, result)
+
+    result_cast = json.loads(ee.Blob(blob).serialize())
+    self.assertEqual(expect, result_cast)
 
     self.assertEqual({'value': 'fakeValue'}, blob.getInfo())
 

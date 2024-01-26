@@ -195,13 +195,14 @@ ee.data.authenticate = function(
  * @export
  */
 ee.data.authenticateViaPopup = function(opt_success, opt_error) {
-  goog.global['gapi']['auth2']['authorize'](
-      {
+  const tokenClient =
+      goog.global['google']['accounts']['oauth2']['initTokenClient']({
         'client_id': ee.apiclient.getAuthClientId(),
-        'immediate': false,
-        'scope': ee.apiclient.getAuthScopes().join(' ')
-      },
-      goog.partial(ee.apiclient.handleAuthResult, opt_success, opt_error));
+        'callback':
+            goog.partial(ee.apiclient.handleAuthResult, opt_success, opt_error),
+        'scope': ee.apiclient.getAuthScopes().join(' '),
+      });
+  tokenClient.requestAccessToken();
 };
 
 

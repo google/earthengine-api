@@ -69,7 +69,7 @@ class ErrorMargin(computedobject.ComputedObject):
       args['unit'] = unit
 
     func = apifunction.ApiFunction(self.name())
-    super().__init__(func, args)
+    super().__init__(func, func.promoteArgs(args))
 
   @classmethod
   def initialize(cls) -> None:

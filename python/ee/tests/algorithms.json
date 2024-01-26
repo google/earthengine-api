@@ -6074,7 +6074,7 @@
     }]
   }, {
     "name": "algorithms/FeatureCollection.randomPoints",
-    "description": "Generates points that are uniformly random on the sphere, and within the given region.",
+    "description": "Generates points that are uniformly random in the given geometry. If the geometry is two-dimensional (polygon or multi-polygon) then the returned points are uniformly distributed on the given region of the sphere. If the geometry is one-dimensional (linestrings), the returned points are interpolated uniformly along the geometry\u0027s edges. If the geometry has dimension zero (points), the returned points are sampled uniformly from the input points. If a multi-geometry of mixed dimension is given, points are sampled from the component geometries with the highest dimension.",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "region",

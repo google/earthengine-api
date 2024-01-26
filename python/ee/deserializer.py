@@ -104,8 +104,11 @@ def _decodeValue(json_obj, named_values):  # pylint: disable=g-bad-name
       func = apifunction.ApiFunction.lookup(json_obj['functionName'])
     else:
       func = _decodeValue(json_obj['function'], named_values)
-    args = dict((key, _decodeValue(value, named_values))
-                for (key, value) in json_obj['arguments'].items())
+    if 'arguments' in json_obj:
+      args = dict((key, _decodeValue(value, named_values))
+                  for (key, value) in json_obj['arguments'].items())
+    else:
+      args = {}
     return _invocation(func, args)
   elif type_name == 'Dictionary':
     return dict((key, _decodeValue(value, named_values))
@@ -215,7 +218,10 @@ def decodeCloudApi(json_obj):  # pylint: disable=g-bad-name
       func = lookup(invoked['functionReference'], 'function')
     else:
       func = apifunction.ApiFunction.lookup(invoked['functionName'])
-    args = {key: decode_node(x) for key, x in invoked['arguments'].items()}
+    if 'arguments' in invoked:
+      args = {key: decode_node(x) for key, x in invoked['arguments'].items()}
+    else:
+      args = {}
     return _invocation(func, args)
 
   return lookup(json_obj['result'], 'result value')

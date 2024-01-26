@@ -14,7 +14,7 @@ class ComputedObjectTest(apitestcase.ApiTestCase):
 
   def test_metaclass_call_self_casting(self):
     number = ee.Number(1)
-    # This excercises the self-cast case of ComputedObjectMetaclass.__call__.
+    # This exercises the self-cast case of ComputedObjectMetaclass.__call__.
     result = ee.Number(number)
     self.assertIs(result, number)
 

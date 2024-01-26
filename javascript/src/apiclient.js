@@ -4,7 +4,6 @@
 goog.module('ee.apiclient');
 goog.module.declareLegacyNamespace();
 
-const GoogConst = goog.require('goog.string.Const');
 const Throttle = goog.require('goog.async.Throttle');
 const Uri = goog.require('goog.Uri');
 const XhrIo = goog.require('goog.net.XhrIo');
@@ -25,7 +24,7 @@ const {trustedResourceUrl} = goog.require('safevalues');
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.386';
+const API_CLIENT_VERSION = '0.1.388';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
@@ -533,7 +532,6 @@ apiclient.setAuthToken = function(
     }
   } else {
     apiclient.ensureAuthLibLoaded_(function() {
-      goog.global['gapi']['client']['setToken'](tokenObject);
       if (callback) {
         callback();
       }
@@ -560,7 +558,6 @@ apiclient.refreshAuthToken = function(success, error, onImmediateFailed) {
   // Set up auth options.
   const authArgs = {
     'client_id': String(apiclient.authClientId_),
-    'immediate': true,
     'scope': apiclient.authScopes_.join(' '),
     'plugin_name': 'earthengine',
   };
@@ -576,7 +573,6 @@ apiclient.refreshAuthToken = function(success, error, onImmediateFailed) {
           // Refresh the library auth token and handle error propagation.
           apiclient.ensureAuthLibLoaded_(function() {
             try {
-              goog.global['gapi']['client']['setToken'](result);
               apiclient.handleAuthResult_(success, error, result);
             } catch (e) {
               error(e.toString());
@@ -595,8 +591,8 @@ apiclient.refreshAuthToken = function(success, error, onImmediateFailed) {
 
 /**
  * Sets the current OAuth token refresher. By default, automatically set to
- * gapi.auth.authorize() after the auth library loads. Set to null to disable
- * token refreshing.
+ * Google Identity Services' callback triggered by `requestAccessToken()` after
+ * the auth library loads. Set to null to disable token refreshing.
  *
  * @param {?function(!apiclient.AuthArgs, function(!apiclient.AuthResponse))}
  *     refresher A function that takes as input 1) auth arguments and
@@ -1120,50 +1116,50 @@ apiclient.handleResponse_ = function(
 
 
 /**
- * Ensures that the Google API Client Library for JavaScript is loaded.
+ * Ensures that the Google Identity Services (GIS) libraries are loaded.
  * @param {function()} callback The function to call when the library is ready.
  * @private
  */
 apiclient.ensureAuthLibLoaded_ = function(callback) {
   const done = function() {
-    // Speed up auth request by using CORS instead of an iframe.
-    goog.global['gapi']['config']['update']('client/cors', true);
     if (!apiclient.authTokenRefresher_) {
-      apiclient.setAuthTokenRefresher(goog.global['gapi']['auth2']['authorize']);
+      apiclient.setAuthTokenRefresher(function(authArgs, refresherCallback) {
+        /** @type {!TokenClient} */
+        const tokenClient =
+            goog.global['google']['accounts']['oauth2']['initTokenClient']({
+              'client_id': authArgs.client_id,
+              'callback': refresherCallback,
+              'scope': authArgs.scope,
+            });
+        tokenClient.requestAccessToken();
+      });
     }
     callback();
   };
-  if (goog.isObject(goog.global['gapi']) &&
-      goog.isObject(goog.global['gapi']['auth2']) &&
-      typeof goog.global['gapi']['auth2']['authorize'] === 'function') {
-    done();
-  } else {
-    // The library is not loaded; load it now.
-    let callbackName = Date.now().toString(36);
-    while (callbackName in goog.global) {
-      callbackName += '_';
-    }
-    goog.global[callbackName] = function() {
-      delete goog.global[callbackName];
+  const loadGis = function() {
+    if (goog.isObject(goog.global['default_gsi'])) {
       done();
-    };
-    jsloader.safeLoad(
-        trustedResourceUrl`https://apis.google.com/js/client.js?onload=${
-            callbackName}`);
-  }
+    } else {
+      jsloader
+          .safeLoad(trustedResourceUrl`https://accounts.google.com/gsi/client`)
+          .addCallback(done);
+    }
+  };
+  loadGis();
 };
 
 
 /**
- * Handles the result of gapi.auth.authorize(), storing the auth token on
- * success and setting up a refresh timeout.
+ * Handles the result of an AuthResponse, storing the auth token on success and
+ * setting up a refresh timeout.
  *
  * @param {function()|undefined} success The function to call if token refresh
  *     succeeds.
  * @param {function(string)|undefined} error The function to call if auth fails,
  *     passing the error message.
- * @param {!apiclient.AuthResponse} result The result object produced by
- *     a token refresher such as gapi.auth.authorize().
+ * @param {!apiclient.AuthResponse} result The result object produced by a token
+ *     refresher such as Google Identity Services' callback triggered by
+ *     `requestAccessToken()`.
  * @private
  */
 apiclient.handleAuthResult_ = function(success, error, result) {
@@ -1547,13 +1543,6 @@ apiclient.CLOUD_PLATFORM_SCOPE_ =
 apiclient.DEFAULT_AUTH_SCOPES_ =
     [apiclient.AUTH_SCOPE_, apiclient.CLOUD_PLATFORM_SCOPE_];
 
-/**
- * The URL of the Google APIs Client Library.
- * @private @const {!GoogConst}
- */
-apiclient.AUTH_LIBRARY_URL_ = GoogConst.from(
-    'https://apis.google.com/js/client.js?onload=%{onload}');
-
 
 /**
  * The OAuth scope for Cloud Storage.
@@ -1676,7 +1665,8 @@ apiclient.AuthArgs = class {
     this.client_id;
 
     /**
-     * @export {boolean}
+     * @deprecated Immediate field is unused.
+     * @export {boolean|undefined}
      */
     this.immediate;
 
@@ -1687,6 +1677,19 @@ apiclient.AuthArgs = class {
   }
 };
 
+/**
+ * A token client to provide access tokens. For details, see
+ * https://developers.google.com/identity/oauth2/web/reference/js-reference#TokenClient.
+* @record @struct
+ */
+class TokenClient {
+  constructor() {
+    /**
+     * @export {function():void}
+     */
+    this.requestAccessToken;
+  }
+}
 
 /**
  * The result of a token refresh. Passed by the token refresher to the callback

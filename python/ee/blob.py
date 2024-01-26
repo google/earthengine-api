@@ -37,25 +37,25 @@ class Blob(computedobject.ComputedObject):
     """
     self.initialize()
 
-    if isinstance(url, computedobject.ComputedObject):
+    args: Dict[str, Any] = {'url': url}
+    func = apifunction.ApiFunction(self.name())
+
+    if isinstance(url, str):
+      if not url.startswith('gs://'):
+        raise ValueError(f'{self.name()} url must start with "gs://": "{url}"')
+
+    elif isinstance(url, computedobject.ComputedObject):
       if self.is_func_returning_same(url):
         # If it is a call that is already returning a Blob, just cast.
         super().__init__(url.func, url.args, url.varName)
         return
 
-      super().__init__(apifunction.ApiFunction(self.name()), {'url': url})
-      return
-
-    if not isinstance(url, str):
+    else:
       raise ValueError(
           f'{self.name()} url must be a string: {type(url)} -> "{url}"'
       )
-    if not url.startswith('gs://'):
-      raise ValueError(f'{self.name()} url must start with "gs://": "{url}"')
 
-    args: Dict[str, Any] = {'url': url}
-    func = apifunction.ApiFunction(self.name())
-    super().__init__(func, args)
+    super().__init__(func, func.promoteArgs(args))
 
   @classmethod
   def initialize(cls) -> None:

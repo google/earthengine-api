@@ -40,14 +40,25 @@ class PixelTypeTest(apitestcase.ApiTestCase):
 
     self.assertFalse(pixeltype.isVariable())
     self.assertEqual(
-        {
-            DIMENSIONS_KEY: dimensions,
-            MAX_VALUE_KEY: max_value,
-            MIN_VALUE_KEY: min_value,
-            PRECISION_KEY: precision,
-        },
-        pixeltype.args,
+        set([DIMENSIONS_KEY, MAX_VALUE_KEY, MIN_VALUE_KEY, PRECISION_KEY]),
+        set(pixeltype.args),
     )
+    expected_dimensions = {'result': '0', 'values': {'0': {'constantValue': 2}}}
+    self.assertEqual(
+        expected_dimensions,
+        json.loads(pixeltype.args[DIMENSIONS_KEY].serialize()),
+    )
+    expected_max_value = {'result': '0', 'values': {'0': {'constantValue': 1}}}
+    self.assertEqual(
+        expected_max_value,
+        json.loads(pixeltype.args[MAX_VALUE_KEY].serialize()),
+    )
+    expected_min_value = {'result': '0', 'values': {'0': {'constantValue': 0}}}
+    self.assertEqual(
+        expected_min_value,
+        json.loads(pixeltype.args[MIN_VALUE_KEY].serialize()),
+    )
+    self.assertEqual(Type.INT, pixeltype.args[PRECISION_KEY])
 
     result = json.loads(pixeltype.serialize())
     expect = {

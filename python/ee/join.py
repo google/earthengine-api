@@ -34,8 +34,9 @@ class Join(computedobject.ComputedObject):
     """
     self.initialize()
 
-    if self.is_func_returning_same(join):
-      # If it is a call that is already returning a Join, just cast.
+    if isinstance(join, computedobject.ComputedObject):
+      # There is no server-side constructor for ee.Join. Pass the object as-is
+      # to the server in case it is intended to be a Join cast.
       super().__init__(join.func, join.args, join.varName)
       return
 

@@ -1,6 +1,6 @@
 """The EE Python library."""
 
-__version__ = '0.1.386'
+__version__ = '0.1.388'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -27,8 +27,11 @@ from .apifunction import ApiFunction
 from .blob import Blob
 from .collection import Collection
 from .computedobject import ComputedObject
+from .confusionmatrix import ConfusionMatrix
 from .customfunction import CustomFunction
+from .daterange import DateRange
 from .dictionary import Dictionary
+from .ee_array import Array
 from .ee_date import Date
 from .ee_exception import EEException
 from .ee_list import List
@@ -45,7 +48,10 @@ from .geometry import Geometry
 from .image import Image
 from .imagecollection import ImageCollection
 from .join import Join
+from .model import Model
 from .pixeltype import PixelType
+from .projection import Projection
+from .reducer import Reducer
 from .serializer import Serializer
 from .terrain import Terrain
 
@@ -159,9 +165,12 @@ def Initialize(
 
   # Initialize the dynamically loaded functions on the objects that want them.
   ApiFunction.initialize()
+  Array.initialize()
   Blob.initialize()
   Collection.initialize()
+  ConfusionMatrix.initialize()
   Date.initialize()
+  DateRange.initialize()
   Dictionary.initialize()
   Element.initialize()
   ErrorMargin.initialize()
@@ -173,8 +182,11 @@ def Initialize(
   ImageCollection.initialize()
   Join.initialize()
   List.initialize()
+  Model.initialize()
   Number.initialize()
   PixelType.initialize()
+  Projection.initialize()
+  Reducer.initialize()
   String.initialize()
   Terrain.initialize()
 
@@ -191,8 +203,11 @@ def Reset() -> None:
   ApiFunction.reset()
   Element.reset()  # Must be before Collection.
   Collection.reset()  # Must be before FeatureCollection and ImageCollection.
+  Array.reset()
   Blob.reset()
+  ConfusionMatrix.reset()
   Date.reset()
+  DateRange.reset()
   Dictionary.reset()
   ErrorMargin.reset()
   Feature.reset()
@@ -203,8 +218,11 @@ def Reset() -> None:
   ImageCollection.reset()
   Join.reset()
   List.reset()
+  Model.reset()
   Number.reset()
   PixelType.reset()
+  Projection.reset()
+  Reducer.reset()
   String.reset()
   Terrain.reset()
 

@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for the ee.Join module.
-
-
-"""
+"""Tests for the ee.Join module."""
 
 import json
 
@@ -84,11 +81,6 @@ class JoinTest(apitestcase.ApiTestCase):
     message = 'missing 1 required positional argument.*join'
     with self.assertRaisesRegex(TypeError, message):
       ee.Join()  # pytype:disable=missing-parameter
-
-  def test_join_ee_string_arg(self):
-    message = 'Join can only be used as a cast'
-    with self.assertRaisesRegex(TypeError, message):
-      ee.Join(ee.String('bad argument'))
 
 
 if __name__ == '__main__':
