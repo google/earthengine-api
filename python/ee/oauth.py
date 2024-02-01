@@ -95,7 +95,11 @@ def get_credentials_arguments() -> Dict[str, Any]:
 
 def is_sdk_credentials(credentials: Optional[Any]) -> bool:
   client = (credentials and getattr(credentials, 'client_id', None)) or ''
-  return client.split('-')[0] in SDK_PROJECTS
+  return is_sdk_project(client.split('-')[0])
+
+
+def is_sdk_project(project: str) -> bool:
+  return project in SDK_PROJECTS
 
 
 def get_appdefault_project() -> Optional[str]:

@@ -11,6 +11,7 @@ import sys
 import threading
 from typing import Any, Callable, Dict, Iterator, List, Optional, Sequence, Union
 import uuid
+import warnings
 
 import google.auth
 # Rename to avoid redefined-outer-name warning.
@@ -251,14 +252,21 @@ def get_persistent_credentials() -> credentials_lib.Credentials:
     args = oauth.get_credentials_arguments()
   except IOError:
     pass
+
   if args.get('refresh_token'):
     credentials = credentials_lib.Credentials(None, **args)
   else:
     # If EE credentials aren't available, try application default credentials.
     try:
-      credentials, unused_project_id = google.auth.default()
+      with warnings.catch_warnings():
+        # _default.py gives incorrect advice here: gcloud config set project
+        # sets the default resource project but we need the quota project.
+        warnings.filterwarnings('ignore', '.*(No project ID|quota project).*')
+
+        credentials, unused_project_id = google.auth.default()
     except google.auth.exceptions.DefaultCredentialsError:
       pass
+
   if credentials:
     # earthengine set_project always overrides gcloud set-quota-project
     project = args.get('quota_project_id') or oauth.get_appdefault_project()

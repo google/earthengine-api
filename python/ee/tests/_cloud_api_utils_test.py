@@ -22,7 +22,7 @@ class CloudApiUtilsTest(unittest.TestCase):
 
   def test_build_cloud_resource(self):
     base = 'https://earthengine.basetest'
-    path = '$discovery/rest?version=v1&labels=GOOGLE_INTERNAL&prettyPrint=false'
+    path = '$discovery/rest?version=v1&prettyPrint=false'
     def check_build(api, unused_version, **kwargs):
       self.assertEqual('earthengine', api)
       self.assertEqual(base + '/' + path, kwargs.get('discoveryServiceUrl'))

@@ -432,9 +432,7 @@ class SetProjectCommand:
       config = {}
 
     config['project'] = args.project
-    # Existing file permissions will be left unchanged if file already exists.
-    with open(config_path, 'w') as json_config_file:
-      json.dump(config, json_config_file)
+    ee.oauth.write_private_json(config_path, config)
     print('Successfully saved project id')
 
 
@@ -462,9 +460,7 @@ class UnSetProjectCommand:
 
     if 'project' in config:
       del config['project']
-    # Existing file permissions will be left unchanged if file already exists.
-    with open(config_path, 'w') as json_config_file:
-      json.dump(config, json_config_file)
+    ee.oauth.write_private_json(config_path, config)
     print('Successfully unset project id')
 
 
