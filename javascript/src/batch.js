@@ -754,7 +754,7 @@ Export.videoMap.prepareTaskConfig_ = function(taskConfig, destination) {
  * Adapts a ServerTaskConfig into a ClassifierTaskConfig normalizing any params
  * for a classifier task.
  *
- * @param {!ServerTaskConfig} taskConfig VideoMap export config to
+ * @param {!ServerTaskConfig} taskConfig Classifier export config to
  *     prepare.
  * @param {!data.ExportDestination} destination Export destination.
  * @return {!data.ClassifierTaskConfig}
@@ -964,7 +964,7 @@ Export.reconcileMapFormat = function(taskConfig) {
  * @return {!ServerTaskConfig}
  */
 Export.reconcileTableFormat = function(taskConfig) {
-  // Parse the image file format from the given task config.
+  // Parse the table file format from the given task config.
   let formatString = taskConfig['fileFormat'];
   // If not specified assume the format is CSV.
   if (formatString == null) {

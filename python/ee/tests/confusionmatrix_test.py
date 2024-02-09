@@ -44,6 +44,40 @@ class ConfusionMatrixTest(apitestcase.ApiTestCase):
     self.assertFalse(confusion_matrix.isVariable())
     self.assertEqual({'array': array}, confusion_matrix.args)
 
+  def test_serialize(self):
+    confusion_matrix = ee.ConfusionMatrix(ee.Array([[0, 0], [0, 0]]), [1, 2])
+    result = json.loads(confusion_matrix.serialize())
+    expected = {
+        'result': '0',
+        'values': {
+            '1': {'constantValue': [0, 0]},
+            '0': {
+                'functionInvocationValue': {
+                    'functionName': 'ConfusionMatrix',
+                    'arguments': {
+                        'array': {
+                            'functionInvocationValue': {
+                                'functionName': 'Array',
+                                'arguments': {
+                                    'values': {
+                                        'arrayValue': {
+                                            'values': [
+                                                {'valueReference': '1'},
+                                                {'valueReference': '1'},
+                                            ]
+                                        }
+                                    }
+                                },
+                            }
+                        },
+                        'order': {'constantValue': [1, 2]},
+                    },
+                }
+            },
+        },
+    }
+    self.assertEqual(expected, result)
+
   def test_cast(self):
     array = ee.Array([[0, 0], [0, 0]])
     order = ee.List([2, 1])

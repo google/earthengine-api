@@ -17,6 +17,7 @@ class Type(str, enum.Enum):
   FLOAT = 'float'
   INT = 'int'
 
+
 DIMENSIONS_KEY = 'dimensions'
 MAX_VALUE_KEY = 'maxValue'
 MIN_VALUE_KEY = 'minValue'
@@ -170,6 +171,30 @@ class PixelTypeTest(apitestcase.ApiTestCase):
 
     cast_result = json.loads(ee.PixelType(pixeltype).serialize())
     self.assertEqual(expect, cast_result)
+
+  def test_float_no_dimensions(self):
+    precision = Type.FLOAT
+    min_value = 0.1
+    max_value = 0.2
+    result = json.loads(
+        ee.PixelType(precision, min_value, max_value).serialize()
+    )
+    expect = {
+        'result': '0',
+        'values': {
+            '0': {
+                'functionInvocationValue': {
+                    'arguments': {
+                        MAX_VALUE_KEY: {'constantValue': 0.2},
+                        MIN_VALUE_KEY: {'constantValue': 0.1},
+                        PRECISION_KEY: {'constantValue': precision},
+                    },
+                    'functionName': PIXELTYPE,
+                }
+            }
+        },
+    }
+    self.assertEqual(expect, result)
 
 
 if __name__ == '__main__':

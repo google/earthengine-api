@@ -1,4 +1,5 @@
 /**
+ * g3-format-changed-lines-during-prettier-version-upgrade
  * Utility map for ClassMetadata to describe how to create instances of child
  * properties.
  */

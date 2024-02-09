@@ -20,10 +20,7 @@ class ReducerTest(apitestcase.ApiTestCase):
     self.assertEqual(reducer_func, reducer.func)
 
     self.assertFalse(reducer.isVariable())
-    self.assertEqual(
-        {},
-        reducer.args,
-    )
+    self.assertEqual({}, reducer.args)
 
     result = json.loads(reducer.serialize())
     expect = {

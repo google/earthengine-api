@@ -370,24 +370,50 @@ ee.data.getAlgorithms = function(opt_callback) {
  * @param {!ee.data.ImageVisualizationParameters} params
  *     The visualization parameters as a (client-side) JavaScript object.
  *     For Images and ImageCollections:
- *       - image (JSON string) The image to render.
- *       - version (number) Version number of image (or latest).
- *       - bands (comma-separated strings) Comma-delimited list of
- *             band names to be mapped to RGB.
- *       - min (comma-separated numbers) Value (or one per band)
- *             to map onto 00.
- *       - max (comma-separated numbers) Value (or one per band)
- *             to map onto FF.
- *       - gain (comma-separated numbers) Gain (or one per band)
- *             to map onto 00-FF.
- *       - bias (comma-separated numbers) Offset (or one per band)
- *             to map onto 00-FF.
- *       - gamma (comma-separated numbers) Gamma correction
- *             factor (or one per band)
- *       - palette (comma-separated strings) List of CSS-style color
- *             strings (single-band previews only).
- *       - opacity (number) a number between 0 and 1 for opacity.
- *       - format (string) Either "jpg" or "png".
+ *       <table>
+ *         <tr>
+ *           <td><code> image </code> (JSON string) The image to render.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> version </code> (number) Version number of
+ *             image (or latest).</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> bands </code> (comma-separated strings) Comma-delimited
+ *             list of band names to be mapped to RGB.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> min </code> (comma-separated numbers) Value (or one
+ *             per band) to map onto 00.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> max </code> (comma-separated numbers) Value (or one
+ *             per band) to map onto FF.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> gain </code> (comma-separated numbers) Gain (or one
+ *             per band) to map onto 00-FF.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> bias </code> (comma-separated numbers) Offset (or one
+ *             per band) to map onto 00-FF.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> gamma </code> (comma-separated numbers) Gamma correction
+ *             factor (or one per band).</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> palette </code> (comma-separated strings) List of
+ *             CSS-style color strings (single-band previews only).</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> opacity </code> (number) a number between 0 and 1 for
+ *             opacity.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> format </code> (string) Either "jpg" or "png".</td>
+ *         </tr>
+ *       </table>
  * @param {function(?ee.data.RawMapId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.RawMapId} The mapId call results, which may be passed to
@@ -487,8 +513,16 @@ ee.data.makeMapId_ = function(mapid, token, opt_urlFormat = '') {
  * @param {!ee.data.FeatureViewVisualizationParameters} params
  *     The visualization parameters as a (client-side) JavaScript object.
  *     For FeatureView assets:
- *       - assetId (string) The asset ID for which to obtain a tiles key.
- *       - visParams (Object) The visualization parameters for this layer.
+ *       <table>
+ *         <tr>
+ *           <td><code> assetId </code> (string) The asset ID for which to
+ *             obtain a tiles key.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> visParams </code> (Object) The visualization parameters
+ *             for this layer.</td>
+ *         </tr>
+ *       </table>
  * @param {function(?ee.data.FeatureViewTilesKey, string=)=} opt_callback An
  *     optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.FeatureViewTilesKey} The call results. Null if a callback
@@ -527,14 +561,27 @@ ee.data.getFeatureViewTilesKey = function(params, opt_callback) {
  * @param {string} asset The table asset ID to query.
  * @param {!ee.api.ProjectsAssetsListFeaturesNamedParameters} params An object
  *     containing request parameters with the following possible values:
- *     - pageSize (number): An optional maximum number of results per page,
- *           default is 1000.
- *     - pageToken (string): An optional token identifying a page of results the
- *           server should return, usually taken from the response object.
- *     - region (string): If present, a geometry defining a query region,
- *           specified as a GeoJSON geometry string (see RFC 7946).
- *     - filter (comma-separated strings): If present, specifies additional
- *           simple property filters (see https://google.aip.dev/160).
+ *     <table>
+ *       <tr>
+ *         <td><code> pageSize </code> (number): An optional maximum number of
+ *           results per page, default is 1000.</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> pageToken </code> (string): An optional token identifying
+ *           a page of results the server should return, usually taken from the
+ *           response object.</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> region </code> (string): If present, a geometry defining
+ *           a query region, specified as a GeoJSON geometry
+ *           string (see RFC 7946).</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> filter </code> (comma-separated strings): If present,
+ *           specifies additional simple property
+ *           filters (see https://google.aip.dev/160).</td>
+ *       </tr>
+ *     </table>
  * @param {function(?ee.api.ListFeaturesResponse, string=)=} opt_callback An
  *     optional callback, called with two parameters: the first is the resulting
  *     list of features and the second is an error string on failure. If not
@@ -581,10 +628,23 @@ ee.data.computeValue = function(obj, opt_callback) {
  * Get a Thumbnail Id for a given asset.
  * @param {!ee.data.ThumbnailOptions} params An object containing thumbnail
  *     options with the following possible values:
- *       - image (ee.Image) The image to make a thumbnail.
- *       - bands (array of strings) An array of band names.
- *       - format (string) The file format ("png", "jpg", "geotiff").
- *       - name (string): The base name.
+ *       <table>
+ *         <tr>
+ *           <td><code> image </code> (ee.Image) The image to make a
+ *             thumbnail.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> bands </code> (array of strings) An array of band
+ *             names.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> format </code> (string) The file
+ *             format ("png", "jpg", "geotiff").</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> name </code> (string): The base name.</td>
+ *         </tr>
+ *       </table>
  *     Use ee.Image.getThumbURL for region, dimensions, and visualization
  *     options support.
  * @param {function(?ee.data.ThumbnailId, string=)=} opt_callback
@@ -734,44 +794,76 @@ ee.data.makeThumbUrl = function(id) {
  *
  * @param {!Object} params An object containing download options with the
  *     following possible values:
- *   - image: The image to download.
- *   - name: a base name to use when constructing filenames. Only applicable
- *         when format is "ZIPPED_GEO_TIFF" (default) or filePerBand is true.
- *         Defaults to the image id (or "download" for computed images) when
- *         format is "ZIPPED_GEO_TIFF" or filePerBand is true, otherwise a
- *         random character string is generated. Band names are appended when
- *         filePerBand is true.
- *   - bands: a description of the bands to download. Must be an array of band
- *         names or an array of dictionaries, each with the following keys
- *         (optional parameters apply only when filePerBand is true):
- *     + id: the name of the band, a string, required.
- *     + crs: an optional CRS string defining the band projection.
- *     + crs_transform: an optional array of 6 numbers specifying an affine
- *           transform from the specified CRS, in row-major order:
- *           [xScale, xShearing, xTranslation, yShearing, yScale, yTranslation]
- *     + dimensions: an optional array of two integers defining the width and
- *           height to which the band is cropped.
- *     + scale: an optional number, specifying the scale in meters of the band;
- *              ignored if crs and crs_transform are specified.
- *   - crs: a default CRS string to use for any bands that do not explicitly
- *         specify one.
- *   - crs_transform: a default affine transform to use for any bands that do
- *         not specify one, of the same format as the crs_transform of bands.
- *   - dimensions: default image cropping dimensions to use for any bands that
- *         do not specify them.
- *   - scale: a default scale to use for any bands that do not specify one;
- *         ignored if crs and crs_transform are specified.
- *   - region: a polygon specifying a region to download; ignored if crs
- *         and crs_transform is specified.
- *   - filePerBand: whether to produce a separate GeoTIFF per band (boolean).
- *         Defaults to true. If false, a single GeoTIFF is produced and all
- *         band-level transformations will be ignored.
- *   - format: the download format. One of: "ZIPPED_GEO_TIFF" (GeoTIFF file(s)
- *         wrapped in a zip file, default), "GEO_TIFF" (GeoTIFF file),
- *         "NPY" (NumPy binary format). If "GEO_TIFF" or "NPY", filePerBand
- *         and all band-level transformations will be ignored. Loading a NumPy
- *         output results in a structured array.
- *   - id: deprecated, use image parameter.
+ *   <table>
+ *     <tr>
+ *       <td><code> name: </code> a base name to use when constructing
+ *         filenames. Only applicable when format is "ZIPPED_GEO_TIFF" (default)
+ *         or filePerBand is true. Defaults to the image id (or "download" for
+ *         computed images) when format is "ZIPPED_GEO_TIFF" or filePerBand is
+ *         true, otherwise a random character string is generated. Band names
+ *         are appended when filePerBand is true.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> bands: </code> a description of the bands to download. Must
+ *         be an array of band names or an array of dictionaries, each with the
+ *         following keys (optional parameters apply only when filePerBand is
+ *         true):<ul style="list-style-type:none;">
+ *           <li><code> id: </code> the name of the band, a string, required.
+ *           <li><code> crs: </code> an optional CRS string defining the
+ *             band projection.</li>
+ *           <li><code> crs_transform: </code> an optional array of 6 numbers
+ *             specifying an affine transform from the specified CRS, in
+ *             row-major order: [xScale, xShearing, xTranslation, yShearing,
+ *             yScale, yTranslation]</li>
+ *           <li><code> dimensions: </code> an optional array of two integers
+ *             defining the width and height to which the band is cropped.</li>
+ *           <li><code> scale: </code> an optional number, specifying the scale
+ *             in meters of the band; ignored if crs and crs_transform are
+ *             specified.</li></ul></td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> crs: </code> a default CRS string to use for any bands that
+ *         do not explicitly specify one.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> crs_transform: </code> a default affine transform to use for
+ *         any bands that do not specify one, of the same format as the
+ *         <code>crs_transform</code> of bands.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> dimensions: </code> default image cropping dimensions to use
+ *         for any bands that do not specify them.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> scale: </code> a default scale to use for any bands that do
+ *         not specify one; ignored if <code>crs</code> and
+ *         <code>crs_transform</code> are specified.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> region: </code> a polygon specifying a region to download;
+ *         ignored if <code>crs</code> and <code>crs_transform</code> is
+ *         specified.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> filePerBand: </code> whether to produce a separate GeoTIFF
+ *         per band (boolean). Defaults to true. If false, a single GeoTIFF is
+ *         produced and all band-level transformations will be ignored.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> format: </code> the download format. One of:
+ *         <ul>
+ *           <li> "ZIPPED_GEO_TIFF" (GeoTIFF file(s) wrapped in a zip file,
+ *             default)</li>
+ *           <li> "GEO_TIFF" (GeoTIFF file)</li>
+ *           <li> "NPY" (NumPy binary format)</li>
+ *         </ul>
+ *         If "GEO_TIFF" or "NPY", filePerBand and all band-level
+ *         transformations will be ignored. Loading a NumPy output results in
+ *         a structured array.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> id: </code> deprecated, use image parameter.</td>
+ *   </table>
  * @param {function(?ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.DownloadId} A download id and token, or null if a callback
@@ -882,11 +974,23 @@ ee.data.makeDownloadUrl = function(id) {
  * Get a download ID.
  * @param {!Object} params An object containing table download options with the
  *     following possible values:
- *   - table: The feature collection to download.
- *   - format: The download format, CSV, JSON, KML, KMZ or TF_RECORD.
- *   - selectors: List of strings of selectors that can be used to
- *          determine which attributes will be downloaded.
- *   - filename: The name of the file that will be downloaded.
+ *       <table>
+ *         <tr>
+ *           <td><code> table: </code> The feature collection to download.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> format: </code> The download format, CSV, JSON, KML,
+ *             KMZ or TF_RECORD.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> selectors: </code> List of strings of selectors that can
+ *             be used to determine which attributes will be downloaded.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> filename: </code> The name of the file that will
+ *             be downloaded.</td>
+ *         </tr>
+ *       </table>
  * @param {function(?ee.data.DownloadId, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.DownloadId} A download id and token, or null if a
@@ -1601,17 +1705,31 @@ ee.data.getList = function(params, opt_callback) {
  * @param {string} parent The ID of the collection or folder to list.
  * @param {!ee.api.ProjectsAssetsListAssetsNamedParameters=} opt_params An
  *     object containing optional request parameters with the following
- * possible values:
- *       - pageSize (string) The number of results to return. Defaults to 1000.
- *       - pageToken (string) The token for the page of results to return.
- *       - filter (string) An additional filter query to apply. Example query:
- *            `properties.my_property>=1 AND properties.my_property<2 AND
- *            startTime >= "2019-01-01T00:00:00.000Z" AND
- *            endTime < "2020-01-01T00:00:00.000Z" AND
- *            intersects("{'type':'Point','coordinates':[0,0]}")`
- *         See https://google.aip.dev/160 for how to construct a query.
- *       - view (string) Specifies how much detail is returned in the list.
- *         Either "FULL" (default) for all image properties or "BASIC".
+ *     possible values:
+ *       <table>
+ *         <tr>
+ *           <td><code> pageSize </code> (string) The number of results to
+ *             return. Defaults to 1000.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> pageToken </code> (string) The token for the page of
+ *             results to return.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> filter </code> (string) An additional filter query to
+ *             apply. Example query: <code>properties.my_property&gt;=1 AND
+ *             properties.my_property&lt;2 AND
+ *             startTime &gt;= "2019-01-01T00:00:00.000Z" AND
+ *             endTime &lt; "2020-01-01T00:00:00.000Z" AND
+ *             intersects("{'type':'Point','coordinates':[0,0]}")</code>
+ *             See https://google.aip.dev/160 for how to construct a query.</td>
+ *         </tr>
+ *         <tr>
+ *           <td><code> view </code> (string) Specifies how much detail is
+ *             returned in the list. Either "FULL" (default) for all image
+ *             properties or "BASIC".</td>
+ *         </tr>
+ *       </table>
  * @param {function(?ee.api.ListAssetsResponse, string=)=}
  *     opt_callback  If not supplied, the call is made synchronously.
  * @return {?ee.api.ListAssetsResponse}
@@ -1632,21 +1750,47 @@ ee.data.listAssets = function(
  * @param {string} parent The ID of the image collection to list.
  * @param {!Object=} opt_params An object containing optional request
  *     parameters with the following possible values:
- *       - pageSize (string) The number of results to return. Defaults to 1000.
- *       - pageToken (string) The token page of results to return.
- *       - startTime (ISO 8601 string) The minimum start time (inclusive).
- *       - endTime (ISO 8601 string) The maximum end time (exclusive).
- *       - region (GeoJSON or WKT string) A region to filter on.
- *       - properties (list of strings) A list of property filters to apply,
- *         for example: ["classification=urban", "size>=2"].
- *       - filter (string) An additional filter query to apply. Example query:
- *            `properties.my_property>=1 AND properties.my_property<2 AND
- *            startTime >= "2019-01-01T00:00:00.000Z" AND
- *            endTime < "2020-01-01T00:00:00.000Z" AND
- *            intersects("{'type':'Point','coordinates':[0,0]}")`
- *         See https://google.aip.dev/160 for how to construct a query.
- *       - view (string) Specifies how much detail is returned in the list.
- *         Either "FULL" (default) for all image properties or "BASIC".
+ *     <table>
+ *       <tr>
+ *         <td><code> pageSize </code> (string) The number of results to return.
+ *           Defaults to 1000.</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> pageToken </code> (string) The token page of results to
+ *           return.</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> startTime </code> (ISO 8601 string) The minimum start
+ *           time (inclusive).</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> endTime </code> (ISO 8601 string) The maximum end
+ *           time (exclusive).</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> region </code> (GeoJSON or WKT string) A region to filter
+ *           on.</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> properties </code> (list of strings) A list of property
+ *           filters to apply, for example:
+ *           ["classification=urban", "size&gt;=2"].</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> filter </code> (string) An additional filter query to
+ *           apply. Example query: <code>properties.my_property&gt;=1 AND
+ *           properties.my_property&lt;2 AND
+ *           startTime &gt;= "2019-01-01T00:00:00.000Z" AND
+ *           endTime &lt; "2020-01-01T00:00:00.000Z" AND
+ *           intersects("{'type':'Point','coordinates':[0,0]}")</code>
+ *           See https://google.aip.dev/160 for how to construct a query.</td>
+ *       </tr>
+ *       <tr>
+ *         <td><code> view </code> (string) Specifies how much detail is
+ *           returned in the list. Either "FULL" (default) for all image
+ *           properties or "BASIC".</td>
+ *       </tr>
+ *     </table>
  * @param {function(?ee.data.ListImagesResponse, string=)=}
  *     opt_callback  If not supplied, the call is made synchronously.
  * @return {?ee.data.ListImagesResponse}

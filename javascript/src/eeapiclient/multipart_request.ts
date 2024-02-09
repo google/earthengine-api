@@ -1,3 +1,4 @@
+// g3-format-changed-lines-during-prettier-version-upgrade
 import {Serializable, serialize} from './domain_object';
 
 export class MultipartRequest {

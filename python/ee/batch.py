@@ -859,11 +859,19 @@ class Export:
     # Disable argument usage check; arguments are accessed using locals().
     # pylint: disable=unused-argument
     @staticmethod
-    def toCloudStorage(collection, description='myExportVideoTask',
-                       bucket=None, fileNamePrefix=None, framesPerSecond=None,
-                       dimensions=None, region=None, scale=None, crs=None,
-                       crsTransform=None, maxPixels=None,
-                       maxFrames=None, **kwargs):
+    def toCloudStorage(collection,
+                       description='myExportVideoTask',
+                       bucket=None,
+                       fileNamePrefix=None,
+                       framesPerSecond=None,
+                       dimensions=None,
+                       region=None,
+                       scale=None,
+                       crs=None,
+                       crsTransform=None,
+                       maxPixels=None,
+                       maxFrames=None,
+                       **kwargs):
       """Creates a task to export an ImageCollection video to Cloud Storage.
 
       Args:
@@ -909,10 +917,19 @@ class Export:
       return _create_export_task(config, Task.Type.EXPORT_VIDEO)
 
     @staticmethod
-    def toDrive(collection, description='myExportVideoTask',
-                folder=None, fileNamePrefix=None, framesPerSecond=None,
-                dimensions=None, region=None, scale=None, crs=None,
-                crsTransform=None, maxPixels=None, maxFrames=None, **kwargs):
+    def toDrive(collection,
+                description='myExportVideoTask',
+                folder=None,
+                fileNamePrefix=None,
+                framesPerSecond=None,
+                dimensions=None,
+                region=None,
+                scale=None,
+                crs=None,
+                crsTransform=None,
+                maxPixels=None,
+                maxFrames=None,
+                **kwargs):
       """Creates a task to export an ImageCollection as a video to Drive.
 
       Args:

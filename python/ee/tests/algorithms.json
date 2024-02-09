@@ -188,7 +188,7 @@
     "arguments": [{
       "argumentName": "condition",
       "type": "Object",
-      "description": "The condition that determines which result is returned. If this is not a boolean, it is interpreted as a boolean by the following rules:\n  - Numbers that are equal to 0 or a NaN are false.\n  - Empty strings, lists and dictionaries are false.\n  - Null is false.\n  - Everything else is true.",
+      "description": "The condition that determines which result is returned. If this is not a boolean, it is interpreted as a boolean by the following rules:\n\u003cul\u003e  \u003cli\u003e Numbers that are equal to 0 or a NaN are false.\u003c/li\u003e  \u003cli\u003e Empty strings, lists and dictionaries are false.\u003c/li\u003e  \u003cli\u003e Null is false.\u003c/li\u003e  \u003cli\u003e Everything else is true.\u003c/li\u003e\u003c/ul\u003e",
       "optional": true,
       "defaultValue": null
     }, {
@@ -2997,7 +2997,7 @@
     "arguments": [{
       "argumentName": "metric",
       "type": "String",
-      "description": "The distance metric to use.  Options are:\n  \u0027euclidean\u0027 - euclidean distance from the unnormalized class mean.\n  \u0027cosine\u0027 - spectral angle from the unnormalized class mean.\n  \u0027mahalanobis\u0027 - Mahalanobis distance from the class mean.\n  \u0027manhattan\u0027 - Manhattan distance from the unnormalized class mean.",
+      "description": "The distance metric to use.  Options are:\n\u003cul\u003e  \u003cli\u003e \u0027euclidean\u0027 - euclidean distance from the unnormalized class mean.\u003c/li\u003e  \u003cli\u003e \u0027cosine\u0027 - spectral angle from the unnormalized class mean.\u003c/li\u003e  \u003cli\u003e \u0027mahalanobis\u0027 - Mahalanobis distance from the class mean.\u003c/li\u003e  \u003cli\u003e \u0027manhattan\u0027 - Manhattan distance from the unnormalized class mean.\u003c/li\u003e\u003c/ul\u003e",
       "optional": true,
       "defaultValue": "euclidean"
     }, {
@@ -3205,7 +3205,7 @@
     }, {
       "argumentName": "mode",
       "type": "String",
-      "description": "The output mode. One of:\n  - CLASSIFICATION (default): The output is the class number.\n  - REGRESSION: The output is the result of standard regression.\n  - PROBABILITY: The output is the probability that the classification is correct.\n  - MULTIPROBABILITY: The output is an array of probabilities that each class is correct ordered by classes seen.\n  - RAW: The output is an array of the internal representation of the classification process.  For example, the raw votes in multi-decision tree models.\n  - RAW_REGRESSION: The output is an array of the internal representation of the regression process. For example, the raw predictions of multiple regression trees.\nNot all classifiers support modes other than CLASSIFICATION."
+      "description": "The output mode. One of:\n\u003cul\u003e  \u003cli\u003e CLASSIFICATION (default): The output is the class number.\u003c/li\u003e  \u003cli\u003e REGRESSION: The output is the result of standard regression.\u003c/li\u003e  \u003cli\u003e PROBABILITY: The output is the probability that the classification     is correct.\u003c/li\u003e  \u003cli\u003e MULTIPROBABILITY: The output is an array of probabilities that each    class is correct ordered by classes seen.\u003c/li\u003e  \u003cli\u003e RAW: The output is an array of the internal representation of the    classification process. For example, the raw votes in multi-decision tree    models.\u003c/li\u003e  \u003cli\u003e RAW_REGRESSION: The output is an array of the internal representation of the    regression process. For example, the raw predictions of multiple regression    trees.\u003c/li\u003e\u003c/ul\u003eNot all classifiers support modes other than CLASSIFICATION."
     }]
   }, {
     "name": "algorithms/Classifier.train",
@@ -12988,7 +12988,7 @@
     }, {
       "argumentName": "pattern",
       "type": "String",
-      "description": "A printf-style format string. For example, \u0027%.2f\u0027 produces numbers formatted like \u00273.14\u0027, and \u0027%05d\u0027 produces numbers formatted like \u002700042\u0027. The format string must satisfy the following criteria:\n1. Zero or more prefix characters.\n2. Exactly one \u0027%\u0027.\n3. Zero or more modifier characters in the set [#-+ 0,(.\\d].\n4. Exactly one conversion character in the set [sdoxXeEfgGaA].\n5. Zero or more suffix characters.\n \nFor more about format strings, see https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html",
+      "description": "A printf-style format string. For example, \u0027%.2f\u0027 produces numbers formatted like \u00273.14\u0027, and \u0027%05d\u0027 produces numbers formatted like \u002700042\u0027. The format string must satisfy the following criteria:\n\u003col\u003e  \u003cli\u003e Zero or more prefix characters.\u003c/li\u003e  \u003cli\u003e Exactly one \u0027%\u0027.\u003c/li\u003e  \u003cli\u003e Zero or more modifier characters in the set [#-+ 0,(.\\d].\u003c/li\u003e  \u003cli\u003e Exactly one conversion character in the set [sdoxXeEfgGaA].\u003c/li\u003e  \u003cli\u003e Zero or more suffix characters.\u003c/li\u003e\u003c/ol\u003eFor more about format strings, see https://docs.oracle.com/javase/7/docs/api/java/util/Formatter.html",
       "optional": true,
       "defaultValue": "%s"
     }]

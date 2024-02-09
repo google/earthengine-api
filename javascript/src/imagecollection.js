@@ -114,13 +114,23 @@ ee.ImageCollection.reset = function() {
  * Get the URL of a tiled thumbnail for this ImageCollection.
  * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
  * optionally:
- *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
- *         dimensions of each thumbnail frame to render, in pixels. If only one
- *         number is passed, it is used as the maximum, and the other
- *         dimension is computed by proportional scaling.
- *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
- *         to render. By default, the whole image.
- *   - format (string) Encoding format. Only 'png' or 'jpg' are accepted.
+ *   <table>
+ *     <tr>
+ *       <td><code> dimensions </code> (a number or pair of numbers in
+ *         format WIDTHxHEIGHT) Maximum dimensions of each thumbnail frame to
+ *         render, in pixels. If only one number is passed, it is used as the
+ *         maximum, and the other dimension is computed by proportional
+ *         scaling.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> region </code> (E,S,W,N or GeoJSON) Geospatial region of
+ *         the image to render. By default, the whole image.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> format </code> (string) Encoding format. Only 'png'
+ *       or 'jpg' are accepted.</td>
+ *     </tr>
+ *   </table>
  * @param {function(string, string=)=} opt_callback An optional
  *     callback which handles the resulting URL string. If not supplied, the
  *     call is made synchronously.
@@ -141,14 +151,25 @@ ee.ImageCollection.prototype.getFilmstripThumbURL = function(params, opt_callbac
  * Get the URL of an animated thumbnail for this ImageCollection.
  * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
  * optionally:
- *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
- *         dimensions of the thumbnail to render, in pixels. If only one
- *         number is passed, it is used as the maximum, and the other
- *         dimension is computed by proportional scaling.
- *   - region (E,S,W,N or GeoJSON) Geospatial region of the image
- *         to render. By default, the whole image.
- *   - format (string) Encoding format. Only 'gif' is accepted.
- *   - framesPerSecond (number) Animation speed.
+ *   <table>
+ *     <tr>
+ *       <td><code> dimensions </code> (a number or pair of numbers in format
+ *         WIDTHxHEIGHT) Maximum dimensions of the thumbnail to render, in
+ *         pixels. If only one number is passed, it is used as the maximum, and
+ *         the other dimension is computed by proportional scaling.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> region </code> (E,S,W,N or GeoJSON) Geospatial region of
+ *         the image to render. By default, the whole image.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> format </code> (string) Encoding format. Only 'gif'
+ *         is accepted.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> framesPerSecond </code> (number) Animation speed.</td>
+ *     </tr>
+ *   </table>
  * @param {function(string, string=)=} opt_callback An optional
  *     callback which handles the resulting URL string. If not supplied, the
  *     call is made synchronously.

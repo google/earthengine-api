@@ -21,10 +21,7 @@ class JoinTest(apitestcase.ApiTestCase):
     self.assertEqual(join_func, join.func)
 
     self.assertFalse(join.isVariable())
-    self.assertEqual(
-        {},
-        join.args,
-    )
+    self.assertEqual({}, join.args)
 
     result = json.loads(join.serialize())
     expect = {

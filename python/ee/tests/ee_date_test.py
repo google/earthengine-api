@@ -2,6 +2,7 @@
 """Test for the ee.date module."""
 
 import datetime
+import json
 
 import ee
 from ee import apitestcase
@@ -65,6 +66,20 @@ class DateTest(apitestcase.ApiTestCase):
     message = r'Invalid argument specified for ee.Date\(\.\.\., opt_tz\): 123'
     with self.assertRaisesRegex(ValueError, message):
       ee.Date('2018-04-23', 123)  # pytype: disable=wrong-arg-types
+
+  def test_with_reducer(self):
+    date_int = 42
+    column = 'date column'
+    fc = ee.FeatureCollection([ee.Feature(None, {column: date_int})])
+    reduced = fc.reduceColumns(ee.Reducer.max(), [column])
+    end = ee.Date(reduced.get('max')).format()
+
+    # Probe for the Date function call that will vanish if argument promotion
+    # is not handled correctly.
+    value_0 = json.loads(end.serialize())['values']['0']
+    date = value_0['functionInvocationValue']['arguments']['date']
+    function_name = date['functionInvocationValue']['functionName']
+    self.assertEqual('Date', function_name)
 
   def test_name(self):
     self.assertEqual('Date', ee.Date.name())

@@ -217,42 +217,74 @@ ee.Image.prototype.getMap = ee.Image.prototype.getMapId;
  * Use getThumbURL for RGB visualization formats PNG and JPG.
  * @param {Object} params An object containing download options with the
  *     following possible values:
- *   - name: a base name to use when constructing filenames. Only applicable
- *         when format is "ZIPPED_GEO_TIFF" (default) or filePerBand is true.
- *         Defaults to the image id (or "download" for computed images) when
- *         format is "ZIPPED_GEO_TIFF" or filePerBand is true, otherwise a
- *         random character string is generated. Band names are appended when
- *         filePerBand is true.
- *   - bands: a description of the bands to download. Must be an array of band
- *         names or an array of dictionaries, each with the following keys
- *         (optional parameters apply only when filePerBand is true):
- *     + id: the name of the band, a string, required.
- *     + crs: an optional CRS string defining the band projection.
- *     + crs_transform: an optional array of 6 numbers specifying an affine
- *           transform from the specified CRS, in row-major order:
- *           [xScale, xShearing, xTranslation, yShearing, yScale, yTranslation]
- *     + dimensions: an optional array of two integers defining the width and
- *           height to which the band is cropped.
- *     + scale: an optional number, specifying the scale in meters of the band;
- *              ignored if crs and crs_transform are specified.
- *   - crs: a default CRS string to use for any bands that do not explicitly
- *         specify one.
- *   - crs_transform: a default affine transform to use for any bands that do
- *         not specify one, of the same format as the crs_transform of bands.
- *   - dimensions: default image cropping dimensions to use for any bands that
- *         do not specify them.
- *   - scale: a default scale to use for any bands that do not specify one;
- *         ignored if crs and crs_transform are specified.
- *   - region: a polygon specifying a region to download; ignored if crs
- *         and crs_transform is specified.
- *   - filePerBand: whether to produce a separate GeoTIFF per band (boolean).
- *         Defaults to true. If false, a single GeoTIFF is produced and all
- *         band-level transformations will be ignored.
- *   - format: the download format. One of: "ZIPPED_GEO_TIFF" (GeoTIFF file(s)
- *         wrapped in a zip file, default), "GEO_TIFF" (GeoTIFF file),
- *         "NPY" (NumPy binary format). If "GEO_TIFF" or "NPY", filePerBand
- *         and all band-level transformations will be ignored. Loading a NumPy
- *         output results in a structured array.
+ *   <table>
+ *     <tr>
+ *       <td><code> name: </code> a base name to use when constructing
+ *         filenames. Only applicable when format is "ZIPPED_GEO_TIFF" (default)
+ *         or filePerBand is true. Defaults to the image id (or "download" for
+ *         computed images) when format is "ZIPPED_GEO_TIFF" or filePerBand is
+ *         true, otherwise a random character string is generated. Band names
+ *         are appended when filePerBand is true.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> bands: </code> a description of the bands to download. Must
+ *         be an array of band names or an array of dictionaries, each with the
+ *         following keys (optional parameters apply only when filePerBand is
+ *         true):<ul style="list-style-type:none;">
+ *           <li><code> id: </code> the name of the band, a string, required.
+ *           <li><code> crs: </code> an optional CRS string defining the
+ *             band projection.</li>
+ *           <li><code> crs_transform: </code> an optional array of 6 numbers
+ *             specifying an affine transform from the specified CRS, in
+ *             row-major order: [xScale, xShearing, xTranslation, yShearing,
+ *             yScale, yTranslation]</li>
+ *           <li><code> dimensions: </code> an optional array of two integers
+ *             defining the width and height to which the band is cropped.</li>
+ *           <li><code> scale: </code> an optional number, specifying the scale
+ *             in meters of the band; ignored if crs and crs_transform are
+ *             specified.</li></ul></td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> crs: </code> a default CRS string to use for any bands that
+ *         do not explicitly specify one.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> crs_transform: </code> a default affine transform to use for
+ *         any bands that do not specify one, of the same format as the
+ *         <code>crs_transform</code> of bands.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> dimensions: </code> default image cropping dimensions to use
+ *         for any bands that do not specify them.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> scale: </code> a default scale to use for any bands that do
+ *         not specify one; ignored if <code>crs</code> and
+ *         <code>crs_transform</code> are specified.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> region: </code> a polygon specifying a region to download;
+ *         ignored if <code>crs</code> and <code>crs_transform</code> is
+ *         specified.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> filePerBand: </code> whether to produce a separate GeoTIFF
+ *         per band (boolean). Defaults to true. If false, a single GeoTIFF is
+ *         produced and all band-level transformations will be ignored.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> format: </code> the download format. One of:
+ *         <ul style="list-style-type:none;">
+ *           <li> "ZIPPED_GEO_TIFF" (GeoTIFF file(s) wrapped in a zip file,
+ *             default)</li>
+ *           <li> "GEO_TIFF" (GeoTIFF file)</li>
+ *           <li> "NPY" (NumPy binary format)</li>
+ *         </ul>
+ *         If "GEO_TIFF" or "NPY", filePerBand and all band-level transformations
+ *         will be ignored. Loading a NumPy output results in a structured
+ *         array.</td>
+ *     </tr>
+ *   </table>
  * @param {function(string?, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {string|undefined} Returns a download URL, or undefined if a callback
@@ -284,13 +316,19 @@ ee.Image.prototype.getDownloadURL = function(params, opt_callback) {
  * Applies transformations and returns the thumbId.
  * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
  * optionally:
- *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
- *         dimensions of the thumbnail to render, in pixels. If only one
- *         number is passed, it is used as the maximum, and the other
- *         dimension is computed by proportional scaling.
- *   - region Geospatial region of the image to render, it may be an ee.Geometry,
- *         GeoJSON, or an array of lat/lon points (E,S,W,N). If not set the
- *         default is the bounds image.
+ *   <table>
+ *     <tr>
+ *       <td><code> dimensions </code> (a number or pair of numbers in format
+ *         WIDTHxHEIGHT) Maximum dimensions of the thumbnail to render, in
+ *         pixels. If only one number is passed, it is used as the maximum,
+ *         and the other dimension is computed by proportional scaling.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> region </code> Geospatial region of the image to render,
+ *         it may be an ee.Geometry, GeoJSON, or an array of lat/lon
+ *         points (E,S,W,N). If not set the default is the bounds image.</td>
+ *     </tr>
+ *   </table>
  * @param {function(?ee.data.ThumbnailId, string=)=} opt_callback
  *     An optional callback. If not supplied, the call is made synchronously.
  * @return {?ee.data.ThumbnailId} The thumb ID and optional token, or null if a
@@ -318,14 +356,22 @@ ee.Image.prototype.getThumbId = function(params, opt_callback) {
  * Get a thumbnail URL for this image.
  * @param {!Object} params Parameters identical to ee.data.getMapId, plus,
  * optionally:
- *   - dimensions (a number or pair of numbers in format WIDTHxHEIGHT) Maximum
- *         dimensions of the thumbnail to render, in pixels. If only one
- *         number is passed, it is used as the maximum, and the other
- *         dimension is computed by proportional scaling.
- *   - region Geospatial region of the image to render, it may be an ee.Geometry,
- *         GeoJSON, or an array of lat/lon points (E,S,W,N). If not set the
- *         default is the bounds image.
- *   - format (string) Either 'png' or 'jpg'.
+ *   <table>
+ *     <tr>
+ *       <td><code> dimensions </code> (a number or pair of numbers in format
+ *         WIDTHxHEIGHT) Maximum dimensions of the thumbnail to render, in
+ *         pixels. If only one number is passed, it is used as the maximum,
+ *         and the other dimension is computed by proportional scaling.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> region </code> Geospatial region of the image to render,
+ *         it may be an ee.Geometry, GeoJSON, or an array of lat/lon
+ *         points (E,S,W,N). If not set the default is the bounds image.</td>
+ *     </tr>
+ *     <tr>
+ *       <td><code> format </code> (string) Either 'png' or 'jpg'.</td>
+ *     </tr>
+ *   </table>
  * @param {function(string, string=)=} opt_callback An optional
  *     callback. If not supplied, the call is made synchronously.
  * @return {string|undefined} A thumbnail URL, or undefined if a callback
@@ -433,14 +479,15 @@ ee.Image.combine_ = function(images, opt_names) {
  * Selects bands from an image.
  *
  * @param {...*} var_args One of two possibilities:
- * - Any number of non-list arguments. All of these will be interpreted as band
- *   selectors. These can be band names, regexes, or numeric indices. E.g.
- *   selected = image.select('a', 'b', 3, 'd');
- * - Two lists. The first will be used as band selectors and the second
- *   as new names for the selected bands. The number of new names must match
- *   the number of selected bands. E.g.
- *   selected = image.select(['a', 4], ['newA', 'newB']);
- *
+ * <ul>
+ *   <li> Any number of non-list arguments. All of these will be interpreted as
+ *     band selectors. These can be band names, regexes, or numeric indices.
+ *     E.g. selected = image.select('a', 'b', 3, 'd');</li>
+ *   <li> Two lists. The first will be used as band selectors and the second
+ *     as new names for the selected bands. The number of new names must match
+ *     the number of selected bands. E.g.
+ *     selected = image.select(['a', 4], ['newA', 'newB']);</li>
+ * </ul>
  * @return {!ee.Image} An image with the selected bands.
  * @export
  */

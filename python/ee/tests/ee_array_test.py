@@ -56,6 +56,71 @@ class EeArrayTest(apitestcase.ApiTestCase):
     }
     self.assertEqual(expect, result)
 
+  def test_serialize_list(self):
+    list_object = ee.List([1, 2])
+    result = json.loads(ee.Array([list_object.size(), 2, 3]).serialize())
+    expected = {
+        'result': '0',
+        'values': {
+            '0': {
+                'functionInvocationValue': {
+                    'functionName': 'Array',
+                    'arguments': {
+                        'values': {
+                            'arrayValue': {
+                                'values': [
+                                    {
+                                        'functionInvocationValue': {
+                                            'functionName': 'List.size',
+                                            'arguments': {
+                                                'list': {
+                                                    'constantValue': [1, 2]
+                                                }
+                                            },
+                                        }
+                                    },
+                                    {'constantValue': 2},
+                                    {'constantValue': 3},
+                                ]
+                            }
+                        }
+                    },
+                }
+            }
+        },
+    }
+    self.assertEqual(expected, result)
+
+  def test_serialize_pixel_type(self):
+    result = json.loads(ee.Array([], ee.PixelType.float()).serialize())
+    expected = {
+        'result': '0',
+        'values': {
+            '0': {
+                'functionInvocationValue': {
+                    'functionName': 'Array',
+                    'arguments': {
+                        'pixelType': {
+                            'functionInvocationValue': {
+                                'functionName': 'PixelType',
+                                'arguments': {
+                                    'precision': {
+                                        'functionInvocationValue': {
+                                            'functionName': 'PixelType.float',
+                                            'arguments': {},
+                                        }
+                                    }
+                                },
+                            }
+                        },
+                        'values': {'constantValue': []},
+                    },
+                }
+            }
+        },
+    }
+    self.assertEqual(expected, result)
+
   def test_cast(self):
     array = ee.Array([[1, 2], [3, 4]])
     result = json.loads(ee.Array(array).serialize())
