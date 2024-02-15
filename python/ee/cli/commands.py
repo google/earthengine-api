@@ -1191,12 +1191,14 @@ class TaskListCommand:
         eecu = '{:.4f}'.format(
             task['batch_eecu_usage_seconds']
         ) if 'batch_eecu_usage_seconds' in task else '-'
+        trailing_extras = task.get('destination_uris', [])
         extra = ' {:20s} {:20s} {:20s} {:11s} {}'.format(
             show_date(task['creation_timestamp_ms']),
             show_date(task['start_timestamp_ms']),
             show_date(task['update_timestamp_ms']),
             eecu,
-            ' '.join(task.get('destination_uris', [])))
+            ' '.join(map(str, trailing_extras)),
+        )
       print(format_str.format(
           task['id'], task_type, truncated_desc,
           task['state'], task.get('error_message', '---')) + extra)

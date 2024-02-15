@@ -132,7 +132,8 @@ class ExportTask {
 Export.image.toAsset = function(
     image, opt_description, opt_assetId, opt_pyramidingPolicy, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
-    opt_shardSize) {
+    opt_shardSize,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -164,7 +165,8 @@ Export.image.toCloudStorage = function(
     image, opt_description, opt_bucket, opt_fileNamePrefix, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
     opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat,
-    opt_formatOptions) {
+    opt_formatOptions,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -196,7 +198,8 @@ Export.image.toDrive = function(
     image, opt_description, opt_folder, opt_fileNamePrefix, opt_dimensions,
     opt_region, opt_scale, opt_crs, opt_crsTransform, opt_maxPixels,
     opt_shardSize, opt_fileDimensions, opt_skipEmptyTiles, opt_fileFormat,
-    opt_formatOptions) {
+    opt_formatOptions,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.image.toDrive, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -225,7 +228,8 @@ Export.image.toDrive = function(
 Export.map.toCloudStorage = function(
     image, opt_description, opt_bucket, opt_fileFormat, opt_path,
     opt_writePublicTiles, opt_scale, opt_maxZoom, opt_minZoom, opt_region,
-    opt_skipEmptyTiles, opt_mapsApiKey, opt_bucketCorsUris) {
+    opt_skipEmptyTiles, opt_mapsApiKey, opt_bucketCorsUris,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.map.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -247,7 +251,8 @@ Export.map.toCloudStorage = function(
  */
 Export.table.toCloudStorage = function(
     collection, opt_description, opt_bucket, opt_fileNamePrefix, opt_fileFormat,
-    opt_selectors, opt_maxVertices) {
+    opt_selectors, opt_maxVertices,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -269,7 +274,8 @@ Export.table.toCloudStorage = function(
  */
 Export.table.toDrive = function(
     collection, opt_description, opt_folder, opt_fileNamePrefix, opt_fileFormat,
-    opt_selectors, opt_maxVertices) {
+    opt_selectors, opt_maxVertices,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toDrive, arguments);
   clientConfig['type'] = ExportType.TABLE;
@@ -288,7 +294,8 @@ Export.table.toDrive = function(
  * @export
  */
 Export.table.toAsset = function(
-    collection, opt_description, opt_assetId, opt_maxVertices) {
+    collection, opt_description, opt_assetId, opt_maxVertices,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -310,7 +317,8 @@ Export.table.toAsset = function(
  */
 Export.table.toFeatureView = function(
     collection, opt_description, opt_assetId, opt_maxFeaturesPerTile,
-    opt_thinningStrategy, opt_thinningRanking, opt_zOrderRanking) {
+    opt_thinningStrategy, opt_thinningRanking, opt_zOrderRanking,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toFeatureView, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -332,7 +340,8 @@ Export.table.toFeatureView = function(
  */
 Export.table.toBigQuery = function(
     collection, opt_description, opt_table, opt_overwrite, opt_append,
-    opt_selectors, opt_maxVertices) {
+    opt_selectors, opt_maxVertices,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.table.toBigQuery, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -360,7 +369,8 @@ Export.table.toBigQuery = function(
 Export.video.toCloudStorage = function(
     collection, opt_description, opt_bucket, opt_fileNamePrefix,
     opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs,
-    opt_crsTransform, opt_maxPixels, opt_maxFrames) {
+    opt_crsTransform, opt_maxPixels, opt_maxFrames,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.video.toCloudStorage, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -388,7 +398,8 @@ Export.video.toCloudStorage = function(
 Export.video.toDrive = function(
     collection, opt_description, opt_folder, opt_fileNamePrefix,
     opt_framesPerSecond, opt_dimensions, opt_region, opt_scale, opt_crs,
-    opt_crsTransform, opt_maxPixels, opt_maxFrames) {
+    opt_crsTransform, opt_maxPixels, opt_maxFrames,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.video.toDrive, arguments);
   const serverConfig = Export.convertToServerParams(
@@ -403,7 +414,8 @@ Export.video.toDrive = function(
  * @return {!ExportTask}
  * @export
  */
-Export.classifier.toAsset = function(classifier, opt_description, opt_assetId) {
+Export.classifier.toAsset = function(classifier, opt_description, opt_assetId,
+) {
   const clientConfig =
       eeArguments.extractFromFunction(Export.classifier.toAsset, arguments);
   const serverConfig = Export.convertToServerParams(

@@ -1,4 +1,4 @@
-"""Decorators to mark function deprecated."""
+"""Decorators to handle various deprecations."""
 
 import functools
 import warnings

@@ -20,7 +20,7 @@ class Terrain:
   def initialize(cls) -> None:
     """Imports API functions to this class."""
     if not cls._initialized:
-      apifunction.ApiFunction.importApi(cls, 'Terrain', 'Terrain')
+      apifunction.ApiFunction.importApi(cls, cls.__name__, cls.__name__)
       cls._initialized = True
 
   @classmethod
@@ -28,3 +28,7 @@ class Terrain:
     """Removes imported API functions from this class."""
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
+
+  @staticmethod
+  def name() -> str:
+    return 'Terrain'

@@ -1,5 +1,4 @@
 /**
- * g3-format-changed-lines-during-prettier-version-upgrade
  * Utility map for ClassMetadata to describe how to create instances of child
  * properties.
  */
@@ -27,13 +26,13 @@ type Primitive = string | number | boolean | null | undefined;
 export type DeepPartialISerializable<T> = T extends Primitive
   ? Partial<T>
   : T extends ISerializable
-  ? Omit<
-      {[K in keyof T]?: DeepPartialISerializable<T[K]>},
-      keyof ISerializable | 'getPartialClassMetadata'
-    >
-  : T extends object
-  ? {[K in keyof T]?: DeepPartialISerializable<T[K]>}
-  : unknown;
+    ? Omit<
+        {[K in keyof T]?: DeepPartialISerializable<T[K]>},
+        keyof ISerializable | 'getPartialClassMetadata'
+      >
+    : T extends object
+      ? {[K in keyof T]?: DeepPartialISerializable<T[K]>}
+      : unknown;
 
 /**
  * Description of the properties in a Serializable class.

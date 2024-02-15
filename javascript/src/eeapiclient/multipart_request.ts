@@ -1,4 +1,3 @@
-// g3-format-changed-lines-during-prettier-version-upgrade
 import {Serializable, serialize} from './domain_object';
 
 export class MultipartRequest {
@@ -6,7 +5,10 @@ export class MultipartRequest {
   private _metadataPayload = '';
   private _payloadPromise: Promise<string>;
 
-  constructor(private files: File[], private _metadata?: {} | null) {
+  constructor(
+    private files: File[],
+    private _metadata?: {} | null,
+  ) {
     this._boundary = Date.now().toString();
     if (_metadata) {
       this.addMetadata(_metadata);

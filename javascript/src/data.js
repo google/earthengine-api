@@ -3494,6 +3494,7 @@ ee.data.AbstractTaskConfig;
  *   assetId: (undefined|string),
  *   pyramidingPolicy: (undefined|string),
  *   workloadTag: (undefined|string),
+ *   priority: (undefined|number),
  * }}
  */
 ee.data.ImageTaskConfigUnformatted;
@@ -3538,6 +3539,7 @@ ee.data.ImageTaskConfigUnformatted;
  *   assetId: (undefined|string),
  *   pyramidingPolicy: (undefined|string),
  *   workloadTag: (undefined|string),
+ *   priority: (undefined|number),
  * }}
  */
 ee.data.ImageTaskConfig;
@@ -3589,6 +3591,7 @@ ee.data.ImageExportFormatConfig;
  *   mapsApiKey: (undefined|string),
  *   generateEarthHtml: (undefined|boolean),
  *   workloadTag: (undefined|string),
+ *   priority: (undefined|number),
  * }}
  */
 ee.data.MapTaskConfig;
@@ -3606,6 +3609,7 @@ ee.data.MapTaskConfig;
  *   assetId: (undefined|string),
  *   maxWorkers: (undefined|number),
  *   workloadTag: (undefined|string),
+ *   priority: (undefined|number),
  * }}
  */
 ee.data.ClassifierTaskConfig;
@@ -3627,6 +3631,7 @@ ee.data.ClassifierTaskConfig;
  *   thinningRanking: (undefined|string|!Array<string>),
  *   zOrderRanking: (undefined|string|!Array<string>),
  *   workloadTag: (undefined|string),
+ *   priority: (undefined|number),
  * }}
  */
 ee.data.FeatureViewTaskConfig;
@@ -3647,6 +3652,7 @@ ee.data.FeatureViewTaskConfig;
  *   maxWorkers: (undefined|number),
  *   maxVertices: (undefined|number),
  *   workloadTag: (undefined|string),
+ *   priority: (undefined|number),
  * }}
  */
 ee.data.BigQueryTaskConfig;
@@ -3671,6 +3677,7 @@ ee.data.BigQueryTaskConfig;
  *   maxWorkers: (undefined|number),
  *   maxVertices: (undefined|number),
  *   workloadTag: (undefined|string),
+ *   priority: (undefined|number),
  * }}
  */
 ee.data.TableTaskConfig;
@@ -3699,6 +3706,7 @@ ee.data.TableTaskConfig;
  *   outputBucket: (undefined|string),
  *   outputPrefix: (undefined|string),
  *   workloadTag: (undefined|string),
+ *   priority: (undefined|number),
  * }}
  */
 ee.data.VideoTaskConfig;
