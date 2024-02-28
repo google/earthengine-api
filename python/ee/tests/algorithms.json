@@ -9982,7 +9982,7 @@
     }, {
       "argumentName": "scale",
       "type": "Float",
-      "description": "A nominal scale in meters of the projection to sample in.  If unspecified,the scale of the image\u0027s first band is used.",
+      "description": "A nominal scale in meters of the projection to sample in.  If unspecified, the scale of the image\u0027s first band is used.",
       "optional": true,
       "defaultValue": null
     }, {

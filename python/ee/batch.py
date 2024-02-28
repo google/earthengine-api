@@ -249,6 +249,9 @@ class Export:
               "WIDTHxHEIGHT" where WIDTH and HEIGHT are each positive integers.
             - skipEmptyTiles: If true, skip writing empty (i.e. fully-masked)
               image tiles. Defaults to false. Only supported on GeoTIFF exports.
+            - priority: The priority of the task within the project. Higher
+              priority tasks are scheduled sooner. Must be an integer between 0
+              and 9999. Defaults to 100.
             If exporting to Google Drive (default):
             - driveFolder: The Google Drive Folder that the export will reside
               in. Note: (a) if the folder name exists at any level, the output
@@ -290,6 +293,7 @@ class Export:
         crs=None,
         crsTransform=None,
         maxPixels=None,
+        priority=None,
         **kwargs):
       """Creates a task to export an EE Image to an EE Asset.
 
@@ -322,6 +326,9 @@ class Export:
         maxPixels: The maximum allowed number of pixels in the exported
             image. The task will fail if the exported region covers more
             pixels in the specified projection. Defaults to 100,000,000.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -351,6 +358,7 @@ class Export:
                        skipEmptyTiles=None,
                        fileFormat=None,
                        formatOptions=None,
+                       priority=None,
                        **kwargs):
       """Creates a task to export an EE Image to Google Cloud Storage.
 
@@ -392,6 +400,9 @@ class Export:
           'GeoTIFF'.
         formatOptions: A dictionary of string keys to format-specific options.
           For 'GeoTIFF': 'cloudOptimized' (bool), 'noData' (float).
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
           such as 'crs_transform'.
 
@@ -419,6 +430,7 @@ class Export:
                 skipEmptyTiles=None,
                 fileFormat=None,
                 formatOptions=None,
+                priority=None,
                 **kwargs):
       """Creates a task to export an EE Image to Drive.
 
@@ -461,6 +473,9 @@ class Export:
           'GeoTIFF'.
         formatOptions: A dictionary of string keys to format-specific options.
           For 'GeoTIFF': 'cloudOptimized' (bool), 'noData' (float).
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
           such as 'crs_transform', 'driveFolder', and 'driveFileNamePrefix'.
 
@@ -496,6 +511,7 @@ class Export:
                        skipEmptyTiles=None,
                        mapsApiKey=None,
                        bucketCorsUris=None,
+                       priority=None,
                        **kwargs):
       """Creates a task to export an Image as a pyramid of map tiles.
 
@@ -538,6 +554,9 @@ class Export:
             Cross-Origin-Resource-Sharing, or CORS. You can allow all domains to
             have access using "*", but this is generally discouraged. See
             https://cloud.google.com/storage/docs/cross-origin for more details.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -570,6 +589,9 @@ class Export:
             for the task:
             - fileFormat: The output format: "CSV" (default), "GeoJSON", "KML",
               "KMZ", or "SHP".
+            - priority: The priority of the task within the project. Higher
+              priority tasks are scheduled sooner. Must be an integer between 0
+              and 9999. Defaults to 100.
             If exporting to Google Drive (default):
             - driveFolder: The Google Drive Folder that the export will reside
               in. Note: (a) if the folder name exists at any level, the output
@@ -612,6 +634,7 @@ class Export:
                        fileFormat=None,
                        selectors=None,
                        maxVertices=None,
+                       priority=None,
                        **kwargs):
       """Creates a task to export a FeatureCollection to Google Cloud Storage.
 
@@ -629,6 +652,9 @@ class Export:
         maxVertices:
             Max number of uncut vertices per geometry; geometries with more
             vertices will be cut into pieces smaller than this size.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'outputBucket'.
 
@@ -648,6 +674,7 @@ class Export:
                 fileFormat=None,
                 selectors=None,
                 maxVertices=None,
+                priority=None,
                 **kwargs):
       """Creates a task to export a FeatureCollection to Drive.
 
@@ -666,6 +693,9 @@ class Export:
         maxVertices:
             Max number of uncut vertices per geometry; geometries with more
             vertices will be cut into pieces smaller than this size.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'driveFolder' and 'driveFileNamePrefix'.
 
@@ -683,6 +713,7 @@ class Export:
         description='myExportTableTask',
         assetId=None,
         maxVertices=None,
+        priority=None,
         **kwargs):
       """Creates a task to export a FeatureCollection to an EE table asset.
 
@@ -693,6 +724,9 @@ class Export:
         maxVertices:
             Max number of uncut vertices per geometry; geometries with more
             vertices will be cut into pieces smaller than this size.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated.
 
       Returns:
@@ -702,6 +736,7 @@ class Export:
           'description': description,
           'assetId': assetId,
           'maxVertices': maxVertices,
+          'priority': priority,
       }
       config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
@@ -714,6 +749,7 @@ class Export:
         description='myExportTableTask',
         assetId=None,
         ingestionTimeParameters=None,
+        priority=None,
         **kwargs):
       """Creates a task to export a FeatureCollection to a FeatureView.
 
@@ -722,6 +758,9 @@ class Export:
         description: Human-readable name of the task.
         assetId: The destination asset ID.
         ingestionTimeParameters: The FeatureView ingestion time parameters.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated.
 
       Returns:
@@ -731,6 +770,7 @@ class Export:
           'description': description,
           'assetId': assetId,
           'ingestionTimeParameters': ingestionTimeParameters,
+          'priority': priority,
       }
       config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(collection, config,
@@ -746,6 +786,7 @@ class Export:
         append=False,
         selectors=None,
         maxVertices=None,
+        priority=None,
         **kwargs,
     ):
       """Creates a task to export a FeatureCollection to a BigQuery table.
@@ -770,6 +811,9 @@ class Export:
           included.
         maxVertices: Max number of uncut vertices per geometry; geometries with
           more vertices will be cut into pieces smaller than this size.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated.
 
       Returns:
@@ -782,6 +826,7 @@ class Export:
           'append': append,
           'selectors': selectors,
           'maxVertices': maxVertices,
+          'priority': priority,
       }
       config = {k: v for k, v, in config.items() if v is not None}
       config = _prepare_table_export_config(
@@ -829,6 +874,9 @@ class Export:
             - maxFrames: The maximum number of frames.
               Defaults to 1000 frames. By setting this explicitly, you may
               raise or lower the limit.
+            - priority: The priority of the task within the project. Higher
+              priority tasks are scheduled sooner. Must be an integer between 0
+              and 9999. Defaults to 100.
             If exporting to Google Drive (default):
             - driveFolder: The Google Drive Folder that the export will reside
               in. Note: (a) if the folder name exists at any level, the output
@@ -871,6 +919,7 @@ class Export:
                        crsTransform=None,
                        maxPixels=None,
                        maxFrames=None,
+                       priority=None,
                        **kwargs):
       """Creates a task to export an ImageCollection video to Cloud Storage.
 
@@ -904,6 +953,9 @@ class Export:
         maxFrames: The maximum number of frames to export.
             Defaults to 1000 frames. By setting this explicitly, you may
             raise or lower the limit.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -929,6 +981,7 @@ class Export:
                 crsTransform=None,
                 maxPixels=None,
                 maxFrames=None,
+                priority=None,
                 **kwargs):
       """Creates a task to export an ImageCollection as a video to Drive.
 
@@ -963,6 +1016,9 @@ class Export:
         maxFrames: The maximum number of frames to export.
             Defaults to 1000 frames. By setting this explicitly, you may
             raise or lower the limit.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments that may have been deprecated
             such as 'crs_transform'.
 
@@ -993,6 +1049,9 @@ class Export:
         config: A dictionary that will be copied and used as parameters
             for the task:
             - assetId: The destination asset ID.
+            - priority: The priority of the task within the project. Higher
+              priority tasks are scheduled sooner. Must be an integer between 0
+              and 9999. Defaults to 100.
       Returns:
         An unstarted Task that exports the table.
       """
@@ -1006,6 +1065,7 @@ class Export:
                 description='myExportClassifierTask',
                 assetId=None,
                 overwrite=False,
+                priority=None,
                 **kwargs):
       """Creates a task to export an EE Image to an EE Asset.
 
@@ -1014,6 +1074,9 @@ class Export:
         description: Human-readable name of the task.
         assetId: The destination asset ID.
         overwrite: If an existing asset can be overwritten by this export.
+        priority: The priority of the task within the project. Higher priority
+          tasks are scheduled sooner. Must be an integer between 0 and 9999.
+          Defaults to 100.
         **kwargs: Holds other keyword arguments.
       Returns:
         An unstarted Task that exports the image as an Earth Engine Asset.
@@ -1105,6 +1168,10 @@ def _prepare_image_export_config(
   # This can only be set by internal users.
   if 'maxWorkers' in config:
     request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
 
   # Of the remaining fields in ExportImageRequest:
   # - All the values that would go into the PixelGrid should have been folded
@@ -1159,6 +1226,10 @@ def _prepare_map_export_config(
   # This can only be set by internal users.
   if 'maxWorkers' in config:
     request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
   if config:
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
@@ -1226,6 +1297,11 @@ def _prepare_table_export_config(
   if 'maxWorkers' in config:
     request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
 
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
+
   if config:
     raise ee_exception.EEException(
         'Unknown configuration options: {}.'.format(config))
@@ -1263,6 +1339,11 @@ def _prepare_video_export_config(
   # This can only be set by internal users.
   if 'maxWorkers' in config:
     request['maxWorkers'] = {'value': int(config.pop('maxWorkers'))}
+
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
 
   if config:
     raise ee_exception.EEException(
@@ -1476,6 +1557,11 @@ def _prepare_classifier_export_config(
   request['expression'] = classifier
   if 'description' in config:
     request['description'] = config.pop('description')
+
+  if 'priority' in config:
+    # This field is a wrapped integer value so it needs an inner "value" field
+    # for JSON encoding.
+    request['priority'] = {'value': int(config.pop('priority'))}
 
   if export_destination == Task.ExportDestination.ASSET:
     request['assetExportOptions'] = {

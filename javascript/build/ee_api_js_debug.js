@@ -1200,7 +1200,7 @@ $jscomp.polyfill("String.prototype.padStart", function(orig) {
     return $jscomp.stringPadding(opt_padString, targetLength - string.length) + string;
   };
 }, "es8", "es3");
-var CLOSURE_TOGGLE_ORDINALS = {GoogFlags__async_throw_on_unicode_to_byte__enable:!1, GoogFlags__override_disable_toggles:!1, GoogFlags__testonly_debug_flag__enable:!1, GoogFlags__testonly_disabled_flag__enable:!1, GoogFlags__testonly_stable_flag__disable:!1, GoogFlags__testonly_staging_flag__disable:!1, GoogFlags__use_toggles:!1, GoogFlags__use_user_agent_client_hints__enable:!1};
+var CLOSURE_TOGGLE_ORDINALS = {GoogFlags__async_throw_on_unicode_to_byte__enable:!1, GoogFlags__jspb_stop_using_repeated_field_sets_from_gencode__enable:!1, GoogFlags__override_disable_toggles:!1, GoogFlags__testonly_debug_flag__enable:!1, GoogFlags__testonly_disabled_flag__enable:!1, GoogFlags__testonly_stable_flag__disable:!1, GoogFlags__testonly_staging_flag__disable:!1, GoogFlags__use_toggles:!1, GoogFlags__use_user_agent_client_hints__enable:!1};
 /*
 
  Copyright The Closure Library Authors.
@@ -2860,12 +2860,12 @@ module$exports$tslib.__await = function(v) {
   return this instanceof module$exports$tslib.__await ? (this.v = v, this) : new module$exports$tslib.__await(v);
 };
 module$exports$tslib.__asyncGenerator = function(thisArg, _arguments, generator) {
-  function verb(n) {
+  function verb(n, f) {
     g[n] && (i[n] = function(v) {
       return new Promise(function(a, b) {
         1 < q.push([n, v, a, b]) || resume(n, v);
       });
-    });
+    }, f && (i[n] = f(i[n])));
   }
   function resume(n, v) {
     try {
@@ -2890,7 +2890,11 @@ module$exports$tslib.__asyncGenerator = function(thisArg, _arguments, generator)
     throw new TypeError("Symbol.asyncIterator is not defined.");
   }
   var g = generator.apply(thisArg, _arguments || []), i, q = [];
-  return i = {}, verb("next"), verb("throw"), verb("return"), i[Symbol.asyncIterator] = function() {
+  return i = {}, verb("next"), verb("throw"), verb("return", function(f) {
+    return function(v) {
+      return Promise.resolve(v).then(f, reject);
+    };
+  }), i[Symbol.asyncIterator] = function() {
     return this;
   }, i;
 };
@@ -2965,6 +2969,7 @@ module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__jspb_stop_using_repeated_field_sets_from_gencode__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable = !1;
@@ -2973,6 +2978,7 @@ goog.flags = {};
 var module$contents$goog$flags_STAGING = goog.readFlagInternalDoNotUseOrElse(1, goog.FLAGS_STAGING_DEFAULT);
 goog.flags.USE_USER_AGENT_CLIENT_HINTS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable : goog.readFlagInternalDoNotUseOrElse(610401301, !1);
 goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable : goog.readFlagInternalDoNotUseOrElse(899588437, !1);
+goog.flags.JSPB_STOP_USING_REPEATED_FIELD_SETS_FROM_GENCODE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__jspb_stop_using_repeated_field_sets_from_gencode__enable : goog.readFlagInternalDoNotUseOrElse(188588736, goog.DEBUG);
 goog.flags.TESTONLY_DISABLED_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
 goog.flags.TESTONLY_DEBUG_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
 goog.flags.TESTONLY_STAGING_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable) : goog.readFlagInternalDoNotUseOrElse(2147483646, module$contents$goog$flags_STAGING);
@@ -6692,10 +6698,6 @@ goog.html.SafeUrl.fromBlob = function(blob) {
   var url = goog.html.SafeUrl.isSafeMimeType(blob.type) ? goog.fs.url.createObjectUrl(blob) : goog.html.SafeUrl.INNOCUOUS_STRING;
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
 };
-goog.html.SafeUrl.revokeObjectUrl = function(safeUrl) {
-  var url = safeUrl.toString();
-  url !== goog.html.SafeUrl.INNOCUOUS_STRING && goog.fs.url.revokeObjectUrl(url);
-};
 goog.html.DATA_URL_PATTERN_ = /^data:(.*);base64,[a-z0-9+\/]+=*$/i;
 goog.html.SafeUrl.tryFromDataUrl = function(dataUrl) {
   dataUrl = String(dataUrl);
@@ -6704,26 +6706,6 @@ goog.html.SafeUrl.tryFromDataUrl = function(dataUrl) {
 };
 goog.html.SafeUrl.fromDataUrl = function(dataUrl) {
   return goog.html.SafeUrl.tryFromDataUrl(dataUrl) || goog.html.SafeUrl.INNOCUOUS_URL;
-};
-goog.html.SIP_URL_PATTERN_ = RegExp("^sip[s]?:[+a-z0-9_.!$%&'*\\/=^`{|}~-]+@([a-z0-9-]+\\.)+[a-z0-9]{2,63}$", "i");
-goog.html.SafeUrl.fromSipUrl = function(sipUrl) {
-  goog.html.SIP_URL_PATTERN_.test(decodeURIComponent(sipUrl)) || (sipUrl = goog.html.SafeUrl.INNOCUOUS_STRING);
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(sipUrl);
-};
-goog.html.SafeUrl.sanitizeChromeExtensionUrl = function(url, extensionId) {
-  return goog.html.SafeUrl.sanitizeExtensionUrl_(/^chrome-extension:\/\/([^\/]+)\//, url, extensionId);
-};
-goog.html.SafeUrl.sanitizeExtensionUrl_ = function(scheme, url, extensionId) {
-  var matches = scheme.exec(url);
-  if (matches) {
-    var extractedExtensionId = matches[1];
-    -1 == (extensionId instanceof goog.string.Const ? [goog.string.Const.unwrap(extensionId)] : extensionId.map(function unwrap(x) {
-      return goog.string.Const.unwrap(x);
-    })).indexOf(extractedExtensionId) && (url = goog.html.SafeUrl.INNOCUOUS_STRING);
-  } else {
-    url = goog.html.SafeUrl.INNOCUOUS_STRING;
-  }
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
 };
 goog.html.SafeUrl.fromTrustedResourceUrl = function(trustedResourceUrl) {
   return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.html.TrustedResourceUrl.unwrap(trustedResourceUrl));
@@ -7303,8 +7285,8 @@ function module$contents$safevalues$internals$url_impl_createUrlInternal(url) {
   return (0,goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse)(url);
 }
 module$exports$safevalues$internals$url_impl.createUrlInternal = module$contents$safevalues$internals$url_impl_createUrlInternal;
-module$exports$safevalues$internals$url_impl.ABOUT_BLANK = goog.html.SafeUrl.ABOUT_BLANK;
-module$exports$safevalues$internals$url_impl.INNOCUOUS_URL = goog.html.SafeUrl.INNOCUOUS_URL;
+module$exports$safevalues$internals$url_impl.ABOUT_BLANK = module$contents$safevalues$internals$url_impl_createUrlInternal("about:blank");
+module$exports$safevalues$internals$url_impl.INNOCUOUS_URL = module$contents$safevalues$internals$url_impl_createUrlInternal("about:invalid#zClosurez");
 function module$contents$safevalues$internals$url_impl_isUrl(value) {
   return value instanceof goog.html.SafeUrl;
 }
@@ -7486,10 +7468,11 @@ goog.dom.safe.createImageFromBlob = function(blob) {
   if (!/^image\/.*/g.test(blob.type)) {
     throw Error("goog.dom.safe.createImageFromBlob only accepts MIME type image/.*.");
   }
-  var objectUrl = goog.global.URL.createObjectURL(blob), image = new goog.global.Image();
-  image.onload = function() {
+  var objectUrl = goog.global.URL.createObjectURL(blob), image = new goog.global.Image(), revokeFn = function() {
     goog.global.URL.revokeObjectURL(objectUrl);
   };
+  image.onload = revokeFn;
+  image.onerror = revokeFn;
   image.src = objectUrl;
   return image;
 };
@@ -17584,7 +17567,7 @@ function module$contents$safevalues$builders$url_builders_sanitizeUrl(url, allow
   allowedSchemes = void 0 === allowedSchemes ? module$contents$safevalues$builders$url_builders_DEFAULT_SCHEMES : allowedSchemes;
   var sanitizedUrl = module$contents$safevalues$builders$url_builders_trySanitizeUrl(url, allowedSchemes);
   void 0 === sanitizedUrl && module$contents$safevalues$builders$url_builders_triggerCallbacks(url.toString());
-  return sanitizedUrl || goog.html.SafeUrl.INNOCUOUS_URL;
+  return sanitizedUrl || module$exports$safevalues$internals$url_impl.INNOCUOUS_URL;
 }
 module$exports$safevalues$builders$url_builders.sanitizeUrl = module$contents$safevalues$builders$url_builders_sanitizeUrl;
 function module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource(source) {
@@ -17993,18 +17976,18 @@ module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanit
 })}]];
 module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.defaultSanitizerTable = new module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.SanitizerTable(new Set(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_ELEMENTS), new Map(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ELEMENT_POLICIES), 
 new Set(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_GLOBAL_ATTRIBUTES), new Map(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_GLOBAL_ATTRIBUTE_POLICIES));
-module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.lenientSanitizerTable = new module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.SanitizerTable(new Set(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_ELEMENTS), new Map(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ELEMENT_POLICIES), 
+module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.lenientSanitizerTable = new module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.SanitizerTable(new Set(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_ELEMENTS.concat(["BUTTON"])), new Map(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ELEMENT_POLICIES), 
 new Set(module$contents$safevalues$internals$pure_pure(function() {
-  return module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_GLOBAL_ATTRIBUTES.concat(["class", "id"]);
+  return module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_GLOBAL_ATTRIBUTES.concat(["class", "id", "name"]);
 })), new Map(module$contents$safevalues$internals$pure_pure(function() {
-  return module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_GLOBAL_ATTRIBUTE_POLICIES.concat([["style", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP_AND_SANITIZE_STYLE}]]);
+  return module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_GLOBAL_ATTRIBUTE_POLICIES.concat([["style", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]]);
 })));
 module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.superLenientSanitizerTable = new module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.SanitizerTable(new Set(module$contents$safevalues$internals$pure_pure(function() {
   return module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_ELEMENTS.concat("STYLE TITLE INPUT TEXTAREA BUTTON LABEL".split(" "));
 })), new Map(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ELEMENT_POLICIES), new Set(module$contents$safevalues$internals$pure_pure(function() {
   return module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_GLOBAL_ATTRIBUTES.concat(["class", "id", "tabindex", "contenteditable", "name"]);
 })), new Map(module$contents$safevalues$internals$pure_pure(function() {
-  return module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_GLOBAL_ATTRIBUTE_POLICIES.concat([["style", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP_AND_SANITIZE_STYLE}]]);
+  return module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_GLOBAL_ATTRIBUTE_POLICIES.concat([["style", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]]);
 })), new Set(["data-", "aria-"]));
 var module$exports$safevalues$builders$html_sanitizer$html_sanitizer = {}, module$contents$safevalues$builders$html_sanitizer$html_sanitizer_module = module$contents$safevalues$builders$html_sanitizer$html_sanitizer_module || {id:"third_party/javascript/safevalues/builders/html_sanitizer/html_sanitizer.closure.js"};
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizer = function() {
@@ -18550,8 +18533,8 @@ module$exports$safevalues$index.unwrapStyle = module$contents$safevalues$interna
 module$exports$safevalues$index.isStyleSheet = module$contents$safevalues$internals$style_sheet_impl_isStyleSheet;
 module$exports$safevalues$index.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
 module$exports$safevalues$index.unwrapStyleSheet = module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet;
-module$exports$safevalues$index.ABOUT_BLANK = goog.html.SafeUrl.ABOUT_BLANK;
-module$exports$safevalues$index.INNOCUOUS_URL = goog.html.SafeUrl.INNOCUOUS_URL;
+module$exports$safevalues$index.ABOUT_BLANK = module$exports$safevalues$internals$url_impl.ABOUT_BLANK;
+module$exports$safevalues$index.INNOCUOUS_URL = module$exports$safevalues$internals$url_impl.INNOCUOUS_URL;
 module$exports$safevalues$index.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
 module$exports$safevalues$index.SafeUrl = goog.html.SafeUrl;
 module$exports$safevalues$index.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
@@ -18619,8 +18602,8 @@ safevalues.unwrapStyle = module$contents$safevalues$internals$style_impl_unwrapS
 safevalues.isStyleSheet = module$contents$safevalues$internals$style_sheet_impl_isStyleSheet;
 safevalues.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
 safevalues.unwrapStyleSheet = module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet;
-safevalues.ABOUT_BLANK = goog.html.SafeUrl.ABOUT_BLANK;
-safevalues.INNOCUOUS_URL = goog.html.SafeUrl.INNOCUOUS_URL;
+safevalues.ABOUT_BLANK = module$exports$safevalues$internals$url_impl.ABOUT_BLANK;
+safevalues.INNOCUOUS_URL = module$exports$safevalues$internals$url_impl.INNOCUOUS_URL;
 safevalues.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
 safevalues.SafeUrl = goog.html.SafeUrl;
 safevalues.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
@@ -18633,7 +18616,7 @@ var $jscomp$templatelit$294235699$96 = $jscomp.createTemplateTagFirstArg(["https
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.392";
+ee.apiclient.API_CLIENT_VERSION = "0.1.393";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -18923,8 +18906,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.392";
-  "0.1.392" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.393";
+  "0.1.393" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -25542,7 +25525,7 @@ ee.layers.ImageTile.prototype.finishLoad = function() {
   try {
     var safeUrl = module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource(this.sourceData);
     this.objectUrl_ = module$contents$safevalues$internals$url_impl_unwrapUrl(safeUrl);
-    var imageUrl = this.objectUrl_ !== goog.html.SafeUrl.INNOCUOUS_URL.toString() ? this.objectUrl_ : this.sourceUrl;
+    var imageUrl = this.objectUrl_ !== module$exports$safevalues$internals$url_impl.INNOCUOUS_URL.toString() ? this.objectUrl_ : this.sourceUrl;
   } catch (e) {
     imageUrl = this.sourceUrl;
   }
@@ -26200,7 +26183,7 @@ ee.MapTileManager.Request_.prototype.start_ = function() {
         if (200 <= xhrIo.getStatus() && 300 > xhrIo.getStatus()) {
           try {
             var objectUrl = module$contents$safevalues$internals$url_impl_unwrapUrl(module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource(xhrIo.getResponse()));
-            var ok = objectUrl !== goog.html.SafeUrl.INNOCUOUS_URL.toString();
+            var ok = objectUrl !== module$exports$safevalues$internals$url_impl.INNOCUOUS_URL.toString();
           } catch (e) {
           }
         }

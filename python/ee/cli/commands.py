@@ -1149,6 +1149,8 @@ class TaskInfoCommand:
         print('  Error: %s' % status['error_message'])
       if 'destination_uris' in status:
         print('  Destination URIs: %s' % ', '.join(status['destination_uris']))
+      if 'priority' in status:
+        print('  Priority: %s' % status['priority'])
 
 
 class TaskListCommand:
@@ -1167,7 +1169,7 @@ class TaskListCommand:
         '-l',
         action='store_true',
         help=('Print output in long format. Extra columns are: creation time, '
-              'start time, update time, EECU-seconds, output URLs.')
+              'start time, update time, EECU-seconds, output URLs, priority.')
     )
 
   def run(
@@ -1192,6 +1194,7 @@ class TaskListCommand:
             task['batch_eecu_usage_seconds']
         ) if 'batch_eecu_usage_seconds' in task else '-'
         trailing_extras = task.get('destination_uris', [])
+        trailing_extras.append(task.get('priority', '-'))
         extra = ' {:20s} {:20s} {:20s} {:11s} {}'.format(
             show_date(task['creation_timestamp_ms']),
             show_date(task['start_timestamp_ms']),

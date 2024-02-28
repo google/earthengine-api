@@ -359,6 +359,7 @@ class CloudApiUtilsTest(unittest.TestCase):
             'destination_uris': ['https://test.com'],
             'name': 'projects/test/operations/7T42Q7FH4KSIXQKGT6MJFBPX',
             'attempt': 42,
+            'priority': 100,
         },
         _cloud_api_utils.convert_operation_to_task({
             'metadata': {
@@ -371,6 +372,7 @@ class CloudApiUtilsTest(unittest.TestCase):
                 'type': 'INGEST_IMAGE',
                 'destinationUris': ['https://test.com'],
                 'attempt': 42,
+                'priority': 100,
             },
             'done': True,
             'name': 'projects/test/operations/7T42Q7FH4KSIXQKGT6MJFBPX',

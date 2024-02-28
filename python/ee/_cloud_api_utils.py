@@ -829,6 +829,7 @@ def convert_operation_to_task(operation: Dict[str, Any]) -> Dict[str, Any]:
           'type': 'task_type',
           'destinationUris': 'destination_uris',
           'batchEecuUsageSeconds': 'batch_eecu_usage_seconds',
+          'priority': 'priority',
           })
   if operation.get('done'):
     if 'error' in operation:

@@ -380,6 +380,33 @@ class BatchTestCase(apitestcase.ApiTestCase):
           },
           task_ordered.config)
 
+      task_overwrite_with_priority = ee.batch.Export.image.toAsset(
+          image=config['image'],
+          assetId=config['assetId'],
+          overwrite=True,
+          priority=999,
+      )
+      self.assertIsNone(task_overwrite_with_priority.id)
+      self.assertIsNone(task_overwrite_with_priority.name)
+      self.assertEqual('EXPORT_IMAGE', task_overwrite_with_priority.task_type)
+      self.assertEqual('UNSUBMITTED', task_overwrite_with_priority.state)
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'myExportImageTask',
+              'assetExportOptions': {
+                  'earthEngineDestination': {
+                      'name':
+                          'projects/earthengine-legacy/assets/users/foo/bar',
+                      'overwrite':
+                          True
+                  }
+              },
+              'priority': {
+                  'value': 999
+              }
+          }, task_overwrite_with_priority.config)
+
   def testExportImageToAssetCloudApi_withTileSize(self):
     """Verifies the Asset export task created by Export.image.toAsset()."""
     with apitestcase.UsingCloudApi():
@@ -459,6 +486,40 @@ class BatchTestCase(apitestcase.ApiTestCase):
           },
       }, task.config)
 
+      config = dict(
+          region=region['coordinates'],
+          maxPixels=10**10,
+          outputBucket='test-bucket',
+          priority=999)
+      task_with_priority = ee.batch.Export.image.toCloudStorage(
+          ee.Image(1), 'TestDescription', config['outputBucket'], None, None,
+          config['region'], None, None, None, config['maxPixels'], None,
+          [512, 2048], True, None, None, config['priority'])
+      self.assertEqual({
+          'expression': expected_expression,
+          'description': 'TestDescription',
+          'fileExportOptions': {
+              'fileFormat': 'GEO_TIFF',
+              'cloudStorageDestination': {
+                  'bucket': 'test-bucket',
+                  'filenamePrefix': 'TestDescription'
+              },
+              'geoTiffOptions': {
+                  'tileDimensions': {
+                      'width': 512,
+                      'height': 2048
+                  },
+                  'skipEmptyFiles': True,
+              },
+          },
+          'maxPixels': {
+              'value': '10000000000'
+          },
+          'priority': {
+              'value': 999
+          }
+      }, task_with_priority.config)
+
   def testExportImageToGoogleDriveCloudApi(self):
     """Verifies the Drive destined task created by Export.image.toDrive()."""
     with apitestcase.UsingCloudApi():
@@ -524,6 +585,41 @@ class BatchTestCase(apitestcase.ApiTestCase):
       with self.assertRaisesRegex(ee.EEException,
                                   'Unknown configuration options.*'):
         ee.batch.Export.image.toDrive(image=ee.Image(1), framesPerSecond=30)
+
+      drive_task_with_priority = ee.batch.Export.image.toDrive(
+          image=ee.Image(1),
+          region=region['coordinates'],
+          folder='foo',
+          maxPixels=10**10,
+          crs='foo',
+          crsTransform='[9,8,7,6,5,4]',
+          shardSize=512,
+          priority=999)
+      expected_expression = ee.Image(1).reproject(
+          'foo', crsTransform=[9.0, 8.0, 7.0, 6.0, 5.0, 4.0]).clip(region)
+      self.assertEqual(
+          {
+              'expression': expected_expression,
+              'description': 'myExportImageTask',
+              'fileExportOptions': {
+                  'fileFormat': 'GEO_TIFF',
+                  'driveDestination': {
+                      'folder': 'foo',
+                      'filenamePrefix': 'myExportImageTask'
+                  },
+                  'geoTiffOptions': {
+                      'tileSize': {
+                          'value': 512
+                      }
+                  }
+              },
+              'maxPixels': {
+                  'value': '10000000000'
+              },
+              'priority': {
+                  'value': 999
+              }
+          }, drive_task_with_priority.config)
 
   def testExportMapToCloudStorageCloudApi(self):
     """Verifies the task created by Export.map.toCloudStorage()."""
@@ -596,6 +692,43 @@ class BatchTestCase(apitestcase.ApiTestCase):
           },
           'maxWorkers': {'value': 100}
       }, task_ordered.config)
+
+      config = dict(
+          image=ee.Image(1),
+          bucket='test-bucket',
+          maxZoom=7,
+          path='foo/gcs/path',
+          maxWorkers=100,
+          priority=999)
+      task_with_priority = ee.batch.Export.map.toCloudStorage(
+          image=config['image'],
+          bucket=config['bucket'],
+          maxZoom=config['maxZoom'],
+          path=config['path'],
+          maxWorkers=config['maxWorkers'],
+          bucketCorsUris=['*'],
+          priority=config['priority'])
+      expected_expression = ee.Image(1)
+      self.assertEqual({
+          'expression': expected_expression,
+          'description': 'myExportMapTask',
+          'tileOptions': {
+              'endZoom': config['maxZoom'],
+          },
+          'tileExportOptions': {
+              'fileFormat': 'AUTO_JPEG_PNG',
+              'cloudStorageDestination': {
+                  'bucket': config['bucket'],
+                  'filenamePrefix': config['path'],
+                  'permissions': 'PUBLIC',
+                  'bucketCorsUris': ['*'],
+              },
+          },
+          'maxWorkers': {'value': 100},
+          'priority': {
+              'value': 999
+          }
+      }, task_with_priority.config)
 
   def testExportMapToCloudStorageCloudApi_WithV1Parameters(self):
     """Verifies Export.map.toCloudStorage() tasks with v1 parameters."""
@@ -727,6 +860,29 @@ class BatchTestCase(apitestcase.ApiTestCase):
               },
           }, task.config)
 
+      task_with_priority = ee.batch.Export.table.toCloudStorage(
+          collection=ee.FeatureCollection('foo'),
+          outputBucket='test-bucket',
+          maxVertices=1e6,
+          priority=999,
+      )
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('foo'),
+              'description': 'myExportTableTask',
+              'fileExportOptions': {
+                  'fileFormat': 'CSV',
+                  'cloudStorageDestination': {
+                      'bucket': 'test-bucket',
+                      'filenamePrefix': 'myExportTableTask',
+                  },
+              },
+              'maxVertices': {'value': int(1e6)},
+              'priority': {'value': 999},
+          },
+          task_with_priority.config,
+      )
+
   def testExportTableToGoogleDriveCloudApi(self):
     """Verifies the Drive destined task created by Export.table.toDrive()."""
     with apitestcase.UsingCloudApi():
@@ -789,6 +945,29 @@ class BatchTestCase(apitestcase.ApiTestCase):
       self.assertEqual('UNSUBMITTED', task_new_keys.state)
       self.assertEqual(expected_config, task_new_keys.config)
 
+      expected_config_with_priority = {
+          'expression': test_collection,
+          'description': test_description,
+          'fileExportOptions': {
+              'fileFormat': test_format,
+              'driveDestination': {
+                  'filenamePrefix': test_file_name_prefix,
+              },
+          },
+          'maxVertices': {'value': 0},
+          'priority': {'value': 999},
+      }
+      task_with_priority = ee.batch.Export.table.toDrive(
+          test_collection,
+          test_description,
+          None,
+          test_file_name_prefix,
+          test_format,
+          maxVertices=0,
+          priority=999,
+      )
+      self.assertEqual(expected_config_with_priority, task_with_priority.config)
+
   def testExportTableToAssetCloudApi(self):
     """Verifies the export task created by Export.table.toAsset()."""
     with apitestcase.UsingCloudApi():
@@ -812,6 +991,36 @@ class BatchTestCase(apitestcase.ApiTestCase):
               }
           },
           task.config)
+
+      task = ee.batch.Export.table.toAsset(
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          assetId='users/foo/bar',
+          overwrite=True)
+      self.assertTrue(task.config['assetExportOptions']
+                      ['earthEngineDestination']['overwrite'])
+      task_with_priority = ee.batch.Export.table.toAsset(
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          assetId='users/foo/bar',
+          priority=999,
+      )
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('foo'),
+              'description': 'foo',
+              'assetExportOptions': {
+                  'earthEngineDestination': {
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
+                      'overwrite': False,
+                  }
+              },
+              'priority': {'value': 999},
+          },
+          task_with_priority.config,
+      )
 
   def testExportTableWithFileFormatCloudApi(self):
     """Verifies the task created by Export.table() given a file format."""
@@ -868,6 +1077,35 @@ class BatchTestCase(apitestcase.ApiTestCase):
                   }
               }
           }, task.config)
+
+      task_with_priority = ee.batch.Export.table.toFeatureView(
+          collection=ee.FeatureCollection('foo'),
+          description='foo',
+          assetId='users/foo/bar',
+          ingestionTimeParameters={
+              'maxFeaturesPerTile': 10,
+              'zOrderRanking': [],
+          },
+          priority=999,
+      )
+      self.assertEqual(
+          {
+              'expression': ee.FeatureCollection('foo'),
+              'description': 'foo',
+              'featureViewExportOptions': {
+                  'featureViewDestination': {
+                      'name': (
+                          'projects/earthengine-legacy/assets/users/foo/bar'
+                      ),
+                  },
+                  'ingestionTimeParameters': {
+                      'thinningOptions': {'maxFeaturesPerTile': 10},
+                  },
+              },
+              'priority': {'value': 999},
+          },
+          task_with_priority.config,
+      )
 
   def testExportTableToFeatureViewEmptyParamsCloudApi(self):
     """Verifies the export task created by Export.table.toFeatureView()."""
@@ -1004,6 +1242,28 @@ class BatchTestCase(apitestcase.ApiTestCase):
                 },
             },
             task.config,
+        )
+      with self.subTest(name='PriorityIsSet'):
+        task_with_priority = ee.batch.Export.table.toBigQuery(
+            collection=ee.FeatureCollection('foo'),
+            table='project.dataset.table',
+            description='foo',
+            priority=999,
+        )
+        self.assertEqual(
+            {
+                'expression': ee.FeatureCollection('foo'),
+                'description': 'foo',
+                'bigqueryExportOptions': {
+                    'bigqueryDestination': {
+                        'table': 'project.dataset.table',
+                        'overwrite': False,
+                        'append': False,
+                    }
+                },
+                'priority': {'value': 999},
+            },
+            task_with_priority.config,
         )
 
   def testExportTableToBigQueryAllParams(self):
@@ -1177,6 +1437,35 @@ class BatchTestCase(apitestcase.ApiTestCase):
           task_ordered.config.pop('expression').serialize(for_cloud_api=True))
       self.assertEqual(expected_config, task_ordered.config)
 
+      expected_config_with_priority = {
+          'description': 'TestVideoName',
+          'fileExportOptions': {
+              'fileFormat': 'MP4',
+              'cloudStorageDestination': {
+                  'bucket': 'test-bucket',
+                  'filenamePrefix': 'TestVideoName',
+              },
+          },
+          'priority': {'value': 999},
+      }
+      task_with_priority = ee.batch.Export.video.toCloudStorage(
+          collection=collection,
+          description='TestVideoName',
+          bucket='test-bucket',
+          dimensions=16,
+          region=region['coordinates'],
+          crsTransform='[9,8,7,6,5,4]',
+          crs='foo',
+          priority=999,
+      )
+      self.assertEqual(
+          expected_collection.serialize(for_cloud_api=True),
+          task_with_priority.config.pop('expression').serialize(
+              for_cloud_api=True
+          ),
+      )
+      self.assertEqual(expected_config_with_priority, task_with_priority.config)
+
   def testExportVideoToDriveCloudApi(self):
     """Verifies the task created by Export.video.toDrive()."""
     with apitestcase.UsingCloudApi():
@@ -1227,6 +1516,34 @@ class BatchTestCase(apitestcase.ApiTestCase):
           expected_collection.serialize(for_cloud_api=True),
           task_ordered.config.pop('expression').serialize(for_cloud_api=True))
       self.assertEqual(expected_config, task_ordered.config)
+
+      expected_config_with_priority = {
+          'description': 'TestVideoName',
+          'fileExportOptions': {
+              'fileFormat': 'MP4',
+              'driveDestination': {
+                  'folder': 'test-folder',
+                  'filenamePrefix': 'TestVideoName',
+              },
+          },
+          'priority': {'value': 999},
+      }
+      task_with_priority = ee.batch.Export.video.toDrive(
+          collection=collection,
+          description='TestVideoName',
+          folder='test-folder',
+          dimensions=16,
+          crsTransform='[9,8,7,6,5,4]',
+          region=region['coordinates'],
+          priority=999,
+      )
+      self.assertEqual(
+          expected_collection.serialize(for_cloud_api=True),
+          task_with_priority.config.pop('expression').serialize(
+              for_cloud_api=True
+          ),
+      )
+      self.assertEqual(expected_config_with_priority, task_with_priority.config)
 
   def testExportWorkloadTag(self):
     """Verifies that the workload tag state is captured before start."""
