@@ -4,6 +4,12 @@ from typing import Any, Dict, Optional, Sequence, Union
 
 from ee import apifunction
 from ee import computedobject
+from ee import ee_number
+from ee import ee_string
+
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_NumberSequenceType = Union[Sequence[_NumberType]]
+_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
 class Projection(computedobject.ComputedObject):
@@ -38,12 +44,10 @@ class Projection(computedobject.ComputedObject):
 
   def __init__(
       self,
-      crs: Union[str, computedobject.ComputedObject],
-      transform: Optional[
-          Union[Sequence[float], computedobject.ComputedObject]
-      ] = None,
+      crs: _StringType,
+      transform: Optional[_NumberSequenceType] = None,
       # pylint: disable-next=invalid-name
-      transformWkt: Optional[Union[str, computedobject.ComputedObject]] = None,
+      transformWkt: Optional[_StringType] = None,
   ):
     """Creates a Projection wrapper.
 

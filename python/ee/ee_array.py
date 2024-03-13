@@ -1,9 +1,17 @@
 """A wrapper for Arrays."""
+from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Union
 
 from ee import apifunction
 from ee import computedobject
+from ee import ee_list
+from ee import ee_string
+
+_ArrayType = Union[
+    Any, List[Any], 'Array', ee_list.List, computedobject.ComputedObject
+]
+_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
 class Array(computedobject.ComputedObject):
@@ -30,11 +38,9 @@ class Array(computedobject.ComputedObject):
 
   def __init__(
       self,
-      values: Optional[
-          Union[Any, computedobject.ComputedObject]
-      ],
+      values: Optional[_ArrayType],
       # pylint: disable-next=invalid-name
-      pixelType: Optional[Union[str, computedobject.ComputedObject]] = None,
+      pixelType: Optional[_StringType] = None,
   ):
     """Creates an Array wrapper.
 

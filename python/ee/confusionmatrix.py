@@ -1,9 +1,15 @@
 """A wrapper for ConfusionMatrices."""
+from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Union
 
 from ee import apifunction
 from ee import computedobject
+from ee import ee_array
+
+_ArrayType = Union[ee_array.Array, computedobject.ComputedObject]
+_ConfusionMatrixType = Union['ConfusionMatrix', computedobject.ComputedObject]
+_ListType = Union[List[Any], computedobject.ComputedObject]
 
 
 class ConfusionMatrix(computedobject.ComputedObject):
@@ -25,8 +31,8 @@ class ConfusionMatrix(computedobject.ComputedObject):
 
   def __init__(
       self,
-      array: Optional[computedobject.ComputedObject],
-      order: Optional[Union[List[Any], computedobject.ComputedObject]] = None,
+      array: Optional[Union[_ArrayType, _ConfusionMatrixType]],
+      order: Optional[_ListType] = None,
   ):
     """Creates a ConfusionMatrix wrapper.
 

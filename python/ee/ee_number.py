@@ -1,4 +1,5 @@
 """A wrapper for numbers."""
+from __future__ import annotations
 
 from typing import Any, Optional, Union
 
@@ -8,20 +9,20 @@ from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
 
+_NumberType = Union[float, 'Number', computedobject.ComputedObject]
+
 
 class Number(computedobject.ComputedObject):
   """An object to represent numbers."""
 
-  _number: Optional[Union[float, computedobject.ComputedObject]]
+  _number: Optional[float]
 
   _initialized = False
 
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(
-      self, number: Union[float, computedobject.ComputedObject]
-  ):
+  def __init__(self, number: _NumberType):
     """Construct a number wrapper.
 
     This constructor accepts the following args:

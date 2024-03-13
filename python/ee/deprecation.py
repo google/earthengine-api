@@ -1,7 +1,21 @@
 """Decorators to handle various deprecations."""
 
+from __future__ import annotations
+
+import dataclasses
+import datetime
 import functools
+import inspect
+import json
+from typing import Any, Callable, Dict, Optional
+import urllib
 import warnings
+
+_DEPRECATED_OBJECT = 'earthengine-stac/catalog/catalog_deprecated.json'
+_DEPRECATED_ASSETS_URL = f'https://storage.googleapis.com/{_DEPRECATED_OBJECT}'
+
+# Deprecation warnings are per-asset, per-initialization.
+deprecated_assets: Dict[str, _DeprecatedAsset] = None
 
 
 def Deprecated(message: str):
@@ -25,11 +39,14 @@ def Deprecated(message: str):
           '%s() is deprecated: %s' % (func.__name__, message),
           category=DeprecationWarning,
           filename=func.__code__.co_filename,
-          lineno=func.__code__.co_firstlineno + 1)
+          lineno=func.__code__.co_firstlineno + 1,
+      )
       return func(*args, **kwargs)
+
     deprecation_message = '\nDEPRECATED: ' + message
     Wrapper.__doc__ += deprecation_message
     return Wrapper
+
   return Decorator
 
 
@@ -41,4 +58,130 @@ def CanUseDeprecated(func):
     with warnings.catch_warnings():
       warnings.filterwarnings('ignore', category=DeprecationWarning)
       return func(*args, **kwargs)
+
   return Wrapper
+
+
+@dataclasses.dataclass
+class _DeprecatedAsset:
+  """Class for keeping track of a single deprecated asset."""
+
+  id: str
+  replacement_id: Optional[str]
+  removal_date: Optional[datetime.datetime]
+  learn_more_url: str
+
+  has_warning_been_issued: bool = False
+
+  @classmethod
+  def _ParseDateString(cls, date_str: str) -> datetime.datetime:
+    return datetime.datetime.fromisoformat(date_str)
+
+  @classmethod
+  def FromStacLink(cls, stac_link: Dict[str, Any]) -> _DeprecatedAsset:
+    removal_date = stac_link.get('gee:removal_date')
+    if removal_date:
+      removal_date = cls._ParseDateString(removal_date)
+    return _DeprecatedAsset(
+        id=stac_link['title'],
+        replacement_id=stac_link.get('gee:replacement_id'),
+        removal_date=removal_date,
+        learn_more_url=stac_link.get('gee:learn_more_url'),
+    )
+
+
+def WarnForDeprecatedAsset(arg_name: str) -> Callable[..., Any]:
+  """Decorator to warn on usage of deprecated assets.
+
+  Args:
+    arg_name: The name of the argument to check for asset deprecation.
+
+  Returns:
+    The decorated function which checks for asset deprecation.
+  """
+
+  def Decorator(func: Callable[..., Any]):
+    @functools.wraps(func)
+    def Wrapper(*args, **kwargs) -> Callable[..., Any]:
+      argspec = inspect.getfullargspec(func)
+      index = argspec.args.index(arg_name)
+      if kwargs.get(arg_name):
+        asset_name_object = kwargs[arg_name]
+      elif index < len(args):
+        asset_name_object = args[index]
+      else:
+        asset_name_object = None
+      asset_name = _GetStringFromObject(asset_name_object)
+      if asset_name:
+        asset = (deprecated_assets or {}).get(asset_name)
+        if asset:
+          _IssueAssetDeprecationWarning(asset)
+      return func(*args, **kwargs)
+
+    return Wrapper
+
+  return Decorator
+
+
+def InitializeDeprecatedAssets() -> None:
+  global deprecated_assets
+  if deprecated_assets is not None:
+    return
+  _UnfilterDeprecationWarnings()
+
+  deprecated_assets = {}
+  stac = _FetchDataCatalogStac()
+  for stac_link in stac.get('links', []):
+    if stac_link.get('deprecated', False):
+      asset = _DeprecatedAsset.FromStacLink(stac_link)
+      deprecated_assets[asset.id] = asset
+
+
+def Reset() -> None:
+  global deprecated_assets
+  deprecated_assets = None
+
+
+def _FetchDataCatalogStac() -> Dict[str, Any]:
+  try:
+    response = urllib.request.urlopen(_DEPRECATED_ASSETS_URL).read()
+  except (urllib.error.HTTPError, urllib.error.URLError):
+    return {}
+  return json.loads(response)
+
+
+def _GetStringFromObject(obj: Any) -> Optional[str]:
+  if isinstance(obj, str):
+    return obj
+  return None
+
+
+def _UnfilterDeprecationWarnings() -> None:
+  """Unfilters deprecation warnings for this module."""
+  warnings.filterwarnings(
+      'default', category=DeprecationWarning, module=__name__
+  )
+
+
+def _IssueAssetDeprecationWarning(asset: _DeprecatedAsset) -> None:
+  """Issues a warning for a deprecated asset if one hasn't already been issued.
+
+  Args:
+    asset: The asset.
+  """
+  if asset.has_warning_been_issued:
+    return
+  asset.has_warning_been_issued = True
+
+  warning = (
+      f'\n\nAttention required for {asset.id}! You are using a deprecated'
+      ' asset.\nTo ensure continued functionality, please update it'
+  )
+  if removal_date := asset.removal_date:
+    formatted_date = removal_date.strftime('%B %-d, %Y')
+    warning = warning + f' by {formatted_date}.'
+  else:
+    warning = warning + '.'
+  if asset.learn_more_url:
+    warning = warning + f'\nLearn more: {asset.learn_more_url}\n'
+  warnings.warn(warning, category=DeprecationWarning)

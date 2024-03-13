@@ -4,6 +4,12 @@ from typing import Any, Dict, Optional, Union
 
 from ee import apifunction
 from ee import computedobject
+from ee import ee_number
+from ee import ee_string
+
+_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
 class PixelType(computedobject.ComputedObject):
@@ -48,12 +54,12 @@ class PixelType(computedobject.ComputedObject):
 
   def __init__(
       self,
-      precision: Union[str, computedobject.ComputedObject],
+      precision: Union[_StringType],
       # pylint: disable=invalid-name
-      minValue: Optional[Union[float, computedobject.ComputedObject]] = None,
-      maxValue: Optional[Union[float, computedobject.ComputedObject]] = None,
+      minValue: Optional[_NumberType] = None,
+      maxValue: Optional[_NumberType] = None,
       # pylint: enable=invalid-name
-      dimensions: Optional[Union[int, computedobject.ComputedObject]] = None,
+      dimensions: Optional[_IntegerType] = None,
   ):
     """Creates a PixelType wrapper.
 

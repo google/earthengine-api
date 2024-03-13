@@ -8,11 +8,15 @@ from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
 
+_EeListType = Union[
+    ListType[Any], Tuple[Any, Any], computedobject.ComputedObject
+]
+
 
 class List(computedobject.ComputedObject):
   """An object to represent lists."""
   _list: Optional[
-      Union[ListType[Any], Tuple[Any, Any], computedobject.ComputedObject]
+      Union[ListType[Any], Tuple[Any, Any]]
   ]
 
   _initialized = False
@@ -20,12 +24,7 @@ class List(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(
-      self,
-      arg: Optional[
-          Union[ListType[Any], Tuple[Any, Any], computedobject.ComputedObject]
-      ],
-  ):
+  def __init__(self, arg: Optional[_EeListType]):
     """Construct a list wrapper.
 
     This constructor accepts the following args:

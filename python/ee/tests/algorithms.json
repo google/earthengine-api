@@ -3598,6 +3598,33 @@
       "type": "Clusterer"
     }]
   }, {
+    "name": "algorithms/Geometry.fromS2CellId",
+    "description": "Constructs the Polygon corresponding to an S2 cell id.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "cellId",
+      "type": "Long",
+      "description": "The S2 cell id as 64 bit integer.  From Javascript, which does not support integers larger than 53 bits, use fromS2CellToken instead."
+    }]
+  }, {
+    "name": "algorithms/Geometry.s2Cell",
+    "description": "Constructs the Polygon corresponding to an S2 cell id.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "cellId",
+      "type": "Long",
+      "description": "The S2 cell id as 64 bit integer.  From Javascript, which does not support integers larger than 53 bits, use fromS2CellToken instead."
+    }]
+  }, {
+    "name": "algorithms/Geometry.fromS2CellToken",
+    "description": "Constructs the Polygon corresponding to an S2 cell id as a hex string.",
+    "returnType": "Geometry",
+    "arguments": [{
+      "argumentName": "cellToken",
+      "type": "String",
+      "description": "The S2 cell id as a hex string.  Trailing zeros are required, e.g. the top level face containing Antarctica is 0xb000000000000000."
+    }]
+  }, {
     "name": "algorithms/Geometry.coveringGrid",
     "description": "Returns a collection of features that cover this geometry, where each feature is a rectangle in the grid defined by the given projection.",
     "returnType": "FeatureCollection",
@@ -5823,7 +5850,7 @@
     }]
   }, {
     "name": "algorithms/Collection.randomColumn",
-    "description": "Adds a column of deterministic pseudorandom numbers to a collection.  The outputs are double-precision floating point numbers. When using the \u0027uniform\u0027 distribution (default), outputs are in the range of [0, 1). Using the \u0027normal\u0027 distribution, outputs have μ\u003d0, 𝛔\u003d1, but have no explicit limits.",
+    "description": "Adds a column of deterministic pseudorandom numbers to a collection.  The outputs are double-precision floating point numbers. When using the \u0027uniform\u0027 distribution (default), outputs are in the range of [0, 1). Using the \u0027normal\u0027 distribution, outputs have μ\u003d0, σ\u003d1, but have no explicit limits.",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "collection",
@@ -9407,7 +9434,7 @@
     }]
   }, {
     "name": "algorithms/Image.random",
-    "description": "Generates a random number at each pixel location.  When using the \u0027uniform\u0027 distribution, outputs are in the range of [0 to 1).  Using the \u0027normal\u0027 distribution, the outputs have μ\u003d0, 𝛔\u003d1, but no explicit limits.",
+    "description": "Generates a random number at each pixel location.  When using the \u0027uniform\u0027 distribution, outputs are in the range of [0 to 1).  Using the \u0027normal\u0027 distribution, the outputs have μ\u003d0, σ\u003d1, but no explicit limits.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "seed",
@@ -11834,7 +11861,7 @@
     }]
   }, {
     "name": "algorithms/String.compareTo",
-    "description": "Compares two strings lexicographically. Returns: the value 0 if the two strings are lexicographically equal; a value less than 0 if string1 is less than string2;  and a value greater than 0 if string1 is lexicographically greater than string2. ",
+    "description": "Compares two strings lexicographically. Returns: the value 0 if the two strings are lexicographically equal; -1 if string1 is less than string2; and 1 if string1 is lexicographically greater than string2.",
     "returnType": "Integer",
     "arguments": [{
       "argumentName": "string1",

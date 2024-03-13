@@ -6059,9 +6059,9 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function(type, raw)
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$iter$19 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$m1892927425$40$key = $jscomp$iter$19.next(), $jscomp$loop$m1892927425$44 = {}; !$jscomp$key$m1892927425$40$key.done; $jscomp$loop$m1892927425$44 = 
-  {mapMetadata:void 0}, $jscomp$key$m1892927425$40$key = $jscomp$iter$19.next()) {
-    var key = $jscomp$key$m1892927425$40$key.value, value = valueGetter(key, source);
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$iter$19 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$m192531680$40$key = $jscomp$iter$19.next(), $jscomp$loop$m192531680$44 = {}; !$jscomp$key$m192531680$40$key.done; $jscomp$loop$m192531680$44 = 
+  {mapMetadata:void 0}, $jscomp$key$m192531680$40$key = $jscomp$iter$19.next()) {
+    var key = $jscomp$key$m192531680$40$key.value, value = valueGetter(key, source);
     if (null != value) {
       var copy = void 0;
       if (arrays.hasOwnProperty(key)) {
@@ -6072,11 +6072,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
       } else if (objects.hasOwnProperty(key)) {
         copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
       } else if (objectMaps.hasOwnProperty(key)) {
-        $jscomp$loop$m1892927425$44.mapMetadata = objectMaps[key], copy = $jscomp$loop$m1892927425$44.mapMetadata.isPropertyArray ? value.map(function($jscomp$loop$m1892927425$44) {
+        $jscomp$loop$m192531680$44.mapMetadata = objectMaps[key], copy = $jscomp$loop$m192531680$44.mapMetadata.isPropertyArray ? value.map(function($jscomp$loop$m192531680$44) {
           return function(v) {
-            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$m1892927425$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
+            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$m192531680$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
           };
-        }($jscomp$loop$m1892927425$44)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$m1892927425$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
+        }($jscomp$loop$m192531680$44)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$m192531680$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
       } else if (Array.isArray(value)) {
         if (metadata.emptyArrayIsUnset && 0 === value.length) {
           continue;
@@ -6091,8 +6091,8 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
   return target;
 }
 function module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, mapMetadata, valueGetter, valueSetter, copyInstanciator) {
-  for (var objMap = {}, $jscomp$iter$20 = $jscomp.makeIterator(Object.keys(value)), $jscomp$key$m1892927425$41$mapKey = $jscomp$iter$20.next(); !$jscomp$key$m1892927425$41$mapKey.done; $jscomp$key$m1892927425$41$mapKey = $jscomp$iter$20.next()) {
-    var mapKey = $jscomp$key$m1892927425$41$mapKey.value, mapValue = value[mapKey];
+  for (var objMap = {}, $jscomp$iter$20 = $jscomp.makeIterator(Object.keys(value)), $jscomp$key$m192531680$41$mapKey = $jscomp$iter$20.next(); !$jscomp$key$m192531680$41$mapKey.done; $jscomp$key$m192531680$41$mapKey = $jscomp$iter$20.next()) {
+    var mapKey = $jscomp$key$m192531680$41$mapKey.value, mapValue = value[mapKey];
     null != mapValue && (objMap[mapKey] = module$contents$eeapiclient$domain_object_deepCopyValue(mapValue, valueGetter, valueSetter, copyInstanciator, mapMetadata.isValueArray, mapMetadata.isSerializable, mapMetadata.ctor));
   }
   return objMap;
@@ -6122,39 +6122,39 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$iter$21 = $jscomp.makeIterator(keys1), $jscomp$key$m1892927425$42$key = $jscomp$iter$21.next(), $jscomp$loop$m1892927425$45 = {}; !$jscomp$key$m1892927425$42$key.done; $jscomp$loop$m1892927425$45 = {value2$jscomp$7:void 0, mapMetadata$jscomp$2:void 0}, $jscomp$key$m1892927425$42$key = $jscomp$iter$21.next()) {
-    var key = $jscomp$key$m1892927425$42$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
+  for (var $jscomp$iter$21 = $jscomp.makeIterator(keys1), $jscomp$key$m192531680$42$key = $jscomp$iter$21.next(), $jscomp$loop$m192531680$45 = {}; !$jscomp$key$m192531680$42$key.done; $jscomp$loop$m192531680$45 = {value2$jscomp$7:void 0, mapMetadata$jscomp$2:void 0}, $jscomp$key$m192531680$42$key = $jscomp$iter$21.next()) {
+    var key = $jscomp$key$m192531680$42$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$m1892927425$45.value2$jscomp$7 = serializable2.Serializable$get(key);
+      $jscomp$loop$m192531680$45.value2$jscomp$7 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !0, !0)) {
           return !1;
         }
       } else if (objects1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !1, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !1, !0)) {
           return !1;
         }
       } else if (objectMaps1.hasOwnProperty(key)) {
-        if ($jscomp$loop$m1892927425$45.mapMetadata$jscomp$2 = objectMaps1[key], $jscomp$loop$m1892927425$45.mapMetadata$jscomp$2.isPropertyArray) {
-          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7) || value1.some(function($jscomp$loop$m1892927425$45) {
+        if ($jscomp$loop$m192531680$45.mapMetadata$jscomp$2 = objectMaps1[key], $jscomp$loop$m192531680$45.mapMetadata$jscomp$2.isPropertyArray) {
+          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$m192531680$45.value2$jscomp$7) || value1.some(function($jscomp$loop$m192531680$45) {
             return function(v1, i) {
-              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$m1892927425$45.value2$jscomp$7[i], $jscomp$loop$m1892927425$45.mapMetadata$jscomp$2);
+              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$m192531680$45.value2$jscomp$7[i], $jscomp$loop$m192531680$45.mapMetadata$jscomp$2);
             };
-          }($jscomp$loop$m1892927425$45))) {
+          }($jscomp$loop$m192531680$45))) {
             return !1;
           }
-        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, $jscomp$loop$m1892927425$45.mapMetadata$jscomp$2)) {
+        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, $jscomp$loop$m192531680$45.mapMetadata$jscomp$2)) {
           return !1;
         }
       } else if (Array.isArray(value1)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !0, !1)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !0, !1)) {
           return !1;
         }
-      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !1, !1)) {
+      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !1, !1)) {
         return !1;
       }
     }
@@ -6176,8 +6176,8 @@ function module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, v
   if (!module$contents$eeapiclient$domain_object_sameKeys(value1, value2)) {
     return !1;
   }
-  for (var $jscomp$iter$22 = $jscomp.makeIterator(Object.keys(value1)), $jscomp$key$m1892927425$43$mapKey = $jscomp$iter$22.next(); !$jscomp$key$m1892927425$43$mapKey.done; $jscomp$key$m1892927425$43$mapKey = $jscomp$iter$22.next()) {
-    var mapKey = $jscomp$key$m1892927425$43$mapKey.value;
+  for (var $jscomp$iter$22 = $jscomp.makeIterator(Object.keys(value1)), $jscomp$key$m192531680$43$mapKey = $jscomp$iter$22.next(); !$jscomp$key$m192531680$43$mapKey.done; $jscomp$key$m192531680$43$mapKey = $jscomp$iter$22.next()) {
+    var mapKey = $jscomp$key$m192531680$43$mapKey.value;
     if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1[mapKey], value2[mapKey], mapMetadata.isValueArray, mapMetadata.isSerializable)) {
       return !1;
     }
@@ -6244,7 +6244,542 @@ var module$contents$safevalues$internals$pure_module = module$contents$safevalue
 function module$contents$safevalues$internals$pure_pure(valueOf) {
   return {valueOf:valueOf}.valueOf();
 }
-;goog.dom.HtmlElement = function() {
+;goog.html = {};
+goog.html.trustedtypes = {};
+goog.html.trustedtypes.POLICY_NAME = goog.TRUSTED_TYPES_POLICY_NAME ? goog.TRUSTED_TYPES_POLICY_NAME + "#html" : "";
+goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse = function() {
+  if (!goog.html.trustedtypes.POLICY_NAME) {
+    return null;
+  }
+  void 0 === goog.html.trustedtypes.cachedPolicy_ && (goog.html.trustedtypes.cachedPolicy_ = goog.createTrustedTypesPolicy(goog.html.trustedtypes.POLICY_NAME));
+  return goog.html.trustedtypes.cachedPolicy_;
+};
+goog.string.Const = function(opt_token, opt_content) {
+  this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ = opt_token === goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content || "";
+  this.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ = goog.string.Const.TYPE_MARKER_;
+};
+goog.string.Const.prototype.toString = function() {
+  return this.stringConstValueWithSecurityContract__googStringSecurityPrivate_;
+};
+goog.string.Const.unwrap = function(stringConst) {
+  if (stringConst instanceof goog.string.Const && stringConst.constructor === goog.string.Const && stringConst.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ === goog.string.Const.TYPE_MARKER_) {
+    return stringConst.stringConstValueWithSecurityContract__googStringSecurityPrivate_;
+  }
+  goog.asserts.fail("expected object of type Const, got '" + stringConst + "'");
+  return "type_error:Const";
+};
+goog.string.Const.from = function(s) {
+  return new goog.string.Const(goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_, s);
+};
+goog.string.Const.TYPE_MARKER_ = {};
+goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ = {};
+goog.string.Const.EMPTY = goog.string.Const.from("");
+goog.html.TrustedResourceUrl = function(value, token) {
+  if (goog.DEBUG && token !== goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_) {
+    throw Error("TrustedResourceUrl is not meant to be built directly");
+  }
+  this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = value;
+};
+goog.html.TrustedResourceUrl.prototype.toString = function() {
+  return this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ + "";
+};
+goog.html.TrustedResourceUrl.prototype.cloneWithParams = function(searchParams, opt_hashParams) {
+  var url = goog.html.TrustedResourceUrl.unwrap(this), parts = goog.html.TrustedResourceUrl.URL_PARAM_PARSER_.exec(url), urlHash = parts[3] || "";
+  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(parts[1] + goog.html.TrustedResourceUrl.stringifyParams_("?", parts[2] || "", searchParams) + goog.html.TrustedResourceUrl.stringifyParams_("#", urlHash, opt_hashParams));
+};
+goog.html.TrustedResourceUrl.unwrap = function(trustedResourceUrl) {
+  return goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(trustedResourceUrl).toString();
+};
+goog.html.TrustedResourceUrl.unwrapTrustedScriptURL = function(trustedResourceUrl) {
+  if (trustedResourceUrl instanceof goog.html.TrustedResourceUrl && trustedResourceUrl.constructor === goog.html.TrustedResourceUrl) {
+    return trustedResourceUrl.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_;
+  }
+  goog.asserts.fail("expected object of type TrustedResourceUrl, got '%s' of type %s", trustedResourceUrl, goog.typeOf(trustedResourceUrl));
+  return "type_error:TrustedResourceUrl";
+};
+goog.html.TrustedResourceUrl.format = function(format, args) {
+  var formatStr = goog.string.Const.unwrap(format);
+  if (!goog.html.TrustedResourceUrl.BASE_URL_.test(formatStr)) {
+    throw Error("Invalid TrustedResourceUrl format: " + formatStr);
+  }
+  var result = formatStr.replace(goog.html.TrustedResourceUrl.FORMAT_MARKER_, function(match, id) {
+    if (!Object.prototype.hasOwnProperty.call(args, id)) {
+      throw Error('Found marker, "' + id + '", in format string, "' + formatStr + '", but no valid label mapping found in args: ' + JSON.stringify(args));
+    }
+    var arg = args[id];
+    return arg instanceof goog.string.Const ? goog.string.Const.unwrap(arg) : encodeURIComponent(String(arg));
+  });
+  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(result);
+};
+goog.html.TrustedResourceUrl.FORMAT_MARKER_ = /%{(\w+)}/g;
+goog.html.TrustedResourceUrl.BASE_URL_ = RegExp("^((https:)?//[0-9a-z.:[\\]-]+/|/[^/\\\\]|[^:/\\\\%]+/|[^:/\\\\%]*[?#]|about:blank#)", "i");
+goog.html.TrustedResourceUrl.URL_PARAM_PARSER_ = /^([^?#]*)(\?[^#]*)?(#[\s\S]*)?/;
+goog.html.TrustedResourceUrl.formatWithParams = function(format, args, searchParams, opt_hashParams) {
+  return goog.html.TrustedResourceUrl.format(format, args).cloneWithParams(searchParams, opt_hashParams);
+};
+goog.html.TrustedResourceUrl.fromConstant = function(url) {
+  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
+};
+goog.html.TrustedResourceUrl.fromConstants = function(parts) {
+  for (var unwrapped = "", i = 0; i < parts.length; i++) {
+    unwrapped += goog.string.Const.unwrap(parts[i]);
+  }
+  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(unwrapped);
+};
+goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
+goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse = function(url) {
+  var noinlineUrl = url, policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), value = policy ? policy.createScriptURL(noinlineUrl) : noinlineUrl;
+  return new goog.html.TrustedResourceUrl(value, goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
+};
+goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, params) {
+  if (null == params) {
+    return currentString;
+  }
+  if ("string" === typeof params) {
+    return params ? prefix + encodeURIComponent(params) : "";
+  }
+  for (var key in params) {
+    if (Object.prototype.hasOwnProperty.call(params, key)) {
+      for (var value = params[key], outputValues = Array.isArray(value) ? value : [value], i = 0; i < outputValues.length; i++) {
+        var outputValue = outputValues[i];
+        null != outputValue && (currentString || (currentString = prefix), currentString += (currentString.length > prefix.length ? "&" : "") + encodeURIComponent(key) + "=" + encodeURIComponent(String(outputValue)));
+      }
+    }
+  }
+  return currentString;
+};
+var module$exports$safevalues$internals$resource_url_impl = {}, module$contents$safevalues$internals$resource_url_impl_module = module$contents$safevalues$internals$resource_url_impl_module || {id:"third_party/javascript/safevalues/internals/resource_url_impl.closure.js"};
+module$exports$safevalues$internals$resource_url_impl.TrustedResourceUrl = goog.html.TrustedResourceUrl;
+function module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(url) {
+  return (0,goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse)(url);
+}
+module$exports$safevalues$internals$resource_url_impl.createResourceUrlInternal = module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal;
+function module$contents$safevalues$internals$resource_url_impl_isResourceUrl(value) {
+  return value instanceof goog.html.TrustedResourceUrl;
+}
+module$exports$safevalues$internals$resource_url_impl.isResourceUrl = module$contents$safevalues$internals$resource_url_impl_isResourceUrl;
+function module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(value) {
+  return goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(value);
+}
+module$exports$safevalues$internals$resource_url_impl.unwrapResourceUrl = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl;
+var $jscomp$templatelit$1274514361$5 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$6 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$1274514361$7 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$8 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), $jscomp$templatelit$1274514361$9 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$10 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], 
+["\\0"]), $jscomp$templatelit$1274514361$11 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$12 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
+function module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, numExprs) {
+  if (!module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) || numExprs + 1 !== templateObj.length) {
+    throw new TypeError("\n    ############################## ERROR ##############################\n\n    It looks like you are trying to call a template tag function (fn`...`)\n    using the normal function syntax (fn(...)), which is not supported.\n\n    The functions in the safevalues library are not designed to be called\n    like normal functions, and doing so invalidates the security guarantees\n    that safevalues provides.\n\n    If you are stuck and not sure how to proceed, please reach out to us\n    instead through:\n     - go/ise-hardening-yaqs (preferred) // LINE-INTERNAL\n     - g/ise-hardening // LINE-INTERNAL\n     - https://github.com/google/safevalues/issues\n\n    ############################## ERROR ##############################");
+  }
+}
+function module$contents$safevalues$internals$string_literal_checkFrozen(templateObj) {
+  return Object.isFrozen(templateObj) && Object.isFrozen(templateObj.raw);
+}
+var module$contents$safevalues$internals$string_literal_TagFn;
+function module$contents$safevalues$internals$string_literal_checkTranspiled(fn) {
+  return -1 === fn.toString().indexOf("`");
+}
+var module$contents$safevalues$internals$string_literal_isTranspiled = module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
+  return tag($jscomp$templatelit$1274514361$5);
+}) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
+  return tag($jscomp$templatelit$1274514361$6);
+}) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
+  return tag($jscomp$templatelit$1274514361$7);
+}) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
+  return tag($jscomp$templatelit$1274514361$8);
+}), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$9) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$10) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$11) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$12);
+function module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) {
+  return Array.isArray(templateObj) && Array.isArray(templateObj.raw) && templateObj.length === templateObj.raw.length && (module$contents$safevalues$internals$string_literal_isTranspiled || templateObj !== templateObj.raw) && (module$contents$safevalues$internals$string_literal_isTranspiled && !module$contents$safevalues$internals$string_literal_frozenTSA || module$contents$safevalues$internals$string_literal_checkFrozen(templateObj)) ? 
+  !0 : !1;
+}
+;goog.fs = {};
+goog.fs.url = {};
+goog.fs.url.createObjectUrl = function(obj) {
+  return goog.fs.url.getUrlObject_().createObjectURL(obj);
+};
+goog.fs.url.revokeObjectUrl = function(url) {
+  goog.fs.url.getUrlObject_().revokeObjectURL(url);
+};
+goog.fs.url.UrlObject_ = function() {
+};
+goog.fs.url.UrlObject_.prototype.createObjectURL = function(arg) {
+};
+goog.fs.url.UrlObject_.prototype.revokeObjectURL = function(s) {
+};
+goog.fs.url.getUrlObject_ = function() {
+  var urlObject = goog.fs.url.findUrlObject_();
+  if (null != urlObject) {
+    return urlObject;
+  }
+  throw Error("This browser doesn't seem to support blob URLs");
+};
+goog.fs.url.findUrlObject_ = function() {
+  return void 0 !== goog.global.URL && void 0 !== goog.global.URL.createObjectURL ? goog.global.URL : void 0 !== goog.global.createObjectURL ? goog.global : null;
+};
+goog.fs.url.browserSupportsObjectUrls = function() {
+  return null != goog.fs.url.findUrlObject_();
+};
+goog.html.SafeUrl = function(value, token) {
+  if (goog.DEBUG && token !== goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_) {
+    throw Error("SafeUrl is not meant to be built directly");
+  }
+  this.privateDoNotAccessOrElseSafeUrlWrappedValue_ = value;
+};
+goog.html.SafeUrl.prototype.toString = function() {
+  return this.privateDoNotAccessOrElseSafeUrlWrappedValue_.toString();
+};
+goog.html.SafeUrl.INNOCUOUS_STRING = "about:invalid#zClosurez";
+goog.html.SafeUrl.unwrap = function(safeUrl) {
+  if (safeUrl instanceof goog.html.SafeUrl && safeUrl.constructor === goog.html.SafeUrl) {
+    return safeUrl.privateDoNotAccessOrElseSafeUrlWrappedValue_;
+  }
+  goog.asserts.fail("expected object of type SafeUrl, got '" + safeUrl + "' of type " + goog.typeOf(safeUrl));
+  return "type_error:SafeUrl";
+};
+goog.html.SafeUrl.fromConstant = function(url) {
+  var str = goog.string.Const.unwrap(url);
+  if (goog.DEBUG && "javascript:" === goog.html.SafeUrl.extractScheme(str)) {
+    throw Error("Building a SafeUrl with a javascript scheme is not supported");
+  }
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(str);
+};
+goog.html.SAFE_MIME_TYPE_PATTERN_ = RegExp('^(?:audio/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)|font/\\w+|image/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon|heic|heif)|video/(?:mpeg|mp4|ogg|webm|quicktime|x-matroska))(?:;\\w+=(?:\\w+|"[\\w;,= ]+"))*$', "i");
+goog.html.SafeUrl.isSafeMimeType = function(mimeType) {
+  return goog.html.SAFE_MIME_TYPE_PATTERN_.test(mimeType);
+};
+goog.html.SafeUrl.fromBlob = function(blob) {
+  var url = goog.html.SafeUrl.isSafeMimeType(blob.type) ? goog.fs.url.createObjectUrl(blob) : goog.html.SafeUrl.INNOCUOUS_STRING;
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
+};
+goog.html.DATA_URL_PATTERN_ = /^data:(.*);base64,[a-z0-9+\/]+=*$/i;
+goog.html.SafeUrl.tryFromDataUrl = function(dataUrl) {
+  dataUrl = String(dataUrl);
+  var filteredDataUrl = dataUrl.replace(/(%0A|%0D)/g, "");
+  return filteredDataUrl.match(goog.html.DATA_URL_PATTERN_) ? goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(filteredDataUrl) : null;
+};
+goog.html.SafeUrl.fromDataUrl = function(dataUrl) {
+  return goog.html.SafeUrl.tryFromDataUrl(dataUrl) || goog.html.SafeUrl.INNOCUOUS_URL;
+};
+goog.html.SafeUrl.fromTrustedResourceUrl = function(trustedResourceUrl) {
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.html.TrustedResourceUrl.unwrap(trustedResourceUrl));
+};
+goog.html.SAFE_URL_PATTERN_ = /^(?:(?:https?|mailto|ftp):|[^:/?#]*(?:[/?#]|$))/i;
+goog.html.SafeUrl.trySanitize = function(url) {
+  if (url instanceof goog.html.SafeUrl) {
+    return url;
+  }
+  url = String(url);
+  return goog.html.SAFE_URL_PATTERN_.test(url) ? goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url) : goog.html.SafeUrl.tryFromDataUrl(url);
+};
+goog.html.SafeUrl.sanitize = function(url) {
+  return goog.html.SafeUrl.trySanitize(url) || goog.html.SafeUrl.INNOCUOUS_URL;
+};
+goog.html.SafeUrl.sanitizeAssertUnchanged = function(url, opt_allowDataUrl) {
+  if (url instanceof goog.html.SafeUrl) {
+    return url;
+  }
+  url = String(url);
+  if (opt_allowDataUrl && /^data:/i.test(url)) {
+    var safeUrl = goog.html.SafeUrl.fromDataUrl(url);
+    if (safeUrl.toString() == url) {
+      return safeUrl;
+    }
+  }
+  goog.asserts.assert(goog.html.SAFE_URL_PATTERN_.test(url), "%s does not match the safe URL pattern", url) || (url = goog.html.SafeUrl.INNOCUOUS_STRING);
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
+};
+goog.html.SafeUrl.ASSUME_IMPLEMENTS_URL_API_GOOG = 2020 <= goog.FEATURESET_YEAR;
+goog.html.SafeUrl.supportsURLAPI = function() {
+  if (goog.html.SafeUrl.ASSUME_IMPLEMENTS_URL_API_GOOG) {
+    return !0;
+  }
+  try {
+    return new URL("s://g"), !0;
+  } catch (e) {
+    return !1;
+  }
+}();
+goog.html.SafeUrl.legacyExtractScheme = function(url) {
+  var aTag = document.createElement("a");
+  try {
+    aTag.href = url;
+  } catch (e) {
+    return;
+  }
+  var protocol = aTag.protocol;
+  return ":" === protocol || "" === protocol ? "https:" : protocol;
+};
+goog.html.SafeUrl.extractScheme = function(url) {
+  if (!goog.html.SafeUrl.supportsURLAPI) {
+    return goog.html.SafeUrl.legacyExtractScheme(url);
+  }
+  try {
+    var parsedUrl = new URL(url);
+  } catch (e) {
+    return "https:";
+  }
+  return parsedUrl.protocol;
+};
+goog.html.SafeUrl.sanitizeJavascriptUrlAssertUnchanged = function(url) {
+  if (url instanceof goog.html.SafeUrl) {
+    return url;
+  }
+  url = String(url);
+  var parsedScheme = goog.html.SafeUrl.extractScheme(url);
+  goog.asserts.assert("javascript:" !== parsedScheme, "%s is a javascript: URL", url) || (url = goog.html.SafeUrl.INNOCUOUS_STRING);
+  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
+};
+goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
+goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse = function(url) {
+  return new goog.html.SafeUrl(url, goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
+};
+goog.html.SafeUrl.INNOCUOUS_URL = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.html.SafeUrl.INNOCUOUS_STRING);
+goog.html.SafeUrl.ABOUT_BLANK = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse("about:blank");
+var module$exports$safevalues$internals$url_impl = {}, module$contents$safevalues$internals$url_impl_module = module$contents$safevalues$internals$url_impl_module || {id:"third_party/javascript/safevalues/internals/url_impl.closure.js"};
+module$exports$safevalues$internals$url_impl.SafeUrl = goog.html.SafeUrl;
+function module$contents$safevalues$internals$url_impl_createUrlInternal(url) {
+  return (0,goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse)(url);
+}
+module$exports$safevalues$internals$url_impl.createUrlInternal = module$contents$safevalues$internals$url_impl_createUrlInternal;
+module$exports$safevalues$internals$url_impl.ABOUT_BLANK = module$contents$safevalues$internals$url_impl_createUrlInternal("about:blank");
+module$exports$safevalues$internals$url_impl.INNOCUOUS_URL = module$contents$safevalues$internals$url_impl_createUrlInternal("about:invalid#zClosurez");
+function module$contents$safevalues$internals$url_impl_isUrl(value) {
+  return value instanceof goog.html.SafeUrl;
+}
+module$exports$safevalues$internals$url_impl.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
+function module$contents$safevalues$internals$url_impl_unwrapUrl(value) {
+  return goog.html.SafeUrl.unwrap(value);
+}
+module$exports$safevalues$internals$url_impl.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
+var module$exports$safevalues$builders$url_builders = {}, module$contents$safevalues$builders$url_builders_module = module$contents$safevalues$builders$url_builders_module || {id:"third_party/javascript/safevalues/builders/url_builders.closure.js"};
+function module$contents$safevalues$builders$url_builders_isSafeMimeType(mimeType) {
+  var match = mimeType.match(/^([^;]+)(?:;\w+=(?:\w+|"[\w;,= ]+"))*$/i);
+  return 2 === (null == match ? void 0 : match.length) && (module$contents$safevalues$builders$url_builders_isSafeImageMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeAudioMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeFontMimeType(match[1]));
+}
+function module$contents$safevalues$builders$url_builders_isSafeImageMimeType(mimeType) {
+  return /^image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon|heic|heif|avif|x-ms-bmp)$/i.test(mimeType);
+}
+function module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(mimeType) {
+  return /^video\/(?:mpeg|mp4|ogg|webm|x-matroska|quicktime|x-ms-wmv)$/i.test(mimeType);
+}
+function module$contents$safevalues$builders$url_builders_isSafeAudioMimeType(mimeType) {
+  return /^audio\/(?:3gpp2|3gpp|aac|amr|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)$/i.test(mimeType);
+}
+function module$contents$safevalues$builders$url_builders_isSafeFontMimeType(mimeType) {
+  return /^font\/\w+/i.test(mimeType);
+}
+module$exports$safevalues$builders$url_builders.Scheme = function() {
+};
+var module$contents$safevalues$builders$url_builders_SchemeImpl = function(isValid) {
+  this.isValid = isValid;
+};
+function module$contents$safevalues$builders$url_builders_isValidScheme(scheme) {
+  return scheme instanceof module$contents$safevalues$builders$url_builders_SchemeImpl;
+}
+function module$contents$safevalues$builders$url_builders_simpleScheme(scheme) {
+  return new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
+    return url.substr(0, scheme.length + 1).toLowerCase() === scheme + ":";
+  });
+}
+module$exports$safevalues$builders$url_builders.SanitizableUrlScheme = {TEL:module$contents$safevalues$builders$url_builders_simpleScheme("tel"), CALLTO:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
+  return /^callto:\+?\d*$/i.test(url);
+}), SSH:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
+  return 0 === url.indexOf("ssh://");
+}), RTSP:module$contents$safevalues$builders$url_builders_simpleScheme("rtsp"), DATA:module$contents$safevalues$builders$url_builders_simpleScheme("data"), HTTP:module$contents$safevalues$builders$url_builders_simpleScheme("http"), HTTPS:module$contents$safevalues$builders$url_builders_simpleScheme("https"), EXTENSION:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
+  return 0 === url.indexOf("chrome-extension://") || 0 === url.indexOf("moz-extension://") || 0 === url.indexOf("ms-browser-extension://");
+}), FTP:module$contents$safevalues$builders$url_builders_simpleScheme("ftp"), RELATIVE:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
+  return /^[^:]*([/?#]|$)/.test(url);
+}), MAILTO:module$contents$safevalues$builders$url_builders_simpleScheme("mailto"), INTENT:module$contents$safevalues$builders$url_builders_simpleScheme("intent"), MARKET:module$contents$safevalues$builders$url_builders_simpleScheme("market"), ITMS:module$contents$safevalues$builders$url_builders_simpleScheme("itms"), ITMS_APPSS:module$contents$safevalues$builders$url_builders_simpleScheme("itms-appss"), 
+ITMS_SERVICES:module$contents$safevalues$builders$url_builders_simpleScheme("itms-services"), FACEBOOK_MESSENGER:module$contents$safevalues$builders$url_builders_simpleScheme("fb-messenger"), WHATSAPP:module$contents$safevalues$builders$url_builders_simpleScheme("whatsapp"), SIP:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
+  return 0 === url.indexOf("sip:") || 0 === url.indexOf("sips:");
+}), SMS:module$contents$safevalues$builders$url_builders_simpleScheme("sms"), VND_YOUTUBE:module$contents$safevalues$builders$url_builders_simpleScheme("vnd.youtube")};
+var module$contents$safevalues$builders$url_builders_DEFAULT_SCHEMES = [module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.DATA, module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.HTTP, module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.HTTPS, module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.MAILTO, 
+module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.FTP, module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.RELATIVE];
+function module$contents$safevalues$builders$url_builders_trySanitizeUrl(url, allowedSchemes) {
+  allowedSchemes = void 0 === allowedSchemes ? module$contents$safevalues$builders$url_builders_DEFAULT_SCHEMES : allowedSchemes;
+  if (module$contents$safevalues$internals$url_impl_isUrl(url)) {
+    return url;
+  }
+  for (var i = 0; i < allowedSchemes.length; ++i) {
+    var scheme = allowedSchemes[i];
+    if (module$contents$safevalues$builders$url_builders_isValidScheme(scheme) && scheme.isValid(url)) {
+      return module$contents$safevalues$internals$url_impl_createUrlInternal(url);
+    }
+  }
+}
+module$exports$safevalues$builders$url_builders.trySanitizeUrl = module$contents$safevalues$builders$url_builders_trySanitizeUrl;
+function module$contents$safevalues$builders$url_builders_sanitizeUrl(url, allowedSchemes) {
+  allowedSchemes = void 0 === allowedSchemes ? module$contents$safevalues$builders$url_builders_DEFAULT_SCHEMES : allowedSchemes;
+  var sanitizedUrl = module$contents$safevalues$builders$url_builders_trySanitizeUrl(url, allowedSchemes);
+  void 0 === sanitizedUrl && module$contents$safevalues$builders$url_builders_triggerCallbacks(url.toString());
+  return sanitizedUrl || module$exports$safevalues$internals$url_impl.INNOCUOUS_URL;
+}
+module$exports$safevalues$builders$url_builders.sanitizeUrl = module$contents$safevalues$builders$url_builders_sanitizeUrl;
+function module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource(source) {
+  if ("undefined" !== typeof MediaSource && source instanceof MediaSource) {
+    return module$contents$safevalues$internals$url_impl_createUrlInternal(URL.createObjectURL(source));
+  }
+  if (!module$contents$safevalues$builders$url_builders_isSafeMimeType(source.type)) {
+    var message = "";
+    goog.DEBUG && (message = "unsafe blob MIME type: " + source.type);
+    throw Error(message);
+  }
+  return module$contents$safevalues$internals$url_impl_createUrlInternal(URL.createObjectURL(source));
+}
+module$exports$safevalues$builders$url_builders.objectUrlFromSafeSource = module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource;
+function module$contents$safevalues$builders$url_builders_fromMediaSource(media) {
+  if ("undefined" !== typeof MediaSource && media instanceof MediaSource) {
+    return module$contents$safevalues$internals$url_impl_createUrlInternal(URL.createObjectURL(media));
+  }
+  var message = "";
+  goog.DEBUG && (message = "fromMediaSource only accepts MediaSource instances, but was called with " + media + ".");
+  throw Error(message);
+}
+module$exports$safevalues$builders$url_builders.fromMediaSource = module$contents$safevalues$builders$url_builders_fromMediaSource;
+function module$contents$safevalues$builders$url_builders_fromTrustedResourceUrl(url) {
+  return module$contents$safevalues$internals$url_impl_createUrlInternal(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(url).toString());
+}
+module$exports$safevalues$builders$url_builders.fromTrustedResourceUrl = module$contents$safevalues$builders$url_builders_fromTrustedResourceUrl;
+function module$contents$safevalues$builders$url_builders_isSafeUrlPrefix(prefix, isWholeUrl) {
+  var markerIdx = prefix.search(/[:/?#]/);
+  if (0 > markerIdx) {
+    return isWholeUrl;
+  }
+  if (":" !== prefix.charAt(markerIdx)) {
+    return !0;
+  }
+  var scheme = prefix.substring(0, markerIdx).toLowerCase();
+  return /^[a-z][a-z\d+.-]*$/.test(scheme) && "javascript" !== scheme;
+}
+function module$contents$safevalues$builders$url_builders_safeUrl(templateObj) {
+  var rest = $jscomp.getRestArguments.apply(1, arguments);
+  goog.DEBUG && module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, rest.length);
+  var prefix = templateObj[0];
+  if (goog.DEBUG && !module$contents$safevalues$builders$url_builders_isSafeUrlPrefix(prefix, 0 === rest.length)) {
+    throw Error("Trying to interpolate with unsupported prefix: " + prefix);
+  }
+  for (var urlParts = [prefix], i = 0; i < rest.length; i++) {
+    urlParts.push(String(rest[i])), urlParts.push(templateObj[i + 1]);
+  }
+  return module$contents$safevalues$internals$url_impl_createUrlInternal(urlParts.join(""));
+}
+module$exports$safevalues$builders$url_builders.safeUrl = module$contents$safevalues$builders$url_builders_safeUrl;
+var module$contents$safevalues$builders$url_builders_ASSUME_IMPLEMENTS_URL_API = 2020 <= goog.FEATURESET_YEAR, module$contents$safevalues$builders$url_builders_supportsURLAPI = module$contents$safevalues$internals$pure_pure(function() {
+  return module$contents$safevalues$builders$url_builders_ASSUME_IMPLEMENTS_URL_API ? !0 : "function" === typeof URL;
+});
+function module$contents$safevalues$builders$url_builders_legacyExtractScheme(url) {
+  var aTag = document.createElement("a");
+  try {
+    aTag.href = url;
+  } catch (e) {
+    return;
+  }
+  var protocol = aTag.protocol;
+  return ":" === protocol || "" === protocol ? "https:" : protocol;
+}
+var module$contents$safevalues$builders$url_builders_JavaScriptUrlSanitizationCallback;
+function module$contents$safevalues$builders$url_builders_extractScheme(url) {
+  if (!module$contents$safevalues$builders$url_builders_supportsURLAPI) {
+    return module$contents$safevalues$builders$url_builders_legacyExtractScheme(url);
+  }
+  try {
+    var parsedUrl = new URL(url);
+  } catch (e) {
+    return "https:";
+  }
+  return parsedUrl.protocol;
+}
+module$exports$safevalues$builders$url_builders.extractScheme = module$contents$safevalues$builders$url_builders_extractScheme;
+var module$contents$safevalues$builders$url_builders_ALLOWED_SCHEMES = ["data:", "http:", "https:", "mailto:", "ftp:"];
+module$exports$safevalues$builders$url_builders.IS_NOT_JAVASCRIPT_URL_PATTERN = /^\s*(?!javascript:)(?:[a-z0-9+.-]+:|[^:\/?#]*(?:[\/?#]|$))/i;
+function module$contents$safevalues$builders$url_builders_hasJavascriptUrlScheme(url) {
+  return !module$exports$safevalues$builders$url_builders.IS_NOT_JAVASCRIPT_URL_PATTERN.test(url);
+}
+function module$contents$safevalues$builders$url_builders_sanitizeJavaScriptUrl(url) {
+  if (module$contents$safevalues$builders$url_builders_hasJavascriptUrlScheme(url)) {
+    module$contents$safevalues$builders$url_builders_triggerCallbacks(url);
+  } else {
+    return url;
+  }
+}
+module$exports$safevalues$builders$url_builders.sanitizeJavaScriptUrl = module$contents$safevalues$builders$url_builders_sanitizeJavaScriptUrl;
+function module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url) {
+  return url instanceof goog.html.SafeUrl ? module$contents$safevalues$internals$url_impl_unwrapUrl(url) : module$contents$safevalues$builders$url_builders_sanitizeJavaScriptUrl(url);
+}
+module$exports$safevalues$builders$url_builders.unwrapUrlOrSanitize = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize;
+function module$contents$safevalues$builders$url_builders_restrictivelySanitizeUrl(url) {
+  var parsedScheme = module$contents$safevalues$builders$url_builders_extractScheme(url);
+  return void 0 !== parsedScheme && -1 !== module$contents$safevalues$builders$url_builders_ALLOWED_SCHEMES.indexOf(parsedScheme.toLowerCase()) ? url : "about:invalid#zClosurez";
+}
+module$exports$safevalues$builders$url_builders.restrictivelySanitizeUrl = module$contents$safevalues$builders$url_builders_restrictivelySanitizeUrl;
+var module$contents$safevalues$builders$url_builders_sanitizationCallbacks = [], module$contents$safevalues$builders$url_builders_triggerCallbacks = function(url) {
+};
+goog.DEBUG && module$contents$safevalues$builders$url_builders_addJavaScriptUrlSanitizationCallback(function(url) {
+  console.warn("A URL with content '" + url + "' was sanitized away.");
+});
+function module$contents$safevalues$builders$url_builders_addJavaScriptUrlSanitizationCallback(callback) {
+  -1 === module$contents$safevalues$builders$url_builders_sanitizationCallbacks.indexOf(callback) && module$contents$safevalues$builders$url_builders_sanitizationCallbacks.push(callback);
+  module$contents$safevalues$builders$url_builders_triggerCallbacks = function(url) {
+    module$contents$safevalues$builders$url_builders_sanitizationCallbacks.forEach(function(callback) {
+      callback(url);
+    });
+  };
+}
+module$exports$safevalues$builders$url_builders.addJavaScriptUrlSanitizationCallback = module$contents$safevalues$builders$url_builders_addJavaScriptUrlSanitizationCallback;
+function module$contents$safevalues$builders$url_builders_removeJavaScriptUrlSanitizationCallback(callback) {
+  var callbackIndex = module$contents$safevalues$builders$url_builders_sanitizationCallbacks.indexOf(callback);
+  -1 !== callbackIndex && module$contents$safevalues$builders$url_builders_sanitizationCallbacks.splice(callbackIndex, 1);
+}
+module$exports$safevalues$builders$url_builders.removeJavaScriptUrlSanitizationCallback = module$contents$safevalues$builders$url_builders_removeJavaScriptUrlSanitizationCallback;
+var module$exports$safevalues$dom$elements$anchor = {}, module$contents$safevalues$dom$elements$anchor_module = module$contents$safevalues$dom$elements$anchor_module || {id:"third_party/javascript/safevalues/dom/elements/anchor.closure.js"};
+module$exports$safevalues$dom$elements$anchor.setHref = function(anchor, url) {
+  var sanitizedUrl = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url);
+  void 0 !== sanitizedUrl && (anchor.href = sanitizedUrl);
+};
+var module$exports$safevalues$dom$elements$area = {}, module$contents$safevalues$dom$elements$area_module = module$contents$safevalues$dom$elements$area_module || {id:"third_party/javascript/safevalues/dom/elements/area.closure.js"};
+module$exports$safevalues$dom$elements$area.setHref = function(area, url) {
+  var sanitizedUrl = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url);
+  void 0 !== sanitizedUrl && (area.href = sanitizedUrl);
+};
+var module$exports$safevalues$dom$elements$base = {}, module$contents$safevalues$dom$elements$base_module = module$contents$safevalues$dom$elements$base_module || {id:"third_party/javascript/safevalues/dom/elements/base.closure.js"};
+module$exports$safevalues$dom$elements$base.setHref = function(baseEl, url) {
+  baseEl.href = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(url);
+};
+var module$exports$safevalues$dom$elements$button = {}, module$contents$safevalues$dom$elements$button_module = module$contents$safevalues$dom$elements$button_module || {id:"third_party/javascript/safevalues/dom/elements/button.closure.js"};
+module$exports$safevalues$dom$elements$button.setFormaction = function(button, url) {
+  var sanitizedUrl = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url);
+  void 0 !== sanitizedUrl && (button.formAction = sanitizedUrl);
+};
+var module$exports$safevalues$internals$secrets = {}, module$contents$safevalues$internals$secrets_module = module$contents$safevalues$internals$secrets_module || {id:"third_party/javascript/safevalues/internals/secrets.closure.js"};
+module$exports$safevalues$internals$secrets.secretToken = {};
+function module$contents$safevalues$internals$secrets_ensureTokenIsValid(token) {
+  if (goog.DEBUG && token !== module$exports$safevalues$internals$secrets.secretToken) {
+    throw Error("Bad secret");
+  }
+}
+module$exports$safevalues$internals$secrets.ensureTokenIsValid = module$contents$safevalues$internals$secrets_ensureTokenIsValid;
+var module$exports$safevalues$internals$attribute_impl = {}, module$contents$safevalues$internals$attribute_impl_module = module$contents$safevalues$internals$attribute_impl_module || {id:"third_party/javascript/safevalues/internals/attribute_impl.closure.js"};
+module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix = function() {
+};
+var module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl = function(attrPrefix, token) {
+  module$contents$safevalues$internals$secrets_ensureTokenIsValid(token);
+  this.privateDoNotAccessOrElseWrappedAttrPrefix = attrPrefix;
+};
+$jscomp.inherits(module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl, module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix);
+module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl.prototype.toString = function() {
+  return this.privateDoNotAccessOrElseWrappedAttrPrefix;
+};
+function module$contents$safevalues$internals$attribute_impl_createAttributePrefixInternal(attrPrefix) {
+  return new module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl(attrPrefix, module$exports$safevalues$internals$secrets.secretToken);
+}
+module$exports$safevalues$internals$attribute_impl.createAttributePrefixInternal = module$contents$safevalues$internals$attribute_impl_createAttributePrefixInternal;
+function module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix(value) {
+  if (value instanceof module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl) {
+    return value.privateDoNotAccessOrElseWrappedAttrPrefix;
+  }
+  var message = "";
+  goog.DEBUG && (message = "Unexpected type when unwrapping SafeAttributePrefix");
+  throw Error(message);
+}
+module$exports$safevalues$internals$attribute_impl.unwrapAttributePrefix = module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix;
+goog.dom.HtmlElement = function() {
 };
 goog.dom.TagName = function() {
 };
@@ -6388,253 +6923,6 @@ goog.dom.tags.VOID_TAGS_ = {area:!0, base:!0, br:!0, col:!0, command:!0, embed:!
 goog.dom.tags.isVoidTag = function(tagName) {
   return !0 === goog.dom.tags.VOID_TAGS_[tagName];
 };
-goog.fs = {};
-goog.fs.url = {};
-goog.fs.url.createObjectUrl = function(obj) {
-  return goog.fs.url.getUrlObject_().createObjectURL(obj);
-};
-goog.fs.url.revokeObjectUrl = function(url) {
-  goog.fs.url.getUrlObject_().revokeObjectURL(url);
-};
-goog.fs.url.UrlObject_ = function() {
-};
-goog.fs.url.UrlObject_.prototype.createObjectURL = function(arg) {
-};
-goog.fs.url.UrlObject_.prototype.revokeObjectURL = function(s) {
-};
-goog.fs.url.getUrlObject_ = function() {
-  var urlObject = goog.fs.url.findUrlObject_();
-  if (null != urlObject) {
-    return urlObject;
-  }
-  throw Error("This browser doesn't seem to support blob URLs");
-};
-goog.fs.url.findUrlObject_ = function() {
-  return void 0 !== goog.global.URL && void 0 !== goog.global.URL.createObjectURL ? goog.global.URL : void 0 !== goog.global.createObjectURL ? goog.global : null;
-};
-goog.fs.url.browserSupportsObjectUrls = function() {
-  return null != goog.fs.url.findUrlObject_();
-};
-goog.html = {};
-goog.html.trustedtypes = {};
-goog.html.trustedtypes.POLICY_NAME = goog.TRUSTED_TYPES_POLICY_NAME ? goog.TRUSTED_TYPES_POLICY_NAME + "#html" : "";
-goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse = function() {
-  if (!goog.html.trustedtypes.POLICY_NAME) {
-    return null;
-  }
-  void 0 === goog.html.trustedtypes.cachedPolicy_ && (goog.html.trustedtypes.cachedPolicy_ = goog.createTrustedTypesPolicy(goog.html.trustedtypes.POLICY_NAME));
-  return goog.html.trustedtypes.cachedPolicy_;
-};
-goog.string.Const = function(opt_token, opt_content) {
-  this.stringConstValueWithSecurityContract__googStringSecurityPrivate_ = opt_token === goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ && opt_content || "";
-  this.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ = goog.string.Const.TYPE_MARKER_;
-};
-goog.string.Const.prototype.toString = function() {
-  return this.stringConstValueWithSecurityContract__googStringSecurityPrivate_;
-};
-goog.string.Const.unwrap = function(stringConst) {
-  if (stringConst instanceof goog.string.Const && stringConst.constructor === goog.string.Const && stringConst.STRING_CONST_TYPE_MARKER__GOOG_STRING_SECURITY_PRIVATE_ === goog.string.Const.TYPE_MARKER_) {
-    return stringConst.stringConstValueWithSecurityContract__googStringSecurityPrivate_;
-  }
-  goog.asserts.fail("expected object of type Const, got '" + stringConst + "'");
-  return "type_error:Const";
-};
-goog.string.Const.from = function(s) {
-  return new goog.string.Const(goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_, s);
-};
-goog.string.Const.TYPE_MARKER_ = {};
-goog.string.Const.GOOG_STRING_CONSTRUCTOR_TOKEN_PRIVATE_ = {};
-goog.string.Const.EMPTY = goog.string.Const.from("");
-goog.html.TrustedResourceUrl = function(value, token) {
-  if (goog.DEBUG && token !== goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_) {
-    throw Error("TrustedResourceUrl is not meant to be built directly");
-  }
-  this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ = value;
-};
-goog.html.TrustedResourceUrl.prototype.toString = function() {
-  return this.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_ + "";
-};
-goog.html.TrustedResourceUrl.prototype.cloneWithParams = function(searchParams, opt_hashParams) {
-  var url = goog.html.TrustedResourceUrl.unwrap(this), parts = goog.html.TrustedResourceUrl.URL_PARAM_PARSER_.exec(url), urlHash = parts[3] || "";
-  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(parts[1] + goog.html.TrustedResourceUrl.stringifyParams_("?", parts[2] || "", searchParams) + goog.html.TrustedResourceUrl.stringifyParams_("#", urlHash, opt_hashParams));
-};
-goog.html.TrustedResourceUrl.unwrap = function(trustedResourceUrl) {
-  return goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(trustedResourceUrl).toString();
-};
-goog.html.TrustedResourceUrl.unwrapTrustedScriptURL = function(trustedResourceUrl) {
-  if (trustedResourceUrl instanceof goog.html.TrustedResourceUrl && trustedResourceUrl.constructor === goog.html.TrustedResourceUrl) {
-    return trustedResourceUrl.privateDoNotAccessOrElseTrustedResourceUrlWrappedValue_;
-  }
-  goog.asserts.fail("expected object of type TrustedResourceUrl, got '%s' of type %s", trustedResourceUrl, goog.typeOf(trustedResourceUrl));
-  return "type_error:TrustedResourceUrl";
-};
-goog.html.TrustedResourceUrl.format = function(format, args) {
-  var formatStr = goog.string.Const.unwrap(format);
-  if (!goog.html.TrustedResourceUrl.BASE_URL_.test(formatStr)) {
-    throw Error("Invalid TrustedResourceUrl format: " + formatStr);
-  }
-  var result = formatStr.replace(goog.html.TrustedResourceUrl.FORMAT_MARKER_, function(match, id) {
-    if (!Object.prototype.hasOwnProperty.call(args, id)) {
-      throw Error('Found marker, "' + id + '", in format string, "' + formatStr + '", but no valid label mapping found in args: ' + JSON.stringify(args));
-    }
-    var arg = args[id];
-    return arg instanceof goog.string.Const ? goog.string.Const.unwrap(arg) : encodeURIComponent(String(arg));
-  });
-  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(result);
-};
-goog.html.TrustedResourceUrl.FORMAT_MARKER_ = /%{(\w+)}/g;
-goog.html.TrustedResourceUrl.BASE_URL_ = RegExp("^((https:)?//[0-9a-z.:[\\]-]+/|/[^/\\\\]|[^:/\\\\%]+/|[^:/\\\\%]*[?#]|about:blank#)", "i");
-goog.html.TrustedResourceUrl.URL_PARAM_PARSER_ = /^([^?#]*)(\?[^#]*)?(#[\s\S]*)?/;
-goog.html.TrustedResourceUrl.formatWithParams = function(format, args, searchParams, opt_hashParams) {
-  return goog.html.TrustedResourceUrl.format(format, args).cloneWithParams(searchParams, opt_hashParams);
-};
-goog.html.TrustedResourceUrl.fromConstant = function(url) {
-  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(goog.string.Const.unwrap(url));
-};
-goog.html.TrustedResourceUrl.fromConstants = function(parts) {
-  for (var unwrapped = "", i = 0; i < parts.length; i++) {
-    unwrapped += goog.string.Const.unwrap(parts[i]);
-  }
-  return goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse(unwrapped);
-};
-goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
-goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse = function(url) {
-  var noinlineUrl = url, policy = goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse(), value = policy ? policy.createScriptURL(noinlineUrl) : noinlineUrl;
-  return new goog.html.TrustedResourceUrl(value, goog.html.TrustedResourceUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
-};
-goog.html.TrustedResourceUrl.stringifyParams_ = function(prefix, currentString, params) {
-  if (null == params) {
-    return currentString;
-  }
-  if ("string" === typeof params) {
-    return params ? prefix + encodeURIComponent(params) : "";
-  }
-  for (var key in params) {
-    if (Object.prototype.hasOwnProperty.call(params, key)) {
-      for (var value = params[key], outputValues = Array.isArray(value) ? value : [value], i = 0; i < outputValues.length; i++) {
-        var outputValue = outputValues[i];
-        null != outputValue && (currentString || (currentString = prefix), currentString += (currentString.length > prefix.length ? "&" : "") + encodeURIComponent(key) + "=" + encodeURIComponent(String(outputValue)));
-      }
-    }
-  }
-  return currentString;
-};
-goog.html.SafeUrl = function(value, token) {
-  if (goog.DEBUG && token !== goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_) {
-    throw Error("SafeUrl is not meant to be built directly");
-  }
-  this.privateDoNotAccessOrElseSafeUrlWrappedValue_ = value;
-};
-goog.html.SafeUrl.prototype.toString = function() {
-  return this.privateDoNotAccessOrElseSafeUrlWrappedValue_.toString();
-};
-goog.html.SafeUrl.INNOCUOUS_STRING = "about:invalid#zClosurez";
-goog.html.SafeUrl.unwrap = function(safeUrl) {
-  if (safeUrl instanceof goog.html.SafeUrl && safeUrl.constructor === goog.html.SafeUrl) {
-    return safeUrl.privateDoNotAccessOrElseSafeUrlWrappedValue_;
-  }
-  goog.asserts.fail("expected object of type SafeUrl, got '" + safeUrl + "' of type " + goog.typeOf(safeUrl));
-  return "type_error:SafeUrl";
-};
-goog.html.SafeUrl.fromConstant = function(url) {
-  var str = goog.string.Const.unwrap(url);
-  if (goog.DEBUG && "javascript:" === goog.html.SafeUrl.extractScheme(str)) {
-    throw Error("Building a SafeUrl with a javascript scheme is not supported");
-  }
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(str);
-};
-goog.html.SAFE_MIME_TYPE_PATTERN_ = RegExp('^(?:audio/(?:3gpp2|3gpp|aac|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)|font/\\w+|image/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon|heic|heif)|video/(?:mpeg|mp4|ogg|webm|quicktime|x-matroska))(?:;\\w+=(?:\\w+|"[\\w;,= ]+"))*$', "i");
-goog.html.SafeUrl.isSafeMimeType = function(mimeType) {
-  return goog.html.SAFE_MIME_TYPE_PATTERN_.test(mimeType);
-};
-goog.html.SafeUrl.fromBlob = function(blob) {
-  var url = goog.html.SafeUrl.isSafeMimeType(blob.type) ? goog.fs.url.createObjectUrl(blob) : goog.html.SafeUrl.INNOCUOUS_STRING;
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
-};
-goog.html.DATA_URL_PATTERN_ = /^data:(.*);base64,[a-z0-9+\/]+=*$/i;
-goog.html.SafeUrl.tryFromDataUrl = function(dataUrl) {
-  dataUrl = String(dataUrl);
-  var filteredDataUrl = dataUrl.replace(/(%0A|%0D)/g, "");
-  return filteredDataUrl.match(goog.html.DATA_URL_PATTERN_) ? goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(filteredDataUrl) : null;
-};
-goog.html.SafeUrl.fromDataUrl = function(dataUrl) {
-  return goog.html.SafeUrl.tryFromDataUrl(dataUrl) || goog.html.SafeUrl.INNOCUOUS_URL;
-};
-goog.html.SafeUrl.fromTrustedResourceUrl = function(trustedResourceUrl) {
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.html.TrustedResourceUrl.unwrap(trustedResourceUrl));
-};
-goog.html.SAFE_URL_PATTERN_ = /^(?:(?:https?|mailto|ftp):|[^:/?#]*(?:[/?#]|$))/i;
-goog.html.SafeUrl.trySanitize = function(url) {
-  if (url instanceof goog.html.SafeUrl) {
-    return url;
-  }
-  url = String(url);
-  return goog.html.SAFE_URL_PATTERN_.test(url) ? goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url) : goog.html.SafeUrl.tryFromDataUrl(url);
-};
-goog.html.SafeUrl.sanitize = function(url) {
-  return goog.html.SafeUrl.trySanitize(url) || goog.html.SafeUrl.INNOCUOUS_URL;
-};
-goog.html.SafeUrl.sanitizeAssertUnchanged = function(url, opt_allowDataUrl) {
-  if (url instanceof goog.html.SafeUrl) {
-    return url;
-  }
-  url = String(url);
-  if (opt_allowDataUrl && /^data:/i.test(url)) {
-    var safeUrl = goog.html.SafeUrl.fromDataUrl(url);
-    if (safeUrl.toString() == url) {
-      return safeUrl;
-    }
-  }
-  goog.asserts.assert(goog.html.SAFE_URL_PATTERN_.test(url), "%s does not match the safe URL pattern", url) || (url = goog.html.SafeUrl.INNOCUOUS_STRING);
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
-};
-goog.html.SafeUrl.ASSUME_IMPLEMENTS_URL_API_GOOG = 2020 <= goog.FEATURESET_YEAR;
-goog.html.SafeUrl.supportsURLAPI = function() {
-  if (goog.html.SafeUrl.ASSUME_IMPLEMENTS_URL_API_GOOG) {
-    return !0;
-  }
-  try {
-    return new URL("s://g"), !0;
-  } catch (e) {
-    return !1;
-  }
-}();
-goog.html.SafeUrl.legacyExtractScheme = function(url) {
-  var aTag = document.createElement("a");
-  try {
-    aTag.href = url;
-  } catch (e) {
-    return;
-  }
-  var protocol = aTag.protocol;
-  return ":" === protocol || "" === protocol ? "https:" : protocol;
-};
-goog.html.SafeUrl.extractScheme = function(url) {
-  if (!goog.html.SafeUrl.supportsURLAPI) {
-    return goog.html.SafeUrl.legacyExtractScheme(url);
-  }
-  try {
-    var parsedUrl = new URL(url);
-  } catch (e) {
-    return "https:";
-  }
-  return parsedUrl.protocol;
-};
-goog.html.SafeUrl.sanitizeJavascriptUrlAssertUnchanged = function(url) {
-  if (url instanceof goog.html.SafeUrl) {
-    return url;
-  }
-  url = String(url);
-  var parsedScheme = goog.html.SafeUrl.extractScheme(url);
-  goog.asserts.assert("javascript:" !== parsedScheme, "%s is a javascript: URL", url) || (url = goog.html.SafeUrl.INNOCUOUS_STRING);
-  return goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(url);
-};
-goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_ = {};
-goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse = function(url) {
-  return new goog.html.SafeUrl(url, goog.html.SafeUrl.CONSTRUCTOR_TOKEN_PRIVATE_);
-};
-goog.html.SafeUrl.INNOCUOUS_URL = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse(goog.html.SafeUrl.INNOCUOUS_STRING);
-goog.html.SafeUrl.ABOUT_BLANK = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse("about:blank");
 var module$contents$goog$html$SafeStyle_CONSTRUCTOR_TOKEN_PRIVATE = {}, module$contents$goog$html$SafeStyle_SafeStyle = function(value, token) {
   if (goog.DEBUG && token !== module$contents$goog$html$SafeStyle_CONSTRUCTOR_TOKEN_PRIVATE) {
     throw Error("SafeStyle is not meant to be built directly");
@@ -7018,304 +7306,12 @@ module$contents$goog$html$SafeHtml_SafeHtml.BR = function() {
   return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse("<br>");
 }();
 goog.html.SafeHtml = module$contents$goog$html$SafeHtml_SafeHtml;
-var module$exports$goog$html$internals = {};
-module$exports$goog$html$internals.createSafeHtml = module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse;
-module$exports$goog$html$internals.createSafeStyle = module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse;
-module$exports$goog$html$internals.createSafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse;
-module$exports$goog$html$internals.createSafeUrl = goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse;
-module$exports$goog$html$internals.createTrustedResourceUrl = goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse;
-var module$exports$safevalues$internals$resource_url_impl = {}, module$contents$safevalues$internals$resource_url_impl_module = module$contents$safevalues$internals$resource_url_impl_module || {id:"third_party/javascript/safevalues/internals/resource_url_impl.closure.js"};
-module$exports$safevalues$internals$resource_url_impl.TrustedResourceUrl = goog.html.TrustedResourceUrl;
-function module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal(url) {
-  return (0,goog.html.TrustedResourceUrl.createTrustedResourceUrlSecurityPrivateDoNotAccessOrElse)(url);
-}
-module$exports$safevalues$internals$resource_url_impl.createResourceUrlInternal = module$contents$safevalues$internals$resource_url_impl_createResourceUrlInternal;
-function module$contents$safevalues$internals$resource_url_impl_isResourceUrl(value) {
-  return value instanceof goog.html.TrustedResourceUrl;
-}
-module$exports$safevalues$internals$resource_url_impl.isResourceUrl = module$contents$safevalues$internals$resource_url_impl_isResourceUrl;
-function module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(value) {
-  return goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(value);
-}
-module$exports$safevalues$internals$resource_url_impl.unwrapResourceUrl = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl;
-var $jscomp$templatelit$m425881384$5 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$m425881384$6 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$m425881384$7 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$m425881384$8 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), $jscomp$templatelit$m425881384$9 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$m425881384$10 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], 
-["\\0"]), $jscomp$templatelit$m425881384$11 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$m425881384$12 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
-function module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, numExprs) {
-  if (!module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) || numExprs + 1 !== templateObj.length) {
-    throw new TypeError("\n    ############################## ERROR ##############################\n\n    It looks like you are trying to call a template tag function (fn`...`)\n    using the normal function syntax (fn(...)), which is not supported.\n\n    The functions in the safevalues library are not designed to be called\n    like normal functions, and doing so invalidates the security guarantees\n    that safevalues provides.\n\n    If you are stuck and not sure how to proceed, please reach out to us\n    instead through:\n     - go/ise-hardening-yaqs (preferred) // LINE-INTERNAL\n     - g/ise-hardening // LINE-INTERNAL\n     - https://github.com/google/safevalues/issues\n\n    ############################## ERROR ##############################");
-  }
-}
-function module$contents$safevalues$internals$string_literal_checkFrozen(templateObj) {
-  return Object.isFrozen(templateObj) && Object.isFrozen(templateObj.raw);
-}
-var module$contents$safevalues$internals$string_literal_TagFn;
-function module$contents$safevalues$internals$string_literal_checkTranspiled(fn) {
-  return -1 === fn.toString().indexOf("`");
-}
-var module$contents$safevalues$internals$string_literal_isTranspiled = module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$m425881384$5);
-}) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$m425881384$6);
-}) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$m425881384$7);
-}) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$m425881384$8);
-}), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$9) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$10) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$11) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$12);
-function module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) {
-  return Array.isArray(templateObj) && Array.isArray(templateObj.raw) && templateObj.length === templateObj.raw.length && (module$contents$safevalues$internals$string_literal_isTranspiled || templateObj !== templateObj.raw) && (module$contents$safevalues$internals$string_literal_isTranspiled && !module$contents$safevalues$internals$string_literal_frozenTSA || module$contents$safevalues$internals$string_literal_checkFrozen(templateObj)) ? 
-  !0 : !1;
-}
-;var module$exports$safevalues$internals$url_impl = {}, module$contents$safevalues$internals$url_impl_module = module$contents$safevalues$internals$url_impl_module || {id:"third_party/javascript/safevalues/internals/url_impl.closure.js"};
-module$exports$safevalues$internals$url_impl.SafeUrl = goog.html.SafeUrl;
-function module$contents$safevalues$internals$url_impl_createUrlInternal(url) {
-  return (0,goog.html.SafeUrl.createSafeUrlSecurityPrivateDoNotAccessOrElse)(url);
-}
-module$exports$safevalues$internals$url_impl.createUrlInternal = module$contents$safevalues$internals$url_impl_createUrlInternal;
-module$exports$safevalues$internals$url_impl.ABOUT_BLANK = module$contents$safevalues$internals$url_impl_createUrlInternal("about:blank");
-module$exports$safevalues$internals$url_impl.INNOCUOUS_URL = module$contents$safevalues$internals$url_impl_createUrlInternal("about:invalid#zClosurez");
-function module$contents$safevalues$internals$url_impl_isUrl(value) {
-  return value instanceof goog.html.SafeUrl;
-}
-module$exports$safevalues$internals$url_impl.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
-function module$contents$safevalues$internals$url_impl_unwrapUrl(value) {
-  return goog.html.SafeUrl.unwrap(value);
-}
-module$exports$safevalues$internals$url_impl.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
-var module$exports$safevalues$builders$url_builders = {}, module$contents$safevalues$builders$url_builders_module = module$contents$safevalues$builders$url_builders_module || {id:"third_party/javascript/safevalues/builders/url_builders.closure.js"};
-function module$contents$safevalues$builders$url_builders_isSafeMimeType(mimeType) {
-  var match = mimeType.match(/^([^;]+)(?:;\w+=(?:\w+|"[\w;,= ]+"))*$/i);
-  return 2 === (null == match ? void 0 : match.length) && (module$contents$safevalues$builders$url_builders_isSafeImageMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeAudioMimeType(match[1]) || module$contents$safevalues$builders$url_builders_isSafeFontMimeType(match[1]));
-}
-function module$contents$safevalues$builders$url_builders_isSafeImageMimeType(mimeType) {
-  return /^image\/(?:bmp|gif|jpeg|jpg|png|tiff|webp|x-icon|heic|heif|avif|x-ms-bmp)$/i.test(mimeType);
-}
-function module$contents$safevalues$builders$url_builders_isSafeVideoMimeType(mimeType) {
-  return /^video\/(?:mpeg|mp4|ogg|webm|x-matroska|quicktime|x-ms-wmv)$/i.test(mimeType);
-}
-function module$contents$safevalues$builders$url_builders_isSafeAudioMimeType(mimeType) {
-  return /^audio\/(?:3gpp2|3gpp|aac|amr|L16|midi|mp3|mp4|mpeg|oga|ogg|opus|x-m4a|x-matroska|x-wav|wav|webm)$/i.test(mimeType);
-}
-function module$contents$safevalues$builders$url_builders_isSafeFontMimeType(mimeType) {
-  return /^font\/\w+/i.test(mimeType);
-}
-module$exports$safevalues$builders$url_builders.Scheme = function() {
-};
-var module$contents$safevalues$builders$url_builders_SchemeImpl = function(isValid) {
-  this.isValid = isValid;
-};
-function module$contents$safevalues$builders$url_builders_isValidScheme(scheme) {
-  return scheme instanceof module$contents$safevalues$builders$url_builders_SchemeImpl;
-}
-function module$contents$safevalues$builders$url_builders_simpleScheme(scheme) {
-  return new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
-    return url.substr(0, scheme.length + 1).toLowerCase() === scheme + ":";
-  });
-}
-module$exports$safevalues$builders$url_builders.SanitizableUrlScheme = {TEL:module$contents$safevalues$builders$url_builders_simpleScheme("tel"), CALLTO:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
-  return /^callto:\+?\d*$/i.test(url);
-}), SSH:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
-  return 0 === url.indexOf("ssh://");
-}), RTSP:module$contents$safevalues$builders$url_builders_simpleScheme("rtsp"), DATA:module$contents$safevalues$builders$url_builders_simpleScheme("data"), HTTP:module$contents$safevalues$builders$url_builders_simpleScheme("http"), HTTPS:module$contents$safevalues$builders$url_builders_simpleScheme("https"), EXTENSION:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
-  return 0 === url.indexOf("chrome-extension://") || 0 === url.indexOf("moz-extension://") || 0 === url.indexOf("ms-browser-extension://");
-}), FTP:module$contents$safevalues$builders$url_builders_simpleScheme("ftp"), RELATIVE:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
-  return /^[^:]*([/?#]|$)/.test(url);
-}), MAILTO:module$contents$safevalues$builders$url_builders_simpleScheme("mailto"), INTENT:module$contents$safevalues$builders$url_builders_simpleScheme("intent"), MARKET:module$contents$safevalues$builders$url_builders_simpleScheme("market"), ITMS:module$contents$safevalues$builders$url_builders_simpleScheme("itms"), ITMS_APPSS:module$contents$safevalues$builders$url_builders_simpleScheme("itms-appss"), 
-ITMS_SERVICES:module$contents$safevalues$builders$url_builders_simpleScheme("itms-services"), FACEBOOK_MESSENGER:module$contents$safevalues$builders$url_builders_simpleScheme("fb-messenger"), WHATSAPP:module$contents$safevalues$builders$url_builders_simpleScheme("whatsapp"), SIP:new module$contents$safevalues$builders$url_builders_SchemeImpl(function(url) {
-  return 0 === url.indexOf("sip:") || 0 === url.indexOf("sips:");
-}), SMS:module$contents$safevalues$builders$url_builders_simpleScheme("sms"), VND_YOUTUBE:module$contents$safevalues$builders$url_builders_simpleScheme("vnd.youtube")};
-var module$contents$safevalues$builders$url_builders_DEFAULT_SCHEMES = [module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.DATA, module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.HTTP, module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.HTTPS, module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.MAILTO, 
-module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.FTP, module$exports$safevalues$builders$url_builders.SanitizableUrlScheme.RELATIVE];
-function module$contents$safevalues$builders$url_builders_trySanitizeUrl(url, allowedSchemes) {
-  allowedSchemes = void 0 === allowedSchemes ? module$contents$safevalues$builders$url_builders_DEFAULT_SCHEMES : allowedSchemes;
-  if (module$contents$safevalues$internals$url_impl_isUrl(url)) {
-    return url;
-  }
-  for (var i = 0; i < allowedSchemes.length; ++i) {
-    var scheme = allowedSchemes[i];
-    if (module$contents$safevalues$builders$url_builders_isValidScheme(scheme) && scheme.isValid(url)) {
-      return module$contents$safevalues$internals$url_impl_createUrlInternal(url);
-    }
-  }
-}
-module$exports$safevalues$builders$url_builders.trySanitizeUrl = module$contents$safevalues$builders$url_builders_trySanitizeUrl;
-function module$contents$safevalues$builders$url_builders_sanitizeUrl(url, allowedSchemes) {
-  allowedSchemes = void 0 === allowedSchemes ? module$contents$safevalues$builders$url_builders_DEFAULT_SCHEMES : allowedSchemes;
-  var sanitizedUrl = module$contents$safevalues$builders$url_builders_trySanitizeUrl(url, allowedSchemes);
-  void 0 === sanitizedUrl && module$contents$safevalues$builders$url_builders_triggerCallbacks(url.toString());
-  return sanitizedUrl || module$exports$safevalues$internals$url_impl.INNOCUOUS_URL;
-}
-module$exports$safevalues$builders$url_builders.sanitizeUrl = module$contents$safevalues$builders$url_builders_sanitizeUrl;
-function module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource(source) {
-  if ("undefined" !== typeof MediaSource && source instanceof MediaSource) {
-    return module$contents$safevalues$internals$url_impl_createUrlInternal(URL.createObjectURL(source));
-  }
-  if (!module$contents$safevalues$builders$url_builders_isSafeMimeType(source.type)) {
-    var message = "";
-    goog.DEBUG && (message = "unsafe blob MIME type: " + source.type);
-    throw Error(message);
-  }
-  return module$contents$safevalues$internals$url_impl_createUrlInternal(URL.createObjectURL(source));
-}
-module$exports$safevalues$builders$url_builders.objectUrlFromSafeSource = module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource;
-function module$contents$safevalues$builders$url_builders_fromMediaSource(media) {
-  if ("undefined" !== typeof MediaSource && media instanceof MediaSource) {
-    return module$contents$safevalues$internals$url_impl_createUrlInternal(URL.createObjectURL(media));
-  }
-  var message = "";
-  goog.DEBUG && (message = "fromMediaSource only accepts MediaSource instances, but was called with " + media + ".");
-  throw Error(message);
-}
-module$exports$safevalues$builders$url_builders.fromMediaSource = module$contents$safevalues$builders$url_builders_fromMediaSource;
-function module$contents$safevalues$builders$url_builders_fromTrustedResourceUrl(url) {
-  return module$contents$safevalues$internals$url_impl_createUrlInternal(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(url).toString());
-}
-module$exports$safevalues$builders$url_builders.fromTrustedResourceUrl = module$contents$safevalues$builders$url_builders_fromTrustedResourceUrl;
-function module$contents$safevalues$builders$url_builders_isSafeUrlPrefix(prefix, isWholeUrl) {
-  var markerIdx = prefix.search(/[:/?#]/);
-  if (0 > markerIdx) {
-    return isWholeUrl;
-  }
-  if (":" !== prefix.charAt(markerIdx)) {
-    return !0;
-  }
-  var scheme = prefix.substring(0, markerIdx).toLowerCase();
-  return /^[a-z][a-z\d+.-]*$/.test(scheme) && "javascript" !== scheme;
-}
-function module$contents$safevalues$builders$url_builders_safeUrl(templateObj) {
-  var rest = $jscomp.getRestArguments.apply(1, arguments);
-  goog.DEBUG && module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, rest.length);
-  var prefix = templateObj[0];
-  if (goog.DEBUG && !module$contents$safevalues$builders$url_builders_isSafeUrlPrefix(prefix, 0 === rest.length)) {
-    throw Error("Trying to interpolate with unsupported prefix: " + prefix);
-  }
-  for (var urlParts = [prefix], i = 0; i < rest.length; i++) {
-    urlParts.push(String(rest[i])), urlParts.push(templateObj[i + 1]);
-  }
-  return module$contents$safevalues$internals$url_impl_createUrlInternal(urlParts.join(""));
-}
-module$exports$safevalues$builders$url_builders.safeUrl = module$contents$safevalues$builders$url_builders_safeUrl;
-var module$contents$safevalues$builders$url_builders_ASSUME_IMPLEMENTS_URL_API = 2020 <= goog.FEATURESET_YEAR, module$contents$safevalues$builders$url_builders_supportsURLAPI = module$contents$safevalues$internals$pure_pure(function() {
-  return module$contents$safevalues$builders$url_builders_ASSUME_IMPLEMENTS_URL_API ? !0 : "function" === typeof URL;
-});
-function module$contents$safevalues$builders$url_builders_legacyExtractScheme(url) {
-  var aTag = document.createElement("a");
-  try {
-    aTag.href = url;
-  } catch (e) {
-    return;
-  }
-  var protocol = aTag.protocol;
-  return ":" === protocol || "" === protocol ? "https:" : protocol;
-}
-var module$contents$safevalues$builders$url_builders_JavaScriptUrlSanitizationCallback;
-function module$contents$safevalues$builders$url_builders_extractScheme(url) {
-  if (!module$contents$safevalues$builders$url_builders_supportsURLAPI) {
-    return module$contents$safevalues$builders$url_builders_legacyExtractScheme(url);
-  }
-  try {
-    var parsedUrl = new URL(url);
-  } catch (e) {
-    return "https:";
-  }
-  return parsedUrl.protocol;
-}
-module$exports$safevalues$builders$url_builders.extractScheme = module$contents$safevalues$builders$url_builders_extractScheme;
-var module$contents$safevalues$builders$url_builders_ALLOWED_SCHEMES = ["data:", "http:", "https:", "mailto:", "ftp:"];
-module$exports$safevalues$builders$url_builders.IS_NOT_JAVASCRIPT_URL_PATTERN = /^\s*(?!javascript:)(?:[a-z0-9+.-]+:|[^:\/?#]*(?:[\/?#]|$))/i;
-function module$contents$safevalues$builders$url_builders_hasJavascriptUrlScheme(url) {
-  return !module$exports$safevalues$builders$url_builders.IS_NOT_JAVASCRIPT_URL_PATTERN.test(url);
-}
-function module$contents$safevalues$builders$url_builders_sanitizeJavaScriptUrl(url) {
-  if (module$contents$safevalues$builders$url_builders_hasJavascriptUrlScheme(url)) {
-    module$contents$safevalues$builders$url_builders_triggerCallbacks(url);
-  } else {
-    return url;
-  }
-}
-module$exports$safevalues$builders$url_builders.sanitizeJavaScriptUrl = module$contents$safevalues$builders$url_builders_sanitizeJavaScriptUrl;
-function module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url) {
-  return url instanceof goog.html.SafeUrl ? module$contents$safevalues$internals$url_impl_unwrapUrl(url) : module$contents$safevalues$builders$url_builders_sanitizeJavaScriptUrl(url);
-}
-module$exports$safevalues$builders$url_builders.unwrapUrlOrSanitize = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize;
-function module$contents$safevalues$builders$url_builders_restrictivelySanitizeUrl(url) {
-  var parsedScheme = module$contents$safevalues$builders$url_builders_extractScheme(url);
-  return void 0 !== parsedScheme && -1 !== module$contents$safevalues$builders$url_builders_ALLOWED_SCHEMES.indexOf(parsedScheme.toLowerCase()) ? url : "about:invalid#zClosurez";
-}
-module$exports$safevalues$builders$url_builders.restrictivelySanitizeUrl = module$contents$safevalues$builders$url_builders_restrictivelySanitizeUrl;
-var module$contents$safevalues$builders$url_builders_sanitizationCallbacks = [], module$contents$safevalues$builders$url_builders_triggerCallbacks = function(url) {
-};
-goog.DEBUG && module$contents$safevalues$builders$url_builders_addJavaScriptUrlSanitizationCallback(function(url) {
-  console.warn("A URL with content '" + url + "' was sanitized away.");
-});
-function module$contents$safevalues$builders$url_builders_addJavaScriptUrlSanitizationCallback(callback) {
-  -1 === module$contents$safevalues$builders$url_builders_sanitizationCallbacks.indexOf(callback) && module$contents$safevalues$builders$url_builders_sanitizationCallbacks.push(callback);
-  module$contents$safevalues$builders$url_builders_triggerCallbacks = function(url) {
-    module$contents$safevalues$builders$url_builders_sanitizationCallbacks.forEach(function(callback) {
-      callback(url);
-    });
-  };
-}
-module$exports$safevalues$builders$url_builders.addJavaScriptUrlSanitizationCallback = module$contents$safevalues$builders$url_builders_addJavaScriptUrlSanitizationCallback;
-function module$contents$safevalues$builders$url_builders_removeJavaScriptUrlSanitizationCallback(callback) {
-  var callbackIndex = module$contents$safevalues$builders$url_builders_sanitizationCallbacks.indexOf(callback);
-  -1 !== callbackIndex && module$contents$safevalues$builders$url_builders_sanitizationCallbacks.splice(callbackIndex, 1);
-}
-module$exports$safevalues$builders$url_builders.removeJavaScriptUrlSanitizationCallback = module$contents$safevalues$builders$url_builders_removeJavaScriptUrlSanitizationCallback;
-var module$exports$safevalues$dom$elements$anchor = {}, module$contents$safevalues$dom$elements$anchor_module = module$contents$safevalues$dom$elements$anchor_module || {id:"third_party/javascript/safevalues/dom/elements/anchor.closure.js"};
-module$exports$safevalues$dom$elements$anchor.setHref = function(anchor, url) {
-  var sanitizedUrl = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url);
-  void 0 !== sanitizedUrl && (anchor.href = sanitizedUrl);
-};
-var module$exports$safevalues$dom$elements$area = {}, module$contents$safevalues$dom$elements$area_module = module$contents$safevalues$dom$elements$area_module || {id:"third_party/javascript/safevalues/dom/elements/area.closure.js"};
-module$exports$safevalues$dom$elements$area.setHref = function(area, url) {
-  var sanitizedUrl = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url);
-  void 0 !== sanitizedUrl && (area.href = sanitizedUrl);
-};
-var module$exports$safevalues$dom$elements$base = {}, module$contents$safevalues$dom$elements$base_module = module$contents$safevalues$dom$elements$base_module || {id:"third_party/javascript/safevalues/dom/elements/base.closure.js"};
-module$exports$safevalues$dom$elements$base.setHref = function(baseEl, url) {
-  baseEl.href = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(url);
-};
-var module$exports$safevalues$dom$elements$button = {}, module$contents$safevalues$dom$elements$button_module = module$contents$safevalues$dom$elements$button_module || {id:"third_party/javascript/safevalues/dom/elements/button.closure.js"};
-module$exports$safevalues$dom$elements$button.setFormaction = function(button, url) {
-  var sanitizedUrl = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url);
-  void 0 !== sanitizedUrl && (button.formAction = sanitizedUrl);
-};
-var module$exports$safevalues$internals$secrets = {}, module$contents$safevalues$internals$secrets_module = module$contents$safevalues$internals$secrets_module || {id:"third_party/javascript/safevalues/internals/secrets.closure.js"};
-module$exports$safevalues$internals$secrets.secretToken = {};
-function module$contents$safevalues$internals$secrets_ensureTokenIsValid(token) {
-  if (goog.DEBUG && token !== module$exports$safevalues$internals$secrets.secretToken) {
-    throw Error("Bad secret");
-  }
-}
-module$exports$safevalues$internals$secrets.ensureTokenIsValid = module$contents$safevalues$internals$secrets_ensureTokenIsValid;
-var module$exports$safevalues$internals$attribute_impl = {}, module$contents$safevalues$internals$attribute_impl_module = module$contents$safevalues$internals$attribute_impl_module || {id:"third_party/javascript/safevalues/internals/attribute_impl.closure.js"};
-module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix = function() {
-};
-var module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl = function(attrPrefix, token) {
-  module$contents$safevalues$internals$secrets_ensureTokenIsValid(token);
-  this.privateDoNotAccessOrElseWrappedAttrPrefix = attrPrefix;
-};
-$jscomp.inherits(module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl, module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix);
-module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl.prototype.toString = function() {
-  return this.privateDoNotAccessOrElseWrappedAttrPrefix;
-};
-function module$contents$safevalues$internals$attribute_impl_createAttributePrefixInternal(attrPrefix) {
-  return new module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl(attrPrefix, module$exports$safevalues$internals$secrets.secretToken);
-}
-module$exports$safevalues$internals$attribute_impl.createAttributePrefixInternal = module$contents$safevalues$internals$attribute_impl_createAttributePrefixInternal;
-function module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix(value) {
-  if (value instanceof module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl) {
-    return value.privateDoNotAccessOrElseWrappedAttrPrefix;
-  }
-  var message = "";
-  goog.DEBUG && (message = "Unexpected type when unwrapping SafeAttributePrefix");
-  throw Error(message);
-}
-module$exports$safevalues$internals$attribute_impl.unwrapAttributePrefix = module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix;
+var module$exports$goog$html$safehtml_internals_for_safevalues = {};
+module$exports$goog$html$safehtml_internals_for_safevalues.createSafeHtml = module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlSecurityPrivateDoNotAccessOrElse;
 var module$exports$safevalues$internals$html_impl = {}, module$contents$safevalues$internals$html_impl_module = module$contents$safevalues$internals$html_impl_module || {id:"third_party/javascript/safevalues/internals/html_impl.closure.js"};
 module$exports$safevalues$internals$html_impl.SafeHtml = module$contents$goog$html$SafeHtml_SafeHtml;
 module$exports$safevalues$internals$html_impl.createHtmlInternal = function(html) {
-  return (0,module$exports$goog$html$internals.createSafeHtml)(html);
+  return (0,module$exports$goog$html$safehtml_internals_for_safevalues.createSafeHtml)(html);
 };
 module$exports$safevalues$internals$html_impl.EMPTY_HTML = module$contents$goog$html$SafeHtml_SafeHtml.EMPTY;
 module$exports$safevalues$internals$html_impl.isHtml = function(value) {
@@ -7324,10 +7320,12 @@ module$exports$safevalues$internals$html_impl.isHtml = function(value) {
 module$exports$safevalues$internals$html_impl.unwrapHtml = function(value) {
   return module$contents$goog$html$SafeHtml_SafeHtml.unwrapTrustedHTML(value);
 };
+var module$exports$goog$html$safestyle_internals_for_safevalues = {};
+module$exports$goog$html$safestyle_internals_for_safevalues.createSafeStyle = module$contents$goog$html$SafeStyle_SafeStyle.createSafeStyleSecurityPrivateDoNotAccessOrElse;
 var module$exports$safevalues$internals$style_impl = {}, module$contents$safevalues$internals$style_impl_module = module$contents$safevalues$internals$style_impl_module || {id:"third_party/javascript/safevalues/internals/style_impl.closure.js"};
 module$exports$safevalues$internals$style_impl.SafeStyle = module$contents$goog$html$SafeStyle_SafeStyle;
 function module$contents$safevalues$internals$style_impl_createStyleInternal(style) {
-  return (0,module$exports$goog$html$internals.createSafeStyle)(style);
+  return (0,module$exports$goog$html$safestyle_internals_for_safevalues.createSafeStyle)(style);
 }
 module$exports$safevalues$internals$style_impl.createStyleInternal = module$contents$safevalues$internals$style_impl_createStyleInternal;
 function module$contents$safevalues$internals$style_impl_isStyle(value) {
@@ -7562,7 +7560,7 @@ module$exports$safevalues$dom$globals$window.getStyleNonce = function(win) {
   return module$contents$safevalues$dom$globals$window_getNonceFor("style", win);
 };
 function module$contents$safevalues$dom$globals$window_getNonceFor(elementName, win) {
-  var $jscomp$optchain$tmpm1987982378$0, $jscomp$optchain$tmpm1987982378$1, el = null == ($jscomp$optchain$tmpm1987982378$1 = ($jscomp$optchain$tmpm1987982378$0 = win.document).querySelector) ? void 0 : $jscomp$optchain$tmpm1987982378$1.call($jscomp$optchain$tmpm1987982378$0, elementName + "[nonce]");
+  var $jscomp$optchain$tmp220578679$0, $jscomp$optchain$tmp220578679$1, el = null == ($jscomp$optchain$tmp220578679$1 = ($jscomp$optchain$tmp220578679$0 = win.document).querySelector) ? void 0 : $jscomp$optchain$tmp220578679$1.call($jscomp$optchain$tmp220578679$0, elementName + "[nonce]");
   return el ? el.nonce || el.getAttribute("nonce") || "" : "";
 }
 ;var module$exports$safevalues$internals$script_impl = {}, module$contents$safevalues$internals$script_impl_module = module$contents$safevalues$internals$script_impl_module || {id:"third_party/javascript/safevalues/internals/script_impl.closure.js"}, module$contents$safevalues$internals$script_impl_trustedTypes = goog.global.trustedTypes;
@@ -7612,10 +7610,12 @@ module$exports$safevalues$dom$elements$script.setSrc = function(script, v, optio
   script.src = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(v);
   (null == options ? 0 : options.omitNonce) || module$contents$safevalues$dom$elements$script_setNonceForScriptElement(script);
 };
+var module$exports$goog$html$safestylesheet_internals_for_safevalues = {};
+module$exports$goog$html$safestylesheet_internals_for_safevalues.createSafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.createSafeStyleSheetSecurityPrivateDoNotAccessOrElse;
 var module$exports$safevalues$internals$style_sheet_impl = {}, module$contents$safevalues$internals$style_sheet_impl_module = module$contents$safevalues$internals$style_sheet_impl_module || {id:"third_party/javascript/safevalues/internals/style_sheet_impl.closure.js"};
 module$exports$safevalues$internals$style_sheet_impl.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
 function module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(styleSheet) {
-  return (0,module$exports$goog$html$internals.createSafeStyleSheet)(styleSheet);
+  return (0,module$exports$goog$html$safestylesheet_internals_for_safevalues.createSafeStyleSheet)(styleSheet);
 }
 module$exports$safevalues$internals$style_sheet_impl.createStyleSheetInternal = module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal;
 function module$contents$safevalues$internals$style_sheet_impl_isStyleSheet(value) {
@@ -7963,48 +7963,48 @@ function module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(
   return (0,module$exports$safevalues$internals$html_impl.createHtmlInternal)(html);
 }
 function module$contents$safevalues$dom$globals$fetch_fetchResourceUrl(u, init) {
-  var response, $jscomp$optchain$tmp1153895636$0, $jscomp$optchain$tmp1153895636$1, $jscomp$optchain$tmp1153895636$2, mimeType;
-  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$6) {
-    if (1 == $jscomp$generator$context$1153895636$6.nextAddress) {
-      return $jscomp$generator$context$1153895636$6.yield(fetch(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(u).toString(), init), 2);
+  var response, $jscomp$optchain$tmpm991617773$0, $jscomp$optchain$tmpm991617773$1, $jscomp$optchain$tmpm991617773$2, mimeType;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$6) {
+    if (1 == $jscomp$generator$context$m991617773$6.nextAddress) {
+      return $jscomp$generator$context$m991617773$6.yield(fetch(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(u).toString(), init), 2);
     }
-    response = $jscomp$generator$context$1153895636$6.yieldResult;
-    mimeType = null == ($jscomp$optchain$tmp1153895636$0 = response.headers.get("Content-Type")) ? void 0 : null == ($jscomp$optchain$tmp1153895636$1 = $jscomp$optchain$tmp1153895636$0.split(";", 2)) ? void 0 : null == ($jscomp$optchain$tmp1153895636$2 = $jscomp$optchain$tmp1153895636$1[0]) ? void 0 : $jscomp$optchain$tmp1153895636$2.toLowerCase();
-    return $jscomp$generator$context$1153895636$6.return({html:function() {
+    response = $jscomp$generator$context$m991617773$6.yieldResult;
+    mimeType = null == ($jscomp$optchain$tmpm991617773$0 = response.headers.get("Content-Type")) ? void 0 : null == ($jscomp$optchain$tmpm991617773$1 = $jscomp$optchain$tmpm991617773$0.split(";", 2)) ? void 0 : null == ($jscomp$optchain$tmpm991617773$2 = $jscomp$optchain$tmpm991617773$1[0]) ? void 0 : $jscomp$optchain$tmpm991617773$2.toLowerCase();
+    return $jscomp$generator$context$m991617773$6.return({html:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$3) {
-        if (1 == $jscomp$generator$context$1153895636$3.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$3) {
+        if (1 == $jscomp$generator$context$m991617773$3.nextAddress) {
           if ("text/html" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeHtml", "text/html");
           }
-          return $jscomp$generator$context$1153895636$3.yield(response.text(), 2);
+          return $jscomp$generator$context$m991617773$3.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$1153895636$3.yieldResult;
-        return $jscomp$generator$context$1153895636$3.return(module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(text));
+        text = $jscomp$generator$context$m991617773$3.yieldResult;
+        return $jscomp$generator$context$m991617773$3.return(module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(text));
       });
     }, script:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$4) {
-        if (1 == $jscomp$generator$context$1153895636$4.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$4) {
+        if (1 == $jscomp$generator$context$m991617773$4.nextAddress) {
           if ("text/javascript" !== mimeType && "application/javascript" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeScript", "text/javascript");
           }
-          return $jscomp$generator$context$1153895636$4.yield(response.text(), 2);
+          return $jscomp$generator$context$m991617773$4.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$1153895636$4.yieldResult;
-        return $jscomp$generator$context$1153895636$4.return(module$contents$safevalues$internals$script_impl_createScriptInternal(text));
+        text = $jscomp$generator$context$m991617773$4.yieldResult;
+        return $jscomp$generator$context$m991617773$4.return(module$contents$safevalues$internals$script_impl_createScriptInternal(text));
       });
     }, styleSheet:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$5) {
-        if (1 == $jscomp$generator$context$1153895636$5.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$5) {
+        if (1 == $jscomp$generator$context$m991617773$5.nextAddress) {
           if ("text/css" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeStyleSheet", "text/css");
           }
-          return $jscomp$generator$context$1153895636$5.yield(response.text(), 2);
+          return $jscomp$generator$context$m991617773$5.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$1153895636$5.yieldResult;
-        return $jscomp$generator$context$1153895636$5.return(module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(text));
+        text = $jscomp$generator$context$m991617773$5.yieldResult;
+        return $jscomp$generator$context$m991617773$5.return(module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(text));
       });
     }});
   });
@@ -9296,8 +9296,8 @@ function module$contents$eeapiclient$request_params_processParams(params) {
 }
 module$exports$eeapiclient$request_params.processParams = module$contents$eeapiclient$request_params_processParams;
 function module$contents$eeapiclient$request_params_buildQueryParams(params, mapping, passthroughParams) {
-  for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$28 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$m125199259$0$ = $jscomp$iter$28.next(); !$jscomp$key$m125199259$0$.done; $jscomp$key$m125199259$0$ = $jscomp$iter$28.next()) {
-    var $jscomp$destructuring$var27 = $jscomp.makeIterator($jscomp$key$m125199259$0$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var27.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var27.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
+  for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$28 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$1047461284$0$ = $jscomp$iter$28.next(); !$jscomp$key$1047461284$0$.done; $jscomp$key$1047461284$0$ = $jscomp$iter$28.next()) {
+    var $jscomp$destructuring$var27 = $jscomp.makeIterator($jscomp$key$1047461284$0$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var27.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var27.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
     jsName in params && (urlQueryParams[urlQueryParamName] = params[jsName]);
   }
   return urlQueryParams;
@@ -9308,8 +9308,8 @@ module$exports$eeapiclient$request_params.bypassCorsPreflight = function(params)
   var safeHeaders = {}, unsafeHeaders = {}, hasUnsafeHeaders = !1, hasContentType = !1;
   if (params.headers) {
     hasContentType = null != params.headers["Content-Type"];
-    for (var $jscomp$iter$29 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$m125199259$1$ = $jscomp$iter$29.next(); !$jscomp$key$m125199259$1$.done; $jscomp$key$m125199259$1$ = $jscomp$iter$29.next()) {
-      var $jscomp$destructuring$var29 = $jscomp.makeIterator($jscomp$key$m125199259$1$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var29.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var29.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
+    for (var $jscomp$iter$29 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$1047461284$1$ = $jscomp$iter$29.next(); !$jscomp$key$1047461284$1$.done; $jscomp$key$1047461284$1$ = $jscomp$iter$29.next()) {
+      var $jscomp$destructuring$var29 = $jscomp.makeIterator($jscomp$key$1047461284$1$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var29.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var29.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
       module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders.includes(key) ? safeHeaders[key] = value : (unsafeHeaders[key] = value, hasUnsafeHeaders = !0);
     }
   }
@@ -9354,15 +9354,15 @@ module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.addMetad
   this._metadataPayload += "Content-Type: application/json; charset=utf-8\r\n\r\n" + JSON.stringify(json) + ("\r\n--" + this._boundary + "\r\n");
 };
 module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.build = function() {
-  var $jscomp$this$m133342051$6 = this, payload = "--" + this._boundary + "\r\n";
+  var $jscomp$this$m667091202$6 = this, payload = "--" + this._boundary + "\r\n";
   payload += this._metadataPayload;
   return Promise.all(this.files.map(function(f) {
-    return $jscomp$this$m133342051$6.encodeFile(f);
+    return $jscomp$this$m667091202$6.encodeFile(f);
   })).then(function(filePayloads) {
-    for (var $jscomp$iter$30 = $jscomp.makeIterator(filePayloads), $jscomp$key$m133342051$9$filePayload = $jscomp$iter$30.next(); !$jscomp$key$m133342051$9$filePayload.done; $jscomp$key$m133342051$9$filePayload = $jscomp$iter$30.next()) {
-      payload += $jscomp$key$m133342051$9$filePayload.value;
+    for (var $jscomp$iter$30 = $jscomp.makeIterator(filePayloads), $jscomp$key$m667091202$9$filePayload = $jscomp$iter$30.next(); !$jscomp$key$m667091202$9$filePayload.done; $jscomp$key$m667091202$9$filePayload = $jscomp$iter$30.next()) {
+      payload += $jscomp$key$m667091202$9$filePayload.value;
     }
-    return payload += "\r\n--" + $jscomp$this$m133342051$6._boundary + "--";
+    return payload += "\r\n--" + $jscomp$this$m667091202$6._boundary + "--";
   });
 };
 module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.encodeFile = function(file) {
@@ -9450,9 +9450,9 @@ module$exports$eeapiclient$promise_api_client.PromiseApiClient.prototype.$reques
   return this.$addHooksToRequest(requestParams, this.requestService.send(module$contents$eeapiclient$api_client_toMakeRequestParams(requestParams), responseCtor));
 };
 module$exports$eeapiclient$promise_api_client.PromiseApiClient.prototype.$uploadRequest = function(requestParams) {
-  var $jscomp$this$m296226325$4 = this, responseCtor = requestParams.responseCtor || void 0;
+  var $jscomp$this$1237977804$4 = this, responseCtor = requestParams.responseCtor || void 0;
   return this.$addHooksToRequest(requestParams, module$contents$eeapiclient$api_client_toMultipartMakeRequestParams(requestParams).then(function(params) {
-    return $jscomp$this$m296226325$4.requestService.send(params, responseCtor);
+    return $jscomp$this$1237977804$4.requestService.send(params, responseCtor);
   }));
 };
 var module$exports$eeapiclient$ee_api_client = {}, module$contents$eeapiclient$ee_api_client_module = module$contents$eeapiclient$ee_api_client_module || {id:"geo/gestalt/client/javascript/v1/ee_api_client.closure.js"};
@@ -15565,8 +15565,8 @@ module$exports$safevalues$builders$html_formatter.HtmlFormatter = function() {
   this.replacements = new Map();
 };
 module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.format = function(format) {
-  var $jscomp$this$1018007701$5 = this, openedTags = [], marker = (0,module$exports$safevalues$builders$html_builders.htmlEscape)("_safevalues_format_marker_:").toString(), html = (0,module$exports$safevalues$builders$html_builders.htmlEscape)(format).toString().replace(new RegExp("\\{" + marker + "[\\w&#;]+\\}", "g"), function(match) {
-    return $jscomp$this$1018007701$5.replaceFormattingString(openedTags, match);
+  var $jscomp$this$380122516$5 = this, openedTags = [], marker = (0,module$exports$safevalues$builders$html_builders.htmlEscape)("_safevalues_format_marker_:").toString(), html = (0,module$exports$safevalues$builders$html_builders.htmlEscape)(format).toString().replace(new RegExp("\\{" + marker + "[\\w&#;]+\\}", "g"), function(match) {
+    return $jscomp$this$380122516$5.replaceFormattingString(openedTags, match);
   });
   if (0 !== openedTags.length) {
     if (goog.DEBUG) {
@@ -15708,7 +15708,7 @@ module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanit
 })}]];
 module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.defaultSanitizerTable = new module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.SanitizerTable(new Set(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_ELEMENTS), new Map(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ELEMENT_POLICIES), 
 new Set(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_GLOBAL_ATTRIBUTES), new Map(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_GLOBAL_ATTRIBUTE_POLICIES));
-module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.lenientSanitizerTable = new module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.SanitizerTable(new Set(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_ELEMENTS.concat(["BUTTON"])), new Map(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ELEMENT_POLICIES), 
+module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.lenientSanitizerTable = new module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.SanitizerTable(new Set(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_ELEMENTS.concat(["BUTTON", "INPUT"])), new Map(module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ELEMENT_POLICIES), 
 new Set(module$contents$safevalues$internals$pure_pure(function() {
   return module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_GLOBAL_ATTRIBUTES.concat(["class", "id", "name"]);
 })), new Map(module$contents$safevalues$internals$pure_pure(function() {
@@ -15746,8 +15746,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   return this.sanitizeToFragmentInternal(html, inertDocument);
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeToFragmentInternal = function(html, inertDocument) {
-  for (var $jscomp$this$m1085474118$10 = this, dirtyFragment = module$contents$safevalues$builders$html_sanitizer$inert_fragment_createInertFragment(html, inertDocument), treeWalker = document.createTreeWalker(dirtyFragment, 5, function(n) {
-    return $jscomp$this$m1085474118$10.nodeFilter(n);
+  for (var $jscomp$this$m1803429925$10 = this, dirtyFragment = module$contents$safevalues$builders$html_sanitizer$inert_fragment_createInertFragment(html, inertDocument), treeWalker = document.createTreeWalker(dirtyFragment, 5, function(n) {
+    return $jscomp$this$m1803429925$10.nodeFilter(n);
   }, !1), currentNode = treeWalker.nextNode(), sanitizedFragment = inertDocument.createDocumentFragment(), sanitizedParent = sanitizedFragment; null !== currentNode;) {
     var sanitizedNode = void 0;
     if (module$contents$safevalues$builders$html_sanitizer$no_clobber_isText(currentNode)) {
@@ -15774,8 +15774,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   return document.createTextNode(textNode.data);
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeElementNode = function(elementNode, inertDocument) {
-  for (var elementName = module$contents$safevalues$builders$html_sanitizer$no_clobber_getNodeName(elementNode), newNode = inertDocument.createElement(elementName), dirtyAttributes = elementNode.attributes, $jscomp$iter$31 = $jscomp.makeIterator(dirtyAttributes), $jscomp$key$m1085474118$25$ = $jscomp$iter$31.next(); !$jscomp$key$m1085474118$25$.done; $jscomp$key$m1085474118$25$ = $jscomp$iter$31.next()) {
-    var $jscomp$destructuring$var31 = $jscomp$key$m1085474118$25$.value, name = $jscomp$destructuring$var31.name, value = $jscomp$destructuring$var31.value, policy = this.sanitizerTable.getAttributePolicy(name, elementName);
+  for (var elementName = module$contents$safevalues$builders$html_sanitizer$no_clobber_getNodeName(elementNode), newNode = inertDocument.createElement(elementName), dirtyAttributes = elementNode.attributes, $jscomp$iter$31 = $jscomp.makeIterator(dirtyAttributes), $jscomp$key$m1803429925$25$ = $jscomp$iter$31.next(); !$jscomp$key$m1803429925$25$.done; $jscomp$key$m1803429925$25$ = $jscomp$iter$31.next()) {
+    var $jscomp$destructuring$var31 = $jscomp$key$m1803429925$25$.value, name = $jscomp$destructuring$var31.name, value = $jscomp$destructuring$var31.value, policy = this.sanitizerTable.getAttributePolicy(name, elementName);
     if (this.satisfiesAllConditions(policy.conditions, dirtyAttributes)) {
       switch(policy.policyAction) {
         case module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP:
@@ -15828,8 +15828,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   if (!conditions) {
     return !0;
   }
-  for (var $jscomp$iter$32 = $jscomp.makeIterator(conditions), $jscomp$key$m1085474118$26$ = $jscomp$iter$32.next(); !$jscomp$key$m1085474118$26$.done; $jscomp$key$m1085474118$26$ = $jscomp$iter$32.next()) {
-    var $jscomp$destructuring$var33 = $jscomp.makeIterator($jscomp$key$m1085474118$26$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var33.next().value, expectedValues = $jscomp$destructuring$var33.next().value, $jscomp$optchain$tmpm1085474118$0 = void 0, value = null == ($jscomp$optchain$tmpm1085474118$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1085474118$0.value;
+  for (var $jscomp$iter$32 = $jscomp.makeIterator(conditions), $jscomp$key$m1803429925$26$ = $jscomp$iter$32.next(); !$jscomp$key$m1803429925$26$.done; $jscomp$key$m1803429925$26$ = $jscomp$iter$32.next()) {
+    var $jscomp$destructuring$var33 = $jscomp.makeIterator($jscomp$key$m1803429925$26$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var33.next().value, expectedValues = $jscomp$destructuring$var33.next().value, $jscomp$optchain$tmpm1803429925$0 = void 0, value = null == ($jscomp$optchain$tmpm1803429925$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1803429925$0.value;
     if (value && !expectedValues.has(value)) {
       return !1;
     }
@@ -15883,8 +15883,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
   this.sanitizerTable = module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.defaultSanitizerTable;
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder.prototype.onlyAllowElements = function(elementSet) {
-  for (var allowedElements = new Set(), allowedElementPolicies = new Map(), $jscomp$iter$33 = $jscomp.makeIterator(elementSet), $jscomp$key$435282654$0$element = $jscomp$iter$33.next(); !$jscomp$key$435282654$0$element.done; $jscomp$key$435282654$0$element = $jscomp$iter$33.next()) {
-    var element = $jscomp$key$435282654$0$element.value;
+  for (var allowedElements = new Set(), allowedElementPolicies = new Map(), $jscomp$iter$33 = $jscomp.makeIterator(elementSet), $jscomp$key$m1412690177$0$element = $jscomp$iter$33.next(); !$jscomp$key$m1412690177$0$element.done; $jscomp$key$m1412690177$0$element = $jscomp$iter$33.next()) {
+    var element = $jscomp$key$m1412690177$0$element.value;
     element = element.toUpperCase();
     if (!this.sanitizerTable.isAllowedElement(element)) {
       throw Error("Element: " + element + ", is not allowed by html5_contract.textpb");
@@ -15902,8 +15902,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
     throw Error("Element: " + element + " is not a custom element");
   }
   if (allowedAttributes) {
-    for (var elementPolicy = new Map(), $jscomp$iter$34 = $jscomp.makeIterator(allowedAttributes), $jscomp$key$435282654$1$attribute = $jscomp$iter$34.next(); !$jscomp$key$435282654$1$attribute.done; $jscomp$key$435282654$1$attribute = $jscomp$iter$34.next()) {
-      elementPolicy.set($jscomp$key$435282654$1$attribute.value, {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP});
+    for (var elementPolicy = new Map(), $jscomp$iter$34 = $jscomp.makeIterator(allowedAttributes), $jscomp$key$m1412690177$1$attribute = $jscomp$iter$34.next(); !$jscomp$key$m1412690177$1$attribute.done; $jscomp$key$m1412690177$1$attribute = $jscomp$iter$34.next()) {
+      elementPolicy.set($jscomp$key$m1412690177$1$attribute.value, {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP});
     }
     allowedElementPolicies.set(element, elementPolicy);
   } else {
@@ -15913,15 +15913,15 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
   return this;
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder.prototype.onlyAllowAttributes = function(attributeSet) {
-  for (var allowedGlobalAttributes = new Set(), globalAttributePolicies = new Map(), elementPolicies = new Map(), $jscomp$iter$35 = $jscomp.makeIterator(attributeSet), $jscomp$key$435282654$2$attribute = $jscomp$iter$35.next(); !$jscomp$key$435282654$2$attribute.done; $jscomp$key$435282654$2$attribute = $jscomp$iter$35.next()) {
-    var attribute = $jscomp$key$435282654$2$attribute.value;
+  for (var allowedGlobalAttributes = new Set(), globalAttributePolicies = new Map(), elementPolicies = new Map(), $jscomp$iter$35 = $jscomp.makeIterator(attributeSet), $jscomp$key$m1412690177$2$attribute = $jscomp$iter$35.next(); !$jscomp$key$m1412690177$2$attribute.done; $jscomp$key$m1412690177$2$attribute = $jscomp$iter$35.next()) {
+    var attribute = $jscomp$key$m1412690177$2$attribute.value;
     this.sanitizerTable.allowedGlobalAttributes.has(attribute) && allowedGlobalAttributes.add(attribute);
     this.sanitizerTable.globalAttributePolicies.has(attribute) && globalAttributePolicies.set(attribute, this.sanitizerTable.globalAttributePolicies.get(attribute));
   }
-  for (var $jscomp$iter$37 = $jscomp.makeIterator(this.sanitizerTable.elementPolicies.entries()), $jscomp$key$435282654$4$ = $jscomp$iter$37.next(); !$jscomp$key$435282654$4$.done; $jscomp$key$435282654$4$ = $jscomp$iter$37.next()) {
-    for (var $jscomp$destructuring$var35 = $jscomp.makeIterator($jscomp$key$435282654$4$.value), elementName__tsickle_destructured_1 = $jscomp$destructuring$var35.next().value, originalElementPolicy__tsickle_destructured_2 = $jscomp$destructuring$var35.next().value, elementName = elementName__tsickle_destructured_1, newElementPolicy = new Map(), $jscomp$iter$36 = $jscomp.makeIterator(originalElementPolicy__tsickle_destructured_2.entries()), $jscomp$key$435282654$3$ = $jscomp$iter$36.next(); !$jscomp$key$435282654$3$.done; $jscomp$key$435282654$3$ = 
+  for (var $jscomp$iter$37 = $jscomp.makeIterator(this.sanitizerTable.elementPolicies.entries()), $jscomp$key$m1412690177$4$ = $jscomp$iter$37.next(); !$jscomp$key$m1412690177$4$.done; $jscomp$key$m1412690177$4$ = $jscomp$iter$37.next()) {
+    for (var $jscomp$destructuring$var35 = $jscomp.makeIterator($jscomp$key$m1412690177$4$.value), elementName__tsickle_destructured_1 = $jscomp$destructuring$var35.next().value, originalElementPolicy__tsickle_destructured_2 = $jscomp$destructuring$var35.next().value, elementName = elementName__tsickle_destructured_1, newElementPolicy = new Map(), $jscomp$iter$36 = $jscomp.makeIterator(originalElementPolicy__tsickle_destructured_2.entries()), $jscomp$key$m1412690177$3$ = $jscomp$iter$36.next(); !$jscomp$key$m1412690177$3$.done; $jscomp$key$m1412690177$3$ = 
     $jscomp$iter$36.next()) {
-      var $jscomp$destructuring$var37 = $jscomp.makeIterator($jscomp$key$435282654$3$.value), attribute__tsickle_destructured_3 = $jscomp$destructuring$var37.next().value, attributePolicy__tsickle_destructured_4 = $jscomp$destructuring$var37.next().value, attribute$jscomp$0 = attribute__tsickle_destructured_3, attributePolicy = attributePolicy__tsickle_destructured_4;
+      var $jscomp$destructuring$var37 = $jscomp.makeIterator($jscomp$key$m1412690177$3$.value), attribute__tsickle_destructured_3 = $jscomp$destructuring$var37.next().value, attributePolicy__tsickle_destructured_4 = $jscomp$destructuring$var37.next().value, attribute$jscomp$0 = attribute__tsickle_destructured_3, attributePolicy = attributePolicy__tsickle_destructured_4;
       attributeSet.has(attribute$jscomp$0) && newElementPolicy.set(attribute$jscomp$0, attributePolicy);
     }
     elementPolicies.set(elementName, newElementPolicy);
@@ -15930,8 +15930,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
   return this;
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder.prototype.allowDataAttributes = function(attributes) {
-  for (var allowedGlobalAttributes = new Set(this.sanitizerTable.allowedGlobalAttributes), $jscomp$iter$38 = $jscomp.makeIterator(attributes), $jscomp$key$435282654$5$attribute = $jscomp$iter$38.next(); !$jscomp$key$435282654$5$attribute.done; $jscomp$key$435282654$5$attribute = $jscomp$iter$38.next()) {
-    var attribute = $jscomp$key$435282654$5$attribute.value;
+  for (var allowedGlobalAttributes = new Set(this.sanitizerTable.allowedGlobalAttributes), $jscomp$iter$38 = $jscomp.makeIterator(attributes), $jscomp$key$m1412690177$5$attribute = $jscomp$iter$38.next(); !$jscomp$key$m1412690177$5$attribute.done; $jscomp$key$m1412690177$5$attribute = $jscomp$iter$38.next()) {
+    var attribute = $jscomp$key$m1412690177$5$attribute.value;
     if (0 !== attribute.indexOf("data-")) {
       throw Error("data attribute: " + attribute + ' does not begin with the prefix "data-"');
     }
@@ -16182,12 +16182,12 @@ function module$contents$safevalues$reporting$reporting_isChangedBySanitizing(s,
   }
   try {
     module$contents$safevalues$builders$html_sanitizer$html_sanitizer_lenientlySanitizeHtmlAssertUnchanged(s);
-  } catch ($jscomp$unused$catch$696273141$0) {
+  } catch ($jscomp$unused$catch$442189172$0) {
     return module$contents$safevalues$reporting$reporting_reportLegacyConversion(options, module$contents$safevalues$reporting$reporting_ReportingType.HTML_CHANGED_BY_RELAXED_SANITIZING), !0;
   }
   try {
     module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtmlAssertUnchanged(s);
-  } catch ($jscomp$unused$catch$696273141$1) {
+  } catch ($jscomp$unused$catch$442189172$1) {
     return module$contents$safevalues$reporting$reporting_reportLegacyConversion(options, module$contents$safevalues$reporting$reporting_ReportingType.HTML_CHANGED_BY_SANITIZING), !0;
   }
   return !1;
@@ -19089,7 +19089,7 @@ var $jscomp$templatelit$294235699$96 = $jscomp.createTemplateTagFirstArg(["https
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.394";
+ee.apiclient.API_CLIENT_VERSION = "0.1.395";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -19379,8 +19379,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.394";
-  "0.1.394" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.395";
+  "0.1.395" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {

@@ -1,9 +1,13 @@
 """A wrapper for Blobs."""
+from __future__ import annotations
 
 from typing import Any, Dict, Union
 
 from ee import apifunction
 from ee import computedobject
+from ee import ee_string
+
+_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
 class Blob(computedobject.ComputedObject):
@@ -28,7 +32,7 @@ class Blob(computedobject.ComputedObject):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
-  def __init__(self, url: Union[str, computedobject.ComputedObject]):
+  def __init__(self, url: _StringType):
     """Creates a Blob wrapper.
 
     Args:

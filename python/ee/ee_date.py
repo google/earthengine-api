@@ -1,4 +1,5 @@
 """A wrapper for dates."""
+from __future__ import annotations
 
 import datetime
 import math
@@ -7,8 +8,15 @@ from typing import Any, Dict, Optional, Union
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
+from ee import ee_string
 from ee import ee_types as types
 from ee import serializer
+
+# TODO: b/291072742 - Have a separate type when datetime.Datetime unavailable.
+_DateType = Union[
+    datetime.datetime, float, str, 'Date', computedobject.ComputedObject
+]
+_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
 class Date(computedobject.ComputedObject):
@@ -20,11 +28,7 @@ class Date(computedobject.ComputedObject):
   _HAS_DYNAMIC_ATTRIBUTES = True
 
   @_utils.accept_opt_prefix('opt_tz')
-  def __init__(
-      self,
-      date: Union[datetime.datetime, float, str, computedobject.ComputedObject],
-      tz: Optional[Union[str, computedobject.ComputedObject]] = None,
-  ):
+  def __init__(self, date: Union[_DateType], tz: Optional[_StringType] = None):
     """Construct a date.
 
     This sends all inputs (except another Date) through the Date function.

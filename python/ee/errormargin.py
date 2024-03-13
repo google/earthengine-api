@@ -4,6 +4,11 @@ from typing import Any, Dict, Optional, Union
 
 from ee import apifunction
 from ee import computedobject
+from ee import ee_number
+from ee import ee_string
+
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
 class ErrorMargin(computedobject.ComputedObject):
@@ -34,8 +39,8 @@ class ErrorMargin(computedobject.ComputedObject):
 
   def __init__(
       self,
-      value: Optional[Union[float, computedobject.ComputedObject]] = None,
-      unit: Optional[Union[str, computedobject.ComputedObject]] = None,
+      value: Optional[_NumberType] = None,
+      unit: Optional[_StringType] = None,
   ):
     """Creates a ErrorMargin wrapper.
 

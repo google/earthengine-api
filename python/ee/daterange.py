@@ -1,9 +1,16 @@
 """A wrapper for DateRanges."""
+from __future__ import annotations
 
 from typing import Any, Dict, Optional, Union
 
 from ee import apifunction
 from ee import computedobject
+from ee import ee_date
+from ee import ee_string
+
+_DateRangeType = Union['DateRange', computedobject.ComputedObject]
+_DateType = Union[float, str, ee_date.Date, computedobject.ComputedObject]
+_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
 class DateRange(computedobject.ComputedObject):
@@ -26,10 +33,10 @@ class DateRange(computedobject.ComputedObject):
 
   def __init__(
       self,
-      start: Union[float, str, computedobject.ComputedObject],
-      end: Optional[Union[float, str, computedobject.ComputedObject]] = None,
+      start: Union[_DateType, _DateRangeType],
+      end: Optional[_DateType] = None,
       # pylint: disable-next=invalid-name
-      timeZone: Optional[Union[str, computedobject.ComputedObject]] = None,
+      timeZone: Optional[_StringType] = None,
   ):
     """Creates a DateRange wrapper.
 
