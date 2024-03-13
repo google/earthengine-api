@@ -23,7 +23,7 @@ class Date(computedobject.ComputedObject):
   def __init__(
       self,
       date: Union[datetime.datetime, float, str, computedobject.ComputedObject],
-      tz: Optional[str] = None,
+      tz: Optional[Union[str, computedobject.ComputedObject]] = None,
   ):
     """Construct a date.
 
@@ -52,7 +52,7 @@ class Date(computedobject.ComputedObject):
     elif isinstance(date, str):
       args = {'value': date}
       if tz:
-        if isinstance(tz, str):
+        if isinstance(tz, (str, computedobject.ComputedObject)):
           args['timeZone'] = tz
         else:
           raise ValueError(
@@ -66,6 +66,13 @@ class Date(computedobject.ComputedObject):
         var_name = date.varName
       else:
         args = {'value': date}
+        if tz:
+          if isinstance(tz, (str, computedobject.ComputedObject)):
+            args['timeZone'] = tz
+          else:
+            raise ValueError(
+                f'Invalid argument specified for ee.Date(..., opt_tz): {tz}'
+            )
     else:
       raise ValueError(f'Invalid argument specified for ee.Date(): {date}')
 

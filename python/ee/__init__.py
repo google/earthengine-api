@@ -1,6 +1,6 @@
 """The EE Python library."""
 
-__version__ = '0.1.393'
+__version__ = '0.1.394'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -26,6 +26,8 @@ from ._helpers import profilePrinting
 from ._helpers import ServiceAccountCredentials
 from .apifunction import ApiFunction
 from .blob import Blob
+from .classifier import Classifier
+from .clusterer import Clusterer
 from .collection import Collection
 from .computedobject import ComputedObject
 from .confusionmatrix import ConfusionMatrix
@@ -49,6 +51,7 @@ from .geometry import Geometry
 from .image import Image
 from .imagecollection import ImageCollection
 from .join import Join
+from .kernel import Kernel
 from .model import Model
 from .pixeltype import PixelType
 from .projection import Projection
@@ -178,6 +181,8 @@ def Initialize(
     raise e
   Array.initialize()
   Blob.initialize()
+  Classifier.initialize()
+  Clusterer.initialize()
   Collection.initialize()
   ConfusionMatrix.initialize()
   Date.initialize()
@@ -192,6 +197,7 @@ def Initialize(
   Image.initialize()
   ImageCollection.initialize()
   Join.initialize()
+  Kernel.initialize()
   List.initialize()
   Model.initialize()
   Number.initialize()
@@ -216,6 +222,8 @@ def Reset() -> None:
   Collection.reset()  # Must be before FeatureCollection and ImageCollection.
   Array.reset()
   Blob.reset()
+  Classifier.reset()
+  Clusterer.reset()
   ConfusionMatrix.reset()
   Date.reset()
   DateRange.reset()
@@ -228,6 +236,7 @@ def Reset() -> None:
   Image.reset()
   ImageCollection.reset()
   Join.reset()
+  Kernel.reset()
   List.reset()
   Model.reset()
   Number.reset()

@@ -61,11 +61,30 @@ class DateTest(apitestcase.ApiTestCase):
         ee.Date('2018-04-23', 'America/New_York').args,
     )
 
-  # TODO(user): Allow for and test ee.String for the timezone.
+  def test_timezone_ee_string(self):
+    date_str = '2018-04-23'
+    timezone = ee.String('America/New_York')
+    self.assertEqual(
+        {'timeZone': timezone, 'value': date_str},
+        ee.Date(date_str, timezone).args,
+    )
+
+  def test_date_ee_string_with_timezone(self):
+    date_str = '2018-04-23'
+    date_string = ee.String(date_str)
+    timezone = 'America/New_York'
+    self.assertEqual(
+        {'timeZone': timezone, 'value': date_string},
+        ee.Date(date_string, timezone).args,
+    )
+
   def test_timezone_not_a_string(self):
     message = r'Invalid argument specified for ee.Date\(\.\.\., opt_tz\): 123'
     with self.assertRaisesRegex(ValueError, message):
       ee.Date('2018-04-23', 123)  # pytype: disable=wrong-arg-types
+
+    with self.assertRaisesRegex(ValueError, message):
+      ee.Date(ee.String('2018-04-23'), 123)  # pytype: disable=wrong-arg-types
 
   def test_with_reducer(self):
     date_int = 42
