@@ -1378,7 +1378,6 @@ goog.LOAD_MODULE_USING_EVAL = !0;
 goog.SEAL_MODULE_EXPORTS = goog.DEBUG;
 goog.loadedModules_ = {};
 goog.DEPENDENCIES_ENABLED = !1;
-goog.TRANSPILE = "detect";
 goog.ASSUME_ES_MODULES_TRANSPILED = !1;
 goog.TRUSTED_TYPES_POLICY_NAME = "goog";
 goog.hasBadLetScoping = null;
@@ -19089,7 +19088,7 @@ var $jscomp$templatelit$294235699$96 = $jscomp.createTemplateTagFirstArg(["https
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.395";
+ee.apiclient.API_CLIENT_VERSION = "0.1.396";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -19379,8 +19378,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.395";
-  "0.1.395" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.396";
+  "0.1.396" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -21534,12 +21533,26 @@ goog.exportSymbol("ee.data.getInfo", ee.data.getInfo);
 ee.data.makeListAssetsCall_ = function(parent, opt_params, opt_callback, opt_postProcessing) {
   opt_params = void 0 === opt_params ? {} : opt_params;
   opt_postProcessing = void 0 === opt_postProcessing ? goog.functions.identity : opt_postProcessing;
-  var isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(parent), call = new module$contents$ee$apiclient_Call(opt_callback), methodRoot = isProjectAssetRoot ? call.projects() : call.assets();
+  var params = Object.assign({}, opt_params), call = new module$contents$ee$apiclient_Call(opt_callback), isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(parent), methodRoot = isProjectAssetRoot ? call.projects() : call.assets();
   parent = isProjectAssetRoot ? ee.rpc_convert.projectParentFromPath(parent) : ee.rpc_convert.assetIdToAssetName(parent);
-  return call.handle(methodRoot.listAssets(parent, opt_params).then(opt_postProcessing));
+  var getNextPageIfNeeded = function(response) {
+    if (null != params.pageSize || !response.nextPageToken) {
+      return response;
+    }
+    var previousAssets = response.assets || [];
+    params.pageToken = response.nextPageToken;
+    var nextResponse = methodRoot.listAssets(parent, params).then(function(response) {
+      response.assets = previousAssets.concat(response.assets);
+      return response;
+    }).then(getNextPageIfNeeded);
+    return opt_callback ? nextResponse : call.handle(nextResponse);
+  };
+  return call.handle(methodRoot.listAssets(parent, params).then(getNextPageIfNeeded).then(opt_postProcessing));
 };
 ee.data.getList = function(params, opt_callback) {
-  return ee.data.makeListAssetsCall_(params.id, ee.rpc_convert.getListToListAssets(params), opt_callback, function(r) {
+  var convertedParams = ee.rpc_convert.getListToListAssets(params);
+  convertedParams.pageSize || (convertedParams.pageSize = 1E3);
+  return ee.data.makeListAssetsCall_(params.id, convertedParams, opt_callback, function(r) {
     return null == r ? null : ee.rpc_convert.listAssetsToGetList(r);
   });
 };

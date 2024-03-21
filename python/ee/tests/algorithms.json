@@ -11200,7 +11200,7 @@
     }]
   }, {
     "name": "algorithms/List.get",
-    "description": "Returns the element at the specified position in list.  A negative index counts backwards from the end of the list.",
+    "description": "Returns the element at the specified position in list. A negative index counts backwards from the end of the list.",
     "returnType": "Object",
     "arguments": [{
       "argumentName": "list",
@@ -11211,7 +11211,7 @@
     }]
   }, {
     "name": "algorithms/List.getArray",
-    "description": "Returns the array at the specified position in list.  A negative index counts backwards from the end of the list. If the value is not a array, an error will occur.",
+    "description": "Returns the array at the specified position in list. A negative index counts backwards from the end of the list. If the value is not a array, an error will occur.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "list",
@@ -11222,7 +11222,7 @@
     }]
   }, {
     "name": "algorithms/List.getGeometry",
-    "description": "Returns the geometry at the specified position in list.  A negative index counts backwards from the end of the list. If the value is not a geometry, an error will occur.",
+    "description": "Returns the geometry at the specified position in list. A negative index counts backwards from the end of the list. If the value is not a geometry, an error will occur.",
     "returnType": "Geometry",
     "arguments": [{
       "argumentName": "list",
@@ -11233,7 +11233,7 @@
     }]
   }, {
     "name": "algorithms/List.getNumber",
-    "description": "Returns the number at the specified position in list.  A negative index counts backwards from the end of the list. If the value is not a number, an error will occur.",
+    "description": "Returns the number at the specified position in list. A negative index counts backwards from the end of the list. If the value is not a number, an error will occur.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "list",
@@ -11244,7 +11244,7 @@
     }]
   }, {
     "name": "algorithms/List.getString",
-    "description": "Returns the string at the specified position in list.  A negative index counts backwards from the end of the list. If the value is not a string, an error will occur.",
+    "description": "Returns the string at the specified position in list. A negative index counts backwards from the end of the list. If the value is not a string, an error will occur.",
     "returnType": "String",
     "arguments": [{
       "argumentName": "list",
@@ -11255,7 +11255,7 @@
     }]
   }, {
     "name": "algorithms/List.indexOf",
-    "description": "Returns the position of the first occurrence of target in list, or -1 if list does not contain target.",
+    "description": "Returns the position of the first occurrence of element in list, or -1 if list does not contain element.",
     "returnType": "Integer",
     "arguments": [{
       "argumentName": "list",
@@ -11291,7 +11291,7 @@
     }]
   }, {
     "name": "algorithms/List.iterate",
-    "description": "Iterate an algorithm over a list.  The algorithm is expected to take two objects, the current list item, and the result from the previous iteration or the value of first for the first iteration.",
+    "description": "Iterate an algorithm over a list. The algorithm is expected to take two objects, the current list item, and the result from the previous iteration or the value of first for the first iteration.",
     "returnType": "Object",
     "arguments": [{
       "argumentName": "list",
@@ -11337,7 +11337,7 @@
     }]
   }, {
     "name": "algorithms/List.map",
-    "description": "Map an algorithm over a list.  The algorithm is expected to take an Object and return an Object.",
+    "description": "Map an algorithm over a list. The algorithm is expected to take an Object and return an Object.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11354,7 +11354,7 @@
     }]
   }, {
     "name": "algorithms/List.reduce",
-    "description": "Apply a reducer to a list.  If the reducer takes more than 1 input, then each element in the list is assumed to be a list of inputs.  If the reducer returns a single output, it is returned directly, otherwise returns a dictionary containing the named reducer outputs.",
+    "description": "Apply a reducer to a list. If the reducer takes more than 1 input, then each element in the list is assumed to be a list of inputs. If the reducer returns a single output, it is returned directly, otherwise returns a dictionary containing the named reducer outputs.",
     "returnType": "Object",
     "arguments": [{
       "argumentName": "list",
@@ -11445,7 +11445,7 @@
     }]
   }, {
     "name": "algorithms/List.sequence",
-    "description": "Generate a sequence of numbers from start to end (inclusive) in increments of step, or in count equally-spaced increments.  If end is not specified it is computed from start + step * count, so at least one of end or count must be specified.",
+    "description": "Generate a sequence of numbers from start to end (inclusive) in increments of step, or in count equally-spaced increments. If end is not specified it is computed from start + step * count, so at least one of end or count must be specified.",
     "returnType": "List\u003cNumber\u003e",
     "arguments": [{
       "argumentName": "start",
@@ -11468,7 +11468,7 @@
     }]
   }, {
     "name": "algorithms/List.set",
-    "description": "Replaces the value at the specified position in list with element.  A negative index counts backwards from the end of the list.",
+    "description": "Replaces the value at the specified position in list with element. A negative index counts backwards from the end of the list.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11482,7 +11482,7 @@
     }]
   }, {
     "name": "algorithms/List.shuffle",
-    "description": "Randomly permute the specified list.  Note that the permutation order will always be the same for any given seed, unless the value for seed is \u0027false\u0027.",
+    "description": "Randomly permute the specified list. Note that the permutation order will always be the same for any given seed, unless the value for seed is \u0027false\u0027.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11490,7 +11490,7 @@
     }, {
       "argumentName": "seed",
       "type": "Object",
-      "description": "A long integer to use as a seed for the randomization.  If the boolean value of \u0027false\u0027 is passed, then a completely random and unreproducible order will be generated.",
+      "description": "A long integer to use as a seed for the randomization. If the boolean value of \u0027false\u0027 is passed, then a completely random and unreproducible order will be generated.",
       "optional": true,
       "defaultValue": null
     }]
@@ -11504,7 +11504,7 @@
     }]
   }, {
     "name": "algorithms/List.slice",
-    "description": "Returns a portion of list between the start index, inclusive, and end index, exclusive.  Negative values for start or end count backwards from the end of the list.  Values greater than the size of the list are legal but are truncated to the size of list.",
+    "description": "Returns a portion of list between the start index, inclusive, and end index, exclusive. Negative values for start or end count backwards from the end of the list. Values greater than the size of the list are legal but are truncated to the size of list.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11525,7 +11525,7 @@
     }]
   }, {
     "name": "algorithms/List.sort",
-    "description": "Sorts the list into ascending order.  If the \u0027keys\u0027 argument is provided, then it is sorted first, and the elements of \u0027list\u0027 are placed in the same order.",
+    "description": "Sorts the list into ascending order. If the \u0027keys\u0027 argument is provided, then it is sorted first, and the elements of \u0027list\u0027 are placed in the same order.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11534,13 +11534,13 @@
     }, {
       "argumentName": "keys",
       "type": "List\u003cObject\u003e",
-      "description": "Optional keys to sort by.  If \u0027keys\u0027 is provided, it must have the same length as \u0027list\u0027.",
+      "description": "Optional keys to sort by. If \u0027keys\u0027 is provided, it must have the same length as \u0027list\u0027.",
       "optional": true,
       "defaultValue": null
     }]
   }, {
     "name": "algorithms/List.splice",
-    "description": "Starting at the start index, removes count elements from list and insert the contents of other at that location.  If start is negative, it counts backwards from the end of the list.",
+    "description": "Starting at the start index, removes count elements from list and insert the contents of other at that location. If start is negative, it counts backwards from the end of the list.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11559,7 +11559,7 @@
     }]
   }, {
     "name": "algorithms/List.swap",
-    "description": "Swaps the elements at the specified positions.  A negative position counts backwards from the end of the list.",
+    "description": "Swaps the elements at the specified positions. A negative position counts backwards from the end of the list.",
     "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "list",
@@ -11581,7 +11581,7 @@
     }]
   }, {
     "name": "algorithms/List.zip",
-    "description": "Pairs the elements of two lists to create a list of two-element lists.  When the input lists are of different sizes, the final list has the same size as the shortest one.",
+    "description": "Pairs the elements of two lists to create a list of two-element lists. When the input lists are of different sizes, the final list has the same size as the shortest one.",
     "returnType": "List\u003cList\u003cObject\u003e\u003e",
     "arguments": [{
       "argumentName": "list",

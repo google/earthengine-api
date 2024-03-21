@@ -20,6 +20,18 @@ from ee import ee_exception
 from ee import geometry
 
 
+def _transform_operation_to_task(operation: Dict[str, Any]) -> Task:
+  """Converts an operation to a task."""
+  status = _cloud_api_utils.convert_operation_to_task(operation)
+  return Task(
+      status['id'],
+      status.get('task_type'),
+      status.get('state'),
+      {'description': status.get('description')},
+      status.get('name'),
+  )
+
+
 class Task:
   """A batch task that can be run on the EE batch processing system."""
 
@@ -108,6 +120,14 @@ class Task:
     self.state = state
     self.name = name
 
+  @property
+  def operation_name(self) -> Optional[str]:
+    if self.name:
+      return self.name
+    if self.id:
+      return _cloud_api_utils.convert_task_id_to_operation_name(self.id)
+    return None
+
   def start(self) -> None:
     """Starts the task. No-op for started tasks."""
     if not self.config:
@@ -152,8 +172,9 @@ class Task:
       - error_message: Failure reason. Appears only if state is FAILED.
       May also include other fields.
     """
-    if self.id:
-      result = data.getTaskStatus(self.id)[0]
+    if self.operation_name:
+      operation = data.getOperation(self.operation_name)
+      result = _cloud_api_utils.convert_operation_to_task(operation)
       if result['state'] == 'UNKNOWN':
         result['state'] = Task.State.UNSUBMITTED
     else:
@@ -166,7 +187,7 @@ class Task:
 
   def cancel(self) -> None:
     """Cancels the task."""
-    data.cancelTask(self.id)
+    data.cancelOperation(self.operation_name)
 
   @staticmethod
   def list() -> List[Task]:
@@ -178,15 +199,7 @@ class Task:
     Returns:
       A list of Tasks.
     """
-    statuses = data.getTaskList()
-    tasks = []
-    for status in statuses:
-      tasks.append(Task(status['id'],
-                        status.get('task_type'),
-                        status.get('state'),
-                        {'description': status.get('description')},
-                        status.get('name')))
-    return tasks
+    return list(map(_transform_operation_to_task, data.listOperations()))
 
   def __repr__(self) -> str:
     """Returns a string representation of the task."""

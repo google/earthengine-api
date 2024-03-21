@@ -556,14 +556,16 @@ def getList(params: Dict[str, Any]) -> Any:
   return result
 
 
-def listImages(params: Dict[str, Any]) -> Dict[str, Optional[List[int]]]:
+def listImages(params: str|Dict[str, Any]) -> Dict[str, Optional[List[int]]]:
   """Returns the images in an image collection or folder.
 
   Args:
-    params: An object containing request parameters with the following possible
+    params: Either a string representing the ID of the image collection to list,
+      or an object containing request parameters with the following possible
       values, all but 'parent` are optional:
       parent - (string) The ID of the image collection to list, required.
-      pageSize - (string) The number of results to return. Defaults to 1000.
+      pageSize - (string) The number of results to return. If not specified, all
+        results are returned.
       pageToken - (string) The token page of results to return.
       startTime - (ISO 8601 string): The minimum start time (inclusive).
       endTime - (ISO 8601 string): The maximum end time (exclusive).
@@ -591,14 +593,16 @@ def listImages(params: Dict[str, Any]) -> Dict[str, Optional[List[int]]]:
   return images
 
 
-def listAssets(params: Dict[str, Any]) -> Dict[str, List[Any]]:
+def listAssets(params: str|Dict[str, Any]) -> Dict[str, List[Any]]:
   """Returns the assets in a folder.
 
   Args:
-    params: An object containing request parameters with the following possible
-      values, all but 'parent` are optional:
+    params: Either a string representing the ID of the collection or folder to
+      list, or an object containing request parameters with the following
+      possible values, all but 'parent` are optional:
       parent - (string) The ID of the collection or folder to list, required.
-      pageSize - (string) The number of results to return. Defaults to 1000.
+      pageSize - (string) The number of results to return. If not specified, all
+        results are returned.
       pageToken - (string) The token page of results to return.
       filter - (string) An additional filter query to apply. Example query:
         '''properties.my_property>=1 AND properties.my_property<2 AND

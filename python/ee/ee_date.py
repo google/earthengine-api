@@ -12,7 +12,7 @@ from ee import ee_string
 from ee import ee_types as types
 from ee import serializer
 
-# TODO: b/291072742 - Have a separate type when datetime.Datetime unavailable.
+# TODO(user): - Have a separate type when datetime.Datetime unavailable.
 _DateType = Union[
     datetime.datetime, float, str, 'Date', computedobject.ComputedObject
 ]

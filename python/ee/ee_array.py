@@ -5,13 +5,15 @@ from typing import Any, Dict, List, Optional, Union
 
 from ee import apifunction
 from ee import computedobject
+# pylint: disable=unused-import
 from ee import ee_list
 from ee import ee_string
+# pylint: enable=unused-import
 
 _ArrayType = Union[
-    Any, List[Any], 'Array', ee_list.List, computedobject.ComputedObject
+    Any, List[Any], 'Array', 'ee_list.List', computedobject.ComputedObject
 ]
-_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Array(computedobject.ComputedObject):
