@@ -157,10 +157,53 @@ class DataTest(unittest.TestCase):
       cloud_api_resource.projects().assets().listAssets(
       ).execute.return_value = mock_result
       cloud_api_resource.projects().assets().listAssets_next.return_value = None
-      actual_result = ee.data.listAssets({'p': 'q'})
+      actual_result = ee.data.listAssets('path/to/folder')
       cloud_api_resource.projects().assets().listAssets(
       ).execute.assert_called_once()
       self.assertEqual(mock_result, actual_result)
+
+  def testListAssetsWithPageSize(self):
+    mock_http = mock.MagicMock(httplib2.Http)
+    ok_resp = httplib2.Response({'status': 200})
+    page = (
+        b'{"assets": [{"path": "id1", "type": "type1"}], "nextPageToken": "t1"}'
+    )
+    mock_http.request.side_effect = [(ok_resp, page)]
+    with apitestcase.UsingCloudApi(mock_http=mock_http):
+      actual_result = ee.data.listAssets(
+          {'parent': 'path/to/folder', 'pageSize': 3}
+      )
+      expected_result = {
+          'assets': [{'path': 'id1', 'type': 'type1'}],
+          'nextPageToken': 't1',
+      }
+      self.assertEqual(expected_result, actual_result)
+
+  def testListAssetsMultiplePages(self):
+    mock_http = mock.MagicMock(httplib2.Http)
+    ok_resp = httplib2.Response({'status': 200})
+    page1 = (
+        b'{"assets": [{"path": "id1", "type": "type1"}], "nextPageToken": "t1"}'
+    )
+    page2 = (
+        b'{"assets": [{"path": "id2", "type": "type2"}], "nextPageToken": "t2"}'
+    )
+    page3 = b'{"assets": [{"path": "id3", "type": "type3"}]}'
+    mock_http.request.side_effect = [
+        (ok_resp, page1),
+        (ok_resp, page2),
+        (ok_resp, page3),
+    ]
+    with apitestcase.UsingCloudApi(mock_http=mock_http):
+      actual_result = ee.data.listAssets('path/to/folder')
+      expected_result = {
+          'assets': [
+              {'path': 'id1', 'type': 'type1'},
+              {'path': 'id2', 'type': 'type2'},
+              {'path': 'id3', 'type': 'type3'},
+          ]
+      }
+      self.assertEqual(expected_result, actual_result)
 
   def testListImages(self):
     cloud_api_resource = mock.MagicMock()
@@ -169,13 +212,56 @@ class DataTest(unittest.TestCase):
       cloud_api_resource.projects().assets().listAssets(
       ).execute.return_value = mock_result
       cloud_api_resource.projects().assets().listAssets_next.return_value = None
-      actual_result = ee.data.listImages({'p': 'q'})
+      actual_result = ee.data.listImages('path/to/folder')
       cloud_api_resource.projects().assets().listAssets(
       ).execute.assert_called_once()
       self.assertEqual({'images': [{
           'path': 'id1',
           'type': 'type1'
       }]}, actual_result)
+
+  def testListImagesWithPageSize(self):
+    mock_http = mock.MagicMock(httplib2.Http)
+    ok_resp = httplib2.Response({'status': 200})
+    page = (
+        b'{"assets": [{"path": "id1", "type": "type1"}], "nextPageToken": "t1"}'
+    )
+    mock_http.request.side_effect = [(ok_resp, page)]
+    with apitestcase.UsingCloudApi(mock_http=mock_http):
+      actual_result = ee.data.listImages(
+          {'parent': 'path/to/folder', 'pageSize': 3}
+      )
+      expected_result = {
+          'images': [{'path': 'id1', 'type': 'type1'}],
+          'nextPageToken': 't1',
+      }
+      self.assertEqual(expected_result, actual_result)
+
+  def testListImagesMultiplePages(self):
+    mock_http = mock.MagicMock(httplib2.Http)
+    ok_resp = httplib2.Response({'status': 200})
+    page1 = (
+        b'{"assets": [{"path": "id1", "type": "type1"}], "nextPageToken": "t1"}'
+    )
+    page2 = (
+        b'{"assets": [{"path": "id2", "type": "type2"}], "nextPageToken": "t2"}'
+    )
+    page3 = b'{"assets": [{"path": "id3", "type": "type3"}]}'
+    mock_http.request.side_effect = [
+        (ok_resp, page1),
+        (ok_resp, page2),
+        (ok_resp, page3),
+    ]
+    with apitestcase.UsingCloudApi(mock_http=mock_http):
+      actual_result = ee.data.listImages('path/to/folder')
+      expected_result = {
+          'images': [
+              {'path': 'id1', 'type': 'type1'},
+              {'path': 'id2', 'type': 'type2'},
+              {'path': 'id3', 'type': 'type3'},
+          ]
+      }
+      self.assertEqual(expected_result, actual_result)
 
   def testListBuckets(self):
     cloud_api_resource = mock.MagicMock()

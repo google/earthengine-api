@@ -177,7 +177,8 @@ def _IssueAssetDeprecationWarning(asset: _DeprecatedAsset) -> None:
       f'\n\nAttention required for {asset.id}! You are using a deprecated'
       ' asset.\nTo ensure continued functionality, please update it'
   )
-  if removal_date := asset.removal_date:
+  removal_date = asset.removal_date
+  if removal_date:
     formatted_date = removal_date.strftime('%B %-d, %Y')
     warning = warning + f' by {formatted_date}.'
   else:

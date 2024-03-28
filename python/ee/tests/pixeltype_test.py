@@ -6,6 +6,7 @@ Everything except the PixelType constructor is dynamically generated.
 
 import enum
 import json
+from typing import Any, Dict
 
 import ee
 from ee import apitestcase
@@ -24,6 +25,24 @@ MIN_VALUE_KEY = 'minValue'
 PRECISION_KEY = 'precision'
 
 PIXELTYPE = 'PixelType'
+
+
+def make_expression_graph(
+    function_invocation_value: Dict[str, Any]
+) -> Dict[str, Any]:
+  return {
+      'result': '0',
+      'values': {'0': {'functionInvocationValue': function_invocation_value}},
+  }
+
+
+def pixeltype_function_expr(value: Type) -> Dict[str, Any]:
+  return {
+      'functionInvocationValue': {
+          'functionName': 'PixelType',
+          'arguments': {'precision': {'constantValue': value}},
+      }
+  }
 
 
 class PixelTypeTest(apitestcase.ApiTestCase):
@@ -194,6 +213,51 @@ class PixelTypeTest(apitestcase.ApiTestCase):
             }
         },
     }
+    self.assertEqual(expect, result)
+
+  def test_dimensions(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'pixelType': pixeltype_function_expr(Type.FLOAT),
+        },
+        'functionName': 'PixelType.dimensions',
+    })
+    expression = ee.PixelType(Type.FLOAT).dimensions()
+    result = json.loads(expression.serialize())
+
+    self.assertEqual(expect, result)
+
+  def test_maxValue(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'pixelType': pixeltype_function_expr(Type.FLOAT),
+        },
+        'functionName': 'PixelType.maxValue',
+    })
+    expression = ee.PixelType(Type.FLOAT).maxValue()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_minValue(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'pixelType': pixeltype_function_expr(Type.FLOAT),
+        },
+        'functionName': 'PixelType.minValue',
+    })
+    expression = ee.PixelType(Type.FLOAT).minValue()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_precision(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'pixelType': pixeltype_function_expr(Type.FLOAT),
+        },
+        'functionName': 'PixelType.precision',
+    })
+    expression = ee.PixelType(Type.FLOAT).precision()
+    result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
 

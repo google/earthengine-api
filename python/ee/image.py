@@ -29,6 +29,7 @@ class Image(element.Element):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
+  @deprecation.WarnForDeprecatedAsset('args')
   def __init__(
       self, args: Optional[Any] = None, version: Optional[float] = None
   ):

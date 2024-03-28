@@ -101,3 +101,31 @@ class PixelType(computedobject.ComputedObject):
   @staticmethod
   def name() -> str:
     return 'PixelType'
+
+  def dimensions(self) -> ee_number.Number:
+    """Returns the number of dimensions for this type.
+
+    Returns:
+      An ee.Number. 0 for scalar values and >= 1 for array values.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.dimensions', self)
+
+  def maxValue(self) -> ee_number.Number:
+    """Returns the maximum value of the PixelType."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.maxValue', self)
+
+  def minValue(self) -> ee_number.Number:
+    """Returns the minimum value of the PixelType."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.minValue', self)
+
+  def precision(self) -> ee_string.String:
+    """Returns the precision of the PixelType.
+
+    Returns:
+      An ee.String. One of 'int', 'float', or 'double'.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.precision', self)

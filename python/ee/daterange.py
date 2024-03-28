@@ -9,7 +9,7 @@ from ee import ee_date
 from ee import ee_string
 
 _DateRangeType = Union['DateRange', computedobject.ComputedObject]
-_DateType = Union[float, str, ee_date.Date, computedobject.ComputedObject]
+_DateType = Union[float, str, 'ee_date.Date', computedobject.ComputedObject]
 _StringType = Union[str, ee_string.String, computedobject.ComputedObject]
 
 
@@ -87,3 +87,84 @@ class DateRange(computedobject.ComputedObject):
   @staticmethod
   def name() -> str:
     return 'DateRange'
+
+  def contains(
+      self, other: Union[_DateType, _DateRangeType]
+  ) -> computedobject.ComputedObject:
+    """Returns true if the given Date or DateRange is within this DateRange.
+
+    Args:
+      other: The Date or DateRange to check if it is inside the DateRange.
+
+    Returns:
+      A Boolean ComputedObject.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.contains', self, other)
+
+  def end(self) -> ee_date.Date:
+    """Returns the (exclusive) end of this DateRange."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.end', self)
+
+  def intersection(
+      self, other: Union[_DateType, _DateRangeType]
+  ) -> 'DateRange':
+    """Returns a DateRange that contains all the timespan of this and other.
+
+    Args:
+      other: The other DateRange to include in the intersection.
+
+    Raises:
+      EEException if the result is an empty DateRange.
+
+    Returns:
+      An ee.DateRange.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.intersection', self, other
+    )
+
+  def intersects(
+      self, other: Union[_DateType, _DateRangeType]
+  ) -> computedobject.ComputedObject:
+    """Returns true if the other DateRange has at least one time in common.
+
+    Args:
+      other: The other DateRange to check against.
+
+    Returns:
+      A Boolean ComputedObject.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.intersects', self, other
+    )
+
+  def isEmpty(self) -> computedobject.ComputedObject:
+    """Returns true if this DateRange contains no dates, i.e. start >= end."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.isEmpty', self)
+
+  def isUnbounded(self) -> computedobject.ComputedObject:
+    """Returns true if this DateRange contains all dates."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.isUnbounded', self)
+
+  def start(self) -> ee_date.Date:
+    """Returns the (inclusive) start of this DateRange."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.start', self)
+
+  def union(self, other: Union[_DateType, _DateRangeType]) -> DateRange:
+    """Returns a DateRange that contains all points in this and other.
+
+    Args:
+      other: The DateRange to union with.
+
+    Returns:
+      An ee.DateRange.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.union', self, other)

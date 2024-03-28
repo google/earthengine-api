@@ -9,6 +9,7 @@ from ee import apifunction
 from ee import collection
 from ee import computedobject
 from ee import data
+from ee import deprecation
 from ee import ee_exception
 from ee import ee_list
 from ee import ee_types
@@ -23,6 +24,7 @@ class ImageCollection(collection.Collection):
   # Tell pytype to not complain about dynamic attributes.
   _HAS_DYNAMIC_ATTRIBUTES = True
 
+  @deprecation.WarnForDeprecatedAsset('args')
   def __init__(self, args: Any):
     """ImageCollection constructor.
 

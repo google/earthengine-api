@@ -69,8 +69,10 @@ var addHarmonics = function(freqs) {
   };
 };
 
-// Filter to the area of interest, mask clouds, add variables.
+// Filter to the desired date range and area of interest, mask clouds,
+// and add variables.
 var harmonicLandsat = landsatCollection
+  .filterDate('2015-01-01', '2020-01-01')
   .filterBounds(roi)
   .map(maskClouds)
   .map(addNDVI)

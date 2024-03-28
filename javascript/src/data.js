@@ -1659,14 +1659,41 @@ ee.data.getInfo = ee.data.getAsset;
 ee.data.makeListAssetsCall_ = function(
     parent, opt_params = {}, opt_callback = undefined,
     opt_postProcessing = goog.functions.identity) {
+  /** @type {!ee.api.ProjectsAssetsListAssetsNamedParameters} */
+  const params = Object.assign({}, opt_params);
+  const call = new ee.apiclient.Call(opt_callback);
   // Detect project asset root call.
   const isProjectAssetRoot = ee.rpc_convert.CLOUD_ASSET_ROOT_RE.test(parent);
-  const call = new ee.apiclient.Call(opt_callback);
   const methodRoot = isProjectAssetRoot ? call.projects() : call.assets();
   parent = isProjectAssetRoot ? ee.rpc_convert.projectParentFromPath(parent) :
                                 ee.rpc_convert.assetIdToAssetName(parent);
-  return call.handle(
-      methodRoot.listAssets(parent, opt_params).then(opt_postProcessing));
+  const getNextPageIfNeeded = (response) => {
+    // We currently treat pageSize as a cap on the results, if this param was
+    // provided we should break fast and not return more than the asked for
+    // amount.
+    if (params.pageSize != null || !response.nextPageToken) {
+      return response;
+    }
+    const previousAssets = response.assets || [];
+    params.pageToken = response.nextPageToken;
+    const nextResponse = methodRoot.listAssets(parent, params)
+        .then((response) => {
+          // Add previous assets to front.
+          response.assets = previousAssets.concat(response.assets);
+          return response;
+        })
+        .then(getNextPageIfNeeded);
+    if (opt_callback) {
+      // For async, make sure we have only a single chained `call.handle` call.
+      return nextResponse;
+    }
+    // For sync mode, the response data needs to be uplifted from the fake
+    // Promise object to be returned immediately.
+    return call.handle(nextResponse);
+  };
+  return call.handle(methodRoot.listAssets(parent, params)
+                         .then(getNextPageIfNeeded)
+                         .then(opt_postProcessing));
 };
 
 
@@ -1686,9 +1713,15 @@ ee.data.makeListAssetsCall_ = function(
  * @export
  */
 ee.data.getList = function(params, opt_callback) {
+  const convertedParams = ee.rpc_convert.getListToListAssets(params);
+  // Force a single page of results by explicitly specifying a page size.
+  // This maintains backward compatibility, as well as compatibility with the
+  // Python implementation.
+  if (!convertedParams.pageSize) {
+    convertedParams.pageSize = 1000;
+  }
   return ee.data.makeListAssetsCall_(
-      params['id'], ee.rpc_convert.getListToListAssets(params), opt_callback,
-      (r) => {
+      params['id'], convertedParams, opt_callback, (r) => {
         if (r == null) {
           return null;
         }
@@ -1709,7 +1742,7 @@ ee.data.getList = function(params, opt_callback) {
  *       <table>
  *         <tr>
  *           <td><code> pageSize </code> (string) The number of results to
- *             return. Defaults to 1000.</td>
+ *             return. If not specified, all results are returned.</td>
  *         </tr>
  *         <tr>
  *           <td><code> pageToken </code> (string) The token for the page of
@@ -1753,7 +1786,7 @@ ee.data.listAssets = function(
  *     <table>
  *       <tr>
  *         <td><code> pageSize </code> (string) The number of results to return.
- *           Defaults to 1000.</td>
+ *           If not specified, all results are returned.</td>
  *       </tr>
  *       <tr>
  *         <td><code> pageToken </code> (string) The token page of results to

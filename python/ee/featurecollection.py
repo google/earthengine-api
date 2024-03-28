@@ -29,6 +29,7 @@ class FeatureCollection(collection.Collection):
   _HAS_DYNAMIC_ATTRIBUTES = True
 
   @_utils.accept_opt_prefix('opt_column')
+  @deprecation.WarnForDeprecatedAsset('args')
   def __init__(
       self,
       args: Optional[
