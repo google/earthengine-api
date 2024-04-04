@@ -129,6 +129,28 @@ class DataTest(unittest.TestCase):
           {'uris': ['gs://my-bucket/path']},
       )
 
+  @unittest.skip('Does not work on github with python 3.7')
+  def testCreateFolder(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {
+          'type': 'FOLDER',
+          'name': 'projects/earthengine-legacy/assets/users/foo/xyz1234',
+          'id': 'users/foo/xyz1234',
+      }
+      cloud_api_resource.projects().assets().create.execute.return_value = (
+          mock_result
+      )
+      ee.data.createFolder('users/foo/xyz123')
+      mock_create_asset = cloud_api_resource.projects().assets().create
+      mock_create_asset.assert_called_once()
+      parent = mock_create_asset.call_args.kwargs['parent']
+      self.assertEqual(parent, 'projects/earthengine-legacy')
+      asset_id = mock_create_asset.call_args.kwargs['assetId']
+      self.assertEqual(asset_id, 'users/foo/xyz123')
+      asset = mock_create_asset.call_args.kwargs['body']
+      self.assertEqual(asset, {'type': 'FOLDER'})
+
   def testSetAssetProperties(self):
     mock_http = mock.MagicMock(httplib2.Http)
     with apitestcase.UsingCloudApi(mock_http=mock_http), mock.patch.object(

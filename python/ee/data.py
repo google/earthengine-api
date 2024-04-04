@@ -1479,7 +1479,7 @@ def createAsset(
     value: Dict[str, Any],
     path: Optional[str] = None,
     properties: Optional[Dict[str, Any]] = None,
-) -> Any:
+) -> Dict[str, Any]:
   """Creates an asset from a JSON value.
 
   To create an empty image collection or folder, pass in a "value" object
@@ -1533,6 +1533,20 @@ def createAsset(
           prettyPrint=False,
       )
   )
+
+
+def createFolder(path: str) -> Dict[str, Any]:
+  """Creates an asset folder.
+
+  Returns a description of the newly created folder.
+
+  Args:
+    path: The path to the folder to create.
+
+  Returns:
+    A description of the newly created folder.
+  """
+  return createAsset({'type': 'FOLDER'}, path)
 
 
 def copyAsset(
