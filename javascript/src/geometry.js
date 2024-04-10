@@ -112,7 +112,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 
   /**
    * The coordinates of the geometry, up to 4 nested levels with numbers at
-   * the last level. Null iff type is GeometryCollection.
+   * the last level. Null if and only if type is GeometryCollection.
    * @type {Array?}
    * @private
    */
@@ -121,7 +121,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
       null;
 
   /**
-   * The subgeometries, non-null iff type is GeometryCollection.
+   * The subgeometries, non-null if and only if type is GeometryCollection.
    * @type {Array?}
    * @private
    */

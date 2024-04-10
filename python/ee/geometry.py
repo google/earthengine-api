@@ -89,7 +89,7 @@ class Geometry(computedobject.ComputedObject):
     self._type = geo_json['type']
 
     # The coordinates of the geometry, up to 4 nested levels with numbers at
-    # the last level. None iff type is GeometryCollection.
+    # the last level. None if and only if type is GeometryCollection.
     self._coordinates = geo_json.get('coordinates')
 
     # The subgeometries, None unless type is GeometryCollection.

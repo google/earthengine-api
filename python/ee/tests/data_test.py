@@ -151,6 +151,37 @@ class DataTest(unittest.TestCase):
       asset = mock_create_asset.call_args.kwargs['body']
       self.assertEqual(asset, {'type': 'FOLDER'})
 
+  @unittest.skip('Does not work on github with python 3.7')
+  def testStartIngestion(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      mock_result = {'name': 'operations/ingestion', 'done': False}
+      cloud_api_resource.projects().image().import_().execute.return_value = (
+          mock_result
+      )
+      manifest = {
+          'id': 'projects/some-project/assets/some-name',
+          'arg': 'something',
+      }
+      result = ee.data.startIngestion(
+          'request_id',
+          manifest,
+          True
+      )
+      self.assertEqual(result['id'], 'ingestion')
+      self.assertEqual(result['name'], 'operations/ingestion')
+
+      mock_import = cloud_api_resource.projects().image().import_
+      import_args = mock_import.call_args.kwargs['body']
+      self.assertEqual(
+          import_args['imageManifest'],
+          {
+              'name': 'projects/some-project/assets/some-name',
+              'arg': 'something',
+          },
+      )
+      self.assertTrue(import_args['overwrite'])
+
   def testSetAssetProperties(self):
     mock_http = mock.MagicMock(httplib2.Http)
     with apitestcase.UsingCloudApi(mock_http=mock_http), mock.patch.object(

@@ -128,7 +128,7 @@ class Filter(computedobject.ComputedObject):
     """Returns the opposite of this filter.
 
     Returns:
-      The negated filter, which will match iff this filter doesn't.
+      The negated filter, which will match if and only if this filter does not.
     """
     return apifunction.ApiFunction.call_('Filter.not', self)
 

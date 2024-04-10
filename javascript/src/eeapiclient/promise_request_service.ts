@@ -19,5 +19,5 @@ export abstract class PromiseRequestService {
     );
   }
 
-  abstract makeRequest(params: MakeRequestParams): Promise<{}>;
+  abstract makeRequest(params: MakeRequestParams): Promise<unknown>;
 }

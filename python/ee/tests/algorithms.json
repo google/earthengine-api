@@ -11071,7 +11071,7 @@
     }]
   }, {
     "name": "algorithms/reduce.and",
-    "description": "Reduces an image collection by setting each pixel to 1 iff all the non-masked values at that pixel are non-zero across the stack of all matching bands. Bands are matched by name.",
+    "description": "Reduces an image collection by setting each pixel to 1 if and only if all the non-masked values at that pixel are non-zero across the stack of all matching bands. Bands are matched by name.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -11080,7 +11080,7 @@
     }]
   }, {
     "name": "algorithms/reduce.or",
-    "description": "Reduces an image collection by setting each pixel to 1 iff any of the non-masked values at that pixel are non-zero across the stack of all matching bands. Bands are matched by name.",
+    "description": "Reduces an image collection by setting each pixel to 1 if and only if any of the non-masked values at that pixel are non-zero across the stack of all matching bands. Bands are matched by name.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -11626,9 +11626,7 @@
       "type": "Dictionary\u003cObject\u003e"
     }, {
       "argumentName": "key",
-      "type": "String",
-      "optional": true,
-      "defaultValue": null
+      "type": "String"
     }]
   }, {
     "name": "algorithms/Dictionary.fromLists",
@@ -15739,7 +15737,7 @@
     }]
   }, {
     "name": "algorithms/Reducer.kendallsCorrelation",
-    "description": "Creates a reducer that computes the Kendall\u0027s Tau-b rank correlation.  A positive tau value indicates an increasing trend; negative value indicates a decreasing trend. See https://commons.apache.org/proper/commons-math/javadocs/api-3.6/org/apache/commons/math3/stat/correlation/KendallsCorrelation.html for details.",
+    "description": "Creates a reducer that computes the Kendall\u0027s Tau-b rank correlation.  A positive tau value indicates an increasing trend; negative value indicates a decreasing trend. See https://commons.apache.org/proper/commons-math/javadocs/api-3.6.1/org/apache/commons/math3/stat/correlation/KendallsCorrelation.html for details.",
     "returnType": "Reducer",
     "arguments": [{
       "argumentName": "numInputs",

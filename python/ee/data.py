@@ -558,7 +558,7 @@ def getList(params: Dict[str, Any]) -> Any:
 
 def listImages(
     params: Union[str, Dict[str, Any]],
-) -> Dict[str, Optional[List[int]]]:
+) -> Dict[str, Optional[List[Any]]]:
   """Returns the images in an image collection or folder.
 
   Args:
@@ -1927,6 +1927,7 @@ def startIngestion(
       'overwrite':
           allow_overwrite
   }
+
   # It's only safe to retry the request if there's a unique ID to make it
   # idempotent.
   num_retries = MAX_RETRIES if request_id else 0
