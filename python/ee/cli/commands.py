@@ -406,6 +406,15 @@ class AuthenticateCommand:
         'authorization_code', 'quiet', 'code_verifier', 'auth_mode', 'force')}
     if args.scopes:
       args_auth['scopes'] = args.scopes.split(',')
+
+    if ee.oauth.in_colab_shell():
+      print(
+          'Authenticate: Limited support in Colab. Use ee.Authenticate()'
+          ' or --auth_mode=notebook instead.'
+      )
+      if not args.auth_mode:
+        args_auth['auth_mode'] = 'notebook'
+
     if ee.Authenticate(**args_auth):
       print('Authenticate: Credentials already exist.  Use --force to refresh.')
 

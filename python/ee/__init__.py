@@ -1,6 +1,6 @@
 """The EE Python library."""
 
-__version__ = '0.1.399'
+__version__ = '0.1.400'
 
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
@@ -210,11 +210,18 @@ def Initialize(
   # These must happen last.
   _InitializeGeneratedClasses()
   _InitializeUnboundMethods()
+  _InitializeDeprecatedAssets()
+
+
+def _InitializeDeprecatedAssets() -> None:
+  """Initialize deprecated assets."""
+  deprecation.InitializeDeprecatedAssets()
 
 
 def Reset() -> None:
   """Reset the library. Useful for re-initializing to a different server."""
   data.reset()
+  deprecation.Reset()
 
   # Must call reset on the base class before any of its derived classes.
   ApiFunction.reset()

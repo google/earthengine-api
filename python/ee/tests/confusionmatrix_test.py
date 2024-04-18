@@ -2,10 +2,36 @@
 """Tests for the ee.ConfusionMatrix module."""
 
 import json
+from typing import Any, Dict
 
 import ee
 from ee import apitestcase
 import unittest
+
+
+MATRIX = {
+    'functionInvocationValue': {
+        'functionName': 'ConfusionMatrix',
+        'arguments': {
+            'array': {
+                'functionInvocationValue': {
+                    'functionName': 'Array',
+                    'arguments': {'values': {'constantValue': [[1]]}},
+                }
+            },
+            'order': {'constantValue': [2]},
+        },
+    }
+}
+
+
+def make_expression_graph(
+    function_invocation_value: Dict[str, Any],
+) -> Dict[str, Any]:
+  return {
+      'result': '0',
+      'values': {'0': {'functionInvocationValue': function_invocation_value}},
+  }
 
 
 class ConfusionMatrixTest(apitestcase.ApiTestCase):
@@ -112,6 +138,76 @@ class ConfusionMatrixTest(apitestcase.ApiTestCase):
             },
         },
     }
+    self.assertEqual(expect, result)
+
+  def test_accuracy(self):
+    expect = make_expression_graph({
+        'arguments': {'confusionMatrix': MATRIX},
+        'functionName': 'ConfusionMatrix.accuracy',
+    })
+    expression = ee.ConfusionMatrix(ee.Array([[1]]), [2]).accuracy()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array(self):
+    expect = make_expression_graph({
+        'arguments': {'confusionMatrix': MATRIX},
+        'functionName': 'ConfusionMatrix.array',
+    })
+    expression = ee.ConfusionMatrix(ee.Array([[1]]), [2]).array()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_consumersAccuracy(self):
+    expect = make_expression_graph({
+        'arguments': {'confusionMatrix': MATRIX},
+        'functionName': 'ConfusionMatrix.consumersAccuracy',
+    })
+    expression = ee.ConfusionMatrix(ee.Array([[1]]), [2]).consumersAccuracy()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_fscore(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'confusionMatrix': MATRIX,
+            'beta': {'constantValue': 3},
+        },
+        'functionName': 'ConfusionMatrix.fscore',
+    })
+    expression = ee.ConfusionMatrix(ee.Array([[1]]), [2]).fscore(3)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ConfusionMatrix(ee.Array([[1]]), [2]).fscore(beta=3)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_kappa(self):
+    expect = make_expression_graph({
+        'arguments': {'confusionMatrix': MATRIX},
+        'functionName': 'ConfusionMatrix.kappa',
+    })
+    expression = ee.ConfusionMatrix(ee.Array([[1]]), [2]).kappa()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_order(self):
+    expect = make_expression_graph({
+        'arguments': {'confusionMatrix': MATRIX},
+        'functionName': 'ConfusionMatrix.order',
+    })
+    expression = ee.ConfusionMatrix(ee.Array([[1]]), [2]).order()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_producersAccuracy(self):
+    expect = make_expression_graph({
+        'arguments': {'confusionMatrix': MATRIX},
+        'functionName': 'ConfusionMatrix.producersAccuracy',
+    })
+    expression = ee.ConfusionMatrix(ee.Array([[1]]), [2]).producersAccuracy()
+    result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
 

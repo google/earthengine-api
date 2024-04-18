@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 """Test for the ee.oauth module."""
 
+from collections.abc import Iterator
+import contextlib
 import json
+import sys
 import tempfile
 from unittest import mock
 import urllib.parse
@@ -52,6 +55,10 @@ class OAuthTest(unittest.TestCase):
     with open(mock_credentials_path()) as f:
       token = json.load(f)
       self.assertEqual({'refresh_token': '123'}, token)
+
+  def test_in_colab_shell(self):
+    self.assertFalse(ee.oauth.in_colab_shell())
+
 
 if __name__ == '__main__':
   unittest.main()

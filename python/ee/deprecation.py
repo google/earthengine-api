@@ -15,7 +15,7 @@ _DEPRECATED_OBJECT = 'earthengine-stac/catalog/catalog_deprecated.json'
 _DEPRECATED_ASSETS_URL = f'https://storage.googleapis.com/{_DEPRECATED_OBJECT}'
 
 # Deprecation warnings are per-asset, per-initialization.
-deprecated_assets: Dict[str, _DeprecatedAsset] = None
+deprecated_assets: Dict[str, DeprecatedAsset] = None
 
 
 def Deprecated(message: str):
@@ -63,27 +63,32 @@ def CanUseDeprecated(func):
 
 
 @dataclasses.dataclass
-class _DeprecatedAsset:
+class DeprecatedAsset:
   """Class for keeping track of a single deprecated asset."""
 
   id: str
   replacement_id: Optional[str]
   removal_date: Optional[datetime.datetime]
-  learn_more_url: str
+  learn_more_url: Optional[str]
 
   has_warning_been_issued: bool = False
 
   @classmethod
-  def _ParseDateString(cls, date_str: str) -> datetime.datetime:
-    return datetime.datetime.fromisoformat(date_str)
+  def _ParseDateString(cls, date_str: str) -> Optional[datetime.datetime]:
+    try:
+      # We can't use `datetime.datetime.fromisoformat` because it's behavior
+      # changes by Python version.
+      return datetime.datetime.strptime(date_str, '%Y-%m-%dT%H:%M:%S%z')
+    except ValueError:
+      return None
 
   @classmethod
-  def FromStacLink(cls, stac_link: Dict[str, Any]) -> _DeprecatedAsset:
+  def FromStacLink(cls, stac_link: Dict[str, Any]) -> DeprecatedAsset:
     removal_date = stac_link.get('gee:removal_date')
-    if removal_date:
+    if removal_date is not None:
       removal_date = cls._ParseDateString(removal_date)
-    return _DeprecatedAsset(
-        id=stac_link['title'],
+    return DeprecatedAsset(
+        id=stac_link.get('title'),
         replacement_id=stac_link.get('gee:replacement_id'),
         removal_date=removal_date,
         learn_more_url=stac_link.get('gee:learn_more_url'),
@@ -124,6 +129,15 @@ def WarnForDeprecatedAsset(arg_name: str) -> Callable[..., Any]:
 
 
 def InitializeDeprecatedAssets() -> None:
+  # Deprecated asset functionality is not critical. A warning is enough if
+  # something unexpected happens.
+  try:
+    _InitializeDeprecatedAssetsInternal()
+  except Exception as e:  # pylint: disable=broad-except
+    warnings.warn(f'Unable to initialize deprecated assets: {e}')
+
+
+def _InitializeDeprecatedAssetsInternal() -> None:
   global deprecated_assets
   if deprecated_assets is not None:
     return
@@ -133,7 +147,7 @@ def InitializeDeprecatedAssets() -> None:
   stac = _FetchDataCatalogStac()
   for stac_link in stac.get('links', []):
     if stac_link.get('deprecated', False):
-      asset = _DeprecatedAsset.FromStacLink(stac_link)
+      asset = DeprecatedAsset.FromStacLink(stac_link)
       deprecated_assets[asset.id] = asset
 
 
@@ -163,7 +177,7 @@ def _UnfilterDeprecationWarnings() -> None:
   )
 
 
-def _IssueAssetDeprecationWarning(asset: _DeprecatedAsset) -> None:
+def _IssueAssetDeprecationWarning(asset: DeprecatedAsset) -> None:
   """Issues a warning for a deprecated asset if one hasn't already been issued.
 
   Args:

@@ -190,7 +190,7 @@ def write_private_json(json_path: str, info_dict: Dict[str, Any]) -> None:
     f.write(file_content)
 
 
-def _in_colab_shell() -> bool:
+def in_colab_shell() -> bool:
   """Tests if the code is being executed within Google Colab."""
   try:
     import google.colab  # pylint: disable=unused-import,redefined-outer-name
@@ -481,7 +481,7 @@ def authenticate(
     return True
 
   if not auth_mode:
-    if _in_colab_shell():
+    if in_colab_shell():
       auth_mode = 'colab'
     elif _in_jupyter_shell():
       auth_mode = 'notebook'
@@ -570,7 +570,7 @@ class Flow:
       return True
 
     coda = WAITING_CODA if self.server else None
-    if _in_colab_shell():
+    if in_colab_shell():
       _display_auth_instructions_with_print(self.auth_url, coda)
     elif _in_jupyter_shell():
       _display_auth_instructions_with_html(self.auth_url, coda)

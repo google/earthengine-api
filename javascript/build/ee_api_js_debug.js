@@ -6058,9 +6058,9 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function(type, raw)
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$iter$19 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$m192531680$40$key = $jscomp$iter$19.next(), $jscomp$loop$m192531680$44 = {}; !$jscomp$key$m192531680$40$key.done; $jscomp$loop$m192531680$44 = 
-  {mapMetadata:void 0}, $jscomp$key$m192531680$40$key = $jscomp$iter$19.next()) {
-    var key = $jscomp$key$m192531680$40$key.value, value = valueGetter(key, source);
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$iter$19 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$m1892927425$40$key = $jscomp$iter$19.next(), $jscomp$loop$m1892927425$44 = {}; !$jscomp$key$m1892927425$40$key.done; $jscomp$loop$m1892927425$44 = 
+  {mapMetadata:void 0}, $jscomp$key$m1892927425$40$key = $jscomp$iter$19.next()) {
+    var key = $jscomp$key$m1892927425$40$key.value, value = valueGetter(key, source);
     if (null != value) {
       var copy = void 0;
       if (arrays.hasOwnProperty(key)) {
@@ -6071,11 +6071,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
       } else if (objects.hasOwnProperty(key)) {
         copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
       } else if (objectMaps.hasOwnProperty(key)) {
-        $jscomp$loop$m192531680$44.mapMetadata = objectMaps[key], copy = $jscomp$loop$m192531680$44.mapMetadata.isPropertyArray ? value.map(function($jscomp$loop$m192531680$44) {
+        $jscomp$loop$m1892927425$44.mapMetadata = objectMaps[key], copy = $jscomp$loop$m1892927425$44.mapMetadata.isPropertyArray ? value.map(function($jscomp$loop$m1892927425$44) {
           return function(v) {
-            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$m192531680$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
+            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$m1892927425$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
           };
-        }($jscomp$loop$m192531680$44)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$m192531680$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
+        }($jscomp$loop$m1892927425$44)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$m1892927425$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
       } else if (Array.isArray(value)) {
         if (metadata.emptyArrayIsUnset && 0 === value.length) {
           continue;
@@ -6090,8 +6090,8 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
   return target;
 }
 function module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, mapMetadata, valueGetter, valueSetter, copyInstanciator) {
-  for (var objMap = {}, $jscomp$iter$20 = $jscomp.makeIterator(Object.keys(value)), $jscomp$key$m192531680$41$mapKey = $jscomp$iter$20.next(); !$jscomp$key$m192531680$41$mapKey.done; $jscomp$key$m192531680$41$mapKey = $jscomp$iter$20.next()) {
-    var mapKey = $jscomp$key$m192531680$41$mapKey.value, mapValue = value[mapKey];
+  for (var objMap = {}, $jscomp$iter$20 = $jscomp.makeIterator(Object.keys(value)), $jscomp$key$m1892927425$41$mapKey = $jscomp$iter$20.next(); !$jscomp$key$m1892927425$41$mapKey.done; $jscomp$key$m1892927425$41$mapKey = $jscomp$iter$20.next()) {
+    var mapKey = $jscomp$key$m1892927425$41$mapKey.value, mapValue = value[mapKey];
     null != mapValue && (objMap[mapKey] = module$contents$eeapiclient$domain_object_deepCopyValue(mapValue, valueGetter, valueSetter, copyInstanciator, mapMetadata.isValueArray, mapMetadata.isSerializable, mapMetadata.ctor));
   }
   return objMap;
@@ -6121,39 +6121,39 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$iter$21 = $jscomp.makeIterator(keys1), $jscomp$key$m192531680$42$key = $jscomp$iter$21.next(), $jscomp$loop$m192531680$45 = {}; !$jscomp$key$m192531680$42$key.done; $jscomp$loop$m192531680$45 = {value2$jscomp$7:void 0, mapMetadata$jscomp$2:void 0}, $jscomp$key$m192531680$42$key = $jscomp$iter$21.next()) {
-    var key = $jscomp$key$m192531680$42$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
+  for (var $jscomp$iter$21 = $jscomp.makeIterator(keys1), $jscomp$key$m1892927425$42$key = $jscomp$iter$21.next(), $jscomp$loop$m1892927425$45 = {}; !$jscomp$key$m1892927425$42$key.done; $jscomp$loop$m1892927425$45 = {value2$jscomp$7:void 0, mapMetadata$jscomp$2:void 0}, $jscomp$key$m1892927425$42$key = $jscomp$iter$21.next()) {
+    var key = $jscomp$key$m1892927425$42$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$m192531680$45.value2$jscomp$7 = serializable2.Serializable$get(key);
+      $jscomp$loop$m1892927425$45.value2$jscomp$7 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !0, !0)) {
           return !1;
         }
       } else if (objects1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !1, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !1, !0)) {
           return !1;
         }
       } else if (objectMaps1.hasOwnProperty(key)) {
-        if ($jscomp$loop$m192531680$45.mapMetadata$jscomp$2 = objectMaps1[key], $jscomp$loop$m192531680$45.mapMetadata$jscomp$2.isPropertyArray) {
-          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$m192531680$45.value2$jscomp$7) || value1.some(function($jscomp$loop$m192531680$45) {
+        if ($jscomp$loop$m1892927425$45.mapMetadata$jscomp$2 = objectMaps1[key], $jscomp$loop$m1892927425$45.mapMetadata$jscomp$2.isPropertyArray) {
+          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7) || value1.some(function($jscomp$loop$m1892927425$45) {
             return function(v1, i) {
-              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$m192531680$45.value2$jscomp$7[i], $jscomp$loop$m192531680$45.mapMetadata$jscomp$2);
+              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$m1892927425$45.value2$jscomp$7[i], $jscomp$loop$m1892927425$45.mapMetadata$jscomp$2);
             };
-          }($jscomp$loop$m192531680$45))) {
+          }($jscomp$loop$m1892927425$45))) {
             return !1;
           }
-        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, $jscomp$loop$m192531680$45.mapMetadata$jscomp$2)) {
+        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, $jscomp$loop$m1892927425$45.mapMetadata$jscomp$2)) {
           return !1;
         }
       } else if (Array.isArray(value1)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !0, !1)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !0, !1)) {
           return !1;
         }
-      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !1, !1)) {
+      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !1, !1)) {
         return !1;
       }
     }
@@ -6175,8 +6175,8 @@ function module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, v
   if (!module$contents$eeapiclient$domain_object_sameKeys(value1, value2)) {
     return !1;
   }
-  for (var $jscomp$iter$22 = $jscomp.makeIterator(Object.keys(value1)), $jscomp$key$m192531680$43$mapKey = $jscomp$iter$22.next(); !$jscomp$key$m192531680$43$mapKey.done; $jscomp$key$m192531680$43$mapKey = $jscomp$iter$22.next()) {
-    var mapKey = $jscomp$key$m192531680$43$mapKey.value;
+  for (var $jscomp$iter$22 = $jscomp.makeIterator(Object.keys(value1)), $jscomp$key$m1892927425$43$mapKey = $jscomp$iter$22.next(); !$jscomp$key$m1892927425$43$mapKey.done; $jscomp$key$m1892927425$43$mapKey = $jscomp$iter$22.next()) {
+    var mapKey = $jscomp$key$m1892927425$43$mapKey.value;
     if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1[mapKey], value2[mapKey], mapMetadata.isValueArray, mapMetadata.isSerializable)) {
       return !1;
     }
@@ -6361,8 +6361,8 @@ function module$contents$safevalues$internals$resource_url_impl_unwrapResourceUr
   return goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(value);
 }
 module$exports$safevalues$internals$resource_url_impl.unwrapResourceUrl = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl;
-var $jscomp$templatelit$1274514361$5 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$6 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$1274514361$7 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$8 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), $jscomp$templatelit$1274514361$9 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$10 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], 
-["\\0"]), $jscomp$templatelit$1274514361$11 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$12 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
+var $jscomp$templatelit$m425881384$5 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$m425881384$6 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$m425881384$7 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$m425881384$8 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), $jscomp$templatelit$m425881384$9 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$m425881384$10 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], 
+["\\0"]), $jscomp$templatelit$m425881384$11 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$m425881384$12 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
 function module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, numExprs) {
   if (!module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) || numExprs + 1 !== templateObj.length) {
     throw new TypeError("\n    ############################## ERROR ##############################\n\n    It looks like you are trying to call a template tag function (fn`...`)\n    using the normal function syntax (fn(...)), which is not supported.\n\n    The functions in the safevalues library are not designed to be called\n    like normal functions, and doing so invalidates the security guarantees\n    that safevalues provides.\n\n    If you are stuck and not sure how to proceed, please reach out to us\n    instead through:\n     - go/ise-hardening-yaqs (preferred) // LINE-INTERNAL\n     - g/ise-hardening // LINE-INTERNAL\n     - https://github.com/google/safevalues/issues\n\n    ############################## ERROR ##############################");
@@ -6376,14 +6376,14 @@ function module$contents$safevalues$internals$string_literal_checkTranspiled(fn)
   return -1 === fn.toString().indexOf("`");
 }
 var module$contents$safevalues$internals$string_literal_isTranspiled = module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$1274514361$5);
+  return tag($jscomp$templatelit$m425881384$5);
 }) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$1274514361$6);
+  return tag($jscomp$templatelit$m425881384$6);
 }) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$1274514361$7);
+  return tag($jscomp$templatelit$m425881384$7);
 }) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$1274514361$8);
-}), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$9) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$10) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$11) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$12);
+  return tag($jscomp$templatelit$m425881384$8);
+}), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$9) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$10) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$11) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$12);
 function module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) {
   return Array.isArray(templateObj) && Array.isArray(templateObj.raw) && templateObj.length === templateObj.raw.length && (module$contents$safevalues$internals$string_literal_isTranspiled || templateObj !== templateObj.raw) && (module$contents$safevalues$internals$string_literal_isTranspiled && !module$contents$safevalues$internals$string_literal_frozenTSA || module$contents$safevalues$internals$string_literal_checkFrozen(templateObj)) ? 
   !0 : !1;
@@ -6397,17 +6397,16 @@ function module$contents$safevalues$internals$secrets_ensureTokenIsValid(token) 
 }
 module$exports$safevalues$internals$secrets.ensureTokenIsValid = module$contents$safevalues$internals$secrets_ensureTokenIsValid;
 var module$exports$safevalues$internals$url_impl = {}, module$contents$safevalues$internals$url_impl_module = module$contents$safevalues$internals$url_impl_module || {id:"third_party/javascript/safevalues/internals/url_impl.closure.js"};
-module$exports$safevalues$internals$url_impl.SafeUrl = function(token) {
+module$exports$safevalues$internals$url_impl.SafeUrl = function(token, value) {
   goog.DEBUG && module$contents$safevalues$internals$secrets_ensureTokenIsValid(token);
+  this.privateDoNotAccessOrElseWrappedUrl = value;
 };
 module$exports$safevalues$internals$url_impl.SafeUrl.prototype.toString = function() {
   return this.privateDoNotAccessOrElseWrappedUrl;
 };
 var module$contents$safevalues$internals$url_impl_UrlImpl = module$exports$safevalues$internals$url_impl.SafeUrl;
-function module$contents$safevalues$internals$url_impl_createUrlInternal(urlValue) {
-  var url = new module$exports$safevalues$internals$url_impl.SafeUrl(module$exports$safevalues$internals$secrets.secretToken);
-  url.privateDoNotAccessOrElseWrappedUrl = urlValue;
-  return url;
+function module$contents$safevalues$internals$url_impl_createUrlInternal(value) {
+  return new module$exports$safevalues$internals$url_impl.SafeUrl(module$exports$safevalues$internals$secrets.secretToken, value);
 }
 module$exports$safevalues$internals$url_impl.createUrlInternal = module$contents$safevalues$internals$url_impl_createUrlInternal;
 module$exports$safevalues$internals$url_impl.ABOUT_BLANK = module$contents$safevalues$internals$url_impl_createUrlInternal("about:blank");
@@ -6566,13 +6565,14 @@ function module$contents$safevalues$builders$url_builders_extractScheme(url) {
 module$exports$safevalues$builders$url_builders.extractScheme = module$contents$safevalues$builders$url_builders_extractScheme;
 var module$contents$safevalues$builders$url_builders_ALLOWED_SCHEMES = ["data:", "http:", "https:", "mailto:", "ftp:"];
 module$exports$safevalues$builders$url_builders.IS_NOT_JAVASCRIPT_URL_PATTERN = /^\s*(?!javascript:)(?:[\w+.-]+:|[^:/?#]*(?:[/?#]|$))/i;
-function module$contents$safevalues$builders$url_builders_hasJavascriptUrlScheme(url) {
-  return !module$exports$safevalues$builders$url_builders.IS_NOT_JAVASCRIPT_URL_PATTERN.test(url);
+function module$contents$safevalues$builders$url_builders_reportJavaScriptUrl(url) {
+  var hasJavascriptUrlScheme = !module$exports$safevalues$builders$url_builders.IS_NOT_JAVASCRIPT_URL_PATTERN.test(url);
+  hasJavascriptUrlScheme && module$contents$safevalues$builders$url_builders_triggerCallbacks(url);
+  return hasJavascriptUrlScheme;
 }
+module$exports$safevalues$builders$url_builders.reportJavaScriptUrl = module$contents$safevalues$builders$url_builders_reportJavaScriptUrl;
 function module$contents$safevalues$builders$url_builders_sanitizeJavaScriptUrl(url) {
-  if (module$contents$safevalues$builders$url_builders_hasJavascriptUrlScheme(url)) {
-    module$contents$safevalues$builders$url_builders_triggerCallbacks(url);
-  } else {
+  if (!module$contents$safevalues$builders$url_builders_reportJavaScriptUrl(url)) {
     return url;
   }
 }
@@ -6610,6 +6610,9 @@ module$exports$safevalues$dom$elements$anchor.setHref = function(anchor, url) {
   var sanitizedUrl = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url);
   void 0 !== sanitizedUrl && (anchor.href = sanitizedUrl);
 };
+module$exports$safevalues$dom$elements$anchor.setHrefLite = function(anchor, url) {
+  module$contents$safevalues$builders$url_builders_reportJavaScriptUrl(url) || (anchor.href = url);
+};
 var module$exports$safevalues$dom$elements$area = {}, module$contents$safevalues$dom$elements$area_module = module$contents$safevalues$dom$elements$area_module || {id:"third_party/javascript/safevalues/dom/elements/area.closure.js"};
 module$exports$safevalues$dom$elements$area.setHref = function(area, url) {
   var sanitizedUrl = module$contents$safevalues$builders$url_builders_unwrapUrlOrSanitize(url);
@@ -6625,26 +6628,28 @@ module$exports$safevalues$dom$elements$button.setFormaction = function(button, u
   void 0 !== sanitizedUrl && (button.formAction = sanitizedUrl);
 };
 var module$exports$safevalues$internals$attribute_impl = {}, module$contents$safevalues$internals$attribute_impl_module = module$contents$safevalues$internals$attribute_impl_module || {id:"third_party/javascript/safevalues/internals/attribute_impl.closure.js"};
-module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix = function() {
+module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix = function(token, value) {
+  goog.DEBUG && module$contents$safevalues$internals$secrets_ensureTokenIsValid(token);
+  this.privateDoNotAccessOrElseWrappedAttributePrefix = value;
 };
-var module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl = function(attrPrefix, token) {
-  module$contents$safevalues$internals$secrets_ensureTokenIsValid(token);
-  this.privateDoNotAccessOrElseWrappedAttrPrefix = attrPrefix;
+module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix.prototype.toString = function() {
+  return this.privateDoNotAccessOrElseWrappedAttributePrefix;
 };
-$jscomp.inherits(module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl, module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix);
-module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl.prototype.toString = function() {
-  return this.privateDoNotAccessOrElseWrappedAttrPrefix;
-};
-function module$contents$safevalues$internals$attribute_impl_createAttributePrefixInternal(attrPrefix) {
-  return new module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl(attrPrefix, module$exports$safevalues$internals$secrets.secretToken);
+var module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl = module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix;
+function module$contents$safevalues$internals$attribute_impl_createAttributePrefixInternal(value) {
+  return new module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix(module$exports$safevalues$internals$secrets.secretToken, value);
 }
 module$exports$safevalues$internals$attribute_impl.createAttributePrefixInternal = module$contents$safevalues$internals$attribute_impl_createAttributePrefixInternal;
+function module$contents$safevalues$internals$attribute_impl_isAttributePrefix(value) {
+  return value instanceof module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix;
+}
+module$exports$safevalues$internals$attribute_impl.isAttributePrefix = module$contents$safevalues$internals$attribute_impl_isAttributePrefix;
 function module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix(value) {
-  if (value instanceof module$contents$safevalues$internals$attribute_impl_AttributePrefixImpl) {
-    return value.privateDoNotAccessOrElseWrappedAttrPrefix;
+  if (module$contents$safevalues$internals$attribute_impl_isAttributePrefix(value)) {
+    return value.privateDoNotAccessOrElseWrappedAttributePrefix;
   }
   var message = "";
-  goog.DEBUG && (message = "Unexpected type when unwrapping SafeAttributePrefix");
+  goog.DEBUG && (message = "Unexpected type when unwrapping SafeAttributePrefix, got '" + value + "' of type '" + typeof value + "'");
   throw Error(message);
 }
 module$exports$safevalues$internals$attribute_impl.unwrapAttributePrefix = module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix;
@@ -7313,9 +7318,9 @@ function module$contents$safevalues$dom$elements$iframe_setSandboxDirectives(ifr
   }
 }
 module$exports$safevalues$dom$elements$iframe.TypeCannotBeUsedWithIntentError = function(type, intent) {
-  var $jscomp$tmp$error$240424914$1 = Error.call(this, type + " cannot be used with intent " + module$exports$safevalues$dom$elements$iframe.Intent[intent]);
-  this.message = $jscomp$tmp$error$240424914$1.message;
-  "stack" in $jscomp$tmp$error$240424914$1 && (this.stack = $jscomp$tmp$error$240424914$1.stack);
+  var $jscomp$tmp$error$494508883$1 = Error.call(this, type + " cannot be used with intent " + module$exports$safevalues$dom$elements$iframe.Intent[intent]);
+  this.message = $jscomp$tmp$error$494508883$1.message;
+  "stack" in $jscomp$tmp$error$494508883$1 && (this.stack = $jscomp$tmp$error$494508883$1.stack);
   this.type = type;
   this.intent = intent;
   this.name = "TypeCannotBeUsedWithIntentError";
@@ -7437,25 +7442,24 @@ module$exports$safevalues$dom$globals$window.getStyleNonce = function(win) {
   return module$contents$safevalues$dom$globals$window_getNonceFor("style", win);
 };
 function module$contents$safevalues$dom$globals$window_getNonceFor(elementName, win) {
-  var $jscomp$optchain$tmp220578679$0, $jscomp$optchain$tmp220578679$1, el = null == ($jscomp$optchain$tmp220578679$1 = ($jscomp$optchain$tmp220578679$0 = win.document).querySelector) ? void 0 : $jscomp$optchain$tmp220578679$1.call($jscomp$optchain$tmp220578679$0, elementName + "[nonce]");
+  var $jscomp$optchain$tmpm1987982378$0, $jscomp$optchain$tmpm1987982378$1, el = null == ($jscomp$optchain$tmpm1987982378$1 = ($jscomp$optchain$tmpm1987982378$0 = win.document).querySelector) ? void 0 : $jscomp$optchain$tmpm1987982378$1.call($jscomp$optchain$tmpm1987982378$0, elementName + "[nonce]");
   return el ? el.nonce || el.getAttribute("nonce") || "" : "";
 }
 ;var module$exports$safevalues$internals$script_impl = {}, module$contents$safevalues$internals$script_impl_module = module$contents$safevalues$internals$script_impl_module || {id:"third_party/javascript/safevalues/internals/script_impl.closure.js"}, module$contents$safevalues$internals$script_impl_trustedTypes = goog.global.trustedTypes;
-module$exports$safevalues$internals$script_impl.SafeScript = function(token) {
+module$exports$safevalues$internals$script_impl.SafeScript = function(token, value) {
   goog.DEBUG && module$contents$safevalues$internals$secrets_ensureTokenIsValid(token);
+  this.privateDoNotAccessOrElseWrappedScript = value;
 };
 module$exports$safevalues$internals$script_impl.SafeScript.prototype.toString = function() {
   return this.privateDoNotAccessOrElseWrappedScript.toString();
 };
 var module$contents$safevalues$internals$script_impl_ScriptImpl = module$exports$safevalues$internals$script_impl.SafeScript;
-function module$contents$safevalues$internals$script_impl_constructScript(contents) {
-  var script = new module$exports$safevalues$internals$script_impl.SafeScript(module$exports$safevalues$internals$secrets.secretToken);
-  script.privateDoNotAccessOrElseWrappedScript = contents;
-  return script;
+function module$contents$safevalues$internals$script_impl_constructScript(value) {
+  return new module$exports$safevalues$internals$script_impl.SafeScript(module$exports$safevalues$internals$secrets.secretToken, value);
 }
-function module$contents$safevalues$internals$script_impl_createScriptInternal(script) {
-  var noinlineScript = script, policy = (0,goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse)();
-  return module$contents$safevalues$internals$script_impl_constructScript(policy ? policy.createScript(noinlineScript) : noinlineScript);
+function module$contents$safevalues$internals$script_impl_createScriptInternal(value) {
+  var noinlineValue = value, policy = (0,goog.html.trustedtypes.getPolicyPrivateDoNotAccessOrElse)();
+  return module$contents$safevalues$internals$script_impl_constructScript(policy ? policy.createScript(noinlineValue) : noinlineValue);
 }
 module$exports$safevalues$internals$script_impl.createScriptInternal = module$contents$safevalues$internals$script_impl_createScriptInternal;
 module$exports$safevalues$internals$script_impl.EMPTY_SCRIPT = module$contents$safevalues$internals$pure_pure(function() {
@@ -7466,7 +7470,7 @@ function module$contents$safevalues$internals$script_impl_isScript(value) {
 }
 module$exports$safevalues$internals$script_impl.isScript = module$contents$safevalues$internals$script_impl_isScript;
 function module$contents$safevalues$internals$script_impl_unwrapScript(value) {
-  if (value instanceof module$exports$safevalues$internals$script_impl.SafeScript) {
+  if (module$contents$safevalues$internals$script_impl_isScript(value)) {
     return value.privateDoNotAccessOrElseWrappedScript;
   }
   var message = "";
@@ -7826,9 +7830,9 @@ function module$contents$safevalues$dom$globals$dom_parser_parseFromString(parse
 module$exports$safevalues$dom$globals$dom_parser.parseFromString = module$contents$safevalues$dom$globals$dom_parser_parseFromString;
 var module$exports$safevalues$dom$globals$fetch = {}, module$contents$safevalues$dom$globals$fetch_module = module$contents$safevalues$dom$globals$fetch_module || {id:"third_party/javascript/safevalues/dom/globals/fetch.closure.js"};
 module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError = function(url, typeName, contentType) {
-  var $jscomp$tmp$error$m991617773$4 = Error.call(this, url + " was requested as a " + typeName + ', but the response Content-Type, "' + contentType + " is not appropriate for this type of content.");
-  this.message = $jscomp$tmp$error$m991617773$4.message;
-  "stack" in $jscomp$tmp$error$m991617773$4 && (this.stack = $jscomp$tmp$error$m991617773$4.stack);
+  var $jscomp$tmp$error$1153895636$4 = Error.call(this, url + " was requested as a " + typeName + ', but the response Content-Type, "' + contentType + " is not appropriate for this type of content.");
+  this.message = $jscomp$tmp$error$1153895636$4.message;
+  "stack" in $jscomp$tmp$error$1153895636$4 && (this.stack = $jscomp$tmp$error$1153895636$4.stack);
   this.url = url;
   this.typeName = typeName;
   this.contentType = contentType;
@@ -7840,48 +7844,48 @@ function module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(
   return (0,module$exports$safevalues$internals$html_impl.createHtmlInternal)(html);
 }
 function module$contents$safevalues$dom$globals$fetch_fetchResourceUrl(u, init) {
-  var response, $jscomp$optchain$tmpm991617773$0, $jscomp$optchain$tmpm991617773$1, $jscomp$optchain$tmpm991617773$2, mimeType;
-  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$8) {
-    if (1 == $jscomp$generator$context$m991617773$8.nextAddress) {
-      return $jscomp$generator$context$m991617773$8.yield(fetch(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(u).toString(), init), 2);
+  var response, $jscomp$optchain$tmp1153895636$0, $jscomp$optchain$tmp1153895636$1, $jscomp$optchain$tmp1153895636$2, mimeType;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$8) {
+    if (1 == $jscomp$generator$context$1153895636$8.nextAddress) {
+      return $jscomp$generator$context$1153895636$8.yield(fetch(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(u).toString(), init), 2);
     }
-    response = $jscomp$generator$context$m991617773$8.yieldResult;
-    mimeType = null == ($jscomp$optchain$tmpm991617773$0 = response.headers.get("Content-Type")) ? void 0 : null == ($jscomp$optchain$tmpm991617773$1 = $jscomp$optchain$tmpm991617773$0.split(";", 2)) ? void 0 : null == ($jscomp$optchain$tmpm991617773$2 = $jscomp$optchain$tmpm991617773$1[0]) ? void 0 : $jscomp$optchain$tmpm991617773$2.toLowerCase();
-    return $jscomp$generator$context$m991617773$8.return({html:function() {
+    response = $jscomp$generator$context$1153895636$8.yieldResult;
+    mimeType = null == ($jscomp$optchain$tmp1153895636$0 = response.headers.get("Content-Type")) ? void 0 : null == ($jscomp$optchain$tmp1153895636$1 = $jscomp$optchain$tmp1153895636$0.split(";", 2)) ? void 0 : null == ($jscomp$optchain$tmp1153895636$2 = $jscomp$optchain$tmp1153895636$1[0]) ? void 0 : $jscomp$optchain$tmp1153895636$2.toLowerCase();
+    return $jscomp$generator$context$1153895636$8.return({html:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$5) {
-        if (1 == $jscomp$generator$context$m991617773$5.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$5) {
+        if (1 == $jscomp$generator$context$1153895636$5.nextAddress) {
           if ("text/html" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeHtml", "text/html");
           }
-          return $jscomp$generator$context$m991617773$5.yield(response.text(), 2);
+          return $jscomp$generator$context$1153895636$5.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$m991617773$5.yieldResult;
-        return $jscomp$generator$context$m991617773$5.return(module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(text));
+        text = $jscomp$generator$context$1153895636$5.yieldResult;
+        return $jscomp$generator$context$1153895636$5.return(module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(text));
       });
     }, script:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$6) {
-        if (1 == $jscomp$generator$context$m991617773$6.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$6) {
+        if (1 == $jscomp$generator$context$1153895636$6.nextAddress) {
           if ("text/javascript" !== mimeType && "application/javascript" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeScript", "text/javascript");
           }
-          return $jscomp$generator$context$m991617773$6.yield(response.text(), 2);
+          return $jscomp$generator$context$1153895636$6.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$m991617773$6.yieldResult;
-        return $jscomp$generator$context$m991617773$6.return(module$contents$safevalues$internals$script_impl_createScriptInternal(text));
+        text = $jscomp$generator$context$1153895636$6.yieldResult;
+        return $jscomp$generator$context$1153895636$6.return(module$contents$safevalues$internals$script_impl_createScriptInternal(text));
       });
     }, styleSheet:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$7) {
-        if (1 == $jscomp$generator$context$m991617773$7.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$7) {
+        if (1 == $jscomp$generator$context$1153895636$7.nextAddress) {
           if ("text/css" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeStyleSheet", "text/css");
           }
-          return $jscomp$generator$context$m991617773$7.yield(response.text(), 2);
+          return $jscomp$generator$context$1153895636$7.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$m991617773$7.yieldResult;
-        return $jscomp$generator$context$m991617773$7.return(module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(text));
+        text = $jscomp$generator$context$1153895636$7.yieldResult;
+        return $jscomp$generator$context$1153895636$7.return(module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(text));
       });
     }});
   });
@@ -9173,8 +9177,8 @@ function module$contents$eeapiclient$request_params_processParams(params) {
 }
 module$exports$eeapiclient$request_params.processParams = module$contents$eeapiclient$request_params_processParams;
 function module$contents$eeapiclient$request_params_buildQueryParams(params, mapping, passthroughParams) {
-  for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$28 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$1047461284$0$ = $jscomp$iter$28.next(); !$jscomp$key$1047461284$0$.done; $jscomp$key$1047461284$0$ = $jscomp$iter$28.next()) {
-    var $jscomp$destructuring$var27 = $jscomp.makeIterator($jscomp$key$1047461284$0$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var27.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var27.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
+  for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$28 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$m125199259$0$ = $jscomp$iter$28.next(); !$jscomp$key$m125199259$0$.done; $jscomp$key$m125199259$0$ = $jscomp$iter$28.next()) {
+    var $jscomp$destructuring$var27 = $jscomp.makeIterator($jscomp$key$m125199259$0$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var27.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var27.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
     jsName in params && (urlQueryParams[urlQueryParamName] = params[jsName]);
   }
   return urlQueryParams;
@@ -9185,8 +9189,8 @@ module$exports$eeapiclient$request_params.bypassCorsPreflight = function(params)
   var safeHeaders = {}, unsafeHeaders = {}, hasUnsafeHeaders = !1, hasContentType = !1;
   if (params.headers) {
     hasContentType = null != params.headers["Content-Type"];
-    for (var $jscomp$iter$29 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$1047461284$1$ = $jscomp$iter$29.next(); !$jscomp$key$1047461284$1$.done; $jscomp$key$1047461284$1$ = $jscomp$iter$29.next()) {
-      var $jscomp$destructuring$var29 = $jscomp.makeIterator($jscomp$key$1047461284$1$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var29.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var29.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
+    for (var $jscomp$iter$29 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$m125199259$1$ = $jscomp$iter$29.next(); !$jscomp$key$m125199259$1$.done; $jscomp$key$m125199259$1$ = $jscomp$iter$29.next()) {
+      var $jscomp$destructuring$var29 = $jscomp.makeIterator($jscomp$key$m125199259$1$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var29.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var29.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
       module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders.includes(key) ? safeHeaders[key] = value : (unsafeHeaders[key] = value, hasUnsafeHeaders = !0);
     }
   }
@@ -9231,15 +9235,15 @@ module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.addMetad
   this._metadataPayload += "Content-Type: application/json; charset=utf-8\r\n\r\n" + JSON.stringify(json) + ("\r\n--" + this._boundary + "\r\n");
 };
 module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.build = function() {
-  var $jscomp$this$m667091202$6 = this, payload = "--" + this._boundary + "\r\n";
+  var $jscomp$this$m133342051$6 = this, payload = "--" + this._boundary + "\r\n";
   payload += this._metadataPayload;
   return Promise.all(this.files.map(function(f) {
-    return $jscomp$this$m667091202$6.encodeFile(f);
+    return $jscomp$this$m133342051$6.encodeFile(f);
   })).then(function(filePayloads) {
-    for (var $jscomp$iter$30 = $jscomp.makeIterator(filePayloads), $jscomp$key$m667091202$9$filePayload = $jscomp$iter$30.next(); !$jscomp$key$m667091202$9$filePayload.done; $jscomp$key$m667091202$9$filePayload = $jscomp$iter$30.next()) {
-      payload += $jscomp$key$m667091202$9$filePayload.value;
+    for (var $jscomp$iter$30 = $jscomp.makeIterator(filePayloads), $jscomp$key$m133342051$9$filePayload = $jscomp$iter$30.next(); !$jscomp$key$m133342051$9$filePayload.done; $jscomp$key$m133342051$9$filePayload = $jscomp$iter$30.next()) {
+      payload += $jscomp$key$m133342051$9$filePayload.value;
     }
-    return payload += "\r\n--" + $jscomp$this$m667091202$6._boundary + "--";
+    return payload += "\r\n--" + $jscomp$this$m133342051$6._boundary + "--";
   });
 };
 module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.encodeFile = function(file) {
@@ -9327,9 +9331,9 @@ module$exports$eeapiclient$promise_api_client.PromiseApiClient.prototype.$reques
   return this.$addHooksToRequest(requestParams, this.requestService.send(module$contents$eeapiclient$api_client_toMakeRequestParams(requestParams), responseCtor));
 };
 module$exports$eeapiclient$promise_api_client.PromiseApiClient.prototype.$uploadRequest = function(requestParams) {
-  var $jscomp$this$1237977804$4 = this, responseCtor = requestParams.responseCtor || void 0;
+  var $jscomp$this$m296226325$4 = this, responseCtor = requestParams.responseCtor || void 0;
   return this.$addHooksToRequest(requestParams, module$contents$eeapiclient$api_client_toMultipartMakeRequestParams(requestParams).then(function(params) {
-    return $jscomp$this$1237977804$4.requestService.send(params, responseCtor);
+    return $jscomp$this$m296226325$4.requestService.send(params, responseCtor);
   }));
 };
 var module$exports$eeapiclient$ee_api_client = {}, module$contents$eeapiclient$ee_api_client_module = module$contents$eeapiclient$ee_api_client_module || {id:"geo/gestalt/client/javascript/v1/ee_api_client.closure.js"};
@@ -10475,15 +10479,20 @@ module$exports$eeapiclient$ee_api_client.DataAccessOptions = function(parameters
   parameters = void 0 === parameters ? {} : parameters;
   module$exports$eeapiclient$domain_object.Serializable.call(this);
   this.Serializable$set("logMode", null == parameters.logMode ? null : parameters.logMode);
+  this.Serializable$set("isDirectAuth", null == parameters.isDirectAuth ? null : parameters.isDirectAuth);
 };
 $jscomp.inherits(module$exports$eeapiclient$ee_api_client.DataAccessOptions, module$exports$eeapiclient$domain_object.Serializable);
 module$exports$eeapiclient$ee_api_client.DataAccessOptions.prototype.getConstructor = function() {
   return module$exports$eeapiclient$ee_api_client.DataAccessOptions;
 };
 module$exports$eeapiclient$ee_api_client.DataAccessOptions.prototype.getPartialClassMetadata = function() {
-  return {enums:{logMode:module$exports$eeapiclient$ee_api_client.DataAccessOptionsLogModeEnum}, keys:["logMode"]};
+  return {enums:{logMode:module$exports$eeapiclient$ee_api_client.DataAccessOptionsLogModeEnum}, keys:["isDirectAuth", "logMode"]};
 };
-$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.DataAccessOptions.prototype, {logMode:{configurable:!0, enumerable:!0, get:function() {
+$jscomp.global.Object.defineProperties(module$exports$eeapiclient$ee_api_client.DataAccessOptions.prototype, {isDirectAuth:{configurable:!0, enumerable:!0, get:function() {
+  return this.Serializable$has("isDirectAuth") ? this.Serializable$get("isDirectAuth") : null;
+}, set:function(value) {
+  this.Serializable$set("isDirectAuth", value);
+}}, logMode:{configurable:!0, enumerable:!0, get:function() {
   return this.Serializable$has("logMode") ? this.Serializable$get("logMode") : null;
 }, set:function(value) {
   this.Serializable$set("logMode", value);
@@ -15272,7 +15281,7 @@ function module$contents$safevalues$builders$document_fragment_builders_htmlToNo
 }
 module$exports$safevalues$builders$document_fragment_builders.htmlToNode = module$contents$safevalues$builders$document_fragment_builders_htmlToNode;
 var module$exports$safevalues$builders$style_sheet_builders = {}, module$contents$safevalues$builders$style_sheet_builders_module = module$contents$safevalues$builders$style_sheet_builders_module || {id:"third_party/javascript/safevalues/builders/style_sheet_builders.closure.js"}, module$contents$safevalues$builders$style_sheet_builders_Primitive;
-module$exports$safevalues$builders$style_sheet_builders.safeStyleRule = function(templateObj) {
+function module$contents$safevalues$builders$style_sheet_builders_safeStyleRule(templateObj) {
   var rest = $jscomp.getRestArguments.apply(1, arguments);
   goog.DEBUG && module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, rest.length);
   for (var stringifiedRule = templateObj[0], i = 0; i < templateObj.length - 1; i++) {
@@ -15295,18 +15304,21 @@ module$exports$safevalues$builders$style_sheet_builders.safeStyleRule = function
       throw Error("safeStyleRule can be used to construct a CSSStyleRule. @-rules should be constructed with the safeStyleSheet builder. Tried to parse: " + stringifiedRule);
     }
   }
-};
-module$exports$safevalues$builders$style_sheet_builders.safeStyleSheet = function(templateObj) {
+}
+module$exports$safevalues$builders$style_sheet_builders.safeStyleRule = module$contents$safevalues$builders$style_sheet_builders_safeStyleRule;
+function module$contents$safevalues$builders$style_sheet_builders_safeStyleSheet(templateObj) {
   goog.DEBUG && module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, 0);
   var styleSheet = templateObj[0];
   if (goog.DEBUG && /</.test(styleSheet)) {
     throw Error("'<' character is forbidden in styleSheet string: " + styleSheet);
   }
   return module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(styleSheet);
-};
-module$exports$safevalues$builders$style_sheet_builders.concatStyleSheets = function(sheets) {
+}
+module$exports$safevalues$builders$style_sheet_builders.safeStyleSheet = module$contents$safevalues$builders$style_sheet_builders_safeStyleSheet;
+function module$contents$safevalues$builders$style_sheet_builders_concatStyleSheets(sheets) {
   return module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(sheets.map(module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet).join(""));
-};
+}
+module$exports$safevalues$builders$style_sheet_builders.concatStyleSheets = module$contents$safevalues$builders$style_sheet_builders_concatStyleSheets;
 var module$exports$safevalues$builders$html_builders = {}, module$contents$safevalues$builders$html_builders_module = module$contents$safevalues$builders$html_builders_module || {id:"third_party/javascript/safevalues/builders/html_builders.closure.js"};
 function module$contents$safevalues$builders$html_builders_htmlEscape(value, options) {
   options = void 0 === options ? {} : options;
@@ -15415,7 +15427,7 @@ module$exports$safevalues$builders$html_builders.styleSheetToHtml = function(sty
   }
   combinedAttributes.type = "text/css";
   var stringifiedAttributes = module$contents$safevalues$builders$html_builders_stringifyAttributes("style", combinedAttributes);
-  Array.isArray(styleSheet) && (styleSheet = (0,module$exports$safevalues$builders$style_sheet_builders.concatStyleSheets)(styleSheet));
+  Array.isArray(styleSheet) && (styleSheet = module$contents$safevalues$builders$style_sheet_builders_concatStyleSheets(styleSheet));
   var styleContent = module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet(styleSheet);
   return (0,module$exports$safevalues$internals$html_impl.createHtmlInternal)("<style " + stringifiedAttributes + ">" + styleContent + "</style>");
 };
@@ -15452,8 +15464,8 @@ module$exports$safevalues$builders$html_formatter.HtmlFormatter = function() {
   this.replacements = new Map();
 };
 module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.format = function(format) {
-  var $jscomp$this$380122516$5 = this, openedTags = [], marker = (0,module$exports$safevalues$builders$html_builders.htmlEscape)("_safevalues_format_marker_:").toString(), html = (0,module$exports$safevalues$builders$html_builders.htmlEscape)(format).toString().replace(new RegExp("\\{" + marker + "[\\w&#;]+\\}", "g"), function(match) {
-    return $jscomp$this$380122516$5.replaceFormattingString(openedTags, match);
+  var $jscomp$this$1018007701$5 = this, openedTags = [], marker = (0,module$exports$safevalues$builders$html_builders.htmlEscape)("_safevalues_format_marker_:").toString(), html = (0,module$exports$safevalues$builders$html_builders.htmlEscape)(format).toString().replace(new RegExp("\\{" + marker + "[\\w&#;]+\\}", "g"), function(match) {
+    return $jscomp$this$1018007701$5.replaceFormattingString(openedTags, match);
   });
   if (0 !== openedTags.length) {
     if (goog.DEBUG) {
@@ -15633,8 +15645,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   return this.sanitizeToFragmentInternal(html, inertDocument);
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeToFragmentInternal = function(html, inertDocument) {
-  for (var $jscomp$this$m1803429925$10 = this, dirtyFragment = module$contents$safevalues$builders$html_sanitizer$inert_fragment_createInertFragment(html, inertDocument), treeWalker = document.createTreeWalker(dirtyFragment, 5, function(n) {
-    return $jscomp$this$m1803429925$10.nodeFilter(n);
+  for (var $jscomp$this$m1085474118$10 = this, dirtyFragment = module$contents$safevalues$builders$html_sanitizer$inert_fragment_createInertFragment(html, inertDocument), treeWalker = document.createTreeWalker(dirtyFragment, 5, function(n) {
+    return $jscomp$this$m1085474118$10.nodeFilter(n);
   }, !1), currentNode = treeWalker.nextNode(), sanitizedFragment = inertDocument.createDocumentFragment(), sanitizedParent = sanitizedFragment; null !== currentNode;) {
     var sanitizedNode = void 0;
     if (module$contents$safevalues$builders$html_sanitizer$no_clobber_isText(currentNode)) {
@@ -15661,8 +15673,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   return document.createTextNode(textNode.data);
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeElementNode = function(elementNode, inertDocument) {
-  for (var elementName = module$contents$safevalues$builders$html_sanitizer$no_clobber_getNodeName(elementNode), newNode = inertDocument.createElement(elementName), dirtyAttributes = elementNode.attributes, $jscomp$iter$31 = $jscomp.makeIterator(dirtyAttributes), $jscomp$key$m1803429925$25$ = $jscomp$iter$31.next(); !$jscomp$key$m1803429925$25$.done; $jscomp$key$m1803429925$25$ = $jscomp$iter$31.next()) {
-    var $jscomp$destructuring$var31 = $jscomp$key$m1803429925$25$.value, name = $jscomp$destructuring$var31.name, value = $jscomp$destructuring$var31.value, policy = this.sanitizerTable.getAttributePolicy(name, elementName);
+  for (var elementName = module$contents$safevalues$builders$html_sanitizer$no_clobber_getNodeName(elementNode), newNode = inertDocument.createElement(elementName), dirtyAttributes = elementNode.attributes, $jscomp$iter$31 = $jscomp.makeIterator(dirtyAttributes), $jscomp$key$m1085474118$25$ = $jscomp$iter$31.next(); !$jscomp$key$m1085474118$25$.done; $jscomp$key$m1085474118$25$ = $jscomp$iter$31.next()) {
+    var $jscomp$destructuring$var31 = $jscomp$key$m1085474118$25$.value, name = $jscomp$destructuring$var31.name, value = $jscomp$destructuring$var31.value, policy = this.sanitizerTable.getAttributePolicy(name, elementName);
     if (this.satisfiesAllConditions(policy.conditions, dirtyAttributes)) {
       switch(policy.policyAction) {
         case module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP:
@@ -15715,8 +15727,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   if (!conditions) {
     return !0;
   }
-  for (var $jscomp$iter$32 = $jscomp.makeIterator(conditions), $jscomp$key$m1803429925$26$ = $jscomp$iter$32.next(); !$jscomp$key$m1803429925$26$.done; $jscomp$key$m1803429925$26$ = $jscomp$iter$32.next()) {
-    var $jscomp$destructuring$var33 = $jscomp.makeIterator($jscomp$key$m1803429925$26$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var33.next().value, expectedValues = $jscomp$destructuring$var33.next().value, $jscomp$optchain$tmpm1803429925$0 = void 0, value = null == ($jscomp$optchain$tmpm1803429925$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1803429925$0.value;
+  for (var $jscomp$iter$32 = $jscomp.makeIterator(conditions), $jscomp$key$m1085474118$26$ = $jscomp$iter$32.next(); !$jscomp$key$m1085474118$26$.done; $jscomp$key$m1085474118$26$ = $jscomp$iter$32.next()) {
+    var $jscomp$destructuring$var33 = $jscomp.makeIterator($jscomp$key$m1085474118$26$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var33.next().value, expectedValues = $jscomp$destructuring$var33.next().value, $jscomp$optchain$tmpm1085474118$0 = void 0, value = null == ($jscomp$optchain$tmpm1085474118$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1085474118$0.value;
     if (value && !expectedValues.has(value)) {
       return !1;
     }
@@ -15770,8 +15782,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
   this.sanitizerTable = module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.defaultSanitizerTable;
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder.prototype.onlyAllowElements = function(elementSet) {
-  for (var allowedElements = new Set(), allowedElementPolicies = new Map(), $jscomp$iter$33 = $jscomp.makeIterator(elementSet), $jscomp$key$m1412690177$0$element = $jscomp$iter$33.next(); !$jscomp$key$m1412690177$0$element.done; $jscomp$key$m1412690177$0$element = $jscomp$iter$33.next()) {
-    var element = $jscomp$key$m1412690177$0$element.value;
+  for (var allowedElements = new Set(), allowedElementPolicies = new Map(), $jscomp$iter$33 = $jscomp.makeIterator(elementSet), $jscomp$key$435282654$0$element = $jscomp$iter$33.next(); !$jscomp$key$435282654$0$element.done; $jscomp$key$435282654$0$element = $jscomp$iter$33.next()) {
+    var element = $jscomp$key$435282654$0$element.value;
     element = element.toUpperCase();
     if (!this.sanitizerTable.isAllowedElement(element)) {
       throw Error("Element: " + element + ", is not allowed by html5_contract.textpb");
@@ -15789,8 +15801,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
     throw Error("Element: " + element + " is not a custom element");
   }
   if (allowedAttributes) {
-    for (var elementPolicy = new Map(), $jscomp$iter$34 = $jscomp.makeIterator(allowedAttributes), $jscomp$key$m1412690177$1$attribute = $jscomp$iter$34.next(); !$jscomp$key$m1412690177$1$attribute.done; $jscomp$key$m1412690177$1$attribute = $jscomp$iter$34.next()) {
-      elementPolicy.set($jscomp$key$m1412690177$1$attribute.value, {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP});
+    for (var elementPolicy = new Map(), $jscomp$iter$34 = $jscomp.makeIterator(allowedAttributes), $jscomp$key$435282654$1$attribute = $jscomp$iter$34.next(); !$jscomp$key$435282654$1$attribute.done; $jscomp$key$435282654$1$attribute = $jscomp$iter$34.next()) {
+      elementPolicy.set($jscomp$key$435282654$1$attribute.value, {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP});
     }
     allowedElementPolicies.set(element, elementPolicy);
   } else {
@@ -15800,15 +15812,15 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
   return this;
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder.prototype.onlyAllowAttributes = function(attributeSet) {
-  for (var allowedGlobalAttributes = new Set(), globalAttributePolicies = new Map(), elementPolicies = new Map(), $jscomp$iter$35 = $jscomp.makeIterator(attributeSet), $jscomp$key$m1412690177$2$attribute = $jscomp$iter$35.next(); !$jscomp$key$m1412690177$2$attribute.done; $jscomp$key$m1412690177$2$attribute = $jscomp$iter$35.next()) {
-    var attribute = $jscomp$key$m1412690177$2$attribute.value;
+  for (var allowedGlobalAttributes = new Set(), globalAttributePolicies = new Map(), elementPolicies = new Map(), $jscomp$iter$35 = $jscomp.makeIterator(attributeSet), $jscomp$key$435282654$2$attribute = $jscomp$iter$35.next(); !$jscomp$key$435282654$2$attribute.done; $jscomp$key$435282654$2$attribute = $jscomp$iter$35.next()) {
+    var attribute = $jscomp$key$435282654$2$attribute.value;
     this.sanitizerTable.allowedGlobalAttributes.has(attribute) && allowedGlobalAttributes.add(attribute);
     this.sanitizerTable.globalAttributePolicies.has(attribute) && globalAttributePolicies.set(attribute, this.sanitizerTable.globalAttributePolicies.get(attribute));
   }
-  for (var $jscomp$iter$37 = $jscomp.makeIterator(this.sanitizerTable.elementPolicies.entries()), $jscomp$key$m1412690177$4$ = $jscomp$iter$37.next(); !$jscomp$key$m1412690177$4$.done; $jscomp$key$m1412690177$4$ = $jscomp$iter$37.next()) {
-    for (var $jscomp$destructuring$var35 = $jscomp.makeIterator($jscomp$key$m1412690177$4$.value), elementName__tsickle_destructured_1 = $jscomp$destructuring$var35.next().value, originalElementPolicy__tsickle_destructured_2 = $jscomp$destructuring$var35.next().value, elementName = elementName__tsickle_destructured_1, newElementPolicy = new Map(), $jscomp$iter$36 = $jscomp.makeIterator(originalElementPolicy__tsickle_destructured_2.entries()), $jscomp$key$m1412690177$3$ = $jscomp$iter$36.next(); !$jscomp$key$m1412690177$3$.done; $jscomp$key$m1412690177$3$ = 
+  for (var $jscomp$iter$37 = $jscomp.makeIterator(this.sanitizerTable.elementPolicies.entries()), $jscomp$key$435282654$4$ = $jscomp$iter$37.next(); !$jscomp$key$435282654$4$.done; $jscomp$key$435282654$4$ = $jscomp$iter$37.next()) {
+    for (var $jscomp$destructuring$var35 = $jscomp.makeIterator($jscomp$key$435282654$4$.value), elementName__tsickle_destructured_1 = $jscomp$destructuring$var35.next().value, originalElementPolicy__tsickle_destructured_2 = $jscomp$destructuring$var35.next().value, elementName = elementName__tsickle_destructured_1, newElementPolicy = new Map(), $jscomp$iter$36 = $jscomp.makeIterator(originalElementPolicy__tsickle_destructured_2.entries()), $jscomp$key$435282654$3$ = $jscomp$iter$36.next(); !$jscomp$key$435282654$3$.done; $jscomp$key$435282654$3$ = 
     $jscomp$iter$36.next()) {
-      var $jscomp$destructuring$var37 = $jscomp.makeIterator($jscomp$key$m1412690177$3$.value), attribute__tsickle_destructured_3 = $jscomp$destructuring$var37.next().value, attributePolicy__tsickle_destructured_4 = $jscomp$destructuring$var37.next().value, attribute$jscomp$0 = attribute__tsickle_destructured_3, attributePolicy = attributePolicy__tsickle_destructured_4;
+      var $jscomp$destructuring$var37 = $jscomp.makeIterator($jscomp$key$435282654$3$.value), attribute__tsickle_destructured_3 = $jscomp$destructuring$var37.next().value, attributePolicy__tsickle_destructured_4 = $jscomp$destructuring$var37.next().value, attribute$jscomp$0 = attribute__tsickle_destructured_3, attributePolicy = attributePolicy__tsickle_destructured_4;
       attributeSet.has(attribute$jscomp$0) && newElementPolicy.set(attribute$jscomp$0, attributePolicy);
     }
     elementPolicies.set(elementName, newElementPolicy);
@@ -15817,8 +15829,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
   return this;
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder.prototype.allowDataAttributes = function(attributes) {
-  for (var allowedGlobalAttributes = new Set(this.sanitizerTable.allowedGlobalAttributes), $jscomp$iter$38 = $jscomp.makeIterator(attributes), $jscomp$key$m1412690177$5$attribute = $jscomp$iter$38.next(); !$jscomp$key$m1412690177$5$attribute.done; $jscomp$key$m1412690177$5$attribute = $jscomp$iter$38.next()) {
-    var attribute = $jscomp$key$m1412690177$5$attribute.value;
+  for (var allowedGlobalAttributes = new Set(this.sanitizerTable.allowedGlobalAttributes), $jscomp$iter$38 = $jscomp.makeIterator(attributes), $jscomp$key$435282654$5$attribute = $jscomp$iter$38.next(); !$jscomp$key$435282654$5$attribute.done; $jscomp$key$435282654$5$attribute = $jscomp$iter$38.next()) {
+    var attribute = $jscomp$key$435282654$5$attribute.value;
     if (0 !== attribute.indexOf("data-")) {
       throw Error("data attribute: " + attribute + ' does not begin with the prefix "data-"');
     }
@@ -16069,12 +16081,12 @@ function module$contents$safevalues$reporting$reporting_isChangedBySanitizing(s,
   }
   try {
     module$contents$safevalues$builders$html_sanitizer$html_sanitizer_lenientlySanitizeHtmlAssertUnchanged(s);
-  } catch ($jscomp$unused$catch$442189172$0) {
+  } catch ($jscomp$unused$catch$696273141$0) {
     return module$contents$safevalues$reporting$reporting_reportLegacyConversion(options, module$contents$safevalues$reporting$reporting_ReportingType.HTML_CHANGED_BY_RELAXED_SANITIZING), !0;
   }
   try {
     module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtmlAssertUnchanged(s);
-  } catch ($jscomp$unused$catch$442189172$1) {
+  } catch ($jscomp$unused$catch$696273141$1) {
     return module$contents$safevalues$reporting$reporting_reportLegacyConversion(options, module$contents$safevalues$reporting$reporting_ReportingType.HTML_CHANGED_BY_SANITIZING), !0;
   }
   return !1;
@@ -16102,12 +16114,15 @@ module$exports$safevalues$index.htmlFragment = module$contents$safevalues$builde
 module$exports$safevalues$index.htmlToNode = module$contents$safevalues$builders$document_fragment_builders_htmlToNode;
 module$exports$safevalues$index.svgFragment = module$contents$safevalues$builders$document_fragment_builders_svgFragment;
 module$exports$safevalues$index.concatHtmls = module$exports$safevalues$builders$html_builders.concatHtmls;
+module$exports$safevalues$index.createHtml = module$exports$safevalues$builders$html_builders.createHtml;
 module$exports$safevalues$index.doctypeHtml = module$exports$safevalues$builders$html_builders.doctypeHtml;
 module$exports$safevalues$index.htmlEscape = module$exports$safevalues$builders$html_builders.htmlEscape;
 module$exports$safevalues$index.joinHtmls = module$exports$safevalues$builders$html_builders.joinHtmls;
 module$exports$safevalues$index.nodeToHtml = module$exports$safevalues$builders$html_builders.nodeToHtml;
 module$exports$safevalues$index.scriptToHtml = module$exports$safevalues$builders$html_builders.scriptToHtml;
 module$exports$safevalues$index.scriptUrlToHtml = module$exports$safevalues$builders$html_builders.scriptUrlToHtml;
+module$exports$safevalues$index.styleSheetToHtml = module$exports$safevalues$builders$html_builders.styleSheetToHtml;
+module$exports$safevalues$index.HtmlFormatter = module$exports$safevalues$builders$html_formatter.HtmlFormatter;
 module$exports$safevalues$index.sanitizeHtml = module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtml;
 module$exports$safevalues$index.sanitizeHtmlAssertUnchanged = module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtmlAssertUnchanged;
 module$exports$safevalues$index.sanitizeHtmlToFragment = module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtmlToFragment;
@@ -16125,46 +16140,43 @@ module$exports$safevalues$index.valueAsScript = module$contents$safevalues$build
 module$exports$safevalues$index.concatStyles = module$contents$safevalues$builders$style_builders_concatStyles;
 module$exports$safevalues$index.safeStyle = module$contents$safevalues$builders$style_builders_safeStyle;
 module$exports$safevalues$index.styleForMigration = module$contents$safevalues$builders$style_builders_styleForMigration;
-module$exports$safevalues$index.concatStyleSheets = module$exports$safevalues$builders$style_sheet_builders.concatStyleSheets;
-module$exports$safevalues$index.safeStyleSheet = module$exports$safevalues$builders$style_sheet_builders.safeStyleSheet;
+module$exports$safevalues$index.concatStyleSheets = module$contents$safevalues$builders$style_sheet_builders_concatStyleSheets;
+module$exports$safevalues$index.safeStyleRule = module$contents$safevalues$builders$style_sheet_builders_safeStyleRule;
+module$exports$safevalues$index.safeStyleSheet = module$contents$safevalues$builders$style_sheet_builders_safeStyleSheet;
+module$exports$safevalues$index.SanitizableUrlScheme = module$exports$safevalues$builders$url_builders.SanitizableUrlScheme;
 module$exports$safevalues$index.addJavaScriptUrlSanitizationCallback = module$contents$safevalues$builders$url_builders_addJavaScriptUrlSanitizationCallback;
 module$exports$safevalues$index.fromMediaSource = module$contents$safevalues$builders$url_builders_fromMediaSource;
 module$exports$safevalues$index.fromTrustedResourceUrl = module$contents$safevalues$builders$url_builders_fromTrustedResourceUrl;
 module$exports$safevalues$index.objectUrlFromSafeSource = module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource;
 module$exports$safevalues$index.removeJavaScriptUrlSanitizationCallback = module$contents$safevalues$builders$url_builders_removeJavaScriptUrlSanitizationCallback;
 module$exports$safevalues$index.safeUrl = module$contents$safevalues$builders$url_builders_safeUrl;
-module$exports$safevalues$index.SanitizableUrlScheme = module$exports$safevalues$builders$url_builders.SanitizableUrlScheme;
 module$exports$safevalues$index.sanitizeUrl = module$contents$safevalues$builders$url_builders_sanitizeUrl;
 module$exports$safevalues$index.trySanitizeUrl = module$contents$safevalues$builders$url_builders_trySanitizeUrl;
 module$exports$safevalues$index.SafeAttributePrefix = module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix;
 module$exports$safevalues$index.unwrapAttributePrefix = module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix;
 module$exports$safevalues$index.EMPTY_HTML = module$exports$safevalues$internals$html_impl.EMPTY_HTML;
-module$exports$safevalues$index.isHtml = module$exports$safevalues$internals$html_impl.isHtml;
 module$exports$safevalues$index.SafeHtml = module$exports$safevalues$internals$html_impl.SafeHtml;
+module$exports$safevalues$index.isHtml = module$exports$safevalues$internals$html_impl.isHtml;
 module$exports$safevalues$index.unwrapHtml = module$exports$safevalues$internals$html_impl.unwrapHtml;
-module$exports$safevalues$index.isResourceUrl = module$contents$safevalues$internals$resource_url_impl_isResourceUrl;
 module$exports$safevalues$index.TrustedResourceUrl = goog.html.TrustedResourceUrl;
+module$exports$safevalues$index.isResourceUrl = module$contents$safevalues$internals$resource_url_impl_isResourceUrl;
 module$exports$safevalues$index.unwrapResourceUrl = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl;
 module$exports$safevalues$index.EMPTY_SCRIPT = module$exports$safevalues$internals$script_impl.EMPTY_SCRIPT;
-module$exports$safevalues$index.isScript = module$contents$safevalues$internals$script_impl_isScript;
 module$exports$safevalues$index.SafeScript = module$exports$safevalues$internals$script_impl.SafeScript;
+module$exports$safevalues$index.isScript = module$contents$safevalues$internals$script_impl_isScript;
 module$exports$safevalues$index.unwrapScript = module$contents$safevalues$internals$script_impl_unwrapScript;
-module$exports$safevalues$index.isStyle = module$contents$safevalues$internals$style_impl_isStyle;
 module$exports$safevalues$index.SafeStyle = module$contents$goog$html$SafeStyle_SafeStyle;
+module$exports$safevalues$index.isStyle = module$contents$safevalues$internals$style_impl_isStyle;
 module$exports$safevalues$index.unwrapStyle = module$contents$safevalues$internals$style_impl_unwrapStyle;
-module$exports$safevalues$index.isStyleSheet = module$contents$safevalues$internals$style_sheet_impl_isStyleSheet;
 module$exports$safevalues$index.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
+module$exports$safevalues$index.isStyleSheet = module$contents$safevalues$internals$style_sheet_impl_isStyleSheet;
 module$exports$safevalues$index.unwrapStyleSheet = module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet;
 module$exports$safevalues$index.ABOUT_BLANK = module$exports$safevalues$internals$url_impl.ABOUT_BLANK;
 module$exports$safevalues$index.INNOCUOUS_URL = module$exports$safevalues$internals$url_impl.INNOCUOUS_URL;
-module$exports$safevalues$index.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
 module$exports$safevalues$index.SafeUrl = module$exports$safevalues$internals$url_impl.SafeUrl;
+module$exports$safevalues$index.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
 module$exports$safevalues$index.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
 module$exports$safevalues$index.reportOnlyHtmlPassthrough = module$contents$safevalues$reporting$reporting_reportOnlyHtmlPassthrough;
-module$exports$safevalues$index.HtmlFormatter = module$exports$safevalues$builders$html_formatter.HtmlFormatter;
-module$exports$safevalues$index.createHtml = module$exports$safevalues$builders$html_builders.createHtml;
-module$exports$safevalues$index.styleSheetToHtml = module$exports$safevalues$builders$html_builders.styleSheetToHtml;
-module$exports$safevalues$index.safeStyleRule = module$exports$safevalues$builders$style_sheet_builders.safeStyleRule;
 goog.dom.safe = {};
 goog.dom.safe.InsertAdjacentHtmlPosition = {AFTERBEGIN:"afterbegin", AFTEREND:"afterend", BEFOREBEGIN:"beforebegin", BEFOREEND:"beforeend"};
 goog.dom.safe.insertAdjacentHtml = function(node, position, html) {
@@ -17367,9 +17379,9 @@ goog.debug.asyncStackTag = {};
 var module$contents$goog$debug$asyncStackTag_DEBUG = goog.DEBUG, module$contents$goog$debug$asyncStackTag_createTask = goog.DEBUG && goog.global.console && goog.global.console.createTask ? goog.global.console.createTask.bind(goog.global.console) : void 0, module$contents$goog$debug$asyncStackTag_CONSOLE_TASK_SYMBOL = module$contents$goog$debug$asyncStackTag_createTask ? Symbol("consoleTask") : void 0;
 function module$contents$goog$debug$asyncStackTag_wrap(fn, name) {
   function wrappedFn() {
-    var args = $jscomp.getRestArguments.apply(0, arguments), $jscomp$this$1621498202$5 = this;
+    var args = $jscomp.getRestArguments.apply(0, arguments), $jscomp$this$1621498202$4 = this;
     return consoleTask.run(function() {
-      return fn.call.apply(fn, [$jscomp$this$1621498202$5].concat($jscomp.arrayFromIterable(args)));
+      return fn.call.apply(fn, [$jscomp$this$1621498202$4].concat($jscomp.arrayFromIterable(args)));
     });
   }
   name = void 0 === name ? "anonymous" : name;
@@ -18907,16 +18919,19 @@ safevalues.htmlFragment = module$contents$safevalues$builders$document_fragment_
 safevalues.htmlToNode = module$contents$safevalues$builders$document_fragment_builders_htmlToNode;
 safevalues.svgFragment = module$contents$safevalues$builders$document_fragment_builders_svgFragment;
 safevalues.concatHtmls = module$exports$safevalues$index.concatHtmls;
+safevalues.createHtml = module$exports$safevalues$index.createHtml;
 safevalues.doctypeHtml = module$exports$safevalues$index.doctypeHtml;
 safevalues.htmlEscape = module$exports$safevalues$index.htmlEscape;
 safevalues.joinHtmls = module$exports$safevalues$index.joinHtmls;
 safevalues.nodeToHtml = module$exports$safevalues$index.nodeToHtml;
 safevalues.scriptToHtml = module$exports$safevalues$index.scriptToHtml;
 safevalues.scriptUrlToHtml = module$exports$safevalues$index.scriptUrlToHtml;
-safevalues.HtmlSanitizer = module$exports$safevalues$index.HtmlSanitizer;
+safevalues.styleSheetToHtml = module$exports$safevalues$index.styleSheetToHtml;
+safevalues.HtmlFormatter = module$exports$safevalues$builders$html_formatter.HtmlFormatter;
 safevalues.sanitizeHtml = module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtml;
 safevalues.sanitizeHtmlAssertUnchanged = module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtmlAssertUnchanged;
 safevalues.sanitizeHtmlToFragment = module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtmlToFragment;
+safevalues.HtmlSanitizer = module$exports$safevalues$index.HtmlSanitizer;
 safevalues.HtmlSanitizerBuilder = module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder;
 safevalues.appendParams = module$contents$safevalues$builders$resource_url_builders_appendParams;
 safevalues.appendPathSegment = module$contents$safevalues$builders$resource_url_builders_appendPathSegment;
@@ -18931,52 +18946,49 @@ safevalues.valueAsScript = module$contents$safevalues$builders$script_builders_v
 safevalues.concatStyles = module$contents$safevalues$builders$style_builders_concatStyles;
 safevalues.safeStyle = module$contents$safevalues$builders$style_builders_safeStyle;
 safevalues.styleForMigration = module$contents$safevalues$builders$style_builders_styleForMigration;
-safevalues.concatStyleSheets = module$exports$safevalues$index.concatStyleSheets;
-safevalues.safeStyleSheet = module$exports$safevalues$index.safeStyleSheet;
+safevalues.concatStyleSheets = module$contents$safevalues$builders$style_sheet_builders_concatStyleSheets;
+safevalues.safeStyleRule = module$contents$safevalues$builders$style_sheet_builders_safeStyleRule;
+safevalues.safeStyleSheet = module$contents$safevalues$builders$style_sheet_builders_safeStyleSheet;
+safevalues.SanitizableUrlScheme = module$exports$safevalues$builders$url_builders.SanitizableUrlScheme;
 safevalues.addJavaScriptUrlSanitizationCallback = module$contents$safevalues$builders$url_builders_addJavaScriptUrlSanitizationCallback;
 safevalues.fromMediaSource = module$contents$safevalues$builders$url_builders_fromMediaSource;
 safevalues.fromTrustedResourceUrl = module$contents$safevalues$builders$url_builders_fromTrustedResourceUrl;
 safevalues.objectUrlFromSafeSource = module$contents$safevalues$builders$url_builders_objectUrlFromSafeSource;
 safevalues.removeJavaScriptUrlSanitizationCallback = module$contents$safevalues$builders$url_builders_removeJavaScriptUrlSanitizationCallback;
 safevalues.safeUrl = module$contents$safevalues$builders$url_builders_safeUrl;
-safevalues.SanitizableUrlScheme = module$exports$safevalues$builders$url_builders.SanitizableUrlScheme;
 safevalues.sanitizeUrl = module$contents$safevalues$builders$url_builders_sanitizeUrl;
-safevalues.Scheme = module$exports$safevalues$index.Scheme;
 safevalues.trySanitizeUrl = module$contents$safevalues$builders$url_builders_trySanitizeUrl;
+safevalues.Scheme = module$exports$safevalues$index.Scheme;
 safevalues.SafeAttributePrefix = module$exports$safevalues$internals$attribute_impl.SafeAttributePrefix;
 safevalues.unwrapAttributePrefix = module$contents$safevalues$internals$attribute_impl_unwrapAttributePrefix;
 safevalues.EMPTY_HTML = module$exports$safevalues$index.EMPTY_HTML;
-safevalues.isHtml = module$exports$safevalues$index.isHtml;
 safevalues.SafeHtml = module$exports$safevalues$index.SafeHtml;
+safevalues.isHtml = module$exports$safevalues$index.isHtml;
 safevalues.unwrapHtml = module$exports$safevalues$index.unwrapHtml;
-safevalues.isResourceUrl = module$contents$safevalues$internals$resource_url_impl_isResourceUrl;
 safevalues.TrustedResourceUrl = goog.html.TrustedResourceUrl;
+safevalues.isResourceUrl = module$contents$safevalues$internals$resource_url_impl_isResourceUrl;
 safevalues.unwrapResourceUrl = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl;
 safevalues.EMPTY_SCRIPT = module$exports$safevalues$internals$script_impl.EMPTY_SCRIPT;
-safevalues.isScript = module$contents$safevalues$internals$script_impl_isScript;
 safevalues.SafeScript = module$exports$safevalues$internals$script_impl.SafeScript;
+safevalues.isScript = module$contents$safevalues$internals$script_impl_isScript;
 safevalues.unwrapScript = module$contents$safevalues$internals$script_impl_unwrapScript;
-safevalues.isStyle = module$contents$safevalues$internals$style_impl_isStyle;
 safevalues.SafeStyle = module$contents$goog$html$SafeStyle_SafeStyle;
+safevalues.isStyle = module$contents$safevalues$internals$style_impl_isStyle;
 safevalues.unwrapStyle = module$contents$safevalues$internals$style_impl_unwrapStyle;
-safevalues.isStyleSheet = module$contents$safevalues$internals$style_sheet_impl_isStyleSheet;
 safevalues.SafeStyleSheet = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet;
+safevalues.isStyleSheet = module$contents$safevalues$internals$style_sheet_impl_isStyleSheet;
 safevalues.unwrapStyleSheet = module$contents$safevalues$internals$style_sheet_impl_unwrapStyleSheet;
 safevalues.ABOUT_BLANK = module$exports$safevalues$internals$url_impl.ABOUT_BLANK;
 safevalues.INNOCUOUS_URL = module$exports$safevalues$internals$url_impl.INNOCUOUS_URL;
-safevalues.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
 safevalues.SafeUrl = module$exports$safevalues$internals$url_impl.SafeUrl;
+safevalues.isUrl = module$contents$safevalues$internals$url_impl_isUrl;
 safevalues.unwrapUrl = module$contents$safevalues$internals$url_impl_unwrapUrl;
 safevalues.reportOnlyHtmlPassthrough = module$contents$safevalues$reporting$reporting_reportOnlyHtmlPassthrough;
-safevalues.HtmlFormatter = module$exports$safevalues$builders$html_formatter.HtmlFormatter;
-safevalues.createHtml = module$exports$safevalues$index.createHtml;
-safevalues.styleSheetToHtml = module$exports$safevalues$index.styleSheetToHtml;
-safevalues.safeStyleRule = module$exports$safevalues$index.safeStyleRule;
 var $jscomp$templatelit$294235699$99 = $jscomp.createTemplateTagFirstArg(["https://accounts.google.com/gsi/client"]);
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.399";
+ee.apiclient.API_CLIENT_VERSION = "0.1.400";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -19266,8 +19278,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.399";
-  "0.1.399" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.400";
+  "0.1.400" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
