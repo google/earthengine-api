@@ -2,6 +2,7 @@
 """Test for the ee.dictionary module."""
 import json
 from typing import Any, Dict
+import unittest
 
 import ee
 from ee import apitestcase
@@ -343,6 +344,24 @@ class DictionaryTest(apitestcase.ApiTestCase):
     expression = ee.Dictionary({'a': 1}).toImage(names=['b'])
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
+
+  def test_encode_opt_params(self):
+    a_dict = ee.Dictionary({'x': 1})
+
+    mock_encoder = unittest.mock.Mock(return_value='encoded-value')
+    result = a_dict.encode(opt_encoder=mock_encoder)
+
+    mock_encoder.assert_called()
+    self.assertEqual('encoded-value', result)
+
+  def test_encode_cloud_value_opt_params(self):
+    a_dict = ee.Dictionary({'x': 1})
+
+    mock_encoder = unittest.mock.Mock(return_value='encoded-value')
+    result = a_dict.encode_cloud_value(opt_encoder=mock_encoder)
+
+    mock_encoder.assert_called()
+    self.assertEqual({'valueReference': 'encoded-value'}, result)
 
 
 if __name__ == '__main__':

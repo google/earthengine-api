@@ -6,6 +6,9 @@ var app = {};
 
 /** Creates the UI panels. */
 app.createPanels = function() {
+  /* The map to use for this app. */
+  app.map = new ui.Map();
+
   /* The introduction section. */
   app.intro = {
     panel: ui.Panel([
@@ -54,7 +57,7 @@ app.createPanels = function() {
     }),
     // Create a button that centers the map on a given object.
     centerButton: ui.Button('Center on map', function() {
-      Map.centerObject(Map.layers().get(0).get('eeObject'));
+      app.map.centerObject(app.map.layers().get(0).get('eeObject'));
     })
   };
 
@@ -161,7 +164,7 @@ app.createHelpers = function() {
 
     // Filter bounds to the map if the checkbox is marked.
     if (app.filters.mapCenter.getValue()) {
-      filtered = filtered.filterBounds(Map.getCenter());
+      filtered = filtered.filterBounds(app.map.getCenter());
     }
 
     // Set filter variables.
@@ -188,14 +191,14 @@ app.createHelpers = function() {
 
   /** Refreshes the current map layer based on the UI widget states. */
   app.refreshMapLayer = function() {
-    Map.clear();
+    app.map.clear();
     var imageId = app.picker.select.getValue();
     if (imageId) {
       // If an image id is found, create an image.
       var image = ee.Image(app.COLLECTION_ID + '/' + imageId);
       // Add the image to the map with the corresponding visualization options.
       var visOption = app.VIS_OPTIONS[app.vis.select.getValue()];
-      Map.addLayer(image, visOption.visParams, imageId);
+      app.map.addLayer(image, visOption.visParams, imageId);
     }
   };
 };
@@ -244,8 +247,9 @@ app.boot = function() {
     ],
     style: {width: '320px', padding: '8px'}
   });
-  Map.setCenter(-97, 26, 9);
-  ui.root.insert(0, main);
+  app.map.setCenter(-97, 26, 9);
+  ui.root.clear();
+  ui.root.widgets().add(ui.SplitPanel(main, app.map));
   app.applyFilters();
 };
 

@@ -280,6 +280,10 @@ class SerializerTest(apitestcase.ApiTestCase):
     encoded = serializer.encode(x, for_cloud_api=True)
     self.assertLess(_max_depth(encoded), 60)
 
+  def testToJsonOptParams(self):
+    self.assertIn('\n', serializer.toJSON(ee.Image(0), opt_pretty=True))
+    self.assertNotIn('\n', serializer.toJSON(ee.Image(0), opt_pretty=False))
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -3806,9 +3806,9 @@ DOMCONTENTLOADED:"DOMContentLoaded", ERROR:"error", HELP:"help", LOAD:"load", LO
 SEEKED:"seeked", SEEKING:"seeking", STALLED:"stalled", SUSPEND:"suspend", TIMEUPDATE:"timeupdate", VOLUMECHANGE:"volumechange", WAITING:"waiting", SOURCEOPEN:"sourceopen", SOURCEENDED:"sourceended", SOURCECLOSED:"sourceclosed", ABORT:"abort", UPDATE:"update", UPDATESTART:"updatestart", UPDATEEND:"updateend", HASHCHANGE:"hashchange", PAGEHIDE:"pagehide", PAGESHOW:"pageshow", POPSTATE:"popstate", COPY:"copy", PASTE:"paste", CUT:"cut", BEFORECOPY:"beforecopy", BEFORECUT:"beforecut", BEFOREPASTE:"beforepaste", 
 ONLINE:"online", OFFLINE:"offline", MESSAGE:"message", CONNECT:"connect", INSTALL:"install", ACTIVATE:"activate", FETCH:"fetch", FOREIGNFETCH:"foreignfetch", MESSAGEERROR:"messageerror", STATECHANGE:"statechange", UPDATEFOUND:"updatefound", CONTROLLERCHANGE:"controllerchange", ANIMATIONSTART:goog.events.eventTypeHelpers.getVendorPrefixedName("AnimationStart"), ANIMATIONEND:goog.events.eventTypeHelpers.getVendorPrefixedName("AnimationEnd"), ANIMATIONITERATION:goog.events.eventTypeHelpers.getVendorPrefixedName("AnimationIteration"), 
 TRANSITIONEND:goog.events.eventTypeHelpers.getVendorPrefixedName("TransitionEnd"), POINTERDOWN:"pointerdown", POINTERUP:"pointerup", POINTERCANCEL:"pointercancel", POINTERMOVE:"pointermove", POINTEROVER:"pointerover", POINTEROUT:"pointerout", POINTERENTER:"pointerenter", POINTERLEAVE:"pointerleave", GOTPOINTERCAPTURE:"gotpointercapture", LOSTPOINTERCAPTURE:"lostpointercapture", MSGESTURECHANGE:"MSGestureChange", MSGESTUREEND:"MSGestureEnd", MSGESTUREHOLD:"MSGestureHold", MSGESTURESTART:"MSGestureStart", 
-MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXT:"text", TEXTINPUT:goog.userAgent.IE ? "textinput" : "textInput", 
-COMPOSITIONSTART:"compositionstart", COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", BEFOREINPUT:"beforeinput", FULLSCREENCHANGE:"fullscreenchange", WEBKITBEGINFULLSCREEN:"webkitbeginfullscreen", WEBKITENDFULLSCREEN:"webkitendfullscreen", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", 
-STORAGE:"storage", BEFOREPRINT:"beforeprint", AFTERPRINT:"afterprint", BEFOREINSTALLPROMPT:"beforeinstallprompt", APPINSTALLED:"appinstalled", CANCEL:"cancel", FINISH:"finish", REMOVE:"remove"};
+MSGESTURETAP:"MSGestureTap", MSGOTPOINTERCAPTURE:"MSGotPointerCapture", MSINERTIASTART:"MSInertiaStart", MSLOSTPOINTERCAPTURE:"MSLostPointerCapture", MSPOINTERCANCEL:"MSPointerCancel", MSPOINTERDOWN:"MSPointerDown", MSPOINTERENTER:"MSPointerEnter", MSPOINTERHOVER:"MSPointerHover", MSPOINTERLEAVE:"MSPointerLeave", MSPOINTERMOVE:"MSPointerMove", MSPOINTEROUT:"MSPointerOut", MSPOINTEROVER:"MSPointerOver", MSPOINTERUP:"MSPointerUp", TEXT:"text", TEXTINPUT:"textInput", COMPOSITIONSTART:"compositionstart", 
+COMPOSITIONUPDATE:"compositionupdate", COMPOSITIONEND:"compositionend", BEFOREINPUT:"beforeinput", FULLSCREENCHANGE:"fullscreenchange", WEBKITBEGINFULLSCREEN:"webkitbeginfullscreen", WEBKITENDFULLSCREEN:"webkitendfullscreen", EXIT:"exit", LOADABORT:"loadabort", LOADCOMMIT:"loadcommit", LOADREDIRECT:"loadredirect", LOADSTART:"loadstart", LOADSTOP:"loadstop", RESPONSIVE:"responsive", SIZECHANGED:"sizechanged", UNRESPONSIVE:"unresponsive", VISIBILITYCHANGE:"visibilitychange", STORAGE:"storage", BEFOREPRINT:"beforeprint", 
+AFTERPRINT:"afterprint", BEFOREINSTALLPROMPT:"beforeinstallprompt", APPINSTALLED:"appinstalled", CANCEL:"cancel", FINISH:"finish", REMOVE:"remove"};
 goog.events.BrowserEvent = function(opt_e, opt_currentTarget) {
   goog.events.Event.call(this, opt_e ? opt_e.type : "");
   this.relatedTarget = this.currentTarget = this.target = null;
@@ -15206,8 +15206,8 @@ goog.dom.BrowserFeature.OFFSCREEN_CANVAS_2D = !goog.dom.BrowserFeature.ASSUME_NO
 goog.dom.BrowserFeature.CAN_ADD_NAME_OR_TYPE_ATTRIBUTES = !0;
 goog.dom.BrowserFeature.CAN_USE_CHILDREN_ATTRIBUTE = !0;
 goog.dom.BrowserFeature.CAN_USE_INNER_TEXT = !1;
-goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY = goog.userAgent.IE || goog.userAgent.WEBKIT;
-goog.dom.BrowserFeature.INNER_HTML_NEEDS_SCOPED_ELEMENT = goog.userAgent.IE;
+goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY = goog.userAgent.WEBKIT;
+goog.dom.BrowserFeature.INNER_HTML_NEEDS_SCOPED_ELEMENT = !1;
 goog.dom.asserts = {};
 goog.dom.asserts.assertIsLocation = function(o) {
   if (goog.asserts.ENABLE_ASSERTS) {
@@ -16603,7 +16603,7 @@ goog.dom.getDocumentScroll = function() {
 };
 goog.dom.getDocumentScroll_ = function(doc) {
   var el = goog.dom.getDocumentScrollElement_(doc), win = goog.dom.getWindow_(doc);
-  return goog.userAgent.IE && win.pageYOffset != el.scrollTop ? new goog.math.Coordinate(el.scrollLeft, el.scrollTop) : new goog.math.Coordinate(win.pageXOffset || el.scrollLeft, win.pageYOffset || el.scrollTop);
+  return new goog.math.Coordinate(win.pageXOffset || el.scrollLeft, win.pageYOffset || el.scrollTop);
 };
 goog.dom.getDocumentScrollElement = function() {
   return goog.dom.getDocumentScrollElement_(document);
@@ -16670,7 +16670,7 @@ goog.dom.safeHtmlToNode = function(html) {
 };
 goog.dom.safeHtmlToNode_ = function(doc, html) {
   var tempDiv = goog.dom.createElement_(doc, goog.dom.TagName.DIV);
-  goog.userAgent.IE ? (goog.dom.safe.setInnerHtml(tempDiv, module$contents$goog$html$SafeHtml_SafeHtml.concat(module$contents$goog$html$SafeHtml_SafeHtml.BR, html)), tempDiv.removeChild(goog.asserts.assert(tempDiv.firstChild))) : goog.dom.safe.setInnerHtml(tempDiv, html);
+  goog.dom.safe.setInnerHtml(tempDiv, html);
   return goog.dom.childrenToNode_(doc, tempDiv);
 };
 goog.dom.childrenToNode_ = function(doc, tempDiv) {
@@ -16831,7 +16831,7 @@ goog.dom.isWindow = function(obj) {
 };
 goog.dom.getParentElement = function(element) {
   var parent;
-  if (goog.dom.BrowserFeature.CAN_USE_PARENT_ELEMENT_PROPERTY && (parent = element.parentElement)) {
+  if (goog.userAgent.WEBKIT && (parent = element.parentElement)) {
     return parent;
   }
   parent = element.parentNode;
@@ -16858,14 +16858,6 @@ goog.dom.compareNodeOrder = function(node1, node2) {
   }
   if (node1.compareDocumentPosition) {
     return node1.compareDocumentPosition(node2) & 2 ? 1 : -1;
-  }
-  if (goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(9)) {
-    if (node1.nodeType == goog.dom.NodeType.DOCUMENT) {
-      return -1;
-    }
-    if (node2.nodeType == goog.dom.NodeType.DOCUMENT) {
-      return 1;
-    }
   }
   if ("sourceIndex" in node1 || node1.parentNode && "sourceIndex" in node1.parentNode) {
     var isElement1 = node1.nodeType == goog.dom.NodeType.ELEMENT, isElement2 = node2.nodeType == goog.dom.NodeType.ELEMENT;
@@ -17032,8 +17024,7 @@ goog.dom.setFocusableTabIndex = function(element, enable) {
   enable ? element.tabIndex = 0 : (element.tabIndex = -1, element.removeAttribute("tabIndex"));
 };
 goog.dom.isFocusable = function(element) {
-  var focusable;
-  return (focusable = goog.dom.nativelySupportsFocus_(element) ? !element.disabled && (!goog.dom.hasSpecifiedTabIndex_(element) || goog.dom.isTabIndexFocusable_(element)) : goog.dom.isFocusableTabIndex(element)) && goog.userAgent.IE ? goog.dom.hasNonZeroBoundingRect_(element) : focusable;
+  return goog.dom.nativelySupportsFocus_(element) ? !element.disabled && (!goog.dom.hasSpecifiedTabIndex_(element) || goog.dom.isTabIndexFocusable_(element)) : goog.dom.isFocusableTabIndex(element);
 };
 goog.dom.hasSpecifiedTabIndex_ = function(element) {
   return element.hasAttribute("tabindex");
@@ -17046,7 +17037,7 @@ goog.dom.nativelySupportsFocus_ = function(element) {
   return element.tagName == goog.dom.TagName.A && element.hasAttribute("href") || element.tagName == goog.dom.TagName.INPUT || element.tagName == goog.dom.TagName.TEXTAREA || element.tagName == goog.dom.TagName.SELECT || element.tagName == goog.dom.TagName.BUTTON;
 };
 goog.dom.hasNonZeroBoundingRect_ = function(element) {
-  var rect = "function" !== typeof element.getBoundingClientRect || goog.userAgent.IE && null == element.parentElement ? {height:element.offsetHeight, width:element.offsetWidth} : element.getBoundingClientRect();
+  var rect = "function" !== typeof element.getBoundingClientRect ? {height:element.offsetHeight, width:element.offsetWidth} : element.getBoundingClientRect();
   return null != rect && 0 < rect.height && 0 < rect.width;
 };
 goog.dom.getTextContent = function(node) {
@@ -18988,7 +18979,7 @@ var $jscomp$templatelit$294235699$99 = $jscomp.createTemplateTagFirstArg(["https
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.400";
+ee.apiclient.API_CLIENT_VERSION = "0.1.401";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -19278,8 +19269,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.400";
-  "0.1.400" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.401";
+  "0.1.401" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -26345,14 +26336,15 @@ goog.structs.PriorityPool.prototype.disposeInternal = function() {
   this.requestQueue_.clear();
   this.requestQueue_ = null;
 };
-var module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource = function(mapId, opt_profiler) {
+var module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource = function(mapId, opt_profiler, opt_parallelism) {
   module$exports$ee$layers$AbstractTileSource.call(this);
   this.mapId_ = mapId;
   this.profiler_ = opt_profiler || null;
+  this.token_count_ = opt_parallelism || module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.DEFAULT_TOKEN_COUNT_;
 };
 $jscomp.inherits(module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource, module$exports$ee$layers$AbstractTileSource);
 module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.prototype.loadTile = function(tile, opt_priority) {
-  var ProfilerHeader = module$contents$ee$apiclient_apiclient.PROFILE_HEADER.toLowerCase(), key = goog.events.listen(tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
+  var $jscomp$this$1134479182$2 = this, ProfilerHeader = module$contents$ee$apiclient_apiclient.PROFILE_HEADER.toLowerCase(), key = goog.events.listen(tile, ee.layers.AbstractTile.EventType.STATUS_CHANGED, function() {
     switch(tile.getStatus()) {
       case ee.layers.AbstractTile.Status.LOADED:
         var profileId = tile.sourceResponseHeaders[ProfilerHeader];
@@ -26364,14 +26356,15 @@ module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.prototype.
     }
   }, void 0, this);
   tile.sourceUrl = this.getTileUrl_(tile.coord, tile.zoom);
-  var handleAvailableToken = goog.bind(this.handleAvailableToken_, this, tile);
-  module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.getGlobalTokenPool_().getObject(handleAvailableToken, opt_priority);
+  this.getGlobalTokenPool_().getObject(function(token) {
+    $jscomp$this$1134479182$2.handleAvailableToken_(tile, token);
+  }, opt_priority);
 };
 module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.prototype.getUniqueId = function() {
   return this.mapId_.mapid + "-" + this.mapId_.token;
 };
 module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.prototype.handleAvailableToken_ = function(tile, token) {
-  var tokenPool = module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.getGlobalTokenPool_();
+  var tokenPool = this.getGlobalTokenPool_();
   if (tile.isDisposed() || tile.getStatus() == ee.layers.AbstractTile.Status.ABORTED) {
     tokenPool.releaseObject(token);
   } else {
@@ -26385,13 +26378,13 @@ module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.prototype.
   var url = ee.data.getTileUrl(this.mapId_, coord.x, coord.y, zoom);
   return this.profiler_ && this.profiler_.isEnabled() ? url + "&profiling=1" : url;
 };
-module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.getGlobalTokenPool_ = function() {
-  module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_POOL_ || (module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_POOL_ = new goog.structs.PriorityPool(0, module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_COUNT_));
+module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.prototype.getGlobalTokenPool_ = function() {
+  module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_POOL_ || (module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_POOL_ = new goog.structs.PriorityPool(0, this.token_count_));
   return module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_POOL_;
 };
 goog.exportSymbol("ee.layers.EarthEngineTileSource", module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource);
 module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_POOL_ = null;
-module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.TOKEN_COUNT_ = 4;
+module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource.DEFAULT_TOKEN_COUNT_ = 4;
 ee.layers.EarthEngineTileSource = module$contents$ee$layers$EarthEngineTileSource_EarthEngineTileSource;
 ee.layers.FeatureViewTileSource = {};
 var module$contents$ee$layers$FeatureViewTileSource_FeatureViewTileSource = function(tilesKey) {

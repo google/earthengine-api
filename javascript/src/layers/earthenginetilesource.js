@@ -20,8 +20,10 @@ const EarthEngineTileSource = class extends AbstractTileSource {
    *     tiles.
    * @param {data.Profiler=} opt_profiler The profiler to send map tile
    *     calculation cost to, if any.
+   * @param {number=} opt_parallelism The number of map tiles to fetch
+   *     concurrently.
    */
-  constructor(mapId, opt_profiler) {
+  constructor(mapId, opt_profiler, opt_parallelism) {
     super();
 
     /** @const @private {!data.RawMapId} The EE map ID for fetching tiles. */
@@ -31,8 +33,12 @@ const EarthEngineTileSource = class extends AbstractTileSource {
      * Map tile calculation cost will be sent to this profiler, if its enabled
      * flag is set.
      * @private {?data.Profiler}
+     * @const
      */
     this.profiler_ = opt_profiler || null;
+
+    this.token_count_ =
+        opt_parallelism || EarthEngineTileSource.DEFAULT_TOKEN_COUNT_;
   }
 
   /** @override */
@@ -65,9 +71,10 @@ const EarthEngineTileSource = class extends AbstractTileSource {
     tile.sourceUrl = this.getTileUrl_(tile.coord, tile.zoom);
 
     // When a request token is available, load the tile.
-    var handleAvailableToken =
-        goog.bind(this.handleAvailableToken_, this, tile);
-    var tokenPool = EarthEngineTileSource.getGlobalTokenPool_();
+    const handleAvailableToken = (token) => {
+      this.handleAvailableToken_(tile, token);
+    };
+    const tokenPool = this.getGlobalTokenPool_();
     tokenPool.getObject(handleAvailableToken, opt_priority);
   }
 
@@ -83,7 +90,7 @@ const EarthEngineTileSource = class extends AbstractTileSource {
    * @private
    */
   handleAvailableToken_(tile, token) {
-    var tokenPool = EarthEngineTileSource.getGlobalTokenPool_();
+    const tokenPool = this.getGlobalTokenPool_();
 
     // Exit early if the tile was aborted (e.g. because the layer was hidden or
     // this tile was panned out of view).
@@ -122,10 +129,10 @@ const EarthEngineTileSource = class extends AbstractTileSource {
    * @return {!PriorityPool} The global EE tile request token pool.
    * @private
    */
-  static getGlobalTokenPool_() {
+  getGlobalTokenPool_() {
     if (!EarthEngineTileSource.TOKEN_POOL_) {
       EarthEngineTileSource.TOKEN_POOL_ =
-          new PriorityPool(0, EarthEngineTileSource.TOKEN_COUNT_);
+          new PriorityPool(0, this.token_count_);
     }
     return EarthEngineTileSource.TOKEN_POOL_;
   }
@@ -135,7 +142,11 @@ goog.exportSymbol('ee.layers.EarthEngineTileSource', EarthEngineTileSource);
 /** @private {?PriorityPool} The global EE tile token pool. */
 EarthEngineTileSource.TOKEN_POOL_ = null;
 
-/** @private {number} The global max count of outstanding EE tile requests. */
-EarthEngineTileSource.TOKEN_COUNT_ = 4;
+/**
+ * @private {number}
+ * @const
+ * The default global count of outstanding EE tile requests.
+ */
+EarthEngineTileSource.DEFAULT_TOKEN_COUNT_ = 4;
 
 exports = EarthEngineTileSource;

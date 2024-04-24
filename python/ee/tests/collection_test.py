@@ -172,5 +172,44 @@ class CollectionTestCase(apitestcase.ApiTestCase):
     ):
       fc.map(lambda x: x.serialize())
 
+  def testInitOptVarName(self):
+    result = ee.Collection(func=None, args=None, opt_varName='test').serialize()
+    self.assertIn('"argumentReference": "test"', result)
+
+  def testFilterDateOptParams(self):
+    result = (
+        ee.Collection(func=None, args=None, varName='test')
+        .filterDate(0, opt_end=42)
+        .serialize()
+    )
+    self.assertIn('"end": {"constantValue": 42}', result)
+
+  def testLimitOptParams(self):
+    result = (
+        ee.Collection(func=None, args=None, varName='test')
+        .limit(0, opt_property='abc', opt_ascending=True)
+        .serialize()
+    )
+    self.assertIn('"key": {"constantValue": "abc"}', result)
+    self.assertIn('"ascending": {"constantValue": true}', result)
+
+  def testSortOptParams(self):
+    result = (
+        ee.Collection(func=None, args=None, varName='test')
+        .sort('abc', opt_ascending=True)
+        .serialize()
+    )
+    self.assertIn('"ascending": {"constantValue": true}', result)
+
+  def testMapOptParams(self):
+    a_func = lambda x: ee.Image(0)
+    result = (
+        ee.Collection(func=None, args=None, varName='test')
+        .map(a_func, opt_dropNulls=True)
+        .serialize()
+    )
+    self.assertIn('"dropNulls": {"constantValue": true}', result)
+
+
 if __name__ == '__main__':
   unittest.main()

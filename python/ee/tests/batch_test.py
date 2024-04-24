@@ -861,6 +861,35 @@ class BatchTestCase(apitestcase.ApiTestCase):
           task_keyed.config,
       )
 
+  def testExportMapToCloudStorageCloudApi_WithV1AlphaParameters(self):
+    """Verifies Export.map.toCloudStorage() tasks with v1alpha parameters."""
+    with apitestcase.UsingCloudApi():
+      task_keyed = ee.batch.Export.map.toCloudStorage(
+          image=ee.Image(0),
+          bucket='test-bucket',
+          minZoom=2,
+          maxWorkers=1,
+          maxZoom=3,
+          skipEmptyTiles=True,
+      )
+      self.assertEqual(
+          {
+              'expression': ee.Image(0),
+              'description': 'myExportMapTask',
+              'tileOptions': {'startZoom': 2, 'endZoom': 3, 'skipEmpty': True},
+              'tileExportOptions': {
+                  'fileFormat': 'AUTO_JPEG_PNG',
+                  'cloudStorageDestination': {
+                      'bucket': 'test-bucket',
+                      'filenamePrefix': 'myExportMapTask',
+                      'permissions': 'PUBLIC',
+                  },
+              },
+              'maxWorkers': {'value': 1},
+          },
+          task_keyed.config,
+      )
+
   def testExportTableCloudApi(self):
     """Verifies the task created by Export.table()."""
     with apitestcase.UsingCloudApi():

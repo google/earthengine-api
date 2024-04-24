@@ -337,6 +337,13 @@ class DateTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_init_opt_params(self):
+    date = '2023-1-01T00:00:00.000Z'
+    result = ee.Date(date, opt_tz='US/Pacific').serialize()
+    self.assertIn(
+        '"value": {"constantValue": "2023-1-01T00:00:00.000Z"}', result
+    )
+
 
 if __name__ == '__main__':
   unittest.main()

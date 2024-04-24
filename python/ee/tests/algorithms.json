@@ -11446,7 +11446,7 @@
   }, {
     "name": "algorithms/List.sequence",
     "description": "Generate a sequence of numbers from start to end (inclusive) in increments of step, or in count equally-spaced increments. If end is not specified it is computed from start + step * count, so at least one of end or count must be specified.",
-    "returnType": "List\u003cNumber\u003e",
+    "returnType": "List\u003cObject\u003e",
     "arguments": [{
       "argumentName": "start",
       "type": "Number"
@@ -11459,7 +11459,7 @@
       "argumentName": "step",
       "type": "Number",
       "optional": true,
-      "defaultValue": 1.0
+      "defaultValue": null
     }, {
       "argumentName": "count",
       "type": "Integer",

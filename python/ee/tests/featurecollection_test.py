@@ -110,5 +110,12 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     equals(fc.select(['a'], None, False),
            fc.select(propertySelectors=['a'], retainGeometry=False))
 
+  def testInitOptColumn(self):
+    result = ee.FeatureCollection(
+        args='[{}]', opt_column='a-column'
+    ).serialize()
+    self.assertIn('"geometryColumn": {"constantValue": "a-column"}', result)
+
+
 if __name__ == '__main__':
   unittest.main()

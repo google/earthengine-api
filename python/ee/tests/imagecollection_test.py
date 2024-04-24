@@ -88,5 +88,14 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
           collection.serialize(for_cloud_api=True))
       self.assertEqual({}, params)
 
+  def testSelectOptParams(self):
+    result = (
+        ee.ImageCollection([])
+        .select(['selector_a', 4], opt_names=['name_a', 'name_b'])
+        .serialize()
+    )
+    self.assertIn('"newNames": {"constantValue": ["name_a", "name_b"]}', result)
+
+
 if __name__ == '__main__':
   unittest.main()

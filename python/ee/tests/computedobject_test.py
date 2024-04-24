@@ -137,6 +137,11 @@ class ComputedObjectTest(apitestcase.ApiTestCase):
     number_computed_object_func = number.add(1)
     self.assertTrue(number_computed_object_func)
 
+  def test_serialize_opt_params(self):
+    obj = ee.ComputedObject(func=None, args=None, varName='test')
+    self.assertIn('\n', obj.serialize(opt_pretty=True))
+    self.assertNotIn('\n', obj.serialize(opt_pretty=False))
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -23,5 +23,5 @@ upres = ee.Image.cat(huesat, gray).hsvToRgb()
 
 # Display before and after layers using the same vis parameters.
 visparams = {'min': [.15, .15, .25], 'max': [1, .9, .9], 'gamma': 1.6}
-ee.mapclient.addToMap(rgb, visparams, 'Orignal')
+ee.mapclient.addToMap(rgb, visparams, 'Original')
 ee.mapclient.addToMap(upres, visparams, 'Pansharpened')

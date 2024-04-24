@@ -59,6 +59,5 @@ class OAuthTest(unittest.TestCase):
   def test_in_colab_shell(self):
     self.assertFalse(ee.oauth.in_colab_shell())
 
-
 if __name__ == '__main__':
   unittest.main()

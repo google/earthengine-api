@@ -754,6 +754,60 @@ class DataTest(unittest.TestCase):
     ee.data.resetWorkloadTag(True)
     self.assertEqual('', ee.data.getWorkloadTag())
 
+  def testResetWorkloadTagOptParams(self):
+    ee.data.setDefaultWorkloadTag('reset-me')
+    self.assertEqual('reset-me', ee.data.getWorkloadTag())
+    ee.data.resetWorkloadTag(opt_resetDefault=True)
+    self.assertEqual('', ee.data.getWorkloadTag())
+
+  def testGetAssetRootQuota_V1Alpha(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      fake_asset = {
+          'type': 'FOLDER',
+          'name': 'projects/test-proj/assets',
+          'quota': {
+              'assetCount': 123,
+              'maxAssets': 456,
+              'sizeBytes': 789,
+              'maxSizeBytes': 1001,
+          },
+      }
+      cloud_api_resource.projects().assets().get().execute.return_value = (
+          fake_asset
+      )
+
+      quota = ee.data.getAssetRootQuota('projects/test-proj/assets')
+      expected = {
+          'asset_count': {'usage': 123, 'limit': 456},
+          'asset_size': {'usage': 789, 'limit': 1001},
+      }
+      self.assertEqual(expected, quota)
+
+  def testGetAssetRootQuota(self):
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      fake_asset = {
+          'type': 'FOLDER',
+          'name': 'projects/test-proj/assets',
+          'quota': {
+              'assetCount': 123,
+              'maxAssetCount': 456,
+              'sizeBytes': 789,
+              'maxSizeBytes': 1001,
+          },
+      }
+      cloud_api_resource.projects().assets().get().execute.return_value = (
+          fake_asset
+      )
+
+      quota = ee.data.getAssetRootQuota('projects/test-proj/assets')
+      expected = {
+          'asset_count': {'usage': 123, 'limit': 456},
+          'asset_size': {'usage': 789, 'limit': 1001},
+      }
+      self.assertEqual(expected, quota)
+
 
 def DoCloudProfileStubHttp(test, expect_profiling):
 

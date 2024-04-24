@@ -69,6 +69,12 @@ class FeatureTest(apitestcase.ApiTestCase):
     self.assertEqual('fakeMapId', mapid['mapid'])
     self.assertEqual(manual.serialize(), mapid['image'].serialize())
 
+  def testInitOptParams(self):
+    result = ee.Feature(
+        geom=ee.Geometry.Point(1, 2), opt_properties=dict(prop='a')
+    ).serialize()
+    self.assertIn('"metadata": {"constantValue": {"prop": "a"}}', result)
+
 
 if __name__ == '__main__':
   unittest.main()

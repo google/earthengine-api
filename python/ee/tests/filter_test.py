@@ -118,6 +118,34 @@ class FilterTest(apitestcase.ApiTestCase):
     self.assertNotEqual(b, c)
     self.assertNotEqual(hash(a), hash(b))
 
+  def testInitOptParams(self):
+    result = ee.Filter(opt_filter=[ee.Filter.gt('prop', 1)]).serialize()
+    self.assertIn('"functionName": "Filter.greaterThan"', result)
+
+  def test_date_opt_params(self):
+    result = ee.Filter.date(
+        start='1996-01-01T00:00', opt_end='2023-01-01T00:00'
+    ).serialize()
+    self.assertIn('"end": {"constantValue": "2023-01-01T00:00"}', result)
+
+  def test_in_list_opt_params(self):
+    result = ee.Filter.inList(
+        opt_leftField='lf',
+        opt_rightValue='rv',
+        opt_rightField='rf',
+        opt_leftValue='lv',
+    ).serialize()
+    self.assertIn('"leftField": {"constantValue": "rf"}', result)
+    self.assertIn('"leftValue": {"constantValue": "rv"}', result)
+    self.assertIn('"rightField": {"constantValue": "lf"}', result)
+    self.assertIn('"rightValue": {"constantValue": "lv"}', result)
+
+  def test_bounds_opt_params(self):
+    result = ee.Filter.bounds(
+        geometry=ee.Geometry.Point(0, 0), opt_errorMargin=12345
+    ).serialize()
+    self.assertIn('"value": {"constantValue": 12345}', result)
+
 
 if __name__ == '__main__':
   unittest.main()

@@ -675,5 +675,27 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
     """Verifies the focal operators are installed with aliases."""
     ee.Image(0).focal_min().focalMin()
 
+  def testSelectOptParams(self):
+    result = (
+        ee.Image(1)
+        .select(opt_selectors=['selector_a', 4], opt_names=['name_a', 'name_b'])
+        .serialize()
+    )
+    self.assertIn(
+        '"bandSelectors": {"constantValue": ["selector_a", 4]}', result
+    )
+    self.assertIn('"newNames": {"constantValue": ["name_a", "name_b"]}', result)
+
+  def testExpressionOptParams(self):
+    result = (
+        ee.Image(1)
+        .expression(expression='abc(0)', opt_map={'bcd': 'cef'})
+        .serialize()
+    )
+    # The values are nested too deep to compare the entire node.
+    self.assertIn('bcd', result)
+    self.assertIn('cef', result)
+
+
 if __name__ == '__main__':
   unittest.main()

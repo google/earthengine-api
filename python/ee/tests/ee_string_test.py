@@ -2,6 +2,7 @@
 """Test for the ee.string module."""
 import json
 from typing import Any, Dict
+import unittest
 
 import ee
 from ee import apitestcase
@@ -262,6 +263,24 @@ class StringTest(apitestcase.ApiTestCase):
     expression = ee.String('abc').trim()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
+
+  @unittest.mock.patch.object(ee.ComputedObject, 'encode')
+  def test_encode_opt_params(self, mock_encode):
+    a_string = ee.String(ee.Dictionary({'a': 'a_string'}).get('a'))
+
+    mock_encoder = unittest.mock.Mock()
+    a_string.encode(opt_encoder=mock_encoder)
+
+    mock_encode.assert_called_once_with(mock_encoder)
+
+  @unittest.mock.patch.object(ee.ComputedObject, 'encode_cloud_value')
+  def test_encode_cloud_value_opt_params(self, mock_encode_cloud_value):
+    a_string = ee.String(ee.Dictionary({'a': 'a_string'}).get('a'))
+
+    mock_encoder = unittest.mock.Mock()
+    a_string.encode_cloud_value(opt_encoder=mock_encoder)
+
+    mock_encode_cloud_value.assert_called_once_with(mock_encoder)
 
 
 if __name__ == '__main__':

@@ -3,6 +3,7 @@
 
 import json
 from typing import Any, Dict
+import unittest
 
 import ee
 from ee import apitestcase
@@ -1129,6 +1130,24 @@ class NumberTest(apitestcase.ApiTestCase):
     expression = ee.Number(1).unitScale(min=2, max=3)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
+
+  @unittest.mock.patch.object(ee.ComputedObject, 'encode')
+  def test_encode_opt_params(self, mock_encode):
+    number = ee.Number(ee.Dictionary({'a': 3}).get('a'))
+
+    mock_encoder = unittest.mock.Mock()
+    number.encode(opt_encoder=mock_encoder)
+
+    mock_encode.assert_called_once_with(mock_encoder)
+
+  @unittest.mock.patch.object(ee.ComputedObject, 'encode_cloud_value')
+  def test_encode_cloud_value_opt_params(self, mock_encode_cloud_value):
+    number = ee.Number(ee.Dictionary({'a': 3}).get('a'))
+
+    mock_encoder = unittest.mock.Mock()
+    number.encode_cloud_value(opt_encoder=mock_encoder)
+
+    mock_encode_cloud_value.assert_called_once_with(mock_encoder)
 
 
 if __name__ == '__main__':

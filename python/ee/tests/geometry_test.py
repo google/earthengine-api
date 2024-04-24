@@ -495,6 +495,17 @@ class GeometryTest(apitestcase.ApiTestCase):
     self.assertNotEqual(b, c)
     self.assertNotEqual(hash(a), hash(b))
 
+  def testInitOptParams(self):
+    result = ee.Geometry(
+        geo_json={'type': 'Polygon', 'coordinates': [[[-2, 1]]]},
+        opt_proj='abc',
+        opt_geodesic=True,
+        opt_evenOdd=True,
+    ).serialize()
+    self.assertIn('"crs": {"constantValue": "abc"}', result)
+    self.assertIn('"geodesic": {"constantValue": true}', result)
+    self.assertIn('"evenOdd": {"constantValue": true}', result)
+
 
 if __name__ == '__main__':
   unittest.main()

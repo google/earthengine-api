@@ -44,6 +44,10 @@ class ElementTestCase(apitestcase.ApiTestCase):
     CheckMultiProperties(image.set(computed_arg))
     CheckMultiProperties(image.set({'properties': computed_arg}))
 
+  def testInitOptParams(self):
+    result = ee.Element(func=None, args=None, opt_varName='test').serialize()
+    self.assertIn('"0": {"argumentReference": "test"}', result)
+
 
 if __name__ == '__main__':
   unittest.main()
