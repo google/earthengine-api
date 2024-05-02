@@ -85,7 +85,7 @@ class ApiTestCase(unittest.TestCase):
       self,
       params: Dict[str, Any],
       # pylint: disable-next=invalid-name
-      thumbType: str = None,
+      thumbType: Optional[str] = None,
   ) -> Dict[str, str]:
     del thumbType  # Unused.
     # Hang on to the call arguments.
@@ -113,7 +113,7 @@ def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> discovery.Resource:
   )
 
 
-@contextlib.contextmanager
+@contextlib.contextmanager  # pytype: disable=wrong-arg-types
 def UsingCloudApi(
     cloud_api_resource: Optional[Any] = None,
     cloud_api_resource_raw: Optional[Any] = None,

@@ -9,7 +9,6 @@ name since that is the name we want to ensure works.
 import io
 
 import ee
-from ee import _helpers
 from ee import apifunction
 from ee import apitestcase
 from ee import computedobject

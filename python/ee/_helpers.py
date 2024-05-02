@@ -10,7 +10,7 @@ referenced from there (e.g. "ee.profilePrinting").
 import contextlib
 import json
 import sys
-from typing import Any, Callable, Dict, Iterator, Optional, TextIO, Union
+from typing import Any, Dict, Iterator, Optional, TextIO, Union
 
 from google.auth import crypt
 from google.oauth2 import service_account

@@ -1200,7 +1200,8 @@ $jscomp.polyfill("String.prototype.padStart", function(orig) {
     return $jscomp.stringPadding(opt_padString, targetLength - string.length) + string;
   };
 }, "es8", "es3");
-var CLOSURE_TOGGLE_ORDINALS = {GoogFlags__async_throw_on_unicode_to_byte__enable:!1, GoogFlags__jspb_stop_using_repeated_field_sets_from_gencode__enable:!1, GoogFlags__override_disable_toggles:!1, GoogFlags__testonly_debug_flag__enable:!1, GoogFlags__testonly_disabled_flag__enable:!1, GoogFlags__testonly_stable_flag__disable:!1, GoogFlags__testonly_staging_flag__disable:!1, GoogFlags__use_toggles:!1, GoogFlags__use_user_agent_client_hints__enable:!1};
+var CLOSURE_TOGGLE_ORDINALS = {GoogFlags__async_throw_on_unicode_to_byte__enable:!1, GoogFlags__client_only_wiz_component_stacks__enable:!1, GoogFlags__client_only_wiz_reaction_async_await__enable:!1, GoogFlags__jspb_stop_using_repeated_field_sets_from_gencode__enable:!1, GoogFlags__override_disable_toggles:!1, GoogFlags__testonly_debug_flag__enable:!1, GoogFlags__testonly_disabled_flag__enable:!1, GoogFlags__testonly_stable_flag__disable:!1, GoogFlags__testonly_staging_flag__disable:!1, GoogFlags__use_toggles:!1, 
+GoogFlags__use_user_agent_client_hints__enable:!1};
 /*
 
  Copyright The Closure Library Authors.
@@ -2968,6 +2969,8 @@ module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__jspb_stop_using_repeated_field_sets_from_gencode__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_reaction_async_await__enable = !1;
+module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_component_stacks__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable = !1;
 module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable = !1;
@@ -2977,6 +2980,8 @@ var module$contents$goog$flags_STAGING = goog.readFlagInternalDoNotUseOrElse(1, 
 goog.flags.USE_USER_AGENT_CLIENT_HINTS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable : goog.readFlagInternalDoNotUseOrElse(610401301, !1);
 goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable : goog.readFlagInternalDoNotUseOrElse(899588437, !1);
 goog.flags.JSPB_STOP_USING_REPEATED_FIELD_SETS_FROM_GENCODE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__jspb_stop_using_repeated_field_sets_from_gencode__enable : goog.readFlagInternalDoNotUseOrElse(188588736, goog.DEBUG);
+goog.flags.CLIENT_ONLY_WIZ_REACTION_ASYNC_AWAIT = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_reaction_async_await__enable : goog.readFlagInternalDoNotUseOrElse(399321843, goog.DEBUG);
+goog.flags.CLIENT_ONLY_WIZ_COMPONENT_STACKS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_component_stacks__enable : goog.readFlagInternalDoNotUseOrElse(628162879, goog.DEBUG);
 goog.flags.TESTONLY_DISABLED_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
 goog.flags.TESTONLY_DEBUG_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
 goog.flags.TESTONLY_STAGING_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable) : goog.readFlagInternalDoNotUseOrElse(2147483646, module$contents$goog$flags_STAGING);
@@ -6058,9 +6063,9 @@ module$exports$eeapiclient$domain_object.strictDeserialize = function(type, raw)
 };
 var module$contents$eeapiclient$domain_object_CopyValueGetter, module$contents$eeapiclient$domain_object_CopyValueSetter, module$contents$eeapiclient$domain_object_CopyConstructor, module$contents$eeapiclient$domain_object_CopyInstanciator;
 function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter, valueSetter, copyInstanciator, targetConstructor) {
-  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$iter$19 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$m1892927425$40$key = $jscomp$iter$19.next(), $jscomp$loop$m1892927425$44 = {}; !$jscomp$key$m1892927425$40$key.done; $jscomp$loop$m1892927425$44 = 
-  {mapMetadata:void 0}, $jscomp$key$m1892927425$40$key = $jscomp$iter$19.next()) {
-    var key = $jscomp$key$m1892927425$40$key.value, value = valueGetter(key, source);
+  for (var target = copyInstanciator(targetConstructor), metadata = module$contents$eeapiclient$domain_object_deepCopyMetadata(source, target), arrays = metadata.arrays || {}, objects = metadata.objects || {}, objectMaps = metadata.objectMaps || {}, $jscomp$iter$19 = $jscomp.makeIterator(metadata.keys || []), $jscomp$key$m192531680$40$key = $jscomp$iter$19.next(), $jscomp$loop$m192531680$44 = {}; !$jscomp$key$m192531680$40$key.done; $jscomp$loop$m192531680$44 = 
+  {mapMetadata:void 0}, $jscomp$key$m192531680$40$key = $jscomp$iter$19.next()) {
+    var key = $jscomp$key$m192531680$40$key.value, value = valueGetter(key, source);
     if (null != value) {
       var copy = void 0;
       if (arrays.hasOwnProperty(key)) {
@@ -6071,11 +6076,11 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
       } else if (objects.hasOwnProperty(key)) {
         copy = module$contents$eeapiclient$domain_object_deepCopyValue(value, valueGetter, valueSetter, copyInstanciator, !1, !0, objects[key]);
       } else if (objectMaps.hasOwnProperty(key)) {
-        $jscomp$loop$m1892927425$44.mapMetadata = objectMaps[key], copy = $jscomp$loop$m1892927425$44.mapMetadata.isPropertyArray ? value.map(function($jscomp$loop$m1892927425$44) {
+        $jscomp$loop$m192531680$44.mapMetadata = objectMaps[key], copy = $jscomp$loop$m192531680$44.mapMetadata.isPropertyArray ? value.map(function($jscomp$loop$m192531680$44) {
           return function(v) {
-            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$m1892927425$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
+            return module$contents$eeapiclient$domain_object_deepCopyObjectMap(v, $jscomp$loop$m192531680$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
           };
-        }($jscomp$loop$m1892927425$44)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$m1892927425$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
+        }($jscomp$loop$m192531680$44)) : module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, $jscomp$loop$m192531680$44.mapMetadata, valueGetter, valueSetter, copyInstanciator);
       } else if (Array.isArray(value)) {
         if (metadata.emptyArrayIsUnset && 0 === value.length) {
           continue;
@@ -6090,8 +6095,8 @@ function module$contents$eeapiclient$domain_object_deepCopy(source, valueGetter,
   return target;
 }
 function module$contents$eeapiclient$domain_object_deepCopyObjectMap(value, mapMetadata, valueGetter, valueSetter, copyInstanciator) {
-  for (var objMap = {}, $jscomp$iter$20 = $jscomp.makeIterator(Object.keys(value)), $jscomp$key$m1892927425$41$mapKey = $jscomp$iter$20.next(); !$jscomp$key$m1892927425$41$mapKey.done; $jscomp$key$m1892927425$41$mapKey = $jscomp$iter$20.next()) {
-    var mapKey = $jscomp$key$m1892927425$41$mapKey.value, mapValue = value[mapKey];
+  for (var objMap = {}, $jscomp$iter$20 = $jscomp.makeIterator(Object.keys(value)), $jscomp$key$m192531680$41$mapKey = $jscomp$iter$20.next(); !$jscomp$key$m192531680$41$mapKey.done; $jscomp$key$m192531680$41$mapKey = $jscomp$iter$20.next()) {
+    var mapKey = $jscomp$key$m192531680$41$mapKey.value, mapValue = value[mapKey];
     null != mapValue && (objMap[mapKey] = module$contents$eeapiclient$domain_object_deepCopyValue(mapValue, valueGetter, valueSetter, copyInstanciator, mapMetadata.isValueArray, mapMetadata.isSerializable, mapMetadata.ctor));
   }
   return objMap;
@@ -6121,39 +6126,39 @@ function module$contents$eeapiclient$domain_object_deepEquals(serializable1, ser
   if (!(module$contents$eeapiclient$domain_object_sameKeys(keys1, metadata2.keys || []) && module$contents$eeapiclient$domain_object_sameKeys(arrays1, arrays2) && module$contents$eeapiclient$domain_object_sameKeys(objects1, objects2) && module$contents$eeapiclient$domain_object_sameKeys(objectMaps1, objectMaps2))) {
     return !1;
   }
-  for (var $jscomp$iter$21 = $jscomp.makeIterator(keys1), $jscomp$key$m1892927425$42$key = $jscomp$iter$21.next(), $jscomp$loop$m1892927425$45 = {}; !$jscomp$key$m1892927425$42$key.done; $jscomp$loop$m1892927425$45 = {value2$jscomp$7:void 0, mapMetadata$jscomp$2:void 0}, $jscomp$key$m1892927425$42$key = $jscomp$iter$21.next()) {
-    var key = $jscomp$key$m1892927425$42$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
+  for (var $jscomp$iter$21 = $jscomp.makeIterator(keys1), $jscomp$key$m192531680$42$key = $jscomp$iter$21.next(), $jscomp$loop$m192531680$45 = {}; !$jscomp$key$m192531680$42$key.done; $jscomp$loop$m192531680$45 = {value2$jscomp$7:void 0, mapMetadata$jscomp$2:void 0}, $jscomp$key$m192531680$42$key = $jscomp$iter$21.next()) {
+    var key = $jscomp$key$m192531680$42$key.value, has1 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable1, key, metadata1), has2 = module$contents$eeapiclient$domain_object_hasAndIsNotEmptyArray(serializable2, key, metadata2);
     if (has1 !== has2) {
       return !1;
     }
     if (has1) {
       var value1 = serializable1.Serializable$get(key);
-      $jscomp$loop$m1892927425$45.value2$jscomp$7 = serializable2.Serializable$get(key);
+      $jscomp$loop$m192531680$45.value2$jscomp$7 = serializable2.Serializable$get(key);
       if (arrays1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !0, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !0, !0)) {
           return !1;
         }
       } else if (objects1.hasOwnProperty(key)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !1, !0)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !1, !0)) {
           return !1;
         }
       } else if (objectMaps1.hasOwnProperty(key)) {
-        if ($jscomp$loop$m1892927425$45.mapMetadata$jscomp$2 = objectMaps1[key], $jscomp$loop$m1892927425$45.mapMetadata$jscomp$2.isPropertyArray) {
-          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7) || value1.some(function($jscomp$loop$m1892927425$45) {
+        if ($jscomp$loop$m192531680$45.mapMetadata$jscomp$2 = objectMaps1[key], $jscomp$loop$m192531680$45.mapMetadata$jscomp$2.isPropertyArray) {
+          if (!module$contents$eeapiclient$domain_object_sameKeys(value1, $jscomp$loop$m192531680$45.value2$jscomp$7) || value1.some(function($jscomp$loop$m192531680$45) {
             return function(v1, i) {
-              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$m1892927425$45.value2$jscomp$7[i], $jscomp$loop$m1892927425$45.mapMetadata$jscomp$2);
+              return !module$contents$eeapiclient$domain_object_deepEqualsObjectMap(v1, $jscomp$loop$m192531680$45.value2$jscomp$7[i], $jscomp$loop$m192531680$45.mapMetadata$jscomp$2);
             };
-          }($jscomp$loop$m1892927425$45))) {
+          }($jscomp$loop$m192531680$45))) {
             return !1;
           }
-        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, $jscomp$loop$m1892927425$45.mapMetadata$jscomp$2)) {
+        } else if (!module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, $jscomp$loop$m192531680$45.mapMetadata$jscomp$2)) {
           return !1;
         }
       } else if (Array.isArray(value1)) {
-        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !0, !1)) {
+        if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !0, !1)) {
           return !1;
         }
-      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m1892927425$45.value2$jscomp$7, !1, !1)) {
+      } else if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1, $jscomp$loop$m192531680$45.value2$jscomp$7, !1, !1)) {
         return !1;
       }
     }
@@ -6175,8 +6180,8 @@ function module$contents$eeapiclient$domain_object_deepEqualsObjectMap(value1, v
   if (!module$contents$eeapiclient$domain_object_sameKeys(value1, value2)) {
     return !1;
   }
-  for (var $jscomp$iter$22 = $jscomp.makeIterator(Object.keys(value1)), $jscomp$key$m1892927425$43$mapKey = $jscomp$iter$22.next(); !$jscomp$key$m1892927425$43$mapKey.done; $jscomp$key$m1892927425$43$mapKey = $jscomp$iter$22.next()) {
-    var mapKey = $jscomp$key$m1892927425$43$mapKey.value;
+  for (var $jscomp$iter$22 = $jscomp.makeIterator(Object.keys(value1)), $jscomp$key$m192531680$43$mapKey = $jscomp$iter$22.next(); !$jscomp$key$m192531680$43$mapKey.done; $jscomp$key$m192531680$43$mapKey = $jscomp$iter$22.next()) {
+    var mapKey = $jscomp$key$m192531680$43$mapKey.value;
     if (!module$contents$eeapiclient$domain_object_deepEqualsValue(value1[mapKey], value2[mapKey], mapMetadata.isValueArray, mapMetadata.isSerializable)) {
       return !1;
     }
@@ -6361,8 +6366,8 @@ function module$contents$safevalues$internals$resource_url_impl_unwrapResourceUr
   return goog.html.TrustedResourceUrl.unwrapTrustedScriptURL(value);
 }
 module$exports$safevalues$internals$resource_url_impl.unwrapResourceUrl = module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl;
-var $jscomp$templatelit$m425881384$5 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$m425881384$6 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$m425881384$7 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$m425881384$8 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), $jscomp$templatelit$m425881384$9 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$m425881384$10 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], 
-["\\0"]), $jscomp$templatelit$m425881384$11 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$m425881384$12 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
+var $jscomp$templatelit$1274514361$5 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$6 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\0"]), $jscomp$templatelit$1274514361$7 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$8 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), $jscomp$templatelit$1274514361$9 = $jscomp.createTemplateTagFirstArg([""]), $jscomp$templatelit$1274514361$10 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], 
+["\\0"]), $jscomp$templatelit$1274514361$11 = $jscomp.createTemplateTagFirstArgWithRaw(["\n"], ["\\n"]), $jscomp$templatelit$1274514361$12 = $jscomp.createTemplateTagFirstArgWithRaw(["\x00"], ["\\u0000"]), module$contents$safevalues$internals$string_literal_module = module$contents$safevalues$internals$string_literal_module || {id:"third_party/javascript/safevalues/internals/string_literal.closure.js"};
 function module$contents$safevalues$internals$string_literal_assertIsTemplateObject(templateObj, numExprs) {
   if (!module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) || numExprs + 1 !== templateObj.length) {
     throw new TypeError("\n    ############################## ERROR ##############################\n\n    It looks like you are trying to call a template tag function (fn`...`)\n    using the normal function syntax (fn(...)), which is not supported.\n\n    The functions in the safevalues library are not designed to be called\n    like normal functions, and doing so invalidates the security guarantees\n    that safevalues provides.\n\n    If you are stuck and not sure how to proceed, please reach out to us\n    instead through:\n     - go/ise-hardening-yaqs (preferred) // LINE-INTERNAL\n     - g/ise-hardening // LINE-INTERNAL\n     - https://github.com/google/safevalues/issues\n\n    ############################## ERROR ##############################");
@@ -6376,14 +6381,14 @@ function module$contents$safevalues$internals$string_literal_checkTranspiled(fn)
   return -1 === fn.toString().indexOf("`");
 }
 var module$contents$safevalues$internals$string_literal_isTranspiled = module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$m425881384$5);
+  return tag($jscomp$templatelit$1274514361$5);
 }) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$m425881384$6);
+  return tag($jscomp$templatelit$1274514361$6);
 }) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$m425881384$7);
+  return tag($jscomp$templatelit$1274514361$7);
 }) || module$contents$safevalues$internals$string_literal_checkTranspiled(function(tag) {
-  return tag($jscomp$templatelit$m425881384$8);
-}), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$9) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$10) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$11) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$m425881384$12);
+  return tag($jscomp$templatelit$1274514361$8);
+}), module$contents$safevalues$internals$string_literal_frozenTSA = module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$9) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$10) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$11) && module$contents$safevalues$internals$string_literal_checkFrozen($jscomp$templatelit$1274514361$12);
 function module$contents$safevalues$internals$string_literal_isTemplateObject(templateObj) {
   return Array.isArray(templateObj) && Array.isArray(templateObj.raw) && templateObj.length === templateObj.raw.length && (module$contents$safevalues$internals$string_literal_isTranspiled || templateObj !== templateObj.raw) && (module$contents$safevalues$internals$string_literal_isTranspiled && !module$contents$safevalues$internals$string_literal_frozenTSA || module$contents$safevalues$internals$string_literal_checkFrozen(templateObj)) ? 
   !0 : !1;
@@ -7070,7 +7075,6 @@ module$contents$goog$html$SafeHtml_SafeHtml.createStyle = function(styleSheet, a
 };
 module$contents$goog$html$SafeHtml_SafeHtml.createMetaRefresh = function(url, secs) {
   var unwrappedUrl = module$contents$safevalues$internals$url_impl_unwrapUrl(module$contents$safevalues$builders$url_builders_sanitizeUrl(url));
-  (module$contents$goog$labs$userAgent$browser_matchIE() || module$contents$goog$labs$userAgent$browser_matchEdgeHtml()) && goog.string.internal.contains(unwrappedUrl, ";") && (unwrappedUrl = "'" + unwrappedUrl.replace(/'/g, "%27") + "'");
   return module$contents$goog$html$SafeHtml_SafeHtml.createSafeHtmlTagSecurityPrivateDoNotAccessOrElse("meta", {"http-equiv":"refresh", content:(secs || 0) + "; url=" + unwrappedUrl});
 };
 module$contents$goog$html$SafeHtml_SafeHtml.join = function(separator, parts) {
@@ -7318,9 +7322,9 @@ function module$contents$safevalues$dom$elements$iframe_setSandboxDirectives(ifr
   }
 }
 module$exports$safevalues$dom$elements$iframe.TypeCannotBeUsedWithIntentError = function(type, intent) {
-  var $jscomp$tmp$error$494508883$1 = Error.call(this, type + " cannot be used with intent " + module$exports$safevalues$dom$elements$iframe.Intent[intent]);
-  this.message = $jscomp$tmp$error$494508883$1.message;
-  "stack" in $jscomp$tmp$error$494508883$1 && (this.stack = $jscomp$tmp$error$494508883$1.stack);
+  var $jscomp$tmp$error$240424914$1 = Error.call(this, type + " cannot be used with intent " + module$exports$safevalues$dom$elements$iframe.Intent[intent]);
+  this.message = $jscomp$tmp$error$240424914$1.message;
+  "stack" in $jscomp$tmp$error$240424914$1 && (this.stack = $jscomp$tmp$error$240424914$1.stack);
   this.type = type;
   this.intent = intent;
   this.name = "TypeCannotBeUsedWithIntentError";
@@ -7442,7 +7446,7 @@ module$exports$safevalues$dom$globals$window.getStyleNonce = function(win) {
   return module$contents$safevalues$dom$globals$window_getNonceFor("style", win);
 };
 function module$contents$safevalues$dom$globals$window_getNonceFor(elementName, win) {
-  var $jscomp$optchain$tmpm1987982378$0, $jscomp$optchain$tmpm1987982378$1, el = null == ($jscomp$optchain$tmpm1987982378$1 = ($jscomp$optchain$tmpm1987982378$0 = win.document).querySelector) ? void 0 : $jscomp$optchain$tmpm1987982378$1.call($jscomp$optchain$tmpm1987982378$0, elementName + "[nonce]");
+  var $jscomp$optchain$tmp220578679$0, $jscomp$optchain$tmp220578679$1, el = null == ($jscomp$optchain$tmp220578679$1 = ($jscomp$optchain$tmp220578679$0 = win.document).querySelector) ? void 0 : $jscomp$optchain$tmp220578679$1.call($jscomp$optchain$tmp220578679$0, elementName + "[nonce]");
   return el ? el.nonce || el.getAttribute("nonce") || "" : "";
 }
 ;var module$exports$safevalues$internals$script_impl = {}, module$contents$safevalues$internals$script_impl_module = module$contents$safevalues$internals$script_impl_module || {id:"third_party/javascript/safevalues/internals/script_impl.closure.js"}, module$contents$safevalues$internals$script_impl_trustedTypes = goog.global.trustedTypes;
@@ -7830,9 +7834,9 @@ function module$contents$safevalues$dom$globals$dom_parser_parseFromString(parse
 module$exports$safevalues$dom$globals$dom_parser.parseFromString = module$contents$safevalues$dom$globals$dom_parser_parseFromString;
 var module$exports$safevalues$dom$globals$fetch = {}, module$contents$safevalues$dom$globals$fetch_module = module$contents$safevalues$dom$globals$fetch_module || {id:"third_party/javascript/safevalues/dom/globals/fetch.closure.js"};
 module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError = function(url, typeName, contentType) {
-  var $jscomp$tmp$error$1153895636$4 = Error.call(this, url + " was requested as a " + typeName + ', but the response Content-Type, "' + contentType + " is not appropriate for this type of content.");
-  this.message = $jscomp$tmp$error$1153895636$4.message;
-  "stack" in $jscomp$tmp$error$1153895636$4 && (this.stack = $jscomp$tmp$error$1153895636$4.stack);
+  var $jscomp$tmp$error$m991617773$4 = Error.call(this, url + " was requested as a " + typeName + ', but the response Content-Type, "' + contentType + " is not appropriate for this type of content.");
+  this.message = $jscomp$tmp$error$m991617773$4.message;
+  "stack" in $jscomp$tmp$error$m991617773$4 && (this.stack = $jscomp$tmp$error$m991617773$4.stack);
   this.url = url;
   this.typeName = typeName;
   this.contentType = contentType;
@@ -7844,48 +7848,48 @@ function module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(
   return (0,module$exports$safevalues$internals$html_impl.createHtmlInternal)(html);
 }
 function module$contents$safevalues$dom$globals$fetch_fetchResourceUrl(u, init) {
-  var response, $jscomp$optchain$tmp1153895636$0, $jscomp$optchain$tmp1153895636$1, $jscomp$optchain$tmp1153895636$2, mimeType;
-  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$8) {
-    if (1 == $jscomp$generator$context$1153895636$8.nextAddress) {
-      return $jscomp$generator$context$1153895636$8.yield(fetch(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(u).toString(), init), 2);
+  var response, $jscomp$optchain$tmpm991617773$0, $jscomp$optchain$tmpm991617773$1, $jscomp$optchain$tmpm991617773$2, mimeType;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$8) {
+    if (1 == $jscomp$generator$context$m991617773$8.nextAddress) {
+      return $jscomp$generator$context$m991617773$8.yield(fetch(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(u).toString(), init), 2);
     }
-    response = $jscomp$generator$context$1153895636$8.yieldResult;
-    mimeType = null == ($jscomp$optchain$tmp1153895636$0 = response.headers.get("Content-Type")) ? void 0 : null == ($jscomp$optchain$tmp1153895636$1 = $jscomp$optchain$tmp1153895636$0.split(";", 2)) ? void 0 : null == ($jscomp$optchain$tmp1153895636$2 = $jscomp$optchain$tmp1153895636$1[0]) ? void 0 : $jscomp$optchain$tmp1153895636$2.toLowerCase();
-    return $jscomp$generator$context$1153895636$8.return({html:function() {
+    response = $jscomp$generator$context$m991617773$8.yieldResult;
+    mimeType = null == ($jscomp$optchain$tmpm991617773$0 = response.headers.get("Content-Type")) ? void 0 : null == ($jscomp$optchain$tmpm991617773$1 = $jscomp$optchain$tmpm991617773$0.split(";", 2)) ? void 0 : null == ($jscomp$optchain$tmpm991617773$2 = $jscomp$optchain$tmpm991617773$1[0]) ? void 0 : $jscomp$optchain$tmpm991617773$2.toLowerCase();
+    return $jscomp$generator$context$m991617773$8.return({html:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$5) {
-        if (1 == $jscomp$generator$context$1153895636$5.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$5) {
+        if (1 == $jscomp$generator$context$m991617773$5.nextAddress) {
           if ("text/html" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeHtml", "text/html");
           }
-          return $jscomp$generator$context$1153895636$5.yield(response.text(), 2);
+          return $jscomp$generator$context$m991617773$5.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$1153895636$5.yieldResult;
-        return $jscomp$generator$context$1153895636$5.return(module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(text));
+        text = $jscomp$generator$context$m991617773$5.yieldResult;
+        return $jscomp$generator$context$m991617773$5.return(module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(text));
       });
     }, script:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$6) {
-        if (1 == $jscomp$generator$context$1153895636$6.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$6) {
+        if (1 == $jscomp$generator$context$m991617773$6.nextAddress) {
           if ("text/javascript" !== mimeType && "application/javascript" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeScript", "text/javascript");
           }
-          return $jscomp$generator$context$1153895636$6.yield(response.text(), 2);
+          return $jscomp$generator$context$m991617773$6.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$1153895636$6.yieldResult;
-        return $jscomp$generator$context$1153895636$6.return(module$contents$safevalues$internals$script_impl_createScriptInternal(text));
+        text = $jscomp$generator$context$m991617773$6.yieldResult;
+        return $jscomp$generator$context$m991617773$6.return(module$contents$safevalues$internals$script_impl_createScriptInternal(text));
       });
     }, styleSheet:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$7) {
-        if (1 == $jscomp$generator$context$1153895636$7.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m991617773$7) {
+        if (1 == $jscomp$generator$context$m991617773$7.nextAddress) {
           if ("text/css" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeStyleSheet", "text/css");
           }
-          return $jscomp$generator$context$1153895636$7.yield(response.text(), 2);
+          return $jscomp$generator$context$m991617773$7.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$1153895636$7.yieldResult;
-        return $jscomp$generator$context$1153895636$7.return(module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(text));
+        text = $jscomp$generator$context$m991617773$7.yieldResult;
+        return $jscomp$generator$context$m991617773$7.return(module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(text));
       });
     }});
   });
@@ -9177,8 +9181,8 @@ function module$contents$eeapiclient$request_params_processParams(params) {
 }
 module$exports$eeapiclient$request_params.processParams = module$contents$eeapiclient$request_params_processParams;
 function module$contents$eeapiclient$request_params_buildQueryParams(params, mapping, passthroughParams) {
-  for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$28 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$m125199259$0$ = $jscomp$iter$28.next(); !$jscomp$key$m125199259$0$.done; $jscomp$key$m125199259$0$ = $jscomp$iter$28.next()) {
-    var $jscomp$destructuring$var27 = $jscomp.makeIterator($jscomp$key$m125199259$0$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var27.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var27.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
+  for (var urlQueryParams = passthroughParams = void 0 === passthroughParams ? {} : passthroughParams, $jscomp$iter$28 = $jscomp.makeIterator(Object.entries(mapping)), $jscomp$key$1047461284$0$ = $jscomp$iter$28.next(); !$jscomp$key$1047461284$0$.done; $jscomp$key$1047461284$0$ = $jscomp$iter$28.next()) {
+    var $jscomp$destructuring$var27 = $jscomp.makeIterator($jscomp$key$1047461284$0$.value), jsName__tsickle_destructured_1 = $jscomp$destructuring$var27.next().value, urlQueryParamName__tsickle_destructured_2 = $jscomp$destructuring$var27.next().value, jsName = jsName__tsickle_destructured_1, urlQueryParamName = urlQueryParamName__tsickle_destructured_2;
     jsName in params && (urlQueryParams[urlQueryParamName] = params[jsName]);
   }
   return urlQueryParams;
@@ -9189,8 +9193,8 @@ module$exports$eeapiclient$request_params.bypassCorsPreflight = function(params)
   var safeHeaders = {}, unsafeHeaders = {}, hasUnsafeHeaders = !1, hasContentType = !1;
   if (params.headers) {
     hasContentType = null != params.headers["Content-Type"];
-    for (var $jscomp$iter$29 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$m125199259$1$ = $jscomp$iter$29.next(); !$jscomp$key$m125199259$1$.done; $jscomp$key$m125199259$1$ = $jscomp$iter$29.next()) {
-      var $jscomp$destructuring$var29 = $jscomp.makeIterator($jscomp$key$m125199259$1$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var29.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var29.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
+    for (var $jscomp$iter$29 = $jscomp.makeIterator(Object.entries(params.headers)), $jscomp$key$1047461284$1$ = $jscomp$iter$29.next(); !$jscomp$key$1047461284$1$.done; $jscomp$key$1047461284$1$ = $jscomp$iter$29.next()) {
+      var $jscomp$destructuring$var29 = $jscomp.makeIterator($jscomp$key$1047461284$1$.value), key__tsickle_destructured_3 = $jscomp$destructuring$var29.next().value, value__tsickle_destructured_4 = $jscomp$destructuring$var29.next().value, key = key__tsickle_destructured_3, value = value__tsickle_destructured_4;
       module$contents$eeapiclient$request_params_simpleCorsAllowedHeaders.includes(key) ? safeHeaders[key] = value : (unsafeHeaders[key] = value, hasUnsafeHeaders = !0);
     }
   }
@@ -9235,15 +9239,15 @@ module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.addMetad
   this._metadataPayload += "Content-Type: application/json; charset=utf-8\r\n\r\n" + JSON.stringify(json) + ("\r\n--" + this._boundary + "\r\n");
 };
 module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.build = function() {
-  var $jscomp$this$m133342051$6 = this, payload = "--" + this._boundary + "\r\n";
+  var $jscomp$this$m667091202$6 = this, payload = "--" + this._boundary + "\r\n";
   payload += this._metadataPayload;
   return Promise.all(this.files.map(function(f) {
-    return $jscomp$this$m133342051$6.encodeFile(f);
+    return $jscomp$this$m667091202$6.encodeFile(f);
   })).then(function(filePayloads) {
-    for (var $jscomp$iter$30 = $jscomp.makeIterator(filePayloads), $jscomp$key$m133342051$9$filePayload = $jscomp$iter$30.next(); !$jscomp$key$m133342051$9$filePayload.done; $jscomp$key$m133342051$9$filePayload = $jscomp$iter$30.next()) {
-      payload += $jscomp$key$m133342051$9$filePayload.value;
+    for (var $jscomp$iter$30 = $jscomp.makeIterator(filePayloads), $jscomp$key$m667091202$9$filePayload = $jscomp$iter$30.next(); !$jscomp$key$m667091202$9$filePayload.done; $jscomp$key$m667091202$9$filePayload = $jscomp$iter$30.next()) {
+      payload += $jscomp$key$m667091202$9$filePayload.value;
     }
-    return payload += "\r\n--" + $jscomp$this$m133342051$6._boundary + "--";
+    return payload += "\r\n--" + $jscomp$this$m667091202$6._boundary + "--";
   });
 };
 module$exports$eeapiclient$multipart_request.MultipartRequest.prototype.encodeFile = function(file) {
@@ -9331,9 +9335,9 @@ module$exports$eeapiclient$promise_api_client.PromiseApiClient.prototype.$reques
   return this.$addHooksToRequest(requestParams, this.requestService.send(module$contents$eeapiclient$api_client_toMakeRequestParams(requestParams), responseCtor));
 };
 module$exports$eeapiclient$promise_api_client.PromiseApiClient.prototype.$uploadRequest = function(requestParams) {
-  var $jscomp$this$m296226325$4 = this, responseCtor = requestParams.responseCtor || void 0;
+  var $jscomp$this$1237977804$4 = this, responseCtor = requestParams.responseCtor || void 0;
   return this.$addHooksToRequest(requestParams, module$contents$eeapiclient$api_client_toMultipartMakeRequestParams(requestParams).then(function(params) {
-    return $jscomp$this$m296226325$4.requestService.send(params, responseCtor);
+    return $jscomp$this$1237977804$4.requestService.send(params, responseCtor);
   }));
 };
 var module$exports$eeapiclient$ee_api_client = {}, module$contents$eeapiclient$ee_api_client_module = module$contents$eeapiclient$ee_api_client_module || {id:"geo/gestalt/client/javascript/v1/ee_api_client.closure.js"};
@@ -15464,8 +15468,8 @@ module$exports$safevalues$builders$html_formatter.HtmlFormatter = function() {
   this.replacements = new Map();
 };
 module$exports$safevalues$builders$html_formatter.HtmlFormatter.prototype.format = function(format) {
-  var $jscomp$this$1018007701$5 = this, openedTags = [], marker = (0,module$exports$safevalues$builders$html_builders.htmlEscape)("_safevalues_format_marker_:").toString(), html = (0,module$exports$safevalues$builders$html_builders.htmlEscape)(format).toString().replace(new RegExp("\\{" + marker + "[\\w&#;]+\\}", "g"), function(match) {
-    return $jscomp$this$1018007701$5.replaceFormattingString(openedTags, match);
+  var $jscomp$this$380122516$5 = this, openedTags = [], marker = (0,module$exports$safevalues$builders$html_builders.htmlEscape)("_safevalues_format_marker_:").toString(), html = (0,module$exports$safevalues$builders$html_builders.htmlEscape)(format).toString().replace(new RegExp("\\{" + marker + "[\\w&#;]+\\}", "g"), function(match) {
+    return $jscomp$this$380122516$5.replaceFormattingString(openedTags, match);
   });
   if (0 !== openedTags.length) {
     if (goog.DEBUG) {
@@ -15593,9 +15597,10 @@ module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_tabl
 var module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table = {}, module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_module = module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_module || {id:"third_party/javascript/safevalues/builders/html_sanitizer/sanitizer_table/default_sanitizer_table.closure.js"}, 
 module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_ELEMENTS = "ARTICLE SECTION NAV ASIDE H1 H2 H3 H4 H5 H6 HEADER FOOTER ADDRESS P HR PRE BLOCKQUOTE OL UL LH LI DL DT DD FIGURE FIGCAPTION MAIN DIV EM STRONG SMALL S CITE Q DFN ABBR RUBY RB RT RTC RP DATA TIME CODE VAR SAMP KBD SUB SUP I B U MARK BDI BDO SPAN BR WBR INS DEL PICTURE PARAM TRACK MAP TABLE CAPTION COLGROUP COL TBODY THEAD TFOOT TR TD TH SELECT DATALIST OPTGROUP OPTION OUTPUT PROGRESS METER FIELDSET LEGEND DETAILS SUMMARY MENU DIALOG SLOT CANVAS FONT CENTER ACRONYM BASEFONT BIG DIR HGROUP STRIKE TT".split(" "), 
 module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ELEMENT_POLICIES = [["A", new Map([["href", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP_AND_SANITIZE_URL}]])], ["AREA", new Map([["href", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP_AND_SANITIZE_URL}]])], 
-["LINK", new Map([["href", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP_AND_SANITIZE_URL, conditions:new Map([["rel", new Set("alternate author bookmark canonical cite help icon license next prefetch dns-prefetch prerender preconnect preload prev search subresource".split(" "))]])}]])], ["SOURCE", new Map([["src", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]])], 
-["IMG", new Map([["src", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]])], ["VIDEO", new Map([["src", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]])], ["AUDIO", new Map([["src", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]])]], 
-module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_GLOBAL_ATTRIBUTES = "title aria-atomic aria-autocomplete aria-busy aria-checked aria-current aria-disabled aria-dropeffect aria-expanded aria-haspopup aria-hidden aria-invalid aria-label aria-level aria-live aria-multiline aria-multiselectable aria-orientation aria-posinset aria-pressed aria-readonly aria-relevant aria-required aria-selected aria-setsize aria-sort aria-valuemax aria-valuemin aria-valuenow aria-valuetext alt align autocapitalize autocomplete autocorrect autofocus autoplay bgcolor border cellpadding cellspacing checked color cols colspan controls datetime disabled download draggable enctype face formenctype frameborder height hreflang hidden ismap label lang loop max maxlength media minlength min multiple muted nonce open placeholder preload rel required reversed role rows rowspan selected shape size sizes slot span spellcheck start step summary translate type valign value width wrap itemscope itemtype itemid itemprop itemref".split(" "), 
+["LINK", new Map([["href", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP_AND_SANITIZE_URL, conditions:new Map([["rel", new Set("alternate author bookmark canonical cite help icon license next prefetch dns-prefetch prerender preconnect preload prev search subresource".split(" "))]])}]])], ["SOURCE", new Map([["src", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}], 
+["srcset", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]])], ["IMG", new Map([["src", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}], ["srcset", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]])], 
+["VIDEO", new Map([["src", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]])], ["AUDIO", new Map([["src", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP}]])]], module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_ALLOWED_GLOBAL_ATTRIBUTES = 
+"title aria-atomic aria-autocomplete aria-busy aria-checked aria-current aria-disabled aria-dropeffect aria-expanded aria-haspopup aria-hidden aria-invalid aria-label aria-level aria-live aria-multiline aria-multiselectable aria-orientation aria-posinset aria-pressed aria-readonly aria-relevant aria-required aria-selected aria-setsize aria-sort aria-valuemax aria-valuemin aria-valuenow aria-valuetext alt align autocapitalize autocomplete autocorrect autofocus autoplay bgcolor border cellpadding cellspacing checked color cols colspan controls datetime disabled download draggable enctype face formenctype frameborder height hreflang hidden ismap label lang loop max maxlength media minlength min multiple muted nonce open placeholder preload rel required reversed role rows rowspan selected shape size sizes slot span spellcheck start step summary translate type valign value width wrap itemscope itemtype itemid itemprop itemref".split(" "), 
 module$contents$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table_GLOBAL_ATTRIBUTE_POLICIES = [["dir", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP_AND_NORMALIZE, conditions:module$contents$safevalues$internals$pure_pure(function() {
   return new Map([["dir", new Set(["auto", "ltr", "rtl"])]]);
 })}], ["async", {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP_AND_NORMALIZE, conditions:module$contents$safevalues$internals$pure_pure(function() {
@@ -15645,8 +15650,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   return this.sanitizeToFragmentInternal(html, inertDocument);
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeToFragmentInternal = function(html, inertDocument) {
-  for (var $jscomp$this$m1085474118$10 = this, dirtyFragment = module$contents$safevalues$builders$html_sanitizer$inert_fragment_createInertFragment(html, inertDocument), treeWalker = document.createTreeWalker(dirtyFragment, 5, function(n) {
-    return $jscomp$this$m1085474118$10.nodeFilter(n);
+  for (var $jscomp$this$m1803429925$10 = this, dirtyFragment = module$contents$safevalues$builders$html_sanitizer$inert_fragment_createInertFragment(html, inertDocument), treeWalker = document.createTreeWalker(dirtyFragment, 5, function(n) {
+    return $jscomp$this$m1803429925$10.nodeFilter(n);
   }, !1), currentNode = treeWalker.nextNode(), sanitizedFragment = inertDocument.createDocumentFragment(), sanitizedParent = sanitizedFragment; null !== currentNode;) {
     var sanitizedNode = void 0;
     if (module$contents$safevalues$builders$html_sanitizer$no_clobber_isText(currentNode)) {
@@ -15673,8 +15678,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   return document.createTextNode(textNode.data);
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeElementNode = function(elementNode, inertDocument) {
-  for (var elementName = module$contents$safevalues$builders$html_sanitizer$no_clobber_getNodeName(elementNode), newNode = inertDocument.createElement(elementName), dirtyAttributes = elementNode.attributes, $jscomp$iter$31 = $jscomp.makeIterator(dirtyAttributes), $jscomp$key$m1085474118$25$ = $jscomp$iter$31.next(); !$jscomp$key$m1085474118$25$.done; $jscomp$key$m1085474118$25$ = $jscomp$iter$31.next()) {
-    var $jscomp$destructuring$var31 = $jscomp$key$m1085474118$25$.value, name = $jscomp$destructuring$var31.name, value = $jscomp$destructuring$var31.value, policy = this.sanitizerTable.getAttributePolicy(name, elementName);
+  for (var elementName = module$contents$safevalues$builders$html_sanitizer$no_clobber_getNodeName(elementNode), newNode = inertDocument.createElement(elementName), dirtyAttributes = elementNode.attributes, $jscomp$iter$31 = $jscomp.makeIterator(dirtyAttributes), $jscomp$key$m1803429925$25$ = $jscomp$iter$31.next(); !$jscomp$key$m1803429925$25$.done; $jscomp$key$m1803429925$25$ = $jscomp$iter$31.next()) {
+    var $jscomp$destructuring$var31 = $jscomp$key$m1803429925$25$.value, name = $jscomp$destructuring$var31.name, value = $jscomp$destructuring$var31.value, policy = this.sanitizerTable.getAttributePolicy(name, elementName);
     if (this.satisfiesAllConditions(policy.conditions, dirtyAttributes)) {
       switch(policy.policyAction) {
         case module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP:
@@ -15727,8 +15732,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   if (!conditions) {
     return !0;
   }
-  for (var $jscomp$iter$32 = $jscomp.makeIterator(conditions), $jscomp$key$m1085474118$26$ = $jscomp$iter$32.next(); !$jscomp$key$m1085474118$26$.done; $jscomp$key$m1085474118$26$ = $jscomp$iter$32.next()) {
-    var $jscomp$destructuring$var33 = $jscomp.makeIterator($jscomp$key$m1085474118$26$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var33.next().value, expectedValues = $jscomp$destructuring$var33.next().value, $jscomp$optchain$tmpm1085474118$0 = void 0, value = null == ($jscomp$optchain$tmpm1085474118$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1085474118$0.value;
+  for (var $jscomp$iter$32 = $jscomp.makeIterator(conditions), $jscomp$key$m1803429925$26$ = $jscomp$iter$32.next(); !$jscomp$key$m1803429925$26$.done; $jscomp$key$m1803429925$26$ = $jscomp$iter$32.next()) {
+    var $jscomp$destructuring$var33 = $jscomp.makeIterator($jscomp$key$m1803429925$26$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var33.next().value, expectedValues = $jscomp$destructuring$var33.next().value, $jscomp$optchain$tmpm1803429925$0 = void 0, value = null == ($jscomp$optchain$tmpm1803429925$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1803429925$0.value;
     if (value && !expectedValues.has(value)) {
       return !1;
     }
@@ -15782,8 +15787,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
   this.sanitizerTable = module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_sanitizer_table.defaultSanitizerTable;
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder.prototype.onlyAllowElements = function(elementSet) {
-  for (var allowedElements = new Set(), allowedElementPolicies = new Map(), $jscomp$iter$33 = $jscomp.makeIterator(elementSet), $jscomp$key$435282654$0$element = $jscomp$iter$33.next(); !$jscomp$key$435282654$0$element.done; $jscomp$key$435282654$0$element = $jscomp$iter$33.next()) {
-    var element = $jscomp$key$435282654$0$element.value;
+  for (var allowedElements = new Set(), allowedElementPolicies = new Map(), $jscomp$iter$33 = $jscomp.makeIterator(elementSet), $jscomp$key$m1412690177$0$element = $jscomp$iter$33.next(); !$jscomp$key$m1412690177$0$element.done; $jscomp$key$m1412690177$0$element = $jscomp$iter$33.next()) {
+    var element = $jscomp$key$m1412690177$0$element.value;
     element = element.toUpperCase();
     if (!this.sanitizerTable.isAllowedElement(element)) {
       throw Error("Element: " + element + ", is not allowed by html5_contract.textpb");
@@ -15801,8 +15806,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
     throw Error("Element: " + element + " is not a custom element");
   }
   if (allowedAttributes) {
-    for (var elementPolicy = new Map(), $jscomp$iter$34 = $jscomp.makeIterator(allowedAttributes), $jscomp$key$435282654$1$attribute = $jscomp$iter$34.next(); !$jscomp$key$435282654$1$attribute.done; $jscomp$key$435282654$1$attribute = $jscomp$iter$34.next()) {
-      elementPolicy.set($jscomp$key$435282654$1$attribute.value, {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP});
+    for (var elementPolicy = new Map(), $jscomp$iter$34 = $jscomp.makeIterator(allowedAttributes), $jscomp$key$m1412690177$1$attribute = $jscomp$iter$34.next(); !$jscomp$key$m1412690177$1$attribute.done; $jscomp$key$m1412690177$1$attribute = $jscomp$iter$34.next()) {
+      elementPolicy.set($jscomp$key$m1412690177$1$attribute.value, {policyAction:module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP});
     }
     allowedElementPolicies.set(element, elementPolicy);
   } else {
@@ -15812,15 +15817,15 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
   return this;
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder.prototype.onlyAllowAttributes = function(attributeSet) {
-  for (var allowedGlobalAttributes = new Set(), globalAttributePolicies = new Map(), elementPolicies = new Map(), $jscomp$iter$35 = $jscomp.makeIterator(attributeSet), $jscomp$key$435282654$2$attribute = $jscomp$iter$35.next(); !$jscomp$key$435282654$2$attribute.done; $jscomp$key$435282654$2$attribute = $jscomp$iter$35.next()) {
-    var attribute = $jscomp$key$435282654$2$attribute.value;
+  for (var allowedGlobalAttributes = new Set(), globalAttributePolicies = new Map(), elementPolicies = new Map(), $jscomp$iter$35 = $jscomp.makeIterator(attributeSet), $jscomp$key$m1412690177$2$attribute = $jscomp$iter$35.next(); !$jscomp$key$m1412690177$2$attribute.done; $jscomp$key$m1412690177$2$attribute = $jscomp$iter$35.next()) {
+    var attribute = $jscomp$key$m1412690177$2$attribute.value;
     this.sanitizerTable.allowedGlobalAttributes.has(attribute) && allowedGlobalAttributes.add(attribute);
     this.sanitizerTable.globalAttributePolicies.has(attribute) && globalAttributePolicies.set(attribute, this.sanitizerTable.globalAttributePolicies.get(attribute));
   }
-  for (var $jscomp$iter$37 = $jscomp.makeIterator(this.sanitizerTable.elementPolicies.entries()), $jscomp$key$435282654$4$ = $jscomp$iter$37.next(); !$jscomp$key$435282654$4$.done; $jscomp$key$435282654$4$ = $jscomp$iter$37.next()) {
-    for (var $jscomp$destructuring$var35 = $jscomp.makeIterator($jscomp$key$435282654$4$.value), elementName__tsickle_destructured_1 = $jscomp$destructuring$var35.next().value, originalElementPolicy__tsickle_destructured_2 = $jscomp$destructuring$var35.next().value, elementName = elementName__tsickle_destructured_1, newElementPolicy = new Map(), $jscomp$iter$36 = $jscomp.makeIterator(originalElementPolicy__tsickle_destructured_2.entries()), $jscomp$key$435282654$3$ = $jscomp$iter$36.next(); !$jscomp$key$435282654$3$.done; $jscomp$key$435282654$3$ = 
+  for (var $jscomp$iter$37 = $jscomp.makeIterator(this.sanitizerTable.elementPolicies.entries()), $jscomp$key$m1412690177$4$ = $jscomp$iter$37.next(); !$jscomp$key$m1412690177$4$.done; $jscomp$key$m1412690177$4$ = $jscomp$iter$37.next()) {
+    for (var $jscomp$destructuring$var35 = $jscomp.makeIterator($jscomp$key$m1412690177$4$.value), elementName__tsickle_destructured_1 = $jscomp$destructuring$var35.next().value, originalElementPolicy__tsickle_destructured_2 = $jscomp$destructuring$var35.next().value, elementName = elementName__tsickle_destructured_1, newElementPolicy = new Map(), $jscomp$iter$36 = $jscomp.makeIterator(originalElementPolicy__tsickle_destructured_2.entries()), $jscomp$key$m1412690177$3$ = $jscomp$iter$36.next(); !$jscomp$key$m1412690177$3$.done; $jscomp$key$m1412690177$3$ = 
     $jscomp$iter$36.next()) {
-      var $jscomp$destructuring$var37 = $jscomp.makeIterator($jscomp$key$435282654$3$.value), attribute__tsickle_destructured_3 = $jscomp$destructuring$var37.next().value, attributePolicy__tsickle_destructured_4 = $jscomp$destructuring$var37.next().value, attribute$jscomp$0 = attribute__tsickle_destructured_3, attributePolicy = attributePolicy__tsickle_destructured_4;
+      var $jscomp$destructuring$var37 = $jscomp.makeIterator($jscomp$key$m1412690177$3$.value), attribute__tsickle_destructured_3 = $jscomp$destructuring$var37.next().value, attributePolicy__tsickle_destructured_4 = $jscomp$destructuring$var37.next().value, attribute$jscomp$0 = attribute__tsickle_destructured_3, attributePolicy = attributePolicy__tsickle_destructured_4;
       attributeSet.has(attribute$jscomp$0) && newElementPolicy.set(attribute$jscomp$0, attributePolicy);
     }
     elementPolicies.set(elementName, newElementPolicy);
@@ -15829,8 +15834,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSan
   return this;
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer_builder.HtmlSanitizerBuilder.prototype.allowDataAttributes = function(attributes) {
-  for (var allowedGlobalAttributes = new Set(this.sanitizerTable.allowedGlobalAttributes), $jscomp$iter$38 = $jscomp.makeIterator(attributes), $jscomp$key$435282654$5$attribute = $jscomp$iter$38.next(); !$jscomp$key$435282654$5$attribute.done; $jscomp$key$435282654$5$attribute = $jscomp$iter$38.next()) {
-    var attribute = $jscomp$key$435282654$5$attribute.value;
+  for (var allowedGlobalAttributes = new Set(this.sanitizerTable.allowedGlobalAttributes), $jscomp$iter$38 = $jscomp.makeIterator(attributes), $jscomp$key$m1412690177$5$attribute = $jscomp$iter$38.next(); !$jscomp$key$m1412690177$5$attribute.done; $jscomp$key$m1412690177$5$attribute = $jscomp$iter$38.next()) {
+    var attribute = $jscomp$key$m1412690177$5$attribute.value;
     if (0 !== attribute.indexOf("data-")) {
       throw Error("data attribute: " + attribute + ' does not begin with the prefix "data-"');
     }
@@ -16081,12 +16086,12 @@ function module$contents$safevalues$reporting$reporting_isChangedBySanitizing(s,
   }
   try {
     module$contents$safevalues$builders$html_sanitizer$html_sanitizer_lenientlySanitizeHtmlAssertUnchanged(s);
-  } catch ($jscomp$unused$catch$696273141$0) {
+  } catch ($jscomp$unused$catch$442189172$0) {
     return module$contents$safevalues$reporting$reporting_reportLegacyConversion(options, module$contents$safevalues$reporting$reporting_ReportingType.HTML_CHANGED_BY_RELAXED_SANITIZING), !0;
   }
   try {
     module$contents$safevalues$builders$html_sanitizer$html_sanitizer_sanitizeHtmlAssertUnchanged(s);
-  } catch ($jscomp$unused$catch$696273141$1) {
+  } catch ($jscomp$unused$catch$442189172$1) {
     return module$contents$safevalues$reporting$reporting_reportLegacyConversion(options, module$contents$safevalues$reporting$reporting_ReportingType.HTML_CHANGED_BY_SANITIZING), !0;
   }
   return !1;
@@ -17276,7 +17281,7 @@ goog.async.nextTick = function(callback, opt_context, opt_useSetImmediate) {
   "function" === typeof goog.global.setImmediate && (opt_useSetImmediate || goog.async.nextTick.useSetImmediate_()) ? goog.global.setImmediate(cb) : (goog.async.nextTick.nextTickImpl || (goog.async.nextTick.nextTickImpl = goog.async.nextTick.getNextTickImpl_()), goog.async.nextTick.nextTickImpl(cb));
 };
 goog.async.nextTick.useSetImmediate_ = function() {
-  return goog.global.Window && goog.global.Window.prototype && !module$contents$goog$labs$userAgent$browser_matchEdgeHtml() && goog.global.Window.prototype.setImmediate == goog.global.setImmediate ? !1 : !0;
+  return goog.global.Window && goog.global.Window.prototype && goog.global.Window.prototype.setImmediate == goog.global.setImmediate ? !1 : !0;
 };
 goog.async.nextTick.getNextTickImpl_ = function() {
   var Channel = goog.global.MessageChannel;
@@ -17298,7 +17303,7 @@ goog.async.nextTick.getNextTickImpl_ = function() {
       win.postMessage(message, origin);
     }};
   });
-  if ("undefined" !== typeof Channel && !module$contents$goog$labs$userAgent$browser_matchIE()) {
+  if ("undefined" !== typeof Channel) {
     var channel = new Channel(), head = {}, tail = head;
     channel.port1.onmessage = function() {
       if (void 0 !== head.next) {
@@ -18552,7 +18557,7 @@ goog.net.XhrIo = function(opt_xmlHttpFactory) {
   this.timeoutInterval_ = 0;
   this.timeoutId_ = null;
   this.responseType_ = goog.net.XhrIo.ResponseType.DEFAULT;
-  this.useXhr2Timeout_ = this.progressEventsEnabled_ = this.withCredentials_ = !1;
+  this.progressEventsEnabled_ = this.withCredentials_ = !1;
   this.attributionReportingOptions_ = this.trustToken_ = null;
 };
 goog.inherits(goog.net.XhrIo, goog.events.EventTarget);
@@ -18563,8 +18568,6 @@ goog.net.XhrIo.CONTENT_TRANSFER_ENCODING = "Content-Transfer-Encoding";
 goog.net.XhrIo.HTTP_SCHEME_PATTERN = /^https?$/i;
 goog.net.XhrIo.METHODS_WITH_FORM_DATA = ["POST", "PUT"];
 goog.net.XhrIo.FORM_CONTENT_TYPE = "application/x-www-form-urlencoded;charset=utf-8";
-goog.net.XhrIo.XHR2_TIMEOUT_ = "timeout";
-goog.net.XhrIo.XHR2_ON_TIMEOUT_ = "ontimeout";
 goog.net.XhrIo.sendInstances_ = [];
 goog.net.XhrIo.send = function(url, opt_callback, opt_method, opt_content, opt_headers, opt_timeoutInterval, opt_withCredentials) {
   var x = new goog.net.XhrIo();
@@ -18649,8 +18652,8 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
         headers.set(key, opt_headers[key]);
       }
     } else if ("function" === typeof opt_headers.keys && "function" === typeof opt_headers.get) {
-      for (var $jscomp$iter$39 = $jscomp.makeIterator(opt_headers.keys()), $jscomp$key$m71669834$55$key = $jscomp$iter$39.next(); !$jscomp$key$m71669834$55$key.done; $jscomp$key$m71669834$55$key = $jscomp$iter$39.next()) {
-        var key$jscomp$0 = $jscomp$key$m71669834$55$key.value;
+      for (var $jscomp$iter$39 = $jscomp.makeIterator(opt_headers.keys()), $jscomp$key$m71669834$54$key = $jscomp$iter$39.next(); !$jscomp$key$m71669834$54$key.done; $jscomp$key$m71669834$54$key = $jscomp$iter$39.next()) {
+        var key$jscomp$0 = $jscomp$key$m71669834$54$key.value;
         headers.set(key$jscomp$0, opt_headers.get(key$jscomp$0));
       }
     } else {
@@ -18661,8 +18664,8 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
     return goog.string.caseInsensitiveEquals(goog.net.XhrIo.CONTENT_TYPE_HEADER, header);
   }), contentIsFormData = goog.global.FormData && content instanceof goog.global.FormData;
   !module$contents$goog$array_contains(goog.net.XhrIo.METHODS_WITH_FORM_DATA, method) || contentTypeKey || contentIsFormData || headers.set(goog.net.XhrIo.CONTENT_TYPE_HEADER, goog.net.XhrIo.FORM_CONTENT_TYPE);
-  for (var $jscomp$iter$40 = $jscomp.makeIterator(headers), $jscomp$key$m71669834$56$ = $jscomp$iter$40.next(); !$jscomp$key$m71669834$56$.done; $jscomp$key$m71669834$56$ = $jscomp$iter$40.next()) {
-    var $jscomp$destructuring$var39 = $jscomp.makeIterator($jscomp$key$m71669834$56$.value), key$jscomp$1 = $jscomp$destructuring$var39.next().value, value = $jscomp$destructuring$var39.next().value;
+  for (var $jscomp$iter$40 = $jscomp.makeIterator(headers), $jscomp$key$m71669834$55$ = $jscomp$iter$40.next(); !$jscomp$key$m71669834$55$.done; $jscomp$key$m71669834$55$ = $jscomp$iter$40.next()) {
+    var $jscomp$destructuring$var39 = $jscomp.makeIterator($jscomp$key$m71669834$55$.value), key$jscomp$1 = $jscomp$destructuring$var39.next().value, value = $jscomp$destructuring$var39.next().value;
     this.xhr_.setRequestHeader(key$jscomp$1, value);
   }
   this.responseType_ && (this.xhr_.responseType = this.responseType_);
@@ -18682,14 +18685,10 @@ goog.net.XhrIo.prototype.send = function(url, opt_method, opt_content, opt_heade
     }
   }
   try {
-    this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (this.useXhr2Timeout_ = goog.net.XhrIo.shouldUseXhr2Timeout_(this.xhr_), goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete, xhr2 " + this.useXhr2Timeout_)), this.useXhr2Timeout_ ? (this.xhr_[goog.net.XhrIo.XHR2_TIMEOUT_] = this.timeoutInterval_, this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = goog.bind(this.timeout_, this)) : this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, 
-    this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
+    this.cleanUpTimeoutTimer_(), 0 < this.timeoutInterval_ && (goog.log.fine(this.logger_, this.formatMsg_("Will abort after " + this.timeoutInterval_ + "ms if incomplete")), this.timeoutId_ = goog.Timer.callOnce(this.timeout_, this.timeoutInterval_, this)), goog.log.fine(this.logger_, this.formatMsg_("Sending request")), this.inSend_ = !0, this.xhr_.send(content), this.inSend_ = !1;
   } catch (err) {
     goog.log.fine(this.logger_, this.formatMsg_("Send error: " + err.message)), this.error_(goog.net.ErrorCode.EXCEPTION, err);
   }
-};
-goog.net.XhrIo.shouldUseXhr2Timeout_ = function(xhr) {
-  return goog.userAgent.IE && "number" === typeof xhr[goog.net.XhrIo.XHR2_TIMEOUT_] && void 0 !== xhr[goog.net.XhrIo.XHR2_ON_TIMEOUT_];
 };
 goog.net.XhrIo.prototype.createXhr = function() {
   return this.xmlHttpFactory_ ? this.xmlHttpFactory_.createInstance() : goog.net.XmlHttp();
@@ -18771,7 +18770,6 @@ goog.net.XhrIo.prototype.cleanUpXhr_ = function(opt_fromDispose) {
   }
 };
 goog.net.XhrIo.prototype.cleanUpTimeoutTimer_ = function() {
-  this.xhr_ && this.useXhr2Timeout_ && (this.xhr_[goog.net.XhrIo.XHR2_ON_TIMEOUT_] = null);
   this.timeoutId_ && (goog.Timer.clear(this.timeoutId_), this.timeoutId_ = null);
 };
 goog.net.XhrIo.prototype.isActive = function() {
@@ -18979,7 +18977,7 @@ var $jscomp$templatelit$294235699$99 = $jscomp.createTemplateTagFirstArg(["https
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.401";
+ee.apiclient.API_CLIENT_VERSION = "API_CLIENT_VERSION_VALUE";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -19269,8 +19267,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.401";
-  "0.1.401" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "API_CLIENT_VERSION_VALUE";
+  "API_CLIENT_VERSION_VALUE" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -22215,7 +22213,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   if (!(this instanceof ee.Geometry)) {
     return ee.ComputedObject.construct(ee.Geometry, arguments);
   }
-  if (!("type" in geoJson)) {
+  if ("object" !== typeof geoJson || !("type" in geoJson)) {
     var args = ee.arguments.extractFromFunction(ee.Geometry, arguments);
     geoJson = args.geoJson;
     opt_proj = args.proj;
@@ -25099,8 +25097,7 @@ goog.style.getPosition = function(element) {
   return new goog.math.Coordinate(element.offsetLeft, element.offsetTop);
 };
 goog.style.getClientViewportElement = function(opt_node) {
-  var doc = opt_node ? goog.dom.getOwnerDocument(opt_node) : goog.dom.getDocument();
-  return !goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9) || goog.dom.getDomHelper(doc).isCss1CompatMode() ? doc.documentElement : doc.body;
+  return (opt_node ? goog.dom.getOwnerDocument(opt_node) : goog.dom.getDocument()).documentElement;
 };
 goog.style.getViewportPageOffset = function(doc) {
   var body = doc.body, documentElement = doc.documentElement;
@@ -25114,9 +25111,6 @@ goog.style.getBoundingClientRect_ = function(el) {
   }
 };
 goog.style.getOffsetParent = function(element) {
-  if (goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(8)) {
-    return goog.asserts.assert(element && "offsetParent" in element), element.offsetParent;
-  }
   for (var doc = goog.dom.getOwnerDocument(element), positionStyle = goog.style.getStyle_(element, "position"), skipStatic = "fixed" == positionStyle || "absolute" == positionStyle, parent = element.parentNode; parent && parent != doc; parent = parent.parentNode) {
     if (parent.nodeType == goog.dom.NodeType.DOCUMENT_FRAGMENT && parent.host && (parent = parent.host), positionStyle = goog.style.getStyle_(parent, "position"), skipStatic = skipStatic && "static" == positionStyle && parent != doc.documentElement && parent != doc.body, !skipStatic && (parent.scrollWidth > parent.clientWidth || parent.scrollHeight > parent.clientHeight || "fixed" == positionStyle || "absolute" == positionStyle || "relative" == positionStyle)) {
       return parent;
@@ -25126,7 +25120,7 @@ goog.style.getOffsetParent = function(element) {
 };
 goog.style.getVisibleRectForElement = function(element) {
   for (var visibleRect = new goog.math.Box(0, Infinity, Infinity, 0), dom = goog.dom.getDomHelper(element), body = dom.getDocument().body, documentElement = dom.getDocument().documentElement, scrollEl = dom.getDocumentScrollElement(), el = element; el = goog.style.getOffsetParent(el);) {
-    if (!(goog.userAgent.IE && 0 == el.clientWidth || goog.userAgent.WEBKIT && 0 == el.clientHeight && el == body) && el != body && el != documentElement && "visible" != goog.style.getStyle_(el, "overflow")) {
+    if ((!goog.userAgent.WEBKIT || 0 != el.clientHeight || el != body) && el != body && el != documentElement && "visible" != goog.style.getStyle_(el, "overflow")) {
       var pos = goog.style.getPageOffset(el), client = goog.style.getClientLeftTop(el);
       pos.x += client.x;
       pos.y += client.y;
@@ -25148,7 +25142,6 @@ goog.style.getContainerOffsetToScrollInto = function(element, opt_container, opt
   var container = opt_container || goog.dom.getDocumentScrollElement(), elementPos = goog.style.getPageOffset(element), containerPos = goog.style.getPageOffset(container), containerBorder = goog.style.getBorderBox(container);
   if (container == goog.dom.getDocumentScrollElement()) {
     var relX = elementPos.x - container.scrollLeft, relY = elementPos.y - container.scrollTop;
-    goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(10) && (relX += containerBorder.left, relY += containerBorder.top);
   } else {
     relX = elementPos.x - containerPos.x - containerBorder.left, relY = elementPos.y - containerPos.y - containerBorder.top;
   }
@@ -25199,7 +25192,6 @@ goog.style.translateRectForAnotherFrame = function(rect, origBase, newBase) {
   if (origBase.getDocument() != newBase.getDocument()) {
     var body = origBase.getDocument().body, pos = goog.style.getFramedPageOffset(body, newBase.getWindow());
     pos = goog.math.Coordinate.difference(pos, goog.style.getPageOffset(body));
-    !goog.userAgent.IE || goog.userAgent.isDocumentModeOrHigher(9) || origBase.isCss1CompatMode() || (pos = goog.math.Coordinate.difference(pos, origBase.getDocumentScroll()));
     rect.left += pos.x;
     rect.top += pos.y;
   }
@@ -25329,13 +25321,7 @@ goog.style.isElementShown = function(el) {
   return "none" != el.style.display;
 };
 goog.style.installSafeStyleSheet = function(safeStyleSheet, opt_node) {
-  var dh = goog.dom.getDomHelper(opt_node), doc = dh.getDocument();
-  if (goog.userAgent.IE && doc.createStyleSheet) {
-    var styleSheet = doc.createStyleSheet();
-    goog.style.setSafeStyleSheet(styleSheet, safeStyleSheet);
-    return styleSheet;
-  }
-  var head = dh.getElementsByTagNameAndClass(goog.dom.TagName.HEAD)[0];
+  var dh = goog.dom.getDomHelper(opt_node), head = dh.getElementsByTagNameAndClass(goog.dom.TagName.HEAD)[0];
   if (!head) {
     var body = dh.getElementsByTagNameAndClass(goog.dom.TagName.BODY)[0];
     head = dh.createDom(goog.dom.TagName.HEAD);
@@ -25352,7 +25338,7 @@ goog.style.uninstallStyles = function(styleSheet) {
 };
 goog.style.setSafeStyleSheet = function(element, safeStyleSheet) {
   var stylesString = module$contents$goog$html$SafeStyleSheet_SafeStyleSheet.unwrap(safeStyleSheet);
-  goog.userAgent.IE && void 0 !== element.cssText ? element.cssText = stylesString : goog.global.trustedTypes ? goog.dom.setTextContent(element, stylesString) : element.innerHTML = stylesString;
+  goog.global.trustedTypes ? goog.dom.setTextContent(element, stylesString) : element.innerHTML = stylesString;
 };
 goog.style.setPreWrap = function(el) {
   el.style.whiteSpace = goog.userAgent.GECKO ? "-moz-pre-wrap" : "pre-wrap";
@@ -25367,7 +25353,7 @@ goog.style.isRightToLeft = function(el) {
 };
 goog.style.unselectableStyle_ = goog.userAgent.GECKO ? "MozUserSelect" : goog.userAgent.WEBKIT || goog.userAgent.EDGE ? "WebkitUserSelect" : null;
 goog.style.isUnselectable = function(el) {
-  return goog.style.unselectableStyle_ ? "none" == el.style[goog.style.unselectableStyle_].toLowerCase() : goog.userAgent.IE ? "on" == el.getAttribute("unselectable") : !1;
+  return !(!goog.style.unselectableStyle_ || "none" != el.style[goog.style.unselectableStyle_].toLowerCase());
 };
 goog.style.setUnselectable = function(el, unselectable, opt_noRecurse) {
   var descendants = opt_noRecurse ? null : el.getElementsByTagName("*"), name = goog.style.unselectableStyle_;
@@ -25379,10 +25365,6 @@ goog.style.setUnselectable = function(el, unselectable, opt_noRecurse) {
         descendant.style && (descendant.style[name] = value);
       }
     }
-  } else if (goog.userAgent.IE && (value = unselectable ? "on" : "", el.setAttribute("unselectable", value), descendants)) {
-    for (i = 0; descendant = descendants[i]; i++) {
-      descendant.setAttribute("unselectable", value);
-    }
   }
 };
 goog.style.getBorderBoxSize = function(element) {
@@ -25392,11 +25374,6 @@ goog.style.setBorderBoxSize = function(element, size) {
   goog.style.setBoxSizingSize_(element, size, "border-box");
 };
 goog.style.getContentBoxSize = function(element) {
-  var doc = goog.dom.getOwnerDocument(element), ieCurrentStyle = goog.userAgent.IE && element.currentStyle;
-  if (ieCurrentStyle && goog.dom.getDomHelper(doc).isCss1CompatMode() && "auto" != ieCurrentStyle.width && "auto" != ieCurrentStyle.height && !ieCurrentStyle.boxSizing) {
-    var width = goog.style.getIePixelValue_(element, ieCurrentStyle.width, "width", "pixelWidth"), height = goog.style.getIePixelValue_(element, ieCurrentStyle.height, "height", "pixelHeight");
-    return new goog.math.Size(width, height);
-  }
   var borderBoxSize = goog.style.getBorderBoxSize(element), paddingBox = goog.style.getPaddingBox(element), borderBox = goog.style.getBorderBox(element);
   return new goog.math.Size(borderBoxSize.width - borderBox.left - paddingBox.left - paddingBox.right - borderBox.right, borderBoxSize.height - borderBox.top - paddingBox.top - paddingBox.bottom - borderBox.bottom);
 };
@@ -25426,14 +25403,7 @@ goog.style.getIePixelDistance_ = function(element, propName) {
   return value ? goog.style.getIePixelValue_(element, value, "left", "pixelLeft") : 0;
 };
 goog.style.getBox_ = function(element, stylePrefix) {
-  if (goog.userAgent.IE) {
-    var left = goog.style.getIePixelDistance_(element, stylePrefix + "Left"), right = goog.style.getIePixelDistance_(element, stylePrefix + "Right"), top = goog.style.getIePixelDistance_(element, stylePrefix + "Top"), bottom = goog.style.getIePixelDistance_(element, stylePrefix + "Bottom");
-    return new goog.math.Box(top, right, bottom, left);
-  }
-  left = goog.style.getComputedStyle(element, stylePrefix + "Left");
-  right = goog.style.getComputedStyle(element, stylePrefix + "Right");
-  top = goog.style.getComputedStyle(element, stylePrefix + "Top");
-  bottom = goog.style.getComputedStyle(element, stylePrefix + "Bottom");
+  var left = goog.style.getComputedStyle(element, stylePrefix + "Left"), right = goog.style.getComputedStyle(element, stylePrefix + "Right"), top = goog.style.getComputedStyle(element, stylePrefix + "Top"), bottom = goog.style.getComputedStyle(element, stylePrefix + "Bottom");
   return new goog.math.Box(parseFloat(top), parseFloat(right), parseFloat(bottom), parseFloat(left));
 };
 goog.style.getPaddingBox = function(element) {
@@ -25451,14 +25421,7 @@ goog.style.getIePixelBorder_ = function(element, prop) {
   return width in goog.style.ieBorderWidthKeywords_ ? goog.style.ieBorderWidthKeywords_[width] : goog.style.getIePixelValue_(element, width, "left", "pixelLeft");
 };
 goog.style.getBorderBox = function(element) {
-  if (goog.userAgent.IE && !goog.userAgent.isDocumentModeOrHigher(9)) {
-    var left = goog.style.getIePixelBorder_(element, "borderLeft"), right = goog.style.getIePixelBorder_(element, "borderRight"), top = goog.style.getIePixelBorder_(element, "borderTop"), bottom = goog.style.getIePixelBorder_(element, "borderBottom");
-    return new goog.math.Box(top, right, bottom, left);
-  }
-  left = goog.style.getComputedStyle(element, "borderLeftWidth");
-  right = goog.style.getComputedStyle(element, "borderRightWidth");
-  top = goog.style.getComputedStyle(element, "borderTopWidth");
-  bottom = goog.style.getComputedStyle(element, "borderBottomWidth");
+  var left = goog.style.getComputedStyle(element, "borderLeftWidth"), right = goog.style.getComputedStyle(element, "borderRightWidth"), top = goog.style.getComputedStyle(element, "borderTopWidth"), bottom = goog.style.getComputedStyle(element, "borderBottomWidth");
   return new goog.math.Box(parseFloat(top), parseFloat(right), parseFloat(bottom), parseFloat(left));
 };
 goog.style.getFontFamily = function(el) {
@@ -25489,15 +25452,6 @@ goog.style.getFontSize = function(el) {
   if (fontSize && "px" == sizeUnits) {
     return parseInt(fontSize, 10);
   }
-  if (goog.userAgent.IE) {
-    if (String(sizeUnits) in goog.style.ABSOLUTE_CSS_LENGTH_UNITS_) {
-      return goog.style.getIePixelValue_(el, fontSize, "left", "pixelLeft");
-    }
-    if (el.parentNode && el.parentNode.nodeType == goog.dom.NodeType.ELEMENT && String(sizeUnits) in goog.style.CONVERTIBLE_RELATIVE_CSS_UNITS_) {
-      var parentElement = el.parentNode, parentSize = goog.style.getStyle_(parentElement, "fontSize");
-      return goog.style.getIePixelValue_(parentElement, fontSize == parentSize ? "1em" : fontSize, "left", "pixelLeft");
-    }
-  }
   var sizeElement = goog.dom.createDom(goog.dom.TagName.SPAN, {style:"visibility:hidden;position:absolute;line-height:0;padding:0;margin:0;border:0;height:1em;"});
   goog.dom.appendChild(el, sizeElement);
   fontSize = sizeElement.offsetHeight;
@@ -25523,10 +25477,10 @@ goog.style.toStyleAttribute = function(obj) {
   return buffer.join("");
 };
 goog.style.setFloat = function(el, value) {
-  el.style[goog.userAgent.IE ? "styleFloat" : "cssFloat"] = value;
+  el.style.cssFloat = value;
 };
 goog.style.getFloat = function(el) {
-  return el.style[goog.userAgent.IE ? "styleFloat" : "cssFloat"] || "";
+  return el.style.cssFloat || "";
 };
 goog.style.getScrollbarWidth = function(opt_className) {
   var outerDiv = goog.dom.createElement(goog.dom.TagName.DIV);
@@ -26839,29 +26793,29 @@ ee.data.Profiler.Format.prototype.toString = function() {
 ee.data.Profiler.Format.TEXT = new ee.data.Profiler.Format("text");
 ee.data.Profiler.Format.JSON = new ee.data.Profiler.Format("json");
 (function() {
-  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction._call ee.ApiFunction.lookup ee.ApiFunction._apply ee.batch.Export.map.toCloudStorage ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.table.toBigQuery ee.batch.Export.image.toCloudStorage ee.batch.Export.video.toCloudStorage ee.batch.Export.table.toFeatureView ee.batch.Export.video.toDrive ee.batch.Export.table.toDrive ee.batch.Export.classifier.toAsset ee.batch.Export.image.toDrive ee.batch.Export.table.toAsset ee.batch.Export.table.toCloudStorage ee.batch.Export.image.toAsset ee.Collection.prototype.filter ee.Collection.prototype.filterDate ee.Collection.prototype.map ee.Collection.prototype.iterate ee.Collection.prototype.limit ee.Collection.prototype.sort ee.Collection.prototype.filterMetadata ee.Collection.prototype.filterBounds ee.ComputedObject.prototype.evaluate ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.aside ee.data.makeDownloadUrl ee.data.authenticateViaPopup ee.data.getAssetRoots ee.data.listFeatures ee.data.getAsset ee.data.setWorkloadTag ee.data.createAssetHome ee.data.getInfo ee.data.createAsset ee.data.authenticateViaPrivateKey ee.data.getOperation ee.data.setDefaultWorkloadTag ee.data.newTaskId ee.data.computeValue ee.data.resetWorkloadTag ee.data.getThumbId ee.data.updateAsset ee.data.cancelTask ee.data.getVideoThumbId ee.data.getFilmstripThumbId ee.data.getList ee.data.createFolder ee.data.getTaskStatus ee.data.updateTask ee.data.setAssetAcl ee.data.startIngestion ee.data.startProcessing ee.data.listAssets ee.data.makeThumbUrl ee.data.renameAsset ee.data.setAssetProperties ee.data.authenticateViaOauth ee.data.getMapId ee.data.copyAsset ee.data.deleteAsset ee.data.getTaskList ee.data.listBuckets ee.data.getAssetRootQuota ee.data.getTableDownloadId ee.data.getFeatureViewTilesKey ee.data.authenticate ee.data.getTileUrl ee.data.startTableIngestion ee.data.makeTableDownloadUrl ee.data.getTaskListWithLimit ee.data.getWorkloadTag ee.data.listOperations ee.data.getAssetAcl ee.data.cancelOperation ee.data.listImages ee.data.getDownloadId ee.Date ee.Deserializer.fromCloudApiJSON ee.Deserializer.decode ee.Deserializer.fromJSON ee.Deserializer.decodeCloudApi ee.Dictionary ee.initialize ee.call ee.reset ee.Algorithms ee.InitState ee.apply ee.TILE_SIZE ee.Element.prototype.set ee.Encodable.SourceFrame ee.Feature.prototype.getInfo ee.Feature.prototype.getMapId ee.Feature.prototype.getMap ee.Feature ee.FeatureCollection.prototype.getInfo ee.FeatureCollection ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getMapId ee.Filter.bounds ee.Filter.metadata ee.Filter.and ee.Filter.gt ee.Filter.lt ee.Filter.neq ee.Filter.inList ee.Filter.or ee.Filter.lte ee.Filter.gte ee.Filter.prototype.not ee.Filter.eq ee.Filter ee.Filter.date ee.Function.prototype.call ee.Function.prototype.apply ee.Geometry.prototype.toGeoJSONString ee.Geometry.MultiPoint ee.Geometry.BBox ee.Geometry.LineString ee.Geometry.MultiPolygon ee.Geometry.prototype.serialize ee.Geometry ee.Geometry.Rectangle ee.Geometry.Polygon ee.Geometry.Point ee.Geometry.prototype.toGeoJSON ee.Geometry.MultiLineString ee.Geometry.LinearRing ee.Image ee.Image.rgb ee.Image.cat ee.Image.prototype.select ee.Image.prototype.getInfo ee.Image.prototype.getMapId ee.Image.prototype.getThumbURL ee.Image.prototype.expression ee.Image.prototype.clip ee.Image.prototype.getMap ee.Image.prototype.getDownloadURL ee.Image.prototype.rename ee.Image.prototype.getThumbId ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.select ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.linkCollection ee.ImageCollection.prototype.getMapId ee.ImageCollection.prototype.first ee.ImageCollection.prototype.getFilmstripThumbURL ee.ImageCollection ee.List ee.Number ee.Serializer.toCloudApiJSON ee.Serializer.toJSON ee.Serializer.encodeCloudApi ee.Serializer.toReadableCloudApiJSON ee.Serializer.toReadableJSON ee.Serializer.encodeCloudApiPretty ee.Serializer.encode ee.String ee.Terrain".split(" "), 
-  orderedParamLists = [["name", "var_args"], ["name"], ["name", "namedArgs"], "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey opt_bucketCorsUris opt_priority".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris opt_priority".split(" "), 
+  var exportedFnInfo = {}, orderedFnNames = "ee.ApiFunction.lookup ee.ApiFunction._call ee.ApiFunction._apply ee.batch.Export.map.toCloudStorage ee.batch.Export.videoMap.toCloudStorage ee.batch.Export.table.toBigQuery ee.batch.Export.image.toCloudStorage ee.batch.Export.video.toCloudStorage ee.batch.Export.classifier.toAsset ee.batch.Export.table.toFeatureView ee.batch.Export.video.toDrive ee.batch.Export.table.toDrive ee.batch.Export.image.toAsset ee.batch.Export.image.toDrive ee.batch.Export.table.toAsset ee.batch.Export.table.toCloudStorage ee.Collection.prototype.limit ee.Collection.prototype.sort ee.Collection.prototype.filterMetadata ee.Collection.prototype.filterBounds ee.Collection.prototype.iterate ee.Collection.prototype.map ee.Collection.prototype.filter ee.Collection.prototype.filterDate ee.ComputedObject.prototype.serialize ee.ComputedObject.prototype.getInfo ee.ComputedObject.prototype.aside ee.ComputedObject.prototype.evaluate ee.data.startTableIngestion ee.data.deleteAsset ee.data.getAssetRootQuota ee.data.makeTableDownloadUrl ee.data.getTaskListWithLimit ee.data.getWorkloadTag ee.data.listOperations ee.data.listImages ee.data.getAssetAcl ee.data.getDownloadId ee.data.authenticateViaPopup ee.data.makeDownloadUrl ee.data.getFeatureViewTilesKey ee.data.cancelOperation ee.data.getTileUrl ee.data.listFeatures ee.data.getAssetRoots ee.data.getAsset ee.data.setWorkloadTag ee.data.createAssetHome ee.data.authenticateViaPrivateKey ee.data.getInfo ee.data.getOperation ee.data.newTaskId ee.data.createAsset ee.data.computeValue ee.data.setDefaultWorkloadTag ee.data.getThumbId ee.data.resetWorkloadTag ee.data.cancelTask ee.data.updateAsset ee.data.getVideoThumbId ee.data.getList ee.data.getTaskStatus ee.data.createFolder ee.data.startIngestion ee.data.updateTask ee.data.getFilmstripThumbId ee.data.makeThumbUrl ee.data.setAssetAcl ee.data.startProcessing ee.data.renameAsset ee.data.authenticateViaOauth ee.data.listAssets ee.data.getMapId ee.data.setAssetProperties ee.data.copyAsset ee.data.getTaskList ee.data.listBuckets ee.data.getTableDownloadId ee.data.authenticate ee.Date ee.Deserializer.fromJSON ee.Deserializer.decodeCloudApi ee.Deserializer.fromCloudApiJSON ee.Deserializer.decode ee.Dictionary ee.TILE_SIZE ee.call ee.reset ee.apply ee.initialize ee.Algorithms ee.InitState ee.Element.prototype.set ee.Encodable.SourceFrame ee.Feature ee.Feature.prototype.getInfo ee.Feature.prototype.getMapId ee.Feature.prototype.getMap ee.FeatureCollection.prototype.getDownloadURL ee.FeatureCollection ee.FeatureCollection.prototype.getMap ee.FeatureCollection.prototype.getInfo ee.FeatureCollection.prototype.select ee.FeatureCollection.prototype.getMapId ee.Filter.or ee.Filter.lte ee.Filter.gte ee.Filter.prototype.not ee.Filter ee.Filter.eq ee.Filter.date ee.Filter.metadata ee.Filter.bounds ee.Filter.and ee.Filter.neq ee.Filter.gt ee.Filter.lt ee.Filter.inList ee.Function.prototype.apply ee.Function.prototype.call ee.Geometry.Rectangle ee.Geometry.Point ee.Geometry.MultiLineString ee.Geometry.Polygon ee.Geometry.prototype.toGeoJSON ee.Geometry.MultiPolygon ee.Geometry.BBox ee.Geometry.LinearRing ee.Geometry.prototype.toGeoJSONString ee.Geometry.prototype.serialize ee.Geometry.MultiPoint ee.Geometry.LineString ee.Geometry ee.Image.cat ee.Image.prototype.rename ee.Image.prototype.clip ee.Image.prototype.getInfo ee.Image.prototype.getMapId ee.Image.prototype.getThumbURL ee.Image.prototype.expression ee.Image.rgb ee.Image.prototype.getThumbId ee.Image.prototype.getMap ee.Image.prototype.getDownloadURL ee.Image ee.Image.prototype.select ee.ImageCollection.prototype.getVideoThumbURL ee.ImageCollection.prototype.getInfo ee.ImageCollection.prototype.select ee.ImageCollection.prototype.getMap ee.ImageCollection.prototype.linkCollection ee.ImageCollection.prototype.first ee.ImageCollection ee.ImageCollection.prototype.getMapId ee.ImageCollection.prototype.getFilmstripThumbURL ee.List ee.Number ee.Serializer.toJSON ee.Serializer.toCloudApiJSON ee.Serializer.encodeCloudApi ee.Serializer.toReadableJSON ee.Serializer.toReadableCloudApiJSON ee.Serializer.encodeCloudApiPretty ee.Serializer.encode ee.String ee.Terrain".split(" "), 
+  orderedParamLists = [["name"], ["name", "var_args"], ["name", "namedArgs"], "image opt_description opt_bucket opt_fileFormat opt_path opt_writePublicTiles opt_scale opt_maxZoom opt_minZoom opt_region opt_skipEmptyTiles opt_mapsApiKey opt_bucketCorsUris opt_priority".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_writePublicTiles opt_minZoom opt_maxZoom opt_scale opt_region opt_skipEmptyTiles opt_minTimeMachineZoomSubset opt_maxTimeMachineZoomSubset opt_tileWidth opt_tileHeight opt_tileStride opt_videoFormat opt_version opt_mapsApiKey opt_bucketCorsUris opt_priority".split(" "), 
   "collection opt_description opt_table opt_overwrite opt_append opt_selectors opt_maxVertices opt_priority".split(" "), "image opt_description opt_bucket opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions opt_priority".split(" "), "collection opt_description opt_bucket opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames opt_priority".split(" "), 
-  "collection opt_description opt_assetId opt_maxFeaturesPerTile opt_thinningStrategy opt_thinningRanking opt_zOrderRanking opt_priority".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames opt_priority".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices opt_priority".split(" "), ["classifier", "opt_description", 
-  "opt_assetId", "opt_priority"], "image opt_description opt_folder opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions opt_priority".split(" "), ["collection", "opt_description", "opt_assetId", "opt_maxVertices", "opt_priority"], "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices opt_priority".split(" "), "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_priority".split(" "), 
-  ["filter"], ["start", "opt_end"], ["algorithm", "opt_dropNulls"], ["algorithm", "opt_first"], ["max", "opt_property", "opt_ascending"], ["property", "opt_ascending"], ["name", "operator", "value"], ["geometry"], ["callback"], ["opt_callback"], ["legacy"], ["func", "var_args"], ["id"], ["opt_success", "opt_error"], ["opt_callback"], ["asset", "params", "opt_callback"], ["id", "opt_callback"], ["tag"], ["requestedId", "opt_callback"], ["id", "opt_callback"], ["value", "opt_path", "opt_force", "opt_properties", 
-  "opt_callback"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes", "opt_suppressDefaultScopes"], ["operationName", "opt_callback"], ["tag"], ["opt_count", "opt_callback"], ["obj", "opt_callback"], ["opt_resetDefault"], ["params", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["taskId", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["path", "opt_force", "opt_callback"], ["taskId", "opt_callback"], ["taskId", 
-  "action", "opt_callback"], ["assetId", "aclUpdate", "opt_callback"], ["taskId", "request", "opt_callback"], ["taskId", "params", "opt_callback"], ["parent", "opt_params", "opt_callback"], ["id"], ["sourceId", "destinationId", "opt_callback"], ["assetId", "properties", "opt_callback"], "clientId success opt_error opt_extraScopes opt_onImmediateFailed opt_suppressDefaultScopes".split(" "), ["params", "opt_callback"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["assetId", "opt_callback"], 
-  ["opt_callback"], ["project", "opt_callback"], ["rootId", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], ["id", "x", "y", "z"], ["taskId", "request", "opt_callback"], ["id"], ["opt_limit", "opt_callback"], [], ["opt_limit", "opt_callback"], ["assetId", "opt_callback"], ["operationName", "opt_callback"], ["parent", "opt_params", "opt_callback"], ["params", "opt_callback"], ["date", "opt_tz"], 
-  ["json"], ["json"], ["json"], ["json"], ["opt_dict"], "opt_baseurl opt_tileurl opt_successCallback opt_errorCallback opt_xsrfToken opt_project".split(" "), ["func", "var_args"], [], [], [], ["func", "namedArgs"], [], ["var_args"], [], ["opt_callback"], ["opt_visParams", "opt_callback"], ["opt_visParams", "opt_callback"], ["geometry", "opt_properties"], ["opt_callback"], ["args", "opt_column"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["opt_visParams", "opt_callback"], ["propertySelectors", 
-  "opt_newProperties", "opt_retainGeometry"], ["opt_visParams", "opt_callback"], ["geometry", "opt_errorMargin"], ["name", "operator", "value"], ["var_args"], ["name", "value"], ["name", "value"], ["name", "value"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], ["var_args"], ["name", "value"], ["name", "value"], [], ["name", "value"], ["opt_filter"], ["start", "opt_end"], ["var_args"], ["namedArgs"], [], ["coords", "opt_proj"], ["west", "south", "east", "north"], ["coords", 
-  "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["legacy"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["coords", "opt_proj"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["opt_args"], ["r", "g", "b"], ["var_args"], ["var_args"], 
-  ["opt_callback"], ["opt_visParams", "opt_callback"], ["params", "opt_callback"], ["expression", "opt_map"], ["geometry"], ["opt_visParams", "opt_callback"], ["params", "opt_callback"], ["var_args"], ["params", "opt_callback"], ["opt_callback"], ["selectors", "opt_names"], ["params", "opt_callback"], ["opt_visParams", "opt_callback"], ["imageCollection", "opt_linkedBands", "opt_linkedProperties", "opt_matchPropertyName"], ["opt_visParams", "opt_callback"], [], ["params", "opt_callback"], ["args"], 
-  ["list"], ["number"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj", "opt_isCompound"], ["string"], []];
-  [ee.ApiFunction._call, ee.ApiFunction.lookup, ee.ApiFunction._apply, module$contents$ee$batch_Export.map.toCloudStorage, module$contents$ee$batch_Export.videoMap.toCloudStorage, module$contents$ee$batch_Export.table.toBigQuery, module$contents$ee$batch_Export.image.toCloudStorage, module$contents$ee$batch_Export.video.toCloudStorage, module$contents$ee$batch_Export.table.toFeatureView, module$contents$ee$batch_Export.video.toDrive, module$contents$ee$batch_Export.table.toDrive, module$contents$ee$batch_Export.classifier.toAsset, 
-  module$contents$ee$batch_Export.image.toDrive, module$contents$ee$batch_Export.table.toAsset, module$contents$ee$batch_Export.table.toCloudStorage, module$contents$ee$batch_Export.image.toAsset, ee.Collection.prototype.filter, ee.Collection.prototype.filterDate, ee.Collection.prototype.map, ee.Collection.prototype.iterate, ee.Collection.prototype.limit, ee.Collection.prototype.sort, ee.Collection.prototype.filterMetadata, ee.Collection.prototype.filterBounds, ee.ComputedObject.prototype.evaluate, 
-  ee.ComputedObject.prototype.getInfo, ee.ComputedObject.prototype.serialize, ee.ComputedObject.prototype.aside, ee.data.makeDownloadUrl, ee.data.authenticateViaPopup, ee.data.getAssetRoots, ee.data.listFeatures, ee.data.getAsset, ee.data.setWorkloadTag, ee.data.createAssetHome, ee.data.getInfo, ee.data.createAsset, ee.data.authenticateViaPrivateKey, ee.data.getOperation, ee.data.setDefaultWorkloadTag, ee.data.newTaskId, ee.data.computeValue, ee.data.resetWorkloadTag, ee.data.getThumbId, ee.data.updateAsset, 
-  ee.data.cancelTask, ee.data.getVideoThumbId, ee.data.getFilmstripThumbId, ee.data.getList, ee.data.createFolder, ee.data.getTaskStatus, ee.data.updateTask, ee.data.setAssetAcl, ee.data.startIngestion, ee.data.startProcessing, ee.data.listAssets, ee.data.makeThumbUrl, ee.data.renameAsset, ee.data.setAssetProperties, ee.data.authenticateViaOauth, ee.data.getMapId, ee.data.copyAsset, ee.data.deleteAsset, ee.data.getTaskList, ee.data.listBuckets, ee.data.getAssetRootQuota, ee.data.getTableDownloadId, 
-  ee.data.getFeatureViewTilesKey, ee.data.authenticate, ee.data.getTileUrl, ee.data.startTableIngestion, ee.data.makeTableDownloadUrl, ee.data.getTaskListWithLimit, ee.data.getWorkloadTag, ee.data.listOperations, ee.data.getAssetAcl, ee.data.cancelOperation, ee.data.listImages, ee.data.getDownloadId, ee.Date, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.decode, ee.Deserializer.fromJSON, ee.Deserializer.decodeCloudApi, ee.Dictionary, ee.initialize, ee.call, ee.reset, ee.Algorithms, ee.InitState, 
-  ee.apply, ee.TILE_SIZE, ee.Element.prototype.set, ee.Encodable.SourceFrame, ee.Feature.prototype.getInfo, ee.Feature.prototype.getMapId, ee.Feature.prototype.getMap, ee.Feature, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection, ee.FeatureCollection.prototype.getDownloadURL, ee.FeatureCollection.prototype.getMap, ee.FeatureCollection.prototype.select, ee.FeatureCollection.prototype.getMapId, ee.Filter.bounds, ee.Filter.metadata, ee.Filter.and, ee.Filter.gt, ee.Filter.lt, ee.Filter.neq, 
-  ee.Filter.inList, ee.Filter.or, ee.Filter.lte, ee.Filter.gte, ee.Filter.prototype.not, ee.Filter.eq, ee.Filter, ee.Filter.date, ee.Function.prototype.call, ee.Function.prototype.apply, ee.Geometry.prototype.toGeoJSONString, ee.Geometry.MultiPoint, ee.Geometry.BBox, ee.Geometry.LineString, ee.Geometry.MultiPolygon, ee.Geometry.prototype.serialize, ee.Geometry, ee.Geometry.Rectangle, ee.Geometry.Polygon, ee.Geometry.Point, ee.Geometry.prototype.toGeoJSON, ee.Geometry.MultiLineString, ee.Geometry.LinearRing, 
-  ee.Image, ee.Image.rgb, ee.Image.cat, ee.Image.prototype.select, ee.Image.prototype.getInfo, ee.Image.prototype.getMapId, ee.Image.prototype.getThumbURL, ee.Image.prototype.expression, ee.Image.prototype.clip, ee.Image.prototype.getMap, ee.Image.prototype.getDownloadURL, ee.Image.prototype.rename, ee.Image.prototype.getThumbId, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.select, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.linkCollection, 
-  ee.ImageCollection.prototype.getMapId, ee.ImageCollection.prototype.first, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.ImageCollection, ee.List, ee.Number, ee.Serializer.toCloudApiJSON, ee.Serializer.toJSON, ee.Serializer.encodeCloudApi, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.toReadableJSON, ee.Serializer.encodeCloudApiPretty, ee.Serializer.encode, ee.String, ee.Terrain].forEach(function(fn, i) {
+  ["classifier", "opt_description", "opt_assetId", "opt_priority"], "collection opt_description opt_assetId opt_maxFeaturesPerTile opt_thinningStrategy opt_thinningRanking opt_zOrderRanking opt_priority".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_framesPerSecond opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_maxFrames opt_priority".split(" "), "collection opt_description opt_folder opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices opt_priority".split(" "), 
+  "image opt_description opt_assetId opt_pyramidingPolicy opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_priority".split(" "), "image opt_description opt_folder opt_fileNamePrefix opt_dimensions opt_region opt_scale opt_crs opt_crsTransform opt_maxPixels opt_shardSize opt_fileDimensions opt_skipEmptyTiles opt_fileFormat opt_formatOptions opt_priority".split(" "), ["collection", "opt_description", "opt_assetId", "opt_maxVertices", "opt_priority"], "collection opt_description opt_bucket opt_fileNamePrefix opt_fileFormat opt_selectors opt_maxVertices opt_priority".split(" "), 
+  ["max", "opt_property", "opt_ascending"], ["property", "opt_ascending"], ["name", "operator", "value"], ["geometry"], ["algorithm", "opt_first"], ["algorithm", "opt_dropNulls"], ["filter"], ["start", "opt_end"], ["legacy"], ["opt_callback"], ["func", "var_args"], ["callback"], ["taskId", "request", "opt_callback"], ["assetId", "opt_callback"], ["rootId", "opt_callback"], ["id"], ["opt_limit", "opt_callback"], [], ["opt_limit", "opt_callback"], ["parent", "opt_params", "opt_callback"], ["assetId", 
+  "opt_callback"], ["params", "opt_callback"], ["opt_success", "opt_error"], ["id"], ["params", "opt_callback"], ["operationName", "opt_callback"], ["id", "x", "y", "z"], ["asset", "params", "opt_callback"], ["opt_callback"], ["id", "opt_callback"], ["tag"], ["requestedId", "opt_callback"], ["privateKey", "opt_success", "opt_error", "opt_extraScopes", "opt_suppressDefaultScopes"], ["id", "opt_callback"], ["operationName", "opt_callback"], ["opt_count", "opt_callback"], ["value", "opt_path", "opt_force", 
+  "opt_properties", "opt_callback"], ["obj", "opt_callback"], ["tag"], ["params", "opt_callback"], ["opt_resetDefault"], ["taskId", "opt_callback"], ["assetId", "asset", "updateFields", "opt_callback"], ["params", "opt_callback"], ["params", "opt_callback"], ["taskId", "opt_callback"], ["path", "opt_force", "opt_callback"], ["taskId", "request", "opt_callback"], ["taskId", "action", "opt_callback"], ["params", "opt_callback"], ["id"], ["assetId", "aclUpdate", "opt_callback"], ["taskId", "params", 
+  "opt_callback"], ["sourceId", "destinationId", "opt_callback"], "clientId success opt_error opt_extraScopes opt_onImmediateFailed opt_suppressDefaultScopes".split(" "), ["parent", "opt_params", "opt_callback"], ["params", "opt_callback"], ["assetId", "properties", "opt_callback"], ["sourceId", "destinationId", "opt_overwrite", "opt_callback"], ["opt_callback"], ["project", "opt_callback"], ["params", "opt_callback"], ["clientId", "success", "opt_error", "opt_extraScopes", "opt_onImmediateFailed"], 
+  ["date", "opt_tz"], ["json"], ["json"], ["json"], ["json"], ["opt_dict"], [], ["func", "var_args"], [], ["func", "namedArgs"], "opt_baseurl opt_tileurl opt_successCallback opt_errorCallback opt_xsrfToken opt_project".split(" "), [], [], ["var_args"], [], ["geometry", "opt_properties"], ["opt_callback"], ["opt_visParams", "opt_callback"], ["opt_visParams", "opt_callback"], ["opt_format", "opt_selectors", "opt_filename", "opt_callback"], ["args", "opt_column"], ["opt_visParams", "opt_callback"], 
+  ["opt_callback"], ["propertySelectors", "opt_newProperties", "opt_retainGeometry"], ["opt_visParams", "opt_callback"], ["var_args"], ["name", "value"], ["name", "value"], [], ["opt_filter"], ["name", "value"], ["start", "opt_end"], ["name", "operator", "value"], ["geometry", "opt_errorMargin"], ["var_args"], ["name", "value"], ["name", "value"], ["name", "value"], ["opt_leftField", "opt_rightValue", "opt_rightField", "opt_leftValue"], ["namedArgs"], ["var_args"], ["coords", "opt_proj", "opt_geodesic", 
+  "opt_evenOdd"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], [], ["coords", "opt_proj", "opt_geodesic", "opt_maxError", "opt_evenOdd"], ["west", "south", "east", "north"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], [], ["legacy"], ["coords", "opt_proj"], ["coords", "opt_proj", "opt_geodesic", "opt_maxError"], ["geoJson", "opt_proj", "opt_geodesic", "opt_evenOdd"], ["var_args"], 
+  ["var_args"], ["geometry"], ["opt_callback"], ["opt_visParams", "opt_callback"], ["params", "opt_callback"], ["expression", "opt_map"], ["r", "g", "b"], ["params", "opt_callback"], ["opt_visParams", "opt_callback"], ["params", "opt_callback"], ["opt_args"], ["var_args"], ["params", "opt_callback"], ["opt_callback"], ["selectors", "opt_names"], ["opt_visParams", "opt_callback"], ["imageCollection", "opt_linkedBands", "opt_linkedProperties", "opt_matchPropertyName"], [], ["args"], ["opt_visParams", 
+  "opt_callback"], ["params", "opt_callback"], ["list"], ["number"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj"], ["obj", "opt_isCompound"], ["string"], []];
+  [ee.ApiFunction.lookup, ee.ApiFunction._call, ee.ApiFunction._apply, module$contents$ee$batch_Export.map.toCloudStorage, module$contents$ee$batch_Export.videoMap.toCloudStorage, module$contents$ee$batch_Export.table.toBigQuery, module$contents$ee$batch_Export.image.toCloudStorage, module$contents$ee$batch_Export.video.toCloudStorage, module$contents$ee$batch_Export.classifier.toAsset, module$contents$ee$batch_Export.table.toFeatureView, module$contents$ee$batch_Export.video.toDrive, module$contents$ee$batch_Export.table.toDrive, 
+  module$contents$ee$batch_Export.image.toAsset, module$contents$ee$batch_Export.image.toDrive, module$contents$ee$batch_Export.table.toAsset, module$contents$ee$batch_Export.table.toCloudStorage, ee.Collection.prototype.limit, ee.Collection.prototype.sort, ee.Collection.prototype.filterMetadata, ee.Collection.prototype.filterBounds, ee.Collection.prototype.iterate, ee.Collection.prototype.map, ee.Collection.prototype.filter, ee.Collection.prototype.filterDate, ee.ComputedObject.prototype.serialize, 
+  ee.ComputedObject.prototype.getInfo, ee.ComputedObject.prototype.aside, ee.ComputedObject.prototype.evaluate, ee.data.startTableIngestion, ee.data.deleteAsset, ee.data.getAssetRootQuota, ee.data.makeTableDownloadUrl, ee.data.getTaskListWithLimit, ee.data.getWorkloadTag, ee.data.listOperations, ee.data.listImages, ee.data.getAssetAcl, ee.data.getDownloadId, ee.data.authenticateViaPopup, ee.data.makeDownloadUrl, ee.data.getFeatureViewTilesKey, ee.data.cancelOperation, ee.data.getTileUrl, ee.data.listFeatures, 
+  ee.data.getAssetRoots, ee.data.getAsset, ee.data.setWorkloadTag, ee.data.createAssetHome, ee.data.authenticateViaPrivateKey, ee.data.getInfo, ee.data.getOperation, ee.data.newTaskId, ee.data.createAsset, ee.data.computeValue, ee.data.setDefaultWorkloadTag, ee.data.getThumbId, ee.data.resetWorkloadTag, ee.data.cancelTask, ee.data.updateAsset, ee.data.getVideoThumbId, ee.data.getList, ee.data.getTaskStatus, ee.data.createFolder, ee.data.startIngestion, ee.data.updateTask, ee.data.getFilmstripThumbId, 
+  ee.data.makeThumbUrl, ee.data.setAssetAcl, ee.data.startProcessing, ee.data.renameAsset, ee.data.authenticateViaOauth, ee.data.listAssets, ee.data.getMapId, ee.data.setAssetProperties, ee.data.copyAsset, ee.data.getTaskList, ee.data.listBuckets, ee.data.getTableDownloadId, ee.data.authenticate, ee.Date, ee.Deserializer.fromJSON, ee.Deserializer.decodeCloudApi, ee.Deserializer.fromCloudApiJSON, ee.Deserializer.decode, ee.Dictionary, ee.TILE_SIZE, ee.call, ee.reset, ee.apply, ee.initialize, ee.Algorithms, 
+  ee.InitState, ee.Element.prototype.set, ee.Encodable.SourceFrame, ee.Feature, ee.Feature.prototype.getInfo, ee.Feature.prototype.getMapId, ee.Feature.prototype.getMap, ee.FeatureCollection.prototype.getDownloadURL, ee.FeatureCollection, ee.FeatureCollection.prototype.getMap, ee.FeatureCollection.prototype.getInfo, ee.FeatureCollection.prototype.select, ee.FeatureCollection.prototype.getMapId, ee.Filter.or, ee.Filter.lte, ee.Filter.gte, ee.Filter.prototype.not, ee.Filter, ee.Filter.eq, ee.Filter.date, 
+  ee.Filter.metadata, ee.Filter.bounds, ee.Filter.and, ee.Filter.neq, ee.Filter.gt, ee.Filter.lt, ee.Filter.inList, ee.Function.prototype.apply, ee.Function.prototype.call, ee.Geometry.Rectangle, ee.Geometry.Point, ee.Geometry.MultiLineString, ee.Geometry.Polygon, ee.Geometry.prototype.toGeoJSON, ee.Geometry.MultiPolygon, ee.Geometry.BBox, ee.Geometry.LinearRing, ee.Geometry.prototype.toGeoJSONString, ee.Geometry.prototype.serialize, ee.Geometry.MultiPoint, ee.Geometry.LineString, ee.Geometry, ee.Image.cat, 
+  ee.Image.prototype.rename, ee.Image.prototype.clip, ee.Image.prototype.getInfo, ee.Image.prototype.getMapId, ee.Image.prototype.getThumbURL, ee.Image.prototype.expression, ee.Image.rgb, ee.Image.prototype.getThumbId, ee.Image.prototype.getMap, ee.Image.prototype.getDownloadURL, ee.Image, ee.Image.prototype.select, ee.ImageCollection.prototype.getVideoThumbURL, ee.ImageCollection.prototype.getInfo, ee.ImageCollection.prototype.select, ee.ImageCollection.prototype.getMap, ee.ImageCollection.prototype.linkCollection, 
+  ee.ImageCollection.prototype.first, ee.ImageCollection, ee.ImageCollection.prototype.getMapId, ee.ImageCollection.prototype.getFilmstripThumbURL, ee.List, ee.Number, ee.Serializer.toJSON, ee.Serializer.toCloudApiJSON, ee.Serializer.encodeCloudApi, ee.Serializer.toReadableJSON, ee.Serializer.toReadableCloudApiJSON, ee.Serializer.encodeCloudApiPretty, ee.Serializer.encode, ee.String, ee.Terrain].forEach(function(fn, i) {
     fn && (exportedFnInfo[fn.toString()] = {name:orderedFnNames[i], paramNames:orderedParamLists[i]});
   });
   goog.global.EXPORTED_FN_INFO = exportedFnInfo;

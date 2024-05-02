@@ -148,7 +148,13 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
     return this.stats;
   }
 
-  /** @override */
+  /**
+   * Implements getTile() for the google.maps.MapType interface.
+   * @param {?google.maps.Point} coord Position of tile.
+   * @param {number} zoom Zoom level.
+   * @param {?Document} ownerDocument Parent document.
+   * @return {?Element} Element to be displayed as a map tile.
+   */
   getTile(coord, zoom, ownerDocument) {
     var maxCoord = 1 << zoom;
 
@@ -193,7 +199,9 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
     return tile.div;
   }
 
-  /** @override */
+  /**
+   * Implements releaseTile() for the google.maps.MapType interface.
+   */
   releaseTile(tileDiv) {
     var tile = this.tilesById.get(tileDiv.id);
     this.tilesById.remove(tileDiv.id);

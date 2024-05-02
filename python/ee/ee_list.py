@@ -19,7 +19,7 @@ _EeAnyType = Union[Any, computedobject.ComputedObject]
 # TODO: What will the backend accept for bools?
 _EeBoolType = Union[Any, computedobject.ComputedObject]
 _EeListType = Union[
-    ListType[Any], Tuple[Any, Any], computedobject.ComputedObject
+    ListType[Any], Tuple[Any], Tuple[Any, Any], computedobject.ComputedObject
 ]
 _IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
@@ -53,7 +53,7 @@ class List(computedobject.ComputedObject):
 
     if isinstance(arg, (list, tuple)):
       super().__init__(None, None)
-      self._list = arg
+      self._list = arg  # pytype: disable=annotation-type-mismatch
     elif isinstance(arg, computedobject.ComputedObject):
       super().__init__(arg.func, arg.args, arg.varName)
       self._list = None

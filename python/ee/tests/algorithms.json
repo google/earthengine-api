@@ -2203,7 +2203,7 @@
     }]
   }, {
     "name": "algorithms/Classifier.naiveBayes",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "lambda",
@@ -2215,7 +2215,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.gmoLinearRegression",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "weight1",
@@ -2251,7 +2251,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.cart",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "crossvalidationFactor",
@@ -2317,7 +2317,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.gmoMaxEnt",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "weight1",
@@ -2353,7 +2353,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.ikpamir",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "numBins",
@@ -2377,7 +2377,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.continuousNaiveBayes",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "lambda",
@@ -2436,7 +2436,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.pegasosGaussian",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "rbfGamma",
@@ -2484,7 +2484,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.pegasosLinear",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "useExponentiated",
@@ -2532,7 +2532,7 @@
     "hidden": true
   }, {
     "name": "algorithms/Classifier.pegasosPolynomial",
-    "description": "This classifier has been removed.  For more information see: http://goo.gle/deprecated-classifiers.",
+    "description": "This classifier has been removed.  For more information see: https://goo.gle/deprecated-classifiers.",
     "returnType": "Classifier",
     "arguments": [{
       "argumentName": "polyDegree",
@@ -11459,7 +11459,7 @@
       "argumentName": "step",
       "type": "Number",
       "optional": true,
-      "defaultValue": null
+      "defaultValue": 1.0
     }, {
       "argumentName": "count",
       "type": "Integer",

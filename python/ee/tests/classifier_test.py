@@ -13,7 +13,7 @@ _CLASSIFIER_JSON = {
     'values': {
         '0': {
             'functionInvocationValue': {
-                'functionName': 'Classifier.naiveBayes',
+                'functionName': 'Classifier.smileNaiveBayes',
                 'arguments': {'lambda': {'constantValue': 0.01}},
             }
         }
@@ -24,10 +24,10 @@ _CLASSIFIER_JSON = {
 class ClassifierTest(apitestcase.ApiTestCase):
 
   def test_naive_bayes_args(self):
-    classifier = ee.Classifier.naiveBayes(0.01)
+    classifier = ee.Classifier.smileNaiveBayes(0.01)
     self.assertEqual({'value': 'fakeValue'}, classifier.getInfo())
 
-    naive_bayes_func = ee.ApiFunction.lookup('Classifier.naiveBayes')
+    naive_bayes_func = ee.ApiFunction.lookup('Classifier.smileNaiveBayes')
     self.assertEqual(naive_bayes_func, classifier.func)
     self.assertFalse(classifier.isVariable())
 
@@ -36,12 +36,12 @@ class ClassifierTest(apitestcase.ApiTestCase):
 
   def test_square_kwargs(self):
     kwargs = {'lambda': 0.01}
-    classifier = ee.Classifier.naiveBayes(**kwargs)
+    classifier = ee.Classifier.smileNaiveBayes(**kwargs)
     result = json.loads(classifier.serialize())
     self.assertEqual(_CLASSIFIER_JSON, result)
 
   def test_cast(self):
-    classifier = ee.Classifier(ee.Classifier.naiveBayes(0.01))
+    classifier = ee.Classifier(ee.Classifier.smileNaiveBayes(0.01))
     result = json.loads(classifier.serialize())
     self.assertEqual(_CLASSIFIER_JSON, result)
 

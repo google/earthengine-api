@@ -67,8 +67,8 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   // argument, we know the arguments were passed in sequence. If not, we
   // assume the user intended to pass a named argument dictionary and use
   // ee.arguments.extractFromFunction() to validate and extract the keys.
-  if (!('type' in geoJson)) {
-    var args = ee.arguments.extractFromFunction(ee.Geometry, arguments);
+  if (typeof geoJson !== 'object' || !('type' in geoJson)) {
+    const args = ee.arguments.extractFromFunction(ee.Geometry, arguments);
     geoJson = args['geoJson'];
     opt_proj = args['proj'];
     opt_geodesic = args['geodesic'];
@@ -77,9 +77,9 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 
   ee.Geometry.initialize();
 
-  var computed = geoJson instanceof ee.ComputedObject &&
+  const computed = geoJson instanceof ee.ComputedObject &&
                  !(geoJson instanceof ee.Geometry && geoJson.type_);
-  var options =
+  const options =
       (opt_proj != null || opt_geodesic != null || opt_evenOdd != null);
   if (computed) {
     if (options) {
@@ -94,7 +94,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 
   // Below here, we're working with a GeoJSON literal.
   if (geoJson instanceof ee.Geometry) {
-    geoJson = /** @type {Object} */(geoJson.encode());
+    geoJson = /** @type {!Object} */(geoJson.encode());
   }
 
   if (!ee.Geometry.isValidGeometry_(geoJson)) {
@@ -105,16 +105,14 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 
   /**
    * The type of the geometry.
-   * @type {string}
-   * @private
+   * @private @const {string}
    */
   this.type_ = geoJson['type'];
 
   /**
    * The coordinates of the geometry, up to 4 nested levels with numbers at
    * the last level. Null if and only if type is GeometryCollection.
-   * @type {Array?}
-   * @private
+   * @private @const {?Array}
    */
   this.coordinates_ = (geoJson['coordinates'] != null) ?
       goog.object.unsafeClone(geoJson['coordinates']) :
@@ -122,15 +120,13 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 
   /**
    * The subgeometries, non-null if and only if type is GeometryCollection.
-   * @type {Array?}
-   * @private
+   * @private @const {Array?}
    */
   this.geometries_ = geoJson['geometries'] || null;
 
   /**
    * The projection of the geometry.
-   * @type {String|undefined}
-   * @private
+   * @private {string|undefined}
    */
   this.proj_;
   if (opt_proj != null) {
@@ -148,8 +144,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
 
   /**
    * Whether the geometry has spherical geodesic edges.
-   * @type {boolean|undefined}
-   * @private
+   * @private {boolean|undefined}
    */
   this.geodesic_ = opt_geodesic;
   if (this.geodesic_ === undefined && 'geodesic' in geoJson) {
@@ -159,8 +154,7 @@ ee.Geometry = function(geoJson, opt_proj, opt_geodesic, opt_evenOdd) {
   /**
    * Whether polygon interiors are based on the even/odd rule. If false,
    * the left-inside rule is used. If unspecified, defaults to true.
-   * @type {boolean|undefined}
-   * @private
+   * @private {boolean|undefined}
    */
   this.evenOdd_ = opt_evenOdd;
   if (this.evenOdd_ === undefined && 'evenOdd' in geoJson) {

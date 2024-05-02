@@ -11,7 +11,7 @@ import unittest
 
 class FeatureCollectionTestCase(apitestcase.ApiTestCase):
 
-  def testConstructors(self):
+  def test_constructors(self):
     """Verifies that constructors understand valid parameters."""
     from_id = ee.FeatureCollection('abcd')
     self.assertEqual(
@@ -51,7 +51,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
         ee.ComputedObject(None, {'x': 'y'}))
     self.assertEqual({'x': 'y'}, from_computed_object.args)
 
-  def testGetMapId(self):
+  def test_get_map_id(self):
     """Verifies that getMap() uses Collection.draw to draw."""
     collection = ee.FeatureCollection('test5')
     mapid = collection.getMapId({'color': 'ABCDEF'})
@@ -60,7 +60,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     self.assertEqual('fakeMapId', mapid['mapid'])
     self.assertEqual(manual, mapid['image'])
 
-  def testDownload(self):
+  def test_download(self):
     """Verifies that Download ID and URL generation."""
     ee.FeatureCollection('test7').getDownloadURL()
 
@@ -81,7 +81,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
         ee.FeatureCollection('test7').getDownloadUrl('csv'),
         ee.FeatureCollection('test7').getDownloadURL('csv'))
 
-  def testDownloadTableWithCloudApi(self):
+  def test_download_table_with_cloud_api(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
       create_table_response = {'name': 'table_name'}
@@ -96,7 +96,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
       self.assertDictEqual(result, {'docid': '5', 'token': '6'})
       self.assertEqual(url, f'/{_cloud_api_utils.VERSION}/5:getFeatures')
 
-  def testSelect(self):
+  def test_select(self):
     def equals(c1, c2):
       self.assertEqual(c1.serialize(), c2.serialize())
 
@@ -110,7 +110,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     equals(fc.select(['a'], None, False),
            fc.select(propertySelectors=['a'], retainGeometry=False))
 
-  def testInitOptColumn(self):
+  def test_init_opt_column(self):
     result = ee.FeatureCollection(
         args='[{}]', opt_column='a-column'
     ).serialize()
