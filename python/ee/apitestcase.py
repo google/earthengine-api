@@ -7,9 +7,9 @@ from typing import Any, Dict, Iterable, Optional
 
 from googleapiclient import discovery
 
+import unittest
 import ee
 from ee import _cloud_api_utils
-import unittest
 
 
 # Cached algorithms list

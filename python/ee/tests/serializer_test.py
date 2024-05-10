@@ -5,10 +5,10 @@ import datetime
 import json
 from typing import Any, Callable, Dict, List, Union
 
+import unittest
 import ee
 from ee import apitestcase
 from ee import serializer
-import unittest
 
 
 def _max_depth(x: Union[Dict[str, Any], List[Any], str]) -> int:

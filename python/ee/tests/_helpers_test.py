@@ -8,11 +8,11 @@ name since that is the name we want to ensure works.
 
 import io
 
+import unittest
 import ee
 from ee import apifunction
 from ee import apitestcase
 from ee import computedobject
-import unittest
 
 
 class ProfilingTest(apitestcase.ApiTestCase):

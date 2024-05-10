@@ -9,8 +9,8 @@ import tempfile
 from unittest import mock
 import urllib.parse
 
-import ee
 import unittest
+import ee
 
 
 class OAuthTest(unittest.TestCase):

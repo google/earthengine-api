@@ -9,9 +9,9 @@ from google.oauth2 import credentials
 from googleapiclient import discovery
 import requests
 
+import unittest
 from ee import _cloud_api_utils
 from ee import ee_exception
-import unittest
 
 
 class CloudApiUtilsTest(unittest.TestCase):

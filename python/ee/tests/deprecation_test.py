@@ -8,12 +8,12 @@ import unittest
 
 from absl.testing import parameterized
 
+import unittest
 from ee import apitestcase
 from ee import deprecation
 from ee import ee_string
 from ee import image
 from ee import imagecollection
-import unittest
 
 
 _STAC_JSON = {

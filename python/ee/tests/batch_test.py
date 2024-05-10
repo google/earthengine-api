@@ -5,11 +5,11 @@ from typing import Any, Optional
 import unittest
 from unittest import mock
 
+import unittest
 import ee
 from ee import apitestcase
 from ee import batch
 from ee import data
-import unittest
 
 RUNNING_OPERATION = {
     'metadata': {

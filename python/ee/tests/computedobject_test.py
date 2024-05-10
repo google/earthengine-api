@@ -4,10 +4,10 @@
 import json
 from unittest import mock
 
+import unittest
 import ee
 from ee import apitestcase
 from ee import computedobject
-import unittest
 
 
 class ComputedObjectTest(apitestcase.ApiTestCase):

@@ -6,8 +6,8 @@ from typing import Optional, Type
 from absl.testing import parameterized
 import numpy
 
-from ee import image_converter
 import unittest
+from ee import image_converter
 
 
 class ImageConverterTest(parameterized.TestCase):

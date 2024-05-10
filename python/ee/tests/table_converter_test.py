@@ -8,8 +8,8 @@ import geopandas
 from geopandas import testing
 import pandas
 
-from ee import table_converter
 import unittest
+from ee import table_converter
 
 
 class TableConverterTest(parameterized.TestCase):

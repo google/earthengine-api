@@ -7,9 +7,9 @@ DateRange is currently 100% dynamically generated.
 import json
 from typing import Any, Dict
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 START = 'start'
 END = 'end'

@@ -5,9 +5,9 @@ import json
 from typing import Any, Dict
 from unittest import mock
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 
 EPSG_4326 = 'EPSG:4326'

@@ -6,9 +6,9 @@ from unittest import mock
 import google.auth
 from google.oauth2 import credentials
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 
 class EETestCase(apitestcase.ApiTestCase):

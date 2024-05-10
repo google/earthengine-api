@@ -5,9 +5,9 @@ import json
 from typing import Any, Dict
 import unittest
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 
 def make_expression_graph(

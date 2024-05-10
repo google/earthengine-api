@@ -4,9 +4,9 @@
 import datetime
 import re
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 
 class CollectionTestCase(apitestcase.ApiTestCase):

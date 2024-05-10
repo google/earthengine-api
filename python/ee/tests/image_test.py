@@ -2,19 +2,49 @@
 """Test for the ee.image module."""
 
 import json
+from typing import Any, Dict
 from unittest import mock
 
+import unittest
 import ee
 from ee import _cloud_api_utils
 from ee import apitestcase
 from ee import ee_exception
 from ee import serializer
-import unittest
+
+# ee.Image('a').serialize()
+IMAGE = {
+    'functionInvocationValue': {
+        'functionName': 'Image.load',
+        'arguments': {'id': {'constantValue': 'a'}},
+    }
+}
+IMAGE_B = {
+    'functionInvocationValue': {
+        'functionName': 'Image.load',
+        'arguments': {'id': {'constantValue': 'b'}},
+    }
+}
+IMAGE_C = {
+    'functionInvocationValue': {
+        'functionName': 'Image.load',
+        'arguments': {'id': {'constantValue': 'c'}},
+    }
+}
 
 
-class ImageTestCase(apitestcase.ApiTestCase):
+def make_expression_graph(
+    function_invocation_value: Dict[str, Any],
+) -> Dict[str, Any]:
+  return {
+      'result': '0',
+      'values': {'0': {'functionInvocationValue': function_invocation_value}},
+  }
 
-  def testConstructors(self):
+
+class ImageTest(apitestcase.ApiTestCase):
+
+  def test_constructors(self):
     """Verifies that constructors understand valid parameters."""
     from_constant = ee.Image(1)
     self.assertEqual(
@@ -64,11 +94,11 @@ class ImageTestCase(apitestcase.ApiTestCase):
         'value': 'foo'
     }, from_variable.encode(None))
 
-  def testImageSignatures(self):
+  def test_image_signatures(self):
     """Verifies that the API functions are added to ee.Image."""
     self.assertTrue(hasattr(ee.Image(1), 'addBands'))
 
-  def testImperativeFunctions(self):
+  def test_imperative_functions(self):
     """Verifies that imperative functions return ready values."""
     image = ee.Image(1)
     self.assertEqual({'value': 'fakeValue'}, image.getInfo())
@@ -76,7 +106,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEqual('fakeMapId', map_id['mapid'])
     self.assertEqual(image, map_id['image'])
 
-  def testGetMapIdVisualization(self):
+  def test_get_map_id_visualization(self):
     """Verifies that imperative functions return ready values."""
     image = ee.Image(1)
     image.getMapId({'min': 0})
@@ -85,7 +115,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
         ee.Image(1).visualize(min=0).serialize(),
         self.last_mapid_call['data']['image'].serialize())
 
-  def testCombine(self):
+  def test_combine(self):
     """Verifies the behavior of ee.Image.combine_()."""
     image1 = ee.Image([1, 2])
     image2 = ee.Image([3, 4])
@@ -101,13 +131,13 @@ class ImageTestCase(apitestcase.ApiTestCase):
         'srcImg': image2
     }, combined.args['input'].args)
 
-  def testSelect(self):
+  def test_select(self):
     """Verifies regression in the behavior of empty ee.Image.select()."""
     image = ee.Image([1, 2]).select()
     self.assertEqual(ee.ApiFunction.lookup('Image.select'), image.func)
     self.assertEqual(ee.List([]), image.args['bandSelectors'])
 
-  def testRename(self):
+  def test_rename(self):
     """Verifies image.rename varargs handling."""
     image = ee.Image([1, 2]).rename('a', 'b')
     self.assertEqual(ee.ApiFunction.lookup('Image.rename'), image.func)
@@ -121,7 +151,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
     self.assertEqual(ee.ApiFunction.lookup('Image.rename'), image.func)
     self.assertEqual(ee.List(['a']), image.args['names'])
 
-  def testExpression(self):
+  def test_expression(self):
     """Verifies the behavior of ee.Image.expression()."""
     image = ee.Image([1, 2]).expression('a', {'b': 'c'})
     expression_func = image.func
@@ -146,7 +176,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
         }
     }, dummy_encoder(expression_func))
 
-  def testExpressionInCloudAPI(self):
+  def test_expression_in_cloud_api(self):
     """Verifies the behavior of ee.Image.expression() in the Cloud API."""
     image = ee.Image(1).expression('a', {'b': 'c'})
 
@@ -208,7 +238,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
         }
     }, serializer.encode(image, for_cloud_api=True))
 
-  def testDownload(self):
+  def test_download(self):
     """Verifies Download ID and URL generation."""
     ee.Image(1).getDownloadURL()
 
@@ -218,7 +248,7 @@ class ImageTestCase(apitestcase.ApiTestCase):
         self.last_download_call['data']['image'].serialize())
 
 
-class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
+class CloudThumbnailAndExportImageTest(apitestcase.ApiTestCase):
 
   def setUp(self):  # pylint: disable=g-missing-super-call
     self.InitializeApi(should_mock=False)
@@ -246,7 +276,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
         serializer.encode(actual))
 
   @unittest.skip('Does not work on github')
-  def testThumb_withDimensionsRegionCrs(self):
+  def test_thumb_with_dimensions_region_crs(self):
     """Verifies Thumbnail ID and URL generation in the Cloud API."""
 
     with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
@@ -275,7 +305,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
   @unittest.skip('Does not work on github')
-  def testThumb_withDimensionsRegionJson(self):
+  def test_thumb_with_dimensions_region_json(self):
     # Try it with the region as a GeoJSON string.
     with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
       self.base_image.getThumbURL({
@@ -293,7 +323,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
   @unittest.skip('Does not work on github')
-  def testThumb_withDimensionsListCoords(self):
+  def test_thumb_with_dimensions_list_coords(self):
     # Try it with the region as a list of coordinates.
     with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
       self.base_image.getThumbURL({
@@ -313,7 +343,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
   @unittest.skip('Does not work on github')
-  def testThumb_withDimensionsListMinMax(self):
+  def test_thumb_with_dimensions_list_min_max(self):
     # Try it with the region as a list of coordinates.
     with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
       self.base_image.getThumbURL({
@@ -333,7 +363,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       self.assertEqual(kwargs['parent'], 'projects/earthengine-legacy')
 
   @unittest.skip('Does not work on github')
-  def testThumb_withVisualizationParams(self):
+  def test_thumb_with_visualization_params(self):
     with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
       self.base_image.getThumbURL({
           'dimensions': [13, 42],
@@ -350,7 +380,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
                   geometry=self.expected_geometry, width=13,
                   height=42).visualize(min=0)))
 
-  def testBuildDownloadIdImage_buildsImagePerBand(self):
+  def test_build_download_id_image_builds_image_per_band(self):
     test_image = ee.Image('foo')
 
     # Format is file per band and bands specified: build image out of individual
@@ -399,7 +429,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
     self.assertEqual(0, image_str.count('789'))
     self.assertEqual(1, image_str.count('999'))
 
-  def testBuildDownloadIdImage_transformsGivenImage(self):
+  def test_build_download_id_image_transforms_given_image(self):
     test_image = ee.Image('foo')
 
     # Format is file per band and bands specified: build image out of individual
@@ -449,7 +479,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
     self.assertEqual(0, image_str.count('789'))
     self.assertEqual(1, image_str.count('999'))
 
-  def testBuildDownloadIdImage_handlesInvalidParameters(self):
+  def test_build_download_id_image_handles_invalid_parameters(self):
     # No band ID in band dictionary.
     params = {
         'format': 'ZIPPED_GEO_TIFF_PER_BAND',
@@ -469,7 +499,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
     ):
       ee.Image('foo')._build_download_id_image(params)
 
-  def testBuildDownloadIdImage_handlesDimensionsAndScale(self):
+  def test_build_download_id_image_handles_dimensions_and_scale(self):
     test_image = ee.Image('foo')
     dimensions = 123
     scale = 456
@@ -534,7 +564,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
     self.assertEqual(0, image_str.count(str(scale)))
 
   @unittest.skip('Does not work on github')
-  def testDownloadURL(self):
+  def test_download_url(self):
     """Verifies that the getDownloadURL request is constructed correctly."""
 
     with apitestcase.UsingCloudApi(cloud_api_resource=self.cloud_api_resource):
@@ -549,7 +579,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       self.assertEqual('None/%s/thumbName:getPixels' % _cloud_api_utils.VERSION,
                        url)
 
-  def testPrepareForExport_simple(self):
+  def test_prepare_for_export_simple(self):
     """Verifies proper handling of export-related parameters."""
 
     with apitestcase.UsingCloudApi():
@@ -557,7 +587,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       self.assertImageEqual(self.base_image, image)
       self.assertEqual({'something': 'else'}, params)
 
-  def testPrepareForExport_withCrsAndTransform(self):
+  def test_prepare_for_export_with_crs_and_transform(self):
     with apitestcase.UsingCloudApi():
       image, params = self.base_image.prepare_for_export({
           'crs': 'ABCD',
@@ -568,7 +598,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
               crs='ABCD', crsTransform=[1, 2, 3, 4, 5, 6]), image)
       self.assertEqual({}, params)
 
-  def testPrepareForExport_invalidCrsAndTransform(self):
+  def test_prepare_for_export_invalid_crs_and_transform(self):
     with apitestcase.UsingCloudApi():
       with self.assertRaises(ee_exception.EEException):
         self.base_image.prepare_for_export({'crs_transform': '1,2,3,4,5,6'})
@@ -578,7 +608,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
             'crs_transform': 'x'
         })
 
-  def testPrepareForExport_withPolygon(self):
+  def test_prepare_for_export_with_polygon(self):
     with apitestcase.UsingCloudApi():
       polygon = ee.Geometry.Polygon(9, 8, 7, 6, 3, 2)
       image, params = self.base_image.prepare_for_export({
@@ -590,7 +620,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       self.assertImageEqual(expected, image)
       self.assertEqual({}, params)
 
-  def testPrepareForExport_withScaleAndRegion(self):
+  def test_prepare_for_export_with_scale_and_region(self):
     with apitestcase.UsingCloudApi():
       polygon = ee.Geometry.Polygon(9, 8, 7, 6, 3, 2)
       image, params = self.base_image.prepare_for_export({
@@ -604,7 +634,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
               scale=8, geometry=expected_polygon), image)
       self.assertEqual({'something': 'else'}, params)
 
-  def testPrepareForExport_withRegionDimensionsCrsAndTransform(self):
+  def test_prepare_for_export_with_region_dimensions_crs_and_transform(self):
     with apitestcase.UsingCloudApi():
       polygon = ee.Geometry.Polygon(9, 8, 7, 6, 3, 2)
       image, params = self.base_image.prepare_for_export({
@@ -623,7 +653,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
               width=3, height=2, geometry=expected_polygon), image)
       self.assertEqual({'something': 'else'}, params)
 
-  def testPrepareForExport_withDimensionsCrsAndTransform(self):
+  def test_prepare_for_export_with_dimensions_crs_and_transform(self):
     with apitestcase.UsingCloudApi():
       # Special case of crs+transform+two dimensions
       image, params = self.base_image.prepare_for_export({
@@ -644,7 +674,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
                   evenOdd=True)), image)
       self.assertEqual({'something': 'else'}, params)
 
-  def testPrepareForExport_withOnlyRegion(self):
+  def test_prepare_for_export_with_only_region(self):
     with apitestcase.UsingCloudApi():
       polygon = ee.Geometry.Polygon(9, 8, 7, 6, 3, 2)
       image, params = self.base_image.prepare_for_export({
@@ -656,7 +686,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
           self.base_image.clip(polygon), image)
       self.assertEqual({'something': 'else'}, params)
 
-  def testPrepareForExport_withCrsNoTransform(self):
+  def test_prepare_for_export_with_crs_no_transform(self):
     with apitestcase.UsingCloudApi():
       # CRS with no crs_transform causes a "soft" reprojection. Make sure that
       # the (crs, crsTransform, dimensions) special case doesn't trigger.
@@ -671,11 +701,11 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
       self.assertEqual(projected.clipToBoundsAndScale(width=3, height=2), image)
       self.assertEqual({'something': 'else'}, params)
 
-  def testMorphologicalOperators(self):
+  def test_morphological_operators(self):
     """Verifies the focal operators are installed with aliases."""
     ee.Image(0).focal_min().focalMin()
 
-  def testSelectOptParams(self):
+  def test_select_opt_params(self):
     result = (
         ee.Image(1)
         .select(opt_selectors=['selector_a', 4], opt_names=['name_a', 'name_b'])
@@ -686,7 +716,7 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
     )
     self.assertIn('"newNames": {"constantValue": ["name_a", "name_b"]}', result)
 
-  def testExpressionOptParams(self):
+  def test_expression_opt_params(self):
     result = (
         ee.Image(1)
         .expression(expression='abc(0)', opt_map={'bcd': 'cef'})
@@ -695,6 +725,724 @@ class CloudThumbnailAndExportImageTests(apitestcase.ApiTestCase):
     # The values are nested too deep to compare the entire node.
     self.assertIn('bcd', result)
     self.assertIn('cef', result)
+
+
+class SerializeTest(apitestcase.ApiTestCase):
+
+  def test_abs(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': IMAGE,
+        },
+        'functionName': 'Image.abs',
+    })
+    expression = ee.Image('a').abs()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_acos(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': IMAGE,
+        },
+        'functionName': 'Image.acos',
+    })
+    expression = ee.Image('a').acos()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_add(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'image1': IMAGE,
+            'image2': IMAGE_B,
+        },
+        'functionName': 'Image.add',
+    })
+    expression = ee.Image('a').add('b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').add(image2='b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_add_bands(self):
+    names = ['one', 'two']
+    overwrite = True
+    expect = make_expression_graph({
+        'arguments': {
+            'dstImg': IMAGE,
+            'srcImg': IMAGE_B,
+            'names': {'constantValue': names},
+            'overwrite': {'constantValue': overwrite},
+        },
+        'functionName': 'Image.addBands',
+    })
+    expression = ee.Image('a').addBands('b', names, overwrite)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').addBands(
+        srcImg='b', names=names, overwrite=overwrite
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_and(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'image1': IMAGE,
+            'image2': IMAGE_B,
+        },
+        'functionName': 'Image.and',
+    })
+    expression = ee.Image('a').And('b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').And(image2='b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_accum(self):
+    axis = 1
+    reducer = ee.Reducer.sum()
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'axis': {'constantValue': axis},
+            'reducer': {
+                'functionInvocationValue': {
+                    'functionName': 'Reducer.sum',
+                    'arguments': {},
+                }
+            },
+        },
+        'functionName': 'Image.arrayAccum',
+    })
+    expression = ee.Image('a').arrayAccum(axis, reducer)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayAccum(axis=axis, reducer=reducer)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_argmax(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+        },
+        'functionName': 'Image.arrayArgmax',
+    })
+    expression = ee.Image('a').arrayArgmax()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_cat(self):
+    axis = 1
+    expect = make_expression_graph({
+        'arguments': {
+            'image1': IMAGE,
+            'image2': IMAGE_B,
+            'axis': {'constantValue': axis},
+        },
+        'functionName': 'Image.arrayCat',
+    })
+    expression = ee.Image('a').arrayCat('b', axis)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayCat(image2='b', axis=axis)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_dimensions(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+        },
+        'functionName': 'Image.arrayDimensions',
+    })
+    expression = ee.Image('a').arrayDimensions()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_dot_product(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'image1': IMAGE,
+            'image2': IMAGE_B,
+        },
+        'functionName': 'Image.arrayDotProduct',
+    })
+    expression = ee.Image('a').arrayDotProduct('b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayDotProduct(image2='b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_flatten(self):
+    coordinate_labels = ['b', 'c']
+    separator = 'a separator'
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+            'coordinateLabels': {'constantValue': coordinate_labels},
+            'separator': {'constantValue': separator},
+        },
+        'functionName': 'Image.arrayFlatten',
+    })
+    expression = ee.Image('a').arrayFlatten(coordinate_labels, separator)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayFlatten(
+        coordinateLabels=coordinate_labels, separator=separator
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_get(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+            'position': IMAGE_B,
+        },
+        'functionName': 'Image.arrayGet',
+    })
+    expression = ee.Image('a').arrayGet('b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayGet(position='b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_length(self):
+    axis = 1
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'axis': {'constantValue': axis},
+        },
+        'functionName': 'Image.arrayLength',
+    })
+    expression = ee.Image('a').arrayLength(axis)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayLength(axis=axis)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_lengths(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+        },
+        'functionName': 'Image.arrayLengths',
+    })
+    expression = ee.Image('a').arrayLengths()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_mask(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'mask': IMAGE_B,
+        },
+        'functionName': 'Image.arrayMask',
+    })
+    expression = ee.Image('a').arrayMask('b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayMask(mask='b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_pad(self):
+    lengths = [1, 2]
+    pad = 3
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+            'lengths': {'constantValue': lengths},
+            'pad': {'constantValue': pad},
+        },
+        'functionName': 'Image.arrayPad',
+    })
+    expression = ee.Image('a').arrayPad(lengths, pad)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayPad(lengths=lengths, pad=pad)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_project(self):
+    axes = [1, 2]
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'axes': {'constantValue': axes},
+        },
+        'functionName': 'Image.arrayProject',
+    })
+    expression = ee.Image('a').arrayProject(axes)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayProject(axes=axes)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_reduce(self):
+    reducer = ee.Reducer.sum()
+    axes = [1, 2]
+    field_axes = 3
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'reducer': {
+                'functionInvocationValue': {
+                    'functionName': 'Reducer.sum',
+                    'arguments': {},
+                }
+            },
+            'axes': {'constantValue': axes},
+            'fieldAxis': {'constantValue': field_axes},
+        },
+        'functionName': 'Image.arrayReduce',
+    })
+    expression = ee.Image('a').arrayReduce(reducer, axes, field_axes)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayReduce(
+        reducer=reducer, axes=axes, fieldAxis=field_axes
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_repeat(self):
+    axis = 1
+    copies = 'b'
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'axis': {'constantValue': axis},
+            'copies': IMAGE_B,
+        },
+        'functionName': 'Image.arrayRepeat',
+    })
+    expression = ee.Image('a').arrayRepeat(axis, copies)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayRepeat(axis=axis, copies=copies)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_reshape(self):
+    lengths = 'b'
+    dimensions = 1
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+            'lengths': IMAGE_B,
+            'dimensions': {'constantValue': dimensions},
+        },
+        'functionName': 'Image.arrayReshape',
+    })
+    expression = ee.Image('a').arrayReshape(lengths, dimensions)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayReshape(
+        lengths=lengths, dimensions=dimensions
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_slice(self):
+    axis = 1
+    start = 'b'
+    end = 'c'
+    step = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'axis': {'constantValue': axis},
+            'start': IMAGE_B,
+            'end': IMAGE_C,
+            'step': {'constantValue': step},
+        },
+        'functionName': 'Image.arraySlice',
+    })
+    expression = ee.Image('a').arraySlice(axis, start, end, step)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arraySlice(
+        axis=axis, start=start, end=end, step=step
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_sort(self):
+    keys = 'b'
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+            'keys': IMAGE_B,
+        },
+        'functionName': 'Image.arraySort',
+    })
+    expression = ee.Image('a').arraySort(keys)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arraySort(keys)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_array_transpose(self):
+    axis1 = 1
+    axis2 = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'axis1': {'constantValue': axis1},
+            'axis2': {'constantValue': axis2},
+        },
+        'functionName': 'Image.arrayTranspose',
+    })
+    expression = ee.Image('a').arrayTranspose(axis1, axis2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').arrayTranspose(axis1=axis1, axis2=axis2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_asin(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': IMAGE,
+        },
+        'functionName': 'Image.asin',
+    })
+    expression = ee.Image('a').asin()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_atan(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': IMAGE,
+        },
+        'functionName': 'Image.atan',
+    })
+    expression = ee.Image('a').atan()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_atan2(self):
+    image2 = 'b'
+    expect = make_expression_graph({
+        'arguments': {
+            'image1': IMAGE,
+            'image2': IMAGE_B,
+        },
+        'functionName': 'Image.atan2',
+    })
+    expression = ee.Image('a').atan2(image2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').atan2(image2=image2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_band_names(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+        },
+        'functionName': 'Image.bandNames',
+    })
+    expression = ee.Image('a').bandNames()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_band_types(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+        },
+        'functionName': 'Image.bandTypes',
+    })
+    expression = ee.Image('a').bandTypes()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_bit_count(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': IMAGE,
+        },
+        'functionName': 'Image.bitCount',
+    })
+    expression = ee.Image('a').bitCount()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_bits_to_array_image(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+        },
+        'functionName': 'Image.bitsToArrayImage',
+    })
+    expression = ee.Image('a').bitsToArrayImage()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_bitwise_and(self):
+    image2 = 'b'
+    expect = make_expression_graph({
+        'arguments': {
+            'image1': IMAGE,
+            'image2': IMAGE_B,
+        },
+        'functionName': 'Image.bitwiseAnd',
+    })
+    expression = ee.Image('a').bitwiseAnd(image2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').bitwiseAnd(image2=image2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_bitwise_not(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': IMAGE,
+        },
+        'functionName': 'Image.bitwiseNot',
+    })
+    expression = ee.Image('a').bitwiseNot()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_bitwise_or(self):
+    image2 = 'b'
+    expect = make_expression_graph({
+        'arguments': {
+            'image1': IMAGE,
+            'image2': IMAGE_B,
+        },
+        'functionName': 'Image.bitwiseOr',
+    })
+    expression = ee.Image('a').bitwiseOr(image2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').bitwiseOr(image2=image2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_bitwise_xor(self):
+    image2 = 'b'
+    expect = make_expression_graph({
+        'arguments': {
+            'image1': IMAGE,
+            'image2': IMAGE_B,
+        },
+        'functionName': 'Image.bitwiseXor',
+    })
+    expression = ee.Image('a').bitwiseXor(image2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').bitwiseXor(image2=image2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_blend(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'bottom': IMAGE,
+            'top': IMAGE_B,
+        },
+        'functionName': 'Image.blend',
+    })
+    expression = ee.Image('a').blend('b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').blend('b')
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_byte(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': IMAGE,
+        },
+        'functionName': 'Image.byte',
+    })
+    expression = ee.Image('a').byte()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_cast(self):
+    band_types = {'a': 'int16'}
+    band_order = ['b', 'c']
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+            'bandTypes': {'constantValue': band_types},
+            'bandOrder': {'constantValue': band_order},
+        },
+        'functionName': 'Image.cast',
+    })
+    expression = ee.Image('a').cast(band_types, band_order)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').cast(bandTypes=band_types, bandOrder=band_order)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_cat(self):
+    images = ['a', 'b']
+    expect = make_expression_graph({
+        'arguments': {
+            'dstImg': {
+                'functionInvocationValue': {
+                    'functionName': 'Image.load',
+                    'arguments': {'id': {'constantValue': 'a'}},
+                }
+            },
+            'srcImg': {
+                'functionInvocationValue': {
+                    'functionName': 'Image.load',
+                    'arguments': {'id': {'constantValue': 'b'}},
+                }
+            },
+        },
+        # Note that this is not "cat".
+        'functionName': 'Image.addBands',
+    })
+    expression = ee.Image.cat(images)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    # cat uses varargs, so no kwargs.
+
+  def test_cbrt(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': IMAGE,
+        },
+        'functionName': 'Image.cbrt',
+    })
+    expression = ee.Image('a').cbrt()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_ceil(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': IMAGE,
+        },
+        'functionName': 'Image.ceil',
+    })
+    expression = ee.Image('a').ceil()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_change_proj(self):
+    src_proj = 'EPSG:3857'
+    dst_proj = 'EPSG:4326'
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'srcProj': {
+                'functionInvocationValue': {
+                    'functionName': 'Projection',
+                    'arguments': {'crs': {'constantValue': 'EPSG:3857'}},
+                }
+            },
+            'dstProj': {
+                'functionInvocationValue': {
+                    'functionName': 'Projection',
+                    'arguments': {'crs': {'constantValue': 'EPSG:4326'}},
+                }
+            },
+        },
+        'functionName': 'Image.changeProj',
+    })
+    expression = ee.Image('a').changeProj(src_proj, dst_proj)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').changeProj(srcProj=src_proj, dstProj=dst_proj)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_clamp(self):
+    low = 1
+    high = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'input': IMAGE,
+            'low': {'constantValue': low},
+            'high': {'constantValue': high},
+        },
+        'functionName': 'Image.clamp',
+    })
+    expression = ee.Image('a').clamp(low, high)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').clamp(low=low, high=high)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_classify(self):
+    classifier = ee.Classifier.decisionTree('')
+    output_name = 'output name'
+    expect = make_expression_graph({
+        'arguments': {
+            'image': IMAGE,
+            'classifier': {
+                'functionInvocationValue': {
+                    'functionName': 'Classifier.decisionTree',
+                    'arguments': {'treeString': {'constantValue': ''}},
+                }
+            },
+            'outputName': {'constantValue': output_name},
+        },
+        'functionName': 'Image.classify',
+    })
+    expression = ee.Image('a').classify(classifier, output_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Image('a').classify(
+        classifier=classifier, outputName=output_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
 
 if __name__ == '__main__':

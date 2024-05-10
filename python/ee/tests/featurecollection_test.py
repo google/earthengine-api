@@ -1,12 +1,43 @@
 #!/usr/bin/env python3
 """Test for the ee.featurecollection module."""
 
+import json
+from typing import Any, Dict
 from unittest import mock
 
+import unittest
 import ee
 from ee import _cloud_api_utils
 from ee import apitestcase
-import unittest
+
+
+def make_expression_graph(
+    function_invocation_value: Dict[str, Any],
+) -> Dict[str, Any]:
+  return {
+      'result': '0',
+      'values': {'0': {'functionInvocationValue': function_invocation_value}},
+  }
+
+
+# ee.FeatureCollection(ee.Feature(None))
+FEATURES_ONE = {
+    'functionInvocationValue': {
+        'functionName': 'Collection',
+        'arguments': {
+            'features': {
+                'arrayValue': {
+                    'values': [{
+                        'functionInvocationValue': {
+                            'functionName': 'Feature',
+                            'arguments': {},
+                        }
+                    }]
+                }
+            }
+        },
+    }
+}
 
 
 class FeatureCollectionTestCase(apitestcase.ApiTestCase):
@@ -115,6 +146,215 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
         args='[{}]', opt_column='a-column'
     ).serialize()
     self.assertIn('"geometryColumn": {"constantValue": "a-column"}', result)
+
+  def test_classify(self):
+    output_name = 'output name'
+    expect = make_expression_graph({
+        'arguments': {
+            'features': FEATURES_ONE,
+            'classifier': {
+                'functionInvocationValue': {
+                    'arguments': {},
+                    'functionName': 'Classifier.smileNaiveBayes',
+                }
+            },
+            'outputName': {'constantValue': output_name},
+        },
+        'functionName': 'FeatureCollection.classify',
+    })
+    classifier = ee.Classifier.smileNaiveBayes()
+    expression = ee.FeatureCollection(ee.Feature(None)).classify(
+        classifier, output_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).classify(
+        classifier=classifier, outputName=output_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_cluster(self):
+    output_name = 'output name'
+    expect = make_expression_graph({
+        'arguments': {
+            'features': FEATURES_ONE,
+            'clusterer': {
+                'functionInvocationValue': {
+                    'functionName': 'Clusterer.wekaCobweb',
+                    'arguments': {},
+                }
+            },
+            'outputName': {'constantValue': output_name},
+        },
+        'functionName': 'FeatureCollection.cluster',
+    })
+    clusterer = ee.Clusterer.wekaCobweb()
+    expression = ee.FeatureCollection(ee.Feature(None)).cluster(
+        clusterer, output_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).cluster(
+        clusterer=clusterer, outputName=output_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_inverse_distance(self):
+    range = 2
+    property_name = 'property name'
+    mean = 3
+    std_dev = 4
+    gamma = 5
+    reducer = ee.Reducer.max()
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'range': {'constantValue': range},
+            'propertyName': {'constantValue': property_name},
+            'mean': {'constantValue': mean},
+            'stdDev': {'constantValue': std_dev},
+            'gamma': {'constantValue': gamma},
+            'reducer': {
+                'functionInvocationValue': {
+                    'functionName': 'Reducer.max',
+                    'arguments': {},
+                }
+            },
+        },
+        'functionName': 'FeatureCollection.inverseDistance',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).inverseDistance(
+        range, property_name, mean, std_dev, gamma, reducer
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).inverseDistance(
+        range=range,
+        propertyName=property_name,
+        mean=mean,
+        stdDev=std_dev,
+        gamma=gamma,
+        reducer=reducer,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_kriging(self):
+    property_name = 'property name'
+    shape = 'exponential'
+    range = 1
+    sill = 2
+    nugget = 3
+    max_distance = 4
+    reducer = ee.Reducer.max()
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'propertyName': {'constantValue': property_name},
+            'shape': {'constantValue': shape},
+            'range': {'constantValue': range},
+            'sill': {'constantValue': sill},
+            'nugget': {'constantValue': nugget},
+            'maxDistance': {'constantValue': max_distance},
+            'reducer': {
+                'functionInvocationValue': {
+                    'functionName': 'Reducer.max',
+                    'arguments': {},
+                }
+            },
+        },
+        'functionName': 'FeatureCollection.kriging',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).kriging(
+        property_name, shape, range, sill, nugget, max_distance, reducer
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).kriging(
+        propertyName=property_name,
+        shape=shape,
+        range=range,
+        sill=sill,
+        nugget=nugget,
+        maxDistance=max_distance,
+        reducer=reducer,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_make_array(self):
+    properties = ['a', 'b']
+    name = 'name string'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'properties': {'constantValue': properties},
+            'name': {'constantValue': name},
+        },
+        'functionName': 'FeatureCollection.makeArray',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).makeArray(
+        properties, name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).makeArray(
+        properties=properties, name=name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_random_points(self):
+    region = ee.Geometry.Point([1, 2])
+    points = 1
+    seed = 2
+    max_error_num = 3
+    max_error = ee.ErrorMargin(max_error_num)
+    expect = make_expression_graph({
+        'arguments': {
+            'region': {
+                'functionInvocationValue': {
+                    'functionName': 'GeometryConstructors.Point',
+                    'arguments': {'coordinates': {'constantValue': [1, 2]}},
+                }
+            },
+            'points': {'constantValue': points},
+            'seed': {'constantValue': seed},
+            'maxError': {
+                'functionInvocationValue': {
+                    'functionName': 'ErrorMargin',
+                    'arguments': {'value': {'constantValue': max_error_num}},
+                }
+            },
+        },
+        'functionName': 'FeatureCollection.randomPoints',
+    })
+
+    expression = ee.FeatureCollection.randomPoints(
+        region, points, seed, max_error_num
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection.randomPoints(
+        region, points, seed, max_error
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).randomPoints(
+        region=region, points=points, seed=seed, maxError=max_error
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
 
 
 if __name__ == '__main__':

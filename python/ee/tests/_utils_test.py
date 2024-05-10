@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 """Tests for _utils decorators."""
 
-from ee import _utils
 import unittest
+from ee import _utils
 
 
 class EeElementStub:

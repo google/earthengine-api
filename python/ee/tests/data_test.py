@@ -6,12 +6,12 @@ from unittest import mock
 import httplib2
 import requests
 
+import unittest
 import ee
 from ee import _cloud_api_utils
 from ee import apitestcase
 from ee import featurecollection
 from ee import image
-import unittest
 
 
 class DataTest(unittest.TestCase):

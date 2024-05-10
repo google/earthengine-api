@@ -3,9 +3,9 @@
 
 import json
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 TO_LIST = 'Reducer.toList'
 

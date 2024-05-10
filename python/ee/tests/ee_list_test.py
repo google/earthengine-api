@@ -3,9 +3,9 @@
 import json
 from typing import Any, Dict
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 
 def make_expression_graph(
@@ -19,7 +19,7 @@ def make_expression_graph(
 
 class ListTest(apitestcase.ApiTestCase):
 
-  def testList(self):
+  def test_list(self):
     """Verifies basic behavior of ee.List."""
     l = ee.List([1, 2, 3])
     self.assertEqual([1, 2, 3], ee.Serializer(False)._encode(l))
@@ -37,7 +37,17 @@ class ListTest(apitestcase.ApiTestCase):
         computed.args,
     )
 
-  def testMapping(self):
+  def test_empty(self):
+    expect = {'result': '0', 'values': {'0': {'constantValue': []}}}
+    self.assertEqual(expect, json.loads(ee.List(tuple()).serialize()))
+    self.assertEqual(expect, json.loads(ee.List([]).serialize()))
+
+  def test_single(self):
+    expect = {'result': '0', 'values': {'0': {'constantValue': [42]}}}
+    self.assertEqual(expect, json.loads(ee.List(tuple([42])).serialize()))
+    self.assertEqual(expect, json.loads(ee.List([42]).serialize()))
+
+  def test_mapping(self):
     lst = ee.List(['foo', 'bar'])
     body = lambda s: ee.String(s).cat('bar')
     mapped = lst.map(body)
@@ -60,7 +70,7 @@ class ListTest(apitestcase.ApiTestCase):
         expected_function.serialize(for_cloud_api=True),
         mapped.args['baseAlgorithm'].serialize(for_cloud_api=True))
 
-  def testInternals(self):
+  def test_internals(self):
     """Test eq(), ne() and hash()."""
     a = ee.List([1, 2])
     b = ee.List([2, 1])

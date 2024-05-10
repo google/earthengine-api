@@ -3,9 +3,9 @@
 
 import json
 
+import unittest
 import ee
 from ee import apitestcase
-import unittest
 
 VALUE = 'value'
 UNIT = 'unit'
