@@ -21,6 +21,20 @@ from ee import function
 from ee import geometry
 
 
+def _parse_dimensions(dimensions: Any) -> Sequence[Any]:
+  """Parses a dimensions specification into a one or two element list."""
+  if ee_types.isNumber(dimensions):
+    return [dimensions]
+  elif isinstance(dimensions, str):
+    # Unpack WIDTHxHEIGHT
+    return [int(x) for x in dimensions.split('x')]
+  elif isinstance(dimensions, (list, tuple)) and 1 <= len(dimensions) <= 2:
+    return dimensions
+
+  raise ee_exception.EEException(
+      'Invalid dimensions {}.'.format(dimensions))
+
+
 class Image(element.Element):
   """An object to represent an Earth Engine image."""
 
@@ -105,6 +119,10 @@ class Image(element.Element):
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
+  @staticmethod
+  def name() -> str:
+    return 'Image'
+
   # pylint: disable-next=useless-parent-delegation
   def getInfo(self) -> Optional[Any]:
     """Fetch and return information about this image.
@@ -120,7 +138,7 @@ class Image(element.Element):
     """Fetch and return a map ID dictionary, suitable for use in a Map overlay.
 
     Args:
-      vis_params: The visualization parameters.  See ee.data.getMapId.
+      vis_params: The visualization parameters. See ee.data.getMapId.
 
     Returns:
       A map ID dictionary as described in ee.data.getMapId.
@@ -434,11 +452,12 @@ class Image(element.Element):
       params: An object containing download options with the following
           possible values:
         - name: a base name to use when constructing filenames. Only applicable
-            when format is "ZIPPED_GEO_TIFF" (default) or filePerBand is true.
-            Defaults to the image id (or "download" for computed images) when
-            format is "ZIPPED_GEO_TIFF" or filePerBand is true, otherwise a
-            random character string is generated. Band names are appended when
-            filePerBand is true.
+            when format is "ZIPPED_GEO_TIFF" (default),
+            "ZIPPED_GEO_TIFF_PER_BAND" or filePerBand is true. Defaults to the
+            image id (or "download" for computed images) when format is
+            "ZIPPED_GEO_TIFF", "ZIPPED_GEO_TIFF_PER_BAND", or filePerBand is
+            true, otherwise a random character string is generated. Band names
+            are appended when filePerBand is true.
         - bands: a description of the bands to download. Must be an array of
             band names or an array of dictionaries, each with the
             following keys:
@@ -463,10 +482,13 @@ class Image(element.Element):
             and crs_transform are specified.
         - filePerBand: whether to produce a separate GeoTIFF per band (boolean).
             Defaults to true. If false, a single GeoTIFF is produced and all
-            band-level transformations will be ignored.
+            band-level transformations will be ignored. Note that this is
+            ignored if the format is "ZIPPED_GEO_TIFF" or
+            "ZIPPED_GEO_TIFF_PER_BAND".
         - format: the download format. One of:
-            "ZIPPED_GEO_TIFF" (GeoTIFF file(s) wrapped in a zip file, default),
-            "GEO_TIFF" (GeoTIFF file), "NPY" (NumPy binary format).
+            "ZIPPED_GEO_TIFF" (GeoTIFF file wrapped in a zip file, default),
+            "ZIPPED_GEO_TIFF_PER_BAND"  (Multiple GeoTIFF files wrapped in a
+            zip file), "GEO_TIFF" (GeoTIFF file), "NPY" (NumPy binary format).
             If "GEO_TIFF" or "NPY", filePerBand and all band-level
             transformations will be ignored. Loading a NumPy output results in
             a structured array.
@@ -513,8 +535,8 @@ class Image(element.Element):
             computed by proportional scaling.
           region - (ee.Geometry, GeoJSON, list of numbers, list of points)
             Geospatial region of the image to render. By default, the whole
-            image.  If given a list of min lon, min lat, max lon, max lat,
-            a planar rectangle is created.  If given a list of points a
+            image. If given a list of min lon, min lat, max lon, max lat,
+            a planar rectangle is created. If given a list of points a
             planar polygon is created.
           format - (string) Either 'png' or 'jpg'.
 
@@ -672,7 +694,7 @@ class Image(element.Element):
     accessed like image.band_name or image[0].
 
     Both b() and image[] allow multiple arguments, to specify multiple bands,
-    such as b(1, 'name', 3).  Calling b() with no arguments, or using a variable
+    such as b(1, 'name', 3). Calling b() with no arguments, or using a variable
     by itself, returns all bands of the image.
 
     Args:
@@ -730,6 +752,7 @@ class Image(element.Element):
       clip_geometry = geometry.Geometry(clip_geometry)
     except ee_exception.EEException:
       pass  # Not an ee.Geometry or GeoJSON. Just pass it along.
+
     return apifunction.ApiFunction.call_('Image.clip', self, clip_geometry)
 
   def rename(self, names: Any, *args) -> Image:
@@ -739,7 +762,7 @@ class Image(element.Element):
 
     Args:
       names: An array of strings specifying the new names for the
-          bands.  Must exactly match the number of bands in the image.
+          bands. Must exactly match the number of bands in the image.
       *args: Band names as varargs.
 
     Returns:
@@ -756,21 +779,3 @@ class Image(element.Element):
         'names': names
     }
     return apifunction.ApiFunction.apply_('Image.rename', algorithm_args)
-
-  @staticmethod
-  def name() -> str:
-    return 'Image'
-
-
-def _parse_dimensions(dimensions: Any) -> Sequence[Any]:
-  """Parses a dimensions specification into a one or two element list."""
-  if ee_types.isNumber(dimensions):
-    return [dimensions]
-  elif isinstance(dimensions, str):
-    # Unpack WIDTHxHEIGHT
-    return [int(x) for x in dimensions.split('x')]
-  elif isinstance(dimensions, (list, tuple)) and 1 <= len(dimensions) <= 2:
-    return dimensions
-
-  raise ee_exception.EEException(
-      'Invalid dimensions {}.'.format(dimensions))

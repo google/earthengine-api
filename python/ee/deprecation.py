@@ -193,7 +193,9 @@ def _IssueAssetDeprecationWarning(asset: DeprecatedAsset) -> None:
   )
   removal_date = asset.removal_date
   if removal_date:
-    formatted_date = removal_date.strftime('%B %-d, %Y')
+    # %d gives a zero-padded day. Remove the leading zero. %-d is incompatible
+    # with Windows.
+    formatted_date = removal_date.strftime('%B %d, %Y').replace(' 0', ' ')
     warning = warning + f' by {formatted_date}.'
   else:
     warning = warning + '.'

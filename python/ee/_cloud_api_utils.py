@@ -75,6 +75,8 @@ class _Http:
     except requests.exceptions.ChunkedEncodingError as encoding_error:
       # This is not a one-to-one match, but it's close enough.
       raise ConnectionError(encoding_error) from encoding_error
+    except requests.exceptions.Timeout as timeout_error:
+      raise TimeoutError(timeout_error) from timeout_error
     headers = dict(response.headers)
     headers['status'] = response.status_code
     content = response.content

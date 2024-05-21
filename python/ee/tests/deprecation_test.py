@@ -4,7 +4,6 @@
 import contextlib
 from typing import Any, Dict
 import warnings
-import unittest
 
 from absl.testing import parameterized
 
@@ -49,6 +48,20 @@ _STAC_JSON = {
             'gee:removal_date': '2024-07-01T00:00:00Z',
         },
         {
+            'href': 'https://example.test/two_digit_date.json',
+            'title': 'two_digit_date',
+            'deprecated': True,
+            'gee:replacement_id': 'replacement_id',
+            'gee:removal_date': '2024-01-31T00:00:00Z',
+        },
+        {
+            'href': 'https://example.test/invalid_date.json',
+            'title': 'invalid_date',
+            'deprecated': True,
+            'gee:replacement_id': 'replacement_id',
+            'gee:removal_date': '20240131',
+        },
+        {
             'href': 'https://example.test/learn_more_url_only.json',
             'title': 'learn_more_url_only',
             'deprecated': True,
@@ -82,6 +95,15 @@ _EXPECTED_WARNINGS = {
     'date_only': (
         r'Attention required for date_only! You are using a deprecated asset.\n'
         r'To ensure continued functionality, please update it by July 1, 2024.'
+    ),
+    'two_digit_date': (
+        r'Attention required for two_digit_date! You are using a deprecated'
+        r' asset.\nTo ensure continued functionality, please update it by'
+        r' January 31, 2024.'
+    ),
+    'invalid_date': (
+        r'Attention required for invalid_date! You are using a deprecated'
+        r' asset.\nTo ensure continued functionality, please update it\.'
     ),
     'learn_more_url_only': (
         r'Attention required for learn_more_url_only! You are using a'
@@ -123,38 +145,28 @@ class DeprecationTest(apitestcase.ApiTestCase, parameterized.TestCase):
     with self.assertDoesNotWarn():
       FakeClass().some_function('some-value', 'valid-asset')
 
-  @unittest.skip('Does not work on github')
-  @parameterized.named_parameters(
-      ('deprecated_asset', 'deprecated_asset'),
-      ('date_and_learn_more', 'date_and_learn_more'),
-      ('date_only', 'date_only'),
-      ('learn_more_url_only', 'learn_more_url_only'),
-  )
+  @parameterized.named_parameters((k, k) for k in _EXPECTED_WARNINGS.keys())
   def test_warning_thrown_args_init(self, asset_id: str):
     with self.assertWarnsRegex(
         DeprecationWarning, _EXPECTED_WARNINGS[asset_id]
     ):
       FakeClass(asset_id, 'some-value')
 
-  @unittest.skip('Does not work on github')
   def test_warning_thrown_args_instance_method(self):
     asset = 'deprecated_asset'
     with self.assertWarnsRegex(DeprecationWarning, _EXPECTED_WARNINGS[asset]):
       FakeClass().some_function('some-value', asset)
 
-  @unittest.skip('Does not work on github')
   def test_warning_thrown_kwargs_init(self):
     asset = 'deprecated_asset'
     with self.assertWarnsRegex(DeprecationWarning, _EXPECTED_WARNINGS[asset]):
       FakeClass(arg1=asset)
 
-  @unittest.skip('Does not work on github')
   def test_warning_thrown_kwargs_instance_method(self):
     asset = 'deprecated_asset'
     with self.assertWarnsRegex(DeprecationWarning, _EXPECTED_WARNINGS[asset]):
       FakeClass().some_function(arg2=asset)
 
-  @unittest.skip('Does not work on github')
   def test_same_warning_not_thrown(self):
     # Verifies the same warning message is not thrown twice.
     asset = 'deprecated_asset'

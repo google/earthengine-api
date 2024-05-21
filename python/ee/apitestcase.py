@@ -70,6 +70,8 @@ class ApiTestCase(unittest.TestCase):
       ee.data.getDownloadId = self._MockDownloadUrl
       ee.data.getThumbId = self._MockThumbUrl
       ee.data.getTableDownloadId = self._MockTableDownload
+      # pylint: disable-next=protected-access
+      ee.deprecation._FetchDataCatalogStac = self._MockFetchDataCatalogStac
       ee.Initialize(None, '')
 
   # We are mocking the url here so the unit tests are happy.
@@ -95,6 +97,9 @@ class ApiTestCase(unittest.TestCase):
   def _MockTableDownload(self, params: Dict[str, Any]) -> Dict[str, str]:
     self.last_table_call = {'url': '/table', 'data': params}
     return {'docid': '5', 'token': '6'}
+
+  def _MockFetchDataCatalogStac(self) -> Dict[str, Any]:
+    return {}
 
 
 def _GenerateCloudApiResource(mock_http: Any, raw: Any) -> discovery.Resource:
