@@ -1256,12 +1256,11 @@ def getDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
       possible values:
         image - The image to download.
         - name: a base name to use when constructing filenames. Only applicable
-            when format is "ZIPPED_GEO_TIFF" (default),
-            "ZIPPED_GEO_TIFF_PER_BAND", or filePerBand is true. Defaults to the
-            image id (or "download" for computed images) when format is
-            "ZIPPED_GEO_TIFF", "ZIPPED_GEO_TIFF_PER_BAND", or filePerBand is
-            true, otherwise a random character string is generated. Band names
-            are appended when filePerBand is true.
+            when format is "ZIPPED_GEO_TIFF" (default) or filePerBand is true.
+            Defaults to the image id (or "download" for computed images) when
+            format is "ZIPPED_GEO_TIFF" or filePerBand is true, otherwise a
+            random character string is generated. Band names are appended when
+            filePerBand is true.
         - bands: a description of the bands to download. Must be an array of
             band names or an array of dictionaries, each with the
             following keys:
@@ -1286,13 +1285,10 @@ def getDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
             and crs_transform are specified.
         - filePerBand: whether to produce a separate GeoTIFF per band (boolean).
             Defaults to true. If false, a single GeoTIFF is produced and all
-            band-level transformations will be ignored. Note that this is
-            ignored if the format is "ZIPPED_GEO_TIFF" or
-            "ZIPPED_GEO_TIFF_PER_BAND".
+            band-level transformations will be ignored.
         - format: the download format. One of:
-            "ZIPPED_GEO_TIFF" (GeoTIFF file wrapped in a zip file, default),
-            "ZIPPED_GEO_TIFF_PER_BAND" (Multiple GeoTIFF files wrapped in a
-            zip file), "GEO_TIFF" (GeoTIFF file), "NPY" (NumPy binary format).
+            "ZIPPED_GEO_TIFF" (GeoTIFF file(s) wrapped in a zip file, default),
+            "GEO_TIFF" (GeoTIFF file), "NPY" (NumPy binary format).
             If "GEO_TIFF" or "NPY", filePerBand and all band-level
             transformations will be ignored. Loading a NumPy output results in
             a structured array.
