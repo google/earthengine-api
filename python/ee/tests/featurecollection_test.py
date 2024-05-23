@@ -39,6 +39,19 @@ FEATURES_ONE = {
     }
 }
 
+FEATURES_A = {
+    'functionInvocationValue': {
+        'functionName': 'Collection.loadTable',
+        'arguments': {'tableId': {'constantValue': 'a'}},
+    }
+}
+
+FEATURES_B = {
+    'functionInvocationValue': {
+        'functionName': 'Collection.loadTable',
+        'arguments': {'tableId': {'constantValue': 'b'}},
+    }
+}
 
 class FeatureCollectionTestCase(apitestcase.ApiTestCase):
 
@@ -203,6 +216,32 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_copy_properties(self):
+    source = ee.FeatureCollection('b')
+    properties = ['c', 'd']
+    exclude = ['e', 'f']
+    expect = make_expression_graph({
+        'arguments': {
+            'destination': FEATURES_A,
+            'source': FEATURES_B,
+            'properties': {'constantValue': properties},
+            'exclude': {'constantValue': exclude},
+        },
+        # Note this is Element rather than FeatureCollection
+        'functionName': 'Element.copyProperties',
+    })
+    expression = ee.FeatureCollection('a').copyProperties(
+        source, properties, exclude
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection('a').copyProperties(
+        source=source, properties=properties, exclude=exclude
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_inverse_distance(self):
     a_range = 2
     property_name = 'property name'
@@ -354,7 +393,6 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
-
 
 
 if __name__ == '__main__':

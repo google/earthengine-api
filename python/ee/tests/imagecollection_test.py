@@ -185,6 +185,32 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_copy_properties(self):
+    source = ee.ImageCollection('b')
+    properties = ['c', 'd']
+    exclude = ['e', 'f']
+    expect = make_expression_graph({
+        'arguments': {
+            'destination': IMAGES_A,
+            'source': IMAGES_B,
+            'properties': {'constantValue': properties},
+            'exclude': {'constantValue': exclude},
+        },
+        # Note this is Element rather than ImageCollection
+        'functionName': 'Element.copyProperties',
+    })
+    expression = ee.ImageCollection('a').copyProperties(
+        source, properties, exclude
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.ImageCollection('a').copyProperties(
+        source=source, properties=properties, exclude=exclude
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_forma_trend(self):
     covariates = ee.ImageCollection('b')
     window_size = 3
@@ -374,7 +400,6 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
     expression = ee.ImageCollection('a').toBands()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
-
 
 
 if __name__ == '__main__':

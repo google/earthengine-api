@@ -24,10 +24,18 @@ PROJ_GRAPH = {
         'arguments': {'crs': {'constantValue': EPSG_4326}},
     }
 }
+# ee.Feature(None).serialize())['values']['0']
 FEATURE_NONE_GRAPH = {
     'functionInvocationValue': {
         'functionName': 'Feature',
         'arguments': {},
+    }
+}
+# ee.Feature(None, {'a': 'b'}).serialize())['values']['0']
+FEATURE_A_GRAPH = {
+    'functionInvocationValue': {
+        'functionName': 'Feature',
+        'arguments': {'metadata': {'constantValue': {'a': 'b'}}},
     }
 }
 
@@ -247,6 +255,30 @@ class FeatureTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
     expression = ee.Feature(None).convexHull(maxError=10, proj=EPSG_4326)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_copy_properties(self):
+    source = ee.Feature(None, {'a': 'b'})
+    properties = ['c', 'd']
+    exclude = ['e', 'f']
+    expect = make_expression_graph({
+        'arguments': {
+            'destination': FEATURE_NONE_GRAPH,
+            'source': FEATURE_A_GRAPH,
+            'properties': {'constantValue': properties},
+            'exclude': {'constantValue': exclude},
+        },
+        # Note this is Element rather than Feature
+        'functionName': 'Element.copyProperties',
+    })
+    expression = ee.Feature(None).copyProperties(source, properties, exclude)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Feature(None).copyProperties(
+        source=source, properties=properties, exclude=exclude
+    )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
