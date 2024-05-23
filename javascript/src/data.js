@@ -795,13 +795,14 @@ ee.data.makeThumbUrl = function(id) {
  * @param {!Object} params An object containing download options with the
  *     following possible values:
  *   <table>
- *     <tr>
+  *     <tr>
  *       <td><code> name: </code> a base name to use when constructing
- *         filenames. Only applicable when format is "ZIPPED_GEO_TIFF" (default)
- *         or filePerBand is true. Defaults to the image id (or "download" for
- *         computed images) when format is "ZIPPED_GEO_TIFF" or filePerBand is
- *         true, otherwise a random character string is generated. Band names
- *         are appended when filePerBand is true.</td>
+ *         filenames. Only applicable when format is "ZIPPED_GEO_TIFF"
+ *         (default), "ZIPPED_GEO_TIFF_PER_BAND", or filePerBand is true.
+ *         Defaults to the image id (or "download" for computed images) when
+ *         format is "ZIPPED_GEO_TIFF", "ZIPPED_GEO_TIFF_PER_BAND", or
+ *         filePerBand is true, otherwise a random character string is
+ *         generated. Band names are appended when filePerBand is true.</td>
  *     </tr>
  *     <tr>
  *       <td><code> bands: </code> a description of the bands to download. Must
@@ -847,14 +848,17 @@ ee.data.makeThumbUrl = function(id) {
  *     <tr>
  *       <td><code> filePerBand: </code> whether to produce a separate GeoTIFF
  *         per band (boolean). Defaults to true. If false, a single GeoTIFF is
- *         produced and all band-level transformations will be ignored.</td>
+ *         produced and all band-level transformations will be ignored.  Note
+ *         that this is ignored if the format is "ZIPPED_GEO_TIFF" or
+ *          "ZIPPED_GEO_TIFF_PER_BAND".</td>
  *     </tr>
  *     <tr>
  *       <td><code> format: </code> the download format. One of:
  *         <ul>
- *           <li> "ZIPPED_GEO_TIFF" (GeoTIFF file(s) wrapped in a zip file,
+ *           <li> "ZIPPED_GEO_TIFF" (GeoTIFF file wrapped in a zip file,
  *             default)</li>
- *           <li> "GEO_TIFF" (GeoTIFF file)</li>
+ *           <li> "ZIPPED_GEO_TIFF_PER_BAND" (Multiple GeoTIFF files wrapped
+ *             in a zip file)</li>
  *           <li> "NPY" (NumPy binary format)</li>
  *         </ul>
  *         If "GEO_TIFF" or "NPY", filePerBand and all band-level
