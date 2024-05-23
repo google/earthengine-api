@@ -204,7 +204,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
   def test_inverse_distance(self):
-    range = 2
+    a_range = 2
     property_name = 'property name'
     mean = 3
     std_dev = 4
@@ -213,7 +213,7 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     expect = make_expression_graph({
         'arguments': {
             'collection': FEATURES_ONE,
-            'range': {'constantValue': range},
+            'range': {'constantValue': a_range},
             'propertyName': {'constantValue': property_name},
             'mean': {'constantValue': mean},
             'stdDev': {'constantValue': std_dev},
@@ -228,13 +228,13 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
         'functionName': 'FeatureCollection.inverseDistance',
     })
     expression = ee.FeatureCollection(ee.Feature(None)).inverseDistance(
-        range, property_name, mean, std_dev, gamma, reducer
+        a_range, property_name, mean, std_dev, gamma, reducer
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
     expression = ee.FeatureCollection(ee.Feature(None)).inverseDistance(
-        range=range,
+        range=a_range,
         propertyName=property_name,
         mean=mean,
         stdDev=std_dev,
