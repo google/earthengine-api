@@ -10506,7 +10506,7 @@
     }]
   }, {
     "name": "algorithms/Image.clip",
-    "description": "Clips an image to a Geometry or Feature (use clipToCollection to clip an image to a FeatureCollection). The output bands correspond exactly the input bands, except data not covered by the geometry is masked.  The output image retains the metadata of the input image.",
+    "description": "Clips an image to a Geometry or Feature (use clipToCollection to clip an image to a FeatureCollection). The output bands correspond exactly to the input bands, except data not covered by the geometry is masked. The output image retains the metadata of the input image.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -10515,9 +10515,7 @@
     }, {
       "argumentName": "geometry",
       "type": "Object",
-      "description": "The Geometry or Feature to clip to.",
-      "optional": true,
-      "defaultValue": null
+      "description": "The Geometry or Feature to clip to."
     }]
   }, {
     "name": "algorithms/Image.clipToBoundsAndScale",

@@ -7,10 +7,12 @@ on: [
 
 jobs:
   build:
-    name: "python ${{ matrix.python-version }} tests"
-    runs-on: ubuntu-latest
+    name: "Python ${{ matrix.python-version }} tests on ${{ matrix.os }}"
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
+        os: [ubuntu-latest]
         python-version: [
             "3.7",
             "3.8",
@@ -19,6 +21,11 @@ jobs:
             "3.11",
             "3.12",
         ]
+        include:
+          - os: macos-latest
+            python-version: "3.11"
+          - os: windows-latest
+            python-version: "3.11"
     steps:
       - uses: actions/checkout@v3
       - name: Set up Python
