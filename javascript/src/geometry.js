@@ -320,7 +320,7 @@ goog.inherits(ee.Geometry.Rectangle, ee.Geometry);
 /**
  * Constructs a rectangle whose edges are lines of latitude and longitude.
  *
- * The result is a planar WGS84 rectangle.
+ * The result is a planar rectangle in EPSG:4326.
  *
  * If (east - west) ≥ 360 then the longitude range will be normalized to -180 to
  * +180; otherwise they will be treated as designating points on a circle (e.g.
