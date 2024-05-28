@@ -990,7 +990,8 @@ def computeFeatures(params: Dict[str, Any]) -> Any:
     A Pandas DataFrame, GeoPandas GeoDataFrame, or a dictionary containing:
     - "type": always "FeatureCollection" marking this object as a GeoJSON
           feature collection.
-    - "features": a list of GeoJSON features.
+    - "features": a list of GeoJSON features reprojected to EPSG:4326 with
+          planar edges.
     - "next_page_token": A token to retrieve the next page of results in a
           subsequent call to this function.
   """
