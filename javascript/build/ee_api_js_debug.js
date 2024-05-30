@@ -5079,7 +5079,7 @@ module$exports$safevalues$dom$globals$dom_parser.parseHtml = function(parser, ht
   return module$contents$safevalues$dom$globals$dom_parser_parseFromString(parser, html, "text/html");
 };
 module$exports$safevalues$dom$globals$dom_parser.parseXml = function(parser, xml) {
-  for (var doc = module$contents$safevalues$dom$globals$dom_parser_parseFromString(parser, (0,module$exports$safevalues$internals$html_impl.createHtmlInternal)(xml), "text/xml"), iterator = document.createNodeIterator(doc, NodeFilter.SHOW_ALL, null, !1), currentNode; currentNode = iterator.nextNode();) {
+  for (var doc = module$contents$safevalues$dom$globals$dom_parser_parseFromString(parser, (0,module$exports$safevalues$internals$html_impl.createHtmlInternal)(xml), "text/xml"), iterator = document.createNodeIterator(doc, NodeFilter.SHOW_ALL), currentNode; currentNode = iterator.nextNode();) {
     if (currentNode instanceof HTMLElement || currentNode instanceof SVGElement) {
       var message = "unsafe XML";
       goog.DEBUG && (message = "attempted to parse an XML document that embeds HTML or SVG content");
@@ -6799,8 +6799,7 @@ var module$contents$goog$flags_STAGING = goog.readFlagInternalDoNotUseOrElse(1, 
 goog.flags.USE_USER_AGENT_CLIENT_HINTS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable : goog.readFlagInternalDoNotUseOrElse(610401301, !1);
 goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable : goog.readFlagInternalDoNotUseOrElse(899588437, !1);
 goog.flags.JSPB_STOP_USING_REPEATED_FIELD_SETS_FROM_GENCODE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__jspb_stop_using_repeated_field_sets_from_gencode__enable : goog.readFlagInternalDoNotUseOrElse(188588736, goog.DEBUG);
-goog.flags.CLIENT_ONLY_WIZ_REACTION_ASYNC_AWAIT = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_reaction_async_await__disable) : goog.readFlagInternalDoNotUseOrElse(399321843, 
-module$contents$goog$flags_STAGING);
+goog.flags.CLIENT_ONLY_WIZ_REACTION_ASYNC_AWAIT = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_reaction_async_await__disable : goog.readFlagInternalDoNotUseOrElse(399321843, !0);
 goog.flags.CLIENT_ONLY_WIZ_COMPONENT_STACKS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_component_stacks__disable) : goog.readFlagInternalDoNotUseOrElse(628162879, module$contents$goog$flags_STAGING);
 goog.flags.TESTONLY_DISABLED_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
 goog.flags.TESTONLY_DEBUG_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
@@ -7370,9 +7369,7 @@ module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.load = fu
   return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m1628565157$0) {
     if (1 == $jscomp$generator$context$m1628565157$0.nextAddress) {
       if (!module$contents$goog$labs$userAgent$platform_useUserAgentDataPlatform(!0)) {
-        $jscomp$async$this.preUachHasLoaded_ = !0;
-        return $jscomp$generator$context$m1628565157$0.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(module$contents$goog$labs$userAgent$platform_getVersion()));
-        return $jscomp$generator$context$m1628565157$0.jumpTo(0);
+        return $jscomp$async$this.preUachHasLoaded_ = !0, $jscomp$generator$context$m1628565157$0.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(module$contents$goog$labs$userAgent$platform_getVersion()));
       }
       JSCompiler_temp_const = module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version;
       return $jscomp$generator$context$m1628565157$0.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion.load(), 3);
@@ -15641,7 +15638,7 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeToFragmentInternal = function(html, inertDocument) {
   for (var $jscomp$this$m1085474118$10 = this, dirtyFragment = module$contents$safevalues$builders$html_sanitizer$inert_fragment_createInertFragment(html, inertDocument), treeWalker = document.createTreeWalker(dirtyFragment, 5, function(n) {
     return $jscomp$this$m1085474118$10.nodeFilter(n);
-  }, !1), currentNode = treeWalker.nextNode(), sanitizedFragment = inertDocument.createDocumentFragment(), sanitizedParent = sanitizedFragment; null !== currentNode;) {
+  }), currentNode = treeWalker.nextNode(), sanitizedFragment = inertDocument.createDocumentFragment(), sanitizedParent = sanitizedFragment; null !== currentNode;) {
     var sanitizedNode = void 0;
     if (module$contents$safevalues$builders$html_sanitizer$no_clobber_isText(currentNode)) {
       sanitizedNode = this.sanitizeTextNode(currentNode);
@@ -17461,7 +17458,6 @@ module$contents$goog$Thenable_Thenable.isImplementedBy = function(object) {
   }
   try {
     return !!object[module$contents$goog$Thenable_Thenable.IMPLEMENTED_BY_PROP];
-    return !!object.$goog_Thenable;
   } catch (e) {
     return !1;
   }
@@ -18966,7 +18962,7 @@ var $jscomp$templatelit$m1153655765$99 = $jscomp.createTemplateTagFirstArg(["htt
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.403";
+ee.apiclient.API_CLIENT_VERSION = "0.1.406";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -19256,8 +19252,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.403";
-  "0.1.403" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.406";
+  "0.1.406" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
