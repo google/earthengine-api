@@ -14,7 +14,11 @@ from ee import apifunction
 from ee import computedobject
 from ee import data
 from ee import deprecation
+from ee import dictionary
+from ee import ee_date
 from ee import ee_exception
+from ee import ee_list
+from ee import ee_string
 from ee import ee_types
 from ee import element
 from ee import function
@@ -731,6 +735,112 @@ class Image(element.Element):
     # Perform the call to the result of Image.parseExpression
     return function.SecondOrderFunction(body, signature).apply(args)
 
+  def abs(self) -> Image:
+    """Computes the absolute value of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.abs', self)
+
+  def acos(self) -> Image:
+    """Computes the arc cosine in radians of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.acos', self)
+
+  def arrayArgmax(self) -> Image:
+    """Computes the positional indices of the maximum value of array values.
+
+    If there are multiple occurrences of the maximum, the indices reflect the
+    first.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.arrayArgmax', self)
+
+  def arrayDimensions(self) -> Image:
+    """Returns the number of dimensions in each array band.
+
+    Gives 0 for scalar image bands.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.arrayDimensions', self)
+
+  def arrayLengths(self) -> Image:
+    """Returns a 1D array image with the length of each array axis."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.arrayLengths', self)
+
+  def asin(self) -> Image:
+    """Computes the arc sine in radians of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.asin', self)
+
+  def atan(self) -> Image:
+    """Computes the arc tangent in radians of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.atan', self)
+
+  def bandNames(self) -> ee_list.List:
+    """Returns a list containing the names of the bands of an image."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.bandNames', self)
+
+  def bandTypes(self) -> dictionary.Dictionary:
+    """Returns a dictionary of the image's band types."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.bandTypes', self)
+
+  def bitCount(self) -> Image:
+    """Calculates the number of one-bits.
+
+    Calculates the number of one-bits in the 64-bit two's complement binary
+    representation of the input.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.bitCount', self)
+
+  def bitsToArrayImage(self) -> Image:
+    """Turns the bits of an integer into a 1-D array.
+
+    The array has a length up to the highest 'on' bit in the input.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.bitsToArrayImage', self
+    )
+
+  def bitwiseNot(self) -> Image:
+    """Calculates the bitwise NOT of the input.
+
+    Uses the smallest signed integer type that can hold the input.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.bitwiseNot', self)
+
+  def byte(self) -> Image:
+    """Casts the input value to an unsigned 8-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.byte', self)
+
+  def cbrt(self) -> Image:
+    """Computes the cubic root of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.cbrt', self)
+
+  def ceil(self) -> Image:
+    """Computes the smallest integer greater than or equal to the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.ceil', self)
+
   def clip(self, clip_geometry: Any) -> Image:
     """Clips an image to a Geometry or Feature.
 
@@ -748,12 +858,292 @@ class Image(element.Element):
     """
     try:
       # Need to manually promote GeoJSON, because the signature does not
-      # specify the type so auto promotion won't work.
+      # specify the type so auto promotion will not work.
       clip_geometry = geometry.Geometry(clip_geometry)
     except ee_exception.EEException:
       pass  # Not an ee.Geometry or GeoJSON. Just pass it along.
 
-    return apifunction.ApiFunction.call_('Image.clip', self, clip_geometry)
+    return apifunction.ApiFunction.call_(
+        self.name() + '.clip', self, clip_geometry
+    )
+
+  def cos(self) -> Image:
+    """Computes the cosine of the input in radians."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.cos', self)
+
+  def cosh(self) -> Image:
+    """Computes the hyperbolic cosine of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.cosh', self)
+
+  def date(self) -> ee_date.Date:
+    """Returns the acquisition time of an image as a Date object.
+
+    This helper function is equivalent to
+    `ee.Date(image.get('system:time_start'))`.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.date', self)
+
+  def derivative(self) -> Image:
+    """Computes the X and Y discrete derivatives.
+
+    Computes the X and Y discrete derivatives for each band in the input image,
+    in pixel coordinates.
+
+    For each band of the input image, the output image will have two bands named
+    with the suffixes `_x` and `_y`, containing the respective derivatives.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.derivative', self)
+
+  def digamma(self) -> Image:
+    """Computes the digamma function of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.digamma', self)
+
+  def double(self) -> Image:
+    """Casts the input value to a 64-bit float."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.double', self)
+
+  def erf(self) -> Image:
+    """Computes the error function of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.erf', self)
+
+  def erfInv(self) -> Image:
+    """Computes the inverse error function of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.erfInv', self)
+
+  def erfc(self) -> Image:
+    """Computes the complementary error function of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.erfc', self)
+
+  def erfcInv(self) -> Image:
+    """Computes the inverse complementary error function of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.erfcInv', self)
+
+  def exp(self) -> Image:
+    """Computes the Euler's number e raised to the power of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.exp', self)
+
+  def float(self) -> Image:
+    """Casts the input value to a 32-bit float."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.float', self)
+
+  def floor(self) -> Image:
+    """Computes the largest integer less than or equal to the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.floor', self)
+
+  def gamma(self) -> Image:
+    """Computes the gamma function of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.gamma', self)
+
+  def gradient(self) -> Image:
+    """Calculates the x and y gradient."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.gradient', self)
+
+  def hsvToRgb(self) -> Image:
+    """Transforms the image from the HSV color space to the RGB color space.
+
+    Expects a 3-band image in the range [0, 1], and produces 3 bands: red,
+    green and blue with values in the range [0, 1].
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.hsvToRgb', self)
+
+  def id(self) -> ee_string.String:
+    """Returns the ID of a given element within a collection.
+
+    Objects outside collections are not guaranteed to have IDs.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.id', self)
+
+  def int(self) -> Image:
+    """Casts the input value to a signed 32-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.int', self)
+
+  def int16(self) -> Image:
+    """Casts the input value to a signed 16-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.int16', self)
+
+  def int32(self) -> Image:
+    """Casts the input value to a signed 32-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.int32', self)
+
+  def int64(self) -> Image:
+    """Casts the input value to a signed 64-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.int64', self)
+
+  def int8(self) -> Image:
+    """Casts the input value to a signed 8-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.int8', self)
+
+  def lanczos(self) -> Image:
+    """Computes the Lanczos approximation of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.lanczos', self)
+
+  def log(self) -> Image:
+    """Computes the natural logarithm of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.log', self)
+
+  def log10(self) -> Image:
+    """Computes the base-10 logarithm of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.log10', self)
+
+  def long(self) -> Image:
+    """Casts the input value to a signed 64-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.long', self)
+
+  def matrixCholeskyDecomposition(self) -> Image:
+    """Calculates the Cholesky decomposition of a matrix.
+
+    The Cholesky decomposition is a decomposition into the form L * L', where L
+    is a lower triangular matrix. The input must be a symmetric
+    positive-definite matrix. Returns an image with 1 band named 'L'.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.matrixCholeskyDecomposition', self
+    )
+
+  def matrixDeterminant(self) -> Image:
+    """Computes the determinant of the matrix."""
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.matrixDeterminant', self
+    )
+
+  def matrixDiagonal(self) -> Image:
+    """Computes the diagonal of the matrix in a single column."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.matrixDiagonal', self)
+
+  def matrixFnorm(self) -> Image:
+    """Computes the Frobenius norm of the matrix."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.matrixFnorm', self)
+
+  def matrixInverse(self) -> Image:
+    """Computes the inverse of the matrix."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.matrixInverse', self)
+
+  def matrixLUDecomposition(self) -> Image:
+    """Calculates the LU matrix decomposition.
+
+    Calculates the LU matrix decomposition such that Pxinput=LxU, where L is
+    lower triangular (with unit diagonal terms), U is upper triangular and P is
+    a partial pivot permutation matrix.
+
+    The input matrix must be square. Returns an image with bands named 'L', 'U'
+    and 'P'.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.matrixLUDecomposition', self
+    )
+
+  def matrixPseudoInverse(self) -> Image:
+    """Computes the Moore-Penrose pseudoinverse of the matrix."""
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.matrixPseudoInverse', self
+    )
+
+  def matrixQRDecomposition(self) -> Image:
+    """Calculates the QR-decomposition of a matrix.
+
+    Calculates the QR-decomposition of a matrix into two matrices Q and R such
+    that input = QR, where Q is orthogonal, and R is upper triangular.
+
+    Returns an image with bands named 'Q' and 'R'.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.matrixQRDecomposition', self
+    )
+
+  def matrixSingularValueDecomposition(self) -> Image:
+    """Calculates the Singular Value Decomposition.
+
+    Calculates the Singular Value Decomposition of the input matrix into UxSxV',
+    such that U and V are orthogonal and S is diagonal.
+
+    Returns:
+      An image with bands named 'U', 'S' and 'V'.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.matrixSingularValueDecomposition', self
+    )
+
+  def matrixToDiag(self) -> Image:
+    """Computes a square diagonal matrix from a single column matrix."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.matrixToDiag', self)
+
+  def matrixTrace(self) -> Image:
+    """Computes the trace of the matrix."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.matrixTrace', self)
+
+  def Not(self) -> Image:
+    """Returns 0 if the input is non-zero, and 1 otherwise."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.not', self)
+
+  def randomVisualizer(self) -> Image:
+    """Creates a random visualization image.
+
+    Creates a visualization image by assigning a random color to each unique
+    value of the pixels of the first band.
+
+    The first three bands of the output image will contain 8-bit R, G and B
+    values, followed by all bands of the input image.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.randomVisualizer', self
+    )
 
   def rename(self, names: Any, *args) -> Image:
     """Rename the bands of an image.
@@ -761,8 +1151,8 @@ class Image(element.Element):
     Can be called with either a list of strings or any number of strings.
 
     Args:
-      names: An array of strings specifying the new names for the
-          bands. Must exactly match the number of bands in the image.
+      names: An array of strings specifying the new names for the bands. Must
+        exactly match the number of bands in the image.
       *args: Band names as varargs.
 
     Returns:
@@ -774,8 +1164,169 @@ class Image(element.Element):
       args.insert(0, names)
       names = args
 
-    algorithm_args = {
-        'input': self,
-        'names': names
-    }
+    algorithm_args = {'input': self, 'names': names}
     return apifunction.ApiFunction.apply_('Image.rename', algorithm_args)
+
+  def rgbToHsv(self) -> Image:
+    """Transforms the image from the RGB color space to the HSV color space.
+
+    Expects a 3-band image in the range [0, 1], and produces 3 bands: hue,
+    saturation and value with values in the range [0, 1].
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.rgbToHsv', self)
+
+  def round(self) -> Image:
+    """Computes the integer nearest to the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.round', self)
+
+  def selfMask(self) -> Image:
+    """Updates an image's mask based on the image itself.
+
+    Updates an image's mask at all positions where the existing mask is not zero
+    using the value of the image as the new mask value.
+
+    The output image retains the metadata and footprint of the input image.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.selfMask', self)
+
+  def short(self) -> Image:
+    """Casts the input value to a signed 16-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.short', self)
+
+  def signum(self) -> Image:
+    """Computes the signum function (sign) of the input.
+
+    0 if the input is 0, 1 if the input is greater than 0, -1 if the input is
+    less than 0.
+
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.signum', self)
+
+  def sin(self) -> Image:
+    """Computes the sine of the input in radians."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.sin', self)
+
+  def sinh(self) -> Image:
+    """Computes the hyperbolic sine of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.sinh', self)
+
+  def sqrt(self) -> Image:
+    """Computes the square root of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.sqrt', self)
+
+  def tan(self) -> Image:
+    """Computes the tangent of the input in radians."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.tan', self)
+
+  def tanh(self) -> Image:
+    """Computes the hyperbolic tangent of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.tanh', self)
+
+  def toByte(self) -> Image:
+    """Casts the input value to an unsigned 8-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toByte', self)
+
+  def toDouble(self) -> Image:
+    """Casts the input value to a 64-bit float."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toDouble', self)
+
+  def toFloat(self) -> Image:
+    """Casts the input value to a 32-bit float."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toFloat', self)
+
+  def toInt(self) -> Image:
+    """Casts the input value to a signed 32-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toInt', self)
+
+  def toInt16(self) -> Image:
+    """Casts the input value to a signed 16-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toInt16', self)
+
+  def toInt32(self) -> Image:
+    """Casts the input value to a signed 32-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toInt32', self)
+
+  def toInt64(self) -> Image:
+    """Casts the input value to a signed 64-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toInt64', self)
+
+  def toInt8(self) -> Image:
+    """Casts the input value to a signed 8-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toInt8', self)
+
+  def toLong(self) -> Image:
+    """Casts the input value to a signed 64-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toLong', self)
+
+  def toShort(self) -> Image:
+    """Casts the input value to a signed 16-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toShort', self)
+
+  def toUint16(self) -> Image:
+    """Casts the input value to an unsigned 16-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toUint16', self)
+
+  def toUint32(self) -> Image:
+    """Casts the input value to an unsigned 32-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toUint32', self)
+
+  def toUint8(self) -> Image:
+    """Casts the input value to an unsigned 8-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.toUint8', self)
+
+  def trigamma(self) -> Image:
+    """Computes the trigamma function of the input."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.trigamma', self)
+
+  def uint16(self) -> Image:
+    """Casts the input value to an unsigned 16-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.uint16', self)
+
+  def uint32(self) -> Image:
+    """Casts the input value to an unsigned 32-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.uint32', self)
+
+  def uint8(self) -> Image:
+    """Casts the input value to an unsigned 8-bit integer."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.uint8', self)
+
+  def zeroCrossing(self) -> Image:
+    """Finds zero-crossings on each band of an image."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.zeroCrossing', self)
