@@ -7,7 +7,7 @@ details.
 from __future__ import annotations
 
 import json
-from typing import Any, Dict, Optional, Sequence, Tuple
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from ee import _utils
 from ee import apifunction
@@ -18,11 +18,21 @@ from ee import dictionary
 from ee import ee_date
 from ee import ee_exception
 from ee import ee_list
+from ee import ee_number
 from ee import ee_string
 from ee import ee_types
 from ee import element
 from ee import function
 from ee import geometry
+
+_EeAnyType = Union[Any, computedobject.ComputedObject]
+_EeBoolType = Union[Any, computedobject.ComputedObject]
+_ImageType = Union[Any, computedobject.ComputedObject]
+_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_ReducerType = Union[Any, computedobject.ComputedObject]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 def _parse_dimensions(dimensions: Any) -> Sequence[Any]:
@@ -745,17 +755,128 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.acos', self)
 
-  def arrayArgmax(self) -> Image:
-    """Computes the positional indices of the maximum value of array values.
+  def add(self, image2: _ImageType) -> Image:
+    """Adds the first value to the second for each matched pair of bands.
 
-    If there are multiple occurrences of the maximum, the indices reflect the
-    first.
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is the union of the
+    input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
 
     Returns:
       An ee.Image.
     """
 
+    return apifunction.ApiFunction.call_(self.name() + '.add', self, image2)
+
+  def addBands(
+      self,
+      srcImg: _ImageType,
+      names: Optional[_ListType] = None,
+      overwrite: Optional[_EeBoolType] = None,
+  ) -> Image:
+    """Returns an image containing all bands.
+
+    Bands are copied from the first input and selected bands from the second
+    input, optionally overwriting bands in the first image with the same name.
+
+    The new image has the metadata and footprint from the first input image.
+
+    Args:
+      srcImg: An image containing bands to copy.
+      names: Optional list of band names to copy. If names is omitted, all bands
+        from srcImg will be copied over.
+      overwrite: If true, bands from `srcImg` will override bands with the same
+        names in `dstImg`. Otherwise the new band will be renamed with a
+        numerical suffix (`foo` to `foo_1` unless `foo_1` exists, then `foo_2`
+        unless it exists, etc).
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.addBands', self, srcImg, names, overwrite
+    )
+
+  def And(self, image2: _ImageType) -> Image:
+    """Returns 1 if both values are non-zero; otherwise 0.
+
+    Returns 1 if and only if both values are non-zero for each matched pair of
+    bands in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is boolean.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.and', self, image2)
+
+  def arrayAccum(
+      self, axis: _IntegerType, reducer: Optional[_ReducerType] = None
+  ) -> Image:
+    """Accumulates elements of each array pixel along the given axis.
+
+    Accumulates elements of each array pixel along the given axis, by setting
+    each element of the result array pixel to the reduction of elements in that
+    pixel along the given axis, up to and including the current position on the
+    axis.
+
+    May be used to make a cumulative sum, a monotonically increasing sequence,
+    etc.
+
+    Args:
+      axis: Axis along which to perform the cumulative sum.
+      reducer: Reducer to accumulate values. Default is SUM, to produce the
+        cumulative sum of each vector along the given axis.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayAccum', self, axis, reducer
+    )
+
+  def arrayArgmax(self) -> Image:
+    """Computes the positional indices of the maximum value of array values.
+
+    If there are multiple occurrences of the maximum, the indices reflect the
+    first.
+    """
+
     return apifunction.ApiFunction.call_(self.name() + '.arrayArgmax', self)
+
+  def arrayCat(self, image2: _ImageType, axis: _IntegerType) -> Image:
+    """Creates an array image by concatenating each array pixel.
+
+    Creates an array image by concatenating each array pixel along the given
+    axis in each band.
+
+    Args:
+      image2: Second array image to concatenate.
+      axis: Axis to concatenate along.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayCat', self, image2, axis
+    )
 
   def arrayDimensions(self) -> Image:
     """Returns the number of dimensions in each array band.
@@ -764,11 +885,292 @@ class Image(element.Element):
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.arrayDimensions', self)
+  def arrayDotProduct(self, image2: _ImageType) -> Image:
+    """Computes the dot product.
+
+    Computes the dot product of each pair of 1-D arrays in the bands of the
+    input images.
+
+    Args:
+      image2: Second array image of 1-D vectors.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayDotProduct', self, image2
+    )
+
+  def arrayFlatten(
+      self,
+      coordinateLabels: _ListType,
+      separator: Optional[_StringType] = None,
+  ) -> Image:
+    """Returns an image of scalar pixels with one band per element of the array.
+
+    Converts a single-band image of equal-shape multidimensional pixels to an
+    image of scalar pixels, with 1 band for each element of the array.
+
+    Args:
+      coordinateLabels: Name of each position along each axis. For example, 2x2
+        arrays with axes meaning 'day' and 'color' could have labels like
+        [['monday', 'tuesday'], ['red', 'green']], resulting in band
+        names'monday_red', 'monday_green', 'tuesday_red', and 'tuesday_green'.
+      separator: Separator between array labels in each band name.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayFlatten', self, coordinateLabels, separator
+    )
+
+  def arrayGet(self, position: _ImageType) -> Image:
+    """Returns the value at the given position in each band of the input image.
+
+    For each band, an output band of the same name is created with the value at
+    the given position extracted from the input multidimensional pixel in that
+    band.
+
+    Args:
+      position: The coordinates of the element to get. There must be as many
+        scalar bands as there are dimensions in the input image.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayGet', self, position
+    )
+
+  def arrayLength(self, axis: _IntegerType) -> Image:
+    """Returns the length of each pixel's array along the given axis.
+
+    Args:
+      axis: The axis along which to take the length.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayLength', self, axis
+    )
 
   def arrayLengths(self) -> Image:
     """Returns a 1D array image with the length of each array axis."""
 
     return apifunction.ApiFunction.call_(self.name() + '.arrayLengths', self)
+
+  def arrayMask(self, mask: _ImageType) -> Image:
+    """Returns an image where each pixel is masked by another.
+
+    Creates an array image where each array-valued pixel is masked with another
+    array-valued pixel, retaining only the elements where the mask is non-zero.
+
+    If the mask image has one band it will be applied to all the bands of
+    'input', otherwise they must have the same number of bands.
+
+    Args:
+      mask: Array image to mask with.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.arrayMask', self, mask)
+
+  def arrayPad(
+      self, lengths: _ListType, pad: Optional[_NumberType] = None
+  ) -> Image:
+    """Pads the array values in each pixel to be a fixed length.
+
+    The pad value will be appended to each array to extend it to given length
+    along each axis. All bands of the image must be array-valued and have the
+    same dimensions.
+
+    Args:
+      lengths: A list of desired lengths for each axis in the output arrays.
+        Arrays are already as large or larger than the given length will be
+        unchanged along that axis
+      pad: The value to pad with.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayPad', self, lengths, pad
+    )
+
+  def arrayProject(self, axes: _EeAnyType) -> Image:
+    """Creates an array image of lower dimension.
+
+    Projects the array in each pixel to a lower dimensional space by specifying
+    the axes to retain.
+
+    Dropped axes must be at most length 1.
+
+    Args:
+      axes: The axes to retain. Other axes will be discarded and must be at most
+        length 1.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayProject', self, axes
+    )
+
+  def arrayReduce(
+      self,
+      reducer: _EeAnyType,
+      axes: _EeAnyType,
+      fieldAxis: Optional[_IntegerType] = None,
+  ) -> Image:
+    """Reduces elements of each array pixel.
+
+    Args:
+      reducer: The reducer to apply
+      axes: The list of array axes to reduce in each pixel. The output will have
+        a length of 1 in all these axes.
+      fieldAxis: The axis for the reducer's input and output fields. Only
+        required if the reducer has multiple inputs or outputs.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayReduce', self, reducer, axes, fieldAxis
+    )
+
+  def arrayRepeat(self, axis: _IntegerType, copies: _EeAnyType) -> Image:
+    """Repeats each array pixel along the given axis.
+
+    Each output pixel will have the shape of the input pixel, except length
+    along the repeated axis, which will be multiplied by the number of copies.
+
+    Args:
+      axis: Axis along which to repeat each pixel's array.
+      copies: Number of copies of each pixel.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayRepeat', self, axis, copies
+    )
+
+  def arrayReshape(
+      self, lengths: _EeAnyType, dimensions: _IntegerType
+  ) -> Image:
+    """Returns an image of arrays with a new shape.
+
+    Converts array bands of an image with equally-shaped, possibly
+    multidimensional pixels to an image of arrays with a new shape.
+
+    Args:
+      lengths: A 1-band image specifying the new lengths of each axis of the
+        input image specified as a 1-D array per pixel. There should be
+        'dimensions' lengths values in each shape' array. If one of the lengths
+        is -1, then the corresponding length for that axis will be computed such
+        that the total size remains constant. In particular, a shape of [-1]
+        flattens into 1-D. At most one component of shape can be -1.
+      dimensions: The number of dimensions shared by all output array pixels.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayReshape', self, lengths, dimensions
+    )
+
+  def arraySlice(
+      self,
+      axis: Optional[_IntegerType] = None,
+      start: Optional[_EeAnyType] = None,
+      end: Optional[_EeAnyType] = None,
+      step: Optional[_IntegerType] = None,
+  ) -> Image:
+    """Returns a subarray image.
+
+    Creates a subarray by slicing out each position along the given axis from
+    the 'start' (inclusive) to 'end' (exclusive) by increments of 'step'.
+
+    The result will have as many dimensions as the input, and the same length in
+    all directions except the slicing axis, where the length will be the number
+    of positions from 'start' to 'end' by 'step' that are in range of the input
+    array's length along 'axis'. This means the result can be length 0 along the
+    given axis if start=end, or if the start or end values are entirely out of
+    range.
+
+    Args:
+      axis: Axis to subset.
+      start: The coordinate of the first slice (inclusive) along 'axis'.
+        Negative numbers are used to position the start of slicing relative to
+        the end of the array, where -1 starts at the last position on the axis,
+        -2 starts at the next to last position, etc. There must one band for
+        start indices, or one band per 'input' band. If this argument is not set
+        or masked at some pixel, then the slice at that pixel will start at
+        index 0.
+      end: The coordinate (exclusive) at which to stop taking slices. By default
+        this will be the length of the given axis. Negative numbers are used to
+        position the end of slicing relative to the end of the array, where -1
+        will exclude the last position, -2 will exclude the last two positions,
+        etc. There must be one band for end indices, or one band per 'input'
+        band. If this argument is not set or masked at some pixel, then the
+        slice at that pixel will end just after the last index.
+      step: The separation between slices along 'axis'; a slice will be taken at
+        each whole multiple of 'step' from 'start' (inclusive) to 'end'
+        (exclusive). Must be positive.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arraySlice', self, axis, start, end, step
+    )
+
+  def arraySort(self, keys: Optional[_EeAnyType] = None) -> Image:
+    """Sorts elements of each array pixel along one axis.
+
+    Args:
+      keys: Optional keys to sort by. If not provided, the values are used as
+        the keys. The keys can only have multiple elements along one axis, which
+        determines the direction to sort in.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.arraySort', self, keys)
+
+  def arrayTranspose(
+      self,
+      axis1: Optional[_IntegerType] = None,
+      axis2: Optional[_IntegerType] = None,
+  ) -> Image:
+    """Transposes two dimensions of each array pixel.
+
+    Args:
+      axis1: First axis to swap.
+      axis2: Second axis to swap.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.arrayTranspose', self, axis1, axis2
+    )
 
   def asin(self) -> Image:
     """Computes the arc sine in radians of the input."""
@@ -779,6 +1181,27 @@ class Image(element.Element):
     """Computes the arc tangent in radians of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.atan', self)
+
+  def atan2(self, image2: _EeAnyType) -> Image:
+    """Returns an image of angles in radians of 2D vectors.
+
+    Calculates the angle formed by the 2D vector [x, y] for each matched pair of
+    bands in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is float.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.atan2', self, image2)
 
   def bandNames(self) -> ee_list.List:
     """Returns a list containing the names of the bands of an image."""
@@ -805,7 +1228,7 @@ class Image(element.Element):
   def bitsToArrayImage(self) -> Image:
     """Turns the bits of an integer into a 1-D array.
 
-    The array has a length up to the highest 'on' bit in the input.
+    The array has a lengthup to the highest 'on' bit in the input.
 
     Returns:
       An ee.Image.
@@ -959,7 +1382,7 @@ class Image(element.Element):
   def hsvToRgb(self) -> Image:
     """Transforms the image from the HSV color space to the RGB color space.
 
-    Expects a 3-band image in the range [0, 1], and produces 3 bands: red,
+    Expects a 3 band image in the range [0, 1], and produces three bands: red,
     green and blue with values in the range [0, 1].
 
     Returns:
@@ -1024,7 +1447,7 @@ class Image(element.Element):
   def matrixCholeskyDecomposition(self) -> Image:
     """Calculates the Cholesky decomposition of a matrix.
 
-    The Cholesky decomposition is a decomposition into the form L * L', where L
+    The Cholesky decomposition is a decomposition into the form L * L' where L
     is a lower triangular matrix. The input must be a symmetric
     positive-definite matrix. Returns an image with 1 band named 'L'.
 
@@ -1170,7 +1593,7 @@ class Image(element.Element):
   def rgbToHsv(self) -> Image:
     """Transforms the image from the RGB color space to the HSV color space.
 
-    Expects a 3-band image in the range [0, 1], and produces 3 bands: hue,
+    Expects a 3 band image in the range [0, 1], and produces three bands: hue,
     saturation and value with values in the range [0, 1].
 
     Returns:
@@ -1206,9 +1629,8 @@ class Image(element.Element):
   def signum(self) -> Image:
     """Computes the signum function (sign) of the input.
 
-    0 if the input is 0, 1 if the input is greater than 0, -1 if the input is
-    less than 0.
-
+    Zero if the input is zero, 1 if the input is greater than zero, -1 if the
+    input is less than zero.
 
     Returns:
       An ee.Image.
