@@ -776,7 +776,7 @@ class Image(element.Element):
 
   def addBands(
       self,
-      srcImg: _ImageType,
+      srcImg: _ImageType,  # pylint: disable=invalid-name
       names: Optional[_ListType] = None,
       overwrite: Optional[_EeBoolType] = None,
   ) -> Image:
@@ -852,7 +852,7 @@ class Image(element.Element):
     )
 
   def arrayArgmax(self) -> Image:
-    """Computes the positional indices of the maximum value of array values.
+    """Returns the positional indices of the maximum value of array values.
 
     If there are multiple occurrences of the maximum, the indices reflect the
     first.
@@ -885,6 +885,7 @@ class Image(element.Element):
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.arrayDimensions', self)
+
   def arrayDotProduct(self, image2: _ImageType) -> Image:
     """Computes the dot product.
 
@@ -904,7 +905,7 @@ class Image(element.Element):
 
   def arrayFlatten(
       self,
-      coordinateLabels: _ListType,
+      coordinateLabels: _ListType,  # pylint: disable=invalid-name
       separator: Optional[_StringType] = None,
   ) -> Image:
     """Returns an image of scalar pixels with one band per element of the array.
@@ -1030,7 +1031,7 @@ class Image(element.Element):
       self,
       reducer: _EeAnyType,
       axes: _EeAnyType,
-      fieldAxis: Optional[_IntegerType] = None,
+      fieldAxis: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
   ) -> Image:
     """Reduces elements of each array pixel.
 
