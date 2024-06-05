@@ -17,6 +17,6 @@ jobs:
       - run: |
           cd javascript/
           npm i
-      - run: npm publish
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.NPM_API_TOKEN}}
