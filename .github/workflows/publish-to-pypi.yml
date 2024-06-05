@@ -2,6 +2,8 @@ name: Publish to PyPi
 on:
   release:
     types: [published]
+  # Enables running this workflow manually from the Actions tab.
+  workflow_dispatch:
 
 jobs:
   build-artifacts:

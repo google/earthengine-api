@@ -3,6 +3,7 @@ name: ci-tests
 on: [
   push,
   pull_request,
+  workflow_dispatch,  # Enables running this workflow manually from the Actions tab.
 ]
 
 jobs:
