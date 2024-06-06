@@ -3059,6 +3059,22 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.tanh', self)
 
+  def toArray(self, axis: Optional[_IntegerType] = None) -> Image:
+    """Concatenates pixels from each band into a single array per pixel.
+
+    The result will be masked if any input bands are masked.
+
+    Args:
+      axis: Axis to concatenate along; must be at least 0 and at most the
+        dimension of the inputs. If the axis equals the dimension of the inputs,
+        the result will have 1 more dimension than the inputs.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.toArray', self, axis)
+
   def toByte(self) -> Image:
     """Casts the input value to an unsigned 8-bit integer."""
 
@@ -3124,6 +3140,30 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.toUint8', self)
 
+  def translate(
+      self,
+      x: _NumberType,
+      y: _NumberType,
+      units: Optional[_StringType] = None,
+      proj: Optional[_ProjectionType] = None,
+  ) -> Image:
+    """Translate the input image.
+
+    Args:
+      x: The amount to translate the image in the x direction.
+      y: The amount to translate the image in the y direction.
+      units: The units for x and y; 'meters' or 'pixels'.
+      proj: The projection in which to translate the image; defaults to the
+        projection of the first band.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.translate', self, x, y, units, proj
+    )
+
   def trigamma(self) -> Image:
     """Computes the trigamma function of the input."""
 
@@ -3143,6 +3183,178 @@ class Image(element.Element):
     """Casts the input value to an unsigned 8-bit integer."""
 
     return apifunction.ApiFunction.call_(self.name() + '.uint8', self)
+
+  def unitScale(self, low: _NumberType, high: _NumberType) -> Image:
+    """Returns an ee.Image with input values [low, high] scaled to [0, 1].
+
+    Scales the input so that the range of input values [low, high] becomes [0,
+    1]. Values outside the range are NOT clamped. This algorithm always produces
+    floating point pixels.
+
+    Args:
+      low: The value mapped to 0.
+      high: The value mapped to 1.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.unitScale', self, low, high
+    )
+
+  def unmask(
+      self,
+      value: Optional[_ImageType] = None,
+      # pylint: disable-next=invalid-name
+      sameFootprint: Optional[_EeBoolType] = None,
+  ) -> Image:
+    """Returns an ee.Image with mask and value of the value image.
+
+    Replaces mask and value of the input image with the mask and value of
+    another image at all positions where the input mask is zero. The output
+    image retains the metadata of the input image. By default, the output image
+    also retains the footprint of the input, but setting sameFootprint to false
+    allows to extend the footprint.
+
+    Args:
+      value: New value and mask for the masked pixels of the input image. If not
+        specified, defaults to constant zero image which is valid everywhere.
+      sameFootprint: If true (or unspecified), the output retains the footprint
+        of the input image. If false, the footprint of the output is the union
+        of the input footprint with the footprint of the value image.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.unmask', self, value, sameFootprint
+    )
+
+  def unmix(
+      self,
+      endmembers: _ListType,
+      sumToOne: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+      nonNegative: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Returns an ee.Image with endmembers unmixing each pixel.
+
+    Unmix each pixel with the given endmembers, by computing the pseudo-inverse
+    and multiplying it through each pixel. Returns an image of doubles with the
+    same number of bands as endmembers.
+
+    Args:
+      endmembers: The endmembers to unmix with.
+      sumToOne: Constrain the outputs to sum to one.
+      nonNegative: Constrain the outputs to be non-negative.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.unmix', self, endmembers, sumToOne, nonNegative
+    )
+
+  def updateMask(self, mask: _ImageType) -> Image:
+    """Returns an ee.Image with mask of the mask image.
+
+    Updates an image's mask at all positions where the existing mask is not
+    zero. The output image retains the metadata and footprint of the input
+    image.
+
+    Args:
+      mask: New mask for the image, as a floating-point value in the range [0,
+        1] (invalid = 0, valid = 1). If this image has a single band, it is used
+        for all bands in the input image; otherwise, must have the same number
+        of bands as the input image.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.updateMask', self, mask
+    )
+
+  def visualize(
+      self,
+      bands: Optional[_EeAnyType] = None,
+      gain: Optional[_EeAnyType] = None,
+      bias: Optional[_EeAnyType] = None,
+      min: Optional[_EeAnyType] = None,
+      max: Optional[_EeAnyType] = None,
+      gamma: Optional[_EeAnyType] = None,
+      opacity: Optional[_NumberType] = None,
+      palette: Optional[_EeAnyType] = None,
+      # pylint: disable-next=invalid-name
+      forceRgbOutput: Optional[_EeBoolType] = None,
+  ) -> Image:
+    """Produces an RGB or grayscale visualization of an image.
+
+    Each of the gain, bias, min, max, and gamma arguments can take either a
+    single value, which will be applied to all bands, or a list of values the
+    same length as bands.
+
+    Args:
+      bands: A list of the bands to visualize. If empty, the first 3 are used.
+      gain: The visualization gain(s) to use.
+      bias: The visualization bias(es) to use.
+      min: The value(s) to map to RGB8 value 0.
+      max: The value(s) to map to RGB8 value 255.
+      gamma: The gamma correction factor(s) to use.
+      opacity: The opacity scaling factor to use.
+      palette: The color palette to use. List of CSS color identifiers or
+        hexadecimal color strings (e.g. ['red', '00FF00', 'blueviolet']).
+      forceRgbOutput: Whether to produce RGB output even for single-band inputs.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.visualize',
+        self,
+        bands,
+        gain,
+        bias,
+        min,
+        max,
+        gamma,
+        opacity,
+        palette,
+        forceRgbOutput,
+    )
+
+  def where(self, test: _ImageType, value: _ImageType) -> Image:
+    """Performs conditional replacement of values.
+
+    For each pixel in each band of 'input', if the corresponding pixel in 'test'
+    is nonzero, output the corresponding pixel in value, otherwise output the
+    input pixel.
+
+    If at a given pixel, either test or value is masked, the input value is
+    used. If the input is masked, nothing is done.
+
+    The output bands have the same names as the input bands. The output type of
+    each band is the larger of the input and value types. The output image
+    retains the metadata and footprint of the input image.
+
+    Args:
+      test: The test image. The pixels of this image determines which of the
+        input pixels is returned. If this is a single band, it is used for all
+        bands in the input image. This may not be an array image.
+      value: The output value to use where test is not zero. If this is a single
+        band, it is used for all bands in the input image.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.where', self, test, value
+    )
 
   def zeroCrossing(self) -> Image:
     """Finds zero-crossings on each band of an image."""
