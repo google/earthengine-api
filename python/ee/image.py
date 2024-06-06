@@ -11,6 +11,8 @@ from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from ee import _utils
 from ee import apifunction
+from ee import classifier
+from ee import clusterer
 from ee import computedobject
 from ee import data
 from ee import deprecation
@@ -24,13 +26,26 @@ from ee import ee_types
 from ee import element
 from ee import function
 from ee import geometry
+from ee import kernel
 
+_ClassifierType = Union[classifier.Classifier, computedobject.ComputedObject]
+_ClustererType = Union[clusterer.Clusterer, computedobject.ComputedObject]
+_DictionaryType = Union[
+    Dict[Any, Any],
+    Sequence[Any],
+    'dictionary.Dictionary',
+    computedobject.ComputedObject,
+]
 _EeAnyType = Union[Any, computedobject.ComputedObject]
 _EeBoolType = Union[Any, computedobject.ComputedObject]
+_FeatureCollectionType = Union[Any, computedobject.ComputedObject]
+_GeometryType = Union[Any, computedobject.ComputedObject]
 _ImageType = Union[Any, computedobject.ComputedObject]
 _IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_KernelType = Union[kernel.Kernel, computedobject.ComputedObject]
 _ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
 _NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_ProjectionType = Union[Any, computedobject.ComputedObject]
 _ReducerType = Union[Any, computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
@@ -1250,10 +1265,104 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.bitwiseNot', self)
 
+  def bitwiseOr(self, image2: _ImageType) -> Image:
+    """Returns the bitwise OR of the current image and image2.
+
+    Calculates the bitwise OR of the input values for each matched pair of bands
+    in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is the union of the
+    input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.bitwiseOr', self, image2
+    )
+
+  def bitwiseXor(self, image2: _ImageType) -> Image:
+    """Returns the bitwise XOR of the current image and image2.
+
+    Calculates the bitwise XOR of the input values for each matched pair of
+    bands in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is the union of the
+    input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.bitwiseXor', self, image2
+    )
+
+  def blend(self, top: _ImageType) -> Image:
+    """Overlays one image on top of another.
+
+    The images are blended together using the masks as opacity. If either of
+    images has only 1 band, it is replicated to match the number of bands in the
+    other image.
+
+    Args:
+      top: The top image.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.blend', self, top)
+
   def byte(self) -> Image:
     """Casts the input value to an unsigned 8-bit integer."""
 
     return apifunction.ApiFunction.call_(self.name() + '.byte', self)
+
+  def cast(
+      self,
+      # pylint: disable=invalid-name
+      bandTypes: _DictionaryType,
+      bandOrder: Optional[_EeAnyType] = None,
+      # pylint: enable=invalid-name
+  ) -> Image:
+    """Casts some or all bands of an image to the specified types.
+
+    Args:
+      bandTypes: A dictionary from band name to band types. Types can be
+        PixelTypes or strings. The valid strings are: 'int8', 'int16', 'int32',
+        'int64', 'uint8', 'uint16', 'uint32', 'byte', 'short', 'int', 'long',
+        'float' and 'double'. If bandTypes includes bands that are not already
+        in the input image, they will be added to the image as transparent
+        bands. If bandOrder isn't also specified, new bands will be appended in
+        alphabetical order.
+      bandOrder: A list specifying the order of the bands in the result. If
+        specified, must match the full list of bands in the result.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.cast', self, bandTypes, bandOrder
+    )
+
+  # TODO: cat static method
 
   def cbrt(self) -> Image:
     """Computes the cubic root of the input."""
@@ -1264,6 +1373,66 @@ class Image(element.Element):
     """Computes the smallest integer greater than or equal to the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.ceil', self)
+
+  def changeProj(
+      self,
+      srcProj: _ProjectionType,  # pylint: disable=invalid-name
+      dstProj: _ProjectionType,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Returns a reprojected image.
+
+    Tweaks the projection of the input image, moving each pixel from its
+    location in srcProj to the same coordinates in dstProj.
+
+    Args:
+      srcProj: The original projection.
+      dstProj: The new projection.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.changeProj', self, srcProj, dstProj
+    )
+
+  def clamp(self, low: _NumberType, high: _NumberType) -> Image:
+    """Returns an image clamped to the range low to high.
+
+    Clamps the values in all bands of an image to all lie within the specified
+    range.
+
+    Args:
+      low: The minimum allowed value in the range.
+      high: The maximum allowed value in the range.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.clamp', self, low, high
+    )
+
+  def classify(
+      self,
+      classifier: _ClassifierType,
+      outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Classifies an image.
+
+    Args:
+      classifier: The classifier to use.
+      outputName: The name of the band to be added. If the classifier produces
+        more than 1 output, this name is ignored.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.classify', self, classifier, outputName
+    )
 
   def clip(self, clip_geometry: Any) -> Image:
     """Clips an image to a Geometry or Feature.
@@ -1291,6 +1460,115 @@ class Image(element.Element):
         self.name() + '.clip', self, clip_geometry
     )
 
+  # TODO: clipToBoundsAndScale
+
+  def clipToCollection(self, collection: _FeatureCollectionType) -> Image:
+    """Clips an image to a FeatureCollection.
+
+    The output bands correspond exactly the input bands, except data not covered
+    by the geometry of at least one feature from the collection is masked. The
+    output image retains the metadata of the input image.
+
+    Args:
+      collection: The FeatureCollection to clip to.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.clipToCollection', self, collection
+    )
+
+  def cluster(
+      self,
+      clusterer: _ClustererType,
+      outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Applies a clusterer to an image.
+
+    Returns a new image with a single band containing values from 0 to N,
+    indicating the cluster each pixel is assigned to.
+
+    Args:
+      clusterer: The clusterer to use.
+      outputName: The name of the output band.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.cluster', self, clusterer, outputName
+    )
+
+  def connectedComponents(
+      self,
+      connectedness: _KernelType,
+      maxSize: _IntegerType,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Returns an ee.Image with the connectedness.
+
+    Finds connected components with the same value of the first band of the
+    input and labels them with a globally unique value.
+
+    Connectedness is specified by the given kernel. Objects larger than maxSize
+    are considered background, and are masked.
+
+    Args:
+      connectedness: Connectedness kernel.
+      maxSize: Maximum size of objects to be labeled.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.connectedComponents', self, connectedness, maxSize
+    )
+
+  def connectedPixelCount(
+      self,
+      # pylint: disable=invalid-name
+      maxSize: Optional[_IntegerType] = None,
+      eightConnected: Optional[_EeBoolType] = None,
+      # pylint: enable=invalid-name
+  ) -> Image:
+    """Returns an ee.Image with the number of connected neighbors.
+
+    Generate an image where each pixel contains the number of 4- or 8-connected
+    neighbors (including itself).
+
+    Args:
+      maxSize: The maximum size of the neighborhood in pixels.
+      eightConnected: Whether to use 8-connected rather 4-connected rules.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.connectedPixelCount', self, maxSize, eightConnected
+    )
+
+  # TODO: constant static method
+
+  def convolve(self, kernel: _KernelType) -> Image:
+    """Convolves each band of an image with the given kernel.
+
+    Args:
+      kernel: The kernel to convolve with.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.convolve', self, kernel
+    )
+
+  # TODO: copyProperties
+
   def cos(self) -> Image:
     """Computes the cosine of the input in radians."""
 
@@ -1300,6 +1578,43 @@ class Image(element.Element):
     """Computes the hyperbolic cosine of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.cosh', self)
+
+  def cumulativeCost(
+      self,
+      source: _EeAnyType,
+      # pylint: disable=invalid-name
+      maxDistance: _NumberType,
+      geodeticDistance: Optional[_EeBoolType] = None,
+      # pylint: enable=invalid-name
+  ) -> Image:
+    """Returns an ee.Image with the cumulative cost map.
+
+    Computes a cumulative cost map based on an image containing costs to
+    traverse each pixel and an image containing source locations.
+
+    Each output band represents the cumulative cost over the corresponding input
+    cost band.
+
+    Args:
+      source: A single-band image representing the sources. A pixel value
+        different from 0 defines a source pixel.
+      maxDistance: Maximum distance for computation, in meters.
+      geodeticDistance: If true, geodetic distance along the curved surface is
+        used, assuming a spherical Earth of radius 6378137.0. If false,
+        euclidean distance in the 2D plane of the map projection is used
+        (faster, but less accurate).
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.cumulativeCost',
+        self,
+        source,
+        maxDistance,
+        geodeticDistance,
+    )
 
   def date(self) -> ee_date.Date:
     """Returns the acquisition time of an image as a Date object.
@@ -1311,16 +1626,13 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_(self.name() + '.date', self)
 
   def derivative(self) -> Image:
-    """Computes the X and Y discrete derivatives.
+    """Returns an ee.Image with the X and Y discrete derivatives.
 
     Computes the X and Y discrete derivatives for each band in the input image,
     in pixel coordinates.
 
     For each band of the input image, the output image will have two bands named
     with the suffixes `_x` and `_y`, containing the respective derivatives.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.derivative', self)
@@ -1330,10 +1642,209 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.digamma', self)
 
+  def directionalDistanceTransform(
+      self,
+      angle: _NumberType,
+      # pylint: disable=invalid-name
+      maxDistance: _IntegerType,
+      labelBand: Optional[_StringType] = None,
+      # pylint: enable=invalid-name
+  ) -> Image:
+    """Returns an ee.Image with the directional distance transform.
+
+    For each zero-valued pixel in the source, get the distance to the nearest
+    non-zero pixels in the given direction.
+
+    Returns a band of floating point distances called "distance".
+
+    Args:
+      angle: The angle, in degrees, at which to search for non-zero pixels.
+      maxDistance: The maximum distance, in pixels, over which to search.
+      labelBand: If provided, multi-band inputs are permitted and only this band
+        is used for searching. All other bands are returned and populated with
+        the per-band values found at the searched non-zero pixels in the label
+        band.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.directionalDistanceTransform',
+        self,
+        angle,
+        maxDistance,
+        labelBand,
+    )
+
+  def displace(
+      self,
+      displacement: _EeAnyType,
+      mode: Optional[_StringType] = None,
+      maxOffset: Optional[_NumberType] = None,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Warps an image using an image of displacements.
+
+    Args:
+      displacement: An image containing displacement values. The first band is
+        interpreted as the 'X' displacement and the second as the 'Y'
+        displacement. Each displacement pixel is a [dx,dy] vector added to the
+        pixel location to determine the corresponding pixel location in 'image'.
+        Displacements are interpreted as meters in the default projection of the
+        displacement image.
+      mode: The interpolation mode to use. One of 'nearest_neighbor', 'bilinear'
+        or 'bicubic'.
+      maxOffset: The maximum absolute offset in the displacement image.
+        Providing this may improve processing performance.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.displace', self, displacement, mode, maxOffset
+    )
+
+  def displacement(
+      self,
+      # pylint: disable=invalid-name
+      referenceImage: _ImageType,
+      maxOffset: _NumberType,
+      projection: Optional[_ProjectionType] = None,
+      patchWidth: Optional[_NumberType] = None,
+      # pylint: enable=invalid-name
+      stiffness: Optional[_NumberType] = None,
+  ) -> Image:
+    """Returns an ee.Image with the displacement map.
+
+    Determines displacements required to register an image to a reference image
+    while allowing local, rubber sheet deformations.
+
+    Displacements are computed in the CRS of the reference image, at a scale
+    dictated by the lowest resolution of the following three projections: input
+    image projection, reference image projection, and requested projection. The
+    displacements are then transformed into the user-specified projection for
+    output.
+
+    Args:
+      referenceImage: The image to register to.
+      maxOffset: The maximum offset allowed when attempting to align the input
+        images, in meters. Using a smaller value can reduce computation time
+        significantly, but it must still be large enough to cover the greatest
+        displacement within the entire image region.
+      projection: The projection in which to output displacement values. The
+        default is the projection of the first band of the reference image.
+      patchWidth: Patch size for detecting image offsets, in meters. This should
+        be set large enough to capture texture, as well as large enough that
+        ignorable objects are small within the patch. Default is null. Patch
+        size will be determined automatically if not provided.
+      stiffness: Enforces a stiffness constraint on the solution. Valid values
+        are in the range [0,10]. The stiffness is used for outlier rejection
+        when determining displacements at adjacent grid points. Higher values
+        move the solution towards a rigid transformation. Lower values allow
+        more distortion or warping of the image during registration.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.displacement',
+        self,
+        referenceImage,
+        maxOffset,
+        projection,
+        patchWidth,
+        stiffness,
+    )
+
+  def distance(
+      self,
+      kernel: Optional[_KernelType] = None,
+      skipMasked: Optional[_EeBoolType] = True,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Returns an ee.Image with the distance map.
+
+    Computes the distance to the nearest non-zero pixel in each band, using the
+    specified distance kernel.
+
+    Args:
+      kernel: The distance kernel. One of chebyshev, euclidean, or manhattan.
+      skipMasked: Mask output pixels if the corresponding input pixel is masked.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.distance', self, kernel, skipMasked
+    )
+
+  def divide(self, image2: _ImageType) -> Image:
+    """Returns an ee.Image with the current image divided by image2.
+
+    Divides the first value by the second, returning 0 for division by 0 for
+    each matched pair of bands in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is the union of the
+    input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.divide', self, image2)
+
   def double(self) -> Image:
     """Casts the input value to a 64-bit float."""
 
     return apifunction.ApiFunction.call_(self.name() + '.double', self)
+
+  def entropy(self, kernel: _KernelType) -> Image:
+    """Returns an ee.Image with the entropy.
+
+    Computes the windowed entropy for each band using the specified kernel
+    centered on each input pixel.
+
+    Entropy is computed as -sum(p * log2(p)), where p is the normalized
+    probability of occurrence of the values encountered in each window.
+
+    Args:
+      kernel: A kernel specifying the window in which to compute.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.entropy', self, kernel)
+
+  def eq(self, image2: _ImageType) -> Image:
+    """Returns an ee.Image with the current image equal to image2.
+
+    Returns 1 if and only if the first value is equal to the second for each
+    matched pair of bands in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is boolean.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.eq', self, image2)
 
   def erf(self) -> Image:
     """Computes the error function of the input."""
