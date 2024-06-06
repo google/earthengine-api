@@ -24,9 +24,11 @@ from ee import ee_number
 from ee import ee_string
 from ee import ee_types
 from ee import element
+from ee import featurecollection
 from ee import function
 from ee import geometry
 from ee import kernel
+from ee import reducer
 
 _ClassifierType = Union[classifier.Classifier, computedobject.ComputedObject]
 _ClustererType = Union[clusterer.Clusterer, computedobject.ComputedObject]
@@ -48,6 +50,7 @@ _NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
 _ProjectionType = Union[Any, computedobject.ComputedObject]
 _ReducerType = Union[Any, computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
+_ReducerType = Union[reducer.Reducer, computedobject.ComputedObject]
 
 
 def _parse_dimensions(dimensions: Any) -> Sequence[Any]:
@@ -2471,6 +2474,400 @@ class Image(element.Element):
         self.name() + '.randomVisualizer', self
     )
 
+  def reduce(self, reducer: _ReducerType) -> Image:
+    """Applies a reducer to all of the bands of an image.
+
+    The reducer must have a single input and will be called at each pixel to
+    reduce the stack of band values.
+
+    The output image will have one band for each reducer output.
+
+    Args:
+      reducer: The reducer to apply to the given image.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.reduce', self, reducer)
+
+  def reduceConnectedComponents(
+      self,
+      reducer: _ReducerType,
+      labelBand: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      maxSize: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Applies a reducer to all of the pixels inside of each 'object'.
+
+    Pixels are considered to belong to an object if they are connected (8-way)
+    and have the same value in the 'label' band. The label band is only used to
+    identify the connectedness; the rest are provided as inputs to the reducer.
+
+    Args:
+      reducer: The reducer to apply to pixels within the connected component.
+      labelBand: The name of the band to use to detect connectedness. If
+        unspecified, the first band is used.
+      maxSize: Size of the neighborhood to consider when aggregating values. Any
+        objects larger than maxSize in either the horizontal or vertical
+        dimension will be masked, since portions of the object might be outside
+        of the neighborhood.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.reduceConnectedComponents',
+        self,
+        reducer,
+        labelBand,
+        maxSize,
+    )
+
+  def reduceNeighborhood(
+      self,
+      reducer: _ReducerType,
+      kernel: _KernelType,
+      # pylint: disable=invalid-name
+      inputWeight: Optional[_StringType] = None,
+      skipMasked: Optional[_EeBoolType] = None,
+      # pylint: enable=invalid-name
+      optimization: Optional[_StringType] = None,
+  ) -> Image:
+    """Returns an ee.Image with the reducer applied as determined by the kernel.
+
+    Applies the given reducer to the neighborhood around each pixel, as
+    determined by the given kernel. If the reducer has a single input, it
+    will be applied separately to each band of the collection; otherwise it
+    must have the same number of inputs as the input image has bands.
+
+    The reducer output names determine the names of the output bands: reducers
+    with multiple inputs will use the output names directly, while reducers with
+    a single input will prefix the output name with the input band name (e.g.
+    '10_mean', '20_mean', etc.).
+    Reducers with weighted inputs can have the input weight based on the input
+    mask, the kernel value, or the smaller of those two.
+
+    Args:
+      reducer: The reducer to apply to pixels within the neighborhood.
+      kernel: The kernel defining the neighborhood.
+      inputWeight: One of 'mask', 'kernel', or 'min'.
+      skipMasked: Mask output pixels if the corresponding input pixel is masked.
+      optimization: Optimization strategy. Options are 'boxcar' and 'window'.
+        The 'boxcar' method is a fast method for computing count, sum or mean.
+        It requires a homogeneous kernel, a single-input reducer and either
+        MASK, KERNEL or no weighting. The 'window' method uses a running window,
+        and has the same requirements as 'boxcar', but can use any single input
+        reducer. Both methods require considerable additional memory.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.reduceNeighborhood',
+        self,
+        reducer,
+        kernel,
+        inputWeight,
+        skipMasked,
+        optimization,
+    )
+
+  def reduceRegion(
+      self,
+      reducer: _ReducerType,
+      geometry: Optional[_GeometryType] = None,
+      scale: Optional[_NumberType] = None,
+      crs: Optional[_ProjectionType] = None,
+      # pylint: disable=invalid-name
+      crsTransform: Optional[_ListType] = None,
+      bestEffort: Optional[_EeBoolType] = None,
+      maxPixels: Optional[_IntegerType] = None,
+      tileScale: Optional[_NumberType] = None,
+      # pylint: enable=invalid-name
+  ) -> dictionary.Dictionary:
+    """Apply a reducer to all the pixels in a specific region.
+
+    Either the reducer must have the same number of inputs as the input image
+    has bands, or it must have a single input and will be repeated for each
+    band.
+
+    Args:
+      reducer: The reducer to apply.
+      geometry: The region over which to reduce data. Defaults to the footprint
+        of the image's first band.
+      scale: A nominal scale in meters of the projection to work in.
+      crs: The projection to work in. If unspecified, the projection of the
+        image's first band is used. If specified in addition to scale, rescaled
+        to the specified scale.
+      crsTransform: The list of CRS transform values. This is a row-major
+        ordering of the 3x2 transform matrix. This option is mutually exclusive
+        with 'scale', and replaces any transform already set on the projection.
+      bestEffort: If the polygon would contain too many pixels at the given
+        scale, compute and use a larger scale which would allow the operation to
+        succeed.
+      maxPixels: The maximum number of pixels to reduce.
+      tileScale: A scaling factor between 0.1 and 16 used to adjust aggregation
+        tile size; setting a larger tileScale (e.g. 2 or 4) uses smaller tiles
+        and may enable computations that run out of memory with the default.
+
+    Returns:
+      An ee.Dictionary of the reducer's outputs.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.reduceRegion',
+        self,
+        reducer,
+        geometry,
+        scale,
+        crs,
+        crsTransform,
+        bestEffort,
+        maxPixels,
+        tileScale,
+    )
+
+  def reduceRegions(
+      self,
+      collection: _FeatureCollectionType,
+      reducer: _ReducerType,
+      scale: Optional[_NumberType] = None,
+      crs: Optional[_ProjectionType] = None,
+      crsTransform: Optional[_ListType] = None,  # pylint: disable=invalid-name
+      tileScale: Optional[_NumberType] = None,  # pylint: disable=invalid-name
+  ) -> featurecollection.FeatureCollection:
+    """Apply a reducer over the area of each feature in the given collection.
+
+    The reducer must have the same number of inputs as the input image has
+    bands.
+
+    Args:
+      collection: The features to reduce over.
+      reducer: The reducer to apply.
+      scale: A nominal scale in meters of the projection to work in.
+      crs: The projection to work in. If unspecified, the projection of the
+        image's first band is used. If specified in addition to scale, rescaled
+        to the specified scale.
+      crsTransform: The list of CRS transform values. This is a row-major
+        ordering of the 3x2 transform matrix. This option is mutually exclusive
+        with 'scale', and will replace any transform already set on the
+        projection.
+      tileScale: A scaling factor used to reduce aggregation tile size; using a
+        larger tileScale (e.g. 2 or 4) may enable computations that run out of
+        memory with the default.
+
+    Returns:
+      Returns the input ee.FeatureCollection, each augmented with the
+      corresponding reducer outputs.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.reduceRegions',
+        self,
+        collection,
+        reducer,
+        scale,
+        crs,
+        crsTransform,
+        tileScale,
+    )
+
+  def reduceResolution(
+      self,
+      reducer: _ReducerType,
+      bestEffort: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+      maxPixels: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Returns an ee.Image with the reducer applied to combine all input pixels.
+
+    Enables reprojection using the given reducer to combine all input pixels
+    corresponding to each output pixel. If the reducer has a single input, it
+    will be applied separately to each band of the collection; otherwise it must
+    have the same number of inputs as the input image has bands.
+
+    The reducer output names determine the names of the output bands: reducers
+    with multiple inputs will use the output names directly, reducers with a
+    single input and single output will preserve the input band names, and
+    reducers with a single input and multiple outputs will prefix the output
+    name with the input band name (e.g. '10_mean', '10_stdDev', '20_mean',
+    '20_stdDev', etc.).
+
+    Reducer input weights will be the product of the  input mask and the
+    fraction of the output pixel covered by the input pixel.
+
+    Args:
+      reducer: The reducer to apply to be used for combining pixels.
+      bestEffort: If using the input at its default resolution would require too
+        many pixels, start with already-reduced input pixels from a pyramid
+        level that allows the operation to succeed.
+      maxPixels: The maximum number of input pixels to combine for each output
+        pixel. Setting this too large will cause out-of-memory problems.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.reduceResolution', self, reducer, bestEffort, maxPixels
+    )
+
+  def reduceToVectors(
+      self,
+      reducer: Optional[_ReducerType] = None,
+      geometry: Optional[_GeometryType] = None,
+      scale: Optional[_NumberType] = None,
+      # pylint: disable=invalid-name
+      geometryType: Optional[_StringType] = None,
+      eightConnected: Optional[_EeBoolType] = None,
+      labelProperty: Optional[_StringType] = None,
+      # pylint: enable=invalid-name
+      crs: Optional[_ProjectionType] = None,
+      # pylint: disable=invalid-name
+      crsTransform: Optional[_ListType] = None,
+      bestEffort: Optional[_EeBoolType] = None,
+      maxPixels: Optional[_IntegerType] = None,
+      tileScale: Optional[_NumberType] = None,
+      geometryInNativeProjection: Optional[_EeBoolType] = None,
+      # pylint: enable=invalid-name
+  ) -> featurecollection.FeatureCollection:
+    """Convert an image to a feature collection by reducing homogeneous regions.
+
+    Given an image containing a band of labeled segments and zero or more
+    additional bands, runs a reducer over the pixels in each segment producing a
+    feature per segment.
+
+    Either the reducer must have one fewer inputs than the image has bands, or
+    it must have a single input and will be repeated for each band.
+
+    Args:
+      reducer: The reducer to apply. Its inputs will be taken from the image's
+        bands after dropping the first band. Defaults to Reducer.countEvery()
+      geometry: The region over which to reduce data. Defaults to the footprint
+        of the image's first band.
+      scale: A nominal scale in meters of the projection to work in.
+      geometryType: How to choose the geometry of each generated feature; one of
+        'polygon' (a polygon enclosing the pixels in the segment), 'bb' (a
+        rectangle bounding the pixels), or 'centroid' (the centroid of the
+        pixels).
+      eightConnected: If true, diagonally-connected pixels are considered
+        adjacent; otherwise only pixels that share an edge are.
+      labelProperty: If non-null, the value of the first band will be saved as
+        the specified property of each feature.
+      crs: The projection to work in. If unspecified, the projection of the
+        image's first band is used. If specified in addition to scale, rescaled
+        to the specified scale.
+      crsTransform: The list of CRS transform values. This is a row-major
+        ordering of the 3x2 transform matrix. This option is mutually exclusive
+        with 'scale', and replaces any transform already set on the projection.
+      bestEffort: If the polygon would contain too many pixels at the given
+        scale, compute and use a larger scale which would allow the operation to
+        succeed.
+      maxPixels: The maximum number of pixels to reduce.
+      tileScale: A scaling factor used to reduce aggregation tile size; using a
+        larger tileScale (e.g. 2 or 4) may enable computations that run out of
+        memory with the default.
+      geometryInNativeProjection: Create geometries in the pixel projection,
+        rather than WGS84.
+
+    Returns:
+      An ee.FeatureCollection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.reduceToVectors',
+        self,
+        reducer,
+        geometry,
+        scale,
+        geometryType,
+        eightConnected,
+        labelProperty,
+        crs,
+        crsTransform,
+        bestEffort,
+        maxPixels,
+        tileScale,
+        geometryInNativeProjection,
+    )
+
+  def regexpRename(
+      self,
+      regex: _StringType,
+      replacement: _StringType,
+      all: Optional[_EeBoolType] = None,
+  ) -> Image:
+    """Renames the bands of an image.
+
+    Renames the bands of an image by applying a regular expression replacement
+    to the current band names. Any bands not matched by the regex will be copied
+    over without renaming.
+
+    Args:
+      regex: A regular expression to match in each band name.
+      replacement: The text with which to replace each match. Supports $n syntax
+        for captured values.
+      all: If true, all matches in a given string will be replaced. Otherwise,
+        only the first match in each string will be replaced.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.regexpRename', self, regex, replacement, all
+    )
+
+  def register(
+      self,
+      # pylint: disable=invalid-name
+      referenceImage: _ImageType,
+      maxOffset: _NumberType,
+      patchWidth: Optional[_NumberType] = None,
+      # pylint: enable=invalid-name
+      stiffness: Optional[_NumberType] = None,
+  ) -> Image:
+    """Registers an image to a reference image.
+
+    Registers an image to a reference image while allowing local, rubber sheet
+    deformations. Displacements are computed in the CRS of the reference image,
+    at a scale dictated by the lowest resolution of the following three
+    projections: input image projection, reference image projection, and
+    requested projection. The displacements then applied to the input image to
+    register it with the reference.
+
+    Args:
+      referenceImage: The image to register to.
+      maxOffset: The maximum offset allowed when attempting to align the input
+        images, in meters. Using a smaller value can reduce computation time
+        significantly, but it must still be large enough to cover the greatest
+        displacement within the entire image region.
+      patchWidth: Patch size for detecting image offsets, in meters. This should
+        be set large enough to capture texture, as well as large enough that
+        ignorable objects are small within the patch. Default is null. Patch
+        size will be determined automatically if notprovided.
+      stiffness: Enforces a stiffness constraint on the solution. Valid values
+        are in the range [0,10]. The stiffness is used for outlier rejection
+        when determining displacements at adjacent grid points. Higher values
+        move the solution towards a rigid transformation. Lower values allow
+        more distortion or warping of the image during registration.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.register',
+        self,
+        referenceImage,
+        maxOffset,
+        patchWidth,
+        stiffness,
+    )
+
+  # TODO: remap
+
   def rename(self, names: Any, *args) -> Image:
     """Rename the bands of an image.
 
@@ -2493,6 +2890,54 @@ class Image(element.Element):
     algorithm_args = {'input': self, 'names': names}
     return apifunction.ApiFunction.apply_('Image.rename', algorithm_args)
 
+  def reproject(
+      self,
+      crs: _ProjectionType,
+      crsTransform: Optional[_ListType] = None,  # pylint: disable=invalid-name
+      scale: Optional[_NumberType] = None,
+  ) -> Image:
+    """Force an image to be computed in a given projection and resolution.
+
+    Args:
+      crs: The CRS to project the image to.
+      crsTransform: The list of CRS transform values. This is a row-major
+        ordering of the 3x2 transform matrix. This option is mutually exclusive
+        with the scale option, and replaces any transform already on the
+        projection.
+      scale: If scale is specified, then the projection is scaled by dividing
+        the specified scale value by the nominal size of a meter in the
+        specified projection. If scale is not specified, then the scale of the
+        given projection will be used.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.reproject', self, crs, crsTransform, scale
+    )
+
+  def resample(self, mode: Optional[_StringType] = None) -> Image:
+    """Returns an image that uses bilinear or bicubic interpolation.
+
+    An algorithm that returns an image identical to its argument, but which uses
+    bilinear or bicubic interpolation (rather than the default nearest-neighbor)
+    to compute pixels in projections other than its native projection or other
+    levels of the same image pyramid.
+
+    This relies on the input image's default projection being meaningful, and so
+    cannot be used on composites, for example. (Instead, you should resample the
+    images that are used to create the composite.)
+
+    Args:
+      mode: The interpolation mode to use. One of 'bilinear' or 'bicubic'.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.resample', self, mode)
+
   def rgbToHsv(self) -> Image:
     """Transforms the image from the RGB color space to the HSV color space.
 
@@ -2505,10 +2950,58 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.rgbToHsv', self)
 
+  def rightShift(self, image2: _ImageType) -> Image:
+    """Returns an image with the pixels right shifted by image2.
+
+    Calculates the signed right shift of v1 by v2 bits for each matched pair of
+    bands in image1 and image2. If either image1 or image2 has only 1 band, then
+    it is used against all the bands in the other image. If the images have the
+    same number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.rightShift', self, image2
+    )
+
   def round(self) -> Image:
     """Computes the integer nearest to the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.round', self)
+
+  def rsedTransform(
+      self,
+      neighborhood: Optional[_IntegerType] = None,
+      units: Optional[_StringType] = None,
+  ) -> Image:
+    """Calculated the Reverse Squared Euclidean Distance (RSED).
+
+    Computes the 2D maximal height surface created by placing an inverted
+    parabola over each non-zero pixel of the input image, where the pixel's
+    value is the height of the parabola. Viewed as a binary image
+    (zero/not-zero) this is equivalent to buffering each non-zero input pixel by
+    the square root of its value, in pixels.
+
+    Args:
+      neighborhood: Neighborhood size in pixels.
+      units: The units of the neighborhood, currently only 'pixels' are
+        supported.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.rsedTransform', self, neighborhood, units
+    )
 
   def selfMask(self) -> Image:
     """Updates an image's mask based on the image itself.
