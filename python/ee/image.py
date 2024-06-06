@@ -1871,6 +1871,84 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.exp', self)
 
+  def fastDistanceTransform(
+      self,
+      neighborhood: Optional[_IntegerType] = None,
+      units: Optional[_StringType] = None,
+      metric: Optional[_StringType] = None,
+  ) -> Image:
+    """Returns the distance to the nearest non-zero valued pixel.
+
+    Returns the distance, as determined by the specified distance metric, to the
+    nearest non-zero valued pixel in the input. The output contains values for
+    all pixels within the given neighborhood size, regardless of the input's
+    mask. Note: the default distance metric returns squared distance.
+
+    Args:
+      neighborhood: Neighborhood size in pixels.
+      units: The units of the neighborhood, currently only 'pixels' are
+        supported.
+      metric: Distance metric to use: options are `squared_euclidean`,
+        `manhattan` or `chebyshev`.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.fastDistanceTransform',
+        self,
+        neighborhood,
+        units,
+        metric,
+    )
+
+  def first(self, image2: _ImageType) -> Image:
+    """Returns the first value for each matched pair of bands with image2.
+
+    Selects the value of the first value for each matched pair of bands in
+    image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is the union of the
+    input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.first', self, image2)
+
+  def firstNonZero(self, image2: _ImageType) -> Image:
+    """Returns the first non-zero value for each matched pair with image2.
+
+    Selects the first value if it is non-zero, and the second value otherwise
+    for each matched pair of bands in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is the union of the
+    input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.firstNonZero', self, image2
+    )
+
   def float(self) -> Image:
     """Casts the input value to a 32-bit float."""
 
@@ -1881,15 +1959,328 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.floor', self)
 
+  def focalMax(
+      self,
+      radius: Optional[_NumberType] = None,
+      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      units: Optional[_StringType] = None,
+      iterations: Optional[_IntegerType] = None,
+      kernel: Optional[_KernelType] = None,
+  ) -> Image:
+    """Returns the maximum value of the input within the kernel.
+
+    Applies a morphological reducer() filter to each band of an image using a
+    named or custom kernel.
+
+    Args:
+      radius: The radius of the kernel to use.
+      kernelType: The type of kernel to use. Options include: 'circle',
+        'square', 'cross', 'plus', 'octagon', and 'diamond'.
+      units: If a kernel is not specified, this determines whether the kernel is
+        in meters or pixels.
+      iterations: The number of times to apply the given kernel.
+      kernel: A custom kernel. If used, kernelType and radius are ignored.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.focalMax',
+        self,
+        radius,
+        kernelType,
+        units,
+        iterations,
+        kernel,
+    )
+
+  def focalMean(
+      self,
+      radius: Optional[_NumberType] = None,
+      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      units: Optional[_StringType] = None,
+      iterations: Optional[_IntegerType] = None,
+      kernel: Optional[_KernelType] = None,
+  ) -> Image:
+    """Returns the mean value of the input within the kernel.
+
+    Applies a morphological mean filter to each band of an image using a named
+    or custom kernel.
+
+    Args:
+      radius: The radius of the kernel to use.
+      kernelType: The type of kernel to use. Options include: 'circle',
+        'square', 'cross', 'plus', 'octagon', and 'diamond'.
+      units: If a kernel is not specified, this determines whether the kernel is
+        in meters or pixels.
+      iterations: The number of times to apply the given kernel.
+      kernel: A custom kernel. If used, kernelType and radius are ignored.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.focalMean',
+        self,
+        radius,
+        kernelType,
+        units,
+        iterations,
+        kernel,
+    )
+
+  def focalMedian(
+      self,
+      radius: Optional[_NumberType] = None,
+      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      units: Optional[_StringType] = None,
+      iterations: Optional[_IntegerType] = None,
+      kernel: Optional[_KernelType] = None,
+  ) -> Image:
+    """Returns the median value of the input within the kernel.
+
+    Applies a morphological reducer() filter to each band of an image using a
+    named or custom kernel.
+
+    Args:
+      radius: The radius of the kernel to use.
+      kernelType: The type of kernel to use. Options include: 'circle',
+        'square', 'cross', 'plus', 'octagon', and 'diamond'.
+      units: If a kernel is not specified, this determines whether the kernel is
+        in meters or pixels.
+      iterations: The number of times to apply the given kernel.
+      kernel: A custom kernel. If used, kernelType and radius are ignored.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.focalMedian',
+        self,
+        radius,
+        kernelType,
+        units,
+        iterations,
+        kernel,
+    )
+
+  def focalMin(
+      self,
+      radius: Optional[_NumberType] = None,
+      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      units: Optional[_StringType] = None,
+      iterations: Optional[_IntegerType] = None,
+      kernel: Optional[_KernelType] = None,
+  ) -> Image:
+    """Returns the minimum value of the input within the kernel.
+
+    Applies a morphological reducer() filter to each band of an image using a
+    named or custom kernel.
+
+    Args:
+      radius: The radius of the kernel to use.
+      kernelType: The type of kernel to use. Options include: 'circle',
+        'square', 'cross', 'plus', 'octagon', and 'diamond'.
+      units: If a kernel is not specified, this determines whether the kernel is
+        in meters or pixels.
+      iterations: The number of times to apply the given kernel.
+      kernel: A custom kernel. If used, kernelType and radius are ignored.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.focalMin',
+        self,
+        radius,
+        kernelType,
+        units,
+        iterations,
+        kernel,
+    )
+
+  def focalMode(
+      self,
+      radius: Optional[_NumberType] = None,
+      kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      units: Optional[_StringType] = None,
+      iterations: Optional[_IntegerType] = None,
+      kernel: Optional[_KernelType] = None,
+  ) -> Image:
+    """Returns the mode value of the input within the kernel.
+
+    Applies a morphological reducer() filter to each band of an image using a
+    named or custom kernel.
+
+    Args:
+      radius: The radius of the kernel to use.
+      kernelType: The type of kernel to use. Options include: 'circle',
+        'square', 'cross', 'plus', 'octagon', and 'diamond'.
+      units: If a kernel is not specified, this determines whether the kernel is
+        in meters or pixels.
+      iterations: The number of times to apply the given kernel.
+      kernel: A custom kernel. If used, kernelType and radius are ignored.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.focalMode',
+        self,
+        radius,
+        kernelType,
+        units,
+        iterations,
+        kernel,
+    )
+
   def gamma(self) -> Image:
     """Computes the gamma function of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.gamma', self)
 
+  def gammainc(self, image2: _ImageType) -> Image:
+    """Returns the regularized lower incomplete Gamma function.
+
+    Calculates the regularized lower incomplete Gamma function gamma(x,a) for
+    each matched pair of bands in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is float.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.gammainc', self, image2
+    )
+
+  # TODO: geometry
+
+  def glcmTexture(
+      self,
+      size: Optional[_IntegerType] = None,
+      kernel: Optional[_KernelType] = None,
+      average: Optional[_EeBoolType] = None,
+  ) -> Image:
+    """Returns the GLCM texture metrics.
+
+    Computes texture metrics from the Gray Level Co-occurrence Matrix around
+    each pixel of every band. The GLCM is a tabulation of how often different
+    combinations of pixel brightness values (grey levels) occur in an image. It
+    counts the number of times a pixel of value X lies next to a pixel of value
+    Y, in a particular direction and distance. and then derives statistics from
+    this tabulation.
+
+    This implementation computes the 14 GLCM metrics proposed by Haralick, and 4
+    additional metrics from Conners. Inputs are required to be integer valued.
+
+    The output consists of 18 bands per input band if directional averaging is
+    on and 18 bands per directional pair in the kernel, if not:
+
+    - ASM: f1, Angular Second Moment; measures the number of repeated pairs
+    - CONTRAST: f2, Contrast; measures the local contrast of an image
+    - CORR: f3, Correlation; measures the correlation between pairs of pixels
+    - VAR: f4, Variance; measures how spread out the distribution of gray-levels
+    is
+    - IDM: f5, Inverse Difference Moment; measures the homogeneity
+    - SAVG: f6, Sum Average
+    - SVAR: f7, Sum Variance
+    - SENT: f8, Sum Entropy
+    - ENT: f9, Entropy. Measures the randomness of a gray-level distribution
+    - DVAR: f10, Difference variance
+    - DENT: f11, Difference entropy
+    - IMCORR1: f12, Information Measure of Corr. 1
+    - IMCORR2: f13, Information Measure of Corr. 2
+    - MAXCORR: f14, Max Corr. Coefficient. (not computed)
+    - DISS: Dissimilarity
+    - INERTIA: Inertia
+    - SHADE: Cluster Shade
+    - PROM: Cluster prominence
+
+    More information can be found in the two papers: Haralick et. al, 'Textural
+    Features for Image Classification', http://doi.org/10.1109/TSMC.1973.4309314
+    and Conners, et al, Segmentation of a high-resolution urban scene using
+    texture operators', http://doi.org/10.1016/0734-189X(84)90197-X.
+
+    Args:
+      size: The size of the neighborhood to include in each GLCM.
+      kernel: A kernel specifying the x and y offsets over which to compute the
+        GLCMs. A GLCM is computed for each pixel in the kernel that is non-zero,
+        except the center pixel and as long as a GLCM hasn't already been
+        computed for the same direction and distance. For example, if either or
+        both of the east and west pixels are set, only 1 (horizontal) GLCM is
+        computed. Kernels are scanned from left to right and top to bottom. The
+        default is a 3x3 square, resulting in 4 GLCMs with the offsets (-1, -1),
+        (0, -1), (1, -1) and (-1, 0).
+      average: If true, the directional bands for each metric are averaged.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.glcmTexture', self, size, kernel, average
+    )
+
   def gradient(self) -> Image:
     """Calculates the x and y gradient."""
 
     return apifunction.ApiFunction.call_(self.name() + '.gradient', self)
+
+  def gt(self, image2: _ImageType) -> Image:
+    """Returns 1 if the image is greater than image2.
+
+    Returns 1 if and only if the first value is greater than the second for each
+    matched pair of bands in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is boolean.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.gt', self, image2)
+
+  def gte(self, image2: _ImageType) -> Image:
+    """Returns 1 if the image is greater than or equal to image2.
+
+    Returns 1 if and only if the first value is greater than or equal to the
+    second for each matched pair of bands in image1 and image2.
+
+    If either image1 or image2 has only 1 band, then it is used against all the
+    bands in the other image. If the images have the same number of bands, but
+    not the same names, they're used pairwise in the natural order. The output
+    bands are named for the longer of the two inputs, or if they're equal in
+    length, in image1's order. The type of the output pixels is boolean.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.gte', self, image2)
 
   def hsvToRgb(self) -> Image:
     """Transforms the image from the HSV color space to the RGB color space.
