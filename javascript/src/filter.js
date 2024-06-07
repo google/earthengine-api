@@ -15,6 +15,7 @@ goog.require('ee.Geometry');
 goog.require('ee.arguments');
 goog.require('goog.array');
 goog.require('goog.string');
+goog.require('ee.List');
 
 
 goog.requireType('ee.FeatureCollection');
@@ -253,7 +254,7 @@ ee.Filter.lte = function(name, value) {
  * @export
  */
 ee.Filter.and = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
+  var args = arguments instanceof ee.List ? arguments : Array.prototype.slice.call(arguments);
   return /** @type {ee.Filter} */(ee.ApiFunction._call('Filter.and', args));
 };
 
@@ -266,7 +267,7 @@ ee.Filter.and = function(var_args) {
  * @export
  */
 ee.Filter.or = function(var_args) {
-  var args = Array.prototype.slice.call(arguments);
+  var args = arguments instanceof ee.List ? arguments : Array.prototype.slice.call(arguments);
   return /** @type {ee.Filter} */(ee.ApiFunction._call('Filter.or', args));
 };
 
