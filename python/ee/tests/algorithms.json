@@ -558,7 +558,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.Ccdc",
-    "description": "Implements the Continuous Change Detection and Classification temporal breakpoint algorithm.  This algorithm finds temporal breakpoints in an image collection by iteratively fitting harmonic functions to the data.  Fit coefficients are produced for all input bands, but the bands used for breakpoint detection can be specified with the \u0027breakpointBands\u0027 argument.\n For more details, see Zhu, Z. and Woodcock, C.E., 2014. Continuous change detection and classification of land cover using all available Landsat data. Remote sensing of Environment, 144, pp.152-171.",
+    "description": "Implements the Continuous Change Detection and Classification temporal breakpoint algorithm. This algorithm finds temporal breakpoints in an image collection by iteratively fitting harmonic functions to the data. Fit coefficients are produced for all input bands, but the bands used for breakpoint detection can be specified with the \u0027breakpointBands\u0027 argument.\nFor more details, see Zhu, Z. and Woodcock, C.E., 2014. Continuous change detection and classification of land cover using all available Landsat data. Remote sensing of Environment, 144, pp.152-171.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -3689,7 +3689,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "Projection of the result and distance measurements, or WGS84 if unspecified.",
+      "description": "Projection of the result and distance measurements, or EPSG:4326 if unspecified.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4006,7 +4006,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the result will be in this projection. Otherwise it will be in WGS84.",
+      "description": "If specified, the result will be in this projection. Otherwise it will be in EPSG:4326.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4027,7 +4027,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the result will be in this projection. Otherwise it will be in WGS84.",
+      "description": "If specified, the result will be in this projection. Otherwise it will be in EPSG:4326.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4124,7 +4124,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "The target projection. Defaults to WGS84. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
+      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
       "optional": true,
       "defaultValue": {
         "transform": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0],
@@ -4490,7 +4490,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the result will be in this projection. Otherwise it will be in WGS84.",
+      "description": "If specified, the result will be in this projection. Otherwise it will be in EPSG:4326.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4536,7 +4536,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the result will be in this projection. Otherwise it will be in WGS84.",
+      "description": "If specified, the result will be in this projection. Otherwise it will be in EPSG:4326.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4632,7 +4632,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "Projection of the result and distance measurements, or WGS84 if unspecified.",
+      "description": "Projection of the result and distance measurements, or EPSG:4326 if unspecified.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4904,7 +4904,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "The target projection. Defaults to WGS84. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
+      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
       "optional": true,
       "defaultValue": {
         "transform": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0],
@@ -4929,7 +4929,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "The target projection. Defaults to WGS84. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
+      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
       "optional": true,
       "defaultValue": {
         "transform": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0],
@@ -9704,7 +9704,7 @@
     }, {
       "argumentName": "geometryInNativeProjection",
       "type": "Boolean",
-      "description": "Create geometries in the pixel projection, rather than WGS84.",
+      "description": "Create geometries in the pixel projection, rather than EPSG:4326.",
       "optional": true,
       "defaultValue": false
     }]
@@ -9785,7 +9785,7 @@
     }, {
       "argumentName": "geometryInNativeProjection",
       "type": "Boolean",
-      "description": "Create geometries in the pixel projection, rather than WGS84.",
+      "description": "Create geometries in the pixel projection, rather than EPSG:4326.",
       "optional": true,
       "defaultValue": false
     }],
@@ -10506,7 +10506,7 @@
     }]
   }, {
     "name": "algorithms/Image.clip",
-    "description": "Clips an image to a Geometry or Feature (use clipToCollection to clip an image to a FeatureCollection). The output bands correspond exactly the input bands, except data not covered by the geometry is masked.  The output image retains the metadata of the input image.",
+    "description": "Clips an image to a Geometry or Feature (use clipToCollection to clip an image to a FeatureCollection). The output bands correspond exactly to the input bands, except data not covered by the geometry is masked. The output image retains the metadata of the input image.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -10515,9 +10515,7 @@
     }, {
       "argumentName": "geometry",
       "type": "Object",
-      "description": "The Geometry or Feature to clip to.",
-      "optional": true,
-      "defaultValue": null
+      "description": "The Geometry or Feature to clip to."
     }]
   }, {
     "name": "algorithms/Image.clipToBoundsAndScale",

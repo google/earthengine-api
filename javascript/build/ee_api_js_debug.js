@@ -5079,7 +5079,7 @@ module$exports$safevalues$dom$globals$dom_parser.parseHtml = function(parser, ht
   return module$contents$safevalues$dom$globals$dom_parser_parseFromString(parser, html, "text/html");
 };
 module$exports$safevalues$dom$globals$dom_parser.parseXml = function(parser, xml) {
-  for (var doc = module$contents$safevalues$dom$globals$dom_parser_parseFromString(parser, (0,module$exports$safevalues$internals$html_impl.createHtmlInternal)(xml), "text/xml"), iterator = document.createNodeIterator(doc, NodeFilter.SHOW_ALL, null, !1), currentNode; currentNode = iterator.nextNode();) {
+  for (var doc = module$contents$safevalues$dom$globals$dom_parser_parseFromString(parser, (0,module$exports$safevalues$internals$html_impl.createHtmlInternal)(xml), "text/xml"), iterator = document.createNodeIterator(doc, NodeFilter.SHOW_ALL), currentNode; currentNode = iterator.nextNode();) {
     if (currentNode instanceof HTMLElement || currentNode instanceof SVGElement) {
       var message = "unsafe XML";
       goog.DEBUG && (message = "attempted to parse an XML document that embeds HTML or SVG content");
@@ -5094,9 +5094,9 @@ function module$contents$safevalues$dom$globals$dom_parser_parseFromString(parse
 module$exports$safevalues$dom$globals$dom_parser.parseFromString = module$contents$safevalues$dom$globals$dom_parser_parseFromString;
 var module$exports$safevalues$dom$globals$fetch = {}, module$contents$safevalues$dom$globals$fetch_module = module$contents$safevalues$dom$globals$fetch_module || {id:"third_party/javascript/safevalues/dom/globals/fetch.closure.js"};
 module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError = function(url, typeName, contentType) {
-  var $jscomp$tmp$error$1153895636$4 = Error.call(this, url + " was requested as a " + typeName + ', but the response Content-Type, "' + contentType + " is not appropriate for this type of content.");
-  this.message = $jscomp$tmp$error$1153895636$4.message;
-  "stack" in $jscomp$tmp$error$1153895636$4 && (this.stack = $jscomp$tmp$error$1153895636$4.stack);
+  var $jscomp$tmp$error$1153895636$25 = Error.call(this, url + " was requested as a " + typeName + ', but the response Content-Type, "' + contentType + " is not appropriate for this type of content.");
+  this.message = $jscomp$tmp$error$1153895636$25.message;
+  "stack" in $jscomp$tmp$error$1153895636$25 && (this.stack = $jscomp$tmp$error$1153895636$25.stack);
   this.url = url;
   this.typeName = typeName;
   this.contentType = contentType;
@@ -5109,47 +5109,47 @@ function module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(
 }
 function module$contents$safevalues$dom$globals$fetch_fetchResourceUrl(u, init) {
   var response, $jscomp$optchain$tmp1153895636$0, $jscomp$optchain$tmp1153895636$1, $jscomp$optchain$tmp1153895636$2, mimeType;
-  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$8) {
-    if (1 == $jscomp$generator$context$1153895636$8.nextAddress) {
-      return $jscomp$generator$context$1153895636$8.yield(fetch(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(u).toString(), init), 2);
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$29) {
+    if (1 == $jscomp$generator$context$1153895636$29.nextAddress) {
+      return $jscomp$generator$context$1153895636$29.yield(fetch(module$contents$safevalues$internals$resource_url_impl_unwrapResourceUrl(u).toString(), init), 2);
     }
-    response = $jscomp$generator$context$1153895636$8.yieldResult;
+    response = $jscomp$generator$context$1153895636$29.yieldResult;
     mimeType = null == ($jscomp$optchain$tmp1153895636$0 = response.headers.get("Content-Type")) ? void 0 : null == ($jscomp$optchain$tmp1153895636$1 = $jscomp$optchain$tmp1153895636$0.split(";", 2)) ? void 0 : null == ($jscomp$optchain$tmp1153895636$2 = $jscomp$optchain$tmp1153895636$1[0]) ? void 0 : $jscomp$optchain$tmp1153895636$2.toLowerCase();
-    return $jscomp$generator$context$1153895636$8.return({html:function() {
+    return $jscomp$generator$context$1153895636$29.return({html:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$5) {
-        if (1 == $jscomp$generator$context$1153895636$5.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$26) {
+        if (1 == $jscomp$generator$context$1153895636$26.nextAddress) {
           if ("text/html" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeHtml", "text/html");
           }
-          return $jscomp$generator$context$1153895636$5.yield(response.text(), 2);
+          return $jscomp$generator$context$1153895636$26.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$1153895636$5.yieldResult;
-        return $jscomp$generator$context$1153895636$5.return(module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(text));
+        text = $jscomp$generator$context$1153895636$26.yieldResult;
+        return $jscomp$generator$context$1153895636$26.return(module$contents$safevalues$dom$globals$fetch_privatecreateHtmlInternal(text));
       });
     }, script:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$6) {
-        if (1 == $jscomp$generator$context$1153895636$6.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$27) {
+        if (1 == $jscomp$generator$context$1153895636$27.nextAddress) {
           if ("text/javascript" !== mimeType && "application/javascript" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeScript", "text/javascript");
           }
-          return $jscomp$generator$context$1153895636$6.yield(response.text(), 2);
+          return $jscomp$generator$context$1153895636$27.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$1153895636$6.yieldResult;
-        return $jscomp$generator$context$1153895636$6.return(module$contents$safevalues$internals$script_impl_createScriptInternal(text));
+        text = $jscomp$generator$context$1153895636$27.yieldResult;
+        return $jscomp$generator$context$1153895636$27.return(module$contents$safevalues$internals$script_impl_createScriptInternal(text));
       });
     }, styleSheet:function() {
       var text;
-      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$7) {
-        if (1 == $jscomp$generator$context$1153895636$7.nextAddress) {
+      return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1153895636$28) {
+        if (1 == $jscomp$generator$context$1153895636$28.nextAddress) {
           if ("text/css" !== mimeType) {
             throw new module$exports$safevalues$dom$globals$fetch.IncorrectContentTypeError(response.url, "SafeStyleSheet", "text/css");
           }
-          return $jscomp$generator$context$1153895636$7.yield(response.text(), 2);
+          return $jscomp$generator$context$1153895636$28.yield(response.text(), 2);
         }
-        text = $jscomp$generator$context$1153895636$7.yieldResult;
-        return $jscomp$generator$context$1153895636$7.return(module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(text));
+        text = $jscomp$generator$context$1153895636$28.yieldResult;
+        return $jscomp$generator$context$1153895636$28.return(module$contents$safevalues$internals$style_sheet_impl_createStyleSheetInternal(text));
       });
     }});
   });
@@ -6799,9 +6799,8 @@ var module$contents$goog$flags_STAGING = goog.readFlagInternalDoNotUseOrElse(1, 
 goog.flags.USE_USER_AGENT_CLIENT_HINTS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_user_agent_client_hints__enable : goog.readFlagInternalDoNotUseOrElse(610401301, !1);
 goog.flags.ASYNC_THROW_ON_UNICODE_TO_BYTE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__async_throw_on_unicode_to_byte__enable : goog.readFlagInternalDoNotUseOrElse(899588437, !1);
 goog.flags.JSPB_STOP_USING_REPEATED_FIELD_SETS_FROM_GENCODE = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__jspb_stop_using_repeated_field_sets_from_gencode__enable : goog.readFlagInternalDoNotUseOrElse(188588736, goog.DEBUG);
-goog.flags.CLIENT_ONLY_WIZ_REACTION_ASYNC_AWAIT = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_reaction_async_await__disable) : goog.readFlagInternalDoNotUseOrElse(399321843, 
-module$contents$goog$flags_STAGING);
-goog.flags.CLIENT_ONLY_WIZ_COMPONENT_STACKS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_component_stacks__disable) : goog.readFlagInternalDoNotUseOrElse(628162879, module$contents$goog$flags_STAGING);
+goog.flags.CLIENT_ONLY_WIZ_REACTION_ASYNC_AWAIT = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_reaction_async_await__disable : goog.readFlagInternalDoNotUseOrElse(399321843, !0);
+goog.flags.CLIENT_ONLY_WIZ_COMPONENT_STACKS = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__client_only_wiz_component_stacks__disable : goog.readFlagInternalDoNotUseOrElse(628162879, !0);
 goog.flags.TESTONLY_DISABLED_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_disabled_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483644, !1);
 goog.flags.TESTONLY_DEBUG_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.DEBUG || module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_debug_flag__enable : goog.readFlagInternalDoNotUseOrElse(2147483645, goog.DEBUG);
 goog.flags.TESTONLY_STAGING_FLAG = module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__use_toggles ? goog.FLAGS_STAGING_DEFAULT && (module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__override_disable_toggles || !module$exports$closure$flags$flags$2etoggles.TOGGLE_GoogFlags__testonly_staging_flag__disable) : goog.readFlagInternalDoNotUseOrElse(2147483646, module$contents$goog$flags_STAGING);
@@ -6844,8 +6843,8 @@ function module$contents$goog$labs$userAgent$util_matchUserAgentDataBrand(str) {
   }
   var data = module$contents$goog$labs$userAgent$util_getUserAgentData();
   return data ? data.brands.some(function($jscomp$destructuring$var6) {
-    var brand = $jscomp$destructuring$var6.brand;
-    return brand && (0,goog.string.internal.contains)(brand, str);
+    var brand;
+    return (brand = $jscomp$destructuring$var6.brand) && (0,goog.string.internal.contains)(brand, str);
   }) : !1;
 }
 function module$contents$goog$labs$userAgent$util_matchUserAgent(str) {
@@ -6894,30 +6893,30 @@ module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue
   }
 };
 module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue.prototype.load = function() {
-  var $jscomp$async$this = this, userAgentData;
-  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m2110036436$14) {
-    if (1 == $jscomp$generator$context$m2110036436$14.nextAddress) {
+  var $jscomp$async$this$m2110036436$9 = this, userAgentData;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m2110036436$35) {
+    if (1 == $jscomp$generator$context$m2110036436$35.nextAddress) {
       userAgentData = module$contents$goog$labs$userAgent$util_getUserAgentData();
       if (!userAgentData) {
-        return $jscomp$generator$context$m2110036436$14.return(void 0);
+        return $jscomp$generator$context$m2110036436$35.return(void 0);
       }
-      $jscomp$async$this.promise_ || ($jscomp$async$this.pending_ = !0, $jscomp$async$this.promise_ = function() {
+      $jscomp$async$this$m2110036436$9.promise_ || ($jscomp$async$this$m2110036436$9.pending_ = !0, $jscomp$async$this$m2110036436$9.promise_ = function() {
         var dataValues;
-        return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m2110036436$13) {
-          if (1 == $jscomp$generator$context$m2110036436$13.nextAddress) {
-            return $jscomp$generator$context$m2110036436$13.setFinallyBlock(2), $jscomp$generator$context$m2110036436$13.yield(userAgentData.getHighEntropyValues([$jscomp$async$this.key_]), 4);
+        return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m2110036436$34) {
+          if (1 == $jscomp$generator$context$m2110036436$34.nextAddress) {
+            return $jscomp$generator$context$m2110036436$34.setFinallyBlock(2), $jscomp$generator$context$m2110036436$34.yield(userAgentData.getHighEntropyValues([$jscomp$async$this$m2110036436$9.key_]), 4);
           }
-          if (2 != $jscomp$generator$context$m2110036436$13.nextAddress) {
-            return dataValues = $jscomp$generator$context$m2110036436$13.yieldResult, $jscomp$async$this.value_ = dataValues[$jscomp$async$this.key_], $jscomp$generator$context$m2110036436$13.return($jscomp$async$this.value_);
+          if (2 != $jscomp$generator$context$m2110036436$34.nextAddress) {
+            return dataValues = $jscomp$generator$context$m2110036436$34.yieldResult, $jscomp$async$this$m2110036436$9.value_ = dataValues[$jscomp$async$this$m2110036436$9.key_], $jscomp$generator$context$m2110036436$34.return($jscomp$async$this$m2110036436$9.value_);
           }
-          $jscomp$generator$context$m2110036436$13.enterFinallyBlock();
-          $jscomp$async$this.pending_ = !1;
-          return $jscomp$generator$context$m2110036436$13.leaveFinallyBlock(0);
+          $jscomp$generator$context$m2110036436$34.enterFinallyBlock();
+          $jscomp$async$this$m2110036436$9.pending_ = !1;
+          return $jscomp$generator$context$m2110036436$34.leaveFinallyBlock(0);
         });
       }());
-      return $jscomp$generator$context$m2110036436$14.yield($jscomp$async$this.promise_, 2);
+      return $jscomp$generator$context$m2110036436$35.yield($jscomp$async$this$m2110036436$9.promise_, 2);
     }
-    return $jscomp$generator$context$m2110036436$14.return($jscomp$generator$context$m2110036436$14.yieldResult);
+    return $jscomp$generator$context$m2110036436$35.return($jscomp$generator$context$m2110036436$35.yieldResult);
   });
 };
 module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.HighEntropyValue.prototype.resetForTesting = function() {
@@ -7149,12 +7148,12 @@ var module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion = functi
   this.useUach_ = useUach;
 };
 module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion.prototype.getIfLoaded = function() {
-  var $jscomp$this$1683157560$24 = this;
+  var $jscomp$this$1683157560$99 = this;
   if (this.useUach_) {
     var loadedVersionList = module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.getIfLoaded();
     if (void 0 !== loadedVersionList) {
       var matchingBrand = loadedVersionList.find(function($jscomp$destructuring$var10) {
-        return $jscomp$this$1683157560$24.brand_ === $jscomp$destructuring$var10.brand;
+        return $jscomp$this$1683157560$99.brand_ === $jscomp$destructuring$var10.brand;
       });
       (0,goog.asserts.assertExists)(matchingBrand);
       return new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(matchingBrand.version);
@@ -7165,28 +7164,28 @@ module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion.prototype.ge
   }
 };
 module$contents$goog$labs$userAgent$browser_HighEntropyBrandVersion.prototype.load = function() {
-  var $jscomp$async$this = this, loadedVersionList, matchingBrand;
-  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1683157560$31) {
-    if (1 == $jscomp$generator$context$1683157560$31.nextAddress) {
-      return $jscomp$async$this.useUach_ ? $jscomp$generator$context$1683157560$31.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 5) : $jscomp$generator$context$1683157560$31.yield(0, 3);
+  var $jscomp$async$this$1683157560$59 = this, loadedVersionList, matchingBrand;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1683157560$106) {
+    if (1 == $jscomp$generator$context$1683157560$106.nextAddress) {
+      return $jscomp$async$this$1683157560$59.useUach_ ? $jscomp$generator$context$1683157560$106.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 5) : $jscomp$generator$context$1683157560$106.yield(0, 3);
     }
-    if (3 != $jscomp$generator$context$1683157560$31.nextAddress && (loadedVersionList = $jscomp$generator$context$1683157560$31.yieldResult, void 0 !== loadedVersionList)) {
+    if (3 != $jscomp$generator$context$1683157560$106.nextAddress && (loadedVersionList = $jscomp$generator$context$1683157560$106.yieldResult, void 0 !== loadedVersionList)) {
       return matchingBrand = loadedVersionList.find(function($jscomp$destructuring$var12) {
-        return $jscomp$async$this.brand_ === $jscomp$destructuring$var12.brand;
-      }), (0,goog.asserts.assertExists)(matchingBrand), $jscomp$generator$context$1683157560$31.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(matchingBrand.version));
+        return $jscomp$async$this$1683157560$59.brand_ === $jscomp$destructuring$var12.brand;
+      }), (0,goog.asserts.assertExists)(matchingBrand), $jscomp$generator$context$1683157560$106.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(matchingBrand.version));
     }
     module$contents$goog$labs$userAgent$browser_preUachHasLoaded = !0;
-    return $jscomp$generator$context$1683157560$31.return($jscomp$async$this.version_);
+    return $jscomp$generator$context$1683157560$106.return($jscomp$async$this$1683157560$59.version_);
   });
 };
 var module$contents$goog$labs$userAgent$browser_preUachHasLoaded = !1;
 goog.labs.userAgent.browser.loadFullVersions = function() {
-  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1683157560$32) {
-    if (1 == $jscomp$generator$context$1683157560$32.nextAddress) {
-      return module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand(!0) ? $jscomp$generator$context$1683157560$32.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 2) : $jscomp$generator$context$1683157560$32.jumpTo(2);
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$1683157560$107) {
+    if (1 == $jscomp$generator$context$1683157560$107.nextAddress) {
+      return module$contents$goog$labs$userAgent$browser_useUserAgentDataBrand(!0) ? $jscomp$generator$context$1683157560$107.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.fullVersionList.load(), 2) : $jscomp$generator$context$1683157560$107.jumpTo(2);
     }
     module$contents$goog$labs$userAgent$browser_preUachHasLoaded = !0;
-    $jscomp$generator$context$1683157560$32.jumpToEnd();
+    $jscomp$generator$context$1683157560$107.jumpToEnd();
   });
 };
 goog.labs.userAgent.browser.resetForTesting = function() {
@@ -7366,18 +7365,16 @@ module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.getIfLoad
   }
 };
 module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.load = function() {
-  var $jscomp$async$this = this, JSCompiler_temp_const;
-  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m1628565157$0) {
-    if (1 == $jscomp$generator$context$m1628565157$0.nextAddress) {
+  var $jscomp$async$this$m1628565157$33 = this, JSCompiler_temp_const;
+  return $jscomp.asyncExecutePromiseGeneratorProgram(function($jscomp$generator$context$m1628565157$37) {
+    if (1 == $jscomp$generator$context$m1628565157$37.nextAddress) {
       if (!module$contents$goog$labs$userAgent$platform_useUserAgentDataPlatform(!0)) {
-        $jscomp$async$this.preUachHasLoaded_ = !0;
-        return $jscomp$generator$context$m1628565157$0.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(module$contents$goog$labs$userAgent$platform_getVersion()));
-        return $jscomp$generator$context$m1628565157$0.jumpTo(0);
+        return $jscomp$async$this$m1628565157$33.preUachHasLoaded_ = !0, $jscomp$generator$context$m1628565157$37.return(new module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version(module$contents$goog$labs$userAgent$platform_getVersion()));
       }
       JSCompiler_temp_const = module$exports$goog$labs$userAgent$highEntropy$highEntropyValue.Version;
-      return $jscomp$generator$context$m1628565157$0.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion.load(), 3);
+      return $jscomp$generator$context$m1628565157$37.yield(module$exports$goog$labs$userAgent$highEntropy$highEntropyData.platformVersion.load(), 3);
     }
-    return $jscomp$generator$context$m1628565157$0.return(new JSCompiler_temp_const($jscomp$generator$context$m1628565157$0.yieldResult));
+    return $jscomp$generator$context$m1628565157$37.return(new JSCompiler_temp_const($jscomp$generator$context$m1628565157$37.yieldResult));
   });
 };
 module$contents$goog$labs$userAgent$platform_PlatformVersion.prototype.resetForTesting = function() {
@@ -15617,8 +15614,10 @@ module$exports$safevalues$builders$html_sanitizer$sanitizer_table$default_saniti
 var module$exports$safevalues$builders$html_sanitizer$html_sanitizer = {}, module$contents$safevalues$builders$html_sanitizer$html_sanitizer_module = module$contents$safevalues$builders$html_sanitizer$html_sanitizer_module || {id:"third_party/javascript/safevalues/builders/html_sanitizer/html_sanitizer.closure.js"};
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizer = function() {
 };
-module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl = function(sanitizerTable, token) {
+module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl = function(sanitizerTable, token, styleElementSanitizer, styleAttributeSanitizer) {
   this.sanitizerTable = sanitizerTable;
+  this.styleElementSanitizer = styleElementSanitizer;
+  this.styleAttributeSanitizer = styleAttributeSanitizer;
   this.changes = [];
   module$contents$safevalues$internals$secrets_ensureTokenIsValid(token);
 };
@@ -15641,10 +15640,15 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeToFragmentInternal = function(html, inertDocument) {
   for (var $jscomp$this$m1085474118$10 = this, dirtyFragment = module$contents$safevalues$builders$html_sanitizer$inert_fragment_createInertFragment(html, inertDocument), treeWalker = document.createTreeWalker(dirtyFragment, 5, function(n) {
     return $jscomp$this$m1085474118$10.nodeFilter(n);
-  }, !1), currentNode = treeWalker.nextNode(), sanitizedFragment = inertDocument.createDocumentFragment(), sanitizedParent = sanitizedFragment; null !== currentNode;) {
+  }), currentNode = treeWalker.nextNode(), sanitizedFragment = inertDocument.createDocumentFragment(), sanitizedParent = sanitizedFragment; null !== currentNode;) {
     var sanitizedNode = void 0;
     if (module$contents$safevalues$builders$html_sanitizer$no_clobber_isText(currentNode)) {
-      sanitizedNode = this.sanitizeTextNode(currentNode);
+      if (this.styleElementSanitizer && "STYLE" === sanitizedParent.nodeName) {
+        var sanitizedCss = this.styleElementSanitizer(currentNode.data);
+        sanitizedNode = this.createTextNode(sanitizedCss);
+      } else {
+        sanitizedNode = this.sanitizeTextNode(currentNode);
+      }
     } else if (module$contents$safevalues$builders$html_sanitizer$no_clobber_isElement(currentNode)) {
       sanitizedNode = this.sanitizeElementNode(currentNode, inertDocument);
     } else {
@@ -15663,12 +15667,15 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   }
   return sanitizedFragment;
 };
+module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.createTextNode = function(text) {
+  return document.createTextNode(text);
+};
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeTextNode = function(textNode) {
-  return document.createTextNode(textNode.data);
+  return this.createTextNode(textNode.data);
 };
 module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerImpl.prototype.sanitizeElementNode = function(elementNode, inertDocument) {
-  for (var elementName = module$contents$safevalues$builders$html_sanitizer$no_clobber_getNodeName(elementNode), newNode = inertDocument.createElement(elementName), dirtyAttributes = elementNode.attributes, $jscomp$iter$31 = $jscomp.makeIterator(dirtyAttributes), $jscomp$key$m1085474118$25$ = $jscomp$iter$31.next(); !$jscomp$key$m1085474118$25$.done; $jscomp$key$m1085474118$25$ = $jscomp$iter$31.next()) {
-    var $jscomp$destructuring$var31 = $jscomp$key$m1085474118$25$.value, name = $jscomp$destructuring$var31.name, value = $jscomp$destructuring$var31.value, policy = this.sanitizerTable.getAttributePolicy(name, elementName);
+  for (var elementName = module$contents$safevalues$builders$html_sanitizer$no_clobber_getNodeName(elementNode), newNode = inertDocument.createElement(elementName), dirtyAttributes = elementNode.attributes, $jscomp$iter$31 = $jscomp.makeIterator(dirtyAttributes), $jscomp$key$m1085474118$26$ = $jscomp$iter$31.next(); !$jscomp$key$m1085474118$26$.done; $jscomp$key$m1085474118$26$ = $jscomp$iter$31.next()) {
+    var $jscomp$destructuring$var31 = $jscomp$key$m1085474118$26$.value, name = $jscomp$destructuring$var31.name, value = $jscomp$destructuring$var31.value, policy = this.sanitizerTable.getAttributePolicy(name, elementName);
     if (this.satisfiesAllConditions(policy.conditions, dirtyAttributes)) {
       switch(policy.policyAction) {
         case module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP:
@@ -15683,7 +15690,12 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
           module$contents$safevalues$builders$html_sanitizer$html_sanitizer_setAttribute(newNode, name, value.toLowerCase());
           break;
         case module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.KEEP_AND_SANITIZE_STYLE:
-          module$contents$safevalues$builders$html_sanitizer$html_sanitizer_setAttribute(newNode, name, value);
+          if (this.styleAttributeSanitizer) {
+            var sanitizedCss = this.styleAttributeSanitizer(value);
+            module$contents$safevalues$builders$html_sanitizer$html_sanitizer_setAttribute(newNode, name, sanitizedCss);
+          } else {
+            module$contents$safevalues$builders$html_sanitizer$html_sanitizer_setAttribute(newNode, name, value);
+          }
           break;
         case module$exports$safevalues$builders$html_sanitizer$sanitizer_table$sanitizer_table.AttributePolicyAction.DROP:
           this.recordChange("Attribute: " + name + " was dropped");
@@ -15721,8 +15733,8 @@ module$exports$safevalues$builders$html_sanitizer$html_sanitizer.HtmlSanitizerIm
   if (!conditions) {
     return !0;
   }
-  for (var $jscomp$iter$32 = $jscomp.makeIterator(conditions), $jscomp$key$m1085474118$26$ = $jscomp$iter$32.next(); !$jscomp$key$m1085474118$26$.done; $jscomp$key$m1085474118$26$ = $jscomp$iter$32.next()) {
-    var $jscomp$destructuring$var33 = $jscomp.makeIterator($jscomp$key$m1085474118$26$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var33.next().value, expectedValues = $jscomp$destructuring$var33.next().value, $jscomp$optchain$tmpm1085474118$0 = void 0, value = null == ($jscomp$optchain$tmpm1085474118$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1085474118$0.value;
+  for (var $jscomp$iter$32 = $jscomp.makeIterator(conditions), $jscomp$key$m1085474118$27$ = $jscomp$iter$32.next(); !$jscomp$key$m1085474118$27$.done; $jscomp$key$m1085474118$27$ = $jscomp$iter$32.next()) {
+    var $jscomp$destructuring$var33 = $jscomp.makeIterator($jscomp$key$m1085474118$27$.value), attrName__tsickle_destructured_1 = $jscomp$destructuring$var33.next().value, expectedValues = $jscomp$destructuring$var33.next().value, $jscomp$optchain$tmpm1085474118$0 = void 0, value = null == ($jscomp$optchain$tmpm1085474118$0 = attrs.getNamedItem(attrName__tsickle_destructured_1)) ? void 0 : $jscomp$optchain$tmpm1085474118$0.value;
     if (value && !expectedValues.has(value)) {
       return !1;
     }
@@ -17461,7 +17473,6 @@ module$contents$goog$Thenable_Thenable.isImplementedBy = function(object) {
   }
   try {
     return !!object[module$contents$goog$Thenable_Thenable.IMPLEMENTED_BY_PROP];
-    return !!object.$goog_Thenable;
   } catch (e) {
     return !1;
   }
@@ -18966,7 +18977,7 @@ var $jscomp$templatelit$m1153655765$99 = $jscomp.createTemplateTagFirstArg(["htt
 ee.apiclient = {};
 var module$contents$ee$apiclient_apiclient = {};
 ee.apiclient.VERSION = module$exports$ee$apiVersion.V1;
-ee.apiclient.API_CLIENT_VERSION = "0.1.403";
+ee.apiclient.API_CLIENT_VERSION = "0.1.407";
 ee.apiclient.NULL_VALUE = module$exports$eeapiclient$domain_object.NULL_VALUE;
 ee.apiclient.PromiseRequestService = module$exports$eeapiclient$promise_request_service.PromiseRequestService;
 ee.apiclient.MakeRequestParams = module$contents$eeapiclient$request_params_MakeRequestParams;
@@ -19099,12 +19110,20 @@ module$contents$ee$apiclient_BatchCall.prototype.withDetectPartialError = functi
 };
 module$contents$ee$apiclient_BatchCall.prototype.send = function(parts, getResponse) {
   var $jscomp$this$m1153655765$27 = this, batchUrl = module$contents$ee$apiclient_apiclient.getSafeApiUrl() + "/batch", body = parts.map(function($jscomp$destructuring$var40) {
-    var $jscomp$destructuring$var41 = $jscomp.makeIterator($jscomp$destructuring$var40), id = $jscomp$destructuring$var41.next().value, $jscomp$destructuring$var42 = $jscomp.makeIterator($jscomp$destructuring$var41.next().value), partBody = $jscomp$destructuring$var42.next().value, ctor = $jscomp$destructuring$var42.next().value;
+    var $jscomp$destructuring$var41 = $jscomp.makeIterator($jscomp$destructuring$var40);
+    var id = $jscomp$destructuring$var41.next().value;
+    var $jscomp$destructuring$var42 = $jscomp.makeIterator($jscomp$destructuring$var41.next().value);
+    var partBody = $jscomp$destructuring$var42.next().value;
+    $jscomp$destructuring$var42.next();
     return "--batch_EARTHENGINE_batch\r\nContent-Type: application/http\r\nContent-Transfer-Encoding: binary\r\nMIME-Version: 1.0\r\nContent-ID: <" + id + ">\r\n\r\n" + partBody + "\r\n";
   }).join("") + "--batch_EARTHENGINE_batch--\r\n", deserializeResponses = function(response) {
     var result = {};
     parts.forEach(function($jscomp$destructuring$var43) {
-      var $jscomp$destructuring$var44 = $jscomp.makeIterator($jscomp$destructuring$var43), id = $jscomp$destructuring$var44.next().value, $jscomp$destructuring$var45 = $jscomp.makeIterator($jscomp$destructuring$var44.next().value), partBody = $jscomp$destructuring$var45.next().value, ctor = $jscomp$destructuring$var45.next().value;
+      var $jscomp$destructuring$var44 = $jscomp.makeIterator($jscomp$destructuring$var43);
+      var id = $jscomp$destructuring$var44.next().value;
+      var $jscomp$destructuring$var45 = $jscomp.makeIterator($jscomp$destructuring$var44.next().value);
+      $jscomp$destructuring$var45.next();
+      var ctor = $jscomp$destructuring$var45.next().value;
       null != response[id] && (result[id] = module$contents$eeapiclient$domain_object_deserialize(ctor, response[id]));
     });
     return getResponse ? getResponse(result) : result;
@@ -19256,8 +19275,8 @@ module$contents$ee$apiclient_apiclient.send = function(path, params, callback, m
   var profileHookAtCallTime = module$contents$ee$apiclient_apiclient.profileHook_, contentType = "application/x-www-form-urlencoded";
   body && (contentType = "application/json", method && method.startsWith("multipart") && (contentType = method, method = "POST"));
   method = method || "POST";
-  var headers = {"Content-Type":contentType}, version = "0.1.403";
-  "0.1.403" === version && (version = "latest");
+  var headers = {"Content-Type":contentType}, version = "0.1.407";
+  "0.1.407" === version && (version = "latest");
   headers[module$contents$ee$apiclient_apiclient.API_CLIENT_VERSION_HEADER] = "ee-js/" + version;
   var authToken = module$contents$ee$apiclient_apiclient.getAuthToken();
   if (null != authToken) {
@@ -19871,7 +19890,9 @@ ee.rpc_convert.legacyPropertiesToAssetUpdate = function(legacyProperties) {
   extractValue("system:description");
   "string" !== typeof value && null !== value || null != properties.description || (properties.description = asNull(value) || value);
   Object.entries(properties).forEach(function($jscomp$destructuring$var48) {
-    var $jscomp$destructuring$var49 = $jscomp.makeIterator($jscomp$destructuring$var48), key = $jscomp$destructuring$var49.next().value, value = $jscomp$destructuring$var49.next().value;
+    var $jscomp$destructuring$var49 = $jscomp.makeIterator($jscomp$destructuring$var48);
+    var key = $jscomp$destructuring$var49.next().value;
+    var value = $jscomp$destructuring$var49.next().value;
     properties[key] = asNull(value) || value;
   });
   asset.properties = properties;
