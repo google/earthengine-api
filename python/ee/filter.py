@@ -14,6 +14,7 @@ from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
+from ee import ee_list
 
 
 # A map from the deprecated old-style comparison operator names to API
@@ -198,14 +199,14 @@ class Filter(computedobject.ComputedObject):
   @staticmethod
   def And(*args):
     """Combine two or more filters using boolean AND."""
-    if len(args) == 1 and isinstance(args[0], (list, tuple)):
+    if len(args) == 1 and isinstance(args[0], (list, tuple, ee_list.List)):
       args = args[0]
     return apifunction.ApiFunction.call_('Filter.and', args)
 
   @staticmethod
   def Or(*args):
     """Combine two or more filters using boolean OR."""
-    if len(args) == 1 and isinstance(args[0], (list, tuple)):
+    if len(args) == 1 and isinstance(args[0], (list, tuple, ee_List.List)):
       args = args[0]
     return apifunction.ApiFunction.call_('Filter.or', args)
 
