@@ -3025,8 +3025,8 @@ class Image(element.Element):
   def signum(self) -> Image:
     """Computes the signum function (sign) of the input.
 
-    Zero if the input is zero, 1 if the input is greater than zero, -1 if the
-    input is less than zero.
+    The return value is 0 if the input is 0, 1 if the input is greater than 0,
+    -1 if the input is less than 0.
 
     Returns:
       An ee.Image.

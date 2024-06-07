@@ -975,8 +975,8 @@ class Array(computedobject.ComputedObject):
     """Returns -1 or 1 base on the sign of the input or 0 if the input is zero.
 
     On an element-wise basis, computes the signum function (sign) of the input;
-    zero if the input is zero, 1 if the input is greater than zero, -1 if the
-    input is less than zero.
+    The return value is 0 if the input is 0, 1 if the input is greater than 0,
+    -1 if the input is less than 0.
 
     Returns:
       An ee.Array.
