@@ -49,7 +49,6 @@ class DataTest(unittest.TestCase):
     with apitestcase.UsingCloudApi(mock_http=mock_http):
       self.assertEqual([], ee.data.listOperations())
 
-  @unittest.skip('Does not work on github with python 3.7')
   def testCreateAsset(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
@@ -71,7 +70,6 @@ class DataTest(unittest.TestCase):
       asset = mock_create_asset.call_args.kwargs['body']
       self.assertEqual(asset, {'type': 'FOLDER'})
 
-  @unittest.skip('Does not work on github with python 3.7')
   def testCreateAssetWithV1AlphaParams(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
@@ -129,7 +127,6 @@ class DataTest(unittest.TestCase):
           {'uris': ['gs://my-bucket/path']},
       )
 
-  @unittest.skip('Does not work on github with python 3.7')
   def testCreateFolder(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
@@ -151,7 +148,6 @@ class DataTest(unittest.TestCase):
       asset = mock_create_asset.call_args.kwargs['body']
       self.assertEqual(asset, {'type': 'FOLDER'})
 
-  @unittest.skip('Does not work on github with python 3.7')
   def testStartIngestion(self):
     cloud_api_resource = mock.MagicMock()
     with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
