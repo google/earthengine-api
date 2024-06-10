@@ -2457,6 +2457,8 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.not', self)
 
+  # TODO: random
+
   def randomVisualizer(self) -> Image:
     """Creates a random visualization image.
 
