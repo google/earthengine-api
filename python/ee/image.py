@@ -51,6 +51,7 @@ _EeAnyType = Union[Any, computedobject.ComputedObject]
 _EeBoolType = Union[Any, computedobject.ComputedObject]
 _FeatureCollectionType = Union[Any, computedobject.ComputedObject]
 _GeometryType = Union[Any, computedobject.ComputedObject]
+_ImageCollectionType = Union[Any, computedobject.ComputedObject]
 _ImageType = Union[Any, computedobject.ComputedObject]
 _IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
 _KernelType = Union[kernel.Kernel, computedobject.ComputedObject]
@@ -2235,6 +2236,98 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.gte', self, image2)
 
+  def hersDescriptor(
+      self,
+      selectors: Optional[_ListType] = None,
+      buckets: Optional[_IntegerType] = None,
+      # pylint: disable-next=invalid-name
+      peakWidthScale: Optional[_NumberType] = None,
+  ) -> dictionary.Dictionary:
+    """Returns a dictionary of Histogram Error Ring Statistic (HERS) arrays.
+
+    Creates a dictionary of Histogram Error Ring Statistic (HERS) descriptor
+    arrays from square array properties of an element.
+
+    The HERS radius is taken to be the array's (side_length - 1) / 2.
+
+    Args:
+      selectors: The array properties for which descriptors will be created.
+        Selected array properties must be square, floating point arrays.
+        Defaults to all array properties.
+      buckets: The number of HERS buckets. Defaults to 100.
+      peakWidthScale: The HERS peak width scale. Defaults to 1.0.
+
+    Returns:
+      An ee.Dictionary.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.hersDescriptor',
+        self,
+        selectors,
+        buckets,
+        peakWidthScale,
+    )
+
+  def hersFeature(
+      self,
+      reference: _DictionaryType,
+      # pylint: disable-next=invalid-name
+      peakWidthScale: Optional[_NumberType] = None,
+  ) -> Image:
+    """Returns an ee.Image with Histogram Error Ring Statistic (HERS).
+
+    Computes the Histogram Error Ring Statistic (HERS) for each pixel in each
+    band matching the keys in the descriptor. Only the bands for which HERS
+    could be computed are returned.
+
+    Args:
+      reference: The reference descriptor computed with
+        ee.Feature.hersDescriptor(...).
+      peakWidthScale: The HERS peak width scale.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.hersFeature', self, reference, peakWidthScale
+    )
+
+  def hersImage(
+      self,
+      image2: _ImageType,
+      radius: _IntegerType,
+      buckets: Optional[_IntegerType] = None,
+      # pylint: disable-next=invalid-name
+      peakWidthScale: Optional[_NumberType] = None,
+  ) -> Image:
+    """Returns an Image with Histogram Error Ring Statistic (HERS) for pairs.
+
+    Computes the Histogram Error Ring Statistic (HERS) for each pair of pixels
+    in each band present in both images.
+
+    Only the bands for which HERS could be computed are returned.
+
+    Args:
+      image2: The image to compare.
+      radius: The radius of the window.
+      buckets: The number of HERS buckets.
+      peakWidthScale: The HERS peak width scale.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.hersImage',
+        self,
+        image2,
+        radius,
+        buckets,
+        peakWidthScale,
+    )
+
   def hsvToRgb(self) -> Image:
     """Transforms the image from the HSV color space to the RGB color space.
 
@@ -2280,10 +2373,120 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.int8', self)
 
+  def interpolate(
+      self,
+      x: _ListType,
+      y: _ListType,
+      behavior: Optional[_StringType] = None,
+  ) -> Image:
+    """Returns an ee.Image with interpolated values.
+
+    Interpolates each point in the first band of the input image into the
+    piecewise-linear function specified by the x and y arrays.
+
+    The x values must be strictly increasing. If an input point is less than the
+    first or greater than the last x value, then the output is specified by the
+    "behavior" argument: "extrapolate" specifies the output value is
+    extrapolated from the two nearest points, "clamp" specifies the output value
+    is taken from the nearest point, "input" specifies the output value is
+    copied from the input, and "mask" specifies the output value is masked.
+
+    Args:
+      x: The x axis (input) values in the piecewise function.
+      y: The y axis (output) values in the piecewise function.
+      behavior: The behavior for points that are outside of the range of the
+        supplied function. Options are: 'extrapolate', 'clamp', 'mask', or
+        'input'.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.interpolate', self, x, y, behavior
+    )
+
   def lanczos(self) -> Image:
     """Computes the Lanczos approximation of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.lanczos', self)
+
+  def leftShift(self, image2: _ImageType) -> Image:
+    """Returns an ee.Image left shifted the values in image2.
+
+    Calculates the left shift of v1 by v2 bits for each matched pair of bands in
+    image1 and image2. If either image1 or image2 has only 1 band, then it is
+    used against all the bands in the other image. If the images have the same
+    number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.leftShift', self, image2
+    )
+
+  def linkCollection(
+      self,
+      # pylint: disable=invalid-name
+      imageCollection: _ImageCollectionType,
+      linkedBands: _EeAnyType = None,
+      linkedProperties: Optional[_EeAnyType] = None,
+      matchPropertyName: Optional[_StringType] = None,
+      # pylint: enable=invalid-name
+  ) -> Image:
+    """Links the source image to a matching image from an image collection.
+
+    Any specified bands or metadata will be added to the source image from the
+    image found in the collection, and if the bands or metadata are already
+    present they will be overwritten. If a matching image is not found, any new
+    or updated bands will be fully masked and any new or updated metadata will
+    be null. The output footprint will be the same as the source image
+    footprint.
+
+    A match is determined if the source image and an image in the collection
+    have a specific equivalent metadata property. If more than one collection
+    image would match, the collection image selected is arbitrary. By default,
+    images are matched on their 'system:index' metadata property.
+
+    This linking function is a convenience method for adding bands to a target
+    image based on a specified shared metadata property and is intended to
+    support linking collections that apply different processing/product
+    generation to the same source imagery. For more expressive linking known as
+    'joining', see
+    https://developers.google.com/earth-engine/guides/joins_intro.
+
+    Args:
+      imageCollection: The image collection searched to extract an image
+        matching the source.
+      linkedBands: A band name or list of band names to add or update from the
+        matching image.
+      linkedProperties: A metadata property or list of properties to add or
+        update from the matching image.
+      matchPropertyName: The metadata property name to use as a match criteria.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.linkCollection',
+        self,
+        imageCollection,
+        linkedBands,
+        linkedProperties,
+        matchPropertyName,
+    )
+
+  # TODO: load
+  # TODO: loadGeoTIFF
 
   def log(self) -> Image:
     """Computes the natural logarithm of the input."""
@@ -2299,6 +2502,46 @@ class Image(element.Element):
     """Casts the input value to a signed 64-bit integer."""
 
     return apifunction.ApiFunction.call_(self.name() + '.long', self)
+
+  def lt(self, image2: _ImageType) -> Image:
+    """Returns 1 if the image is less than image2.
+
+    Returns 1 if and only if the first value is less than the second for each
+    matched pair of bands in image1 and image2. If either image1 or image2 has
+    only 1 band, then it is used against all the bands in the other image. If
+    the images have the same number of bands, but not the same names, they're
+    used pairwise in the natural order. The output bands are named for the
+    longer of the two inputs, or if they're equal in length, in image1's order.
+    The type of the output pixels is boolean.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.lt', self, image2)
+
+  def lte(self, image2: _ImageType) -> Image:
+    """Returns 1 if the image is less than or equal to image2.
+
+    Returns 1 if and only if the first value is less than or equal to the second
+    for each matched pair of bands in image1 and image2. If either image1 or
+    image2 has only 1 band, then it is used against all the bands in the other
+    image. If the images have the same number of bands, but not the same names,
+    they're used pairwise in the natural order. The output bands are named for
+    the longer of the two inputs, or if they're equal in length, in image1's
+    order. The type of the output pixels is boolean.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.lte', self, image2)
 
   def matrixCholeskyDecomposition(self) -> Image:
     """Calculates the Cholesky decomposition of a matrix.
