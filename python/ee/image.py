@@ -17,6 +17,7 @@ from ee import computedobject
 from ee import data
 from ee import deprecation
 from ee import dictionary
+from ee import ee_array
 from ee import ee_date
 from ee import ee_exception
 from ee import ee_list
@@ -24,12 +25,20 @@ from ee import ee_number
 from ee import ee_string
 from ee import ee_types
 from ee import element
+from ee import feature
 from ee import featurecollection
 from ee import function
 from ee import geometry
 from ee import kernel
 from ee import reducer
 
+_ArrayType = Union[
+    Any,
+    List[Any],
+    'ee_array.Array',
+    'ee_list.List',
+    computedobject.ComputedObject,
+]
 _ClassifierType = Union[classifier.Classifier, computedobject.ComputedObject]
 _ClustererType = Union[clusterer.Clusterer, computedobject.ComputedObject]
 _DictionaryType = Union[
@@ -654,65 +663,6 @@ class Image(element.Element):
       result = result.select(['.*'], names)
 
     return result
-
-  @_utils.accept_opt_prefix('opt_selectors', 'opt_names')
-  # pylint: disable-next=keyword-arg-before-vararg
-  def select(
-      self,
-      selectors: Optional[Any] = None,
-      names: Optional[Any] = None,
-      *args,
-  ) -> Image:
-    """Selects bands from an image.
-
-    Can be called in one of two ways:
-      - Passed any number of non-list arguments. All of these will be
-        interpreted as band selectors. These can be band names, regexes, or
-        numeric indices. E.g.
-        selected = image.select('a', 'b', 3, 'd');
-      - Passed two lists. The first will be used as band selectors and the
-        second as new names for the selected bands. The number of new names
-        must match the number of selected bands. E.g.
-        selected = image.select(['a', 4], ['newA', 'newB']);
-
-    Args:
-      selectors: An array of names, regexes or numeric indices specifying the
-        bands to select.
-      names: An array of strings specifying the new names for the selected
-        bands.
-      *args: Selector elements as varargs.
-
-    Returns:
-      An image with the selected bands.
-    """
-    if selectors is not None:
-      args = list(args)
-      if names is not None:
-        args.insert(0, names)
-      args.insert(0, selectors)
-    algorithm_args = {
-        'input': self,
-        'bandSelectors': args[0] if args else [],
-    }
-    if args:
-      # If the user didn't pass an array as the first argument, assume
-      # that everything in the arguments array is actually a selector.
-      if (len(args) > 2 or
-          ee_types.isString(args[0]) or
-          ee_types.isNumber(args[0])):
-        # Varargs inputs.
-        selectors = args
-        # Verify we didn't get anything unexpected.
-        for selector in selectors:
-          if (not ee_types.isString(selector) and
-              not ee_types.isNumber(selector) and
-              not isinstance(selector, computedobject.ComputedObject)):
-            raise ee_exception.EEException(
-                'Illegal argument to select(): ' + selector)
-        algorithm_args['bandSelectors'] = selectors
-      elif len(args) > 1:
-        algorithm_args['newNames'] = args[1]
-    return apifunction.ApiFunction.apply_('Image.select', algorithm_args)
 
   @_utils.accept_opt_prefix(('opt_map', 'map_'))
   def expression(self, expression: Any, map_: Optional[Any] = None) -> Image:
@@ -1604,7 +1554,7 @@ class Image(element.Element):
       maxDistance: Maximum distance for computation, in meters.
       geodeticDistance: If true, geodetic distance along the curved surface is
         used, assuming a spherical Earth of radius 6378137.0. If false,
-        euclidean distance in the 2D plane of the map projection is used
+        Euclidean distance in the 2D plane of the map projection is used
         (faster, but less accurate).
 
     Returns:
@@ -1772,7 +1722,7 @@ class Image(element.Element):
     specified distance kernel.
 
     Args:
-      kernel: The distance kernel. One of chebyshev, euclidean, or manhattan.
+      kernel: The distance kernel. One of Chebyshev, Euclidean, or Manhattan.
       skipMasked: Mask output pixels if the corresponding input pixel is masked.
 
     Returns:
@@ -3005,6 +2955,223 @@ class Image(element.Element):
         self.name() + '.rsedTransform', self, neighborhood, units
     )
 
+  def sample(
+      self,
+      region: Optional[_GeometryType] = None,
+      scale: Optional[_NumberType] = None,
+      projection: Optional[_ProjectionType] = None,
+      factor: Optional[_NumberType] = None,
+      # pylint: disable=invalid-name
+      numPixels: Optional[_IntegerType] = None,
+      seed: Optional[_IntegerType] = None,
+      dropNulls: Optional[_EeBoolType] = None,
+      tileScale: Optional[_NumberType] = None,
+      geometries: Optional[_EeBoolType] = None,
+      # pylint: enable=invalid-name
+  ) -> featurecollection.FeatureCollection:
+    """Returns an ee.FeatureCollection of samples from an ee.Image.
+
+    Samples the pixels of an image, returning them as a FeatureCollection. Each
+    feature will have 1 property per band in the input image. Note that the
+    default behavior is to drop features that intersect masked pixels, which
+    result in null-valued properties (see dropNulls argument).
+
+    Args:
+      region: The region to sample from. If unspecified, uses the image's whole
+        footprint.
+      scale: A nominal scale in meters of the projection to sample in.
+      projection: The projection in which to sample. If unspecified, the
+        projection of the image's first band is used. If specified in addition
+        to scale, rescaled to the specified scale.
+      factor: A subsampling factor, within (0, 1]. If specified, 'numPixels'
+        must not be specified. Defaults to no subsampling.
+      numPixels: The approximate number of pixels to sample. If specified,
+        'factor' must not be specified.
+      seed: A randomization seed to use for subsampling.
+      dropNulls: Post filter the result to drop features that have null-valued
+        properties.
+      tileScale: A scaling factor used to reduce aggregation tile size; using a
+        larger tileScale (e.g. 2 or 4) may enable computations that run out of
+        memory with the default.
+      geometries: If true, adds the center of the sampled pixel as the geometry
+        property of the output feature. Otherwise, geometries will be omitted
+        (saving memory).
+
+    Returns:
+      An ee.FeatureCollection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.sample',
+        self,
+        region,
+        scale,
+        projection,
+        factor,
+        numPixels,
+        seed,
+        dropNulls,
+        tileScale,
+        geometries,
+    )
+
+  def sampleRectangle(
+      self,
+      region: Optional[_EeAnyType] = None,
+      properties: Optional[_ListType] = None,
+      # pylint: disable=invalid-name
+      defaultValue: Optional[_NumberType] = None,
+      defaultArrayValue: Optional[_ArrayType] = None,
+      # pylint: enable=invalid-name
+  ) -> feature.Feature:
+    """Returns pixels from an image into a ND array per band.
+
+    The arrays are returned in a feature retaining the same properties as the
+    image and a geometry the same as that used to sample the image (or the image
+    footprint if unspecified). Each band is sampled in its input projection, and
+    if no geometry is specified, sampled using its footprint. For scalar bands,
+    the output array is 2D. For array bands the output array is (2+N)D where N
+    is the number of dimensions in the original band. If sampling array bands,
+    all arrays must have the same number of elements. If a band's sampled region
+    is entirely masked and a default array value is specified, the default array
+    value is used in-lieu of sampling the image.
+
+    Args:
+      region: The region whose projected bounding box is used to sample the
+        image. Defaults to the footprint in each band.
+      properties: The properties to copy over from the sampled image. Defaults
+        to all non-system properties.
+      defaultValue: A default value used when a sampled pixel is masked or
+        outside a band's footprint.
+      defaultArrayValue: A default value used when a sampled array pixel is
+        masked or outside a band's footprint.
+
+    Returns:
+      An ee.Feature.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.sampleRectangle',
+        self,
+        region,
+        properties,
+        defaultValue,
+        defaultArrayValue,
+    )
+
+  def sampleRegions(
+      self,
+      collection: _FeatureCollectionType,
+      properties: Optional[_ListType] = None,
+      scale: Optional[_NumberType] = None,
+      projection: Optional[_ProjectionType] = None,
+      tileScale: Optional[_NumberType] = None,  # pylint: disable=invalid-name
+      geometries: Optional[_EeBoolType] = None,
+  ) -> featurecollection.FeatureCollection:
+    """Returns an ee.FeatureCollection of samples from an ee.Image.
+
+    Converts each pixel of an image (at a given scale) that intersects one or
+    more regions to a Feature, returning them as a FeatureCollection. Each
+    output feature will have one property per band of the input image, as well
+    as any specified properties copied from the input feature.
+
+    Note that geometries will be snapped to pixel centers.
+
+    Args:
+      collection: The regions to sample over.
+      properties: The list of properties to copy from each input feature.
+        Defaults to all non-system properties.
+      scale: A nominal scale in meters of the projection to sample in. If
+        unspecified, the scale of the image's first band is used.
+      projection: The projection in which to sample. If unspecified, the
+        projection of the image's first band is used. If specified in addition
+        to scale, rescaled to the specified scale.
+      tileScale: A scaling factor used to reduce aggregation tile size; using a
+        larger tileScale (e.g. 2 or 4) may enable computations that run out of
+        memory with the default.
+      geometries: If true, the results will include a point geometry per sampled
+        pixel. Otherwise, geometries will be omitted (saving memory).
+
+    Returns:
+      An ee.FeatureCollection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.sampleRegions',
+        self,
+        collection,
+        properties,
+        scale,
+        projection,
+        tileScale,
+        geometries,
+    )
+
+  # TODO: Arg names should be bandSelectors and newNames
+  @_utils.accept_opt_prefix('opt_selectors', 'opt_names')
+  # pylint: disable-next=keyword-arg-before-vararg
+  def select(
+      self,
+      selectors: Optional[_ListType] = None,
+      names: Optional[_ListType] = None,
+      *args,
+  ) -> Image:
+    """Selects bands from an image.
+
+    Can be called in one of two ways:
+      - Passed any number of non-list arguments. All of these will be
+        interpreted as band selectors. These can be band names, regexes, or
+        numeric indices. E.g.
+        selected = image.select('a', 'b', 3, 'd');
+      - Passed two lists. The first will be used as band selectors and the
+        second as new names for the selected bands. The number of new names
+        must match the number of selected bands. E.g.
+        selected = image.select(['a', 4], ['newA', 'newB']);
+
+    Args:
+      selectors: An array of names, regexes or numeric indices specifying the
+        bands to select.
+      names: An array of strings specifying the new names for the selected
+        bands.
+      *args: Selector elements as varargs.
+
+    Returns:
+      An image with the selected bands.
+    """
+    if selectors is not None:
+      args = list(args)
+      if names is not None:
+        args.insert(0, names)
+      args.insert(0, selectors)
+    algorithm_args = {
+        'input': self,
+        'bandSelectors': args[0] if args else [],
+    }
+    if args:
+      # If the user didn't pass an array as the first argument, assume
+      # that everything in the arguments array is actually a selector.
+      if (
+          len(args) > 2
+          or ee_types.isString(args[0])
+          or ee_types.isNumber(args[0])
+      ):
+        # Varargs inputs.
+        selectors = args
+        # Verify we didn't get anything unexpected.
+        for selector in selectors:
+          if (
+              not ee_types.isString(selector)
+              and not ee_types.isNumber(selector)
+              and not isinstance(selector, computedobject.ComputedObject)
+          ):
+            raise ee_exception.EEException(
+                'Illegal argument to select(): ' + selector
+            )
+        algorithm_args['bandSelectors'] = selectors
+      elif len(args) > 1:
+        algorithm_args['newNames'] = args[1]
+    return apifunction.ApiFunction.apply_('Image.select', algorithm_args)
+
   def selfMask(self) -> Image:
     """Updates an image's mask based on the image itself.
 
@@ -3018,6 +3185,35 @@ class Image(element.Element):
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.selfMask', self)
+
+  def setDefaultProjection(
+      self,
+      crs: _ProjectionType,
+      crsTransform: Optional[_ListType] = None,  # pylint: disable=invalid-name
+      scale: Optional[_NumberType] = None,
+  ) -> Image:
+    """Set a default projection to be applied to this image.
+
+    The projection's resolution may be overridden by later operations.
+
+    Args:
+      crs: The CRS to project the image to.
+      crsTransform: The list of CRS transform values. This is a row-major
+        ordering of the 3x2 transform matrix. This option is mutually exclusive
+        with the scale option, and replaces any transform already on the
+        projection.
+      scale: If scale is specified, then the projection is scaled by dividing
+        the specified scale value by the nominal size of a meter in the
+        specified projection. If scale is not specified, then the scale of the
+        given projection will be used.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.setDefaultProjection', self, crs, crsTransform, scale
+    )
 
   def short(self) -> Image:
     """Casts the input value to a signed 16-bit integer."""
@@ -3046,10 +3242,279 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.sinh', self)
 
+  # pylint: disable-next=invalid-name
+  def sldStyle(self, sldXml: _StringType) -> Image:
+    """Styles a raster input with the provided OGC SLD styling.
+
+    Points of note:
+
+    * OGC SLD 1.0 and OGC SE 1.1 are supported.
+    * The XML document passed in can be complete, or just the
+      SldRasterSymbolizer element and down.
+    * Exactly one SldRasterSymbolizer is required.
+    * Bands may be selected by their proper Earth Engine names or using numeric
+      identifiers ("1", "2", ...). Proper Earth Engine names are tried first.
+    * The Histogram and Normalize contrast stretch mechanisms are supported.
+    * The type="values", type="intervals" and type="ramp" attributes for
+      ColorMap element in SLD 1.0 (GeoServer extensions) are supported.
+    * Opacity is only taken into account when it is 0.0 (transparent).
+      Non-zero opacity values are treated as completely opaque.
+    * The OverlapBehavior definition is currently ignored.
+    * The ShadedRelief mechanism is not currently supported.
+    * The ImageOutline mechanism is not currently supported.
+    * The Geometry element is ignored.
+
+    The output image will have histogram_bandname metadata if histogram
+    equalization or normalization is requested.
+
+    Args:
+      sldXml: The OGC SLD 1.0 or 1.1 document (or fragment).
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.sldStyle', self, sldXml
+    )
+
+  def slice(
+      self, start: _IntegerType, end: Optional[_IntegerType] = None
+  ) -> Image:
+    """Selects a contiguous group of bands from an image by position.
+
+    Args:
+      start: Where to start the selection. Negative numbers select from the end,
+        counting backwards.
+      end: Where to end the selection. If omitted, selects all bands from the
+        start position to the end.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.slice', self, start, end
+    )
+
+  def spectralDilation(
+      self,
+      metric: Optional[_StringType] = None,
+      kernel: Optional[_KernelType] = None,
+      useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Returns the spectral/spatial dilation of an image.
+
+    Computes the spectral/spatial dilation of an image by computing the spectral
+    distance of each pixel under a structuring kernel from the centroid of all
+    pixels under the kernel and taking the most distant result.
+
+    See 'Spatial/spectral endmember extraction by multidimensional morphological
+    operations.' IEEE transactions on geoscience and remote sensing 40.9 (2002):
+    2025-2041.
+
+    Args:
+      metric: The spectral distance metric to use. One of 'sam' (spectral angle
+        mapper), 'sid' (spectral information divergence), 'sed' (squared
+        Euclidean distance), or 'emd' (earth movers distance).
+      kernel: Connectedness kernel. Defaults to a square of radius 1 (8-way
+        connected).
+      useCentroid: If true, distances are computed from the mean of all pixels
+        under the kernel instead of the kernel's center pixel.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.spectralDilation', self, metric, kernel, useCentroid
+    )
+
+  def spectralDistance(
+      self, image2: _ImageType, metric: Optional[_StringType] = None
+  ) -> Image:
+    """Computes the per-pixel spectral distance between two images.
+
+    If the images are array based then only the first band of each image is
+    used; otherwise all bands are involved in the distance computation. The two
+    images are therefore expected  to contain the same number of bands or have
+    the same 1-dimensional array length.
+
+    Args:
+      image2: The second image.
+      metric: The spectral distance metric to use. One of 'sam' (spectral angle
+        mapper), 'sid' (spectral information divergence), 'sed' (squared
+        Euclidean distance), or 'emd' (earth movers distance).
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.spectralDistance', self, image2, metric
+    )
+
+  def spectralErosion(
+      self,
+      metric: Optional[_StringType] = None,
+      kernel: Optional[_KernelType] = None,
+      useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Returns the spectral/spatial erosion of an image.
+
+    Computes the spectral/spatial erosion of an image by computing the spectral
+    distance of each pixel under a structuring kernel from the centroid of all
+    pixels under the kernel and taking the closest result.
+
+    See 'Spatial/spectral endmember extraction by multidimensional morphological
+    operations.' IEEE transactions on geoscience and remote sensing 40.9 (2002):
+    2025-2041.
+
+    Args:
+      metric: The spectral distance metric to use. One of 'sam' (spectral angle
+        mapper), 'sid' (spectral information divergence), 'sed' (squared
+        Euclidean distance), or 'emd' (earth movers distance).
+      kernel: Connectedness kernel. Defaults to a square of radius 1 (8-way
+        connected).
+      useCentroid: If true, distances are computed from the mean of all pixels
+        under the kernel instead of the kernel's center pixel.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.spectralErosion', self, metric, kernel, useCentroid
+    )
+
+  def spectralGradient(
+      self,
+      metric: Optional[_StringType] = None,
+      kernel: Optional[_KernelType] = None,
+      useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+  ) -> Image:
+    """Returns the spectral gradient of an image.
+
+    Computes the spectral gradient over all bands of an image (or the first band
+    if the image is Array typed) by computing the per-pixel difference between
+    the spectral erosion and dilation with a given structuring kernel and
+    distance metric. See: Plaza, Antonio, et al. 'Spatial/spectral endmember
+    extraction by multidimensional morphological operations.' IEEE transactions
+    on geoscience and remote sensing 40.9 (2002): 2025-2041.
+
+    Args:
+      metric: The spectral distance metric to use. One of 'sam' (spectral angle
+        mapper), 'sid' (spectral information divergence), 'sed' (squared
+        Euclidean distance), or 'emd' (earth movers distance).
+      kernel: Connectedness kernel. Defaults to a square of radius 1 (8-way
+        connected).
+      useCentroid: If true, distances are computed from the mean of all pixels
+        under the kernel instead of the kernel's center pixel.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.spectralGradient', self, metric, kernel, useCentroid
+    )
+
   def sqrt(self) -> Image:
     """Computes the square root of the input."""
 
     return apifunction.ApiFunction.call_(self.name() + '.sqrt', self)
+
+  def stratifiedSample(
+      self,
+      numPoints: _IntegerType,  # pylint: disable=invalid-name
+      classBand: Optional[_StringType] = None,  # pylint: disable=invalid-name
+      region: Optional[_GeometryType] = None,
+      scale: Optional[_NumberType] = None,
+      projection: Optional[_ProjectionType] = None,
+      seed: Optional[_IntegerType] = None,
+      classValues: Optional[_ListType] = None,  # pylint: disable=invalid-name
+      classPoints: Optional[_ListType] = None,  # pylint: disable=invalid-name
+      dropNulls: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
+      tileScale: Optional[_NumberType] = None,  # pylint: disable=invalid-name
+      geometries: Optional[_EeBoolType] = None,
+  ) -> featurecollection.FeatureCollection:
+    """Extracts a stratified random sample of points from an image.
+
+    Extracts the specified number of samples for each distinct value discovered
+    within the 'classBand'. Returns a FeatureCollection of 1 Feature per
+    extracted point, with each feature having 1 property per band in the input
+    image. If there are less than the specified number of samples available for
+    a given class value, then all of the points for that class will be included.
+    Requires that the classBand contain integer values.
+
+    Args:
+      numPoints: The default number of points to sample in each class. Can be
+        overridden for specific classes using the 'classValues' and
+        'classPoints' properties.
+      classBand: The name of the band containing the classes to use for
+        stratification. If unspecified, the first band of the input image is
+        used.
+      region: The region to sample from. If unspecified, the input image's whole
+        footprint is used.
+      scale: A nominal scale in meters of the projection to sample in. Defaults
+        to the scale of the first band of the input image.
+      projection: The projection in which to sample. If unspecified, the
+        projection of the input image's first band is used. If specified in
+        addition to scale, rescaled to the specified scale.
+      seed: A randomization seed to use for subsampling.
+      classValues: A list of class values for which to override the numPoints
+        parameter. Must be the same size as classPoints or null.
+      classPoints: A list of the per-class maximum number of pixels to sample
+        for each class in  the classValues list. Must be the same size as
+        classValues or null.
+      dropNulls: Skip pixels in which any band is masked.
+      tileScale: A scaling factor used to reduce aggregation tile size; using a
+        larger tileScale (e.g., 2 or 4) may enable computations that run out of
+        memory with the default.
+      geometries: If true, the results will include a geometry per sampled
+        pixel. Otherwise, geometries will be omitted (saving memory).
+
+    Returns:
+      An ee.FeatureCollection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.stratifiedSample',
+        self,
+        numPoints,
+        classBand,
+        region,
+        scale,
+        projection,
+        seed,
+        classValues,
+        classPoints,
+        dropNulls,
+        tileScale,
+        geometries,
+    )
+
+  def subtract(self, image2: _ImageType) -> Image:
+    """Returns image2 subtracted from this image.
+
+    Subtracts the second value from the first for each matched pair of bands in
+    image1 and image2. If either image1 or image2 has only 1 band, then it is
+    used against all the bands in the other image. If the images have the same
+    number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.subtract', self, image2
+    )
 
   def tan(self) -> Image:
     """Computes the tangent of the input in radians."""
