@@ -9,7 +9,7 @@ from ee import ee_string
 
 _NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
 _NumberSequenceType = Union[Sequence[_NumberType]]
-_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Projection(computedobject.ComputedObject):

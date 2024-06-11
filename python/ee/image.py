@@ -30,6 +30,7 @@ from ee import featurecollection
 from ee import function
 from ee import geometry
 from ee import kernel
+from ee import projection
 from ee import reducer
 
 _ArrayType = Union[
@@ -2543,6 +2544,30 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.lte', self, image2)
 
+  def mask(self, mask: Optional[_ImageType] = None) -> Image:
+    """Gets or sets an image's mask.
+
+    The output image retains the metadata and footprint of the input image.
+    Pixels where the mask changes from zero to another value will be filled with
+    zeros, or the values closest to zero within the range of the pixel type.
+
+    Note: the version that sets a mask will be deprecated. To set a mask from an
+    image on previously unmasked pixels, use Image.updateMask. To unmask
+    previously masked pixels, use Image.unmask.
+
+    Args:
+      mask: The mask image. If specified, the input image is copied to the
+        output but given the mask by the values of this image. If this is a
+        single band, it is used for all bands in the input image. If not
+        specified, returns an image created from the mask of the input image,
+        scaled to the range [0:1] (invalid = 0, valid = 1.0).
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.mask', self, mask)
+
   def matrixCholeskyDecomposition(self) -> Image:
     """Calculates the Cholesky decomposition of a matrix.
 
@@ -2598,6 +2623,28 @@ class Image(element.Element):
         self.name() + '.matrixLUDecomposition', self
     )
 
+  def matrixMultiply(self, image2: _ImageType) -> Image:
+    """Returns the matrix multiplication with image2.
+
+    Returns the matrix multiplication A * B for each matched pair of bands in
+    image1 and image2. If either image1 or image2 has only 1 band, then it is
+    used against all the bands in the other image. If the images have the same
+    number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.matrixMultiply', self, image2
+    )
+
   def matrixPseudoInverse(self) -> Image:
     """Computes the Moore-Penrose pseudoinverse of the matrix."""
 
@@ -2635,6 +2682,29 @@ class Image(element.Element):
         self.name() + '.matrixSingularValueDecomposition', self
     )
 
+  def matrixSolve(self, image2: _ImageType) -> Image:
+    """Returns the solution for x in the matrix equation A * x = B.
+
+    Solves for x in the matrix equation A * x = B, finding a least-squares
+    solution if A is overdetermined for each matched pair of bands in image1 and
+    image2. If either image1 or image2 has only 1 band, then it is used against
+    all the bands in the other image. If the images have the same number of
+    bands, but not the same names, they're used pairwise in the natural order.
+    The output bands are named for the longer of the two inputs, or if they're
+    equal in length, in image1's order. The type of the output pixels is the
+    union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.matrixSolve', self, image2
+    )
+
   def matrixToDiag(self) -> Image:
     """Computes a square diagonal matrix from a single column matrix."""
 
@@ -2645,10 +2715,323 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.matrixTrace', self)
 
+  def matrixTranspose(
+      self,
+      axis1: Optional[_IntegerType] = None,
+      axis2: Optional[_IntegerType] = None,
+  ) -> Image:
+    """Transposes two dimensions of each array pixel.
+
+    Args:
+      axis1: First axis to swap.
+      axis2: Second axis to swap.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.matrixTranspose', self, axis1, axis2
+    )
+
+  def max(self, image2: _ImageType) -> Image:
+    """Returns the maximum of the image or image2.
+
+    Selects the maximum of the first and second values for each matched pair of
+    bands in image1 and image2. If either image1 or image2 has only 1 band, then
+    it is used against all the bands in the other image. If the images have the
+    same number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.max', self, image2)
+
+  def medialAxis(
+      self,
+      neighborhood: Optional[_IntegerType] = None,
+      units: Optional[_StringType] = None,
+  ) -> Image:
+    """Returns the discrete medial axis of the input image.
+
+    Computes the discrete medial axis of the zero valued pixels of the first
+    band of the input. Outputs 4 bands:
+
+    * medial - the medial axis points, scaled by the distance.
+    * coverage - the number of points supporting each medial axis point.
+    * xlabel - the horizontal distance to the power point for each pixel.
+    * ylabel - the vertical distance to the power point for each pixel.
+
+    Args:
+      neighborhood: Neighborhood size in pixels.
+      units: The units of the neighborhood, currently only 'pixels' are
+        supported.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.medialAxis', self, neighborhood, units
+    )
+
+  def metadata(
+      self, property: _StringType, name: Optional[_StringType] = None
+  ) -> Image:
+    """Generates a constant image of type double from a metadata property.
+
+    Args:
+      property: The property from which to take the value.
+      name: The name for the output band. If unspecified, it will be the same as
+        the property name.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.metadata', self, property, name
+    )
+
+  def min(self, image2: _EeAnyType) -> Image:
+    """Returns the minimum of the image or image2.
+
+    Selects the minimum of the first and second values for each matched pair of
+    bands in image1 and image2. If either image1 or image2 has only 1 band, then
+    it is used against all the bands in the other image. If the images have the
+    same number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.min', self, image2)
+
+  def mod(self, image2: _EeAnyType) -> Image:
+    """Returns the remainder of the image divided by the second (modulus).
+
+    Calculates the remainder of the first value divided by the second for each
+    matched pair of bands in image1 and image2. If either image1 or image2 has
+    only 1 band, then it is used against all the bands in the other image. If
+    the images have the same number of bands, but not the same names, they're
+    used pairwise in the natural order. The output bands are named for the
+    longer of the two inputs, or if they're equal in length, in image1's order.
+    The type of the output pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.mod', self, image2)
+
+  def multiply(self, image2: _ImageType) -> Image:
+    """Returns the image multiplied by image2.
+
+    Multiplies the first value by the second for each matched pair of bands in
+    image1 and image2. If either image1 or image2 has only 1 band, then it is
+    used against all the bands in the other image. If the images have the same
+    number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is the union of the input types.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.multiply', self, image2
+    )
+
+  def neighborhoodToArray(
+      self,
+      kernel: _KernelType,
+      # pylint: disable-next=invalid-name
+      defaultValue: Optional[_NumberType] = None,
+  ) -> Image:
+    """Turns the neighborhood of each pixel in a scalar image into a 2D array.
+
+    Axes 0 and 1 of the output array correspond to Y and X axes of the image,
+    respectively. The output image will have as many bands as the input; each
+    output band has the same mask as the corresponding input band. The footprint
+    and metadata of the input image are preserved.
+
+    Args:
+      kernel: The kernel specifying the shape of the neighborhood. Only fixed,
+        square and rectangle kernels are supported. Weights are ignored; only
+        the shape of the kernel is used.
+      defaultValue: The value to use in the output arrays to replace the invalid
+        (masked) pixels of the input. If the band type is integral, the
+        fractional part of this value is discarded; in all cases, the value is
+        clamped to the value range of the band.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.neighborhoodToArray', self, kernel, defaultValue
+    )
+
+  def neighborhoodToBands(self, kernel: _KernelType) -> Image:
+    """Turn the neighborhood of a pixel into a set of bands.
+
+    The neighborhood is specified using a Kernel, and only non-zero-weight
+    kernel values are used. The weights of the kernel is otherwise ignored.
+
+    Each input band produces x * y output bands. Each output band is named
+    'input_x_y' where x and y indicate the pixel's location in the kernel. For
+    example, a 3x3 kernel operating on a 2-band image produces 18 output bands.
+
+    Args:
+      kernel: The kernel specifying the neighborhood. Zero-weight values are
+        ignored.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.neighborhoodToBands', self, kernel
+    )
+
+  def neq(self, image2: _ImageType) -> Image:
+    """Returns 1 if the pixel in the image is not equal to the pixel in image2.
+
+    Returns 1 if and only if the first value is not equal to the second for each
+    matched pair of bands in image1 and image2. If either image1 or image2 has
+    only 1 band, then it is used against all the bands in the other image. If
+    the images have the same number of bands, but not the same names, they're
+    used pairwise in the natural order. The output bands are named for the
+    longer of the two inputs, or if they're equal in length, in image1's order.
+    The type of the output pixels is boolean.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.neq', self, image2)
+
+  def normalizedDifference(
+      # pylint: disable=invalid-name
+      self,
+      bandNames: Optional[_EeAnyType] = None,
+  ) -> Image:
+    """Computes the normalized difference between two bands.
+
+    If the bands to use are not specified, uses the first two bands. The
+    normalized difference is computed as (first − second) / (first + second).
+    Note that the returned image band name is 'nd', the input image properties
+    are not retained in the output image, and a negative pixel value in either
+    input band will cause the output pixel to be masked. To avoid masking
+    negative input values, use `ee.Image.expression()` to compute normalized
+    difference.
+
+    Args:
+      bandNames: A list of names specifying the bands to use. If not specified,
+        the first and second bands are used.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.normalizedDifference', self, bandNames
+    )
+
   def Not(self) -> Image:
     """Returns 0 if the input is non-zero, and 1 otherwise."""
 
     return apifunction.ApiFunction.call_(self.name() + '.not', self)
+
+  def Or(self, image2: _ImageType) -> Image:
+    """Returns 1 if the pixel in either image is non-zero, and 0 otherwise.
+
+    Returns 1 if and only if either input value is non-zero for each matched
+    pair of bands in image1 and image2. If either image1 or image2 has only 1
+    band, then it is used against all the bands in the other image. If the
+    images have the same number of bands, but not the same names, they're used
+    pairwise in the natural order. The output bands are named for the longer of
+    the two inputs, or if they're equal in length, in image1's order. The type
+    of the output pixels is boolean.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.or', self, image2)
+
+  # TODO: paint
+  # TODO: pixelCoordinates
+
+  def polynomial(self, coefficients: _ListType) -> Image:
+    """Compute a polynomial at each pixel using the given coefficients.
+
+    Args:
+      coefficients: The polynomial coefficients in increasing order of degree
+        starting with the constant term.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.polynomial', self, coefficients
+    )
+
+  def pow(self, image2: _ImageType) -> Image:
+    """Returns an Image with image to the power of image2.
+
+    Raises the first value to the power of the second for each matched pair of
+    bands in image1 and image2. If either image1 or image2 has only 1 band, then
+    it is used against all the bands in the other image. If the images have the
+    same number of bands, but not the same names, they're used pairwise in the
+    natural order. The output bands are named for the longer of the two inputs,
+    or if they're equal in length, in image1's order. The type of the output
+    pixels is float.
+
+    Args:
+      image2: The image from which the right operand bands are taken.
+
+    Returns:
+      An ee.Image.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.pow', self, image2)
+
+  def projection(self) -> projection.Projection:
+    """Returns the default projection of an Image.
+
+    Throws an error if the bands of the image don't all have the same
+    projection.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.projection', self)
 
   # TODO: random
 
