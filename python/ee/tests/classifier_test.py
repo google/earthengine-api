@@ -2,6 +2,8 @@
 """Tests for the ee.Classifier module."""
 
 import json
+import sys
+import unittest
 
 import unittest
 import ee
@@ -45,7 +47,7 @@ class ClassifierTest(apitestcase.ApiTestCase):
     result = json.loads(classifier.serialize())
     self.assertEqual(_CLASSIFIER_JSON, result)
 
-  @unittest.skip('Does not work on github with python <= 3.9')
+  @unittest.skipIf(sys.version_info < (3, 10), 'Usupported in Python <= 3.9')
   def test_no_args(self):
     message = (
         r'Classifier\.__init__\(\) missing 1 required positional argument:'

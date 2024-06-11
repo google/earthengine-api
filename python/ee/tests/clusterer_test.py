@@ -2,6 +2,8 @@
 """Tests for the ee.Clusterer module."""
 
 import json
+import sys
+import unittest
 
 import unittest
 import ee
@@ -55,7 +57,7 @@ class ClustererTest(apitestcase.ApiTestCase):
     result = json.loads(clusterer.serialize())
     self.assertEqual(_WEKA_COBWEB_SERIALIZED, result)
 
-  @unittest.skip('Does not work on github with python <= 3.9')
+  @unittest.skipIf(sys.version_info < (3, 10), 'Usupported in Python <= 3.9')
   def test_no_args(self):
     message = (
         r'Clusterer\.__init__\(\) missing 1 required positional argument:'
