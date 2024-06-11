@@ -58,7 +58,12 @@ _IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
 _KernelType = Union[kernel.Kernel, computedobject.ComputedObject]
 _ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
 _NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
-_ProjectionType = Union[Any, computedobject.ComputedObject]
+_ProjectionType = Union[
+    str,
+    'ee_string.String',
+    projection.Projection,
+    computedobject.ComputedObject,
+]
 _ReducerType = Union[Any, computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 _ReducerType = Union[reducer.Reducer, computedobject.ComputedObject]
