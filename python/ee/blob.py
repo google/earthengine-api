@@ -1,7 +1,7 @@
 """A wrapper for Blobs."""
 from __future__ import annotations
 
-from typing import Any, Dict, Union
+from typing import Any, Dict, Optional, Union
 
 from ee import apifunction
 from ee import computedobject
@@ -77,3 +77,24 @@ class Blob(computedobject.ComputedObject):
   @staticmethod
   def name() -> str:
     return 'Blob'
+
+  def string(self, encoding: Optional[_StringType] = None) -> ee_string.String:
+    """Returns the contents of the blob as a String.
+
+    Args:
+      encoding: The character set encoding to use when decoding the blob.
+        Options include, but are not limited to, 'US-ASCII', 'UTF-8', and
+        'UTF-16'.
+
+    Returns:
+      An ee.String.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.string', self, encoding
+    )
+
+  def url(self) -> ee_string.String:
+    """Returns the Blob's Google Cloud Storage URL."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.url', self)
