@@ -652,7 +652,7 @@ def listBuckets(project: Optional[str] = None) -> Any:
   """Returns top-level assets and folders for the Cloud Project or user.
 
   Args:
-    project: Project to query, e.g. "projects/my-project". Defaults to current
+    project: Project to query, e.g., "projects/my-project". Defaults to current
       project. Use "projects/earthengine-legacy" for user home folders.
 
   Returns:
@@ -1309,7 +1309,7 @@ def getDownloadId(params: Dict[str, Any]) -> Dict[str, str]:
   if 'id' in params:
     raise ee_exception.EEException('Image ID string is not supported. '
                                    'Construct an image with the ID '
-                                   '(e.g. ee.Image(id)) and use '
+                                   '(e.g., ee.Image(id)) and use '
                                    'ee.Image.getDownloadURL instead.')
   if 'image' not in params:
     raise ee_exception.EEException('Missing image parameter.')
@@ -1913,7 +1913,7 @@ def startIngestion(
                   {'uris': ['bar.tif', 'bar.prj']},
               ]}]
             Where path values correspond to source files' Google Cloud Storage
-            object names, e.g. 'gs://bucketname/filename.tif'
+            object names, e.g., 'gs://bucketname/filename.tif'
           bands (array) An optional list of band names formatted like:
             [{'id': 'R'}, {'id': 'G'}, {'id': 'B'}]
         In general, this is a dict representation of an ImageManifest.
@@ -2186,7 +2186,7 @@ def createAssetHome(requestedId: str) -> None:
   requested ID is unavailable.
 
   Args:
-    requestedId: The requested ID of the home folder (e.g. "users/joe").
+    requestedId: The requested ID of the home folder (e.g., "users/joe").
   """
   # This is just a special case of folder creation.
   createAsset({

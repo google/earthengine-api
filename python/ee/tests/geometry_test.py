@@ -459,7 +459,7 @@ class GeometryTest(apitestcase.ApiTestCase):
 
     Args:
       nesting: The expected coordinate nesting level.
-      ctor: The geometry constructor function, e.g. ee.Geometry.MultiPoint.
+      ctor: The geometry constructor function, e.g., ee.Geometry.MultiPoint.
       *coords: The coordinates of the geometry.
     """
     # The constructor already does a validity check.
@@ -476,7 +476,7 @@ class GeometryTest(apitestcase.ApiTestCase):
     and verifies that the given error message is thrown.
 
     Args:
-      ctor: The geometry constructor function, e.g. ee.Geometry.MultiPoint.
+      ctor: The geometry constructor function, e.g., ee.Geometry.MultiPoint.
       msg: The expected error message in the thrown exception.
       *coords: The coordinates of the geometry.
     """

@@ -195,7 +195,8 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
   def aside(self, func: Any, *var_args) -> ComputedObject:
     """Calls a function passing this object as the first argument.
 
-    Returns the object itself for chaining. Convenient e.g. when debugging:
+    Returns the object itself for chaining. Convenient when debugging. For
+    example:
 
     c = (ee.ImageCollection('foo').aside(logging.info)
              .filterDate('2001-01-01', '2002-01-01').aside(logging.info)

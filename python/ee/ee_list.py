@@ -174,7 +174,7 @@ class List(computedobject.ComputedObject):
     """Filters a list to only the elements that match the given filter.
 
     To filter list items that aren't images or features, test a property
-    named 'item', e.g.: ee.Filter.gt('item', 3).
+    named 'item', e.g., ee.Filter.gt('item', 3).
 
     Args:
       filter: The ee.Filter instance to apply.

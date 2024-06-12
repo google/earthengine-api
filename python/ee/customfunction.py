@@ -173,7 +173,7 @@ class CustomFunction(function.Function, encodable.Encodable):
     # There are three function building phases, which each call body():
     # 1 - Check Return.  The constructor verifies that body() returns a result,
     # but does not try to serialize the result. If the function tries to use
-    # unbound variables (eg, using .getInfo() or print()), ComputedObject will
+    # unbound variables (e.g., using .getInfo() or print()), ComputedObject will
     # throw an exception when these calls try to serialize themselves, so that
     # unbound variables are not passed in server calls.
     # 2 - Count Functions.  We serialize the result here. At this point all

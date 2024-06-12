@@ -180,7 +180,7 @@ class Geometry(computedobject.ComputedObject):
       coords: A list of two [x,y] coordinates in the given projection.
       proj: The projection of this geometry, or EPSG:4326 if unspecified.
       *args: For convenience, varargs may be used when all arguments are
-          numbers. This allows creating EPSG:4326 points, e.g.
+          numbers. This allows creating EPSG:4326 points, e.g.,
           ee.Geometry.Point(lng, lat).
       **kwargs: Keyword args that accept "lon" and "lat" for backward-
           compatibility.
@@ -213,7 +213,7 @@ class Geometry(computedobject.ComputedObject):
           no ee.Geometry inputs.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating EPSG:4326 MultiPoints given an even
-          number of arguments, e.g.
+          number of arguments, e.g.,
           ee.Geometry.MultiPoint(aLng, aLat, bLng, bLat, ...).
 
     Returns:
@@ -254,7 +254,7 @@ class Geometry(computedobject.ComputedObject):
           True.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating EPSG:4326 Polygons given exactly four
-          coordinates, e.g.
+          coordinates, e.g.,
           ee.Geometry.Rectangle(minLng, minLat, maxLng, maxLat).
       **kwargs: Keyword args that accept "xlo", "ylo", "xhi" and "yhi" for
           backward-compatibility.
@@ -293,7 +293,7 @@ class Geometry(computedobject.ComputedObject):
 
     If (east - west) ≥ 360° then the longitude range will be normalized to -180°
     to +180°; otherwise they will be treated as designating points on a circle
-    (e.g. east may be numerically less than west).
+    (e.g., east may be numerically less than west).
 
     Args:
       west: The westernmost enclosed longitude. Will be adjusted to lie in the
@@ -406,7 +406,7 @@ class Geometry(computedobject.ComputedObject):
           explicitly requested result projection or geodesic state.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 LineStrings given
-          an even number of arguments, e.g.
+          an even number of arguments, e.g.,
           ee.Geometry.LineString(aLng, aLat, bLng, bLat, ...).
 
     Returns:
@@ -446,7 +446,7 @@ class Geometry(computedobject.ComputedObject):
           explicitly requested result projection or geodesic state.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 LinearRings given
-          an even number of arguments, e.g.
+          an even number of arguments, e.g.,
           ee.Geometry.LinearRing(aLng, aLat, bLng, bLat, ...).
 
     Returns:
@@ -487,7 +487,7 @@ class Geometry(computedobject.ComputedObject):
           explicitly requested result projection or geodesic state.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 MultiLineStrings
-          with a single LineString, given an even number of arguments, e.g.
+          with a single LineString, given an even number of arguments, e.g.,
           ee.Geometry.MultiLineString(aLng, aLat, bLng, bLat, ...).
 
     Returns:
@@ -531,7 +531,7 @@ class Geometry(computedobject.ComputedObject):
           True.
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 Polygons with a
-          single LinearRing given an even number of arguments, e.g.
+          single LinearRing given an even number of arguments, e.g.,
           ee.Geometry.Polygon(aLng, aLat, bLng, bLat, ..., aLng, aLat).
 
     Returns:
@@ -577,7 +577,7 @@ class Geometry(computedobject.ComputedObject):
       *args: For convenience, varargs may be used when all arguments are
           numbers. This allows creating geodesic EPSG:4326 MultiPolygons with
           a single Polygon with a single LinearRing given an even number of
-          arguments, e.g.
+          arguments, e.g.,
           ee.Geometry.MultiPolygon(aLng, aLat, bLng, bLat, ..., aLng, aLat).
 
     Returns:

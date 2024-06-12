@@ -1,7 +1,7 @@
 """Convenience functions and code used by ee/__init__.py.
 
 These functions are in general re-exported from the "ee" module and should be
-referenced from there (e.g. "ee.profilePrinting").
+referenced from there (e.g., "ee.profilePrinting").
 """
 
 # Using lowercase function naming to match the JavaScript names.

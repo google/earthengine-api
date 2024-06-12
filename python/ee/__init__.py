@@ -137,7 +137,7 @@ def Initialize(
 
   If this hasn't been called by the time any object constructor is used,
   it will be called then.  If this is called a second time with a different
-  URL, this doesn't do an un-initialization of e.g.: the previously loaded
+  URL, this doesn't do an un-initialization of, e.g., the previously loaded
   Algorithms, but will overwrite them and let point at alternate servers.
 
   Args:
@@ -274,7 +274,7 @@ def _ResetGeneratedClasses() -> None:
 def _Promote(arg: Optional[Any], a_class: str) -> Optional[Any]:
   """Wrap an argument in an object of the specified class.
 
-  This is used to e.g.: promote numbers or strings to Images and arrays
+  This is used to, e.g., promote numbers or strings to Images and arrays
   to Collections.
 
   Args:

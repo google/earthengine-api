@@ -3126,8 +3126,8 @@ class Image(element.Element):
 
     The reducer output names determine the names of the output bands: reducers
     with multiple inputs will use the output names directly, while reducers with
-    a single input will prefix the output name with the input band name (e.g.
-    '10_mean', '20_mean', etc.).
+    a single input will prefix the output name with the input band name (e.g.,
+    '10_mean', '20_mean').
     Reducers with weighted inputs can have the input weight based on the input
     mask, the kernel value, or the smaller of those two.
 
@@ -3192,7 +3192,7 @@ class Image(element.Element):
         succeed.
       maxPixels: The maximum number of pixels to reduce.
       tileScale: A scaling factor between 0.1 and 16 used to adjust aggregation
-        tile size; setting a larger tileScale (e.g. 2 or 4) uses smaller tiles
+        tile size; setting a larger tileScale (e.g., 2 or 4) uses smaller tiles
         and may enable computations that run out of memory with the default.
 
     Returns:
@@ -3238,7 +3238,7 @@ class Image(element.Element):
         with 'scale', and will replace any transform already set on the
         projection.
       tileScale: A scaling factor used to reduce aggregation tile size; using a
-        larger tileScale (e.g. 2 or 4) may enable computations that run out of
+        larger tileScale (e.g., 2 or 4) may enable computations that run out of
         memory with the default.
 
     Returns:
@@ -3274,8 +3274,8 @@ class Image(element.Element):
     with multiple inputs will use the output names directly, reducers with a
     single input and single output will preserve the input band names, and
     reducers with a single input and multiple outputs will prefix the output
-    name with the input band name (e.g. '10_mean', '10_stdDev', '20_mean',
-    '20_stdDev', etc.).
+    name with the input band name (e.g., '10_mean', '10_stdDev', '20_mean',
+    '20_stdDev').
 
     Reducer input weights will be the product of the  input mask and the
     fraction of the output pixel covered by the input pixel.
@@ -3349,7 +3349,7 @@ class Image(element.Element):
         succeed.
       maxPixels: The maximum number of pixels to reduce.
       tileScale: A scaling factor used to reduce aggregation tile size; using a
-        larger tileScale (e.g. 2 or 4) may enable computations that run out of
+        larger tileScale (e.g., 2 or 4) may enable computations that run out of
         memory with the default.
       geometryInNativeProjection: Create geometries in the pixel projection,
         rather than WGS84.
@@ -3622,7 +3622,7 @@ class Image(element.Element):
       dropNulls: Post filter the result to drop features that have null-valued
         properties.
       tileScale: A scaling factor used to reduce aggregation tile size; using a
-        larger tileScale (e.g. 2 or 4) may enable computations that run out of
+        larger tileScale (e.g., 2 or 4) may enable computations that run out of
         memory with the default.
       geometries: If true, adds the center of the sampled pixel as the geometry
         property of the output feature. Otherwise, geometries will be omitted
@@ -3718,7 +3718,7 @@ class Image(element.Element):
         projection of the image's first band is used. If specified in addition
         to scale, rescaled to the specified scale.
       tileScale: A scaling factor used to reduce aggregation tile size; using a
-        larger tileScale (e.g. 2 or 4) may enable computations that run out of
+        larger tileScale (e.g., 2 or 4) may enable computations that run out of
         memory with the default.
       geometries: If true, the results will include a point geometry per sampled
         pixel. Otherwise, geometries will be omitted (saving memory).
@@ -3752,11 +3752,11 @@ class Image(element.Element):
     Can be called in one of two ways:
       - Passed any number of non-list arguments. All of these will be
         interpreted as band selectors. These can be band names, regexes, or
-        numeric indices. E.g.
+        numeric indices. For example:
         selected = image.select('a', 'b', 3, 'd');
       - Passed two lists. The first will be used as band selectors and the
         second as new names for the selected bands. The number of new names
-        must match the number of selected bands. E.g.
+        must match the number of selected bands. For example:
         selected = image.select(['a', 4], ['newA', 'newB']);
 
     Args:
@@ -4404,7 +4404,7 @@ class Image(element.Element):
       gamma: The gamma correction factor(s) to use.
       opacity: The opacity scaling factor to use.
       palette: The color palette to use. List of CSS color identifiers or
-        hexadecimal color strings (e.g. ['red', '00FF00', 'blueviolet']).
+        hexadecimal color strings (e.g., ['red', '00FF00', 'blueviolet']).
       forceRgbOutput: Whether to produce RGB output even for single-band inputs.
 
     Returns:

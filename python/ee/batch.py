@@ -271,7 +271,7 @@ class Export:
               is written to it, (b) if duplicate folder names exist, output is
               written to the most recently modified folder, (c) if the folder
               name does not exist, a new folder will be created at the root,
-              and (d) folder names with separators (e.g. 'path/to/file') are
+              and (d) folder names with separators (e.g., 'path/to/file') are
               interpreted as literal strings, not system paths. Defaults to
               Drive root.
             - driveFileNamePrefix: The Google Drive filename for the export.
@@ -611,7 +611,7 @@ class Export:
               is written to it, (b) if duplicate folder names exist, output is
               written to the most recently modified folder, (c) if the folder
               name does not exist, a new folder will be created at the root,
-              and (d) folder names with separators (e.g. 'path/to/file') are
+              and (d) folder names with separators (e.g., 'path/to/file') are
               interpreted as literal strings, not system paths. Defaults to
               Drive root.
             - driveFileNamePrefix: The Google Drive filename for the export.
@@ -896,7 +896,7 @@ class Export:
               is written to it, (b) if duplicate folder names exist, output is
               written to the most recently modified folder, (c) if the folder
               name does not exist, a new folder will be created at the root,
-              and (d) folder names with separators (e.g. 'path/to/file') are
+              and (d) folder names with separators (e.g., 'path/to/file') are
               interpreted as literal strings, not system paths. Defaults to
               Drive root.
             - driveFileNamePrefix: The Google Drive filename for the export.

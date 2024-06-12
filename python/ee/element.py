@@ -54,7 +54,7 @@ class Element(computedobject.ComputedObject):
 
     Args:
       *args: Either a dictionary of properties, or a vararg sequence of
-          properties, e.g. key1, value1, key2, value2, ...
+          properties, e.g., key1, value1, key2, value2, ...
 
     Returns:
       The element with the specified properties overridden.

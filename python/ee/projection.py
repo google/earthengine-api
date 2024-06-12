@@ -56,7 +56,7 @@ class Projection(computedobject.ComputedObject):
 
     Args:
       crs: The base coordinate reference system of this Projection, given as a
-        well-known authority code (e.g. 'EPSG:4326') or a WKT string.
+        well-known authority code (e.g., 'EPSG:4326') or a WKT string.
       transform: The transform between projected coordinates and the base
         coordinate system, specified as a 2x3 affine transform matrix in
         row-major order: [xScale, xShearing, xTranslation, yShearing, yScale,

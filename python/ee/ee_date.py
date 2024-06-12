@@ -115,7 +115,7 @@ class Date(computedobject.ComputedObject):
       delta: The amount to move in the unit. Negative values go back in time.
       unit: One of 'year', 'month', 'week', 'day', 'hour', 'minute', or
         'second'.
-      timeZone: The time zone (e.g. 'America/Los_Angeles'); defaults to UTC.
+      timeZone: The time zone (e.g., 'America/Los_Angeles'); defaults to UTC.
 
     Returns:
       An ee.Date.
@@ -154,7 +154,7 @@ class Date(computedobject.ComputedObject):
 
     Args:
       format: A Joda Time pattern. If omitted, it uses the ISO default date.
-      timeZone: The time zone (e.g. 'America/Los_Angeles'); defaults to UTC.
+      timeZone: The time zone (e.g., 'America/Los_Angeles'); defaults to UTC.
 
     Returns:
       An ee.String.
@@ -172,7 +172,7 @@ class Date(computedobject.ComputedObject):
     Args:
       unit: One of 'year', 'month' (returns 1-12), 'week' (1-53), 'day' (1-31),
         'hour' (0-23), 'minute' (0-59), or 'second' (0-59).
-      timeZone: The time zone (e.g. 'America/Los_Angeles'); defaults to UTC.
+      timeZone: The time zone (e.g., 'America/Los_Angeles'); defaults to UTC.
 
     Returns:
       An ee.Number.
@@ -190,7 +190,7 @@ class Date(computedobject.ComputedObject):
     Args:
       unit: One of 'year', 'month', 'week', 'day', 'hour', 'minute', or
         'second'.
-      timeZone: The time zone (e.g. 'America/Los_Angeles'); defaults to UTC.
+      timeZone: The time zone (e.g., 'America/Los_Angeles'); defaults to UTC.
 
     Returns:
       An ee.Number between 0 and 1.
@@ -216,7 +216,7 @@ class Date(computedobject.ComputedObject):
     Args:
       unit: One of 'year', 'month', 'week', 'day', 'hour', 'minute', or
         'second'.
-      timeZone: The time zone (e.g. 'America/Los_Angeles'); defaults to UTC.
+      timeZone: The time zone (e.g., 'America/Los_Angeles'); defaults to UTC.
 
     Returns:
       An ee.DateRange.
@@ -299,7 +299,7 @@ class Date(computedobject.ComputedObject):
       hour: Set the hour.
       minute: Set the minute.
       second: Set the second.
-      timeZone: The time zone (e.g. 'America/Los_Angeles'); defaults to UTC.
+      timeZone: The time zone (e.g., 'America/Los_Angeles'); defaults to UTC.
 
     Returns:
       An ee.Date.

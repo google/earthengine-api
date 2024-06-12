@@ -138,9 +138,9 @@ def _invocation(func, args):
     return func.apply(args)
   elif isinstance(func, computedobject.ComputedObject):
     # We have to allow ComputedObjects for cases where invocations return a
-    # function, e.g. Image.parseExpression(). These need to get turned back into
-    # some kind of Function, for which we need a signature. Type information has
-    # been lost at this point, so we just use ComputedObject.
+    # function, e.g., Image.parseExpression(). These need to get turned back
+    # into some kind of Function, for which we need a signature. Type
+    # information has been lost at this point, so we just use ComputedObject.
     signature = {
         'name': '',
         'args': [{'name': name, 'type': 'ComputedObject', 'optional': False}
