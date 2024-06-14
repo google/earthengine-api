@@ -558,7 +558,7 @@
     }]
   }, {
     "name": "algorithms/TemporalSegmentation.Ccdc",
-    "description": "Implements the Continuous Change Detection and Classification temporal breakpoint algorithm.  This algorithm finds temporal breakpoints in an image collection by iteratively fitting harmonic functions to the data.  Fit coefficients are produced for all input bands, but the bands used for breakpoint detection can be specified with the \u0027breakpointBands\u0027 argument.\n For more details, see Zhu, Z. and Woodcock, C.E., 2014. Continuous change detection and classification of land cover using all available Landsat data. Remote sensing of Environment, 144, pp.152-171.",
+    "description": "Implements the Continuous Change Detection and Classification temporal breakpoint algorithm. This algorithm finds temporal breakpoints in an image collection by iteratively fitting harmonic functions to the data. Fit coefficients are produced for all input bands, but the bands used for breakpoint detection can be specified with the \u0027breakpointBands\u0027 argument.\nFor more details, see Zhu, Z. and Woodcock, C.E., 2014. Continuous change detection and classification of land cover using all available Landsat data. Remote sensing of Environment, 144, pp.152-171.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "collection",
@@ -3689,7 +3689,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "Projection of the result and distance measurements, or WGS84 if unspecified.",
+      "description": "Projection of the result and distance measurements, or EPSG:4326 if unspecified.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4006,7 +4006,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the result will be in this projection. Otherwise it will be in WGS84.",
+      "description": "If specified, the result will be in this projection. Otherwise it will be in EPSG:4326.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4027,7 +4027,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the result will be in this projection. Otherwise it will be in WGS84.",
+      "description": "If specified, the result will be in this projection. Otherwise it will be in EPSG:4326.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4124,7 +4124,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "The target projection. Defaults to WGS84. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
+      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
       "optional": true,
       "defaultValue": {
         "transform": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0],
@@ -4490,7 +4490,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the result will be in this projection. Otherwise it will be in WGS84.",
+      "description": "If specified, the result will be in this projection. Otherwise it will be in EPSG:4326.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4536,7 +4536,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "If specified, the result will be in this projection. Otherwise it will be in WGS84.",
+      "description": "If specified, the result will be in this projection. Otherwise it will be in EPSG:4326.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4632,7 +4632,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "Projection of the result and distance measurements, or WGS84 if unspecified.",
+      "description": "Projection of the result and distance measurements, or EPSG:4326 if unspecified.",
       "optional": true,
       "defaultValue": null
     }]
@@ -4904,7 +4904,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "The target projection. Defaults to WGS84. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
+      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
       "optional": true,
       "defaultValue": {
         "transform": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0],
@@ -4929,7 +4929,7 @@
     }, {
       "argumentName": "proj",
       "type": "Projection",
-      "description": "The target projection. Defaults to WGS84. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
+      "description": "The target projection. Defaults to EPSG:4326. If this has a geographic CRS, the edges of the geometry will be interpreted as geodesics. Otherwise they will be interpreted as straight lines in the projection.",
       "optional": true,
       "defaultValue": {
         "transform": [1.0, 0.0, 0.0, 0.0, 1.0, 0.0],
@@ -7202,7 +7202,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7241,7 +7241,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7281,7 +7281,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7321,7 +7321,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7360,7 +7360,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7400,7 +7400,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7440,7 +7440,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7479,7 +7479,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7519,7 +7519,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7559,7 +7559,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7598,7 +7598,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7638,7 +7638,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7678,7 +7678,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7717,7 +7717,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -7757,7 +7757,7 @@
     }, {
       "argumentName": "kernelType",
       "type": "String",
-      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, octagon\u0027 and \u0027diamond\u0027.",
+      "description": "The type of kernel to use. Options include: \u0027circle\u0027, \u0027square\u0027, \u0027cross\u0027, \u0027plus\u0027, \u0027octagon\u0027, and \u0027diamond\u0027.",
       "optional": true,
       "defaultValue": "circle"
     }, {
@@ -8475,7 +8475,7 @@
     }]
   }, {
     "name": "algorithms/Image.signum",
-    "description": "Computes the signum function (sign) of the input; zero if the input is zero, 1 if the input is greater than zero, -1 if the input is less than zero.",
+    "description": "Computes the signum function (sign) of the input; 0 if the input is 0, 1 if the input is greater than 0, -1 if the input is less than 0.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "value",
@@ -8761,7 +8761,7 @@
     }]
   }, {
     "name": "algorithms/Image.bitsToArrayImage",
-    "description": "Turns the bits of an integer into a 1-D array.  The array has a lengthup to the highest \u0027on\u0027 bit in the input.",
+    "description": "Turns the bits of an integer into a 1-D array.  The array has a length up to the highest \u0027on\u0027 bit in the input.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -9163,7 +9163,7 @@
     }]
   }, {
     "name": "algorithms/Image.hsvToRgb",
-    "description": "Transforms the image from the HSV color space to the RGB color space.  Expects a 3 band image in the range [0, 1], and produces three bands: red, green and blue with values in the range [0, 1].",
+    "description": "Transforms the image from the HSV color space to the RGB color space.  Expects a 3-band image in the range [0, 1], and produces 3 bands: red, green and blue with values in the range [0, 1].",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9704,7 +9704,7 @@
     }, {
       "argumentName": "geometryInNativeProjection",
       "type": "Boolean",
-      "description": "Create geometries in the pixel projection, rather than WGS84.",
+      "description": "Create geometries in the pixel projection, rather than EPSG:4326.",
       "optional": true,
       "defaultValue": false
     }]
@@ -9785,7 +9785,7 @@
     }, {
       "argumentName": "geometryInNativeProjection",
       "type": "Boolean",
-      "description": "Create geometries in the pixel projection, rather than WGS84.",
+      "description": "Create geometries in the pixel projection, rather than EPSG:4326.",
       "optional": true,
       "defaultValue": false
     }],
@@ -9882,7 +9882,7 @@
     }]
   }, {
     "name": "algorithms/Image.rgbToHsv",
-    "description": "Transforms the image from the RGB color space to the HSV color space.  Expects a 3 band image in the range [0, 1], and produces three bands: hue, saturation and value with values in the range [0, 1].",
+    "description": "Transforms the image from the RGB color space to the HSV color space.  Expects a 3-band image in the range [0, 1], and produces 3 bands: hue, saturation and value with values in the range [0, 1].",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -9900,13 +9900,13 @@
     }, {
       "argumentName": "mode",
       "type": "String",
-      "description": "The interpolation mode to use.  One of \u0027bilinear\u0027 or \u0027bicubic\u0027.)",
+      "description": "The interpolation mode to use.  One of \u0027bilinear\u0027 or \u0027bicubic\u0027.",
       "optional": true,
       "defaultValue": "bilinear"
     }]
   }, {
     "name": "algorithms/Image.rsedTransform",
-    "description": "Computes the 2D maximal height surface created by placing an inverted parabola over each non-zero pixel of the input image, where the pixel\u0027s value is the height of the parabola.  Viewed as a binary image (zero/not-zero) this is equivalent to buffering each non-zero input pixel by the square root of its value, in pixels.",
+    "description": "Reverse Squared Euclidean Distance (RSED) computes the 2D maximal height surface created by placing an inverted parabola over each non-zero pixel of the input image, where the pixel\u0027s value is the height of the parabola.  Viewed as a binary image (zero/not-zero) this is equivalent to buffering each non-zero input pixel by the square root of its value, in pixels.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10066,7 +10066,7 @@
     }]
   }, {
     "name": "algorithms/Image.select",
-    "description": "Selects bands from an image by name, RE2-compatible regex or index and optionally renames them.",
+    "description": "Selects bands from an image by name, RE2-compatible regex, or index and optionally renames them.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -10075,11 +10075,11 @@
     }, {
       "argumentName": "bandSelectors",
       "type": "List\u003cObject\u003e",
-      "description": "A list of names, regexes or numeric indices specifying the bands to select."
+      "description": "A list of names, regexes, or numeric indices specifying the bands to select."
     }, {
       "argumentName": "newNames",
       "type": "List\u003cString\u003e",
-      "description": "Optional new names for the output bands.  Must match the number of bands selected.",
+      "description": "Optional new names for the output bands. Must match the number of bands selected.",
       "optional": true,
       "defaultValue": null
     }]
@@ -10151,7 +10151,7 @@
     }]
   }, {
     "name": "algorithms/Image.stratifiedSample",
-    "description": "Extracts a stratified random sample of points from an image.  Extracts the specified number of samples for each distinct value discovered within the \u0027classBand\u0027.  Returns a FeatureCollection of 1 Feature per extracted point, with each feature having 1 property per band in the input image.  If there are less than the specified number of samples available for a given class value, then all of the points for that class will be included.  Requires that the classBand contain integer values.",
+    "description": "Extracts a stratified random sample of points from an image. Extracts the specified number of samples for each distinct value discovered within the \u0027classBand\u0027. Returns a FeatureCollection of 1 Feature per extracted point, with each feature having 1 property per band in the input image. If there are less than the specified number of samples available for a given class value, then all of the points for that class will be included. Requires that the classBand contain integer values.",
     "returnType": "FeatureCollection",
     "arguments": [{
       "argumentName": "image",
@@ -10160,7 +10160,7 @@
     }, {
       "argumentName": "numPoints",
       "type": "Integer",
-      "description": "The default number of points to sample in each class.  Can be overridden for specific classes using the \u0027classValues\u0027 and \u0027classPoints\u0027 properties."
+      "description": "The default number of points to sample in each class. Can be overridden for specific classes using the \u0027classValues\u0027 and \u0027classPoints\u0027 properties."
     }, {
       "argumentName": "classBand",
       "type": "String",
@@ -10176,7 +10176,7 @@
     }, {
       "argumentName": "scale",
       "type": "Float",
-      "description": "A nominal scale in meters of the projection to sample in.  Defaults to the scale of the first band of the input image.",
+      "description": "A nominal scale in meters of the projection to sample in. Defaults to the scale of the first band of the input image.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -10200,7 +10200,7 @@
     }, {
       "argumentName": "classPoints",
       "type": "List\u003cInteger\u003e",
-      "description": "A list of the per-class maximum number of pixels to sample for each class in  the classValues list.  Must be the same size as classValues or null.",
+      "description": "A list of the per-class maximum number of pixels to sample for each class in  the classValues list. Must be the same size as classValues or null.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -10212,13 +10212,13 @@
     }, {
       "argumentName": "tileScale",
       "type": "Float",
-      "description": "A scaling factor used to reduce aggregation tile size; using a larger tileScale (e.g. 2 or 4) may enable computations that run out of memory with the default.",
+      "description": "A scaling factor used to reduce aggregation tile size; using a larger tileScale (e.g., 2 or 4) may enable computations that run out of memory with the default.",
       "optional": true,
       "defaultValue": 1.0
     }, {
       "argumentName": "geometries",
       "type": "Boolean",
-      "description": "If true, the results will include a geometry per sampled pixel.  Otherwise, geometries will be omitted (saving memory).",
+      "description": "If true, the results will include a geometry per sampled pixel. Otherwise, geometries will be omitted (saving memory).",
       "optional": true,
       "defaultValue": false
     }]
@@ -10274,10 +10274,12 @@
       "type": "Image\u003cunknown bands\u003e"
     }, {
       "argumentName": "x",
-      "type": "Float"
+      "type": "Float",
+      "description": "The amount to translate the image in the x direction."
     }, {
       "argumentName": "y",
-      "type": "Float"
+      "type": "Float",
+      "description": "The amount to translate the image in the y direction."
     }, {
       "argumentName": "units",
       "type": "String",
@@ -10369,7 +10371,7 @@
     }]
   }, {
     "name": "algorithms/Image.visualize",
-    "description": "Produces an RGB or grayscale visualization of an image.  Each of the gain, bias, min, max and gamma arguments can take either a single value, which will be applied to all bands, or a list of values the same length as bands.",
+    "description": "Produces an RGB or grayscale visualization of an image. Each of the gain, bias, min, max and gamma arguments can take either a single value, which will be applied to all bands, or a list of values the same length as bands.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10378,7 +10380,7 @@
     }, {
       "argumentName": "bands",
       "type": "Object",
-      "description": "A list of the bands to visualize.  If empty, the first 3 are used.",
+      "description": "A list of the bands to visualize. If empty, the first 3 are used.",
       "optional": true,
       "defaultValue": null
     }, {
@@ -10420,7 +10422,7 @@
     }, {
       "argumentName": "palette",
       "type": "Object",
-      "description": "The color palette to use. List of CSS color identifiers or hexadecimal color strings (e.g. [\u0027red\u0027, \u002700FF00\u0027, \u0027bluevlolet\u0027]).",
+      "description": "The color palette to use. List of CSS color identifiers or hexadecimal color strings (e.g. [\u0027red\u0027, \u002700FF00\u0027, \u0027blueviolet\u0027]).",
       "optional": true,
       "defaultValue": null
     }, {
@@ -10506,7 +10508,7 @@
     }]
   }, {
     "name": "algorithms/Image.clip",
-    "description": "Clips an image to a Geometry or Feature (use clipToCollection to clip an image to a FeatureCollection). The output bands correspond exactly the input bands, except data not covered by the geometry is masked.  The output image retains the metadata of the input image.",
+    "description": "Clips an image to a Geometry or Feature (use clipToCollection to clip an image to a FeatureCollection). The output bands correspond exactly to the input bands, except data not covered by the geometry is masked. The output image retains the metadata of the input image.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "input",
@@ -10515,9 +10517,7 @@
     }, {
       "argumentName": "geometry",
       "type": "Object",
-      "description": "The Geometry or Feature to clip to.",
-      "optional": true,
-      "defaultValue": null
+      "description": "The Geometry or Feature to clip to."
     }]
   }, {
     "name": "algorithms/Image.clipToBoundsAndScale",
@@ -10629,7 +10629,7 @@
     }]
   }, {
     "name": "algorithms/Image.spectralErosion",
-    "description": "Computes the spectral/spatial erosion of an image by computing the spectral distance of each pixel under a structuring kernel from the centroid of all pixels under the kernel and taking the closest result.  See \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041.\n",
+    "description": "Computes the spectral/spatial erosion of an image by computing the spectral distance of each pixel under a structuring kernel from the centroid of all pixels under the kernel and taking the closest result. See \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10638,13 +10638,13 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The spectral distance metric to use.  One of  \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence),  \u0027sed\u0027 (squared euclidean distance), or \u0027emd\u0027 (earth movers distance).",
+      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared euclidean distance), or \u0027emd\u0027 (earth movers distance).",
       "optional": true,
       "defaultValue": "sam"
     }, {
       "argumentName": "kernel",
       "type": "Kernel",
-      "description": "Connectedness kernel.  Defaults to a square of radius 1 (8-way connected).",
+      "description": "Connectedness kernel. Defaults to a square of radius 1 (8-way connected).",
       "optional": true,
       "defaultValue": null
     }, {
@@ -10665,13 +10665,13 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The spectral distance metric to use.  One of  \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence),  \u0027sed\u0027 (squared euclidean distance), or \u0027emd\u0027 (earth movers distance).",
+      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared euclidean distance), or \u0027emd\u0027 (earth movers distance).",
       "optional": true,
       "defaultValue": "sam"
     }, {
       "argumentName": "kernel",
       "type": "Kernel",
-      "description": "Connectedness kernel.  Defaults to a square of radius 1 (8-way connected).",
+      "description": "Connectedness kernel. Defaults to a square of radius 1 (8-way connected).",
       "optional": true,
       "defaultValue": null
     }, {
@@ -10683,7 +10683,7 @@
     }]
   }, {
     "name": "algorithms/Image.spectralDilation",
-    "description": "Computes the spectral/spatial dilation of an image by computing the spectral distance of each pixel under a structuring kernel from the centroid of all pixels under the kernel and taking the most distant result. See \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041.\n",
+    "description": "Computes the spectral/spatial dilation of an image by computing the spectral distance of each pixel under a structuring kernel from the centroid of all pixels under the kernel and taking the most distant result. See \u0027Spatial/spectral endmember extraction by multidimensional morphological operations.\u0027 IEEE transactions on geoscience and remote sensing 40.9 (2002): 2025-2041.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -10692,13 +10692,13 @@
     }, {
       "argumentName": "metric",
       "type": "String",
-      "description": "The spectral distance metric to use.  One of  \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence),  \u0027sed\u0027 (squared euclidean distance), or \u0027emd\u0027 (earth movers distance).",
+      "description": "The spectral distance metric to use. One of \u0027sam\u0027 (spectral angle mapper), \u0027sid\u0027 (spectral information divergence), \u0027sed\u0027 (squared euclidean distance), or \u0027emd\u0027 (earth movers distance).",
       "optional": true,
       "defaultValue": "sam"
     }, {
       "argumentName": "kernel",
       "type": "Kernel",
-      "description": "Connectedness kernel.  Defaults to a square of radius 1 (8-way connected).",
+      "description": "Connectedness kernel. Defaults to a square of radius 1 (8-way connected).",
       "optional": true,
       "defaultValue": null
     }, {
@@ -12747,7 +12747,7 @@
     }]
   }, {
     "name": "algorithms/Number.signum",
-    "description": "Computes the signum function (sign) of the input; zero if the input is zero, 1 if the input is greater than zero, -1 if the input is less than zero.",
+    "description": "Computes the signum function (sign) of the input; 0 if the input is 0, 1 if the input is greater than 0, -1 if the input is less than 0.",
     "returnType": "Number",
     "arguments": [{
       "argumentName": "input",
@@ -13285,7 +13285,7 @@
     }]
   }, {
     "name": "algorithms/Image.arrayFlatten",
-    "description": "Converts a single band image of equal-shape multidimensional pixels to an image of scalar pixels, with one band for each element of the array.",
+    "description": "Converts a single-band image of equal-shape multidimensional pixels to an image of scalar pixels, with one band for each element of the array.",
     "returnType": "Image\u003cunknown bands\u003e",
     "arguments": [{
       "argumentName": "image",
@@ -13503,7 +13503,7 @@
     }, {
       "argumentName": "lengths",
       "type": "Image\u003cunknown bands\u003e",
-      "description": "A 1 band image specifying the new lengths of each axis of the input image specified as a 1-D array per pixel. There should be \u0027dimensions\u0027 lengths values in each shape\u0027 array. If one of the lengths is -1, then the corresponding length for that axis will be computed such that the total size remains constant. In particular, a shape of [-1] flattens into 1-D. At most one component of shape can be -1."
+      "description": "A 1-band image specifying the new lengths of each axis of the input image specified as a 1-D array per pixel. There should be \u0027dimensions\u0027 lengths values in each shape\u0027 array. If one of the lengths is -1, then the corresponding length for that axis will be computed such that the total size remains constant. In particular, a shape of [-1] flattens into 1-D. At most one component of shape can be -1."
     }, {
       "argumentName": "dimensions",
       "type": "Integer",
@@ -14204,7 +14204,7 @@
     }]
   }, {
     "name": "algorithms/Array.signum",
-    "description": "On an element-wise basis, computes the signum function (sign) of the input; zero if the input is zero, 1 if the input is greater than zero, -1 if the input is less than zero.",
+    "description": "On an element-wise basis, computes the signum function (sign) of the input; 0 if the input is 0, 1 if the input is greater than 0, -1 if the input is less than 0.",
     "returnType": "Array",
     "arguments": [{
       "argumentName": "input",
