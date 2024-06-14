@@ -371,7 +371,56 @@ class EeArrayTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  # TODO: test_cat
+  def test_cat_one_int(self):
+    expect = make_expression_graph({
+        'arguments': {'arrays': {'constantValue': [1]}},
+        'functionName': 'Array.cat',
+    })
+    expression = ee.Array.cat([1])
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_cat_two_int(self):
+    expect = make_expression_graph({
+        'arguments': {'arrays': {'constantValue': [[1], [2]]}},
+        'functionName': 'Array.cat',
+    })
+    expression = ee.Array.cat([[1], [2]])
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_cat_two_arrays(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'arrays': {
+                'arrayValue': {
+                    'values': [
+                        {
+                            'functionInvocationValue': {
+                                'functionName': 'Array',
+                                'arguments': {'values': {'constantValue': 1}},
+                            }
+                        },
+                        {
+                            'functionInvocationValue': {
+                                'functionName': 'Array',
+                                'arguments': {'values': {'constantValue': 2}},
+                            }
+                        },
+                    ]
+                }
+            },
+            'axis': {'constantValue': 3},
+        },
+        'functionName': 'Array.cat',
+    })
+    expression = ee.Array.cat([ee.Array(1), ee.Array(2)], 3)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Array.cat(arrays=[ee.Array(1), ee.Array(2)], axis=3)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_cbrt(self):
     expect = make_expression_graph({
@@ -714,7 +763,18 @@ class EeArrayTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  # TODO: test_identity
+  def test_identity(self):
+    expect = make_expression_graph({
+        'arguments': {'size': {'constantValue': 1}},
+        'functionName': 'Array.identity',
+    })
+    expression = ee.Array.identity(1)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Array.identity(size=1)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_int(self):
     expect = make_expression_graph({

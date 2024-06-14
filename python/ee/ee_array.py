@@ -17,7 +17,7 @@ _ArrayType = Union[
 ]
 _EeAnyType = Union[Any, computedobject.ComputedObject]
 _IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
-_EeListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
+_ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
 _NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
@@ -259,7 +259,20 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.byte', self)
 
-  # TODO: Add cat constructor staticmethod.
+  @staticmethod
+  def cat(arrays: _ListType, axis: Optional[_IntegerType] = None) -> 'Array':
+    """Returns an Array that is the concatenation of the given arrays.
+
+    Concatenates multiple arrays into a single array along the given axis. Each
+    array must have the same dimensionality and the same length on all axes
+    except the concatenation axis.
+
+    Args:
+      arrays: Arrays to concatenate.
+      axis: Axis to concatenate along. Defaults to 0.
+    """
+
+    return apifunction.ApiFunction.call_('Array.cat', arrays, axis)
 
   def cbrt(self) -> 'Array':
     """On an element-wise basis, computes the cubic root of the input."""
@@ -281,7 +294,7 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.cosh', self)
 
-  def cut(self, position: _EeListType) -> 'Array':
+  def cut(self, position: _ListType) -> 'Array':
     """Cut an array along one or more axes.
 
     Args:
@@ -485,7 +498,15 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.hypot', self, right)
 
-  # TODO: Add identity constructor staticmethod.
+  @staticmethod
+  def identity(size: _IntegerType) -> 'Array':
+    """Returns a 2D identity matrix of the given size.
+
+    Args:
+      size: The length of each axis.
+    """
+
+    return apifunction.ApiFunction.call_('Array.identity', size)
 
   def int(self) -> 'Array':
     """Casts the input value to a signed 32-bit integer."""
