@@ -4,7 +4,6 @@ goog.module.declareLegacyNamespace();
 const AbstractTile = goog.require('ee.layers.AbstractTile');
 const AbstractTileSource = goog.require('ee.layers.AbstractTileSource');
 const PriorityPool = goog.require('goog.structs.PriorityPool');
-const Profiler = goog.requireType('ee.data.Profiler');
 const data = goog.require('ee.data');
 const events = goog.require('goog.events');
 
@@ -18,7 +17,7 @@ const EarthEngineTileSource = class extends AbstractTileSource {
   /**
    * @param {!data.RawMapId} mapId The EE map ID for fetching this layer's
    *     tiles.
-   * @param {data.Profiler=} opt_profiler The profiler to send map tile
+   * @param {?data.Profiler=} opt_profiler The profiler to send map tile
    *     calculation cost to, if any.
    * @param {number=} opt_parallelism The number of map tiles to fetch
    *     concurrently.
