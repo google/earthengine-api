@@ -25,7 +25,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: |
           cd javascript/
-          npm install
+          npm i
           npm run build
           npm run test
         env:
@@ -42,7 +42,7 @@ jobs:
           registry-url: https://registry.npmjs.org/
       - run: |
           cd javascript/
-          npm install
+          npm i
           npm run build
           npm publish
         env:
