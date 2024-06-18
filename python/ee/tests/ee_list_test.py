@@ -460,7 +460,21 @@ class ListTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  # TODO(user): test_repeat constructor.
+  def test_repeat(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'value': {'constantValue': 1},
+            'count': {'constantValue': 2},
+        },
+        'functionName': 'List.repeat',
+    })
+    expression = ee.List.repeat(1, 2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.List.repeat(value=1, count=2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_replace(self):
     expect = make_expression_graph({
@@ -523,7 +537,23 @@ class ListTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-  # TODO: test_sequence
+  def test_sequence(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'start': {'constantValue': 1},
+            'end': {'constantValue': 2},
+            'step': {'constantValue': 3},
+            'count': {'constantValue': 4},
+        },
+        'functionName': 'List.sequence',
+    })
+    expression = ee.List.sequence(1, 2, 3, 4)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.List.sequence(start=1, end=2, step=3, count=4)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_set(self):
     expect = make_expression_graph({

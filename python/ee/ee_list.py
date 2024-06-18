@@ -22,6 +22,7 @@ _EeListType = Union[
     ListType[Any], Tuple[Any], Tuple[Any, Any], computedobject.ComputedObject
 ]
 _IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
@@ -61,8 +62,40 @@ class List(computedobject.ComputedObject):
       raise ee_exception.EEException(
           'Invalid argument specified for ee.List(): %s' % arg)
 
-  # TODO: Make a staticmethod for repeat.
-  # TODO: Make a staticmethod for sequence.
+  @staticmethod
+  def repeat(value: _EeAnyType, count: _IntegerType) -> 'List':
+    """Returns a new list containing value repeated count times.
+
+    Args:
+      value: The value to repeat.
+      count: The number of times to repeat the value.
+    """
+    return apifunction.ApiFunction.call_('List.repeat', value, count)
+
+  @staticmethod
+  def sequence(
+      start: _NumberType,
+      end: Optional[_NumberType] = None,
+      step: Optional[_NumberType] = None,
+      count: Optional[_IntegerType] = None,
+  ) -> 'List':
+    """Returns a List of numbers from start to end (inclusive).
+
+    Generate a sequence of numbers from start to end (inclusive) in increments
+    of step, or in count equally-spaced increments. If end is not specified it
+    is computed from start + step * count, so at least one of end or count must
+    be specified.
+
+    Args:
+      start: The starting number.
+      end: The ending number.
+      step: The increment.
+      count: The number of increments.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'List.sequence', start, end, step, count
+    )
 
   @classmethod
   def initialize(cls) -> None:
