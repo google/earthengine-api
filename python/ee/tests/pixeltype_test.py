@@ -45,6 +45,27 @@ def pixeltype_function_expr(value: Type) -> Dict[str, Any]:
   }
 
 
+def pixeltype_noargs_expr(type_name: str) -> Dict[str, Any]:
+  return {
+      'result': '0',
+      'values': {
+          '0': {
+              'functionInvocationValue': {
+                  'functionName': 'PixelType',
+                  'arguments': {
+                      'precision': {
+                          'functionInvocationValue': {
+                              'functionName': 'PixelType.' + type_name,
+                              'arguments': {},
+                          }
+                      }
+                  },
+              }
+          }
+      },
+  }
+
+
 class PixelTypeTest(apitestcase.ApiTestCase):
 
   def test_int(self):
@@ -257,6 +278,61 @@ class PixelTypeTest(apitestcase.ApiTestCase):
         'functionName': 'PixelType.precision',
     })
     expression = ee.PixelType(Type.FLOAT).precision()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_double(self):
+    expect = pixeltype_noargs_expr('double')
+    expression = ee.PixelType.double()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_float(self):
+    expect = pixeltype_noargs_expr('float')
+    expression = ee.PixelType.float()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_int16(self):
+    expect = pixeltype_noargs_expr('int16')
+    expression = ee.PixelType.int16()
+    result = json.loads(expression.serialize())
+    print(json.dumps(result, indent=2))
+    self.assertEqual(expect, result)
+
+  def test_int32(self):
+    expect = pixeltype_noargs_expr('int32')
+    expression = ee.PixelType.int32()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_int64(self):
+    expect = pixeltype_noargs_expr('int64')
+    expression = ee.PixelType.int64()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_int8(self):
+    expect = pixeltype_noargs_expr('int8')
+    expression = ee.PixelType.int8()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_uint16(self):
+    expect = pixeltype_noargs_expr('uint16')
+    expression = ee.PixelType.uint16()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_uint32(self):
+    expect = pixeltype_noargs_expr('uint32')
+    expression = ee.PixelType.uint32()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_uint8(self):
+    expect = pixeltype_noargs_expr('uint8')
+    expression = ee.PixelType.uint8()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
