@@ -1,8 +1,5 @@
 #!/usr/bin/env python3
-"""Tests for the ee.PixelType module.
-
-Everything except the PixelType constructor is dynamically generated.
-"""
+"""Tests for the ee.PixelType module."""
 
 import enum
 import json

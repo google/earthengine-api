@@ -129,3 +129,57 @@ class PixelType(computedobject.ComputedObject):
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.precision', self)
+
+  @staticmethod
+  def double() -> 'PixelType':
+    """Returns the 64-bit floating point pixel type."""
+
+    return apifunction.ApiFunction.call_('PixelType.double')
+
+  @staticmethod
+  def float() -> 'PixelType':
+    """Returns the 32-bit floating point pixel type."""
+
+    return apifunction.ApiFunction.call_('PixelType.float')
+
+  @staticmethod
+  def int16() -> 'PixelType':
+    """Returns the 16-bit signed integer pixel type."""
+
+    return apifunction.ApiFunction.call_('PixelType.int16')
+
+  @staticmethod
+  def int32() -> 'PixelType':
+    """Returns the 32-bit signed integer pixel type."""
+
+    return apifunction.ApiFunction.call_('PixelType.int32')
+
+  @staticmethod
+  def int64() -> 'PixelType':
+    """Returns the 64-bit signed integer pixel type."""
+
+    return apifunction.ApiFunction.call_('PixelType.int64')
+
+  @staticmethod
+  def int8() -> 'PixelType':
+    """Returns the 8-bit signed integer pixel type."""
+
+    return apifunction.ApiFunction.call_('PixelType.int8')
+
+  @staticmethod
+  def uint16() -> 'PixelType':
+    """Returns the 16-bit unsigned integer pixel type."""
+
+    return apifunction.ApiFunction.call_('PixelType.uint16')
+
+  @staticmethod
+  def uint32() -> 'PixelType':
+    """Returns the 32-bit unsigned integer pixel type."""
+
+    return apifunction.ApiFunction.call_('PixelType.uint32')
+
+  @staticmethod
+  def uint8() -> 'PixelType':
+    """Returns the 8-bit unsigned integer pixel type."""
+
+    return apifunction.ApiFunction.call_('PixelType.uint8')
