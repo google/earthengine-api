@@ -1,7 +1,7 @@
 """A wrapper for dictionaries."""
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Sequence, Union
+from typing import Any, Dict, List, Optional, Sequence, Tuple, Union
 
 from ee import _utils
 from ee import apifunction
@@ -23,6 +23,7 @@ _EeKeyType = Union[bool, float, int, str, computedobject.ComputedObject]
 # TODO: Make a better type for a list of keys.
 _EeKeyListType = _EeAnyType
 _IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 # TODO: Make a better type for a list of strings.
 #   Or is this the same as _EeKeyListType?
@@ -128,7 +129,17 @@ class Dictionary(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.contains', self, key)
 
-  # TODO: Add fromLists
+  # TODO: keys should be a _StringListType.
+  @staticmethod
+  def fromLists(keys: _ListType, values: _ListType) -> 'Dictionary':
+    """Returns a dictionary from two parallel lists of keys and values.
+
+    Args:
+      keys: A list of keys.
+      values: A list of values.
+    """
+
+    return apifunction.ApiFunction.call_('Dictionary.fromLists', keys, values)
 
   def get(
       self,
