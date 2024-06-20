@@ -157,6 +157,12 @@ class DateRange(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.start', self)
 
+  @staticmethod
+  def unbounded() -> DateRange:
+    """Returns a DateRange that includes all possible dates."""
+
+    return apifunction.ApiFunction.call_('DateRange.unbounded')
+
   def union(self, other: Union[_DateType, _DateRangeType]) -> DateRange:
     """Returns a DateRange that contains all points in this and other.
 
