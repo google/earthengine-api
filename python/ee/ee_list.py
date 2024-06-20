@@ -515,7 +515,7 @@ class List(computedobject.ComputedObject):
 
     Args:
       oldval: The value to be replaced.
-      newval: The value to be put in place of oldval..
+      newval: The value to be put in place of oldval.
 
     Returns:
       An ee.List.
