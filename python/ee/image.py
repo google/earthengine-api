@@ -2170,10 +2170,11 @@ class Image(element.Element):
     - SHADE: Cluster Shade
     - PROM: Cluster prominence
 
-    More information can be found in the two papers: Haralick et. al, 'Textural
-    Features for Image Classification', http://doi.org/10.1109/TSMC.1973.4309314
-    and Conners, et al, Segmentation of a high-resolution urban scene using
-    texture operators', http://doi.org/10.1016/0734-189X(84)90197-X.
+    More information can be found in the two papers: Haralick et al., 'Textural
+    Features for Image Classification',
+    https://doi.org/10.1109/TSMC.1973.4309314
+    and Conners, et al., Segmentation of a high-resolution urban scene using
+    texture operators', https://doi.org/10.1016/0734-189X(84)90197-X.
 
     Args:
       size: The size of the neighborhood to include in each GLCM.
