@@ -199,7 +199,17 @@ class Array(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(self.name() + '.bitCount', self)
 
-  # TODO: Add bitsToArray constructor staticmethod.
+  def bitsToArray(input: _IntegerType) -> 'Array':
+    """Returns an Array from the bits of an integer.
+
+    The array has as many elements as the position of the highest set bit, or a
+    single 0 for a value of 0.
+
+    Args:
+      input: The integer to transform.
+    """
+
+    return apifunction.ApiFunction.call_('Array.bitsToArray', input)
 
   def bitwiseAnd(self, right: _ArrayType) -> 'Array':
     """On an element-wise basis, calculates the bitwise AND of the input values.

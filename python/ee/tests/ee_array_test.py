@@ -299,7 +299,18 @@ class EeArrayTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    # TODO: test_bitsToArray
+  def test_bits_to_array(self):
+    expect = make_expression_graph({
+        'arguments': {'input': {'constantValue': 1}},
+        'functionName': 'Array.bitsToArray',
+    })
+    expression = ee.Array.bitsToArray(1)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Array.bitsToArray(input=1)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
   def test_bitwise_and(self):
     expect = make_expression_graph({
