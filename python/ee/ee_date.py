@@ -164,6 +164,27 @@ class Date(computedobject.ComputedObject):
         self.name() + '.format', self, format, timeZone
     )
 
+  @staticmethod
+  def fromYMD(
+      year: _IntegerType,
+      month: _IntegerType,
+      day: _IntegerType,
+      # pylint: disable=invalid-name
+      timeZone: Optional[_StringType] = None,
+  ) -> 'Date':
+    """Returns a Date given year, month, day.
+
+    Args:
+      year: The year, 2013, for example.
+      month: The month, 3, for example.
+      day: The day, 15, for example.
+      timeZone: The time zone (e.g., 'America/Los_Angeles'); defaults to UTC.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Date.fromYMD', year, month, day, timeZone
+    )
+
   def get(
       self, unit: _StringType, timeZone: Optional[_StringType] = None  # pylint: disable=invalid-name
   ) -> ee_number.Number:
@@ -253,6 +274,26 @@ class Date(computedobject.ComputedObject):
     """The number of milliseconds since 1970-01-01T00:00:00Z."""
 
     return apifunction.ApiFunction.call_(self.name() + '.millis', self)
+
+  @staticmethod
+  def parse(
+      format: _StringType,
+      date: _StringType,
+      timeZone: Optional[_StringType] = None,  # pylint: disable=invalid-name
+  ) -> 'Date':
+    """Parse a date string, given a string describing its format.
+
+    Args:
+      format: A pattern, as described at
+        https://joda-time.sourceforge.net/apidocs/org/joda/time/format/DateTimeFormat.html.
+      date: A string matching the given pattern.
+      timeZone: The time zone (e.g., 'America/Los_Angeles'); defaults to UTC.
+
+    Returns:
+      An ee.Date.
+    """
+
+    return apifunction.ApiFunction.call_('Date.parse', format, date, timeZone)
 
   @classmethod
   def unitRatio(
