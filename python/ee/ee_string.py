@@ -10,6 +10,7 @@ from ee import ee_exception
 from ee import ee_list
 from ee import ee_number
 
+_EeAnyType = Union[Any, computedobject.ComputedObject]
 _IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
 _StringType = Union[str, 'String', computedobject.ComputedObject]
 
@@ -116,6 +117,18 @@ class String(computedobject.ComputedObject):
     """Decodes self as a JSON string."""
 
     return apifunction.ApiFunction.call_(self.name() + '.decodeJSON', self)
+
+  @staticmethod
+  def encodeJSON(object: _EeAnyType) -> 'String':
+    """Returns an ee.String with an object encoded as JSON.
+
+    Supports primitives, lists, and dictionaries.
+
+    Args:
+      object: The object to encode.
+    """
+
+    return apifunction.ApiFunction.call_('String.encodeJSON', object)
 
   def equals(
       self, target: _StringType
