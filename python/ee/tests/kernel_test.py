@@ -53,7 +53,7 @@ class KernelTest(apitestcase.ApiTestCase):
     result = json.loads(kernel.serialize())
     self.assertEqual(_KERNEL_JSON, result)
 
-  @unittest.skipIf(sys.version_info < (3, 10), 'Usupported in Python <= 3.9')
+  @unittest.skipIf(sys.version_info < (3, 10), 'Unsupported in Python <= 3.9')
   def test_no_args(self):
     message = (
         r'Kernel\.__init__\(\) missing 1 required positional argument:'
