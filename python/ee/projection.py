@@ -1,4 +1,5 @@
 """A wrapper for Projections."""
+from __future__ import annotations
 
 from typing import Any, Dict, Optional, Sequence, Union
 
@@ -105,3 +106,67 @@ class Projection(computedobject.ComputedObject):
   @staticmethod
   def name() -> str:
     return 'Projection'
+
+  def atScale(self, meters: _NumberType) -> Projection:
+    """Returns an ee.Projection scaled to the given scale in linear meters.
+
+    Returns the projection scaled such that its units have the given scale in
+    linear meters, as measured at the point of true scale.
+
+    Args:
+      meters: The scale in linear meters.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.atScale', self, meters)
+
+  def crs(self) -> ee_string.String:
+    """Returns the coordinate reference system (crs) of this projection.
+
+    Returns the authority code (e.g., 'EPSG:4326') for the base coordinate
+    system of this projection, or null if the base coordinate system is not
+    found in any available database.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.crs', self)
+
+  def nominalScale(self) -> ee_number.Number:
+    """Returns the linear scale in meters of the units of this projection.
+
+    Done as measured at the point of true scale.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.nominalScale', self)
+
+  def scale(self, x: _NumberType, y: _NumberType) -> Projection:
+    """Returns an ee.Projection scaled by the given amount in each axis.
+
+    Args:
+      x: The amount to scale by in the x axis.
+      y: The amount to scale by in the y axis.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.scale', self, x, y)
+
+  def transform(self) -> ee_string.String:
+    """Returns a WKT representation of the transform of this Projection.
+
+    This is the transform that converts from projected coordinates to the base
+    coordinate system.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.transform', self)
+
+  def translate(self, x: _NumberType, y: _NumberType) -> Projection:
+    """Returns an ee.Projection translated by the given amount in each axis.
+
+    Args:
+      x: The amount to translate by in the x axis.
+      y: The amount to translate by in the y axis.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.translate', self, x, y)
+
+  def wkt(self) -> ee_string.String:
+    """Returns a WKT representation of the base coordinate system of this Projection."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.wkt', self)
