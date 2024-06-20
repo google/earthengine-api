@@ -249,7 +249,7 @@ ee.call = function(func, var_args) {
   }
   // Extract var_args.
   const args = Array.prototype.slice.call(arguments, 1);
-  // Call func.call with the extracted agrs.
+  // Call func.call with the extracted args.
   return ee.Function.prototype.call.apply(func, args);
 };
 

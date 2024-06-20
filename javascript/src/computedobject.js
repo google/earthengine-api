@@ -22,7 +22,7 @@ goog.requireType('ee.Function');
  * ComputedObjects come in two flavors:
  * 1. If func != null and args != null, the ComputedObject is encoded as an
  *    invocation of func with args.
- * 2. If func == null and agrs == null, the ComputedObject is a variable
+ * 2. If func == null and args == null, the ComputedObject is a variable
  *    reference. The variable name is stored in its varName member. Note that
  *    in this case, varName may still be null; this allows the name to be
  *    deterministically generated at a later time. This is used to generate
