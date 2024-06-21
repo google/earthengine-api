@@ -10,7 +10,7 @@ from ee import apitestcase
 
 class FilterTest(apitestcase.ApiTestCase):
 
-  def testConstructors(self):
+  def test_constructors(self):
     """Verifies that constructors understand valid parameters."""
     from_static_method = ee.Filter.gt('foo', 1)
     from_computed_object = ee.Filter(
@@ -20,7 +20,7 @@ class FilterTest(apitestcase.ApiTestCase):
     copy = ee.Filter(from_static_method)
     self.assertEqual(from_static_method, copy)
 
-  def testMetadata(self):
+  def test_metadata(self):
     """Verifies that the metadata_() method works."""
     self.assertEqual(
         ee.ApiFunction.call_('Filter.equals', 'x', 1),
@@ -40,7 +40,7 @@ class FilterTest(apitestcase.ApiTestCase):
     self.assertEqual(
         ee.Filter.metadata_('x', 'not_less_than', 1), ee.Filter.gte('x', 1))
 
-  def testLogicalCombinations(self):
+  def test_logical_combinations(self):
     """Verifies that the and() and or() methods work."""
     f1 = ee.Filter.eq('x', 1)
     f2 = ee.Filter.eq('x', 2)
@@ -55,7 +55,7 @@ class FilterTest(apitestcase.ApiTestCase):
         ee.ApiFunction.call_('Filter.or', (or_filter, and_filter)),
         ee.Filter.Or(or_filter, and_filter))
 
-  def testDate(self):
+  def test_date(self):
     """Verifies that date filters work."""
     d1 = datetime.datetime.strptime('1/1/2000', '%m/%d/%Y')
     d2 = datetime.datetime.strptime('1/1/2001', '%m/%d/%Y')
@@ -78,7 +78,7 @@ class FilterTest(apitestcase.ApiTestCase):
         'rightField': ee.String('system:time_start')
     }, long_filter.args)
 
-  def testBounds(self):
+  def test_bounds(self):
     """Verifies that geometry intersection filters work."""
     polygon = ee.Geometry.Polygon(1, 2, 3, 4, 5, 6)
     self.assertEqual(
@@ -100,13 +100,13 @@ class FilterTest(apitestcase.ApiTestCase):
                              ee.ApiFunction.call_('Feature', polygon)),
         ee.Filter.bounds(polygon))
 
-  def testInList(self):
+  def test_in_list(self):
     """Verifies that list membership filters work."""
     self.assertEqual(
         ee.Filter.listContains(None, None, 'foo', [1, 2]),  # pytype: disable=attribute-error
         ee.Filter.inList('foo', [1, 2]))
 
-  def testInternals(self):
+  def test_internals(self):
     """Test eq(), ne() and hash()."""
     a = ee.Filter.eq('x', 1)
     b = ee.Filter.eq('x', 2)
@@ -118,7 +118,7 @@ class FilterTest(apitestcase.ApiTestCase):
     self.assertNotEqual(b, c)
     self.assertNotEqual(hash(a), hash(b))
 
-  def testInitOptParams(self):
+  def test_init_opt_params(self):
     result = ee.Filter(opt_filter=[ee.Filter.gt('prop', 1)]).serialize()
     self.assertIn('"functionName": "Filter.greaterThan"', result)
 
