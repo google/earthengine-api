@@ -64,9 +64,8 @@ _ProjectionType = Union[
     projection.Projection,
     computedobject.ComputedObject,
 ]
-_ReducerType = Union[Any, computedobject.ComputedObject]
-_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 _ReducerType = Union[reducer.Reducer, computedobject.ComputedObject]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 def _parse_dimensions(dimensions: Any) -> Sequence[Any]:
