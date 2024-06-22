@@ -1,4 +1,5 @@
 """A wrapper for ErrorMargins."""
+from __future__ import annotations
 
 from typing import Any, Dict, Optional, Union
 
@@ -8,7 +9,7 @@ from ee import ee_number
 from ee import ee_string
 
 _NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
-_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class ErrorMargin(computedobject.ComputedObject):
