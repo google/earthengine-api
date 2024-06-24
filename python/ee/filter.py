@@ -124,14 +124,6 @@ class Filter(computedobject.ComputedObject):
         prev.append(new_filter)
     return Filter(prev)
 
-  def Not(self):
-    """Returns the opposite of this filter.
-
-    Returns:
-      The negated filter, which will match if and only if this filter does not.
-    """
-    return apifunction.ApiFunction.call_('Filter.not', self)
-
   @staticmethod
   def metadata_(name, operator, value):
     """Filter on metadata. This is deprecated.
@@ -166,34 +158,8 @@ class Filter(computedobject.ComputedObject):
     return new_filter.Not() if negated else new_filter
 
   @staticmethod
-  def eq(name, value):
-    """Filter to metadata equal to the given value."""
-    return apifunction.ApiFunction.call_('Filter.equals', name, value)
-
-  @staticmethod
-  def neq(name, value):
-    """Filter to metadata not equal to the given value."""
-    return Filter.eq(name, value).Not()
-
-  @staticmethod
-  def lt(name, value):
-    """Filter to metadata less than the given value."""
-    return apifunction.ApiFunction.call_('Filter.lessThan', name, value)
-
-  @staticmethod
-  def gte(name, value):
-    """Filter on metadata greater than or equal to the given value."""
-    return Filter.lt(name, value).Not()
-
-  @staticmethod
-  def gt(name, value):
-    """Filter on metadata greater than the given value."""
-    return apifunction.ApiFunction.call_('Filter.greaterThan', name, value)
-
-  @staticmethod
-  def lte(name, value):
-    """Filter on metadata less than or equal to the given value."""
-    return Filter.gt(name, value).Not()
+  def name() -> str:
+    return 'Filter'
 
   @staticmethod
   def And(*args):
@@ -203,11 +169,28 @@ class Filter(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_('Filter.and', args)
 
   @staticmethod
-  def Or(*args):
-    """Combine two or more filters using boolean OR."""
-    if len(args) == 1 and isinstance(args[0], (list, tuple)):
-      args = args[0]
-    return apifunction.ApiFunction.call_('Filter.or', args)
+  @_utils.accept_opt_prefix('opt_errorMargin')
+  def bounds(geometry, errorMargin=None):
+    """Filter on intersection with geometry.
+
+    Items in the collection with a footprint that fails to intersect
+    the given geometry will be excluded. This is an alias for geometry().
+
+    Caution: providing a large or complex collection as the `geometry` argument
+    can result in poor performance. Collating the geometry of collections does
+    not scale well; use the smallest collection (or geometry) that is required
+    to achieve the desired outcome.
+
+    Args:
+      geometry: The geometry to filter to either as a GeoJSON geometry, or a
+        FeatureCollection, from which a geometry will be extracted.
+      errorMargin: An optional error margin. If a number, interpreted as sphere
+        surface meters.
+
+    Returns:
+      The constructed filter.
+    """
+    return Filter.geometry(geometry, errorMargin)
 
   @staticmethod
   @_utils.accept_opt_prefix('opt_end')
@@ -231,6 +214,65 @@ class Filter(computedobject.ComputedObject):
         'leftValue': date_range,
         'rightField': 'system:time_start'
     })
+
+  @staticmethod
+  def eq(name, value):
+    """Filter to metadata equal to the given value."""
+    return apifunction.ApiFunction.call_('Filter.equals', name, value)
+
+  @staticmethod
+  @_utils.accept_opt_prefix('opt_errorMargin')
+  def geometry(geometry, errorMargin=None):
+    """Filter on intersection with geometry.
+
+    Items in the collection with a footprint that fails to intersect
+    the given geometry will be excluded.
+
+    Args:
+      geometry: The geometry to filter to either as a GeoJSON geometry, or a
+        FeatureCollection, from which a geometry will be extracted.
+      errorMargin: An optional error margin. If a number, interpreted as sphere
+        surface meters.
+
+    Returns:
+      The constructed filter.
+    """
+    # Invoke geometry promotion then manually promote to a Feature.
+    args = {
+        'leftField': '.all',
+        'rightValue': apifunction.ApiFunction.call_('Feature', geometry)
+    }
+    if errorMargin is not None:
+      args['maxError'] = errorMargin
+    return apifunction.ApiFunction.apply_('Filter.intersects', args)
+
+  @staticmethod
+  def neq(name, value):
+    """Filter to metadata not equal to the given value."""
+    return Filter.eq(name, value).Not()
+
+  def Not(self):
+    """Returns the opposite of this filter.
+
+    Returns:
+      The negated filter, which will match if and only if this filter does not.
+    """
+    return apifunction.ApiFunction.call_('Filter.not', self)
+
+  @staticmethod
+  def lt(name, value):
+    """Filter to metadata less than the given value."""
+    return apifunction.ApiFunction.call_('Filter.lessThan', name, value)
+
+  @staticmethod
+  def gt(name, value):
+    """Filter on metadata greater than the given value."""
+    return apifunction.ApiFunction.call_('Filter.greaterThan', name, value)
+
+  @staticmethod
+  def gte(name, value):
+    """Filter on metadata greater than or equal to the given value."""
+    return Filter.lt(name, value).Not()
 
   @staticmethod
   @_utils.accept_opt_prefix(
@@ -266,55 +308,13 @@ class Filter(computedobject.ComputedObject):
     )
 
   @staticmethod
-  @_utils.accept_opt_prefix('opt_errorMargin')
-  def geometry(geometry, errorMargin=None):
-    """Filter on intersection with geometry.
-
-    Items in the collection with a footprint that fails to intersect
-    the given geometry will be excluded.
-
-    Args:
-      geometry: The geometry to filter to either as a GeoJSON geometry, or a
-        FeatureCollection, from which a geometry will be extracted.
-      errorMargin: An optional error margin. If a number, interpreted as sphere
-        surface meters.
-
-    Returns:
-      The constructed filter.
-    """
-    # Invoke geometry promotion then manually promote to a Feature.
-    args = {
-        'leftField': '.all',
-        'rightValue': apifunction.ApiFunction.call_('Feature', geometry)
-    }
-    if errorMargin is not None:
-      args['maxError'] = errorMargin
-    return apifunction.ApiFunction.apply_('Filter.intersects', args)
+  def lte(name, value):
+    """Filter on metadata less than or equal to the given value."""
+    return Filter.gt(name, value).Not()
 
   @staticmethod
-  @_utils.accept_opt_prefix('opt_errorMargin')
-  def bounds(geometry, errorMargin=None):
-    """Filter on intersection with geometry.
-
-    Items in the collection with a footprint that fails to intersect
-    the given geometry will be excluded. This is an alias for geometry().
-
-    Caution: providing a large or complex collection as the `geometry` argument
-    can result in poor performance. Collating the geometry of collections does
-    not scale well; use the smallest collection (or geometry) that is required
-    to achieve the desired outcome.
-
-    Args:
-      geometry: The geometry to filter to either as a GeoJSON geometry, or a
-        FeatureCollection, from which a geometry will be extracted.
-      errorMargin: An optional error margin. If a number, interpreted as sphere
-        surface meters.
-
-    Returns:
-      The constructed filter.
-    """
-    return Filter.geometry(geometry, errorMargin)
-
-  @staticmethod
-  def name() -> str:
-    return 'Filter'
+  def Or(*args):
+    """Combine two or more filters using boolean OR."""
+    if len(args) == 1 and isinstance(args[0], (list, tuple)):
+      args = args[0]
+    return apifunction.ApiFunction.call_('Filter.or', args)
