@@ -192,13 +192,16 @@ def _IssueAssetDeprecationWarning(asset: DeprecatedAsset) -> None:
       ' asset.\nTo ensure continued functionality, please update it'
   )
   removal_date = asset.removal_date
+  today = datetime.datetime.now()
   if removal_date:
-    # %d gives a zero-padded day. Remove the leading zero. %-d is incompatible
-    # with Windows.
-    formatted_date = removal_date.strftime('%B %d, %Y').replace(' 0', ' ')
-    warning = warning + f' by {formatted_date}.'
-  else:
-    warning = warning + '.'
+    # If today is the removal date or prior, show the removal date, ignoring
+    # time zones.
+    if today.date() <= removal_date.date():
+      # %d gives a zero-padded day. Remove the leading zero. %-d is incompatible
+      # with Windows.
+      formatted_date = removal_date.strftime('%B %d, %Y').replace(' 0', ' ')
+      warning += f' by {formatted_date}'
+  warning += '.'
   if asset.learn_more_url:
     warning = warning + f'\nLearn more: {asset.learn_more_url}\n'
   warnings.warn(warning, category=DeprecationWarning)
