@@ -2,10 +2,30 @@
 """Test for the ee.filter module."""
 
 import datetime
+import json
+from typing import Any, Dict
 
 import unittest
 import ee
 from ee import apitestcase
+
+
+def make_expression_graph(
+    function_invocation_value: Dict[str, Any],
+) -> Dict[str, Any]:
+  return {
+      'result': '0',
+      'values': {'0': {'functionInvocationValue': function_invocation_value}},
+  }
+
+
+def max_error_expression(max_error: float) -> Dict[str, Any]:
+  return {
+      'functionInvocationValue': {
+          'functionName': 'ErrorMargin',
+          'arguments': {'value': {'constantValue': max_error}},
+      }
+  }
 
 
 class FilterTest(apitestcase.ApiTestCase):
@@ -145,6 +165,880 @@ class FilterTest(apitestcase.ApiTestCase):
         geometry=ee.Geometry.Point(0, 0), opt_errorMargin=12345
     ).serialize()
     self.assertIn('"value": {"constantValue": 12345}', result)
+
+  def test_and(self):
+    expect = make_expression_graph({
+        'arguments': {'filters': {'constantValue': []}},
+        'functionName': 'Filter.and',
+    })
+    expression = ee.Filter.And([])
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    # TODO: ee.Filter.And(filters=[]) does not currently work.
+
+  def test_area(self):
+    min_val = 1
+    max_val = 2
+    max_error = 3
+    geometry_selector = 'a'
+    expect = make_expression_graph({
+        'arguments': {
+            'min': {'constantValue': min_val},
+            'max': {'constantValue': max_val},
+            'maxError': max_error_expression(max_error),
+            'geometrySelector': {'constantValue': geometry_selector},
+        },
+        'functionName': 'Filter.area',
+    })
+    expression = ee.Filter.area(min_val, max_val, max_error, geometry_selector)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.area(
+        min=min_val,
+        max=max_val,
+        maxError=max_error,
+        geometrySelector=geometry_selector,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_calendar_range(self):
+    start = 1
+    end = 2
+    field = 'year'
+    expect = make_expression_graph({
+        'arguments': {
+            'start': {'constantValue': start},
+            'end': {'constantValue': end},
+            'field': {'constantValue': field},
+        },
+        'functionName': 'Filter.calendarRange',
+    })
+    expression = ee.Filter.calendarRange(start, end, field)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.calendarRange(start=start, end=end, field=field)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_contains(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    max_error = 3
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+            'maxError': max_error_expression(max_error),
+        },
+        'functionName': 'Filter.contains',
+    })
+    expression = ee.Filter.contains(
+        left_field, right_value, right_field, left_value, max_error
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.contains(
+        leftField=left_field,
+        rightValue=right_value,
+        rightField=right_field,
+        leftValue=left_value,
+        maxError=max_error,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_date_range_contains(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.dateRangeContains',
+    })
+    expression = ee.Filter.dateRangeContains(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.dateRangeContains(
+        leftField=left_field,
+        rightValue=right_value,
+        rightField=right_field,
+        leftValue=left_value,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_day_of_year(self):
+    start = 1
+    end = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'start': {'constantValue': start},
+            'end': {'constantValue': end},
+        },
+        'functionName': 'Filter.dayOfYear',
+    })
+    expression = ee.Filter.dayOfYear(start, end)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.dayOfYear(start=start, end=end)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_disjoint(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    max_error = 3
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+            'maxError': max_error_expression(max_error),
+        },
+        'functionName': 'Filter.disjoint',
+    })
+    expression = ee.Filter.disjoint(
+        left_field, right_value, right_field, left_value, max_error
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.disjoint(
+        leftField=left_field,
+        rightValue=right_value,
+        rightField=right_field,
+        leftValue=left_value,
+        maxError=max_error,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_eq(self):
+    # ee.Filter.eq uses Equals and masks the actual eq call.
+    name = 'a'
+    value = 1
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': name},
+            'rightValue': {'constantValue': value},
+        },
+        'functionName': 'Filter.equals',
+    })
+    expression = ee.Filter.eq(name, value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.eq(name=name, value=value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_equals(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.equals',
+    })
+    expression = ee.Filter.equals(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.equals(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_expression(self):
+    expression_str = 'an expression'
+    expect = make_expression_graph({
+        'arguments': {
+            'expression': {'constantValue': expression_str},
+        },
+        'functionName': 'Filter.expression',
+    })
+    expression = ee.Filter.expression(expression_str)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.expression(expression=expression_str)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_greater_than(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.greaterThan',
+    })
+    expression = ee.Filter.greaterThan(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.greaterThan(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_greater_than_or_equals(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.greaterThanOrEquals',
+    })
+    expression = ee.Filter.greaterThanOrEquals(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.greaterThanOrEquals(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_gt(self):
+    # ee.Filter.gt uses greaterThan and masks the actual gt call.
+    name = 'a'
+    value = 1
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': name},
+            'rightValue': {'constantValue': value},
+        },
+        'functionName': 'Filter.greaterThan',
+    })
+    expression = ee.Filter.gt(name, value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.gt(name=name, value=value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_gte(self):
+    # gte is implemented as lt().not().
+    name = 'a'
+    value = 1
+    expect = make_expression_graph({
+        'functionName': 'Filter.not',
+        'arguments': {
+            'filter': {
+                'functionInvocationValue': {
+                    'functionName': 'Filter.lessThan',
+                    'arguments': {
+                        'leftField': {'constantValue': name},
+                        'rightValue': {'constantValue': value},
+                    },
+                }
+            }
+        },
+    })
+    expression = ee.Filter.gte(name, value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.gte(name=name, value=value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  # TODO:  test_has_type
+
+  def test_in_list_serialize(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    # Warning: inList swaps around args.
+    expect = make_expression_graph({
+        'arguments': {
+            'rightField': {'constantValue': left_field},
+            'leftValue': {'constantValue': right_value},
+            'leftField': {'constantValue': right_field},
+            'rightValue': {'constantValue': left_value},
+        },
+        # Note this is not 'inList'.
+        'functionName': 'Filter.listContains',
+    })
+    expression = ee.Filter.inList(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.inList(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_intersects(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    max_error = 3
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+            'maxError': max_error_expression(max_error),
+        },
+        'functionName': 'Filter.intersects',
+    })
+    expression = ee.Filter.intersects(
+        left_field, right_value, right_field, left_value, max_error
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.intersects(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+        maxError=max_error,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_is_contained(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    max_error = 3
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+            'maxError': max_error_expression(max_error),
+        },
+        'functionName': 'Filter.isContained',
+    })
+    expression = ee.Filter.isContained(
+        left_field, right_value, right_field, left_value, max_error
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.isContained(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+        maxError=max_error,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_less_than(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.lessThan',
+    })
+    expression = ee.Filter.lessThan(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.lessThan(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_less_than_or_equals(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.lessThanOrEquals',
+    })
+    expression = ee.Filter.lessThanOrEquals(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.lessThanOrEquals(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_list_contains(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.listContains',
+    })
+    expression = ee.Filter.listContains(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.listContains(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_lt(self):
+    # Note: not Filter.lt.
+    name = 'a'
+    value = 1
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': name},
+            'rightValue': {'constantValue': value},
+        },
+        'functionName': 'Filter.lessThan',
+    })
+    expression = ee.Filter.lt(name, value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.lt(name=name, value=value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_lte(self):
+    # Note: not Filter.lte.
+    name = 'a'
+    value = 1
+    expect = make_expression_graph({
+        'functionName': 'Filter.not',
+        'arguments': {
+            'filter': {
+                'functionInvocationValue': {
+                    'functionName': 'Filter.greaterThan',
+                    'arguments': {
+                        'leftField': {'constantValue': name},
+                        'rightValue': {'constantValue': value},
+                    },
+                }
+            }
+        },
+    })
+    expression = ee.Filter.lte(name, value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.lte(name=name, value=value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_max_difference(self):
+    difference = 1
+    left_field = 'a'
+    right_value = 2
+    right_field = 'b'
+    left_value = 3
+    expect = make_expression_graph({
+        'arguments': {
+            'difference': {'constantValue': difference},
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.maxDifference',
+    })
+    expression = ee.Filter.maxDifference(
+        difference, left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.maxDifference(
+        difference=difference,
+        leftField=left_field,
+        rightValue=right_value,
+        rightField=right_field,
+        leftValue=left_value,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_neq(self):
+    # Note: Filter.not paired with a Filter.equals.
+    name = 'a'
+    value = 1
+    expect = make_expression_graph({
+        'functionName': 'Filter.not',
+        'arguments': {
+            'filter': {
+                'functionInvocationValue': {
+                    'functionName': 'Filter.equals',
+                    'arguments': {
+                        'leftField': {'constantValue': 'a'},
+                        'rightValue': {'constantValue': 1},
+                    },
+                }
+            }
+        },
+    })
+    expression = ee.Filter.neq(name, value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.neq(name=name, value=value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_not(self):
+    name = 'air_temp'
+    value = 2
+    gt_filter = ee.Filter.gt(name, value)
+    expect = make_expression_graph({
+        'functionName': 'Filter.not',
+        'arguments': {
+            'filter': {
+                'functionInvocationValue': {
+                    'functionName': 'Filter.greaterThan',
+                    'arguments': {
+                        'leftField': {'constantValue': name},
+                        'rightValue': {'constantValue': value},
+                    },
+                }
+            }
+        },
+    })
+    expression = ee.Filter.Not(gt_filter)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = gt_filter.Not()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_not_equals(self):
+    left_field = 'a'
+    right_value = 1
+    right_field = 'b'
+    left_value = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.notEquals',
+    })
+    expression = ee.Filter.notEquals(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.notEquals(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_not_null(self):
+    properties = ['a', 'b']
+    expect = make_expression_graph({
+        'arguments': {'properties': {'constantValue': properties}},
+        'functionName': 'Filter.notNull',
+    })
+    expression = ee.Filter.notNull(properties)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.notNull(properties=properties)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_or_empty(self):
+    expect = make_expression_graph({
+        'arguments': {
+            'filters': {'constantValue': []},
+        },
+        'functionName': 'Filter.or',
+    })
+    expression = ee.Filter.Or()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_or(self):
+    name = 'air_temp'
+    value = 2
+    gt_filter = ee.Filter.gt(name, value)
+    expect = make_expression_graph({
+        'functionName': 'Filter.or',
+        'arguments': {
+            'filters': {
+                'arrayValue': {
+                    'values': [{
+                        'functionInvocationValue': {
+                            'functionName': 'Filter.greaterThan',
+                            'arguments': {
+                                'leftField': {'constantValue': name},
+                                'rightValue': {'constantValue': value},
+                            },
+                        }
+                    }]
+                }
+            }
+        },
+    })
+
+    expression = ee.Filter.Or(gt_filter)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_range_contains(self):
+    field = 'a'
+    min_value = 1
+    max_value = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'field': {'constantValue': field},
+            'minValue': {'constantValue': min_value},
+            'maxValue': {'constantValue': max_value},
+        },
+        'functionName': 'Filter.rangeContains',
+    })
+    expression = ee.Filter.rangeContains(field, min_value, max_value)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.rangeContains(
+        field=field, minValue=min_value, maxValue=max_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_string_contains(self):
+    left_field = 'a'
+    right_value = 'b'
+    right_field = 'c'
+    left_value = 'd'
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.stringContains',
+    })
+    expression = ee.Filter.stringContains(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.stringContains(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_string_ends_with(self):
+    left_field = 'a'
+    right_value = 'b'
+    right_field = 'c'
+    left_value = 'd'
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.stringEndsWith',
+    })
+    expression = ee.Filter.stringEndsWith(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.stringEndsWith(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_string_starts_with(self):
+    left_field = 'a'
+    right_value = 'b'
+    right_field = 'c'
+    left_value = 'd'
+    expect = make_expression_graph({
+        'arguments': {
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+        },
+        'functionName': 'Filter.stringStartsWith',
+    })
+    expression = ee.Filter.stringStartsWith(
+        left_field, right_value, right_field, left_value
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.stringStartsWith(
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_within_distance(self):
+    distance = 1
+    left_field = 'a'
+    right_value = 2
+    right_field = 'b'
+    left_value = 3
+    max_error = 4
+    expect = make_expression_graph({
+        'arguments': {
+            'distance': {'constantValue': distance},
+            'leftField': {'constantValue': left_field},
+            'rightValue': {'constantValue': right_value},
+            'rightField': {'constantValue': right_field},
+            'leftValue': {'constantValue': left_value},
+            'maxError': max_error_expression(max_error),
+        },
+        'functionName': 'Filter.withinDistance',
+    })
+    expression = ee.Filter.withinDistance(
+        distance, left_field, right_value, right_field, left_value, max_error
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.Filter.withinDistance(
+        distance=distance,
+        leftValue=left_value,
+        rightValue=right_value,
+        leftField=left_field,
+        rightField=right_field,
+        maxError=max_error,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
 
 
 if __name__ == '__main__':
