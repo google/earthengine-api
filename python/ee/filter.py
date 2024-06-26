@@ -10,11 +10,30 @@ Example usage:
 # Using lowercase function naming to match the JavaScript names.
 # pylint: disable=g-bad-name
 
+from __future__ import annotations
+
+from typing import Any, Optional, Union
+
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
+from ee import ee_date
 from ee import ee_exception
+from ee import ee_number
+from ee import ee_string
+from ee import errormargin
 
+_DateType = Union[float, str, 'ee_date.Date', computedobject.ComputedObject]
+_EeAnyType = Union[Any, computedobject.ComputedObject]
+_ErrorMarginType = Union[
+    float,
+    ee_number.Number,
+    errormargin.ErrorMargin,
+    computedobject.ComputedObject,
+]
+_FilterType = Union['Filter', computedobject.ComputedObject]
+_GeometryType = Union[Any, computedobject.ComputedObject]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 # A map from the deprecated old-style comparison operator names to API
 # function names, implicitly prefixed with "Filter.". Negative operators
@@ -91,7 +110,7 @@ class Filter(computedobject.ComputedObject):
     apifunction.ApiFunction.clearApi(cls)
     cls._initialized = False
 
-  def predicateCount(self):
+  def predicateCount(self) -> int:
     """Return the number of predicates that have been added to this filter.
 
     Returns:
@@ -100,7 +119,7 @@ class Filter(computedobject.ComputedObject):
     """
     return len(self._filter)
 
-  def _append(self, new_filter):
+  def _append(self, new_filter: Union[None, _FilterType]) -> Filter:
     """Append a predicate to this filter.
 
     These are implicitly ANDed.
@@ -114,6 +133,7 @@ class Filter(computedobject.ComputedObject):
     Returns:
       A new filter that is the combination of both.
     """
+    # TODO: Investigate when new_filter can be None.
     if new_filter is not None:
       prev = list(self._filter)
       if isinstance(new_filter, Filter):
@@ -125,7 +145,7 @@ class Filter(computedobject.ComputedObject):
     return Filter(prev)
 
   @staticmethod
-  def metadata_(name, operator, value):
+  def metadata_(name: str, operator: str, value: _EeAnyType) -> Filter:
     """Filter on metadata. This is deprecated.
 
     Args:
@@ -162,7 +182,7 @@ class Filter(computedobject.ComputedObject):
     return 'Filter'
 
   @staticmethod
-  def And(*args):
+  def And(*args) -> Filter:
     """Combine two or more filters using boolean AND."""
     if len(args) == 1 and isinstance(args[0], (list, tuple)):
       args = args[0]
@@ -170,7 +190,11 @@ class Filter(computedobject.ComputedObject):
 
   @staticmethod
   @_utils.accept_opt_prefix('opt_errorMargin')
-  def bounds(geometry, errorMargin=None):
+  def bounds(
+      geometry: _GeometryType,
+      # pylint: disable=invalid-name
+      errorMargin: Optional[_ErrorMarginType] = None,
+  ) -> Filter:
     """Filter on intersection with geometry.
 
     Items in the collection with a footprint that fails to intersect
@@ -194,7 +218,7 @@ class Filter(computedobject.ComputedObject):
 
   @staticmethod
   @_utils.accept_opt_prefix('opt_end')
-  def date(start, end=None):
+  def date(start: _DateType, end: Optional[_DateType] = None) -> Filter:
     """Filter images by date.
 
     The start and end may be a Date, numbers (interpreted as milliseconds since
@@ -216,13 +240,17 @@ class Filter(computedobject.ComputedObject):
     })
 
   @staticmethod
-  def eq(name, value):
+  def eq(name: _StringType, value: _EeAnyType) -> Filter:
     """Filter to metadata equal to the given value."""
     return apifunction.ApiFunction.call_('Filter.equals', name, value)
 
   @staticmethod
   @_utils.accept_opt_prefix('opt_errorMargin')
-  def geometry(geometry, errorMargin=None):
+  def geometry(
+      geometry: _GeometryType,
+      # pylint: disable=invalid-name
+      errorMargin: Optional[_ErrorMarginType] = None,
+  ):
     """Filter on intersection with geometry.
 
     Items in the collection with a footprint that fails to intersect
@@ -247,11 +275,11 @@ class Filter(computedobject.ComputedObject):
     return apifunction.ApiFunction.apply_('Filter.intersects', args)
 
   @staticmethod
-  def neq(name, value):
+  def neq(name: _StringType, value: _EeAnyType) -> Filter:
     """Filter to metadata not equal to the given value."""
     return Filter.eq(name, value).Not()
 
-  def Not(self):
+  def Not(self) -> Filter:
     """Returns the opposite of this filter.
 
     Returns:
@@ -260,17 +288,17 @@ class Filter(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_('Filter.not', self)
 
   @staticmethod
-  def lt(name, value):
+  def lt(name: _StringType, value: _EeAnyType) -> Filter:
     """Filter to metadata less than the given value."""
     return apifunction.ApiFunction.call_('Filter.lessThan', name, value)
 
   @staticmethod
-  def gt(name, value):
+  def gt(name: _StringType, value: _EeAnyType) -> Filter:
     """Filter on metadata greater than the given value."""
     return apifunction.ApiFunction.call_('Filter.greaterThan', name, value)
 
   @staticmethod
-  def gte(name, value):
+  def gte(name: _StringType, value: _EeAnyType) -> Filter:
     """Filter on metadata greater than or equal to the given value."""
     return Filter.lt(name, value).Not()
 
@@ -278,7 +306,12 @@ class Filter(computedobject.ComputedObject):
   @_utils.accept_opt_prefix(
       'opt_leftField', 'opt_rightValue', 'opt_rightField', 'opt_leftValue'
   )
-  def inList(leftField=None, rightValue=None, rightField=None, leftValue=None):
+  def inList(
+      leftField: Optional[_StringType] = None,
+      rightValue: Optional[_EeAnyType] = None,
+      rightField: Optional[_StringType] = None,
+      leftValue: Optional[_EeAnyType] = None,
+  ) -> Filter:
     """Filter on metadata contained in a list.
 
     Args:
@@ -308,12 +341,12 @@ class Filter(computedobject.ComputedObject):
     )
 
   @staticmethod
-  def lte(name, value):
+  def lte(name: _StringType, value: _EeAnyType) -> Filter:
     """Filter on metadata less than or equal to the given value."""
     return Filter.gt(name, value).Not()
 
   @staticmethod
-  def Or(*args):
+  def Or(*args) -> Filter:
     """Combine two or more filters using boolean OR."""
     if len(args) == 1 and isinstance(args[0], (list, tuple)):
       args = args[0]
