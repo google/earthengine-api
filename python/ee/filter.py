@@ -275,24 +275,6 @@ class Filter(computedobject.ComputedObject):
     return apifunction.ApiFunction.apply_('Filter.intersects', args)
 
   @staticmethod
-  def neq(name: _StringType, value: _EeAnyType) -> Filter:
-    """Filter to metadata not equal to the given value."""
-    return Filter.eq(name, value).Not()
-
-  def Not(self) -> Filter:
-    """Returns the opposite of this filter.
-
-    Returns:
-      The negated filter, which will match if and only if this filter does not.
-    """
-    return apifunction.ApiFunction.call_('Filter.not', self)
-
-  @staticmethod
-  def lt(name: _StringType, value: _EeAnyType) -> Filter:
-    """Filter to metadata less than the given value."""
-    return apifunction.ApiFunction.call_('Filter.lessThan', name, value)
-
-  @staticmethod
   def gt(name: _StringType, value: _EeAnyType) -> Filter:
     """Filter on metadata greater than the given value."""
     return apifunction.ApiFunction.call_('Filter.greaterThan', name, value)
@@ -341,9 +323,27 @@ class Filter(computedobject.ComputedObject):
     )
 
   @staticmethod
+  def lt(name: _StringType, value: _EeAnyType) -> Filter:
+    """Filter to metadata less than the given value."""
+    return apifunction.ApiFunction.call_('Filter.lessThan', name, value)
+
+  @staticmethod
   def lte(name: _StringType, value: _EeAnyType) -> Filter:
     """Filter on metadata less than or equal to the given value."""
     return Filter.gt(name, value).Not()
+
+  @staticmethod
+  def neq(name: _StringType, value: _EeAnyType) -> Filter:
+    """Filter to metadata not equal to the given value."""
+    return Filter.eq(name, value).Not()
+
+  def Not(self) -> Filter:
+    """Returns the opposite of this filter.
+
+    Returns:
+      The negated filter, which will match if and only if this filter does not.
+    """
+    return apifunction.ApiFunction.call_('Filter.not', self)
 
   @staticmethod
   def Or(*args) -> Filter:
