@@ -119,7 +119,7 @@ class Filter(computedobject.ComputedObject):
     """
     return len(self._filter)
 
-  def _append(self, new_filter: Union[None, _FilterType]) -> Filter:
+  def _append(self, new_filter: _FilterType) -> Filter:
     """Append a predicate to this filter.
 
     These are implicitly ANDed.
@@ -133,15 +133,15 @@ class Filter(computedobject.ComputedObject):
     Returns:
       A new filter that is the combination of both.
     """
-    # TODO: Investigate when new_filter can be None.
-    if new_filter is not None:
-      prev = list(self._filter)
-      if isinstance(new_filter, Filter):
-        prev.extend(new_filter._filter)  # pylint: disable=protected-access
-      elif isinstance(new_filter, list):
-        prev.extend(new_filter)
-      else:
-        prev.append(new_filter)
+    if new_filter is None:
+      raise ValueError('new_filter should never be None')
+    prev = list(self._filter)
+    if isinstance(new_filter, Filter):
+      prev.extend(new_filter._filter)  # pylint: disable=protected-access
+    elif isinstance(new_filter, list):
+      prev.extend(new_filter)
+    else:
+      prev.append(new_filter)
     return Filter(prev)
 
   @staticmethod
