@@ -1306,7 +1306,7 @@ class Image(element.Element):
       bandTypes: A dictionary from band name to band types. Types can be
         PixelTypes or strings. The valid strings are: 'int8', 'int16', 'int32',
         'int64', 'uint8', 'uint16', 'uint32', 'byte', 'short', 'int', 'long',
-        'float' and 'double'. If bandTypes includes bands that are not already
+        'float', and 'double'. If bandTypes includes bands that are not already
         in the input image, they will be added to the image as transparent
         bands. If bandOrder isn't also specified, new bands will be appended in
         alphabetical order.
