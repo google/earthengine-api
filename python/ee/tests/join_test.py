@@ -13,32 +13,10 @@ SIMPLE = 'Join.simple'
 
 class JoinTest(apitestcase.ApiTestCase):
 
-  def test_simple_join(self):
-    join = ee.Join.simple()
-    self.assertEqual({'value': 'fakeValue'}, join.getInfo())
-
-    join_func = ee.ApiFunction.lookup(SIMPLE)
-    self.assertEqual(join_func, join.func)
-
-    self.assertFalse(join.isVariable())
-    self.assertEqual({}, join.args)
-
-    result = json.loads(join.serialize())
-    expect = {
-        'result': '0',
-        'values': {
-            '0': {
-                'functionInvocationValue': {
-                    'arguments': {},
-                    'functionName': SIMPLE,
-                }
-            }
-        },
-    }
-    self.assertEqual(expect, result)
-
-    join_cast_result = json.loads(ee.Join(join).serialize())
-    self.assertEqual(expect, join_cast_result)
+  def test_join_no_args(self):
+    message = 'missing 1 required positional argument.*join'
+    with self.assertRaisesRegex(TypeError, message):
+      ee.Join()  # pytype:disable=missing-parameter
 
   def test_inner_join(self):
     first = '1st'
@@ -74,10 +52,32 @@ class JoinTest(apitestcase.ApiTestCase):
     join_cast_result = json.loads(ee.Join(join).serialize())
     self.assertEqual(expect, join_cast_result)
 
-  def test_join_no_args(self):
-    message = 'missing 1 required positional argument.*join'
-    with self.assertRaisesRegex(TypeError, message):
-      ee.Join()  # pytype:disable=missing-parameter
+  def test_simple_join(self):
+    join = ee.Join.simple()
+    self.assertEqual({'value': 'fakeValue'}, join.getInfo())
+
+    join_func = ee.ApiFunction.lookup(SIMPLE)
+    self.assertEqual(join_func, join.func)
+
+    self.assertFalse(join.isVariable())
+    self.assertEqual({}, join.args)
+
+    result = json.loads(join.serialize())
+    expect = {
+        'result': '0',
+        'values': {
+            '0': {
+                'functionInvocationValue': {
+                    'arguments': {},
+                    'functionName': SIMPLE,
+                }
+            }
+        },
+    }
+    self.assertEqual(expect, result)
+
+    join_cast_result = json.loads(ee.Join(join).serialize())
+    self.assertEqual(expect, join_cast_result)
 
 
 if __name__ == '__main__':
