@@ -2,7 +2,9 @@
 """Tests for the ee.deprecation module."""
 
 import contextlib
+import datetime
 from typing import Any, Dict
+from unittest import mock
 import warnings
 
 from absl.testing import parameterized
@@ -37,7 +39,7 @@ _STAC_JSON = {
             'title': 'date_and_learn_more',
             'deprecated': True,
             'gee:replacement_id': 'replacement_id',
-            'gee:removal_date': '2024-07-01T00:00:00Z',
+            'gee:removal_date': '2100-07-01T00:00:00Z',
             'gee:learn_more_url': 'learn_more_url',
         },
         {
@@ -45,21 +47,28 @@ _STAC_JSON = {
             'title': 'date_only',
             'deprecated': True,
             'gee:replacement_id': 'replacement_id',
-            'gee:removal_date': '2024-07-01T00:00:00Z',
+            'gee:removal_date': '2100-07-01T00:00:00Z',
         },
         {
             'href': 'https://example.test/two_digit_date.json',
             'title': 'two_digit_date',
             'deprecated': True,
             'gee:replacement_id': 'replacement_id',
-            'gee:removal_date': '2024-01-31T00:00:00Z',
+            'gee:removal_date': '2100-01-31T00:00:00Z',
         },
         {
             'href': 'https://example.test/invalid_date.json',
             'title': 'invalid_date',
             'deprecated': True,
             'gee:replacement_id': 'replacement_id',
-            'gee:removal_date': '20240131',
+            'gee:removal_date': '21000131',
+        },
+        {
+            'href': 'https://example.test/past_date.json',
+            'title': 'past_date',
+            'deprecated': True,
+            'gee:replacement_id': 'replacement_id',
+            'gee:removal_date': '1970-01-01T00:00:00Z',
         },
         {
             'href': 'https://example.test/learn_more_url_only.json',
@@ -90,19 +99,23 @@ _EXPECTED_WARNINGS = {
     'date_and_learn_more': (
         r'Attention required for date_and_learn_more! You are using a'
         r' deprecated asset.\nTo ensure continued functionality, please update'
-        r' it by July 1, 2024.\nLearn more: learn_more_url'
+        r' it by July 1, 2100.\nLearn more: learn_more_url'
     ),
     'date_only': (
         r'Attention required for date_only! You are using a deprecated asset.\n'
-        r'To ensure continued functionality, please update it by July 1, 2024.'
+        r'To ensure continued functionality, please update it by July 1, 2100.'
     ),
     'two_digit_date': (
         r'Attention required for two_digit_date! You are using a deprecated'
         r' asset.\nTo ensure continued functionality, please update it by'
-        r' January 31, 2024.'
+        r' January 31, 2100.'
     ),
     'invalid_date': (
         r'Attention required for invalid_date! You are using a deprecated'
+        r' asset.\nTo ensure continued functionality, please update it\.'
+    ),
+    'past_date': (
+        r'Attention required for past_date! You are using a deprecated'
         r' asset.\nTo ensure continued functionality, please update it\.'
     ),
     'learn_more_url_only': (
@@ -189,6 +202,29 @@ class DeprecationTest(apitestcase.ApiTestCase, parameterized.TestCase):
       )
     with self.assertDoesNotWarn():
       FakeClass(None)
+
+  def test_asset_warning_on_day_of_removal_date_shows_date(self):
+    mock_current_date = datetime.datetime(2100, 7, 1, 12, 34, 56)
+    with mock.patch.object(
+        datetime, 'datetime', autospec=True
+    ) as mock_datetime:
+      mock_datetime.now.return_value = mock_current_date
+      with self.assertWarnsRegex(
+          DeprecationWarning, _EXPECTED_WARNINGS['date_only']
+      ):
+        FakeClass('date_only', 'some-value')
+
+  def test_asset_warning_on_day_after_removal_date_does_not_show_date(self):
+    mock_current_date = datetime.datetime(2100, 7, 2, 12, 34, 56)
+    with mock.patch.object(
+        datetime, 'datetime', autospec=True
+    ) as mock_datetime:
+      mock_datetime.now.return_value = mock_current_date
+      with self.assertWarnsRegex(
+          DeprecationWarning,
+          _EXPECTED_WARNINGS['past_date'].replace('past_date', 'date_only'),
+      ):
+        FakeClass('date_only', 'some-value')
 
 
 if __name__ == '__main__':
