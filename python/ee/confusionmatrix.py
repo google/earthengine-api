@@ -7,7 +7,7 @@ from ee import apifunction
 from ee import computedobject
 from ee import ee_array
 
-_ArrayType = Union[ee_array.Array, computedobject.ComputedObject]
+_ArrayType = Union['ee_array.Array', computedobject.ComputedObject]
 _ConfusionMatrixType = Union['ConfusionMatrix', computedobject.ComputedObject]
 _ListType = Union[List[Any], computedobject.ComputedObject]
 

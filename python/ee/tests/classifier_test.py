@@ -200,16 +200,12 @@ class ClassifierTest(apitestcase.ApiTestCase):
         'arguments': {'classifier': _CLASSIFIER_LOAD_A},
         'functionName': 'Classifier.confusionMatrix',
     })
-    expression = ee.Classifier.confusionMatrix(classifier)
-    result = json.loads(expression.serialize())
-    self.assertEqual(expect, result)
-
-    expression = ee.Classifier.confusionMatrix(classifier=classifier)
+    expression = classifier.confusionMatrix()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
   def test_decision_tree(self):
-    tree_string = ['a', 'b']
+    tree_string = 'a'
     expect = make_expression_graph({
         'arguments': {
             'treeString': {'constantValue': tree_string},
@@ -246,11 +242,7 @@ class ClassifierTest(apitestcase.ApiTestCase):
         'arguments': {'classifier': _CLASSIFIER_LOAD_A},
         'functionName': 'Classifier.explain',
     })
-    expression = ee.Classifier.explain(classifier)
-    result = json.loads(expression.serialize())
-    self.assertEqual(expect, result)
-
-    expression = ee.Classifier.explain(classifier=classifier)
+    expression = classifier.explain()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -360,11 +352,7 @@ class ClassifierTest(apitestcase.ApiTestCase):
         'arguments': {'classifier': _CLASSIFIER_LOAD_A},
         'functionName': 'Classifier.mode',
     })
-    expression = ee.Classifier.mode(classifier)
-    result = json.loads(expression.serialize())
-    self.assertEqual(expect, result)
-
-    expression = ee.Classifier.mode(classifier=classifier)
+    expression = classifier.mode()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -374,11 +362,7 @@ class ClassifierTest(apitestcase.ApiTestCase):
         'arguments': {'classifier': _CLASSIFIER_LOAD_A},
         'functionName': 'Classifier.schema',
     })
-    expression = ee.Classifier.schema(classifier)
-    result = json.loads(expression.serialize())
-    self.assertEqual(expect, result)
-
-    expression = ee.Classifier.schema(classifier=classifier)
+    expression = classifier.schema()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -392,11 +376,11 @@ class ClassifierTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Classifier.setOutputMode',
     })
-    expression = ee.Classifier.setOutputMode(classifier, mode)
+    expression = classifier.setOutputMode(mode)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Classifier.setOutputMode(classifier=classifier, mode=mode)
+    expression = classifier.setOutputMode(mode=mode)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -425,7 +409,7 @@ class ClassifierTest(apitestcase.ApiTestCase):
     shrinkage = 0.2
     sampling_rate = 0.3
     max_nodes = 4
-    loss = True
+    loss = 'Huber'
     seed = 5
     expect = make_expression_graph({
         'arguments': {
@@ -494,6 +478,11 @@ class ClassifierTest(apitestcase.ApiTestCase):
     expression = ee.Classifier.smileNaiveBayes(**args)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
+
+  def test_smile_naive_bayes_with_bad_kwargs(self):
+    message = r"Unexpected arguments: \['bad_arg'\]\. Expected: lambda."
+    with self.assertRaisesRegex(ValueError, message):
+      ee.Classifier.smileNaiveBayes(bad_arg=1)
 
   def test_smile_random_forest(self):
     number_of_trees = 1
@@ -578,8 +567,7 @@ class ClassifierTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Classifier.train',
     })
-    expression = ee.Classifier.train(
-        classifier,
+    expression = classifier.train(
         features,
         class_property,
         input_properties,
@@ -589,8 +577,7 @@ class ClassifierTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Classifier.train(
-        classifier=classifier,
+    expression = classifier.train(
         features=features,
         classProperty=class_property,
         inputProperties=input_properties,
