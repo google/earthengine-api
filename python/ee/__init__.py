@@ -15,6 +15,7 @@ from typing import Any, Hashable, List as ListType, Optional, Sequence, Tuple, T
 from ee import _utils
 from ee import batch
 from ee import data
+from ee import deprecation
 from ee import deserializer
 from ee import ee_types as types
 from ee import oauth

@@ -22,7 +22,7 @@ jobs:
         python-version: 3.11
     - name: Install EE API
       run: |
-        pip install ./python
+        pip install ./python[tests]
         pip install pyright
         pip install mypy
     - name: pyright ee type verification
@@ -37,3 +37,7 @@ jobs:
       run: |
         mypy -p ee
       continue-on-error: true
+    - name: pytype ee type verification
+      run: |
+        cd python
+        pytype -k -d import-error ee

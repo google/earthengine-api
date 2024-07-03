@@ -717,7 +717,7 @@ class Image(element.Element):
         'returns': 'Image'
     }
     # Perform the call to the result of Image.parseExpression
-    return function.SecondOrderFunction(body, signature).apply(args)
+    return Image(function.SecondOrderFunction(body, signature).apply(args))
 
   def abs(self) -> Image:
     """Computes the absolute value of the input."""

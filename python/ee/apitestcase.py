@@ -150,7 +150,7 @@ def UsingCloudApi(
     cloud_api_resource: Optional[Any] = None,
     cloud_api_resource_raw: Optional[Any] = None,
     mock_http: Optional[Any] = None,
-) -> Iterable[Any]:
+) -> Iterable[Any]:  # pytype: disable=wrong-arg-types
   """Returns a context manager under which the Cloud API is enabled."""
   old_cloud_api_resource = ee.data._cloud_api_resource  # pylint: disable=protected-access
   old_cloud_api_resource_raw = ee.data._cloud_api_resource_raw  # pylint: disable=protected-access
