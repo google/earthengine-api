@@ -19,10 +19,8 @@ const EarthEngineTileSource = class extends AbstractTileSource {
    *     tiles.
    * @param {?data.Profiler=} opt_profiler The profiler to send map tile
    *     calculation cost to, if any.
-   * @param {number=} opt_parallelism The number of map tiles to fetch
-   *     concurrently.
    */
-  constructor(mapId, opt_profiler, opt_parallelism) {
+  constructor(mapId, opt_profiler) {
     super();
 
     /** @const @private {!data.RawMapId} The EE map ID for fetching tiles. */
@@ -35,9 +33,6 @@ const EarthEngineTileSource = class extends AbstractTileSource {
      * @const
      */
     this.profiler_ = opt_profiler || null;
-
-    this.token_count_ =
-        opt_parallelism || EarthEngineTileSource.DEFAULT_TOKEN_COUNT_;
   }
 
   /** @override */
@@ -80,6 +75,26 @@ const EarthEngineTileSource = class extends AbstractTileSource {
   /** @override */
   getUniqueId() {
     return this.mapId_.mapid + '-' + this.mapId_.token;
+  }
+
+  /**
+   * Sets the global parallelism for EE tiles.
+   *
+   * Note that most browsers will also throttle concurrent requests to the same
+   * domain, and that each Earth Engine user/project has its own concurrent
+   * request quota. This means that the actual parallelism will be the minimum
+   * of {this value, the browser's limit, the user and project's quota across
+   * clients}.
+   *
+   * Also note that increasing parallelism doesn't change the latency of
+   * individual requests, it just allows more requests to be in flight at once.
+   * Said another way, the amount of time per request won't change, but setting
+   * a higher parallelism can potentially yield greater overall throughput.
+   *
+   * @param {number} parallelism The new parallelism limit.
+   */
+  setGlobalParallelism(parallelism) {
+    this.getGlobalTokenPool_().setMaximumCount(parallelism);
   }
 
   /**
@@ -131,7 +146,7 @@ const EarthEngineTileSource = class extends AbstractTileSource {
   getGlobalTokenPool_() {
     if (!EarthEngineTileSource.TOKEN_POOL_) {
       EarthEngineTileSource.TOKEN_POOL_ =
-          new PriorityPool(0, this.token_count_);
+          new PriorityPool(0, EarthEngineTileSource.DEFAULT_TOKEN_COUNT_);
     }
     return EarthEngineTileSource.TOKEN_POOL_;
   }
