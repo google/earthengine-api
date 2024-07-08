@@ -224,7 +224,7 @@ class Filter(computedobject.ComputedObject):
       # pylint: disable=invalid-name
       errorMargin: Optional[_ErrorMarginType] = None,
   ) -> Filter:
-    """Filter on intersection with geometry.
+    """Returns a filter on intersection with geometry.
 
     Items in the collection with a footprint that fails to intersect
     the given geometry will be excluded. This is an alias for geometry().
@@ -373,7 +373,7 @@ class Filter(computedobject.ComputedObject):
   @_utils.accept_opt_prefix('opt_errorMargin')
   def geometry(
       geometry: _GeometryType,
-      # pylint: disable=invalid-name
+      # pylint: disable-next=invalid-name
       errorMargin: Optional[_ErrorMarginType] = None,
   ):
     """Filter on intersection with geometry.
@@ -437,33 +437,6 @@ class Filter(computedobject.ComputedObject):
 
     return apifunction.ApiFunction.call_(
         'Filter.hasType', leftField, rightValue, rightField, leftValue
-    )
-
-  @staticmethod
-  def inList(
-      leftField: Optional[_StringType] = None,
-      rightValue: Optional[_EeAnyType] = None,
-      rightField: Optional[_StringType] = None,
-      leftValue: Optional[_EeAnyType] = None,
-  ) -> Filter:
-    """Returns a filter that passes if the left, a list, contains the right.
-
-    Creates a unary or binary filter that passes if the left operand, a list,
-    contains the right operand.
-
-    Args:
-      leftField: A selector for the left operand. Should not be specified if
-        leftValue is specified.
-      rightValue: The value of the right operand. Should not be specified if
-        rightField is specified.
-      rightField: A selector for the right operand. Should not be specified if
-        rightValue is specified.
-      leftValue: The value of the left operand. Should not be specified if
-        leftField is specified.
-    """
-
-    return apifunction.ApiFunction.call_(
-        'Filter.inList', leftField, rightValue, rightField, leftValue
     )
 
   @staticmethod
