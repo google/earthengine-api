@@ -24,18 +24,14 @@ class DictionaryTest(apitestcase.ApiTestCase):
     """Verifies basic behavior of ee.Dictionary."""
     src = {'a': 1, 'b': 2, 'c': 'three'}
     dictionary = ee.Dictionary(src)
-    self.assertEqual({
-        'type': 'Dictionary',
-        'value': src
-    },
-                     ee.Serializer(False)._encode(dictionary))
-    self.assertEqual({'constantValue': {
-        'a': 1,
-        'b': 2,
-        'c': 'three'
-    }},
-                     ee.Serializer(False,
-                                   for_cloud_api=True)._encode(dictionary))
+    self.assertEqual(
+        {'type': 'Dictionary', 'value': src},
+        ee.Serializer(False)._encode(dictionary),
+    )
+    self.assertEqual(
+        {'constantValue': {'a': 1, 'b': 2, 'c': 'three'}},
+        ee.Serializer(False, for_cloud_api=True)._encode(dictionary),
+    )
 
     f = ee.Feature(None, {'properties': src})
     computed = ee.Dictionary(f.get('properties'))
