@@ -1,15 +1,18 @@
 """A wrapper for ConfusionMatrices."""
 from __future__ import annotations
 
-from typing import Any, Dict, List, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from ee import apifunction
 from ee import computedobject
 from ee import ee_array
+from ee import ee_list
+from ee import ee_number
 
 _ArrayType = Union['ee_array.Array', computedobject.ComputedObject]
 _ConfusionMatrixType = Union['ConfusionMatrix', computedobject.ComputedObject]
-_ListType = Union[List[Any], computedobject.ComputedObject]
+_ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
 
 
 class ConfusionMatrix(computedobject.ComputedObject):
@@ -75,3 +78,55 @@ class ConfusionMatrix(computedobject.ComputedObject):
   @staticmethod
   def name() -> str:
     return 'ConfusionMatrix'
+
+  def accuracy(self) -> ee_number.Number:
+    """Returns the accuracy of a confusion matrix defined as correct / total."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.accuracy', self)
+
+  def array(self) -> ee_array.Array:
+    """Returns a confusion matrix as an Array."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.array', self)
+
+  def consumersAccuracy(self) -> ee_array.Array:
+    """Returns an array of consumer's accuracies.
+
+    Computes the consumer's accuracy (reliability) of a confusion matrix defined
+    as (correct / total) for each row.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.consumersAccuracy', self
+    )
+
+  def fscore(self, beta: Optional[_NumberType] = None) -> ee_array.Array:
+    """Returns the F-beta score for the confusion matrix.
+
+    Args:
+      beta: A factor indicating how much more important recall is than
+        precision. The standard F-score is equivalent to setting beta to one.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.fscore', self, beta)
+
+  def kappa(self) -> ee_number.Number:
+    """Returns the Kappa statistic for the confusion matrix."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.kappa', self)
+
+  def order(self) -> ee_list.List:
+    """Returns the name and order of the rows and columns of the matrix."""
+
+    return apifunction.ApiFunction.call_(self.name() + '.order', self)
+
+  def producersAccuracy(self) -> ee_array.Array:
+    """Returns an array of producer's accuracies.
+
+    Computes the producer's accuracy of a confusion matrix defined as (correct /
+    total) for each column.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.producersAccuracy', self
+    )
