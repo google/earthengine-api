@@ -153,6 +153,12 @@ class EETestCase(apitestcase.ApiTestCase):
                   'optional': True,
                   'description': '',
                   'name': 'normalize'
+              }, {
+                  'default': 1.0,
+                  'type': 'float',
+                  'optional': True,
+                  'description': '',
+                  'name': 'magnitude'
               }],
               'type': 'Algorithm',
               'description': ''
@@ -183,8 +189,8 @@ class EETestCase(apitestcase.ApiTestCase):
     self.assertTrue(hasattr(ee.Kernel, 'circle'))
 
     # Try out the constructors.
-    kernel = ee.ApiFunction('Kernel.circle').call(1, 2)
-    self.assertEqual(kernel, ee.Kernel.circle(1, 2))
+    kernel = ee.ApiFunction('Kernel.circle').call(1, 'meters', True, 2)
+    self.assertEqual(kernel, ee.Kernel.circle(1, 'meters', True, 2))
 
     array = ee.ApiFunction('Array').call([1, 2])
     self.assertEqual(array, ee.Array([1, 2]))

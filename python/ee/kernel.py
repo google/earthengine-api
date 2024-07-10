@@ -1,7 +1,22 @@
 """A wrapper for Kernels."""
+from __future__ import annotations
+
+from typing import Any, List, Optional, Tuple, Union
 
 from ee import apifunction
 from ee import computedobject
+from ee import ee_list
+from ee import ee_number
+from ee import ee_string
+
+_EeBoolType = Union[Any, computedobject.ComputedObject]
+_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_KernelType = Union['Kernel', computedobject.ComputedObject]
+_ListType = Union[
+    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
+]
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Kernel(computedobject.ComputedObject):
@@ -50,3 +65,421 @@ class Kernel(computedobject.ComputedObject):
   @staticmethod
   def name() -> str:
     return 'Kernel'
+
+  def add(
+      self, kernel2: _KernelType, normalize: Optional[_EeBoolType] = None
+  ) -> Kernel:
+    """Returns the addition of two kernels.
+
+    Does pointwise addition after aligning their centers.
+
+    Args:
+      kernel2: The second kernel.
+      normalize: Normalize the kernel.
+
+    Returns:
+      An ee.Kernel.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.add', self, kernel2, normalize
+    )
+
+  @staticmethod
+  def chebyshev(
+      radius: _NumberType,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a Chebyshev kernel.
+
+    Generates a distance kernel based on Chebyshev distance (greatest distance
+    along any dimension).
+
+    Args:
+      radius: The radius of the kernel to generate.
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.chebyshev', radius, units, normalize, magnitude
+    )
+
+  @staticmethod
+  def circle(
+      radius: _NumberType,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a circle-shaped boolean kernel.
+
+    Args:
+      radius: The radius of the kernel to generate.
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.circle', radius, units, normalize, magnitude
+    )
+
+  @staticmethod
+  def compass(
+      magnitude: Optional[_NumberType] = None,
+      normalize: Optional[_EeBoolType] = None,
+  ) -> Kernel:
+    """Returns a 3x3 Prewitt's Compass edge-detection kernel.
+
+    Args:
+      magnitude: Scale each value by this amount.
+      normalize: Normalize the kernel values to sum to 1.
+    """
+
+    return apifunction.ApiFunction.call_('Kernel.compass', magnitude, normalize)
+
+  @staticmethod
+  def cross(
+      radius: _NumberType,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a cross-shaped boolean kernel.
+
+    Args:
+      radius: The radius of the kernel to generate.
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.cross', radius, units, normalize, magnitude
+    )
+
+  @staticmethod
+  def diamond(
+      radius: _NumberType,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a diamond-shaped boolean kernel.
+
+    Args:
+      radius: The radius of the kernel to generate.
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.diamond', radius, units, normalize, magnitude
+    )
+
+  @staticmethod
+  def euclidean(
+      radius: _NumberType,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a distance kernel based on Euclidean (straight-line) distance.
+
+    Args:
+      radius: The radius of the kernel to generate.
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.euclidean', radius, units, normalize, magnitude
+    )
+
+  # TODO: Test missing weights.
+  @staticmethod
+  def fixed(
+      width: Optional[_IntegerType] = None,
+      height: Optional[_IntegerType] = None,
+      weights: Optional[_ListType] = None,
+      x: Optional[_IntegerType] = None,
+      y: Optional[_IntegerType] = None,
+      normalize: Optional[_EeBoolType] = None,
+  ) -> Kernel:
+    """Returns a kernel with the given weights.
+
+    Args:
+      width: The width of the kernel in pixels.
+      height: The height of the kernel in pixels.
+      weights: A 2-D list of [height] x [width] values to use as the weights of
+        the kernel.
+      x: The location of the focus, as an offset from the left.
+      y: The location of the focus, as an offset from the top.
+      normalize: Normalize the kernel values to sum to 1.
+    """
+    if weights is None:
+      raise ValueError('weights is required.')
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.fixed', width, height, weights, x, y, normalize
+    )
+
+  @staticmethod
+  def gaussian(
+      radius: _NumberType,
+      sigma: Optional[_NumberType] = None,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a Gaussian kernel from a sampled continuous Gaussian.
+
+    Args:
+      radius: The radius of the kernel to generate.
+      sigma: Standard deviation of the Gaussian function (same units as radius).
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.gaussian', radius, sigma, units, normalize, magnitude
+    )
+
+  def inverse(self) -> Kernel:
+    """Returns a kernel which has each of its weights multiplicatively inverted.
+
+    Weights with a value of zero are not inverted and remain zero.
+    """
+
+    return apifunction.ApiFunction.call_(self.name() + '.inverse', self)
+
+  @staticmethod
+  def kirsch(
+      magnitude: Optional[_NumberType] = None,
+      normalize: Optional[_EeBoolType] = None,
+  ) -> Kernel:
+    """Returns a 3x3 Kirsch's Compass edge-detection kernel.
+
+    Args:
+      magnitude: Scale each value by this amount.
+      normalize: Normalize the kernel values to sum to 1.
+    """
+
+    return apifunction.ApiFunction.call_('Kernel.kirsch', magnitude, normalize)
+
+  @staticmethod
+  def laplacian4(
+      magnitude: Optional[_NumberType] = None,
+      normalize: Optional[_EeBoolType] = None,
+  ) -> Kernel:
+    """Returns a 3x3 Laplacian-4 edge-detection kernel.
+
+    Args:
+      magnitude: Scale each value by this amount.
+      normalize: Normalize the kernel values to sum to 1.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.laplacian4', magnitude, normalize
+    )
+
+  @staticmethod
+  def laplacian8(
+      magnitude: Optional[_NumberType] = None,
+      normalize: Optional[_EeBoolType] = None,
+  ) -> Kernel:
+    """Returns a 3x3 Laplacian-8 edge-detection kernel.
+
+    Args:
+      magnitude: Scale each value by this amount.
+      normalize: Normalize the kernel values to sum to 1.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.laplacian8', magnitude, normalize
+    )
+
+  @staticmethod
+  def manhattan(
+      radius: _NumberType,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a distance kernel based on rectilinear (city-block) distance.
+
+    Args:
+      radius: The radius of the kernel to generate.
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.manhattan', radius, units, normalize, magnitude
+    )
+
+  @staticmethod
+  def octagon(
+      radius: _NumberType,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns an octagon-shaped boolean kernel.
+
+    Args:
+      radius: The radius of the kernel to generate.
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.octagon', radius, units, normalize, magnitude
+    )
+
+  @staticmethod
+  def plus(
+      radius: _NumberType,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a plus-shaped boolean kernel.
+
+    Args:
+      radius: The radius of the kernel to generate.
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.plus', radius, units, normalize, magnitude
+    )
+
+  @staticmethod
+  def prewitt(
+      magnitude: Optional[_NumberType] = None,
+      normalize: Optional[_EeBoolType] = None,
+  ) -> Kernel:
+    """Returns a 3x3 Prewitt edge-detection kernel.
+
+    Args:
+      magnitude: Scale each value by this amount.
+      normalize: Normalize the kernel values to sum to 1.
+    """
+
+    return apifunction.ApiFunction.call_('Kernel.prewitt', magnitude, normalize)
+
+  @staticmethod
+  def rectangle(
+      xRadius: _NumberType,  # pylint: disable=invalid-name
+      yRadius: _NumberType,  # pylint: disable=invalid-name
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a rectangular-shaped kernel.
+
+    Args:
+      xRadius: The horizontal radius of the kernel to generate.
+      yRadius: The vertical radius of the kernel to generate.
+      units: The system of measurement for the kernel ("pixels" or "meters"). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.rectangle', xRadius, yRadius, units, normalize, magnitude
+    )
+
+  @staticmethod
+  def roberts(
+      magnitude: Optional[_NumberType] = None,
+      normalize: Optional[_EeBoolType] = None,
+  ) -> Kernel:
+    """Returns a 2x2 Roberts edge-detection kernel.
+
+    Args:
+      magnitude: Scale each value by this amount.
+      normalize: Normalize the kernel values to sum to 1.
+    """
+
+    return apifunction.ApiFunction.call_('Kernel.roberts', magnitude, normalize)
+
+  def rotate(self, rotations: _IntegerType) -> Kernel:
+    """Returns a rotated kernel.
+
+    Args:
+      rotations: Number of 90 degree rotations to make. Negative numbers rotate
+        counterclockwise.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.rotate', self, rotations
+    )
+
+  @staticmethod
+  def sobel(
+      magnitude: Optional[_NumberType] = None,
+      normalize: Optional[_EeBoolType] = None,
+  ) -> Kernel:
+    """Returns a 3x3 Sobel edge-detection kernel.
+
+    Args:
+      magnitude: Scale each value by this amount.
+      normalize: Normalize the kernel values to sum to 1.
+    """
+
+    return apifunction.ApiFunction.call_('Kernel.sobel', magnitude, normalize)
+
+  @staticmethod
+  def square(
+      radius: _NumberType,
+      units: Optional[_StringType] = None,
+      normalize: Optional[_EeBoolType] = None,
+      magnitude: Optional[_NumberType] = None,
+  ) -> Kernel:
+    """Returns a square-shaped boolean kernel.
+
+    Args:
+      radius: The radius of the kernel to generate.
+      units: The system of measurement for the kernel ('pixels' or 'meters'). If
+        the kernel is specified in meters, it will resize when the zoom-level is
+        changed.
+      normalize: Normalize the kernel values to sum to 1.
+      magnitude: Scale each value by this amount.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Kernel.square', radius, units, normalize, magnitude
+    )

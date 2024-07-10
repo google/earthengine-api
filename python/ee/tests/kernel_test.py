@@ -108,13 +108,11 @@ class KernelTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Kernel.add',
     })
-    expression = ee.Kernel.add(kernel1, kernel2, normalize)
+    expression = kernel1.add(kernel2, normalize)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Kernel.add(
-        kernel1=kernel1, kernel2=kernel2, normalize=normalize
-    )
+    expression = kernel1.add(kernel2=kernel2, normalize=normalize)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -335,11 +333,7 @@ class KernelTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Kernel.inverse',
     })
-    expression = ee.Kernel.inverse(kernel)
-    result = json.loads(expression.serialize())
-    self.assertEqual(expect, result)
-
-    expression = ee.Kernel.inverse(kernel=kernel)
+    expression = kernel.inverse()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -555,11 +549,11 @@ class KernelTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Kernel.rotate',
     })
-    expression = ee.Kernel.rotate(kernel, rotations)
+    expression = kernel.rotate(rotations)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Kernel.rotate(kernel=kernel, rotations=rotations)
+    expression = kernel.rotate(rotations=rotations)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
