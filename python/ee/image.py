@@ -50,6 +50,7 @@ _DictionaryType = Union[
 ]
 _EeAnyType = Union[Any, computedobject.ComputedObject]
 _EeBoolType = Union[Any, computedobject.ComputedObject]
+_ElementType = Union[Any, element.Element, computedobject.ComputedObject]
 _FeatureCollectionType = Union[Any, computedobject.ComputedObject]
 _GeometryType = Union[Any, computedobject.ComputedObject]
 _ImageCollectionType = Union[Any, computedobject.ComputedObject]
@@ -800,7 +801,10 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_(self.name() + '.and', self, image2)
 
   def arrayAccum(
-      self, axis: _IntegerType, reducer: Optional[_ReducerType] = None
+      self,
+      axis: _IntegerType,
+      # pylint: disable-next=redefined-outer-name
+      reducer: Optional[_ReducerType] = None,
   ) -> Image:
     """Accumulates elements of each array pixel along the given axis.
 
@@ -1003,7 +1007,7 @@ class Image(element.Element):
 
   def arrayReduce(
       self,
-      reducer: _EeAnyType,
+      reducer: _EeAnyType,  # pylint: disable=redefined-outer-name
       axes: _EeAnyType,
       fieldAxis: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -1058,9 +1062,6 @@ class Image(element.Element):
         that the total size remains constant. In particular, a shape of [-1]
         flattens into 1-D. At most one component of shape can be -1.
       dimensions: The number of dimensions shared by all output array pixels.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1105,9 +1106,6 @@ class Image(element.Element):
       step: The separation between slices along 'axis'; a slice will be taken at
         each whole multiple of 'step' from 'start' (inclusive) to 'end'
         (exclusive). Must be positive.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1171,9 +1169,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.atan2', self, image2)
@@ -1189,13 +1184,10 @@ class Image(element.Element):
     return apifunction.ApiFunction.call_(self.name() + '.bandTypes', self)
 
   def bitCount(self) -> Image:
-    """Calculates the number of one-bits.
+    """Returns the number of one-bits.
 
     Calculates the number of one-bits in the 64-bit two's complement binary
     representation of the input.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.bitCount', self)
@@ -1203,7 +1195,7 @@ class Image(element.Element):
   def bitsToArrayImage(self) -> Image:
     """Turns the bits of an integer into a 1-D array.
 
-    The array has a lengthup to the highest 'on' bit in the input.
+    The array has a length up to the highest 'on' bit in the input.
 
     Returns:
       An ee.Image.
@@ -1239,9 +1231,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1263,9 +1252,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1346,9 +1332,6 @@ class Image(element.Element):
     Args:
       srcProj: The original projection.
       dstProj: The new projection.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1364,9 +1347,6 @@ class Image(element.Element):
     Args:
       low: The minimum allowed value in the range.
       high: The maximum allowed value in the range.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1375,7 +1355,7 @@ class Image(element.Element):
 
   def classify(
       self,
-      classifier: _ClassifierType,
+      classifier: _ClassifierType,  # pylint: disable=redefined-outer-name
       outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
   ) -> Image:
     """Classifies an image.
@@ -1441,7 +1421,7 @@ class Image(element.Element):
 
   def cluster(
       self,
-      clusterer: _ClustererType,
+      clusterer: _ClustererType,  # pylint: disable=redefined-outer-name
       outputName: Optional[_StringType] = None,  # pylint: disable=invalid-name
   ) -> Image:
     """Applies a clusterer to an image.
@@ -1477,9 +1457,6 @@ class Image(element.Element):
     Args:
       connectedness: Connectedness kernel.
       maxSize: Maximum size of objects to be labeled.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1501,9 +1478,6 @@ class Image(element.Element):
     Args:
       maxSize: The maximum size of the neighborhood in pixels.
       eightConnected: Whether to use 8-connected rather 4-connected rules.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1512,6 +1486,7 @@ class Image(element.Element):
 
   # TODO: constant static method
 
+  # pylint: disable-next=redefined-outer-name
   def convolve(self, kernel: _KernelType) -> Image:
     """Convolves each band of an image with the given kernel.
 
@@ -1562,9 +1537,6 @@ class Image(element.Element):
         used, assuming a spherical Earth of radius 6378137.0. If false,
         Euclidean distance in the 2D plane of the map projection is used
         (faster, but less accurate).
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1623,9 +1595,6 @@ class Image(element.Element):
         is used for searching. All other bands are returned and populated with
         the per-band values found at the searched non-zero pixels in the label
         band.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1669,6 +1638,7 @@ class Image(element.Element):
       # pylint: disable=invalid-name
       referenceImage: _ImageType,
       maxOffset: _NumberType,
+      # pylint: disable-next=redefined-outer-name
       projection: Optional[_ProjectionType] = None,
       patchWidth: Optional[_NumberType] = None,
       # pylint: enable=invalid-name
@@ -1702,9 +1672,6 @@ class Image(element.Element):
         when determining displacements at adjacent grid points. Higher values
         move the solution towards a rigid transformation. Lower values allow
         more distortion or warping of the image during registration.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1719,6 +1686,7 @@ class Image(element.Element):
 
   def distance(
       self,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       skipMasked: Optional[_EeBoolType] = True,  # pylint: disable=invalid-name
   ) -> Image:
@@ -1730,9 +1698,6 @@ class Image(element.Element):
     Args:
       kernel: The distance kernel. One of Chebyshev, Euclidean, or Manhattan.
       skipMasked: Mask output pixels if the corresponding input pixel is masked.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1754,9 +1719,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.divide', self, image2)
@@ -1766,6 +1728,7 @@ class Image(element.Element):
 
     return apifunction.ApiFunction.call_(self.name() + '.double', self)
 
+  # pylint: disable-next=redefined-outer-name
   def entropy(self, kernel: _KernelType) -> Image:
     """Returns an ee.Image with the entropy.
 
@@ -1777,9 +1740,6 @@ class Image(element.Element):
 
     Args:
       kernel: A kernel specifying the window in which to compute.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.entropy', self, kernel)
@@ -1798,9 +1758,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.eq', self, image2)
@@ -1849,9 +1806,6 @@ class Image(element.Element):
         supported.
       metric: Distance metric to use: options are `squared_euclidean`,
         `manhattan` or `chebyshev`.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1877,9 +1831,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.first', self, image2)
@@ -1899,9 +1850,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1924,6 +1872,7 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the maximum value of the input within the kernel.
@@ -1939,9 +1888,6 @@ class Image(element.Element):
         in meters or pixels.
       iterations: The number of times to apply the given kernel.
       kernel: A custom kernel. If used, kernelType and radius are ignored.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1960,6 +1906,7 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the mean value of the input within the kernel.
@@ -1975,9 +1922,6 @@ class Image(element.Element):
         in meters or pixels.
       iterations: The number of times to apply the given kernel.
       kernel: A custom kernel. If used, kernelType and radius are ignored.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -1996,6 +1940,7 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the median value of the input within the kernel.
@@ -2011,9 +1956,6 @@ class Image(element.Element):
         in meters or pixels.
       iterations: The number of times to apply the given kernel.
       kernel: A custom kernel. If used, kernelType and radius are ignored.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2032,6 +1974,7 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the minimum value of the input within the kernel.
@@ -2047,9 +1990,6 @@ class Image(element.Element):
         in meters or pixels.
       iterations: The number of times to apply the given kernel.
       kernel: A custom kernel. If used, kernelType and radius are ignored.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2068,6 +2008,7 @@ class Image(element.Element):
       kernelType: Optional[_StringType] = None,  # pylint: disable=invalid-name
       units: Optional[_StringType] = None,
       iterations: Optional[_IntegerType] = None,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
   ) -> Image:
     """Returns the mode value of the input within the kernel.
@@ -2083,9 +2024,6 @@ class Image(element.Element):
         in meters or pixels.
       iterations: The number of times to apply the given kernel.
       kernel: A custom kernel. If used, kernelType and radius are ignored.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2117,9 +2055,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2131,6 +2066,7 @@ class Image(element.Element):
   def glcmTexture(
       self,
       size: Optional[_IntegerType] = None,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       average: Optional[_EeBoolType] = None,
   ) -> Image:
@@ -2186,9 +2122,6 @@ class Image(element.Element):
         default is a 3x3 square, resulting in 4 GLCMs with the offsets (-1, -1),
         (0, -1), (1, -1) and (-1, 0).
       average: If true, the directional bands for each metric are averaged.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2214,9 +2147,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.gt', self, image2)
@@ -2235,9 +2165,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.gte', self, image2)
@@ -2262,9 +2189,6 @@ class Image(element.Element):
         Defaults to all array properties.
       buckets: The number of HERS buckets. Defaults to 100.
       peakWidthScale: The HERS peak width scale. Defaults to 1.0.
-
-    Returns:
-      An ee.Dictionary.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2291,9 +2215,6 @@ class Image(element.Element):
       reference: The reference descriptor computed with
         ee.Feature.hersDescriptor(...).
       peakWidthScale: The HERS peak width scale.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2320,9 +2241,6 @@ class Image(element.Element):
       radius: The radius of the window.
       buckets: The number of HERS buckets.
       peakWidthScale: The HERS peak width scale.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2403,9 +2321,6 @@ class Image(element.Element):
       behavior: The behavior for points that are outside of the range of the
         supplied function. Options are: 'extrapolate', 'clamp', 'mask', or
         'input'.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2430,9 +2345,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2641,9 +2553,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2788,7 +2697,9 @@ class Image(element.Element):
     )
 
   def metadata(
-      self, property: _StringType, name: Optional[_StringType] = None
+      self,
+      property: _StringType,  # pylint: disable=redefined-builtin
+      name: Optional[_StringType] = None
   ) -> Image:
     """Generates a constant image of type double from a metadata property.
 
@@ -2818,9 +2729,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.min', self, image2)
@@ -2838,9 +2746,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.mod', self, image2)
@@ -2858,9 +2763,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -2869,7 +2771,7 @@ class Image(element.Element):
 
   def neighborhoodToArray(
       self,
-      kernel: _KernelType,
+      kernel: _KernelType,  # pylint: disable=redefined-outer-name
       # pylint: disable-next=invalid-name
       defaultValue: Optional[_NumberType] = None,
   ) -> Image:
@@ -2897,10 +2799,11 @@ class Image(element.Element):
         self.name() + '.neighborhoodToArray', self, kernel, defaultValue
     )
 
+  # pylint: disable-next=redefined-outer-name
   def neighborhoodToBands(self, kernel: _KernelType) -> Image:
-    """Turn the neighborhood of a pixel into a set of bands.
+    """Turns the neighborhood of a pixel into a set of bands.
 
-    The neighborhood is specified using a Kernel, and only non-zero-weight
+    The neighborhood is specified using a Kernel and only non-zero-weight
     kernel values are used. The weights of the kernel is otherwise ignored.
 
     Each input band produces x * y output bands. Each output band is named
@@ -2932,17 +2835,13 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.neq', self, image2)
 
   def normalizedDifference(
-      # pylint: disable=invalid-name
       self,
-      bandNames: Optional[_EeAnyType] = None,
+      bandNames: Optional[_EeAnyType] = None,  # pylint: disable=invalid-name
   ) -> Image:
     """Computes the normalized difference between two bands.
 
@@ -2984,9 +2883,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.or', self, image2)
@@ -3022,9 +2918,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(self.name() + '.pow', self, image2)
@@ -3041,22 +2934,20 @@ class Image(element.Element):
   # TODO: random
 
   def randomVisualizer(self) -> Image:
-    """Creates a random visualization image.
+    """Returns a random visualization image.
 
     Creates a visualization image by assigning a random color to each unique
     value of the pixels of the first band.
 
     The first three bands of the output image will contain 8-bit R, G and B
     values, followed by all bands of the input image.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
         self.name() + '.randomVisualizer', self
     )
 
+  # pylint: disable-next=redefined-outer-name
   def reduce(self, reducer: _ReducerType) -> Image:
     """Applies a reducer to all of the bands of an image.
 
@@ -3076,7 +2967,7 @@ class Image(element.Element):
 
   def reduceConnectedComponents(
       self,
-      reducer: _ReducerType,
+      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
       labelBand: Optional[_StringType] = None,  # pylint: disable=invalid-name
       maxSize: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -3109,8 +3000,8 @@ class Image(element.Element):
 
   def reduceNeighborhood(
       self,
-      reducer: _ReducerType,
-      kernel: _KernelType,
+      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
+      kernel: _KernelType,  # pylint: disable=redefined-outer-name
       # pylint: disable=invalid-name
       inputWeight: Optional[_StringType] = None,
       skipMasked: Optional[_EeBoolType] = None,
@@ -3142,9 +3033,6 @@ class Image(element.Element):
         MASK, KERNEL or no weighting. The 'window' method uses a running window,
         and has the same requirements as 'boxcar', but can use any single input
         reducer. Both methods require considerable additional memory.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -3159,7 +3047,8 @@ class Image(element.Element):
 
   def reduceRegion(
       self,
-      reducer: _ReducerType,
+      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
+      # pylint: disable-next=redefined-outer-name
       geometry: Optional[_GeometryType] = None,
       scale: Optional[_NumberType] = None,
       crs: Optional[_ProjectionType] = None,
@@ -3215,7 +3104,7 @@ class Image(element.Element):
   def reduceRegions(
       self,
       collection: _FeatureCollectionType,
-      reducer: _ReducerType,
+      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
       scale: Optional[_NumberType] = None,
       crs: Optional[_ProjectionType] = None,
       crsTransform: Optional[_ListType] = None,  # pylint: disable=invalid-name
@@ -3259,7 +3148,7 @@ class Image(element.Element):
 
   def reduceResolution(
       self,
-      reducer: _ReducerType,
+      reducer: _ReducerType,  # pylint: disable=redefined-outer-name
       bestEffort: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
       maxPixels: Optional[_IntegerType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -3287,9 +3176,6 @@ class Image(element.Element):
         level that allows the operation to succeed.
       maxPixels: The maximum number of input pixels to combine for each output
         pixel. Setting this too large will cause out-of-memory problems.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -3298,8 +3184,10 @@ class Image(element.Element):
 
   def reduceToVectors(
       self,
+      # pylint: disable=redefined-outer-name
       reducer: Optional[_ReducerType] = None,
       geometry: Optional[_GeometryType] = None,
+      # pylint: enable=redefined-outer-name
       scale: Optional[_NumberType] = None,
       # pylint: disable=invalid-name
       geometryType: Optional[_StringType] = None,
@@ -3379,7 +3267,7 @@ class Image(element.Element):
       self,
       regex: _StringType,
       replacement: _StringType,
-      all: Optional[_EeBoolType] = None,
+      all: Optional[_EeBoolType] = None,  # pylint: disable=redefined-builtin
   ) -> Image:
     """Renames the bands of an image.
 
@@ -3590,6 +3478,7 @@ class Image(element.Element):
       self,
       region: Optional[_GeometryType] = None,
       scale: Optional[_NumberType] = None,
+      # pylint: disable-next=redefined-outer-name
       projection: Optional[_ProjectionType] = None,
       factor: Optional[_NumberType] = None,
       # pylint: disable=invalid-name
@@ -3627,9 +3516,6 @@ class Image(element.Element):
       geometries: If true, adds the center of the sampled pixel as the geometry
         property of the output feature. Otherwise, geometries will be omitted
         (saving memory).
-
-    Returns:
-      An ee.FeatureCollection.
     """
 
     return apifunction.ApiFunction.call_(
@@ -3676,9 +3562,6 @@ class Image(element.Element):
         outside a band's footprint.
       defaultArrayValue: A default value used when a sampled array pixel is
         masked or outside a band's footprint.
-
-    Returns:
-      An ee.Feature.
     """
 
     return apifunction.ApiFunction.call_(
@@ -3695,6 +3578,7 @@ class Image(element.Element):
       collection: _FeatureCollectionType,
       properties: Optional[_ListType] = None,
       scale: Optional[_NumberType] = None,
+      # pylint: disable-next=redefined-outer-name
       projection: Optional[_ProjectionType] = None,
       tileScale: Optional[_NumberType] = None,  # pylint: disable=invalid-name
       geometries: Optional[_EeBoolType] = None,
@@ -3722,9 +3606,6 @@ class Image(element.Element):
         memory with the default.
       geometries: If true, the results will include a point geometry per sampled
         pixel. Otherwise, geometries will be omitted (saving memory).
-
-    Returns:
-      An ee.FeatureCollection.
     """
 
     return apifunction.ApiFunction.call_(
@@ -3931,6 +3812,7 @@ class Image(element.Element):
   def spectralDilation(
       self,
       metric: Optional[_StringType] = None,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -3952,9 +3834,6 @@ class Image(element.Element):
         connected).
       useCentroid: If true, distances are computed from the mean of all pixels
         under the kernel instead of the kernel's center pixel.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -3988,6 +3867,7 @@ class Image(element.Element):
   def spectralErosion(
       self,
       metric: Optional[_StringType] = None,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -4009,9 +3889,6 @@ class Image(element.Element):
         connected).
       useCentroid: If true, distances are computed from the mean of all pixels
         under the kernel instead of the kernel's center pixel.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -4021,6 +3898,7 @@ class Image(element.Element):
   def spectralGradient(
       self,
       metric: Optional[_StringType] = None,
+      # pylint: disable-next=redefined-outer-name
       kernel: Optional[_KernelType] = None,
       useCentroid: Optional[_EeBoolType] = None,  # pylint: disable=invalid-name
   ) -> Image:
@@ -4041,9 +3919,6 @@ class Image(element.Element):
         connected).
       useCentroid: If true, distances are computed from the mean of all pixels
         under the kernel instead of the kernel's center pixel.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -4061,6 +3936,7 @@ class Image(element.Element):
       classBand: Optional[_StringType] = None,  # pylint: disable=invalid-name
       region: Optional[_GeometryType] = None,
       scale: Optional[_NumberType] = None,
+      # pylint: disable-next=redefined-outer-name
       projection: Optional[_ProjectionType] = None,
       seed: Optional[_IntegerType] = None,
       classValues: Optional[_ListType] = None,  # pylint: disable=invalid-name
@@ -4138,9 +4014,6 @@ class Image(element.Element):
 
     Args:
       image2: The image from which the right operand bands are taken.
-
-    Returns:
-      An ee.Image.
     """
 
     return apifunction.ApiFunction.call_(
@@ -4381,8 +4254,8 @@ class Image(element.Element):
       bands: Optional[_EeAnyType] = None,
       gain: Optional[_EeAnyType] = None,
       bias: Optional[_EeAnyType] = None,
-      min: Optional[_EeAnyType] = None,
-      max: Optional[_EeAnyType] = None,
+      min: Optional[_EeAnyType] = None,  # pylint: disable=redefined-builtin
+      max: Optional[_EeAnyType] = None,  # pylint: disable=redefined-builtin
       gamma: Optional[_EeAnyType] = None,
       opacity: Optional[_NumberType] = None,
       palette: Optional[_EeAnyType] = None,
