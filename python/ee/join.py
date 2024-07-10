@@ -124,6 +124,17 @@ class Join(computedobject.ComputedObject):
     )
 
   @staticmethod
+  def inverted() -> Join:
+    """Returns a join producing only elements not in the secondary collection.
+
+    Returns a join that produces the elements of the primary collection that
+    match no elements of the secondary collection. No properties are added to
+    the results.
+    """
+
+    return apifunction.ApiFunction.call_('Join.inverted')
+
+  @staticmethod
   def saveAll(
       matchesKey: Optional[_StringType] = None,  # pylint: disable=invalid-name
       ordering: Optional[_StringType] = None,
@@ -209,3 +220,14 @@ class Join(computedobject.ComputedObject):
     return apifunction.ApiFunction.call_(
         'Join.saveFirst', matchKey, ordering, ascending, measureKey, outer
     )
+
+  @staticmethod
+  def simple() -> Join:
+    """Returns a join that returns match pairs.
+
+    Returns a join that produces the elements of the primary collection that
+    match any element of the secondary collection. No properties are added to
+    the results.
+    """
+
+    return apifunction.ApiFunction.call_('Join.simple')
