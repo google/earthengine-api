@@ -150,6 +150,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
 
   /**
    * Implements getTile() for the google.maps.MapType interface.
+   * @override
    * @param {?google.maps.Point} coord Position of tile.
    * @param {number} zoom Zoom level.
    * @param {?Document} ownerDocument Parent document.
@@ -201,6 +202,7 @@ ee.layers.AbstractOverlay = class extends goog.events.EventTarget {
 
   /**
    * Implements releaseTile() for the google.maps.MapType interface.
+   * @override
    */
   releaseTile(tileDiv) {
     var tile = this.tilesById.get(tileDiv.id);
