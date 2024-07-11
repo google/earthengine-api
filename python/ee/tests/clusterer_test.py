@@ -102,6 +102,7 @@ class ClustererTest(apitestcase.ApiTestCase):
         },
     })
     expression = ee.Clusterer(clusterer).schema()
+    self.assertIsNotNone(expression)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -135,14 +136,13 @@ class ClustererTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Clusterer.train',
     })
-    expression = ee.Clusterer.train(
-        clusterer, features, input_properties, subsampling, subsampling_seed
+    expression = ee.Clusterer(clusterer).train(
+        features, input_properties, subsampling, subsampling_seed
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Clusterer.train(
-        clusterer=clusterer,
+    expression = ee.Clusterer(clusterer).train(
         features=features,
         inputProperties=input_properties,
         subsampling=subsampling,

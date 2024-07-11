@@ -27,7 +27,7 @@ from ee import image
 from ee import reducer
 
 _ClassifierType = Union['classifier.Classifier', computedobject.ComputedObject]
-_ClustererType = Union[clusterer.Clusterer, computedobject.ComputedObject]
+_ClustererType = Union['clusterer.Clusterer', computedobject.ComputedObject]
 _ErrorMarginType = Union[
     float,
     ee_number.Number,
