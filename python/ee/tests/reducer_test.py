@@ -30,7 +30,7 @@ class ReducerTest(apitestcase.ApiTestCase):
     self.assertEqual(reducer_func, reducer.func)
 
     self.assertFalse(reducer.isVariable())
-    self.assertEqual({}, reducer.args)
+    self.assertEqual({'numOptional': None, 'tupleSize': None}, reducer.args)
 
     result = json.loads(reducer.serialize())
     expect = {
@@ -187,14 +187,13 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.combine',
     })
-    expression = ee.Reducer.combine(
-        reducer1, reducer2, output_prefix, shared_inputs
+    expression = reducer1.combine(
+        reducer2, output_prefix, shared_inputs
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Reducer.combine(
-        reducer1=reducer1,
+    expression = reducer1.combine(
         reducer2=reducer2,
         outputPrefix=output_prefix,
         sharedInputs=shared_inputs,
@@ -265,11 +264,11 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.disaggregate',
     })
-    expression = ee.Reducer.disaggregate(reducer, axis)
+    expression = reducer.disaggregate(axis)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Reducer.disaggregate(reducer=reducer, axis=axis)
+    expression = reducer.disaggregate(axis=axis)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -365,11 +364,11 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.forEach',
     })
-    expression = ee.Reducer.forEach(reducer, output_names)
+    expression = reducer.forEach(output_names)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Reducer.forEach(reducer=reducer, outputNames=output_names)
+    expression = reducer.forEach(outputNames=output_names)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -393,11 +392,11 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.forEachBand',
     })
-    expression = ee.Reducer.forEachBand(reducer, image)
+    expression = reducer.forEachBand(image)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Reducer.forEachBand(reducer=reducer, image=image)
+    expression = reducer.forEachBand(image=image)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -414,11 +413,7 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.forEachElement',
     })
-    expression = ee.Reducer.forEachElement(reducer)
-    result = json.loads(expression.serialize())
-    self.assertEqual(expect, result)
-
-    expression = ee.Reducer.forEachElement(reducer=reducer)
+    expression = reducer.forEachElement()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -465,11 +460,7 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.getOutputs',
     })
-    expression = ee.Reducer.getOutputs(reducer)
-    result = json.loads(expression.serialize())
-    self.assertEqual(expect, result)
-
-    expression = ee.Reducer.getOutputs(reducer=reducer)
+    expression = reducer.getOutputs()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -490,12 +481,12 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.group',
     })
-    expression = ee.Reducer.group(reducer, group_field, group_name)
+    expression = reducer.group(group_field, group_name)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Reducer.group(
-        reducer=reducer, groupField=group_field, groupName=group_name
+    expression = reducer.group(
+        groupField=group_field, groupName=group_name
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
@@ -783,11 +774,11 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.repeat',
     })
-    expression = ee.Reducer.repeat(reducer, count)
+    expression = reducer.repeat(count)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Reducer.repeat(reducer=reducer, count=count)
+    expression = reducer.repeat(count=count)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -879,11 +870,11 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.setOutputs',
     })
-    expression = ee.Reducer.setOutputs(reducer, outputs)
+    expression = reducer.setOutputs(outputs)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.Reducer.setOutputs(reducer=reducer, outputs=outputs)
+    expression = reducer.setOutputs(outputs=outputs)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -916,11 +907,7 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.splitWeights',
     })
-    expression = ee.Reducer.splitWeights(reducer)
-    result = json.loads(expression.serialize())
-    self.assertEqual(expect, result)
-
-    expression = ee.Reducer.splitWeights(reducer=reducer)
+    expression = reducer.splitWeights()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
@@ -993,11 +980,7 @@ class ReducerTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Reducer.unweighted',
     })
-    expression = ee.Reducer.unweighted(reducer)
-    result = json.loads(expression.serialize())
-    self.assertEqual(expect, result)
-
-    expression = ee.Reducer.unweighted(reducer=reducer)
+    expression = reducer.unweighted()
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
