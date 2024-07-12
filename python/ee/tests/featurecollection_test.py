@@ -53,7 +53,7 @@ FEATURES_B = {
     }
 }
 
-class FeatureCollectionTestCase(apitestcase.ApiTestCase):
+class FeatureCollectionTest(apitestcase.ApiTestCase):
 
   def test_constructors(self):
     """Verifies that constructors understand valid parameters."""
@@ -239,6 +239,24 @@ class FeatureCollectionTestCase(apitestcase.ApiTestCase):
     expression = ee.FeatureCollection('a').copyProperties(
         source=source, properties=properties, exclude=exclude
     )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_distance(self):
+    # Inherited from Collection.distance.
+    features = ee.FeatureCollection('a')
+    search_radius = 1.1
+    max_error = 2.2
+    expect = make_expression_graph({
+        'arguments': {
+            'features': FEATURES_A,
+            'searchRadius': {'constantValue': search_radius},
+            'maxError': {'constantValue': max_error},
+        },
+        # Not FeatureCollection.
+        'functionName': 'Collection.distance',
+    })
+    expression = features.distance(search_radius, max_error)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 

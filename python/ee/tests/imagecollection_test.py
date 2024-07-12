@@ -55,7 +55,7 @@ IMAGES_ONE = {
 }
 
 
-class ImageCollectionTestCase(apitestcase.ApiTestCase):
+class ImageCollectionTest(apitestcase.ApiTestCase):
 
   def test_image_collection_constructors(self):
     """Verifies that constructors understand valid parameters."""
@@ -210,6 +210,25 @@ class ImageCollectionTestCase(apitestcase.ApiTestCase):
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
+
+  def test_distance(self):
+    # Inherited from Collection.distance.
+    features = ee.ImageCollection('a')
+    search_radius = 1.1
+    max_error = 2.2
+    expect = make_expression_graph({
+        'arguments': {
+            'features': IMAGES_A,
+            'searchRadius': {'constantValue': search_radius},
+            'maxError': {'constantValue': max_error},
+        },
+        # Not FeatureCollection.
+        'functionName': 'Collection.distance',
+    })
+    expression = features.distance(search_radius, max_error)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
 
   def test_forma_trend(self):
     covariates = ee.ImageCollection('b')

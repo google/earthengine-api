@@ -13,13 +13,18 @@ from typing import Any, Callable, Dict, Optional, Type, Union
 
 from ee import _utils
 from ee import apifunction
+from ee import computedobject
 from ee import deprecation
 from ee import ee_date
 from ee import ee_exception
+from ee import ee_number
 from ee import element
 from ee import filter as ee_filter
 from ee import function
 from ee import geometry as ee_geometry
+from ee import image
+
+_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
 
 
 class Collection(element.Element):
@@ -59,6 +64,35 @@ class Collection(element.Element):
   @staticmethod
   def name() -> str:
     return 'Collection'
+
+  def distance(
+      self,
+      searchRadius: Optional[_NumberType] = None,
+      maxError: Optional[_NumberType] = None,
+  ) -> image.Image:
+    """Returns a distance image for the collection.
+
+    Produces a DOUBLE image where each pixel is the distance in meters from the
+    pixel center to the nearest Point, LineString, or polygonal boundary in the
+    collection. Note distance is also measured within interiors of polygons.
+    Pixels that are not within 'searchRadius' meters of a geometry will be
+    masked out.
+
+    Distances are computed on a sphere, so there is a small error proportional
+    to the latitude difference between each pixel and the nearest geometry.
+
+    Args:
+      searchRadius: Maximum distance in meters from each pixel to look for
+        edges. Pixels will be masked unless there are edges within this
+        distance.
+      maxError: Maximum reprojection error in meters, only used if the input
+        polylines require reprojection. If '0' is provided, then this operation
+        will fail if projection is required.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Collection.distance', self, searchRadius, maxError
+    )
 
   @staticmethod
   def elementType() -> Type[element.Element]:
@@ -274,4 +308,3 @@ class Collection(element.Element):
       args['ascending'] = ascending
     return self._cast(
         apifunction.ApiFunction.apply_('Collection.limit', args))
-
