@@ -34,6 +34,29 @@ class DataTest(unittest.TestCase):
     with apitestcase.UsingCloudApi():
       self.assertTrue(ee.data.is_initialized())
 
+  def testSetMaxRetries_badValues(self):
+    with self.assertRaises(ValueError):
+      ee.data.setMaxRetries(-1)
+    with self.assertRaises(ValueError):
+      ee.data.setMaxRetries(100)
+
+  def testSetMaxRetries(self):
+    mock_result = {'result': 5}
+    ee.data.setMaxRetries(3)
+    cloud_api_resource = mock.MagicMock()
+    with apitestcase.UsingCloudApi(cloud_api_resource=cloud_api_resource):
+      cloud_api_resource.projects().value().compute().execute.return_value = (
+          mock_result
+      )
+      self.assertEqual(5, ee.data.computeValue(ee.Number(1)))
+      self.assertEqual(
+          3,
+          cloud_api_resource.projects()
+          .value()
+          .compute()
+          .execute.call_args.kwargs['num_retries'],
+      )
+
   def testListOperations(self):
     mock_http = mock.MagicMock(httplib2.Http)
     # Return in three groups.

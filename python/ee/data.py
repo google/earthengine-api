@@ -74,6 +74,9 @@ _initialized: bool = False
 # it timed out. 0 means no limit.
 _deadline_ms: int = 0
 
+# Maximum number of times to retry a rate-limited request.
+_max_retries: int = 5
+
 # User agent to indicate which application is calling Earth Engine
 _user_agent: Optional[str] = None
 
@@ -116,9 +119,6 @@ _USER_AGENT_HEADER = 'user-agent'
 
 # Optional HTTP header returned to display initialization-time messages.
 _INIT_MESSAGE_HEADER = 'x-earth-engine-init-message'  # lowercase for httplib2
-
-# Maximum number of times to retry a rate-limited request.
-MAX_RETRIES = 5
 
 # Maximum time to wait before retrying a rate-limited request (in milliseconds).
 MAX_RETRY_WAIT = 120000
@@ -383,7 +383,7 @@ def _handle_profiling_response(response: httplib2.Response) -> None:
 
 
 def _execute_cloud_call(
-    call: googleapiclient.http.HttpRequest, num_retries: int = MAX_RETRIES
+    call: googleapiclient.http.HttpRequest, num_retries: Optional[int] = None
 ) -> Any:
   """Executes a Cloud API call and translates errors to EEExceptions.
 
@@ -398,6 +398,7 @@ def _execute_cloud_call(
   Raises:
     EEException if the call fails.
   """
+  num_retries = _max_retries if num_retries is None else num_retries
   try:
     return call.execute(num_retries=num_retries)
   except googleapiclient.errors.HttpError as e:
@@ -472,6 +473,20 @@ def setDeadline(milliseconds: float) -> None:
   _install_cloud_api_resource()
 
 
+def setMaxRetries(max_retries: int) -> None:
+  """Sets the maximum number of retries for API requests.
+
+  Args:
+    max_retries: The maximum number of retries for a request.
+  """
+  if max_retries < 0:
+    raise ValueError('max_retries must be non-negative')
+  if max_retries >= 100:
+    raise ValueError('Too many retries')
+  global _max_retries
+  _max_retries = max_retries
+
+
 @contextlib.contextmanager
 def profiling(hook: Any) -> Iterator[None]:
   # pylint: disable=g-doc-return-or-yield
@@ -511,7 +526,7 @@ def getInfo(asset_id: str) -> Optional[Any]:
         _get_cloud_projects()
         .assets()
         .get(name=name, prettyPrint=False)
-        .execute(num_retries=MAX_RETRIES)
+        .execute(num_retries=_max_retries)
     )
   except googleapiclient.errors.HttpError as e:
     if e.resp.status == 404:
@@ -1682,7 +1697,7 @@ def getTaskStatus(taskId: Union[List[str], str]) -> List[Any]:
           _get_cloud_projects()
           .operations()
           .get(name=_cloud_api_utils.convert_task_id_to_operation_name(one_id))
-          .execute(num_retries=MAX_RETRIES)
+          .execute(num_retries=_max_retries)
       )
       result.append(_cloud_api_utils.convert_operation_to_task(operation))
     except googleapiclient.errors.HttpError as e:
@@ -1885,7 +1900,7 @@ def _prepare_and_run_export(
   if isinstance(params['expression'], encodable.Encodable):
     params['expression'] = serializer.encode(
         params['expression'], for_cloud_api=True)
-  num_retries = MAX_RETRIES if request_id else 0
+  num_retries = _max_retries if request_id else 0
   return _execute_cloud_call(
       export_endpoint(project=_get_projects_path(), body=params),
       num_retries=num_retries)
@@ -1935,7 +1950,7 @@ def startIngestion(
 
   # It's only safe to retry the request if there's a unique ID to make it
   # idempotent.
-  num_retries = MAX_RETRIES if request_id else 0
+  num_retries = _max_retries if request_id else 0
   operation = _execute_cloud_call(
       _get_cloud_projects()
       .image()
@@ -1987,7 +2002,7 @@ def startTableIngestion(
   }
   # It's only safe to retry the request if there's a unique ID to make it
   # idempotent.
-  num_retries = MAX_RETRIES if request_id else 0
+  num_retries = _max_retries if request_id else 0
   operation = _execute_cloud_call(
       _get_cloud_projects()
       .table()
