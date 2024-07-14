@@ -57,6 +57,9 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
   # False until the client has initialized the dynamic attributes.
   _initialized: bool
 
+  # Cache the result of getInfo() to avoid recomputing it every time.
+  _info: Optional[Any] = None
+
   @_utils.accept_opt_prefix('opt_varName')
   def __init__(
       self,
@@ -104,7 +107,9 @@ class ComputedObject(encodable.Encodable, metaclass=ComputedObjectMetaclass):
     Returns:
       The object can evaluate to anything.
     """
-    return data.computeValue(self)
+    if self._info is None:
+      self._info = data.computeValue(self)
+    return self._info
 
   def encode(self, encoder: Optional[Callable[..., Any]]) -> Dict[str, Any]:
     """Encodes the object in a format compatible with Serializer."""
