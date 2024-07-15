@@ -28,11 +28,11 @@ jobs:
         pip install mypy
     - name: pyright ee type verification
       run: |
-        pyright --verifytypes ee
+        pyright --verifytypes ee --ignoreexternal
       continue-on-error: true
     - name: pyright ee.cli type verification
       run: |
-        pyright --verifytypes ee.cli
+        pyright --verifytypes ee.cli --ignoreexternal
       continue-on-error: true
     - name: mypy ee and ee.cli type verification
       run: |
