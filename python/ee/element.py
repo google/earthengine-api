@@ -10,13 +10,34 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
+from ee import dictionary
+from ee import ee_array
 from ee import ee_exception
 from ee import ee_list
+from ee import ee_number
+from ee import ee_string
+from ee import errormargin
+from ee import projection
 
+_EeAnyType = Union[Any, computedobject.ComputedObject]
+_EeBoolType = Union[Any, computedobject.ComputedObject]
 _ElementType = Union[Any, 'Element', computedobject.ComputedObject]
+_ErrorMarginType = Union[
+    float,
+    ee_number.Number,
+    errormargin.ErrorMargin,
+    computedobject.ComputedObject,
+]
 _ListType = Union[
     List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
 ]
+_ProjectionType = Union[
+    str,
+    'ee_string.String',
+    projection.Projection,
+    computedobject.ComputedObject,
+]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Element(computedobject.ComputedObject):
@@ -77,6 +98,43 @@ class Element(computedobject.ComputedObject):
         'Element.copyProperties', self, source, properties, exclude
     )
 
+  # TODO: Add get - resolve collection_test and dictionary_test.
+
+  # pylint: disable-next=redefined-builtin
+  def getArray(self, property: _StringType) -> ee_array.Array:
+    """Returns a property from a feature as an array.
+
+    Args:
+      property: The property to extract.
+    """
+
+    return apifunction.ApiFunction.call_('Element.getArray', self, property)
+
+  # pylint: disable-next=redefined-builtin
+  def getNumber(self, property: _StringType) -> ee_number.Number:
+    """Returns a property from a feature as a number.
+
+    Args:
+      property: The property to extract.
+    """
+
+    return apifunction.ApiFunction.call_('Element.getNumber', self, property)
+
+  # pylint: disable-next=redefined-builtin
+  def getString(self, property: _StringType) -> ee_string.String:
+    """Returns a property from a feature as a string.
+
+    Args:
+      property: The property to extract.
+    """
+
+    return apifunction.ApiFunction.call_('Element.getString', self, property)
+
+  def propertyNames(self) -> ee_list.List:
+    """Returns the names of properties on this element."""
+
+    return apifunction.ApiFunction.call_('Element.propertyNames', self)
+
   def set(
       self,
       *args: Union[Dict[str, Any], float, str, computedobject.ComputedObject],
@@ -132,3 +190,17 @@ class Element(computedobject.ComputedObject):
 
     # Manually cast the result to an image.
     return self._cast(result)
+
+  def toDictionary(
+      self, properties: Optional[_ListType] = None
+  ) -> dictionary.Dictionary:
+    """Returns properties from a feature as a dictionary.
+
+    Args:
+      properties: The list of properties to extract.  Defaults to all non-system
+        properties
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Element.toDictionary', self, properties
+    )
