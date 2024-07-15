@@ -5,12 +5,18 @@ This class is never intended to be instantiated by the user.
 
 from __future__ import annotations
 
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, List, Optional, Tuple, Union
 
 from ee import _utils
 from ee import apifunction
 from ee import computedobject
 from ee import ee_exception
+from ee import ee_list
+
+_ElementType = Union[Any, 'Element', computedobject.ComputedObject]
+_ListType = Union[
+    List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
+]
 
 
 class Element(computedobject.ComputedObject):
@@ -45,6 +51,31 @@ class Element(computedobject.ComputedObject):
   @staticmethod
   def name() -> str:
     return 'Element'
+
+  # NOTE: Image.copyProperties overrides this method.
+  # NOTE: source is marked as optional in the API, but is required for users.
+  def copyProperties(
+      self,
+      source: _ElementType,
+      properties: Optional[_ListType] = None,
+      exclude: Optional[_ListType] = None,
+  ) -> Element:
+    """Copies metadata properties from one element to another.
+
+    Args:
+      source: The object from which to copy the properties.
+      properties: The properties to copy. If omitted, all ordinary (i.e.
+        non-system) properties are copied.
+      exclude: The list of properties to exclude when copying all properties.
+        Must not be specified if properties is.
+
+    Returns:
+      An element with the specified properties copied from the source element.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'Element.copyProperties', self, source, properties, exclude
+    )
 
   def set(
       self,
