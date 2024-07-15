@@ -1501,7 +1501,31 @@ class Image(element.Element):
         self.name() + '.convolve', self, kernel
     )
 
-  # TODO: copyProperties
+  # NOTE: Image.copyProperties overrides Element.copyProperties.
+  # NOTE: source is marked as optional in the API, but is required for users.
+  # NOTE: The API specifies Element as the return type, but it returns an Image.
+  def copyProperties(
+      self,
+      source: _ElementType,
+      properties: Optional[_ListType] = None,
+      exclude: Optional[_ListType] = None,
+  ) -> Image:
+    """Copies metadata properties from one element to another.
+
+    Args:
+      source: The object from which to copy the properties.
+      properties: The properties to copy. If omitted, all ordinary (i.e.
+        non-system) properties are copied.
+      exclude: The list of properties to exclude when copying all properties.
+        Must not be specified if properties is.
+
+    Returns:
+      An element with the specified properties copied from the source element.
+    """
+
+    return apifunction.ApiFunction.call_(
+        self.name() + '.copyProperties', self, source, properties, exclude
+    )
 
   def cos(self) -> Image:
     """Computes the cosine of the input in radians."""
