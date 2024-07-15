@@ -2,7 +2,9 @@
 """Tests for the ee.deprecation module."""
 
 import contextlib
+import datetime
 from typing import Any, Dict
+from unittest import mock
 import warnings
 
 from absl.testing import parameterized
@@ -52,14 +54,21 @@ _STAC_JSON = {
             'title': 'two_digit_date',
             'deprecated': True,
             'gee:replacement_id': 'replacement_id',
-            'gee:removal_date': '2024-01-31T00:00:00Z',
+            'gee:removal_date': '2024-07-01T00:00:00Z',
         },
         {
             'href': 'https://example.test/invalid_date.json',
             'title': 'invalid_date',
             'deprecated': True,
             'gee:replacement_id': 'replacement_id',
-            'gee:removal_date': '20240131',
+            'gee:removal_date': '20240701',
+        },
+        {
+            'href': 'https://example.test/past_date.json',
+            'title': 'past_date',
+            'deprecated': True,
+            'gee:replacement_id': 'replacement_id',
+            'gee:removal_date': '1970-01-01T00:00:00Z',
         },
         {
             'href': 'https://example.test/learn_more_url_only.json',
@@ -99,10 +108,14 @@ _EXPECTED_WARNINGS = {
     'two_digit_date': (
         r'Attention required for two_digit_date! You are using a deprecated'
         r' asset.\nTo ensure continued functionality, please update it by'
-        r' January 31, 2024.'
+        r' July 1, 2024.'
     ),
     'invalid_date': (
         r'Attention required for invalid_date! You are using a deprecated'
+        r' asset.\nTo ensure continued functionality, please update it\.'
+    ),
+    'past_date': (
+        r'Attention required for past_date! You are using a deprecated'
         r' asset.\nTo ensure continued functionality, please update it\.'
     ),
     'learn_more_url_only': (
@@ -112,6 +125,13 @@ _EXPECTED_WARNINGS = {
     ),
 }
 
+_MOCK_CURRENT_DATE_BEFORE_REMOVAL_DATE = datetime.datetime(
+    2024, 6, 29, 12, 34, 56
+)
+_MOCK_CURRENT_DATE_ON_REMOVAL_DATE = datetime.datetime(2024, 7, 1, 12, 34, 56)
+_MOCK_CURRENT_DATE_DAY_AFTER_REMOVAL_DATE = datetime.datetime(
+    2024, 7, 2, 12, 34, 56
+)
 
 class FakeClass:
 
@@ -124,7 +144,23 @@ class FakeClass:
     pass
 
 
+class MockDatetime(datetime.datetime):
+
+  @classmethod
+  def now(cls, tz=None) -> datetime.datetime:
+    return _MOCK_CURRENT_DATE_BEFORE_REMOVAL_DATE
+
+
 class DeprecationTest(apitestcase.ApiTestCase, parameterized.TestCase):
+
+  def setUp(self):
+    super().setUp()
+    mock_datetime = mock.patch.object(
+        datetime,
+        'datetime',
+        new=MockDatetime
+    )
+    self.enter_context(mock_datetime)
 
   @contextlib.contextmanager
   def assertDoesNotWarn(self):
@@ -189,6 +225,27 @@ class DeprecationTest(apitestcase.ApiTestCase, parameterized.TestCase):
       )
     with self.assertDoesNotWarn():
       FakeClass(None)
+
+  @mock.patch.object(datetime, 'datetime', autospec=True)
+  def test_asset_warning_on_day_of_removal_date_shows_date(
+      self, mock_datetime
+  ):
+    mock_datetime.now.return_value = _MOCK_CURRENT_DATE_ON_REMOVAL_DATE
+    with self.assertWarnsRegex(
+        DeprecationWarning, _EXPECTED_WARNINGS['date_only']
+    ):
+      FakeClass('date_only', 'some-value')
+
+  @mock.patch.object(datetime, 'datetime', autospec=True)
+  def test_asset_warning_on_day_after_removal_date_does_not_show_date(
+      self, mock_datetime
+  ):
+    mock_datetime.now.return_value = _MOCK_CURRENT_DATE_DAY_AFTER_REMOVAL_DATE
+    with self.assertWarnsRegex(
+        DeprecationWarning,
+        _EXPECTED_WARNINGS['past_date'].replace('past_date', 'date_only'),
+    ):
+      FakeClass('date_only', 'some-value')
 
 
 if __name__ == '__main__':
