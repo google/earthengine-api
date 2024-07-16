@@ -53,6 +53,7 @@ FEATURES_B = {
     }
 }
 
+
 class FeatureCollectionTest(apitestcase.ApiTestCase):
 
   def test_constructors(self):
@@ -260,6 +261,116 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
+  def test_distinct(self):
+    properties = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'properties': {'constantValue': properties},
+        },
+        'functionName': 'Collection.distinct',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).distinct(properties)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).distinct(
+        properties=properties
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_draw(self):
+    collection = ee.FeatureCollection('a')
+    color = 'red'
+    point_radius = 1
+    stroke_width = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'color': {'constantValue': color},
+            'pointRadius': {'constantValue': point_radius},
+            'strokeWidth': {'constantValue': stroke_width},
+        },
+        'functionName': 'Collection.draw',
+    })
+    expression = collection.draw(color, point_radius, stroke_width)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.draw(
+        color=color, pointRadius=point_radius, strokeWidth=stroke_width
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_error_matrix(self):
+    features = ee.FeatureCollection('a')
+    actual = 'b'
+    predicted = 'c'
+    order = [1, 2]
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'actual': {'constantValue': actual},
+            'predicted': {'constantValue': predicted},
+            'order': {'constantValue': order},
+        },
+        'functionName': 'Collection.errorMatrix',
+    })
+    expression = features.errorMatrix(actual, predicted, order)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = features.errorMatrix(
+        actual=actual, predicted=predicted, order=order
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_first(self):
+    collection = ee.FeatureCollection('a')
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+        },
+        'functionName': 'Collection.first',
+    })
+    expression = collection.first()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_flatten(self):
+    collection = ee.FeatureCollection('a')
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+        },
+        'functionName': 'Collection.flatten',
+    })
+    expression = collection.flatten()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_geometry(self):
+    max_error = 1.1
+    collection = ee.FeatureCollection('a')
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'maxError': {
+                'functionInvocationValue': {
+                    'functionName': 'ErrorMargin',
+                    'arguments': {'value': {'constantValue': 1.1}},
+                }
+            },
+        },
+        'functionName': 'Collection.geometry',
+    })
+    expression = collection.geometry(max_error)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_inverse_distance(self):
     a_range = 2
     property_name = 'property name'
@@ -304,7 +415,7 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
   def test_kriging(self):
     property_name = 'property name'
     shape = 'exponential'
-    range = 1
+    range_val = 1
     sill = 2
     nugget = 3
     max_distance = 4
@@ -314,7 +425,7 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
             'collection': FEATURES_ONE,
             'propertyName': {'constantValue': property_name},
             'shape': {'constantValue': shape},
-            'range': {'constantValue': range},
+            'range': {'constantValue': range_val},
             'sill': {'constantValue': sill},
             'nugget': {'constantValue': nugget},
             'maxDistance': {'constantValue': max_distance},
@@ -328,7 +439,7 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
         'functionName': 'FeatureCollection.kriging',
     })
     expression = ee.FeatureCollection(ee.Feature(None)).kriging(
-        property_name, shape, range, sill, nugget, max_distance, reducer
+        property_name, shape, range_val, sill, nugget, max_distance, reducer
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
@@ -336,7 +447,7 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     expression = ee.FeatureCollection(ee.Feature(None)).kriging(
         propertyName=property_name,
         shape=shape,
-        range=range,
+        range=range_val,
         sill=sill,
         nugget=nugget,
         maxDistance=max_distance,
@@ -364,6 +475,45 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
 
     expression = ee.FeatureCollection(ee.Feature(None)).makeArray(
         properties=properties, name=name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_merge(self):
+    collection1 = ee.FeatureCollection('a')
+    collection2 = ee.FeatureCollection('b')
+    expect = make_expression_graph({
+        'arguments': {'collection1': FEATURES_A, 'collection2': FEATURES_B},
+        'functionName': 'Collection.merge',
+    })
+    expression = collection1.merge(collection2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection1.merge(collection2=collection2)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_random_column(self):
+    collection = ee.FeatureCollection('a')
+    column_name = 'column a'
+    seed = 1
+    distribution = 'uniform'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'columnName': {'constantValue': column_name},
+            'seed': {'constantValue': seed},
+            'distribution': {'constantValue': distribution},
+        },
+        'functionName': 'Collection.randomColumn',
+    })
+    expression = collection.randomColumn(column_name, seed, distribution)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.randomColumn(
+        columnName=column_name, seed=seed, distribution=distribution
     )
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
@@ -409,6 +559,191 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     expression = ee.FeatureCollection(ee.Feature(None)).randomPoints(
         region=region, points=points, seed=seed, maxError=max_error
     )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_reduce_columns(self):
+    collection = ee.FeatureCollection('a')
+    reducer = ee.Reducer.sum()
+    selectors = ['b', 'c']
+    weight_selectors = ['d', 'e']
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'reducer': {
+                'functionInvocationValue': {
+                    'functionName': 'Reducer.sum',
+                    'arguments': {},
+                }
+            },
+            'selectors': {'constantValue': selectors},
+            'weightSelectors': {'constantValue': weight_selectors},
+        },
+        'functionName': 'Collection.reduceColumns',
+    })
+    expression = collection.reduceColumns(reducer, selectors, weight_selectors)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.reduceColumns(
+        reducer=reducer, selectors=selectors, weightSelectors=weight_selectors
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_reduce_to_image(self):
+    collection = ee.FeatureCollection('a')
+    properties = ['b', 'c']
+    reducer = ee.Reducer.sum()
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'properties': {'constantValue': properties},
+            'reducer': {
+                'functionInvocationValue': {
+                    'functionName': 'Reducer.sum',
+                    'arguments': {},
+                }
+            },
+        },
+        'functionName': 'Collection.reduceToImage',
+    })
+    expression = collection.reduceToImage(properties, reducer)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.reduceToImage(
+        properties=properties, reducer=reducer
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_remap(self):
+    collection = ee.FeatureCollection('a')
+    lookup_in = ['b', 1]
+    lookup_out = [2, 3]
+    column_name = 'column name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'lookupIn': {'constantValue': lookup_in},
+            'lookupOut': {'constantValue': lookup_out},
+            'columnName': {'constantValue': column_name},
+        },
+        'functionName': 'Collection.remap',
+    })
+    expression = collection.remap(lookup_in, lookup_out, column_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.remap(
+        lookupIn=lookup_in, lookupOut=lookup_out, columnName=column_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_size(self):
+    collection = ee.FeatureCollection('a')
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+        },
+        'functionName': 'Collection.size',
+    })
+    expression = collection.size()
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_style(self):
+    collection = ee.FeatureCollection('a')
+    color = 'red'
+    point_size = 1
+    point_shape = 'circle'
+    width = 2.3
+    fill_color = 'cadetblue'
+    style_property = 'property name'
+    neighborhood = 3
+    line_type = 'dotted'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'color': {'constantValue': color},
+            'pointSize': {'constantValue': point_size},
+            'pointShape': {'constantValue': point_shape},
+            'width': {'constantValue': width},
+            'fillColor': {'constantValue': fill_color},
+            'styleProperty': {'constantValue': style_property},
+            'neighborhood': {'constantValue': neighborhood},
+            'lineType': {'constantValue': line_type},
+        },
+        'functionName': 'Collection.style',
+    })
+    expression = collection.style(
+        color,
+        point_size,
+        point_shape,
+        width,
+        fill_color,
+        style_property,
+        neighborhood,
+        line_type,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.style(
+        color=color,
+        pointSize=point_size,
+        pointShape=point_shape,
+        width=width,
+        fillColor=fill_color,
+        styleProperty=style_property,
+        neighborhood=neighborhood,
+        lineType=line_type,
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_to_list(self):
+    collection = ee.FeatureCollection('a')
+    count = 1
+    offset = 2
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'count': {'constantValue': count},
+            'offset': {'constantValue': offset},
+        },
+        'functionName': 'Collection.toList',
+    })
+    expression = collection.toList(count, offset)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.toList(count=count, offset=offset)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_union(self):
+    collection = ee.FeatureCollection('a')
+    max_error = 1.1
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_A,
+            'maxError': {
+                'functionInvocationValue': {
+                    'functionName': 'ErrorMargin',
+                    'arguments': {'value': {'constantValue': max_error}},
+                }
+            },
+        },
+        'functionName': 'Collection.union',
+    })
+    expression = collection.union(max_error)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = collection.union(maxError=max_error)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
