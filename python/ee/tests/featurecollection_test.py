@@ -161,6 +161,321 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     ).serialize()
     self.assertIn('"geometryColumn": {"constantValue": "a-column"}', result)
 
+  def test_aggregate_array(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.array',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_array(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_array(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_count(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.count',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_count(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_count(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_count_distinct(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.count_distinct',
+    })
+    expression = ee.FeatureCollection(
+        ee.Feature(None)
+    ).aggregate_count_distinct(property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(
+        ee.Feature(None)
+    ).aggregate_count_distinct(property=property_name)
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_first(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.first',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_first(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_first(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_histogram(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.histogram',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_histogram(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_histogram(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_max(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.max',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_max(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_max(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_mean(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.mean',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_mean(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_mean(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_min(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.min',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_min(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_min(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_product(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.product',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_product(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_product(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_sample_sd(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.sample_sd',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_sample_sd(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_sample_sd(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_sample_var(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.sample_var',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_sample_var(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_sample_var(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_stats(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.stats',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_stats(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_stats(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_sum(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.sum',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_sum(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_sum(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_total_sd(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.total_sd',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_total_sd(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_total_sd(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+  def test_aggregate_total_var(self):
+    property_name = 'property name'
+    expect = make_expression_graph({
+        'arguments': {
+            'collection': FEATURES_ONE,
+            'property': {'constantValue': property_name},
+        },
+        'functionName': 'AggregateFeatureCollection.total_var',
+    })
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_total_var(
+        property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
+    expression = ee.FeatureCollection(ee.Feature(None)).aggregate_total_var(
+        property=property_name
+    )
+    result = json.loads(expression.serialize())
+    self.assertEqual(expect, result)
+
   def test_classify(self):
     output_name = 'output name'
     expect = make_expression_graph({
