@@ -101,9 +101,15 @@ function updateOverlay() {
 
 // Updates the chart using the currently-selected charting function,
 function updateChart() {
-  var chartBuilder = chartTypeToggleButton.value;
-  var chart = chartBuilder(getSelectedCountries());
-  resultsPanel.clear().add(chart).add(buttonPanel);
+  var selectionSize = getSelectedCountries().size();
+  selectionSize.evaluate(function(size) {
+    if (!size) {
+      return;
+    }
+    var chartBuilder = chartTypeToggleButton.value;
+    var chart = chartBuilder(getSelectedCountries());
+    resultsPanel.clear().add(chart).add(buttonPanel);
+  });
 }
 
 // Clears the set of selected points and resets the overlay and results
