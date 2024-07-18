@@ -115,10 +115,17 @@ def get_appdefault_project() -> Optional[str]:
 def _valid_credentials_exist() -> bool:
   try:
     creds = ee_data.get_persistent_credentials()
-    creds.refresh(google.auth.transport.requests.Request())
-    return True
-  except (ee_exception.EEException, google.auth.exceptions.RefreshError):
+    return is_valid_credentials(creds)
+  except ee_exception.EEException:
     return False
+
+
+def is_valid_credentials(credentials: Optional[Any]) -> bool:
+  try:
+    credentials.refresh(google.auth.transport.requests.Request())
+  except google.auth.exceptions.RefreshError:
+    return False
+  return True
 
 
 def get_authorization_url(
@@ -577,3 +584,28 @@ class Flow:
     else:
       _display_auth_instructions_with_print(self.auth_url, coda)
     return True
+
+
+def _initialize_with_colab_auth_mode(project: Optional[str] = None, **kwargs):
+  if not in_colab_shell():
+    return False
+
+  project_id = kwargs.get('project')
+  if project_id is None:
+    try:
+      from google.colab import userdata
+
+      project_id = userdata.get('EE_PROJECT_ID')
+    except Exception:
+      pass
+
+  if project_id is None:
+    raise Exception(
+        'Error authenticating using "colab" auth mode. Please set a Colab'
+        " secret named 'EE_PROJECT_ID' or provide a project ID."
+    )
+  kwargs['project'] = project_id
+
+  ee.Authenticate()
+  ee.Initialize(**kwargs)
+  return True
