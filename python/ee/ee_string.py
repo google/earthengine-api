@@ -11,7 +11,7 @@ from ee import ee_list
 from ee import ee_number
 
 _EeAnyType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _StringType = Union[str, 'String', computedobject.ComputedObject]
 
 

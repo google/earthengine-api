@@ -18,9 +18,9 @@ from ee import serializer
 _DateType = Union[
     datetime.datetime, float, str, 'Date', computedobject.ComputedObject
 ]
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
-_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
+_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
+_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class Date(computedobject.ComputedObject):

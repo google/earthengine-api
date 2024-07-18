@@ -22,7 +22,7 @@ _EeBoolType = Union[Any, computedobject.ComputedObject]
 _EeKeyType = Union[bool, float, int, str, computedobject.ComputedObject]
 # TODO: Make a better type for a list of keys.
 _EeKeyListType = _EeAnyType
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 # TODO: Make a better type for a list of strings.

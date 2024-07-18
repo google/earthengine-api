@@ -8,7 +8,7 @@ from ee import computedobject
 from ee import ee_number
 from ee import ee_string
 
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _NumberSequenceType = Union[Sequence[_NumberType]]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 

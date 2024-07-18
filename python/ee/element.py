@@ -24,7 +24,7 @@ _EeBoolType = Union[Any, computedobject.ComputedObject]
 _ElementType = Union[Any, 'Element', computedobject.ComputedObject]
 _ErrorMarginType = Union[
     float,
-    ee_number.Number,
+    'ee_number.Number',
     errormargin.ErrorMargin,
     computedobject.ComputedObject,
 ]

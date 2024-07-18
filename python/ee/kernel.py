@@ -10,12 +10,12 @@ from ee import ee_number
 from ee import ee_string
 
 _EeBoolType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _KernelType = Union['Kernel', computedobject.ComputedObject]
 _ListType = Union[
     List[Any], Tuple[Any, Any], 'ee_list.List', computedobject.ComputedObject
 ]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 

@@ -55,10 +55,10 @@ _FeatureCollectionType = Union[Any, computedobject.ComputedObject]
 _GeometryType = Union[Any, computedobject.ComputedObject]
 _ImageCollectionType = Union[Any, computedobject.ComputedObject]
 _ImageType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _KernelType = Union[kernel.Kernel, computedobject.ComputedObject]
 _ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _ProjectionType = Union[
     str,
     'ee_string.String',
