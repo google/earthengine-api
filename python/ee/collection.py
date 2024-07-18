@@ -81,6 +81,238 @@ class Collection(element.Element):
   def name() -> str:
     return 'Collection'
 
+  # pylint: disable-next=redefined-builtin
+  def aggregate_array(self, property: _StringType) -> ee_list.List:
+    """Returns a list of all the values of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    a list of all the values of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.array', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def count(self, property: _StringType) -> ee_number.Number:
+    """Returns the number of non-null values of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the number of non-null values of the property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.count', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_count_distinct(self, property: _StringType) -> ee_number.Number:
+    """Returns the number of distinct values of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the number of distinct values for the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.count_distinct', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_first(self, property: _StringType) -> Any:
+    """Returns the first value of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the property value of the first object in the collection.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.first', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_histogram(self, property: _StringType) -> dictionary.Dictionary:
+    """Returns a histogram of the selected property as a dictionary.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    a histogram of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+
+    Returns:
+      An ee.Dictionary.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.histogram', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_max(self, property: _StringType) -> Any:
+    """Returns the maximum value of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the maximum of the values of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.max', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_mean(self, property: _StringType) -> ee_number.Number:
+    """Returns the mean of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the mean of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.mean', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_min(self, property: _StringType) -> Any:
+    """Returns the minimum value of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the minimum of the values of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.min', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_product(self, property: _StringType) -> ee_number.Number:
+    """Returns the product of the values ofthe selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the product of the values of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.product', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_sample_sd(self, property: _StringType) -> ee_number.Number:
+    """Returns the sample standard deviation of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the sample std. deviation of the values of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.sample_sd', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_sample_var(self, property: _StringType) -> ee_number.Number:
+    """Returns the sample variance of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the sample variance of the values of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+
+    Returns:
+      An ee.Number.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.sample_var', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_stats(self, property: _StringType) -> dictionary.Dictionary:
+    """Returns a dictionary of statistics for the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the sum, min, max, mean, sample standard deviation, sample variance, total
+    standard deviation and total variance of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.stats', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_sum(self, property: _StringType) -> ee_number.Number:
+    """Returns the sum of the values of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the sum of the values of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.sum', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_total_sd(self, property: _StringType) -> ee_number.Number:
+    """Returns the total standard deviation of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the total std. deviation of the values of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.total_sd', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
+  def aggregate_total_var(self, property: _StringType) -> ee_number.Number:
+    """Returns the total variance of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the total variance of the values of the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.total_var', self, property
+    )
+
   def distance(
       self,
       # pylint: disable=invalid-name
