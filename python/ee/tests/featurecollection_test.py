@@ -577,6 +577,7 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
     self.assertEqual(expect, result)
 
   def test_distinct(self):
+    collection = ee.FeatureCollection(ee.Feature(None))
     properties = 'property name'
     expect = make_expression_graph({
         'arguments': {
@@ -585,13 +586,11 @@ class FeatureCollectionTest(apitestcase.ApiTestCase):
         },
         'functionName': 'Collection.distinct',
     })
-    expression = ee.FeatureCollection(ee.Feature(None)).distinct(properties)
+    expression = collection.distinct(properties)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
-    expression = ee.FeatureCollection(ee.Feature(None)).distinct(
-        properties=properties
-    )
+    expression = collection.distinct(properties=properties)
     result = json.loads(expression.serialize())
     self.assertEqual(expect, result)
 
