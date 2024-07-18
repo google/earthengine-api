@@ -27,15 +27,15 @@ _DateType = Union[float, str, 'ee_date.Date', computedobject.ComputedObject]
 _EeAnyType = Union[Any, computedobject.ComputedObject]
 _ErrorMarginType = Union[
     float,
-    ee_number.Number,
+    'ee_number.Number',
     errormargin.ErrorMargin,
     computedobject.ComputedObject,
 ]
 _FilterType = Union['Filter', computedobject.ComputedObject]
 _GeometryType = Union[Any, computedobject.ComputedObject]
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 # A map from the deprecated old-style comparison operator names to API

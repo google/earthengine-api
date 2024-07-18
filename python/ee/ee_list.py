@@ -21,8 +21,8 @@ _EeBoolType = Union[Any, computedobject.ComputedObject]
 _EeListType = Union[
     ListType[Any], Tuple[Any], Tuple[Any, Any], computedobject.ComputedObject
 ]
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
+_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 

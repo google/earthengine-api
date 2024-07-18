@@ -12,7 +12,7 @@ from ee import ee_number
 _ArrayType = Union['ee_array.Array', computedobject.ComputedObject]
 _ConfusionMatrixType = Union['ConfusionMatrix', computedobject.ComputedObject]
 _ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 
 
 class ConfusionMatrix(computedobject.ComputedObject):

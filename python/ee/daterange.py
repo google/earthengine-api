@@ -10,7 +10,7 @@ from ee import ee_string
 
 _DateRangeType = Union['DateRange', computedobject.ComputedObject]
 _DateType = Union[float, str, 'ee_date.Date', computedobject.ComputedObject]
-_StringType = Union[str, ee_string.String, computedobject.ComputedObject]
+_StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
 
 class DateRange(computedobject.ComputedObject):

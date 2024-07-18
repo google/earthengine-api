@@ -30,13 +30,13 @@ _ClassifierType = Union['classifier.Classifier', computedobject.ComputedObject]
 _ClustererType = Union['clusterer.Clusterer', computedobject.ComputedObject]
 _ErrorMarginType = Union[
     float,
-    ee_number.Number,
+    'ee_number.Number',
     errormargin.ErrorMargin,
     computedobject.ComputedObject,
 ]
-_IntegerType = Union[int, ee_number.Number, computedobject.ComputedObject]
+_IntegerType = Union[int, 'ee_number.Number', computedobject.ComputedObject]
 _ListType = Union[List[Any], Tuple[Any, Any], computedobject.ComputedObject]
-_NumberType = Union[float, ee_number.Number, computedobject.ComputedObject]
+_NumberType = Union[float, 'ee_number.Number', computedobject.ComputedObject]
 _ReducerType = Union[reducer.Reducer, computedobject.ComputedObject]
 _StringType = Union[str, 'ee_string.String', computedobject.ComputedObject]
 
