@@ -24,7 +24,7 @@ const {trustedResourceUrl} = goog.require('safevalues');
 /** @namespace */
 const apiclient = {};
 
-const API_CLIENT_VERSION = '0.1.411';
+const API_CLIENT_VERSION = '0.1.412';
 
 exports.VERSION = apiVersion.VERSION;
 exports.API_CLIENT_VERSION = API_CLIENT_VERSION;
