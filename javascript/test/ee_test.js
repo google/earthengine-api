@@ -57,7 +57,7 @@ describe('ee', function() {
   });
 
   it('supports joins, generated functions', function(done) {
-    const primary = ee.ImageCollection('LANDSAT/LC08/C01/T1_TOA')
+    const primary = ee.ImageCollection('LANDSAT/LC08/C02/T1_TOA')
                         .filterDate('2014-04-01', '2014-06-01')
                         .filterBounds(ee.Geometry.Point(-122.09, 37.42));
 
