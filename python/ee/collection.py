@@ -390,20 +390,6 @@ class Collection(element.Element):
     """Returns the type of the collection's elements."""
     return element.Element
 
-  def filter(self, new_filter: Union[str, ee_filter.Filter]) -> Any:
-    """Apply a filter to this collection.
-
-    Args:
-      new_filter: Filter to add to this collection.
-
-    Returns:
-      The filtered collection object.
-    """
-    if not new_filter:
-      raise ee_exception.EEException('Empty filters.')
-    return self._cast(apifunction.ApiFunction.call_(
-        'Collection.filter', self, new_filter))
-
   def errorMatrix(
       self,
       actual: _StringType,
@@ -427,14 +413,25 @@ class Collection(element.Element):
         the values are assumed to be contiguous and span the range 0 to
         maxValue. If specified, only values matching this list are used, and the
         matrix will have dimensions and order matching this list.
-
-    Returns:
-      An ee.ConfusionMatrix.
     """
 
     return apifunction.ApiFunction.call_(
         'Collection.errorMatrix', self, actual, predicted, order
     )
+
+  def filter(self, new_filter: Union[str, ee_filter.Filter]) -> Any:
+    """Apply a filter to this collection.
+
+    Args:
+      new_filter: Filter to add to this collection.
+
+    Returns:
+      The filtered collection object.
+    """
+    if not new_filter:
+      raise ee_exception.EEException('Empty filters.')
+    return self._cast(apifunction.ApiFunction.call_(
+        'Collection.filter', self, new_filter))
 
   @deprecation.CanUseDeprecated
   def filterMetadata(
