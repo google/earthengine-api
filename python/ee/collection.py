@@ -112,6 +112,21 @@ class Collection(element.Element):
     )
 
   # pylint: disable-next=redefined-builtin
+  def aggregate_count(self, property: _StringType) -> ee_number.Number:
+    """Returns the number of distinct values of the selected property.
+
+    Aggregates over a given property of the objects in a collection, calculating
+    the number of distinct values for the selected property.
+
+    Args:
+      property: The property to use from each element of the collection.
+    """
+
+    return apifunction.ApiFunction.call_(
+        'AggregateFeatureCollection.count', self, property
+    )
+
+  # pylint: disable-next=redefined-builtin
   def aggregate_count_distinct(self, property: _StringType) -> ee_number.Number:
     """Returns the number of distinct values of the selected property.
 
