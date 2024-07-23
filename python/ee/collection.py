@@ -141,8 +141,9 @@ class Collection(element.Element):
         'AggregateFeatureCollection.count_distinct', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_first(self, property: _StringType) -> Any:
+  def aggregate_first(
+      self, property: _StringType  # pylint: disable=redefined-builtin
+  ) -> computedobject.ComputedObject:
     """Returns the first value of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -174,8 +175,10 @@ class Collection(element.Element):
         'AggregateFeatureCollection.histogram', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_max(self, property: _StringType) -> Any:
+  def aggregate_max(
+      self, property: _StringType  # pylint: disable=redefined-builtin
+
+  ) -> computedobject.ComputedObject:
     """Returns the maximum value of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
@@ -204,8 +207,9 @@ class Collection(element.Element):
         'AggregateFeatureCollection.mean', self, property
     )
 
-  # pylint: disable-next=redefined-builtin
-  def aggregate_min(self, property: _StringType) -> Any:
+  def aggregate_min(
+      self, property: _StringType  # pylint: disable=redefined-builtin
+  ) -> computedobject.ComputedObject:
     """Returns the minimum value of the selected property.
 
     Aggregates over a given property of the objects in a collection, calculating
