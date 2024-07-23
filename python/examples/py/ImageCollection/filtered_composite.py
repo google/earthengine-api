@@ -19,10 +19,11 @@ polygon = ee.Geometry.Polygon([[
 
 # Create a Landsat 7 composite for Spring of 2000, and filter by
 # the bounds of the FeatureCollection.
-collection = (ee.ImageCollection('LANDSAT/LE07/C01/T1')
-              .filterDate(datetime.datetime(2000, 4, 1),
-                          datetime.datetime(2000, 7, 1))
-              .filterBounds(polygon))
+collection = (
+    ee.ImageCollection('LANDSAT/LE07/C02/T1')
+    .filterDate(datetime.datetime(2000, 4, 1), datetime.datetime(2000, 7, 1))
+    .filterBounds(polygon)
+)
 
 # Select the median pixel.
 image1 = collection.median()
